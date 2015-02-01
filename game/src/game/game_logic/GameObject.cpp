@@ -664,3 +664,8 @@ bool GameObject::heal(const std::shared_ptr<GameObject> &healer, const UFP8_T am
 
     return true;
 }
+
+bool GameObject::isAttacking() const
+{
+    return inst.action_which >= ACTION_UA && inst.action_which <= ACTION_FD;
+}

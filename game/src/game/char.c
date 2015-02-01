@@ -5982,7 +5982,7 @@ float set_character_animation_rate( GameObject * pchr )
     if ( !can_be_interrupted ) return pinst->rate = 1.0f;
 
     // dont change the rate if it is an attack animation
-    if ( character_is_attacking( pchr ) )  return pinst->rate;
+    if ( pchr->isAttacking() )  return pinst->rate;
 
     // if the character is mounted or sitting, base the rate off of the mounr
     if ( _gameObjects.exists( pchr->attachedto ) && (( ACTION_MI == pinst->action_which ) || ( ACTION_MH == pinst->action_which ) ) )
@@ -6224,12 +6224,6 @@ float set_character_animation_rate( GameObject * pchr )
     pinst->rate = CLIP( pinst->rate, 0.1f, 10.0f );
 
     return pinst->rate;
-}
-
-//--------------------------------------------------------------------------------------------
-bool character_is_attacking( GameObject *pchr )
-{
-    return pchr->inst.action_which >= ACTION_UA && pchr->inst.action_which <= ACTION_FD;
 }
 
 //--------------------------------------------------------------------------------------------

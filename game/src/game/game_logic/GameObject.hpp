@@ -251,6 +251,11 @@ public:
      */
     bool heal(const std::shared_ptr<GameObject> &healer, const UFP8_T amount, const bool ignoreInvincibility);
 
+    /**
+    * @return true if this GameObject is currently doing an attack animation
+    **/
+    bool isAttacking() const;
+
 private:
 
     /**
