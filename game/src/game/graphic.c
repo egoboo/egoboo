@@ -2858,23 +2858,29 @@ float draw_debug( float y )
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-5!!!" );
         y = draw_string_raw( 0, y, "~~CAM %f %f %f", _cameraSystem.getMainCamera()->getPosition().x, _cameraSystem.getMainCamera()->getPosition().y, _cameraSystem.getMainCamera()->getPosition().z );
         ipla = ( PLA_REF )0;
-        ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_SLASH],
-                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_CRUSH],
-                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_POKE ],
-                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_HOLY ],
-                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_EVIL ],
-                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_FIRE ],
-                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_ICE  ],
-                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_ZAP  ] );
+        if(VALID_PLA(ipla))
+        {
+            ichr = PlaStack.lst[ipla].index;
+            y = draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
+                                 _gameObjects.get(ichr)->damage_resistance[DAMAGE_SLASH],
+                                 _gameObjects.get(ichr)->damage_resistance[DAMAGE_CRUSH],
+                                 _gameObjects.get(ichr)->damage_resistance[DAMAGE_POKE ],
+                                 _gameObjects.get(ichr)->damage_resistance[DAMAGE_HOLY ],
+                                 _gameObjects.get(ichr)->damage_resistance[DAMAGE_EVIL ],
+                                 _gameObjects.get(ichr)->damage_resistance[DAMAGE_FIRE ],
+                                 _gameObjects.get(ichr)->damage_resistance[DAMAGE_ICE  ],
+                                 _gameObjects.get(ichr)->damage_resistance[DAMAGE_ZAP  ] );
 
-        ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", _gameObjects.get(ichr)->getPosX() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE );
+            ichr = PlaStack.lst[ipla].index;
+            y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", _gameObjects.get(ichr)->getPosX() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE );
+        }
 
         ipla = ( PLA_REF )1;
-        ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", _gameObjects.get(ichr)->getPosY() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE );
+        if(VALID_PLA(ipla))
+        {
+            ichr = PlaStack.lst[ipla].index;
+            y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", _gameObjects.get(ichr)->getPosY() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE );
+        }
     }
 
     if ( SDL_KEYDOWN( keyb, SDLK_F6 ) )
