@@ -1667,39 +1667,40 @@ bool drop_all_items( const CHR_REF character )
 {
     /// @author ZZ
     /// @details This function drops all of a character's items
+    const std::shared_ptr<GameObject> &pchr = _gameObjects[character];
 
-    FACING_T direction;
-    TURN_T   turn;
-    int      diradd;
-    GameObject  * pchr;
-    Uint8    pack_count;
-    size_t   cnt;
-
-    if ( !_gameObjects.exists( character ) ) return false;
-    pchr = _gameObjects.get( character );
-
+    //Drop held items
     detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], true, false );
     detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], true, false );
 
     //simply count the number of items in inventory
-    pack_count = 0;
-    diradd     = 0x00010000;
+    uint8_t pack_count = 0;
     PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
     {
-        diradd -= 0x00010000 / MAXINVENTORY;
+        pack_count++;
     }
     PACK_END_LOOP();
 
+    //Don't continue if we have nothing to drop
+    if(pack_count == 0)
+    {
+        return true;
+    }
+
+    //Calculate direction offset for each object
+    const FACING_T diradd = 0xFFFF / pack_count;
+
     // now drop each item in turn
-    direction = pchr->ori.facing_z + ATK_BEHIND;
-    for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+    FACING_T direction = pchr->ori.facing_z + ATK_BEHIND;
+    for ( size_t cnt = 0; cnt < MAXINVENTORY; cnt++ )
     {
         CHR_REF item = pchr->inventory[cnt];
-        GameObject *pitem;
 
         //only valid items
-        if ( !_gameObjects.exists( item ) ) continue;
-        pitem = _gameObjects.get( item );
+        const std::shared_ptr<GameObject> &pitem = _gameObjects[item];
+        if(!pitem) {
+            continue;
+        }
 
         //remove it from inventory
         inventory_remove_item( character, cnt, true );
@@ -1719,7 +1720,7 @@ bool drop_all_items( const CHR_REF character )
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity
-        turn                           = TO_TURN( direction );
+        TURN_T turn                   = TO_TURN( direction );
         pitem->vel.x                  += turntocos[ turn ] * DROPXYVEL;
         pitem->vel.y                  += turntosin[ turn ] * DROPXYVEL;
         pitem->vel.z                  += DROPZVEL;
@@ -1727,11 +1728,11 @@ bool drop_all_items( const CHR_REF character )
         // do some more complicated things
         SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
         pitem->setPosition(pchr->getPosition());
-        move_one_character_get_environment(pitem);
-        chr_set_floor_level(pitem, pchr->enviro.floor_level);
+        move_one_character_get_environment(pitem.get());
+        chr_set_floor_level(pitem.get(), pchr->enviro.floor_level);
 
         //drop out evenly in all directions
-        direction = ( int )direction + diradd;
+        direction += diradd;
     }
 
     return true;
