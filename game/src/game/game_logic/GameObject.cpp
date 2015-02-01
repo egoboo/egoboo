@@ -612,7 +612,7 @@ int GameObject::damage(const FACING_T direction, const IPair  damage, const Dama
 void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing)
 {
     // Don't let characters chase themselves...  That would be silly
-    if ( this == attacker->get() ) return;
+    if ( this == attacker.get() ) return;
 
     // Don't alert the character too much if under constant fire
     if (0 != careful_timer) return;
