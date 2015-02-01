@@ -611,17 +611,19 @@ int GameObject::damage(const FACING_T direction, const IPair  damage, const Dama
 
 void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing)
 {
-    CHR_REF actual_attacker = attacker->getCharacterID();
-
     // Don't let characters chase themselves...  That would be silly
-    if ( ai.index == attacker->getCharacterID() ) return;
+    if ( this == attacker->get() ) return;
 
     // Don't alert the character too much if under constant fire
     if (0 != careful_timer) return;
 
+    CHR_REF actual_attacker = INVALID_CHR_REF;
+
     // Figure out who is the real attacker, in case we are a held item or a controlled mount
-    if (!attacker)
+    if(attacker)
     {
+        actual_attacker = attacker->getCharacterID();
+
         //Do not alert items damaging (or healing) their holders, healing potions for example
         if ( attacker->attachedto ==ai.index ) return;
 
@@ -640,7 +642,7 @@ void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker,
 
     //Update alerts and timers
     ai.attacklast = actual_attacker;
-    SET_BIT( ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED );
+    SET_BIT(ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED);
     careful_timer = CAREFULTIME;
 }
 
