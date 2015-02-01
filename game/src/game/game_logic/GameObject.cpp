@@ -579,7 +579,7 @@ int GameObject::damage(const FACING_T direction, const IPair  damage, const Dama
     // Heal 'em instead
     else if ( actual_damage < 0 )
     {
-        heal_character(_characterID, attacker->getCharacterID(), -actual_damage, ignore_invictus);
+        heal(attacker, -actual_damage, ignore_invictus);
 
         // Isssue an alert
         if ( team == TEAM_DAMAGE )
@@ -609,7 +609,6 @@ int GameObject::damage(const FACING_T direction, const IPair  damage, const Dama
     return actual_damage;
 }
 
-//--------------------------------------------------------------------------------------------
 void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing)
 {
     CHR_REF actual_attacker = attacker->getCharacterID();
@@ -643,4 +642,21 @@ void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker,
     ai.attacklast = actual_attacker;
     SET_BIT( ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED );
     careful_timer = CAREFULTIME;
+}
+
+bool GameObject::heal(const std::shared_ptr<GameObject> &healer, const UFP8_T amount, const bool ignoreInvincibility)
+{
+    //Don't heal dead and invincible stuff
+    if (!alive || (invictus && !ignoreInvincibility)) return false;
+
+    //This actually heals the character
+    life = CLIP(static_cast<UFP8_T>(life), life + amount, life_max);
+
+    // Set alerts, but don't alert that we healed ourselves
+    if (healer && this != healer.get() && healer->attachedto != _characterID && amount > HURTDAMAGE)
+    {
+        updateLastAttacker(healer, true);
+    }
+
+    return true;
 }

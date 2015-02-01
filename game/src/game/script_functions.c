@@ -4277,7 +4277,7 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    heal_character( pself->index, pself->index, pstate->argument, true );
+    pchr->heal(_gameObjects[pchr->getCharacterID()], pstate->argument, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4977,11 +4977,16 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
+    const std::shared_ptr<GameObject> &target = _gameObjects[pself->target];
+    if(!target) {
+        return false;
+    }
+
     returncode = false;
-    if ( heal_character( pself->target, pself->index, pstate->argument, false ) )
+    if ( target->heal(_gameObjects[pself->index], pstate->argument, false) )
     {
         returncode = true;
-        remove_all_enchants_with_idsz( pself->target, MAKE_IDSZ( 'H', 'E', 'A', 'L' ) );
+        remove_all_enchants_with_idsz(pself->target, MAKE_IDSZ('H', 'E', 'A', 'L'));
     }
 
     SCRIPT_FUNCTION_END();

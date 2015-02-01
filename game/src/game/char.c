@@ -132,8 +132,6 @@ static float   chr_get_mesh_pressure( GameObject * pchr, float test_pos[] );
 
 static egolib_rv chr_invalidate_child_instances( GameObject * pchr );
 
-static void chr_update_attacker( GameObject *pchr, const CHR_REF attacker, bool healing );
-
 static void chr_set_enviro_grid_level( GameObject * pchr, const float level );
 static void chr_log_script_time( const CHR_REF ichr );
 
@@ -2772,36 +2770,6 @@ bool chr_download_profile(GameObject * pchr, const std::shared_ptr<ObjectProfile
 }
 
 //--------------------------------------------------------------------------------------------
-bool heal_character( const CHR_REF character, const CHR_REF healer, UFP8_T amount, bool ignore_invictus )
-{
-    /// @author ZF
-    /// @details This function gives some pure life points to the target, ignoring any resistances and so forth
-    GameObject * pchr, *pchr_h;
-
-    //Setup the healed character
-    if ( !_gameObjects.exists( character ) ) return false;
-    pchr = _gameObjects.get( character );
-
-    //Setup the healer
-    if ( !_gameObjects.exists( healer ) ) return false;
-    pchr_h = _gameObjects.get( healer );
-
-    //Don't heal dead and invincible stuff
-    if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return false;
-
-    //This actually heals the character
-    pchr->life = CLIP( (UFP8_T)pchr->life, pchr->life + amount, pchr->life_max );
-
-    // Set alerts, but don't alert that we healed ourselves
-    if ( pchr_h->attachedto != character && amount > HURTDAMAGE )
-    {
-        chr_update_attacker( pchr, healer, true );
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void cleanup_one_character( GameObject * pchr )
 {
     /// @author BB
@@ -3007,48 +2975,6 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
 
     // Stop any looped sounds
     _audioSystem.stopObjectLoopingSounds( ichr );
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_update_attacker( GameObject *pchr, const CHR_REF attacker, bool healing )
-{
-    /// @author ZF
-    /// @details This function should be used whenever a character gets attacked or healed. The function
-    // handles if the attacker is a held item (so that the holder becomes the attacker). The function also
-    // updates alerts, timers, etc. This function can trigger character cries like "That tickles!" or "Be careful!"
-    CHR_REF actual_attacker = attacker;
-
-    // Don't let characters chase themselves...  That would be silly
-    if ( pchr->ai.index == attacker ) return;
-
-    // Don't alert the character too much if under constant fire
-    if ( 0 != pchr->careful_timer ) return;
-
-    // Figure out who is the real attacker, in case we are a held item or a controlled mount
-    if ( _gameObjects.exists( attacker ) )
-    {
-        GameObject *pattacker = _gameObjects.get( attacker );
-
-        //Do not alert items damaging (or healing) their holders, healing potions for example
-        if ( pattacker->attachedto == pchr->ai.index ) return;
-
-        //If we are held, the holder is the real attacker... unless the holder is a mount
-        if ( _gameObjects.exists( pattacker->attachedto ) && !_gameObjects.get(pattacker->attachedto)->isMount() )
-        {
-            actual_attacker = pattacker->attachedto;
-        }
-
-        //If the attacker is a mount, try to blame the rider
-        else if ( pattacker->isMount() && _gameObjects.exists( pattacker->holdingwhich[SLOT_LEFT] ) )
-        {
-            actual_attacker = pattacker->holdingwhich[SLOT_LEFT];
-        }
-    }
-
-    //Update alerts and timers
-    pchr->ai.attacklast = actual_attacker;
-    SET_BIT( pchr->ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED );
-    pchr->careful_timer = CAREFULTIME;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4190,7 +4116,7 @@ bool cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
         if ( pchr->canchannel && mana_surplus > 0 )
         {
             // use some factor, divide by 2
-            heal_character( GET_INDEX_PCHR( pchr ), killer, mana_surplus << 1, true );
+            pchr->heal(_gameObjects[killer], mana_surplus / 2, true);
         }
 
         mana_paid = true;

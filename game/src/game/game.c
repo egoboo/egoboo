@@ -2409,13 +2409,13 @@ void check_stats()
         else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
-        //Apply the cheat if valid
-        if ( _gameObjects.exists( PlaStack.lst[docheat].index ) )
-        {
-            GameObject * pchr = _gameObjects.get( PlaStack.lst[docheat].index );
+        const std::shared_ptr<GameObject> &player = _gameObjects[PlaStack.lst[docheat].index];
 
+        //Apply the cheat if valid
+        if (player)
+        {
             //Heal 1 life
-            heal_character( pchr->ai.index, pchr->ai.index, 256, true );
+            player->heal(player, 256, true);
             stat_check_delay = 1;
         }
     }

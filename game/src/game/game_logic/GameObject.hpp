@@ -210,31 +210,46 @@ public:
 	**/
 	bool isMount() const {return getProfile()->isMount();}
 
-    /*
-    * @brief This function calculates and applies damage to a character.  It also
-    *    sets alerts and begins actions.  Blocking and frame invincibility
-    *    are done here too.  
+    /**
+    * @brief 
+    *   This function calculates and applies damage to a character.  It also
+    *   sets alerts and begins actions.  Blocking and frame invincibility are done here too.  
     *
-    * @param Direction is ATK_FRONT if the attack is coming head on,
-    *    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
-    *    left.
+    * @param direction
+    *   Direction is ATK_FRONT if the attack is coming head on, ATK_RIGHT if from the right, 
+    *   ATK_BEHIND if from the back, ATK_LEFT if from the left.
     *
-    * @param damage is a random range of damage to deal
+    * @param damage 
+    *   is a random range of damage to deal
     *
-    * @param damageType indicates what kind of damage this is (ZAP, CRUSH, FIRE, etc.) which 
-    *        is again affected by resistances immunities, etc.
+    * @param damageType 
+    *   indicates what kind of damage this is (ZAP, CRUSH, FIRE, etc.) which is again 
+    *   affected by resistances immunities, etc.
     *
-    * @param team which team is dealing the damage
+    * @param team 
+    *   which team is dealing the damage
     *
-    * @param attacker the GameObject which is dealing the damage to this GameObject
+    * @param attacker 
+    *   The GameObject which is dealing the damage to this GameObject
     *
-    * @param effects is a BIT_FIELD of various flags which affect how we determine damage.
+    * @param effects 
+    *   is a BIT_FIELD of various flags which affect how we determine damage.
     *
-    * @param ignore_invictus if this is true, then we allow damaging this object even though
-    *        it is normally immune to damage.
+    * @param ignore_invictus 
+    *   if this is true, then we allow damaging this object even though it is normally immune to damage.
     **/
     int damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
             const std::shared_ptr<GameObject> &attacker, const BIT_FIELD effects, const bool ignore_invictus);
+
+    /**
+     * @brief
+     *  This function gives some purelife points to the target, ignoring any resistances and so forth.
+     * @param healer
+     *  the healer
+     * @param amount
+     *  the amount to heal the character
+     */
+    bool heal(const std::shared_ptr<GameObject> &healer, const UFP8_T amount, const bool ignoreInvincibility);
 
 private:
 
