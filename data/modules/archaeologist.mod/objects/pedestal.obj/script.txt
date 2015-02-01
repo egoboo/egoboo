@@ -14,9 +14,9 @@ IfStateIs0
   tmpx = weight
   tmpy = 10
   IfXIsLessThanY
-    tmpx = selfx - 175
+    tmpx = selfx - 512
     tmpy = selfy
-    tmpdistance = selfz + 1024
+    tmpdistance = selfz + 1536
     tmpargument = 53
     SpawnExactCharacterXYZ
       tmpargument = 0

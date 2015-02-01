@@ -862,11 +862,13 @@ int update_game()
                 input_read_all_devices();
 
                 // NETWORK PORT
+#if 0
                 PROFILE_BEGIN( egonet_listen_for_packets );
                 {
                     egonet_listen_for_packets();
                 }
                 PROFILE_END2( egonet_listen_for_packets );
+#endif
 
                 PROFILE_BEGIN( set_local_latches );
                 {
@@ -874,6 +876,7 @@ int update_game()
                 }
                 PROFILE_END2( set_local_latches );
 
+#if 0
                 PROFILE_BEGIN( cl_talkToHost );
                 {
                     cl_talkToHost();
@@ -886,6 +889,7 @@ int update_game()
                     sv_talkToRemotes();
                 }
                 PROFILE_END2( talk_to_remotes );
+#endif
 
                 //---- begin the code for updating misc. game stuff
                 {
@@ -1619,7 +1623,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
         if ( !pchr->alive || pchr->isitem || _gameObjects.exists( pchr->inwhich_inventory ) ) continue;
 
         // prefer targeting riders over the mount itself
-        if ( pchr->ismount && ( _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) || _gameObjects.exists( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
+        if ( pchr->isMount() && ( _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) || _gameObjects.exists( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
 
         // ignore invictus
         if ( pchr->invictus ) continue;
@@ -2094,7 +2098,7 @@ void set_one_player_latch( const PLA_REF ipla )
     fast_camera_turn = ( 1 == local_stats.player_count ) && ( CAM_TURN_GOOD == pcam->getTurnMode() );
 
     // Clear the player's latch buffers
-    latch_init( &( sum ) );
+    sum.clear();
     fvec2_self_clear( joy_new.v );
     fvec2_self_clear( joy_pos.v );
 
@@ -2141,10 +2145,10 @@ void set_one_player_latch( const PLA_REF ipla )
 
         if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
         {
-            if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) ) joy_pos.x++;
-            if ( input_device_control_active( pdevice,  CONTROL_LEFT ) ) joy_pos.x--;
-            if ( input_device_control_active( pdevice,  CONTROL_DOWN ) ) joy_pos.y++;
-            if ( input_device_control_active( pdevice,  CONTROL_UP ) ) joy_pos.y--;
+            if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) )   joy_pos.x++;
+            if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )    joy_pos.x--;
+            if ( input_device_control_active( pdevice,  CONTROL_DOWN ) )    joy_pos.y++;
+            if ( input_device_control_active( pdevice,  CONTROL_UP ) )      joy_pos.y--;
 
             if ( fast_camera_turn )  joy_pos.x = 0;
 
@@ -2193,16 +2197,16 @@ void set_one_player_latch( const PLA_REF ipla )
     // Read control buttons
     if ( !ppla->draw_inventory )
     {
-        if ( input_device_control_active( pdevice, CONTROL_JUMP ) )
-            SET_BIT( sum.b, LATCHBUTTON_JUMP );
+        if ( input_device_control_active( pdevice, CONTROL_JUMP ) ) 
+            sum.b[LATCHBUTTON_JUMP] = true;
         if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) )
-            SET_BIT( sum.b, LATCHBUTTON_LEFT );
+            sum.b[LATCHBUTTON_LEFT] = true;
         if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
-            SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
+            sum.b[LATCHBUTTON_ALTLEFT] = true;
         if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE ) )
-            SET_BIT( sum.b, LATCHBUTTON_RIGHT );
+            sum.b[LATCHBUTTON_RIGHT] = true;
         if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
-            SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
+            sum.b[LATCHBUTTON_ALTRIGHT] = true;
 
         // Now update movement and input
         input_device_add_latch( pdevice, sum.x, sum.y );
@@ -2281,11 +2285,62 @@ void set_one_player_latch( const PLA_REF ipla )
 //--------------------------------------------------------------------------------------------
 void set_local_latches()
 {
-    PLA_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for (PLA_REF cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         set_one_player_latch( cnt );
+    }
+
+    // Let the players respawn
+    if ( SDL_KEYDOWN( keyb, SDLK_SPACE )
+         && ( local_stats.allpladead || PMod->canRespawnAnyTime() )
+         && PMod->isRespawnValid()
+         && cfg.difficulty < GAME_HARD
+         && !keyb.chat_mode )
+    {
+        for (PLA_REF player = 0; player < MAX_PLAYER; player++)
+        {
+            if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != nullptr )
+            {
+                // Press the respawn button...
+                PlaStack.lst[player].local_latch.b[LATCHBUTTON_RESPAWN] = true;
+            }
+        }
+    }
+
+    // update the local timed latches with the same info
+    for (PLA_REF player = 0; player < MAX_PLAYER; player++)
+    {
+        player_t * ppla;
+
+        if ( !PlaStack.lst[player].valid ) continue;
+        ppla = PlaStack.get_ptr( player );
+
+        int index = ppla->tlatch_count;
+        if ( index < MAXLAG )
+        {
+            time_latch_t * ptlatch = ppla->tlatch + index;
+
+            ptlatch->button = ppla->local_latch.b.to_ulong();
+
+            // reduce the resolution of the motion to match the network packets
+            ptlatch->x = FLOOR( ppla->local_latch.x * SHORTLATCH ) / SHORTLATCH;
+            ptlatch->y = FLOOR( ppla->local_latch.y * SHORTLATCH ) / SHORTLATCH;
+
+            ptlatch->time = update_wld;
+
+            ppla->tlatch_count++;
+        }
+
+        // determine the max amount of lag
+        for ( uint32_t cnt = 0; cnt < ppla->tlatch_count; cnt++ )
+        {
+            int loc_lag = update_wld - ppla->tlatch[index].time + 1;
+
+            if ( loc_lag > 0 && ( size_t )loc_lag > numplatimes )
+            {
+                numplatimes = loc_lag;
+            }
+        }
     }
 }
 
@@ -3029,8 +3084,8 @@ void activate_spawn_file_vfs()
     /// @author ZZ
     /// @details This function sets up character data, loaded from "SPAWN.TXT"
     std::unordered_map<int, std::string> reservedSlots;     //Keep track of which slot numbers are reserved by their load name
-    std::vector<int>                     dynamicObjectList; //references to slots that need to be dynamically loaded later
-    std::vector<spawn_file_info_t>       objectsToSpawn;    //The full list of objects to be spawned 
+    std::unordered_set<std::string>      dynamicObjectList; //references to slots that need to be dynamically loaded later
+    std::vector<spawn_file_info_t> objectsToSpawn;    //The full list of objects to be spawned 
 
     // Turn some back on
     const char* filePath = "mp_data/spawn.txt";
@@ -3075,7 +3130,7 @@ void activate_spawn_file_vfs()
             // If it is a dynamic slot, remember to dynamically allocate it for later
             if ( entry.slot <= -1 )
             {
-                dynamicObjectList.push_back(objectsToSpawn.empty() ? 0 : objectsToSpawn.size()-1);
+                dynamicObjectList.insert(entry.spawn_coment);
             }
 
             //its a static slot number, mark it as reserved if it isnt already
@@ -3089,31 +3144,31 @@ void activate_spawn_file_vfs()
         }
 
         //Next we dynamically find slot numbers for each of the objects in the dynamic list
-        for(int index : dynamicObjectList)
+        for(const std::string &spawnName : dynamicObjectList)
         {
-            spawn_file_info_t &spawnDynamic = objectsToSpawn[index];
+            PRO_REF profileSlot;
 
             //Find first free slot that is not the spellbook slot
-            for ( spawnDynamic.slot = MAX_IMPORT_PER_PLAYER * MAX_PLAYER; spawnDynamic.slot < INVALID_PRO_REF; spawnDynamic.slot++ )
+            for (profileSlot = 1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER; profileSlot < INVALID_PRO_REF; ++profileSlot)
             {
                 //dont try to grab the spellbook slot
-                if ( spawnDynamic.slot == SPELLBOOK ) continue;
+                if (profileSlot == SPELLBOOK) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
-                if(reservedSlots[spawnDynamic.slot] == spawnDynamic.spawn_coment) break;
+                if(reservedSlots[profileSlot] == spawnName) break;
 
                 //found a completely free slot
-                if (reservedSlots[spawnDynamic.slot].empty())
+                if (reservedSlots[profileSlot].empty())
                 {
                     //Reserve this one for us
-                    reservedSlots[spawnDynamic.slot] = spawnDynamic.spawn_coment;
+                    reservedSlots[profileSlot] = spawnName;
                     break;
                 }
             }
 
             //If all slots are reserved, spit out a warning (very unlikely unless there is a bug somewhere)
-            if ( spawnDynamic.slot == INVALID_PRO_REF ) {
-                log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", spawnDynamic.spawn_coment, INVALID_PRO_REF );
+            if ( profileSlot == INVALID_PRO_REF ) {
+                log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", spawnName.c_str(), INVALID_PRO_REF );
             }
         }
 
@@ -3122,6 +3177,18 @@ void activate_spawn_file_vfs()
         {
             //Do we have a parent?
             if ( spawnInfo.attach != ATTACH_NONE && parent != INVALID_CHR_REF ) spawnInfo.parent = parent;
+
+            //Dynamic slot number? Then figure out what slot number is assigned to us
+            if(spawnInfo.slot <= -1) {
+                for(const auto &element : reservedSlots)
+                {
+                    if(element.second == spawnInfo.spawn_coment)
+                    {
+                        spawnInfo.slot = element.first;
+                        break;
+                    }
+                }
+            }
 
             // If nothing is already in that slot, try to load it.
             if ( !_profileSystem.isValidProfileID(spawnInfo.slot) )

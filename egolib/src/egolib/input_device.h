@@ -28,9 +28,34 @@
 struct s_control_tag;
 typedef struct s_control_tag control_tag_t;
 
-struct control_t;
 struct input_device_t;
 struct device_list_t;
+
+//--------------------------------------------------------------------------------------------
+/// The latch used by the input system
+struct latch_t
+{
+public:
+    latch_t() :
+        x(0.0f),
+        y(0.0f),
+        b()
+    {
+        //ctor
+    }
+
+    void clear()
+    {
+        x = 0.0f;
+        y = 0.0f;
+        b.reset();
+    }
+
+public:
+    float           x;         ///< the x input
+    float           y;         ///< the y input
+    std::bitset<32> b;         ///< the button bits
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -163,20 +188,24 @@ struct device_list_t;
 //--------------------------------------------------------------------------------------------
 
 /// the basic definition of a single control
-    struct control_t
-    {
-        bool loaded;
+struct control_t
+{
+public:
+    control_t();
 
-        // device bits for non-keyboard entry
-        Uint32 tag_bits;
+    void clear();
 
-        // list of keystrokes
-        int    tag_key_count;
-        Uint32 tag_key_lst[MAXCONTROLKEYS];
-        Uint32 tag_key_mods;
-    };
+public:
 
-    control_t * control_init( control_t * );
+    bool loaded;
+
+    // device bits for non-keyboard entry
+    std::bitset<32> tag_bits;
+
+    // list of keystrokes mapped to this control
+    std::forward_list<uint32_t> mappedKeys;
+    uint32_t tag_key_mods;
+};
 
 //--------------------------------------------------------------------------------------------
 /// The mapping between the hardware inputs and the in-game inputs
@@ -190,7 +219,7 @@ struct device_list_t;
         latch_t                 latch_old;                          ///< For sustain
 
         int                     device_type;                        ///< Device type - mouse, keyboard, etc.
-        control_t               control_lst[CONTROL_COMMAND_COUNT]; ///< Key mappings
+        std::array<control_t, CONTROL_COMMAND_COUNT> keyMap;        ///< Key mappings
     };
 
     input_device_t * input_device_ctor( input_device_t * pdevice );

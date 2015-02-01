@@ -64,8 +64,8 @@
 	bool scantag_get_value(int index, Uint32 * pvalue);
     const char *scantag_get_name( int index );
 
-    const char *scantag_get_string( int device, control_t *control, char * buffer, size_t buffer_size );
-    control_t *scantag_parse_control( char * tag_string, control_t *control );
+    const char *scantag_get_string( int device, const control_t &control, char * buffer, size_t buffer_size );
+    void scantag_parse_control( char * tag_string, control_t &control );
 
     Uint32 scancode_get_kmod( Uint32 scancode );
 

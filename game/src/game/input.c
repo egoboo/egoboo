@@ -546,49 +546,34 @@ bool input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontr
     /// @author ZZ
     /// @details This function returns true if the given icontrol is pressed...
 
-    bool retval = false;
-    control_t *pcontrol;
-
 	// make sure the idevice is valid
     if ( NULL == pdevice ) return false;
-    pcontrol = pdevice->control_lst + icontrol;
+    const control_t &pcontrol = pdevice->keyMap[icontrol];
 
     // if no control information was loaded, it can't be pressed
-    if ( !pcontrol->loaded ) return false;
-
-    // assume the best
-    retval = true;
+    if ( !pcontrol.loaded ) return false;
 
     // test for bits
-    if ( 0 != pcontrol->tag_bits )
+    if ( pcontrol.tag_bits.any() )
     {
         BIT_FIELD bmask = input_device_get_buttonmask( pdevice );
 
-        if ( !HAS_ALL_BITS( bmask, pcontrol->tag_bits ) )
+        if ( !HAS_ALL_BITS( bmask, pcontrol.tag_bits.to_ulong() ) )
         {
-            retval = false;
-            goto input_device_control_active_done;
+            return false;
         }
     }
 
     // how many tags does this control have?
-	int key_count;
-    key_count = std::min( pcontrol->tag_key_count, MAXCONTROLKEYS );
-
-    for ( int cnt = 0; cnt < key_count; cnt++ )
+    for(uint32_t keycode : pcontrol.mappedKeys)
     {
-        Uint32 keycode = pcontrol->tag_key_lst[cnt];
-
         if ( !SDL_KEYDOWN( keyb, keycode ) )
         {
-            retval = false;
-            goto input_device_control_active_done;
+            return false;
         }
     }
 
-input_device_control_active_done:
-
-    return retval;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------

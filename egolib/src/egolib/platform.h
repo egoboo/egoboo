@@ -133,6 +133,8 @@
 #include <unordered_map>
 #include <exception>
 #include <stack>
+#include <bitset>
+#include <unordered_set>
 
 
 #if defined(__cplusplus)

@@ -570,17 +570,17 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 
                     case SETLIGHTBLEND:
                         penc->setsave[value_idx] = ptarget->inst.light;
-                        chr_set_light( ptarget, peve->setvalue[value_idx] );
+                        ptarget->setLight(peve->setvalue[value_idx]);
                         break;
 
                     case SETALPHABLEND:
                         penc->setsave[value_idx] = ptarget->inst.alpha;
-                        chr_set_alpha( ptarget, peve->setvalue[value_idx] );
+                        ptarget->setAlpha(peve->setvalue[value_idx]);
                         break;
 
                     case SETSHEEN:
                         penc->setsave[value_idx] = ptarget->inst.sheen;
-                        chr_set_sheen( ptarget, peve->setvalue[value_idx] );
+                        ptarget->setSheen(peve->setvalue[value_idx]);
                         break;
 
                     case SETFLYTOHEIGHT:
@@ -982,8 +982,8 @@ enc_t * enc_config_do_init( enc_t * penc )
             }
 
             // Assume it's transparent...
-            chr_set_light( povl, 254 );
-            chr_set_alpha( povl,   0 );
+            povl->setLight(254);
+            povl->setAlpha(0);
         }
     }
 
@@ -1686,15 +1686,15 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
             break;
 
         case SETLIGHTBLEND:
-            chr_set_light( ptarget, penc->setsave[value_idx] );
+            ptarget->setLight(penc->setsave[value_idx]);
             break;
 
         case SETALPHABLEND:
-            chr_set_alpha( ptarget, penc->setsave[value_idx] );
+            ptarget->setAlpha(penc->setsave[value_idx]);
             break;
 
         case SETSHEEN:
-            chr_set_sheen( ptarget, penc->setsave[value_idx] );
+            ptarget->setSheen(penc->setsave[value_idx]);
             break;
 
         case SETFLYTOHEIGHT:

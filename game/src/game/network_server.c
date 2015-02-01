@@ -43,6 +43,7 @@ void sv_frameStep()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 egolib_rv sv_talkToRemotes()
 {
     /// @author ZZ
@@ -148,6 +149,7 @@ egolib_rv sv_talkToRemotes()
 
     return rv_success;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 egolib_rv sv_letPlayersJoin()
@@ -243,6 +245,7 @@ egolib_rv sv_hostGame()
     return rv_success;
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------
 egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
 {
@@ -348,4 +351,5 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
 
     return handled ? rv_success : rv_fail;
 }
+#endif
 

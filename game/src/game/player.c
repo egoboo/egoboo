@@ -80,7 +80,7 @@ void PlaStack_add_tlatch(const PLA_REF iplayer, Uint32 time, latch_t net_latch)
 
     if (player->tlatch_count >= MAXLAG) return;
 
-    player->tlatch[player->tlatch_count ].button = net_latch.b;
+    player->tlatch[player->tlatch_count ].button = net_latch.b.to_ulong();
     player->tlatch[player->tlatch_count ].x      = net_latch.x;
     player->tlatch[player->tlatch_count ].y      = net_latch.y;
     player->tlatch[player->tlatch_count ].time   = time;
@@ -91,39 +91,19 @@ void PlaStack_add_tlatch(const PLA_REF iplayer, Uint32 time, latch_t net_latch)
 //--------------------------------------------------------------------------------------------
 void pla_reinit( player_t * ppla )
 {
-    if ( NULL == ppla ) return;
+    if ( nullptr == ppla ) return;
 
     //clear input pointer
-    ppla->pdevice = NULL;
+    ppla->pdevice = nullptr;
 
     //reset data
     BLANK_STRUCT_PTR( ppla )
     ppla->index  = INVALID_CHR_REF;
 
     // initialize the latches
-    latch_init( &( ppla->local_latch ) );
-    latch_init( &( ppla->net_latch ) );
+    ppla->local_latch.clear();
+    ppla->net_latch.clear();
 
     // initialize the tlatch array
     tlatch_ary_init( ppla->tlatch, MAXLAG );
 }
-
-//--------------------------------------------------------------------------------------------
-/*void player_init( player_t * ppla )
-{
-    if ( NULL == ppla ) return;
-
-    BLANK_STRUCT_PTR( ppla )
-
-    ppla->index       = INVALID_CHR_REF;
-
-    // initialize the device
-    input_device_init( &( ppla->device ) );
-
-    // initialize the latches
-    latch_init( &( ppla->local_latch ) );
-    latch_init( &( ppla->net_latch ) );
-
-    // initialize the tlatch array
-    tlatch_ary_init( ppla->tlatch, MAXLAG );
-}*/

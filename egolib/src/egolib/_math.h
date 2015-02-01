@@ -26,6 +26,7 @@
 #include "egolib/vec.h"
 #include "egolib/platform.h"
 #include "egolib/log.h"
+#include "egolib/math/Math.hpp"
 
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
@@ -46,8 +47,7 @@
  * @return
  *	the clipped value
  */
-template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& _maximum)
-{
+template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& _maximum) {
 	return std::min(std::max(_value, _minimum), _maximum);
 }
 

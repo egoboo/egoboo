@@ -1915,27 +1915,27 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
     oct_vec_t apos, bpos;
 
-    GameObject * pchr_a, * pchr_b;
-
-    bool mount_a, mount_b;
-
     bool mounted = false;
     bool handled = false;
 
     // make sure that A is valid
-    if ( !_gameObjects.exists( ichr_a ) ) return false;
-    pchr_a = _gameObjects.get( ichr_a );
+    const std::shared_ptr<GameObject> &pchr_a = _gameObjects[ichr_a];
+    if(!pchr_a) {
+        return false;
+    }
 
     // make sure that B is valid
-    if ( !_gameObjects.exists( ichr_b ) ) return false;
-    pchr_b = _gameObjects.get( ichr_b );
+    const std::shared_ptr<GameObject> &pchr_b = _gameObjects[ichr_b];
+    if(!pchr_b) {
+        return false;
+    }
 
     // find the difference in velocities
     vdiff = pchr_b->vel - pchr_a->vel;
 
     // can either of these objects mount the other?
-    mount_a = chr_can_mount( ichr_b, ichr_a );
-    mount_b = chr_can_mount( ichr_a, ichr_b );
+    bool mount_a = pchr_b->canMount(pchr_a);
+    bool mount_b = pchr_a->canMount(pchr_b);
 
     if ( !mount_a && !mount_b ) return false;
 
@@ -2051,13 +2051,13 @@ bool do_chr_platform_physics( GameObject * pitem, GameObject * pplat )
     {
         phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f, kZ );
         phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f, kZ );
-        pitem->ori.facing_z += ( rot_a         - rot_b ) * platstick;
+        pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
     }
     else
     {
         phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
         phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f * lerp_z * vlerp_z, kZ );
-        pitem->ori.facing_z += ( rot_a         - rot_b ) * platstick * lerp_z * vlerp_z;
+        pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
     };
 
     return true;
@@ -2254,10 +2254,10 @@ bool do_chr_chr_collision( CoNode_t * d )
 
     // seriously reduce the interaction_strength with mounts
     // this thould allow characters to mount certain mounts a lot easier
-    if (( pchr_a->ismount && INVALID_CHR_REF == pchr_a->holdingwhich[SLOT_LEFT] && !pchr_b->ismount ) ||
-        ( pchr_b->ismount && INVALID_CHR_REF == pchr_b->holdingwhich[SLOT_LEFT] && !pchr_a->ismount ) )
+    if (( pchr_a->isMount() && INVALID_CHR_REF == pchr_a->holdingwhich[SLOT_LEFT] && !pchr_b->isMount() ) ||
+        ( pchr_b->isMount() && INVALID_CHR_REF == pchr_b->holdingwhich[SLOT_LEFT] && !pchr_a->isMount() ) )
     {
-        interaction_strength *= 0.25;
+        interaction_strength *= 0.75f;
     }
 
     // reduce the interaction strength with platforms
@@ -2709,14 +2709,14 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
 
         if ( pdata->pprt->vel.z - pdata->pchr->vel.z < 0 )
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pchr->vel.z * pdata->ppip->dampen + platstick * pdata->pchr->vel.z - pdata->pprt->vel.z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pchr->vel.z * pdata->ppip->dampen + PLATFORM_STICKINESS * pdata->pchr->vel.z - pdata->pprt->vel.z, kZ );
         }
         else
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.z *( 1.0f - platstick ) + pdata->pchr->vel.z * platstick - pdata->pprt->vel.z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.z *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.z * PLATFORM_STICKINESS - pdata->pprt->vel.z, kZ );
         }
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.x *( 1.0f - platstick ) + pdata->pchr->vel.x * platstick - pdata->pprt->vel.x, kX );
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.y *( 1.0f - platstick ) + pdata->pchr->vel.y * platstick - pdata->pprt->vel.y, kY );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.x *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.x * PLATFORM_STICKINESS - pdata->pprt->vel.x, kX );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.y *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.y * PLATFORM_STICKINESS - pdata->pprt->vel.y, kY );
 
         plat_collision = true;
     }
@@ -2728,9 +2728,9 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
 
         if ( lerp_z > 0.0f )
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.x - pdata->pprt->vel.x ) * platstick * lerp_z, kX );
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.y - pdata->pprt->vel.y ) * platstick * lerp_z, kY );
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.z - pdata->pprt->vel.z ) * platstick * lerp_z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.x - pdata->pprt->vel.x ) * PLATFORM_STICKINESS * lerp_z, kX );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.y - pdata->pprt->vel.y ) * PLATFORM_STICKINESS * lerp_z, kY );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.z - pdata->pprt->vel.z ) * PLATFORM_STICKINESS * lerp_z, kZ );
 
             plat_collision = true;
         }
@@ -3346,7 +3346,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
             GameObject * pcollector = pdata->pchr;
 
             // Let mounts collect money for their riders
-            if ( pdata->pchr->ismount && _gameObjects.exists( pdata->pchr->holdingwhich[SLOT_LEFT] ) )
+            if ( pdata->pchr->isMount() && _gameObjects.exists( pdata->pchr->holdingwhich[SLOT_LEFT] ) )
             {
                 pcollector = _gameObjects.get( pdata->pchr->holdingwhich[SLOT_LEFT] );
 

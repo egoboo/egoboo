@@ -475,7 +475,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 	                weight1 = pchr->vel.dot(pchr->vel);
 
 	                // make another weight based on button-pushing
-	                weight2 = ( 0 == pchr->latch.b ) ? 0 : 127;
+	                weight2 = pchr->latch.b.none() ? 0 : 127;
 
 	                // I would weight this by the amount of damage that the character just sustained,
 	                // but there is no real way to do this?

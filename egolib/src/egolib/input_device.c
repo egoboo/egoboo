@@ -101,35 +101,44 @@ const char* translate_input_type_to_string( const int type )
 //--------------------------------------------------------------------------------------------
 // control_t
 //--------------------------------------------------------------------------------------------
-
-control_t * control_init( control_t * pcontrol )
+control_t::control_t() :
+    loaded(false),
+    tag_bits(),
+    mappedKeys(),
+    tag_key_mods(0)
 {
-    if ( NULL == pcontrol ) return pcontrol;
-
-    // clear out all the data
-    BLANK_STRUCT_PTR( pcontrol );
-
-    return pcontrol;
+    //ctor
 }
+
+void control_t::clear()
+{
+    loaded = false;
+    tag_bits.reset();
+    mappedKeys.clear();
+    tag_key_mods = 0;
+}
+
 
 //--------------------------------------------------------------------------------------------
 // input_device_t
 //--------------------------------------------------------------------------------------------
 input_device_t * input_device_ctor( input_device_t * pdevice )
 {
-    int cnt;
-
     if ( NULL == pdevice ) return NULL;
 
     // clear out all the data, including all
     // control data
-    BLANK_STRUCT_PTR( pdevice )
+    pdevice->sustain = 0.0f;
+    pdevice->cover = 0.0f;
+
+    pdevice->latch.clear();
+    pdevice->latch_old.clear();
 
     pdevice->device_type = INPUT_DEVICE_UNKNOWN;
 
-    for ( cnt = 0; cnt < CONTROL_COMMAND_COUNT; cnt++ )
+    for (control_t &control : pdevice->keyMap)
     {
-        control_init( pdevice->control_lst + cnt );
+        control.clear();
     }
 
     return pdevice;
