@@ -36,7 +36,7 @@
 //--------------------------------------------------------------------------------------------
 // portable definition of assert. the c++ version can be activated below.
 // make assert into a warning if _DEBUG is not defined
-void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
+//void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 #if defined(_DEBUG)
 #define EGOBOO_ASSERT(expression) assert(expression)
 #else
-#define EGOBOO_ASSERT(expression) non_fatal_assert(expression, "%s - failed an assert \"%s\"\n", __FUNCTION__, #expression)
+#define EGOBOO_ASSERT(expression) //non_fatal_assert(expression, "%s - failed an assert \"%s\"\n", __FUNCTION__, #expression)
 #endif
 
 

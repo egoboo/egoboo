@@ -126,15 +126,11 @@ geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
     {
         if (rhs.mins[cnt] > lhs.maxs[cnt])
         {
-            retval = geometry_outside;
-            not_inside = true;
-            break;
+            return geometry_outside;
         }
         else if (rhs.maxs[cnt] < lhs.mins[cnt])
         {
-            retval = geometry_outside;
-            not_inside = true;
-            break;
+            return geometry_outside;
         }
         else if (!not_inside)
         {
