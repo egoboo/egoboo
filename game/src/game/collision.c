@@ -3149,7 +3149,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                 {
                     float percent;
                     percent = ( FP8_TO_FLOAT( powner->intelligence ) - 14 ) * 2;
-                    percent /= 100;
+                    percent /= 100.0f;
                     loc_damage.base *= 1.00f + percent;
                     loc_damage.rand *= 1.00f + percent;
                 }
@@ -3158,7 +3158,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                 {
                     float percent;
                     percent = ( FP8_TO_FLOAT( powner->wisdom ) - 14 ) * 2;
-                    percent /= 100;
+                    percent /= 100.0f;
                     loc_damage.base *= 1.00f + percent;
                     loc_damage.rand *= 1.00f + percent;
                 }
@@ -3194,7 +3194,8 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
             }
 
             // Damage the character
-            pdata->actual_damage = damage_character( GET_INDEX_PCHR( pdata->pchr ), direction, loc_damage, pdata->pprt->damagetype, pdata->pprt->team, pdata->pprt->owner_ref, pdata->ppip->damfx, false );
+            pdata->actual_damage = pdata->pchr->damage(direction, loc_damage, static_cast<DamageType>(pdata->pprt->damagetype), 
+                pdata->pprt->team, _gameObjects[pdata->pprt->owner_ref], pdata->ppip->damfx, false);
         }
     }
 

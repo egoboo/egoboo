@@ -2772,7 +2772,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     CHR_REF ichr, iholder;
     Uint32  update_count;
     IPair   local_damage;
-    int     max_damage, actual_damage;
+    int     max_damage;
 
     prt_t * loc_pprt;
     pip_t * loc_ppip;
@@ -2788,15 +2788,11 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
 
     // this is often set to zero when the particle hits something
-    max_damage = ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand );
+    max_damage = std::abs( loc_pprt->damage.base ) + std::abs( loc_pprt->damage.rand );
 
     // wait until the right time
     update_count = update_wld + loc_pprt->obj_base.guid;
     if ( 0 != ( update_count & 31 ) ) return pbdl_prt;
-
-    /// @note ZF@> This is already checked in prt_update_ingame()
-    // do nothing if the particle is hidden
-    //if ( loc_pprt->is_hidden ) return;
 
     // we must be attached to something
     if ( !_gameObjects.exists( loc_pprt->attachedto_ref ) ) return pbdl_prt;
@@ -2810,6 +2806,8 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
 
     // do nothing if you are attached to your owner
     if (( INVALID_CHR_REF != loc_pprt->owner_ref ) && ( iholder == loc_pprt->owner_ref || ichr == loc_pprt->owner_ref ) ) return pbdl_prt;
+
+    const std::shared_ptr<GameObject> &character = _gameObjects[ichr];
 
     //---- only do damage in certain cases:
 
@@ -2865,12 +2863,13 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     if ( loc_ppip->allowpush && 0 == loc_ppip->vel_hrz_pair.base )
     {
         // Make character limp
-        _gameObjects.get(ichr)->vel.x *= 0.5f;
-        _gameObjects.get(ichr)->vel.y *= 0.5f;
+        character->vel.x *= 0.5f;
+        character->vel.y *= 0.5f;
     }
 
     //---- do the damage
-    actual_damage = damage_character( ichr, ATK_BEHIND, local_damage, loc_pprt->damagetype, loc_pprt->team, loc_pprt->owner_ref, loc_ppip->damfx, false );
+    int actual_damage = character->damage(ATK_BEHIND, local_damage, static_cast<DamageType>(loc_pprt->damagetype), loc_pprt->team, 
+        _gameObjects[loc_pprt->owner_ref], loc_ppip->damfx, false);
 
     // adjust any remaining particle damage
     if ( loc_pprt->damage.base > 0 )
@@ -2879,7 +2878,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
         loc_pprt->damage.base  = std::max( 0, loc_pprt->damage.base );
 
         // properly scale the random amount
-        loc_pprt->damage.rand  = ABS( loc_ppip->damage.to - loc_ppip->damage.from ) * loc_pprt->damage.base / loc_ppip->damage.from;
+        loc_pprt->damage.rand  = std::abs( loc_ppip->damage.to - loc_ppip->damage.from ) * loc_pprt->damage.base / loc_ppip->damage.from;
     }
 
     return pbdl_prt;

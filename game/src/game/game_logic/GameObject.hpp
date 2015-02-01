@@ -115,7 +115,7 @@ public:
     * @brief Gets a shared_ptr to the current ObjectProfile associated with this character.
     *        The ObjectProfile can change for polymorphing objects.
     **/
-    const std::shared_ptr<ObjectProfile>& getProfile() const;
+    inline const std::shared_ptr<ObjectProfile>& getProfile() const {return _profile;}
 
     /**
     * @return the unique CHR_REF associated with this character
@@ -209,6 +209,56 @@ public:
 	* @return true if this GameObject is mountable by other GameObjects
 	**/
 	bool isMount() const {return getProfile()->isMount();}
+
+    /**
+    * @brief 
+    *   This function calculates and applies damage to a character.  It also
+    *   sets alerts and begins actions.  Blocking and frame invincibility are done here too.  
+    *
+    * @param direction
+    *   Direction is ATK_FRONT if the attack is coming head on, ATK_RIGHT if from the right, 
+    *   ATK_BEHIND if from the back, ATK_LEFT if from the left.
+    *
+    * @param damage 
+    *   is a random range of damage to deal
+    *
+    * @param damageType 
+    *   indicates what kind of damage this is (ZAP, CRUSH, FIRE, etc.) which is again 
+    *   affected by resistances immunities, etc.
+    *
+    * @param team 
+    *   which team is dealing the damage
+    *
+    * @param attacker 
+    *   The GameObject which is dealing the damage to this GameObject
+    *
+    * @param effects 
+    *   is a BIT_FIELD of various flags which affect how we determine damage.
+    *
+    * @param ignore_invictus 
+    *   if this is true, then we allow damaging this object even though it is normally immune to damage.
+    **/
+    int damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
+            const std::shared_ptr<GameObject> &attacker, const BIT_FIELD effects, const bool ignore_invictus);
+
+    /**
+     * @brief
+     *  This function gives some purelife points to the target, ignoring any resistances and so forth.
+     * @param healer
+     *  the healer
+     * @param amount
+     *  the amount to heal the character
+     */
+    bool heal(const std::shared_ptr<GameObject> &healer, const UFP8_T amount, const bool ignoreInvincibility);
+
+private:
+
+    /**
+    * @brief This function should be used whenever a character gets attacked or healed. The function
+    *        handles if the attacker is a held item (so that the holder becomes the attacker). The function also
+    *        updates alerts, timers, etc. This function can trigger character cries like "That tickles!" or "Be careful!"
+    **/
+    void updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing);
 
 public:
     bool terminateRequested;         ///< True if this character no longer exists in the game and should be destructed
@@ -419,7 +469,8 @@ public:
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 private:
-    CHR_REF _characterID;             ///< Our unique CHR_REF id
+    CHR_REF _characterID;                               ///< Our unique CHR_REF id
+    const std::shared_ptr<ObjectProfile> &_profile;     ///< Our Profile
 
     fvec3_t _position;                ///< Character's position
 };

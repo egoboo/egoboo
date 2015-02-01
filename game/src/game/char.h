@@ -352,21 +352,7 @@ void drop_money( const CHR_REF character, int money );
 void call_for_help( const CHR_REF character );
 void give_experience( const CHR_REF character, int amount, XPType xptype, bool override_invictus );
 void give_team_experience( const TEAM_REF team, int amount, XPType xptype );
-int  damage_character( const CHR_REF character, const FACING_T direction,
-                       const IPair damage, const Uint8 damagetype, const TEAM_REF team,
-                       const CHR_REF attacker, const BIT_FIELD effects, const bool ignore_invictus );
 void kill_character( const CHR_REF character, const CHR_REF killer, bool ignore_invictus );
-/**
- * @brief
- *	This function gives some purelife points to the target, ignoring any resistances and so forth.
- * @param character
- *	the character
- * @param healer
- *	the healer
- * @param amount
- *	the amount to heal the character
- */
-bool heal_character( const CHR_REF character, const CHR_REF healer, UFP8_T amount, bool ignore_invictus );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
 void spawn_defense_ping( GameObject *pchr, const CHR_REF attacker );
 
