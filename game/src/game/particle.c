@@ -2788,15 +2788,11 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
 
     // this is often set to zero when the particle hits something
-    max_damage = ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand );
+    max_damage = std::abs( loc_pprt->damage.base ) + std::abs( loc_pprt->damage.rand );
 
     // wait until the right time
     update_count = update_wld + loc_pprt->obj_base.guid;
     if ( 0 != ( update_count & 31 ) ) return pbdl_prt;
-
-    /// @note ZF@> This is already checked in prt_update_ingame()
-    // do nothing if the particle is hidden
-    //if ( loc_pprt->is_hidden ) return;
 
     // we must be attached to something
     if ( !_gameObjects.exists( loc_pprt->attachedto_ref ) ) return pbdl_prt;

@@ -3017,27 +3017,29 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     ///    left.
 
     int     action;
-    int     actual_damage, base_damage, max_damage;
-    GameObject * pchr;
     bool do_feedback = ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback );
-    bool friendly_fire = false, immune_to_damage = false;
-    Uint8  damage_modifier = 0;
 
-    // what to do is damagetype == NONE?
+    const std::shared_ptr<GameObject> &pchr = _gameObjects[character];
+    if(!pchr) {
+        return 0;
+    }
 
-    if ( !_gameObjects.exists( character ) ) return 0;
-    pchr = _gameObjects.get( character );
+    //Simply ignore damaging invincible targets
+    if(pchr->invictus && !ignore_invictus) {
+        return 0;
+    }
 
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
-
-    // make a special exception for DAMAGE_NONE
-    damage_modifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_modifier[damagetype];
+    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
 
     //Don't continue if there is no damage or the character isn't alive
-    max_damage = ABS( damage.base ) + ABS( damage.rand );
+    int max_damage = std::abs( damage.base ) + std::abs( damage.rand );
     if ( !pchr->alive || 0 == max_damage ) return 0;
 
+    // make a special exception for DAMAGE_NONE
+    uint8_t damage_modifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_modifier[damagetype];
+
     // determine some optional behavior
+    bool friendly_fire = false;
     if ( !_gameObjects.exists( attacker ) )
     {
         do_feedback = false;
@@ -3051,7 +3053,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
         }
 
         // identify friendly fire for color selection :)
-        if ( chr_get_iteam( character ) == chr_get_iteam( attacker ) )
+        if ( pchr->getTeam() == chr_get_iteam( attacker ) )
         {
             friendly_fire = true;
         }
@@ -3071,8 +3073,8 @@ int damage_character( const CHR_REF character, const FACING_T direction,
 
     // Lessen actual_damage for resistance, resistance is done in percentages where 0.70f means 30% damage reduction from that damage type
     // This can also be used to lessen effectiveness of healing
-    actual_damage = generate_irand_pair( damage );
-    base_damage   = actual_damage;
+    int actual_damage = generate_irand_pair( damage );
+    int base_damage   = actual_damage;
     actual_damage *= std::max( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - pchr->damage_resistance[damagetype] );
 
     // Increase electric damage when in water
@@ -3090,7 +3092,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
         manadamage = std::max( pchr->mana - actual_damage, 0 );
         pchr->mana = manadamage;
         actual_damage -= manadamage;
-        chr_update_attacker( pchr, attacker, false );
+        chr_update_attacker( pchr.get(), attacker, false );
     }
 
     // Allow charging (Invert actual_damage to mana)
@@ -3113,8 +3115,8 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     pchr->ai.directionlast  = direction;
 
     // Check for characters who are immune to this damage, no need to continue if they have
-    immune_to_damage = ( actual_damage > 0 && actual_damage <= pchr->damage_threshold ) || HAS_SOME_BITS( damage_modifier, DAMAGEINVICTUS );
-    if ( immune_to_damage )
+    bool immune_to_damage = ( actual_damage > 0 && actual_damage <= pchr->damage_threshold ) || HAS_SOME_BITS( damage_modifier, DAMAGEINVICTUS );
+    if ( immune_to_damage && !ignore_invictus )
     {
         actual_damage = 0;
 
@@ -3127,7 +3129,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
             SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
             GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
 
-            spawn_defense_ping( pchr, attacker );
+            spawn_defense_ping( pchr.get(), attacker );
             chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
         }
     }
@@ -3150,9 +3152,11 @@ int damage_character( const CHR_REF character, const FACING_T direction,
 
             if ( 0 != actual_damage )
             {
+                //Does armor apply?
                 if ( HAS_NO_BITS( DAMFX_ARMO, effects ) )
                 {
-                    actual_damage *= pchr->defense * INV_FF;
+                    //Armor can reduce up to 50% of the damage (at 255)
+                    actual_damage *= 0.5f + (256.0f - pchr->defense)/256.0f;
                 }
 
                 pchr->life -= actual_damage;
@@ -3176,22 +3180,23 @@ int damage_character( const CHR_REF character, const FACING_T direction,
                     }
                     else
                     {
-                        chr_update_attacker( pchr, attacker, false );
+                        chr_update_attacker( pchr.get(), attacker, false );
                     }
                 }
 
-                // Taking actual_damage action
+                //Did we survive?
                 if ( pchr->life <= 0 )
                 {
                     kill_character( character, attacker, ignore_invictus );
                 }
                 else
                 {
+                    //Yes, but play the hurt animation
                     action = ACTION_HA;
                     if ( base_damage > HURTDAMAGE )
                     {
                         action += generate_randmask( 0, 3 );
-                        chr_play_action( pchr, action, false );
+                        chr_play_action( pchr.get(), action, false );
 
                         // Make the character invincible for a limited time only
                         if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
@@ -5251,7 +5256,6 @@ void move_one_character_do_voluntary( GameObject * pchr )
 //--------------------------------------------------------------------------------------------
 bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
 {
-    GameObject * pweapon;
     CHR_REF ichr, iweapon;
     MAD_REF imad;
 
@@ -5274,8 +5278,8 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
         // Unarmed means character itself is the iweapon
         iweapon = ichr;
     }
-    pweapon     = _gameObjects.get( iweapon );
-    std::shared_ptr<ObjectProfile> weaponProfile = _profileSystem.getProfile(pweapon->profile_ref);
+    GameObject *pweapon     = _gameObjects.get(iweapon);
+    const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
     //No need to continue if we have an attack cooldown
     if ( 0 != pweapon->reload_timer ) return false;
@@ -5346,15 +5350,14 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
     if ( allowedtoattack )
     {
         // Rearing mount
-        CHR_REF mount = pchr->attachedto;
+        const std::shared_ptr<GameObject> &pmount = _gameObjects[pchr->attachedto];
 
-        if ( _gameObjects.exists( mount ) )
+        if (pmount)
         {
-            GameObject * pmount = _gameObjects.get( mount );
-            const ObjectProfile *mountProfile = chr_get_ppro(mount);
+            const std::shared_ptr<ObjectProfile> &mountProfile = pmount->getProfile();
 
             // let the mount steal the rider's attack
-            if ( !mountProfile->riderCanAttack() ) allowedtoattack = false;
+            if (!mountProfile->riderCanAttack()) allowedtoattack = false;
 
             // can the mount do anything?
             if ( pmount->isMount() && pmount->alive )
@@ -5364,9 +5367,9 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !mountProfile->riderCanAttack() )
                     {
-                        chr_play_action( pmount, generate_randmask( ACTION_UA, 1 ), false );
+                        chr_play_action( pmount.get(), generate_randmask( ACTION_UA, 1 ), false );
                         SET_BIT( pmount->ai.alert, ALERTIF_USED );
-                        pchr->ai.lastitemused = mount;
+                        pchr->ai.lastitemused = pmount->getCharacterID();
 
                         retval = true;
                     }
@@ -5380,10 +5383,22 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
     {
         if ( pchr->inst.action_ready && action_valid )
         {
-            if(pchr->getProfile()->getUseManaCost() <= pchr->mana)
+            //Check if we are attacking unarmed and cost mana to do so
+            int manacost;
+            if(iweapon == pchr->getCharacterID())
             {
-                cost_mana(pchr->getCharacterID(), pchr->getProfile()->getUseManaCost(), pchr->getCharacterID());
+                if(pchr->getProfile()->getUseManaCost() <= pchr->mana)
+                {
+                    cost_mana(pchr->getCharacterID(), pchr->getProfile()->getUseManaCost(), pchr->getCharacterID());
+                }
+                else
+                {
+                    allowedtoattack = false;
+                }
+            }
 
+            if(allowedtoattack)
+            {
                 Uint32 action_madfx = 0;
 
                 // randomize the action
