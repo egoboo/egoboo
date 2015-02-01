@@ -3194,7 +3194,8 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
             }
 
             // Damage the character
-            pdata->actual_damage = damage_character( GET_INDEX_PCHR( pdata->pchr ), direction, loc_damage, pdata->pprt->damagetype, pdata->pprt->team, pdata->pprt->owner_ref, pdata->ppip->damfx, false );
+            pdata->actual_damage = pdata->pchr->damage(direction, loc_damage, static_cast<DamageType>(pdata->pprt->damagetype), 
+                pdata->pprt->team, _gameObjects[pdata->pprt->owner_ref], pdata->ppip->damfx, false);
         }
     }
 

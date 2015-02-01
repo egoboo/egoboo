@@ -180,6 +180,7 @@ GameObject::GameObject(const PRO_REF profile, const CHR_REF id) :
     crumbs(),
 
     _characterID(id),
+    _profile(_profileSystem.getProfile(profile)),
     _position(0.0f, 0.0f, 0.0f)
 {
     // Construct the BSP node for this entity.
@@ -223,11 +224,6 @@ GameObject::~GameObject()
     ai_state_dtor( &ai );
 
     EGOBOO_ASSERT( nullptr == inst.vrt_lst );
-}
-
-const std::shared_ptr<ObjectProfile>& GameObject::getProfile() const
-{
-    return _profileSystem.getProfile(profile_ref);
 }
 
 bool GameObject::isOverWater() const
@@ -335,4 +331,316 @@ bool GameObject::canMount(const std::shared_ptr<GameObject> mount) const
     bool has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
 
     return has_ride_anim;
+}
+
+
+//--------------------------------------------------------------------------------------------
+int GameObject::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
+                      const std::shared_ptr<GameObject> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
+{
+    int     action;
+    bool do_feedback = ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback );
+
+    //Simply ignore damaging invincible targets
+    if(invictus && !ignore_invictus) {
+        return 0;
+    }
+
+    //Don't continue if there is no damage or the character isn't alive
+    int max_damage = std::abs( damage.base ) + std::abs( damage.rand );
+    if ( !alive || 0 == max_damage ) return 0;
+
+    // make a special exception for DAMAGE_NONE
+    uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : damage_modifier[damagetype];
+
+    // determine some optional behavior
+    bool friendly_fire = false;
+    if ( !attacker )
+    {
+        do_feedback = false;
+    }
+    else
+    {
+        // do not show feedback for damaging yourself
+        if ( attacker.get() == this )
+        {
+            do_feedback = false;
+        }
+
+        // identify friendly fire for color selection :)
+        if ( getTeam() == attacker->getTeam() )
+        {
+            friendly_fire = true;
+        }
+
+        // don't show feedback from random objects hitting each other
+        if ( !attacker->show_stats )
+        {
+            do_feedback = false;
+        }
+
+        // don't show damage to players since they get feedback from the status bars
+        if ( show_stats || VALID_PLA( is_which_player ) )
+        {
+            do_feedback = false;
+        }
+    }
+
+    // Lessen actual_damage for resistance, resistance is done in percentages where 0.70f means 30% damage reduction from that damage type
+    // This can also be used to lessen effectiveness of healing
+    int actual_damage = generate_irand_pair( damage );
+    int base_damage   = actual_damage;
+    actual_damage *= std::max( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - damage_resistance[damagetype] );
+
+    // Increase electric damage when in water
+    if ( damagetype == DAMAGE_ZAP && isOverWater() )
+    {
+        // Only if actually in the water
+        if ( getPosZ() <= water.surface_level )
+            actual_damage *= 2.0f;     /// @note ZF> Is double damage too much?
+    }
+
+    // Allow actual_damage to be dealt to mana (mana shield spell)
+    if (HAS_SOME_BITS(damageModifier, DAMAGEMANA))
+    {
+        int manadamage;
+        manadamage = std::max( mana - actual_damage, 0 );
+        mana = manadamage;
+        actual_damage -= manadamage;
+        updateLastAttacker(attacker, false);
+    }
+
+    // Allow charging (Invert actual_damage to mana)
+    if (HAS_SOME_BITS(damageModifier, DAMAGECHARGE))
+    {
+        mana += actual_damage;
+        if ( mana > mana_max )
+        {
+            mana = mana_max;
+        }
+        return 0;
+    }
+
+    // Invert actual_damage to heal
+    if (HAS_SOME_BITS(damageModifier, DAMAGEINVERT))
+    {
+        actual_damage = -actual_damage;        
+    }
+
+    // Remember the actual_damage type
+    ai.damagetypelast = damagetype;
+    ai.directionlast  = direction;
+
+    // Check for characters who are immune to this damage, no need to continue if they have
+    bool immune_to_damage = (actual_damage > 0 && actual_damage <= damage_threshold) || HAS_SOME_BITS(damageModifier, DAMAGEINVICTUS);
+    if ( immune_to_damage && !ignore_invictus )
+    {
+        actual_damage = 0;
+
+        //Tell that the character is simply immune to the damage
+        //but don't do message and ping for mounts, it's just irritating
+        if ( !isMount() )
+        {
+            //Dark green text
+            const float lifetime = 3;
+            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+            GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
+
+            spawn_defense_ping( this, attacker->getCharacterID() );
+            chr_make_text_billboard(_characterID, "Immune!", text_color, tint, lifetime, bb_opt_all);
+        }
+    }
+
+    // Do it already
+    if ( actual_damage > 0 )
+    {
+        // Only actual_damage if not invincible
+        if ( 0 == damage_timer || ignore_invictus )
+        {
+            // Normal mode reduces damage dealt by monsters with 30%!
+            if (cfg.difficulty == GAME_NORMAL && VALID_PLA(is_which_player))
+            {
+                actual_damage *= 0.70f;
+            }
+
+            // Easy mode deals 25% extra actual damage by players and 50% less to players
+            if ( cfg.difficulty <= GAME_EASY )
+            {
+                if ( VALID_PLA( attacker->is_which_player )  && !VALID_PLA(is_which_player) ) actual_damage *= 1.25f;
+                if ( !VALID_PLA( attacker->is_which_player ) &&  VALID_PLA(is_which_player) ) actual_damage *= 0.5f;
+            }
+
+            if ( 0 != actual_damage )
+            {
+                //Does armor apply?
+                if ( HAS_NO_BITS( DAMFX_ARMO, effects ) )
+                {
+                    //Armor can reduce up to 50% of the damage (at 255)
+                    actual_damage *= 0.5f + (256.0f - defense)/256.0f;
+                }
+
+                life -= actual_damage;
+
+                // Spawn blud particles
+                if ( _profile->getBludType() )
+                {
+                    if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DAMAGE_IS_PHYSICAL( damagetype ) ) )
+                    {
+                        spawnOneParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
+                                            INVALID_CHR_REF, GRIP_LAST, team, _characterID);
+                    }
+                }
+
+                // Set attack alert if it wasn't an accident
+                if ( base_damage > HURTDAMAGE )
+                {
+                    if ( team == TEAM_DAMAGE )
+                    {
+                        ai.attacklast = INVALID_CHR_REF;
+                    }
+                    else
+                    {
+                        updateLastAttacker(attacker, false );
+                    }
+                }
+
+                //Did we survive?
+                if (life <= 0)
+                {
+                    kill_character( _characterID, attacker->getCharacterID(), ignore_invictus );
+                }
+                else
+                {
+                    //Yes, but play the hurt animation
+                    action = ACTION_HA;
+                    if ( base_damage > HURTDAMAGE )
+                    {
+                        action += generate_randmask(0, 3);
+                        chr_play_action(this, action, false);
+
+                        // Make the character invincible for a limited time only
+                        if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
+                        {
+                            damage_timer = DAMAGETIME;
+                        }
+                    }
+                }
+            }
+
+            /// @test spawn a fly-away damage indicator?
+            if ( do_feedback )
+            {
+                const char * tmpstr;
+                int rank;
+
+                //tmpstr = describe_wounds( pchr->life_max, pchr->life );
+
+                tmpstr = describe_value( actual_damage, UINT_TO_UFP8( 10 ), &rank );
+                if ( rank < 4 )
+                {
+                    tmpstr = describe_value( actual_damage, max_damage, &rank );
+                    if ( rank < 0 )
+                    {
+                        tmpstr = "Fumble!";
+                    }
+                    else
+                    {
+                        tmpstr = describe_damage( actual_damage, life_max, &rank );
+                        if ( rank >= -1 && rank <= 1 )
+                        {
+                            tmpstr = describe_wounds( life_max, life );
+                        }
+                    }
+                }
+
+                if ( NULL != tmpstr )
+                {
+                    const int lifetime = 3;
+                    STRING text_buffer = EMPTY_CSTR;
+
+                    // "white" text
+                    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+
+                    // friendly fire damage = "purple"
+                    GLXvector4f tint_friend = { 0.88f, 0.75f, 1.00f, 1.00f };
+
+                    // enemy damage = "red"
+                    GLXvector4f tint_enemy  = { 1.00f, 0.75f, 0.75f, 1.00f };
+
+                    // write the string into the buffer
+                    snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
+
+                    chr_make_text_billboard(_characterID, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, bb_opt_all );
+                }
+            }
+        }
+    }
+
+    // Heal 'em instead
+    else if ( actual_damage < 0 )
+    {
+        heal_character(_characterID, attacker->getCharacterID(), -actual_damage, ignore_invictus);
+
+        // Isssue an alert
+        if ( team == TEAM_DAMAGE )
+        {
+            ai.attacklast = INVALID_CHR_REF;
+        }
+
+        /// @test spawn a fly-away heal indicator?
+        if ( do_feedback )
+        {
+            const float lifetime = 3;
+            STRING text_buffer = EMPTY_CSTR;
+
+            // "white" text
+            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+
+            // heal == yellow, right ;)
+            GLXvector4f tint = { 1.00f, 1.00f, 0.75f, 1.00f };
+
+            // write the string into the buffer
+            snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
+
+            chr_make_text_billboard(_characterID, text_buffer, text_color, tint, lifetime, bb_opt_all );
+        }
+    }
+
+    return actual_damage;
+}
+
+//--------------------------------------------------------------------------------------------
+void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing)
+{
+    CHR_REF actual_attacker = attacker->getCharacterID();
+
+    // Don't let characters chase themselves...  That would be silly
+    if ( ai.index == attacker->getCharacterID() ) return;
+
+    // Don't alert the character too much if under constant fire
+    if (0 != careful_timer) return;
+
+    // Figure out who is the real attacker, in case we are a held item or a controlled mount
+    if (!attacker)
+    {
+        //Do not alert items damaging (or healing) their holders, healing potions for example
+        if ( attacker->attachedto ==ai.index ) return;
+
+        //If we are held, the holder is the real attacker... unless the holder is a mount
+        if ( _gameObjects.exists( attacker->attachedto ) && !_gameObjects.get(attacker->attachedto)->isMount() )
+        {
+            actual_attacker = attacker->attachedto;
+        }
+
+        //If the attacker is a mount, try to blame the rider
+        else if ( attacker->isMount() && _gameObjects.exists( attacker->holdingwhich[SLOT_LEFT] ) )
+        {
+            actual_attacker = attacker->holdingwhich[SLOT_LEFT];
+        }
+    }
+
+    //Update alerts and timers
+    ai.attacklast = actual_attacker;
+    SET_BIT( ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED );
+    careful_timer = CAREFULTIME;
 }

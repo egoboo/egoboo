@@ -1539,10 +1539,16 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
+    const std::shared_ptr<GameObject> &target = _gameObjects[pself->target];
+    if(!target) {
+        return false;
+    }
+
     tmp_damage.base = pstate->argument;
     tmp_damage.rand = 1;
 
-    damage_character( pself->target, ATK_FRONT, tmp_damage, pchr->damagetarget_damagetype, pchr->team, pself->index, DAMFX_NBLOC, true );
+    target->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pchr->damagetarget_damagetype), 
+        pchr->team, _gameObjects[pself->index], DAMFX_NBLOC, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -8021,10 +8027,15 @@ Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
+    const std::shared_ptr<GameObject> &target = _gameObjects[pself->target];
+    if(!target) {
+        return false;
+    }
+
     tmp_damage.base = pstate->argument;
     tmp_damage.rand = 1;
 
-    damage_character( pself->index, ATK_FRONT, tmp_damage, pstate->distance, chr_get_iteam( pself->target ), pself->target, DAMFX_NBLOC, true );
+    pchr->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pstate->distance), target->getTeam(), target, DAMFX_NBLOC, true);
 
     SCRIPT_FUNCTION_END();
 }

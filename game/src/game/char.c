@@ -2094,26 +2094,22 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 {
     /// @author ZZ
     /// @details This function spawns an attack particle
-
-    CHR_REF iweapon, ithrown, iholder;
-    GameObject * pchr, * pweapon;
-
-    PRT_REF iparticle;
-
     int    spawn_vrt_offset;
     int    action;
     TURN_T turn;
     float  velocity;
 
-    bool unarmed_attack;
 
-    if ( !_gameObjects.exists( ichr ) ) return;
-    pchr = _gameObjects.get( ichr );
+    const std::shared_ptr<GameObject> &pchr = _gameObjects[ichr];
+    if(!pchr) {
+        return;
+    }
 
-    iweapon = pchr->holdingwhich[slot];
+    CHR_REF iweapon = pchr->holdingwhich[slot];
 
     // See if it's an unarmed attack...
-    if ( INVALID_CHR_REF == iweapon )
+    bool unarmed_attack;
+    if ( !_gameObjects.exists(iweapon) )
     {
         unarmed_attack   = true;
         iweapon          = ichr;
@@ -2126,13 +2122,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
         action = pchr->inst.action_which;
     }
 
-    if ( !_gameObjects.exists( iweapon ) ) return;
-    pweapon = _gameObjects.get( iweapon );
-
-    const ObjectProfile *weaponProfile = chr_get_ppro( iweapon );
+    const std::shared_ptr<GameObject> &pweapon = _gameObjects[iweapon];
+    const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
     // find the 1st non-item that is holding the weapon
-    iholder = chr_get_lowest_attachment( iweapon, true );
+    CHR_REF iholder = chr_get_lowest_attachment( iweapon, true );
 
     /*
         if ( iweapon != iholder && iweapon != ichr )
@@ -2157,7 +2151,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( weaponProfile->isStackable() && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        ithrown = spawn_one_character(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
+        CHR_REF ithrown = spawn_one_character(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
         if (_gameObjects.exists(ithrown))
         {
             GameObject * pthrown = _gameObjects.get( ithrown );
@@ -2186,7 +2180,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // Poof the item
                 detach_character_from_mount( iweapon, true, false );
-                chr_request_terminate( pweapon );
+                chr_request_terminate( pweapon.get() );
             }
             else
             {
@@ -2204,12 +2198,14 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 pweapon->ammo--;  // Ammo usage
             }
 
+            PIP_REF attackParticle = weaponProfile->getAttackParticleProfile();
+
             // Spawn an attack particle
-            if ( INVALID_PIP_REF != weaponProfile->getAttackParticleProfile() )
+            if (INVALID_PIP_REF != attackParticle)
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawnOneParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), weaponProfile->getAttackParticleProfile(), iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
+                PRT_REF iparticle = spawnOneParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
 
                 if ( _DEFINED_PRT( iparticle ) )
                 {
@@ -2270,6 +2266,14 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
                     prt_set_pos(pprt, tmp_pos);
                 }
+                else
+                {
+                    log_debug("character_swipe() - unable to spawn attack particle for %s\n", weaponProfile->getClassName().c_str());
+                }
+            }
+            else
+            {
+                log_debug("character_swipe() - Invalid attack particle: %s\n", weaponProfile->getClassName().c_str());
             }
         }
         else
@@ -2285,23 +2289,24 @@ void drop_money( const CHR_REF character, int money )
     /// @author ZZ
     /// @details This function drops some of a character's money
 
-    int vals[PIP_MONEY_COUNT] = {1, 5, 25, 100, 200, 500, 1000, 2000};
-    int pips[PIP_MONEY_COUNT] =
+    static const std::array<int, PIP_MONEY_COUNT> vals = {1, 5, 25, 100, 200, 500, 1000, 2000};
+    static const std::array<PIP_REF, PIP_MONEY_COUNT> pips =
     {
         PIP_COIN1, PIP_COIN5, PIP_COIN25, PIP_COIN100,
         PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
     };
 
-    GameObject *pchr;
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
+    const std::shared_ptr<GameObject> &pchr = _gameObjects[character];
+    if(!pchr) {
+        return;
+    }
 
 	fvec3_t loc_pos = pchr->getPosition();
 
     // limit the about of money to the character's actual money
-    if ( money > _gameObjects.get(character)->money )
+    if ( money > pchr->money )
     {
-        money = _gameObjects.get(character)->money;
+        money = pchr->money;
     }
 
     if ( money > 0 && loc_pos.z > -2 )
@@ -3002,291 +3007,6 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
 
     // Stop any looped sounds
     _audioSystem.stopObjectLoopingSounds( ichr );
-}
-
-//--------------------------------------------------------------------------------------------
-int damage_character( const CHR_REF character, const FACING_T direction,
-                      const IPair  damage, const Uint8 damagetype, const TEAM_REF team,
-                      const CHR_REF attacker, const BIT_FIELD effects, const bool ignore_invictus )
-{
-    /// @author ZZ
-    /// @details This function calculates and applies damage to a character.  It also
-    ///    sets alerts and begins actions.  Blocking and frame invincibility
-    ///    are done here too.  Direction is ATK_FRONT if the attack is coming head on,
-    ///    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
-    ///    left.
-
-    int     action;
-    bool do_feedback = ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback );
-
-    const std::shared_ptr<GameObject> &pchr = _gameObjects[character];
-    if(!pchr) {
-        return 0;
-    }
-
-    //Simply ignore damaging invincible targets
-    if(pchr->invictus && !ignore_invictus) {
-        return 0;
-    }
-
-    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
-
-    //Don't continue if there is no damage or the character isn't alive
-    int max_damage = std::abs( damage.base ) + std::abs( damage.rand );
-    if ( !pchr->alive || 0 == max_damage ) return 0;
-
-    // make a special exception for DAMAGE_NONE
-    uint8_t damage_modifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_modifier[damagetype];
-
-    // determine some optional behavior
-    bool friendly_fire = false;
-    if ( !_gameObjects.exists( attacker ) )
-    {
-        do_feedback = false;
-    }
-    else
-    {
-        // do not show feedback for damaging yourself
-        if ( attacker == character )
-        {
-            do_feedback = false;
-        }
-
-        // identify friendly fire for color selection :)
-        if ( pchr->getTeam() == chr_get_iteam( attacker ) )
-        {
-            friendly_fire = true;
-        }
-
-        // don't show feedback from random objects hitting each other
-        if ( !_gameObjects.get(attacker)->show_stats )
-        {
-            do_feedback = false;
-        }
-
-        // don't show damage to players since they get feedback from the status bars
-        if ( pchr->show_stats || VALID_PLA( pchr->is_which_player ) )
-        {
-            do_feedback = false;
-        }
-    }
-
-    // Lessen actual_damage for resistance, resistance is done in percentages where 0.70f means 30% damage reduction from that damage type
-    // This can also be used to lessen effectiveness of healing
-    int actual_damage = generate_irand_pair( damage );
-    int base_damage   = actual_damage;
-    actual_damage *= std::max( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - pchr->damage_resistance[damagetype] );
-
-    // Increase electric damage when in water
-    if ( damagetype == DAMAGE_ZAP && pchr->isOverWater() )
-    {
-        // Only if actually in the water
-        if ( pchr->getPosZ() <= water.surface_level )
-            actual_damage *= 2.0f;     /// @note ZF> Is double damage too much?
-    }
-
-    // Allow actual_damage to be dealt to mana (mana shield spell)
-    if ( HAS_SOME_BITS( damage_modifier, DAMAGEMANA ) )
-    {
-        int manadamage;
-        manadamage = std::max( pchr->mana - actual_damage, 0 );
-        pchr->mana = manadamage;
-        actual_damage -= manadamage;
-        chr_update_attacker( pchr.get(), attacker, false );
-    }
-
-    // Allow charging (Invert actual_damage to mana)
-    if ( HAS_SOME_BITS( damage_modifier, DAMAGECHARGE ) )
-    {
-        pchr->mana += actual_damage;
-        if ( pchr->mana > pchr->mana_max )
-        {
-            pchr->mana = pchr->mana_max;
-        }
-        return 0;
-    }
-
-    // Invert actual_damage to heal
-    if ( HAS_SOME_BITS( damage_modifier, DAMAGEINVERT ) )
-        actual_damage = -actual_damage;
-
-    // Remember the actual_damage type
-    pchr->ai.damagetypelast = damagetype;
-    pchr->ai.directionlast  = direction;
-
-    // Check for characters who are immune to this damage, no need to continue if they have
-    bool immune_to_damage = ( actual_damage > 0 && actual_damage <= pchr->damage_threshold ) || HAS_SOME_BITS( damage_modifier, DAMAGEINVICTUS );
-    if ( immune_to_damage && !ignore_invictus )
-    {
-        actual_damage = 0;
-
-        //Tell that the character is simply immune to the damage
-        //but don't do message and ping for mounts, it's just irritating
-        if ( !pchr->isMount() )
-        {
-            //Dark green text
-            const float lifetime = 3;
-            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-            GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
-
-            spawn_defense_ping( pchr.get(), attacker );
-            chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
-        }
-    }
-
-    // Do it already
-    if ( actual_damage > 0 )
-    {
-        // Only actual_damage if not invincible
-        if ( 0 == pchr->damage_timer || ignore_invictus )
-        {
-            // Normal mode reduces damage dealt by monsters with 30%!
-            if ( cfg.difficulty == GAME_NORMAL && VALID_PLA( pchr->is_which_player ) /*&& !VALID_PLA( _gameObjects.get(attacker)->is_which_player )*/ ) actual_damage *= 0.70f;
-
-            // Easy mode deals 25% extra actual damage by players and 50% less to players
-            if ( cfg.difficulty <= GAME_EASY )
-            {
-                if ( VALID_PLA( _gameObjects.get(attacker)->is_which_player ) && !VALID_PLA( pchr->is_which_player ) ) actual_damage *= 1.25f;
-                if ( !VALID_PLA( _gameObjects.get(attacker)->is_which_player ) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.5f;
-            }
-
-            if ( 0 != actual_damage )
-            {
-                //Does armor apply?
-                if ( HAS_NO_BITS( DAMFX_ARMO, effects ) )
-                {
-                    //Armor can reduce up to 50% of the damage (at 255)
-                    actual_damage *= 0.5f + (256.0f - pchr->defense)/256.0f;
-                }
-
-                pchr->life -= actual_damage;
-
-                // Spawn blud particles
-                if ( profile->getBludType() )
-                {
-                    if ( profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DAMAGE_IS_PHYSICAL( damagetype ) ) )
-                    {
-                        spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z + direction, profile->getSlotNumber(), profile->getBludParticleProfile(),
-                                            INVALID_CHR_REF, GRIP_LAST, pchr->team, character);
-                    }
-                }
-
-                // Set attack alert if it wasn't an accident
-                if ( base_damage > HURTDAMAGE )
-                {
-                    if ( team == TEAM_DAMAGE )
-                    {
-                        pchr->ai.attacklast = INVALID_CHR_REF;
-                    }
-                    else
-                    {
-                        chr_update_attacker( pchr.get(), attacker, false );
-                    }
-                }
-
-                //Did we survive?
-                if ( pchr->life <= 0 )
-                {
-                    kill_character( character, attacker, ignore_invictus );
-                }
-                else
-                {
-                    //Yes, but play the hurt animation
-                    action = ACTION_HA;
-                    if ( base_damage > HURTDAMAGE )
-                    {
-                        action += generate_randmask( 0, 3 );
-                        chr_play_action( pchr.get(), action, false );
-
-                        // Make the character invincible for a limited time only
-                        if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
-                        {
-                            pchr->damage_timer = DAMAGETIME;
-                        }
-                    }
-                }
-            }
-
-            /// @test spawn a fly-away damage indicator?
-            if ( do_feedback )
-            {
-                const char * tmpstr;
-                int rank;
-
-                //tmpstr = describe_wounds( pchr->life_max, pchr->life );
-
-                tmpstr = describe_value( actual_damage, UINT_TO_UFP8( 10 ), &rank );
-                if ( rank < 4 )
-                {
-                    tmpstr = describe_value( actual_damage, max_damage, &rank );
-                    if ( rank < 0 )
-                    {
-                        tmpstr = "Fumble!";
-                    }
-                    else
-                    {
-                        tmpstr = describe_damage( actual_damage, pchr->life_max, &rank );
-                        if ( rank >= -1 && rank <= 1 )
-                        {
-                            tmpstr = describe_wounds( pchr->life_max, pchr->life );
-                        }
-                    }
-                }
-
-                if ( NULL != tmpstr )
-                {
-                    const int lifetime = 3;
-                    STRING text_buffer = EMPTY_CSTR;
-
-                    // "white" text
-                    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-
-                    // friendly fire damage = "purple"
-                    GLXvector4f tint_friend = { 0.88f, 0.75f, 1.00f, 1.00f };
-
-                    // enemy damage = "red"
-                    GLXvector4f tint_enemy  = { 1.00f, 0.75f, 0.75f, 1.00f };
-
-                    // write the string into the buffer
-                    snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
-
-                    chr_make_text_billboard( character, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, bb_opt_all );
-                }
-            }
-        }
-    }
-
-    // Heal 'em instead
-    else if ( actual_damage < 0 )
-    {
-        heal_character( character, attacker, -actual_damage, ignore_invictus );
-
-        // Isssue an alert
-        if ( team == TEAM_DAMAGE )
-        {
-            pchr->ai.attacklast = INVALID_CHR_REF;
-        }
-
-        /// @test spawn a fly-away heal indicator?
-        if ( do_feedback )
-        {
-            const float lifetime = 3;
-            STRING text_buffer = EMPTY_CSTR;
-
-            // "white" text
-            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-
-            // heal == yellow, right ;)
-            GLXvector4f tint = { 1.00f, 1.00f, 0.75f, 1.00f };
-
-            // write the string into the buffer
-            snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
-
-            chr_make_text_billboard( character, text_buffer, text_color, tint, lifetime, bb_opt_all );
-        }
-    }
-
-    return actual_damage;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -1888,8 +1888,9 @@ void do_damage_tiles()
 
         if ( 0 == pchr->damage_timer )
         {
-            int actual_damage;
-            actual_damage = damage_character(pchr->getCharacterID(), ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, INVALID_CHR_REF, DAMFX_NBLOC | DAMFX_ARMO, false );
+            int actual_damage = pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), 
+                TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
+
             pchr->damage_timer = DAMAGETILETIME;
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
@@ -1977,7 +1978,8 @@ void update_pits()
                         }
 
                         // Do some damage (same as damage tile)
-                        damage_character( pchr->getCharacterID(), ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, chr_get_pai( pchr->getCharacterID() )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, false );
+                        pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), TEAM_DAMAGE, 
+                            _gameObjects[chr_get_pai(pchr->getCharacterID())->bumplast], DAMFX_NBLOC | DAMFX_ARMO, false);
                     }
                 }
             }

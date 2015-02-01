@@ -352,9 +352,6 @@ void drop_money( const CHR_REF character, int money );
 void call_for_help( const CHR_REF character );
 void give_experience( const CHR_REF character, int amount, XPType xptype, bool override_invictus );
 void give_team_experience( const TEAM_REF team, int amount, XPType xptype );
-int  damage_character( const CHR_REF character, const FACING_T direction,
-                       const IPair damage, const Uint8 damagetype, const TEAM_REF team,
-                       const CHR_REF attacker, const BIT_FIELD effects, const bool ignore_invictus );
 void kill_character( const CHR_REF character, const CHR_REF killer, bool ignore_invictus );
 /**
  * @brief
