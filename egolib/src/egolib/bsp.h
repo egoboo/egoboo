@@ -93,7 +93,7 @@ public:
 
 	static bool clear(BSP_leaf_t * L);
 	static bool remove_link(BSP_leaf_t * L);
-	static bool copy(BSP_leaf_t * L_dst, const BSP_leaf_t * L_src);
+	bool assign(const BSP_leaf_t& other);
 
 protected:
 	bool inserted;
@@ -172,7 +172,7 @@ public:
 	 * @brief
 	 *	Clear the leaf list.
 	 * @warning
-	 *	This function does not update the bounding box of this leaf list.
+	 *	This function does update the bounding box of this leaf list.
 	 */
 	void clear();
 
@@ -303,26 +303,49 @@ public:
 	bool add_all_leaves(BSP_leaf_test_t& test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 	/**
-	* @brief
-	*	Unlink this branch from its parent and the parent from this branch.
-	* @param self
-	*	this branch
-	* @remark
-	*	If this branch has no parent, a call to this function is a no-op.
-	*/
-	bool unlink_parent();
+	 * @brief
+	 *	Recursively search the BSP tree for collisions with an AABB.
+	 * @return
+	 *	@a false if we need to break out of the recursive search for any reason.
+	 */
+	bool collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	
+	/**
+	 * @brief
+	 *	Recursively search the BSP tree for collisions with a frustum.
+	 * @return
+	 *	@a false if we need to break out of the recursive search for any reason.
+	 */
+	bool collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
-	/// @author BB
-	/// @details Recursively search the BSP tree for collisions with the paabb
-	///      Return false if we need to break out of the recursive search for any reason.
-	static bool collide(const BSP_branch_t *self, const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
-	/// @author BB
-	/// @details Recursively search the BSP tree for collisions with the paabb
-	///      Return false if we need to break out of the recursive search for any reason.
-	static bool collide(const BSP_branch_t *self, const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+	/**
+	 * @brief
+	 *	Unlink any children and leaves (from this branch only, NOT recursively);
+	 *	unlink this branch from its parent and the parent from this branch.
+	 */
+	bool unlink_all();
+
+	/**
+	 * @brief
+	 *	Unlink this branch from its parent and the parent from this branch.
+	 * @remark
+	 *	If this branch has no parent, a call to this function is a no-op.
+	 */
+	bool unlink_parent();
+	
+	/**
+	 * @brief
+	 *	Unlink any children (from this branch only, NOT recursively).
+	 */
+	bool unlink_children();
+	
+	/**
+	 * @brief
+	 *	Unlink any leaves (from this branch only, NOT recursively).
+	 */
+	bool unlink_leaves();
 
 };
-
 
 /**
  * @brief
@@ -342,10 +365,7 @@ bool BSP_branch_clear(BSP_branch_t *self, bool recursive);
  *	if @a true, recursively remove all children
  */
 bool BSP_branch_free_nodes(BSP_branch_t *self, bool recursive);
-bool BSP_branch_unlink_all(BSP_branch_t *self);
 
-bool BSP_branch_unlink_children(BSP_branch_t *self);
-bool BSP_branch_unlink_nodes(BSP_branch_t *self);
 bool BSP_branch_update_depth_rec(BSP_branch_t *self, int depth);
 
 bool BSP_branch_insert_leaf_rec(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth);
@@ -484,19 +504,17 @@ public:
 	/**
 	 * @brief
 	 *	Prune all empty branches of this BSP tree.
-	 * @param self
-	 *	this BSP tree
 	 * @return
 	 *	@a true
 	 */
-	static bool prune(BSP_tree_t *self);
+	bool prune();
 };
 
 bool BSP_tree_clear_rec(BSP_tree_t *self);
 
 BSP_branch_t *BSP_tree_get_free(BSP_tree_t *self);
 
-BSP_branch_t *BSP_tree_ensure_branch(BSP_tree_t *self, BSP_branch_t *branch, size_t index);
+BSP_branch_t *BSP_tree_ensure_branch(BSP_branch_t *branch, BSP_tree_t *self, size_t index);
 /**
 * @brief
 *	Compute maximum number of nodes in a BSP tree of the given dimensionality and maximum depth.

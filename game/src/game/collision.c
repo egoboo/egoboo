@@ -1176,8 +1176,8 @@ bool fill_bumplists()
     // remove empty branches from the tree
     if (63 == ( game_frame_all & 63))
     {
-        BSP_tree_t::prune(&(getChrBSP()->tree));
-        BSP_tree_t::prune(&(getPrtBSP()->tree));
+        getChrBSP()->tree.prune();
+        getPrtBSP()->tree.prune();
     }
 
     return true;
