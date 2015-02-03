@@ -511,28 +511,25 @@ BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice )
 }
 
 //--------------------------------------------------------------------------------------------
-bool input_device_is_enabled( input_device_t *pdevice )
+bool input_device_is_enabled(input_device_t *self)
 {
-    /// @author ZF
-    /// @details This determines if the specified input device is enabled or not
-
     // assume the worst
     bool retval = false;
 
     // make sure the idevice is valid
-    if ( NULL == pdevice ) return false;
+    if (!self) return false;
 
-    if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type )
+    if ( INPUT_DEVICE_KEYBOARD == self->device_type )
     {
         retval = TO_C_BOOL( keyb.on );
     }
-    else if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
+    else if ( INPUT_DEVICE_MOUSE == self->device_type )
     {
         retval = TO_C_BOOL( mous.on );
     }
-    else if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
+    else if ( IS_VALID_JOYSTICK( self->device_type ) )
     {
-        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
+        int ijoy = self->device_type - INPUT_DEVICE_JOY;
 
         retval = TO_C_BOOL( joy_lst[ijoy].on );
     }

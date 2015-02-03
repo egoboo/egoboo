@@ -78,7 +78,7 @@ bool input_settings_load_vfs_3( const char* szFilename )
         type = translate_string_to_input_type( currenttag );
 
         // set the device type based on the control name
-        input_device_init( pdevice, type );
+        input_device_init( pdevice, (e_input_device)type );
 
         //Find out how many fields we are to read
         if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type ) count = CONTROL_COMMAND_COUNT;

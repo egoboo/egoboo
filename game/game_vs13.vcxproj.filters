@@ -51,6 +51,12 @@
     <Filter Include="Game Sources\Profile">
       <UniqueIdentifier>{e50c923b-71df-411d-a997-f995da596bca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Sources\GameLogic">
+      <UniqueIdentifier>{a9f63cb1-1c0e-481b-b7cc-ab1173106d85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\GameLogic">
+      <UniqueIdentifier>{1c38aee5-f243-43d6-ad79-52a8428b883b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\char.c">
@@ -202,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\ObjectHandler.cpp">
       <Filter>Game Sources\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\game_logic\GameObject.cpp">
+      <Filter>Game Sources\GameLogic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -363,6 +372,9 @@
     </ClInclude>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\ObjectHandler.hpp">
       <Filter>Game Header Files\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\game_logic\GameObject.hpp">
+      <Filter>Game Header Files\GameLogic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

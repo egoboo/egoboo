@@ -2670,7 +2670,7 @@ int doInputOptions( float deltaTime )
                     new_device_type = 0;
                 }
 
-                pdevice->device_type = new_device_type;
+                pdevice->device_type = (e_input_device)new_device_type;
 
                 update_input_type = ( new_device_type != old_device_type );
             }

@@ -245,7 +245,7 @@ void net_unbuffer_player_latches()
             }
 
             // remove all latches other than latchbutton_respawn
-            UNSET_BIT( pchr->latch.b, LATCHBUTTON_RESPAWN );
+            pchr->latch.b[LATCHBUTTON_RESPAWN] = 0;
         }
     }
 }

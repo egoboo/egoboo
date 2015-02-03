@@ -122,17 +122,17 @@ typedef struct s_status_list status_list_t;
 
 //--------------------------------------------------------------------------------------------
 
-/// The bitmasks for various in-game actions
+/// The offsets of Bits identifying in-game actions in a Bit set.
 enum e_latchbutton_bits
 {
-    LATCHBUTTON_LEFT      = ( 1 << 0 ),                      ///< Character button presses
-    LATCHBUTTON_RIGHT     = ( 1 << 1 ),
-    LATCHBUTTON_JUMP      = ( 1 << 2 ),
-    LATCHBUTTON_ALTLEFT   = ( 1 << 3 ),                      ///< ( Alts are for grab/drop )
-    LATCHBUTTON_ALTRIGHT  = ( 1 << 4 ),
-    LATCHBUTTON_PACKLEFT  = ( 1 << 5 ),                      ///< ( Used by AI script for inventory cycle )
-    LATCHBUTTON_PACKRIGHT = ( 1 << 6 ),                      ///< ( Used by AI script for inventory cycle )
-    LATCHBUTTON_RESPAWN   = ( 1 << 7 )
+    LATCHBUTTON_LEFT      = 0,                      ///< Character button presses
+    LATCHBUTTON_RIGHT     = 1,
+    LATCHBUTTON_JUMP      = 2,
+    LATCHBUTTON_ALTLEFT   = 3,                      ///< ( Alts are for grab/drop )
+    LATCHBUTTON_ALTRIGHT  = 4,
+    LATCHBUTTON_PACKLEFT  = 5,                      ///< ( Used by AI script for inventory cycle )
+    LATCHBUTTON_PACKRIGHT = 6,                      ///< ( Used by AI script for inventory cycle )
+    LATCHBUTTON_RESPAWN   = 7,
 };
 
 //--------------------------------------------------------------------------------------------

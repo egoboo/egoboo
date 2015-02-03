@@ -864,8 +864,6 @@ dolist_t * dolist_t::init(dolist_t *self, const size_t index)
 //--------------------------------------------------------------------------------------------
 gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
 {
-    size_t entries;
-
     if (nullptr == self)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
@@ -6526,7 +6524,6 @@ gfx_rv gfx_update_flashing( dolist_t * pdolist )
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_update_all_chr_instance()
 {
-    CHR_REF cnt;
     gfx_rv retval;
     gfx_rv tmp_rv;
 

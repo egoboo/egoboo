@@ -212,24 +212,30 @@ public:
 
     struct input_device_t
     {
-        float                   sustain;                            ///< Falloff rate for old movement
-        float                   cover;                              ///< For falloff
+		input_device_t();
 
-        latch_t                 latch;
-        latch_t                 latch_old;                          ///< For sustain
+        float sustain;                            ///< Falloff rate for old movement
+        float cover;                              ///< For falloff
 
-        int                     device_type;                        ///< Device type - mouse, keyboard, etc.
+        latch_t latch;
+        latch_t latch_old;                        ///< For sustain
+
+		e_input_device device_type;               ///< Device type - mouse, keyboard, etc.
         std::array<control_t, CONTROL_COMMAND_COUNT> keyMap;        ///< Key mappings
     };
 
-    input_device_t * input_device_ctor( input_device_t * pdevice );
-    void             input_device_init( input_device_t * pdevice, int type );
-    void             input_device_add_latch( input_device_t * pdevice, float newx, float newy );
+    input_device_t *input_device_ctor(input_device_t *self);
+	/// @brief Reset this input device.
+	/// @param type the new type of the input device.
+	///             If this is @a INPUT_DEVICE_UNKNOWN, then the original device type is retained.
+	void input_device_init(input_device_t *self, e_input_device type);
+    void input_device_add_latch(input_device_t *self, float newx, float newy);
 
 // special functions that must be implemented by the user
-    extern BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice );
-    extern bool      input_device_is_enabled( input_device_t *pdevice );
-    extern bool      input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol );
+    extern BIT_FIELD input_device_get_buttonmask(input_device_t *self);
+	/// @brief Get if this input device is enabled.
+	extern bool input_device_is_enabled(input_device_t *self);
+    extern bool input_device_control_active(input_device_t *self, CONTROL_BUTTON icontrol);
 
 //--------------------------------------------------------------------------------------------
 

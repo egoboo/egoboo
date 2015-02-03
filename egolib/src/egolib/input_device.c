@@ -122,6 +122,22 @@ void control_t::clear()
 //--------------------------------------------------------------------------------------------
 // input_device_t
 //--------------------------------------------------------------------------------------------
+input_device_t::input_device_t()
+{
+	// Clear out all the data, including all control data.
+	sustain = 0.0f;
+	cover = 0.0f;
+
+	latch.clear();
+	latch_old.clear();
+
+	device_type = INPUT_DEVICE_UNKNOWN;
+
+	for (control_t &control : keyMap)
+	{
+		control.clear();
+	}
+}
 input_device_t * input_device_ctor( input_device_t * pdevice )
 {
     if ( NULL == pdevice ) return NULL;
@@ -145,29 +161,33 @@ input_device_t * input_device_ctor( input_device_t * pdevice )
 }
 
 //--------------------------------------------------------------------------------------------
-void input_device_init( input_device_t * pdevice, int req_type )
+void input_device_init(input_device_t *self, e_input_device req_type)
 {
-    int type;
+	e_input_device type;
 
-    if ( NULL == pdevice ) return;
+    if (!self) return;
 
     // save the old type
-    if ( INPUT_DEVICE_UNKNOWN == req_type )
+    if (INPUT_DEVICE_UNKNOWN == req_type)
     {
-        type = pdevice->device_type;
+        type = self->device_type;
     }
     else
     {
         type = req_type;
     }
 
-    // clear out all the data
-    BLANK_STRUCT_PTR( pdevice )
-
     // set everything that is not 0, false, 0.0f, etc.
-    pdevice->sustain     = 0.58f;
-    pdevice->cover       = 1.0f - pdevice->sustain;
-    pdevice->device_type = type;
+	self->latch.clear();
+	self->latch_old.clear();
+    self->sustain = 0.58f;
+    self->cover = 1.0f - self->sustain;
+    self->device_type = type;
+	for (control_t &control : self->keyMap)
+	{
+		control.clear();
+	}
+
 }
 
 //--------------------------------------------------------------------------------------------
