@@ -17,6 +17,10 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
         virtual bool isEnabled() const;
         virtual void setEnabled(const bool enabled);
 
+        void setVisible(const bool visible);
+
+        bool isVisible() const;
+
         const SDL_Rect& getBounds() const;
         int getX() const;
         int getY() const;
@@ -49,6 +53,7 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
         bool _destroyed;
         SDL_Rect _bounds;
         bool _enabled;
+        bool _visible;
         ComponentContainer* _parent;
 
         friend class ComponentContainer;

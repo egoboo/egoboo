@@ -202,6 +202,7 @@ bool GameEngine::initialize()
     _audioSystem.initialize(cfg);
     _audioSystem.loadAllMusic();
     _audioSystem.playMusic(AudioSystem::MENU_SONG);
+    _audioSystem.loadGlobalSounds();
 
     // make sure that a bunch of stuff gets initialized properly
     particle_system_begin();

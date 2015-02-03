@@ -101,6 +101,7 @@ enum GlobalSound : uint8_t
     GSND_LEVELUP,		//Character gains level
     GSND_PITFALL,		//Character falls down a pit
     GSND_SHIELDBLOCK,	//Shield block sound
+    GSND_BUTTON_CLICK,	//GUI button clicked
     GSND_COUNT
 };
 

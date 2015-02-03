@@ -17,23 +17,28 @@
 //*
 //********************************************************************************************
 
-/// @file game/gamestates/MainMenuState.hpp
-/// @details The Main Menu of the game, the first screen presented to the players
+/// @file game/gui/ModuleSelector.cpp
+/// @details GUI widget to select which module to play
 /// @author Johan Jansen
-
 #pragma once
 
-#include "game/gamestates/GameState.hpp"
+#include "game/gui/GUIComponent.hpp"
+#include "game/gui/ComponentContainer.hpp"
 
-class MainMenuState : public GameState
+class ModuleSelector : public GUIComponent, public ComponentContainer
 {
-public:
-	MainMenuState();
+    public:
+        ModuleSelector();
 
-	void update() override;
+        void draw() override { drawAll(); }
 
-	void beginState() override;
+        //Disable copying class
+        ModuleSelector(const ModuleSelector& copy) = delete;
+        ModuleSelector& operator=(const ModuleSelector&) = delete;
 
-protected:
-	void drawContainer() override;
+    protected:
+	    void drawContainer() override;
+
+    private:
+        size_t _startIndex;
 };

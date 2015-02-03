@@ -5,6 +5,7 @@ GUIComponent::GUIComponent() :
     _destroyed(false),
     _bounds{0, 0, 32, 32},
     _enabled(true),
+    _visible(true),
     _parent(nullptr)
 {
     //ctor
@@ -12,7 +13,7 @@ GUIComponent::GUIComponent() :
 
 bool GUIComponent::isEnabled() const
 {
-    return _enabled && !_destroyed;
+    return _enabled && !_destroyed && _visible;
 }
 
 void GUIComponent::setEnabled(const bool enabled)
@@ -107,4 +108,14 @@ void GUIComponent::destroy()
 bool GUIComponent::isDestroyed() const
 {
     return _destroyed;
+}
+
+void GUIComponent::setVisible(const bool visible)
+{
+    _visible = visible;
+}
+
+bool GUIComponent::isVisible() const
+{
+    return _visible && !_destroyed;
 }

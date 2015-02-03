@@ -1,7 +1,8 @@
 #include "game/gui/Button.hpp"
-#include "game/ui.h"
+#include "game/audio/AudioSystem.hpp"
 
 #include "game/menu.h"
+#include "game/ui.h"
 
 Button::Button(int hotkey) :
     _buttonText(),
@@ -29,25 +30,25 @@ void Button::draw()
 
     if(!_onClickFunction)
     {
-        buttonColour[0] = 0.25;
-        buttonColour[1] = 0.25;
-        buttonColour[2] = 0.25;
-        buttonColour[3] = 0.6f;
+        buttonColour[0] = 0.25f;
+        buttonColour[1] = 0.25f;
+        buttonColour[2] = 0.25f;
+        buttonColour[3] = 0.60f;
     }
 
     else if(_mouseOver)
     {
-        buttonColour[0] = 0.54;
-        buttonColour[1] = 0.00;
-        buttonColour[2] = 0.00;
-        buttonColour[3] = 1.0f;
+        buttonColour[0] = 0.54f;
+        buttonColour[1] = 0.00f;
+        buttonColour[2] = 0.00f;
+        buttonColour[3] = 1.00f;
     }
     else
     {
         buttonColour[0] = 0.66f;
-        buttonColour[1] = 0.00;
-        buttonColour[2] = 0.00;
-        buttonColour[3] = 0.6f;
+        buttonColour[1] = 0.00f;
+        buttonColour[2] = 0.00f;
+        buttonColour[3] = 0.60f;
     }
 
     //Update slidy button effect
@@ -109,10 +110,7 @@ void Button::doClick()
 {
     if(!_onClickFunction || !isEnabled()) return;
 
-    if(!_clickSoundID.empty()) 
-    {
-        //_audioSystem.playSound(_clickSoundID);
-    }
+    _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_BUTTON_CLICK));
 
     _mouseOver = true;
     _onClickFunction();
