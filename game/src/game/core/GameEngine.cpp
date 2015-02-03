@@ -211,7 +211,7 @@ bool GameEngine::initialize()
     _profileSystem.begin();
 
     // setup the system gui
-    ui_begin( "mp_data/Bo_Chen.ttf", 24 );
+    ui_begin("mp_data/Bo_Chen.ttf", 24);
 
     // clear out the import and remote directories
     vfs_empty_temp_directories();

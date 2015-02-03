@@ -8,7 +8,8 @@ Button::Button(int hotkey) :
     _clickSoundID("button.wav"),
     _mouseOver(false),
     _onClickFunction(nullptr),
-    _hotkey(hotkey)
+    _hotkey(hotkey),
+    _slidyButtonTargetX(0.0f)
 {
 }
 
@@ -26,7 +27,15 @@ void Button::draw()
 {
     GLXvector4f buttonColour;
 
-    if(_mouseOver)
+    if(!_onClickFunction)
+    {
+        buttonColour[0] = 0.25;
+        buttonColour[1] = 0.25;
+        buttonColour[2] = 0.25;
+        buttonColour[3] = 0.6f;
+    }
+
+    else if(_mouseOver)
     {
         buttonColour[0] = 0.54;
         buttonColour[1] = 0.00;
@@ -41,21 +50,27 @@ void Button::draw()
         buttonColour[3] = 0.6f;
     }
 
+    //Update slidy button effect
+    if(_slidyButtonTargetX > 0.0f) {
+        const float SLIDY_LERP = getWidth() / 10.0f;
+        _slidyButtonTargetX -= SLIDY_LERP;
+        setX(getX() + SLIDY_LERP);
+    }
 
     // Draw the button
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );
     
     // convert the virtual coordinates to screen coordinates
-    ui_virtual_to_screen( vx, vy, &x1, &y1 );
-    ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
+    //ui_virtual_to_screen( vx, vy, &x1, &y1 );
+    //ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
 
-    GL_DEBUG( glColor4fv )( pcolor );
+    GL_DEBUG( glColor4fv )( buttonColour );
     GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG( glVertex2f )( x1, y1 );
-        GL_DEBUG( glVertex2f )( x1, y2 );
-        GL_DEBUG( glVertex2f )( x2, y2 );
-        GL_DEBUG( glVertex2f )( x2, y1 );
+        GL_DEBUG( glVertex2f )( getX(), getY() );
+        GL_DEBUG( glVertex2f )( getX(), getY()+getHeight() );
+        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY()+getHeight() );
+        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
     }
     GL_DEBUG_END();
 
@@ -126,4 +141,10 @@ bool Button::notifyKeyDown(const int keyCode)
 void Button::setClickSound(const std::string &soundID)
 {
     _clickSoundID = soundID;
+}
+
+void Button::beginSlidyButtonEffect()
+{
+    _slidyButtonTargetX = getWidth();
+    setX(getX() - getWidth());
 }

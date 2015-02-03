@@ -20,6 +20,8 @@ class Button : public GUIComponent
 
         void doClick();
 
+        void beginSlidyButtonEffect();
+
         //Disable copying class
         Button(const Button& copy) = delete;
         Button& operator=(const Button&) = delete;
@@ -31,4 +33,5 @@ class Button : public GUIComponent
         bool _mouseOver;
         std::function<void()> _onClickFunction;
         int _hotkey;
+        float _slidyButtonTargetX;
 };
