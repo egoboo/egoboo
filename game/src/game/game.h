@@ -88,9 +88,6 @@ typedef struct s_pit_info pit_info_t;
 struct s_status_list_element;
 typedef struct s_status_list_element status_list_element_t;
 
-struct s_status_list;
-typedef struct s_status_list status_list_t;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -369,7 +366,7 @@ struct s_status_list_element
 //--------------------------------------------------------------------------------------------
 
 /// List of objects with status displays
-struct s_status_list
+struct status_list_t
 {
     bool                on;
     size_t                count;

@@ -16,23 +16,41 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @author Johan Jansen
+/// @author Zefz aka Johan Jansen
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/egoboo_setup.h"
+
+//Forward declarations
+class GameState;
+class CameraSystem;
+class AudioSystem;
+class GameModule;
+class ObjectHandler;
+struct ego_mesh_t;
+struct status_list_t;
 
 class GameEngine
 {
 public:
+	static const uint32_t GAME_TARGET_FPS = 60;	///< Desired frame renders per second
+	static const uint32_t GAME_TARGET_UPS = 30;	///< Desired game logic updates per second
+
+	static const uint32_t DELAY_PER_RENDER_FRAME = 1000 / GAME_TARGET_FPS; ///< milliseconds between each render
+	static const uint32_t DELAY_PER_UPDATE_FRAME = 1000 / GAME_TARGET_UPS; ///< milliseconds between each update
+
 	GameEngine();
 
 	void start();
 
 	inline bool isRunning() const {return !_terminateRequested;}
 
-	void update();
-
 	void shutdown();
+
+	void setGameState(std::shared_ptr<GameState> gameState);
+
+	void pushGameState(std::shared_ptr<GameState> gameState);
 
 private:
 	void updateOneFrame();
@@ -41,18 +59,25 @@ private:
 
 	bool initialize();
 
+	/// @details This function releases all loaded things in memory and cleans up everything properly
 	void uninitialize();
 
-protected:
-	static const uint32_t TARGET_FPS = 60;	///< Desired frame renders per second
-	static const uint32_t TARGET_UPS = 30;	///< Desired game logic updates per second
-
-	static const uint32_t DELAY_PER_RENDER_FRAME = 1000 / TARGET_FPS; ///< milliseconds between each render
-	static const uint32_t DELAY_PER_UPDATE_FRAME = 1000 / TARGET_UPS; ///< milliseconds between each update
+	bool loadConfiguration(bool syncFromFile);
 
 private:
 	bool _isInitialized;
 	bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
 	uint32_t _updateTimeout;		///< Timestamp when updateOneFrame() should be run again
 	uint32_t _renderTimeout;		///< Timestamp when renderOneFrame() should be run again
+	std::forward_list<std::shared_ptr<GameState>> _gameStateStack;
+	std::shared_ptr<GameState> _currentGameState;
+	egoboo_config_t _config;
 };
+
+//TODO: remove these globals
+extern CameraSystem _cameraSystem;
+extern AudioSystem  _audioSystem;
+extern std::unique_ptr<GameModule> _currentModule;
+extern ObjectHandler _gameObjects;
+extern ego_mesh_t *PMesh;
+extern status_list_t StatusList;

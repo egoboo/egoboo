@@ -136,6 +136,7 @@ void menu_system_end();
 
 // global function to control navigation of the game menus
 int doMenu( float deltaTime );
+int doMainMenu( float deltaTime );
 
 // code to start and stop menus
 bool mnu_begin_menu( which_menu_t which );

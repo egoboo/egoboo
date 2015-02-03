@@ -5316,47 +5316,18 @@ void gfx_do_clear_screen()
     GL_DEBUG( glDepthMask )( GL_TRUE );
     GL_DEBUG( glClear )( GL_DEPTH_BUFFER_BIT );
 
-    // does the game need a clear?
-    game_needs_clear = false;
-    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > process_t::State::Begin)
-    {
-        game_needs_clear = gfx.clearson;
-    }
+    GL_DEBUG( glClear )( GL_COLOR_BUFFER_BIT );
 
-    // does the menu need a clear?
-    menu_needs_clear = false;
-    if (process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > process_t::State::Begin)
-    {
-        menu_needs_clear = mnu_draw_background;
-    }
+    gfx_page_clear_requested = false;
 
-    // if anything needs a clear, do it
-    if ( game_needs_clear || menu_needs_clear )
-    {
-        GL_DEBUG( glClear )( GL_COLOR_BUFFER_BIT );
-
-        gfx_page_clear_requested = false;
-
-        gfx_clear_loops++;
-    }
+    gfx_clear_loops++;
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_do_flip_pages()
 {
-    bool try_flip;
+    if ( gfx_page_flip_requested )
 
-    try_flip = false;
-    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > process_t::State::Begin )
-    {
-        try_flip = gfx_page_flip_requested;
-    }
-    else if (process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > process_t::State::Begin )
-    {
-        try_flip = gfx_page_flip_requested;
-    }
-
-    if ( try_flip )
     {
         gfx_page_flip_requested = false;
         _flip_pages();

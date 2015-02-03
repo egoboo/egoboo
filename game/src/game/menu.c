@@ -331,7 +331,6 @@ static int doChoosePlayer( float deltaTime );
 
 static int doChooseModule( float deltaTime );
 static int doSinglePlayerMenu( float deltaTime );
-static int doMainMenu( float deltaTime );
 
 static int cmp_mod_ref( const void * vref1, const void * vref2 );
 

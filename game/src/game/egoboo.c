@@ -444,7 +444,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int SDL_main(int argc, char **argv)
+int SDL_main2(int argc, char **argv)
 {
     /// @author ZZ
     /// @details This is where the program starts and all the high level stuff happens
