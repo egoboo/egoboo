@@ -11,7 +11,6 @@ class Button : public GUIComponent
 
         virtual void draw() override;
         void setOnClickFunction(const std::function<void()> onClick);
-        void setClickSound(const std::string &soundID);
         void setText(const std::string &buttonText);
 
         bool notifyMouseMoved(const int x, const int y) override;
@@ -29,7 +28,6 @@ class Button : public GUIComponent
     private:
         oglx_texture_t _buttonSprite;
         std::string _buttonText;
-        std::string _clickSoundID;
         bool _mouseOver;
         std::function<void()> _onClickFunction;
         int _hotkey;

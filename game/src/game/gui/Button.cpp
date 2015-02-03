@@ -1,12 +1,9 @@
 #include "game/gui/Button.hpp"
 #include "game/audio/AudioSystem.hpp"
-
-#include "game/menu.h"
 #include "game/ui.h"
 
 Button::Button(int hotkey) :
     _buttonText(),
-    _clickSoundID("button.wav"),
     _mouseOver(false),
     _onClickFunction(nullptr),
     _hotkey(hotkey),
@@ -134,11 +131,6 @@ bool Button::notifyKeyDown(const int keyCode)
     }
 
     return false;
-}
-
-void Button::setClickSound(const std::string &soundID)
-{
-    _clickSoundID = soundID;
 }
 
 void Button::beginSlidyButtonEffect()
