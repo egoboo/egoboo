@@ -64,6 +64,8 @@ private:
 
 	bool loadConfiguration(bool syncFromFile);
 
+	void pollEvents();
+
 private:
 	bool _isInitialized;
 	bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
@@ -73,6 +75,8 @@ private:
 	std::shared_ptr<GameState> _currentGameState;
 	egoboo_config_t _config;
 };
+
+extern std::unique_ptr<GameEngine> _gameEngine;
 
 //TODO: remove these globals
 extern CameraSystem _cameraSystem;

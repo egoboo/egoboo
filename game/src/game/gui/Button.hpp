@@ -10,7 +10,7 @@ class Button : public GUIComponent
         Button(const std::string &buttonText, int hotkey = SDLK_UNKNOWN);
 
         virtual void draw() override;
-        void setOnClick(const std::function<void()> onClick);
+        void setOnClickFunction(const std::function<void()> onClick);
         void setClickSound(const std::string &soundID);
         void setText(const std::string &buttonText);
 

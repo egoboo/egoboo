@@ -52,6 +52,10 @@ MainMenuState::MainMenuState()
 	std::shared_ptr<Button> exitButton = std::make_shared<Button>("Exit Game", SDLK_ESCAPE);
 	exitButton->setPosition(20, yOffset);
 	exitButton->setSize(200, 30);
+	exitButton->setOnClickFunction(
+	[]{
+		_gameEngine->shutdown();
+	});
 	addComponent(exitButton);
 
 	yOffset -= exitButton->getHeight() + 10;

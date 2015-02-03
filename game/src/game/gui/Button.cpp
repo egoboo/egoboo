@@ -24,7 +24,42 @@ void Button::setText(const std::string &text)
 
 void Button::draw()
 {
-    ui_drawButton(0, getX(), getY(), getWidth(), getHeight(), nullptr);
+    GLXvector4f buttonColour;
+
+    if(_mouseOver)
+    {
+        buttonColour[0] = 0.54;
+        buttonColour[1] = 0.00;
+        buttonColour[2] = 0.00;
+        buttonColour[3] = 1.0f;
+    }
+    else
+    {
+        buttonColour[0] = 0.66f;
+        buttonColour[1] = 0.00;
+        buttonColour[2] = 0.00;
+        buttonColour[3] = 0.6f;
+    }
+
+
+    // Draw the button
+    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    
+    // convert the virtual coordinates to screen coordinates
+    ui_virtual_to_screen( vx, vy, &x1, &y1 );
+    ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
+
+    GL_DEBUG( glColor4fv )( pcolor );
+    GL_DEBUG( glBegin )( GL_QUADS );
+    {
+        GL_DEBUG( glVertex2f )( x1, y1 );
+        GL_DEBUG( glVertex2f )( x1, y2 );
+        GL_DEBUG( glVertex2f )( x2, y2 );
+        GL_DEBUG( glVertex2f )( x2, y1 );
+    }
+    GL_DEBUG_END();
+
+    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     //Draw centered text in button
     if(!_buttonText.empty())
@@ -68,7 +103,7 @@ void Button::doClick()
     _onClickFunction();
 }
 
-void Button::setOnClick(const std::function<void()> onClick)
+void Button::setOnClickFunction(const std::function<void()> onClick)
 {
     _onClickFunction = onClick;
 }

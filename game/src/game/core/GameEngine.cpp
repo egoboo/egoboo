@@ -31,6 +31,9 @@
 #include "egolib/egolib.h"
 #include "game/PrtList.h"
 
+//Global singelton
+std::unique_ptr<GameEngine> _gameEngine;
+
 //Declaration of class constants
 const uint32_t GameEngine::GAME_TARGET_FPS;
 const uint32_t GameEngine::GAME_TARGET_UPS;
@@ -117,9 +120,9 @@ void GameEngine::updateOneFrame()
             _currentGameState->beginState();
         }
     }
-    
-    // read the input values
-    input_read_all_devices();
+
+    //Handle all SDL events    
+    pollEvents();
 
 	_currentGameState->update();
 }
@@ -319,6 +322,103 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     return true;
 }
 
+void GameEngine::pollEvents()
+{
+    // message processing loop
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+        //Console has first say in events
+        if (cfg.dev_mode)
+        {
+            if (NULL == egolib_console_handle_events(&event))
+            {
+                continue;
+            }
+        }
+
+        // check for messages
+        switch (event.type)
+        {
+            // exit if the window is closed
+            case SDL_QUIT:
+                shutdown();
+            return;
+
+            case SDL_ACTIVEEVENT:
+                switch(event.active.type)
+                {
+                    case SDL_APPACTIVE:
+                        if(1 == event.active.gain)
+                        {
+                            // the application has recovered from being minimized
+                            // the textures need to be reloaded into OpenGL memory
+                            gfx_system_reload_all_textures();
+                        }
+                    break;
+
+                    case SDL_APPMOUSEFOCUS:
+                        // gained or lost mouse focus
+                        mous.on = (1 == event.active.gain) ? true : false;
+                    break;
+
+                    case SDL_APPINPUTFOCUS:
+                        // gained or lost keyboard focus
+                        keyb.on = (1 == event.active.gain) ? true : false;
+                    break;
+                }
+            break;
+
+            case SDL_VIDEORESIZE:
+                if ( SDL_VIDEORESIZE == event.resize.type )
+                {
+                    // The video has been resized.
+                    // If the game is active, some camera info mught need to be recalculated
+                    // and possibly the auto-formatting for the menu system and the ui system
+                    // The ui will handle its own issues.
+
+                    // grab all the new SDL screen info
+                    SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
+                }
+            break;
+
+            case SDL_VIDEOEXPOSE:
+                // something has been done to the screen and it needs to be re-drawn.
+                // For instance, a window above the app window was moved. This has no
+                // effect on the game at the moment.
+            break;
+
+            case SDL_MOUSEBUTTONDOWN:
+                if ( event.button.button == SDL_BUTTON_WHEELUP )
+                {
+                    _currentGameState->notifyMouseScrolled(1);
+                    input_cursor.z++;
+                    input_cursor.wheel_event = true;
+                }
+                else if ( event.button.button == SDL_BUTTON_WHEELDOWN )
+                {
+                    _currentGameState->notifyMouseScrolled(-1);
+                    input_cursor.z--;
+                    input_cursor.wheel_event = true;
+                }
+                else
+                {
+                    _currentGameState->notifyMouseClicked(event.button.button, event.button.x, event.button.y);
+                    input_cursor.pending_click = true;
+                }
+            break;         
+
+            case SDL_MOUSEMOTION:
+                _currentGameState->notifyMouseMoved(event.motion.x, event.motion.y);
+            break;
+
+            case SDL_KEYDOWN:
+                _currentGameState->notifyKeyDown(event.key.keysym.sym);
+            break;
+        }
+    } // end of message processing
+}
+
 
 int SDL_main(int argc, char **argv)
 {
@@ -328,9 +428,9 @@ int SDL_main(int argc, char **argv)
     vfs_init(argv[0]);
     setup_init_base_vfs_paths();
 
-    std::unique_ptr<GameEngine> gameEngine = std::unique_ptr<GameEngine>(new GameEngine());
+    _gameEngine = std::unique_ptr<GameEngine>(new GameEngine());
 
-    gameEngine->start();
+    _gameEngine->start();
 
     return EXIT_SUCCESS;
 }
