@@ -116,6 +116,7 @@
 		CD44E2881A76F36B00D22608 /* unix.c in Sources */ = {isa = PBXBuildFile; fileRef = CD867B561A76ED9000B28D92 /* unix.c */; };
 		CD44E2891A76F36B00D22608 /* windows.c in Sources */ = {isa = PBXBuildFile; fileRef = CD867B571A76ED9000B28D92 /* windows.c */; };
 		CD44E28F1A76F61500D22608 /* libphysfs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD867B791A76EE3400B28D92 /* libphysfs.a */; };
+		CD4B64E61A7EE94C00A52646 /* GameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4B64E41A7EE94C00A52646 /* GameObject.cpp */; };
 		CD5953901A3F5C430052A682 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085C9E12ED4FAD0051AF5F /* host.c */; };
 		CD5953911A3F5C430052A682 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAB12ED4FAD0051AF5F /* list.c */; };
 		CD5953921A3F5C430052A682 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAE12ED4FAD0051AF5F /* packet.c */; };
@@ -592,6 +593,8 @@
 		CD39B4AB1A37629C00B377BE /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = ../../../../../Library/Frameworks/SDL.framework; sourceTree = "<group>"; };
 		CD44DD7E1A476046005E6DF0 /* bsp.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp.c; sourceTree = "<group>"; };
 		CD44DD7F1A476046005E6DF0 /* bsp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bsp.h; sourceTree = "<group>"; };
+		CD4B64E41A7EE94C00A52646 /* GameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameObject.cpp; sourceTree = "<group>"; };
+		CD4B64E51A7EE94C00A52646 /* GameObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameObject.hpp; sourceTree = "<group>"; };
 		CD5B0CAB1A6204EC00F076F9 /* AStar.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AStar.c; sourceTree = "<group>"; };
 		CD5B0CAC1A6204EC00F076F9 /* AStar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AStar.h; sourceTree = "<group>"; };
 		CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = WaypointList.c; sourceTree = "<group>"; };
@@ -909,6 +912,7 @@
 			children = (
 				CD5B0CAA1A6204EC00F076F9 /* ai */,
 				CDB3DC991A65D0760098D3B9 /* audio */,
+				CD4B64E31A7EE94C00A52646 /* game_logic */,
 				CDCE21281A6404770084D934 /* graphics */,
 				CDBDE4291A43A65E008E5FD1 /* lua */,
 				CD97C1601A629E2500179A2C /* module */,
@@ -1320,6 +1324,15 @@
 				CD8679301A76ED8F00B28D92 /* physfs */,
 			);
 			name = dependencies;
+			sourceTree = "<group>";
+		};
+		CD4B64E31A7EE94C00A52646 /* game_logic */ = {
+			isa = PBXGroup;
+			children = (
+				CD4B64E41A7EE94C00A52646 /* GameObject.cpp */,
+				CD4B64E51A7EE94C00A52646 /* GameObject.hpp */,
+			);
+			path = game_logic;
 			sourceTree = "<group>";
 		};
 		CD5B0CAA1A6204EC00F076F9 /* ai */ = {
@@ -1872,6 +1885,7 @@
 				CD39B4631A37506100B377BE /* enchant.c in Sources */,
 				CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */,
 				CD39B45F1A37506100B377BE /* collision.c in Sources */,
+				CD4B64E61A7EE94C00A52646 /* GameObject.cpp in Sources */,
 				CD39B47C1A37506100B377BE /* mesh_BSP.c in Sources */,
 				CD39B4801A37506100B377BE /* network_client.c in Sources */,
 				CD5B0CB01A6204EC00F076F9 /* WaypointList.c in Sources */,

@@ -507,7 +507,9 @@ int GameObject::damage(const FACING_T direction, const IPair  damage, const Dama
                 //Did we survive?
                 if (life <= 0)
                 {
-                    kill_character( _characterID, attacker->getCharacterID(), ignore_invictus );
+                    CHR_REF attacker_ref = INVALID_CHR_REF;
+                    if (attacker) attacker_ref = attacker->getCharacterID();
+                    kill_character( _characterID, attacker_ref, ignore_invictus );
                 }
                 else
                 {
