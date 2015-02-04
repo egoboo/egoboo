@@ -158,8 +158,7 @@ static bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata );
 static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * pdata );
 static bool do_chr_chr_collision_pressure_normal(const GameObject *pchr_a, const GameObject *pchr_b, const float exponent, oct_vec_t *podepth, fvec3_t& nrm, float * tmin );
 
-static int CoNode_matches( CoNode_t * pleft, CoNode_t * pright );
-static int CoNode_cmp_unique( const void * vleft, const void * vright );
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -171,8 +170,6 @@ static Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
 static Ego::DynamicArray<CoNode_t> _coll_node_lst;
 
 static bool _collision_system_initialized = false;
-
-static int CoHashList_inserted = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -266,7 +263,7 @@ CoNode_t *CoNode_ctor(CoNode_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 CoNode_generate_hash(CoNode_t *self)
+Uint8 CoNode_t::generate_hash(const CoNode_t *self)
 {
     Uint32 AA, BB;
 
@@ -298,87 +295,81 @@ Uint8 CoNode_generate_hash(CoNode_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-int CoNode_cmp(const void * vleft, const void * vright)
+int CoNode_t::cmp(const CoNode_t *self, const CoNode_t *other)
 {
     int   itmp;
     float ftmp;
 
-    CoNode_t * pleft  = (CoNode_t *)vleft;
-    CoNode_t * pright = (CoNode_t *)vright;
+    // Sort by initial time first.
+    ftmp = self->tmin - other->tmin;
+    if (ftmp <= 0.0f) return -1;
+    else if (ftmp >= 0.0f) return 1;
 
-    // sort by initial time first
-    ftmp = pleft->tmin - pright->tmin;
-    if ( ftmp <= 0.0f ) return -1;
-    else if ( ftmp >= 0.0f ) return 1;
+    // Sort by final time second.
+    ftmp = self->tmax - other->tmax;
+    if (ftmp <= 0.0f) return -1;
+    else if (ftmp >= 0.0f) return 1;
 
-    // sort by final time second
-    ftmp = pleft->tmax - pright->tmax;
-    if ( ftmp <= 0.0f ) return -1;
-    else if ( ftmp >= 0.0f ) return 1;
+    itmp = (signed)REF_TO_INT(self->chra) - (signed)REF_TO_INT(other->chra);
+    if (0 != itmp) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
-    if ( 0 != itmp ) return itmp;
+    itmp = (signed)REF_TO_INT(self->prta) - (signed)REF_TO_INT(other->prta);
+    if (0 != itmp) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->prta ) - ( signed )REF_TO_INT( pright->prta );
-    if ( 0 != itmp ) return itmp;
+    itmp = (signed)REF_TO_INT(self->chrb) - (signed)REF_TO_INT(other->chrb);
+    if (0 != itmp) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->chrb ) - ( signed )REF_TO_INT( pright->chrb );
-    if ( 0 != itmp ) return itmp;
+    itmp = (signed)REF_TO_INT(self->prtb) - (signed)REF_TO_INT(other->prtb);
+    if (0 != itmp) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->prtb ) - ( signed )REF_TO_INT( pright->prtb );
-    if ( 0 != itmp ) return itmp;
-
-    itmp = ( signed )pleft->tileb - ( signed )pright->tileb;
-    if ( 0 != itmp ) return itmp;
+    itmp = (signed)self->tileb            - (signed)other->tileb;
+    if (0 != itmp) return itmp;
 
     return 0;
 }
 
 //--------------------------------------------------------------------------------------------
-int CoNode_cmp_unique( const void * vleft, const void * vright )
+int CoNode_t::cmp_unique(const CoNode_t *self, const CoNode_t *other)
 {
     int   itmp;
 
-    CoNode_t * pleft  = ( CoNode_t * )vleft;
-    CoNode_t * pright = ( CoNode_t * )vright;
+    // Don't compare the times.
 
-    // don't compare the times
+    itmp = (signed)REF_TO_INT(self->chra) - (signed)REF_TO_INT(other->chra);
+    if (0 != itmp) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
-    if ( 0 != itmp ) return itmp;
+    itmp = (signed)REF_TO_INT(self->prta) - (signed)REF_TO_INT(other->prta);
+    if (0 != itmp) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->prta ) - ( signed )REF_TO_INT( pright->prta );
-    if ( 0 != itmp ) return itmp;
+    itmp = (signed)REF_TO_INT(self->chrb) - (signed)REF_TO_INT(other->chrb);
+    if (0 != itmp) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->chrb ) - ( signed )REF_TO_INT( pright->chrb );
-    if ( 0 != itmp ) return itmp;
+    itmp = (signed)REF_TO_INT(self->prtb) - (signed)REF_TO_INT(other->prtb);
+    if (0 != itmp) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->prtb ) - ( signed )REF_TO_INT( pright->prtb );
-    if ( 0 != itmp ) return itmp;
-
-    itmp = ( signed )pleft->tileb - ( signed )pright->tileb;
-    if ( 0 != itmp ) return itmp;
+    itmp = (signed)self->tileb            - (signed)other->tileb;
+    if (0 != itmp) return itmp;
 
     return 0;
 }
 
 //--------------------------------------------------------------------------------------------
-int CoNode_matches( CoNode_t * pleft, CoNode_t * pright )
+int CoNode_t::matches(const CoNode_t *self, const CoNode_t *other)
 {
-    CoNode_t right_rev;
+    CoNode_t reversed;
 
-    if ( 0 == CoNode_cmp_unique( pleft, pright ) ) return true;
+	if (0 == CoNode_t::cmp_unique(self, other)) return true;
 
-    // make a reversed version of pright
-    right_rev.tmin = pright->tmin;
-    right_rev.tmax = pright->tmax;
-    right_rev.chra = pright->chrb;
-    right_rev.prta = pright->prtb;
-    right_rev.chrb = pright->chra;
-    right_rev.prtb = pright->prta;
-    right_rev.tileb  = pright->tileb;
+    // Make a reversed version of other.
+	reversed.tmin = other->tmin;
+	reversed.tmax = other->tmax;
+	reversed.chra = other->chrb;
+	reversed.prta = other->prtb;
+	reversed.chrb = other->chra;
+	reversed.prtb = other->prta;
+	reversed.tileb = other->tileb;
 
-    if ( 0 == CoNode_cmp_unique( pleft, &right_rev ) ) return true;
+	if (0 == CoNode_t::cmp_unique(self,&reversed)) return true;
 
     return false;
 }
@@ -406,7 +397,7 @@ bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, Ego::Dyn
 		return false;
 	}
     // Compute the hash for this collision.
-	Uint32 hash = CoNode_generate_hash(data);
+	Uint32 hash = CoNode_t::generate_hash(data);
 
     bool found = false;
 	// Get the number of entries in this bucket.
@@ -418,7 +409,7 @@ bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, Ego::Dyn
 		hash_node_t *node = hash_list_get_node(coHashList, hash);
         for (size_t bucketIndex = 0; bucketIndex < bucketSize; ++bucketIndex)
         {
-            if (CoNode_matches((CoNode_t *)(node->data), data))
+            if (CoNode_t::matches((CoNode_t *)(node->data), data))
             {
                 found = true;
                 break;
@@ -811,7 +802,6 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
     //---- find the character/particle interactions
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
-    CoHashList_inserted = 0;
     for(const std::shared_ptr<GameObject> &pchr_a : _gameObjects.iterator())
     {
         oct_bb_t   tmp_oct;
@@ -895,10 +885,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
                 if ( do_insert )
                 {
-                    if (CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst))
-                    {
-                        CoHashList_inserted++;
-                    }
+					CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst);
                 }
             }
         }
@@ -952,10 +939,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
                 if ( do_insert )
                 {
-                    if (CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst))
-                    {
-                        CoHashList_inserted++;
-                    }
+					CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst);
                 }
             }
         }
@@ -1101,10 +1085,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
                 if ( do_insert )
                 {
-                    if (CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst))
-                    {
-                        CoHashList_inserted++;
-                    }
+					CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst);
                 }
             }
         }
@@ -1440,7 +1421,8 @@ void bump_all_objects()
         if (_coll_node_lst.size() > 1)
         {
             // arrange the actual nodes by time order
-            qsort(_coll_node_lst.ary, _coll_node_lst.size(), sizeof(CoNode_t), CoNode_cmp);
+            qsort(_coll_node_lst.ary, _coll_node_lst.size(), sizeof(CoNode_t),
+				  (int (*)(const void *,const void *))(&CoNode_t::cmp));
         }
 
         // handle interaction with mounts

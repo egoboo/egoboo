@@ -118,7 +118,7 @@ void ErrorImage_bind( GLenum target, GLuint id )
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint ErrorImage_get_binding( void )
+GLuint ErrorImage_get_binding()
 {
     // make sure the error texture exists
     if ( !ErrorImage_defined ) ErrorImage_create();
@@ -128,105 +128,105 @@ GLuint ErrorImage_get_binding( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * oglx_texture_ctor( oglx_texture_t * ptex )
+oglx_texture_t *oglx_texture_t::ctor(oglx_texture_t *self)
 {
-    if ( NULL == ptex ) return ptex;
+    if (!self) return nullptr;
 
-    BLANK_STRUCT_PTR( ptex )
+	BLANK_STRUCT_PTR(self);
 
-    // only need one base.binding per texture
-    // do not need to ask for a new id, even if we change the texture data
-    GL_DEBUG( glGenTextures )( 1, &( ptex->base.binding ) );
+    // Only need one base binding per texture:
+    // Do not need to ask for a new id, even if we change the texture data.
+    GL_DEBUG(glGenTextures)(1, &(self->base.binding));
 
-    // set the flag validity flag
-    if ( VALID_BINDING( ptex->base.binding ) && !ERROR_IMAGE_BINDING( ptex->base.binding ) )
+    // Set the validity flag.
+    if (VALID_BINDING(self->base.binding) && !ERROR_IMAGE_BINDING(self->base.binding))
     {
-        ptex->valid = VALID_VALUE;
+        self->valid = VALID_VALUE;
     }
     else
     {
-        ptex->valid = ( GLuint )( ~VALID_VALUE );
+        self->valid = (GLuint)(~VALID_VALUE);
     }
 
-    // set to 2d texture by default
-    ptex->base.target = GL_TEXTURE_2D;
+    // Set to 2d texture by default.
+    self->base.target = GL_TEXTURE_2D;
 
-    // set the image to be clamped in s and t
-    ptex->base.wrap_s = GL_CLAMP;
-    ptex->base.wrap_t = GL_CLAMP;
+    // Set the image to be clamped in s and t.
+	self->base.wrap_s = GL_CLAMP;
+	self->base.wrap_t = GL_CLAMP;
 
-    return ptex;
+	return self;
 }
 
 //--------------------------------------------------------------------------------------------
-void oglx_texture_dtor( oglx_texture_t * ptex )
+void oglx_texture_t::dtor(oglx_texture_t *self)
 {
-    if ( !VALID_TEXTURE( ptex ) )  return;
+    if (!VALID_TEXTURE(self)) return;
 
-    // set a bad value for ptex->valid
-    ptex->valid = ( GLuint )( ~VALID_VALUE );
+    // Mark as invalid.
+    self->valid = (GLuint)(~VALID_VALUE);
 
-    // actually delete the OpenGL texture data
-    if ( VALID_BINDING( ptex->base.binding ) )
+    // Actually delete the OpenGL texture data.
+    if (VALID_BINDING(self->base.binding))
     {
-        GL_DEBUG( glDeleteTextures )( 1, &( ptex->base.binding ) );
-        ptex->base.binding = INVALID_GL_ID;
+        GL_DEBUG(glDeleteTextures)(1, &(self->base.binding));
+        self->base.binding = INVALID_GL_ID;
     }
 
-    // set the image to be clamped in s and t
-    ptex->base.wrap_s = GL_CLAMP;
-    ptex->base.wrap_t = GL_CLAMP;
+    // Set the image to be clamped in s and t.
+    self->base.wrap_s = GL_CLAMP;
+    self->base.wrap_t = GL_CLAMP;
 
-    // Reset the other data
-    ptex->imgH = ptex->imgW = ptex->base.width = ptex->base.height  = 0;
-    ptex->name[0] = '\0';
+    // Reset the other data.
+    self->imgH = self->imgW = self->base.width = self->base.height  = 0;
+    self->name[0] = '\0';
 
-    if ( NULL != ptex->surface )
+    if (self->surface)
     {
-        SDL_FreeSurface( ptex->surface );
-        ptex->surface = NULL;
+        SDL_FreeSurface(self->surface);
+        self->surface = nullptr;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint oglx_texture_Convert( oglx_texture_t *ptex, SDL_Surface * image, Uint32 key )
+GLuint oglx_texture_convert(oglx_texture_t *self, SDL_Surface * image, Uint32 key)
 {
     /// @author BB
     /// @details an oglx_texture_t wrapper for the SDL_GL_convert_surface() function
 
-    if ( NULL == ptex ) return INVALID_GL_ID;
+    if (!self) return INVALID_GL_ID;
 
     // make sure the old texture has been freed
-    oglx_texture_Release( ptex );
+    oglx_texture_release(self);
 
-    if ( NULL == image ) return INVALID_GL_ID;
+    if (!image) return INVALID_GL_ID;
 
     /* set the color key, if valid */
-    if ( NULL != image->format && NULL != image->format->palette && INVALID_KEY != key )
+    if (nullptr != image->format && nullptr != image->format->palette && INVALID_KEY != key)
     {
-        SDL_SetColorKey( image, SDL_SRCCOLORKEY, key );
-    };
+        SDL_SetColorKey(image, SDL_SRCCOLORKEY, key);
+    }
 
     // Determine the correct power of two greater than or equal to the original image's size
-    ptex->base.binding = SDL_GL_convert_surface( ptex->base.binding, image, ptex->base.wrap_s, ptex->base.wrap_t );
+    self->base.binding = SDL_GL_convert_surface(self->base.binding, image, self->base.wrap_s, self->base.wrap_t);
 
-    ptex->base.target = (( 1 == image->h ) && ( image->w > 1 ) ) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
-    ptex->base.height = powerOfTwo( image->h );
-    ptex->base.width  = powerOfTwo( image->w );
+    self->base.target = (( 1 == image->h) && (image->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
+    self->base.height = powerOfTwo(image->h);
+    self->base.width  = powerOfTwo(image->w);
 
     // Set up some parameters for the format of the oglx_texture_t
-    ptex->base_valid = true;
-    ptex->surface    = image;
-    ptex->imgW       = image->w;
-    ptex->imgH       = image->h;
-    strncpy( ptex->name, "SDL_Surface()", SDL_arraysize( ptex->name ) );
+    self->base_valid = true;
+    self->surface    = image;
+    self->imgW       = image->w;
+    self->imgH       = image->h;
+    strncpy(self->name, "SDL_Surface()", SDL_arraysize(self->name));
 
     //// use the following command to grab every possible texture attribute in OpenGL v1.4 for
     //// this texture. Useful for debugging
     // ptex->base_valid = false;
     //oglx_grab_texture_state( tx_target, 0, ptex );
 
-    return ptex->base.binding;
+    return self->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -393,83 +393,83 @@ SDL_bool IMG_test_alpha_key( SDL_Surface * psurf, Uint32 key )
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key )
+GLuint oglx_texture_load(oglx_texture_t *self, const char *filename, Uint32 key)
 {
     GLuint        retval;
     SDL_Surface * image;
 
-    if ( VALID_TEXTURE( ptex ) )
+    if (VALID_TEXTURE(self))
     {
-        // release any old texture
-        oglx_texture_Release( ptex );
+        // Release any old texture.
+        oglx_texture_release(self);
     }
     else
     {
-        // clean out any uninitialied data
-        ptex = oglx_texture_ctor( ptex );
-        if ( NULL == ptex ) return INVALID_GL_ID;
+        // Clean out any uninitialied data.
+        self = oglx_texture_t::ctor(self);
+        if (!self) return INVALID_GL_ID;
     }
 
     image = IMG_Load_RW(vfs_openRWopsRead(filename), 1);
-    if ( NULL == image ) return INVALID_GL_ID;
+    if (!image) return INVALID_GL_ID;
 
-    // test to see if the image requires alpha blanding
-    ptex->has_alpha = SDL_FALSE;
-    if ( INVALID_KEY == key )
+    // Test to see if the image requires alpha blanding.
+    self->has_alpha = SDL_FALSE;
+    if (INVALID_KEY == key)
     {
-        ptex->has_alpha = IMG_test_alpha( image );
+        self->has_alpha = IMG_test_alpha(image);
     }
     else
     {
-        ptex->has_alpha = IMG_test_alpha_key( image, key );
+        self->has_alpha = IMG_test_alpha_key(image, key);
     }
 
-    // upload the SDL_surface to OpenGL
-    retval = oglx_texture_Convert( ptex, image, key );
+    // Upload the SDL_surface to OpenGL.
+    retval = oglx_texture_convert(self, image, key);
 
-    if ( !VALID_BINDING( retval ) )
+    if (!VALID_BINDING(retval))
     {
-        oglx_texture_dtor( ptex );
+        oglx_texture_t::dtor(self);
     }
     else
     {
-        strncpy( ptex->name, filename, SDL_arraysize( ptex->name ) );
+        strncpy(self->name, filename, SDL_arraysize(self->name));
 
-        ptex->base.wrap_s = GL_REPEAT;
-        ptex->base.wrap_t = GL_REPEAT;
+        self->base.wrap_s = GL_REPEAT;
+        self->base.wrap_t = GL_REPEAT;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint  oglx_texture_getTextureID( const oglx_texture_t *texture )
+GLuint  oglx_texture_getTextureID(const oglx_texture_t *self)
 {
-    return !VALID_TEXTURE( texture ) ? INVALID_GL_ID : texture->base.binding;
+    return !VALID_TEXTURE(self) ? INVALID_GL_ID : self->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_getImageHeight( const oglx_texture_t *texture )
+GLsizei  oglx_texture_getImageHeight(const oglx_texture_t *self)
 {
-    return !VALID_TEXTURE( texture ) ? 0 : texture->imgH;
+    return !VALID_TEXTURE(self) ? 0 : self->imgH;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_getImageWidth( const oglx_texture_t *texture )
+GLsizei  oglx_texture_getImageWidth(const oglx_texture_t *self)
 {
-    return !VALID_TEXTURE( texture ) ? 0 : texture->imgW;
+    return !VALID_TEXTURE(self) ? 0 : self->imgW;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_getTextureWidth( const oglx_texture_t *texture )
+GLsizei  oglx_texture_t::getTextureWidth(const oglx_texture_t *self)
 {
-    return !VALID_TEXTURE( texture ) ? 0 : texture->base.width;
+    return !VALID_TEXTURE(self) ? 0 : self->base.width;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_getTextureHeight( const oglx_texture_t *texture )
+GLsizei  oglx_texture_t::getTextureHeight(const oglx_texture_t *self)
 {
-    return !VALID_TEXTURE( texture ) ? 0 : texture->base.height;
+    return !VALID_TEXTURE(self) ? 0 : self->base.height;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -526,7 +526,7 @@ GLboolean oglx_texture_getSize( const oglx_texture_t * ptex, oglx_frect_t tx_rec
 }
 
 //--------------------------------------------------------------------------------------------
-void  oglx_texture_Release( oglx_texture_t *texture )
+void  oglx_texture_release( oglx_texture_t *texture )
 {
     if ( !VALID_TEXTURE( texture ) ) return;
 
@@ -564,7 +564,7 @@ void  oglx_texture_Release( oglx_texture_t *texture )
 }
 
 //--------------------------------------------------------------------------------------------
-void oglx_texture_Bind( oglx_texture_t *texture )
+void oglx_texture_bind( oglx_texture_t *texture )
 {
     /// @author BB
     /// @details a oglx_texture_t wrapper for oglx_bind_to_tex_params() function

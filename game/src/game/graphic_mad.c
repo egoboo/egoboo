@@ -161,7 +161,7 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
     }
 
     // Choose texture and matrix
-    oglx_texture_Bind( ptex );
+    oglx_texture_bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
@@ -351,7 +351,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
     }
 
     // Choose texture and matrix
-    oglx_texture_Bind( ptex );
+    oglx_texture_bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {

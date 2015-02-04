@@ -400,7 +400,7 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
         else
         {
             GL_DEBUG( glEnable )( ptex->base.target );                        // GL_ENABLE_BIT
-            oglx_texture_Bind( ptex );
+            oglx_texture_bind( ptex );
         }
 
         GL_DEBUG( glColor4fv )( tint );                                      // GL_CURRENT_BIT

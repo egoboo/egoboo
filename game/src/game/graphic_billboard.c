@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList, BILLBOARD_COUNT );
+INSTANTIATE_LIST(, billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 //--------------------------------------------------------------------------------------------
 // private functions
@@ -149,7 +149,7 @@ bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color co
 
     // release any existing texture in case there is an error
     ptex = TxList_get_valid_ptr( pbb->tex_ref );
-    oglx_texture_Release( ptex );
+    oglx_texture_release( ptex );
 
     va_start( args, format );
     rv = fnt_vprintf_OGL( font, color, ptex->base.binding, loc_coords, format, args, &( ptex->surface ) );
@@ -408,13 +408,13 @@ bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fve
 
     oglx_texture_t *ptex = TxList_get_valid_ptr(pbb->tex_ref);
 
-    oglx_texture_Bind(ptex);
+    oglx_texture_bind(ptex);
 
 	float w = oglx_texture_getImageWidth(ptex);
     float h = oglx_texture_getImageHeight(ptex);
 
-    x1 = w  / (float)oglx_texture_getTextureWidth(ptex);
-    y1 = h  / (float)oglx_texture_getTextureHeight(ptex);
+    x1 = w  / (float)oglx_texture_t::getTextureWidth(ptex);
+    y1 = h  / (float)oglx_texture_t::getTextureHeight(ptex);
 
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 

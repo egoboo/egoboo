@@ -67,6 +67,18 @@ namespace Ego
 				               colour.getBlue(), colour.getAlpha()));
 		}
 
+		void Renderer::setDepthTestEnabled(bool enabled)
+		{
+			if (enabled)
+			{
+				GL_DEBUG(glEnable)(GL_DEPTH_TEST);
+			}
+			else
+			{
+				GL_DEBUG(glDisable)(GL_DEPTH_TEST);
+			}
+		}
+
 	};
 
 	const GLXvector4f white_vec = { 1.0f, 1.0f, 1.0f, 1.0f };

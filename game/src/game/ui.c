@@ -38,6 +38,7 @@ static GLfloat ui_normal_color[]  = {0.66f, 0.00f, 0.00f, 0.60f};
 
 //static GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
 //static GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
+
 static GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
 
 static const SDL_Color ui_text_color = { 0xFF, 0xFF, 0xFF, 0x00 };
@@ -474,8 +475,8 @@ float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float v
         }
         tx_rect.xmin = 0.0f;
         tx_rect.ymin = 0.0f;
-        tx_rect.xmax = ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_getTextureWidth( img );
-        tx_rect.ymax = ( float ) oglx_texture_getImageHeight( img ) / ( float ) oglx_texture_getTextureHeight( img );
+        tx_rect.xmax = ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
+        tx_rect.ymax = ( float ) oglx_texture_getImageHeight( img ) / ( float ) oglx_texture_t::getTextureHeight( img );
 
         // convert the virtual coordinates to screen coordinates
         ui_virtual_to_screen( vx, vy, &( scr_rect.xmin ), &( scr_rect.ymin ) );

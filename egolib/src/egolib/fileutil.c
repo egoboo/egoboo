@@ -1145,7 +1145,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
     //GLenum tx_target;
 
     // get rid of any old data
-    oglx_texture_Release( texture );
+    oglx_texture_release( texture );
 
     // load the image
     retval = INVALID_GL_ID;
@@ -1155,7 +1155,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
         for ( type = 0; type < maxformattypes; type++ )
         {
             snprintf( fullname, SDL_arraysize( fullname ), "%s%s", filename, TxFormatSupported[type] );
-            retval = oglx_texture_Load( texture, fullname, key );
+            retval = oglx_texture_load( texture, fullname, key );
             if ( INVALID_GL_ID != retval ) break;
         }
     }
@@ -1176,7 +1176,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
         //    tx_target = GL_TEXTURE_1D;
         //}
 
-        retval = oglx_texture_Convert( texture, image, key );
+        retval = oglx_texture_convert( texture, image, key );
         strncpy( texture->name, fullname, SDL_arraysize( texture->name ) );
 
         texture->base.wrap_s = GL_REPEAT;

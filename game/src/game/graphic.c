@@ -2074,10 +2074,10 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map )
     {
         oglx_texture_t * ptex = TxList_get_valid_ptr(( TX_REF )TX_BLIP );
 
-        tx_rect.xmin = ( float )bliprect[color]._left   / ( float )oglx_texture_getTextureWidth( ptex );
-        tx_rect.xmax = ( float )bliprect[color]._right  / ( float )oglx_texture_getTextureWidth( ptex );
-        tx_rect.ymin = ( float )bliprect[color]._top    / ( float )oglx_texture_getTextureHeight( ptex );
-        tx_rect.ymax = ( float )bliprect[color]._bottom / ( float )oglx_texture_getTextureHeight( ptex );
+        tx_rect.xmin = ( float )bliprect[color]._left   / ( float )oglx_texture_t::getTextureWidth( ptex );
+        tx_rect.xmax = ( float )bliprect[color]._right  / ( float )oglx_texture_t::getTextureWidth( ptex );
+        tx_rect.ymin = ( float )bliprect[color]._top    / ( float )oglx_texture_t::getTextureHeight( ptex );
+        tx_rect.ymax = ( float )bliprect[color]._bottom / ( float )oglx_texture_t::getTextureHeight( ptex );
 
         width  = sizeFactor * ( bliprect[color]._right  - bliprect[color]._left );
         height = sizeFactor * ( bliprect[color]._bottom - bliprect[color]._top );
@@ -3278,7 +3278,7 @@ void render_shadow( const CHR_REF character )
 
     // Choose texture.
     itex = TX_PARTICLE_LIGHT;
-    oglx_texture_Bind( TxList_get_valid_ptr( itex ) );
+    oglx_texture_bind( TxList_get_valid_ptr( itex ) );
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -3415,7 +3415,7 @@ void render_bad_shadow( const CHR_REF character )
 
     // Choose texture and matrix
     itex = TX_PARTICLE_LIGHT;
-    oglx_texture_Bind( TxList_get_valid_ptr( itex ) );
+    oglx_texture_bind( TxList_get_valid_ptr( itex ) );
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -4507,7 +4507,7 @@ gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF textu
 
     ptex = TxList_get_valid_ptr( texture );
 
-    oglx_texture_Bind( ptex );
+    oglx_texture_bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT );
     {
@@ -4684,7 +4684,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
             GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
 
-            oglx_texture_Bind( ptex );
+            oglx_texture_bind( ptex );
 
             GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f - ABS( alpha ) );
             GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
@@ -6563,12 +6563,10 @@ void gfx_system_begin_decimated_textures()
 {
     if ( !_gfx_system_mesh_textures_initialized )
     {
-        int cnt;
-
-        for ( cnt = 0; cnt < MESH_IMG_COUNT; cnt++ )
+        for (size_t cnt = 0; cnt < MESH_IMG_COUNT; cnt++ )
         {
-            oglx_texture_ctor( mesh_tx_sml + cnt );
-            oglx_texture_ctor( mesh_tx_big + cnt );
+            oglx_texture_t::ctor( mesh_tx_sml + cnt );
+            oglx_texture_t::ctor( mesh_tx_big + cnt );
         }
         mesh_tx_sml_cnt = 0;
         mesh_tx_big_cnt = 0;
@@ -6582,12 +6580,10 @@ void gfx_system_end_decimated_textures()
 {
     if ( _gfx_system_mesh_textures_initialized )
     {
-        int cnt;
-
-        for ( cnt = 0; cnt < MESH_IMG_COUNT; cnt++ )
+        for (size_t cnt = 0; cnt < MESH_IMG_COUNT; cnt++ )
         {
-            oglx_texture_dtor( mesh_tx_sml + cnt );
-            oglx_texture_dtor( mesh_tx_big + cnt );
+            oglx_texture_t::dtor( mesh_tx_sml + cnt );
+            oglx_texture_t::dtor( mesh_tx_big + cnt );
         }
         mesh_tx_sml_cnt = 0;
         mesh_tx_big_cnt = 0;
@@ -6673,7 +6669,7 @@ int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_
             dst_tx =  tx_lst + tx_lst_cnt;
 
             // prepare the destination texture
-            oglx_texture_ctor( dst_tx );
+            oglx_texture_t::ctor( dst_tx );
 
             // create a blank destination SDL_Surface
             dst_img = gfx_create_SDL_Surface( src_img_rect.w, src_img_rect.h );
@@ -6683,7 +6679,7 @@ int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_
             blit_rv = SDL_BlitSurface( src_img, &src_img_rect, dst_img, NULL );
 
             // upload the SDL_Surface into OpenGL
-            oglx_texture_Convert( dst_tx, dst_img, INVALID_KEY );
+            oglx_texture_convert( dst_tx, dst_img, INVALID_KEY );
 
             // count the number of textures we're using
             tx_lst_cnt++;
@@ -6697,7 +6693,7 @@ gfx_decimate_one_mesh_texture_error:
     // the source texture doesn't exist. Just blank out the destination textures
     for ( cnt = 0; cnt < sub_textures*sub_textures; cnt++ )
     {
-        oglx_texture_ctor( tx_lst + tx_lst_cnt );
+        oglx_texture_t::ctor( tx_lst + tx_lst_cnt );
         tx_lst_cnt++;
     }
 
@@ -6750,7 +6746,7 @@ void gfx_reload_decimated_textures()
     {
         if ( oglx_texture_Valid( mesh_tx_sml + cnt ) )
         {
-            oglx_texture_Convert( mesh_tx_sml + cnt, mesh_tx_sml[cnt].surface, INVALID_KEY );
+            oglx_texture_convert( mesh_tx_sml + cnt, mesh_tx_sml[cnt].surface, INVALID_KEY );
         }
     }
 
@@ -6759,7 +6755,7 @@ void gfx_reload_decimated_textures()
     {
         if ( oglx_texture_Valid( mesh_tx_big + cnt ) )
         {
-            oglx_texture_Convert( mesh_tx_big + cnt, mesh_tx_big[cnt].surface, INVALID_KEY );
+            oglx_texture_convert( mesh_tx_big + cnt, mesh_tx_big[cnt].surface, INVALID_KEY );
         }
     }
 }

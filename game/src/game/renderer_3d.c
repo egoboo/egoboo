@@ -281,7 +281,7 @@ void point_list_draw_all( std::shared_ptr<Camera> pcam )
             GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
@@ -412,7 +412,7 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
         GL_DEBUG( glDepthMask )( GL_FALSE );
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );
 
         // fix the poorly chosen normals...
@@ -424,7 +424,7 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
         // choose a "white" texture
-        oglx_texture_Bind( NULL );
+        oglx_texture_bind( NULL );
 
         //------------------------------------------------
         // DIAGONAL BBOX
@@ -433,7 +433,7 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
             float p1_x, p1_y;
             float p2_x, p2_y;
 
-            GL_DEBUG( glColor4f )( 0.5f, 1.0f, 1.0f, 0.1f );
+			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f(0.5,1,1,1));
 
             p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
             p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
@@ -490,7 +490,7 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
         // SQUARE BBOX
         if ( draw_square )
         {
-            GL_DEBUG( glColor4f )( 1.0f, 0.5f, 1.0f, 0.1f );
+			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f(1,0.5,1,1));
 
             // XZ FACE, min Y
             GL_DEBUG( glBegin )( GL_QUADS );

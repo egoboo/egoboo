@@ -612,13 +612,13 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
 
     // don't draw if there is no texture
     if ( NULL == tx_tile ) return;
-    oglx_texture_Bind( tx_tile );
+    oglx_texture_bind( tx_tile );
 
     min_s = dst;
     min_t = dst;
 
-    max_s = -dst + ( float ) oglx_texture_getImageWidth( tx_tile )  / ( float ) oglx_texture_getTextureWidth( tx_tile );
-    max_t = -dst + ( float ) oglx_texture_getImageHeight( tx_tile )  / ( float ) oglx_texture_getTextureHeight( tx_tile );
+    max_s = -dst + ( float ) oglx_texture_getImageWidth( tx_tile )  / ( float ) oglx_texture_t::getTextureWidth( tx_tile );
+    max_t = -dst + ( float ) oglx_texture_getImageHeight( tx_tile )  / ( float ) oglx_texture_t::getTextureHeight( tx_tile );
 
     // set the texture coordinates
     loc_vrt[0].s = min_s;
@@ -824,15 +824,15 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
     {
         if ( width == 0 || height == 0 )
         {
-            w = oglx_texture_getTextureWidth( img );
-            h = oglx_texture_getTextureHeight( img );
+            w = oglx_texture_t::getTextureWidth( img );
+            h = oglx_texture_t::getTextureHeight( img );
         }
 
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_getTextureWidth( img );
-        max_t = -dst + ( float ) oglx_texture_getImageHeight( img )  / ( float ) oglx_texture_getTextureHeight( img );
+        max_s = -dst + ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
+        max_t = -dst + ( float ) oglx_texture_getImageHeight( img )  / ( float ) oglx_texture_t::getTextureHeight( img );
     }
     else
     {
@@ -844,7 +844,7 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
     }
 
     // Draw the image
-    oglx_texture_Bind( img );
+    oglx_texture_bind( img );
 
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
@@ -874,15 +874,15 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
     {
         if ( width == 0 || height == 0 )
         {
-            w = oglx_texture_getTextureWidth( img );
-            h = oglx_texture_getTextureHeight( img );
+            w = oglx_texture_t::getTextureWidth( img );
+            h = oglx_texture_t::getTextureHeight( img );
         }
 
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_getTextureWidth( img );
-        max_t = -dst + ( float ) oglx_texture_getImageHeight( img )  / ( float ) oglx_texture_getTextureHeight( img );
+        max_s = -dst + ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
+        max_t = -dst + ( float ) oglx_texture_getImageHeight( img )  / ( float ) oglx_texture_t::getTextureHeight( img );
     }
     else
     {
@@ -894,7 +894,7 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
     }
 
     // Draw the image
-    oglx_texture_Bind( img );
+    oglx_texture_bind( img );
 
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
@@ -1234,52 +1234,52 @@ void create_imgcursor( void )
 //--------------------------------------------------------------------------------------------
 void load_img( void )
 {
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_point, "editor/point.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_point, "editor/point.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_pointon, "editor/pointon.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_pointon, "editor/pointon.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_ref, "editor/ref.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_ref, "editor/ref.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_drawref, "editor/drawref.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_drawref, "editor/drawref.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_anim, "editor/anim.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_anim, "editor/anim.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_water, "editor/water.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_water, "editor/water.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_wall, "editor/slit.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_wall, "editor/slit.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_impass, "editor/impass.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_impass, "editor/impass.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_damage, "editor/damage.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_damage, "editor/damage.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_slippy, "editor/slippy.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &tx_slippy, "editor/slippy.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
     }
@@ -1305,13 +1305,13 @@ void get_small_tiles( SDL_Surface* bmpload )
         {
             SDL_Rect src1 = { static_cast<Sint16>(x), static_cast<Sint16>(y), static_cast<Uint16>( step_x - 1 ), static_cast<Uint16>( step_y - 1 ) };
 
-            oglx_texture_ctor( tx_smalltile + numsmalltile );
+            oglx_texture_t::ctor( tx_smalltile + numsmalltile );
 
             image = cartman_CreateSurface( SMALLXY, SMALLXY );
             SDL_FillRect( image, NULL, MAKE_BGR( image, 0, 0, 0 ) );
             SDL_SoftStretch( bmpload, &src1, image, NULL );
 
-            oglx_texture_Convert( tx_smalltile + numsmalltile, image, INVALID_KEY );
+            oglx_texture_convert( tx_smalltile + numsmalltile, image, INVALID_KEY );
 
             numsmalltile++;
         }
@@ -1351,14 +1351,14 @@ void get_big_tiles( SDL_Surface* bmpload )
             src1.w = wid;
             src1.h = hgt;
 
-            oglx_texture_ctor( tx_bigtile + numbigtile );
+            oglx_texture_t::ctor( tx_bigtile + numbigtile );
 
             image = cartman_CreateSurface( SMALLXY, SMALLXY );
             SDL_FillRect( image, NULL, MAKE_BGR( image, 0, 0, 0 ) );
 
             SDL_SoftStretch( bmpload, &src1, image, NULL );
 
-            oglx_texture_Convert( tx_bigtile + numbigtile, image, INVALID_KEY );
+            oglx_texture_convert( tx_bigtile + numbigtile, image, INVALID_KEY );
 
             numbigtile++;
         }

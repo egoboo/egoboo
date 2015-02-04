@@ -298,7 +298,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * pmesh, const Uint32 itile )
         badvertex++;
     }
 
-    oglx_texture_Bind( NULL );
+    oglx_texture_bind( NULL );
 
     // Render each command
     GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
@@ -382,8 +382,8 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 
     ptex = TxList_get_valid_ptr( texture );
 
-    x1 = ( float ) oglx_texture_getTextureWidth( ptex ) / ( float ) oglx_texture_getImageWidth( ptex );
-    y1 = ( float ) oglx_texture_getTextureHeight( ptex ) / ( float ) oglx_texture_getImageHeight( ptex );
+    x1 = ( float ) oglx_texture_t::getTextureWidth( ptex ) / ( float ) oglx_texture_getImageWidth( ptex );
+    y1 = ( float ) oglx_texture_t::getTextureHeight( ptex ) / ( float ) oglx_texture_getImageHeight( ptex );
 
     for ( cnt = 0; cnt < 4; cnt ++ )
     {
@@ -478,7 +478,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
     mesh_texture_invalidate();
 
     // set the texture
-    oglx_texture_Bind( ptex );
+    oglx_texture_bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {

@@ -55,33 +55,34 @@
 
     struct oglx_texture_t
     {
-        GLboolean    base_valid;
+        GLboolean base_valid;
         gl_texture_t base;
 
-        GLuint        valid;           ///< whether or not the texture has been initialized
-        char          name[256];       ///< the name of the original file
-        int           imgW, imgH;      ///< the height & width of the texture data
+        GLuint valid;          ///< whether or not the texture has been initialized
+        char name[256];        ///< the name of the original file
+        int imgW, imgH;        ///< the height & width of the texture data
 
-        SDL_Surface * surface;         ///< the original texture data
-        SDL_bool      has_alpha;       ///< the alpha for the texture
+        SDL_Surface *surface;  ///< the original texture data
+        SDL_bool has_alpha;    ///< the alpha for the texture
+
+		static oglx_texture_t *ctor(oglx_texture_t *self);
+		static void dtor(oglx_texture_t *self);
+		static GLsizei getTextureWidth(const oglx_texture_t *self);
+		static GLsizei getTextureHeight(const oglx_texture_t *self);
     };
+	
+    GLuint oglx_texture_convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
+    GLuint oglx_texture_load(oglx_texture_t *self, const char *filename, Uint32 key);
+    void oglx_texture_release(oglx_texture_t *self);
+    void oglx_texture_bind(oglx_texture_t *self);
 
-    oglx_texture_t *oglx_texture_ctor(oglx_texture_t * texture);
-    void oglx_texture_dtor(oglx_texture_t * texture);
+    GLuint oglx_texture_getTextureID(const oglx_texture_t *self);
+    GLsizei oglx_texture_getImageHeight(const oglx_texture_t *self);
+    GLsizei oglx_texture_getImageWidth(const oglx_texture_t *self);
 
-    GLuint oglx_texture_Convert(oglx_texture_t *texture, SDL_Surface *pimage, Uint32 key);
-    GLuint oglx_texture_Load(oglx_texture_t *texture, const char *filename, Uint32 key);
-    void oglx_texture_Release(oglx_texture_t *texture);
-    void oglx_texture_Bind(oglx_texture_t * texture);
-
-    GLuint oglx_texture_getTextureID( const oglx_texture_t *texture);
-    GLsizei oglx_texture_getImageHeight( const oglx_texture_t *texture);
-    GLsizei oglx_texture_getImageWidth( const oglx_texture_t *texture);
-    GLsizei oglx_texture_getTextureWidth( const oglx_texture_t *texture);
-    GLsizei oglx_texture_getTextureHeight( const oglx_texture_t *texture);
-    void oglx_texture_setAlpha(oglx_texture_t *texture, GLfloat alpha);
-    GLfloat oglx_texture_getAlpha(const oglx_texture_t *texture);
-    GLboolean oglx_texture_getSize(const oglx_texture_t *texture, oglx_frect_t tx_rect, oglx_frect_t img_rect);
+    void oglx_texture_setAlpha(oglx_texture_t *self, GLfloat alpha);
+    GLfloat oglx_texture_getAlpha(const oglx_texture_t *self);
+    GLboolean oglx_texture_getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

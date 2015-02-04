@@ -60,52 +60,10 @@ namespace Ego
 
 			/** @copydoc Ego::Renderer::setColour */
 			virtual void setColour(const Colour4f& colour);
+
+			/** @copydoc Ego::Renderer::setDepthTestEnabled */
+			virtual void setDepthTestEnabled(bool enabled);
 		};
 	};
-
-#if 0
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Initialize the OpenGL back-end.
-	 * @return
-	 *	@a 0 on success, a non-zero value on failure
-	 */
-	int Renderer_OpenGL_initialize();
-
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Uninitialize the OpenGL back-end.
-	 */
-	void Renderer_OpenGL_uninitialize();
-
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Multiply the OpenGL matrix with the given matrix (using glMultMatrix).
-	 * @param m
-	 *	the matrix
-	 */
-	void Renderer_OpenGL_multMatrix(const fmat_4x4_t& m);
-
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Set the OpenGL matrix to the given matrix (using glLoadMatrix).
-	 * @param m
-	 *	the matrix
-	 */
-	void Renderer_OpenGL_loadMatrix(const fmat_4x4_t& m);
-
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Set the colour.
-	 * @param c
-	 *	the colour
-	 */
-	void Renderer_OpenGL_setColour(const Colour4f& c);
-#endif
 
 };

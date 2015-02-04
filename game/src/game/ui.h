@@ -36,12 +36,11 @@ struct s_Font;
 // internal structs
 //--------------------------------------------------------------------------------------------
 
+#if 0
 struct s_ui_Context;
 typedef struct s_ui_Context ui_Context_t;
-
-struct s_ui_Widget;
-typedef struct s_ui_Widget ui_Widget_t;
-
+struct ui_Widget_t;
+#endif
 typedef Uint32 ui_id_t;
 
 //--------------------------------------------------------------------------------------------
@@ -51,15 +50,12 @@ typedef Uint32 ui_id_t;
 #define UI_Invalid (ui_id_t)(-2)
 
 /// Possible UI button states
-enum e_ui_button_values
+enum ui_buttonValues
 {
     BUTTON_NOCHANGE = 0,
     BUTTON_DOWN,
     BUTTON_UP
 };
-
-// this typedef must be after the enum definition or gcc has a fit
-typedef enum e_ui_button_values ui_buttonValues;
 
 /// Possible UI button properties
 enum e_ui_button_bits
@@ -73,7 +69,7 @@ enum e_ui_button_bits
 //--------------------------------------------------------------------------------------------
 
 /// The data descibing the state of a UI widget
-struct s_ui_Widget
+struct ui_Widget_t
 {
     ui_id_t        id;
     struct s_Font  *pfont;
@@ -142,8 +138,3 @@ float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uin
 /// virtual screen
 void ui_set_virtual_screen( float vw, float vh, float ww, float wh );
 struct s_Font * ui_loadFont( const char * font_name, float vpointSize );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define egoboo_ui_h

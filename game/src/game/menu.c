@@ -233,10 +233,9 @@ static mnu_SlidyButtonState_t mnu_SlidyButtonState = { NULL };
 // declaration of public variables
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
+INSTANTIATE_LIST(, oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 
 static Stack<mnu_module_t, MAX_MODULE> mnu_ModList;
-//INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 
 #define INVALID_MOD_IDX MAX_MODULE
 #define INVALID_MOD_REF ((MOD_REF)INVALID_MOD_IDX)
@@ -922,7 +921,7 @@ int doMainMenu( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
@@ -1039,7 +1038,7 @@ int doSinglePlayerMenu( float deltaTime )
 
         case MM_Finish:
             // Release the background texture
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
 
             // reset the ui
             ui_Reset();
@@ -1482,7 +1481,7 @@ int doChooseModule( float deltaTime )
             // fall through for now
 
         case MM_Finish:
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
 
             pickedmodule_index         = -1;
             pickedmodule_path[0]       = CSTR_END;
@@ -1887,7 +1886,7 @@ int doChoosePlayer( float deltaTime )
 
         case MM_Finish:
 
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
 
             menuState = MM_Begin;
 
@@ -2133,7 +2132,7 @@ int doChooseCharacter( float deltaTime )
             // release all of the temporary profiles
             doChooseCharacter_show_stats( nullptr, false, 0, 0, 0, 0 );
 
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
             TxList_free_one(( TX_REF )TX_BARS );
 
             menuState = MM_Begin;
@@ -2268,7 +2267,7 @@ int doOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
@@ -3026,7 +3025,7 @@ int doGameOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
@@ -3257,7 +3256,7 @@ int doAudioOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
@@ -4051,7 +4050,7 @@ int doVideoOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            oglx_texture_Release( &background );
+            oglx_texture_release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
@@ -5280,9 +5279,6 @@ void loadAllImportPlayers(const std::string &saveGameDirectory)
 egolib_rv mnu_set_local_import_list( import_list_t * imp_lst )
 {
     int import_idx;
-#if 0
-	int i;
-#endif
     import_element_t * import_ptr = NULL;
 
     if ( NULL == imp_lst ) return rv_error;
@@ -5339,12 +5335,9 @@ void mnu_TxList_ctor()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
-
-    MNU_TX_REF cnt;
-
-    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
+	for (MNU_TX_REF cnt = 0; cnt < MENU_TX_COUNT; cnt++)
     {
-        oglx_texture_ctor( mnu_TxList.lst + cnt );
+        oglx_texture_t::ctor( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5356,7 +5349,7 @@ void mnu_TxList_release_one( const MNU_TX_REF index )
     oglx_texture_t * ptr = mnu_TxList_get_ptr( index );
     if ( NULL == ptr ) return;
 
-    oglx_texture_Release( ptr );
+    oglx_texture_release( ptr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5364,12 +5357,9 @@ void mnu_TxList_dtor()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
-
-    MNU_TX_REF cnt;
-
-    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
+	for (MNU_TX_REF cnt = 0; cnt < MENU_TX_COUNT; cnt++)
     {
-        oglx_texture_dtor( mnu_TxList.lst + cnt );
+        oglx_texture_t::dtor( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5380,12 +5370,9 @@ void mnu_TxList_init_all()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
-
-    MNU_TX_REF cnt;
-
-    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
+	for (MNU_TX_REF cnt = 0; cnt < MENU_TX_COUNT; cnt++)
     {
-        oglx_texture_ctor( mnu_TxList.lst + cnt );
+        oglx_texture_t::ctor( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5401,7 +5388,7 @@ void mnu_TxList_release_all()
 
     for ( cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_Release( mnu_TxList.lst + cnt );
+        oglx_texture_release( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5413,11 +5400,9 @@ void mnu_TxList_delete_all()
     /// @author ZZ
     /// @details This function clears out all of the textures
 
-    MNU_TX_REF cnt;
-
-    for ( cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++ )
+	for (MNU_TX_REF cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++)
     {
-        oglx_texture_dtor( mnu_TxList.lst + cnt );
+        oglx_texture_t::dtor( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5438,7 +5423,7 @@ void mnu_TxList_reload_all()
 
         if ( oglx_texture_Valid( ptex ) )
         {
-            oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
+            oglx_texture_convert( ptex, ptex->surface, INVALID_KEY );
         }
     }
 }
@@ -5451,7 +5436,7 @@ MNU_TX_REF mnu_TxList_get_free( const MNU_TX_REF itex )
     if ( itex >= 0 && itex < MENU_TX_LAST_SPECIAL )
     {
         retval = itex;
-        oglx_texture_Release( mnu_TxList.lst + itex );
+        oglx_texture_release( mnu_TxList.lst + itex );
     }
     else if ( !VALID_MENU_TX_RANGE( itex ) )
     {
@@ -5472,7 +5457,7 @@ MNU_TX_REF mnu_TxList_get_free( const MNU_TX_REF itex )
         int i;
 
         // grab the specified index
-        oglx_texture_Release( mnu_TxList.lst + ( MNU_TX_REF )itex );
+        oglx_texture_release( mnu_TxList.lst + ( MNU_TX_REF )itex );
 
         // if this index is on the free stack, remove it
         for ( i = 0; i < mnu_TxList.free_count; i++ )
@@ -5500,7 +5485,7 @@ bool mnu_TxList_free_one( const MNU_TX_REF itex )
     if ( !VALID_MENU_TX_RANGE( itex ) ) return false;
 
     // release the texture
-    oglx_texture_Release( mnu_TxList.lst + itex );
+    oglx_texture_release( mnu_TxList.lst + itex );
 
 #if defined(_DEBUG)
     {

@@ -94,6 +94,15 @@ namespace Ego
 
 		/**
 		 * @brief
+		 *	Enable/disable depth comparison and depth buffer updates.
+		 * @param enabled
+		 *	@a true enables depth comparisons and depth buffer updates,
+		 *	@a false disables them
+		 */
+		virtual void setDepthTestEnabled(bool enabled) = 0;
+
+		/**
+		 * @brief
 		 *	Replace the current matrix with the given matrix.
 		 * @param matrix
 		 *	the matrix

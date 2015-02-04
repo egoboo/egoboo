@@ -96,7 +96,7 @@ void load_window( window_t * pwin, int id, char *loadname, int x, int y, int bx,
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &( pwin->tex ), loadname, INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_load( &( pwin->tex ), loadname, INVALID_KEY ) )
     {
         log_warning( "Cannot load \"%s\".\n", loadname );
     }

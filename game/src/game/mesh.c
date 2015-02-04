@@ -214,7 +214,7 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile )
 
     if ( needs_bind )
     {
-        oglx_texture_Bind( tx_ptr );
+        oglx_texture_bind( tx_ptr );
     }
 
     return tx_ptr;

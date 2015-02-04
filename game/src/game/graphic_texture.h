@@ -58,18 +58,31 @@ enum e_global_tx_type
 #define INVALID_TX_REF ((TX_REF)INVALID_TX_IDX)
 
 #define VALID_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<TX_COUNT) )
-
+struct TxListTy : public _List<oglx_texture_t *, TX_COUNT> {
+	TxListTy() {
+		update_guid = INVALID_UPDATE_GUID;
+		used_count = 0;
+		free_count = TX_COUNT;
+		for (size_t i = 0, j = TX_SPECIAL_LAST; j < TX_COUNT; i++, j++)
+		{
+			free_ref[i] = j;
+		}
+		for (TX_REF i = 0; i < TX_COUNT; i++)
+		{
+			lst[i] = nullptr;
+		}
+	}
+};
 /// declare special arrays of textures
-DECLARE_LIST_EXTERN( oglx_texture_t, TxList, TX_COUNT );
+extern TxListTy TxList;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void             TxList_init_all();
-void             TxList_delete_all();
-void             TxList_release_all();
-TX_REF           TxList_get_free( const TX_REF itex );
-bool           TxList_free_one( const TX_REF  itex );
-TX_REF           TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
-oglx_texture_t * TxList_get_valid_ptr( const TX_REF itex );
-
-void             TxList_reload_all();
+void TxList_init_all();
+void TxList_delete_all();
+void TxList_release_all();
+TX_REF TxList_get_free(const TX_REF itex);
+bool TxList_free_one(const TX_REF  itex);
+TX_REF TxList_load_one_vfs(const char *filename, const TX_REF  itex_src, Uint32 key);
+oglx_texture_t * TxList_get_valid_ptr(const TX_REF itex);
+void TxList_reload_all();

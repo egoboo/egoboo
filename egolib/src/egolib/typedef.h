@@ -392,22 +392,20 @@ typedef Uint16 REF_T;
 	//--------------------------------------------------------------------------------------------
 	// a simple list structure that tracks free elements
 
-
-/// @tod Remove this.
-#define ACCESS_TYPE_NONE
+template <typename TYPE,size_t COUNT>
+struct _List {
+	unsigned update_guid;
+	int used_count;
+	int free_count;
+	size_t used_ref[COUNT];
+	size_t free_ref[COUNT];
+	TYPE lst[COUNT];
+};
 
 #define INVALID_UPDATE_GUID ((unsigned)(~((unsigned)0)))
 
 #define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
-    struct s_c_list__##TYPE__##NAME         \
-    {                                       \
-        unsigned update_guid;               \
-        int used_count;                     \
-        int free_count;                     \
-        size_t used_ref[COUNT];             \
-        size_t free_ref[COUNT];             \
-        TYPE lst[COUNT];                    \
-    }
+	typedef _List<TYPE,COUNT> s_c_list__##TYPE__##NAME;
 
 #define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)   \
     DEFINE_LIST_TYPE(TYPE, NAME, COUNT);         \
@@ -415,23 +413,23 @@ typedef Uint16 REF_T;
     void   NAME##_dtor( void );                  \
     bool NAME##_push_used( const REF_T );        \
     TYPE * NAME##_get_ptr( const size_t );       \
-    extern struct s_c_list__##TYPE__##NAME NAME
+    extern s_c_list__##TYPE__##NAME NAME
 
 #define INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \
     DEFINE_LIST_TYPE(TYPE, NAME, COUNT);           \
-    static struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
+    static s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
 #define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
-    ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
+    ACCESS s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
 #ifndef IMPLEMENT_LIST
-#define IMPLEMENT_LIST(TYPE, NAME, COUNT)               \
-    static int     NAME##_find_free_ref( const REF_T ); \
-    static bool  NAME##_push_free( const REF_T );       \
-    static size_t  NAME##_pop_free( const int );        \
-    static int     NAME##_find_used_ref( const REF_T ); \
-    static size_t  NAME##_pop_used( const int );        \
-    TYPE * NAME##_get_ptr( const size_t index )   { return LAMBDA(index >= COUNT, NULL, NAME.lst + index); }
+#define IMPLEMENT_LIST(TYPE, NAME, COUNT)         \
+    static int NAME##_find_free_ref(const REF_T); \
+    static bool NAME##_push_free(const REF_T);    \
+    static size_t  NAME##_pop_free(const int);    \
+    static int NAME##_find_used_ref(const REF_T); \
+    static size_t NAME##_pop_used(const int);     \
+    TYPE *NAME##_get_ptr(const size_t index)   { return LAMBDA(index >= COUNT, NULL, NAME.lst + index); }
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -443,7 +441,8 @@ typedef Uint16 REF_T;
  *	Rename to @a StaticStack.
  */
 template <typename ElementType,size_t Capacity>
-struct Stack {
+struct Stack
+{
 	
 	unsigned update_guid;
 	

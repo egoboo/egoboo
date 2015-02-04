@@ -773,7 +773,7 @@ void load_all_windows( cartman_mpd_t * pmesh )
     for ( cnt = 0; cnt < MAXWIN; cnt++ )
     {
         window_lst[cnt].on = false;
-        oglx_texture_Release( &( window_lst[cnt].tex ) );
+        oglx_texture_release( &( window_lst[cnt].tex ) );
     }
 
     load_window( window_lst + 0, 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );

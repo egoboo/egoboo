@@ -64,7 +64,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, enc_t, EncList, MAX_ENC );
+INSTANTIATE_LIST(, enc_t, EncList, MAX_ENC );
 
 static size_t  enc_termination_count = 0;
 static ENC_REF enc_termination_list[MAX_ENC];

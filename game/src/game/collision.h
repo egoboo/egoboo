@@ -58,11 +58,15 @@ struct CoNode_t
     // some information about the estimated collision
     float    tmin, tmax;
     oct_bb_t cv;
+
+	static int matches(const CoNode_t *self, const CoNode_t *other);
+	/** @todo This test is broken or has dead code. */
+	static int cmp(const CoNode_t *self, const CoNode_t *other);
+	static int cmp_unique(const CoNode_t *self, const CoNode_t *other);
+	static Uint8 generate_hash(const CoNode_t *self);
 };
 
 CoNode_t *CoNode_ctor(CoNode_t *self);
-Uint8 CoNode_generate_hash(CoNode_t *self);
-int CoNode_cmp(const void *left, const void *right);
 
 //--------------------------------------------------------------------------------------------
 
@@ -82,10 +86,6 @@ bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *coNode, Ego::D
 
 CoHashList_t *CoHashList_getInstance();
 
-//--------------------------------------------------------------------------------------------
-#if 0
-extern int CoHashList_inserted;
-#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // global functions
