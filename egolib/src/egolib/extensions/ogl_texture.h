@@ -73,6 +73,12 @@
 	
     GLuint oglx_texture_convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
     GLuint oglx_texture_load(oglx_texture_t *self, const char *filename, Uint32 key);
+	/**
+	 * @brief
+	 *	Delete the SDL image, delete OpenGL id, assign OpenGL ID of the error texture.
+	 * @param self
+	 *	this texture
+	 */
     void oglx_texture_release(oglx_texture_t *self);
     void oglx_texture_bind(oglx_texture_t *self);
 

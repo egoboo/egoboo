@@ -380,7 +380,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
     vertices = pdef->numvertices;            // Number of vertices
     commands = pdef->command_count;          // Number of commands
 
-    ptex = TxList_get_valid_ptr( texture );
+	ptex = TextureManager::getSingleton()->get_valid_ptr(texture);
 
     x1 = ( float ) oglx_texture_t::getTextureWidth( ptex ) / ( float ) oglx_texture_getImageWidth( ptex );
     y1 = ( float ) oglx_texture_t::getTextureHeight( ptex ) / ( float ) oglx_texture_getImageHeight( ptex );

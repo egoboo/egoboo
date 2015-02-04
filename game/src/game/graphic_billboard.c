@@ -82,7 +82,7 @@ bool billboard_data_free( billboard_data_t * pbb )
     if ( NULL == pbb || !pbb->valid ) return false;
 
     // free any allocated texture
-    TxList_free_one( pbb->tex_ref );
+	TextureManager::getSingleton()->relinquish(pbb->tex_ref);
 
     billboard_data_init( pbb );
 
@@ -148,7 +148,7 @@ bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color co
     if ( NULL == pbb || !pbb->valid ) return false;
 
     // release any existing texture in case there is an error
-    ptex = TxList_get_valid_ptr( pbb->tex_ref );
+	ptex = TextureManager::getSingleton()->get_valid_ptr(pbb->tex_ref);
     oglx_texture_release( ptex );
 
     va_start( args, format );
@@ -201,7 +201,7 @@ void BillboardList_update_all()
         if ( !pbb->valid ) continue;
 
         is_invalid = false;
-        if (( ticks >= pbb->time ) || ( NULL == TxList_get_valid_ptr( pbb->tex_ref ) ) )
+		if ((ticks >= pbb->time) || (nullptr == TextureManager::getSingleton()->get_valid_ptr(pbb->tex_ref)))
         {
             is_invalid = true;
         }
@@ -256,7 +256,7 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
 
     if ( 0 == lifetime_secs ) return INVALID_BILLBOARD_IDX;
 
-    itex = TxList_get_free( INVALID_TX_REF );
+    itex = TextureManager::getSingleton()->acquire( INVALID_TX_REF );
     if ( !VALID_TX_RANGE( itex ) ) return INVALID_BILLBOARD_IDX;
 
     while ( BillboardList.free_count > 0 )
@@ -294,7 +294,7 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
     {
         // the billboard allocation returned an ivaild value
         // deallocate the texture
-        TxList_free_one( itex );
+		TextureManager::getSingleton()->relinquish(itex);
 
         ibb = INVALID_BILLBOARD_IDX;
     }
@@ -406,7 +406,7 @@ bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fve
     // do not display for objects that are mounted or being held
     if (IS_ATTACHED_CHR_RAW(pbb->ichr)) return false;
 
-    oglx_texture_t *ptex = TxList_get_valid_ptr(pbb->tex_ref);
+	oglx_texture_t *ptex = TextureManager::getSingleton()->get_valid_ptr(pbb->tex_ref);
 
     oglx_texture_bind(ptex);
 

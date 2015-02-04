@@ -1424,8 +1424,7 @@ void gfx_system_begin()
     // begin the billboard system
     billboard_system_begin();
 
-    // initialize the gfx data dtructures
-    TxList_init_all();
+
 
     // initialize the decimated texture arrays
     gfx_system_begin_decimated_textures();
@@ -1505,7 +1504,7 @@ void gfx_system_end()
     gfx_system_end_decimated_textures();
 
     // release all textures
-    TxList_release_all();
+	TextureManager::getSingleton()->release_all();
 
     // de-initialize the renderlist manager
     renderlist_mgr_t::end( &_renderlist_mgr_data );
@@ -1527,13 +1526,17 @@ void gfx_system_end()
 //--------------------------------------------------------------------------------------------
 void gfx_system_uninit_OpenGL()
 {
+	TextureManager::shutDown();
 	Ego::Renderer::shutDown();
 }
 
 //--------------------------------------------------------------------------------------------
 int gfx_system_init_OpenGL()
 {
-	Ego::Renderer::startUp(); /* @todo Add error handling. */
+	// Start-up the renderer.
+	Ego::Renderer::startUp(); ///< @todo Add error handling.
+	// Start-up the texture manager.
+	TextureManager::startUp(); ///< @todo Add error handling.
 
     // GL_DEBUG(glClear)) stuff
     GL_DEBUG( glClearColor )( 0.0f, 0.0f, 0.0f, 0.0f ); // Set the background black
@@ -1906,7 +1909,6 @@ void gfx_system_init_all_graphics()
     font_bmp_init();
 
     billboard_system_init();
-    TxList_init_all();
 
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
@@ -1940,9 +1942,8 @@ void gfx_system_release_all_graphics()
     gfx_init_bar_data();
     gfx_init_blip_data();
     gfx_init_map_data();
-
     BillboardList_free_all();
-    TxList_release_all();
+	TextureManager::getSingleton()->release_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1951,9 +1952,7 @@ void gfx_system_delete_all_graphics()
     gfx_init_bar_data();
     gfx_init_blip_data();
     gfx_init_map_data();
-
     BillboardList_free_all();
-    TxList_delete_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1963,24 +1962,24 @@ void gfx_system_load_basic_textures()
     /// @details This function loads the standard textures for a module
 
     // Particle sprites
-    TxList_load_one_vfs( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
+	TextureManager::getSingleton()->load("mp_data/particle_trans", (TX_REF)TX_PARTICLE_TRANS, TRANSCOLOR);
     prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
 
-    TxList_load_one_vfs( "mp_data/particle_light", ( TX_REF )TX_PARTICLE_LIGHT, INVALID_KEY );
+	TextureManager::getSingleton()->load("mp_data/particle_light", (TX_REF)TX_PARTICLE_LIGHT, INVALID_KEY);
     prt_set_texture_params(( TX_REF )TX_PARTICLE_LIGHT );
 
     // Module background tiles
-    TxList_load_one_vfs( "mp_data/tile0", ( TX_REF )TX_TILE_0, TRANSCOLOR );
-    TxList_load_one_vfs( "mp_data/tile1", ( TX_REF )TX_TILE_1, TRANSCOLOR );
-    TxList_load_one_vfs( "mp_data/tile2", ( TX_REF )TX_TILE_2, TRANSCOLOR );
-    TxList_load_one_vfs( "mp_data/tile3", ( TX_REF )TX_TILE_3, TRANSCOLOR );
+	TextureManager::getSingleton()->load("mp_data/tile0", (TX_REF)TX_TILE_0, TRANSCOLOR);
+	TextureManager::getSingleton()->load("mp_data/tile1", (TX_REF)TX_TILE_1, TRANSCOLOR);
+	TextureManager::getSingleton()->load("mp_data/tile2", (TX_REF)TX_TILE_2, TRANSCOLOR);
+	TextureManager::getSingleton()->load("mp_data/tile3", (TX_REF)TX_TILE_3, TRANSCOLOR);
 
     // Water textures
-    TxList_load_one_vfs( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
-    TxList_load_one_vfs( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
+	TextureManager::getSingleton()->load("mp_data/watertop", (TX_REF)TX_WATER_TOP, TRANSCOLOR);
+	TextureManager::getSingleton()->load("mp_data/waterlow", (TX_REF)TX_WATER_LOW, TRANSCOLOR);
 
     // The phong map
-    TxList_load_one_vfs( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
+	TextureManager::getSingleton()->load("mp_data/phong", (TX_REF)TX_PHONG, TRANSCOLOR);
 
     gfx_decimate_all_mesh_textures();
 
@@ -2040,7 +2039,7 @@ void gfx_system_reload_all_textures()
     /// @details function is called when the graphics mode is changed or the program is
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
-    TxList_reload_all();
+	TextureManager::getSingleton()->reload_all();
     mnu_TxList_reload_all();
     gfx_reload_decimated_textures();
 }
@@ -2072,7 +2071,7 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map )
     //Now draw it
     if ( loc_x > 0.0f && loc_y > 0.0f )
     {
-        oglx_texture_t * ptex = TxList_get_valid_ptr(( TX_REF )TX_BLIP );
+		oglx_texture_t * ptex = TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_BLIP);
 
         tx_rect.xmin = ( float )bliprect[color]._left   / ( float )oglx_texture_t::getTextureWidth( ptex );
         tx_rect.xmax = ( float )bliprect[color]._right  / ( float )oglx_texture_t::getTextureWidth( ptex );
@@ -2167,7 +2166,7 @@ float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_col
     /// @author ZZ
     /// @details This function draws an icon
 
-    return draw_icon_texture( TxList_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
+	return draw_icon_texture(TextureManager::getSingleton()->get_valid_ptr(icontype), x, y, sparkle_color, sparkle_timer, size);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2184,7 +2183,7 @@ void draw_map_texture( float x, float y )
 
     ego_frect_t sc_rect, tx_rect;
 
-    oglx_texture_t * ptex = TxList_get_valid_ptr(( TX_REF )TX_MAP );
+	oglx_texture_t * ptex = TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_MAP);
     if ( NULL == ptex ) return;
 
     sc_rect.xmin = x;
@@ -2230,7 +2229,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, true, NULL );
+	draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true, NULL);
 
     x += width;
 
@@ -2250,7 +2249,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, true, NULL );
+		draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true, NULL);
     }
 
     //---- Draw the remaining empty ones
@@ -2266,7 +2265,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, true, NULL );
+		draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true, NULL);
     }
 
     return y + height;
@@ -2301,7 +2300,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
     if ( ticks       > total_ticks ) ticks = total_ticks;
 
     // grab a pointer to the bar texture
-    tx_ptr = TxList_get_valid_ptr(( TX_REF )TX_BARS );
+	tx_ptr = TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_BARS);
 
     // allow the bitmap to be scaled to arbitrary size
     tx_width   = 128.0f;
@@ -3278,7 +3277,7 @@ void render_shadow( const CHR_REF character )
 
     // Choose texture.
     itex = TX_PARTICLE_LIGHT;
-    oglx_texture_bind( TxList_get_valid_ptr( itex ) );
+	oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(itex));
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -3415,7 +3414,7 @@ void render_bad_shadow( const CHR_REF character )
 
     // Choose texture and matrix
     itex = TX_PARTICLE_LIGHT;
-    oglx_texture_bind( TxList_get_valid_ptr( itex ) );
+	oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(itex));
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -4505,7 +4504,7 @@ gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF textu
         intens = CLIP( intens, 0.0f, 1.0f );
     }
 
-    ptex = TxList_get_valid_ptr( texture );
+	ptex = TextureManager::getSingleton()->get_valid_ptr(texture);
 
     oglx_texture_bind( ptex );
 
@@ -4656,7 +4655,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
         vtlist[3].tex[SS] = ilayer->tx.x;
         vtlist[3].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
 
-        ptex = TxList_get_valid_ptr( texture );
+		ptex = TextureManager::getSingleton()->get_valid_ptr(texture);
 
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT );
         {
@@ -5209,7 +5208,7 @@ gfx_rv gfx_load_bars()
     gfx_rv retval  = gfx_success;
 
     pname = "mp_data/bars";
-    load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_BARS, TRANSCOLOR );
+	load_rv = TextureManager::getSingleton()->load(pname, (TX_REF)TX_BARS, TRANSCOLOR);
     if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_warning( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname );
@@ -5217,7 +5216,7 @@ gfx_rv gfx_load_bars()
     }
 
     pname = "mp_data/xpbar";
-    load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR );
+	load_rv = TextureManager::getSingleton()->load(pname, (TX_REF)TX_XP_BAR, TRANSCOLOR);
     if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_warning( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname );
@@ -5243,7 +5242,7 @@ gfx_rv gfx_load_map()
     blip_count   = 0;
 
     // Load the images
-    load_rv = TxList_load_one_vfs( szMap, ( TX_REF )TX_MAP, INVALID_KEY );
+	load_rv = TextureManager::getSingleton()->load(szMap, (TX_REF)TX_MAP, INVALID_KEY);
     if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_debug( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap );
@@ -5269,7 +5268,7 @@ gfx_rv gfx_load_blips()
     TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
     
-    load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_BLIP, INVALID_KEY );
+	load_rv = TextureManager::getSingleton()->load(pname, (TX_REF)TX_BLIP, INVALID_KEY);
     if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_warning( "%s - Blip bitmap not loaded! (\"%s\")\n", __FUNCTION__, pname );
@@ -5286,7 +5285,7 @@ gfx_rv gfx_load_icons()
     TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
 
-    load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_ICON_NULL, INVALID_KEY );
+	load_rv = TextureManager::getSingleton()->load(pname, (TX_REF)TX_ICON_NULL, INVALID_KEY);
     if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_warning( "%s - cannot load \"empty hand\" icon! (\"%s\")\n", __FUNCTION__, pname );
@@ -6714,7 +6713,7 @@ void gfx_decimate_all_mesh_textures()
     mesh_tx_sml_cnt = 0;
     for ( size_t cnt = 0; cnt < 4; cnt++ )
     {
-        ptx = TxList_get_valid_ptr( TX_TILE_0 + cnt );
+		ptx = TextureManager::getSingleton()->get_valid_ptr(TX_TILE_0 + cnt);
 
         mesh_tx_sml_cnt = gfx_decimate_one_mesh_texture( ptx, mesh_tx_sml, mesh_tx_sml_cnt, 1 );
     }
@@ -6723,7 +6722,7 @@ void gfx_decimate_all_mesh_textures()
     mesh_tx_big_cnt = 0;
     for ( size_t cnt = 0; cnt < 4; cnt++ )
     {
-        ptx = TxList_get_valid_ptr( TX_TILE_0 + cnt );
+		ptx = TextureManager::getSingleton()->get_valid_ptr(TX_TILE_0 + cnt);
 
         mesh_tx_big_cnt = gfx_decimate_one_mesh_texture( ptx, mesh_tx_big, mesh_tx_big_cnt, 2 );
     }

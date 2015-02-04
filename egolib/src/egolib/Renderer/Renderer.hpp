@@ -120,6 +120,8 @@ namespace Ego
 		/**
 		 * @brief
 		 *	Start-up the renderer.
+		 * @remark
+		 *	If the renderer is started-up, a call to this method is a no-op.
 		 */
 		static void startUp();
 
@@ -131,7 +133,7 @@ namespace Ego
 		 * @pre
 		 *	The renderer must be started-up.
 		 * @warning
-		 *	Shutting-down the renderer will invalidate any pointers returned by calls to this function prior to shut-down.
+		 *	Shutting-down the renderer will invalidate any pointers returned by calls to this method prior to shut-down.
 		 */
 		static Renderer *getSingleton();
 
@@ -139,7 +141,7 @@ namespace Ego
 		 * @brief
 		 *	Shut-down the renderer.
 		 * @remark
-		 *	If the renderer is not started-up, this function is a no-op.
+		 *	If the renderer is not started-up, a calll to this method is a no-op.
 		 */
 		static void shutDown();
 

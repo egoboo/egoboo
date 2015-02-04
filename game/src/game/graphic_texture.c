@@ -27,81 +27,75 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-TxListTy TxList;
-
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static void TxList_reset_freelist();
+static TextureManager TxList;
 
 //--------------------------------------------------------------------------------------------
 // TxList implementation
 //--------------------------------------------------------------------------------------------
-void TxList_reset_freelist()
+TextureManager::TextureManager()
 {
-    /// @author BB
-    /// @details reset the free texture list. Start at TX_SPECIAL_LAST so that the global textures/icons are
-    ///     can't be allocated by mistake
+	update_guid = INVALID_UPDATE_GUID;
+	used_count = 0;
+	reset_freelist();
+	for (TX_REF i = 0; i < TX_COUNT; i++)
+	{
+		lst[i] = nullptr;
+	}
 
-    int cnt, tnc;
-
-    for ( cnt = TX_SPECIAL_LAST, tnc = 0; cnt < TX_COUNT; cnt++, tnc++ )
-    {
-        TxList.free_ref[tnc] = cnt;
-    }
-    TxList.free_count = tnc;
 }
 
-//--------------------------------------------------------------------------------------------
-void TxList_init_all()
+void TextureManager::reset_freelist()
 {
-    /// @author ZZ
-    /// @details This function clears out all of the textures
-
-	for (TX_REF cnt = 0; cnt < TX_COUNT; cnt++)
+	/// Reset the free texture list.
+	/// Start at #TX_SPECIAL_LAST so that the global textures/icons are can't be allocated by mistake.
+	size_t i, j;
+	for (i = 0,j = TX_SPECIAL_LAST; i < TX_COUNT; i++, j++)
+	{
+		TxList.free_ref[i] = j;
+	}
+	TxList.free_count = i;
+}
+//--------------------------------------------------------------------------------------------
+TextureManager *TextureManager::getSingleton()
+{
+	return &TxList;
+}
+//--------------------------------------------------------------------------------------------
+void TextureManager::startUp()
+{
+	for (TX_REF i = 0; i < TX_COUNT; i++)
     {
 		oglx_texture_t *texture = (oglx_texture_t *)malloc(sizeof(oglx_texture_t));
 		oglx_texture_t::ctor(texture);
-		TxList.lst[cnt] = texture;
+		TxList.lst[i] = texture;
     }
 
-    TxList_reset_freelist();
+    TxList.reset_freelist();
 }
 
 //--------------------------------------------------------------------------------------------
-void TxList_release_all()
+void TextureManager::shutDown()
 {
-    /// @author ZZ
-    /// @details This function releases all of the textures
-
-    for (TX_REF cnt = 0; cnt < TX_COUNT; cnt++ )
+    for (TX_REF i = 0; i < TX_COUNT; ++i)
     {
-        oglx_texture_release( TxList.lst[cnt] );
+        oglx_texture_t::dtor(TxList.lst[i]);
+		free(TxList.lst[i]);
+		TxList.lst[i] = nullptr;
     }
-
-    TxList_reset_freelist();
+    TxList.reset_freelist();
 }
-
 //--------------------------------------------------------------------------------------------
-void TxList_delete_all()
+void TextureManager::release_all()
 {
-    /// @author ZZ
-    /// @details This function clears out all of the textures
+	for (TX_REF cnt = 0; cnt < TX_COUNT; cnt++)
+	{
+		oglx_texture_release(TxList.lst[cnt]);
+	}
 
-    for (TX_REF cnt = 0; cnt < TX_COUNT; cnt++ )
-    {
-        oglx_texture_t::dtor( TxList.lst[cnt] );
-		free(TxList.lst[cnt]);
-		TxList.lst[cnt] = nullptr;
-    }
-
-    TxList_reset_freelist();
+	reset_freelist();
 }
-
 //--------------------------------------------------------------------------------------------
-void TxList_reload_all()
+void TextureManager::reload_all()
 {
     /// @author BB
     /// @details This function re-loads all the current textures back into
@@ -109,7 +103,7 @@ void TxList_reload_all()
 
 	for (TX_REF ref = 0; ref < TX_COUNT; ++ref)
     {
-        oglx_texture_t *texture = TxList.lst[ref];
+        oglx_texture_t *texture = lst[ref];
 
         if (oglx_texture_Valid(texture))
         {
@@ -119,91 +113,91 @@ void TxList_reload_all()
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF TxList_get_free( const TX_REF itex )
+TX_REF TextureManager::acquire(const TX_REF itex)
 {
-    TX_REF retval = INVALID_TX_REF;
+    TX_REF newitex = INVALID_TX_REF;
 
-    if ( itex >= 0 && itex < TX_SPECIAL_LAST )
+    if (itex >= 0 && itex < TX_SPECIAL_LAST)
     {
-        retval = itex;
-        oglx_texture_release( TxList.lst[itex] );
+		newitex = itex;
+        oglx_texture_release(lst[itex]);
     }
-    else if ( !VALID_TX_RANGE( itex ) )
+    else if (!VALID_TX_RANGE(itex))
     {
-        if ( TxList.free_count > 0 )
+        if (free_count > 0)
         {
-            TxList.free_count--;
-            TxList.update_guid++;
-
-            retval = ( TX_REF )TxList.free_ref[TxList.free_count];
+            free_count--;
+            update_guid++;
+			newitex = (TX_REF)free_ref[free_count];
         }
         else
         {
-            retval = INVALID_TX_REF;
+			newitex = INVALID_TX_REF;
         }
     }
     else
     {
-        // grab the specified index
-        oglx_texture_release(TxList.lst[(TX_REF)itex]);
+        // Grab the specified index.
+        oglx_texture_release(lst[(TX_REF)itex]);
 
-        // if this index is on the free stack, remove it
-        for (int i = 0; i < TxList.free_count; i++ )
+        // If this index is on the free stack, remove it.
+        for (int i = 0; i < free_count; ++i)
         {
-            if ( TxList.free_ref[i] == itex )
+            if (free_ref[i] == itex)
             {
-                if ( TxList.free_count > 0 )
+                if (free_count > 0)
                 {
-                    TxList.free_count--;
-                    TxList.update_guid++;
+                    free_count--;
+                    update_guid++;
 
-                    SWAP( size_t, TxList.free_ref[i], TxList.free_ref[TxList.free_count] );
+                    SWAP(size_t, free_ref[i], free_ref[free_count]);
                 }
                 break;
             }
         }
     }
 
-    return retval;
+	return newitex;
 }
 
 //--------------------------------------------------------------------------------------------
-bool TxList_free_one( const TX_REF itex )
+bool TextureManager::relinquish(const TX_REF itex)
 {
-    if ( itex < 0 || itex >= TX_COUNT ) return false;
+    if (itex < 0 || itex >= TX_COUNT) return false;
 
-    // release the texture
-    oglx_texture_release(TxList.lst[itex]);
+    // Release the texture.
+    oglx_texture_release(lst[itex]);
 
 #if defined(_DEBUG)
     {
         int cnt;
         // determine whether this texture is already in the list of free textures
         // that is an error
-        for ( cnt = 0; cnt < TxList.free_count; cnt++ )
+        for ( cnt = 0; cnt < free_count; cnt++ )
         {
-            if ( itex == TxList.free_ref[cnt] ) return false;
+            if ( itex == free_ref[cnt] ) return false;
         }
     }
 #endif
 
-    if ( TxList.free_count >= TX_COUNT )
-        return false;
-
-    // do not put anything below TX_SPECIAL_LAST back onto the free stack
-    if ( itex >= TX_SPECIAL_LAST )
+	if (free_count >= TX_COUNT)
+	{
+		return false;
+	}
+    // Do not put anything below TX_SPECIAL_LAST back onto the free stack.
+    if (itex >= TX_SPECIAL_LAST)
     {
-        TxList.free_ref[TxList.free_count] = REF_TO_INT( itex );
+        free_ref[free_count] = REF_TO_INT( itex );
 
-        TxList.free_count++;
-        TxList.update_guid++;
+        free_count++;
+        update_guid++;
     }
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF TxList_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 key )
+TX_REF TextureManager::load(const char *filename, const TX_REF itex_src, Uint32 key)
 {
     /// @author BB
     /// @details load a texture into TxList.
@@ -212,7 +206,7 @@ TX_REF TxList_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 
     TX_REF retval;
 
     // get a texture index.
-    retval = TxList_get_free( itex_src );
+	retval = TextureManager::acquire(itex_src);
 
     // handle an error
     if ( VALID_TX_RANGE( retval ) )
@@ -220,7 +214,7 @@ TX_REF TxList_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 
         Uint32 txid = ego_texture_load_vfs( TxList.lst[retval], filename, key );
         if ( INVALID_GL_ID == txid )
         {
-            TxList_free_one( retval );
+			TextureManager::relinquish(retval);
             retval = INVALID_TX_REF;
         }
     }
@@ -230,7 +224,7 @@ TX_REF TxList_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 
 
 //--------------------------------------------------------------------------------------------
 
-oglx_texture_t * TxList_get_valid_ptr( const TX_REF itex )
+oglx_texture_t *TextureManager::get_valid_ptr(const TX_REF itex)
 {
 	oglx_texture_t *texture = LAMBDA(itex >= TX_COUNT, nullptr, TxList.lst[itex]);
     if (!oglx_texture_Valid(texture))

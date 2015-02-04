@@ -1691,7 +1691,7 @@ bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loadPlayer
 
             //draw the icon for this item
             MNU_TX_REF icon_ref = mnu_get_txtexture_ref(item, item->getIcon(item->getSkinOverride()) );
-            ui_drawImage( 0, TxList_get_valid_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
+            ui_drawImage( 0, TextureManager::getSingleton()->get_valid_ptr(icon_ref), x1, y1, icon_hgt, icon_hgt, NULL );
 
             if ( item->getSlotNumber() == SLOT_LEFT + 1 )
             {
@@ -1826,7 +1826,7 @@ int doChoosePlayer( float deltaTime )
                     MNU_TX_REF device_icon = MENU_TX_ICON_NULL;
 
                     ui_drawButton( UI_Nothing, buttonLeft + 2 *( butt_wid + butt_spc ), y1, butt_hgt, butt_hgt, NULL );
-                    draw_icon_texture(TxList_get_valid_ptr(player->getIcon()), buttonLeft + 2 *( butt_wid + butt_spc ) + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter, icon_hgt);
+					draw_icon_texture(TextureManager::getSingleton()->get_valid_ptr(player->getIcon()), buttonLeft + 2 * (butt_wid + butt_spc) + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter, icon_hgt);
 
 
                     if ( i < MAX_LOCAL_PLAYERS )
@@ -1943,7 +1943,7 @@ int doChooseCharacter( float deltaTime )
     switch ( menuState )
     {
         case MM_Begin:
-            TxList_free_one(( TX_REF )TX_BARS );
+			TextureManager::getSingleton()->relinquish((TX_REF)TX_BARS);
             loadPlayerInventory = true;
 
             //Figure out if we have already selected something
@@ -1959,7 +1959,7 @@ int doChooseCharacter( float deltaTime )
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
-            TxList_load_one_vfs( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
+			TextureManager::getSingleton()->load("mp_data/bars", (TX_REF)TX_BARS, INVALID_KEY);
 
             mnu_SlidyButton_init( 1.0f, button_text );
 
@@ -2046,7 +2046,7 @@ int doChooseCharacter( float deltaTime )
                 }
 
                 // do the character button
-                mnu_widgetList[m].img  = TxList_get_valid_ptr( loadPlayer->getIcon() );
+				mnu_widgetList[m].img = TextureManager::getSingleton()->get_valid_ptr(loadPlayer->getIcon());
                 mnu_widgetList[m].text = loadPlayer->getName().c_str();
                 if ( loadPlayer->getSelectedByPlayer() == currentSelectingPlayer )
                 {
@@ -2133,7 +2133,7 @@ int doChooseCharacter( float deltaTime )
             doChooseCharacter_show_stats( nullptr, false, 0, 0, 0, 0 );
 
             oglx_texture_release( &background );
-            TxList_free_one(( TX_REF )TX_BARS );
+			TextureManager::getSingleton()->relinquish((TX_REF)TX_BARS);
 
             menuState = MM_Begin;
             result = -1;
