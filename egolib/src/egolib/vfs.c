@@ -950,7 +950,7 @@ int vfs_error( vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = 0;
+        retval = VFS_ERROR == (pfile->flags & VFS_ERROR);
         //retval = ( NULL != PHYSFS_getLastError() );
     }
 
@@ -3121,6 +3121,104 @@ void vfs_set_base_search_paths( void )
     PHYSFS_addToSearchPath(fs_getConfigDirectory(), 1);
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool vfs_readEntireFile(const char *filename, char **data, size_t *length)
+{
+    if (nullptr == data || nullptr == length) return false;
+    
+    vfs_FILE *pfile = vfs_openReadB(filename);
+    if (nullptr == pfile) return false;
+    
+    long fileLen = vfs_fileLength(pfile);
+    
+    if (fileLen == -1)
+    {
+        // file length isn't known
+        size_t pos = 0;
+        size_t bufferSize = 1024;
+        char *buffer = (char *) malloc(bufferSize);
+        if (nullptr == buffer)
+        {
+            vfs_close(pfile);
+            return false;
+        }
+        while (!vfs_eof(pfile))
+        {
+            size_t read = vfs_read(buffer + pos, 1, bufferSize - pos, pfile);
+            pos += read;
+            if (vfs_error(pfile))
+            {
+                free(buffer);
+                vfs_close(pfile);
+                return false;
+            }
+            if (vfs_eof(pfile)) break;
+            if (0 == read) continue;
+            char *newBuffer = (char *)realloc(buffer, pos + 1024);
+            if (nullptr == newBuffer)
+            {
+                free(buffer);
+                vfs_close(pfile);
+                return false;
+            }
+            buffer = newBuffer;
+        }
+        *data = buffer;
+        *length = pos;
+    }
+    else
+    {
+        size_t pos = 0;
+        char *buffer = (char *) malloc(fileLen);
+        if (nullptr == buffer)
+        {
+            vfs_close(pfile);
+            return false;
+        }
+        while (pos < fileLen)
+        {
+            size_t read = vfs_read(buffer + pos, 1, fileLen - pos, pfile);
+            pos += read;
+            if (vfs_error(pfile))
+            {
+                free(buffer);
+                vfs_close(pfile);
+                return false;
+            }
+            if (vfs_eof(pfile)) break;
+        }
+        *data = buffer;
+        *length = pos;
+    }
+    
+    vfs_close(pfile);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool vfs_writeEntireFile(const char *filename, const char *data, const size_t length)
+{
+    if (nullptr == data) return false;
+    vfs_FILE *pfile = vfs_openWriteB(filename);
+    if (nullptr == pfile) return false;
+    size_t pos = 0;
+    while (pos < length)
+    {
+        size_t written = vfs_write(data + pos, 1, length - pos, pfile);
+        pos += written;
+        if (vfs_error(pfile))
+        {
+            vfs_close(pfile);
+            return false;
+        }
+    }
+    vfs_close(pfile);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static int vfs_rwops_seek( SDL_RWops * context, int offset, int whence )
 {
     vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
@@ -3141,6 +3239,7 @@ static int vfs_rwops_seek( SDL_RWops * context, int offset, int whence )
     return vfs_tell( pfile );
 }
 
+//--------------------------------------------------------------------------------------------
 static int vfs_rwops_read( SDL_RWops * context, void * ptr, int size, int maxnum )
 {
     int retval = -1;
@@ -3151,6 +3250,7 @@ static int vfs_rwops_read( SDL_RWops * context, void * ptr, int size, int maxnum
     return retval;
 }
 
+//--------------------------------------------------------------------------------------------
 static int vfs_rwops_write( SDL_RWops * context, const void * ptr, int size, int num )
 {
     if (!context->type)
@@ -3159,6 +3259,7 @@ static int vfs_rwops_write( SDL_RWops * context, const void * ptr, int size, int
     return vfs_write(ptr, size, num, pfile);
 }
 
+//--------------------------------------------------------------------------------------------
 static int vfs_rwops_close( SDL_RWops * context )
 {
     vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
@@ -3167,6 +3268,7 @@ static int vfs_rwops_close( SDL_RWops * context )
     return 0;
 }
 
+//--------------------------------------------------------------------------------------------
 static SDL_RWops * vfs_rwops_create( vfs_FILE * pfile, bool writable )
 {
     SDL_RWops * prwops = EGOBOO_NEW(SDL_RWops);
@@ -3179,6 +3281,7 @@ static SDL_RWops * vfs_rwops_create( vfs_FILE * pfile, bool writable )
     return prwops;
 }
 
+//--------------------------------------------------------------------------------------------
 SDL_RWops * vfs_openRWopsRead( const char * filename )
 {
     vfs_FILE * pfile = vfs_openRead(filename);
@@ -3186,6 +3289,7 @@ SDL_RWops * vfs_openRWopsRead( const char * filename )
     return vfs_rwops_create(pfile, false);
 }
 
+//--------------------------------------------------------------------------------------------
 SDL_RWops * vfs_openRWopsWrite( const char * filename )
 {
     vfs_FILE * pfile = vfs_openWrite(filename);
@@ -3193,6 +3297,7 @@ SDL_RWops * vfs_openRWopsWrite( const char * filename )
     return vfs_rwops_create(pfile, true);
 }
 
+//--------------------------------------------------------------------------------------------
 SDL_RWops * vfs_openRWopsAppend( const char * filename )
 {
     vfs_FILE * pfile = vfs_openAppend(filename);

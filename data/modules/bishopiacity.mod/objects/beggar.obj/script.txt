@@ -115,7 +115,7 @@ IfTargetIsOnHatedTeam
     tmpx = targetdistance
     tmpy = 60
     IfXIsLessThanY
-      tmpargument = rand & 1
+      tmpargument = rand & 1 + LATCHLEFT
       PressLatchButton          // Left or right
 
 // Main AI loop

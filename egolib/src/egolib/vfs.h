@@ -173,6 +173,9 @@ const char *vfs_mount_info_strip_path(const char * some_path);
 
 void vfs_listSearchPaths();
     
+bool vfs_readEntireFile(const char *filename, char **data, size_t *length);
+bool vfs_writeEntireFile(const char *filename, const char *data, const size_t length);
+
 // Wrap vfs into SDL_RWops
 struct SDL_RWops;
     
