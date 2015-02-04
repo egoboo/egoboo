@@ -137,7 +137,11 @@ void GameEngine::renderOneFrame()
     game_frame_all++;
 
     if(game_frame_all % 100 == 0) {
-        log_debug("fps: %f\n", game_frame_all / (SDL_GetTicks()*0.001f));
+        static size_t lastFPS = 0;
+        static uint32_t lastFPSTime = 0;
+        log_debug("fps: %f\n", (game_frame_all-lastFPS) / ( (SDL_GetTicks()-lastFPSTime)*0.001f));
+        lastFPS = game_frame_all;
+        lastFPSTime = SDL_GetTicks();
     }
 
 	// flip the graphics page

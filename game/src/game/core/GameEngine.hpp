@@ -34,7 +34,7 @@ struct status_list_t;
 class GameEngine
 {
 public:
-	static const uint32_t GAME_TARGET_FPS = 100;	///< Desired frame renders per second
+	static const uint32_t GAME_TARGET_FPS = 60;	///< Desired frame renders per second
 	static const uint32_t GAME_TARGET_UPS = 50;	///< Desired game logic updates per second
 
 	static const uint32_t DELAY_PER_RENDER_FRAME = 1000 / GAME_TARGET_FPS; ///< milliseconds between each render
@@ -65,8 +65,6 @@ private:
 	bool loadConfiguration(bool syncFromFile);
 
 	void pollEvents();
-
-	const std::shared_ptr<GameState> getGameState();
 
 private:
 	bool _isInitialized;
