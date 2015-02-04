@@ -17,29 +17,39 @@
 //*
 //********************************************************************************************
 
-/// @file game/gamestates/GameState.hpp
-/// @details Abstract interface class for a GameState
+/// @file game/gamestates/LoadingState.hpp
+/// @details Main state where the players are currently playing a module
 /// @author Johan Jansen
 
+#pragma once
+
+#include <atomic>
+#include <thread>
 #include "game/gamestates/GameState.hpp"
 
-GameState::GameState() :
-	_terminateStateRequested(false)
-{
-	//ctor
-}
+//Forward declarations
+class MenuLoadModuleData;
+class LoadPlayerElement;
 
-void GameState::endState()
-{
-	_terminateStateRequested = true;
-}
 
-bool GameState::isEnded() const
+class LoadingState : public GameState
 {
-	return _terminateStateRequested;
-}
+public:
+	LoadingState(std::shared_ptr<MenuLoadModuleData> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players);
+	~LoadingState();
 
-void GameState::beginState()
-{
-	//default does nothing
-}
+	void update() override;
+
+	void beginState() override;
+	
+protected:
+	void drawContainer() override;
+
+	void loadModuleData();
+
+private:
+	std::atomic_bool _finishedLoading;
+	std::thread _loadingThread;
+	const std::shared_ptr<MenuLoadModuleData> _loadModule;
+	std::list<std::shared_ptr<LoadPlayerElement>> _players;
+};

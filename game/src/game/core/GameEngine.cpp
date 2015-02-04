@@ -124,7 +124,7 @@ void GameEngine::updateOneFrame()
     //Handle all SDL events    
     pollEvents();
 
-	_currentGameState->update();
+    _currentGameState->update();
 }
 
 void GameEngine::renderOneFrame()
@@ -134,6 +134,11 @@ void GameEngine::renderOneFrame()
 	gfx_do_clear_screen();
 
 	_currentGameState->drawAll();
+    game_frame_all++;
+
+    if(game_frame_all % 100 == 0) {
+        log_debug("fps: %f\n", game_frame_all / (SDL_GetTicks()*0.001f));
+    }
 
 	// flip the graphics page
     gfx_request_flip_pages();

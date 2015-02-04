@@ -49,8 +49,7 @@ void ComponentContainer::drawAll()
     _componentListMutex.lock();
     for(const std::shared_ptr<GUIComponent> component : _componentList)
     {
-        if(component->isDestroyed()) continue; //ignore destroyed components
-        if(!component->isVisible()) continue;  //Ignore hidden components
+        if(!component->isVisible()) continue;  //Ignore hidden/destroyed components
         component->draw();
     }
     _componentListMutex.unlock();

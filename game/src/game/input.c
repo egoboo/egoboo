@@ -46,9 +46,6 @@ static void input_system_init_mouse();
 static void input_system_init_joysticks();
 static void input_system_init_devices();
 
-static void input_read_mouse();
-static void input_read_keyboard();
-static void input_read_joysticks();
 static void input_read_joystick(int which);
 
 static bool input_handle_SDL_Event( SDL_Event * pevt );

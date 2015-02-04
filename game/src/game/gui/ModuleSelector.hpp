@@ -22,13 +22,17 @@
 /// @author Johan Jansen
 #pragma once
 
-#include "game/gui/GUIComponent.hpp"
+#include "game/gui/Button.hpp"
 #include "game/gui/ComponentContainer.hpp"
 
-class ModuleSelector : public GUIComponent, public ComponentContainer
+//Forward declarations
+class MenuLoadModuleData;
+class Button;
+
+class ModuleSelector : public ComponentContainer, public GUIComponent
 {
     public:
-        ModuleSelector();
+        ModuleSelector(const std::vector<std::shared_ptr<MenuLoadModuleData>> &modules);
 
         void draw() override { drawAll(); }
 
@@ -36,9 +40,44 @@ class ModuleSelector : public GUIComponent, public ComponentContainer
         ModuleSelector(const ModuleSelector& copy) = delete;
         ModuleSelector& operator=(const ModuleSelector&) = delete;
 
+        void notifyModuleListUpdated();
+
+        /**
+        * Ensure that this class inherits defaults for these methods from ComponentContainer and not GUIComponent
+        **/
+	    bool notifyMouseMoved(const int x, const int y) override 					 {return ComponentContainer::notifyMouseMoved(x, y);}
+	    bool notifyKeyDown(const int keyCode) override 								 {return ComponentContainer::notifyKeyDown(keyCode);}
+	    bool notifyMouseClicked(const int button, const int x, const int y) override {return ComponentContainer::notifyMouseClicked(button, x, y);}
+	    bool notifyMouseScrolled(const int amount) override;
+
+	    const std::shared_ptr<MenuLoadModuleData>& getSelectedModule() const;
+
     protected:
 	    void drawContainer() override;
 
+	    //Local class
+	    class ModuleButton : public Button
+	    {
+	    public:
+	    	ModuleButton(ModuleSelector* selector, const uint8_t offset);
+
+	    	void draw() override;
+
+	    	//void setModule(const std::shared_ptr<MenuLoadModuleData> &module) {_module = module;}
+
+	    	//Disable copying class
+        	ModuleButton(const ModuleButton& copy) = delete;
+        	ModuleButton& operator=(const ModuleButton&) = delete;
+
+        private:
+	        ModuleSelector *_moduleSelector;
+	        uint8_t _offset;
+	    };
+
     private:
         size_t _startIndex;
+        const std::vector<std::shared_ptr<MenuLoadModuleData>> &_modules;
+        std::shared_ptr<Button> _nextModuleButton;
+        std::shared_ptr<Button> _previousModuleButton;
+        std::shared_ptr<MenuLoadModuleData> _selectedModule;
 };

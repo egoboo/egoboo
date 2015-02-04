@@ -21,14 +21,23 @@ class Button : public GUIComponent
 
         void beginSlidyButtonEffect();
 
+        bool isEnabled() const override;
+
+        void setEnabled(bool enabled) override;
+
         //Disable copying class
         Button(const Button& copy) = delete;
         Button& operator=(const Button&) = delete;
 
-    private:
-        oglx_texture_t _buttonSprite;
-        std::string _buttonText;
+    protected:
         bool _mouseOver;
+
+        static const GLXvector4f DEFAULT_BUTTON_COLOUR;
+        static const GLXvector4f HOVER_BUTTON_COLOUR;
+        static const GLXvector4f DISABLED_BUTTON_COLOUR;
+
+    private:
+        std::string _buttonText;
         std::function<void()> _onClickFunction;
         int _hotkey;
         float _slidyButtonTargetX;

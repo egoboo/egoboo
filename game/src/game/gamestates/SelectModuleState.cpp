@@ -24,36 +24,16 @@
 #include "game/core/GameEngine.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/gamestates/SelectModuleState.hpp"
-#include "egolib/platform.h"
+#include "game/gamestates/LoadingState.hpp"
 #include "game/ui.h"
 #include "game/menu.h"
 #include "game/game.h"
-#include "game/graphic_texture.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
 #include "game/gui/ModuleSelector.hpp"
 
-/// the module data that the menu system needs
-class MenuLoadModuleData
-{
-public:
-	MenuLoadModuleData();
-
-	~MenuLoadModuleData();
-
-	bool isModuleUnlocked() const;
-
-private:
-    bool _loaded;
-    std::string _name;
-    mod_file_t _base;                            ///< the data for the "base class" of the module
-
-    oglx_texture_t _icon;                        ///< the index of the module's tile image
-    std::string _vfsPath;                        ///< the virtual pathname of the module
-    std::string _destPath;                       ///< the path that module data can be written into
-
-    friend class SelectModuleState;
-};
+//Class static data
+std::vector<std::shared_ptr<MenuLoadModuleData>> SelectModuleState::_loadedModules;
 
 SelectModuleState::SelectModuleState() : SelectModuleState( std::list<std::shared_ptr<LoadPlayerElement>>() )
 {
@@ -62,12 +42,12 @@ SelectModuleState::SelectModuleState() : SelectModuleState( std::list<std::share
 
 SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerElement>> &players) :
 	_onlyStarterModules(players.empty()),
+	_validModules(),
 	_background(std::make_shared<Image>()),
 	_filterButton(std::make_shared<Button>("All Modules", SDLK_TAB)),
+	_moduleSelector(std::make_shared<ModuleSelector>(_validModules)),
 	_moduleFilter(FILTER_OFF),
-	_validModules(),
-	_selectedPlayerList(players),
-	_loadedModules()
+	_selectedPlayerList(players)
 {
     // Figure out at what offset we want to draw the module menu.
     int moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
@@ -77,7 +57,7 @@ SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerE
     moduleMenuOffsetY = std::max(0, moduleMenuOffsetY);
 
 	//Load all modules
-	if(_validModules.empty())
+	if(_loadedModules.empty())
 	{
 		loadAllModules();
 	}
@@ -97,7 +77,14 @@ SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerE
 	std::shared_ptr<Button> chooseModule = std::make_shared<Button>("Choose Module", SDLK_RETURN);
 	chooseModule->setPosition(moduleMenuOffsetX + 377, moduleMenuOffsetY + 173);
 	chooseModule->setSize(200, 30);
-	chooseModule->setVisible(false);
+	//chooseModule->setVisible(false);
+	chooseModule->setOnClickFunction(
+	[this]{
+		if(_moduleSelector->getSelectedModule())
+		{
+			_gameEngine->setGameState(std::make_shared<LoadingState>(_moduleSelector->getSelectedModule(), _selectedPlayerList));
+		}
+	});
 	addComponent(chooseModule);
 
 	std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
@@ -109,8 +96,8 @@ SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerE
 		});
 	addComponent(backButton);
 
-	std::shared_ptr<ModuleSelector> moduleSelector = std::make_shared<ModuleSelector>();
-	addComponent(moduleSelector);
+	//Add the module selector
+	addComponent(_moduleSelector);
 
 	//Only draw module filter for non-starter games
 	if(!_onlyStarterModules)
@@ -134,7 +121,7 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 	_validModules.clear();
 
 	//Build list of valid modules
-	for(const std::shared_ptr<MenuLoadModuleData> &module : _validModules)
+	for(const std::shared_ptr<MenuLoadModuleData> &module : _loadedModules)
 	{
 		// if this module is not valid given the game options and the
 		// selected players, skip it
@@ -156,6 +143,14 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 		    _validModules.push_back(module);
 		}
 	}
+
+	//Sort modules by difficulity
+	std::sort(_validModules.begin(), _validModules.end(), [](const std::shared_ptr<MenuLoadModuleData> &a, const std::shared_ptr<MenuLoadModuleData> &b) {
+		return strlen(a->_base.rank) < strlen(b->_base.rank);
+	});
+
+	//Notify the module selector that the list of available modules has changed
+	_moduleSelector->notifyModuleListUpdated();
 
 	// load background depending on current filter
 	switch (_moduleFilter)

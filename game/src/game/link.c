@@ -106,7 +106,8 @@ bool link_follow_modname( const char * modname, bool push_current_module )
     game_finish_module();
 
     // try to load the new module
-    retval = game_begin_module(modname);
+    //retval = game_begin_module(modname);
+    retval = false; //ZF> TODO: not implemented
 
     if ( !retval )
     {

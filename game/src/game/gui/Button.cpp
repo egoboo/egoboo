@@ -2,9 +2,13 @@
 #include "game/audio/AudioSystem.hpp"
 #include "game/ui.h"
 
+const GLXvector4f Button::DEFAULT_BUTTON_COLOUR  = {0.66f, 0.00f, 0.00f, 0.60f};
+const GLXvector4f Button::HOVER_BUTTON_COLOUR    = {0.54f, 0.00f, 0.00f, 1.00f};
+const GLXvector4f Button::DISABLED_BUTTON_COLOUR = {0.25f, 0.25f, 0.25f, 0.60f};
+
 Button::Button(int hotkey) :
-    _buttonText(),
     _mouseOver(false),
+    _buttonText(),
     _onClickFunction(nullptr),
     _hotkey(hotkey),
     _slidyButtonTargetX(0.0f)
@@ -23,31 +27,6 @@ void Button::setText(const std::string &text)
 
 void Button::draw()
 {
-    GLXvector4f buttonColour;
-
-    if(!_onClickFunction)
-    {
-        buttonColour[0] = 0.25f;
-        buttonColour[1] = 0.25f;
-        buttonColour[2] = 0.25f;
-        buttonColour[3] = 0.60f;
-    }
-
-    else if(_mouseOver)
-    {
-        buttonColour[0] = 0.54f;
-        buttonColour[1] = 0.00f;
-        buttonColour[2] = 0.00f;
-        buttonColour[3] = 1.00f;
-    }
-    else
-    {
-        buttonColour[0] = 0.66f;
-        buttonColour[1] = 0.00f;
-        buttonColour[2] = 0.00f;
-        buttonColour[3] = 0.60f;
-    }
-
     //Update slidy button effect
     if(_slidyButtonTargetX > 0.0f) {
         const float SLIDY_LERP = getWidth() / 10.0f;
@@ -62,7 +41,20 @@ void Button::draw()
     //ui_virtual_to_screen( vx, vy, &x1, &y1 );
     //ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
 
-    GL_DEBUG( glColor4fv )( buttonColour );
+    //Determine button color
+    if(!isEnabled())
+    {
+        GL_DEBUG( glColor4fv )( DISABLED_BUTTON_COLOUR );
+    }
+    else if(_mouseOver)
+    {
+        GL_DEBUG( glColor4fv )( HOVER_BUTTON_COLOUR );
+    }
+    else
+    {
+        GL_DEBUG( glColor4fv )( DEFAULT_BUTTON_COLOUR );
+    }
+
     GL_DEBUG( glBegin )( GL_QUADS );
     {
         GL_DEBUG( glVertex2f )( getX(), getY() );
@@ -80,7 +72,7 @@ void Button::draw()
         int textWidth, textHeight;
         fnt_getTextSize(ui_getFont(), _buttonText.c_str(), &textWidth, &textHeight);
 
-        GL_DEBUG( glColor3f )(1, 1, 1);
+        GL_DEBUG( glColor4fv )(Ego::white_vec);
         fnt_drawText_OGL_immediate(ui_getFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX() + (getWidth()-textWidth)/2, getY() + (getHeight()-textHeight)/2, "%s", _buttonText.c_str());        
     }
 }
@@ -105,7 +97,7 @@ bool Button::notifyMouseClicked(const int button, const int x, const int y)
 
 void Button::doClick()
 {
-    if(!_onClickFunction || !isEnabled()) return;
+    if(!isEnabled()) return;
 
     _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_BUTTON_CLICK));
 
@@ -137,4 +129,19 @@ void Button::beginSlidyButtonEffect()
 {
     _slidyButtonTargetX = getWidth();
     setX(getX() - getWidth());
+}
+
+bool Button::isEnabled() const
+{
+    if(!_onClickFunction) return false;
+    return GUIComponent::isEnabled();
+}
+
+void Button::setEnabled(bool enabled)
+{
+    if(!enabled) {
+        _mouseOver = false;
+    }
+
+    GUIComponent::setEnabled(enabled);
 }

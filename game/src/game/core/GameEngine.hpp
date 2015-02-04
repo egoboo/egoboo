@@ -34,8 +34,8 @@ struct status_list_t;
 class GameEngine
 {
 public:
-	static const uint32_t GAME_TARGET_FPS = 60;	///< Desired frame renders per second
-	static const uint32_t GAME_TARGET_UPS = 30;	///< Desired game logic updates per second
+	static const uint32_t GAME_TARGET_FPS = 100;	///< Desired frame renders per second
+	static const uint32_t GAME_TARGET_UPS = 50;	///< Desired game logic updates per second
 
 	static const uint32_t DELAY_PER_RENDER_FRAME = 1000 / GAME_TARGET_FPS; ///< milliseconds between each render
 	static const uint32_t DELAY_PER_UPDATE_FRAME = 1000 / GAME_TARGET_UPS; ///< milliseconds between each update
@@ -66,6 +66,8 @@ private:
 
 	void pollEvents();
 
+	const std::shared_ptr<GameState> getGameState();
+
 private:
 	bool _isInitialized;
 	bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
@@ -73,6 +75,7 @@ private:
 	uint32_t _renderTimeout;		///< Timestamp when renderOneFrame() should be run again
 	std::forward_list<std::shared_ptr<GameState>> _gameStateStack;
 	std::shared_ptr<GameState> _currentGameState;
+	std::mutex _gameStateMutex;
 	egoboo_config_t _config;
 };
 
