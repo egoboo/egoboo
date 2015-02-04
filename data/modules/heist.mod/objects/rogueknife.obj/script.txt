@@ -132,7 +132,7 @@ IfTimeOut
       tmpy = 120
       IfXIsLessThanY
         IfFacingTarget
-          tmpargument = rand & 1 + 1
+          tmpargument = rand & 1 + LATCHLEFT
           PressLatchButton
       tmpargument = 10
       SetTime

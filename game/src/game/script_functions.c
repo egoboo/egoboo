@@ -1672,7 +1672,7 @@ Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if(pstate->argument > 0)
+    if(pstate->argument >= LATCHBUTTON_LEFT && pstate->argument < LATCHBUTTON_RESPAWN)
     {
         pchr->latch.b[pstate->argument] = true;
     }
@@ -2727,7 +2727,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if(pstate->argument > 0)
+    if(pstate->argument >= LATCHBUTTON_LEFT && pstate->argument < LATCHBUTTON_RESPAWN)
     {
         pself_target->latch.b[pstate->argument] = true;
     }

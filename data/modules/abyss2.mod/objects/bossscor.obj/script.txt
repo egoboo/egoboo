@@ -100,7 +100,7 @@ Else
             tmpx = rand & 255
             IfXIsMoreThanY
               // Do claw attack
-              tmpargument = rand & 1 + 1
+              tmpargument = rand & 1 + LATCHLEFT
               PressLatchButton
             Else
               // Do tail attack
@@ -128,7 +128,7 @@ Else
               Compass
             Else
               // Rush attack
-              tmpargument = rand & 1 + 1
+              tmpargument = rand & 1 + LATCHLEFT
               PressLatchButton
 
               // Play a sound

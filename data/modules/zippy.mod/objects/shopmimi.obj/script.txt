@@ -73,7 +73,7 @@ IfBumped                // Attack whoever it bumped
           tmpargument = 1
           SendMessageNear
         SetState                  // Combat
-      tmpargument = 1                // Attack Left = 1
+      tmpargument = LATCHLEFT                // Attack Left = 1
       PressLatchButton
   Else
     SetTargetToOldTarget
@@ -95,7 +95,7 @@ IfTimeOut
       tmpargument = 2
       PlaySound
 
-      tmpargument = 1                  // Attack Left = 1
+      tmpargument = LATCHLEFT                  // Attack Left = 1
       PressLatchButton
       tmpx = rand & 511 - 256 + targetx
       tmpy = rand & 511 - 256 + targety
