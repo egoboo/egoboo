@@ -29,15 +29,33 @@ struct cube_t
 	/**
 	 * @brief
 	 *	The center of the cube.
-	 * @todo
-	 *	Rename to @a center.
 	 */
-	fvec3_t pos;
+	fvec3_t center;
 	/**
 	 * @brief
 	 *	The size of the cube.
 	 */
 	float size;
+	/**
+	 * @brief
+	 *	Get the center of this cube.
+	 * @return
+	 *	the center of this cube
+	 */
+	const fvec3_t& getCenter() const
+	{
+		return center;
+	}
+	/**
+	 * @brief
+	 *	Get the size of this cube.
+	 * @return
+	 *	the size of this cube
+	 */
+	const float& getSize() const
+	{
+		return size;
+	}
 	/**
 	 * @brief
 	 *	Assign this cube the values of another cube.
@@ -48,8 +66,28 @@ struct cube_t
 	 */
 	void assign(const cube_t& other)
 	{
-		pos = other.pos;
+		center = other.center;
 		size = other.size;
+	}
+	/**
+	 * @brief
+	 *	Get the minimum of this cube.
+	 * @return
+	 *	the minimum of this cube
+	 */
+	fvec3_t getMin() const
+	{
+		return fvec3_t(center.x - size, center.y - size, center.z - size);
+	}
+	/**
+	 * @brief
+	 *	Get the maximum of this cube.
+	 * @return
+	 *	the maximum of this cube
+	 */
+	fvec3_t getMax() const
+	{
+		return fvec3_t(center.x + size, center.y + size, center.z + size);
 	}
 	/**
 	 * @brief
@@ -63,6 +101,7 @@ struct cube_t
 	 */
 	cube_t& operator=(const cube_t& other)
 	{
-
+		assign(other);
+		return *this;
 	}
 };

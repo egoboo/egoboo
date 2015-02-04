@@ -60,14 +60,18 @@ struct CoNode_t
     oct_bb_t cv;
 };
 
-CoNode_t * CoNode_ctor( CoNode_t * );
-Uint8      CoNode_generate_hash( CoNode_t * coll );
-int        CoNode_cmp( const void * pleft, const void * pright );
+CoNode_t *CoNode_ctor(CoNode_t *self);
+Uint8 CoNode_generate_hash(CoNode_t *self);
+int CoNode_cmp(const void *left, const void *right);
 
 //--------------------------------------------------------------------------------------------
 
-/// a useful re-typing of the CHashList_t, in case we need to add more variables or functionality later
-typedef hash_list_t CoHashList_t;
+struct CoHashList_t : public hash_list_t
+{
+	CoHashList_t(size_t initialCapacity)
+		: hash_list_t(initialCapacity)
+	{}
+};
 
 /// Insert a collision into a collision hash list if it does not exist yet.
 /// @param self the collision hash list
@@ -76,11 +80,12 @@ typedef hash_list_t CoHashList_t;
 /// @param hashNodes the list of hash nodes
 bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *coNode, Ego::DynamicArray<CoNode_t> *coNodeAry, Ego::DynamicArray<hash_node_t> *hashNodeAry);
 
-CoHashList_t *CoHashList_getInstance(size_t capacity);
+CoHashList_t *CoHashList_getInstance();
 
 //--------------------------------------------------------------------------------------------
+#if 0
 extern int CoHashList_inserted;
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // global functions

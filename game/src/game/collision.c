@@ -41,87 +41,58 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_chr_prt_collsion_data;
-typedef struct s_chr_prt_collsion_data chr_prt_collsion_data_t;
-
-struct s_bumplist;
-typedef struct s_bumplist bumplist_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 #define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
 
 #define CHR_MAX_COLLISIONS       (MAX_CHR*8 + MAX_PRT)
 #define COLLISION_HASH_NODES     (CHR_MAX_COLLISIONS*2)
 #define COLLISION_LIST_SIZE      256
 
-/**
- * @brief
- *	Construct a collision hash list.
- * @param self
- *	the collision hash list
- * @param initialCapacity
- *	the initial capacity of the collision hash list
- * @return
- *	@a self on success, @a NULL on failure
- */
-static CoHashList_t *CoHashList_ctor(CoHashList_t *self, size_t initialCapacity);
-
-/**
- * @brief
- *	Destruct a collision hash list.
- * @param self
- *	the collision hash list
- */
-static void CoHashList_dtor(CoHashList_t *self);
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// data block used to communicate between the different "modules" governing the character-particle collision
-struct s_chr_prt_collsion_data
+struct chr_prt_collsion_data_t
 {
     // object parameters
     CHR_REF ichr;
-    GameObject * pchr;
+    GameObject *pchr;
 
     PRT_REF iprt;
-    prt_t * pprt;
-    pip_t * ppip;
+    prt_t *pprt;
+    pip_t *ppip;
 
     //---- collision parameters
 
     // true collisions
-    bool  int_min;
-    float     depth_min;
+    bool int_min;
+    float depth_min;
 
     // hit-box collisions
-    bool  int_max;
-    float     depth_max;
+    bool int_max;
+    float depth_max;
 
     // platform interactions
-    //bool  int_plat;
-    //float     plat_lerp;
+    //bool int_plat;
+    //float plat_lerp;
 
-    bool  is_impact;
-    bool  is_pressure;
-    bool  is_collision;
-    float     dot;
-    fvec3_t   nrm;
+    bool is_impact;
+    bool is_pressure;
+    bool is_collision;
+    float dot;
+    fvec3_t nrm;
 
     // collision modifications
     bool mana_paid;
-    int      max_damage, actual_damage;
-    fvec3_t  vdiff, vdiff_para, vdiff_perp;
-    float    block_factor;
+    int max_damage, actual_damage;
+    fvec3_t vdiff, vdiff_para, vdiff_perp;
+    float block_factor;
 
     // collision reaction
     fvec3_t vimpulse;                      ///< the velocity impulse
     fvec3_t pimpulse;                      ///< the position impulse
-    bool  terminate_particle;
-    bool  prt_bumps_chr;
-    bool  prt_damages_chr;
+    bool terminate_particle;
+    bool prt_bumps_chr;
+    bool prt_damages_chr;
 };
 
 #define  CHR_PRT_COLLSION_DATA_INIT  \
@@ -133,18 +104,18 @@ struct s_chr_prt_collsion_data
         NULL             /* pip_t * ppip */ \
     }
 
-chr_prt_collsion_data_t * chr_prt_collsion_data__init( chr_prt_collsion_data_t * );
+chr_prt_collsion_data_t *chr_prt_collsion_data__init(chr_prt_collsion_data_t *);
 
 //--------------------------------------------------------------------------------------------
 
 /// one element of the data for partitioning character and particle positions
-struct s_bumplist
+struct bumplist_t
 {
-    size_t   chrnum;                  // Number on the block
-    CHR_REF  chr;                     // For character collisions
+    size_t chrnum;                  // Number on the block
+    CHR_REF chr;                    // For character collisions
 
-    size_t   prtnum;                  // Number on the block
-    CHR_REF  prt;                     // For particle collisions
+    size_t prtnum;                  // Number on the block
+    CHR_REF prt;                    // For particle collisions
 };
 
 //--------------------------------------------------------------------------------------------
@@ -193,16 +164,15 @@ static int CoNode_cmp_unique( const void * vleft, const void * vright );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static CoHashList_t *_CoHashList_ptr = NULL;
+static CoHashList_t *_CoHashList_ptr = nullptr;
 static Ego::DynamicArray<hash_node_t> _hn_ary; ///< the available hash_node_t collision nodes for the CHashList_t
 static Ego::DynamicArray<CoNode_t> _co_ary;    ///< the available CoNode_t data pointed to by the hash_node_t nodes
 static Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
 static Ego::DynamicArray<CoNode_t> _coll_node_lst;
 
-static bool _collision_hash_initialized = false;
 static bool _collision_system_initialized = false;
 
-int CoHashList_inserted = 0;
+static int CoHashList_inserted = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -210,46 +180,59 @@ bool collision_system_begin()
 {
     if ( !_collision_system_initialized )
     {
-        if ( NULL == _co_ary.ctor( CHR_MAX_COLLISIONS ) ) goto collision_system_begin_fail;
-
-        if ( NULL == _hn_ary.ctor( COLLISION_HASH_NODES ) ) goto collision_system_begin_fail;
-
-        if ( NULL == _coll_leaf_lst.ctor( COLLISION_LIST_SIZE ) ) goto collision_system_begin_fail;
-
-        if ( NULL == _coll_node_lst.ctor( COLLISION_LIST_SIZE ) ) goto collision_system_begin_fail;
-
+		if (!_co_ary.ctor(CHR_MAX_COLLISIONS))
+		{
+			goto collision_system_begin_fail;
+		}
+		if (!_hn_ary.ctor(COLLISION_HASH_NODES))
+		{
+			_co_ary.dtor();
+			goto collision_system_begin_fail;
+		}
+		if (!_coll_leaf_lst.ctor(COLLISION_LIST_SIZE))
+		{
+			_hn_ary.dtor();
+			_co_ary.dtor();
+			goto collision_system_begin_fail;
+		}
+		if (!_coll_node_lst.ctor(COLLISION_LIST_SIZE))
+		{
+			_coll_leaf_lst.dtor();
+			_hn_ary.dtor();
+			_co_ary.dtor();
+			goto collision_system_begin_fail;
+		}
+		try
+		{
+			_CoHashList_ptr = new CoHashList_t(512); /** @todo Why is this not factored out to a named constant? */
+		}
+		catch (std::bad_alloc& ex)
+		{
+			_coll_node_lst.dtor();
+			_coll_leaf_lst.dtor();
+			_hn_ary.dtor();
+			_co_ary.dtor();
+			goto collision_system_begin_fail;
+		}
         _collision_system_initialized = true;
     }
-
     return true;
 
 collision_system_begin_fail:
-
-	_co_ary.dtor();
-	_hn_ary.dtor();
-    _coll_leaf_lst.dtor();
-	_coll_node_lst.dtor();
-
-    _collision_system_initialized = false;
-
     log_error( "Cannot initialize the collision system" );
-
     return false;
 }
 
 //--------------------------------------------------------------------------------------------
 void collision_system_end()
 {
-    if (_collision_hash_initialized)
-    {
-        hash_list_destroy(_CoHashList_ptr);
-		_CoHashList_ptr = nullptr;
-        _collision_hash_initialized = false;
-    }
-    _CoHashList_ptr = nullptr;
-
     if (_collision_system_initialized)
     {
+		if (_CoHashList_ptr)
+		{
+			delete _CoHashList_ptr;
+			_CoHashList_ptr = nullptr;
+		}
 		_co_ary.dtor();
 		_hn_ary.dtor();
 		_coll_leaf_lst.dtor();
@@ -260,68 +243,68 @@ void collision_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CoNode_t * CoNode_ctor( CoNode_t * n )
+CoNode_t *CoNode_ctor(CoNode_t *self)
 {
-    if ( NULL == n ) return n;
+    if (!self) return nullptr;
 
     // clear all data
-    BLANK_STRUCT_PTR( n )
+	BLANK_STRUCT_PTR(self);
 
     // the "colliding" objects
-    n->chra = INVALID_CHR_REF;
-    n->prta = INVALID_PRT_REF;
+    self->chra = INVALID_CHR_REF;
+    self->prta = INVALID_PRT_REF;
 
     // the "collided with" objects
-    n->chrb  = INVALID_CHR_REF;
-    n->prtb  = INVALID_PRT_REF;
-    n->tileb = MAP_FANOFF;
+    self->chrb  = INVALID_CHR_REF;
+    self->prtb  = INVALID_PRT_REF;
+    self->tileb = MAP_FANOFF;
 
     // intialize the time
-    n->tmin = n->tmax = -1.0f;
+    self->tmin = self->tmax = -1.0f;
 
-    return n;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 CoNode_generate_hash( CoNode_t * coll )
+Uint8 CoNode_generate_hash(CoNode_t *self)
 {
     Uint32 AA, BB;
 
     AA = ( Uint32 )( ~(( Uint32 )0 ) );
-    if ( VALID_CHR_RANGE( coll->chra ) )
+    if ( VALID_CHR_RANGE( self->chra ) )
     {
-        AA = REF_TO_INT( coll->chra );
+        AA = REF_TO_INT( self->chra );
     }
-    else if ( _VALID_PRT_RANGE( coll->prta ) )
+    else if ( _VALID_PRT_RANGE( self->prta ) )
     {
-        AA = REF_TO_INT( coll->prta );
+        AA = REF_TO_INT( self->prta );
     }
 
     BB = ( Uint32 )( ~(( Uint32 )0 ) );
-    if ( VALID_CHR_RANGE( coll->chrb ) )
+    if ( VALID_CHR_RANGE( self->chrb ) )
     {
-        BB = REF_TO_INT( coll->chrb );
+        BB = REF_TO_INT( self->chrb );
     }
-    else if ( _VALID_PRT_RANGE( coll->prtb ) )
+    else if ( _VALID_PRT_RANGE( self->prtb ) )
     {
-        BB = REF_TO_INT( coll->prtb );
+        BB = REF_TO_INT( self->prtb );
     }
-    else if ( MAP_FANOFF != coll->tileb )
+    else if ( MAP_FANOFF != self->tileb )
     {
-        BB = coll->tileb;
+        BB = self->tileb;
     }
 
     return MAKE_HASH( AA, BB );
 }
 
 //--------------------------------------------------------------------------------------------
-int CoNode_cmp( const void * vleft, const void * vright )
+int CoNode_cmp(const void * vleft, const void * vright)
 {
     int   itmp;
     float ftmp;
 
-    CoNode_t * pleft  = ( CoNode_t * )vleft;
-    CoNode_t * pright = ( CoNode_t * )vright;
+    CoNode_t * pleft  = (CoNode_t *)vleft;
+    CoNode_t * pright = (CoNode_t *)vright;
 
     // sort by initial time first
     ftmp = pleft->tmin - pright->tmin;
@@ -402,43 +385,17 @@ int CoNode_matches( CoNode_t * pleft, CoNode_t * pright )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static CoHashList_t *CoHashList_ctor(CoHashList_t *self, size_t initialCapacity)
+CoHashList_t *CoHashList_getInstance()
 {
-    return hash_list_t::ctor(self,initialCapacity);
-}
-
-//--------------------------------------------------------------------------------------------
-static void CoHashList_dtor(CoHashList_t *self)
-{
-    return hash_list_t::dtor(self);
-}
-
-//--------------------------------------------------------------------------------------------
-CoHashList_t *CoHashList_getInstance(size_t initialCapacity)
-{
-    /// @author BB
     /// @details allows access to a "private" CHashList singleton object. This will automatically
     ///               initialze the _Colist_singleton and (almost) prevent anything from messing up
     ///               the initialization.
 
-    // make sure that the collsion system was started
+    // Make sure that the collsion system was started.
     collision_system_begin();
 
-    // if the _CHashList_ptr doesn't exist, create it (and initialize it)
-    if (nullptr == _CoHashList_ptr)
-    {
-        _CoHashList_ptr = hash_list_create(initialCapacity);
-        _collision_hash_initialized = nullptr != _CoHashList_ptr;
-    }
 
-    // it the pointer exists, but it (somehow) not initialized, do the initialization
-    if (nullptr != _CoHashList_ptr && !_collision_hash_initialized)
-    {
-        _CoHashList_ptr = CoHashList_ctor(_CoHashList_ptr, initialCapacity);
-        _collision_hash_initialized = nullptr != _CoHashList_ptr;
-    }
-
-    return _collision_hash_initialized ? _CoHashList_ptr : NULL;
+	return _CoHashList_ptr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -761,7 +718,7 @@ bool add_chr_chr_interaction(CoHashList_t *pchlst, const CHR_REF ichr_a, const C
         EGOBOO_ASSERT( phn_lst->size() < COLLISION_HASH_NODES );
         n = phn_lst->pop_back();
 
-        hash_node_ctor( n, ( void* )d );
+        hash_node_t::ctor( n, ( void* )d );
 
         // insert the node
         pchlst->subcount[hashval]++;
@@ -821,7 +778,7 @@ bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, con
         EGOBOO_ASSERT( phn_lst->size() < COLLISION_HASH_NODES );
 		n = phn_lst->pop_back();
 
-        hash_node_ctor( n, ( void* )d );
+        hash_node_t::ctor( n, ( void* )d );
 
         // insert the node
         coHashList->subcount[hashval]++;
@@ -841,8 +798,8 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
     if ( NULL == coHashList || NULL == cn_lst || NULL == hn_lst ) return false;
 
-    // renew the CoNode_t hash table.
-    hash_list_renew(coHashList);
+    // Clear the collision hash.
+	coHashList->clear();
 
     // initialize the reaffirmation counters
     reaffirmation_count = 0;
@@ -1441,12 +1398,12 @@ void bump_all_objects()
     /// @details This function sets handles characters hitting other characters or particles
     size_t        co_node_count;
 
-    // create a collision hash table that can keep track of 512
-    // binary collisions per frame
-    CoHashList_t *coHashList = CoHashList_getInstance(512);
-    if (NULL == coHashList)
+    // Get the collision hash table.
+    CoHashList_t *coHashList = CoHashList_getInstance();
+    if (!coHashList)
     {
         log_error( "bump_all_objects() - cannot access the CoHashList_t singleton" );
+		return;
     }
 
     // set up the collision node array
@@ -1462,7 +1419,7 @@ void bump_all_objects()
     fill_interaction_list( coHashList, &_co_ary, &_hn_ary );
 
     // convert the CHashList_t into a CoNode_ary_t and sort
-    co_node_count = hash_list_count_nodes(coHashList);
+    co_node_count = coHashList->getSize();
 
     if ( co_node_count > 0 )
     {

@@ -28,12 +28,6 @@
 #include "egolib/frustum.h"
 
 //--------------------------------------------------------------------------------------------
-// internal functions
-//--------------------------------------------------------------------------------------------
-
-
-
-//--------------------------------------------------------------------------------------------
 // plane base
 //--------------------------------------------------------------------------------------------
 bool plane_base_normalize( plane_base_t * plane )
@@ -76,7 +70,7 @@ float plane_point_distance( const plane_base_t plane, const point_base_t pos )
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_base_t corner1, const fvec3_base_t corner2 )
+geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2 )
 {
     int cnt;
     geometry_rv retval = geometry_inside;
@@ -150,7 +144,7 @@ geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
 //--------------------------------------------------------------------------------------------
 // plane functions
 //--------------------------------------------------------------------------------------------
-geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs )
+geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs )
 {
     int   j;
     float dist, tmp;
@@ -183,7 +177,7 @@ geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_bas
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv plane_intersects_aabb_min( const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs )
+geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs)
 {
     int   j;
     float dist, tmp;
@@ -216,7 +210,7 @@ geometry_rv plane_intersects_aabb_min( const plane_base_t plane, const fvec3_bas
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv plane_intersects_aabb( const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs )
+geometry_rv plane_intersects_aabb(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs)
 {
     geometry_rv retval = geometry_inside;
 

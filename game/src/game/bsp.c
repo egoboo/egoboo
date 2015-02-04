@@ -195,7 +195,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	// convert the bounding box
 	bv_from_oct_bb(&(pleaf->bbox), &tmp_oct);
 
-	retval = BSP_tree_insert_leaf(ptree, pleaf);
+	retval = BSP_tree_t::insert_leaf(ptree, pleaf);
 	if (retval)
 	{
 		prt_BSP_root->count++;
@@ -208,7 +208,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 bool chr_BSP_clear()
 {
 	// unlink all the BSP nodes
-	BSP_tree_clear_rec(&(chr_BSP_root->tree));
+	BSP_tree_t::clear_rec(&(chr_BSP_root->tree));
 	chr_BSP_root->count = 0;
 
 	// unlink all used character nodes
@@ -224,7 +224,7 @@ bool chr_BSP_clear()
 bool prt_BSP_clear()
 {
 	// unlink all the BSP nodes
-	BSP_tree_clear_rec(&(prt_BSP_root->tree));
+	BSP_tree_t::clear_rec(&(prt_BSP_root->tree));
 	prt_BSP_root->count = 0;
 
 	// unlink all used particle nodes
@@ -277,7 +277,7 @@ bool chr_BSP_insert(GameObject * pchr)
 		bv_from_oct_bb(&(pleaf->bbox), &tmp_oct);
 
 		// insert the leaf
-		retval = BSP_tree_insert_leaf(ptree, pleaf);
+		retval = BSP_tree_t::insert_leaf(ptree, pleaf);
 	}
 
 	if (retval)

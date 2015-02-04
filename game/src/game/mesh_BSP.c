@@ -177,7 +177,7 @@ static bool mesh_BSP_insert(mesh_BSP_t *self, ego_tile_info_t *ptile, int index)
     bv_from_oct_bb(&(pleaf->bbox), &(ptile->oct));
 
     // Insert the leaf.
-	bool retval = BSP_tree_insert_leaf(ptree, pleaf);
+	bool retval = BSP_tree_t::insert_leaf(ptree, pleaf);
 
     if (retval)
     {

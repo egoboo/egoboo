@@ -116,12 +116,12 @@ struct aabb_t;
 // intersection routines
 //--------------------------------------------------------------------------------------------
 
-    geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_base_t corner1, const fvec3_base_t corner2 );
+    geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2 );
 
     geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs);
 
-	geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs);
-	geometry_rv plane_intersects_aabb_max(const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs);
+	geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
+	geometry_rv plane_intersects_aabb_max(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
 /**
  * @brief
  *	Get if a plane and an AABB intersect.
@@ -134,7 +134,7 @@ struct aabb_t;
  * @todo
  *	Rename <tt>plane</tt> to <tt>lhs</tt> and <tt>aabb</tt> to <tt>rhs</tt>.
  */
-geometry_rv plane_intersects_aabb(const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs);
+geometry_rv plane_intersects_aabb(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
 
 /**
  * @brief

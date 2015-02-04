@@ -46,10 +46,12 @@ public:
 
 	/**
 	 * @brief
-	 *	Default constructor
+	 *	Default constructor.
+	 * @remark
+	 *	The default plane has the plane normal @a (0,0,1) and a distance from the origin of @a 0.
 	 */
 	plane_t() :
-		_n(0.0f, 0.0f, 0.0f),
+		_n(0.0f, 0.0f, 1.0f),
 		_d(0.0f)
 	{
 		//ctor
@@ -132,9 +134,7 @@ public:
 	 *	\Rightarrow 0 = 0
 	 *	\f]
 	 */
-	plane_t(const fvec3_t& p, const fvec3_t& n) :
-		_n(n),
-		_d(0.0f)
+	plane_t(const fvec3_t& p, const fvec3_t& n) : plane_t()
 	{
 		if (_n.normalize() == 0.0f)
 		{
@@ -156,6 +156,22 @@ public:
 		_d(other._d)
 	{
 	}
+
+	/**
+	 * @brief
+	 *	Get the distance of a point from this plane.
+	 * @param point
+	 *	the point
+	 * @return
+	 *	the distance of the point from the plane.
+	 *	The point is in the positive (negative) half-space of the plane if the distance is positive (negative).
+	 *	Otherwise the point is on the plane.
+	 */
+	float distance(const fvec3_t& point) const
+	{
+		return _n.dot(point) + _d;
+	}
+
 
 private:
 	/**

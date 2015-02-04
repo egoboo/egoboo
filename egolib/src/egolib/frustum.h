@@ -26,6 +26,7 @@
 #include "egolib/bbox.h"
 #include "egolib/math/AABB.h"
 #include "egolib/bv.h"
+#include "egolib/math/Cube.hpp"
 #include "egolib/matrix.h"
 
 enum e_frustum_planes
@@ -130,7 +131,7 @@ struct egolib_frustum_t
 	 *		<li>geometry_inside    - the AABB is completely inside the frustum</li>
 	 *	</ul>
 	 */
-	 geometry_rv intersects_aabb(const fvec3_base_t corner1, const fvec3_base_t corner2, const bool doEnds) const;
+	 geometry_rv intersects_aabb(const fvec3_t& corner1, const fvec3_t& corner2, const bool doEnds) const;
 
 	/**
 	 * @brief

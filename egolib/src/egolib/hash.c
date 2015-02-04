@@ -28,24 +28,20 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool hash_node_dtor(hash_node_t *self)
+void hash_node_t::dtor(hash_node_t *self)
 {
-	if (NULL == self)
-	{
-		return false;
-	}
-    self->data = NULL;
-    return true;
+	EGOBOO_ASSERT(nullptr != self);
+    self->data = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------
-hash_node_t *hash_node_ctor(hash_node_t *self, void *data)
+hash_node_t *hash_node_t::ctor(hash_node_t *self, void *data)
 {
-	if (NULL == self)
+	if (!self)
 	{
-		return self;
+		return nullptr;
 	}
-    BLANK_STRUCT_PTR(self)
+	self->next = nullptr;
     self->data = data;
     return self;
 }
@@ -58,7 +54,7 @@ hash_node_t *hash_node_create(void *data)
 	{
 		return NULL;
 	}
-	if (!hash_node_ctor(self, data))
+	if (!hash_node_t::ctor(self, data))
 	{
 		EGOBOO_DELETE(self);
 		return NULL;
@@ -79,7 +75,7 @@ bool hash_node_destroy( hash_node_t ** pn )
 
     if ( NULL == pn || NULL == *pn ) return false;
 
-    retval = hash_node_dtor( *pn );
+    hash_node_t::dtor( *pn );
 
     EGOBOO_DELETE( *pn );
 
@@ -87,7 +83,7 @@ bool hash_node_destroy( hash_node_t ** pn )
 }
 
 //--------------------------------------------------------------------------------------------
-hash_node_t * hash_node_insert_after( hash_node_t lst[], hash_node_t * n )
+hash_node_t *hash_node_insert_after( hash_node_t lst[], hash_node_t * n )
 {
     if ( NULL == n ) return lst;
     n->next = NULL;
@@ -101,7 +97,7 @@ hash_node_t * hash_node_insert_after( hash_node_t lst[], hash_node_t * n )
 }
 
 //--------------------------------------------------------------------------------------------
-hash_node_t * hash_node_insert_before( hash_node_t lst[], hash_node_t * n )
+hash_node_t *hash_node_insert_before( hash_node_t lst[], hash_node_t * n )
 {
     if ( NULL == n ) return lst;
     n->next = NULL;
@@ -114,7 +110,7 @@ hash_node_t * hash_node_insert_before( hash_node_t lst[], hash_node_t * n )
 }
 
 //--------------------------------------------------------------------------------------------
-hash_node_t * hash_node_remove_after( hash_node_t lst[] )
+hash_node_t *hash_node_remove_after( hash_node_t lst[] )
 {
     hash_node_t * n;
 
@@ -130,7 +126,7 @@ hash_node_t * hash_node_remove_after( hash_node_t lst[] )
 }
 
 //--------------------------------------------------------------------------------------------
-hash_node_t * hash_node_remove( hash_node_t lst[] )
+hash_node_t *hash_node_remove( hash_node_t lst[] )
 {
     hash_node_t * n;
 
@@ -165,32 +161,18 @@ size_t hash_list_count_nodes(hash_list_t *self)
 //--------------------------------------------------------------------------------------------
 hash_list_t *hash_list_create(size_t initialCapacity)
 {
-    hash_list_t *self = EGOBOO_NEW(hash_list_t);
-	if (nullptr == self)
-	{
-		return nullptr;
-	}
-	BLANK_STRUCT_PTR(self);
-	return self->ctor(self, initialCapacity);
+    return new hash_list_t(initialCapacity);
 }
 
 //--------------------------------------------------------------------------------------------
 void hash_list_destroy(hash_list_t *self)
 {
 	EGOBOO_ASSERT(NULL != self);
-	self->dtor(self);
-    EGOBOO_DELETE(self);
+	delete self;
 }
 
 //--------------------------------------------------------------------------------------------
-size_t hash_list_get_capacity(hash_list_t *self)
-{
-	if (NULL == self)
-	{
-		return 0;
-	}
-    return self->capacity;
-}
+
 
 //--------------------------------------------------------------------------------------------
 /**
@@ -250,18 +232,7 @@ bool hash_list_set_node(hash_list_t *self, size_t index, hash_node_t *node)
 }
 
 //--------------------------------------------------------------------------------------------
-bool hash_list_renew( hash_list_t * lst )
-{
-    if ( NULL == lst ) return false;
 
-    for ( size_t cnt = 0; cnt < lst->capacity; cnt++ )
-    {
-        lst->subcount[cnt] = 0;
-        lst->sublist[cnt]  = NULL;
-    }
-
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -176,6 +176,22 @@ public:
 	 */
 	void clear();
 
+	/**
+	 * @brief
+	 *	Add all leaves in this leaf list.
+	 * @param collisions
+	 *	a leave list to which the leaves are added to
+	 */
+	bool add_all(Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	/**
+	 * @brief
+	 *	Add all leaves in this leaf list (filtered).
+	 * @param test
+	 *	a test each leave must pass before it is added to the collisions list
+	 * @param collisions
+	 *	a leave list to which the leaves are added to (if they pass the test)
+	 */
+	bool add_all(BSP_leaf_test_t& test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 	bool collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const;
 	bool collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 };
@@ -197,8 +213,16 @@ public:
 	BSP_branch_list_t *ctor(size_t dim);
 	BSP_branch_list_t *dtor();
 
+	/**
+	 * @brief
+	 *	The number of elements in the array pointed to by @a list.
+	 */
     size_t lst_size;
     BSP_branch_t **lst;
+	/**
+	 * @brief
+	 *	The number of non-null pointer elements in the array pointed to by @a lst.
+	 */
     size_t inserted;
     bv_t bbox;
 
@@ -285,22 +309,6 @@ public:
 	 *	- no child branches.
 	 */
 	bool empty() const;
-	/**
-	 * @brief
-	 *	Add all leaves in this branch.
-	 * @param collisions
-	 *	a leave list to which the leaves are added to
-	 */
-	bool add_all_leaves(Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-	/**
-	 * @brief
-	 *	Add all leaves in this branch (filtered).
-	 * @param test
-	 *	a test each leave must pass before it is added to the collisions list
-	 * @param collisions
-	 *	a leave list to which the leaves are added to (if they pass the test)
-	 */
-	bool add_all_leaves(BSP_leaf_test_t& test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 	/**
 	 * @brief
@@ -345,6 +353,11 @@ public:
 	 */
 	bool unlink_leaves();
 
+	static BSP_branch_t *ensure_branch(BSP_branch_t *self, BSP_tree_t *tree, size_t index);
+
+	static bool add_all_rec(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+	static bool add_all_children(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+
 };
 
 /**
@@ -374,9 +387,31 @@ bool BSP_branch_insert_leaf_list(BSP_branch_t * B, BSP_leaf_t * n);
 bool BSP_branch_insert_branch(BSP_branch_t * B, size_t index, BSP_branch_t * B2);
 int BSP_branch_insert_leaf_rec_1(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth);
 
-bool BSP_branch_add_all_rec(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
-bool BSP_branch_add_all_unsorted(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collision);
-bool BSP_branch_add_all_children(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+
+#if 0
+/**
+ * @brief
+ *	The interface of a (limited) repository of branches.
+ */
+class BranchRepository
+{
+public:
+	/**
+	 * @brief
+	 *	Acquire a branch from this repository.
+	 * @return
+	 *	a pointer to the branch on success, @a nullptr on failure
+	 */
+	BSP_branch_t *acquire();
+	/**
+	 * @brief
+	 *	Relinquish a branch to this repository.
+	 * @param branch
+	 *	a pointer to the branch
+	 */
+	void relinquish(BSP_branch_t *branch);
+};
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -495,42 +530,41 @@ public:
 	 */
 	size_t collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
-	/// Remove all leaves with no children.
-	/// Do a depth first recursive search for efficiency
-	static bool prune_branch(BSP_tree_t *self, BSP_branch_t *branch, bool recursive);
-
 	static BSP_branch_t *ensure_root(BSP_tree_t *self);
 
 	/**
 	 * @brief
 	 *	Prune all empty branches of this BSP tree.
-	 * @return
-	 *	@a true
 	 */
-	bool prune();
+	void prune();
+
+	static bool insert_leaf(BSP_tree_t *self, BSP_leaf_t *leaf);
+
+
+	static bool clear_rec(BSP_tree_t *self);
 };
 
-bool BSP_tree_clear_rec(BSP_tree_t *self);
+
 
 BSP_branch_t *BSP_tree_get_free(BSP_tree_t *self);
 
-BSP_branch_t *BSP_tree_ensure_branch(BSP_branch_t *branch, BSP_tree_t *self, size_t index);
+
 /**
-* @brief
-*	Compute maximum number of nodes in a BSP tree of the given dimensionality and maximum depth.
-* @param dim
-*	the dimensionality
-* @param maxdepth
-*	the maximum depth
-* @param [out] numberOfNodes
-*	numberOfNodes the number of nodes
-* @return
-*	@a true if this particular combination of @a dimensionality and @a maximumDepth is valid, @a false otherwise
-* @remark
-*	The maximum number of nodes is computed by
-*	\[
-*	\frac{2 \cdot dimensionality \cdot (maximumDepth + 1) - 1}{2 \cdot dimensionality - 1}
-* \]
-*/
+ * @brief
+ *	Compute maximum number of nodes in a BSP tree of the given dimensionality and maximum depth.
+ * @param dim
+ *	the dimensionality
+ * @param maxdepth
+ *	the maximum depth
+ * @param [out] numberOfNodes
+ *	numberOfNodes the number of nodes
+ * @return
+ *	@a true if this particular combination of @a dimensionality and @a maximumDepth is valid, @a false otherwise
+ * @remark
+ *	The maximum number of nodes is computed by
+ *	\[
+ *	\frac{2 \cdot dimensionality \cdot (maximumDepth + 1) - 1}{2 \cdot dimensionality - 1}
+ * \]
+ */
 bool BSP_tree_count_nodes(size_t dimensionality, size_t maximumDepth, size_t& numberOfNodes);
-bool BSP_tree_insert_leaf(BSP_tree_t *self, BSP_leaf_t *leaf);
+

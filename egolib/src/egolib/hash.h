@@ -42,11 +42,13 @@
     {
         hash_node_t *next;
         void *data;
+		static hash_node_t *ctor(hash_node_t *self, void * data);
+		static void dtor(hash_node_t *self);
     };
 
     hash_node_t *hash_node_create( void * data );
     bool         hash_node_destroy( hash_node_t ** );
-    hash_node_t *hash_node_ctor(hash_node_t *self, void * data);
+
     hash_node_t *hash_node_insert_after( hash_node_t lst[], hash_node_t * n );
     hash_node_t *hash_node_insert_before( hash_node_t lst[], hash_node_t * n );
     hash_node_t *hash_node_remove_after( hash_node_t lst[] );
@@ -55,39 +57,64 @@
 //--------------------------------------------------------------------------------------------
     struct hash_list_t
     {
-		size_t capacity; /**< @brief The capacity of the hash list. */
+		/**
+		 * @brief
+		 *	The capacity of this hash list i.e. the number of elements in the array pointed to by @a sublist.
+		 */
+		size_t capacity;
+		/**
+		 * @brief
+		 *	The number of entries in each bucket.
+		 */
         int *subcount;
+		/**
+		 * @brief
+		 *	A pointer to an array of @a capacity buckets.
+		 */
         hash_node_t **sublist;
 		/**
 		 * @brief
-		 *	Construct a hash list.
-		 * @param self
-		 *	the hash list
+		 *	Construct this hash list.
 		 * @param initialCapacity
 		 *	the initial capacity of the hash list
-		 * @return
-		 *	the hash list on success, @ NULL on failure
 		 */
-		static hash_list_t *ctor(hash_list_t *self, size_t initialCapacity)
+		hash_list_t(size_t initialCapacity)
 		{
-			if (nullptr == self)
+			subcount = EGOBOO_NEW_ARY(int, initialCapacity);
+			if (!subcount)
 			{
-				return nullptr;
+				throw std::bad_alloc();
 			}
-			hash_list_t::alloc(self, initialCapacity);
-			return self;
+			sublist = EGOBOO_NEW_ARY(hash_node_t *, initialCapacity);
+			if (!sublist)
+			{
+				EGOBOO_DELETE(subcount);
+				subcount = nullptr;
+				throw std::bad_alloc();
+			}
+			else
+			{
+				for (size_t i = 0, n = initialCapacity; i < n; ++i)
+				{
+					subcount[i] = 0;
+					sublist[i] = nullptr;
+				}
+			}
+			capacity = initialCapacity;
 		}
 		/**
 		 * @brief
-		 *	Destruct a hash list.
-		 * @param self
-		 *	the hash list
+		 *	Destruct this hash list.
 		 */
-		static void dtor(hash_list_t *self)
+		virtual ~hash_list_t()
 		{
-			EGOBOO_ASSERT(NULL != self);
-			hash_list_t::dealloc(self);
+			EGOBOO_DELETE_ARY(subcount);
+			subcount = nullptr;
+			EGOBOO_DELETE_ARY(sublist);
+			sublist = nullptr;
+			capacity = 0;
 		}
+#if 0
 		/**
 		 * @brief
 		 *	Deallocate the data of a hash list.
@@ -109,7 +136,9 @@
 				return true;
 			}
 			EGOBOO_DELETE_ARY(self->subcount);
+			self->subcount = nullptr;
 			EGOBOO_DELETE_ARY(self->sublist);
+			self->sublist = nullptr;
 			self->capacity = 0;
 
 			return true;
@@ -137,13 +166,52 @@
 			}
 			else
 			{
-				for (size_t i = 0; i < capacity; ++i)
+				for (size_t i = 0, n = capacity; i < n; ++i)
 				{
 					self->sublist[i] = nullptr;
 				}
 			}
 			self->capacity = capacity;
 			return true;
+		}
+#endif
+		/**
+		 * @brief
+		 *	Remove all entries from this hash list.
+		 */
+		void clear()
+		{
+			for (size_t i = 0, n = capacity; i < n; ++i)
+			{
+				subcount[i] = 0;
+				sublist[i] = nullptr;
+			}
+
+		}
+		/**
+		 * @brief
+		 *	Get the size of this hash list.
+		 * @return
+		 *	the size of this hash list
+		 */
+		size_t getSize() const
+		{
+			size_t size = 0;
+			for (size_t i = 0, n = capacity; i < n; ++i)
+			{
+				size += subcount[i];
+			}
+			return size;
+		}
+		/**
+		 * @brief
+		 *	Get the capacity of this hash list.
+		 * @return
+		 *	the capacity of this hash list
+		 */
+		size_t getCapacity() const
+		{
+			return capacity;
 		}
     };
 
@@ -163,24 +231,9 @@
 	 *	the hash list
 	 */
 	void hash_list_destroy(hash_list_t *self);
-
-	/// @author BB
-	/// @details renew the CoNode_t hash table.
-	///
-	/// Since we are filling this list with pre-allocated CoNode_t's,
-	/// there is no need to delete any of the existing pchlst->sublist elements
-    bool hash_list_renew(hash_list_t *self);
-
-	/**
-	 * @brief
-	 *	Count the total number of nodes in the hash list.
-	 * @param self
-	 *	the hash list
-	 * @return
-	 *	the number of nodes
-	 */
-    size_t hash_list_count_nodes(hash_list_t *self);
+#if 0
     int hash_list_get_allocd(hash_list_t *self);
+#endif
     size_t hash_list_get_count(hash_list_t *self, size_t index);
     hash_node_t *hash_list_get_node(hash_list_t *self, size_t index);
 
