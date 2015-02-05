@@ -40,6 +40,8 @@ public:
 	static const uint32_t DELAY_PER_RENDER_FRAME = 1000 / GAME_TARGET_FPS; ///< milliseconds between each render
 	static const uint32_t DELAY_PER_UPDATE_FRAME = 1000 / GAME_TARGET_UPS; ///< milliseconds between each update
 
+	static const uint32_t MAX_FRAMESKIP = 10;	///< Maximum render frames to skip if logic updates are lagging behind
+
 	GameEngine();
 
 	void start();

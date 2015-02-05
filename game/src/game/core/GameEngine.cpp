@@ -41,6 +41,8 @@ const uint32_t GameEngine::GAME_TARGET_UPS;
 const uint32_t GameEngine::DELAY_PER_RENDER_FRAME;
 const uint32_t GameEngine::DELAY_PER_UPDATE_FRAME;
 
+const uint32_t GameEngine::MAX_FRAMESKIP;
+
 GameEngine::GameEngine() :
 	_isInitialized(false),
 	_terminateRequested(false),
@@ -69,27 +71,33 @@ void GameEngine::start()
 	while(!_terminateRequested)
 	{
 		//Check if it is time to update everything
-		uint32_t currentTick = SDL_GetTicks();
-		if(currentTick >= _updateTimeout)
+		for(int frameskip = 0; frameskip < MAX_FRAMESKIP && SDL_GetTicks() >= _updateTimeout; ++frameskip)
 		{
 			updateOneFrame();
-			_updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME + (SDL_GetTicks()-currentTick);
+            _updateTimeout += DELAY_PER_UPDATE_FRAME;
 		}
 
 		//Check if it is time to draw everything
-		currentTick = SDL_GetTicks();
-		if(currentTick >= _renderTimeout)
+		if(SDL_GetTicks() >= _renderTimeout)
 		{
 			renderOneFrame();
-			_renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME + (SDL_GetTicks()-currentTick);
-		}
 
-		//Don't hog CPU if we have nothing to do
-		currentTick = SDL_GetTicks();
-		uint32_t delay = std::min(_renderTimeout-currentTick, _updateTimeout-currentTick);
-		if(delay > 1) {
-			SDL_Delay(delay);
+            if(game_frame_all % 60 == 0)
+            {
+                _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
+            }
+            else
+            {
+                _renderTimeout += DELAY_PER_RENDER_FRAME;
+            }
 		}
+        else
+        {
+            //Don't hog CPU if we have nothing to do
+            uint32_t currentTick = SDL_GetTicks();
+            int delay = std::min<int>(_renderTimeout-currentTick, _updateTimeout-currentTick);
+            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        }
 
 		// Test the panic button
 	    if ( SDL_KEYDOWN( keyb, SDLK_q ) && SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
@@ -385,10 +393,13 @@ void GameEngine::pollEvents()
                     // The video has been resized.
                     // If the game is active, some camera info mught need to be recalculated
                     // and possibly the auto-formatting for the menu system and the ui system
-                    // The ui will handle its own issues.
 
                     // grab all the new SDL screen info
                     SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
+
+                    // set the ui's virtual screen size based on the graphic system's
+                    // configuration
+                    gfx_system_set_virtual_screen( &gfx );
                 }
             break;
 

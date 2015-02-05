@@ -810,9 +810,6 @@ int update_game()
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
     mpdfx_lists_synch( &( PMesh->fxlists ), &( PMesh->gmem ), false );
-
-    // read the input values
-    //input_read_all_devices();
     
     // Get immediate mode state for the rest of the game
     input_read_keyboard();
