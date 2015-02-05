@@ -42,7 +42,7 @@
 
 static GLuint ErrorImage_binding = INVALID_GL_ID;
 
-oglx_texture_parameters_t tex_params = {TX_UNFILTERED, 0};
+oglx_texture_parameters_t tex_params = { Ego::TextureFilter::UNFILTERED, 0 };
 
 static GLboolean ErrorImage_defined = GL_FALSE;
 
@@ -650,7 +650,7 @@ GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLi
         GL_DEBUG( glEnable )( target );
     };
 
-    if ( filt_type >= TX_ANISOTROPIC )
+	if (filt_type >= Ego::TextureFilter::ANISOTROPIC)
     {
         // Anisotropic filtered!
         oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, anisotropy );
@@ -660,32 +660,32 @@ GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLi
         switch ( filt_type )
         {
                 // Unfiltered
-            case TX_UNFILTERED:
+			case Ego::TextureFilter::UNFILTERED:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Linear filtered
-            case TX_LINEAR:
+			case Ego::TextureFilter::LINEAR:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, 0 );
                 break;
 
                 // Bilinear interpolation
-            case TX_MIPMAP:
+			case Ego::TextureFilter::MIPMAP:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Bilinear interpolation
-            case TX_BILINEAR:
+			case Ego::TextureFilter::BILINEAR:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Trilinear filtered (quality 1)
-            case TX_TRILINEAR_1:
+			case Ego::TextureFilter::TRILINEAR_1:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR, 0 );
                 break;
 
                 // Trilinear filtered (quality 2)
-            case TX_TRILINEAR_2:
+			case Ego::TextureFilter::TRILINEAR_2:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, 0 );
                 break;
         };

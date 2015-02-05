@@ -3504,30 +3504,30 @@ int doVideoOptions( float deltaTime )
             // Texture filtering
             switch ( cfg.texturefilter_req )
             {
-                case TX_UNFILTERED:
+				case Ego::TextureFilter::UNFILTERED:
                     sz_buttons[but_filtering] = "Unfiltered";
                     break;
-                case TX_LINEAR:
+				case Ego::TextureFilter::LINEAR:
                     sz_buttons[but_filtering] = "Linear";
                     break;
-                case TX_MIPMAP:
+				case Ego::TextureFilter::MIPMAP:
                     sz_buttons[but_filtering] = "Mipmap";
                     break;
-                case TX_BILINEAR:
+				case Ego::TextureFilter::BILINEAR:
                     sz_buttons[but_filtering] = "Bilinear";
                     break;
-                case TX_TRILINEAR_1:
+				case Ego::TextureFilter::TRILINEAR_1:
                     sz_buttons[but_filtering] = "Trilinear 1";
                     break;
-                case TX_TRILINEAR_2:
+				case Ego::TextureFilter::TRILINEAR_2:
                     sz_buttons[but_filtering] = "Trilinear 2";
                     break;
-                case TX_ANISOTROPIC:
+				case Ego::TextureFilter::ANISOTROPIC:
                     sz_buttons[but_filtering] = "Ansiotropic";
                     break;
                 default:                  // Set to defaults
                     sz_buttons[but_filtering] = "Linear";
-                    cfg.texturefilter_req = TX_LINEAR;
+					cfg.texturefilter_req = Ego::TextureFilter::LINEAR;
                     break;
             }
 
@@ -3727,53 +3727,53 @@ int doVideoOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, GFX_HEIGHT - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, sz_buttons[but_filtering], menuFont, buttonLeft + 150, GFX_HEIGHT - 285, 130, 30 ) )
             {
-                if ( cfg.texturefilter_req < TX_UNFILTERED )
+				if (cfg.texturefilter_req < Ego::TextureFilter::UNFILTERED)
                 {
-                    cfg.texturefilter_req = TX_UNFILTERED;
+					cfg.texturefilter_req = Ego::TextureFilter::UNFILTERED;
                 }
                 else
                 {
-                    cfg.texturefilter_req = ( tx_filter_t )(( int )cfg.texturefilter_req + 1 );
+                    cfg.texturefilter_req = (Ego::TextureFilter)((int)cfg.texturefilter_req + 1);
                 }
 
-                if ( cfg.texturefilter_req > TX_ANISOTROPIC )
+				if (cfg.texturefilter_req > Ego::TextureFilter::ANISOTROPIC)
                 {
-                    cfg.texturefilter_req = TX_UNFILTERED;
+					cfg.texturefilter_req = Ego::TextureFilter::UNFILTERED;
                 }
 
                 switch ( cfg.texturefilter_req )
                 {
 
-                    case TX_UNFILTERED:
+				case Ego::TextureFilter::UNFILTERED:
                         sz_buttons[but_filtering] = "Unfiltered";
                         break;
 
-                    case TX_LINEAR:
+					case Ego::TextureFilter::LINEAR:
                         sz_buttons[but_filtering] = "Linear";
                         break;
 
-                    case TX_MIPMAP:
+					case Ego::TextureFilter::MIPMAP:
                         sz_buttons[but_filtering] = "Mipmap";
                         break;
 
-                    case TX_BILINEAR:
+					case Ego::TextureFilter::BILINEAR:
                         sz_buttons[but_filtering] = "Bilinear";
                         break;
 
-                    case TX_TRILINEAR_1:
+					case Ego::TextureFilter::TRILINEAR_1:
                         sz_buttons[but_filtering] = "Trilinear 1";
                         break;
 
-                    case TX_TRILINEAR_2:
+					case Ego::TextureFilter::TRILINEAR_2:
                         sz_buttons[but_filtering] = "Trilinear 2";
                         break;
 
-                    case TX_ANISOTROPIC:
+					case Ego::TextureFilter::ANISOTROPIC:
                         sz_buttons[but_filtering] = "Anisotropic";
                         break;
 
                     default:
-                        cfg.texturefilter_req = TX_UNFILTERED;
+						cfg.texturefilter_req = Ego::TextureFilter::UNFILTERED;
                         sz_buttons[but_filtering] = "Unfiltered";
                         break;
                 }

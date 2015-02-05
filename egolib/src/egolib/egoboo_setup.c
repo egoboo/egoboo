@@ -142,7 +142,7 @@ void egoboo_config__init( egoboo_config_t * pcfg )
     pcfg->fog_allowed           = true;
     pcfg->gouraud_req           = true;              // Gouraud shading?
     pcfg->multisamples          = 0;                  // Antialiasing?
-    pcfg->texturefilter_req     = TX_UNFILTERED;      // Texture filtering?
+    pcfg->texturefilter_req     = Ego::TextureFilter::UNFILTERED;      // Texture filtering?
     pcfg->dyna_count_req        = 12;                 // Max number of lights to draw
     pcfg->framelimit            = 30;
     pcfg->particle_count_req    = 512;                              // max number of particles
@@ -353,13 +353,13 @@ bool setup_download( egoboo_config_t * pcfg )
     // Do we do texture filtering?
     GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
     pcfg->texturefilter_req =  cfg_default.texturefilter_req;
-    if ( 'U' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_UNFILTERED;
-    if ( 'L' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_LINEAR;
-    if ( 'M' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_MIPMAP;
-    if ( 'B' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_BILINEAR;
-    if ( 'T' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_TRILINEAR_1;
-    if ( '2' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_TRILINEAR_2;
-    if ( 'A' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_ANISOTROPIC;
+    if ('U' == char_toupper((unsigned)lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::UNFILTERED;
+	if ('L' == char_toupper((unsigned)lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::LINEAR;
+	if ('M' == char_toupper((unsigned)lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::MIPMAP;
+	if ('B' == char_toupper((unsigned)lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::BILINEAR;
+	if ('T' == char_toupper((unsigned)lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::TRILINEAR_1;
+	if ('2' == char_toupper((unsigned)lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::TRILINEAR_2;
+	if ('A' == char_toupper((unsigned)lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::ANISOTROPIC;
 
     // Max number of lights
     GetKey_int( "MAX_DYNAMIC_LIGHTS", pcfg->dyna_count_req, cfg_default.dyna_count_req );
@@ -541,15 +541,15 @@ bool setup_upload( egoboo_config_t * pcfg )
     // Do we do texture filtering?
     switch ( pcfg->texturefilter_req )
     {
-        case TX_UNFILTERED:  SetKey_string( "TEXTURE_FILTERING", "UNFILTERED" ); break;
-        case TX_MIPMAP:      SetKey_string( "TEXTURE_FILTERING", "MIPMAP" ); break;
-        case TX_BILINEAR:    SetKey_string( "TEXTURE_FILTERING", "BILINEAR" ); break;
-        case TX_TRILINEAR_1: SetKey_string( "TEXTURE_FILTERING", "TRILINEAR" ); break;
-        case TX_TRILINEAR_2: SetKey_string( "TEXTURE_FILTERING", "2_TRILINEAR" ); break;
-        case TX_ANISOTROPIC: SetKey_string( "TEXTURE_FILTERING", "ANISOTROPIC" ); break;
+		case Ego::TextureFilter::UNFILTERED:  SetKey_string("TEXTURE_FILTERING", "UNFILTERED"); break;
+		case Ego::TextureFilter::MIPMAP:      SetKey_string("TEXTURE_FILTERING", "MIPMAP"); break;
+		case Ego::TextureFilter::BILINEAR:    SetKey_string("TEXTURE_FILTERING", "BILINEAR"); break;
+		case Ego::TextureFilter::TRILINEAR_1: SetKey_string("TEXTURE_FILTERING", "TRILINEAR"); break;
+		case Ego::TextureFilter::TRILINEAR_2: SetKey_string("TEXTURE_FILTERING", "2_TRILINEAR"); break;
+		case Ego::TextureFilter::ANISOTROPIC: SetKey_string("TEXTURE_FILTERING", "ANISOTROPIC"); break;
 
         default:
-        case TX_LINEAR:      SetKey_string( "TEXTURE_FILTERING", "LINEAR" ); break;
+		case Ego::TextureFilter::LINEAR:      SetKey_string("TEXTURE_FILTERING", "LINEAR"); break;
     }
 
     // Max number of lights

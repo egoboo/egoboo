@@ -49,7 +49,7 @@ void TextureManager::reset_freelist()
 	/// Reset the free texture list.
 	/// Start at #TX_SPECIAL_LAST so that the global textures/icons are can't be allocated by mistake.
 	size_t i, j;
-	for (i = 0,j = TX_SPECIAL_LAST; i < TX_COUNT; i++, j++)
+	for (i = 0,j = TX_SPECIAL_LAST; j < TX_COUNT; i++, j++)
 	{
 		TxList.free_ref[i] = j;
 	}

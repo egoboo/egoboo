@@ -1675,7 +1675,7 @@ void gfx_system_init_SDL_graphics()
     ogl_vparam.antialiasing   = GL_TRUE;
     ogl_vparam.perspective    = cfg.use_perspective ? GL_NICEST : GL_FASTEST;
     ogl_vparam.shading        = GL_SMOOTH;
-    ogl_vparam.userAnisotropy = 16.0f * std::max( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
+	ogl_vparam.userAnisotropy = 16.0f * std::max(0, cfg.texturefilter_req - Ego::TextureFilter::TRILINEAR_2);
 
     log_info( "Opening SDL Video Mode...\n" );
 
@@ -1842,9 +1842,9 @@ void gfx_system_load_assets()
 
     if ( !ogl_caps.anisotropic_supported )
     {
-        if ( tex_params.texturefilter >= TX_ANISOTROPIC )
+		if (tex_params.texturefilter >= Ego::TextureFilter::ANISOTROPIC)
         {
-            tex_params.texturefilter = TX_TRILINEAR_2;
+			tex_params.texturefilter = Ego::TextureFilter::TRILINEAR_2;
             log_warning( "Your graphics driver does not support anisotropic filtering.\n" );
         }
     }
@@ -4828,12 +4828,12 @@ bool oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, ego
     if ( ogl_caps.maxAnisotropy <= 1.0f )
     {
         ptex->userAnisotropy = 0.0f;
-		ptex->texturefilter = std::min<tx_filter_t>(pcfg->texturefilter_req, TX_TRILINEAR_2);
+		ptex->texturefilter = std::min<Ego::TextureFilter>(pcfg->texturefilter_req, Ego::TextureFilter::TRILINEAR_2);
     }
     else
     {
-		ptex->texturefilter = std::min<tx_filter_t>(pcfg->texturefilter_req, TX_FILTER_COUNT);
-        ptex->userAnisotropy = ogl_caps.maxAnisotropy * std::max( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
+		ptex->texturefilter = std::min<Ego::TextureFilter>(pcfg->texturefilter_req, Ego::TextureFilter::FILTER_COUNT);
+		ptex->userAnisotropy = ogl_caps.maxAnisotropy * std::max(0, (int)ptex->texturefilter - (int)Ego::TextureFilter::TRILINEAR_2);
     }
 
     return true;

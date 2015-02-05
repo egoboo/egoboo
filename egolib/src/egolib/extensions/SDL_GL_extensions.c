@@ -24,7 +24,7 @@
 /// @details
 
 #include "egolib/extensions/SDL_GL_extensions.h"
-#include "egolib/tx_filter.h"
+#include "egolib/Renderer/TextureFilter.hpp"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_texture.h"
 
@@ -383,7 +383,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     use_alpha = !( 8 == local_surface->format->Aloss );
     if ( target == GL_TEXTURE_2D )
     {
-        if ( tex_params.texturefilter >= TX_MIPMAP )
+		if (tex_params.texturefilter >= Ego::TextureFilter::MIPMAP)
         {
             oglx_upload_2d_mipmap( use_alpha, local_surface->w, local_surface->h, local_surface->pixels );
         }

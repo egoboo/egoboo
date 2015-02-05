@@ -413,6 +413,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
     <ClInclude Include="src\egolib\math\Colour3f.hpp" />
@@ -494,7 +495,6 @@
     <ClInclude Include="src\egolib\threads.h" />
     <ClInclude Include="src\egolib\throttle.h" />
     <ClInclude Include="src\egolib\timer.h" />
-    <ClInclude Include="src\egolib\tx_filter.h" />
     <ClInclude Include="src\egolib\typedef.h" />
     <ClInclude Include="src\egolib\vec.h" />
     <ClInclude Include="src\egolib\vfs.h" />

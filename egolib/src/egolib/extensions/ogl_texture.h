@@ -30,7 +30,7 @@
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_extensions.h"
-#include "egolib/tx_filter.h"
+#include "egolib/Renderer/TextureFilter.hpp"
 
 #include "egolib/typedef.h"
 
@@ -75,7 +75,7 @@
     GLuint oglx_texture_load(oglx_texture_t *self, const char *filename, Uint32 key);
 	/**
 	 * @brief
-	 *	Delete the SDL image, delete OpenGL id, assign OpenGL ID of the error texture.
+	 *	Delete the SDL image, delete OpenGL ID, assign OpenGL ID of the error texture.
 	 * @param self
 	 *	this texture
 	 */
@@ -95,7 +95,7 @@
 
     struct oglx_texture_parameters_t
     {
-        tx_filter_t texturefilter;
+        Ego::TextureFilter texturefilter;
         GLfloat userAnisotropy;
     };
 

@@ -17,32 +17,35 @@
 //*
 //********************************************************************************************
 
-// @file  egolib/tx_filters.h
+// @file  egolib/Renderer/TextureFilter.h
 // @brief enumeration of texture filtering methods
 
 #pragma once
 
-/**
- * @brief
- *	An enumeration of texture filtering methods.
- */
-enum tx_filter_t
+namespace Ego
 {
-	
-	TX_UNFILTERED,
-    
-	TX_LINEAR,
-    
-	TX_MIPMAP,
-    
-	TX_BILINEAR,
-    
-	TX_TRILINEAR_1,
-    
-	TX_TRILINEAR_2,
-    
-	TX_ANISOTROPIC,
+	/**
+	 * @brief
+	 *	An enumeration of texture filtering methods.
+	 */
+	enum TextureFilter
+	{
 
-	TX_FILTER_COUNT,
+		UNFILTERED,
 
+		LINEAR,
+
+		MIPMAP,
+
+		BILINEAR,
+
+		TRILINEAR_1,
+
+		TRILINEAR_2,
+
+		ANISOTROPIC,
+
+		FILTER_COUNT,
+
+	};
 };
