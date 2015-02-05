@@ -29,6 +29,7 @@
 #include "game/ui.h"
 #include "game/graphic.h"
 #include "game/gui/Button.hpp"
+#include "egolib/math/Random.hpp"
 
 //For loading stuff
 #include "game/graphics/CameraSystem.hpp"
@@ -39,12 +40,15 @@
 #include "game/collision.h"
 #include "game/renderer_2d.h"
 #include "game/bsp.h"
+#include "egolib/fileutil.h"
 
 LoadingState::LoadingState(std::shared_ptr<MenuLoadModuleData> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players) :
 	_finishedLoading(false),
 	_loadingThread(),
-	_loadModule(module)
-	//_players(players)
+	_loadModule(module),
+	//_players(players),
+    _globalGameTips(),
+    _localGameTips()
 {
 	//ctor
 }
@@ -143,4 +147,84 @@ void LoadingState::loadModuleData()
 			_gameEngine->setGameState(std::make_shared<PlayingState>());
     	});
     addComponent(startButton);
+}
+
+
+bool LoadingState::loadGlobalHints()
+{
+    /// @author ZF
+    /// @details This function loads all of the game hints and tips
+
+    // Open the file with all the tips
+    vfs_FILE *fileread = vfs_openRead( "mp_data/gametips.txt" );
+    if ( NULL == fileread )
+    {
+        log_warning( "Could not load the game tips and hints. (\"mp_data/gametips.txt\")\n" );
+        return false;
+    }
+
+    // Load the data
+    while (goto_colon_vfs(NULL, fileread, true))
+    {
+        STRING buffer;
+
+        //Read the line
+        vfs_get_string(fileread, buffer, SDL_arraysize(buffer));
+
+        //Make it look nice
+        str_decode(buffer, SDL_arraysize(buffer), buffer);
+
+        _globalGameTips.push_back(buffer);
+    }
+
+    vfs_close(fileread);
+
+    return !_globalGameTips.empty();
+}
+
+bool LoadingState::loadLocalModuleHints()
+{
+    /// @author ZF
+    /// @details This function loads all module specific hints and tips. If this fails, the game will
+    ///       default to the global hints and tips instead
+    STRING buffer;
+
+    // Open all the tips
+    snprintf(buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", _loadModule->getName());
+    vfs_FILE *fileread = vfs_openRead( buffer );
+    if ( NULL == fileread ) return false;
+
+    // Load the data
+    while (goto_colon_vfs(NULL, fileread, true))
+    {
+
+        //Read the line
+        vfs_get_string(fileread, buffer, SDL_arraysize(buffer));
+
+        //Make it look nice
+        str_decode(buffer, SDL_arraysize(buffer) ,buffer);
+
+        _localGameTips.push_back(buffer);
+    }
+
+    vfs_close( fileread );
+
+    return !_localGameTips.empty();
+}
+
+const std::string LoadingState::getRandomHint() const
+{
+    if(_globalGameTips.empty() && _localGameTips.empty())
+    {
+        // no hints loaded, use the default hint
+        return "Don't die...\n";
+    }
+    else if(!_localGameTips.empty())
+    {
+        //Prefer local tips if we have them
+        return Random::getRandomElement(_localGameTips);
+    }
+
+    //Return generic global tip
+    return Random::getRandomElement(_globalGameTips);
 }

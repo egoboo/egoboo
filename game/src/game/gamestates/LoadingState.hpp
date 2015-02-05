@@ -25,6 +25,7 @@
 
 #include <atomic>
 #include <thread>
+#include <vector>
 #include "game/gamestates/GameState.hpp"
 
 //Forward declarations
@@ -47,9 +48,16 @@ protected:
 
 	void loadModuleData();
 
+	const std::string getRandomHint() const;
+	bool loadLocalModuleHints();
+	bool loadGlobalHints();
+
 private:
 	std::atomic_bool _finishedLoading;
 	std::thread _loadingThread;
 	const std::shared_ptr<MenuLoadModuleData> _loadModule;
 	std::list<std::shared_ptr<LoadPlayerElement>> _players;
+
+	std::vector<std::string> _globalGameTips;		//Generic game tips for the whole game
+	std::vector<std::string> _localGameTips;		//Game tips specific to this module
 };

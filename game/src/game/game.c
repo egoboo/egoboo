@@ -1027,6 +1027,7 @@ void game_reset_timers()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 int game_do_menu( menu_process_t * mproc )
 {
     /// @author BB
@@ -1076,7 +1077,6 @@ int game_do_menu( menu_process_t * mproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if 0
 int game_process_do_begin( game_process_t * gproc )
 {
     // clean up
@@ -3618,6 +3618,7 @@ void let_all_characters_think()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
     if ( NULL == mproc ) return false;
@@ -3646,6 +3647,7 @@ void game_end_menu( menu_process_t * mproc )
         GProc->menu_depth = -1;
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void game_finish_module()

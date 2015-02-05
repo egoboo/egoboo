@@ -130,6 +130,7 @@ DECLARE_LIST_EXTERN( oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 // code for initializing and deinitializing the menu system
 int  menu_system_begin();
 void menu_system_end();
@@ -142,6 +143,8 @@ int doMainMenu( float deltaTime );
 bool mnu_begin_menu( which_menu_t which );
 void   mnu_end_menu();
 int    mnu_get_menu_depth();
+
+#endif
 
 // "public" implmentation of the TxTitleImage array
 //void   TxTitleImage_reload_all();

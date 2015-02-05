@@ -399,6 +399,7 @@ void mnu_stack_clear()
     mnu_stack[0] = emnu_Main;
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------
 // The implementation of the menu process
 //--------------------------------------------------------------------------------------------
@@ -565,6 +566,7 @@ menu_process_t *menu_process_init( menu_process_t * mproc )
 
     return mproc;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 // Code for global initialization/deinitialization of the menu system
