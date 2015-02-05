@@ -59,6 +59,13 @@ LoadingState::~LoadingState()
 
 void LoadingState::update()
 {
+    static bool firstPass = true;
+    if(firstPass) {
+        drawAll(); //ensure render loop is draw at last once
+        firstPass = false;
+        return;
+    }
+
 	if(!_finishedLoading) {
 		loadModuleData();
 	}

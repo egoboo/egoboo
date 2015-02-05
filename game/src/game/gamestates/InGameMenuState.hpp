@@ -17,27 +17,32 @@
 //*
 //********************************************************************************************
 
-/// @file game/gamestates/PlayingState.hpp
-/// @details Main state where the players are currently playing a module
+/// @file game/gamestates/InGameMenuState.hpp
+/// @details Menu while PlayingState is running in background
 /// @author Johan Jansen
 
 #pragma once
 
+#include <forward_list>
 #include "game/gamestates/GameState.hpp"
 
-class PlayingState : public GameState
+//Forward declarations
+class Button;
+class PlayingState;
+
+class InGameMenuState : public GameState
 {
 public:
-	PlayingState();
-
-	~PlayingState();
+	InGameMenuState(PlayingState *playingState);
 
 	void update() override;
 
 	void beginState() override;
-	
-    bool notifyKeyDown(const int keyCode) override;
 
 protected:
 	void drawContainer() override;
+
+private:
+	std::forward_list<std::shared_ptr<Button>> _slidyButtons;
+	PlayingState *_playingState;
 };

@@ -95,6 +95,7 @@ ego_process_t     * EProc   = &_eproc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 int do_ego_proc_begin(ego_process_t *self)
 {
     // initialize the virtual filesystem first
@@ -674,6 +675,7 @@ ego_process_t *ego_process_init(ego_process_t *self, int argc, char **argv)
 
     return self;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 Uint32 egoboo_get_ticks()
@@ -694,6 +696,7 @@ Uint32 egoboo_get_ticks()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
 {
     size_t tmp_maxparticles;

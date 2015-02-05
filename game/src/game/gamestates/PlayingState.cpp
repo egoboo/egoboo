@@ -22,15 +22,47 @@
 /// @author Johan Jansen
 
 #include "game/gamestates/PlayingState.hpp"
+#include "game/gamestates/InGameMenuState.hpp"
+#include "game/core/GameEngine.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
 #include "game/module/Module.hpp"
 
+//For deconstructor
+#include "game/collision.h"
+#include "game/profiles/ProfileSystem.hpp"
+#include "game/bsp.h"
+#include "game/script.h"
+
 PlayingState::PlayingState()
 {
 	//ctor
+}
+
+PlayingState::~PlayingState()
+{
+	// get rid of all module data
+    //game_quit_module();
+
+    // deallocate any dynamically allocated collision memory
+    collision_system_end();
+
+    // deallocate any data used by the profile system
+    //_profileSystem.end();
+
+    // deallocate the obj_BSP
+    obj_BSP_system_end();
+
+    // deallocate any dynamically allocated scripting memory
+    scripting_system_end();
+
+    // clean up any remaining models that might have dynamic data
+    MadStack_release_all();
+
+    // free the cameras
+    _cameraSystem.end();
 }
 
 void PlayingState::update()
@@ -50,4 +82,16 @@ void PlayingState::beginState()
 	// in-game settings
     SDL_ShowCursor( cfg.hide_mouse ? SDL_DISABLE : SDL_ENABLE );
     SDL_WM_GrabInput( cfg.grab_mouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+}
+
+bool PlayingState::notifyKeyDown(const int keyCode)
+{
+	switch(keyCode)
+	{
+		case SDLK_ESCAPE:
+			_gameEngine->pushGameState(std::make_shared<InGameMenuState>(this));
+		return true;
+	}
+
+	return ComponentContainer::notifyKeyDown(keyCode);
 }

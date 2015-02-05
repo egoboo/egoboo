@@ -1604,7 +1604,7 @@ void gfx_system_init_SDL_graphics()
 		return;
 	}
 
-    ego_init_SDL_base();
+    //ego_init_SDL_base();
 
     log_info( "Intializing SDL Video... " );
     if ( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 )
