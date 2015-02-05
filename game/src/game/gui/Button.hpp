@@ -19,7 +19,7 @@ class Button : public GUIComponent
 
         void doClick();
 
-        void beginSlidyButtonEffect();
+        void beginSlidyButtonEffect(float offset);
 
         bool isEnabled() const override;
 

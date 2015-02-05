@@ -23,7 +23,11 @@
 
 #pragma once
 
+#include <forward_list>
 #include "game/gamestates/GameState.hpp"
+
+//Forward declarations
+class Button;
 
 class MainMenuState : public GameState
 {
@@ -36,4 +40,7 @@ public:
 
 protected:
 	void drawContainer() override;
+
+private:
+	std::forward_list<std::shared_ptr<Button>> _slidyButtons;
 };

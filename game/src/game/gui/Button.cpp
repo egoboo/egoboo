@@ -28,10 +28,13 @@ void Button::setText(const std::string &text)
 void Button::draw()
 {
     //Update slidy button effect
-    if(_slidyButtonTargetX > 0.0f) {
-        const float SLIDY_LERP = getWidth() / 10.0f;
-        _slidyButtonTargetX -= SLIDY_LERP;
+    if(getX() < _slidyButtonTargetX) {
+        const float SLIDY_LERP = 2*getWidth() / GameEngine::GAME_TARGET_FPS;
         setX(getX() + SLIDY_LERP);
+    }
+    else if(_slidyButtonTargetX > 0.0f) {
+        setX(_slidyButtonTargetX);
+        _slidyButtonTargetX = 0.0f;
     }
 
     // Draw the button
@@ -125,10 +128,10 @@ bool Button::notifyKeyDown(const int keyCode)
     return false;
 }
 
-void Button::beginSlidyButtonEffect()
+void Button::beginSlidyButtonEffect(float offset)
 {
-    _slidyButtonTargetX = getWidth();
-    setX(getX() - getWidth());
+    _slidyButtonTargetX = getX();
+    setX(getX() - offset);
 }
 
 bool Button::isEnabled() const

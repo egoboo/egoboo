@@ -32,7 +32,8 @@
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
 
-MainMenuState::MainMenuState()
+MainMenuState::MainMenuState() :
+	_slidyButtons()
 {
 	std::shared_ptr<Image> background;
 	std::shared_ptr<Image> gameLogo;
@@ -81,36 +82,36 @@ MainMenuState::MainMenuState()
 	[]{
 		_gameEngine->shutdown();
 	});
-	exitButton->beginSlidyButtonEffect();
 	addComponent(exitButton);
+	_slidyButtons.push_front(exitButton);
 
 	yOffset -= exitButton->getHeight() + 10;
 
 	std::shared_ptr<Button> optionsButton = std::make_shared<Button>("Options", SDLK_o);
 	optionsButton->setPosition(20, yOffset);
 	optionsButton->setSize(200, 30);
-	optionsButton->beginSlidyButtonEffect();
 	addComponent(optionsButton);
+	_slidyButtons.push_front(optionsButton);
 
 	yOffset -= optionsButton->getHeight() + 10;
 
 	std::shared_ptr<Button> loadGameButton = std::make_shared<Button>("Load Game", SDLK_l);
 	loadGameButton->setPosition(20, yOffset);
 	loadGameButton->setSize(200, 30);
-	loadGameButton->beginSlidyButtonEffect();
 	addComponent(loadGameButton);
+	_slidyButtons.push_front(loadGameButton);
 
 	yOffset -= loadGameButton->getHeight() + 10;
 
 	std::shared_ptr<Button> newGameButton = std::make_shared<Button>("New Game", SDLK_n);
 	newGameButton->setPosition(20, yOffset);
 	newGameButton->setSize(200, 30);
-	newGameButton->beginSlidyButtonEffect();
 	newGameButton->setOnClickFunction(
 	[]{
 		_gameEngine->pushGameState(std::make_shared<SelectModuleState>());
 	});
 	addComponent(newGameButton);
+	_slidyButtons.push_front(newGameButton);
 
 	yOffset -= newGameButton->getHeight() + 10;
 }
@@ -134,4 +135,11 @@ void MainMenuState::beginState()
     SDL_WM_GrabInput( SDL_GRAB_OFF );
 
     _audioSystem.playMusic(AudioSystem::MENU_SONG);
+
+    float offset = 0;
+    for(const std::shared_ptr<Button> &button : _slidyButtons)
+    {
+		button->beginSlidyButtonEffect(button->getWidth() + offset);
+		offset += 20;
+    }
 }
