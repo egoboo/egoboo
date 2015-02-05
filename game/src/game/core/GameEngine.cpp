@@ -82,7 +82,8 @@ void GameEngine::start()
 		{
 			renderOneFrame();
 
-            if(game_frame_all % 60 == 0)
+            //Stabilize FPS throttle every so often in case rendering is lagging behind
+            if(game_frame_all % GAME_TARGET_FPS == 0)
             {
                 _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
             }
@@ -94,9 +95,10 @@ void GameEngine::start()
         else
         {
             //Don't hog CPU if we have nothing to do
-            uint32_t currentTick = SDL_GetTicks();
-            int delay = std::min<int>(_renderTimeout-currentTick, _updateTimeout-currentTick);
-            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+            int delay = std::min<int>(_renderTimeout-SDL_GetTicks(), _updateTimeout-SDL_GetTicks());
+            if(delay > 1) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+            }
         }
 
 		// Test the panic button
