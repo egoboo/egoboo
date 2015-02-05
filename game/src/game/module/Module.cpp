@@ -30,9 +30,9 @@
 #include "game/mesh.h"
 #include "game/char.h"
 #include "game/module/ObjectHandler.hpp"
-#include "game/gamestates/SelectModuleState.hpp"
+#include "game/profiles/ModuleProfile.hpp"
 
-GameModule::GameModule(const std::shared_ptr<MenuLoadModuleData> &module, const uint32_t seed) :
+GameModule::GameModule(const std::shared_ptr<ModuleProfile> &module, const uint32_t seed) :
     _name(module->getPath()),
     _importAmount(module->getBase().importamount),
     _exportValid(module->getBase().allowexport),

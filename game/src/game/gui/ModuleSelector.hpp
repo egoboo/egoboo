@@ -26,13 +26,13 @@
 #include "game/gui/ComponentContainer.hpp"
 
 //Forward declarations
-class MenuLoadModuleData;
+class ModuleProfile;
 class Button;
 
 class ModuleSelector : public ComponentContainer, public GUIComponent
 {
     public:
-        ModuleSelector(const std::vector<std::shared_ptr<MenuLoadModuleData>> &modules);
+        ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules);
 
         void draw() override { drawAll(); }
 
@@ -50,7 +50,7 @@ class ModuleSelector : public ComponentContainer, public GUIComponent
 	    bool notifyMouseClicked(const int button, const int x, const int y) override {return ComponentContainer::notifyMouseClicked(button, x, y);}
 	    bool notifyMouseScrolled(const int amount) override;
 
-	    const std::shared_ptr<MenuLoadModuleData>& getSelectedModule() const;
+	    const std::shared_ptr<ModuleProfile>& getSelectedModule() const;
 
     protected:
 	    void drawContainer() override;
@@ -63,8 +63,6 @@ class ModuleSelector : public ComponentContainer, public GUIComponent
 
 	    	void draw() override;
 
-	    	//void setModule(const std::shared_ptr<MenuLoadModuleData> &module) {_module = module;}
-
 	    	//Disable copying class
         	ModuleButton(const ModuleButton& copy) = delete;
         	ModuleButton& operator=(const ModuleButton&) = delete;
@@ -76,8 +74,8 @@ class ModuleSelector : public ComponentContainer, public GUIComponent
 
     private:
         size_t _startIndex;
-        const std::vector<std::shared_ptr<MenuLoadModuleData>> &_modules;
+        const std::vector<std::shared_ptr<ModuleProfile>> &_modules;
         std::shared_ptr<Button> _nextModuleButton;
         std::shared_ptr<Button> _previousModuleButton;
-        std::shared_ptr<MenuLoadModuleData> _selectedModule;
+        std::shared_ptr<ModuleProfile> _selectedModule;
 };

@@ -31,9 +31,8 @@
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
 #include "game/gui/ModuleSelector.hpp"
-
-//Class static data
-std::vector<std::shared_ptr<MenuLoadModuleData>> SelectModuleState::_loadedModules;
+#include "game/profiles/ModuleProfile.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 SelectModuleState::SelectModuleState() : SelectModuleState( std::list<std::shared_ptr<LoadPlayerElement>>() )
 {
@@ -55,12 +54,6 @@ SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerE
 
     int moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
     moduleMenuOffsetY = std::max(0, moduleMenuOffsetY);
-
-	//Load all modules
-	if(_loadedModules.empty())
-	{
-		loadAllModules();
-	}
 
 	//Set default filter
 	if(_onlyStarterModules)
@@ -121,23 +114,23 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 	_validModules.clear();
 
 	//Build list of valid modules
-	for(const std::shared_ptr<MenuLoadModuleData> &module : _loadedModules)
+	for(const std::shared_ptr<ModuleProfile> &module : _profileSystem.getModuleProfiles())
 	{
 		// if this module is not valid given the game options and the
 		// selected players, skip it
 		if (!module->isModuleUnlocked()) continue;
 
-		if (_onlyStarterModules && 0 == module->_base.importamount)
+		if (_onlyStarterModules && module->isStarterModule())
 		{
 		    // starter module
 		    _validModules.push_back(module);
 		}
 		else
 		{
-		    if (FILTER_OFF != _moduleFilter && static_cast<ModuleFilter>(module->_base.moduletype) != _moduleFilter ) continue;
-		    if ( _selectedPlayerList.size() > module->_base.importamount ) continue;
-		    if ( _selectedPlayerList.size() < module->_base.minplayers ) continue;
-		    if ( _selectedPlayerList.size() > module->_base.maxplayers ) continue;
+		    if (FILTER_OFF != _moduleFilter && static_cast<ModuleFilter>(module->getModuleType()) != _moduleFilter ) continue;
+		    if ( _selectedPlayerList.size() > module->getImportAmount() ) continue;
+		    if ( _selectedPlayerList.size() < module->getMinPlayers() ) continue;
+		    if ( _selectedPlayerList.size() > module->getMaxPlayers() ) continue;
 
 		    // regular module
 		    _validModules.push_back(module);
@@ -145,8 +138,8 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 	}
 
 	//Sort modules by difficulity
-	std::sort(_validModules.begin(), _validModules.end(), [](const std::shared_ptr<MenuLoadModuleData> &a, const std::shared_ptr<MenuLoadModuleData> &b) {
-		return strlen(a->_base.rank) < strlen(b->_base.rank);
+	std::sort(_validModules.begin(), _validModules.end(), [](const std::shared_ptr<ModuleProfile> &a, const std::shared_ptr<ModuleProfile> &b) {
+		return strlen(a->getRank()) < strlen(b->getRank());
 	});
 
 	//Notify the module selector that the list of available modules has changed
@@ -209,138 +202,4 @@ void SelectModuleState::beginState()
 {
 	// menu settings
     SDL_WM_GrabInput( SDL_GRAB_OFF );
-}
-
-void SelectModuleState::loadAllModules()
-{
-	//Clear any previously loaded first
-	_loadedModules.clear();
-
-    // Search for all .mod directories and load the module info
-    vfs_search_context_t *ctxt = vfs_findFirst( "mp_modules", "mod", VFS_SEARCH_DIR );
-    const char * vfs_ModPath = vfs_search_context_get_current( ctxt );
-
-    while (nullptr != ctxt && VALID_CSTR( vfs_ModPath ))
-    {
-    	STRING loadname;
-    	std::shared_ptr<MenuLoadModuleData> module = std::make_shared<MenuLoadModuleData>();
-
-        // save the filename
-        snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/menu.txt", vfs_ModPath );
-        if ( nullptr != module_load_info_vfs( loadname, &( module->_base ) ) )
-        {
-            // mark the module data as loaded
-            module->_loaded = true;
-
-            // save the module path
-            module->_vfsPath = vfs_ModPath;
-
-            /// @note just because we can't load the title image DOES NOT mean that we ignore the module
-            // load title image
-            snprintf( loadname, SDL_arraysize(loadname), "%s/gamedat/title", module->_vfsPath.c_str() );
-			ego_texture_load_vfs(&module->_icon, loadname, INVALID_KEY );
-
-            /// @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
-            // If that changes, this line must be changed as well.
-            // Save the user data directory version of the module path.
-            snprintf(loadname, SDL_arraysize(loadname), "/%s", vfs_ModPath + 3 );
-            module->_destPath = loadname;
-
-            // same problem as above
-            strncpy(loadname, vfs_ModPath + 11, SDL_arraysize(loadname) );
-            module->_name = loadname;
-
-            _loadedModules.push_back(module);
-        }
-        else
-        {
-        	log_warning("Unable to load module: %s\n", loadname);
-        }
-
-        ctxt = vfs_findNext( &ctxt );
-        vfs_ModPath = vfs_search_context_get_current( ctxt );
-    }
-    vfs_findClose( &ctxt );
-}
-
-void SelectModuleState::printDebugModuleList()
-{
-    // Log a directory list
-    vfs_FILE* filesave = vfs_openWrite( "/debug/modules.txt" );
-
-    if(filesave == nullptr) {
-    	return;
-    }
-
-    vfs_printf( filesave, "This file logs all of the modules found\n" );
-    vfs_printf( filesave, "** Denotes an invalid module\n" );
-    vfs_printf( filesave, "## Denotes an unlockable module\n\n" );
-
-    for(size_t imod = 0; imod < _loadedModules.size(); ++imod)
-    {
-    	const std::shared_ptr<MenuLoadModuleData> &module = _loadedModules[imod];
-
-        if (!module->_loaded)
-        {
-            vfs_printf(filesave, "**.  %s\n", module->_vfsPath.c_str());
-        }
-        else if ( module->isModuleUnlocked() )
-        {
-            vfs_printf(filesave, "%02d.  %s\n", REF_TO_INT(imod), module->_vfsPath.c_str());
-        }
-        else
-        {
-            vfs_printf(filesave, "##.  %s\n", module->_vfsPath.c_str());
-        }
-    }
-
-
-    vfs_close(filesave);
-}
-
-MenuLoadModuleData::MenuLoadModuleData() :
-	_loaded(false),
-	_name(),
-	_base(),
-	_icon(),
-	_vfsPath(),
-	_destPath()
-{
-    mod_file__init(&_base);
-}
-
-MenuLoadModuleData::~MenuLoadModuleData()
-{
-	oglx_texture_Release(&_icon);
-}
-
-bool MenuLoadModuleData::isModuleUnlocked() const
-{
-    // First check if we are in developers mode or that the right module has been beaten before
-    if ( cfg.dev_mode )
-    {
-        return true;
-    }
-
-    if (module_has_idsz_vfs(_base.reference, _base.unlockquest.id, 0, nullptr))
-    {
-        return true;
-    }
-
-//ZF> TODO: re-enable
-/*
-    if (base.importamount > 0)
-    {
-        // If that did not work, then check all selected players directories, but only if it isn't a starter module
-        for(const std::shared_ptr<LoadPlayerElement> &player : _selectedPlayerList)
-        {
-            // find beaten quests or quests with proper level
-            if(!player->hasQuest(base.unlockquest.id, base.unlockquest.level)) {
-                return false;
-            }
-        }
-    }
-*/
-
-    return true;
 }

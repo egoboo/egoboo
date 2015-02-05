@@ -250,6 +250,7 @@ bool GameEngine::initialize()
     model_system_begin();
     ego_mesh_ctor(PMesh);
     _profileSystem.begin();
+    _profileSystem.loadModuleProfiles();
 
     // setup the system gui
     ui_begin("mp_data/Bo_Chen.ttf", 24);

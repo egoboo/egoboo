@@ -23,11 +23,11 @@
 
 #include "game/gui/ModuleSelector.hpp"
 #include "game/gui/Button.hpp"
-#include "game/gamestates/SelectModuleState.hpp"
+#include "game/profiles/ModuleProfile.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/ui.h"
 
-ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<MenuLoadModuleData>> &modules) :
+ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules) :
 	_startIndex(0),
 	_modules(modules),
 	_nextModuleButton(std::make_shared<Button>("->", SDLK_RIGHT)),
@@ -224,7 +224,7 @@ bool ModuleSelector::notifyMouseScrolled(const int amount)
 	return true;
 }
 
-const std::shared_ptr<MenuLoadModuleData>& ModuleSelector::getSelectedModule() const
+const std::shared_ptr<ModuleProfile>& ModuleSelector::getSelectedModule() const
 {
 	return _selectedModule;	
 }

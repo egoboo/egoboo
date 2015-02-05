@@ -50,7 +50,7 @@ class CameraSystem;
 class AudioSystem;
 class GameModule;
 class ObjectHandler;
-class MenuLoadModuleData;
+class ModuleProfile;
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of internal structs
@@ -433,7 +433,7 @@ void   game_quit_module();
 /// the hook for exporting all the current players and reloading them
 bool game_update_imports();
 void   game_finish_module();
-bool game_begin_module(const std::shared_ptr<MenuLoadModuleData> &module);
+bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
 
 /// Exporting stuff
 egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool is_local );

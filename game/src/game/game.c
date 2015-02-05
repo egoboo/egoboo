@@ -48,7 +48,7 @@
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
 #include "game/module/ObjectHandler.hpp"
-#include "game/gamestates/SelectModuleState.hpp"
+#include "game/profiles/ModuleProfile.hpp"
 
 #include "game/char.h"
 #include "game/particle.h"
@@ -3366,7 +3366,7 @@ void game_quit_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_begin_module(const std::shared_ptr<MenuLoadModuleData> &module)
+bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
 {
     /// @author BB
     /// @details all of the initialization code before the module actually starts

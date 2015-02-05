@@ -23,7 +23,7 @@
 
 #include "game/gamestates/LoadingState.hpp"
 #include "game/gamestates/PlayingState.hpp"
-#include "game/gamestates/SelectModuleState.hpp"
+#include "game/profiles/ModuleProfile.hpp"
 #include "game/core/GameEngine.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/ui.h"
@@ -42,7 +42,7 @@
 #include "game/bsp.h"
 #include "egolib/fileutil.h"
 
-LoadingState::LoadingState(std::shared_ptr<MenuLoadModuleData> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players) :
+LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players) :
 	_finishedLoading(false),
 	_loadingThread(),
 	_loadModule(module),

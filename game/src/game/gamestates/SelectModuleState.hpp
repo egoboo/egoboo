@@ -25,47 +25,13 @@
 #pragma once
 #include <vector>
 #include "game/gamestates/GameState.hpp"
-#include "game/graphic_texture.h"
 
 //Forward declarations
 class Image;
 class Button;
 class LoadPlayerElement;
 class ModuleSelector;
-
-/// the module data that the menu system needs
-class MenuLoadModuleData
-{
-public:
-	MenuLoadModuleData();
-
-	~MenuLoadModuleData();
-
-	bool isModuleUnlocked() const;
-
-	inline oglx_texture_t& getIcon() {return _icon;}
-
-	const char* getName() const {return _base.longname;}
-
-	const mod_file_t& getBase() const {return _base;}
-
-	bool isStarterModule() const {return _base.importamount == 0;}
-
-	const char* getRank() const {return _base.rank;}
-
-	const std::string& getPath() const {return _vfsPath;}
-
-private:
-    bool _loaded;
-    std::string _name;
-    mod_file_t _base;                            ///< the data for the "base class" of the module
-
-    oglx_texture_t _icon;                        ///< the index of the module's tile image
-    std::string _vfsPath;                        ///< the virtual pathname of the module
-    std::string _destPath;                       ///< the path that module data can be written into
-
-    friend class SelectModuleState;
-};
+class ModuleProfile;
 
 class SelectModuleState : public GameState
 {
@@ -101,19 +67,12 @@ protected:
 
 	void setModuleFilter(const ModuleFilter filter);
 
-	void printDebugModuleList();
-
-	static void loadAllModules();
-
 private:
 	bool _onlyStarterModules;
-	std::vector<std::shared_ptr<MenuLoadModuleData>> _validModules;		///< Current selectable modules (filtered, unlocked, etc.)
+	std::vector<std::shared_ptr<ModuleProfile>> _validModules;		///< Current selectable modules (filtered, unlocked, etc.)
 	std::shared_ptr<Image> _background;
 	std::shared_ptr<Button> _filterButton;
 	std::shared_ptr<ModuleSelector> _moduleSelector;
 	ModuleFilter _moduleFilter;
 	const std::list<std::shared_ptr<LoadPlayerElement>> &_selectedPlayerList;
-
-	//No need to load this list more than once
-	static std::vector<std::shared_ptr<MenuLoadModuleData>> _loadedModules;	///< All modules loaded
 };

@@ -29,14 +29,13 @@
 #include "game/gamestates/GameState.hpp"
 
 //Forward declarations
-class MenuLoadModuleData;
+class ModuleProfile;
 class LoadPlayerElement;
-
 
 class LoadingState : public GameState
 {
 public:
-	LoadingState(std::shared_ptr<MenuLoadModuleData> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players);
+	LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players);
 	~LoadingState();
 
 	void update() override;
@@ -55,7 +54,7 @@ protected:
 private:
 	std::atomic_bool _finishedLoading;
 	std::thread _loadingThread;
-	const std::shared_ptr<MenuLoadModuleData> _loadModule;
+	const std::shared_ptr<ModuleProfile> _loadModule;
 	std::list<std::shared_ptr<LoadPlayerElement>> _players;
 
 	std::vector<std::string> _globalGameTips;		//Generic game tips for the whole game
