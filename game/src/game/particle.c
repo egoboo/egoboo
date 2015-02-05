@@ -21,6 +21,7 @@
 /// @brief Manages particle systems.
 
 #include "game/particle.h"
+#include "game/core/GameEngine.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/game.h"
@@ -527,7 +528,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         // to keep the number of updates stable, the frames could lag.
         // sooo... we just rescale the prt_life_frames_updates so that it will work with the
         // updates and cross our fingers
-        pprt->lifetime_total     = CEIL(( float ) prt_life_frames_updates * ( float )TARGET_UPS / ( float )TARGET_FPS );
+        pprt->lifetime_total     = CEIL(( float ) prt_life_frames_updates * ( float )GameEngine::GAME_TARGET_UPS / ( float )GameEngine::GAME_TARGET_FPS );
     }
     // make the particle exists for AT LEAST one update
     pprt->lifetime_total     = std::max( (size_t)1, pprt->lifetime_total );

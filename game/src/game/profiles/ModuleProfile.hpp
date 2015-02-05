@@ -24,7 +24,7 @@
 #include "game/graphic_texture.h"
 #include "egolib/file_formats/module_file.h"
 
-/// the module data that the menu system needs
+//TODO: mod_file_t needs to be merged into this class
 class ModuleProfile
 {
 public:

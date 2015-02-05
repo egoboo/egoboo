@@ -1002,9 +1002,6 @@ void game_reset_timers()
     clock_enc_stat = 0;
     clock_chr_stat = 0;
 
-    // reset the game clock
-    egolib_throttle_reset( &game_throttle );
-
     // reset the ups counter(s)
     game_ups_clock        = 0;
     game_ups_loops        = 0;
@@ -1017,13 +1014,6 @@ void game_reset_timers()
     game_fps_clock        = 0;
     game_fps_loops        = 0;
 
-    stabilized_game_fps        = cfg.framelimit;
-    stabilized_game_fps_sum    = STABILIZED_COVER * cfg.framelimit;
-    stabilized_game_fps_weight = STABILIZED_COVER;
-
-    stabilized_game_ups        = TARGET_UPS;
-    stabilized_game_ups_sum    = STABILIZED_COVER * TARGET_UPS;
-    stabilized_game_ups_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4048,6 +4038,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     *dst_end = CSTR_END;
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------
 bool game_choose_module( MOD_REF imod )
 {
@@ -4085,7 +4076,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if 0
+
 void do_game_hud()
 {
     int y = 0;

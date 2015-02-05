@@ -1452,11 +1452,6 @@ void gfx_system_begin()
     PROFILE_INIT( render_scene_mesh_drf_solid );
     PROFILE_INIT( render_scene_mesh_render_shadows );
 
-    // init some other variables
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
-
     gfx_reset_timers();
 
     // allocate the specailized "collision lists"
@@ -1931,10 +1926,6 @@ void gfx_system_init_all_graphics()
     PROFILE_RESET( render_scene_mesh_ref_chr );
     PROFILE_RESET( render_scene_mesh_drf_solid );
     PROFILE_RESET( render_scene_mesh_render_shadows );
-
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2016,10 +2007,6 @@ void gfx_system_load_basic_textures()
     PROFILE_RESET( render_scene_mesh_ref_chr );
     PROFILE_RESET( render_scene_mesh_drf_solid );
     PROFILE_RESET( render_scene_mesh_render_shadows );
-
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3677,12 +3664,12 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
         retval = gfx_error;
     }
 
-    time_render_scene_init_renderlist_make         = PROFILE_QUERY( gfx_make_renderlist ) * TARGET_FPS;
-    time_render_scene_init_dolist_make             = PROFILE_QUERY( gfx_make_dolist ) * TARGET_FPS;
-    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * TARGET_FPS;
-    time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * TARGET_FPS;
-    time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( gfx_update_all_chr_instance ) * TARGET_FPS;
-    time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * TARGET_FPS;
+    time_render_scene_init_renderlist_make         = PROFILE_QUERY( gfx_make_renderlist ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_dolist_make             = PROFILE_QUERY( gfx_make_dolist ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( gfx_update_all_chr_instance ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * GameEngine::GAME_TARGET_FPS;
 
     return retval;
 }
@@ -4348,13 +4335,13 @@ gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, 
             retval = gfx_error;
         }
 
-        time_render_scene_mesh_dolist_sort    = PROFILE_QUERY( render_scene_mesh_dolist_sort ) * TARGET_FPS;
-        time_render_scene_mesh_ndr            = PROFILE_QUERY( render_scene_mesh_ndr ) * TARGET_FPS;
-        time_render_scene_mesh_drf_back       = PROFILE_QUERY( render_scene_mesh_drf_back ) * TARGET_FPS;
-        time_render_scene_mesh_ref            = PROFILE_QUERY( render_scene_mesh_ref ) * TARGET_FPS;
-        time_render_scene_mesh_ref_chr        = PROFILE_QUERY( render_scene_mesh_ref_chr ) * TARGET_FPS;
-        time_render_scene_mesh_drf_solid      = PROFILE_QUERY( render_scene_mesh_drf_solid ) * TARGET_FPS;
-        time_render_scene_mesh_render_shadows = PROFILE_QUERY( render_scene_mesh_render_shadows ) * TARGET_FPS;
+        time_render_scene_mesh_dolist_sort    = PROFILE_QUERY( render_scene_mesh_dolist_sort ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_ndr            = PROFILE_QUERY( render_scene_mesh_ndr ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_drf_back       = PROFILE_QUERY( render_scene_mesh_drf_back ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_ref            = PROFILE_QUERY( render_scene_mesh_ref ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_ref_chr        = PROFILE_QUERY( render_scene_mesh_ref_chr ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_drf_solid      = PROFILE_QUERY( render_scene_mesh_drf_solid ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_render_shadows = PROFILE_QUERY( render_scene_mesh_render_shadows ) * GameEngine::GAME_TARGET_FPS;
     }
     PROFILE_END( render_scene_mesh );
 
@@ -4408,11 +4395,11 @@ gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, 
     render_all_prt_bbox();
 #endif
 
-    time_render_scene_init  = PROFILE_QUERY( render_scene_init ) * TARGET_FPS;
-    time_render_scene_mesh  = PROFILE_QUERY( render_scene_mesh ) * TARGET_FPS;
-    time_render_scene_solid = PROFILE_QUERY( render_scene_solid ) * TARGET_FPS;
-    time_render_scene_water = PROFILE_QUERY( render_scene_water ) * TARGET_FPS;
-    time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
+    time_render_scene_init  = PROFILE_QUERY( render_scene_init ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_mesh  = PROFILE_QUERY( render_scene_mesh ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_solid = PROFILE_QUERY( render_scene_solid ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_water = PROFILE_QUERY( render_scene_water ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * GameEngine::GAME_TARGET_FPS;
 
     time_draw_scene = time_render_scene_init + time_render_scene_mesh + time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
 
@@ -5044,72 +5031,6 @@ void gfx_update_fps_clock()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_update_fps()
-{
-    // at fold = 0.60f, it will take approximately 9 updates for the
-    // weight of the first value to be reduced to 1%
-    const float fold = STABILIZED_KEEP;
-    const float fnew = STABILIZED_COVER;
-
-    // update the clock
-    gfx_update_fps_clock();
-
-    // update the game fps
-    if (process_t::running(PROC_PBASE(GProc)))
-    {
-        if ( game_fps_loops > 0 && game_fps_clock > 0 )
-        {
-            stabilized_game_fps_sum    = fold * stabilized_game_fps_sum    + fnew * ( float ) game_fps_loops / (( float ) game_fps_clock / TICKS_PER_SEC );
-            stabilized_game_fps_weight = fold * stabilized_game_fps_weight + fnew;
-
-            // Don't allow the counters to overflow. 0x15555555 is 1/3 of the maximum Sint32 value
-            if ( game_fps_loops > 0x15555555 || game_fps_clock > 0x15555555 )
-            {
-                game_fps_loops = 0;
-                game_fps_clock = 0;
-            }
-        };
-
-        if ( stabilized_game_fps_weight > 0.5f )
-        {
-            stabilized_game_fps = stabilized_game_fps_sum / stabilized_game_fps_weight;
-        }
-    }
-
-    // update the menu fps
-    if (process_t::running(PROC_PBASE(MProc)))
-    {
-        if ( menu_fps_loops > 0 && menu_fps_clock > 0 )
-        {
-            stabilized_menu_fps_sum    = fold * stabilized_menu_fps_sum    + fnew * ( float ) menu_fps_loops / (( float ) menu_fps_clock / TICKS_PER_SEC );
-            stabilized_menu_fps_weight = fold * stabilized_menu_fps_weight + fnew;
-
-            // Don't allow the counters to overflow. 0x15555555 is 1/3 of the maximum Sint32 value
-            if ( menu_fps_loops > 0x15555555 || menu_fps_clock > 0x15555555 )
-            {
-                menu_fps_loops = 0;
-                menu_fps_clock = 0;
-            }
-        };
-
-        if ( stabilized_menu_fps_weight > 0.5f )
-        {
-            stabilized_menu_fps = stabilized_menu_fps_sum / stabilized_menu_fps_weight;
-        }
-    }
-
-    // choose the correct fps to display
-    if ( process_t::running( PROC_PBASE( GProc ) ) )
-    {
-        stabilized_fps = stabilized_game_fps;
-    }
-    else if ( process_t::running( PROC_PBASE( MProc ) ) )
-    {
-        stabilized_fps = stabilized_menu_fps;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 // obj_registry_entity_t IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
@@ -5370,21 +5291,6 @@ void _flip_pages()
     egolib_console_draw_all();
 
     SDL_GL_SwapBuffers();
-
-    if ( process_t::running( PROC_PBASE( MProc ) ) )
-    {
-        menu_fps_loops++;
-        menu_frame_all++;
-    }
-
-    if ( process_t::running( PROC_PBASE( GProc ) ) )
-    {
-        game_fps_loops++;
-        game_frame_all++;
-    }
-
-    // update the frames per second
-    gfx_update_fps();
 
     if ( screenshot_requested )
     {

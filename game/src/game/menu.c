@@ -202,7 +202,7 @@ static which_menu_t mnu_stack[MENU_STACK_COUNT];
 
 static which_menu_t mnu_whichMenu = emnu_Main;
 
-static module_filter_t mnu_moduleFilter = FILTER_OFF;
+//static module_filter_t mnu_moduleFilter = FILTER_OFF;
 
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
 
@@ -329,7 +329,6 @@ static bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loa
 
 static int doChoosePlayer( float deltaTime );
 
-static int doChooseModule( float deltaTime );
 static int doSinglePlayerMenu( float deltaTime );
 
 static int cmp_mod_ref( const void * vref1, const void * vref2 );
@@ -1114,6 +1113,7 @@ int cmp_mod_ref( const void * vref1, const void * vref2 )
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 int doChooseModule( float deltaTime )
 {
     /// @details Choose the module
@@ -1526,6 +1526,7 @@ int doChooseModule( float deltaTime )
 
     return result;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool doChooseCharacter_load_inventory(std::shared_ptr<LoadPlayerElement> loadPlayer, std::vector<std::shared_ptr<ObjectProfile>> &items)
@@ -4432,6 +4433,7 @@ int doShowEndgame( float deltaTime )
 
 //--------------------------------------------------------------------------------------------
 // place this last so that we do not have to prototype every menu function
+#if 0
 int doMenu( float deltaTime )
 {
     /// @details the global function that controls the navigation between menus
@@ -4645,6 +4647,7 @@ int doMenu( float deltaTime )
 
     return retval;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 // Auto formatting functions

@@ -128,7 +128,7 @@ void GameEngine::estimateFrameRate()
 {
     const float dt = (SDL_GetTicks()-_lastFrameEstimation) * 0.001f;
 
-    //Throttle estimations to twice per second
+    //Throttle estimations to four times per second
     if(dt < 0.25f) {
         return;
     }
