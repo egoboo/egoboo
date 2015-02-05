@@ -3034,16 +3034,17 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     {
 		// As pdata->pchr->life > 0, we can safely cast to unsigned.
 		UFP8_T life = (UFP8_T)pdata->pchr->life;
+
 		// Drain as much as allowed and possible.
-		UFP8_T drain = std::max(life,pdata->pprt->lifedrain);
+		UFP8_T drain = std::min(life, pdata->pprt->lifedrain);
 
 		// Remove the drain from the character that was hit ...
-		pdata->pchr->life -= drain;
+		pdata->pchr->life = Math::constrain(pdata->pchr->life - drain, static_cast<UFP8_T>(0), pdata->pchr->life_max);
 
 		// ... and add it to the "caster".
 		if ( NULL != powner )
 		{
-			powner->life = std::min(powner->life + drain, powner->life_max);
+			powner->life = Math::constrain(powner->life + drain, static_cast<UFP8_T>(0), powner->life_max);
 		}
     }
 
@@ -3052,13 +3053,17 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     {
 		// As pdata->pchr->mana > 0, we can safely cast to unsigned.
 		UFP8_T mana = (UFP8_T)pdata->pchr->mana;
+
 		// Drain as much as allowed and possible.
-		UFP8_T drain = std::max(mana, pdata->pprt->manadrain);
+		UFP8_T drain = std::min(mana, pdata->pprt->manadrain);
+
+        // Remove the drain from the character that was hit ...
+        pdata->pchr->mana = Math::constrain(pdata->pchr->mana - drain, static_cast<UFP8_T>(0), pdata->pchr->mana_max);
 
         // add it to the "caster"
         if ( NULL != powner )
         {
-            powner->mana = std::min( powner->mana + drain, powner->mana_max );
+            powner->mana = Math::constrain(powner->mana + drain, static_cast<UFP8_T>(0), powner->mana_max);
         }
     }
 

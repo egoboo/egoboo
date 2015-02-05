@@ -821,11 +821,15 @@ BIT_FIELD GameObjectest_wall( GameObject * pchr, const float test_pos[], mesh_wa
 
     BIT_FIELD retval;
     float  radius;
-    const float * loc_test_pos = NULL;
 
     if ( !ACTIVE_PCHR( pchr ) ) return EMPTY_BIT_FIELD;
 
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return EMPTY_BIT_FIELD;
+
+    const float *loc_test_pos = ( NULL == test_pos ) ? pchr->getPosition().v : test_pos;
+    if(NULL == loc_test_pos) {
+        return EMPTY_BIT_FIELD;
+    }
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
@@ -837,9 +841,6 @@ BIT_FIELD GameObjectest_wall( GameObject * pchr, const float test_pos[], mesh_wa
             radius = pchr->bump_1.size;
         }
     }
-
-    loc_test_pos = ( NULL == test_pos ) ? pchr->getPosition().v : test_pos;
-    if ( NULL == loc_test_pos ) return 0;
 
     // do the wall test
     mesh_mpdfx_tests = 0;
