@@ -126,7 +126,6 @@ void LoadingState::loadModuleData()
     _finishedLoading = true;
     //_gameEngine->setGameState(std::make_shared<PlayingState>());
 
-
     std::shared_ptr<Button> startButton = std::make_shared<Button>("Start");
     startButton->setSize(200, 30);
     startButton->setPosition(400, 300);

@@ -25,6 +25,7 @@
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
+#include "game/graphic_texture.h"
 #include "game/ui.h"
 #include "game/game.h"
 #include "game/collision.h"
@@ -50,7 +51,14 @@ GameEngine::GameEngine() :
 	_renderTimeout(0),
 	_gameStateStack(),
 	_currentGameState(nullptr),
-	_config()
+	_config(),
+
+    _lastFrameEstimation(0),
+    _frameSkip(0),
+    _lastFPSCount(0),
+    _lastUPSCount(0),
+    _estimatedFPS(GAME_TARGET_FPS),
+    _estimatedUPS(GAME_TARGET_UPS)
 {
 	//ctor
 }
@@ -71,7 +79,7 @@ void GameEngine::start()
 	while(!_terminateRequested)
 	{
 		//Check if it is time to update everything
-		for(int frameskip = 0; frameskip < MAX_FRAMESKIP && SDL_GetTicks() >= _updateTimeout; ++frameskip)
+		for(_frameSkip = 0; _frameSkip < MAX_FRAMESKIP && SDL_GetTicks() >= _updateTimeout; ++_frameSkip)
 		{
 			updateOneFrame();
             _updateTimeout += DELAY_PER_UPDATE_FRAME;
@@ -80,6 +88,10 @@ void GameEngine::start()
 		//Check if it is time to draw everything
 		if(SDL_GetTicks() >= _renderTimeout)
 		{
+            //Calculate estimations for FPS and UPS
+            estimateFrameRate();
+
+            //Draw the current frame
 			renderOneFrame();
 
             //Stabilize FPS throttle every so often in case rendering is lagging behind
@@ -110,6 +122,23 @@ void GameEngine::start()
 	}
 
 	uninitialize();
+}
+
+void GameEngine::estimateFrameRate()
+{
+    const float dt = (SDL_GetTicks()-_lastFrameEstimation) * 0.001f;
+
+    //Throttle estimations
+    if(dt < 1.0f) {
+        return;
+    }
+
+    _estimatedFPS = (game_frame_all-_lastFPSCount) / dt;
+    _estimatedUPS = (update_wld-_lastUPSCount) / dt;
+
+    _lastFPSCount = game_frame_all;
+    _lastUPSCount = update_wld;
+    _lastFrameEstimation = SDL_GetTicks();
 }
 
 void GameEngine::updateOneFrame()
@@ -145,14 +174,6 @@ void GameEngine::renderOneFrame()
 
 	_currentGameState->drawAll();
     game_frame_all++;
-
-    if(game_frame_all % 100 == 0) {
-        static size_t lastFPS = 0;
-        static uint32_t lastFPSTime = 0;
-        log_debug("fps: %f\n", (game_frame_all-lastFPS) / ( (SDL_GetTicks()-lastFPSTime)*0.001f));
-        lastFPS = game_frame_all;
-        lastFPSTime = SDL_GetTicks();
-    }
 
 	// flip the graphics page
     gfx_request_flip_pages();
@@ -442,6 +463,20 @@ void GameEngine::pollEvents()
     } // end of message processing
 }
 
+float GameEngine::getFPS() const
+{
+    return _estimatedFPS;
+}
+
+float GameEngine::getUPS() const
+{
+    return _estimatedUPS;
+}
+
+int GameEngine::getFrameSkip() const
+{
+    return _frameSkip;
+}
 
 int SDL_main(int argc, char **argv)
 {

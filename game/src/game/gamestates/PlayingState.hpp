@@ -30,8 +30,6 @@ class PlayingState : public GameState
 public:
 	PlayingState();
 
-	~PlayingState();
-
 	void update() override;
 
 	void beginState() override;

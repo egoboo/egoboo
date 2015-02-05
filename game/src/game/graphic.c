@@ -21,6 +21,7 @@
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
+#include "game/core/GameEngine.hpp"
 #include "egolib/egolib.h"
 #include "egolib/bsp.h"
 #include "game/graphic.h"
@@ -1961,6 +1962,12 @@ void gfx_system_load_basic_textures()
     /// @author ZZ
     /// @details This function loads the standard textures for a module
 
+    // load the bitmapped font (must be done after gfx_system_init_all_graphics())
+    font_bmp_load_vfs(TxList_get_valid_ptr(static_cast<TX_REF>(TX_FONT_BMP)), "mp_data/font_new_shadow", "mp_data/font.txt");
+
+    //Cursor
+    TxList_load_one_vfs("mp_data/cursor", TX_CURSOR, TRANSCOLOR);
+
     // Particle sprites
 	TextureManager::getSingleton()->load("mp_data/particle_trans", (TX_REF)TX_PARTICLE_TRANS, TRANSCOLOR);
     prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
@@ -1980,6 +1987,12 @@ void gfx_system_load_basic_textures()
 
     // The phong map
 	TextureManager::getSingleton()->load("mp_data/phong", (TX_REF)TX_PHONG, TRANSCOLOR);
+
+    //Input icons
+    TxList_load_one_vfs("mp_data/keybicon", static_cast<TX_REF>(TX_ICON_KEYB), INVALID_KEY);
+    TxList_load_one_vfs("mp_data/mousicon", static_cast<TX_REF>(TX_ICON_MOUS), INVALID_KEY);
+    TxList_load_one_vfs("mp_data/joyaicon", static_cast<TX_REF>(TX_ICON_JOYA), INVALID_KEY);
+    TxList_load_one_vfs("mp_data/joybicon", static_cast<TX_REF>(TX_ICON_JOYB), INVALID_KEY);
 
     gfx_decimate_all_mesh_textures();
 
@@ -2750,7 +2763,7 @@ float draw_fps( float y )
 
     if ( fpson )
     {
-        y = draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_game_ups, update_lag );
+        y = draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", _gameEngine->getFPS(), _gameEngine->getUPS(), _gameEngine->getFrameSkip());
 
         //Extra debug info
         if ( cfg.dev_mode )
@@ -3144,7 +3157,7 @@ void draw_mouse_cursor()
         return;
     }
 
-    pcursor = mnu_TxList_get_valid_ptr( MENU_TX_CURSOR );
+    pcursor = mnu_TxList_get_valid_ptr( TX_CURSOR );
 
     // Invalid texture?
     if ( NULL == pcursor )

@@ -31,38 +31,11 @@
 #include "game/module/Module.hpp"
 
 //For deconstructor
-#include "game/collision.h"
-#include "game/profiles/ProfileSystem.hpp"
-#include "game/bsp.h"
 #include "game/script.h"
 
 PlayingState::PlayingState()
 {
 	//ctor
-}
-
-PlayingState::~PlayingState()
-{
-	// get rid of all module data
-    //game_quit_module();
-
-    // deallocate any dynamically allocated collision memory
-    collision_system_end();
-
-    // deallocate any data used by the profile system
-    //_profileSystem.end();
-
-    // deallocate the obj_BSP
-    obj_BSP_system_end();
-
-    // deallocate any dynamically allocated scripting memory
-    scripting_system_end();
-
-    // clean up any remaining models that might have dynamic data
-    MadStack_release_all();
-
-    // free the cameras
-    _cameraSystem.end();
 }
 
 void PlayingState::update()

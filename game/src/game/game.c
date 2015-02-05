@@ -3457,6 +3457,12 @@ void game_release_module_data()
     // make sure that the object lists are cleared out
     free_all_objects();
 
+    // deallocate any dynamically allocated scripting memory
+    scripting_system_end();
+
+    // clean up any remaining models that might have dynamic data
+    MadStack_release_all();
+
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
     _profileSystem.releaseAllProfiles();
@@ -3465,9 +3471,14 @@ void game_release_module_data()
     ptmp = PMesh;
     ego_mesh_destroy( &ptmp );
 
-    // delete the mesh BSP data
+    // deallocate any dynamically allocated collision memory
     mesh_BSP_system_end();
+    obj_BSP_system_end();
+    collision_system_end();
 
+    // free the cameras
+    _cameraSystem.end();
+    
     // restore the original statically allocated ego_mesh_t header
     PMesh = _mesh + 0;
 }

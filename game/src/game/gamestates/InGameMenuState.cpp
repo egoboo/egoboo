@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file game/gamestates/InGameMenuState.cpp
-/// @details The Main Menu of the game, the first screen presented to the players
+/// @details Menu while PlayingState is running in background
 /// @author Johan Jansen
 
 #include "game/gamestates/InGameMenuState.hpp"

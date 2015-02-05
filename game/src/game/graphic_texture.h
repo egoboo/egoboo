@@ -57,6 +57,12 @@ enum e_global_tx_type
     TX_XP_BAR,
 	/* "mp_data/nullicon", INVALID_KEY */
     TX_ICON_NULL,
+    TX_FONT_BMP,
+    TX_ICON_KEYB,
+    TX_ICON_MOUS,
+    TX_ICON_JOYA,
+    TX_ICON_JOYB,
+    TX_CURSOR,
     TX_SPECIAL_LAST
 };
 

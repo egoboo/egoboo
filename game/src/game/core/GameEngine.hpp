@@ -54,6 +54,12 @@ public:
 
 	void pushGameState(std::shared_ptr<GameState> gameState);
 
+	float getFPS() const;
+
+	float getUPS() const;
+
+	int getFrameSkip() const;
+
 private:
 	void updateOneFrame();
 
@@ -68,6 +74,8 @@ private:
 
 	void pollEvents();
 
+	void estimateFrameRate();
+
 private:
 	bool _isInitialized;
 	bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
@@ -77,6 +85,14 @@ private:
 	std::shared_ptr<GameState> _currentGameState;
 	std::mutex _gameStateMutex;
 	egoboo_config_t _config;
+
+	//For estimating frame rates
+	uint32_t _lastFrameEstimation;
+	int _frameSkip;
+	uint32_t _lastFPSCount;
+	uint32_t _lastUPSCount;
+	float _estimatedFPS;
+	float _estimatedUPS;
 };
 
 extern std::unique_ptr<GameEngine> _gameEngine;
