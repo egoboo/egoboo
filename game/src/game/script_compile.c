@@ -1106,7 +1106,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
         {
             // a normal string
             // if this is a new string, add this message to the avalible messages of the object
-            ppro->addMessage(str, true);
+            ptok->iValue = ppro->addMessage(str, true);
 
             ptok->cType = 'C';
             ptok->iIndex = MAX_OPCODE;

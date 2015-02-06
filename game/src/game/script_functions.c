@@ -2054,10 +2054,14 @@ Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself 
     // IfTargetHasVulnerabilityID( tmpargument = "vulnerability idsz" )
     /// @author ZZ
     /// @details This function proceeds if the target is vulnerable to the given IDSZ.
-
+    
+    GameObject *pself_target;
+    
     SCRIPT_FUNCTION_BEGIN();
-
-    returncode = ppro->getIDSZ(IDSZ_VULNERABILITY) == static_cast<IDSZ>(pstate->argument);
+    
+    SCRIPT_REQUIRE_TARGET(pself_target);
+    
+    returncode = pself_target->getProfile()->getIDSZ(IDSZ_VULNERABILITY) == static_cast<IDSZ>(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2706,9 +2710,13 @@ Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the character has a special IDSZ ( in data.txt )
 
+    GameObject *pself_target;
+    
     SCRIPT_FUNCTION_BEGIN();
+    
+    SCRIPT_REQUIRE_TARGET(pself_target);
 
-    returncode = ppro->getIDSZ(IDSZ_SPECIAL) == static_cast<IDSZ>(pstate->argument);
+    returncode = pself_target->getProfile()->getIDSZ(IDSZ_SPECIAL) == static_cast<IDSZ>(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
