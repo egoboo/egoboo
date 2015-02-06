@@ -30,6 +30,7 @@
 #include "game/game.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
+#include "game/gui/Label.hpp"
 #include "game/gui/ModuleSelector.hpp"
 #include "game/profiles/ModuleProfile.hpp"
 #include "game/profiles/ProfileSystem.hpp"
@@ -103,6 +104,14 @@ SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerE
 			});
 		addComponent(_filterButton);		
 	}
+
+	//Help text
+	std::shared_ptr<Label> infoText = std::make_shared<Label>("Press an icon to select a game.");
+	infoText->setPosition(200, GFX_HEIGHT - 70);
+	addComponent(infoText);
+	std::shared_ptr<Label> hintText = std::make_shared<Label>("Use the mouse wheel or the <- and -> buttons to scroll.");
+	hintText->setPosition(200, GFX_HEIGHT - 30);
+	addComponent(hintText);
 
 }
 

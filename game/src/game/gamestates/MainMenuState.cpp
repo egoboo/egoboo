@@ -32,6 +32,7 @@
 #include "game/game.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
+#include "game/gui/Label.hpp"
 
 MainMenuState::MainMenuState() :
 	_slidyButtons()
@@ -119,6 +120,22 @@ MainMenuState::MainMenuState() :
 	_slidyButtons.push_front(newGameButton);
 
 	yOffset -= newGameButton->getHeight() + 10;
+
+	//Add version label and copyright text
+	std::shared_ptr<Label> welcomeLabel = std::make_shared<Label>("Welcome to Egoboo!");
+	welcomeLabel->setPosition(exitButton->getX() + exitButton->getWidth() + 40,
+		GFX_HEIGHT - 80 - welcomeLabel->getHeight());
+	addComponent(welcomeLabel);
+
+	std::shared_ptr<Label> websiteText = std::make_shared<Label>("http://egoboo.sourceforge.net");
+	websiteText->setPosition(welcomeLabel->getX(), welcomeLabel->getY() + welcomeLabel->getHeight());
+	addComponent(websiteText);
+
+	std::shared_ptr<Label> versionText = std::make_shared<Label>("Version 2.9.0");
+	versionText->setPosition(websiteText->getX(), websiteText->getY() + websiteText->getHeight());
+	addComponent(versionText);
+
+
 }
 
 void MainMenuState::update()
