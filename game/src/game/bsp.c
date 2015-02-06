@@ -207,8 +207,8 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 //--------------------------------------------------------------------------------------------
 bool chr_BSP_clear()
 {
-	// unlink all the BSP nodes
-	BSP_tree_t::clear_rec(&(chr_BSP_root->tree));
+	// Unlink all the BSP nodes.
+	chr_BSP_root->tree.clear_rec();
 	chr_BSP_root->count = 0;
 
 	// unlink all used character nodes
@@ -223,8 +223,8 @@ bool chr_BSP_clear()
 //--------------------------------------------------------------------------------------------
 bool prt_BSP_clear()
 {
-	// unlink all the BSP nodes
-	BSP_tree_t::clear_rec(&(prt_BSP_root->tree));
+	// Unlink all the BSP nodes.
+	prt_BSP_root->tree.clear_rec();
 	prt_BSP_root->count = 0;
 
 	// unlink all used particle nodes

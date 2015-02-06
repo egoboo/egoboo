@@ -78,6 +78,9 @@
         bool  empty;
         oct_vec_t mins,
 		          maxs;
+
+		static oct_bb_t *ctor(oct_bb_t *self);
+		static void dtor(oct_bb_t *self);
     };
 
     egolib_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
@@ -162,7 +165,7 @@ bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_t& fvec);
 
 bool oct_vec_self_clear( oct_vec_t * ovec );
 
-oct_bb_t *oct_bb_ctor( oct_bb_t * pobb );
+
 egolib_rv oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src );
 egolib_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc );
 egolib_rv oct_bb_validate( oct_bb_t * pobb );

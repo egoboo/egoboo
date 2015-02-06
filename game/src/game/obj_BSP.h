@@ -37,13 +37,55 @@ struct mesh_BSP_t;
  */
 struct obj_BSP_t
 {
+	/**
+	* @brief
+	*	The parameters for creating an object BSP tree.
+	*/
+	class Parameters
+	{
+	public:
+		/**
+		 * @brief
+		 *	The allowed minimum dimensionality of an object BSP tree.
+		 */
+		static const size_t ALLOWED_DIM_MIN = 2;
+		/**
+		 * @brief
+		 *	The allowed maximum dimensionality of an object BSP tree.
+		 */
+		static const size_t ALLOWED_DIM_MAX = 3;
+		/**
+		 * @brief
+		 *	Create parameters for an object BSP tree.
+		 * @param dim
+		 *	the desired dimensionality of the object BSP tree
+		 * @param meshBSP
+		 *	The mesh BSP tree on which the object BSP tree is based on
+		 * @throw std::domain_error
+		 *	if the desired dimensionality is smaller than @a 2 or greater than @a 3.
+		 * @throw std::invalid_argument
+		 *	if @a meshBSP is @a nullptr
+		 */
+		Parameters(size_t dim, const mesh_BSP_t *meshBSP);
+	public:
+		/**
+		 * @brief
+		 *	The desired dimensionality of the object BSP tree.
+		 */
+		size_t _dim;
+		/**
+		 * @brief
+		 *	The mesh BSP tree on which the object BSP tree is based on.
+		 */
+		const mesh_BSP_t *_meshBSP;
+	};
     /**
 	 * @brief
 	 *	The number of characters in this obj_BSP.
 	 * @todo
 	 *	The type should be @a size_t.
 	 */
-    int count;
+    size_t count;
 
     /**
 	 * The BSP tree of characters for character-character and character-particle interactions.
@@ -53,14 +95,14 @@ struct obj_BSP_t
 	/**
 	 * @brief
 	 *	Construct this object BSP tree.
-	 * @param dimensionality
+	 * @param dim
 	 *	the dimensionality the object BSP tree shall have
 	 * @param mesh_bsp
 	 *	the mesh BSP the object BSP tree shall use
 	 * @return
 	 *	a pointer to this object BSP tree on success, @a NULL on failure
 	 */
-	obj_BSP_t *ctor(size_t dimensionality, const mesh_BSP_t *mesh_bsp);
+	obj_BSP_t *ctor(const Parameters& parameters);
 	
 	/**
 	 * @brief

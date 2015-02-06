@@ -232,7 +232,15 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------
-class BSP_branch_t
+/// Element of a shotgun allocator (simplified).
+class Shell {
+public:
+	/// The next element in the singly-linked list of shells.
+	/// There are two lists: Used and unused.
+	Shell *_next;
+	Shell() : _next(nullptr) { }
+};
+class BSP_branch_t : public Shell
 {
 public:
 	BSP_branch_t() :
@@ -241,11 +249,11 @@ public:
 		children(),
 		leaves(),
 		bsp_bbox(),
-		depth(0)
+		depth(0),
+		Shell()
 	{
 		//ctor
 	}
-
 	/**
 	 * @brief
 	 *	The parent branch of this branch.
@@ -261,7 +269,12 @@ public:
     BSP_leaf_list_t leaves;     ///< the leaves at this level
 
     BSP_aabb_t bsp_bbox;        //< the size of the node
-    int depth;                  //< the actual depth of this branch
+	/**
+	 * @brief
+	 *	The depth of this branch.
+	 *	The root branch has a depth of @a 0.
+	 */
+    int depth;
 
 	/**
 	 * @brief
@@ -415,35 +428,87 @@ public:
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/**
+ * @brief
+ *	A BSP tree.
+ */
 class BSP_tree_t
 {
 public:
-	BSP_tree_t() :
-		dimensions(0),
-		max_depth(0),
-		depth(0),
-		branch_all(),
-		branch_used(),
-		branch_free(),
-		finite(nullptr),
-		infinite(),
-		bbox(),
-		bsp_bbox()
+	/**
+	 * @brief
+	 *	The parameters for creating a BSP tree.
+	 */
+	class Parameters
 	{
-		//ctor
-	}
+	public:
+		/**
+		 * @brief
+		 * The allowed minimum dimensionality of a BSP tree.
+		 * ("binary" should already suggest that this is the minimum dimensionality).
+		 */
+		static const size_t ALLOWED_DIM_MIN = 2;
+		/**
+		 * @brief
+		 *	The allowed maximum dimensionality of a BSP tree.
+		 */
+		static const size_t ALLOWED_DIM_MAX = 8;
+		/**
+		 * @brief
+		 *	The allowed maximum depth of a BSP tree.
+		 */
+		static const size_t ALLOWED_DEPTH_MAX = SIZE_MAX - 1;
+		/**
+		 * @brief
+		 *	Create parameters for a BSP tree
+		 * @param dim
+		 *	the desired dimensionality of the BSP tree
+		 * @param maxDepth
+		 *	the desired maximum depth of the BSP tree
+		 * @throw std::domain_error
+		 *	if the desired dimensionality is smaller than the allowed minimum dimensionality
+		 *	or greater than the allowed maximum dimensionality
+		 * @throw std::domain_error
+		 *	if the desired maximum depth is greater than the allowed maximum depth
+		 * @remark
+		 *	The maximum number of nodes is computed by
+		 */
+		Parameters(size_t dim, size_t maxDepth);
+	public:
+		/**
+		 * @brief
+		 *	The number of branches (aka nodes) in the BSP tree.
+		 *	\[
+		 *	\frac{(dimensionality^(maximumDepth + 1) - 1}{dimensionality - 1}
+		 *	\]
+		 */
+		size_t _numBranches;
+		/**
+		 * @brief
+		 *	The dimensionality of the BSP tree.
+		 */
+		size_t _dim;
+		/**
+		 * @brief
+		 *	The maximum depth of the BSP tree.
+		 */
+		size_t _maxDepth;
+	};
 
+	BSP_tree_t();
+#if 0
 	/**
 	 * @brief
 	 *    The minimum dimensionality of a BSP tree.
 	 *    ("binary" should already suggest that this is the minimum dimensionality).
 	 */
-	static const size_t DIMENSIONALITY_MIN = 2;
+	static const size_t DIM_MIN = 2;
 	/**
 	 * @brief
 	 *	The maximum depth of a BSP tree.
 	 */
 	static const size_t DEPTH_MAX = SIZE_MAX - 1;
+#endif
 
 	/**
 	 * @brief
@@ -466,12 +531,12 @@ public:
 	 */
 	int depth;
 
-	Ego::DynamicArray<BSP_branch_t *> branch_all;  ///< The list of pre-allocated branches.
-	                                               ///< Takes ownership of the branches.
-	Ego::DynamicArray<BSP_branch_t *> branch_used; ///< A linked list of all used pre-allocated branches.
-	                                               ///< Does not take ownership.
-	Ego::DynamicArray<BSP_branch_t *> branch_free; ///< A linked list of all free pre-allocated branches.
-	                                               ///< Does not take ownership.
+	Shell *_used; ///< A singly-linked list of used branches.
+	                     ///< The branches are chained up using their "Shell::_next" pointer.
+	size_t _nused;
+	Shell *_free; ///< A singly-linked list of free branches.
+	                     ///< The banches are chained up using their "Shell::_next" pointer.
+	size_t _nfree;
 
     BSP_branch_t *finite;      ///< the root node of the ordinary BSP tree
     BSP_leaf_list_t infinite;  ///< all nodes which do not fit inside the BSP tree
@@ -481,19 +546,13 @@ public:
 
 	/**
 	 * @brief
-	 *    Construct a BSP tree.
-	 * @param self
-	 *     the BSP tree
-	 * @param dimensionality
-	 *    the dimensionality the BSP tree shall have
-	 * @param maximumDepth
-	 *    the maximum depth the BSP tree shall support
-	 * @pre
-	 *    <tt>dimensionality >= BSP_tree_t::DIMENSIONALITY_MIN</tt> (dynamically checked)
+	 *  Construct a BSP tree.
+	 * @param parameters
+	 *	the parameters for creating the BSP tree
 	 * @return
-	 *     the BSP tree on success, @a nullptr on failure
+	 *	the BSP tree on success, @a nullptr on failure
 	 */
-	BSP_tree_t *ctor(size_t dimensionality, size_t maximumDepth);
+	BSP_tree_t *ctor(const Parameters& parameters);
 	/**
 	 * @brief
 	 *     Destruct a BSP tree.
@@ -530,41 +589,34 @@ public:
 	 */
 	size_t collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
-	static BSP_branch_t *ensure_root(BSP_tree_t *self);
+	/**
+	 * @brief
+	 *	Ensure that the root node exists.
+	 * @return
+	 *	the root node on success, @a nullptr on failure
+	 * @remark
+	 *	The root node has a depth of @a 0.
+	 */
+	BSP_branch_t *ensure_root();
+
+	/// @brief Create a branch.
+	/// @return the free branch on success, @a nullptr on failure
+	/// @post
+	///	A branch returned by this function is empty, has no parent, and has a depth of @a 0.
+	BSP_branch_t *createBranch();
 
 	/**
 	 * @brief
-	 *	Prune all empty branches of this BSP tree.
+	 *	Prune non-root, non-empty branches of this BSP tree.
+	 * @return
+	 *	the number of branches pruned
 	 */
-	void prune();
+	size_t prune();
 
 	static bool insert_leaf(BSP_tree_t *self, BSP_leaf_t *leaf);
 
 
-	static bool clear_rec(BSP_tree_t *self);
+	void clear_rec();
 };
 
-
-
-BSP_branch_t *BSP_tree_get_free(BSP_tree_t *self);
-
-
-/**
- * @brief
- *	Compute maximum number of nodes in a BSP tree of the given dimensionality and maximum depth.
- * @param dim
- *	the dimensionality
- * @param maxdepth
- *	the maximum depth
- * @param [out] numberOfNodes
- *	numberOfNodes the number of nodes
- * @return
- *	@a true if this particular combination of @a dimensionality and @a maximumDepth is valid, @a false otherwise
- * @remark
- *	The maximum number of nodes is computed by
- *	\[
- *	\frac{2 \cdot dimensionality \cdot (maximumDepth + 1) - 1}{2 \cdot dimensionality - 1}
- * \]
- */
-bool BSP_tree_count_nodes(size_t dimensionality, size_t maximumDepth, size_t& numberOfNodes);
 

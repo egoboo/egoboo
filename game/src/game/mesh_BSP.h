@@ -42,6 +42,34 @@ struct egolib_frustum_t;
  */
 struct mesh_BSP_t
 {
+	/**
+	* @brief
+	*	The parameters for creating a mesh BSP tree.
+	*/
+	class Parameters
+	{
+	public:
+		/**
+		* @brief
+		*	Create the parameters for a mesh BSP tree.
+		* @param mesh
+		*	The mesh BSP tree on which the object BSP tree is based on
+		* @throw std::invalid_argument
+		*	if @a mesh is @a nullptr
+		*/
+		Parameters(const ego_mesh_t *mesh);
+	public:
+		/**
+		* @brief
+		*	The maximum depth of the mesh BSP tree.
+		*/
+		size_t _maxDepth;
+		/**
+		* @brief
+		*	The mesh the mesh BSP tree is based on.
+		*/
+		const ego_mesh_t *_mesh;
+	};
     size_t count;
     oct_bb_t volume;
     BSP_tree_t tree;
@@ -53,7 +81,7 @@ struct mesh_BSP_t
 	 * @return
 	 *	a pointer to this mesh BSP tree on success, @a NULL on failure
 	 */
-	static mesh_BSP_t *ctor(mesh_BSP_t *self, const ego_mesh_t *mesh);
+	mesh_BSP_t *ctor(const Parameters& parameters);
 
 	/**
 	 * @brief
@@ -61,7 +89,7 @@ struct mesh_BSP_t
 	 * @param self
 	 *	the mesh BSP
 	 */
-	static void dtor(mesh_BSP_t *self);
+	void dtor();
 
 	/**
 	 * @brief

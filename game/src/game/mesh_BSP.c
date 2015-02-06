@@ -31,55 +31,65 @@
 static bool  mesh_BSP_insert(mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index);
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-mesh_BSP_t *mesh_BSP_t::ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
+mesh_BSP_t::Parameters::Parameters(const ego_mesh_t *mesh)
 {
-	EGOBOO_ASSERT(NULL != self && NULL != mesh);
-    BLANK_STRUCT_PTR(self)
+	if (!mesh)
+	{
+		log_error("%s:%d: no mesh provided\n", __FILE__, __LINE__);
+		throw std::invalid_argument("no mesh provided");
+	}
+	_mesh = mesh;
+	// Determine the number of bifurcations necessary to get cells the size of the "blocks".
+	int grids_x = mesh->gmem.grids_x;
+	int grids_y = mesh->gmem.grids_y;
+	_maxDepth = CEIL(std::log(0.5f * std::max(grids_x, grids_y)) / std::log(2.0f));
+}
+//--------------------------------------------------------------------------------------------
+mesh_BSP_t *mesh_BSP_t::ctor(const Parameters& parameters)
+{
+#if 0
+	BLANK_STRUCT_PTR(this);
+#endif
+	// Make a 2D BSP tree with desired maximum depth.
+	tree.ctor(BSP_tree_t::Parameters(2, parameters._maxDepth));
+	// Set the count to zero.
+	count = 0;
 
-    // get the nominal physical size of the mesh
-    float x_min = 0.0f;
-    float x_max = mesh->gmem.edge_x;
-    float y_min = 0.0f;
-    float y_max = mesh->gmem.edge_y;
-    float bsp_size = std::max( x_max - x_min, y_max - y_min );
-
-    // determine the number of bifurcations necessary to get cells the size of the "blocks"
-    int grids_x = mesh->gmem.grids_x;
-    int grids_y = mesh->gmem.grids_y;
-    int depth = CEIL(std::log( 0.5f * std::max( grids_x, grids_y ) ) / std::log( 2.0f ) );
-
-    // make a 2D BSP tree with "max depth" depth
-    // this automatically allocates all data
-    self->tree.ctor(2, depth);
-
+	// Get the nominal physical size of the mesh.
+	float x_min = 0.0f;
+	float x_max = parameters._mesh->gmem.edge_x;
+	float y_min = 0.0f;
+	float y_max = parameters._mesh->gmem.edge_y;
+	float bsp_size = std::max(x_max - x_min, y_max - y_min);
     // !!!!SET THE BSP SIZE HERE!!!!
     // enlarge it a bit
-    self->tree.bsp_bbox.mins.ary[kX] = x_min - 0.25f * bsp_size;
-    self->tree.bsp_bbox.maxs.ary[kX] = x_max + 0.25f * bsp_size;
-    self->tree.bsp_bbox.mids.ary[kX] = 0.5f * (self->tree.bsp_bbox.mins.ary[kX] + self->tree.bsp_bbox.maxs.ary[kX]);
+    tree.bsp_bbox.mins.ary[kX] = x_min - 0.25f * bsp_size;
+    tree.bsp_bbox.maxs.ary[kX] = x_max + 0.25f * bsp_size;
+    tree.bsp_bbox.mids.ary[kX] = 0.5f * (tree.bsp_bbox.mins.ary[kX] + tree.bsp_bbox.maxs.ary[kX]);
 
-    self->tree.bsp_bbox.mins.ary[kY] = y_min - 0.25f * bsp_size;
-    self->tree.bsp_bbox.maxs.ary[kY] = y_max + 0.25f * bsp_size;
-    self->tree.bsp_bbox.mids.ary[kY] = 0.5f * (self->tree.bsp_bbox.mins.ary[kY] + self->tree.bsp_bbox.maxs.ary[kY]);
+    tree.bsp_bbox.mins.ary[kY] = y_min - 0.25f * bsp_size;
+    tree.bsp_bbox.maxs.ary[kY] = y_max + 0.25f * bsp_size;
+    tree.bsp_bbox.mids.ary[kY] = 0.5f * (tree.bsp_bbox.mins.ary[kY] + tree.bsp_bbox.maxs.ary[kY]);
 
     // Initialize the volume.
 	// @todo Error handling.
-    oct_bb_ctor(&(self->volume));
+	oct_bb_t::ctor(&volume);
 
-    return self;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_BSP_t::dtor(mesh_BSP_t *self)
+void mesh_BSP_t::dtor()
 {
-	if (nullptr == self)
-	{
-		return;
-	}
-    // Destruct the BSP tree.
-    self->tree.dtor();
-    BLANK_STRUCT_PTR(self)
+    // Destruct the volume.
+	oct_bb_t::dtor(&volume);
+	// Destruct the BSP tree.
+    tree.dtor();
+	// Set the count to zero.
+	count = 0;
+#if 0
+	BLANK_STRUCT_PTR(this);
+#endif
 }
 
 mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh)
@@ -90,7 +100,7 @@ mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh)
 		log_error("%s:%d: unable to allocate %zu Bytes\n", __FILE__, __LINE__, sizeof(mesh_BSP_t));
 		return nullptr;
 	}
-	if (!mesh_BSP_t::ctor(self, mesh))
+	if (!self->ctor(mesh_BSP_t::Parameters(mesh)))
 	{
 		free(self);
 		return nullptr;
@@ -100,8 +110,8 @@ mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh)
 
 void mesh_BSP_delete(mesh_BSP_t *self)
 {
-	EGOBOO_ASSERT(NULL != self);
-	mesh_BSP_t::dtor(self);
+	EGOBOO_ASSERT(nullptr != self);
+	self->dtor();
 	free(self);
 }
 

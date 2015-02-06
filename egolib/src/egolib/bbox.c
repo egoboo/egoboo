@@ -61,7 +61,7 @@ OVolume_t * OVolume__ctor( OVolume_t * pv )
     pv->lod = -1;
     pv->needs_shape = true;
     pv->needs_position = true;
-    oct_bb_ctor( &( pv->oct ) );
+    oct_bb_t::ctor( &( pv->oct ) );
 
     return pv;
 }
@@ -903,7 +903,7 @@ egolib_rv oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oc
 
     if ( src1_empty && src2_empty )
     {
-        oct_bb_ctor( pdst );
+        oct_bb_t::ctor( pdst );
         return rv_fail;
     }
     else if ( !src1_empty && 0.0f == flip )
@@ -916,7 +916,7 @@ egolib_rv oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oc
     }
     else if ( src1_empty || src2_empty )
     {
-        oct_bb_ctor( pdst );
+        oct_bb_t::ctor( pdst );
         return rv_fail;
     }
 
@@ -997,15 +997,20 @@ bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_t& fvec)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-oct_bb_t * oct_bb_ctor( oct_bb_t * pobb )
+oct_bb_t *oct_bb_t::ctor(oct_bb_t *self)
 {
-    if ( NULL == pobb ) return NULL;
+    if (!self) return nullptr;
 
-    BLANK_STRUCT_PTR( pobb )
+	BLANK_STRUCT_PTR(self); /** @todo Remove this. */
+    self->empty = true;
 
-    pobb->empty = true;
+    return self;
+}
 
-    return pobb;
+void oct_bb_t::dtor(oct_bb_t *self)
+{
+	self->empty = true;
+	BLANK_STRUCT_PTR(self); /** @todo Remove this. */
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1038,7 +1043,7 @@ egolib_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc )
 
     if ( NULL == psrc )
     {
-        oct_bb_ctor( pdst );
+        oct_bb_t::ctor( pdst );
         return rv_success;
     }
 
@@ -1092,7 +1097,7 @@ egolib_rv  oct_bb_set_ovec( oct_bb_t * pobb, const oct_vec_t ovec )
 
     if ( NULL == ovec )
     {
-        oct_bb_ctor( pobb ) ;
+        oct_bb_t::ctor( pobb ) ;
         return rv_fail;
     }
 
@@ -1310,7 +1315,7 @@ egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_
 
     if ( src1_null && src2_null )
     {
-        oct_bb_ctor( pdst );
+        oct_bb_t::ctor( pdst );
         return rv_fail;
     }
     else if ( src2_null )
@@ -1348,7 +1353,7 @@ egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
 
     if ( src1_empty && src2_empty )
     {
-        oct_bb_ctor( pdst );
+        oct_bb_t::ctor( pdst );
         return rv_fail;
     }
 
@@ -1426,7 +1431,7 @@ egolib_rv oct_bb_add_fvec3(const oct_bb_t *psrc, const fvec3_t& vec, oct_bb_t *p
 
 	if (NULL == psrc)
 	{
-		oct_bb_ctor(pdst);
+		oct_bb_t::ctor(pdst);
 	}
 	else
 	{
@@ -1486,7 +1491,7 @@ egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t
 
     if ( NULL == psrc )
     {
-        oct_bb_ctor( pdst );
+        oct_bb_t::ctor( pdst );
     }
     else
     {

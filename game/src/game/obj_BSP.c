@@ -34,35 +34,51 @@
 #include "game/module/ObjectHandler.hpp"
 #include "game/PrtList.h"
 
-obj_BSP_t *obj_BSP_t::ctor(size_t bsp_dim, const mesh_BSP_t *mesh_bsp)
+obj_BSP_t::Parameters::Parameters(size_t dim, const mesh_BSP_t *meshBSP)
 {
-    if (bsp_dim < 2)
-    {
-        log_error("obj_BSP_t::ctor() - cannot construct an object BSP with less than 2 dimensions\n");
-		return nullptr;
-    }
-    else if (bsp_dim > 3)
-    {
-        log_error("obj_BSP_t::ctor() - cannot construct an object BSP with more than than 3 dimensions\n");
-		return nullptr;
-    }
-	if (nullptr == mesh_bsp)
+	if (dim < ALLOWED_DIM_MIN)
 	{
-		return nullptr;
+		log_error("%s:%d: specified dimensionality %zu is smaller than allowed minimum dimensionality %zu\n", \
+			      __FILE__, __LINE__, dim, obj_BSP_t::Parameters::ALLOWED_DIM_MIN);
+		throw std::domain_error("dimensionality out of range");
 	}
-	const BSP_tree_t *mesh_tree = &(mesh_bsp->tree);
-    size_t mesh_dim = mesh_bsp->tree.dimensions;
+	else if (dim > ALLOWED_DIM_MAX)
+	{
+		log_error("%s:%d: specified dimensionality %zu is greater than allowed maximum dimensionality %zu\n", \
+			      __FILE__, __LINE__, dim, BSP_tree_t::Parameters::ALLOWED_DIM_MAX);
+		throw std::domain_error("dimensionality out of range");
+	}
+	if (!meshBSP)
+	{
+		log_error("%s:%d: no mesh BSP tree provided\n", __FILE__, __LINE__);
+		throw std::invalid_argument("no mesh BSP tree provided");
+	}
+	_dim = dim;
+	_meshBSP = meshBSP;
+}
 
+obj_BSP_t *obj_BSP_t::ctor(const Parameters& parameters)
+{
+#if 0
 	BLANK_STRUCT_PTR(this);
+#endif
 
     // Construct the BSP tree.
-	if (!tree.ctor(bsp_dim, mesh_tree->max_depth))
+	if (!tree.ctor(BSP_tree_t::Parameters(parameters._dim, parameters._meshBSP->tree.max_depth)))
 	{
 		return nullptr;
 	}
+	// Set the count to zero.
+	count = 0;
 	// Take the minimum of the requested dimensionality and dimensionality
 	// of the mesh BSP tree as the dimensionality of the resulting BSP tree.
-	size_t min_dim = std::min(bsp_dim, mesh_dim);
+#if 1
+	const BSP_tree_t *mesh_tree = &(parameters._meshBSP->tree);
+#if 0
+	size_t mesh_dim = parameters._meshBSP->tree.dimensions;
+#endif
+#endif
+	size_t min_dim = std::min(parameters._dim, parameters._meshBSP->tree.dimensions);
 
 	float bsp_size = 0.0f;
 	// Find the maximum extent of the BSP tree from the size of the bounding box of the mesh tree.
@@ -87,13 +103,13 @@ obj_BSP_t *obj_BSP_t::ctor(size_t bsp_dim, const mesh_BSP_t *mesh_bsp)
     }
 
     // Calculate a "reasonable size" for all dimensions that are not in the mesh.
-    for (size_t cnt = min_dim; cnt < bsp_dim; cnt++ )
+    for (size_t cnt = min_dim; cnt < parameters._dim; cnt++ )
     {
         obj_tree->bsp_bbox.mins.ary[cnt] = -bsp_size * 0.5f;
         obj_tree->bsp_bbox.maxs.ary[cnt] =  bsp_size * 0.5f;
     }
 
-    if (bsp_dim > 2)
+    if (parameters._dim > 2)
     {
         // Make some extra special space in the z direction.
         obj_tree->bsp_bbox.mins.ary[kZ] = std::min(-bsp_size, obj_tree->bsp_bbox.mins.ary[kZ]);
@@ -101,7 +117,7 @@ obj_BSP_t *obj_BSP_t::ctor(size_t bsp_dim, const mesh_BSP_t *mesh_bsp)
     }
 
     // Calculate the mid positions
-    for (size_t cnt = 0; cnt < bsp_dim; ++cnt)
+    for (size_t cnt = 0; cnt < parameters._dim; ++cnt)
     {
 		/// @todo Use BSP_aabb_t::getCenter();
         obj_tree->bsp_bbox.mids.ary[cnt] = 0.5f * (obj_tree->bsp_bbox.mins.ary[cnt] + obj_tree->bsp_bbox.maxs.ary[cnt]);
@@ -115,31 +131,33 @@ obj_BSP_t *obj_BSP_t::ctor(size_t bsp_dim, const mesh_BSP_t *mesh_bsp)
 //--------------------------------------------------------------------------------------------
 void obj_BSP_t::dtor()
 {
-    // Destruct the BSP tree.
+	// Set the count to zero.
+	count = 0;
+	// Destruct the BSP tree.
 	tree.dtor();
 }
 
 //--------------------------------------------------------------------------------------------
-obj_BSP_t *obj_BSP_new(size_t dim, const mesh_BSP_t *mesh_bsp)
+obj_BSP_t *obj_BSP_new(size_t dim, const mesh_BSP_t *meshBSP)
 {
-	EGOBOO_ASSERT(NULL != mesh_bsp);
+	EGOBOO_ASSERT(nullptr != meshBSP);
 	obj_BSP_t *self = (obj_BSP_t *)malloc(sizeof(obj_BSP_t));
 	if (!self)
 	{
 		log_error("%s:%d: unable to allocate %zu Bytes\n",__FILE__,__LINE__,sizeof(obj_BSP_t));
-		return NULL;
+		return nullptr;
 	}
-	if (!self->ctor(dim, mesh_bsp))
+	if (!self->ctor(obj_BSP_t::Parameters(dim, meshBSP)))
 	{
 		free(self);
-		return NULL;
+		return nullptr;
 	}
 	return self;
 }
 
 void obj_BSP_delete(obj_BSP_t *self)
 {
-	EGOBOO_ASSERT(NULL != self);
+	EGOBOO_ASSERT(nullptr != self);
 	self->dtor();
 	free(self);
 }

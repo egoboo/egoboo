@@ -6805,11 +6805,11 @@ egolib_rv chr_update_collision_size( GameObject * pchr, bool update_matrix )
     if ( nullptr == ( pchr ) ) return rv_error;
 
     // re-initialize the collision volumes
-    oct_bb_ctor( &( pchr->chr_min_cv ) );
-    oct_bb_ctor( &( pchr->chr_max_cv ) );
+    oct_bb_t::ctor( &( pchr->chr_min_cv ) );
+    oct_bb_t::ctor( &( pchr->chr_max_cv ) );
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        oct_bb_ctor( &pchr->slot_cv[cnt] );
+        oct_bb_t::ctor( &pchr->slot_cv[cnt] );
     }
 
     std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( pchr->profile_ref );

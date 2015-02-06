@@ -1114,8 +1114,15 @@ bool fill_bumplists()
     // remove empty branches from the tree
     if (63 == ( game_frame_all & 63))
     {
-        getChrBSP()->tree.prune();
-        getPrtBSP()->tree.prune();
+		size_t pruned;
+        pruned = getChrBSP()->tree.prune();
+		std::stringstream s;
+		s.clear();
+		s << __FILE__ << ":" << __LINE__ << ": pruned: " << pruned << ", remaining: " << getChrBSP()->tree._nused << std::endl;
+		log_info("%s",s.str().c_str());
+        pruned = getPrtBSP()->tree.prune();
+		s << __FILE__ << ":" << __LINE__ << ": pruned: " << pruned << ", remaining: " << getPrtBSP()->tree._nused << std::endl;
+		log_info("%s",s.str().c_str());
     }
 
     return true;
