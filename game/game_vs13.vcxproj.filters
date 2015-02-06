@@ -206,10 +206,10 @@
     <ClCompile Include="src\game\module\Module.cpp">
       <Filter>Game Sources\Module</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\ObjectHandler.cpp">
+    <ClCompile Include="src\game\module\ObjectHandler.cpp">
       <Filter>Game Sources\Module</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\game_logic\GameObject.cpp">
+    <ClCompile Include="src\game\game_logic\GameObject.cpp">
       <Filter>Game Sources\GameLogic</Filter>
     </ClCompile>
   </ItemGroup>
@@ -370,10 +370,10 @@
     <ClInclude Include="src\game\module\Module.hpp">
       <Filter>Game Header Files\Module</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\ObjectHandler.hpp">
+    <ClInclude Include="src\game\module\ObjectHandler.hpp">
       <Filter>Game Header Files\Module</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\game_logic\GameObject.hpp">
+    <ClInclude Include="src\game\game_logic\GameObject.hpp">
       <Filter>Game Header Files\GameLogic</Filter>
     </ClInclude>
   </ItemGroup>

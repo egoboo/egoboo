@@ -307,7 +307,7 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     }
 }
 
-void ObjectProfile::addMessage(const std::string &message, const bool filterDuplicates)
+size_t ObjectProfile::addMessage(const std::string &message, const bool filterDuplicates)
 {
     std::string parsedMessage = message;
 
@@ -316,15 +316,17 @@ void ObjectProfile::addMessage(const std::string &message, const bool filterDupl
 
     //Don't add the same message twice
     if(filterDuplicates) {
-        for(const std::string& msg : _messageList) {
-            if(msg == parsedMessage) {
-                return;
+        size_t messageListSize = _messageList.size();
+        for(size_t pos = 0; pos < messageListSize; pos++) {
+            if(_messageList[pos] == parsedMessage) {
+                return pos;
             }
         }
     }
 
     //Add it to the list!
     _messageList.push_back(parsedMessage);
+    return _messageList.size() - 1;
 }
 
 const std::string& ObjectProfile::getMessage(size_t index) const

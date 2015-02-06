@@ -173,9 +173,10 @@ public:
 
     /// @author ZF
     /// @details This adds one string to the list of messages associated with a profile. The function will
-    //              dynamically allocate more memory if there are more messages than array size
-    //  @param filterDuplicates don't add it if it already exists
-    void addMessage(const std::string &message, const bool filterDuplicates = false);
+    ///             dynamically allocate more memory if there are more messages than array size
+    /// @param filterDuplicates don't add it if it already exists
+    /// @return the index of the message added
+    size_t addMessage(const std::string &message, const bool filterDuplicates = false);
 
     /**
     * @return a string loaded into the specified index, or an empty string if the index is not valid

@@ -377,6 +377,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Egoboo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Egoboo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD0CB08B1A84AAF800D78E80 /* TextureFilter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureFilter.hpp; sourceTree = "<group>"; };
 		CD0FE11A1A7B091300F3392B /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
 		CD0FE11C1A7B091300F3392B /* BUGS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BUGS.txt; sourceTree = "<group>"; };
 		CD0FE11F1A7B091300F3392B /* Changelog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Changelog.txt; sourceTree = "<group>"; };
@@ -757,7 +758,6 @@
 		CDD8806C1A44A8EF007177F3 /* bv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bv.h; sourceTree = "<group>"; };
 		CDD8806D1A44A8EF007177F3 /* matrix.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = matrix.c; sourceTree = "<group>"; };
 		CDD8806E1A44A8EF007177F3 /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix.h; sourceTree = "<group>"; };
-		CDD9318B1A4232480004A8B2 /* tx_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tx_filter.h; sourceTree = "<group>"; };
 		CDD9319C1A428D970004A8B2 /* cube.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = cube.c; sourceTree = "<group>"; };
 		CDD9319D1A428D970004A8B2 /* cube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cube.h; sourceTree = "<group>"; };
 		CDD931A01A428D970004A8B2 /* vec.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = vec.c; sourceTree = "<group>"; };
@@ -1119,6 +1119,7 @@
 				CD0FE1551A7B09AD00F3392B /* OpenGL */,
 				CD0FE1581A7B09AD00F3392B /* Renderer.cpp */,
 				CD0FE1591A7B09AD00F3392B /* Renderer.hpp */,
+				CD0CB08B1A84AAF800D78E80 /* TextureFilter.hpp */,
 			);
 			path = Renderer;
 			sourceTree = "<group>";
@@ -1209,7 +1210,6 @@
 				CD39B3871A374B6000B377BE /* throttle.h */,
 				CD39B3881A374B6000B377BE /* timer.c */,
 				CD39B3891A374B6000B377BE /* timer.h */,
-				CDD9318B1A4232480004A8B2 /* tx_filter.h */,
 				CD39B38A1A374B6000B377BE /* typedef.c */,
 				CD39B38B1A374B6000B377BE /* typedef.h */,
 				CDD931A01A428D970004A8B2 /* vec.c */,

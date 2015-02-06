@@ -214,13 +214,13 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
 
         // Convert the byte ordering on the scale & translate vectors, if necessary
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
-        frame_header.scale[0]     = ENDIAN_TO_SYS_FLOAT( frame_header.scale[0] );
-        frame_header.scale[1]     = ENDIAN_TO_SYS_FLOAT( frame_header.scale[1] );
-        frame_header.scale[2]     = ENDIAN_TO_SYS_FLOAT( frame_header.scale[2] );
+        frame_header.scale[0]     = ENDIAN_TO_SYS_IEEE32( frame_header.scale[0] );
+        frame_header.scale[1]     = ENDIAN_TO_SYS_IEEE32( frame_header.scale[1] );
+        frame_header.scale[2]     = ENDIAN_TO_SYS_IEEE32( frame_header.scale[2] );
 
-        frame_header.translate[0] = ENDIAN_TO_SYS_FLOAT( frame_header.translate[0] );
-        frame_header.translate[1] = ENDIAN_TO_SYS_FLOAT( frame_header.translate[1] );
-        frame_header.translate[2] = ENDIAN_TO_SYS_FLOAT( frame_header.translate[2] );
+        frame_header.translate[0] = ENDIAN_TO_SYS_IEEE32( frame_header.translate[0] );
+        frame_header.translate[1] = ENDIAN_TO_SYS_IEEE32( frame_header.translate[1] );
+        frame_header.translate[2] = ENDIAN_TO_SYS_IEEE32( frame_header.translate[2] );
 #endif
 
         // unpack the md2 vertex_lst from this frame
@@ -314,9 +314,9 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
             for(id_glcmd_packed_t &cmdData : cmd.data)
             {
-                cmdData.index = SDL_swap32( cmdData.s );
-                cmdData.s     = ENDIAN_TO_SYS_FLOAT( cmdData.s );
-                cmdData.t     = ENDIAN_TO_SYS_FLOAT( cmdData.t );
+                cmdData.index = SDL_Swap32( cmdData.s );
+                cmdData.s     = ENDIAN_TO_SYS_IEEE32( cmdData.s );
+                cmdData.t     = ENDIAN_TO_SYS_IEEE32( cmdData.t );
             }
 #endif
 
