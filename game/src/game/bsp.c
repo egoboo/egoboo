@@ -61,7 +61,7 @@ bool mesh_BSP_system_begin(ego_mesh_t *mesh)
 	}
 
 	// Start the system using the given mesh.
-	mesh_BSP_root = mesh_BSP_new(mesh);
+	mesh_BSP_root = new mesh_BSP_t(mesh_BSP_t::Parameters(mesh));
 	if (!mesh_BSP_root)
 	{
 		return false;
@@ -75,8 +75,8 @@ void mesh_BSP_system_end()
 {
 	if (_mesh_BSP_system_initialized)
 	{
-		mesh_BSP_delete(mesh_BSP_root);
-		mesh_BSP_root = NULL;
+		delete mesh_BSP_root;
+		mesh_BSP_root = nullptr;
 	}
 	_mesh_BSP_system_initialized = false;
 }
@@ -117,16 +117,16 @@ bool obj_BSP_system_begin(mesh_BSP_t *mesh_bsp)
 	}
 
 	// use 2D BSPs for the moment
-	chr_BSP_root = obj_BSP_new(2,mesh_bsp);
+	chr_BSP_root = new obj_BSP_t(obj_BSP_t::Parameters(2,mesh_bsp));
 	if (!chr_BSP_root)
 	{
 		return false;
 	}
-	prt_BSP_root = obj_BSP_new(2, mesh_bsp);
+	prt_BSP_root = new obj_BSP_t(obj_BSP_t::Parameters(2, mesh_bsp));
 	if (!prt_BSP_root)
 	{
-		obj_BSP_delete(chr_BSP_root);
-		chr_BSP_root = NULL;
+		delete chr_BSP_root;
+		chr_BSP_root = nullptr;
 		return false;
 	}
 	// Let the code know that everything is initialized.
@@ -143,10 +143,10 @@ void obj_BSP_system_end()
 	if (_obj_BSP_system_initialized)
 	{
 		// delete the object BSP data
-		obj_BSP_delete(chr_BSP_root);
-		chr_BSP_root = NULL;
-		obj_BSP_delete(prt_BSP_root);
-		prt_BSP_root = NULL;
+		delete chr_BSP_root;
+		chr_BSP_root = nullptr;
+		delete prt_BSP_root;
+		prt_BSP_root = nullptr;
 
 		_obj_BSP_system_initialized = false;
 	}
@@ -205,13 +205,13 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_BSP_clear()
+bool chr_BSP_removeAllLeaves()
 {
-	// Unlink all the BSP nodes.
-	chr_BSP_root->tree.clear_rec();
+	// Remove all leaves from the character BSP.
+	chr_BSP_root->tree.removeAllLeaves();
 	chr_BSP_root->count = 0;
 
-	// unlink all used character nodes
+	// Unlink all used character nodes.
 	for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
 	{
 		BSP_leaf_t::remove_link(&object->bsp_leaf);
@@ -221,10 +221,10 @@ bool chr_BSP_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_BSP_clear()
+bool prt_BSP_removeAllLeaves()
 {
-	// Unlink all the BSP nodes.
-	prt_BSP_root->tree.clear_rec();
+	// Remove all leave from the particle BSP.
+	prt_BSP_root->tree.removeAllLeaves();
 	prt_BSP_root->count = 0;
 
 	// unlink all used particle nodes

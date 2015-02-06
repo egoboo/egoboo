@@ -95,7 +95,7 @@ struct mesh_BSP_t
 	 * @return
 	 *	the new number of collisions in @a collisions
 	 */
-	size_t collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	void collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 	/**
 	 * @brief
@@ -103,34 +103,9 @@ struct mesh_BSP_t
 	 * @return
 	 *	the new number of collisions in @a collisions
 	 */
-	size_t collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	void collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 };
-
-
-/**
- * @brief
- *	Create a new mesh BSP tree for a mesh.
- * @param mesh
- *	the mesh used in initialization
- * @return
- *	the mesh BSP tree on success, @a NULL failure
- * @author
- *	BB
- * @author
- *	MH
- * @details
- *	These parameters duplicate the max resolution of the old system.
- */
-mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh);
-
-/**
- * @brief
- *	Delete a mesh BSP.
- * @param self
- *	the mesh BSP
- */
-void mesh_BSP_delete(mesh_BSP_t *self);
 
 bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh);
 bool mesh_BSP_can_collide(BSP_leaf_t *leaf);

@@ -119,12 +119,12 @@ bool obj_BSP_system_started();
 
 bool chr_BSP_insert(GameObject * pchr);
 bool chr_BSP_fill();
-bool chr_BSP_clear();
+bool chr_BSP_removeAllLeaves();
 bool chr_BSP_can_collide(BSP_leaf_t * pleaf);
 bool chr_BSP_is_visible(BSP_leaf_t * pleaf);
 
 bool prt_BSP_insert(s_prt_bundle * pbdl_prt);
 bool prt_BSP_fill();
-bool prt_BSP_clear();
+bool prt_BSP_removeAllLeaves();
 bool prt_BSP_can_collide(BSP_leaf_t * pleaf);
 bool prt_BSP_is_visible(BSP_leaf_t * pleaf);

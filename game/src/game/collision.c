@@ -1104,25 +1104,38 @@ bool fill_bumplists()
 	/// large. Instead, just remove the leaves from the tree, fill the tree, and then prune any empty branches.
 
     // empty out the BSP node lists
-    chr_BSP_clear();
-    prt_BSP_clear();
+    chr_BSP_removeAllLeaves();
+    prt_BSP_removeAllLeaves();
 
     // fill up the BSP list based on the current locations
     chr_BSP_fill();
     prt_BSP_fill();
 
-    // remove empty branches from the tree
+    // Remove empty branches from the tree.
     if (63 == ( game_frame_all & 63))
     {
 		size_t pruned;
+		log_info("begin pruning\n");
         pruned = getChrBSP()->tree.prune();
-		std::stringstream s;
-		s.clear();
-		s << __FILE__ << ":" << __LINE__ << ": pruned: " << pruned << ", remaining: " << getChrBSP()->tree._nused << std::endl;
-		log_info("%s",s.str().c_str());
+		/*if (pruned)*/
+		{
+			std::ostringstream s;
+			s << __FILE__ << ":" << __LINE__ << ": "
+				<< "pruned: " << pruned << ", "
+			    << "free:   " << getChrBSP()->tree._nfree << ", "
+				<< "used:   " << getChrBSP()->tree._nused << std::endl;
+			log_info("%s", s.str().c_str());
+		}
         pruned = getPrtBSP()->tree.prune();
-		s << __FILE__ << ":" << __LINE__ << ": pruned: " << pruned << ", remaining: " << getPrtBSP()->tree._nused << std::endl;
-		log_info("%s",s.str().c_str());
+		/*if (pruned)*/
+		{
+			std::ostringstream s;
+			s << __FILE__ << ":" << __LINE__ << ": "
+				<< "pruned: " << pruned << ", "
+				<< "free:   " << getPrtBSP()->tree._nfree << ", "
+				<< "used:   " << getPrtBSP()->tree._nused << std::endl;
+			log_info("%s", s.str().c_str());
+		}
     }
 
     return true;

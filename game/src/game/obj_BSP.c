@@ -121,26 +121,13 @@ obj_BSP_t::~obj_BSP_t()
 	count = 0;
 }
 
-//--------------------------------------------------------------------------------------------
-obj_BSP_t *obj_BSP_new(size_t dim, const mesh_BSP_t *meshBSP)
-{
-	EGOBOO_ASSERT(nullptr != meshBSP);
-	return new obj_BSP_t(obj_BSP_t::Parameters(dim, meshBSP));
-}
-
-void obj_BSP_delete(obj_BSP_t *self)
-{
-	EGOBOO_ASSERT(nullptr != self);
-	delete self;
-}
-
-size_t obj_BSP_t::collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+void obj_BSP_t::collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {
     return tree.collide(aabb, test, collisions);
 }
 
 
-size_t obj_BSP_t::collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+void obj_BSP_t::collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {
     return tree.collide(frustum, test, collisions);
 }

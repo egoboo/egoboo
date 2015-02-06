@@ -79,6 +79,7 @@ struct obj_BSP_t
 		 */
 		const mesh_BSP_t *_meshBSP;
 	};
+
     /**
 	 * @brief
 	 *	The number of characters in this obj_BSP.
@@ -105,16 +106,14 @@ struct obj_BSP_t
 	 *	Destruct this object BSP tree.
 	 */
 	virtual ~obj_BSP_t();
-#if 0
-	void dtor();
-#endif
+
 	/**
 	 * @brief
 	 *	Fill the collision list with references to tiles that the object volume may overlap.
 	 * @return
 	 *	return the number of collisions in @a collisions
 	 */
-	size_t collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	void collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 	/**
 	 * @brief
@@ -122,28 +121,6 @@ struct obj_BSP_t
 	 * @return
 	 *	the number of collisions in @a collisions
 	 */
-	size_t collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	void collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 };
-
-/**
- * @brief
- *	Create a new object BSP.
- * @param dim
- *	?
- * @param mesh_bsp
- *	the mesh BSP used when initializing the object BSP
- * @return
- *	the object BSP on success, @a NULL on failure
- * @todo
- *	If @a dim can not be negative, then it should be of type @a size_t.
- */
-obj_BSP_t *obj_BSP_new(size_t dimensionality,const mesh_BSP_t *mesh_bsp);
-
-/**
- * @brief
- *	Delete an object BSP.
- * @param self
- *	the object BSP
- */
-void obj_BSP_delete(obj_BSP_t *self);
