@@ -37,6 +37,9 @@
     <Filter Include="Header Files\Renderer\OpenGL">
       <UniqueIdentifier>{64b06b6c-4104-43af-8294-33f28825a826}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scene">
+      <UniqueIdentifier>{e088fafe-0da3-45d0-933c-4514b9375e76}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -508,6 +511,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Scene\Element.hpp">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
