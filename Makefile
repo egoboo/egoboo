@@ -63,24 +63,24 @@ export PREFIX CFLAGS CXXFLAGS LDFLAGS EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET
 all: egoboo
 
 $(EGOLIB_TARGET):
-	make -C $(EGOLIB_DIR)
+	${MAKE} -C $(EGOLIB_DIR)
 
 egolib: $(EGOLIB_TARGET)
 
 $(EGO_TARGET): $(EGOLIB_TARGET)
-	make -C $(EGO_DIR)
+	${MAKE} -C $(EGO_DIR)
 
 egoboo: $(EGO_TARGET)
 
 $(CARTMAN_TARGET): $(EGOLIB_TARGET)
-	make -C $(CARTMAN_DIR)
+	${MAKE} -C $(CARTMAN_DIR)
 
 cartman: $(CARTMAN_TARGET)
 
 clean:
-	make -C $(EGOLIB_DIR) clean
-	make -C $(EGO_DIR) clean
-	make -C $(CARTMAN_DIR) clean
+	${MAKE} -C $(EGOLIB_DIR) clean
+	${MAKE} -C $(EGO_DIR) clean
+	${MAKE} -C $(CARTMAN_DIR) clean
 
 install: egoboo
 
@@ -94,7 +94,7 @@ install: egoboo
 	install -m 755 $(EGO_DIR)/$(EGO_TARGET) $(PREFIX)/games
 
 #	call the installer in the required install directory
-	make -C $(INSTALL_DIR) install PROJ_NAME=$(EGO_TARGET)
+	${MAKE} -C $(INSTALL_DIR) install PROJ_NAME=$(EGO_TARGET)
 
 	#####################################
 	# Egoboo installation is finished
