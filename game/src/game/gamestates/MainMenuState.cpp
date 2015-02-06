@@ -23,6 +23,7 @@
 
 #include "game/gamestates/MainMenuState.hpp"
 #include "game/gamestates/SelectModuleState.hpp"
+#include "game/gamestates/SelectPlayersState.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "egolib/platform.h"
@@ -98,6 +99,10 @@ MainMenuState::MainMenuState() :
 	std::shared_ptr<Button> loadGameButton = std::make_shared<Button>("Load Game", SDLK_l);
 	loadGameButton->setPosition(20, yOffset);
 	loadGameButton->setSize(200, 30);
+	loadGameButton->setOnClickFunction(
+	[]{
+		_gameEngine->pushGameState(std::make_shared<SelectPlayersState>());
+	});
 	addComponent(loadGameButton);
 	_slidyButtons.push_front(loadGameButton);
 

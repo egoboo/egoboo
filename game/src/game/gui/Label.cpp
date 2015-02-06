@@ -21,6 +21,6 @@ void Label::setText(const std::string &text)
 
 	//Recalculate our size
 	int textWidth, textHeight;
-	fnt_getTextSize(ui_getFont(), _buttonText.c_str(), &textWidth, &textHeight);
-	setSize(textWidth, textHeight;);
+	fnt_getTextSize(ui_getFont(), _text.c_str(), &textWidth, &textHeight);
+	setSize(textWidth, textHeight);
 }
