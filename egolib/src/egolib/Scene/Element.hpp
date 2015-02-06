@@ -19,16 +19,40 @@
 
 #pragma once
 
+#include "egolib/bv.h"
+
 namespace Scene {
+
 /**
  * @brief
  *	The interface and element of a scene must implement.
  */
 class Element {
+
 protected:
-	/// Constructor.
-	Element() { }
-	/// Destructor.
-	virtual ~Element() { }
+	
+	/**
+	 * Construct this scene element.
+	 */
+	Element() {
+	}
+	
+	/**
+	 * Destruct this scene element.
+	 */
+	virtual ~Element() {
+	}
+
+public:
+
+	/**
+	 * @brief
+	 *	Get the bounding volume of this scene element.
+	 * @return
+	 *	the bounding volume of this scene element
+	 */
+	virtual const bv_t& getBoundingVolume() const = 0;
+
 };
+
 };
