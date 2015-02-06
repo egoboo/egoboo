@@ -195,7 +195,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	// convert the bounding box
 	bv_from_oct_bb(&(pleaf->bbox), &tmp_oct);
 
-	retval = BSP_tree_t::insert_leaf(ptree, pleaf);
+	retval = ptree->insert_leaf(pleaf);
 	if (retval)
 	{
 		prt_BSP_root->count++;
@@ -277,7 +277,7 @@ bool chr_BSP_insert(GameObject * pchr)
 		bv_from_oct_bb(&(pleaf->bbox), &tmp_oct);
 
 		// insert the leaf
-		retval = BSP_tree_t::insert_leaf(ptree, pleaf);
+		retval = ptree->insert_leaf(pleaf);
 	}
 
 	if (retval)

@@ -110,14 +110,6 @@ bool BSP_leaf_valid(const BSP_leaf_t *self);
 class BSP_leaf_list_t
 {
 public:
-	BSP_leaf_list_t() :
-		count(0),
-		lst(nullptr),
-		bbox()
-	{
-
-	}
-
     size_t count;
 
     BSP_leaf_t *lst;
@@ -137,17 +129,13 @@ public:
 	/**
 	 * @brief
 	 *	Construct this leaf list.
-	 * @param self
-	 *	this leaf list
 	 */
-	BSP_leaf_list_t *ctor();
+	BSP_leaf_list_t();
 	/**
 	 * @brief
 	 *	Destruct this leaf list.
-	 * @param self
-	 *	this leaf list
 	 */
-	void dtor();
+	~BSP_leaf_list_t();
 	/**
 	 * @brief
 	 *	Insert a leaf in the list.
@@ -201,17 +189,8 @@ class BSP_branch_list_t
 {
 public:
 
-	BSP_branch_list_t() :
-		lst_size(0),
-		lst(nullptr),
-		inserted(0),
-		bbox()
-	{
-		//ctor
-	}
-
-	BSP_branch_list_t *ctor(size_t dim);
-	BSP_branch_list_t *dtor();
+	BSP_branch_list_t(size_t dim);
+	~BSP_branch_list_t();
 
 	/**
 	 * @brief
@@ -226,14 +205,15 @@ public:
     size_t inserted;
     bv_t bbox;
 
-	static bool clear_rec(BSP_branch_list_t * self);
+	bool clear_rec();
 	bool collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 	bool collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 };
 
 //--------------------------------------------------------------------------------------------
 /// Element of a shotgun allocator (simplified).
-class Shell {
+class Shell
+{
 public:
 	/// The next element in the singly-linked list of shells.
 	/// There are two lists: Used and unused.
@@ -243,17 +223,6 @@ public:
 class BSP_branch_t : public Shell
 {
 public:
-	BSP_branch_t() :
-		parent(nullptr),
-		unsorted(),
-		children(),
-		leaves(),
-		bsp_bbox(),
-		depth(0),
-		Shell()
-	{
-		//ctor
-	}
 	/**
 	 * @brief
 	 *	The parent branch of this branch.
@@ -276,39 +245,22 @@ public:
 	 */
     int depth;
 
-	/**
-	 * @brief
-	 *	Create a branch.
-	 * @param dimensionality
-	 *	the dimensionality of this branch
-	 * @return
-	 *	a pointer to the branch on success, @a nullptr on failure
-	 */
-	static BSP_branch_t *create(size_t dimensionality);
-	/**
-	 * @brief
-	 *	Destroy a branch.
-	 * @param self
-	 *	the branch
-	 */
-	static void destroy(BSP_branch_t *branch);
-
-protected:
+public:
 	/**
 	 * @brief
 	 *	Construct this branch.
-	 * @param dimensionality
+	 * @param dim
 	 *	the dimensionality of this branch
 	 * @return
 	 *	a pointer to this branch on success, @a nullptr on failure
 	 */
-	BSP_branch_t *ctor(size_t dimensionality);
+	BSP_branch_t(size_t dim);
 	
 	/**
 	 * @brief
 	 *	Destruct this branch.
 	 */
-	void dtor();
+	~BSP_branch_t();
 public:
 	/**
 	 * @brief
@@ -321,7 +273,7 @@ public:
 	 *	- no unsorted leaves and
 	 *	- no child branches.
 	 */
-	bool empty() const;
+	bool isEmpty() const;
 
 	/**
 	 * @brief
@@ -366,22 +318,66 @@ public:
 	 */
 	bool unlink_leaves();
 
-	static BSP_branch_t *ensure_branch(BSP_branch_t *self, BSP_tree_t *tree, size_t index);
+	/**
+	 * @brief
+	 *	Clear this branch.
+	 * @param recursive
+	 *	if @a true, recursively clear this branch
+	 */
+	bool clear(bool recursive);
+
+	
 
 	static bool add_all_rec(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
 	static bool add_all_children(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
 
+	/**
+	 * @brief
+	 *	Recursively insert a leaf in branch.
+	 * @remark
+	 *	Get new branches using BSP_tree_t::createBranch on @a tree if required.
+	 * @remark
+	 *	This function attempts to prevent overflowing the "unsorted" list.
+	 */
+	static bool insert_leaf_rec(BSP_branch_t *self, BSP_tree_t *tree, BSP_leaf_t *leaf, size_t depth);
+protected:
+	static BSP_branch_t *ensure_branch(BSP_branch_t *self, BSP_tree_t *tree, size_t index);
+	/**
+	 * @brief
+	 *	Recursively insert a leaf in branch.
+	 * @remark
+	 *	Get new branches using BSP_tree_t::createBranch() on @a tree if required.
+	 * @return
+	 *	@a -1 if an error occured. @a 0 if the leaf was inserted into this branch
+	 *	and @a 1 if the leaf was (scheduled to be) inserted into a child branch of
+	 *	this branch.
+	 */
+	int insert_leaf_rec_1(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t depth);
+	/**
+	 * @brief
+	 *	Recursively insert a leaf in branch list.
+	 * @remark
+	 *	Get new branches using BSP_tree_t::createBranch() on @a tree if required.
+	 * @todo
+	 *	@a index should be of type size_t.
+	 * @todo
+	 *	Move most of this code into BSP_branch_list_t.
+	 */
+	static bool insert_branch_list_rec(BSP_branch_t *self, BSP_tree_t *tree, BSP_leaf_t *leaf, int index, size_t depth);
+
+	/**
+	 * @brief
+	 *	Insert a leaf (unconditionally) into the "leaves" list of this branch.
+	 * @param leaf
+	 *	the leaf
+	 * @return
+	 *	@a true if the leaf was inserted, @a false otherwise
+	 */
+	bool insert_leaf_list(BSP_leaf_t *leaf);
+
 };
 
-/**
- * @brief
- *	Clear this branch.
- * @param self
- *	this branch
- * @param recursive
- *	if @a true, recursively clear this branch
- */
-bool BSP_branch_clear(BSP_branch_t *self, bool recursive);
+
 /**
  * @brief
  *	Remove all children of this branch.
@@ -392,45 +388,21 @@ bool BSP_branch_clear(BSP_branch_t *self, bool recursive);
  */
 bool BSP_branch_free_nodes(BSP_branch_t *self, bool recursive);
 
-bool BSP_branch_update_depth_rec(BSP_branch_t *self, int depth);
-
-bool BSP_branch_insert_leaf_rec(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth);
-bool BSP_branch_insert_branch_list_rec(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int index, int depth);
-bool BSP_branch_insert_leaf_list(BSP_branch_t * B, BSP_leaf_t * n);
-bool BSP_branch_insert_branch(BSP_branch_t * B, size_t index, BSP_branch_t * B2);
-int BSP_branch_insert_leaf_rec_1(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth);
+/// @todo
+/// @a depth should be of type @a size_t.
+bool BSP_branch_update_depth_rec(BSP_branch_t *self, size_t depth);
 
 
-#if 0
-/**
- * @brief
- *	The interface of a (limited) repository of branches.
- */
-class BranchRepository
-{
-public:
-	/**
-	 * @brief
-	 *	Acquire a branch from this repository.
-	 * @return
-	 *	a pointer to the branch on success, @a nullptr on failure
-	 */
-	BSP_branch_t *acquire();
-	/**
-	 * @brief
-	 *	Relinquish a branch to this repository.
-	 * @param branch
-	 *	a pointer to the branch
-	 */
-	void relinquish(BSP_branch_t *branch);
-};
-#endif
+bool BSP_branch_insert_branch(BSP_branch_t *self, size_t index, BSP_branch_t *branch);
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /**
  * @brief
- *	A BSP tree.
+ *	A space partitioning tree (SPT).
+ * @todo
+ *	Rename to SPT.
  */
 class BSP_tree_t
 {
@@ -477,10 +449,22 @@ public:
 	public:
 		/**
 		 * @brief
-		 *	The number of branches (aka nodes) in the BSP tree.
-		 *	\[
-		 *	\frac{(dimensionality^(maximumDepth + 1) - 1}{dimensionality - 1}
-		 *	\]
+		 *	Each node has an \f$d\f$-dimensional bounding box. A point is tested
+		 *	against each dimension of the bounding box i.e. \f$n\f$ tests are
+		 *	performed. The outcome of single test is either that the node goes
+		 *	into one branch for being on the "right" or the "left side".
+		 *	Subsequently, there must be \f$2^d\f$ branches fo each node.
+		 *	That is, we have a \f$2^d\f$-ary tree. By the general rule
+		 *	for the number of nodes for a complete \f$k\f$-ary tree of height \f$h\f$
+		 *	\f[
+		 *	n = \frac{k^{h+1}}{k-1}
+		 *	\f]
+		 *	we obtain for a \f$2^d\f$-ary tree a number of nodes of
+		 *	\f[
+		 *	n =& \frac{(2^d)^{h+1}}{2^d - 1}\\
+		 *	  =& \frac{2^{d \cdot (h+1)}{2^d - 1}
+		 *	\f]
+		 *	\f$n\f$ is called here the number of branches.
 		 */
 		size_t _numBranches;
 		/**
@@ -495,20 +479,18 @@ public:
 		size_t _maxDepth;
 	};
 
-	BSP_tree_t();
-#if 0
+	/** 
+	 * @brief
+	 *  Construct this BSP tree.
+	 * @param parameters
+	 *	the parameters for creating the BSP tree
+	 */
+	BSP_tree_t(const Parameters& parameters);
 	/**
 	 * @brief
-	 *    The minimum dimensionality of a BSP tree.
-	 *    ("binary" should already suggest that this is the minimum dimensionality).
+	 *	Destruct this BSP tree.
 	 */
-	static const size_t DIM_MIN = 2;
-	/**
-	 * @brief
-	 *	The maximum depth of a BSP tree.
-	 */
-	static const size_t DEPTH_MAX = SIZE_MAX - 1;
-#endif
+	virtual ~BSP_tree_t();
 
 	/**
 	 * @brief
@@ -546,23 +528,6 @@ public:
 
 	/**
 	 * @brief
-	 *  Construct a BSP tree.
-	 * @param parameters
-	 *	the parameters for creating the BSP tree
-	 * @return
-	 *	the BSP tree on success, @a nullptr on failure
-	 */
-	BSP_tree_t *ctor(const Parameters& parameters);
-	/**
-	 * @brief
-	 *     Destruct a BSP tree.
-	 * @param self
-	 *    the BSP tree
-	 */
-	void dtor();
-
-	/**
-	 * @brief
 	 *	Fill the collision list with references to objects that the AABB may overlap.
 	 * @param aabb
 	 *	the AABB
@@ -591,12 +556,27 @@ public:
 
 	/**
 	 * @brief
-	 *	Ensure that the root node exists.
+	 *	Prune non-root, non-empty branches of this BSP tree.
 	 * @return
-	 *	the root node on success, @a nullptr on failure
-	 * @remark
-	 *	The root node has a depth of @a 0.
+	 *	the number of branches pruned
 	 */
+	size_t prune();
+
+	bool insert_leaf(BSP_leaf_t *leaf);
+
+
+	void clear_rec();
+
+protected:
+	friend class BSP_branch_t; ///< To grant access to BSP_tree_t::createBranch().
+	/**
+	* @brief
+	*	Ensure that the root node exists.
+	* @return
+	*	the root node on success, @a nullptr on failure
+	* @remark
+	*	The root node has a depth of @a 0.
+	*/
 	BSP_branch_t *ensure_root();
 
 	/// @brief Create a branch.
@@ -604,19 +584,4 @@ public:
 	/// @post
 	///	A branch returned by this function is empty, has no parent, and has a depth of @a 0.
 	BSP_branch_t *createBranch();
-
-	/**
-	 * @brief
-	 *	Prune non-root, non-empty branches of this BSP tree.
-	 * @return
-	 *	the number of branches pruned
-	 */
-	size_t prune();
-
-	static bool insert_leaf(BSP_tree_t *self, BSP_leaf_t *leaf);
-
-
-	void clear_rec();
 };
-
-

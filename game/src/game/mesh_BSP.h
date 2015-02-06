@@ -76,12 +76,10 @@ struct mesh_BSP_t
 	/**
 	 * @brief
 	 *	Construct a mesh BSP tree.
-	 * @param mesh
-	 *	the mesh
-	 * @return
-	 *	a pointer to this mesh BSP tree on success, @a NULL on failure
+	 * @param parameters
+	 *	the parameters to construct the mesh BSP tree with
 	 */
-	mesh_BSP_t *ctor(const Parameters& parameters);
+	mesh_BSP_t(const Parameters& parameters);
 
 	/**
 	 * @brief
@@ -89,7 +87,7 @@ struct mesh_BSP_t
 	 * @param self
 	 *	the mesh BSP
 	 */
-	void dtor();
+	virtual ~mesh_BSP_t();
 
 	/**
 	 * @brief

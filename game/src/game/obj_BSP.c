@@ -57,26 +57,14 @@ obj_BSP_t::Parameters::Parameters(size_t dim, const mesh_BSP_t *meshBSP)
 	_meshBSP = meshBSP;
 }
 
-obj_BSP_t *obj_BSP_t::ctor(const Parameters& parameters)
+obj_BSP_t::obj_BSP_t(const Parameters& parameters) :
+	tree(BSP_tree_t::Parameters(parameters._dim, parameters._meshBSP->tree.max_depth)),
+	count(0)
 {
-#if 0
-	BLANK_STRUCT_PTR(this);
-#endif
-
-    // Construct the BSP tree.
-	if (!tree.ctor(BSP_tree_t::Parameters(parameters._dim, parameters._meshBSP->tree.max_depth)))
-	{
-		return nullptr;
-	}
-	// Set the count to zero.
-	count = 0;
 	// Take the minimum of the requested dimensionality and dimensionality
 	// of the mesh BSP tree as the dimensionality of the resulting BSP tree.
 #if 1
 	const BSP_tree_t *mesh_tree = &(parameters._meshBSP->tree);
-#if 0
-	size_t mesh_dim = parameters._meshBSP->tree.dimensions;
-#endif
 #endif
 	size_t min_dim = std::min(parameters._dim, parameters._meshBSP->tree.dimensions);
 
@@ -124,44 +112,27 @@ obj_BSP_t *obj_BSP_t::ctor(const Parameters& parameters)
     }
 
     BSP_aabb_validate(obj_tree->bsp_bbox);
-
-    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-void obj_BSP_t::dtor()
+obj_BSP_t::~obj_BSP_t()
 {
 	// Set the count to zero.
 	count = 0;
-	// Destruct the BSP tree.
-	tree.dtor();
 }
 
 //--------------------------------------------------------------------------------------------
 obj_BSP_t *obj_BSP_new(size_t dim, const mesh_BSP_t *meshBSP)
 {
 	EGOBOO_ASSERT(nullptr != meshBSP);
-	obj_BSP_t *self = (obj_BSP_t *)malloc(sizeof(obj_BSP_t));
-	if (!self)
-	{
-		log_error("%s:%d: unable to allocate %zu Bytes\n",__FILE__,__LINE__,sizeof(obj_BSP_t));
-		return nullptr;
-	}
-	if (!self->ctor(obj_BSP_t::Parameters(dim, meshBSP)))
-	{
-		free(self);
-		return nullptr;
-	}
-	return self;
+	return new obj_BSP_t(obj_BSP_t::Parameters(dim, meshBSP));
 }
 
 void obj_BSP_delete(obj_BSP_t *self)
 {
 	EGOBOO_ASSERT(nullptr != self);
-	self->dtor();
-	free(self);
+	delete self;
 }
-
 
 size_t obj_BSP_t::collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {

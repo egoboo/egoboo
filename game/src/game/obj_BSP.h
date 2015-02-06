@@ -95,21 +95,19 @@ struct obj_BSP_t
 	/**
 	 * @brief
 	 *	Construct this object BSP tree.
-	 * @param dim
-	 *	the dimensionality the object BSP tree shall have
-	 * @param mesh_bsp
-	 *	the mesh BSP the object BSP tree shall use
-	 * @return
-	 *	a pointer to this object BSP tree on success, @a NULL on failure
+	 * @param parameters
+	 *	the parameters to construct the object BSP tree with
 	 */
-	obj_BSP_t *ctor(const Parameters& parameters);
+	obj_BSP_t(const Parameters& parameters);
 	
 	/**
 	 * @brief
 	 *	Destruct this object BSP tree.
 	 */
+	virtual ~obj_BSP_t();
+#if 0
 	void dtor();
-
+#endif
 	/**
 	 * @brief
 	 *	Fill the collision list with references to tiles that the object volume may overlap.

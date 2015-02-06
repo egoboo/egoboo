@@ -23,23 +23,23 @@
 #include "egolib/bsp_aabb.h"
 #include "egolib/bbox.h"
 
-BSP_aabb_t *BSP_aabb_t::ctor(size_t dim)
+BSP_aabb_t::BSP_aabb_t(size_t dim)
 {
 	// Construct the vectors.
 	if (!mins.ctor(dim))
 	{
-		return NULL;
+		throw std::bad_alloc(); /* @todo Remove this. */
 	}
 	if (!mids.ctor(dim))
 	{
 		mins.dtor();
-		return NULL;
+		throw std::bad_alloc(); /* @todo Remove this. */
 	}
 	if (!maxs.ctor(dim))
 	{
 		mids.dtor();
 		mins.dtor();
-		return NULL;
+		throw std::bad_alloc(); /* @todo Remove this. */
 	}
 	// Set the dimensionality.
 	dim = dim;
@@ -50,12 +50,10 @@ BSP_aabb_t *BSP_aabb_t::ctor(size_t dim)
 	}
 	// Mark this BSP AABB as valid.
 	valid = true;
-
-	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-void BSP_aabb_t::dtor()
+BSP_aabb_t::~BSP_aabb_t()
 {
 	// Deallocate the vectors.
 	mins.dtor();
@@ -205,33 +203,25 @@ bool BSP_aabb_validate(BSP_aabb_t& src)
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_aabb_copy(BSP_aabb_t * pdst, const BSP_aabb_t * psrc)
+bool BSP_aabb_copy(BSP_aabb_t& pdst, const BSP_aabb_t& psrc)
 {
 	size_t cnt;
 
-	if (NULL == pdst) return false;
-
-	if (NULL == psrc)
-	{
-		pdst->dtor();
-		return false;
-	}
-
 	// ensure that they have the same dimensions
-	if (pdst->dim != psrc->dim)
+	if (pdst.dim != psrc.dim)
 	{
-		BSP_aabb_dealloc(pdst);
-		BSP_aabb_alloc(pdst, psrc->dim);
+		BSP_aabb_dealloc(&pdst);
+		BSP_aabb_alloc(&pdst, psrc.dim);
 	}
 
-	for (cnt = 0; cnt < psrc->dim; cnt++)
+	for (cnt = 0; cnt < psrc.dim; cnt++)
 	{
-		pdst->mins.ary[cnt] = psrc->mins.ary[cnt];
-		pdst->mids.ary[cnt] = psrc->mids.ary[cnt];
-		pdst->maxs.ary[cnt] = psrc->maxs.ary[cnt];
+		pdst.mins.ary[cnt] = psrc.mins.ary[cnt];
+		pdst.mids.ary[cnt] = psrc.mids.ary[cnt];
+		pdst.maxs.ary[cnt] = psrc.maxs.ary[cnt];
 	}
 
-	BSP_aabb_validate(*pdst);
+	BSP_aabb_validate(pdst);
 
 	return true;
 }

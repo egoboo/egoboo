@@ -47,12 +47,12 @@ public:
 	 * @return
 	 *	a pointer to this BSP AABB on success, @a NULL on failure
 	 */
-	BSP_aabb_t *ctor(size_t dim);
+	BSP_aabb_t(size_t dim);
 	/**
 	 * @brief
 	 *	Destruct this BSP ABB.
 	 */
-	void dtor();
+	~BSP_aabb_t();
 	/**
 	 * @brief
 	 *	Get if this bounding box is in the empty state.

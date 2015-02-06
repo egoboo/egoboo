@@ -45,16 +45,10 @@ mesh_BSP_t::Parameters::Parameters(const ego_mesh_t *mesh)
 	_maxDepth = CEIL(std::log(0.5f * std::max(grids_x, grids_y)) / std::log(2.0f));
 }
 //--------------------------------------------------------------------------------------------
-mesh_BSP_t *mesh_BSP_t::ctor(const Parameters& parameters)
+mesh_BSP_t::mesh_BSP_t(const Parameters& parameters) :
+	tree(BSP_tree_t::Parameters(2,parameters._maxDepth)),
+	count(0)
 {
-#if 0
-	BLANK_STRUCT_PTR(this);
-#endif
-	// Make a 2D BSP tree with desired maximum depth.
-	tree.ctor(BSP_tree_t::Parameters(2, parameters._maxDepth));
-	// Set the count to zero.
-	count = 0;
-
 	// Get the nominal physical size of the mesh.
 	float x_min = 0.0f;
 	float x_max = parameters._mesh->gmem.edge_x;
@@ -74,45 +68,26 @@ mesh_BSP_t *mesh_BSP_t::ctor(const Parameters& parameters)
     // Initialize the volume.
 	// @todo Error handling.
 	oct_bb_t::ctor(&volume);
-
-    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_BSP_t::dtor()
+mesh_BSP_t::~mesh_BSP_t()
 {
     // Destruct the volume.
 	oct_bb_t::dtor(&volume);
-	// Destruct the BSP tree.
-    tree.dtor();
 	// Set the count to zero.
 	count = 0;
-#if 0
-	BLANK_STRUCT_PTR(this);
-#endif
 }
 
 mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh)
 {
-	mesh_BSP_t *self = (mesh_BSP_t *)malloc(sizeof(mesh_BSP_t));
-	if (!self)
-	{
-		log_error("%s:%d: unable to allocate %zu Bytes\n", __FILE__, __LINE__, sizeof(mesh_BSP_t));
-		return nullptr;
-	}
-	if (!self->ctor(mesh_BSP_t::Parameters(mesh)))
-	{
-		free(self);
-		return nullptr;
-	}
-	return self;
+	return new mesh_BSP_t(mesh_BSP_t::Parameters(mesh));
 }
 
 void mesh_BSP_delete(mesh_BSP_t *self)
 {
 	EGOBOO_ASSERT(nullptr != self);
-	self->dtor();
-	free(self);
+	delete self;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -187,7 +162,7 @@ static bool mesh_BSP_insert(mesh_BSP_t *self, ego_tile_info_t *ptile, int index)
     bv_from_oct_bb(&(pleaf->bbox), &(ptile->oct));
 
     // Insert the leaf.
-	bool retval = BSP_tree_t::insert_leaf(ptree, pleaf);
+	bool retval = ptree->insert_leaf(pleaf);
 
     if (retval)
     {
