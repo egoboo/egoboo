@@ -94,12 +94,30 @@ namespace Ego
 
 		/**
 		 * @brief
-		 *	Enable/disable depth comparison and depth buffer updates.
+		 *	Enable/disable depth tests and depth buffer updates.
 		 * @param enabled
-		 *	@a true enables depth comparisons and depth buffer updates,
+		 *	@a true enables depth tests and depth buffer updates,
 		 *	@a false disables them
 		 */
 		virtual void setDepthTestEnabled(bool enabled) = 0;
+
+		/**
+		 * @brief
+		 *	Enable/disable stencil test and stencil buffer updates.
+		 * @param enable
+		 *	@a true enables stencil tests and stencil buffer updates,
+		 *	@a false disables them
+		 */
+		virtual void setStencilTestEnabled(bool enabled) = 0;
+
+		/**
+		 * @brief
+		 *	Enable/disable scissor tests.
+		 * @param enable
+		 *	@a true enables scissor tests,
+		 *	@a false disables then
+		 */
+		virtual void setScissorTestEnabled(bool enabled) = 0;
 
 		/**
 		 * @brief

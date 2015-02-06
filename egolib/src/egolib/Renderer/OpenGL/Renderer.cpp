@@ -79,6 +79,30 @@ namespace Ego
 			}
 		}
 
+		void Renderer::setStencilTestEnabled(bool enabled)
+		{
+			if (enabled)
+			{
+				GL_DEBUG(glEnable)(GL_STENCIL_TEST);
+			}
+			else
+			{
+				GL_DEBUG(glDisable)(GL_STENCIL_TEST);
+			}
+		}
+
+		void Renderer::setScissorTestEnabled(bool enabled)
+		{
+			if (enabled)
+			{
+				GL_DEBUG(glEnable)(GL_SCISSOR_TEST);
+			}
+			else
+			{
+				GL_DEBUG(glDisable)(GL_SCISSOR_TEST);
+			}
+		}
+
 	};
 
 	const GLXvector4f white_vec = { 1.0f, 1.0f, 1.0f, 1.0f };

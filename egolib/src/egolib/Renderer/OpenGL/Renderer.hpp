@@ -47,7 +47,8 @@ namespace Ego
 {
 	using namespace Math;
 
-	namespace OpenGL {
+	namespace OpenGL
+	{
 		class Renderer : public Ego::Renderer
 		{
 			virtual ~Renderer();
@@ -63,6 +64,12 @@ namespace Ego
 
 			/** @copydoc Ego::Renderer::setDepthTestEnabled */
 			virtual void setDepthTestEnabled(bool enabled);
+
+			/** @copydoc Ego::Renderer::setStencilTestEnabled */
+			virtual void setStencilTestEnabled(bool enabled);
+
+			/** @copydoc Ego::Renderer::setScissorTestEnabled */
+			virtual void setScissorTestEnabled(bool enabled);
 		};
 	};
 
