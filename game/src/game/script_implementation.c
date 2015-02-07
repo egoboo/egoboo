@@ -445,7 +445,7 @@ bool FindPath( waypoint_list_t * plst, GameObject * pchr, float dst_x, float dst
 }
 
 //--------------------------------------------------------------------------------------------
-bool Compass( fvec2_base_t pos, int facing, float distance )
+bool Compass( fvec2_t& pos, int facing, float distance )
 {
     // Compass( tmpturn = "rotation", tmpdistance = "radius" )
 

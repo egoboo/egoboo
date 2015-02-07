@@ -166,7 +166,7 @@ bool FindPath( waypoint_list_t * plst, GameObject * pchr, float dst_x, float dst
 /// with the two little needle legs
 ///
 /// @lua Compass( tmpturn = "rotation", tmpdistance = "radius" )
-bool Compass( fvec2_base_t pos, int facing, float distance );
+bool Compass( fvec2_t& pos, int facing, float distance );
 
 /// @author ZZ
 /// @details This function returns the cost of the desired skin upgrade
