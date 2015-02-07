@@ -27,7 +27,10 @@
 #include <glob.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifdef __linux__
 #include <linux/limits.h>
+#endif
 
 #include "egolib/file_common.h"
 #include "egolib/log.h"
