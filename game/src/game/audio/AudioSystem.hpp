@@ -102,6 +102,7 @@ enum GlobalSound : uint8_t
     GSND_PITFALL,		//Character falls down a pit
     GSND_SHIELDBLOCK,	//Shield block sound
     GSND_BUTTON_CLICK,	//GUI button clicked
+    GSND_GAME_READY,	//Finished loading module
     GSND_COUNT
 };
 

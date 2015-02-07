@@ -78,6 +78,14 @@ void GameEngine::start()
 
 	while(!_terminateRequested)
 	{
+        // Test the panic button
+        if ( SDL_KEYDOWN( keyb, SDLK_q ) && SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
+        {
+            //terminate the program
+            shutdown();
+            break;
+        }
+
 		//Check if it is time to update everything
 		for(_frameSkip = 0; _frameSkip < MAX_FRAMESKIP && SDL_GetTicks() >= _updateTimeout; ++_frameSkip)
 		{
@@ -112,13 +120,6 @@ void GameEngine::start()
                 std::this_thread::sleep_for(std::chrono::milliseconds(delay));
             }
         }
-
-		// Test the panic button
-	    if ( SDL_KEYDOWN( keyb, SDLK_q ) && SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
-	    {
-	        //terminate the program
-	        shutdown();
-	    }
 	}
 
 	uninitialize();

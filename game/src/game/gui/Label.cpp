@@ -3,16 +3,16 @@
 #include "game/ui.h"
 
 Label::Label(const std::string &text) :
-	_text(text)
+	_text()
 {
-	//ctor
+	setText(text);
 }
 
 void Label::draw()
 {
     //Draw text
     GL_DEBUG(glColor4fv)(Ego::white_vec);
-    fnt_drawText_OGL_immediate(ui_getFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX(), getY(), "%s", _text.c_str());
+    ui_drawTextBox(ui_getFont(), _text.c_str(), getX(), getY(), 0, 0, 20);
 }
 
 void Label::setText(const std::string &text)
@@ -21,6 +21,6 @@ void Label::setText(const std::string &text)
 
 	//Recalculate our size
 	int textWidth, textHeight;
-	fnt_getTextSize(ui_getFont(), _text.c_str(), &textWidth, &textHeight);
+	fnt_getTextBoxSize(ui_getFont(), 20, _text.c_str(), &textWidth, &textHeight);
 	setSize(textWidth, textHeight);
 }

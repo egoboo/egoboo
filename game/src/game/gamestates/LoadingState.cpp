@@ -29,7 +29,9 @@
 #include "game/ui.h"
 #include "game/graphic.h"
 #include "game/gui/Button.hpp"
+#include "game/gui/Label.hpp"
 #include "egolib/math/Random.hpp"
+#include "game/audio/AudioSystem.hpp"
 
 //For loading stuff
 #include "game/graphics/CameraSystem.hpp"
@@ -45,12 +47,27 @@
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players) :
 	_finishedLoading(false),
 	_loadingThread(),
+    _loadingLabel(nullptr),
 	_loadModule(module),
 	//_players(players),
     _globalGameTips(),
     _localGameTips()
 {
-	//ctor
+    std::shared_ptr<Label> mainLabel = std::make_shared<Label>("LOADING MODULE");
+    mainLabel->setPosition(GFX_WIDTH/2 - mainLabel->getWidth()/2, 20);
+    addComponent(mainLabel);
+
+	_loadingLabel = std::make_shared<Label>("Initializing...");
+    addComponent(_loadingLabel);
+
+    //Load game hints. It's OK if we dont get any local hints
+    loadLocalModuleHints();
+    loadGlobalHints();
+
+    //Add a random game tip
+    std::shared_ptr<Label> gameTip = std::make_shared<Label>(getRandomHint());
+    gameTip->setPosition(GFX_WIDTH/2 - gameTip->getWidth()/2, GFX_HEIGHT/2);
+    addComponent(gameTip);
 }
 
 LoadingState::~LoadingState()
@@ -61,15 +78,28 @@ LoadingState::~LoadingState()
 	}
 }
 
+//TODO: HACK (no multithreading yet)
+void LoadingState::singleThreadRedrawHack(const std::string &loadingText)
+{
+    // clear the screen
+    gfx_request_clear_screen();
+    gfx_do_clear_screen();
+
+    //Always make loading text centered
+    _loadingLabel->setText(loadingText);
+    _loadingLabel->setPosition(GFX_WIDTH/2 - _loadingLabel->getWidth()/2, 40);
+
+    drawAll();
+
+    // flip the graphics page
+    gfx_request_flip_pages();
+    gfx_do_flip_pages();
+}
+//TODO: HACK END
+
+
 void LoadingState::update()
 {
-    static bool firstPass = true;
-    if(firstPass) {
-        drawAll(); //ensure render loop is draw at last once
-        firstPass = false;
-        return;
-    }
-
 	if(!_finishedLoading) {
 		loadModuleData();
 	}
@@ -86,15 +116,19 @@ void LoadingState::drawContainer()
 
 void LoadingState::beginState()
 {
-	//Start the loading thread
+	//Start the background loading thread
 	//_loadingThread = std::thread(&LoadingState::loadModuleData, this);
+    _audioSystem.playMusic(27); //TODO: needs to be referenced by string
 }
 
 void LoadingState::loadModuleData()
 {
+    singleThreadRedrawHack("Tidying some space...");
+
 	//Make sure all data is cleared first
     game_quit_module();
 
+    singleThreadRedrawHack("Calculating some math...");
     BillboardList_init_all();
 
     //initialize math objects
@@ -107,6 +141,7 @@ void LoadingState::loadModuleData()
     else log_message( "Failure!\n" );
 
     // initialize the collision system
+    singleThreadRedrawHack("Preparing collisions...");
     collision_system_begin();
 
     //Ready message display
@@ -120,6 +155,7 @@ void LoadingState::loadModuleData()
     gfx_system_make_enviro();
 
     // try to start a new module
+    singleThreadRedrawHack("Loading module data...");
     if(!game_begin_module(_loadModule)) {
     	log_warning("Failed to load module!\n");
     	endState();
@@ -127,14 +163,19 @@ void LoadingState::loadModuleData()
     }
 
     //Complete!
+    singleThreadRedrawHack("Finished!");
     _finishedLoading = true;
     //_gameEngine->setGameState(std::make_shared<PlayingState>());
 
-    std::shared_ptr<Button> startButton = std::make_shared<Button>("Start");
-    startButton->setSize(200, 30);
-    startButton->setPosition(400, 300);
+    //Add the start button once we are finished loading
+    std::shared_ptr<Button> startButton = std::make_shared<Button>("Press Space to begin", SDLK_SPACE);
+    startButton->setSize(400, 30);
+    startButton->setPosition(GFX_WIDTH/2 - startButton->getWidth()/2, GFX_HEIGHT-50);
     startButton->setOnClickFunction(
     	[]{
+            //Hush gong
+            _audioSystem.fadeAllSounds();
+
 		    // set up the cameras *after* game_begin_module() or the player devices will not be initialized
 		    // and camera_system_begin() will not set up thte correct view
 		    _cameraSystem.begin(local_stats.player_count);
@@ -147,14 +188,17 @@ void LoadingState::loadModuleData()
 			_gameEngine->setGameState(std::make_shared<PlayingState>());
     	});
     addComponent(startButton);
+
+    //Fade out music when finished loading
+    _audioSystem.stopMusic();
+
+    //Hit that gong
+    _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_GAME_READY));
 }
 
 
 bool LoadingState::loadGlobalHints()
 {
-    /// @author ZF
-    /// @details This function loads all of the game hints and tips
-
     // Open the file with all the tips
     vfs_FILE *fileread = vfs_openRead( "mp_data/gametips.txt" );
     if ( NULL == fileread )
@@ -164,7 +208,7 @@ bool LoadingState::loadGlobalHints()
     }
 
     // Load the data
-    while (goto_colon_vfs(NULL, fileread, true))
+    while (!vfs_eof(fileread) && goto_colon_vfs(NULL, fileread, true))
     {
         STRING buffer;
 
@@ -173,21 +217,23 @@ bool LoadingState::loadGlobalHints()
 
         //Make it look nice
         str_decode(buffer, SDL_arraysize(buffer), buffer);
+        str_add_linebreaks(buffer, SDL_arraysize(buffer), 50);
 
         _globalGameTips.push_back(buffer);
     }
 
     vfs_close(fileread);
 
+    if(_globalGameTips.empty()) {
+        log_warning( "Could not load the game tips and hints. (\"basicdat/gametips.txt\")\n" );
+    }
+ 
     return !_globalGameTips.empty();
 }
 
 bool LoadingState::loadLocalModuleHints()
 {
-    /// @author ZF
-    /// @details This function loads all module specific hints and tips. If this fails, the game will
-    ///       default to the global hints and tips instead
-    STRING buffer;
+  STRING buffer;
 
     // Open all the tips
     snprintf(buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", _loadModule->getName());
@@ -195,14 +241,15 @@ bool LoadingState::loadLocalModuleHints()
     if ( NULL == fileread ) return false;
 
     // Load the data
-    while (goto_colon_vfs(NULL, fileread, true))
+    while (!vfs_eof(fileread) && goto_colon_vfs(NULL, fileread, true))
     {
 
         //Read the line
         vfs_get_string(fileread, buffer, SDL_arraysize(buffer));
 
         //Make it look nice
-        str_decode(buffer, SDL_arraysize(buffer) ,buffer);
+        str_decode(buffer, SDL_arraysize(buffer), buffer);
+        str_add_linebreaks(buffer, SDL_arraysize(buffer), 50);
 
         _localGameTips.push_back(buffer);
     }
@@ -217,10 +264,15 @@ const std::string LoadingState::getRandomHint() const
     if(_globalGameTips.empty() && _localGameTips.empty())
     {
         // no hints loaded, use the default hint
-        return "Don't die...\n";
+        return "Don't die...";
     }
     else if(!_localGameTips.empty())
     {
+        //33% chance for a global tip
+        if(!_globalGameTips.empty() && Random::getPercent() <= 33) {
+            return Random::getRandomElement(_globalGameTips);
+        }
+
         //Prefer local tips if we have them
         return Random::getRandomElement(_localGameTips);
     }

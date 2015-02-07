@@ -28,3 +28,4 @@ Music 23: Once_lost.ogg
 Music 24: icylands.ogg
 Music 25: heroism.ogg
 Music 26: sandweg.ogg
+Music 27: loading_screen.ogg

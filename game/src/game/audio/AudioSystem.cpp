@@ -39,7 +39,8 @@ static const std::array<const char*, GSND_COUNT> wavenames =
     "lvlup",
     "pitfall",
     "shieldblock",
-    "button"
+    "button",
+    "game_ready"
 };
 
 AudioSystem::AudioSystem() :
