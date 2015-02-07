@@ -150,6 +150,13 @@ struct egolib_frustum_t
 	bool intersects_oct(const oct_bb_t *oct, const bool doEnds) const;
 };
 
-/// Call this every time the camera moves to update the frustum
-egolib_rv egolib_frustum_calculate(egolib_frustum_t *self, const fmat_4x4_t& proj, const fmat_4x4_t& modl);
+/**
+ * @brief
+ *	Call this every time the camera moves or the projection matrix changes to update the frustum
+ * @param projection
+ *	the projection matrix
+ * @param view
+ *	the view matrix
+ */
+egolib_rv egolib_frustum_calculate(egolib_frustum_t *self, const fmat_4x4_t& projection, const fmat_4x4_t& view);
 

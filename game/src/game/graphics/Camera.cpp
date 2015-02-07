@@ -146,14 +146,17 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
 {
     const float fov_mag = SQRT_TWO;
 
-    float fov_big   = multiplyFOV( DEFAULT_FOV, fov_mag );
-    float fov_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
+    float fov_deg_big   = multiplyFOV( DEFAULT_FOV, fov_mag );
+    float fov_deg_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
     
 	fmat_4x4_t identity = fmat_4x4_t::identity;
     
-    mat_gluPerspective(_mProjection, identity, fov_deg, aspect_ratio, frustum_near, frustum_far);
-    mat_gluPerspective(_mProjectionBig, identity, fov_big, aspect_ratio, frustum_near, frustum_far);
-    mat_gluPerspective(_mProjectionSmall, identity, fov_small, aspect_ratio, frustum_near, frustum_far);
+	_mProjection.setPerspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
+	//mat_gluPerspective(_mProjection, identity, fov_deg, aspect_ratio, frustum_near, frustum_far);
+	_mProjectionBig.setPerspective(fov_deg_big, aspect_ratio, frustum_near, frustum_far);
+	///mat_gluPerspective(_mProjectionBig, identity, fov_deg_big, aspect_ratio, frustum_near, frustum_far);
+	_mProjectionSmall.setPerspective(fov_deg_small, aspect_ratio, frustum_near, frustum_far);
+	//mat_gluPerspective(_mProjectionSmall, identity, fov_deg_small, aspect_ratio, frustum_near, frustum_far);
     
     // recalculate the frustum, too
     egolib_frustum_calculate(&( _frustum ), _mProjection, _mView);

@@ -183,7 +183,7 @@ struct fmat_4x4_t
 	 *	C_{i,j} = \sum_{i=0}^3 A_{i,k} \cdot B_{k,j}
 	 *	\f]
 	 */
-	fmat_4x4_t multiply(const fmat_4x4_t& other)
+	fmat_4x4_t multiply(const fmat_4x4_t& other) const
 	{
 		fmat_4x4_t result;
 		for (size_t i = 0; i < 4; i++)
@@ -207,7 +207,7 @@ struct fmat_4x4_t
 	* @return
 	*	the product <tt>(*a) * b</tt>
 	*/
-	fmat_4x4_t operator*(const fmat_4x4_t& other)
+	fmat_4x4_t operator*(const fmat_4x4_t& other) const
 	{
 		return multiply(other);
 	}

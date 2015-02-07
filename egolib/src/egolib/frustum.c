@@ -34,11 +34,12 @@ static void frustum_calculate(frustum_base_t pf, const fmat_4x4_t& proj, const f
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void frustum_calculate(frustum_base_t planes, const fmat_4x4_t& proj, const fmat_4x4_t& modl)
+void frustum_calculate(frustum_base_t planes, const fmat_4x4_t& projection, const fmat_4x4_t& view)
 {
     float clip[16];        // This will hold the clipping planes
 
-    mat_Multiply(clip, proj.v, modl.v);
+	//fmat_4x4_t _clip = projection * view;
+    mat_Multiply(clip, projection.v, view.v);
 
     // This will extract the FRUST_PLANE_RIGHT side of the frustum
     planes[FRUST_PLANE_RIGHT][kX] = clip[ 3] - clip[ 0];
@@ -86,62 +87,66 @@ void frustum_calculate(frustum_base_t planes, const fmat_4x4_t& proj, const fmat
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-egolib_rv egolib_frustum_calculate(egolib_frustum_t * pf, const fmat_4x4_t& proj, const fmat_4x4_t& modl)
+egolib_rv egolib_frustum_calculate(egolib_frustum_t *self, const fmat_4x4_t& projection, const fmat_4x4_t& view)
 {
     fvec3_t pt1;
     fvec3_t vlook, vfar;
 
-    if ( NULL == pf) return rv_error;
+    if (!self) return rv_error;
 
     //---- construct the basic frustum
     {
-        frustum_calculate(pf->data, proj, modl);
+        frustum_calculate(self->data, projection, view);
     }
 
     //---- construct the camera location
     {
         // the origin of the frustum (should be the camera position)
-        three_plane_intersection(pf->origin, pf->data[FRUST_PLANE_RIGHT], pf->data[FRUST_PLANE_LEFT], pf->data[FRUST_PLANE_BOTTOM]);
+        three_plane_intersection(self->origin, self->data[FRUST_PLANE_RIGHT],
+			                                   self->data[FRUST_PLANE_LEFT],
+											   self->data[FRUST_PLANE_BOTTOM]);
     }
 
     //---- construct the sphere
     {
-        // extract the view direction from the modelview matrix
-        mat_getCamForward(modl, vlook);
+        // extract the view direction from the view matrix
+        mat_getCamForward(view, vlook);
 
         // one far corner of the frustum
-        three_plane_intersection(pt1, pf->data[FRUST_PLANE_TOP], pf->data[FRUST_PLANE_RIGHT], pf->data[FRUST_PLANE_BACK]);
+        three_plane_intersection(pt1, self->data[FRUST_PLANE_TOP],
+			                          self->data[FRUST_PLANE_RIGHT],
+									  self->data[FRUST_PLANE_BACK]);
 
         // get the distance from the origin to the far plane
-        float dist = plane_point_distance(pf->data[FRUST_PLANE_BACK], pf->origin.v);
+        float dist = plane_point_distance(self->data[FRUST_PLANE_BACK], self->origin.v);
 
         // calculate the center of the sphere
-		pf->sphere.origin = pf->origin + vlook * (dist * 0.5f);
+		self->sphere.origin = self->origin + vlook * (dist * 0.5f);
 
         // the vector from p1 to the center of the sphere
-        fvec3_t vDiff = pf->sphere.origin - pt1;
+        fvec3_t vDiff = self->sphere.origin - pt1;
 
         // the radius becomes the length of this vector
-		pf->sphere.radius = vDiff.length();
+		self->sphere.radius = vDiff.length();
     }
 
     //---- construct the cone
     {
         float cos_half_fov;
 
-		pf->cone.origin = pf->origin;
-		pf->cone.axis = vlook;
+		self->cone.origin = self->origin;
+		self->cone.axis = vlook;
 
         // the vector from the origin to the far corner
-        vfar = pt1 - pf->cone.origin;
+        vfar = pt1 - self->cone.origin;
 
         // the cosine between the view direction and the
         cos_half_fov = vfar.dot(vlook) / vfar.length();
 
         // calculate the required trig functions
-        pf->cone.cos_2 = cos_half_fov * cos_half_fov;
-        pf->cone.sin_2 = 1.0f - pf->cone.cos_2;
-        pf->cone.inv_sin = 1.0f / std::sqrt(pf->cone.sin_2);
+        self->cone.cos_2 = cos_half_fov * cos_half_fov;
+        self->cone.sin_2 = 1.0f - self->cone.cos_2;
+        self->cone.inv_sin = 1.0f / std::sqrt(self->cone.sin_2);
     }
 
     return rv_success;
