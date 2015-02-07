@@ -31,21 +31,54 @@
  */
 class BSP_aabb_t
 {
+private:
+	/**
+	 * @brief
+	 *	Is this bounding box assigned the empty set?
+	 */
+	bool _empty;
+	/**
+	 * @brief
+	 *	A pointer to an array of <tt>_dim * 3</tt> elements.
+	 *	The first (last) @a _dim values are the coordinates of the
+	 *	smallest (greatest) point enclosed by this bounding box.
+	 *	The remaining @a _dim values in the middle are the midpoint
+	 *	of the bounding box.
+	 */
+	float *_values;
+	/**
+	 * @brief
+	 *	The dimensionality of this BSP AABB.
+	 */
+	size_t _dim;
 public:
-	bool valid; ///< @brief @a true if this axis-aligned bounding box is valid, @a false otherwise.
-	size_t dim; ///< @brief The dimension of this axis-aligned bounding box.
 
-	Ego::DynamicArray<float> mins; ///< @brief The minimum.
-	Ego::DynamicArray<float> mids; ///< @brief The medium.
-	Ego::DynamicArray<float> maxs; ///< @brief The maximum.
+	/**
+	 * @brief
+	 *	Get the dimensionality of this BSP AABB.
+	 * @return
+	 *	the dimensionality of this BSP AABB.
+	 */
+	size_t getDim() const
+	{
+		return _dim;
+	}
+	/**
+	 * @brief
+	 *	Set the dimensionality of this BSP AABB.
+	 * @param newDim
+	 *	the new dimensionality
+	 */
+	void setDim(size_t newDim);
 
 	/**
 	 * @brief
 	 *	Construct this BSP AABB.
 	 * @param dim
 	 *	the dimensionality
-	 * @return
-	 *	a pointer to this BSP AABB on success, @a NULL on failure
+	 * @post
+	 *	A non-empty BSP AABB with its center at the origin an extend of zero along all axes is constructed.
+	 *	The BSP AABB is not empty.
 	 */
 	BSP_aabb_t(size_t dim);
 	/**
@@ -55,55 +88,99 @@ public:
 	~BSP_aabb_t();
 	/**
 	 * @brief
-	 *	Get if this bounding box is in the empty state.
+	 *	Get if this bounding box is assigned the empty set.
 	 * @param self
 	 *	this bounding box
 	 * @return
-	 *	@a true if this bounding box in the empty state, @a false otherwise
-	 * @remark
-	 *	The empty bounding box has a size of @a 0 along all axes and is centered around the origin.
+	 *	@a true if this bounding box is empty, @a false otherwise
 	 */
-	static bool is_empty(const BSP_aabb_t *self);
+	bool empty() const;
 	/**
 	 * @brief
-	 *	Assign this bounding box to the empty state.
-	 * @param self
-	 *	this bounding box
-	 * @remark
-	 *	The empty bounding box has a size of @a 0 along all axes and is centered around the origin.
+	 *	Assign this BSP AABB the empty set.
+	 * @post
+	 *	This BSP AABB is empty i.e. BSP_aabb_t::empty() is @a true.
 	 */
-	static bool set_empty(BSP_aabb_t *self);
+	void clear();
 	/**
 	 * @brief
-	 *	Get if this BSP AABB and and another BSP AABB overlap.
-	 * @param self
-	 *	this BSP AABB
+	 *	Get if this BSP AABB and another BSP AABB overlap.
 	 * @param other
 	 *	the other BSP AABB
 	 * @return
 	 *	@a true if this BSP AABB and the other BSP AABB overlap, @a false otherwise
 	 * @remark
-	 *	If the dimensionality of @a self and @a other are different,
+	 *	If the dimensionality of this BSP AABB and the other BSP AABB are different,
 	 *		check the lowest common dimensionality.
 	 */
-	bool overlap_with_BSP_aabb(const BSP_aabb_t& other) const;
-	/// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-	///               than lhs_ptr, just check the lowest common dimensions.
-	bool contains_BSP_aabb(const BSP_aabb_t& other) const;
-	/// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
-	///               than lhs_ptr, just check the lowest common dimensions.
-	bool overlap_with_aabb(const aabb_t& other) const;
-	/// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-	///               than lhs_ptr, just check the lowest common dimensions.
-	bool contains_aabb(const aabb_t& other) const;
+	bool overlaps(const BSP_aabb_t& other) const;
+	/**
+	 * @brief
+	 *	Get if this BSP AABB and another BSP AABB overlap.
+	 * @param other
+	 *	the other BSP AABB
+	 * @return
+	 *	@a true if this BSP AABB and the AABB overlap, @a false otherwise.
+	 * @remark
+	 *	If the dimensionality of the BSP AABB and the other BSP AABB are different,
+	 *		check the lowest common dimensionality.
+	 */
+	bool contains(const BSP_aabb_t& other) const;
+	/**
+	 * @brief
+	 *	Get if this BSP AABB and an AABB overlap.
+	 * @param other
+	 *	the AABB
+	 * @return
+	 *	@a true if this BSP AABB and the AABB overlap, @a false otherwise
+	 * @remark
+	 *	If the dimensionality of this BSP AABB and the AABB are different,
+	 *		check the lowest common dimensionality.
+	 */
+	bool overlaps(const aabb_t& other) const;
+	/**
+	 * @brief
+	 *	Get if this BSP AABB contains an AABB.
+	 * @param other
+	 *	the AABB
+	 * @return
+	 *	@a true if this BSP AABB contains the AABB, @a false otherwise
+	 * @remark
+	 *	If the dimensionality of this BSP AABB and the AABB are different,
+	 *		check the lowest common dimensionality.
+	 */
+	bool contains(const aabb_t& other) const;
+	const float *min() const;
+	const float *mid() const;
+	const float *max() const;
+	float *min();
+	float *mid();
+	float *max();
+	void add(const BSP_aabb_t& other);
+	void set(const BSP_aabb_t& other);
+	/**
+	 * @brief
+	 *	Convert from an OctBB to a BSP AABB.
+	 * @param other
+	 *	the OctBB
+	 * @warning
+	 *	If the dimensionality of the BSP AABB is smaller than the dimensionality of the OctBB,
+	 *	exceeding dimensions are dropped!
+	 */
+	void set(const oct_bb_t& source);
 };
-
+#if 0
 
 BSP_aabb_t *BSP_aabb_alloc(BSP_aabb_t *self, size_t dim); ///< @todo Remove this.
 BSP_aabb_t *BSP_aabb_dealloc(BSP_aabb_t *self); ///< @todo Remove this.
+/**
+ * @brief
+ *	Invalidate
+ */
 bool BSP_aabb_validate(BSP_aabb_t& self); ///< @todo Remove this.
 
-bool BSP_aabb_from_oct_bb(BSP_aabb_t *self, const oct_bb_t *source);
-bool BSP_aabb_copy(BSP_aabb_t& dst, const BSP_aabb_t& source);
+
+
 bool BSP_aabb_self_union(BSP_aabb_t& dst, const BSP_aabb_t& source);
 bool BSP_aabb_invalidate(BSP_aabb_t& self);
+#endif

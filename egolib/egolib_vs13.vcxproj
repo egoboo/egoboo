@@ -413,6 +413,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Scene\Bounds.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Scene\LeafHolder.hpp" />
     <ClInclude Include="src\egolib\Scene\Element.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />

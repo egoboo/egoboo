@@ -58,7 +58,7 @@ obj_BSP_t::Parameters::Parameters(size_t dim, const mesh_BSP_t *meshBSP)
 }
 
 obj_BSP_t::obj_BSP_t(const Parameters& parameters) :
-	tree(BSP_tree_t::Parameters(parameters._dim, parameters._meshBSP->tree.max_depth)),
+	tree(BSP_tree_t::Parameters(parameters._dim, parameters._meshBSP->tree._parameters.getMaxDepth())),
 	count(0)
 {
 	// Take the minimum of the requested dimensionality and dimensionality
@@ -66,13 +66,13 @@ obj_BSP_t::obj_BSP_t(const Parameters& parameters) :
 #if 1
 	const BSP_tree_t *mesh_tree = &(parameters._meshBSP->tree);
 #endif
-	size_t min_dim = std::min(parameters._dim, parameters._meshBSP->tree.dimensions);
+	size_t min_dim = std::min(parameters._dim, parameters._meshBSP->tree._parameters.getDim());
 
 	float bsp_size = 0.0f;
 	// Find the maximum extent of the BSP tree from the size of the bounding box of the mesh tree.
     for (size_t cnt = 0; cnt < min_dim; ++cnt)
     {
-        float tmp_size = std::abs( mesh_tree->bsp_bbox.maxs.ary[cnt] - mesh_tree->bsp_bbox.mins.ary[cnt] );
+        float tmp_size = std::abs( mesh_tree->bsp_bbox.max()[cnt] - mesh_tree->bsp_bbox.min()[cnt] );
         bsp_size = std::max(bsp_size, tmp_size);
     }
 
@@ -82,36 +82,37 @@ obj_BSP_t::obj_BSP_t(const Parameters& parameters) :
     for (size_t cnt = 0; cnt < min_dim; ++cnt)
     {
         // get the size
-        obj_tree->bsp_bbox.mins.ary[cnt] = std::min( mesh_tree->bsp_bbox.mins.ary[cnt], mesh_tree->bbox.aabb.mins[cnt] );
-        obj_tree->bsp_bbox.maxs.ary[cnt] = std::max( mesh_tree->bsp_bbox.maxs.ary[cnt], mesh_tree->bbox.aabb.maxs[cnt] );
+        obj_tree->bsp_bbox.min()[cnt] = std::min( mesh_tree->bsp_bbox.min()[cnt], mesh_tree->bbox.aabb.mins[cnt] );
+        obj_tree->bsp_bbox.max()[cnt] = std::max( mesh_tree->bsp_bbox.max()[cnt], mesh_tree->bbox.aabb.maxs[cnt] );
 
         // make some extra space
-        obj_tree->bsp_bbox.mins.ary[cnt] -= bsp_size * 0.25f;
-        obj_tree->bsp_bbox.maxs.ary[cnt] += bsp_size * 0.25f;
+        obj_tree->bsp_bbox.min()[cnt] -= bsp_size * 0.25f;
+        obj_tree->bsp_bbox.max()[cnt] += bsp_size * 0.25f;
     }
 
     // Calculate a "reasonable size" for all dimensions that are not in the mesh.
     for (size_t cnt = min_dim; cnt < parameters._dim; cnt++ )
     {
-        obj_tree->bsp_bbox.mins.ary[cnt] = -bsp_size * 0.5f;
-        obj_tree->bsp_bbox.maxs.ary[cnt] =  bsp_size * 0.5f;
+        obj_tree->bsp_bbox.min()[cnt] = -bsp_size * 0.5f;
+        obj_tree->bsp_bbox.max()[cnt] =  bsp_size * 0.5f;
     }
 
     if (parameters._dim > 2)
     {
         // Make some extra special space in the z direction.
-        obj_tree->bsp_bbox.mins.ary[kZ] = std::min(-bsp_size, obj_tree->bsp_bbox.mins.ary[kZ]);
-        obj_tree->bsp_bbox.maxs.ary[kZ] = std::max(+bsp_size, obj_tree->bsp_bbox.maxs.ary[kZ]);
+        obj_tree->bsp_bbox.min()[kZ] = std::min(-bsp_size, obj_tree->bsp_bbox.min()[kZ]);
+        obj_tree->bsp_bbox.max()[kZ] = std::max(+bsp_size, obj_tree->bsp_bbox.max()[kZ]);
     }
 
     // Calculate the mid positions
     for (size_t cnt = 0; cnt < parameters._dim; ++cnt)
     {
 		/// @todo Use BSP_aabb_t::getCenter();
-        obj_tree->bsp_bbox.mids.ary[cnt] = 0.5f * (obj_tree->bsp_bbox.mins.ary[cnt] + obj_tree->bsp_bbox.maxs.ary[cnt]);
+        obj_tree->bsp_bbox.mid()[cnt] = 0.5f * (obj_tree->bsp_bbox.min()[cnt] + obj_tree->bsp_bbox.max()[cnt]);
     }
-
+#if 0
     BSP_aabb_validate(obj_tree->bsp_bbox);
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -121,15 +122,15 @@ obj_BSP_t::~obj_BSP_t()
 	count = 0;
 }
 
-void obj_BSP_t::collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+void obj_BSP_t::collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {
-    return tree.collide(aabb, test, collisions);
+    tree.collide(aabb, test, collisions);
 }
 
 
-void obj_BSP_t::collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+void obj_BSP_t::collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {
-    return tree.collide(frustum, test, collisions);
+    tree.collide(frustum, test, collisions);
 }
 
 /**

@@ -27,6 +27,8 @@
 #include "egolib/bv.h"
 #include "egolib/platform.h"
 #include "egolib/bsp_aabb.h"
+#include "egolib/Scene/Bounds.hpp"
+#include "egolib/Scene/LeafHolder.hpp"
 
 //--------------------------------------------------------------------------------------------
 // forward declarations
@@ -38,11 +40,24 @@ class BSP_branch_list_t;
 class BSP_leaf_list_t;
 class BSP_tree_t;
 
+namespace BSP
+{
+	/**
+	 * @brief
+	 *	Indicates the relation between an entity an branch.
+	 *	If -2, the entity is larger than the bounds of the branch and if -1 the entity belongs to this branch.
+	 *	Positive values range from 0 to 2^d-1 where d is the dimensionality and indicate the index of the
+	 *	child branchat which the entity must be deferred to.
+	 */
+	typedef int SubspaceIndex;
+
+}
+
 //--------------------------------------------------------------------------------------------
 // BSP types
 //--------------------------------------------------------------------------------------------
 
-    typedef bool ( BSP_leaf_test_t )( BSP_leaf_t * );
+
 
 //--------------------------------------------------------------------------------------------
 // known BSP types
@@ -107,13 +122,21 @@ bool BSP_leaf_valid(const BSP_leaf_t *self);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-class BSP_leaf_list_t
+class BSP_leaf_list_t : public BSP::Collider, BSP::LeafHolder
 {
 public:
     size_t count;
 
     BSP_leaf_t *lst;
 
+	/**
+	 * @brief
+	 *	The bounds of everything in this leaf list.
+	 * @todo
+	 *	Use BSP::Bounds.
+	 * @todo
+	 *	Rename to @a _bounds.
+	 */
     bv_t bbox;
 
 	/**
@@ -179,13 +202,20 @@ public:
 	 * @param collisions
 	 *	a leave list to which the leaves are added to (if they pass the test)
 	 */
-	bool add_all(BSP_leaf_test_t& test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-	bool collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const;
-	bool collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	bool add_all(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+
+	// Override
+	size_t removeAllLeaves() override;
+
+	// Override
+	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const override;
+	
+	// Override
+	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
 };
 
 //--------------------------------------------------------------------------------------------
-class BSP_branch_list_t
+class BSP_branch_list_t : public BSP::Collider, BSP::LeafHolder
 {
 public:
 
@@ -203,11 +233,27 @@ public:
 	 *	The number of non-null pointer elements in the array pointed to by @a lst.
 	 */
     size_t inserted;
+	/**
+	 * @brief
+	 *	The bounds of everything this branch list.
+	 * @todo
+	 *	Use BSP::Bounds.
+	 * @todo
+	 *	Rename to @a _bounds.
+	 */
     bv_t bbox;
 
 	bool clear_rec();
-	bool collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-	bool collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+
+	// Override
+	size_t removeAllLeaves() override;
+
+	// Override
+	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+	
+	// Override
+	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+
 };
 
 //--------------------------------------------------------------------------------------------
@@ -219,8 +265,10 @@ public:
 	/// There are two lists: Used and unused.
 	Shell *_next;
 	Shell() : _next(nullptr) { }
+	virtual ~Shell() { }
 };
-class BSP_branch_t : public Shell
+//--------------------------------------------------------------------------------------------
+class BSP_branch_t : public Shell, BSP::Collider, BSP::LeafHolder
 {
 public:
 	/**
@@ -241,11 +289,13 @@ public:
 	/**
 	 * @brief
 	 *	The depth of this branch.
+	 * @remark
 	 *	The root branch has a depth of @a 0.
 	 */
-    int depth;
+    size_t depth;
 
 public:
+
 	/**
 	 * @brief
 	 *	Construct this branch.
@@ -261,6 +311,7 @@ public:
 	 *	Destruct this branch.
 	 */
 	~BSP_branch_t();
+
 public:
 	/**
 	 * @brief
@@ -273,23 +324,16 @@ public:
 	 *	- no unsorted leaves and
 	 *	- no child branches.
 	 */
-	bool isEmpty() const;
+	bool empty() const;
 
-	/**
-	 * @brief
-	 *	Recursively search the BSP tree for collisions with an AABB.
-	 * @return
-	 *	@a false if we need to break out of the recursive search for any reason.
-	 */
-	bool collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	// Override
+	size_t removeAllLeaves() override;
+
+	// Override
+	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
 	
-	/**
-	 * @brief
-	 *	Recursively search the BSP tree for collisions with a frustum.
-	 * @return
-	 *	@a false if we need to break out of the recursive search for any reason.
-	 */
-	bool collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	// Override
+	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
 
 	/**
 	 * @brief
@@ -328,8 +372,20 @@ public:
 
 	
 
-	static bool add_all_rec(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
-	static bool add_all_children(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+	/**
+	 * @brief
+	 *	Add all leaves from this branch and from the child branches of this branch.
+	 * @param test, collisions
+	 *	traversal parameters
+	 */
+	bool add_all_rec(BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	/**
+	 * @brief
+	 *	Add all leaves from child branches of this branch.
+	 * @param test, collisions
+	 *	traversal parameters
+	 */
+	bool add_all_children(BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 	/**
 	 * @brief
@@ -341,29 +397,25 @@ public:
 	 */
 	static bool insert_leaf_rec(BSP_branch_t *self, BSP_tree_t *tree, BSP_leaf_t *leaf, size_t depth);
 protected:
-	static BSP_branch_t *ensure_branch(BSP_branch_t *self, BSP_tree_t *tree, size_t index);
+	static BSP_branch_t *ensure_branch(BSP_branch_t *self, BSP_tree_t *tree, BSP::SubspaceIndex index);
 	/**
 	 * @brief
 	 *	Recursively insert a leaf in branch.
 	 * @remark
 	 *	Get new branches using BSP_tree_t::createBranch() on @a tree if required.
 	 * @return
-	 *	@a -1 if an error occured. @a 0 if the leaf was inserted into this branch
-	 *	and @a 1 if the leaf was (scheduled to be) inserted into a child branch of
-	 *	this branch.
+	 *	@a true if the leaf was inserted somewhere, @a false otherwise
 	 */
-	int insert_leaf_rec_1(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t depth);
+	bool insert_leaf_rec_1(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t depth);
 	/**
 	 * @brief
 	 *	Recursively insert a leaf in branch list.
 	 * @remark
 	 *	Get new branches using BSP_tree_t::createBranch() on @a tree if required.
 	 * @todo
-	 *	@a index should be of type size_t.
-	 * @todo
 	 *	Move most of this code into BSP_branch_list_t.
 	 */
-	static bool insert_branch_list_rec(BSP_branch_t *self, BSP_tree_t *tree, BSP_leaf_t *leaf, int index, size_t depth);
+	static bool insert_branch_list_rec(BSP_branch_t *self, BSP_tree_t *tree, BSP_leaf_t *leaf, BSP::SubspaceIndex index, size_t depth);
 
 	/**
 	 * @brief
@@ -374,6 +426,16 @@ protected:
 	 *	@a true if the leaf was inserted, @a false otherwise
 	 */
 	bool insert_leaf_list(BSP_leaf_t *leaf);
+
+	/**
+	 * @brief
+	 *	Insert branch into branch list.
+	 * @param index
+	 *	the sub-space index where to insert the branch
+	 * @param branch
+	 *	the branch
+	 */
+	static bool insert_branch(BSP_branch_t *self, BSP::SubspaceIndex index, BSP_branch_t *branch);
 
 };
 
@@ -388,12 +450,11 @@ protected:
  */
 bool BSP_branch_free_nodes(BSP_branch_t *self, bool recursive);
 
-/// @todo
-/// @a depth should be of type @a size_t.
+///
 bool BSP_branch_update_depth_rec(BSP_branch_t *self, size_t depth);
 
 
-bool BSP_branch_insert_branch(BSP_branch_t *self, size_t index, BSP_branch_t *branch);
+
 
 
 //--------------------------------------------------------------------------------------------
@@ -404,32 +465,39 @@ bool BSP_branch_insert_branch(BSP_branch_t *self, size_t index, BSP_branch_t *br
  * @todo
  *	Rename to SPT.
  */
-class BSP_tree_t
+class BSP_tree_t : public BSP::Collider, BSP::LeafHolder
 {
+
 public:
+
 	/**
 	 * @brief
-	 *	The parameters for creating a BSP tree.
+	 *	The parameters of a tree.
 	 */
 	class Parameters
 	{
+
 	public:
+
 		/**
 		 * @brief
 		 * The allowed minimum dimensionality of a BSP tree.
 		 * ("binary" should already suggest that this is the minimum dimensionality).
 		 */
 		static const size_t ALLOWED_DIM_MIN = 2;
+
 		/**
 		 * @brief
 		 *	The allowed maximum dimensionality of a BSP tree.
 		 */
 		static const size_t ALLOWED_DIM_MAX = 8;
+
 		/**
 		 * @brief
 		 *	The allowed maximum depth of a BSP tree.
 		 */
 		static const size_t ALLOWED_DEPTH_MAX = SIZE_MAX - 1;
+
 		/**
 		 * @brief
 		 *	Create parameters for a BSP tree
@@ -446,37 +514,84 @@ public:
 		 *	The maximum number of nodes is computed by
 		 */
 		Parameters(size_t dim, size_t maxDepth);
-	public:
 		/**
 		 * @brief
-		 *	Each node has an \f$d\f$-dimensional bounding box. A point is tested
-		 *	against each dimension of the bounding box i.e. \f$n\f$ tests are
-		 *	performed. The outcome of single test is either that the node goes
-		 *	into one branch for being on the "right" or the "left side".
-		 *	Subsequently, there must be \f$2^d\f$ branches fo each node.
-		 *	That is, we have a \f$2^d\f$-ary tree. By the general rule
-		 *	for the number of nodes for a complete \f$k\f$-ary tree of height \f$h\f$
+		 *	Copy constructor.
+		 * @param other
+		 *	the source
+		 */
+		Parameters(const Parameters& other);
+		
+		/// @brief Get the maximum number of child nodes (of a node).
+		/// @return the maximum number of child nodes
+		size_t getMaxChildNodes() const
+		{
+			return _maxChildNodes;
+		}
+
+		/// @brief Get the maximum number of nodes (of a tree).
+		/// @return the maximum number of nodes
+		size_t getMaxNodes() const
+		{
+			return _maxNodes;
+		}
+
+		/// @brief Get the maximum depth (of a tree).
+		/// @return the maximum depth
+		size_t getMaxDepth() const
+		{
+			return _maxDepth;
+		}
+
+		/// @brief Get the dimensionality (of a tree).
+		/// @return the dimensionality
+		size_t getDim() const
+		{
+			return _dim;
+		}
+
+	private:
+
+		/**
+		 * @brief
+		 *	The maximum number of child nodes (of a node).
+		 * @remark
+		 *	Each node may have at most \f$2^d\f$ child nodes
+		 *	where \f$d\f$ is the dimensionality.
+		 */
+		size_t _maxChildNodes;
+
+		/**
+		 * @brief
+		 *	The maximum number of nodes (of a tree).
+		 * @remark
+		 *	Each node may have at most \f$2^d\f$ child nodes (see above) where
+		 *	\f$d\f$ is the dimensionality. That is, a tree is a \f$2^d\f$-ary
+		 *	tree. By the general rule for the number of branches for a complete
+		 *	\f$k\f$-ary tree of height \f$h\f$
 		 *	\f[
 		 *	n = \frac{k^{h+1}}{k-1}
 		 *	\f]
-		 *	we obtain for a \f$2^d\f$-ary tree a number of nodes of
+		 *	one obtains for a \f$k=2^d\f$-ary tree a number of nodes of
 		 *	\f[
 		 *	n =& \frac{(2^d)^{h+1}}{2^d - 1}\\
 		 *	  =& \frac{2^{d \cdot (h+1)}{2^d - 1}
 		 *	\f]
-		 *	\f$n\f$ is called here the number of branches.
 		 */
-		size_t _numBranches;
+		size_t _maxNodes;
+
 		/**
 		 * @brief
-		 *	The dimensionality of the BSP tree.
+		 *	The dimensionality of a tree.
 		 */
 		size_t _dim;
+
 		/**
 		 * @brief
-		 *	The maximum depth of the BSP tree.
+		 *	The maximum depth of a tree.
 		 */
 		size_t _maxDepth;
+
 	};
 
 	/** 
@@ -494,65 +609,38 @@ public:
 
 	/**
 	 * @brief
-	 *    The number of dimensions used by this BSP tree.
+	 *	The parameters of this BSP tree.
 	 */
-	size_t dimensions;
-	/**
-	 * @brief
-	 *    The maximum depth this BSP tree supports.
-	 */
-	size_t max_depth;
+	Parameters _parameters;
 
 	/**
 	 * @brief
-	 *    The maximum depth of this BSP tree actually has.
-	 * @remark
-	 *    The maximum depth (of a BSP tree) is the maximum of the lengths of its branches.
-	 * @todo
-	 *    Should be of type @a size_t.
+	 *   The depth of this tree actually has.
 	 */
-	int depth;
+	size_t depth;
 
 	Shell *_used; ///< A singly-linked list of used branches.
-	                     ///< The branches are chained up using their "Shell::_next" pointer.
+	              ///< The branches are chained up using their Shell::_next pointer.
 	size_t _nused;
 	Shell *_free; ///< A singly-linked list of free branches.
-	                     ///< The banches are chained up using their "Shell::_next" pointer.
+	              ///< The branches are chained up using their Shell::next pointer.
 	size_t _nfree;
 
     BSP_branch_t *finite;      ///< the root node of the ordinary BSP tree
     BSP_leaf_list_t infinite;  ///< all nodes which do not fit inside the BSP tree
 
-    bv_t bbox;           ///< the actual size of everything in the tree
+	/**
+	 * @brief
+	 *	The bounds of everything in this tree.
+	 * @todo
+	 *	Use BSP::Bounds.
+	 * @todo
+	 *	Rename to @a _bounds.
+	 */
+    bv_t bbox;
+
     BSP_aabb_t bsp_bbox; ///< the root-size of the tree
 
-	/**
-	 * @brief
-	 *	Fill the collision list with references to objects that the AABB may overlap.
-	 * @param aabb
-	 *	the AABB
-	 * @param test
-	 *	a leaf test to filter the leaves
-	 * @param collisions
-	 *	the collision list
-	 * @return
-	 *	the new number of leaves in @a collisions
-	 */
-	size_t collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-	
-	/**
-	 * @brief
-	 *	Fill the collision list with references to leaves that the frustum may overlap.
-	 * @param frustum
-	 *	the frustum
-	 * @param test
-	 *	a leaf test to filter the leaves
-	 * @param collisions
-	 *	the collision list
-	 * @return
-	 *	the new number of leaves in @a collisions
-	 */
-	size_t collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 	/**
 	 * @brief
@@ -567,6 +655,15 @@ public:
 
 	void clear_rec();
 
+	// Override
+	size_t removeAllLeaves() override;
+
+	// Override
+	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+
+	// Override
+	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+
 protected:
 	friend class BSP_branch_t; ///< To grant access to BSP_tree_t::createBranch().
 	/**
@@ -579,9 +676,13 @@ protected:
 	*/
 	BSP_branch_t *ensure_root();
 
-	/// @brief Create a branch.
-	/// @return the free branch on success, @a nullptr on failure
-	/// @post
-	///	A branch returned by this function is empty, has no parent, and has a depth of @a 0.
+	/**
+	 * @brief
+	 *	Create a branch.
+	 * @return
+	 *	the free branch on success, @a nullptr on failure
+	 * @post
+	 *	A branch returned by this function is empty, has no parent, and has a depth of @a 0.
+	 */
 	BSP_branch_t *createBranch();
 };

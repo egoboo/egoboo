@@ -113,7 +113,7 @@ struct obj_BSP_t
 	 * @return
 	 *	return the number of collisions in @a collisions
 	 */
-	void collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 	/**
 	 * @brief
@@ -121,6 +121,6 @@ struct obj_BSP_t
 	 * @return
 	 *	the number of collisions in @a collisions
 	 */
-	void collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 };

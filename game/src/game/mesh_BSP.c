@@ -57,13 +57,13 @@ mesh_BSP_t::mesh_BSP_t(const Parameters& parameters) :
 	float bsp_size = std::max(x_max - x_min, y_max - y_min);
     // !!!!SET THE BSP SIZE HERE!!!!
     // enlarge it a bit
-    tree.bsp_bbox.mins.ary[kX] = x_min - 0.25f * bsp_size;
-    tree.bsp_bbox.maxs.ary[kX] = x_max + 0.25f * bsp_size;
-    tree.bsp_bbox.mids.ary[kX] = 0.5f * (tree.bsp_bbox.mins.ary[kX] + tree.bsp_bbox.maxs.ary[kX]);
+    tree.bsp_bbox.min()[kX] = x_min - 0.25f * bsp_size;
+    tree.bsp_bbox.max()[kX] = x_max + 0.25f * bsp_size;
+    tree.bsp_bbox.mid()[kX] = 0.5f * (tree.bsp_bbox.min()[kX] + tree.bsp_bbox.max()[kX]);
 
-    tree.bsp_bbox.mins.ary[kY] = y_min - 0.25f * bsp_size;
-    tree.bsp_bbox.maxs.ary[kY] = y_max + 0.25f * bsp_size;
-    tree.bsp_bbox.mids.ary[kY] = 0.5f * (tree.bsp_bbox.mins.ary[kY] + tree.bsp_bbox.maxs.ary[kY]);
+    tree.bsp_bbox.min()[kY] = y_min - 0.25f * bsp_size;
+    tree.bsp_bbox.max()[kY] = y_max + 0.25f * bsp_size;
+    tree.bsp_bbox.mid()[kY] = 0.5f * (tree.bsp_bbox.min()[kY] + tree.bsp_bbox.max()[kY]);
 
     // Initialize the volume.
 	// @todo Error handling.
@@ -113,15 +113,15 @@ bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh)
     return self->count > 0;
 }
 
-void mesh_BSP_t::collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const
+void mesh_BSP_t::collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const
 {
-    return tree.collide(aabb, test, collisions);
+    tree.collide(aabb, test, collisions);
 }
 
 
-void mesh_BSP_t::collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+void mesh_BSP_t::collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {
-    return tree.collide(frustum, test, collisions);
+    tree.collide(frustum, test, collisions);
 }
 
 /**
