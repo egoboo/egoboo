@@ -132,12 +132,8 @@ public:
 	/**
 	 * @brief
 	 *	The bounds of everything in this leaf list.
-	 * @todo
-	 *	Use BSP::Bounds.
-	 * @todo
-	 *	Rename to @a _bounds.
 	 */
-    bv_t bbox;
+	BSP::Bounds<bv_t> _bounds;
 
 	/**
 	 * @brief
@@ -236,12 +232,8 @@ public:
 	/**
 	 * @brief
 	 *	The bounds of everything this branch list.
-	 * @todo
-	 *	Use BSP::Bounds.
-	 * @todo
-	 *	Rename to @a _bounds.
 	 */
-    bv_t bbox;
+    BSP::Bounds<bv_t> _bounds;
 
 	bool clear_rec();
 
@@ -261,11 +253,21 @@ public:
 class Shell
 {
 public:
+	
 	/// The next element in the singly-linked list of shells.
 	/// There are two lists: Used and unused.
 	Shell *_next;
-	Shell() : _next(nullptr) { }
-	virtual ~Shell() { }
+	
+	Shell() : _next(nullptr)
+	{
+	}
+
+protected:
+
+	virtual ~Shell()
+	{
+	}
+
 };
 //--------------------------------------------------------------------------------------------
 class BSP_branch_t : public Shell, BSP::Collider, BSP::LeafHolder

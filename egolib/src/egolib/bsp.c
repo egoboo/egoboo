@@ -370,7 +370,7 @@ bool BSP_branch_t::unlink_children()
 
 	}
 
-	bv_self_clear(&(children_ptr->bbox));
+	children_ptr->_bounds.clear();
 
 	return true;
 }
@@ -457,40 +457,19 @@ bool BSP_branch_t::insert_branch(BSP_branch_t *self, BSP::SubspaceIndex index, B
 	// Insert the branch into the list.
 	children_ptr->lst[index] = branch; branch->parent = self; children_ptr->inserted++;
 
-	// update the all bboxes above B2
+	// Update the all bounds above branch.
 	for (BSP_branch_t *ptmp = branch->parent; NULL != ptmp; ptmp = ptmp->parent)
 	{
 		BSP_branch_list_t * tmp_children_ptr = &(ptmp->children);
 
-		// add in the size of B2->children
-		if (bv_is_clear(&(tmp_children_ptr->bbox)))
-		{
-			tmp_children_ptr->bbox = branch->children.bbox;
-		}
-		else
-		{
-			bv_self_union(&(tmp_children_ptr->bbox), &(branch->children.bbox));
-		}
+		// Add the bounds of the children.
+		tmp_children_ptr->_bounds.add(branch->children._bounds);
 
-		// add in the size of B2->nodes
-		if (bv_is_clear(&(tmp_children_ptr->bbox)))
-		{
-			tmp_children_ptr->bbox = branch->leaves.bbox;
-		}
-		else
-		{
-			bv_self_union(&(tmp_children_ptr->bbox), &(branch->leaves.bbox));
-		}
+		// Add the bounds of the leaves.
+		tmp_children_ptr->_bounds.add(branch->leaves._bounds);
 
-		// add in the size of B2->unsorted
-		if (bv_is_clear(&(tmp_children_ptr->bbox)))
-		{
-			tmp_children_ptr->bbox = branch->unsorted.bbox;
-		}
-		else
-		{
-			bv_self_union(&(tmp_children_ptr->bbox), &(branch->unsorted.bbox));
-		}
+		// Add the bounds of the unsorted leaves.
+		tmp_children_ptr->_bounds.add(branch->unsorted._bounds);
 	}
 
 	// update the depth B2 and all children
@@ -654,7 +633,7 @@ void BSP_branch_t::collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::Dynamic
 		}
 		else
 		{
-			geom_unsorted = aabb_intersects_aabb(*aabb, unsorted_ptr->bbox.aabb);
+			geom_unsorted = unsorted_ptr->_bounds.intersects(*aabb);
 		}
 	}
 
@@ -675,7 +654,7 @@ void BSP_branch_t::collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::Dynamic
 		}
 		else
 		{
-			geom_nodes = aabb_intersects_aabb(*aabb, leaves_ptr->bbox.aabb);
+			geom_nodes = leaves_ptr->_bounds.intersects(*aabb);
 		}
 	}
 
@@ -696,7 +675,7 @@ void BSP_branch_t::collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::Dynamic
 		}
 		else
 		{
-			geom_children = aabb_intersects_aabb(*aabb, children_ptr->bbox.aabb);
+			geom_children = children_ptr->_bounds.intersects(*aabb);
 		}
 	}
 
@@ -807,7 +786,7 @@ void BSP_branch_t::collide(const egolib_frustum_t *frustum, BSP::LeafTest *test,
 		}
 		else
 		{
-			geom_unsorted = frustum->intersects_bv(&(unsorted_ptr->bbox), true);
+			geom_unsorted = unsorted_ptr->_bounds.intersects(*frustum);
 		}
 	}
 
@@ -828,7 +807,7 @@ void BSP_branch_t::collide(const egolib_frustum_t *frustum, BSP::LeafTest *test,
 		}
 		else
 		{
-			geom_nodes = frustum->intersects_bv(&(leaves_ptr->bbox), true);
+			geom_nodes = leaves_ptr->_bounds.intersects(*frustum);
 		}
 	}
 
@@ -849,7 +828,7 @@ void BSP_branch_t::collide(const egolib_frustum_t *frustum, BSP::LeafTest *test,
 		}
 		else
 		{
-			geom_children = frustum->intersects_bv(&(children_ptr->bbox), true);
+			geom_children = children_ptr->_bounds.intersects(*frustum);
 		}
 	}
 
@@ -966,11 +945,11 @@ bool BSP_branch_t::insert_branch_list_rec(BSP_branch_t *self, BSP_tree_t *tree, 
 
 	if (0 == children_ptr->inserted)
 	{
-		children_ptr->bbox = leaf->bbox;
+		children_ptr->_bounds.set(leaf->bbox);
 	}
 	else
 	{
-		bv_self_union(&(children_ptr->bbox), &(leaf->bbox));
+		children_ptr->_bounds.add(leaf->bbox);
 	}
 	children_ptr->inserted++;
 	return true;
@@ -1078,29 +1057,19 @@ bool BSP_branch_t::insert_leaf_rec(BSP_branch_t *self, BSP_tree_t *tree, BSP_lea
 				tmp_leaf = self->unsorted.pop_front();
 			} while (NULL != tmp_leaf);
 
-			// now clear out the old bbox.
-			bv_self_clear(&(unsorted_ptr->bbox));
+			// Clear the old bounds.
+			unsorted_ptr->_bounds.clear();
 
 			if (unsorted_ptr->count > 0)
 			{
 				// generate the correct bbox for any remaining nodes
-				tmp_leaf = unsorted_ptr->lst;
 				size_t cnt = 0;
-				if (nullptr != tmp_leaf)
+				for (tmp_leaf = unsorted_ptr->lst;
+					 nullptr != tmp_leaf && cnt < unsorted_ptr->count;
+					 tmp_leaf = tmp_leaf->next, cnt++)
 				{
-					unsorted_ptr->bbox.aabb = tmp_leaf->bbox.aabb;
-					tmp_leaf = tmp_leaf->next;
-					cnt++;
+					unsorted_ptr->_bounds.add(tmp_leaf->bbox);
 				}
-
-				for ( /* nothing */;
-					nullptr != tmp_leaf && cnt < unsorted_ptr->count;
-					tmp_leaf = tmp_leaf->next, cnt++)
-				{
-					aabb_self_union(unsorted_ptr->bbox.aabb, tmp_leaf->bbox.aabb);
-				}
-
-				bv_validate(&(unsorted_ptr->bbox));
 			}
 		}
 	}
@@ -1343,14 +1312,27 @@ BSP_branch_t *BSP_branch_t::ensure_branch(BSP_branch_t *self, BSP_tree_t *tree, 
 	return child;
 }
 //--------------------------------------------------------------------------------------------
+namespace BSP
+{
+	namespace Hacks
+	{
+		/**
+		 * @warning
+		 *	A hack that is active as long as the issues with the BSPs are not fixed.
+		 *	It forces all leaves into the infinite leave list. If this is not done
+		 *  massive clipping problems occur.
+		 */
+		const static bool ForceInfinit = true;
+	}
+}
 bool BSP_tree_t::insert_leaf(BSP_leaf_t *leaf)
 {
 	bool retval;
 
 	if (!leaf) return false;
 
-	// If the leaf is fully contained in the tree's bounding box ...
-	if (!bsp_bbox.contains(leaf->bbox.aabb))
+	// If the leaf is NOT fully contained in the tree's bounding box ...
+	if (!bsp_bbox.contains(leaf->bbox.aabb) || BSP::Hacks::ForceInfinit)
 	{
 		// ... put the leaf at the head of the infinite list.
 		retval = infinite.push_front(leaf);
@@ -1425,7 +1407,7 @@ size_t BSP_tree_t::removeAllLeaves()
 BSP_leaf_list_t::BSP_leaf_list_t() :
 	count(0),
 	lst(nullptr),
-	bbox()
+	_bounds()
 {
 
 }
@@ -1433,7 +1415,6 @@ BSP_leaf_list_t::BSP_leaf_list_t() :
 //--------------------------------------------------------------------------------------------
 BSP_leaf_list_t::~BSP_leaf_list_t()
 {
-	bbox.dtor();
 	lst = nullptr;
 	count = 0;
 }
@@ -1463,7 +1444,7 @@ void BSP_leaf_list_t::clear()
 		leaf->inserted = false;
 		count--;
 	}
-	bv_self_clear(&bbox);
+	_bounds.clear();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1479,26 +1460,12 @@ bool BSP_leaf_list_t::push_front(BSP_leaf_t *leaf)
 		return false;
 	}
 
-	if (nullptr == lst)
-	{
-		// Insert the leaf.
-		leaf->next = lst; lst = leaf;
-		count++;
-		leaf->inserted = true;
-		// Use the leaf's bounding box as the bounding box of the leaf list.
-		bbox = leaf->bbox;
-	}
-	else
-	{
-		// Insert the leaf at the beginning of the leaf list.
-		leaf->next = lst; lst = leaf;
-		count++;
-		leaf->inserted = true;
-		// Use the union of the leaf's bounding box and the old bounding box the leaf list
-		// as the new bounding box of the leaf list.
-		bv_self_union(&(bbox), &(leaf->bbox));
-		return true;
-	}
+	// Insert the leaf.
+	leaf->next = lst; lst = leaf;
+	count++;
+	leaf->inserted = true;
+	// Add the leaf's bounding box to the bounds of this leaf list.
+	_bounds.add(leaf->bbox);
 	return true;
 }
 
@@ -1582,7 +1549,7 @@ void BSP_leaf_list_t::collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::Dyna
 	}
 	// If the AABB does not intersect the bounding box enclosing the leaves in this leaf list,
 	// there is nothing to do.
-	if (!aabb_intersects_aabb(*aabb, bbox.aabb))
+	if (!_bounds.intersects(*aabb))
 	{
 		return;
 	}
@@ -1671,7 +1638,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t *frustum, BSP::LeafTest *te
 
 	// If the frustum does not intersect the bounding box enclosing the leaves in this leaf list,
 	// there is nothing to do.
-	if (!frustum->intersects_bv(&(bbox),true))
+	if (!_bounds.intersects(*frustum))
 	{
 		return;
 	}
@@ -1734,7 +1701,7 @@ BSP_branch_list_t::BSP_branch_list_t(size_t dim) :
 	lst_size(0),
 	lst(nullptr),
 	inserted(0),
-	bbox()
+	_bounds()
 {
 	// Determine the number of children from the dimensionality:
 	// If we have two dimensions then we have 2 children.
@@ -1755,7 +1722,6 @@ BSP_branch_list_t::~BSP_branch_list_t()
 	this->lst = nullptr;
 	this->lst_size = 0;
 	this->inserted = 0;
-	this->bbox.dtor();
 }
 
 size_t BSP_branch_list_t::removeAllLeaves()
@@ -1784,7 +1750,7 @@ bool BSP_branch_list_t::clear_rec()
 	inserted = 0;
 
 	// Clear out the size of the children.
-	bv_self_clear(&(bbox));
+	_bounds.clear();
 
 	return true;
 }
