@@ -52,6 +52,7 @@ GameEngine::GameEngine() :
 	_gameStateStack(),
 	_currentGameState(nullptr),
 	_config(),
+    _drawCursor(true),
 
     _lastFrameEstimation(0),
     _frameSkip(0),
@@ -176,6 +177,11 @@ void GameEngine::renderOneFrame()
 	_currentGameState->drawAll();
     game_frame_all++;
 
+    //Draw mouse cursor last
+    if(_drawCursor) {
+        draw_mouse_cursor();
+    }
+
 	// flip the graphics page
     gfx_request_flip_pages();
 	gfx_do_flip_pages();
@@ -221,6 +227,7 @@ bool GameEngine::initialize()
     gfx_system_init_all_graphics();
     gfx_do_clear_screen();
     gfx_do_flip_pages();
+    gfx_system_load_basic_textures();
 
 	// synchronize the config values with the various game subsystems
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
@@ -455,6 +462,8 @@ void GameEngine::pollEvents()
             break;         
 
             case SDL_MOUSEMOTION:
+                mous.x = event.motion.x;
+                mous.y = event.motion.y;
                 _currentGameState->notifyMouseMoved(event.motion.x, event.motion.y);
             break;
 

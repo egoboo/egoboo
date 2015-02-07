@@ -1957,7 +1957,7 @@ void gfx_system_load_basic_textures()
     font_bmp_load_vfs(TxList_get_valid_ptr(static_cast<TX_REF>(TX_FONT_BMP)), "mp_data/font_new_shadow", "mp_data/font.txt");
 
     //Cursor
-    TxList_load_one_vfs("mp_data/cursor", TX_CURSOR, TRANSCOLOR);
+    TxList_load_one_vfs("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR), TRANSCOLOR);
 
     // Particle sprites
 	TextureManager::getSingleton()->load("mp_data/particle_trans", (TX_REF)TX_PARTICLE_TRANS, TRANSCOLOR);
@@ -3136,7 +3136,6 @@ void draw_inventory()
 void draw_mouse_cursor()
 {
     int     x, y;
-    oglx_texture_t * pcursor;
 
     if ( !mous.on )
     {
@@ -3144,22 +3143,22 @@ void draw_mouse_cursor()
         return;
     }
 
-    pcursor = mnu_TxList_get_valid_ptr( TX_CURSOR );
+    gfx_begin_2d();
+
+    oglx_texture_t *pcursor = TxList_get_valid_ptr(TX_CURSOR);
 
     // Invalid texture?
-    if ( NULL == pcursor )
+    if ( nullptr == pcursor )
     {
-        SDL_ShowCursor( SDL_ENABLE );
+        //Show default cursor
+        SDL_ShowCursor(SDL_ENABLE);
     }
     else
     {
         oglx_frect_t tx_tmp, sc_tmp;
 
-        // Hide the SDL mouse
-        SDL_ShowCursor( SDL_DISABLE );
-
-        x = ABS( mous.x );
-        y = ABS( mous.y );
+        x = std::abs(mous.x);
+        y = std::abs(mous.y);
 
         if ( oglx_texture_getSize( pcursor, tx_tmp, sc_tmp ) )
         {
@@ -3175,9 +3174,13 @@ void draw_mouse_cursor()
             sc_rect.xmax = x + sc_tmp[2];
             sc_rect.ymax = y + sc_tmp[3];
 
+            // Hide the SDL mouse
+            SDL_ShowCursor( SDL_DISABLE );
+
             draw_quad_2d( pcursor, sc_rect, tx_rect, true, NULL );
         }
     }
+    gfx_end_2d();
 }
 
 //--------------------------------------------------------------------------------------------

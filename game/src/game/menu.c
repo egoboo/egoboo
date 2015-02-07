@@ -4066,6 +4066,7 @@ int doVideoOptions( float deltaTime )
     return result;
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------
 int doShowLoadingScreen( float deltaTime )
 {
@@ -4188,7 +4189,6 @@ int doNotImplemented( float deltaTime )
 
     return 0;
 }
-
 //--------------------------------------------------------------------------------------------
 int doGamePaused( float deltaTime )
 {
@@ -4282,6 +4282,7 @@ int doGamePaused( float deltaTime )
 
     return result;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 int doShowEndgame( float deltaTime )

@@ -17,20 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file game/gamestates/SelectPlayersState.cpp
-/// @details The Main Menu of the game, the first screen presented to the players
+/// @file game/gamestates/SelectCharacterState.cpp
+/// @details Select which character a given player is playing
 /// @author Johan Jansen
 
-#include "game/gamestates/SelectPlayersState.hpp"
-#include "game/gamestates/SelectModuleState.hpp"
 #include "game/gamestates/SelectCharacterState.hpp"
+#include "game/gamestates/SelectModuleState.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/ui.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
 #include "game/gui/Label.hpp"
 
-SelectPlayersState::SelectPlayersState() 
+SelectCharacterState::SelectCharacterState() 
 {
 	//Load background
 	std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_selectplayers");
@@ -40,7 +39,7 @@ SelectPlayersState::SelectPlayersState()
 
 	//Add the buttons
 	int yOffset = GFX_HEIGHT-80;
-	std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
+	std::shared_ptr<Button> backButton = std::make_shared<Button>("No character", SDLK_ESCAPE);
 	backButton->setPosition(20, yOffset);
 	backButton->setSize(200, 30);
 	backButton->setOnClickFunction(
@@ -51,61 +50,27 @@ SelectPlayersState::SelectPlayersState()
 
 	yOffset -= backButton->getHeight() + 10;
 
-	std::shared_ptr<Button> continueButton = std::make_shared<Button>("Continue", SDLK_RETURN);
-	continueButton->setPosition(20, yOffset);
-	continueButton->setSize(200, 30);
-	continueButton->setOnClickFunction(
-	[]{
-		//TODO
-	});
-	addComponent(continueButton);
-	continueButton->setEnabled(false);
-
 	//Tell them what this screen is all about
 	std::shared_ptr<Label> infoText = std::make_shared<Label>("Select a character for each player that is going ot play.");
 	infoText->setPosition(150, GFX_HEIGHT - 40);
 	addComponent(infoText);
 
 	//Players Label
-	std::shared_ptr<Label> playersLabel = std::make_shared<Label>("PLAYERS");
+	std::shared_ptr<Label> playersLabel = std::make_shared<Label>("CHARACTERS");
 	playersLabel->setPosition(20, 20);
 	addComponent(playersLabel);
-
-	std::shared_ptr<Label> characterLabel = std::make_shared<Label>("CHARACTER");
-	characterLabel->setPosition(GFX_WIDTH/3, 20);
-	addComponent(characterLabel);
-
-	yOffset = playersLabel->getY() + playersLabel->getHeight() + 20;
-	for(int i = 0; i < 4; ++i) {
-		std::shared_ptr<Label> playerLabel = std::make_shared<Label>(std::string("Player ") + std::to_string(i+1));
-		playerLabel->setPosition(40, yOffset);
-		addComponent(playerLabel);
-
-		std::shared_ptr<Button> playerButton = std::make_shared<Button>("Not playing");
-		playerButton->setSize(200, 42);
-		playerButton->setPosition(GFX_WIDTH/3, yOffset-10);
-		playerButton->setOnClickFunction(
-			[continueButton]{
-				_gameEngine->pushGameState(std::make_shared<SelectCharacterState>());
-				continueButton->setEnabled(true);
-			}
-		);
-		addComponent(playerButton);
-
-		yOffset += playerLabel->getHeight() + 50;
-	}
 }
 
-void SelectPlayersState::update()
+void SelectCharacterState::update()
 {
 }
 
-void SelectPlayersState::drawContainer()
+void SelectCharacterState::drawContainer()
 {
-	
+
 }
 
-void SelectPlayersState::beginState()
+void SelectCharacterState::beginState()
 {
 	// menu settings
     SDL_WM_GrabInput(SDL_GRAB_OFF);

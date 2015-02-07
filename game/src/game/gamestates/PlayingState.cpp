@@ -55,6 +55,13 @@ void PlayingState::beginState()
 	// in-game settings
     SDL_ShowCursor( cfg.hide_mouse ? SDL_DISABLE : SDL_ENABLE );
     SDL_WM_GrabInput( cfg.grab_mouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+
+    if(cfg.hide_mouse) {
+	    _gameEngine->disableMouseCursor();
+    }
+    else {
+	    _gameEngine->enableMouseCursor();
+    }
 }
 
 bool PlayingState::notifyKeyDown(const int keyCode)

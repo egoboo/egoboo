@@ -107,11 +107,7 @@ void LoadingState::update()
 
 void LoadingState::drawContainer()
 {
-	ui_beginFrame(0);
-	{
-	    draw_mouse_cursor();
-	}
-	ui_endFrame();
+
 }
 
 void LoadingState::beginState()

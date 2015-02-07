@@ -17,18 +17,18 @@
 //*
 //********************************************************************************************
 
-/// @file game/gamestates/SelectPlayersState.hpp
-/// @details Select which of the 4 players are going to play
+/// @file game/gamestates/SelectCharacterState.hpp
+/// @details Select which character this player is going to play
 /// @author Johan Jansen
 
 #pragma once
 
 #include "game/gamestates/GameState.hpp"
 
-class SelectPlayersState : public GameState
+class SelectCharacterState : public GameState
 {
 public:
-	SelectPlayersState();
+	SelectCharacterState();
 
 	void update() override;
 

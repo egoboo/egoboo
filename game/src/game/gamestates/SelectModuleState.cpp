@@ -200,11 +200,7 @@ void SelectModuleState::update()
 
 void SelectModuleState::drawContainer()
 {
-	ui_beginFrame(0);
-	{
-	    draw_mouse_cursor();
-	}
-	ui_endFrame();
+
 }
 
 void SelectModuleState::beginState()

@@ -60,6 +60,18 @@ public:
 
 	int getFrameSkip() const;
 
+	/**
+	* @brief
+	* 	Tell the game engine that it is allowed to render a mouse cursor
+	**/
+	void enableMouseCursor() {_drawCursor = true;}
+
+	/**
+	* @brief
+	* 	Tell the game engine that it should not draw a mouse cursor
+	**/
+	void disableMouseCursor() {_drawCursor = false;}
+
 private:
 	void updateOneFrame();
 
@@ -85,6 +97,7 @@ private:
 	std::shared_ptr<GameState> _currentGameState;
 	std::mutex _gameStateMutex;
 	egoboo_config_t _config;
+	bool _drawCursor;
 
 	//For estimating frame rates
 	uint32_t _lastFrameEstimation;

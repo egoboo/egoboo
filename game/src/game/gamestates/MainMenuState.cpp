@@ -144,17 +144,14 @@ void MainMenuState::update()
 
 void MainMenuState::drawContainer()
 {
-	ui_beginFrame(0);
-	{
-	    draw_mouse_cursor();
-	}
-	ui_endFrame();
+
 }
 
 void MainMenuState::beginState()
 {
 	// menu settings
     SDL_WM_GrabInput( SDL_GRAB_OFF );
+    _gameEngine->enableMouseCursor();
 
     _audioSystem.playMusic(AudioSystem::MENU_SONG);
 

@@ -84,18 +84,13 @@ void InGameMenuState::drawContainer()
 {
 	//Render the playing state beackground first
 	_playingState->drawAll();
-
-	ui_beginFrame(0);
-	{
-	    draw_mouse_cursor();
-	}
-	ui_endFrame();
 }
 
 void InGameMenuState::beginState()
 {
 	// menu settings
     SDL_WM_GrabInput( SDL_GRAB_OFF );
+    _gameEngine->enableMouseCursor();
 
     //Sliding buttons effect
     float offset = 0;
