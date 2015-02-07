@@ -51,7 +51,7 @@ SelectCharacterState::SelectCharacterState()
 	yOffset -= backButton->getHeight() + 10;
 
 	//Tell them what this screen is all about
-	std::shared_ptr<Label> infoText = std::make_shared<Label>("Select a character for each player that is going ot play.");
+	std::shared_ptr<Label> infoText = std::make_shared<Label>("Select your character\nUse the mouse wheel to scroll.");
 	infoText->setPosition(150, GFX_HEIGHT - 40);
 	addComponent(infoText);
 

@@ -5295,17 +5295,6 @@ void _flip_pages()
 
     SDL_GL_SwapBuffers();
 
-    if ( screenshot_requested )
-    {
-        screenshot_requested = false;
-
-        // take the screenshot NOW, since we have just updated the screen buffer
-        if ( !dump_screenshot() )
-        {
-            DisplayMsg_printf( "Error writing screenshot!" );    // send a failure message to the screen
-            log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------

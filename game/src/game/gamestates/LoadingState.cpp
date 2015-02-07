@@ -30,6 +30,7 @@
 #include "game/graphic.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Label.hpp"
+#include "game/gui/Image.hpp"
 #include "egolib/math/Random.hpp"
 #include "game/audio/AudioSystem.hpp"
 
@@ -53,6 +54,12 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     _globalGameTips(),
     _localGameTips()
 {
+    //Load background
+    std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_logo");
+    background->setSize(background->getTextureWidth(), background->getTextureHeight());
+    background->setPosition(GFX_WIDTH/2-background->getTextureWidth()/2, GFX_HEIGHT/2-background->getTextureHeight()/2-100);
+    addComponent(background);
+
     std::shared_ptr<Label> mainLabel = std::make_shared<Label>("LOADING MODULE");
     mainLabel->setPosition(GFX_WIDTH/2 - mainLabel->getWidth()/2, 20);
     addComponent(mainLabel);

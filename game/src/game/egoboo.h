@@ -41,14 +41,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if 0
-struct local_stats_t;
-struct ego_process_t;
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 #define VERSION "2.9.0"                             ///< Version of the game
 
 #define NOSPARKLE           255                     ///< Dont sparkle icons
@@ -60,12 +52,7 @@ struct ego_process_t;
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000.0f
 
-//#define TARGET_FPS                      30.0f
-//#define FRAME_SKIP                      (TICKS_PER_SEC/TARGET_FPS)    ///< 1000 tics per sec / 50 fps = 20 ticks per frame
-
-//#define EMULATE_UPS                     50.0f
 #define TARGET_UPS                      50.0f
-//#define UPDATE_SCALE                    (EMULATE_UPS/(stabilized_game_ups_sum/stabilized_game_ups_weight))
 #define UPDATE_SKIP                     (TICKS_PER_SEC/TARGET_UPS)    ///< 1000 tics per sec / 50 fps = 20 ticks per frame
 #define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)    ///< 1000 tics per sec / 20 ticks per frame = 50 fps
 
@@ -77,38 +64,13 @@ struct ego_process_t;
 #define STABILIZED_COVER (1.0f - STABILIZED_KEEP)
 
 EXTERN Sint32          game_fps_clock             EQ( 0 );             ///< The number of ticks this second
-//EXTERN float           stabilized_menu_fps        EQ( TARGET_FPS );
-//EXTERN float           stabilized_menu_fps_sum    EQ( STABILIZED_COVER * TARGET_FPS );
-//EXTERN float           stabilized_menu_fps_weight EQ( STABILIZED_COVER );
 
 EXTERN Uint32          game_fps_loops             EQ( 0 );             ///< The number of frames drawn this second
-//EXTERN float           stabilized_game_fps        EQ( TARGET_FPS );
-//EXTERN float           stabilized_game_fps_sum    EQ( STABILIZED_COVER * TARGET_FPS );
-//EXTERN float           stabilized_game_fps_weight EQ( STABILIZED_COVER );
-
-//EXTERN float           stabilized_fps             EQ( TARGET_FPS );
 
 EXTERN Sint32          gfx_clear_loops       EQ( 0 );             ///< The number of times the screen has been cleared
 
 EXTERN Sint32          menu_fps_clock        EQ( 0 );             ///< The number of ticks this second
 EXTERN Uint32          menu_fps_loops        EQ( 0 );             ///< The number of frames drawn this second
-
-#if 0
-EXTERN float           est_max_fps           EQ( TARGET_FPS );
-EXTERN float           est_render_time       EQ( 1.0f / TARGET_FPS );
-
-EXTERN float           est_update_time       EQ( 1.0f / TARGET_UPS );
-EXTERN float           est_max_ups           EQ( TARGET_UPS );
-
-EXTERN float           est_gfx_time          EQ( 1.0f / TARGET_FPS );
-EXTERN float           est_max_gfx           EQ( TARGET_FPS );
-
-EXTERN float           est_single_update_time  EQ( 1.0f / TARGET_UPS );
-EXTERN float           est_single_ups          EQ( TARGET_UPS );
-
-EXTERN float           est_update_game_time  EQ( 1.0f / TARGET_UPS );
-EXTERN float           est_max_game_ups      EQ( TARGET_UPS );
-#endif
 
 EXTERN Sint32          game_ups_clock             EQ( 0 );             ///< The number of ticks this second
 EXTERN Uint32          game_ups_loops             EQ( 0 );             ///< The number of frames drawn this second
@@ -189,8 +151,6 @@ struct ego_process_t
 };
 
 void ego_init_SDL_base();
-
-EXTERN bool screenshot_requested EQ( false );
 
 EXTERN bool single_frame_mode EQ( false );
 EXTERN bool single_frame_keyready EQ( true );

@@ -53,6 +53,8 @@ GameEngine::GameEngine() :
 	_currentGameState(nullptr),
 	_config(),
     _drawCursor(true),
+    _screenshotReady(true),
+    _screenshotRequested(false),
 
     _lastFrameEstimation(0),
     _frameSkip(0),
@@ -166,6 +168,12 @@ void GameEngine::updateOneFrame()
     pollEvents();
 
     _currentGameState->update();
+
+    //Check for screenshots
+    if (SDL_KEYDOWN(keyb, SDLK_F11))
+    {
+        requestScreenshot();
+    }
 }
 
 void GameEngine::renderOneFrame()
@@ -185,6 +193,23 @@ void GameEngine::renderOneFrame()
 	// flip the graphics page
     gfx_request_flip_pages();
 	gfx_do_flip_pages();
+
+    //Save screenshot if it has been requested
+    if(_screenshotRequested) {
+        if(_screenshotReady) {
+            _screenshotReady = false;
+            _screenshotRequested = false;
+            
+            if (!dump_screenshot())
+            {
+                DisplayMsg_printf("Error writing screenshot!"); // send a failure message to the screen
+                log_warning("Error writing screenshot\n");      // Log the error in log.txt
+            }
+        }
+    }
+    else {
+        _screenshotReady = true;
+    }
 }
 
 bool GameEngine::initialize()

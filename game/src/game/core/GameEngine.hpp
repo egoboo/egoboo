@@ -60,6 +60,8 @@ public:
 
 	int getFrameSkip() const;
 
+	void requestScreenshot() {_screenshotRequested = true;}
+
 	/**
 	* @brief
 	* 	Tell the game engine that it is allowed to render a mouse cursor
@@ -98,6 +100,8 @@ private:
 	std::mutex _gameStateMutex;
 	egoboo_config_t _config;
 	bool _drawCursor;
+	bool _screenshotReady;
+	bool _screenshotRequested;
 
 	//For estimating frame rates
 	uint32_t _lastFrameEstimation;
