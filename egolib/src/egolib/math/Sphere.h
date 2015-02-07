@@ -52,10 +52,7 @@ struct sphere_t
 	 * @return
 	 *	the center of this sphere
 	 */
-	const fvec3_t& getCenter() const
-	{
-		return origin;
-	}
+	const fvec3_t& getCenter() const;
 
 	/**
 	 * @brief
@@ -63,11 +60,7 @@ struct sphere_t
 	 * @return
 	 *	the radius of this sphere
 	 */
-	float getRadius() const
-	{
-		return radius;
-	}
-
+	float getRadius() const;
 
 	/**
 	 * @brief
@@ -105,11 +98,7 @@ struct sphere_t
 	 * @post
 	 * 	This sphere was assigned the values of the sphere.
 	 */
-	void assign(const sphere_t& other)
-	{
-		radius = other.radius;
-		origin = other.origin;
-	}
+	void assign(const sphere_t& other);
 
 	/**
 	 * @brief
@@ -121,11 +110,7 @@ struct sphere_t
 	 * @post
 	 *	This sphere was assigned the values of the other sphere.
 	 */
-	sphere_t& operator=(const sphere_t& other)
-	{
-		assign(other);
-		return *this;
-	}
+	sphere_t& operator=(const sphere_t& other);
 
 	/**
 	 * @brief
@@ -135,11 +120,7 @@ struct sphere_t
 	 * @remark
 	 *	The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
 	 */
-	sphere_t() :
-		origin(fvec3_t::zero),
-		radius(0.0f)
-	{
-	}
+	sphere_t();
 
 	/**
 	 * @brief
@@ -147,11 +128,43 @@ struct sphere_t
 	 * @post
 	 *	This sphere was assigned the default values of another sphere.
 	 */
-	sphere_t(const sphere_t& other) :
-		origin(other.origin),
-		radius(other.radius)
-	{
-	}
+	sphere_t(const sphere_t& other);
+
+	/**
+	 * @brief
+	 *	Get if this sphere intersects with a point.
+	 * @param other
+	 *	the point
+	 * @return
+	 *	@a true if this sphere intersects with the point,
+	 *	@a false otherwise
+	 * @remark
+	 *	A sphere \f$(c,r)\f$ with the center $c$ and the radius $r$
+	 *	and a point \f$p\f$ intersect if \f$|p - c| \leq r\f$ holds.
+	 *	That condition is equivalent to the condition \f$|p - c|^2
+	 *	\leq r^2\f$ but the latter is more efficient to test (two
+	 *	multiplications vs. one square root).
+	 */
+	bool intersects(const fvec3_t& point) const;
+
+	/**
+	 * @brief
+	 *	Get if this sphere intersects with another sphere.
+	 * @param other
+	 *	the other sphere
+	 * @return
+	 *	@a true if this sphere intersects with the other sphere,
+	 *	@a false otherwise
+	 * @remark
+	 *	Two spheres \f$(c_0,r_0)\f$ and \f$(c_1,r_1)\f$ with the
+	 *	centers \f$c_0\f$ and \f$c_1\f$ and the radii \f$r_0\f$
+	 *	and \f$r_1\f$ intersect if \f$|c_1 - c_0| \leq r_0 + r_1\f$
+	 *	holds. That condition is equivalent to the condition
+	 *	\f$|c_1 - c_0|^2 \leq (r_0 + r_1)^2\f$ but the latter
+	 *	is more efficient to test (two multiplications vs. one
+	 *	square root).
+	 */
+	bool intersects(const sphere_t& other) const;
 
 };
 

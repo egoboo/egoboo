@@ -50,12 +50,7 @@ public:
 	 * @remark
 	 *	The default plane has the plane normal @a (0,0,1) and a distance from the origin of @a 0.
 	 */
-	plane_t() :
-		_n(0.0f, 0.0f, 1.0f),
-		_d(0.0f)
-	{
-		//ctor
-	}
+	plane_t();
 
 	/**
 	 * @brief
@@ -93,26 +88,7 @@ public:
 	 *	\f]
 	 *	shows that \f$b\f$ is on the plane. The proof for \f$c\f$ is left to the reader.
 	 */
-	plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c) : plane_t()
-	{
-		fvec3_t u = b - a;
-		if (u == fvec3_t::zero)
-		{
-			throw std::domain_error("b = a");
-		}
-		fvec3_t v = c - a;
-		if (u == fvec3_t::zero)
-		{
-			throw std::domain_error("c = a");
-		}
-		_n = u.cross(v);
-		if (0.0f == _n.normalize())
-		{
-			/* u x v = 0 is only possible for u,v != 0 if u = v and thus b = c. */
-			throw std::domain_error("b = c");
-		}
-		_d = - _n.dot(a);
-	}
+	plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c);
 
 	/**
 	 * @brief
@@ -134,14 +110,7 @@ public:
 	 *	\Rightarrow 0 = 0
 	 *	\f]
 	 */
-	plane_t(const fvec3_t& p, const fvec3_t& n) : plane_t()
-	{
-		if (_n.normalize() == 0.0f)
-		{
-			throw std::domain_error("normal vector is zero vector");
-		}
-		_d = -_n.dot(p);
-	}
+	plane_t(const fvec3_t& p, const fvec3_t& n);
 
 	/**
 	 * @brief
@@ -151,11 +120,7 @@ public:
 	 * @post
 	 *	This plane was assigned the values the other plane.
 	 */
-	plane_t(const plane_t& other) :
-		_n(other._n),
-		_d(other._d)
-	{
-	}
+	plane_t(const plane_t& other);
 
 	/**
 	 * @brief
@@ -167,10 +132,7 @@ public:
 	 *	The point is in the positive (negative) half-space of the plane if the distance is positive (negative).
 	 *	Otherwise the point is on the plane.
 	 */
-	float distance(const fvec3_t& point) const
-	{
-		return _n.dot(point) + _d;
-	}
+	float distance(const fvec3_t& point) const;
 
 
 private:
