@@ -189,6 +189,7 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
 
     switch ( header )
     {
+        #if 0
         case TO_REMOTE_MODULE:
             log_info( "TO_REMOTE_MODULE\n" );
             if ( !egonet_get_hostactive() && !egonet_get_readytostart() )
@@ -235,7 +236,7 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
                 }
             }
             break;
-
+#endif
         case TO_REMOTE_START:
             log_info( "TO_REMOTE_START\n" );
             if ( !egonet_get_hostactive() )

@@ -25,6 +25,7 @@
 #include "game/gamestates/SelectModuleState.hpp"
 #include "game/gamestates/SelectCharacterState.hpp"
 #include "game/core/GameEngine.hpp"
+#include "game/audio/AudioSystem.hpp"
 #include "game/ui.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
@@ -129,6 +130,9 @@ void SelectPlayersState::beginState()
 {
 	// menu settings
     SDL_WM_GrabInput(SDL_GRAB_OFF);
+
+    //Begin the main menu song again (in case we just returned from winning a module)
+    _audioSystem.playMusic(AudioSystem::MENU_SONG);
 
     //Update player selection and enable continue button if at least 
     //one player has selected a character

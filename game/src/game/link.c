@@ -83,6 +83,10 @@ static link_stack_entry_t link_stack[LINK_STACK_MAX];
 //--------------------------------------------------------------------------------------------
 bool link_follow_modname( const char * modname, bool push_current_module )
 {
+//ZF> TODO: not implemented
+    return false;
+#if 0
+
     /// @author BB
     /// @details This causes the game to follow a link, given the module name
 
@@ -131,6 +135,7 @@ bool link_follow_modname( const char * modname, bool push_current_module )
     }
 
     return retval;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -212,6 +217,9 @@ bool link_pop_module()
 //--------------------------------------------------------------------------------------------
 bool link_push_module()
 {
+    return false;
+    //TODO: not ported
+#if 0
     bool retval;
     link_stack_entry_t * pentry;
     PLA_REF ipla;
@@ -266,6 +274,7 @@ bool link_push_module()
     }
 
     return retval;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------

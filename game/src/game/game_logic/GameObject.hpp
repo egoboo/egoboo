@@ -256,6 +256,13 @@ public:
     **/
     bool isAttacking() const;
 
+    /**
+    * @return true if this GameObject is controlled by a player
+    **/
+    bool isPlayer() const {return islocalplayer;}
+
+    bool isAlive() const {return alive;}
+
 private:
 
     /**

@@ -23,15 +23,18 @@
 
 #include "game/gamestates/PlayingState.hpp"
 #include "game/gamestates/InGameMenuState.hpp"
+#include "game/gamestates/VictoryScreen.hpp"
 #include "game/core/GameEngine.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
-#include "game/module/Module.hpp"
 
-//For deconstructor
-#include "game/script.h"
+//For cheats
+#include "game/module/ObjectHandler.hpp"
+#include "game/game_logic/GameObject.hpp"
+#include "game/module/Module.hpp"
+#include "game/char.h"
 
 PlayingState::PlayingState()
 {
@@ -69,8 +72,32 @@ bool PlayingState::notifyKeyDown(const int keyCode)
 	switch(keyCode)
 	{
 		case SDLK_ESCAPE:
-			_gameEngine->pushGameState(std::make_shared<InGameMenuState>(this));
+
+			//If we have won show the Victory Screen
+			if(PMod->isBeaten()) {
+				_gameEngine->pushGameState(std::make_shared<VictoryScreen>(this));
+			}
+
+			//Else do the ingame menu
+			else {
+				_gameEngine->pushGameState(std::make_shared<InGameMenuState>(this));				
+			}
 		return true;
+
+		//Cheat debug button to win a module
+		case SDLK_F9:
+			if(cfg.dev_mode)
+			{
+				for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+				{
+					if(!object->isPlayer() && object->isAlive())
+					{
+						kill_character(object->getCharacterID(), 0, false);
+					}
+				}
+				return true;
+			}
+		break;
 	}
 
 	return ComponentContainer::notifyKeyDown(keyCode);

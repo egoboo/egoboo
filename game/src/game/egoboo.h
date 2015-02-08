@@ -81,12 +81,6 @@ EXTERN float           stabilized_game_ups_weight EQ( STABILIZED_COVER );
 /// Timers
 EXTERN Uint32          outofsync   EQ( 0 );
 
-EXTERN bool          pickedmodule_ready EQ( false ); ///< Is there a new picked module?
-EXTERN int             pickedmodule_index EQ( -1 );     ///< The module index number
-EXTERN STRING          pickedmodule_path;               ///< The picked module's full path name
-EXTERN STRING          pickedmodule_name;               ///< The picked module's short name
-EXTERN STRING          pickedmodule_write_path;         ///< The picked module's path name relative to the userdata directory
-
 //HUD
 EXTERN bool          timeron        EQ( false );        ///< Game timer displayed?
 EXTERN Uint32          timervalue     EQ( 0 );             ///< Timer time ( 50ths of a second )

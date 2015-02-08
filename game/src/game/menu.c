@@ -551,6 +551,7 @@ bool menu_system_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool menu_system_init()
 {
     bool retval = true;
@@ -672,7 +673,6 @@ int mnu_get_menu_depth()
 //--------------------------------------------------------------------------------------------
 // Implementations of the various menus
 //--------------------------------------------------------------------------------------------
-#if 0
 int doMainMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2379,10 +2379,10 @@ int doInputOptions( float deltaTime )
             tipText_set_position( menuFont, "Change input settings here.", 20 );
 
             // Load the global icons (keyboard, mouse, etc.)
-            if ( !mnu_load_all_global_icons() )
-            {
-                log_warning( "Could not load all global icons!\n" );
-            }
+            //if ( !mnu_load_all_global_icons() )
+            //{
+            //    log_warning( "Could not load all global icons!\n" );
+            //}
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
@@ -4211,9 +4211,9 @@ int doGamePaused( float deltaTime )
 
     return result;
 }
-#endif
 
 //--------------------------------------------------------------------------------------------
+
 int doShowEndgame( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -4363,7 +4363,6 @@ int doShowEndgame( float deltaTime )
 
 //--------------------------------------------------------------------------------------------
 // place this last so that we do not have to prototype every menu function
-#if 0
 int doMenu( float deltaTime )
 {
     /// @details the global function that controls the navigation between menus
@@ -5038,6 +5037,7 @@ bool mnu_Tips_global_load_vfs( GameTips_t * pglobal )
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool mnu_Tips_local_load_vfs( GameTips_t * plocal )
 {
     /// @author ZF
@@ -5122,6 +5122,7 @@ const char * mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal )
 
     return retval;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 // Implementation of the mnu_SlidyButton array
