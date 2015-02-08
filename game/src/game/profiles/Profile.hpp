@@ -18,6 +18,7 @@
 //********************************************************************************************
 
 /// @file game/Profile.hpp
+/// @author Johan Jansen
 #pragma once
 
 #include <unordered_map>

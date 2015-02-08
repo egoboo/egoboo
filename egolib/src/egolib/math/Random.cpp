@@ -21,10 +21,11 @@
 /// @author Johan Jansen
 
 #include "Random.hpp"
+#include <ctime>
 
 //Static data initializer
 std::random_device rd;
-std::mt19937 Random::generator = std::mt19937(rd());
+std::mt19937 Random::generator = std::mt19937(time(nullptr));
 
 void Random::setSeed(const long seed)
 {

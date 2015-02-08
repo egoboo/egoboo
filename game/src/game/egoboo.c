@@ -95,6 +95,7 @@ ego_process_t     * EProc   = &_eproc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 int do_ego_proc_begin(ego_process_t *self)
 {
     // initialize the virtual filesystem first
@@ -444,7 +445,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int SDL_main(int argc, char **argv)
+int SDL_main2(int argc, char **argv)
 {
     /// @author ZZ
     /// @details This is where the program starts and all the high level stuff happens
@@ -674,6 +675,7 @@ ego_process_t *ego_process_init(ego_process_t *self, int argc, char **argv)
 
     return self;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 Uint32 egoboo_get_ticks()
@@ -694,6 +696,7 @@ Uint32 egoboo_get_ticks()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
 {
     size_t tmp_maxparticles;

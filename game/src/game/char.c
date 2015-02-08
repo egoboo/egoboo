@@ -821,11 +821,15 @@ BIT_FIELD GameObjectest_wall( GameObject * pchr, const float test_pos[], mesh_wa
 
     BIT_FIELD retval;
     float  radius;
-    const float * loc_test_pos = NULL;
 
     if ( !ACTIVE_PCHR( pchr ) ) return EMPTY_BIT_FIELD;
 
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return EMPTY_BIT_FIELD;
+
+    const float *loc_test_pos = ( NULL == test_pos ) ? pchr->getPosition().v : test_pos;
+    if(NULL == loc_test_pos) {
+        return EMPTY_BIT_FIELD;
+    }
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
@@ -837,9 +841,6 @@ BIT_FIELD GameObjectest_wall( GameObject * pchr, const float test_pos[], mesh_wa
             radius = pchr->bump_1.size;
         }
     }
-
-    loc_test_pos = ( NULL == test_pos ) ? pchr->getPosition().v : test_pos;
-    if ( NULL == loc_test_pos ) return 0;
 
     // do the wall test
     mesh_mpdfx_tests = 0;
@@ -5982,7 +5983,7 @@ float set_character_animation_rate( GameObject * pchr )
     if ( !can_be_interrupted ) return pinst->rate = 1.0f;
 
     // dont change the rate if it is an attack animation
-    if ( character_is_attacking( pchr ) )  return pinst->rate;
+    if ( pchr->isAttacking() )  return pinst->rate;
 
     // if the character is mounted or sitting, base the rate off of the mounr
     if ( _gameObjects.exists( pchr->attachedto ) && (( ACTION_MI == pinst->action_which ) || ( ACTION_MH == pinst->action_which ) ) )
@@ -6224,12 +6225,6 @@ float set_character_animation_rate( GameObject * pchr )
     pinst->rate = CLIP( pinst->rate, 0.1f, 10.0f );
 
     return pinst->rate;
-}
-
-//--------------------------------------------------------------------------------------------
-bool character_is_attacking( GameObject *pchr )
-{
-    return pchr->inst.action_which >= ACTION_UA && pchr->inst.action_which <= ACTION_FD;
 }
 
 //--------------------------------------------------------------------------------------------

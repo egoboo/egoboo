@@ -48,6 +48,7 @@
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
 #include "game/module/ObjectHandler.hpp"
+#include "game/profiles/ModuleProfile.hpp"
 
 #include "game/char.h"
 #include "game/particle.h"
@@ -132,7 +133,6 @@ static void game_reset_timers();
 static void check_stats();
 static void tilt_characters_to_terrain();
 static void update_pits();
-static int  update_game();
 static void game_update_ups();
 static void do_damage_tiles();
 static void set_local_latches();
@@ -704,18 +704,6 @@ int update_game()
     /// @details This function does several iterations of character movements and such
     ///    to keep the game in sync.
 
-    int tnc, numdead, numalive;
-    int update_loop_cnt;
-    int max_iterations;
-    bool need_updates;
-    bool free_running;
-    Uint32 lotrue_update;
-
-    PLA_REF ipla;
-
-    // is the update counter free running?
-    free_running = GProc->ups_timer.free_running;
-
     // Check for all local players being dead
     local_stats.allpladead      = false;
     local_stats.seeinvis_level  = 0.0f;
@@ -724,11 +712,18 @@ int update_game()
     local_stats.grog_level      = 0.0f;
     local_stats.daze_level      = 0.0f;
 
+    //status text for player stats
+    check_stats();
+
+    //Passage music
+    PMod->checkPassageMusic();
+
     // count the total number of players
     net_count_players();
 
-    numdead = numalive = 0;
-    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    int numdead = 0;
+    int numalive = 0;
+    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
         GameObject * pchr;
@@ -784,7 +779,7 @@ int update_game()
     }
 
     // check for autorespawn
-    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
         GameObject * pchr;
@@ -810,150 +805,65 @@ int update_game()
         }
     }
 
-    // don't use a value of true_update that could change during the
-    // iteration of the inner loop
-    game_update_timers();
-    lotrue_update = true_update;
+    // do important stuff to keep in sync inside this loop
 
-    max_iterations = 1;
-    need_updates    = false;
-    if ( free_running )
+    // keep the mpdfx lists up-to-date. No calculation is done unless one
+    // of the mpdfx values was changed during the last update
+    mpdfx_lists_synch( &( PMesh->fxlists ), &( PMesh->gmem ), false );
+    
+    // Get immediate mode state for the rest of the game
+    input_read_keyboard();
+    input_read_mouse();
+    input_read_joysticks();
+
+    set_local_latches();
+
+    //---- begin the code for updating misc. game stuff
     {
-        // if the ups_timer is free-running then there is only one update
-        // per each unregulated pass through the loop
-
-        need_updates = true;
-        max_iterations = 1;
+        BillboardList_update_all();
+        animate_tiles();
+        water_instance_move( &water );
+        _audioSystem.updateLoopingSounds();
+        do_damage_tiles();
+        update_pits();
+        do_weather_spawn_particles();
     }
-    else if ( single_frame_mode )
+    //---- end the code for updating misc. game stuff
+
+    //---- begin the code object I/O
     {
-        // for single frame mode, only one update per request
-        need_updates = true;
-        max_iterations = 1;
+        let_all_characters_think();           // sets the non-player latches
+        net_unbuffer_player_latches();            // sets the player latches
+        //blah_billboard();
     }
-    else if ( update_wld < lotrue_update )
+    //---- end the code object I/O
+
+    //---- begin the code for updating in-game objects
+    initialize_all_objects();
     {
-        // if the ups_timer is throttled, do not exceed the given rate
-        need_updates    = true;
-        max_iterations = 2 * TARGET_UPS;
+        move_all_objects();                   // clears some latches
+        bump_all_objects();                   // do the actual object interaction
     }
+    finalize_all_objects();
+    //---- end the code for updating in-game objects
 
-    update_lag = 0;
-    update_loop_cnt = 0;
-    if ( need_updates )
+    // put the camera movement inside here
+    _cameraSystem.updateAll(PMesh);
+
+    // Timers
+    clock_wld += UPDATE_SKIP;
+    clock_enc_stat++;
+    clock_chr_stat++;
+
+    // Reset the respawn timer
+    if ( local_stats.revivetimer > 0 )
     {
-        /// @todo claforte@> Put that back in place once networking is functional (Jan 6th 2001)
-        for ( tnc = 0; tnc < max_iterations; tnc++ )
-        {
-            if ( !free_running && ( update_wld >= lotrue_update ) ) break;
-
-            PROFILE_BEGIN( game_single_update );
-            {
-                // do important stuff to keep in sync inside this loop
-
-                // keep the mpdfx lists up-to-date. No calculation is done unless one
-                // of the mpdfx values was changed during the last update
-                mpdfx_lists_synch( &( PMesh->fxlists ), &( PMesh->gmem ), false );
-
-                // read the input values
-                input_read_all_devices();
-
-                // NETWORK PORT
-#if 0
-                PROFILE_BEGIN( egonet_listen_for_packets );
-                {
-                    egonet_listen_for_packets();
-                }
-                PROFILE_END2( egonet_listen_for_packets );
-#endif
-
-                PROFILE_BEGIN( set_local_latches );
-                {
-                    set_local_latches();
-                }
-                PROFILE_END2( set_local_latches );
-
-#if 0
-                PROFILE_BEGIN( cl_talkToHost );
-                {
-                    cl_talkToHost();
-                }
-                PROFILE_END2( cl_talkToHost );
-
-                PROFILE_BEGIN( talk_to_remotes );
-                {
-                    // get all player latches from the "remotes"
-                    sv_talkToRemotes();
-                }
-                PROFILE_END2( talk_to_remotes );
-#endif
-
-                //---- begin the code for updating misc. game stuff
-                {
-                    BillboardList_update_all();
-                    animate_tiles();
-                    water_instance_move( &water );
-                    _audioSystem.updateLoopingSounds();
-                    do_damage_tiles();
-                    update_pits();
-                    do_weather_spawn_particles();
-                }
-                //---- end the code for updating misc. game stuff
-
-                //---- begin the code object I/O
-                {
-                    let_all_characters_think();           // sets the non-player latches
-                    net_unbuffer_player_latches();            // sets the player latches
-                    //blah_billboard();
-                }
-                //---- end the code object I/O
-
-                //---- begin the code for updating in-game objects
-                initialize_all_objects();
-                {
-                    move_all_objects();                   // clears some latches
-                    bump_all_objects();                   // do the actual object interaction
-                }
-                finalize_all_objects();
-                //---- end the code for updating in-game objects
-
-                // put the camera movement inside here
-                _cameraSystem.updateAll(PMesh);
-
-                // Timers
-                clock_wld += UPDATE_SKIP;
-                clock_enc_stat++;
-                clock_chr_stat++;
-
-                // Reset the respawn timer
-                if ( local_stats.revivetimer > 0 )
-                {
-                    local_stats.revivetimer--;
-                }
-
-                update_wld++;
-                update_loop_cnt++;
-
-                // calculate the updates per second
-                game_ups_loops++;
-                game_update_ups();
-
-                // get the time values for the next iteration
-                game_update_timers();
-            }
-            PROFILE_END2( game_single_update );
-
-            // estimate how much time the main loop is taking per second
-            est_single_update_time = 0.9F * est_single_update_time + 0.1F * PROFILE_QUERY( game_single_update );
-            est_single_ups         = 0.9F * est_single_ups         + 0.1F * ( 1.0F / PROFILE_QUERY( game_single_update ) );
-        }
-        update_lag = tnc;
+        local_stats.revivetimer--;
     }
 
-    est_update_game_time = 0.9F * est_update_game_time + 0.1F * est_single_update_time * update_loop_cnt;
-    est_max_game_ups     = 0.9F * est_max_game_ups     + 0.1F * ( 1.0F / est_update_game_time );
+    update_wld++;
 
-    return update_loop_cnt;
+    return 1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1092,9 +1002,6 @@ void game_reset_timers()
     clock_enc_stat = 0;
     clock_chr_stat = 0;
 
-    // reset the game clock
-    egolib_throttle_reset( &game_throttle );
-
     // reset the ups counter(s)
     game_ups_clock        = 0;
     game_ups_loops        = 0;
@@ -1107,16 +1014,10 @@ void game_reset_timers()
     game_fps_clock        = 0;
     game_fps_loops        = 0;
 
-    stabilized_game_fps        = cfg.framelimit;
-    stabilized_game_fps_sum    = STABILIZED_COVER * cfg.framelimit;
-    stabilized_game_fps_weight = STABILIZED_COVER;
-
-    stabilized_game_ups        = TARGET_UPS;
-    stabilized_game_ups_sum    = STABILIZED_COVER * TARGET_UPS;
-    stabilized_game_ups_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 int game_do_menu( menu_process_t * mproc )
 {
     /// @author BB
@@ -1206,7 +1107,7 @@ int game_process_do_begin( game_process_t * gproc )
     gfx_system_make_enviro();
 
     // try to start a new module
-    if ( !game_begin_module(pickedmodule_path) )
+    //if ( !game_begin_module(pickedmodule_path) )
     {
         // failure - kill the game process
         process_t::kill(PROC_PBASE(gproc));
@@ -1359,13 +1260,6 @@ int game_process_do_running( game_process_t * gproc )
                 }
 #endif
 
-                PROFILE_BEGIN( check_stats );
-                {
-                    check_stats();
-                }
-                PROFILE_END2( check_stats );
-
-                PMod->checkPassageMusic();
 
                 update_loops = update_game();
             }
@@ -1573,6 +1467,7 @@ int game_process_run( game_process_t * gproc, double frameDuration )
 
     return result;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -2884,7 +2779,7 @@ bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     }
 
     // automatically identify and unkurse all player starting equipment? I think yes.
-    if ( start_new_player && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
+    if ( !PMod->isImportValid() && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
     {
         GameObject *pitem;
         pchr->nameknown = true;
@@ -3461,27 +3356,22 @@ void game_quit_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_begin_module(const char * modname)
+bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
 {
     /// @author BB
     /// @details all of the initialization code before the module actually starts
 
-    const mod_file_t * moduleData = mnu_ModList_get_base(_currentModuleID);
-    if(!moduleData) {
-        return false;
-    }
-
     // set up the virtual file system for the module (Do before loading the module)
-    if ( !setup_init_module_vfs_paths( modname ) ) return false;
+    if ( !setup_init_module_vfs_paths( module->getPath().c_str() ) ) return false;
 
     // make sure that the object lists are in a good state
     reset_all_object_lists();
 
     // start the module
-    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(_currentModuleID), time(NULL)));
+    PMod = std::unique_ptr<GameModule>(new GameModule(module, time(NULL)));
 
     // load all the in-game module data
-    if ( !game_load_module_data( modname ) )
+    if ( !game_load_module_data( module->getPath().c_str() ) )
     {    
         // release any data that might have been allocated
         game_release_module_data();
@@ -3490,7 +3380,7 @@ bool game_begin_module(const char * modname)
     };
 
     //After loading, spawn all the data and initialize everything
-    game_setup_module( modname );
+    game_setup_module( module->getPath().c_str() );
 
     // make sure the per-module configuration settings are correct
     config_synch( &cfg, true );
@@ -3506,8 +3396,8 @@ bool game_begin_module(const char * modname)
     if ( cfg.dev_mode ) log_madused_vfs( "/debug/slotused.txt" );
 
     // initialize the network
-    net_begin();
-    net_sayHello();
+    //net_begin();
+    //net_sayHello();
 
     // initialize the timers as the very last thing
     timeron = false;
@@ -3557,6 +3447,12 @@ void game_release_module_data()
     // make sure that the object lists are cleared out
     free_all_objects();
 
+    // deallocate any dynamically allocated scripting memory
+    scripting_system_end();
+
+    // clean up any remaining models that might have dynamic data
+    MadStack_release_all();
+
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
     _profileSystem.releaseAllProfiles();
@@ -3565,9 +3461,14 @@ void game_release_module_data()
     ptmp = PMesh;
     ego_mesh_destroy( &ptmp );
 
-    // delete the mesh BSP data
+    // deallocate any dynamically allocated collision memory
     mesh_BSP_system_end();
+    obj_BSP_system_end();
+    collision_system_end();
 
+    // free the cameras
+    _cameraSystem.end();
+    
     // restore the original statically allocated ego_mesh_t header
     PMesh = _mesh + 0;
 }
@@ -3707,6 +3608,7 @@ void let_all_characters_think()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
     if ( NULL == mproc ) return false;
@@ -3735,6 +3637,7 @@ void game_end_menu( menu_process_t * mproc )
         GProc->menu_depth = -1;
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void game_finish_module()
@@ -4135,6 +4038,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     *dst_end = CSTR_END;
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------
 bool game_choose_module( MOD_REF imod )
 {
@@ -4172,7 +4076,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if 0
+
 void do_game_hud()
 {
     int y = 0;

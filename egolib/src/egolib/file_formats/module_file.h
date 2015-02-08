@@ -23,11 +23,6 @@
 #pragma once
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct mod_file_t;
-
-//--------------------------------------------------------------------------------------------
 // Module constants
 //--------------------------------------------------------------------------------------------
 
@@ -41,23 +36,20 @@
 //--------------------------------------------------------------------------------------------
 
 /// All the possible filters for modules
-    enum e_module_filter
-    {
-        FILTER_OFF,                     ///< Display all modules
-        FILTER_MAIN,                    ///< Only main quest modules
-        FILTER_SIDE,                    ///< Only alternate sidequest modules
-        FILTER_TOWN,                    ///< Only display Town modules
-        FILTER_FUN,                     ///< Only fun modules (bumpercars!)
+enum ModuleFilter
+{
+    FILTER_OFF,                     ///< Display all modules
+    FILTER_MAIN,                    ///< Only main quest modules
+    FILTER_SIDE,                    ///< Only alternate sidequest modules
+    FILTER_TOWN,                    ///< Only display Town modules
+    FILTER_FUN,                     ///< Only fun modules (bumpercars!)
 
-        FILTER_STARTER,                 ///< An extra filter for the starter modules
+    FILTER_STARTER,                 ///< An extra filter for the starter modules
 
-        // aliases
-        FILTER_NORMAL_BEGIN = FILTER_OFF,
-        FILTER_NORMAL_END   = FILTER_FUN
-    };
-
-    // this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_module_filter module_filter_t;
+    // aliases
+    FILTER_NORMAL_BEGIN = FILTER_OFF,
+    FILTER_NORMAL_END   = FILTER_FUN
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -79,7 +71,7 @@
         char    summary[SUMMARYLINES][SUMMARYSIZE];     ///< Quest description
 
         IDSZ_node_t     unlockquest;                    ///< the quest required to unlock this module
-        module_filter_t moduletype;                     ///< Main quest, town, sidequest or whatever
+        ModuleFilter    moduletype;                     ///< Main quest, town, sidequest or whatever
         bool            beaten;                         ///< The module has been marked with the [BEAT] eapansion
     };
 

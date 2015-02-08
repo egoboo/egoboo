@@ -21,6 +21,7 @@
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
+#include "game/core/GameEngine.hpp"
 #include "egolib/egolib.h"
 #include "egolib/bsp.h"
 #include "game/graphic.h"
@@ -1451,11 +1452,6 @@ void gfx_system_begin()
     PROFILE_INIT( render_scene_mesh_drf_solid );
     PROFILE_INIT( render_scene_mesh_render_shadows );
 
-    // init some other variables
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
-
     gfx_reset_timers();
 
     // allocate the specailized "collision lists"
@@ -1604,7 +1600,7 @@ void gfx_system_init_SDL_graphics()
 		return;
 	}
 
-    ego_init_SDL_base();
+    //ego_init_SDL_base();
 
     log_info( "Intializing SDL Video... " );
     if ( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 )
@@ -1930,10 +1926,6 @@ void gfx_system_init_all_graphics()
     PROFILE_RESET( render_scene_mesh_ref_chr );
     PROFILE_RESET( render_scene_mesh_drf_solid );
     PROFILE_RESET( render_scene_mesh_render_shadows );
-
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1961,6 +1953,15 @@ void gfx_system_load_basic_textures()
     /// @author ZZ
     /// @details This function loads the standard textures for a module
 
+    // load the bitmapped font (must be done after gfx_system_init_all_graphics())
+    font_bmp_load_vfs(TextureManager::getSingleton()->get_valid_ptr(static_cast<TX_REF>(TX_FONT_BMP)), "mp_data/font_new_shadow", "mp_data/font.txt");
+
+    //Cursor
+    TextureManager::getSingleton()->load("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR), TRANSCOLOR);
+
+    //Skull
+    TextureManager::getSingleton()->load("mp_data/skull", static_cast<TX_REF>(TX_SKULL), INVALID_KEY);
+
     // Particle sprites
 	TextureManager::getSingleton()->load("mp_data/particle_trans", (TX_REF)TX_PARTICLE_TRANS, TRANSCOLOR);
     prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
@@ -1980,6 +1981,12 @@ void gfx_system_load_basic_textures()
 
     // The phong map
 	TextureManager::getSingleton()->load("mp_data/phong", (TX_REF)TX_PHONG, TRANSCOLOR);
+
+    //Input icons
+    TextureManager::getSingleton()->load("mp_data/keybicon", static_cast<TX_REF>(TX_ICON_KEYB), INVALID_KEY);
+    TextureManager::getSingleton()->load("mp_data/mousicon", static_cast<TX_REF>(TX_ICON_MOUS), INVALID_KEY);
+    TextureManager::getSingleton()->load("mp_data/joyaicon", static_cast<TX_REF>(TX_ICON_JOYA), INVALID_KEY);
+    TextureManager::getSingleton()->load("mp_data/joybicon", static_cast<TX_REF>(TX_ICON_JOYB), INVALID_KEY);
 
     gfx_decimate_all_mesh_textures();
 
@@ -2003,10 +2010,6 @@ void gfx_system_load_basic_textures()
     PROFILE_RESET( render_scene_mesh_ref_chr );
     PROFILE_RESET( render_scene_mesh_drf_solid );
     PROFILE_RESET( render_scene_mesh_render_shadows );
-
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2040,7 +2043,6 @@ void gfx_system_reload_all_textures()
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
 	TextureManager::getSingleton()->reload_all();
-    mnu_TxList_reload_all();
     gfx_reload_decimated_textures();
 }
 
@@ -2091,7 +2093,7 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map )
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
+float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
@@ -2131,7 +2133,7 @@ float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, false, NULL );
+    draw_quad_2d( ptex, sc_rect, tx_rect, useAlpha, NULL );
 
     if ( NOSPARKLE != sparkle_color )
     {
@@ -2172,7 +2174,7 @@ float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_col
 //--------------------------------------------------------------------------------------------
 float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
 {
-    return draw_icon_texture( mnu_TxList_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
+    return draw_icon_texture( TextureManager::getSingleton()->get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2750,7 +2752,7 @@ float draw_fps( float y )
 
     if ( fpson )
     {
-        y = draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_game_ups, update_lag );
+        y = draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", _gameEngine->getFPS(), _gameEngine->getUPS(), _gameEngine->getFrameSkip());
 
         //Extra debug info
         if ( cfg.dev_mode )
@@ -3136,7 +3138,6 @@ void draw_inventory()
 void draw_mouse_cursor()
 {
     int     x, y;
-    oglx_texture_t * pcursor;
 
     if ( !mous.on )
     {
@@ -3144,22 +3145,22 @@ void draw_mouse_cursor()
         return;
     }
 
-    pcursor = mnu_TxList_get_valid_ptr( MENU_TX_CURSOR );
+    gfx_begin_2d();
+
+    oglx_texture_t *pcursor = TextureManager::getSingleton()->get_valid_ptr(TX_CURSOR);
 
     // Invalid texture?
-    if ( NULL == pcursor )
+    if ( nullptr == pcursor )
     {
-        SDL_ShowCursor( SDL_ENABLE );
+        //Show default cursor
+        SDL_ShowCursor(SDL_ENABLE);
     }
     else
     {
         oglx_frect_t tx_tmp, sc_tmp;
 
-        // Hide the SDL mouse
-        SDL_ShowCursor( SDL_DISABLE );
-
-        x = ABS( mous.x );
-        y = ABS( mous.y );
+        x = std::abs(mous.x);
+        y = std::abs(mous.y);
 
         if ( oglx_texture_getSize( pcursor, tx_tmp, sc_tmp ) )
         {
@@ -3175,9 +3176,13 @@ void draw_mouse_cursor()
             sc_rect.xmax = x + sc_tmp[2];
             sc_rect.ymax = y + sc_tmp[3];
 
+            // Hide the SDL mouse
+            SDL_ShowCursor( SDL_DISABLE );
+
             draw_quad_2d( pcursor, sc_rect, tx_rect, true, NULL );
         }
     }
+    gfx_end_2d();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3664,12 +3669,12 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
         retval = gfx_error;
     }
 
-    time_render_scene_init_renderlist_make         = PROFILE_QUERY( gfx_make_renderlist ) * TARGET_FPS;
-    time_render_scene_init_dolist_make             = PROFILE_QUERY( gfx_make_dolist ) * TARGET_FPS;
-    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * TARGET_FPS;
-    time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * TARGET_FPS;
-    time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( gfx_update_all_chr_instance ) * TARGET_FPS;
-    time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * TARGET_FPS;
+    time_render_scene_init_renderlist_make         = PROFILE_QUERY( gfx_make_renderlist ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_dolist_make             = PROFILE_QUERY( gfx_make_dolist ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( gfx_update_all_chr_instance ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * GameEngine::GAME_TARGET_FPS;
 
     return retval;
 }
@@ -4335,13 +4340,13 @@ gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, 
             retval = gfx_error;
         }
 
-        time_render_scene_mesh_dolist_sort    = PROFILE_QUERY( render_scene_mesh_dolist_sort ) * TARGET_FPS;
-        time_render_scene_mesh_ndr            = PROFILE_QUERY( render_scene_mesh_ndr ) * TARGET_FPS;
-        time_render_scene_mesh_drf_back       = PROFILE_QUERY( render_scene_mesh_drf_back ) * TARGET_FPS;
-        time_render_scene_mesh_ref            = PROFILE_QUERY( render_scene_mesh_ref ) * TARGET_FPS;
-        time_render_scene_mesh_ref_chr        = PROFILE_QUERY( render_scene_mesh_ref_chr ) * TARGET_FPS;
-        time_render_scene_mesh_drf_solid      = PROFILE_QUERY( render_scene_mesh_drf_solid ) * TARGET_FPS;
-        time_render_scene_mesh_render_shadows = PROFILE_QUERY( render_scene_mesh_render_shadows ) * TARGET_FPS;
+        time_render_scene_mesh_dolist_sort    = PROFILE_QUERY( render_scene_mesh_dolist_sort ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_ndr            = PROFILE_QUERY( render_scene_mesh_ndr ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_drf_back       = PROFILE_QUERY( render_scene_mesh_drf_back ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_ref            = PROFILE_QUERY( render_scene_mesh_ref ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_ref_chr        = PROFILE_QUERY( render_scene_mesh_ref_chr ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_drf_solid      = PROFILE_QUERY( render_scene_mesh_drf_solid ) * GameEngine::GAME_TARGET_FPS;
+        time_render_scene_mesh_render_shadows = PROFILE_QUERY( render_scene_mesh_render_shadows ) * GameEngine::GAME_TARGET_FPS;
     }
     PROFILE_END( render_scene_mesh );
 
@@ -4395,11 +4400,11 @@ gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, 
     render_all_prt_bbox();
 #endif
 
-    time_render_scene_init  = PROFILE_QUERY( render_scene_init ) * TARGET_FPS;
-    time_render_scene_mesh  = PROFILE_QUERY( render_scene_mesh ) * TARGET_FPS;
-    time_render_scene_solid = PROFILE_QUERY( render_scene_solid ) * TARGET_FPS;
-    time_render_scene_water = PROFILE_QUERY( render_scene_water ) * TARGET_FPS;
-    time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
+    time_render_scene_init  = PROFILE_QUERY( render_scene_init ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_mesh  = PROFILE_QUERY( render_scene_mesh ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_solid = PROFILE_QUERY( render_scene_solid ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_water = PROFILE_QUERY( render_scene_water ) * GameEngine::GAME_TARGET_FPS;
+    time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * GameEngine::GAME_TARGET_FPS;
 
     time_draw_scene = time_render_scene_init + time_render_scene_mesh + time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
 
@@ -5031,72 +5036,6 @@ void gfx_update_fps_clock()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_update_fps()
-{
-    // at fold = 0.60f, it will take approximately 9 updates for the
-    // weight of the first value to be reduced to 1%
-    const float fold = STABILIZED_KEEP;
-    const float fnew = STABILIZED_COVER;
-
-    // update the clock
-    gfx_update_fps_clock();
-
-    // update the game fps
-    if (process_t::running(PROC_PBASE(GProc)))
-    {
-        if ( game_fps_loops > 0 && game_fps_clock > 0 )
-        {
-            stabilized_game_fps_sum    = fold * stabilized_game_fps_sum    + fnew * ( float ) game_fps_loops / (( float ) game_fps_clock / TICKS_PER_SEC );
-            stabilized_game_fps_weight = fold * stabilized_game_fps_weight + fnew;
-
-            // Don't allow the counters to overflow. 0x15555555 is 1/3 of the maximum Sint32 value
-            if ( game_fps_loops > 0x15555555 || game_fps_clock > 0x15555555 )
-            {
-                game_fps_loops = 0;
-                game_fps_clock = 0;
-            }
-        };
-
-        if ( stabilized_game_fps_weight > 0.5f )
-        {
-            stabilized_game_fps = stabilized_game_fps_sum / stabilized_game_fps_weight;
-        }
-    }
-
-    // update the menu fps
-    if (process_t::running(PROC_PBASE(MProc)))
-    {
-        if ( menu_fps_loops > 0 && menu_fps_clock > 0 )
-        {
-            stabilized_menu_fps_sum    = fold * stabilized_menu_fps_sum    + fnew * ( float ) menu_fps_loops / (( float ) menu_fps_clock / TICKS_PER_SEC );
-            stabilized_menu_fps_weight = fold * stabilized_menu_fps_weight + fnew;
-
-            // Don't allow the counters to overflow. 0x15555555 is 1/3 of the maximum Sint32 value
-            if ( menu_fps_loops > 0x15555555 || menu_fps_clock > 0x15555555 )
-            {
-                menu_fps_loops = 0;
-                menu_fps_clock = 0;
-            }
-        };
-
-        if ( stabilized_menu_fps_weight > 0.5f )
-        {
-            stabilized_menu_fps = stabilized_menu_fps_sum / stabilized_menu_fps_weight;
-        }
-    }
-
-    // choose the correct fps to display
-    if ( process_t::running( PROC_PBASE( GProc ) ) )
-    {
-        stabilized_fps = stabilized_game_fps;
-    }
-    else if ( process_t::running( PROC_PBASE( MProc ) ) )
-    {
-        stabilized_fps = stabilized_menu_fps;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 // obj_registry_entity_t IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
@@ -5316,47 +5255,18 @@ void gfx_do_clear_screen()
     GL_DEBUG( glDepthMask )( GL_TRUE );
     GL_DEBUG( glClear )( GL_DEPTH_BUFFER_BIT );
 
-    // does the game need a clear?
-    game_needs_clear = false;
-    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > process_t::State::Begin)
-    {
-        game_needs_clear = gfx.clearson;
-    }
+    GL_DEBUG( glClear )( GL_COLOR_BUFFER_BIT );
 
-    // does the menu need a clear?
-    menu_needs_clear = false;
-    if (process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > process_t::State::Begin)
-    {
-        menu_needs_clear = mnu_draw_background;
-    }
+    gfx_page_clear_requested = false;
 
-    // if anything needs a clear, do it
-    if ( game_needs_clear || menu_needs_clear )
-    {
-        GL_DEBUG( glClear )( GL_COLOR_BUFFER_BIT );
-
-        gfx_page_clear_requested = false;
-
-        gfx_clear_loops++;
-    }
+    gfx_clear_loops++;
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_do_flip_pages()
 {
-    bool try_flip;
+    if ( gfx_page_flip_requested )
 
-    try_flip = false;
-    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > process_t::State::Begin )
-    {
-        try_flip = gfx_page_flip_requested;
-    }
-    else if (process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > process_t::State::Begin )
-    {
-        try_flip = gfx_page_flip_requested;
-    }
-
-    if ( try_flip )
     {
         gfx_page_flip_requested = false;
         _flip_pages();
@@ -5387,32 +5297,6 @@ void _flip_pages()
 
     SDL_GL_SwapBuffers();
 
-    if ( process_t::running( PROC_PBASE( MProc ) ) )
-    {
-        menu_fps_loops++;
-        menu_frame_all++;
-    }
-
-    if ( process_t::running( PROC_PBASE( GProc ) ) )
-    {
-        game_fps_loops++;
-        game_frame_all++;
-    }
-
-    // update the frames per second
-    gfx_update_fps();
-
-    if ( screenshot_requested )
-    {
-        screenshot_requested = false;
-
-        // take the screenshot NOW, since we have just updated the screen buffer
-        if ( !dump_screenshot() )
-        {
-            DisplayMsg_printf( "Error writing screenshot!" );    // send a failure message to the screen
-            log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5772,7 +5656,7 @@ void draw_cursor()
     /// @author ZZ
     /// @details This function implements a mouse cursor
 
-    oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
+    oglx_texture_t * tx_ptr = TextureManager::getSingleton()->get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
 
     if ( input_cursor.x < 6 )  input_cursor.x = 6;
     if ( input_cursor.x > sdl_scr.x - 16 )  input_cursor.x = sdl_scr.x - 16;

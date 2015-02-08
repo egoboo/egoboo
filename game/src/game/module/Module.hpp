@@ -28,7 +28,7 @@
 #include "game/egoboo_typedef.h"
 
 //Forward declarations
-struct mod_file_t;
+class ModuleProfile;
 class Passage;
 
 
@@ -37,7 +37,7 @@ class GameModule
 {
 public:
     //Prepeares a module to be played
-	GameModule(const mod_file_t * pdata, const std::string& loadname, const uint32_t seed);
+	GameModule(const std::shared_ptr<ModuleProfile> &module, const uint32_t seed);
 
 	/**
 	* Deconstructor

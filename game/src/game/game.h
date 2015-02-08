@@ -50,6 +50,7 @@ class CameraSystem;
 class AudioSystem;
 class GameModule;
 class ObjectHandler;
+class ModuleProfile;
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of internal structs
@@ -87,9 +88,6 @@ typedef struct s_pit_info pit_info_t;
 
 struct s_status_list_element;
 typedef struct s_status_list_element status_list_element_t;
-
-struct s_status_list;
-typedef struct s_status_list status_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -212,6 +210,9 @@ struct s_animtile_instance
 };
 
 bool upload_animtile_data( animtile_instance_t dst[], const struct s_wawalite_animtile * src, const size_t animtile_count );
+
+
+int update_game();
 
 //--------------------------------------------------------------------------------------------
 
@@ -369,7 +370,7 @@ struct s_status_list_element
 //--------------------------------------------------------------------------------------------
 
 /// List of objects with status displays
-struct s_status_list
+struct status_list_t
 {
     bool                on;
     size_t                count;
@@ -432,7 +433,7 @@ void   game_quit_module();
 /// the hook for exporting all the current players and reloading them
 bool game_update_imports();
 void   game_finish_module();
-bool game_begin_module(const char * modname);
+bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
 
 /// Exporting stuff
 egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool is_local );

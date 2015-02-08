@@ -5,6 +5,7 @@ Version 2.9.0 BETA (??.??.2011)
 - New Feature: Implemented splitscreen support for Hotseat play.
 - Update: Macintosh distro has been updated and newest version runs correctly on Mac systems again.
 - Update: Various optimizations to improve game performance.
+- Update: Allow more zoom out for better view
 - Bugfix: Fixed some choppy animations.
 - Bugfix: The Warlock in Zippy town now has a normal skin again.
 - Bugfix: Fixed strange issues with Book of Fireball in the Zippy town shop.

@@ -30,15 +30,16 @@
 #include "game/mesh.h"
 #include "game/char.h"
 #include "game/module/ObjectHandler.hpp"
+#include "game/profiles/ModuleProfile.hpp"
 
-GameModule::GameModule(const mod_file_t * pdata, const std::string& name, const uint32_t seed) :
-    _name(name),
-    _importAmount(pdata->importamount),
-    _exportValid(pdata->allowexport),
-    _exportReset(pdata->allowexport),
-    _playerAmount(pdata->maxplayers),
-    _canRespawnAnyTime(RESPAWN_ANYTIME == pdata->respawnvalid),
-    _isRespawnValid(false != pdata->respawnvalid),
+GameModule::GameModule(const std::shared_ptr<ModuleProfile> &module, const uint32_t seed) :
+    _name(module->getPath()),
+    _importAmount(module->getBase().importamount),
+    _exportValid(module->getBase().allowexport),
+    _exportReset(module->getBase().allowexport),
+    _playerAmount(module->getBase().maxplayers),
+    _canRespawnAnyTime(RESPAWN_ANYTIME == module->getBase().respawnvalid),
+    _isRespawnValid(false != module->getBase().respawnvalid),
     _isBeaten(false),
     _seed(seed),
     _passages()

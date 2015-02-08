@@ -26,6 +26,7 @@
 
 //Forward declarations
 class ObjectProfile;
+class ModuleProfile;
 struct mad_t;
 
 /// Placeholders used while importing profiles
@@ -88,10 +89,24 @@ public:
 	**/
 	inline const std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>>& getLoadedProfiles() const {return _profilesLoaded;}
 
+	/**
+	* @brief Scans the module folder and loads all ModuleProfiles (needs only to be done once)
+	**/
+	void loadModuleProfiles();
+
+	/**
+	* @return list of all ModuleProfiles currently loaded
+	**/
+	const std::vector<std::shared_ptr<ModuleProfile>>& getModuleProfiles() const {return _moduleProfilesLoaded;}
+
+	void printDebugModuleList();
+
 private:
 	bool _initialized;
 	std::vector<TX_REF> _bookIcons;													//List of all book icons loaded
 	std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded;	//Maps slot numbers to ObjectProfiles
+
+	std::vector<std::shared_ptr<ModuleProfile>> _moduleProfilesLoaded;				//List of all valid game modules loaded
 };
 
 extern ProfileSystem _profileSystem;

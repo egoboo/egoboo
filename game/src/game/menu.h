@@ -109,13 +109,10 @@ struct menu_process_t
 //--------------------------------------------------------------------------------------------
 
 oglx_texture_t * mnu_TxList_get_valid_ptr( const TX_REF itex );
-void             mnu_TxList_reload_all();
 TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-extern bool mnu_draw_background;
 
 extern menu_process_t * MProc;
 
@@ -123,28 +120,6 @@ extern bool module_list_valid;
 
 /// the default menu font
 extern struct s_Font *menuFont;
-
-/// declare special arrays of textures
-DECLARE_LIST_EXTERN( oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// code for initializing and deinitializing the menu system
-int  menu_system_begin();
-void menu_system_end();
-
-// global function to control navigation of the game menus
-int doMenu( float deltaTime );
-
-// code to start and stop menus
-bool mnu_begin_menu( which_menu_t which );
-void   mnu_end_menu();
-int    mnu_get_menu_depth();
-
-// "public" implmentation of the TxTitleImage array
-//void   TxTitleImage_reload_all();
-//TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
 
 extern bool start_new_player;
 
@@ -156,15 +131,7 @@ const char * mnu_ModList_get_name( int imod );
 
 // "public" module utilities
 int    mnu_get_mod_number( const char *szModName );
-//bool mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName );
-//bool mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer );
-
-// "public" menu process hooks
-int                  menu_process_run( menu_process_t * mproc, double frameDuration );
-menu_process_t     * menu_process_init( menu_process_t * mproc );
 
 // "public" reset of the autoformatting
 void autoformat_init(gfx_config_t * pgfx);
 
-bool mnu_load_cursor();
-bool mnu_load_all_global_icons();

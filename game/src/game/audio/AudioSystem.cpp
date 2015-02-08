@@ -38,7 +38,9 @@ static const std::array<const char*, GSND_COUNT> wavenames =
     "coinfall",
     "lvlup",
     "pitfall",
-    "shieldblock"
+    "shieldblock",
+    "button",
+    "game_ready"
 };
 
 AudioSystem::AudioSystem() :
@@ -96,9 +98,6 @@ bool AudioSystem::initialize(const egoboo_config_t &pcfg)
         {
             Mix_VolumeMusic( _audioConfig.musicvolume );
             Mix_AllocateChannels( _audioConfig.maxsoundchannel );
-
-            // initialize the music stack
-            //music_stack_init();
 
             _initialized = true;
 

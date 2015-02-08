@@ -154,3 +154,7 @@ void input_read_all_devices();
 void input_cursor_reset();
 void input_cursor_finish_wheel_event();
 bool input_cursor_wheel_event_pending();
+
+void input_read_mouse();
+void input_read_keyboard();
+void input_read_joysticks();

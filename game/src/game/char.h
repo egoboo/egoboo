@@ -238,7 +238,6 @@ bool chr_update_safe( GameObject * pchr, bool force );
 bool chr_get_safe( GameObject * pchr, fvec3_base_t pos );
 
 bool chr_set_maxaccel( GameObject * pchr, float new_val );
-bool character_is_attacking( GameObject * pchr );
 
 void chr_set_floor_level( GameObject * pchr, const float level );
 void chr_set_redshift( GameObject * pchr, const int rs );
