@@ -47,6 +47,19 @@
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
 
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+    extern bool config_download( egoboo_config_t * pcfg, bool synch_from_file );
+    extern bool config_upload( egoboo_config_t * pcfg );
+#if defined(__cplusplus)
+}
+
+#endif
+
+#if 0
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -68,16 +81,6 @@ static ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char *
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-    extern bool config_download( egoboo_config_t * pcfg, bool synch_from_file );
-    extern bool config_upload( egoboo_config_t * pcfg );
-#if defined(__cplusplus)
-}
-
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -95,7 +98,7 @@ ego_process_t     * EProc   = &_eproc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if 0
+
 int do_ego_proc_begin(ego_process_t *self)
 {
     // initialize the virtual filesystem first

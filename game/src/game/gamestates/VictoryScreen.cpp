@@ -30,7 +30,7 @@
 #include "game/module/Module.hpp"
 #include "game/game.h"
 
-VictoryScreen::VictoryScreen(PlayingState *playingState) :
+VictoryScreen::VictoryScreen(PlayingState *playingState, const bool forceExit) :
 	_playingState(playingState)
 {
 	//Add the buttons
@@ -45,14 +45,16 @@ VictoryScreen::VictoryScreen(PlayingState *playingState) :
 	addComponent(exitButton);
 
 	//Add a button to allow players continue playing if they want
-	std::shared_ptr<Button> abortButton = std::make_shared<Button>("Continue Playing", SDLK_ESCAPE);
-	abortButton->setSize(200, 30);
-	abortButton->setPosition(exitButton->getX() + exitButton->getWidth() + 20, exitButton->getY());
-	abortButton->setOnClickFunction(
-	[this]{
-		endState();
-	});
-	addComponent(abortButton);
+	if(!forceExit) {
+		std::shared_ptr<Button> abortButton = std::make_shared<Button>("Continue Playing", SDLK_ESCAPE);
+		abortButton->setSize(200, 30);
+		abortButton->setPosition(exitButton->getX() + exitButton->getWidth() + 20, exitButton->getY());
+		abortButton->setOnClickFunction(
+		[this]{
+			endState();
+		});
+		addComponent(abortButton);		
+	}
 
 	std::shared_ptr<Label> victoryText = std::make_shared<Label>(endtext);
 	victoryText->setPosition(50, 50);
@@ -66,7 +68,9 @@ void VictoryScreen::update()
 void VictoryScreen::drawContainer()
 {
 	//Render the playing state beackground first
-	_playingState->drawAll();
+	if(_playingState != nullptr) {
+		_playingState->drawAll();
+	}
 }
 
 void VictoryScreen::beginState()

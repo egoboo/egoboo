@@ -296,15 +296,6 @@ bool input_handle_SDL_KEYDOWN( SDL_Event * pevt )
     {
         handled = input_handle_chat( pevt );
     }
-    else
-    {
-        if ( SDLK_ESCAPE == pevt->key.keysym.sym )
-        {
-            // tell the main process about the escape request
-            EProc->escape_requested = true;
-            handled = true;
-        }
-    }
 
     return handled;
 }

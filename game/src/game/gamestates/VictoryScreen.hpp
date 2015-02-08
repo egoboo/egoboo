@@ -31,7 +31,7 @@ class PlayingState;
 class VictoryScreen : public GameState
 {
 public:
-	VictoryScreen(PlayingState *playingState);
+	VictoryScreen(PlayingState *playingState, const bool forceExit = false);
 
 	void update() override;
 

@@ -867,6 +867,7 @@ int update_game()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void game_update_timers()
 {
     /// @author ZZ
@@ -949,6 +950,7 @@ void game_update_timers()
     // if it got this far and the funciton had been paused, it is time to unpause it
     was_paused = false;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void game_update_ups()

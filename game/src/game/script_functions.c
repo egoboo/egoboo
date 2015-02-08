@@ -42,12 +42,14 @@
 #include "game/particle.h"
 #include "game/mesh.h"
 
+#include "game/core/GameEngine.hpp"
 #include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/profiles/Profile.hpp"
 #include "game/module/Module.hpp"
+#include "game/gamestates/VictoryScreen.hpp"
 
 #include "game/module/ObjectHandler.hpp"
 #include "game/EncList.h"
@@ -6100,7 +6102,7 @@ Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This tells the game to quit
-    EProc->escape_requested = true;
+    _gameEngine->pushGameState(std::make_shared<VictoryScreen>(nullptr, true));
 
     SCRIPT_FUNCTION_END();
 }

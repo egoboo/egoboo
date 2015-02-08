@@ -144,8 +144,6 @@ struct ego_process_t
 	char **argv;
 };
 
-void ego_init_SDL_base();
-
 EXTERN bool single_frame_mode EQ( false );
 EXTERN bool single_frame_keyready EQ( true );
 EXTERN bool single_frame_requested EQ( false );
