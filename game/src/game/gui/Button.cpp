@@ -25,9 +25,8 @@ void Button::setText(const std::string &text)
     _buttonText = text;
 }
 
-void Button::draw()
+void Button::updateSlidyButtonEffect()
 {
-    //Update slidy button effect
     if(getX() < _slidyButtonTargetX) {
         const float SLIDY_LERP = 2*getWidth() / GameEngine::GAME_TARGET_FPS;
         setX(getX() + SLIDY_LERP);
@@ -36,6 +35,12 @@ void Button::draw()
         setX(_slidyButtonTargetX);
         _slidyButtonTargetX = 0.0f;
     }
+}
+
+void Button::draw()
+{
+    //Update slidy button effect
+    updateSlidyButtonEffect();
 
     // Draw the button
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );

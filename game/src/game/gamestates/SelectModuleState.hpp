@@ -29,7 +29,6 @@
 //Forward declarations
 class Image;
 class Button;
-class LoadPlayerElement;
 class ModuleSelector;
 class ModuleProfile;
 
@@ -44,7 +43,7 @@ public:
 	/**
 	* @brief Constructor with a list of players who are going to play
 	**/
-	SelectModuleState(const std::list<std::shared_ptr<LoadPlayerElement>> &players);
+	SelectModuleState(const std::list<std::string> &playersToLoad);
 
 	void update() override;
 
@@ -72,7 +71,8 @@ private:
 	std::vector<std::shared_ptr<ModuleProfile>> _validModules;		///< Current selectable modules (filtered, unlocked, etc.)
 	std::shared_ptr<Image> _background;
 	std::shared_ptr<Button> _filterButton;
+	std::shared_ptr<Button> _chooseModule;
 	std::shared_ptr<ModuleSelector> _moduleSelector;
 	ModuleFilter _moduleFilter;
-	const std::list<std::shared_ptr<LoadPlayerElement>> &_selectedPlayerList;
+	std::list<std::string> _selectedPlayerList;
 };

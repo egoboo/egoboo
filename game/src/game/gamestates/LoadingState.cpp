@@ -33,6 +33,7 @@
 #include "game/gui/Image.hpp"
 #include "egolib/math/Random.hpp"
 #include "game/audio/AudioSystem.hpp"
+#include "game/profiles/Profile.hpp"
 
 //For loading stuff
 #include "game/graphics/CameraSystem.hpp"
@@ -45,12 +46,12 @@
 #include "game/bsp.h"
 #include "egolib/fileutil.h"
 
-LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players) :
+LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :
 	_finishedLoading(false),
 	_loadingThread(),
     _loadingLabel(nullptr),
 	_loadModule(module),
-	//_players(players),
+	_playersToLoad(playersToLoad),
     _globalGameTips(),
     _localGameTips()
 {
@@ -124,6 +125,45 @@ void LoadingState::beginState()
     _audioSystem.playMusic(27); //TODO: needs to be referenced by string
 }
 
+
+bool LoadingState::loadPlayers()
+{
+    // blank out any existing data
+    import_list_init(&ImportList);
+
+    // loop through the selected players and store all the valid data in the list of imported players
+    for(const std::string &loadPath : _playersToLoad)
+    {
+        // get a new import data pointer
+        import_element_t *import_ptr = ImportList.lst + ImportList.count;
+        ImportList.count++;
+
+        //figure out which player we are (1, 2, 3 or 4)
+        import_ptr->local_player_num = ImportList.count-1;
+
+        // set the import info
+        import_ptr->slot            = (import_ptr->local_player_num) * MAX_IMPORT_PER_PLAYER;
+        import_ptr->player          = (import_ptr->local_player_num);
+
+        strncpy( import_ptr->srcDir, loadPath.c_str(), SDL_arraysize( import_ptr->srcDir ) );
+        import_ptr->dstDir[0] = CSTR_END;
+    }
+
+    if(ImportList.count > 0) {
+
+        if(game_copy_imports(&ImportList) == rv_success) {
+            return true;
+        }
+        else {
+            // erase the data in the import folder
+            vfs_removeDirectoryAndContents( "import", VFS_TRUE );
+            return false;
+        }
+    }
+
+    return false;
+}
+
 void LoadingState::loadModuleData()
 {
     singleThreadRedrawHack("Tidying some space...");
@@ -156,6 +196,16 @@ void LoadingState::loadModuleData()
     // do some graphics initialization
     //make_lightdirectionlookup();
     gfx_system_make_enviro();
+
+    //Load players if needed
+    if(!_playersToLoad.empty()) {
+        singleThreadRedrawHack("Loading players...");
+        if(!loadPlayers()) {
+            log_warning("Failed to load players!\n");
+            endState();
+            return;
+        }
+    }
 
     // try to start a new module
     singleThreadRedrawHack("Loading module data...");

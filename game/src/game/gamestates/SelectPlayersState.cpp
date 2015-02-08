@@ -29,8 +29,14 @@
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
 #include "game/gui/Label.hpp"
+#include "game/game.h"	//only for MAX_IMPORTS_PER_OBJECT constant
+#include "game/profiles/Profile.hpp"
+#include "game/gamestates/LoadPlayerElement.hpp"
 
-SelectPlayersState::SelectPlayersState() 
+SelectPlayersState::SelectPlayersState() :
+	_loadPlayerList(),
+	_playerButtons(),
+	_continueButton(std::make_shared<Button>("Select Module", SDLK_RETURN))
 {
 	//Load background
 	std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_selectplayers");
@@ -51,15 +57,23 @@ SelectPlayersState::SelectPlayersState()
 
 	yOffset -= backButton->getHeight() + 10;
 
-	std::shared_ptr<Button> continueButton = std::make_shared<Button>("Continue", SDLK_RETURN);
-	continueButton->setPosition(20, yOffset);
-	continueButton->setSize(200, 30);
-	continueButton->setOnClickFunction(
-	[]{
-		//TODO
+	_continueButton->setPosition(20, yOffset);
+	_continueButton->setSize(200, 30);
+	_continueButton->setOnClickFunction(
+	[this]{
+		//Build list of all valid selected players
+		std::list<std::string> selectedPlayersResult;
+		for(const std::shared_ptr<LoadPlayerElement> &player : _selectedPlayers) {
+			if(player != nullptr) {
+				selectedPlayersResult.push_back(player->getProfile()->getFolderPath());
+			}
+		} 
+
+		//Do the select module screen next
+		_gameEngine->pushGameState(std::make_shared<SelectModuleState>(selectedPlayersResult));
 	});
-	addComponent(continueButton);
-	continueButton->setEnabled(false);
+	addComponent(_continueButton);
+	_continueButton->setEnabled(false);
 
 	//Tell them what this screen is all about
 	std::shared_ptr<Label> infoText = std::make_shared<Label>("Select a character for each player that is going ot play.");
@@ -85,15 +99,21 @@ SelectPlayersState::SelectPlayersState()
 		playerButton->setSize(200, 42);
 		playerButton->setPosition(GFX_WIDTH/3, yOffset-10);
 		playerButton->setOnClickFunction(
-			[continueButton]{
-				_gameEngine->pushGameState(std::make_shared<SelectCharacterState>());
-				continueButton->setEnabled(true);
+			[this, i]{
+				_gameEngine->pushGameState(std::make_shared<SelectCharacterState>(_loadPlayerList, _selectedPlayers[i]));
 			}
 		);
 		addComponent(playerButton);
 
 		yOffset += playerLabel->getHeight() + 50;
+
+		//Initially select no character for each player
+		_selectedPlayers.push_back(nullptr);
+		_playerButtons.push_back(playerButton);
 	}
+
+	//Load all saved characters
+	loadAllSavedCharacters("mp_players");
 }
 
 void SelectPlayersState::update()
@@ -109,4 +129,64 @@ void SelectPlayersState::beginState()
 {
 	// menu settings
     SDL_WM_GrabInput(SDL_GRAB_OFF);
+
+    //Update player selection and enable continue button if at least 
+    //one player has selected a character
+	_continueButton->setEnabled(false);
+	for(size_t i = 0; i < _selectedPlayers.size(); ++i) {
+
+		if(_selectedPlayers[i] != nullptr) {
+			_continueButton->setEnabled(true);
+			_playerButtons[i]->setText(_selectedPlayers[i]->getName());
+		}
+		else {
+			_playerButtons[i]->setText("Not playing");
+		}
+	}    
+}
+
+void SelectPlayersState::loadAllSavedCharacters(const std::string &saveGameDirectory)
+{
+    /// @author ZZ
+    /// @details This function figures out which players may be imported, and loads basic
+    ///     data for each
+
+    //Clear any old imports
+    _loadPlayerList.clear();
+
+    // Search for all objects
+    vfs_search_context_t *ctxt = vfs_findFirst( saveGameDirectory.c_str(), "obj", VFS_SEARCH_DIR );
+    const char *foundfile = vfs_search_context_get_current( ctxt );
+
+    while ( NULL != ctxt && VALID_CSTR(foundfile) )
+    {
+        std::string folderPath = foundfile;
+
+        // is it a valid filename?
+        if ( folderPath.empty() ) {
+            continue;
+        }
+
+        // does the directory exist?
+        if ( !vfs_exists( folderPath.c_str() ) ) {
+            continue;
+        }
+
+        // offset the slots so that ChoosePlayer will have space to load the inventory objects
+        int slot = ( MAX_IMPORT_OBJECTS + 2 ) * _loadPlayerList.size();
+
+        // try to load the character profile (do a lightweight load, we don't need all data)
+        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(folderPath, slot, true);
+        if(!profile) {
+            continue;
+        }
+
+        //Loaded!
+        _loadPlayerList.push_back( std::make_shared<LoadPlayerElement>(profile) );
+
+        //Get next player object
+        ctxt = vfs_findNext( &ctxt );
+        foundfile = vfs_search_context_get_current( ctxt );
+    }
+    vfs_findClose( &ctxt );
 }

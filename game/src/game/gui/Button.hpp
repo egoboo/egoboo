@@ -30,14 +30,17 @@ class Button : public GUIComponent
         Button& operator=(const Button&) = delete;
 
     protected:
+        void updateSlidyButtonEffect();
+
+    protected:
         bool _mouseOver;
+        std::string _buttonText;
 
         static const GLXvector4f DEFAULT_BUTTON_COLOUR;
         static const GLXvector4f HOVER_BUTTON_COLOUR;
         static const GLXvector4f DISABLED_BUTTON_COLOUR;
 
     private:
-        std::string _buttonText;
         std::function<void()> _onClickFunction;
         int _hotkey;
         float _slidyButtonTargetX;

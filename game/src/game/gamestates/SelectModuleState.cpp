@@ -35,19 +35,20 @@
 #include "game/profiles/ModuleProfile.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 
-SelectModuleState::SelectModuleState() : SelectModuleState( std::list<std::shared_ptr<LoadPlayerElement>>() )
+SelectModuleState::SelectModuleState() : SelectModuleState( std::list<std::string>() )
 {
 	//ctor
 }
 
-SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerElement>> &players) :
-	_onlyStarterModules(players.empty()),
+SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad) :
+	_onlyStarterModules(playersToLoad.empty()),
 	_validModules(),
 	_background(std::make_shared<Image>()),
 	_filterButton(std::make_shared<Button>("All Modules", SDLK_TAB)),
+	_chooseModule(std::make_shared<Button>("Choose Module", SDLK_RETURN)),
 	_moduleSelector(std::make_shared<ModuleSelector>(_validModules)),
 	_moduleFilter(FILTER_OFF),
-	_selectedPlayerList(players)
+	_selectedPlayerList(playersToLoad)
 {
     // Figure out at what offset we want to draw the module menu.
     int moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
@@ -68,21 +69,21 @@ SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerE
 	addComponent(_background);
 
 	//Add the buttons
-	std::shared_ptr<Button> chooseModule = std::make_shared<Button>("Choose Module", SDLK_RETURN);
-	chooseModule->setPosition(moduleMenuOffsetX + 377, moduleMenuOffsetY + 173);
-	chooseModule->setSize(200, 30);
-	//chooseModule->setVisible(false);
-	chooseModule->setOnClickFunction(
+	_chooseModule = std::make_shared<Button>("Choose Module", SDLK_RETURN);
+	_chooseModule->setPosition(moduleMenuOffsetX + 377, moduleMenuOffsetY + 173);
+	_chooseModule->setSize(200, 30);
+	_chooseModule->setEnabled(false);
+	_chooseModule->setOnClickFunction(
 	[this]{
 		if(_moduleSelector->getSelectedModule())
 		{
 			_gameEngine->setGameState(std::make_shared<LoadingState>(_moduleSelector->getSelectedModule(), _selectedPlayerList));
 		}
 	});
-	addComponent(chooseModule);
+	addComponent(_chooseModule);
 
 	std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
-	backButton->setPosition(moduleMenuOffsetX + 377, chooseModule->getY() + 50);
+	backButton->setPosition(moduleMenuOffsetX + 377, _chooseModule->getY() + 50);
 	backButton->setSize(200, 30);
 	backButton->setOnClickFunction(
 		[this]{
@@ -100,7 +101,8 @@ SelectModuleState::SelectModuleState(const std::list<std::shared_ptr<LoadPlayerE
 		_filterButton->setSize(200, 30);
 		_filterButton->setOnClickFunction(
 			[this]{
-				//TODO
+				//Set next module filter (wrap around using modulo)
+				setModuleFilter(static_cast<ModuleFilter>( (_moduleFilter+1) % NR_OF_MODULE_FILTERS) );
 			});
 		addComponent(_filterButton);		
 	}
@@ -196,6 +198,8 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 
 void SelectModuleState::update()
 {
+	//Only enable choose module button once we have a valid module selection
+	_chooseModule->setEnabled(_moduleSelector->getSelectedModule() != nullptr);
 }
 
 void SelectModuleState::drawContainer()

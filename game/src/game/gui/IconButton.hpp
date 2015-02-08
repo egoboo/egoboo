@@ -17,40 +17,26 @@
 //*
 //********************************************************************************************
 
-/// @file game/gamestates/SelectPlayersState.hpp
-/// @details Select which of the 4 players are going to play
+/// @file game/gui/IconButton.cpp
+/// @details A button with an small icon on the right side
 /// @author Johan Jansen
 
 #pragma once
 
-#include <vector>
-#include "game/gamestates/GameState.hpp"
+#include "game/core/GameEngine.hpp"
+#include "game/gui/Button.hpp"
 
-//Forward declaration
-class LoadPlayerElement;
-class Button;
-
-class SelectPlayersState : public GameState
+class IconButton : public Button
 {
-public:
-	SelectPlayersState();
+    public:
+        IconButton(const std::string &buttonText, TX_REF icon, int hotkey = SDLK_UNKNOWN);
 
-	void update() override;
+        virtual void draw() override;
+      
+        //Disable copying class
+        IconButton(const IconButton& copy) = delete;
+        IconButton& operator=(const IconButton&) = delete;
 
-	void beginState() override;
-
-protected:
-	void drawContainer() override;
-
-	/**
-	* @brief
-	* 	Reload list of all possible characters we might load.
-	**/
-	void loadAllSavedCharacters(const std::string &saveGameDirectory);
-
-private:
-	std::vector<std::shared_ptr<LoadPlayerElement>> _loadPlayerList;
-	std::vector<std::shared_ptr<LoadPlayerElement>> _selectedPlayers;
-	std::vector<std::shared_ptr<Button>> 			_playerButtons;
-	std::shared_ptr<Button> 						_continueButton;
+    private:
+        TX_REF _icon;
 };

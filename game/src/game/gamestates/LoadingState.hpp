@@ -30,13 +30,12 @@
 
 //Forward declarations
 class ModuleProfile;
-class LoadPlayerElement;
 class Label;
 
 class LoadingState : public GameState
 {
 public:
-	LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::shared_ptr<LoadPlayerElement>> &players);
+	LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad);
 	~LoadingState();
 
 	void update() override;
@@ -47,6 +46,12 @@ protected:
 	void drawContainer() override;
 
 	void loadModuleData();
+
+	/**
+	* @brief
+	*	Actually loads all data for the Characters that players have picked.
+	**/
+	bool loadPlayers();
 
 	const std::string getRandomHint() const;
 
@@ -69,7 +74,7 @@ private:
 	std::thread _loadingThread;
 	std::shared_ptr<Label> _loadingLabel;
 	const std::shared_ptr<ModuleProfile> _loadModule;
-	std::list<std::shared_ptr<LoadPlayerElement>> _players;
+	std::list<std::string> _playersToLoad;
 
 	std::vector<std::string> _globalGameTips;		//Generic game tips for the whole game
 	std::vector<std::string> _localGameTips;		//Game tips specific to this module

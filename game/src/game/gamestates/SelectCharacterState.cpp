@@ -23,13 +23,16 @@
 
 #include "game/gamestates/SelectCharacterState.hpp"
 #include "game/gamestates/SelectModuleState.hpp"
+#include "game/gamestates/LoadPlayerElement.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/ui.h"
 #include "game/gui/Button.hpp"
+#include "game/gui/IconButton.hpp"
 #include "game/gui/Image.hpp"
 #include "game/gui/Label.hpp"
 
-SelectCharacterState::SelectCharacterState() 
+SelectCharacterState::SelectCharacterState(const std::vector<std::shared_ptr<LoadPlayerElement>> &loadPlayerList, std::shared_ptr<LoadPlayerElement> &selectedCharacter) :
+	_loadPlayerList(loadPlayerList)
 {
 	//Load background
 	std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_selectplayers");
@@ -43,22 +46,75 @@ SelectCharacterState::SelectCharacterState()
 	backButton->setPosition(20, yOffset);
 	backButton->setSize(200, 30);
 	backButton->setOnClickFunction(
-	[this]{
+	[this, &selectedCharacter]() mutable {
+		//Unselect any previous selection first
+		if(selectedCharacter != nullptr) {
+			selectedCharacter->setSelected(false);
+		}
+
+		//No character was selected and return to previous state
+		selectedCharacter = nullptr;
 		endState();
 	});
 	addComponent(backButton);
 
 	yOffset -= backButton->getHeight() + 10;
 
+	std::shared_ptr<Button> selectButton = std::make_shared<Button>("Select Character", SDLK_RETURN);
+	selectButton->setPosition(20, yOffset);
+	selectButton->setSize(200, 30);
+	selectButton->setOnClickFunction(
+	[this] {
+		//Accept our selection and return to previous state
+		endState();
+	});
+	selectButton->setVisible(false);
+	addComponent(selectButton);
+
 	//Tell them what this screen is all about
 	std::shared_ptr<Label> infoText = std::make_shared<Label>("Select your character\nUse the mouse wheel to scroll.");
-	infoText->setPosition(150, GFX_HEIGHT - 40);
+	infoText->setPosition(150, GFX_HEIGHT - 50);
 	addComponent(infoText);
 
 	//Players Label
 	std::shared_ptr<Label> playersLabel = std::make_shared<Label>("CHARACTERS");
 	playersLabel->setPosition(20, 20);
 	addComponent(playersLabel);
+
+	yOffset = playersLabel->getY() + playersLabel->getHeight() + 20;
+
+	//Make a button for each loadable character
+	for(const std::shared_ptr<LoadPlayerElement> &character : loadPlayerList)
+	{
+		std::shared_ptr<Button> characterButton = std::make_shared<IconButton>(character->getName(), character->getIcon());
+		characterButton->setSize(200, 40);
+		characterButton->setPosition(playersLabel->getX(), yOffset);
+
+		//Check if this already has been selected by another player
+		if(character->isSelected() && character != selectedCharacter) {
+			characterButton->setEnabled(false);
+		}
+
+		else {
+			characterButton->setOnClickFunction(
+				[character, &selectedCharacter, selectButton]() mutable {
+					//Unselect any previous selection first
+					if(selectedCharacter != nullptr) {
+						selectedCharacter->setSelected(false);
+					}
+
+					//This is the new character selected by this player
+					selectedCharacter = character;
+					selectedCharacter->setSelected(true);
+
+					//Show the button that lets them accept their selection now
+					selectButton->setVisible(true);
+				});
+		}
+
+		addComponent(characterButton);
+		yOffset += characterButton->getHeight() + 20;
+	}
 }
 
 void SelectCharacterState::update()

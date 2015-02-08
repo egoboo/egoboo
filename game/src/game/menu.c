@@ -41,6 +41,7 @@
 
 #include "game/module/ObjectHandler.hpp"
 #include "game/PrtList.h"
+#include "game/gamestates/LoadPlayerElement.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -92,64 +93,6 @@ struct s_SlidyButtonState
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-class LoadPlayerElement
-{
-public:
-    LoadPlayerElement(std::shared_ptr<ObjectProfile> profile) :
-        _name("*NONE*"),
-        _profile(profile),
-        _skinRef(profile->getSkinOverride()),
-        _selectedByPlayer(-1),
-        _inputDevice(INPUT_DEVICE_UNKNOWN)
-    {
-        // load the quest info from "quest.txt" so we can determine the valid modules
-        quest_log_download_vfs(_questLog, SDL_arraysize(_questLog), profile->getFolderPath().c_str());
-
-        // load the chop data from "naming.txt" to generate the character name (kinda silly how it's done currently)
-        RandomName randomName;
-        randomName.loadFromFile(profile->getFolderPath() + "/naming.txt");
-        
-        // generate the name from the chop
-        _name = randomName.generateRandomName();
-    }
-
-    inline const std::string& getName() const {return _name;}
-    inline TX_REF getIcon() const {return _profile->getIcon(_skinRef);}
-    inline const std::shared_ptr<ObjectProfile>& getProfile() const {return _profile;}
-
-    /**
-    * @return which player number has selected this character (-1 for nobody)
-    **/
-    int getSelectedByPlayer() const {return _selectedByPlayer;}
-
-    /**
-    * @return true if the player meets the specified requirements for this quest
-    **/
-    bool hasQuest(const IDSZ idsz, const int requiredLevel)
-    {
-        int quest_level = quest_log_get_level(_questLog, SDL_arraysize(_questLog), idsz);
-
-        // find beaten quests or quests with proper level
-        if ( quest_level <= QUEST_BEATEN || requiredLevel <= quest_level )
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    void setSelectedByPlayer(int selected) {_selectedByPlayer = selected;}
-
-private:
-    std::string                     _name;
-    TX_REF                          _icon;
-    std::shared_ptr<ObjectProfile>  _profile;
-    uint16_t                        _skinRef;
-    IDSZ_node_t                     _questLog[MAX_IDSZ_MAP_SIZE]; ///< all the quests this player has
-    int                             _selectedByPlayer;                    ///< ID of player who has selected this character (-1 for none)
-    int                             _inputDevice;
-};
 
 static std::vector<std::shared_ptr<LoadPlayerElement>> _loadPlayerList;     ///< Possible character we can load
 static std::list<std::shared_ptr<LoadPlayerElement>> _selectedPlayerList;   ///< List of characters who are actually going to play

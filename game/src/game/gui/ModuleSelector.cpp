@@ -133,7 +133,7 @@ void ModuleSelector::drawContainer()
     		}
     		else
     		{
-    			buffer << _selectedModule->getBase().minplayers << '-' << _selectedModule->getBase().maxplayers << " Players" << '\n';
+    			buffer << std::to_string(_selectedModule->getBase().minplayers) << '-' << std::to_string(_selectedModule->getBase().maxplayers) << " Players" << '\n';
     		}
     	}
     	else if(_selectedModule->isStarterModule())
