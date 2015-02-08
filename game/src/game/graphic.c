@@ -1954,13 +1954,13 @@ void gfx_system_load_basic_textures()
     /// @details This function loads the standard textures for a module
 
     // load the bitmapped font (must be done after gfx_system_init_all_graphics())
-    font_bmp_load_vfs(TxList_get_valid_ptr(static_cast<TX_REF>(TX_FONT_BMP)), "mp_data/font_new_shadow", "mp_data/font.txt");
+    font_bmp_load_vfs(TextureManager::getSingleton()->get_valid_ptr(static_cast<TX_REF>(TX_FONT_BMP)), "mp_data/font_new_shadow", "mp_data/font.txt");
 
     //Cursor
-    TxList_load_one_vfs("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR), TRANSCOLOR);
+    TextureManager::getSingleton()->load("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR), TRANSCOLOR);
 
     //Skull
-    TxList_load_one_vfs("mp_data/skull", static_cast<TX_REF>(TX_SKULL), INVALID_KEY);
+    TextureManager::getSingleton()->load("mp_data/skull", static_cast<TX_REF>(TX_SKULL), INVALID_KEY);
 
     // Particle sprites
 	TextureManager::getSingleton()->load("mp_data/particle_trans", (TX_REF)TX_PARTICLE_TRANS, TRANSCOLOR);
@@ -1983,10 +1983,10 @@ void gfx_system_load_basic_textures()
 	TextureManager::getSingleton()->load("mp_data/phong", (TX_REF)TX_PHONG, TRANSCOLOR);
 
     //Input icons
-    TxList_load_one_vfs("mp_data/keybicon", static_cast<TX_REF>(TX_ICON_KEYB), INVALID_KEY);
-    TxList_load_one_vfs("mp_data/mousicon", static_cast<TX_REF>(TX_ICON_MOUS), INVALID_KEY);
-    TxList_load_one_vfs("mp_data/joyaicon", static_cast<TX_REF>(TX_ICON_JOYA), INVALID_KEY);
-    TxList_load_one_vfs("mp_data/joybicon", static_cast<TX_REF>(TX_ICON_JOYB), INVALID_KEY);
+    TextureManager::getSingleton()->load("mp_data/keybicon", static_cast<TX_REF>(TX_ICON_KEYB), INVALID_KEY);
+    TextureManager::getSingleton()->load("mp_data/mousicon", static_cast<TX_REF>(TX_ICON_MOUS), INVALID_KEY);
+    TextureManager::getSingleton()->load("mp_data/joyaicon", static_cast<TX_REF>(TX_ICON_JOYA), INVALID_KEY);
+    TextureManager::getSingleton()->load("mp_data/joybicon", static_cast<TX_REF>(TX_ICON_JOYB), INVALID_KEY);
 
     gfx_decimate_all_mesh_textures();
 
@@ -2043,7 +2043,6 @@ void gfx_system_reload_all_textures()
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
 	TextureManager::getSingleton()->reload_all();
-    mnu_TxList_reload_all();
     gfx_reload_decimated_textures();
 }
 
@@ -2175,7 +2174,7 @@ float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_col
 //--------------------------------------------------------------------------------------------
 float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
 {
-    return draw_icon_texture( mnu_TxList_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
+    return draw_icon_texture( TextureManager::getSingleton()->get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3148,7 +3147,7 @@ void draw_mouse_cursor()
 
     gfx_begin_2d();
 
-    oglx_texture_t *pcursor = TxList_get_valid_ptr(TX_CURSOR);
+    oglx_texture_t *pcursor = TextureManager::getSingleton()->get_valid_ptr(TX_CURSOR);
 
     // Invalid texture?
     if ( nullptr == pcursor )
@@ -5657,7 +5656,7 @@ void draw_cursor()
     /// @author ZZ
     /// @details This function implements a mouse cursor
 
-    oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
+    oglx_texture_t * tx_ptr = TextureManager::getSingleton()->get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
 
     if ( input_cursor.x < 6 )  input_cursor.x = 6;
     if ( input_cursor.x > sdl_scr.x - 16 )  input_cursor.x = sdl_scr.x - 16;

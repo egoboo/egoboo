@@ -15,7 +15,7 @@ Image::Image(const std::string &filePath) :
 
 Image::~Image()
 {
-	oglx_texture_Release(&_image);
+	oglx_texture_release(&_image);
 }
 
 void Image::draw()
@@ -26,7 +26,7 @@ void Image::draw()
 void Image::setImage(const std::string &filePath)
 {
 	//Unload any old image first
-	oglx_texture_Release(&_image);
+	oglx_texture_release(&_image);
 
 	//Load new image
 	ego_texture_load_vfs(&_image, filePath.c_str(), TRANSCOLOR);

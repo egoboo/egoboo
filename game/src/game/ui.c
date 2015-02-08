@@ -26,6 +26,7 @@
 #include "game/menu.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
+#include "game/graphic_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -927,7 +928,7 @@ float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uin
     ui_virtual_to_screen( vx + icon_size, vy + icon_size, &x2, &y2 );
 
     //Draw the icon
-    y1 = draw_icon_texture( mnu_TxList_get_valid_ptr( icontype ), x1, y1, sparkle, delta_update, std::min( x2 - x1, y2 - y1 ) );
+    y1 = draw_icon_texture( TextureManager::getSingleton()->get_valid_ptr( icontype ), x1, y1, sparkle, delta_update, std::min( x2 - x1, y2 - y1 ) );
 
     // convert back to virtual
     ui_screen_to_virtual( x1, y1, &vx, &vy );

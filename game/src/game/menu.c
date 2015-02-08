@@ -36,6 +36,7 @@
 #include "game/profiles/Profile.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
+#include "egolib/Renderer/TextureFilter.hpp"
 
 #include "game/audio/AudioSystem.hpp"
 
@@ -176,8 +177,6 @@ static mnu_SlidyButtonState_t mnu_SlidyButtonState = { NULL };
 // declaration of public variables
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST(, oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
-
 static Stack<mnu_module_t, MAX_MODULE> mnu_ModList;
 
 #define INVALID_MOD_IDX MAX_MODULE
@@ -206,13 +205,6 @@ static void mnu_stack_clear();
 static void mnu_SlidyButton_init( float lerp, const char *button_text[] );
 static void mnu_SlidyButton_update_all( float deltaTime );
 static void mnu_SlidyButton_draw_all();
-
-// implementation of "private" TxTitleImage functions
-//static void TxTitleImage_clear_data();
-//static void TxTitleImage_release_one( const MNU_TX_REF index );
-//static void TxTitleImage_ctor();
-//static void TxTitleImage_release_all();
-//static void TxTitleImage_dtor();
 
 // tipText functions
 static void tipText_set_position( Font * font, const char * text, int spacing );
@@ -275,17 +267,6 @@ static int doChoosePlayer( float deltaTime );
 static int doSinglePlayerMenu( float deltaTime );
 
 static int cmp_mod_ref( const void * vref1, const void * vref2 );
-
-// declaration of mnu_TxList functions not used outside this module
-static void   mnu_TxList_init_all();
-static void   mnu_TxList_delete_all();
-static MNU_TX_REF mnu_TxList_get_free( const MNU_TX_REF itex );
-static bool mnu_TxList_free_one( const MNU_TX_REF  itex );
-
-// implementation of "private" mnu_TxList functions
-static void   mnu_TxList_reset_freelist();
-static void   mnu_TxList_release_one( const MNU_TX_REF index );
-static void   mnu_TxList_release_all();
 
 //--------------------------------------------------------------------------------------------
 // implementation of the menu stack
@@ -537,7 +518,7 @@ bool menu_system_ctor()
         //TxTitleImage_ctor();
 
         // construct the mnu_TxList array
-        mnu_TxList_ctor();
+        //mnu_TxList_ctor();
 
         _menu_system_constructed = true;
     }
@@ -561,7 +542,7 @@ bool menu_system_dtor()
         //TxTitleImage_dtor();
 
         // destruct the mnu_TxList array
-        mnu_TxList_dtor();
+        //mnu_TxList_dtor();
 
         _menu_system_constructed = false;
     }
@@ -1639,7 +1620,7 @@ bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loadPlayer
 
             //draw the icon for this item
             MNU_TX_REF icon_ref = mnu_get_txtexture_ref(item, item->getIcon(item->getSkinOverride()) );
-            ui_drawImage( 0, TextureManager::getSingleton()->get_valid_ptr(icon_ref), x1, y1, icon_hgt, icon_hgt, NULL );
+            ui_drawImage( 0, TextureManager::getSingleton()->get_valid_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
 
             if ( item->getSlotNumber() == SLOT_LEFT + 1 )
             {
@@ -1775,7 +1756,7 @@ int doChoosePlayer( float deltaTime )
                     MNU_TX_REF device_icon = MENU_TX_ICON_NULL;
 
                     ui_drawButton( UI_Nothing, buttonLeft + 2 *( butt_wid + butt_spc ), y1, butt_hgt, butt_hgt, NULL );
-					draw_icon_texture(TextureManager::getSingleton()->get_valid_ptr(player->getIcon()), buttonLeft + 2 * (butt_wid + butt_spc) + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter, icon_hgt);
+                    draw_icon_texture(TxList_get_valid_ptr(player->getIcon()), buttonLeft + 2 *( butt_wid + butt_spc ) + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter, icon_hgt);
 
 
                     if ( i < MAX_LOCAL_PLAYERS )
@@ -1892,7 +1873,7 @@ int doChooseCharacter( float deltaTime )
     switch ( menuState )
     {
         case MM_Begin:
-			TextureManager::getSingleton()->relinquish((TX_REF)TX_BARS);
+            TxList_free_one(( TX_REF )TX_BARS );
             loadPlayerInventory = true;
 
             //Figure out if we have already selected something
@@ -1908,7 +1889,7 @@ int doChooseCharacter( float deltaTime )
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
-			TextureManager::getSingleton()->load("mp_data/bars", (TX_REF)TX_BARS, INVALID_KEY);
+            TxList_load_one_vfs( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
 
             mnu_SlidyButton_init( 1.0f, button_text );
 
@@ -1995,7 +1976,7 @@ int doChooseCharacter( float deltaTime )
                 }
 
                 // do the character button
-				mnu_widgetList[m].img = TextureManager::getSingleton()->get_valid_ptr(loadPlayer->getIcon());
+                mnu_widgetList[m].img  = TxList_get_valid_ptr( loadPlayer->getIcon() );
                 mnu_widgetList[m].text = loadPlayer->getName().c_str();
                 if ( loadPlayer->getSelectedByPlayer() == currentSelectingPlayer )
                 {
@@ -2082,7 +2063,7 @@ int doChooseCharacter( float deltaTime )
             doChooseCharacter_show_stats( nullptr, false, 0, 0, 0, 0 );
 
             oglx_texture_release( &background );
-			TextureManager::getSingleton()->relinquish((TX_REF)TX_BARS);
+            TxList_free_one(( TX_REF )TX_BARS );
 
             menuState = MM_Begin;
             result = -1;
@@ -3454,30 +3435,30 @@ int doVideoOptions( float deltaTime )
             // Texture filtering
             switch ( cfg.texturefilter_req )
             {
-				case Ego::TextureFilter::UNFILTERED:
+                case Ego::UNFILTERED:
                     sz_buttons[but_filtering] = "Unfiltered";
                     break;
-				case Ego::TextureFilter::LINEAR:
+                case Ego::LINEAR:
                     sz_buttons[but_filtering] = "Linear";
                     break;
-				case Ego::TextureFilter::MIPMAP:
+                case Ego::MIPMAP:
                     sz_buttons[but_filtering] = "Mipmap";
                     break;
-				case Ego::TextureFilter::BILINEAR:
+                case Ego::BILINEAR:
                     sz_buttons[but_filtering] = "Bilinear";
                     break;
-				case Ego::TextureFilter::TRILINEAR_1:
+                case Ego::TRILINEAR_1:
                     sz_buttons[but_filtering] = "Trilinear 1";
                     break;
-				case Ego::TextureFilter::TRILINEAR_2:
+                case Ego::TRILINEAR_2:
                     sz_buttons[but_filtering] = "Trilinear 2";
                     break;
-				case Ego::TextureFilter::ANISOTROPIC:
+                case Ego::ANISOTROPIC:
                     sz_buttons[but_filtering] = "Ansiotropic";
                     break;
                 default:                  // Set to defaults
                     sz_buttons[but_filtering] = "Linear";
-					cfg.texturefilter_req = Ego::TextureFilter::LINEAR;
+                    cfg.texturefilter_req = Ego::LINEAR;
                     break;
             }
 
@@ -3677,53 +3658,53 @@ int doVideoOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, GFX_HEIGHT - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, sz_buttons[but_filtering], menuFont, buttonLeft + 150, GFX_HEIGHT - 285, 130, 30 ) )
             {
-				if (cfg.texturefilter_req < Ego::TextureFilter::UNFILTERED)
+                if ( cfg.texturefilter_req < Ego::UNFILTERED )
                 {
-					cfg.texturefilter_req = Ego::TextureFilter::UNFILTERED;
+                    cfg.texturefilter_req = Ego::UNFILTERED;
                 }
                 else
                 {
-                    cfg.texturefilter_req = (Ego::TextureFilter)((int)cfg.texturefilter_req + 1);
+                    cfg.texturefilter_req = ( Ego::TextureFilter )(( int )cfg.texturefilter_req + 1 );
                 }
 
-				if (cfg.texturefilter_req > Ego::TextureFilter::ANISOTROPIC)
+                if ( cfg.texturefilter_req > Ego::ANISOTROPIC )
                 {
-					cfg.texturefilter_req = Ego::TextureFilter::UNFILTERED;
+                    cfg.texturefilter_req = Ego::UNFILTERED;
                 }
 
                 switch ( cfg.texturefilter_req )
                 {
 
-				case Ego::TextureFilter::UNFILTERED:
+                    case Ego::UNFILTERED:
                         sz_buttons[but_filtering] = "Unfiltered";
                         break;
 
-					case Ego::TextureFilter::LINEAR:
+                    case Ego::LINEAR:
                         sz_buttons[but_filtering] = "Linear";
                         break;
 
-					case Ego::TextureFilter::MIPMAP:
+                    case Ego::MIPMAP:
                         sz_buttons[but_filtering] = "Mipmap";
                         break;
 
-					case Ego::TextureFilter::BILINEAR:
+                    case Ego::BILINEAR:
                         sz_buttons[but_filtering] = "Bilinear";
                         break;
 
-					case Ego::TextureFilter::TRILINEAR_1:
+                    case Ego::TRILINEAR_1:
                         sz_buttons[but_filtering] = "Trilinear 1";
                         break;
 
-					case Ego::TextureFilter::TRILINEAR_2:
+                    case Ego::TRILINEAR_2:
                         sz_buttons[but_filtering] = "Trilinear 2";
                         break;
 
-					case Ego::TextureFilter::ANISOTROPIC:
+                    case Ego::ANISOTROPIC:
                         sz_buttons[but_filtering] = "Anisotropic";
                         break;
 
                     default:
-						cfg.texturefilter_req = Ego::TextureFilter::UNFILTERED;
+                        cfg.texturefilter_req = Ego::UNFILTERED;
                         sz_buttons[but_filtering] = "Unfiltered";
                         break;
                 }
@@ -4877,7 +4858,7 @@ void mnu_load_all_module_info()
     mnu_ModList_release_all();
 
     // reset the texture cache
-    mnu_TxList_release_all();
+//    mnu_TxList_release_all();
 
     // Search for all .mod directories and load the module info
     ctxt = vfs_findFirst( "mp_modules", "mod", VFS_SEARCH_DIR );
@@ -4932,7 +4913,7 @@ void mnu_release_one_module( const MOD_REF imod )
     if ( !VALID_MOD( imod ) ) return;
     pmod = mnu_ModList.get_ptr( imod );
 
-    mnu_TxList_release_one( pmod->tex_index );
+    //mnu_TxList_release_one( pmod->tex_index );
     pmod->tex_index = INVALID_TITLE_TEXTURE;
 }
 
@@ -5001,7 +4982,7 @@ void mnu_ModList_release_images()
         if ( !mnu_ModList.lst[cnt].loaded ) continue;
         tnc = REF_TO_INT( cnt );
 
-        mnu_TxList_release_one( mnu_ModList.lst[cnt].tex_index );
+        //mnu_TxList_release_one( mnu_ModList.lst[cnt].tex_index );
         mnu_ModList.lst[cnt].tex_index = INVALID_TITLE_TEXTURE;
     }
 
@@ -5232,6 +5213,9 @@ void loadAllImportPlayers(const std::string &saveGameDirectory)
 egolib_rv mnu_set_local_import_list( import_list_t * imp_lst )
 {
     int import_idx;
+#if 0
+	int i;
+#endif
     import_element_t * import_ptr = NULL;
 
     if ( NULL == imp_lst ) return rv_error;
@@ -5264,7 +5248,7 @@ egolib_rv mnu_set_local_import_list( import_list_t * imp_lst )
 //--------------------------------------------------------------------------------------------
 // mnu_TxList IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-
+#if 0
 IMPLEMENT_LIST( oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 
 //--------------------------------------------------------------------------------------------
@@ -5288,9 +5272,12 @@ void mnu_TxList_ctor()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
-	for (MNU_TX_REF cnt = 0; cnt < MENU_TX_COUNT; cnt++)
+
+    MNU_TX_REF cnt;
+
+    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_t::ctor( mnu_TxList.lst + cnt );
+//        oglx_texture_ctor( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5310,9 +5297,12 @@ void mnu_TxList_dtor()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
-	for (MNU_TX_REF cnt = 0; cnt < MENU_TX_COUNT; cnt++)
+
+    MNU_TX_REF cnt;
+
+    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_t::dtor( mnu_TxList.lst + cnt );
+     //   oglx_texture_dtor( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5323,9 +5313,12 @@ void mnu_TxList_init_all()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
-	for (MNU_TX_REF cnt = 0; cnt < MENU_TX_COUNT; cnt++)
+
+    MNU_TX_REF cnt;
+
+    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_t::ctor( mnu_TxList.lst + cnt );
+      //  oglx_texture_ctor( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5353,9 +5346,11 @@ void mnu_TxList_delete_all()
     /// @author ZZ
     /// @details This function clears out all of the textures
 
-	for (MNU_TX_REF cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++)
+    MNU_TX_REF cnt;
+
+    for ( cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_t::dtor( mnu_TxList.lst + cnt );
+    //    oglx_texture_dtor( mnu_TxList.lst + cnt );
     }
 
     mnu_TxList_reset_freelist();
@@ -5376,7 +5371,7 @@ void mnu_TxList_reload_all()
 
         if ( oglx_texture_Valid( ptex ) )
         {
-            oglx_texture_convert( ptex, ptex->surface, INVALID_KEY );
+         //   oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
         }
     }
 }
@@ -5466,87 +5461,31 @@ bool mnu_TxList_free_one( const MNU_TX_REF itex )
 
     return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 MNU_TX_REF mnu_TxList_load_one_vfs( const char *filename, const MNU_TX_REF itex_src, Uint32 key )
 {
-    /// @author BB
-    /// @details load a texture into mnu_TxList.
-    ///     If !VALID_TX_RANGE(itex_src), then we just get the next free index
-
-    MNU_TX_REF retval;
-
-    // get a texture index.
-    retval = mnu_TxList_get_free( itex_src );
-
-    // handle an error
-    if ( VALID_MENU_TX_RANGE( retval ) )
-    {
-        Uint32 txid = ego_texture_load_vfs( mnu_TxList.lst + retval, filename, key );
-        if ( INVALID_GL_ID == txid )
-        {
-            mnu_TxList_free_one( retval );
-            retval = INVALID_MNU_TX_REF;
-        }
-    }
-
-    return retval;
+    return INVALID_MNU_TX_REF;
 }
 
 //--------------------------------------------------------------------------------------------
 oglx_texture_t * mnu_TxList_get_valid_ptr( const MNU_TX_REF itex )
 {
-    oglx_texture_t * ptex = mnu_TxList_get_ptr( itex );
-
-    if ( !oglx_texture_Valid( ptex ) )
-    {
-        return NULL;
-    }
-
-    return ptex;
+        return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool mnu_load_cursor()
 {
-    /// @author ZF
-    /// @details Load the mouse cursor
-
-    MNU_TX_REF load_rv = INVALID_MNU_TX_REF;
-
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/cursor", MENU_TX_CURSOR, TRANSCOLOR );
-
-    return VALID_MENU_TX_RANGE( load_rv ) ? true : false;
+return false;
 }
 
 //--------------------------------------------------------------------------------------------
 bool mnu_load_all_global_icons()
 {
-    /// @author ZF
-    /// @details Load all the global icons used in all modules
-
-    // Setup
-    MNU_TX_REF load_rv;
-    bool result = gfx_success;
-
-    // Now load every icon
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/nullicon", ( MNU_TX_REF )MENU_TX_ICON_NULL, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
-
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/keybicon", ( MNU_TX_REF )MENU_TX_ICON_KEYB, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
-
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/mousicon", ( MNU_TX_REF )MENU_TX_ICON_MOUS, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
-
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/joyaicon", ( MNU_TX_REF )MENU_TX_ICON_JOYA, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
-
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/joybicon", ( MNU_TX_REF )MENU_TX_ICON_JOYB, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
-
-    return result;
+return false;
 }
 
 //--------------------------------------------------------------------------------------------

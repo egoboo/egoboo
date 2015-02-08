@@ -2779,7 +2779,7 @@ bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     }
 
     // automatically identify and unkurse all player starting equipment? I think yes.
-    if ( start_new_player && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
+    if ( !PMod->isImportValid() && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
     {
         GameObject *pitem;
         pchr->nameknown = true;

@@ -134,7 +134,7 @@ void ModuleSelector::drawContainer()
 
 	    	//Draw one skull per rated difficulty
 	    	for(int i = 0; i < difficulty; ++i) {
-	    		draw_icon_texture(TxList_get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY()+28, 0xFF, 0, textHeight-4, true);
+	    		draw_icon_texture(TextureManager::getSingleton()->get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY()+28, 0xFF, 0, textHeight-4, true);
 	    	}
     	}
 
