@@ -218,7 +218,6 @@ void LoadingState::loadModuleData()
     //Complete!
     singleThreadRedrawHack("Finished!");
     _finishedLoading = true;
-    //_gameEngine->setGameState(std::make_shared<PlayingState>());
 
     //Add the start button once we are finished loading
     std::shared_ptr<Button> startButton = std::make_shared<Button>("Press Space to begin", SDLK_SPACE);

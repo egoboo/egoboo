@@ -70,7 +70,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 
 	//Add the buttons
 	_chooseModule = std::make_shared<Button>("Choose Module", SDLK_RETURN);
-	_chooseModule->setPosition(moduleMenuOffsetX + 377, moduleMenuOffsetY + 173);
+	_chooseModule->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, moduleMenuOffsetY + 173);
 	_chooseModule->setSize(200, 30);
 	_chooseModule->setEnabled(false);
 	_chooseModule->setOnClickFunction(
@@ -83,7 +83,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	addComponent(_chooseModule);
 
 	std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
-	backButton->setPosition(moduleMenuOffsetX + 377, _chooseModule->getY() + 50);
+	backButton->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, _chooseModule->getY() + 50);
 	backButton->setSize(200, 30);
 	backButton->setOnClickFunction(
 		[this]{

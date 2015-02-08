@@ -42,7 +42,7 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
     moduleMenuOffsetY = std::max(0, moduleMenuOffsetY);
 
 	//Set backdrop size and position
-	setSize(330, 250);
+	setSize(430, 250);
 	setPosition(moduleMenuOffsetX + 21, moduleMenuOffsetY + 173);
 
 	//Next and previous buttons
@@ -120,11 +120,26 @@ void ModuleSelector::drawContainer()
     //Module description
     if(_selectedModule != nullptr)
     {
+
+    	//Draw module Name first
+    	GL_DEBUG( glColor4fv )( Ego::white_vec );
+    	ui_drawTextBox(ui_getFont(), _selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 20, 20);
+
+    	//Now difficulty
+    	int difficulty = strlen(_selectedModule->getRank());
+    	if(difficulty > 0) {
+	        int textWidth, textHeight;
+	        fnt_getTextSize(ui_getFont(), "Difficulty: ", &textWidth, &textHeight);
+	    	ui_drawTextBox(ui_getFont(), "Difficulty: ", getX() + 5, getY() + 25, getWidth() - 10, textHeight, 20);
+
+	    	//Draw one skull per rated difficulty
+	    	for(int i = 0; i < difficulty; ++i) {
+	    		draw_icon_texture(TxList_get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY()+28, 0xFF, 0, textHeight-4, true);
+	    	}
+    	}
+
+    	//Module description
     	std::stringstream buffer;
-
-    	buffer << "Name: " << _selectedModule->getName() << '\n';
-    	buffer << "Difficulty: " << _selectedModule->getRank() << '\n';
-
     	if(_selectedModule->getBase().maxplayers > 1)
     	{
     		if(_selectedModule->getBase().maxplayers == _selectedModule->getBase().minplayers)
@@ -151,7 +166,7 @@ void ModuleSelector::drawContainer()
 		}    	
 
     	GL_DEBUG( glColor4fv )( Ego::white_vec );
-    	ui_drawTextBox(ui_getFont(), buffer.str().c_str(), getX() + 5, getY() + 5, getWidth() - 10, getHeight() - 10, 20);
+    	ui_drawTextBox(ui_getFont(), buffer.str().c_str(), getX() + 5, getY() + 45, getWidth() - 10, getHeight() - 10, 20);
     }
 }
 

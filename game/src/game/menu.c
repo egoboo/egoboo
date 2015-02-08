@@ -691,6 +691,7 @@ int mnu_get_menu_depth()
 //--------------------------------------------------------------------------------------------
 // Implementations of the various menus
 //--------------------------------------------------------------------------------------------
+#if 0
 int doMainMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -879,6 +880,7 @@ int doMainMenu( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+
 int doSinglePlayerMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -998,6 +1000,7 @@ int doSinglePlayerMenu( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+
 static int cmp_mod_ref_mult = 1;
 
 int cmp_mod_ref( const void * vref1, const void * vref2 )
@@ -1056,7 +1059,7 @@ int cmp_mod_ref( const void * vref1, const void * vref2 )
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
+
 int doChooseModule( float deltaTime )
 {
     /// @details Choose the module
@@ -1663,6 +1666,7 @@ bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loadPlayer
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 int doChoosePlayer( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2091,6 +2095,7 @@ int doChooseCharacter( float deltaTime )
 
     return result;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 int doOptions( float deltaTime )

@@ -56,13 +56,14 @@ enum e_global_tx_type
 	/* "mp_data/xpbar", TRANSCOLOR*/
     TX_XP_BAR,
 	/* "mp_data/nullicon", INVALID_KEY */
-    TX_ICON_NULL,
-    TX_FONT_BMP,
-    TX_ICON_KEYB,
-    TX_ICON_MOUS,
-    TX_ICON_JOYA,
-    TX_ICON_JOYB,
-    TX_CURSOR,
+    TX_ICON_NULL,           //Empty icon
+    TX_FONT_BMP,            //Font bitmap
+    TX_ICON_KEYB,           //Keyboard
+    TX_ICON_MOUS,           //Mouse
+    TX_ICON_JOYA,           //White joystick
+    TX_ICON_JOYB,           //Black joystick
+    TX_CURSOR,              //Mouse cursor
+    TX_SKULL,               //Difficulity skull
     TX_SPECIAL_LAST
 };
 

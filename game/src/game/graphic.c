@@ -1959,6 +1959,9 @@ void gfx_system_load_basic_textures()
     //Cursor
     TxList_load_one_vfs("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR), TRANSCOLOR);
 
+    //Skull
+    TxList_load_one_vfs("mp_data/skull", static_cast<TX_REF>(TX_SKULL), INVALID_KEY);
+
     // Particle sprites
 	TextureManager::getSingleton()->load("mp_data/particle_trans", (TX_REF)TX_PARTICLE_TRANS, TRANSCOLOR);
     prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
@@ -2091,7 +2094,7 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map )
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
+float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha)
 {
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
@@ -2131,7 +2134,7 @@ float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, false, NULL );
+    draw_quad_2d( ptex, sc_rect, tx_rect, useAlpha, NULL );
 
     if ( NOSPARKLE != sparkle_color )
     {
