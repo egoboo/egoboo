@@ -23,7 +23,7 @@ class Button : public GUIComponent
 
         bool isEnabled() const override;
 
-        void setEnabled(bool enabled) override;
+        void setEnabled(const bool enabled) override;
 
         //Disable copying class
         Button(const Button& copy) = delete;

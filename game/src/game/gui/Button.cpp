@@ -150,7 +150,7 @@ bool Button::isEnabled() const
     return GUIComponent::isEnabled();
 }
 
-void Button::setEnabled(bool enabled)
+void Button::setEnabled(const bool enabled)
 {
     if(!enabled) {
         _mouseOver = false;
