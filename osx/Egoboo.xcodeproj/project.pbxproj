@@ -116,6 +116,9 @@
 		CD44E2881A76F36B00D22608 /* unix.c in Sources */ = {isa = PBXBuildFile; fileRef = CD867B561A76ED9000B28D92 /* unix.c */; };
 		CD44E2891A76F36B00D22608 /* windows.c in Sources */ = {isa = PBXBuildFile; fileRef = CD867B571A76ED9000B28D92 /* windows.c */; };
 		CD44E28F1A76F61500D22608 /* libphysfs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD867B791A76EE3400B28D92 /* libphysfs.a */; };
+		CD44E45B1A8959CF00D345DF /* Branch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4531A8959CF00D345DF /* Branch.cpp */; };
+		CD44E45C1A8959CF00D345DF /* LeafList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4571A8959CF00D345DF /* LeafList.cpp */; };
+		CD44E45D1A8959CF00D345DF /* Tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4591A8959CF00D345DF /* Tree.cpp */; };
 		CD4B64E61A7EE94C00A52646 /* GameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4B64E41A7EE94C00A52646 /* GameObject.cpp */; };
 		CD5953901A3F5C430052A682 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085C9E12ED4FAD0051AF5F /* host.c */; };
 		CD5953911A3F5C430052A682 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAB12ED4FAD0051AF5F /* list.c */; };
@@ -615,6 +618,16 @@
 		CD39B4AB1A37629C00B377BE /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = ../../../../../Library/Frameworks/SDL.framework; sourceTree = "<group>"; };
 		CD44DD7E1A476046005E6DF0 /* bsp.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp.c; sourceTree = "<group>"; };
 		CD44DD7F1A476046005E6DF0 /* bsp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bsp.h; sourceTree = "<group>"; };
+		CD44E4521A8959CF00D345DF /* Bounds.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Bounds.hpp; sourceTree = "<group>"; };
+		CD44E4531A8959CF00D345DF /* Branch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Branch.cpp; sourceTree = "<group>"; };
+		CD44E4541A8959CF00D345DF /* Branch.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Branch.hpp; sourceTree = "<group>"; };
+		CD44E4551A8959CF00D345DF /* Element.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Element.hpp; sourceTree = "<group>"; };
+		CD44E4561A8959CF00D345DF /* LeafHolder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LeafHolder.hpp; sourceTree = "<group>"; };
+		CD44E4571A8959CF00D345DF /* LeafList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LeafList.cpp; sourceTree = "<group>"; };
+		CD44E4581A8959CF00D345DF /* LeafList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LeafList.hpp; sourceTree = "<group>"; };
+		CD44E4591A8959CF00D345DF /* Tree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tree.cpp; sourceTree = "<group>"; };
+		CD44E45A1A8959CF00D345DF /* Tree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tree.hpp; sourceTree = "<group>"; };
+		CD44E45E1A895D9B00D345DF /* ComparisonFunction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ComparisonFunction.hpp; sourceTree = "<group>"; };
 		CD4B64E41A7EE94C00A52646 /* GameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameObject.cpp; sourceTree = "<group>"; };
 		CD4B64E51A7EE94C00A52646 /* GameObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameObject.hpp; sourceTree = "<group>"; };
 		CD5B0CAB1A6204EC00F076F9 /* AStar.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AStar.c; sourceTree = "<group>"; };
@@ -828,7 +841,7 @@
 		CDE4EC591A7167CD00A4BC62 /* Cube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cube.cpp; sourceTree = "<group>"; };
 		CDE4EC5A1A7167CD00A4BC62 /* Cube.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Cube.hpp; sourceTree = "<group>"; };
 		CDE4EC5B1A7167CD00A4BC62 /* Plane.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = Plane.cpp; sourceTree = "<group>"; };
-		CDE4EC5C1A7167CD00A4BC62 /* Plane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
+		CDE4EC5C1A7167CD00A4BC62 /* Plane.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Plane.hpp; sourceTree = "<group>"; };
 		CDE4EC5D1A7167CD00A4BC62 /* Sphere.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = Sphere.cpp; sourceTree = "<group>"; };
 		CDE4EC5E1A7167CD00A4BC62 /* Sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sphere.h; sourceTree = "<group>"; };
 		CDE4EC631A71AEFC00A4BC62 /* Module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Module.cpp; sourceTree = "<group>"; };
@@ -1183,6 +1196,7 @@
 			isa = PBXGroup;
 			children = (
 				CD0FE1551A7B09AD00F3392B /* OpenGL */,
+				CD44E45E1A895D9B00D345DF /* ComparisonFunction.hpp */,
 				CD0FE1581A7B09AD00F3392B /* Renderer.cpp */,
 				CD0FE1591A7B09AD00F3392B /* Renderer.hpp */,
 				CD0CB08B1A84AAF800D78E80 /* TextureFilter.hpp */,
@@ -1208,6 +1222,7 @@
 				CD9059311A69A67C00DC425D /* math */,
 				CD39B3711A374B6000B377BE /* platform */,
 				CD0FE1541A7B09AD00F3392B /* Renderer */,
+				CD44E4511A8959CF00D345DF /* Scene */,
 				CD39B3011A374B6000B377BE /* _math.c */,
 				CD39B3021A374B6000B377BE /* _math.h */,
 				CDCA1F8F1A3F56AB00002E76 /* bbox.c */,
@@ -1390,6 +1405,22 @@
 				CD8679301A76ED8F00B28D92 /* physfs */,
 			);
 			name = dependencies;
+			sourceTree = "<group>";
+		};
+		CD44E4511A8959CF00D345DF /* Scene */ = {
+			isa = PBXGroup;
+			children = (
+				CD44E4521A8959CF00D345DF /* Bounds.hpp */,
+				CD44E4531A8959CF00D345DF /* Branch.cpp */,
+				CD44E4541A8959CF00D345DF /* Branch.hpp */,
+				CD44E4551A8959CF00D345DF /* Element.hpp */,
+				CD44E4561A8959CF00D345DF /* LeafHolder.hpp */,
+				CD44E4571A8959CF00D345DF /* LeafList.cpp */,
+				CD44E4581A8959CF00D345DF /* LeafList.hpp */,
+				CD44E4591A8959CF00D345DF /* Tree.cpp */,
+				CD44E45A1A8959CF00D345DF /* Tree.hpp */,
+			);
+			path = Scene;
 			sourceTree = "<group>";
 		};
 		CD4B64E31A7EE94C00A52646 /* game_logic */ = {
@@ -1610,7 +1641,7 @@
 				CDE4EC5A1A7167CD00A4BC62 /* Cube.hpp */,
 				CDC187181A7B08B4001E69ED /* DynamicVector.hpp */,
 				CDE4EC5B1A7167CD00A4BC62 /* Plane.cpp */,
-				CDE4EC5C1A7167CD00A4BC62 /* Plane.h */,
+				CDE4EC5C1A7167CD00A4BC62 /* Plane.hpp */,
 				CD9059321A69A67C00DC425D /* Random.cpp */,
 				CD9059331A69A67C00DC425D /* Random.hpp */,
 				CDE4EC5D1A7167CD00A4BC62 /* Sphere.cpp */,
@@ -2154,6 +2185,7 @@
 				CDCA1FAA1A3F57D000002E76 /* clock.c in Sources */,
 				CDCA1FB61A3F57D000002E76 /* configfile.c in Sources */,
 				CDCA1FB21A3F57D000002E76 /* SDL_extensions.c in Sources */,
+				CD44E45C1A8959CF00D345DF /* LeafList.cpp in Sources */,
 				CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */,
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
@@ -2161,6 +2193,7 @@
 				CDC1871C1A7B08BC001E69ED /* Colour4f.cpp in Sources */,
 				CDCA1FCC1A3F57D000002E76 /* wawalite_file.c in Sources */,
 				CDE4EC621A7167CD00A4BC62 /* Sphere.cpp in Sources */,
+				CD44E45D1A8959CF00D345DF /* Tree.cpp in Sources */,
 				CDC1871B1A7B08BC001E69ED /* Colour3f.cpp in Sources */,
 				CDCA1FD41A3F57D000002E76 /* input_device.c in Sources */,
 				CDD8806F1A44A8EF007177F3 /* bv.c in Sources */,
@@ -2186,6 +2219,7 @@
 				CDCA1FD81A3F57D000002E76 /* network.c in Sources */,
 				CDCA1FAE1A3F57D000002E76 /* ogl_debug.c in Sources */,
 				CDCA1FAB1A3F57D000002E76 /* console.c in Sources */,
+				CD44E45B1A8959CF00D345DF /* Branch.cpp in Sources */,
 				CDCA1FB91A3F57D000002E76 /* controls_file-v3.c in Sources */,
 				CDCA1FD51A3F57D000002E76 /* log.c in Sources */,
 				CDCA1FBB1A3F57D000002E76 /* eve_file.c in Sources */,
