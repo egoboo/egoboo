@@ -446,7 +446,9 @@ int GameObject::damage(const FACING_T direction, const IPair  damage, const Dama
             SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
             GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
 
-            spawn_defense_ping( this, attacker->getCharacterID() );
+            CHR_REF attacker_ref = INVALID_CHR_REF;
+            if (attacker) attacker_ref = attacker->getCharacterID();
+            spawn_defense_ping( this, attacker_ref );
             chr_make_text_billboard(_characterID, "Immune!", text_color, tint, lifetime, bb_opt_all);
         }
     }

@@ -422,7 +422,7 @@ map_t * map_save( const char * savename, map_t * pmesh )
     if ( NULL == filewrite ) return NULL;
 
     // write the file identifier
-    vfs_write_Uint32( filewrite, CURRENT_MAP_ID );
+    vfs_write_Uint32( filewrite, SDL_Swap32(CURRENT_MAP_ID) );
 
     // write the file vertex count
     vfs_write_Uint32( filewrite, pinfo->vertcount );

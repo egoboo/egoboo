@@ -1088,6 +1088,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
 
                     //found a free slot
                     ptok->iValue = _profileSystem.loadOneProfile( loadname, REF_TO_INT( ipro ) );
+                    if (ptok->iValue == ipro) break;
                 }
             }
 

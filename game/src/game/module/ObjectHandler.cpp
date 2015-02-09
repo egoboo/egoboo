@@ -175,7 +175,7 @@ void ObjectHandler::dumpAllocateList()
 	{
 		std::cout << "Allocate List" << std::endl;
 		std::cout << "{" << std::endl;
-		for (const auto chr : _allocateList)
+		for (const auto &chr : _allocateList)
 		{
 			if (chr == nullptr)
 			{

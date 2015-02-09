@@ -23,7 +23,7 @@
 
 #include "game/ai/AStar.h"
 
-#include "game/graphic.h" //for point debugging
+#include "game/renderer_3d.h" //for point debugging
 #include "game/script.h"  //for waypoint list control
 
 #include "game/mesh.h"

@@ -132,6 +132,26 @@
 		CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAB1A6204EC00F076F9 /* AStar.c */; };
 		CD5B0CB01A6204EC00F076F9 /* WaypointList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */; };
 		CD5B0CB41A62054300F076F9 /* DynamicArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */; };
+		CD792C1E1A881FE20086270E /* GameEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BF61A881FE20086270E /* GameEngine.cpp */; };
+		CD792C1F1A881FE20086270E /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BF91A881FE20086270E /* GameState.cpp */; };
+		CD792C201A881FE20086270E /* InGameMenuState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BFB1A881FE20086270E /* InGameMenuState.cpp */; };
+		CD792C211A881FE20086270E /* LoadingState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BFD1A881FE20086270E /* LoadingState.cpp */; };
+		CD792C221A881FE20086270E /* LoadPlayerElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BFF1A881FE20086270E /* LoadPlayerElement.cpp */; };
+		CD792C231A881FE20086270E /* MainMenuState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C011A881FE20086270E /* MainMenuState.cpp */; };
+		CD792C241A881FE20086270E /* PlayingState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C031A881FE20086270E /* PlayingState.cpp */; };
+		CD792C251A881FE20086270E /* SelectCharacterState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C051A881FE20086270E /* SelectCharacterState.cpp */; };
+		CD792C261A881FE20086270E /* SelectModuleState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C071A881FE20086270E /* SelectModuleState.cpp */; };
+		CD792C271A881FE20086270E /* SelectPlayersState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C091A881FE20086270E /* SelectPlayersState.cpp */; };
+		CD792C281A881FE20086270E /* VictoryScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C0B1A881FE20086270E /* VictoryScreen.cpp */; };
+		CD792C291A881FE20086270E /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C0E1A881FE20086270E /* Button.cpp */; };
+		CD792C2A1A881FE20086270E /* ComponentContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C101A881FE20086270E /* ComponentContainer.cpp */; };
+		CD792C2B1A881FE20086270E /* GUIComponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C121A881FE20086270E /* GUIComponent.cpp */; };
+		CD792C2C1A881FE20086270E /* IconButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C141A881FE20086270E /* IconButton.cpp */; };
+		CD792C2D1A881FE20086270E /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C161A881FE20086270E /* Image.cpp */; };
+		CD792C2E1A881FE20086270E /* InputListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C181A881FE20086270E /* InputListener.cpp */; };
+		CD792C2F1A881FE20086270E /* Label.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C1A1A881FE20086270E /* Label.cpp */; };
+		CD792C301A881FE20086270E /* ModuleSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C1C1A881FE20086270E /* ModuleSelector.cpp */; };
+		CD792C331A88204E0086270E /* ModuleProfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C311A88204E0086270E /* ModuleProfile.cpp */; };
 		CD9059341A69A67C00DC425D /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD9059321A69A67C00DC425D /* Random.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
 		CDB3DC981A659EF30098D3B9 /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC961A659ED40098D3B9 /* mem.c */; };
@@ -248,6 +268,7 @@
 		CDE4EC611A7167CD00A4BC62 /* Plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC5B1A7167CD00A4BC62 /* Plane.cpp */; };
 		CDE4EC621A7167CD00A4BC62 /* Sphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC5D1A7167CD00A4BC62 /* Sphere.cpp */; };
 		CDE4EC651A71AEFC00A4BC62 /* Module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC631A71AEFC00A4BC62 /* Module.cpp */; };
+		CDED15AD1A88393A00AFA2AD /* UIManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDED15AB1A88393A00AFA2AD /* UIManager.cpp */; };
 		CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */; };
 		CDFE07711A3F68A5005395E7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = 27D3912F12EEA51D0093D60A /* SDLMain.nib */; };
 		CDFE077A1A3F68A5005395E7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = 27D3913212EEA51D0093D60A /* SDLMain.nib */; };
@@ -603,6 +624,46 @@
 		CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicArray.cpp; sourceTree = "<group>"; };
 		CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicArray.hpp; sourceTree = "<group>"; };
 		CD5B0CB31A62054300F076F9 /* Stack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Stack.hpp; sourceTree = "<group>"; };
+		CD792BF61A881FE20086270E /* GameEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameEngine.cpp; sourceTree = "<group>"; };
+		CD792BF71A881FE20086270E /* GameEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameEngine.hpp; sourceTree = "<group>"; };
+		CD792BF91A881FE20086270E /* GameState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
+		CD792BFA1A881FE20086270E /* GameState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameState.hpp; sourceTree = "<group>"; };
+		CD792BFB1A881FE20086270E /* InGameMenuState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InGameMenuState.cpp; sourceTree = "<group>"; };
+		CD792BFC1A881FE20086270E /* InGameMenuState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = InGameMenuState.hpp; sourceTree = "<group>"; };
+		CD792BFD1A881FE20086270E /* LoadingState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoadingState.cpp; sourceTree = "<group>"; };
+		CD792BFE1A881FE20086270E /* LoadingState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoadingState.hpp; sourceTree = "<group>"; };
+		CD792BFF1A881FE20086270E /* LoadPlayerElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoadPlayerElement.cpp; sourceTree = "<group>"; };
+		CD792C001A881FE20086270E /* LoadPlayerElement.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LoadPlayerElement.hpp; sourceTree = "<group>"; };
+		CD792C011A881FE20086270E /* MainMenuState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainMenuState.cpp; sourceTree = "<group>"; };
+		CD792C021A881FE20086270E /* MainMenuState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MainMenuState.hpp; sourceTree = "<group>"; };
+		CD792C031A881FE20086270E /* PlayingState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlayingState.cpp; sourceTree = "<group>"; };
+		CD792C041A881FE20086270E /* PlayingState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PlayingState.hpp; sourceTree = "<group>"; };
+		CD792C051A881FE20086270E /* SelectCharacterState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectCharacterState.cpp; sourceTree = "<group>"; };
+		CD792C061A881FE20086270E /* SelectCharacterState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SelectCharacterState.hpp; sourceTree = "<group>"; };
+		CD792C071A881FE20086270E /* SelectModuleState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectModuleState.cpp; sourceTree = "<group>"; };
+		CD792C081A881FE20086270E /* SelectModuleState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SelectModuleState.hpp; sourceTree = "<group>"; };
+		CD792C091A881FE20086270E /* SelectPlayersState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectPlayersState.cpp; sourceTree = "<group>"; };
+		CD792C0A1A881FE20086270E /* SelectPlayersState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SelectPlayersState.hpp; sourceTree = "<group>"; };
+		CD792C0B1A881FE20086270E /* VictoryScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VictoryScreen.cpp; sourceTree = "<group>"; };
+		CD792C0C1A881FE20086270E /* VictoryScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VictoryScreen.hpp; sourceTree = "<group>"; };
+		CD792C0E1A881FE20086270E /* Button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Button.cpp; sourceTree = "<group>"; };
+		CD792C0F1A881FE20086270E /* Button.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Button.hpp; sourceTree = "<group>"; };
+		CD792C101A881FE20086270E /* ComponentContainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentContainer.cpp; sourceTree = "<group>"; };
+		CD792C111A881FE20086270E /* ComponentContainer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ComponentContainer.hpp; sourceTree = "<group>"; };
+		CD792C121A881FE20086270E /* GUIComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GUIComponent.cpp; sourceTree = "<group>"; };
+		CD792C131A881FE20086270E /* GUIComponent.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GUIComponent.hpp; sourceTree = "<group>"; };
+		CD792C141A881FE20086270E /* IconButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IconButton.cpp; sourceTree = "<group>"; };
+		CD792C151A881FE20086270E /* IconButton.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IconButton.hpp; sourceTree = "<group>"; };
+		CD792C161A881FE20086270E /* Image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
+		CD792C171A881FE20086270E /* Image.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Image.hpp; sourceTree = "<group>"; };
+		CD792C181A881FE20086270E /* InputListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputListener.cpp; sourceTree = "<group>"; };
+		CD792C191A881FE20086270E /* InputListener.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = InputListener.hpp; sourceTree = "<group>"; };
+		CD792C1A1A881FE20086270E /* Label.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Label.cpp; sourceTree = "<group>"; };
+		CD792C1B1A881FE20086270E /* Label.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Label.hpp; sourceTree = "<group>"; };
+		CD792C1C1A881FE20086270E /* ModuleSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModuleSelector.cpp; sourceTree = "<group>"; };
+		CD792C1D1A881FE20086270E /* ModuleSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ModuleSelector.hpp; sourceTree = "<group>"; };
+		CD792C311A88204E0086270E /* ModuleProfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModuleProfile.cpp; sourceTree = "<group>"; };
+		CD792C321A88204E0086270E /* ModuleProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ModuleProfile.hpp; sourceTree = "<group>"; };
 		CD8679321A76ED8F00B28D92 /* dir.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dir.c; sourceTree = "<group>"; };
 		CD8679331A76ED8F00B28D92 /* grp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = grp.c; sourceTree = "<group>"; };
 		CD8679341A76ED8F00B28D92 /* hog.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hog.c; sourceTree = "<group>"; };
@@ -772,6 +833,8 @@
 		CDE4EC5E1A7167CD00A4BC62 /* Sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sphere.h; sourceTree = "<group>"; };
 		CDE4EC631A71AEFC00A4BC62 /* Module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Module.cpp; sourceTree = "<group>"; };
 		CDE4EC641A71AEFC00A4BC62 /* Module.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Module.hpp; sourceTree = "<group>"; };
+		CDED15AB1A88393A00AFA2AD /* UIManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UIManager.cpp; sourceTree = "<group>"; };
+		CDED15AC1A88393A00AFA2AD /* UIManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UIManager.hpp; sourceTree = "<group>"; };
 		CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp_aabb.c; sourceTree = "<group>"; };
 		CDF01D7F1A67E532001BC1EF /* bsp_aabb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bsp_aabb.h; sourceTree = "<group>"; };
 		CDFE07C61A3F68A5005395E7 /* Cartman.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cartman.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -912,8 +975,11 @@
 			children = (
 				CD5B0CAA1A6204EC00F076F9 /* ai */,
 				CDB3DC991A65D0760098D3B9 /* audio */,
+				CD792BF51A881FE20086270E /* core */,
 				CD4B64E31A7EE94C00A52646 /* game_logic */,
+				CD792BF81A881FE20086270E /* gamestates */,
 				CDCE21281A6404770084D934 /* graphics */,
+				CD792C0D1A881FE20086270E /* gui */,
 				CDBDE4291A43A65E008E5FD1 /* lua */,
 				CD97C1601A629E2500179A2C /* module */,
 				CDBD89421A6C02C100250CE2 /* profiles */,
@@ -1346,6 +1412,67 @@
 			path = ai;
 			sourceTree = "<group>";
 		};
+		CD792BF51A881FE20086270E /* core */ = {
+			isa = PBXGroup;
+			children = (
+				CD792BF61A881FE20086270E /* GameEngine.cpp */,
+				CD792BF71A881FE20086270E /* GameEngine.hpp */,
+			);
+			path = core;
+			sourceTree = "<group>";
+		};
+		CD792BF81A881FE20086270E /* gamestates */ = {
+			isa = PBXGroup;
+			children = (
+				CD792BF91A881FE20086270E /* GameState.cpp */,
+				CD792BFA1A881FE20086270E /* GameState.hpp */,
+				CD792BFB1A881FE20086270E /* InGameMenuState.cpp */,
+				CD792BFC1A881FE20086270E /* InGameMenuState.hpp */,
+				CD792BFD1A881FE20086270E /* LoadingState.cpp */,
+				CD792BFE1A881FE20086270E /* LoadingState.hpp */,
+				CD792BFF1A881FE20086270E /* LoadPlayerElement.cpp */,
+				CD792C001A881FE20086270E /* LoadPlayerElement.hpp */,
+				CD792C011A881FE20086270E /* MainMenuState.cpp */,
+				CD792C021A881FE20086270E /* MainMenuState.hpp */,
+				CD792C031A881FE20086270E /* PlayingState.cpp */,
+				CD792C041A881FE20086270E /* PlayingState.hpp */,
+				CD792C051A881FE20086270E /* SelectCharacterState.cpp */,
+				CD792C061A881FE20086270E /* SelectCharacterState.hpp */,
+				CD792C071A881FE20086270E /* SelectModuleState.cpp */,
+				CD792C081A881FE20086270E /* SelectModuleState.hpp */,
+				CD792C091A881FE20086270E /* SelectPlayersState.cpp */,
+				CD792C0A1A881FE20086270E /* SelectPlayersState.hpp */,
+				CD792C0B1A881FE20086270E /* VictoryScreen.cpp */,
+				CD792C0C1A881FE20086270E /* VictoryScreen.hpp */,
+			);
+			path = gamestates;
+			sourceTree = "<group>";
+		};
+		CD792C0D1A881FE20086270E /* gui */ = {
+			isa = PBXGroup;
+			children = (
+				CD792C0E1A881FE20086270E /* Button.cpp */,
+				CD792C0F1A881FE20086270E /* Button.hpp */,
+				CD792C101A881FE20086270E /* ComponentContainer.cpp */,
+				CD792C111A881FE20086270E /* ComponentContainer.hpp */,
+				CD792C121A881FE20086270E /* GUIComponent.cpp */,
+				CD792C131A881FE20086270E /* GUIComponent.hpp */,
+				CD792C141A881FE20086270E /* IconButton.cpp */,
+				CD792C151A881FE20086270E /* IconButton.hpp */,
+				CD792C161A881FE20086270E /* Image.cpp */,
+				CD792C171A881FE20086270E /* Image.hpp */,
+				CD792C181A881FE20086270E /* InputListener.cpp */,
+				CD792C191A881FE20086270E /* InputListener.hpp */,
+				CD792C1A1A881FE20086270E /* Label.cpp */,
+				CD792C1B1A881FE20086270E /* Label.hpp */,
+				CD792C1C1A881FE20086270E /* ModuleSelector.cpp */,
+				CD792C1D1A881FE20086270E /* ModuleSelector.hpp */,
+				CDED15AB1A88393A00AFA2AD /* UIManager.cpp */,
+				CDED15AC1A88393A00AFA2AD /* UIManager.hpp */,
+			);
+			path = gui;
+			sourceTree = "<group>";
+		};
 		CD8679301A76ED8F00B28D92 /* physfs */ = {
 			isa = PBXGroup;
 			children = (
@@ -1517,6 +1644,8 @@
 		CDBD89421A6C02C100250CE2 /* profiles */ = {
 			isa = PBXGroup;
 			children = (
+				CD792C311A88204E0086270E /* ModuleProfile.cpp */,
+				CD792C321A88204E0086270E /* ModuleProfile.hpp */,
 				CDBD89431A6C02C100250CE2 /* Profile.cpp */,
 				CDBD89441A6C02C100250CE2 /* Profile.hpp */,
 				CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */,
@@ -1863,32 +1992,43 @@
 				CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */,
 				CDCE212D1A6404770084D934 /* Camera.cpp in Sources */,
 				CD39B48D1A37506100B377BE /* PrtList.c in Sources */,
+				CD792C2F1A881FE20086270E /* Label.cpp in Sources */,
 				CD39B4941A37506100B377BE /* script_implementation.c in Sources */,
+				CD792C1F1A881FE20086270E /* GameState.cpp in Sources */,
 				CDCE212E1A6404770084D934 /* CameraSystem.cpp in Sources */,
 				CD39B46F1A37506100B377BE /* graphic.c in Sources */,
 				CD39B46E1A37506100B377BE /* graphic_texture.c in Sources */,
 				CD39B4681A37506100B377BE /* game.c in Sources */,
 				CD39B48A1A37506100B377BE /* player.c in Sources */,
+				CD792C2D1A881FE20086270E /* Image.cpp in Sources */,
 				CDBD89491A6C02C100250CE2 /* Profile.cpp in Sources */,
 				CD97C1651A629E2500179A2C /* Passage.cpp in Sources */,
+				CDED15AD1A88393A00AFA2AD /* UIManager.cpp in Sources */,
 				CD0FE1531A7B096800F3392B /* ObjectHandler.cpp in Sources */,
 				CD39B46C1A37506100B377BE /* graphic_mad.c in Sources */,
 				CD39B47B1A37506100B377BE /* menu.c in Sources */,
+				CD792C2C1A881FE20086270E /* IconButton.cpp in Sources */,
 				CD39B4901A37506100B377BE /* renderer_3d.c in Sources */,
 				CD39B4921A37506100B377BE /* script_compile.c in Sources */,
+				CD792C2E1A881FE20086270E /* InputListener.cpp in Sources */,
 				CD39B4841A37506100B377BE /* particle.c in Sources */,
+				CD792C1E1A881FE20086270E /* GameEngine.cpp in Sources */,
 				CDE4EC651A71AEFC00A4BC62 /* Module.cpp in Sources */,
 				CD39B4721A37506100B377BE /* link.c in Sources */,
 				CD39B46A1A37506100B377BE /* graphic_billboard.c in Sources */,
 				CD39B45B1A37506100B377BE /* char.c in Sources */,
+				CD792C201A881FE20086270E /* InGameMenuState.cpp in Sources */,
+				CD792C261A881FE20086270E /* SelectModuleState.cpp in Sources */,
 				CDB3DC9C1A65D0760098D3B9 /* AudioSystem.cpp in Sources */,
 				CD39B4631A37506100B377BE /* enchant.c in Sources */,
 				CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */,
 				CD39B45F1A37506100B377BE /* collision.c in Sources */,
 				CD4B64E61A7EE94C00A52646 /* GameObject.cpp in Sources */,
+				CD792C211A881FE20086270E /* LoadingState.cpp in Sources */,
 				CD39B47C1A37506100B377BE /* mesh_BSP.c in Sources */,
 				CD39B4801A37506100B377BE /* network_client.c in Sources */,
 				CD5B0CB01A6204EC00F076F9 /* WaypointList.c in Sources */,
+				CD792C221A881FE20086270E /* LoadPlayerElement.cpp in Sources */,
 				CD39B4951A37506100B377BE /* script.c in Sources */,
 				CD39B4601A37506100B377BE /* egoboo_object.c in Sources */,
 				CD39B46D1A37506100B377BE /* graphic_prt.c in Sources */,
@@ -1897,14 +2037,24 @@
 				CD39B4971A37506100B377BE /* ui.c in Sources */,
 				CD39B4701A37506100B377BE /* input.c in Sources */,
 				CD39B4811A37506100B377BE /* network_server.c in Sources */,
+				CD792C271A881FE20086270E /* SelectPlayersState.cpp in Sources */,
 				CD44DD801A476046005E6DF0 /* bsp.c in Sources */,
 				CD39B4931A37506100B377BE /* script_functions.c in Sources */,
+				CD792C2B1A881FE20086270E /* GUIComponent.cpp in Sources */,
+				CD792C301A881FE20086270E /* ModuleSelector.cpp in Sources */,
 				CD39B4831A37506100B377BE /* obj_BSP.c in Sources */,
+				CD792C2A1A881FE20086270E /* ComponentContainer.cpp in Sources */,
 				CD39B4621A37506100B377BE /* egoboo.c in Sources */,
+				CD792C241A881FE20086270E /* PlayingState.cpp in Sources */,
 				CD39B46B1A37506100B377BE /* graphic_fan.c in Sources */,
 				CD39B4881A37506100B377BE /* physics.c in Sources */,
+				CD792C231A881FE20086270E /* MainMenuState.cpp in Sources */,
+				CD792C291A881FE20086270E /* Button.cpp in Sources */,
 				CD39B4651A37506100B377BE /* EncList.c in Sources */,
+				CD792C281A881FE20086270E /* VictoryScreen.cpp in Sources */,
+				CD792C331A88204E0086270E /* ModuleProfile.cpp in Sources */,
 				CD39B4821A37506100B377BE /* network.c in Sources */,
+				CD792C251A881FE20086270E /* SelectCharacterState.cpp in Sources */,
 				CDBD894B1A6C02C100250CE2 /* RandomName.cpp in Sources */,
 				CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */,
 				CD39B47E1A37506100B377BE /* mesh.c in Sources */,
