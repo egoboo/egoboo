@@ -162,6 +162,5 @@ namespace Ego
 		 *	If the renderer is not started-up, a calll to this method is a no-op.
 		 */
 		static void shutDown();
-
 	};
 };

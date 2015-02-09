@@ -51,6 +51,7 @@ namespace Ego
 	{
 		class Renderer : public Ego::Renderer
 		{
+		public:
 			virtual ~Renderer();
 
 			/** @copydoc Ego::Renderer::multMatrix */

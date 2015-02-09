@@ -33,7 +33,7 @@
 // Forward declarations
 struct mod_file_t;
 struct gfx_config_t;
-struct s_Font;
+struct Font;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ extern menu_process_t * MProc;
 extern bool module_list_valid;
 
 /// the default menu font
-extern struct s_Font *menuFont;
+extern struct Font *menuFont;
 
 extern bool start_new_player;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/core/GameEngine.hpp"
+#include "game/gui/UIManager.hpp"
 #include "game/gui/InputListener.hpp"
 #include "game/graphic.h"
 

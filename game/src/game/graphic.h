@@ -36,7 +36,6 @@
 class GameObject;
 struct egoboo_config_t;
 struct chr_instance_t;
-struct s_Font;
 
 //--------------------------------------------------------------------------------------------
 // internal structs

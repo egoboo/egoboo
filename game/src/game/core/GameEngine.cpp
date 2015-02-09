@@ -23,6 +23,7 @@
 #include "game/graphics/CameraSystem.hpp"
 #include "game/gamestates/MainMenuState.hpp"
 #include "game/profiles/ProfileSystem.hpp"
+#include "game/gui/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
 #include "game/graphic_texture.h"
@@ -61,7 +62,10 @@ GameEngine::GameEngine() :
     _lastFPSCount(0),
     _lastUPSCount(0),
     _estimatedFPS(GAME_TARGET_FPS),
-    _estimatedUPS(GAME_TARGET_UPS)
+    _estimatedUPS(GAME_TARGET_UPS),
+
+    //Submodules
+    _uiManager(nullptr)
 {
 	//ctor
 }
@@ -287,6 +291,7 @@ bool GameEngine::initialize()
 
     // setup the system gui
     ui_begin("mp_data/Bo_Chen.ttf", 24);
+    _uiManager = std::unique_ptr<UIManager>(new UIManager());
 
     // clear out the import and remote directories
     vfs_empty_temp_directories();
@@ -316,6 +321,7 @@ void GameEngine::uninitialize()
 
 	//shut down the ui
     ui_end();
+    _uiManager.reset(nullptr);
 
 	// deallocate any dynamically allocated collision memory
     collision_system_end();

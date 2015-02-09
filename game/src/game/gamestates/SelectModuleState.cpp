@@ -50,12 +50,8 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	_moduleFilter(FILTER_OFF),
 	_selectedPlayerList(playersToLoad)
 {
-    // Figure out at what offset we want to draw the module menu.
-    int moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
-    moduleMenuOffsetX = std::max(0, moduleMenuOffsetX);
-
-    int moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
-    moduleMenuOffsetY = std::max(0, moduleMenuOffsetY);
+	const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+	const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
 	//Set default filter
 	if(_onlyStarterModules)
@@ -70,7 +66,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 
 	//Add the buttons
 	_chooseModule = std::make_shared<Button>("Choose Module", SDLK_RETURN);
-	_chooseModule->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, moduleMenuOffsetY + 173);
+	_chooseModule->setPosition(_moduleSelector->getX() + _moduleSelector->getWidth() + 20, SCREEN_HEIGHT / 2 + 20);
 	_chooseModule->setSize(200, 30);
 	_chooseModule->setEnabled(false);
 	_chooseModule->setOnClickFunction(
@@ -97,7 +93,7 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	//Only draw module filter for non-starter games
 	if(!_onlyStarterModules)
 	{
-		_filterButton->setPosition(moduleMenuOffsetX + 337, moduleMenuOffsetY - 27);
+		_filterButton->setPosition(10 + SCREEN_WIDTH/2, 30);
 		_filterButton->setSize(200, 30);
 		_filterButton->setOnClickFunction(
 			[this]{
@@ -108,12 +104,10 @@ SelectModuleState::SelectModuleState(const std::list<std::string> &playersToLoad
 	}
 
 	//Help text
-	std::shared_ptr<Label> infoText = std::make_shared<Label>("Press an icon to select a game.");
-	infoText->setPosition(200, GFX_HEIGHT - 70);
+	std::shared_ptr<Label> infoText = std::make_shared<Label>("Press an icon to select a game.\n"
+															  "Use the mouse wheel or the <- and -> buttons to scroll.");
+	infoText->setPosition(200, SCREEN_HEIGHT - 70);
 	addComponent(infoText);
-	std::shared_ptr<Label> hintText = std::make_shared<Label>("Use the mouse wheel or the <- and -> buttons to scroll.");
-	hintText->setPosition(200, GFX_HEIGHT - 30);
-	addComponent(hintText);
 
 }
 

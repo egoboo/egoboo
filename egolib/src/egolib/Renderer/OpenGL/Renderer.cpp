@@ -102,7 +102,6 @@ namespace Ego
 				GL_DEBUG(glDisable)(GL_SCISSOR_TEST);
 			}
 		}
-
 	};
 
 	const GLXvector4f white_vec = { 1.0f, 1.0f, 1.0f, 1.0f };

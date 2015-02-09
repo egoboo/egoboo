@@ -20,7 +20,7 @@ Image::~Image()
 
 void Image::draw()
 {
-	ui_drawImage(0, &_image, getX(), getY(), getWidth(), getHeight(), nullptr);
+	_gameEngine->getUIManager()->drawImage(_image, getX(), getY(), getWidth(), getHeight());
 }
 
 void Image::setImage(const std::string &filePath)

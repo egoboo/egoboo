@@ -11,8 +11,8 @@ Label::Label(const std::string &text) :
 void Label::draw()
 {
     //Draw text
-    GL_DEBUG(glColor4fv)(Ego::white_vec);
-    ui_drawTextBox(ui_getFont(), _text.c_str(), getX(), getY(), 0, 0, 20);
+    GL_DEBUG( glColor4fv )(Ego::white_vec);
+    fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX(), getY(), getWidth(), getHeight(), 25, nullptr, "%s", _text.c_str());
 }
 
 void Label::setText(const std::string &text)
@@ -21,6 +21,6 @@ void Label::setText(const std::string &text)
 
 	//Recalculate our size
 	int textWidth, textHeight;
-	fnt_getTextBoxSize(ui_getFont(), 20, _text.c_str(), &textWidth, &textHeight);
+	fnt_getTextBoxSize(ui_getFont(), 25, _text.c_str(), &textWidth, &textHeight);
 	setSize(textWidth, textHeight);
 }

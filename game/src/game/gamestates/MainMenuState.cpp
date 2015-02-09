@@ -61,22 +61,21 @@ MainMenuState::MainMenuState() :
 	    gameLogo = std::make_shared<Image>("mp_data/menu/menu_logo");
 	}
 
+	const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+	const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
+
 	// calculate the centered position of the background
-	float fminw = std::min<float>(GFX_WIDTH, background->getTextureWidth()) / static_cast<float>(background->getTextureWidth());
-	float fminh = std::min<float>(GFX_HEIGHT, background->getTextureHeight()) / static_cast<float>(background->getTextureWidth());
-	float fminb  = std::min(fminw, fminh);
-	background->setSize(background->getTextureWidth() * fminb, background->getTextureHeight() * fminb);
-	background->setPosition((GFX_WIDTH  - background->getWidth()) * 0.5f, (GFX_HEIGHT - background->getHeight()) * 0.5f);
+	background->setSize(background->getTextureWidth(), background->getTextureHeight());
+	background->setCenterPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	addComponent(background);
 
 	// calculate the position of the logo
-	fminb = std::min(background->getWidth() * 0.5f / gameLogo->getTextureWidth(), background->getHeight() * 0.5f / gameLogo->getTextureHeight());
 	gameLogo->setPosition(background->getX(), background->getY());
-	gameLogo->setSize(gameLogo->getTextureWidth() * fminb, gameLogo->getTextureHeight() * fminb);
+	gameLogo->setSize(gameLogo->getTextureWidth(), gameLogo->getTextureHeight());
 	addComponent(gameLogo);
 
 	//Add the buttons
-	int yOffset = GFX_HEIGHT-80;
+	int yOffset = SCREEN_HEIGHT-80;
 	std::shared_ptr<Button> exitButton = std::make_shared<Button>("Exit Game", SDLK_ESCAPE);
 	exitButton->setPosition(20, yOffset);
 	exitButton->setSize(200, 30);
@@ -122,20 +121,13 @@ MainMenuState::MainMenuState() :
 	yOffset -= newGameButton->getHeight() + 10;
 
 	//Add version label and copyright text
-	std::shared_ptr<Label> welcomeLabel = std::make_shared<Label>("Welcome to Egoboo!");
+	std::shared_ptr<Label> welcomeLabel = std::make_shared<Label>(
+		"Welcome to Egoboo!\n"
+		"http://egoboo.sourceforge.net\n"
+		"Version 2.9.0");
 	welcomeLabel->setPosition(exitButton->getX() + exitButton->getWidth() + 40,
-		GFX_HEIGHT - 80 - welcomeLabel->getHeight());
+		SCREEN_HEIGHT - SCREEN_HEIGHT/60 - welcomeLabel->getHeight());
 	addComponent(welcomeLabel);
-
-	std::shared_ptr<Label> websiteText = std::make_shared<Label>("http://egoboo.sourceforge.net");
-	websiteText->setPosition(welcomeLabel->getX(), welcomeLabel->getY() + welcomeLabel->getHeight());
-	addComponent(websiteText);
-
-	std::shared_ptr<Label> versionText = std::make_shared<Label>("Version 2.9.0");
-	versionText->setPosition(websiteText->getX(), websiteText->getY() + websiteText->getHeight());
-	addComponent(versionText);
-
-
 }
 
 void MainMenuState::update()

@@ -2252,7 +2252,7 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     max_tag = scantag_get_count();
 
     // make sure to update the input
-    input_read_all_devices();
+    //input_read_all_devices();
 
     if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
     {

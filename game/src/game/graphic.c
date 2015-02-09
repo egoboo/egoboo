@@ -299,12 +299,10 @@ static void gfx_system_init_SDL_graphics();
  */
 static void gfx_system_uninit_SDL_graphics();
 
-static void gfx_reset_timers();
-
 static void _flip_pages();
 
-static void gfx_update_fps_clock();
-static void gfx_update_fps();
+//static void gfx_update_fps_clock();
+//static void gfx_update_fps();
 
 static gfx_rv light_fans( renderlist_t * prlist );
 
@@ -1452,7 +1450,7 @@ void gfx_system_begin()
     PROFILE_INIT( render_scene_mesh_drf_solid );
     PROFILE_INIT( render_scene_mesh_render_shadows );
 
-    gfx_reset_timers();
+    gfx_clear_loops = 0;
 
     // allocate the specailized "collision lists"
     if ( NULL == _dolist_colst.ctor(dolist_t::CAPACITY))
@@ -1508,7 +1506,7 @@ void gfx_system_end()
     // de-initialize the dolist manager
     dolist_mgr_t::end( &_dolist_mgr_data );
 
-    gfx_reset_timers();
+    gfx_clear_loops = 0;
 
     // deallocate the specailized "collistion lists"
 	_dolist_colst.dtor();
@@ -4997,6 +4995,7 @@ bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 void gfx_update_fps_clock()
 {
     /// @author ZZ
@@ -5034,6 +5033,7 @@ void gfx_update_fps_clock()
         menu_fps_clock += gfx_clock_diff;
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 // obj_registry_entity_t IMPLEMENTATION
@@ -6331,13 +6331,6 @@ float calc_light_global( int rotation, int normal, float lx, float ly, float lz 
     if ( fTmp < 0 ) fTmp = 0;
 
     return fTmp * fTmp;
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_reset_timers()
-{
-    egolib_throttle_reset( &gfx_throttle );
-    gfx_clear_loops = 0;
 }
 
 //--------------------------------------------------------------------------------------------

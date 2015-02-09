@@ -34,19 +34,22 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
 	_previousModuleButton(std::make_shared<Button>("<-", SDLK_LEFT)),
 	_selectedModule(nullptr)
 {
+	const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+	const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
+
     // Figure out at what offset we want to draw the module menu.
-    int moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
+    int moduleMenuOffsetX = ( 800  - 640 ) / 2;
     moduleMenuOffsetX = std::max(0, moduleMenuOffsetX);
 
-    int moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
+    int moduleMenuOffsetY = ( 600 - 480 ) / 2;
     moduleMenuOffsetY = std::max(0, moduleMenuOffsetY);
 
 	//Set backdrop size and position
-	setSize(430, 250);
+	setSize(30 + SCREEN_WIDTH/2, SCREEN_HEIGHT / 2);
 	setPosition(moduleMenuOffsetX + 21, moduleMenuOffsetY + 173);
 
 	//Next and previous buttons
-	_nextModuleButton->setPosition(moduleMenuOffsetX + 590, moduleMenuOffsetY + 74);
+	_nextModuleButton->setPosition(SCREEN_WIDTH - 50, moduleMenuOffsetY + 74);
 	_nextModuleButton->setSize(30, 30);
 	_nextModuleButton->setOnClickFunction(
 	[this]{
@@ -66,36 +69,22 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
 	});
 	addComponent(_previousModuleButton);
 
-	//The three module buttons
-	std::shared_ptr<ModuleButton> moduleButtonOne = std::make_shared<ModuleButton>(this, 0);
-	moduleButtonOne->setSize(138, 138);
-	moduleButtonOne->setPosition(moduleMenuOffsetX + 93, moduleMenuOffsetY + 20);
-	moduleButtonOne->setOnClickFunction(
-	[this]{
-		if(_startIndex + 0 >= _modules.size()) return;
-		_selectedModule = _modules[_startIndex + 0];
-	});
-	addComponent(moduleButtonOne);
+	const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth()) / 158);
 
-	std::shared_ptr<ModuleButton> moduleButtonTwo = std::make_shared<ModuleButton>(this, 1);
-	moduleButtonTwo->setSize(138, 138);
-	moduleButtonTwo->setPosition(moduleButtonOne->getX() + 20 + moduleButtonOne->getWidth(), moduleButtonOne->getY());
-	moduleButtonTwo->setOnClickFunction(
-	[this]{
-		if(_startIndex + 1 >= _modules.size()) return;
-		_selectedModule = _modules[_startIndex + 1];
-	});
-	addComponent(moduleButtonTwo);
+	//Add as many modules as we can fit with current screen width
+	for(int i = 0; i < numberOfModuleButtons; ++i) {
+		std::shared_ptr<ModuleButton> moduleButton = std::make_shared<ModuleButton>(this, i);
+		moduleButton->setSize(138, 138);
+		moduleButton->setPosition(moduleMenuOffsetX + 93, moduleMenuOffsetY + 20);
+		moduleButton->setOnClickFunction(
+		[this, i]{
+			if(_startIndex + i >= _modules.size()) return;
+			_selectedModule = _modules[_startIndex + i];
+		});
+		addComponent(moduleButton);
 
-	std::shared_ptr<ModuleButton> moduleButtonThree = std::make_shared<ModuleButton>(this, 2);
-	moduleButtonThree->setSize(138, 138);
-	moduleButtonThree->setPosition(moduleButtonTwo->getX() + 20 + moduleButtonTwo->getWidth(), moduleButtonTwo->getY());
-	moduleButtonThree->setOnClickFunction(
-	[this]{
-		if(_startIndex + 2 >= _modules.size()) return;
-		_selectedModule = _modules[_startIndex + 2];
-	});
-	addComponent(moduleButtonThree);
+		moduleMenuOffsetX += moduleButton->getWidth() + 20;
+	}
 }
 
 void ModuleSelector::drawContainer()
@@ -123,14 +112,14 @@ void ModuleSelector::drawContainer()
 
     	//Draw module Name first
     	GL_DEBUG( glColor4fv )( Ego::white_vec );
-    	ui_drawTextBox(ui_getFont(), _selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 20, 20);
+    	fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 5, getWidth() - 10, 20, 25, nullptr, _selectedModule->getName());
 
     	//Now difficulty
     	int difficulty = strlen(_selectedModule->getRank());
     	if(difficulty > 0) {
 	        int textWidth, textHeight;
 	        fnt_getTextSize(ui_getFont(), "Difficulty: ", &textWidth, &textHeight);
-	    	ui_drawTextBox(ui_getFont(), "Difficulty: ", getX() + 5, getY() + 25, getWidth() - 10, textHeight, 20);
+	        fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25, nullptr, "Difficulty: ");
 
 	    	//Draw one skull per rated difficulty
 	    	for(int i = 0; i < difficulty; ++i) {
@@ -166,7 +155,7 @@ void ModuleSelector::drawContainer()
 		}    	
 
     	GL_DEBUG( glColor4fv )( Ego::white_vec );
-    	ui_drawTextBox(ui_getFont(), buffer.str().c_str(), getX() + 5, getY() + 45, getWidth() - 10, getHeight() - 10, 20);
+	    fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 45, getWidth() - 10, getHeight()-50, 25, nullptr, buffer.str().c_str());
     }
 }
 
@@ -221,7 +210,7 @@ void ModuleSelector::ModuleButton::draw()
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     //Draw module title image
-    ui_drawImage(0, &_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon(), getX() + 5, getY() + 5, getWidth()-10, getHeight()-10, nullptr);
+    _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon(), getX() + 5, getY() + 5, getWidth()-10, getHeight()-10);
 }
 
 bool ModuleSelector::notifyMouseScrolled(const int amount)

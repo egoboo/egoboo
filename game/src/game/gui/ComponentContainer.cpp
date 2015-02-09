@@ -45,6 +45,7 @@ void ComponentContainer::drawAll()
     drawContainer();
 
     //Draw reach GUI component
+    _gameEngine->getUIManager()->beginRenderUI();
     ui_beginFrame(0);
     _componentListMutex.lock();
     for(const std::shared_ptr<GUIComponent> component : _componentList)
@@ -53,7 +54,7 @@ void ComponentContainer::drawAll()
         component->draw();
     }
     _componentListMutex.unlock();
-    ui_endFrame();
+    _gameEngine->getUIManager()->endRenderUI();
 }
 
 bool ComponentContainer::notifyMouseMoved(const int x, const int y)

@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// the trye-type font data for Egoboo
-struct s_Font
+struct Font
 {
     TTF_Font *ttfFont;
 
@@ -736,7 +736,7 @@ void fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int wid
 void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface )
 {
     size_t len;
-    char *buffer, *line;
+    char *line;
 
     bool gl_id_external;
     GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -779,10 +779,13 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
 
     // Split the passed in text into separate lines
     len = strlen( text );
-    buffer = EGOBOO_NEW_ARY( char, len + 1 );
+    char buffer[len + 1];
     strncpy( buffer, text, len );
 
-    for ( line = strtok( buffer, "\n" ); NULL != line; line = strtok( NULL, "\n" ) )
+    //Always null terminate strings
+    buffer[len] = '\0';
+
+    for ( line = strtok( buffer, "\n" ); nullptr != line; line = strtok(nullptr, "\n" ) )
     {
         fnt_drawText_raw_OGL( font, fnt_color, tex_id, tmp_tex_coords, x, y, line, loc_ppTmpSurface );
 
@@ -796,10 +799,6 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
 
         y += spacing;
     }
-#if 0
-fnt_streamText_OGL_exit:
-#endif
-    EGOBOO_DELETE_ARY( buffer );
 
     if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {

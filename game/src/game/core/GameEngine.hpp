@@ -30,6 +30,7 @@ class GameModule;
 class ObjectHandler;
 struct ego_mesh_t;
 struct status_list_t;
+class UIManager;
 
 class GameEngine
 {
@@ -74,6 +75,12 @@ public:
 	**/
 	void disableMouseCursor() {_drawCursor = false;}
 
+	/**
+	* @brief
+	*	Get instance of the UIManager associated with the current GameEngine
+	**/
+	inline const std::unique_ptr<UIManager>& getUIManager() const {return _uiManager;}
+
 private:
 	void updateOneFrame();
 
@@ -110,6 +117,9 @@ private:
 	uint32_t _lastUPSCount;
 	float _estimatedFPS;
 	float _estimatedUPS;
+
+	//GameEngine Submodules
+	std::unique_ptr<UIManager> _uiManager;
 };
 
 extern std::unique_ptr<GameEngine> _gameEngine;
