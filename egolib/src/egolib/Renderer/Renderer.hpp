@@ -40,17 +40,7 @@
 namespace Ego
 {
 	using namespace Math;
-	/// The color "white" to be used with glColor4f.
-	extern const GLXvector4f white_vec;
-	/// The color "black" to be used with glColor4f.
-	extern const GLXvector4f black_vec;
-	/// The color "red"   to be used with glColor4f.
-	extern const GLXvector4f red_vec;
-	/// The color "green" to be used with glColor4f.
-	extern const GLXvector4f green_vec;
-	/// The color "blue"  to be used with glColor4f.
-	extern const GLXvector4f blue_vec;
-	
+
 	class Renderer
 	{
 

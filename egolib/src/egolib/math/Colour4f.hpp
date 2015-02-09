@@ -61,6 +61,11 @@ namespace Ego {
 			 */
 			static const Colour4f BLACK;
 
+			/**
+			 * @brief The colour "magenta" (255,0,255,255).
+			 */
+			static const Colour4f MAGENTA;
+
 		private:
 			/**
 			 * @brief

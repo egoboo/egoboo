@@ -104,9 +104,4 @@ namespace Ego
 		}
 	};
 
-	const GLXvector4f white_vec = { 1.0f, 1.0f, 1.0f, 1.0f };
-	const GLXvector4f black_vec = { 0.0f, 0.0f, 0.0f, 1.0f };
-	const GLXvector4f red_vec   = { 1.0f, 0.0f, 0.0f, 1.0f };
-	const GLXvector4f green_vec = { 0.0f, 1.0f, 0.0f, 1.0f };
-	const GLXvector4f blue_vec  = { 0.0f, 0.0f, 1.0f, 1.0f };
 };

@@ -17,18 +17,42 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Colour4f.cpp
-/// @brief Colours in real-valued, normalized RGBA space.
+// @file  egolib/Renderer/ComparisonFunction.h
+// @brief comparison functions used for depth/stencil buffer operations and others
 
-#include "egolib/math/Colour4f.hpp"
 
-namespace Ego {
-	namespace Math {
-		const Colour4f Colour4f::RED = Colour4f(1.0f, 0.0f, 0.0f, 1.0f);
-		const Colour4f Colour4f::GREEN = Colour4f(0.0f, 1.0f, 0.0f, 1.0f);
-		const Colour4f Colour4f::BLUE = Colour4f(0.0f, 0.0f, 1.0f, 1.0f);
-		const Colour4f Colour4f::WHITE = Colour4f(1.0f, 1.0f, 1.0f, 1.0f);
-		const Colour4f Colour4f::BLACK = Colour4f(0.0f, 0.0f, 0.0f, 1.0f);
-		const Colour4f Colour4f::MAGENTA = Colour4f(1.0f, 0.0f, 1.0f, 1.0f);
+namespace Ego
+{
+	/**
+	 * @brief
+	 *	Comparison functions used for the depth/stencil buffer operations and others.
+	 */
+	enum CompareFunction
+	{
+
+	/** @brief Always reject. */
+		AlwaysFail,
+
+		/** @brief Always pass. */
+		AlwaysPass,
+
+		/** @brief Pass if less. */
+		Less,
+
+		/** @brief Pass if less or equal. */
+		LessOrEqual,
+
+		/** @brief Pass if equal. */
+		Equal,
+
+		/** @brief Pass if not equal. */
+		NotEqual,
+
+		/** @brief Pass if greater or equal. */
+		GreaterOrEqual,
+
+		/** @brief Pass if greater. */
+		Greater,
+
 	};
-};
+}
