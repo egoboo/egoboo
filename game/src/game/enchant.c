@@ -930,7 +930,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     //recuce enchant duration with damage resistance
     penc->spawn_timer    = 1;
     lifetime             = peve->lifetime;
-    if ( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT )
+    if ( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT && ptarget )
     {
         lifetime -= std::max( 1.0f, CEIL(( ptarget->damage_resistance[peve->required_damagetype] ) * peve->lifetime ) );
         printf( "Damage resistance reduced duration from %i to %3.0f\n", peve->lifetime, lifetime );
@@ -1066,22 +1066,23 @@ enc_t * enc_config_do_active( enc_t * penc )
             owner  = enc_get_iowner( ienc );
             target = penc->target_ref;
             eve    = enc_get_ieve( ienc );
+            GameObject *powner = _gameObjects.get(owner);
 
             // Do drains
-            if ( _gameObjects.get(owner)->alive )
+            if ( powner && powner->alive )
             {
 
                 // Change life
                 if ( 0 != penc->owner_life )
                 {
-                    _gameObjects.get(owner)->life += penc->owner_life;
-                    if ( _gameObjects.get(owner)->life <= 0 )
+                    powner->life += penc->owner_life;
+                    if ( powner->life <= 0 )
                     {
                         kill_character( owner, target, false );
                     }
-                    if ( _gameObjects.get(owner)->life > _gameObjects.get(owner)->life_max )
+                    if ( powner->life > powner->life_max )
                     {
-                        _gameObjects.get(owner)->life = _gameObjects.get(owner)->life_max;
+                        powner->life = powner->life_max;
                     }
                 }
 
@@ -1105,20 +1106,20 @@ enc_t * enc_config_do_active( enc_t * penc )
             // check it again
             if ( _INGAME_ENC( ienc ) )
             {
-                if ( _gameObjects.get(target)->alive )
+                if ( powner && powner->alive )
                 {
 
                     // Change life
                     if ( 0 != penc->target_life )
                     {
-                        _gameObjects.get(target)->life += penc->target_life;
-                        if ( _gameObjects.get(target)->life <= 0 )
+                        powner->life += penc->target_life;
+                        if ( powner->life <= 0 )
                         {
                             kill_character( target, owner, false );
                         }
-                        if ( _gameObjects.get(target)->life > _gameObjects.get(target)->life_max )
+                        if ( powner->life > powner->life_max )
                         {
-                            _gameObjects.get(target)->life = _gameObjects.get(target)->life_max;
+                            powner->life = powner->life_max;
                         }
                     }
 

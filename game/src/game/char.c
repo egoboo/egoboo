@@ -3420,7 +3420,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     std::shared_ptr<GameObject> pchr = _gameObjects.insert(profile, override);
     if (!pchr)
     {
-        log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", REF_TO_INT( pchr->getCharacterID() ) );
+        log_warning( "spawn_one_character() - failed to spawn character\n" );
         return INVALID_CHR_REF;
     }
 
