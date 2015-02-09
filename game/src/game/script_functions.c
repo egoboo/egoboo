@@ -1388,7 +1388,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( module_add_idsz_vfs( PMod->getName().c_str(), pstate->argument, 0, NULL ) )
+    if ( module_add_idsz_vfs( PMod->getPath().c_str(), pstate->argument, 0, NULL ) )
     {
         // invalidate any module list so that we will reload them
         module_list_valid = false;
