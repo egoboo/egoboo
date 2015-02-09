@@ -25,6 +25,7 @@
 #include "game/gamestates/InGameMenuState.hpp"
 #include "game/gamestates/VictoryScreen.hpp"
 #include "game/core/GameEngine.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/game.h"
 #include "game/graphic.h"
@@ -39,6 +40,20 @@
 PlayingState::PlayingState()
 {
 	//ctor
+}
+
+PlayingState::~PlayingState()
+{
+	//Check for player exports
+    if ( PMod->isExportValid() )
+    {
+        // export the players
+        export_all_players(false);
+
+        //Reload list of loadable characters
+        _profileSystem.loadAllSavedCharacters("mp_players");
+    }
+
 }
 
 void PlayingState::update()

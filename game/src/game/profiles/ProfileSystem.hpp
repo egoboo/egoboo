@@ -27,6 +27,7 @@
 //Forward declarations
 class ObjectProfile;
 class ModuleProfile;
+class LoadPlayerElement;
 struct mad_t;
 
 /// Placeholders used while importing profiles
@@ -101,12 +102,22 @@ public:
 
 	void printDebugModuleList();
 
+	/**
+	* @brief
+	* 	Reload list of all possible characters we might load.
+	**/
+	void loadAllSavedCharacters(const std::string &saveGameDirectory);
+
+	const std::vector<std::shared_ptr<LoadPlayerElement>>& getSavedPlayers() const { return _loadPlayerList;}
+
 private:
 	bool _initialized;
 	std::vector<TX_REF> _bookIcons;													//List of all book icons loaded
 	std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded;	//Maps slot numbers to ObjectProfiles
 
 	std::vector<std::shared_ptr<ModuleProfile>> _moduleProfilesLoaded;				//List of all valid game modules loaded
+
+	std::vector<std::shared_ptr<LoadPlayerElement>> _loadPlayerList;				//List of characters that can be loaded (lightweight)
 };
 
 extern ProfileSystem _profileSystem;

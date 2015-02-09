@@ -28,6 +28,7 @@
 #include "game/ui.h"
 #include "game/game.h"
 #include "game/gui/Button.hpp"
+#include "game/module/Module.hpp"
 
 InGameMenuState::InGameMenuState(PlayingState *playingState) :
 	_slidyButtons(),
@@ -35,7 +36,7 @@ InGameMenuState::InGameMenuState(PlayingState *playingState) :
 {
 	//Add the buttons
 	int yOffset = GFX_HEIGHT-80;
-	std::shared_ptr<Button> exitButton = std::make_shared<Button>("Exit to Menu", SDLK_q);
+	std::shared_ptr<Button> exitButton = std::make_shared<Button>(PMod->isExportValid() ? "Save and Exit" : "Abort and Exit", SDLK_q);
 	exitButton->setPosition(20, yOffset);
 	exitButton->setSize(200, 30);
 	exitButton->setOnClickFunction(

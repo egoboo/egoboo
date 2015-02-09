@@ -431,8 +431,7 @@ extern int             update_lag;
 void   game_quit_module();
 
 /// the hook for exporting all the current players and reloading them
-bool game_update_imports();
-void   game_finish_module();
+bool game_finish_module();
 bool game_begin_module(const std::shared_ptr<ModuleProfile> &module);
 
 /// Exporting stuff

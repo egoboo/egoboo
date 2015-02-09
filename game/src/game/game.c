@@ -327,9 +327,6 @@ egolib_rv export_all_players( bool require_local )
     int number;
     CHR_REF character;
 
-    // Don't export if the module isn't running
-    if ( !process_t::running( PROC_PBASE( GProc ) ) ) return rv_fail;
-
     // Stop if export isnt valid
     if ( !PMod->isExportValid() ) return rv_fail;
 
@@ -3409,7 +3406,7 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_update_imports()
+bool game_finish_module()
 {
     /// @author BB
     /// @details This function saves all the players to the players dir
@@ -3640,19 +3637,6 @@ void game_end_menu( menu_process_t * mproc )
     }
 }
 #endif
-
-//--------------------------------------------------------------------------------------------
-void game_finish_module()
-{
-    // export all the local and remote characters
-    game_update_imports();
-
-    // restart the menu song
-    _audioSystem.playMusic(AudioSystem::MENU_SONG);
-
-    // turn off networking
-    net_end();
-}
 
 //--------------------------------------------------------------------------------------------
 void free_all_objects()

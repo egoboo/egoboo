@@ -290,6 +290,7 @@ bool GameEngine::initialize()
     ego_mesh_ctor(PMesh);
     _profileSystem.begin();
     _profileSystem.loadModuleProfiles();
+    _profileSystem.loadAllSavedCharacters("mp_players");
 
     // setup the system gui
     ui_begin("mp_data/Bo_Chen.ttf", 24);

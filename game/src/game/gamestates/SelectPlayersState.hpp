@@ -42,14 +42,7 @@ public:
 protected:
 	void drawContainer() override;
 
-	/**
-	* @brief
-	* 	Reload list of all possible characters we might load.
-	**/
-	void loadAllSavedCharacters(const std::string &saveGameDirectory);
-
 private:
-	std::vector<std::shared_ptr<LoadPlayerElement>> _loadPlayerList;
 	std::vector<std::shared_ptr<LoadPlayerElement>> _selectedPlayers;
 	std::vector<std::shared_ptr<Button>> 			_playerButtons;
 	std::shared_ptr<Button> 						_continueButton;

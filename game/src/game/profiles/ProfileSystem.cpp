@@ -25,6 +25,7 @@
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/profiles/Profile.hpp"
 #include "game/profiles/ModuleProfile.hpp"
+#include "game/gamestates/LoadPlayerElement.hpp"
 #include "game/particle.h"
 #include "game/enchant.h"
 #include "game/char.h"
@@ -377,4 +378,50 @@ void ProfileSystem::printDebugModuleList()
 
 
     vfs_close(filesave);
+}
+
+void ProfileSystem::loadAllSavedCharacters(const std::string &saveGameDirectory)
+{
+    /// @author ZZ
+    /// @details This function figures out which players may be imported, and loads basic
+    ///     data for each
+
+    //Clear any old imports
+    _loadPlayerList.clear();
+
+    // Search for all objects
+    vfs_search_context_t *ctxt = vfs_findFirst( saveGameDirectory.c_str(), "obj", VFS_SEARCH_DIR );
+    const char *foundfile = vfs_search_context_get_current( ctxt );
+
+    while ( NULL != ctxt && VALID_CSTR(foundfile) )
+    {
+        std::string folderPath = foundfile;
+
+        // is it a valid filename?
+        if ( folderPath.empty() ) {
+            continue;
+        }
+
+        // does the directory exist?
+        if ( !vfs_exists( folderPath.c_str() ) ) {
+            continue;
+        }
+
+        // offset the slots so that ChoosePlayer will have space to load the inventory objects
+        int slot = ( MAX_IMPORT_OBJECTS + 2 ) * _loadPlayerList.size();
+
+        // try to load the character profile (do a lightweight load, we don't need all data)
+        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(folderPath, slot, true);
+        if(!profile) {
+            continue;
+        }
+
+        //Loaded!
+        _loadPlayerList.push_back( std::make_shared<LoadPlayerElement>(profile) );
+
+        //Get next player object
+        ctxt = vfs_findNext( &ctxt );
+        foundfile = vfs_search_context_get_current( ctxt );
+    }
+    vfs_findClose( &ctxt );
 }

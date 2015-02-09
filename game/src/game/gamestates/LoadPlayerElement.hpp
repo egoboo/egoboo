@@ -34,6 +34,10 @@ class LoadPlayerElement
 public:
     LoadPlayerElement(std::shared_ptr<ObjectProfile> profile);
 
+    /**
+    * @brief
+    *   Return the name of this character
+    **/
     inline const std::string& getName() const {return _name;}
 
     TX_REF getIcon() const;

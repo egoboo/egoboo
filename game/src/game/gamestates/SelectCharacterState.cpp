@@ -25,14 +25,14 @@
 #include "game/gamestates/SelectModuleState.hpp"
 #include "game/gamestates/LoadPlayerElement.hpp"
 #include "game/core/GameEngine.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 #include "game/ui.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/IconButton.hpp"
 #include "game/gui/Image.hpp"
 #include "game/gui/Label.hpp"
 
-SelectCharacterState::SelectCharacterState(const std::vector<std::shared_ptr<LoadPlayerElement>> &loadPlayerList, std::shared_ptr<LoadPlayerElement> &selectedCharacter) :
-	_loadPlayerList(loadPlayerList)
+SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &selectedCharacter)
 {
 	//Load background
 	std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_selectplayers");
@@ -84,7 +84,7 @@ SelectCharacterState::SelectCharacterState(const std::vector<std::shared_ptr<Loa
 	yOffset = playersLabel->getY() + playersLabel->getHeight() + 20;
 
 	//Make a button for each loadable character
-	for(const std::shared_ptr<LoadPlayerElement> &character : loadPlayerList)
+	for(const std::shared_ptr<LoadPlayerElement> &character : _profileSystem.getSavedPlayers())
 	{
 		std::shared_ptr<Button> characterButton = std::make_shared<IconButton>(character->getName(), character->getIcon());
 		characterButton->setSize(200, 40);
