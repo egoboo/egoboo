@@ -48,6 +48,7 @@
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/profiles/Profile.hpp"
+#include "game/profiles/ModuleProfile.hpp"
 #include "game/module/Module.hpp"
 #include "game/gamestates/VictoryScreen.hpp"
 
@@ -1388,10 +1389,10 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( module_add_idsz_vfs( PMod->getPath().c_str(), pstate->argument, 0, NULL ) )
+    if ( ModuleProfile::moduleAddIDSZ(PMod->getPath().c_str(), pstate->argument, 0, NULL) )
     {
         // invalidate any module list so that we will reload them
-        module_list_valid = false;
+        //module_list_valid = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7792,7 +7793,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     STRING buffer;
     strncpy(buffer, ppro->getMessage(pstate->argument).c_str(), SDL_arraysize(buffer));
 
-    returncode = module_has_idsz_vfs( PMod->getName().c_str(), pstate->distance, 0, buffer);
+    returncode = ModuleProfile::moduleHasIDSZ( PMod->getName().c_str(), pstate->distance, 0, buffer);
 
     SCRIPT_FUNCTION_END();
 }

@@ -307,35 +307,15 @@ void ProfileSystem::loadModuleProfiles()
 
     while (nullptr != ctxt && VALID_CSTR( vfs_ModPath ))
     {
-        STRING loadname;
-        std::shared_ptr<ModuleProfile> module = std::make_shared<ModuleProfile>();
-
-        // save the filename
-        snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/menu.txt", vfs_ModPath );
-        if ( nullptr != module_load_info_vfs( loadname, &( module->_base ) ) )
+        //Try to load menu.txt
+        std::shared_ptr<ModuleProfile> module = ModuleProfile::loadFromFile(vfs_ModPath);
+        if (module)
         {
-            // mark the module data as loaded
-            module->_loaded = true;
-
-            // save the module path
-            module->_vfsPath = vfs_ModPath;
-
-            /// @note just because we can't load the title image DOES NOT mean that we ignore the module
-            // load title image
-            snprintf( loadname, SDL_arraysize(loadname), "%s/gamedat/title", module->_vfsPath.c_str() );
-            ego_texture_load_vfs(&module->_icon, loadname, INVALID_KEY );
-
-            /// @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
-            // If that changes, this line must be changed as well.
-            // Save the user data directory version of the module path.
-            strncpy(loadname, vfs_ModPath + 11, SDL_arraysize(loadname) );
-            module->_name = loadname;
-
             _moduleProfilesLoaded.push_back(module);
         }
         else
         {
-            log_warning("Unable to load module: %s\n", loadname);
+            log_warning("Unable to load module: %s\n", vfs_ModPath);
         }
 
         ctxt = vfs_findNext( &ctxt );

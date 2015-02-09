@@ -29,6 +29,7 @@
 #include "game/profiles/Profile.hpp"
 #include "game/graphic_mad.h"
 #include "game/graphic_billboard.h"
+#include "egolib/IDSZ_map.h"
 
 //Macros
 #define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<GameObject::MAXNUMINPACK;IT##_internal++) { CHR_REF IT; GameObject * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_gameObjects.exists (IT)) continue; PITEM = _gameObjects.get( IT );

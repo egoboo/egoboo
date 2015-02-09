@@ -144,7 +144,7 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 
 	//Sort modules by difficulity
 	std::sort(_validModules.begin(), _validModules.end(), [](const std::shared_ptr<ModuleProfile> &a, const std::shared_ptr<ModuleProfile> &b) {
-		return strlen(a->getRank()) < strlen(b->getRank());
+		return a->getRank() < b->getRank();
 	});
 
 	//Notify the module selector that the list of available modules has changed
@@ -163,7 +163,7 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 			_filterButton->setText("Main Quest");
 		break;
 	    
-	    case FILTER_SIDE: 		
+	    case FILTER_SIDE_QUEST: 		
 	    	_background->setImage("mp_data/menu/menu_sidequest");
 			_filterButton->setText("Side Quest");
 		break;

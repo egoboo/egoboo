@@ -25,12 +25,12 @@
 #pragma once
 #include <vector>
 #include "game/gamestates/GameState.hpp"
+#include "game/profiles/ModuleProfile.hpp"
 
 //Forward declarations
 class Image;
 class Button;
 class ModuleSelector;
-class ModuleProfile;
 
 class SelectModuleState : public GameState
 {
@@ -50,18 +50,6 @@ public:
 	void beginState() override;
 
 protected:
-	enum ModuleFilter : uint8_t
-	{
-		FILTER_OFF,
-		FILTER_MAIN,
-		FILTER_SIDE,
-		FILTER_TOWN,
-		FILTER_FUN,
-		NR_OF_MODULE_FILTERS,
-
-		FILTER_STARTER				//Starter modules are special, place after last
-	};
-
 	void drawContainer() override;
 
 	void setModuleFilter(const ModuleFilter filter);

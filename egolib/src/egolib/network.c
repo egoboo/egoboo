@@ -32,8 +32,6 @@
 #include "egolib/platform.h"
 #include "egolib/egoboo_setup.h"
 
-#include "egolib/file_formats/module_file.h"
-
 // this include must be the absolute last include
 #include "egolib/mem.h"
 

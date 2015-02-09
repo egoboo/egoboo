@@ -30,7 +30,6 @@
 #include "script.h"
 #include "script_functions.h"
 
-#include "file_formats/module_file.h"
 #include "file_formats/mpd_file.h"
 #include "file_formats/wawalite_file.h"
 
@@ -79,6 +78,5 @@ typedef GLfloat GLXvector3f[3];
 %include "script.h"
 %include "script_functions.h"
 
-%include "file_formats/module_file.h"
 %include "file_formats/mpd_file.h"
 %include "file_formats/wawalite_file.h"

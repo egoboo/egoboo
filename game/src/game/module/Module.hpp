@@ -83,7 +83,7 @@ public:
 	void setExportValid(bool valid) {_exportValid = valid;}
 
 
-	inline bool canRespawnAnyTime() const {return _canRespawnAnyTime;}
+	bool canRespawnAnyTime() const;
 
 	void setRespawnValid(bool valid) {_isRespawnValid = valid;}
 
@@ -123,6 +123,9 @@ public:
 	* 	Get folder path to the Profile of this module
 	**/
 	const std::string& getPath() const;
+
+	uint8_t getMaxPlayers() const;
+	uint8_t getMinPlayers() const;
 
 private:
 	const std::shared_ptr<ModuleProfile> _moduleProfile;

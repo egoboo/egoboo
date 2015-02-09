@@ -137,17 +137,11 @@ void input_read_mouse()
 {
     int x, y, b;
 
-    if ( process_t::running( PROC_PBASE( MProc ) ) )
-    {
-        b = SDL_GetMouseState( &x, &y );
-    }
-    else
-    {
-        b = SDL_GetRelativeMouseState( &x, &y );
+    //b = SDL_GetMouseState( &x, &y );
+    b = SDL_GetRelativeMouseState( &x, &y );
 
-        //Move mouse to the center of the screen since SDL does not detect motion outside the window
-        if ( !cfg.dev_mode ) SDL_WarpMouse( GFX_WIDTH >> 1, GFX_HEIGHT >> 1 );
-    }
+    //Move mouse to the center of the screen since SDL does not detect motion outside the window
+    if ( !cfg.dev_mode ) SDL_WarpMouse( GFX_WIDTH >> 1, GFX_HEIGHT >> 1 );
 
     mous.x = -x; // mous.x and mous.y are the wrong type to use in above call
     mous.y = -y;

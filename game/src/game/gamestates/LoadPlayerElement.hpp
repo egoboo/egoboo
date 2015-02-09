@@ -25,6 +25,7 @@
 
 #include "egolib/egolib.h"
 #include "game/egoboo_typedef.h"
+#include "egolib/IDSZ_map.h"
 
 //Forward declarations
 class ObjectProfile;

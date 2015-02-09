@@ -67,7 +67,6 @@
 #include "egolib/file_formats/controls_file.h"
 #include "egolib/file_formats/eve_file.h"
 #include "egolib/file_formats/id_md2.h"
-#include "egolib/file_formats/module_file.h"
 #include "egolib/file_formats/map_file.h"
 #include "egolib/file_formats/map_tile_dictionary.h"
 #include "egolib/file_formats/pip_file.h"

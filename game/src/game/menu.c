@@ -102,6 +102,7 @@ static std::list<std::shared_ptr<LoadPlayerElement>> _selectedPlayerList;   ///<
 //--------------------------------------------------------------------------------------------
 
 /// the module data that the menu system needs
+#if 0
 struct s_mnu_module
 {
     EGO_PROFILE_STUFF                           ///< the "base class" of a profile object
@@ -136,7 +137,7 @@ struct s_GameTips
 //--------------------------------------------------------------------------------------------
 static void loadAllImportPlayers(const std::string &directoryName);
 static int currentSelectingPlayer = 0;
-
+#endif
 //--------------------------------------------------------------------------------------------
 // declaration of "private" variables
 //--------------------------------------------------------------------------------------------
@@ -166,16 +167,15 @@ static int tipTextTop  = 0;
 static int buttonLeft = 0;
 static int buttonTop = 0;
 
-static menu_process_t    _mproc;
-
-static GameTips_t mnu_Tips_global = { 0 };
-static GameTips_t mnu_Tips_local  = { 0 };
-
 static mnu_SlidyButtonState_t mnu_SlidyButtonState = { NULL };
-
+static Font *menuFont = NULL;
 //--------------------------------------------------------------------------------------------
 // declaration of public variables
 //--------------------------------------------------------------------------------------------
+#if 0
+
+static GameTips_t mnu_Tips_global = { 0 };
+static GameTips_t mnu_Tips_local  = { 0 };
 
 static Stack<mnu_module_t, MAX_MODULE> mnu_ModList;
 
@@ -187,7 +187,7 @@ bool           start_new_player  = false;
 bool           module_list_valid = false;
 
 /* The font used for drawing text.  It's smaller than the button font */
-Font *menuFont = NULL;
+
 
 bool mnu_draw_background = true;
 
@@ -200,6 +200,7 @@ static bool mnu_stack_push( which_menu_t menu );
 static which_menu_t mnu_stack_pop();
 static which_menu_t mnu_stack_peek();
 static void mnu_stack_clear();
+#endif
 
 // Implementation of the mnu_SlidyButton array
 static void mnu_SlidyButton_init( float lerp, const char *button_text[] );
@@ -2116,7 +2117,7 @@ int doOptions( float deltaTime )
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background
-            if ( mnu_draw_background )
+           // if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -2136,7 +2137,7 @@ int doOptions( float deltaTime )
             // Background
 			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -2182,7 +2183,7 @@ int doOptions( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -2702,7 +2703,7 @@ int doGameOptions( float deltaTime )
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0);
             }
@@ -2771,7 +2772,7 @@ int doGameOptions( float deltaTime )
             // Background
 			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
 
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0);
             }
@@ -2945,7 +2946,7 @@ int doGameOptions( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0);
             }
@@ -3018,7 +3019,7 @@ int doAudioOptions( float deltaTime )
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -3053,7 +3054,7 @@ int doAudioOptions( float deltaTime )
             // Background
 			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -3176,7 +3177,7 @@ int doAudioOptions( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -3422,7 +3423,7 @@ int doVideoOptions( float deltaTime )
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -3570,7 +3571,7 @@ int doVideoOptions( float deltaTime )
             // Background
 			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -3970,7 +3971,7 @@ int doVideoOptions( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
-            if ( mnu_draw_background )
+            //if ( mnu_draw_background )
             {
                 ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
@@ -4680,6 +4681,7 @@ void copyrightText_set_position( Font * font, const char * text, int spacing )
 //--------------------------------------------------------------------------------------------
 // Asset management
 //--------------------------------------------------------------------------------------------
+#if 0
 void mnu_load_all_module_images_vfs()
 {
     /// @author ZZ
@@ -4720,6 +4722,7 @@ void mnu_load_all_module_images_vfs()
         vfs_close( filesave );
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 MNU_TX_REF mnu_get_txtexture_ref( const std::shared_ptr<ObjectProfile> &profile, const MNU_TX_REF default_ref )
@@ -4758,6 +4761,7 @@ MNU_TX_REF mnu_get_txtexture_ref( const std::shared_ptr<ObjectProfile> &profile,
 //--------------------------------------------------------------------------------------------
 // module utilities
 //--------------------------------------------------------------------------------------------
+#if 0
 int mnu_get_mod_number( const char *szModName )
 {
     /// @author ZZ
@@ -5037,7 +5041,6 @@ bool mnu_Tips_global_load_vfs( GameTips_t * pglobal )
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
 bool mnu_Tips_local_load_vfs( GameTips_t * plocal )
 {
     /// @author ZF
@@ -5491,7 +5494,7 @@ return false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+#if 0
 mnu_module_t * mnu_module__init( mnu_module_t * ptr )
 {
     if ( NULL == ptr ) return ptr;
@@ -5510,3 +5513,4 @@ mnu_module_t * mnu_module__init( mnu_module_t * ptr )
 
     return ptr;
 }
+#endif
