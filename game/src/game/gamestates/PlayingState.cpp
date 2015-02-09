@@ -90,9 +90,13 @@ bool PlayingState::notifyKeyDown(const int keyCode)
 			{
 				for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
 				{
+					if(object->terminateRequested || object->getProfile()->isInvincible()) {
+						continue;
+					}
+
 					if(!object->isPlayer() && object->isAlive())
 					{
-						kill_character(object->getCharacterID(), 0, false);
+						kill_character(object->getCharacterID(), MAX_CHR, false);
 					}
 				}
 				return true;

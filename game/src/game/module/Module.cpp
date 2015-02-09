@@ -33,11 +33,10 @@
 #include "game/profiles/ModuleProfile.hpp"
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &module, const uint32_t seed) :
-    _name(module->getPath()),
-    _importAmount(module->getBase().importamount),
+    _moduleProfile(module),
+    _name(module->getName()),
     _exportValid(module->getBase().allowexport),
     _exportReset(module->getBase().allowexport),
-    _playerAmount(module->getBase().maxplayers),
     _canRespawnAnyTime(RESPAWN_ANYTIME == module->getBase().respawnvalid),
     _isRespawnValid(false != module->getBase().respawnvalid),
     _isBeaten(false),
@@ -179,4 +178,24 @@ std::shared_ptr<Passage> GameModule::getPassageByID(int id)
     }
 
     return _passages[id];
+}
+
+uint8_t GameModule::getImportAmount() const 
+{
+    return _moduleProfile->getBase().importamount;
+}
+
+uint8_t GameModule::getPlayerAmount() const 
+{
+    return _moduleProfile->getBase().maxplayers;
+}
+
+bool GameModule::isImportValid() const 
+{
+    return _moduleProfile->getBase().importamount > 0;
+}
+
+const std::string& GameModule::getPath() const 
+{
+    return _moduleProfile->getExportName();
 }

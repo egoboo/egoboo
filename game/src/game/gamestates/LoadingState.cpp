@@ -215,6 +215,8 @@ void LoadingState::loadModuleData()
     	return;
     }
 
+    singleThreadRedrawHack("Almost done...");
+
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
     // and camera_system_begin() will not set up thte correct view
     _cameraSystem.begin(local_stats.player_count);
@@ -224,9 +226,18 @@ void LoadingState::loadModuleData()
 
     obj_BSP_system_begin(getMeshBSP()); 
 
+    //Fade out music when finished loading
+    _audioSystem.stopMusic();
+
+    //Must wait until music has finished fading out or else update loop will lag first few updates
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
     //Complete!
     singleThreadRedrawHack("Finished!");
     _finishedLoading = true;
+
+    //Hit that gong
+    _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_GAME_READY));
 
     //Add the start button once we are finished loading
     std::shared_ptr<Button> startButton = std::make_shared<Button>("Press Space to begin", SDLK_SPACE);
@@ -240,12 +251,6 @@ void LoadingState::loadModuleData()
 			_gameEngine->setGameState(std::make_shared<PlayingState>());
     	});
     addComponent(startButton);
-
-    //Fade out music when finished loading
-    _audioSystem.stopMusic();
-
-    //Hit that gong
-    _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_GAME_READY));
 }
 
 

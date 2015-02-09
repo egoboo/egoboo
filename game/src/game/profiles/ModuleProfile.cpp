@@ -5,8 +5,7 @@ ModuleProfile::ModuleProfile() :
 	_name(),
 	_base(),
 	_icon(),
-	_vfsPath(),
-	_destPath()
+	_vfsPath()
 {
     mod_file__init(&_base);
 }

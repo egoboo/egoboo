@@ -46,7 +46,13 @@ public:
 
 	const char* getRank() const {return _base.rank;}
 
+	/**
+	* @return
+	*	the virtual pathname of the module
+	**/
 	const std::string& getPath() const {return _vfsPath;}
+
+	const std::string& getExportName() const {return _name;}
 
 	int getImportAmount() const {return _base.importamount;}
 
@@ -61,7 +67,6 @@ private:
 
     oglx_texture_t _icon;                        ///< the index of the module's tile image
     std::string _vfsPath;                        ///< the virtual pathname of the module
-    std::string _destPath;                       ///< the path that module data can be written into
 
     friend class ProfileSystem;
 };

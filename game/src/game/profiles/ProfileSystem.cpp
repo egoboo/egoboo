@@ -327,10 +327,6 @@ void ProfileSystem::loadModuleProfiles()
             /// @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
             // If that changes, this line must be changed as well.
             // Save the user data directory version of the module path.
-            snprintf(loadname, SDL_arraysize(loadname), "/%s", vfs_ModPath + 3 );
-            module->_destPath = loadname;
-
-            // same problem as above
             strncpy(loadname, vfs_ModPath + 11, SDL_arraysize(loadname) );
             module->_name = loadname;
 

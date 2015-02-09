@@ -52,11 +52,11 @@ public:
 	/**
 	* @return number of players that can join this module
 	**/
-	inline uint8_t getImportAmount() const {return _importAmount;}
+	uint8_t getImportAmount() const;
 
-	inline uint8_t getPlayerAmount() const {return _playerAmount;}
+	uint8_t getPlayerAmount() const;
 
-	inline bool isImportValid() const {return _importAmount > 0;}
+	bool isImportValid() const;
 
 	/**
 	* @return true if the players have won
@@ -118,12 +118,18 @@ public:
 	//Load all passages from file
 	void loadAllPassages();
 
+	/**
+	* @brief
+	* 	Get folder path to the Profile of this module
+	**/
+	const std::string& getPath() const;
+
 private:
+	const std::shared_ptr<ModuleProfile> _moduleProfile;
+
     std::string  _name;               ///< Module load names
-    uint8_t   _importAmount;          ///< Number of imports for this module
     bool _exportValid;				  ///< Allow to export when module is reset?
     bool  _exportReset;               ///< Remember original export mode if the module is restarted
-    uint8_t _playerAmount;            ///< How many players?
     bool  _canRespawnAnyTime;         ///< True if it's a small level...
     bool _isRespawnValid;			  ///< Can players respawn with Spacebar?
     bool _isBeaten;				 	  ///< Have the players won?
