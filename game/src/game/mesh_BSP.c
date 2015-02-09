@@ -46,24 +46,24 @@ mesh_BSP_t::Parameters::Parameters(const ego_mesh_t *mesh)
 }
 //--------------------------------------------------------------------------------------------
 mesh_BSP_t::mesh_BSP_t(const Parameters& parameters) :
-	tree(BSP_tree_t::Parameters(2,parameters._maxDepth)),
+	BSP_tree_t(BSP_tree_t::Parameters(2,parameters._maxDepth)),
 	count(0)
 {
-	// Get the nominal physical size of the mesh.
+	// Get the size of the mesh.
 	float x_min = 0.0f;
 	float x_max = parameters._mesh->gmem.edge_x;
 	float y_min = 0.0f;
 	float y_max = parameters._mesh->gmem.edge_y;
-	float bsp_size = std::max(x_max - x_min, y_max - y_min);
-    // !!!!SET THE BSP SIZE HERE!!!!
-    // enlarge it a bit
-    tree.bsp_bbox.min()[kX] = x_min - 0.25f * bsp_size;
-    tree.bsp_bbox.max()[kX] = x_max + 0.25f * bsp_size;
-    tree.bsp_bbox.mid()[kX] = 0.5f * (tree.bsp_bbox.min()[kX] + tree.bsp_bbox.max()[kX]);
+	float size = std::max(x_max - x_min, y_max - y_min);
+    // Enlarge that size a bit ...
+    bsp_bbox.min()[kX] = x_min - 0.25f * size;
+    bsp_bbox.max()[kX] = x_max + 0.25f * size;
+    bsp_bbox.min()[kY] = y_min - 0.25f * size;
+    bsp_bbox.max()[kY] = y_max + 0.25f * size;
 
-    tree.bsp_bbox.min()[kY] = y_min - 0.25f * bsp_size;
-    tree.bsp_bbox.max()[kY] = y_max + 0.25f * bsp_size;
-    tree.bsp_bbox.mid()[kY] = 0.5f * (tree.bsp_bbox.min()[kY] + tree.bsp_bbox.max()[kY]);
+	// ... and dompute the midpoints: We have the bounding box of our mesh BSP.
+	bsp_bbox.mid()[kX] = 0.5f * (bsp_bbox.min()[kX] + bsp_bbox.max()[kX]);
+    bsp_bbox.mid()[kY] = 0.5f * (bsp_bbox.min()[kY] + bsp_bbox.max()[kY]);
 
     // Initialize the volume.
 	// @todo Error handling.
@@ -113,17 +113,6 @@ bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh)
     return self->count > 0;
 }
 
-void mesh_BSP_t::collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const
-{
-    tree.collide(aabb, test, collisions);
-}
-
-
-void mesh_BSP_t::collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
-{
-    tree.collide(frustum, test, collisions);
-}
-
 /**
  * @brief
  *	Insert a tile's BSP_leaf_t into the BSP_tree_t.
@@ -133,8 +122,6 @@ void mesh_BSP_t::collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, E
 static bool mesh_BSP_insert(mesh_BSP_t *self, ego_tile_info_t *ptile, int index)
 {
     if (NULL == self || NULL == ptile) return false;
-    BSP_tree_t *ptree = &(self->tree);
-
     // Grab the leaf from the tile.
     BSP_leaf_t *pleaf = &(ptile->bsp_leaf);
 
@@ -151,7 +138,7 @@ static bool mesh_BSP_insert(mesh_BSP_t *self, ego_tile_info_t *ptile, int index)
     bv_from_oct_bb(&(pleaf->bbox), &(ptile->oct));
 
     // Insert the leaf.
-	bool retval = ptree->insert_leaf(pleaf);
+	bool retval = self->insert_leaf(pleaf);
 
     if (retval)
     {

@@ -40,15 +40,18 @@ struct egolib_frustum_t;
  * @brief
  *	A BSP housing a mesh.
  */
-struct mesh_BSP_t
+struct mesh_BSP_t : public BSP_tree_t
 {
+	
 	/**
-	* @brief
-	*	The parameters for creating a mesh BSP tree.
-	*/
+	 * @brief
+	 *	The parameters for creating a mesh BSP tree.
+	 */
 	class Parameters
 	{
+
 	public:
+
 		/**
 		* @brief
 		*	Create the parameters for a mesh BSP tree.
@@ -58,21 +61,28 @@ struct mesh_BSP_t
 		*	if @a mesh is @a nullptr
 		*/
 		Parameters(const ego_mesh_t *mesh);
+
 	public:
 		/**
-		* @brief
-		*	The maximum depth of the mesh BSP tree.
-		*/
-		size_t _maxDepth;
+		 */
+
 		/**
-		* @brief
-		*	The mesh the mesh BSP tree is based on.
-		*/
+ 		 * @brief
+		 *	The maximum depth of the mesh BSP tree.
+		 */
+		size_t _maxDepth;
+
+		/**
+		 * @brief
+		 *	The mesh the mesh BSP tree is based on.
+		 */
 		const ego_mesh_t *_mesh;
+
 	};
-    size_t count;
+
+	size_t count;
     oct_bb_t volume;
-    BSP_tree_t tree;
+
 	/**
 	 * @brief
 	 *	Construct a mesh BSP tree.
@@ -88,22 +98,6 @@ struct mesh_BSP_t
 	 *	the mesh BSP
 	 */
 	virtual ~mesh_BSP_t();
-
-	/**
-	 * @brief
-	 *	Fill the collision list with references to tiles that the object volume may overlap.
-	 * @return
-	 *	the new number of collisions in @a collisions
-	 */
-	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-
-	/**
-	 * @brief
-	 * 	Fill the collision list with references to tiles that the object volume may overlap.
-	 * @return
-	 *	the new number of collisions in @a collisions
-	 */
-	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 };
 

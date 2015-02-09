@@ -832,7 +832,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
         // find all collisions with other characters and particles
         _coll_leaf_lst.clear();
-		getChrBSP()->collide(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
+		getChrBSP()->collide(tmp_aabb, chr_BSP_can_collide, _coll_leaf_lst);
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
@@ -891,7 +891,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
         }
 
         _coll_leaf_lst.clear();
-		getPrtBSP()->collide(&tmp_aabb, prt_BSP_can_collide, &_coll_leaf_lst);
+		getPrtBSP()->collide(tmp_aabb, prt_BSP_can_collide, _coll_leaf_lst);
         if (!_coll_leaf_lst.empty())
         {
             for (size_t j = 0; j < _coll_leaf_lst.size(); j++ )
@@ -977,7 +977,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
         // find all collisions with characters
         _coll_leaf_lst.clear();
-		getChrBSP()->collide(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
+		getChrBSP()->collide(tmp_aabb, chr_BSP_can_collide, _coll_leaf_lst);
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
@@ -1116,24 +1116,28 @@ bool fill_bumplists()
     {
 		size_t pruned;
 		log_info("begin pruning\n");
-        pruned = getChrBSP()->tree.prune();
+        pruned = getChrBSP()->prune();
 		/*if (pruned)*/
 		{
+			size_t free, used;
+			getChrBSP()->getStats(free, used);
 			std::ostringstream s;
 			s << __FILE__ << ":" << __LINE__ << ": "
 				<< "pruned: " << pruned << ", "
-			    << "free:   " << getChrBSP()->tree._nfree << ", "
-				<< "used:   " << getChrBSP()->tree._nused << std::endl;
+			    << "free:   " << free << ", "
+				<< "used:   " << used << std::endl;
 			log_info("%s", s.str().c_str());
 		}
-        pruned = getPrtBSP()->tree.prune();
+        pruned = getPrtBSP()->prune();
 		/*if (pruned)*/
 		{
+			size_t free, used;
+			getPrtBSP()->getStats(free, used);
 			std::ostringstream s;
 			s << __FILE__ << ":" << __LINE__ << ": "
 				<< "pruned: " << pruned << ", "
-				<< "free:   " << getPrtBSP()->tree._nfree << ", "
-				<< "used:   " << getPrtBSP()->tree._nused << std::endl;
+				<< "free:   " << free << ", "
+				<< "used:   " << used << std::endl;
 			log_info("%s", s.str().c_str());
 		}
     }

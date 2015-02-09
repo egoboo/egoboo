@@ -124,16 +124,30 @@ bool BSP_leaf_valid(const BSP_leaf_t *self);
 //--------------------------------------------------------------------------------------------
 class BSP_leaf_list_t : public BSP::Collider, BSP::LeafHolder
 {
-public:
+protected:
+
     size_t count;
 
-    BSP_leaf_t *lst;
+public:
+
+	BSP_leaf_t *lst;
 
 	/**
 	 * @brief
 	 *	The bounds of everything in this leaf list.
 	 */
 	BSP::Bounds<bv_t> _bounds;
+
+	/**
+	* @brief
+	*	Get the size, in leaves, of this leaf list.
+	* @return
+	*	the size, in leaves, of this leaf list.
+	*/
+	size_t getCount() const
+	{
+		return count;
+	}
 
 	/**
 	 * @brief
@@ -143,8 +157,9 @@ public:
 	 */
 	bool empty() const
 	{
-		return 0 == count;
+		return 0 == getCount();
 	}
+
 	/**
 	 * @brief
 	 *	Construct this leaf list.
@@ -189,7 +204,7 @@ public:
 	 * @param collisions
 	 *	a leave list to which the leaves are added to
 	 */
-	bool add_all(Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	bool add_all(Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
 	/**
 	 * @brief
 	 *	Add all leaves in this leaf list (filtered).
@@ -198,16 +213,46 @@ public:
 	 * @param collisions
 	 *	a leave list to which the leaves are added to (if they pass the test)
 	 */
-	bool add_all(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	bool add_all(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
 
 	// Override
 	size_t removeAllLeaves() override;
 
 	// Override
-	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const override;
+	void collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	// Override
+	void collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
 	
 	// Override
-	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+	void collide(const egolib_frustum_t& frustum, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	// Override
+	void collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+public:
+	/**
+	 * @brief
+	 *	Classify this leaf list w.r.t. to its bounding volumen and an AABB.
+	 * @param aabb
+	 *	the AABB
+	 * @return
+	 *	the classification of this leaf list
+	 * @todo
+	 *	Make protected.
+	 */
+	geometry_rv classify(const aabb_t& aabb) const;
+	/**
+	 * @brief
+	 *	Classify this leaf list w.r.t. to its bounding volumen and a frustum.
+	 * @param frustum
+	 *	the frustum
+	 * @return
+	 *	the classification of this leaf list
+	 * @todo
+	 *	Make protected.
+	 */
+	geometry_rv classify(const egolib_frustum_t& frustum) const;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -241,10 +286,16 @@ public:
 	size_t removeAllLeaves() override;
 
 	// Override
-	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
-	
+	void collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
 	// Override
-	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+	void collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	// Override
+	void collide(const egolib_frustum_t& frustum, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	// Override
+	void collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
 
 };
 
@@ -262,7 +313,7 @@ public:
 	{
 	}
 
-protected:
+public:
 
 	virtual ~Shell()
 	{
@@ -332,10 +383,16 @@ public:
 	size_t removeAllLeaves() override;
 
 	// Override
-	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+	void collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	// Override
+	void collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
 	
 	// Override
-	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+	void collide(const egolib_frustum_t& frustum, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	// Override
+	void collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
 
 	/**
 	 * @brief
@@ -363,7 +420,7 @@ public:
 	 *	Unlink any leaves (from this branch only, NOT recursively).
 	 */
 	bool unlink_leaves();
-
+#if 0
 	/**
 	 * @brief
 	 *	Clear this branch.
@@ -371,6 +428,7 @@ public:
 	 *	if @a true, recursively clear this branch
 	 */
 	bool clear(bool recursive);
+#endif
 
 	
 
@@ -380,14 +438,22 @@ public:
 	 * @param test, collisions
 	 *	traversal parameters
 	 */
-	bool add_all_rec(BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	bool add_all_rec(Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
+	bool add_all_rec(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
+	/**
+	 * @brief
+	 *	Add all leaves from child branches of this branch.
+	 * @param collisions
+	 *	traversal parameters
+	 */
+	bool add_all_children(Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
 	/**
 	 * @brief
 	 *	Add all leaves from child branches of this branch.
 	 * @param test, collisions
 	 *	traversal parameters
 	 */
-	bool add_all_children(BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	bool add_all_children(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
 
 	/**
 	 * @brief
@@ -397,9 +463,15 @@ public:
 	 * @remark
 	 *	This function attempts to prevent overflowing the "unsorted" list.
 	 */
-	static bool insert_leaf_rec(BSP_branch_t *self, BSP_tree_t *tree, BSP_leaf_t *leaf, size_t depth);
+	bool insert_leaf_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t depth);
 protected:
-	static BSP_branch_t *ensure_branch(BSP_branch_t *self, BSP_tree_t *tree, BSP::SubspaceIndex index);
+	/**
+	 * @brief
+	 *	This will ensure that a branch exists in the branch list of this branch
+	 *	that has a slightly smaller BSPAABB than this branch. This effectively
+	 *	constructs the tree.
+	 */
+	BSP_branch_t *ensure_branch(BSP_tree_t *tree, BSP::SubspaceIndex index);
 	/**
 	 * @brief
 	 *	Recursively insert a leaf in branch.
@@ -417,7 +489,7 @@ protected:
 	 * @todo
 	 *	Move most of this code into BSP_branch_list_t.
 	 */
-	static bool insert_branch_list_rec(BSP_branch_t *self, BSP_tree_t *tree, BSP_leaf_t *leaf, BSP::SubspaceIndex index, size_t depth);
+	bool insert_branch_list_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, BSP::SubspaceIndex index, size_t depth);
 
 	/**
 	 * @brief
@@ -437,7 +509,7 @@ protected:
 	 * @param branch
 	 *	the branch
 	 */
-	static bool insert_branch(BSP_branch_t *self, BSP::SubspaceIndex index, BSP_branch_t *branch);
+	bool insert_branch(BSP::SubspaceIndex index, BSP_branch_t *branch);
 
 };
 
@@ -523,6 +595,22 @@ public:
 		 *	the source
 		 */
 		Parameters(const Parameters& other);
+		/**
+		 * @brief
+		 *	Assignment operator.
+		 * @param other
+		 *	the source
+		 * @return
+		 *	the target
+		 */
+		Parameters& operator=(const Parameters& other)
+		{
+			_maxChildNodes = other._maxChildNodes;
+			_maxNodes = other._maxNodes;
+			_dim = other._dim;
+			_maxDepth = other._maxDepth;
+			return *this;
+		}
 		
 		/// @brief Get the maximum number of child nodes (of a node).
 		/// @return the maximum number of child nodes
@@ -611,38 +699,36 @@ public:
 
 	/**
 	 * @brief
-	 *	The parameters of this BSP tree.
+	 *	Get the parameters of this BSP tree.
+	 * @return
+	 *	the parameters of this BSP tree.
 	 */
-	Parameters _parameters;
+	const Parameters& getParameters() const
+	{
+		return _parameters;
+	}
 
 	/**
 	 * @brief
-	 *   The depth of this tree actually has.
+	 *	Get the bounds of the content of this BSP tree.
+	 * @return
+	 *	the bounds of the content of this BSP tree.
 	 */
-	size_t depth;
-
-	Shell *_used; ///< A singly-linked list of used branches.
-	              ///< The branches are chained up using their Shell::_next pointer.
-	size_t _nused;
-	Shell *_free; ///< A singly-linked list of free branches.
-	              ///< The branches are chained up using their Shell::next pointer.
-	size_t _nfree;
-
-    BSP_branch_t *finite;      ///< the root node of the ordinary BSP tree
-    BSP_leaf_list_t infinite;  ///< all nodes which do not fit inside the BSP tree
+	const BSP::Bounds<bv_t>& getBounds() const
+	{
+		return _bounds;
+	}
 
 	/**
 	 * @brief
-	 *	The bounds of everything in this tree.
-	 * @todo
-	 *	Use BSP::Bounds.
-	 * @todo
-	 *	Rename to @a _bounds.
+	 *	Get the bounding box of this BSP tree.
+	 * @return
+	 *	the bounding box of this BSP tree
 	 */
-    bv_t bbox;
-
-    BSP_aabb_t bsp_bbox; ///< the root-size of the tree
-
+	const BSP_aabb_t& getBoundingBox() const
+	{
+		return bsp_bbox;
+	}
 
 	/**
 	 * @brief
@@ -654,20 +740,71 @@ public:
 
 	bool insert_leaf(BSP_leaf_t *leaf);
 
-
-	void clear_rec();
-
 	// Override
 	size_t removeAllLeaves() override;
 
 	// Override
-	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+	void collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
 
 	// Override
-	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const override;
+	void collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	// Override
+	void collide(const egolib_frustum_t& frustum, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	// Override
+	void collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
+
+	void getStats(size_t& free,size_t& used)
+	{
+		free = _nfree;
+		used = _nused;
+	}
 
 protected:
+
 	friend class BSP_branch_t; ///< To grant access to BSP_tree_t::createBranch().
+
+
+	BSP_branch_t *finite;      ///< The root node of the ordinary BSP tree.
+	BSP_leaf_list_t infinite;  ///< All leaves which do not fit inside the BSP tree.
+
+
+	Shell *_used;  ///< A singly-linked list of used branches.
+	               ///< The branches are chained up using their Shell::_next pointer.
+	size_t _nused; ///< Number of branches chained in _used.
+
+	Shell *_free;  ///< A singly-linked list of free branches.
+	               ///< The branches are chained up using their Shell::next pointer.
+	size_t _nfree; ///< Number of branches chained in _free.
+
+	/**
+	* @brief
+	*	The parameters of this BSP tree.
+	*/
+	Parameters _parameters;
+
+	/**
+	* @brief
+	*   The depth of this tree actually has.
+	*/
+	size_t depth;
+
+
+
+	/**
+	* @brief
+	*	The bounds of everything in this tree.
+	* @todo
+	*	Use BSP::Bounds.
+	* @todo
+	*	Rename to @a _bounds.
+	*/
+	BSP::Bounds<bv_t> _bounds;
+
+	BSP_aabb_t bsp_bbox; ///< the root-size of the tree
+
+
 	/**
 	* @brief
 	*	Ensure that the root node exists.

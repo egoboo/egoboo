@@ -33,9 +33,9 @@ struct mesh_BSP_t;
 
 /**
  * @brief
- *	A BSP tree for objects.
+ *	A BSP tree for objects (characters and particles) in particular for their interactions.
  */
-struct obj_BSP_t
+struct obj_BSP_t : public BSP_tree_t
 {
 	/**
 	* @brief
@@ -58,11 +58,11 @@ struct obj_BSP_t
 		 * @brief
 		 *	Create parameters for an object BSP tree.
 		 * @param dim
-		 *	the desired dimensionality of the object BSP tree
+		 *	the dimensionality of the object BSP tree
 		 * @param meshBSP
 		 *	The mesh BSP tree on which the object BSP tree is based on
 		 * @throw std::domain_error
-		 *	if the desired dimensionality is smaller than @a 2 or greater than @a 3.
+		 *	if the dimensionality is smaller than @a 2 or greater than @a 3.
 		 * @throw std::invalid_argument
 		 *	if @a meshBSP is @a nullptr
 		 */
@@ -70,9 +70,14 @@ struct obj_BSP_t
 	public:
 		/**
 		 * @brief
-		 *	The desired dimensionality of the object BSP tree.
+		 *	The dimensionality of the object BSP tree.
 		 */
 		size_t _dim;
+		/**
+		 * @brief
+		 *	The maximum depth of the object BSP tree.
+		 */
+		size_t _maxDepth;
 		/**
 		 * @brief
 		 *	The mesh BSP tree on which the object BSP tree is based on.
@@ -83,15 +88,8 @@ struct obj_BSP_t
     /**
 	 * @brief
 	 *	The number of characters in this obj_BSP.
-	 * @todo
-	 *	The type should be @a size_t.
 	 */
     size_t count;
-
-    /**
-	 * The BSP tree of characters for character-character and character-particle interactions.
-	 */
-    BSP_tree_t tree;
 
 	/**
 	 * @brief
@@ -106,21 +104,4 @@ struct obj_BSP_t
 	 *	Destruct this object BSP tree.
 	 */
 	virtual ~obj_BSP_t();
-
-	/**
-	 * @brief
-	 *	Fill the collision list with references to tiles that the object volume may overlap.
-	 * @return
-	 *	return the number of collisions in @a collisions
-	 */
-	void collide(const aabb_t *aabb, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-
-	/**
-	 * @brief
-	 *	Fill the collision list with references to tiles that the object volume may overlap.
-	 * @return
-	 *	the number of collisions in @a collisions
-	 */
-	void collide(const egolib_frustum_t *frustum, BSP::LeafTest *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-
 };

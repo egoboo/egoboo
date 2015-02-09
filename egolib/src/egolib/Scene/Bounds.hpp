@@ -80,4 +80,63 @@ namespace BSP
 			return aabb_intersects_aabb(_volume.aabb, aabb);
 		}
 	};
+
+	// Template specialization of Bounds for BSP_aabb_t.
+	template <>
+	struct Bounds<BSP_aabb_t>
+	{
+	private:
+		bool _empty;
+		BSP_aabb_t _volume;
+	public:
+		Bounds(size_t dim) :
+			_empty(true),
+			_volume(dim)
+		{
+		}
+		void clear()
+		{
+			_empty = true;
+		}
+		bool empty() const
+		{
+			return _empty;
+		}
+		const BSP_aabb_t& get() const
+		{
+			if (_empty) throw std::domain_error("bounds empty");
+			return _volume;
+		}
+		void add(const Bounds& bounds)
+		{
+			if (bounds._empty) return;
+			else add(bounds._volume);
+		}
+		void add(const BSP_aabb_t& volume)
+		{
+			if (_empty) {
+				_volume = volume;
+			} else {
+				_volume.add(volume);
+			}
+			_empty = false;
+		}
+		void set(const BSP_aabb_t& volume)
+		{
+			_volume.set(volume);
+			_empty = false;
+		}
+#if 0
+		geometry_rv intersects(const egolib_frustum_t& frustum) const
+		{
+			if (_empty) return geometry_outside;
+			return frustum.intersects_bv(&_volume, true);
+		}
+		geometry_rv intersects(const aabb_t& aabb) const
+		{
+			if (_empty) return geometry_outside;
+			return aabb_intersects_aabb(_volume.aabb, aabb);
+		}
+#endif
+	};
 };

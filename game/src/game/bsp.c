@@ -165,7 +165,6 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 
 	bool       retval;
 	BSP_leaf_t * pleaf;
-	BSP_tree_t * ptree;
 
 	prt_t *loc_pprt;
 
@@ -173,7 +172,6 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 
 	if (NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr) return false;
 	loc_pprt = pbdl_prt->prt_ptr;
-	ptree = &(prt_BSP_root->tree);
 
 	// is the particle in-game?
 	if (!_INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
@@ -195,7 +193,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	// convert the bounding box
 	bv_from_oct_bb(&(pleaf->bbox), &tmp_oct);
 
-	retval = ptree->insert_leaf(pleaf);
+	retval = prt_BSP_root->insert_leaf(pleaf);
 	if (retval)
 	{
 		prt_BSP_root->count++;
@@ -208,7 +206,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 bool chr_BSP_removeAllLeaves()
 {
 	// Remove all leaves from the character BSP.
-	chr_BSP_root->tree.removeAllLeaves();
+	chr_BSP_root->removeAllLeaves();
 	chr_BSP_root->count = 0;
 
 	// Unlink all used character nodes.
@@ -224,7 +222,7 @@ bool chr_BSP_removeAllLeaves()
 bool prt_BSP_removeAllLeaves()
 {
 	// Remove all leave from the particle BSP.
-	prt_BSP_root->tree.removeAllLeaves();
+	prt_BSP_root->removeAllLeaves();
 	prt_BSP_root->count = 0;
 
 	// Unlink all used particle nodes.
@@ -244,11 +242,8 @@ bool chr_BSP_insert(GameObject * pchr)
 
 	bool       retval;
 	BSP_leaf_t * pleaf;
-	BSP_tree_t * ptree;
 
 	if (!ACTIVE_PCHR(pchr)) return false;
-
-	ptree = &(chr_BSP_root->tree);
 
 	// no interactions with hidden objects
 	if (pchr->is_hidden) return false;
@@ -277,7 +272,7 @@ bool chr_BSP_insert(GameObject * pchr)
 		bv_from_oct_bb(&(pleaf->bbox), &tmp_oct);
 
 		// insert the leaf
-		retval = ptree->insert_leaf(pleaf);
+		retval = chr_BSP_root->insert_leaf(pleaf);
 	}
 
 	if (retval)
