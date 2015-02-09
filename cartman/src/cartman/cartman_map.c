@@ -1180,10 +1180,6 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
 
     // clear out all data in the destination mesh
     if ( NULL == map_renew( pmesh_dst ) ) return NULL;
-    pmem_dst = &( pmesh_dst->mem );
-    pinfo_dst = &( pmesh_dst->info );
-    fan_ary_dst = pmem_dst->tile_list;
-    vrt_ary_dst = pmem_dst->vlst;
 
     // make sure we have an accurate vertex count
     pinfo_src->vertex_count = cartman_mpd_count_vertices( pmesh_src );
@@ -1193,6 +1189,11 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
     loc_info_dst.tiles_y   = pinfo_src->tiles_y;
     loc_info_dst.vertcount = pinfo_src->vertex_count;
     map_init( pmesh_dst, &loc_info_dst );
+    
+    pmem_dst = &( pmesh_dst->mem );
+    pinfo_dst = &( pmesh_dst->info );
+    fan_ary_dst = pmem_dst->tile_list;
+    vrt_ary_dst = pmem_dst->vlst;
 
     // revert the tile information
     for (cnt = 0; cnt < pinfo_src->tiles_count; cnt++ )
