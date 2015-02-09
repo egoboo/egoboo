@@ -223,7 +223,7 @@ void GameEngine::renderPreloadText(const std::string &text)
     static int y = 20;
 
     _uiManager->beginRenderUI();
-        GL_DEBUG( glColor4fv )(Ego::white_vec);
+		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
         fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, 20, y, 800, 600, 25, nullptr, text.c_str());
     _uiManager->endRenderUI();
 

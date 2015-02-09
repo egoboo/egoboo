@@ -491,7 +491,7 @@ gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam )
             GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
+			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_ALWAYS );                 // GL_DEPTH_BUFFER_BIT
 
             // flat shading
@@ -506,7 +506,7 @@ gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam )
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                          // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4fv )( Ego::white_vec );                             // GL_CURRENT_BIT
+			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
             for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
             {

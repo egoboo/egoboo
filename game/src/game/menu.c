@@ -782,7 +782,7 @@ int doMainMenu( float deltaTime )
             // Do normal run
             // Background
 
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
             if ( mnu_draw_background )
             {
@@ -1171,7 +1171,7 @@ int doChooseModule( float deltaTime )
                 }
 
                 // Draw the background
-                GL_DEBUG( glColor4fv )( Ego::white_vec );
+				Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
                 x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
                 y = GFX_HEIGHT - background.imgH;
 
@@ -1285,7 +1285,7 @@ int doChooseModule( float deltaTime )
 
                     mod_file_t * pmod = &( mnu_ModList.lst[ext_module].base );
 
-                    GL_DEBUG( glColor4fv )( Ego::white_vec );
+					Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
                     name_string = "Unnamed";
                     if ( CSTR_END != pmod->longname[0] )
@@ -1356,7 +1356,7 @@ int doChooseModule( float deltaTime )
                 {
                     bool click_button;
 
-                    GL_DEBUG( glColor4fv )( Ego::white_vec );
+					Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
                     ui_drawTextBox( menuFont, "Module Filter:", moduleMenuOffsetX + 257, moduleMenuOffsetY - 27, 0, 0, 20 );
 
                     // unly display the filter name
@@ -1399,7 +1399,7 @@ int doChooseModule( float deltaTime )
                 }
 
                 // the tool-tip text
-                GL_DEBUG( glColor4fv )( Ego::white_vec );
+				Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
                 ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
             }
             break;
@@ -1524,21 +1524,21 @@ bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loadPlayer
     STRING  temp_string;
     SKIN_T  skin = profile->getSkinOverride();
 
-    ui_drawButton( UI_Nothing, x, y, width, height, NULL );
+    ui_drawButton(UI_Nothing, x, y, width, height);
 
     //Character level and class
-    GL_DEBUG( glColor4fv )( Ego::white_vec );
+	Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
     y1 = ui_drawTextBox( NULL, loadPlayer->getName().c_str(), x1, y1, 0, 0, text_hgt );
     y1 += section_spacing;
 
     //Character level and class
-    GL_DEBUG( glColor4fv )( Ego::white_vec );
+	Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
     snprintf( temp_string, SDL_arraysize( temp_string ), "A level %d %s", profile->getStartingLevel() + 1, profile->getClassName().c_str() );
     y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
     // Armor
     const SkinInfo &skinInfo = profile->getSkinInfo(skin);
-    GL_DEBUG( glColor4fv )( Ego::white_vec );
+	Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
     snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s",
               !skinInfo.name.empty() ? skinInfo.name.c_str() : "UNKNOWN",
               skinInfo.dressy ? "(Light)" : "(Heavy)" );
@@ -1620,7 +1620,7 @@ bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loadPlayer
 
             //draw the icon for this item
             MNU_TX_REF icon_ref = mnu_get_txtexture_ref(item, item->getIcon(item->getSkinOverride()) );
-            ui_drawImage( 0, TextureManager::getSingleton()->get_valid_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
+            ui_drawImage(0, TextureManager::getSingleton()->get_valid_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt);
 
             if ( item->getSlotNumber() == SLOT_LEFT + 1 )
             {
@@ -2118,7 +2118,7 @@ int doOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             mnu_SlidyButton_draw_all();
@@ -2134,11 +2134,11 @@ int doOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             // "Options" text
@@ -2184,7 +2184,7 @@ int doOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             // Buttons
@@ -2396,7 +2396,7 @@ int doInputOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
             //Detect if input is availible and update the input type button accordingly
             if ( update_input_type )
@@ -2704,7 +2704,7 @@ int doGameOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0);
             }
 
             // Load the current settings
@@ -2773,7 +2773,7 @@ int doGameOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0);
             }
 
             ui_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
@@ -2947,7 +2947,7 @@ int doGameOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0);
             }
 
             // Fall trough
@@ -3020,7 +3020,7 @@ int doAudioOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             // Load the current settings
@@ -3051,11 +3051,11 @@ int doAudioOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             ui_drawTextBox( menuFont, "Sound:", buttonLeft, GFX_HEIGHT - 270, 0, 0, 20 );
@@ -3178,7 +3178,7 @@ int doAudioOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             // Fall trough
@@ -3424,7 +3424,7 @@ int doVideoOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             // Load all the current video settings
@@ -3568,11 +3568,11 @@ int doVideoOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             // Antialiasing Button
@@ -3972,7 +3972,7 @@ int doVideoOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
+                ui_drawImage(0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0);
             }
 
             // Fall trough
@@ -4054,7 +4054,7 @@ int doShowLoadingScreen( float deltaTime )
                 int text_h, text_w;
                 ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
 
-                GL_DEBUG( glColor4fv )( Ego::white_vec );
+				Ego::Renderer::getSingleton()->setColour4f(Ego::Colour4f::WHITE);
 
                 // the module name
                 ui_drawTextBox( font, mnu_ModList.lst[( MOD_REF )selectedModule].base.longname, 50, 80, 291, 230, 20 );
@@ -4161,7 +4161,7 @@ int doGamePaused( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
             // Buttons
             for ( cnt = 0; cnt < 4; cnt ++ )
@@ -4269,7 +4269,7 @@ int doShowEndgame( float deltaTime )
             break;
 
         case MM_Running:
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
             // Buttons
             for ( cnt = 0; cnt < 1; cnt ++ )

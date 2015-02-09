@@ -28,6 +28,7 @@
 #include "egolib/strutil.h"
 #include "egolib/vfs.h"
 
+#include "egolib/Renderer/Renderer.hpp"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_extensions.h"
 #include "egolib/extensions/SDL_extensions.h"
@@ -317,7 +318,7 @@ void egolib_console_draw_begin( void )
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                        // GL_ENABLE_BIT
+	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
     oglx_end_culling();                                         // GL_ENABLE_BIT
@@ -414,7 +415,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
         GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, ( GLuint )( ~0 ) );
 
         // clip the viewport
-        GL_DEBUG( glEnable )( GL_SCISSOR_TEST );
+		Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
         GL_DEBUG( glScissor )( pwin->x, surf->h - ( pwin->y + pwin->h ), pwin->w, pwin->h );
 
         height = pwin->h;

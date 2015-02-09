@@ -52,7 +52,7 @@ void UIManager::beginRenderUI()
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                    // GL_ENABLE_BIT
+	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
     oglx_end_culling();                                     				   // GL_ENABLE_BIT
@@ -117,7 +117,7 @@ int UIManager::getScreenHeight() const
 	return SDL_GetVideoInfo()->current_h;
 }
 
-void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, float height, const GLXvector4f tint)
+void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint)
 {
     ego_frect_t source;
     source.xmin = 0.0f;

@@ -150,7 +150,7 @@ void line_list_draw_all( std::shared_ptr<Camera> pcam )
             GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons

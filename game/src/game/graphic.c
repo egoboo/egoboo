@@ -1543,7 +1543,7 @@ int gfx_system_init_OpenGL()
     GL_DEBUG( glDepthMask )( GL_TRUE );
 
     // do not draw hidden surfaces
-    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+	Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
     GL_DEBUG( glDepthFunc )( GL_LESS );
 
     // alpha stuff
@@ -2088,7 +2088,7 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map )
         sc_rect.ymin = loc_y - ( height / 2 );
         sc_rect.ymax = loc_y + ( height / 2 );
 
-        draw_quad_2d( ptex, sc_rect, tx_rect, true, NULL );
+        draw_quad_2d(ptex, sc_rect, tx_rect, true);
     }
 }
 
@@ -2133,7 +2133,7 @@ float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, useAlpha, NULL );
+    draw_quad_2d(ptex, sc_rect, tx_rect, useAlpha);
 
     if ( NOSPARKLE != sparkle_color )
     {
@@ -2198,7 +2198,7 @@ void draw_map_texture( float x, float y )
     tx_rect.ymin = 0;
     tx_rect.ymax = ( float )ptex->imgH / ( float )ptex->base.height;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, false, NULL );
+    draw_quad_2d(ptex, sc_rect, tx_rect, false);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2231,7 +2231,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-	draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true, NULL);
+	draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true);
 
     x += width;
 
@@ -2251,7 +2251,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-		draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true, NULL);
+		draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true);
     }
 
     //---- Draw the remaining empty ones
@@ -2267,7 +2267,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-		draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true, NULL);
+		draw_quad_2d(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_XP_BAR), sc_rect, tx_rect, true);
     }
 
     return y + height;
@@ -2336,7 +2336,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( tx_ptr, sc_rect, tx_rect, true, NULL );
+    draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
 
     // make the new left-hand margin after the tab
     x_left = x_stt + width;
@@ -2360,7 +2360,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, true, NULL );
+        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
 
         y += height;
         ticks -= NUMTICK;
@@ -2386,7 +2386,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, true, NULL );
+        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
 
         // move to the right after drawing the full ticks
         x += width;
@@ -2407,7 +2407,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, true, NULL );
+        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
 
         y += height;
         ticks = 0;
@@ -2435,7 +2435,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, true, NULL );
+        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
 
         y += height;
         total_ticks -= NUMTICK;
@@ -2462,7 +2462,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, true, NULL );
+        draw_quad_2d(tx_ptr, sc_rect, tx_rect, true);
 
         y += height;
     }
@@ -2642,7 +2642,7 @@ void draw_map()
         GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-        GL_DEBUG( glColor4fv )( Ego::white_vec );
+		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
         draw_map_texture( 0, sdl_scr.y - MAPSIZE );
 
         GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
@@ -3009,7 +3009,7 @@ void draw_inventory()
 
     PLA_REF ipla;
     player_t * ppla;
-    GLXvector4f background_color = { 0.66f, 0.0f, 0.0f, 0.95f };
+	Ego::Colour4f background_color(0.66f, 0.0f, 0.0f, 0.95f);
 
     CHR_REF ichr;
     GameObject *pchr;
@@ -3179,7 +3179,7 @@ void draw_mouse_cursor()
             // Hide the SDL mouse
             SDL_ShowCursor( SDL_DISABLE );
 
-            draw_quad_2d( pcursor, sc_rect, tx_rect, true, NULL );
+            draw_quad_2d(pcursor, sc_rect, tx_rect, true);
         }
     }
     gfx_end_2d();
@@ -3702,7 +3702,7 @@ gfx_rv render_scene_mesh_ndr( const renderlist_t * prlist )
         GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
         // no transparency
@@ -3752,7 +3752,7 @@ gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist )
         GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
         // black out any backgound, but allow the background to show through any holes in the floor
@@ -3823,7 +3823,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
         GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         // surfaces must be closer to the camera to be drawn
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
 
@@ -3848,7 +3848,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-                    GL_DEBUG( glColor4fv )( Ego::white_vec );          // GL_CURRENT_BIT
+					Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
                     if ( gfx_error == render_one_mad_ref( pcam, ichr ) )
                     {
@@ -3875,7 +3875,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-                    GL_DEBUG( glColor4fv )( Ego::white_vec );          // GL_CURRENT_BIT
+					Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
                     if ( gfx_error == render_one_prt_ref( iprt ) )
                     {
@@ -3921,7 +3921,7 @@ gfx_rv render_scene_mesh_ref_chr( const renderlist_t * prlist )
         oglx_end_culling();                // GL_ENABLE_BIT
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
@@ -3960,7 +3960,7 @@ gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist )
         oglx_end_culling();                // GL_ENABLE_BIT
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true); // GL_ENABLE_BIT
 
         // store the surface depth
         GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT
@@ -4009,7 +4009,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
     GL_DEBUG( glDepthMask )( GL_FALSE );
 
     // do not draw hidden surfaces
-    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+	Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
 
     GL_DEBUG( glEnable )( GL_BLEND );
     GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
@@ -4188,8 +4188,8 @@ gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
             GL_DEBUG( glDepthMask )( GL_TRUE );                     // GL_ENABLE_BIT
 
             // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                  // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_LESS );                   // GL_DEPTH_BUFFER_BIT
+			Ego::Renderer::getSingleton()->setDepthTestEnabled(true); // GL_ENABLE_BIT
+            GL_DEBUG( glDepthFunc )( GL_LESS );                       // GL_DEPTH_BUFFER_BIT
 
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );             // GL_COLOR_BUFFER_BIT
@@ -4250,8 +4250,8 @@ gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
         GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true); // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );                     // GL_DEPTH_BUFFER_BIT
 
         // Now render all transparent and light objects
         for ( cnt = (( int )pdolist->size ) - 1; cnt >= 0; cnt-- )
@@ -4522,7 +4522,7 @@ gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF textu
         GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
 
         // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
 
         // draw draw front and back faces of polygons
@@ -4674,7 +4674,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
             GL_DEBUG( glDepthMask )( GL_FALSE );                             // GL_DEPTH_BUFFER_BIT
 
             // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                           // GL_ENABLE_BIT
+			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_ALWAYS );                            // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons

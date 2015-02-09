@@ -455,7 +455,7 @@ void render_tile_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
         glViewport( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         // clip the viewport
-        glEnable( GL_SCISSOR_TEST );
+		Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
         glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
@@ -527,7 +527,7 @@ void render_fx_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
         glViewport( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         // clip the viewport
-        glEnable( GL_SCISSOR_TEST );
+		Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
         glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
@@ -589,7 +589,7 @@ void render_vertex_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
         glViewport( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         // clip the viewport
-        glEnable( GL_SCISSOR_TEST );
+		Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
         glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
@@ -661,7 +661,7 @@ void render_side_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
         glViewport( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         // clip the viewport
-        glEnable( GL_SCISSOR_TEST );
+		Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
         glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         cartman_begin_ortho_camera_vrt( pwin, &cam, zoom_hrz, zoom_vrt * 2.0f );
@@ -721,7 +721,7 @@ void render_window( window_t * pwin )
 
     glPushAttrib( GL_SCISSOR_BIT );
     {
-        glEnable( GL_SCISSOR_TEST );
+		Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
         glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
         make_onscreen( pwin->pmesh );

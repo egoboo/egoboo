@@ -11,7 +11,7 @@ Label::Label(const std::string &text) :
 void Label::draw()
 {
     //Draw text
-    GL_DEBUG( glColor4fv )(Ego::white_vec);
+	Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
     fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX(), getY(), getWidth(), getHeight(), 25, nullptr, "%s", _text.c_str());
 }
 

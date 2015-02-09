@@ -198,7 +198,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
 
 #if defined(DEBUG_MESH_NORMALS) && defined(_DEBUG)
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-    GL_DEBUG( glColor4fv )( white_vec );
+	Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
     entry = ptile->vrtstart;
     for ( cnt = 0; cnt < 4; cnt++, entry++ )
     {
@@ -485,7 +485,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         GLboolean use_depth_mask = ( !water.light && ( 1.0f == falpha ) ) ? GL_TRUE : GL_FALSE;
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                                  // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                                   // GL_DEPTH_BUFFER_BIT
 
         // only use the depth mask if the tile is NOT transparent

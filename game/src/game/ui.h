@@ -104,7 +104,7 @@ void ui_endFrame();
 // UI controls
 ui_buttonValues ui_doWidget( ui_Widget_t * pWidget );
 ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float x, float y, float width, float height );
-ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height, GLXvector3f image_tint );
+ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height, const Ego::Colour4f& image_tint );
 ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const char *text, Font * font, float x, float y, float width, float height );
 // int  ui_doTextBox(ui_id_t id, const char *text, float x, float y, float width, float height);
 
@@ -125,11 +125,13 @@ ui_buttonValues  ui_buttonBehavior( ui_id_t id, float x, float y, float width, f
 ui_buttonValues  ui_WidgetBehavior( ui_Widget_t * pw );
 
 // Drawing
-float ui_drawButton( ui_id_t id, float x, float y, float width, float height, GLXvector4f pcolor );
-float ui_drawImage( ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height, GLXvector4f image_tint );
-float ui_drawTextBox( Font * font, const char *text, float x, float y, float width, float height, float spacing );
-float ui_drawBar( float vx, float vy, int current, int max, Uint8 bar_type );
-float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uint32 delta_update );
+float ui_drawButton(ui_id_t id, float x, float y, float width, float height);
+float ui_drawButton(ui_id_t id, float x, float y, float width, float height, const Ego::Colour4f& pcolor);
+float ui_drawImage(ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height);
+float ui_drawImage(ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height, const Ego::Colour4f& image_tint);
+float ui_drawTextBox(Font * font, const char *text, float x, float y, float width, float height, float spacing );
+float ui_drawBar(float vx, float vy, int current, int max, Uint8 bar_type );
+float ui_drawIcon(const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uint32 delta_update );
 
 /// virtual screen
 void ui_set_virtual_screen( float vw, float vh, float ww, float wh );

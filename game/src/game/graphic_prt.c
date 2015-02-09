@@ -168,7 +168,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
         // Use the depth test to eliminate hidden portions of the particle
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                                  // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LESS );                                   // GL_DEPTH_BUFFER_BIT
 
         // enable the depth mask for the solid portion of the particles
@@ -240,7 +240,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
         GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
         // draw draw front and back faces of polygons
@@ -385,7 +385,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
             GL_DEBUG( glDepthMask )( GL_FALSE );      // ENABLE_BIT
 
             // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // ENABLE_BIT
+			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons

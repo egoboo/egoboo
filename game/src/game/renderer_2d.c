@@ -291,10 +291,10 @@ void gfx_begin_2d()
     GL_DEBUG( glLoadIdentity )();
 #endif
     // remove any scissor test
-    GL_DEBUG( glDisable )( GL_SCISSOR_TEST );
+	Ego::Renderer::getSingleton()->setScissorTestEnabled(false);
 
     // don't worry about hidden surfaces
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );
+	Ego::Renderer::getSingleton()->setScissorTestEnabled(false);
 
     // stop culling backward facing polygons
     oglx_end_culling();                            // GL_ENABLE_BIT
@@ -337,7 +337,7 @@ void gfx_begin_text()
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
     // don't worry about hidden surfaces
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );                              // GL_ENABLE_BIT
+	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
     oglx_end_culling();                                                  // GL_ENABLE_BIT
@@ -379,13 +379,8 @@ void gfx_reshape_viewport( int w, int h )
 //--------------------------------------------------------------------------------------------
 // PRIMITIVES
 //--------------------------------------------------------------------------------------------
-void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const GLXvector4f quad_tint )
+void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
 {
-    const GLfloat * tint = NULL;
-
-    // handle optional parameters
-    tint = LAMBDA( NULL == quad_tint, Ego::white_vec, quad_tint );
-
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
     {
         GLboolean texture_1d_enabled, texture_2d_enabled;
@@ -393,18 +388,18 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
         texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
         texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
 
-        if ( NULL == ptex || INVALID_GL_ID == ptex->base.binding )
+        if ( NULL == tex || INVALID_GL_ID == tex->base.binding )
         {
             GL_DEBUG( glDisable )( GL_TEXTURE_1D );                           // GL_ENABLE_BIT
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );                           // GL_ENABLE_BIT
         }
         else
         {
-            GL_DEBUG( glEnable )( ptex->base.target );                        // GL_ENABLE_BIT
-            oglx_texture_bind( ptex );
+            GL_DEBUG( glEnable )( tex->base.target );                        // GL_ENABLE_BIT
+            oglx_texture_bind( tex );
         }
 
-        GL_DEBUG( glColor4fv )( tint );                                      // GL_CURRENT_BIT
+		Ego::Renderer::getSingleton()->setColour(tint);
 
         if ( use_alpha )
         {
@@ -476,7 +471,7 @@ void draw_one_font( oglx_texture_t * ptex, int fonttype, float x_stt, float y_st
     tx_rect.ymin += border;
     tx_rect.ymax -= border;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, true, NULL );
+    draw_quad_2d(ptex, sc_rect, tx_rect, true, Ego::Colour4f::WHITE);
 }
 
 //--------------------------------------------------------------------------------------------

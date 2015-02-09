@@ -970,7 +970,7 @@ void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[]
 void ogl_beginFrame()
 {
     glPushAttrib( GL_ENABLE_BIT );
-    glDisable( GL_DEPTH_TEST );
+	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
     glDisable( GL_CULL_FACE );
     glEnable( GL_TEXTURE_2D );
 
@@ -1491,7 +1491,7 @@ int gfx_init_ogl()
     GL_DEBUG( glDepthMask )( GL_TRUE );
 
     // do not draw hidden surfaces
-    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+	Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
     GL_DEBUG( glDepthFunc )( GL_LESS );
 
     // alpha stuff

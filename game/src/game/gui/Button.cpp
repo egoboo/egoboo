@@ -80,7 +80,7 @@ void Button::draw()
         int textWidth, textHeight;
         fnt_getTextSize(ui_getFont(), _buttonText.c_str(), &textWidth, &textHeight);
 
-        GL_DEBUG( glColor4fv )(Ego::white_vec);
+		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
         fnt_drawText_OGL_immediate(ui_getFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX() + (getWidth()-textWidth)/2, getY() + (getHeight()-textHeight)/2, "%s", _buttonText.c_str());        
     }
 }

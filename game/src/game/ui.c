@@ -31,18 +31,13 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-//static GLfloat ui_white_color[]  = {1.00f, 1.00f, 1.00f, 1.00f};
+/// @todo Why is this fully transparent? Probably for blending?
+static const SDL_Colour ui_text_color = { 0xFF, 0xFF, 0xFF, 0x00 };
 
-static GLfloat ui_active_color[]  = {0.00f, 0.00f, 0.90f, 0.60f};
-static GLfloat ui_hot_color[]     = {0.54f, 0.00f, 0.00f, 1.00f};
-static GLfloat ui_normal_color[]  = {0.66f, 0.00f, 0.00f, 0.60f};
-
-//static GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
-//static GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
-
-static GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
-
-static const SDL_Color ui_text_color = { 0xFF, 0xFF, 0xFF, 0x00 };
+static const Ego::Colour4f ui_active_color(0.00f, 0.00f, 0.90f, 0.60f);
+static const Ego::Colour4f ui_hot_color(0.54f, 0.00f, 0.00f, 1.00f);
+static const Ego::Colour4f ui_normal_color(0.66f, 0.00f, 0.00f, 0.60f);
+static const Ego::Colour4f ui_normal_color2(0.33f, 0.00f, 0.33f, 0.60f);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -191,7 +186,7 @@ void ui_beginFrame( float deltaTime )
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                    // GL_ENABLE_BIT
+	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
     oglx_end_culling();                                     // GL_ENABLE_BIT
@@ -218,10 +213,7 @@ void ui_beginFrame( float deltaTime )
 	fmat_4x4_t projection;
 	projection.setOrtho(0.0f, sdl_scr.x, sdl_scr.y, 0.0f, -1.0f, +1.0f);
 	Ego::Renderer::getSingleton()->loadMatrix(projection);
-#if 0
-    GL_DEBUG( glLoadIdentity )();
-    GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
-#endif
+
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glLoadIdentity )();
@@ -411,38 +403,39 @@ ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
 
 //--------------------------------------------------------------------------------------------
 // Drawing
-float ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight, GLXvector4f pcolor )
+float ui_drawButton(ui_id_t id, float vx, float vy, float vwidth, float vheight)
+{
+	const Ego::Colour4f color_1(0.00f, 0.0f, 0.9f, 0.6f);
+	const Ego::Colour4f color_2(0.54f, 0.0f, 0.0f, 1.0f);
+	const Ego::Colour4f color_3(0.66f, 0.0f, 0.0f, 0.6f);
+
+	if (ui_context.active != UI_Nothing && ui_context.active == id && ui_context.hot == id)
+	{
+		ui_drawButton(id, vx, vy, vwidth, vheight, color_1);
+	}
+	else if (ui_context.hot != UI_Nothing && ui_context.hot == id)
+	{
+		ui_drawButton(id, vx, vy, vwidth, vheight, color_2);
+	}
+	else
+	{
+		ui_drawButton(id, vx, vy, vwidth, vheight, color_3);
+	}
+}
+
+float ui_drawButton(ui_id_t id, float vx, float vy, float vwidth, float vheight, const Ego::Colour4f& pcolor)
 {
     float x1, x2, y1, y2;
 
-    GLXvector4f color_1 = { 0.0f, 0.0f, 0.9f, 0.6f };
-    GLXvector4f color_2 = { 0.54f, 0.0f, 0.0f, 1.0f };
-    GLXvector4f color_3 = { 0.66f, 0.0f, 0.0f, 0.6f };
-
     // Draw the button
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-
-    if ( NULL == pcolor )
-    {
-        if ( ui_context.active != UI_Nothing && ui_context.active == id && ui_context.hot == id )
-        {
-            pcolor = color_1;
-        }
-        else if ( ui_context.hot != UI_Nothing && ui_context.hot == id )
-        {
-            pcolor = color_2;
-        }
-        else
-        {
-            pcolor = color_3;
-        }
-    }
 
     // convert the virtual coordinates to screen coordinates
     ui_virtual_to_screen( vx, vy, &x1, &y1 );
     ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
 
-    GL_DEBUG( glColor4fv )( pcolor );
+	Ego::Renderer::getSingleton()->setColour(pcolor);
+
     GL_DEBUG( glBegin )( GL_QUADS );
     {
         GL_DEBUG( glVertex2f )( x1, y1 );
@@ -458,7 +451,41 @@ float ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight
 }
 
 //--------------------------------------------------------------------------------------------
-float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, GLXvector4f image_tint )
+float ui_drawImage(ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight)
+{
+	ego_frect_t scr_rect, tx_rect;
+
+	float vw, vh;
+
+	if (img)
+	{
+		if (0 == vwidth || 0 == vheight)
+		{
+			vw = img->imgW;
+			vh = img->imgH;
+		}
+		else
+		{
+			vw = vwidth;
+			vh = vheight;
+		}
+		tx_rect.xmin = 0.0f;
+		tx_rect.ymin = 0.0f;
+		tx_rect.xmax = (float)oglx_texture_getImageWidth(img) / (float)oglx_texture_t::getTextureWidth(img);
+		tx_rect.ymax = (float)oglx_texture_getImageHeight(img) / (float)oglx_texture_t::getTextureHeight(img);
+
+		// convert the virtual coordinates to screen coordinates
+		ui_virtual_to_screen(vx, vy, &(scr_rect.xmin), &(scr_rect.ymin));
+		ui_virtual_to_screen(vx + vw, vy + vh, &(scr_rect.xmax), &(scr_rect.ymax));
+
+		// Draw the image
+		draw_quad_2d(img, scr_rect, tx_rect, true);
+	}
+
+	return vy + vheight;
+}
+
+float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, const Ego::Colour4f& image_tint )
 {
     ego_frect_t scr_rect, tx_rect;
 
@@ -495,7 +522,6 @@ float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float v
 //--------------------------------------------------------------------------------------------
 float ui_drawWidgetButton( ui_Widget_t * pw )
 {
-    GLfloat * pcolor = NULL;
     bool bactive, bhot;
 
     bactive = ui_context.active == pw->id && ui_context.hot == pw->id;
@@ -507,34 +533,35 @@ float ui_drawWidgetButton( ui_Widget_t * pw )
     {
         if ( bactive )
         {
-            pcolor = ui_normal_color2;
+			return ui_drawButton(pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, ui_normal_color2);
         }
         else if ( bhot )
         {
-            pcolor = ui_hot_color;
+			return ui_drawButton(pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, ui_hot_color);
         }
         else
         {
-            pcolor = ui_normal_color;
+			return ui_drawButton(pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, ui_normal_color);
         }
     }
     else
     {
         if ( bactive )
         {
-            pcolor = ui_active_color;
+			return ui_drawButton(pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, ui_active_color);
         }
         else if ( bhot )
         {
-            pcolor = ui_hot_color;
+			return ui_drawButton(pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, ui_hot_color);
         }
         else
         {
-            pcolor = ui_normal_color;
+			return ui_drawButton(pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, ui_normal_color);
         }
     }
-
+#if 0
     return ui_drawButton( pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, pcolor );
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -549,7 +576,7 @@ float ui_drawWidgetImage( ui_Widget_t * pw )
 
     if ( NULL != pw && NULL != pw->img )
     {
-        retval = ui_drawImage( pw->id, pw->img, pw->vx, pw->vy, pw->vwidth, pw->vheight, NULL );
+        retval = ui_drawImage(pw->id, pw->img, pw->vx, pw->vy, pw->vwidth, pw->vheight);
     }
 
     return retval;
@@ -597,7 +624,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
     result = ui_buttonBehavior( id, vx, vy, vwidth, vheight );
 
     // Draw the button part of the button
-    ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
+    ui_drawButton(id, vx, vy, vwidth, vheight);
 
     // And then draw the text that goes on top of the button
     if ( NULL == font ) font = ui_getFont();
@@ -624,7 +651,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, GLXvector3f image_tint )
+ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, const Ego::Colour4f& image_tint )
 {
     ui_buttonValues result;
 
@@ -632,10 +659,10 @@ ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float vx, flo
     result = ui_buttonBehavior( id, vx, vy, vwidth, vheight );
 
     // Draw the button part of the button
-    ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
+    ui_drawButton(id, vx, vy, vwidth, vheight);
 
     // And then draw the image on top of it
-    ui_drawImage( id, img, vx + 5, vy + 5, vwidth - 10, vheight - 10, image_tint );
+    ui_drawImage(id, img, vx + 5, vy + 5, vwidth - 10, vheight - 10, image_tint);
 
     return result;
 }
@@ -652,10 +679,10 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const
     result = ui_buttonBehavior( id, vx, vy, vwidth, vheight );
 
     // Draw the button part of the button
-    ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
+    ui_drawButton(id, vx, vy, vwidth, vheight);
 
     // Draw the image part
-    ui_drawImage( id, img, vx + 5, vy + 5, 0, 0, NULL );
+    ui_drawImage(id, img, vx + 5, vy + 5, 0, 0);
 
     // And draw the text next to the image
     // And then draw the text that goes on top of the button

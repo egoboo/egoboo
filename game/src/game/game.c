@@ -4069,7 +4069,7 @@ void do_game_hud()
 
     if ( gfx_flip_pages_requested() && cfg.dev_mode )
     {
-        GL_DEBUG( glColor4fv )( white_vec );
+		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
         if ( fpson )
         {
