@@ -165,6 +165,8 @@ void GameEngine::updateOneFrame()
         {
             _currentGameState = _gameStateStack.front();
             _currentGameState->beginState();
+            _updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
+            _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
         }
     }
 
@@ -355,6 +357,8 @@ void GameEngine::pushGameState(std::shared_ptr<GameState> gameState)
     _gameStateStack.push_front(gameState);
     _currentGameState = _gameStateStack.front();
     _currentGameState->beginState();
+    _updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
+    _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
 }
 
 bool GameEngine::loadConfiguration(bool syncFromFile)
