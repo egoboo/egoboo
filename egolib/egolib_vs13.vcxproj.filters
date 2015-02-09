@@ -40,6 +40,9 @@
     <Filter Include="Header Files\Scene">
       <UniqueIdentifier>{e088fafe-0da3-45d0-933c-4514b9375e76}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Scene">
+      <UniqueIdentifier>{a3c65541-0927-4dda-a50d-adf37e0ce2ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -266,6 +269,15 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Renderer\OpenGL\Renderer.cpp">
       <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Scene\Tree.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Scene\Branch.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Scene\LeafList.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -515,10 +527,19 @@
     <ClInclude Include="src\egolib\Scene\Element.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Scene\Bounds.hpp">
+    <ClInclude Include="src\egolib\Scene\Bounds.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Scene\LeafHolder.hpp">
+    <ClInclude Include="src\egolib\Scene\LeafHolder.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Scene\Tree.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Scene\Branch.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Scene\LeafList.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>

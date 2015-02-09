@@ -622,7 +622,8 @@ gfx_rv renderlist_t::add(renderlist_t *self, const Ego::DynamicArray<BSP_leaf_t 
     {
 		BSP_leaf_t *leaf = leaves->ary[j];
 
-        if (!BSP_leaf_valid(leaf)) continue;
+		if (!leaf) continue;
+        if (!leaf->valid()) continue;
 
         if (BSP_LEAF_TILE == leaf->data_type)
         {
@@ -1066,7 +1067,8 @@ gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_
     {
         pleaf = pcolst->ary[j];
 
-        if ( !BSP_leaf_valid( pleaf ) ) continue;
+		if (!pleaf) continue;
+        if (!pleaf->valid()) continue;
 
         if ( BSP_LEAF_CHR == pleaf->data_type )
         {

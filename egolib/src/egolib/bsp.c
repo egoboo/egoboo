@@ -221,7 +221,6 @@ BSP_leaf_t *BSP_leaf_t::ctor(void *data, bsp_type_t type, size_t index)
 	return this;
 }
 
-//--------------------------------------------------------------------------------------------
 void BSP_leaf_t::dtor()
 {
 	this->bbox.dtor();
@@ -231,7 +230,7 @@ void BSP_leaf_t::dtor()
 	this->inserted = false;
 	this->next = nullptr;
 }
-//--------------------------------------------------------------------------------------------
+
 bool BSP_leaf_t::remove_link(BSP_leaf_t *L)
 {
 	if (NULL == L) return false;
@@ -255,7 +254,6 @@ bool BSP_leaf_t::remove_link(BSP_leaf_t *L)
 	return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 bool BSP_leaf_t::clear(BSP_leaf_t * L)
 {
 	if (NULL == L) return false;
@@ -268,7 +266,6 @@ bool BSP_leaf_t::clear(BSP_leaf_t * L)
 	return true;
 }
 
-//--------------------------------------------------------------------------------------------
 bool BSP_leaf_t::assign(const BSP_leaf_t& other)
 {
 	this->next = other.next;
@@ -277,6 +274,11 @@ bool BSP_leaf_t::assign(const BSP_leaf_t& other)
 	this->index = other.index;
 	this->bbox.assign(other.bbox);
 	return true;
+}
+
+bool BSP_leaf_t::valid() const
+{
+	return data && data_type >= 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -377,7 +379,7 @@ bool BSP_branch_t::unlink_leaves()
 bool BSP_branch_t::insert_leaf_list(BSP_leaf_t *leaf)
 {
 	if (!leaf) throw std::invalid_argument("nullptr == leaf");
-	return leaves.push_front(leaf);
+	return leaves.push_front(*leaf);
 }
 
 bool BSP_branch_update_depth_rec(BSP_branch_t *self, size_t depth)
@@ -495,13 +497,13 @@ bool BSP_branch_free_nodes(BSP_branch_t *self, bool recursive)
 	return true;
 }
 
-bool BSP_branch_t::add_all_children(Ego::DynamicArray<BSP_leaf_t *>& collisions) const
+bool BSP_branch_list_t::add_all_children(Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	if (!INVALID_BSP_BRANCH_LIST(&(children)))
+	if (!INVALID_BSP_BRANCH_LIST(this))
 	{
-		for (size_t i = 0, n = children.lst_size; i < n; ++i)
+		for (size_t i = 0, n = lst_size; i < n; ++i)
 		{
-			BSP_branch_t *child = children.lst[i];
+			BSP_branch_t *child = lst[i];
 			if (!child) continue;
 			child->add_all_rec(collisions);
 			if (collisions.full()) break;
@@ -512,13 +514,13 @@ bool BSP_branch_t::add_all_children(Ego::DynamicArray<BSP_leaf_t *>& collisions)
 }
 
 
-bool BSP_branch_t::add_all_children(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
+bool BSP_branch_list_t::add_all_children(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	if (!INVALID_BSP_BRANCH_LIST(&(children)))
+	if (!INVALID_BSP_BRANCH_LIST(this))
 	{
-		for (size_t i = 0, n = children.lst_size; i < n; ++i)
+		for (size_t i = 0, n = lst_size; i < n; ++i)
 		{
-			BSP_branch_t *child = children.lst[i];
+			BSP_branch_t *child = lst[i];
 			if (!child) continue;
 			child->add_all_rec(test, collisions);
 			if (collisions.full()) break;
@@ -595,424 +597,50 @@ bool BSP_branch_t::empty() const
 
 void BSP_branch_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geom_children, geom_leaves, geom_unsorted;
-	bool BSP_retval;
+	// Collide with the unsorted leaves.
+	unsorted.collide(aabb,collisions);
 
-	// if the branch doesn't exist, stop
-	const BSP_branch_list_t *children_ptr = &(children);
-#if 0
-	const BSP_leaf_list_t *leaves_ptr = &(leaves);
-	const BSP_leaf_list_t *unsorted_ptr = &(unsorted);
-#endif
-	// assume the worst
-	bool retval = false;
+	// Collide with the leaves leaves at this level of the tree.
+	leaves.collide(aabb,collisions);
 
-	// check the unsorted leaves
-	geom_unsorted = unsorted.classify(aabb);
-
-	// check the leaves at this level of the tree
-	geom_leaves = leaves.classify(aabb);
-
-	// check the nodes at all lower levels
-	geom_children = geometry_error;
-	if (!INVALID_BSP_BRANCH_LIST(children_ptr))
-	{
-		if (0 == children.inserted)
-		{
-			geom_children = geometry_outside;
-		}
-		else if (1 == children.inserted)
-		{
-			// A speedup.
-			// If there is only one entry, then the aabb-aabb collision test is
-			// called twice for 2 bounding boxes of the same size
-			geom_children = geometry_intersect;
-		}
-		else
-		{
-			geom_children = children._bounds.intersects(aabb);
-		}
-	}
-
-	if (geom_unsorted <= geometry_outside && geom_leaves <= geometry_outside && geom_children <= geometry_outside)
-	{
-		// The branch and the object do not overlap at all. Do nothing.
-		return;
-	}
-
-	switch (geom_unsorted)
-	{
-	case geometry_intersect:
-		// The aabb and branch partially overlap. Test each item.
-		unsorted.collide(aabb, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single node.
-		BSP_retval = unsorted.add_all(collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
-
-	switch (geom_leaves)
-	{
-	case geometry_intersect:
-		// The aabb and branch partially overlap. Test each item.
-		leaves.collide(aabb, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single leave.
-		BSP_retval = leaves.add_all(collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
-
-	switch (geom_children)
-	{
-	case geometry_intersect:
-		// The aabb and branch partially overlap. Test each item.
-		children.collide(aabb, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single node.
-		if (add_all_children(collisions)) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
+	// Collide with the child branches.
+	children.collide(aabb, collisions);
 }
 
 void BSP_branch_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geom_children, geom_leaves, geom_unsorted;
-	bool BSP_retval;
+	// Collide with the unsorted leaves.
+	unsorted.collide(aabb,test,collisions);
 
-	// if the branch doesn't exist, stop
-	const BSP_branch_list_t *children_ptr = &(children);
-#if 0
-	const BSP_leaf_list_t *leaves_ptr = &(leaves);
-	const BSP_leaf_list_t *unsorted_ptr = &(unsorted);
-#endif
-	// assume the worst
-	bool retval = false;
+	// Collide with the leaves at this level of the tree.
+	leaves.collide(aabb,test,collisions);
 
-	// check the unsorted leaves
-	geom_unsorted = unsorted.classify(aabb);
-
-	// check the leaves at this level of the tree
-	geom_leaves = leaves.classify(aabb);
-
-	// check the nodes at all lower levels
-	geom_children = geometry_error;
-	if (!INVALID_BSP_BRANCH_LIST(children_ptr))
-	{
-		if (0 == children.inserted)
-		{
-			geom_children = geometry_outside;
-		}
-		else if (1 == children.inserted)
-		{
-			// A speedup.
-			// If there is only one entry, then the aabb-aabb collision test is
-			// called twice for 2 bounding boxes of the same size
-			geom_children = geometry_intersect;
-		}
-		else
-		{
-			geom_children = children._bounds.intersects(aabb);
-		}
-	}
-
-	if (geom_unsorted <= geometry_outside && geom_leaves <= geometry_outside && geom_children <= geometry_outside)
-	{
-		// The branch and the object do not overlap at all. Do nothing.
-		return;
-	}
-
-	switch (geom_unsorted)
-	{
-	case geometry_intersect:
-		// The aabb and branch partially overlap. Test each item.
-		unsorted.collide(aabb, test, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single node.
-		if (test)
-		{
-			BSP_retval = unsorted.add_all(*test, collisions);
-		}
-		else
-		{
-			BSP_retval = unsorted.add_all(collisions);
-		}
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
-
-	switch (geom_leaves)
-	{
-	case geometry_intersect:
-		// The aabb and branch partially overlap. Test each item.
-		leaves.collide(aabb, test, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single leave.
-		BSP_retval = leaves.add_all(test, collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
-
-	switch (geom_children)
-	{
-	case geometry_intersect:
-		// The aabb and branch partially overlap. Test each item.
-		children.collide(aabb, test, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single node.
-		if (add_all_children(test, collisions)) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
+	// Collide with the child branches.
+	children.collide(aabb, test, collisions);
 }
 
 void BSP_branch_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geom_children, geom_leaves, geom_unsorted;
-	bool BSP_retval;
+	// Collide with the unsorted leaves.
+	unsorted.collide(frustum, collisions);
 
-	const BSP_branch_list_t *children_ptr = &(children);
-#if 0
-	const BSP_leaf_list_t *leaves_ptr = &(leaves);
-	const BSP_leaf_list_t *unsorted_ptr = &(unsorted);
-#endif
-	// assume the worst
-	bool retval = false;
+	// Collide with the leaves at this level of the tree.
+	leaves.collide(frustum, collisions);
 
-	// check the unsorted leaves
-	geom_unsorted = unsorted.classify(frustum);
-
-	// check the leaves at this level of the tree
-	geom_leaves = leaves.classify(frustum);
-
-	// check the nodes at all lower levels
-	geom_children = geometry_error;
-	if (!INVALID_BSP_BRANCH_LIST(children_ptr))
-	{
-		if (0 == children_ptr->inserted)
-		{
-			geom_children = geometry_outside;
-		}
-		else if (1 == children_ptr->inserted)
-		{
-			// A speedup.
-			// If there is only one entry, then the frustum-aabb collision test is
-			// called twice for 2 bounding boxes of the same size
-			geom_children = geometry_intersect;
-		}
-		else
-		{
-			geom_children = children._bounds.intersects(frustum);
-		}
-	}
-
-	if (geom_unsorted <= geometry_outside && geom_leaves <= geometry_outside && geom_children <= geometry_outside)
-	{
-		// The branch and the object do not overlap at all. Do nothing.
-		return;
-	}
-
-	switch (geom_unsorted)
-	{
-	case geometry_intersect:
-		// The frustum and branch partially overlap. Test each item.
-		unsorted.collide(frustum, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single node.
-		BSP_retval = unsorted.add_all(collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
-
-	switch (geom_leaves)
-	{
-	case geometry_intersect:
-		// The frustum and branch partially overlap. Test each item.
-		leaves.collide(frustum, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single leave.
-		BSP_retval = leaves.add_all(collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
-
-	switch (geom_children)
-	{
-	case geometry_intersect:
-		// The frustum and branch partially overlap. Test each item.
-		children.collide(frustum, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single node.
-		BSP_retval = add_all_children(collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
+	// Colide with the child branches.
+	children.collide(frustum, collisions);
 }
 
 void BSP_branch_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geom_children, geom_leaves, geom_unsorted;
-	bool BSP_retval;
+	// Collide with the unsorted leaves.
+	unsorted.collide(frustum,test,collisions);
 
-	const BSP_branch_list_t *children_ptr = &(children);
-	const BSP_leaf_list_t *leaves_ptr = &(leaves);
-	const BSP_leaf_list_t *unsorted_ptr = &(unsorted);
+	// Collide with the leaves at this level of the tree.
+	leaves.collide(frustum,test,collisions);
 
-	// assume the worst
-	bool retval = false;
-
-	// check the unsorted leaves
-	geom_unsorted = unsorted.classify(frustum);
-
-	// check the leaves at this level of the tree
-	geom_leaves = leaves.classify(frustum);
-
-	// check the nodes at all lower levels
-	geom_children = geometry_error;
-	if (!INVALID_BSP_BRANCH_LIST(children_ptr))
-	{
-		if (0 == children_ptr->inserted)
-		{
-			geom_children = geometry_outside;
-		}
-		else if (1 == children_ptr->inserted)
-		{
-			// A speedup.
-			// If there is only one entry, then the frustum-aabb collision test is
-			// called twice for 2 bounding boxes of the same size
-			geom_children = geometry_intersect;
-		}
-		else
-		{
-			geom_children = children._bounds.intersects(frustum);
-		}
-	}
-
-	if (geom_unsorted <= geometry_outside && geom_leaves <= geometry_outside && geom_children <= geometry_outside)
-	{
-		// The branch and the object do not overlap at all. Do nothing.
-		return;
-	}
-
-	switch (geom_unsorted)
-	{
-	case geometry_intersect:
-		// The frustum and branch partially overlap. Test each item.
-		unsorted.collide(frustum, test, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single node.
-		BSP_retval = unsorted.add_all(test, collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
-
-	switch (geom_leaves)
-	{
-	case geometry_intersect:
-		// The frustum and branch partially overlap. Test each item.
-		leaves.collide(frustum, test, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single leave.
-		BSP_retval = leaves.add_all(test, collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
-
-	switch (geom_children)
-	{
-	case geometry_intersect:
-		// The frustum and branch partially overlap. Test each item.
-		children.collide(frustum, test, collisions);
-		retval = true;
-		break;
-
-	case geometry_inside:
-		// The branch is completely contained by the test aabb. Add every single node.
-		BSP_retval = add_all_children(test, collisions);
-		if (BSP_retval) retval = true;
-		break;
-
-	default:
-		/* do nothing */
-		break;
-	}
+	// Collide with the child branches.
+	children.collide(frustum, test, collisions);
 }
 
 bool BSP_branch_t::insert_branch_list_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, BSP::SubspaceIndex index, size_t depth)
@@ -1062,7 +690,8 @@ bool BSP_branch_t::insert_leaf_rec_1(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t 
 
 	bool inserted_leaf, inserted_branch;
 
-	if (!tree || !leaf) return -1;
+	if (!tree) throw std::invalid_argument("nullptr == tree");
+	if (!leaf) throw std::invalid_argument("nullptr == leaf");
 
 	// Not inserted anywhere, yet.
 	bool inserted_here = false;
@@ -1086,6 +715,7 @@ bool BSP_branch_t::insert_leaf_rec_1(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t 
 		if (index == -2)
 		{
 			/* Do nothing, the leaf is too big. */
+			log_warning("%s:%d: leaf not inserted as it is too big\n", __FILE__, __LINE__);
 			return false;
 		}
 		else if (-1 == index)
@@ -1182,7 +812,8 @@ bool BSP_branch_t::insert_leaf_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t de
 	// Defer sorting any new leaves, if possible.
 	if (!handled && leaves_at_this_level < BRANCH_NODE_THRESHOLD)
 	{
-		handled = unsorted.push_front(leaf);
+		handled = unsorted.push_front(*leaf);
+		if (!handled) log_warning("%s:%d: leaf not inserted\n", __FILE__, __LINE__);
 	}
 
 	// Recursively insert.
@@ -1190,6 +821,8 @@ bool BSP_branch_t::insert_leaf_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t de
 	{
 		// keep track of the tree depth
 		handled = insert_leaf_rec_1(tree, leaf, depth + 1);
+		/* @todo If the leaf is not handled, verify that it is handled by the caller. */
+		/*if (!handled) log_warning("%s:%d: leaf not inserted\n", __FILE__, __LINE__);*/
 	}
 
 	// Keep a record of the highest depth.
@@ -1349,7 +982,7 @@ namespace BSP
 		 *	It forces all leaves into the infinite leave list. If this is not done
 		 *  massive clipping problems occur.
 		 */
-		const static bool ForceInfinit = true;
+		const static bool ForceInfinite = true;
 	}
 }
 
@@ -1410,35 +1043,34 @@ BSP_branch_t *BSP_tree_t::ensure_root()
 
 bool BSP_tree_t::insert_leaf(BSP_leaf_t *leaf)
 {
-	bool retval;
+	bool inserted;
 
 	if (!leaf) return false;
 
 	// If the leaf is NOT fully contained in the tree's bounding box ...
-	if (!bsp_bbox.contains(leaf->bbox.aabb) || BSP::Hacks::ForceInfinit)
+	if (!bsp_bbox.contains(leaf->bbox.aabb) || BSP::Hacks::ForceInfinite)
 	{
 		// ... put the leaf at the head of the infinite list.
-		retval = infinite.push_front(leaf);
+		inserted = infinite.push_front(*leaf);
+		if (!inserted) throw std::runtime_error("capacity limit reached\n");
 	}
 	// Otherwise:
 	else
 	{
 		BSP_branch_t *root = ensure_root();
 
-		retval = root->insert_leaf_rec(this, leaf, 0);
+		inserted = root->insert_leaf_rec(this, leaf, 0);
+		if (!inserted)
+		{
+			// ... put the leaf at the head of the infinite list.
+			inserted = infinite.push_front(*leaf);
+			if (!inserted) throw std::runtime_error("capacity limit reached\n");
+		}
 	}
 
 	// Make sure the bounding box matches the maximum extend of all leaves in the tree.
-	if (retval)
-	{
-		_bounds.add(leaf->bbox);
-	}
-	else
-	{
-		log_warning("%s:%d: leaf not inserted added\n");
-	}
-
-	return retval;
+	_bounds.add(leaf->bbox);
+	return inserted;
 }
 
 void BSP_tree_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
@@ -1544,24 +1176,20 @@ void BSP_leaf_list_t::clear()
 	_bounds.clear();
 }
 
-bool BSP_leaf_list_t::push_front(BSP_leaf_t *leaf)
+bool BSP_leaf_list_t::push_front(BSP_leaf_t& leaf)
 {
-	if (nullptr == leaf)
-	{
-		return false;
-	}
-	if (leaf->inserted)
+	if (leaf.isInList())
 	{
 		log_warning("%s: %d: trying to insert a BSP_leaf that is claiming to be part of a list already\n",__FILE__,__LINE__);
 		return false;
 	}
 
 	// Insert the leaf.
-	leaf->next = lst; lst = leaf;
+	leaf.next = lst; lst = &leaf;
 	count++;
-	leaf->inserted = true;
+	leaf.inserted = true;
 	// Add the leaf's bounding box to the bounds of this leaf list.
-	_bounds.add(leaf->bbox);
+	_bounds.add(leaf.bbox);
 	return true;
 }
 
@@ -1607,12 +1235,9 @@ bool BSP_leaf_list_t::add_all(Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 
 bool BSP_leaf_list_t::add_all(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	size_t lost_leaves = 0;
-	size_t rejected_leaves = 0;
-
-	BSP_leaf_t *leaf;
-	size_t cnt;
-	for (cnt = 0, leaf = lst; nullptr != leaf && cnt < count; leaf = leaf->next, ++cnt)
+	size_t lost_leaves = 0;     // The number of lost leaves.
+	size_t rejected_leaves = 0; // The number of rejected leaves.
+	for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
 	{
 		if ((*test)(leaf))
 		{
@@ -1650,6 +1275,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 	else if (geometry_inside == geometry)
 	{
 		add_all(collisions);
+		return;
 	}
 	// The leaf list intersects with but is not completey contained in the frustum.
 	// Test every single leaf.
@@ -1660,10 +1286,10 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 		// Iterate over the leaves in the leaf list.
 		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
 		{
-			// The leaf must have a valid type.
-			EGOBOO_ASSERT(leaf->data_type > -1);
-			// The leaf must be inserted.
-			EGOBOO_ASSERT(leaf->inserted);
+			// The leaf must be valid.
+			EGOBOO_ASSERT(leaf->valid());
+			// The leaf must be in a leaf list.
+			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry.
 			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->bbox.aabb);
@@ -1681,8 +1307,9 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 		// Warn if any leaves were lost.
 		if (lost_leaves > 0)
 		{
-			log_warning("%s:%d: %d leaves not added.\n", __FILE__, __LINE__, lost_leaves);
+			log_warning("%s:%d: %d leaves not lost\n", __FILE__, __LINE__, lost_leaves);
 		}
+		return;
 	}
 	else
 	{
@@ -1705,6 +1332,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 	else if (geometry_inside == geometry)
 	{
 		add_all(test,collisions);
+		return;
 	}
 	// The leaf list intersects with but is not completey contained in the frustum.
 	// Test every single leaf.
@@ -1716,10 +1344,10 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 		// Iterate over the leaves in the leaf list.
 		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
 		{
-			// The leaf must have a valid type.
-			EGOBOO_ASSERT(leaf->data_type > -1);
+			// The leaf must be valid.
+			EGOBOO_ASSERT(leaf->valid());
 			// The leaf must be in a leaf list.
-			EGOBOO_ASSERT(leaf->inserted);
+			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test geometry.
 			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->bbox.aabb);
@@ -1744,8 +1372,9 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 		// Warn if any leaves were lost.
 		if (lost_leaves > 0)
 		{
-			log_warning("%s:%d: %d leaves not added.\n", __FILE__, __LINE__, lost_leaves);
+			log_warning("%s:%d: %d leaves lost\n", __FILE__, __LINE__, lost_leaves);
 		}
+		return;
 	}
 	else
 	{
@@ -1768,6 +1397,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 	else if (geometry_inside == geometry)
 	{
 		add_all(collisions);
+		return;
 	}
 	// The leaf list intersects with but is not completey contained in the frustum.
 	// Test every single leaf.
@@ -1779,10 +1409,10 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 		// Scan through every leaf.
 		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
 		{
-			// The leaf must have a valid type.
-			EGOBOO_ASSERT(leaf->data_type > -1);
-			// The leaf must be inserted.
-			EGOBOO_ASSERT(leaf->inserted);
+			// The leaf must be valid.
+			EGOBOO_ASSERT(leaf->valid());
+			// The leaf must be in a leaf list.
+			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry
 			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->bbox), true);
@@ -1801,8 +1431,9 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 		// Warn if any nodes were lost.
 		if (lost_leaves > 0)
 		{
-			log_warning("%s:%d: %d leaves not added\n", __FILE__, __LINE__, lost_leaves);
+			log_warning("%s:%d: %d leaves lost\n", __FILE__, __LINE__, lost_leaves);
 		}
+		return;
 	}
 	else
 	{
@@ -1825,6 +1456,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& te
 	else if (geometry_inside == geometry)
 	{
 		add_all(test, collisions);
+		return;
 	}
 	// The leaf list intersects with the frustum but is not completey contained in the frustum.
 	// Test every single leaf.
@@ -1835,10 +1467,10 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& te
 		// Scan through every leaf.
 		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
 		{
-			// The leaf must have a valid type.
-			EGOBOO_ASSERT(leaf->data_type > -1);
-			// The leaf must be inserted.
-			EGOBOO_ASSERT(leaf->inserted);
+			// The leaf must be valid.
+			EGOBOO_ASSERT(leaf->valid());
+			// The leaf must be in a leaf list.
+			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry
 			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->bbox), true);
@@ -1863,12 +1495,14 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& te
 		// Warn if any nodes were lost.
 		if (lost_leaves > 0)
 		{
-			log_warning("%s:%d: %d leaves not added\n", __FILE__, __LINE__, lost_leaves);
+			log_warning("%s:%d: %d leaves lost\n", __FILE__, __LINE__, lost_leaves);
 		}
+		return;
 	}
 	else
 	{
 		log_error("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+		return;
 	}
 }
 
@@ -1947,48 +1581,183 @@ size_t BSP_branch_list_t::removeAllLeaves()
 
 void BSP_branch_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	for (size_t i = 0, n = lst_size; i < n; ++i)
+	geometry_rv geometry;
+
+	if (0 == inserted)
 	{
-		BSP_branch_t *child = lst[i];
-		if (!child) continue;
-		child->collide(aabb, collisions);
+		geometry = geometry_outside;
+	}
+	else if (1 == inserted)
+	{
+		// A speedup.
+		// If there is only one entry, then the AABB-AABB collision test is
+		// called twice for 2 equivalent AABBs.
+		geometry = geometry_intersect;
+	}
+	else
+	{
+		geometry = _bounds.intersects(aabb);
+	}
+
+	if (geometry <= geometry_outside)
+	{
+		// The branch list and the AABB do not overlap at all. Do nothing.
+		return;
+	}
+	if (geometry_inside == geometry)
+	{
+		add_all_children(collisions);
+	}
+	else if (geometry_intersect == geometry)
+	{
+		for (size_t i = 0, n = lst_size; i < n; ++i)
+		{
+			BSP_branch_t *child = lst[i];
+			if (!child) continue;
+			child->collide(aabb, collisions);
+		}
+	}
+	else
+	{
+		log_error("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+		exit(EXIT_FAILURE);
 	}
 }
+
 void BSP_branch_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	for (size_t i = 0, n = lst_size; i < n; ++i)
+	geometry_rv geometry;
+
+	if (0 == inserted)
 	{
-		BSP_branch_t *child = lst[i];
-		if (!child) continue;
-		child->collide(aabb, test, collisions);
+		geometry = geometry_outside;
+	}
+	else if (1 == inserted)
+	{
+		// A speedup.
+		// If there is only one entry, then the AABB-AABB collision test is
+		// called twice for 2 equivalent AABBs.
+		geometry = geometry_intersect;
+	}
+	else
+	{
+		geometry = _bounds.intersects(aabb);
+	}
+
+	if (geometry <= geometry_outside)
+	{
+		// The branch list and the AABB do not overlap at all. Do nothing.
+		return;
+	}
+
+	if (geometry_inside == geometry)
+	{
+		add_all_children(test,collisions);
+	}
+	else if (geometry_intersect == geometry)
+	{
+		for (size_t i = 0, n = lst_size; i < n; ++i)
+		{
+			BSP_branch_t *child = lst[i];
+			if (!child) continue;
+			child->collide(aabb, test, collisions);
+		}
+	}
+	else
+	{
+		log_error("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+		exit(EXIT_FAILURE);
 	}
 }
 
 void BSP_branch_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	for (size_t i = 0, n = lst_size; i < n; ++i)
+	geometry_rv geometry;
+
+	if (0 == inserted)
 	{
-		BSP_branch_t *child = lst[i];
-		if (!child) continue;
-		child->collide(frustum, collisions);
+		geometry = geometry_outside;
+	}
+	else if (1 == inserted)
+	{
+		// A speedup.
+		// If there is only one entry, then the frustum-AABB collision test is
+		// called twice for 2 equivalent AABBs.
+		geometry = geometry_intersect;
+	}
+	else
+	{
+		geometry = _bounds.intersects(frustum);
+	}
+
+	if (geometry <= geometry_outside)
+	{
+		// The branch list and the frustum do not overlap at all. Do nothing.
+		return;
+	}
+
+	if (geometry_inside == geometry)
+	{
+		add_all_children(collisions);
+	}
+	else if (geometry_intersect == geometry)
+	{
+		for (size_t i = 0, n = lst_size; i < n; ++i)
+		{
+			BSP_branch_t *child = lst[i];
+			if (!child) continue;
+			child->collide(frustum, collisions);
+		}
+	}
+	else
+	{
+		log_error("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+		exit(EXIT_FAILURE);
 	}
 }
 
 void BSP_branch_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	for (size_t i = 0, n = lst_size; i < n; ++i)
+	geometry_rv geometry;
+
+	if (0 == inserted)
 	{
-		BSP_branch_t *child = lst[i];
-		if (!child) continue;
-		child->collide(frustum, test, collisions);
+		geometry = geometry_outside;
 	}
-}
+	else if (1 == inserted)
+	{
+		// A speedup.
+		// If there is only one entry, then the frustum-AABB collision test is
+		// called twice for 2 equivalent AABBs.
+		geometry = geometry_intersect;
+	}
+	else
+	{
+		geometry = _bounds.intersects(frustum);
+	}
 
-//--------------------------------------------------------------------------------------------
+	if (geometry <= geometry_outside)
+	{
+		// The branch list and the frustum do not overlap at all. Do nothing.
+		return;
+	}
 
-bool BSP_leaf_valid(const BSP_leaf_t *self)
-{
-    if (!self) return false;
-	if (!self->data || self->data_type < 0) return false;
-    return true;
+	if (geometry_inside == geometry)
+	{
+		add_all_children(test, collisions);
+	}
+	else if (geometry_intersect == geometry)
+	{
+		for (size_t i = 0, n = lst_size; i < n; ++i)
+		{
+			BSP_branch_t *child = lst[i];
+			if (!child) continue;
+			child->collide(frustum, test, collisions);
+		}
+	}
+	else
+	{
+		log_error("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+		exit(EXIT_FAILURE);
+	}
 }

@@ -253,6 +253,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Scene\Branch.cpp" />
+    <ClCompile Include="src\egolib\Scene\LeafList.cpp" />
+    <ClCompile Include="src\egolib\Scene\Tree.cpp" />
     <ClCompile Include="src\egolib\math\Sphere.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\Renderer.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\Renderer.o</ObjectFileName>
@@ -413,8 +416,11 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Scene\Bounds.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Scene\LeafHolder.hpp" />
+    <ClInclude Include="src\egolib\Scene\Bounds.hpp" />
+    <ClInclude Include="src\egolib\Scene\Branch.hpp" />
+    <ClInclude Include="src\egolib\Scene\LeafHolder.hpp" />
+    <ClInclude Include="src\egolib\Scene\LeafList.hpp" />
+    <ClInclude Include="src\egolib\Scene\Tree.hpp" />
     <ClInclude Include="src\egolib\Scene\Element.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp" />

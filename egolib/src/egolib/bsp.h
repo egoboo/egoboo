@@ -106,19 +106,19 @@ public:
 	BSP_leaf_t *ctor(void *data, bsp_type_t type, size_t index);
 	void dtor();
 
-	static bool clear(BSP_leaf_t * L);
-	static bool remove_link(BSP_leaf_t * L);
+
 	bool assign(const BSP_leaf_t& other);
+
+	static bool clear(BSP_leaf_t *self);
+	static bool remove_link(BSP_leaf_t *self);
+	bool valid() const;
+
 
 protected:
 	bool inserted;
 
 	friend class BSP_leaf_list_t;
 };
-
-//inline
-bool BSP_leaf_valid(const BSP_leaf_t *self);
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ public:
 	 * @post
 	 *	The leaf is in this leaf list.
 	 */
-	bool push_front(BSP_leaf_t *leaf);
+	bool push_front(BSP_leaf_t& leaf);
 
 	/**
 	 * @brief
@@ -256,6 +256,7 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------
+/// A branch list in a BSP tree.
 class BSP_branch_list_t : public BSP::Collider, BSP::LeafHolder
 {
 public:
@@ -297,8 +298,23 @@ public:
 	// Override
 	void collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
 
+	/**
+	* @brief
+	*	Add all leaves from branches of this branch list.
+	* @param collisions
+	*	traversal parameters
+	*/
+	bool add_all_children(Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
+	/**
+	* @brief
+	*	Add all leaves from branches of this branch list.
+	* @param test, collisions
+	*	traversal parameters
+	*/
+	bool add_all_children(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
 };
 
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Element of a shotgun allocator (simplified).
 class Shell
@@ -320,7 +336,9 @@ public:
 	}
 
 };
+
 //--------------------------------------------------------------------------------------------
+//// A branch in a BSP tree.
 class BSP_branch_t : public Shell, BSP::Collider, BSP::LeafHolder
 {
 public:
@@ -420,18 +438,9 @@ public:
 	 *	Unlink any leaves (from this branch only, NOT recursively).
 	 */
 	bool unlink_leaves();
-#if 0
-	/**
-	 * @brief
-	 *	Clear this branch.
-	 * @param recursive
-	 *	if @a true, recursively clear this branch
-	 */
-	bool clear(bool recursive);
-#endif
 
-	
-
+protected:
+	friend class BSP_branch_list_t;
 	/**
 	 * @brief
 	 *	Add all leaves from this branch and from the child branches of this branch.
@@ -440,21 +449,8 @@ public:
 	 */
 	bool add_all_rec(Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
 	bool add_all_rec(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
-	/**
-	 * @brief
-	 *	Add all leaves from child branches of this branch.
-	 * @param collisions
-	 *	traversal parameters
-	 */
-	bool add_all_children(Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
-	/**
-	 * @brief
-	 *	Add all leaves from child branches of this branch.
-	 * @param test, collisions
-	 *	traversal parameters
-	 */
-	bool add_all_children(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
 
+public:
 	/**
 	 * @brief
 	 *	Recursively insert a leaf in branch.
@@ -529,10 +525,6 @@ bool BSP_branch_update_depth_rec(BSP_branch_t *self, size_t depth);
 
 
 
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /**
  * @brief
  *	A space partitioning tree (SPT).
