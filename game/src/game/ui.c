@@ -411,15 +411,15 @@ float ui_drawButton(ui_id_t id, float vx, float vy, float vwidth, float vheight)
 
 	if (ui_context.active != UI_Nothing && ui_context.active == id && ui_context.hot == id)
 	{
-		ui_drawButton(id, vx, vy, vwidth, vheight, color_1);
+		return ui_drawButton(id, vx, vy, vwidth, vheight, color_1);
 	}
 	else if (ui_context.hot != UI_Nothing && ui_context.hot == id)
 	{
-		ui_drawButton(id, vx, vy, vwidth, vheight, color_2);
+		return ui_drawButton(id, vx, vy, vwidth, vheight, color_2);
 	}
 	else
 	{
-		ui_drawButton(id, vx, vy, vwidth, vheight, color_3);
+		return ui_drawButton(id, vx, vy, vwidth, vheight, color_3);
 	}
 }
 
