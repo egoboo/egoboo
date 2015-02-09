@@ -416,6 +416,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp" />
     <ClInclude Include="src\egolib\Scene\Bounds.hpp" />
     <ClInclude Include="src\egolib\Scene\Branch.hpp" />
     <ClInclude Include="src\egolib\Scene\LeafHolder.hpp" />

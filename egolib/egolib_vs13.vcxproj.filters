@@ -521,9 +521,6 @@
     <ClInclude Include="src\egolib\math\Plane.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Scene\Element.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
@@ -541,6 +538,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Scene\LeafList.hpp">
       <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
