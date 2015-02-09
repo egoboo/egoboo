@@ -135,6 +135,11 @@ bool Button::notifyKeyDown(const int keyCode)
 
 void Button::beginSlidyButtonEffect(float offset)
 {
+    //Finish any old SlidyButton first effect that might be in place
+    if(_slidyButtonTargetX > 0.0f) {
+        setX(_slidyButtonTargetX);
+    }
+
     _slidyButtonTargetX = getX();
     setX(getX() - offset);
 }
