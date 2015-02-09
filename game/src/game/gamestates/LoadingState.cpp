@@ -47,7 +47,11 @@
 #include "egolib/fileutil.h"
 
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :
+#ifdef _MSC_VER
+	_finishedLoading({0}),
+#else
 	_finishedLoading(false),
+#endif
 	_loadingThread(),
     _loadingLabel(nullptr),
 	_loadModule(module),

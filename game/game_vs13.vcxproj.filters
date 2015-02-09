@@ -57,6 +57,24 @@
     <Filter Include="Game Header Files\GameLogic">
       <UniqueIdentifier>{1c38aee5-f243-43d6-ad79-52a8428b883b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Header Files\Core">
+      <UniqueIdentifier>{a19b3252-84ca-43ba-b1c8-b262bec61f9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\Core">
+      <UniqueIdentifier>{cda852be-316c-4c65-984b-668aa5dec303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\GameStates">
+      <UniqueIdentifier>{9f4a0653-2492-4f3c-9c77-3c1ede2740cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\GameStates">
+      <UniqueIdentifier>{ffa42acd-3036-40cd-ac65-c1a01d9d7158}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\GUI">
+      <UniqueIdentifier>{878af464-9f44-4681-b61c-6124d8897036}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\GUI">
+      <UniqueIdentifier>{bdfe767a-7792-4735-8c93-1af280454d2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\char.c">
@@ -211,6 +229,69 @@
     </ClCompile>
     <ClCompile Include="src\game\game_logic\GameObject.cpp">
       <Filter>Game Sources\GameLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\core\GameEngine.cpp">
+      <Filter>Game Sources\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\VictoryScreen.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\SelectPlayersState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\SelectModuleState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\SelectCharacterState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\PlayingState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\MainMenuState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\LoadPlayerElement.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\LoadingState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\InGameMenuState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\GameState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\UIManager.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\ModuleSelector.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\Label.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\InputListener.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\Image.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\IconButton.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\GUIComponent.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\ComponentContainer.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\Button.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\profiles\ModuleProfile.cpp">
+      <Filter>Game Sources\Profile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -375,6 +456,69 @@
     </ClInclude>
     <ClInclude Include="src\game\game_logic\GameObject.hpp">
       <Filter>Game Header Files\GameLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\core\GameEngine.hpp">
+      <Filter>Game Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\GameState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\InGameMenuState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\LoadingState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\LoadPlayerElement.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\MainMenuState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\PlayingState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\SelectCharacterState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\SelectModuleState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\SelectPlayersState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\VictoryScreen.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\Button.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\ComponentContainer.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\GUIComponent.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\IconButton.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\Image.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\InputListener.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\Label.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\ModuleSelector.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\UIManager.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\profiles\ModuleProfile.hpp">
+      <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

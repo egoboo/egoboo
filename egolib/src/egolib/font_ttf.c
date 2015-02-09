@@ -779,13 +779,13 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
 
     // Split the passed in text into separate lines
     len = strlen( text );
-    char buffer[len + 1];
-    strncpy( buffer, text, len );
+	std::unique_ptr<char[]> buffer = std::unique_ptr<char[]>(new char[len + 1]);
+    strncpy(buffer.get(), text, len);
 
     //Always null terminate strings
     buffer[len] = '\0';
 
-    for ( line = strtok( buffer, "\n" ); nullptr != line; line = strtok(nullptr, "\n" ) )
+    for (line = strtok(buffer.get(), "\n"); nullptr != line; line = strtok(nullptr, "\n"))
     {
         fnt_drawText_raw_OGL( font, fnt_color, tex_id, tmp_tex_coords, x, y, line, loc_ppTmpSurface );
 

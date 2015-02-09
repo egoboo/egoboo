@@ -3,12 +3,11 @@
 
 GUIComponent::GUIComponent() :
     _destroyed(false),
-    _bounds{0, 0, 32, 32},
     _enabled(true),
     _visible(true),
     _parent(nullptr)
 {
-    //ctor
+	_bounds.x = 0; _bounds.y = 0; _bounds.w = 32; _bounds.h = 32;
 }
 
 bool GUIComponent::isEnabled() const

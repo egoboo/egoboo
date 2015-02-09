@@ -136,7 +136,7 @@ extern int GFX_HEIGHT;
 extern const SDL_Color cart_white;
 extern const SDL_Color cart_black;
 
-extern struct s_Font * gfx_font_ptr;
+extern struct Font * gfx_font_ptr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
