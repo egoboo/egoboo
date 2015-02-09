@@ -218,6 +218,21 @@ void GameEngine::renderOneFrame()
     }
 }
 
+void GameEngine::renderPreloadText(const std::string &text)
+{
+    static int y = 20;
+
+    _uiManager->beginRenderUI();
+        GL_DEBUG( glColor4fv )(Ego::white_vec);
+        fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, 20, y, 800, 600, 25, nullptr, text.c_str());
+    _uiManager->endRenderUI();
+
+    gfx_request_flip_pages();
+    gfx_do_flip_pages();
+
+    y += 25;
+}
+
 bool GameEngine::initialize()
 {
 	//Initialize logging next, so that we can use it everywhere.
@@ -257,8 +272,26 @@ bool GameEngine::initialize()
     GLSetup_SupportedFormats();
     gfx_system_init_all_graphics();
     gfx_do_clear_screen();
-    gfx_do_flip_pages();
+
+    // setup the system gui
+    ui_begin("mp_data/Bo_Chen.ttf", 24);
+    _uiManager = std::unique_ptr<UIManager>(new UIManager());
+
+    //Tell them we are loading the game (This is earliest point we can render text to screen)
+    renderPreloadText("Initializing game...");
+
+    //Load basic textures
     gfx_system_load_basic_textures();
+
+    // initialize the sound system
+    renderPreloadText("Loading audio...");
+    _audioSystem.initialize(cfg);
+    _audioSystem.loadAllMusic();
+    _audioSystem.playMusic(AudioSystem::MENU_SONG);
+    _audioSystem.loadGlobalSounds();
+
+
+    renderPreloadText("Configurating game data...");
 
 	// synchronize the config values with the various game subsystems
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
@@ -277,26 +310,21 @@ bool GameEngine::initialize()
     // initialize the console
     egolib_console_begin();
 
-    // initialize the sound system
-    _audioSystem.initialize(cfg);
-    _audioSystem.loadAllMusic();
-    _audioSystem.playMusic(AudioSystem::MENU_SONG);
-    _audioSystem.loadGlobalSounds();
-
     // make sure that a bunch of stuff gets initialized properly
     particle_system_begin();
     enchant_system_begin();
     model_system_begin();
     ego_mesh_ctor(PMesh);
     _profileSystem.begin();
+
+    renderPreloadText("Loading modules...");
     _profileSystem.loadModuleProfiles();
+
+    renderPreloadText("Loading save games...");
     _profileSystem.loadAllSavedCharacters("mp_players");
 
-    // setup the system gui
-    ui_begin("mp_data/Bo_Chen.ttf", 24);
-    _uiManager = std::unique_ptr<UIManager>(new UIManager());
-
     // clear out the import and remote directories
+    renderPreloadText("Finished!");
     vfs_empty_temp_directories();
 
     //Start the main menu

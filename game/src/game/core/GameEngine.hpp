@@ -97,6 +97,8 @@ private:
 
 	void estimateFrameRate();
 
+	void renderPreloadText(const std::string &text);
+
 private:
 	bool _isInitialized;
 	bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
