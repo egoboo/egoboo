@@ -129,9 +129,38 @@ public:
     inline TEAM_REF getTeam() const {return team;}
 
     /**
-    * @return This function returns true if the character is over a water tile
+    * @brief
+    *   This function updates stats and such for this GameObject (called once per update loop)
     **/
-    bool isOverWater() const;
+    void update();
+
+    /**
+    * @brief
+    *   This function returns true if the character is on a water tile
+    * @param anyLiquid
+    *   Return true for any fluid and not only water (acid, lava etc.)
+    * @return 
+    *   true if it is on a water tile
+    **/
+    bool isOverWater(bool anyLiquid) const;
+
+    /**
+    * @return
+    *   true if this GameObject has been terminated and will be removed from the game.
+    *   If this value is true, then this GameObject is effectively no longer a part of
+    *   the game and should not be interacted with.
+    **/
+    bool isTerminated() const {return terminateRequested;}
+
+    /**
+    * @brief
+    *   This function returns true if this GameObject is emerged in water
+    * @param anyLiquid
+    *   Return true for any fluid and not only water (acid, lava etc.)
+    * @return 
+    *   true if it is on emerged in water (fully or partially)
+    **/
+    bool isInWater(bool anyLiquid) const;
 
     /**
     * @return Get current X, Y, Z position of this GameObject
@@ -263,6 +292,8 @@ public:
     **/
     bool isAlive() const {return alive;}
 
+    bool isHidden() const {return is_hidden;}
+
     /**
     * @brief
     *   Tries to teleport this GameObject to the specified location if it is valid
@@ -279,6 +310,13 @@ private:
     *        updates alerts, timers, etc. This function can trigger character cries like "That tickles!" or "Be careful!"
     **/
     void updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing);
+
+    /**
+    * @brief 
+    *   This function makes the characters get bigger or smaller, depending
+    *   on their fat_goto and fat_goto_time. Spellbooks do not resize
+    */
+    void updateResize();
 
 public:
     bool terminateRequested;         ///< True if this character no longer exists in the game and should be destructed

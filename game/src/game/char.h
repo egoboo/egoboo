@@ -263,6 +263,8 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
 const char * chr_get_dir_name( const CHR_REF ichr );
 int chr_get_skill( GameObject * pchr, IDSZ whichskill );
 
+bool update_chr_darkvision( const CHR_REF character );
+
 void reset_character_alpha( const CHR_REF character );
 void reset_character_accel( const CHR_REF character );
 

@@ -3910,7 +3910,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->isOverWater();
+    returncode = pchr->isOverWater(true);
 
     SCRIPT_FUNCTION_END();
 }
