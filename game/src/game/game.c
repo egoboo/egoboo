@@ -1819,7 +1819,7 @@ void update_pits()
                     bool teleported;
 
                     // Teleport them back to a "safe" spot
-                    teleported = GameObjecteleport( pchr->getCharacterID(), pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pchr->ori.facing_z );
+                    teleported = pchr->teleport(pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pchr->ori.facing_z);
 
                     if ( !teleported )
                     {

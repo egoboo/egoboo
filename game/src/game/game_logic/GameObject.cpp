@@ -671,3 +671,36 @@ bool GameObject::isAttacking() const
 {
     return inst.action_which >= ACTION_UA && inst.action_which <= ACTION_FD;
 }
+
+bool GameObject::teleport(const float x, const float y, const float z, const FACING_T facing_z)
+{
+    //Cannot teleport outside the level
+    if ( x < 0.0f || x > PMesh->gmem.edge_x ) return false;
+    if ( y < 0.0f || y > PMesh->gmem.edge_y ) return false;
+
+    fvec3_t newPosition = fvec3_t(x, y, z);
+
+    //Cannot teleport inside a wall
+    if ( !chr_hit_wall(this, newPosition.v, NULL, NULL, NULL) )
+    {
+        // Yeah!  It worked!
+
+        // update the old position
+        pos_old          = newPosition;
+        ori_old.facing_z = facing_z;
+
+        // update the new position
+        setPosition(newPosition);
+        ori.facing_z = facing_z;
+
+        if ( !detach_character_from_mount(getCharacterID(), true, false) )
+        {
+            // detach_character_from_mount() updates the character matrix unless it is not mounted
+            chr_update_matrix(this, true);
+        }
+
+        return true;
+    }
+
+    return false;
+}

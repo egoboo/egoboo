@@ -7089,64 +7089,6 @@ void reset_teams()
 }
 
 //--------------------------------------------------------------------------------------------
-bool GameObjecteleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z )
-{
-    /// @author BB
-    /// @details Determine whether the character can be teleported to the specified location
-    ///               and do it, if possible. Success returns true, failure returns false;
-
-    GameObject  * pchr;
-    FACING_T facing_old, facing_new;
-    fvec3_t  pos_old, pos_new;
-    bool   retval;
-
-    if ( !_gameObjects.exists( ichr ) ) return false;
-    pchr = _gameObjects.get( ichr );
-
-    if ( x < 0.0f || x > PMesh->gmem.edge_x ) return false;
-    if ( y < 0.0f || y > PMesh->gmem.edge_y ) return false;
-
-    pos_old = pchr->getPosition();
-    facing_old = pchr->ori.facing_z;
-
-    pos_new.x  = x;
-    pos_new.y  = y;
-    pos_new.z  = z;
-    facing_new = facing_z;
-
-    if ( chr_hit_wall( pchr, pos_new.v, NULL, NULL, NULL ) )
-    {
-        // No it didn't...
-        pchr->setPosition(pos_old);
-        pchr->ori.facing_z = facing_old;
-
-        retval = false;
-    }
-    else
-    {
-        // Yeah!  It worked!
-
-        // update the old position
-        pchr->pos_old          = pos_new;
-        pchr->ori_old.facing_z = facing_new;
-
-        // update the new position
-        pchr->setPosition(pos_new);
-        pchr->ori.facing_z = facing_new;
-
-        if ( !detach_character_from_mount( ichr, true, false ) )
-        {
-            // detach_character_from_mount() updates the character matrix unless it is not mounted
-            chr_update_matrix( pchr, true );
-        }
-
-        retval = true;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 GameObject * chr_update_hide( GameObject * pchr )
 {
     /// @author BB

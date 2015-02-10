@@ -2894,7 +2894,12 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = GameObjecteleport( pself->target, pstate->x, pstate->y, pstate->distance, pstate->turn );
+    const std::shared_ptr<GameObject> &target = _gameObjects[pself->target];
+    if(!target) {
+        return false;
+    }
+
+    returncode = pchr->teleport(pstate->x, pstate->y, pstate->distance, pstate->turn);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4763,7 +4768,12 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = GameObjecteleport( pself->index, pstate->x, pstate->y, pchr->getPosZ(), pchr->ori.facing_z );
+    const std::shared_ptr<GameObject> &target = _gameObjects[pself->target];
+    if(!target) {
+        return false;
+    }
+
+    returncode = pchr->teleport(pstate->x, pstate->y, pchr->getPosZ(), pchr->ori.facing_z);
 
     SCRIPT_FUNCTION_END();
 }

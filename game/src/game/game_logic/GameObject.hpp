@@ -257,7 +257,19 @@ public:
     **/
     bool isPlayer() const {return islocalplayer;}
 
+    /**
+    * @brief
+    *   Returns true if this GameObject has not been killed by anything
+    **/
     bool isAlive() const {return alive;}
+
+    /**
+    * @brief
+    *   Tries to teleport this GameObject to the specified location if it is valid
+    * @result
+    *   Success returns true, failure returns false;
+    **/
+    bool teleport(const float x, const float y, const float z, const FACING_T facing_z);
 
 private:
 

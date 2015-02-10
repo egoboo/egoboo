@@ -328,8 +328,6 @@ bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF chara
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
-bool GameObjecteleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
-
 CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
 CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
