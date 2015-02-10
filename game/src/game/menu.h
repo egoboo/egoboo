@@ -50,7 +50,7 @@ enum e_menu_textures
     MENU_TX_LAST_SPECIAL
 };
 
-#define MENU_TX_COUNT (MENU_TX_LAST_SPECIAL + MAX_MODULE)
+#define MENU_TX_COUNT (MENU_TX_LAST_SPECIAL)
 
 #define INVALID_MENU_TX_IDX MENU_TX_COUNT
 #define INVALID_MNU_TX_REF ((TX_REF)INVALID_MENU_TX_IDX)
@@ -114,14 +114,14 @@ TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Ui
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern menu_process_t * MProc;
+//extern menu_process_t * MProc;
 
-extern bool module_list_valid;
+//extern bool module_list_valid;
 
 /// the default menu font
-extern struct Font *menuFont;
+//extern struct Font *menuFont;
 
-extern bool start_new_player;
+//extern bool start_new_player;
 
 // "public" implementation of mnu_ModList
 mod_file_t * mnu_ModList_get_base( int imod );

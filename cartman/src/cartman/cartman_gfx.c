@@ -108,6 +108,7 @@ void gfx_system_begin()
 {
     // set the graphics state
     gfx_system_init_SDL_graphics();
+    Ego::Renderer::startUp();
     gfx_init_ogl();
 
     theSurface = SDL_GetVideoSurface();
@@ -118,6 +119,7 @@ void gfx_system_begin()
 //--------------------------------------------------------------------------------------------
 void gfx_system_end()
 {
+    Ego::Renderer::shutDown();
 }
 
 //--------------------------------------------------------------------------------------------

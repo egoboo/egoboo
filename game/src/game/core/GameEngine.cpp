@@ -224,7 +224,7 @@ void GameEngine::renderPreloadText(const std::string &text)
 
     _uiManager->beginRenderUI();
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-        fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, 20, y, 800, 600, 25, nullptr, text.c_str());
+        fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, 20, y, 800, 600, 25, nullptr, "%s", text.c_str());
     _uiManager->endRenderUI();
 
     gfx_request_flip_pages();
@@ -279,6 +279,11 @@ bool GameEngine::initialize()
 
     //Tell them we are loading the game (This is earliest point we can render text to screen)
     renderPreloadText("Initializing game...");
+    
+#ifdef __MACOSX__
+    // Run the Cocoa event loop a few times so the window appears
+    for (int i = 0; i < 4; i++) SDL_PumpEvents();
+#endif
 
     //Load basic textures
     gfx_system_load_basic_textures();

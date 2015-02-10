@@ -112,32 +112,31 @@ void ModuleSelector::drawContainer()
 
     	//Draw module Name first
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-    	fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 5, getWidth() - 10, 20, 25, nullptr, _selectedModule->getName());
+    	fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 5, getWidth() - 10, 20, 25, nullptr, _selectedModule->getName().c_str());
 
     	//Now difficulty
-    	int difficulty = strlen(_selectedModule->getRank());
-    	if(difficulty > 0) {
+    	if(_selectedModule->getRank() > 0) {
 	        int textWidth, textHeight;
 	        fnt_getTextSize(ui_getFont(), "Difficulty: ", &textWidth, &textHeight);
 	        fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25, nullptr, "Difficulty: ");
 
 	    	//Draw one skull per rated difficulty
-	    	for(int i = 0; i < difficulty; ++i) {
+	    	for(int i = 0; i < _selectedModule->getRank(); ++i) {
 	    		draw_icon_texture(TextureManager::getSingleton()->get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY()+28, 0xFF, 0, textHeight-4, true);
 	    	}
     	}
 
     	//Module description
     	std::stringstream buffer;
-    	if(_selectedModule->getBase().maxplayers > 1)
+    	if(_selectedModule->getMaxPlayers() > 1)
     	{
-    		if(_selectedModule->getBase().maxplayers == _selectedModule->getBase().minplayers)
+    		if(_selectedModule->getMaxPlayers() == _selectedModule->getMinPlayers())
     		{
-    			buffer << _selectedModule->getBase().minplayers << " Players" << '\n';
+    			buffer << _selectedModule->getMinPlayers() << " Players" << '\n';
     		}
     		else
     		{
-    			buffer << std::to_string(_selectedModule->getBase().minplayers) << '-' << std::to_string(_selectedModule->getBase().maxplayers) << " Players" << '\n';
+    			buffer << std::to_string(_selectedModule->getMinPlayers()) << '-' << std::to_string(_selectedModule->getMaxPlayers()) << " Players" << '\n';
     		}
     	}
     	else if(_selectedModule->isStarterModule())
@@ -149,10 +148,10 @@ void ModuleSelector::drawContainer()
     		buffer << "Single Player" << '\n';
     	}
 
-	    for (size_t i = 0; i < SUMMARYLINES; i++ )
-		{
-			buffer << _selectedModule->getBase().summary[i] << '\n';
-		}    	
+    	for(const std::string &line : _selectedModule->getSummary())
+    	{
+    		buffer << line << '\n';;
+    	}
 
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 	    fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 45, getWidth() - 10, getHeight()-50, 25, nullptr, buffer.str().c_str());

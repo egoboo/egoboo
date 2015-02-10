@@ -297,7 +297,7 @@ bool LoadingState::loadLocalModuleHints()
   STRING buffer;
 
     // Open all the tips
-    snprintf(buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", _loadModule->getName());
+    snprintf(buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", _loadModule->getFolderName().c_str());
     vfs_FILE *fileread = vfs_openRead( buffer );
     if ( NULL == fileread ) return false;
 

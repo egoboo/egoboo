@@ -32,13 +32,12 @@
 #include "game/module/ObjectHandler.hpp"
 #include "game/profiles/ModuleProfile.hpp"
 
-GameModule::GameModule(const std::shared_ptr<ModuleProfile> &module, const uint32_t seed) :
-    _moduleProfile(module),
-    _name(module->getName()),
-    _exportValid(module->getBase().allowexport),
-    _exportReset(module->getBase().allowexport),
-    _canRespawnAnyTime(RESPAWN_ANYTIME == module->getBase().respawnvalid),
-    _isRespawnValid(false != module->getBase().respawnvalid),
+GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
+    _moduleProfile(profile),
+    _name(profile->getName()),
+    _exportValid(profile->isExportAllowed()),
+    _exportReset(profile->isExportAllowed()),
+    _isRespawnValid(profile->isRespawnValid()),
     _isBeaten(false),
     _seed(seed),
     _passages()
@@ -182,20 +181,35 @@ std::shared_ptr<Passage> GameModule::getPassageByID(int id)
 
 uint8_t GameModule::getImportAmount() const 
 {
-    return _moduleProfile->getBase().importamount;
+    return _moduleProfile->getImportAmount();
 }
 
 uint8_t GameModule::getPlayerAmount() const 
 {
-    return _moduleProfile->getBase().maxplayers;
+    return _moduleProfile->getMaxPlayers();
 }
 
 bool GameModule::isImportValid() const 
 {
-    return _moduleProfile->getBase().importamount > 0;
+    return _moduleProfile->getImportAmount() > 0;
 }
 
 const std::string& GameModule::getPath() const 
 {
-    return _moduleProfile->getExportName();
+    return _moduleProfile->getFolderName();
+}
+
+bool GameModule::canRespawnAnyTime() const 
+{
+    return _moduleProfile->hasRespawnAnytime();
+}
+
+uint8_t GameModule::getMaxPlayers() const
+{
+    return _moduleProfile->getMaxPlayers();
+}
+
+uint8_t GameModule::getMinPlayers() const
+{
+    return _moduleProfile->getMinPlayers();
 }

@@ -160,10 +160,6 @@ static int game_process_do_begin( game_process_t * gproc );
 static int game_process_do_running( game_process_t * gproc );
 static int game_process_do_leaving( game_process_t * gproc );
 
-// misc
-static bool game_begin_menu( menu_process_t * mproc, which_menu_t which );
-static void   game_end_menu( menu_process_t * mproc );
-
 // place the object lists in the initial state
 void reset_all_object_lists();
 
@@ -2903,7 +2899,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             player_added = add_player( new_object, ( PLA_REF )PlaStack.count, InputDevices.lst + local_stats.player_count );
 
-            if ( start_new_player && player_added )
+            if ( PMod->getImportAmount() == 0 && player_added )
             {
                 // !!!! make sure the player is identified !!!!
                 pobject->nameknown = true;
