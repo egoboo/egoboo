@@ -51,6 +51,7 @@
 #include "game/profiles/ModuleProfile.hpp"
 #include "game/module/Module.hpp"
 #include "game/gamestates/VictoryScreen.hpp"
+#include "egolib/math/Random.hpp"
 
 #include "game/module/ObjectHandler.hpp"
 #include "game/EncList.h"
@@ -2894,7 +2895,12 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = GameObjecteleport( pself->target, pstate->x, pstate->y, pstate->distance, pstate->turn );
+    const std::shared_ptr<GameObject> &target = _gameObjects[pself->target];
+    if(!target) {
+        return false;
+    }
+
+    returncode = pchr->teleport(pstate->x, pstate->y, pstate->distance, pstate->turn);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3702,9 +3708,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     // IfHoldingRangedWeapon()
     /// @author ZZ
     /// @details This function passes if the character is holding a ranged weapon, returning
-    /// the latch to press to use it.  This also checks ammo/ammoknown.
-
-    CHR_REF ichr;
+    /// the latch to press to use it.  This also checks ammo.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3712,30 +3716,25 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     pstate->argument = 0;
 
     // Check right hand
-    ichr = pchr->holdingwhich[SLOT_RIGHT];
-    if ( _gameObjects.exists( ichr ) )
-    {
-        ObjectProfile *item = chr_get_ppro( ichr );
+    const std::shared_ptr<GameObject> &rightHandItem = _gameObjects[pchr->holdingwhich[SLOT_RIGHT]];
 
-        if ( item->isRangedWeapon() && ( 0 == _gameObjects.get(ichr)->ammomax || ( 0 != _gameObjects.get(ichr)->ammo && _gameObjects.get(ichr)->ammoknown ) ) )
+    if (rightHandItem)
+    {
+        if ( rightHandItem->getProfile()->isRangedWeapon() && (0 == rightHandItem->ammomax || (0 != rightHandItem->ammo)))
         {
-            if ( 0 == pstate->argument || ( update_wld & 1 ) )
-            {
-                pstate->argument = LATCHBUTTON_RIGHT;
-                returncode = true;
-            }
+            pstate->argument = LATCHBUTTON_RIGHT;
+            returncode = true;
         }
     }
 
-    if ( !returncode )
+    //50% chance to check left hand even though we have already found one in our right hand
+    if ( !returncode || Random::nextBool() )
     {
         // Check left hand
-        ichr = pchr->holdingwhich[SLOT_LEFT];
-        if ( _gameObjects.exists( ichr ) )
+        const std::shared_ptr<GameObject> &leftHandItem = _gameObjects[pchr->holdingwhich[SLOT_LEFT]];
+        if (leftHandItem)
         {
-            ObjectProfile *item = chr_get_ppro( ichr );
-
-            if ( item->isRangedWeapon() && ( 0 == _gameObjects.get(ichr)->ammomax || ( 0 != _gameObjects.get(ichr)->ammo && _gameObjects.get(ichr)->ammoknown ) ) )
+            if ( leftHandItem->getProfile()->isRangedWeapon() && (0 == leftHandItem->ammomax || (0 != leftHandItem->ammo)))
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = true;
@@ -3905,7 +3904,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->isOverWater();
+    returncode = pchr->isOverWater(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4763,7 +4762,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = GameObjecteleport( pself->index, pstate->x, pstate->y, pchr->getPosZ(), pchr->ori.facing_z );
+    returncode = pchr->teleport(pstate->x, pstate->y, pchr->getPosZ(), pchr->ori.facing_z);
 
     SCRIPT_FUNCTION_END();
 }

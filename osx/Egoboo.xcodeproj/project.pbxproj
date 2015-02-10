@@ -42,6 +42,8 @@
 		CD0FE1531A7B096800F3392B /* ObjectHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1511A7B096800F3392B /* ObjectHandler.cpp */; };
 		CD0FE15A1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1561A7B09AD00F3392B /* Renderer.cpp */; };
 		CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1581A7B09AD00F3392B /* Renderer.cpp */; };
+		CD1D57F91A8A9F0600C5B298 /* Float.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F71A8A9E9300C5B298 /* Float.cpp */; };
+		CD1D57FA1A8A9F0D00C5B298 /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F51A8A9E9300C5B298 /* Debug.cpp */; };
 		CD39B45B1A37506100B377BE /* char.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3E61A37506100B377BE /* char.c */; };
 		CD39B45F1A37506100B377BE /* collision.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3EC1A37506100B377BE /* collision.c */; };
 		CD39B4601A37506100B377BE /* egoboo_object.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F01A37506100B377BE /* egoboo_object.c */; };
@@ -226,7 +228,6 @@
 		CDCA1FC01A3F57D000002E76 /* map_file-v4.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3391A374B6000B377BE /* map_file-v4.c */; };
 		CDCA1FC11A3F57D000002E76 /* map_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B33B1A374B6000B377BE /* map_file.c */; };
 		CDCA1FC21A3F57D000002E76 /* map_tile_dictionary.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B33D1A374B6000B377BE /* map_tile_dictionary.c */; };
-		CDCA1FC31A3F57D000002E76 /* module_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B33F1A374B6000B377BE /* module_file.c */; };
 		CDCA1FC51A3F57D000002E76 /* pip_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3431A374B6000B377BE /* pip_file.c */; };
 		CDCA1FC61A3F57D000002E76 /* quest_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3451A374B6000B377BE /* quest_file.c */; };
 		CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3471A374B6000B377BE /* scancode_file.c */; };
@@ -420,6 +421,10 @@
 		CD0FE1571A7B09AD00F3392B /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
 		CD0FE1581A7B09AD00F3392B /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = "<group>"; };
 		CD0FE1591A7B09AD00F3392B /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
+		CD1D57F51A8A9E9300C5B298 /* Debug.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
+		CD1D57F61A8A9E9300C5B298 /* Debug.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Debug.hpp; sourceTree = "<group>"; };
+		CD1D57F71A8A9E9300C5B298 /* Float.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Float.cpp; sourceTree = "<group>"; };
+		CD1D57F81A8A9E9300C5B298 /* Float.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Float.hpp; sourceTree = "<group>"; };
 		CD39B3011A374B6000B377BE /* _math.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = _math.c; sourceTree = "<group>"; };
 		CD39B3021A374B6000B377BE /* _math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _math.h; sourceTree = "<group>"; };
 		CD39B3041A374B6000B377BE /* clock.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = clock.c; sourceTree = "<group>"; };
@@ -473,8 +478,6 @@
 		CD39B33C1A374B6000B377BE /* map_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_file.h; sourceTree = "<group>"; };
 		CD39B33D1A374B6000B377BE /* map_tile_dictionary.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = map_tile_dictionary.c; sourceTree = "<group>"; };
 		CD39B33E1A374B6000B377BE /* map_tile_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_tile_dictionary.h; sourceTree = "<group>"; };
-		CD39B33F1A374B6000B377BE /* module_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = module_file.c; sourceTree = "<group>"; };
-		CD39B3401A374B6000B377BE /* module_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = module_file.h; sourceTree = "<group>"; };
 		CD39B3431A374B6000B377BE /* pip_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = pip_file.c; sourceTree = "<group>"; };
 		CD39B3441A374B6000B377BE /* pip_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pip_file.h; sourceTree = "<group>"; };
 		CD39B3451A374B6000B377BE /* quest_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = quest_file.c; sourceTree = "<group>"; };
@@ -636,7 +639,6 @@
 		CD5B0CAE1A6204EC00F076F9 /* WaypointList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaypointList.h; sourceTree = "<group>"; };
 		CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicArray.cpp; sourceTree = "<group>"; };
 		CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicArray.hpp; sourceTree = "<group>"; };
-		CD5B0CB31A62054300F076F9 /* Stack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Stack.hpp; sourceTree = "<group>"; };
 		CD792BF61A881FE20086270E /* GameEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameEngine.cpp; sourceTree = "<group>"; };
 		CD792BF71A881FE20086270E /* GameEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameEngine.hpp; sourceTree = "<group>"; };
 		CD792BF91A881FE20086270E /* GameState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
@@ -1239,6 +1241,8 @@
 				CD39B3071A374B6000B377BE /* console.h */,
 				CDD9319C1A428D970004A8B2 /* cube.c */,
 				CDD9319D1A428D970004A8B2 /* cube.h */,
+				CD1D57F51A8A9E9300C5B298 /* Debug.cpp */,
+				CD1D57F61A8A9E9300C5B298 /* Debug.hpp */,
 				CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */,
 				CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */,
 				CD39B3091A374B6000B377BE /* egoboo_setup.c */,
@@ -1251,6 +1255,8 @@
 				CD39B3201A374B6000B377BE /* file_common.h */,
 				CD39B3531A374B6000B377BE /* fileutil.c */,
 				CD39B3541A374B6000B377BE /* fileutil.h */,
+				CD1D57F71A8A9E9300C5B298 /* Float.cpp */,
+				CD1D57F81A8A9E9300C5B298 /* Float.hpp */,
 				CD39B3551A374B6000B377BE /* font_bmp.c */,
 				CD39B3561A374B6000B377BE /* font_bmp.h */,
 				CD39B3571A374B6000B377BE /* font_ttf.c */,
@@ -1282,7 +1288,6 @@
 				CD39B37D1A374B6000B377BE /* process.h */,
 				CD39B37E1A374B6000B377BE /* scancode.c */,
 				CD39B37F1A374B6000B377BE /* scancode.h */,
-				CD5B0CB31A62054300F076F9 /* Stack.hpp */,
 				CD39B3801A374B6000B377BE /* state_machine.h */,
 				CD39B3811A374B6000B377BE /* strutil.c */,
 				CD39B3821A374B6000B377BE /* strutil.h */,
@@ -1351,8 +1356,6 @@
 				CD39B33C1A374B6000B377BE /* map_file.h */,
 				CD39B33D1A374B6000B377BE /* map_tile_dictionary.c */,
 				CD39B33E1A374B6000B377BE /* map_tile_dictionary.h */,
-				CD39B33F1A374B6000B377BE /* module_file.c */,
-				CD39B3401A374B6000B377BE /* module_file.h */,
 				CD39B3431A374B6000B377BE /* pip_file.c */,
 				CD39B3441A374B6000B377BE /* pip_file.h */,
 				CD39B3451A374B6000B377BE /* quest_file.c */,
@@ -2224,18 +2227,19 @@
 				CDCA1FD51A3F57D000002E76 /* log.c in Sources */,
 				CDCA1FBB1A3F57D000002E76 /* eve_file.c in Sources */,
 				CDCA1FE21A3F57D000002E76 /* typedef.c in Sources */,
+				CD1D57F91A8A9F0600C5B298 /* Float.cpp in Sources */,
 				CDCA1FCE1A3F57D000002E76 /* font_bmp.c in Sources */,
 				CDCA1FC81A3F57D000002E76 /* SDL_md2.c in Sources */,
 				CDCA1FDB1A3F57D000002E76 /* sys_mac.m in Sources */,
 				CDCA1FBD1A3F57D000002E76 /* map_file-v1.c in Sources */,
 				CDCA1FCF1A3F57D000002E76 /* font_ttf.c in Sources */,
 				CDCA1FAF1A3F57D000002E76 /* ogl_extensions.c in Sources */,
+				CD1D57FA1A8A9F0D00C5B298 /* Debug.cpp in Sources */,
 				CDCA1FCD1A3F57D000002E76 /* fileutil.c in Sources */,
 				CDCA1FAD1A3F57D000002E76 /* endian.c in Sources */,
 				CDCA1FB41A3F57D000002E76 /* file_common.c in Sources */,
 				CDCA1FDD1A3F57D000002E76 /* scancode.c in Sources */,
 				CD9059341A69A67C00DC425D /* Random.cpp in Sources */,
-				CDCA1FC31A3F57D000002E76 /* module_file.c in Sources */,
 				CDCA1FD61A3F57D000002E76 /* map_functions.c in Sources */,
 				CDCA1FBF1A3F57D000002E76 /* map_file-v3.c in Sources */,
 				CDCA1FD31A3F57D000002E76 /* IDSZ_map.c in Sources */,

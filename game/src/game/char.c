@@ -105,11 +105,6 @@ static bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 v
 
 static BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs );
 
-static GameObject * resize_one_character( GameObject * pchr );
-//static void    resize_all_characters();
-
-static bool  chr_free( GameObject * pchr );
-
 static int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset );
 
 static bool apply_one_character_matrix( GameObject * pchr, matrix_cache_t * mcache );
@@ -123,17 +118,13 @@ static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
 
 static void cleanup_one_character( GameObject * pchr );
 
-//static void chr_log_script_time( const CHR_REF ichr );
-
-static bool update_chr_darkvision( const CHR_REF character );
-
 static fvec2_t chr_get_mesh_diff( GameObject * pchr, float test_pos[], float center_pressure );
 static float   chr_get_mesh_pressure( GameObject * pchr, float test_pos[] );
 
 static egolib_rv chr_invalidate_child_instances( GameObject * pchr );
 
 static void chr_set_enviro_grid_level( GameObject * pchr, const float level );
-static void chr_log_script_time( const CHR_REF ichr );
+//static void chr_log_script_time( const CHR_REF ichr );
 
 static bool chr_download_profile(GameObject * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
@@ -419,12 +410,13 @@ void make_one_character_matrix( const CHR_REF ichr )
         pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate.z = pchr->ori.facing_z;
 
-        chr_get_pos(pchr, pinst->matrix_cache.pos);
+        pinst->matrix_cache.pos = pchr->getPosition();
     }
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 void chr_log_script_time( const CHR_REF ichr )
 {
     // log the amount of script time that this object used up
@@ -449,6 +441,7 @@ void chr_log_script_time( const CHR_REF ichr )
         vfs_close( ftmp );
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void free_one_character_in_game( const CHR_REF character )
@@ -463,9 +456,6 @@ void free_one_character_in_game( const CHR_REF character )
 
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
-
-    ObjectProfile *profile = chr_get_ppro(character);
-    if ( nullptr == profile ) return;
 
     // Remove from stat list
     if ( pchr->show_stats )
@@ -500,7 +490,7 @@ void free_one_character_in_game( const CHR_REF character )
         ai_state_t * pai;
 
         //Don't do ourselves or terminated characters
-        if ( chr->terminateRequested || chr->getCharacterID() == character ) continue;
+        if ( chr->isTerminated() || chr->getCharacterID() == character ) continue;
         pai = chr_get_pai( chr->getCharacterID() );
 
         if ( pai->target == character )
@@ -516,7 +506,7 @@ void free_one_character_in_game( const CHR_REF character )
     }
 
     // Handle the team
-    if ( pchr->alive && !profile->isInvincible() && TeamStack.lst[pchr->team_base].morale > 0 )
+    if ( pchr->alive && !pchr->getProfile()->isInvincible() && TeamStack.lst[pchr->team_base].morale > 0 )
     {
         TeamStack.lst[pchr->team_base].morale--;
     }
@@ -1298,8 +1288,6 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     /// @author ZF
     /// @details This adds a new item into the specified inventory slot. Fails if there already is an item there.
     ///               If the specified inventory slot is MAXINVENTORY, it will find the first free inventory slot.
-
-    CHR_REF stack;
     GameObject *pchr, *pitem;
     int newammo;
 
@@ -1338,7 +1326,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     {
         // Flag the item as not put away
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) DisplayMsg_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pchr->islocalplayer ) DisplayMsg_printf("%s is sticky...", pitem->getName().c_str());
         return false;
     }
 
@@ -1346,12 +1334,12 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     if ( itemProfile->isBigItem() )
     {
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) DisplayMsg_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pchr->islocalplayer ) DisplayMsg_printf("%s is too big to be put away...", pitem->getName().c_str());
         return false;
     }
 
     //put away inhand item
-    stack = chr_pack_has_a_stack( item, ichr );
+    CHR_REF stack = chr_pack_has_a_stack( item, ichr );
     if ( _gameObjects.exists( stack ) )
     {
         // We found a similar, stackable item in the pack
@@ -1378,8 +1366,9 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
         {
             // All transfered, so kill the in hand item
             pstack->ammo = newammo;
-            detach_character_from_mount( item, true, false );
-            _gameObjects.remove(item);
+            
+            pitem->requestTerminate();
+            return true;
         }
         else
         {
@@ -1516,7 +1505,7 @@ bool inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, con
     {
         // Flag the last found_item as not removed
         SET_BIT( pitem->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-        if ( pholder->islocalplayer ) DisplayMsg_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pholder->islocalplayer ) DisplayMsg_printf( "%s won't go out!", pitem->getName().c_str() );
         return false;
     }
 
@@ -1535,53 +1524,50 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
     ///    to the one given.  If it finds one, it returns the similar item's
     ///    index number, otherwise it returns MAX_CHR.
 
-    CHR_REF istack;
-    Uint16  id;
-    bool  found;
+    bool found  = false;
+    CHR_REF istack = INVALID_CHR_REF;
 
-    GameObject * pitem;
+    std::shared_ptr<GameObject> pitem = _gameObjects[item];
+    if(!pitem) {
+        return INVALID_CHR_REF;
+    }
 
-    found  = false;
-    istack = INVALID_CHR_REF;
+    //Only check items that are actually stackable
+    if(!pitem->getProfile()->isStackable()) {
+        return INVALID_CHR_REF;
+    }
 
-    if ( !_gameObjects.exists( item ) ) return istack;
-    pitem = _gameObjects.get( item );
-    ObjectProfile *objectProfile = chr_get_ppro( item );
-
-    if ( objectProfile->isStackable() )
+    PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pstack, istack_new )
     {
-        PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pstack, istack_new )
+        ObjectProfile *stackProfile = chr_get_ppro( istack_new );
+
+        found = stackProfile->isStackable();
+
+        if ( pstack->ammo >= pstack->ammomax )
         {
-            ObjectProfile *stackProfile = chr_get_ppro( istack_new );
+            found = false;
+        }
 
-            found = stackProfile->isStackable();
-
-            if ( pstack->ammo >= pstack->ammomax )
+        // you can still stack something even if the profiles don't match exactly,
+        // but they have to have all the same IDSZ properties
+        if ( found && ( stackProfile->getSlotNumber() != pitem->profile_ref ) )
+        {
+            for ( Uint16 id = 0; id < IDSZ_COUNT && found; id++ )
             {
-                found = false;
-            }
-
-            // you can still stack something even if the profiles don't match exactly,
-            // but they have to have all the same IDSZ properties
-            if ( found && ( stackProfile->getSlotNumber() != pitem->profile_ref ) )
-            {
-                for ( id = 0; id < IDSZ_COUNT && found; id++ )
+                if ( chr_get_idsz( istack_new, id ) != chr_get_idsz( item, id ) )
                 {
-                    if ( chr_get_idsz( istack_new, id ) != chr_get_idsz( item, id ) )
-                    {
-                        found = false;
-                    }
+                    found = false;
                 }
             }
-
-            if ( found )
-            {
-                istack = istack_new;
-                break;
-            }
         }
-        PACK_END_LOOP();
+
+        if ( found )
+        {
+            istack = istack_new;
+            break;
+        }
     }
+    PACK_END_LOOP();
 
     return istack;
 }
@@ -1977,12 +1963,10 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         {
             bool can_grab;
 
-            GameObject * pchr_b;
-
             if ( grab_list[cnt].too_dark || grab_list[cnt].too_invis ) continue;
 
             ichr_b = grab_list[cnt].ichr;
-            pchr_b = _gameObjects.get( ichr_b );
+            GameObject * pchr_b = _gameObjects.get( ichr_b );
 
             can_grab = can_grab_item_in_shop( ichr_a, ichr_b );
 
@@ -2015,6 +1999,8 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     {
         fvec3_t vforward;
 
+        const std::shared_ptr<GameObject> &pchr_b = _gameObjects[ichr_b];
+
         //---- generate billboards for things that players can interact with
         if ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback && VALID_PLA( pchr_a->is_which_player ) )
         {
@@ -2030,7 +2016,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ), color_grn, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, pchr_b->getName(true, false, true).c_str(), color_grn, default_tint, 5, bb_opt_fade );
                 }
             }
 
@@ -2047,7 +2033,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ), color_red, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, pchr_b->getName(true, false, true).c_str(), color_red, default_tint, 5, bb_opt_fade );
                 }
             }
         }
@@ -2178,8 +2164,8 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             if ( pweapon->ammo <= 1 )
             {
                 // Poof the item
-                detach_character_from_mount( iweapon, true, false );
-                chr_request_terminate( pweapon.get() );
+                pweapon->requestTerminate();
+                return;
             }
             else
             {
@@ -2392,7 +2378,7 @@ void do_level_up( const CHR_REF character )
             // The character is ready to advance...
             if ( VALID_PLA( pchr->is_which_player ) )
             {
-                DisplayMsg_printf( "%s gained a level!!!", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+                DisplayMsg_printf("%s gained a level!!!", pchr->getName().c_str());
                 _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_LEVELUP));
             }
 
@@ -2511,77 +2497,6 @@ void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
 }
 
 //--------------------------------------------------------------------------------------------
-GameObject * resize_one_character( GameObject * pchr )
-{
-    /// @author ZZ
-    /// @details This function makes the characters get bigger or smaller, depending
-    ///    on their fat_goto and fat_goto_time. Spellbooks do not resize
-    /// @note BB@> assume that this will only be called from inside chr_config_do_active(),
-    ///         so pchr is just right to be used here
-
-    CHR_REF ichr;
-    bool  willgetcaught;
-    float   newsize;
-
-    if ( NULL == pchr ) return pchr;
-
-    ichr = GET_INDEX_PCHR( pchr );
-
-    if ( pchr->fat_goto_time < 0 ) return pchr;
-
-    if ( pchr->fat_goto != pchr->fat )
-    {
-        int bump_increase;
-
-        bump_increase = ( pchr->fat_goto - pchr->fat ) * 0.10f * pchr->bump.size;
-
-        // Make sure it won't get caught in a wall
-        willgetcaught = false;
-        if ( pchr->fat_goto > pchr->fat )
-        {
-            pchr->bump.size += bump_increase;
-
-            if ( EMPTY_BIT_FIELD != GameObjectest_wall( pchr, NULL, NULL ) )
-            {
-                willgetcaught = true;
-            }
-
-            pchr->bump.size -= bump_increase;
-        }
-
-        // If it is getting caught, simply halt growth until later
-        if ( !willgetcaught )
-        {
-            // Figure out how big it is
-            pchr->fat_goto_time--;
-
-            newsize = pchr->fat_goto;
-            if ( pchr->fat_goto_time > 0 )
-            {
-                newsize = ( pchr->fat * 0.90f ) + ( newsize * 0.10f );
-            }
-
-            // Make it that big...
-            chr_set_fat( pchr, newsize );
-
-            const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
-
-            if ( CAP_INFINITE_WEIGHT == profile->getWeight() )
-            {
-                pchr->phys.weight = CHR_INFINITE_WEIGHT;
-            }
-            else
-            {
-                Uint32 itmp = profile->getWeight() * pchr->fat * pchr->fat * pchr->fat;
-                pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
-            }
-        }
-    }
-
-    return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
 bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character )
 {
     /// @author ZZ
@@ -2598,20 +2513,6 @@ bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF chara
     rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
     return TO_C_BOOL( rv_success == rv );
 }
-
-//--------------------------------------------------------------------------------------------
-//void resize_all_characters()
-//{
-//    /// @author ZZ
-/// @details This function makes the characters get bigger or smaller, depending
-//    ///    on their fat_goto and fat_goto_time. Spellbooks do not resize
-//
-//    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
-//    {
-//        resize_one_character( pchr );
-//    }
-//    CHR_END_LOOP();
-//}
 
 //--------------------------------------------------------------------------------------------
 bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF character )
@@ -2973,9 +2874,6 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     // Let it's AI script run one last time
     pchr->ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
     scr_run_chr_script( ichr );
-
-    // Stop any looped sounds
-    _audioSystem.stopObjectLoopingSounds( ichr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3228,167 +3126,6 @@ GameObject * chr_config_do_init( GameObject * pchr )
                      pchr->getPosX(), pchr->getPosY(), nrm.x, nrm.y );
     }
 #endif
-
-    return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
-GameObject * chr_config_do_active( GameObject * pchr )
-{
-    int     ripand;
-    CHR_REF ichr;
-    float water_level = 0.0f;
-
-    if ( NULL == pchr ) return pchr;
-    ichr = GET_INDEX_PCHR( pchr );
-
-    //then do status updates
-    chr_update_hide( pchr );
-
-    //Don't do items that are in inventory
-    if ( _gameObjects.exists( pchr->inwhich_inventory ) ) return pchr;
-
-    ObjectProfile *profile = chr_get_ppro(ichr);
-    if (!profile) return pchr;
-
-    water_level = water_instance_get_water_level( &water );
-
-    // do the character interaction with water
-    if ( !pchr->is_hidden && pchr->getPosZ() < water_level && ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_WATER ) ) )
-    {
-        // do splash and ripple
-        if ( !pchr->enviro.inwater )
-        {
-            // Splash
-            fvec3_t vtmp;
-
-            vtmp.x = pchr->getPosX();
-            vtmp.y = pchr->getPosY();
-            vtmp.z = water_level + RAISE;
-
-            spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
-
-            if ( water.is_water )
-            {
-                SET_BIT( pchr->ai.alert, ALERTIF_INWATER );
-            }
-        }
-        else
-        {
-            // Ripples
-            if ( !_gameObjects.exists( pchr->attachedto ) && profile->causesRipples() && pchr->getPosZ() + pchr->chr_min_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water_level && pchr->getPosZ() + pchr->chr_min_cv.mins[OCT_Z] < water_level )
-            {
-                int ripple_suppression;
-
-                // suppress ripples if we are far below the surface
-                ripple_suppression = water_level - ( pchr->getPosZ() + pchr->chr_min_cv.maxs[OCT_Z] );
-                ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
-                ripple_suppression = CLIP( ripple_suppression, 0, 4 );
-
-                // make more ripples if we are moving
-                ripple_suppression -= (( int )pchr->vel.x != 0 ) | (( int )pchr->vel.y != 0 );
-
-                if ( ripple_suppression > 0 )
-                {
-                    ripand = ~(( ~RIPPLEAND ) << ripple_suppression );
-                }
-                else
-                {
-                    ripand = RIPPLEAND >> ( -ripple_suppression );
-                }
-
-                if ( 0 == ( (update_wld + pchr->getCharacterID()) & ripand ) && pchr->getPosZ() < water_level && pchr->alive )
-                {
-                    fvec3_t vtmp;
-
-                    vtmp.x = pchr->getPosX();
-                    vtmp.y = pchr->getPosY();
-                    vtmp.z = water_level;
-
-                    spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
-                }
-            }
-
-            if ( water.is_water && HAS_NO_BITS( update_wld, 7 ) )
-            {
-                pchr->jumpready = true;
-                pchr->jumpnumber = 1;
-            }
-        }
-
-        pchr->enviro.inwater  = true;
-    }
-    else
-    {
-        pchr->enviro.inwater = false;
-    }
-
-    // the following functions should not be done the first time through the update loop
-    if ( 0 == update_wld ) return pchr;
-
-    //---- Do timers and such
-
-    // reduce attack cooldowns
-    if ( pchr->reload_timer > 0 ) pchr->reload_timer--;
-
-    // decrement the dismount timer
-    if ( pchr->dismount_timer > 0 ) pchr->dismount_timer--;
-
-    if ( 0 == pchr->dismount_timer )
-    {
-        pchr->dismount_object = INVALID_CHR_REF;
-    }
-
-    // Down that ol' damage timer
-    if ( pchr->damage_timer > 0 ) pchr->damage_timer--;
-
-    // Do "Be careful!" delay
-    if ( pchr->careful_timer > 0 ) pchr->careful_timer--;
-
-    // Texture movement
-    pchr->inst.uoffset += pchr->uoffvel;
-    pchr->inst.voffset += pchr->voffvel;
-
-    // Do stats once every second
-    if ( clock_chr_stat >= ONESECOND )
-    {
-        // check for a level up
-        do_level_up( ichr );
-
-        // do the mana and life regen for "living" characters
-        if ( pchr->alive )
-        {
-            int manaregen = 0;
-            int liferegen = 0;
-            get_chr_regeneration( pchr, &liferegen, &manaregen );
-
-            pchr->mana += manaregen;
-			pchr->mana = CLIP((UFP8_T)pchr->mana, (UFP8_T)0, pchr->mana_max);
-
-            pchr->life += liferegen;
-			pchr->life = CLIP((UFP8_T)pchr->life, (UFP8_T)1, pchr->life_max);
-        }
-
-        // countdown confuse effects
-        if ( pchr->grog_timer > 0 )
-        {
-            pchr->grog_timer--;
-        }
-
-        if ( pchr->daze_timer > 0 )
-        {
-            pchr->daze_timer--;
-        }
-
-        // possibly gain/lose darkvision
-        update_chr_darkvision( ichr );
-    }
-
-    pchr = resize_one_character( pchr );
-
-    // update some special skills
-    pchr->see_kurse_level  = std::max( pchr->see_kurse_level,  chr_get_skill( pchr, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) );
-    pchr->darkvision_level = std::max( pchr->darkvision_level, chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) );
 
     return pchr;
 }
@@ -4391,11 +4128,12 @@ void update_all_characters()
 
     for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
-        if(object->terminateRequested) {
+        //Skip termianted objects
+        if(object->isTerminated()) {
             continue;
         }
-        
-        chr_config_do_active(object.get());
+
+        object->update();
     }
 
     // fix the stat timer
@@ -4980,7 +4718,7 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
         if ( pchr->show_stats || cfg.dev_mode )
         {
             // Tell the player that they can't use this iweapon
-            DisplayMsg_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
+            DisplayMsg_printf( "%s can't use this item...", pchr->getName(false, true, true).c_str());
         }
         return false;
     }
@@ -5323,7 +5061,7 @@ bool chr_update_safe_raw( GameObject * pchr )
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pchr->safe_valid = true;
-        chr_get_pos(pchr, pchr->safe_pos);
+        pchr->safe_pos = pchr->getPosition();
         pchr->safe_time  = update_wld;
         pchr->safe_grid  = ego_mesh_get_grid( PMesh, pchr->getPosX(), pchr->getPosY() );
 
@@ -5536,7 +5274,7 @@ bool move_one_character_integrate_motion( GameObject * pchr )
         return move_one_character_integrate_motion_attached( pchr );
     }
 
-    chr_get_pos(pchr, tmp_pos);
+    tmp_pos = pchr->getPosition();;
 
     pai = &( pchr->ai );
     ichr = pai->index;
@@ -6312,7 +6050,7 @@ void move_one_character( GameObject * pchr )
     pchr->enviro.acc = pchr->vel - pchr->vel_old;
 
     // Character's old location
-    chr_get_pos(pchr, pchr->pos_old);
+    pchr->pos_old = pchr->getPosition();
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
@@ -6381,7 +6119,7 @@ void cleanup_all_characters()
         bool time_out;
 
         time_out = ( object->ai.poof_time >= 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if ( !time_out ) continue;
+        if ( !time_out && !object->isTerminated() ) continue;
 
         // detach the character from the game
         cleanup_one_character( object.get() );
@@ -6393,20 +6131,6 @@ void cleanup_all_characters()
         free_one_character_in_game( object->getCharacterID() );
     }
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-void bump_all_characters_update_counters()
-{
-    for(const auto &chr : _characterList)
-    {
-        Ego::Entity *pbase = POBJ_GET_PBASE( chr.second.get() );
-        if ( !ACTIVE_PBASE( pbase ) ) continue;
-
-        pbase->update_count++;
-    }
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects )
@@ -6643,90 +6367,6 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     }
 
     return pbb;
-}
-
-//--------------------------------------------------------------------------------------------
-const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size )
-{
-    static STRING _default_buffer;
-
-    char   * loc_buffer      = NULL;
-    size_t   loc_buffer_size = 0;
-
-    if ( NULL == buffer )
-    {
-        loc_buffer      = _default_buffer;
-        loc_buffer_size = SDL_arraysize( _default_buffer );
-    }
-    else
-    {
-        loc_buffer      = buffer;
-        loc_buffer_size = buffer_size;
-    }
-
-    if ( 0 == loc_buffer_size )
-    {
-        _default_buffer[0] = CSTR_END;
-        return loc_buffer;
-    }
-
-    if ( !_gameObjects.exists( ichr ) )
-    {
-        // the default name
-        strncpy( loc_buffer, "Unknown", loc_buffer_size );
-    }
-    else
-    {
-        GameObject * pchr = _gameObjects.get( ichr );
-
-        if ( pchr->nameknown )
-        {
-            snprintf( loc_buffer, loc_buffer_size, "%s", pchr->Name );
-        }
-        else
-        {
-            const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
-
-            char lTmp;
-
-            if ( 0 != ( bits & CHRNAME_ARTICLE ) )
-            {
-                const char * article;
-
-                if ( 0 != ( bits & CHRNAME_DEFINITE ) )
-                {
-                    article = "the";
-                }
-                else
-                {
-                    lTmp = char_toupper( profile->getClassName()[0] );
-
-                    if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
-                    {
-                        article = "an";
-                    }
-                    else
-                    {
-                        article = "a";
-                    }
-                }
-
-                snprintf( loc_buffer, loc_buffer_size, "%s %s", article, profile->getClassName().c_str() );
-            }
-            else
-            {
-                snprintf( loc_buffer, loc_buffer_size, "%s", profile->getClassName().c_str() );
-            }
-        }
-    }
-
-    if ( 0 != ( bits & CHRNAME_CAPITAL ) )
-    {
-        // capitalize the name ?
-        loc_buffer[0] = char_toupper(( unsigned )loc_buffer[0] );
-    }
-
-    return loc_buffer;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7089,80 +6729,6 @@ void reset_teams()
 }
 
 //--------------------------------------------------------------------------------------------
-bool GameObjecteleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z )
-{
-    /// @author BB
-    /// @details Determine whether the character can be teleported to the specified location
-    ///               and do it, if possible. Success returns true, failure returns false;
-
-    GameObject  * pchr;
-    FACING_T facing_old, facing_new;
-    fvec3_t  pos_old, pos_new;
-    bool   retval;
-
-    if ( !_gameObjects.exists( ichr ) ) return false;
-    pchr = _gameObjects.get( ichr );
-
-    if ( x < 0.0f || x > PMesh->gmem.edge_x ) return false;
-    if ( y < 0.0f || y > PMesh->gmem.edge_y ) return false;
-
-    chr_get_pos(pchr, pos_old);
-    facing_old = pchr->ori.facing_z;
-
-    pos_new.x  = x;
-    pos_new.y  = y;
-    pos_new.z  = z;
-    facing_new = facing_z;
-
-    if ( chr_hit_wall( pchr, pos_new.v, NULL, NULL, NULL ) )
-    {
-        // No it didn't...
-        pchr->setPosition(pos_old);
-        pchr->ori.facing_z = facing_old;
-
-        retval = false;
-    }
-    else
-    {
-        // Yeah!  It worked!
-
-        // update the old position
-        pchr->pos_old          = pos_new;
-        pchr->ori_old.facing_z = facing_new;
-
-        // update the new position
-        pchr->setPosition(pos_new);
-        pchr->ori.facing_z = facing_new;
-
-        if ( !detach_character_from_mount( ichr, true, false ) )
-        {
-            // detach_character_from_mount() updates the character matrix unless it is not mounted
-            chr_update_matrix( pchr, true );
-        }
-
-        retval = true;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_request_terminate( GameObject * pchr )
-{
-    /// @author BB
-    /// @details Mark this character for deletion
-
-    if ( NULL == pchr || nullptr == ( pchr ) || TERMINATED_PCHR( pchr ) )
-    {
-        return false;
-    }
-
-    //POBJ_REQUEST_TERMINATE( pchr ); //TODO: ZF> not implemented
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 GameObject * chr_update_hide( GameObject * pchr )
 {
     /// @author BB
@@ -7331,7 +6897,7 @@ bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
             mc_tmp->rotate.z = ptarget->ori.facing_z;
 
-            chr_get_pos(ptarget, mc_tmp->pos);
+            mc_tmp->pos = ptarget->getPosition();
 
             mc_tmp->grip_scale.x = mc_tmp->grip_scale.y = mc_tmp->grip_scale.z = ptarget->fat;
         }
@@ -7563,7 +7129,7 @@ bool apply_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
                 mcache->rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
                 mcache->rotate.z = pchr->ori.facing_z;
 
-                chr_get_pos(pchr, mcache->pos);
+                mcache->pos =pchr->getPosition();
 
                 applied = true;
             }
@@ -8932,12 +8498,4 @@ static void chr_init_size( GameObject * pchr, const std::shared_ptr<ObjectProfil
     pchr->bump_save.height   = pchr->bump_stt.height;
 
     chr_update_size( pchr );
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_get_pos(const GameObject *self, fvec3_t& position)
-{
-	if (nullptr == (self)) return false;
-	position = self->getPosition();
-	return true;
 }

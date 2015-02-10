@@ -129,9 +129,38 @@ public:
     inline TEAM_REF getTeam() const {return team;}
 
     /**
-    * @return This function returns true if the character is over a water tile
+    * @brief
+    *   This function updates stats and such for this GameObject (called once per update loop)
     **/
-    bool isOverWater() const;
+    void update();
+
+    /**
+    * @brief
+    *   This function returns true if the character is on a water tile
+    * @param anyLiquid
+    *   Return true for any fluid and not only water (acid, lava etc.)
+    * @return 
+    *   true if it is on a water tile
+    **/
+    bool isOverWater(bool anyLiquid) const;
+
+    /**
+    * @return
+    *   true if this GameObject has been terminated and will be removed from the game.
+    *   If this value is true, then this GameObject is effectively no longer a part of
+    *   the game and should not be interacted with.
+    **/
+    inline bool isTerminated() const {return _terminateRequested;}
+
+    /**
+    * @brief
+    *   This function returns true if this GameObject is emerged in water
+    * @param anyLiquid
+    *   Return true for any fluid and not only water (acid, lava etc.)
+    * @return 
+    *   true if it is on emerged in water (fully or partially)
+    **/
+    bool isInWater(bool anyLiquid) const;
 
     /**
     * @return Get current X, Y, Z position of this GameObject
@@ -201,6 +230,12 @@ public:
 	bool isMount() const {return getProfile()->isMount();}
 
     /**
+    * @brief
+    *   Mark this object as terminated, it will be removed from the game by the update.
+    **/
+    void requestTerminate();
+
+    /**
     * @brief 
     *   This function calculates and applies damage to a character.  It also
     *   sets alerts and begins actions.  Blocking and frame invincibility are done here too.  
@@ -251,7 +286,35 @@ public:
     **/
     bool isPlayer() const {return islocalplayer;}
 
+    /**
+    * @brief
+    *   Returns true if this GameObject has not been killed by anything
+    **/
     bool isAlive() const {return alive;}
+
+    bool isHidden() const {return is_hidden;}
+
+    bool isNameKnown() const {return nameknown;}
+
+    /**
+    * @brief
+    *   Tries to teleport this GameObject to the specified location if it is valid
+    * @result
+    *   Success returns true, failure returns false;
+    **/
+    bool teleport(const float x, const float y, const float z, const FACING_T facing_z);
+
+    /**
+    * @brief
+    *   Get the name of this character if it is known by the players (e.g Fluffy) or it's class name otherwise (e.g Sheep)
+    * @param prefixArticle
+    *   if the appropriate article "a" or "an" should be prefixed (only valid for class name)
+    * @param prefixDefinite
+    *   prefix defeinite article, i.e "the" (only valid for class name)
+    * @param captialLetter
+    *   Capitalize the first letter in the name or class name (e.g "fluffy" -> "Fluffy")
+    **/
+    std::string getName(bool prefixArticle = true, bool prefixDefinite = true, bool capitalLetter = true) const;
 
 private:
 
@@ -262,9 +325,14 @@ private:
     **/
     void updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing);
 
-public:
-    bool terminateRequested;         ///< True if this character no longer exists in the game and should be destructed
+    /**
+    * @brief 
+    *   This function makes the characters get bigger or smaller, depending
+    *   on their fat_goto and fat_goto_time. Spellbooks do not resize
+    */
+    void updateResize();
 
+public:
     BSP_leaf_t     bsp_leaf;
 
     chr_spawn_data_t  spawn_data;
@@ -471,8 +539,11 @@ public:
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 private:
+    bool _terminateRequested;                           ///< True if this character no longer exists in the game and should be destructed
     CHR_REF _characterID;                               ///< Our unique CHR_REF id
     const std::shared_ptr<ObjectProfile> &_profile;     ///< Our Profile
 
-    fvec3_t _position;                ///< Character's position
+    fvec3_t _position;                                  ///< Character's position
+
+    friend class ObjectHandler;
 };

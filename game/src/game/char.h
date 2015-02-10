@@ -153,15 +153,6 @@ enum grip_offset_t
     GRIP_ONLY      =               GRIP_LEFT
 };
 
-/// Bits used to control options for the chr_get_name() function
-enum e_chr_name_bits
-{
-    CHRNAME_NONE     = 0,               ///< no options
-    CHRNAME_ARTICLE  = ( 1 << 0 ),      ///< use an article (a, an, the)
-    CHRNAME_DEFINITE = ( 1 << 1 ),      ///< if set, choose "the" else "a" or "an"
-    CHRNAME_CAPITAL  = ( 1 << 2 )       ///< capitalize the name
-};
-
 enum e_chr_movement_idx
 {
     CHR_MOVEMENT_STOP  = 0,
@@ -202,9 +193,6 @@ struct team_t
 };
 
 //--------------------------------------------------------------------------------------------
-
-
-bool  chr_request_terminate( GameObject * pchr );
 
 bool    chr_matrix_valid( const GameObject * pchr );
 egolib_rv chr_update_matrix( GameObject * pchr, bool update_size );
@@ -261,9 +249,10 @@ bool chr_getMatForward(GameObject *self, fvec3_t& forward);
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatTranslate(GameObject *self, fvec3_t& translate);
 
-const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size );
 const char * chr_get_dir_name( const CHR_REF ichr );
 int chr_get_skill( GameObject * pchr, IDSZ whichskill );
+
+bool update_chr_darkvision( const CHR_REF character );
 
 void reset_character_alpha( const CHR_REF character );
 void reset_character_accel( const CHR_REF character );
@@ -329,8 +318,6 @@ bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF char
 bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
-
-bool GameObjecteleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
 
 CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
@@ -423,4 +410,3 @@ bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
-bool chr_get_pos(const GameObject *self, fvec3_t& position);

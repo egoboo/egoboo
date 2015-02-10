@@ -32,6 +32,7 @@
 #include "game/gui/Label.hpp"
 #include "game/game.h"	//only for MAX_IMPORTS_PER_OBJECT constant
 #include "game/profiles/Profile.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 #include "game/gamestates/LoadPlayerElement.hpp"
 
 SelectPlayersState::SelectPlayersState() :
@@ -110,6 +111,12 @@ SelectPlayersState::SelectPlayersState() :
 		//Initially select no character for each player
 		_selectedPlayers.push_back(nullptr);
 		_playerButtons.push_back(playerButton);
+	}
+
+	//Mark all loadable characters initially as unselected
+	for(const std::shared_ptr<LoadPlayerElement> &save : _profileSystem.getSavedPlayers())
+	{
+		save->setSelected(false);
 	}
 }
 

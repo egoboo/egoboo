@@ -45,7 +45,7 @@ PlayingState::PlayingState()
 PlayingState::~PlayingState()
 {
 	//Check for player exports
-    if ( PMod->isExportValid() )
+    if ( PMod && PMod->isExportValid() )
     {
         // export the players
         export_all_players(false);
@@ -105,7 +105,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
 			{
 				for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
 				{
-					if(object->terminateRequested || object->getProfile()->isInvincible()) {
+					if(object->isTerminated() || object->getProfile()->isInvincible()) {
 						continue;
 					}
 

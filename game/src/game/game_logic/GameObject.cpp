@@ -33,7 +33,6 @@ const size_t GameObject::MAXNUMINPACK;
 
 
 GameObject::GameObject(const PRO_REF profile, const CHR_REF id) : 
-    terminateRequested(false),
     bsp_leaf(),
     spawn_data(),
     ai(),
@@ -179,6 +178,7 @@ GameObject::GameObject(const PRO_REF profile, const CHR_REF id) :
     safe_grid(0),
     crumbs(),
 
+    _terminateRequested(false),
     _characterID(id),
     _profile(_profileSystem.getProfile(profile)),
     _position(0.0f, 0.0f, 0.0f)
@@ -226,10 +226,10 @@ GameObject::~GameObject()
     EGOBOO_ASSERT( nullptr == inst.vrt_lst );
 }
 
-bool GameObject::isOverWater() const
+bool GameObject::isOverWater(bool anyLiquid) const
 {
 	//Make sure water in the current module is actually water (could be lava, acid, etc.)
-	if(!water.is_water) {
+	if(!anyLiquid && !water.is_water) {
 		return false;
 	}
 
@@ -239,6 +239,11 @@ bool GameObject::isOverWater() const
     }
 
     return 0 != ego_mesh_test_fx(PMesh, onwhichgrid, MAPFX_WATER);
+}
+
+bool GameObject::isInWater(bool anyLiquid) const
+{
+    return isOverWater(anyLiquid) && getPosZ() < water.surface_level ;
 }
 
 
@@ -393,11 +398,9 @@ int GameObject::damage(const FACING_T direction, const IPair  damage, const Dama
     actual_damage *= std::max( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - damage_resistance[damagetype] );
 
     // Increase electric damage when in water
-    if ( damagetype == DAMAGE_ZAP && isOverWater() )
+    if ( damagetype == DAMAGE_ZAP && isInWater(false) )
     {
-        // Only if actually in the water
-        if ( getPosZ() <= water.surface_level )
-            actual_damage *= 2.0f;     /// @note ZF> Is double damage too much?
+        actual_damage *= 2.0f;     /// @note ZF> Is double damage too much?
     }
 
     // Allow actual_damage to be dealt to mana (mana shield spell)
@@ -670,4 +673,304 @@ bool GameObject::heal(const std::shared_ptr<GameObject> &healer, const UFP8_T am
 bool GameObject::isAttacking() const
 {
     return inst.action_which >= ACTION_UA && inst.action_which <= ACTION_FD;
+}
+
+bool GameObject::teleport(const float x, const float y, const float z, const FACING_T facing_z)
+{
+    //Cannot teleport outside the level
+    if ( x < 0.0f || x > PMesh->gmem.edge_x ) return false;
+    if ( y < 0.0f || y > PMesh->gmem.edge_y ) return false;
+
+    fvec3_t newPosition = fvec3_t(x, y, z);
+
+    //Cannot teleport inside a wall
+    if ( !chr_hit_wall(this, newPosition.v, NULL, NULL, NULL) )
+    {
+        // Yeah!  It worked!
+
+        // update the old position
+        pos_old          = newPosition;
+        ori_old.facing_z = facing_z;
+
+        // update the new position
+        setPosition(newPosition);
+        ori.facing_z = facing_z;
+
+        if ( !detach_character_from_mount(getCharacterID(), true, false) )
+        {
+            // detach_character_from_mount() updates the character matrix unless it is not mounted
+            chr_update_matrix(this, true);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void GameObject::update()
+{
+    //then do status updates
+    chr_update_hide(this);
+
+    //Don't do items that are in inventory
+    if ( _gameObjects.exists( inwhich_inventory ) ) {
+        return;
+    }
+
+    const float WATER_LEVEL = water_instance_get_water_level(&water);
+
+    // do the character interaction with water
+    if (!isHidden() && isInWater(true))
+    {
+        // do splash and ripple
+        if ( !enviro.inwater )
+        {
+            // Splash
+            fvec3_t vtmp;
+
+            vtmp.x = getPosX();
+            vtmp.y = getPosY();
+            vtmp.z = WATER_LEVEL + RAISE;
+
+            spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
+
+            if ( water.is_water )
+            {
+                SET_BIT(ai.alert, ALERTIF_INWATER);
+            }
+        }
+
+        //Submerged in water (fully or partially)
+        else
+        {
+            // Ripples
+            if(getPosZ() < WATER_LEVEL && isAlive())
+            {
+                if ( !_gameObjects.exists(attachedto) && getProfile()->causesRipples() 
+                    && getPosZ() + chr_min_cv.maxs[OCT_Z] + RIPPLETOLERANCE > WATER_LEVEL 
+                    && getPosZ() + chr_min_cv.mins[OCT_Z] < WATER_LEVEL)
+                {
+                    int ripple_suppression;
+
+                    // suppress ripples if we are far below the surface
+                    ripple_suppression = WATER_LEVEL - (getPosZ() + chr_min_cv.maxs[OCT_Z]);
+                    ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
+                    ripple_suppression = Math::constrain(ripple_suppression, 0, 4);
+
+                    // make more ripples if we are moving
+                    ripple_suppression -= (( int )vel.x != 0 ) | (( int )vel.y != 0 );
+
+                    int ripand;
+                    if ( ripple_suppression > 0 )
+                    {
+                        ripand = ~(( ~RIPPLEAND ) << ripple_suppression );
+                    }
+                    else
+                    {
+                        ripand = RIPPLEAND >> ( -ripple_suppression );
+                    }
+
+                    if ( 0 == ( (update_wld + getCharacterID()) & ripand ))
+                    {
+                        fvec3_t vtmp;
+
+                        vtmp.x = getPosX();
+                        vtmp.y = getPosY();
+                        vtmp.z = WATER_LEVEL;
+
+                        spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
+                    }    
+                }
+            }
+
+            if (water.is_water && HAS_NO_BITS(update_wld, 7))
+            {
+                jumpready = true;
+                jumpnumber = 1;
+            }
+        }
+
+        enviro.inwater  = true;
+    }
+    else
+    {
+        enviro.inwater = false;
+    }
+
+    // the following functions should not be done the first time through the update loop
+    if (0 == update_wld) return;
+
+    //---- Do timers and such
+
+    // reduce attack cooldowns
+    if ( reload_timer > 0 ) reload_timer--;
+
+    // decrement the dismount timer
+    if ( dismount_timer > 0 ) dismount_timer--;
+
+    if ( 0 == dismount_timer )
+    {
+        dismount_object = INVALID_CHR_REF;
+    }
+
+    // Down that ol' damage timer
+    if ( damage_timer > 0 ) damage_timer--;
+
+    // Do "Be careful!" delay
+    if ( careful_timer > 0 ) careful_timer--;
+
+    // Texture movement
+    inst.uoffset += uoffvel;
+    inst.voffset += voffvel;
+
+    // Do stats once every second
+    if ( clock_chr_stat >= ONESECOND )
+    {
+        // check for a level up
+        do_level_up( getCharacterID() );
+
+        // do the mana and life regen for "living" characters
+        if (isAlive())
+        {
+            int manaregen = 0;
+            int liferegen = 0;
+            get_chr_regeneration( this, &liferegen, &manaregen );
+
+            mana += manaregen;
+            mana = CLIP((UFP8_T)mana, (UFP8_T)0, mana_max);
+
+            life += liferegen;
+            life = CLIP((UFP8_T)life, (UFP8_T)1, life_max);
+        }
+
+        // countdown confuse effects
+        if (grog_timer > 0)
+        {
+           grog_timer--;
+        }
+
+        if (daze_timer > 0)
+        {
+           daze_timer--;
+        }
+
+        // possibly gain/lose darkvision
+        update_chr_darkvision( getCharacterID() );
+    }
+
+    updateResize();
+
+    // update some special skills
+    see_kurse_level  = std::max(see_kurse_level,  chr_get_skill(this, MAKE_IDSZ( 'C', 'K', 'U', 'R' )));
+    darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )));
+}
+
+void GameObject::updateResize()
+{
+    if (fat_goto_time < 0) {
+        return;
+    }
+
+    if (fat_goto != fat)
+    {
+        int bump_increase;
+
+        bump_increase = ( fat_goto - fat ) * 0.10f * bump.size;
+
+        // Make sure it won't get caught in a wall
+        bool willgetcaught = false;
+        if ( fat_goto > fat )
+        {
+            bump.size += bump_increase;
+
+            if ( EMPTY_BIT_FIELD != GameObjectest_wall(this, NULL, NULL ) )
+            {
+                willgetcaught = true;
+            }
+
+            bump.size -= bump_increase;
+        }
+
+        // If it is getting caught, simply halt growth until later
+        if ( !willgetcaught )
+        {
+            // Figure out how big it is
+            fat_goto_time--;
+
+            float newsize = fat_goto;
+            if ( fat_goto_time > 0 )
+            {
+                newsize = ( fat * 0.90f ) + ( newsize * 0.10f );
+            }
+
+            // Make it that big...
+            chr_set_fat(this, newsize);
+
+            if ( CAP_INFINITE_WEIGHT == getProfile()->getWeight() )
+            {
+                phys.weight = CHR_INFINITE_WEIGHT;
+            }
+            else
+            {
+                Uint32 itmp = getProfile()->getWeight() * fat * fat * fat;
+                phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
+            }
+        }
+    }
+}
+
+std::string GameObject::getName(bool prefixArticle, bool prefixDefinite, bool capitalLetter) const
+{
+    std::string result;
+
+    if (isNameKnown())
+    {
+        result = Name;
+
+        // capitalize the name ?
+        if (capitalLetter)
+        {
+            result[0] = char_toupper(result[0]);
+        }
+    }
+    else
+    {
+        result = getProfile()->getClassName();;
+
+        if (prefixArticle)
+        {
+            // capitalize the name ?
+            if (capitalLetter)
+            {
+                result[0] = std::toupper(result[0]);
+            }
+
+            if (prefixDefinite)
+            {
+                result = std::string("the ") + result;
+            }
+            else
+            {
+                char lTmp = char_toupper(result[0]);
+
+                if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+                {
+                    result = std::string("an ") + result;
+                }
+                else
+                {
+                    result = std::string("a ") + result;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+void GameObject::requestTerminate() 
+{
+    //Mark object as terminated
+    _gameObjects.remove(getCharacterID());
 }
