@@ -29,9 +29,12 @@ bool ObjectHandler::remove(const CHR_REF ichr)
     chr_log_script_time( ichr );
 #endif
 
+    //Remove us from any holder first
+    detach_character_from_mount(ichr, true, false);
+
     // If we are inside a list loop, do not actually change the length of the
     // list. Else this can cause some problems later.
-    _internalCharacterList[ichr]->terminateRequested = true;
+    _internalCharacterList[ichr]->_terminateRequested = true; //bad: private access
     _deletedCharacters++;
 
     // We can safely modify the map, it is not iterable from the outside.
@@ -47,7 +50,7 @@ bool ObjectHandler::exists(const CHR_REF character) const
         return false;
     }
 
-    return _internalCharacterList[character] != nullptr && !_internalCharacterList[character]->terminateRequested;
+    return _internalCharacterList[character] != nullptr && !_internalCharacterList[character]->isTerminated();
 }
 
 
@@ -221,7 +224,7 @@ void ObjectHandler::maybeRunDeferred()
                 {
                     if (element->bsp_leaf.isInList()) return false;
 
-                    if(element->terminateRequested)
+                    if(element->isTerminated())
                     {
                         //Delete this character
                         _unusedChrRefs.push(element->getCharacterID());

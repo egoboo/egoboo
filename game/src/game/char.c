@@ -105,10 +105,6 @@ static bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 v
 
 static BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs );
 
-//static void    resize_all_characters();
-
-static bool  chr_free( GameObject * pchr );
-
 static int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset );
 
 static bool apply_one_character_matrix( GameObject * pchr, matrix_cache_t * mcache );
@@ -128,7 +124,7 @@ static float   chr_get_mesh_pressure( GameObject * pchr, float test_pos[] );
 static egolib_rv chr_invalidate_child_instances( GameObject * pchr );
 
 static void chr_set_enviro_grid_level( GameObject * pchr, const float level );
-static void chr_log_script_time( const CHR_REF ichr );
+//static void chr_log_script_time( const CHR_REF ichr );
 
 static bool chr_download_profile(GameObject * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
@@ -420,6 +416,7 @@ void make_one_character_matrix( const CHR_REF ichr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 void chr_log_script_time( const CHR_REF ichr )
 {
     // log the amount of script time that this object used up
@@ -444,6 +441,7 @@ void chr_log_script_time( const CHR_REF ichr )
         vfs_close( ftmp );
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void free_one_character_in_game( const CHR_REF character )
@@ -458,9 +456,6 @@ void free_one_character_in_game( const CHR_REF character )
 
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
-
-    ObjectProfile *profile = chr_get_ppro(character);
-    if ( nullptr == profile ) return;
 
     // Remove from stat list
     if ( pchr->show_stats )
@@ -495,7 +490,7 @@ void free_one_character_in_game( const CHR_REF character )
         ai_state_t * pai;
 
         //Don't do ourselves or terminated characters
-        if ( chr->terminateRequested || chr->getCharacterID() == character ) continue;
+        if ( chr->isTerminated() || chr->getCharacterID() == character ) continue;
         pai = chr_get_pai( chr->getCharacterID() );
 
         if ( pai->target == character )
@@ -511,7 +506,7 @@ void free_one_character_in_game( const CHR_REF character )
     }
 
     // Handle the team
-    if ( pchr->alive && !profile->isInvincible() && TeamStack.lst[pchr->team_base].morale > 0 )
+    if ( pchr->alive && !pchr->getProfile()->isInvincible() && TeamStack.lst[pchr->team_base].morale > 0 )
     {
         TeamStack.lst[pchr->team_base].morale--;
     }
@@ -1293,8 +1288,6 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     /// @author ZF
     /// @details This adds a new item into the specified inventory slot. Fails if there already is an item there.
     ///               If the specified inventory slot is MAXINVENTORY, it will find the first free inventory slot.
-
-    CHR_REF stack;
     GameObject *pchr, *pitem;
     int newammo;
 
@@ -1346,7 +1339,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     }
 
     //put away inhand item
-    stack = chr_pack_has_a_stack( item, ichr );
+    CHR_REF stack = chr_pack_has_a_stack( item, ichr );
     if ( _gameObjects.exists( stack ) )
     {
         // We found a similar, stackable item in the pack
@@ -1373,8 +1366,9 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
         {
             // All transfered, so kill the in hand item
             pstack->ammo = newammo;
-            detach_character_from_mount( item, true, false );
-            _gameObjects.remove(item);
+            
+            pitem->requestTerminate();
+            return true;
         }
         else
         {
@@ -1530,53 +1524,50 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
     ///    to the one given.  If it finds one, it returns the similar item's
     ///    index number, otherwise it returns MAX_CHR.
 
-    CHR_REF istack;
-    Uint16  id;
-    bool  found;
+    bool found  = false;
+    CHR_REF istack = INVALID_CHR_REF;
 
-    GameObject * pitem;
+    std::shared_ptr<GameObject> pitem = _gameObjects[item];
+    if(!pitem) {
+        return INVALID_CHR_REF;
+    }
 
-    found  = false;
-    istack = INVALID_CHR_REF;
+    //Only check items that are actually stackable
+    if(!pitem->getProfile()->isStackable()) {
+        return INVALID_CHR_REF;
+    }
 
-    if ( !_gameObjects.exists( item ) ) return istack;
-    pitem = _gameObjects.get( item );
-    ObjectProfile *objectProfile = chr_get_ppro( item );
-
-    if ( objectProfile->isStackable() )
+    PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pstack, istack_new )
     {
-        PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pstack, istack_new )
+        ObjectProfile *stackProfile = chr_get_ppro( istack_new );
+
+        found = stackProfile->isStackable();
+
+        if ( pstack->ammo >= pstack->ammomax )
         {
-            ObjectProfile *stackProfile = chr_get_ppro( istack_new );
+            found = false;
+        }
 
-            found = stackProfile->isStackable();
-
-            if ( pstack->ammo >= pstack->ammomax )
+        // you can still stack something even if the profiles don't match exactly,
+        // but they have to have all the same IDSZ properties
+        if ( found && ( stackProfile->getSlotNumber() != pitem->profile_ref ) )
+        {
+            for ( Uint16 id = 0; id < IDSZ_COUNT && found; id++ )
             {
-                found = false;
-            }
-
-            // you can still stack something even if the profiles don't match exactly,
-            // but they have to have all the same IDSZ properties
-            if ( found && ( stackProfile->getSlotNumber() != pitem->profile_ref ) )
-            {
-                for ( id = 0; id < IDSZ_COUNT && found; id++ )
+                if ( chr_get_idsz( istack_new, id ) != chr_get_idsz( item, id ) )
                 {
-                    if ( chr_get_idsz( istack_new, id ) != chr_get_idsz( item, id ) )
-                    {
-                        found = false;
-                    }
+                    found = false;
                 }
             }
-
-            if ( found )
-            {
-                istack = istack_new;
-                break;
-            }
         }
-        PACK_END_LOOP();
+
+        if ( found )
+        {
+            istack = istack_new;
+            break;
+        }
     }
+    PACK_END_LOOP();
 
     return istack;
 }
@@ -2173,8 +2164,8 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             if ( pweapon->ammo <= 1 )
             {
                 // Poof the item
-                detach_character_from_mount( iweapon, true, false );
                 pweapon->requestTerminate();
+                return;
             }
             else
             {
@@ -2883,9 +2874,6 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     // Let it's AI script run one last time
     pchr->ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
     scr_run_chr_script( ichr );
-
-    // Stop any looped sounds
-    _audioSystem.stopObjectLoopingSounds( ichr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6131,7 +6119,7 @@ void cleanup_all_characters()
         bool time_out;
 
         time_out = ( object->ai.poof_time >= 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if ( !time_out ) continue;
+        if ( !time_out && !object->isTerminated() ) continue;
 
         // detach the character from the game
         cleanup_one_character( object.get() );

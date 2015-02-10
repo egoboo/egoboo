@@ -33,7 +33,6 @@ const size_t GameObject::MAXNUMINPACK;
 
 
 GameObject::GameObject(const PRO_REF profile, const CHR_REF id) : 
-    terminateRequested(false),
     bsp_leaf(),
     spawn_data(),
     ai(),
@@ -179,6 +178,7 @@ GameObject::GameObject(const PRO_REF profile, const CHR_REF id) :
     safe_grid(0),
     crumbs(),
 
+    _terminateRequested(false),
     _characterID(id),
     _profile(_profileSystem.getProfile(profile)),
     _position(0.0f, 0.0f, 0.0f)
@@ -967,4 +967,10 @@ std::string GameObject::getName(bool prefixArticle, bool prefixDefinite, bool ca
     }
 
     return result;
+}
+
+void GameObject::requestTerminate() 
+{
+    //Mark object as terminated
+    _gameObjects.remove(getCharacterID());
 }

@@ -150,7 +150,7 @@ public:
     *   If this value is true, then this GameObject is effectively no longer a part of
     *   the game and should not be interacted with.
     **/
-    bool isTerminated() const {return terminateRequested;}
+    inline bool isTerminated() const {return _terminateRequested;}
 
     /**
     * @brief
@@ -233,7 +233,7 @@ public:
     * @brief
     *   Mark this object as terminated, it will be removed from the game by the update.
     **/
-    void requestTerminate() {terminateRequested = true;}
+    void requestTerminate();
 
     /**
     * @brief 
@@ -333,8 +333,6 @@ private:
     void updateResize();
 
 public:
-    bool terminateRequested;         ///< True if this character no longer exists in the game and should be destructed
-
     BSP_leaf_t     bsp_leaf;
 
     chr_spawn_data_t  spawn_data;
@@ -541,8 +539,11 @@ public:
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 private:
+    bool _terminateRequested;                           ///< True if this character no longer exists in the game and should be destructed
     CHR_REF _characterID;                               ///< Our unique CHR_REF id
     const std::shared_ptr<ObjectProfile> &_profile;     ///< Our Profile
 
-    fvec3_t _position;                ///< Character's position
+    fvec3_t _position;                                  ///< Character's position
+
+    friend class ObjectHandler;
 };

@@ -148,7 +148,7 @@ static void   game_load_profile_ai();
 static void   activate_spawn_file_vfs();
 static void   activate_alliance_file_vfs();
 
-static bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo );
+static bool chr_setup_apply(std::shared_ptr<GameObject> pchr, spawn_file_info_t *pinfo );
 
 static void   game_reset_players();
 
@@ -1654,7 +1654,7 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
     {
         for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
         {
-            if(!object->terminateRequested)
+            if(!object->isTerminated())
             {
                 searchList.push_back(object->getCharacterID());
             }
@@ -2593,7 +2593,7 @@ void tilt_characters_to_terrain()
 
     for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
-        if ( object->terminateRequested ) continue;
+        if ( object->isTerminated() ) continue;
 
         if ( object->stickybutt )
         {
@@ -2719,18 +2719,12 @@ void game_load_global_profiles()
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
+bool chr_setup_apply(std::shared_ptr<GameObject> pchr, spawn_file_info_t *pinfo ) //note: intentonally copy and not reference on pchr
 {
-    GameObject * pchr, *pparent;
-
-    // trap bad pointers
-    if ( NULL == pinfo ) return false;
-
-    if ( !_gameObjects.exists( ichr ) ) return false;
-    pchr = _gameObjects.get( ichr );
-
-    pparent = NULL;
-    if ( _gameObjects.exists( pinfo->parent ) ) pparent = _gameObjects.get( pinfo->parent );
+    GameObject *pparent = nullptr;
+    if ( _gameObjects.exists( pinfo->parent ) ) {
+        pparent = _gameObjects.get( pinfo->parent );
+    }
 
     pchr->money = pchr->money + pinfo->money;
     if ( pchr->money > MAXMONEY )  pchr->money = MAXMONEY;
@@ -2742,19 +2736,25 @@ bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        inventory_add_item( pinfo->parent, ichr, MAXINVENTORY, true );
+        inventory_add_item( pinfo->parent, pchr->getCharacterID(), MAXINVENTORY, true );
 
-        SET_BIT( pchr->ai.alert, ALERTIF_GRABBED );     // Make spellbooks change
+        //If the character got merged into a stack, then it will be marked as terminated
+        if(pchr->isTerminated()) {
+            return true;
+        }
+
+        // Make spellbooks change
+        SET_BIT(pchr->ai.alert, ALERTIF_GRABBED);
     }
     else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
     {
         // Wielded character
         grip_offset_t grip_off = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
 
-        if ( rv_success == attach_character_to_mount( ichr, pinfo->parent, grip_off ) )
+        if ( rv_success == attach_character_to_mount( pchr->getCharacterID(), pinfo->parent, grip_off ) )
         {
             // Handle the "grabbed" messages
-            //scr_run_chr_script( ichr );
+            //scr_run_chr_script( pchr->getCharacterID() );
         }
     }
 
@@ -2763,8 +2763,8 @@ bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     {
         if ( pchr->experiencelevel < pinfo->level )
         {
-            pchr->experience = chr_get_ppro(ichr)->getXPNeededForLevel(pinfo->level);
-            do_level_up( ichr );
+            pchr->experience = chr_get_ppro(pchr->getCharacterID())->getXPNeededForLevel(pinfo->level);
+            do_level_up( pchr->getCharacterID() );
         }
     }
 
@@ -2777,12 +2777,12 @@ bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
         //Unkurse both inhand items
         if ( _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
         {
-            pitem = _gameObjects.get( ichr );
+            pitem = _gameObjects.get( pchr->holdingwhich[SLOT_LEFT] );
             pitem->iskursed = false;
         }
         if ( _gameObjects.exists( pchr->holdingwhich[SLOT_RIGHT] ) )
         {
-            pitem = _gameObjects.get( ichr );
+            pitem = _gameObjects.get( pchr->holdingwhich[SLOT_RIGHT] );
             pitem->iskursed = false;
         }
 
@@ -2848,7 +2848,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
             return false;
         }
 
-        psp_info->slot = _profileSystem.loadOneProfile( filename, psp_info->slot );
+        psp_info->slot = _profileSystem.loadOneProfile(filename, psp_info->slot);
     }
 
     return _profileSystem.isValidProfileID(( PRO_REF ) psp_info->slot );
@@ -2859,7 +2859,6 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 {
     int     local_index = 0;
     CHR_REF new_object;
-    GameObject * pobject;
     PRO_REF iprofile;
 
     if ( NULL == psp_info || !psp_info->do_spawn || psp_info->slot < 0 ) return false;
@@ -2868,9 +2867,9 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
     // Spawn the character
     new_object = spawn_one_character(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);
-    if (!_gameObjects.exists(new_object)) return false;
-
-    pobject = _gameObjects.get(new_object);
+    
+    const std::shared_ptr<GameObject> &pobject = _gameObjects[new_object];
+    if (!pobject) return false;
 
     // determine the attachment
     if (psp_info->attach == ATTACH_NONE)
@@ -2880,7 +2879,12 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
         make_one_character_matrix( new_object );
     }
 
-    chr_setup_apply( new_object, psp_info );
+    chr_setup_apply(pobject, psp_info);
+
+    //Can happen if object gets merged into a stack
+    if(!pobject) {
+        return true;
+    }
 
     // Turn on PlaStack.count input devices
     if ( psp_info->stat )
@@ -2946,9 +2950,9 @@ void activate_spawn_file_vfs()
 {
     /// @author ZZ
     /// @details This function sets up character data, loaded from "SPAWN.TXT"
-    std::unordered_map<int, std::string> reservedSlots;     //Keep track of which slot numbers are reserved by their load name
-    std::unordered_set<std::string>      dynamicObjectList; //references to slots that need to be dynamically loaded later
-    std::vector<spawn_file_info_t> objectsToSpawn;    //The full list of objects to be spawned 
+    std::unordered_map<int, std::string> reservedSlots; //Keep track of which slot numbers are reserved by their load name
+    std::unordered_set<std::string> dynamicObjectList;  //references to slots that need to be dynamically loaded later
+    std::vector<spawn_file_info_t> objectsToSpawn;      //The full list of objects to be spawned 
 
     // Turn some back on
     const char* filePath = "mp_data/spawn.txt";
@@ -2997,7 +3001,7 @@ void activate_spawn_file_vfs()
             }
 
             //its a static slot number, mark it as reserved if it isnt already
-            else if ( reservedSlots[entry.slot].empty() )
+            else if (reservedSlots[entry.slot].empty())
             {
                 reservedSlots[entry.slot] = entry.spawn_coment;
             }
@@ -3018,7 +3022,9 @@ void activate_spawn_file_vfs()
                 if (profileSlot == SPELLBOOK) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
-                if(reservedSlots[profileSlot] == spawnName) break;
+                if(reservedSlots[profileSlot] == spawnName) {
+                     break;
+                }
 
                 //found a completely free slot
                 if (reservedSlots[profileSlot].empty())
@@ -3039,7 +3045,9 @@ void activate_spawn_file_vfs()
         for(spawn_file_info_t &spawnInfo : objectsToSpawn)
         {
             //Do we have a parent?
-            if ( spawnInfo.attach != ATTACH_NONE && parent != INVALID_CHR_REF ) spawnInfo.parent = parent;
+            if ( spawnInfo.attach != ATTACH_NONE && parent != INVALID_CHR_REF ) {
+                spawnInfo.parent = parent;
+            }
 
             //Dynamic slot number? Then figure out what slot number is assigned to us
             if(spawnInfo.slot <= -1) {
@@ -3070,10 +3078,12 @@ void activate_spawn_file_vfs()
             }
 
             // we only reach this if everything was loaded properly
-            activate_spawn_file_spawn( &spawnInfo );
+            activate_spawn_file_spawn(&spawnInfo);
 
             //We might become the new parent
-            if ( spawnInfo.attach == ATTACH_NONE ) parent = spawnInfo.parent;
+            if ( spawnInfo.attach == ATTACH_NONE ) {
+                parent = spawnInfo.parent;
+            }
         }
 
         vfs_close( fileread );
@@ -3567,7 +3577,7 @@ void let_all_characters_think()
 
     for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
-        if(object->terminateRequested) {
+        if(object->isTerminated()) {
             continue;
         }
         
