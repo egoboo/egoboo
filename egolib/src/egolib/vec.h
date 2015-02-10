@@ -759,8 +759,6 @@ void fvec3_ctor(fvec3_t& v);
 */
 void fvec3_dtor(fvec3_t& v);
 
-float fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B);
-
 /**
  * @brief
  *	Get the distance between to points

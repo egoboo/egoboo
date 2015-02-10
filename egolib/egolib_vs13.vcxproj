@@ -365,7 +365,6 @@
     <ClCompile Include="src\egolib\file_formats\map_file-v4.c" />
     <ClCompile Include="src\egolib\file_formats\map_file.c" />
     <ClCompile Include="src\egolib\file_formats\map_tile_dictionary.c" />
-    <ClCompile Include="src\egolib\file_formats\module_file.c" />
     <ClCompile Include="src\egolib\file_formats\pip_file.c" />
     <ClCompile Include="src\egolib\file_formats\quest_file.c" />
     <ClCompile Include="src\egolib\file_formats\scancode_file.c" />
@@ -469,7 +468,6 @@
     <ClInclude Include="src\egolib\file_formats\map_file-v4.h" />
     <ClInclude Include="src\egolib\file_formats\map_file.h" />
     <ClInclude Include="src\egolib\file_formats\map_tile_dictionary.h" />
-    <ClInclude Include="src\egolib\file_formats\module_file.h" />
     <ClInclude Include="src\egolib\file_formats\pip_file.h" />
     <ClInclude Include="src\egolib\file_formats\quest_file.h" />
     <ClInclude Include="src\egolib\file_formats\scancode_file.h" />

@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------
 
 class GameObject;
-struct s_prt_bundle;
+struct prt_bundle_t;
 struct mesh_BSP_t;
 
 /**

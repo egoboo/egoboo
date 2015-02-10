@@ -109,7 +109,7 @@ bool prt_free( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 /// @brief Set all particle parameters to safe values.
 /// @details The C equivalent of a parameterless constructor.
-prt_t * prt_ctor( prt_t * pprt )
+prt_t * prt_t::ctor( prt_t * pprt )
 {
     // save the base object data, do not construct it with this function.
     if ( NULL == pprt ) return NULL;
@@ -158,7 +158,7 @@ prt_t * prt_ctor( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_t * prt_dtor( prt_t * pprt )
+prt_t * prt_t::dtor( prt_t * pprt )
 {
     if ( NULL == pprt ) return pprt;
 
@@ -234,7 +234,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
 
         if ( SPAWNNOCHARACTER != pprt->endspawn_characterstate )
         {
-            child = spawn_one_character(prt_get_pos_v_const(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF );
+            child = spawn_one_character(prt_t::get_pos_v_const(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF );
             if ( _gameObjects.exists( child ) )
             {
                 GameObject * pchild = _gameObjects.get( child );
@@ -439,7 +439,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     tmp_pos.x = CLIP( tmp_pos.x, 0.0f, PMesh->gmem.edge_x - 2.0f );
     tmp_pos.y = CLIP( tmp_pos.y, 0.0f, PMesh->gmem.edge_y - 2.0f );
 
-    prt_set_pos(pprt, tmp_pos);
+    prt_t::set_pos(pprt, tmp_pos);
     pprt->pos_old  = tmp_pos;
     pprt->pos_stt  = tmp_pos;
 
@@ -569,7 +569,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     }
 
     // is the spawn location safe?
-    if ( 0 == prt_hit_wall( pprt, tmp_pos.v, NULL, NULL, NULL ) )
+    if ( 0 == prt_t::hit_wall( pprt, tmp_pos.v, NULL, NULL, NULL ) )
     {
         pprt->safe_pos   = tmp_pos;
         pprt->safe_valid = true;
@@ -616,7 +616,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     pprt->endspawn_characterstate = SPAWNNOCHARACTER;
 
-    prt_set_size( pprt, ppip->size_base );
+    prt_t::set_size( pprt, ppip->size_base );
 
 #if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
 
@@ -899,7 +899,7 @@ prt_t * prt_config_ctor( prt_t * pprt )
     // if we aren't in the correct state, abort.
     if ( !STATE_CONSTRUCTING_PBASE( base_ptr ) ) return pprt;
 
-    return prt_ctor( pprt );
+    return prt_t::ctor( pprt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -982,7 +982,7 @@ prt_t * prt_config_dtor( prt_t * pprt )
 
     POBJ_END_SPAWN( pprt );
 
-    return prt_dtor( pprt );
+    return prt_t::dtor( pprt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1206,7 +1206,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
 #endif
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
+BIT_FIELD prt_t::hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
     /// @author ZZ
     /// @details This function returns nonzero if the particle hit a wall that the
@@ -1225,7 +1225,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const(pprt).v;
+    if ( NULL == test_pos ) test_pos = prt_t::get_pos_v_const(pprt).v;
     if ( NULL == test_pos ) return EMPTY_BIT_FIELD;
 
     mesh_mpdfx_tests = 0;
@@ -1241,7 +1241,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata )
+BIT_FIELD prt_t::test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata )
 {
     /// @author ZZ
     /// @details This function returns nonzero if the particle hit a wall that the
@@ -1260,7 +1260,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // handle optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const(pprt).v;
+    if ( NULL == test_pos ) test_pos = prt_t::get_pos_v_const(pprt).v;
     if ( NULL == test_pos ) return EMPTY_BIT_FIELD;
 
     // do the wall test
@@ -1299,7 +1299,7 @@ void update_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_set_level( prt_t * pprt, const float level )
+void prt_t::set_level(prt_t * pprt, const float level)
 {
     float loc_height;
 
@@ -1307,7 +1307,7 @@ void prt_set_level( prt_t * pprt, const float level )
 
     pprt->enviro.level = level;
 
-    loc_height = prt_get_scale( pprt ) * std::max( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5f );
+    loc_height = prt_t::get_scale( pprt ) * std::max( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5f );
 
     pprt->enviro.adj_level = pprt->enviro.level;
     pprt->enviro.adj_floor = pprt->enviro.floor_level;
@@ -1351,7 +1351,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     {
         loc_level = std::max( penviro->floor_level, _gameObjects.get(loc_pprt->onwhichplatform_ref)->getPosZ() + _gameObjects.get(loc_pprt->onwhichplatform_ref)->chr_min_cv.maxs[OCT_Z] );
     }
-    prt_set_level( loc_pprt, loc_level );
+    prt_t::set_level( loc_pprt, loc_level );
 
     //---- the "twist" of the floor
     penviro->twist = TWIST_FLAT;
@@ -1671,7 +1671,7 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     // grab a pointer to the target
     ptarget = _gameObjects.get( loc_pprt->target_ref );
 
-    vdiff = ptarget->getPosition() - prt_get_pos_v_const(loc_pprt);
+    vdiff = ptarget->getPosition() - prt_t::get_pos_v_const(loc_pprt);
     vdiff.z += ptarget->bump.height * 0.5f;
 
     min_length = 2 * 5 * 256 * ( _gameObjects.get(loc_pprt->owner_ref)->wisdom / ( float )PERFECTBIG );
@@ -1849,7 +1849,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     if ( !_DISPLAY_PPRT( loc_pprt ) ) return pbdl_prt;
 
     // capture the particle position
-    prt_get_pos(loc_pprt, tmp_pos);
+    prt_t::get_pos(loc_pprt, tmp_pos);
 
     // only deal with attached particles
     if ( INVALID_CHR_REF == loc_pprt->attachedto_ref ) return pbdl_prt;
@@ -1886,14 +1886,14 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     {
         mesh_wall_data_t wdata;
 
-        if ( EMPTY_BIT_FIELD != prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
+        if ( EMPTY_BIT_FIELD != prt_t::test_wall( loc_pprt, tmp_pos.v, &wdata ) )
         {
             Uint32  hit_bits;
             fvec2_t nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            hit_bits = prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata );
+            hit_bits = prt_t::hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata );
 
             if ( 0 != hit_bits )
             {
@@ -1916,7 +1916,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
         return NULL;
     }
 
-    prt_set_pos(loc_pprt, tmp_pos);
+    prt_t::set_pos(loc_pprt, tmp_pos);
 
     return pbdl_prt;
 }
@@ -1949,7 +1949,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     if ( !_DISPLAY_PPRT( loc_pprt ) ) return pbdl_prt;
 
     // capture the position
-    prt_get_pos(loc_pprt, tmp_pos);
+    prt_t::get_pos(loc_pprt, tmp_pos);
 
     // no point in doing this if the particle thinks it's attached
     if ( INVALID_CHR_REF != loc_pprt->attachedto_ref )
@@ -2060,13 +2060,13 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         tmp_pos.y = new_y;
 
         //Hitting a wall?
-        if ( EMPTY_BIT_FIELD != prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
+        if ( EMPTY_BIT_FIELD != prt_t::test_wall( loc_pprt, tmp_pos.v, &wdata ) )
         {
             fvec2_t nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            if ( EMPTY_BIT_FIELD != prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata ) )
+            if ( EMPTY_BIT_FIELD != prt_t::hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata ) )
             {
                 touch_a_wall = true;
 
@@ -2194,7 +2194,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
     }
 
-    prt_set_pos(loc_pprt, tmp_pos);
+    prt_t::set_pos(loc_pprt, tmp_pos);
 
     return pbdl_prt;
 }
@@ -2223,11 +2223,11 @@ bool move_one_particle( prt_bundle_t * pbdl_prt )
     // determine the actual velocity for attached particles
     if ( _gameObjects.exists( loc_pprt->attachedto_ref ) )
     {
-        loc_pprt->vel = prt_get_pos_v_const(loc_pprt) - loc_pprt->pos_old;
+        loc_pprt->vel = prt_t::get_pos_v_const(loc_pprt) - loc_pprt->pos_old;
     }
 
     // Particle's old location
-    prt_get_pos(loc_pprt, loc_pprt->pos_old);
+    prt_t::get_pos(loc_pprt, loc_pprt->pos_old);
     loc_pprt->vel_old = loc_pprt->vel;
 
     // what is the local environment like?
@@ -2395,7 +2395,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                dist = fvec3_dist_abs(prt_get_pos_v_const(pprt), pchr->getPosition());
+                dist = fvec3_dist_abs(prt_t::get_pos_v_const(pprt), pchr->getPosition());
 
                 // clear the occupied list
                 z = pprt->pos.z - pchr->getPosition().z;
@@ -2638,7 +2638,7 @@ bool PipStack_release_one( const PIP_REF ipip )
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_request_terminate( prt_t * pprt )
+bool prt_t::request_terminate( prt_t * pprt )
 {
     /// @author BB
     /// @details Tell the game to get rid of this object and treat it
@@ -2914,7 +2914,7 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt )
     facing = loc_pprt->facing;
     for ( tnc = 0; tnc < loc_ppip->contspawn_amount; tnc++ )
     {
-        PRT_REF prt_child = spawn_one_particle( prt_get_pos_v_const( loc_pprt ), facing, loc_pprt->profile_ref, loc_ppip->contspawn_lpip,
+        PRT_REF prt_child = spawn_one_particle( prt_t::get_pos_v_const( loc_pprt ), facing, loc_pprt->profile_ref, loc_ppip->contspawn_lpip,
                                                 INVALID_CHR_REF, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref );
 
         if ( _DEFINED_PRT( prt_child ) )
@@ -3104,7 +3104,7 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
         size_new = loc_pprt->size + loc_pprt->size_add;
         size_new = CLIP( size_new, 0, 0xFFFF );
 
-        prt_set_size( loc_pprt, size_new );
+        prt_t::set_size( loc_pprt, size_new );
     }
 
     // spin the particle
@@ -3286,7 +3286,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
     // are we done?
     if ( !prt_visible || base_ptr->frame_count > 0 )
     {
-        prt_request_terminate( pbdl_prt->prt_ptr );
+        prt_t::request_terminate( pbdl_prt->prt_ptr );
         return NULL;
     }
 
@@ -3379,11 +3379,11 @@ bool prt_update_safe_raw( prt_t * pprt )
 
     if ( !_ALLOCATED_PPRT( pprt ) ) return false;
 
-    hit_a_wall = prt_hit_wall( pprt, NULL, NULL, &pressure, NULL );
+    hit_a_wall = prt_t::hit_wall( pprt, NULL, NULL, &pressure, NULL );
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pprt->safe_valid = true;
-        prt_get_pos(pprt, pprt->safe_pos);
+        prt_t::get_pos(pprt, pprt->safe_pos);
         pprt->safe_time  = update_wld;
         pprt->safe_grid  = ego_mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
 
@@ -3451,7 +3451,7 @@ bool prt_update_pos( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_set_pos(prt_t *pprt, const fvec3_t& pos)
+bool prt_t::set_pos(prt_t *pprt, const fvec3_t& pos)
 {
 	bool retval = false;
 	if (!_ALLOCATED_PPRT(pprt)) return retval;
@@ -3495,7 +3495,7 @@ pip_t * prt_get_ppip( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_set_size( prt_t * pprt, int size )
+bool prt_t::set_size( prt_t * pprt, int size )
 {
     pip_t *ppip;
 
@@ -3516,7 +3516,7 @@ bool prt_set_size( prt_t * pprt, int size )
     }
     else
     {
-        float real_size  = FP8_TO_FLOAT( size ) * prt_get_scale( pprt );
+        float real_size  = FP8_TO_FLOAT( size ) * prt_t::get_scale( pprt );
 
         if ( 0.0f == pprt->bump_real.size || 0.0f == size )
         {
@@ -3621,7 +3621,7 @@ CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
 }
 
 //--------------------------------------------------------------------------------------------
-float prt_get_scale( prt_t * pprt )
+float prt_t::get_scale( prt_t * pprt )
 {
     /// @author BB
     /// @details get the scale factor between the "graphical size" of the particle and the actual
@@ -3714,21 +3714,21 @@ prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_get_pos(const prt_t *self, fvec3_t& position)
+bool prt_t::get_pos(const prt_t *self, fvec3_t& position)
 {
 	if (!_ALLOCATED_PPRT(self)) return false;
 	position = self->pos;
 	return true;
 }
 //--------------------------------------------------------------------------------------------
-const fvec3_t& prt_get_pos_v_const(const prt_t *pprt)
+const fvec3_t& prt_t::get_pos_v_const(const prt_t *pprt)
 {
     if (!_ALLOCATED_PPRT(pprt)) return fvec3_t::zero;
     return pprt->pos;
 }
 
 //--------------------------------------------------------------------------------------------
-float *prt_get_pos_v(prt_t *pprt)
+float *prt_t::get_pos_v(prt_t *pprt)
 {
     static fvec3_t vtmp = fvec3_t::zero;
     if (!_ALLOCATED_PPRT(pprt)) return vtmp.v;

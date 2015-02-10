@@ -5737,7 +5737,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
         plight = NULL;
 
         // find the distance to the camera
-        vdist = prt_get_pos_v_const(prt_bdl.prt_ptr) - pcam->getTrackPosition();
+        vdist = prt_t::get_pos_v_const(prt_bdl.prt_ptr) - pcam->getTrackPosition();
         distance = vdist.length_2();
 
         // insert the dynalight
@@ -5781,7 +5781,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
         if ( NULL != plight )
         {
             plight->distance = distance;
-            prt_get_pos(prt_bdl.prt_ptr, plight->pos);
+            prt_t::get_pos(prt_bdl.prt_ptr, plight->pos);
             plight->level    = pprt_dyna->level;
             plight->falloff  = pprt_dyna->falloff;
         }

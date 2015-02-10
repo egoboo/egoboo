@@ -922,7 +922,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), pchr_a->getPosition(), pchr_a->vel, &( pprt_b->prt_max_cv ), prt_get_pos_v_const( pprt_b ), pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), pchr_a->getPosition(), pchr_a->vel, &( pprt_b->prt_max_cv ), prt_t::get_pos_v_const( pprt_b ), pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = pchr_a->getCharacterID();
                             tmp_codata.prtb = iprt_b;
@@ -1068,7 +1068,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                         if ( pchr_a->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
                         // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(&(pchr_a->chr_min_cv), pchr_a->getPosition(), pchr_a->vel, &(bdl.prt_ptr->prt_max_cv), prt_get_pos_v_const(bdl.prt_ptr), bdl.prt_ptr->vel, test_platform, &(tmp_codata.cv), &(tmp_codata.tmin), &(tmp_codata.tmax)))
+                        if (phys_intersect_oct_bb(&(pchr_a->chr_min_cv), pchr_a->getPosition(), pchr_a->vel, &(bdl.prt_ptr->prt_max_cv), prt_t::get_pos_v_const(bdl.prt_ptr), bdl.prt_ptr->vel, test_platform, &(tmp_codata.cv), &(tmp_codata.tmin), &(tmp_codata.tmax)))
                         {
 
                             tmp_codata.chra = ichr_a;
@@ -1748,7 +1748,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         fvec3_t tmp_pos;
 
-        prt_get_pos(bdl.prt_ptr, tmp_pos);
+        prt_t::get_pos(bdl.prt_ptr, tmp_pos);
 
         bump_str = 1.0f;
         if ( _gameObjects.exists( bdl.prt_ptr->attachedto_ref ) )
@@ -1785,7 +1785,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpx = tmp_pos.x;
             tmp_pos.x += max_apos.x;
-            if ( EMPTY_BIT_FIELD != prt_test_wall( bdl.prt_ptr, tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != prt_t::test_wall( bdl.prt_ptr, tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.x = tmpx;
@@ -1801,7 +1801,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpy = tmp_pos.y;
             tmp_pos.y += max_apos.y;
-            if ( EMPTY_BIT_FIELD != prt_test_wall( bdl.prt_ptr, tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != prt_t::test_wall( bdl.prt_ptr, tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.y = tmpy;
@@ -1851,7 +1851,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         if ( position_updated )
         {
-            prt_set_pos( bdl.prt_ptr, tmp_pos );
+            prt_t::set_pos( bdl.prt_ptr, tmp_pos );
         }
     }
     PRT_END_LOOP();
@@ -2529,10 +2529,10 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * p
     oct_bb_add_fvec3(&(pdata->pchr->chr_min_cv), pdata->pchr->getPosition(), &cv_chr);
 
     // the smallest particle collision volume
-    oct_bb_add_fvec3(&(pdata->pprt->prt_min_cv), prt_get_pos_v_const(pdata->pprt), &cv_prt_min);
+    oct_bb_add_fvec3(&(pdata->pprt->prt_min_cv), prt_t::get_pos_v_const(pdata->pprt), &cv_prt_min);
 
     // the largest particle collision volume (the hit-box)
-    oct_bb_add_fvec3(&(pdata->pprt->prt_max_cv), prt_get_pos_v_const(pdata->pprt), &cv_prt_max);
+    oct_bb_add_fvec3(&(pdata->pprt->prt_max_cv), prt_t::get_pos_v_const(pdata->pprt), &cv_prt_max);
 
     if ( d->tmin <= 0.0f || ABS( d->tmin ) > 1e6 || ABS( d->tmax ) > 1e6 )
     {
@@ -2638,7 +2638,7 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), pdata->pchr->getPosition(), pdata->pprt->bump_padded, prt_get_pos_v_const( pdata->pprt ), true );
+    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), pdata->pchr->getPosition(), pdata->pprt->bump_padded, prt_t::get_pos_v_const( pdata->pprt ), true );
 
     if ( !plat_collision ) return false;
 

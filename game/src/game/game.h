@@ -43,7 +43,7 @@ struct menu_process_t;
 
 class GameObject;
 struct prt_t;
-struct s_prt_bundle;
+struct prt_bundle_t;
 
 struct s_import_list;
 class CameraSystem;
@@ -502,7 +502,7 @@ void disenchant_character( const CHR_REF ichr );
 
 void cleanup_character_enchants( GameObject * pchr );
 
-bool attach_one_particle( struct s_prt_bundle * pbdl_prt );
+bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
 bool attach_GameObjecto_platform( GameObject * pchr, GameObject * pplat );
 bool attach_prt_to_platform( prt_t * pprt, GameObject * pplat );

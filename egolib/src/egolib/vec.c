@@ -105,10 +105,6 @@ namespace Ego
 }
 #endif
 
-float fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B)
-{
-	return A[kX] * B[kX] + A[kY] * B[kY];
-}
 //--------------------------------------------------------------------------------------------
 void fvec3_ctor(fvec3_t& v)
 {
@@ -127,40 +123,12 @@ float fvec3_decompose(const fvec3_t& A, const fvec3_t& vnrm, fvec3_t& vpara, fve
 	/// @details the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
 
 	float dot;
-#if 0
-	// error trapping
-	if (NULL == A || NULL == vnrm) return 0.0f;
-#endif
+
 	// if this is true, there is no reason to run this function
 	dot = A.dot(vnrm);
 
 	if (0.0f == dot)
 	{
-#if 0
-		// handle optional parameters
-		if (NULL == vpara && NULL == vperp)
-		{
-			// no point in doing anything
-			return 0.0f;
-		}
-		else if (NULL == vpara)
-		{
-			vperp[kX] = A[kX];
-			vperp[kY] = A[kY];
-			vperp[kZ] = A[kZ];
-
-			LOG_NAN_FVEC3(vperp);
-		}
-		else if (NULL == vperp)
-		{
-			vpara[kX] = 0.0f;
-			vpara[kY] = 0.0f;
-			vpara[kZ] = 0.0f;
-
-			LOG_NAN_FVEC3(vpara);
-		}
-		else
-#endif
 		{
 			vpara[kX] = 0.0f;
 			vpara[kY] = 0.0f;
@@ -173,31 +141,6 @@ float fvec3_decompose(const fvec3_t& A, const fvec3_t& vnrm, fvec3_t& vpara, fve
 	}
 	else
 	{
-#if 0
-		// handle optional parameters
-		if (NULL == vpara && NULL == vperp)
-		{
-			// no point in doing anything
-			return 0.0f;
-		}
-		else if (NULL == vpara)
-		{
-			vperp[kX] = A[kX] - dot * vnrm[kX];
-			vperp[kY] = A[kY] - dot * vnrm[kY];
-			vperp[kZ] = A[kZ] - dot * vnrm[kZ];
-
-			LOG_NAN_FVEC3(vperp);
-		}
-		else if (NULL == vperp)
-		{
-			vpara[kX] = dot * vnrm[kX];
-			vpara[kY] = dot * vnrm[kY];
-			vpara[kZ] = dot * vnrm[kZ];
-
-			LOG_NAN_FVEC3(vpara);
-		}
-		else
-#endif
 		{
 			vpara[kX] = dot * vnrm[kX];
 			vpara[kY] = dot * vnrm[kY];

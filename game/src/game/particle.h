@@ -39,16 +39,10 @@ typedef struct mesh_wall_data_t mesh_wall_data_t;
 // internal structs
 //--------------------------------------------------------------------------------------------
 
-struct s_prt_environment;
-typedef struct s_prt_environment prt_environment_t;
-
-struct s_prt_spawn_data;
-typedef struct s_prt_spawn_data prt_spawn_data_t;
-
+struct prt_environment_t;
+struct prt_spawn_data_t;
 struct prt_t;
-
-struct s_prt_bundle;
-typedef struct s_prt_bundle prt_bundle_t;
+struct prt_bundle_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -68,7 +62,7 @@ extern Stack<pip_t, MAX_PIP> PipStack;
 //--------------------------------------------------------------------------------------------
 
 /// Everything that is necessary to compute the character's interaction with the environment
-struct s_prt_environment
+struct prt_environment_t
 {
     // floor stuff
     Uint8  twist;
@@ -93,7 +87,7 @@ struct s_prt_environment
 };
 
 //--------------------------------------------------------------------------------------------
-struct s_prt_spawn_data
+struct prt_spawn_data_t
 {
     fvec3_t  pos;
     FACING_T facing;
@@ -211,16 +205,25 @@ struct prt_t
     fvec3_t           safe_pos;                ///< the last "safe" position
     Uint32            safe_time;               ///< the last "safe" time
     Uint32            safe_grid;               ///< the last "safe" grid
+
+    static prt_t *ctor(prt_t *self);
+    static prt_t *dtor(prt_t *self);
+    static bool request_terminate(prt_t *self);
+    static void set_level(prt_t *self, const float level);
+    static BIT_FIELD hit_wall(prt_t *self, const float test_pos[], float nrm[], float *pressure, mesh_wall_data_t *data);
+    static BIT_FIELD test_wall(prt_t *self, const float test_pos[], mesh_wall_data_t *data);
+    static bool set_size(prt_t *self, int size);
+    static float get_scale(prt_t *self);
+    static const fvec3_t& get_pos_v_const(const prt_t *self);
+    static float *get_pos_v(prt_t *self);
+    static bool set_pos(prt_t *self, const fvec3_t& position);
+    static bool get_pos(const prt_t *self, fvec3_t& position);
+
 };
 
-prt_t * prt_ctor( prt_t * pprt );
-prt_t * prt_dtor( prt_t * pprt );
-bool  prt_request_terminate( prt_t * pprt );
-
-void   prt_set_level( prt_t * pprt, const float level );
 
 //--------------------------------------------------------------------------------------------
-struct s_prt_bundle
+struct prt_bundle_t
 {
     PRT_REF   prt_ref;
     prt_t   * prt_ptr;
@@ -258,9 +261,9 @@ void bump_all_particles_update_counters();
  * @return
  *	the index of the particle on success, INVALID_PRT_REF on failure
  */
-PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
-                            const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                            const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget );
+PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+                           const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                           const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget);
 
 /**
 * @brief Spawns a particle
@@ -268,46 +271,39 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 * @return the PRT_REF of the spawned particle or INVALID_PRT_REF on failure
 **/
 PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const PIP_REF ipip,
-                            const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                            const CHR_REF chr_origin, const PRT_REF prt_origin = INVALID_PRT_REF, const int multispawn = 0, 
-                            const CHR_REF oldtarget = INVALID_CHR_REF);
+                         const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                         const CHR_REF chr_origin, const PRT_REF prt_origin = INVALID_PRT_REF, const int multispawn = 0, 
+                         const CHR_REF oldtarget = INVALID_CHR_REF);
 
 #define spawn_one_particle_global( pos, facing, gpip_index, multispawn ) spawn_one_particle( pos, facing, INVALID_PRO_REF, gpip_index, INVALID_CHR_REF, GRIP_LAST, (TEAM_REF)TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF );
 
 // prt functions
-BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata );
-BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata );
+
 bool      prt_is_over_water( const PRT_REF particle );
 void      prt_play_sound( const PRT_REF particle, Sint8 sound );
 
-prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt );
+prt_bundle_t *move_one_particle_get_environment(prt_bundle_t * pbdl_prt);
 
 // PipStack functions
-PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override );
-void    PipStack_init_all();
-void    PipStack_release_all();
-bool  PipStack_release_one( const PIP_REF ipip );
+PIP_REF PipStack_load_one(const char *szLoadName, const PIP_REF pip_override);
+void PipStack_init_all();
+void PipStack_release_all();
+bool PipStack_release_one(const PIP_REF ipip);
 
 // particle state machine functions
-prt_t * prt_run_config( prt_t * pprt );
-prt_t * prt_config_construct( prt_t * pprt, int max_iterations );
-prt_t * prt_config_initialize( prt_t * pprt, int max_iterations );
-prt_t * prt_config_activate( prt_t * pprt, int max_iterations );
-prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
-prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
+prt_t *prt_run_config(prt_t *self);
+prt_t *prt_config_construct(prt_t *self, int max_iterations);
+prt_t *prt_config_initialize(prt_t *self, int max_iterations);
+prt_t *prt_config_activate(prt_t *self, int max_iterations);
+prt_t *prt_config_deinitialize(prt_t *self, int max_iterations);
+prt_t *prt_config_deconstruct(prt_t *self, int max_iterations);
 
 //inlined before
-PIP_REF  prt_get_ipip( const PRT_REF particle );
-pip_t  * prt_get_ppip( const PRT_REF particle );
-CHR_REF  prt_get_iowner( const PRT_REF iprt, int depth );
-bool   prt_set_size( prt_t *, int size );
-float    prt_get_scale( prt_t * pprt );
+PIP_REF prt_get_ipip(const PRT_REF particle);
+pip_t *prt_get_ppip(const PRT_REF particle);
+CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
 
-prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
-prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
-prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
 
-const fvec3_t& prt_get_pos_v_const(const prt_t *self);
-float *prt_get_pos_v(prt_t *self);
-bool prt_set_pos(prt_t *self, const fvec3_t& position);
-bool prt_get_pos(const prt_t *self,fvec3_t& position);
+prt_bundle_t * prt_bundle_ctor(prt_bundle_t *self);
+prt_bundle_t * prt_bundle_validate(prt_bundle_t *self);
+prt_bundle_t * prt_bundle_set(prt_bundle_t *self, prt_t *pprt);

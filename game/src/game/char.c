@@ -607,7 +607,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
             tmp_pos.y = pchr->inst.matrix.CNV( 3, 1 );
             tmp_pos.z = pchr->inst.matrix.CNV( 3, 2 );
 
-            prt_set_pos(pprt, tmp_pos);
+            prt_t::set_pos(pprt, tmp_pos);
 
             return pprt;
         }
@@ -637,19 +637,19 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
         // Do the transform
         pchr->inst.matrix.transform(point, nupoint, 1);
 
-        prt_set_pos(pprt, fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
+        prt_t::set_pos(pprt, fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
     }
     else
     {
         // No matrix, so just wing it...
-        prt_set_pos(pprt, pchr->getPosition());
+        prt_t::set_pos(pprt, pchr->getPosition());
     }
 
     return pprt;
 
 place_particle_at_vertex_fail:
 
-    prt_request_terminate( pprt );
+    prt_t::request_terminate( pprt );
 
     return NULL;
 }
@@ -2075,7 +2075,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
                 // only bump the closest character that is in front of the character
                 // (ignore vertical displacement)
-                ftmp = fvec2_dot_product( vforward.v, ungrab_list[cnt].diff.v );
+                ftmp = fvec2_t(vforward[kX],vforward[kY]).dot(fvec2_t(ungrab_list[cnt].diff[kX],ungrab_list[cnt].diff[kY]));
                 if ( ftmp > 0.0f )
                 {
                     ai_state_set_bumplast( &( pchr_b->ai ), ichr_a );
@@ -2211,7 +2211,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     fvec3_t tmp_pos;
                     prt_t * pprt = PrtList_get_ptr( iparticle );
 
-                    prt_get_pos(pprt, tmp_pos);
+                    prt_t::get_pos(pprt, tmp_pos);
 
                     if ( weaponProfile->spawnsAttackParticle() )
                     {
@@ -2242,11 +2242,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         pprt->attachedto_ref = INVALID_CHR_REF;
 
                         // Don't spawn in walls
-                        if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, tmp_pos.v, NULL ) )
+                        if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos.v, NULL ) )
                         {
                             tmp_pos.x = pweapon->getPosX();
                             tmp_pos.y = pweapon->getPosY();
-                            if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, tmp_pos.v, NULL ) )
+                            if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos.v, NULL ) )
                             {
                                 tmp_pos.x = pchr->getPosX();
                                 tmp_pos.y = pchr->getPosY();
@@ -2263,7 +2263,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     // Initial particles get an enchantment bonus
                     pprt->damage.base += pweapon->damage_boost;
 
-                    prt_set_pos(pprt, tmp_pos);
+                    prt_t::set_pos(pprt, tmp_pos);
                 }
                 else
                 {
@@ -5699,7 +5699,7 @@ bool move_one_character_integrate_motion( GameObject * pchr )
                     diff.y = pchr->vel.y;
 
                     // make sure that the diff is in the same direction as the velocity
-                    if ( fvec2_dot_product( diff.v, nrm.v ) < 0.0f )
+                    if ( diff.dot(nrm) < 0.0f )
                     {
                         diff.x *= -1.0f;
                         diff.y *= -1.0f;
@@ -5798,7 +5798,7 @@ bool move_one_character_integrate_motion( GameObject * pchr )
                         tmp_pos = save_pos;
                     }
 
-                    dot = fvec2_dot_product( pchr->vel.v, nrm.v );
+                    dot = fvec2_t(pchr->vel[kX],pchr->vel[kY]).dot(nrm);
                     if ( dot < 0.0f )
                     {
                         float loc_bumpdampen;

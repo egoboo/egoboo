@@ -123,7 +123,7 @@ bool chr_BSP_removeAllLeaves();
 bool chr_BSP_can_collide(BSP_leaf_t * pleaf);
 bool chr_BSP_is_visible(BSP_leaf_t * pleaf);
 
-bool prt_BSP_insert(s_prt_bundle * pbdl_prt);
+bool prt_BSP_insert(prt_bundle_t * pbdl_prt);
 bool prt_BSP_fill();
 bool prt_BSP_removeAllLeaves();
 bool prt_BSP_can_collide(BSP_leaf_t * pleaf);

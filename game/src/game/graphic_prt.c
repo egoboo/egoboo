@@ -729,11 +729,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
     pinst->image_ref = UFP8_TO_UINT( pprt->image_stt + pprt->image_off );
 
     // set the position
-    prt_get_pos(pprt, pinst->pos);
+    prt_t::get_pos(pprt, pinst->pos);
     pinst->orientation = ppip->orientation;
 
     // calculate the billboard vectors for the reflecions
-    prt_get_pos(pprt, pinst->ref_pos);
+    prt_t::get_pos(pprt, pinst->ref_pos);
     pinst->ref_pos.z = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
@@ -1001,7 +1001,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
     }
 
     // set some particle dependent properties
-    pinst->scale = prt_get_scale( pprt );
+    pinst->scale = prt_t::get_scale( pprt );
     pinst->size  = FP8_TO_FLOAT( pprt->size ) * pinst->scale;
 
     // this instance is now completely valid

@@ -183,9 +183,6 @@
     <ClCompile Include="src\egolib\file_formats\map_tile_dictionary.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\module_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\file_formats\pip_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -441,9 +438,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\file_formats\map_tile_dictionary.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\module_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\file_formats\pip_file.h">

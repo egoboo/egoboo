@@ -2204,25 +2204,25 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
         pprt->attachedto_ref = INVALID_CHR_REF;
 
-        prt_get_pos(pprt, tmp_pos);
+        prt_t::get_pos(pprt, tmp_pos);
 
         // Correct X, Y, Z spacing
         tmp_pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
 
         // Don't spawn in walls
         tmp_pos.x += pstate->x;
-        if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, tmp_pos.v, NULL ) )
+        if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos.v, NULL ) )
         {
             tmp_pos.x = pprt->pos.x;
 
             tmp_pos.y += pstate->y;
-            if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos.v, NULL ) )
             {
                 tmp_pos.y = pprt->pos.y;
             }
         }
 
-        prt_set_pos(pprt, tmp_pos);
+        prt_t::set_pos(pprt, tmp_pos);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4600,7 +4600,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     if ( returncode )
     {
-        returncode = prt_set_size( PrtList_get_ptr( iprt ), pstate->turn );
+        returncode = prt_t::set_size( PrtList_get_ptr( iprt ), pstate->turn );
     }
 
     SCRIPT_FUNCTION_END();

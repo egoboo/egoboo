@@ -129,7 +129,7 @@ void PrtList_ctor()
         Ego::Entity::ctor( POBJ_GET_PBASE( pprt ), pprt, BSP_LEAF_PRT, cnt );
 
         // initialize particle
-        prt_ctor( pprt );
+        prt_t::ctor( pprt );
     }
 }
 
@@ -145,7 +145,7 @@ void PrtList_dtor()
         pprt = PrtList.lst + cnt;
 
         // destruct the object
-        prt_dtor( pprt );
+        prt_t::dtor( pprt );
 
         // destruct the parent
         Ego::Entity::dtor( POBJ_GET_PBASE( pprt ) );
@@ -925,7 +925,7 @@ bool PrtList_request_terminate( const PRT_REF iprt )
 {
     prt_t * pprt = PrtList_get_ptr( iprt );
 
-    return prt_request_terminate( pprt );
+    return prt_t::request_terminate( pprt );
 }
 
 //--------------------------------------------------------------------------------------------

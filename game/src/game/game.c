@@ -1902,7 +1902,7 @@ void do_weather_spawn_particles()
                         {
                             destroy_particle = true;
                         }
-                        else if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, NULL, NULL ) )
+                        else if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, NULL, NULL ) )
                         {
                             destroy_particle = true;
                         }
@@ -5091,7 +5091,7 @@ bool attach_prt_to_platform( prt_t * pprt, GameObject * pplat )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    prt_set_level( pprt, std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv.maxs[OCT_Z] ) );
+    prt_t::set_level( pprt, std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv.maxs[OCT_Z] ) );
 
     return true;
 }
