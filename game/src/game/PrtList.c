@@ -67,6 +67,34 @@
 #define TERMINATED_PPRT_RAW( PPRT )     TERMINATED_PBASE( POBJ_GET_PBASE(PPRT) )
 
 //--------------------------------------------------------------------------------------------
+//Inline
+//--------------------------------------------------------------------------------------------
+bool _VALID_PRT_RANGE(const PRT_REF IPRT) { return VALID_PRT_RANGE(IPRT); }
+bool _DEFINED_PRT(const PRT_REF IPRT)     { return DEFINED_PRT(IPRT); }
+bool _ALLOCATED_PRT(const PRT_REF IPRT)   { return ALLOCATED_PRT(IPRT); }
+bool _ACTIVE_PRT(const PRT_REF IPRT)      { return ACTIVE_PRT(IPRT); }
+bool _WAITING_PRT(const PRT_REF IPRT)     { return WAITING_PRT(IPRT); }
+bool _TERMINATED_PRT(const PRT_REF IPRT)  { return TERMINATED_PRT(IPRT); }
+
+size_t  _GET_INDEX_PPRT(const prt_t * PPRT)  { return GET_INDEX_PPRT(PPRT); }
+PRT_REF _GET_REF_PPRT(const prt_t * PPRT)    { return GET_REF_PPRT(PPRT); }
+bool  _DEFINED_PPRT(const prt_t * PPRT)    { return DEFINED_PPRT(PPRT); }
+bool  _VALID_PRT_PTR(const prt_t * PPRT)   { return VALID_PRT_PTR(PPRT); }
+bool  _ALLOCATED_PPRT(const prt_t * PPRT)  { return ALLOCATED_PPRT(PPRT); }
+bool  _ACTIVE_PPRT(const prt_t * PPRT)     { return ACTIVE_PPRT(PPRT); }
+bool  _TERMINATED_PPRT(const prt_t * PPRT) { return TERMINATED_PPRT(PPRT); }
+
+bool _INGAME_PRT_BASE(const PRT_REF IPRT)  { return INGAME_PRT_BASE(IPRT); }
+bool _INGAME_PPRT_BASE(const prt_t * PPRT) { return INGAME_PPRT_BASE(PPRT); }
+
+bool _INGAME_PRT(const PRT_REF IPRT)       { return INGAME_PRT(IPRT); }
+bool _INGAME_PPRT(const prt_t * PPRT)      { return INGAME_PPRT(PPRT); }
+
+bool _DISPLAY_PRT(const PRT_REF IPRT)      { return DISPLAY_PRT(IPRT); }
+bool _DISPLAY_PPRT(const prt_t * PPRT)     { return DISPLAY_PPRT(PPRT); }
+
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static size_t  prt_termination_count = 0;
@@ -936,30 +964,3 @@ bool PrtList_remove_free_ref( const PRT_REF iprt )
 
     return PrtList_remove_free_idx( index );
 }
-
-//--------------------------------------------------------------------------------------------
-//Inline
-//--------------------------------------------------------------------------------------------
-bool _VALID_PRT_RANGE( const PRT_REF IPRT ) { return VALID_PRT_RANGE( IPRT ); }
-bool _DEFINED_PRT( const PRT_REF IPRT )     { return DEFINED_PRT( IPRT );     }
-bool _ALLOCATED_PRT( const PRT_REF IPRT )   { return ALLOCATED_PRT( IPRT );   }
-bool _ACTIVE_PRT( const PRT_REF IPRT )      { return ACTIVE_PRT( IPRT );      }
-bool _WAITING_PRT( const PRT_REF IPRT )     { return WAITING_PRT( IPRT );     }
-bool _TERMINATED_PRT( const PRT_REF IPRT )  { return TERMINATED_PRT( IPRT );  }
-
-size_t  _GET_INDEX_PPRT( const prt_t * PPRT )  { return GET_INDEX_PPRT( PPRT );  }
-PRT_REF _GET_REF_PPRT( const prt_t * PPRT )    { return GET_REF_PPRT( PPRT );    }
-bool  _DEFINED_PPRT( const prt_t * PPRT )    { return DEFINED_PPRT( PPRT );    }
-bool  _VALID_PRT_PTR( const prt_t * PPRT )   { return VALID_PRT_PTR( PPRT );   }
-bool  _ALLOCATED_PPRT( const prt_t * PPRT )  { return ALLOCATED_PPRT( PPRT );  }
-bool  _ACTIVE_PPRT( const prt_t * PPRT )     { return ACTIVE_PPRT( PPRT );     }
-bool  _TERMINATED_PPRT( const prt_t * PPRT ) { return TERMINATED_PPRT( PPRT ); }
-
-bool _INGAME_PRT_BASE( const PRT_REF IPRT )  { return INGAME_PRT_BASE( IPRT );  }
-bool _INGAME_PPRT_BASE( const prt_t * PPRT ) { return INGAME_PPRT_BASE( PPRT ); }
-
-bool _INGAME_PRT( const PRT_REF IPRT )       { return INGAME_PRT( IPRT );  }
-bool _INGAME_PPRT( const prt_t * PPRT )      { return INGAME_PPRT( PPRT ); }
-
-bool _DISPLAY_PRT( const PRT_REF IPRT )      { return DISPLAY_PRT( IPRT ); }
-bool _DISPLAY_PPRT( const prt_t * PPRT )     { return DISPLAY_PPRT( PPRT ); }
