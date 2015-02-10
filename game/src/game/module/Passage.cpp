@@ -279,15 +279,11 @@ void Passage::setMusic(const int32_t musicID)
 
 bool Passage::isShop() const
 {
-    return _shopOwner;
+    return _shopOwner != INVALID_CHR_REF;
 }
 
 CHR_REF Passage::getShopOwner() const
 {
-    if(!isShop()) {
-        return INVALID_CHR_REF;
-    }
-
     return _shopOwner;
 }
 
