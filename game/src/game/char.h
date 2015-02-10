@@ -424,4 +424,3 @@ bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
-bool chr_get_pos(const GameObject *self, fvec3_t& position);

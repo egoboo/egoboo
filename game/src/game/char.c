@@ -419,7 +419,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate.z = pchr->ori.facing_z;
 
-        chr_get_pos(pchr, pinst->matrix_cache.pos);
+        pinst->matrix_cache.pos = pchr->getPosition();
     }
 }
 
@@ -5323,7 +5323,7 @@ bool chr_update_safe_raw( GameObject * pchr )
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pchr->safe_valid = true;
-        chr_get_pos(pchr, pchr->safe_pos);
+        pchr->safe_pos = pchr->getPosition();
         pchr->safe_time  = update_wld;
         pchr->safe_grid  = ego_mesh_get_grid( PMesh, pchr->getPosX(), pchr->getPosY() );
 
@@ -5536,7 +5536,7 @@ bool move_one_character_integrate_motion( GameObject * pchr )
         return move_one_character_integrate_motion_attached( pchr );
     }
 
-    chr_get_pos(pchr, tmp_pos);
+    tmp_pos = pchr->getPosition();;
 
     pai = &( pchr->ai );
     ichr = pai->index;
@@ -6312,7 +6312,7 @@ void move_one_character( GameObject * pchr )
     pchr->enviro.acc = pchr->vel - pchr->vel_old;
 
     // Character's old location
-    chr_get_pos(pchr, pchr->pos_old);
+    pchr->pos_old = pchr->getPosition();
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
@@ -7106,7 +7106,7 @@ bool GameObjecteleport( const CHR_REF ichr, float x, float y, float z, FACING_T 
     if ( x < 0.0f || x > PMesh->gmem.edge_x ) return false;
     if ( y < 0.0f || y > PMesh->gmem.edge_y ) return false;
 
-    chr_get_pos(pchr, pos_old);
+    pos_old = pchr->getPosition();
     facing_old = pchr->ori.facing_z;
 
     pos_new.x  = x;
@@ -7331,7 +7331,7 @@ bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
             mc_tmp->rotate.z = ptarget->ori.facing_z;
 
-            chr_get_pos(ptarget, mc_tmp->pos);
+            mc_tmp->pos = ptarget->getPosition();
 
             mc_tmp->grip_scale.x = mc_tmp->grip_scale.y = mc_tmp->grip_scale.z = ptarget->fat;
         }
@@ -7563,7 +7563,7 @@ bool apply_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
                 mcache->rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
                 mcache->rotate.z = pchr->ori.facing_z;
 
-                chr_get_pos(pchr, mcache->pos);
+                mcache->pos =pchr->getPosition();
 
                 applied = true;
             }
@@ -8932,12 +8932,4 @@ static void chr_init_size( GameObject * pchr, const std::shared_ptr<ObjectProfil
     pchr->bump_save.height   = pchr->bump_stt.height;
 
     chr_update_size( pchr );
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_get_pos(const GameObject *self, fvec3_t& position)
-{
-	if (nullptr == (self)) return false;
-	position = self->getPosition();
-	return true;
 }
