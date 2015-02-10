@@ -76,26 +76,27 @@ int     PrtList_count_free();
 // testing functions
 //--------------------------------------------------------------------------------------------
 
-bool _VALID_PRT_RANGE( const PRT_REF IPRT );
-bool _DEFINED_PRT( const PRT_REF IPRT );
-bool _ALLOCATED_PRT( const PRT_REF IPRT );
-bool _ACTIVE_PRT( const PRT_REF IPRT );
-bool _WAITING_PRT( const PRT_REF IPRT );
-bool _TERMINATED_PRT( const PRT_REF IPRT );
+bool _VALID_PRT_RANGE(const PRT_REF IPRT);
+bool _DEFINED_PRT(const PRT_REF IPRT);
+bool _ALLOCATED_PRT(const PRT_REF IPRT);
+bool _ACTIVE_PRT(const PRT_REF IPRT);
+bool _WAITING_PRT(const PRT_REF IPRT);
+bool _TERMINATED_PRT(const PRT_REF IPRT);
 
-size_t  _GET_INDEX_PPRT( const prt_t * PPRT );
-PRT_REF _GET_REF_PPRT( const prt_t * PPRT );
-bool  _DEFINED_PPRT( const prt_t * PPRT );
-bool  _VALID_PRT_PTR( const prt_t * PPRT );
-bool  _ALLOCATED_PPRT( const prt_t * PPRT );
-bool  _ACTIVE_PPRT( const prt_t * PPRT );
-bool  _TERMINATED_PPRT( const prt_t * PPRT );
+size_t _GET_INDEX_PPRT(const prt_t *PPRT);
+PRT_REF _GET_REF_PPRT(const prt_t *PPRT);
+bool _DEFINED_PPRT(const prt_t *PPRT);
+bool _VALID_PRT_PTR(const prt_t *PPRT);
+bool _ALLOCATED_PPRT(const prt_t *PPRT);
+bool _ACTIVE_PPRT(const prt_t * PPRT);
+bool _WAITING_PPRT(const prt_t *PPRT);
+bool _TERMINATED_PPRT(const prt_t *PPRT);
 
-bool _INGAME_PRT_BASE( const PRT_REF IPRT );
-bool _INGAME_PPRT_BASE( const prt_t * PPRT );
+bool _INGAME_PRT_BASE(const PRT_REF IPRT);
+bool _INGAME_PPRT_BASE(const prt_t *PPRT);
 
-bool _INGAME_PRT( const PRT_REF IPRT );
-bool _INGAME_PPRT( const prt_t * PPRT );
+bool _INGAME_PRT(const PRT_REF IPRT);
+bool _INGAME_PPRT(const prt_t *PPRT);
 
-bool _DISPLAY_PRT( const PRT_REF IPRT );
-bool _DISPLAY_PPRT( const prt_t * PPRT );
+bool _DISPLAY_PRT(const PRT_REF IPRT);
+bool _DISPLAY_PPRT(const prt_t *PPRT);

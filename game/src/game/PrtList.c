@@ -29,35 +29,6 @@
 // testing macros
 //--------------------------------------------------------------------------------------------
 
-#define VALID_PRT_RANGE( IPRT )    ( ((PRT_REF)(IPRT)) < std::min<size_t>(maxparticles,MAX_PRT) )
-#define DEFINED_PRT( IPRT )        ( VALID_PRT_RANGE( IPRT ) && DEFINED_PPRT_RAW   ( PrtList.lst + (IPRT)) )
-#define ALLOCATED_PRT( IPRT )      ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PPRT_RAW ( PrtList.lst + (IPRT)) )
-#define ACTIVE_PRT( IPRT )         ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PPRT_RAW    ( PrtList.lst + (IPRT)) )
-#define WAITING_PRT( IPRT )        ( VALID_PRT_RANGE( IPRT ) && WAITING_PPRT_RAW   ( PrtList.lst + (IPRT)) )
-#define TERMINATED_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && TERMINATED_PPRT_RAW( PrtList.lst + (IPRT)) )
-
-#define GET_INDEX_PPRT( PPRT )      LAMBDA(NULL == (PPRT), INVALID_PRT_IDX, (size_t)GET_INDEX_POBJ( PPRT, INVALID_PRT_IDX ))
-#define GET_REF_PPRT( PPRT )        ((PRT_REF)GET_INDEX_PPRT( PPRT ))
-#define VALID_PRT_PTR( PPRT )       ( (NULL != (PPRT)) && VALID_PRT_RANGE( GET_REF_POBJ( PPRT, INVALID_PRT_REF) ) )
-#define DEFINED_PPRT( PPRT )        ( VALID_PRT_PTR( PPRT ) && DEFINED_PPRT_RAW   ( PPRT ) )
-#define ALLOCATED_PPRT( PPRT )      ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PPRT_RAW ( PPRT ) )
-#define ACTIVE_PPRT( PPRT )         ( VALID_PRT_PTR( PPRT ) && ACTIVE_PPRT_RAW    ( PPRT ) )
-#define WAITING_PPRT( PPRT )        ( VALID_PRT_PTR( PPRT ) && WAITING_PPRT_RAW   ( PPRT ) )
-#define TERMINATED_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && TERMINATED_PPRT_RAW( PPRT ) )
-
-// Macros to determine whether the particle is in the game or not.
-// If objects are being spawned, then any object that is just "defined" is treated as "in game"
-
-// all particles that are ON are displayed
-#define INGAME_PRT_BASE(IPRT)       ( VALID_PRT_RANGE( IPRT ) && INGAME_PPRT_BASE_RAW( PrtList.lst + (IPRT) ) )
-#define INGAME_PPRT_BASE(PPRT)      ( VALID_PRT_PTR( PPRT ) && INGAME_PPRT_BASE_RAW( PPRT ) )
-
-#define INGAME_PRT(IPRT)            LAMBDA( Ego::Entities::spawnDepth > 0, DEFINED_PRT(IPRT), INGAME_PRT_BASE(IPRT) && (!PrtList.lst[IPRT].is_ghost) )
-#define INGAME_PPRT(PPRT)           LAMBDA( Ego::Entities::spawnDepth > 0, INGAME_PPRT_BASE(PPRT), DISPLAY_PPRT(PPRT) && ( !(PPRT)->is_ghost ) )
-
-#define DISPLAY_PRT(IPRT)           INGAME_PRT_BASE(IPRT)
-#define DISPLAY_PPRT(PPRT)          INGAME_PPRT_BASE(PPRT)
-
 // macros without range checking
 #define INGAME_PPRT_BASE_RAW(PPRT)      ( ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) && ON_PBASE( POBJ_GET_PBASE(PPRT) ) )
 #define DEFINED_PPRT_RAW( PPRT )        ( ALLOCATED_PBASE ( POBJ_GET_PBASE(PPRT) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PPRT) ) )
@@ -69,30 +40,66 @@
 //--------------------------------------------------------------------------------------------
 //Inline
 //--------------------------------------------------------------------------------------------
+
+#define VALID_PRT_RANGE(IPRT) (((PRT_REF)(IPRT)) < std::min<size_t>(maxparticles,MAX_PRT))
 bool _VALID_PRT_RANGE(const PRT_REF IPRT) { return VALID_PRT_RANGE(IPRT); }
-bool _DEFINED_PRT(const PRT_REF IPRT)     { return DEFINED_PRT(IPRT); }
-bool _ALLOCATED_PRT(const PRT_REF IPRT)   { return ALLOCATED_PRT(IPRT); }
-bool _ACTIVE_PRT(const PRT_REF IPRT)      { return ACTIVE_PRT(IPRT); }
-bool _WAITING_PRT(const PRT_REF IPRT)     { return WAITING_PRT(IPRT); }
-bool _TERMINATED_PRT(const PRT_REF IPRT)  { return TERMINATED_PRT(IPRT); }
 
-size_t  _GET_INDEX_PPRT(const prt_t * PPRT)  { return GET_INDEX_PPRT(PPRT); }
-PRT_REF _GET_REF_PPRT(const prt_t * PPRT)    { return GET_REF_PPRT(PPRT); }
-bool  _DEFINED_PPRT(const prt_t * PPRT)    { return DEFINED_PPRT(PPRT); }
-bool  _VALID_PRT_PTR(const prt_t * PPRT)   { return VALID_PRT_PTR(PPRT); }
-bool  _ALLOCATED_PPRT(const prt_t * PPRT)  { return ALLOCATED_PPRT(PPRT); }
-bool  _ACTIVE_PPRT(const prt_t * PPRT)     { return ACTIVE_PPRT(PPRT); }
-bool  _TERMINATED_PPRT(const prt_t * PPRT) { return TERMINATED_PPRT(PPRT); }
+#define DEFINED_PRT(IPRT) (VALID_PRT_RANGE(IPRT) && DEFINED_PPRT_RAW(PrtList.lst + (IPRT)))
+bool _DEFINED_PRT(const PRT_REF IPRT) { return DEFINED_PRT(IPRT); }
 
-bool _INGAME_PRT_BASE(const PRT_REF IPRT)  { return INGAME_PRT_BASE(IPRT); }
-bool _INGAME_PPRT_BASE(const prt_t * PPRT) { return INGAME_PPRT_BASE(PPRT); }
+#define ALLOCATED_PRT(IPRT) (VALID_PRT_RANGE(IPRT) && ALLOCATED_PPRT_RAW(PrtList.lst + (IPRT)))
+bool _ALLOCATED_PRT(const PRT_REF IPRT) { return ALLOCATED_PRT(IPRT); }
 
-bool _INGAME_PRT(const PRT_REF IPRT)       { return INGAME_PRT(IPRT); }
-bool _INGAME_PPRT(const prt_t * PPRT)      { return INGAME_PPRT(PPRT); }
+#define ACTIVE_PRT(IPRT) (VALID_PRT_RANGE(IPRT) && ACTIVE_PPRT_RAW(PrtList.lst + (IPRT)))
+bool _ACTIVE_PRT(const PRT_REF IPRT) { return ACTIVE_PRT(IPRT); }
 
-bool _DISPLAY_PRT(const PRT_REF IPRT)      { return DISPLAY_PRT(IPRT); }
-bool _DISPLAY_PPRT(const prt_t * PPRT)     { return DISPLAY_PPRT(PPRT); }
+#define WAITING_PRT(IPRT) (VALID_PRT_RANGE(IPRT) && WAITING_PPRT_RAW(PrtList.lst + (IPRT)))
+bool _WAITING_PRT(const PRT_REF IPRT) { return WAITING_PRT(IPRT); }
 
+#define TERMINATED_PRT(IPRT) (VALID_PRT_RANGE(IPRT) && TERMINATED_PPRT_RAW(PrtList.lst + (IPRT)))
+bool _TERMINATED_PRT(const PRT_REF IPRT) { return TERMINATED_PRT(IPRT); }
+
+#define GET_INDEX_PPRT(PPRT) LAMBDA(NULL == (PPRT), INVALID_PRT_IDX, (size_t)GET_INDEX_POBJ( PPRT, INVALID_PRT_IDX ))
+size_t _GET_INDEX_PPRT(const prt_t *PPRT) { return GET_INDEX_PPRT(PPRT); }
+
+#define GET_REF_PPRT(PPRT) ((PRT_REF)GET_INDEX_PPRT(PPRT))
+PRT_REF _GET_REF_PPRT(const prt_t *PPRT) { return GET_REF_PPRT(PPRT); }
+
+#define VALID_PRT_PTR(PPRT) ((NULL != (PPRT)) && VALID_PRT_RANGE(GET_REF_POBJ(PPRT, INVALID_PRT_REF)))
+bool  _VALID_PRT_PTR(const prt_t *PPRT) { return VALID_PRT_PTR(PPRT); }
+
+#define DEFINED_PPRT(PPRT) (VALID_PRT_PTR(PPRT) && DEFINED_PPRT_RAW(PPRT))
+bool  _DEFINED_PPRT(const prt_t *PPRT) { return DEFINED_PPRT(PPRT); }
+
+#define ALLOCATED_PPRT(PPRT) (VALID_PRT_PTR(PPRT) && ALLOCATED_PPRT_RAW(PPRT))
+bool _ALLOCATED_PPRT(const prt_t *PPRT) { return ALLOCATED_PPRT(PPRT); }
+
+#define ACTIVE_PPRT(PPRT) (VALID_PRT_PTR(PPRT) && ACTIVE_PPRT_RAW(PPRT))
+bool _ACTIVE_PPRT(const prt_t *PPRT) { return ACTIVE_PPRT(PPRT); }
+
+#define WAITING_PPRT(PPRT) (VALID_PRT_PTR(PPRT) && WAITING_PPRT_RAW(PPRT))
+bool _WAITING_PPRT(const prt_t *PPRT) { return WAITING_PPRT(PPRT); }
+
+#define TERMINATED_PPRT(PPRT) (VALID_PRT_PTR(PPRT) && TERMINATED_PPRT_RAW(PPRT))
+bool _TERMINATED_PPRT(const prt_t *PPRT) { return TERMINATED_PPRT(PPRT); }
+
+#define INGAME_PRT_BASE(IPRT) (VALID_PRT_RANGE(IPRT) && INGAME_PPRT_BASE_RAW(PrtList.lst + (IPRT)))
+bool _INGAME_PRT_BASE(const PRT_REF IPRT) { return INGAME_PRT_BASE(IPRT); }
+
+#define INGAME_PPRT_BASE(PPRT) (VALID_PRT_PTR(PPRT) && INGAME_PPRT_BASE_RAW(PPRT))
+bool _INGAME_PPRT_BASE(const prt_t *PPRT) { return INGAME_PPRT_BASE(PPRT); }
+
+#define DISPLAY_PRT(IPRT) INGAME_PRT_BASE(IPRT)
+bool _DISPLAY_PRT(const PRT_REF IPRT) { return DISPLAY_PRT(IPRT); }
+
+#define DISPLAY_PPRT(PPRT) INGAME_PPRT_BASE(PPRT)
+bool _DISPLAY_PPRT(const prt_t *PPRT) { return DISPLAY_PPRT(PPRT); }
+
+#define INGAME_PRT(IPRT) LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PRT(IPRT), INGAME_PRT_BASE(IPRT) && (!PrtList.lst[IPRT].is_ghost))
+bool _INGAME_PRT(const PRT_REF IPRT) { return INGAME_PRT(IPRT); }
+
+#define INGAME_PPRT(PPRT) LAMBDA(Ego::Entities::spawnDepth > 0, INGAME_PPRT_BASE(PPRT), DISPLAY_PPRT(PPRT) && (!(PPRT)->is_ghost))
+bool _INGAME_PPRT(const prt_t *PPRT) { return INGAME_PPRT(PPRT); }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
