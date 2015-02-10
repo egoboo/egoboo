@@ -1926,7 +1926,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         GameObject * pchild = _gameObjects.get( ichr );
 
         // was the child spawned in a "safe" spot?
-        if ( !chr_get_safe( pchild, NULL ) )
+        if (!chr_get_safe( pchild))
         {
             _gameObjects.remove( ichr );
             ichr = INVALID_CHR_REF;
@@ -5502,7 +5502,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         GameObject * pchild = _gameObjects.get( ichr );
 
         // was the child spawned in a "safe" spot?
-        if ( !chr_get_safe( pchild, NULL ) )
+        if (!chr_get_safe(pchild))
         {
             _gameObjects.remove( ichr );
             ichr = INVALID_CHR_REF;
@@ -5557,7 +5557,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         GameObject * pchild = _gameObjects.get( ichr );
 
         // was the child spawned in a "safe" spot?
-        if ( !chr_get_safe( pchild, NULL ) )
+        if (!chr_get_safe(pchild))
         {
             _gameObjects.remove( ichr );
             ichr = INVALID_CHR_REF;
@@ -7564,7 +7564,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // still allow the character to spawn if it is not in an invalid area
 
             // technically this should never occur since we are limiting the attachment points above
-            if ( !chr_get_safe( pchild, NULL ) )
+            if (!chr_get_safe(pchild))
             {
                 _gameObjects.remove( ichr );
                 ichr = INVALID_CHR_REF;

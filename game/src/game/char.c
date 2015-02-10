@@ -419,7 +419,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate.z = pchr->ori.facing_z;
 
-        chr_get_pos( pchr, pinst->matrix_cache.pos.v );
+        chr_get_pos(pchr, pinst->matrix_cache.pos);
     }
 }
 
@@ -1883,7 +1883,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         diff.z += pchr_c->bump.height * 0.5f;
 
         // find the squared difference horizontal and vertical
-        diff2_hrz = fvec2_length_2( diff.v );
+        diff2_hrz = fvec2_t(diff[kX], diff[kY]).length_2();
         diff2_vrt = diff.z * diff.z;
 
         // determine the actual max vertical distance
@@ -4734,7 +4734,8 @@ void move_one_character_do_voluntary( GameObject * pchr )
 
     if ( !pchr->alive || pchr->maxaccel == 0.00f ) return;
 
-    fvec2_base_copy( pchr->enviro.new_v.v, pchr->vel.v );
+    pchr->enviro.new_v[kX] = pchr->vel[kX];
+    pchr->enviro.new_v[kY] = pchr->vel[kY];
 
     if ( _gameObjects.exists( pchr->attachedto ) ) return;
 
@@ -5322,7 +5323,7 @@ bool chr_update_safe_raw( GameObject * pchr )
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pchr->safe_valid = true;
-        chr_get_pos( pchr, pchr->safe_pos.v );
+        chr_get_pos(pchr, pchr->safe_pos);
         pchr->safe_time  = update_wld;
         pchr->safe_grid  = ego_mesh_get_grid( PMesh, pchr->getPosX(), pchr->getPosY() );
 
@@ -5372,12 +5373,12 @@ bool chr_update_safe( GameObject * pchr, bool force )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_get_safe( GameObject * pchr, fvec3_base_t pos_v )
+bool chr_get_safe(GameObject * pchr)
 {
     bool found = false;
     fvec3_t loc_pos;
 
-    if ( nullptr == ( pchr ) ) return false;
+    if (nullptr == pchr) return false;
 
     // DO NOT require objects that are spawning in a module to have a
     // valid position at spawn-time. For instance, if a suit of armor is
@@ -5387,19 +5388,14 @@ bool chr_get_safe( GameObject * pchr, fvec3_base_t pos_v )
     /// by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt, I've tried a hotfix here instead
     if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )
     {
-        fvec3_base_copy(pos_v, pchr->getPosition().v);
         return true;
     }
-
-    // handle optional parameters
-    if ( NULL == pos_v ) pos_v = loc_pos.v;
 
     if ( !found && pchr->safe_valid )
     {
         if ( !chr_hit_wall( pchr, NULL, NULL, NULL, NULL ) )
         {
             found = true;
-            fvec3_base_copy( pos_v, pchr->safe_pos.v );
         }
     }
 
@@ -5412,7 +5408,6 @@ bool chr_get_safe( GameObject * pchr, fvec3_base_t pos_v )
         if ( NULL != bc )
         {
             found = true;
-            fvec3_base_copy( pos_v, bc->pos.v );
         }
     }
 
@@ -5541,7 +5536,7 @@ bool move_one_character_integrate_motion( GameObject * pchr )
         return move_one_character_integrate_motion_attached( pchr );
     }
 
-    chr_get_pos( pchr, tmp_pos.v );
+    chr_get_pos(pchr, tmp_pos);
 
     pai = &( pchr->ai );
     ichr = pai->index;
@@ -5753,12 +5748,12 @@ bool move_one_character_integrate_motion( GameObject * pchr )
                     fvec2_t v_perp = fvec2_t::zero;
                     fvec2_t diff_perp = fvec2_t::zero;
 
-                    nrm2 = fvec2_dot_product( nrm.v, nrm.v );
+					nrm2 = nrm.dot(nrm);
 
                     save_pos = tmp_pos;
 
                     // make the diff point "out"
-                    dot = fvec2_dot_product( diff.v, nrm.v );
+					dot = diff.dot(nrm);
                     if ( dot < 0.0f )
                     {
                         diff.x *= -1.0f;
@@ -6101,18 +6096,14 @@ float set_character_animation_rate( GameObject * pchr )
     }
     else
     {
-        // for non-flying objects, we use the intended speed
-
+        // For non-flying objects, we use the intended speed.
+		// new_v.x, new_v.y is the speed before any latches are applied.
+        speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length_abs();
         if ( pchr->enviro.is_slipping )
         {
-            // the character is slipping as on ice. make their little legs move based on
-            // their intended speed, for comic effect! :)
-            speed = fvec2_length_abs( pchr->enviro.new_v.v );
-        }
-        else
-        {
-            // new_v.x, new_v.y is the speed before any latches are applied
-            speed = fvec2_length_abs( pchr->enviro.new_v.v );
+            // The character is slipping as on ice.
+			// Make his little legs move based on his intended speed, for comic effect! :)
+			speed *= 2.0f;
         }
     }
 
@@ -6321,11 +6312,12 @@ void move_one_character( GameObject * pchr )
     pchr->enviro.acc = pchr->vel - pchr->vel_old;
 
     // Character's old location
-    chr_get_pos( pchr, pchr->pos_old.v );
+    chr_get_pos(pchr, pchr->pos_old);
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
-    fvec2_base_copy( pchr->enviro.new_v.v, pchr->vel.v );
+    pchr->enviro.new_v[kX] = pchr->vel[kX];
+    pchr->enviro.new_v[kY] = pchr->vel[kY];
 
     move_one_character_get_environment( pchr );
 
@@ -6886,7 +6878,7 @@ egolib_rv chr_update_collision_size( GameObject * pchr, bool update_matrix )
     {
         if ( !profile->isSlotValid( static_cast<slot_t>(cnt) ) ) continue;
 
-        chr_calc_grip_cv( pchr, GRIP_LEFT, &pchr->slot_cv[cnt], NULL, NULL, false );
+        chr_calc_grip_cv( pchr, GRIP_LEFT, &pchr->slot_cv[cnt], false );
 
         oct_bb_self_union( &( pchr->chr_max_cv ), &pchr->slot_cv[cnt] );
     }
@@ -7114,7 +7106,7 @@ bool GameObjecteleport( const CHR_REF ichr, float x, float y, float z, FACING_T 
     if ( x < 0.0f || x > PMesh->gmem.edge_x ) return false;
     if ( y < 0.0f || y > PMesh->gmem.edge_y ) return false;
 
-    chr_get_pos( pchr, pos_old.v );
+    chr_get_pos(pchr, pos_old);
     facing_old = pchr->ori.facing_z;
 
     pos_new.x  = x;
@@ -7339,7 +7331,7 @@ bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
             mc_tmp->rotate.z = ptarget->ori.facing_z;
 
-            chr_get_pos( ptarget, mc_tmp->pos.v );
+            chr_get_pos(ptarget, mc_tmp->pos);
 
             mc_tmp->grip_scale.x = mc_tmp->grip_scale.y = mc_tmp->grip_scale.z = ptarget->fat;
         }
@@ -7461,7 +7453,7 @@ bool apply_one_weapon_matrix( GameObject * pweap, matrix_cache_t * mc_tmp )
         mat_FourPoints( pweap->inst.matrix.v, nupoint[0].v, nupoint[1].v, nupoint[2].v, nupoint[3].v, mc_tmp->self_scale.z );
 
         // update the weapon position
-        pweap->setPosition(nupoint[3].v );
+        pweap->setPosition(fvec3_t(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
 
         memcpy( &( pweap->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
 
@@ -7473,7 +7465,7 @@ bool apply_one_weapon_matrix( GameObject * pweap, matrix_cache_t * mc_tmp )
         // ignore the shape of the grip and just stick the character to the single mount point
 
         // update the character position
-        pweap->setPosition(nupoint[0].v );
+        pweap->setPosition(fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
 
         // make sure we have the right data
         chr_get_matrix_cache( pweap, mc_tmp );
@@ -7571,7 +7563,7 @@ bool apply_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
                 mcache->rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
                 mcache->rotate.z = pchr->ori.facing_z;
 
-                chr_get_pos( pchr, mcache->pos.v );
+                chr_get_pos(pchr, mcache->pos);
 
                 applied = true;
             }
@@ -8587,7 +8579,7 @@ GameObject * chr_set_ai_state( GameObject * pchr, int state )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_calc_grip_cv( GameObject * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin, fvec3_base_t grip_up, const bool shift_origin )
+bool chr_calc_grip_cv( GameObject * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin )
 {
     /// @author BB
     /// @details use a standard size for the grip
@@ -8697,40 +8689,8 @@ bool chr_calc_grip_cv( GameObject * pmount, int grip_offset, oct_bb_t * grip_cv_
     }
 
     // transform the vertices to calculate the grip_vecs[]
-    if ( NULL == grip_up )
-    {
-        // we only need one vertex
-        pmount_inst->matrix.transform(grip_points, grip_nupoints, 1);
-    }
-    else
-    {
-        // transform all the vertices
-        pmount_inst->matrix.transform(grip_points, grip_nupoints, GRIP_VERTS );
-    }
-
-    // find the up vector, if needed
-    if ( NULL != grip_up )
-    {
-        fvec3_t vtmp;
-        fvec3_t grip_vecs[3];
-
-        // determine the grip vectors
-        for ( cnt = 0; cnt < 3; cnt++ )
-        {
-            grip_vecs[cnt] = fvec3_t(grip_nupoints[cnt + 1][kX],grip_nupoints[cnt + 1][kY],grip_nupoints[cnt + 1][kZ])
-				           - fvec3_t(grip_nupoints[0][kX],grip_nupoints[0][kY],grip_nupoints[0][kZ]);
-        }
-
-        // grab the grip's "up" vector
-		vtmp = grip_vecs[2]; vtmp.normalize();
-        fvec3_base_copy(grip_up, vtmp.v);
-    }
-
-    // save the origin, if necessary
-    if ( NULL != grip_origin )
-    {
-        fvec3_base_copy( grip_origin, grip_nupoints[0].v );
-    }
+    // we only need one vertex
+    pmount_inst->matrix.transform(grip_points, grip_nupoints, 1);
 
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
@@ -8980,14 +8940,4 @@ bool chr_get_pos(const GameObject *self, fvec3_t& position)
 	if (nullptr == (self)) return false;
 	position = self->getPosition();
 	return true;
-}
-bool chr_get_pos(const GameObject *self, fvec3_base_t position)
-{
-    float *copy_retval;
-
-    if (nullptr == (self)) return false;
-
-    copy_retval = fvec3_base_copy(position, self->getPosition().v);
-
-    return NULL != copy_retval;
 }

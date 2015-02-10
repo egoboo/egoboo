@@ -1971,8 +1971,8 @@ void set_one_player_latch( const PLA_REF ipla )
 
     // Clear the player's latch buffers
     sum.clear();
-    fvec2_self_clear( joy_new.v );
-    fvec2_self_clear( joy_pos.v );
+    joy_new = fvec2_t::zero;
+    joy_pos = fvec2_t::zero;
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera

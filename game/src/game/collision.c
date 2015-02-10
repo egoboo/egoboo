@@ -1645,7 +1645,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         fvec3_t tmp_pos;
 
-        chr_get_pos( pchr.get(), tmp_pos.v );
+        chr_get_pos(pchr.get(), tmp_pos);
 
         bump_str = 1.0f;
         if ( _gameObjects.exists( pchr->attachedto ) )

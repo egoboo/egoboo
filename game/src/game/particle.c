@@ -3720,18 +3720,6 @@ bool prt_get_pos(const prt_t *self, fvec3_t& position)
 	position = self->pos;
 	return true;
 }
-#if 0
-bool prt_get_pos(const prt_t *self, fvec3_base_t position)
-{
-    float *copy_rv;
-
-    if (!_ALLOCATED_PPRT(self)) return false;
-
-    copy_rv = fvec3_base_copy(position, self->pos.v);
-
-    return ( NULL == copy_rv ) ? false : true;
-}
-#endif
 //--------------------------------------------------------------------------------------------
 const fvec3_t& prt_get_pos_v_const(const prt_t *pprt)
 {

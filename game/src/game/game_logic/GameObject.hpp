@@ -165,17 +165,6 @@ public:
     inline bool setPosition(const float x, const float y, const float z) {return setPosition(fvec3_t(x, y, z));}
 
     /**
-    * @brief Set current X, Y, Z position of this GameObject
-    * @return true if the position of this object has changed
-    **/
-    inline bool setPosition(const fvec3_base_t position)
-    {
-    	fvec3_t vectorPosition;
-    	fvec3_base_copy(vectorPosition.v, position);
-    	return setPosition(vectorPosition);
-    }
-
-    /**
     * @brief Translate the current X, Y, Z position of this object by the specified values
     **/
     void movePosition(const float x, const float y, const float z);

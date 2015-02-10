@@ -4962,7 +4962,7 @@ bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst
     }
 
     // calculate the "tile position"
-    fvec2_scale( tpos.v, pos.v, 1.0f / GRID_FSIZE );
+    tpos = pos * (1.0f / GRID_FSIZE);
 
     // grab this tile's coordinates
     ix = FLOOR( tpos.x );

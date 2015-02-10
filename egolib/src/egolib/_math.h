@@ -54,9 +54,7 @@ template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& 
 //--------------------------------------------------------------------------------------------
 // IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
 //--------------------------------------------------------------------------------------------
-#define IEEE32_FRACTION 0x007FFFFFL
-#define IEEE32_EXPONENT 0x7F800000L
-#define IEEE32_SIGN     0x80000000L
+
 
 #if defined(TEST_NAN_RESULT)
 #    define LOG_NAN(XX)      if( ieee32_bad(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
@@ -64,12 +62,6 @@ template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& 
 #    define LOG_NAN(XX)
 #endif
 
-// ieee 32-bit floating point number functions
-Uint32 float32_to_uint32(float f);
-float  uint32_to_float32(Uint32 i);
-bool   ieee32_infinite(float f);
-bool   ieee32_nan(float f);
-bool   ieee32_bad(float f);
 
 #if defined(__cplusplus)
 extern "C"
@@ -311,8 +303,6 @@ extern "C"
     int generate_irand_pair( const IPair num );
     int generate_irand_range( const FRange num );
     int generate_randmask( const int base, const Uint32 mask );
-
-// matrix functions
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

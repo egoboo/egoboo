@@ -253,6 +253,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Float.cpp" />
     <ClCompile Include="src\egolib\Scene\Branch.cpp" />
     <ClCompile Include="src\egolib\Scene\LeafList.cpp" />
     <ClCompile Include="src\egolib\Scene\Tree.cpp" />
@@ -416,6 +417,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Debug.hpp" />
+    <ClInclude Include="src\egolib\Float.hpp" />
     <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp" />
     <ClInclude Include="src\egolib\Scene\Bounds.hpp" />
     <ClInclude Include="src\egolib\Scene\Branch.hpp" />
@@ -437,7 +440,6 @@
     <ClInclude Include="src\egolib\bsp_aabb.h" />
     <ClInclude Include="src\egolib\bv.h" />
     <ClInclude Include="src\egolib\DynamicArray.hpp" />
-    <ClInclude Include="src\egolib\Stack.hpp" />
     <ClInclude Include="src\egolib\bbox.h" />
     <ClInclude Include="src\egolib\bsp.h" />
     <ClInclude Include="src\egolib\clock.h" />

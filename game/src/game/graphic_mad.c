@@ -1276,7 +1276,9 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], const std::vecto
 			dst->pos[ZZ] = srcNext.pos[kZ];
             dst->pos[WW] = 1.0f;
 
-            fvec3_base_copy( dst->nrm, srcNext.nrm.v );
+            dst->nrm[XX] = srcNext.nrm[kX];
+            dst->nrm[YY] = srcNext.nrm[kY];
+            dst->nrm[ZZ] = srcNext.nrm[kZ];
 
             dst->env[XX] = indextoenvirox[srcNext.normal];
             dst->env[YY] = 0.5f * ( 1.0f + dst->nrm[ZZ] );

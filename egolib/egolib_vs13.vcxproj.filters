@@ -279,6 +279,9 @@
     <ClCompile Include="src\egolib\Scene\LeafList.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Float.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -485,9 +488,6 @@
     <ClInclude Include="src\egolib\DynamicArray.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Stack.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\bsp_aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -544,6 +544,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Debug.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Float.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

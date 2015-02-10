@@ -23,6 +23,9 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/log.h"
+#include "egolib/Float.hpp"
+#include "egolib/Debug.hpp"
 
 /**
  * @brief
@@ -241,6 +244,18 @@ struct fvec2_t
 };
 
 fvec2_t operator-(const fvec2_t& v);
+
+
+#ifdef _DEBUG
+namespace Ego
+{
+    namespace Debug
+    {
+        template <>
+        void validate<::fvec2_t>(const char *file, int line, const ::fvec2_t& object);
+    }
+}
+#endif
 
 /// A 3-vector type that allows more than one form of access.
 struct fvec3_t
@@ -556,6 +571,17 @@ struct fvec3_t
 
 fvec3_t operator-(const fvec3_t& v);
 
+#ifdef _DEBUG
+namespace Ego
+{
+    namespace Debug
+    {
+        template <>
+        void validate<::fvec3_t>(const char *file, int line, const ::fvec3_t& object);
+    }
+}
+#endif
+
 /// A 4-vector type that allows more than one form of access.
 struct fvec4_t
 {
@@ -704,51 +730,36 @@ struct fvec4_t
 
 fvec4_t operator-(const fvec4_t& v);
 
-#if defined(TEST_NAN_RESULT)
-	#define LOG_NAN_FVEC2(XX)      if( !fvec2_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
-	#define LOG_NAN_FVEC3(XX)      if( !fvec3_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
-	#define LOG_NAN_FVEC4(XX)      if( !fvec4_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
-#else
-	#define LOG_NAN_FVEC2(XX)
-	#define LOG_NAN_FVEC3(XX)
-	#define LOG_NAN_FVEC4(XX)
+#ifdef _DEBUG
+namespace Ego
+{
+    namespace Debug
+    {
+        template <>
+        void validate<::fvec4_t>(const char *file, int line, const ::fvec4_t& object);
+    }
+}
 #endif
 
-bool   fvec2_valid(const fvec2_base_t A);
-bool   fvec2_self_clear(fvec2_base_t A);
-bool   fvec2_self_is_clear(const fvec2_base_t A);
-bool   fvec2_base_copy(fvec2_base_t A, const fvec2_base_t B);
-float  fvec2_length_abs(const fvec2_base_t A);
-float  fvec2_length_2(const fvec2_t& v);
-float  fvec2_length_2(const fvec2_base_t v);
-bool   fvec2_self_scale(fvec2_base_t A, const float B);
-bool   fvec2_self_normalize(fvec2_base_t A);
-float  fvec2_cross_product(const fvec2_base_t A, const fvec2_base_t B);
-float  fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B);
-float *fvec2_normalize(fvec2_base_t DST, const fvec2_base_t SRC);
-float *fvec2_scale(fvec2_base_t DST, const fvec2_base_t SRC, const float B);
-
 /**
- * @brief
- *	Construct a vector.
- * @param v
- *	the vector
- * @post
- *	the vector represents the null vector
- */
+* @brief
+*	Construct a vector.
+* @param v
+*	the vector
+* @post
+*	the vector represents the null vector
+*/
 void fvec3_ctor(fvec3_t& v);
 
 /**
- * @brief
- *	Destruct a vector.
- * @param v
- *	the vector
- */
+* @brief
+*	Destruct a vector.
+* @param v
+*	the vector
+*/
 void fvec3_dtor(fvec3_t& v);
-bool fvec3_valid(const fvec3_base_t A); ///< @todo Remove this.
-bool fvec3_self_clear(fvec3_base_t v); ///< @todo Remove this.
-float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC); ///< @todo Remove this.
-bool fvec3_self_is_clear(const fvec3_base_t A); ///< @todo Remove this.
+
+float fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B);
 
 /**
  * @brief
@@ -771,13 +782,6 @@ float fvec3_dist_abs(const fvec3_t& u, const fvec3_t& v);
  *	the squared distance between the vectors
  */
 float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v);
-
-
-
-
-
-float  fvec3_decompose(const fvec3_t& src, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp);
-
-bool   fvec4_valid(const fvec4_base_t A);
-bool   fvec4_self_clear(fvec4_base_t v);
-bool   fvec4_self_scale(fvec4_base_t A, const float B);
+float fvec3_decompose(const fvec3_t& src, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp);
+bool fvec4_self_clear(fvec4_base_t v);
+bool fvec4_self_scale(fvec4_base_t A, const float B);

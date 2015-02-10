@@ -175,7 +175,7 @@ bool phys_warp_normal( const float exponent, fvec3_t& nrm )
 
     if ( 0.0f == nrm.length_abs() ) return false;
 
-    length_hrz_2 = fvec2_length_2( fvec2_t(nrm[kX],nrm[kY]) );
+    length_hrz_2 = fvec2_t(nrm[kX],nrm[kY]).length_2();
     length_vrt_2 = nrm.length_2() - length_hrz_2;
 
     nrm[kX] = nrm[kX] * POW( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
@@ -636,7 +636,7 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
                 retval = phys_intersect_oct_bb_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
 
                 // check for overflow
-                if ( ieee32_bad( tmp_min ) || ieee32_bad( tmp_max ) )
+                if (float_bad( tmp_min ) || float_bad(tmp_max))
                 {
                     retval = rv_fail;
                 }

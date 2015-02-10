@@ -244,7 +244,7 @@ bool GameObject::isOverWater() const
 
 bool GameObject::setPosition(const fvec3_t& position)
 {
-    LOG_NAN_FVEC3(position);
+    EGO_DEBUG_VALIDATE(position);
 
     //Has our position changed?
     if(position != _position)

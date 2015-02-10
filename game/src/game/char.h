@@ -235,7 +235,7 @@ bool chr_update_breadcrumb_raw( GameObject * pchr );
 bool chr_update_breadcrumb( GameObject * pchr, bool force );
 bool chr_update_safe_raw( GameObject * pchr );
 bool chr_update_safe( GameObject * pchr, bool force );
-bool chr_get_safe( GameObject * pchr, fvec3_base_t pos );
+bool chr_get_safe( GameObject * pchr);
 
 bool chr_set_maxaccel( GameObject * pchr, float new_val );
 
@@ -339,7 +339,7 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 
 bool chr_copy_enviro( GameObject * chr_psrc, GameObject * chr_pdst );
 
-bool chr_calc_grip_cv( GameObject * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool shift_origin );
+bool chr_calc_grip_cv( GameObject * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin );
 
 // character state machine functions
 GameObject * chr_config_do_init( GameObject * pchr );
@@ -425,4 +425,3 @@ bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
 bool chr_get_pos(const GameObject *self, fvec3_t& position);
-bool chr_get_pos(const GameObject *self, fvec3_base_t position); ///< @todo Remove this.

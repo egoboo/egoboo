@@ -102,5 +102,5 @@ bool sphere_self_clear(sphere_t& self)
 bool sphere_self_is_clear(const sphere_t& self)
 {
 	return 0.0f == self.radius
-		&& fvec3_self_is_clear(self.origin.v);
+		&& fvec3_t::zero == self.origin;
 }

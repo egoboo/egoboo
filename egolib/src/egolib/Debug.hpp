@@ -17,5 +17,34 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/point.c
-/// @brief Points.
+/// @file egolib/Debug.hpp
+/// @brief Miscellaneous Debug Utilities
+
+#pragma once
+
+namespace Ego
+{
+    namespace Debug
+    {
+#ifdef _DEBUG
+        /**
+            * @remark
+            *	Validation functionality via template specialization.
+            *   See Ego::Math::Vector3 for an example.
+            * @brief
+            *	Assert that an object is valid.
+            * @param object
+            *	the object
+            * @post
+            *	If the object is not valid, an error is logged.
+            */
+        template <typename Type>
+        void validate(const char *file, int line, const Type& object);
+#endif
+#ifdef _DEBUG
+    #define EGO_DEBUG_VALIDATE(object) Ego::Debug::validate(__FILE__,__LINE__,object)
+#else
+    #define EGO_DEBUG_VALIDATE(object)
+#endif
+    }
+}

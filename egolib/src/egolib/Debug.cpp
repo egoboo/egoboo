@@ -17,8 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Stack.hpp
-/// @brief generic fixed-size stack
+/// @file egolib/Debug.hpp
+/// @brief Miscellaneous Debug Utilities
 
-#pragma once
-
+#include "egolib/Debug.hpp"
