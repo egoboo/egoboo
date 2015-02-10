@@ -272,7 +272,7 @@ Uint8 CoNode_t::generate_hash(const CoNode_t *self)
     {
         AA = REF_TO_INT( self->chra );
     }
-    else if ( _VALID_PRT_RANGE( self->prta ) )
+    else if ( VALID_PRT_RANGE( self->prta ) )
     {
         AA = REF_TO_INT( self->prta );
     }
@@ -282,7 +282,7 @@ Uint8 CoNode_t::generate_hash(const CoNode_t *self)
     {
         BB = REF_TO_INT( self->chrb );
     }
-    else if ( _VALID_PRT_RANGE( self->prtb ) )
+    else if ( VALID_PRT_RANGE( self->prtb ) )
     {
         BB = REF_TO_INT( self->prtb );
     }
@@ -637,7 +637,7 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
     pchr_a = _gameObjects.get( ichr_a );
 
     // Ignore invalid characters
-    if ( !_INGAME_PRT( iprt_b ) ) return false;
+    if ( !INGAME_PRT( iprt_b ) ) return false;
     pprt_b = PrtList_get_ptr( iprt_b );
 
     // reject characters that are hidden
@@ -1339,7 +1339,7 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     pchr_a = _gameObjects.get( ichr_a );
 
     // make sure that B is valid
-    if ( !_INGAME_PRT( iprt_b ) ) return false;
+    if ( !INGAME_PRT( iprt_b ) ) return false;
     pprt_b = PrtList_get_ptr( iprt_b );
 
     // if you are mounted, only your mount is affected by platforms
@@ -1531,7 +1531,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
         else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
         {
-            if ( _gameObjects.exists( d->chra ) && _INGAME_PRT( d->prtb ) )
+            if ( _gameObjects.exists( d->chra ) && INGAME_PRT( d->prtb ) )
             {
                 if ( PrtList.lst[d->prtb].targetplatform_ref == d->chra )
                 {
@@ -1541,7 +1541,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
         else if ( INVALID_CHR_REF != d->chrb && INVALID_PRT_REF != d->prta )
         {
-            if ( _gameObjects.exists( d->chrb ) && _INGAME_PRT( d->prta ) )
+            if ( _gameObjects.exists( d->chrb ) && INGAME_PRT( d->prta ) )
             {
                 if ( PrtList.lst[d->prta].targetplatform_ref == d->chrb )
                 {
@@ -3261,7 +3261,7 @@ bool do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata )
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
-        CHR_REF prt_owner = prt_get_iowner( _GET_REF_PPRT( pdata->pprt ), 0 );
+        CHR_REF prt_owner = prt_get_iowner( GET_REF_PPRT( pdata->pprt ), 0 );
         if ( _gameObjects.exists( prt_owner ) )
         {
             CHR_REF chr_wielder = chr_get_lowest_attachment( GET_INDEX_PCHR( pdata->pchr ), true );
@@ -3305,7 +3305,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
     if ( !pdata->prt_bumps_chr ) return false;
 
     // Catch on fire
-    spawn_bump_particles( GET_INDEX_PCHR( pdata->pchr ), _GET_REF_PPRT( pdata->pprt ) );
+    spawn_bump_particles( GET_INDEX_PCHR( pdata->pchr ), GET_REF_PPRT( pdata->pprt ) );
 
     // handle some special particle interactions
     if ( pdata->ppip->end_bump )
@@ -3352,7 +3352,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
 
     BLANK_STRUCT_PTR( pdata )
 
-    if ( !_INGAME_PRT( iprt ) ) return false;
+    if ( !INGAME_PRT( iprt ) ) return false;
     pdata->iprt = iprt;
     pdata->pprt = PrtList_get_ptr( iprt );
 

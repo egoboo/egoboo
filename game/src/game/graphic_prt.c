@@ -145,7 +145,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !_DISPLAY_PRT( iprt ) )
+    if ( !DISPLAY_PRT( iprt ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
@@ -217,7 +217,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !_DISPLAY_PRT( iprt ) )
+    if ( !DISPLAY_PRT( iprt ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
@@ -352,7 +352,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !_DISPLAY_PRT( iprt ) )
+    if ( !DISPLAY_PRT( iprt ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
@@ -631,7 +631,7 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return;
     loc_pprt = pbdl_prt->prt_ptr;
 
-    if ( !_DISPLAY_PPRT( loc_pprt ) ) return;
+    if ( !DISPLAY_PPRT( loc_pprt ) ) return;
 
     if ( !_gameObjects.exists( loc_pprt->attachedto_ref ) ) return;
     pholder = _gameObjects.get( loc_pprt->attachedto_ref );
@@ -711,9 +711,9 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         return gfx_error;
     }
 
-    if ( !_DISPLAY_PPRT( pprt ) )
+    if ( !DISPLAY_PPRT( pprt ) )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, _GET_INDEX_PPRT( pprt ), "invalid particle" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PPRT( pprt ), "invalid particle" );
         return gfx_error;
     }
 
@@ -1099,7 +1099,7 @@ gfx_rv prt_instance_update( std::shared_ptr<Camera> pcam, const PRT_REF particle
     prt_instance_t * pinst;
     gfx_rv        retval;
 
-    if ( !_DISPLAY_PRT( particle ) )
+    if ( !DISPLAY_PRT( particle ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, particle, "invalid particle" );
         return gfx_error;
@@ -1138,7 +1138,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
     // only draw bullets
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
-    if ( !_DISPLAY_PPRT( loc_pprt ) ) return;
+    if ( !DISPLAY_PPRT( loc_pprt ) ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
     if (( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F7 ) ) || single_frame_mode )

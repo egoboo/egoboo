@@ -1892,7 +1892,7 @@ void do_weather_spawn_particles()
 
                     // Yes, so spawn over that character
                     PRT_REF particle = spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
-                    if ( _DEFINED_PRT( particle ) )
+                    if ( DEFINED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList_get_ptr( particle );
 
@@ -3301,7 +3301,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
         particle = spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
-        if ( _DEFINED_PRT( particle ) )
+        if ( DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList_get_ptr( particle );
 
@@ -3484,7 +3484,7 @@ bool attach_one_particle( prt_bundle_t * pbdl_prt )
     if ( NULL == pprt ) return false;
 
     // the previous function can inactivate a particle
-    if ( _ACTIVE_PPRT( pprt ) )
+    if ( ACTIVE_PPRT( pprt ) )
     {
         // Correct facing so swords knock characters in the right direction...
         if ( NULL != pbdl_prt->pip_ptr && HAS_SOME_BITS( pbdl_prt->pip_ptr->damfx, DAMFX_TURN ) )
@@ -5076,10 +5076,10 @@ bool attach_prt_to_platform( prt_t * pprt, GameObject * pplat )
     pip_t   * pprt_pip;
 
     // verify that we do not have two dud pointers
-    if ( !_ACTIVE_PPRT( pprt ) ) return false;
+    if ( !ACTIVE_PPRT( pprt ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    pprt_pip = prt_get_ppip( _GET_REF_PPRT( pprt ) );
+    pprt_pip = prt_get_ppip( GET_REF_PPRT( pprt ) );
     if ( NULL == pprt_pip ) return false;
 
     // check if they can be connected
@@ -5105,7 +5105,7 @@ bool detach_particle_from_platform( prt_t * pprt )
     prt_bundle_t bdl_prt;
 
     // verify that we do not have two dud pointers
-    if ( !_DEFINED_PPRT( pprt ) ) return false;
+    if ( !DEFINED_PPRT( pprt ) ) return false;
 
     // grab all of the particle info
     prt_bundle_set( &bdl_prt, pprt );

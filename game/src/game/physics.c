@@ -1067,7 +1067,7 @@ bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
 
     oct_bb_t tmp_oct1, tmp_oct2;
 
-    if ( !_ACTIVE_PPRT( pprt ) ) return false;
+    if ( !ACTIVE_PPRT( pprt ) ) return false;
 
     // copy the volume
     oct_bb_copy( &tmp_oct1, &( pprt->prt_max_cv ) );
@@ -1117,7 +1117,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
 
     if ( NULL == pprt ) return bc;
 
-    ppip = prt_get_ppip( _GET_REF_PPRT( pprt ) );
+    ppip = prt_get_ppip( GET_REF_PPRT( pprt ) );
     if ( NULL == ppip ) return bc;
 
     bits = MAPFX_IMPASS;

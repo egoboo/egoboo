@@ -174,7 +174,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	loc_pprt = pbdl_prt->prt_ptr;
 
 	// is the particle in-game?
-	if (!_INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
+	if (!INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
 
 	// heal the leaf if necessary
 	pleaf = POBJ_GET_PLEAF(loc_pprt);
@@ -182,7 +182,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	{
 		// some kind of error. re-initialize the data.
 		pleaf->data = loc_pprt;
-		pleaf->index = _GET_INDEX_PPRT(loc_pprt);
+		pleaf->index = GET_INDEX_PPRT(loc_pprt);
 		pleaf->data_type = BSP_LEAF_PRT;
 	};
 

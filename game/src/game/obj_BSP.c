@@ -185,7 +185,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     ppip = PipStack.get_ptr( pprt->pip_ref );
 
     // is the particle in-game?
-    if ( !_INGAME_PPRT_BASE( pprt ) || pprt->is_hidden || pprt->is_ghost ) return false;
+    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden || pprt->is_ghost ) return false;
 
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
     has_enchant = false;
@@ -260,7 +260,7 @@ bool prt_BSP_is_visible(BSP_leaf_t * pprt_leaf)
 	prt_t *pprt = (prt_t *)(pprt_leaf->data);
 
     // is the particle in-game?
-    if (!_INGAME_PPRT_BASE(pprt) || pprt->is_hidden) return false;
+    if (!INGAME_PPRT_BASE(pprt) || pprt->is_hidden) return false;
 
     // zero sized particles are not visible
     if (0 == pprt->size)

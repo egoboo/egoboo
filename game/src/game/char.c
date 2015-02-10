@@ -573,7 +573,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
 
     GameObject * pchr;
 
-    if ( !_DEFINED_PPRT( pprt ) ) return pprt;
+    if ( !DEFINED_PPRT( pprt ) ) return pprt;
 
     if ( !_gameObjects.exists( character ) )
     {
@@ -2206,7 +2206,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 // will this mess up wands?
                 PRT_REF iparticle = spawnOneParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
 
-                if ( _DEFINED_PRT( iparticle ) )
+                if ( DEFINED_PRT( iparticle ) )
                 {
                     fvec3_t tmp_pos;
                     prt_t * pprt = PrtList_get_ptr( iparticle );

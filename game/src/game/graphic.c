@@ -890,7 +890,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
         dolist_t::element_t *element = self->lst + i;
 
         // Tell all valid objects that they are removed from this dolist.
-        if (INVALID_CHR_REF == element->ichr && _VALID_PRT_RANGE(element->iprt))
+        if (INVALID_CHR_REF == element->ichr && VALID_PRT_RANGE(element->iprt))
         {
             PrtList.lst[element->iprt].inst.indolist = false;
         }
@@ -995,7 +995,7 @@ gfx_rv dolist_t::test_prt(dolist_t *self, const prt_t *pprt)
     }
 
 	/// @todo I can't explain why it's reject until someone explains to me what _DISPLAY_PPRT determines.
-    if (!_DISPLAY_PPRT(pprt))
+    if (!DISPLAY_PPRT(pprt))
     {
         return gfx_fail;
     }
@@ -1024,7 +1024,7 @@ gfx_rv dolist_t::add_prt_raw(dolist_t *self, prt_t * pprt)
 	*/
 
     self->lst[self->size].ichr = INVALID_CHR_REF;
-    self->lst[self->size].iprt = _GET_REF_PPRT(pprt);
+    self->lst[self->size].iprt = GET_REF_PPRT(pprt);
     self->size++;
 
     pprt->inst.indolist = true;
@@ -1102,7 +1102,7 @@ gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_
             iprt = ( PRT_REF )( pleaf->index );
 
             // is it in the array?
-            if ( !_VALID_PRT_RANGE( iprt ) ) continue;
+            if ( !VALID_PRT_RANGE( iprt ) ) continue;
             pprt = PrtList_get_ptr( iprt );
 
             // do some more obvious tests before testing the frustum
@@ -1183,7 +1183,7 @@ gfx_rv dolist_t::sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bo
 
             vtmp = pos_tmp - pcam->getPosition();
         }
-        else if ( INVALID_CHR_REF == pdlist->lst[cnt].ichr && _VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
+        else if ( INVALID_CHR_REF == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
         {
             PRT_REF iprt = pdlist->lst[cnt].iprt;
 
@@ -4201,7 +4201,7 @@ gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
                     retval = gfx_error;
                 }
             }
-            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && _VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
+            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
             {
                 // draw draw front and back faces of polygons
                 oglx_end_culling();              // GL_ENABLE_BIT
