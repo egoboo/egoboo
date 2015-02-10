@@ -6405,7 +6405,7 @@ gfx_rv gfx_update_all_chr_instance()
     for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
     {
         //Dont do terminated characters
-        if(pchr->terminateRequested) {
+        if(pchr->isTerminated()) {
             continue;
         }
 

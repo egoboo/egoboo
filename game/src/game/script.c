@@ -1643,7 +1643,7 @@ void issue_order( const CHR_REF character, Uint32 value )
 
     for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
-        if ( object->terminateRequested ) continue;
+        if ( object->isTerminated() ) continue;
 
         if ( object->getTeam() == chr_get_iteam( character ) )
         {
@@ -1662,7 +1662,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
 
     for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
-        if ( object->terminateRequested ) continue;
+        if ( object->isTerminated() ) continue;
 
         if ( idsz == object->getProfile()->getIDSZ(IDSZ_SPECIAL) )
         {

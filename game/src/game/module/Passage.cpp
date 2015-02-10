@@ -99,7 +99,7 @@ bool Passage::close()
         // Make sure it isn't blocked
         for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
         {
-            if(object->terminateRequested) {
+            if(object->isTerminated()) {
                 continue;
             }
 
@@ -299,7 +299,7 @@ void Passage::makeShop(CHR_REF owner)
     // flag every item in the shop as a shop item
     for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
-        if (object->terminateRequested) continue;
+        if (object->isTerminated()) continue;
 
         if ( object->isitem )
         {
