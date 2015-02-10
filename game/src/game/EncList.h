@@ -43,7 +43,7 @@ struct enc_t;
 // external variables
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
+DECLARE_LIST_EXTERN(enc_t, EncList, MAX_ENC);
 
 extern int enc_loop_depth;
 
@@ -51,44 +51,44 @@ extern int enc_loop_depth;
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void    EncList_ctor();
-void    EncList_dtor();
+void EncList_ctor();
+void EncList_dtor();
 
-void    EncList_reinit();
+void EncList_reinit();
 
-ENC_REF EncList_allocate( const ENC_REF override );
+ENC_REF EncList_allocate(const ENC_REF override);
 
-bool  EncList_free_one( const ENC_REF ienc );
-void    EncList_free_all();
+bool EncList_free_one(const ENC_REF ienc);
+void EncList_free_all();
 
-void    EncList_update_used();
+void EncList_update_used();
 
-void   EncList_cleanup();
+void EncList_cleanup();
 
-bool EncList_add_activation( const ENC_REF ienc );
-bool EncList_add_termination( const ENC_REF ienc );
-bool EncList_request_terminate( const ENC_REF ienc );
+bool EncList_add_activation(const ENC_REF ienc);
+bool EncList_add_termination(const ENC_REF ienc);
+bool EncList_request_terminate(const ENC_REF ienc);
 
 //--------------------------------------------------------------------------------------------
 // testing functions
 //--------------------------------------------------------------------------------------------
-bool _VALID_ENC_RANGE( const ENC_REF IENC );
-bool _DEFINED_ENC( const ENC_REF IENC );
-bool _ALLOCATED_ENC( const ENC_REF IENC );
-bool _ACTIVE_ENC( const ENC_REF IENC );
-bool _WAITING_ENC( const ENC_REF IENC );
-bool _TERMINATED_ENC( const ENC_REF IENC );
+bool _VALID_ENC_RANGE(const ENC_REF IENC);
+bool _DEFINED_ENC(const ENC_REF IENC);
+bool _ALLOCATED_ENC(const ENC_REF IENC);
+bool _ACTIVE_ENC(const ENC_REF IENC);
+bool _WAITING_ENC(const ENC_REF IENC);
+bool _TERMINATED_ENC(const ENC_REF IENC);
 
-size_t  _GET_INDEX_PENC( const enc_t * PENC );
-ENC_REF _GET_REF_PENC( const enc_t * PENC );
-bool  _DEFINED_PENC( const enc_t * PENC );
-bool  _VALID_ENC_PTR( const enc_t * PENC );
-bool  _ALLOCATED_PENC( const enc_t * PENC );
-bool  _ACTIVE_PENC( const enc_t * PENC );
-bool  _TERMINATED_PENC( const enc_t * PENC );
+size_t  _GET_INDEX_PENC(const enc_t *PENC);
+ENC_REF _GET_REF_PENC(const enc_t * PENC);
+bool _DEFINED_PENC(const enc_t * PENC);
+bool _VALID_ENC_PTR(const enc_t * PENC);
+bool _ALLOCATED_PENC(const enc_t * PENC);
+bool _ACTIVE_PENC(const enc_t * PENC);
+bool _TERMINATED_PENC(const enc_t * PENC);
 
-bool _INGAME_ENC_BASE( const ENC_REF IENC );
-bool _INGAME_PENC_BASE( const enc_t * PENC );
+bool _INGAME_ENC_BASE(const ENC_REF IENC);
+bool _INGAME_PENC_BASE(const enc_t * PENC);
 
-bool _INGAME_ENC( const ENC_REF IENC );
-bool _INGAME_PENC( const enc_t * PENC );
+bool _INGAME_ENC(const ENC_REF IENC);
+bool _INGAME_PENC(const enc_t * PENC);

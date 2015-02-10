@@ -562,7 +562,7 @@ public:
 		 * @brief
 		 *	The allowed maximum depth of a BSP tree.
 		 */
-        static const size_t ALLOWED_DEPTH_MAX = std::numeric_limits<size_t>::max() - 1;
+        static const size_t ALLOWED_DEPTH_MAX;
 
 		/**
 		 * @brief

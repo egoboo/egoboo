@@ -121,7 +121,7 @@ void EncList_ctor()
         Ego::Entity::ctor( POBJ_GET_PBASE( penc ), penc, BSP_LEAF_ENC, cnt );
 
         // construct the object
-        enc_ctor( penc );
+        enc_t::ctor( penc );
     }
 }
 
@@ -137,7 +137,7 @@ void EncList_dtor()
         penc = EncList.lst + cnt;
 
         // destruct the object
-        enc_dtor( penc );
+        enc_t::dtor( penc );
 
         // destruct the parent
         Ego::Entity::dtor( POBJ_GET_PBASE( penc ) );
@@ -345,7 +345,7 @@ bool EncList_free_one( const ENC_REF ienc )
         }
 
         // enchant "destructor"
-        penc = enc_dtor( penc );
+        penc = enc_t::dtor( penc );
         if ( NULL == penc ) return false;
     }
 

@@ -30,6 +30,8 @@
 // this include must be the absolute last include
 #include "egolib/mem.h"
 
+const size_t BSP_tree_t::Parameters::ALLOWED_DEPTH_MAX = std::numeric_limits<size_t>::max() - 1;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

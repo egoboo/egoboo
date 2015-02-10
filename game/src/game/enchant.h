@@ -94,18 +94,28 @@ struct enc_t
     int     target_mana;
     int     target_life;
 
-    ENC_REF nextenchant_ref;             ///< Next in the list
+    ENC_REF nextenchant_ref;          ///< Next in the list
 
-    bool  setyesno[MAX_ENCHANT_SET];  ///< Was it set?
-    float   setsave[MAX_ENCHANT_SET];   ///< The value to restore
+    bool setyesno[MAX_ENCHANT_SET];   ///< Was it set?
+    float setsave[MAX_ENCHANT_SET];   ///< The value to restore
 
-    bool  addyesno[MAX_ENCHANT_ADD];  ///< Was the value adjusted
-    float   addsave[MAX_ENCHANT_ADD];   ///< The adjustment
+    bool addyesno[MAX_ENCHANT_ADD];   ///< Was the value adjusted
+    float addsave[MAX_ENCHANT_ADD];   ///< The adjustment
+
+    static enc_t *ctor(enc_t *self);
+    static enc_t *dtor(enc_t *self);
 };
 
-enc_t * enc_ctor( enc_t * penc );
-enc_t * enc_dtor( enc_t * penc );
-bool  enc_request_terminate( enc_t * penc );
+
+bool enc_request_terminate(enc_t *self);
+
+// enchant state machine functions
+enc_t *enc_run_config(enc_t *self);
+enc_t *enc_config_construct(enc_t *self, int max_iterations);
+enc_t *enc_config_initialize(enc_t *self, int max_iterations);
+enc_t *enc_config_activate(enc_t *self, int max_iterations);
+enc_t *enc_config_deinitialize(enc_t *self, int max_iterations);
+enc_t *enc_config_deconstruct(enc_t *self, int max_iterations);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -115,50 +125,44 @@ bool  enc_request_terminate( enc_t * penc );
 void enchant_system_begin();
 void enchant_system_end();
 
-ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional );
+ENC_REF spawn_one_enchant(const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional);
 
-void    update_all_enchants();
-void    cleanup_all_enchants();
+void update_all_enchants();
+void cleanup_all_enchants();
 
-void    bump_all_enchants_update_counters();
+void bump_all_enchants_update_counters();
 
 // enchant list management
-bool  remove_enchant( const ENC_REF  enchant_idx, ENC_REF * enchant_parent );
-bool  remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz );
-ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent );
+bool remove_enchant(const ENC_REF enchant_idx, ENC_REF *enchant_parent);
+bool remove_all_enchants_with_idsz(const CHR_REF ichr, IDSZ remove_idsz);
+ENC_REF cleanup_enchant_list(const ENC_REF ienc, ENC_REF *enc_parent);
 
 // enc functions
-ENC_REF enc_value_filled( const ENC_REF enchant_idx, int value_idx );
-void    enc_apply_set( const ENC_REF enchant_idx, int value_idx, const PRO_REF profile );
-void    enc_apply_add( const ENC_REF enchant_idx, int value_idx, const EVE_REF enchanttype );
-void    enc_remove_set( const ENC_REF  enchant_idx, int value_idx );
-void    enc_remove_add( const ENC_REF  enchant_idx, int value_idx );
+ENC_REF enc_value_filled(const ENC_REF enchant_idx, int value_idx);
+void enc_apply_set(const ENC_REF enchant_idx, int value_idx, const PRO_REF profile);
+void enc_apply_add(const ENC_REF enchant_idx, int value_idx, const EVE_REF enchanttype);
+void enc_remove_set(const ENC_REF  enchant_idx, int value_idx);
+void enc_remove_add(const ENC_REF  enchant_idx, int value_idx);
 
 // EveStack functions
-void   EveStack_init_all();
-void   EveStack_release_all();
-bool EveStack_release_one( const EVE_REF ieve );
-EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF profile );
+void EveStack_init_all();
+void EveStack_release_all();
+bool EveStack_release_one(const EVE_REF ieve);
+EVE_REF EveStack_losd_one(const char* szLoadName, const EVE_REF profile);
 
-// enchant state machine functions
-enc_t * enc_run_config( enc_t * penc );
-enc_t * enc_config_construct( enc_t * penc, int max_iterations );
-enc_t * enc_config_initialize( enc_t * penc, int max_iterations );
-enc_t * enc_config_activate( enc_t * penc, int max_iterations );
-enc_t * enc_config_deinitialize( enc_t * penc, int max_iterations );
-enc_t * enc_config_deconstruct( enc_t * penc, int max_iterations );
+
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARARIONS (inline)
 //--------------------------------------------------------------------------------------------
-PRO_REF   enc_get_ipro( const ENC_REF ienc );
-ObjectProfile   * enc_get_ppro( const ENC_REF ienc );
+PRO_REF enc_get_ipro(const ENC_REF ienc);
+ObjectProfile *enc_get_ppro(const ENC_REF ienc);
 
-CHR_REF   enc_get_iowner( const ENC_REF ienc );
-GameObject   * enc_get_powner( const ENC_REF ienc );
+CHR_REF enc_get_iowner(const ENC_REF ienc);
+GameObject *enc_get_powner(const ENC_REF ienc);
 
-EVE_REF   enc_get_ieve( const ENC_REF ienc );
-eve_t   * enc_get_peve( const ENC_REF ienc );
+EVE_REF enc_get_ieve(const ENC_REF ienc);
+eve_t *enc_get_peve(const ENC_REF ienc);
 
-IDSZ      enc_get_idszremove( const ENC_REF ienc );
-bool    enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile );
+IDSZ enc_get_idszremove(const ENC_REF ienc);
+bool enc_is_removed(const ENC_REF ienc, const PRO_REF test_profile);

@@ -44,16 +44,16 @@ Stack<eve_t, MAX_EVE> EveStack;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool  enc_free( enc_t * penc );
+static bool enc_free(enc_t *self);
 
-static enc_t * enc_config_ctor( enc_t * penc );
-static enc_t * enc_config_init( enc_t * penc );
-static enc_t * enc_config_deinit( enc_t * penc );
-static enc_t * enc_config_active( enc_t * penc );
-static enc_t * enc_config_dtor( enc_t * penc );
+static enc_t *enc_config_ctor(enc_t *self);
+static enc_t *enc_config_init(enc_t *self);
+static enc_t *enc_config_deinit(enc_t *self);
+static enc_t *enc_config_active(enc_t *self);
+static enc_t *enc_config_dtor(enc_t *self);
 
-static enc_t * enc_config_do_active( enc_t * penc );
-static enc_t * enc_config_do_init( enc_t * penc );
+static enc_t *enc_config_do_active(enc_t *self);
+static enc_t *enc_config_do_init(enc_t *self);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -77,65 +77,64 @@ void enchant_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool  enc_free( enc_t * penc )
+bool enc_free(enc_t *self)
 {
-    if ( !_ALLOCATED_PENC( penc ) ) return false;
+    if (!_ALLOCATED_PENC(self)) return false;
 
     // nothing to do yet
-
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_ctor( enc_t * penc )
+enc_t *enc_t::ctor(enc_t *self)
 {
     // grab the base object
-    if ( NULL == penc ) return NULL;
-    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
+    if (!self) return nullptr;
+    Ego::Entity *pbase = POBJ_GET_PBASE(self);
 
 	// Save the entity data.
 	Ego::Entity save_base;
-    memcpy( &save_base, pbase, sizeof( Ego::Entity ) );
+    memcpy(&save_base, pbase, sizeof(Ego::Entity));
 
-    BLANK_STRUCT_PTR( penc )
+    BLANK_STRUCT_PTR(self);
 
     // Restore the entity data.
-	memcpy( pbase, &save_base, sizeof( Ego::Entity ) );
+	memcpy(pbase, &save_base, sizeof(Ego::Entity));
 
     // reset the base counters
     pbase->update_count = 0;
     pbase->frame_count = 0;
 
-    penc->profile_ref      = INVALID_PRO_REF;
-    penc->eve_ref          = INVALID_EVE_REF;
+    self->profile_ref = INVALID_PRO_REF;
+    self->eve_ref = INVALID_EVE_REF;
 
-    penc->target_ref       = INVALID_CHR_REF;
-    penc->owner_ref        = INVALID_CHR_REF;
-    penc->spawner_ref      = INVALID_CHR_REF;
-    penc->spawnermodel_ref = INVALID_PRO_REF;
-    penc->overlay_ref      = INVALID_CHR_REF;
+    self->target_ref = INVALID_CHR_REF;
+    self->owner_ref = INVALID_CHR_REF;
+    self->spawner_ref = INVALID_CHR_REF;
+    self->spawnermodel_ref = INVALID_PRO_REF;
+    self->overlay_ref = INVALID_CHR_REF;
 
-    penc->nextenchant_ref  = INVALID_ENC_REF;
+    self->nextenchant_ref = INVALID_ENC_REF;
 
     // we are done constructing. move on to initializing.
     pbase->state = Ego::Entity::State::Initializing;
 
-    return penc;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_dtor( enc_t * penc )
+enc_t *enc_t::dtor(enc_t * self)
 {
-    if ( NULL == penc ) return penc;
+    if (!self) return nullptr;
 
     // destroy the object
-    enc_free( penc );
+    enc_free(self);
 
     // Destroy the base object.
     // Sets the state to ego_object_terminated automatically.
-    POBJ_TERMINATE( penc );
+    POBJ_TERMINATE(self);
 
-    return penc;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1364,7 +1363,7 @@ enc_t * enc_config_ctor( enc_t * penc )
     // if we aren't in the correct state, abort.
     if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return penc;
 
-    return enc_ctor( penc );
+    return enc_t::ctor( penc );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1438,7 +1437,7 @@ enc_t * enc_config_dtor( enc_t * penc )
 
     POBJ_END_SPAWN( penc );
 
-    return enc_dtor( penc );
+    return enc_t::dtor( penc );
 }
 
 //--------------------------------------------------------------------------------------------
