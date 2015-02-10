@@ -1333,7 +1333,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     {
         // Flag the item as not put away
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) DisplayMsg_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pchr->islocalplayer ) DisplayMsg_printf("%s is sticky...", pitem->getName().c_str());
         return false;
     }
 
@@ -1341,7 +1341,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     if ( itemProfile->isBigItem() )
     {
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) DisplayMsg_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pchr->islocalplayer ) DisplayMsg_printf("%s is too big to be put away...", pitem->getName().c_str());
         return false;
     }
 
@@ -1511,7 +1511,7 @@ bool inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, con
     {
         // Flag the last found_item as not removed
         SET_BIT( pitem->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-        if ( pholder->islocalplayer ) DisplayMsg_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pholder->islocalplayer ) DisplayMsg_printf( "%s won't go out!", pitem->getName().c_str() );
         return false;
     }
 
@@ -1972,12 +1972,10 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         {
             bool can_grab;
 
-            GameObject * pchr_b;
-
             if ( grab_list[cnt].too_dark || grab_list[cnt].too_invis ) continue;
 
             ichr_b = grab_list[cnt].ichr;
-            pchr_b = _gameObjects.get( ichr_b );
+            GameObject * pchr_b = _gameObjects.get( ichr_b );
 
             can_grab = can_grab_item_in_shop( ichr_a, ichr_b );
 
@@ -2010,6 +2008,8 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     {
         fvec3_t vforward;
 
+        const std::shared_ptr<GameObject> &pchr_b = _gameObjects[ichr_b];
+
         //---- generate billboards for things that players can interact with
         if ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback && VALID_PLA( pchr_a->is_which_player ) )
         {
@@ -2025,7 +2025,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ), color_grn, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, pchr_b->getName(true, false, true).c_str(), color_grn, default_tint, 5, bb_opt_fade );
                 }
             }
 
@@ -2042,7 +2042,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ), color_red, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, pchr_b->getName(true, false, true).c_str(), color_red, default_tint, 5, bb_opt_fade );
                 }
             }
         }
@@ -2387,7 +2387,7 @@ void do_level_up( const CHR_REF character )
             // The character is ready to advance...
             if ( VALID_PLA( pchr->is_which_player ) )
             {
-                DisplayMsg_printf( "%s gained a level!!!", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+                DisplayMsg_printf("%s gained a level!!!", pchr->getName().c_str());
                 _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_LEVELUP));
             }
 
@@ -2522,20 +2522,6 @@ bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF chara
     rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
     return TO_C_BOOL( rv_success == rv );
 }
-
-//--------------------------------------------------------------------------------------------
-//void resize_all_characters()
-//{
-//    /// @author ZZ
-/// @details This function makes the characters get bigger or smaller, depending
-//    ///    on their fat_goto and fat_goto_time. Spellbooks do not resize
-//
-//    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
-//    {
-//        resize_one_character( pchr );
-//    }
-//    CHR_END_LOOP();
-//}
 
 //--------------------------------------------------------------------------------------------
 bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF character )
@@ -4744,7 +4730,7 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
         if ( pchr->show_stats || cfg.dev_mode )
         {
             // Tell the player that they can't use this iweapon
-            DisplayMsg_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
+            DisplayMsg_printf( "%s can't use this item...", pchr->getName(false, true, true).c_str());
         }
         return false;
     }
@@ -6159,20 +6145,6 @@ void cleanup_all_characters()
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-void bump_all_characters_update_counters()
-{
-    for(const auto &chr : _characterList)
-    {
-        Ego::Entity *pbase = POBJ_GET_PBASE( chr.second.get() );
-        if ( !ACTIVE_PBASE( pbase ) ) continue;
-
-        pbase->update_count++;
-    }
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects )
 {
     FACING_T left, right;
@@ -6407,90 +6379,6 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     }
 
     return pbb;
-}
-
-//--------------------------------------------------------------------------------------------
-const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size )
-{
-    static STRING _default_buffer;
-
-    char   * loc_buffer      = NULL;
-    size_t   loc_buffer_size = 0;
-
-    if ( NULL == buffer )
-    {
-        loc_buffer      = _default_buffer;
-        loc_buffer_size = SDL_arraysize( _default_buffer );
-    }
-    else
-    {
-        loc_buffer      = buffer;
-        loc_buffer_size = buffer_size;
-    }
-
-    if ( 0 == loc_buffer_size )
-    {
-        _default_buffer[0] = CSTR_END;
-        return loc_buffer;
-    }
-
-    if ( !_gameObjects.exists( ichr ) )
-    {
-        // the default name
-        strncpy( loc_buffer, "Unknown", loc_buffer_size );
-    }
-    else
-    {
-        GameObject * pchr = _gameObjects.get( ichr );
-
-        if ( pchr->nameknown )
-        {
-            snprintf( loc_buffer, loc_buffer_size, "%s", pchr->Name );
-        }
-        else
-        {
-            const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
-
-            char lTmp;
-
-            if ( 0 != ( bits & CHRNAME_ARTICLE ) )
-            {
-                const char * article;
-
-                if ( 0 != ( bits & CHRNAME_DEFINITE ) )
-                {
-                    article = "the";
-                }
-                else
-                {
-                    lTmp = char_toupper( profile->getClassName()[0] );
-
-                    if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
-                    {
-                        article = "an";
-                    }
-                    else
-                    {
-                        article = "a";
-                    }
-                }
-
-                snprintf( loc_buffer, loc_buffer_size, "%s %s", article, profile->getClassName().c_str() );
-            }
-            else
-            {
-                snprintf( loc_buffer, loc_buffer_size, "%s", profile->getClassName().c_str() );
-            }
-        }
-    }
-
-    if ( 0 != ( bits & CHRNAME_CAPITAL ) )
-    {
-        // capitalize the name ?
-        loc_buffer[0] = char_toupper(( unsigned )loc_buffer[0] );
-    }
-
-    return loc_buffer;
 }
 
 //--------------------------------------------------------------------------------------------

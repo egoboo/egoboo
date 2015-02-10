@@ -919,3 +919,52 @@ void GameObject::updateResize()
         }
     }
 }
+
+std::string GameObject::getName(bool prefixArticle, bool prefixDefinite, bool capitalLetter) const
+{
+    std::string result;
+
+    if (isNameKnown())
+    {
+        result = Name;
+
+        // capitalize the name ?
+        if (capitalLetter)
+        {
+            result[0] = char_toupper(result[0]);
+        }
+    }
+    else
+    {
+        result = getProfile()->getClassName();;
+
+        if (prefixArticle)
+        {
+            // capitalize the name ?
+            if (capitalLetter)
+            {
+                result[0] = std::toupper(result[0]);
+            }
+
+            if (prefixDefinite)
+            {
+                result = std::string("the ") + result;
+            }
+            else
+            {
+                char lTmp = char_toupper(result[0]);
+
+                if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+                {
+                    result = std::string("an ") + result;
+                }
+                else
+                {
+                    result = std::string("a ") + result;
+                }
+            }
+        }
+    }
+
+    return result;
+}

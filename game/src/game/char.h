@@ -154,15 +154,6 @@ enum grip_offset_t
     GRIP_ONLY      =               GRIP_LEFT
 };
 
-/// Bits used to control options for the chr_get_name() function
-enum e_chr_name_bits
-{
-    CHRNAME_NONE     = 0,               ///< no options
-    CHRNAME_ARTICLE  = ( 1 << 0 ),      ///< use an article (a, an, the)
-    CHRNAME_DEFINITE = ( 1 << 1 ),      ///< if set, choose "the" else "a" or "an"
-    CHRNAME_CAPITAL  = ( 1 << 2 )       ///< capitalize the name
-};
-
 enum e_chr_movement_idx
 {
     CHR_MOVEMENT_STOP  = 0,
@@ -259,7 +250,6 @@ bool chr_getMatForward(GameObject *self, fvec3_t& forward);
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatTranslate(GameObject *self, fvec3_t& translate);
 
-const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size );
 const char * chr_get_dir_name( const CHR_REF ichr );
 int chr_get_skill( GameObject * pchr, IDSZ whichskill );
 

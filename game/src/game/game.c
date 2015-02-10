@@ -680,12 +680,7 @@ void blah_billboard()
 
         if ( needs_new )
         {
-            const char * pname = chr_get_name( object->getCharacterID(), 0, NULL, 0 );
-
-            chr_make_text_billboard( object->getCharacterID(), pname, color_blu, default_tint, 50, bb_opt_fade );
-
-            //TODO: ZF> Why is this here? I uncommented it, is it needed?
-            //pname = chr_get_name(object->getCharacterID(), 0, NULL, 0);
+            chr_make_text_billboard( object->getCharacterID(), object->getName(false, false, false).c_str(), color_blu, default_tint, 50, bb_opt_fade );
         }
     }
 }
@@ -2360,7 +2355,7 @@ void show_stat( int statindex )
             const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
 
             // Name
-            DisplayMsg_printf( "=%s=", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
+            DisplayMsg_printf( "=%s=", pchr->getName(true, false, true).c_str());
 
             // Level and gender and class
             gender[0] = 0;
@@ -2523,7 +2518,7 @@ void show_full_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), _INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), _INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - chr_get_ppro(character)->getSkinInfo(skinlevel).defence,
@@ -2564,7 +2559,7 @@ void show_magic_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), _INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), _INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -3763,7 +3758,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 
                 case 'n' : // Name
                     {
-                        chr_get_name( ichr, CHRNAME_ARTICLE, szTmp, SDL_arraysize( szTmp ) );
+                        strncpy(szTmp, pchr->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
                     }
                     break;
 
@@ -3782,16 +3777,21 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pai )
                         {
-                            chr_get_name( pai->target, CHRNAME_ARTICLE, szTmp, SDL_arraysize( szTmp ) );
+                            const std::shared_ptr<GameObject> &target = _gameObjects[pai->target];
+                            if(target)
+                            {
+                                strncpy(szTmp, target->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
+                            }
                         }
                     }
                     break;
 
                 case 'o':  // Owner name
                     {
-                        if ( NULL != pai )
+                        const std::shared_ptr<GameObject> &owner = _gameObjects[pai->owner];
+                        if(owner)
                         {
-                            chr_get_name( pai->owner, CHRNAME_ARTICLE, szTmp, SDL_arraysize( szTmp ) );
+                            strncpy(szTmp, owner->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
                         }
                     }
                     break;
@@ -4746,11 +4746,11 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 
             if ( !can_grab )
             {
-                DisplayMsg_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+                DisplayMsg_printf( "%s was detected!!", pchr->getName().c_str());
             }
             else
             {
-                DisplayMsg_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), chr_get_name( iitem, CHRNAME_ARTICLE, NULL, 0 ) );
+                DisplayMsg_printf( "%s stole %s", pchr->getName().c_str(), pitem->getName(true, false, false).c_str());
             }
         }
         else

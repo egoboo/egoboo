@@ -2540,8 +2540,6 @@ float draw_status( const CHR_REF character, float x, float y )
     /// @author ZZ
     /// @details This function shows a character's icon, status and inventory
     ///    The x,y coordinates are the top left point of the image to draw
-
-    STRING generictext;
     int life_pips, life_pips_max;
     int mana_pips, mana_pips_max;
 
@@ -2555,12 +2553,8 @@ float draw_status( const CHR_REF character, float x, float y )
     mana_pips      = SFP8_TO_SINT( pchr->mana );
     mana_pips_max  = SFP8_TO_SINT( pchr->mana_max );
 
-    // make a short name for the actual display
-    chr_get_name( character, CHRNAME_CAPITAL, generictext, 7 );
-    generictext[7] = CSTR_END;
-
     // draw the name
-    y = draw_string_raw( x + 8, y, "%s", generictext );
+    y = draw_string_raw( x + 8, y, "%s", pchr->getName(false, false, true).c_str());
 
     // draw the character's money
     y = draw_string_raw( x + 8, y, "$%4d", pchr->money ) + 8;
@@ -3093,7 +3087,7 @@ void draw_inventory()
         x += 5;
 
         //draw title
-        draw_wrap_string( chr_get_name( ichr, CHRNAME_CAPITAL, NULL, 0 ), x, y, x + width );
+        draw_wrap_string( pchr->getName(false, false, true).c_str(), x, y, x + width );
         y += 32;
 
         //draw each inventory icon

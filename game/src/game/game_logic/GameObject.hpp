@@ -294,6 +294,8 @@ public:
 
     bool isHidden() const {return is_hidden;}
 
+    bool isNameKnown() const {return nameknown;}
+
     /**
     * @brief
     *   Tries to teleport this GameObject to the specified location if it is valid
@@ -301,6 +303,18 @@ public:
     *   Success returns true, failure returns false;
     **/
     bool teleport(const float x, const float y, const float z, const FACING_T facing_z);
+
+    /**
+    * @brief
+    *   Get the name of this character if it is known by the players (e.g Fluffy) or it's class name otherwise (e.g Sheep)
+    * @param prefixArticle
+    *   if the appropriate article "a" or "an" should be prefixed (only valid for class name)
+    * @param prefixDefinite
+    *   prefix defeinite article, i.e "the" (only valid for class name)
+    * @param captialLetter
+    *   Capitalize the first letter in the name or class name (e.g "fluffy" -> "Fluffy")
+    **/
+    std::string getName(bool prefixArticle = true, bool prefixDefinite = true, bool capitalLetter = true) const;
 
 private:
 
