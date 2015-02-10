@@ -201,6 +201,12 @@ public:
 	bool isMount() const {return getProfile()->isMount();}
 
     /**
+    * @brief
+    *   Mark this object as terminated, it will be removed from the game by the update.
+    **/
+    void requestTerminate() {terminateRequested = true;}
+
+    /**
     * @brief 
     *   This function calculates and applies damage to a character.  It also
     *   sets alerts and begins actions.  Blocking and frame invincibility are done here too.  

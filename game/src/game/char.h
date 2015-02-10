@@ -204,9 +204,6 @@ struct team_t
 
 //--------------------------------------------------------------------------------------------
 
-
-bool  chr_request_terminate( GameObject * pchr );
-
 bool    chr_matrix_valid( const GameObject * pchr );
 egolib_rv chr_update_matrix( GameObject * pchr, bool update_size );
 

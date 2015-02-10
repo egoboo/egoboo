@@ -2179,7 +2179,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // Poof the item
                 detach_character_from_mount( iweapon, true, false );
-                chr_request_terminate( pweapon.get() );
+                pweapon->requestTerminate();
             }
             else
             {
@@ -7144,22 +7144,6 @@ bool GameObjecteleport( const CHR_REF ichr, float x, float y, float z, FACING_T 
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_request_terminate( GameObject * pchr )
-{
-    /// @author BB
-    /// @details Mark this character for deletion
-
-    if ( NULL == pchr || nullptr == ( pchr ) || TERMINATED_PCHR( pchr ) )
-    {
-        return false;
-    }
-
-    //POBJ_REQUEST_TERMINATE( pchr ); //TODO: ZF> not implemented
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
