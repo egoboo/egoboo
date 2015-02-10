@@ -218,11 +218,24 @@ struct prt_t
     static float *get_pos_v(prt_t *self);
     static bool set_pos(prt_t *self, const fvec3_t& position);
     static bool get_pos(const prt_t *self, fvec3_t& position);
-
+    static bool update_pos(prt_t *self);
+    static bool update_safe(prt_t *self, bool force);
+    static bool update_safe_raw(prt_t *self);
 };
 
 
+
+// particle state machine functions
+prt_t *prt_run_config(prt_t *self);
+prt_t *prt_config_construct(prt_t *self, int max_iterations);
+prt_t *prt_config_initialize(prt_t *self, int max_iterations);
+prt_t *prt_config_activate(prt_t *self, int max_iterations);
+prt_t *prt_config_deinitialize(prt_t *self, int max_iterations);
+prt_t *prt_config_deconstruct(prt_t *self, int max_iterations);
+
+
 //--------------------------------------------------------------------------------------------
+/// Convenient access to a prt ref and prt as well as pip ref and pip.
 struct prt_bundle_t
 {
     PRT_REF   prt_ref;
@@ -230,6 +243,30 @@ struct prt_bundle_t
 
     PIP_REF   pip_ref;
     pip_t   * pip_ptr;
+
+    static prt_bundle_t *ctor(prt_bundle_t *self);
+    static prt_bundle_t *validate(prt_bundle_t *self);
+    static prt_bundle_t *set(prt_bundle_t *self, prt_t *prt);
+    static prt_bundle_t *do_bump_damage(prt_bundle_t *self);
+    static prt_bundle_t *update(prt_bundle_t *self);
+    static int do_contspawn(prt_bundle_t *self);
+    static bool move_one_particle(prt_bundle_t *self);
+private:
+    static prt_bundle_t *move_one_particle_integrate_motion(prt_bundle_t *self);
+    static prt_bundle_t *move_one_particle_integrate_motion_attached(prt_bundle_t *self);
+    static prt_bundle_t *move_one_particle_do_z_motion(prt_bundle_t *self);
+    static prt_bundle_t *move_one_particle_do_homing(prt_bundle_t *self);
+    static prt_bundle_t *move_one_particle_do_floor_friction(prt_bundle_t *self);
+    static prt_bundle_t *move_one_particle_do_fluid_friction(prt_bundle_t *self);
+public:
+    static prt_bundle_t *move_one_particle_get_environment(prt_bundle_t *self);
+private:
+    static prt_bundle_t *update_animation(prt_bundle_t *self);
+    static prt_bundle_t *update_dynalight(prt_bundle_t *self);
+    static prt_bundle_t *update_timers(prt_bundle_t *self);
+    static prt_bundle_t *update_ingame(prt_bundle_t *self);
+    static prt_bundle_t *update_ghost(prt_bundle_t *self);
+    static prt_bundle_t *update_do_water(prt_bundle_t *self);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -246,9 +283,6 @@ extern int prt_pressure_tests;
 // particle_system functions
 void particle_system_begin();
 void particle_system_end();
-
-PRT_REF end_one_particle_now( const PRT_REF particle );
-PRT_REF end_one_particle_in_game( const PRT_REF particle );
 
 void update_all_particles();
 void move_all_particles();
@@ -278,32 +312,16 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
 #define spawn_one_particle_global( pos, facing, gpip_index, multispawn ) spawn_one_particle( pos, facing, INVALID_PRO_REF, gpip_index, INVALID_CHR_REF, GRIP_LAST, (TEAM_REF)TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF );
 
 // prt functions
-
-bool      prt_is_over_water( const PRT_REF particle );
-void      prt_play_sound( const PRT_REF particle, Sint8 sound );
-
-prt_bundle_t *move_one_particle_get_environment(prt_bundle_t * pbdl_prt);
+PRT_REF end_one_particle_now(const PRT_REF particle);
+PRT_REF end_one_particle_in_game(const PRT_REF particle);
+bool prt_is_over_water(const PRT_REF particle);
+void prt_play_sound(const PRT_REF particle, Sint8 sound);
+PIP_REF prt_get_ipip(const PRT_REF particle);
+pip_t *prt_get_ppip(const PRT_REF particle);
+CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
 
 // PipStack functions
 PIP_REF PipStack_load_one(const char *szLoadName, const PIP_REF pip_override);
 void PipStack_init_all();
 void PipStack_release_all();
 bool PipStack_release_one(const PIP_REF ipip);
-
-// particle state machine functions
-prt_t *prt_run_config(prt_t *self);
-prt_t *prt_config_construct(prt_t *self, int max_iterations);
-prt_t *prt_config_initialize(prt_t *self, int max_iterations);
-prt_t *prt_config_activate(prt_t *self, int max_iterations);
-prt_t *prt_config_deinitialize(prt_t *self, int max_iterations);
-prt_t *prt_config_deconstruct(prt_t *self, int max_iterations);
-
-//inlined before
-PIP_REF prt_get_ipip(const PRT_REF particle);
-pip_t *prt_get_ppip(const PRT_REF particle);
-CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
-
-
-prt_bundle_t * prt_bundle_ctor(prt_bundle_t *self);
-prt_bundle_t * prt_bundle_validate(prt_bundle_t *self);
-prt_bundle_t * prt_bundle_set(prt_bundle_t *self, prt_t *pprt);

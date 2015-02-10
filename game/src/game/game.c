@@ -5108,7 +5108,7 @@ bool detach_particle_from_platform( prt_t * pprt )
     if ( !DEFINED_PPRT( pprt ) ) return false;
 
     // grab all of the particle info
-    prt_bundle_set( &bdl_prt, pprt );
+    prt_bundle_t::set( &bdl_prt, pprt );
 
     // check if they can be connected
     if ( _gameObjects.exists( pprt->onwhichplatform_ref ) ) return false;
@@ -5120,7 +5120,7 @@ bool detach_particle_from_platform( prt_t * pprt )
     pprt->targetplatform_level   = -1e32;
 
     // get the correct particle environment
-    move_one_particle_get_environment( &bdl_prt );
+    prt_bundle_t::move_one_particle_get_environment( &bdl_prt );
 
     return true;
 }

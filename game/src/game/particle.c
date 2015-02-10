@@ -54,41 +54,23 @@ Stack<pip_t, MAX_PIP> PipStack;
 //--------------------------------------------------------------------------------------------
 static bool  prt_free( prt_t * pprt );
 
-static prt_t * prt_config_ctor( prt_t * pprt );
-static prt_t * prt_config_init( prt_t * pprt );
-static prt_t * prt_config_active( prt_t * pprt );
-static prt_t * prt_config_deinit( prt_t * pprt );
-static prt_t * prt_config_dtor( prt_t * pprt );
-
-static prt_t * prt_config_do_init( prt_t * pprt );
-static prt_t * prt_config_do_active( prt_t * pprt );
-static prt_t * prt_config_do_deinit( prt_t * pprt );
+static prt_t *prt_config_ctor(prt_t *self);
+static prt_t *prt_config_init(prt_t *self);
+static prt_t *prt_config_active(prt_t *self);
+static prt_t *prt_config_deinit(prt_t *self);
+static prt_t *prt_config_dtor(prt_t *self);
+static prt_t *prt_config_do_init(prt_t *self);
+static prt_t *prt_config_do_active(prt_t *self);
+static prt_t *prt_config_do_deinit(prt_t *self);
 
 static int prt_do_end_spawn( const PRT_REF iprt );
-static int prt_do_contspawn( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt );
 
-static prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * prt_update_dynalight( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * prt_update_timers( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt );
 
-static bool prt_update_pos( prt_t * pprt );
-static bool prt_update_safe( prt_t * pprt, bool force );
-static bool prt_update_safe_raw( prt_t * pprt );
+
+
+
 static PIP_REF PipStack_get_free();
-static bool move_one_particle( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt );
-static prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt );
-//static fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure );
-//static float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] );
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -640,7 +622,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     {
         prt_bundle_t prt_bdl;
 
-        prt_bundle_set( &prt_bdl, pprt );
+        prt_bundle_t::set( &prt_bdl, pprt );
 
         attach_one_particle( &prt_bdl );
     }
@@ -1292,9 +1274,9 @@ void update_all_particles()
     {
         if ( !ALLOCATED_PRT( iprt ) ) continue;
 
-        prt_bundle_set( &prt_bdl, PrtList_get_ptr( iprt ) );
+        prt_bundle_t::set( &prt_bdl, PrtList_get_ptr( iprt ) );
 
-        prt_update( &prt_bdl );
+        prt_bundle_t::update( &prt_bdl );
     }
 }
 
@@ -1322,7 +1304,7 @@ void prt_t::set_level(prt_t * pprt, const float level)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
+prt_bundle_t *prt_bundle_t::move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details A helper function that gets all of the information about the particle's
@@ -1438,7 +1420,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details A helper function that computes particle friction with the floor
@@ -1525,7 +1507,7 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details A helper function that computes particle friction with the floor
@@ -1640,7 +1622,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
 {
     GameObject * ptarget;
 
@@ -1725,7 +1707,7 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details A helper function that does gravitational acceleration and buoyancy
@@ -1823,7 +1805,7 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details A helper function that figures out the next valid position of the particle.
@@ -1922,7 +1904,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details A helper function that figures out the next valid position of the particle.
@@ -2200,7 +2182,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool move_one_particle( prt_bundle_t * pbdl_prt )
+bool prt_bundle_t::move_one_particle( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details The master function for controlling a particle's motion
@@ -2269,7 +2251,7 @@ void move_all_particles()
         prt_bdl.prt_ptr->enviro.air_friction = air_friction;
         prt_bdl.prt_ptr->enviro.ice_friction = ice_friction;
 
-        move_one_particle( &prt_bdl );
+        prt_bundle_t::move_one_particle( &prt_bdl );
     }
     PRT_END_LOOP();
 }
@@ -2766,7 +2748,7 @@ void bump_all_particles_update_counters()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::do_bump_damage( prt_bundle_t * pbdl_prt )
 {
     // apply damage from  attatched bump particles (about once a second)
 
@@ -2886,7 +2868,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-int prt_do_contspawn( prt_bundle_t * pbdl_prt )
+int prt_bundle_t::do_contspawn( prt_bundle_t * pbdl_prt )
 {
     /// Spawn new particles if continually spawning
 
@@ -2945,7 +2927,7 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::update_do_water( prt_bundle_t * pbdl_prt )
 {
     /// handle the particle interaction with water
 
@@ -3038,7 +3020,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::update_animation( prt_bundle_t * pbdl_prt )
 {
     /// animate the particle
 
@@ -3127,7 +3109,7 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_update_dynalight( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::update_dynalight( prt_bundle_t * pbdl_prt )
 {
     prt_t             * loc_pprt;
     pip_t             * loc_ppip;
@@ -3159,7 +3141,7 @@ prt_bundle_t * prt_update_dynalight( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_update_timers( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::update_timers( prt_bundle_t * pbdl_prt )
 {
     prt_t             * loc_pprt;
 
@@ -3182,7 +3164,7 @@ prt_bundle_t * prt_update_timers( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::update_ingame( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details update everything about a particle that does not depend on collisions
@@ -3226,25 +3208,25 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
     }
 
     // figure out where the particle is on the mesh and update pbdl_prt->prt_ref states
-    pbdl_prt = prt_update_do_water( pbdl_prt );
+    pbdl_prt = prt_bundle_t::update_do_water( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == loc_pprt ) return pbdl_prt;
 
     // the following functions should not be done the first time through the update loop
     if ( 0 == update_wld ) return pbdl_prt;
 
-    pbdl_prt = prt_update_animation( pbdl_prt );
+    pbdl_prt = prt_bundle_t::update_animation( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
 
-    pbdl_prt = prt_update_dynalight( pbdl_prt );
+    pbdl_prt = prt_bundle_t::update_dynalight( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
 
-    pbdl_prt = prt_update_timers( pbdl_prt );
+    pbdl_prt = prt_bundle_t::update_timers( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
 
-    prt_do_contspawn( pbdl_prt );
+    prt_bundle_t::do_contspawn( pbdl_prt );
     if ( NULL == pbdl_prt->prt_ptr ) return NULL;
 
-    pbdl_prt = prt_do_bump_damage( pbdl_prt );
+    pbdl_prt = prt_bundle_t::do_bump_damage( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
 
     base_ptr->update_count++;
@@ -3259,7 +3241,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::update_ghost( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details handle the case where the particle is still being diaplayed, but is no longer
@@ -3308,10 +3290,10 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
     // the following functions should not be done the first time through the update loop
     if ( 0 == update_wld ) return pbdl_prt;
 
-    pbdl_prt = prt_update_animation( pbdl_prt );
+    pbdl_prt = prt_bundle_t::update_animation( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == loc_pprt ) return NULL;
 
-    pbdl_prt = prt_update_dynalight( pbdl_prt );
+    pbdl_prt = prt_bundle_t::update_dynalight( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == loc_pprt ) return NULL;
 
     if ( !loc_pprt->is_hidden )
@@ -3323,7 +3305,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt )
+prt_bundle_t * prt_bundle_t::update( prt_bundle_t * pbdl_prt )
 {
     Ego::Entity *loc_pbase;
     prt_t *loc_pprt,
@@ -3339,12 +3321,12 @@ prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt )
 
     // do the next step in the particle configuration
     tmp_pprt = prt_run_config( pbdl_prt->prt_ptr );
-    if ( NULL == tmp_pprt ) { prt_bundle_ctor( pbdl_prt ); return NULL; }
+    if ( NULL == tmp_pprt ) { prt_bundle_t::ctor( pbdl_prt ); return NULL; }
 
     if ( tmp_pprt != pbdl_prt->prt_ptr )
     {
         // "new" particle, so re-validate the bundle
-        prt_bundle_set( pbdl_prt, pbdl_prt->prt_ptr );
+        prt_bundle_t::set( pbdl_prt, pbdl_prt->prt_ptr );
     }
 
     // if the bundle is no longer valid, return
@@ -3357,12 +3339,12 @@ prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt )
     if ( loc_pprt->is_ghost )
     {
         // the particle is not on
-        pbdl_prt = prt_update_ghost( pbdl_prt );
+        pbdl_prt = prt_bundle_t::update_ghost( pbdl_prt );
     }
     else
     {
         // the particle is on
-        pbdl_prt = prt_update_ingame( pbdl_prt );
+        pbdl_prt = prt_bundle_t::update_ingame( pbdl_prt );
     }
 
     return pbdl_prt;
@@ -3370,7 +3352,7 @@ prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool prt_update_safe_raw( prt_t * pprt )
+bool prt_t::update_safe_raw( prt_t * pprt )
 {
     bool retval = false;
 
@@ -3394,7 +3376,7 @@ bool prt_update_safe_raw( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_update_safe( prt_t * pprt, bool force )
+bool prt_t::update_safe( prt_t * pprt, bool force )
 {
     Uint32 new_grid;
     bool retval = false;
@@ -3426,7 +3408,7 @@ bool prt_update_safe( prt_t * pprt, bool force )
 
     if ( needs_update )
     {
-        retval = prt_update_safe_raw( pprt );
+        retval = prt_t::update_safe_raw( pprt );
     }
 
     return retval;
@@ -3434,7 +3416,7 @@ bool prt_update_safe( prt_t * pprt, bool force )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool prt_update_pos( prt_t * pprt )
+bool prt_t::update_pos( prt_t * pprt )
 {
     if ( !ALLOCATED_PPRT( pprt ) ) return false;
 
@@ -3442,7 +3424,7 @@ bool prt_update_pos( prt_t * pprt )
     pprt->onwhichblock = ego_mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
     // update whether the current character position is safe
-    prt_update_safe( pprt, false );
+    prt_t::update_safe( pprt, false );
 
     // update the breadcrumb list (does not exist for particles )
     // prt_update_breadcrumb( pprt, false );
@@ -3460,7 +3442,7 @@ bool prt_t::set_pos(prt_t *pprt, const fvec3_t& pos)
 	if ((pos[kX] != pprt->pos.v[kX]) || (pos[kY] != pprt->pos.v[kY]) || (pos[kZ] != pprt->pos.v[kZ]))
 	{
 		pprt->pos = pos;
-		retval = prt_update_pos(pprt);
+		retval = prt_t::update_pos(pprt);
 	}
 	return retval;
 }
@@ -3644,73 +3626,73 @@ float prt_t::get_scale( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
+prt_bundle_t *prt_bundle_t::ctor(prt_bundle_t *self)
 {
-    if ( NULL == pbundle ) return NULL;
+    if (!self) return nullptr;
 
-    pbundle->prt_ref = INVALID_PRT_REF;
-    pbundle->prt_ptr = NULL;
+    self->prt_ref = INVALID_PRT_REF;
+    self->prt_ptr = nullptr;
 
-    pbundle->pip_ref = INVALID_PIP_REF;
-    pbundle->pip_ptr = NULL;
+    self->pip_ref = INVALID_PIP_REF;
+    self->pip_ptr = nullptr;
 
-    return pbundle;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
+prt_bundle_t *prt_bundle_validate(prt_bundle_t *self)
 {
-    if ( NULL == pbundle ) return NULL;
+    if (!self) return nullptr;
 
-    if ( ALLOCATED_PRT( pbundle->prt_ref ) )
+    if (ALLOCATED_PRT(self->prt_ref))
     {
-        pbundle->prt_ptr = PrtList_get_ptr( pbundle->prt_ref );
+        self->prt_ptr = PrtList_get_ptr(self->prt_ref);
     }
-    else if ( NULL != pbundle->prt_ptr )
+    else if (nullptr != self->prt_ptr)
     {
-        pbundle->prt_ref = GET_REF_PPRT( pbundle->prt_ptr );
+        self->prt_ref = GET_REF_PPRT(self->prt_ptr);
     }
     else
     {
-        pbundle->prt_ref = INVALID_PRT_REF;
-        pbundle->prt_ptr = NULL;
+        self->prt_ref = INVALID_PRT_REF;
+        self->prt_ptr = nullptr;
     }
 
-    if ( !LOADED_PIP( pbundle->pip_ref ) && NULL != pbundle->prt_ptr )
+    if (!LOADED_PIP(self->pip_ref) && nullptr != self->prt_ptr)
     {
-        pbundle->pip_ref = pbundle->prt_ptr->pip_ref;
+        self->pip_ref = self->prt_ptr->pip_ref;
     }
 
-    if ( LOADED_PIP( pbundle->pip_ref ) )
+    if (LOADED_PIP(self->pip_ref))
     {
-        pbundle->pip_ptr = PipStack.get_ptr( pbundle->pip_ref );
+        self->pip_ptr = PipStack.get_ptr(self->pip_ref);
     }
     else
     {
-        pbundle->pip_ref = INVALID_PIP_REF;
-        pbundle->pip_ptr = NULL;
+        self->pip_ref = INVALID_PIP_REF;
+        self->pip_ptr = nullptr;
     }
 
-    return pbundle;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt )
+prt_bundle_t *prt_bundle_t::set(prt_bundle_t *self, prt_t *prt)
 {
-    if ( NULL == pbundle ) return NULL;
+    if (!self) return nullptr;
 
     // blank out old data
-    pbundle = prt_bundle_ctor( pbundle );
+    self = prt_bundle_t::ctor(self);
 
-    if ( NULL == pbundle || NULL == pprt ) return pbundle;
+    if (!self || !prt) return nullptr;
 
     // set the particle pointer
-    pbundle->prt_ptr = pprt;
+    self->prt_ptr = prt;
 
     // validate the particle data
-    pbundle = prt_bundle_validate( pbundle );
+    self = prt_bundle_validate(self);
 
-    return pbundle;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
