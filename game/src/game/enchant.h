@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
-struct s_object_profile;
+
 class ObjectProfile;
 class GameObject;
 
@@ -35,8 +35,7 @@ class GameObject;
 // internal structs
 //--------------------------------------------------------------------------------------------
 
-struct s_enc_spawn_data;
-typedef struct s_enc_spawn_data enc_spawn_data_t;
+struct enc_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -59,7 +58,7 @@ extern Stack<eve_t, MAX_EVE> EveStack;
 #define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
 
 //--------------------------------------------------------------------------------------------
-struct s_enc_spawn_data
+struct enc_spawn_data_t
 {
     CHR_REF owner_ref;
     CHR_REF target_ref;

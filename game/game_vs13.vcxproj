@@ -52,39 +52,39 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\egolib\libraries.props" />
-    <Import Project="$(SolutionDir)\egolib\enet.props" />
-    <Import Project="$(SolutionDir)\egolib\physfs.props" />
-    <Import Project="$(SolutionDir)\egolib\opengl.props" />
-    <Import Project="$(SolutionDir)\egolib\sdl.props" />
-    <Import Project="$(SolutionDir)\egolib\lua.props" />
+    <Import Project="$(SolutionDir)\vs2013\libraries.props" />
+    <Import Project="$(SolutionDir)\vs2013\enet.props" />
+    <Import Project="$(SolutionDir)\vs2013\physfs.props" />
+    <Import Project="$(SolutionDir)\vs2013\opengl.props" />
+    <Import Project="$(SolutionDir)\vs2013\sdl.props" />
+    <Import Project="$(SolutionDir)\vs2013\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\egolib\libraries.props" />
-    <Import Project="$(SolutionDir)\egolib\enet.props" />
-    <Import Project="$(SolutionDir)\egolib\physfs.props" />
-    <Import Project="$(SolutionDir)\egolib\opengl.props" />
-    <Import Project="$(SolutionDir)\egolib\sdl.props" />
-    <Import Project="$(SolutionDir)\egolib\lua.props" />
+    <Import Project="$(SolutionDir)\vs2013\libraries.props" />
+    <Import Project="$(SolutionDir)\vs2013\enet.props" />
+    <Import Project="$(SolutionDir)\vs2013\physfs.props" />
+    <Import Project="$(SolutionDir)\vs2013\opengl.props" />
+    <Import Project="$(SolutionDir)\vs2013\sdl.props" />
+    <Import Project="$(SolutionDir)\vs2013\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\egolib\libraries.props" />
-    <Import Project="$(SolutionDir)\egolib\enet.props" />
-    <Import Project="$(SolutionDir)\egolib\physfs.props" />
-    <Import Project="$(SolutionDir)\egolib\opengl.props" />
-    <Import Project="$(SolutionDir)\egolib\sdl.props" />
-    <Import Project="$(SolutionDir)\egolib\lua.props" />
+    <Import Project="$(SolutionDir)\vs2013\libraries.props" />
+    <Import Project="$(SolutionDir)\vs2013\enet.props" />
+    <Import Project="$(SolutionDir)\vs2013\physfs.props" />
+    <Import Project="$(SolutionDir)\vs2013\opengl.props" />
+    <Import Project="$(SolutionDir)\vs2013\sdl.props" />
+    <Import Project="$(SolutionDir)\vs2013\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\egolib\libraries.props" />
-    <Import Project="$(SolutionDir)\egolib\enet.props" />
-    <Import Project="$(SolutionDir)\egolib\physfs.props" />
-    <Import Project="$(SolutionDir)\egolib\opengl.props" />
-    <Import Project="$(SolutionDir)\egolib\sdl.props" />
-    <Import Project="$(SolutionDir)\egolib\lua.props" />
+    <Import Project="$(SolutionDir)\vs2013\libraries.props" />
+    <Import Project="$(SolutionDir)\vs2013\enet.props" />
+    <Import Project="$(SolutionDir)\vs2013\physfs.props" />
+    <Import Project="$(SolutionDir)\vs2013\opengl.props" />
+    <Import Project="$(SolutionDir)\vs2013\sdl.props" />
+    <Import Project="$(SolutionDir)\vs2013\lua.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>

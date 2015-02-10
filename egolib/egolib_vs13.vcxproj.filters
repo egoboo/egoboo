@@ -547,11 +547,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="enet.props" />
-    <None Include="libraries.props" />
-    <None Include="opengl.props" />
-    <None Include="physfs.props" />
-    <None Include="sdl.props" />
     <None Include="src\egolib\file_formats\id_normals.inl">
       <Filter>File Formats</Filter>
     </None>
@@ -564,8 +559,5 @@
     <None Include="src\egolib\platform\sys_mac.m">
       <Filter>Platforms</Filter>
     </None>
-    <None Include="lua.props" />
-    <None Include="multithreaded.props" />
-    <None Include="multithreaded_debug.props" />
   </ItemGroup>
 </Project>
