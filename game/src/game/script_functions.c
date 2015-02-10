@@ -2900,7 +2900,7 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
         return false;
     }
 
-    returncode = pchr->teleport(pstate->x, pstate->y, pstate->distance, pstate->turn);
+    returncode = target->teleport(pstate->x, pstate->y, pstate->distance, pstate->turn);
 
     SCRIPT_FUNCTION_END();
 }
