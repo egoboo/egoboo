@@ -41,7 +41,7 @@
 //Inline
 //--------------------------------------------------------------------------------------------
 
-bool VALID_PRT_RANGE(const PRT_REF IPRT) { return (IPRT < std::min<size_t>(maxparticles, MAX_PRT)); }
+bool VALID_PRT_RANGE(const PRT_REF IPRT) { return (IPRT < std::min<size_t>(PrtList.maxparticles, MAX_PRT)); }
 bool DEFINED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && DEFINED_PPRT_RAW(PrtList.lst + (IPRT))); }
 bool ALLOCATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ALLOCATED_PPRT_RAW(PrtList.lst + (IPRT))); }
 bool ACTIVE_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ACTIVE_PPRT_RAW(PrtList.lst + (IPRT))); }
@@ -65,25 +65,17 @@ bool INGAME_PPRT(const prt_t *PPRT) { return LAMBDA(Ego::Entities::spawnDepth > 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static size_t  prt_termination_count = 0;
-static PRT_REF prt_termination_list[MAX_PRT];
-
-static size_t  prt_activation_count = 0;
-static PRT_REF prt_activation_list[MAX_PRT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LOCKABLELIST(prt_t, PRT_REF, PrtList, MAX_PRT );
+ParticleManager PrtList;
 
 static int PrtList_find_free_ref(const PRT_REF);
 static bool PrtList_push_free(const PRT_REF);
 static size_t PrtList_pop_free(const int);
 static int PrtList_find_used_ref(const PRT_REF);
 static size_t PrtList_pop_used(const int);
-
-size_t maxparticles       = 512;
-bool maxparticles_dirty = true;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -104,7 +96,7 @@ static void    PrtList_prune_free_list();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void PrtList_ctor()
+void ParticleManager::ctor()
 {
     PRT_REF cnt;
     prt_t * pprt;
@@ -113,7 +105,7 @@ void PrtList_ctor()
     PrtList_init();
 
     // construct the sub-objects
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( cnt = 0; cnt < PrtList.maxparticles; cnt++ )
     {
         pprt = PrtList.lst + cnt;
 
@@ -129,13 +121,13 @@ void PrtList_ctor()
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_dtor()
+void ParticleManager::dtor()
 {
     PRT_REF cnt;
     prt_t * pprt;
 
     // construct the sub-objects
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( cnt = 0; cnt < PrtList.maxparticles; cnt++ )
     {
         pprt = PrtList.lst + cnt;
 
@@ -153,15 +145,13 @@ void PrtList_dtor()
 //--------------------------------------------------------------------------------------------
 void PrtList_clear()
 {
-    PRT_REF cnt;
-
     // fix any problems with maxparticles
-    maxparticles = std::min( maxparticles, (size_t)MAX_PRT );
+    PrtList.maxparticles = std::min( PrtList.maxparticles, (size_t)MAX_PRT );
 
     // clear out the list
     PrtList.freeCount = 0;
     PrtList.usedCount = 0;
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for (PRT_REF cnt = 0; cnt < PrtList.maxparticles; cnt++)
     {
         // blank out the list
         PrtList.free_ref[cnt] = INVALID_PRT_IDX;
@@ -172,7 +162,7 @@ void PrtList_clear()
         PrtList.lst[cnt].obj_base.in_used_list = false;
     }
 
-    maxparticles_dirty = false;
+    PrtList.maxparticles_dirty = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -183,9 +173,9 @@ void PrtList_init()
     PrtList_clear();
 
     // add the objects to the free list
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( cnt = 0; cnt < PrtList.maxparticles; cnt++ )
     {
-        PRT_REF iprt = ( maxparticles - 1 ) - cnt;
+        PRT_REF iprt = ( PrtList.maxparticles - 1 ) - cnt;
 
         PrtList_add_free_ref( iprt );
     }
@@ -196,7 +186,7 @@ void PrtList_deinit()
 {
     PRT_REF cnt;
 
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( cnt = 0; cnt < PrtList.maxparticles; cnt++ )
     {
         prt_config_deconstruct( PrtList.get_ptr( cnt ), 100 );
     }
@@ -205,7 +195,7 @@ void PrtList_deinit()
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_reinit()
+void ParticleManager::reinit()
 {
     PrtList_deinit();
     PrtList_init();
@@ -264,7 +254,7 @@ void PrtList_prune_free_list()
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_update_used()
+void ParticleManager::update_used()
 {
     PRT_REF iprt;
     int cnt;
@@ -327,7 +317,7 @@ bool PrtList_free_one( const PRT_REF iprt )
     // list. This will cause some problems later.
     if ( PrtList.getLockCount() > 0 )
     {
-        retval = PrtList_add_termination( iprt );
+        retval = PrtList.add_termination( iprt );
     }
     else
     {
@@ -408,59 +398,54 @@ size_t PrtList_pop_free( const int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF PrtList_allocate( const bool force )
+PRT_REF ParticleManager::allocate(const bool force)
 {
-    /// @author ZZ
-    /// @details This function gets an unused particle.  If all particles are in use
-    ///    and force is set, it grabs the first unimportant one.  The iprt
-    ///    index is the return value
-
     PRT_REF iprt;
 
-    // Return MAX_PRT if we can't find one
+    // Return MAX_PRT if we can't find one.
     iprt = INVALID_PRT_REF;
 
-    if ( 0 == PrtList.freeCount )
+    if (0 == PrtList.freeCount)
     {
-        if ( force )
+        if (force)
         {
-            PRT_REF found           = INVALID_PRT_REF;
-            size_t  min_life        = ( size_t )( ~0 );
-            PRT_REF min_life_idx    = INVALID_PRT_REF;
+            PRT_REF found        = INVALID_PRT_REF;
+            size_t  min_life     = ( size_t )( ~0 );
+            PRT_REF min_life_idx = INVALID_PRT_REF;
             size_t  min_anim     = ( size_t )( ~0 );
             PRT_REF min_anim_idx = INVALID_PRT_REF;
 
-            // Gotta find one, so go through the list and replace a unimportant one
-            for ( iprt = 0; iprt < maxparticles; iprt++ )
+            // Gotta find one, so go through the list and replace a unimportant one.
+            for (iprt = 0; iprt < PrtList.maxparticles; iprt++)
             {
                 bool was_forced = false;
-                prt_t * pprt;
+                prt_t *pprt;
 
                 // Is this an invalid particle? The particle allocation count is messed up! :(
-                if ( !DEFINED_PRT( iprt ) )
+                if (!DEFINED_PRT(iprt))
                 {
                     found = iprt;
                     break;
                 }
-                pprt =  PrtList.get_ptr( iprt );
+                pprt =  PrtList.get_ptr(iprt);
 
-                // does it have a valid profile?
-                if ( !LOADED_PIP( pprt->pip_ref ) )
+                // Does it have a valid profile?
+                if (!LOADED_PIP(pprt->pip_ref))
                 {
                     found = iprt;
-                    end_one_particle_in_game( iprt );
+                    end_one_particle_in_game(iprt);
                     break;
                 }
 
-                // do not bump another
-                was_forced = TO_C_BOOL( PipStack.lst[pprt->pip_ref].force );
+                // Do not bump another.
+                was_forced = TO_C_BOOL(PipStack.lst[pprt->pip_ref].force);
 
-                if ( WAITING_PRT( iprt ) )
+                if (WAITING_PRT(iprt))
                 {
-                    // if the particle has been "terminated" but is still waiting around, bump it to the
-                    // front of the list
+                    // If the particle has been "terminated" but is still waiting around,
+                    // bump it to the front of the list.
 
-                    size_t min_time  = std::min( pprt->lifetime_remaining, pprt->frames_remaining );
+                    size_t min_time = std::min( pprt->lifetime_remaining, pprt->frames_remaining );
 
                     if ( min_time < std::max( min_life, min_anim ) )
                     {
@@ -471,10 +456,9 @@ PRT_REF PrtList_allocate( const bool force )
                         min_anim_idx = iprt;
                     }
                 }
-                else if ( !was_forced )
+                else if (!was_forced)
                 {
-                    // if the particle has not yet died, let choose the worst one
-
+                    // If the particle has not yet died, let choose the worst one.
                     if ( pprt->lifetime_remaining < min_life )
                     {
                         min_life     = pprt->lifetime_remaining;
@@ -489,32 +473,31 @@ PRT_REF PrtList_allocate( const bool force )
                 }
             }
 
-            if ( VALID_PRT_RANGE( found ) )
+            if (VALID_PRT_RANGE(found))
             {
-                // found a "bad" particle
+                // Found a "bad" particle.
                 iprt = found;
             }
-            else if ( VALID_PRT_RANGE( min_anim_idx ) )
+            else if (VALID_PRT_RANGE(min_anim_idx))
             {
-                // found a "terminated" particle
+                // Found a "terminated" particle.
                 iprt = min_anim_idx;
             }
-            else if ( VALID_PRT_RANGE( min_life_idx ) )
+            else if (VALID_PRT_RANGE(min_life_idx))
             {
-                // found a particle that closest to death
+                // Found a particle that closest to death.
                 iprt = min_life_idx;
             }
             else
             {
-                // found nothing. this should only happen if all the
-                // particles are forced
+                // Found nothing. This should only happen if all the particles are forced.
                 iprt = INVALID_PRT_REF;
             }
         }
     }
     else
     {
-        if ( PrtList.freeCount > ( maxparticles / 4 ) )
+        if ( PrtList.freeCount > ( PrtList.maxparticles / 4 ) )
         {
             // Just grab the next one
             iprt = ( PRT_REF )PrtList_pop_free( -1 );
@@ -526,7 +509,7 @@ PRT_REF PrtList_allocate( const bool force )
     }
 
     // return a proper value
-    iprt = ( iprt >= maxparticles ) ? INVALID_PRT_REF : iprt;
+    iprt = ( iprt >= PrtList.maxparticles ) ? INVALID_PRT_REF : iprt;
 
     if ( VALID_PRT_RANGE( iprt ) )
     {
@@ -555,10 +538,8 @@ void PrtList_free_all()
     /// @author ZZ
     /// @details This function resets the particle allocation lists
 
-    PRT_REF cnt;
-
     // free all the particles
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for (PRT_REF cnt = 0; cnt < PrtList.maxparticles; cnt++ )
     {
         PrtList_free_one( cnt );
     }
@@ -601,7 +582,7 @@ bool PrtList_add_free_ref( const PRT_REF iprt )
     EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_free_list );
 
     retval = false;
-    if ( PrtList.freeCount < maxparticles )
+    if ( PrtList.freeCount < PrtList.maxparticles )
     {
         PrtList.free_ref[PrtList.freeCount] = iprt;
 
@@ -689,7 +670,7 @@ bool PrtList_push_used( const PRT_REF iprt )
     EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_used_list );
 
     retval = false;
-    if ( PrtList.usedCount < maxparticles )
+    if ( PrtList.usedCount < PrtList.maxparticles )
     {
         PrtList.used_ref[PrtList.usedCount] = REF_TO_INT( iprt );
 
@@ -746,50 +727,44 @@ bool PrtList_remove_used_ref( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_cleanup()
+void ParticleManager::maybeRunDeferred()
 {
-    size_t  cnt;
-    prt_t * pprt;
-
-    // go through the list and activate all the particles that
-    // were created while the list was iterating
-    for ( cnt = 0; cnt < prt_activation_count; cnt++ )
+    // Go through the list and activate all the particles that
+    // were created while the list was iterating.
+    for (size_t i = 0; i < activation_count; i++)
     {
-        PRT_REF iprt = prt_activation_list[cnt];
+        PRT_REF iprt = activation_list[i];
 
-        if ( !ALLOCATED_PRT( iprt ) ) continue;
-        pprt = PrtList.get_ptr( iprt );
+        if (!ALLOCATED_PRT(iprt)) continue;
+        prt_t *pprt = get_ptr(iprt);
 
-        if ( !pprt->obj_base.turn_me_on ) continue;
+        if (!pprt->obj_base.turn_me_on) continue;
 
         pprt->obj_base.on         = true;
         pprt->obj_base.turn_me_on = false;
     }
-    prt_activation_count = 0;
+    activation_count = 0;
 
-    // go through and delete any particles that were
-    // supposed to be deleted while the list was iterating
-    for ( cnt = 0; cnt < prt_termination_count; cnt++ )
+    // Go through and delete any particles that
+    // were supposed to be deleted while the list was iterating.
+    for (size_t i = 0; i < termination_count; i++ )
     {
-        PrtList_free_one( prt_termination_list[cnt] );
+        PrtList_free_one(termination_list[i]);
     }
-    prt_termination_count = 0;
+    termination_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-bool PrtList_add_activation( const PRT_REF iprt )
+bool ParticleManager::add_activation( const PRT_REF iprt )
 {
-    // put this particle into the activation list so that it can be activated right after
-    // the PrtList loop is completed
-
     bool retval = false;
 
     if ( !VALID_PRT_RANGE( iprt ) ) return false;
 
-    if ( prt_activation_count < MAX_PRT )
+    if ( PrtList.activation_count < MAX_PRT )
     {
-        prt_activation_list[prt_activation_count] = iprt;
-        prt_activation_count++;
+        PrtList.activation_list[PrtList.activation_count] = iprt;
+        PrtList.activation_count++;
 
         retval = true;
     }
@@ -800,22 +775,22 @@ bool PrtList_add_activation( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool PrtList_add_termination( const PRT_REF iprt )
+bool ParticleManager::add_termination( const PRT_REF iprt )
 {
     bool retval = false;
 
-    if ( !VALID_PRT_RANGE( iprt ) ) return false;
+    if (!VALID_PRT_RANGE(iprt)) return false;
 
-    if ( prt_termination_count < MAX_PRT )
+    if (PrtList.termination_count < MAX_PRT)
     {
-        prt_termination_list[prt_termination_count] = iprt;
-        prt_termination_count++;
+        PrtList.termination_list[PrtList.termination_count] = iprt;
+        PrtList.termination_count++;
 
         retval = true;
     }
 
-    // at least mark the object as "waiting to be terminated"
-    POBJ_REQUEST_TERMINATE( PrtList.get_ptr( iprt ) );
+    // Mrk the object as "waiting to be terminated".
+    POBJ_REQUEST_TERMINATE(PrtList.get_ptr(iprt));
 
     return retval;
 }
@@ -827,7 +802,7 @@ int PrtList_count_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_reset_all()
+void ParticleManager::reset_all()
 {
     /// @author ZZ
     /// @details This resets all particle data and reads in the coin and water particles

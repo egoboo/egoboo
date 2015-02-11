@@ -420,10 +420,10 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     // if the particle limit has changed, make sure to make not of it
     // number of particles
     tmp_maxparticles = Math::constrain<uint16_t>(cfg.particle_count_req, 256, MAX_PRT);
-    if (maxparticles != tmp_maxparticles)
+    if (PrtList.maxparticles != tmp_maxparticles)
     {
-        maxparticles = tmp_maxparticles;
-        maxparticles_dirty = true;
+        PrtList.maxparticles = tmp_maxparticles;
+        PrtList.maxparticles_dirty = true;
     }
 
     // camera options

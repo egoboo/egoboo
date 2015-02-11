@@ -184,10 +184,10 @@ PRT_REF end_one_particle_now( const PRT_REF particle )
 
     PRT_REF retval;
 
-    if ( !ALLOCATED_PRT( particle ) ) return INVALID_PRT_REF;
+    if (!ALLOCATED_PRT(particle)) return INVALID_PRT_REF;
 
     retval = particle;
-    if ( PrtList_request_terminate( particle ) )
+    if (PrtList_request_terminate(particle))
     {
         retval = INVALID_PRT_REF;
     }
@@ -198,36 +198,31 @@ PRT_REF end_one_particle_now( const PRT_REF particle )
 //--------------------------------------------------------------------------------------------
 PRT_REF end_one_particle_in_game( const PRT_REF particle )
 {
-    /// @author ZZ
-    /// @details this function causes the game to end a particle
-    ///               and mark it as a ghost.
-
     CHR_REF child;
 
     // does the particle have valid data?
-    if ( DEFINED_PRT( particle ) )
+    if (DEFINED_PRT(particle))
     {
-        prt_t * pprt = PrtList.get_ptr( particle );
-        pip_t * ppip = prt_get_ppip( particle );
+        prt_t *pprt = PrtList.get_ptr(particle);
+        pip_t *ppip = prt_get_ppip(particle);
 
-        // the object is waiting to be killed, so
-        // do all of the end of life care for the particle
-        prt_do_end_spawn( particle );
+        // The object is waiting to be killed, so do all of the end of life care for the particle.
+        prt_do_end_spawn(particle);
 
-        if ( SPAWNNOCHARACTER != pprt->endspawn_characterstate )
+        if (SPAWNNOCHARACTER != pprt->endspawn_characterstate)
         {
             child = spawn_one_character(prt_t::get_pos_v_const(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF );
             if ( _gameObjects.exists( child ) )
             {
-                GameObject * pchild = _gameObjects.get( child );
+                GameObject * pchild = _gameObjects.get(child);
 
-                chr_set_ai_state( pchild , pprt->endspawn_characterstate );
+                chr_set_ai_state(pchild , pprt->endspawn_characterstate);
                 pchild->ai.owner = pprt->owner_ref;
             }
         }
 
-        //Play end sound
-        if ( NULL != ppip )
+        // Play end sound.
+        if (NULL != ppip)
         {
             prt_play_sound( particle, ppip->end_sound );
         }
@@ -903,7 +898,7 @@ prt_t * prt_config_init( prt_t * pprt )
     }
     else
     {
-        PrtList_add_activation( GET_INDEX_PPRT( pprt ) );
+        PrtList.add_activation(GET_INDEX_PPRT(pprt));
     }
 
     base_ptr->state = Ego::Entity::State::Active;
@@ -986,7 +981,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
     // count all the requests for this particle type
     ppip->request_count++;
 
-    PRT_REF iprt = PrtList_allocate( ppip->force );
+    PRT_REF iprt = PrtList.allocate( ppip->force );
     if ( !DEFINED_PRT( iprt ) )
     {
         log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
@@ -1065,7 +1060,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
     // count all the requests for this particle type
     ppip->request_count++;
 
-    iprt = PrtList_allocate( ppip->force );
+    iprt = PrtList.allocate( ppip->force );
     if ( !DEFINED_PRT( iprt ) )
     {
 #if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
@@ -1266,16 +1261,13 @@ void update_all_particles()
     ///               PRT_BEGIN_LOOP_* macro.
     ///               Converted all the update functions to the prt_run_config() paradigm.
 
-    PRT_REF iprt;
-    prt_bundle_t prt_bdl;
-
     // activate any particles might have been generated last update in an in-active state
-    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    for (PRT_REF iprt = 0; iprt < PrtList.maxparticles; iprt++ )
     {
         if ( !ALLOCATED_PRT( iprt ) ) continue;
 
+        prt_bundle_t prt_bdl;
         prt_bundle_t::set( &prt_bdl, PrtList.get_ptr( iprt ) );
-
         prt_bundle_t::update( &prt_bdl );
     }
 }
@@ -2264,7 +2256,7 @@ void particle_system_begin()
     /// @details This function sets up particle data
 
     // Reset the allocation table
-    PrtList_ctor();
+    ParticleManager::ctor();
     PipStack_init_all();
 }
 
@@ -2272,7 +2264,7 @@ void particle_system_begin()
 void particle_system_end()
 {
     PipStack_release_all();
-    PrtList_dtor();
+    ParticleManager::dtor();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2705,7 +2697,7 @@ void cleanup_all_particles()
 
     // do end-of-life care for particles. Must iterate over all particles since the
     // number of particles could change inside this list
-    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    for ( iprt = 0; iprt < PrtList.maxparticles; iprt++ )
     {
         prt_t *pprt;
         Ego::Entity *base_ptr;
@@ -2735,7 +2727,7 @@ void bump_all_particles_update_counters()
 {
     PRT_REF cnt;
 
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( cnt = 0; cnt < PrtList.maxparticles; cnt++ )
     {
         Ego::Entity *base_ptr;
 
@@ -3555,7 +3547,7 @@ CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
     prt_t * pprt;
 
     // be careful because this can be recursive
-    if ( depth > ( int )maxparticles - ( int )PrtList.freeCount ) return INVALID_CHR_REF;
+    if ( depth > ( int )PrtList.maxparticles - ( int )PrtList.freeCount ) return INVALID_CHR_REF;
 
     if ( !DEFINED_PRT( iprt ) ) return INVALID_CHR_REF;
     pprt = PrtList.get_ptr( iprt );

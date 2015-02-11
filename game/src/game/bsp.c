@@ -226,7 +226,7 @@ bool prt_BSP_removeAllLeaves()
 	prt_BSP_root->count = 0;
 
 	// Unlink all used particle nodes.
-	for (PRT_REF iprt = 0; iprt < maxparticles; iprt++)
+	for (PRT_REF iprt = 0; iprt < PrtList.maxparticles; iprt++)
 	{
 		BSP_leaf_t::remove_link(POBJ_GET_PLEAF(PrtList.lst + iprt));
 	}

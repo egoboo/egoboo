@@ -64,42 +64,74 @@
         } \
         PrtList.unlock(); \
         EGOBOO_ASSERT(prt_loop_start_depth == PrtList.getLockCount()); \
-        PrtList_cleanup(); \
+        PrtList.maybeRunDeferred(); \
     }
 
 //--------------------------------------------------------------------------------------------
 // external variables
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LOCKABLELIST_EXTERN(prt_t, PRT_REF, PrtList, MAX_PRT);
+struct ParticleManager : public _LockableList < prt_t, PRT_REF, MAX_PRT >
+{
+    ParticleManager() :
+        _LockableList(),
+        maxparticles(512),
+        maxparticles_dirty(true)
+    {
+    }
+    static void ctor();
+    static void dtor();
+    static void reinit();
+    static void update_used();
+    /**
+     * @brief
+     *	Run all deferred updates if the particle list is not locked.
+     */
+    void maybeRunDeferred();
 
-extern size_t maxparticles;
-extern bool maxparticles_dirty;
+    /**
+     * @brief
+     *  Get an unused particle.
+     *   If all particles are in use and @a force is @a true, get the first unimportant one.
+     * @return
+     *  the particle index on success, INVALID_PRT_REF on failure
+     */
+    PRT_REF allocate(const bool force);
+
+    static void reset_all();
+
+public:
+    /// Enqeue particle to activation list.
+    /// Put this particle into the activation list so that it can be activated right after the particle loop is completed.
+    bool add_activation(const PRT_REF iprt);
+
+    /// Enqeue particle to termination list.
+    /// Put this particle into the termination list so that it can be terminated right after the particle loop is completed.
+    bool add_termination(const PRT_REF iprt);
+
+
+    size_t maxparticles;
+    bool maxparticles_dirty;
+};
+
+
+
+extern ParticleManager PrtList;
+
+
 
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void PrtList_ctor();
-void PrtList_dtor();
-void PrtList_reinit();
+
 bool PrtList_push_used(const PRT_REF);
-
-PRT_REF PrtList_allocate(const bool force);
-
 bool PrtList_free_one(const PRT_REF iprt);
 void PrtList_free_all();
-
-void PrtList_update_used();
-
-void PrtList_cleanup();
-void PrtList_reset_all();
-
-bool PrtList_add_activation(const PRT_REF iprt);
-bool PrtList_add_termination(const PRT_REF iprt);
+int PrtList_count_free();
 bool PrtList_request_terminate(const PRT_REF iprt);
 
-int PrtList_count_free();
+
 
 //--------------------------------------------------------------------------------------------
 // testing functions

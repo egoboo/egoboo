@@ -727,10 +727,10 @@ bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
     // if the particle limit has changed, make sure to make not of it
     // number of particles
     tmp_maxparticles = CLIP<Uint16>( pcfg->particle_count_req, 0, MAX_PRT );
-    if ( maxparticles != tmp_maxparticles )
+    if ( PrtList.maxparticles != tmp_maxparticles )
     {
-        maxparticles = tmp_maxparticles;
-        maxparticles_dirty = true;
+        PrtList.maxparticles = tmp_maxparticles;
+        PrtList.maxparticles_dirty = true;
     }
 
     // camera options
@@ -757,7 +757,7 @@ bool config_upload( egoboo_config_t * pcfg )
     pcfg->fps_allowed    = TO_C_BOOL( fpson );
 
     // number of particles
-    pcfg->particle_count_req = CLIP( maxparticles, (size_t)0, (size_t)MAX_PRT );
+    pcfg->particle_count_req = CLIP( PrtList.maxparticles, (size_t)0, (size_t)MAX_PRT );
 
     // messages
     pcfg->messageon_req     = TO_C_BOOL( DisplayMsg_on );

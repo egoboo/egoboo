@@ -79,7 +79,7 @@ bool INGAME_PENC(const enc_t *PENC) { return LAMBDA(Ego::Entities::spawnDepth > 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LOCKABLELIST(enc_t, ENC_REF, EncList, MAX_ENC );
+EnchantManager EncList;
 
 static int EncList_find_free_ref(const ENC_REF);
 static bool EncList_push_free(const ENC_REF);
@@ -87,11 +87,7 @@ static size_t EncList_pop_free(const int);
 static int EncList_find_used_ref(const ENC_REF);
 static size_t EncList_pop_used(const int);
 
-static size_t  enc_termination_count = 0;
-static ENC_REF enc_termination_list[MAX_ENC];
 
-static size_t  enc_activation_count = 0;
-static ENC_REF enc_activation_list[MAX_ENC];
 
 //--------------------------------------------------------------------------------------------
 // private EncList_t functions
@@ -113,49 +109,43 @@ static void   EncList_prune_free_list();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void EncList_ctor()
+void EnchantManager::ctor()
 {
-    ENC_REF cnt;
-    enc_t * penc;
-
-    // initialize the list
+    // Initialize the list.
     EncList_init();
 
-    // construct the sub-objects
-    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
+    // Construct the sub-objects.
+    for (ENC_REF cnt = 0; cnt < MAX_ENC; cnt++ )
     {
-        penc = EncList.lst + cnt;
+        enc_t *enc = EncList.lst + cnt;
 
-        // blank out all the data, including the obj_base data
-        BLANK_STRUCT_PTR( penc )
+        // Blank out all the data, including the obj_base data.
+        BLANK_STRUCT_PTR(enc);
 
         // construct the base object
-        Ego::Entity::ctor( POBJ_GET_PBASE( penc ), penc, BSP_LEAF_ENC, cnt );
+        Ego::Entity::ctor(POBJ_GET_PBASE(enc), enc, BSP_LEAF_ENC, cnt);
 
         // construct the object
-        enc_t::ctor( penc );
+        enc_t::ctor( enc );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_dtor()
+void EnchantManager::dtor()
 {
-    ENC_REF cnt;
-    enc_t * penc;
-
-    // construct the sub-objects
-    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
+    // Construct the sub-objects.
+    for (ENC_REF i = 0; i < MAX_ENC; ++i)
     {
-        penc = EncList.lst + cnt;
+        enc_t *enc = EncList.lst + i;
 
-        // destruct the object
-        enc_t::dtor( penc );
+        // Destruct the object
+        enc_t::dtor(enc);
 
-        // destruct the parent
-        Ego::Entity::dtor( POBJ_GET_PBASE( penc ) );
+        // Destruct the parent.
+        Ego::Entity::dtor(POBJ_GET_PBASE(enc));
     }
 
-    // initialize particle
+    // Initialize enchant list.
     EncList_init();
 }
 
@@ -334,7 +324,7 @@ bool EncList_free_one( const ENC_REF ienc )
     // list. This will cause some problems later.
     if ( EncList.getLockCount() > 0 )
     {
-        retval = EncList_add_termination( ienc );
+        retval = EncList.add_termination( ienc );
     }
     else
     {
@@ -670,75 +660,73 @@ ENC_REF EncList_allocate( const ENC_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_cleanup()
+void EnchantManager::maybeRunDeferred()
 {
-    enc_t * penc;
-
-    // go through the list and activate all the enchants that
-    // were created while the list was iterating
-    for ( size_t cnt = 0; cnt < enc_activation_count; cnt++ )
+    // Go through the list and activate all the enchants that
+    // were created while the list was iterating.
+    for (size_t cnt = 0; cnt < activation_count; cnt++ )
     {
-        ENC_REF ienc = enc_activation_list[cnt];
+        ENC_REF ienc = activation_list[cnt];
 
-        if ( !ALLOCATED_ENC( ienc ) ) continue;
-        penc = EncList.get_ptr( ienc );
+        if (!ALLOCATED_ENC(ienc)) continue;
+        enc_t *penc = get_ptr(ienc);
 
-        if ( !penc->obj_base.turn_me_on ) continue;
+        if (!penc->obj_base.turn_me_on) continue;
 
         penc->obj_base.on         = true;
         penc->obj_base.turn_me_on = false;
     }
-    enc_activation_count = 0;
+    activation_count = 0;
 
-    // go through and delete any enchants that were
+    // Go through and delete any enchants that were
     // supposed to be deleted while the list was iterating
-    for ( size_t cnt = 0; cnt < enc_termination_count; cnt++ )
+    for (size_t cnt = 0; cnt < termination_count; cnt++)
     {
-        EncList_free_one( enc_termination_list[cnt] );
+        EncList_free_one(termination_list[cnt]);
     }
-    enc_termination_count = 0;
+    termination_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-bool EncList_add_activation( const ENC_REF ienc )
+bool EnchantManager::add_activation( const ENC_REF ienc )
 {
     // put this enchant into the activation list so that it can be activated right after
     // the EncList loop is completed
 
     bool retval = false;
 
-    if ( !VALID_ENC_RANGE( ienc ) ) return false;
+    if (!VALID_ENC_RANGE(ienc)) return false;
 
-    if ( enc_activation_count < MAX_ENC )
+    if ( activation_count < MAX_ENC )
     {
-        enc_activation_list[enc_activation_count] = ienc;
-        enc_activation_count++;
+        activation_list[activation_count] = ienc;
+        activation_count++;
 
         retval = true;
     }
 
-    EncList.lst[ienc].obj_base.turn_me_on = true;
+    lst[ienc].obj_base.turn_me_on = true;
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool EncList_add_termination( const ENC_REF ienc )
+bool EnchantManager::add_termination( const ENC_REF ienc )
 {
     bool retval = false;
 
     if ( !VALID_ENC_RANGE( ienc ) ) return false;
 
-    if ( enc_termination_count < MAX_ENC )
+    if ( termination_count < MAX_ENC )
     {
-        enc_termination_list[enc_termination_count] = ienc;
-        enc_termination_count++;
+        termination_list[termination_count] = ienc;
+        termination_count++;
 
         retval = true;
     }
 
     // at least mark the object as "waiting to be terminated"
-    POBJ_REQUEST_TERMINATE( EncList.get_ptr( ienc ) );
+    POBJ_REQUEST_TERMINATE(get_ptr(ienc));
 
     return retval;
 }

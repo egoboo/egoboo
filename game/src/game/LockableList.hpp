@@ -16,10 +16,23 @@ struct _LockableList
         usedCount = 0;
         freeCount = 0;
         lockCount = 0;
+        termination_count = 0;
+        activation_count = 0;
     }
     unsigned update_guid;
     int usedCount;
     int freeCount;
+#if 1
+    // List of references to TYPEs which requested termination
+    // while the particle list was locked.
+    size_t  termination_count;
+    REFTYPE termination_list[COUNT];
+
+    // List of reference to TYPEs which requested activation
+    // while the particle list was locked.
+    size_t  activation_count;
+    REFTYPE activation_list[COUNT];
+#endif
 
     size_t used_ref[COUNT];
     size_t free_ref[COUNT];

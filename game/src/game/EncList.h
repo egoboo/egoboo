@@ -53,21 +53,35 @@ struct enc_t;
         } \
         EncList.unlock(); \
         EGOBOO_ASSERT(enc_loop_start_depth == EncList.getLockCount()); \
-        EncList_cleanup(); \
+        EncList.maybeRunDeferred(); \
     }
 
 //--------------------------------------------------------------------------------------------
 // external variables
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LOCKABLELIST_EXTERN(enc_t, ENC_REF, EncList, MAX_ENC);
+struct EnchantManager : public _LockableList < enc_t, ENC_REF, MAX_ENC >
+{
+    EnchantManager() :
+        _LockableList()
+    {
+    }
+
+public:
+    static void ctor();
+    static void dtor();
+    void maybeRunDeferred();
+    bool add_termination(const ENC_REF ienc);
+    bool add_activation(const ENC_REF ienc);
+};
+
+extern EnchantManager EncList;
 
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void EncList_ctor();
-void EncList_dtor();
+
 bool EncList_push_used(const PRT_REF);
 
 void EncList_reinit();
@@ -79,10 +93,10 @@ void EncList_free_all();
 
 void EncList_update_used();
 
-void EncList_cleanup();
 
-bool EncList_add_activation(const ENC_REF ienc);
-bool EncList_add_termination(const ENC_REF ienc);
+
+
+
 bool EncList_request_terminate(const ENC_REF ienc);
 
 //--------------------------------------------------------------------------------------------

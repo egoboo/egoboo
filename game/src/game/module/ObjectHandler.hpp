@@ -158,11 +158,11 @@ private:
 	void maybeRunDeferred();
 
 private:
-	std::vector<std::shared_ptr<GameObject>> _internalCharacterList;				///< Indexes in this character list match CHR_REF
-	std::vector<std::shared_ptr<GameObject>> _iteratorList;						///< For iterating, contains only valid objects (unsorted)
-	std::stack<CHR_REF> 				_unusedChrRefs;						///< Stack of unused CHR_REF
+    std::vector<std::shared_ptr<GameObject>> _internalCharacterList;        ///< Indexes in this character list match CHR_REF
+	std::vector<std::shared_ptr<GameObject>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
+	std::stack<CHR_REF> _unusedChrRefs;						                ///< Stack of unused CHR_REF
 
-	std::vector<std::shared_ptr<GameObject>> _allocateList;						///< List of all objects that should be added
+	std::vector<std::shared_ptr<GameObject>> _allocateList;					///< List of all objects that should be added
 
 	size_t _semaphore;
 	size_t _deletedCharacters;

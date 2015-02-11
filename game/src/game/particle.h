@@ -311,8 +311,9 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
 
 #define spawn_one_particle_global( pos, facing, gpip_index, multispawn ) spawn_one_particle( pos, facing, INVALID_PRO_REF, gpip_index, INVALID_CHR_REF, GRIP_LAST, (TEAM_REF)TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF );
 
-// prt functions
+/// @brief Mark particle as ghost.
 PRT_REF end_one_particle_now(const PRT_REF particle);
+/// @brief End a particle and mark it as a ghost.
 PRT_REF end_one_particle_in_game(const PRT_REF particle);
 bool prt_is_over_water(const PRT_REF particle);
 void prt_play_sound(const PRT_REF particle, Sint8 sound);

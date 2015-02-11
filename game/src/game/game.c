@@ -573,7 +573,7 @@ void activate_alliance_file_vfs()
 //--------------------------------------------------------------------------------------------
 void update_used_lists()
 {
-    PrtList_update_used();
+    ParticleManager::update_used();
     EncList_update_used();
 }
 
@@ -3154,7 +3154,7 @@ void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
     _audioSystem.loadGlobalSounds();
-    PrtList_reset_all();
+    ParticleManager::reset_all();
 
     if ( NULL == read_wawalite_vfs() )
     {
@@ -3653,7 +3653,7 @@ void free_all_objects()
 //--------------------------------------------------------------------------------------------
 void reset_all_object_lists()
 {
-    PrtList_reinit();
+    ParticleManager::reinit();
     _gameObjects.clear();
     EncList_reinit();
 }

@@ -64,7 +64,7 @@ static bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent );
 //--------------------------------------------------------------------------------------------
 void enchant_system_begin()
 {
-    EncList_ctor();
+    EnchantManager::ctor();
     EveStack_init_all();
 }
 
@@ -72,7 +72,7 @@ void enchant_system_begin()
 void enchant_system_end()
 {
     EveStack_release_all();
-    EncList_dtor();
+    EnchantManager::dtor();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1383,7 +1383,7 @@ enc_t * enc_config_init( enc_t * penc )
     }
     else
     {
-        EncList_add_activation( GET_INDEX_PENC( penc ) );
+        EncList.add_activation( GET_INDEX_PENC( penc ) );
     }
 
     pbase->state = Ego::Entity::State::Active;
