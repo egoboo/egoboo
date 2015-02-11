@@ -1377,7 +1377,7 @@ enc_t * enc_config_init( enc_t * penc )
     penc = enc_config_do_init( penc );
     if ( NULL == penc ) return NULL;
 
-    if ( 0 == enc_loop_depth )
+    if ( 0 == EncList.getLockCount() )
     {
         penc->obj_base.on = true;
     }

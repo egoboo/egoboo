@@ -520,6 +520,9 @@
     <ClInclude Include="src\game\profiles\ModuleProfile.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\LockableList.hpp">
+      <Filter>Game Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\egoboo.ico">

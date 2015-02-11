@@ -79,17 +79,13 @@ bool INGAME_PENC(const enc_t *PENC) { return LAMBDA(Ego::Entities::spawnDepth > 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST(, enc_t, EncList, MAX_ENC );
+INSTANTIATE_LOCKABLELIST(, enc_t, EncList, MAX_ENC );
 
 static size_t  enc_termination_count = 0;
 static ENC_REF enc_termination_list[MAX_ENC];
 
 static size_t  enc_activation_count = 0;
 static ENC_REF enc_activation_list[MAX_ENC];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int enc_loop_depth = 0;
 
 //--------------------------------------------------------------------------------------------
 // private EncList_t functions
@@ -190,8 +186,8 @@ void EncList_clear()
     ENC_REF cnt;
 
     // clear out the list
-    EncList.free_count = 0;
-    EncList.used_count = 0;
+    EncList.freeCount = 0;
+    EncList.usedCount = 0;
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
         // blank out the list
@@ -228,7 +224,7 @@ void EncList_prune_used_list()
     size_t cnt;
     ENC_REF ienc;
 
-    for ( cnt = 0; cnt < EncList.used_count; cnt++ )
+    for ( cnt = 0; cnt < EncList.usedCount; cnt++ )
     {
         bool removed = false;
 
@@ -252,7 +248,7 @@ void EncList_prune_free_list()
     // prune the free list
     ENC_REF ienc;
 
-    for ( size_t cnt = 0; cnt < EncList.free_count; cnt++ )
+    for ( size_t cnt = 0; cnt < EncList.freeCount; cnt++ )
     {
         bool removed = false;
 
@@ -302,13 +298,13 @@ void EncList_update_used()
     }
 
     // blank out the unused elements of the used list
-    for ( cnt = EncList.used_count; cnt < MAX_ENC; cnt++ )
+    for ( cnt = EncList.getUsedCount(); cnt < MAX_ENC; cnt++ )
     {
         EncList.used_ref[cnt] = INVALID_ENC_IDX;
     }
 
     // blank out the unused elements of the free list
-    for ( cnt = EncList.free_count; cnt < MAX_ENC; cnt++ )
+    for ( cnt = EncList.freeCount; cnt < MAX_ENC; cnt++ )
     {
         EncList.free_ref[cnt] = INVALID_ENC_IDX;
     }
@@ -335,7 +331,7 @@ bool EncList_free_one( const ENC_REF ienc )
 
     // if we are inside a EncList loop, do not actually change the length of the
     // list. This will cause some problems later.
-    if ( enc_loop_depth > 0 )
+    if ( EncList.getLockCount() > 0 )
     {
         retval = EncList_add_termination( ienc );
     }
@@ -376,27 +372,27 @@ size_t EncList_pop_free( const int idx )
     size_t retval = MAX_ENC;
     size_t loops  = 0;
 
-    if ( idx >= 0 && idx < EncList.free_count )
+    if ( idx >= 0 && idx < EncList.freeCount )
     {
         // the user has specified a valid index in the free stack
         // that they want to use. make that happen.
 
         // from the conditions, EncList.free_count must be greater than 1
-        size_t itop = EncList.free_count - 1;
+        size_t itop = EncList.freeCount - 1;
 
         // move the desired index to the top of the stack
         SWAP( size_t, EncList.free_ref[idx], EncList.free_ref[itop] );
     }
 
-    while ( EncList.free_count > 0 )
+    while ( EncList.freeCount > 0 )
     {
-        EncList.free_count--;
+        EncList.freeCount--;
         EncList.update_guid++;
 
-        retval = EncList.free_ref[EncList.free_count];
+        retval = EncList.free_ref[EncList.freeCount];
 
         // completely remove it from the free list
-        EncList.free_ref[EncList.free_count] = INVALID_ENC_IDX;
+        EncList.free_ref[EncList.freeCount] = INVALID_ENC_IDX;
 
         if ( VALID_ENC_RANGE( retval ) )
         {
@@ -434,7 +430,7 @@ int EncList_find_free_ref( const ENC_REF ienc )
 
     if ( !VALID_ENC_RANGE( ienc ) ) return retval;
 
-    for ( cnt = 0; cnt < EncList.free_count; cnt++ )
+    for ( cnt = 0; cnt < EncList.freeCount; cnt++ )
     {
         if ( ienc == EncList.free_ref[cnt] )
         {
@@ -464,11 +460,11 @@ bool EncList_add_free_ref( const ENC_REF ienc )
     EGOBOO_ASSERT( !EncList.lst[ienc].obj_base.in_free_list );
 
     retval = false;
-    if ( EncList.free_count < MAX_ENC )
+    if ( EncList.freeCount < MAX_ENC )
     {
-        EncList.free_ref[EncList.free_count] = ienc;
+        EncList.free_ref[EncList.freeCount] = ienc;
 
-        EncList.free_count++;
+        EncList.freeCount++;
         EncList.update_guid++;
 
         EncList.lst[ienc].obj_base.in_free_list = true;
@@ -485,7 +481,7 @@ bool EncList_remove_free_idx( const int index )
     ENC_REF ienc;
 
     // was it found?
-    if ( index < 0 || index >= EncList.free_count ) return false;
+    if ( index < 0 || index >= EncList.freeCount ) return false;
 
     ienc = ( ENC_REF )EncList.free_ref[index];
 
@@ -499,13 +495,13 @@ bool EncList_remove_free_idx( const int index )
     }
 
     // shorten the list
-    EncList.free_count--;
+    EncList.freeCount--;
     EncList.update_guid++;
 
-    if ( EncList.free_count > 0 )
+    if ( EncList.freeCount > 0 )
     {
         // swap the last element for the deleted element
-        SWAP( size_t, EncList.free_ref[index], EncList.free_ref[EncList.free_count] );
+        SWAP( size_t, EncList.free_ref[index], EncList.free_ref[EncList.freeCount] );
     }
 
     return true;
@@ -522,7 +518,7 @@ int EncList_find_used_ref( const ENC_REF ienc )
 
     if ( !VALID_ENC_RANGE( ienc ) ) return retval;
 
-    for ( cnt = 0; cnt < EncList.used_count; cnt++ )
+    for ( cnt = 0; cnt < EncList.usedCount; cnt++ )
     {
         if ( ienc == EncList.used_ref[cnt] )
         {
@@ -552,11 +548,11 @@ bool EncList_push_used( const ENC_REF ienc )
     EGOBOO_ASSERT( !EncList.lst[ienc].obj_base.in_used_list );
 
     retval = false;
-    if ( EncList.used_count < MAX_ENC )
+    if ( EncList.usedCount < MAX_ENC )
     {
-        EncList.used_ref[EncList.used_count] = REF_TO_INT( ienc );
+        EncList.used_ref[EncList.usedCount] = REF_TO_INT( ienc );
 
-        EncList.used_count++;
+        EncList.usedCount++;
         EncList.update_guid++;
 
         EncList.lst[ienc].obj_base.in_used_list = true;
@@ -573,7 +569,7 @@ bool EncList_remove_used_idx( const int index )
     ENC_REF ienc;
 
     // was it found?
-    if ( index < 0 || index >= EncList.used_count ) return false;
+    if ( index < 0 || index >= EncList.usedCount ) return false;
 
     ienc = ( ENC_REF )EncList.used_ref[index];
 
@@ -587,13 +583,13 @@ bool EncList_remove_used_idx( const int index )
     }
 
     // shorten the list
-    EncList.used_count--;
+    EncList.usedCount--;
     EncList.update_guid++;
 
-    if ( EncList.used_count > 0 )
+    if ( EncList.usedCount > 0 )
     {
         // swap the last element for the deleted element
-        SWAP( size_t, EncList.used_ref[index], EncList.used_ref[EncList.used_count] );
+        SWAP( size_t, EncList.used_ref[index], EncList.used_ref[EncList.usedCount] );
     }
 
     return true;
@@ -620,7 +616,7 @@ ENC_REF EncList_allocate( const ENC_REF override )
         {
             int override_index = EncList_find_free_ref( override );
 
-            if ( override_index < 0 || override_index >= EncList.free_count )
+            if ( override_index < 0 || override_index >= EncList.freeCount )
             {
                 ienc = INVALID_ENC_REF;
             }

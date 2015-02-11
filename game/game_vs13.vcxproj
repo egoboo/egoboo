@@ -453,6 +453,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\LockableList.hpp" />
     <ClInclude Include="src\game\core\GameEngine.hpp" />
     <ClInclude Include="src\game\gamestates\GameState.hpp" />
     <ClInclude Include="src\game\gamestates\InGameMenuState.hpp" />

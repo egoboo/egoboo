@@ -79,7 +79,7 @@ bool prt_free( prt_t * pprt )
     if ( !ALLOCATED_PPRT( pprt ) ) return false;
 
     // do not allow this if you are inside a particle loop
-    EGOBOO_ASSERT( 0 == prt_loop_depth );
+    EGOBOO_ASSERT( 0 == PrtList.getLockCount() );
 
     if ( TERMINATED_PPRT( pprt ) ) return true;
 
@@ -897,7 +897,7 @@ prt_t * prt_config_init( prt_t * pprt )
     pprt = prt_config_do_init( pprt );
     if ( NULL == pprt ) return NULL;
 
-    if ( 0 == prt_loop_depth )
+    if ( 0 == PrtList.getLockCount() )
     {
         pprt->obj_base.on = true;
     }
@@ -3555,7 +3555,7 @@ CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
     prt_t * pprt;
 
     // be careful because this can be recursive
-    if ( depth > ( int )maxparticles - ( int )PrtList.free_count ) return INVALID_CHR_REF;
+    if ( depth > ( int )maxparticles - ( int )PrtList.freeCount ) return INVALID_CHR_REF;
 
     if ( !DEFINED_PRT( iprt ) ) return INVALID_CHR_REF;
     pprt = PrtList_get_ptr( iprt );

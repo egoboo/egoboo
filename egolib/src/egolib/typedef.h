@@ -409,10 +409,10 @@ struct _List {
 
 #define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)   \
     DEFINE_LIST_TYPE(TYPE, NAME, COUNT);         \
-    void   NAME##_ctor( void );                  \
-    void   NAME##_dtor( void );                  \
-    bool NAME##_push_used( const REF_T );        \
-    TYPE * NAME##_get_ptr( const size_t );       \
+    void   NAME##_ctor();                        \
+    void   NAME##_dtor();                        \
+    bool NAME##_push_used(const REF_T);          \
+    TYPE * NAME##_get_ptr(const size_t);         \
     extern s_c_list__##TYPE__##NAME NAME
 
 #define INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \

@@ -24,6 +24,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"
+#include "game/LockableList.hpp"
 #include "game/particle.h"
 
 //--------------------------------------------------------------------------------------------
@@ -33,20 +34,47 @@
 // Macros automate looping through the PrtList. This hides code which defers the creation and deletion of
 // objects until the loop terminates, so tha the length of the list will not change during the loop.
 
-#define PRT_BEGIN_LOOP_ACTIVE(IT, PRT_BDL)  {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_bundle_t PRT_BDL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT (IT)) continue; prt_bundle_t::set(&PRT_BDL, PrtList_get_ptr( IT ));
-#define PRT_BEGIN_LOOP_DISPLAY(IT, PRT_BDL) {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_bundle_t PRT_BDL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; prt_bundle_t::set(&PRT_BDL, PrtList_get_ptr( IT ));
-#define PRT_END_LOOP() } prt_loop_depth--; EGOBOO_ASSERT(prt_loop_start_depth == prt_loop_depth); PrtList_cleanup(); }
+#define PRT_BEGIN_LOOP_ACTIVE(IT, PRT_BDL) \
+    { \
+        int IT##_internal; \
+        int prt_loop_start_depth = PrtList.getLockCount(); \
+        PrtList.lock(); \
+        for(IT##_internal=0;IT##_internal<PrtList.getUsedCount();IT##_internal++) \
+        { \
+            PRT_REF IT; \
+            prt_bundle_t PRT_BDL; \
+            IT = (PRT_REF)PrtList.used_ref[IT##_internal]; \
+            if(!ACTIVE_PRT(IT)) continue; \
+            prt_bundle_t::set(&PRT_BDL, PrtList_get_ptr( IT ));
+
+#define PRT_BEGIN_LOOP_DISPLAY(IT, PRT_BDL) \
+    { \
+        int IT##_internal; \
+        int prt_loop_start_depth = PrtList.getLockCount(); \
+        PrtList.lock(); \
+        for(IT##_internal=0;IT##_internal<PrtList.getUsedCount();IT##_internal++) \
+        { \
+            PRT_REF IT; \
+            prt_bundle_t PRT_BDL; \
+            IT = (PRT_REF)PrtList.used_ref[IT##_internal]; \
+            if(!DISPLAY_PRT(IT)) continue; \
+            prt_bundle_t::set(&PRT_BDL, PrtList_get_ptr(IT));
+
+#define PRT_END_LOOP() \
+        } \
+        PrtList.unlock(); \
+        EGOBOO_ASSERT(prt_loop_start_depth == PrtList.getLockCount()); \
+        PrtList_cleanup(); \
+    }
 
 //--------------------------------------------------------------------------------------------
 // external variables
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LIST_EXTERN(prt_t, PrtList, MAX_PRT);
+DECLARE_LOCKABLELIST_EXTERN(prt_t, PrtList, MAX_PRT);
 
 extern size_t maxparticles;
 extern bool maxparticles_dirty;
-
-extern int prt_loop_depth;
 
 //--------------------------------------------------------------------------------------------
 // Function prototypes

@@ -74,9 +74,7 @@ static PRT_REF prt_activation_list[MAX_PRT];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST(, prt_t, PrtList, MAX_PRT );
-
-int prt_loop_depth = 0;
+INSTANTIATE_LOCKABLELIST(, prt_t, PrtList, MAX_PRT );
 
 size_t maxparticles       = 512;
 bool maxparticles_dirty = true;
@@ -160,8 +158,8 @@ void PrtList_clear()
     maxparticles = std::min( maxparticles, (size_t)MAX_PRT );
 
     // clear out the list
-    PrtList.free_count = 0;
-    PrtList.used_count = 0;
+    PrtList.freeCount = 0;
+    PrtList.usedCount = 0;
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         // blank out the list
@@ -220,7 +218,7 @@ void PrtList_prune_used_list()
     int cnt;
     PRT_REF iprt;
 
-    for ( cnt = 0; cnt < PrtList.used_count; cnt++ )
+    for ( cnt = 0; cnt < PrtList.usedCount; cnt++ )
     {
         bool removed = false;
 
@@ -246,7 +244,7 @@ void PrtList_prune_free_list()
     int cnt;
     PRT_REF iprt;
 
-    for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
+    for ( cnt = 0; cnt < PrtList.freeCount; cnt++ )
     {
         bool removed = false;
 
@@ -295,13 +293,13 @@ void PrtList_update_used()
     }
 
     // blank out the unused elements of the used list
-    for ( cnt = PrtList.used_count; cnt < MAX_PRT; cnt++ )
+    for ( cnt = PrtList.usedCount; cnt < MAX_PRT; cnt++ )
     {
         PrtList.used_ref[cnt] = INVALID_PRT_IDX;
     }
 
     // blank out the unused elements of the free list
-    for ( cnt = PrtList.free_count; cnt < MAX_PRT; cnt++ )
+    for ( cnt = PrtList.freeCount; cnt < MAX_PRT; cnt++ )
     {
         PrtList.free_ref[cnt] = INVALID_PRT_IDX;
     }
@@ -326,7 +324,7 @@ bool PrtList_free_one( const PRT_REF iprt )
 
     // if we are inside a PrtList loop, do not actually change the length of the
     // list. This will cause some problems later.
-    if ( prt_loop_depth > 0 )
+    if ( PrtList.getLockCount() > 0 )
     {
         retval = PrtList_add_termination( iprt );
     }
@@ -367,28 +365,28 @@ size_t PrtList_pop_free( const int idx )
     size_t retval = INVALID_PRT_REF;
     size_t loops  = 0;
 
-    if ( idx >= 0 && idx < PrtList.free_count )
+    if ( idx >= 0 && idx < PrtList.freeCount )
     {
         // the user has specified a valid index in the free stack
         // that they want to use. make that happen.
 
         // from the conditions, PrtList.free_count must be greater than 1
-        size_t itop = PrtList.free_count - 1;
+        size_t itop = PrtList.freeCount - 1;
 
         // move the desired index to the top of the stack
         SWAP( size_t, PrtList.free_ref[idx], PrtList.free_ref[itop] );
     }
 
     // shed any values that are greater than maxparticles
-    while ( PrtList.free_count > 0 )
+    while ( PrtList.freeCount > 0 )
     {
-        PrtList.free_count--;
+        PrtList.freeCount--;
         PrtList.update_guid++;
 
-        retval = PrtList.free_ref[PrtList.free_count];
+        retval = PrtList.free_ref[PrtList.freeCount];
 
         // completely remove it from the free list
-        PrtList.free_ref[PrtList.free_count] = INVALID_PRT_IDX;
+        PrtList.free_ref[PrtList.freeCount] = INVALID_PRT_IDX;
 
         if ( VALID_PRT_RANGE( retval ) )
         {
@@ -421,7 +419,7 @@ PRT_REF PrtList_allocate( const bool force )
     // Return MAX_PRT if we can't find one
     iprt = INVALID_PRT_REF;
 
-    if ( 0 == PrtList.free_count )
+    if ( 0 == PrtList.freeCount )
     {
         if ( force )
         {
@@ -515,7 +513,7 @@ PRT_REF PrtList_allocate( const bool force )
     }
     else
     {
-        if ( PrtList.free_count > ( maxparticles / 4 ) )
+        if ( PrtList.freeCount > ( maxparticles / 4 ) )
         {
             // Just grab the next one
             iprt = ( PRT_REF )PrtList_pop_free( -1 );
@@ -572,7 +570,7 @@ int PrtList_find_free_ref( const PRT_REF iprt )
 
     if ( !VALID_PRT_RANGE( iprt ) ) return retval;
 
-    for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
+    for ( cnt = 0; cnt < PrtList.freeCount; cnt++ )
     {
         if ( iprt == PrtList.free_ref[cnt] )
         {
@@ -602,11 +600,11 @@ bool PrtList_add_free_ref( const PRT_REF iprt )
     EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_free_list );
 
     retval = false;
-    if ( PrtList.free_count < maxparticles )
+    if ( PrtList.freeCount < maxparticles )
     {
-        PrtList.free_ref[PrtList.free_count] = iprt;
+        PrtList.free_ref[PrtList.freeCount] = iprt;
 
-        PrtList.free_count++;
+        PrtList.freeCount++;
         PrtList.update_guid++;
 
         PrtList.lst[iprt].obj_base.in_free_list = true;
@@ -623,7 +621,7 @@ bool PrtList_remove_free_idx( const int index )
     PRT_REF iprt;
 
     // was it found?
-    if ( index < 0 || index >= PrtList.free_count ) return false;
+    if ( index < 0 || index >= PrtList.freeCount ) return false;
 
     iprt = ( PRT_REF )PrtList.free_ref[index];
 
@@ -637,13 +635,13 @@ bool PrtList_remove_free_idx( const int index )
     }
 
     // shorten the list
-    PrtList.free_count--;
+    PrtList.freeCount--;
     PrtList.update_guid++;
 
-    if ( PrtList.free_count > 0 )
+    if ( PrtList.freeCount > 0 )
     {
         // swap the last element for the deleted element
-        SWAP( size_t, PrtList.free_ref[index], PrtList.free_ref[PrtList.free_count] );
+        SWAP( size_t, PrtList.free_ref[index], PrtList.free_ref[PrtList.freeCount] );
     }
 
     return true;
@@ -660,7 +658,7 @@ int PrtList_find_used_ref( const PRT_REF iprt )
 
     if ( !VALID_PRT_RANGE( iprt ) ) return retval;
 
-    for ( cnt = 0; cnt < PrtList.used_count; cnt++ )
+    for ( cnt = 0; cnt < PrtList.usedCount; cnt++ )
     {
         if ( iprt == PrtList.used_ref[cnt] )
         {
@@ -690,11 +688,11 @@ bool PrtList_push_used( const PRT_REF iprt )
     EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_used_list );
 
     retval = false;
-    if ( PrtList.used_count < maxparticles )
+    if ( PrtList.usedCount < maxparticles )
     {
-        PrtList.used_ref[PrtList.used_count] = REF_TO_INT( iprt );
+        PrtList.used_ref[PrtList.usedCount] = REF_TO_INT( iprt );
 
-        PrtList.used_count++;
+        PrtList.usedCount++;
         PrtList.update_guid++;
 
         PrtList.lst[iprt].obj_base.in_used_list = true;
@@ -711,7 +709,7 @@ bool PrtList_remove_used_idx( const int index )
     PRT_REF iprt;
 
     // was it found?
-    if ( index < 0 || index >= PrtList.used_count ) return false;
+    if ( index < 0 || index >= PrtList.usedCount ) return false;
 
     iprt = ( PRT_REF )PrtList.used_ref[index];
 
@@ -725,13 +723,13 @@ bool PrtList_remove_used_idx( const int index )
     }
 
     // shorten the list
-    PrtList.used_count--;
+    PrtList.usedCount--;
     PrtList.update_guid++;
 
-    if ( PrtList.used_count > 0 )
+    if ( PrtList.usedCount > 0 )
     {
         // swap the last element for the deleted element
-        SWAP( size_t, PrtList.used_ref[index], PrtList.used_ref[PrtList.used_count] );
+        SWAP( size_t, PrtList.used_ref[index], PrtList.used_ref[PrtList.usedCount] );
     }
 
     return true;
@@ -824,7 +822,7 @@ bool PrtList_add_termination( const PRT_REF iprt )
 //--------------------------------------------------------------------------------------------
 int PrtList_count_free()
 {
-    return PrtList.free_count;
+    return PrtList.freeCount;
 }
 
 //--------------------------------------------------------------------------------------------
