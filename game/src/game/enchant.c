@@ -79,7 +79,7 @@ void enchant_system_end()
 //--------------------------------------------------------------------------------------------
 bool enc_free(enc_t *self)
 {
-    if (!_ALLOCATED_PENC(self)) return false;
+    if (!ALLOCATED_PENC(self)) return false;
 
     // nothing to do yet
     return true;
@@ -143,7 +143,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     enc_t * penc;
 
-    if ( !_ALLOCATED_ENC( ienc ) ) return false;
+    if ( !ALLOCATED_ENC( ienc ) ) return false;
     penc = EncList_get_ptr( ienc );
 
     // Unlink it from the spawner (if possible)
@@ -177,7 +177,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             // Search until we find it
             ienc_last = ienc_now = ptarget->firstenchant;
             ienc_count = 0;
-            while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+            while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_last = ienc_now;
                 ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
@@ -231,7 +231,7 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
     // Check all enchants to see if they are removed
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -264,7 +264,7 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     CHR_REF target_ref, spawner_ref, overlay_ref;
     GameObject * target_ptr, *spawner_ptr, *overlay_ptr;
 
-    if ( !_ALLOCATED_ENC( ienc ) ) return false;
+    if ( !ALLOCATED_ENC( ienc ) ) return false;
     penc = EncList_get_ptr( ienc );
     peve = enc_get_peve( ienc );
 
@@ -421,7 +421,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return INVALID_ENC_REF;
 
-    if ( !_INGAME_ENC( ienc ) ) return INVALID_ENC_REF;
+    if ( !INGAME_ENC( ienc ) ) return INVALID_ENC_REF;
 
     character = EncList.lst[ienc].target_ref;
     if ( !_gameObjects.exists( character ) ) return INVALID_ENC_REF;
@@ -433,11 +433,11 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     // scan the enchant list
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-        if ( _INGAME_ENC( ienc_now ) && EncList.lst[ienc_now].setyesno[value_idx] )
+        if ( INGAME_ENC( ienc_now ) && EncList.lst[ienc_now].setyesno[value_idx] )
         {
             break;
         }
@@ -464,7 +464,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
-    if ( !_DEFINED_ENC( ienc ) ) return;
+    if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList_get_ptr( ienc );
 
     peve = _profileSystem.pro_get_peve( profile );
@@ -477,7 +477,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
         if ( peve->override || INVALID_ENC_REF == conflict )
         {
             // Check for multiple enchantments
-            if ( _DEFINED_ENC( conflict ) )
+            if ( DEFINED_ENC( conflict ) )
             {
                 // Multiple enchantments aren't allowed for sets
                 if ( peve->remove_overridden )
@@ -645,7 +645,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
-    if ( !_DEFINED_ENC( ienc ) ) return;
+    if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList_get_ptr( ienc );
 
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
@@ -865,7 +865,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     int add_type, set_type;
 
     if ( NULL == penc ) return NULL;
-    ienc  = _GET_INDEX_PENC( penc );
+    ienc  = GET_INDEX_PENC( penc );
 
     // get the profile data
     pdata = &( penc->spawn_data );
@@ -1021,7 +1021,7 @@ enc_t * enc_config_do_active( enc_t * penc )
     GameObject * ptarget;
 
     if ( NULL == penc ) return penc;
-    ienc = _GET_REF_PENC( penc );
+    ienc = GET_REF_PENC( penc );
 
     // the following functions should not be done the first time through the update loop
     if ( 0 == clock_wld ) return penc;
@@ -1103,7 +1103,7 @@ enc_t * enc_config_do_active( enc_t * penc )
 
             // the enchant could have been inactivated by the stuff above
             // check it again
-            if ( _INGAME_ENC( ienc ) )
+            if ( INGAME_ENC( ienc ) )
             {
                 if ( powner && powner->alive )
                 {
@@ -1223,7 +1223,7 @@ enc_t * enc_config_activate( enc_t * penc, int max_iterations )
     EGOBOO_ASSERT( pbase->state == Ego::Entity::State::Active );
     if ( pbase->state == Ego::Entity::State::Active )
     {
-        EncList_push_used( _GET_INDEX_PENC( penc ) );
+        EncList_push_used( GET_INDEX_PENC( penc ) );
     }
 
     return penc;
@@ -1383,7 +1383,7 @@ enc_t * enc_config_init( enc_t * penc )
     }
     else
     {
-        EncList_add_activation( _GET_INDEX_PENC( penc ) );
+        EncList_add_activation( GET_INDEX_PENC( penc ) );
     }
 
     pbase->state = Ego::Entity::State::Active;
@@ -1559,7 +1559,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     // Find an enchant index to use
     enc_ref = EncList_allocate( enc_override );
 
-    if ( !_ALLOCATED_ENC( enc_ref ) )
+    if ( !ALLOCATED_ENC( enc_ref ) )
     {
         log_warning( "spawn_one_enchant() - could not allocate an enchant.\n" );
         return INVALID_ENC_REF;
@@ -1622,7 +1622,7 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
-    if ( !_ALLOCATED_ENC( ienc ) ) return;
+    if ( !ALLOCATED_ENC( ienc ) ) return;
     penc = EncList_get_ptr( ienc );
 
     if ( value_idx >= MAX_ENCHANT_SET || !penc->setyesno[value_idx] ) return;
@@ -1745,7 +1745,7 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
-    if ( !_ALLOCATED_ENC( ienc ) ) return;
+    if ( !ALLOCATED_ENC( ienc ) ) return;
     penc = EncList_get_ptr( ienc );
 
     if ( !_gameObjects.exists( penc->target_ref ) ) return;
@@ -1953,7 +1953,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
 
-    if ( !_VALID_ENC_RANGE( ienc ) ) return MAX_ENC;
+    if ( !VALID_ENC_RANGE( ienc ) ) return MAX_ENC;
 
     // clear the list
     BLANK_ARY( enc_used )
@@ -1962,12 +1962,12 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     ienc_nxt            = INVALID_ENC_REF;
     first_valid_enchant = ienc_now = ienc;
     ienc_count = 0;
-    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
         // coerce the list of enchants to a valid value
-        if ( !_VALID_ENC_RANGE( ienc_nxt ) )
+        if ( !VALID_ENC_RANGE( ienc_nxt ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref = INVALID_ENC_REF;
         }
@@ -1982,7 +1982,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
         //( !_gameObjects.exists( EncList.lst[ienc_now].target_ref ) && !EveStack.lst[EncList.lst[ienc_now].eve_ref].stayiftargetdead )
 
         // remove any expired enchants
-        if ( !_INGAME_ENC( ienc_now ) )
+        if ( !INGAME_ENC( ienc_now ) )
         {
             remove_enchant( ienc_now, enc_parent );
             enc_used[ienc_now] = true;
@@ -2098,7 +2098,7 @@ void bump_all_enchants_update_counters()
 //--------------------------------------------------------------------------------------------
 bool enc_request_terminate( enc_t * penc )
 {
-    if ( NULL == penc || !_ALLOCATED_PENC( penc ) || _TERMINATED_PENC( penc ) ) return false;
+    if ( NULL == penc || !ALLOCATED_PENC( penc ) || TERMINATED_PENC( penc ) ) return false;
 
     POBJ_REQUEST_TERMINATE( penc );
 
@@ -2112,7 +2112,7 @@ CHR_REF enc_get_iowner( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !_DEFINED_ENC( ienc ) ) return INVALID_CHR_REF;
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_CHR_REF;
     penc = EncList_get_ptr( ienc );
 
     if ( !_gameObjects.exists( penc->owner_ref ) ) return INVALID_CHR_REF;
@@ -2125,7 +2125,7 @@ GameObject * enc_get_powner( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !_DEFINED_ENC( ienc ) ) return NULL;
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList_get_ptr( ienc );
 
     if ( !_gameObjects.exists( penc->owner_ref ) ) return NULL;
@@ -2138,7 +2138,7 @@ EVE_REF enc_get_ieve( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !_DEFINED_ENC( ienc ) ) return INVALID_EVE_REF;
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_EVE_REF;
     penc = EncList_get_ptr( ienc );
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return INVALID_EVE_REF;
@@ -2151,7 +2151,7 @@ eve_t * enc_get_peve( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !_DEFINED_ENC( ienc ) ) return NULL;
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList_get_ptr( ienc );
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return NULL;
@@ -2164,7 +2164,7 @@ PRO_REF  enc_get_ipro( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !_DEFINED_ENC( ienc ) ) return INVALID_PRO_REF;
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_PRO_REF;
     penc = EncList_get_ptr( ienc );
 
     if ( !_profileSystem.isValidProfileID( penc->profile_ref ) ) return INVALID_PRO_REF;
@@ -2177,7 +2177,7 @@ ObjectProfile * enc_get_ppro( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !_DEFINED_ENC( ienc ) ) return NULL;
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList_get_ptr( ienc );
 
     if ( !_profileSystem.isValidProfileID( penc->profile_ref ) ) return NULL;
@@ -2199,7 +2199,7 @@ bool enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile )
 {
     IDSZ idsz_remove;
 
-    if ( !_INGAME_ENC( ienc ) ) return false;
+    if ( !INGAME_ENC( ienc ) ) return false;
     idsz_remove = enc_get_idszremove( ienc );
 
     // if nothing can remove it, just go on with your business

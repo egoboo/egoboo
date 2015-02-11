@@ -2861,7 +2861,7 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = spawn_one_enchant( pself->owner, pself->target, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = _DEFINED_ENC( iTmp );
+    returncode = DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2880,7 +2880,7 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = spawn_one_enchant( pself->owner, pself->child, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = _DEFINED_ENC( iTmp );
+    returncode = DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3273,7 +3273,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _INGAME_ENC( pchr->undoenchant ) )
+    if ( INGAME_ENC( pchr->undoenchant ) )
     {
         returncode = remove_enchant( pchr->undoenchant, NULL );
     }
@@ -5458,7 +5458,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     iTmp = pchr->undoenchant;
 
     returncode = false;
-    if ( _INGAME_ENC( iTmp ) )
+    if ( INGAME_ENC( iTmp ) )
     {
         EncList.lst[iTmp].owner_mana = pstate->argument;
         EncList.lst[iTmp].owner_life = pstate->distance;

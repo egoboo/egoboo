@@ -3019,7 +3019,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     // Check all enchants to see if they are removed
     ienc_now = pdata->pchr->firstenchant;
     ienc_count = 0;
-    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 

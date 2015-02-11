@@ -2518,7 +2518,7 @@ void show_full_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), _INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - chr_get_ppro(character)->getSkinInfo(skinlevel).defence,
@@ -2559,7 +2559,7 @@ void show_magic_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), _INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -4942,7 +4942,7 @@ void disenchant_character( const CHR_REF cnt )
     pchr = _gameObjects.get( cnt );
 
     ienc_count = 0;
-    while ( _VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
         if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
