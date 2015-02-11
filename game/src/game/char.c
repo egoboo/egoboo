@@ -4751,16 +4751,9 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
                     chr_play_action( pchr, action, false );
 
                     // Make the weapon animate the attack as well as the character holding it
-                    if ( HAS_NO_BITS( action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
+                    if ( iweapon != ichr )
                     {
-                        if ( iweapon != ichr )
-                        {
-                            // the attacking character has no bits in the animation telling it
-                            // to use the weapon, so we play the animation here
-
-                            // Make the iweapon attack too
-                            chr_play_action( pweapon, ACTION_MJ, false );
-                        }
+                        chr_play_action( pweapon, ACTION_MJ, false );
                     }
 
                     //Determine the attack speed (how fast we play the animation)
