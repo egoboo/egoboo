@@ -60,7 +60,7 @@ struct enc_t;
 // external variables
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LOCKABLELIST_EXTERN(enc_t, EncList, MAX_ENC);
+DECLARE_LOCKABLELIST_EXTERN(enc_t, ENC_REF, EncList, MAX_ENC);
 
 //--------------------------------------------------------------------------------------------
 // Function prototypes
@@ -68,6 +68,7 @@ DECLARE_LOCKABLELIST_EXTERN(enc_t, EncList, MAX_ENC);
 
 void EncList_ctor();
 void EncList_dtor();
+bool EncList_push_used(const PRT_REF);
 
 void EncList_reinit();
 

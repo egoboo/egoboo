@@ -6,7 +6,8 @@
 
 #include "egolib/egolib.h"
 
-template <typename TYPE, size_t COUNT>
+/** @todo Enforce that REFTYPE is an unsigned type.  */
+template <typename TYPE, typename REFTYPE, size_t COUNT>
 struct _LockableList
 {
     _LockableList()
@@ -47,28 +48,18 @@ struct _LockableList
     {
         return freeCount;
     }
+    
+    bool isInRange(REFTYPE index) const
+    {
+        return index < COUNT;
+    }
 protected:
     int lockCount;
 };
 
-#define DECLARE_LOCKABLELIST_EXTERN(TYPE, NAME, COUNT)          \
-    typedef _LockableList<TYPE,COUNT> s_c_list__##TYPE__##NAME; \
-    void   NAME##_ctor();                                       \
-    void   NAME##_dtor();                                       \
-    bool NAME##_push_used(const REF_T);                         \
-    extern s_c_list__##TYPE__##NAME NAME
+#define DECLARE_LOCKABLELIST_EXTERN(TYPE, REFTYPE, NAME, COUNT)         \
+    typedef _LockableList<TYPE,REFTYPE,COUNT> s_c_list__##TYPE__##NAME; \
+    extern s_c_list__##TYPE__##NAME NAME;
 
-#define INSTANTIATE_LOCKABLELIST_STATIC(TYPE, NAME, COUNT) \
-    static s_c_list__##TYPE__##NAME NAME;
-
-#define INSTANTIATE_LOCKABLELIST(ACCESS,TYPE,NAME, COUNT) \
-    ACCESS s_c_list__##TYPE__##NAME NAME;
-
-#ifndef IMPLEMENT_LOCKABLELIST
-#define IMPLEMENT_LOCKABLELIST(TYPE, NAME, COUNT) \
-    static int NAME##_find_free_ref(const REF_T); \
-    static bool NAME##_push_free(const REF_T);    \
-    static size_t  NAME##_pop_free(const int);    \
-    static int NAME##_find_used_ref(const REF_T); \
-    static size_t NAME##_pop_used(const int);
-#endif
+#define INSTANTIATE_LOCKABLELIST(TYPE, REFTYPE, NAME, COUNT) \
+    s_c_list__##TYPE__##NAME NAME;

@@ -71,7 +71,7 @@
 // external variables
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LOCKABLELIST_EXTERN(prt_t, PrtList, MAX_PRT);
+DECLARE_LOCKABLELIST_EXTERN(prt_t, PRT_REF, PrtList, MAX_PRT);
 
 extern size_t maxparticles;
 extern bool maxparticles_dirty;
@@ -83,6 +83,7 @@ extern bool maxparticles_dirty;
 void PrtList_ctor();
 void PrtList_dtor();
 void PrtList_reinit();
+bool PrtList_push_used(const PRT_REF);
 
 PRT_REF PrtList_allocate(const bool force);
 

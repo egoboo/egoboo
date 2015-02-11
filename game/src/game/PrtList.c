@@ -41,7 +41,7 @@
 //Inline
 //--------------------------------------------------------------------------------------------
 
-bool VALID_PRT_RANGE(const PRT_REF IPRT) { return (((PRT_REF)(IPRT)) < std::min<size_t>(maxparticles, MAX_PRT)); }
+bool VALID_PRT_RANGE(const PRT_REF IPRT) { return (IPRT < std::min<size_t>(maxparticles, MAX_PRT)); }
 bool DEFINED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && DEFINED_PPRT_RAW(PrtList.lst + (IPRT))); }
 bool ALLOCATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ALLOCATED_PPRT_RAW(PrtList.lst + (IPRT))); }
 bool ACTIVE_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ACTIVE_PPRT_RAW(PrtList.lst + (IPRT))); }
@@ -74,7 +74,13 @@ static PRT_REF prt_activation_list[MAX_PRT];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LOCKABLELIST(, prt_t, PrtList, MAX_PRT );
+INSTANTIATE_LOCKABLELIST(prt_t, PRT_REF, PrtList, MAX_PRT );
+
+static int PrtList_find_free_ref(const PRT_REF);
+static bool PrtList_push_free(const PRT_REF);
+static size_t PrtList_pop_free(const int);
+static int PrtList_find_used_ref(const PRT_REF);
+static size_t PrtList_pop_used(const int);
 
 size_t maxparticles       = 512;
 bool maxparticles_dirty = true;
@@ -95,11 +101,6 @@ static bool  PrtList_remove_used_idx( const int index );
 
 static void    PrtList_prune_used_list();
 static void    PrtList_prune_free_list();
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-IMPLEMENT_LIST( prt_t, PrtList, MAX_PRT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -197,7 +198,7 @@ void PrtList_deinit()
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        prt_config_deconstruct( PrtList_get_ptr( cnt ), 100 );
+        prt_config_deconstruct( PrtList.get_ptr( cnt ), 100 );
     }
 
     PrtList_clear();
@@ -319,7 +320,7 @@ bool PrtList_free_one( const PRT_REF iprt )
     Ego::Entity * pbase;
 
     if ( !ALLOCATED_PRT( iprt ) ) return false;
-    pprt = PrtList_get_ptr( iprt );
+    pprt = PrtList.get_ptr( iprt );
     pbase = POBJ_GET_PBASE( pprt );
 
     // if we are inside a PrtList loop, do not actually change the length of the
@@ -441,7 +442,7 @@ PRT_REF PrtList_allocate( const bool force )
                     found = iprt;
                     break;
                 }
-                pprt =  PrtList_get_ptr( iprt );
+                pprt =  PrtList.get_ptr( iprt );
 
                 // does it have a valid profile?
                 if ( !LOADED_PIP( pprt->pip_ref ) )
@@ -536,13 +537,13 @@ PRT_REF PrtList_allocate( const bool force )
         }
 
         // allocate the new one
-        POBJ_ALLOCATE( PrtList_get_ptr( iprt ), REF_TO_INT( iprt ) );
+        POBJ_ALLOCATE( PrtList.get_ptr( iprt ), REF_TO_INT( iprt ) );
     }
 
     if ( ALLOCATED_PRT( iprt ) )
     {
         // construct the new structure
-        prt_config_construct( PrtList_get_ptr( iprt ), 100 );
+        prt_config_construct( PrtList.get_ptr( iprt ), 100 );
     }
 
     return iprt;
@@ -757,7 +758,7 @@ void PrtList_cleanup()
         PRT_REF iprt = prt_activation_list[cnt];
 
         if ( !ALLOCATED_PRT( iprt ) ) continue;
-        pprt = PrtList_get_ptr( iprt );
+        pprt = PrtList.get_ptr( iprt );
 
         if ( !pprt->obj_base.turn_me_on ) continue;
 
@@ -814,7 +815,7 @@ bool PrtList_add_termination( const PRT_REF iprt )
     }
 
     // at least mark the object as "waiting to be terminated"
-    POBJ_REQUEST_TERMINATE( PrtList_get_ptr( iprt ) );
+    POBJ_REQUEST_TERMINATE( PrtList.get_ptr( iprt ) );
 
     return retval;
 }
@@ -917,7 +918,7 @@ void PrtList_reset_all()
 //--------------------------------------------------------------------------------------------
 bool PrtList_request_terminate( const PRT_REF iprt )
 {
-    prt_t * pprt = PrtList_get_ptr( iprt );
+    prt_t * pprt = PrtList.get_ptr( iprt );
 
     return prt_t::request_terminate( pprt );
 }

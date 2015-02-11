@@ -40,7 +40,7 @@
 //--------------------------------------------------------------------------------------------
 //inlined before
 
-bool VALID_ENC_RANGE(const ENC_REF IENC) { return (((ENC_REF)(IENC)) < MAX_ENC); }
+bool VALID_ENC_RANGE(const ENC_REF IENC) { return EncList.isInRange(IENC); }
 
 bool DEFINED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && DEFINED_PENC_RAW(EncList.lst + (IENC))); }
 
@@ -79,7 +79,13 @@ bool INGAME_PENC(const enc_t *PENC) { return LAMBDA(Ego::Entities::spawnDepth > 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LOCKABLELIST(, enc_t, EncList, MAX_ENC );
+INSTANTIATE_LOCKABLELIST(enc_t, ENC_REF, EncList, MAX_ENC );
+
+static int EncList_find_free_ref(const ENC_REF);
+static bool EncList_push_free(const ENC_REF);
+static size_t EncList_pop_free(const int);
+static int EncList_find_used_ref(const ENC_REF);
+static size_t EncList_pop_used(const int);
 
 static size_t  enc_termination_count = 0;
 static ENC_REF enc_termination_list[MAX_ENC];
@@ -104,11 +110,6 @@ static bool EncList_remove_used_idx( const int index );
 
 static void   EncList_prune_used_list();
 static void   EncList_prune_free_list();
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-IMPLEMENT_LIST( enc_t, EncList, MAX_ENC );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -322,7 +323,7 @@ bool EncList_free_one( const ENC_REF ienc )
     bool retval;
 
     if ( !ALLOCATED_ENC( ienc ) ) return false;
-    enc_t *penc = EncList_get_ptr( ienc );
+    enc_t *penc = EncList.get_ptr( ienc );
     Ego::Entity *pbase = POBJ_GET_PBASE( penc );
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
@@ -516,7 +517,7 @@ int EncList_find_used_ref( const ENC_REF ienc )
 
     int retval = -1, cnt;
 
-    if ( !VALID_ENC_RANGE( ienc ) ) return retval;
+    if (!VALID_ENC_RANGE(ienc)) return retval;
 
     for ( cnt = 0; cnt < EncList.usedCount; cnt++ )
     {
@@ -532,25 +533,25 @@ int EncList_find_used_ref( const ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool EncList_push_used( const ENC_REF ienc )
+bool EncList_push_used(const ENC_REF ienc)
 {
     bool retval;
 
-    if ( !VALID_ENC_RANGE( ienc ) ) return false;
+    if (!VALID_ENC_RANGE(ienc)) return false;
 
 #if defined(_DEBUG) && defined(DEBUG_ENC_LIST)
-    if ( EncList_find_used_ref( ienc ) > 0 )
+    if (EncList_find_used_ref(ienc) > 0)
     {
         return false;
     }
 #endif
 
-    EGOBOO_ASSERT( !EncList.lst[ienc].obj_base.in_used_list );
+    EGOBOO_ASSERT(!EncList.lst[ienc].obj_base.in_used_list);
 
     retval = false;
-    if ( EncList.usedCount < MAX_ENC )
+    if (EncList.usedCount < MAX_ENC)
     {
-        EncList.used_ref[EncList.usedCount] = REF_TO_INT( ienc );
+        EncList.used_ref[EncList.usedCount] = REF_TO_INT(ienc);
 
         EncList.usedCount++;
         EncList.update_guid++;
@@ -656,13 +657,13 @@ ENC_REF EncList_allocate( const ENC_REF override )
         }
 
         // allocate the new one
-        POBJ_ALLOCATE( EncList_get_ptr( ienc ), REF_TO_INT( ienc ) );
+        POBJ_ALLOCATE( EncList.get_ptr( ienc ), REF_TO_INT( ienc ) );
     }
 
     if ( ALLOCATED_ENC( ienc ) )
     {
         // construct the new structure
-        enc_config_construct( EncList_get_ptr( ienc ), 100 );
+        enc_config_construct( EncList.get_ptr( ienc ), 100 );
     }
 
     return ienc;
@@ -680,7 +681,7 @@ void EncList_cleanup()
         ENC_REF ienc = enc_activation_list[cnt];
 
         if ( !ALLOCATED_ENC( ienc ) ) continue;
-        penc = EncList_get_ptr( ienc );
+        penc = EncList.get_ptr( ienc );
 
         if ( !penc->obj_base.turn_me_on ) continue;
 
@@ -737,7 +738,7 @@ bool EncList_add_termination( const ENC_REF ienc )
     }
 
     // at least mark the object as "waiting to be terminated"
-    POBJ_REQUEST_TERMINATE( EncList_get_ptr( ienc ) );
+    POBJ_REQUEST_TERMINATE( EncList.get_ptr( ienc ) );
 
     return retval;
 }
@@ -745,7 +746,7 @@ bool EncList_add_termination( const ENC_REF ienc )
 //--------------------------------------------------------------------------------------------
 bool EncList_request_terminate( const ENC_REF ienc )
 {
-    enc_t * penc = EncList_get_ptr( ienc );
+    enc_t * penc = EncList.get_ptr( ienc );
 
     return enc_request_terminate( penc );
 }
