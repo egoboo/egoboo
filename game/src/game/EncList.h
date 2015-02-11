@@ -80,15 +80,16 @@ bool _WAITING_ENC(const ENC_REF IENC);
 bool _TERMINATED_ENC(const ENC_REF IENC);
 
 size_t  _GET_INDEX_PENC(const enc_t *PENC);
-ENC_REF _GET_REF_PENC(const enc_t * PENC);
-bool _DEFINED_PENC(const enc_t * PENC);
-bool _VALID_ENC_PTR(const enc_t * PENC);
-bool _ALLOCATED_PENC(const enc_t * PENC);
-bool _ACTIVE_PENC(const enc_t * PENC);
-bool _TERMINATED_PENC(const enc_t * PENC);
+ENC_REF _GET_REF_PENC(const enc_t *PENC);
+bool _DEFINED_PENC(const enc_t *PENC);
+bool _VALID_ENC_PTR(const enc_t *PENC);
+bool _ALLOCATED_PENC(const enc_t *PENC);
+bool _ACTIVE_PENC(const enc_t *PENC);
+bool _WAITIN_PENC(const enc_t *PEC);
+bool _TERMINATED_PENC(const enc_t *PENC);
 
 bool _INGAME_ENC_BASE(const ENC_REF IENC);
-bool _INGAME_PENC_BASE(const enc_t * PENC);
+bool _INGAME_PENC_BASE(const enc_t *PENC);
 
 bool _INGAME_ENC(const ENC_REF IENC);
-bool _INGAME_PENC(const enc_t * PENC);
+bool _INGAME_PENC(const enc_t *PENC);

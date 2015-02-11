@@ -5243,8 +5243,6 @@ void gfx_request_clear_screen()
 //--------------------------------------------------------------------------------------------
 void gfx_do_clear_screen()
 {
-    bool game_needs_clear, menu_needs_clear;
-
     if ( !gfx_page_clear_requested ) return;
 
     // clear the depth buffer if anything was drawn

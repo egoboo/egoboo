@@ -3135,8 +3135,6 @@ GameObject * chr_config_do_init( GameObject * pchr )
 CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team,
                              const int skin, const FACING_T facing, const char *name, const CHR_REF override )
 {
-    CHR_REF   ichr;
-
     // fix a "bad" name
     if ( NULL == name ) name = "";
 
@@ -4770,7 +4768,6 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
         if ( pchr->inst.action_ready && action_valid )
         {
             //Check if we are attacking unarmed and cost mana to do so
-            int manacost;
             if(iweapon == pchr->getCharacterID())
             {
                 if(pchr->getProfile()->getUseManaCost() <= pchr->mana)
