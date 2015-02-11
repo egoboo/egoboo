@@ -2195,7 +2195,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 if ( DEFINED_PRT( iparticle ) )
                 {
                     fvec3_t tmp_pos;
-                    prt_t * pprt = PrtList_get_ptr( iparticle );
+                    prt_t * pprt = PrtList.get_ptr( iparticle );
 
                     prt_t::get_pos(pprt, tmp_pos);
 

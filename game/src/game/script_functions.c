@@ -2199,7 +2199,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     if ( returncode )
     {
         fvec3_t tmp_pos;
-        prt_t * pprt = PrtList_get_ptr( iprt );
+        prt_t * pprt = PrtList.get_ptr( iprt );
 
         // attach the particle
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
@@ -4599,7 +4599,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     if ( returncode )
     {
-        returncode = prt_t::set_size( PrtList_get_ptr( iprt ), pstate->turn );
+        returncode = prt_t::set_size( PrtList.get_ptr( iprt ), pstate->turn );
     }
 
     SCRIPT_FUNCTION_END();

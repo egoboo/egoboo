@@ -47,7 +47,7 @@ struct enc_t;
             enc_t * PENC = NULL; \
             IT = (ENC_REF)EncList.used_ref[IT##_internal]; \
             if(!ACTIVE_ENC(IT)) continue; \
-            PENC =  EncList_get_ptr(IT);
+            PENC =  EncList.get_ptr(IT);
 
 #define ENC_END_LOOP() \
         } \

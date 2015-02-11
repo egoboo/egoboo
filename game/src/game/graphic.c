@@ -1103,7 +1103,7 @@ gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_
 
             // is it in the array?
             if ( !VALID_PRT_RANGE( iprt ) ) continue;
-            pprt = PrtList_get_ptr( iprt );
+            pprt = PrtList.get_ptr( iprt );
 
             // do some more obvious tests before testing the frustum
             if ( dolist_t::test_prt( pdlist, pprt ) )

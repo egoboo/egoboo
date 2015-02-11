@@ -164,7 +164,7 @@ void prt_play_sound( const PRT_REF particle, Sint8 sound )
     prt_t * pprt;
 
     if ( !DEFINED_PRT( particle ) ) return;
-    pprt = PrtList_get_ptr( particle );
+    pprt = PrtList.get_ptr( particle );
 
     if ( _profileSystem.isValidProfileID( pprt->profile_ref ) )
     {
@@ -207,7 +207,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
     // does the particle have valid data?
     if ( DEFINED_PRT( particle ) )
     {
-        prt_t * pprt = PrtList_get_ptr( particle );
+        prt_t * pprt = PrtList.get_ptr( particle );
         pip_t * ppip = prt_get_ppip( particle );
 
         // the object is waiting to be killed, so
@@ -996,7 +996,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
 
         return INVALID_PRT_REF;
     }
-    prt_t *pprt = PrtList_get_ptr( iprt );
+    prt_t *pprt = PrtList.get_ptr( iprt );
 
     POBJ_BEGIN_SPAWN( pprt );
 
@@ -1077,7 +1077,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 
         return INVALID_PRT_REF;
     }
-    pprt = PrtList_get_ptr( iprt );
+    pprt = PrtList.get_ptr( iprt );
 
     POBJ_BEGIN_SPAWN( pprt );
 
@@ -1274,7 +1274,7 @@ void update_all_particles()
     {
         if ( !ALLOCATED_PRT( iprt ) ) continue;
 
-        prt_bundle_t::set( &prt_bdl, PrtList_get_ptr( iprt ) );
+        prt_bundle_t::set( &prt_bdl, PrtList.get_ptr( iprt ) );
 
         prt_bundle_t::update( &prt_bdl );
     }
@@ -2294,7 +2294,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     prt_t * pprt;
 
     if ( !INGAME_PRT( particle ) ) return 0;
-    pprt = PrtList_get_ptr( particle );
+    pprt = PrtList.get_ptr( particle );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return 0;
     ppip = PipStack.get_ptr( pprt->pip_ref );
@@ -2664,7 +2664,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
 
     if ( !ALLOCATED_PRT( iprt ) ) return endspawn_count;
 
-    pprt = PrtList_get_ptr( iprt );
+    pprt = PrtList.get_ptr( iprt );
 
     // Spawn new particles if time for old one is up
     if ( pprt->endspawn_amount > 0 && _profileSystem.isValidProfileID( pprt->profile_ref ) && pprt->endspawn_lpip > -1 )
@@ -2710,7 +2710,7 @@ void cleanup_all_particles()
         prt_t *pprt;
         Ego::Entity *base_ptr;
 
-        pprt = PrtList_get_ptr( iprt );
+        pprt = PrtList.get_ptr( iprt );
 
         base_ptr = POBJ_GET_PBASE( pprt );
         if ( !FLAG_ALLOCATED_PBASE( base_ptr ) ) continue;
@@ -2739,7 +2739,7 @@ void bump_all_particles_update_counters()
     {
         Ego::Entity *base_ptr;
 
-        base_ptr = POBJ_GET_PBASE( PrtList_get_ptr( cnt ) );
+        base_ptr = POBJ_GET_PBASE( PrtList.get_ptr( cnt ) );
         if ( !ACTIVE_PBASE( base_ptr ) ) continue;
 
         base_ptr->update_count++;
@@ -3456,7 +3456,7 @@ PIP_REF prt_get_ipip( const PRT_REF iprt )
     prt_t * pprt;
 
     if ( !DEFINED_PRT( iprt ) ) return INVALID_PIP_REF;
-    pprt = PrtList_get_ptr( iprt );
+    pprt = PrtList.get_ptr( iprt );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return INVALID_PIP_REF;
 
@@ -3469,7 +3469,7 @@ pip_t * prt_get_ppip( const PRT_REF iprt )
     prt_t * pprt;
 
     if ( !DEFINED_PRT( iprt ) ) return NULL;
-    pprt = PrtList_get_ptr( iprt );
+    pprt = PrtList.get_ptr( iprt );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return NULL;
 
@@ -3558,7 +3558,7 @@ CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
     if ( depth > ( int )maxparticles - ( int )PrtList.freeCount ) return INVALID_CHR_REF;
 
     if ( !DEFINED_PRT( iprt ) ) return INVALID_CHR_REF;
-    pprt = PrtList_get_ptr( iprt );
+    pprt = PrtList.get_ptr( iprt );
 
     if ( _gameObjects.exists( pprt->owner_ref ) )
     {
@@ -3646,7 +3646,7 @@ prt_bundle_t *prt_bundle_validate(prt_bundle_t *self)
 
     if (ALLOCATED_PRT(self->prt_ref))
     {
-        self->prt_ptr = PrtList_get_ptr(self->prt_ref);
+        self->prt_ptr = PrtList.get_ptr(self->prt_ref);
     }
     else if (nullptr != self->prt_ptr)
     {

@@ -144,7 +144,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     enc_t * penc;
 
     if ( !ALLOCATED_ENC( ienc ) ) return false;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     // Unlink it from the spawner (if possible)
     if ( _gameObjects.exists( penc->spawner_ref ) )
@@ -265,7 +265,7 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     GameObject * target_ptr, *spawner_ptr, *overlay_ptr;
 
     if ( !ALLOCATED_ENC( ienc ) ) return false;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
     peve = enc_get_peve( ienc );
 
     target_ref = INVALID_CHR_REF;
@@ -465,7 +465,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
     if ( !DEFINED_ENC( ienc ) ) return;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     peve = _profileSystem.pro_get_peve( profile );
     if ( NULL == peve ) return;
@@ -646,7 +646,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
     if ( !DEFINED_ENC( ienc ) ) return;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
     peve = EveStack.get_ptr( ieve );
@@ -1564,7 +1564,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         log_warning( "spawn_one_enchant() - could not allocate an enchant.\n" );
         return INVALID_ENC_REF;
     }
-    penc = EncList_get_ptr( enc_ref );
+    penc = EncList.get_ptr( enc_ref );
 
     POBJ_BEGIN_SPAWN( penc );
 
@@ -1623,7 +1623,7 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
     if ( !ALLOCATED_ENC( ienc ) ) return;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( value_idx >= MAX_ENCHANT_SET || !penc->setyesno[value_idx] ) return;
 
@@ -1746,7 +1746,7 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
     if ( !ALLOCATED_ENC( ienc ) ) return;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( !_gameObjects.exists( penc->target_ref ) ) return;
     character = penc->target_ref;
@@ -1928,7 +1928,7 @@ void update_all_enchants()
     // update all enchants
     for ( ienc = 0; ienc < MAX_ENC; ienc++ )
     {
-        enc_run_config( EncList_get_ptr( ienc ) );
+        enc_run_config( EncList.get_ptr( ienc ) );
     }
 
     // fix the stat timer
@@ -2113,7 +2113,7 @@ CHR_REF enc_get_iowner( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return INVALID_CHR_REF;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( !_gameObjects.exists( penc->owner_ref ) ) return INVALID_CHR_REF;
 
@@ -2126,7 +2126,7 @@ GameObject * enc_get_powner( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return NULL;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( !_gameObjects.exists( penc->owner_ref ) ) return NULL;
 
@@ -2139,7 +2139,7 @@ EVE_REF enc_get_ieve( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return INVALID_EVE_REF;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return INVALID_EVE_REF;
 
@@ -2152,7 +2152,7 @@ eve_t * enc_get_peve( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return NULL;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return NULL;
 
@@ -2165,7 +2165,7 @@ PRO_REF  enc_get_ipro( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return INVALID_PRO_REF;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( !_profileSystem.isValidProfileID( penc->profile_ref ) ) return INVALID_PRO_REF;
 
@@ -2178,7 +2178,7 @@ ObjectProfile * enc_get_ppro( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return NULL;
-    penc = EncList_get_ptr( ienc );
+    penc = EncList.get_ptr( ienc );
 
     if ( !_profileSystem.isValidProfileID( penc->profile_ref ) ) return NULL;
 

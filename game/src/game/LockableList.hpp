@@ -23,6 +23,10 @@ struct _LockableList
     size_t used_ref[COUNT];
     size_t free_ref[COUNT];
     TYPE lst[COUNT];
+    TYPE *get_ptr(const size_t index)
+    {
+        return LAMBDA(index >= COUNT, nullptr, lst + index);
+    }
     void lock()
     {
         lockCount++;
@@ -55,11 +59,9 @@ protected:
     void   NAME##_ctor();                                \
     void   NAME##_dtor();                                \
     bool NAME##_push_used(const REF_T);                  \
-    TYPE * NAME##_get_ptr(const size_t);                 \
     extern s_c_list__##TYPE__##NAME NAME
 
 #define INSTANTIATE_LOCKABLELIST_STATIC(TYPE, NAME, COUNT) \
-    /*DEFINE_LOCKABLELIST_TYPE(TYPE, NAME, COUNT);*/       \
     static s_c_list__##TYPE__##NAME NAME;
 
 #define INSTANTIATE_LOCKABLELIST(ACCESS,TYPE,NAME, COUNT) \
@@ -71,6 +73,5 @@ protected:
     static bool NAME##_push_free(const REF_T);    \
     static size_t  NAME##_pop_free(const int);    \
     static int NAME##_find_used_ref(const REF_T); \
-    static size_t NAME##_pop_used(const int);     \
-    TYPE *NAME##_get_ptr(const size_t index)   { return LAMBDA(index >= COUNT, NULL, NAME.lst + index); }
+    static size_t NAME##_pop_used(const int);
 #endif

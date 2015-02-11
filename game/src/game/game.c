@@ -1889,7 +1889,7 @@ void do_weather_spawn_particles()
                     PRT_REF particle = spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
                     if ( DEFINED_PRT( particle ) )
                     {
-                        prt_t * pprt = PrtList_get_ptr( particle );
+                        prt_t * pprt = PrtList.get_ptr( particle );
 
                         bool destroy_particle = false;
 
@@ -3308,7 +3308,7 @@ int reaffirm_attached_particles( const CHR_REF character )
         particle = spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
         if ( DEFINED_PRT( particle ) )
         {
-            prt_t * pprt = PrtList_get_ptr( particle );
+            prt_t * pprt = PrtList.get_ptr( particle );
 
             pprt = place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
             if ( NULL == pprt ) continue;

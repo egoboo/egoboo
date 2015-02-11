@@ -45,7 +45,7 @@
             prt_bundle_t PRT_BDL; \
             IT = (PRT_REF)PrtList.used_ref[IT##_internal]; \
             if(!ACTIVE_PRT(IT)) continue; \
-            prt_bundle_t::set(&PRT_BDL, PrtList_get_ptr( IT ));
+            prt_bundle_t::set(&PRT_BDL, PrtList.get_ptr( IT ));
 
 #define PRT_BEGIN_LOOP_DISPLAY(IT, PRT_BDL) \
     { \
@@ -58,7 +58,7 @@
             prt_bundle_t PRT_BDL; \
             IT = (PRT_REF)PrtList.used_ref[IT##_internal]; \
             if(!DISPLAY_PRT(IT)) continue; \
-            prt_bundle_t::set(&PRT_BDL, PrtList_get_ptr(IT));
+            prt_bundle_t::set(&PRT_BDL, PrtList.get_ptr(IT));
 
 #define PRT_END_LOOP() \
         } \

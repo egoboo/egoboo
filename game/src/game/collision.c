@@ -638,7 +638,7 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 
     // Ignore invalid characters
     if ( !INGAME_PRT( iprt_b ) ) return false;
-    pprt_b = PrtList_get_ptr( iprt_b );
+    pprt_b = PrtList.get_ptr( iprt_b );
 
     // reject characters that are hidden
     if ( pchr_a->is_hidden || pprt_b->is_hidden ) return false;
@@ -914,7 +914,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     // do some logic on this to determine whether the collision is valid
                     if ( detect_chr_prt_interaction_valid( pchr_a->getCharacterID(), iprt_b ) )
                     {
-                        prt_t * pprt_b = PrtList_get_ptr( iprt_b );
+                        prt_t * pprt_b = PrtList.get_ptr( iprt_b );
 
                         CoNode_ctor( &tmp_codata );
 
@@ -1340,7 +1340,7 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 
     // make sure that B is valid
     if ( !INGAME_PRT( iprt_b ) ) return false;
-    pprt_b = PrtList_get_ptr( iprt_b );
+    pprt_b = PrtList.get_ptr( iprt_b );
 
     // if you are mounted, only your mount is affected by platforms
     if ( _gameObjects.exists( pchr_a->attachedto ) || _gameObjects.exists( pprt_b->attachedto_ref ) ) return false;
@@ -1535,7 +1535,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
             {
                 if ( PrtList.lst[d->prtb].targetplatform_ref == d->chra )
                 {
-                    attach_prt_to_platform( PrtList_get_ptr( d->prtb ), _gameObjects.get( d->chra ) );
+                    attach_prt_to_platform( PrtList.get_ptr( d->prtb ), _gameObjects.get( d->chra ) );
                 }
             }
         }
@@ -1545,7 +1545,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
             {
                 if ( PrtList.lst[d->prta].targetplatform_ref == d->chrb )
                 {
-                    attach_prt_to_platform( PrtList_get_ptr( d->prta ), _gameObjects.get( d->chrb ) );
+                    attach_prt_to_platform( PrtList.get_ptr( d->prta ), _gameObjects.get( d->chrb ) );
                 }
             }
         }
@@ -3354,7 +3354,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
 
     if ( !INGAME_PRT( iprt ) ) return false;
     pdata->iprt = iprt;
-    pdata->pprt = PrtList_get_ptr( iprt );
+    pdata->pprt = PrtList.get_ptr( iprt );
 
     // make sure that it is on
     if ( !_gameObjects.exists( ichr ) ) return false;
