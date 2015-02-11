@@ -51,14 +51,11 @@ protected:
     int lockCount;
 };
 
-#define DEFINE_LOCKABLELIST_TYPE(TYPE, NAME, COUNT) \
-	typedef _LockableList<TYPE,COUNT> s_c_list__##TYPE__##NAME;
-
-#define DECLARE_LOCKABLELIST_EXTERN(TYPE, NAME, COUNT)   \
-    DEFINE_LOCKABLELIST_TYPE(TYPE, NAME, COUNT);         \
-    void   NAME##_ctor();                                \
-    void   NAME##_dtor();                                \
-    bool NAME##_push_used(const REF_T);                  \
+#define DECLARE_LOCKABLELIST_EXTERN(TYPE, NAME, COUNT)          \
+    typedef _LockableList<TYPE,COUNT> s_c_list__##TYPE__##NAME; \
+    void   NAME##_ctor();                                       \
+    void   NAME##_dtor();                                       \
+    bool NAME##_push_used(const REF_T);                         \
     extern s_c_list__##TYPE__##NAME NAME
 
 #define INSTANTIATE_LOCKABLELIST_STATIC(TYPE, NAME, COUNT) \
@@ -68,7 +65,7 @@ protected:
     ACCESS s_c_list__##TYPE__##NAME NAME;
 
 #ifndef IMPLEMENT_LOCKABLELIST
-#define IMPLEMENT_LOCKABLELIST(TYPE, NAME, COUNT)         \
+#define IMPLEMENT_LOCKABLELIST(TYPE, NAME, COUNT) \
     static int NAME##_find_free_ref(const REF_T); \
     static bool NAME##_push_free(const REF_T);    \
     static size_t  NAME##_pop_free(const int);    \
