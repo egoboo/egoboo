@@ -54,7 +54,6 @@
 //--------------------------------------------------------------------------------------------
 
 struct s_grab_data;
-typedef struct s_grab_data grab_data_t;
 
 struct s_chr_anim_data;
 typedef struct s_chr_anim_data chr_anim_data_t;
@@ -71,16 +70,15 @@ int chr_pressure_tests = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_grab_data
+struct grab_data_t
 {
-    CHR_REF ichr;
-    fvec3_t diff;
-    float   diff2_hrz;
-    float   diff2_vrt;
-    bool  too_dark, too_invis;
+    std::shared_ptr<GameObject> object;
+    float horizontalDistance;
+    float verticalDistance;
+    bool too_dark;
+    bool too_invis;
+    bool isFacingObject;
 };
-
-static int grab_data_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1724,41 +1722,6 @@ bool drop_all_items( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int grab_data_cmp( const void * pleft, const void * pright )
-{
-    int rv;
-    float diff;
-
-    grab_data_t * dleft  = ( grab_data_t * )pleft;
-    grab_data_t * dright = ( grab_data_t * )pright;
-
-    // use only the horizontal distance
-    diff = dleft->diff2_hrz - dright->diff2_hrz;
-
-    // unless they are equal, then use the vertical distance
-    if ( 0.0f == diff )
-    {
-        diff = dleft->diff2_vrt - dright->diff2_vrt;
-    }
-
-    if ( diff < 0.0f )
-    {
-        rv = -1;
-    }
-    else if ( diff > 0.0f )
-    {
-        rv = 1;
-    }
-    else
-    {
-        rv = 0;
-    }
-
-    return rv;
-}
-
-//--------------------------------------------------------------------------------------------
 bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool grab_people )
 {
     /// @author ZZ
@@ -1769,42 +1732,35 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
     const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
 
-    // 1 a grid is fine. anything more than that and it gets crazy
-    const float const_info2_hrz = SQR( 3.0f * GRID_FSIZE );
-    const float const_grab2_hrz = SQR( 1.0f * GRID_FSIZE );
-    const float const_grab2_vrt = SQR( GRABSIZE );
+    const float MAX_DIST_INFO = 3.0f * GRID_FSIZE;
+
+    //Max grab distance is 2/3rds of a tile
+    const float MAX_DIST_GRAB = GRID_FSIZE * 0.66f;
+
     CHR_REF   ichr_b;
     slot_t    slot;
     oct_vec_t mids;
     fvec3_t   slot_pos;
-    float     bump_size2_a;
-
-    GameObject * pchr_a;
 
     bool retval;
 
     // valid objects that can be grabbed
-    size_t      grab_count = 0;
     size_t      grab_visible_count = 0;
-    grab_data_t grab_list[MAX_CHR];
+    std::vector<grab_data_t> grabList;
 
     // valid objects that cannot be grabbed
-    size_t      ungrab_count = 0;
     size_t      ungrab_visible_count = 0;
-    grab_data_t ungrab_list[MAX_CHR];
+    std::vector<grab_data_t> ungrabList;
 
-    if ( !_gameObjects.exists( ichr_a ) ) return false;
-    pchr_a = _gameObjects.get( ichr_a );
-
-    ObjectProfile *objectProfile = chr_get_ppro(ichr_a);
-    if ( NULL == objectProfile ) return false;
+    const std::shared_ptr<GameObject> &pchr_a = _gameObjects[ichr_a];
+    if (!pchr_a) return false;
 
     // find the slot from the grip
     slot = grip_offset_to_slot( grip_off );
     if ( slot < 0 || slot >= SLOT_COUNT ) return false;
 
     // Make sure the character doesn't have something already, and that it has hands
-    if ( _gameObjects.exists( pchr_a->holdingwhich[slot] ) || !objectProfile->isSlotValid(slot) )
+    if ( _gameObjects.exists( pchr_a->holdingwhich[slot] ) || !pchr_a->getProfile()->isSlotValid(slot) )
         return false;
 
     //Determine the position of the grip
@@ -1814,22 +1770,19 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     slot_pos.z = mids[OCT_Z];
 	slot_pos += pchr_a->getPosition();
 
-    // get the size of object a
-    bump_size2_a = SQR( 1.5f * pchr_a->bump.size );
-
     // Go through all characters to find the best match
     for(const std::shared_ptr<GameObject> &pchr_c : _gameObjects.iterator())
     {
-        fvec3_t   diff;
-        float     bump_size2_b;
-        float     diff2_hrz, diff2_vrt;
-        float     grab2_vrt, grab2_hrz, info2_hrz;
-        bool    can_grab = true;
-        bool    too_dark = true;
-        bool    too_invis = true;
+        grab_data_t grabData;
+        bool canGrab = true;
+
+        //Skip invalid objects
+        if(pchr_c->isTerminated()) {
+            continue;
+        }
 
         // do nothing to yourself
-        if ( ichr_a == pchr_c->getCharacterID() ) continue;
+        if (pchr_a == pchr_c) continue;
 
         // Dont do hidden objects
         if ( pchr_c->is_hidden ) continue;
@@ -1845,66 +1798,67 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
              pchr_c->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
 
         // do not notice completely broken items?
-        if ( pchr_c->isitem && !pchr_c->alive ) continue;
+        if ( pchr_c->isitem && !pchr_c->isAlive() ) continue;
 
         // reasonable carrying capacity
         if ( pchr_c->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
         {
-            can_grab = false;
+            canGrab = false;
         }
 
         // grab_people == true allows you to pick up living non-items
         // grab_people == false allows you to pick up living (functioning) items
         if ( !grab_people && !pchr_c->isitem )
         {
-            can_grab = false;
+            canGrab = false;
         }
 
         // is the object visible
-        too_dark  = !chr_can_see_dark( pchr_a, pchr_c.get() );
-        too_invis = !chr_can_see_invis( pchr_a, pchr_c.get() );
+        grabData.too_dark  = !chr_can_see_dark( pchr_a.get(), pchr_c.get() );
+        grabData.too_invis = !chr_can_see_invis( pchr_a.get(), pchr_c.get() );
 
         // calculate the distance
-        diff = pchr_c->getPosition() - slot_pos;
-        diff.z += pchr_c->bump.height * 0.5f;
+        grabData.horizontalDistance = pchr_c->getPosition().xy_distance(slot_pos);
+        grabData.verticalDistance = std::sqrt(Math::sq( pchr_a->getPosZ() - pchr_c->getPosZ()));
+ 
+        //Figure out if the character is looking towards the object
+        grabData.isFacingObject = pchr_a->isFacingLocation(pchr_c->getPosX(), pchr_c->getPosY());
 
-        // find the squared difference horizontal and vertical
-        diff2_hrz = fvec2_t(diff[kX], diff[kY]).length_2();
-        diff2_vrt = diff.z * diff.z;
-
-        // determine the actual max vertical distance
-        grab2_vrt = SQR( pchr_c->bump.height );
-        grab2_vrt = std::max( grab2_vrt, const_grab2_vrt );
-
-        // the normal horizontal grab distance is dependent on the size of the two objects
-        bump_size2_b = SQR( pchr_c->bump.size );
+        // Is it too far away to interact with?
+        if (grabData.horizontalDistance > MAX_DIST_INFO || grabData.verticalDistance > MAX_DIST_INFO) continue;
 
         // visibility affects the max grab distance.
         // if it is not visible then we have to be touching it.
-        grab2_hrz = std::max( bump_size2_a, bump_size2_b );
-        if ( !too_dark && !too_invis )
+        float maxGrabDistance = MAX_DIST_GRAB;
+        if ( grabData.too_dark || grabData.too_invis )
         {
-            grab2_hrz = std::max( grab2_hrz, const_grab2_hrz );
+            maxGrabDistance *= 0.5f;
         }
 
-        // the player can get info from objects that are farther away
-        info2_hrz = std::max( grab2_hrz, const_info2_hrz );
+        //Halve grab distance for objects behind us
+        if(!grabData.isFacingObject) {
+            maxGrabDistance *= 0.5f;
+        }
 
-        // Is it too far away to interact with?
-        if ( diff2_hrz > info2_hrz || diff2_vrt > grab2_vrt ) continue;
+        //Bigger characters have bigger grab size
+        maxGrabDistance += pchr_a->bump.size / 4.0f;
 
         // is it too far away to grab?
-        if ( diff2_hrz > grab2_hrz )
+        if (grabData.horizontalDistance > maxGrabDistance && grabData.horizontalDistance > pchr_a->bump.size)
         {
-            can_grab = false;
+            canGrab = false;
+        }
+        if( (grabData.verticalDistance - pchr_a->bump.height / 2.0f) > maxGrabDistance)
+        {
+            canGrab = false;
         }
 
         // count the number of objects that are within the max range
         // a difference between the *_total_count and the *_count
         // indicates that some objects were not detectable
-        if ( !too_invis )
+        if ( !grabData.too_invis )
         {
-            if ( can_grab )
+            if (canGrab)
             {
                 grab_visible_count++;
             }
@@ -1914,37 +1868,36 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             }
         }
 
-        if ( can_grab )
+        grabData.object = pchr_c;
+        if (canGrab)
         {
-            grab_list[grab_count].ichr      = pchr_c->getCharacterID();
-            grab_list[grab_count].diff      = diff;
-            grab_list[grab_count].diff2_hrz = diff2_hrz;
-            grab_list[grab_count].diff2_vrt = diff2_vrt;
-            grab_list[grab_count].too_dark  = too_dark;
-            grab_list[grab_count].too_invis = too_invis;
-            grab_count++;
+            grabList.push_back(grabData);
         }
         else
         {
-            ungrab_list[ungrab_count].ichr      = pchr_c->getCharacterID();
-            ungrab_list[ungrab_count].diff      = diff;
-            ungrab_list[ungrab_count].diff2_hrz = diff2_hrz;
-            ungrab_list[ungrab_count].diff2_vrt = diff2_vrt;
-            ungrab_list[ungrab_count].too_dark  = too_dark;
-            ungrab_list[ungrab_count].too_invis = too_invis;
-            ungrab_count++;
+            ungrabList.push_back(grabData);
         }
     }
 
     // sort the grab list
-    if ( grab_count > 1 )
+    if (!grabList.empty())
     {
-        qsort( grab_list, grab_count, sizeof( grab_data_t ), grab_data_cmp );
+        std::sort(grabList.begin(), grabList.end(), 
+            [](const grab_data_t &a, const grab_data_t &b)
+            { 
+                float distance = a.horizontalDistance - b.horizontalDistance;
+
+                if(distance <= FLT_EPSILON) {
+                    distance += a.verticalDistance - b.verticalDistance;
+                }
+
+                return distance;
+            });
     }
 
     // try to grab something
     retval = false;
-    if (( 0 == grab_count ) && ( 0 != grab_visible_count ) )
+    if (grabList.empty() && ( 0 != grab_visible_count ) )
     {
         // There are items within the "normal" range that could be grabbed
         // but somehow they can't be seen.
@@ -1959,26 +1912,23 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
     if ( !retval )
     {
-        for ( size_t cnt = 0; cnt < grab_count; cnt++ )
+        for(const grab_data_t &grabData : grabList)
         {
-            bool can_grab;
+            if (grabData.too_dark || grabData.too_invis) {
+                continue;
+            } 
 
-            if ( grab_list[cnt].too_dark || grab_list[cnt].too_invis ) continue;
-
-            ichr_b = grab_list[cnt].ichr;
-            GameObject * pchr_b = _gameObjects.get( ichr_b );
-
-            can_grab = can_grab_item_in_shop( ichr_a, ichr_b );
+            bool can_grab = can_grab_item_in_shop(ichr_a, grabData.object->getCharacterID());
 
             if ( can_grab )
             {
                 // Stick 'em together and quit
-                if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, grip_off ) )
+                if ( rv_success == attach_character_to_mount(grabData.object->getCharacterID(), ichr_a, grip_off) )
                 {
-                    if ( grab_people )
+                    if (grab_people)
                     {
                         // Start the slam animation...  ( Be sure to drop!!! )
-                        chr_play_action( pchr_a, ACTION_MC + slot, false );
+                        chr_play_action( pchr_a.get(), ACTION_MC + slot, false );
                     }
                     retval = true;
                 }
@@ -1987,9 +1937,9 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             else
             {
                 // Lift the item a little and quit...
-                pchr_b->vel.z = DROPZVEL;
-                pchr_b->hitready = true;
-                SET_BIT( pchr_b->ai.alert, ALERTIF_DROPPED );
+                grabData.object->vel.z = DROPZVEL;
+                grabData.object->hitready = true;
+                SET_BIT( grabData.object->ai.alert, ALERTIF_DROPPED );
                 break;
             }
         }
@@ -1999,16 +1949,14 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     {
         fvec3_t vforward;
 
-        const std::shared_ptr<GameObject> &pchr_b = _gameObjects[ichr_b];
-
         //---- generate billboards for things that players can interact with
         if ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback && VALID_PLA( pchr_a->is_which_player ) )
         {
             // things that can be grabbed
-            for ( size_t cnt = 0; cnt < grab_count; cnt++ )
+            for(const grab_data_t &grabData : grabList)
             {
-                ichr_b = grab_list[cnt].ichr;
-                if ( grab_list[cnt].too_dark || grab_list[cnt].too_invis )
+                ichr_b = grabData.object->getCharacterID();
+                if ( grabData.too_dark || grabData.too_invis )
                 {
                     // (5 secs and blue)
                     chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_fade );
@@ -2016,16 +1964,15 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, pchr_b->getName(true, false, true).c_str(), color_grn, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 5, bb_opt_fade );
                 }
             }
 
             // things that can't be grabbed
-            for ( size_t cnt = 0; cnt < ungrab_count; cnt++ )
+            for(const grab_data_t &grabData : ungrabList)
             {
-                ichr_b = ungrab_list[cnt].ichr;
-
-                if ( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis )
+                ichr_b = grabData.object->getCharacterID();
+                if ( grabData.too_dark || grabData.too_invis )
                 {
                     // (5 secs and blue)
                     chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_fade );
@@ -2033,38 +1980,37 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, pchr_b->getName(true, false, true).c_str(), color_red, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 5, bb_opt_fade );
                 }
             }
         }
 
         //---- if you can't grab anything, activate something using ALERTIF_BUMPED
-        if ( VALID_PLA( pchr_a->is_which_player ) && ungrab_count > 0 )
+        if ( VALID_PLA( pchr_a->is_which_player ) && !ungrabList.empty() )
         {
-            chr_getMatForward(pchr_a, vforward);
-
             // sort the ungrab list
-            if ( ungrab_count > 1 )
-            {
-                qsort( ungrab_list, ungrab_count, sizeof( grab_data_t ), grab_data_cmp );
-            }
+            std::sort(ungrabList.begin(), ungrabList.end(), 
+                [](const grab_data_t &a, const grab_data_t &b)
+                { 
+                    float distance = a.horizontalDistance - b.horizontalDistance;
 
-            for ( size_t cnt = 0; cnt < ungrab_count; cnt++ )
-            {
-                float ftmp;
-                GameObject *pchr_b;
+                    if(distance <= FLT_EPSILON) {
+                        distance += a.verticalDistance - b.verticalDistance;
+                    }
 
+                    return distance;
+                });
+
+            for(const grab_data_t &grabData : ungrabList)
+            {
                 // only do visible objects
-                if ( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis ) continue;
-
-                pchr_b = _gameObjects.get( ungrab_list[cnt].ichr );
+                if ( grabData.too_dark || grabData.too_invis ) continue;
 
                 // only bump the closest character that is in front of the character
                 // (ignore vertical displacement)
-                ftmp = fvec2_t(vforward[kX],vforward[kY]).dot(fvec2_t(ungrab_list[cnt].diff[kX],ungrab_list[cnt].diff[kY]));
-                if ( ftmp > 0.0f )
+                if (grabData.isFacingObject && grabData.horizontalDistance < MAX_DIST_GRAB)
                 {
-                    ai_state_set_bumplast( &( pchr_b->ai ), ichr_a );
+                    ai_state_set_bumplast( &( grabData.object->ai ), ichr_a );
                     break;
                 }
             }

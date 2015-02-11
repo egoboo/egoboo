@@ -4656,9 +4656,7 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    sTmp = vec_to_facing( pself_target->getPosX() - pchr->getPosX(), pself_target->getPosY() - pchr->getPosY() );
-    sTmp -= pchr->ori.facing_z;
-    returncode = ( sTmp > 55535 || sTmp < 10000 );
+    returncode = pchr->isFacingLocation(pself_target->getPosX(), pself_target->getPosY());
 
     SCRIPT_FUNCTION_END();
 }

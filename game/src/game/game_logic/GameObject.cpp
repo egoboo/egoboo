@@ -974,3 +974,11 @@ void GameObject::requestTerminate()
     //Mark object as terminated
     _gameObjects.remove(getCharacterID());
 }
+
+
+ bool GameObject::isFacingLocation(const float x, const float y) const
+ {
+    FACING_T facing = vec_to_facing(x - getPosX(), y - getPosY());
+    facing -= ori.facing_z;
+    return (facing > 55535 || facing < 10000);
+ }

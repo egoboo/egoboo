@@ -74,7 +74,7 @@ struct chr_spawn_data_t;
 #define CHR_INFINITE_WEIGHT          (static_cast<uint32_t>(0xFFFFFFFF))
 #define CHR_MAX_WEIGHT               (static_cast<uint32_t>(0xFFFFFFFE))
 
-#define GRABSIZE            90.0f //135.0f             ///< Grab tolerance
+#define GRABSIZE            90.0f                   ///< Grab tolerance
 #define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
 
 #define RAISE               12                  ///< Helps correct z level

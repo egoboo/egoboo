@@ -316,6 +316,14 @@ public:
     **/
     std::string getName(bool prefixArticle = true, bool prefixDefinite = true, bool capitalLetter = true) const;
 
+    /**
+    * @brief
+    *   Checks if this GameObject is facing (looking) towards the specified location
+    * @return
+    *   true if the specified location is within a 60 degree cone of vision for this GameObject
+    **/
+    bool isFacingLocation(const float x, const float y) const;
+
 private:
 
     /**
