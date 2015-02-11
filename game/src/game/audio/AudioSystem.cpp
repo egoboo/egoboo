@@ -25,6 +25,14 @@
 #include "game/mesh.h"
 #include "game/char.h"
 
+#if SDL_VERSIONNUM(SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL) < SDL_VERSIONNUM(1, 2, 12)
+Mix_Music *Mix_LoadMUSType_RW(SDL_RWops *rw, Mix_MusicType, int freesrc) {
+    Mix_Music *ret = Mix_LoadMUS_RW(rw);
+    if (rw && freesrc) SDL_RWclose(rw);
+    return ret;
+}
+#endif
+
 //ZF> TODO: MAX_DISTANCE is 15 tiles away for those with ListeningSkill
 static const float MAX_DISTANCE = GRID_FSIZE * 10.0f;   ///< Max hearing distance (10 tiles)
 
