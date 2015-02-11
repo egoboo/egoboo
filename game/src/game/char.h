@@ -32,7 +32,7 @@
 
 #include "game/graphics/MD2Model.hpp"
 #include "game/profiles/Profile.hpp"
-#include "game/game_logic/GameObject.hpp"
+#include "game/entities/GameObject.hpp"
 #include "game/enchant.h"
 #include "game/particle.h"
 

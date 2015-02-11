@@ -4766,7 +4766,7 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
                     if ( !weaponProfile->hasFastAttack() )
                     {
                         int base_reload_time = -chr_dex;
-                        if ( ACTION_IS_TYPE( action, U ) ) base_reload_time += 50;          //Unarmed  (Fists)
+                        if ( ACTION_IS_TYPE( action, U ) )      base_reload_time += 50;     //Unarmed  (Fists)
                         else if ( ACTION_IS_TYPE( action, T ) ) base_reload_time += 55;     //Thrust   (Spear)
                         else if ( ACTION_IS_TYPE( action, C ) ) base_reload_time += 85;     //Chop     (Axe)
                         else if ( ACTION_IS_TYPE( action, S ) ) base_reload_time += 65;     //Slice    (Sword)
@@ -5766,7 +5766,7 @@ float set_character_animation_rate( GameObject * pchr )
     if ( 0 != pchr->flyheight )
     {
         // for flying objects, the speed is the actual speed
-        speed = ABS( pchr->vel.x ) + ABS( pchr->vel.y ) + ABS( pchr->vel.z );
+        speed = std::abs( pchr->vel.x ) + std::abs( pchr->vel.y ) + std::abs( pchr->vel.z );
     }
     else
     {
@@ -5779,6 +5779,7 @@ float set_character_animation_rate( GameObject * pchr )
 			// Make his little legs move based on his intended speed, for comic effect! :)
 			speed *= 2.0f;
         }
+
     }
 
     if ( pchr->fat != 0.0f ) speed /= pchr->fat;
@@ -5788,7 +5789,7 @@ float set_character_animation_rate( GameObject * pchr )
     {
         if ( 0.0f != anim_info[0].speed )
         {
-            pinst->rate = speed / anim_info[0].speed ;
+            pinst->rate = speed / anim_info[0].speed;
         }
 
         return pinst->rate;
@@ -5803,7 +5804,7 @@ float set_character_animation_rate( GameObject * pchr )
         float speed_mid = 0.5f * ( anim_info[cnt].speed + anim_info[cnt+1].speed );
 
         // make a special case for dance animation(s)
-        if ( 0.0f == anim_info[cnt].speed && speed <= 1e-3 )
+        if ( anim_info[cnt].speed <= FLT_EPSILON && speed <= 1e-3 )
         {
             found = true;
         }
