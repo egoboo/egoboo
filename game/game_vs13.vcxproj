@@ -379,6 +379,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\entities\GameObject.cpp" />
     <ClCompile Include="src\game\core\GameEngine.cpp" />
     <ClCompile Include="src\game\gamestates\GameState.cpp" />
     <ClCompile Include="src\game\gamestates\InGameMenuState.cpp" />
@@ -400,7 +401,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\gui\ModuleSelector.cpp" />
     <ClCompile Include="src\game\gui\UIManager.cpp" />
     <ClCompile Include="src\game\profiles\ModuleProfile.cpp" />
-    <ClCompile Include="src\game\game_logic\GameObject.cpp" />
     <ClCompile Include="src\game\module\ObjectHandler.cpp" />
     <ClCompile Include="src\game\module\Module.cpp" />
     <ClCompile Include="src\game\graphics\MD2Model.cpp" />
@@ -453,6 +453,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\GameObject.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\LockableList.hpp" />
     <ClInclude Include="src\game\core\GameEngine.hpp" />
     <ClInclude Include="src\game\gamestates\GameState.hpp" />
@@ -475,7 +476,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\gui\ModuleSelector.hpp" />
     <ClInclude Include="src\game\gui\UIManager.hpp" />
     <ClInclude Include="src\game\profiles\ModuleProfile.hpp" />
-    <ClInclude Include="src\game\game_logic\GameObject.hpp" />
     <ClInclude Include="src\game\module\ObjectHandler.hpp" />
     <ClInclude Include="src\game\module\Module.hpp" />
     <ClInclude Include="src\game\graphics\MD2Model.hpp" />
