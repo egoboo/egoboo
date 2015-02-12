@@ -101,4 +101,17 @@ IfStateIs0
     tmpargument = ACTIONJB
     DoAction
     KeepAction
+
+  //This hack allows this book to be spawned in the world
+  IfSpawned
+    IfHeld
+      DoNothing
+    Else
+      tmpargument = 0
+      SetContent
+      BecomeSpellbook
+      DisaffirmCharacter
+      tmpargument = ACTIONJB
+      DoAction
+      KeepAction
 End
