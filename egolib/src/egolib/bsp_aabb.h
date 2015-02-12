@@ -51,6 +51,7 @@ private:
 	 *	The dimensionality of this BSP AABB.
 	 */
 	size_t _dim;
+
 public:
 
 	/**
@@ -168,6 +169,26 @@ public:
 	 *	exceeding dimensions are dropped!
 	 */
 	void set(const oct_bb_t& source);
+
+	/**
+	* @brief
+	*	Assignment operator, handles safe copying of allocated pointers
+	**/
+	BSP_aabb_t& operator=(const BSP_aabb_t& other)
+	{
+		_empty = other._empty;
+		_dim = other._dim;
+		_values = new float[3*_dim];
+
+		for(size_t i = 0; i < _dim; ++i) {
+			_values[i] = other._values[i];
+		}
+
+		return *this;
+	}
+
+	//Disable copying class
+	BSP_aabb_t(const BSP_aabb_t& copy) = delete;
 };
 #if 0
 

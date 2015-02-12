@@ -33,7 +33,7 @@
 
 //For cheats
 #include "game/module/ObjectHandler.hpp"
-#include "game/game_logic/GameObject.hpp"
+#include "game/entities/GameObject.hpp"
 #include "game/module/Module.hpp"
 #include "game/char.h"
 

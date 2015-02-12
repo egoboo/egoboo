@@ -286,14 +286,13 @@ bool BSP_leaf_t::valid() const
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-BSP_branch_t::BSP_branch_t(size_t dim) :
+BSP_branch_t::BSP_branch_t(size_t dim) : Shell(),
 	parent(nullptr),
 	unsorted(),
 	children(dim),
 	leaves(),
 	bsp_bbox(dim),
-	depth(0),
-	Shell()
+	depth(0)
 {
 }
 
@@ -648,7 +647,6 @@ void BSP_branch_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& test,
 bool BSP_branch_t::insert_branch_list_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, BSP::SubspaceIndex index, size_t depth)
 {
 	// the leaf is a child of this branch
-	bool inserted_branch;
 
 	// Validate arguments.
 	if (!tree) throw std::invalid_argument("nullptr == tree");
@@ -688,16 +686,10 @@ bool BSP_branch_t::insert_branch_list_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, BS
 
 bool BSP_branch_t::insert_leaf_rec_1(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t depth)
 {
-	int retval;
-
-	bool inserted_leaf, inserted_branch;
-
 	if (!tree) throw std::invalid_argument("nullptr == tree");
 	if (!leaf) throw std::invalid_argument("nullptr == leaf");
 
 	// Not inserted anywhere, yet.
-	bool inserted_here = false;
-	bool inserted_children = false;
 
 	// Don't go too deep.
 	if (depth > tree->_parameters.getMaxDepth())
@@ -870,13 +862,13 @@ BSP_branch_t *BSP_branch_t::ensure_branch(BSP_tree_t *tree, BSP::SubspaceIndex i
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-BSP_tree_t::BSP_tree_t(const Parameters& parameters) :
-	_parameters(parameters),
-	depth(0),
-	_free(nullptr), _nfree(0),
-	_used(nullptr), _nused(0),
+BSP_tree_t::BSP_tree_t(const Parameters& parameters) : 
 	finite(nullptr),
 	infinite(),
+	_used(nullptr), _nused(0),
+	_free(nullptr), _nfree(0),
+	_parameters(parameters),
+	depth(0),
 	_bounds(),
 	bsp_bbox(parameters.getDim())
 {
@@ -911,7 +903,11 @@ BSP_tree_t::~BSP_tree_t()
 	}
 }
 
-BSP_tree_t::Parameters::Parameters(size_t dim, size_t maxDepth)
+BSP_tree_t::Parameters::Parameters(size_t dim, size_t maxDepth) :
+	_maxChildNodes(1 << dim),
+	_maxNodes(0),
+	_dim(dim),
+	_maxDepth(maxDepth)
 {
 	// Validate dimensionality.
 	if (dim < BSP_tree_t::Parameters::ALLOWED_DIM_MIN)
@@ -944,11 +940,11 @@ BSP_tree_t::Parameters::Parameters(size_t dim, size_t maxDepth)
 	_maxChildNodes = 1 << dim; // ~ 1 * 2^dim ~ 2^dim
 }
 
-BSP_tree_t::Parameters::Parameters(const Parameters& other)
-	: _dim(other._dim),
-	  _maxNodes(other._maxNodes),
-	  _maxChildNodes(other._maxChildNodes),
-	  _maxDepth(other._maxDepth)
+BSP_tree_t::Parameters::Parameters(const Parameters& other) :
+	_maxChildNodes(other._maxChildNodes),
+	_maxNodes(other._maxNodes),
+	_dim(other._dim),
+	_maxDepth(other._maxDepth)
 {
 
 }
@@ -990,7 +986,9 @@ namespace BSP
 
 size_t BSP_tree_t::prune()
 {
-	Shell **prev = &_used, *cur; size_t count = 0;
+	Shell **prev = &_used; 
+	size_t count = 0;
+
 	// Search through all used branches.
 	// This will not catch all of the empty branches every time, but should catch quite a few.
 	while (nullptr != *prev)
@@ -1405,7 +1403,6 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 	// Test every single leaf.
 	else if (geometry_intersect == geometry)
 	{
-		size_t rejected_leaves = 0; // The number of rejected leaves.
 		size_t lost_leaves = 0; // The number of lost leaves.
 
 		// Scan through every leaf.
@@ -1420,7 +1417,6 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->bbox), true);
 
 			// Determine what action to take.
-			bool do_insert = false;
 			if (geometry_test > geometry_outside)
 			{
 				if (rv_success != collisions.push_back(leaf))

@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file game/game_logic/GameObject.hpp
+/// @file game/entities/GameObject.hpp
 /// @details An object representing instances of in-game egoboo objects (GameObject)
 /// @author Johan Jansen
 
-#include "game/game_logic/GameObject.hpp"
+#include "game/entities/GameObject.hpp"
 #include "game/module/ObjectHandler.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/game.h"
@@ -974,3 +974,11 @@ void GameObject::requestTerminate()
     //Mark object as terminated
     _gameObjects.remove(getCharacterID());
 }
+
+
+ bool GameObject::isFacingLocation(const float x, const float y) const
+ {
+    FACING_T facing = vec_to_facing(x - getPosX(), y - getPosY());
+    facing -= ori.facing_z;
+    return (facing > 55535 || facing < 10000);
+ }

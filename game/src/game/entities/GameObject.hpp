@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file game/game_logic/GameObject.hpp
+/// @file game/entities/GameObject.hpp
 /// @details An object representing instances of in-game egoboo objects (GameObject)
 /// @author Johan Jansen
 
@@ -315,6 +315,14 @@ public:
     *   Capitalize the first letter in the name or class name (e.g "fluffy" -> "Fluffy")
     **/
     std::string getName(bool prefixArticle = true, bool prefixDefinite = true, bool capitalLetter = true) const;
+
+    /**
+    * @brief
+    *   Checks if this GameObject is facing (looking) towards the specified location
+    * @return
+    *   true if the specified location is within a 60 degree cone of vision for this GameObject
+    **/
+    bool isFacingLocation(const float x, const float y) const;
 
 private:
 

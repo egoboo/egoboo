@@ -39,5 +39,17 @@ namespace Math
     template <typename T>
     T constrain(const T& n, const T& lower, const T& upper) {
         return std::max(lower, std::min(n, upper));
-    }    
+    }
+
+    /**
+     * @brief
+     *  Calculates the square of a number, this is same as X^2.
+     *  This is much faster than using pow(val, 2)
+     * @param val
+     *  the number to square
+     **/
+    template <typename T>
+    T sq(const T &value) {
+        return value * value;
+    }
 }

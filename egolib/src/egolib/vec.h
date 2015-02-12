@@ -26,6 +26,7 @@
 #include "egolib/log.h"
 #include "egolib/Float.hpp"
 #include "egolib/Debug.hpp"
+#include "egolib/math/Math.hpp"
 
 /**
  * @brief
@@ -468,8 +469,7 @@ struct fvec3_t
 	{
 		return this->v[kX] * this->v[kX]
 			 + this->v[kY] * this->v[kY]
-			 + this->v[kZ] * this->v[kZ]
-			 ;
+			 + this->v[kZ] * this->v[kZ];
 	}
 
 	/**
@@ -482,6 +482,15 @@ struct fvec3_t
 	float length() const
 	{
 		return std::sqrt(length_2());
+	}
+
+	/**
+	* @brief
+	* 	Get XY euclidian distance between two vectors
+	**/
+	float xy_distance(const fvec3_t &other) const
+	{
+		return std::sqrt( Math::sq(x-other.x) + Math::sq(y-other.y) );
 	}
 
 	/**

@@ -157,6 +157,14 @@ private:
 	 */
 	void maybeRunDeferred();
 
+#if defined(_DEBUG)
+	/**
+	 * @brief
+	 *	Dump the allocate list to standard output.
+	 */
+	void dumpAllocateList();
+#endif
+	
 private:
     std::vector<std::shared_ptr<GameObject>> _internalCharacterList;        ///< Indexes in this character list match CHR_REF
 	std::vector<std::shared_ptr<GameObject>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
@@ -170,21 +178,4 @@ private:
 	CHR_REF _totalCharactersSpawned;										///< Total count of characters spawned (includes removed)
 
 	friend class ObjectIterator;
-
-#if defined(_DEBUG)
-	/**
-	 * @brief
-	 *	Dump the allocate list to standard output.
-	 */
-	void dumpAllocateList();
-#endif
-
-#if defined(_DEBUG)
-	/**
-	 * @brief
-	 *	Dump the termination list to standard output.
-	 */
-	void dumpTerminationList();
-#endif
-
 };

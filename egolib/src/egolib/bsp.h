@@ -230,6 +230,11 @@ public:
 	// Override
 	void collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
 
+
+    //Disable copying class
+    BSP_leaf_list_t(const BSP_leaf_list_t& copy) = delete;
+    BSP_leaf_list_t& operator=(const BSP_leaf_list_t&) = delete;
+
 public:
 	/**
 	 * @brief
@@ -312,6 +317,11 @@ public:
 	*	traversal parameters
 	*/
 	bool add_all_children(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const;
+
+    //Disable copying class
+    BSP_branch_list_t(const BSP_branch_list_t& copy) = delete;
+    BSP_branch_list_t& operator=(const BSP_branch_list_t&) = delete;
+
 };
 
 //--------------------------------------------------------------------------------------------
@@ -329,12 +339,14 @@ public:
 	{
 	}
 
-public:
-
 	virtual ~Shell()
 	{
 	}
 
+
+    //Disable copying class
+    Shell(const Shell& copy) = delete;
+    Shell& operator=(const Shell&) = delete;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -382,6 +394,10 @@ public:
 	 *	Destruct this branch.
 	 */
 	~BSP_branch_t();
+
+    //Disable copying class
+    BSP_branch_t(const BSP_branch_t& copy) = delete;
+    BSP_branch_t& operator=(const BSP_branch_t&) = delete;
 
 public:
 	/**
@@ -580,6 +596,7 @@ public:
 		 *	The maximum number of nodes is computed by
 		 */
 		Parameters(size_t dim, size_t maxDepth);
+
 		/**
 		 * @brief
 		 *	Copy constructor.
@@ -587,6 +604,7 @@ public:
 		 *	the source
 		 */
 		Parameters(const Parameters& other);
+		
 		/**
 		 * @brief
 		 *	Assignment operator.
@@ -683,12 +701,17 @@ public:
 	 *	the parameters for creating the BSP tree
 	 */
 	BSP_tree_t(const Parameters& parameters);
+
 	/**
 	 * @brief
 	 *	Destruct this BSP tree.
 	 */
 	virtual ~BSP_tree_t();
 
+    //Disable copying class
+    BSP_tree_t(const BSP_tree_t& copy) = delete;
+    BSP_tree_t& operator=(const BSP_tree_t&) = delete;
+	    
 	/**
 	 * @brief
 	 *	Get the parameters of this BSP tree.

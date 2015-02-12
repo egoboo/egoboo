@@ -517,8 +517,13 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
     "FTARGETDAMAGESELF",           // == 381
     "FSETTARGETSIZE",              // == 382
     "FIFTARGETISFACINGSELF",       // == 383
-    "FDRAWBILLBOARD",              // == 384
-    "FSETTARGETTOBLAHINPASSAGE"    // == 385
+
+    // Scripted AI functions (v1.20)
+    "FDRAWBILLBOARD",                // == 384
+    "FSETTARGETTOBLAHINPASSAGE"      // == 385
+    "FIFLEVELUP",                    // == 386
+    "FGIVESKILLTOTARGET",            // == 387
+    "FSETTARGETTONEARBYMELEEWEAPON", // == 388
 };
 
 //--------------------------------------------------------------------------------------------
