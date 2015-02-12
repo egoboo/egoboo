@@ -3067,16 +3067,16 @@ prt_bundle_t * prt_bundle_t::update_animation( prt_bundle_t * pbdl_prt )
     // what do you do about an image overflow?
     if ( image_overflow )
     {
-        if ( loc_ppip->end_lastframe && loc_ppip->end_time > 0 )
-        {
-            // the animation is looped. set the value to image_overflow_amount
-            // so that we get the exact number of image updates called for
-            loc_pprt->image_off  = image_overflow_amount;
-        }
-        else
+        if ( loc_ppip->end_lastframe /*&& loc_ppip->end_time > 0*/ ) //ZF> I don't think the second statement is needed
         {
             // freeze it at the last frame
             loc_pprt->image_off = std::max( 0, ( signed )loc_pprt->image_max - 1 );
+        }
+        else
+        {
+            // the animation is looped. set the value to image_overflow_amount
+            // so that we get the exact number of image updates called for
+            loc_pprt->image_off = image_overflow_amount;
         }
     }
 
