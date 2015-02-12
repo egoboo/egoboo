@@ -252,6 +252,7 @@ struct prt_bundle_t
     static int do_contspawn(prt_bundle_t *self);
     static bool move_one_particle(prt_bundle_t *self);
 private:
+    static prt_bundle_t *updateParticleSimpleGravity(prt_bundle_t * pbdl_prt);
     static prt_bundle_t *move_one_particle_integrate_motion(prt_bundle_t *self);
     static prt_bundle_t *move_one_particle_integrate_motion_attached(prt_bundle_t *self);
     static prt_bundle_t *move_one_particle_do_z_motion(prt_bundle_t *self);
