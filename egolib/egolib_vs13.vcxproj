@@ -417,6 +417,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Ref.hpp" />
     <ClInclude Include="src\egolib\Debug.hpp" />
     <ClInclude Include="src\egolib\Float.hpp" />
     <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp" />
