@@ -632,7 +632,7 @@ void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker,
         actual_attacker = attacker->getCharacterID();
 
         //Do not alert items damaging (or healing) their holders, healing potions for example
-        if ( attacker->attachedto ==ai.index ) return;
+        if ( attacker->attachedto == ai.index ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
         if ( _gameObjects.exists( attacker->attachedto ) && !_gameObjects.get(attacker->attachedto)->isMount() )
@@ -936,8 +936,8 @@ std::string GameObject::getName(bool prefixArticle, bool prefixDefinite, bool ca
     }
     else
     {
-        if(getProfile()->getSpellEffect() >= 0) {
-            result = _profileSystem->getProfile(SPELLBOOK)->getClassName();
+        if(getProfile()->getSpellEffectType() >= 0) {
+            result = _profileSystem.getProfile(SPELLBOOK)->getClassName();
         }
         else {
             result = getProfile()->getClassName();

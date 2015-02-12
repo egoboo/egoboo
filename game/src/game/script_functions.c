@@ -5531,34 +5531,31 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     /// DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
     /// AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE.
 
-    fvec3_t   pos;
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
+    fvec3_t   pos;
     pos.x = pstate->x;
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, CLIP_TO_16BITS(pstate->turn), NULL, INVALID_CHR_REF);
-    returncode = _gameObjects.exists(ichr);
+    CHR_REF ichr = spawn_one_character(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
+    const std::shared_ptr<GameObject> &pchild = _gameObjects[ichr];
 
-    if ( !returncode )
+    if ( !pchild )
     {
         if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ppro->getClassName().c_str(), pstate->argument );
         }
+        returncode = false;
     }
     else
     {
-        GameObject * pchild = _gameObjects.get( ichr );
-
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe(pchild))
+        if (!chr_get_safe(pchild.get()))
         {
-            _gameObjects.remove( ichr );
-            ichr = INVALID_CHR_REF;
+            pchr->requestTerminate();
+            returncode = false;
         }
         else
         {
@@ -5570,6 +5567,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
             pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
             pchild->dismount_object = pself->index;
+            returncode = true;
         }
     }
 

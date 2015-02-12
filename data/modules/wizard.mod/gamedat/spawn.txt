@@ -1,17 +1,18 @@
 #dependency Wizard     0
-#dependency Protect   64
-#dependency Burning   69
-#dependency HellRover 78
-#dependency Light     47
+#dependency Portal     73
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-
 //Player with starting stuff
-PlayerAtBoss   NONE    0  11.5   17.5   1.0   N    0   0  0   0   0   T   F   G
+PlayerAtCrossbows   NONE    0  11.5   17.5   1.0   N    0   0  0   0   0   T   F   G
 PlayerAtPlatforms        NONE    0  55.0   23.5   0.0   N    0   0  0   0   0   T   F   G
-Player:         NONE    0  30.5   57.5   0.0   N    0   0  0   0   0   T   F   G
+Player         NONE    0  30.5   57.5   0.0   N    0   0  0   0   0   T   F   G
+Player:         NONE    0  31.5   30.5   0.0   N    0   0  0   0   0   T   F   G
   Missile:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   QStaff:    NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+  dragonblud:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  redstone:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  greenleaf:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 Table:   NONE    36  10.5   32.0   0.0   E    0   0  0   0   0   F   F   N
 Table:   NONE    36  10.5   30.6   0.0   E    0   0  0   0   0   F   F   N
@@ -28,7 +29,9 @@ Pillar:   NONE    43  33.5   43.5   0.0   N    0   0  0   0   0   F   F   N
 Pillar:   NONE    43  33.5   47.5   0.0   N    0   0  0   0   0   F   F   N
 Pillar:   NONE    43  28.5   47.5   0.0   N    0   0  0   0   0   F   F   N
 Pillar:   NONE    43  28.5   43.5   0.0   N    0   0  0   0   0   F   F   N
-summoningbook:   NONE    46  30.9   28.5   0.0   N    0   0  0   0   0   F   F   N
+Ritual:   NONE    46  30.9   28.5   0.0   N    0   0  0   0   0   F   F   N
+
+CarpetMimic:   NONE    -1  41.0   56.5   0.0   N    0   0  0   0   0   F   F   E
 
 //The death mephit
 mephit:   NONE    61  8.5   29.5   1.0   N    9   3  0   0   0   F   F   E
@@ -100,7 +103,6 @@ mephit:   NONE    61  31.5   43.5   1.0   N    4   1  0   0   0   F   F   E
   mephitwing:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 Chair:   NONE    66  52.8   40.3   0.0   E    0   0  0   0   0   F   F   N
 Stool:   NONE    39  48.5   43.5   0.0   N    0   0  0   0   0   F   F   N
-Burning:   NONE    69  53.0   38.0   0.0   N    0   0  0   0   0   F   F   N
 
 //Treasure chest in alchemy room
 Chest: NONE    59  52.5   43.5   1.0   N    0   0  0   1   0   F   F   N
@@ -142,41 +144,29 @@ platform:   NONE    40  55.0   28.5   0.0   N    0   0  0   0   0   F   F   N
 Chest: NONE    59  55.0   30.0   1.0   N    7   0  0   1   0   F   F   N
   redstone:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-Pillar:   NONE    43  15.5   14.5   1.0   N    0   0  0   0   0   F   F   N
-Pillar:   NONE    43  15.5   19.5   1.0   N    0   0  0   0   0   F   F   N
-Pillar:   NONE    43  10.5   14.5   1.0   N    0   0  0   0   0   F   F   N
-Pillar:   NONE    43  10.5   19.5   1.0   N    0   0  0   0   0   F   F   N
-Pillar:   NONE    43  20.5   14.5   1.0   N    0   0  0   0   0   F   F   N
-Pillar:   NONE    43  20.5   19.5   1.0   N    0   0  0   0   0   F   F   N
-brazier:   NONE    37  21.5   19.5   0.0   N    0   0  0   0   0   F   F   N
-brazier:   NONE    37  14.5   19.5   0.0   N    0   0  0   0   0   F   F   N
-brazier:   NONE    37  14.5   14.5   0.0   N    0   0  0   0   0   F   F   N
-brazier:   NONE    37  9.5   15.5   0.0   N    0   0  0   0   0   F   F   N
-brazier:   NONE    37  9.5   18.5   0.0   N    0   0  0   0   0   F   F   N
-brazier:   NONE    37  52.5   29.5   0.0   N    0   0  0   0   0   F   F   N
-brazier:   NONE    37  21.5   14.5   0.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    54  56.0   5.0   1.0   N    0   0  0   0   0   F   F   N
 KeyA:   NONE    71  7.8   32.0   4.0   E    0   0  0   0   0   F   F   N
 trigdoor:   NONE    72  19.0   25.0   1.0   S    0   1  1   0   0   F   F   N
 trigdoor:   NONE    72  15.0   39.0   1.0   E    0   0  0   1   0   F   F   N
 Stool:   NONE    39  57.5   9.5   0.0   N    0   0  0   0   0   F   F   N
-ghoul:   NONE    75  13.5   19.5   1.0   N    0   0  0   0   0   F   F   E
-ghoul:   NONE    75  13.5   15.5   1.0   N    0   0  0   0   0   F   F   E
-ghoul:   NONE    75  11.5   19.5   1.0   N    0   0  0   0   0   F   F   E
-ghoul:   NONE    75  11.5   15.5   1.0   N    0   0  0   0   0   F   F   E
+
+//Crossbow room
+AnimatedXBow:   NONE    -1  15.5   14.5   1.0   N    0   0  0   0   0   F   F   E
+AnimatedXBow:   NONE    -1  10.5   19.5   1.0   N    0   0  0   0   0   F   F   E
+AnimatedXBow:   NONE    -1  20.5   19.5   1.0   N    0   0  0   0   0   F   F   E
+brazier:   NONE    37  14.5   19.5   0.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    37  14.5   14.5   0.0   N    0   0  0   0   0   F   F   N
+
+//Bonus Loot!
+Chest:   NONE    45  10.5   17.0   1.0   E    17   0  0   0   0   F   F   N
+  mushroom:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  WPotion:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  WPotion:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Mallet:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  IPotion:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Module Tool
 ModuleTool:   NONE    100  30.5   57.5   3.0   N    0   0  0   0   0   T   F   N
-
-//Lich boss with stash
-lich:   Asmodeus    73  11.5   17.5   1.0   N    19   0  0   38297   6   F   F   E
-  SordWall:   NONE    74  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  magicmissle:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  mushroom:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  Identify:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-
-Throne:   NONE    45  9.5   17.0   1.0   E    0   0  0   0   0   F   F   N
-
 
 //All cobolds with their stash
 cobol:   NONE    76  10.5   48.5   1.0   N    1   2  0   100   0   F   F   E

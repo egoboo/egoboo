@@ -38,6 +38,8 @@ IfBumped
           tmpargument = 20
           tmpdistance = EXPSECRET
           GiveExperienceToTarget
+          tmpargument = 2
+          PlaySound
     tmpargument = 1
     IfContentIs
       IfTimeOut
@@ -52,6 +54,8 @@ IfBumped
           tmpargument = 20
           tmpdistance = EXPSECRET
           GiveExperienceToTarget
+          tmpargument = 2
+          PlaySound
     tmpargument = 2
     IfContentIs
       IfTimeOut
@@ -66,7 +70,11 @@ IfBumped
           tmpargument = 20
           tmpdistance = EXPSECRET
           GiveExperienceToTarget
-    tmpargument = 3       // Finish the summoning!
+          tmpargument = 2
+          PlaySound
+
+    // Finish the summoning!
+    tmpargument = 3       
     IfContentIs
       IfTimeOut            // Disable text looping
         tmpargument = 8
@@ -76,16 +84,17 @@ IfBumped
         SetState
         tmpargument = 100
         SetTime
-        tmpargument = 78           // Slot number 78
-        tmpx = selfx               // X position of the new character
-        tmpy = selfy + 240               // Y position of the new character
-        tmpdistance = selfz + 15  // Altitude of the new character
-        tmpturn = targetturnto         // facing of the new character
-        SpawnExactCharacterXYZ      // Summon the HELL ROVER!! mohaha
+
+        tmpargument = 73            // Slot number 78
+        tmpx = 31 * 128             // X position of the new character
+        tmpy = 30 * 128             // Y position of the new character
+        tmpdistance = 0             // Altitude of the new character
+        tmpturn = 0                 // facing of the new character
+        SpawnExactCharacterXYZ      // Summon the exit portal
 
         tmpargument = 0       // part0.txt
-        tmpx = selfx            // x
-        tmpy = selfy            // y
+        tmpx = 31 * 128            // x
+        tmpy = 30 * 128            // y
         tmpdistance = selfz     // z
         tmpturn = rand & 1000   // These are all spell effects
         SpawnExactParticle      // creating lighting bolts
@@ -103,9 +112,13 @@ IfBumped
         PlaySound
 
         // Award some experience
-        tmpargument = 50
+        tmpargument = 150
         tmpdistance = EXPQUEST
         GiveExperienceToTarget
+
+        //Play victory tune
+        tmpargument = 14
+        PlayMusic
 
 // PlayerBumpsBookStand
 IfBumped
@@ -115,8 +128,6 @@ IfBumped
       tmpargument = 3
       IfStateIs         // PAGE 4 + 5
         tmpargument = 3
-        SendMessageNear
-        tmpargument = 4
         SendMessageNear
         SetState
         tmpargument = 100

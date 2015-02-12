@@ -8,18 +8,18 @@ Minimum number of players ( 1 to 4 )		: 1
 Maximum number of players ( 1 to 4 )		: 1
 Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
 NOT USED				: FALSE
-Level rating ( *, **, ***, ****, or ***** )     		: *****
+Level rating ( *, **, ***, ****, or ***** )     		: ****
 
 
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )
-:Find_all_the_nessecary
-:hidden_reagents_to_summon
-:a_Hellrover_to_kill_your
-:evil_lich_master!
-:_
-:_
-:_
-:_
+:As_King_Bishop_is_captured
+:in_front_of_your_eyes_by_the
+:fiendish_Dracolich,_the_Dracolich
+:utters_a_spell_and_you_are
+:teleported_to_some_kind_of_arcane
+:prison._Find_a_way_to_exit_this
+:strange_place_so_that_you_can_begin
+:your_quest_to_save_King_Bishop!
 
 
 // Module expansion IDSZs ( with a colon in front )
