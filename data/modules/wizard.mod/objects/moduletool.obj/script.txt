@@ -12,8 +12,12 @@ tmpdistance = 0
 PlayMusic
 
 //------------------------------------------------------------------------------------
-// Drop spellbook on top of bookshelf
-DropItems
+tmpargument = 0
+tmpx = 30 * 128 + 64
+tmpy = 57 * 128 + 64
+tmpdistance = 0
+tmpturn = 0
+SpawnExactParticle
 
 //------------------------------------------------------------------------------------
 // Do last
