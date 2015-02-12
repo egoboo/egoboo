@@ -52,9 +52,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-struct s_grab_data;
-
 struct s_chr_anim_data;
 typedef struct s_chr_anim_data chr_anim_data_t;
 
@@ -1844,11 +1841,11 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         maxGrabDistance += pchr_a->bump.size / 4.0f;
 
         // is it too far away to grab?
-        if (grabData.horizontalDistance > maxGrabDistance && grabData.horizontalDistance > pchr_a->bump.size)
+        if (grabData.horizontalDistance > maxGrabDistance + pchr_a->bump.size / 4.0f && grabData.horizontalDistance > pchr_a->bump.size)
         {
             canGrab = false;
         }
-        if( (grabData.verticalDistance - pchr_a->bump.height / 2.0f) > maxGrabDistance)
+        else if (grabData.verticalDistance >  pchr_a->bump.height / 2.0f)
         {
             canGrab = false;
         }
