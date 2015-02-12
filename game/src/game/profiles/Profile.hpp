@@ -238,6 +238,14 @@ public:
     uint16_t getSkinOverride() const;
 
     /**
+    * @brief
+    *   Get a random ID for a valid skin for this ObjectProfile
+    * @return
+    *   A random Skin number for this Profile (always returns 0 if it has no valid skins)
+    **/
+    size_t getRandomSkinID() const;
+
+    /**
     * @brief get the class name of this object profile (e.g Sword, Healer or Lumpkin)
     **/
     inline const std::string& getClassName() const {return _className;}

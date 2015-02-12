@@ -2473,28 +2473,28 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     // convert the spell effect to a spellbook
     old_profile = pchr->profile_ref;
-    change_character( pself->index, ( PRO_REF )SPELLBOOK, iskin, ENC_LEAVE_NONE );
+    change_character( pself->index, (PRO_REF)SPELLBOOK, iskin, ENC_LEAVE_NONE );
 
     // Reset the spellbook state so it doesn't burn up
-    chr_set_ai_state( pchr, 0 );
+    chr_set_ai_state(pchr, 0);
     pself->content = REF_TO_INT( old_profile );
 
     // set the spellbook animations
-    pmad = chr_get_pmad( pself->index );
+    pmad = chr_get_pmad(pself->index);
 
     if ( NULL != pmad )
     {
         // Do dropped animation
-        int tmp_action = mad_get_action_ref( pchr->inst.imad, ACTION_JB );
+        int tmp_action = mad_get_action_ref(pchr->inst.imad, ACTION_JB);
 
-        if ( rv_success == chr_start_anim( pchr, tmp_action, false, true ) )
+        if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
         {
             returncode = true;
         }
     }
 
     // have to do this every time pself->state is modified
-    chr_update_hide( pchr );
+    chr_update_hide(pchr);
 
     SCRIPT_FUNCTION_END();
 }

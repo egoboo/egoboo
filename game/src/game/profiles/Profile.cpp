@@ -440,7 +440,7 @@ uint16_t ObjectProfile::getSkinOverride() const
     {
         if ( _spellEffectType >= MAX_SKIN )
         {
-            retval = Random::next(MAX_SKIN);
+            retval = getRandomSkinID();
         }
         else
         {
@@ -451,7 +451,7 @@ uint16_t ObjectProfile::getSkinOverride() const
     {
         if ( _skinOverride >= MAX_SKIN )
         {
-            retval = Random::next(MAX_SKIN);
+            retval = getRandomSkinID();
         }
         else
         {
@@ -1434,4 +1434,15 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Gam
     template_close_vfs( fileTemp );
 
     return true;
+}
+
+size_t ObjectProfile::getRandomSkinID() const
+{
+    if(_skinInfo.empty()) {
+        return 0;
+    }
+
+    auto element = _skinInfo.begin();
+    std::advance(element, Random::next(_skinInfo.size()));
+    return element->first;
 }

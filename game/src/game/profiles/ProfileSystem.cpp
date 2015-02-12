@@ -281,10 +281,7 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     //    then the icons are also loaded into the global book icon array
     if ( SPELLBOOK == iobj )
     {
-        for(const auto &element : profile->getAllIcons())
-        {
-            _bookIcons.push_back(element.second);
-        }
+        _bookIcons = profile->getAllIcons();
     }
 
     return iobj;
@@ -292,8 +289,13 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
 
 TX_REF ProfileSystem::getSpellBookIcon(size_t index) const
 {
-    if(_bookIcons.empty()) return INVALID_TX_REF;
-    return _bookIcons[index % _bookIcons.size()];
+    const auto& result = _bookIcons.find(index);
+
+    if(result == _bookIcons.end()) {
+        return INVALID_TX_REF;
+    }
+
+    return result->second;
 }
 
 void ProfileSystem::loadModuleProfiles()
