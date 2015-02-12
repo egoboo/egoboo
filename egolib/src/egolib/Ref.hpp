@@ -97,7 +97,7 @@ public:
 	
     operator unsigned int() const
     {
-        if (_ref > std::numeric_limit<unsigned int>::max())
+        if (_ref > std::numeric_limits<unsigned int>::max())
         {
             throw std::bad_cast();
         }
@@ -105,7 +105,7 @@ public:
 
     operator int() const
     {
-        if (_ref > std::numeric_limit<int>::max())
+        if (_ref > std::numeric_limits<int>::max())
         {
             throw std::bad_cast();
         }
