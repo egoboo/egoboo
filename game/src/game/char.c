@@ -1826,28 +1826,41 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
         // visibility affects the max grab distance.
         // if it is not visible then we have to be touching it.
-        float maxGrabDistance = MAX_DIST_GRAB;
+        float maxHorizontalGrabDistance = MAX_DIST_GRAB;
         if ( grabData.too_dark || grabData.too_invis )
         {
-            maxGrabDistance *= 0.5f;
+            maxHorizontalGrabDistance *= 0.5f;
         }
 
         //Halve grab distance for objects behind us
         if(!grabData.isFacingObject) {
-            maxGrabDistance *= 0.5f;
+            maxHorizontalGrabDistance *= 0.5f;
         }
 
         //Bigger characters have bigger grab size
-        maxGrabDistance += pchr_a->bump.size / 4.0f;
+        maxHorizontalGrabDistance += pchr_a->bump.size / 4.0f;
 
         // is it too far away to grab?
-        if (grabData.horizontalDistance > maxGrabDistance + pchr_a->bump.size / 4.0f && grabData.horizontalDistance > pchr_a->bump.size)
+        if (grabData.horizontalDistance > maxHorizontalGrabDistance + pchr_a->bump.size / 4.0f && grabData.horizontalDistance > pchr_a->bump.size)
         {
             canGrab = false;
         }
-        else if (grabData.verticalDistance >  pchr_a->bump.height / 2.0f)
+
+        //Check vertical distance as well
+        else
         {
-            canGrab = false;
+            float maxVerticalGrabDistance = pchr_a->bump.height / 2.0f;
+
+            if(grab_people)
+            {
+                //This allows very flat creatures like the Carpet Mimics grab people
+                maxVerticalGrabDistance = std::max(maxVerticalGrabDistance, MAX_DIST_GRAB);
+            }
+
+            if (grabData.verticalDistance > maxVerticalGrabDistance)
+            {
+                canGrab = false;
+            }
         }
 
         // count the number of objects that are within the max range
