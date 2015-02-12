@@ -71,18 +71,17 @@
 // external variables
 //--------------------------------------------------------------------------------------------
 
-struct ParticleManager : public _LockableList < prt_t, PRT_REF, MAX_PRT >
+struct ParticleManager : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF, MAX_PRT >
 {
     ParticleManager() :
         _LockableList(),
-        maxparticles(512),
-        maxparticles_dirty(true)
+        _displayLimit(512)
     {
     }
-    static void ctor();
-    static void dtor();
-    static void reinit();
-    static void update_used();
+    void ctor();
+    void dtor();
+    void update_used();
+    bool isValidRef(const PRT_REF ref) const override;
     /**
      * @brief
      *	Run all deferred updates if the particle list is not locked.
@@ -98,7 +97,7 @@ struct ParticleManager : public _LockableList < prt_t, PRT_REF, MAX_PRT >
      */
     PRT_REF allocate(const bool force);
 
-    static void reset_all();
+    void reset_all();
 
 public:
     /// Enqeue particle to activation list.
@@ -109,29 +108,48 @@ public:
     /// Put this particle into the termination list so that it can be terminated right after the particle loop is completed.
     bool add_termination(const PRT_REF iprt);
 
+    bool push_used(const PRT_REF);
+    bool free_one(const PRT_REF iprt);
+    bool request_terminate(const PRT_REF iprt);
+    bool push_free(const PRT_REF);
+    void deinit() override;
+    void prune_used_list();
+    void prune_free_list();
 
-    size_t maxparticles;
-    bool maxparticles_dirty;
+protected:
+    /**
+     * @brief
+     *  An display limit smaller than @a MAX_PRT is an upper-bound for the number of particles rendered.
+     */
+    size_t _displayLimit;
+public:
+    /**
+     * @brief
+     *  Get the display limit for particles.
+     * @return
+     *  the display limit for particles
+     */
+    size_t getDisplayLimit() const
+    {
+        return _displayLimit;
+    }
+    /**
+     * @brief
+     *  Set the display limit for particles.
+     * @param displayLimit
+     *  the display limit for particles
+     */
+    void setDisplayLimit(size_t displayLimit)
+    {
+        displayLimit = Math::constrain<uint16_t>(displayLimit, 256, MAX_PRT);
+        if (_displayLimit != displayLimit)
+        {
+            _displayLimit = displayLimit;
+        }
+    }
 };
 
-
-
 extern ParticleManager PrtList;
-
-
-
-//--------------------------------------------------------------------------------------------
-// Function prototypes
-//--------------------------------------------------------------------------------------------
-
-
-bool PrtList_push_used(const PRT_REF);
-bool PrtList_free_one(const PRT_REF iprt);
-void PrtList_free_all();
-int PrtList_count_free();
-bool PrtList_request_terminate(const PRT_REF iprt);
-
-
 
 //--------------------------------------------------------------------------------------------
 // testing functions
@@ -143,8 +161,6 @@ bool ALLOCATED_PRT(const PRT_REF IPRT);
 bool ACTIVE_PRT(const PRT_REF IPRT);
 bool WAITING_PRT(const PRT_REF IPRT);
 bool TERMINATED_PRT(const PRT_REF IPRT);
-
-size_t GET_INDEX_PPRT(const prt_t *PPRT);
 PRT_REF GET_REF_PPRT(const prt_t *PPRT);
 bool DEFINED_PPRT(const prt_t *PPRT);
 bool VALID_PRT_PTR(const prt_t *PPRT);
@@ -152,12 +168,9 @@ bool ALLOCATED_PPRT(const prt_t *PPRT);
 bool ACTIVE_PPRT(const prt_t *PPRT);
 bool WAITING_PPRT(const prt_t *PPRT);
 bool TERMINATED_PPRT(const prt_t *PPRT);
-
 bool INGAME_PRT_BASE(const PRT_REF IPRT);
 bool INGAME_PPRT_BASE(const prt_t *PPRT);
-
 bool INGAME_PRT(const PRT_REF IPRT);
 bool INGAME_PPRT(const prt_t *PPRT);
-
 bool DISPLAY_PRT(const PRT_REF IPRT);
 bool DISPLAY_PPRT(const prt_t *PPRT);

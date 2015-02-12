@@ -866,7 +866,7 @@ void reset_character_accel( const CHR_REF character )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
         enc_remove_add( ienc_now, ADDACCEL );
 
@@ -892,7 +892,7 @@ void reset_character_accel( const CHR_REF character )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
         enc_apply_add( ienc_now, ADDACCEL, enc_get_ieve( ienc_now ) );
 
@@ -1027,7 +1027,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
         ienc_count = 0;
         while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
-            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
             enc_remove_set( ienc_now, SETALPHABLEND );
             enc_remove_set( ienc_now, SETLIGHTBLEND );
@@ -1049,7 +1049,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
         while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
-            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
             if ( _profileSystem.isValidProfileID( ipro ) )
             {
@@ -1117,7 +1117,7 @@ void reset_character_alpha( const CHR_REF character )
         ienc_count = 0;
         while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
-            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
             enc_remove_set( ienc_now, SETALPHABLEND );
             enc_remove_set( ienc_now, SETLIGHTBLEND );
@@ -1139,7 +1139,7 @@ void reset_character_alpha( const CHR_REF character )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
 
-            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
             if ( _profileSystem.isValidProfileID( ipro ) )
             {
@@ -2739,7 +2739,7 @@ void cleanup_one_character( GameObject * pchr )
         ienc_count = 0;
         while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
-            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
             peve = enc_get_peve( ienc_now );
             if ( NULL != peve && !peve->stayiftargetdead )
@@ -3370,7 +3370,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
         enc_remove_set( ienc_now, SETSLASHMODIFIER );
         enc_remove_set( ienc_now, SETCRUSHMODIFIER );
@@ -3416,7 +3416,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     {
         PRO_REF ipro = enc_get_ipro( ienc_now );
 
-        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
         if ( _profileSystem.isValidProfileID( ipro ) )
         {
@@ -3616,11 +3616,11 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
             ENC_REF ienc_now, ienc_nxt;
             size_t  ienc_count;
 
-            ienc_now = EncList.lst[pchr->firstenchant].nextenchant_ref;
+            ienc_now = EncList.get_ptr(pchr->firstenchant)->nextenchant_ref;
             ienc_count = 0;
             while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
-                ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+                ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
                 remove_enchant( ienc_now, NULL );
 
@@ -4091,14 +4091,14 @@ bool update_chr_darkvision( const CHR_REF character )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
         peve = enc_get_peve( ienc_now );
 
         //Is it true poison?
         if ( NULL != peve && MAKE_IDSZ( 'H', 'E', 'A', 'L' ) == peve->removedbyidsz )
         {
-            life_regen += EncList.lst[ienc_now].target_life;
-            if ( EncList.lst[ienc_now].owner_ref == pchr->ai.index ) life_regen += EncList.lst[ienc_now].owner_life;
+            life_regen += EncList.get_ptr(ienc_now)->target_life;
+            if ( EncList.get_ptr(ienc_now)->owner_ref == pchr->ai.index ) life_regen += EncList.get_ptr(ienc_now)->owner_life;
         }
 
         ienc_now = ienc_nxt;

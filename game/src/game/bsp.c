@@ -182,7 +182,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	{
 		// some kind of error. re-initialize the data.
 		pleaf->data = loc_pprt;
-		pleaf->index = GET_INDEX_PPRT(loc_pprt);
+		pleaf->index = GET_REF_PPRT(loc_pprt);
 		pleaf->data_type = BSP_LEAF_PRT;
 	};
 
@@ -226,9 +226,9 @@ bool prt_BSP_removeAllLeaves()
 	prt_BSP_root->count = 0;
 
 	// Unlink all used particle nodes.
-	for (PRT_REF iprt = 0; iprt < PrtList.maxparticles; iprt++)
+	for (PRT_REF ref = 0; ref < PrtList.getCount(); ref++)
 	{
-		BSP_leaf_t::remove_link(POBJ_GET_PLEAF(PrtList.lst + iprt));
+		BSP_leaf_t::remove_link(POBJ_GET_PLEAF(PrtList.get_ptr(ref)));
 	}
 
 	return true;

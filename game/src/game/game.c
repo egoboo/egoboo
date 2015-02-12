@@ -573,8 +573,8 @@ void activate_alliance_file_vfs()
 //--------------------------------------------------------------------------------------------
 void update_used_lists()
 {
-    ParticleManager::update_used();
-    EncList_update_used();
+    PrtList.update_used();
+    EncList.update_used();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1916,7 +1916,7 @@ void do_weather_spawn_particles()
 
                         if ( destroy_particle )
                         {
-                            PrtList_free_one( particle );
+                            PrtList.free_one( particle );
                         }
                     }
                 }
@@ -3154,7 +3154,7 @@ void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
     _audioSystem.loadGlobalSounds();
-    ParticleManager::reset_all();
+    PrtList.reset_all();
 
     if ( NULL == read_wawalite_vfs() )
     {
@@ -3645,17 +3645,17 @@ void free_all_objects()
     /// @author BB
     /// @details free every instance of the three object types used in the game.
 
-    PrtList_free_all();
-    EncList_free_all();
+    PrtList.free_all();
+    EncList.free_all();
     free_all_chraracters();
 }
 
 //--------------------------------------------------------------------------------------------
 void reset_all_object_lists()
 {
-    ParticleManager::reinit();
+    PrtList.reinit();
     _gameObjects.clear();
-    EncList_reinit();
+    EncList.reinit();
 }
 
 //--------------------------------------------------------------------------------------------

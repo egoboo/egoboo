@@ -713,7 +713,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 
     if ( !DISPLAY_PPRT( pprt ) )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PPRT( pprt ), "invalid particle" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_REF_PPRT( pprt ), "invalid particle" );
         return gfx_error;
     }
 

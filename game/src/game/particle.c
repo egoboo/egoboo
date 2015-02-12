@@ -129,7 +129,7 @@ prt_t * prt_t::ctor( prt_t * pprt )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // initialize the bsp node for this particle
-    POBJ_GET_PLEAF(pprt)->ctor(pprt, BSP_LEAF_PRT, GET_INDEX_PPRT(pprt));
+    POBJ_GET_PLEAF(pprt)->ctor(pprt, BSP_LEAF_PRT, GET_REF_PPRT(pprt));
 
     // initialize the physics
     phys_data_ctor( &( pprt->phys ) );
@@ -187,7 +187,7 @@ PRT_REF end_one_particle_now( const PRT_REF particle )
     if (!ALLOCATED_PRT(particle)) return INVALID_PRT_REF;
 
     retval = particle;
-    if (PrtList_request_terminate(particle))
+    if (PrtList.request_terminate(particle))
     {
         retval = INVALID_PRT_REF;
     }
@@ -257,7 +257,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     if ( NULL == pprt ) return NULL;
     pdata = &( pprt->spawn_data );
-    iprt  = GET_INDEX_PPRT( pprt );
+    iprt  = GET_REF_PPRT( pprt );
 
     // Convert from local pdata->ipip to global pdata->ipip
     if ( !LOADED_PIP( pdata->ipip ) )
@@ -294,7 +294,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->team        = pdata->team;
     pprt->owner_ref   = loc_chr_origin;
     pprt->parent_ref  = pdata->prt_origin;
-    pprt->parent_guid = ALLOCATED_PRT( pdata->prt_origin ) ? PrtList.lst[pdata->prt_origin].obj_base.guid : (( Uint32 )( ~0 ) );
+    pprt->parent_guid = ALLOCATED_PRT( pdata->prt_origin ) ? PrtList.get_ptr(pdata->prt_origin)->obj_base.guid : (( Uint32 )( ~0 ) );
     pprt->damagetype  = ppip->damagetype;
     pprt->lifedrain   = ppip->lifedrain;
     pprt->manadrain   = ppip->manadrain;
@@ -726,7 +726,7 @@ prt_t * prt_config_activate( prt_t * pprt, int max_iterations )
     EGOBOO_ASSERT( base_ptr->state == Ego::Entity::State::Active );
     if ( base_ptr->state == Ego::Entity::State::Active )
     {
-        PrtList_push_used( GET_INDEX_PPRT( pprt ) );
+        PrtList.push_used( GET_REF_PPRT( pprt ) );
     }
 
     return pprt;
@@ -858,7 +858,7 @@ prt_t * prt_run_config( prt_t * pprt )
     }
     else if ( Ego::Entity::State::Active == base_ptr->state )
     {
-        base_ptr->update_guid = PrtList.update_guid;
+        base_ptr->update_guid = PrtList.getUpdateGUID();
     }
 
     return pprt;
@@ -898,7 +898,7 @@ prt_t * prt_config_init( prt_t * pprt )
     }
     else
     {
-        PrtList.add_activation(GET_INDEX_PPRT(pprt));
+        PrtList.add_activation(GET_REF_PPRT(pprt));
     }
 
     base_ptr->state = Ego::Entity::State::Active;
@@ -1261,14 +1261,14 @@ void update_all_particles()
     ///               PRT_BEGIN_LOOP_* macro.
     ///               Converted all the update functions to the prt_run_config() paradigm.
 
-    // activate any particles might have been generated last update in an in-active state
-    for (PRT_REF iprt = 0; iprt < PrtList.maxparticles; iprt++ )
+    // Activate any particles might have been generated last update in an in-active state
+    for (PRT_REF ref = 0; ref < PrtList.getCount(); ++ref)
     {
-        if ( !ALLOCATED_PRT( iprt ) ) continue;
+        if (!ALLOCATED_PRT(ref)) continue;
 
         prt_bundle_t prt_bdl;
-        prt_bundle_t::set( &prt_bdl, PrtList.get_ptr( iprt ) );
-        prt_bundle_t::update( &prt_bdl );
+        prt_bundle_t::set(&prt_bdl, PrtList.get_ptr(ref));
+        prt_bundle_t::update(&prt_bdl);
     }
 }
 
@@ -2256,7 +2256,7 @@ void particle_system_begin()
     /// @details This function sets up particle data
 
     // Reset the allocation table
-    ParticleManager::ctor();
+    PrtList.ctor();
     PipStack_init_all();
 }
 
@@ -2264,7 +2264,7 @@ void particle_system_begin()
 void particle_system_end()
 {
     PipStack_release_all();
-    ParticleManager::dtor();
+    PrtList.dtor();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2431,7 +2431,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                     if ( DEFINED_PRT( bs_part ) )
                     {
                         vertex_occupied[bestvertex] = bs_part;
-                        PrtList.lst[bs_part].is_bumpspawn = true;
+                        PrtList.get_ptr(bs_part)->is_bumpspawn = true;
                         bs_count++;
                     }
                 }
@@ -2472,7 +2472,7 @@ bool prt_is_over_water( const PRT_REF iprt )
 
     if ( !ALLOCATED_PRT( iprt ) ) return false;
 
-    fan = ego_mesh_get_grid( PMesh, PrtList.lst[iprt].pos.x, PrtList.lst[iprt].pos.y );
+    fan = ego_mesh_get_grid( PMesh, PrtList.get_ptr(iprt)->pos.x, PrtList.get_ptr(iprt)->pos.y );
     if ( ego_mesh_grid_is_valid( PMesh, fan ) )
     {
         if ( 0 != ego_mesh_test_fx( PMesh, fan, MAPFX_WATER ) )  return true;
@@ -2697,7 +2697,7 @@ void cleanup_all_particles()
 
     // do end-of-life care for particles. Must iterate over all particles since the
     // number of particles could change inside this list
-    for ( iprt = 0; iprt < PrtList.maxparticles; iprt++ )
+    for ( iprt = 0; iprt < PrtList.getCount(); iprt++ )
     {
         prt_t *pprt;
         Ego::Entity *base_ptr;
@@ -2711,7 +2711,7 @@ void cleanup_all_particles()
         {
             // now that the object is in the "killed" state,
             // actually put it back into the free store
-            PrtList_free_one( GET_REF_PPRT( pprt ) );
+            PrtList.free_one( GET_REF_PPRT( pprt ) );
         }
         else if ( STATE_WAITING_PBASE( base_ptr ) )
         {
@@ -2727,7 +2727,7 @@ void bump_all_particles_update_counters()
 {
     PRT_REF cnt;
 
-    for ( cnt = 0; cnt < PrtList.maxparticles; cnt++ )
+    for ( cnt = 0; cnt < PrtList.getCount(); cnt++ )
     {
         Ego::Entity *base_ptr;
 
@@ -3547,7 +3547,7 @@ CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
     prt_t * pprt;
 
     // be careful because this can be recursive
-    if ( depth > ( int )PrtList.maxparticles - ( int )PrtList.freeCount ) return INVALID_CHR_REF;
+    if ( depth > ( int )PrtList.getCount() - ( int )PrtList.getFreeCount() ) return INVALID_CHR_REF;
 
     if ( !DEFINED_PRT( iprt ) ) return INVALID_CHR_REF;
     pprt = PrtList.get_ptr( iprt );
@@ -3574,7 +3574,7 @@ CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
             // not the parent. Depending on how scrambled the list gets, there could actually
             // be looping structures. I have actually seen this, so don't laugh :)
 
-            if ( PrtList.lst[pprt->parent_ref].obj_base.guid == pprt->parent_guid )
+            if ( PrtList.get_ptr(pprt->parent_ref)->obj_base.guid == pprt->parent_guid )
             {
                 if ( iprt != pprt->parent_ref )
                 {

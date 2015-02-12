@@ -64,7 +64,7 @@ static bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent );
 //--------------------------------------------------------------------------------------------
 void enchant_system_begin()
 {
-    EnchantManager::ctor();
+    EncList.ctor();
     EveStack_init_all();
 }
 
@@ -72,7 +72,7 @@ void enchant_system_begin()
 void enchant_system_end()
 {
     EveStack_release_all();
-    EnchantManager::dtor();
+    EncList.dtor();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_last = ienc_now;
-                ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
+                ienc_nxt  = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
                 if ( ienc_now == ienc ) break;
 
@@ -192,7 +192,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             // Relink the last enchantment
             if ( ienc_now == ienc )
             {
-                enc_parent = &( EncList.lst[ienc_last].nextenchant_ref );
+                enc_parent = &( EncList.get_ptr(ienc_last)->nextenchant_ref );
             }
         }
     }
@@ -200,7 +200,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // unlink the enchant from the parent reference
     if ( NULL != enc_parent )
     {
-        *enc_parent = EncList.lst[ienc].nextenchant_ref;
+        *enc_parent = EncList.get_ptr(ienc)->nextenchant_ref;
     }
 
     return NULL != enc_parent;
@@ -233,7 +233,7 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt  = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
         peve = enc_get_peve( ienc_now );
         if ( NULL != peve && ( IDSZ_NONE == remove_idsz || remove_idsz == peve->removedbyidsz ) )
@@ -386,7 +386,7 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
         }
     }
 
-    EncList_free_one( ienc );
+    EncList.free_one( ienc );
 
     /// @note all of the values in the penc are now invalid. we have to use previously evaluated
     /// values of target_ref and penc to kill the target (if necessary)
@@ -423,7 +423,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
 
     if ( !INGAME_ENC( ienc ) ) return INVALID_ENC_REF;
 
-    character = EncList.lst[ienc].target_ref;
+    character = EncList.get_ptr(ienc)->target_ref;
     if ( !_gameObjects.exists( character ) ) return INVALID_ENC_REF;
     pchr = _gameObjects.get( character );
 
@@ -435,9 +435,9 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
-        if ( INGAME_ENC( ienc_now ) && EncList.lst[ienc_now].setyesno[value_idx] )
+        if ( INGAME_ENC( ienc_now ) && EncList.get_ptr(ienc_now)->setyesno[value_idx] )
         {
             break;
         }
@@ -865,7 +865,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     int add_type, set_type;
 
     if ( NULL == penc ) return NULL;
-    ienc  = GET_INDEX_PENC( penc );
+    ienc  = GET_REF_PENC( penc );
 
     // get the profile data
     pdata = &( penc->spawn_data );
@@ -1054,7 +1054,7 @@ enc_t * enc_config_do_active( enc_t * penc )
     {
         if ( 0 == penc->lifetime )
         {
-            EncList_request_terminate( ienc );
+            EncList.request_terminate( ienc );
         }
         else
         {
@@ -1091,14 +1091,14 @@ enc_t * enc_config_do_active( enc_t * penc )
                     bool mana_paid = cost_mana( owner, -penc->owner_mana, target );
                     if ( EveStack.lst[eve].endifcantpay && !mana_paid )
                     {
-                        EncList_request_terminate( ienc );
+                        EncList.request_terminate( ienc );
                     }
                 }
 
             }
             else if ( !EveStack.lst[eve].stayifnoowner )
             {
-                EncList_request_terminate( ienc );
+                EncList.request_terminate( ienc );
             }
 
             // the enchant could have been inactivated by the stuff above
@@ -1128,14 +1128,14 @@ enc_t * enc_config_do_active( enc_t * penc )
                         bool mana_paid = cost_mana( target, -penc->target_mana, owner );
                         if ( EveStack.lst[eve].endifcantpay && !mana_paid )
                         {
-                            EncList_request_terminate( ienc );
+                            EncList.request_terminate( ienc );
                         }
                     }
 
                 }
                 else if ( !EveStack.lst[eve].stayiftargetdead )
                 {
-                    EncList_request_terminate( ienc );
+                    EncList.request_terminate( ienc );
                 }
             }
         }
@@ -1223,7 +1223,7 @@ enc_t * enc_config_activate( enc_t * penc, int max_iterations )
     EGOBOO_ASSERT( pbase->state == Ego::Entity::State::Active );
     if ( pbase->state == Ego::Entity::State::Active )
     {
-        EncList_push_used( GET_INDEX_PENC( penc ) );
+        EncList.push_used( GET_REF_PENC( penc ) );
     }
 
     return penc;
@@ -1347,7 +1347,7 @@ enc_t * enc_run_config( enc_t * penc )
     }
     else if ( Ego::Entity::State::Active == pbase->state )
     {
-        pbase->update_guid = EncList.update_guid;
+        pbase->update_guid = EncList.getUpdateGUID();
     }
 
     return penc;
@@ -1383,7 +1383,7 @@ enc_t * enc_config_init( enc_t * penc )
     }
     else
     {
-        EncList.add_activation( GET_INDEX_PENC( penc ) );
+        EncList.add_activation( GET_REF_PENC( penc ) );
     }
 
     pbase->state = Ego::Entity::State::Active;
@@ -1557,7 +1557,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     }
 
     // Find an enchant index to use
-    enc_ref = EncList_allocate( enc_override );
+    enc_ref = EncList.allocate( enc_override );
 
     if ( !ALLOCATED_ENC( enc_ref ) )
     {
@@ -1964,18 +1964,18 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
         // coerce the list of enchants to a valid value
         if ( !VALID_ENC_RANGE( ienc_nxt ) )
         {
-            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref = INVALID_ENC_REF;
+            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref = INVALID_ENC_REF;
         }
 
         // fix any loops in the enchant list
         if ( enc_used[ienc_nxt] )
         {
-            EncList.lst[ienc_now].nextenchant_ref = INVALID_ENC_REF;
+            EncList.get_ptr(ienc_now)->nextenchant_ref = INVALID_ENC_REF;
             break;
         }
 
@@ -1999,7 +1999,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
             }
         }
 
-        enc_parent = &( EncList.lst[ienc_now].nextenchant_ref );
+        enc_parent = &( EncList.get_ptr(ienc_now)->nextenchant_ref );
         ienc_now    = ienc_nxt;
         ienc_count++;
     }
@@ -2088,7 +2088,7 @@ void bump_all_enchants_update_counters()
 {
     for ( ENC_REF cnt = 0; cnt < MAX_ENC; cnt++ )
     {
-        Ego::Entity *pbase = POBJ_GET_PBASE( EncList.lst + cnt );
+        Ego::Entity *pbase = POBJ_GET_PBASE( EncList.get_ptr(cnt) );
         if ( !ACTIVE_PBASE( pbase ) ) continue;
 
         pbase->update_count++;

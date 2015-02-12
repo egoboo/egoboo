@@ -1533,7 +1533,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             if ( _gameObjects.exists( d->chra ) && INGAME_PRT( d->prtb ) )
             {
-                if ( PrtList.lst[d->prtb].targetplatform_ref == d->chra )
+                if ( PrtList.get_ptr(d->prtb)->targetplatform_ref == d->chra )
                 {
                     attach_prt_to_platform( PrtList.get_ptr( d->prtb ), _gameObjects.get( d->chra ) );
                 }
@@ -1543,7 +1543,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             if ( _gameObjects.exists( d->chrb ) && INGAME_PRT( d->prta ) )
             {
-                if ( PrtList.lst[d->prta].targetplatform_ref == d->chrb )
+                if ( PrtList.get_ptr(d->prta)->targetplatform_ref == d->chrb )
                 {
                     attach_prt_to_platform( PrtList.get_ptr( d->prta ), _gameObjects.get( d->chrb ) );
                 }
@@ -3021,7 +3021,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
         if ( enc_is_removed( ienc_now, pdata->pprt->profile_ref ) )
         {

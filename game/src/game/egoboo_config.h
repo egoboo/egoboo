@@ -41,17 +41,19 @@
 #define MAX_PIP             (256 * MAX_PIP_PER_PROFILE)
 
 // special values
+#if 0
 #define INVALID_CHR_IDX     MAX_CHR
 #define INVALID_ENC_IDX     MAX_ENC
 #define INVALID_PRT_IDX     MAX_PRT
 #define INVALID_PRO_IDX     0xFFFF
 #define INVALID_PIP_IDX     MAX_PIP
+#endif
 
-#define INVALID_CHR_REF     (( CHR_REF ) INVALID_CHR_IDX)
-#define INVALID_ENC_REF     (( ENC_REF ) INVALID_ENC_IDX)
-#define INVALID_PRT_REF     (( PRT_REF ) INVALID_PRT_IDX)
-#define INVALID_PRO_REF     (( PRO_REF ) INVALID_PRO_IDX)
-#define INVALID_PIP_REF     (( PIP_REF ) INVALID_PIP_IDX)
+#define INVALID_CHR_REF     (( CHR_REF ) MAX_CHR)
+#define INVALID_ENC_REF     (( ENC_REF ) MAX_ENC)
+#define INVALID_PRT_REF     (( PRT_REF ) MAX_PRT)
+#define INVALID_PRO_REF     (( PRO_REF ) 0xFFFF)
+#define INVALID_PIP_REF     (( PIP_REF ) MAX_PIP)
 
 // Some macro switches
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style

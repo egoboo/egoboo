@@ -60,7 +60,7 @@ struct enc_t;
 // external variables
 //--------------------------------------------------------------------------------------------
 
-struct EnchantManager : public _LockableList < enc_t, ENC_REF, MAX_ENC >
+struct EnchantManager : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, MAX_ENC >
 {
     EnchantManager() :
         _LockableList()
@@ -68,36 +68,24 @@ struct EnchantManager : public _LockableList < enc_t, ENC_REF, MAX_ENC >
     }
 
 public:
-    static void ctor();
-    static void dtor();
+    void ctor();
+    void dtor();
     void maybeRunDeferred();
-    bool add_termination(const ENC_REF ienc);
-    bool add_activation(const ENC_REF ienc);
+    bool isValidRef(const ENC_REF ref) const override;
+    bool add_termination(const ENC_REF ref);
+    bool add_activation(const ENC_REF ref);
+    bool push_used(const ENC_REF);
+    ENC_REF allocate(const ENC_REF override);
+    bool free_one(const ENC_REF ref);
+    void update_used();
+    bool request_terminate(const ENC_REF ienc);
+    bool push_free(const ENC_REF);
+    void prune_used_list();
+    void prune_free_list();
+    void deinit() override;
 };
 
 extern EnchantManager EncList;
-
-//--------------------------------------------------------------------------------------------
-// Function prototypes
-//--------------------------------------------------------------------------------------------
-
-
-bool EncList_push_used(const PRT_REF);
-
-void EncList_reinit();
-
-ENC_REF EncList_allocate(const ENC_REF override);
-
-bool EncList_free_one(const ENC_REF ienc);
-void EncList_free_all();
-
-void EncList_update_used();
-
-
-
-
-
-bool EncList_request_terminate(const ENC_REF ienc);
 
 //--------------------------------------------------------------------------------------------
 // testing functions
@@ -108,8 +96,6 @@ bool ALLOCATED_ENC(const ENC_REF IENC);
 bool ACTIVE_ENC(const ENC_REF IENC);
 bool WAITING_ENC(const ENC_REF IENC);
 bool TERMINATED_ENC(const ENC_REF IENC);
-
-size_t GET_INDEX_PENC(const enc_t *PENC);
 ENC_REF GET_REF_PENC(const enc_t *PENC);
 bool DEFINED_PENC(const enc_t *PENC);
 bool VALID_ENC_PTR(const enc_t *PENC);
@@ -117,9 +103,7 @@ bool ALLOCATED_PENC(const enc_t *PENC);
 bool ACTIVE_PENC(const enc_t *PENC);
 bool WAITIN_PENC(const enc_t *PEC);
 bool TERMINATED_PENC(const enc_t *PENC);
-
 bool INGAME_ENC_BASE(const ENC_REF IENC);
 bool INGAME_PENC_BASE(const enc_t *PENC);
-
 bool INGAME_ENC(const ENC_REF IENC);
 bool INGAME_PENC(const enc_t *PENC);

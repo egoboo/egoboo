@@ -397,12 +397,10 @@ void GameEngine::pushGameState(std::shared_ptr<GameState> gameState)
 
 bool GameEngine::loadConfiguration(bool syncFromFile)
 {
-    size_t tmp_maxparticles;
-
     // synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)
     if (syncFromFile)
     {
-        if ( !setup_download(&cfg) ) return false;
+        if (!setup_download(&cfg)) return false;
     }
 
     // status display
@@ -416,15 +414,8 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     DisplayMsg_on    = cfg.message_count_req > 0;
     wraptolerance 	 = cfg.show_stats ? 90 : 32;
 
-    // Get the particle limit
-    // if the particle limit has changed, make sure to make not of it
-    // number of particles
-    tmp_maxparticles = Math::constrain<uint16_t>(cfg.particle_count_req, 256, MAX_PRT);
-    if (PrtList.maxparticles != tmp_maxparticles)
-    {
-        PrtList.maxparticles = tmp_maxparticles;
-        PrtList.maxparticles_dirty = true;
-    }
+    // Adjust the particle limit.
+    PrtList.setDisplayLimit(cfg.particle_count_req);
 
     // camera options
     _cameraSystem.getCameraOptions().turnMode = cfg.autoturncamera;

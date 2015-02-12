@@ -26,6 +26,8 @@
 
 #include "game/egoboo_config.h"
 
+#include "egolib/Ref.hpp"
+
 DECLARE_REF( CHR_REF );
 DECLARE_REF( TEAM_REF );
 DECLARE_REF( EVE_REF );

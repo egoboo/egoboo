@@ -5460,10 +5460,10 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     if ( INGAME_ENC( iTmp ) )
     {
-        EncList.lst[iTmp].owner_mana = pstate->argument;
-        EncList.lst[iTmp].owner_life = pstate->distance;
-        EncList.lst[iTmp].target_mana = pstate->x;
-        EncList.lst[iTmp].target_life = pstate->y;
+        EncList.get_ptr(iTmp)->owner_mana = pstate->argument;
+        EncList.get_ptr(iTmp)->owner_life = pstate->distance;
+        EncList.get_ptr(iTmp)->target_mana = pstate->x;
+        EncList.get_ptr(iTmp)->target_life = pstate->y;
 
         returncode = true;
     }
@@ -5644,7 +5644,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
 
     if ( returncode )
     {
-        PrtList.lst[iprt].target_ref = pself->target;
+        PrtList.get_ptr(iprt)->target_ref = pself->target;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6821,7 +6821,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
 
     if ( returncode )
     {
-        PrtList.lst[iprt].endspawn_characterstate = pstate->turn;
+        PrtList.get_ptr(iprt)->endspawn_characterstate = pstate->turn;
     }
 
     SCRIPT_FUNCTION_END();
