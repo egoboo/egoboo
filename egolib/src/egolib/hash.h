@@ -78,7 +78,10 @@
 		 * @param initialCapacity
 		 *	the initial capacity of the hash list
 		 */
-		hash_list_t(size_t initialCapacity)
+		hash_list_t(size_t initialCapacity) :
+			capacity(initialCapacity),
+			subcount(nullptr),
+			sublist(nullptr)
 		{
 			subcount = EGOBOO_NEW_ARY(int, initialCapacity);
 			if (!subcount)
@@ -100,7 +103,6 @@
 					sublist[i] = nullptr;
 				}
 			}
-			capacity = initialCapacity;
 		}
 		/**
 		 * @brief
@@ -114,6 +116,12 @@
 			sublist = nullptr;
 			capacity = 0;
 		}
+
+
+	    //Disable copying class
+	    hash_list_t(const hash_list_t& copy) = delete;
+	    hash_list_t& operator=(const hash_list_t&) = delete;
+	    
 #if 0
 		/**
 		 * @brief

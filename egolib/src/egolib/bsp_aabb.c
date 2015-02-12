@@ -91,8 +91,10 @@ public:
 };
 #endif
 
-BSP_aabb_t::BSP_aabb_t(size_t dim)
-	: _dim(dim), _empty(false), _values(new float[3*dim]())
+BSP_aabb_t::BSP_aabb_t(size_t dim) :
+	_empty(false), 
+	_values(new float[3*dim]()), 
+	_dim(dim)
 {
 }
 
