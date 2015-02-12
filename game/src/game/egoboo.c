@@ -702,7 +702,6 @@ Uint32 egoboo_get_ticks()
 
 bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
 {
-    size_t tmp_maxparticles;
     bool rv;
 
     // synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)

@@ -106,7 +106,7 @@ BSP_aabb_t::~BSP_aabb_t()
 }
 
 //--------------------------------------------------------------------------------------------
-void BSP_aabb_t::setDim(size_t newDim)
+void BSP_aabb_t::setDim(size_t newDim,bool preserve)
 {
 	if (_dim == newDim)
 	{
@@ -115,18 +115,21 @@ void BSP_aabb_t::setDim(size_t newDim)
 	float *newValues = new float[3 * newDim]();
 	// An alias to the old dimensionality.
 	size_t oldDim = _dim;
-	// The smaller of the old and the new dimensionality.
-	size_t minDim = std::min(oldDim, newDim);
-	// Copy values of existing dimensions.
-	for (size_t i = 0, n = 3; i < n; ++i)
-	{
-		size_t dstOffset = i * newDim;
-		size_t srcOffset = i * oldDim;
-		for (size_t j = 0, m = minDim; j < m; ++j)
-		{
-			newValues[dstOffset + j] = _values[srcOffset + j];
-		}
-	}
+    if (preserve)
+    {
+        // The smaller of the old and the new dimensionality.
+        size_t minDim = std::min(oldDim, newDim);
+        // Copy values of existing dimensions.
+        for (size_t i = 0, n = 3; i < n; ++i)
+        {
+            size_t dstOffset = i * newDim;
+            size_t srcOffset = i * oldDim;
+            for (size_t j = 0, m = minDim; j < m; ++j)
+            {
+                newValues[dstOffset + j] = _values[srcOffset + j];
+            }
+        }
+    }
 	delete[] _values;
 	_values = newValues;
 	_dim = newDim;
@@ -188,7 +191,7 @@ void BSP_aabb_t::set(const BSP_aabb_t& other)
 	else
 	{
 		// Ensure that they have the same dimensions.
-		setDim(other._dim);
+		setDim(other._dim,false);
 		for (size_t i = 0; i < _dim; i++)
 		{
 			min()[i] = other.min()[i];

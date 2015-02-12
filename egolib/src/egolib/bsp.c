@@ -106,7 +106,7 @@ bool _generate_BSP_aabb_child(BSP_aabb_t& source, BSP::SubspaceIndex index, BSP_
 	BSP::assertSubspaceIndexWithinBounds(__FILE__, __LINE__, index, childCount);
 
 	// Make sure that the destination type matches the source type
-	target.setDim(source.getDim());
+	target.setDim(source.getDim(),false);
 
 	// determine the bounds
 	for (size_t i = 0, n = source.getDim(); i < n; ++i)

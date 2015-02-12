@@ -69,8 +69,10 @@ public:
 	 *	Set the dimensionality of this BSP AABB.
 	 * @param newDim
 	 *	the new dimensionality
+     * @param preserve
+     *  if @a true, preserve existing values up to the minimum of the old and the new dimensionality
 	 */
-	void setDim(size_t newDim);
+	void setDim(size_t newDim,bool preserve);
 
 	/**
 	 * @brief
@@ -176,32 +178,10 @@ public:
 	**/
 	BSP_aabb_t& operator=(const BSP_aabb_t& other)
 	{
-		_empty = other._empty;
-		_dim = other._dim;
-		_values = new float[3*_dim];
-
-		for(size_t i = 0; i < _dim; ++i) {
-			_values[i] = other._values[i];
-		}
-
+        set(other);
 		return *this;
 	}
 
 	//Disable copying class
 	BSP_aabb_t(const BSP_aabb_t& copy) = delete;
 };
-#if 0
-
-BSP_aabb_t *BSP_aabb_alloc(BSP_aabb_t *self, size_t dim); ///< @todo Remove this.
-BSP_aabb_t *BSP_aabb_dealloc(BSP_aabb_t *self); ///< @todo Remove this.
-/**
- * @brief
- *	Invalidate
- */
-bool BSP_aabb_validate(BSP_aabb_t& self); ///< @todo Remove this.
-
-
-
-bool BSP_aabb_self_union(BSP_aabb_t& dst, const BSP_aabb_t& source);
-bool BSP_aabb_invalidate(BSP_aabb_t& self);
-#endif
