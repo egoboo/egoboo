@@ -338,8 +338,6 @@ bool GameObject::canMount(const std::shared_ptr<GameObject> mount) const
     return has_ride_anim;
 }
 
-
-//--------------------------------------------------------------------------------------------
 int GameObject::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
                       const std::shared_ptr<GameObject> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
 {

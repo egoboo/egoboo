@@ -528,7 +528,7 @@ void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
     }
 
     //Create new looping sound
-    std::shared_ptr<LoopingSound> sound = std::make_shared<LoopingSound>(soundID, owner);
+    std::shared_ptr<LoopingSound> sound = std::make_shared<LoopingSound>(owner, soundID);
 
     // add the sound to the LoopedList
     _loopingSounds.push_front(sound);
