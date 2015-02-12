@@ -936,7 +936,12 @@ std::string GameObject::getName(bool prefixArticle, bool prefixDefinite, bool ca
     }
     else
     {
-        result = getProfile()->getClassName();;
+        if(getProfile()->getSpellEffect() >= 0) {
+            result = _profileSystem->getProfile(SPELLBOOK)->getClassName();
+        }
+        else {
+            result = getProfile()->getClassName();
+        }
 
         if (prefixArticle)
         {
