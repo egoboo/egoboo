@@ -34,35 +34,27 @@ namespace Ego {
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Ego::Entity *Ego::Entity::ctor(Ego::Entity *self, void *child_data, bsp_type_t child_type, size_t child_index)
+Ego::Entity *Ego::Entity::ctor(void *child_data, bsp_type_t child_type, size_t child_index)
 {
-	if (NULL == self)
-	{
-		return self;
-	}
-    BLANK_STRUCT_PTR(self)
+    BLANK_STRUCT_PTR(this);
 
-    self->_name[0] = CSTR_END;
-    self->state = Ego::Entity::State::Invalid;
-    self->index = child_index;
+    this->_name[0] = CSTR_END;
+    this->state = Ego::Entity::State::Invalid;
+    this->index = child_index;
 
     // Construct the BSP node for this entity.
-	self->bsp_leaf.ctor(child_data, child_type, child_index);
+    this->bsp_leaf.ctor(child_data, child_type, child_index);
 
-    return self;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-Ego::Entity *Ego::Entity::dtor(Ego::Entity *self)
+Ego::Entity *Ego::Entity::dtor()
 {
-	if (NULL == self)
-	{
-		return self;
-	}
-    self->_name[0] = CSTR_END;
-    self->state = Ego::Entity::State::Invalid;
+    this->_name[0] = CSTR_END;
+    this->state = Ego::Entity::State::Invalid;
     // Destruct the BSP node for this entity.
-    self->bsp_leaf.dtor();
-	BLANK_STRUCT_PTR(self)
-	return self;
+    this->bsp_leaf.dtor();
+    BLANK_STRUCT_PTR(this);
+    return this;
 }

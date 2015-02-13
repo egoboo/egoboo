@@ -7,7 +7,7 @@
 #include "egolib/egolib.h"
 
 /** @todo Enforce that REFTYPE is an unsigned type.  */
-template <typename TYPE, typename REFTYPE, REFTYPE INVALIDREF,size_t COUNT>
+template <typename TYPE, typename REFTYPE, REFTYPE INVALIDREF, size_t COUNT, bsp_type_t BSPTYPE>
 struct _LockableList
 {
     _LockableList()
@@ -24,16 +24,94 @@ struct _LockableList
         deinit();
         init();
     }
-    virtual void deinit() = 0;
+
 protected:
     unsigned update_guid;
     int usedCount;
     int freeCount;
 public:
+    bool isValidRef(const REFTYPE ref) const
+    {
+        return ref < getCount();
+    }
+
+    bool push_used(const REFTYPE ref)
+    {
+        if (!isValidRef(ref))
+        {
+            return false;
+        }
+
+#if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
+        if (find_used_ref(ref) != std::numeric_limits<size_t>::max())
+        {
+            return false;
+        }
+#endif
+
+        EGOBOO_ASSERT(!lst[ref].obj_base.in_used_list);
+
+        if (usedCount < getCount())
+        {
+            used_ref[usedCount] = ref;
+
+            usedCount++;
+            update_guid++;
+
+            lst[ref].obj_base.in_used_list = true;
+
+            return true;
+        }
+
+        return false;
+    }
+
     unsigned getUpdateGUID() const
     {
         return update_guid;
     }
+
+    //--------------------------------------------------------------------------------------------
+    void ctor()
+    {
+        // Initialize the list.
+        init();
+
+        // Construct the sub-objects.
+        for (size_t i = 0; i < getCount(); ++i)
+        {
+            TYPE *x = lst + i;
+
+            // Blank out all the data, including the obj_base data.
+            BLANK_STRUCT_PTR(x);
+
+            // construct the base object
+            POBJ_GET_PBASE(x)->ctor(x, BSPTYPE, i);
+
+            // Construct the object.
+            x->ctor();
+        }
+    }
+
+    void dtor()
+    {
+        // Construct the sub-objects.
+        for (size_t i = 0; i < getCount(); ++i)
+        {
+            TYPE *x = lst + i;
+
+            // Destruct the object
+            x->dtor();
+
+            // Destruct the entity.
+            POBJ_GET_PBASE(x)->dtor();
+        }
+
+        // DeInitialize the list.
+        deinit();
+    }
+
+
     void init()
     {
         clear();
@@ -46,6 +124,15 @@ public:
         }
     }
 
+    void deinit()
+    {
+        // Request that the sub-objects destroy themselves.
+        for (size_t i = 0; i < getCount(); ++i)
+        {
+            TYPE::config_deconstruct(get_ptr(i), 100);
+        }
+        clear();
+    }
 
     void clear()
     {
@@ -63,6 +150,14 @@ public:
             lst[i].obj_base.in_used_list = false;
         }
     }
+
+    bool request_terminate(const REFTYPE ref)
+    {
+        TYPE *obj = get_ptr(ref);
+        EGOBOO_ASSERT(nullptr != obj);
+        return TYPE::request_terminate(obj);
+    }
+
 
 protected:
     // List of references to TYPEs which requested termination
@@ -109,7 +204,49 @@ public:
         return freeCount;
     }
 
-    virtual bool isValidRef(const REFTYPE) const = 0;
+    /// Put the reference into the activation list so that the referenced object can be
+    // activated right after the loop is completed.
+    bool add_activation(const REFTYPE ref)
+    {
+        bool retval = false;
+
+        if (!isValidRef(ref)) return false;
+
+        if (activation_count < getCount())
+        {
+            activation_list[activation_count] = ref;
+            activation_count++;
+
+            retval = true;
+        }
+
+        lst[ref].obj_base.turn_me_on = true;
+
+        return retval;
+    }
+
+
+    /// Put the reference into the activation list so that the referenced object can be
+    // terminated right after the loop is completed.
+    bool add_termination(const REFTYPE ref)
+    {
+        bool retval = false;
+
+        if (!isValidRef(ref)) return false;
+
+        if (termination_count < getCount())
+        {
+            termination_list[termination_count] = ref;
+            termination_count++;
+
+            retval = true;
+        }
+
+        // Mark the object as "waiting to be terminated".
+        POBJ_REQUEST_TERMINATE(get_ptr(ref));
+
+        return retval;
+    }
 
     /// @brief Reset all particles.
     void free_all()

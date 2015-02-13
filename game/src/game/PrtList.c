@@ -62,63 +62,8 @@ bool INGAME_PRT(const PRT_REF IPRT) { return LAMBDA(Ego::Entities::spawnDepth > 
 bool INGAME_PPRT(const prt_t *PPRT) { return LAMBDA(Ego::Entities::spawnDepth > 0, INGAME_PPRT_BASE(PPRT), DISPLAY_PPRT(PPRT) && (!(PPRT)->is_ghost)); }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 ParticleManager PrtList;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void ParticleManager::ctor()
-{
-    // Initialize the list.
-    init();
-
-    // Construct the sub-objects.
-    for (size_t i = 0; i < getCount(); ++i)
-    {
-        prt_t *x = lst + i;
-
-        // Blank out all the data, including the entity data.
-        BLANK_STRUCT_PTR(x);
-
-        // Initialize the entity.
-        Ego::Entity::ctor(POBJ_GET_PBASE( x ), x, BSP_LEAF_PRT, i);
-
-        // Initialize object.
-        prt_t::ctor(x);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void ParticleManager::dtor()
-{
-    // Destruct the sub-objects.
-    for (size_t i = 0; i < getCount(); ++i)
-    {
-        prt_t *x = lst + i;
-
-        // Destruct the object.
-        prt_t::dtor(x);
-
-        // Destruct the parent object.
-        Ego::Entity::dtor(POBJ_GET_PBASE(x));
-    }
-
-    // Initialize the list.
-    init();
-}
-
-//--------------------------------------------------------------------------------------------
-void ParticleManager::deinit()
-{
-    // Request that the sub-objects destroy themselves.
-    for (size_t i = 0; i < getCount(); ++i)
-    {
-        prt_config_deconstruct(get_ptr(i), 100);
-    }
-
-    clear();
-}
 
 //--------------------------------------------------------------------------------------------
 void ParticleManager::prune_used_list()
@@ -166,95 +111,90 @@ void ParticleManager::prune_free_list()
 //--------------------------------------------------------------------------------------------
 void ParticleManager::update_used()
 {
-    PRT_REF iprt;
-    int cnt;
-
     prune_used_list();
     prune_free_list();
 
-    // go through the particle list to see if there are any dangling particles
-    for ( iprt = 0; iprt < MAX_PRT; iprt++ )
+    // Go through the object list to see if there are any dangling objects.
+    for (PRT_REF ref = 0; ref < getCount(); ++ref)
     {
-        if ( !ALLOCATED_PRT( iprt ) ) continue;
+        if (!isValidRef(ref)) continue; /// @todo Redundant.
+        prt_t *x = get_ptr(ref);
+        if (!ALLOCATED_PPRT_RAW(x)) continue;
 
-        if ( DISPLAY_PRT( iprt ) )
+        if (DISPLAY_PPRT(x))
         {
-            if ( !lst[iprt].obj_base.in_used_list )
+            if (!x->obj_base.in_used_list)
             {
-                push_used( iprt );
+                push_used(ref);
             }
         }
-        else if ( !DEFINED_PRT( iprt ) )
+        else if (!DEFINED_PPRT(x))
         {
-            if ( !lst[iprt].obj_base.in_free_list )
+            if (!x->obj_base.in_free_list)
             {
-                add_free_ref( iprt );
+                add_free_ref(ref);
             }
         }
     }
 
-    // blank out the unused elements of the used list
-    for ( cnt = usedCount; cnt < MAX_PRT; cnt++ )
+    // Blank out the unused elements of the used list.
+    for (size_t i = getUsedCount(); i < getCount(); ++i)
     {
-        used_ref[cnt] = INVALID_PRT_REF;
+        used_ref[i] = INVALID_PRT_REF;
     }
 
-    // blank out the unused elements of the free list
-    for ( cnt = freeCount; cnt < MAX_PRT; cnt++ )
+    // Blank out the unused elements of the free list.
+    for (size_t i = getFreeCount(); i < getCount(); ++i)
     {
-        free_ref[cnt] = INVALID_PRT_REF;
+        free_ref[i] = INVALID_PRT_REF;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool ParticleManager::free_one(const PRT_REF iprt)
+bool ParticleManager::free_one(const PRT_REF ref)
 {
-    /// @author ZZ
-    /// @details This function sticks a particle back on the free particle stack
-    ///
-    /// @note Tying ALLOCATED_PRT() and POBJ_TERMINATE() to PrtList_free_one()
-    /// should be enough to ensure that no particle is freed more than once
+    /// @details Stick an object back into the free object list.
 
-    bool retval;
-    prt_t * pprt;
-    Ego::Entity * pbase;
+    // Ensure that we have a valid reference.
+    if (!isValidRef(ref)) return false;
+    prt_t *obj = get_ptr(ref);
 
-    if ( !ALLOCATED_PRT( iprt ) ) return false;
-    pprt = get_ptr( iprt );
-    pbase = POBJ_GET_PBASE( pprt );
+    // If the object is not allocated (i.e. in the state range ["constructing","destructing"])
+    // then its reference is in the free list.
+    if (!ALLOCATED_PPRT(obj)) return false;
 
-    // if we are inside a PrtList loop, do not actually change the length of the
-    // list. This will cause some problems later.
-    if ( getLockCount() > 0 )
+    Ego::Entity *parentObj = POBJ_GET_PBASE(obj);
+
+    // If we are inside an iteration, do not actually change the length of the list.
+    // This would invalidate all iterators.
+    if (getLockCount() > 0)
     {
-        retval = add_termination( iprt );
+        return add_termination(ref);
     }
     else
     {
-        // deallocate any dynamically allocated memory
-        pprt = prt_config_deinitialize( pprt, 100 );
-        if ( NULL == pprt ) return false;
+        // Ensure that the entity reaches the "destructing" state.
+        // @todo This is redundant.
+        obj = prt_t::config_deinitialize(obj, 100);
+        if (!obj) return false;
+        // Ensure that the entity reaches the "terminated" state.
+        obj = prt_t::config_deconstruct(obj, 100);
+        if (!obj) return false;
 
-        if ( pbase->in_used_list )
+        if (parentObj->in_used_list)
         {
-            remove_used_ref( iprt );
+            remove_used_ref(ref);
         }
 
-        if ( pbase->in_free_list )
+        if (parentObj->in_free_list)
         {
-            retval = true;
+            return true;
         }
         else
         {
-            retval = add_free_ref( iprt );
+            return add_free_ref(ref);
         }
-
-        // particle "destructor"
-        pprt = prt_config_deconstruct( pprt, 100 );
-        if ( NULL == pprt ) return false;
     }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -262,10 +202,10 @@ PRT_REF ParticleManager::allocate(const bool force)
 {
     PRT_REF iprt;
 
-    // Return MAX_PRT if we can't find one.
+    // Return INVALID_PRT_REF if we can't find one.
     iprt = INVALID_PRT_REF;
 
-    if (0 == PrtList.freeCount)
+    if (0 == freeCount)
     {
         if (force)
         {
@@ -287,7 +227,7 @@ PRT_REF ParticleManager::allocate(const bool force)
                     found = iprt;
                     break;
                 }
-                pprt =  PrtList.get_ptr(iprt);
+                pprt =  get_ptr(iprt);
 
                 // Does it have a valid profile?
                 if (!LOADED_PIP(pprt->pip_ref))
@@ -333,7 +273,7 @@ PRT_REF ParticleManager::allocate(const bool force)
                 }
             }
 
-            if (VALID_PRT_RANGE(found))
+            if (isValidRef(found))
             {
                 // Found a "bad" particle.
                 iprt = found;
@@ -357,7 +297,7 @@ PRT_REF ParticleManager::allocate(const bool force)
     }
     else
     {
-        if ( PrtList.freeCount > ( PrtList.getCount() / 4 ) )
+        if ( freeCount > ( getCount() / 4 ) )
         {
             // Just grab the next one
             iprt = pop_free();
@@ -369,58 +309,27 @@ PRT_REF ParticleManager::allocate(const bool force)
     }
 
     // return a proper value
-    iprt = ( iprt >= PrtList.getCount() ) ? INVALID_PRT_REF : iprt;
+    iprt = ( iprt >= getCount() ) ? INVALID_PRT_REF : iprt;
 
-    if ( VALID_PRT_RANGE( iprt ) )
+    if (isValidRef(iprt))
     {
-        // if the particle is already being used, make sure to destroy the old one
-        if ( DEFINED_PRT( iprt ) )
+        // If the particle is already being used, make sure to destroy the old one.
+        if (DEFINED_PRT(iprt))
         {
-            end_one_particle_in_game( iprt );
+            end_one_particle_in_game(iprt);
         }
 
         // allocate the new one
-        POBJ_ALLOCATE( PrtList.get_ptr( iprt ), REF_TO_INT( iprt ) );
+        get_ptr(iprt)->obj_base.allocate(REF_TO_INT(iprt));
     }
 
-    if ( ALLOCATED_PRT( iprt ) )
+    if (ALLOCATED_PRT(iprt))
     {
         // construct the new structure
-        prt_config_construct( PrtList.get_ptr( iprt ), 100 );
+        prt_t::config_construct(get_ptr( iprt ), 100);
     }
 
     return iprt;
-}
-
-//--------------------------------------------------------------------------------------------
-bool ParticleManager::push_used(const PRT_REF ref)
-{
-    if (!isValidRef(ref))
-    {
-        return false;
-    }
-
-#if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
-    if (find_used_ref(ref) != std::numeric_limits<size_t>::max())
-    {
-        return false;
-    }
-#endif
-
-    EGOBOO_ASSERT(!lst[ref].obj_base.in_used_list);
-
-    if (usedCount < getCount())
-    {
-        used_ref[usedCount] = ref;
-
-        usedCount++;
-        update_guid++;
-
-        lst[ref].obj_base.in_used_list = true;
-
-        return true;
-    }
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -449,47 +358,6 @@ void ParticleManager::maybeRunDeferred()
         free_one(termination_list[i]);
     }
     termination_count = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-bool ParticleManager::add_activation( const PRT_REF iprt )
-{
-    bool retval = false;
-
-    if (!isValidRef(iprt)) return false;
-
-    if (activation_count < MAX_PRT)
-    {
-        activation_list[PrtList.activation_count] = iprt;
-        activation_count++;
-
-        retval = true;
-    }
-
-    PrtList.lst[iprt].obj_base.turn_me_on = true;
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool ParticleManager::add_termination( const PRT_REF iprt )
-{
-    bool retval = false;
-
-    if (!VALID_PRT_RANGE(iprt)) return false;
-
-    if (PrtList.termination_count < MAX_PRT)
-    {
-        PrtList.termination_list[PrtList.termination_count] = iprt;
-        PrtList.termination_count++;
-
-        retval = true;
-    }
-
-    // Mrk the object as "waiting to be terminated".
-    POBJ_REQUEST_TERMINATE(PrtList.get_ptr(iprt));
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -579,18 +447,4 @@ void ParticleManager::reset_all()
     }
 
     PipStack.count = GLOBAL_PIP_COUNT;
-}
-
-//--------------------------------------------------------------------------------------------
-bool ParticleManager::isValidRef(const PRT_REF ref) const
-{
-    return ref < getCount();
-}
-
-//--------------------------------------------------------------------------------------------
-bool ParticleManager::request_terminate(const PRT_REF iprt)
-{
-    prt_t * pprt = PrtList.get_ptr( iprt );
-
-    return prt_t::request_terminate( pprt );
 }

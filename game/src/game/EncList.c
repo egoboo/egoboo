@@ -75,64 +75,9 @@ bool INGAME_ENC(const ENC_REF IENC) { return LAMBDA(Ego::Entities::spawnDepth > 
 bool INGAME_PENC(const enc_t *PENC) { return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PENC(PENC), INGAME_PENC_BASE(PENC)); }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 EnchantManager EncList;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void EnchantManager::ctor()
-{
-    // Initialize the list.
-    init();
-
-    // Construct the sub-objects.
-    for (size_t i = 0; i < getCount(); ++i)
-    {
-        enc_t *x = lst + i;
-
-        // Blank out all the data, including the obj_base data.
-        BLANK_STRUCT_PTR(x);
-
-        // construct the base object
-        Ego::Entity::ctor(POBJ_GET_PBASE(x), x, BSP_LEAF_ENC, i);
-
-        // Construct the object.
-        enc_t::ctor(x);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void EnchantManager::dtor()
-{
-    // Construct the sub-objects.
-    for (size_t i = 0; i < getCount(); ++i)
-    {
-        enc_t *x = lst + i;
-
-        // Destruct the object
-        enc_t::dtor(x);
-
-        // Destruct the entity.
-        Ego::Entity::dtor(POBJ_GET_PBASE(x));
-    }
-
-    // Initialize the list.
-    EnchantManager::init();
-}
-
-//--------------------------------------------------------------------------------------------
-void EnchantManager::deinit()
-{
-    // Request that the sub-objects destroy themselves.
-    for (size_t i = 0; i < getCount(); ++i)
-    {
-        enc_config_deconstruct(get_ptr(i), 100);
-    }
-
-    // Initialize the list.
-    init(); /// @todo Shouldn't this be "clear"?.
-}
 //--------------------------------------------------------------------------------------------
 void EnchantManager::prune_used_list()
 {
@@ -186,18 +131,20 @@ void EnchantManager::update_used()
     // Go through the object list to see if there are any dangling objects.
     for (ENC_REF ref = 0; ref < getCount(); ++ref)
     {
-        if (!ALLOCATED_ENC(ref)) continue;
+        if (!isValidRef(ref)) continue; /// @todo Redundant.
+        enc_t *x = get_ptr(ref);
+        if (!ALLOCATED_PENC_RAW(x)) continue;
 
-        if (INGAME_ENC(ref))
+        if (INGAME_PENC(x))
         {
-            if (!lst[ref].obj_base.in_used_list )
+            if (!x->obj_base.in_used_list )
             {
                 push_used(ref);
             }
         }
-        else if (!DEFINED_ENC(ref))
+        else if (!DEFINED_PENC(x))
         {
-            if (!lst[ref].obj_base.in_free_list)
+            if (!x->obj_base.in_free_list)
             {
                 add_free_ref(ref);
             }
@@ -211,92 +158,58 @@ void EnchantManager::update_used()
     }
 
     // Blank out the unused elements of the free list.
-    for (size_t i = freeCount; i < getCount(); ++i)
+    for (size_t i = getFreeCount(); i < getCount(); ++i)
     {
         free_ref[i] = INVALID_ENC_REF;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool EnchantManager::free_one(const ENC_REF ienc)
+bool EnchantManager::free_one(const ENC_REF ref)
 {
-    /// @author ZZ
-    /// @details This function sticks a enchant back on the free enchant stack
-    ///
-    /// @note Tying ALLOCATED_ENC() and POBJ_TERMINATE() to EncList_free_one()
-    /// should be enough to ensure that no enchant is freed more than once
+    /// @details Stick an object back into the free object list.
 
-    bool retval;
+    // Ensure that we have a valid reference.
+    if (!isValidRef(ref)) return false;
+    enc_t *obj = get_ptr(ref);
 
-    if ( !ALLOCATED_ENC( ienc ) ) return false;
-    enc_t *penc = EncList.get_ptr( ienc );
-    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
+    // If the object is not allocated (i.e. in the state range ["constructing","destructing"])
+    // then its reference is in the free list.
+    if (!ALLOCATED_PENC(obj)) return false;
 
-#if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
-    enc_log_script_time( ienc );
-#endif
+    Ego::Entity *parentObj = POBJ_GET_PBASE(obj);
 
-    // if we are inside a EncList loop, do not actually change the length of the
-    // list. This will cause some problems later.
-    if ( EncList.getLockCount() > 0 )
+    // If we are inside an iteration, do not actually change the length of the list.
+    // This would invalidate all iterators.
+    if (getLockCount() > 0)
     {
-        retval = EncList.add_termination( ienc );
+        return add_termination(ref);
     }
     else
     {
-        // deallocate any dynamically allocated memory
-        penc = enc_config_deinitialize( penc, 100 );
-        if ( NULL == penc ) return false;
+        // Ensure that the entity reaches the "destructing" state.
+        // @todo This is redundant.
+        obj = enc_t::config_deinitialize(obj, 100);
+        if (!obj) return false;
+        // Ensure that the entity reaches the "terminated" state.
+        obj = enc_t::config_deconstruct(obj, 100);
+        if (!obj) return false;
 
-        if ( pbase->in_used_list )
+        if (parentObj->in_used_list)
         {
-            remove_used_ref( ienc );
+            remove_used_ref(ref);
         }
-
-        if ( pbase->in_free_list )
+        if (parentObj->in_free_list)
         {
-            retval = true;
+            return true;
         }
         else
         {
-            retval = EncList.add_free_ref( ienc );
+            return add_free_ref(ref);
         }
-
-        // enchant "destructor"
-        penc = enc_t::dtor( penc );
-        if ( NULL == penc ) return false;
     }
-
-    return retval;
 }
-//--------------------------------------------------------------------------------------------
-bool EnchantManager::push_used(const ENC_REF ref)
-{
-    if (!isValidRef(ref))
-    {
-        return false;
-    }
-#if defined(_DEBUG) && defined(DEBUG_ENC_LIST)
-    if (find_used_ref(ref) != std::numeric_limits<size_t>::max())
-    {
-        return false;
-    }
-#endif
 
-    EGOBOO_ASSERT(!lst[ref].obj_base.in_used_list);
-
-    if (usedCount < getCount())
-    {
-        used_ref[usedCount] = ref;
-
-        usedCount++;
-        update_guid++;
-
-        lst[ref].obj_base.in_used_list = true;
-        return true;
-    }
-    return false;
-}
 //--------------------------------------------------------------------------------------------
 ENC_REF EnchantManager::allocate(const ENC_REF override)
 {
@@ -328,43 +241,37 @@ ENC_REF EnchantManager::allocate(const ENC_REF override)
 
         if ( INVALID_ENC_REF == ref )
         {
-            log_warning( "EncList_allocate() - failed to override a enchant? enchant %d already spawned? \n", REF_TO_INT( override ) );
+            log_warning("%s:%d: failed to override object %d - object already spawned? \n", __FILE__,__LINE__, REF_TO_INT( override ) );
         }
     }
     else
     {
-        ref = ( ENC_REF )pop_free();
+        ref = pop_free();
         if ( INVALID_ENC_REF == ref )
         {
-            log_warning( "EncList_allocate() - failed to allocate a new enchant\n" );
+            log_warning("%s:%d: failed to allocate a new object\n", __FILE__, __LINE__);
         }
     }
 
     if (isValidRef(ref))
     {
         // if the enchant is already being used, make sure to destroy the old one
-        if ( DEFINED_ENC( ref ) )
+        if (DEFINED_ENC(ref))
         {
             free_one(ref);
         }
 
-        // allocate the new one
-        POBJ_ALLOCATE(get_ptr( ref ), REF_TO_INT( ref ) );
+        // Allocate the new object.
+        get_ptr(ref)->obj_base.allocate(REF_TO_INT(ref));
     }
 
-    if ( ALLOCATED_ENC( ref ) )
+    if (ALLOCATED_ENC(ref))
     {
         // construct the new structure
-        enc_config_construct( EncList.get_ptr( ref ), 100 );
+        enc_t::config_construct(get_ptr(ref), 100 );
     }
 
     return ref;
-}
-
-//--------------------------------------------------------------------------------------------
-bool EnchantManager::isValidRef(const ENC_REF ref) const
-{
-    return ref < getCount();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -372,77 +279,25 @@ void EnchantManager::maybeRunDeferred()
 {
     // Go through the list and activate all the enchants that
     // were created while the list was iterating.
-    for (size_t cnt = 0; cnt < activation_count; cnt++ )
+    for (size_t i = 0; i < activation_count; ++i)
     {
-        ENC_REF ienc = activation_list[cnt];
+        ENC_REF ref = activation_list[i];
 
-        if (!ALLOCATED_ENC(ienc)) continue;
-        enc_t *penc = get_ptr(ienc);
+        if (!ALLOCATED_ENC(ref)) continue;
+        enc_t *x = get_ptr(ref);
 
-        if (!penc->obj_base.turn_me_on) continue;
+        if (!x->obj_base.turn_me_on) continue;
 
-        penc->obj_base.on         = true;
-        penc->obj_base.turn_me_on = false;
+        x->obj_base.on         = true;
+        x->obj_base.turn_me_on = false;
     }
     activation_count = 0;
 
     // Go through and delete any enchants that were
     // supposed to be deleted while the list was iterating
-    for (size_t cnt = 0; cnt < termination_count; cnt++)
+    for (size_t i = 0; i < termination_count; ++i)
     {
-        free_one(termination_list[cnt]);
+        free_one(termination_list[i]);
     }
     termination_count = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-bool EnchantManager::add_activation(const ENC_REF ref)
-{
-    // put this enchant into the activation list so that it can be activated right after
-    // the EncList loop is completed
-
-    bool retval = false;
-
-    if (!isValidRef(ref)) return false;
-
-    if (activation_count < getCount())
-    {
-        activation_list[activation_count] = ref;
-        activation_count++;
-
-        retval = true;
-    }
-
-    lst[ref].obj_base.turn_me_on = true;
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool EnchantManager::add_termination( const ENC_REF ref )
-{
-    bool retval = false;
-
-    if (!isValidRef(ref)) return false;
-
-    if (termination_count < getCount())
-    {
-        termination_list[termination_count] = ref;
-        termination_count++;
-
-        retval = true;
-    }
-
-    // at least mark the object as "waiting to be terminated"
-    POBJ_REQUEST_TERMINATE(get_ptr(ref));
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool EnchantManager::request_terminate(const ENC_REF ref)
-{
-    enc_t *enc = get_ptr(ref);
-    EGOBOO_ASSERT(nullptr != enc);
-    return enc_request_terminate(enc);
 }

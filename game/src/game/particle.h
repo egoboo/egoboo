@@ -206,8 +206,8 @@ struct prt_t
     Uint32            safe_time;               ///< the last "safe" time
     Uint32            safe_grid;               ///< the last "safe" grid
 
-    static prt_t *ctor(prt_t *self);
-    static prt_t *dtor(prt_t *self);
+    prt_t *ctor();
+    prt_t *dtor();
     static bool request_terminate(prt_t *self);
     static void set_level(prt_t *self, const float level);
     static BIT_FIELD hit_wall(prt_t *self, const float test_pos[], float nrm[], float *pressure, mesh_wall_data_t *data);
@@ -221,17 +221,19 @@ struct prt_t
     static bool update_pos(prt_t *self);
     static bool update_safe(prt_t *self, bool force);
     static bool update_safe_raw(prt_t *self);
+
+    // particle state machine functions
+    static prt_t *run_config(prt_t *self);
+    static prt_t *config_construct(prt_t *self, int max_iterations);
+    static prt_t *config_initialize(prt_t *self, int max_iterations);
+    static prt_t *config_activate(prt_t *self, int max_iterations);
+    static prt_t *config_deinitialize(prt_t *self, int max_iterations);
+    static prt_t *config_deconstruct(prt_t *self, int max_iterations);
+
 };
 
 
 
-// particle state machine functions
-prt_t *prt_run_config(prt_t *self);
-prt_t *prt_config_construct(prt_t *self, int max_iterations);
-prt_t *prt_config_initialize(prt_t *self, int max_iterations);
-prt_t *prt_config_activate(prt_t *self, int max_iterations);
-prt_t *prt_config_deinitialize(prt_t *self, int max_iterations);
-prt_t *prt_config_deconstruct(prt_t *self, int max_iterations);
 
 
 //--------------------------------------------------------------------------------------------

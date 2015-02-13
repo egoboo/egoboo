@@ -57,16 +57,25 @@ namespace Ego
 		/// so they use analagous states.
 		enum State
 		{
+            /// The entity is in its invalid state i.e. its memory is not initialized.
 			Invalid = ego_state_invalid,
-			Constructing = ego_state_begin,     ///< The object has been allocated and had it's critical variables filled with safe values
-			Initializing = ego_state_entering,  ///< The object is being initialized/re-initialized
-			Active = ego_state_running,         ///< The object is fully activated
-			DeInitializing = ego_state_leaving, ///< The object is being de-initialized
-			Destructing = ego_state_finish,     ///< The object is being destructed
+            /// The entity is being constructed.
+			Constructing = ego_state_begin,
+            /// The entity is being initialized/re-initialized.
+			Initializing = ego_state_entering,
+            /// The entity is active.
+            /// The successor to this state is the "deinitializing" state.
+			Active = ego_state_running,
+            /// The "deinitializing" state: The entity is being de-initialized.
+            /// Successor to this state is the "destructing" state.
+            DeInitializing = ego_state_leaving,
+            /// The entity is being destructed.
+			Destructing = ego_state_finish,
 
-			// the states that are specific to objects
-			Waiting,                            ///< The object has been fully destructed and is awaiting final "deletion"
-			Terminated,                         ///< The object is fully "deleted" and should now be on the free-store
+			/// The entity was destructed is awaiting "deletion".
+			Waiting,
+            /// The entity was "deleted". It should be moved to the "free" list and shall have its state set to "invalid".
+            Terminated,
 		};
 		// basic object definitions
 		STRING             _name;      ///< what is its "_name"
@@ -75,7 +84,9 @@ namespace Ego
 		Uint32             guid;       ///< a globally unique identifier
 
 		// "process" control control
+    protected:
 		bool             allocated;    ///< Does it exist?
+    public:
 		bool             on;           ///< Can it be accessed?
 		bool             turn_me_on;   ///< Has someone requested that the object be turned on?
 		bool             kill_me;      ///< Has someone requested that the object be destroyed?
@@ -94,33 +105,67 @@ namespace Ego
 		/// Moved to here so that is is not destroyed in the destructor of the inherited object.
 		BSP_leaf_t     bsp_leaf;
 
-		static Ego::Entity *ctor(Ego::Entity *self, void *child_data, bsp_type_t child_type, size_t child_index);
-		static Ego::Entity *dtor(Ego::Entity *self);
+		Ego::Entity *ctor(void *child_data, bsp_type_t child_type, size_t child_index);
+		Ego::Entity *dtor();
+
+        /// @brief Is this entity is marked as "allocated"?
+        /// @return @a true if this entity is marked as "allocated", @a false otherwise
+        bool isAllocated() const
+        {
+            return allocated;
+        }
+        /// @brief Mark this entity as "allocated".
+        void setAllocated()
+        {
+            allocated = true;
+        }
+        /// @brief Allocate and enter state "constructing".
+        /// @pre State must be "invalid" or "terminated".
+        void allocate(size_t INDEX)
+        {
+            if (state != State::Invalid && state != State::Terminated)
+            {
+                log_warning("%s:%d: entity state is neither `invalid` nor `terminated`\n",__FILE__,__LINE__);
+            }
+            if (allocated)
+            {
+                log_warning("%s:%d: trying allocate an already allocated entity\n", __FILE__, __LINE__);
+            }
+            allocated = true;
+            on = false;
+            turn_me_on = false;
+            kill_me = false;
+            spawning = false;
+            index = INDEX;
+            state = State::Constructing;
+            guid = Ego::Entities::nextGUID++;
+        }
+        // Move to state "terminated" and mark as "not allocated".
+        void terminate()
+        {
+            if (!isAllocated())
+            {
+                log_warning("%s:%d: entity is not allocated\n",__FILE__,__LINE__);
+                return;
+            }
+            allocated = false;
+            on = false;
+            state = State::Terminated;
+        }
 	};
 };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// Mark an entity as being allocated.
+/// "Allocate" entity and enter state "constructing".
 /// @todo Make this a function.
-#define POBJ_ALLOCATE( PDATA, INDEX ) \
-    if( NULL != PDATA ) \
-	    { \
-        (PDATA)->obj_base.allocated  = true;  \
-        (PDATA)->obj_base.on         = false; \
-        (PDATA)->obj_base.turn_me_on = false; \
-        (PDATA)->obj_base.kill_me    = false; \
-        (PDATA)->obj_base.spawning   = false; \
-        (PDATA)->obj_base.index      = INDEX;  \
-        (PDATA)->obj_base.state      = Ego::Entity::State::Constructing; \
-        (PDATA)->obj_base.guid       = Ego::Entities::nextGUID++; \
-	    }
+#define POBJ_ALLOCATE( PDATA, INDEX ) if (PDATA) { (PDATA)->obj_base.allocate(INDEX); }
 
 /// Turn on an entity.
 /// @todo Make this a function.
 #define POBJ_ACTIVATE( PDATA, NAME ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated && !(PDATA)->obj_base.kill_me && Ego::Entity::State::Invalid != (PDATA)->obj_base.state ) \
+    if( NULL != PDATA && (PDATA)->obj_base.isAllocated() && !(PDATA)->obj_base.kill_me && Ego::Entity::State::Invalid != (PDATA)->obj_base.state ) \
 	    { \
         strncpy( (PDATA)->obj_base._name, NAME, SDL_arraysize((PDATA)->obj_base._name) ); \
         (PDATA)->obj_base.state  = Ego::Entity::State::Active; \
@@ -129,7 +174,7 @@ namespace Ego
 /// Begin turning off an entity.
 /// @todo Make this a function.
 #define POBJ_REQUEST_TERMINATE( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated && Ego::Entity::State::Invalid != (PDATA)->obj_base.state ) \
+    if( NULL != PDATA && (PDATA)->obj_base.isAllocated() && Ego::Entity::State::Invalid != (PDATA)->obj_base.state ) \
 	    { \
         if( Ego::Entity::State::Terminated != (PDATA)->obj_base.state ) \
 		        { \
@@ -140,16 +185,10 @@ namespace Ego
 
 /// Completely turn off an entity and mark it as no longer allocated.
 /// @todo Make this a function.
-#define POBJ_TERMINATE( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
-	    { \
-        (PDATA)->obj_base.allocated = false; \
-        (PDATA)->obj_base.on        = false; \
-        (PDATA)->obj_base.state     = Ego::Entity::State::Terminated; \
-    }
+#define POBJ_TERMINATE( PDATA ) if (PDATA) { (PDATA)->obj_base.terminate(); }
 
 #define POBJ_BEGIN_SPAWN( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    if( NULL != PDATA && (PDATA)->obj_base.isAllocated()) \
     {\
         if( !(PDATA)->obj_base.spawning )\
         {\
@@ -159,7 +198,7 @@ namespace Ego
     }\
 
 #define POBJ_END_SPAWN( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    if( NULL != PDATA && (PDATA)->obj_base.isAllocated()) \
     {\
         if( (PDATA)->obj_base.spawning )\
         {\
@@ -169,7 +208,7 @@ namespace Ego
     }\
 
 /// Is the object flagged as requesting termination?
-#define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (Ego::Entity::State::Invalid != (PBASE)->state) )
+#define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->isAllocated() ) && (Ego::Entity::State::Invalid != (PBASE)->state) )
 /// Is the object allocated?
 #define ALLOCATED_PBASE( PBASE )       FLAG_ALLOCATED_PBASE(PBASE)
 
@@ -234,10 +273,3 @@ namespace Ego
 #define GET_STATE_POBJ( POBJ )  LAMBDA( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ), ego_object_invalid, (POBJ)->obj_base.index )
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-/// A variable to hold the object guid counter.
-extern Uint32 ego_object_guid;
-extern Uint32 ego_object_spawn_depth;
-#endif

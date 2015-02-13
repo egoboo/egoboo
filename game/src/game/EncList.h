@@ -60,7 +60,7 @@ struct enc_t;
 // external variables
 //--------------------------------------------------------------------------------------------
 
-struct EnchantManager : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, MAX_ENC >
+struct EnchantManager : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, MAX_ENC, BSP_LEAF_ENC>
 {
     EnchantManager() :
         _LockableList()
@@ -68,21 +68,13 @@ struct EnchantManager : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, 
     }
 
 public:
-    void ctor();
-    void dtor();
     void maybeRunDeferred();
-    bool isValidRef(const ENC_REF ref) const override;
-    bool add_termination(const ENC_REF ref);
-    bool add_activation(const ENC_REF ref);
-    bool push_used(const ENC_REF);
     ENC_REF allocate(const ENC_REF override);
     bool free_one(const ENC_REF ref);
     void update_used();
-    bool request_terminate(const ENC_REF ienc);
     bool push_free(const ENC_REF);
     void prune_used_list();
     void prune_free_list();
-    void deinit() override;
 };
 
 extern EnchantManager EncList;

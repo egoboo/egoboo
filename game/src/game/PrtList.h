@@ -71,17 +71,16 @@
 // external variables
 //--------------------------------------------------------------------------------------------
 
-struct ParticleManager : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF, MAX_PRT >
+struct ParticleManager : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF, MAX_PRT, BSP_LEAF_PRT>
 {
     ParticleManager() :
         _LockableList(),
         _displayLimit(512)
     {
     }
-    void ctor();
-    void dtor();
+
     void update_used();
-    bool isValidRef(const PRT_REF ref) const override;
+
     /**
      * @brief
      *	Run all deferred updates if the particle list is not locked.
@@ -100,19 +99,8 @@ struct ParticleManager : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF,
     void reset_all();
 
 public:
-    /// Enqeue particle to activation list.
-    /// Put this particle into the activation list so that it can be activated right after the particle loop is completed.
-    bool add_activation(const PRT_REF iprt);
-
-    /// Enqeue particle to termination list.
-    /// Put this particle into the termination list so that it can be terminated right after the particle loop is completed.
-    bool add_termination(const PRT_REF iprt);
-
-    bool push_used(const PRT_REF);
     bool free_one(const PRT_REF iprt);
-    bool request_terminate(const PRT_REF iprt);
     bool push_free(const PRT_REF);
-    void deinit() override;
     void prune_used_list();
     void prune_free_list();
 

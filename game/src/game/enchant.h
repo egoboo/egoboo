@@ -102,20 +102,24 @@ struct enc_t
     bool addyesno[MAX_ENCHANT_ADD];   ///< Was the value adjusted
     float addsave[MAX_ENCHANT_ADD];   ///< The adjustment
 
-    static enc_t *ctor(enc_t *self);
-    static enc_t *dtor(enc_t *self);
+    enc_t *ctor();
+    enc_t *dtor();
+
+    static bool request_terminate(enc_t *self);
+
+    // enchant state machine functions
+    static enc_t *run_config(enc_t *self);
+    static enc_t *config_construct(enc_t *self, int max_iterations);
+    static enc_t *config_initialize(enc_t *self, int max_iterations);
+    static enc_t *config_activate(enc_t *self, int max_iterations);
+    static enc_t *config_deinitialize(enc_t *self, int max_iterations);
+    static enc_t *config_deconstruct(enc_t *self, int max_iterations);
 };
 
 
-bool enc_request_terminate(enc_t *self);
 
-// enchant state machine functions
-enc_t *enc_run_config(enc_t *self);
-enc_t *enc_config_construct(enc_t *self, int max_iterations);
-enc_t *enc_config_initialize(enc_t *self, int max_iterations);
-enc_t *enc_config_activate(enc_t *self, int max_iterations);
-enc_t *enc_config_deinitialize(enc_t *self, int max_iterations);
-enc_t *enc_config_deconstruct(enc_t *self, int max_iterations);
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
