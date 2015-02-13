@@ -26,7 +26,6 @@
 #include "game/gamestates/SelectModuleState.hpp"
 #include "game/gamestates/LoadingState.hpp"
 #include "game/ui.h"
-#include "game/menu.h"
 #include "game/game.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"

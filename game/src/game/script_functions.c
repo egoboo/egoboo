@@ -33,7 +33,6 @@
 #include "game/network.h"
 #include "game/game.h"
 #include "game/player.h"
-#include "game/menu.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/ai/AStar.h"

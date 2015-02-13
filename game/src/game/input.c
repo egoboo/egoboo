@@ -25,7 +25,6 @@
 
 #include "game/ui.h"
 #include "game/network.h"
-#include "game/menu.h"
 #include "game/graphic.h"
 #include "game/egoboo.h"
 

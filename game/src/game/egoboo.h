@@ -52,6 +52,8 @@
 
 #define ONESECOND                       50    ///< How many game loop updates represent 1 second (50 UPS = 1 second)
 
+#define WRAP_TOLERANCE 90       ///< Status bar
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Timers
@@ -68,8 +70,7 @@ EXTERN Uint32          outofsync   EQ( 0 );
 
 //HUD
 EXTERN bool          timeron        EQ( false );        ///< Game timer displayed?
-EXTERN Uint32          timervalue     EQ( 0 );             ///< Timer time ( 50ths of a second )
-EXTERN int             wraptolerance  EQ( 80 );            ///< Status bar
+EXTERN Uint32          timervalue     EQ( 0 );             ///< Timer time ( 50ths of a second )      
 EXTERN bool          fpson          EQ( true );         ///< Show FPS?
 
 /// EWWWW. GLOBALS ARE EVIL.

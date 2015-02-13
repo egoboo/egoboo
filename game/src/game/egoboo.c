@@ -62,7 +62,6 @@ bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
     // message display
     DisplayMsg_count    = CLIP( pcfg->message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX );
     DisplayMsg_on       = pcfg->message_count_req > 0;
-    wraptolerance = pcfg->show_stats ? 90 : 32;
 
     // Get the particle limit
     // if the particle limit has changed, make sure to make not of it

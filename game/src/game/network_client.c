@@ -23,7 +23,6 @@
 #include "game/network_client.h"
 #include "game/game.h"
 #include "game/player.h"
-#include "game/menu.h"
 #include "game/egoboo.h"
 #include "game/module/Module.hpp"
 

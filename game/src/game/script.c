@@ -32,8 +32,9 @@
 #include "game/char.h"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
-
 #include "game/entities/ObjectHandler.hpp"
+#include "game/core/GameEngine.hpp"
+
 #include "game/EncList.h"
 #include "game/PrtList.h"
 
@@ -1784,7 +1785,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
     if ( !_gameObjects.exists( ichr ) ) return false;
 
     // 5 bumps per second?
-    if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + TARGET_UPS / 5 )
+    if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + GameEngine::GAME_TARGET_UPS / 5 )
     {
         pself->bumplast_time = update_wld;
         SET_BIT( pself->alert, ALERTIF_BUMPED );

@@ -27,7 +27,6 @@
 #include "game/network_client.h"
 #include "game/input.h"
 #include "game/game.h"
-#include "game/menu.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"

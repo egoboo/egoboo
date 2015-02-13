@@ -428,7 +428,6 @@ void  draw_map_texture( float x, float y );
 float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
 float draw_status( const CHR_REF character, float x, float y );
 void  draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_ammo, Uint8 sparkle_override );
-void  draw_cursor();
 void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map );
 
 //void   make_lightdirectionlookup();

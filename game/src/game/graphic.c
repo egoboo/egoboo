@@ -39,7 +39,6 @@
 #include "game/collision.h"
 #include "game/script.h"
 #include "game/input.h"
-#include "game/menu.h"
 #include "game/script_compile.h"
 #include "game/game.h"
 #include "game/ui.h"
@@ -1635,7 +1634,8 @@ void gfx_system_init_SDL_graphics()
 #endif
 
     // Set the window name
-    SDL_WM_SetCaption( "Egoboo " VERSION, "Egoboo" );
+    std::string title = std::string("Egoboo") + GameEngine::GAME_VERSION;
+    SDL_WM_SetCaption(title.c_str(), "Egoboo");
 
 #if defined(__unix__)
 
@@ -2988,7 +2988,7 @@ void draw_hud()
 
             snprintf( buffer, SDL_arraysize( buffer ), "%s > %s%s", cfg.network_messagename, net_chat.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
 
-            y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
+            y = draw_wrap_string( buffer, 0, y, sdl_scr.x - WRAP_TOLERANCE );
         }
 
         y = DisplayMsg_draw_all( y );
@@ -4990,47 +4990,6 @@ bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst
     return lighting_cache_interpolate( dst, cache_list, u, v );
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if 0
-void gfx_update_fps_clock()
-{
-    /// @author ZZ
-    /// @details This function updates the graphics timers
-
-    int gfx_clock_diff;
-
-    // make sure at least one tick has passed
-    if ( !egolib_timer__throttle( &gfx_update_timer, 1 ) ) return;
-
-    // calculate the time since the from the last update
-    if ( !single_frame_mode )
-    {
-        // update the graphics clock the normal way
-        egolib_throttle_update( &gfx_throttle );
-    }
-    else
-    {
-        // do a single-frame update
-        egolib_throttle_update_diff( &gfx_throttle, TICKS_PER_SEC / ( float )cfg.framelimit );
-    }
-
-    // measure the time change
-    gfx_clock_diff = gfx_throttle.time_now - gfx_throttle.time_lst;
-
-    // update the game fps
-    if (process_t::running(PROC_PBASE(GProc)))
-    {
-        game_fps_clock += gfx_clock_diff;
-    }
-
-    // update the menu fps
-    if (process_t::running(PROC_PBASE( MProc)))
-    {
-        menu_fps_clock += gfx_clock_diff;
-    }
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 // obj_registry_entity_t IMPLEMENTATION
@@ -5645,30 +5604,6 @@ bool sum_global_lighting( lighting_vector_t lighting )
 
 //--------------------------------------------------------------------------------------------
 // SEMI OBSOLETE FUNCTIONS
-//--------------------------------------------------------------------------------------------
-void draw_cursor()
-{
-    /// @author ZZ
-    /// @details This function implements a mouse cursor
-
-    oglx_texture_t * tx_ptr = TextureManager::getSingleton()->get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
-
-    if ( input_cursor.x < 6 )  input_cursor.x = 6;
-    if ( input_cursor.x > sdl_scr.x - 16 )  input_cursor.x = sdl_scr.x - 16;
-
-    if ( input_cursor.y < 8 )  input_cursor.y = 8;
-    if ( input_cursor.y > sdl_scr.y - 24 )  input_cursor.y = sdl_scr.y - 24;
-
-    // Needed to setup text mode
-    gfx_begin_text();
-    {
-        draw_one_font( tx_ptr, 95, input_cursor.x - 5, input_cursor.y - 7 );
-    }
-    // Needed when done with text mode
-    gfx_end_text();
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 gfx_rv dynalist_init( dynalist_t * pdylist )
 {

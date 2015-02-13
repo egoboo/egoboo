@@ -414,7 +414,6 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     // message display
     DisplayMsg_count = Math::constrain(cfg.message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
     DisplayMsg_on    = cfg.message_count_req > 0;
-    wraptolerance 	 = cfg.show_stats ? 90 : 32;
 
     // Adjust the particle limit.
     PrtList.setDisplayLimit(cfg.particle_count_req);

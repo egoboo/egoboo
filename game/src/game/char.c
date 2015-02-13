@@ -25,6 +25,12 @@
 
 #include "egolib/_math.h"
 #include "egolib/math/Random.hpp"
+#include "game/core/GameEngine.hpp"
+#include "game/entities/ObjectHandler.hpp"
+#include "game/profiles/ProfileSystem.hpp"
+#include "game/module/Passage.hpp"
+#include "game/audio/AudioSystem.hpp"
+#include "game/module/Module.hpp"
 
 #include "game/mad.h"
 #include "game/player.h"
@@ -33,19 +39,13 @@
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "game/menu.h"
 #include "game/input.h"
 #include "game/game.h"
 #include "game/ui.h"
 #include "game/collision.h"                  //Only or detach_character_from_platform()
 #include "game/obj_BSP.h"
 #include "game/egoboo.h"
-#include "game/module/Passage.hpp"
-#include "game/audio/AudioSystem.hpp"
-#include "game/profiles/ProfileSystem.hpp"
-#include "game/module/Module.hpp"
 
-#include "game/entities/ObjectHandler.hpp"
 #include "game/EncList.h"
 #include "game/PrtList.h"
 #include "game/mesh.h"
@@ -6275,15 +6275,15 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
         if ( HAS_SOME_BITS( opt_bits, bb_opt_randomize_vel ) )
         {
             // make the text fly away in a random direction
-            pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / TARGET_UPS;
-            pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / TARGET_UPS;
-            pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / TARGET_UPS;
+            pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_fade ) )
         {
             // make the billboard fade to transparency
-            pbb->tint_add[AA] = -1.0f / lifetime_secs / TARGET_UPS;
+            pbb->tint_add[AA] = -1.0f / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_burn ) )
@@ -6295,17 +6295,17 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 
             if ( pbb->tint[RR] != maxval )
             {
-                pbb->tint_add[RR] = -pbb->tint[RR] / lifetime_secs / TARGET_UPS;
+                pbb->tint_add[RR] = -pbb->tint[RR] / lifetime_secs / GameEngine::GAME_TARGET_UPS;
             }
 
             if ( pbb->tint[GG] != maxval )
             {
-                pbb->tint_add[GG] = -pbb->tint[GG] / lifetime_secs / TARGET_UPS;
+                pbb->tint_add[GG] = -pbb->tint[GG] / lifetime_secs / GameEngine::GAME_TARGET_UPS;
             }
 
             if ( pbb->tint[BB] != maxval )
             {
-                pbb->tint_add[BB] = -pbb->tint[BB] / lifetime_secs / TARGET_UPS;
+                pbb->tint_add[BB] = -pbb->tint[BB] / lifetime_secs / GameEngine::GAME_TARGET_UPS;
             }
         }
     }

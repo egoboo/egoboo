@@ -22,7 +22,6 @@
 /// @details
 
 #include "game/link.h"
-#include "game/menu.h"
 #include "game/graphic.h"
 #include "game/game.h"
 #include "game/player.h"

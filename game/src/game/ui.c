@@ -23,7 +23,6 @@
 ///          IMGUI (https://mollyrocket.com/forums/viewtopic.php?t=134).
 
 #include "game/ui.h"
-#include "game/menu.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
 #include "game/graphic_texture.h"
