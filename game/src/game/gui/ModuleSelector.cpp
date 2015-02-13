@@ -152,9 +152,11 @@ void ModuleSelector::drawContainer()
     	{
     		buffer << line << '\n';;
     	}
+        
+        std::string bufferString = buffer.str();
 
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-	    fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 45, getWidth() - 10, getHeight()-50, 25, nullptr, "%s", buffer.str().c_str());
+	    fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 45, getWidth() - 10, getHeight()-50, 25, nullptr, "%s", bufferString.c_str());
     }
 }
 

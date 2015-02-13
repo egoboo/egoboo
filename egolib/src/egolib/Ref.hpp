@@ -67,7 +67,7 @@ public:
     {
         if (other < MIN || other > MAX)
         {
-            throw std::domain_error();
+            throw std::domain_error("out of range");
         }
         _ref = other;
         return *this;
@@ -77,7 +77,7 @@ public:
     {
         if (other < MIN || other > MAX)
         {
-            throw std::domain_error();
+            throw std::domain_error("out of range");
         }
         _ref = other;
         return *this;
@@ -87,7 +87,7 @@ public:
 	{
 		if (other < MIN || other > MAX)
 		{
-			throw std::domain_error();
+			throw std::domain_error("out of range");
 		}
 		_ref = other;
         return *this;
