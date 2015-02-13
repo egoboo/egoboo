@@ -12,12 +12,13 @@ EGO_OBJ    := ${EGO_SRC:.c=.o} ${EGO_CPPSRC:.cpp=.o}
 # the egolib configuration
 
 EGOLIB_L := ../egolib/$(EGOLIB_TARGET)
+IDLIB_L  := ../idlib/$(IDLIB_TARGET)
 
 #---------------------
 # the compiler options
 
-INC      := -Isrc -I../egolib/src
-LDFLAGS  += ${EGOLIB_L}
+INC      := -Isrc -I../egolib/src -I../idlib/src
+LDFLAGS  := ${EGOLIB_L} ${IDLIB_L} $(LDFLAGS)
 
 CFLAGS   += $(INC)
 CXXFLAGS += $(INC)
@@ -27,10 +28,10 @@ CXXFLAGS += $(INC)
 
 .PHONY: all clean
 
-all: $(EGO_TARGET)
-
-$(EGO_TARGET): ${EGO_OBJ} ${EGOLIB_L}
+$(EGO_TARGET): ${EGO_OBJ}
 	$(CXX) -o $@ $^ $(LDFLAGS)
+
+all: $(EGO_TARGET)
 
 clean:
 	rm -f ${EGO_OBJ} $(EGO_TARGET)

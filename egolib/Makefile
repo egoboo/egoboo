@@ -16,7 +16,7 @@ EGOLIB_SOURCE := $(filter-out src/egolib/platform/sys_win32.c, $(EGOLIB_SOURCE))
 
 EGOLIB_OBJ := ${EGOLIB_SOURCE:.c=.o} ${EGOLIB_CPPSRC:.cpp=.o}
 
-INC := -Isrc -I../game/src
+INC := -Isrc -I../idlib/src -I../game/src
 
 CFLAGS   += $(INC)
 CXXFLAGS += $(INC)

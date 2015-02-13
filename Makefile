@@ -17,10 +17,13 @@ EGO_DIR           := game
 EGO_TARGET        := $(PROJ_NAME)-$(PROJ_VERSION)
 
 EGOLIB_DIR        := egolib
-EGOLIB_TARGET     := lib$(PROJ_NAME).a
+EGOLIB_TARGET     := libegolib.a
+
+IDLIB_DIR         := idlib
+IDLIB_TARGET      := libidlib.a
 
 CARTMAN_DIR       := cartman
-CARTMAN_TARGET    := $(PROJ_NAME)-cartman
+CARTMAN_TARGET    := cartman
 
 INSTALL_DIR       := data
 
@@ -53,31 +56,30 @@ CFLAGS   += $(TMPFLAGS)
 CXXFLAGS += $(TMPFLAGS)
 LDFLAGS  := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -llua5.2 -lGL -lGLU
 
-export PREFIX CFLAGS CXXFLAGS LDFLAGS EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET
+export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET
 
 #------------------------------------
 # definitions of the target projects
 
-.PHONY: all clean egolib egoboo cartman
+.PHONY: all clean idlib egolib egoboo cartman install
 
-all: egoboo
+all: idlib egolib egoboo cartman
 
-$(EGOLIB_TARGET):
+idlib:
+	${MAKE} -C $(IDLIB_DIR)
+
+egolib: idlib
 	${MAKE} -C $(EGOLIB_DIR)
 
-egolib: $(EGOLIB_TARGET)
-
-$(EGO_TARGET): $(EGOLIB_TARGET)
+egoboo: idlib egolib
 	${MAKE} -C $(EGO_DIR)
 
-egoboo: $(EGO_TARGET)
-
-$(CARTMAN_TARGET): $(EGOLIB_TARGET)
+cartman: idlib egolib
 	${MAKE} -C $(CARTMAN_DIR)
 
-cartman: $(CARTMAN_TARGET)
 
 clean:
+	${MAKE} -C $(IDLIB_DIR) clean
 	${MAKE} -C $(EGOLIB_DIR) clean
 	${MAKE} -C $(EGO_DIR) clean
 	${MAKE} -C $(CARTMAN_DIR) clean
