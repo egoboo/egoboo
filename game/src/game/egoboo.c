@@ -42,7 +42,7 @@
 #include "game/PrtList.h"
 
 #include "game/module/Module.hpp"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/profiles/Profile.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
@@ -277,7 +277,7 @@ int do_ego_proc_running( ego_process_t * eproc )
         //PMod->beat        = true;
         //PMod->exportvalid = true;
 
-        for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+        for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
         {
             if ( !VALID_PLA( object->is_which_player ) )
             {

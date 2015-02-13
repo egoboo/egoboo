@@ -33,8 +33,8 @@
 #include "game/renderer_2d.h"
 
 //For cheats
-#include "game/module/ObjectHandler.hpp"
-#include "game/entities/GameObject.hpp"
+#include "game/entities/ObjectHandler.hpp"
+#include "game/entities/Object.hpp"
 #include "game/module/Module.hpp"
 #include "game/char.h"
 
@@ -106,7 +106,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
 		case SDLK_F9:
 			if(cfg.dev_mode)
 			{
-				for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+				for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
 				{
 					if(object->isTerminated() || object->getProfile()->isInvincible()) {
 						continue;

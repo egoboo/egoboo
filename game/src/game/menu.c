@@ -40,7 +40,7 @@
 
 #include "game/audio/AudioSystem.hpp"
 
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/PrtList.h"
 #include "game/gamestates/LoadPlayerElement.hpp"
 

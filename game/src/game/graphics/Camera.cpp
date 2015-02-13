@@ -7,7 +7,7 @@
 
 #include "game/char.h"
 #include "game/mesh.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 
 const float Camera::DEFAULT_FOV = 60.0f;
 
@@ -394,7 +394,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	        for(CHR_REF ichr : _trackList)
 	        {
-	            GameObject * pchr = NULL;
+	            Object * pchr = NULL;
 
 	            if ( !_gameObjects.exists( ichr ) ) continue;
 	            pchr = _gameObjects.get( ichr );
@@ -423,14 +423,14 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 	    // "Show me the drama!"
 	    case CAM_PLAYER:
 	    {
-	        GameObject * local_chr_ptrs[MAX_PLAYER];
+	        Object * local_chr_ptrs[MAX_PLAYER];
 	        int local_chr_count = 0;
 
 	        // count the number of local players, first
 	        local_chr_count = 0;
 	        for(CHR_REF ichr : _trackList)
 	        {
-	            GameObject * pchr = NULL;
+	            Object * pchr = NULL;
 
 	            if ( !_gameObjects.exists( ichr ) ) continue;
 	            pchr = _gameObjects.get( ichr );
@@ -467,7 +467,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	            for ( int cnt = 0; cnt < local_chr_count; cnt++ )
 	            {
-	                GameObject * pchr;
+	                Object * pchr;
 	                float weight1, weight2, weight;
 
 	                // we JUST checked the validity of these characters. No need to do it again?

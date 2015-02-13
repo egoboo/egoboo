@@ -26,7 +26,7 @@
 #include <forward_list>
 #include <SDL_mixer.h>
 
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 
 //Forward declarations
 struct egoboo_config_t;

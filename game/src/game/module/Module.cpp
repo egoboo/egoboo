@@ -29,7 +29,7 @@
 #include "game/player.h"
 #include "game/mesh.h"
 #include "game/char.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/profiles/ModuleProfile.hpp"
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
@@ -115,7 +115,7 @@ void GameModule::checkPassageMusic()
         //dont do items in hands or inventory
         if ( IS_ATTACHED_CHR( character ) ) continue;
 
-        GameObject * pchr = _gameObjects.get( character );
+        Object * pchr = _gameObjects.get( character );
         if ( !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
 
         //Loop through every passage

@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------
 
 // Forward declarations.
-class GameObject;
+class Object;
 struct egoboo_config_t;
 struct chr_instance_t;
 
@@ -244,8 +244,8 @@ struct dolist_t
 	static dolist_t *init(dolist_t *self, const size_t index = 0);
 	static gfx_rv reset(dolist_t *self, const size_t index);
 	static gfx_rv sort(dolist_t *self, std::shared_ptr<Camera> camera, const bool reflect);
-	static gfx_rv test_chr(dolist_t *self, const GameObject *pchr);
-	static gfx_rv add_chr_raw(dolist_t *self, GameObject *pchr);
+	static gfx_rv test_chr(dolist_t *self, const Object *pchr);
+	static gfx_rv add_chr_raw(dolist_t *self, Object *pchr);
 	static gfx_rv test_prt(dolist_t *self, const prt_t *pprt);
 	static gfx_rv add_prt_raw(dolist_t *self, prt_t *pprt);
 	/// @brief Insert character or particle entities into this dolist.

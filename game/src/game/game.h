@@ -41,7 +41,7 @@ struct wawalite_fog_t;
 
 struct menu_process_t;
 
-class GameObject;
+class Object;
 struct prt_t;
 struct prt_bundle_t;
 
@@ -465,8 +465,8 @@ void   set_one_player_latch( const PLA_REF player );
 bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice );
 
 /// AI targeting
-bool  chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ idsz, const BIT_FIELD targeting_bits );
-CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
+bool  chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const BIT_FIELD targeting_bits );
+CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
 CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
 
 /// object initialization
@@ -494,20 +494,20 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF ichr );
 bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem );
 bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
-bool get_chr_regeneration( GameObject * pchr, int *pliferegen, int * pmanaregen );
+bool get_chr_regeneration( Object * pchr, int *pliferegen, int * pmanaregen );
 
-float get_chr_level( ego_mesh_t * pmesh, GameObject * pchr );
+float get_chr_level( ego_mesh_t * pmesh, Object * pchr );
 
 void disenchant_character( const CHR_REF ichr );
 
-void cleanup_character_enchants( GameObject * pchr );
+void cleanup_character_enchants( Object * pchr );
 
 bool attach_one_particle( prt_bundle_t * pbdl_prt );
 
-bool attach_GameObjecto_platform( GameObject * pchr, GameObject * pplat );
-bool attach_prt_to_platform( prt_t * pprt, GameObject * pplat );
+bool attach_Objecto_platform( Object * pchr, Object * pplat );
+bool attach_prt_to_platform( prt_t * pprt, Object * pplat );
 
-bool detach_character_from_platform( GameObject * pchr );
+bool detach_character_from_platform( Object * pchr );
 bool detach_particle_from_platform( prt_t * pprt );
 
 egolib_rv game_copy_imports( struct s_import_list * imp_lst );

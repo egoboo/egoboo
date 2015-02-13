@@ -27,7 +27,7 @@
 #include "game/char.h" /** @todo Remove. */
 #include "game/particle.h" /** @todo Remove. */
 #include "game/PrtList.h" /** @todo Remove. */
-#include "game/module/ObjectHandler.hpp" /** @todo Remove. */
+#include "game/entities/ObjectHandler.hpp" /** @todo Remove. */
 
 //--------------------------------------------------------------------------------------------
 
@@ -210,7 +210,7 @@ bool chr_BSP_removeAllLeaves()
 	chr_BSP_root->count = 0;
 
 	// Unlink all used character nodes.
-	for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+	for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
 	{
 		BSP_leaf_t::remove_link(&object->bsp_leaf);
 	}
@@ -235,7 +235,7 @@ bool prt_BSP_removeAllLeaves()
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_BSP_insert(GameObject * pchr)
+bool chr_BSP_insert(Object * pchr)
 {
 	/// @author BB
 	/// @details insert a character's BSP_leaf_t into the BSP_tree_t
@@ -250,7 +250,7 @@ bool chr_BSP_insert(GameObject * pchr)
 
 	// heal the leaf if it needs it
 	pleaf = &pchr->bsp_leaf;
-	if (pchr != (GameObject *)(pleaf->data))
+	if (pchr != (Object *)(pleaf->data))
 	{
 		// some kind of error. re-initialize the data.
 		pleaf->data = pchr;
@@ -288,7 +288,7 @@ bool chr_BSP_fill()
 {
 	// insert the characters
 	chr_BSP_root->count = 0;
-	for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+	for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
 	{
 		// reset a couple of things here
 		pchr->holdingweight = 0;

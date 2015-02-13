@@ -290,7 +290,7 @@
     <ClCompile Include="src\game\profiles\ModuleProfile.cpp">
       <Filter>Game Sources\Profile</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\entities\GameObject.cpp">
+    <ClCompile Include="src\game\entities\Object.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
   </ItemGroup>
@@ -520,7 +520,7 @@
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\LockableList.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\GameObject.hpp">
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Object.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>

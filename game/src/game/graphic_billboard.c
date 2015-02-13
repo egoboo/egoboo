@@ -32,7 +32,7 @@
 
 #include "game/EncList.h"
 #include "game/PrtList.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/game.h"
 
 //--------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ bool billboard_data_free( billboard_data_t * pbb )
 bool billboard_data_update( billboard_data_t * pbb )
 {
     fvec3_t     vup, pos_new;
-    GameObject     * pchr;
+    Object     * pchr;
     float       height, offset;
 
     if ( NULL == pbb || !pbb->valid ) return false;

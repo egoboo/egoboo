@@ -91,7 +91,7 @@
 
 /**
  * @brief
- *  Maximum number of *.wav/*.ogg files per object.
+ *  Maximum number of audio files per object.
  * @ingroup
  *  compile-time
  */

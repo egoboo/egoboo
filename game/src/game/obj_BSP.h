@@ -27,7 +27,7 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
-class GameObject;
+class Object;
 struct prt_bundle_t;
 struct mesh_BSP_t;
 

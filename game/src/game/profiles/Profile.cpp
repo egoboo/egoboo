@@ -25,7 +25,7 @@
 #include "game/profiles/Profile.hpp"
 #include "game/graphic_texture.h"
 #include "game/game.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/particle.h"
 #include "game/mad.h"       //for loading md2
 #include "game/audio/AudioSystem.hpp"
@@ -1063,7 +1063,7 @@ bool ObjectProfile::isSlotValid(slot_t slot) const
 }
 
 
-bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const GameObject *character)
+bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Object *character)
 {
     if (nullptr == (character)) {
         return false;

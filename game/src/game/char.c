@@ -45,7 +45,7 @@
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
 
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/EncList.h"
 #include "game/PrtList.h"
 #include "game/mesh.h"
@@ -69,7 +69,7 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 struct grab_data_t
 {
-    std::shared_ptr<GameObject> object;
+    std::shared_ptr<Object> object;
     float horizontalDistance;
     float verticalDistance;
     bool too_dark;
@@ -102,54 +102,54 @@ static BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs );
 
 static int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset );
 
-static bool apply_one_character_matrix( GameObject * pchr, matrix_cache_t * mcache );
-static bool apply_one_weapon_matrix( GameObject * pweap, matrix_cache_t * mcache );
+static bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mcache );
+static bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mcache );
 
-static int convert_grip_to_local_points( GameObject * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
+static int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
 static int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
 
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
 
-static void cleanup_one_character( GameObject * pchr );
+static void cleanup_one_character( Object * pchr );
 
-static fvec2_t chr_get_mesh_diff( GameObject * pchr, float test_pos[], float center_pressure );
-static float   chr_get_mesh_pressure( GameObject * pchr, float test_pos[] );
+static fvec2_t chr_get_mesh_diff( Object * pchr, float test_pos[], float center_pressure );
+static float   chr_get_mesh_pressure( Object * pchr, float test_pos[] );
 
-static egolib_rv chr_invalidate_child_instances( GameObject * pchr );
+static egolib_rv chr_invalidate_child_instances( Object * pchr );
 
-static void chr_set_enviro_grid_level( GameObject * pchr, const float level );
+static void chr_set_enviro_grid_level( Object * pchr, const float level );
 //static void chr_log_script_time( const CHR_REF ichr );
 
-static bool chr_download_profile(GameObject * pchr, const std::shared_ptr<ObjectProfile> &profile);
+static bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
-static bool chr_get_environment( GameObject * pchr );
+static bool chr_get_environment( Object * pchr );
 
-GameObject * chr_config_do_init( GameObject * pchr );
-static GameObject * chr_config_do_active( GameObject * pchr );
+Object * chr_config_do_init( Object * pchr );
+static Object * chr_config_do_active( Object * pchr );
 static int chr_change_skin( const CHR_REF character, const SKIN_T skin );
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
 
-static egolib_rv matrix_cache_needs_update( GameObject * pchr, matrix_cache_t * pmc );
-static bool apply_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp );
-static bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp );
+static egolib_rv matrix_cache_needs_update( Object * pchr, matrix_cache_t * pmc );
+static bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp );
+static bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp );
 
-static void move_one_character_do_floor_friction( GameObject * pchr );
-static void move_one_character_do_voluntary( GameObject * pchr );
-static void move_one_character( GameObject * pchr );
-static void move_one_character_do_animation( GameObject * pchr );
-static void move_one_character_do_z_motion( GameObject * pchr );
-static bool move_one_character_integrate_motion( GameObject * pchr );
-static bool move_one_character_integrate_motion_attached( GameObject * pchr );
+static void move_one_character_do_floor_friction( Object * pchr );
+static void move_one_character_do_voluntary( Object * pchr );
+static void move_one_character( Object * pchr );
+static void move_one_character_do_animation( Object * pchr );
+static void move_one_character_do_z_motion( Object * pchr );
+static bool move_one_character_integrate_motion( Object * pchr );
+static bool move_one_character_integrate_motion_attached( Object * pchr );
 
-static float set_character_animation_rate( GameObject * pchr );
+static float set_character_animation_rate( Object * pchr );
 
-static bool chr_handle_madfx( GameObject * pchr );
-static bool chr_do_latch_button( GameObject * pchr );
-static bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot );
+static bool chr_handle_madfx( Object * pchr );
+static bool chr_do_latch_button( Object * pchr );
+static bool chr_do_latch_attack( Object * pchr, slot_t which_slot );
 
-static breadcrumb_t * chr_get_last_breadcrumb( GameObject * pchr );
-static void chr_init_size( GameObject * pchr, const std::shared_ptr<ObjectProfile> &profile);
+static breadcrumb_t * chr_get_last_breadcrumb( Object * pchr );
+static void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 //--------------------------------------------------------------------------------------------
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
@@ -211,7 +211,7 @@ egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_enviro_grid_level( GameObject * pchr, const float level )
+void chr_set_enviro_grid_level( Object * pchr, const float level )
 {
     if ( nullptr == ( pchr ) ) return;
 
@@ -224,7 +224,7 @@ void chr_set_enviro_grid_level( GameObject * pchr, const float level )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_copy_enviro( GameObject * chr_psrc, GameObject * chr_pdst )
+bool chr_copy_enviro( Object * chr_psrc, Object * chr_pdst )
 {
     /// @author BB
     /// @details do a deep copy on the character's enviro data
@@ -255,13 +255,13 @@ void keep_weapons_with_holders()
     /// @author ZZ
     /// @details This function keeps weapons near their holders
 
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         CHR_REF iattached = pchr->attachedto;
 
         if ( _gameObjects.exists( iattached ) )
         {
-            GameObject * pattached = _gameObjects.get( iattached );
+            Object * pattached = _gameObjects.get( iattached );
 
             // Keep in hand weapons with iattached
             if ( chr_matrix_valid( pchr.get() ) )
@@ -343,7 +343,7 @@ void make_one_character_matrix( const CHR_REF ichr )
     /// @author ZZ
     /// @details This function sets one character's matrix
 
-    GameObject * pchr;
+    Object * pchr;
     chr_instance_t * pinst;
 
     if ( !_gameObjects.exists( ichr ) ) return;
@@ -359,7 +359,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         // Overlays are kept with their target...
         if ( _gameObjects.exists( pchr->ai.target ) )
         {
-            GameObject * ptarget = _gameObjects.get( pchr->ai.target );
+            Object * ptarget = _gameObjects.get( pchr->ai.target );
 
             pchr->setPosition(ptarget->getPosition());
 
@@ -416,7 +416,7 @@ void chr_log_script_time( const CHR_REF ichr )
 {
     // log the amount of script time that this object used up
 
-    GameObject * pchr;
+    Object * pchr;
     vfs_FILE * ftmp;
 
     if ( !_gameObjects.exists( ichr ) ) return;
@@ -447,7 +447,7 @@ void free_one_character_in_game( const CHR_REF character )
     /// @note This should only be called by cleanup_all_characters() or free_inventory_in_game()
 
     size_t  cnt;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
@@ -480,7 +480,7 @@ void free_one_character_in_game( const CHR_REF character )
     }
 
     // Make sure everyone knows it died
-    for(const std::shared_ptr<GameObject> &chr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
     {
         ai_state_t * pai;
 
@@ -556,7 +556,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
     int     vertex;
     fvec4_t point[1], nupoint[1];
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !DEFINED_PPRT( pprt ) ) return pprt;
 
@@ -646,7 +646,7 @@ void update_all_character_matrices()
     /// @details This function makes all of the character's matrices
 
     // just call chr_update_matrix on every character
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         chr_update_matrix( pchr.get(), true );
     }
@@ -677,7 +677,7 @@ void free_all_chraracters()
 }
 
 //--------------------------------------------------------------------------------------------
-float chr_get_mesh_pressure( GameObject * pchr, float test_pos[] )
+float chr_get_mesh_pressure( Object * pchr, float test_pos[] )
 {
     float retval = 0.0f;
     float radius = 0.0f;
@@ -716,7 +716,7 @@ float chr_get_mesh_pressure( GameObject * pchr, float test_pos[] )
 }
 
 //--------------------------------------------------------------------------------------------
-fvec2_t chr_get_mesh_diff( GameObject * pchr, float test_pos[], float center_pressure )
+fvec2_t chr_get_mesh_diff( Object * pchr, float test_pos[], float center_pressure )
 {
     fvec2_t retval = fvec2_t::zero;
     float radius;
@@ -755,7 +755,7 @@ fvec2_t chr_get_mesh_diff( GameObject * pchr, float test_pos[], float center_pre
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD chr_hit_wall( GameObject * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
+BIT_FIELD chr_hit_wall( Object * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
     /// @author ZZ
     /// @details This function returns nonzero if the character hit a wall that the
@@ -798,7 +798,7 @@ BIT_FIELD chr_hit_wall( GameObject * pchr, const float test_pos[], float nrm[], 
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD GameObjectest_wall( GameObject * pchr, const float test_pos[], mesh_wall_data_t * pdata )
+BIT_FIELD Objectest_wall( Object * pchr, const float test_pos[], mesh_wall_data_t * pdata )
 {
     /// @author ZZ
     /// @details This function returns nonzero if the character hit a wall that the
@@ -848,7 +848,7 @@ void reset_character_accel( const CHR_REF character )
 
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
@@ -906,7 +906,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
     CHR_REF mount;
     Uint16  hand;
     bool  inshop;
-    GameObject * pchr, * pmount;
+    Object * pchr, * pmount;
 
     // Make sure the character is valid
     if ( !_gameObjects.exists( character ) ) return false;
@@ -962,7 +962,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
     }
 
     // Make sure it's not dropped in a wall...
-    if (EMPTY_BIT_FIELD != GameObjectest_wall(pchr, NULL, NULL))
+    if (EMPTY_BIT_FIELD != Objectest_wall(pchr, NULL, NULL))
     {
         fvec3_t pos_tmp = pmount->getPosition();
         pos_tmp.z = pchr->getPosZ();
@@ -1088,7 +1088,7 @@ void reset_character_alpha( const CHR_REF character )
     /// @details This function fixes an item's transparency
 
     CHR_REF mount;
-    GameObject * pchr, * pmount;
+    Object * pchr, * pmount;
 
     // Make sure the character is valid
     if ( !_gameObjects.exists( character ) ) return;
@@ -1160,7 +1160,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
     ///   - This function should do very little testing to see if attachment is allowed.
     ///     Most of that checking should be done by the calling function
 
-    GameObject * prider, * pmount;
+    Object * prider, * pmount;
 
     // Make sure the character/item is valid
     if ( !_gameObjects.exists( irider ) ) return rv_error;
@@ -1283,7 +1283,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     /// @author ZF
     /// @details This adds a new item into the specified inventory slot. Fails if there already is an item there.
     ///               If the specified inventory slot is MAXINVENTORY, it will find the first free inventory slot.
-    GameObject *pchr, *pitem;
+    Object *pchr, *pitem;
     int newammo;
 
     //valid character?
@@ -1296,7 +1296,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     if ( inventory_slot >= MAXINVENTORY )
     {
         int i;
-        for ( i = 0; i < GameObject::MAXNUMINPACK; i++ )
+        for ( i = 0; i < Object::MAXNUMINPACK; i++ )
         {
             if ( !_gameObjects.exists( pchr->inventory[i] ) )
             {
@@ -1338,7 +1338,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     if ( _gameObjects.exists( stack ) )
     {
         // We found a similar, stackable item in the pack
-        GameObject  * pstack      = _gameObjects.get( stack );
+        Object  * pstack      = _gameObjects.get( stack );
         ObjectProfile *stackProfile = chr_get_ppro(stack);
 
         // reveal the name of the item or the stack
@@ -1377,7 +1377,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     {
         //@todo: implement weight check here
         // Make sure we have room for another item
-        //if ( pchr_pack->count >= GameObject::MAXNUMINPACK )
+        //if ( pchr_pack->count >= Object::MAXNUMINPACK )
         // {
         //    SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
         //    return false;
@@ -1415,7 +1415,7 @@ bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t
     ///               in the inventory
 
     CHR_REF item, inventory_item;
-    GameObject *pchr;
+    Object *pchr;
     bool success = false;
     bool inventory_rv;
 
@@ -1427,7 +1427,7 @@ bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t
     if ( inventory_slot >= MAXINVENTORY )
     {
         int i;
-        for ( i = 0; i < GameObject::MAXNUMINPACK; i++ )
+        for ( i = 0; i < Object::MAXNUMINPACK; i++ )
         {
             if ( !_gameObjects.exists( pchr->inventory[i] ) )
             {
@@ -1461,7 +1461,7 @@ bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t
     //now put the inventory item into the character's hand
     if ( _gameObjects.exists( inventory_item ) && success )
     {
-        GameObject *pitem = _gameObjects.get( inventory_item );
+        Object *pitem = _gameObjects.get( inventory_item );
         attach_character_to_mount( inventory_item, ichr, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
 
         //fix flags
@@ -1480,8 +1480,8 @@ bool inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, con
     ///               character's inventory. Note that you still have to handle it falling out
 
     CHR_REF item;
-    GameObject *pitem;
-    GameObject *pholder;
+    Object *pitem;
+    Object *pholder;
 
     //ignore invalid slots
     if ( inventory_slot >= MAXINVENTORY )  return false;
@@ -1522,7 +1522,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
     bool found  = false;
     CHR_REF istack = INVALID_CHR_REF;
 
-    std::shared_ptr<GameObject> pitem = _gameObjects[item];
+    std::shared_ptr<Object> pitem = _gameObjects[item];
     if(!pitem) {
         return INVALID_CHR_REF;
     }
@@ -1574,7 +1574,7 @@ void drop_keys( const CHR_REF character )
     /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
     ///    inventory ( Not hands ).
 
-    GameObject  * pchr;
+    Object  * pchr;
 
     FACING_T direction;
     IDSZ     testa, testz;
@@ -1597,7 +1597,7 @@ void drop_keys( const CHR_REF character )
         IDSZ idsz_type;
         TURN_T turn;
 
-        GameObject *pkey;
+        Object *pkey;
         CHR_REF ikey = pchr->inventory[cnt];
 
         //only valid items
@@ -1647,7 +1647,7 @@ bool drop_all_items( const CHR_REF character )
 {
     /// @author ZZ
     /// @details This function drops all of a character's items
-    const std::shared_ptr<GameObject> &pchr = _gameObjects[character];
+    const std::shared_ptr<Object> &pchr = _gameObjects[character];
 
     //Drop held items
     detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], true, false );
@@ -1677,7 +1677,7 @@ bool drop_all_items( const CHR_REF character )
         CHR_REF item = pchr->inventory[cnt];
 
         //only valid items
-        const std::shared_ptr<GameObject> &pitem = _gameObjects[item];
+        const std::shared_ptr<Object> &pitem = _gameObjects[item];
         if(!pitem) {
             continue;
         }
@@ -1749,7 +1749,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     size_t      ungrab_visible_count = 0;
     std::vector<grab_data_t> ungrabList;
 
-    const std::shared_ptr<GameObject> &pchr_a = _gameObjects[ichr_a];
+    const std::shared_ptr<Object> &pchr_a = _gameObjects[ichr_a];
     if (!pchr_a) return false;
 
     // find the slot from the grip
@@ -1768,7 +1768,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 	slot_pos += pchr_a->getPosition();
 
     // Go through all characters to find the best match
-    for(const std::shared_ptr<GameObject> &pchr_c : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr_c : _gameObjects.iterator())
     {
         grab_data_t grabData;
         bool canGrab = true;
@@ -2041,7 +2041,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     float  velocity;
 
 
-    const std::shared_ptr<GameObject> &pchr = _gameObjects[ichr];
+    const std::shared_ptr<Object> &pchr = _gameObjects[ichr];
     if(!pchr) {
         return;
     }
@@ -2063,7 +2063,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
         action = pchr->inst.action_which;
     }
 
-    const std::shared_ptr<GameObject> &pweapon = _gameObjects[iweapon];
+    const std::shared_ptr<Object> &pweapon = _gameObjects[iweapon];
     const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
     // find the 1st non-item that is holding the weapon
@@ -2095,7 +2095,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
         CHR_REF ithrown = spawn_one_character(pchr->getPosition(), pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
         if (_gameObjects.exists(ithrown))
         {
-            GameObject * pthrown = _gameObjects.get( ithrown );
+            Object * pthrown = _gameObjects.get( ithrown );
 
             pthrown->iskursed = false;
             pthrown->ammo = 1;
@@ -2237,7 +2237,7 @@ void drop_money( const CHR_REF character, int money )
         PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
     };
 
-    const std::shared_ptr<GameObject> &pchr = _gameObjects[character];
+    const std::shared_ptr<Object> &pchr = _gameObjects[character];
     if(!pchr) {
         return;
     }
@@ -2292,7 +2292,7 @@ void call_for_help( const CHR_REF character )
     team = chr_get_iteam( character );
     TeamStack.lst[team].sissy = character;
 
-    for(const std::shared_ptr<GameObject> &chr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
     {
         if ( chr->getCharacterID() != character && !team_hates_team( chr->team, team ) )
         {
@@ -2309,7 +2309,7 @@ void do_level_up( const CHR_REF character )
 
     Uint8 curlevel;
     int number;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
@@ -2403,7 +2403,7 @@ void give_experience( const CHR_REF character, int amount, XPType xptype, bool o
 
     float newamount;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
@@ -2443,7 +2443,7 @@ void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
     /// @author ZZ
     /// @details This function gives every character on a team experience
 
-    for(const std::shared_ptr<GameObject> &chr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
     {
         if ( chr->team == team )
         {
@@ -2482,7 +2482,7 @@ bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF charac
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_download_profile(GameObject * pchr, const std::shared_ptr<ObjectProfile> &profile)
+bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
 {
     /// @author BB
     /// @details grab all of the data from the data.txt file
@@ -2628,7 +2628,7 @@ bool chr_download_profile(GameObject * pchr, const std::shared_ptr<ObjectProfile
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_one_character( GameObject * pchr )
+void cleanup_one_character( Object * pchr )
 {
     /// @author BB
     /// @details Everything necessary to disconnect one character from the game
@@ -2719,7 +2719,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     /// @author BB
     /// @details Handle a character death. Set various states, disconnect it from the world, etc.
 
-    GameObject * pchr;
+    Object * pchr;
     int action;
     Uint16 experience;
     TEAM_REF killer_team;
@@ -2738,7 +2738,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     actual_killer = original_killer;
     if ( _gameObjects.exists( actual_killer ) )
     {
-        GameObject *pkiller = _gameObjects.get( actual_killer );
+        Object *pkiller = _gameObjects.get( actual_killer );
 
         //If we are a held item, try to figure out who the actual killer is
         if ( _gameObjects.exists( pkiller->attachedto ) && !_gameObjects.get(pkiller->attachedto)->isMount() )
@@ -2797,7 +2797,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     //and distribute experience to whoever needs it
     SET_BIT( pchr->ai.alert, ALERTIF_KILLED );
 
-    for(const std::shared_ptr<GameObject> &listener : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &listener : _gameObjects.iterator())
     {
         if ( !listener->alive ) continue;
 
@@ -2833,7 +2833,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
 }
 
 //--------------------------------------------------------------------------------------------
-void spawn_defense_ping( GameObject *pchr, const CHR_REF attacker )
+void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
 {
     /// @author ZF
     /// @details Spawn a defend particle
@@ -2856,7 +2856,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     CHR_REF  origin;
     int      cnt;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
@@ -2876,7 +2876,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_get_environment( GameObject * pchr )
+bool chr_get_environment( Object * pchr )
 {
     if ( NULL == pchr ) return false;
 
@@ -2887,7 +2887,7 @@ bool chr_get_environment( GameObject * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-GameObject * chr_config_do_init( GameObject * pchr )
+Object * chr_config_do_init( Object * pchr )
 {
     CHR_REF  ichr;
     TEAM_REF loc_team;
@@ -3105,7 +3105,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     ppro->requestCount++;
 
     // allocate a new character
-    std::shared_ptr<GameObject> pchr = _gameObjects.insert(profile, override);
+    std::shared_ptr<Object> pchr = _gameObjects.insert(profile, override);
     if (!pchr)
     {
         log_warning( "spawn_one_character() - failed to spawn character\n" );
@@ -3146,7 +3146,7 @@ void respawn_character( const CHR_REF character )
 
     int old_attached_prt_count, new_attached_prt_count;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
@@ -3231,7 +3231,7 @@ void respawn_character( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 {
-    GameObject * pchr;
+    Object * pchr;
     ObjectProfile * ppro;
     mad_t * pmad;
     chr_instance_t * pinst;
@@ -3310,7 +3310,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     int     loc_skin = skin;
 
     int     iTmp;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return 0;
     pchr = _gameObjects.get( character );
@@ -3440,7 +3440,7 @@ bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off 
     Uint16 grip_verts[GRIP_VERTS];
 
     matrix_cache_t * mcache;
-    GameObject * pitem;
+    Object * pitem;
 
     needs_update = false;
 
@@ -3506,7 +3506,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     int tnc;
 #endif
     CHR_REF item_ref, item;
-    GameObject * pchr;
+    Object * pchr;
 
     mad_t * pmad_new;
 
@@ -3763,7 +3763,7 @@ bool cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
     int mana_final;
     bool mana_paid;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return false;
     pchr = _gameObjects.get( character );
@@ -3818,7 +3818,7 @@ bool cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 //--------------------------------------------------------------------------------------------
 void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent )
 {
-    GameObject  * pchr;
+    Object  * pchr;
     bool   can_have_team;
     TEAM_REF loc_team_new;
 
@@ -3882,7 +3882,7 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
     /// @details This function makes a character join another team...
 
     CHR_REF tmp_ref;
-    GameObject * pchr;
+    Object * pchr;
 
     // change the base object
     switch_team_base( character, team, true );
@@ -3924,7 +3924,7 @@ void issue_clean( const CHR_REF character )
 
     team = chr_get_iteam( character );
 
-    for(const std::shared_ptr<GameObject> &listener : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &listener : _gameObjects.iterator())
     {
         if ( team != listener->getTeam() ) continue;
 
@@ -3947,7 +3947,7 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
 
     int amount;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return 0;
     pchr = _gameObjects.get( character );
@@ -3966,7 +3966,7 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_get_skill( GameObject *pchr, IDSZ whichskill )
+int chr_get_skill( Object *pchr, IDSZ whichskill )
 {
     /// @author ZF
     /// @details This returns the skill level for the specified skill or 0 if the character doesn't
@@ -4030,7 +4030,7 @@ bool update_chr_darkvision( const CHR_REF character )
     eve_t * peve;
     int life_regen = 0;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return false;
     pchr = _gameObjects.get( character );
@@ -4077,7 +4077,7 @@ void update_all_characters()
     /// @author ZZ
     /// @details This function updates stats and such for every character
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         //Skip termianted objects
         if(object->isTerminated()) {
@@ -4098,11 +4098,11 @@ void update_all_characters()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void move_one_character_get_environment( GameObject * pchr )
+void move_one_character_get_environment( Object * pchr )
 {
 
     float   grid_level, water_level;
-    GameObject * pplatform = NULL;
+    Object * pplatform = NULL;
 
     chr_environment_t * penviro;
 
@@ -4297,7 +4297,7 @@ void move_one_character_get_environment( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_one_character_do_floor_friction( GameObject * pchr )
+void move_one_character_do_floor_friction( Object * pchr )
 {
     /// @author BB
     /// @details Friction is complicated when you want to have sliding characters :P
@@ -4316,7 +4316,7 @@ void move_one_character_do_floor_friction( GameObject * pchr )
     temp_friction_xy = 1.0f;
     vup.x = 0.0f; vup.y = 0.0f; vup.z = 1.0f;
 
-    const std::shared_ptr<GameObject> &platform = _gameObjects[pchr->onwhichplatform_ref];
+    const std::shared_ptr<Object> &platform = _gameObjects[pchr->onwhichplatform_ref];
 
     // figure out the acceleration due to the current "floor"
     if (platform != nullptr)
@@ -4409,7 +4409,7 @@ void move_one_character_do_floor_friction( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_one_character_do_voluntary( GameObject * pchr )
+void move_one_character_do_voluntary( Object * pchr )
 {
     // do voluntary motion
 
@@ -4513,7 +4513,7 @@ void move_one_character_do_voluntary( GameObject * pchr )
     // do platform friction
     if ( _gameObjects.exists( pchr->onwhichplatform_ref ) )
     {
-        GameObject * pplat = _gameObjects.get( pchr->onwhichplatform_ref );
+        Object * pplat = _gameObjects.get( pchr->onwhichplatform_ref );
 
         new_ax += ( pplat->vel.x + pchr->enviro.new_v.x - ( pchr->vel.x ) );
         new_ay += ( pplat->vel.y + pchr->enviro.new_v.y - ( pchr->vel.y ) );
@@ -4591,7 +4591,7 @@ void move_one_character_do_voluntary( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
+bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 {
     CHR_REF ichr, iweapon;
     MAD_REF imad;
@@ -4615,7 +4615,7 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
         // Unarmed means character itself is the iweapon
         iweapon = ichr;
     }
-    GameObject *pweapon     = _gameObjects.get(iweapon);
+    Object *pweapon     = _gameObjects.get(iweapon);
     const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
     //No need to continue if we have an attack cooldown
@@ -4656,7 +4656,7 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
         test_weapon = pchr->holdingwhich[which_slot == SLOT_LEFT ? SLOT_RIGHT : SLOT_LEFT];
         if ( _gameObjects.exists( test_weapon ) )
         {
-            GameObject * weapon;
+            Object * weapon;
             weapon     = _gameObjects.get( test_weapon );
             if ( weapon->iskursed ) allowedtoattack = false;
         }
@@ -4687,7 +4687,7 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
     if ( allowedtoattack )
     {
         // Rearing mount
-        const std::shared_ptr<GameObject> &pmount = _gameObjects[pchr->attachedto];
+        const std::shared_ptr<Object> &pmount = _gameObjects[pchr->attachedto];
 
         if (pmount)
         {
@@ -4811,7 +4811,7 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_do_latch_button( GameObject * pchr )
+bool chr_do_latch_button( Object * pchr )
 {
     /// @author BB
     /// @details Character latches for generalized buttons
@@ -4952,7 +4952,7 @@ bool chr_do_latch_button( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_one_character_do_z_motion( GameObject * pchr )
+void move_one_character_do_z_motion( Object * pchr )
 {
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -4991,7 +4991,7 @@ void move_one_character_do_z_motion( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_update_safe_raw( GameObject * pchr )
+bool chr_update_safe_raw( Object * pchr )
 {
     bool retval = false;
 
@@ -5015,7 +5015,7 @@ bool chr_update_safe_raw( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_update_safe( GameObject * pchr, bool force )
+bool chr_update_safe( Object * pchr, bool force )
 {
     Uint32 new_grid;
     bool retval = false;
@@ -5054,7 +5054,7 @@ bool chr_update_safe( GameObject * pchr, bool force )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_get_safe(GameObject * pchr)
+bool chr_get_safe(Object * pchr)
 {
     bool found = false;
     fvec3_t loc_pos;
@@ -5102,7 +5102,7 @@ bool chr_get_safe(GameObject * pchr)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_update_breadcrumb_raw( GameObject * pchr )
+bool chr_update_breadcrumb_raw( Object * pchr )
 {
     breadcrumb_t bc;
     bool retval = false;
@@ -5120,7 +5120,7 @@ bool chr_update_breadcrumb_raw( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_update_breadcrumb( GameObject * pchr, bool force )
+bool chr_update_breadcrumb( Object * pchr, bool force )
 {
     Uint32 new_grid;
     bool retval = false;
@@ -5168,7 +5168,7 @@ bool chr_update_breadcrumb( GameObject * pchr, bool force )
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * chr_get_last_breadcrumb( GameObject * pchr )
+breadcrumb_t * chr_get_last_breadcrumb( Object * pchr )
 {
     if ( nullptr == ( pchr ) ) return NULL;
 
@@ -5178,7 +5178,7 @@ breadcrumb_t * chr_get_last_breadcrumb( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool move_one_character_integrate_motion_attached( GameObject * pchr )
+bool move_one_character_integrate_motion_attached( Object * pchr )
 {
     Uint32 chr_update;
 
@@ -5196,7 +5196,7 @@ bool move_one_character_integrate_motion_attached( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool move_one_character_integrate_motion( GameObject * pchr )
+bool move_one_character_integrate_motion( Object * pchr )
 {
     /// @author BB
     /// @details Figure out the next position of the character.
@@ -5286,7 +5286,7 @@ bool move_one_character_integrate_motion( GameObject * pchr )
         tmp_pos.x = new_x;
         tmp_pos.y = new_y;
 
-        if ( EMPTY_BIT_FIELD == GameObjectest_wall( pchr, tmp_pos.v, &wdata ) )
+        if ( EMPTY_BIT_FIELD == Objectest_wall( pchr, tmp_pos.v, &wdata ) )
         {
             updated_2d = true;
         }
@@ -5522,7 +5522,7 @@ bool move_one_character_integrate_motion( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_handle_madfx( GameObject * pchr )
+bool chr_handle_madfx( Object * pchr )
 {
     ///@details This handles special commands an animation frame might execute, for example
     ///         grabbing stuff or spawning attack particles.
@@ -5626,7 +5626,7 @@ int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs )
 }
 
 //--------------------------------------------------------------------------------------------
-float set_character_animation_rate( GameObject * pchr )
+float set_character_animation_rate( Object * pchr )
 {
     /// @author ZZ
     /// @details Get running, walking, sneaking, or dancing, from speed
@@ -5901,7 +5901,7 @@ float set_character_animation_rate( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_one_character_do_animation( GameObject * pchr )
+void move_one_character_do_animation( Object * pchr )
 {
     // Animate the character.
     // Right now there are 50/4 = 12.5 animation frames per second
@@ -5983,7 +5983,7 @@ void move_one_character_do_animation( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_one_character( GameObject * pchr )
+void move_one_character( Object * pchr )
 {
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -6039,7 +6039,7 @@ void move_all_characters()
     chr_stoppedby_tests = 0;
 
     // Move every character
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         // prime the environment
         object->enviro.air_friction = air_friction;
@@ -6058,7 +6058,7 @@ void move_all_characters()
 void cleanup_all_characters()
 {
     // Do poofing
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         bool time_out;
 
@@ -6081,7 +6081,7 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
 {
     FACING_T left, right;
 
-    GameObject * pchr;
+    Object * pchr;
     mad_t * pmad;
 
     bool  is_invictus;
@@ -6208,7 +6208,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
     ///    must be called with a valid character, so be careful if you call this function from within
     ///    spawn_one_character()
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return INVALID_BBOARD_REF;
     pchr = _gameObjects.get( ichr );
@@ -6235,7 +6235,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 //--------------------------------------------------------------------------------------------
 billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
-    GameObject            * pchr;
+    Object            * pchr;
     billboard_data_t * pbb;
     int                rv;
 
@@ -6317,7 +6317,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 const char * chr_get_dir_name( const CHR_REF ichr )
 {
     static STRING buffer = EMPTY_CSTR;
-    GameObject * pchr;
+    Object * pchr;
 
     strncpy( buffer, "/debug", SDL_arraysize( buffer ) );
 
@@ -6351,7 +6351,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_update_collision_size( GameObject * pchr, bool update_matrix )
+egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 {
     /// @author BB
     ///
@@ -6597,7 +6597,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     /// @details Get the index to the icon texture (in TxList) that is supposed to be used with this object.
     ///               If none can be found, return the index to the texture of the null icon.
 
-    const std::shared_ptr<GameObject> &pitem = _gameObjects[item];
+    const std::shared_ptr<Object> &pitem = _gameObjects[item];
     if (!pitem) {
         return static_cast<TX_REF>(TX_ICON_NULL);
     }
@@ -6655,7 +6655,7 @@ void reset_teams()
 }
 
 //--------------------------------------------------------------------------------------------
-GameObject * chr_update_hide( GameObject * pchr )
+Object * chr_update_hide( Object * pchr )
 {
     /// @author BB
     /// @details Update the hide state of the character. Should be called every time that
@@ -6674,7 +6674,7 @@ GameObject * chr_update_hide( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_matrix_valid( const GameObject * pchr )
+bool chr_matrix_valid( const Object * pchr )
 {
     /// @author BB
     /// @details Determine whether the character has a valid matrix
@@ -6696,7 +6696,7 @@ int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
     Uint32  i;
     int vrt_count, tnc;
 
-    GameObject * pmount;
+    Object * pmount;
     mad_t * pmount_mad;
 
     if ( NULL == grip_verts ) return 0;
@@ -6743,7 +6743,7 @@ int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
+bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 {
     /// @author BB
     /// @details grab the matrix cache data for a given character and put it into mc_tmp.
@@ -6769,7 +6769,7 @@ bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
     {
         // this will pretty much fail the cmp_matrix_cache() every time...
 
-        GameObject * ptarget = _gameObjects.get( pchr->ai.target );
+        Object * ptarget = _gameObjects.get( pchr->ai.target );
 
         // make sure we have the latst info from the target
         chr_update_matrix( ptarget, true );
@@ -6791,7 +6791,7 @@ bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
         //---- update the MAT_WEAPON data
         if ( _gameObjects.exists( pchr->attachedto ) )
         {
-            GameObject * pmount = _gameObjects.get( pchr->attachedto );
+            Object * pmount = _gameObjects.get( pchr->attachedto );
 
             // make sure we have the latst info from the target
             chr_update_matrix( pmount, true );
@@ -6814,7 +6814,7 @@ bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
         //---- update the MAT_CHARACTER data
         if ( _gameObjects.exists( itarget ) )
         {
-            GameObject * ptarget = _gameObjects.get( itarget );
+            Object * ptarget = _gameObjects.get( itarget );
 
             mc_tmp->valid   = true;
             SET_BIT( mc_tmp->type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
@@ -6833,7 +6833,7 @@ bool chr_get_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_local_points( GameObject * pholder, Uint16 grip_verts[], fvec4_t dst_point[] )
+int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t dst_point[] )
 {
     /// @author ZZ
     /// @details a helper function for apply_one_weapon_matrix()
@@ -6893,7 +6893,7 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], f
     /// @author ZZ
     /// @details a helper function for apply_one_weapon_matrix()
 
-    GameObject *   pholder;
+    Object *   pholder;
     int       point_count;
     fvec4_t   src_point[GRIP_VERTS];
 
@@ -6912,7 +6912,7 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], f
 }
 
 //--------------------------------------------------------------------------------------------
-bool apply_one_weapon_matrix( GameObject * pweap, matrix_cache_t * mc_tmp )
+bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
 {
     /// @author ZZ
     /// @details Request that the data in the matrix cache be used to create a "character matrix".
@@ -6921,7 +6921,7 @@ bool apply_one_weapon_matrix( GameObject * pweap, matrix_cache_t * mc_tmp )
     fvec4_t   nupoint[GRIP_VERTS];
     int       iweap_points;
 
-    GameObject * pholder;
+    Object * pholder;
     matrix_cache_t * pweap_mcache;
 
     if ( NULL == mc_tmp || !mc_tmp->valid || 0 == ( MAT_WEAPON & mc_tmp->type_bits ) ) return false;
@@ -6974,7 +6974,7 @@ bool apply_one_weapon_matrix( GameObject * pweap, matrix_cache_t * mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool apply_one_character_matrix( GameObject * pchr, matrix_cache_t * mc_tmp )
+bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mc_tmp )
 {
     /// @author ZZ
     /// @details Request that the matrix cache data be used to create a "weapon matrix".
@@ -7014,7 +7014,7 @@ bool apply_one_character_matrix( GameObject * pchr, matrix_cache_t * mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool apply_matrix_cache( GameObject * pchr, matrix_cache_t * mc_tmp )
+bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 {
     /// @author BB
     /// @details request that the info in the matrix cache mc_tmp, be used to
@@ -7186,7 +7186,7 @@ cmp_matrix_cache_end:
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv matrix_cache_needs_update( GameObject * pchr, matrix_cache_t * pmc )
+egolib_rv matrix_cache_needs_update( Object * pchr, matrix_cache_t * pmc )
 {
     /// @author BB
     /// @details determine whether a matrix cache has become invalid and needs to be updated
@@ -7208,7 +7208,7 @@ egolib_rv matrix_cache_needs_update( GameObject * pchr, matrix_cache_t * pmc )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_update_matrix( GameObject * pchr, bool update_size )
+egolib_rv chr_update_matrix( Object * pchr, bool update_size )
 {
     /// @author BB
     /// @details Do everything necessary to set the current matrix for this character.
@@ -7256,7 +7256,7 @@ egolib_rv chr_update_matrix( GameObject * pchr, bool update_size )
     if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && _gameObjects.exists( mc_tmp.grip_chr ) )
     {
         egolib_rv grip_retval;
-        GameObject   * ptarget = _gameObjects.get( mc_tmp.grip_chr );
+        Object   * ptarget = _gameObjects.get( mc_tmp.grip_chr );
 
         // has that character changes its animation?
         grip_retval = ( egolib_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
@@ -7293,7 +7293,7 @@ CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
 
     bool matches_equipped;
     CHR_REF result;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return INVALID_CHR_REF;
     pchr = _gameObjects.get( ichr );
@@ -7323,7 +7323,7 @@ CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
 
     bool found;
     CHR_REF item, tmp_item;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return INVALID_CHR_REF;
     pchr = _gameObjects.get( ichr );
@@ -7368,7 +7368,7 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
 
     bool found;
     CHR_REF item;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return INVALID_CHR_REF;
     pchr = _gameObjects.get( ichr );
@@ -7393,7 +7393,7 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_can_see_invis( const GameObject * pchr, const GameObject * pobj )
+bool chr_can_see_invis( const Object * pchr, const Object * pobj )
 {
     /// @author BB
     /// @details can ichr see iobj?
@@ -7416,7 +7416,7 @@ bool chr_can_see_invis( const GameObject * pchr, const GameObject * pobj )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_can_see_dark( const GameObject * pchr, const GameObject * pobj )
+bool chr_can_see_dark( const Object * pchr, const Object * pobj )
 {
     /// @author BB
     /// @details can ichr see iobj?
@@ -7444,7 +7444,7 @@ bool chr_can_see_dark( const GameObject * pchr, const GameObject * pobj )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_can_see_object( const GameObject * pchr, const GameObject * pobj )
+bool chr_can_see_object( const Object * pchr, const Object * pobj )
 {
     /// @author BB
     /// @details can ichr see iobj?
@@ -7471,7 +7471,7 @@ int chr_get_price( const CHR_REF ichr )
     Uint16  iskin;
     float   price;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return 0;
     pchr = _gameObjects.get( ichr );
@@ -7516,7 +7516,7 @@ int chr_get_price( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_floor_level( GameObject * pchr, const float level )
+void chr_set_floor_level( Object * pchr, const float level )
 {
     if ( nullptr == ( pchr ) ) return;
 
@@ -7527,7 +7527,7 @@ void chr_set_floor_level( GameObject * pchr, const float level )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_redshift( GameObject * pchr, const int rs )
+void chr_set_redshift( Object * pchr, const int rs )
 {
     if ( nullptr == ( pchr ) ) return;
 
@@ -7537,7 +7537,7 @@ void chr_set_redshift( GameObject * pchr, const int rs )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_grnshift( GameObject * pchr, const int gs )
+void chr_set_grnshift( Object * pchr, const int gs )
 {
     if ( nullptr == ( pchr ) ) return;
 
@@ -7547,7 +7547,7 @@ void chr_set_grnshift( GameObject * pchr, const int gs )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_blushift( GameObject * pchr, const int bs )
+void chr_set_blushift( Object * pchr, const int bs )
 {
     if ( nullptr == ( pchr ) ) return;
 
@@ -7561,7 +7561,7 @@ void chr_set_blushift( GameObject * pchr, const int bs )
 /// @param chr the character
 /// @param fat the new fat value
 /// @remark The fat value influences the character size.
-void chr_set_fat(GameObject *chr, const float fat)
+void chr_set_fat(Object *chr, const float fat)
 {
 	if (nullptr == (chr)) return;
 	chr->fat = fat;
@@ -7573,7 +7573,7 @@ void chr_set_fat(GameObject *chr, const float fat)
 /// @param chr the character
 /// @param height the new height
 /// @remark The (base) height influences the character size.
-void chr_set_height(GameObject *chr, const float height)
+void chr_set_height(Object *chr, const float height)
 {
 	if (nullptr == (chr)) return;
 	chr->bump_save.height = std::max(height, 0.0f);
@@ -7585,7 +7585,7 @@ void chr_set_height(GameObject *chr, const float height)
 /// @param chr the character
 /// @param width the new width
 /// @remark Also modifies the shadow size.
-void chr_set_width(GameObject *chr, const float width)
+void chr_set_width(Object *chr, const float width)
 {
 	if (nullptr == (chr)) return;
 
@@ -7602,7 +7602,7 @@ void chr_set_width(GameObject *chr, const float width)
 /// @brief Set the scale of a character such that it matches the given size.
 /// @param chr the character
 /// @param size the size
-void chr_set_size(GameObject *chr, const float size)
+void chr_set_size(Object *chr, const float size)
 {
 	if (nullptr == (chr)) return;
 
@@ -7620,7 +7620,7 @@ void chr_set_size(GameObject *chr, const float size)
 /// @brief Update the (base) shadow size of a character.
 /// @param chr the character
 /// @param size the base shadow size
-void chr_set_shadow(GameObject *chr, const float size)
+void chr_set_shadow(Object *chr, const float size)
 {
 	/// @author BB
 	/// @details update the base shadow size
@@ -7633,7 +7633,7 @@ void chr_set_shadow(GameObject *chr, const float size)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatUp(GameObject *pchr, fvec3_t& up)
+bool chr_getMatUp(Object *pchr, fvec3_t& up)
 {
 	bool rv;
 
@@ -7661,7 +7661,7 @@ bool chr_getMatUp(GameObject *pchr, fvec3_t& up)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatRight(GameObject *pchr, fvec3_t& right)
+bool chr_getMatRight(Object *pchr, fvec3_t& right)
 {
 	bool rv;
 
@@ -7689,7 +7689,7 @@ bool chr_getMatRight(GameObject *pchr, fvec3_t& right)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatForward(GameObject *pchr, fvec3_t& forward)
+bool chr_getMatForward(Object *pchr, fvec3_t& forward)
 {
 	bool rv;
 
@@ -7717,7 +7717,7 @@ bool chr_getMatForward(GameObject *pchr, fvec3_t& forward)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatTranslate(GameObject *pchr, fvec3_t& translate)
+bool chr_getMatTranslate(Object *pchr, fvec3_t& translate)
 {
 	bool rv;
 
@@ -7791,7 +7791,7 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 chr_get_framefx( GameObject * pchr )
+Uint32 chr_get_framefx( Object * pchr )
 {
     if ( nullptr == ( pchr ) ) return 0;
 
@@ -7799,7 +7799,7 @@ Uint32 chr_get_framefx( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_invalidate_child_instances( GameObject * pchr )
+egolib_rv chr_invalidate_child_instances( Object * pchr )
 {
     int cnt;
 
@@ -7819,7 +7819,7 @@ egolib_rv chr_invalidate_child_instances( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_set_action( GameObject * pchr, int action, bool action_ready, bool override_action )
+egolib_rv chr_set_action( Object * pchr, int action, bool action_ready, bool override_action )
 {
     egolib_rv retval;
 
@@ -7838,7 +7838,7 @@ egolib_rv chr_set_action( GameObject * pchr, int action, bool action_ready, bool
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_start_anim( GameObject * pchr, int action, bool action_ready, bool override_action )
+egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool override_action )
 {
     egolib_rv retval;
 
@@ -7857,7 +7857,7 @@ egolib_rv chr_start_anim( GameObject * pchr, int action, bool action_ready, bool
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_set_anim( GameObject * pchr, int action, int frame, bool action_ready, bool override_action )
+egolib_rv chr_set_anim( Object * pchr, int action, int frame, bool action_ready, bool override_action )
 {
     egolib_rv retval;
 
@@ -7876,7 +7876,7 @@ egolib_rv chr_set_anim( GameObject * pchr, int action, int frame, bool action_re
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_increment_action( GameObject * pchr )
+egolib_rv chr_increment_action( Object * pchr )
 {
     egolib_rv retval;
 
@@ -7895,7 +7895,7 @@ egolib_rv chr_increment_action( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_increment_frame( GameObject * pchr )
+egolib_rv chr_increment_frame( Object * pchr )
 {
     egolib_rv retval;
     mad_t * pmad;
@@ -7964,7 +7964,7 @@ egolib_rv chr_increment_frame( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv chr_play_action( GameObject * pchr, int action, bool action_ready )
+egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
 {
     egolib_rv retval;
 
@@ -7983,7 +7983,7 @@ egolib_rv chr_play_action( GameObject * pchr, int action, bool action_ready )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_heal_mad( GameObject * pchr )
+bool chr_heal_mad( Object * pchr )
 {
     // try to repair a bad model if it exists
 
@@ -8014,7 +8014,7 @@ bool chr_heal_mad( GameObject * pchr )
 //--------------------------------------------------------------------------------------------
 MAD_REF chr_get_imad( const CHR_REF ichr )
 {
-    GameObject * pchr   = NULL;
+    Object * pchr   = NULL;
     MAD_REF retval = INVALID_MAD_REF;
 
     pchr = _gameObjects.get( ichr );
@@ -8036,7 +8036,7 @@ mad_t * chr_get_pmad( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_set_maxaccel( GameObject * pchr, float new_val )
+bool chr_set_maxaccel( Object * pchr, float new_val )
 {
     bool retval = false;
     float ftmp;
@@ -8059,7 +8059,7 @@ bool chr_set_maxaccel( GameObject * pchr, float new_val )
 }
 
 //--------------------------------------------------------------------------------------------
-GameObject * chr_set_ai_state( GameObject * pchr, int state )
+Object * chr_set_ai_state( Object * pchr, int state )
 {
     if ( nullptr == ( pchr ) ) return pchr;
 
@@ -8071,7 +8071,7 @@ GameObject * chr_set_ai_state( GameObject * pchr, int state )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_calc_grip_cv( GameObject * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin )
+bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, const bool shift_origin )
 {
     /// @author BB
     /// @details use a standard size for the grip
@@ -8209,7 +8209,7 @@ CHR_REF team_get_ileader( const TEAM_REF iteam )
 }
 
 //--------------------------------------------------------------------------------------------
-GameObject  * team_get_pleader( const TEAM_REF iteam )
+Object  * team_get_pleader( const TEAM_REF iteam )
 {
     CHR_REF ichr;
 
@@ -8236,7 +8236,7 @@ bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
 //--------------------------------------------------------------------------------------------
 PRO_REF chr_get_ipro( const CHR_REF ichr )
 {
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return INVALID_PRO_REF;
     pchr = _gameObjects.get( ichr );
@@ -8251,7 +8251,7 @@ TEAM_REF chr_get_iteam( const CHR_REF ichr )
 {
 
     if ( !_gameObjects.exists( ichr ) ) return static_cast<TEAM_REF>(TEAM_DAMAGE);
-    GameObject * pchr = _gameObjects.get( ichr );
+    Object * pchr = _gameObjects.get( ichr );
 
     return static_cast<TEAM_REF>(pchr->team);
 }
@@ -8259,7 +8259,7 @@ TEAM_REF chr_get_iteam( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
 {
-    GameObject * pchr;
+    Object * pchr;
     int iteam;
 
     if ( !_gameObjects.exists( ichr ) ) return ( TEAM_REF )TEAM_MAX;
@@ -8280,7 +8280,7 @@ ObjectProfile * chr_get_ppro( const CHR_REF ichr )
         return nullptr;
     }
 
-    GameObject * pchr = _gameObjects.get( ichr );
+    Object * pchr = _gameObjects.get( ichr );
 
     //This function should -never- return nullptr
     if(!_profileSystem.isValidProfileID(pchr->profile_ref)) {
@@ -8294,7 +8294,7 @@ ObjectProfile * chr_get_ppro( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 team_t * chr_get_pteam( const CHR_REF ichr )
 {
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
@@ -8305,7 +8305,7 @@ team_t * chr_get_pteam( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 team_t * chr_get_pteam_base( const CHR_REF ichr )
 {
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
@@ -8316,7 +8316,7 @@ team_t * chr_get_pteam_base( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 ai_state_t * chr_get_pai( const CHR_REF ichr )
 {
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
@@ -8327,7 +8327,7 @@ ai_state_t * chr_get_pai( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 chr_instance_t * chr_get_pinstance( const CHR_REF ichr )
 {
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
@@ -8388,7 +8388,7 @@ bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void chr_update_size( GameObject * pchr )
+void chr_update_size( Object * pchr )
 {
     /// @author BB
     /// @details Convert the base size values to the size values that are used in the game
@@ -8404,7 +8404,7 @@ void chr_update_size( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-static void chr_init_size( GameObject * pchr, const std::shared_ptr<ObjectProfile> &profile)
+static void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
 {
     /// @author BB
     /// @details initalize the character size info

@@ -17,22 +17,22 @@
 //*
 //********************************************************************************************
 
-/// @file game/entities/GameObject.hpp
-/// @details An object representing instances of in-game egoboo objects (GameObject)
+/// @file game/entities/Object.hpp
+/// @details An object representing instances of in-game egoboo objects (Object)
 /// @author Johan Jansen
 
-#include "game/entities/GameObject.hpp"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/Object.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/char.h" //ZF> TODO: remove
 
 //Declare class static constants
-const size_t GameObject::MAXNUMINPACK;
+const size_t Object::MAXNUMINPACK;
 
 
-GameObject::GameObject(const PRO_REF profile, const CHR_REF id) : 
+Object::Object(const PRO_REF profile, const CHR_REF id) : 
     bsp_leaf(),
     spawn_data(),
     ai(),
@@ -213,7 +213,7 @@ GameObject::GameObject(const PRO_REF profile, const CHR_REF id) :
     phys_data_ctor( &phys );
 }
 
-GameObject::~GameObject()
+Object::~Object()
 {
     /// Free all allocated memory
 
@@ -226,7 +226,7 @@ GameObject::~GameObject()
     EGOBOO_ASSERT( nullptr == inst.vrt_lst );
 }
 
-bool GameObject::isOverWater(bool anyLiquid) const
+bool Object::isOverWater(bool anyLiquid) const
 {
 	//Make sure water in the current module is actually water (could be lava, acid, etc.)
 	if(!anyLiquid && !water.is_water) {
@@ -241,13 +241,13 @@ bool GameObject::isOverWater(bool anyLiquid) const
     return 0 != ego_mesh_test_fx(PMesh, onwhichgrid, MAPFX_WATER);
 }
 
-bool GameObject::isInWater(bool anyLiquid) const
+bool Object::isInWater(bool anyLiquid) const
 {
     return isOverWater(anyLiquid) && getPosZ() < water.surface_level ;
 }
 
 
-bool GameObject::setPosition(const fvec3_t& position)
+bool Object::setPosition(const fvec3_t& position)
 {
     EGO_DEBUG_VALIDATE(position);
 
@@ -272,20 +272,20 @@ bool GameObject::setPosition(const fvec3_t& position)
 }
 
 
-void GameObject::movePosition(const float x, const float y, const float z)
+void Object::movePosition(const float x, const float y, const float z)
 {
     _position.x += x;
     _position.y += y;
     _position.z += z;
 }
 
-void GameObject::setAlpha(const int alpha)
+void Object::setAlpha(const int alpha)
 {
     inst.alpha = Math::constrain(alpha, 0, 0xFF);
     chr_instance_update_ref(&inst, enviro.grid_level, false);
 }
 
-void GameObject::setLight(const int light)
+void Object::setLight(const int light)
 {
     inst.light = Math::constrain(light, 0, 0xFF);
 
@@ -298,13 +298,13 @@ void GameObject::setLight(const int light)
     chr_instance_update_ref(&inst, enviro.grid_level, false);
 }
 
-void GameObject::setSheen(const int sheen)
+void Object::setSheen(const int sheen)
 {
     inst.sheen = Math::constrain(sheen, 0, 0xFF);
     chr_instance_update_ref(&inst, enviro.grid_level, false);
 }
 
-bool GameObject::canMount(const std::shared_ptr<GameObject> mount) const
+bool Object::canMount(const std::shared_ptr<Object> mount) const
 {
     //Cannot mount ourselves!
     if(this == mount.get()) {
@@ -338,8 +338,8 @@ bool GameObject::canMount(const std::shared_ptr<GameObject> mount) const
     return has_ride_anim;
 }
 
-int GameObject::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
-                      const std::shared_ptr<GameObject> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
+int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
+                      const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
 {
     int     action;
     bool do_feedback = ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback );
@@ -614,7 +614,7 @@ int GameObject::damage(const FACING_T direction, const IPair  damage, const Dama
     return actual_damage;
 }
 
-void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing)
+void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool healing)
 {
     // Don't let characters chase themselves...  That would be silly
     if ( this == attacker.get() ) return;
@@ -651,7 +651,7 @@ void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker,
     careful_timer = CAREFULTIME;
 }
 
-bool GameObject::heal(const std::shared_ptr<GameObject> &healer, const UFP8_T amount, const bool ignoreInvincibility)
+bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, const bool ignoreInvincibility)
 {
     //Don't heal dead and invincible stuff
     if (!alive || (invictus && !ignoreInvincibility)) return false;
@@ -668,12 +668,12 @@ bool GameObject::heal(const std::shared_ptr<GameObject> &healer, const UFP8_T am
     return true;
 }
 
-bool GameObject::isAttacking() const
+bool Object::isAttacking() const
 {
     return inst.action_which >= ACTION_UA && inst.action_which <= ACTION_FD;
 }
 
-bool GameObject::teleport(const float x, const float y, const float z, const FACING_T facing_z)
+bool Object::teleport(const float x, const float y, const float z, const FACING_T facing_z)
 {
     //Cannot teleport outside the level
     if ( x < 0.0f || x > PMesh->gmem.edge_x ) return false;
@@ -706,7 +706,7 @@ bool GameObject::teleport(const float x, const float y, const float z, const FAC
     return false;
 }
 
-void GameObject::update()
+void Object::update()
 {
     //then do status updates
     chr_update_hide(this);
@@ -864,7 +864,7 @@ void GameObject::update()
     darkvision_level = std::max(darkvision_level, chr_get_skill(this, MAKE_IDSZ( 'D', 'A', 'R', 'K' )));
 }
 
-void GameObject::updateResize()
+void Object::updateResize()
 {
     if (fat_goto_time < 0) {
         return;
@@ -882,7 +882,7 @@ void GameObject::updateResize()
         {
             bump.size += bump_increase;
 
-            if ( EMPTY_BIT_FIELD != GameObjectest_wall(this, NULL, NULL ) )
+            if ( EMPTY_BIT_FIELD != Objectest_wall(this, NULL, NULL ) )
             {
                 willgetcaught = true;
             }
@@ -918,7 +918,7 @@ void GameObject::updateResize()
     }
 }
 
-std::string GameObject::getName(bool prefixArticle, bool prefixDefinite, bool capitalLetter) const
+std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capitalLetter) const
 {
     std::string result;
 
@@ -972,14 +972,14 @@ std::string GameObject::getName(bool prefixArticle, bool prefixDefinite, bool ca
     return result;
 }
 
-void GameObject::requestTerminate() 
+void Object::requestTerminate() 
 {
     //Mark object as terminated
     _gameObjects.remove(getCharacterID());
 }
 
 
- bool GameObject::isFacingLocation(const float x, const float y) const
+ bool Object::isFacingLocation(const float x, const float y) const
  {
     FACING_T facing = vec_to_facing(x - getPosX(), y - getPosY());
     facing -= ori.facing_z;

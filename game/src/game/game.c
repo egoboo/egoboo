@@ -47,7 +47,7 @@
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/profiles/ModuleProfile.hpp"
 
 #include "game/char.h"
@@ -57,7 +57,7 @@
 #include "game/mesh.h"
 #include "game/physics.h"
 
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/EncList.h"
 #include "game/PrtList.h"
 
@@ -148,7 +148,7 @@ static void   game_load_profile_ai();
 static void   activate_spawn_file_vfs();
 static void   activate_alliance_file_vfs();
 
-static bool chr_setup_apply(std::shared_ptr<GameObject> pchr, spawn_file_info_t *pinfo );
+static bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo );
 
 static void   game_reset_players();
 
@@ -175,7 +175,7 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 // misc
 static float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool waterwalk );
 static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool waterwalk );
-static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, GameObject * pchr );
+static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr );
 
 static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
@@ -334,7 +334,7 @@ egolib_rv export_all_players( bool require_local )
     {
         CHR_REF item;
         player_t * ppla;
-        GameObject    * pchr;
+        Object    * pchr;
 
         if ( !VALID_PLA( ipla ) ) continue;
         ppla = PlaStack.get_ptr( ipla );
@@ -444,7 +444,7 @@ void statlist_add( const CHR_REF character )
     /// @author ZZ
     /// @details This function adds a status display to the do list
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( StatusList.count >= MAX_STATUS ) return;
 
@@ -516,7 +516,7 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
     /// @details This function sets the frame for a character explicitly...  This is used to
     ///    rotate Tank turrets
 
-    GameObject * pchr;
+    Object * pchr;
     MAD_REF imad;
     egolib_rv retval;
     int action;
@@ -650,7 +650,7 @@ void blah_billboard()
 
     current_time = egoboo_get_ticks();
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if(!_gameObjects.exists(object->attachedto)) {
             continue;
@@ -714,7 +714,7 @@ int update_game()
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        GameObject * pchr;
+        Object * pchr;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
 
@@ -770,7 +770,7 @@ int update_game()
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        GameObject * pchr;
+        Object * pchr;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
 
@@ -1477,7 +1477,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
     if ( !LOADED_PIP( particletype ) ) return INVALID_CHR_REF;
     ppip = PipStack.get_ptr( particletype );
 
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         bool target_friend, target_enemy;
 
@@ -1524,19 +1524,19 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ idsz, const BIT_FIELD targeting_bits )
+bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     bool retval = false;
 
     bool is_hated, hates_me;
     bool is_friend, is_prey, is_predator, is_mutual;
-    GameObject * ptst;
+    Object * ptst;
 
     // Skip non-existing objects
     if ( !ACTIVE_PCHR( psrc ) ) return false;
 
-    if ( !_gameObjects.exists( iGameObjectest ) ) return false;
-    ptst = _gameObjects.get( iGameObjectest );
+    if ( !_gameObjects.exists( iObjectest ) ) return false;
+    ptst = _gameObjects.get( iObjectest );
 
     // Skip hidden characters
     if ( ptst->is_hidden ) return false;
@@ -1545,7 +1545,7 @@ bool chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ ids
     if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return false;
 
     // Skip held objects
-    if ( IS_ATTACHED_CHR( iGameObjectest ) ) return false;
+    if ( IS_ATTACHED_CHR( iObjectest ) ) return false;
 
     // Allow to target ourselves?
     if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
@@ -1601,7 +1601,7 @@ bool chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ ids
     }
     else
     {
-        ObjectProfile *profile = chr_get_ppro(iGameObjectest);
+        ObjectProfile *profile = chr_get_ppro(iObjectest);
         bool match_idsz = ( idsz == profile->getIDSZ(IDSZ_PARENT) ) ||
                             ( idsz == profile->getIDSZ(IDSZ_TYPE) );
 
@@ -1619,7 +1619,7 @@ bool chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ ids
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
+CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     /// @author ZF
     /// @details This is the new improved AI targeting algorithm. Also includes distance in the Z direction.
@@ -1652,7 +1652,7 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
     //Loop through every active object
     else
     {
-        for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+        for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
         {
             if(!object->isTerminated())
             {
@@ -1669,16 +1669,16 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
 
     best_target = INVALID_CHR_REF;
     best_dist2  = max_dist2;
-    for(CHR_REF iGameObjectest : searchList)
+    for(CHR_REF iObjectest : searchList)
     {
         float  dist2;
         fvec3_t   diff;
-        GameObject * ptst;
+        Object * ptst;
 
-        if ( !_gameObjects.exists( iGameObjectest ) ) continue;
-        ptst = _gameObjects.get( iGameObjectest );
+        if ( !_gameObjects.exists( iObjectest ) ) continue;
+        ptst = _gameObjects.get( iObjectest );
 
-        if ( !chr_check_target( psrc, iGameObjectest, idsz, targeting_bits ) ) continue;
+        if ( !chr_check_target( psrc, iObjectest, idsz, targeting_bits ) ) continue;
 
         diff = psrc->getPosition() - ptst->getPosition();
 		dist2 = diff.length_2();
@@ -1697,7 +1697,7 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
             }
 
             //Set the new best target found
-            best_target = iGameObjectest;
+            best_target = iObjectest;
             best_dist2  = dist2;
         }
     }
@@ -1713,7 +1713,7 @@ void do_damage_tiles()
 {
     // do the damage tile stuff
 
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         // if the object is not really in the game, do nothing
         if ( pchr->is_hidden || !pchr->alive ) continue;
@@ -1789,7 +1789,7 @@ void update_pits()
             PRT_END_LOOP();
 
             // Kill or teleport any characters that fell in a pit...
-            for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+            for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
             {
                 // Is it a valid character?
                 if ( pchr->invictus || !pchr->alive ) continue;
@@ -1883,7 +1883,7 @@ void do_weather_spawn_particles()
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
                 if ( _gameObjects.exists( ichr ) && !_gameObjects.exists( _gameObjects.get(ichr)->inwhich_inventory ) )
                 {
-                    GameObject * pchr = _gameObjects.get( ichr );
+                    Object * pchr = _gameObjects.get( ichr );
 
                     // Yes, so spawn over that character
                     PRT_REF particle = spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
@@ -2083,7 +2083,7 @@ void set_one_player_latch( const PLA_REF ipla )
     else if ( ppla->inventory_cooldown < update_wld )
     {
         int new_selected = ppla->inventory_slot;
-        GameObject *pchr = _gameObjects.get( ppla->index );
+        Object *pchr = _gameObjects.get( ppla->index );
 
         //dirty hack here... mouse seems to be inverted in inventory mode?
         if ( pdevice->device_type == INPUT_DEVICE_MOUSE )
@@ -2250,7 +2250,7 @@ void check_stats()
         if ( _gameObjects.exists( PlaStack.lst[docheat].index ) )
         {
             Uint32 xpgain;
-            GameObject * pchr = _gameObjects.get( PlaStack.lst[docheat].index );
+            Object * pchr = _gameObjects.get( PlaStack.lst[docheat].index );
             const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
             //Give 10% of XP needed for next level
@@ -2270,7 +2270,7 @@ void check_stats()
         else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
-        const std::shared_ptr<GameObject> &player = _gameObjects[PlaStack.lst[docheat].index];
+        const std::shared_ptr<Object> &player = _gameObjects[PlaStack.lst[docheat].index];
 
         //Apply the cheat if valid
         if (player)
@@ -2350,7 +2350,7 @@ void show_stat( int statindex )
 
         if ( _gameObjects.exists( character ) )
         {
-            GameObject * pchr = _gameObjects.get( character );
+            Object * pchr = _gameObjects.get( character );
 
             const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
 
@@ -2413,7 +2413,7 @@ void show_armor( int statindex )
 
     SKIN_T  skinlevel;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
 
@@ -2459,7 +2459,7 @@ void show_armor( int statindex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_chr_regeneration( GameObject * pchr, int * pliferegen, int * pmanaregen )
+bool get_chr_regeneration( Object * pchr, int * pliferegen, int * pmanaregen )
 {
     /// @author ZF
     /// @details Get a character's life and mana regeneration, considering all sources
@@ -2505,7 +2505,7 @@ void show_full_status( int statindex )
 
     CHR_REF character;
     int manaregen, liferegen;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
     character = StatusList.lst[statindex].who;
@@ -2546,7 +2546,7 @@ void show_magic_status( int statindex )
 
     CHR_REF character;
     const char * missile_str;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
 
@@ -2591,7 +2591,7 @@ void tilt_characters_to_terrain()
 
     Uint8 twist;
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if ( object->isTerminated() ) continue;
 
@@ -2719,9 +2719,9 @@ void game_load_global_profiles()
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_setup_apply(std::shared_ptr<GameObject> pchr, spawn_file_info_t *pinfo ) //note: intentonally copy and not reference on pchr
+bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //note: intentonally copy and not reference on pchr
 {
-    GameObject *pparent = nullptr;
+    Object *pparent = nullptr;
     if ( _gameObjects.exists( pinfo->parent ) ) {
         pparent = _gameObjects.get( pinfo->parent );
     }
@@ -2771,7 +2771,7 @@ bool chr_setup_apply(std::shared_ptr<GameObject> pchr, spawn_file_info_t *pinfo 
     // automatically identify and unkurse all player starting equipment? I think yes.
     if ( !PMod->isImportValid() && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
     {
-        GameObject *pitem;
+        Object *pitem;
         pchr->nameknown = true;
 
         //Unkurse both inhand items
@@ -2868,7 +2868,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     // Spawn the character
     new_object = spawn_one_character(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);
     
-    const std::shared_ptr<GameObject> &pobject = _gameObjects[new_object];
+    const std::shared_ptr<Object> &pobject = _gameObjects[new_object];
     if (!pobject) return false;
 
     // determine the attachment
@@ -3289,7 +3289,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     int     number_added, number_attached;
     int     amount, attempts;
     PRT_REF particle;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return 0;
     pchr = _gameObjects.get( character );
@@ -3477,7 +3477,7 @@ void game_release_module_data()
 bool attach_one_particle( prt_bundle_t * pbdl_prt )
 {
     prt_t * pprt;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
     pprt = pbdl_prt->prt_ptr;
@@ -3522,7 +3522,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
     /// @details This function adds a player, returning false if it fails, true otherwise
 
     player_t * ppla = NULL;
-    GameObject    * pchr = NULL;
+    Object    * pchr = NULL;
 
     if ( !VALID_PLA_RANGE( player ) ) return false;
     ppla = PlaStack.get_ptr( player );
@@ -3575,7 +3575,7 @@ void let_all_characters_think()
 
     blip_count = 0;
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if(object->isTerminated()) {
             continue;
@@ -3731,7 +3731,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     int    cnt;
     STRING szTmp;
 
-    GameObject      * pchr, *ptarget, *powner;
+    Object      * pchr, *ptarget, *powner;
     ai_state_t * pai;
 
     pchr    = !_gameObjects.exists( ichr ) ? NULL : _gameObjects.get( ichr );
@@ -3787,7 +3787,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pai )
                         {
-                            const std::shared_ptr<GameObject> &target = _gameObjects[pai->target];
+                            const std::shared_ptr<Object> &target = _gameObjects[pai->target];
                             if(target)
                             {
                                 strncpy(szTmp, target->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
@@ -3798,7 +3798,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 
                 case 'o':  // Owner name
                     {
-                        const std::shared_ptr<GameObject> &owner = _gameObjects[pai->owner];
+                        const std::shared_ptr<Object> &owner = _gameObjects[pai->owner];
                         if(owner)
                         {
                             strncpy(szTmp, owner->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
@@ -4556,7 +4556,7 @@ Uint8 get_light( int light, float seedark_mag )
 //--------------------------------------------------------------------------------------------
 bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 {
-    GameObject * pdropper, * pitem;
+    Object * pdropper, * pitem;
     bool inshop;
 
     if ( !_gameObjects.exists( iitem ) ) return false;
@@ -4574,7 +4574,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
         if ( _gameObjects.exists( iowner ) )
         {
             int price;
-            GameObject * powner = _gameObjects.get( iowner );
+            Object * powner = _gameObjects.get( iowner );
 
             inshop = true;
 
@@ -4607,7 +4607,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     bool can_grab, can_pay, in_shop;
     int price;
 
-    GameObject * ppicker, * pitem;
+    Object * ppicker, * pitem;
 
     if ( !_gameObjects.exists( iitem ) ) return false;
     pitem = _gameObjects.get( iitem );
@@ -4626,7 +4626,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         iowner = PMod->getShopOwner( pitem->getPosX(), pitem->getPosY() );
         if ( _gameObjects.exists( iowner ) )
         {
-            GameObject * powner = _gameObjects.get( iowner );
+            Object * powner = _gameObjects.get( iowner );
 
             in_shop = true;
             price   = chr_get_price( iitem );
@@ -4686,7 +4686,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 
     bool can_steal;
 
-    GameObject * pthief, * pitem;
+    Object * pthief, * pitem;
 
     if ( !_gameObjects.exists( iitem ) ) return false;
     pitem = _gameObjects.get( iitem );
@@ -4704,7 +4704,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
         {
             IPair  tmp_rand = {1, 100};
             int  detection;
-            GameObject * powner = _gameObjects.get( iowner );
+            Object * powner = _gameObjects.get( iowner );
 
             detection = generate_irand_pair( tmp_rand );
 
@@ -4726,7 +4726,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 {
     bool can_grab;
     bool is_invis, can_steal;
-    GameObject * pchr, * pitem, *pkeeper;
+    Object * pchr, * pitem, *pkeeper;
     CHR_REF shop_keeper;
 
     if ( !_gameObjects.exists( ichr ) ) return false;
@@ -4809,7 +4809,7 @@ float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_2( ego_mesh_t * pmesh, GameObject * pchr )
+float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
 {
     /// @author BB
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
@@ -4839,7 +4839,7 @@ float get_mesh_max_vertex_2( ego_mesh_t * pmesh, GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_chr_level( ego_mesh_t * pmesh, GameObject * pchr )
+float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
 {
     float zmax;
     int ix, ixmax, ixmin;
@@ -4935,7 +4935,7 @@ void disenchant_character( const CHR_REF cnt )
     /// @author ZZ
     /// @details This function removes all enchantments from a character
 
-    GameObject * pchr;
+    Object * pchr;
     size_t ienc_count;
 
     if ( !_gameObjects.exists( cnt ) ) return;
@@ -4956,7 +4956,7 @@ void disenchant_character( const CHR_REF cnt )
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_character_enchants( GameObject * pchr )
+void cleanup_character_enchants( Object * pchr )
 {
     if ( NULL == pchr ) return;
 
@@ -4966,7 +4966,7 @@ void cleanup_character_enchants( GameObject * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool attach_GameObjecto_platform( GameObject * pchr, GameObject * pplat )
+bool attach_Objecto_platform( Object * pchr, Object * pplat )
 {
     /// @author BB
     /// @details attach a character to a platform
@@ -5027,7 +5027,7 @@ bool attach_GameObjecto_platform( GameObject * pchr, GameObject * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-bool detach_character_from_platform( GameObject * pchr )
+bool detach_character_from_platform( Object * pchr )
 {
     /// @author BB
     /// @details attach a character to a platform
@@ -5036,7 +5036,7 @@ bool detach_character_from_platform( GameObject * pchr )
     ///  move_one_character() function, so the environment has already been determined this round
 
     CHR_REF old_platform_ref;
-    GameObject * old_platform_ptr;
+    Object * old_platform_ptr;
     float   old_level, old_zlerp;
 
     // verify that we do not have two dud pointers
@@ -5078,7 +5078,7 @@ bool detach_character_from_platform( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool attach_prt_to_platform( prt_t * pprt, GameObject * pplat )
+bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
 {
     /// @author BB
     /// @details attach a particle to a platform
@@ -5244,7 +5244,7 @@ egolib_rv import_list_from_players( import_list_t * imp_lst )
     import_element_t      * import_ptr = NULL;
 
     CHR_REF                 ichr;
-    GameObject                 * pchr;
+    Object                 * pchr;
 
     if ( NULL == imp_lst ) return rv_error;
 

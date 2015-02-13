@@ -55,7 +55,7 @@
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
 
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 #include "game/EncList.h"
 #include "game/PrtList.h"
 
@@ -355,7 +355,7 @@ static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
 
 static void gfx_reload_decimated_textures();
 
-static gfx_rv update_one_chr_instance( GameObject * pchr );
+static gfx_rv update_one_chr_instance( Object * pchr );
 static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing( dolist_t * pdolist );
 
@@ -896,7 +896,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
         }
         else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
         {
-            GameObject *character = _gameObjects.get(element->ichr);
+            Object *character = _gameObjects.get(element->ichr);
             if (nullptr != character) character->inst.indolist = false;
         }
     }
@@ -909,7 +909,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::test_chr(dolist_t *self, const GameObject *pchr)
+gfx_rv dolist_t::test_chr(dolist_t *self, const Object *pchr)
 {
     if (nullptr == self)
     {
@@ -930,7 +930,7 @@ gfx_rv dolist_t::test_chr(dolist_t *self, const GameObject *pchr)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::add_chr_raw(dolist_t *self, GameObject *pchr)
+gfx_rv dolist_t::add_chr_raw(dolist_t *self, Object *pchr)
 {
     /// @author ZZ
     /// @details This function puts a character in the list
@@ -1073,7 +1073,7 @@ gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_
         if ( BSP_LEAF_CHR == pleaf->data_type )
         {
             CHR_REF ichr;
-            GameObject * pchr;
+            Object * pchr;
 
             // collided with a character
             ichr = ( CHR_REF )( pleaf->index );
@@ -2480,7 +2480,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 
     TX_REF icon_ref;
 
-    GameObject * pitem = !_gameObjects.exists( item ) ? NULL : _gameObjects.get( item );
+    Object * pitem = !_gameObjects.exists( item ) ? NULL : _gameObjects.get( item );
 
     // grab the icon reference
     icon_ref = chr_get_txtexture_icon_ref( item );
@@ -2506,7 +2506,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 //--------------------------------------------------------------------------------------------
 float draw_character_xp_bar( const CHR_REF character, float x, float y )
 {
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return y;
     pchr = _gameObjects.get( character );
@@ -2543,7 +2543,7 @@ float draw_status( const CHR_REF character, float x, float y )
     int life_pips, life_pips_max;
     int mana_pips, mana_pips_max;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return y;
     pchr = _gameObjects.get( character );
@@ -2648,7 +2648,7 @@ void draw_map()
 
             for ( ichr = 0; ichr < MAX_CHR && blip_count < MAXBLIP; ichr++ )
             {
-                GameObject * pchr;
+                Object * pchr;
 
                 if ( !_gameObjects.exists( ichr ) ) continue;
                 pchr = _gameObjects.get( ichr );
@@ -3006,7 +3006,7 @@ void draw_inventory()
 	Ego::Colour4f background_color(0.66f, 0.0f, 0.0f, 0.95f);
 
     CHR_REF ichr;
-    GameObject *pchr;
+    Object *pchr;
 
     PLA_REF draw_list[MAX_LOCAL_PLAYERS];
     size_t cnt, draw_list_length = 0;
@@ -3215,7 +3215,7 @@ void render_shadow( const CHR_REF character )
     float   level;
     float   height, size_umbra, size_penumbra;
     float   alpha, alpha_umbra, alpha_penumbra;
-    GameObject * pchr;
+    Object * pchr;
     ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
@@ -3349,7 +3349,7 @@ void render_bad_shadow( const CHR_REF character )
     int     itex_style;
     float   size, x, y;
     float   level, height, height_factor, alpha;
-    GameObject * pchr;
+    Object * pchr;
     ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
@@ -6350,7 +6350,7 @@ gfx_rv gfx_update_flashing( dolist_t * pdolist )
     {
         float tmp_seekurse_level;
 
-        GameObject          * pchr;
+        Object          * pchr;
         chr_instance_t * pinst;
 
         CHR_REF ichr = pdolist->lst[i].ichr;
@@ -6400,7 +6400,7 @@ gfx_rv gfx_update_all_chr_instance()
     // assume the best
     retval = gfx_success;
 
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         //Dont do terminated characters
         if(pchr->isTerminated()) {
@@ -6633,7 +6633,7 @@ void gfx_reload_decimated_textures()
 //--------------------------------------------------------------------------------------------
 // chr_instance_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv update_one_chr_instance( GameObject * pchr )
+gfx_rv update_one_chr_instance( Object * pchr )
 {
     chr_instance_t * pinst;
     gfx_rv retval;

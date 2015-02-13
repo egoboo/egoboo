@@ -379,7 +379,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\game\entities\GameObject.cpp" />
+    <ClCompile Include="src\game\entities\Object.cpp" />
     <ClCompile Include="src\game\core\GameEngine.cpp" />
     <ClCompile Include="src\game\gamestates\GameState.cpp" />
     <ClCompile Include="src\game\gamestates\InGameMenuState.cpp" />
@@ -453,7 +453,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\GameObject.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Object.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\LockableList.hpp" />
     <ClInclude Include="src\game\core\GameEngine.hpp" />
     <ClInclude Include="src\game\gamestates\GameState.hpp" />
