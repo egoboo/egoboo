@@ -27,8 +27,8 @@ Time before end ( 1 to 1000, 0 )			: 0
 // Collision data
 Bounce dampen ( 0.0 to 0.9 )				: 0.0
 Bump money ( 0 to 100 )					: 0
-Bump size ( 0 to 60 )					: 1 5
-Bump height ( 0 to 60 )					: 100
+Bump size ( 0 to 60 )					: 10
+Bump height ( 0 to 60 )					: 50
 Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 2
 Bump damage type ( SLASH, CRUSH, POKE, HOLY,
               EVIL, FIRE, ICE, ZAP )			: FIRE
