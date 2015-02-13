@@ -42,6 +42,7 @@
 #include "game/script_compile.h"
 #include "game/egoboo.h"
 
+#include "game/core/GameEngine.hpp"
 #include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
@@ -838,7 +839,7 @@ int update_game()
     _cameraSystem.updateAll(PMesh);
 
     // Timers
-    clock_wld += UPDATE_SKIP;
+    clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
     clock_enc_stat++;
     clock_chr_stat++;
 
@@ -940,6 +941,7 @@ void game_update_timers()
 #endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void game_update_ups()
 {
     /// @author ZZ
@@ -968,6 +970,7 @@ void game_update_ups()
         stabilized_game_ups = stabilized_game_ups_sum / stabilized_game_ups_weight;
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void game_reset_timers()
@@ -990,19 +993,6 @@ void game_reset_timers()
     // reset some special clocks
     clock_enc_stat = 0;
     clock_chr_stat = 0;
-
-    // reset the ups counter(s)
-    game_ups_clock        = 0;
-    game_ups_loops        = 0;
-
-    stabilized_game_ups        = TARGET_UPS;
-    stabilized_game_ups_sum    = STABILIZED_COVER * TARGET_UPS;
-    stabilized_game_ups_weight = STABILIZED_COVER;
-
-    // reset the fps counter(s)
-    game_fps_clock        = 0;
-    game_fps_loops        = 0;
-
 }
 
 //--------------------------------------------------------------------------------------------

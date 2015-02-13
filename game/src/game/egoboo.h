@@ -50,9 +50,7 @@
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000.0f
 
-#define TARGET_UPS                      50.0f
-#define UPDATE_SKIP                     (TICKS_PER_SEC/TARGET_UPS)    ///< 1000 tics per sec / 50 fps = 20 ticks per frame
-#define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)    ///< 1000 tics per sec / 20 ticks per frame = 50 fps
+#define ONESECOND                       50    ///< How many game loop updates represent 1 second (50 UPS = 1 second)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -61,20 +59,9 @@
 #define STABILIZED_KEEP  0.65f
 #define STABILIZED_COVER (1.0f - STABILIZED_KEEP)
 
-EXTERN Sint32          game_fps_clock             EQ( 0 );             ///< The number of ticks this second
-
 EXTERN Uint32          game_fps_loops             EQ( 0 );             ///< The number of frames drawn this second
 
 EXTERN Sint32          gfx_clear_loops       EQ( 0 );             ///< The number of times the screen has been cleared
-
-EXTERN Sint32          menu_fps_clock        EQ( 0 );             ///< The number of ticks this second
-EXTERN Uint32          menu_fps_loops        EQ( 0 );             ///< The number of frames drawn this second
-
-EXTERN Sint32          game_ups_clock             EQ( 0 );             ///< The number of ticks this second
-EXTERN Uint32          game_ups_loops             EQ( 0 );             ///< The number of frames drawn this second
-EXTERN float           stabilized_game_ups        EQ( TARGET_UPS );
-EXTERN float           stabilized_game_ups_sum    EQ( STABILIZED_COVER * TARGET_UPS );
-EXTERN float           stabilized_game_ups_weight EQ( STABILIZED_COVER );
 
 /// Timers
 EXTERN Uint32          outofsync   EQ( 0 );
