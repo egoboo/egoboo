@@ -22,38 +22,111 @@
 
 #pragma once
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// compliation flags
+/**
+ * @defgroup compile-time Compile-time settings 
+ * @brief Settings to choose at compile-time
+ */
 
-// object pre-allocations
-#define MAX_CHR             512            ///< Maximum number of characters
-#define MAX_ENC             200            ///< Maximum number of enchantments
-#define MAX_PRT             2048           ///< Maximum number of particles
-#define TOTAL_MAX_DYNA      64             ///< Maximum number of dynamic lights
+/**
+ * @brief
+ *  Maximum number of characters.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_CHR 512
 
-#define MAX_TEXTURE         (MAX_CHR * 4)     ///< Maximum number of textures
-#define MAX_ICON            (MAX_TEXTURE + 4) ///< Maximum number of icons
+/**
+ * @brief
+ *  Maximum number of enchants.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_ENC 200
 
-/// per-object pre-allocations
-#define MAX_WAVE            30        ///< Maximum number of *.wav/*.ogg per object
-#define MAX_PIP_PER_PROFILE 13        ///< Maximum number of part*.txt per object
-#define MAX_PIP             (256 * MAX_PIP_PER_PROFILE)
+/**
+ * @brief
+ *  Maximum numberof EVEs.
+ */
+#define MAX_EVE 256
 
-// special values
-#if 0
-#define INVALID_CHR_IDX     MAX_CHR
-#define INVALID_ENC_IDX     MAX_ENC
-#define INVALID_PRT_IDX     MAX_PRT
-#define INVALID_PRO_IDX     0xFFFF
-#define INVALID_PIP_IDX     MAX_PIP
-#endif
+/**
+ * @brief
+ *  Maximum number of particles.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_PRT 2048
 
-#define INVALID_CHR_REF     (( CHR_REF ) MAX_CHR)
-#define INVALID_ENC_REF     (( ENC_REF ) MAX_ENC)
-#define INVALID_PRT_REF     (( PRT_REF ) MAX_PRT)
-#define INVALID_PRO_REF     (( PRO_REF ) 0xFFFF)
-#define INVALID_PIP_REF     (( PIP_REF ) MAX_PIP)
+/**
+ * @brief
+ *  Maximum number of <tt>part*.text</tt> files per object.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_PIP_PER_PROFILE 13
+
+/**
+ * @brief
+ *  Maximum number of textures of all characters.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_TEXTURE (MAX_CHR * 4)
+
+/**
+ * @brief
+ *  Maximum number if icons of all characters.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_ICON (MAX_TEXTURE + 4)
+
+/**
+ * @brief
+ *  The maximum number of textures.
+ * @ingroup
+ *  compile-time
+ */
+#define TX_COUNT (2*(MAX_TEXTURE + MAX_ICON))
+
+/**
+ * @brief
+ *  Maximum number of *.wav/*.ogg files per object.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_WAVE 30
+
+/**
+ * @brief
+ *  Maximum number of PIPs.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_PIP (256 * MAX_PIP_PER_PROFILE)
+
+/**
+ * @brief
+ *  Maximum number of dynamic lights.
+ * @ingroup
+ *  compile-time
+ */
+#define TOTAL_MAX_DYNA 64
+
+/**
+ * @brief
+ *  Maximum number of MADs.
+ * @ingroup compile-time
+ */
+#define MAX_MAD 256
+
+/**
+ * @brief
+ *  Maximum number of billboards.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_BBOARD (2 * MAX_CHR)
 
 // Some macro switches
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style
@@ -75,9 +148,9 @@
 
 #undef  DEBUG_OBJECT_SPAWN    ///< Log debug info for every object spawned
 
-#undef   DEBUG_PRT_LIST       ///< Track every single deletion from the PrtList to make sure the same element is not deleted twice. Prevents corruption of the PrtList.free_lst
-#undef   DEBUG_ENC_LIST       ///< Track every single deletion from the EncList to make sure the same element is not deleted twice. Prevents corruption of the EncList.free_lst
-#undef   DEBUG_CHR_LIST       ///< Track every single deletion from the ChrList to make sure the same element is not deleted twice. Prevents corruption of the ChrList.free_lst
+#undef  DEBUG_PRT_LIST        ///< Track every single deletion from the PrtList to make sure the same element is not deleted twice. Prevents corruption of the PrtList.free_lst
+#undef  DEBUG_ENC_LIST        ///< Track every single deletion from the EncList to make sure the same element is not deleted twice. Prevents corruption of the EncList.free_lst
+#undef  DEBUG_CHR_LIST        ///< Track every single deletion from the ChrList to make sure the same element is not deleted twice. Prevents corruption of the ChrList.free_lst
 
 #define CLIP_LIGHT_FANS       ///< is the light_fans() function going to be throttled?
 #undef  CLIP_ALL_LIGHT_FANS   ///< a switch for selecting how the fans will be updated

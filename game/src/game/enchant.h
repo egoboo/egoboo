@@ -19,34 +19,24 @@
 #pragma once
 
 /// @file    game/enchant.h
-/// @details Decleares some stuff used for handling enchants.
+/// @details Enchantment entities.
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"
 
-//--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-
+// Forward declarations.
+struct EnchantManager;
 class ObjectProfile;
 class GameObject;
 
 //--------------------------------------------------------------------------------------------
-// internal structs
 //--------------------------------------------------------------------------------------------
 
-struct enc_spawn_data_t;
+#define ENC_LEAVE_ALL           0
+#define ENC_LEAVE_FIRST         1
+#define ENC_LEAVE_NONE          2
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-#define ENC_LEAVE_ALL                0
-#define ENC_LEAVE_FIRST              1
-#define ENC_LEAVE_NONE               2
-
-#define MAX_EVE                 256    ///< One enchant type per model
-
-#define INVALID_EVE_REF ((EVE_REF)MAX_EVE)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -54,8 +44,8 @@ struct enc_spawn_data_t;
 /// Enchantment template
 extern Stack<eve_t, MAX_EVE> EveStack;
 
-#define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
-#define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
+#define VALID_EVE_RANGE(IEVE) (((IEVE) >= 0) && ((IEVE) < MAX_EVE))
+#define LOADED_EVE(IEVE)      (VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded)
 
 //--------------------------------------------------------------------------------------------
 struct enc_spawn_data_t
@@ -67,25 +57,27 @@ struct enc_spawn_data_t
     EVE_REF eve_ref;
 };
 
-//--------------------------------------------------------------------------------------------
-
-/// The difinition of a single Egoboo enchantment.
-/// @extends Ego::Entity
-struct enc_t : public _StateMachine<enc_t>
+/**
+ * @brief
+ *  The definition of an enchantment entity.
+ * @extends
+ *  Ego::Entity
+ */
+struct enc_t : public _StateMachine < enc_t, EnchantManager >
 {
-    enc_spawn_data_t  spawn_data;
+    enc_spawn_data_t spawn_data;
 
-    int     lifetime;                ///< Time before end
-    int     spawn_timer;             ///< Time before spawn
+    int     lifetime;                 ///< Time before end
+    int     spawn_timer;              ///< Time before spawn
 
-    PRO_REF profile_ref;             ///< The object  profile index that spawned this enchant
-    EVE_REF eve_ref;                 ///< The enchant profile index
+    PRO_REF profile_ref;              ///< The object  profile index that spawned this enchant
+    EVE_REF eve_ref;                  ///< The enchant profile index
 
-    CHR_REF target_ref;              ///< Who it enchants
-    CHR_REF owner_ref;               ///< Who cast the enchant
-    CHR_REF spawner_ref;             ///< The spellbook character
-    PRO_REF spawnermodel_ref;        ///< The spellbook character's profile index
-    CHR_REF overlay_ref;             ///< The overlay character
+    CHR_REF target_ref;               ///< Who it enchants
+    CHR_REF owner_ref;                ///< Who cast the enchant
+    CHR_REF spawner_ref;              ///< The spellbook character
+    PRO_REF spawnermodel_ref;         ///< The spellbook character's profile index
+    CHR_REF overlay_ref;              ///< The overlay character
 
     int     owner_mana;               ///< Boost values
     int     owner_life;
@@ -105,30 +97,16 @@ struct enc_t : public _StateMachine<enc_t>
 
     static bool request_terminate(enc_t *self);
 
-    // enchant state machine functions
-    static enc_t *run_config(enc_t *self);
-    static enc_t *config_activate(enc_t *self, size_t max_iterations);
-    static enc_t *config_deconstruct(enc_t *self, size_t max_iterations);
-    static enc_t *config_init(enc_t *self);
-
-    enc_t *config_do_init();
-    enc_t *config_do_deinit();
-    enc_t *config_do_active();
     static bool free(enc_t *self);
+
+    // enchant state machine function
+    enc_t *config_do_init();
+    // enchant state machine function
+    enc_t *config_do_deinit();
+    // enchant state machine function
+    enc_t *config_do_active();
+
 };
-
-
-
-
-
-
-
-
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// Prototypes
 
 // enchant_system functions
 void enchant_system_begin();
@@ -142,21 +120,21 @@ void cleanup_all_enchants();
 void bump_all_enchants_update_counters();
 
 // enchant list management
-bool remove_enchant(const ENC_REF enchant_idx, ENC_REF *enchant_parent);
-bool remove_all_enchants_with_idsz(const CHR_REF ichr, IDSZ remove_idsz);
-ENC_REF cleanup_enchant_list(const ENC_REF ienc, ENC_REF *enc_parent);
+bool remove_enchant(const ENC_REF encRef, ENC_REF *enchant_parent);
+bool remove_all_enchants_with_idsz(const CHR_REF chrRef, IDSZ remove_idsz);
+ENC_REF cleanup_enchant_list(const ENC_REF encRef, ENC_REF *enc_parent);
 
 // enc functions
-ENC_REF enc_value_filled(const ENC_REF enchant_idx, int value_idx);
-void enc_apply_set(const ENC_REF enchant_idx, int value_idx, const PRO_REF profile);
-void enc_apply_add(const ENC_REF enchant_idx, int value_idx, const EVE_REF enchanttype);
-void enc_remove_set(const ENC_REF  enchant_idx, int value_idx);
-void enc_remove_add(const ENC_REF  enchant_idx, int value_idx);
+ENC_REF enc_value_filled(const ENC_REF encRef, int value_idx);
+void enc_apply_set(const ENC_REF encRef, int value_idx, const PRO_REF profile);
+void enc_apply_add(const ENC_REF encRef, int value_idx, const EVE_REF enchanttype);
+void enc_remove_set(const ENC_REF encRef, int value_idx);
+void enc_remove_add(const ENC_REF encRef, int value_idx);
 
 // EveStack functions
 void EveStack_init_all();
 void EveStack_release_all();
-bool EveStack_release_one(const EVE_REF ieve);
+bool EveStack_release_one(const EVE_REF eveRef);
 EVE_REF EveStack_losd_one(const char* szLoadName, const EVE_REF profile);
 
 

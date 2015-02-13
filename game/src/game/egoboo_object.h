@@ -275,7 +275,7 @@ namespace Ego
 //--------------------------------------------------------------------------------------------
 
 /// @todo Remove this.
-template <typename TYPE>
+template <typename TYPE,typename LISTTYPE>
 struct _StateMachine
 {
     Ego::Entity obj_base; ///< The "inheritance" from Ego::Entity.
@@ -383,6 +383,30 @@ struct _StateMachine
         return self;
     }
 
+    static TYPE *config_init(TYPE *self)
+    {
+        if (!self) return nullptr;
+
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        if (!STATE_INITIALIZING_PBASE(parent)) return self;
+
+        self = self->config_do_init();
+        if (!self) return nullptr;
+
+        if (0 == LISTTYPE::getSingleton().getLockCount())
+        {
+            parent->on = true;
+        }
+        else
+        {
+            LISTTYPE::getSingleton().add_activation(self->obj_base.index);
+        }
+
+        parent->state = Ego::Entity::State::Active;
+
+        return self;
+    }
+
     static TYPE *config_deinitialize(TYPE *self, size_t max_iterations)
     {
         if (!self) return nullptr;
@@ -407,6 +431,137 @@ struct _StateMachine
             TYPE *tmp = TYPE::run_config(self);
             if (tmp != self) return nullptr;
             iterations++;
+        }
+
+        return self;
+    }
+
+    static TYPE *config_activate(TYPE *self, size_t max_iterations)
+    {
+        if (!self) return nullptr;
+
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        if (!parent->isAllocated()) return nullptr;
+
+        // If the object is already beyond this stage ...
+        if (parent->state > Ego::Entity::State::Active)
+        {
+            // ... deconstruct it and start over.
+            TYPE *tmp = TYPE::config_deconstruct(self, max_iterations);
+            if (tmp != self) return nullptr;
+        }
+
+        size_t iterations = 0;
+        while (parent->state < Ego::Entity::State::Active && iterations < max_iterations)
+        {
+            TYPE *tmp = TYPE::run_config(self);
+            if (tmp != self) return nullptr;
+            iterations++;
+        }
+
+        if (parent->state == Ego::Entity::State::Active)
+        {
+            LISTTYPE::getSingleton().push_used(self->obj_base.index);
+        }
+
+        return self;
+    }
+
+    static TYPE *config_deconstruct(TYPE *self, size_t max_iterations)
+    {
+        if (!self) return nullptr;
+
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        if (!parent->isAllocated()) return nullptr;
+
+        // If the object is already beyond this stage ...
+        if (parent->state > Ego::Entity::State::Destructing)
+        {
+            // ... do nothing.
+            return self;
+        }
+        else if (parent->state < Ego::Entity::State::DeInitializing)
+        {
+            // Make sure that you deinitialize before destructing.
+            parent->state = Ego::Entity::State::DeInitializing;
+        }
+
+        size_t iterations = 0;
+        while (parent->state <= Ego::Entity::State::Destructing && iterations < max_iterations)
+        {
+            TYPE *tmp = TYPE::run_config(self);
+            if (tmp != self) return nullptr;
+            iterations++;
+        }
+        if (parent->state < Ego::Entity::Terminated)
+        {
+            if (parent->state < Ego::Entity::Destructing)
+            {
+                log_warning("%s:%d: entity is not destructed\n", __FILE__, __LINE__);
+            }
+            log_warning("%s:%d: entity is not destructed\n", __FILE__, __LINE__);
+        }
+        return self;
+    }
+
+    static TYPE *run_config(TYPE *self)
+    {
+        if (!self) return nullptr;
+
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        if (!parent->isAllocated()) return nullptr;
+
+        // Set the object to deinitialize if it is not "dangerous" and if was requested.
+        if (parent->kill_me)
+        {
+            if (parent->state > Ego::Entity::State::Constructing && parent->state < Ego::Entity::State::DeInitializing)
+            {
+                parent->state = Ego::Entity::State::DeInitializing;
+            }
+
+            parent->kill_me = false;
+        }
+
+        switch (parent->state)
+        {
+        default:
+        case Ego::Entity::State::Invalid:
+            self = nullptr;
+            break;
+
+        case Ego::Entity::State::Constructing:
+            self = TYPE::config_ctor(self);
+            break;
+
+        case Ego::Entity::State::Initializing:
+            self = TYPE::config_init(self);
+            break;
+
+        case Ego::Entity::State::Active:
+            self = TYPE::config_active(self);
+            break;
+
+        case Ego::Entity::State::DeInitializing:
+            self = TYPE::config_deinit(self);
+            break;
+
+        case Ego::Entity::State::Destructing:
+            self = TYPE::config_dtor(self);
+            break;
+
+        case Ego::Entity::State::Waiting:
+        case Ego::Entity::State::Terminated:
+            /* Do nothing. */
+            break;
+        }
+
+        if (!self)
+        {
+            parent->update_guid = INVALID_UPDATE_GUID;
+        }
+        else if (Ego::Entity::State::Active == parent->state)
+        {
+            parent->update_guid = LISTTYPE::getSingleton().getUpdateGUID();
         }
 
         return self;

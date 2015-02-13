@@ -6210,19 +6210,19 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 
     GameObject * pchr;
 
-    if ( !_gameObjects.exists( ichr ) ) return INVALID_BILLBOARD_REF;
+    if ( !_gameObjects.exists( ichr ) ) return INVALID_BBOARD_REF;
     pchr = _gameObjects.get( ichr );
 
-    if ( INVALID_BILLBOARD_REF != pchr->ibillboard )
+    if ( INVALID_BBOARD_REF != pchr->ibillboard )
     {
         BillboardList_free_one( REF_TO_INT( pchr->ibillboard ) );
-        pchr->ibillboard = INVALID_BILLBOARD_REF;
+        pchr->ibillboard = INVALID_BBOARD_REF;
     }
 
     pchr->ibillboard = ( BBOARD_REF )BillboardList_get_free_ref( lifetime_secs );
 
     // attachr the billboard to the character
-    if ( INVALID_BILLBOARD_REF != pchr->ibillboard )
+    if ( INVALID_BBOARD_REF != pchr->ibillboard )
     {
         billboard_data_t * pbb = BillboardList_get_ptr( pchr->ibillboard );
 
@@ -6239,14 +6239,14 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     billboard_data_t * pbb;
     int                rv;
 
-    BBOARD_REF ibb = INVALID_BILLBOARD_REF;
+    BBOARD_REF ibb = INVALID_BBOARD_REF;
 
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
 
     // create a new billboard or override the old billboard
     ibb = chr_add_billboard( ichr, lifetime_secs );
-    if ( INVALID_BILLBOARD_REF == ibb ) return NULL;
+    if ( INVALID_BBOARD_REF == ibb ) return NULL;
 
     pbb = BillboardList_get_ptr( pchr->ibillboard );
     if ( NULL == pbb ) return pbb;
@@ -6255,7 +6255,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 
     if ( rv < 0 )
     {
-        pchr->ibillboard = INVALID_BILLBOARD_REF;
+        pchr->ibillboard = INVALID_BBOARD_REF;
         BillboardList_free_one( REF_TO_INT( ibb ) );
         pbb = NULL;
     }

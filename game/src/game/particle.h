@@ -18,6 +18,7 @@
 //********************************************************************************************
 
 /// @file game/particle.h
+/// @brief Particle entities.
 
 #pragma once
 
@@ -29,20 +30,9 @@
 #include "egolib/bbox.h"
 #include "game/char.h"
 
-//--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-
-typedef struct mesh_wall_data_t mesh_wall_data_t;
-
-//--------------------------------------------------------------------------------------------
-// internal structs
-//--------------------------------------------------------------------------------------------
-
-struct prt_environment_t;
-struct prt_spawn_data_t;
-struct prt_t;
-struct prt_bundle_t;
+// Forward declarations.
+struct mesh_wall_data_t;
+struct ParticleManager;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -104,13 +94,15 @@ struct prt_spawn_data_t
     CHR_REF  oldtarget;
 };
 
-//--------------------------------------------------------------------------------------------
-// Particle variables
-//--------------------------------------------------------------------------------------------
 
-/// The definition of the particle object
-/// @extends Ego::Entity
-struct prt_t : public _StateMachine<prt_t>
+
+/**
+ * @brief
+ *  The definition of the particle entity.
+ * @extends
+ *  Ego::Entity
+ */
+struct prt_t : public _StateMachine<prt_t,ParticleManager>
 {
     bool is_ghost;                   ///< the particla has been killed, but is hanging around a while...
 
@@ -205,6 +197,8 @@ struct prt_t : public _StateMachine<prt_t>
     Uint32            safe_time;               ///< the last "safe" time
     Uint32            safe_grid;               ///< the last "safe" grid
 
+    /// @brief Set all particle parameters to safe values.
+    /// @details The C equivalent of a parameterless constructor.
     prt_t *ctor();
     prt_t *dtor();
     static bool request_terminate(prt_t *self);
@@ -212,35 +206,32 @@ struct prt_t : public _StateMachine<prt_t>
     static BIT_FIELD hit_wall(prt_t *self, const float test_pos[], float nrm[], float *pressure, mesh_wall_data_t *data);
     static BIT_FIELD test_wall(prt_t *self, const float test_pos[], mesh_wall_data_t *data);
     static bool set_size(prt_t *self, int size);
+    /// @brief Get the scale factor between the "graphical size" of the particle and the actual display size.
     static float get_scale(prt_t *self);
     static const fvec3_t& get_pos_v_const(const prt_t *self);
-    static float *get_pos_v(prt_t *self);
+
     static bool set_pos(prt_t *self, const fvec3_t& position);
     static bool get_pos(const prt_t *self, fvec3_t& position);
     static bool update_pos(prt_t *self);
     static bool update_safe(prt_t *self, bool force);
     static bool update_safe_raw(prt_t *self);
-
-    // particle state machine functions
-    static prt_t *run_config(prt_t *self);
-
-    static prt_t *config_activate(prt_t *self, size_t max_iterations);
-    static prt_t *config_deconstruct(prt_t *self, size_t max_iterations);
+    static PIP_REF get_ipip(const prt_t *self);
+    static pip_t *get_ppip(const prt_t *self);
 
     static bool free(prt_t * pprt);
 
-    static prt_t *config_init(prt_t *self);
+    // particle state machine function
     prt_t *config_do_init();
+    // particle state machine function
     prt_t *config_do_active();
+    // particle state machine function
     prt_t *config_do_deinit();
 };
 
-
-
-
-
-//--------------------------------------------------------------------------------------------
-/// Convenient access to a prt ref and prt as well as pip ref and pip.
+/**
+ * @brief
+ *  Convenient access to a prt ref and prt as well as pip ref and pip.
+ */
 struct prt_bundle_t
 {
     PRT_REF   prt_ref;
@@ -323,9 +314,10 @@ PRT_REF end_one_particle_now(const PRT_REF particle);
 PRT_REF end_one_particle_in_game(const PRT_REF particle);
 bool prt_is_over_water(const PRT_REF particle);
 void prt_play_sound(const PRT_REF particle, Sint8 sound);
-PIP_REF prt_get_ipip(const PRT_REF particle);
-pip_t *prt_get_ppip(const PRT_REF particle);
 CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
+
+PIP_REF prt_get_ipip(const PRT_REF ref); /**< @deprecated */
+pip_t *prt_get_ppip(const PRT_REF ref);  /**< @deprecated */
 
 // PipStack functions
 PIP_REF PipStack_load_one(const char *szLoadName, const PIP_REF pip_override);

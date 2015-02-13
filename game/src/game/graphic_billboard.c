@@ -169,14 +169,14 @@ bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color co
 // BillboardList IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
-IMPLEMENT_LIST( billboard_data_t, BillboardList, BILLBOARD_COUNT );
+IMPLEMENT_LIST( billboard_data_t, BillboardList, MAX_BBOARD );
 
 //--------------------------------------------------------------------------------------------
 void BillboardList_init_all()
 {
     BBOARD_REF cnt;
 
-    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
+    for ( cnt = 0; cnt < MAX_BBOARD; cnt++ )
     {
         billboard_data_init( BillboardList_get_ptr( cnt ) );
     }
@@ -192,7 +192,7 @@ void BillboardList_update_all()
 
     ticks = egoboo_get_ticks();
 
-    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
+    for ( cnt = 0; cnt < MAX_BBOARD; cnt++ )
     {
         bool is_invalid;
 
@@ -218,7 +218,7 @@ void BillboardList_update_all()
             // unlink it from the character
             if ( _gameObjects.exists( pbb->ichr ) )
             {
-                _gameObjects.get(pbb->ichr)->ibillboard = INVALID_BILLBOARD_REF;
+                _gameObjects.get(pbb->ichr)->ibillboard = INVALID_BBOARD_REF;
             }
 
             // deallocate the billboard
@@ -236,7 +236,7 @@ void BillboardList_free_all()
 {
     BBOARD_REF cnt;
 
-    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
+    for ( cnt = 0; cnt < MAX_BBOARD; cnt++ )
     {
         if ( !BillboardList.lst[cnt].valid ) continue;
 
@@ -249,15 +249,15 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
 {
     TX_REF             itex  = INVALID_TX_REF;
     billboard_data_t * pbb   = NULL;
-    size_t             ibb   = INVALID_BILLBOARD_IDX;
+    size_t             ibb   = INVALID_BBOARD_REF;
     size_t             loops = 0;
 
-    if ( BillboardList.free_count <= 0 ) return INVALID_BILLBOARD_IDX;
+    if ( BillboardList.free_count <= 0 ) return INVALID_BBOARD_REF;
 
-    if ( 0 == lifetime_secs ) return INVALID_BILLBOARD_IDX;
+    if ( 0 == lifetime_secs ) return INVALID_BBOARD_REF;
 
     itex = TextureManager::getSingleton()->acquire( INVALID_TX_REF );
-    if ( !VALID_TX_RANGE( itex ) ) return INVALID_BILLBOARD_IDX;
+    if ( !VALID_TX_RANGE( itex ) ) return INVALID_BBOARD_REF;
 
     while ( BillboardList.free_count > 0 )
     {
@@ -296,7 +296,7 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
         // deallocate the texture
 		TextureManager::getSingleton()->relinquish(itex);
 
-        ibb = INVALID_BILLBOARD_IDX;
+        ibb = INVALID_BBOARD_REF;
     }
 
     return ibb;
@@ -324,7 +324,7 @@ bool BillboardList_free_one( size_t ibb )
     }
 #endif
 
-    if ( BillboardList.free_count >= BILLBOARD_COUNT )
+    if ( BillboardList.free_count >= MAX_BBOARD )
         return false;
 
     // do not put anything below TX_SPECIAL_LAST back onto the SDL_free stack
@@ -343,14 +343,12 @@ void BillboardList_clear_data()
     /// @author BB
     /// @details reset the free billboard list.
 
-    BBOARD_REF cnt;
-
-    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
+    for (BBOARD_REF ref = 0; ref < MAX_BBOARD; ++ref)
     {
-        BillboardList.free_ref[cnt] = REF_TO_INT( cnt );
+        BillboardList.free_ref[ref] = REF_TO_INT(ref);
     }
 
-    BillboardList.free_count = BILLBOARD_COUNT;
+    BillboardList.free_count = MAX_BBOARD;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -508,7 +506,7 @@ gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam )
 
 			Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
-            for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
+            for ( cnt = 0; cnt < MAX_BBOARD; cnt++ )
             {
                 pbb = BillboardList_get_ptr( cnt );
                 if ( NULL == pbb || !pbb->valid ) continue;

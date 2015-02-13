@@ -42,11 +42,6 @@ struct billboard_data_t;
 // constants
 //--------------------------------------------------------------------------------------------
 
-#define BILLBOARD_COUNT     (2 * MAX_CHR)
-
-#define INVALID_BILLBOARD_IDX   BILLBOARD_COUNT
-#define INVALID_BILLBOARD_REF   (( BBOARD_REF )INVALID_BILLBOARD_IDX)
-
 enum e_bb_opt
 {
     bb_opt_none          = EMPTY_BIT_FIELD,
@@ -88,14 +83,14 @@ bool             billboard_data_free( billboard_data_t * pbb );
 bool             billboard_data_update( billboard_data_t * pbb );
 bool             billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... ) GCC_PRINTF_FUNC( 4 );
 
-#define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
+#define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < MAX_BBOARD ) )
 #define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
 
 //--------------------------------------------------------------------------------------------
 // BillboardList
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
+DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, MAX_BBOARD );
 
 void   BillboardList_init_all();
 void   BillboardList_update_all();

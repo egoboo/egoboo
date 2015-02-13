@@ -65,6 +65,11 @@ bool INGAME_PPRT(const prt_t *PPRT) { return LAMBDA(Ego::Entities::spawnDepth > 
 
 ParticleManager PrtList;
 
+ParticleManager& ParticleManager::getSingleton()
+{
+    return PrtList;
+}
+
 //--------------------------------------------------------------------------------------------
 void ParticleManager::prune_used_list()
 {

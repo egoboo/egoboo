@@ -99,6 +99,7 @@ struct ParticleManager : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF,
     void reset_all();
 
 public:
+    static ParticleManager& getSingleton();
     bool free_one(const PRT_REF iprt);
     bool push_free(const PRT_REF);
     void prune_used_list();

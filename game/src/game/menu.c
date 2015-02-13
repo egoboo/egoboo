@@ -179,8 +179,7 @@ static GameTips_t mnu_Tips_local  = { 0 };
 
 static Stack<mnu_module_t, MAX_MODULE> mnu_ModList;
 
-#define INVALID_MOD_IDX MAX_MODULE
-#define INVALID_MOD_REF ((MOD_REF)INVALID_MOD_IDX)
+
 
 menu_process_t * MProc             = &_mproc;
 bool           start_new_player  = false;

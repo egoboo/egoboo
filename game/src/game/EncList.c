@@ -78,6 +78,11 @@ bool INGAME_PENC(const enc_t *PENC) { return LAMBDA(Ego::Entities::spawnDepth > 
 
 EnchantManager EncList;
 
+EnchantManager& EnchantManager::getSingleton()
+{
+    return EncList;
+}
+
 //--------------------------------------------------------------------------------------------
 void EnchantManager::prune_used_list()
 {

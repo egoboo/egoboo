@@ -68,11 +68,12 @@ struct EnchantManager : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, 
     }
 
 public:
+    static EnchantManager& getSingleton();
     void maybeRunDeferred();
     ENC_REF allocate(const ENC_REF override);
     bool free_one(const ENC_REF ref);
     void update_used();
-    bool push_free(const ENC_REF);
+    bool push_free(const ENC_REF ref);
     void prune_used_list();
     void prune_free_list();
 };
@@ -82,20 +83,20 @@ extern EnchantManager EncList;
 //--------------------------------------------------------------------------------------------
 // testing functions
 //--------------------------------------------------------------------------------------------
-bool VALID_ENC_RANGE(const ENC_REF IENC);
-bool DEFINED_ENC(const ENC_REF IENC);
-bool ALLOCATED_ENC(const ENC_REF IENC);
-bool ACTIVE_ENC(const ENC_REF IENC);
-bool WAITING_ENC(const ENC_REF IENC);
-bool TERMINATED_ENC(const ENC_REF IENC);
-ENC_REF GET_REF_PENC(const enc_t *PENC);
-bool DEFINED_PENC(const enc_t *PENC);
-bool VALID_ENC_PTR(const enc_t *PENC);
-bool ALLOCATED_PENC(const enc_t *PENC);
-bool ACTIVE_PENC(const enc_t *PENC);
-bool WAITIN_PENC(const enc_t *PEC);
-bool TERMINATED_PENC(const enc_t *PENC);
-bool INGAME_ENC_BASE(const ENC_REF IENC);
-bool INGAME_PENC_BASE(const enc_t *PENC);
-bool INGAME_ENC(const ENC_REF IENC);
-bool INGAME_PENC(const enc_t *PENC);
+bool VALID_ENC_RANGE(const ENC_REF ref);
+bool DEFINED_ENC(const ENC_REF ref);
+bool ALLOCATED_ENC(const ENC_REF ref);
+bool ACTIVE_ENC(const ENC_REF ref);
+bool WAITING_ENC(const ENC_REF ref);
+bool TERMINATED_ENC(const ENC_REF ref);
+ENC_REF GET_REF_PENC(const enc_t *ptr);
+bool DEFINED_PENC(const enc_t *ptr);
+bool VALID_ENC_PTR(const enc_t *ptr);
+bool ALLOCATED_PENC(const enc_t *ptr);
+bool ACTIVE_PENC(const enc_t *ptr);
+bool WAITIN_PENC(const enc_t *ptr);
+bool TERMINATED_PENC(const enc_t *ptr);
+bool INGAME_ENC_BASE(const ENC_REF ref);
+bool INGAME_PENC_BASE(const enc_t *ptr);
+bool INGAME_ENC(const ENC_REF ref);
+bool INGAME_PENC(const enc_t *ptr);

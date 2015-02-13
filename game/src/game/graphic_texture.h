@@ -72,11 +72,7 @@ enum e_global_tx_type
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-//// The maximum number of textures.
-#define TX_COUNT (2*(MAX_TEXTURE + MAX_ICON))
 
-#define INVALID_TX_IDX TX_COUNT
-#define INVALID_TX_REF ((TX_REF)INVALID_TX_IDX)
 
 #define VALID_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<TX_COUNT) )
 struct TextureManager : public _List<oglx_texture_t *, TX_COUNT>

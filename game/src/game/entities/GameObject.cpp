@@ -127,7 +127,7 @@ GameObject::GameObject(const PRO_REF profile, const CHR_REF id) :
     shadow_size_stt(0.0f),
     shadow_size(0),
     shadow_size_save(0),
-    ibillboard(INVALID_BILLBOARD_REF),
+    ibillboard(INVALID_BBOARD_REF),
     is_overlay(false),
     skin(0),
     profile_ref(profile),
