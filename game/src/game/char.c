@@ -31,6 +31,7 @@
 #include "game/module/Passage.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/module/Module.hpp"
+#include "game/gui/UIManager.hpp"
 
 #include "game/mad.h"
 #include "game/player.h"
@@ -41,7 +42,6 @@
 #include "game/renderer_3d.h"
 #include "game/input.h"
 #include "game/game.h"
-#include "game/ui.h"
 #include "game/collision.h"                  //Only or detach_character_from_platform()
 #include "game/obj_BSP.h"
 #include "game/egoboo.h"
@@ -6251,7 +6251,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     pbb = BillboardList_get_ptr( pchr->ibillboard );
     if ( NULL == pbb ) return pbb;
 
-    rv = billboard_data_printf_ttf( pbb, ui_getFont(), text_color, "%s", txt );
+    rv = billboard_data_printf_ttf( pbb, _gameEngine->getUIManager()->getDefaultFont(), text_color, "%s", txt );
 
     if ( rv < 0 )
     {

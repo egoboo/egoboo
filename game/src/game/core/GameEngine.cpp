@@ -27,7 +27,6 @@
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
 #include "game/graphic_texture.h"
-#include "game/ui.h"
 #include "game/game.h"
 #include "game/collision.h"
 #include "egolib/egolib.h"
@@ -226,7 +225,7 @@ void GameEngine::renderPreloadText(const std::string &text)
 
     _uiManager->beginRenderUI();
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-        fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, 20, y, 800, 600, 25, nullptr, "%s", text.c_str());
+        fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, 20, y, 800, 600, 25, nullptr, "%s", text.c_str());
     _uiManager->endRenderUI();
 
     gfx_request_flip_pages();
@@ -276,7 +275,6 @@ bool GameEngine::initialize()
     gfx_do_clear_screen();
 
     // setup the system gui
-    ui_begin("mp_data/Bo_Chen.ttf", 24);
     _uiManager = std::unique_ptr<UIManager>(new UIManager());
 
     //Tell them we are loading the game (This is earliest point we can render text to screen)
@@ -358,7 +356,6 @@ void GameEngine::uninitialize()
     input_settings_save_vfs( "controls.txt", -1 );
 
 	//shut down the ui
-    ui_end();
     _uiManager.reset(nullptr);
 
 	// deallocate any dynamically allocated collision memory
@@ -489,10 +486,6 @@ void GameEngine::pollEvents()
 
                     // grab all the new SDL screen info
                     SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
-
-                    // set the ui's virtual screen size based on the graphic system's
-                    // configuration
-                    gfx_system_set_virtual_screen( &gfx );
                 }
             break;
 

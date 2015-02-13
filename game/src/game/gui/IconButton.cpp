@@ -22,7 +22,6 @@
 /// @author Johan Jansen
 
 #include "game/gui/IconButton.hpp"
-#include "game/ui.h"
 #include "game/graphic_texture.h"
 
 IconButton::IconButton(const std::string &buttonText, TX_REF icon, int hotkey) : Button(buttonText, hotkey),
@@ -74,10 +73,10 @@ void IconButton::draw()
     if(!_buttonText.empty())
     {
         int textWidth, textHeight;
-        fnt_getTextSize(ui_getFont(), _buttonText.c_str(), &textWidth, &textHeight);
+        fnt_getTextSize(_gameEngine->getUIManager()->getDefaultFont(), _buttonText.c_str(), &textWidth, &textHeight);
 
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-        fnt_drawText_OGL_immediate(ui_getFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX() + 5, getY() + (getHeight()-textHeight)/2, "%s", _buttonText.c_str());
+        fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX() + 5, getY() + (getHeight()-textHeight)/2, "%s", _buttonText.c_str());
     }
 }
 

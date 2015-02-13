@@ -27,7 +27,6 @@
 #include "game/core/GameEngine.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "egolib/platform.h"
-#include "game/ui.h"
 #include "game/game.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"

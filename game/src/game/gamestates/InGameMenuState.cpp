@@ -25,7 +25,6 @@
 #include "game/gamestates/MainMenuState.hpp"
 #include "game/gamestates/PlayingState.hpp"
 #include "game/core/GameEngine.hpp"
-#include "game/ui.h"
 #include "game/game.h"
 #include "game/gui/Button.hpp"
 #include "game/module/Module.hpp"

@@ -23,7 +23,6 @@
 
 #include "game/input.h"
 
-#include "game/ui.h"
 #include "game/network.h"
 #include "game/graphic.h"
 #include "game/egoboo.h"

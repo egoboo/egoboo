@@ -1,6 +1,5 @@
 #include "game/gui/Button.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/ui.h"
 
 const GLXvector4f Button::DEFAULT_BUTTON_COLOUR  = {0.66f, 0.00f, 0.00f, 0.60f};
 const GLXvector4f Button::HOVER_BUTTON_COLOUR    = {0.54f, 0.00f, 0.00f, 1.00f};
@@ -78,10 +77,10 @@ void Button::draw()
     if(!_buttonText.empty())
     {
         int textWidth, textHeight;
-        fnt_getTextSize(ui_getFont(), _buttonText.c_str(), &textWidth, &textHeight);
+        fnt_getTextSize(_gameEngine->getUIManager()->getDefaultFont(), _buttonText.c_str(), &textWidth, &textHeight);
 
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-        fnt_drawText_OGL_immediate(ui_getFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX() + (getWidth()-textWidth)/2, getY() + (getHeight()-textHeight)/2, "%s", _buttonText.c_str());        
+        fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX() + (getWidth()-textWidth)/2, getY() + (getHeight()-textHeight)/2, "%s", _buttonText.c_str());        
     }
 }
 

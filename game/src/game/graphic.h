@@ -339,7 +339,6 @@ struct gfx_config_t
 };
 
 bool gfx_config_init( gfx_config_t * pgfx );
-bool gfx_system_set_virtual_screen( gfx_config_t * pgfx );
 bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, egoboo_config_t * pcfg );
 
 //--------------------------------------------------------------------------------------------

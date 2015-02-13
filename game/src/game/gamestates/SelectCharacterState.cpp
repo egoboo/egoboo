@@ -26,7 +26,6 @@
 #include "game/gamestates/LoadPlayerElement.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/profiles/ProfileSystem.hpp"
-#include "game/ui.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/IconButton.hpp"
 #include "game/gui/Image.hpp"

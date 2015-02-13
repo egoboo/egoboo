@@ -41,7 +41,6 @@
 #include "game/input.h"
 #include "game/script_compile.h"
 #include "game/game.h"
-#include "game/ui.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/char.h"
@@ -1770,42 +1769,6 @@ void gfx_system_main()
 }
 
 //--------------------------------------------------------------------------------------------
-bool gfx_system_set_virtual_screen( gfx_config_t * pgfx )
-{
-    float kx, ky;
-
-    if ( NULL == pgfx ) return false;
-
-    kx = ( float )GFX_WIDTH  / ( float )sdl_scr.x;
-    ky = ( float )GFX_HEIGHT / ( float )sdl_scr.y;
-
-    if ( kx == ky )
-    {
-        pgfx->vw = sdl_scr.x;
-        pgfx->vh = sdl_scr.y;
-    }
-    else if ( kx > ky )
-    {
-        pgfx->vw = sdl_scr.x * kx / ky;
-        pgfx->vh = sdl_scr.y;
-    }
-    else
-    {
-        pgfx->vw = sdl_scr.x;
-        pgfx->vh = sdl_scr.y * ky / kx;
-    }
-
-    pgfx->vdw = ( GFX_WIDTH  - pgfx->vw ) * 0.5f;
-    pgfx->vdh = ( GFX_HEIGHT - pgfx->vh ) * 0.5f;
-
-    ui_set_virtual_screen( pgfx->vw, pgfx->vh, GFX_WIDTH, GFX_HEIGHT );
-
-    //gfx_calc_rotmesh();
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 renderlist_mgr_t * gfx_system_get_renderlist_mgr()
 {
     if ( gfx_success != renderlist_mgr_t::begin( &_renderlist_mgr_data ) )
@@ -3084,7 +3047,16 @@ void draw_inventory()
         max_weight = 200 + FP8_TO_FLOAT( pchr->strength ) * FP8_TO_FLOAT( pchr->strength );
 
         //draw the backdrop
-        ui_drawButton( 0, x, y, width, height, background_color );
+        const GLXvector4f INVENTORY_COLOR = {0.66f, 0.00f, 0.00f, 0.60f};
+        GL_DEBUG( glColor4fv )(INVENTORY_COLOR);
+        GL_DEBUG( glBegin )( GL_QUADS );
+        {
+            GL_DEBUG( glVertex2f )( x, y );
+            GL_DEBUG( glVertex2f )( x, y+height );
+            GL_DEBUG( glVertex2f )( x+width, y+height );
+            GL_DEBUG( glVertex2f )( x+width, y );
+        }
+        GL_DEBUG_END();
         x += 5;
 
         //draw title
@@ -4781,8 +4753,6 @@ bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, egoboo_config_
     pgfx->draw_water_0 = !pgfx->draw_overlay && ( water.layer_count > 0 );
     pgfx->clearson     = !pgfx->draw_background;
     pgfx->draw_water_1 = !pgfx->draw_background && ( water.layer_count > 1 );
-
-    gfx_system_set_virtual_screen( pgfx );
 
     return true;
 }

@@ -26,7 +26,6 @@
 #include "game/mad.h"
 #include "game/player.h"
 #include "game/link.h"
-#include "game/ui.h"
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_texture.h"

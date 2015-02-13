@@ -26,7 +26,6 @@
 #include "game/gamestates/SelectCharacterState.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/ui.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Image.hpp"
 #include "game/gui/Label.hpp"

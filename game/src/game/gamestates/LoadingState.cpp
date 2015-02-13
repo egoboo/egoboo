@@ -26,7 +26,6 @@
 #include "game/profiles/ModuleProfile.hpp"
 #include "game/core/GameEngine.hpp"
 #include "egolib/egoboo_setup.h"
-#include "game/ui.h"
 #include "game/graphic.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/Label.hpp"
