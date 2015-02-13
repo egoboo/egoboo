@@ -27,6 +27,7 @@
 #include "game/game.h"
 #include "game/player.h"
 #include "game/char.h" //ZF> TODO: remove
+#include "game/EncList.h"
 
 //Declare class static constants
 const size_t Object::MAXNUMINPACK;
@@ -694,7 +695,7 @@ bool Object::teleport(const float x, const float y, const float z, const FACING_
         setPosition(newPosition);
         ori.facing_z = facing_z;
 
-        if ( !detach_character_from_mount(getCharacterID(), true, false) )
+        if (!detatchFromHolder(true, false))
         {
             // detach_character_from_mount() updates the character matrix unless it is not mounted
             chr_update_matrix(this, true);
@@ -985,3 +986,188 @@ void Object::requestTerminate()
     facing -= ori.facing_z;
     return (facing > 55535 || facing < 10000);
  }
+
+//--------------------------------------------------------------------------------------------
+bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
+{
+    // Make sure the character is actually held by something first
+    CHR_REF holder = attachedto;
+    const std::shared_ptr<Object> &pholder = _gameObjects[holder];
+    if (!pholder) {
+        return false;  
+    } 
+
+    // Don't allow living characters to drop kursed weapons
+    if ( !ignoreKurse && iskursed && pholder->isAlive() && isitem )
+    {
+        SET_BIT( ai.alert, ALERTIF_NOTDROPPED );
+        return false;
+    }
+
+    // set the dismount timer
+    if ( !isitem ) dismount_timer  = PHYS_DISMOUNT_TIME;
+    dismount_object = holder;
+
+    // Figure out which hand it's in
+    Uint16 hand = inwhich_slot;
+
+    // Rip 'em apart
+    attachedto = INVALID_CHR_REF;
+    if ( pholder->holdingwhich[SLOT_LEFT] == getCharacterID() )
+        pholder->holdingwhich[SLOT_LEFT] = INVALID_CHR_REF;
+
+    if ( pholder->holdingwhich[SLOT_RIGHT] == getCharacterID() )
+        pholder->holdingwhich[SLOT_RIGHT] = INVALID_CHR_REF;
+
+    if ( isAlive() )
+    {
+        // play the falling animation...
+        chr_play_action( this, ACTION_JB + hand, false );
+    }
+    else if ( inst.action_which < ACTION_KA || inst.action_which > ACTION_KD )
+    {
+        // play the "killed" animation...
+        chr_play_action( this, generate_randmask( ACTION_KA, 3 ), false );
+        chr_instance_set_action_keep( &( inst ), true );
+    }
+
+    // Set the positions
+    if ( chr_matrix_valid( this ) )
+    {
+        setPosition(mat_getTranslate_v(inst.matrix.v));
+    }
+    else
+    {
+        setPosition(pholder->getPosition());
+    }
+
+    // Make sure it's not dropped in a wall...
+    if (EMPTY_BIT_FIELD != Objectest_wall(this, NULL, NULL))
+    {
+        fvec3_t pos_tmp = pholder->getPosition();
+        pos_tmp.z = getPosZ();
+
+        setPosition(pos_tmp);
+
+        chr_update_breadcrumb(this, true);
+    }
+
+    // Check for shop passages
+    bool inshop = false;
+    if ( doShop )
+    {
+        inshop = do_shop_drop(holder, getCharacterID());
+    }
+
+    // Make sure it works right
+    hitready = true;
+    if ( inshop )
+    {
+        // Drop straight down to avoid theft
+        vel.x = 0;
+        vel.y = 0;
+    }
+    else
+    {
+        vel.x = pholder->vel.x;
+        vel.y = pholder->vel.y;
+    }
+
+    vel.z = DROPZVEL;
+
+    // Turn looping off
+    chr_instance_set_action_loop( &( inst ), false );
+
+    // Reset the team if it is a mount
+    if ( pholder->isMount() )
+    {
+        pholder->team = pholder->team_base;
+        SET_BIT( pholder->ai.alert, ALERTIF_DROPPED );
+    }
+
+    team = team_base;
+    SET_BIT( ai.alert, ALERTIF_DROPPED );
+
+    // Reset transparency
+    if ( isitem && pholder->transferblend )
+    {
+        ENC_REF ienc_now, ienc_nxt;
+        size_t  ienc_count;
+
+        // cleanup the enchant list
+        cleanup_character_enchants( this );
+
+        // Okay, reset transparency
+        ienc_now = firstenchant;
+        ienc_count = 0;
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        {
+            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+
+            enc_remove_set( ienc_now, SETALPHABLEND );
+            enc_remove_set( ienc_now, SETLIGHTBLEND );
+
+            ienc_now = ienc_nxt;
+            ienc_count++;
+        }
+        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+
+        setAlpha(getProfile()->getAlpha());
+        setLight(getProfile()->getLight());
+
+        // cleanup the enchant list
+        cleanup_character_enchants( this );
+
+        // apply the blend enchants
+        ienc_now = firstenchant;
+        ienc_count = 0;
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        {
+            PRO_REF ipro = enc_get_ipro( ienc_now );
+            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+
+            if ( _profileSystem.isValidProfileID( ipro ) )
+            {
+                enc_apply_set( ienc_now, SETALPHABLEND, ipro );
+                enc_apply_set( ienc_now, SETLIGHTBLEND, ipro );
+            }
+
+            ienc_now = ienc_nxt;
+            ienc_count++;
+        }
+        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    }
+
+    // Set twist
+    ori.map_twist_facing_y = MAP_TURN_OFFSET;
+    ori.map_twist_facing_x = MAP_TURN_OFFSET;
+
+    // turn off keeping, unless the object is dead
+    if (!isAlive())
+    {
+        // the object is dead. play the killed animation and make it freeze there
+        chr_play_action( this, generate_randmask( ACTION_KA, 3 ), false );
+        chr_instance_set_action_keep( &inst, true );
+    }
+    else
+    {
+        // play the jump animation, and un-keep it
+        chr_play_action( this, ACTION_JA, true );
+        chr_instance_set_action_keep( &inst, false );
+    }
+
+    chr_update_matrix( this, true );
+
+    return true;
+}
+
+const std::shared_ptr<Object>& Object::getLeftHandItem() const
+{
+    return _gameObjects[holdingwhich[SLOT_LEFT]];
+}
+
+const std::shared_ptr<Object>& Object::getRightHandItem() const
+{
+    return _gameObjects[holdingwhich[SLOT_RIGHT]];
+}
+

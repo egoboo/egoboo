@@ -289,7 +289,7 @@ void move_all_characters();
 void cleanup_all_characters();
 void bump_all_characters_update_counters();
 void free_all_chraracters();
-void free_one_character_in_game( const CHR_REF character );
+void free_one_character_in_game(const std::shared_ptr<Object> &pchr);
 
 void keep_weapons_with_holders();
 
@@ -340,8 +340,6 @@ void give_team_experience( const TEAM_REF team, int amount, XPType xptype );
 void kill_character( const CHR_REF character, const CHR_REF killer, bool ignore_invictus );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
 void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
-
-bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop );
 
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 

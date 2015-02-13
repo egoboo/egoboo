@@ -1091,32 +1091,30 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     /// @details This function drops the character's in-hand items.  It will also
     /// buck the rider if the character is a mount
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     // This funtion drops the character's in hand items/riders
-    ichr = pchr->holdingwhich[SLOT_LEFT];
-    if ( _gameObjects.exists( ichr ) )
+    const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
+    if (leftItem)
     {
-        detach_character_from_mount( ichr, true, true );
+        leftItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            _gameObjects.get(ichr)->vel.z    = DISMOUNTZVEL;
-            _gameObjects.get(ichr)->jump_timer = JUMPDELAY;
-            _gameObjects.get(ichr)->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+            leftItem->vel.z    = DISMOUNTZVEL;
+            leftItem->jump_timer = JUMPDELAY;
+            leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
     }
 
-    ichr = pchr->holdingwhich[SLOT_RIGHT];
-    if ( _gameObjects.exists( ichr ) )
+    const std::shared_ptr<Object> &rightItem = pchr->getLeftHandItem();
+    if (rightItem)
     {
-        detach_character_from_mount( ichr, true, true );
+        rightItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            _gameObjects.get(ichr)->vel.z    = DISMOUNTZVEL;
-            _gameObjects.get(ichr)->jump_timer = JUMPDELAY;
-            _gameObjects.get(ichr)->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+            rightItem->vel.z    = DISMOUNTZVEL;
+            rightItem->jump_timer = JUMPDELAY;
+            rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
     }
 
@@ -1301,7 +1299,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
             else
             {
                 // Drop from hand
-                detach_character_from_mount( item, true, false );
+                pitem->detatchFromHolder(true, false);
             }
 
             // get rid of the character, no matter what
@@ -2041,7 +2039,7 @@ Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
 
     if ( _gameObjects.exists( pchr->attachedto ) )
     {
-        detach_character_from_mount( pself->index, true, true );
+        pchr->detatchFromHolder(true, true);
     }
     else
     {

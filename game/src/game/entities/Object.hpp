@@ -130,6 +130,12 @@ public:
 
     /**
     * @brief
+    *   True if this Object is a item that can be grabbed
+    **/
+    inline bool isItem() const {return isitem;}
+
+    /**
+    * @brief
     *   This function updates stats and such for this Object (called once per update loop)
     **/
     void update();
@@ -323,6 +329,26 @@ public:
     *   true if the specified location is within a 60 degree cone of vision for this Object
     **/
     bool isFacingLocation(const float x, const float y) const;
+
+    /**
+    * @brief
+    *   This makes this Object detatch from any holder (or dismount of riding a mount)
+    * @return
+    *   true if the detach was successful (could fail because of a kurse for example)
+    **/
+    bool detatchFromHolder(const bool ignoreKurse, const bool doShop);
+
+    /**
+    * @return
+    *   Any Object held in the LEFT grip of this Object (or nullptr if no item is held)
+    **/
+    const std::shared_ptr<Object>& getLeftHandItem() const;
+
+    /**
+    * @return
+    *   Any Object held in the RIGHT grip of this Object (or nullptr if no item is held)
+    **/
+    const std::shared_ptr<Object>& getRightHandItem() const;
 
 private:
 

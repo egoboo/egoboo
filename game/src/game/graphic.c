@@ -299,9 +299,6 @@ static void gfx_system_uninit_SDL_graphics();
 
 static void _flip_pages();
 
-//static void gfx_update_fps_clock();
-//static void gfx_update_fps();
-
 static gfx_rv light_fans( renderlist_t * prlist );
 
 static gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
@@ -1633,7 +1630,7 @@ void gfx_system_init_SDL_graphics()
 #endif
 
     // Set the window name
-    std::string title = std::string("Egoboo") + GameEngine::GAME_VERSION;
+    std::string title = std::string("Egoboo ") + GameEngine::GAME_VERSION;
     SDL_WM_SetCaption(title.c_str(), "Egoboo");
 
 #if defined(__unix__)
