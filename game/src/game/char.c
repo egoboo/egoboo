@@ -52,9 +52,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-struct s_grab_data;
-
 struct s_chr_anim_data;
 typedef struct s_chr_anim_data chr_anim_data_t;
 
@@ -1829,28 +1826,41 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
         // visibility affects the max grab distance.
         // if it is not visible then we have to be touching it.
-        float maxGrabDistance = MAX_DIST_GRAB;
+        float maxHorizontalGrabDistance = MAX_DIST_GRAB;
         if ( grabData.too_dark || grabData.too_invis )
         {
-            maxGrabDistance *= 0.5f;
+            maxHorizontalGrabDistance *= 0.5f;
         }
 
         //Halve grab distance for objects behind us
         if(!grabData.isFacingObject) {
-            maxGrabDistance *= 0.5f;
+            maxHorizontalGrabDistance *= 0.5f;
         }
 
         //Bigger characters have bigger grab size
-        maxGrabDistance += pchr_a->bump.size / 4.0f;
+        maxHorizontalGrabDistance += pchr_a->bump.size / 4.0f;
 
         // is it too far away to grab?
-        if (grabData.horizontalDistance > maxGrabDistance && grabData.horizontalDistance > pchr_a->bump.size)
+        if (grabData.horizontalDistance > maxHorizontalGrabDistance + pchr_a->bump.size / 4.0f && grabData.horizontalDistance > pchr_a->bump.size)
         {
             canGrab = false;
         }
-        if( (grabData.verticalDistance - pchr_a->bump.height / 2.0f) > maxGrabDistance)
+
+        //Check vertical distance as well
+        else
         {
-            canGrab = false;
+            float maxVerticalGrabDistance = pchr_a->bump.height / 2.0f;
+
+            if(grab_people)
+            {
+                //This allows very flat creatures like the Carpet Mimics grab people
+                maxVerticalGrabDistance = std::max(maxVerticalGrabDistance, MAX_DIST_GRAB);
+            }
+
+            if (grabData.verticalDistance > maxVerticalGrabDistance)
+            {
+                canGrab = false;
+            }
         }
 
         // count the number of objects that are within the max range
@@ -2959,10 +2969,7 @@ GameObject * chr_config_do_init( GameObject * pchr )
         // is no need to count the skin graphics loaded into the profile.
         // Limiting the available skins to ones that had unique graphics may have been a mistake since
         // the skin-dependent properties in data.txt may exist even if there are no unique graphics.
-
-        int irand = RANDIE;
-
-        spawn_ptr->skin = irand % MAX_SKIN;
+        spawn_ptr->skin = ppro->getRandomSkinID();
     }
 
     // actually set the character skin
@@ -6590,46 +6597,28 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     /// @details Get the index to the icon texture (in TxList) that is supposed to be used with this object.
     ///               If none can be found, return the index to the texture of the null icon.
 
-    size_t iskin;
-    TX_REF icon_ref = ( TX_REF )TX_ICON_NULL;
-    bool is_spell_fx, is_book, draw_book;
+    const std::shared_ptr<GameObject> &pitem = _gameObjects[item];
+    if (!pitem) {
+        return static_cast<TX_REF>(TX_ICON_NULL);
+    }
 
-    GameObject * pitem;
-
-    if ( !_gameObjects.exists( item ) ) return icon_ref;
-    pitem = _gameObjects.get( item );
-
-    if ( !_profileSystem.isValidProfileID( pitem->profile_ref ) ) return icon_ref;
-    std::shared_ptr<ObjectProfile> itemProfile = _profileSystem.getProfile( pitem->profile_ref );
+    const std::shared_ptr<ObjectProfile> &itemProfile = pitem->getProfile();
 
     // what do we need to draw?
-    is_spell_fx = ( itemProfile->getSpellEffectType() >= 0 );     // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
-    is_book     = ( SPELLBOOK == pitem->profile_ref );
-    draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ); /// ZF@> uncommented a part because this caused a icon bug when you were morphed and mounted
+    // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
+    bool is_book = (SPELLBOOK == pitem->profile_ref) || (itemProfile->getSpellEffectType() >= 0 && !pitem->draw_icon);
 
-    if ( !draw_book )
+    //bool is_spell_fx = ( itemProfile->getSpellEffectType() >= 0 );     
+    //bool draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ); /// ZF@> uncommented a part because this caused a icon bug when you were morphed and mounted
+
+    if (!is_book)
     {
-        iskin = pitem->skin;
-
-        icon_ref = itemProfile->getIcon(iskin);
+        return itemProfile->getIcon(pitem->skin);
     }
-    else if ( draw_book )
+    else
     {
-        iskin = itemProfile->getSkinOverride();
-
-        if ( iskin < 0 || iskin >= MAX_SKIN )
-        {
-            // no book info
-            iskin = pitem->skin;
-            icon_ref = itemProfile->getIcon(iskin);
-        }
-        else
-        {
-            icon_ref = _profileSystem.getSpellBookIcon(iskin);
-        }
+        return _profileSystem.getSpellBookIcon(itemProfile->getSpellEffectType());
     }
-
-    return icon_ref;
 }
 
 //--------------------------------------------------------------------------------------------

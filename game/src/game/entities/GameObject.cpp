@@ -338,8 +338,6 @@ bool GameObject::canMount(const std::shared_ptr<GameObject> mount) const
     return has_ride_anim;
 }
 
-
-//--------------------------------------------------------------------------------------------
 int GameObject::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
                       const std::shared_ptr<GameObject> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
 {
@@ -632,7 +630,7 @@ void GameObject::updateLastAttacker(const std::shared_ptr<GameObject> &attacker,
         actual_attacker = attacker->getCharacterID();
 
         //Do not alert items damaging (or healing) their holders, healing potions for example
-        if ( attacker->attachedto ==ai.index ) return;
+        if ( attacker->attachedto == ai.index ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
         if ( _gameObjects.exists( attacker->attachedto ) && !_gameObjects.get(attacker->attachedto)->isMount() )
@@ -936,7 +934,12 @@ std::string GameObject::getName(bool prefixArticle, bool prefixDefinite, bool ca
     }
     else
     {
-        result = getProfile()->getClassName();;
+        if(getProfile()->getSpellEffectType() >= 0) {
+            result = _profileSystem.getProfile(SPELLBOOK)->getClassName();
+        }
+        else {
+            result = getProfile()->getClassName();
+        }
 
         if (prefixArticle)
         {

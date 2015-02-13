@@ -26,7 +26,8 @@
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 Player 0:  NONE      0    14.5 60.5 6.0  N   2   0   0   0   0   T   F   Good
-  Torch:   NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  Torch:   NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
+  Knife:   NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
 Knight:    NONE      41   15.5 60.5 4.0  W   15  0   0   2   0   T   F   Good
   Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
   KiteShield: NONE      71   0    0    0    L   0   0   0   0   0   F   F   Null

@@ -2473,28 +2473,28 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     // convert the spell effect to a spellbook
     old_profile = pchr->profile_ref;
-    change_character( pself->index, ( PRO_REF )SPELLBOOK, iskin, ENC_LEAVE_NONE );
+    change_character( pself->index, (PRO_REF)SPELLBOOK, iskin, ENC_LEAVE_NONE );
 
     // Reset the spellbook state so it doesn't burn up
-    chr_set_ai_state( pchr, 0 );
+    chr_set_ai_state(pchr, 0);
     pself->content = REF_TO_INT( old_profile );
 
     // set the spellbook animations
-    pmad = chr_get_pmad( pself->index );
+    pmad = chr_get_pmad(pself->index);
 
     if ( NULL != pmad )
     {
         // Do dropped animation
-        int tmp_action = mad_get_action_ref( pchr->inst.imad, ACTION_JB );
+        int tmp_action = mad_get_action_ref(pchr->inst.imad, ACTION_JB);
 
-        if ( rv_success == chr_start_anim( pchr, tmp_action, false, true ) )
+        if (rv_success == chr_start_anim(pchr, tmp_action, false, true))
         {
             returncode = true;
         }
     }
 
     // have to do this every time pself->state is modified
-    chr_update_hide( pchr );
+    chr_update_hide(pchr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5531,34 +5531,31 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     /// DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
     /// AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE.
 
-    fvec3_t   pos;
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
+    fvec3_t   pos;
     pos.x = pstate->x;
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, CLIP_TO_16BITS(pstate->turn), NULL, INVALID_CHR_REF);
-    returncode = _gameObjects.exists(ichr);
+    CHR_REF ichr = spawn_one_character(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
+    const std::shared_ptr<GameObject> &pchild = _gameObjects[ichr];
 
-    if ( !returncode )
+    if ( !pchild )
     {
         if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ppro->getClassName().c_str(), pstate->argument );
         }
+        returncode = false;
     }
     else
     {
-        GameObject * pchild = _gameObjects.get( ichr );
-
         // was the child spawned in a "safe" spot?
-        if (!chr_get_safe(pchild))
+        if (!chr_get_safe(pchild.get()))
         {
-            _gameObjects.remove( ichr );
-            ichr = INVALID_CHR_REF;
+            pchr->requestTerminate();
+            returncode = false;
         }
         else
         {
@@ -5570,6 +5567,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
             pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
             pchild->dismount_object = pself->index;
+            returncode = true;
         }
     }
 

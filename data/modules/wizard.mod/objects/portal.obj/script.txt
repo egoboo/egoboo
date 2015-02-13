@@ -1,0 +1,50 @@
+IfSpawned
+  tmpargument = 0
+  PlaySoundLooped
+
+  tmpargument = ACTIONMJ
+  DoAction
+  KeepAction
+
+  // So that orders are properly issued
+  JoinNullTeam
+
+  // Randomize portal color
+  tmpargument = rand % 4
+  ChangeArmor
+
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+
+    // Make some noise!
+    tmpargument = 1
+    PlayFullSound
+
+    // Finish it up
+    BeatModule
+    EnableExport
+
+    // Mark this module as beaten, hidden modules may open up
+    tmpargument = [BEAT]
+    AddIDSZ
+
+    // Fix the end text
+    ClearEndMessage
+    tmpargument = "You_have_successfully_mastered_the_arcane_arts_and_conjured_an_escape_portal."
+    AddEndMessage
+    tmpargument = "Your_plan_has_worked_so_far,_you_have_learned_powerful_"
+    AddEndMessage
+    tmpargument = "secrets_of_the_arcane_which_will_aid_you_in_your_quest_to_save_your_king..."
+    AddEndMessage
+    tmpargument = "_As_the_king's_advisor_and_old_friend_you_know_that_you_need_to_collect_"
+    AddEndMessage
+    tmpargument = "the_5_sporks_of_power_to_unlock_the_Royal_Catacombs_where_the_"
+    AddEndMessage
+    tmpargument = "Dracolich_disappeared_with_your_king."
+    AddEndMessage
+
+    //Exit now!
+    EndModule
+
+End

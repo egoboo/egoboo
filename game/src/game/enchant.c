@@ -607,7 +607,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 
                     case SETCOSTFOREACHMISSILE:
                         penc->setsave[value_idx] = ptarget->missilecost;
-                        ptarget->missilecost     = peve->setvalue[value_idx] * 16.0f;    // adjustment to the value stored in the file
+                        ptarget->missilecost     = peve->setvalue[value_idx];
                         ptarget->missilehandler  = penc->owner_ref;
                         break;
 

@@ -26,6 +26,7 @@
 #include "game/gamestates/VictoryScreen.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/profiles/ProfileSystem.hpp"
+#include "game/audio/AudioSystem.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/game.h"
 #include "game/graphic.h"
@@ -54,6 +55,8 @@ PlayingState::~PlayingState()
         _profileSystem.loadAllSavedCharacters("mp_players");
     }
 
+    //Stop any module sounds that are playing
+    _audioSystem.fadeAllSounds();
 }
 
 void PlayingState::update()

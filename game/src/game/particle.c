@@ -561,7 +561,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     {
         const float buoyancy_min       = 0.0f;
-        const float buoyancy_max       = 2.0f * ABS( STANDARD_GRAVITY );
+        const float buoyancy_max       = 2.0f * std::abs( STANDARD_GRAVITY );
         const float air_resistance_min = 0.0f;
         const float air_resistance_max = 1.0f;
 
@@ -1680,7 +1680,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing( prt_bundle_t * pbdl_pr
     // Make sure that vdiff doesn't ever get too small.
     // That just makes the particle slooooowww down when it approaches the target.
     // Do a real kludge here. this should be a lot faster than a square root, but ...
-    vlen = ABS( vdiff.x ) + ABS( vdiff.y ) + ABS( vdiff.z );
+    vlen = std::abs( vdiff.x ) + std::abs( vdiff.y ) + std::abs( vdiff.z );
     if ( vlen > FLT_EPSILON )
     {
         float factor = min_length / vlen;
@@ -1694,6 +1694,17 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing( prt_bundle_t * pbdl_pr
     loc_pprt->vel.y = ( loc_pprt->vel.y + vdiff.y * loc_ppip->homingaccel ) * loc_ppip->homingfriction;
     loc_pprt->vel.z = ( loc_pprt->vel.z + vdiff.z * loc_ppip->homingaccel ) * loc_ppip->homingfriction;
 
+    return pbdl_prt;
+}
+
+//--------------------------------------------------------------------------------------------
+prt_bundle_t * prt_bundle_t::updateParticleSimpleGravity(prt_bundle_t * pbdl_prt)
+{
+    //Only do gravity for solid particles
+    if (!pbdl_prt->prt_ptr->no_gravity && pbdl_prt->prt_ptr->type == SPRITE_SOLID && !pbdl_prt->prt_ptr->is_homing  && !_gameObjects.exists(pbdl_prt->prt_ptr->attachedto_ref))
+    {
+        pbdl_prt->prt_ptr->vel.z -= 0.980665f; //ZF> My magic EgoGravity constant
+    }
     return pbdl_prt;
 }
 
@@ -2017,7 +2028,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion( prt_bundle_t * 
     // interaction with the mesh walls
     hit_a_wall = false;
     needs_test = false;
-    if ( ABS( loc_pprt->vel.x ) + ABS( loc_pprt->vel.y ) > 0.0f )
+    if ( std::abs( loc_pprt->vel.x ) + std::abs( loc_pprt->vel.y ) > 0.0f )
     {
         mesh_wall_data_t wdata;
 
@@ -2207,9 +2218,10 @@ bool prt_bundle_t::move_one_particle( prt_bundle_t * pbdl_prt )
     pbdl_prt = move_one_particle_get_environment( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
+    //ZF> Disabled, this doesn't really work yet
     // wind, current, and other fluid friction effects
-    pbdl_prt = move_one_particle_do_fluid_friction( pbdl_prt );
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
+    //pbdl_prt = move_one_particle_do_fluid_friction( pbdl_prt );
+    //if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
     // do friction with the floor before voluntary motion
     pbdl_prt = move_one_particle_do_floor_friction( pbdl_prt );
@@ -2218,8 +2230,10 @@ bool prt_bundle_t::move_one_particle( prt_bundle_t * pbdl_prt )
     pbdl_prt = move_one_particle_do_homing( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
-    pbdl_prt = move_one_particle_do_z_motion( pbdl_prt );
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
+    //ZF> Dirty hack using VERY simple gravity calculation
+    updateParticleSimpleGravity(pbdl_prt);
+    //pbdl_prt = move_one_particle_do_z_motion( pbdl_prt );
+    //if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
     pbdl_prt = move_one_particle_integrate_motion( pbdl_prt );
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
@@ -3052,16 +3066,16 @@ prt_bundle_t * prt_bundle_t::update_animation( prt_bundle_t * pbdl_prt )
     // what do you do about an image overflow?
     if ( image_overflow )
     {
-        if ( loc_ppip->end_lastframe && loc_ppip->end_time > 0 )
-        {
-            // the animation is looped. set the value to image_overflow_amount
-            // so that we get the exact number of image updates called for
-            loc_pprt->image_off  = image_overflow_amount;
-        }
-        else
+        if ( loc_ppip->end_lastframe /*&& loc_ppip->end_time > 0*/ ) //ZF> I don't think the second statement is needed
         {
             // freeze it at the last frame
             loc_pprt->image_off = std::max( 0, ( signed )loc_pprt->image_max - 1 );
+        }
+        else
+        {
+            // the animation is looped. set the value to image_overflow_amount
+            // so that we get the exact number of image updates called for
+            loc_pprt->image_off = image_overflow_amount;
         }
     }
 
