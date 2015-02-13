@@ -43,6 +43,8 @@ public:
 
 	static const uint32_t MAX_FRAMESKIP = 10;	///< Maximum render frames to skip if logic updates are lagging behind
 
+	static const std::string GAME_VERSION;		///< Version of the game
+
 	/**
 	* @brief
 	*	Default constructor of a GameEngine. Actual initialization, allocation and loading is

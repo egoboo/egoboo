@@ -98,7 +98,6 @@ size_t endtext_carat = 0;
 status_list_t StatusList = STATUS_LIST_INIT;
 
 ego_mesh_t         * PMesh   = _mesh + 0;
-game_process_t     * GProc   = &_gproc;
 
 pit_info_t pits = PIT_INFO_INIT;
 
@@ -648,7 +647,7 @@ void blah_billboard()
     bool needs_new;
     Uint32 current_time;
 
-    current_time = egoboo_get_ticks();
+    current_time = SDL_GetTicks();
 
     for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
@@ -2219,7 +2218,7 @@ void check_stats()
     int ticks;
     if ( keyb.chat_mode ) return;
 
-    ticks = egoboo_get_ticks();
+    ticks = SDL_GetTicks();
     if ( ticks > stat_check_timer + 20 )
     {
         stat_check_timer = ticks;

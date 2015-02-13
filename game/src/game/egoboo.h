@@ -39,9 +39,7 @@
 #endif
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define VERSION "2.9.0"                             ///< Version of the game
+//--------------------------------------------------------------------------------------------     
 
 #define NOSPARKLE           255                     ///< Dont sparkle icons
 #define SPELLBOOK           127                     ///< The spellbook model
@@ -121,43 +119,6 @@ EXTERN local_stats_t local_stats;
 //---------------------------------------------------------------------------------------------------------------------
 
 #include "egolib/egolib.h"
-
-/// A process that controls the master loop of the program.
-struct ego_process_t
-{
-    process_t base;
-
-    double frameDuration;
-    int    menuResult;
-
-    bool was_active;
-    bool escape_requested, escape_latch;
-
-    egolib_timer_t loop_timer;
-
-    bool free_running_latch_requested;
-    bool free_running_latch;
-
-	/// @brief The number of command-line arguments.
-	int argc;
-	/// @brief The command-line arguments.
-	char **argv;
-};
-
-EXTERN bool single_frame_mode EQ( false );
-EXTERN bool single_frame_keyready EQ( true );
-EXTERN bool single_frame_requested EQ( false );
-EXTERN bool single_update_requested EQ( false );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-extern ego_process_t * EProc;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-Uint32 egoboo_get_ticks();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

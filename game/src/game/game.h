@@ -385,7 +385,6 @@ bool status_list_update_cameras( status_list_t * plst );
 //--------------------------------------------------------------------------------------------
 
 // various global pointers
-extern game_process_t  *GProc;
 extern ego_mesh_t *PMesh;
 
 //TODO: remove this global

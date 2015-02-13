@@ -40,23 +40,6 @@ extern "C"
 #endif
 
 //--------------------------------------------------------------------------------------------
-Uint32 egoboo_get_ticks()
-{
-    Uint32 ticks = 0;
-
-    if ( single_frame_mode )
-    {
-        ticks = UPDATE_SKIP * update_wld;
-    }
-    else
-    {
-        ticks = SDL_GetTicks();
-    }
-
-    return ticks;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 bool config_download( egoboo_config_t * pcfg, bool synch_from_file )

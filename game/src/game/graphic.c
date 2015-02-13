@@ -1719,8 +1719,9 @@ void gfx_system_render_world( std::shared_ptr<Camera> pcam, const int render_lis
         {
             if (pcam->getMotionBlurOld() < 0.001f)
                 GL_DEBUG(glAccum)(GL_LOAD, 1);
+
             //Do motion blur
-            if (!GProc->mod_paused)
+            if (true /*currentState != playingState*/) //ZF> TODO: disable motion blur in in-game menu
             {
                 GL_DEBUG( glAccum )( GL_MULT, pcam->getMotionBlur() );
                 GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->getMotionBlur() );
@@ -3017,7 +3018,7 @@ void draw_inventory()
     static int lerp_time[MAX_LOCAL_PLAYERS] = { 0 };
 
     //don't draw inventories while menu is open
-    if ( GProc->mod_paused ) return;
+    //if ( GProc->mod_paused ) return;
 
     //figure out what we have to draw
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )

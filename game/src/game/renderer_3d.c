@@ -116,7 +116,7 @@ bool line_list_add( const float src_x, const float src_y, const float src_z, con
     line_list[iline].color.b = 1.00f;
     line_list[iline].color.a = 0.50f;
 
-    line_list[iline].time = egoboo_get_ticks() + duration;
+    line_list[iline].time = SDL_GetTicks() + duration;
 
     return true;
 }
@@ -161,7 +161,7 @@ void line_list_draw_all( std::shared_ptr<Camera> pcam )
             // we do not want texture mapped lines
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
 
-            ticks = egoboo_get_ticks();
+            ticks = SDL_GetTicks();
 
             for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
             {
@@ -231,7 +231,7 @@ bool point_list_add( const float x, const float y, const float z, const int dura
     point_list[ipoint].color.b = 0.00f;
     point_list[ipoint].color.a = 0.50f;
 
-    point_list[ipoint].time = egoboo_get_ticks() + duration;
+    point_list[ipoint].time = SDL_GetTicks() + duration;
 
     return true;
 }
@@ -292,7 +292,7 @@ void point_list_draw_all( std::shared_ptr<Camera> pcam )
             // we do not want texture mapped points
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
 
-            ticks = egoboo_get_ticks();
+            ticks = SDL_GetTicks();
 
             for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
             {

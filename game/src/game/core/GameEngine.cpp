@@ -45,6 +45,8 @@ const uint32_t GameEngine::DELAY_PER_UPDATE_FRAME;
 
 const uint32_t GameEngine::MAX_FRAMESKIP;
 
+const std::string GameEngine::GAME_VERSION = "2.9.0";
+
 GameEngine::GameEngine() :
 	_isInitialized(false),
 	_terminateRequested(false),
@@ -239,7 +241,7 @@ bool GameEngine::initialize()
     log_init("/debug/log.txt", LOG_DEBUG);
 
     // start initializing the various subsystems
-    log_message("Starting Egoboo " VERSION " ...\n");
+    log_message("Starting Egoboo %s ...\n", GAME_VERSION.c_str());
     log_info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
 
     //Initialize OS specific stuff
@@ -373,7 +375,7 @@ void GameEngine::uninitialize()
 
     // shut down the log services
     log_message( "Success!\n" );
-    log_info( "Exiting Egoboo " VERSION " the good way...\n" );
+    log_info("Exiting Egoboo %s the good way...\n", GAME_VERSION.c_str());
     log_shutdown();
 
     //Shutdown SDL last
