@@ -17,11 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file game/module/ObjectHandler.hpp
-/// @details Memory and access managment for instances of in-game egoboo objects (GameObject)
+/// @file game/entities/ObjectHandler.hpp
+/// @details Memory and access managment for instances of in-game egoboo objects (Object)
 /// @author Johan Jansen
 
 #pragma once
+#if !defined(GAME_ENTITIES_PRIVATE) || GAME_ENTITIES_PRIVATE != 1
+#error(do not include directly, include `game/entities/_Include.hpp` instead)
+#endif
 
 #include "game/egoboo_typedef.h"
 

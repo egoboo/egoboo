@@ -31,8 +31,7 @@
 #include "game/gui/Image.hpp"
 #include "game/gui/Label.hpp"
 #include "game/game.h"	//only for MAX_IMPORTS_PER_OBJECT constant
-#include "game/profiles/Profile.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/gamestates/LoadPlayerElement.hpp"
 
 SelectPlayersState::SelectPlayersState() :

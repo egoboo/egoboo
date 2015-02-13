@@ -19,7 +19,11 @@
 /// @file  game/RandomName.hpp
 /// @brief This class is used for random name generation
 /// @author Johan Jansen
+
 #pragma once
+#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
+#error(do not include directly, include `game/profiles/_Include.hpp` instead)
+#endif
 
 #include <vector>
 #include <string>

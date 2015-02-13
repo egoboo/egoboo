@@ -26,7 +26,7 @@
 #include <forward_list>
 #include <SDL_mixer.h>
 
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/_Include.hpp"
 
 //Forward declarations
 struct egoboo_config_t;
@@ -34,7 +34,6 @@ struct egoboo_config_t;
 typedef int MusicID;
 typedef int SoundID;
 
-#define MAX_WAVE 30
 constexpr int INVALID_SOUND_CHANNEL = -1;
 constexpr SoundID INVALID_SOUND_ID = -1;
 

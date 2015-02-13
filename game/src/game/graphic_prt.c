@@ -30,13 +30,11 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/particle.h"
 #include "game/char.h"
 #include "game/profiles/Profile.hpp"
 #include "game/graphics/CameraSystem.hpp"
+#include "game/entities/_Include.hpp"
 
-#include "game/module/ObjectHandler.hpp"
-#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -46,18 +46,16 @@
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/char.h"
-#include "game/particle.h"
-#include "game/enchant.h"
 #include "game/mesh.h"
 
 #include "game/profiles/Profile.hpp"
 #include "game/graphics/CameraSystem.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/module/Module.hpp"
 
-#include "game/module/ObjectHandler.hpp"
-#include "game/EncList.h"
-#include "game/PrtList.h"
+#include "game/entities/ObjectHandler.hpp"
+#include "game/entities/EnchantHandler.hpp"
+#include "game/entities/ParticleHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

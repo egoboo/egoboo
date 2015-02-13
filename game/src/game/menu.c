@@ -31,17 +31,12 @@
 #include "game/game.h"
 #include "game/input.h"
 #include "game/egoboo.h"
-#include "game/particle.h"
+#include "game/entities/_Include.hpp"
 #include "game/char.h"
-#include "game/profiles/Profile.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/module/Module.hpp"
 #include "egolib/Renderer/TextureFilter.hpp"
-
 #include "game/audio/AudioSystem.hpp"
-
-#include "game/module/ObjectHandler.hpp"
-#include "game/PrtList.h"
 #include "game/gamestates/LoadPlayerElement.hpp"
 
 //--------------------------------------------------------------------------------------------

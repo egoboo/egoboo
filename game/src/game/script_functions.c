@@ -37,25 +37,21 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/ai/AStar.h"
-#include "game/enchant.h"
 #include "game/char.h"
-#include "game/particle.h"
+#include "game/entities/_Include.hpp"
 #include "game/mesh.h"
 
 #include "game/core/GameEngine.hpp"
 #include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/profiles/ProfileSystem.hpp"
-#include "game/profiles/Profile.hpp"
-#include "game/profiles/ModuleProfile.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/module/Module.hpp"
 #include "game/gamestates/VictoryScreen.hpp"
 #include "egolib/math/Random.hpp"
 
-#include "game/module/ObjectHandler.hpp"
-#include "game/EncList.h"
-#include "game/PrtList.h"
+#include "game/entities/_Include.hpp"
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

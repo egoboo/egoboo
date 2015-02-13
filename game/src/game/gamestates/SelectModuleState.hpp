@@ -23,9 +23,11 @@
 /// @author Johan Jansen
 
 #pragma once
+
 #include <vector>
+
 #include "game/gamestates/GameState.hpp"
-#include "game/profiles/ModuleProfile.hpp"
+#include "game/profiles/_Include.hpp"
 
 //Forward declarations
 class Image;

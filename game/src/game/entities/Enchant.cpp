@@ -17,10 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file  game/enchant.c
+/// @file  game/entities/Enchant.cpp
 /// @brief Enchantment entities.
 
-#include "game/enchant.h"
+#define GAME_ENTITIES_PRIVATE 1
+#include "game/entities/Enchant.hpp"
 
 #include "game/audio/AudioSystem.hpp"
 #include "game/game.h"
@@ -29,12 +30,12 @@
 
 #include "game/char.h"
 #include "game/mad.h"
-#include "game/particle.h"
-#include "game/profiles/Profile.hpp"
-#include "game/profiles/ProfileSystem.hpp"
 
-#include "game/EncList.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/profiles/_Include.hpp"
+
+#include "game/entities/EnchantHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
+#include "game/entities/ParticleHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

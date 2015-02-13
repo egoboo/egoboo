@@ -27,16 +27,10 @@
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/char.h"
-#include "game/particle.h"
-#include "game/enchant.h"
 #include "game/physics.h"
-#include "game/PrtList.h"
-#include "game/EncList.h"
-
+#include "game/entities/_Include.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/profiles/ProfileSystem.hpp"
-#include "game/module/ObjectHandler.hpp"
-#include "game/profiles/Profile.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

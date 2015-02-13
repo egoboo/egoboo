@@ -17,15 +17,18 @@
 //*
 //********************************************************************************************
 
-/// @file game/PrtList.h
-/// @brief Routines for particle list management
+/// @file  game/entities/ParticleHandler.hpp
+/// @brief Handler of particle entities.
 
 #pragma once
+#if !defined(GAME_ENTITIES_PRIVATE) || GAME_ENTITIES_PRIVATE != 1
+#error(do not include directly, include `game/entities/_Include.hpp` instead)
+#endif
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"
 #include "game/LockableList.hpp"
-#include "game/particle.h"
+#include "game/entities/Particle.hpp"
 
 //--------------------------------------------------------------------------------------------
 // looping macros
@@ -144,22 +147,22 @@ extern ParticleManager PrtList;
 // testing functions
 //--------------------------------------------------------------------------------------------
 
-bool VALID_PRT_RANGE(const PRT_REF IPRT);
-bool DEFINED_PRT(const PRT_REF IPRT);
-bool ALLOCATED_PRT(const PRT_REF IPRT);
-bool ACTIVE_PRT(const PRT_REF IPRT);
-bool WAITING_PRT(const PRT_REF IPRT);
-bool TERMINATED_PRT(const PRT_REF IPRT);
-PRT_REF GET_REF_PPRT(const prt_t *PPRT);
-bool DEFINED_PPRT(const prt_t *PPRT);
-bool VALID_PRT_PTR(const prt_t *PPRT);
-bool ALLOCATED_PPRT(const prt_t *PPRT);
-bool ACTIVE_PPRT(const prt_t *PPRT);
-bool WAITING_PPRT(const prt_t *PPRT);
-bool TERMINATED_PPRT(const prt_t *PPRT);
-bool INGAME_PRT_BASE(const PRT_REF IPRT);
-bool INGAME_PPRT_BASE(const prt_t *PPRT);
-bool INGAME_PRT(const PRT_REF IPRT);
-bool INGAME_PPRT(const prt_t *PPRT);
+bool VALID_PRT_RANGE(const PRT_REF ref);
+bool DEFINED_PRT(const PRT_REF ref);
+bool ALLOCATED_PRT(const PRT_REF ref);
+bool ACTIVE_PRT(const PRT_REF ref);
+bool WAITING_PRT(const PRT_REF ref);
+bool TERMINATED_PRT(const PRT_REF ref);
+PRT_REF GET_REF_PPRT(const prt_t *ptr);
+bool DEFINED_PPRT(const prt_t *ptr);
+bool VALID_PRT_PTR(const prt_t *ptr);
+bool ALLOCATED_PPRT(const prt_t *ptr);
+bool ACTIVE_PPRT(const prt_t *ptr);
+bool WAITING_PPRT(const prt_t *ptr);
+bool TERMINATED_PPRT(const prt_t *ptr);
+bool INGAME_PRT_BASE(const PRT_REF ref);
+bool INGAME_PPRT_BASE(const prt_t *ptr);
+bool INGAME_PRT(const PRT_REF ref);
+bool INGAME_PPRT(const prt_t *ptr);
 bool DISPLAY_PRT(const PRT_REF IPRT);
-bool DISPLAY_PPRT(const prt_t *PPRT);
+bool DISPLAY_PPRT(const prt_t *ptr);

@@ -23,7 +23,7 @@
 
 #include "game/gamestates/LoadingState.hpp"
 #include "game/gamestates/PlayingState.hpp"
-#include "game/profiles/ModuleProfile.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/core/GameEngine.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/ui.h"
@@ -33,11 +33,9 @@
 #include "game/gui/Image.hpp"
 #include "egolib/math/Random.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/profiles/Profile.hpp"
 
 //For loading stuff
 #include "game/graphics/CameraSystem.hpp"
-#include "game/profiles/ProfileSystem.hpp"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 #include "game/link.h"

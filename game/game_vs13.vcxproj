@@ -379,7 +379,12 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\game\entities\GameObject.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Enchant.cpp" />
+    <ClCompile Include="src\game\entities\EnchantHandler.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\ObjectHandler.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Particle.cpp" />
+    <ClCompile Include="src\game\entities\ParticleHandler.cpp" />
+    <ClCompile Include="src\game\entities\Object.cpp" />
     <ClCompile Include="src\game\core\GameEngine.cpp" />
     <ClCompile Include="src\game\gamestates\GameState.cpp" />
     <ClCompile Include="src\game\gamestates\InGameMenuState.cpp" />
@@ -401,7 +406,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\gui\ModuleSelector.cpp" />
     <ClCompile Include="src\game\gui\UIManager.cpp" />
     <ClCompile Include="src\game\profiles\ModuleProfile.cpp" />
-    <ClCompile Include="src\game\module\ObjectHandler.cpp" />
     <ClCompile Include="src\game\module\Module.cpp" />
     <ClCompile Include="src\game\graphics\MD2Model.cpp" />
     <ClCompile Include="src\game\profiles\Profile.cpp" />
@@ -419,8 +423,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\egoboo.c" />
     <ClCompile Include="src\game\egoboo_object.c" />
     <ClCompile Include="src\game\egoboo_typedef.c" />
-    <ClCompile Include="src\game\enchant.c" />
-    <ClCompile Include="src\game\EncList.c" />
     <ClCompile Include="src\game\game.c" />
     <ClCompile Include="src\game\graphic.c" />
     <ClCompile Include="src\game\graphic_billboard.c" />
@@ -440,10 +442,8 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\network_client.c" />
     <ClCompile Include="src\game\network_server.c" />
     <ClCompile Include="src\game\obj_BSP.c" />
-    <ClCompile Include="src\game\particle.c" />
     <ClCompile Include="src\game\physics.c" />
     <ClCompile Include="src\game\player.c" />
-    <ClCompile Include="src\game\PrtList.c" />
     <ClCompile Include="src\game\renderer_2d.c" />
     <ClCompile Include="src\game\renderer_3d.c" />
     <ClCompile Include="src\game\script.c" />
@@ -453,7 +453,16 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\GameObject.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Enchant.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\_Include.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\EveProfile.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\PipProfile.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\_Include.hpp" />
+    <ClInclude Include="src\game\entities\EnchantHandler.hpp" />
+    <ClInclude Include="src\game\entities\Object.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\ObjectHandler.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Particle.hpp" />
+    <ClInclude Include="src\game\entities\ParticleHandler.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\LockableList.hpp" />
     <ClInclude Include="src\game\core\GameEngine.hpp" />
     <ClInclude Include="src\game\gamestates\GameState.hpp" />
@@ -476,7 +485,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\gui\ModuleSelector.hpp" />
     <ClInclude Include="src\game\gui\UIManager.hpp" />
     <ClInclude Include="src\game\profiles\ModuleProfile.hpp" />
-    <ClInclude Include="src\game\module\ObjectHandler.hpp" />
     <ClInclude Include="src\game\module\Module.hpp" />
     <ClInclude Include="src\game\graphics\MD2Model.hpp" />
     <ClInclude Include="src\game\profiles\Profile.hpp" />
@@ -497,8 +505,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\egoboo_object.h" />
     <ClInclude Include="src\game\egoboo_typedef.h" />
     <ClInclude Include="src\game\egoboo_typedef_cpp.h" />
-    <ClInclude Include="src\game\enchant.h" />
-    <ClInclude Include="src\game\EncList.h" />
     <ClInclude Include="src\game\game.h" />
     <ClInclude Include="src\game\graphic.h" />
     <ClInclude Include="src\game\graphic_billboard.h" />
@@ -518,10 +524,8 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\network_client.h" />
     <ClInclude Include="src\game\network_server.h" />
     <ClInclude Include="src\game\obj_BSP.h" />
-    <ClInclude Include="src\game\particle.h" />
     <ClInclude Include="src\game\physics.h" />
     <ClInclude Include="src\game\player.h" />
-    <ClInclude Include="src\game\PrtList.h" />
     <ClInclude Include="src\game\renderer_2d.h" />
     <ClInclude Include="src\game\renderer_3d.h" />
     <ClInclude Include="src\game\script.h" />

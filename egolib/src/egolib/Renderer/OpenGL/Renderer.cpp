@@ -20,6 +20,7 @@
 /// @file   egolib/Renderer/OpenGL/Renderer.cpp
 /// @brief  OpenGL 2.1 based renderer
 /// @author Michael Heilmann
+
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
 
 namespace Ego

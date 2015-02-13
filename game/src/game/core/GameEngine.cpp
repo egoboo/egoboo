@@ -22,7 +22,7 @@
 #include "game/audio/AudioSystem.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/gamestates/MainMenuState.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/gui/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
@@ -31,7 +31,7 @@
 #include "game/game.h"
 #include "game/collision.h"
 #include "egolib/egolib.h"
-#include "game/PrtList.h"
+#include "game/entities/ParticleHandler.hpp"
 
 //Global singelton
 std::unique_ptr<GameEngine> _gameEngine;

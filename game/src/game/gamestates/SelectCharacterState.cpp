@@ -25,7 +25,7 @@
 #include "game/gamestates/SelectModuleState.hpp"
 #include "game/gamestates/LoadPlayerElement.hpp"
 #include "game/core/GameEngine.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/ui.h"
 #include "game/gui/Button.hpp"
 #include "game/gui/IconButton.hpp"

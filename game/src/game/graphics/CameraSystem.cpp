@@ -27,7 +27,7 @@
 #include "game/player.h"
 #include "game/char.h"
 
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/_Include.hpp"
 
 CameraSystem::CameraSystem() :
 	_initialized(false),

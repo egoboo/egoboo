@@ -17,16 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file game/entities/GameObject.hpp
+/// @file game/entities/Object.hpp
 /// @details An object representing instances of in-game egoboo objects (GameObject)
 /// @author Johan Jansen
 
 #pragma once
+#if !defined(GAME_ENTITIES_PRIVATE) || GAME_ENTITIES_PRIVATE != 1
+#error(do not include directly, include `game/entities/_Include.hpp` instead)
+#endif
 
 #include "game/egoboo_typedef.h"
 #include "game/physics.h"
 #include "game/script.h"
-#include "game/profiles/Profile.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/graphic_mad.h"
 #include "game/graphic_billboard.h"
 #include "egolib/IDSZ_map.h"

@@ -28,11 +28,7 @@
 #include "game/renderer_3d.h"
 #include "game/graphics/Camera.hpp"
 #include "game/char.h"
-#include "game/particle.h"
-
-#include "game/EncList.h"
-#include "game/PrtList.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/_Include.hpp"
 #include "game/game.h"
 
 //--------------------------------------------------------------------------------------------

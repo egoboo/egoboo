@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file game/EncList.c
-/// @brief Implementation of the EncList_* functions
-/// @details
+/// @file  game/entities/EnchantManager.cpp
+/// @brief Manager of enchantment entities.
 
-#include "game/EncList.h"
+#define GAME_ENTITIES_PRIVATE 1
+#include "game/entities/EnchantHandler.hpp"
 #include "game/egoboo_object.h"
-#include "game/enchant.h"
+#include "game/entities/Enchant.hpp"
 
 //--------------------------------------------------------------------------------------------
 // testing macros

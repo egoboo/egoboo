@@ -22,11 +22,11 @@
 /// @details
 /// @author Johan Jansen
 
+#define GAME_PROFILES_PRIVATE 1
 #include "game/profiles/Profile.hpp"
 #include "game/graphic_texture.h"
 #include "game/game.h"
-#include "game/module/ObjectHandler.hpp"
-#include "game/particle.h"
+#include "game/entities/_Include.hpp"
 #include "game/mad.h"       //for loading md2
 #include "game/audio/AudioSystem.hpp"
 #include "egolib/file_formats/template.h"

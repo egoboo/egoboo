@@ -25,7 +25,7 @@
 #include "game/egoboo_typedef.h"
 
 #include "game/network.h"
-#include "game/profiles/Profile.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------

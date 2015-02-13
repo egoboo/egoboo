@@ -25,7 +25,7 @@
 #include "game/gamestates/InGameMenuState.hpp"
 #include "game/gamestates/VictoryScreen.hpp"
 #include "game/core/GameEngine.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/game.h"
@@ -33,8 +33,7 @@
 #include "game/renderer_2d.h"
 
 //For cheats
-#include "game/module/ObjectHandler.hpp"
-#include "game/entities/GameObject.hpp"
+#include "game/entities/_Include.hpp"
 #include "game/module/Module.hpp"
 #include "game/char.h"
 

@@ -22,12 +22,12 @@
 /// @details
 /// @author Johan Jansen
 
+#define GAME_PROFILES_PRIVATE 1
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/profiles/Profile.hpp"
 #include "game/profiles/ModuleProfile.hpp"
 #include "game/gamestates/LoadPlayerElement.hpp"
-#include "game/particle.h"
-#include "game/enchant.h"
+#include "game/entities/_Include.hpp"
 #include "game/char.h"
 #include "game/game.h"
 #include "game/script_compile.h"

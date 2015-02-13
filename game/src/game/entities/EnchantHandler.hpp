@@ -17,15 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file  game/EncList.h
-/// @brief Routines for enchant list management
+/// @file  game/entities/EnchantManager.hpp
+/// @brief Manager of enchantment entities.
 
 #pragma once
+#if !defined(GAME_ENTITIES_PRIVATE) || GAME_ENTITIES_PRIVATE != 1
+#error(do not include directly, include `game/entities/_Include.hpp` instead)
+#endif
+
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"
 #include "game/LockableList.hpp"
-#include "game/enchant.h"
+#include "game/entities/Enchant.hpp"
 
 //Forward declarations
 struct enc_t;

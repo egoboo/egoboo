@@ -17,10 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file game/particle.h
+/// @file  game/entities/Particle.hpp
 /// @brief Particle entities.
 
 #pragma once
+#if !defined(GAME_ENTITIES_PRIVATE) || GAME_ENTITIES_PRIVATE != 1
+#error(do not include directly, include `game/entities/_Include.hpp` instead)
+#endif
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"

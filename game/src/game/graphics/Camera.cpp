@@ -7,7 +7,7 @@
 
 #include "game/char.h"
 #include "game/mesh.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/_Include.hpp"
 
 const float Camera::DEFAULT_FOV = 60.0f;
 

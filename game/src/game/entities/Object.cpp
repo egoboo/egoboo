@@ -17,13 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file game/entities/GameObject.hpp
+/// @file game/entities/Object.hpp
 /// @details An object representing instances of in-game egoboo objects (GameObject)
 /// @author Johan Jansen
 
-#include "game/entities/GameObject.hpp"
-#include "game/module/ObjectHandler.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#define GAME_ENTITIES_PRIVATE 1
+#include "game/entities/Object.hpp"
+#include "game/entities/ObjectHandler.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/char.h" //ZF> TODO: remove

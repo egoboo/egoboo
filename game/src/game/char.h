@@ -31,10 +31,8 @@
 #include "game/egoboo.h"
 
 #include "game/graphics/MD2Model.hpp"
-#include "game/profiles/Profile.hpp"
-#include "game/entities/GameObject.hpp"
-#include "game/enchant.h"
-#include "game/particle.h"
+#include "game/profiles/_Include.hpp"
+#include "game/entities/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 // external structs

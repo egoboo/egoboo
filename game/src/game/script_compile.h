@@ -23,7 +23,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/script.h"
-#include "game/profiles/Profile.hpp"
+#include "game/profiles/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

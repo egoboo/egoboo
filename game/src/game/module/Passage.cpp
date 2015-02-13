@@ -26,7 +26,7 @@
 #include "game/game.h"
 #include "game/char.h"
 #include "game/mesh.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/_Include.hpp"
 #include "game/audio/AudioSystem.hpp"
 
 Passage::Passage() :

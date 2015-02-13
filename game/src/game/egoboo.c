@@ -34,17 +34,14 @@
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/char.h"
-#include "game/particle.h"
-#include "game/enchant.h"
 #include "game/collision.h"
 
-#include "game/EncList.h"
-#include "game/PrtList.h"
+#include "game/entities/EnchantHandler.hpp"
+#include "game/entities/ParticleHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 
 #include "game/module/Module.hpp"
-#include "game/module/ObjectHandler.hpp"
-#include "game/profiles/Profile.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/audio/AudioSystem.hpp"
 
 

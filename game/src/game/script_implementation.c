@@ -29,14 +29,12 @@
 #include "game/game.h"
 #include "game/ai/AStar.h"
 #include "game/renderer_2d.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/_Include.hpp"
 #include "game/mesh.h"
-#include "game/profiles/Profile.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/char.h"
-
 #include "game/module/Module.hpp"
 #include "game/module/Passage.hpp"
-#include "game/profiles/ProfileSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros

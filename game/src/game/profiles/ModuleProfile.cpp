@@ -20,6 +20,7 @@
 /// @file game/ModuleProfile.cpp
 /// @author Johan Jansen
 
+#define GAME_PROFILES_PRIVATE 1
 #include "game/profiles/ModuleProfile.hpp"
 
 #include "egolib/file_formats/quest_file.h"

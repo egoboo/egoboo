@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file   egolib/Renderer/Renderer.hpp
-/// @brief  Common interface of all renderers
+/// @brief  Common interface of all renderers.
 /// @author Michael Heilmann
 #pragma once
 

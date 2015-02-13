@@ -42,12 +42,12 @@
 #include "game/egoboo.h"
 #include "game/module/Passage.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/module/Module.hpp"
 
-#include "game/module/ObjectHandler.hpp"
-#include "game/EncList.h"
-#include "game/PrtList.h"
+#include "game/entities/ObjectHandler.hpp"
+#include "game/entities/EnchantHandler.hpp"
+#include "game/entities/ParticleHandler.hpp"
 #include "game/mesh.h"
 
 //--------------------------------------------------------------------------------------------

@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-// @file  egolib/Renderer/ComparisonFunction.h
-// @brief comparison functions used for depth/stencil buffer operations and others
+/// @file   egolib/Renderer/ComparisonFunction.h
+/// @brief  Enumeration of comparison functions used for depth/stencil buffer operations and others.
+/// @author Michael Heilmann
 
 
 namespace Ego

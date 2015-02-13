@@ -22,12 +22,9 @@
 #include "game/bsp.h"
 #include "game/char.h"
 #include "game/mesh.h"
-#include "game/particle.h"
 #include "game/game.h"
-#include "game/char.h" /** @todo Remove. */
-#include "game/particle.h" /** @todo Remove. */
-#include "game/PrtList.h" /** @todo Remove. */
-#include "game/module/ObjectHandler.hpp" /** @todo Remove. */
+#include "game/entities/ParticleHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 

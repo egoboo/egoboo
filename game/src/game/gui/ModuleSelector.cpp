@@ -23,7 +23,7 @@
 
 #include "game/gui/ModuleSelector.hpp"
 #include "game/gui/Button.hpp"
-#include "game/profiles/ModuleProfile.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/ui.h"
 

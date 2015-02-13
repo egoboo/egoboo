@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file  game/particle.c
+/// @file  game/entities/Particle.cpp
 /// @brief Particle entities.
 
-#include "game/particle.h"
+#define GAME_ENTITIES_PRIVATE 1
 #include "game/core/GameEngine.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"
@@ -32,10 +32,11 @@
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
 #include "game/mesh.h"
-#include "game/enchant.h"
-#include "game/profiles/Profile.hpp"
-#include "game/PrtList.h"
-#include "game/module/ObjectHandler.hpp"
+#include "game/entities/EnchantHandler.hpp"
+#include "game/entities/ParticleHandler.hpp"
+#include "game/entities/ObjectHandler.hpp"
+#include "game/profiles/_Include.hpp"
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

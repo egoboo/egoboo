@@ -25,8 +25,7 @@
 #include "game/game.h"
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
-
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------

@@ -32,8 +32,7 @@
 #include "game/gui/Image.hpp"
 #include "game/gui/Label.hpp"
 #include "game/gui/ModuleSelector.hpp"
-#include "game/profiles/ModuleProfile.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/_Include.hpp"
 
 SelectModuleState::SelectModuleState() : SelectModuleState( std::list<std::string>() )
 {

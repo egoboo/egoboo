@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-// @file  egolib/Renderer/TextureFilter.h
-// @brief enumeration of texture filtering methods
+/// @file   egolib/Renderer/TextureFilter.h
+/// @brief  An enumeration of texture filtering methods.
+/// @author Michael Heilmann
 
 #pragma once
 

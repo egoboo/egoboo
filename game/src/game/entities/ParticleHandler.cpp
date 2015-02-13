@@ -17,13 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file  game/PrtList.c
-/// @brief Implementation of the PrtList_* functions
+/// @file  game/entities/ParticleHandler.cpp
+/// @brief Handler of particle entities.
 /// @details
 
-#include "game/PrtList.h"
+#define GAME_ENTITIES_PRIVATE 1
+#include "game/entities/ParticleHandler.hpp"
 #include "game/egoboo_object.h"
-#include "game/particle.h"
+#include "game/entities/Particle.hpp"
 
 //--------------------------------------------------------------------------------------------
 // testing macros

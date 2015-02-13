@@ -24,15 +24,9 @@
 #include "game/obj_BSP.h"
 
 #include "game/mesh_BSP.h"
-
-#include "game/char.h" /** @todo Remove. */
-#include "game/particle.h" /** @todo Remove. */
 #include "egolib/bsp.h"
-
-#include "game/profiles/ProfileSystem.hpp"
-
-#include "game/module/ObjectHandler.hpp"
-#include "game/PrtList.h"
+#include "game/profiles/_Include.hpp"
+#include "game/entities/_Include.hpp"
 
 obj_BSP_t::Parameters::Parameters(size_t dim, const mesh_BSP_t *meshBSP)
 {
