@@ -10,7 +10,7 @@ You will need:
   - SDL_image 1.2.12 (from http://libsdl.org/projects/SDL_image/release-1.2.html )
   - SDL_mixer 1.2.12 (from http://libsdl.org/projects/SDL_mixer/release-1.2.html )
   - SDL_ttf 2.0.11 (from http://libsdl.org/projects/SDL_ttf/release-1.2.html )
-  These should be installed into /Library/Frameworks.  If the Frameworks folder doesn't exist, create it.
+  These should be copied into osx/frameworks in the Egoboo source directory.
 
 Step 2:
 
