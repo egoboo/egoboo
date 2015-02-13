@@ -71,10 +71,8 @@ struct enc_spawn_data_t
 
 /// The difinition of a single Egoboo enchantment.
 /// @extends Ego::Entity
-struct enc_t
+struct enc_t : public _StateMachine<enc_t>
 {
-    Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
-
     enc_spawn_data_t  spawn_data;
 
     int     lifetime;                ///< Time before end
@@ -109,12 +107,19 @@ struct enc_t
 
     // enchant state machine functions
     static enc_t *run_config(enc_t *self);
-    static enc_t *config_construct(enc_t *self, int max_iterations);
-    static enc_t *config_initialize(enc_t *self, int max_iterations);
-    static enc_t *config_activate(enc_t *self, int max_iterations);
-    static enc_t *config_deinitialize(enc_t *self, int max_iterations);
-    static enc_t *config_deconstruct(enc_t *self, int max_iterations);
+    static enc_t *config_activate(enc_t *self, size_t max_iterations);
+    static enc_t *config_deconstruct(enc_t *self, size_t max_iterations);
+    static enc_t *config_init(enc_t *self);
+
+    enc_t *config_do_init();
+    enc_t *config_do_deinit();
+    enc_t *config_do_active();
+    static bool free(enc_t *self);
 };
+
+
+
+
 
 
 

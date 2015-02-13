@@ -273,3 +273,144 @@ namespace Ego
 #define GET_STATE_POBJ( POBJ )  LAMBDA( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ), ego_object_invalid, (POBJ)->obj_base.index )
 
 //--------------------------------------------------------------------------------------------
+
+/// @todo Remove this.
+template <typename TYPE>
+struct _StateMachine
+{
+    Ego::Entity obj_base; ///< The "inheritance" from Ego::Entity.
+
+    static TYPE *config_ctor(TYPE *self)
+    {
+        if (!self) return nullptr;
+
+        // Get a pointer to the parent.
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+
+        // If we aren't in the correct state, abort.
+        if (!STATE_CONSTRUCTING_PBASE(parent)) return self;
+
+        return self->ctor();
+    }
+
+    static TYPE *config_active(TYPE *self)
+    {
+        if (!self) return nullptr;
+
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        if (!parent->isAllocated()) return nullptr;
+
+        if (!STATE_ACTIVE_PBASE(parent)) return self;
+
+        POBJ_END_SPAWN(self);
+
+        return self->config_do_active();
+    }
+
+    static TYPE *config_deinit(TYPE *self)
+    {
+        if (!self) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+
+        if (!STATE_DEINITIALIZING_PBASE(parent)) return self;
+
+        POBJ_END_SPAWN(self);
+
+        return self->config_do_deinit();
+    }
+
+    static TYPE *config_dtor(TYPE *self)
+    {
+        if (!self) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+
+        if (!STATE_DESTRUCTING_PBASE(parent)) return self;
+
+        POBJ_END_SPAWN(self);
+
+        return self->dtor();
+    }
+
+    static TYPE *config_initialize(TYPE *self, size_t max_iterations)
+    {
+        if (!self) return nullptr;
+
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        if (!parent->isAllocated()) return nullptr;
+
+        // If the object is already beyond this stage ...
+        if (parent->state > Ego::Entity::State::Initializing)
+        {
+            // ... deconstruct it and start over.
+            TYPE *tmp = TYPE::config_deconstruct(self, max_iterations);
+            if (tmp != self) return nullptr;
+        }
+
+        size_t iterations = 0;
+        while (parent->state <= Ego::Entity::State::Initializing && iterations < max_iterations)
+        {
+            TYPE *tmp = TYPE::run_config(self);
+            if (tmp != self) return nullptr;
+            iterations++;
+        }
+
+        return self;
+    }
+
+    static TYPE *config_construct(TYPE *self, size_t max_iterations)
+    {
+        if (!self) return nullptr;
+
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        if (!parent->isAllocated()) return nullptr;
+
+        // If the object is already beyond this stage ...
+        if (parent->state > Ego::Entity::State::Constructing)
+        {
+            // ... destruct it and start over.
+            TYPE *tmp = TYPE::config_deconstruct(self, max_iterations);
+            if (tmp != self) return nullptr;
+        }
+
+        size_t iterations = 0;
+        while (parent->state <= Ego::Entity::Constructing && iterations < max_iterations)
+        {
+            TYPE *tmp = TYPE::run_config(self);
+            if (tmp != self) return nullptr;
+            iterations++;
+        }
+
+        return self;
+    }
+
+    static TYPE *config_deinitialize(TYPE *self, size_t max_iterations)
+    {
+        if (!self) return nullptr;
+
+        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        if (!parent->isAllocated()) return nullptr;
+
+        // If the object is already beyond this stage ...
+        if (parent->state > Ego::Entity::State::DeInitializing)
+        {
+            // ... do nothing.
+            return self;
+        }
+        else if (parent->state < Ego::Entity::State::DeInitializing)
+        {
+            parent->state = Ego::Entity::State::DeInitializing;
+        }
+
+        size_t iterations = 0;
+        while (parent->state <= Ego::Entity::State::DeInitializing && iterations < max_iterations)
+        {
+            TYPE *tmp = TYPE::run_config(self);
+            if (tmp != self) return nullptr;
+            iterations++;
+        }
+
+        return self;
+    }
+
+
+};

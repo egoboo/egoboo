@@ -110,9 +110,8 @@ struct prt_spawn_data_t
 
 /// The definition of the particle object
 /// @extends Ego::Entity
-struct prt_t
+struct prt_t : public _StateMachine<prt_t>
 {
-    Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
     bool is_ghost;                   ///< the particla has been killed, but is hanging around a while...
 
     prt_spawn_data_t  spawn_data;
@@ -224,12 +223,16 @@ struct prt_t
 
     // particle state machine functions
     static prt_t *run_config(prt_t *self);
-    static prt_t *config_construct(prt_t *self, int max_iterations);
-    static prt_t *config_initialize(prt_t *self, int max_iterations);
-    static prt_t *config_activate(prt_t *self, int max_iterations);
-    static prt_t *config_deinitialize(prt_t *self, int max_iterations);
-    static prt_t *config_deconstruct(prt_t *self, int max_iterations);
 
+    static prt_t *config_activate(prt_t *self, size_t max_iterations);
+    static prt_t *config_deconstruct(prt_t *self, size_t max_iterations);
+
+    static bool free(prt_t * pprt);
+
+    static prt_t *config_init(prt_t *self);
+    prt_t *config_do_init();
+    prt_t *config_do_active();
+    prt_t *config_do_deinit();
 };
 
 

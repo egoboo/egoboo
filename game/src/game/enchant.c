@@ -44,17 +44,6 @@ Stack<eve_t, MAX_EVE> EveStack;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool enc_free(enc_t *self);
-
-static enc_t *enc_config_ctor(enc_t *self);
-static enc_t *enc_config_init(enc_t *self);
-static enc_t *enc_config_deinit(enc_t *self);
-static enc_t *enc_config_active(enc_t *self);
-static enc_t *enc_config_dtor(enc_t *self);
-
-static enc_t *enc_config_do_active(enc_t *self);
-static enc_t *enc_config_do_init(enc_t *self);
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -77,11 +66,10 @@ void enchant_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool enc_free(enc_t *self)
+bool enc_t::free(enc_t *self)
 {
     if (!ALLOCATED_PENC(self)) return false;
-
-    // nothing to do yet
+    /* Nothing to do yet. */
     return true;
 }
 
@@ -125,7 +113,7 @@ enc_t *enc_t::ctor()
 enc_t *enc_t::dtor()
 {
     // Destroy the object.
-    enc_free(this);
+    enc_t::free(this);
 
     // Destroy the parent object.
     // Sets the state to Ego::Entity::State::Terminated automatically.
@@ -849,8 +837,10 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-enc_t * enc_config_do_init( enc_t * penc )
+enc_t *enc_t::config_do_init()
 {
+    enc_t *penc = this;
+
     enc_spawn_data_t * pdata;
     ENC_REF ienc;
     CHR_REF overlay;
@@ -1005,8 +995,9 @@ enc_t * enc_config_do_init( enc_t * penc )
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_config_do_active( enc_t * penc )
+enc_t *enc_t::config_do_active()
 {
+    enc_t *penc = this;
     /// @author ZZ
     /// @details This function allows enchantments to update, spawn particles,
     ///  do drains, stat boosts and despawn.
@@ -1143,197 +1134,116 @@ enc_t * enc_config_do_active( enc_t * penc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-enc_t * enc_t::config_construct( enc_t * penc, int max_iterations )
-{
-    if (!penc) return nullptr;
-
-    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
-    if (!pbase->isAllocated()) return NULL;
-
-    // if the enchant is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( Ego::Entity::State::Constructing + 1 ) )
-    {
-        enc_t * tmp_enc = enc_t::config_deconstruct( penc, max_iterations );
-        if ( tmp_enc == penc ) return NULL;
-    }
-
-    int iterations = 0;
-    while ( NULL != penc && pbase->state <= Ego::Entity::State::Constructing && iterations < max_iterations )
-    {
-        enc_t * ptmp = enc_t::run_config( penc );
-        if ( ptmp != penc ) return NULL;
-        iterations++;
-    }
-
-    return penc;
-}
-
-//--------------------------------------------------------------------------------------------
-enc_t * enc_t::config_initialize( enc_t * penc, int max_iterations )
-{
-    if (!penc) return NULL;
-
-    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
-    if (!pbase->isAllocated()) return NULL;
-
-    // if the enchant is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( Ego::Entity::State::Initializing + 1 ) )
-    {
-        enc_t * tmp_enc = enc_t::config_deconstruct( penc, max_iterations );
-        if ( tmp_enc == penc ) return NULL;
-    }
-
-    int iterations = 0;
-    while ( NULL != penc && pbase->state <= Ego::Entity::State::Initializing && iterations < max_iterations )
-    {
-        enc_t * ptmp = enc_t::run_config( penc );
-        if ( ptmp != penc ) return NULL;
-        iterations++;
-    }
-
-    return penc;
-}
-
-//--------------------------------------------------------------------------------------------
-enc_t * enc_t::config_activate( enc_t * penc, int max_iterations )
-{
-    if (!penc) return NULL;
-
-    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
-    if (!pbase->isAllocated()) return NULL;
-
-    // if the particle is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( Ego::Entity::State::Active + 1 ) )
-    {
-        enc_t * tmp_enc = enc_t::config_deconstruct( penc, max_iterations );
-        if ( tmp_enc == penc ) return NULL;
-    }
-
-    int iterations = 0;
-    while ( NULL != penc && pbase->state < Ego::Entity::State::Active && iterations < max_iterations )
-    {
-        enc_t * ptmp = enc_t::run_config( penc );
-        if ( ptmp != penc ) return NULL;
-        iterations++;
-    }
-
-    EGOBOO_ASSERT( pbase->state == Ego::Entity::State::Active );
-    if ( pbase->state == Ego::Entity::State::Active )
-    {
-        EncList.push_used( GET_REF_PENC( penc ) );
-    }
-
-    return penc;
-}
-
-//--------------------------------------------------------------------------------------------
-enc_t * enc_t::config_deinitialize( enc_t * penc, int max_iterations )
-{
-    if ( NULL == penc ) return NULL;
-
-    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
-    if (!pbase->isAllocated()) return NULL;
-
-    // if the particle is already beyond this stage, deinitialize it
-    if ( pbase->state > ( int )( Ego::Entity::State::DeInitializing + 1 ) )
-    {
-        return penc;
-    }
-    else if ( pbase->state < Ego::Entity::State::DeInitializing )
-    {
-        pbase->state = Ego::Entity::State::DeInitializing;
-    }
-
-    int iterations = 0;
-    while ( NULL != penc && pbase->state <= Ego::Entity::State::DeInitializing && iterations < max_iterations )
-    {
-        enc_t * ptmp = enc_t::run_config( penc );
-        if ( ptmp != penc ) return NULL;
-        iterations++;
-    }
-
-    return penc;
-}
-
-//--------------------------------------------------------------------------------------------
-enc_t * enc_t::config_deconstruct(enc_t *self, int max_iterations)
+enc_t * enc_t::config_activate(enc_t *self, size_t max_iterations)
 {
     if (!self) return nullptr;
 
-    Ego::Entity *parentObj = POBJ_GET_PBASE(self);
-    if (!parentObj->isAllocated()) return nullptr;
+    Ego::Entity *parent = POBJ_GET_PBASE(self);
+    if (!parent->isAllocated()) return nullptr;
 
     // If the object is already beyond this stage ...
-    if (parentObj->state > (Ego::Entity::State::Destructing + 1))
+    if (parent->state > Ego::Entity::State::Active)
     {
-        // ... do nothing.
-        return self;
-    }
-    else if (parentObj->state < Ego::Entity::State::DeInitializing)
-    {
-        // Make sure that you deinitialize before destructing.
-        parentObj->state = Ego::Entity::State::DeInitializing;
+        // ... deconstruct it and start over.
+        enc_t *tmp = enc_t::config_deconstruct(self, max_iterations);
+        if (tmp != self) return nullptr;
     }
 
-	size_t iterations = 0;
-    while (nullptr != self && parentObj->state <= Ego::Entity::State::Destructing && iterations < max_iterations)
+    size_t iterations = 0;
+    while (parent->state < Ego::Entity::State::Active && iterations < max_iterations)
     {
         enc_t *tmp = enc_t::run_config(self);
         if (tmp != self) return nullptr;
         iterations++;
     }
-    if (parentObj->state != Ego::Entity::Terminated)
+
+    EGOBOO_ASSERT(parent->state == Ego::Entity::State::Active);
+    if (parent->state == Ego::Entity::State::Active)
     {
-        log_warning("%s:%d: entity is not terminated\n", __FILE__, __LINE__);
+        EncList.push_used(GET_REF_PENC(self));
+    }
+
+    return self;
+}
+//--------------------------------------------------------------------------------------------
+enc_t * enc_t::config_deconstruct(enc_t *self, size_t max_iterations)
+{
+    if (!self) return nullptr;
+
+    Ego::Entity *parent = POBJ_GET_PBASE(self);
+    if (!parent->isAllocated()) return nullptr;
+
+    // If the object is already beyond this stage ...
+    if (parent->state > Ego::Entity::State::Destructing)
+    {
+        // ... do nothing.
+        return self;
+    }
+    else if (parent->state < Ego::Entity::State::DeInitializing)
+    {
+        // Make sure that you deinitialize before destructing.
+        parent->state = Ego::Entity::State::DeInitializing;
+    }
+
+	size_t iterations = 0;
+    while (parent->state <= Ego::Entity::State::Destructing && iterations < max_iterations)
+    {
+        enc_t *tmp = enc_t::run_config(self);
+        if (tmp != self) return nullptr;
+        iterations++;
+    }
+    if (parent->state < Ego::Entity::Destructing)
+    {
+        log_warning("%s:%d: entity is not in the destructing state\n", __FILE__, __LINE__);
     }
     return self;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-enc_t * enc_t::run_config( enc_t * penc )
+enc_t *enc_t::run_config(enc_t *self)
 {
-    if ( NULL == penc ) return NULL;
+    if (!self) return nullptr;
 
-    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
-    if (!pbase->isAllocated()) return NULL;
+    Ego::Entity *parent = POBJ_GET_PBASE(self);
+    if (!parent->isAllocated()) return nullptr;
 
-    // set the object to deinitialize if it is not "dangerous" and if was requested
-    if ( pbase->kill_me )
+    // Set the object to deinitialize if it is not "dangerous" and if was requested.
+    if (parent->kill_me)
     {
-        if ( pbase->state > Ego::Entity::State::Constructing && pbase->state < Ego::Entity::State::DeInitializing )
+        if (parent->state > Ego::Entity::State::Constructing && parent->state < Ego::Entity::State::DeInitializing)
         {
-            pbase->state = Ego::Entity::State::DeInitializing;
+            parent->state = Ego::Entity::State::DeInitializing;
         }
 
-        pbase->kill_me = false;
+        parent->kill_me = false;
     }
 
-    switch ( pbase->state )
+    switch (parent->state)
     {
         default:
 		case Ego::Entity::State::Invalid:
-            penc = NULL;
+            self = nullptr;
             break;
 
 		case Ego::Entity::State::Constructing:
-            penc = enc_config_ctor( penc );
+            self = enc_t::config_ctor(self);
             break;
 
 		case Ego::Entity::State::Initializing:
-            penc = enc_config_init( penc );
+            self = enc_t::config_init(self);
             break;
 
 		case Ego::Entity::State::Active:
-            penc = enc_config_active( penc );
+            self = enc_t::config_active(self);
             break;
 
 		case Ego::Entity::State::DeInitializing:
-            penc = enc_config_deinit( penc );
+            self = enc_t::config_deinit(self);
             break;
 
 		case Ego::Entity::State::Destructing:
-            penc = enc_config_dtor( penc );
+            self = enc_t::config_dtor(self);
             break;
 
 		case Ego::Entity::State::Waiting:
@@ -1342,40 +1252,27 @@ enc_t * enc_t::run_config( enc_t * penc )
             break;
     }
 
-    if ( NULL == penc )
+    if (!self)
     {
-        pbase->update_guid = INVALID_UPDATE_GUID;
+        parent->update_guid = INVALID_UPDATE_GUID;
     }
-    else if ( Ego::Entity::State::Active == pbase->state )
+    else if (Ego::Entity::State::Active == parent->state)
     {
-        pbase->update_guid = EncList.getUpdateGUID();
+        parent->update_guid = EncList.getUpdateGUID();
     }
 
-    return penc;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_config_ctor( enc_t * penc )
-{
-    // grab the base object
-    if ( NULL == penc ) return NULL;
-    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
-
-    // if we aren't in the correct state, abort.
-    if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return penc;
-
-    return penc->ctor();
-}
-
-//--------------------------------------------------------------------------------------------
-enc_t *enc_config_init(enc_t *self)
+enc_t *enc_t::config_init(enc_t *self)
 {
     if (!self) return nullptr;
 
     Ego::Entity *parent = POBJ_GET_PBASE(self);
     if (!STATE_INITIALIZING_PBASE(parent)) return self;
 
-    self = enc_config_do_init(self);
+    self = self->config_do_init();
     if (!self) return nullptr;
 
     if (0 == EncList.getLockCount())
@@ -1393,52 +1290,18 @@ enc_t *enc_config_init(enc_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t *enc_config_active(enc_t *self)
+enc_t *enc_t::config_do_deinit()
 {
-    // there's nothing to configure if the object is active...
-    if (!self) return nullptr;
+    enc_t *self = this;
 
-    Ego::Entity *parent = POBJ_GET_PBASE(self);
-    if (!parent->isAllocated()) return nullptr;
-
-    if (!STATE_ACTIVE_PBASE(parent)) return self;
-
-    POBJ_END_SPAWN(self);
-
-    return enc_config_do_active(self);
-}
-
-//--------------------------------------------------------------------------------------------
-/// DeInitialize an enchantment.
-enc_t *enc_config_deinit(enc_t *self)
-{
-	if (!self) return nullptr;
-    Ego::Entity *parent = POBJ_GET_PBASE(self);
-
-    if (!STATE_DEINITIALIZING_PBASE(parent)) return self;
-
-    POBJ_END_SPAWN(self);
-
-    parent->state = Ego::Entity::State::Destructing;
-    parent->on = false;
+    // Go to next state.
+    self->obj_base.state = Ego::Entity::State::Destructing;
+    self->obj_base.on = false;
 
     return self;
 }
 
 //--------------------------------------------------------------------------------------------
-/// Destruct an enchantment.
-enc_t *enc_config_dtor(enc_t *self)
-{
-    if (!self) return nullptr;
-    Ego::Entity *parent = POBJ_GET_PBASE(self);
-
-    if (!STATE_DESTRUCTING_PBASE(parent)) return self;
-
-    POBJ_END_SPAWN(self);
-
-    return self->dtor();
-}
-
 //--------------------------------------------------------------------------------------------
 ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional )
 {
