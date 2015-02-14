@@ -27,11 +27,12 @@
 #include "game/profiles/_Include.hpp"
 #include "game/entities/Object.hpp"
 #include "game/entities/ObjectHandler.hpp"
-#include "game/profiles/ProfileSystem.hpp"
+#include "game/entities/EnchantHandler.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/char.h" //ZF> TODO: remove
-#include "game/EncList.h"
+
 
 //Declare class static constants
 const size_t Object::MAXNUMINPACK;
