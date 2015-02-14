@@ -134,7 +134,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // Unlink it from the spawner (if possible)
     if ( _gameObjects.exists( penc->spawner_ref ) )
     {
-        GameObject * pspawner = _gameObjects.get( penc->spawner_ref );
+        Object * pspawner = _gameObjects.get( penc->spawner_ref );
 
         if ( ienc == pspawner->undoenchant )
         {
@@ -148,7 +148,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
         ENC_REF ienc_last, ienc_now, ienc_nxt;
         size_t ienc_count;
 
-        GameObject * ptarget;
+        Object * ptarget;
 
         ptarget = _gameObjects.get( penc->target_ref );
 
@@ -204,7 +204,7 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
 
     eve_t * peve;
     bool retval = false;
-    GameObject *pchr;
+    Object *pchr;
 
     // Stop invalid pointers
     if ( !_gameObjects.exists( ichr ) ) return false;
@@ -247,7 +247,7 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     enc_t * penc;
     eve_t * peve;
     CHR_REF target_ref, spawner_ref, overlay_ref;
-    GameObject * target_ptr, *spawner_ptr, *overlay_ptr;
+    Object * target_ptr, *spawner_ptr, *overlay_ptr;
 
     if ( !ALLOCATED_ENC( ienc ) ) return false;
     penc = EncList.get_ptr( ienc );
@@ -399,7 +399,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     ///    of the conflicting enchantment
 
     CHR_REF character;
-    GameObject * pchr;
+    Object * pchr;
 
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
@@ -445,7 +445,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     CHR_REF character;
     enc_t * penc;
     eve_t * peve;
-    GameObject * ptarget;
+    Object * ptarget;
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
@@ -626,7 +626,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     CHR_REF character;
     enc_t * penc;
     eve_t * peve;
-    GameObject * ptarget;
+    Object * ptarget;
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
@@ -845,7 +845,7 @@ enc_t *enc_t::config_do_init()
     float lifetime;
 
     eve_t * peve;
-    GameObject * ptarget;
+    Object * ptarget;
 
     int add_type, set_type;
 
@@ -946,7 +946,7 @@ enc_t *enc_t::config_do_init()
         overlay = spawn_one_character(ptarget->getPosition(), pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
         if ( _gameObjects.exists( overlay ) )
         {
-            GameObject *povl;
+            Object *povl;
             mad_t *povl_mad;
             int action;
 
@@ -1003,7 +1003,7 @@ enc_t *enc_t::config_do_active()
     CHR_REF  owner, target;
     EVE_REF  eve;
     eve_t * peve;
-    GameObject * ptarget;
+    Object * ptarget;
 
     if ( NULL == penc ) return penc;
     ienc = GET_REF_PENC( penc );
@@ -1050,7 +1050,7 @@ enc_t *enc_t::config_do_active()
             owner  = enc_get_iowner( ienc );
             target = penc->target_ref;
             eve    = enc_get_ieve( ienc );
-            GameObject *powner = _gameObjects.get(owner);
+            Object *powner = _gameObjects.get(owner);
 
             // Do drains
             if ( powner && powner->alive )
@@ -1153,7 +1153,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 
     eve_t * peve;
     enc_t * penc;
-    GameObject * ptarget;
+    Object * ptarget;
 
     PRO_REF loc_profile;
     CHR_REF loc_target;
@@ -1319,7 +1319,7 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
     /// @details This function unsets a set value
     CHR_REF character;
     enc_t * penc;
-    GameObject * ptarget;
+    Object * ptarget;
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
@@ -1442,7 +1442,7 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
     int valuetoadd;
     CHR_REF character;
     enc_t * penc;
-    GameObject * ptarget;
+    Object * ptarget;
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
@@ -1822,7 +1822,7 @@ CHR_REF enc_get_iowner( const ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-GameObject * enc_get_powner( const ENC_REF ienc )
+Object * enc_get_powner( const ENC_REF ienc )
 {
     enc_t * penc;
 

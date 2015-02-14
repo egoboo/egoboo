@@ -27,7 +27,6 @@
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
 #include "game/graphic_texture.h"
-#include "game/ui.h"
 #include "game/game.h"
 #include "game/collision.h"
 #include "egolib/egolib.h"
@@ -44,6 +43,8 @@ const uint32_t GameEngine::DELAY_PER_RENDER_FRAME;
 const uint32_t GameEngine::DELAY_PER_UPDATE_FRAME;
 
 const uint32_t GameEngine::MAX_FRAMESKIP;
+
+const std::string GameEngine::GAME_VERSION = "2.9.0";
 
 GameEngine::GameEngine() :
 	_isInitialized(false),
@@ -224,7 +225,7 @@ void GameEngine::renderPreloadText(const std::string &text)
 
     _uiManager->beginRenderUI();
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-        fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, 20, y, 800, 600, 25, nullptr, "%s", text.c_str());
+        fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, 20, y, 800, 600, 25, nullptr, "%s", text.c_str());
     _uiManager->endRenderUI();
 
     gfx_request_flip_pages();
@@ -239,7 +240,7 @@ bool GameEngine::initialize()
     log_init("/debug/log.txt", LOG_DEBUG);
 
     // start initializing the various subsystems
-    log_message("Starting Egoboo " VERSION " ...\n");
+    log_message("Starting Egoboo %s ...\n", GAME_VERSION.c_str());
     log_info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
 
     //Initialize OS specific stuff
@@ -274,7 +275,6 @@ bool GameEngine::initialize()
     gfx_do_clear_screen();
 
     // setup the system gui
-    ui_begin("mp_data/Bo_Chen.ttf", 24);
     _uiManager = std::unique_ptr<UIManager>(new UIManager());
 
     //Tell them we are loading the game (This is earliest point we can render text to screen)
@@ -356,7 +356,6 @@ void GameEngine::uninitialize()
     input_settings_save_vfs( "controls.txt", -1 );
 
 	//shut down the ui
-    ui_end();
     _uiManager.reset(nullptr);
 
 	// deallocate any dynamically allocated collision memory
@@ -373,7 +372,7 @@ void GameEngine::uninitialize()
 
     // shut down the log services
     log_message( "Success!\n" );
-    log_info( "Exiting Egoboo " VERSION " the good way...\n" );
+    log_info("Exiting Egoboo %s the good way...\n", GAME_VERSION.c_str());
     log_shutdown();
 
     //Shutdown SDL last
@@ -412,7 +411,6 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     // message display
     DisplayMsg_count = Math::constrain(cfg.message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
     DisplayMsg_on    = cfg.message_count_req > 0;
-    wraptolerance 	 = cfg.show_stats ? 90 : 32;
 
     // Adjust the particle limit.
     PrtList.setDisplayLimit(cfg.particle_count_req);
@@ -488,10 +486,6 @@ void GameEngine::pollEvents()
 
                     // grab all the new SDL screen info
                     SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
-
-                    // set the ui's virtual screen size based on the graphic system's
-                    // configuration
-                    gfx_system_set_virtual_screen( &gfx );
                 }
             break;
 

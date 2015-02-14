@@ -21,9 +21,9 @@
 /// @brief Implementation of the 2d renderer functions
 /// @details
 
+#include "game/egoboo.h"
 #include "game/renderer_2d.h"
 #include "game/graphic_texture.h"
-#include "game/menu.h"
 
 //--------------------------------------------------------------------------------------------
 // EXTERNAL VARIABLES
@@ -242,7 +242,7 @@ float DisplayMsg_draw_all( float y )
         {
             if ( DisplayMsg.ary[tnc].time > 0 )
             {
-                y = draw_wrap_string( DisplayMsg.ary[tnc].textdisplay, 0, y, sdl_scr.x - wraptolerance );
+                y = draw_wrap_string( DisplayMsg.ary[tnc].textdisplay, 0, y, sdl_scr.x - WRAP_TOLERANCE );
                 if ( DisplayMsg.ary[tnc].time > DisplayMsg_timechange )
                 {
                     DisplayMsg.ary[tnc].time -= DisplayMsg_timechange;

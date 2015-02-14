@@ -367,7 +367,7 @@ bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y
 }
 
 //--------------------------------------------------------------------------------------------
-bool FindPath( waypoint_list_t * plst, GameObject * pchr, float dst_x, float dst_y, bool * used_astar_ptr )
+bool FindPath( waypoint_list_t * plst, Object * pchr, float dst_x, float dst_y, bool * used_astar_ptr )
 {
     // FindPath
     /// @author ZF
@@ -463,7 +463,7 @@ bool Compass( fvec2_t& pos, int facing, float distance )
 }
 
 //--------------------------------------------------------------------------------------------
-int GetArmorPrice( GameObject * pchr, const int skin )
+int GetArmorPrice( Object * pchr, const int skin )
 {
     // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
     /// @author ZZ
@@ -521,7 +521,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     endtile = CLIP( endtile, (Uint32)0, (Uint32)255 );
 
     useful = false;
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         float lerp_z;
 
@@ -580,7 +580,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 AddEndMessage( GameObject * pchr, const int message_index, script_state_t * pstate )
+Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * pstate )
 {
     /// @author ZZ
     /// @details This function appends a message to the end-module text
@@ -704,7 +704,7 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF FindWeapon( GameObject * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight )
+CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight )
 {
     /// @author ZF
     /// @details This function searches the nearby vincinity for a melee weapon the character can use
@@ -734,7 +734,7 @@ CHR_REF FindWeapon( GameObject * pchr, float max_distance, IDSZ weap_idsz, bool 
     los.z0 = pchr->getPosZ();
     los.stopped_by = pchr->stoppedby;
 
-    for(const std::shared_ptr<GameObject> &pweapon : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pweapon : _gameObjects.iterator())
     {
         float dist;
         fvec3_t diff;
@@ -788,7 +788,7 @@ CHR_REF FindWeapon( GameObject * pchr, float max_distance, IDSZ weap_idsz, bool 
 }
 
 //--------------------------------------------------------------------------------------------
-bool FlashObject( GameObject * pchr, Uint8 value )
+bool FlashObject( Object * pchr, Uint8 value )
 {
     /// @author ZZ
     /// @details This function sets a character's lighting

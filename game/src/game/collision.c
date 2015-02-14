@@ -49,7 +49,7 @@ struct chr_prt_collsion_data_t
 {
     // object parameters
     CHR_REF ichr;
-    GameObject *pchr;
+    Object *pchr;
 
     PRT_REF iprt;
     prt_t *pprt;
@@ -92,7 +92,7 @@ struct chr_prt_collsion_data_t
 #define  CHR_PRT_COLLSION_DATA_INIT  \
     {\
         INVALID_CHR_REF, /* CHR_REF ichr */ \
-        NULL,            /* GameObject * pchr */ \
+        NULL,            /* Object * pchr */ \
         INVALID_PRT_REF, /* PRT_REF iprt */ \
         NULL,            /* prt_t * pprt */ \
         NULL             /* pip_t * ppip */ \
@@ -135,8 +135,8 @@ static bool bump_all_mounts( Ego::DynamicArray<CoNode_t> *pcn_ary );
 static bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary );
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
-static bool do_chr_platform_physics( GameObject * pitem, GameObject * pplat );
-static float estimate_chr_prt_normal( const GameObject * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
+static bool do_chr_platform_physics( Object * pitem, Object * pplat );
+static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
 static bool do_chr_chr_collision( CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata );
@@ -150,7 +150,7 @@ static bool do_chr_prt_collision( CoNode_t * d );
 
 static bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata );
 static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * pdata );
-static bool do_chr_chr_collision_pressure_normal(const GameObject *pchr_a, const GameObject *pchr_b, const float exponent, oct_vec_t *podepth, fvec3_t& nrm, float * tmin );
+static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_t *podepth, fvec3_t& nrm, float * tmin );
 
 
 
@@ -442,7 +442,7 @@ bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, Ego::Dyn
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool get_chr_mass( GameObject * pchr, float * wt )
+bool get_chr_mass( Object * pchr, float * wt )
 {
     /// @author BB
     /// @details calculate a "mass" for an object, taking into account possible infinite masses.
@@ -471,7 +471,7 @@ bool get_chr_mass( GameObject * pchr, float * wt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_prt_mass( prt_t * pprt, GameObject * pchr, float * wt )
+bool get_prt_mass( prt_t * pprt, Object * pchr, float * wt )
 {
     /// @author BB
     /// @details calculate a "mass" for each object, taking into account possible infinite masses.
@@ -587,7 +587,7 @@ void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_
 //--------------------------------------------------------------------------------------------
 bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    GameObject *pchr_a, *pchr_b;
+    Object *pchr_a, *pchr_b;
 
     // Don't interact with self
     if ( ichr_a == ichr_b ) return false;
@@ -623,7 +623,7 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
 //--------------------------------------------------------------------------------------------
 bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b )
 {
-    GameObject * pchr_a;
+    Object * pchr_a;
     prt_t * pprt_b;
 
     // Ignore invalid characters
@@ -796,7 +796,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
     //---- find the character/particle interactions
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
-    for(const std::shared_ptr<GameObject> &pchr_a : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr_a : _gameObjects.iterator())
     {
         oct_bb_t   tmp_oct;
 
@@ -852,7 +852,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     // do some logic on this to determine whether the collision is valid
                     if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), ichr_b ) )
                     {
-                        GameObject * pchr_b = _gameObjects.get( ichr_b );
+                        Object * pchr_b = _gameObjects.get( ichr_b );
 
                         CoNode_ctor( &tmp_codata );
 
@@ -999,7 +999,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     bool loc_needs_bump    = needs_bump;
                     bool interaction_valid = false;
 
-                    GameObject * pchr_a = _gameObjects.get( ichr_a );
+                    Object * pchr_a = _gameObjects.get( ichr_a );
 
                     // can this particle affect the character through reaffirmation
                     if ( loc_reaffirms )
@@ -1142,7 +1142,7 @@ bool fill_bumplists()
 //--------------------------------------------------------------------------------------------
 bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    GameObject * pchr_a, * pchr_b;
+    Object * pchr_a, * pchr_b;
 
     bool platform_a, platform_b;
 
@@ -1316,7 +1316,7 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 //--------------------------------------------------------------------------------------------
 bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 {
-    GameObject * pchr_a;
+    Object * pchr_a;
     prt_t * pprt_b;
 
     bool platform_a;
@@ -1514,11 +1514,11 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
             {
                 if ( _gameObjects.get(d->chra)->targetplatform_ref == d->chrb )
                 {
-                    attach_GameObjecto_platform( _gameObjects.get( d->chra ), _gameObjects.get( d->chrb ) );
+                    attach_Objecto_platform( _gameObjects.get( d->chra ), _gameObjects.get( d->chrb ) );
                 }
                 else if ( _gameObjects.get(d->chrb)->targetplatform_ref == d->chra )
                 {
-                    attach_GameObjecto_platform( _gameObjects.get( d->chrb ), _gameObjects.get( d->chra ) );
+                    attach_Objecto_platform( _gameObjects.get( d->chrb ), _gameObjects.get( d->chra ) );
                 }
 
             }
@@ -1549,7 +1549,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
     // attach_prt_to_platform() erases targetplatform_ref, so any character with
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if ( object->onwhichplatform_update < update_wld && _gameObjects.exists(object->onwhichplatform_ref) )
         {
@@ -1600,7 +1600,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     ///               for the mounts and platforms found in the previous steps)
 
     // blank the accumulators
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         phys_data_clear( &( object->phys ) );
     }
@@ -1630,7 +1630,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     }
 
     // accumulate the accumulators
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         float tmpx, tmpy, tmpz;
         float bump_str;
@@ -1677,7 +1677,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpx = tmp_pos.x;
             tmp_pos.x += max_apos.x;
-            if ( EMPTY_BIT_FIELD != GameObjectest_wall( pchr.get(), tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != Objectest_wall( pchr.get(), tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.x = tmpx;
@@ -1693,7 +1693,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpy = tmp_pos.y;
             tmp_pos.y += max_apos.y;
-            if ( EMPTY_BIT_FIELD != GameObjectest_wall( pchr.get(), tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != Objectest_wall( pchr.get(), tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.y = tmpy;
@@ -1851,7 +1851,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     PRT_END_LOOP();
 
     // blank the accumulators
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         phys_data_clear( &( pchr->phys ) );
     }
@@ -1876,13 +1876,13 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool handled = false;
 
     // make sure that A is valid
-    const std::shared_ptr<GameObject> &pchr_a = _gameObjects[ichr_a];
+    const std::shared_ptr<Object> &pchr_a = _gameObjects[ichr_a];
     if(!pchr_a) {
         return false;
     }
 
     // make sure that B is valid
-    const std::shared_ptr<GameObject> &pchr_b = _gameObjects[ichr_b];
+    const std::shared_ptr<Object> &pchr_b = _gameObjects[ichr_b];
     if(!pchr_b) {
         return false;
     }
@@ -1979,7 +1979,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_platform_physics( GameObject * pitem, GameObject * pplat )
+bool do_chr_platform_physics( Object * pitem, Object * pplat )
 {
     // we know that ichr_a is a platform and ichr_b is on it
     Sint16 rot_a, rot_b;
@@ -2021,7 +2021,7 @@ bool do_chr_platform_physics( GameObject * pitem, GameObject * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-float estimate_chr_prt_normal( const GameObject * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff )
+float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff )
 {
     fvec3_t collision_size;
     float dot;
@@ -2108,7 +2108,7 @@ float estimate_chr_prt_normal( const GameObject * pchr, const prt_t * pprt, fvec
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_chr_collision_pressure_normal( const GameObject * pchr_a, const GameObject * pchr_b, const float exponent, oct_vec_t * podepth, fvec3_t& nrm, float * tmin )
+bool do_chr_chr_collision_pressure_normal( const Object * pchr_a, const Object * pchr_b, const float exponent, oct_vec_t * podepth, fvec3_t& nrm, float * tmin )
 {
     oct_bb_t otmp_a, otmp_b;
 
@@ -2122,7 +2122,7 @@ bool do_chr_chr_collision_pressure_normal( const GameObject * pchr_a, const Game
 bool do_chr_chr_collision( CoNode_t * d )
 {
     CHR_REF ichr_a, ichr_b;
-    GameObject * pchr_a, * pchr_b;
+    Object * pchr_a, * pchr_b;
 
     float depth_min;
     float interaction_strength = 1.0f;
@@ -2810,8 +2810,8 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                     int   total_block_rating;
                     IPair rand_pair;
 
-                    GameObject *pshield   = _gameObjects.get( item );
-                    GameObject *pattacker = _gameObjects.get( pdata->pprt->owner_ref );
+                    Object *pshield   = _gameObjects.get( item );
+                    Object *pattacker = _gameObjects.get( pdata->pprt->owner_ref );
 
                     // use the character block skill plus the base block rating of the shield and adjust for strength
                     total_block_rating = chr_get_skill( pdata->pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
@@ -2915,8 +2915,8 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
     // weapon (actually, the weapon's holder) to rebound.
     if ( _gameObjects.exists( pdata->pprt->attachedto_ref ) )
     {
-        GameObject * pholder;
-        GameObject * pattached;
+        Object * pholder;
+        Object * pattached;
         CHR_REF iholder;
 
         // get the attached mass
@@ -2998,7 +2998,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
 
     bool prt_needs_impact;
 
-    GameObject * powner = NULL;
+    Object * powner = NULL;
 
     if ( NULL == pdata ) return false;
 
@@ -3306,7 +3306,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
     {
         if ( pdata->ppip->bump_money )
         {
-            GameObject * pcollector = pdata->pchr;
+            Object * pcollector = pdata->pchr;
 
             // Let mounts collect money for their riders
             if ( pdata->pchr->isMount() && _gameObjects.exists( pdata->pchr->holdingwhich[SLOT_LEFT] ) )

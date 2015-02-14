@@ -80,7 +80,7 @@ public:
 
 	bool hasRespawnAnytime() const {return _respawnValid == RESPAWN_ANYTIME;}
 
-	bool isRespawnValid() const {return _respawnValid;}
+	bool isRespawnValid() const {return 0 != _respawnValid;}
 
 	const std::vector<std::string>& getSummary() const {return _summary;}
 

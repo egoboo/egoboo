@@ -1,5 +1,4 @@
 #include "game/gui/Image.hpp"
-#include "game/ui.h"
 
 Image::Image() :
 	_image()

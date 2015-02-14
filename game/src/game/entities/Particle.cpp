@@ -202,7 +202,7 @@ PRT_REF end_one_particle_in_game(const PRT_REF particle)
             child = spawn_one_character(prt_t::get_pos_v_const(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF);
             if (_gameObjects.exists(child))
             {
-                GameObject * pchild = _gameObjects.get(child);
+                Object * pchild = _gameObjects.get(child);
 
                 chr_set_ai_state(pchild, pprt->endspawn_characterstate);
                 pchild->ai.owner = pprt->owner_ref;
@@ -1207,7 +1207,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
     temp_friction_xy = 1.0f;
     if (_gameObjects.exists(loc_pprt->onwhichplatform_ref))
     {
-        GameObject * pplat = _gameObjects.get(loc_pprt->onwhichplatform_ref);
+        Object * pplat = _gameObjects.get(loc_pprt->onwhichplatform_ref);
 
         temp_friction_xy = PLATFORM_STICKINESS;
 
@@ -1290,7 +1290,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt)
 {
-    GameObject * ptarget;
+    Object * ptarget;
 
     prt_t             * loc_pprt;
     PRT_REF             loc_iprt;
@@ -1846,7 +1846,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
         }
         else if (_gameObjects.exists(loc_pprt->target_ref))
         {
-            GameObject * ptarget = _gameObjects.get(loc_pprt->target_ref);
+            Object * ptarget = _gameObjects.get(loc_pprt->target_ref);
 
             // face your target
             loc_pprt->facing = vec_to_facing(ptarget->getPosX() - tmp_pos.x, ptarget->getPosY() - tmp_pos.y);
@@ -1969,7 +1969,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     float    fsin, fcos;
 
     pip_t * ppip;
-    GameObject * pchr;
+    Object * pchr;
     mad_t * pmad;
     prt_t * pprt;
 
@@ -2550,7 +2550,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
 
     prt_t * loc_pprt;
     pip_t * loc_ppip;
-    GameObject * loc_pchr;
+    Object * loc_pchr;
 
     bool skewered_by_arrow;
     bool has_vulnie;
@@ -2581,7 +2581,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
     // do nothing if you are attached to your owner
     if ((INVALID_CHR_REF != loc_pprt->owner_ref) && (iholder == loc_pprt->owner_ref || ichr == loc_pprt->owner_ref)) return pbdl_prt;
 
-    const std::shared_ptr<GameObject> &character = _gameObjects[ichr];
+    const std::shared_ptr<Object> &character = _gameObjects[ichr];
 
     //---- only do damage in certain cases:
 

@@ -27,7 +27,6 @@
 #include "game/network_client.h"
 #include "game/input.h"
 #include "game/game.h"
-#include "game/menu.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
@@ -205,7 +204,7 @@ void net_unbuffer_player_latches()
     // set the player latch
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        GameObject * pchr;
+        Object * pchr;
         player_t * ppla;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
@@ -221,7 +220,7 @@ void net_unbuffer_player_latches()
     // Let players respawn
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        GameObject * pchr;
+        Object * pchr;
         //player_t * ppla;
 
         if ( !PlaStack.lst[ipla].valid ) continue;

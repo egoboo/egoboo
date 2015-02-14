@@ -22,7 +22,6 @@
 /// @details
 
 #include "game/link.h"
-#include "game/menu.h"
 #include "game/graphic.h"
 #include "game/game.h"
 #include "game/player.h"
@@ -182,11 +181,11 @@ bool link_pop_module()
         // restore the heroes' positions before jumping out of the module
         for ( i = 0; i < pentry->hero_count; i++ )
         {
-            std::shared_ptr<GameObject> pchr;
+            std::shared_ptr<Object> pchr;
             hero_spawn_data_t * phero = pentry->hero + i;
 
             pchr = NULL;
-            for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+            for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
             {
                 if(object->isTerminated()) {
                     continue;
@@ -238,7 +237,7 @@ bool link_push_module()
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        GameObject * pchr;
+        Object * pchr;
 
         hero_spawn_data_t * phero;
 

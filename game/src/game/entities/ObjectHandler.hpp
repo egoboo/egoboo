@@ -29,7 +29,7 @@
 #include "game/egoboo_typedef.h"
 
 //Forward declarations
-class GameObject;
+class Object;
 
 //ZF> Some macros from C Egoboo (TODO: remove these macros)
 #define VALID_CHR_RANGE( ICHR )    ( static_cast<CHR_REF>(ICHR) < MAX_CHR && ICHR != INVALID_CHR_REF )
@@ -49,22 +49,22 @@ public:
 	{
 	public:
 
-		inline std::vector<std::shared_ptr<GameObject>>::const_iterator cbegin() const 
+		inline std::vector<std::shared_ptr<Object>>::const_iterator cbegin() const 
 		{
 			return _handler->_iteratorList.cbegin();
 		}
 
-		inline std::vector<std::shared_ptr<GameObject>>::const_iterator cend() const 
+		inline std::vector<std::shared_ptr<Object>>::const_iterator cend() const 
 		{
 			return _handler->_iteratorList.cend();
 		}
 
-		inline std::vector<std::shared_ptr<GameObject>>::iterator begin()
+		inline std::vector<std::shared_ptr<Object>>::iterator begin()
 		{
 			return _handler->_iteratorList.begin();
 		}
 
-		inline std::vector<std::shared_ptr<GameObject>>::iterator end()
+		inline std::vector<std::shared_ptr<Object>>::iterator end()
 		{
 			return _handler->_iteratorList.end();
 		}	
@@ -112,17 +112,17 @@ public:
 	bool exists(const CHR_REF ichr) const;
 
 	/**
-	 * @brief Allocates and creates new GameObject object. A valid PRO_REF is required to spawn a object.
-	 * @return the std::shared_ptr<GameObject> for that object or nullptr if it failed
+	 * @brief Allocates and creates new Object object. A valid PRO_REF is required to spawn a object.
+	 * @return the std::shared_ptr<Object> for that object or nullptr if it failed
 	 */
-	std::shared_ptr<GameObject> insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
+	std::shared_ptr<Object> insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
 
 	/**
 	 * @brief Return a pointer object for the specifiec CHR_REF.
 	 * @return a pointer object for the specified CHR_REF.
 	 *		   Return nullptr object if CHR_REF was not found.
 	 */
-	const std::shared_ptr<GameObject>& operator[] (const CHR_REF index);
+	const std::shared_ptr<Object>& operator[] (const CHR_REF index);
 
 	/**
 	 * @brief Return number of object currently active in the game.
@@ -139,7 +139,7 @@ public:
 	 * @brief Return a raw pointer referenced by CHR_REF
 	 * @return a raw pointer referenced by CHR_REF
 	 */
-	GameObject* get(const CHR_REF index) const;
+	Object* get(const CHR_REF index) const;
 
 private:
 
@@ -169,11 +169,11 @@ private:
 #endif
 	
 private:
-    std::vector<std::shared_ptr<GameObject>> _internalCharacterList;        ///< Indexes in this character list match CHR_REF
-	std::vector<std::shared_ptr<GameObject>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
+    std::vector<std::shared_ptr<Object>> _internalCharacterList;        ///< Indexes in this character list match CHR_REF
+	std::vector<std::shared_ptr<Object>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
 	std::stack<CHR_REF> _unusedChrRefs;						                ///< Stack of unused CHR_REF
 
-	std::vector<std::shared_ptr<GameObject>> _allocateList;					///< List of all objects that should be added
+	std::vector<std::shared_ptr<Object>> _allocateList;					///< List of all objects that should be added
 
 	size_t _semaphore;
 	size_t _deletedCharacters;

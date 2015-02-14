@@ -39,10 +39,8 @@
 #include "game/collision.h"
 #include "game/script.h"
 #include "game/input.h"
-#include "game/menu.h"
 #include "game/script_compile.h"
 #include "game/game.h"
-#include "game/ui.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/char.h"
@@ -353,7 +351,7 @@ static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
 
 static void gfx_reload_decimated_textures();
 
-static gfx_rv update_one_chr_instance( GameObject * pchr );
+static gfx_rv update_one_chr_instance( Object * pchr );
 static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing( dolist_t * pdolist );
 
@@ -894,7 +892,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
         }
         else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
         {
-            GameObject *character = _gameObjects.get(element->ichr);
+            Object *character = _gameObjects.get(element->ichr);
             if (nullptr != character) character->inst.indolist = false;
         }
     }
@@ -907,7 +905,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::test_chr(dolist_t *self, const GameObject *pchr)
+gfx_rv dolist_t::test_chr(dolist_t *self, const Object *pchr)
 {
     if (nullptr == self)
     {
@@ -928,7 +926,7 @@ gfx_rv dolist_t::test_chr(dolist_t *self, const GameObject *pchr)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::add_chr_raw(dolist_t *self, GameObject *pchr)
+gfx_rv dolist_t::add_chr_raw(dolist_t *self, Object *pchr)
 {
     /// @author ZZ
     /// @details This function puts a character in the list
@@ -1071,7 +1069,7 @@ gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_
         if ( BSP_LEAF_CHR == pleaf->data_type )
         {
             CHR_REF ichr;
-            GameObject * pchr;
+            Object * pchr;
 
             // collided with a character
             ichr = ( CHR_REF )( pleaf->index );
@@ -1633,7 +1631,8 @@ void gfx_system_init_SDL_graphics()
 #endif
 
     // Set the window name
-    SDL_WM_SetCaption( "Egoboo " VERSION, "Egoboo" );
+    std::string title = std::string("Egoboo") + GameEngine::GAME_VERSION;
+    SDL_WM_SetCaption(title.c_str(), "Egoboo");
 
 #if defined(__unix__)
 
@@ -1717,8 +1716,9 @@ void gfx_system_render_world( std::shared_ptr<Camera> pcam, const int render_lis
         {
             if (pcam->getMotionBlurOld() < 0.001f)
                 GL_DEBUG(glAccum)(GL_LOAD, 1);
+
             //Do motion blur
-            if (!GProc->mod_paused)
+            if (true /*currentState != playingState*/) //ZF> TODO: disable motion blur in in-game menu
             {
                 GL_DEBUG( glAccum )( GL_MULT, pcam->getMotionBlur() );
                 GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->getMotionBlur() );
@@ -1764,42 +1764,6 @@ void gfx_system_main()
     draw_hud();
 
     gfx_request_flip_pages();
-}
-
-//--------------------------------------------------------------------------------------------
-bool gfx_system_set_virtual_screen( gfx_config_t * pgfx )
-{
-    float kx, ky;
-
-    if ( NULL == pgfx ) return false;
-
-    kx = ( float )GFX_WIDTH  / ( float )sdl_scr.x;
-    ky = ( float )GFX_HEIGHT / ( float )sdl_scr.y;
-
-    if ( kx == ky )
-    {
-        pgfx->vw = sdl_scr.x;
-        pgfx->vh = sdl_scr.y;
-    }
-    else if ( kx > ky )
-    {
-        pgfx->vw = sdl_scr.x * kx / ky;
-        pgfx->vh = sdl_scr.y;
-    }
-    else
-    {
-        pgfx->vw = sdl_scr.x;
-        pgfx->vh = sdl_scr.y * ky / kx;
-    }
-
-    pgfx->vdw = ( GFX_WIDTH  - pgfx->vw ) * 0.5f;
-    pgfx->vdh = ( GFX_HEIGHT - pgfx->vh ) * 0.5f;
-
-    ui_set_virtual_screen( pgfx->vw, pgfx->vh, GFX_WIDTH, GFX_HEIGHT );
-
-    //gfx_calc_rotmesh();
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2478,7 +2442,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 
     TX_REF icon_ref;
 
-    GameObject * pitem = !_gameObjects.exists( item ) ? NULL : _gameObjects.get( item );
+    Object * pitem = !_gameObjects.exists( item ) ? NULL : _gameObjects.get( item );
 
     // grab the icon reference
     icon_ref = chr_get_txtexture_icon_ref( item );
@@ -2504,7 +2468,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 //--------------------------------------------------------------------------------------------
 float draw_character_xp_bar( const CHR_REF character, float x, float y )
 {
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return y;
     pchr = _gameObjects.get( character );
@@ -2541,7 +2505,7 @@ float draw_status( const CHR_REF character, float x, float y )
     int life_pips, life_pips_max;
     int mana_pips, mana_pips_max;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return y;
     pchr = _gameObjects.get( character );
@@ -2646,7 +2610,7 @@ void draw_map()
 
             for ( ichr = 0; ichr < MAX_CHR && blip_count < MAXBLIP; ichr++ )
             {
-                GameObject * pchr;
+                Object * pchr;
 
                 if ( !_gameObjects.exists( ichr ) ) continue;
                 pchr = _gameObjects.get( ichr );
@@ -2985,7 +2949,7 @@ void draw_hud()
 
             snprintf( buffer, SDL_arraysize( buffer ), "%s > %s%s", cfg.network_messagename, net_chat.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
 
-            y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
+            y = draw_wrap_string( buffer, 0, y, sdl_scr.x - WRAP_TOLERANCE );
         }
 
         y = DisplayMsg_draw_all( y );
@@ -3004,7 +2968,7 @@ void draw_inventory()
 	Ego::Colour4f background_color(0.66f, 0.0f, 0.0f, 0.95f);
 
     CHR_REF ichr;
-    GameObject *pchr;
+    Object *pchr;
 
     PLA_REF draw_list[MAX_LOCAL_PLAYERS];
     size_t cnt, draw_list_length = 0;
@@ -3015,7 +2979,7 @@ void draw_inventory()
     static int lerp_time[MAX_LOCAL_PLAYERS] = { 0 };
 
     //don't draw inventories while menu is open
-    if ( GProc->mod_paused ) return;
+    //if ( GProc->mod_paused ) return;
 
     //figure out what we have to draw
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -3081,7 +3045,16 @@ void draw_inventory()
         max_weight = 200 + FP8_TO_FLOAT( pchr->strength ) * FP8_TO_FLOAT( pchr->strength );
 
         //draw the backdrop
-        ui_drawButton( 0, x, y, width, height, background_color );
+        const GLXvector4f INVENTORY_COLOR = {0.66f, 0.00f, 0.00f, 0.60f};
+        GL_DEBUG( glColor4fv )(INVENTORY_COLOR);
+        GL_DEBUG( glBegin )( GL_QUADS );
+        {
+            GL_DEBUG( glVertex2f )( x, y );
+            GL_DEBUG( glVertex2f )( x, y+height );
+            GL_DEBUG( glVertex2f )( x+width, y+height );
+            GL_DEBUG( glVertex2f )( x+width, y );
+        }
+        GL_DEBUG_END();
         x += 5;
 
         //draw title
@@ -3213,7 +3186,7 @@ void render_shadow( const CHR_REF character )
     float   level;
     float   height, size_umbra, size_penumbra;
     float   alpha, alpha_umbra, alpha_penumbra;
-    GameObject * pchr;
+    Object * pchr;
     ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
@@ -3347,7 +3320,7 @@ void render_bad_shadow( const CHR_REF character )
     int     itex_style;
     float   size, x, y;
     float   level, height, height_factor, alpha;
-    GameObject * pchr;
+    Object * pchr;
     ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
@@ -4779,8 +4752,6 @@ bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, egoboo_config_
     pgfx->clearson     = !pgfx->draw_background;
     pgfx->draw_water_1 = !pgfx->draw_background && ( water.layer_count > 1 );
 
-    gfx_system_set_virtual_screen( pgfx );
-
     return true;
 }
 
@@ -4987,47 +4958,6 @@ bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst
     return lighting_cache_interpolate( dst, cache_list, u, v );
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if 0
-void gfx_update_fps_clock()
-{
-    /// @author ZZ
-    /// @details This function updates the graphics timers
-
-    int gfx_clock_diff;
-
-    // make sure at least one tick has passed
-    if ( !egolib_timer__throttle( &gfx_update_timer, 1 ) ) return;
-
-    // calculate the time since the from the last update
-    if ( !single_frame_mode )
-    {
-        // update the graphics clock the normal way
-        egolib_throttle_update( &gfx_throttle );
-    }
-    else
-    {
-        // do a single-frame update
-        egolib_throttle_update_diff( &gfx_throttle, TICKS_PER_SEC / ( float )cfg.framelimit );
-    }
-
-    // measure the time change
-    gfx_clock_diff = gfx_throttle.time_now - gfx_throttle.time_lst;
-
-    // update the game fps
-    if (process_t::running(PROC_PBASE(GProc)))
-    {
-        game_fps_clock += gfx_clock_diff;
-    }
-
-    // update the menu fps
-    if (process_t::running(PROC_PBASE( MProc)))
-    {
-        menu_fps_clock += gfx_clock_diff;
-    }
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 // obj_registry_entity_t IMPLEMENTATION
@@ -5642,30 +5572,6 @@ bool sum_global_lighting( lighting_vector_t lighting )
 
 //--------------------------------------------------------------------------------------------
 // SEMI OBSOLETE FUNCTIONS
-//--------------------------------------------------------------------------------------------
-void draw_cursor()
-{
-    /// @author ZZ
-    /// @details This function implements a mouse cursor
-
-    oglx_texture_t * tx_ptr = TextureManager::getSingleton()->get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
-
-    if ( input_cursor.x < 6 )  input_cursor.x = 6;
-    if ( input_cursor.x > sdl_scr.x - 16 )  input_cursor.x = sdl_scr.x - 16;
-
-    if ( input_cursor.y < 8 )  input_cursor.y = 8;
-    if ( input_cursor.y > sdl_scr.y - 24 )  input_cursor.y = sdl_scr.y - 24;
-
-    // Needed to setup text mode
-    gfx_begin_text();
-    {
-        draw_one_font( tx_ptr, 95, input_cursor.x - 5, input_cursor.y - 7 );
-    }
-    // Needed when done with text mode
-    gfx_end_text();
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 gfx_rv dynalist_init( dynalist_t * pdylist )
 {
@@ -6348,7 +6254,7 @@ gfx_rv gfx_update_flashing( dolist_t * pdolist )
     {
         float tmp_seekurse_level;
 
-        GameObject          * pchr;
+        Object          * pchr;
         chr_instance_t * pinst;
 
         CHR_REF ichr = pdolist->lst[i].ichr;
@@ -6398,7 +6304,7 @@ gfx_rv gfx_update_all_chr_instance()
     // assume the best
     retval = gfx_success;
 
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         //Dont do terminated characters
         if(pchr->isTerminated()) {
@@ -6631,7 +6537,7 @@ void gfx_reload_decimated_textures()
 //--------------------------------------------------------------------------------------------
 // chr_instance_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv update_one_chr_instance( GameObject * pchr )
+gfx_rv update_one_chr_instance( Object * pchr )
 {
     chr_instance_t * pinst;
     gfx_rv retval;

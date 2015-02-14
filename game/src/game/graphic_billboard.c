@@ -89,7 +89,7 @@ bool billboard_data_free( billboard_data_t * pbb )
 bool billboard_data_update( billboard_data_t * pbb )
 {
     fvec3_t     vup, pos_new;
-    GameObject     * pchr;
+    Object     * pchr;
     float       height, offset;
 
     if ( NULL == pbb || !pbb->valid ) return false;
@@ -186,7 +186,7 @@ void BillboardList_update_all()
     BBOARD_REF cnt;
     Uint32     ticks;
 
-    ticks = egoboo_get_ticks();
+    ticks = SDL_GetTicks();
 
     for ( cnt = 0; cnt < MAX_BBOARD; cnt++ )
     {
@@ -283,7 +283,7 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
         billboard_data_init( pbb );
 
         pbb->tex_ref = itex;
-        pbb->time    = egoboo_get_ticks() + lifetime_secs * TICKS_PER_SEC;
+        pbb->time    = SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC;
         pbb->valid   = true;
     }
     else

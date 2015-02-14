@@ -26,14 +26,12 @@
 #include "game/mad.h"
 #include "game/player.h"
 #include "game/link.h"
-#include "game/ui.h"
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_texture.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/input.h"
-#include "game/menu.h"
 #include "game/network_client.h"
 #include "game/network_server.h"
 #include "game/collision.h"
@@ -41,6 +39,7 @@
 #include "game/script.h"
 #include "game/script_compile.h"
 #include "game/egoboo.h"
+#include "game/core/GameEngine.hpp"
 #include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
@@ -61,7 +60,6 @@ static game_process_t    _gproc;
 
 static egolib_throttle_t     game_throttle = EGOLIB_THROTTLE_INIT;
 
-PROFILE_DECLARE( game_update_loop );
 PROFILE_DECLARE( gfx_loop );
 PROFILE_DECLARE( game_single_update );
 
@@ -90,7 +88,6 @@ size_t endtext_carat = 0;
 status_list_t StatusList = STATUS_LIST_INIT;
 
 ego_mesh_t         * PMesh   = _mesh + 0;
-game_process_t     * GProc   = &_gproc;
 
 pit_info_t pits = PIT_INFO_INIT;
 
@@ -140,7 +137,7 @@ static void   game_load_profile_ai();
 static void   activate_spawn_file_vfs();
 static void   activate_alliance_file_vfs();
 
-static bool chr_setup_apply(std::shared_ptr<GameObject> pchr, spawn_file_info_t *pinfo );
+static bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo );
 
 static void   game_reset_players();
 
@@ -167,7 +164,7 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 // misc
 static float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool waterwalk );
 static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool waterwalk );
-static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, GameObject * pchr );
+static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr );
 
 static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
@@ -326,7 +323,7 @@ egolib_rv export_all_players( bool require_local )
     {
         CHR_REF item;
         player_t * ppla;
-        GameObject    * pchr;
+        Object    * pchr;
 
         if ( !VALID_PLA( ipla ) ) continue;
         ppla = PlaStack.get_ptr( ipla );
@@ -436,7 +433,7 @@ void statlist_add( const CHR_REF character )
     /// @author ZZ
     /// @details This function adds a status display to the do list
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( StatusList.count >= MAX_STATUS ) return;
 
@@ -508,7 +505,7 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
     /// @details This function sets the frame for a character explicitly...  This is used to
     ///    rotate Tank turrets
 
-    GameObject * pchr;
+    Object * pchr;
     MAD_REF imad;
     egolib_rv retval;
     int action;
@@ -640,9 +637,9 @@ void blah_billboard()
     bool needs_new;
     Uint32 current_time;
 
-    current_time = egoboo_get_ticks();
+    current_time = SDL_GetTicks();
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if(!_gameObjects.exists(object->attachedto)) {
             continue;
@@ -706,7 +703,7 @@ int update_game()
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        GameObject * pchr;
+        Object * pchr;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
 
@@ -762,7 +759,7 @@ int update_game()
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        GameObject * pchr;
+        Object * pchr;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
 
@@ -831,7 +828,7 @@ int update_game()
     _cameraSystem.updateAll(PMesh);
 
     // Timers
-    clock_wld += UPDATE_SKIP;
+    clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
     clock_enc_stat++;
     clock_chr_stat++;
 
@@ -844,122 +841,6 @@ int update_game()
     update_wld++;
 
     return 1;
-}
-
-//--------------------------------------------------------------------------------------------
-#if 0
-void game_update_timers()
-{
-    /// @author ZZ
-    /// @details This function updates the game timers
-
-    int    clock_diff;
-    bool free_running = false;
-    bool is_paused    = false;
-
-    static bool was_paused = false;
-
-    // is the game/module paused?
-    is_paused = false;
-    if ( !egonet_on() )
-    {
-        is_paused  = !process_t::running(PROC_PBASE(GProc)) || GProc->mod_paused;
-    }
-
-    // check to make sure that the game is running
-    if ( is_paused )
-    {
-        // for a local game, force the function to ignore the accumulation of time
-        // until you re-join the game
-        egolib_throttle_update_diff( &game_throttle, 0 );
-        was_paused = true;
-        return;
-    }
-
-    // are the game updates free running?
-    free_running = false;
-    if ( !egonet_on() )
-    {
-        free_running = GProc->ups_timer.free_running;
-    }
-
-    clock_diff = 0;
-    if ( egonet_on() )
-    {
-        // if the network game is on, there really is no real "pause"
-        // so we can always measure the game time from the first clock reading
-        egolib_throttle_update( &game_throttle );
-    }
-    else
-    {
-        // if the net is not on, the game clock will pause when the local game is paused.
-        // if we use the other calculation, the game will freeze while it handles the updates
-        // for all the time that the game was paused... not so good
-
-        // calculate the time since the from the last update
-        // if the game was paused, assume that only one update time elapsed since the last time through this function
-        if ( was_paused || single_frame_mode )
-        {
-            egolib_throttle_update_diff( &game_throttle, UPDATE_SKIP );
-        }
-        else
-        {
-            egolib_throttle_update( &game_throttle );
-        }
-    }
-
-    // calculate the difference
-    clock_diff = game_throttle.time_now - game_throttle.time_lst;
-
-    // return if there is no reason to continue
-    if ( !free_running && 0 == clock_diff ) return;
-
-    // update the game_ups clock
-    game_ups_clock += clock_diff;
-
-    // Use the number of updates that should have been performed up to this point (true_update)
-    // to try to regulate the update speed of the game
-    true_update      = game_throttle.time_now / UPDATE_SKIP;
-
-    // get the number of frames that should have happened so far in a similar way
-    true_frame      = ( game_throttle.time_now  / TICKS_PER_SEC ) * cfg.framelimit;
-
-    // figure out the update rate
-    game_ups_clock += clock_diff;
-
-    // if it got this far and the funciton had been paused, it is time to unpause it
-    was_paused = false;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-void game_update_ups()
-{
-    /// @author ZZ
-    /// @details This function updates the game timers
-
-    // at fold = 0.60f, it will take approximately 9 updates for the
-    // weight of the first value to be reduced to 1%
-    const float fold = 0.60f;
-    const float fnew = 1.0f - fold;
-
-    if ( game_ups_loops > 0 && game_ups_clock > 0 )
-    {
-        stabilized_game_ups_sum    = fold * stabilized_game_ups_sum    + fnew * ( float ) game_ups_loops / (( float ) game_ups_clock / TICKS_PER_SEC );
-        stabilized_game_ups_weight = fold * stabilized_game_ups_weight + fnew;
-
-        // Don't allow the counters to overflow. 0x15555555 is 1/3 of the maximum Sint32 value
-        if ( game_ups_loops > 0x15555555 || game_ups_clock  > 0x15555555 )
-        {
-            game_ups_loops = 0;
-            game_ups_clock = 0;
-        }
-    }
-
-    if ( stabilized_game_ups_weight > 0.5f )
-    {
-        stabilized_game_ups = stabilized_game_ups_sum / stabilized_game_ups_weight;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -983,473 +864,7 @@ void game_reset_timers()
     // reset some special clocks
     clock_enc_stat = 0;
     clock_chr_stat = 0;
-
-    // reset the ups counter(s)
-    game_ups_clock        = 0;
-    game_ups_loops        = 0;
-
-    stabilized_game_ups        = TARGET_UPS;
-    stabilized_game_ups_sum    = STABILIZED_COVER * TARGET_UPS;
-    stabilized_game_ups_weight = STABILIZED_COVER;
-
-    // reset the fps counter(s)
-    game_fps_clock        = 0;
-    game_fps_loops        = 0;
-
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-int game_do_menu( menu_process_t * mproc )
-{
-    /// @author BB
-    /// @details do menus
-
-    static double loc_frameDuration = 0.0f;
-
-    int menuResult;
-    bool need_menu = false;
-
-    if ( process_t::running( PROC_PBASE( mproc ) ) )
-    {
-        loc_frameDuration += mproc->base.frameDuration;
-
-        if ( gfx_flip_pages_requested() )
-        {
-            // someone else (and that means the game) has drawn a frame
-            // so we just need to draw the menu over that frame
-            need_menu = true;
-
-            // force the menu to be displayed immediately when the game stops
-            egolib_timer__reset( &( mproc->gui_timer ), -1, cfg.framelimit );
-        }
-        else if ( egolib_timer__throttle( &( mproc->gui_timer ), cfg.framelimit ) )
-        {
-            need_menu = true;
-        }
-    }
-
-    menuResult = 0;
-    if ( need_menu )
-    {
-        ui_beginFrame( loc_frameDuration );
-        {
-            menuResult = doMenu( loc_frameDuration );
-            draw_mouse_cursor();
-            gfx_request_flip_pages();
-        }
-        ui_endFrame();
-
-        // reset the elapsed frame counter
-        loc_frameDuration = 0.0F;
-    }
-
-    return menuResult;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int game_process_do_begin( game_process_t * gproc )
-{
-    // clean up
-    /// @todo find a better way to do this
-    if (_cameraSystem.isInitialized())
-    {
-        game_process_do_leaving(gproc);
-        process_t::pause(PROC_PBASE(MProc));
-    }
-
-    //Make sure all data is cleared first
-    game_quit_module();
-    
-    BillboardList_init_all();
-
-    gproc->escape_latch = false;
-
-    // initialize math objects
-    make_randie();
-    make_turntosin();
-
-    // Linking system
-    log_info( "Initializing module linking... " );
-    if ( link_build_vfs( "mp_data/link.txt", LinkList ) ) log_message( "Success!\n" );
-    else log_message( "Failure!\n" );
-
-    // initialize the collision system
-    collision_system_begin();
-
-    //Ready message display
-    DisplayMsg_reset();
-
-    // intialize the "profile system"
-    _profileSystem.begin();
-
-    // do some graphics initialization
-    //make_lightdirectionlookup();
-    gfx_system_make_enviro();
-
-    // try to start a new module
-    //if ( !game_begin_module(pickedmodule_path) )
-    {
-        // failure - kill the game process
-        process_t::kill(PROC_PBASE(gproc));
-        process_t::resume(PROC_PBASE(MProc));
-    }
-
-    // set up the cameras *after* game_begin_module() or the player devices will not be initialized
-    // and camera_system_begin() will not set up thte correct view
-    _cameraSystem.begin(local_stats.player_count);
-
-    // make sure the cameras are centered on something or there will be a graphics error
-    _cameraSystem.resetAllTargets(PMesh);
-
-    // Initialize the process
-    gproc->base.valid = true;
-
-    // initialize all the profile variables
-    PROFILE_RESET( game_update_loop );
-    PROFILE_RESET( game_single_update );
-    PROFILE_RESET( gfx_loop );
-
-    PROFILE_RESET( talk_to_remotes );
-    PROFILE_RESET( egonet_listen_for_packets );
-    PROFILE_RESET( check_stats );
-    PROFILE_RESET( set_local_latches );
-    PROFILE_RESET( cl_talkToHost );
-
-    // reset the ups counter
-    game_ups_clock        = 0;
-    game_ups_loops        = 0;
-
-    stabilized_game_ups        = TARGET_UPS;
-    stabilized_game_ups_sum    = STABILIZED_COVER * TARGET_UPS;
-    stabilized_game_ups_weight = STABILIZED_COVER;
-
-    // reset the fps counter
-    game_fps_clock        = 0;
-    game_fps_loops        = 0;
-
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
-
-    // re-initialize these variables
-    est_max_fps          =  TARGET_FPS;
-    est_render_time      =  1.0f / TARGET_FPS;
-
-    est_update_time      =  1.0f / TARGET_UPS;
-    est_max_ups          =  TARGET_UPS;
-
-    est_gfx_time         =  1.0f / TARGET_FPS;
-    est_max_gfx          =  TARGET_FPS;
-
-    est_single_update_time  = 1.0f / TARGET_UPS;
-    est_single_ups          = TARGET_UPS;
-
-    est_update_game_time  = 1.0f / TARGET_UPS;
-    est_max_game_ups      = TARGET_UPS;
-
-    obj_BSP_system_begin(getMeshBSP());
-
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------
-int game_process_do_running( game_process_t * gproc )
-{
-    int update_loops = 0;
-
-    bool need_ups_update  = false;
-    bool need_fps_update  = false;
-    bool ups_free_running = false;
-    bool fps_free_running = false;
-
-    if (!process_t::validate(PROC_PBASE(gproc))) return -1;
-
-    gproc->was_active  = gproc->base.valid;
-
-    if ( !process_t::running(PROC_PBASE(gproc))) return 0;
-
-    // are the updates free running?
-    ups_free_running = gproc->ups_timer.free_running;
-
-    // update all the timers
-    game_update_timers();
-
-    need_ups_update = false;
-    if ( single_frame_mode )
-    {
-        if ( single_update_requested )
-        {
-            need_ups_update = true;
-            single_update_requested = false;
-            egolib_timer__reset( &( gproc->ups_timer ), -1, TARGET_UPS );
-        }
-    }
-    else if ( ups_free_running )
-    {
-        need_ups_update = true;
-    }
-    else if ( egolib_timer__throttle( &( gproc->ups_timer ), TARGET_UPS ) )
-    {
-        need_ups_update = true;
-    }
-
-    if ( need_ups_update )
-    {
-        PROFILE_BEGIN( game_update_loop );
-        {
-            // do the updates
-            if (gproc->mod_paused)
-            {
-                clock_wld = game_throttle.time_now;
-            }
-            else
-            {
-                input_device_t * pdevice;
-                bool msg_pressed;
-                int cnt;
-
-                // check to see if anyone has pressed the message button
-                msg_pressed = false;
-                for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
-                {
-                    pdevice = InputDevices.lst + cnt;
-
-                    if ( input_device_control_active( pdevice, CONTROL_MESSAGE ) )
-                    {
-                        msg_pressed = true;
-                        break;
-                    }
-                }
-
-                // start the console mode?
-                if ( msg_pressed )
-                {
-                    // reset the keyboard buffer
-                    SDL_EnableKeyRepeat( 20, SDL_DEFAULT_REPEAT_DELAY );
-                    keyb.chat_mode = true;
-                    keyb.chat_done = false;
-                    net_chat.buffer_count = 0;
-                    net_chat.buffer[0] = CSTR_END;
-                }
-
-                // This is the control loop
-#if 0
-                if ( egonet_on() && keyb.chat_done )
-                {
-                    net_send_message();
-                }
-#endif
-
-
-                update_loops = update_game();
-            }
-        }
-        PROFILE_END2( game_update_loop );
-
-        // estimate the main-loop update time is taking per inner-loop iteration
-        // do a kludge to average out the effects of functions like check_stats()
-        // even when the inner loop does not execute
-        if ( update_loops > 0 )
-        {
-            est_update_time = 0.9F * est_update_time + 0.1F * PROFILE_QUERY( game_update_loop ) / update_loops;
-            est_max_ups     = 0.9F * est_max_ups     + 0.1F * ( update_loops / PROFILE_QUERY( game_update_loop ) );
-        }
-        else
-        {
-            est_update_time = 0.9F * est_update_time + 0.1F * PROFILE_QUERY( game_update_loop );
-            est_max_ups     = 0.9F * est_max_ups     + 0.1F * ( 1.0F / PROFILE_QUERY( game_update_loop ) );
-        }
-
-        // just to be complete
-        need_ups_update = false;
-    }
-
-    // Do the display stuff
-
-    // are the frames free running?
-    fps_free_running = GProc->fps_timer.free_running;
-
-    need_fps_update = false;
-    if ( single_frame_mode )
-    {
-        if ( single_frame_requested )
-        {
-            need_fps_update = true;
-            single_frame_requested = false;
-            egolib_timer__reset( &( gproc->fps_timer ), -1, cfg.framelimit );
-        }
-    }
-    else if ( fps_free_running )
-    {
-        need_fps_update = true;
-    }
-    else if ( egolib_timer__throttle( &( gproc->fps_timer ), cfg.framelimit ) )
-    {
-        need_fps_update = true;
-    }
-
-    // Do the display stuff
-    if ( need_fps_update )
-    {
-        PROFILE_BEGIN( gfx_loop );
-        {
-            gfx_system_main();
-
-            DisplayMsg_timechange++;
-        }
-        PROFILE_END2( gfx_loop );
-
-        // estimate how much time the main loop is taking per second
-        est_gfx_time = 0.9F * est_gfx_time + 0.1F * PROFILE_QUERY( gfx_loop );
-        est_max_gfx  = 0.9F * est_max_gfx  + 0.1F * ( 1.0F / PROFILE_QUERY( gfx_loop ) );
-
-        // estimate how much time the main loop is taking per second
-        est_render_time = est_gfx_time * TARGET_FPS;
-        est_max_fps  = 0.9F * est_max_fps + 0.1F * ( 1.0F - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
-
-        // just to be complete
-        need_fps_update = false;
-    }
-
-    if ( gproc->escape_requested )
-    {
-        gproc->escape_requested = false;
-
-        if ( !gproc->escape_latch )
-        {
-            if ( PMod->isBeaten() )
-            {
-                game_begin_menu( MProc, emnu_ShowEndgame );
-            }
-            else
-            {
-                game_begin_menu( MProc, emnu_GamePaused );
-            }
-
-            gproc->escape_latch = true;
-            gproc->mod_paused   = true;
-        }
-    }
-
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------
-int game_process_do_leaving( game_process_t * gproc )
-{
-    if (!process_t::validate(PROC_PBASE(gproc))) return -1;
-
-    // get rid of all module data
-    game_quit_module();
-
-    // resume the menu
-    process_t::resume(PROC_PBASE(MProc));
-
-    // deallocate any dynamically allocated collision memory
-    collision_system_end();
-
-    // deallocate any data used by the profile system
-    _profileSystem.end();
-
-    // deallocate the obj_BSP
-    obj_BSP_system_end();
-
-    // deallocate any dynamically allocated scripting memory
-    scripting_system_end();
-
-    // clean up any remaining models that might have dynamic data
-    MadStack_release_all();
-
-    // free the cameras
-    _cameraSystem.end();
-
-    // reset the fps counter
-    game_fps_clock             = 0;
-    game_fps_loops             = 0;
-
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
-
-    PROFILE_FREE( game_update_loop );
-    PROFILE_FREE( game_single_update );
-    PROFILE_FREE( gfx_loop );
-
-    PROFILE_FREE( talk_to_remotes );
-    PROFILE_FREE( egonet_listen_for_packets );
-    PROFILE_FREE( check_stats );
-    PROFILE_FREE( set_local_latches );
-    PROFILE_FREE( cl_talkToHost );
-
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------
-int game_process_run( game_process_t * gproc, double frameDuration )
-{
-    int result = 0, proc_result = 0;
-
-    if ( !process_t::validate( PROC_PBASE( gproc ) ) ) return -1;
-    gproc->base.frameDuration = frameDuration;
-
-    if ( gproc->base.paused ) return 0;
-
-    if ( gproc->base.killme )
-    {
-        gproc->base.state = process_t::State::Leaving;
-    }
-
-    switch ( gproc->base.state )
-    {
-	case process_t::State::Begin:
-            proc_result = game_process_do_begin( gproc );
-
-            if ( 1 == proc_result )
-            {
-                gproc->base.state = process_t::State::Entering;
-            }
-            break;
-
-		case process_t::State::Entering:
-            // proc_result = do_game_proc_entering( gproc );
-
-            gproc->base.state = process_t::State::Running;
-            break;
-
-		case process_t::State::Running:
-            proc_result = game_process_do_running( gproc );
-
-            if ( 1 == proc_result )
-            {
-                gproc->base.state = process_t::State::Leaving;
-            }
-            break;
-
-		case process_t::State::Leaving:
-            proc_result = game_process_do_leaving( gproc );
-
-            if ( 1 == proc_result )
-            {
-                gproc->base.state  = process_t::State::Finish;
-                gproc->base.killme = false;
-            }
-            break;
-
-		case process_t::State::Finish:
-            process_t::terminate( PROC_PBASE( gproc ) );
-            process_t::resume( PROC_PBASE( MProc ) );
-            break;
-
-        default:
-            /* do noithing */
-            break;
-    }
-
-    return result;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1469,7 +884,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
     if ( !LOADED_PIP( particletype ) ) return INVALID_CHR_REF;
     ppip = PipStack.get_ptr( particletype );
 
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         bool target_friend, target_enemy;
 
@@ -1516,19 +931,19 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ idsz, const BIT_FIELD targeting_bits )
+bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     bool retval = false;
 
     bool is_hated, hates_me;
     bool is_friend, is_prey, is_predator, is_mutual;
-    GameObject * ptst;
+    Object * ptst;
 
     // Skip non-existing objects
     if ( !ACTIVE_PCHR( psrc ) ) return false;
 
-    if ( !_gameObjects.exists( iGameObjectest ) ) return false;
-    ptst = _gameObjects.get( iGameObjectest );
+    if ( !_gameObjects.exists( iObjectest ) ) return false;
+    ptst = _gameObjects.get( iObjectest );
 
     // Skip hidden characters
     if ( ptst->is_hidden ) return false;
@@ -1537,7 +952,7 @@ bool chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ ids
     if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return false;
 
     // Skip held objects
-    if ( IS_ATTACHED_CHR( iGameObjectest ) ) return false;
+    if ( IS_ATTACHED_CHR( iObjectest ) ) return false;
 
     // Allow to target ourselves?
     if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
@@ -1593,7 +1008,7 @@ bool chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ ids
     }
     else
     {
-        ObjectProfile *profile = chr_get_ppro(iGameObjectest);
+        ObjectProfile *profile = chr_get_ppro(iObjectest);
         bool match_idsz = ( idsz == profile->getIDSZ(IDSZ_PARENT) ) ||
                             ( idsz == profile->getIDSZ(IDSZ_TYPE) );
 
@@ -1611,7 +1026,7 @@ bool chr_check_target( GameObject * psrc, const CHR_REF iGameObjectest, IDSZ ids
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
+CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     /// @author ZF
     /// @details This is the new improved AI targeting algorithm. Also includes distance in the Z direction.
@@ -1644,7 +1059,7 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
     //Loop through every active object
     else
     {
-        for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+        for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
         {
             if(!object->isTerminated())
             {
@@ -1661,16 +1076,16 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
 
     best_target = INVALID_CHR_REF;
     best_dist2  = max_dist2;
-    for(CHR_REF iGameObjectest : searchList)
+    for(CHR_REF iObjectest : searchList)
     {
         float  dist2;
         fvec3_t   diff;
-        GameObject * ptst;
+        Object * ptst;
 
-        if ( !_gameObjects.exists( iGameObjectest ) ) continue;
-        ptst = _gameObjects.get( iGameObjectest );
+        if ( !_gameObjects.exists( iObjectest ) ) continue;
+        ptst = _gameObjects.get( iObjectest );
 
-        if ( !chr_check_target( psrc, iGameObjectest, idsz, targeting_bits ) ) continue;
+        if ( !chr_check_target( psrc, iObjectest, idsz, targeting_bits ) ) continue;
 
         diff = psrc->getPosition() - ptst->getPosition();
 		dist2 = diff.length_2();
@@ -1689,7 +1104,7 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
             }
 
             //Set the new best target found
-            best_target = iGameObjectest;
+            best_target = iObjectest;
             best_dist2  = dist2;
         }
     }
@@ -1705,7 +1120,7 @@ void do_damage_tiles()
 {
     // do the damage tile stuff
 
-    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
     {
         // if the object is not really in the game, do nothing
         if ( pchr->is_hidden || !pchr->alive ) continue;
@@ -1781,7 +1196,7 @@ void update_pits()
             PRT_END_LOOP();
 
             // Kill or teleport any characters that fell in a pit...
-            for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
+            for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
             {
                 // Is it a valid character?
                 if ( pchr->invictus || !pchr->alive ) continue;
@@ -1875,7 +1290,7 @@ void do_weather_spawn_particles()
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
                 if ( _gameObjects.exists( ichr ) && !_gameObjects.exists( _gameObjects.get(ichr)->inwhich_inventory ) )
                 {
-                    GameObject * pchr = _gameObjects.get( ichr );
+                    Object * pchr = _gameObjects.get( ichr );
 
                     // Yes, so spawn over that character
                     PRT_REF particle = spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
@@ -2075,7 +1490,7 @@ void set_one_player_latch( const PLA_REF ipla )
     else if ( ppla->inventory_cooldown < update_wld )
     {
         int new_selected = ppla->inventory_slot;
-        GameObject *pchr = _gameObjects.get( ppla->index );
+        Object *pchr = _gameObjects.get( ppla->index );
 
         //dirty hack here... mouse seems to be inverted in inventory mode?
         if ( pdevice->device_type == INPUT_DEVICE_MOUSE )
@@ -2211,7 +1626,7 @@ void check_stats()
     int ticks;
     if ( keyb.chat_mode ) return;
 
-    ticks = egoboo_get_ticks();
+    ticks = SDL_GetTicks();
     if ( ticks > stat_check_timer + 20 )
     {
         stat_check_timer = ticks;
@@ -2242,7 +1657,7 @@ void check_stats()
         if ( _gameObjects.exists( PlaStack.lst[docheat].index ) )
         {
             Uint32 xpgain;
-            GameObject * pchr = _gameObjects.get( PlaStack.lst[docheat].index );
+            Object * pchr = _gameObjects.get( PlaStack.lst[docheat].index );
             const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
             //Give 10% of XP needed for next level
@@ -2262,7 +1677,7 @@ void check_stats()
         else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
-        const std::shared_ptr<GameObject> &player = _gameObjects[PlaStack.lst[docheat].index];
+        const std::shared_ptr<Object> &player = _gameObjects[PlaStack.lst[docheat].index];
 
         //Apply the cheat if valid
         if (player)
@@ -2342,7 +1757,7 @@ void show_stat( int statindex )
 
         if ( _gameObjects.exists( character ) )
         {
-            GameObject * pchr = _gameObjects.get( character );
+            Object * pchr = _gameObjects.get( character );
 
             const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
 
@@ -2405,7 +1820,7 @@ void show_armor( int statindex )
 
     SKIN_T  skinlevel;
 
-    GameObject * pchr;
+    Object * pchr;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
 
@@ -2451,7 +1866,7 @@ void show_armor( int statindex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_chr_regeneration( GameObject * pchr, int * pliferegen, int * pmanaregen )
+bool get_chr_regeneration( Object * pchr, int * pliferegen, int * pmanaregen )
 {
     /// @author ZF
     /// @details Get a character's life and mana regeneration, considering all sources
@@ -2497,7 +1912,7 @@ void show_full_status( int statindex )
 
     CHR_REF character;
     int manaregen, liferegen;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
     character = StatusList.lst[statindex].who;
@@ -2538,7 +1953,7 @@ void show_magic_status( int statindex )
 
     CHR_REF character;
     const char * missile_str;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
 
@@ -2583,7 +1998,7 @@ void tilt_characters_to_terrain()
 
     Uint8 twist;
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if ( object->isTerminated() ) continue;
 
@@ -2711,9 +2126,9 @@ void game_load_global_profiles()
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_setup_apply(std::shared_ptr<GameObject> pchr, spawn_file_info_t *pinfo ) //note: intentonally copy and not reference on pchr
+bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //note: intentonally copy and not reference on pchr
 {
-    GameObject *pparent = nullptr;
+    Object *pparent = nullptr;
     if ( _gameObjects.exists( pinfo->parent ) ) {
         pparent = _gameObjects.get( pinfo->parent );
     }
@@ -2763,7 +2178,7 @@ bool chr_setup_apply(std::shared_ptr<GameObject> pchr, spawn_file_info_t *pinfo 
     // automatically identify and unkurse all player starting equipment? I think yes.
     if ( !PMod->isImportValid() && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
     {
-        GameObject *pitem;
+        Object *pitem;
         pchr->nameknown = true;
 
         //Unkurse both inhand items
@@ -2860,7 +2275,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     // Spawn the character
     new_object = spawn_one_character(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);
     
-    const std::shared_ptr<GameObject> &pobject = _gameObjects[new_object];
+    const std::shared_ptr<Object> &pobject = _gameObjects[new_object];
     if (!pobject) return false;
 
     // determine the attachment
@@ -3281,7 +2696,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     int     number_added, number_attached;
     int     amount, attempts;
     PRT_REF particle;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( !_gameObjects.exists( character ) ) return 0;
     pchr = _gameObjects.get( character );
@@ -3469,7 +2884,7 @@ void game_release_module_data()
 bool attach_one_particle( prt_bundle_t * pbdl_prt )
 {
     prt_t * pprt;
-    GameObject * pchr;
+    Object * pchr;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
     pprt = pbdl_prt->prt_ptr;
@@ -3514,7 +2929,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
     /// @details This function adds a player, returning false if it fails, true otherwise
 
     player_t * ppla = NULL;
-    GameObject    * pchr = NULL;
+    Object    * pchr = NULL;
 
     if ( !VALID_PLA_RANGE( player ) ) return false;
     ppla = PlaStack.get_ptr( player );
@@ -3567,7 +2982,7 @@ void let_all_characters_think()
 
     blip_count = 0;
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if(object->isTerminated()) {
             continue;
@@ -3723,7 +3138,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     int    cnt;
     STRING szTmp;
 
-    GameObject      * pchr, *ptarget, *powner;
+    Object      * pchr, *ptarget, *powner;
     ai_state_t * pai;
 
     pchr    = !_gameObjects.exists( ichr ) ? NULL : _gameObjects.get( ichr );
@@ -3779,7 +3194,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pai )
                         {
-                            const std::shared_ptr<GameObject> &target = _gameObjects[pai->target];
+                            const std::shared_ptr<Object> &target = _gameObjects[pai->target];
                             if(target)
                             {
                                 strncpy(szTmp, target->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
@@ -3790,7 +3205,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 
                 case 'o':  // Owner name
                     {
-                        const std::shared_ptr<GameObject> &owner = _gameObjects[pai->owner];
+                        const std::shared_ptr<Object> &owner = _gameObjects[pai->owner];
                         if(owner)
                         {
                             strncpy(szTmp, owner->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
@@ -4021,64 +3436,6 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     }
     *dst_end = CSTR_END;
 }
-
-#if 0
-//--------------------------------------------------------------------------------------------
-bool game_choose_module( MOD_REF imod )
-{
-    // give everyone virtual access to the game directories
-    setup_init_module_vfs_paths( pickedmodule_path );
-    _currentModuleID = imod;
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-game_process_t * game_process_init( game_process_t * gproc )
-{
-    if ( NULL == gproc ) return NULL;
-
-    BLANK_STRUCT_PTR( gproc )
-
-    process_t::init( PROC_PBASE( gproc ) );
-
-    gproc->menu_depth = -1;
-    gproc->pause_key_ready = true;
-
-    // initialize all the profile variables
-    PROFILE_INIT( game_update_loop );
-    PROFILE_INIT( game_single_update );
-    PROFILE_INIT( gfx_loop );
-
-    PROFILE_INIT( talk_to_remotes );
-    PROFILE_INIT( egonet_listen_for_packets );
-    PROFILE_INIT( check_stats );
-    PROFILE_INIT( set_local_latches );
-    PROFILE_INIT( cl_talkToHost );
-
-    return gproc;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-void do_game_hud()
-{
-    int y = 0;
-
-    if ( gfx_flip_pages_requested() && cfg.dev_mode )
-    {
-		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-
-        if ( fpson )
-        {
-            y = draw_string( 0, y, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_game_ups );
-            y = draw_string( 0, y, "estimated max FPS %2.3f", est_max_fps ); \
-        }
-
-        y = draw_string( 0, y, "Menu time %f", MProc->base.frameDuration );
-    }
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -4548,7 +3905,7 @@ Uint8 get_light( int light, float seedark_mag )
 //--------------------------------------------------------------------------------------------
 bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 {
-    GameObject * pdropper, * pitem;
+    Object * pdropper, * pitem;
     bool inshop;
 
     if ( !_gameObjects.exists( iitem ) ) return false;
@@ -4566,7 +3923,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
         if ( _gameObjects.exists( iowner ) )
         {
             int price;
-            GameObject * powner = _gameObjects.get( iowner );
+            Object * powner = _gameObjects.get( iowner );
 
             inshop = true;
 
@@ -4599,7 +3956,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     bool can_grab, can_pay, in_shop;
     int price;
 
-    GameObject * ppicker, * pitem;
+    Object * ppicker, * pitem;
 
     if ( !_gameObjects.exists( iitem ) ) return false;
     pitem = _gameObjects.get( iitem );
@@ -4618,7 +3975,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         iowner = PMod->getShopOwner( pitem->getPosX(), pitem->getPosY() );
         if ( _gameObjects.exists( iowner ) )
         {
-            GameObject * powner = _gameObjects.get( iowner );
+            Object * powner = _gameObjects.get( iowner );
 
             in_shop = true;
             price   = chr_get_price( iitem );
@@ -4678,7 +4035,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 
     bool can_steal;
 
-    GameObject * pthief, * pitem;
+    Object * pthief, * pitem;
 
     if ( !_gameObjects.exists( iitem ) ) return false;
     pitem = _gameObjects.get( iitem );
@@ -4696,7 +4053,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
         {
             IPair  tmp_rand = {1, 100};
             int  detection;
-            GameObject * powner = _gameObjects.get( iowner );
+            Object * powner = _gameObjects.get( iowner );
 
             detection = generate_irand_pair( tmp_rand );
 
@@ -4718,7 +4075,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 {
     bool can_grab;
     bool is_invis, can_steal;
-    GameObject * pchr, * pitem, *pkeeper;
+    Object * pchr, * pitem, *pkeeper;
     CHR_REF shop_keeper;
 
     if ( !_gameObjects.exists( ichr ) ) return false;
@@ -4801,7 +4158,7 @@ float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_2( ego_mesh_t * pmesh, GameObject * pchr )
+float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
 {
     /// @author BB
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
@@ -4831,7 +4188,7 @@ float get_mesh_max_vertex_2( ego_mesh_t * pmesh, GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_chr_level( ego_mesh_t * pmesh, GameObject * pchr )
+float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
 {
     float zmax;
     int ix, ixmax, ixmin;
@@ -4927,7 +4284,7 @@ void disenchant_character( const CHR_REF cnt )
     /// @author ZZ
     /// @details This function removes all enchantments from a character
 
-    GameObject * pchr;
+    Object * pchr;
     size_t ienc_count;
 
     if ( !_gameObjects.exists( cnt ) ) return;
@@ -4948,7 +4305,7 @@ void disenchant_character( const CHR_REF cnt )
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_character_enchants( GameObject * pchr )
+void cleanup_character_enchants( Object * pchr )
 {
     if ( NULL == pchr ) return;
 
@@ -4958,7 +4315,7 @@ void cleanup_character_enchants( GameObject * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool attach_GameObjecto_platform( GameObject * pchr, GameObject * pplat )
+bool attach_Objecto_platform( Object * pchr, Object * pplat )
 {
     /// @author BB
     /// @details attach a character to a platform
@@ -5019,7 +4376,7 @@ bool attach_GameObjecto_platform( GameObject * pchr, GameObject * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-bool detach_character_from_platform( GameObject * pchr )
+bool detach_character_from_platform( Object * pchr )
 {
     /// @author BB
     /// @details attach a character to a platform
@@ -5028,7 +4385,7 @@ bool detach_character_from_platform( GameObject * pchr )
     ///  move_one_character() function, so the environment has already been determined this round
 
     CHR_REF old_platform_ref;
-    GameObject * old_platform_ptr;
+    Object * old_platform_ptr;
     float   old_level, old_zlerp;
 
     // verify that we do not have two dud pointers
@@ -5070,7 +4427,7 @@ bool detach_character_from_platform( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool attach_prt_to_platform( prt_t * pprt, GameObject * pplat )
+bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
 {
     /// @author BB
     /// @details attach a particle to a platform
@@ -5236,7 +4593,7 @@ egolib_rv import_list_from_players( import_list_t * imp_lst )
     import_element_t      * import_ptr = NULL;
 
     CHR_REF                 ichr;
-    GameObject                 * pchr;
+    Object                 * pchr;
 
     if ( NULL == imp_lst ) return rv_error;
 

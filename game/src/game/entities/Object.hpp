@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file game/entities/Object.hpp
-/// @details An object representing instances of in-game egoboo objects (GameObject)
+/// @details An object representing instances of in-game egoboo objects (Object)
 /// @author Johan Jansen
 
 #pragma once
@@ -35,7 +35,7 @@
 #include "egolib/IDSZ_map.h"
 
 //Macros
-#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<GameObject::MAXNUMINPACK;IT##_internal++) { CHR_REF IT; GameObject * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_gameObjects.exists (IT)) continue; PITEM = _gameObjects.get( IT );
+#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<Object::MAXNUMINPACK;IT##_internal++) { CHR_REF IT; Object * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_gameObjects.exists (IT)) continue; PITEM = _gameObjects.get( IT );
 #define PACK_END_LOOP() } }
 
 /// The possible methods for characters to determine what direction they are facing
@@ -97,7 +97,7 @@ struct chr_spawn_data_t
 };
 
 /// The definition of the character object.
-class GameObject
+class Object
 {
 public:
 	static const size_t MAXNUMINPACK = 6; ///< Max number of items to carry in pack
@@ -108,12 +108,12 @@ public:
     * @param profile Which character profile this character should be spawned with
     * @param id The unique CHR_REF associated with this character
     **/
-    GameObject(const PRO_REF profile, const CHR_REF id);
+    Object(const PRO_REF profile, const CHR_REF id);
 
     /**
     * @brief Deconstructor
     **/
-    virtual ~GameObject();
+    virtual ~Object();
 
     /**
     * @brief Gets a shared_ptr to the current ObjectProfile associated with this character.
@@ -133,7 +133,7 @@ public:
 
     /**
     * @brief
-    *   This function updates stats and such for this GameObject (called once per update loop)
+    *   This function updates stats and such for this Object (called once per update loop)
     **/
     void update();
 
@@ -149,15 +149,15 @@ public:
 
     /**
     * @return
-    *   true if this GameObject has been terminated and will be removed from the game.
-    *   If this value is true, then this GameObject is effectively no longer a part of
+    *   true if this Object has been terminated and will be removed from the game.
+    *   If this value is true, then this Object is effectively no longer a part of
     *   the game and should not be interacted with.
     **/
     inline bool isTerminated() const {return _terminateRequested;}
 
     /**
     * @brief
-    *   This function returns true if this GameObject is emerged in water
+    *   This function returns true if this Object is emerged in water
     * @param anyLiquid
     *   Return true for any fluid and not only water (acid, lava etc.)
     * @return 
@@ -166,33 +166,33 @@ public:
     bool isInWater(bool anyLiquid) const;
 
     /**
-    * @return Get current X, Y, Z position of this GameObject
+    * @return Get current X, Y, Z position of this Object
     **/
     inline const fvec3_t& getPosition() const {return _position;}
 
     /**
-    * @return Get current X position of this GameObject
+    * @return Get current X position of this Object
     **/
     inline float getPosX() const {return _position.x;}
 
     /**
-    * @return Get current Y position of this GameObject
+    * @return Get current Y position of this Object
     **/
     inline float getPosY() const {return _position.y;}
 
     /**
-    * @return Get current Z position of this GameObject
+    * @return Get current Z position of this Object
     **/
     inline float getPosZ() const {return _position.z;}
 
     /**
-    * @brief Set current X, Y, Z position of this GameObject
+    * @brief Set current X, Y, Z position of this Object
     * @return true if the position of this object has changed
     **/
     bool setPosition(const fvec3_t &position);
 
     /**
-    * @brief Set current X, Y, Z position of this GameObject
+    * @brief Set current X, Y, Z position of this Object
     * @return true if the position of this object has changed
     **/
     inline bool setPosition(const float x, const float y, const float z) {return setPosition(fvec3_t(x, y, z));}
@@ -203,32 +203,32 @@ public:
     void movePosition(const float x, const float y, const float z);
 
     /**
-    * @brief Sets the transparency for this GameObject
+    * @brief Sets the transparency for this Object
     * @param alpha Transparency level between 0 (fully transparent) and 255 (fully opaque)
     **/
     void setAlpha(const int alpha);
 
     /**
-    * @brief Sets the shininess of this GameObject
+    * @brief Sets the shininess of this Object
     * @param alpha Transparency level between 0 (no shine effect) and 255 (completely shiny)
     **/
     void setSheen(const int sheen);
 
     /**
-    * @brief Sets the transparency for this GameObject
+    * @brief Sets the transparency for this Object
     * @param light Transparency level between 0 (fully transparent) and 255 (fully opaque)
     **/
     void setLight(const int light);
 
     /**
-    * @brief Checks if this GameObject is able to mount (ride) another GameObject
-    * @param mount Which GameObject we are trying to mount
-    * @return true if we are able to mount the specified GameObject
+    * @brief Checks if this Object is able to mount (ride) another Object
+    * @param mount Which Object we are trying to mount
+    * @return true if we are able to mount the specified Object
     **/
-	bool canMount(const std::shared_ptr<GameObject> mount) const;
+	bool canMount(const std::shared_ptr<Object> mount) const;
 
 	/**
-	* @return true if this GameObject is mountable by other GameObjects
+	* @return true if this Object is mountable by other Objects
 	**/
 	bool isMount() const {return getProfile()->isMount();}
 
@@ -258,7 +258,7 @@ public:
     *   which team is dealing the damage
     *
     * @param attacker 
-    *   The GameObject which is dealing the damage to this GameObject
+    *   The Object which is dealing the damage to this Object
     *
     * @param effects 
     *   is a BIT_FIELD of various flags which affect how we determine damage.
@@ -267,7 +267,7 @@ public:
     *   if this is true, then we allow damaging this object even though it is normally immune to damage.
     **/
     int damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
-            const std::shared_ptr<GameObject> &attacker, const BIT_FIELD effects, const bool ignore_invictus);
+            const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus);
 
     /**
      * @brief
@@ -277,21 +277,21 @@ public:
      * @param amount
      *  the amount to heal the character
      */
-    bool heal(const std::shared_ptr<GameObject> &healer, const UFP8_T amount, const bool ignoreInvincibility);
+    bool heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, const bool ignoreInvincibility);
 
     /**
-    * @return true if this GameObject is currently doing an attack animation
+    * @return true if this Object is currently doing an attack animation
     **/
     bool isAttacking() const;
 
     /**
-    * @return true if this GameObject is controlled by a player
+    * @return true if this Object is controlled by a player
     **/
     bool isPlayer() const {return islocalplayer;}
 
     /**
     * @brief
-    *   Returns true if this GameObject has not been killed by anything
+    *   Returns true if this Object has not been killed by anything
     **/
     bool isAlive() const {return alive;}
 
@@ -301,7 +301,7 @@ public:
 
     /**
     * @brief
-    *   Tries to teleport this GameObject to the specified location if it is valid
+    *   Tries to teleport this Object to the specified location if it is valid
     * @result
     *   Success returns true, failure returns false;
     **/
@@ -321,9 +321,9 @@ public:
 
     /**
     * @brief
-    *   Checks if this GameObject is facing (looking) towards the specified location
+    *   Checks if this Object is facing (looking) towards the specified location
     * @return
-    *   true if the specified location is within a 60 degree cone of vision for this GameObject
+    *   true if the specified location is within a 60 degree cone of vision for this Object
     **/
     bool isFacingLocation(const float x, const float y) const;
 
@@ -334,7 +334,7 @@ private:
     *        handles if the attacker is a held item (so that the holder becomes the attacker). The function also
     *        updates alerts, timers, etc. This function can trigger character cries like "That tickles!" or "Be careful!"
     **/
-    void updateLastAttacker(const std::shared_ptr<GameObject> &attacker, bool healing);
+    void updateLastAttacker(const std::shared_ptr<Object> &attacker, bool healing);
 
     /**
     * @brief 

@@ -29,22 +29,6 @@
 #include "egolib/math/Cube.hpp"
 #include "egolib/matrix.h"
 
-enum e_frustum_planes
-{
-	FRUST_PLANE_RIGHT = 0,
-	FRUST_PLANE_LEFT,
-	FRUST_PLANE_BOTTOM,
-	FRUST_PLANE_TOP,
-	FRUST_PLANE_BACK,  ///< the back/far plane
-	FRUST_PLANE_FRONT, ///< the front/near plane
-	FRUST_PLANE_COUNT,
-
-	// some aliases
-	FRUST_PLANE_END = FRUST_PLANE_FRONT,
-	FRUST_SIDES_END = FRUST_PLANE_TOP
-};
-
-typedef plane_base_t frustum_base_t[FRUST_PLANE_COUNT];
 
 /**
  * @brief
@@ -53,13 +37,31 @@ typedef plane_base_t frustum_base_t[FRUST_PLANE_COUNT];
  */
 struct egolib_frustum_t
 {
+    enum Planes
+    {
+        RIGHT = 0,
+        LEFT,
+        BOTTOM,
+        TOP,
+        BACK,  ///< the back/far plane
+        FRONT, ///< the front/near plane
+        COUNT,
+
+        // some aliases
+        BEGIN = RIGHT,       ///< The index of the first plane.
+        END = FRONT,         ///< The index of the last plane.
+        SIDES_BEGIN = RIGHT, ///< The index of the first side (left, right, bottom, top) plane.
+                             ///< The side planes have indices from SIDES_BEGIN to SIDES_END.
+        SIDES_END = TOP      ///< The index of the last side plane.
+    };
+    typedef plane_base_t base_t[Planes::COUNT];
     // basic frustum data
-    frustum_base_t data;
+    base_t _planes;
 
     // data for intersection optimization
-    fvec3_t origin;
-    sphere_t sphere;
-    cone_t cone;
+    fvec3_t _origin;
+    sphere_t _sphere;
+    cone_t _cone;
 	/**
 	 * @brief
 	 *	Get the relation of a point to this frustum.
@@ -148,15 +150,19 @@ struct egolib_frustum_t
 
 	/// @todo Should return geometry_rv.
 	bool intersects_oct(const oct_bb_t *oct, const bool doEnds) const;
-};
 
-/**
- * @brief
- *	Call this every time the camera moves or the projection matrix changes to update the frustum
- * @param projection
- *	the projection matrix
- * @param view
- *	the view matrix
- */
-egolib_rv egolib_frustum_calculate(egolib_frustum_t *self, const fmat_4x4_t& projection, const fmat_4x4_t& view);
+    /**
+    * @brief
+    *	Call this every time the camera moves or the projection matrix changes to update the frustum
+    * @param projection
+    *	the projection matrix
+    * @param view
+    *	the view matrix
+    */
+    void calculate(const fmat_4x4_t& projection, const fmat_4x4_t& view);
+protected:
+    /// Call this every time the camera moves to update the frustum
+    static void calculate(base_t planes, const fmat_4x4_t& projection, const fmat_4x4_t& view);
+
+};
 

@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------
 
 // Forward declarations.
-class GameObject;
+class Object;
 struct egoboo_config_t;
 struct chr_instance_t;
 
@@ -244,8 +244,8 @@ struct dolist_t
 	static dolist_t *init(dolist_t *self, const size_t index = 0);
 	static gfx_rv reset(dolist_t *self, const size_t index);
 	static gfx_rv sort(dolist_t *self, std::shared_ptr<Camera> camera, const bool reflect);
-	static gfx_rv test_chr(dolist_t *self, const GameObject *pchr);
-	static gfx_rv add_chr_raw(dolist_t *self, GameObject *pchr);
+	static gfx_rv test_chr(dolist_t *self, const Object *pchr);
+	static gfx_rv add_chr_raw(dolist_t *self, Object *pchr);
 	static gfx_rv test_prt(dolist_t *self, const prt_t *pprt);
 	static gfx_rv add_prt_raw(dolist_t *self, prt_t *pprt);
 	/// @brief Insert character or particle entities into this dolist.
@@ -339,7 +339,6 @@ struct gfx_config_t
 };
 
 bool gfx_config_init( gfx_config_t * pgfx );
-bool gfx_system_set_virtual_screen( gfx_config_t * pgfx );
 bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, egoboo_config_t * pcfg );
 
 //--------------------------------------------------------------------------------------------
@@ -428,7 +427,6 @@ void  draw_map_texture( float x, float y );
 float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
 float draw_status( const CHR_REF character, float x, float y );
 void  draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_ammo, Uint8 sparkle_override );
-void  draw_cursor();
 void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map );
 
 //void   make_lightdirectionlookup();

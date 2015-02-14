@@ -31,6 +31,7 @@
 #include "game/profiles/_Include.hpp"
 #include "game/entities/_Include.hpp"
 #include "game/char.h"
+#include "game/core/GameEngine.hpp"
 #include "game/graphics/CameraSystem.hpp"
 
 
@@ -122,7 +123,7 @@ void scr_run_chr_script( const CHR_REF character )
     /// @details This function lets one character do AI stuff
 
     script_state_t   my_state;
-    GameObject          * pchr;
+    Object          * pchr;
     ai_state_t     * pself;
     script_info_t    * pscript;
 
@@ -207,7 +208,7 @@ void scr_run_chr_script( const CHR_REF character )
     // Reset the target if it can't be seen
     if ( pself->target != pself->index )
     {
-        GameObject * ptarget = _gameObjects.get( pself->target );
+        Object * ptarget = _gameObjects.get( pself->target );
 
         if ( !chr_can_see_object( pchr, ptarget ) )
         {
@@ -886,7 +887,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
     Uint32 iTmp;
 
-    GameObject * pchr = NULL, * ptarget = NULL, * powner = NULL;
+    Object * pchr = NULL, * ptarget = NULL, * powner = NULL;
 
     if ( !_gameObjects.exists( pself->index ) ) return;
     pchr = _gameObjects.get( pself->index );
@@ -1028,7 +1029,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARLEADERDISTANCE:
                 {
-                    GameObject * pleader;
+                    Object * pleader;
                     varname = "LEADERDISTANCE";
 
                     pleader = team_get_pleader( pchr->team );
@@ -1574,7 +1575,7 @@ void set_alerts( const CHR_REF character )
     /// @author ZZ
     /// @details This function polls some alert conditions
 
-    GameObject      * pchr;
+    Object      * pchr;
     ai_state_t * pai;
     bool at_waypoint;
 
@@ -1638,7 +1639,7 @@ void issue_order( const CHR_REF character, Uint32 value )
     /// @details This function issues an value for help to all teammates
     int counter = 0;
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if ( object->isTerminated() ) continue;
 
@@ -1657,7 +1658,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     /// @details This function issues an order to all characters with the a matching special IDSZ
     int counter = 0;
 
-    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if ( object->isTerminated() ) continue;
 
@@ -1781,7 +1782,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
     if ( !_gameObjects.exists( ichr ) ) return false;
 
     // 5 bumps per second?
-    if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + TARGET_UPS / 5 )
+    if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + GameEngine::GAME_TARGET_UPS / 5 )
     {
         pself->bumplast_time = update_wld;
         SET_BIT( pself->alert, ALERTIF_BUMPED );
@@ -1794,7 +1795,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
 {
-    GameObject * pchr;
+    Object * pchr;
 
     pself = ai_state_ctor( pself );
 

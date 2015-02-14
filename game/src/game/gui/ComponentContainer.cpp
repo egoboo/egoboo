@@ -2,7 +2,6 @@
 #include "game/gamestates/GameState.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/gui/GUIComponent.hpp"
-#include "game/ui.h"
 
 ComponentContainer::ComponentContainer() :
     _componentList(),
@@ -46,7 +45,6 @@ void ComponentContainer::drawAll()
 
     //Draw reach GUI component
     _gameEngine->getUIManager()->beginRenderUI();
-    ui_beginFrame(0);
     _componentListMutex.lock();
     for(const std::shared_ptr<GUIComponent> component : _componentList)
     {

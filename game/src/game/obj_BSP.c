@@ -100,7 +100,7 @@ obj_BSP_t::~obj_BSP_t()
  */
 bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
 {
-    GameObject * pchr;
+    Object * pchr;
 
     bool can_be_reaffirmed;
     bool can_grab_money;
@@ -115,7 +115,7 @@ bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
     {
         return false;
     }
-    pchr = ( GameObject * )( pchr_leaf->data );
+    pchr = ( Object * )( pchr_leaf->data );
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
@@ -225,7 +225,7 @@ bool chr_BSP_is_visible(BSP_leaf_t * pchr_leaf)
     {
         return false;
     }
-	GameObject *pchr = (GameObject *)(pchr_leaf->data);
+	Object *pchr = (Object *)(pchr_leaf->data);
 
     if (!ACTIVE_PCHR(pchr)) return false;
 

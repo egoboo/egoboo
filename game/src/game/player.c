@@ -59,7 +59,7 @@ CHR_REF PlaStack_get_ichr(const PLA_REF iplayer)
 }
 
 //--------------------------------------------------------------------------------------------
-GameObject *PlaStack_get_pchr(const PLA_REF iplayer)
+Object *PlaStack_get_pchr(const PLA_REF iplayer)
 {
     player_t * pplayer;
 

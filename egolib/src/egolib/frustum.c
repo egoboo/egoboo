@@ -26,130 +26,115 @@
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/_math.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// Call this every time the camera moves to update the frustum
-static void frustum_calculate(frustum_base_t pf, const fmat_4x4_t& proj, const fmat_4x4_t& modl);
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void frustum_calculate(frustum_base_t planes, const fmat_4x4_t& projection, const fmat_4x4_t& view)
+void egolib_frustum_t::calculate(base_t planes, const fmat_4x4_t& projection, const fmat_4x4_t& view)
 {
     float clip[16];        // This will hold the clipping planes
 
 	//fmat_4x4_t _clip = projection * view;
     mat_Multiply(clip, projection.v, view.v);
 
-    // This will extract the FRUST_PLANE_RIGHT side of the frustum
-    planes[FRUST_PLANE_RIGHT][kX] = clip[ 3] - clip[ 0];
-    planes[FRUST_PLANE_RIGHT][kY] = clip[ 7] - clip[ 4];
-    planes[FRUST_PLANE_RIGHT][kZ] = clip[11] - clip[ 8];
-    planes[FRUST_PLANE_RIGHT][kW] = clip[15] - clip[12];
-    plane_base_normalize(planes + FRUST_PLANE_RIGHT);
+    // This will extract the right side of the frustum.
+    planes[Planes::RIGHT][kX] = clip[ 3] - clip[ 0];
+    planes[Planes::RIGHT][kY] = clip[ 7] - clip[ 4];
+    planes[Planes::RIGHT][kZ] = clip[11] - clip[ 8];
+    planes[Planes::RIGHT][kW] = clip[15] - clip[12];
+    plane_base_normalize(planes + Planes::RIGHT);
 
-    // This will extract the FRUST_PLANE_LEFT side of the frustum
-    planes[FRUST_PLANE_LEFT][kX] = clip[ 3] + clip[ 0];
-    planes[FRUST_PLANE_LEFT][kY] = clip[ 7] + clip[ 4];
-    planes[FRUST_PLANE_LEFT][kZ] = clip[11] + clip[ 8];
-    planes[FRUST_PLANE_LEFT][kW] = clip[15] + clip[12];
-    plane_base_normalize(planes + FRUST_PLANE_LEFT);
+    // This will extract the left side of the frustum.
+    planes[Planes::LEFT][kX] = clip[ 3] + clip[ 0];
+    planes[Planes::LEFT][kY] = clip[ 7] + clip[ 4];
+    planes[Planes::LEFT][kZ] = clip[11] + clip[ 8];
+    planes[Planes::LEFT][kW] = clip[15] + clip[12];
+    plane_base_normalize(planes + Planes::LEFT);
 
-    // This will extract the FRUST_PLANE_BOTTOM side of the frustum
-    planes[FRUST_PLANE_BOTTOM][kX] = clip[ 3] + clip[ 1];
-    planes[FRUST_PLANE_BOTTOM][kY] = clip[ 7] + clip[ 5];
-    planes[FRUST_PLANE_BOTTOM][kZ] = clip[11] + clip[ 9];
-    planes[FRUST_PLANE_BOTTOM][kW] = clip[15] + clip[13];
-    plane_base_normalize(planes + FRUST_PLANE_BOTTOM);
+    // This will extract the bottom side of the frustum.
+    planes[Planes::BOTTOM][kX] = clip[ 3] + clip[ 1];
+    planes[Planes::BOTTOM][kY] = clip[ 7] + clip[ 5];
+    planes[Planes::BOTTOM][kZ] = clip[11] + clip[ 9];
+    planes[Planes::BOTTOM][kW] = clip[15] + clip[13];
+    plane_base_normalize(planes + Planes::BOTTOM);
 
-    // This will extract the FRUST_PLANE_TOP side of the frustum
-    planes[FRUST_PLANE_TOP][kX] = clip[ 3] - clip[ 1];
-    planes[FRUST_PLANE_TOP][kY] = clip[ 7] - clip[ 5];
-    planes[FRUST_PLANE_TOP][kZ] = clip[11] - clip[ 9];
-    planes[FRUST_PLANE_TOP][kW] = clip[15] - clip[13];
-    plane_base_normalize(planes + FRUST_PLANE_TOP);
+    // This will extract the top side of the frustum.
+    planes[Planes::TOP][kX] = clip[ 3] - clip[ 1];
+    planes[Planes::TOP][kY] = clip[ 7] - clip[ 5];
+    planes[Planes::TOP][kZ] = clip[11] - clip[ 9];
+    planes[Planes::TOP][kW] = clip[15] - clip[13];
+    plane_base_normalize(planes + Planes::TOP);
 
-    // This will extract the FRUST_PLANE_BACK side of the frustum
-    planes[FRUST_PLANE_BACK][kX] = clip[ 3] - clip[ 2];
-    planes[FRUST_PLANE_BACK][kY] = clip[ 7] - clip[ 6];
-    planes[FRUST_PLANE_BACK][kZ] = clip[11] - clip[10];
-    planes[FRUST_PLANE_BACK][kW] = clip[15] - clip[14];
-    plane_base_normalize(planes + FRUST_PLANE_BACK);
+    // This will extract the back side of the frustum.
+    planes[Planes::BACK][kX] = clip[ 3] - clip[ 2];
+    planes[Planes::BACK][kY] = clip[ 7] - clip[ 6];
+    planes[Planes::BACK][kZ] = clip[11] - clip[10];
+    planes[Planes::BACK][kW] = clip[15] - clip[14];
+    plane_base_normalize(planes + Planes::BACK);
 
-    // This will extract the FRUST_PLANE_FRONT side of the frustum
-    planes[FRUST_PLANE_FRONT][kX] = clip[ 3] + clip[ 2];
-    planes[FRUST_PLANE_FRONT][kY] = clip[ 7] + clip[ 6];
-    planes[FRUST_PLANE_FRONT][kZ] = clip[11] + clip[10];
-    planes[FRUST_PLANE_FRONT][kW] = clip[15] + clip[14];
-    plane_base_normalize(planes + FRUST_PLANE_FRONT);
+    // This will extract the front side of the frustum.
+    planes[Planes::FRONT][kX] = clip[ 3] + clip[ 2];
+    planes[Planes::FRONT][kY] = clip[ 7] + clip[ 6];
+    planes[Planes::FRONT][kZ] = clip[11] + clip[10];
+    planes[Planes::FRONT][kW] = clip[15] + clip[14];
+    plane_base_normalize(planes + Planes::FRONT);
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-egolib_rv egolib_frustum_calculate(egolib_frustum_t *self, const fmat_4x4_t& projection, const fmat_4x4_t& view)
+void egolib_frustum_t::calculate(const fmat_4x4_t& projection, const fmat_4x4_t& view)
 {
     fvec3_t pt1;
     fvec3_t vlook, vfar;
 
-    if (!self) return rv_error;
-
-    //---- construct the basic frustum
+    // Compute the 6 frustum planes.
     {
-        frustum_calculate(self->data, projection, view);
+        egolib_frustum_t::calculate(_planes, projection, view);
     }
 
-    //---- construct the camera location
+    // Compute the origin.
     {
         // the origin of the frustum (should be the camera position)
-        three_plane_intersection(self->origin, self->data[FRUST_PLANE_RIGHT],
-			                                   self->data[FRUST_PLANE_LEFT],
-											   self->data[FRUST_PLANE_BOTTOM]);
+        three_plane_intersection(_origin, _planes[Planes::RIGHT],
+			                              _planes[Planes::LEFT],
+									      _planes[Planes::BOTTOM]);
     }
 
-    //---- construct the sphere
+    // Compute the sphere.
     {
         // extract the view direction from the view matrix
         mat_getCamForward(view, vlook);
 
         // one far corner of the frustum
-        three_plane_intersection(pt1, self->data[FRUST_PLANE_TOP],
-			                          self->data[FRUST_PLANE_RIGHT],
-									  self->data[FRUST_PLANE_BACK]);
+        three_plane_intersection(pt1, _planes[Planes::TOP],
+			                          _planes[Planes::RIGHT],
+									  _planes[Planes::BACK]);
 
         // get the distance from the origin to the far plane
-        float dist = plane_point_distance(self->data[FRUST_PLANE_BACK], self->origin.v);
+        float dist = plane_point_distance(_planes[Planes::BACK], _origin.v);
 
         // calculate the center of the sphere
-		self->sphere.origin = self->origin + vlook * (dist * 0.5f);
+		_sphere.origin = _origin + vlook * (dist * 0.5f);
 
         // the vector from p1 to the center of the sphere
-        fvec3_t vDiff = self->sphere.origin - pt1;
+        fvec3_t vDiff = _sphere.origin - pt1;
 
         // the radius becomes the length of this vector
-		self->sphere.radius = vDiff.length();
+		_sphere.radius = vDiff.length();
     }
 
-    //---- construct the cone
+    // Compute the cone.
     {
         float cos_half_fov;
 
-		self->cone.origin = self->origin;
-		self->cone.axis = vlook;
+		_cone.origin = _origin;
+		_cone.axis = vlook;
 
         // the vector from the origin to the far corner
-        vfar = pt1 - self->cone.origin;
+        vfar = pt1 - _cone.origin;
 
         // the cosine between the view direction and the
         cos_half_fov = vfar.dot(vlook) / vfar.length();
 
         // calculate the required trig functions
-        self->cone.cos_2 = cos_half_fov * cos_half_fov;
-        self->cone.sin_2 = 1.0f - self->cone.cos_2;
-        self->cone.inv_sin = 1.0f / std::sqrt(self->cone.sin_2);
+        _cone.cos_2 = cos_half_fov * cos_half_fov;
+        _cone.sin_2 = 1.0f - _cone.cos_2;
+        _cone.inv_sin = 1.0f / std::sqrt(_cone.sin_2);
     }
-
-    return rv_success;
 }
 
 geometry_rv egolib_frustum_t::intersects_bv(const bv_t *bv,bool doEnds) const
@@ -162,7 +147,6 @@ geometry_rv egolib_frustum_t::intersects_bv(const bv_t *bv,bool doEnds) const
 	return intersects_aabb(bv->aabb.mins, bv->aabb.maxs, doEnds);
 }
 
-//--------------------------------------------------------------------------------------------
 geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool doEnds) const
 {
 	// Handle optional parameters.
@@ -170,12 +154,12 @@ geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool 
 	if (doEnds)
 	{
 		i_stt = 0;
-		i_end = FRUST_PLANE_END;
+		i_end = Planes::END;
 	}
 	else
 	{
 		i_stt = 0;
-		i_end = FRUST_SIDES_END;
+		i_end = Planes::SIDES_END;
 	}
 
 	// Assume the point is inside the frustum.
@@ -184,7 +168,7 @@ geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool 
 	// Scan through the frustum's planes:
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		if (plane_point_distance(data[i], point.v) <= 0.0f)
+		if (plane_point_distance(_planes[i], point.v) <= 0.0f)
 		{
 			inside = false;
 			break;
@@ -194,7 +178,6 @@ geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool 
 	return inside ? geometry_inside : geometry_outside;
 }
 
-//--------------------------------------------------------------------------------------------
 geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bool doEnds) const
 {
 	/// @todo The radius of a sphere shall preserve the invariant to be non-negative.
@@ -213,18 +196,18 @@ geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bo
 	if (doEnds)
 	{
 		i_stt = 0;
-		i_end = FRUST_PLANE_END;
+		i_end = Planes::END;
 	}
 	else
 	{
 		i_stt = 0;
-		i_end = FRUST_SIDES_END;
+		i_end = Planes::SIDES_END;
 	}
 
 	// scan each plane
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		float dist = plane_point_distance(this->data[i], sphere.origin.v);
+		float dist = plane_point_distance(_planes[i], sphere.origin.v);
 
 		// If the sphere is completely behind the current plane, it is outside the frustum.
 		if (dist <= -sphere.radius)
@@ -242,7 +225,6 @@ geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bo
 	return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const
 {
 	fvec3_base_t vmin, vmax;
@@ -255,17 +237,17 @@ geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float
 	if (doEnds)
 	{
 		i_stt = 0;
-		i_end = FRUST_PLANE_END;
+		i_end = Planes::END;
 	}
 	else
 	{
 		i_stt = 0;
-		i_end = FRUST_SIDES_END;
+		i_end = Planes::SIDES_END;
 	}
 
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		const plane_base_t *plane = this->data + i;
+		const plane_base_t *plane = _planes + i;
 
 		// find the most-positive and most-negative points of the aabb
 		for (int j = 0; j < 3; j++)
@@ -302,7 +284,6 @@ geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float
 	return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 geometry_rv egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t& maxs, const bool doEnds) const
 {
 	// Handle optional parameters.
@@ -310,12 +291,12 @@ geometry_rv egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t
 	if (doEnds)
 	{
 		i_stt = 0;
-		i_end = FRUST_PLANE_END;
+		i_end = Planes::END;
 	}
 	else
 	{
 		i_stt = 0;
-		i_end = FRUST_SIDES_END;
+		i_end = Planes::SIDES_END;
 	}
 
 	// Assume the AABB is inside the frustum.
@@ -325,13 +306,13 @@ geometry_rv egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t
 	int i;
 	for (i = i_stt; i <= i_end; i++)
 	{
-		if (geometry_outside == plane_intersects_aabb_max(this->data[i], mins, maxs))
+		if (geometry_outside == plane_intersects_aabb_max(_planes[i], mins, maxs))
 		{
 			retval = geometry_outside;
 			break;
 		}
 
-		if (geometry_outside == plane_intersects_aabb_min(this->data[i], mins, maxs))
+		if (geometry_outside == plane_intersects_aabb_min(_planes[i], mins, maxs))
 		{
 			retval = geometry_intersect;
 			break;
@@ -347,7 +328,7 @@ geometry_rv egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t
 		// This eliminates a geometry_inside == retval test in every iteration of the loop
 		for ( /* nothing */; i <= i_end; i++)
 		{
-			if (geometry_outside == plane_intersects_aabb_max(this->data[i], mins, maxs))
+			if (geometry_outside == plane_intersects_aabb_max(_planes[i], mins, maxs))
 			{
 				retval = geometry_outside;
 				break;

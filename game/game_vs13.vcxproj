@@ -379,10 +379,10 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Enchant.cpp" />
+    <ClCompile Include="src\game\entities\Enchant.cpp" />
     <ClCompile Include="src\game\entities\EnchantHandler.cpp" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\ObjectHandler.cpp" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Particle.cpp" />
+    <ClCompile Include="src\game\entities\ObjectHandler.cpp" />
+    <ClCompile Include="src\game\entities\Particle.cpp" />
     <ClCompile Include="src\game\entities\ParticleHandler.cpp" />
     <ClCompile Include="src\game\entities\Object.cpp" />
     <ClCompile Include="src\game\core\GameEngine.cpp" />
@@ -434,7 +434,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\lighting.c" />
     <ClCompile Include="src\game\link.c" />
     <ClCompile Include="src\game\mad.c" />
-    <ClCompile Include="src\game\menu.c" />
     <ClCompile Include="src\game\mesh.c" />
     <ClCompile Include="src\game\mesh_BSP.c" />
     <ClCompile Include="src\game\mesh_functions.c" />
@@ -450,20 +449,19 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\script_compile.c" />
     <ClCompile Include="src\game\script_functions.c" />
     <ClCompile Include="src\game\script_implementation.c" />
-    <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Enchant.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\_Include.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\EveProfile.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\PipProfile.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\_Include.hpp" />
+    <ClInclude Include="src\game\entities\Enchant.hpp" />
+    <ClInclude Include="src\game\entities\_Include.hpp" />
+    <ClInclude Include="src\game\profiles\EveProfile.hpp" />
+    <ClInclude Include="src\game\profiles\PipProfile.hpp" />
+    <ClInclude Include="src\game\profiles\_Include.hpp" />
     <ClInclude Include="src\game\entities\EnchantHandler.hpp" />
     <ClInclude Include="src\game\entities\Object.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\ObjectHandler.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Particle.hpp" />
+    <ClInclude Include="src\game\entities\ObjectHandler.hpp" />
+    <ClInclude Include="src\game\entities\Particle.hpp" />
     <ClInclude Include="src\game\entities\ParticleHandler.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\LockableList.hpp" />
+    <ClInclude Include="src\game\LockableList.hpp" />
     <ClInclude Include="src\game\core\GameEngine.hpp" />
     <ClInclude Include="src\game\gamestates\GameState.hpp" />
     <ClInclude Include="src\game\gamestates\InGameMenuState.hpp" />
@@ -516,7 +514,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\lighting.h" />
     <ClInclude Include="src\game\link.h" />
     <ClInclude Include="src\game\mad.h" />
-    <ClInclude Include="src\game\menu.h" />
     <ClInclude Include="src\game\mesh.h" />
     <ClInclude Include="src\game\mesh_BSP.h" />
     <ClInclude Include="src\game\mesh_functions.h" />
@@ -532,7 +529,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\script_compile.h" />
     <ClInclude Include="src\game\script_functions.h" />
     <ClInclude Include="src\game\script_implementation.h" />
-    <ClInclude Include="src\game\ui.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Doxyfile" />

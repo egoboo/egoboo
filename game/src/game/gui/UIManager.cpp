@@ -134,3 +134,8 @@ void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, fl
     // Draw the image
     draw_quad_2d(&img, destination, source, true, tint);
 }
+
+Font* UIManager::getDefaultFont() const
+{
+    return _defaultFont;
+}

@@ -152,16 +152,13 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
 	fmat_4x4_t identity = fmat_4x4_t::identity;
     
 	_mProjection.setPerspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
-	//mat_gluPerspective(_mProjection, identity, fov_deg, aspect_ratio, frustum_near, frustum_far);
 	_mProjectionBig.setPerspective(fov_deg_big, aspect_ratio, frustum_near, frustum_far);
-	///mat_gluPerspective(_mProjectionBig, identity, fov_deg_big, aspect_ratio, frustum_near, frustum_far);
 	_mProjectionSmall.setPerspective(fov_deg_small, aspect_ratio, frustum_near, frustum_far);
-	//mat_gluPerspective(_mProjectionSmall, identity, fov_deg_small, aspect_ratio, frustum_near, frustum_far);
     
     // recalculate the frustum, too
-    egolib_frustum_calculate(&( _frustum ), _mProjection, _mView);
-    egolib_frustum_calculate(&( _frustumBig ), _mProjectionBig, _mView);
-    egolib_frustum_calculate(&( _frustumSmall ), _mProjectionSmall, _mView);
+    _frustum.calculate(_mProjection, _mView);
+    _frustumBig.calculate(_mProjectionBig, _mView);
+    _frustumSmall.calculate(_mProjectionSmall, _mView);
 }
 
 void Camera::resetView()
@@ -169,7 +166,7 @@ void Camera::resetView()
 	float roll_deg = RAD_TO_DEG(_roll);
 
     // check for stupidity
-    if (( _pos.x != _center.x ) || ( _pos.y != _center.y ) || ( _pos.z != _center.z ) )
+    if (_pos != _center)
     {
         fmat_4x4_t tmp1, tmp2;
         
@@ -180,9 +177,9 @@ void Camera::resetView()
     }
 
     // the view matrix was updated, so update the frustum
-    egolib_frustum_calculate(&(_frustum), _mProjection, _mView);
-    egolib_frustum_calculate(&(_frustumBig), _mProjectionBig, _mView);
-    egolib_frustum_calculate(&(_frustumSmall), _mProjectionSmall, _mView);	
+    _frustum.calculate(_mProjection, _mView);
+    _frustumBig.calculate(_mProjectionBig, _mView);
+    _frustumSmall.calculate(_mProjectionSmall, _mView);	
 }
 
 void Camera::updatePosition()
@@ -394,7 +391,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	        for(CHR_REF ichr : _trackList)
 	        {
-	            GameObject * pchr = NULL;
+	            Object * pchr = NULL;
 
 	            if ( !_gameObjects.exists( ichr ) ) continue;
 	            pchr = _gameObjects.get( ichr );
@@ -423,14 +420,14 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 	    // "Show me the drama!"
 	    case CAM_PLAYER:
 	    {
-	        GameObject * local_chr_ptrs[MAX_PLAYER];
+	        Object * local_chr_ptrs[MAX_PLAYER];
 	        int local_chr_count = 0;
 
 	        // count the number of local players, first
 	        local_chr_count = 0;
 	        for(CHR_REF ichr : _trackList)
 	        {
-	            GameObject * pchr = NULL;
+	            Object * pchr = NULL;
 
 	            if ( !_gameObjects.exists( ichr ) ) continue;
 	            pchr = _gameObjects.get( ichr );
@@ -467,7 +464,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	            for ( int cnt = 0; cnt < local_chr_count; cnt++ )
 	            {
-	                GameObject * pchr;
+	                Object * pchr;
 	                float weight1, weight2, weight;
 
 	                // we JUST checked the validity of these characters. No need to do it again?

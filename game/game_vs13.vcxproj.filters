@@ -15,12 +15,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Script System Header Files">
-      <UniqueIdentifier>{e06cfe0e-9dce-44b8-98dd-3ef5b6ed32e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Script System Source Files">
-      <UniqueIdentifier>{c1b579e3-b99d-46d8-8691-8bf064a39910}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Sources\Graphics">
       <UniqueIdentifier>{e1e429c1-25c1-46c1-aac1-f0a9df44e3a0}</UniqueIdentifier>
     </Filter>
@@ -75,6 +69,12 @@
     <Filter Include="Game Header Files\Entities">
       <UniqueIdentifier>{1c38aee5-f243-43d6-ad79-52a8428b883b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Sources\Script">
+      <UniqueIdentifier>{b2ff720c-993f-4c5b-9e22-a5e598e8d566}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\Script">
+      <UniqueIdentifier>{f505190e-bdea-4737-9ff4-47d789358e21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\char.c">
@@ -125,9 +125,6 @@
     <ClCompile Include="src\game\mad.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\menu.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\mesh.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -171,9 +168,6 @@
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\script_implementation.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\ui.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\bsp.c">
@@ -275,13 +269,13 @@
     <ClCompile Include="src\game\profiles\ModuleProfile.cpp">
       <Filter>Game Sources\Profile</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Enchant.cpp">
+    <ClCompile Include="src\game\entities\Enchant.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\ObjectHandler.cpp">
+    <ClCompile Include="src\game\entities\ObjectHandler.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Particle.cpp">
+    <ClCompile Include="src\game\entities\Particle.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
     <ClCompile Include="src\game\entities\EnchantHandler.cpp">
@@ -352,9 +346,6 @@
     <ClInclude Include="src\game\mad.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\menu.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\mesh.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -398,9 +389,6 @@
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\script_implementation.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\ui.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\bsp.h">
@@ -502,16 +490,16 @@
     <ClInclude Include="src\game\profiles\ModuleProfile.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\LockableList.hpp">
+    <ClInclude Include="src\game\LockableList.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Enchant.hpp">
+    <ClInclude Include="src\game\entities\Enchant.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\ObjectHandler.hpp">
+    <ClInclude Include="src\game\entities\ObjectHandler.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\Particle.hpp">
+    <ClInclude Include="src\game\entities\Particle.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\game\entities\ParticleHandler.hpp">
@@ -520,19 +508,19 @@
     <ClInclude Include="src\game\entities\EnchantHandler.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\entities\_Include.hpp">
+    <ClInclude Include="src\game\entities\_Include.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\game\entities\Object.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\PipProfile.hpp">
+    <ClInclude Include="src\game\profiles\PipProfile.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\EveProfile.hpp">
+    <ClInclude Include="src\game\profiles\EveProfile.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\_Include.hpp">
+    <ClInclude Include="src\game\profiles\_Include.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
   </ItemGroup>

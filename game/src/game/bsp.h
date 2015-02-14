@@ -117,7 +117,7 @@ void obj_BSP_system_end();
 bool obj_BSP_system_started();
 
 
-bool chr_BSP_insert(GameObject * pchr);
+bool chr_BSP_insert(Object * pchr);
 bool chr_BSP_fill();
 bool chr_BSP_removeAllLeaves();
 bool chr_BSP_can_collide(BSP_leaf_t * pleaf);

@@ -50,12 +50,12 @@ static const float flip_tolerance = 0.25f * 0.5f;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void draw_chr_verts( GameObject * pchr, int vrt_offset, int verts );
+static void draw_chr_verts( Object * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot );
 static void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot );
-static void draw_chr_grips( GameObject * pchr );
-static void draw_chr_attached_grip( GameObject * pchr );
-static void draw_chr_bbox( GameObject * pchr );
+static void draw_chr_grips( Object * pchr );
+static void draw_chr_attached_grip( Object * pchr );
+static void draw_chr_bbox( Object * pchr );
 
 // these functions are only called by render_one_mad()
 static gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
@@ -90,7 +90,7 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
     GLint matrix_mode[1];
     float  uoffset, voffset;
 
-    GameObject          * pchr;
+    Object          * pchr;
     mad_t          * pmad;
     std::shared_ptr<MD2Model> pmd2;
     chr_instance_t * pinst;
@@ -293,7 +293,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
     Uint16 vertex;
     float  uoffset, voffset;
 
-    GameObject          * pchr;
+    Object          * pchr;
     mad_t          * pmad;
     std::shared_ptr<MD2Model> pmd2;
     chr_instance_t * pinst;
@@ -490,7 +490,7 @@ gfx_rv render_one_mad( std::shared_ptr<Camera> pcam, const CHR_REF character, GL
     /// @author ZZ
     /// @details This function picks the actual function to use
 
-    GameObject * pchr;
+    Object * pchr;
     gfx_rv retval;
 
     if ( NULL == pcam )
@@ -541,7 +541,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
     /// @author ZZ
     /// @details This function draws characters reflected in the floor
 
-    GameObject * pchr;
+    Object * pchr;
     chr_instance_t * pinst;
     GLXvector4f tint;
     gfx_rv retval;
@@ -634,7 +634,7 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
     /// @details This function dispatches the rendering of transparent characters
     ///               to the correct function. (this does not handle characer reflection)
 
-    GameObject * pchr;
+    Object * pchr;
     chr_instance_t * pinst;
     GLXvector4f tint;
     bool rendered;
@@ -723,7 +723,7 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 {
-    GameObject * pchr;
+    Object * pchr;
     chr_instance_t * pinst;
     gfx_rv retval = gfx_error;
 
@@ -794,7 +794,7 @@ gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void draw_chr_bbox( GameObject * pchr )
+void draw_chr_bbox( Object * pchr )
 {
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -825,7 +825,7 @@ void draw_chr_bbox( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_chr_verts( GameObject * pchr, int vrt_offset, int verts )
+void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
 {
     /// @author BB
     /// @details a function that will draw some of the vertices of the given character.
@@ -971,10 +971,10 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_chr_attached_grip( GameObject * pchr )
+void draw_chr_attached_grip( Object * pchr )
 {
     mad_t * pholder_mad;
-    GameObject * pholder;
+    Object * pholder;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -988,7 +988,7 @@ void draw_chr_attached_grip( GameObject * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_chr_grips( GameObject * pchr )
+void draw_chr_grips( Object * pchr )
 {
     mad_t * pmad;
 
@@ -1041,7 +1041,7 @@ void draw_chr_grips( GameObject * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void chr_instance_update_lighting_base( chr_instance_t * pinst, GameObject * pchr, bool force )
+void chr_instance_update_lighting_base( chr_instance_t * pinst, Object * pchr, bool force )
 {
     /// @author BB
     /// @details determine the basic per-vertex lighting

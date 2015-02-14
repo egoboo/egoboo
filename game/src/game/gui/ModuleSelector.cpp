@@ -25,7 +25,6 @@
 #include "game/gui/Button.hpp"
 #include "game/profiles/_Include.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/ui.h"
 
 ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules) :
 	_startIndex(0),
@@ -112,13 +111,13 @@ void ModuleSelector::drawContainer()
 
     	//Draw module Name first
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-    	fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 5, getWidth() - 10, 20, 25, nullptr, "%s", _selectedModule->getName().c_str());
+    	fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 5, getWidth() - 10, 20, 25, nullptr, "%s", _selectedModule->getName().c_str());
 
     	//Now difficulty
     	if(_selectedModule->getRank() > 0) {
 	        int textWidth, textHeight;
-	        fnt_getTextSize(ui_getFont(), "Difficulty: ", &textWidth, &textHeight);
-	        fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25, nullptr, "Difficulty: ");
+	        fnt_getTextSize(_gameEngine->getUIManager()->getDefaultFont(), "Difficulty: ", &textWidth, &textHeight);
+	        fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25, nullptr, "Difficulty: ");
 
 	    	//Draw one skull per rated difficulty
 	    	for(int i = 0; i < _selectedModule->getRank(); ++i) {
@@ -156,7 +155,7 @@ void ModuleSelector::drawContainer()
         std::string bufferString = buffer.str();
 
 		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
-	    fnt_drawTextBox_OGL(ui_getFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 45, getWidth() - 10, getHeight()-50, 25, nullptr, "%s", bufferString.c_str());
+	    fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 45, getWidth() - 10, getHeight()-50, 25, nullptr, "%s", bufferString.c_str());
     }
 }
 
