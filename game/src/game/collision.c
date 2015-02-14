@@ -623,14 +623,14 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
 //--------------------------------------------------------------------------------------------
 bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b )
 {
-    Object * pchr_a;
     prt_t * pprt_b;
 
-    // Ignore invalid characters
-    if ( !_gameObjects.exists( ichr_a ) ) return false;
-    pchr_a = _gameObjects.get( ichr_a );
+    const std::shared_ptr<Object> &pchr_a = _gameObjects[ichr_a];
 
     // Ignore invalid characters
+    if ( !pchr_a ) return false;
+
+    // Ignore invalid particles
     if ( !INGAME_PRT( iprt_b ) ) return false;
     pprt_b = PrtList.get_ptr( iprt_b );
 

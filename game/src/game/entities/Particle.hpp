@@ -45,8 +45,6 @@ struct ParticleManager;
 
 #define SPAWNNOCHARACTER                255         ///< For particles that spawn characters...
 
-#define STOPBOUNCINGPART                5.0f        ///< To make particles stop bouncing
-
 extern Stack<pip_t, MAX_PIP> PipStack;
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )

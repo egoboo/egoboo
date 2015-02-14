@@ -4975,7 +4975,7 @@ bool move_one_character_integrate_motion( Object * pchr )
         LOG_NAN( tmp_pos.z );
         if ( tmp_pos.z < grid_level )
         {
-            if ( ABS( pchr->vel.z ) < STOPBOUNCING )
+            if ( std::abs( pchr->vel.z ) < STOPBOUNCING )
             {
                 pchr->vel.z = 0.0f;
                 tmp_pos.z = grid_level;
