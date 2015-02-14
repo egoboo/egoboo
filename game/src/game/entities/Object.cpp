@@ -625,10 +625,6 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     // Don't let characters chase themselves...  That would be silly
     if ( this == attacker.get() ) return;
 
-    //Dont alert if the attacker/healer was on the null team
-    if(attacker->getTeam() == TEAM_NULL) {
-        return;
-    }
 
     // Don't alert the character too much if under constant fire
     if (0 != careful_timer) return;
@@ -640,6 +636,11 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     {
         actual_attacker = attacker->getCharacterID();
 
+        //Dont alert if the attacker/healer was on the null team
+        if(attacker->getTeam() == TEAM_NULL) {
+            return;
+        }
+    
         //Do not alert items damaging (or healing) their holders, healing potions for example
         if ( attacker->attachedto == ai.index ) return;
 

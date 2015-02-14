@@ -36,7 +36,7 @@ SDLCONF_C := $(shell sdl-config --cflags)
 
 #---------------------
 # the compiler options
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_NDEBUG -Wall -fno-builtin -Wfatal-errors -static-libstdc++ -pg
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -Wall -fno-builtin -Wfatal-errors -static-libstdc++ -pg
 #-Wextra -Weffc++
 
 #hush some warnings we dont care about
@@ -46,6 +46,9 @@ CXXFLAGS += -Wno-format -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unus
 CXXFLAGS += -ggdb -fdiagnostics-color=always
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
+
+#Release
+#-D_NDEBUG 
 
 LINKER_LIBS := -lmingw32 -mconsole -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -lSHFolder -lAdvapi32
 LINKER_LIBS += -L../egolib/ -legoboo
