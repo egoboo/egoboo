@@ -442,30 +442,39 @@ void chr_log_script_time( const CHR_REF ichr )
 #endif
 
 //--------------------------------------------------------------------------------------------
-void free_one_character_in_game( const CHR_REF character )
+void free_one_character_in_game(const std::shared_ptr<Object> &pchr)
 {
     /// @author ZZ
-    /// @details This function sticks a character back on the free character stack
-    ///
-    /// @note This should only be called by cleanup_all_characters() or free_inventory_in_game()
+    /// @details Make character safely deleteable
 
-    size_t  cnt;
-    Object * pchr;
+    // Detach the character from the game
+    cleanup_one_character( pchr.get() );
 
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
+    //If we are inside an inventory we need to remove us
+    const std::shared_ptr<Object> &inventoryHolder = _gameObjects[pchr->inwhich_inventory];
+    if(inventoryHolder) {
+        for (size_t i = 0; i < inventoryHolder->inventory.size(); i++)
+        {
+            if(inventoryHolder->inventory[i] == pchr->getCharacterID()) 
+            {
+                inventoryHolder->inventory[i] = INVALID_CHR_REF;
+                break;
+            }
+        }
+    }
 
     // Remove from stat list
     if ( pchr->show_stats )
     {
+        size_t  cnt;
         bool stat_found;
 
         pchr->show_stats = false;
 
         stat_found = false;
-        for ( cnt = 0; cnt < StatusList.count; cnt++ )
+        for (cnt = 0; cnt < StatusList.count; cnt++)
         {
-            if ( StatusList.lst[cnt].who == character )
+            if ( StatusList.lst[cnt].who == pchr->getCharacterID() )
             {
                 stat_found = true;
                 break;
@@ -474,7 +483,7 @@ void free_one_character_in_game( const CHR_REF character )
 
         if ( stat_found )
         {
-            for ( cnt++; cnt < StatusList.count; cnt++ )
+            for (cnt++; cnt < StatusList.count; cnt++)
             {
                 SWAP( status_list_element_t, StatusList.lst[cnt-1], StatusList.lst[cnt] );
             }
@@ -488,16 +497,15 @@ void free_one_character_in_game( const CHR_REF character )
         ai_state_t * pai;
 
         //Don't do ourselves or terminated characters
-        if ( chr->isTerminated() || chr->getCharacterID() == character ) continue;
+        if ( chr->isTerminated() || chr == pchr ) continue;
         pai = chr_get_pai( chr->getCharacterID() );
 
-        if ( pai->target == character )
+        if ( pai->target == pchr->getCharacterID() )
         {
             SET_BIT( pai->alert, ALERTIF_TARGETKILLED );
-            pai->target = chr->getCharacterID();
         }
 
-        if ( chr_get_pteam( chr->getCharacterID() )->leader == character )
+        if ( chr_get_pteam( chr->getCharacterID() )->leader == pchr->getCharacterID() )
         {
             SET_BIT( pai->alert, ALERTIF_LEADERKILLED );
         }
@@ -509,19 +517,16 @@ void free_one_character_in_game( const CHR_REF character )
         TeamStack.lst[pchr->team_base].morale--;
     }
 
-    if ( TeamStack.lst[pchr->team].leader == character )
+    if ( TeamStack.lst[pchr->team].leader == pchr->getCharacterID() )
     {
         TeamStack.lst[pchr->team].leader = TEAM_NOLEADER;
     }
 
     // remove any attached particles
-    disaffirm_attached_particles( character );
+    disaffirm_attached_particles( pchr->getCharacterID() );
 
     // actually get rid of the character
-    _gameObjects.remove(character);
-
-    //Stop any looped sounds allocated to this character
-    _audioSystem.stopObjectLoopingSounds(character);
+    _gameObjects.remove(pchr->getCharacterID());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -538,7 +543,7 @@ void free_inventory_in_game( const CHR_REF character )
 
     PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pitem, iitem )
     {
-        free_one_character_in_game( iitem );
+        free_one_character_in_game(_gameObjects[iitem]);
     }
     PACK_END_LOOP();
 
@@ -901,190 +906,6 @@ void reset_character_accel( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop )
-{
-    /// @author ZZ
-    /// @details This function drops an item
-
-    CHR_REF mount;
-    Uint16  hand;
-    bool  inshop;
-    Object * pchr, * pmount;
-
-    // Make sure the character is valid
-    if ( !_gameObjects.exists( character ) ) return false;
-    pchr = _gameObjects.get( character );
-
-    // Make sure the character is mounted
-    mount = _gameObjects.get(character)->attachedto;
-    if ( !_gameObjects.exists( mount ) ) return false;
-    pmount = _gameObjects.get( mount );
-
-    // Don't allow living characters to drop kursed weapons
-    if ( !ignorekurse && pchr->iskursed && pmount->alive && pchr->isitem )
-    {
-        SET_BIT( pchr->ai.alert, ALERTIF_NOTDROPPED );
-        return false;
-    }
-
-    // set the dismount timer
-    if ( !pchr->isitem ) pchr->dismount_timer  = PHYS_DISMOUNT_TIME;
-    pchr->dismount_object = mount;
-
-    // Figure out which hand it's in
-    hand = pchr->inwhich_slot;
-
-    // Rip 'em apart
-    pchr->attachedto = INVALID_CHR_REF;
-    if ( pmount->holdingwhich[SLOT_LEFT] == character )
-        pmount->holdingwhich[SLOT_LEFT] = INVALID_CHR_REF;
-
-    if ( pmount->holdingwhich[SLOT_RIGHT] == character )
-        pmount->holdingwhich[SLOT_RIGHT] = INVALID_CHR_REF;
-
-    if ( pchr->alive )
-    {
-        // play the falling animation...
-        chr_play_action( pchr, ACTION_JB + hand, false );
-    }
-    else if ( pchr->inst.action_which < ACTION_KA || pchr->inst.action_which > ACTION_KD )
-    {
-        // play the "killed" animation...
-        chr_play_action( pchr, generate_randmask( ACTION_KA, 3 ), false );
-        chr_instance_set_action_keep( &( pchr->inst ), true );
-    }
-
-    // Set the positions
-    if ( chr_matrix_valid( pchr ) )
-    {
-        pchr->setPosition(mat_getTranslate_v(pchr->inst.matrix.v));
-    }
-    else
-    {
-        pchr->setPosition(pmount->getPosition());
-    }
-
-    // Make sure it's not dropped in a wall...
-    if (EMPTY_BIT_FIELD != Objectest_wall(pchr, NULL, NULL))
-    {
-        fvec3_t pos_tmp = pmount->getPosition();
-        pos_tmp.z = pchr->getPosZ();
-
-        pchr->setPosition(pos_tmp);
-
-        chr_update_breadcrumb(pchr, true);
-    }
-
-    // Check for shop passages
-    inshop = false;
-    if ( doshop )
-    {
-        inshop = do_shop_drop( mount, character );
-    }
-
-    // Make sure it works right
-    pchr->hitready = true;
-    if ( inshop )
-    {
-        // Drop straight down to avoid theft
-        pchr->vel.x = 0;
-        pchr->vel.y = 0;
-    }
-    else
-    {
-        pchr->vel.x = pmount->vel.x;
-        pchr->vel.y = pmount->vel.y;
-    }
-
-    pchr->vel.z = DROPZVEL;
-
-    // Turn looping off
-    chr_instance_set_action_loop( &( pchr->inst ), false );
-
-    // Reset the team if it is a mount
-    if ( pmount->isMount() )
-    {
-        pmount->team = pmount->team_base;
-        SET_BIT( pmount->ai.alert, ALERTIF_DROPPED );
-    }
-
-    pchr->team = pchr->team_base;
-    SET_BIT( pchr->ai.alert, ALERTIF_DROPPED );
-
-    // Reset transparency
-    if ( pchr->isitem && pmount->transferblend )
-    {
-        ENC_REF ienc_now, ienc_nxt;
-        size_t  ienc_count;
-
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
-        // Okay, reset transparency
-        ienc_now = pchr->firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
-        {
-            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
-
-            enc_remove_set( ienc_now, SETALPHABLEND );
-            enc_remove_set( ienc_now, SETLIGHTBLEND );
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-        pchr->setAlpha(pchr->getProfile()->getAlpha());
-        pchr->setLight(pchr->getProfile()->getLight());
-
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
-        // apply the blend enchants
-        ienc_now = pchr->firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
-        {
-            PRO_REF ipro = enc_get_ipro( ienc_now );
-            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
-
-            if ( _profileSystem.isValidProfileID( ipro ) )
-            {
-                enc_apply_set( ienc_now, SETALPHABLEND, ipro );
-                enc_apply_set( ienc_now, SETLIGHTBLEND, ipro );
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-    }
-
-    // Set twist
-    pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;
-    pchr->ori.map_twist_facing_x = MAP_TURN_OFFSET;
-
-    // turn off keeping, unless the object is dead
-    if ( !pchr->alive )
-    {
-        // the object is dead. play the killed animation and make it freeze there
-        chr_play_action( pchr, generate_randmask( ACTION_KA, 3 ), false );
-        chr_instance_set_action_keep( &( pchr->inst ), true );
-    }
-    else
-    {
-        // play the jump animation, and un-keep it
-        chr_play_action( pchr, ACTION_JA, true );
-        chr_instance_set_action_keep( &( pchr->inst ), false );
-    }
-
-    chr_update_matrix( pchr, true );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void reset_character_alpha( const CHR_REF character )
 {
     /// @author ZZ
@@ -1387,7 +1208,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
         //}
 
         // Take the item out of hand
-        detach_character_from_mount( item, true, false );
+        pitem->detatchFromHolder(true, false);
 
         // clear the dropped flag
         UNSET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
@@ -1653,8 +1474,14 @@ bool drop_all_items( const CHR_REF character )
     const std::shared_ptr<Object> &pchr = _gameObjects[character];
 
     //Drop held items
-    detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], true, false );
-    detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], true, false );
+    const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
+    if(leftItem) {
+        leftItem->detatchFromHolder(true, false);
+    }
+    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
+    if(rightItem) {
+        rightItem->detatchFromHolder(true, false);
+    }
 
     //simply count the number of items in inventory
     uint8_t pack_count = 0;
@@ -1689,7 +1516,7 @@ bool drop_all_items( const CHR_REF character )
         inventory_remove_item( character, cnt, true );
 
         // detach the item
-        detach_character_from_mount( item, true, true );
+        pitem->detatchFromHolder(true, true);
 
         // fix the attachments
         pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
@@ -2636,16 +2463,17 @@ void cleanup_one_character( Object * pchr )
     /// @author BB
     /// @details Everything necessary to disconnect one character from the game
 
-    CHR_REF  ichr, itmp;
+    CHR_REF  itmp;
 
-    if ( nullptr == ( pchr ) ) return;
-    ichr = GET_INDEX_PCHR( pchr );
+    CHR_REF ichr = pchr->getCharacterID();
 
     pchr->sparkle = NOSPARKLE;
 
     // Remove it from the team
     pchr->team = pchr->team_base;
-    if ( TeamStack.lst[pchr->team].morale > 0 ) TeamStack.lst[pchr->team].morale--;
+    if ( TeamStack.lst[pchr->team].morale > 0 ) {
+        TeamStack.lst[pchr->team].morale--;
+    }
 
     if ( TeamStack.lst[pchr->team].leader == ichr )
     {
@@ -2659,21 +2487,19 @@ void cleanup_one_character( Object * pchr )
     // detach from any mount
     if ( _gameObjects.exists( pchr->attachedto ) )
     {
-        detach_character_from_mount( ichr, true, false );
+        pchr->detatchFromHolder(true, false);
     }
 
     // drop your left item
-    itmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( _gameObjects.exists( itmp ) && _gameObjects.get(itmp)->isitem )
-    {
-        detach_character_from_mount( itmp, true, false );
+    const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
+    if(leftItem && leftItem->isItem()) {
+        leftItem->detatchFromHolder(true, false);
     }
 
     // drop your right item
-    itmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( _gameObjects.exists( itmp ) && _gameObjects.get(itmp)->isitem )
-    {
-        detach_character_from_mount( itmp, true, false );
+    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
+    if(rightItem && rightItem->isItem()) {
+        rightItem->detatchFromHolder(true, false);
     }
 
     // start with a clean list
@@ -2734,8 +2560,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     //No need to continue is there?
     if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return;
 
-    std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( pchr->profile_ref );
-    if ( !profile ) return;
+    const std::shared_ptr<ObjectProfile>& profile = pchr->getProfile();
 
     //Fix who is actually the killer if needed
     actual_killer = original_killer;
@@ -2828,7 +2653,8 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     cleanup_one_character( pchr );
 
     // If it's a player, let it die properly before enabling respawn
-    if ( VALID_PLA( pchr->is_which_player ) ) local_stats.revivetimer = ONESECOND; // 1 second
+    if ( VALID_PLA( pchr->is_which_player ) ) 
+        local_stats.revivetimer = ONESECOND; // 1 second
 
     // Let it's AI script run one last time
     pchr->ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
@@ -3508,7 +3334,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 #if 0
     int tnc;
 #endif
-    CHR_REF item_ref, item;
+    CHR_REF item;
     Object * pchr;
 
     mad_t * pmad_new;
@@ -3528,32 +3354,32 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pmad_new = _profileSystem.pro_get_pmad( profile_new );
 
     // Drop left weapon
-    item_ref = pchr->holdingwhich[SLOT_LEFT];
-    if ( _gameObjects.exists( item_ref ) && ( !newProfile->isSlotValid(SLOT_LEFT) || newProfile->isMount() ) )
+    const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
+    if ( leftItem && ( !newProfile->isSlotValid(SLOT_LEFT) || newProfile->isMount() ) )
     {
-        detach_character_from_mount( item_ref, true, true );
-        detach_character_from_platform( _gameObjects.get( item_ref ) );
+        leftItem->detatchFromHolder(true, true);
+        detach_character_from_platform(leftItem.get());
 
         if ( pchr->isMount() )
         {
-            _gameObjects.get(item_ref)->vel.z    = DISMOUNTZVEL;
-            _gameObjects.get(item_ref)->jump_timer = JUMPDELAY;
-            _gameObjects.get(item_ref)->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+            leftItem->vel.z    = DISMOUNTZVEL;
+            leftItem->jump_timer = JUMPDELAY;
+            leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
     }
 
     // Drop right weapon
-    item_ref = pchr->holdingwhich[SLOT_RIGHT];
-    if ( _gameObjects.exists( item_ref ) && !newProfile->isSlotValid(SLOT_RIGHT) )
+    const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
+    if ( rightItem && !newProfile->isSlotValid(SLOT_RIGHT) )
     {
-        detach_character_from_mount( item_ref, true, true );
-        detach_character_from_platform( _gameObjects.get( item_ref ) );
+        rightItem->detatchFromHolder(true, true);
+        detach_character_from_platform(rightItem.get());
 
         if ( pchr->isMount() )
         {
-            _gameObjects.get(item_ref)->vel.z    = DISMOUNTZVEL;
-            _gameObjects.get(item_ref)->jump_timer = JUMPDELAY;
-            _gameObjects.get(item_ref)->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
+            rightItem->vel.z    = DISMOUNTZVEL;
+            rightItem->jump_timer = JUMPDELAY;
+            rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
     }
 
@@ -4819,13 +4645,12 @@ bool chr_do_latch_button( Object * pchr )
     /// @author BB
     /// @details Character latches for generalized buttons
 
-    CHR_REF ichr;
     ai_state_t * pai;
 
     bool attack_handled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
-    ichr = GET_INDEX_PCHR( pchr );
+    CHR_REF ichr = pchr->getCharacterID();
 
     pai = &( pchr->ai );
 
@@ -4839,8 +4664,8 @@ bool chr_do_latch_button( Object * pchr )
         //Jump from our mount
         if ( _gameObjects.exists( pchr->attachedto ) )
         {
-            detach_character_from_mount( ichr, true, true );
-            detach_character_from_platform( _gameObjects.get( ichr ) );
+            pchr->detatchFromHolder(true, true);
+            detach_character_from_platform( pchr );
 
             pchr->jump_timer = JUMPDELAY;
             if ( 0 != pchr->flyheight )
@@ -5573,12 +5398,16 @@ bool chr_handle_madfx( Object * pchr )
 
     if ( HAS_SOME_BITS( framefx, MADFX_DROPLEFT ) )
     {
-        detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], false, true );
+        if(pchr->getLeftHandItem()) {
+            pchr->getLeftHandItem()->detatchFromHolder(false, true);
+        }
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_DROPRIGHT ) )
     {
-        detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], false, true );
+        if(pchr->getRightHandItem()) {
+            pchr->getRightHandItem()->detatchFromHolder(false, true);
+        }
     }
 
     if ( HAS_SOME_BITS( framefx, MADFX_POOF ) && !VALID_PLA( pchr->is_which_player ) )
@@ -6063,19 +5892,10 @@ void cleanup_all_characters()
     // Do poofing
     for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
-        bool time_out;
+        bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
+        if ( !time_out || object->isTerminated() ) continue;
 
-        time_out = ( object->ai.poof_time >= 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if ( !time_out && !object->isTerminated() ) continue;
-
-        // detach the character from the game
-        cleanup_one_character( object.get() );
-
-        // free the character's inventory
-        free_inventory_in_game( object->getCharacterID() );
-
-        // free the character
-        free_one_character_in_game( object->getCharacterID() );
+        object->requestTerminate();
     }
 }
 

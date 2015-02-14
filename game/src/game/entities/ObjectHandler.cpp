@@ -50,7 +50,7 @@ bool ObjectHandler::remove(const CHR_REF ichr)
 #endif
 
     //Remove us from any holder first
-    detach_character_from_mount(ichr, true, false);
+    _internalCharacterList[ichr]->detatchFromHolder(true, false);
 
     // If we are inside a list loop, do not actually change the length of the
     // list. Else this can cause some problems later.
@@ -249,6 +249,12 @@ void ObjectHandler::maybeRunDeferred()
                         //Delete this character
                         _unusedChrRefs.push(element->getCharacterID());
                         _deletedCharacters--;
+
+                        // free the character's inventory
+                        free_inventory_in_game( element->getCharacterID() );
+
+                        // free the character
+                        free_one_character_in_game(element);
                         return true;
                     }
 

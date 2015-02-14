@@ -79,7 +79,6 @@ candle:   NONE    58  31.0   30.1   0.0   N    0   0  4   0   0   F   F   N
 bookstand:   NONE    55  48.5   58.5   0.0   E    0   4  0   0   0   F   F   N
   protect:   NONE    64  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 bookstand:   NONE    55  51.5   38.5   0.0   S    0   4  0   0   0   F   F   N
-  %RANDOM_ARCANE_SPELLBOOK:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 bookstand:   NONE    55  51.0   59.5   0.0   N    0   4  0   0   0   F   F   N
 bookstand:   NONE    55  53.5   58.5   0.0   W    0   4  0   0   0   F   F   N
 icemephit:   NONE    61  34.5   30.5   0.0   N    6   1  0   0   0   F   F   E
@@ -98,7 +97,14 @@ firemephit:   NONE    61  28.0   30.0   0.0   N    5   0  0   0   0   F   F   E
 MPotion:   NONE    53  38.7   54.5   2.0   N    0   0  0   0   0   F   F   N
 mephit:   NONE    61  31.5   43.5   1.0   N    4   1  0   0   0   F   F   E
   mephitwing:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+//Alchemy room
 Chair:   NONE    66  52.8   40.3   0.0   E    0   0  0   0   0   F   F   N
+Table:   NONE    36  53.5   40.3   0.0   E    0   0  0   0   0   F   F   N
+WPotion:   NONE    -1  53.5   40.5   2.0   ?    0   0  0   0   0   F   F   N
+PPotion:   NONE    -1  53.3   40.1   2.0   ?    0   0  0   0   0   F   F   N
+MPotion:   NONE    -1  53.5   39.8   2.0   ?    0   0  0   0   0   F   F   N
+
 Stool:   NONE    39  48.5   43.5   0.0   N    0   0  0   0   0   F   F   N
 
 //Treasure chest in alchemy room
@@ -163,7 +169,7 @@ Chest:   NONE    45  10.5   17.0   1.0   E    17   0  0   0   0   F   F   N
   IPotion:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Module Tool
-ModuleTool:   NONE    100  30.5   57.5   3.0   N    0   0  0   0   0   T   F   N
+ModuleTool:   NONE    100  30.5   57.5   3.0   N    0   0  0   0   0   F   F   N
 
 //All cobolds with their stash
 cobol:   NONE    76  10.5   48.5   1.0   N    1   2  0   100   0   F   F   E
