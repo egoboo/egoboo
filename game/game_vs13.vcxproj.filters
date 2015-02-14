@@ -287,6 +287,12 @@
     <ClCompile Include="src\game\entities\Object.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\profiles\EnchantProfile.cpp">
+      <Filter>Game Sources\Profile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\profiles\ParticleProfile.cpp">
+      <Filter>Game Sources\Profile</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -514,13 +520,13 @@
     <ClInclude Include="src\game\entities\Object.hpp">
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\profiles\PipProfile.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\EveProfile.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\profiles\_Include.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\profiles\EnchantProfile.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\profiles\ParticleProfile.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
   </ItemGroup>

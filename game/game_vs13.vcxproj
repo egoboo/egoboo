@@ -379,6 +379,8 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\profiles\EnchantProfile.cpp" />
+    <ClCompile Include="src\game\profiles\ParticleProfile.cpp" />
     <ClCompile Include="src\game\entities\Enchant.cpp" />
     <ClCompile Include="src\game\entities\EnchantHandler.cpp" />
     <ClCompile Include="src\game\entities\ObjectHandler.cpp" />
@@ -453,8 +455,8 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
   <ItemGroup>
     <ClInclude Include="src\game\entities\Enchant.hpp" />
     <ClInclude Include="src\game\entities\_Include.hpp" />
-    <ClInclude Include="src\game\profiles\EveProfile.hpp" />
-    <ClInclude Include="src\game\profiles\PipProfile.hpp" />
+    <ClInclude Include="src\game\profiles\EnchantProfile.hpp" />
+    <ClInclude Include="src\game\profiles\ParticleProfile.hpp" />
     <ClInclude Include="src\game\profiles\_Include.hpp" />
     <ClInclude Include="src\game\entities\EnchantHandler.hpp" />
     <ClInclude Include="src\game\entities\Object.hpp" />
