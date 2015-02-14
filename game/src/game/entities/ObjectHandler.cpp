@@ -253,9 +253,6 @@ void ObjectHandler::maybeRunDeferred()
                         _unusedChrRefs.push(element->getCharacterID());
                         _deletedCharacters--;
 
-                        // free the character's inventory
-                        free_inventory_in_game( element->getCharacterID() );
-
                         // Make sure everyone knows it died
                         for(const std::shared_ptr<Object> &chr : _iteratorList)
                         {

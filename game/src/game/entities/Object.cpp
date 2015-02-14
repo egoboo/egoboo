@@ -225,7 +225,12 @@ Object::~Object()
     /// @details Make character safely deleteable
 
     // Detach the character from the game
-    cleanup_one_character(this);
+    if(PMod) {
+        cleanup_one_character(this);
+    }
+
+    // free the character's inventory
+    free_inventory_in_game(getCharacterID());
 
     //If we are inside an inventory we need to remove us
     const std::shared_ptr<Object> &inventoryHolder = _gameObjects[inwhich_inventory];
