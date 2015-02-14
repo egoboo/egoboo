@@ -667,16 +667,16 @@ public:
 		 * @remark
 		 *	Each node may have at most \f$2^d\f$ child nodes (see above) where
 		 *	\f$d\f$ is the dimensionality. That is, a tree is a \f$2^d\f$-ary
-		 *	tree. By the general rule for the number of branches for a complete
-		 *	\f$k\f$-ary tree of height \f$h\f$
-		 *	\f[
-		 *	n = \frac{k^{h+1}}{k-1}
-		 *	\f]
-		 *	one obtains for a \f$k=2^d\f$-ary tree a number of nodes of
-		 *	\f[
+		 *	tree. By the general rule 
+         *	\f{eqnarray*}{
+         *	n = \frac{k^{h+1}}{k-1}
+         *	\f}
+         *  for the number of branches for a complete \f$k\f$-ary tree of height
+         *  \f$h\f$ one obtains for a \f$k=2^d\f$-ary tree a number of nodes of
+		 *	\f{eqnarray*}{
 		 *	n =& \frac{(2^d)^{h+1}}{2^d - 1}\\
-		 *	  =& \frac{2^{d \cdot (h+1)}{2^d - 1}
-		 *	\f]
+		 *	  =& \frac{2^{d \cdot (h+1)}}{2^d - 1}
+		 *	\f}
 		 */
 		size_t _maxNodes;
 

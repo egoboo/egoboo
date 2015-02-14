@@ -21,3 +21,6 @@ xcuserdata
 *.o
 *.dll
 *.exe
+
+# Doxygen.
+/doc/doxygen
