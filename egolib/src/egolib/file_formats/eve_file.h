@@ -24,170 +24,194 @@
 
 #include "egolib/typedef.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct eve_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 /// Special modes for particle reflections from characters
-    enum e_missle_treatment
-    {
-        MISSILE_NORMAL   = 0,                           ///< Treat missiles normally
-        MISSILE_DEFLECT,                                ///< Deflect incoming missiles
-        MISSILE_REFLECT                                 ///< Reflect them back!
-    };
+enum e_missle_treatment
+{
+    MISSILE_NORMAL   = 0,                           ///< Treat missiles normally
+    MISSILE_DEFLECT,                                ///< Deflect incoming missiles
+    MISSILE_REFLECT                                 ///< Reflect them back!
+};
 
-//--------------------------------------------------------------------------------------------
+/// All the values that an enchant can override.
+enum enum_enchant_set
+{
+    SETMORPH = 0,           ///< Morph character?
+    ///< @details this must be first since the
+    ///< character must be morphed before adding any of the other enchants
 
-/// All the values that an enchant can override
-    enum e_enchant_set
-    {
-        SETMORPH = 0,           ///< Morph character?
-        ///< @details this must be first since the
-        ///< character must be morphed before adding any of the other enchants
+    SETDAMAGETYPE,          ///< Type of damage dealt
+    SETNUMBEROFJUMPS,       ///< Max number of jumps
+    SETLIFEBARCOLOR,        ///< Color of life bar
+    SETMANABARCOLOR,        ///< Color of mana bar
+    SETSLASHMODIFIER,       ///< Damage modifiers
+    SETCRUSHMODIFIER,
+    SETPOKEMODIFIER,
+    SETHOLYMODIFIER,
+    SETEVILMODIFIER,
+    SETFIREMODIFIER,
+    SETICEMODIFIER,
+    SETZAPMODIFIER,
+    SETFLASHINGAND,             ///< Flash rate
+    SETLIGHTBLEND,              ///< Transparency
+    SETALPHABLEND,              ///< Alpha
+    SETSHEEN,                   ///< Shinyness
+    SETFLYTOHEIGHT,             ///< Fly to this height
+    SETWALKONWATER,             ///< Walk on water?
+    SETCANSEEINVISIBLE,         ///< Can it see invisible?
+    SETMISSILETREATMENT,        ///< How to treat missiles
+    SETCOSTFOREACHMISSILE,      ///< Cost for each missile treat
+    SETCHANNEL,                 ///< Can channel life as mana?
+    MAX_ENCHANT_SET,
 
-        SETDAMAGETYPE,          ///< Type of damage dealt
-        SETNUMBEROFJUMPS,       ///< Max number of jumps
-        SETLIFEBARCOLOR,        ///< Color of life bar
-        SETMANABARCOLOR,        ///< Color of mana bar
-        SETSLASHMODIFIER,       ///< Damage modifiers
-        SETCRUSHMODIFIER,
-        SETPOKEMODIFIER,
-        SETHOLYMODIFIER,
-        SETEVILMODIFIER,
-        SETFIREMODIFIER,
-        SETICEMODIFIER,
-        SETZAPMODIFIER,
-        SETFLASHINGAND,             ///< Flash rate
-        SETLIGHTBLEND,              ///< Transparency
-        SETALPHABLEND,              ///< Alpha
-        SETSHEEN,                   ///< Shinyness
-        SETFLYTOHEIGHT,             ///< Fly to this height
-        SETWALKONWATER,             ///< Walk on water?
-        SETCANSEEINVISIBLE,         ///< Can it see invisible?
-        SETMISSILETREATMENT,        ///< How to treat missiles
-        SETCOSTFOREACHMISSILE,      ///< Cost for each missile treat
-        SETCHANNEL,                 ///< Can channel life as mana?
-        MAX_ENCHANT_SET,
+    ENC_SET_FIRST = SETMORPH,
+    ENC_SET_LAST  = SETCHANNEL
 
-        ENC_SET_FIRST = SETMORPH,
-        ENC_SET_LAST  = SETCHANNEL
+};
 
-    };
+/// A list of all the variables that can be affested by enchant add.
+enum enum_enchant_add
+{
+    ADDJUMPPOWER = 0,
+    ADDBUMPDAMPEN,
+    ADDBOUNCINESS,
+    ADDDAMAGE,
+    ADDSIZE,
+    ADDACCEL,
 
-    // this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_enchant_set enum_enchant_set;
+    ADDRED,                        ///< Red shift
+    ADDGRN,                        ///< Green shift
+    ADDBLU,                        ///< Blue shift
 
-//--------------------------------------------------------------------------------------------
+    ADDDEFENSE,                    ///< Defence adjustments
 
-/// A list of all the variables that can be affested by enchant add
-    enum e_enchant_add
-    {
-        ADDJUMPPOWER = 0,
-        ADDBUMPDAMPEN,
-        ADDBOUNCINESS,
-        ADDDAMAGE,
-        ADDSIZE,
-        ADDACCEL,
+    ADDMANA,
+    ADDLIFE,
 
-        ADDRED,                        ///< Red shift
-        ADDGRN,                        ///< Green shift
-        ADDBLU,                        ///< Blue shift
+    ADDSTRENGTH,
+    ADDWISDOM,
+    ADDINTELLIGENCE,
+    ADDDEXTERITY,
 
-        ADDDEFENSE,                    ///< Defence adjustments
+    ADDSLASHRESIST,
+    ADDCRUSHRESIST,
+    ADDPOKERESIST,
+    ADDEVILRESIST,
+    ADDHOLYRESIST,
+    ADDFIRERESIST,
+    ADDICERESIST,
+    ADDZAPRESIST,
 
-        ADDMANA,
-        ADDLIFE,
+    MAX_ENCHANT_ADD,
 
-        ADDSTRENGTH,
-        ADDWISDOM,
-        ADDINTELLIGENCE,
-        ADDDEXTERITY,
+    //these are only for parsing the enchant file
+    ENC_ADD_FIRST = ADDJUMPPOWER,
+    ENC_ADD_LAST  = ADDZAPRESIST
 
-        ADDSLASHRESIST,
-        ADDCRUSHRESIST,
-        ADDPOKERESIST,
-        ADDEVILRESIST,
-        ADDHOLYRESIST,
-        ADDFIRERESIST,
-        ADDICERESIST,
-        ADDZAPRESIST,
+};
 
-        MAX_ENCHANT_ADD,
+/**
+ * @brief
+ *  An enchantment profile, or "eve"
+ * @details
+ *  An internal representation of the "enchant.txt" file.
+ */
+struct eve_t
+{
+    EGO_PROFILE_STUFF
 
-        //these are only for parsing the enchant file
-        ENC_ADD_FIRST = ADDJUMPPOWER,
-        ENC_ADD_LAST  = ADDZAPRESIST
+    // enchant spawning info
+    bool  override;                         ///< Override other enchants?
+    bool  remove_overridden;                ///< Remove other enchants?
+    bool  retarget;                         ///< Pick a weapon?
+    Uint8 required_damagetype;              ///< Don't enchant if the target is immune to required_damagetype
+    Uint8 require_damagetarget_damagetype;  ///< Only enchant the target if the target damagetarget_damagetype matches this value
+    bool  spawn_overlay;                    ///< Spawn an overlay?
 
-    };
+    // ending conditions
+    int lifetime;                           ///< Time in seconds
+    bool endifcantpay;                      ///< End on out of mana
+    IDSZ removedbyidsz;                     ///< By particle or [NONE]
 
-    // this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_enchant_add enum_enchant_add;
+    // despawning info
+    bool stayiftargetdead;                  ///< Stay if target has died?
+    bool stayifnoowner;                     ///< Stay if owner has died?
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+    // skill modifications
+    Sint16  owner_mana;
+    Sint16  owner_life;
+    Sint16  target_mana;
+    Sint16  target_life;
 
-/// An enchantment profile, or "eve"
-/// @details An internal representation of the "enchant.txt" file
-    struct eve_t
-    {
-        EGO_PROFILE_STUFF
+    // generic modifications
+    bool setyesno[MAX_ENCHANT_SET];      ///< Set this value?
+    float setvalue[MAX_ENCHANT_SET];     ///< Value to use
 
-        // enchant spawning info
-        bool  override;                         ///< Override other enchants?
-        bool  remove_overridden;                ///< Remove other enchants?
-        bool  retarget;                         ///< Pick a weapon?
-        Uint8 required_damagetype;              ///< Don't enchant if the target is immune to required_damagetype
-        Uint8 require_damagetarget_damagetype;  ///< Only enchant the target if the target damagetarget_damagetype matches this value
-        bool  spawn_overlay;                    ///< Spawn an overlay?
+    bool addyesno[MAX_ENCHANT_ADD];      ///< Add this value?
+    float addvalue[MAX_ENCHANT_ADD];     ///< The values to add
 
-        // ending conditions
-        int lifetime;                           ///< Time in seconds
-        bool endifcantpay;                      ///< End on out of mana
-        IDSZ removedbyidsz;                     ///< By particle or [NONE]
+    // special modifications
+    int seekurse;                        ///< Allow target to see kurses
+    int darkvision;                      ///< Allow target to see in darkness
 
-        // despawning info
-        bool stayiftargetdead;                  ///< Stay if target has died?
-        bool stayifnoowner;                     ///< Stay if owner has died?
+    // continuous spawning
+    Uint16 contspawn_delay;              ///< Spawn timer
+    Uint8 contspawn_amount;              ///< Spawn amount
+    Uint16 contspawn_facingadd;          ///< Spawn in circle
+    int contspawn_lpip;                  ///< Spawn type ( local )
 
-        // skill modifications
-        Sint16  owner_mana;
-        Sint16  owner_life;
-        Sint16  target_mana;
-        Sint16  target_life;
+    // what to so when the enchant ends
+    Sint16  endsound_index;              ///< Sound on end (-1 for none)
+    bool killtargetonend;                ///< Kill the target on end?
+    bool poofonend;                      ///< Spawn a poof on end?
+    int endmessage;                      ///< Message for end -1 for none
 
-        // generic modifications
-        bool setyesno[MAX_ENCHANT_SET];        ///< Set this value?
-        float setvalue[MAX_ENCHANT_SET];       ///< Value to use
+    /**
+     * @brief
+     *  Initialize an enchant profile with safe default values.
+     * @param self
+     *  the enchant profile
+     * @return
+     *  a pointer to the profile on success, @a nullptr on failure
+     */
+    static eve_t *init(eve_t *self);
+};
 
-        bool addyesno[MAX_ENCHANT_ADD];        ///< Add this value?
-        float addvalue[MAX_ENCHANT_ADD];       ///< The values to add
+/**
+ * @brief
+ *  A reader for enchant profiles.
+ */
+struct EnchantProfileReader
+{
+    /**
+     * @brief
+     *  Read an enchant profile.
+     * @param [out] profile
+     *  the enchant profile in which the data to read is stored in
+     * @param loadName
+     *  the load name
+     * @return
+     *  @a true on success, @a false on failure
+     */
+    static bool read(eve_t *profile,const char *loadName);
+};
 
-        // special modifications
-        int seekurse;                        ///< Allow target to see kurses
-        int darkvision;                      ///< Allow target to see in darkness
-
-        // continuous spawning
-        Uint16 contspawn_delay;              ///< Spawn timer
-        Uint8 contspawn_amount;              ///< Spawn amount
-        Uint16 contspawn_facingadd;          ///< Spawn in circle
-        int contspawn_lpip;                  ///< Spawn type ( local )
-
-        // what to so when the enchant ends
-        Sint16  endsound_index;              ///< Sound on end (-1 for none)
-        bool killtargetonend;                ///< Kill the target on end?
-        bool poofonend;                      ///< Spawn a poof on end?
-        int endmessage;                      ///< Message for end -1 for none
-
-    };
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    eve_t *load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve );
-	bool   save_one_enchant_file_vfs(const char* szLoadName, const char * szTemplateName, eve_t * peve);
-
-    eve_t *eve_init( eve_t * peve );
+/**
+ * @brief
+ *  A writer for enchant profiles.
+ */
+struct EnchantProfileWriter
+{
+    /**
+     * @brief
+     *  Write an enchant profile.
+     * @param profile
+     *  the enchant profile from which the data to write is stored in
+     * @param saveName
+     *  the save name
+     * @param templateName
+     *  the template name
+     * @return
+     *  @a true on success, @a false on failure
+     */
+    static bool write(eve_t *profile, const char *loadName, const char *templateName);
+};

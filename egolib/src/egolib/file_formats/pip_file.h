@@ -24,19 +24,11 @@
 
 #include "egolib/typedef.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_dynalight_info;
-    typedef struct s_dynalight_info dynalight_info_t;
-
-    struct s_pip;
-    typedef struct s_pip pip_t;
+    struct dynalight_info_t;
+    struct pip_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -85,7 +77,7 @@ extern "C"
 // #define MAXFALLOFF 1400
 
 /// Possible methods for computing the position and orientation of the quad used to display particle sprites
-    enum e_prt_orientations
+    enum prt_ori_t
     {
         ORIENTATION_B = 0,   ///< billboard
         ORIENTATION_X,       ///< put particle up along the world or body-fixed x-axis
@@ -94,9 +86,6 @@ extern "C"
         ORIENTATION_V,       ///< vertical, like a candle
         ORIENTATION_H        ///< horizontal, like a plate
     };
-
-    // this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_prt_orientations prt_ori_t;
 
 // The special damage effects for particles
     enum e_damage_fx
@@ -110,7 +99,7 @@ extern "C"
     };
 
 /// Turn values specifying corrections to the rotation of particles
-    enum e_particle_direction
+    enum particle_direction_t
     {
         prt_v = 0x0000,    ///< particle is vertical on the bitmap
         prt_r = 0x2000,    ///< particle is diagonal (rotated 45 degrees to the right = 8192)
@@ -119,11 +108,9 @@ extern "C"
         prt_u = 0xFFFF     ///< particle is of unknown orientation
     };
 
-    // this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_particle_direction particle_direction_t;
 
 //--------------------------------------------------------------------------------------------
-    struct s_dynalight_info
+    struct dynalight_info_t
     {
         Uint8   mode;                ///< when is it?
         Uint8   on;                  ///< is it on now?
@@ -140,7 +127,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// The definition of a particle profile
-    struct s_pip
+    struct pip_t
     {
         EGO_PROFILE_STUFF
 
@@ -233,24 +220,36 @@ extern "C"
         dynalight_info_t dynalight;           ///< Dynamic lighting info
 
         prt_ori_t orientation;                ///< the way the particle orientation is calculated for display
+
+        static pip_t *init(pip_t *self);
     };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
     extern particle_direction_t prt_direction[256];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip );
-
-    pip_t * pip_init( pip_t * ppip );
+    
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if defined(__cplusplus)
-}
-
-#endif
+/**
+ * @brief
+ *  A reader for particle profiles.
+ */
+struct ParticleProfileReader
+{
+    /**
+     * @brief
+     *  Read a particle profile.
+     * @param [out] profile
+     *  the particle profile in which the data to read is stored in
+     * @param loadName
+     *  the load name
+     * @return
+     *  @a true on success, @a false on failure
+     */
+    static bool read(pip_t *profile, const char *loadName);
+};

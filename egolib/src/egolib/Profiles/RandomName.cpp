@@ -16,12 +16,12 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file  game/RandomName.cpp
+/// @file  egolib/Profile/RandomName.cpp
 /// @brief This class is used for random name generation
 /// @author Johan Jansen
 
-#define GAME_PROFILES_PRIVATE 1
-#include "game/profiles/RandomName.hpp"
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/RandomName.hpp"
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 #include "egolib/math/Random.hpp"

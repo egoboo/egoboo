@@ -16,12 +16,12 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file  game/RandomName.hpp
+/// @file  egolib/Profiles/RandomName.hpp
 /// @brief This class is used for random name generation
 /// @author Johan Jansen
 
 #pragma once
-#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
 #error(do not include directly, include `game/profiles/_Include.hpp` instead)
 #endif
 

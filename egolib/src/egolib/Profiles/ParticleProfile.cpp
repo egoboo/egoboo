@@ -17,5 +17,5 @@
 //*
 //********************************************************************************************
 
-#define GAME_PROFILES_PRIVATE 1
-#include "game/profiles/EnchantProfile.hpp"
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/ParticleProfile.hpp"

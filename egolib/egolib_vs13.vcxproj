@@ -254,6 +254,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Profiles\EnchantProfile.cpp" />
+    <ClCompile Include="src\egolib\Profiles\ParticleProfile.cpp" />
+    <ClCompile Include="src\egolib\Profiles\RandomName.cpp" />
     <ClCompile Include="src\egolib\Float.cpp" />
     <ClCompile Include="src\egolib\Scene\Branch.cpp" />
     <ClCompile Include="src\egolib\Scene\LeafList.cpp" />
@@ -417,6 +420,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Profiles\EnchantProfile.hpp" />
+    <ClInclude Include="src\egolib\Profiles\ParticleProfile.hpp" />
+    <ClInclude Include="src\egolib\Profiles\RandomName.hpp" />
+    <ClInclude Include="src\egolib\Profiles\_Include.hpp" />
     <ClInclude Include="src\egolib\Ref.hpp" />
     <ClInclude Include="src\egolib\Debug.hpp" />
     <ClInclude Include="src\egolib\Float.hpp" />

@@ -2210,7 +2210,7 @@ PIP_REF PipStack_load_one(const char *szLoadName, const PIP_REF pip_override)
     }
     ppip = PipStack.get_ptr(ipip);
 
-    if (NULL == load_one_pip_file_vfs(szLoadName, ppip))
+    if (!ParticleProfileReader::read(ppip, szLoadName))
     {
         return INVALID_PIP_REF;
     }
@@ -2225,11 +2225,9 @@ PIP_REF PipStack_load_one(const char *szLoadName, const PIP_REF pip_override)
 //--------------------------------------------------------------------------------------------
 void PipStack_init_all()
 {
-    PIP_REF cnt;
-
-    for (cnt = 0; cnt < MAX_PIP; cnt++)
+    for (PIP_REF ref = 0; ref < MAX_PIP; ++ref)
     {
-        pip_init(PipStack.get_ptr(cnt));
+        pip_t::init(PipStack.get_ptr(ref));
     }
 
     // Reset the pip stack "pointer"
@@ -2291,7 +2289,7 @@ bool PipStack_release_one(const PIP_REF ipip)
 
     if (!ppip->loaded) return true;
 
-    pip_init(ppip);
+    pip_t::init(ppip);
 
     ppip->loaded = false;
     ppip->name[0] = CSTR_END;

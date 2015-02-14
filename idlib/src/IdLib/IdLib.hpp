@@ -18,3 +18,11 @@
 //********************************************************************************************
 
 #pragma once
+
+/**
+ * @defgroup IdLib
+ * @brief    Essential Utilities for Making Games
+ * @details  IdLib contains essential utilities for making games.
+ *           IdLib is used by Egolib and subsequently Cartman and Egoboo.
+ * @author   Michael Heilmann
+ */

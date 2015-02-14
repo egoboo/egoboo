@@ -43,6 +43,12 @@
     <Filter Include="Source Files\Scene">
       <UniqueIdentifier>{a3c65541-0927-4dda-a50d-adf37e0ce2ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Profiles">
+      <UniqueIdentifier>{ce11e196-0290-4d44-a551-726131e40d5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Profiles">
+      <UniqueIdentifier>{aba199cf-e309-4f15-8181-8cb87f6794f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -278,6 +284,15 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Float.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\EnchantProfile.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\ParticleProfile.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\RandomName.cpp">
+      <Filter>Source Files\Profiles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -547,6 +562,18 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Ref.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\EnchantProfile.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\ParticleProfile.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\RandomName.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="egolib\Profiles\_Include.hpp">
+      <Filter>Header Files\Profiles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

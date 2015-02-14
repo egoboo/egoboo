@@ -17,5 +17,7 @@
 //*
 //********************************************************************************************
 
-#define GAME_PROFILES_PRIVATE 1
-#include "game/profiles/ParticleProfile.hpp"
+#pragma once
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
+#endif

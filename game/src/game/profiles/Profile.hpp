@@ -29,7 +29,7 @@
 
 #include "game/script.h"     //for script_info_t
 #include "game/mad.h"
-#include "game/profiles/RandomName.hpp"
+#include "egolib/Profiles/_Include.hpp"
 #include "game/egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------

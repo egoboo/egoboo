@@ -379,8 +379,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\game\profiles\EnchantProfile.cpp" />
-    <ClCompile Include="src\game\profiles\ParticleProfile.cpp" />
     <ClCompile Include="src\game\entities\Enchant.cpp" />
     <ClCompile Include="src\game\entities\EnchantHandler.cpp" />
     <ClCompile Include="src\game\entities\ObjectHandler.cpp" />
@@ -412,7 +410,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\graphics\MD2Model.cpp" />
     <ClCompile Include="src\game\profiles\Profile.cpp" />
     <ClCompile Include="src\game\profiles\ProfileSystem.cpp" />
-    <ClCompile Include="src\game\profiles\RandomName.cpp" />
     <ClCompile Include="src\game\audio\AudioSystem.cpp" />
     <ClCompile Include="src\game\graphics\Camera.cpp" />
     <ClCompile Include="src\game\graphics\CameraSystem.cpp" />
@@ -455,8 +452,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
   <ItemGroup>
     <ClInclude Include="src\game\entities\Enchant.hpp" />
     <ClInclude Include="src\game\entities\_Include.hpp" />
-    <ClInclude Include="src\game\profiles\EnchantProfile.hpp" />
-    <ClInclude Include="src\game\profiles\ParticleProfile.hpp" />
     <ClInclude Include="src\game\profiles\_Include.hpp" />
     <ClInclude Include="src\game\entities\EnchantHandler.hpp" />
     <ClInclude Include="src\game\entities\Object.hpp" />
@@ -489,7 +484,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\graphics\MD2Model.hpp" />
     <ClInclude Include="src\game\profiles\Profile.hpp" />
     <ClInclude Include="src\game\profiles\ProfileSystem.hpp" />
-    <ClInclude Include="src\game\profiles\RandomName.hpp" />
     <ClInclude Include="src\game\audio\AudioSystem.hpp" />
     <ClInclude Include="src\game\graphics\Camera.hpp" />
     <ClInclude Include="src\game\graphics\CameraSystem.hpp" />

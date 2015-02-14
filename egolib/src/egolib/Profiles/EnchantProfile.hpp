@@ -18,6 +18,6 @@
 //********************************************************************************************
 
 #pragma once
-#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
-#error(do not include directly, include `game/profiles/_Include.hpp` instead)
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
 #endif

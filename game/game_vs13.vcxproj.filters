@@ -194,9 +194,6 @@
     <ClCompile Include="src\game\profiles\ProfileSystem.cpp">
       <Filter>Game Sources\Profile</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\profiles\RandomName.cpp">
-      <Filter>Game Sources\Profile</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\module\Passage.cpp">
       <Filter>Game Sources\Module</Filter>
     </ClCompile>
@@ -286,12 +283,6 @@
     </ClCompile>
     <ClCompile Include="src\game\entities\Object.cpp">
       <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\profiles\EnchantProfile.cpp">
-      <Filter>Game Sources\Profile</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\profiles\ParticleProfile.cpp">
-      <Filter>Game Sources\Profile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -424,9 +415,6 @@
     <ClInclude Include="src\game\profiles\ProfileSystem.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\profiles\RandomName.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\graphics\MD2Model.hpp">
       <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
@@ -521,12 +509,6 @@
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\game\profiles\_Include.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\EnchantProfile.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\ParticleProfile.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
   </ItemGroup>

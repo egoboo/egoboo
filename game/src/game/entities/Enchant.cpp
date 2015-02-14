@@ -1300,7 +1300,7 @@ EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
     {
         eve_t * peve = EveStack.get_ptr( ieve );
 
-        if ( NULL != load_one_enchant_file_vfs( szLoadName, peve ) )
+        if (EnchantProfileReader::read(peve, szLoadName) )
         {
             retval = ieve;
 
@@ -1587,22 +1587,18 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
 //--------------------------------------------------------------------------------------------
 void EveStack_init_all()
 {
-    EVE_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_EVE; cnt++ )
+    for (EVE_REF ref = 0; ref < MAX_EVE; ++ref )
     {
-        eve_init( EveStack.get_ptr( cnt ) );
+        eve_t::init(EveStack.get_ptr(ref));
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void EveStack_release_all()
 {
-    EVE_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_EVE; cnt++ )
+    for (EVE_REF ref = 0; ref < MAX_EVE; ++ref)
     {
-        EveStack_release_one( cnt );
+        EveStack_release_one(ref);
     }
 }
 
@@ -1616,7 +1612,7 @@ bool EveStack_release_one( const EVE_REF ieve )
 
     if ( !peve->loaded ) return true;
 
-    eve_init( peve );
+    eve_t::init( peve );
 
     return true;
 }
