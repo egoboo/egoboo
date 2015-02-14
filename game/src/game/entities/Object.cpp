@@ -221,6 +221,67 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
 Object::~Object()
 {
+    /// @author ZZ
+    /// @details Make character safely deleteable
+
+    // Detach the character from the game
+    cleanup_one_character(this);
+
+    //If we are inside an inventory we need to remove us
+    const std::shared_ptr<Object> &inventoryHolder = _gameObjects[inwhich_inventory];
+    if(inventoryHolder) {
+        for (size_t i = 0; i < inventoryHolder->inventory.size(); i++)
+        {
+            if(inventoryHolder->inventory[i] == getCharacterID()) 
+            {
+                inventoryHolder->inventory[i] = INVALID_CHR_REF;
+                break;
+            }
+        }
+    }
+
+    // Remove from stat list
+    if (show_stats)
+    {
+        size_t  cnt;
+        bool stat_found;
+
+        show_stats = false;
+
+        stat_found = false;
+        for (cnt = 0; cnt < StatusList.count; cnt++)
+        {
+            if ( StatusList.lst[cnt].who == getCharacterID() )
+            {
+                stat_found = true;
+                break;
+            }
+        }
+
+        if ( stat_found )
+        {
+            for (cnt++; cnt < StatusList.count; cnt++)
+            {
+                SWAP( status_list_element_t, StatusList.lst[cnt-1], StatusList.lst[cnt] );
+            }
+            StatusList.count--;
+        }
+    }
+
+    // Handle the team
+    if ( isAlive() && !getProfile()->isInvincible() && TeamStack.lst[team_base].morale > 0 )
+    {
+        TeamStack.lst[team_base].morale--;
+    }
+
+    if ( TeamStack.lst[team].leader == getCharacterID() )
+    {
+        TeamStack.lst[team].leader = TEAM_NOLEADER;
+    }
+
+    // remove any attached particles
+    disaffirm_attached_particles( getCharacterID() );    
+
     /// Free all allocated memory
 
     // deallocate
@@ -229,7 +290,7 @@ Object::~Object()
     chr_instance_dtor( &inst );
     ai_state_dtor( &ai );
 
-    EGOBOO_ASSERT( nullptr == inst.vrt_lst );
+    EGOBOO_ASSERT( nullptr == inst.vrt_lst );    
 }
 
 bool Object::isOverWater(bool anyLiquid) const

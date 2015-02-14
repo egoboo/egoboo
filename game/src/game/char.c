@@ -114,8 +114,6 @@ static int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_ver
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
 
-static void cleanup_one_character( Object * pchr );
-
 static fvec2_t chr_get_mesh_diff( Object * pchr, float test_pos[], float center_pressure );
 static float   chr_get_mesh_pressure( Object * pchr, float test_pos[] );
 
@@ -442,94 +440,6 @@ void chr_log_script_time( const CHR_REF ichr )
 #endif
 
 //--------------------------------------------------------------------------------------------
-void free_one_character_in_game(const std::shared_ptr<Object> &pchr)
-{
-    /// @author ZZ
-    /// @details Make character safely deleteable
-
-    // Detach the character from the game
-    cleanup_one_character( pchr.get() );
-
-    //If we are inside an inventory we need to remove us
-    const std::shared_ptr<Object> &inventoryHolder = _gameObjects[pchr->inwhich_inventory];
-    if(inventoryHolder) {
-        for (size_t i = 0; i < inventoryHolder->inventory.size(); i++)
-        {
-            if(inventoryHolder->inventory[i] == pchr->getCharacterID()) 
-            {
-                inventoryHolder->inventory[i] = INVALID_CHR_REF;
-                break;
-            }
-        }
-    }
-
-    // Remove from stat list
-    if ( pchr->show_stats )
-    {
-        size_t  cnt;
-        bool stat_found;
-
-        pchr->show_stats = false;
-
-        stat_found = false;
-        for (cnt = 0; cnt < StatusList.count; cnt++)
-        {
-            if ( StatusList.lst[cnt].who == pchr->getCharacterID() )
-            {
-                stat_found = true;
-                break;
-            }
-        }
-
-        if ( stat_found )
-        {
-            for (cnt++; cnt < StatusList.count; cnt++)
-            {
-                SWAP( status_list_element_t, StatusList.lst[cnt-1], StatusList.lst[cnt] );
-            }
-            StatusList.count--;
-        }
-    }
-
-    // Make sure everyone knows it died
-    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
-    {
-        ai_state_t * pai;
-
-        //Don't do ourselves or terminated characters
-        if ( chr->isTerminated() || chr == pchr ) continue;
-        pai = chr_get_pai( chr->getCharacterID() );
-
-        if ( pai->target == pchr->getCharacterID() )
-        {
-            SET_BIT( pai->alert, ALERTIF_TARGETKILLED );
-        }
-
-        if ( chr_get_pteam( chr->getCharacterID() )->leader == pchr->getCharacterID() )
-        {
-            SET_BIT( pai->alert, ALERTIF_LEADERKILLED );
-        }
-    }
-
-    // Handle the team
-    if ( pchr->alive && !pchr->getProfile()->isInvincible() && TeamStack.lst[pchr->team_base].morale > 0 )
-    {
-        TeamStack.lst[pchr->team_base].morale--;
-    }
-
-    if ( TeamStack.lst[pchr->team].leader == pchr->getCharacterID() )
-    {
-        TeamStack.lst[pchr->team].leader = TEAM_NOLEADER;
-    }
-
-    // remove any attached particles
-    disaffirm_attached_particles( pchr->getCharacterID() );
-
-    // actually get rid of the character
-    _gameObjects.remove(pchr->getCharacterID());
-}
-
-//--------------------------------------------------------------------------------------------
 void free_inventory_in_game( const CHR_REF character )
 {
     /// @author ZZ
@@ -543,7 +453,9 @@ void free_inventory_in_game( const CHR_REF character )
 
     PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pitem, iitem )
     {
-        free_one_character_in_game(_gameObjects[iitem]);
+        // actually get rid of the item
+        pitem->requestTerminate();
+
     }
     PACK_END_LOOP();
 

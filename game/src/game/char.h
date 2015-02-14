@@ -259,6 +259,8 @@ void reset_character_accel( const CHR_REF character );
 // whether  ai.state == cap.hidestate
 Object * chr_set_ai_state( Object * pchr, int state );
 
+void cleanup_one_character( Object * pchr );
+
 //--------------------------------------------------------------------------------------------
 // list definitions
 //--------------------------------------------------------------------------------------------
@@ -287,7 +289,6 @@ void move_all_characters();
 void cleanup_all_characters();
 void bump_all_characters_update_counters();
 void free_all_chraracters();
-void free_one_character_in_game(const std::shared_ptr<Object> &pchr);
 
 void keep_weapons_with_holders();
 
