@@ -59,17 +59,16 @@
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/Renderer/Renderer.hpp"
+#include "egolib/Profiles/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #include "egolib/file_formats/configfile.h"
 #include "egolib/file_formats/controls_file.h"
-#include "egolib/file_formats/eve_file.h"
 #include "egolib/file_formats/id_md2.h"
 #include "egolib/file_formats/map_file.h"
 #include "egolib/file_formats/map_tile_dictionary.h"
-#include "egolib/file_formats/pip_file.h"
 #include "egolib/file_formats/quest_file.h"
 #include "egolib/file_formats/scancode_file.h"
 #include "egolib/file_formats/spawn_file.h"

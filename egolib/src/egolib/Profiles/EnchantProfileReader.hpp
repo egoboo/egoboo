@@ -17,16 +17,31 @@
 //*
 //********************************************************************************************
 
-#define EGOLIB_PROFILES_PRIVATE 1
+/// @file  egolib/Profiles/EnchantProfileReader.hpp
+/// @brief Reads Egoboo's enchant profile files (<tt>"/modules/*.mod/objects/*.obj/enchant.txt"</tt>).
+
+#pragma once
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
+#endif
+
 #include "egolib/Profiles/EnchantProfile.hpp"
 
-eve_t *eve_t::init(eve_t *self)
+/**
+* @brief
+*  A reader for enchant profiles.
+*/
+struct EnchantProfileReader
 {
-    if (!self) return nullptr;
-
-    BLANK_STRUCT_PTR(self);
-
-    self->endsound_index = -1;
-
-    return self;
-}
+    /**
+    * @brief
+    *  Read an enchant profile.
+    * @param [out] profile
+    *  the enchant profile in which the data to read is stored in
+    * @param loadName
+    *  the load name
+    * @return
+    *  @a true on success, @a false on failure
+    */
+    static bool read(eve_t *profile, const char *loadName);
+};

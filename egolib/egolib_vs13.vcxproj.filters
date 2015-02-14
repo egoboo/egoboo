@@ -165,9 +165,6 @@
     <ClCompile Include="src\egolib\file_formats\controls_file-v3.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\eve_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\file_formats\id_md2.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -187,9 +184,6 @@
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\file_formats\map_tile_dictionary.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\pip_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\file_formats\quest_file.c">
@@ -292,6 +286,18 @@
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Profiles\RandomName.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\EnchantProfileReader.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\EnchantProfileWriter.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\ParticleProfileReader.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\ParticleProfileWriter.cpp">
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
   </ItemGroup>
@@ -431,9 +437,6 @@
     <ClInclude Include="src\egolib\file_formats\controls_file-v3.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\eve_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\file_formats\id_md2.h">
       <Filter>File Formats</Filter>
     </ClInclude>
@@ -453,9 +456,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\file_formats\map_tile_dictionary.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\pip_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\file_formats\quest_file.h">
@@ -572,7 +572,19 @@
     <ClInclude Include="src\egolib\Profiles\RandomName.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
-    <ClInclude Include="egolib\Profiles\_Include.hpp">
+    <ClInclude Include="src\egolib\Profiles\_Include.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\EnchantProfileReader.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\EnchantProfileWriter.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\ParticleProfileReader.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
   </ItemGroup>

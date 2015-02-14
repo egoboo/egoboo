@@ -17,16 +17,13 @@
 //*
 //********************************************************************************************
 
-#define EGOLIB_PROFILES_PRIVATE 1
-#include "egolib/Profiles/EnchantProfile.hpp"
+/// @file egolib/Profiles/ParticleProfileWriter.hpp
+/// @details Writes Egoboo's particle profile file (<tt>"/modules/*.mod/objects/*.obj/part*.txt"</tt>).
+/// @todo A writer Egoboo's particle profile files is still missing.
 
-eve_t *eve_t::init(eve_t *self)
-{
-    if (!self) return nullptr;
+#pragma once
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
+#endif
 
-    BLANK_STRUCT_PTR(self);
-
-    self->endsound_index = -1;
-
-    return self;
-}
+#include "egolib/Profiles/ParticleProfile.hpp"

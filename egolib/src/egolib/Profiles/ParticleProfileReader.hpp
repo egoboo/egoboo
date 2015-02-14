@@ -17,16 +17,31 @@
 //*
 //********************************************************************************************
 
-#define EGOLIB_PROFILES_PRIVATE 1
-#include "egolib/Profiles/EnchantProfile.hpp"
+/// @file egolib/Profiles/ParticleProfileReader.hpp
+/// @details Reads Egoboo's particle profile file (<tt>"/modules/*.mod/objects/*.obj/part*.txt"</tt>).-
 
-eve_t *eve_t::init(eve_t *self)
+#pragma once
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
+#endif
+
+#include "egolib/Profiles/ParticleProfile.hpp"
+
+/**
+* @brief
+*  A reader for particle profiles.
+*/
+struct ParticleProfileReader
 {
-    if (!self) return nullptr;
-
-    BLANK_STRUCT_PTR(self);
-
-    self->endsound_index = -1;
-
-    return self;
-}
+    /**
+    * @brief
+    *  Read a particle profile.
+    * @param [out] profile
+    *  the particle profile in which the data to read is stored in
+    * @param loadName
+    *  the load name
+    * @return
+    *  @a true on success, @a false on failure
+    */
+    static bool read(pip_t *profile, const char *loadName);
+};

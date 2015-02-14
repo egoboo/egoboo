@@ -254,6 +254,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Profiles\EnchantProfileReader.cpp" />
+    <ClCompile Include="src\egolib\Profiles\EnchantProfileWriter.cpp" />
+    <ClCompile Include="src\egolib\Profiles\ParticleProfileReader.cpp" />
+    <ClCompile Include="src\egolib\Profiles\ParticleProfileWriter.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfile.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfile.cpp" />
     <ClCompile Include="src\egolib\Profiles\RandomName.cpp" />
@@ -361,7 +365,6 @@
     <ClCompile Include="src\egolib\file_formats\controls_file-v2.c" />
     <ClCompile Include="src\egolib\file_formats\controls_file-v3.c" />
     <ClCompile Include="src\egolib\file_formats\controls_file.c" />
-    <ClCompile Include="src\egolib\file_formats\eve_file.c" />
     <ClCompile Include="src\egolib\file_formats\id_md2.c" />
     <ClCompile Include="src\egolib\file_formats\map_file-v1.c" />
     <ClCompile Include="src\egolib\file_formats\map_file-v2.c" />
@@ -369,7 +372,6 @@
     <ClCompile Include="src\egolib\file_formats\map_file-v4.c" />
     <ClCompile Include="src\egolib\file_formats\map_file.c" />
     <ClCompile Include="src\egolib\file_formats\map_tile_dictionary.c" />
-    <ClCompile Include="src\egolib\file_formats\pip_file.c" />
     <ClCompile Include="src\egolib\file_formats\quest_file.c" />
     <ClCompile Include="src\egolib\file_formats\scancode_file.c" />
     <ClCompile Include="src\egolib\file_formats\SDL_md2.c" />
@@ -420,6 +422,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Profiles\EnchantProfileReader.hpp" />
+    <ClInclude Include="src\egolib\Profiles\EnchantProfileWriter.hpp" />
+    <ClInclude Include="src\egolib\Profiles\ParticleProfileReader.hpp" />
+    <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfile.hpp" />
     <ClInclude Include="src\egolib\Profiles\ParticleProfile.hpp" />
     <ClInclude Include="src\egolib\Profiles\RandomName.hpp" />
@@ -469,7 +475,6 @@
     <ClInclude Include="src\egolib\file_formats\controls_file-v2.h" />
     <ClInclude Include="src\egolib\file_formats\controls_file-v3.h" />
     <ClInclude Include="src\egolib\file_formats\controls_file.h" />
-    <ClInclude Include="src\egolib\file_formats\eve_file.h" />
     <ClInclude Include="src\egolib\file_formats\id_md2.h" />
     <ClInclude Include="src\egolib\file_formats\map_file-v1.h" />
     <ClInclude Include="src\egolib\file_formats\map_file-v2.h" />
@@ -477,7 +482,6 @@
     <ClInclude Include="src\egolib\file_formats\map_file-v4.h" />
     <ClInclude Include="src\egolib\file_formats\map_file.h" />
     <ClInclude Include="src\egolib\file_formats\map_tile_dictionary.h" />
-    <ClInclude Include="src\egolib\file_formats\pip_file.h" />
     <ClInclude Include="src\egolib\file_formats\quest_file.h" />
     <ClInclude Include="src\egolib\file_formats\scancode_file.h" />
     <ClInclude Include="src\egolib\file_formats\SDL_md2.h" />

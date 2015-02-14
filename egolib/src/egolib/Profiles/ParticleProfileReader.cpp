@@ -17,61 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/file_formats/pip_file.c
-/// @brief Routines for reading and writing the particle profile file "part*.txt"
-/// @details
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/ParticleProfileReader.hpp"
 
-#include "egolib/file_formats/pip_file.h"
-
-#include "egolib/vfs.h"
-#include "egolib/fileutil.h"
+#include "egolib/file_formats/template.h"
 #include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/vfs.h"
+#include "egolib/_math.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-particle_direction_t prt_direction[256] =
-{
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_l, prt_v, prt_v, prt_v, prt_v, prt_l, prt_l, prt_l, prt_r, prt_r, prt_r, prt_r, prt_r,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_l, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_l, prt_l, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_l, prt_l, prt_l, prt_l,
-    prt_u, prt_u, prt_u, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_u, prt_u, prt_u, prt_u,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_u, prt_u, prt_u, prt_u
-};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-pip_t *pip_t::init(pip_t *self)
-{
-    if (!self) return nullptr;
-
-    // clear the pip
-    BLANK_STRUCT_PTR(self);
-
-    self->end_sound       = -1;
-    self->end_sound_floor = -1;
-    self->end_sound_wall  = -1;
-    self->damfx           = DAMFX_TURN;
-
-    self->allowpush = true;
-
-    self->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
-    self->type = SPRITE_SOLID;
-
-    return self;
-}
-
-//--------------------------------------------------------------------------------------------
 bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
 {
     vfs_FILE* fileread;
@@ -91,18 +45,18 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->loaded = true;
 
     // read the 1 line comment at the top of the file
-    vfs_gets(profile->comment, SDL_arraysize( profile->comment ) - 1, fileread );
+    vfs_gets(profile->comment, SDL_arraysize(profile->comment) - 1, fileread);
 
     // rewind the file
-    vfs_seek( fileread, 0 );
+    vfs_seek(fileread, 0);
 
     // General data
-    profile->force = vfs_get_next_bool( fileread );
+    profile->force = vfs_get_next_bool(fileread);
 
-    cTmp = vfs_get_next_char( fileread );
-    if ( 'L' == char_toupper(( unsigned )cTmp ) )  profile->type = SPRITE_LIGHT;
-    else if ( 'S' == char_toupper(( unsigned )cTmp ) )  profile->type = SPRITE_SOLID;
-    else if ( 'T' == char_toupper(( unsigned )cTmp ) )  profile->type = SPRITE_ALPHA;
+    cTmp = vfs_get_next_char(fileread);
+    if ('L' == char_toupper((unsigned)cTmp))  profile->type = SPRITE_LIGHT;
+    else if ('S' == char_toupper((unsigned)cTmp))  profile->type = SPRITE_SOLID;
+    else if ('T' == char_toupper((unsigned)cTmp))  profile->type = SPRITE_ALPHA;
 
     profile->image_base = vfs_get_next_int(fileread);
     profile->numframes = vfs_get_next_int(fileread);
@@ -139,7 +93,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->damagetype = vfs_get_next_damage_type(fileread);
 
     // Lighting data
-    cTmp = vfs_get_next_char( fileread );
+    cTmp = vfs_get_next_char(fileread);
     if ('T' == char_toupper((unsigned)cTmp)) profile->dynalight.mode = DYNA_MODE_ON;
     else if ('L' == char_toupper((unsigned)cTmp)) profile->dynalight.mode = DYNA_MODE_LOCAL;
     else profile->dynalight.mode = DYNA_MODE_OFF;
@@ -204,7 +158,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->homingaccel = vfs_get_next_float(fileread);
     profile->rotatetoface = vfs_get_next_bool(fileread);
 
-    goto_colon_vfs( NULL, fileread, false );  // !!Respawn on hit is unused
+    goto_colon_vfs(NULL, fileread, false);  // !!Respawn on hit is unused
 
     profile->manadrain = vfs_get_next_ufp8(fileread);
     profile->lifedrain = vfs_get_next_ufp8(fileread);
@@ -216,9 +170,9 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     if (profile->homing)  profile->damfx = DAMFX_NONE;
 
     // Read expansions
-    while ( goto_colon_vfs( NULL, fileread, true ) )
+    while (goto_colon_vfs(NULL, fileread, true))
     {
-        idsz = vfs_get_idsz( fileread );
+        idsz = vfs_get_idsz(fileread);
 
         if (idsz == MAKE_IDSZ('T', 'U', 'R', 'N'))       SET_BIT(profile->damfx, DAMFX_NONE);        //ZF> This line doesnt do anything?
         else if (idsz == MAKE_IDSZ('A', 'R', 'M', 'O'))  SET_BIT(profile->damfx, DAMFX_ARMO);
@@ -228,17 +182,17 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = vfs_get_float(fileread);
         else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = vfs_get_int(fileread);
         else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = vfs_get_int(fileread);
-        else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D'))  profile->end_wall = ( 0 != vfs_get_int( fileread ) );
+        else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != vfs_get_int(fileread));
         else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != vfs_get_int(fileread));
         else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = vfs_get_int(fileread) / 1000.0f;
         else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = vfs_get_int(fileread) / 1000.0f;
         else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->intdamagebonus = (0 != vfs_get_int(fileread));
         else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  profile->wisdamagebonus = (0 != vfs_get_int(fileread));
         else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != vfs_get_int(fileread));
-        else if ( idsz == MAKE_IDSZ( 'O', 'R', 'N', 'T' ) )
+        else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
         {
-            char cTmp = vfs_get_first_letter( fileread );
-            switch ( char_toupper(( unsigned )cTmp ) )
+            char cTmp = vfs_get_first_letter(fileread);
+            switch (char_toupper((unsigned)cTmp))
             {
             case 'X': profile->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
             case 'Y': profile->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
@@ -250,7 +204,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         }
     }
 
-    vfs_close( fileread );
+    vfs_close(fileread);
 
     return true;
 }

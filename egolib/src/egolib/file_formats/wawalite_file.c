@@ -22,13 +22,10 @@
 /// @details
 
 #include "egolib/file_formats/wawalite_file.h"
-
-#include "egolib/file_formats/pip_file.h"
-
+#include "egolib/Profiles/_Include.hpp"
 #include "egolib/log.h"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
-
 #include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------

@@ -18,15 +18,10 @@
 //********************************************************************************************
 
 #define EGOLIB_PROFILES_PRIVATE 1
-#include "egolib/Profiles/EnchantProfile.hpp"
+#include "egolib/Profiles/ParticleProfileWriter.hpp"
 
-eve_t *eve_t::init(eve_t *self)
-{
-    if (!self) return nullptr;
-
-    BLANK_STRUCT_PTR(self);
-
-    self->endsound_index = -1;
-
-    return self;
-}
+#include "egolib/file_formats/template.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/vfs.h"
+#include "egolib/_math.h"

@@ -17,16 +17,34 @@
 //*
 //********************************************************************************************
 
-#define EGOLIB_PROFILES_PRIVATE 1
+/// @file  egolib/Profiles/EnchantProfileWriter.hpp
+/// @brief Writes Egoboo's enchant profile files (<tt>"/modules/*.mod/objects/*.obj/enchant.txt"</tt>).
+
+
+#pragma once
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
+#endif
+
 #include "egolib/Profiles/EnchantProfile.hpp"
 
-eve_t *eve_t::init(eve_t *self)
+/**
+* @brief
+*  A writer for enchant profiles.
+*/
+struct EnchantProfileWriter
 {
-    if (!self) return nullptr;
-
-    BLANK_STRUCT_PTR(self);
-
-    self->endsound_index = -1;
-
-    return self;
-}
+    /**
+    * @brief
+    *  Write an enchant profile.
+    * @param profile
+    *  the enchant profile from which the data to write is stored in
+    * @param saveName
+    *  the save name
+    * @param templateName
+    *  the template name
+    * @return
+    *  @a true on success, @a false on failure
+    */
+    static bool write(eve_t *profile, const char *loadName, const char *templateName);
+};
