@@ -49,7 +49,7 @@ void scancode_begin( void )
         dst = src;
         if ( src < 255 )
         {
-            dst = char_toupper(( unsigned )src );
+            dst = char_toupper( src );
 
             if ( dst > 255 )
             {

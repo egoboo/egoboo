@@ -123,7 +123,7 @@ public:
         if (_ref == MAX)
         {
             std::ostringstream msg;
-            msg << __FILE__ << ":" __LINE__ ": " << "reference overflow";
+            msg << __FILE__ << ":" __LINE__ << ": " << "reference overflow";
             std::overflow_error(msg.str());
         }
         _ref++; return *this;
@@ -134,7 +134,7 @@ public:
         if (MAX == _ref)
         {
             std::ostringstream msg;
-            msg << __FILE__ << ":" __LINE__ ": " << "reference overflow";
+            msg << __FILE__ << ":" __LINE__ << ": " << "reference overflow";
             std::overflow_error(msg.str());
         }
         _++ref;
@@ -148,7 +148,7 @@ public:
         if (0 == _ref)
         {
             std::ostringstream msg;
-            msg << __FILE__ << ":" __LINE__ ": " << "reference underflow";
+            msg << __FILE__ << ":" __LINE__ << ": " << "reference underflow";
             std::underflow_error(msg.str());
         }
         _ref--;
@@ -160,7 +160,7 @@ public:
         if (0 == _ref)
         {
             std::ostringstream msg;
-            msg << __FILE__ << ":" __LINE__ ": " << "reference underflow";
+            msg << __FILE__ << ":" __LINE__ << ": " << "reference underflow";
             std::underflow_error(msg.str());
         }
         --_ref;

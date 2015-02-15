@@ -109,7 +109,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     {
         if ( !isspace(( unsigned )( *pin ) ) && isprint(( unsigned )( *pin ) ) )
         {
-            chrlast = *pout = char_tolower(( unsigned )( *pin ) );
+            chrlast = *pout = char_tolower(*pin);
             pin++;
             pout++;
         }
@@ -305,7 +305,7 @@ char * str_encode_path( const char *szName )
     ppath_end = szPathname + SDL_arraysize( szPathname ) - 5;
     while ( CSTR_END != *pname && pname < pname_end && ppath < ppath_end )
     {
-        letter = char_tolower(( unsigned )( *pname ) );
+        letter = char_tolower(*pname);
 
         if ( isspace(( unsigned )letter ) || !( isalpha(( unsigned )letter ) || isdigit(( unsigned )letter ) ) ) letter = '_';
 

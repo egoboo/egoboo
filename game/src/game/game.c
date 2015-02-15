@@ -3403,7 +3403,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
             }
 
             // make the line capitalized if necessary
-            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = char_toupper(( unsigned )( *ebuffer ) );
+            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = char_toupper( *ebuffer );
 
             // Copy the generated text
             while ( CSTR_END != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )

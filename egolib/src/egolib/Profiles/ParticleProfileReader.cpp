@@ -52,9 +52,9 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->force = vfs_get_next_bool(ctxt);
 
     cTmp = vfs_get_next_char(ctxt);
-    if ('L' == char_toupper((unsigned)cTmp))  profile->type = SPRITE_LIGHT;
-    else if ('S' == char_toupper((unsigned)cTmp))  profile->type = SPRITE_SOLID;
-    else if ('T' == char_toupper((unsigned)cTmp))  profile->type = SPRITE_ALPHA;
+    if ('L' == char_toupper(cTmp))  profile->type = SPRITE_LIGHT;
+    else if ('S' == char_toupper(cTmp))  profile->type = SPRITE_SOLID;
+    else if ('T' == char_toupper(cTmp))  profile->type = SPRITE_ALPHA;
 
     profile->image_base = vfs_get_next_int(ctxt);
     profile->numframes = vfs_get_next_int(ctxt);
@@ -92,8 +92,8 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
 
     // Lighting data
     cTmp = vfs_get_next_char(ctxt);
-    if ('T' == char_toupper((unsigned)cTmp)) profile->dynalight.mode = DYNA_MODE_ON;
-    else if ('L' == char_toupper((unsigned)cTmp)) profile->dynalight.mode = DYNA_MODE_LOCAL;
+    if ('T' == char_toupper(cTmp)) profile->dynalight.mode = DYNA_MODE_ON;
+    else if ('L' == char_toupper(cTmp)) profile->dynalight.mode = DYNA_MODE_LOCAL;
     else profile->dynalight.mode = DYNA_MODE_OFF;
 
     profile->dynalight.level = vfs_get_next_float(ctxt);
@@ -190,7 +190,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
         {
             char cTmp = vfs_get_first_letter(ctxt);
-            switch (char_toupper((unsigned)cTmp))
+            switch (char_toupper(cTmp))
             {
             case 'X': profile->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
             case 'Y': profile->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis

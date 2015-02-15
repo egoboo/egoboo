@@ -130,8 +130,8 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
 
     profile->setyesno[SETMISSILETREATMENT] = vfs_get_next_bool(ctxt);
     cTmp = vfs_get_first_letter(ctxt);
-    if ('R' == char_toupper((unsigned)cTmp)) profile->setvalue[SETMISSILETREATMENT] = MISSILE_REFLECT;
-    else if ('D' == char_toupper((unsigned)cTmp)) profile->setvalue[SETMISSILETREATMENT] = MISSILE_DEFLECT;
+    if ('R' == char_toupper(cTmp)) profile->setvalue[SETMISSILETREATMENT] = MISSILE_REFLECT;
+    else if ('D' == char_toupper(cTmp)) profile->setvalue[SETMISSILETREATMENT] = MISSILE_DEFLECT;
     else profile->setvalue[SETMISSILETREATMENT] = MISSILE_NORMAL;
 
     profile->setyesno[SETCOSTFOREACHMISSILE] = vfs_get_next_bool(ctxt);

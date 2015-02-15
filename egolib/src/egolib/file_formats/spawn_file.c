@@ -108,13 +108,13 @@ bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
         pinfo->facing = FACE_NORTH;
         pinfo->attach = ATTACH_NONE;
         cTmp = vfs_get_first_letter(ctxt);
-        if ( 'S' == char_toupper(( unsigned )cTmp ) )       pinfo->facing = FACE_SOUTH;
-        else if ( 'E' == char_toupper(( unsigned )cTmp ) )  pinfo->facing = FACE_EAST;
-        else if ( 'W' == char_toupper(( unsigned )cTmp ) )  pinfo->facing = FACE_WEST;
-        else if ( '?' == char_toupper(( unsigned )cTmp ) )  pinfo->facing = FACE_RANDOM;
-        else if ( 'L' == char_toupper(( unsigned )cTmp ) )  pinfo->attach = ATTACH_LEFT;
-        else if ( 'R' == char_toupper(( unsigned )cTmp ) )  pinfo->attach = ATTACH_RIGHT;
-        else if ( 'I' == char_toupper(( unsigned )cTmp ) )  pinfo->attach = ATTACH_INVENTORY;
+        if ( 'S' == char_toupper( cTmp ) )       pinfo->facing = FACE_SOUTH;
+        else if ( 'E' == char_toupper( cTmp ) )  pinfo->facing = FACE_EAST;
+        else if ( 'W' == char_toupper( cTmp ) )  pinfo->facing = FACE_WEST;
+        else if ( '?' == char_toupper( cTmp ) )  pinfo->facing = FACE_RANDOM;
+        else if ( 'L' == char_toupper( cTmp ) )  pinfo->attach = ATTACH_LEFT;
+        else if ( 'R' == char_toupper( cTmp ) )  pinfo->attach = ATTACH_RIGHT;
+        else if ( 'I' == char_toupper( cTmp ) )  pinfo->attach = ATTACH_INVENTORY;
 
         pinfo->money   = vfs_get_int(ctxt);
         pinfo->skin    = vfs_get_int(ctxt);
