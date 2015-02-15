@@ -64,16 +64,17 @@ void GameModule::loadAllPassages()
     // Load the file
     vfs_FILE *fileread = vfs_openRead( "mp_data/passage.txt" );
     if ( NULL == fileread ) return;
+    ReadContext ctxt("mp_data/passage.txt",fileread,true);
 
     //Load all passages in file
     while ( goto_colon_vfs( NULL, fileread, true ) )
     {
         //read passage area
         irect_t area;
-        area._left   = vfs_get_int( fileread );
-        area._top    = vfs_get_int( fileread );
-        area._right  = vfs_get_int( fileread );
-        area._bottom = vfs_get_int( fileread );
+        area._left   = vfs_get_int(ctxt);
+        area._top    = vfs_get_int(ctxt);
+        area._right  = vfs_get_int(ctxt);
+        area._bottom = vfs_get_int(ctxt);
 
         //constrain passage area within the level
         area._left    = CLIP( area._left,   0, PMesh->info.tiles_x - 1 );
@@ -82,12 +83,12 @@ void GameModule::loadAllPassages()
         area._bottom  = CLIP( area._bottom, 0, PMesh->info.tiles_y - 1 );
 
         //Read if open by default
-        bool open = vfs_get_bool( fileread );
+        bool open = vfs_get_bool(ctxt);
 
         //Read mask (optional)
         uint8_t mask = MAPFX_IMPASS | MAPFX_WALL;
-        if ( vfs_get_bool( fileread ) ) mask = MAPFX_IMPASS;
-        if ( vfs_get_bool( fileread ) ) mask = MAPFX_SLIPPY;
+        if (vfs_get_bool(ctxt)) mask = MAPFX_IMPASS;
+        if (vfs_get_bool(ctxt)) mask = MAPFX_SLIPPY;
 
         std::shared_ptr<Passage> passage = std::make_shared<Passage>(area, mask);
 
@@ -99,9 +100,6 @@ void GameModule::loadAllPassages()
         //finished loading this one!
         _passages.push_back(passage);
     }
-
-    //all done!
-    vfs_close( fileread );
 }
 
 void GameModule::checkPassageMusic()

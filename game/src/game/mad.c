@@ -191,13 +191,14 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
 
     fileread = vfs_openRead( loadname );
     if ( NULL == fileread ) return pmad;
+    ReadContext ctxt(loadname, fileread, true);
 
-    while ( goto_colon_vfs( NULL, fileread, true ) )
+    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
     {
-        vfs_get_string( fileread, szOne, SDL_arraysize( szOne ) );
+        vfs_get_string( ctxt, szOne, SDL_arraysize( szOne ) );
         actiona = action_which( szOne[0] );
 
-        vfs_get_string( fileread, szTwo, SDL_arraysize( szTwo ) );
+        vfs_get_string( ctxt, szTwo, SDL_arraysize( szTwo ) );
         actionb = action_which( szTwo[0] );
 
         action_copy_correct( pmad, actiona + 0, actionb + 0 );
@@ -205,8 +206,6 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
         action_copy_correct( pmad, actiona + 2, actionb + 2 );
         action_copy_correct( pmad, actiona + 3, actionb + 3 );
     }
-
-    vfs_close( fileread );
 
     return pmad;
 }

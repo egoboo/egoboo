@@ -80,12 +80,9 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
         log_warning( "Could not load input settings (%s)!\n", szFilename );
         return false;
     }
-    else
-    {
-        file_version = vfs_get_version( fileread );
-
-        vfs_close( fileread );
-    }
+    ReadContext ctxt(szFilename, fileread, true);
+    file_version = vfs_get_version(ctxt);
+    ctxt.close();
 
     // check for a version conflict
     if ( -1 != required_version && file_version != required_version )

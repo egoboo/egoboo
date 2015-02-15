@@ -543,19 +543,19 @@ void activate_alliance_file_vfs()
 
     // Load the file
     fileread = vfs_openRead( "mp_data/alliance.txt" );
-    if ( fileread )
+    if (!fileread)
     {
-        while ( goto_colon_vfs( NULL, fileread, true ) )
-        {
-            vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
-            teama = ( szTemp[0] - 'A' ) % TEAM_MAX;
+        return;
+    }
+    ReadContext ctxt("mp_data/alliance.txt", fileread, true);
+    while ( goto_colon_vfs( NULL, fileread, true ) )
+    {
+        vfs_get_string( ctxt, szTemp, SDL_arraysize( szTemp ) );
+        teama = ( szTemp[0] - 'A' ) % TEAM_MAX;
 
-            vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
-            teamb = ( szTemp[0] - 'A' ) % TEAM_MAX;
-            TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = false;
-        }
-
-        vfs_close( fileread );
+        vfs_get_string( ctxt, szTemp, SDL_arraysize( szTemp ) );
+        teamb = ( szTemp[0] - 'A' ) % TEAM_MAX;
+        TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = false;
     }
 }
 
@@ -2370,7 +2370,7 @@ void activate_spawn_file_vfs()
     {
         log_error( "Cannot read file: %s\n", filePath );
     }
-    else
+    ReadContext ctxt(filePath, fileread, true);
     {
         CHR_REF parent = INVALID_CHR_REF;
 
@@ -2380,7 +2380,7 @@ void activate_spawn_file_vfs()
             spawn_file_info_t entry;
 
             //Read next entry
-            if(!spawn_file_scan(fileread, &entry)) {
+            if(!spawn_file_scan(ctxt, &entry)) {
                 break; //no more entries
             }
 
@@ -2493,7 +2493,7 @@ void activate_spawn_file_vfs()
             }
         }
 
-        vfs_close( fileread );
+        ctxt.close();
     }
 
     DisplayMsg_clear();

@@ -36,8 +36,8 @@
 static size_t    scantag_count = 0;
 static scantag_t scantag_lst[MAXTAG];
 
-static void   scantag_reset( void );
-static bool scantag_read_one( vfs_FILE *fileread );
+static void scantag_reset();
+static bool scantag_read_one(ReadContext& ctxt);
 static bool scantag_matches_control( scantag_t * ptag, control_t * pcontrol );
 static bool scantag_matches_device( scantag_t * ptag, int device_type );
 
@@ -55,18 +55,18 @@ void scantag_reset( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool scantag_read_one( vfs_FILE *fileread )
+bool scantag_read_one(ReadContext& ctxt)
 {
     /// @author ZZ
     /// @details This function finds the next tag, returning true if it found one
 
     bool retval;
 
-    retval = goto_colon_vfs( NULL, fileread, true ) && ( scantag_count < MAXTAG );
+    retval = goto_colon_vfs( NULL, ctxt._file, true ) && ( scantag_count < MAXTAG );
     if ( retval )
     {
-        vfs_get_string( fileread, scantag_lst[scantag_count].name, SDL_arraysize( scantag_lst[scantag_count].name ) );
-        scantag_lst[scantag_count].value = vfs_get_int( fileread );
+        vfs_get_string(ctxt, scantag_lst[scantag_count].name, SDL_arraysize( scantag_lst[scantag_count].name ) );
+        scantag_lst[scantag_count].value = vfs_get_int(ctxt);
         scantag_count++;
     }
 
@@ -88,11 +88,10 @@ void scantag_read_all_vfs( const char *szFilename )
     {
         log_error( "Cannot read %s.", szFilename );
     }
+    ReadContext ctxt(szFilename, fileread, true);
 
     // read in all the scantags from the file
-    while ( scantag_read_one( fileread ) );
-
-    vfs_close( fileread );
+    while ( scantag_read_one(ctxt) );
 
     // make extra scantags to support joystick buttons up to 32 bits
     for ( cnt = 0; cnt < 32; cnt++ )

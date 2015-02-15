@@ -422,6 +422,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Profiles\ReaderUtilities.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfileReader.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfileWriter.hpp" />
     <ClInclude Include="src\egolib\Profiles\ParticleProfileReader.hpp" />

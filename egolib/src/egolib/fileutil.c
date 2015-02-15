@@ -49,7 +49,7 @@ Uint8           maxformattypes;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-IDSZ vfs_get_idsz( vfs_FILE* fileread )
+IDSZ vfs_get_idsz(ReadContext& ctxt)
 {
     /// @author ZZ
     /// @details This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
@@ -58,18 +58,18 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
     char cTmp;
     int  iTmp;
 
-    iTmp = vfs_get_first_letter( fileread );
+    iTmp = vfs_get_first_letter( ctxt );
     if ( '[' == iTmp )
     {
         //long fpos;
         int  i;
         char idsz_str[5] = EMPTY_CSTR;
 
-        vfs_tell( fileread );
+        vfs_tell( ctxt._file );
 
         for ( i = 0; i < 4; i++ )
         {
-            iTmp = vfs_getc( fileread );
+            iTmp = vfs_getc( ctxt._file );
             if (( unsigned )iTmp > 0xFF )
                 break;
 
@@ -87,7 +87,7 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
         {
             idsz = MAKE_IDSZ( idsz_str[0], idsz_str[1], idsz_str[2], idsz_str[3] );
 
-            iTmp = vfs_getc( fileread );
+            iTmp = vfs_getc( ctxt._file );
             if ( ']' != iTmp )
             {
                 log_warning( "Problem reading IDSZ in \"%s\"\n", parse_filename );
@@ -281,24 +281,24 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optiona
 }
 
 //--------------------------------------------------------------------------------------------
-char vfs_get_first_letter( vfs_FILE* fileread )
+char vfs_get_first_letter(ReadContext& ctxt)
 {
     /// @author ZZ
     /// @details This function returns the next non-whitespace character
     char cTmp;
 
-	vfs_scanf(fileread, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
+	vfs_scanf(ctxt._file, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
 
     while ( isspace(( unsigned )cTmp ) )
     {
-		vfs_scanf(fileread, "%c", &cTmp); /* @todo Do not us scanf to read a single letter. */
+		vfs_scanf(ctxt._file, "%c", &cTmp); /* @todo Do not us scanf to read a single letter. */
     }
 
     return cTmp;
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_name(vfs_FILE* fileread, char *szName, size_t max_len)
+bool vfs_get_name(ReadContext& ctxt, char *szName, size_t max_len)
 {
     /// @author ZZ
     /// @details This function loads a string of up to MAXCAPNAMESIZE characters, parsing
@@ -312,14 +312,14 @@ bool vfs_get_name(vfs_FILE* fileread, char *szName, size_t max_len)
     if ( NULL == szName ) return false;
     szName[0] = CSTR_END;
 
-    if ( NULL == fileread || ( 0 != vfs_error( fileread ) ) || vfs_eof( fileread ) ) return false;
+    if (( 0 != vfs_error( ctxt._file ) ) || vfs_eof( ctxt._file ) ) return false;
 
     // limit the max length of the string!
     // return value if the number of fields fields, not amount fields from file
     snprintf( format, SDL_arraysize( format ), "%%%llus", max_len - 1 );
 
     szName[0] = CSTR_END;
-    fields = vfs_scanf( fileread, format, szName );
+    fields = vfs_scanf( ctxt._file, format, szName );
 
     if ( fields > 0 )
     {
@@ -327,7 +327,7 @@ bool vfs_get_name(vfs_FILE* fileread, char *szName, size_t max_len)
         str_decode( szName, max_len, szName );
     };
 
-    return ( 1 == fields ) && vfs_error( fileread );
+    return ( 1 == fields ) && vfs_error( ctxt._file );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -586,7 +586,7 @@ void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz,
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool vfs_get_range( vfs_FILE* fileread, FRange * prange )
+bool vfs_get_range(ReadContext& ctxt, FRange *prange)
 {
     /// @author ZZ
     /// @details This function reads a damage/stat range ( eg. 5-9 )
@@ -594,15 +594,15 @@ bool vfs_get_range( vfs_FILE* fileread, FRange * prange )
     char  cTmp;
     float fFrom, fTo;
 
-    if ( NULL == fileread || vfs_error( fileread ) || vfs_eof( fileread ) ) return false;
+    if (vfs_error(ctxt._file) || vfs_eof(ctxt._file)) return false;
 
     // read the range
-    fFrom = vfs_get_float( fileread );  // The first number
+    fFrom = vfs_get_float(ctxt);  // The first number
     fTo   = fFrom;
 
     // The optional hyphen
-    vfs_tell( fileread );
-    cTmp = vfs_get_first_letter( fileread );
+    vfs_tell(ctxt._file);
+    cTmp = vfs_get_first_letter(ctxt);
 
     if ( '-' != cTmp )
     {
@@ -612,7 +612,7 @@ bool vfs_get_range( vfs_FILE* fileread, FRange * prange )
     else
     {
         // The optional second number
-        fTo = vfs_get_float( fileread );
+        fTo = vfs_get_float(ctxt);
     }
 
     if ( NULL != prange )
@@ -625,26 +625,26 @@ bool vfs_get_range( vfs_FILE* fileread, FRange * prange )
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_range( vfs_FILE* fileread, FRange * prange )
+bool vfs_get_next_range(ReadContext& ctxt, FRange * prange)
 {
     /// @author ZZ
     /// @details This function reads a damage/stat range ( eg. 5-9 )
 
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs( NULL, ctxt._file, false );
 
-    return vfs_get_range( fileread, prange );
+    return vfs_get_range(ctxt, prange);
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool vfs_get_pair( vfs_FILE* fileread, IPair * ppair )
+bool vfs_get_pair(ReadContext& ctxt, IPair * ppair )
 {
     /// @author ZZ
     /// @details This function reads a damage/stat loc_pair ( eg. 5-9 )
 
     FRange loc_range;
 
-    if ( !vfs_get_range( fileread, &loc_range ) ) return false;
+    if ( !vfs_get_range( ctxt, &loc_range ) ) return false;
 
     if ( NULL != ppair )
     {
@@ -688,7 +688,7 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int vfs_get_version( vfs_FILE* fileread )
+int vfs_get_version(ReadContext& ctxt)
 {
     /// @author ZF
     /// @details This gets the version number of the file which is preceeded by a $ symbol
@@ -698,23 +698,23 @@ int vfs_get_version( vfs_FILE* fileread )
     int result;
 
     // Stop here if file can't be read
-    if ( vfs_error( fileread ) ) return 0;
+    if ( vfs_error(ctxt._file) ) return 0;
 
     // Remember where we were
-    filepos = vfs_tell( fileread );
+    filepos = vfs_tell(ctxt._file);
 
     //Begin at the beginning
-    vfs_seek( fileread, 0 );
+    vfs_seek(ctxt._file, 0 );
 
     // Make sure the first line is actually the version tag
-    if ( '$' != vfs_getc( fileread ) ) return 0;
-    while ( !vfs_eof( fileread ) && !isspace(( unsigned )vfs_getc( fileread ) ) );
+    if ('$' != vfs_getc(ctxt._file)) return 0;
+    while (!vfs_eof(ctxt._file) && !isspace(( unsigned )vfs_getc(ctxt._file)));
 
     // Get the version number
-    result = vfs_get_int( fileread );
+    result = vfs_get_int(ctxt);
 
     // reset the file pointer
-    vfs_seek( fileread, filepos );
+    vfs_seek(ctxt._file, filepos);
 
     return result;
 }
@@ -868,27 +868,25 @@ char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite
 }
 
 //--------------------------------------------------------------------------------------------
-char vfs_get_next_char( vfs_FILE * fileread )
+char vfs_get_next_char(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs(NULL, ctxt._file, false);
 
-    return vfs_get_first_letter( fileread );
+    return vfs_get_first_letter(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_get_int( vfs_FILE * fileread )
+int vfs_get_int(ReadContext& ctxt)
 {
     int iTmp = 0;
-
-    vfs_scanf( fileread, "%d", &iTmp );
-
+    vfs_scanf(ctxt._file, "%d", &iTmp);
     return iTmp;
 }
 
 //--------------------------------------------------------------------------------------------
-UFP8_T vfs_get_ufp8( vfs_FILE* fileread )
+UFP8_T vfs_get_ufp8(ReadContext& ctxt)
 {
-    float fval = vfs_get_float( fileread );
+    float fval = vfs_get_float(ctxt);
 
     if ( fval < 0.0f )
     {
@@ -899,39 +897,38 @@ UFP8_T vfs_get_ufp8( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-SFP8_T vfs_get_sfp8( vfs_FILE* fileread )
+SFP8_T vfs_get_sfp8(ReadContext& ctxt)
 {
-    float fval = vfs_get_int( fileread );
+    float fval = vfs_get_int(ctxt);
 
     return FLOAT_TO_FP8( fval );
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_get_next_int( vfs_FILE * fileread )
+int vfs_get_next_int(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs( NULL, ctxt._file, false );
 
-    return vfs_get_int( fileread );
+    return vfs_get_int(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-UFP8_T vfs_get_next_ufp8( vfs_FILE * fileread )
+UFP8_T vfs_get_next_ufp8(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs( NULL, ctxt._file, false );
 
-    return vfs_get_ufp8( fileread );
+    return vfs_get_ufp8(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-SFP8_T vfs_get_next_sfp8( vfs_FILE * fileread )
+SFP8_T vfs_get_next_sfp8(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, fileread, false );
-
-    return vfs_get_sfp8( fileread );
+    goto_colon_vfs(NULL, ctxt._file, false);
+    return vfs_get_sfp8(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_string(vfs_FILE * fileread, char * str, size_t str_len)
+bool vfs_get_string(ReadContext& ctxt, char * str, size_t str_len)
 {
     int fields;
     STRING format_str;
@@ -941,29 +938,29 @@ bool vfs_get_string(vfs_FILE * fileread, char * str, size_t str_len)
     snprintf( format_str, SDL_arraysize( format_str ), "%%%llus", str_len - 1 );
 
     str[0] = CSTR_END;
-    fields = vfs_scanf( fileread, format_str, str );
+    fields = vfs_scanf(ctxt._file, format_str, str );
     str[str_len-1] = CSTR_END;
 
     return 1 == fields;
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_string(vfs_FILE * fileread, char * str, size_t str_len)
+bool vfs_get_next_string(ReadContext& ctxt, char * str, size_t str_len)
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs( NULL, ctxt._file, false );
 
-    return vfs_get_string( fileread, str, str_len );
+    return vfs_get_string(ctxt, str, str_len );
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
+bool vfs_get_line(ReadContext& ctxt, char * str, size_t str_len )
 {
     char * gets_rv;
 	bool found;
 
     if ( NULL == str || 0 == str_len ) return false;
 
-    gets_rv = vfs_gets( str, str_len, fileread );
+    gets_rv = vfs_gets( str, str_len, ctxt._file );
 
     found = false;
     if ( gets_rv == str )
@@ -989,108 +986,103 @@ bool vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_line( vfs_FILE * fileread, char * str, size_t str_len )
+bool vfs_get_next_line(ReadContext& ctxt, char * str, size_t str_len )
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs( NULL, ctxt._file, false );
 
-    return vfs_get_line( fileread, str, str_len );
+    return vfs_get_line( ctxt, str, str_len );
 }
 
 //--------------------------------------------------------------------------------------------
-float vfs_get_float( vfs_FILE * fileread )
+float vfs_get_float(ReadContext& ctxt)
 {
     float fTmp;
 
     fTmp = 0;
-    vfs_scanf( fileread, "%f", &fTmp );
+    vfs_scanf(ctxt._file, "%f", &fTmp);
 
     return fTmp;
 }
 
 //--------------------------------------------------------------------------------------------
-float  vfs_get_next_float( vfs_FILE * fileread )
+float vfs_get_next_float(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs(NULL, ctxt._file, false);
 
-    return vfs_get_float( fileread );
+    return vfs_get_float(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_name( vfs_FILE * fileread, char * name, size_t name_len )
+bool vfs_get_next_name(ReadContext& ctxt, char *name, size_t name_len)
 {
-    goto_colon_vfs( NULL, fileread, false );
-
-    return vfs_get_name( fileread, name, name_len );
+    goto_colon_vfs(NULL, ctxt._file, false);
+    return vfs_get_name(ctxt, name, name_len);
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_pair( vfs_FILE * fileread, IPair * ppair )
+bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair)
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs(NULL, ctxt._file, false);
 
-    return vfs_get_pair( fileread, ppair );
+    return vfs_get_pair(ctxt, pair);
 }
 
 //--------------------------------------------------------------------------------------------
-IDSZ vfs_get_next_idsz( vfs_FILE * fileread )
+IDSZ vfs_get_next_idsz(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, fileread, false );
-
-    return vfs_get_idsz( fileread );
+    goto_colon_vfs(NULL, ctxt._file, false);
+    return vfs_get_idsz(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_get_damage_type( vfs_FILE * fileread )
+
+int vfs_get_damage_type(ReadContext& ctxt)
 {
-    char cTmp;
-    int type;
-
-    cTmp = vfs_get_first_letter( fileread );
-
-    switch ( char_toupper(( unsigned )cTmp ) )
-    {
-        case 'S': type = DAMAGE_SLASH; break;
-        case 'C': type = DAMAGE_CRUSH; break;
-        case 'P': type = DAMAGE_POKE;  break;
-        case 'H': type = DAMAGE_HOLY;  break;
-        case 'E': type = DAMAGE_EVIL;  break;
-        case 'F': type = DAMAGE_FIRE;  break;
-        case 'I': type = DAMAGE_ICE;   break;
-        case 'Z': type = DAMAGE_ZAP;   break;
-
-        default: type = DAMAGE_NONE; break;
-    }
-
-    return type;
+    EnumReader<DamageType> rdr
+    (
+        "damageType",
+        {
+            { "S", DAMAGE_SLASH },
+            { "C", DAMAGE_CRUSH },
+            { "P", DAMAGE_POKE  },
+            { "H", DAMAGE_HOLY  },
+            { "E", DAMAGE_EVIL  },
+            { "F", DAMAGE_FIRE  },
+            { "I", DAMAGE_ICE   },
+            { "Z", DAMAGE_ZAP   },
+            { "N", DAMAGE_NONE  },
+        }
+    );
+    return vfs_read_enum(ctxt,rdr,DAMAGE_NONE);
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_get_next_damage_type( vfs_FILE * fileread )
+int vfs_get_next_damage_type(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs(NULL, ctxt._file, false);
 
-    return vfs_get_damage_type( fileread );
+    return vfs_get_damage_type(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_bool( vfs_FILE * fileread )
+bool vfs_get_bool(ReadContext& ctxt)
 {
-    char cTmp = vfs_get_first_letter( fileread );
+    char cTmp = vfs_get_first_letter(ctxt);
 
     return ( 'T' == char_toupper(( unsigned )cTmp ) );
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_bool( vfs_FILE * fileread )
+bool vfs_get_next_bool(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, fileread, false );
+    goto_colon_vfs(NULL, ctxt._file, false);
 
-    return vfs_get_bool( fileread );
+    return vfs_get_bool(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void GLSetup_SupportedFormats( void )
+void GLSetup_SupportedFormats()
 {
     /// @author ZF
     /// @details This need only to be once
@@ -1187,12 +1179,24 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 vfs_get_damage_modifier( vfs_FILE * fileread )
+Uint8 vfs_get_damage_modifier(ReadContext& ctxt)
 {
+    EnumReader<DamageShift> rdr
+        (
+        "damageModifier",
+        {
+            { "T", DAMAGEINVERT   },
+            { "C", DAMAGECHARGE   },
+            { "M", DAMAGEMANA     },
+            { "I", DAMAGEINVICTUS },
+        }
+    );
+    return vfs_read_enum(ctxt, rdr, (DamageShift)0);
+#if 0
     Uint8  iTmp;
     char   cTmp;
 
-    cTmp = vfs_get_first_letter( fileread );
+    cTmp = vfs_get_first_letter(ctxt._file);
 
     switch ( char_toupper(( unsigned )cTmp ) )
     {
@@ -1204,13 +1208,14 @@ Uint8 vfs_get_damage_modifier( vfs_FILE * fileread )
     };
 
     return iTmp;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
-float vfs_get_damage_resist( vfs_FILE * fileread )
+float vfs_get_damage_resist(ReadContext& ctxt)
 {
     //ugly hack to allow it to work with the old damage system assume that numbers below 4 are shifts
-    float resistance = vfs_get_float( fileread );
+    float resistance = vfs_get_float(ctxt);
     if ( resistance == 1 )   resistance = 0.50f;        //50% reduction, same as shift 1
     else if ( resistance == 2 )   resistance = 0.75f;   //75% reduction, same as shift 2
     else if ( resistance == 3 )   resistance = 0.90f;   //90% reduction, same as shift 3
@@ -1228,14 +1233,13 @@ int read_skin_vfs( const char *filename )
     int skin = NO_SKIN_OVERRIDE;
 
     fileread = vfs_openRead( filename );
-    if ( NULL != fileread )
+    if (!fileread)
     {
-        //Read the contents
-        skin = vfs_get_next_int( fileread );
-        skin %= MAX_SKIN;
-
-        vfs_close( fileread );
+        return NO_SKIN_OVERRIDE;
     }
-
+    ReadContext ctxt(filename, fileread, true);
+    //Read the contents
+    skin = vfs_get_next_int(ctxt);
+    skin %= MAX_SKIN;
     return skin;
 }

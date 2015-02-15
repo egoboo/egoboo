@@ -142,11 +142,12 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     // Open the file
     vfs_FILE* fileread = vfs_openRead( dataFilePath.c_str() );
     if ( NULL == fileread ) return -1;
+    ReadContext ctxt(dataFilePath, fileread, true);
 
     // load the slot's slot no matter what
-    int slot = vfs_get_next_int( fileread );
+    int slot = vfs_get_next_int( ctxt );
 
-    vfs_close( fileread );
+    ctxt.close();
 
     // set the slot slot
     if ( slot >= 0 )

@@ -54,6 +54,7 @@ bool input_settings_load_vfs_2( const char* szFilename )
 
     fileread = vfs_openRead( szFilename );
     if ( NULL == fileread ) return false;
+    ReadContext ctxt(szFilename, fileread, true);
 
     // Read input for each player
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
@@ -61,7 +62,7 @@ bool input_settings_load_vfs_2( const char* szFilename )
         pdevice = InputDevices.lst + idevice;
 
         // figure out how we move
-        if ( !vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+        if ( !vfs_get_next_string(ctxt, currenttag, SDL_arraysize( currenttag ) ) )
         {
             continue;
         }
@@ -81,7 +82,7 @@ bool input_settings_load_vfs_2( const char* szFilename )
         //Read each input control button
         for ( size_t icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
-            if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+            if ( vfs_get_next_line(ctxt, currenttag, SDL_arraysize( currenttag ) ) )
             {
                 scantag_parse_control( currenttag, pdevice->keyMap[icontrol] );
             }
@@ -89,9 +90,6 @@ bool input_settings_load_vfs_2( const char* szFilename )
 
         InputDevices.count++;
     }
-    
-    vfs_close( fileread );
-
     return InputDevices.count > 0;
 }
 

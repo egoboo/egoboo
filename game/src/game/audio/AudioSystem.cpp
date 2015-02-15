@@ -326,15 +326,16 @@ void AudioSystem::loadAllMusic()
         log_warning( "Error reading music list. (mp_data/music/playlist.txt)\n");
         return;
     }
+    ReadContext ctxt("mp_data/music/playlist.txt", playlist, true);
 
     // Load all music data into memory
     while ( !vfs_eof( playlist ) )
     {
-        if ( goto_colon_vfs( NULL, playlist, true ) )
+        if ( goto_colon_vfs( NULL, ctxt._file, true ) )
         {
         	char songName[256];
 
-            vfs_get_string( playlist, songName, SDL_arraysize( songName ) );
+            vfs_get_string( ctxt, songName, SDL_arraysize( songName ) );
 
             std::string path = std::string("mp_data/music/") + songName;
 
@@ -355,8 +356,6 @@ void AudioSystem::loadAllMusic()
         if(specialSong != INVALID_SOUND_ID)
             _musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
     }
-
-    vfs_close( playlist );
 }
 
 void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)

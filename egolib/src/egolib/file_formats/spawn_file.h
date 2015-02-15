@@ -23,13 +23,8 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/vfs.h"
+#include "egolib/fileutil.h"
 #include "egolib/vec.h"
-
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -79,12 +74,5 @@ extern "C"
     spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo );
     spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo );
 
-    bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo );
+    bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif

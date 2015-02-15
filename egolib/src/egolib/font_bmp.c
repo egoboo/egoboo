@@ -111,17 +111,18 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     {
         log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
     }
+    ReadContext ctxt(szSpacing, fileread, true);
 
     stt_x = 0;
     stt_y = 0;
 
     // Uniform font height is at the top
-    yspacing = vfs_get_next_int( fileread );
+    yspacing = vfs_get_next_int(ctxt);
     fontoffset = yspacing;
-    for ( cnt = 0; cnt < NUMFONT && goto_colon_vfs( NULL, fileread, true ); cnt++ )
+    for ( cnt = 0; cnt < NUMFONT && goto_colon_vfs( NULL, ctxt._file, true ); cnt++ )
     {
-		vfs_scanf(fileread, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
-        xspacing = vfs_get_int( fileread );
+		vfs_scanf(ctxt._file, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
+        xspacing = vfs_get_int(ctxt);
         if ( asciitofont[( Uint8 )cTmp] == 255 ) asciitofont[( Uint8 )cTmp] = ( Uint8 ) cnt;
         if ( stt_x + xspacing + 1 > 255 )
         {
@@ -137,7 +138,6 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
 
         stt_x += xspacing + 1;
     }
-    vfs_close( fileread );
 
     // Space between lines
     fontyspacing = ( yspacing >> 1 ) + FONTADD;

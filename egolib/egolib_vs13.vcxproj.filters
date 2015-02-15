@@ -587,6 +587,9 @@
     <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Profiles\ReaderUtilities.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\file_formats\id_normals.inl">

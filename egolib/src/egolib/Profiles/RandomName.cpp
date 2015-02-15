@@ -57,16 +57,17 @@ bool RandomName::loadFromFile(const std::string &filePath)
 	if(!fileRead) {
 		return false;
 	}
+    ReadContext ctxt(filePath, fileRead, true);
 
 	//Clear any old random name data
 	_randomNameBlocks.clear();
 
 	//Parse the entire file
 	std::vector<std::string> *currentBlock = nullptr;
-	while(goto_colon_vfs(nullptr, fileRead, true))
+	while(goto_colon_vfs(nullptr, ctxt._file, true))
 	{
 		char buffer[256];
-        vfs_get_string(fileRead, buffer, SDL_arraysize(buffer));
+        vfs_get_string(ctxt, buffer, SDL_arraysize(buffer));
 
         // convert all the '_' and junk in the string
         str_decode(buffer, SDL_arraysize(buffer), buffer);
@@ -96,9 +97,6 @@ bool RandomName::loadFromFile(const std::string &filePath)
             currentBlock->push_back(line);
         }
 	}
-
-	//Release file resource
-    vfs_close(fileRead);
 
 	return !_randomNameBlocks.empty();
 }

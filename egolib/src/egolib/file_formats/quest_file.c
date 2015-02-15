@@ -119,15 +119,15 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
     // try to open the file
     fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return rv_success;
-
+    ReadContext ctxt(newloadname, fileread, true);
     // Load each IDSZ
     retval = rv_success;
-    while ( goto_colon_vfs( NULL, fileread, true ) )
+    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
     {
         egolib_rv rv;
 
-        IDSZ idsz = vfs_get_idsz( fileread );
-        int  level = vfs_get_int( fileread );
+        IDSZ idsz = vfs_get_idsz(ctxt);
+        int  level = vfs_get_int(ctxt);
 
         // Try to add a single quest to the map
         rv = idsz_map_add( quest_log, quest_log_len, idsz, level );
@@ -146,10 +146,6 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
             break;
         }
     }
-
-    // Close up after we are done with it
-    vfs_close( fileread );
-
     return retval;
 }
 

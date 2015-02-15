@@ -35,7 +35,7 @@ treasure_table_t treasureTableList[MAX_TABLES];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //Private functions
-static void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_table );
+static void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table );
 static void add_object_to_table( treasure_table_t table[], const char *name );
 
 //--------------------------------------------------------------------------------------------
@@ -60,19 +60,16 @@ void add_object_to_table( treasure_table_t table[], const char *name )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_table )
+void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table )
 {
     //ZF> Creates and loads a treasure table from the specified file until a :END is encountered
     new_table->size = 0;
 
-    //Invalid file
-    if ( NULL == fileread ) return;
-
     //Keep adding objects into the table until we encounter a :END
-    while ( goto_colon_vfs( NULL, fileread, false ) )
+    while ( goto_colon_vfs( NULL, ctxt._file, false ) )
     {
         STRING szTemp;
-        vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
+        vfs_get_string(ctxt, szTemp, SDL_arraysize( szTemp ) );
 
         //Check if we reached the end of this table
         if ( 0 == strcmp( szTemp, "END" ) ) break;
@@ -96,14 +93,15 @@ egolib_rv init_random_treasure_tables_vfs( const char* filepath )
         log_warning( "Could not load random treasure tables! (%s)\n", filepath );
         return rv_error;
     }
+    ReadContext ctxt(filepath, fileread, true);
 
     //Load each treasure table
     num_table = 0;
-    while ( goto_colon_vfs( NULL, fileread, true ) )
+    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
     {
         //Load the name of this table
         STRING szTemp;
-        vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
+        vfs_get_string( ctxt, szTemp, SDL_arraysize( szTemp ) );
 
         //Stop here if we are already full
         if ( num_table >= MAX_TABLES )
@@ -116,12 +114,9 @@ egolib_rv init_random_treasure_tables_vfs( const char* filepath )
 
         //Load all objects in this treasure table
         treasureTableList[num_table].size = 0;
-        load_one_treasure_table_vfs( fileread, &treasureTableList[num_table] );
+        load_one_treasure_table_vfs( ctxt, &treasureTableList[num_table] );
         num_table++;
     }
-
-    //Finished
-    vfs_close( fileread );
     return rv_success;
 }
 

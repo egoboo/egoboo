@@ -97,6 +97,85 @@
 // EXTERNAL VARIABLES
 //--------------------------------------------------------------------------------------------
 
+#include "egolib/Profiles/ReaderUtilities.hpp"
+
+    struct ReadContext
+    {
+    public:
+        /**
+         * @brief
+         *  The load name of the context.
+         */
+        std::string _loadName;
+        /**
+         * @brief
+         *  The file handle if the context is open, @a nullptr otherwise.
+         */
+        vfs_FILE *_file;
+        /// @todo Remove this.
+        bool _owner;
+        ReadContext(const std::string& loadName,vfs_FILE *file,bool owner)
+            : _loadName(loadName), _file(file), _owner(owner)
+        {
+        }
+        ~ReadContext()
+        {
+            if (_file && _owner)
+            {
+                vfs_close(_file);
+            }
+            _file = nullptr;
+        }
+        /// @todo Remove this.
+        bool isOwner() const
+        {
+            return _owner;
+        }
+
+        /**
+         * @brief
+         *  Get if the context is open.
+         * @return
+         *  @a true if the context is open, @a false otherwise
+         */
+        bool isOpen() const
+        {
+            return nullptr != _file;
+        }
+
+        /**
+         * @brief
+         *  Close the context.
+         * @post
+         *  The context is closed.
+         * @remark
+         *  If the context is not open, a call to this method is noop.
+         */
+        void close()
+        {
+            if (_file && _owner)
+            {
+                vfs_close(_file);
+            }
+            _file = nullptr;
+        }
+    };
+
+    template <typename EnumType>
+    int vfs_read_enum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType default)
+    {
+        using namespace std;
+        char chr = vfs_get_first_letter(ctxt);
+        auto it = enumReader.get(std::string(1,chr));
+        if (it == enumReader.end())
+        {
+            log_warning("%s:%d: in file `%s`: `%c` is not an element of enum `%s`\n", __FILE__, __LINE__, ctxt._loadName.c_str(), chr, enumReader.getName().c_str());
+            return default; /// @todo This should be removed and an exception should be raised.
+        }
+        return *it;
+    }
+
+
     extern const char *parse_filename;          ///< For debuggin' goto_colon_vfs
     extern int parse_line_number;               ///< For debuggin' goto_colon_vfs
 
@@ -118,38 +197,42 @@
     char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
     bool copy_to_delimiter_vfs( vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen );
 
-    int    vfs_get_version( vfs_FILE* fileread );
+    int    vfs_get_version(ReadContext& ctxt);
     bool vfs_put_version( vfs_FILE* filewrite, const int version );
 
-    char   vfs_get_next_char( vfs_FILE * fileread );
-    int    vfs_get_next_int( vfs_FILE * fileread );
-    float  vfs_get_next_float( vfs_FILE * fileread );
-    UFP8_T vfs_get_next_ufp8( vfs_FILE* fileread );
-    SFP8_T vfs_get_next_sfp8( vfs_FILE* fileread );
-    bool vfs_get_next_name( vfs_FILE * fileread, char * name, size_t name_len );
-    bool vfs_get_next_range( vfs_FILE* fileread, FRange * prange );
-    bool vfs_get_next_pair( vfs_FILE * fileread, IPair * ppair );
-    IDSZ   vfs_get_next_idsz( vfs_FILE * fileread );
-    bool vfs_get_next_bool( vfs_FILE * fileread );
-    bool vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len );
-    bool vfs_get_next_line( vfs_FILE * fileread, char * str, size_t str_len );
+    char   vfs_get_next_char(ReadContext& ctxt);
+    int    vfs_get_next_int(ReadContext& ctxt);
+    float  vfs_get_next_float(ReadContext& ctxt);
+    UFP8_T vfs_get_next_ufp8(ReadContext& ctxt);
+    SFP8_T vfs_get_next_sfp8(ReadContext& ctxt);
+    bool vfs_get_next_name(ReadContext& ctxt, char * name, size_t name_len);
+    bool vfs_get_next_range(ReadContext& ctxt, FRange *prange);
+    bool vfs_get_next_pair(ReadContext& ctxt, IPair *ppair);
+    IDSZ   vfs_get_next_idsz(ReadContext& ctxt);
+    bool vfs_get_next_bool(ReadContext& ctxt);
+    bool vfs_get_next_string(ReadContext& ctxt, char *str, size_t str_len);
+    bool vfs_get_next_line(ReadContext& ctxt, char *str, size_t str_len);
 
-    char   vfs_get_first_letter( vfs_FILE* fileread );
-    Sint32 vfs_get_int( vfs_FILE* fileread );
-    UFP8_T vfs_get_ufp8( vfs_FILE* fileread );
-    SFP8_T vfs_get_sfp8( vfs_FILE* fileread );
-    float  vfs_get_float( vfs_FILE * fileread );
-    IDSZ   vfs_get_idsz( vfs_FILE* fileread );
-    int    vfs_get_damage_type( vfs_FILE * fileread );
-    int    vfs_get_next_damage_type( vfs_FILE * fileread );
-    bool vfs_get_bool( vfs_FILE * fileread );
-    Uint8  vfs_get_damage_modifier( vfs_FILE * fileread );
-    float  vfs_get_damage_resist( vfs_FILE * fileread );
-    bool vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len );
-    bool vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len );
-    bool vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len );
-    bool vfs_get_range( vfs_FILE* fileread, FRange * prange );
-    bool vfs_get_pair( vfs_FILE* fileread, IPair * ppair );
+    char vfs_get_first_letter(ReadContext& ctxt);
+    Sint32 vfs_get_int(ReadContext& ctxt);
+    UFP8_T vfs_get_ufp8(ReadContext& ctxt);
+    SFP8_T vfs_get_sfp8(ReadContext& ctxt);
+    float vfs_get_float(ReadContext& ctxt);
+    IDSZ vfs_get_idsz(ReadContext& ctxt);
+
+    template <typename EnumType>
+    int vfs_read_enum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType default);
+    int vfs_get_damage_type(ReadContext& ctxt);
+    int vfs_get_next_damage_type(ReadContext& ctxt);
+    
+    bool vfs_get_bool(ReadContext& ctxt);
+    Uint8  vfs_get_damage_modifier(ReadContext& ctxt);
+    float  vfs_get_damage_resist(ReadContext& ctxt);
+    bool vfs_get_name(ReadContext& ctxt, char *szName, size_t max_len);
+    bool vfs_get_string(ReadContext& ctxt, char * str, size_t str_len);
+    bool vfs_get_line(ReadContext& ctxt, char * str, size_t str_len);
+    bool vfs_get_range(ReadContext& ctxt, FRange * prange);
+    bool vfs_get_pair(ReadContext& ctxt, IPair * ppair);
 
     void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival );
     void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval );

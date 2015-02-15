@@ -75,8 +75,9 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
         log_error( "Cannot load the tile definitions \"%s\".\n", filename );
         return false;
     }
+    ReadContext ctxt(filename, fileread, true);
 
-    fantype_count    = vfs_get_next_int( fileread );
+    fantype_count    = vfs_get_next_int(ctxt);
     fantype_offset   = 2 * POW( 2.0f, FLOOR( LOG( fantype_count ) / LOG( 2.0f ) ) );
     definition_count = 2 * fantype_offset;
 
@@ -99,22 +100,22 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
         pdef_sml = pdict->def_lst + fantype;
         pdef_big = pdict->def_lst + fantype + fantype_offset;
 
-        vertices = vfs_get_next_int( fileread );
+        vertices = vfs_get_next_int(ctxt);
 
         pdef_sml->numvertices = vertices;
         pdef_big->numvertices = vertices;  // Dupe
 
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
-            itmp = vfs_get_next_int( fileread );
+            itmp = vfs_get_next_int(ctxt);
             pdef_sml->ref[cnt]    = itmp;
             pdef_sml->grid_ix[cnt] = itmp & 3;
             pdef_sml->grid_iy[cnt] = ( itmp >> 2 ) & 3;
 
-            ftmp = vfs_get_next_float( fileread );
+            ftmp = vfs_get_next_float(ctxt);
             pdef_sml->u[cnt] = ftmp;
 
-            ftmp = vfs_get_next_float( fileread );
+            ftmp = vfs_get_next_float(ctxt);
             pdef_sml->v[cnt] = ftmp;
 
             // Dupe
@@ -125,19 +126,19 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
             pdef_big->v[cnt]      = pdef_sml->v[cnt];
         }
 
-        command_count = vfs_get_next_int( fileread );
+        command_count = vfs_get_next_int(ctxt);
         pdef_sml->command_count = command_count;
         pdef_big->command_count = command_count;  // Dupe
 
         for ( entry = 0, command = 0; command < command_count; command++ )
         {
-            commandsize = vfs_get_next_int( fileread );
+            commandsize = vfs_get_next_int(ctxt);
             pdef_sml->command_entries[command] = commandsize;
             pdef_big->command_entries[command] = commandsize;  // Dupe
 
             for ( cnt = 0; cnt < commandsize; cnt++ )
             {
-                itmp = vfs_get_next_int( fileread );
+                itmp = vfs_get_next_int(ctxt);
                 pdef_sml->command_verts[entry] = itmp;
                 pdef_big->command_verts[entry] = itmp;  // Dupe
 
@@ -145,8 +146,6 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
             }
         }
     }
-
-    vfs_close( fileread );
 
     pdict->loaded = true;
 

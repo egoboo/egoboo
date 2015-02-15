@@ -104,26 +104,27 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     // see if we can open menu.txt file (required)
     vfs_FILE * fileread = vfs_openRead((folderPath + "/gamedat/menu.txt").c_str());
     if (!fileread) return nullptr;
+    ReadContext ctxt(folderPath + "/gamedat/menu.txt", fileread, true);
 
     //Allocate memory
     std::shared_ptr<ModuleProfile> result = std::make_shared<ModuleProfile>();
 
     // Read basic data
-    vfs_get_next_name(fileread, buffer, SDL_arraysize(buffer));
+    vfs_get_next_name(ctxt, buffer, SDL_arraysize(buffer));
     result->_name = buffer;
 
-    vfs_get_next_string(fileread, buffer, SDL_arraysize(buffer));
+    vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
     result->_reference = buffer;
 
-    result->_unlockQuest.id    = vfs_get_next_idsz( fileread );
-    result->_unlockQuest.level = vfs_get_int( fileread );
+    result->_unlockQuest.id = vfs_get_next_idsz(ctxt);
+    result->_unlockQuest.level = vfs_get_int(ctxt);
 
-    result->_importAmount = vfs_get_next_int( fileread );
-    result->_allowExport  = vfs_get_next_bool( fileread );
-    result->_minPlayers   = vfs_get_next_int( fileread );
-    result->_maxPlayers   = vfs_get_next_int( fileread );
+    result->_importAmount = vfs_get_next_int(ctxt);
+    result->_allowExport  = vfs_get_next_bool(ctxt);
+    result->_minPlayers = vfs_get_next_int(ctxt);
+    result->_maxPlayers = vfs_get_next_int(ctxt);
 
-    switch(vfs_get_next_char(fileread))
+    switch (vfs_get_next_char(ctxt))
     {
         case 'T':
             result->_respawnValid = true;
@@ -139,9 +140,9 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     }
 
     //Skip char
-    vfs_get_next_char(fileread);
+    vfs_get_next_char(ctxt);
 
-    vfs_get_next_string(fileread, buffer, SDL_arraysize(buffer));
+    vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
     str_trim(buffer);
     result->_rank = strlen(buffer);
 
@@ -155,7 +156,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     for (size_t cnt = 0; cnt < SUMMARYLINES; cnt++)
     {
         // load the string
-        vfs_get_next_string( fileread,  buffer, SDL_arraysize(buffer) );
+        vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
 
         // remove the '_' characters
         str_decode(buffer, SDL_arraysize(buffer),  buffer);
@@ -167,15 +168,15 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     result->_moduleType = FILTER_SIDE_QUEST;
 
     // Read expansions
-    while (goto_colon_vfs(nullptr, fileread, true))
+    while (goto_colon_vfs(nullptr, ctxt._file, true))
     {
-        IDSZ idsz = vfs_get_idsz(fileread);
+        IDSZ idsz = vfs_get_idsz(ctxt);
 
         // Read module type
         if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
         {
             // parse the expansion value
-            switch(char_toupper(vfs_get_first_letter(fileread)))
+            switch (char_toupper(vfs_get_first_letter(ctxt)))
             {
                 case 'M': result->_moduleType = FILTER_MAIN; break;
                 case 'S': result->_moduleType = FILTER_SIDE_QUEST; break;
@@ -192,7 +193,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
 
     //Done!
     result->_loaded = true;
-    vfs_close(fileread);
+    ctxt.close();
 
     // save the module path
     result->_vfsPath = folderPath;
@@ -227,6 +228,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
 
     fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return false;
+    ReadContext ctxt(newloadname, fileread, true);
 
     // Read basic data
     goto_colon_vfs( NULL, fileread, false );  // Name of module...  Doesn't matter
@@ -250,7 +252,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
     foundidsz = false;
     while ( goto_colon_vfs( NULL, fileread, true ) )
     {
-        newidsz = vfs_get_idsz( fileread );
+        newidsz = vfs_get_idsz(ctxt);
         if ( newidsz == idsz )
         {
             foundidsz = true;
@@ -273,8 +275,6 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
             vfs_gets( buffer, buffer_len, fileread );
         }
     }
-
-    vfs_close( fileread );
 
     return foundidsz;
 }

@@ -44,15 +44,15 @@ static bool wawalite_fog_init(wawalite_fog_t * pdata);
 static bool wawalite_animtile_init(wawalite_animtile_t * pdata);
 static bool wawalite_damagetile_init(wawalite_damagetile_t * pdata);
 
-static wawalite_water_t *      read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * pwater );
-static wawalite_data_t *       read_wawalite_light( vfs_FILE * fileread, wawalite_data_t * pdata );
-static wawalite_physics_t *    read_wawalite_physics( vfs_FILE * fileread, wawalite_physics_t * pphys );
-static wawalite_animtile_t *   read_wawalite_animtile( vfs_FILE * fileread, wawalite_animtile_t * panimtile );
-static wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_damagetile_t * pdamagetile );
-static wawalite_weather_t *    read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t * pdata );
-static wawalite_graphics_t *   read_wawalite_graphics( vfs_FILE * fileread, wawalite_graphics_t * pgraphics );
-static wawalite_camera_t *     read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t * pcamera );
-static wawalite_data_t *       read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdata );
+static wawalite_water_t *      read_wawalite_water(ReadContext& ctxt, wawalite_water_t * pwater );
+static wawalite_data_t *       read_wawalite_light(ReadContext& ctxt, wawalite_data_t * pdata );
+static wawalite_physics_t *    read_wawalite_physics(ReadContext& ctxt, wawalite_physics_t * pphys);
+static wawalite_animtile_t *   read_wawalite_animtile(ReadContext& ctxt, wawalite_animtile_t * panimtile);
+static wawalite_damagetile_t * read_wawalite_damagetile(ReadContext& ctxt, wawalite_damagetile_t * pdamagetile);
+static wawalite_weather_t *    read_wawalite_weather(ReadContext& ctxt, wawalite_data_t * pdata);
+static wawalite_graphics_t *   read_wawalite_graphics(ReadContext& ctxt, wawalite_graphics_t * pgraphics);
+static wawalite_camera_t *     read_wawalite_camera(ReadContext& ctxt, wawalite_camera_t * pcamera);
+static wawalite_data_t *       read_wawalite_fog(ReadContext& ctxt, wawalite_data_t * pdata);
 
 static bool write_wawalite_water( vfs_FILE * filewrite, const wawalite_water_t * pwater );
 static bool write_wawalite_light( vfs_FILE * filewrite, const wawalite_data_t * pdata );
@@ -85,58 +85,56 @@ wawalite_data_t * wawalite_data_init( wawalite_data_t * pdata )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-wawalite_water_t * read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * pwater )
+wawalite_water_t * read_wawalite_water(ReadContext& ctxt, wawalite_water_t * pwater )
 {
     if ( NULL == pwater ) return pwater;
 
     BLANK_STRUCT_PTR( pwater )
 
-    if ( NULL == fileread ) return pwater;
-
     // Read water data first
-    pwater->layer_count    = vfs_get_next_int( fileread );
-    pwater->spek_start     = vfs_get_next_int( fileread );
-    pwater->spek_level     = vfs_get_next_int( fileread );
-    pwater->douse_level    = vfs_get_next_float( fileread );
-    pwater->surface_level  = vfs_get_next_float( fileread );
-    pwater->light          = vfs_get_next_bool( fileread );
-    pwater->is_water       = vfs_get_next_bool( fileread );
-    pwater->overlay_req    = vfs_get_next_bool( fileread );
-    pwater->background_req = vfs_get_next_bool( fileread );
+    pwater->layer_count = vfs_get_next_int(ctxt);
+    pwater->spek_start = vfs_get_next_int(ctxt);
+    pwater->spek_level = vfs_get_next_int(ctxt);
+    pwater->douse_level = vfs_get_next_float(ctxt);
+    pwater->surface_level = vfs_get_next_float(ctxt);
+    pwater->light = vfs_get_next_bool(ctxt);
+    pwater->is_water = vfs_get_next_bool(ctxt);
+    pwater->overlay_req = vfs_get_next_bool(ctxt);
+    pwater->background_req = vfs_get_next_bool(ctxt);
 
     // General data info
-    pwater->layer[0].dist.x  = vfs_get_next_float( fileread );
-    pwater->layer[0].dist.y  = vfs_get_next_float( fileread );
-    pwater->layer[1].dist.x  = vfs_get_next_float( fileread );
-    pwater->layer[1].dist.y  = vfs_get_next_float( fileread );
-    pwater->foregroundrepeat = vfs_get_next_float( fileread );
-    pwater->backgroundrepeat = vfs_get_next_float( fileread );
+    pwater->layer[0].dist.x = vfs_get_next_float(ctxt);
+    pwater->layer[0].dist.y = vfs_get_next_float(ctxt);
+    pwater->layer[1].dist.x = vfs_get_next_float(ctxt);
+    pwater->layer[1].dist.y = vfs_get_next_float(ctxt);
+    pwater->foregroundrepeat = vfs_get_next_float(ctxt);
+    pwater->backgroundrepeat = vfs_get_next_float(ctxt);
 
     // Read data on first water layer
-    pwater->layer[0].z          = vfs_get_next_float( fileread );
-    pwater->layer[0].alpha      = vfs_get_next_int( fileread );
-    pwater->layer[0].frame_add  = vfs_get_next_int( fileread );
-    pwater->layer[0].light_dir  = vfs_get_next_int( fileread );
-    pwater->layer[0].light_add  = vfs_get_next_int( fileread );
-    pwater->layer[0].amp        = vfs_get_next_float( fileread );
-    pwater->layer[0].tx_add.s   = vfs_get_next_float( fileread );
-    pwater->layer[0].tx_add.t   = vfs_get_next_float( fileread );
+    pwater->layer[0].z = vfs_get_next_float(ctxt);
+    pwater->layer[0].alpha = vfs_get_next_int(ctxt);
+    pwater->layer[0].frame_add = vfs_get_next_int(ctxt);
+    pwater->layer[0].light_dir = vfs_get_next_int(ctxt);
+    pwater->layer[0].light_add = vfs_get_next_int(ctxt);
+    pwater->layer[0].amp = vfs_get_next_float(ctxt);
+    pwater->layer[0].tx_add.s = vfs_get_next_float(ctxt);
+    pwater->layer[0].tx_add.t = vfs_get_next_float(ctxt);
 
     // Read data on second water layer
-    pwater->layer[1].z          = vfs_get_next_int( fileread );
-    pwater->layer[1].alpha      = vfs_get_next_int( fileread );
-    pwater->layer[1].frame_add  = vfs_get_next_int( fileread );
-    pwater->layer[1].light_dir  = vfs_get_next_int( fileread );
-    pwater->layer[1].light_add  = vfs_get_next_int( fileread );
-    pwater->layer[1].amp        = vfs_get_next_float( fileread );
-    pwater->layer[1].tx_add.s  = vfs_get_next_float( fileread );
-    pwater->layer[1].tx_add.t  = vfs_get_next_float( fileread );
+    pwater->layer[1].z = vfs_get_next_int(ctxt);
+    pwater->layer[1].alpha = vfs_get_next_int(ctxt);
+    pwater->layer[1].frame_add = vfs_get_next_int(ctxt);
+    pwater->layer[1].light_dir = vfs_get_next_int(ctxt);
+    pwater->layer[1].light_add = vfs_get_next_int(ctxt);
+    pwater->layer[1].amp = vfs_get_next_float(ctxt);
+    pwater->layer[1].tx_add.s = vfs_get_next_float(ctxt);
+    pwater->layer[1].tx_add.t  = vfs_get_next_float(ctxt);
 
     return pwater;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite_light( vfs_FILE * fileread, wawalite_data_t * pdata )
+wawalite_data_t * read_wawalite_light(ReadContext& ctxt, wawalite_data_t * pdata )
 {
     if ( NULL == pdata ) return pdata;
 
@@ -145,76 +143,68 @@ wawalite_data_t * read_wawalite_light( vfs_FILE * fileread, wawalite_data_t * pd
     pdata->light_z = 0.50f;
     pdata->light_a = 0.20f;
 
-    if ( NULL == fileread ) return pdata;
-
     // Read light data second
-    pdata->light_x = vfs_get_next_float( fileread );
-    pdata->light_y = vfs_get_next_float( fileread );
-    pdata->light_z = vfs_get_next_float( fileread );
-    pdata->light_a = vfs_get_next_float( fileread );
+    pdata->light_x = vfs_get_next_float(ctxt);
+    pdata->light_y = vfs_get_next_float(ctxt);
+    pdata->light_z = vfs_get_next_float(ctxt);
+    pdata->light_a = vfs_get_next_float(ctxt);
 
     return pdata;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_physics_t * read_wawalite_physics( vfs_FILE * fileread, wawalite_physics_t * pphys )
+wawalite_physics_t * read_wawalite_physics(ReadContext& ctxt, wawalite_physics_t * pphys )
 {
     if ( NULL == pphys ) return pphys;
 
     BLANK_STRUCT_PTR( pphys )
 
-    if ( NULL == fileread ) return pphys;
-
     // Read tile data third
-    pphys->hillslide      = vfs_get_next_float( fileread );
-    pphys->slippyfriction = vfs_get_next_float( fileread );
-    pphys->airfriction    = vfs_get_next_float( fileread );
-    pphys->waterfriction  = vfs_get_next_float( fileread );
-    pphys->noslipfriction = vfs_get_next_float( fileread );
-    pphys->gravity        = vfs_get_next_float( fileread );
+    pphys->hillslide = vfs_get_next_float(ctxt);
+    pphys->slippyfriction = vfs_get_next_float(ctxt);
+    pphys->airfriction = vfs_get_next_float(ctxt);
+    pphys->waterfriction = vfs_get_next_float(ctxt);
+    pphys->noslipfriction = vfs_get_next_float(ctxt);
+    pphys->gravity = vfs_get_next_float(ctxt);
 
     return pphys;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_animtile_t * read_wawalite_animtile( vfs_FILE * fileread, wawalite_animtile_t * panimtile )
+wawalite_animtile_t * read_wawalite_animtile(ReadContext& ctxt, wawalite_animtile_t * panimtile )
 {
     if ( NULL == panimtile ) return panimtile;
 
     BLANK_STRUCT_PTR( panimtile )
 
-    if ( NULL == fileread ) return panimtile;
-
     // animated tile
-    panimtile->update_and = vfs_get_next_int( fileread );
-    panimtile->frame_and  = vfs_get_next_int( fileread );
+    panimtile->update_and = vfs_get_next_int(ctxt);
+    panimtile->frame_and = vfs_get_next_int(ctxt);
 
     return panimtile;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_damagetile_t * pdamagetile )
+wawalite_damagetile_t *read_wawalite_damagetile(ReadContext& ctxt, wawalite_damagetile_t * pdamagetile )
 {
     if ( NULL == pdamagetile ) return pdamagetile;
-    if ( NULL == fileread ) return pdamagetile;
     wawalite_damagetile_init( pdamagetile );            //Reset
 
     // damage tile
-    pdamagetile->amount     = vfs_get_next_int( fileread );
-    pdamagetile->damagetype = vfs_get_next_damage_type( fileread );
+    pdamagetile->amount = vfs_get_next_int(ctxt);
+    /// @todo pass the load name
+    pdamagetile->damagetype = vfs_get_next_damage_type(ctxt);
 
     return pdamagetile;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t * pdata )
+wawalite_weather_t * read_wawalite_weather(ReadContext& ctxt, wawalite_data_t * pdata )
 {
     wawalite_weather_t * pweather = &( pdata->weather );
     if ( NULL == pweather ) return pweather;
 
     BLANK_STRUCT_PTR( pweather )
-
-    if ( NULL == fileread ) return pweather;
 
     // weather data
     pweather->part_gpip = PIP_WEATHER;
@@ -223,75 +213,69 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
         STRING line;
 
         //Parse the weather type line
-        vfs_get_next_string( fileread, line, SDL_arraysize( line ) );
+        vfs_get_next_string(ctxt, line, SDL_arraysize(line));
         strncpy( pweather->weather_name, strupr( line ), SDL_arraysize( pweather->weather_name ) );
 
         // convert the text in the calling function
         pweather->part_gpip = -1;
     }
 
-    pweather->over_water  = vfs_get_next_bool( fileread );
-    pweather->timer_reset = vfs_get_next_int( fileread );
+    pweather->over_water = vfs_get_next_bool(ctxt);
+    pweather->timer_reset = vfs_get_next_int(ctxt);
 
     return pweather;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_graphics_t * read_wawalite_graphics( vfs_FILE * fileread, wawalite_graphics_t * pgraphics )
+wawalite_graphics_t * read_wawalite_graphics(ReadContext& ctxt, wawalite_graphics_t * pgraphics )
 {
     if ( NULL == pgraphics ) return pgraphics;
 
     BLANK_STRUCT_PTR( pgraphics )
 
-    if ( NULL == fileread ) return pgraphics;
-
     // graphics options
-    pgraphics->exploremode = vfs_get_next_bool( fileread );
-    pgraphics->usefaredge  = vfs_get_next_bool( fileread );
+    pgraphics->exploremode = vfs_get_next_bool(ctxt);
+    pgraphics->usefaredge = vfs_get_next_bool(ctxt);
 
     return pgraphics;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_camera_t * read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t * pcamera )
+wawalite_camera_t * read_wawalite_camera(ReadContext& ctxt, wawalite_camera_t * pcamera )
 {
     if ( NULL == pcamera ) return pcamera;
 
     BLANK_STRUCT_PTR( pcamera )
 
-    if ( NULL == fileread ) return pcamera;
-
     // camera data
-    pcamera->swing_rate = vfs_get_next_float( fileread );
-    pcamera->swing_amp  = vfs_get_next_float( fileread );
+    pcamera->swing_rate = vfs_get_next_float(ctxt);
+    pcamera->swing_amp = vfs_get_next_float(ctxt);
 
     return pcamera;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdata )
+wawalite_data_t * read_wawalite_fog(ReadContext &ctxt, wawalite_data_t * pdata )
 {
     if ( NULL == pdata ) return pdata;
 
-    if ( NULL == fileread ) return pdata;
-
     // Read unnecessary data...  Only read if it exists...
-    if ( goto_colon_vfs( NULL, fileread, true ) )
+    if ( goto_colon_vfs( NULL, ctxt._file, true ) )
     {
         pdata->fog.found         = true;
-        pdata->fog.top           = vfs_get_float( fileread );
-        pdata->fog.bottom        = vfs_get_next_float( fileread );
-        pdata->fog.red           = vfs_get_next_float( fileread ) * 255;
-        pdata->fog.grn           = vfs_get_next_float( fileread ) * 255;
-        pdata->fog.blu           = vfs_get_next_float( fileread ) * 255;
-        pdata->fog.affects_water = vfs_get_next_bool( fileread );
+        pdata->fog.top = vfs_get_float(ctxt);
+        pdata->fog.bottom = vfs_get_next_float(ctxt);
+        pdata->fog.red = vfs_get_next_float(ctxt) * 255;
+        pdata->fog.grn = vfs_get_next_float(ctxt) * 255;
+        pdata->fog.blu = vfs_get_next_float(ctxt) * 255;
+        pdata->fog.affects_water = vfs_get_next_bool(ctxt);
 
         // Read extra stuff for damage tile particles...
-        if ( goto_colon_vfs( NULL, fileread, true ) )
+        if ( goto_colon_vfs( NULL, ctxt._file, true ) )
         {
-            pdata->damagetile.part_gpip    = vfs_get_int( fileread );
-            pdata->damagetile.partand     = vfs_get_next_int( fileread );
-            pdata->damagetile.sound_index = vfs_get_next_int( fileread );
+            pdata->damagetile.part_gpip = vfs_get_int(ctxt);
+            pdata->damagetile.partand = vfs_get_next_int(ctxt);
+            pdata->damagetile.sound_index = vfs_get_next_int(ctxt);
         }
     }
 
@@ -317,10 +301,11 @@ wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t 
         log_warning( "Could not read file! (\"%s\")\n", newloadname );
         return NULL;
     }
+    ReadContext ctxt(filename, fileread, true);
 
     //First figure out what version of wawalite this is, so that we know what data we
     //should expect to load
-    pdata->version = vfs_get_version( fileread );
+    pdata->version = vfs_get_version(ctxt);
 
     //  Random map...
     //  If someone else wants to handle this, here are some thoughts for approaching
@@ -329,19 +314,17 @@ wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t 
     //  the module's object directory, and only use some of them.  Imagine several Rock
     //  Moles eating through a stone filled level to make a path from the entrance to
     //  the exit.  Door placement will be difficult.
-    pdata->seed = vfs_get_next_bool( fileread );
+    pdata->seed = vfs_get_next_bool(ctxt);
 
-    read_wawalite_water( fileread, &( pdata->water ) );
-    read_wawalite_light( fileread, pdata );
-    read_wawalite_physics( fileread, &( pdata->phys ) );
-    read_wawalite_animtile( fileread, &( pdata->animtile ) );
-    read_wawalite_damagetile( fileread, &( pdata->damagetile ) );
-    read_wawalite_weather( fileread, pdata );
-    read_wawalite_graphics( fileread, &( pdata->graphics ) );
-    read_wawalite_camera( fileread, &( pdata->camera ) );
-    read_wawalite_fog( fileread, pdata );
-
-    vfs_close( fileread );
+    read_wawalite_water(ctxt, &(pdata->water));
+    read_wawalite_light(ctxt, pdata);
+    read_wawalite_physics(ctxt, &(pdata->phys));
+    read_wawalite_animtile(ctxt, &(pdata->animtile));
+    read_wawalite_damagetile(ctxt, &(pdata->damagetile));
+    read_wawalite_weather(ctxt, pdata);
+    read_wawalite_graphics(ctxt, &(pdata->graphics));
+    read_wawalite_camera(ctxt, &(pdata->camera));
+    read_wawalite_fog(ctxt, pdata);
 
     return pdata;
 }

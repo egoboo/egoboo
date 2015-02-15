@@ -346,25 +346,26 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     /// @details This function loads all messages for an object
 
     vfs_FILE *fileRead = vfs_openRead( filePath.c_str() );
-    if ( fileRead )
+    if (!fileRead)
     {
-        STRING line;
+        return;
+    }
+    ReadContext ctxt(filePath, fileRead, true);
+    STRING line;
 
-        while ( goto_colon_vfs( NULL, fileRead, true ) )
-        {
-            //Load one line
-            vfs_get_string( fileRead, line, SDL_arraysize( line ) );
-            addMessage(line);
-        }
-
-        vfs_close( fileRead );
+    while ( goto_colon_vfs( NULL, fileRead, true ) )
+    {
+        //Load one line
+        vfs_get_string( ctxt, line, SDL_arraysize( line ) );
+        addMessage(line);
     }
 }
 
 const std::string ObjectProfile::generateRandomName()
 {
     //If no random names loaded, return class name instead
-    if (!_randomName.isLoaded()) {
+    if (!_randomName.isLoaded())
+    {
         return _className;
     }
 
@@ -480,14 +481,15 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     if (!fileRead) {
         return false;
     }
+    ReadContext ctxt(filePath, fileRead, true);
 
     //read slot number (ignored for now)
-    vfs_get_next_int(fileRead);
-    //_slotNumber = vfs_get_next_int(fileRead);
+    vfs_get_next_int(ctxt);
+    //_slotNumber = vfs_get_next_int(ctxt);
 
     // Read in the class name
     char buffer[256];
-    vfs_get_next_name(fileRead, buffer, SDL_arraysize(buffer));
+    vfs_get_next_name(ctxt, buffer, SDL_arraysize(buffer));
 
     // fix class name capitalization
     buffer[0] = char_toupper(buffer[0]);
@@ -495,14 +497,14 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _className = buffer;
 
     // Light cheat
-    _uniformLit = vfs_get_next_bool(fileRead);
+    _uniformLit = vfs_get_next_bool(ctxt);
 
     // Ammo
-    _maxAmmo = vfs_get_next_int(fileRead);
-    _ammo = vfs_get_next_int(fileRead);
+    _maxAmmo = vfs_get_next_int(ctxt);
+    _ammo = vfs_get_next_int(ctxt);
 
     // Gender
-    switch( char_toupper(vfs_get_next_char(fileRead)) )
+    switch (char_toupper(vfs_get_next_char(ctxt)))
     {
         case 'F': _gender = GENDER_FEMALE; break;
         case 'M': _gender = GENDER_MALE; break;
@@ -511,63 +513,63 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     }
 
     // Read in the starting stats
-    _lifeColor = vfs_get_next_int( fileRead );
-    _manaColor = vfs_get_next_int( fileRead );
+    _lifeColor = vfs_get_next_int(ctxt);
+    _manaColor = vfs_get_next_int(ctxt);
 
-    vfs_get_next_range(fileRead, &( _startingLife.val));
-    vfs_get_next_range(fileRead, &( _startingLife.perlevel));
+    vfs_get_next_range(ctxt, &(_startingLife.val));
+    vfs_get_next_range(ctxt, &(_startingLife.perlevel));
 
-    vfs_get_next_range(fileRead, &( _startingMana.val));
-    vfs_get_next_range(fileRead, &( _startingMana.perlevel));
+    vfs_get_next_range(ctxt, &(_startingMana.val));
+    vfs_get_next_range(ctxt, &(_startingMana.perlevel));
 
-    vfs_get_next_range(fileRead, &( _startingManaRegeneration.val));
-    vfs_get_next_range(fileRead, &( _startingManaRegeneration.perlevel));
+    vfs_get_next_range(ctxt, &(_startingManaRegeneration.val));
+    vfs_get_next_range(ctxt, &(_startingManaRegeneration.perlevel));
 
-    vfs_get_next_range(fileRead, &( _startingManaFlow.val));
-    vfs_get_next_range(fileRead, &( _startingManaFlow.perlevel));
+    vfs_get_next_range(ctxt, &(_startingManaFlow.val));
+    vfs_get_next_range(ctxt, &(_startingManaFlow.perlevel));
 
-    vfs_get_next_range(fileRead, &( _startingStrength.val));
-    vfs_get_next_range(fileRead, &( _startingStrength.perlevel));
+    vfs_get_next_range(ctxt, &(_startingStrength.val));
+    vfs_get_next_range(ctxt, &(_startingStrength.perlevel));
 
-    vfs_get_next_range(fileRead, &( _startingWisdom.val));
-    vfs_get_next_range(fileRead, &( _startingWisdom.perlevel));
+    vfs_get_next_range(ctxt, &(_startingWisdom.val));
+    vfs_get_next_range(ctxt, &(_startingWisdom.perlevel));
 
-    vfs_get_next_range(fileRead, &( _startingIntelligence.val));
-    vfs_get_next_range(fileRead, &( _startingIntelligence.perlevel));
+    vfs_get_next_range(ctxt, &(_startingIntelligence.val));
+    vfs_get_next_range(ctxt, &(_startingIntelligence.perlevel));
 
-    vfs_get_next_range(fileRead, &( _startingDexterity.val));
-    vfs_get_next_range(fileRead, &( _startingDexterity.perlevel));
+    vfs_get_next_range(ctxt, &(_startingDexterity.val));
+    vfs_get_next_range(ctxt, &(_startingDexterity.perlevel));
 
     // More physical attributes
-    _size = vfs_get_next_float(fileRead);
-    _sizeGainPerLevel = vfs_get_next_float(fileRead );
-    _shadowSize = vfs_get_next_int(fileRead);
-    _bumpSize = vfs_get_next_int(fileRead);
-    _bumpHeight = vfs_get_next_int(fileRead);
-    _bumpDampen = std::max(INV_FF, vfs_get_next_float(fileRead));    //0 == bumpdampenmeans infinite mass, and causes some problems
-    _weight = vfs_get_next_int(fileRead);
-    _jumpPower = vfs_get_next_float(fileRead );
-    _jumpNumber = vfs_get_next_int(fileRead);
-    _animationSpeedSneak = vfs_get_next_float(fileRead );
-    _animationSpeedWalk = vfs_get_next_float(fileRead );
-    _animationSpeedRun = vfs_get_next_float(fileRead );
-    _flyHeight = vfs_get_next_int(fileRead);
-    _flashAND = vfs_get_next_int(fileRead);
-    _alpha = vfs_get_next_int(fileRead);
-    _light = vfs_get_next_int(fileRead);
-    _transferBlending = vfs_get_next_bool(fileRead);
-    _sheen = vfs_get_next_int(fileRead);
-    _phongMapping = vfs_get_next_bool(fileRead);
-    _textureMovementRateX = FLOAT_TO_FFFF( vfs_get_next_float(fileRead) );
-    _textureMovementRateY = FLOAT_TO_FFFF( vfs_get_next_float(fileRead) );
-    _stickyButt = vfs_get_next_bool(fileRead);
+    _size = vfs_get_next_float(ctxt);
+    _sizeGainPerLevel = vfs_get_next_float(ctxt);
+    _shadowSize = vfs_get_next_int(ctxt);
+    _bumpSize = vfs_get_next_int(ctxt);
+    _bumpHeight = vfs_get_next_int(ctxt);
+    _bumpDampen = std::max(INV_FF, vfs_get_next_float(ctxt));    //0 == bumpdampenmeans infinite mass, and causes some problems
+    _weight = vfs_get_next_int(ctxt);
+    _jumpPower = vfs_get_next_float(ctxt);
+    _jumpNumber = vfs_get_next_int(ctxt);
+    _animationSpeedSneak = vfs_get_next_float(ctxt);
+    _animationSpeedWalk = vfs_get_next_float(ctxt);
+    _animationSpeedRun = vfs_get_next_float(ctxt);
+    _flyHeight = vfs_get_next_int(ctxt);
+    _flashAND = vfs_get_next_int(ctxt);
+    _alpha = vfs_get_next_int(ctxt);
+    _light = vfs_get_next_int(ctxt);
+    _transferBlending = vfs_get_next_bool(ctxt);
+    _sheen = vfs_get_next_int(ctxt);
+    _phongMapping = vfs_get_next_bool(ctxt);
+    _textureMovementRateX = FLOAT_TO_FFFF(vfs_get_next_float(ctxt));
+    _textureMovementRateY = FLOAT_TO_FFFF(vfs_get_next_float(ctxt));
+    _stickyButt = vfs_get_next_bool(ctxt);
 
     // Invulnerability data
-    _isInvincible  = vfs_get_next_bool(fileRead);
-    nframefacing   = vfs_get_next_int(fileRead);
-    nframeangle    = vfs_get_next_int(fileRead);
-    iframefacing   = vfs_get_next_int(fileRead);
-    iframeangle    = vfs_get_next_int(fileRead);
+    _isInvincible = vfs_get_next_bool(ctxt);
+    nframefacing = vfs_get_next_int(ctxt);
+    nframeangle = vfs_get_next_int(ctxt);
+    iframefacing = vfs_get_next_int(ctxt);
+    iframeangle = vfs_get_next_int(ctxt);
 
     // Resist burning and stuck arrows with nframe angle of 1 or more
     if ( 1 == nframeangle )
@@ -576,29 +578,29 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     }
 
     // Skin defenses ( 4 skins )
-    goto_colon_vfs( NULL, fileRead, false );
+    goto_colon_vfs( NULL, ctxt._file, false );
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        int iTmp = 0xFF - vfs_get_int( fileRead );
+        int iTmp = 0xFF - vfs_get_int(ctxt);
         _skinInfo[cnt].defence = CLIP( iTmp, 0, 0xFF );
     }
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        goto_colon_vfs( NULL, fileRead, false );
+        goto_colon_vfs( NULL, ctxt._file, false );
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            _skinInfo[cnt].damageResistance[damagetype] = vfs_get_damage_resist( fileRead );
+            _skinInfo[cnt].damageResistance[damagetype] = vfs_get_damage_resist(ctxt);
         }
     }
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        goto_colon_vfs( NULL, fileRead, false );
+        goto_colon_vfs( NULL, ctxt._file, false );
 
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            switch ( char_toupper(vfs_get_first_letter(fileRead)) )
+            switch (char_toupper(vfs_get_first_letter(ctxt)))
             {
                 case 'T': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGEINVERT;   break;
                 case 'C': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGECHARGE;   break;
@@ -614,116 +616,116 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     goto_colon_vfs(NULL, fileRead, false);
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++)
     {
-        _skinInfo[cnt].maxAccel = vfs_get_float( fileRead ) / 80.0f;
+        _skinInfo[cnt].maxAccel = vfs_get_float(ctxt) / 80.0f;
     }
 
     // Experience and level data
     _experienceForLevel[0] = 0;
     for ( size_t level = 1; level < MAXBASELEVEL; level++ )
     {
-        _experienceForLevel[level] = vfs_get_next_int(fileRead);
+        _experienceForLevel[level] = vfs_get_next_int(ctxt);
     }
     setupXPTable();
 
-    vfs_get_next_range( fileRead, &( _startingExperience ) );
+    vfs_get_next_range(ctxt, &(_startingExperience));
     _startingExperience.from /= 256.0f;
     _startingExperience.to   /= 256.0f;
 
-    _experienceWorth    = vfs_get_next_int( fileRead );
-    _experienceExchange = vfs_get_next_float(fileRead );
+    _experienceWorth = vfs_get_next_int(ctxt);
+    _experienceExchange = vfs_get_next_float(ctxt);
 
     for(size_t i = 0; i < _experienceRate.size(); ++i)
     {
-        _experienceRate[i] = vfs_get_next_float(fileRead ) + 0.001f;
+        _experienceRate[i] = vfs_get_next_float(ctxt) + 0.001f;
     }
 
     // IDSZ tags
     for (size_t i = 0; i < _idsz.size(); ++i)
     {
-        _idsz[i] = vfs_get_next_idsz(fileRead);
+        _idsz[i] = vfs_get_next_idsz(ctxt);
     }
 
     // Item and damage flags
-    _isItem              = vfs_get_next_bool(fileRead);
-    _isMount             = vfs_get_next_bool(fileRead);
-    _isStackable         = vfs_get_next_bool(fileRead);
-    _nameIsKnown            = vfs_get_next_bool(fileRead);
-    _usageIsKnown           = vfs_get_next_bool(fileRead);
-    _canCarryToNextModule = vfs_get_next_bool(fileRead);
-    _needSkillIDToUse     = vfs_get_next_bool(fileRead);
-    _isPlatform          = vfs_get_next_bool(fileRead);
-    _canGrabMoney        = vfs_get_next_bool(fileRead);
-    _canOpenStuff        = vfs_get_next_bool(fileRead);
+    _isItem = vfs_get_next_bool(ctxt);
+    _isMount = vfs_get_next_bool(ctxt);
+    _isStackable = vfs_get_next_bool(ctxt);
+    _nameIsKnown = vfs_get_next_bool(ctxt);
+    _usageIsKnown = vfs_get_next_bool(ctxt);
+    _canCarryToNextModule = vfs_get_next_bool(ctxt);
+    _needSkillIDToUse = vfs_get_next_bool(ctxt);
+    _isPlatform = vfs_get_next_bool(ctxt);
+    _canGrabMoney = vfs_get_next_bool(ctxt);
+    _canOpenStuff = vfs_get_next_bool(ctxt);
 
     // More item and damage stuff
-    _damageTargetDamageType = static_cast<DamageType>(vfs_get_next_damage_type(fileRead));
-    _weaponAction            = action_which( vfs_get_next_char( fileRead ) );
+    _damageTargetDamageType = static_cast<DamageType>(vfs_get_next_damage_type(ctxt));
+    _weaponAction = action_which(vfs_get_next_char(ctxt));
 
     // Particle attachments
-    _attachedParticleAmount              = vfs_get_next_int( fileRead );
-    _attachedParticleReaffirmDamageType = static_cast<DamageType>(vfs_get_next_damage_type(fileRead));
-    _attachedParticle  = vfs_get_next_int(fileRead);
+    _attachedParticleAmount = vfs_get_next_int(ctxt);
+    _attachedParticleReaffirmDamageType = static_cast<DamageType>(vfs_get_next_damage_type(ctxt));
+    _attachedParticle = vfs_get_next_int(ctxt);
 
     // Character hands
-    _slotsValid[SLOT_LEFT]  = vfs_get_next_bool( fileRead );
-    _slotsValid[SLOT_RIGHT] = vfs_get_next_bool( fileRead );
+    _slotsValid[SLOT_LEFT] = vfs_get_next_bool(ctxt);
+    _slotsValid[SLOT_RIGHT] = vfs_get_next_bool(ctxt);
 
     // Attack order ( weapon )
-    _spawnsAttackParticle = vfs_get_next_bool( fileRead );
-    _attackParticle  = vfs_get_next_int(fileRead);
+    _spawnsAttackParticle = vfs_get_next_bool(ctxt);
+    _attackParticle = vfs_get_next_int(ctxt);
 
     // GoPoof
-    _goPoofParticleAmount    = vfs_get_next_int( fileRead );
-    _goPoofParticleFacingAdd = vfs_get_next_int( fileRead );
-    _goPoofParticle          = vfs_get_next_int(fileRead);
+    _goPoofParticleAmount = vfs_get_next_int(ctxt);
+    _goPoofParticleFacingAdd = vfs_get_next_int(ctxt);
+    _goPoofParticle = vfs_get_next_int(ctxt);
 
     // Blud
-    switch( char_toupper(vfs_get_next_char(fileRead)) )
+    switch (char_toupper(vfs_get_next_char(ctxt)))
     {
         case 'T': _bludValid = true;        break;
         case 'U': _bludValid = ULTRABLUDY;  break;
         default:  _bludValid = false;       break;
     }
-    _bludParticle = vfs_get_next_int(fileRead);
+    _bludParticle = vfs_get_next_int(ctxt);
 
     // Stuff I forgot
-    _waterWalking = vfs_get_next_bool( fileRead );
-    _bounciness   = vfs_get_next_float( fileRead );
+    _waterWalking = vfs_get_next_bool(ctxt);
+    _bounciness = vfs_get_next_float(ctxt);
 
     // More stuff I forgot
-    vfs_get_next_float( fileRead );  //ZF> deprecated value LifeReturn (no longer used)
-    _useManaCost = vfs_get_next_float( fileRead );
-    _startingLifeRegeneration  = vfs_get_next_int( fileRead );
-    _stoppedBy   |= vfs_get_next_int( fileRead );
+    vfs_get_next_float(ctxt);  //ZF> deprecated value LifeReturn (no longer used)
+    _useManaCost = vfs_get_next_float(ctxt);
+    _startingLifeRegeneration = vfs_get_next_int(ctxt);
+    _stoppedBy |= vfs_get_next_int(ctxt);
 
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         char skinName[256];
-        vfs_get_next_name(fileRead, skinName, 256);
+        vfs_get_next_name(ctxt, skinName, 256);
         _skinInfo[cnt].name = skinName;
     }
 
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        _skinInfo[cnt].cost = vfs_get_next_int( fileRead );
+        _skinInfo[cnt].cost = vfs_get_next_int(ctxt);
     }
 
-    _strengthBonus = vfs_get_next_float( fileRead );          //ZF> Deprecated, but keep here for backwards compatability
+    _strengthBonus = vfs_get_next_float(ctxt);          //ZF> Deprecated, but keep here for backwards compatability
 
     // Another memory lapse
-    _riderCanAttack = !vfs_get_next_bool(fileRead);     //ZF> note value is inverted intentionally
-    _canBeDazed     =  vfs_get_next_bool(fileRead);
-    _canBeGrogged   =  vfs_get_next_bool(fileRead);
+    _riderCanAttack = !vfs_get_next_bool(ctxt);     //ZF> note value is inverted intentionally
+    _canBeDazed = vfs_get_next_bool(ctxt);
+    _canBeGrogged = vfs_get_next_bool(ctxt);
 
     goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (permanent life add)
     goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (permanent mana add)
-    if ( vfs_get_next_bool(fileRead) ) {
+    if (vfs_get_next_bool(ctxt)) {
         _seeInvisibleLevel = 1;
     }
 
-    _kurseChance    = vfs_get_next_int(fileRead);
-    _footFallSound  = vfs_get_next_int(fileRead);  // Footfall sound
-    _jumpSound      = vfs_get_next_int(fileRead);  // Jump sound
+    _kurseChance = vfs_get_next_int(ctxt);
+    _footFallSound = vfs_get_next_int(ctxt);  // Footfall sound
+    _jumpSound = vfs_get_next_int(ctxt);  // Jump sound
 
     // assume the normal dependence of _causesRipples on _isItem
     _causesRipples = !_isItem;
@@ -740,44 +742,44 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // Read expansions
     while ( goto_colon_vfs(NULL, fileRead, true) )
     {
-        const IDSZ idsz = vfs_get_idsz( fileRead );
+        const IDSZ idsz = vfs_get_idsz(ctxt);
 
         switch(idsz)
         {
             case MAKE_IDSZ( 'D', 'R', 'E', 'S' ):
-                _skinInfo[vfs_get_int(fileRead)].dressy = true;
+                _skinInfo[vfs_get_int(ctxt)].dressy = true;
             break;
 
             case MAKE_IDSZ( 'G', 'O', 'L', 'D' ):
-                _money = vfs_get_int( fileRead );
+                _money = vfs_get_int(ctxt);
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'U', 'K' ):
-                _resistBumpSpawn = ( 0 != ( 1 - vfs_get_int( fileRead ) ) );
+                _resistBumpSpawn = (0 != (1 - vfs_get_int(ctxt)));
             break;
 
             case MAKE_IDSZ( 'P', 'A', 'C', 'K' ):
-                _isBigItem = !( 0 != vfs_get_int( fileRead ) );
+                _isBigItem = !(0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'M', 'P' ):
-                _hasReflection = !( 0 != vfs_get_int( fileRead ) );
+                _hasReflection = !(0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'D', 'R', 'A', 'W' ):
-                _alwaysDraw = ( 0 != vfs_get_int( fileRead ) );
+                _alwaysDraw = (0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'R', 'A', 'N', 'G' ):
-                _isRanged = ( 0 != vfs_get_int( fileRead ) );
+                _isRanged = (0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'H', 'I', 'D', 'E' ):
-                _hideState = vfs_get_int( fileRead );
+                _hideState = vfs_get_int(ctxt);
             break;
 
             case MAKE_IDSZ( 'E', 'Q', 'U', 'I' ):
-                _isEquipment = ( 0 != vfs_get_int( fileRead ) );
+                _isEquipment = (0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'S', 'Q', 'U', 'A' ):
@@ -785,11 +787,11 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'I', 'C', 'O', 'N' ):
-                _drawIcon = ( 0 != vfs_get_int( fileRead ) );
+                _drawIcon = (0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'S', 'H', 'A', 'D' ):
-                _forceShadow = ( 0 != vfs_get_int( fileRead ) );
+                _forceShadow = (0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'S', 'K', 'I', 'N' ):
@@ -798,7 +800,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 ///            It should(!) correspond to a valid skin for this object,
                 ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or MAX_SKIN)
 
-                int iTmp = vfs_get_int( fileRead );
+                int iTmp = vfs_get_int(ctxt);
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
                 iTmp = ( iTmp > MAX_SKIN ) ? MAX_SKIN : iTmp;
@@ -807,35 +809,35 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'C', 'O', 'N', 'T' ): 
-                _contentOverride = vfs_get_int( fileRead );
+                _contentOverride = vfs_get_int(ctxt);
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'A', 'T' ): 
-                _stateOverride = vfs_get_int( fileRead );
+                _stateOverride = vfs_get_int(ctxt);
             break;
 
             case MAKE_IDSZ( 'L', 'E', 'V', 'L' ): 
-                _levelOverride = vfs_get_int( fileRead );
+                _levelOverride = vfs_get_int(ctxt);
             break;
 
             case MAKE_IDSZ( 'P', 'L', 'A', 'T' ): 
-                _canUsePlatforms = ( 0 != vfs_get_int( fileRead ) );
+                _canUsePlatforms = (0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'R', 'I', 'P', 'P' ): 
-                _causesRipples = ( 0 != vfs_get_int( fileRead ) );
+                _causesRipples = (0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'L', 'U' ): 
-                _isValuable = vfs_get_int( fileRead );
+                _isValuable = vfs_get_int(ctxt);
             break;
 
             case MAKE_IDSZ( 'L', 'I', 'F', 'E' ): 
-                _spawnLife = 0xff * vfs_get_float( fileRead );
+                _spawnLife = 0xff * vfs_get_float(ctxt);
             break;
 
             case MAKE_IDSZ( 'M', 'A', 'N', 'A' ): 
-                _spawnMana = 0xff * vfs_get_float( fileRead );
+                _spawnMana = 0xff * vfs_get_float(ctxt);
             break;
 
             case MAKE_IDSZ( 'B', 'O', 'O', 'K' ):
@@ -844,7 +846,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 ///            It should(!) correspond to a valid skin for this object,
                 ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or MAX_SKIN)
 
-                int iTmp = vfs_get_int( fileRead );
+                int iTmp = vfs_get_int(ctxt);
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
                 iTmp = ( iTmp > MAX_SKIN ) ? MAX_SKIN : iTmp;
@@ -854,29 +856,29 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
             //Damage bonuses from stats
             case MAKE_IDSZ( 'F', 'A', 'S', 'T' ):
-                _attackFast = ( 0 != vfs_get_int(fileRead) );
+                _attackFast = (0 != vfs_get_int(ctxt));
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'R', 'D' ):
-                _strengthBonus = vfs_get_float( fileRead );
+                _strengthBonus = vfs_get_float(ctxt);
             break;
 
             case MAKE_IDSZ( 'I', 'N', 'T', 'D' ):
-                _intelligenceBonus = vfs_get_float( fileRead );
+                _intelligenceBonus = vfs_get_float(ctxt);
             break;
 
             case MAKE_IDSZ( 'W', 'I', 'S', 'D' ):
-                _wisdomBonus = vfs_get_float( fileRead );
+                _wisdomBonus = vfs_get_float(ctxt);
             break;
 
             case MAKE_IDSZ( 'D', 'E', 'X', 'D' ):
-                _dexterityBonus = vfs_get_float( fileRead );
+                _dexterityBonus = vfs_get_float(ctxt);
             break;
 
             case MAKE_IDSZ( 'M', 'O', 'D', 'L' ):
             {
                 STRING tmp_buffer;
-                if ( vfs_get_string( fileRead, tmp_buffer, SDL_arraysize( tmp_buffer ) ) )
+                if (vfs_get_string(ctxt, tmp_buffer, SDL_arraysize(tmp_buffer)))
                 {
                     char * ptr;
 
@@ -914,12 +916,10 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
             default:
                 //If it is none of the predefined IDSZ extensions then add it as a new skill
-                _skills[idsz] = vfs_get_int(fileRead);
+                _skills[idsz] = vfs_get_int(ctxt);
             break;
         }
     }
-
-    vfs_close( fileRead );
     return true;
 }
 

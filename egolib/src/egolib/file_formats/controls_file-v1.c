@@ -62,13 +62,14 @@ bool input_settings_load_vfs_1(const char* szFilename)
 
         return false;
     }
+    ReadContext ctxt(szFilename, fileread, true);
 
     // read the keyboard InputDevices
     idevice = INPUT_DEVICE_KEYBOARD;
     pdevice = InputDevices.lst + idevice;
     for ( i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++ )
     {
-        if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+        if ( vfs_get_next_line( ctxt, currenttag, SDL_arraysize( currenttag ) ) )
         {
             scantag_parse_control( currenttag, pdevice->keyMap[i] );
         }
@@ -81,7 +82,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
     pdevice = InputDevices.lst + idevice;
     for ( i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
     {
-        if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+        if ( vfs_get_next_line(ctxt, currenttag, SDL_arraysize( currenttag ) ) )
         {
             scantag_parse_control( currenttag, pdevice->keyMap[i] );
         }
@@ -90,13 +91,13 @@ bool input_settings_load_vfs_1(const char* szFilename)
     InputDevices.count++;
 
     // read in however many joysticks there are...
-    for ( cnt = 0; !vfs_eof( fileread ) && cnt < MAX_JOYSTICK; cnt++ )
+    for ( cnt = 0; !vfs_eof(ctxt._file) && cnt < MAX_JOYSTICK; cnt++ )
     {
         idevice = ( INPUT_DEVICE )( INPUT_DEVICE_JOY + cnt );
         pdevice = InputDevices.lst + idevice;
         for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
         {
-            if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+            if ( vfs_get_next_line( ctxt, currenttag, SDL_arraysize( currenttag ) ) )
             {
                 scantag_parse_control( currenttag, pdevice->keyMap[i] );
             }
@@ -105,8 +106,6 @@ bool input_settings_load_vfs_1(const char* szFilename)
 
         InputDevices.count++;
     }
-
-    vfs_close( fileread );
 
     return InputDevices.count > 0;
 }

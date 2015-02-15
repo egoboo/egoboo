@@ -68,18 +68,18 @@ spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
+bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
 {
     char cTmp, delim;
     bool retval;
 
     // trap bad pointers
-    if ( NULL == fileread || NULL == pinfo ) return false;
+    if (NULL == pinfo ) return false;
 
     spawn_file_info_reinit( pinfo );
 
     // check for another entry, either the "#" or ":" delimiters
-    delim = goto_delimiter_list_vfs( pinfo->spawn_coment, fileread, "#:", true );
+    delim = goto_delimiter_list_vfs( pinfo->spawn_coment, ctxt._file, "#:", true );
     if ( CSTR_END == delim ) return false;
 
     retval = false;
@@ -89,7 +89,7 @@ bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
 
         pinfo->do_spawn = true;
 
-        vfs_get_string( fileread, pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ) );
+        vfs_get_string(ctxt, pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ) );
         str_decode( pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ), pinfo->spawn_name );
 
         pinfo->pname = pinfo->spawn_name;
@@ -99,15 +99,15 @@ bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
             pinfo->pname = NULL;
         }
 
-        pinfo->slot = vfs_get_int( fileread );
+        pinfo->slot = vfs_get_int(ctxt);
 
-        pinfo->pos.x = vfs_get_float( fileread ) * GRID_FSIZE;
-        pinfo->pos.y = vfs_get_float( fileread ) * GRID_FSIZE;
-        pinfo->pos.z = vfs_get_float( fileread ) * GRID_FSIZE;
+        pinfo->pos.x = vfs_get_float(ctxt) * GRID_FSIZE;
+        pinfo->pos.y = vfs_get_float(ctxt) * GRID_FSIZE;
+        pinfo->pos.z = vfs_get_float(ctxt) * GRID_FSIZE;
 
         pinfo->facing = FACE_NORTH;
         pinfo->attach = ATTACH_NONE;
-        cTmp = vfs_get_first_letter( fileread );
+        cTmp = vfs_get_first_letter(ctxt);
         if ( 'S' == char_toupper(( unsigned )cTmp ) )       pinfo->facing = FACE_SOUTH;
         else if ( 'E' == char_toupper(( unsigned )cTmp ) )  pinfo->facing = FACE_EAST;
         else if ( 'W' == char_toupper(( unsigned )cTmp ) )  pinfo->facing = FACE_WEST;
@@ -116,11 +116,11 @@ bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
         else if ( 'R' == char_toupper(( unsigned )cTmp ) )  pinfo->attach = ATTACH_RIGHT;
         else if ( 'I' == char_toupper(( unsigned )cTmp ) )  pinfo->attach = ATTACH_INVENTORY;
 
-        pinfo->money   = vfs_get_int( fileread );
-        pinfo->skin    = vfs_get_int( fileread );
-        pinfo->passage = vfs_get_int( fileread );
-        pinfo->content = vfs_get_int( fileread );
-        pinfo->level   = vfs_get_int( fileread );
+        pinfo->money   = vfs_get_int(ctxt);
+        pinfo->skin    = vfs_get_int(ctxt);
+        pinfo->passage = vfs_get_int(ctxt);
+        pinfo->content = vfs_get_int(ctxt);
+        pinfo->level = vfs_get_int(ctxt);
 
         if ( pinfo->skin >= MAX_SKIN )
         {
@@ -128,11 +128,11 @@ bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
             pinfo->skin = irand % MAX_SKIN;     // Randomize skin?
         }
 
-        pinfo->stat = vfs_get_bool( fileread );
+        pinfo->stat = vfs_get_bool(ctxt);
 
-        vfs_get_first_letter( fileread );   ///< BAD! Unused ghost value
+        vfs_get_first_letter(ctxt);   ///< BAD! Unused ghost value
 
-        cTmp = vfs_get_first_letter( fileread );
+        cTmp = vfs_get_first_letter(ctxt);
         pinfo->team = ( cTmp - 'A' ) % TEAM_MAX;
     }
     else if ( '#' == delim )
@@ -142,7 +142,7 @@ bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
 
         pinfo->do_spawn = false;
 
-        fields = vfs_scanf( fileread, "%255s%255s%d", szTmp1, szTmp2, &iTmp );
+        fields = vfs_scanf(ctxt._file, "%255s%255s%d", szTmp1, szTmp2, &iTmp );
         if ( 3 == fields && 0 == strcmp( szTmp1, "dependency" ) )
         {
             retval = true;
