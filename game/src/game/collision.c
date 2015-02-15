@@ -2808,7 +2808,6 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                 if ( _gameObjects.exists( pdata->pprt->owner_ref ) && using_shield )
                 {
                     int   total_block_rating;
-                    IPair rand_pair;
 
                     Object *pshield   = _gameObjects.get( item );
                     Object *pattacker = _gameObjects.get( pdata->pprt->owner_ref );
@@ -2824,9 +2823,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                     total_block_rating += 2 * SFP8_TO_SINT( pdata->pchr->strength );
 
                     // Now determine the result of the block
-                    rand_pair.base = 0;
-                    rand_pair.rand = 100;
-                    if ( generate_irand_pair( rand_pair ) <= total_block_rating )
+                    if ( Random::getPercent() <= total_block_rating )
                     {
                         // Defender won, the block holds
                         // Add a small stun to the attacker = 40/50 (0.8 seconds)

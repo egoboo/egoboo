@@ -29,15 +29,18 @@
 
 UIManager::UIManager() :
 	_defaultFont(nullptr),
+    _floatingTextFont(nullptr),
 	_renderSemaphore(0)
 {
 	fnt_init();
 	_defaultFont = fnt_loadFont("mp_data/Bo_Chen.ttf", 24);
+    _floatingTextFont = fnt_loadFont("mp_data/FrostysWinterland.ttf", 24);
 }
 
 UIManager::~UIManager()
 {
 	fnt_freeFont(_defaultFont);
+    fnt_freeFont(_floatingTextFont);
 }
 
 void UIManager::beginRenderUI()
@@ -138,4 +141,9 @@ void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, fl
 Font* UIManager::getDefaultFont() const
 {
     return _defaultFont;
+}
+
+Font* UIManager::getFloatingTextFont() const
+{
+    return _floatingTextFont;
 }

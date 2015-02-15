@@ -24,6 +24,7 @@
 
 #include "egolib/math/AABB.h"
 #include "egolib/math/Colour4f.hpp"
+#include "egolib/math/Random.hpp"
 #include "egolib/bsp.h"
 #include "egolib/bbox.h"
 #include "egolib/clock.h"

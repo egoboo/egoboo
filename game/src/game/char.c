@@ -1657,7 +1657,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         // NOTE: this is not corerect since it could alert a player to an invisible object
 
         // 5 seconds and blue
-        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 5, bb_opt_fade );
+        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 3, bb_opt_fade );
 
         retval = true;
     }
@@ -1711,12 +1711,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 if ( grabData.too_dark || grabData.too_invis )
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, bb_opt_fade );
                 }
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 3, bb_opt_fade );
                 }
             }
 
@@ -1727,12 +1727,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 if ( grabData.too_dark || grabData.too_invis )
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, bb_opt_fade );
                 }
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 3, bb_opt_fade );
                 }
             }
         }
@@ -2672,12 +2672,10 @@ Object * chr_config_do_init( Object * pchr )
     // Kurse state
     if ( ppro->isItem() )
     {
-        IPair loc_rand = {1, 100};
-
         kursechance = ppro->getKurseChance();
         if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
         if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
-        pchr->iskursed = ( generate_irand_pair( loc_rand ) <= kursechance );
+        pchr->iskursed = Random::getPercent() <= kursechance;
     }
 
     // AI stuff
@@ -5962,6 +5960,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
         billboard_data_t * pbb = BillboardList_get_ptr( pchr->ibillboard );
 
         pbb->ichr = ichr;
+        pbb->pos = pchr->getPosition();
     }
 
     return pchr->ibillboard;
@@ -5986,7 +5985,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     pbb = BillboardList_get_ptr( pchr->ibillboard );
     if ( NULL == pbb ) return pbb;
 
-    rv = billboard_data_printf_ttf( pbb, _gameEngine->getUIManager()->getDefaultFont(), text_color, "%s", txt );
+    rv = billboard_data_printf_ttf( pbb, _gameEngine->getUIManager()->getFloatingTextFont(), text_color, "%s", txt );
 
     if ( rv < 0 )
     {
@@ -6018,7 +6017,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
         if ( HAS_SOME_BITS( opt_bits, bb_opt_fade ) )
         {
             // make the billboard fade to transparency
-            pbb->tint_add[AA] = -1.0f / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            pbb->tint_add[AA] = -1.0f / (lifetime_secs * GameEngine::GAME_TARGET_UPS);
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_burn ) )
