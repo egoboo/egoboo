@@ -315,7 +315,7 @@ bool Object::isOverWater(bool anyLiquid) const
 
 bool Object::isInWater(bool anyLiquid) const
 {
-    return isOverWater(anyLiquid) && getPosZ() < water.surface_level ;
+    return isOverWater(anyLiquid) && getPosZ() < water_instance_get_water_level(&water);
 }
 
 
