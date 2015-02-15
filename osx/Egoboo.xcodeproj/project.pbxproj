@@ -642,6 +642,7 @@
 		CD44E45E1A895D9B00D345DF /* ComparisonFunction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ComparisonFunction.hpp; sourceTree = "<group>"; };
 		CD4B64E41A7EE94C00A52646 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		CD4B64E51A7EE94C00A52646 /* Object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
+		CD58B7191A911BD900F2D2E6 /* ReaderUtilities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReaderUtilities.hpp; sourceTree = "<group>"; };
 		CD5B0CAB1A6204EC00F076F9 /* AStar.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AStar.c; sourceTree = "<group>"; };
 		CD5B0CAC1A6204EC00F076F9 /* AStar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AStar.h; sourceTree = "<group>"; };
 		CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = WaypointList.c; sourceTree = "<group>"; };
@@ -1251,6 +1252,7 @@
 				CD1329831A90130300D1B221 /* ParticleProfileWriter.hpp */,
 				CD1329841A90130300D1B221 /* RandomName.cpp */,
 				CD1329851A90130300D1B221 /* RandomName.hpp */,
+				CD58B7191A911BD900F2D2E6 /* ReaderUtilities.hpp */,
 			);
 			path = Profiles;
 			sourceTree = "<group>";

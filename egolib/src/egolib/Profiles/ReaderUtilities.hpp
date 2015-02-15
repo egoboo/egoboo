@@ -25,6 +25,10 @@ public:
         Iterator(typename std::map<std::string, EnumType>::iterator& it) :
             _it(it)
         {}
+        
+        Iterator(typename std::map<std::string, EnumType>::iterator&& it) :
+        _it(it)
+        {}
 
         Iterator(const Iterator& other) :
             _it(other._it)
@@ -91,12 +95,12 @@ public:
     {
         for (auto it = list.begin(); it != list.end(); ++it)
         {
-            const std::pair<std::string, EnumType>& p = *it;
+            const std::pair<const std::string, EnumType>& p = *it;
             _elements[p.first] = p.second;
         }
     }
 #else
-    EnumReader(const std::string& name, const std::initializer_list<std::pair<std::string, EnumType>>& list) :
+    EnumReader(const std::string& name, const std::initializer_list<std::pair<const std::string, EnumType>>& list) :
         _name(name), _elements{ list }
     {
     }
