@@ -320,16 +320,14 @@ void AudioSystem::loadAllMusic()
     if ( !_musicLoaded.empty() || !_audioConfig.musicvalid ) return;
 
     // Open the playlist listing all music files
-    vfs_FILE *playlist = vfs_openRead( "mp_data/music/playlist.txt" );
-    if ( nullptr == playlist )
-    {
-        log_warning( "Error reading music list. (mp_data/music/playlist.txt)\n");
+    ReadContext ctxt("mp_data/music/playlist.txt");
+    if (!ctxt.ensureOpen()) {
+        log_warning("Unable to read playlist file `%s`\n",ctxt.getLoadName().c_str());
         return;
     }
-    ReadContext ctxt("mp_data/music/playlist.txt", playlist, true);
 
     // Load all music data into memory
-    while ( !vfs_eof( playlist ) )
+    while ( !vfs_eof( ctxt._file ) )
     {
         if ( goto_colon_vfs( NULL, ctxt._file, true ) )
         {

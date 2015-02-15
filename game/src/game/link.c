@@ -140,16 +140,12 @@ bool link_follow_modname( const char * modname, bool push_current_module )
 //--------------------------------------------------------------------------------------------
 bool link_build_vfs( const char * fname, Link_t list[] )
 {
-    vfs_FILE * pfile;
-    int i;
-
     if ( !VALID_CSTR( fname ) ) return false;
 
-    pfile = vfs_openRead( fname );
-    if ( NULL == pfile ) return false;
-    ReadContext ctxt(fname, pfile, true);
+    ReadContext ctxt(fname);
+    if (!ctxt.ensureOpen()) return false;
 
-    i = 0;
+    size_t i = 0;
     while ( goto_colon_vfs( NULL, ctxt._file, true ) && i < LINK_COUNT )
     {
         vfs_get_string( ctxt, list[i].modname, SDL_arraysize( list[i].modname ) );

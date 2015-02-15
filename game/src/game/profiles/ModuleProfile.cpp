@@ -102,9 +102,8 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     STRING buffer;
 
     // see if we can open menu.txt file (required)
-    vfs_FILE * fileread = vfs_openRead((folderPath + "/gamedat/menu.txt").c_str());
-    if (!fileread) return nullptr;
-    ReadContext ctxt(folderPath + "/gamedat/menu.txt", fileread, true);
+    ReadContext ctxt(folderPath + "/gamedat/menu.txt");
+    if (!ctxt.ensureOpen()) return nullptr;
 
     //Allocate memory
     std::shared_ptr<ModuleProfile> result = std::make_shared<ModuleProfile>();
@@ -213,8 +212,6 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
 {
     /// @author ZZ
     /// @details This function returns true if the named module has the required IDSZ
-
-    vfs_FILE *fileread;
     STRING newloadname;
     Uint32 newidsz;
     bool foundidsz;
@@ -226,31 +223,30 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
 
     snprintf( newloadname, SDL_arraysize( newloadname ), "mp_modules/%s/gamedat/menu.txt", szModName );
 
-    fileread = vfs_openRead( newloadname );
-    if ( NULL == fileread ) return false;
-    ReadContext ctxt(newloadname, fileread, true);
+    ReadContext ctxt(newloadname);
+    if (!ctxt.ensureOpen()) return false;
 
     // Read basic data
-    goto_colon_vfs( NULL, fileread, false );  // Name of module...  Doesn't matter
-    goto_colon_vfs( NULL, fileread, false );  // Reference directory...
-    goto_colon_vfs( NULL, fileread, false );  // Reference IDSZ...
-    goto_colon_vfs( NULL, fileread, false );  // Import...
-    goto_colon_vfs( NULL, fileread, false );  // Export...
-    goto_colon_vfs( NULL, fileread, false );  // Min players...
-    goto_colon_vfs( NULL, fileread, false );  // Max players...
-    goto_colon_vfs( NULL, fileread, false );  // Respawn...
-    goto_colon_vfs( NULL, fileread, false );  // BAD! NOT USED
-    goto_colon_vfs( NULL, fileread, false );  // Rank...
+    goto_colon_vfs(NULL, ctxt._file, false);  // Name of module...  Doesn't matter
+    goto_colon_vfs(NULL, ctxt._file, false);  // Reference directory...
+    goto_colon_vfs(NULL, ctxt._file, false);  // Reference IDSZ...
+    goto_colon_vfs(NULL, ctxt._file, false);  // Import...
+    goto_colon_vfs(NULL, ctxt._file, false);  // Export...
+    goto_colon_vfs(NULL, ctxt._file, false);  // Min players...
+    goto_colon_vfs(NULL, ctxt._file, false);  // Max players...
+    goto_colon_vfs(NULL, ctxt._file, false);  // Respawn...
+    goto_colon_vfs(NULL, ctxt._file, false);  // BAD! NOT USED
+    goto_colon_vfs(NULL, ctxt._file, false);  // Rank...
 
     // Summary...
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
-        goto_colon_vfs( NULL, fileread, false );
+        goto_colon_vfs(NULL, ctxt._file, false);
     }
 
     // Now check expansions
     foundidsz = false;
-    while ( goto_colon_vfs( NULL, fileread, true ) )
+    while (goto_colon_vfs(NULL, ctxt._file, true))
     {
         newidsz = vfs_get_idsz(ctxt);
         if ( newidsz == idsz )
@@ -272,7 +268,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
         }
         else
         {
-            vfs_gets( buffer, buffer_len, fileread );
+            vfs_gets(buffer, buffer_len, ctxt._file);
         }
     }
 

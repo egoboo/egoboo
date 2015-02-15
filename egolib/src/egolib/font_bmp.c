@@ -82,7 +82,6 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     int stt_x, stt_y;
     int xspacing, yspacing;
     char cTmp;
-    vfs_FILE *fileread;
 
     font_bmp_init();
 
@@ -106,12 +105,10 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     //int xdiv = xsize / NUMFONTX;
 
     // Figure out where each font is and its spacing
-    fileread = vfs_openRead( szSpacing );
-    if ( NULL == fileread )
-    {
-        log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
+    ReadContext ctxt(szSpacing);
+    if (!ctxt.ensureOpen()) {
+        log_error("unable to read font spacing file %s for spacing (%i,%i)\n", szSpacing, xsize, ysize);
     }
-    ReadContext ctxt(szSpacing, fileread, true);
 
     stt_x = 0;
     stt_y = 0;

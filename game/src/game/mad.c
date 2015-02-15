@@ -181,17 +181,14 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
 {
     /// @author ZZ
     /// @details This function copies a model's actions
-
-    vfs_FILE *fileread;
     int actiona, actionb;
     char szOne[16] = EMPTY_CSTR;
     char szTwo[16] = EMPTY_CSTR;
 
     if ( NULL == pmad ) return pmad;
 
-    fileread = vfs_openRead( loadname );
-    if ( NULL == fileread ) return pmad;
-    ReadContext ctxt(loadname, fileread, true);
+    ReadContext ctxt(loadname);
+    if (!ctxt.ensureOpen()) return pmad;
 
     while ( goto_colon_vfs( NULL, ctxt._file, true ) )
     {

@@ -83,17 +83,14 @@ void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table 
 egolib_rv init_random_treasure_tables_vfs( const char* filepath )
 {
     //ZF> This loads all the treasure tables from randomtreasure.txt
-    vfs_FILE *fileread;
     int num_table;
 
-    // try to open the file
-    fileread = vfs_openRead( filepath );
-    if ( NULL == fileread )
-    {
-        log_warning( "Could not load random treasure tables! (%s)\n", filepath );
+    // Try to open a context.
+    ReadContext ctxt(filepath);
+    if (!ctxt.ensureOpen()) {
+        log_warning("unable to load random treasure tables file `%s`\n", filepath);
         return rv_error;
     }
-    ReadContext ctxt(filepath, fileread, true);
 
     //Load each treasure table
     num_table = 0;

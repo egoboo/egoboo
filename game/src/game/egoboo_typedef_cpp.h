@@ -1,24 +1,5 @@
 #pragma once
 
-#if !defined(__cplusplus)
-#    error egoboo_typedef_cpp.h should only be included if you are compling as c++
-#endif
-
-#include <exception>
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// fix for the fact that assert is technically not supported in c++
-class egolib_exception : public std::exception
-{
-    protected:
-        const char * what;
-    public:
-        egolib_exception( const char * str ) : what( str ) {};
-};
-
-#define CPP_EGOBOO_ASSERT(X) if( !(X) ) { throw (std::exception*)(new egolib_exception( #X )); }
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // definition of the reference template
@@ -74,10 +55,7 @@ template <typename _ty> class t_reference
 
 #define REF_TO_INT( X ) ((X).get_value())
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // a simple array template
-
 template < typename _ty, size_t _sz >
 struct t_cpp_ary
 {
@@ -89,12 +67,12 @@ public:
     _ty * operator + ( const t_reference<_ty> & ref ) { const REF_T val = ref.get_value(); /* if ( val > _sz ) CPP_EGOBOO_ASSERT( NULL == "t_cpp_ary::operator + - index out of range" ); */ return lst + val; }
 };
 
+#if 0
 #define CPP_DECLARE_T_ARY(TYPE, NAME, COUNT) t_cpp_ary<TYPE, COUNT> NAME
+#endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 // a simple list template that tracks free elements
-
 template < typename _ty, size_t _sz >
 struct t_cpp_list
 {
@@ -103,28 +81,31 @@ struct t_cpp_list
     size_t used_ref[_sz];
     size_t free_ref[_sz];
 
-    CPP_DECLARE_T_ARY( _ty, lst, _sz );
+    t_cpp_ary< _ty, _sz> lst;
 
     t_cpp_list() { used_count = free_count = 0; }
 };
 
+#if 0
 #define CPP_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)    extern t_cpp_list<TYPE, COUNT> NAME
 #define CPP_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT) static t_cpp_list<TYPE, COUNT> NAME
 #define CPP_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) ACCESS t_cpp_list<TYPE, COUNT> NAME
+#endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 // a simple stack template
-
 template < typename _ty, size_t _sz >
 struct t_cpp_stack
 {
     int   count;
-    CPP_DECLARE_T_ARY( _ty, lst, _sz );
+
+    t_cpp_ary< _ty, _sz> lst;
 
     t_cpp_stack() { count = 0; }
 };
 
+#if 0
 #define CPP_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      extern t_cpp_stack<TYPE, COUNT> NAME
 #define CPP_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  static t_cpp_stack<TYPE, COUNT> NAME
 #define CPP_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) ACCESS t_cpp_stack<TYPE, COUNT> NAME
+#endif

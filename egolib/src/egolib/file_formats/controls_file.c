@@ -59,7 +59,6 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
     /// @author ZZ
     /// @details This function reads the controls.txt file
     int file_version;
-    vfs_FILE* fileread = NULL;
 	bool retval = false;
 
     // Make sure the file exists, if not copy it from the default folder
@@ -74,13 +73,11 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
     // get the file version
     file_version     = -1;
 
-    fileread = vfs_openRead( szFilename );
-    if ( NULL == fileread )
-    {
-        log_warning( "Could not load input settings (%s)!\n", szFilename );
+    ReadContext ctxt(szFilename);
+    if (!ctxt.ensureOpen()) {
+        log_warning("unable to read input settings file `%s`\n",szFilename);
         return false;
     }
-    ReadContext ctxt(szFilename, fileread, true);
     file_version = vfs_get_version(ctxt);
     ctxt.close();
 

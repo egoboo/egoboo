@@ -25,6 +25,7 @@
 #include "egolib/typedef.h"
 
 #include "egolib/vfs.h"
+#include "egolib/log.h"
 #include "egolib/file_common.h"
 
 //--------------------------------------------------------------------------------------------
@@ -93,165 +94,257 @@
 
 #define TRANSCOLOR                      0
 
-//--------------------------------------------------------------------------------------------
-// EXTERNAL VARIABLES
-//--------------------------------------------------------------------------------------------
 
 #include "egolib/Profiles/ReaderUtilities.hpp"
+#include "egolib/Script/Location.hpp"
+#include "egolib/Script/LexicalError.hpp"
 
-    struct ReadContext
+// Forward declaration.
+struct ReadContext;
+char vfs_get_first_letter(ReadContext& ctxt);
+
+/**
+ * @brief
+ *  A context for reading a file.
+ * @details
+ *  A context is associated with a load name (i.e. a name of a file in the virtual file system of Egoboo) from
+ *  which it can read data. To read data, the context must be opened and if it is is sucessfully opened, it
+ *  can be used to read data from that file. In particular, the associoated file does not have to exist until the
+ *  point at which the context is opened.
+ * @author
+ *  Michael Heilmann
+ */
+struct ReadContext
+{
+public:
+    /**
+     * @brief
+     *  The load name of the file of this context.
+     */
+    std::string _loadName;
+    /**
+     * @brief
+     *  The line number in the file of this context.
+     */
+    size_t _lineNumber;
+    /**
+     * @brief
+     *  The file handle if the context is open, @a nullptr otherwise.
+     */
+    vfs_FILE *_file;
+
+    ReadContext(const std::string& loadName)
+        : _loadName(loadName), _file(nullptr), _lineNumber(1)
     {
-    public:
-        /**
-         * @brief
-         *  The load name of the context.
-         */
-        std::string _loadName;
-        /**
-         * @brief
-         *  The file handle if the context is open, @a nullptr otherwise.
-         */
-        vfs_FILE *_file;
-        /// @todo Remove this.
-        bool _owner;
-        ReadContext(const std::string& loadName,vfs_FILE *file,bool owner)
-            : _loadName(loadName), _file(file), _owner(owner)
+    }
+
+    ~ReadContext()
+    {
+        if (_file)
         {
-        }
-        ~ReadContext()
-        {
-            if (_file && _owner)
-            {
-                vfs_close(_file);
-            }
+            vfs_close(_file);
             _file = nullptr;
         }
-        /// @todo Remove this.
-        bool isOwner() const
-        {
-            return _owner;
-        }
+            
+    }
 
-        /**
-         * @brief
-         *  Get if the context is open.
-         * @return
-         *  @a true if the context is open, @a false otherwise
-         */
-        bool isOpen() const
-        {
-            return nullptr != _file;
-        }
+    /**
+     * @brief
+     *  Get the load name of the file associated with this context.
+     * @return
+     *  the load name of the file associated with this context
+     */
+    const std::string& getLoadName() const
+    {
+        return _loadName;
+    }
 
-        /**
-         * @brief
-         *  Close the context.
-         * @post
-         *  The context is closed.
-         * @remark
-         *  If the context is not open, a call to this method is noop.
-         */
-        void close()
+    /**
+     * @brief
+     *  Get if the context is open.
+     * @return
+     *  @a true if the context is open, @a false otherwise
+     */
+    bool isOpen() const
+    {
+        return nullptr != _file;
+    }
+
+    /**
+     * @brief
+     *  Open this context.
+     * @return
+     *  @a true if the context is open, @a false otherwise
+     */
+    bool ensureOpen()
+    {
+        if (!_file)
         {
-            if (_file && _owner)
+            if (0 == vfs_exists(_loadName.c_str()))
             {
-                vfs_close(_file);
+                return false;
             }
-            _file = nullptr;
+            _file = vfs_openRead(_loadName.c_str());
+            if (!_file)
+            {
+                return false;
+            }
         }
-    };
+        return true;
+    }
 
+    /**
+     * @brief
+     *  Close the context.
+     * @post
+     *  The context is closed.
+     * @remark
+     *  If the context is not open, a call to this method is noop.
+     */
+    void close()
+    {
+        if (_file)
+        {
+            vfs_close(_file);
+        }
+        _file = nullptr;
+    }
+
+    /**
+     * @brief
+     *  Read an enumeration.
+     * @param ctxt
+     *  the context
+     * @param enumReader
+     *  the enum reader to be used
+     * @return
+     *  the enumeration value
+     * @todo
+     *  Return type should be @a EnumType; add comment about lexical exception.
+     */
     template <typename EnumType>
-    int vfs_read_enum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType default)
+    static int readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader)
     {
         using namespace std;
         char chr = vfs_get_first_letter(ctxt);
-        auto it = enumReader.get(std::string(1,chr));
+        auto it = enumReader.get(std::string(1, chr));
         if (it == enumReader.end())
         {
-            log_warning("%s:%d: in file `%s`: `%c` is not an element of enum `%s`\n", __FILE__, __LINE__, ctxt._loadName.c_str(), chr, enumReader.getName().c_str());
-            return default; /// @todo This should be removed and an exception should be raised.
+            throw Ego::Script::LexicalError(_loadName,_lineNumber);
         }
         return *it;
     }
 
+    /**
+     * @brief
+     *  Read an enumeration.
+     * @param ctxt
+     *  the context
+     * @param enumReader
+     *  the enum reader to be used
+     * @return
+     *  the enumeration value
+     * @todo
+     *  Return type should be @a EnumType; add comment about lexical exception and default.
+     */
+    template <typename EnumType>
+    static int readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType default)
+    {
+        using namespace std;
+        char chr = vfs_get_first_letter(ctxt);
+        auto it = enumReader.get(std::string(1, chr));
+        if (it == enumReader.end())
+        {
+            log_warning("%s:%d: in file `%s`: `%c` is not an element of enum `%s`\n", __FILE__, __LINE__, ctxt._loadName.c_str(), chr, enumReader.getName().c_str());
+            return default;
+        }
+        return *it;
+    }
+};
 
-    extern const char *parse_filename;          ///< For debuggin' goto_colon_vfs
-    extern int parse_line_number;               ///< For debuggin' goto_colon_vfs
 
-    extern  STRING     TxFormatSupported[20]; ///< OpenGL icon surfaces
-    extern  Uint8      maxformattypes;
+extern const char *parse_filename;          ///< For debuggin' goto_colon_vfs
+extern int parse_line_number;               ///< For debuggin' goto_colon_vfs
+
+extern  STRING     TxFormatSupported[20]; ///< OpenGL icon surfaces
+extern  Uint8      maxformattypes;
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
+void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
 
-    bool goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool optional );
-    char   goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool optional );
-    bool goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool optional );
-    char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optional );
+bool goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool optional );
+char   goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool optional );
+bool goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool optional );
+char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optional );
 
-    bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite );
-    char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
-    bool copy_to_delimiter_vfs( vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen );
+bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite );
+char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
+bool copy_to_delimiter_vfs( vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen );
 
-    int    vfs_get_version(ReadContext& ctxt);
-    bool vfs_put_version( vfs_FILE* filewrite, const int version );
+int    vfs_get_version(ReadContext& ctxt);
+bool vfs_put_version( vfs_FILE* filewrite, const int version );
 
-    char   vfs_get_next_char(ReadContext& ctxt);
-    int    vfs_get_next_int(ReadContext& ctxt);
-    float  vfs_get_next_float(ReadContext& ctxt);
-    UFP8_T vfs_get_next_ufp8(ReadContext& ctxt);
-    SFP8_T vfs_get_next_sfp8(ReadContext& ctxt);
-    bool vfs_get_next_name(ReadContext& ctxt, char * name, size_t name_len);
-    bool vfs_get_next_range(ReadContext& ctxt, FRange *prange);
-    bool vfs_get_next_pair(ReadContext& ctxt, IPair *ppair);
-    IDSZ   vfs_get_next_idsz(ReadContext& ctxt);
-    bool vfs_get_next_bool(ReadContext& ctxt);
-    bool vfs_get_next_string(ReadContext& ctxt, char *str, size_t str_len);
-    bool vfs_get_next_line(ReadContext& ctxt, char *str, size_t str_len);
+char   vfs_get_next_char(ReadContext& ctxt);
+int    vfs_get_next_int(ReadContext& ctxt);
+float  vfs_get_next_float(ReadContext& ctxt);
+UFP8_T vfs_get_next_ufp8(ReadContext& ctxt);
+SFP8_T vfs_get_next_sfp8(ReadContext& ctxt);
+bool vfs_get_next_name(ReadContext& ctxt, char * name, size_t name_len);
+bool vfs_get_next_range(ReadContext& ctxt, FRange *prange);
+bool vfs_get_next_pair(ReadContext& ctxt, IPair *ppair);
+IDSZ   vfs_get_next_idsz(ReadContext& ctxt);
+bool vfs_get_next_bool(ReadContext& ctxt);
+bool vfs_get_next_string(ReadContext& ctxt, char *str, size_t str_len);
+bool vfs_get_next_line(ReadContext& ctxt, char *str, size_t str_len);
 
-    char vfs_get_first_letter(ReadContext& ctxt);
-    Sint32 vfs_get_int(ReadContext& ctxt);
-    UFP8_T vfs_get_ufp8(ReadContext& ctxt);
-    SFP8_T vfs_get_sfp8(ReadContext& ctxt);
-    float vfs_get_float(ReadContext& ctxt);
-    IDSZ vfs_get_idsz(ReadContext& ctxt);
-
-    template <typename EnumType>
-    int vfs_read_enum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType default);
-    int vfs_get_damage_type(ReadContext& ctxt);
-    int vfs_get_next_damage_type(ReadContext& ctxt);
+char vfs_get_first_letter(ReadContext& ctxt);
     
-    bool vfs_get_bool(ReadContext& ctxt);
-    Uint8  vfs_get_damage_modifier(ReadContext& ctxt);
-    float  vfs_get_damage_resist(ReadContext& ctxt);
-    bool vfs_get_name(ReadContext& ctxt, char *szName, size_t max_len);
-    bool vfs_get_string(ReadContext& ctxt, char * str, size_t str_len);
-    bool vfs_get_line(ReadContext& ctxt, char * str, size_t str_len);
-    bool vfs_get_range(ReadContext& ctxt, FRange * prange);
-    bool vfs_get_pair(ReadContext& ctxt, IPair * ppair);
+UFP8_T vfs_get_ufp8(ReadContext& ctxt);
+SFP8_T vfs_get_sfp8(ReadContext& ctxt);
+/**
+ * @throw Id::LexicalError
+ *  if a lexical error occurs
+ * @remark
+ *   A boolean literal in this revision is the string
+ *   @code
+ *   boolean := 'T' | 'F'
+ *   @endcode
+ */
+bool vfs_get_bool(ReadContext& ctxt);
+float vfs_get_float(ReadContext& ctxt);
+Sint32 vfs_get_int(ReadContext& ctxt);
+IDSZ   vfs_get_idsz(ReadContext& ctxt);
+int vfs_get_damage_type(ReadContext& ctxt);
+int vfs_get_next_damage_type(ReadContext& ctxt);
+Uint8 vfs_get_damage_modifier(ReadContext& ctxt);
+float  vfs_get_damage_resist(ReadContext& ctxt);
+bool vfs_get_name(ReadContext& ctxt, char *szName, size_t max_len);
+bool vfs_get_string(ReadContext& ctxt, char * str, size_t str_len);
+bool vfs_get_line(ReadContext& ctxt, char * str, size_t str_len);
+bool vfs_get_range(ReadContext& ctxt, FRange * prange);
+bool vfs_get_pair(ReadContext& ctxt, IPair * ppair);
 
-    void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival );
-    void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval );
-    void vfs_put_ufp8( vfs_FILE* filewrite, const char* text, UFP8_T ival );
-    void vfs_put_sfp8( vfs_FILE* filewrite, const char* text, SFP8_T ival );
-    void vfs_put_bool( vfs_FILE* filewrite, const char* text, bool truth );
-    void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype );
-    void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action );
-    void vfs_put_gender( vfs_FILE* filewrite, const char* text, Uint8 gender );
-    void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val );
-    void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val );
-    void vfs_put_string_under( vfs_FILE* filewrite, const char* text, const char* usename );
-    void vfs_put_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz );
-    void vfs_put_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value );
-    void vfs_put_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, float value );
-    void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str );
+void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival );
+void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval );
+void vfs_put_ufp8( vfs_FILE* filewrite, const char* text, UFP8_T ival );
+void vfs_put_sfp8( vfs_FILE* filewrite, const char* text, SFP8_T ival );
+void vfs_put_bool( vfs_FILE* filewrite, const char* text, bool truth );
+void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype );
+void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action );
+void vfs_put_gender( vfs_FILE* filewrite, const char* text, Uint8 gender );
+void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val );
+void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val );
+void vfs_put_string_under( vfs_FILE* filewrite, const char* text, const char* usename );
+void vfs_put_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz );
+void vfs_put_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value );
+void vfs_put_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, float value );
+void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str );
 
-    void vfs_put_range_raw( vfs_FILE* filewrite, FRange val );
-    int read_skin_vfs( const char *filename );
+void vfs_put_range_raw( vfs_FILE* filewrite, FRange val );
+int read_skin_vfs( const char *filename );
 
-    void    GLSetup_SupportedFormats();
-    Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key);
+void    GLSetup_SupportedFormats();
+Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key);

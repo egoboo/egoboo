@@ -543,17 +543,43 @@ int GameEngine::getFrameSkip() const
     return _frameSkip;
 }
 
+/**
+ * @brief
+ *  The entry point of the program.
+ * @param argc
+ *  the number of command-line arguments (number of elements in the array pointed by @a argv)
+ * @param argv
+ *  the command-line arguments (a static constant array of @a argc pointers to static constant zero-terminated strings)
+ * @return
+ *  EXIT_SUCCESS upon regular termination, EXIT_FAILURE otherwise
+ */
 int SDL_main(int argc, char **argv)
 {
-    /// @details This is where the program starts and all the high level stuff happens
+    try
+    {
+        try
+        {
+            // initialize the virtual filesystem first
+            vfs_init(argv[0]);
+            setup_init_base_vfs_paths();
 
-    // initialize the virtual filesystem first
-    vfs_init(argv[0]);
-    setup_init_base_vfs_paths();
+            _gameEngine = std::unique_ptr<GameEngine>(new GameEngine());
 
-    _gameEngine = std::unique_ptr<GameEngine>(new GameEngine());
-
-    _gameEngine->start();
+            _gameEngine->start();
+        }
+        catch (Ego::Exception& ex)
+        {
+            std::cerr << "unhandled exception: " << std::endl
+                      << (std::string)ex << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
+    catch (std::exception& ex)
+    {
+        std::cerr << "unhandled exception: " << std::endl
+                  << ex.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }

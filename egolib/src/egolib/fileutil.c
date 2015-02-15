@@ -996,12 +996,9 @@ bool vfs_get_next_line(ReadContext& ctxt, char * str, size_t str_len )
 //--------------------------------------------------------------------------------------------
 float vfs_get_float(ReadContext& ctxt)
 {
-    float fTmp;
-
-    fTmp = 0;
-    vfs_scanf(ctxt._file, "%f", &fTmp);
-
-    return fTmp;
+    float tmp = 0.0f;
+    vfs_scanf(ctxt._file, "%f", &tmp);
+    return tmp;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1053,7 +1050,7 @@ int vfs_get_damage_type(ReadContext& ctxt)
             { "N", DAMAGE_NONE  },
         }
     );
-    return vfs_read_enum(ctxt,rdr,DAMAGE_NONE);
+    return ReadContext::readEnum(ctxt,rdr,DAMAGE_NONE);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1067,9 +1064,15 @@ int vfs_get_next_damage_type(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 bool vfs_get_bool(ReadContext& ctxt)
 {
-    char cTmp = vfs_get_first_letter(ctxt);
-
-    return ( 'T' == char_toupper(( unsigned )cTmp ) );
+    char chr = vfs_get_first_letter(ctxt);
+    chr = char_tolower(chr);
+    switch (char_tolower(chr))
+    {
+    case 't': return true;
+    case 'f': return false;
+    /** @todo Add getPosition() to context and use it. */
+    default:  throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+    };
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1191,24 +1194,7 @@ Uint8 vfs_get_damage_modifier(ReadContext& ctxt)
             { "I", DAMAGEINVICTUS },
         }
     );
-    return vfs_read_enum(ctxt, rdr, (DamageShift)0);
-#if 0
-    Uint8  iTmp;
-    char   cTmp;
-
-    cTmp = vfs_get_first_letter(ctxt._file);
-
-    switch ( char_toupper(( unsigned )cTmp ) )
-    {
-        case 'T': iTmp = DAMAGEINVERT;      break;
-        case 'C': iTmp = DAMAGECHARGE;      break;
-        case 'M': iTmp = DAMAGEMANA;        break;
-        case 'I': iTmp = DAMAGEINVICTUS;    break;
-        default:  iTmp = 0;                 break;
-    };
-
-    return iTmp;
-#endif
+    return ReadContext::readEnum(ctxt, rdr, (DamageShift)0);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1229,17 +1215,16 @@ int read_skin_vfs( const char *filename )
 {
     /// @author ZZ
     /// @details This function reads the skin.txt file...
-    vfs_FILE*   fileread;
-    int skin = NO_SKIN_OVERRIDE;
-
-    fileread = vfs_openRead( filename );
-    if (!fileread)
+    ReadContext ctxt(filename);
+    if (!ctxt.ensureOpen())
     {
         return NO_SKIN_OVERRIDE;
     }
-    ReadContext ctxt(filename, fileread, true);
-    //Read the contents
-    skin = vfs_get_next_int(ctxt);
+    // Read the contents.
+    int skin = vfs_get_next_int(ctxt);
+    if (skin < 0 || skin > MAX_SKIN) {
+        /** @todo Use context to produce a nice warning message. */
+    }
     skin %= MAX_SKIN;
     return skin;
 }

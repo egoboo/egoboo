@@ -52,7 +52,6 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
     int definition_count;
     int itmp;
     float ftmp;
-    vfs_FILE* fileread;
     tile_definition_t * pdef_sml, * pdef_big;
 
     if ( NULL == pdict ) return false;
@@ -68,14 +67,12 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
         max_dict_size = MAP_FAN_TYPE_MAX;
     }
 
-    // Open the file and go to it
-    fileread = vfs_openRead( filename );
-    if ( NULL == fileread )
-    {
-        log_error( "Cannot load the tile definitions \"%s\".\n", filename );
+    // Try to open a context.
+    ReadContext ctxt(filename);
+    if (!ctxt.ensureOpen()) {
+        log_error("unable to load tile definitions file `%s`\n", filename);
         return false;
     }
-    ReadContext ctxt(filename, fileread, true);
 
     fantype_count    = vfs_get_next_int(ctxt);
     fantype_offset   = 2 * POW( 2.0f, FLOOR( LOG( fantype_count ) / LOG( 2.0f ) ) );

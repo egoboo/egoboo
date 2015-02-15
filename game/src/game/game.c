@@ -539,16 +539,11 @@ void activate_alliance_file_vfs()
     /// @details This function reads the alliance file
     STRING szTemp;
     TEAM_REF teama, teamb;
-    vfs_FILE *fileread;
 
     // Load the file
-    fileread = vfs_openRead( "mp_data/alliance.txt" );
-    if (!fileread)
-    {
-        return;
-    }
-    ReadContext ctxt("mp_data/alliance.txt", fileread, true);
-    while ( goto_colon_vfs( NULL, fileread, true ) )
+    ReadContext ctxt("mp_data/alliance.txt");
+    if (!ctxt.ensureOpen()) return;
+    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
     {
         vfs_get_string( ctxt, szTemp, SDL_arraysize( szTemp ) );
         teama = ( szTemp[0] - 'A' ) % TEAM_MAX;
@@ -2361,21 +2356,20 @@ void activate_spawn_file_vfs()
     std::unordered_set<std::string> dynamicObjectList;  //references to slots that need to be dynamically loaded later
     std::vector<spawn_file_info_t> objectsToSpawn;      //The full list of objects to be spawned 
 
-    // Turn some back on
-    const char* filePath = "mp_data/spawn.txt";
-    vfs_FILE  *fileread = vfs_openRead( filePath );
-
     PlaStack.count = 0;
-    if ( NULL == fileread )
+
+    // Turn some back on
+    const char *loadName = "mp_data/spawn.txt";
+    ReadContext ctxt(loadName);
+    if (!ctxt.ensureOpen())
     {
-        log_error( "Cannot read file: %s\n", filePath );
+        log_error("unable to read spawn file `%s`", loadName);
     }
-    ReadContext ctxt(filePath, fileread, true);
     {
         CHR_REF parent = INVALID_CHR_REF;
 
         //First load spawn data of every object
-        while(!vfs_eof(fileread))
+        while(!vfs_eof(ctxt._file))
         {
             spawn_file_info_t entry;
 
@@ -2387,14 +2381,14 @@ void activate_spawn_file_vfs()
             //Spit out a warning if they break the limit
             if ( objectsToSpawn.size() >= MAX_CHR )
             {
-                log_warning( "Too many objects in spawn.txt! Maximum number of objects is %d\n", MAX_CHR );
+                log_warning("Too many objects in file \"%s\"! Maximum number of objects is %d.\n", ctxt.getLoadName().c_str(), MAX_CHR );
                 break;
             }
 
             // check to see if the slot is valid
             if ( entry.slot >= INVALID_PRO_REF )
             {
-                log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", entry.slot, entry.spawn_coment, filePath );
+                log_warning("Invalid slot %d for \"%s\" in file \"%s\".\n", entry.slot, entry.spawn_coment, ctxt.getLoadName().c_str() );
                 continue;
             }
 
@@ -2478,7 +2472,7 @@ void activate_spawn_file_vfs()
                     // no, give a warning if it is useful
                     if ( import_object )
                     {
-                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", spawnInfo.spawn_coment, spawnInfo.slot, filePath );
+                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", spawnInfo.spawn_coment, spawnInfo.slot, ctxt.getLoadName().c_str() );
                     }
                     continue;
                 }

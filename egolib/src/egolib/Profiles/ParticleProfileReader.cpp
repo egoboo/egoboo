@@ -28,16 +28,13 @@
 
 bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
 {
-    vfs_FILE* fileread;
     IDSZ idsz;
     char cTmp;
 
-    fileread = vfs_openRead(loadName);
-    if (!fileread)
-    {
+    ReadContext ctxt(loadName);
+    if (!ctxt.ensureOpen()) {
         return false;
     }
-    ReadContext ctxt(loadName, fileread, true);
 
     pip_t::init(profile);
 
@@ -46,10 +43,10 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->loaded = true;
 
     // read the 1 line comment at the top of the file
-    vfs_gets(profile->comment, SDL_arraysize(profile->comment) - 1, fileread);
+    vfs_gets(profile->comment, SDL_arraysize(profile->comment) - 1, ctxt._file);
 
     // rewind the file
-    vfs_seek(fileread, 0);
+    vfs_seek(ctxt._file, 0);
 
     // General data
     profile->force = vfs_get_next_bool(ctxt);
@@ -159,7 +156,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->homingaccel = vfs_get_next_float(ctxt);
     profile->rotatetoface = vfs_get_next_bool(ctxt);
 
-    goto_colon_vfs(NULL, fileread, false);  // !!Respawn on hit is unused
+    goto_colon_vfs(NULL, ctxt._file, false);  // !!Respawn on hit is unused
 
     profile->manadrain = vfs_get_next_ufp8(ctxt);
     profile->lifedrain = vfs_get_next_ufp8(ctxt);

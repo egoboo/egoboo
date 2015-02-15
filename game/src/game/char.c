@@ -2375,8 +2375,6 @@ void cleanup_one_character( Object * pchr )
     /// @author BB
     /// @details Everything necessary to disconnect one character from the game
 
-    CHR_REF  itmp;
-
     CHR_REF ichr = pchr->getCharacterID();
 
     pchr->sparkle = NOSPARKLE;

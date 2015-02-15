@@ -345,15 +345,11 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     /// @author ZF
     /// @details This function loads all messages for an object
 
-    vfs_FILE *fileRead = vfs_openRead( filePath.c_str() );
-    if (!fileRead)
-    {
-        return;
-    }
-    ReadContext ctxt(filePath, fileRead, true);
+    ReadContext ctxt(filePath);
+    if (!ctxt.ensureOpen()) return;
     STRING line;
 
-    while ( goto_colon_vfs( NULL, fileRead, true ) )
+    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
     {
         //Load one line
         vfs_get_string( ctxt, line, SDL_arraysize( line ) );
@@ -477,11 +473,10 @@ void ObjectProfile::setupXPTable()
 bool ObjectProfile::loadDataFile(const std::string &filePath)
 {
     // Open the file
-    vfs_FILE* fileRead = vfs_openRead( filePath.c_str() );
-    if (!fileRead) {
+    ReadContext ctxt(filePath);
+    if (!ctxt.ensureOpen()) {
         return false;
     }
-    ReadContext ctxt(filePath, fileRead, true);
 
     //read slot number (ignored for now)
     vfs_get_next_int(ctxt);
@@ -613,7 +608,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
         }
     }
 
-    goto_colon_vfs(NULL, fileRead, false);
+    goto_colon_vfs(NULL, ctxt._file, false);
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++)
     {
         _skinInfo[cnt].maxAccel = vfs_get_float(ctxt) / 80.0f;
@@ -717,8 +712,8 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _canBeDazed = vfs_get_next_bool(ctxt);
     _canBeGrogged = vfs_get_next_bool(ctxt);
 
-    goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (permanent life add)
-    goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (permanent mana add)
+    goto_colon_vfs( NULL, ctxt._file, false );  // Depracated, no longer used (permanent life add)
+    goto_colon_vfs( NULL, ctxt._file, false );  // Depracated, no longer used (permanent mana add)
     if (vfs_get_next_bool(ctxt)) {
         _seeInvisibleLevel = 1;
     }
@@ -740,7 +735,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _canUsePlatforms = !_isPlatform;
 
     // Read expansions
-    while ( goto_colon_vfs(NULL, fileRead, true) )
+    while ( goto_colon_vfs(NULL, ctxt._file, true) )
     {
         const IDSZ idsz = vfs_get_idsz(ctxt);
 

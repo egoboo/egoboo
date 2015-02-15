@@ -115,5 +115,56 @@ public:
 	{
 		return _ref;
 	}
+
+    // Post- and pre-increment operators.
+
+    Ref<MIN, MAX, INVALID>& operator++(int)
+    {
+        if (_ref == MAX)
+        {
+            std::ostringstream msg;
+            msg << __FILE__ << ":" __LINE__ ": " << "reference overflow";
+            std::overflow_error(msg.str());
+        }
+        _ref++; return *this;
+    }
+
+    Ref<MIN, MAX, INVALID>& operator++()
+    {
+        if (MAX == _ref)
+        {
+            std::ostringstream msg;
+            msg << __FILE__ << ":" __LINE__ ": " << "reference overflow";
+            std::overflow_error(msg.str());
+        }
+        _++ref;
+        return *this;
+    }
+
+    // Post- and pre-decrement operators.
+
+    Ref<MIN, MAX, INVALID> &operator--(int)
+    {
+        if (0 == _ref)
+        {
+            std::ostringstream msg;
+            msg << __FILE__ << ":" __LINE__ ": " << "reference underflow";
+            std::underflow_error(msg.str());
+        }
+        ref--;
+        return *this;
+    }
+
+    Ref<MIN, MAX, INVALID>& operator--()
+    {
+        if (0 == ref)
+        {
+            std::ostringstream msg;
+            msg << __FILE__ << ":" __LINE__ ": " << "reference underflow";
+            std::underflow_error(msg.str());
+        }
+        --ref;
+        return *this;
+    }
 	
 };

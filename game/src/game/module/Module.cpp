@@ -62,12 +62,11 @@ void GameModule::loadAllPassages()
     _passages.clear();
 
     // Load the file
-    vfs_FILE *fileread = vfs_openRead( "mp_data/passage.txt" );
-    if ( NULL == fileread ) return;
-    ReadContext ctxt("mp_data/passage.txt",fileread,true);
+    ReadContext ctxt("mp_data/passage.txt");
+    if (!ctxt.ensureOpen()) return;
 
     //Load all passages in file
-    while ( goto_colon_vfs( NULL, fileread, true ) )
+    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
     {
         //read passage area
         irect_t area;

@@ -51,13 +51,8 @@ std::string RandomName::generateRandomName() const
 
 bool RandomName::loadFromFile(const std::string &filePath)
 {
-	vfs_FILE *fileRead = vfs_openRead(filePath.c_str());
-
-	//Unable to open file
-	if(!fileRead) {
-		return false;
-	}
-    ReadContext ctxt(filePath, fileRead, true);
+    ReadContext ctxt(filePath);
+    if (!ctxt.ensureOpen()) return false;
 
 	//Clear any old random name data
 	_randomNameBlocks.clear();

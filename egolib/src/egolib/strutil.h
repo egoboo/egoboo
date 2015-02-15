@@ -35,21 +35,29 @@
 #   define VALID_CSTR(PSTR)   ((NULL!=PSTR) && (CSTR_END != PSTR[0]))
 #   define INVALID_CSTR(PSTR) ((NULL==PSTR) || (CSTR_END == PSTR[0]))
 
-#if defined(toupper)
-    // toupper is implemented as a macro
-#   define char_toupper(VAL) ( ((unsigned)(VAL) > 0xFF) ? 0xFF : (char)toupper((unsigned)VAL) )
-#else
-    // toupper is implemented as a function. likely it takes an int argument and returns an int
-    static INLINE char char_toupper( int val ) { unsigned retval = toupper( val ); return ( retval > 0xFF ) ? 0xFF : retval; }
-#endif
+#include <locale>
 
-#if defined(tolower)
-    // tolower is implemented as a macro
-#   define char_tolower(VAL) ( ((unsigned)(VAL) > 0xFF) ? 0xFF : (char)tolower((unsigned)VAL) )
-#else
-    // tolower is implemented as a function. likely it takes an int argument and returns an int
-    static INLINE char char_tolower( int val ) { unsigned retval = tolower( val ); return ( retval > 0xFF ) ? 0xFF : retval; }
-#endif
+/**
+ * @brief
+ *  Convert a character to upper case using the current locale.
+ * @param chr
+ *  the character
+ * @return
+ *  the upper case character
+ */
+template <class CharType>
+inline CharType char_toupper(CharType chr) { return std::toupper(chr, std::locale()); }
+
+/**
+* @brief
+*  Convert a character to lower case using the current locale.
+* @param chr
+*  the character
+* @return
+*  the lower case character
+*/
+template <class CharType>
+inline CharType char_tolower(CharType chr) { return std::tolower(chr, std::locale()); }
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES

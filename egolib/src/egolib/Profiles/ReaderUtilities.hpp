@@ -9,39 +9,6 @@
 template <typename EnumType>
 struct EnumReader
 {
-#if 0
-public:
-    struct Item
-    {
-    private:
-        std::string _name;
-        EnumType _value;
-    public:
-        Item(const std::string& name, EnumType value) :
-            _(name), _value(value)
-        {
-        }
-        Item(const Item& other) :
-            _name(other._name), _value(other._value)
-        {
-        }
-        Item& operator=(const Item& other)
-        {
-            _name = other._name;
-            _value = other._value;
-        }
-        const std::string& getName() const
-        {
-            return _name;
-        }
-        EnumType getValue() const
-        {
-            return _value;
-        }
-    };
-#endif
-
-public:
 public:
 
     struct Iterator
@@ -119,7 +86,7 @@ private:
 public:
 
 #ifdef _MSC_VER
-    EnumReader(const std::string& name, const std::initializer_list<std::pair<std::string, EnumType>>& list) :
+    EnumReader(const std::string& name, const std::initializer_list<std::pair<const std::string, EnumType>>& list) :
         _name(name), _elements()
     {
         for (auto it = list.begin(); it != list.end(); ++it)

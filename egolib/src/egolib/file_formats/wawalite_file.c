@@ -288,20 +288,15 @@ wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t 
     /// @author ZZ
     /// @details This function sets up water and lighting for the module
 
-    vfs_FILE*  fileread;
-    STRING newloadname;
-
     if ( NULL == pdata ) pdata = &_wawalite_file;
 
-    if ( NULL == wawalite_data_init( pdata ) ) return pdata;
+    if (!wawalite_data_init(pdata)) return pdata;
 
-    fileread = vfs_openRead( filename );
-    if ( NULL == fileread )
-    {
-        log_warning( "Could not read file! (\"%s\")\n", newloadname );
-        return NULL;
+    ReadContext ctxt(filename);
+    if (!ctxt.ensureOpen()) {
+        log_warning("unable to read water and weather file `%s`\n", filename);
+        return nullptr;
     }
-    ReadContext ctxt(filename, fileread, true);
 
     //First figure out what version of wawalite this is, so that we know what data we
     //should expect to load

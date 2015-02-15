@@ -126,6 +126,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <iostream>
 #include <mutex>
 #include <atomic>
 #include <list>

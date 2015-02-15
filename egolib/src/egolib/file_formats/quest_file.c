@@ -105,7 +105,6 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
     ///               we can use. If the file isn't found, the quest log will be initialized as empty.
 
     egolib_rv retval = rv_success;
-    vfs_FILE *fileread;
     STRING newloadname;
 
     if ( NULL == quest_log ) return rv_error;
@@ -116,10 +115,9 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
     // Figure out the file path
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
 
-    // try to open the file
-    fileread = vfs_openRead( newloadname );
-    if ( NULL == fileread ) return rv_success;
-    ReadContext ctxt(newloadname, fileread, true);
+    // Try to open a context
+    ReadContext ctxt(newloadname);
+    if (!ctxt.ensureOpen()) return rv_error;
     // Load each IDSZ
     retval = rv_success;
     while ( goto_colon_vfs( NULL, ctxt._file, true ) )

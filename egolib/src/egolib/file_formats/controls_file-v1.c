@@ -43,7 +43,6 @@ bool input_settings_load_vfs_1(const char* szFilename)
     INPUT_DEVICE idevice;
 
     input_device_t * pdevice = NULL;
-    vfs_FILE* fileread = NULL;
     TAG_STRING currenttag = EMPTY_CSTR;
 
     // clear out all existing control data
@@ -55,14 +54,11 @@ bool input_settings_load_vfs_1(const char* szFilename)
     InputDevices.count = 0;
 
     // find the settings file
-    fileread = vfs_openRead( szFilename );
-    if ( NULL == fileread )
-    {
-        log_error( "Could not load input settings (%s)!\n", szFilename );
-
+    ReadContext ctxt(szFilename);
+    if (!ctxt.ensureOpen()) {
+        log_error("unable to read input settings file `%s`\n",szFilename);
         return false;
     }
-    ReadContext ctxt(szFilename, fileread, true);
 
     // read the keyboard InputDevices
     idevice = INPUT_DEVICE_KEYBOARD;

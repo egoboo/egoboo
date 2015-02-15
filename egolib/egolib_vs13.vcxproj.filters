@@ -49,6 +49,9 @@
     <Filter Include="Source Files\Profiles">
       <UniqueIdentifier>{aba199cf-e309-4f15-8181-8cb87f6794f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Script">
+      <UniqueIdentifier>{4a6e82cf-4e13-409f-9a5f-e43027af128a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -587,8 +590,20 @@
     <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Profiles\ReaderUtilities.hpp">
+    <ClInclude Include="src\egolib\Profiles\ReaderUtilities.hpp">
       <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\LexicalError.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Location.hpp">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Exception.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\Buffer.hpp">
+      <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

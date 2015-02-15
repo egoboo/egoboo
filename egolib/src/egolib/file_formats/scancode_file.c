@@ -78,17 +78,14 @@ void scantag_read_all_vfs( const char *szFilename )
 {
     /// @author ZZ
     /// @details This function reads the scancode.txt file
-    vfs_FILE* fileread;
     int cnt;
 
     scantag_reset();
 
-    fileread = vfs_openRead( szFilename );
-    if ( NULL == fileread )
-    {
-        log_error( "Cannot read %s.", szFilename );
+    ReadContext ctxt(szFilename);
+    if (!ctxt.ensureOpen()) {
+        log_error("unable to read scan tag file `%s`\n", szFilename);
     }
-    ReadContext ctxt(szFilename, fileread, true);
 
     // read in all the scantags from the file
     while ( scantag_read_one(ctxt) );

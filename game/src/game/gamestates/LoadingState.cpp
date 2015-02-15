@@ -258,13 +258,11 @@ void LoadingState::loadModuleData()
 bool LoadingState::loadGlobalHints()
 {
     // Open the file with all the tips
-    vfs_FILE *fileread = vfs_openRead( "mp_data/gametips.txt" );
-    if ( NULL == fileread )
-    {
-        log_warning( "Could not load the game tips and hints. (\"mp_data/gametips.txt\")\n" );
+    ReadContext ctxt("mp_data/gametips.txt");
+    if (!ctxt.ensureOpen()) {
+        log_warning("Unable to load the game tips and hints file `%s`\n", ctxt.getLoadName().c_str());
         return false;
     }
-    ReadContext ctxt("mp_data/gametips.txt", fileread, true);
 
     // Load the data
     while (!vfs_eof(ctxt._file) && goto_colon_vfs(NULL, ctxt._file, true))
@@ -292,15 +290,14 @@ bool LoadingState::loadGlobalHints()
 
 bool LoadingState::loadLocalModuleHints()
 {
-  STRING buffer;
+    STRING buffer;
 
     // Open all the tips
     snprintf(buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", _loadModule->getFolderName().c_str());
-    vfs_FILE *fileread = vfs_openRead( buffer );
-    if ( NULL == fileread ) return false;
-    ReadContext ctxt(buffer, fileread, true);
+    ReadContext ctxt(buffer);
+    if (!ctxt.ensureOpen()) return false;
     // Load the data
-    while (!vfs_eof(ctxt._file) && goto_colon_vfs(NULL, fileread, true))
+    while (!vfs_eof(ctxt._file) && goto_colon_vfs(NULL, ctxt._file, true))
     {
 
         //Read the line

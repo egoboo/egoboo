@@ -28,7 +28,6 @@
 
 bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
 {
-    vfs_FILE* fileread;
     char cTmp;
     IDSZ idsz;
 
@@ -36,9 +35,8 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
 
     eve_t::init(profile);
 
-    fileread = vfs_openRead(loadName);
-    if (!fileread) return nullptr;
-    ReadContext ctxt(loadName, fileread, true);
+    ReadContext ctxt(loadName);
+    if (!ctxt.ensureOpen()) return nullptr;
 
     // true/false values
     profile->retarget = vfs_get_next_bool(ctxt);
@@ -170,7 +168,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     }
 
     // Read expansions
-    while (goto_colon_vfs(NULL, fileread, true))
+    while (goto_colon_vfs(NULL, ctxt._file, true))
     {
         idsz = vfs_get_idsz(ctxt);
 

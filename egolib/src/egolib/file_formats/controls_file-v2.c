@@ -42,7 +42,6 @@ bool input_settings_load_vfs_2( const char* szFilename )
     TAG_STRING currenttag = EMPTY_CSTR;
 	int idevice;
     input_device_t * pdevice;
-    vfs_FILE* fileread = NULL;
 
     // clear out all existing control data
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
@@ -52,10 +51,11 @@ bool input_settings_load_vfs_2( const char* szFilename )
     }
     InputDevices.count = 0;
 
-    fileread = vfs_openRead( szFilename );
-    if ( NULL == fileread ) return false;
-    ReadContext ctxt(szFilename, fileread, true);
-
+    ReadContext ctxt(szFilename);
+    if (!ctxt.ensureOpen()) {
+        log_warning("unable to read input settings file `%s`\n", szFilename);
+        return false;
+    }
     // Read input for each player
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
