@@ -230,7 +230,7 @@ public:
         auto it = enumReader.get(std::string(1, chr));
         if (it == enumReader.end())
         {
-            throw Ego::Script::LexicalError(_loadName,_lineNumber);
+            throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
         }
         return *it;
     }
@@ -248,7 +248,7 @@ public:
      *  Return type should be @a EnumType; add comment about lexical exception and default.
      */
     template <typename EnumType>
-    static int readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType default)
+    static int readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType defaultValue)
     {
         using namespace std;
         char chr = vfs_get_first_letter(ctxt);
@@ -256,7 +256,7 @@ public:
         if (it == enumReader.end())
         {
             log_warning("%s:%d: in file `%s`: `%c` is not an element of enum `%s`\n", __FILE__, __LINE__, ctxt._loadName.c_str(), chr, enumReader.getName().c_str());
-            return default;
+            return defaultValue;
         }
         return *it;
     }

@@ -119,7 +119,7 @@ public:
 
     Iterator get(const std::string& name)
     {
-        std::map<std::string, EnumType>::iterator it = _elements.find(name);
+        auto it = _elements.find(name);
         return Iterator(it);
     }
 

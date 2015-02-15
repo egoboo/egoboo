@@ -1,9 +1,6 @@
 #pragma once
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// definition of the reference template
-
+/// Definition of the reference template.
 template <typename _ty> class t_reference
 {
     protected:
@@ -67,11 +64,6 @@ public:
     _ty * operator + ( const t_reference<_ty> & ref ) { const REF_T val = ref.get_value(); /* if ( val > _sz ) CPP_EGOBOO_ASSERT( NULL == "t_cpp_ary::operator + - index out of range" ); */ return lst + val; }
 };
 
-#if 0
-#define CPP_DECLARE_T_ARY(TYPE, NAME, COUNT) t_cpp_ary<TYPE, COUNT> NAME
-#endif
-
-
 // a simple list template that tracks free elements
 template < typename _ty, size_t _sz >
 struct t_cpp_list
@@ -86,13 +78,6 @@ struct t_cpp_list
     t_cpp_list() { used_count = free_count = 0; }
 };
 
-#if 0
-#define CPP_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)    extern t_cpp_list<TYPE, COUNT> NAME
-#define CPP_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT) static t_cpp_list<TYPE, COUNT> NAME
-#define CPP_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) ACCESS t_cpp_list<TYPE, COUNT> NAME
-#endif
-
-
 // a simple stack template
 template < typename _ty, size_t _sz >
 struct t_cpp_stack
@@ -103,9 +88,3 @@ struct t_cpp_stack
 
     t_cpp_stack() { count = 0; }
 };
-
-#if 0
-#define CPP_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      extern t_cpp_stack<TYPE, COUNT> NAME
-#define CPP_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  static t_cpp_stack<TYPE, COUNT> NAME
-#define CPP_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) ACCESS t_cpp_stack<TYPE, COUNT> NAME
-#endif

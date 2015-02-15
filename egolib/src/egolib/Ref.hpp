@@ -151,19 +151,19 @@ public:
             msg << __FILE__ << ":" __LINE__ ": " << "reference underflow";
             std::underflow_error(msg.str());
         }
-        ref--;
+        _ref--;
         return *this;
     }
 
     Ref<MIN, MAX, INVALID>& operator--()
     {
-        if (0 == ref)
+        if (0 == _ref)
         {
             std::ostringstream msg;
             msg << __FILE__ << ":" __LINE__ ": " << "reference underflow";
             std::underflow_error(msg.str());
         }
-        --ref;
+        --_ref;
         return *this;
     }
 	
