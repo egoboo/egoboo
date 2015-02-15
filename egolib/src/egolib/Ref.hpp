@@ -137,7 +137,7 @@ public:
             msg << __FILE__ << ":" << __LINE__ << ": " << "reference overflow";
             std::overflow_error(msg.str());
         }
-        _++ref;
+        ++_ref;
         return *this;
     }
 
