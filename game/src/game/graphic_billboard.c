@@ -100,6 +100,7 @@ bool billboard_data_update( billboard_data_t * pbb )
     // determine where the new position should be
     chr_getMatUp(pchr, vup);
 
+/*
     height = pchr->bump.height;
     offset = std::min( pchr->bump.height * 0.5f, pchr->bump.size );
 
@@ -111,6 +112,7 @@ bool billboard_data_update( billboard_data_t * pbb )
     pbb->pos.x = pbb->pos.x * 0.5f + pos_new.x * 0.5f;
     pbb->pos.y = pbb->pos.y * 0.5f + pos_new.y * 0.5f;
     pbb->pos.z = pbb->pos.z * 0.5f + pos_new.z * 0.5f;
+*/
 
     pbb->size += pbb->size_add;
 
@@ -119,12 +121,12 @@ bool billboard_data_update( billboard_data_t * pbb )
     pbb->tint[BB] += pbb->tint_add[BB];
     pbb->tint[AA] += pbb->tint_add[AA];
 
-    pbb->offset[XX] += pbb->offset_add[XX];
-    pbb->offset[YY] += pbb->offset_add[YY];
+    //pbb->offset[XX] += pbb->offset_add[XX];
+    //pbb->offset[YY] += pbb->offset_add[YY];
     pbb->offset[ZZ] += pbb->offset_add[ZZ];
 
     // automatically kill a billboard that is no longer useful
-    if ( pbb->tint[AA] == 0.0f || pbb->size == 0.0f )
+    if ( pbb->tint[AA] <= 0.0f || pbb->size <= 0.0f )
     {
         billboard_data_free( pbb );
     }

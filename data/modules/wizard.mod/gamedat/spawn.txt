@@ -144,7 +144,7 @@ platform:   NONE    40  55.0   27.5   0.0   N    0   0  0   0   0   F   F   N
 platform:   NONE    40  55.0   28.5   0.0   N    0   0  0   0   0   F   F   N
 
 //Lava chest
-Chest: NONE    59  55.0   30.0   1.0   N    7   0  0   1   0   F   F   N
+Chest: NONE    59  55.0   29.75   1.0   N    7   0  0   1   0   F   F   N
   redstone:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 crate:   NONE    54  56.0   5.0   1.0   N    0   0  0   0   0   F   F   N

@@ -221,6 +221,72 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
 Object::~Object()
 {
+    /// @author ZZ
+    /// @details Make character safely deleteable
+
+    // Detach the character from the game
+    if(PMod) {
+        cleanup_one_character(this);
+    }
+
+    // free the character's inventory
+    free_inventory_in_game(getCharacterID());
+
+    //If we are inside an inventory we need to remove us
+    const std::shared_ptr<Object> &inventoryHolder = _gameObjects[inwhich_inventory];
+    if(inventoryHolder) {
+        for (size_t i = 0; i < inventoryHolder->inventory.size(); i++)
+        {
+            if(inventoryHolder->inventory[i] == getCharacterID()) 
+            {
+                inventoryHolder->inventory[i] = INVALID_CHR_REF;
+                break;
+            }
+        }
+    }
+
+    // Remove from stat list
+    if (show_stats)
+    {
+        size_t  cnt;
+        bool stat_found;
+
+        show_stats = false;
+
+        stat_found = false;
+        for (cnt = 0; cnt < StatusList.count; cnt++)
+        {
+            if ( StatusList.lst[cnt].who == getCharacterID() )
+            {
+                stat_found = true;
+                break;
+            }
+        }
+
+        if ( stat_found )
+        {
+            for (cnt++; cnt < StatusList.count; cnt++)
+            {
+                SWAP( status_list_element_t, StatusList.lst[cnt-1], StatusList.lst[cnt] );
+            }
+            StatusList.count--;
+        }
+    }
+
+    // Handle the team
+    if ( isAlive() && !getProfile()->isInvincible() && TeamStack.lst[team_base].morale > 0 )
+    {
+        TeamStack.lst[team_base].morale--;
+    }
+
+    if ( TeamStack.lst[team].leader == getCharacterID() )
+    {
+        TeamStack.lst[team].leader = TEAM_NOLEADER;
+    }
+
+    // remove any attached particles
+    disaffirm_attached_particles( getCharacterID() );    
+
     /// Free all allocated memory
 
     // deallocate
@@ -229,7 +295,7 @@ Object::~Object()
     chr_instance_dtor( &inst );
     ai_state_dtor( &ai );
 
-    EGOBOO_ASSERT( nullptr == inst.vrt_lst );
+    EGOBOO_ASSERT( nullptr == inst.vrt_lst );    
 }
 
 bool Object::isOverWater(bool anyLiquid) const
@@ -249,7 +315,7 @@ bool Object::isOverWater(bool anyLiquid) const
 
 bool Object::isInWater(bool anyLiquid) const
 {
-    return isOverWater(anyLiquid) && getPosZ() < water.surface_level ;
+    return isOverWater(anyLiquid) && getPosZ() < water_instance_get_water_level(&water);
 }
 
 
@@ -357,7 +423,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
     //Don't continue if there is no damage or the character isn't alive
     int max_damage = std::abs( damage.base ) + std::abs( damage.rand );
-    if ( !alive || 0 == max_damage ) return 0;
+    if ( !isAlive() || 0 == max_damage ) return 0;
 
     // make a special exception for DAMAGE_NONE
     uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : damage_modifier[damagetype];
@@ -383,21 +449,21 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         }
 
         // don't show feedback from random objects hitting each other
-        if ( !attacker->show_stats )
-        {
-            do_feedback = false;
-        }
+        //if ( !attacker->show_stats )
+        //{
+        //    do_feedback = false;
+        //}
 
         // don't show damage to players since they get feedback from the status bars
-        if ( show_stats || VALID_PLA( is_which_player ) )
-        {
-            do_feedback = false;
-        }
+        //if ( show_stats || VALID_PLA( is_which_player ) )
+        //{
+        //    do_feedback = false;
+        //}
     }
 
     // Lessen actual_damage for resistance, resistance is done in percentages where 0.70f means 30% damage reduction from that damage type
     // This can also be used to lessen effectiveness of healing
-    int actual_damage = generate_irand_pair( damage );
+    int actual_damage = Random::next(damage.base, damage.base+damage.rand);
     int base_damage   = actual_damage;
     actual_damage *= std::max( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - damage_resistance[damagetype] );
 
@@ -453,9 +519,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
             GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
 
-            CHR_REF attacker_ref = INVALID_CHR_REF;
-            if (attacker) attacker_ref = attacker->getCharacterID();
-            spawn_defense_ping( this, attacker_ref );
+            spawn_defense_ping(this, attacker ? attacker->getCharacterID() : INVALID_CHR_REF);
             chr_make_text_billboard(_characterID, "Immune!", text_color, tint, lifetime, bb_opt_all);
         }
     }
@@ -541,10 +605,12 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             /// @test spawn a fly-away damage indicator?
             if ( do_feedback )
             {
+/*                
                 const char * tmpstr;
                 int rank;
 
-                //tmpstr = describe_wounds( pchr->life_max, pchr->life );
+
+                tmpstr = describe_wounds( pchr->life_max, pchr->life );
 
                 tmpstr = describe_value( actual_damage, UINT_TO_UFP8( 10 ), &rank );
                 if ( rank < 4 )
@@ -565,8 +631,9 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 }
 
                 if ( NULL != tmpstr )
+*/
                 {
-                    const int lifetime = 3;
+                    const int lifetime = 2;
                     STRING text_buffer = EMPTY_CSTR;
 
                     // "white" text
@@ -575,11 +642,33 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     // friendly fire damage = "purple"
                     GLXvector4f tint_friend = { 0.88f, 0.75f, 1.00f, 1.00f };
 
-                    // enemy damage = "red"
-                    GLXvector4f tint_enemy  = { 1.00f, 0.75f, 0.75f, 1.00f };
+                    // enemy damage color depends on damage type
+                    float r, g, b;
+                    switch(damagetype)
+                    {
+                        //Blue
+                        case DAMAGE_ZAP: r = 1.00f; g = 1.0f; b = 0.00f; break;
+
+                        //Red
+                        case DAMAGE_FIRE: r = 1.00f; g = 0.00f; b = 0.00f; break;
+
+                        //Green
+                        case DAMAGE_EVIL: r = 0.00f; g = 1.0f; b = 0.00f; break;
+
+                        //Purple
+                        case DAMAGE_HOLY: r = 0.88f; g = 0.75f; b = 1.00f; break;
+
+                        //Blue
+                        case DAMAGE_ICE: r = 0.00f; g = 1.0f; b = 1.00f; break;
+
+                        //White
+                        default: r = 1.00f; g = 1.0f; b = 1.00f; break;
+                    }
+
+                    GLXvector4f tint_enemy  = { r, g, b, 1.00f };
 
                     // write the string into the buffer
-                    snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
+                    snprintf( text_buffer, SDL_arraysize( text_buffer ), "%.1f", static_cast<float>(actual_damage) / 256.0f );
 
                     chr_make_text_billboard(_characterID, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, bb_opt_all );
                 }
@@ -625,10 +714,6 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     // Don't let characters chase themselves...  That would be silly
     if ( this == attacker.get() ) return;
 
-    //Dont alert if the attacker/healer was on the null team
-    if(attacker->getTeam() == TEAM_NULL) {
-        return;
-    }
 
     // Don't alert the character too much if under constant fire
     if (0 != careful_timer) return;
@@ -640,6 +725,11 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
     {
         actual_attacker = attacker->getCharacterID();
 
+        //Dont alert if the attacker/healer was on the null team
+        if(attacker->getTeam() == TEAM_NULL) {
+            return;
+        }
+    
         //Do not alert items damaging (or healing) their holders, healing potions for example
         if ( attacker->attachedto == ai.index ) return;
 

@@ -44,6 +44,8 @@
 
 const float buoyancy_friction = 0.2f;          // how fast does a "cloud-like" object slow down?
 
+static const float STOPBOUNCINGPART = 10.0f;        ///< To make particles stop bouncing
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int prt_stoppedby_tests = 0;
@@ -1246,7 +1248,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
     fric.z = fric_floor.z + penviro->acc.z;
 
     //---- limit the friction to whatever is horizontal to the mesh
-    if (ABS(vup.z) > 0.9999f)
+    if (std::abs(vup.z) > 0.9999f)
     {
         floor_acc.z = 0.0f;
         fric.z = 0.0f;
@@ -1282,7 +1284,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
     }
 
     // Apply the floor friction
-    loc_pprt->vel += fric_floor;
+    loc_pprt->vel += fric_floor*0.25f;
 
     return pbdl_prt;
 }
@@ -1378,7 +1380,7 @@ prt_bundle_t * prt_bundle_t::updateParticleSimpleGravity(prt_bundle_t * pbdl_prt
     //Only do gravity for solid particles
     if (!pbdl_prt->prt_ptr->no_gravity && pbdl_prt->prt_ptr->type == SPRITE_SOLID && !pbdl_prt->prt_ptr->is_homing  && !_gameObjects.exists(pbdl_prt->prt_ptr->attachedto_ref))
     {
-        pbdl_prt->prt_ptr->vel.z -= 0.980665f; //ZF> My magic EgoGravity constant
+        pbdl_prt->prt_ptr->vel.z += STANDARD_GRAVITY*airfriction; //ZF> My magic EgoGravity constant
     }
     return pbdl_prt;
 }
@@ -1661,7 +1663,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
             vel_para.z = loc_pprt->vel.z - vel_perp.z;
         }
 
-        if (vel_dot < -STOPBOUNCINGPART)
+        if (loc_pprt->vel.z < -STOPBOUNCINGPART)
         {
             // the particle will bounce
             nrm_total.x += floor_nrm.x;
@@ -1670,6 +1672,8 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
 
             // take reflection in the floor into account when computing the new level
             tmp_pos.z = loc_level + (loc_level - ftmp) * loc_ppip->dampen + 0.1f;
+
+            loc_pprt->vel.z = -loc_pprt->vel.z;
 
             hit_a_floor = true;
         }
@@ -1682,7 +1686,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
         {
             // the particle is in the "stop bouncing zone"
             tmp_pos.z = loc_level + 0.1f;
-            loc_pprt->vel = vel_para;
+            //loc_pprt->vel = vel_para;
         }
     }
 
@@ -1707,16 +1711,8 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     {
         mesh_wall_data_t wdata;
 
-        float old_x, old_y, new_x, new_y;
-
-        old_x = tmp_pos.x; LOG_NAN(old_x);
-        old_y = tmp_pos.y; LOG_NAN(old_y);
-
-        new_x = old_x + loc_pprt->vel.x; LOG_NAN(new_x);
-        new_y = old_y + loc_pprt->vel.y; LOG_NAN(new_y);
-
-        tmp_pos.x = new_x;
-        tmp_pos.y = new_y;
+        tmp_pos.x += loc_pprt->vel.x;
+        tmp_pos.y += loc_pprt->vel.y;
 
         //Hitting a wall?
         if (EMPTY_BIT_FIELD != prt_t::test_wall(loc_pprt, tmp_pos.v, &wdata))
@@ -1839,7 +1835,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     //Rotate particle to the direction we are moving
     if (loc_ppip->rotatetoface)
     {
-        if (ABS(loc_pprt->vel.x) + ABS(loc_pprt->vel.y) > 1e-6)
+        if (std::abs(loc_pprt->vel.x) + std::abs(loc_pprt->vel.y) > FLT_EPSILON)
         {
             // use velocity to find the angle
             loc_pprt->facing = vec_to_facing(loc_pprt->vel.x, loc_pprt->vel.y);

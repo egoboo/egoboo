@@ -114,8 +114,6 @@ static int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_ver
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
 
-static void cleanup_one_character( Object * pchr );
-
 static fvec2_t chr_get_mesh_diff( Object * pchr, float test_pos[], float center_pressure );
 static float   chr_get_mesh_pressure( Object * pchr, float test_pos[] );
 
@@ -442,94 +440,6 @@ void chr_log_script_time( const CHR_REF ichr )
 #endif
 
 //--------------------------------------------------------------------------------------------
-void free_one_character_in_game(const std::shared_ptr<Object> &pchr)
-{
-    /// @author ZZ
-    /// @details Make character safely deleteable
-
-    // Detach the character from the game
-    cleanup_one_character( pchr.get() );
-
-    //If we are inside an inventory we need to remove us
-    const std::shared_ptr<Object> &inventoryHolder = _gameObjects[pchr->inwhich_inventory];
-    if(inventoryHolder) {
-        for (size_t i = 0; i < inventoryHolder->inventory.size(); i++)
-        {
-            if(inventoryHolder->inventory[i] == pchr->getCharacterID()) 
-            {
-                inventoryHolder->inventory[i] = INVALID_CHR_REF;
-                break;
-            }
-        }
-    }
-
-    // Remove from stat list
-    if ( pchr->show_stats )
-    {
-        size_t  cnt;
-        bool stat_found;
-
-        pchr->show_stats = false;
-
-        stat_found = false;
-        for (cnt = 0; cnt < StatusList.count; cnt++)
-        {
-            if ( StatusList.lst[cnt].who == pchr->getCharacterID() )
-            {
-                stat_found = true;
-                break;
-            }
-        }
-
-        if ( stat_found )
-        {
-            for (cnt++; cnt < StatusList.count; cnt++)
-            {
-                SWAP( status_list_element_t, StatusList.lst[cnt-1], StatusList.lst[cnt] );
-            }
-            StatusList.count--;
-        }
-    }
-
-    // Make sure everyone knows it died
-    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
-    {
-        ai_state_t * pai;
-
-        //Don't do ourselves or terminated characters
-        if ( chr->isTerminated() || chr == pchr ) continue;
-        pai = chr_get_pai( chr->getCharacterID() );
-
-        if ( pai->target == pchr->getCharacterID() )
-        {
-            SET_BIT( pai->alert, ALERTIF_TARGETKILLED );
-        }
-
-        if ( chr_get_pteam( chr->getCharacterID() )->leader == pchr->getCharacterID() )
-        {
-            SET_BIT( pai->alert, ALERTIF_LEADERKILLED );
-        }
-    }
-
-    // Handle the team
-    if ( pchr->alive && !pchr->getProfile()->isInvincible() && TeamStack.lst[pchr->team_base].morale > 0 )
-    {
-        TeamStack.lst[pchr->team_base].morale--;
-    }
-
-    if ( TeamStack.lst[pchr->team].leader == pchr->getCharacterID() )
-    {
-        TeamStack.lst[pchr->team].leader = TEAM_NOLEADER;
-    }
-
-    // remove any attached particles
-    disaffirm_attached_particles( pchr->getCharacterID() );
-
-    // actually get rid of the character
-    _gameObjects.remove(pchr->getCharacterID());
-}
-
-//--------------------------------------------------------------------------------------------
 void free_inventory_in_game( const CHR_REF character )
 {
     /// @author ZZ
@@ -543,7 +453,9 @@ void free_inventory_in_game( const CHR_REF character )
 
     PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pitem, iitem )
     {
-        free_one_character_in_game(_gameObjects[iitem]);
+        // actually get rid of the item
+        pitem->requestTerminate();
+
     }
     PACK_END_LOOP();
 
@@ -1745,7 +1657,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         // NOTE: this is not corerect since it could alert a player to an invisible object
 
         // 5 seconds and blue
-        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 5, bb_opt_fade );
+        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 3, bb_opt_fade );
 
         retval = true;
     }
@@ -1799,12 +1711,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 if ( grabData.too_dark || grabData.too_invis )
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, bb_opt_fade );
                 }
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 3, bb_opt_fade );
                 }
             }
 
@@ -1815,12 +1727,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 if ( grabData.too_dark || grabData.too_invis )
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, bb_opt_fade );
                 }
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 3, bb_opt_fade );
                 }
             }
         }
@@ -2760,12 +2672,10 @@ Object * chr_config_do_init( Object * pchr )
     // Kurse state
     if ( ppro->isItem() )
     {
-        IPair loc_rand = {1, 100};
-
         kursechance = ppro->getKurseChance();
         if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
         if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
-        pchr->iskursed = ( generate_irand_pair( loc_rand ) <= kursechance );
+        pchr->iskursed = Random::getPercent() <= kursechance;
     }
 
     // AI stuff
@@ -5063,7 +4973,7 @@ bool move_one_character_integrate_motion( Object * pchr )
         LOG_NAN( tmp_pos.z );
         if ( tmp_pos.z < grid_level )
         {
-            if ( ABS( pchr->vel.z ) < STOPBOUNCING )
+            if ( std::abs( pchr->vel.z ) < STOPBOUNCING )
             {
                 pchr->vel.z = 0.0f;
                 tmp_pos.z = grid_level;
@@ -6050,6 +5960,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
         billboard_data_t * pbb = BillboardList_get_ptr( pchr->ibillboard );
 
         pbb->ichr = ichr;
+        pbb->pos = pchr->getPosition();
     }
 
     return pchr->ibillboard;
@@ -6074,7 +5985,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     pbb = BillboardList_get_ptr( pchr->ibillboard );
     if ( NULL == pbb ) return pbb;
 
-    rv = billboard_data_printf_ttf( pbb, _gameEngine->getUIManager()->getDefaultFont(), text_color, "%s", txt );
+    rv = billboard_data_printf_ttf( pbb, _gameEngine->getUIManager()->getFloatingTextFont(), text_color, "%s", txt );
 
     if ( rv < 0 )
     {
@@ -6106,7 +6017,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
         if ( HAS_SOME_BITS( opt_bits, bb_opt_fade ) )
         {
             // make the billboard fade to transparency
-            pbb->tint_add[AA] = -1.0f / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            pbb->tint_add[AA] = -1.0f / (lifetime_secs * GameEngine::GAME_TARGET_UPS);
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_burn ) )

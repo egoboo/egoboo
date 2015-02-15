@@ -223,6 +223,9 @@ void ObjectHandler::maybeRunDeferred()
 		return;
 	}
 
+    //Lock list while running deferred
+    _semaphore = 1;
+
 	// Add any allocated objects to the containers (do first, in case they get removed again).
     if(!_allocateList.empty())
     {
@@ -250,11 +253,25 @@ void ObjectHandler::maybeRunDeferred()
                         _unusedChrRefs.push(element->getCharacterID());
                         _deletedCharacters--;
 
-                        // free the character's inventory
-                        free_inventory_in_game( element->getCharacterID() );
+                        // Make sure everyone knows it died
+                        for(const std::shared_ptr<Object> &chr : _iteratorList)
+                        {
+                            ai_state_t * pai;
 
-                        // free the character
-                        free_one_character_in_game(element);
+                            //Don't do ourselves or terminated characters
+                            if ( chr->isTerminated() || chr == element ) continue;
+                            pai = chr_get_pai( chr->getCharacterID() );
+
+                            if ( pai->target == element->getCharacterID() )
+                            {
+                                SET_BIT( pai->alert, ALERTIF_TARGETKILLED );
+                            }
+
+                            if ( chr_get_pteam( chr->getCharacterID() )->leader == element->getCharacterID() )
+                            {
+                                SET_BIT( pai->alert, ALERTIF_LEADERKILLED );
+                            }
+                        }                        
                         return true;
                     }
 
@@ -263,6 +280,9 @@ void ObjectHandler::maybeRunDeferred()
             _iteratorList.end()
         );
     }
+
+    //Finally unlock list
+    _semaphore = 0;
 }
 
 

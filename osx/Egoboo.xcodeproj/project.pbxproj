@@ -40,6 +40,13 @@
 		CD0FE1531A7B096800F3392B /* ObjectHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1511A7B096800F3392B /* ObjectHandler.cpp */; };
 		CD0FE15A1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1561A7B09AD00F3392B /* Renderer.cpp */; };
 		CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1581A7B09AD00F3392B /* Renderer.cpp */; };
+		CD1329871A90130300D1B221 /* EnchantProfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1329781A90130300D1B221 /* EnchantProfile.cpp */; };
+		CD1329881A90130300D1B221 /* EnchantProfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD13297A1A90130300D1B221 /* EnchantProfileReader.cpp */; };
+		CD1329891A90130300D1B221 /* EnchantProfileWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD13297C1A90130300D1B221 /* EnchantProfileWriter.cpp */; };
+		CD13298A1A90130300D1B221 /* ParticleProfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD13297E1A90130300D1B221 /* ParticleProfile.cpp */; };
+		CD13298B1A90130300D1B221 /* ParticleProfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1329801A90130300D1B221 /* ParticleProfileReader.cpp */; };
+		CD13298C1A90130300D1B221 /* ParticleProfileWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1329821A90130300D1B221 /* ParticleProfileWriter.cpp */; };
+		CD13298D1A90130300D1B221 /* RandomName.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1329841A90130300D1B221 /* RandomName.cpp */; };
 		CD1D57F91A8A9F0600C5B298 /* Float.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F71A8A9E9300C5B298 /* Float.cpp */; };
 		CD1D57FA1A8A9F0D00C5B298 /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F51A8A9E9300C5B298 /* Debug.cpp */; };
 		CD39B45B1A37506100B377BE /* char.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3E61A37506100B377BE /* char.c */; };
@@ -47,8 +54,6 @@
 		CD39B4601A37506100B377BE /* egoboo_object.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F01A37506100B377BE /* egoboo_object.c */; };
 		CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F31A37506100B377BE /* egoboo_typedef.c */; };
 		CD39B4621A37506100B377BE /* egoboo.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F51A37506100B377BE /* egoboo.c */; };
-		CD39B4631A37506100B377BE /* enchant.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F71A37506100B377BE /* enchant.c */; };
-		CD39B4651A37506100B377BE /* EncList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3FA1A37506100B377BE /* EncList.c */; };
 		CD39B4681A37506100B377BE /* game.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3FF1A37506100B377BE /* game.c */; };
 		CD39B46A1A37506100B377BE /* graphic_billboard.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4031A37506100B377BE /* graphic_billboard.c */; };
 		CD39B46B1A37506100B377BE /* graphic_fan.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4051A37506100B377BE /* graphic_fan.c */; };
@@ -60,7 +65,6 @@
 		CD39B4711A37506100B377BE /* lighting.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4111A37506100B377BE /* lighting.c */; };
 		CD39B4721A37506100B377BE /* link.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4131A37506100B377BE /* link.c */; };
 		CD39B4781A37506100B377BE /* mad.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B41B1A37506100B377BE /* mad.c */; };
-		CD39B47B1A37506100B377BE /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4201A37506100B377BE /* menu.c */; };
 		CD39B47C1A37506100B377BE /* mesh_BSP.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4221A37506100B377BE /* mesh_BSP.c */; };
 		CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4241A37506100B377BE /* mesh_functions.c */; };
 		CD39B47E1A37506100B377BE /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4261A37506100B377BE /* mesh.c */; };
@@ -68,17 +72,14 @@
 		CD39B4811A37506100B377BE /* network_server.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B42B1A37506100B377BE /* network_server.c */; };
 		CD39B4821A37506100B377BE /* network.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B42D1A37506100B377BE /* network.c */; };
 		CD39B4831A37506100B377BE /* obj_BSP.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B42F1A37506100B377BE /* obj_BSP.c */; };
-		CD39B4841A37506100B377BE /* particle.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4311A37506100B377BE /* particle.c */; };
 		CD39B4881A37506100B377BE /* physics.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4371A37506100B377BE /* physics.c */; };
 		CD39B48A1A37506100B377BE /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B43A1A37506100B377BE /* player.c */; };
-		CD39B48D1A37506100B377BE /* PrtList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B43F1A37506100B377BE /* PrtList.c */; };
 		CD39B48F1A37506100B377BE /* renderer_2d.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4421A37506100B377BE /* renderer_2d.c */; };
 		CD39B4901A37506100B377BE /* renderer_3d.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4441A37506100B377BE /* renderer_3d.c */; };
 		CD39B4921A37506100B377BE /* script_compile.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4481A37506100B377BE /* script_compile.c */; };
 		CD39B4931A37506100B377BE /* script_functions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44A1A37506100B377BE /* script_functions.c */; };
 		CD39B4941A37506100B377BE /* script_implementation.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44C1A37506100B377BE /* script_implementation.c */; };
 		CD39B4951A37506100B377BE /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44E1A37506100B377BE /* script.c */; };
-		CD39B4971A37506100B377BE /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4521A37506100B377BE /* ui.c */; };
 		CD39B4AC1A37629C00B377BE /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD39B4A81A37629B00B377BE /* SDL_image.framework */; };
 		CD39B4AD1A37629C00B377BE /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD39B4A91A37629B00B377BE /* SDL_mixer.framework */; };
 		CD39B4AE1A37629C00B377BE /* SDL_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD39B4AA1A37629C00B377BE /* SDL_ttf.framework */; };
@@ -119,7 +120,7 @@
 		CD44E45B1A8959CF00D345DF /* Branch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4531A8959CF00D345DF /* Branch.cpp */; };
 		CD44E45C1A8959CF00D345DF /* LeafList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4571A8959CF00D345DF /* LeafList.cpp */; };
 		CD44E45D1A8959CF00D345DF /* Tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4591A8959CF00D345DF /* Tree.cpp */; };
-		CD4B64E61A7EE94C00A52646 /* GameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4B64E41A7EE94C00A52646 /* GameObject.cpp */; };
+		CD4B64E61A7EE94C00A52646 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4B64E41A7EE94C00A52646 /* Object.cpp */; };
 		CD5953901A3F5C430052A682 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085C9E12ED4FAD0051AF5F /* host.c */; };
 		CD5953911A3F5C430052A682 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAB12ED4FAD0051AF5F /* list.c */; };
 		CD5953921A3F5C430052A682 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAE12ED4FAD0051AF5F /* packet.c */; };
@@ -164,7 +165,6 @@
 		CDBD89411A6C02AF00250CE2 /* MD2Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */; };
 		CDBD89491A6C02C100250CE2 /* Profile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89431A6C02C100250CE2 /* Profile.cpp */; };
 		CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */; };
-		CDBD894B1A6C02C100250CE2 /* RandomName.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89471A6C02C100250CE2 /* RandomName.cpp */; };
 		CDBDE3EC1A43A3EF008E5FD1 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3A81A43A2CC008E5FD1 /* lapi.c */; };
 		CDBDE3EE1A43A3EF008E5FD1 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AA1A43A2CC008E5FD1 /* lauxlib.c */; };
 		CDBDE3F01A43A3EF008E5FD1 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AC1A43A2CC008E5FD1 /* lbaselib.c */; };
@@ -220,7 +220,6 @@
 		CDCA1FB81A3F57D000002E76 /* controls_file-v2.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3281A374B6000B377BE /* controls_file-v2.c */; };
 		CDCA1FB91A3F57D000002E76 /* controls_file-v3.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B32A1A374B6000B377BE /* controls_file-v3.c */; };
 		CDCA1FBA1A3F57D000002E76 /* controls_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B32C1A374B6000B377BE /* controls_file.c */; };
-		CDCA1FBB1A3F57D000002E76 /* eve_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B32E1A374B6000B377BE /* eve_file.c */; };
 		CDCA1FBC1A3F57D000002E76 /* id_md2.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3301A374B6000B377BE /* id_md2.c */; };
 		CDCA1FBD1A3F57D000002E76 /* map_file-v1.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3331A374B6000B377BE /* map_file-v1.c */; };
 		CDCA1FBE1A3F57D000002E76 /* map_file-v2.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3351A374B6000B377BE /* map_file-v2.c */; };
@@ -228,7 +227,6 @@
 		CDCA1FC01A3F57D000002E76 /* map_file-v4.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3391A374B6000B377BE /* map_file-v4.c */; };
 		CDCA1FC11A3F57D000002E76 /* map_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B33B1A374B6000B377BE /* map_file.c */; };
 		CDCA1FC21A3F57D000002E76 /* map_tile_dictionary.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B33D1A374B6000B377BE /* map_tile_dictionary.c */; };
-		CDCA1FC51A3F57D000002E76 /* pip_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3431A374B6000B377BE /* pip_file.c */; };
 		CDCA1FC61A3F57D000002E76 /* quest_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3451A374B6000B377BE /* quest_file.c */; };
 		CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3471A374B6000B377BE /* scancode_file.c */; };
 		CDCA1FC81A3F57D000002E76 /* SDL_md2.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3491A374B6000B377BE /* SDL_md2.c */; };
@@ -274,6 +272,10 @@
 		CDE4EC651A71AEFC00A4BC62 /* Module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC631A71AEFC00A4BC62 /* Module.cpp */; };
 		CDED15AD1A88393A00AFA2AD /* UIManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDED15AB1A88393A00AFA2AD /* UIManager.cpp */; };
 		CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */; };
+		CDF316371A8F5B80009E6F33 /* Enchant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF3162F1A8F5B80009E6F33 /* Enchant.cpp */; };
+		CDF316381A8F5B80009E6F33 /* EnchantHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF316311A8F5B80009E6F33 /* EnchantHandler.cpp */; };
+		CDF316391A8F5B80009E6F33 /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF316331A8F5B80009E6F33 /* Particle.cpp */; };
+		CDF3163A1A8F5B80009E6F33 /* ParticleHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF316351A8F5B80009E6F33 /* ParticleHandler.cpp */; };
 		CDFE07711A3F68A5005395E7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = 27D3912F12EEA51D0093D60A /* SDLMain.nib */; };
 		CDFE077A1A3F68A5005395E7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = 27D3913212EEA51D0093D60A /* SDLMain.nib */; };
 		CDFE07B31A3F68A5005395E7 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD39B4A81A37629B00B377BE /* SDL_image.framework */; };
@@ -427,6 +429,22 @@
 		CD0FE1581A7B09AD00F3392B /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = "<group>"; };
 		CD0FE1591A7B09AD00F3392B /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
 		CD12C5811A8C7BB700027122 /* LockableList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LockableList.hpp; sourceTree = "<group>"; };
+		CD1329771A90130300D1B221 /* _Include.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = _Include.hpp; sourceTree = "<group>"; };
+		CD1329781A90130300D1B221 /* EnchantProfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnchantProfile.cpp; sourceTree = "<group>"; };
+		CD1329791A90130300D1B221 /* EnchantProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnchantProfile.hpp; sourceTree = "<group>"; };
+		CD13297A1A90130300D1B221 /* EnchantProfileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnchantProfileReader.cpp; sourceTree = "<group>"; };
+		CD13297B1A90130300D1B221 /* EnchantProfileReader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnchantProfileReader.hpp; sourceTree = "<group>"; };
+		CD13297C1A90130300D1B221 /* EnchantProfileWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnchantProfileWriter.cpp; sourceTree = "<group>"; };
+		CD13297D1A90130300D1B221 /* EnchantProfileWriter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnchantProfileWriter.hpp; sourceTree = "<group>"; };
+		CD13297E1A90130300D1B221 /* ParticleProfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleProfile.cpp; sourceTree = "<group>"; };
+		CD13297F1A90130300D1B221 /* ParticleProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParticleProfile.hpp; sourceTree = "<group>"; };
+		CD1329801A90130300D1B221 /* ParticleProfileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleProfileReader.cpp; sourceTree = "<group>"; };
+		CD1329811A90130300D1B221 /* ParticleProfileReader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParticleProfileReader.hpp; sourceTree = "<group>"; };
+		CD1329821A90130300D1B221 /* ParticleProfileWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleProfileWriter.cpp; sourceTree = "<group>"; };
+		CD1329831A90130300D1B221 /* ParticleProfileWriter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParticleProfileWriter.hpp; sourceTree = "<group>"; };
+		CD1329841A90130300D1B221 /* RandomName.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomName.cpp; sourceTree = "<group>"; };
+		CD1329851A90130300D1B221 /* RandomName.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomName.hpp; sourceTree = "<group>"; };
+		CD1329861A90130300D1B221 /* Ref.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Ref.hpp; sourceTree = "<group>"; };
 		CD1D57F51A8A9E9300C5B298 /* Debug.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
 		CD1D57F61A8A9E9300C5B298 /* Debug.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Debug.hpp; sourceTree = "<group>"; };
 		CD1D57F71A8A9E9300C5B298 /* Float.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Float.cpp; sourceTree = "<group>"; };
@@ -468,8 +486,6 @@
 		CD39B32B1A374B6000B377BE /* controls_file-v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "controls_file-v3.h"; sourceTree = "<group>"; };
 		CD39B32C1A374B6000B377BE /* controls_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = controls_file.c; sourceTree = "<group>"; };
 		CD39B32D1A374B6000B377BE /* controls_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = controls_file.h; sourceTree = "<group>"; };
-		CD39B32E1A374B6000B377BE /* eve_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = eve_file.c; sourceTree = "<group>"; };
-		CD39B32F1A374B6000B377BE /* eve_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eve_file.h; sourceTree = "<group>"; };
 		CD39B3301A374B6000B377BE /* id_md2.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = id_md2.c; sourceTree = "<group>"; };
 		CD39B3311A374B6000B377BE /* id_md2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = id_md2.h; sourceTree = "<group>"; };
 		CD39B3321A374B6000B377BE /* id_normals.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = id_normals.inl; sourceTree = "<group>"; };
@@ -485,8 +501,6 @@
 		CD39B33C1A374B6000B377BE /* map_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_file.h; sourceTree = "<group>"; };
 		CD39B33D1A374B6000B377BE /* map_tile_dictionary.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = map_tile_dictionary.c; sourceTree = "<group>"; };
 		CD39B33E1A374B6000B377BE /* map_tile_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_tile_dictionary.h; sourceTree = "<group>"; };
-		CD39B3431A374B6000B377BE /* pip_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = pip_file.c; sourceTree = "<group>"; };
-		CD39B3441A374B6000B377BE /* pip_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pip_file.h; sourceTree = "<group>"; };
 		CD39B3451A374B6000B377BE /* quest_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = quest_file.c; sourceTree = "<group>"; };
 		CD39B3461A374B6000B377BE /* quest_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quest_file.h; sourceTree = "<group>"; };
 		CD39B3471A374B6000B377BE /* scancode_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = scancode_file.c; sourceTree = "<group>"; };
@@ -558,10 +572,6 @@
 		CD39B3F41A37506100B377BE /* egoboo_typedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_typedef.h; sourceTree = "<group>"; };
 		CD39B3F51A37506100B377BE /* egoboo.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = egoboo.c; sourceTree = "<group>"; };
 		CD39B3F61A37506100B377BE /* egoboo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo.h; sourceTree = "<group>"; };
-		CD39B3F71A37506100B377BE /* enchant.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = enchant.c; sourceTree = "<group>"; };
-		CD39B3F81A37506100B377BE /* enchant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = enchant.h; sourceTree = "<group>"; };
-		CD39B3FA1A37506100B377BE /* EncList.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = EncList.c; sourceTree = "<group>"; };
-		CD39B3FB1A37506100B377BE /* EncList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EncList.h; sourceTree = "<group>"; };
 		CD39B3FF1A37506100B377BE /* game.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = game.c; sourceTree = "<group>"; };
 		CD39B4001A37506100B377BE /* game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
 		CD39B4031A37506100B377BE /* graphic_billboard.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = graphic_billboard.c; sourceTree = "<group>"; };
@@ -584,8 +594,6 @@
 		CD39B4141A37506100B377BE /* link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = link.h; sourceTree = "<group>"; };
 		CD39B41B1A37506100B377BE /* mad.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mad.c; sourceTree = "<group>"; };
 		CD39B41C1A37506100B377BE /* mad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mad.h; sourceTree = "<group>"; };
-		CD39B4201A37506100B377BE /* menu.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = menu.c; sourceTree = "<group>"; };
-		CD39B4211A37506100B377BE /* menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = menu.h; sourceTree = "<group>"; };
 		CD39B4221A37506100B377BE /* mesh_BSP.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mesh_BSP.c; sourceTree = "<group>"; };
 		CD39B4231A37506100B377BE /* mesh_BSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh_BSP.h; sourceTree = "<group>"; };
 		CD39B4241A37506100B377BE /* mesh_functions.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mesh_functions.c; sourceTree = "<group>"; };
@@ -600,14 +608,10 @@
 		CD39B42E1A37506100B377BE /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = network.h; sourceTree = "<group>"; };
 		CD39B42F1A37506100B377BE /* obj_BSP.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = obj_BSP.c; sourceTree = "<group>"; };
 		CD39B4301A37506100B377BE /* obj_BSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = obj_BSP.h; sourceTree = "<group>"; };
-		CD39B4311A37506100B377BE /* particle.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = particle.c; sourceTree = "<group>"; };
-		CD39B4321A37506100B377BE /* particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = particle.h; sourceTree = "<group>"; };
 		CD39B4371A37506100B377BE /* physics.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = physics.c; sourceTree = "<group>"; };
 		CD39B4381A37506100B377BE /* physics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = physics.h; sourceTree = "<group>"; };
 		CD39B43A1A37506100B377BE /* player.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = player.c; sourceTree = "<group>"; };
 		CD39B43B1A37506100B377BE /* player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
-		CD39B43F1A37506100B377BE /* PrtList.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = PrtList.c; sourceTree = "<group>"; };
-		CD39B4401A37506100B377BE /* PrtList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrtList.h; sourceTree = "<group>"; };
 		CD39B4421A37506100B377BE /* renderer_2d.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = renderer_2d.c; sourceTree = "<group>"; };
 		CD39B4431A37506100B377BE /* renderer_2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_2d.h; sourceTree = "<group>"; };
 		CD39B4441A37506100B377BE /* renderer_3d.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = renderer_3d.c; sourceTree = "<group>"; };
@@ -620,8 +624,6 @@
 		CD39B44D1A37506100B377BE /* script_implementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = script_implementation.h; sourceTree = "<group>"; };
 		CD39B44E1A37506100B377BE /* script.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = script.c; sourceTree = "<group>"; };
 		CD39B44F1A37506100B377BE /* script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = script.h; sourceTree = "<group>"; };
-		CD39B4521A37506100B377BE /* ui.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = ui.c; sourceTree = "<group>"; };
-		CD39B4531A37506100B377BE /* ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ui.h; sourceTree = "<group>"; };
 		CD39B4A81A37629B00B377BE /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = frameworks/SDL_image.framework; sourceTree = "<group>"; };
 		CD39B4A91A37629B00B377BE /* SDL_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_mixer.framework; path = frameworks/SDL_mixer.framework; sourceTree = "<group>"; };
 		CD39B4AA1A37629C00B377BE /* SDL_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_ttf.framework; path = frameworks/SDL_ttf.framework; sourceTree = "<group>"; };
@@ -638,8 +640,8 @@
 		CD44E4591A8959CF00D345DF /* Tree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tree.cpp; sourceTree = "<group>"; };
 		CD44E45A1A8959CF00D345DF /* Tree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tree.hpp; sourceTree = "<group>"; };
 		CD44E45E1A895D9B00D345DF /* ComparisonFunction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ComparisonFunction.hpp; sourceTree = "<group>"; };
-		CD4B64E41A7EE94C00A52646 /* GameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameObject.cpp; sourceTree = "<group>"; };
-		CD4B64E51A7EE94C00A52646 /* GameObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameObject.hpp; sourceTree = "<group>"; };
+		CD4B64E41A7EE94C00A52646 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
+		CD4B64E51A7EE94C00A52646 /* Object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
 		CD5B0CAB1A6204EC00F076F9 /* AStar.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AStar.c; sourceTree = "<group>"; };
 		CD5B0CAC1A6204EC00F076F9 /* AStar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AStar.h; sourceTree = "<group>"; };
 		CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = WaypointList.c; sourceTree = "<group>"; };
@@ -749,8 +751,6 @@
 		CDBD89441A6C02C100250CE2 /* Profile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Profile.hpp; sourceTree = "<group>"; };
 		CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfileSystem.cpp; sourceTree = "<group>"; };
 		CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProfileSystem.hpp; sourceTree = "<group>"; };
-		CDBD89471A6C02C100250CE2 /* RandomName.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomName.cpp; sourceTree = "<group>"; };
-		CDBD89481A6C02C100250CE2 /* RandomName.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomName.hpp; sourceTree = "<group>"; };
 		CDBDE3A31A43726C008E5FD1 /* file_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_linux.c; sourceTree = "<group>"; };
 		CDBDE3A41A43726C008E5FD1 /* file_win.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_win.c; sourceTree = "<group>"; };
 		CDBDE3A51A43726C008E5FD1 /* sys_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = sys_linux.c; sourceTree = "<group>"; };
@@ -862,6 +862,16 @@
 		CDED15AC1A88393A00AFA2AD /* UIManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UIManager.hpp; sourceTree = "<group>"; };
 		CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp_aabb.c; sourceTree = "<group>"; };
 		CDF01D7F1A67E532001BC1EF /* bsp_aabb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bsp_aabb.h; sourceTree = "<group>"; };
+		CDF3162E1A8F5B80009E6F33 /* _Include.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = _Include.hpp; sourceTree = "<group>"; };
+		CDF3162F1A8F5B80009E6F33 /* Enchant.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Enchant.cpp; sourceTree = "<group>"; };
+		CDF316301A8F5B80009E6F33 /* Enchant.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Enchant.hpp; sourceTree = "<group>"; };
+		CDF316311A8F5B80009E6F33 /* EnchantHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnchantHandler.cpp; sourceTree = "<group>"; };
+		CDF316321A8F5B80009E6F33 /* EnchantHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnchantHandler.hpp; sourceTree = "<group>"; };
+		CDF316331A8F5B80009E6F33 /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Particle.cpp; sourceTree = "<group>"; };
+		CDF316341A8F5B80009E6F33 /* Particle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Particle.hpp; sourceTree = "<group>"; };
+		CDF316351A8F5B80009E6F33 /* ParticleHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleHandler.cpp; sourceTree = "<group>"; };
+		CDF316361A8F5B80009E6F33 /* ParticleHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParticleHandler.hpp; sourceTree = "<group>"; };
+		CDF3163B1A8F5B93009E6F33 /* _Include.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = _Include.hpp; sourceTree = "<group>"; };
 		CDFE07C61A3F68A5005395E7 /* Cartman.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cartman.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDFE07C71A3F68A6005395E7 /* Cartman-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Cartman-Info.plist"; path = "/Users/neptunium/egoboo/egoboo-git/osx/Cartman-Info.plist"; sourceTree = "<absolute>"; };
 		CDFE08381A3F6978005395E7 /* cartman_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cartman_config.h; sourceTree = "<group>"; };
@@ -1032,10 +1042,6 @@
 				CD39B3F41A37506100B377BE /* egoboo_typedef.h */,
 				CD39B3F51A37506100B377BE /* egoboo.c */,
 				CD39B3F61A37506100B377BE /* egoboo.h */,
-				CD39B3F71A37506100B377BE /* enchant.c */,
-				CD39B3F81A37506100B377BE /* enchant.h */,
-				CD39B3FA1A37506100B377BE /* EncList.c */,
-				CD39B3FB1A37506100B377BE /* EncList.h */,
 				CD39B3FF1A37506100B377BE /* game.c */,
 				CD39B4001A37506100B377BE /* game.h */,
 				CD39B4031A37506100B377BE /* graphic_billboard.c */,
@@ -1059,8 +1065,6 @@
 				CD12C5811A8C7BB700027122 /* LockableList.hpp */,
 				CD39B41B1A37506100B377BE /* mad.c */,
 				CD39B41C1A37506100B377BE /* mad.h */,
-				CD39B4201A37506100B377BE /* menu.c */,
-				CD39B4211A37506100B377BE /* menu.h */,
 				CD39B4221A37506100B377BE /* mesh_BSP.c */,
 				CD39B4231A37506100B377BE /* mesh_BSP.h */,
 				CD39B4241A37506100B377BE /* mesh_functions.c */,
@@ -1075,16 +1079,12 @@
 				CD39B42E1A37506100B377BE /* network.h */,
 				CD39B42F1A37506100B377BE /* obj_BSP.c */,
 				CD39B4301A37506100B377BE /* obj_BSP.h */,
-				CD39B4311A37506100B377BE /* particle.c */,
-				CD39B4321A37506100B377BE /* particle.h */,
 				CD97C15D1A629E1C00179A2C /* PhysicalConstants.cpp */,
 				CD97C15E1A629E1C00179A2C /* PhysicalConstants.hpp */,
 				CD39B4371A37506100B377BE /* physics.c */,
 				CD39B4381A37506100B377BE /* physics.h */,
 				CD39B43A1A37506100B377BE /* player.c */,
 				CD39B43B1A37506100B377BE /* player.h */,
-				CD39B43F1A37506100B377BE /* PrtList.c */,
-				CD39B4401A37506100B377BE /* PrtList.h */,
 				CD39B4421A37506100B377BE /* renderer_2d.c */,
 				CD39B4431A37506100B377BE /* renderer_2d.h */,
 				CD39B4441A37506100B377BE /* renderer_3d.c */,
@@ -1097,8 +1097,6 @@
 				CD39B44D1A37506100B377BE /* script_implementation.h */,
 				CD39B44E1A37506100B377BE /* script.c */,
 				CD39B44F1A37506100B377BE /* script.h */,
-				CD39B4521A37506100B377BE /* ui.c */,
-				CD39B4531A37506100B377BE /* ui.h */,
 			);
 			name = game;
 			path = ../game/src/game;
@@ -1235,6 +1233,28 @@
 			path = OpenGL;
 			sourceTree = "<group>";
 		};
+		CD1329761A90130300D1B221 /* Profiles */ = {
+			isa = PBXGroup;
+			children = (
+				CD1329771A90130300D1B221 /* _Include.hpp */,
+				CD1329781A90130300D1B221 /* EnchantProfile.cpp */,
+				CD1329791A90130300D1B221 /* EnchantProfile.hpp */,
+				CD13297A1A90130300D1B221 /* EnchantProfileReader.cpp */,
+				CD13297B1A90130300D1B221 /* EnchantProfileReader.hpp */,
+				CD13297C1A90130300D1B221 /* EnchantProfileWriter.cpp */,
+				CD13297D1A90130300D1B221 /* EnchantProfileWriter.hpp */,
+				CD13297E1A90130300D1B221 /* ParticleProfile.cpp */,
+				CD13297F1A90130300D1B221 /* ParticleProfile.hpp */,
+				CD1329801A90130300D1B221 /* ParticleProfileReader.cpp */,
+				CD1329811A90130300D1B221 /* ParticleProfileReader.hpp */,
+				CD1329821A90130300D1B221 /* ParticleProfileWriter.cpp */,
+				CD1329831A90130300D1B221 /* ParticleProfileWriter.hpp */,
+				CD1329841A90130300D1B221 /* RandomName.cpp */,
+				CD1329851A90130300D1B221 /* RandomName.hpp */,
+			);
+			path = Profiles;
+			sourceTree = "<group>";
+		};
 		CD39B2EF1A374AD600B377BE /* egolib */ = {
 			isa = PBXGroup;
 			children = (
@@ -1243,6 +1263,7 @@
 				CD39B3621A374B6000B377BE /* lua */,
 				CD9059311A69A67C00DC425D /* math */,
 				CD39B3711A374B6000B377BE /* platform */,
+				CD1329761A90130300D1B221 /* Profiles */,
 				CD0FE1541A7B09AD00F3392B /* Renderer */,
 				CD44E4511A8959CF00D345DF /* Scene */,
 				CD39B3011A374B6000B377BE /* _math.c */,
@@ -1306,6 +1327,7 @@
 				CD39B37B1A374B6000B377BE /* platform.h */,
 				CD39B37C1A374B6000B377BE /* process.c */,
 				CD39B37D1A374B6000B377BE /* process.h */,
+				CD1329861A90130300D1B221 /* Ref.hpp */,
 				CD39B37E1A374B6000B377BE /* scancode.c */,
 				CD39B37F1A374B6000B377BE /* scancode.h */,
 				CD39B3801A374B6000B377BE /* state_machine.h */,
@@ -1359,8 +1381,6 @@
 				CD39B32B1A374B6000B377BE /* controls_file-v3.h */,
 				CD39B32C1A374B6000B377BE /* controls_file.c */,
 				CD39B32D1A374B6000B377BE /* controls_file.h */,
-				CD39B32E1A374B6000B377BE /* eve_file.c */,
-				CD39B32F1A374B6000B377BE /* eve_file.h */,
 				CD39B3301A374B6000B377BE /* id_md2.c */,
 				CD39B3311A374B6000B377BE /* id_md2.h */,
 				CD39B3321A374B6000B377BE /* id_normals.inl */,
@@ -1376,8 +1396,6 @@
 				CD39B33C1A374B6000B377BE /* map_file.h */,
 				CD39B33D1A374B6000B377BE /* map_tile_dictionary.c */,
 				CD39B33E1A374B6000B377BE /* map_tile_dictionary.h */,
-				CD39B3431A374B6000B377BE /* pip_file.c */,
-				CD39B3441A374B6000B377BE /* pip_file.h */,
 				CD39B3451A374B6000B377BE /* quest_file.c */,
 				CD39B3461A374B6000B377BE /* quest_file.h */,
 				CD39B3471A374B6000B377BE /* scancode_file.c */,
@@ -1449,8 +1467,19 @@
 		CD4B64E31A7EE94C00A52646 /* entities */ = {
 			isa = PBXGroup;
 			children = (
-				CD4B64E41A7EE94C00A52646 /* GameObject.cpp */,
-				CD4B64E51A7EE94C00A52646 /* GameObject.hpp */,
+				CDF3162E1A8F5B80009E6F33 /* _Include.hpp */,
+				CDF3162F1A8F5B80009E6F33 /* Enchant.cpp */,
+				CDF316301A8F5B80009E6F33 /* Enchant.hpp */,
+				CDF316311A8F5B80009E6F33 /* EnchantHandler.cpp */,
+				CDF316321A8F5B80009E6F33 /* EnchantHandler.hpp */,
+				CD4B64E41A7EE94C00A52646 /* Object.cpp */,
+				CD4B64E51A7EE94C00A52646 /* Object.hpp */,
+				CD0FE1511A7B096800F3392B /* ObjectHandler.cpp */,
+				CD0FE1521A7B096800F3392B /* ObjectHandler.hpp */,
+				CDF316331A8F5B80009E6F33 /* Particle.cpp */,
+				CDF316341A8F5B80009E6F33 /* Particle.hpp */,
+				CDF316351A8F5B80009E6F33 /* ParticleHandler.cpp */,
+				CDF316361A8F5B80009E6F33 /* ParticleHandler.hpp */,
 			);
 			path = entities;
 			sourceTree = "<group>";
@@ -1688,8 +1717,6 @@
 			children = (
 				CDE4EC631A71AEFC00A4BC62 /* Module.cpp */,
 				CDE4EC641A71AEFC00A4BC62 /* Module.hpp */,
-				CD0FE1511A7B096800F3392B /* ObjectHandler.cpp */,
-				CD0FE1521A7B096800F3392B /* ObjectHandler.hpp */,
 				CD97C1611A629E2500179A2C /* Passage.cpp */,
 				CD97C1621A629E2500179A2C /* Passage.hpp */,
 			);
@@ -1708,14 +1735,13 @@
 		CDBD89421A6C02C100250CE2 /* profiles */ = {
 			isa = PBXGroup;
 			children = (
+				CDF3163B1A8F5B93009E6F33 /* _Include.hpp */,
 				CD792C311A88204E0086270E /* ModuleProfile.cpp */,
 				CD792C321A88204E0086270E /* ModuleProfile.hpp */,
 				CDBD89431A6C02C100250CE2 /* Profile.cpp */,
 				CDBD89441A6C02C100250CE2 /* Profile.hpp */,
 				CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */,
 				CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */,
-				CDBD89471A6C02C100250CE2 /* RandomName.cpp */,
-				CDBD89481A6C02C100250CE2 /* RandomName.hpp */,
 			);
 			path = profiles;
 			sourceTree = "<group>";
@@ -2071,7 +2097,6 @@
 				CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */,
 				CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */,
 				CDCE212D1A6404770084D934 /* Camera.cpp in Sources */,
-				CD39B48D1A37506100B377BE /* PrtList.c in Sources */,
 				CD792C2F1A881FE20086270E /* Label.cpp in Sources */,
 				CD39B4941A37506100B377BE /* script_implementation.c in Sources */,
 				CD792C1F1A881FE20086270E /* GameState.cpp in Sources */,
@@ -2086,24 +2111,24 @@
 				CDED15AD1A88393A00AFA2AD /* UIManager.cpp in Sources */,
 				CD0FE1531A7B096800F3392B /* ObjectHandler.cpp in Sources */,
 				CD39B46C1A37506100B377BE /* graphic_mad.c in Sources */,
-				CD39B47B1A37506100B377BE /* menu.c in Sources */,
 				CD792C2C1A881FE20086270E /* IconButton.cpp in Sources */,
 				CD39B4901A37506100B377BE /* renderer_3d.c in Sources */,
+				CDF316391A8F5B80009E6F33 /* Particle.cpp in Sources */,
 				CD39B4921A37506100B377BE /* script_compile.c in Sources */,
 				CD792C2E1A881FE20086270E /* InputListener.cpp in Sources */,
-				CD39B4841A37506100B377BE /* particle.c in Sources */,
 				CD792C1E1A881FE20086270E /* GameEngine.cpp in Sources */,
 				CDE4EC651A71AEFC00A4BC62 /* Module.cpp in Sources */,
 				CD39B4721A37506100B377BE /* link.c in Sources */,
 				CD39B46A1A37506100B377BE /* graphic_billboard.c in Sources */,
 				CD39B45B1A37506100B377BE /* char.c in Sources */,
+				CDF3163A1A8F5B80009E6F33 /* ParticleHandler.cpp in Sources */,
 				CD792C201A881FE20086270E /* InGameMenuState.cpp in Sources */,
+				CDF316371A8F5B80009E6F33 /* Enchant.cpp in Sources */,
 				CD792C261A881FE20086270E /* SelectModuleState.cpp in Sources */,
 				CDB3DC9C1A65D0760098D3B9 /* AudioSystem.cpp in Sources */,
-				CD39B4631A37506100B377BE /* enchant.c in Sources */,
 				CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */,
 				CD39B45F1A37506100B377BE /* collision.c in Sources */,
-				CD4B64E61A7EE94C00A52646 /* GameObject.cpp in Sources */,
+				CD4B64E61A7EE94C00A52646 /* Object.cpp in Sources */,
 				CD792C211A881FE20086270E /* LoadingState.cpp in Sources */,
 				CD39B47C1A37506100B377BE /* mesh_BSP.c in Sources */,
 				CD39B4801A37506100B377BE /* network_client.c in Sources */,
@@ -2114,7 +2139,6 @@
 				CD39B46D1A37506100B377BE /* graphic_prt.c in Sources */,
 				CD39B4B01A3762A500B377BE /* SDLMain.m in Sources */,
 				CDBD89411A6C02AF00250CE2 /* MD2Model.cpp in Sources */,
-				CD39B4971A37506100B377BE /* ui.c in Sources */,
 				CD39B4701A37506100B377BE /* input.c in Sources */,
 				CD39B4811A37506100B377BE /* network_server.c in Sources */,
 				CD792C271A881FE20086270E /* SelectPlayersState.cpp in Sources */,
@@ -2123,6 +2147,7 @@
 				CD792C2B1A881FE20086270E /* GUIComponent.cpp in Sources */,
 				CD792C301A881FE20086270E /* ModuleSelector.cpp in Sources */,
 				CD39B4831A37506100B377BE /* obj_BSP.c in Sources */,
+				CDF316381A8F5B80009E6F33 /* EnchantHandler.cpp in Sources */,
 				CD792C2A1A881FE20086270E /* ComponentContainer.cpp in Sources */,
 				CD39B4621A37506100B377BE /* egoboo.c in Sources */,
 				CD792C241A881FE20086270E /* PlayingState.cpp in Sources */,
@@ -2130,12 +2155,10 @@
 				CD39B4881A37506100B377BE /* physics.c in Sources */,
 				CD792C231A881FE20086270E /* MainMenuState.cpp in Sources */,
 				CD792C291A881FE20086270E /* Button.cpp in Sources */,
-				CD39B4651A37506100B377BE /* EncList.c in Sources */,
 				CD792C281A881FE20086270E /* VictoryScreen.cpp in Sources */,
 				CD792C331A88204E0086270E /* ModuleProfile.cpp in Sources */,
 				CD39B4821A37506100B377BE /* network.c in Sources */,
 				CD792C251A881FE20086270E /* SelectCharacterState.cpp in Sources */,
-				CDBD894B1A6C02C100250CE2 /* RandomName.cpp in Sources */,
 				CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */,
 				CD39B47E1A37506100B377BE /* mesh.c in Sources */,
 				CD39B4781A37506100B377BE /* mad.c in Sources */,
@@ -2236,6 +2259,7 @@
 				CDCA1FB01A3F57D000002E76 /* ogl_include.c in Sources */,
 				CDE4EC5F1A7167CD00A4BC62 /* AABB.cpp in Sources */,
 				CDCA1FBA1A3F57D000002E76 /* controls_file.c in Sources */,
+				CD13298D1A90130300D1B221 /* RandomName.cpp in Sources */,
 				CDE4EC601A7167CD00A4BC62 /* Cube.cpp in Sources */,
 				CDCA1FC01A3F57D000002E76 /* map_file-v4.c in Sources */,
 				CD5B0CB41A62054300F076F9 /* DynamicArray.cpp in Sources */,
@@ -2243,6 +2267,7 @@
 				CDCA1FB61A3F57D000002E76 /* configfile.c in Sources */,
 				CDCA1FB21A3F57D000002E76 /* SDL_extensions.c in Sources */,
 				CD44E45C1A8959CF00D345DF /* LeafList.cpp in Sources */,
+				CD13298A1A90130300D1B221 /* ParticleProfile.cpp in Sources */,
 				CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */,
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
@@ -2266,6 +2291,7 @@
 				CDD880701A44A8EF007177F3 /* matrix.c in Sources */,
 				CDCA1FC11A3F57D000002E76 /* map_file.c in Sources */,
 				CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */,
+				CD13298B1A90130300D1B221 /* ParticleProfileReader.cpp in Sources */,
 				CDCA1FC91A3F57D000002E76 /* spawn_file.c in Sources */,
 				CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */,
 				CDCA1FD21A3F57D000002E76 /* hash.c in Sources */,
@@ -2279,9 +2305,10 @@
 				CD44E45B1A8959CF00D345DF /* Branch.cpp in Sources */,
 				CDCA1FB91A3F57D000002E76 /* controls_file-v3.c in Sources */,
 				CDCA1FD51A3F57D000002E76 /* log.c in Sources */,
-				CDCA1FBB1A3F57D000002E76 /* eve_file.c in Sources */,
 				CDCA1FE21A3F57D000002E76 /* typedef.c in Sources */,
 				CD1D57F91A8A9F0600C5B298 /* Float.cpp in Sources */,
+				CD1329871A90130300D1B221 /* EnchantProfile.cpp in Sources */,
+				CD13298C1A90130300D1B221 /* ParticleProfileWriter.cpp in Sources */,
 				CDCA1FCE1A3F57D000002E76 /* font_bmp.c in Sources */,
 				CDCA1FC81A3F57D000002E76 /* SDL_md2.c in Sources */,
 				CDCA1FDB1A3F57D000002E76 /* sys_mac.m in Sources */,
@@ -2294,12 +2321,13 @@
 				CDCA1FB41A3F57D000002E76 /* file_common.c in Sources */,
 				CDCA1FDD1A3F57D000002E76 /* scancode.c in Sources */,
 				CD9059341A69A67C00DC425D /* Random.cpp in Sources */,
+				CD1329891A90130300D1B221 /* EnchantProfileWriter.cpp in Sources */,
 				CDCA1FD61A3F57D000002E76 /* map_functions.c in Sources */,
 				CDCA1FBF1A3F57D000002E76 /* map_file-v3.c in Sources */,
 				CDCA1FD31A3F57D000002E76 /* IDSZ_map.c in Sources */,
 				CDCA1FA71A3F57D000002E76 /* _math.c in Sources */,
 				CDD931A31A428D970004A8B2 /* cube.c in Sources */,
-				CDCA1FC51A3F57D000002E76 /* pip_file.c in Sources */,
+				CD1329881A90130300D1B221 /* EnchantProfileReader.cpp in Sources */,
 				CDCA1FD91A3F57D000002E76 /* file_mac.m in Sources */,
 				CDCA1FB31A3F57D000002E76 /* SDL_GL_extensions.c in Sources */,
 				CDCA1FE31A3F57D000002E76 /* vfs.c in Sources */,
