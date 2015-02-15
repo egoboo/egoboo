@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/platform/sys_mac.c
+/// @file egolib/platform/sys_mac.m
 /// @brief Implementation of mac system-dependent functions
 /// @details
 
