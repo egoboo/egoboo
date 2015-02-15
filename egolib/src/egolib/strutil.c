@@ -386,7 +386,7 @@ char* strupr( char * str )
     {
         while ( CSTR_END != *str )
         {
-            *str = char_toupper(( unsigned )( *str ) );
+            *str = char_toupper( *str );
             str++;
         }
     }
@@ -400,7 +400,7 @@ char* strlwr( char * str )
     {
         while ( CSTR_END != *str )
         {
-            *str = char_tolower(( unsigned )( *str ) );
+            *str = char_tolower( *str );
             str++;
         }
     }

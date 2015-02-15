@@ -59,6 +59,23 @@ inline CharType char_toupper(CharType chr) { return std::toupper(chr, std::local
 template <class CharType>
 inline CharType char_tolower(CharType chr) { return std::tolower(chr, std::locale()); }
 
+// libc++ doesn't define std::toupper<int>(int, std::locale),
+// so narrow the int to a char.
+#ifdef _LIBCPP_VERSION
+template <>
+inline int char_toupper<int>(int chr)
+{
+    EGOBOO_ASSERT(chr >= 0 && chr <= 255);
+    return char_toupper(static_cast<char>(chr));
+}
+template <>
+inline int char_tolower<int>(int chr)
+{
+    EGOBOO_ASSERT(chr >= 0 && chr <= 255);
+    return char_tolower(static_cast<char>(chr));
+}
+#endif
+
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
