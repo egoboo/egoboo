@@ -44,15 +44,13 @@ struct eve_t
 
     /**
      * @brief
-     *  A list of all the variables that can have values overriden to be the enchant described by this profile.
-     * @todo
-     *  Rename to "SetModifierTargets".
+     *  A list of all the properties to which an enchant (of this enchant profile) can apply the "set" modifier to.
      */
     enum SetModifierTargets
     {
         SETMORPH = 0,           ///< Morph character?
-        ///< @details this must be first since the
-        ///< character must be morphed before adding any of the other enchants
+                                ///< @details This must be first since the character must
+                                ///< be morphed before adding any of the other enchants.
 
         SETDAMAGETYPE,          ///< Type of damage dealt
         SETNUMBEROFJUMPS,       ///< Max number of jumps
@@ -85,9 +83,7 @@ struct eve_t
 
     /**
      * @brief
-     *  A list of all the variables that can have values "modified" to be the enchant described by this profile.
-     * @todo
-     *  Rename to "AddModifierTargets".
+     *  A list of all the properties to which an enchant (of this enchant profile) can apply the "add" modifier to.
      */
     enum AddModifierTargets
     {
@@ -160,22 +156,16 @@ struct eve_t
         bool apply;   /// Does the modifier apply?
         float value;  /// The value to be assigned/added to the property.
     };
-    // Generic "set" modifiers.
+
+    // The "set" modifiers of this enchant.
     Modifier _set[MAX_ENCHANT_SET];
-    // Generic "add" modifiers.
+
+    // The "add" modifiers of this enchant.
     Modifier _add[MAX_ENCHANT_ADD];
-#if 0
-    // generic "set" modifiers
-    bool setyesno[MAX_ENCHANT_SET];      ///< Apply "set" modifier to this value?
-    float setvalue[MAX_ENCHANT_SET];     ///< Value to be assigned to the property.
-    // generic "add" modifiers
-    bool addyesno[MAX_ENCHANT_ADD];      ///< Apply "add" modifier to this value?
-    float addvalue[MAX_ENCHANT_ADD];     ///< Value to be added to the property.
-#endif
 
     // special modifications
-    int seekurse;                        ///< Allow target to see kurses
-    int darkvision;                      ///< Allow target to see in darkness
+    int seekurse;                        ///< Allow target to see kurses.
+    int darkvision;                      ///< Allow target to see in darkness.
 
     // continuous spawning
     Uint16 contspawn_delay;              ///< Spawn timer

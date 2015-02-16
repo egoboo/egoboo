@@ -21,7 +21,6 @@
 /// @author Johan Jansen
 
 #include "Random.hpp"
-#include <ctime>
 
 //Static data initializer
 std::random_device rd;

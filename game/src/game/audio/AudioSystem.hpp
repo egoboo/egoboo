@@ -21,9 +21,6 @@
 
 #pragma once
 
-#include <cstdint>
-#include <vector>
-#include <forward_list>
 #include <SDL_mixer.h>
 
 #include "game/entities/_Include.hpp"

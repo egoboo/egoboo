@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <forward_list>
 #include "game/gamestates/GameState.hpp"
 
 //Forward declarations

@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <string>
-#include <cstdint>
-#include <vector>
 #include "game/egoboo_typedef.h"
 
 //Forward declarations

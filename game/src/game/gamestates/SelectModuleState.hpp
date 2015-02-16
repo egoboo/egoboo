@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <vector>
-
 #include "game/gamestates/GameState.hpp"
 #include "game/profiles/_Include.hpp"
 

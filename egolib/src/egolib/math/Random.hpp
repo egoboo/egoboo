@@ -21,9 +21,8 @@
 /// @author Johan Jansen
 
 #pragma once
-#include <vector>
-#include <random>
-#include <assert.h>
+
+#include "egolib/platform.h"
 
 class Random
 {

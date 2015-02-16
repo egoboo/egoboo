@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <stdexcept>
+#include "egolib/platform.h"
 
 namespace Ego {
 	namespace Math {

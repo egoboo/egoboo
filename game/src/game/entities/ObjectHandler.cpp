@@ -184,10 +184,6 @@ void ObjectHandler::lock()
 }
 
 #if defined(_DEBUG)
-#include <iostream>
-#endif
-
-#if defined(_DEBUG)
 void ObjectHandler::dumpAllocateList()
 {
 	if (_allocateList.empty())

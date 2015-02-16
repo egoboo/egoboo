@@ -17,7 +17,6 @@
 //*
 //********************************************************************************************
 
-#include <cmath>
 #include "game/graphics/Camera.hpp"
 #include "game/graphic.h"
 #include "game/player.h"

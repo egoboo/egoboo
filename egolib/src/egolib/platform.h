@@ -120,30 +120,38 @@
 #include <fcntl.h>
 
 //--------------------------------------------------------------------------------------------
-// Exclusive C++ headers from here on.
+// Exclusive C++ headers from here on (in alphabetic order).
 #include <array>
 #include <algorithm>
-#include <functional>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <mutex>
 #include <atomic>
-#include <list>
-#include <forward_list>
-#include <unordered_map>
-#include <exception>
-#include <stack>
 #include <bitset>
-#include <unordered_set>
-#include <sstream>
+#include <exception>
+#include <forward_list>
+#include <functional>
 #include <iomanip>
+#include <iostream>
+#include <locale>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <random>
+#include <stdexcept>
+#include <sstream>
+#include <stack>
+#include <string>
 #include <thread>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -250,7 +258,19 @@ extern "C"
 	#define constexpr const
 #endif
 
-//------------
+// MSCV does not support usual format specifier for size_t (what does it actually properly support?).
+#if defined(_MSC_VER)
+//// printf format specifier for size_t.
+#define PRIuZ "Iu"
+/// printf format specifier for ssize_t.
+#define PRIdZ "Id"
+#else
+/// printf format specifier for size_t.
+#define PRIuZ "zu"
+/// printf format specifier for ssize_t.
+#define PRIdZ "zd"
+#endif
+
 // Localize the inline keyword to the compiler.
 #if defined(_MSC_VER)
 	// In MSVC, the "inline" keyword seems to be depricated. Must to be promoted to "_inline" or "__inline".
@@ -262,50 +282,39 @@ extern "C"
 //------------
 // Turn off warnings that we don't care about.
 #if defined(_MSC_VER)
-#    pragma warning(disable : 4090) ///< '=' : different 'const' qualifiers (totally unimportant in C)
-#    pragma warning(disable : 4200) ///< zero-sized array in struct/union (used in the md2 loader)
-#    pragma warning(disable : 4201) ///< nameless struct/union (nameless unions and nameless structs used in defining the vector structs)
-#    pragma warning(disable : 4204) ///< non-constant aggregate initializer (used to simplify some vector initializations)
-#    pragma warning(disable : 4244) ///< conversion from 'double' to 'float'
-#    pragma warning(disable : 4305) ///< truncation from 'double' to 'float'
+    #pragma warning(disable : 4090) ///< '=' : different 'const' qualifiers (totally unimportant in C)
+    #pragma warning(disable : 4200) ///< zero-sized array in struct/union (used in the md2 loader)
+    #pragma warning(disable : 4201) ///< nameless struct/union (nameless unions and nameless structs used in defining the vector structs)
+    #pragma warning(disable : 4204) ///< non-constant aggregate initializer (used to simplify some vector initializations)
+    #pragma warning(disable : 4244) ///< conversion from 'double' to 'float'
+    #pragma warning(disable : 4305) ///< truncation from 'double' to 'float'
 
-#    if !defined(_DEBUG)
-#        pragma warning(disable : 4554) ///< possibly operator precendence error
-#    endif
-
+    #if !defined(_DEBUG)
+        #pragma warning(disable : 4554) ///< possibly operator precendence error
+    #endif
 #endif
 
-//------------
-// fix the naming of some linux-flavored functions in MSVC
+// Fix the naming of some linux-flavored functions for MSVC.
 #if defined(_MSC_VER)
 
-#    define snprintf _snprintf
-#    define stricmp  _stricmp
+    #define snprintf _snprintf
+    #define stricmp  _stricmp
 
-// This isnt needed in MSCV 2013 and causes errors
-#    if !(_MSC_VER >= 1800)
-#    define isnan    _isnan
-#    endif
-#    define strlwr   _strlwr
-#    define strupr   _strupr
+    // This isn't needed anymore since MSCV 2013 and causes errors.
+    #if !(_MSC_VER >= 1800)
+        #define isnan _isnan
+    #endif
 
-/// This isn't needed in MSVC 2008 and causes errors
-#    if (_MSC_VER < 1500)
-#        define vsnprintf _vsnprintf
-#    endif
+    #define strlwr   _strlwr
+    #define strupr   _strupr
 
-// something could be done about this, but it would require us
-// using special names for the functions and defining
-// the other option is to define _CRT_SECURE_NO_WARNINGS
-//#if (_MSC_VER >= 1400 ) || !defined( __STDC_SECURE_LIB__ )
-//#   define ego_strncpy strncpy_s
-//#   define ego_strcat  strcat_s
-//#   define ego_fopen   fopen_s
-//#   define ego_sscanf  sscanf_s
-//#endif
-
+    /// This isn't needed anymore since MSVC 2008 and causes errors
+    #if (_MSC_VER < 1500)
+        #define vsnprintf _vsnprintf
+    #endif
 #endif
 
+#if 0
 //------------
 // it seems that the gcc community has a bug up its ass about the forward declaration of enums
 // to get around this (so we can use the strong type checking of c++ to look for errors in the code)
@@ -315,21 +324,22 @@ extern "C"
 #else
 #    define FWD_ENUM(XX) enum e_##XX; typedef enum e_##XX i_##XX;
 #endif
+#endif
 
 //------------
 #if !defined(SET_PACKED)
-// set the packing of a data structure at declaration time
-#    if !defined(USE_PACKING)
-// do not actually do anything about the packing
-#        define SET_PACKED()
-#    else
-// use compiler-specific macro definitions
-#        if defined(__GNUC__)
-#            define SET_PACKED() __attribute__ ((__packed__))
-#        elif defined(_MSC_VER)
-#            define SET_PACKED()
-#        endif
-#    endif
+    // set the packing of a data structure at declaration time
+    #if !defined(USE_PACKING)
+        // do not actually do anything about the packing
+        #define SET_PACKED()
+    #else
+    // use compiler-specific macro definitions
+    #if defined(__GNUC__)
+        #define SET_PACKED() __attribute__ ((__packed__))
+    #elif defined(_MSC_VER)
+        #define SET_PACKED()
+    #endif
+#endif
 #endif
 
 #if defined(__GNUC__)

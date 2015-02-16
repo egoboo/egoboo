@@ -21,8 +21,6 @@
 /// @brief Logic for loading and parsing MD2 object model files
 #pragma once
 
-#include <vector>
-#include <forward_list>
 #include "game/physics.h"
 #include "game/egoboo_typedef.h"
 

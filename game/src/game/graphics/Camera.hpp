@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include <cstdint>
-#include <forward_list>
 #include "game/egoboo_typedef.h"
 #include "game/physics.h"			//for orientation_t
 

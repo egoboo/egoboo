@@ -1,5 +1,7 @@
 #pragma once
 
+#include "egolib/platform.h"
+
 /**
 * This interface class allows the object to listen to any SDL events occuring. If any of the functions
 * return true, then it means the event will be consumed (and no other listeners will receive it)

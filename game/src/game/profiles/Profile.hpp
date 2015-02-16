@@ -25,8 +25,6 @@
 #error(do not include directly, include `game/profiles/_Include.hpp` instead)
 #endif
 
-#include <unordered_map>
-
 #include "game/script.h"     //for script_info_t
 #include "game/mad.h"
 #include "egolib/Profiles/_Include.hpp"

@@ -161,7 +161,6 @@ egolib_rv cl_joinGame( const char* hostname )
 egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
 {
     Uint16 header;
-    STRING filename;      // also used for reading various strings
 
     PLA_REF player;
     Uint32 stamp;

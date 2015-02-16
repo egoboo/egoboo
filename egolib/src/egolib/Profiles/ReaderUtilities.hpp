@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <map>
-
 /// @brief  A reader for enumerations.
 /// @detail Maps strings to enumeration elements.
 /// @author Michael Heilmann

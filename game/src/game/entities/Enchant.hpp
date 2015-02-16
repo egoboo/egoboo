@@ -98,11 +98,11 @@ struct enc_t : public _StateMachine < enc_t, EnchantManager >
         float _oldValue; /// The property value before modification.
     };
 
-    /// List to remember if properties were subjected to "set" modification by this enchant
+    /// List to remember if properties were subjected to "set" modifications by this enchant
     /// & the unmodified property values.
     Modification _set[eve_t::MAX_ENCHANT_SET];
 
-    /// List to remember if properties were subjected to "add" modification by this enchant
+    /// List to remember if properties were subjected to "add" modifications by this enchant
     /// & the unmodified property values.
     Modification _add[eve_t::MAX_ENCHANT_ADD];
 

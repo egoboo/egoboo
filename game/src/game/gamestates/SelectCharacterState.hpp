@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <vector>
 #include "game/gamestates/GameState.hpp"
 
 //Forward declarations

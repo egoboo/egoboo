@@ -25,8 +25,7 @@
 #error(do not include directly, include `game/profiles/_Include.hpp` instead)
 #endif
 
-#include <vector>
-#include <string>
+#include "egolib/platform.h"
 
 class RandomName
 {

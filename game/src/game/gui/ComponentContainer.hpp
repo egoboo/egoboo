@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <list>
-#include <mutex>
 #include "game/gui/InputListener.hpp"
 
 //Forward declarations

@@ -21,7 +21,6 @@
 /// @brief A scanner for the passage file for a given module ( /modules/*.mod/basicdat/passages.txt )
 /// @author Johan Jansen
 
-#include <forward_list>
 #include "game/module/Passage.hpp"
 #include "game/game.h"
 #include "game/char.h"
