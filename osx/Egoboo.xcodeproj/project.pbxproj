@@ -768,6 +768,10 @@
 		CD97C15E1A629E1C00179A2C /* PhysicalConstants.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PhysicalConstants.hpp; sourceTree = "<group>"; };
 		CD97C1611A629E2500179A2C /* Passage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Passage.cpp; sourceTree = "<group>"; };
 		CD97C1621A629E2500179A2C /* Passage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Passage.hpp; sourceTree = "<group>"; };
+		CDB103CB1A91C6F80077CD45 /* EgoTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest.hpp; sourceTree = "<group>"; };
+		CDB103CC1A91C7280077CD45 /* EgoTest_XCTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_XCTest.hpp; sourceTree = "<group>"; };
+		CDB103CD1A91C89B0077CD45 /* EgoTest_VSCppUnitTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_VSCppUnitTest.hpp; sourceTree = "<group>"; };
+		CDB103CE1A91C9690077CD45 /* EgoTest_doxygen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_doxygen.hpp; sourceTree = "<group>"; };
 		CDB3DC961A659ED40098D3B9 /* mem.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mem.c; sourceTree = "<group>"; };
 		CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MD2Model.cpp; sourceTree = "<group>"; };
 		CDBD89401A6C02AF00250CE2 /* MD2Model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MD2Model.hpp; sourceTree = "<group>"; };
@@ -1214,6 +1218,7 @@
 				27D3915F12EEA6730093D60A /* data */,
 				CDFE07C81A3F68EC005395E7 /* cartman */,
 				CD39B2EF1A374AD600B377BE /* egolib */,
+				CDB103CA1A91C6F80077CD45 /* EgoTest */,
 				27085AC112ED47930051AF5F /* game */,
 				CD94B4A21A8B3F1500BECFC9 /* IdLib */,
 				275CAA7E12ED606F00CE4247 /* osx */,
@@ -1778,6 +1783,18 @@
 				CD97C1621A629E2500179A2C /* Passage.hpp */,
 			);
 			path = module;
+			sourceTree = "<group>";
+		};
+		CDB103CA1A91C6F80077CD45 /* EgoTest */ = {
+			isa = PBXGroup;
+			children = (
+				CDB103CB1A91C6F80077CD45 /* EgoTest.hpp */,
+				CDB103CE1A91C9690077CD45 /* EgoTest_doxygen.hpp */,
+				CDB103CD1A91C89B0077CD45 /* EgoTest_VSCppUnitTest.hpp */,
+				CDB103CC1A91C7280077CD45 /* EgoTest_XCTest.hpp */,
+			);
+			name = EgoTest;
+			path = ../egotest/src/EgoTest;
 			sourceTree = "<group>";
 		};
 		CDBD89421A6C02C100250CE2 /* profiles */ = {
