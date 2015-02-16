@@ -63,108 +63,108 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     profile->removedbyidsz = vfs_get_next_idsz(ctxt);
 
     // Now the set values
-    profile->setyesno[eve_t::SETDAMAGETYPE] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETDAMAGETYPE] = vfs_get_damage_type(ctxt);
+    profile->_set[eve_t::SETDAMAGETYPE].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETDAMAGETYPE].value = vfs_get_damage_type(ctxt);
 
-    profile->setyesno[eve_t::SETNUMBEROFJUMPS] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETNUMBEROFJUMPS] = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETNUMBEROFJUMPS].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETNUMBEROFJUMPS].value = vfs_get_int(ctxt);
 
-    profile->setyesno[eve_t::SETLIFEBARCOLOR] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETLIFEBARCOLOR] = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETLIFEBARCOLOR].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETLIFEBARCOLOR].value = vfs_get_int(ctxt);
 
-    profile->setyesno[eve_t::SETMANABARCOLOR] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETMANABARCOLOR] = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETMANABARCOLOR].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETMANABARCOLOR].value = vfs_get_int(ctxt);
 
-    profile->setyesno[eve_t::SETSLASHMODIFIER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETSLASHMODIFIER] = vfs_get_damage_modifier(ctxt);
-    profile->addvalue[eve_t::ADDSLASHRESIST] = vfs_get_damage_resist(ctxt);
+    profile->_set[eve_t::SETSLASHMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETSLASHMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[eve_t::ADDSLASHRESIST].value = vfs_get_damage_resist(ctxt);
 
-    profile->setyesno[eve_t::SETCRUSHMODIFIER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETCRUSHMODIFIER] = vfs_get_damage_modifier(ctxt);
-    profile->addvalue[eve_t::ADDCRUSHRESIST] = vfs_get_damage_resist(ctxt);
+    profile->_set[eve_t::SETCRUSHMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETCRUSHMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[eve_t::ADDCRUSHRESIST].value = vfs_get_damage_resist(ctxt);
 
-    profile->setyesno[eve_t::SETPOKEMODIFIER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETPOKEMODIFIER] = vfs_get_damage_modifier(ctxt);
-    profile->addvalue[eve_t::ADDPOKERESIST] = vfs_get_damage_resist(ctxt);
+    profile->_set[eve_t::SETPOKEMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETPOKEMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[eve_t::ADDPOKERESIST].value = vfs_get_damage_resist(ctxt);
 
-    profile->setyesno[eve_t::SETHOLYMODIFIER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETHOLYMODIFIER] = vfs_get_damage_modifier(ctxt);
-    profile->addvalue[eve_t::ADDHOLYRESIST] = vfs_get_damage_resist(ctxt);
+    profile->_set[eve_t::SETHOLYMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETHOLYMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[eve_t::ADDHOLYRESIST].value = vfs_get_damage_resist(ctxt);
 
-    profile->setyesno[eve_t::SETEVILMODIFIER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETEVILMODIFIER] = vfs_get_damage_modifier(ctxt);
-    profile->addvalue[eve_t::ADDEVILRESIST] = vfs_get_damage_resist(ctxt);
+    profile->_set[eve_t::SETEVILMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETEVILMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[eve_t::ADDEVILRESIST].value = vfs_get_damage_resist(ctxt);
 
-    profile->setyesno[eve_t::SETFIREMODIFIER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETFIREMODIFIER] = vfs_get_damage_modifier(ctxt);
-    profile->addvalue[eve_t::ADDFIRERESIST] = vfs_get_damage_resist(ctxt);
+    profile->_set[eve_t::SETFIREMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETFIREMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[eve_t::ADDFIRERESIST].value = vfs_get_damage_resist(ctxt);
 
-    profile->setyesno[eve_t::SETICEMODIFIER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETICEMODIFIER] = vfs_get_damage_modifier(ctxt);
-    profile->addvalue[eve_t::ADDICERESIST] = vfs_get_damage_resist(ctxt);
+    profile->_set[eve_t::SETICEMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETICEMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[eve_t::ADDICERESIST].value = vfs_get_damage_resist(ctxt);
 
-    profile->setyesno[eve_t::SETZAPMODIFIER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETZAPMODIFIER] = vfs_get_damage_modifier(ctxt);
-    profile->addvalue[eve_t::ADDZAPRESIST] = vfs_get_damage_resist(ctxt);
+    profile->_set[eve_t::SETZAPMODIFIER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETZAPMODIFIER].value = vfs_get_damage_modifier(ctxt);
+    profile->_add[eve_t::ADDZAPRESIST].value = vfs_get_damage_resist(ctxt);
 
-    profile->setyesno[eve_t::SETFLASHINGAND] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETFLASHINGAND] = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETFLASHINGAND].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETFLASHINGAND].value = vfs_get_int(ctxt);
 
-    profile->setyesno[eve_t::SETLIGHTBLEND] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETLIGHTBLEND] = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETLIGHTBLEND].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETLIGHTBLEND].value = vfs_get_int(ctxt);
 
-    profile->setyesno[eve_t::SETALPHABLEND] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETALPHABLEND] = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETALPHABLEND].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETALPHABLEND].value = vfs_get_int(ctxt);
 
-    profile->setyesno[eve_t::SETSHEEN] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETSHEEN] = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETSHEEN].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETSHEEN].value = vfs_get_int(ctxt);
 
-    profile->setyesno[eve_t::SETFLYTOHEIGHT] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETFLYTOHEIGHT] = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETFLYTOHEIGHT].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETFLYTOHEIGHT].value = vfs_get_int(ctxt);
 
-    profile->setyesno[eve_t::SETWALKONWATER] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETWALKONWATER] = vfs_get_bool(ctxt);
+    profile->_set[eve_t::SETWALKONWATER].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETWALKONWATER].value = vfs_get_bool(ctxt);
 
-    profile->setyesno[eve_t::SETCANSEEINVISIBLE] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETCANSEEINVISIBLE] = vfs_get_bool(ctxt);
+    profile->_set[eve_t::SETCANSEEINVISIBLE].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETCANSEEINVISIBLE].value = vfs_get_bool(ctxt);
 
-    profile->setyesno[eve_t::SETMISSILETREATMENT] = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETMISSILETREATMENT].apply = vfs_get_next_bool(ctxt);
     cTmp = vfs_get_first_letter(ctxt);
-    if ('R' == char_toupper(cTmp)) profile->setvalue[eve_t::SETMISSILETREATMENT] = MISSILE_REFLECT;
-    else if ('D' == char_toupper(cTmp)) profile->setvalue[eve_t::SETMISSILETREATMENT] = MISSILE_DEFLECT;
-    else profile->setvalue[eve_t::SETMISSILETREATMENT] = MISSILE_NORMAL;
+    if ('R' == char_toupper(cTmp)) profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_REFLECT;
+    else if ('D' == char_toupper(cTmp)) profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_DEFLECT;
+    else profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_NORMAL;
 
-    profile->setyesno[eve_t::SETCOSTFOREACHMISSILE] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETCOSTFOREACHMISSILE] = vfs_get_float(ctxt);
+    profile->_set[eve_t::SETCOSTFOREACHMISSILE].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETCOSTFOREACHMISSILE].value = vfs_get_float(ctxt);
 
-    profile->setyesno[eve_t::SETMORPH] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETMORPH] = true;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
+    profile->_set[eve_t::SETMORPH].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETMORPH].value = true;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
 
-    profile->setyesno[eve_t::SETCHANNEL] = vfs_get_next_bool(ctxt);
-    profile->setvalue[eve_t::SETCHANNEL] = true;  // vfs_get_bool( fileread );
+    profile->_set[eve_t::SETCHANNEL].apply = vfs_get_next_bool(ctxt);
+    profile->_set[eve_t::SETCHANNEL].value = true;  // vfs_get_bool( fileread );
 
     // Now read in the add values
-    profile->addvalue[eve_t::ADDJUMPPOWER] = vfs_get_next_float(ctxt);
-    profile->addvalue[eve_t::ADDBUMPDAMPEN] = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
-    profile->addvalue[eve_t::ADDBOUNCINESS] = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
-    profile->addvalue[eve_t::ADDDAMAGE] = vfs_get_next_sfp8(ctxt);            // Stored as float, used as 8.8-fixed
-    profile->addvalue[eve_t::ADDSIZE] = vfs_get_next_float(ctxt);           // Stored as float, used as float
-    profile->addvalue[eve_t::ADDACCEL] = vfs_get_next_int(ctxt) / 80.0f;   // Stored as int, used as float
-    profile->addvalue[eve_t::ADDRED] = vfs_get_next_int(ctxt);
-    profile->addvalue[eve_t::ADDGRN] = vfs_get_next_int(ctxt);
-    profile->addvalue[eve_t::ADDBLU] = vfs_get_next_int(ctxt);
-    profile->addvalue[eve_t::ADDDEFENSE] = -vfs_get_next_int(ctxt);    // Defense is backwards
-    profile->addvalue[eve_t::ADDMANA] = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->addvalue[eve_t::ADDLIFE] = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->addvalue[eve_t::ADDSTRENGTH] = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->addvalue[eve_t::ADDWISDOM] = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->addvalue[eve_t::ADDINTELLIGENCE] = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
-    profile->addvalue[eve_t::ADDDEXTERITY] = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDJUMPPOWER].value = vfs_get_next_float(ctxt);
+    profile->_add[eve_t::ADDBUMPDAMPEN].value = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
+    profile->_add[eve_t::ADDBOUNCINESS].value = vfs_get_next_int(ctxt) / 256.0f;    // Stored as 8.8-fixed, used as float
+    profile->_add[eve_t::ADDDAMAGE].value = vfs_get_next_sfp8(ctxt);            // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDSIZE].value = vfs_get_next_float(ctxt);           // Stored as float, used as float
+    profile->_add[eve_t::ADDACCEL].value = vfs_get_next_int(ctxt) / 80.0f;   // Stored as int, used as float
+    profile->_add[eve_t::ADDRED].value = vfs_get_next_int(ctxt);
+    profile->_add[eve_t::ADDGRN].value = vfs_get_next_int(ctxt);
+    profile->_add[eve_t::ADDBLU].value = vfs_get_next_int(ctxt);
+    profile->_add[eve_t::ADDDEFENSE].value = -vfs_get_next_int(ctxt);    // Defense is backwards
+    profile->_add[eve_t::ADDMANA].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDLIFE].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDSTRENGTH].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDWISDOM].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDINTELLIGENCE].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
+    profile->_add[eve_t::ADDDEXTERITY].value = vfs_get_next_sfp8(ctxt);    // Stored as float, used as 8.8-fixed
 
     // Determine which entries are not important
     for (size_t cnt = 0; cnt < eve_t::MAX_ENCHANT_ADD; cnt++)
     {
-        profile->addyesno[cnt] = (0.0f != profile->addvalue[cnt]);
+        profile->_add[cnt].apply = (0.0f != profile->_add[cnt].value);
     }
 
     // Read expansions

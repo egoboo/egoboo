@@ -42,23 +42,13 @@ struct eve_t
 {
     EGO_PROFILE_STUFF
 
-    struct Setter
-    {
-        bool apply;
-        float value;
-    };
-
-    struct Modifier
-    {
-        bool apply;
-        float value;
-    };
-
     /**
      * @brief
      *  A list of all the variables that can have values overriden to be the enchant described by this profile.
+     * @todo
+     *  Rename to "SetModifierTargets".
      */
-    enum Override
+    enum SetModifierTargets
     {
         SETMORPH = 0,           ///< Morph character?
         ///< @details this must be first since the
@@ -96,8 +86,10 @@ struct eve_t
     /**
      * @brief
      *  A list of all the variables that can have values "modified" to be the enchant described by this profile.
+     * @todo
+     *  Rename to "AddModifierTargets".
      */
-    enum Modify
+    enum AddModifierTargets
     {
         ADDJUMPPOWER = 0,
         ADDBUMPDAMPEN,
@@ -161,12 +153,25 @@ struct eve_t
     Sint16 target_mana;
     Sint16 target_life;
 
-    // generic modifications
-    bool setyesno[MAX_ENCHANT_SET];      ///< Override this value?
-    float setvalue[MAX_ENCHANT_SET];     ///< Value to override the target value with.
-
-    bool addyesno[MAX_ENCHANT_ADD];      ///< Modify this value.
-    float addvalue[MAX_ENCHANT_ADD];     ///< Value to modify   the target value with.
+    /// If an enchant (of this enchant profile) applies a "set" or "add" modifier to a property
+    /// & the value to set the property to. Related to Enchant::Modification.
+    struct Modifier
+    {
+        bool apply;   /// Does the modifier apply?
+        float value;  /// The value to be assigned/added to the property.
+    };
+    // Generic "set" modifiers.
+    Modifier _set[MAX_ENCHANT_SET];
+    // Generic "add" modifiers.
+    Modifier _add[MAX_ENCHANT_ADD];
+#if 0
+    // generic "set" modifiers
+    bool setyesno[MAX_ENCHANT_SET];      ///< Apply "set" modifier to this value?
+    float setvalue[MAX_ENCHANT_SET];     ///< Value to be assigned to the property.
+    // generic "add" modifiers
+    bool addyesno[MAX_ENCHANT_ADD];      ///< Apply "add" modifier to this value?
+    float addvalue[MAX_ENCHANT_ADD];     ///< Value to be added to the property.
+#endif
 
     // special modifications
     int seekurse;                        ///< Allow target to see kurses

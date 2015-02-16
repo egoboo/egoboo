@@ -90,21 +90,21 @@ struct enc_t : public _StateMachine < enc_t, EnchantManager >
 
     ENC_REF nextenchant_ref;          ///< Next in the list
 
-    /// A struct used to remember if an attribute had its value modified (by this enchant)
-    /// + the attribute value before modification.
-    struct SavedAttributeValue
+    /// A struct used to remember if a property had its value modified (by this enchant)
+    /// + the property value before modification. Related to EnchantProfile::Modifier.
+    struct Modification
     {
-        bool _modified;  /// Was the attribute value modified by this enchant?
-        float _oldValue; /// The attribute value before modification.
+        bool _modified;  /// Was the property value modified by this enchant?
+        float _oldValue; /// The property value before modification.
     };
 
-    /// List to remember if attributes were subjected to "set" modification by this enchant
-    /// & the unmodified attribute values.
-    SavedAttributeValue _set[eve_t::MAX_ENCHANT_SET];
+    /// List to remember if properties were subjected to "set" modification by this enchant
+    /// & the unmodified property values.
+    Modification _set[eve_t::MAX_ENCHANT_SET];
 
-    /// List to remember if attributes were subjected to "add" modification by this enchant
-    /// & the unmodified attribute values.
-    SavedAttributeValue _add[eve_t::MAX_ENCHANT_ADD];
+    /// List to remember if properties were subjected to "add" modification by this enchant
+    /// & the unmodified property values.
+    Modification _add[eve_t::MAX_ENCHANT_ADD];
 
     enc_t *ctor();
     enc_t *dtor();
