@@ -783,7 +783,7 @@ void reset_character_accel( const CHR_REF character )
     {
         ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
-        enc_remove_add( ienc_now, ADDACCEL );
+        enc_remove_add(ienc_now, eve_t::ADDACCEL);
 
         ienc_now = ienc_nxt;
         ienc_count++;
@@ -809,7 +809,7 @@ void reset_character_accel( const CHR_REF character )
     {
         ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
-        enc_apply_add( ienc_now, ADDACCEL, enc_get_ieve( ienc_now ) );
+        enc_apply_add(ienc_now, eve_t::ADDACCEL, enc_get_ieve(ienc_now));
 
         ienc_now = ienc_nxt;
         ienc_count++;
@@ -850,8 +850,8 @@ void reset_character_alpha( const CHR_REF character )
         {
             ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
-            enc_remove_set( ienc_now, SETALPHABLEND );
-            enc_remove_set( ienc_now, SETLIGHTBLEND );
+            enc_remove_set(ienc_now, eve_t::SETALPHABLEND);
+            enc_remove_set(ienc_now, eve_t::SETLIGHTBLEND);
 
             ienc_now = ienc_nxt;
             ienc_count++;
@@ -874,8 +874,8 @@ void reset_character_alpha( const CHR_REF character )
 
             if ( _profileSystem.isValidProfileID( ipro ) )
             {
-                enc_apply_set( ienc_now, SETALPHABLEND, ipro );
-                enc_apply_set( ienc_now, SETLIGHTBLEND, ipro );
+                enc_apply_set(ienc_now, eve_t::SETALPHABLEND, ipro);
+                enc_apply_set(ienc_now, eve_t::SETLIGHTBLEND, ipro);
             }
 
             ienc_now = ienc_nxt;
@@ -3062,14 +3062,14 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     {
         ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
-        enc_remove_set( ienc_now, SETSLASHMODIFIER );
-        enc_remove_set( ienc_now, SETCRUSHMODIFIER );
-        enc_remove_set( ienc_now, SETPOKEMODIFIER );
-        enc_remove_set( ienc_now, SETHOLYMODIFIER );
-        enc_remove_set( ienc_now, SETEVILMODIFIER );
-        enc_remove_set( ienc_now, SETFIREMODIFIER );
-        enc_remove_set( ienc_now, SETICEMODIFIER );
-        enc_remove_set( ienc_now, SETZAPMODIFIER );
+        enc_remove_set(ienc_now, eve_t::SETSLASHMODIFIER);
+        enc_remove_set(ienc_now, eve_t::SETCRUSHMODIFIER);
+        enc_remove_set(ienc_now, eve_t::SETPOKEMODIFIER);
+        enc_remove_set(ienc_now, eve_t::SETHOLYMODIFIER);
+        enc_remove_set(ienc_now, eve_t::SETEVILMODIFIER);
+        enc_remove_set(ienc_now, eve_t::SETFIREMODIFIER);
+        enc_remove_set(ienc_now, eve_t::SETICEMODIFIER);
+        enc_remove_set(ienc_now, eve_t::SETZAPMODIFIER);
 
         ienc_now = ienc_nxt;
         ienc_count++;
@@ -3112,25 +3112,25 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
         {
             EVE_REF ieve = _profileSystem.pro_get_ieve( ipro );
 
-            enc_apply_set( ienc_now, SETSLASHMODIFIER, ipro );
-            enc_apply_set( ienc_now, SETCRUSHMODIFIER, ipro );
-            enc_apply_set( ienc_now, SETPOKEMODIFIER,  ipro );
-            enc_apply_set( ienc_now, SETHOLYMODIFIER,  ipro );
-            enc_apply_set( ienc_now, SETEVILMODIFIER,  ipro );
-            enc_apply_set( ienc_now, SETFIREMODIFIER,  ipro );
-            enc_apply_set( ienc_now, SETICEMODIFIER,   ipro );
-            enc_apply_set( ienc_now, SETZAPMODIFIER,   ipro );
+            enc_apply_set(ienc_now, eve_t::SETSLASHMODIFIER, ipro);
+            enc_apply_set(ienc_now, eve_t::SETCRUSHMODIFIER, ipro);
+            enc_apply_set(ienc_now, eve_t::SETPOKEMODIFIER, ipro);
+            enc_apply_set(ienc_now, eve_t::SETHOLYMODIFIER, ipro);
+            enc_apply_set(ienc_now, eve_t::SETEVILMODIFIER, ipro);
+            enc_apply_set(ienc_now, eve_t::SETFIREMODIFIER, ipro);
+            enc_apply_set(ienc_now, eve_t::SETICEMODIFIER, ipro);
+            enc_apply_set(ienc_now, eve_t::SETZAPMODIFIER, ipro);
 
-            enc_apply_add( ienc_now, ADDACCEL,         ieve );
-            enc_apply_add( ienc_now, ADDDEFENSE,       ieve );
-            enc_apply_add( ienc_now, ADDSLASHRESIST,   ieve );
-            enc_apply_add( ienc_now, ADDCRUSHRESIST,   ieve );
-            enc_apply_add( ienc_now, ADDPOKERESIST,    ieve );
-            enc_apply_add( ienc_now, ADDHOLYRESIST,    ieve );
-            enc_apply_add( ienc_now, ADDEVILRESIST,    ieve );
-            enc_apply_add( ienc_now, ADDFIRERESIST,    ieve );
-            enc_apply_add( ienc_now, ADDICERESIST,     ieve );
-            enc_apply_add( ienc_now, ADDZAPRESIST,     ieve );
+            enc_apply_add(ienc_now, eve_t::ADDACCEL, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDDEFENSE, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDSLASHRESIST, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDCRUSHRESIST, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDPOKERESIST, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDHOLYRESIST, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDEVILRESIST, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDFIRERESIST, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDICERESIST, ieve);
+            enc_apply_add(ienc_now, eve_t::ADDZAPRESIST, ieve);
         }
 
         ienc_now = ienc_nxt;

@@ -1204,8 +1204,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         {
             ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
-            enc_remove_set( ienc_now, SETALPHABLEND );
-            enc_remove_set( ienc_now, SETLIGHTBLEND );
+            enc_remove_set( ienc_now, eve_t::SETALPHABLEND );
+            enc_remove_set( ienc_now, eve_t::SETLIGHTBLEND );
 
             ienc_now = ienc_nxt;
             ienc_count++;
@@ -1228,8 +1228,8 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 
             if ( _profileSystem.isValidProfileID( ipro ) )
             {
-                enc_apply_set( ienc_now, SETALPHABLEND, ipro );
-                enc_apply_set( ienc_now, SETLIGHTBLEND, ipro );
+                enc_apply_set( ienc_now, eve_t::SETALPHABLEND, ipro );
+                enc_apply_set( ienc_now, eve_t::SETLIGHTBLEND, ipro );
             }
 
             ienc_now = ienc_nxt;

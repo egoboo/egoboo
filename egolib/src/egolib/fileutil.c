@@ -1033,11 +1033,11 @@ IDSZ vfs_get_next_idsz(ReadContext& ctxt)
 
 //--------------------------------------------------------------------------------------------
 
-int vfs_get_damage_type(ReadContext& ctxt)
+DamageType vfs_get_damage_type(ReadContext& ctxt)
 {
     EnumReader<DamageType> rdr
     (
-        "damageType",
+        "DamageType",
         {
             { "S", DAMAGE_SLASH },
             { "C", DAMAGE_CRUSH },
@@ -1054,7 +1054,7 @@ int vfs_get_damage_type(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_get_next_damage_type(ReadContext& ctxt)
+DamageType vfs_get_next_damage_type(ReadContext& ctxt)
 {
     goto_colon_vfs(NULL, ctxt._file, false);
 
@@ -1070,7 +1070,6 @@ bool vfs_get_bool(ReadContext& ctxt)
     {
     case 't': return true;
     case 'f': return false;
-    /** @todo Add getPosition() to context and use it. */
     default:  throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
     };
 }

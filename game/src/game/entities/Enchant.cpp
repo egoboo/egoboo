@@ -292,13 +292,13 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     //---- Remove all the enchant stuff in exactly the opposite order to how it was applied
 
     // Remove all of the cumulative values first, since we did it
-    for ( add_type = ENC_ADD_LAST; add_type >= ENC_ADD_FIRST; add_type-- )
+    for (add_type = eve_t::ENC_ADD_LAST; add_type >= eve_t::ENC_ADD_FIRST; add_type--)
     {
         enc_remove_add( ienc, add_type );
     }
 
     // unset them in the reverse order of setting them, doing morph last
-    for ( set_type = ENC_SET_LAST; set_type >= ENC_SET_FIRST; set_type-- )
+    for (set_type = eve_t::ENC_SET_LAST; set_type >= eve_t::ENC_SET_FIRST; set_type--)
     {
         enc_remove_set( ienc, set_type );
     }
@@ -404,7 +404,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
 
-    if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return INVALID_ENC_REF;
+    if ( value_idx < 0 || value_idx >= eve_t::MAX_ENCHANT_SET ) return INVALID_ENC_REF;
 
     if ( !INGAME_ENC( ienc ) ) return INVALID_ENC_REF;
 
@@ -422,7 +422,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     {
         ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
-        if ( INGAME_ENC( ienc_now ) && EncList.get_ptr(ienc_now)->setyesno[value_idx] )
+        if (INGAME_ENC( ienc_now ) && EncList.get_ptr(ienc_now)->_set[value_idx]._modified)
         {
             break;
         }
@@ -447,7 +447,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     eve_t * peve;
     Object * ptarget;
 
-    if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
+    if (value_idx < 0 || value_idx >= eve_t::MAX_ENCHANT_SET) return;
 
     if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList.get_ptr( ienc );
@@ -455,7 +455,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     peve = _profileSystem.pro_get_peve( profile );
     if ( NULL == peve ) return;
 
-    penc->setyesno[value_idx] = false;
+    penc->_set[value_idx]._modified = false;
     if ( peve->setyesno[value_idx] )
     {
         conflict = enc_value_filled( ienc, value_idx );
@@ -483,130 +483,130 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
                 character = penc->target_ref;
                 ptarget = _gameObjects.get( character );
 
-                penc->setyesno[value_idx] = true;
+                penc->_set[value_idx]._modified = true;
 
                 switch ( value_idx )
                 {
-                    case SETDAMAGETYPE:
-                        penc->setsave[value_idx]  = ptarget->damagetarget_damagetype;
+                    case eve_t::SETDAMAGETYPE:
+                        penc->_set[value_idx]._oldValue  = ptarget->damagetarget_damagetype;
                         ptarget->damagetarget_damagetype = peve->setvalue[value_idx];
                         break;
 
-                    case SETNUMBEROFJUMPS:
-                        penc->setsave[value_idx] = ptarget->jumpnumberreset;
+                    case eve_t::SETNUMBEROFJUMPS:
+                        penc->_set[value_idx]._oldValue = ptarget->jumpnumberreset;
                         ptarget->jumpnumberreset = peve->setvalue[value_idx];
                         break;
 
-                    case SETLIFEBARCOLOR:
-                        penc->setsave[value_idx] = ptarget->life_color;
+                    case eve_t::SETLIFEBARCOLOR:
+                        penc->_set[value_idx]._oldValue = ptarget->life_color;
                         ptarget->life_color       = peve->setvalue[value_idx];
                         break;
 
-                    case SETMANABARCOLOR:
-                        penc->setsave[value_idx] = ptarget->mana_color;
-                        ptarget->mana_color       = peve->setvalue[value_idx];
+                    case eve_t::SETMANABARCOLOR:
+                        penc->_set[value_idx]._oldValue = ptarget->mana_color;
+                        ptarget->mana_color = peve->setvalue[value_idx];
                         break;
 
-                    case SETSLASHMODIFIER:
-                        penc->setsave[value_idx]              = ptarget->damage_modifier[DAMAGE_SLASH];
+                    case eve_t::SETSLASHMODIFIER:
+                        penc->_set[value_idx]._oldValue = ptarget->damage_modifier[DAMAGE_SLASH];
                         ptarget->damage_modifier[DAMAGE_SLASH] = peve->setvalue[value_idx];
                         break;
 
-                    case SETCRUSHMODIFIER:
-                        penc->setsave[value_idx]              = ptarget->damage_modifier[DAMAGE_CRUSH];
+                    case eve_t::SETCRUSHMODIFIER:
+                        penc->_set[value_idx]._oldValue = ptarget->damage_modifier[DAMAGE_CRUSH];
                         ptarget->damage_modifier[DAMAGE_CRUSH] = peve->setvalue[value_idx];
                         break;
 
-                    case SETPOKEMODIFIER:
-                        penc->setsave[value_idx]             = ptarget->damage_modifier[DAMAGE_POKE];
+                    case eve_t::SETPOKEMODIFIER:
+                        penc->_set[value_idx]._oldValue = ptarget->damage_modifier[DAMAGE_POKE];
                         ptarget->damage_modifier[DAMAGE_POKE] = peve->setvalue[value_idx];
                         break;
 
-                    case SETHOLYMODIFIER:
-                        penc->setsave[value_idx]             = ptarget->damage_modifier[DAMAGE_HOLY];
+                    case eve_t::SETHOLYMODIFIER:
+                        penc->_set[value_idx]._oldValue = ptarget->damage_modifier[DAMAGE_HOLY];
                         ptarget->damage_modifier[DAMAGE_HOLY] = peve->setvalue[value_idx];
                         break;
 
-                    case SETEVILMODIFIER:
-                        penc->setsave[value_idx]             = ptarget->damage_modifier[DAMAGE_EVIL];
+                    case eve_t::SETEVILMODIFIER:
+                        penc->_set[value_idx]._oldValue  = ptarget->damage_modifier[DAMAGE_EVIL];
                         ptarget->damage_modifier[DAMAGE_EVIL] = peve->setvalue[value_idx];
                         break;
 
-                    case SETFIREMODIFIER:
-                        penc->setsave[value_idx]             = ptarget->damage_modifier[DAMAGE_FIRE];
+                    case eve_t::SETFIREMODIFIER:
+                        penc->_set[value_idx]._oldValue = ptarget->damage_modifier[DAMAGE_FIRE];
                         ptarget->damage_modifier[DAMAGE_FIRE] = peve->setvalue[value_idx];
                         break;
 
-                    case SETICEMODIFIER:
-                        penc->setsave[value_idx]            = ptarget->damage_modifier[DAMAGE_ICE];
+                    case eve_t::SETICEMODIFIER:
+                        penc->_set[value_idx]._oldValue = ptarget->damage_modifier[DAMAGE_ICE];
                         ptarget->damage_modifier[DAMAGE_ICE] = peve->setvalue[value_idx];
                         break;
 
-                    case SETZAPMODIFIER:
-                        penc->setsave[value_idx]            = ptarget->damage_modifier[DAMAGE_ZAP];
+                    case eve_t::SETZAPMODIFIER:
+                        penc->_set[value_idx]._oldValue = ptarget->damage_modifier[DAMAGE_ZAP];
                         ptarget->damage_modifier[DAMAGE_ZAP] = peve->setvalue[value_idx];
                         break;
 
-                    case SETFLASHINGAND:
-                        penc->setsave[value_idx] = ptarget->flashand;
+                    case eve_t::SETFLASHINGAND:
+                        penc->_set[value_idx]._oldValue = ptarget->flashand;
                         ptarget->flashand        = peve->setvalue[value_idx];
                         break;
 
-                    case SETLIGHTBLEND:
-                        penc->setsave[value_idx] = ptarget->inst.light;
+                    case eve_t::SETLIGHTBLEND:
+                        penc->_set[value_idx]._oldValue = ptarget->inst.light;
                         ptarget->setLight(peve->setvalue[value_idx]);
                         break;
 
-                    case SETALPHABLEND:
-                        penc->setsave[value_idx] = ptarget->inst.alpha;
+                    case eve_t::SETALPHABLEND:
+                        penc->_set[value_idx]._oldValue = ptarget->inst.alpha;
                         ptarget->setAlpha(peve->setvalue[value_idx]);
                         break;
 
-                    case SETSHEEN:
-                        penc->setsave[value_idx] = ptarget->inst.sheen;
+                    case eve_t::SETSHEEN:
+                        penc->_set[value_idx]._oldValue = ptarget->inst.sheen;
                         ptarget->setSheen(peve->setvalue[value_idx]);
                         break;
 
-                    case SETFLYTOHEIGHT:
-                        penc->setsave[value_idx] = ptarget->flyheight;
+                    case eve_t::SETFLYTOHEIGHT:
+                        penc->_set[value_idx]._oldValue = ptarget->flyheight;
                         if ( 0 == ptarget->flyheight && ptarget->getPosZ() > -2 )
                         {
                             ptarget->flyheight = peve->setvalue[value_idx];
                         }
                         break;
 
-                    case SETWALKONWATER:
-                        penc->setsave[value_idx] = ptarget->waterwalk;
+                    case eve_t::SETWALKONWATER:
+                        penc->_set[value_idx]._oldValue = ptarget->waterwalk;
                         if ( !ptarget->waterwalk )
                         {
                             ptarget->waterwalk = ( 0 != peve->setvalue[value_idx] );
                         }
                         break;
 
-                    case SETCANSEEINVISIBLE:
-                        penc->setsave[value_idx]     = ptarget->see_invisible_level > 0;
+                    case eve_t::SETCANSEEINVISIBLE:
+                        penc->_set[value_idx]._oldValue = ptarget->see_invisible_level > 0;
                         ptarget->see_invisible_level = peve->setvalue[value_idx];
                         break;
 
-                    case SETMISSILETREATMENT:
-                        penc->setsave[value_idx]  = ptarget->missiletreatment;
+                    case eve_t::SETMISSILETREATMENT:
+                        penc->_set[value_idx]._oldValue  = ptarget->missiletreatment;
                         ptarget->missiletreatment = peve->setvalue[value_idx];
                         break;
 
-                    case SETCOSTFOREACHMISSILE:
-                        penc->setsave[value_idx] = ptarget->missilecost;
-                        ptarget->missilecost     = peve->setvalue[value_idx];
-                        ptarget->missilehandler  = penc->owner_ref;
+                    case eve_t::SETCOSTFOREACHMISSILE:
+                        penc->_set[value_idx]._oldValue = ptarget->missilecost;
+                        ptarget->missilecost = peve->setvalue[value_idx];
+                        ptarget->missilehandler = penc->owner_ref;
                         break;
 
-                    case SETMORPH:
+                    case eve_t::SETMORPH:
                         // Special handler for morph
-                        penc->setsave[value_idx] = ptarget->skin;
+                        penc->_set[value_idx]._oldValue = ptarget->skin;
                         change_character( character, profile, 0, ENC_LEAVE_ALL ); // ENC_LEAVE_FIRST);
                         break;
 
-                    case SETCHANNEL:
-                        penc->setsave[value_idx] = ptarget->canchannel;
+                    case eve_t::SETCHANNEL:
+                        penc->_set[value_idx]._oldValue = ptarget->canchannel;
                         ptarget->canchannel      = ( 0 != peve->setvalue[value_idx] );
                         break;
                 }
@@ -628,7 +628,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     eve_t * peve;
     Object * ptarget;
 
-    if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
+    if ( value_idx < 0 || value_idx >= eve_t::MAX_ENCHANT_ADD ) return;
 
     if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList.get_ptr( ienc );
@@ -638,8 +638,8 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 
     if ( !peve->addyesno[value_idx] )
     {
-        penc->addyesno[value_idx] = false;
-        penc->addsave[value_idx]  = 0.0f;
+        penc->_add[value_idx]._modified = false;
+        penc->_add[value_idx]._oldValue  = 0.0f;
         return;
     }
 
@@ -651,28 +651,28 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     fvaluetoadd = 0.0f;
     switch ( value_idx )
     {
-        case ADDJUMPPOWER:
+        case eve_t::ADDJUMPPOWER:
             fnewvalue = ptarget->jump_power;
             fvaluetoadd = peve->addvalue[value_idx];
             getadd_flt( 0.0f, fnewvalue, 30.0f, &fvaluetoadd );
             ptarget->jump_power += fvaluetoadd;
             break;
 
-        case ADDBUMPDAMPEN:
+        case eve_t::ADDBUMPDAMPEN:
             fnewvalue = ptarget->phys.bumpdampen;
             fvaluetoadd = peve->addvalue[value_idx];
             getadd_flt( 0.0f, fnewvalue, 1.0f, &fvaluetoadd );
             ptarget->phys.bumpdampen += fvaluetoadd;
             break;
 
-        case ADDBOUNCINESS:
+        case eve_t::ADDBOUNCINESS:
             fnewvalue = ptarget->phys.dampen;
             fvaluetoadd = peve->addvalue[value_idx];
             getadd_flt( 0.0f, fnewvalue, 0.95f, &fvaluetoadd );
             ptarget->phys.dampen += fvaluetoadd;
             break;
 
-        case ADDDAMAGE:
+        case eve_t::ADDDAMAGE:
             newvalue = ptarget->damage_boost;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, 4096, &valuetoadd );
@@ -680,7 +680,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDSIZE:
+        case eve_t::ADDSIZE:
             fnewvalue = ptarget->fat_goto;
             fvaluetoadd = peve->addvalue[value_idx];
             getadd_flt( 0.5f, fnewvalue, 2.0f, &fvaluetoadd );
@@ -688,14 +688,14 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             ptarget->fat_goto_time = SIZETIME;
             break;
 
-        case ADDACCEL:
+        case eve_t::ADDACCEL:
             fnewvalue = ptarget->maxaccel_reset;
             fvaluetoadd = peve->addvalue[value_idx];
             getadd_flt( 0.0f, fnewvalue, 1.50f, &fvaluetoadd );
             chr_set_maxaccel( ptarget, ptarget->maxaccel_reset + fvaluetoadd );
             break;
 
-        case ADDRED:
+        case eve_t::ADDRED:
             newvalue = ptarget->inst.redshift;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, 6, &valuetoadd );
@@ -703,7 +703,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDGRN:
+        case eve_t::ADDGRN:
             newvalue = ptarget->inst.grnshift;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, 6, &valuetoadd );
@@ -711,7 +711,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDBLU:
+        case eve_t::ADDBLU:
             newvalue = ptarget->inst.blushift;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, 6, &valuetoadd );
@@ -719,7 +719,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDDEFENSE:
+        case eve_t::ADDDEFENSE:
             newvalue = ptarget->defense;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 55, newvalue, 255, &valuetoadd );  // Don't fix again! /// @note ZF@> why limit min to 55?
@@ -727,7 +727,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDMANA:
+        case eve_t::ADDMANA:
             newvalue = ptarget->mana_max;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, PERFECTBIG, &valuetoadd );
@@ -737,7 +737,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDLIFE:
+        case eve_t::ADDLIFE:
             newvalue = ptarget->life_max;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
@@ -747,7 +747,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDSTRENGTH:
+        case eve_t::ADDSTRENGTH:
             newvalue = ptarget->strength;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
@@ -755,7 +755,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDWISDOM:
+        case eve_t::ADDWISDOM:
             newvalue = ptarget->wisdom;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
@@ -763,7 +763,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDINTELLIGENCE:
+        case eve_t::ADDINTELLIGENCE:
             newvalue = ptarget->intelligence;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
@@ -771,7 +771,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDDEXTERITY:
+        case eve_t::ADDDEXTERITY:
             newvalue = ptarget->dexterity;
             valuetoadd = peve->addvalue[value_idx];
             getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
@@ -779,49 +779,49 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             fvaluetoadd = valuetoadd;
             break;
 
-        case ADDSLASHRESIST:
+        case eve_t::ADDSLASHRESIST:
             fnewvalue = ptarget->damage_resistance[DAMAGE_SLASH];
             fvaluetoadd = peve->addvalue[value_idx];
             ptarget->damage_resistance[DAMAGE_SLASH] += fvaluetoadd;
             break;
 
-        case ADDCRUSHRESIST:
+        case eve_t::ADDCRUSHRESIST:
             fnewvalue = ptarget->damage_resistance[DAMAGE_CRUSH];
             fvaluetoadd = peve->addvalue[value_idx];
             ptarget->damage_resistance[DAMAGE_CRUSH] += fvaluetoadd;
             break;
 
-        case ADDPOKERESIST:
+        case eve_t::ADDPOKERESIST:
             fnewvalue = ptarget->damage_resistance[DAMAGE_POKE];
             fvaluetoadd = peve->addvalue[value_idx];
             ptarget->damage_resistance[DAMAGE_POKE] += fvaluetoadd;
             break;
 
-        case ADDHOLYRESIST:
+        case eve_t::ADDHOLYRESIST:
             fnewvalue = ptarget->damage_resistance[DAMAGE_HOLY];
             fvaluetoadd = peve->addvalue[value_idx];
             ptarget->damage_resistance[DAMAGE_HOLY] += fvaluetoadd;
             break;
 
-        case ADDEVILRESIST:
+        case eve_t::ADDEVILRESIST:
             fnewvalue = ptarget->damage_resistance[DAMAGE_EVIL];
             fvaluetoadd = peve->addvalue[value_idx];
             ptarget->damage_resistance[DAMAGE_EVIL] += fvaluetoadd;
             break;
 
-        case ADDFIRERESIST:
+        case eve_t::ADDFIRERESIST:
             fnewvalue = ptarget->damage_resistance[DAMAGE_FIRE];
             fvaluetoadd = peve->addvalue[value_idx];
             ptarget->damage_resistance[DAMAGE_FIRE] += fvaluetoadd;
             break;
 
-        case ADDICERESIST:
+        case eve_t::ADDICERESIST:
             fnewvalue = ptarget->damage_resistance[DAMAGE_ICE];
             fvaluetoadd = peve->addvalue[value_idx];
             ptarget->damage_resistance[DAMAGE_ICE] += fvaluetoadd;
             break;
 
-        case ADDZAPRESIST:
+        case eve_t::ADDZAPRESIST:
             fnewvalue = ptarget->damage_resistance[DAMAGE_ZAP];
             fvaluetoadd = peve->addvalue[value_idx];
             ptarget->damage_resistance[DAMAGE_ZAP] += fvaluetoadd;
@@ -829,10 +829,10 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     }
 
     // save whether there was any change in the value
-    penc->addyesno[value_idx] = ( 0.0f != fvaluetoadd );
+    penc->_add[value_idx]._modified = ( 0.0f != fvaluetoadd );
 
     // Save the value for undo
-    penc->addsave[value_idx]  = fvaluetoadd;
+    penc->_add[value_idx]._oldValue  = fvaluetoadd;
 }
 
 enc_t *enc_t::config_do_init()
@@ -922,13 +922,13 @@ enc_t *enc_t::config_do_init()
     penc->lifetime       = lifetime;
 
     // Now set all of the specific values, morph first
-    for ( set_type = ENC_SET_FIRST; set_type <= ENC_SET_LAST; set_type++ )
+    for ( set_type = eve_t::ENC_SET_FIRST; set_type <= eve_t::ENC_SET_LAST; set_type++ )
     {
         enc_apply_set( ienc, set_type, pdata->profile_ref );
     }
 
     // Now do all of the stat adds
-    for ( add_type = ENC_ADD_FIRST; add_type <= ENC_ADD_LAST; add_type++ )
+    for ( add_type = eve_t::ENC_ADD_FIRST; add_type <= eve_t::ENC_ADD_LAST; add_type++ )
     {
         enc_apply_add( ienc, add_type, pdata->eve_ref );
     }
@@ -1321,12 +1321,12 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
     enc_t * penc;
     Object * ptarget;
 
-    if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
+    if ( value_idx < 0 || value_idx >= eve_t::MAX_ENCHANT_SET ) return;
 
     if ( !ALLOCATED_ENC( ienc ) ) return;
     penc = EncList.get_ptr( ienc );
 
-    if ( value_idx >= MAX_ENCHANT_SET || !penc->setyesno[value_idx] ) return;
+    if ( value_idx >= eve_t::MAX_ENCHANT_SET || !penc->_set[value_idx]._modified ) return;
 
     if ( !_gameObjects.exists( penc->target_ref ) ) return;
     character = penc->target_ref;
@@ -1334,102 +1334,102 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
 
     switch ( value_idx )
     {
-        case SETDAMAGETYPE:
-            ptarget->damagetarget_damagetype = penc->setsave[value_idx];
+        case eve_t::SETDAMAGETYPE:
+            ptarget->damagetarget_damagetype = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETNUMBEROFJUMPS:
-            ptarget->jumpnumberreset = penc->setsave[value_idx];
+        case eve_t::SETNUMBEROFJUMPS:
+            ptarget->jumpnumberreset = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETLIFEBARCOLOR:
-            ptarget->life_color = penc->setsave[value_idx];
+        case eve_t::SETLIFEBARCOLOR:
+            ptarget->life_color = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETMANABARCOLOR:
-            ptarget->mana_color = penc->setsave[value_idx];
+        case eve_t::SETMANABARCOLOR:
+            ptarget->mana_color = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETSLASHMODIFIER:
-            ptarget->damage_modifier[DAMAGE_SLASH] = penc->setsave[value_idx];
+        case eve_t::SETSLASHMODIFIER:
+            ptarget->damage_modifier[DAMAGE_SLASH] = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETCRUSHMODIFIER:
-            ptarget->damage_modifier[DAMAGE_CRUSH] = penc->setsave[value_idx];
+        case eve_t::SETCRUSHMODIFIER:
+            ptarget->damage_modifier[DAMAGE_CRUSH] = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETPOKEMODIFIER:
-            ptarget->damage_modifier[DAMAGE_POKE] = penc->setsave[value_idx];
+        case eve_t::SETPOKEMODIFIER:
+            ptarget->damage_modifier[DAMAGE_POKE] = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETHOLYMODIFIER:
-            ptarget->damage_modifier[DAMAGE_HOLY] = penc->setsave[value_idx];
+        case eve_t::SETHOLYMODIFIER:
+            ptarget->damage_modifier[DAMAGE_HOLY] = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETEVILMODIFIER:
-            ptarget->damage_modifier[DAMAGE_EVIL] = penc->setsave[value_idx];
+        case eve_t::SETEVILMODIFIER:
+            ptarget->damage_modifier[DAMAGE_EVIL] = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETFIREMODIFIER:
-            ptarget->damage_modifier[DAMAGE_FIRE] = penc->setsave[value_idx];
+        case eve_t::SETFIREMODIFIER:
+            ptarget->damage_modifier[DAMAGE_FIRE] = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETICEMODIFIER:
-            ptarget->damage_modifier[DAMAGE_ICE] = penc->setsave[value_idx];
+        case eve_t::SETICEMODIFIER:
+            ptarget->damage_modifier[DAMAGE_ICE] = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETZAPMODIFIER:
-            ptarget->damage_modifier[DAMAGE_ZAP] = penc->setsave[value_idx];
+        case eve_t::SETZAPMODIFIER:
+            ptarget->damage_modifier[DAMAGE_ZAP] = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETFLASHINGAND:
-            ptarget->flashand = penc->setsave[value_idx];
+        case eve_t::SETFLASHINGAND:
+            ptarget->flashand = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETLIGHTBLEND:
-            ptarget->setLight(penc->setsave[value_idx]);
+        case eve_t::SETLIGHTBLEND:
+            ptarget->setLight(penc->_set[value_idx]._oldValue);
             break;
 
-        case SETALPHABLEND:
-            ptarget->setAlpha(penc->setsave[value_idx]);
+        case eve_t::SETALPHABLEND:
+            ptarget->setAlpha(penc->_set[value_idx]._oldValue);
             break;
 
-        case SETSHEEN:
-            ptarget->setSheen(penc->setsave[value_idx]);
+        case eve_t::SETSHEEN:
+            ptarget->setSheen(penc->_set[value_idx]._oldValue);
             break;
 
-        case SETFLYTOHEIGHT:
-            ptarget->flyheight = penc->setsave[value_idx];
+        case eve_t::SETFLYTOHEIGHT:
+            ptarget->flyheight = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETWALKONWATER:
-            ptarget->waterwalk = ( 0 != penc->setsave[value_idx] );
+        case eve_t::SETWALKONWATER:
+            ptarget->waterwalk = ( 0 != penc->_set[value_idx]._oldValue );
             break;
 
-        case SETCANSEEINVISIBLE:
-            ptarget->see_invisible_level = penc->setsave[value_idx];
+        case eve_t::SETCANSEEINVISIBLE:
+            ptarget->see_invisible_level = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETMISSILETREATMENT:
-            ptarget->missiletreatment = penc->setsave[value_idx];
+        case eve_t::SETMISSILETREATMENT:
+            ptarget->missiletreatment = penc->_set[value_idx]._oldValue;
             break;
 
-        case SETCOSTFOREACHMISSILE:
-            ptarget->missilecost = penc->setsave[value_idx];
+        case eve_t::SETCOSTFOREACHMISSILE:
+            ptarget->missilecost = penc->_set[value_idx]._oldValue;
             ptarget->missilehandler = character;
             break;
 
-        case SETMORPH:
+        case eve_t::SETMORPH:
             // Need special handler for when this is removed
-            change_character( character, ptarget->basemodel_ref, penc->setsave[value_idx], ENC_LEAVE_ALL );
+            change_character( character, ptarget->basemodel_ref, penc->_set[value_idx]._oldValue, ENC_LEAVE_ALL );
             break;
 
-        case SETCHANNEL:
-            ptarget->canchannel = ( 0 != penc->setsave[value_idx] );
+        case eve_t::SETCHANNEL:
+            ptarget->canchannel = ( 0 != penc->_set[value_idx]._oldValue );
             break;
     }
 
-    penc->setyesno[value_idx] = false;
+    penc->_set[value_idx]._modified = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1444,7 +1444,7 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
     enc_t * penc;
     Object * ptarget;
 
-    if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
+    if (value_idx < 0 || value_idx >= eve_t::MAX_ENCHANT_ADD) return;
 
     if ( !ALLOCATED_ENC( ienc ) ) return;
     penc = EncList.get_ptr( ienc );
@@ -1453,133 +1453,133 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
     character = penc->target_ref;
     ptarget = _gameObjects.get( penc->target_ref );
 
-    if ( penc->addyesno[value_idx] )
+    if ( penc->_add[value_idx]._modified )
     {
         switch ( value_idx )
         {
-            case ADDJUMPPOWER:
-                fvaluetoadd = penc->addsave[value_idx];
+        case eve_t::ADDJUMPPOWER:
+                fvaluetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->jump_power -= fvaluetoadd;
                 break;
 
-            case ADDBUMPDAMPEN:
-                fvaluetoadd = penc->addsave[value_idx];
+            case eve_t::ADDBUMPDAMPEN:
+                fvaluetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->phys.bumpdampen -= fvaluetoadd;
                 break;
 
-            case ADDBOUNCINESS:
-                fvaluetoadd = penc->addsave[value_idx];
+            case eve_t::ADDBOUNCINESS:
+                fvaluetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->phys.dampen -= fvaluetoadd;
                 break;
 
-            case ADDDAMAGE:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDDAMAGE:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->damage_boost -= valuetoadd;
                 break;
 
-            case ADDSIZE:
-                fvaluetoadd = penc->addsave[value_idx];
+            case eve_t::ADDSIZE:
+                fvaluetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->fat_goto -= fvaluetoadd;
                 ptarget->fat_goto_time = SIZETIME;
                 break;
 
-            case ADDACCEL:
-                fvaluetoadd = penc->addsave[value_idx];
+            case eve_t::ADDACCEL:
+                fvaluetoadd = penc->_add[value_idx]._oldValue;
                 chr_set_maxaccel( ptarget, ptarget->maxaccel_reset - fvaluetoadd );
                 break;
 
-            case ADDRED:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDRED:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 chr_set_redshift( ptarget, ptarget->inst.redshift - valuetoadd );
                 break;
 
-            case ADDGRN:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDGRN:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 chr_set_grnshift( ptarget, ptarget->inst.grnshift - valuetoadd );
                 break;
 
-            case ADDBLU:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDBLU:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 chr_set_blushift( ptarget, ptarget->inst.blushift - valuetoadd );
                 break;
 
-            case ADDDEFENSE:
+            case eve_t::ADDDEFENSE:
                 {
                     int def_val;
-                    valuetoadd = penc->addsave[value_idx];
+                    valuetoadd = penc->_add[value_idx]._oldValue;
                     def_val = ptarget->defense - valuetoadd;
                     ptarget->defense = std::max( 0, def_val );
                 }
                 break;
 
-            case ADDMANA:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDMANA:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->mana_max -= valuetoadd;
                 ptarget->mana -= valuetoadd;
                 if ( ptarget->mana < 0 ) ptarget->mana = 0;
                 break;
 
-            case ADDLIFE:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDLIFE:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->life_max -= valuetoadd;
                 ptarget->life -= valuetoadd;
                 if ( ptarget->life < 1 ) ptarget->life = 1;
                 break;
 
-            case ADDSTRENGTH:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDSTRENGTH:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->strength -= valuetoadd;
                 break;
 
-            case ADDWISDOM:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDWISDOM:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->wisdom -= valuetoadd;
                 break;
 
-            case ADDINTELLIGENCE:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDINTELLIGENCE:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->intelligence -= valuetoadd;
                 break;
 
-            case ADDDEXTERITY:
-                valuetoadd = penc->addsave[value_idx];
+            case eve_t::ADDDEXTERITY:
+                valuetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->dexterity -= valuetoadd;
                 break;
 
-            case ADDSLASHRESIST:
-                ptarget->damage_resistance[DAMAGE_SLASH] -= penc->addsave[value_idx];
+            case eve_t::ADDSLASHRESIST:
+                ptarget->damage_resistance[DAMAGE_SLASH] -= penc->_add[value_idx]._oldValue;
                 break;
 
-            case ADDCRUSHRESIST:
-                ptarget->damage_resistance[DAMAGE_CRUSH] -= penc->addsave[value_idx];
+            case eve_t::ADDCRUSHRESIST:
+                ptarget->damage_resistance[DAMAGE_CRUSH] -= penc->_add[value_idx]._oldValue;
                 break;
 
-            case ADDPOKERESIST:
-                ptarget->damage_resistance[DAMAGE_POKE]  -= penc->addsave[value_idx];
+            case eve_t::ADDPOKERESIST:
+                ptarget->damage_resistance[DAMAGE_POKE]  -= penc->_add[value_idx]._oldValue;
                 break;
 
-            case ADDHOLYRESIST:
-                ptarget->damage_resistance[DAMAGE_HOLY] -= penc->addsave[value_idx];
+            case eve_t::ADDHOLYRESIST:
+                ptarget->damage_resistance[DAMAGE_HOLY] -= penc->_add[value_idx]._oldValue;
                 break;
 
-            case ADDEVILRESIST:
-                ptarget->damage_resistance[DAMAGE_EVIL] -= penc->addsave[value_idx];
+            case eve_t::ADDEVILRESIST:
+                ptarget->damage_resistance[DAMAGE_EVIL] -= penc->_add[value_idx]._oldValue;
                 break;
 
-            case ADDFIRERESIST:
-                ptarget->damage_resistance[DAMAGE_FIRE] -= penc->addsave[value_idx];
+            case eve_t::ADDFIRERESIST:
+                ptarget->damage_resistance[DAMAGE_FIRE] -= penc->_add[value_idx]._oldValue;
                 break;
 
-            case ADDICERESIST:
-                ptarget->damage_resistance[DAMAGE_ICE] -= penc->addsave[value_idx];
+            case eve_t::ADDICERESIST:
+                ptarget->damage_resistance[DAMAGE_ICE] -= penc->_add[value_idx]._oldValue;
                 break;
 
-            case ADDZAPRESIST:
-                ptarget->damage_resistance[DAMAGE_ZAP] -= penc->addsave[value_idx];
+            case eve_t::ADDZAPRESIST:
+                ptarget->damage_resistance[DAMAGE_ZAP] -= penc->_add[value_idx]._oldValue;
                 break;
         }
 
-        penc->addyesno[value_idx] = false;
+        penc->_add[value_idx]._modified = false;
     }
 }
 

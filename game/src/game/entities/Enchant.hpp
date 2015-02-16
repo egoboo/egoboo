@@ -90,11 +90,21 @@ struct enc_t : public _StateMachine < enc_t, EnchantManager >
 
     ENC_REF nextenchant_ref;          ///< Next in the list
 
-    bool setyesno[MAX_ENCHANT_SET];   ///< Was it set?
-    float setsave[MAX_ENCHANT_SET];   ///< The value to restore
+    /// A struct used to remember if an attribute had its value modified (by this enchant)
+    /// + the attribute value before modification.
+    struct SavedAttributeValue
+    {
+        bool _modified;  /// Was the attribute value modified by this enchant?
+        float _oldValue; /// The attribute value before modification.
+    };
 
-    bool addyesno[MAX_ENCHANT_ADD];   ///< Was the value adjusted
-    float addsave[MAX_ENCHANT_ADD];   ///< The adjustment
+    /// List to remember if attributes were subjected to "set" modification by this enchant
+    /// & the unmodified attribute values.
+    SavedAttributeValue _set[eve_t::MAX_ENCHANT_SET];
+
+    /// List to remember if attributes were subjected to "add" modification by this enchant
+    /// & the unmodified attribute values.
+    SavedAttributeValue _add[eve_t::MAX_ENCHANT_ADD];
 
     enc_t *ctor();
     enc_t *dtor();

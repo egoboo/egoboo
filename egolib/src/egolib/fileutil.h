@@ -220,10 +220,10 @@ public:
      * @return
      *  the enumeration value
      * @todo
-     *  Return type should be @a EnumType; add comment about lexical exception.
+     *  Add comment about lexical error.
      */
     template <typename EnumType>
-    static int readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader)
+    static EnumType readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader)
     {
         using namespace std;
         char chr = vfs_get_first_letter(ctxt);
@@ -245,10 +245,10 @@ public:
      * @return
      *  the enumeration value
      * @todo
-     *  Return type should be @a EnumType; add comment about lexical exception and default.
+     *  Add comment about lexical error and default.
      */
     template <typename EnumType>
-    static int readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType defaultValue)
+    static EnumType readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType defaultValue)
     {
         using namespace std;
         char chr = vfs_get_first_letter(ctxt);
@@ -317,8 +317,8 @@ bool vfs_get_bool(ReadContext& ctxt);
 float vfs_get_float(ReadContext& ctxt);
 Sint32 vfs_get_int(ReadContext& ctxt);
 IDSZ   vfs_get_idsz(ReadContext& ctxt);
-int vfs_get_damage_type(ReadContext& ctxt);
-int vfs_get_next_damage_type(ReadContext& ctxt);
+DamageType vfs_get_damage_type(ReadContext& ctxt);
+DamageType vfs_get_next_damage_type(ReadContext& ctxt);
 Uint8 vfs_get_damage_modifier(ReadContext& ctxt);
 float  vfs_get_damage_resist(ReadContext& ctxt);
 bool vfs_get_name(ReadContext& ctxt, char *szName, size_t max_len);

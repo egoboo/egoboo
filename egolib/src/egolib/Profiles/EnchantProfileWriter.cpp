@@ -74,102 +74,102 @@ bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const cha
     template_put_idsz(filetemp, filewrite, profile->removedbyidsz);
 
     // Now the set values
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETDAMAGETYPE]);
-    template_put_damage_type(filetemp, filewrite, profile->setvalue[SETDAMAGETYPE]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETDAMAGETYPE]);
+    template_put_damage_type(filetemp, filewrite, profile->setvalue[eve_t::SETDAMAGETYPE]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETNUMBEROFJUMPS]);
-    template_put_int(filetemp, filewrite, profile->setvalue[SETNUMBEROFJUMPS]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETNUMBEROFJUMPS]);
+    template_put_int(filetemp, filewrite, profile->setvalue[eve_t::SETNUMBEROFJUMPS]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETLIFEBARCOLOR]);
-    template_put_int(filetemp, filewrite, profile->setvalue[SETLIFEBARCOLOR]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETLIFEBARCOLOR]);
+    template_put_int(filetemp, filewrite, profile->setvalue[eve_t::SETLIFEBARCOLOR]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETMANABARCOLOR]);
-    template_put_int(filetemp, filewrite, profile->setvalue[SETMANABARCOLOR]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETMANABARCOLOR]);
+    template_put_int(filetemp, filewrite, profile->setvalue[eve_t::SETMANABARCOLOR]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETSLASHMODIFIER]);
-    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[SETSLASHMODIFIER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDSLASHRESIST] * 100.0f);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETSLASHMODIFIER]);
+    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[eve_t::SETSLASHMODIFIER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDSLASHRESIST] * 100.0f);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETCRUSHMODIFIER]);
-    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[SETCRUSHMODIFIER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDCRUSHRESIST] * 100.0f);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETCRUSHMODIFIER]);
+    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[eve_t::SETCRUSHMODIFIER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDCRUSHRESIST] * 100.0f);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETPOKEMODIFIER]);
-    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[SETPOKEMODIFIER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDPOKERESIST] * 100.0f);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETPOKEMODIFIER]);
+    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[eve_t::SETPOKEMODIFIER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDPOKERESIST] * 100.0f);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETHOLYMODIFIER]);
-    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[SETHOLYMODIFIER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDHOLYRESIST] * 100.0f);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETHOLYMODIFIER]);
+    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[eve_t::SETHOLYMODIFIER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDHOLYRESIST] * 100.0f);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETEVILMODIFIER]);
-    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[SETEVILMODIFIER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDEVILRESIST] * 100.0f);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETEVILMODIFIER]);
+    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[eve_t::SETEVILMODIFIER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDEVILRESIST] * 100.0f);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETFIREMODIFIER]);
-    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[SETFIREMODIFIER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDFIRERESIST] * 100.0f);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETFIREMODIFIER]);
+    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[eve_t::SETFIREMODIFIER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDFIRERESIST] * 100.0f);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETICEMODIFIER]);
-    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[SETICEMODIFIER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDICERESIST] * 100.0f);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETICEMODIFIER]);
+    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[eve_t::SETICEMODIFIER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDICERESIST] * 100.0f);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETZAPMODIFIER]);
-    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[SETZAPMODIFIER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDZAPRESIST] * 100.0f);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETZAPMODIFIER]);
+    template_put_damage_modifier(filetemp, filewrite, profile->setvalue[eve_t::SETZAPMODIFIER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDZAPRESIST] * 100.0f);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETFLASHINGAND]);
-    template_put_int(filetemp, filewrite, profile->setvalue[SETFLASHINGAND]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETFLASHINGAND]);
+    template_put_int(filetemp, filewrite, profile->setvalue[eve_t::SETFLASHINGAND]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETLIGHTBLEND]);
-    template_put_int(filetemp, filewrite, profile->setvalue[SETLIGHTBLEND]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETLIGHTBLEND]);
+    template_put_int(filetemp, filewrite, profile->setvalue[eve_t::SETLIGHTBLEND]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETALPHABLEND]);
-    template_put_int(filetemp, filewrite, profile->setvalue[SETALPHABLEND]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETALPHABLEND]);
+    template_put_int(filetemp, filewrite, profile->setvalue[eve_t::SETALPHABLEND]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETSHEEN]);
-    template_put_int(filetemp, filewrite, profile->setvalue[SETSHEEN]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETSHEEN]);
+    template_put_int(filetemp, filewrite, profile->setvalue[eve_t::SETSHEEN]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETFLYTOHEIGHT]);
-    template_put_int(filetemp, filewrite, profile->setvalue[SETFLYTOHEIGHT]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETFLYTOHEIGHT]);
+    template_put_int(filetemp, filewrite, profile->setvalue[eve_t::SETFLYTOHEIGHT]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETWALKONWATER]);
-    template_put_bool(filetemp, filewrite, 0 != profile->setvalue[SETWALKONWATER]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETWALKONWATER]);
+    template_put_bool(filetemp, filewrite, 0 != profile->setvalue[eve_t::SETWALKONWATER]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETCANSEEINVISIBLE]);
-    template_put_bool(filetemp, filewrite, 0 != profile->setvalue[SETCANSEEINVISIBLE]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETCANSEEINVISIBLE]);
+    template_put_bool(filetemp, filewrite, 0 != profile->setvalue[eve_t::SETCANSEEINVISIBLE]);
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETMISSILETREATMENT]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETMISSILETREATMENT]);
 
-    switch ((int)profile->setvalue[SETMISSILETREATMENT])
+    switch ((int)profile->setvalue[eve_t::SETMISSILETREATMENT])
     {
     case MISSILE_NORMAL: template_put_char(filetemp, filewrite, 'N'); break;
     case MISSILE_DEFLECT: template_put_char(filetemp, filewrite, 'D'); break;
     case MISSILE_REFLECT: template_put_char(filetemp, filewrite, 'R'); break;
     }
 
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETCOSTFOREACHMISSILE]);
-    template_put_float(filetemp, filewrite, profile->setvalue[SETCOSTFOREACHMISSILE]);
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETMORPH]);
-    template_put_bool(filetemp, filewrite, profile->setyesno[SETCHANNEL]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETCOSTFOREACHMISSILE]);
+    template_put_float(filetemp, filewrite, profile->setvalue[eve_t::SETCOSTFOREACHMISSILE]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETMORPH]);
+    template_put_bool(filetemp, filewrite, profile->setyesno[eve_t::SETCHANNEL]);
 
     // Now read in the add values
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDJUMPPOWER]);
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDBUMPDAMPEN] * 256.0f);  // Used as float, stored as 8.8-fixed
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDBOUNCINESS] * 256.0f);  // Used as float, stored as 8.8-fixed
-    template_put_sfp8(filetemp, filewrite, profile->addvalue[ADDDAMAGE]);                // Used as 8.8-fixed, stored as float
-    template_put_float(filetemp, filewrite, profile->addvalue[ADDSIZE]);
-    template_put_int(filetemp, filewrite, profile->addvalue[ADDACCEL] * 80.0f);
-    template_put_int(filetemp, filewrite, profile->addvalue[ADDRED]);
-    template_put_int(filetemp, filewrite, profile->addvalue[ADDGRN]);
-    template_put_int(filetemp, filewrite, profile->addvalue[ADDBLU]);
-    template_put_int(filetemp, filewrite, -profile->addvalue[ADDDEFENSE]);                // Defense is backwards
-    template_put_sfp8(filetemp, filewrite, profile->addvalue[ADDMANA]);                   // Used as 8.8-fixed, stored as float
-    template_put_sfp8(filetemp, filewrite, profile->addvalue[ADDLIFE]);                   // Used as 8.8-fixed, stored as float
-    template_put_sfp8(filetemp, filewrite, profile->addvalue[ADDSTRENGTH]);               // Used as 8.8-fixed, stored as float
-    template_put_sfp8(filetemp, filewrite, profile->addvalue[ADDWISDOM]);                 // Used as 8.8-fixed, stored as float
-    template_put_sfp8(filetemp, filewrite, profile->addvalue[ADDINTELLIGENCE]);           // Used as 8.8-fixed, stored as float
-    template_put_sfp8(filetemp, filewrite, profile->addvalue[ADDDEXTERITY]);              // Used as 8.8-fixed, stored as float
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDJUMPPOWER]);
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDBUMPDAMPEN] * 256.0f);  // Used as float, stored as 8.8-fixed
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDBOUNCINESS] * 256.0f);  // Used as float, stored as 8.8-fixed
+    template_put_sfp8(filetemp, filewrite, profile->addvalue[eve_t::ADDDAMAGE]);                // Used as 8.8-fixed, stored as float
+    template_put_float(filetemp, filewrite, profile->addvalue[eve_t::ADDSIZE]);
+    template_put_int(filetemp, filewrite, profile->addvalue[eve_t::ADDACCEL] * 80.0f);
+    template_put_int(filetemp, filewrite, profile->addvalue[eve_t::ADDRED]);
+    template_put_int(filetemp, filewrite, profile->addvalue[eve_t::ADDGRN]);
+    template_put_int(filetemp, filewrite, profile->addvalue[eve_t::ADDBLU]);
+    template_put_int(filetemp, filewrite, -profile->addvalue[eve_t::ADDDEFENSE]);                // Defense is backwards
+    template_put_sfp8(filetemp, filewrite, profile->addvalue[eve_t::ADDMANA]);                   // Used as 8.8-fixed, stored as float
+    template_put_sfp8(filetemp, filewrite, profile->addvalue[eve_t::ADDLIFE]);                   // Used as 8.8-fixed, stored as float
+    template_put_sfp8(filetemp, filewrite, profile->addvalue[eve_t::ADDSTRENGTH]);               // Used as 8.8-fixed, stored as float
+    template_put_sfp8(filetemp, filewrite, profile->addvalue[eve_t::ADDWISDOM]);                 // Used as 8.8-fixed, stored as float
+    template_put_sfp8(filetemp, filewrite, profile->addvalue[eve_t::ADDINTELLIGENCE]);           // Used as 8.8-fixed, stored as float
+    template_put_sfp8(filetemp, filewrite, profile->addvalue[eve_t::ADDDEXTERITY]);              // Used as 8.8-fixed, stored as float
 
     // copy the template file to the next free output section
     template_seek_free(filetemp, filewrite);

@@ -32,83 +32,6 @@ enum e_missle_treatment
     MISSILE_REFLECT                                 ///< Reflect them back!
 };
 
-/// All the values that an enchant can override.
-enum enum_enchant_set
-{
-    SETMORPH = 0,           ///< Morph character?
-    ///< @details this must be first since the
-    ///< character must be morphed before adding any of the other enchants
-
-    SETDAMAGETYPE,          ///< Type of damage dealt
-    SETNUMBEROFJUMPS,       ///< Max number of jumps
-    SETLIFEBARCOLOR,        ///< Color of life bar
-    SETMANABARCOLOR,        ///< Color of mana bar
-    SETSLASHMODIFIER,       ///< Damage modifiers
-    SETCRUSHMODIFIER,
-    SETPOKEMODIFIER,
-    SETHOLYMODIFIER,
-    SETEVILMODIFIER,
-    SETFIREMODIFIER,
-    SETICEMODIFIER,
-    SETZAPMODIFIER,
-    SETFLASHINGAND,             ///< Flash rate
-    SETLIGHTBLEND,              ///< Transparency
-    SETALPHABLEND,              ///< Alpha
-    SETSHEEN,                   ///< Shinyness
-    SETFLYTOHEIGHT,             ///< Fly to this height
-    SETWALKONWATER,             ///< Walk on water?
-    SETCANSEEINVISIBLE,         ///< Can it see invisible?
-    SETMISSILETREATMENT,        ///< How to treat missiles
-    SETCOSTFOREACHMISSILE,      ///< Cost for each missile treat
-    SETCHANNEL,                 ///< Can channel life as mana?
-    MAX_ENCHANT_SET,
-
-    ENC_SET_FIRST = SETMORPH,
-    ENC_SET_LAST = SETCHANNEL
-
-};
-
-/// A list of all the variables that can be affested by enchant add.
-enum enum_enchant_add
-{
-    ADDJUMPPOWER = 0,
-    ADDBUMPDAMPEN,
-    ADDBOUNCINESS,
-    ADDDAMAGE,
-    ADDSIZE,
-    ADDACCEL,
-
-    ADDRED,                        ///< Red shift
-    ADDGRN,                        ///< Green shift
-    ADDBLU,                        ///< Blue shift
-
-    ADDDEFENSE,                    ///< Defence adjustments
-
-    ADDMANA,
-    ADDLIFE,
-
-    ADDSTRENGTH,
-    ADDWISDOM,
-    ADDINTELLIGENCE,
-    ADDDEXTERITY,
-
-    ADDSLASHRESIST,
-    ADDCRUSHRESIST,
-    ADDPOKERESIST,
-    ADDEVILRESIST,
-    ADDHOLYRESIST,
-    ADDFIRERESIST,
-    ADDICERESIST,
-    ADDZAPRESIST,
-
-    MAX_ENCHANT_ADD,
-
-    //these are only for parsing the enchant file
-    ENC_ADD_FIRST = ADDJUMPPOWER,
-    ENC_ADD_LAST = ADDZAPRESIST
-
-};
-
 /**
 * @brief
 *  An enchantment profile, or "eve"
@@ -118,6 +41,102 @@ enum enum_enchant_add
 struct eve_t
 {
     EGO_PROFILE_STUFF
+
+    struct Setter
+    {
+        bool apply;
+        float value;
+    };
+
+    struct Modifier
+    {
+        bool apply;
+        float value;
+    };
+
+    /**
+     * @brief
+     *  A list of all the variables that can have values overriden to be the enchant described by this profile.
+     */
+    enum Override
+    {
+        SETMORPH = 0,           ///< Morph character?
+        ///< @details this must be first since the
+        ///< character must be morphed before adding any of the other enchants
+
+        SETDAMAGETYPE,          ///< Type of damage dealt
+        SETNUMBEROFJUMPS,       ///< Max number of jumps
+        SETLIFEBARCOLOR,        ///< Color of life bar
+        SETMANABARCOLOR,        ///< Color of mana bar
+        SETSLASHMODIFIER,       ///< Damage modifiers
+        SETCRUSHMODIFIER,
+        SETPOKEMODIFIER,
+        SETHOLYMODIFIER,
+        SETEVILMODIFIER,
+        SETFIREMODIFIER,
+        SETICEMODIFIER,
+        SETZAPMODIFIER,
+        SETFLASHINGAND,             ///< Flash rate
+        SETLIGHTBLEND,              ///< Transparency
+        SETALPHABLEND,              ///< Alpha
+        SETSHEEN,                   ///< Shinyness
+        SETFLYTOHEIGHT,             ///< Fly to this height
+        SETWALKONWATER,             ///< Walk on water?
+        SETCANSEEINVISIBLE,         ///< Can it see invisible?
+        SETMISSILETREATMENT,        ///< How to treat missiles
+        SETCOSTFOREACHMISSILE,      ///< Cost for each missile treat
+        SETCHANNEL,                 ///< Can channel life as mana?
+        MAX_ENCHANT_SET,
+
+        ENC_SET_FIRST = SETMORPH,
+        ENC_SET_LAST = SETCHANNEL
+
+    };
+
+    /**
+     * @brief
+     *  A list of all the variables that can have values "modified" to be the enchant described by this profile.
+     */
+    enum Modify
+    {
+        ADDJUMPPOWER = 0,
+        ADDBUMPDAMPEN,
+        ADDBOUNCINESS,
+        ADDDAMAGE,
+        ADDSIZE,
+        ADDACCEL,
+
+        ADDRED,                        ///< Red shift
+        ADDGRN,                        ///< Green shift
+        ADDBLU,                        ///< Blue shift
+
+        ADDDEFENSE,                    ///< Defence adjustments
+
+        ADDMANA,
+        ADDLIFE,
+
+        ADDSTRENGTH,
+        ADDWISDOM,
+        ADDINTELLIGENCE,
+        ADDDEXTERITY,
+
+        ADDSLASHRESIST,
+        ADDCRUSHRESIST,
+        ADDPOKERESIST,
+        ADDEVILRESIST,
+        ADDHOLYRESIST,
+        ADDFIRERESIST,
+        ADDICERESIST,
+        ADDZAPRESIST,
+
+        MAX_ENCHANT_ADD,
+
+        //these are only for parsing the enchant file
+        ENC_ADD_FIRST = ADDJUMPPOWER,
+        ENC_ADD_LAST = ADDZAPRESIST
+
+    };
+
 
     // enchant spawning info
     bool override;                         ///< Override other enchants?
@@ -143,11 +162,11 @@ struct eve_t
     Sint16 target_life;
 
     // generic modifications
-    bool setyesno[MAX_ENCHANT_SET];      ///< Set this value?
-    float setvalue[MAX_ENCHANT_SET];     ///< Value to use
+    bool setyesno[MAX_ENCHANT_SET];      ///< Override this value?
+    float setvalue[MAX_ENCHANT_SET];     ///< Value to override the target value with.
 
-    bool addyesno[MAX_ENCHANT_ADD];      ///< Add this value?
-    float addvalue[MAX_ENCHANT_ADD];     ///< The values to add
+    bool addyesno[MAX_ENCHANT_ADD];      ///< Modify this value.
+    float addvalue[MAX_ENCHANT_ADD];     ///< Value to modify   the target value with.
 
     // special modifications
     int seekurse;                        ///< Allow target to see kurses
