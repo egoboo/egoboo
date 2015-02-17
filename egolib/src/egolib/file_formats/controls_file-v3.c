@@ -57,7 +57,8 @@ bool input_settings_load_vfs_3( const char* szFilename )
     InputDevices.count = 0;
 
     ReadContext ctxt(szFilename);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_warning("unable to read input settings file `%s`\n", szFilename);
         return false;
     }

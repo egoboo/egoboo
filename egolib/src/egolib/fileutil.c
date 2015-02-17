@@ -216,7 +216,6 @@ bool ReadContext::skipToDelimiter(char delimiter, bool optional)
         {
             _lineNumber++;
         }
-        _current = readChar();
     }
 }
 
