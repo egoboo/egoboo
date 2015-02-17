@@ -62,11 +62,11 @@ bool scantag_read_one(ReadContext& ctxt)
 
     bool retval;
 
-    retval = goto_colon_vfs( NULL, ctxt._file, true ) && ( scantag_count < MAXTAG );
+    retval = goto_colon_vfs(ctxt, NULL, true ) && ( scantag_count < MAXTAG );
     if ( retval )
     {
         vfs_get_string(ctxt, scantag_lst[scantag_count].name, SDL_arraysize( scantag_lst[scantag_count].name ) );
-        scantag_lst[scantag_count].value = vfs_get_int(ctxt);
+        scantag_lst[scantag_count].value = ctxt.readInt();
         scantag_count++;
     }
 

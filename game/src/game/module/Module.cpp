@@ -66,14 +66,14 @@ void GameModule::loadAllPassages()
     if (!ctxt.ensureOpen()) return;
 
     //Load all passages in file
-    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
+    while (goto_colon_vfs(ctxt, NULL, true))
     {
         //read passage area
         irect_t area;
-        area._left   = vfs_get_int(ctxt);
-        area._top    = vfs_get_int(ctxt);
-        area._right  = vfs_get_int(ctxt);
-        area._bottom = vfs_get_int(ctxt);
+        area._left   = ctxt.readInt();
+        area._top    = ctxt.readInt();
+        area._right  = ctxt.readInt();
+        area._bottom = ctxt.readInt();
 
         //constrain passage area within the level
         area._left    = CLIP( area._left,   0, PMesh->info.tiles_x - 1 );
@@ -82,12 +82,12 @@ void GameModule::loadAllPassages()
         area._bottom  = CLIP( area._bottom, 0, PMesh->info.tiles_y - 1 );
 
         //Read if open by default
-        bool open = vfs_get_bool(ctxt);
+        bool open = ctxt.readBool();
 
         //Read mask (optional)
         uint8_t mask = MAPFX_IMPASS | MAPFX_WALL;
-        if (vfs_get_bool(ctxt)) mask = MAPFX_IMPASS;
-        if (vfs_get_bool(ctxt)) mask = MAPFX_SLIPPY;
+        if (ctxt.readBool()) mask = MAPFX_IMPASS;
+        if (ctxt.readBool()) mask = MAPFX_SLIPPY;
 
         std::shared_ptr<Passage> passage = std::make_shared<Passage>(area, mask);
 

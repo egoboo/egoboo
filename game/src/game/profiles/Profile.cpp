@@ -349,7 +349,7 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     if (!ctxt.ensureOpen()) return;
     STRING line;
 
-    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
+    while ( goto_colon_vfs(ctxt, NULL, true ) )
     {
         //Load one line
         vfs_get_string( ctxt, line, SDL_arraysize( line ) );
@@ -573,16 +573,16 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     }
 
     // Skin defenses ( 4 skins )
-    goto_colon_vfs( NULL, ctxt._file, false );
+    goto_colon_vfs(ctxt, NULL, false);
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        int iTmp = 0xFF - vfs_get_int(ctxt);
+        int iTmp = 0xFF - ctxt.readInt();
         _skinInfo[cnt].defence = CLIP( iTmp, 0, 0xFF );
     }
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        goto_colon_vfs( NULL, ctxt._file, false );
+        goto_colon_vfs(ctxt, NULL, false);
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
             _skinInfo[cnt].damageResistance[damagetype] = vfs_get_damage_resist(ctxt);
@@ -591,7 +591,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        goto_colon_vfs( NULL, ctxt._file, false );
+        goto_colon_vfs(ctxt, NULL, false);
 
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
@@ -608,7 +608,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
         }
     }
 
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++)
     {
         _skinInfo[cnt].maxAccel = vfs_get_float(ctxt) / 80.0f;
@@ -712,8 +712,8 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _canBeDazed = vfs_get_next_bool(ctxt);
     _canBeGrogged = vfs_get_next_bool(ctxt);
 
-    goto_colon_vfs( NULL, ctxt._file, false );  // Depracated, no longer used (permanent life add)
-    goto_colon_vfs( NULL, ctxt._file, false );  // Depracated, no longer used (permanent mana add)
+    goto_colon_vfs(ctxt, NULL, false);  // Depracated, no longer used (permanent life add)
+    goto_colon_vfs(ctxt, NULL, false);  // Depracated, no longer used (permanent mana add)
     if (vfs_get_next_bool(ctxt)) {
         _seeInvisibleLevel = 1;
     }
@@ -735,46 +735,46 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _canUsePlatforms = !_isPlatform;
 
     // Read expansions
-    while ( goto_colon_vfs(NULL, ctxt._file, true) )
+    while (goto_colon_vfs(ctxt, NULL, true))
     {
         const IDSZ idsz = vfs_get_idsz(ctxt);
 
         switch(idsz)
         {
             case MAKE_IDSZ( 'D', 'R', 'E', 'S' ):
-                _skinInfo[vfs_get_int(ctxt)].dressy = true;
+                _skinInfo[ctxt.readInt()].dressy = true;
             break;
 
             case MAKE_IDSZ( 'G', 'O', 'L', 'D' ):
-                _money = vfs_get_int(ctxt);
+                _money = ctxt.readInt();
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'U', 'K' ):
-                _resistBumpSpawn = (0 != (1 - vfs_get_int(ctxt)));
+                _resistBumpSpawn = (0 != (1 - ctxt.readInt()));
             break;
 
             case MAKE_IDSZ( 'P', 'A', 'C', 'K' ):
-                _isBigItem = !(0 != vfs_get_int(ctxt));
+                _isBigItem = !(0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'M', 'P' ):
-                _hasReflection = !(0 != vfs_get_int(ctxt));
+                _hasReflection = !(0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'D', 'R', 'A', 'W' ):
-                _alwaysDraw = (0 != vfs_get_int(ctxt));
+                _alwaysDraw = (0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'R', 'A', 'N', 'G' ):
-                _isRanged = (0 != vfs_get_int(ctxt));
+                _isRanged = (0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'H', 'I', 'D', 'E' ):
-                _hideState = vfs_get_int(ctxt);
+                _hideState = ctxt.readInt();
             break;
 
             case MAKE_IDSZ( 'E', 'Q', 'U', 'I' ):
-                _isEquipment = (0 != vfs_get_int(ctxt));
+                _isEquipment = (0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'S', 'Q', 'U', 'A' ):
@@ -782,11 +782,11 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'I', 'C', 'O', 'N' ):
-                _drawIcon = (0 != vfs_get_int(ctxt));
+                _drawIcon = (0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'S', 'H', 'A', 'D' ):
-                _forceShadow = (0 != vfs_get_int(ctxt));
+                _forceShadow = (0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'S', 'K', 'I', 'N' ):
@@ -795,7 +795,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 ///            It should(!) correspond to a valid skin for this object,
                 ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or MAX_SKIN)
 
-                int iTmp = vfs_get_int(ctxt);
+                int iTmp = ctxt.readInt();
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
                 iTmp = ( iTmp > MAX_SKIN ) ? MAX_SKIN : iTmp;
@@ -804,27 +804,27 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'C', 'O', 'N', 'T' ): 
-                _contentOverride = vfs_get_int(ctxt);
+                _contentOverride = ctxt.readInt();
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'A', 'T' ): 
-                _stateOverride = vfs_get_int(ctxt);
+                _stateOverride = ctxt.readInt();
             break;
 
             case MAKE_IDSZ( 'L', 'E', 'V', 'L' ): 
-                _levelOverride = vfs_get_int(ctxt);
+                _levelOverride = ctxt.readInt();
             break;
 
             case MAKE_IDSZ( 'P', 'L', 'A', 'T' ): 
-                _canUsePlatforms = (0 != vfs_get_int(ctxt));
+                _canUsePlatforms = (0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'R', 'I', 'P', 'P' ): 
-                _causesRipples = (0 != vfs_get_int(ctxt));
+                _causesRipples = (0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'L', 'U' ): 
-                _isValuable = vfs_get_int(ctxt);
+                _isValuable = ctxt.readInt();
             break;
 
             case MAKE_IDSZ( 'L', 'I', 'F', 'E' ): 
@@ -841,7 +841,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 ///            It should(!) correspond to a valid skin for this object,
                 ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or MAX_SKIN)
 
-                int iTmp = vfs_get_int(ctxt);
+                int iTmp = ctxt.readInt();
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
                 iTmp = ( iTmp > MAX_SKIN ) ? MAX_SKIN : iTmp;
@@ -851,7 +851,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
             //Damage bonuses from stats
             case MAKE_IDSZ( 'F', 'A', 'S', 'T' ):
-                _attackFast = (0 != vfs_get_int(ctxt));
+                _attackFast = (0 != ctxt.readInt());
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'R', 'D' ):
@@ -911,7 +911,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
             default:
                 //If it is none of the predefined IDSZ extensions then add it as a new skill
-                _skills[idsz] = vfs_get_int(ctxt);
+                _skills[idsz] = ctxt.readInt();
             break;
         }
     }

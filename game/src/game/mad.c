@@ -190,7 +190,7 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
     ReadContext ctxt(loadname);
     if (!ctxt.ensureOpen()) return pmad;
 
-    while ( goto_colon_vfs( NULL, ctxt._file, true ) )
+    while (goto_colon_vfs(ctxt, NULL, true))
     {
         vfs_get_string( ctxt, szOne, SDL_arraysize( szOne ) );
         actiona = action_which( szOne[0] );
@@ -625,25 +625,23 @@ void load_action_names_vfs( const char* loadname )
 {
     /// @author ZZ
     /// @details This function loads all of the 2 letter action names
-
-    vfs_FILE* fileread;
     int cnt;
 
     char first = CSTR_END, second = CSTR_END;
     STRING comment;
     bool found;
 
-    fileread = vfs_openRead( loadname );
-    if ( !fileread ) return;
+    ReadContext ctxt(loadname);
+    if (!ctxt.ensureOpen()) return;
 
     for ( cnt = 0; cnt < ACTION_COUNT; cnt++ )
     {
         comment[0] = CSTR_END;
 
         found = false;
-        if ( goto_colon_vfs( NULL, fileread, false ) )
+        if (goto_colon_vfs(ctxt, NULL, false))
         {
-            if ( vfs_scanf( fileread, " %c%c %s", &first, &second, comment ) >= 2 )
+            if ( vfs_scanf(ctxt._file, " %c%c %s", &first, &second, comment ) >= 2 )
             {
                 found = true;
             }
@@ -667,8 +665,6 @@ void load_action_names_vfs( const char* loadname )
             cActionComent[cnt][0] = CSTR_END;
         }
     }
-
-    vfs_close( fileread );
 }
 
 //--------------------------------------------------------------------------------------------

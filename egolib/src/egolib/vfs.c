@@ -636,34 +636,6 @@ const char * vfs_resolveWriteFilename( const char * src_filename )
 vfs_FILE * vfs_openRead( const char * filename )
 {
     return vfs_openReadB(filename);
-#if 0
-    // open a file for reading in text mode, using c stdio
-
-    const char  * real_filename;
-    vfs_FILE    * vfs_file;
-    FILE        * ftmp;
-
-    BAIL_IF_NOT_INIT();
-
-    // parse_filename = "";
-
-    real_filename = vfs_resolveReadFilename( filename );
-    if ( NULL == real_filename ) return NULL;
-
-    ftmp = fopen( real_filename, "r" );
-    if ( NULL == ftmp ) return NULL;
-
-    vfs_file = EGOBOO_NEW( vfs_FILE );
-    if ( NULL == vfs_file ) return NULL;
-
-    parse_filename = filename;
-    parse_line_number = 1;
-
-    vfs_file->type  = vfs_cfile;
-    vfs_file->ptr.c = ftmp;
-
-    return vfs_file;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -719,40 +691,6 @@ int _vfs_ensure_write_directory( const char * filename, bool is_directory )
 vfs_FILE * vfs_openWrite( const char * filename )
 {
     return vfs_openWriteB(filename);
-#if 0
-    // open a file for writing in text mode,  using c stdio
-
-    VFS_PATH      local_filename = EMPTY_CSTR;
-    const char  * real_filename;
-    vfs_FILE    * vfs_file;
-    FILE        * ftmp;
-
-    BAIL_IF_NOT_INIT();
-
-    if ( INVALID_CSTR( filename ) ) return NULL;
-
-    // make a local copy of the filename
-    // and make sure that PHYSFS gets the filename with the slashes it wants
-    strncpy( local_filename, vfs_convert_fname( filename ), SDL_arraysize( local_filename ) );
-
-    // make sure that the output directory exists
-    if ( !_vfs_ensure_write_directory( local_filename, false ) ) return NULL;
-
-    // get the system-dependent filename
-    real_filename = vfs_resolveWriteFilename( filename );
-    if ( NULL == real_filename ) return NULL;
-
-    ftmp = fopen( real_filename, "w" );
-    if ( NULL == ftmp ) return NULL;
-
-    vfs_file = EGOBOO_NEW( vfs_FILE );
-    if ( NULL == vfs_file ) return NULL;
-
-    vfs_file->type  = vfs_cfile;
-    vfs_file->ptr.c = ftmp;
-
-    return vfs_file;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -763,12 +701,7 @@ bool _vfs_ensure_destination_file(const char * filename)
     ///     the write directory, but do not overwrite any existing file
 
     VFS_PATH local_filename = EMPTY_CSTR;
-#if 0
-	const char *sys_src_name;
-	const char *sys_dst_name;
-	bool read_exists;
-	bool write_exists;
-#endif
+
     BAIL_IF_NOT_INIT();
 
     if ( INVALID_CSTR( filename ) ) return false;
@@ -784,61 +717,12 @@ bool _vfs_ensure_destination_file(const char * filename)
     // directory
     
     return vfs_copyFile(filename, filename);
-#if 0
-
-    sys_src_name  = vfs_resolveReadFilename( local_filename );
-    read_exists   = fs_fileExists( sys_src_name ) > 0;
-
-    sys_dst_name  = vfs_resolveWriteFilename( local_filename );
-    write_exists  = fs_fileExists( sys_dst_name ) > 0;
-
-    if ( read_exists && !write_exists )
-    {
-        // read exists but write does not exist.
-        // copy the read file to the write file and then append
-        fs_copyFile( sys_src_name, sys_dst_name );
-
-        write_exists  = fs_fileExists( sys_dst_name ) > 0;
-    }
-
-    return write_exists;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
 vfs_FILE * vfs_openAppend( const char * filename )
 {
     return vfs_openAppendB(filename);
-#if 0
-    // open a file for appending in text mode,  using c stdio
-
-    vfs_FILE    * vfs_file;
-    FILE        * ftmp;
-    const char  * sys_dst_name;
-
-    BAIL_IF_NOT_INIT();
-
-    if ( INVALID_CSTR( filename ) ) return NULL;
-
-    // make sure that the destination directory exists, and that a data is copied
-    // from the source file in the read path, if necessary
-    if ( !_vfs_ensure_destination_file( filename ) ) return NULL;
-
-    sys_dst_name  = vfs_resolveWriteFilename( filename );
-    if ( INVALID_CSTR( sys_dst_name ) ) return NULL;
-
-    // now open the file for append normally
-    ftmp = fopen( sys_dst_name, "a+" );
-    if ( NULL == ftmp ) return NULL;
-
-    vfs_file = EGOBOO_NEW( vfs_FILE );
-    if ( NULL == vfs_file ) return NULL;
-
-    vfs_file->type  = vfs_cfile;
-    vfs_file->ptr.c = ftmp;
-
-    return vfs_file;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -851,8 +735,6 @@ int vfs_close( vfs_FILE * pfile )
     BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
-
-    parse_filename = "";
 
     retval = 0;
     if ( vfs_cfile == pfile->type )

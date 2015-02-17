@@ -67,13 +67,13 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     profile->_set[eve_t::SETDAMAGETYPE].value = vfs_get_damage_type(ctxt);
 
     profile->_set[eve_t::SETNUMBEROFJUMPS].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETNUMBEROFJUMPS].value = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETNUMBEROFJUMPS].value = ctxt.readInt();
 
     profile->_set[eve_t::SETLIFEBARCOLOR].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETLIFEBARCOLOR].value = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETLIFEBARCOLOR].value = ctxt.readInt();
 
     profile->_set[eve_t::SETMANABARCOLOR].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETMANABARCOLOR].value = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETMANABARCOLOR].value = ctxt.readInt();
 
     profile->_set[eve_t::SETSLASHMODIFIER].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETSLASHMODIFIER].value = vfs_get_damage_modifier(ctxt);
@@ -108,25 +108,25 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     profile->_add[eve_t::ADDZAPRESIST].value = vfs_get_damage_resist(ctxt);
 
     profile->_set[eve_t::SETFLASHINGAND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETFLASHINGAND].value = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETFLASHINGAND].value = ctxt.readInt();
 
     profile->_set[eve_t::SETLIGHTBLEND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETLIGHTBLEND].value = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETLIGHTBLEND].value = ctxt.readInt();
 
     profile->_set[eve_t::SETALPHABLEND].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETALPHABLEND].value = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETALPHABLEND].value = ctxt.readInt();
 
     profile->_set[eve_t::SETSHEEN].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETSHEEN].value = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETSHEEN].value = ctxt.readInt();
 
     profile->_set[eve_t::SETFLYTOHEIGHT].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETFLYTOHEIGHT].value = vfs_get_int(ctxt);
+    profile->_set[eve_t::SETFLYTOHEIGHT].value = ctxt.readInt();
 
     profile->_set[eve_t::SETWALKONWATER].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETWALKONWATER].value = vfs_get_bool(ctxt);
+    profile->_set[eve_t::SETWALKONWATER].value = ctxt.readBool();
 
     profile->_set[eve_t::SETCANSEEINVISIBLE].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETCANSEEINVISIBLE].value = vfs_get_bool(ctxt);
+    profile->_set[eve_t::SETCANSEEINVISIBLE].value = ctxt.readBool();
 
     profile->_set[eve_t::SETMISSILETREATMENT].apply = vfs_get_next_bool(ctxt);
     cTmp = vfs_get_first_letter(ctxt);
@@ -168,21 +168,21 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     }
 
     // Read expansions
-    while (goto_colon_vfs(NULL, ctxt._file, true))
+    while (goto_colon_vfs(ctxt, NULL, true))
     {
         idsz = vfs_get_idsz(ctxt);
 
-        if (idsz == MAKE_IDSZ('A', 'M', 'O', 'U')) profile->contspawn_amount = vfs_get_int(ctxt);
-        else if (idsz == MAKE_IDSZ('T', 'Y', 'P', 'E')) profile->contspawn_lpip = vfs_get_int(ctxt);
-        else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E')) profile->contspawn_delay = vfs_get_int(ctxt);
-        else if (idsz == MAKE_IDSZ('F', 'A', 'C', 'E')) profile->contspawn_facingadd = vfs_get_int(ctxt);
-        else if (idsz == MAKE_IDSZ('S', 'E', 'N', 'D')) profile->endsound_index = vfs_get_int(ctxt);
-        else if (idsz == MAKE_IDSZ('S', 'T', 'A', 'Y')) profile->stayifnoowner = (0 != vfs_get_int(ctxt));
-        else if (idsz == MAKE_IDSZ('O', 'V', 'E', 'R')) profile->spawn_overlay = (0 != vfs_get_int(ctxt));
-        else if (idsz == MAKE_IDSZ('D', 'E', 'A', 'D')) profile->stayiftargetdead = (0 != vfs_get_int(ctxt));
+        if (idsz == MAKE_IDSZ('A', 'M', 'O', 'U')) profile->contspawn_amount = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('T', 'Y', 'P', 'E')) profile->contspawn_lpip = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E')) profile->contspawn_delay = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('F', 'A', 'C', 'E')) profile->contspawn_facingadd = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('S', 'E', 'N', 'D')) profile->endsound_index = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('S', 'T', 'A', 'Y')) profile->stayifnoowner = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('O', 'V', 'E', 'R')) profile->spawn_overlay = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('D', 'E', 'A', 'D')) profile->stayiftargetdead = (0 != ctxt.readInt());
 
-        else if (idsz == MAKE_IDSZ('C', 'K', 'U', 'R')) profile->seekurse = vfs_get_int(ctxt);
-        else if (idsz == MAKE_IDSZ('D', 'A', 'R', 'K')) profile->darkvision = vfs_get_int(ctxt);
+        else if (idsz == MAKE_IDSZ('C', 'K', 'U', 'R')) profile->seekurse = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('D', 'A', 'R', 'K')) profile->darkvision = ctxt.readInt();
     }
 
     strncpy(profile->name, loadName, SDL_arraysize(profile->name));

@@ -38,12 +38,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-const char *parse_filename  = NULL;
-int parse_line_number = 0;
-
-IPair   pair;
-FRange  range;
-
 STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 Uint8           maxformattypes;
 
@@ -81,7 +75,7 @@ IDSZ vfs_get_idsz(ReadContext& ctxt)
 
         if ( i != 4 )
         {
-            log_warning( "Problem reading IDSZ in \"%s\"\n", parse_filename );
+            log_warning("unable to read IDSZ in \"%s\"\n", ctxt.getLoadName().c_str());
         }
         else
         {
@@ -90,7 +84,7 @@ IDSZ vfs_get_idsz(ReadContext& ctxt)
             iTmp = vfs_getc( ctxt._file );
             if ( ']' != iTmp )
             {
-                log_warning( "Problem reading IDSZ in \"%s\"\n", parse_filename );
+                log_warning("unable to read IDZ in \"%s\"\n", ctxt.getLoadName().c_str());
             }
         }
     }
@@ -121,7 +115,7 @@ bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 }
 
 //--------------------------------------------------------------------------------------------
-bool goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool optional )
+bool goto_delimiter_vfs(ReadContext& ctxt, char * buffer, char delim, bool optional)
 {
     /// @author ZZ
     /// @details This function moves a file read pointer to the next delimiter char iTmp;
@@ -130,13 +124,13 @@ bool goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool opt
 
     int iTmp, write;
 
-    if ( vfs_eof( fileread )  || vfs_error( fileread ) ) return false;
+    if (vfs_eof(ctxt._file)  || vfs_error(ctxt._file) ) return false;
 
     write = 0;
     if ( NULL != buffer ) buffer[0] = CSTR_END;
 
-    iTmp = vfs_getc( fileread );
-    while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
+    iTmp = vfs_getc(ctxt._file);
+    while (!vfs_eof(ctxt._file) && !vfs_error(ctxt._file))
     {
         if (( unsigned )iTmp > 0xFF || delim == iTmp ) break;
 
@@ -149,23 +143,23 @@ bool goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool opt
             if ( NULL != buffer ) buffer[write++] = ( char )iTmp;
         }
 
-        iTmp = vfs_getc( fileread );
+        iTmp = vfs_getc(ctxt._file);
     }
     if ( NULL != buffer ) buffer[write] = CSTR_END;
 
     if ( !optional && delim != iTmp )
     {
-        throw std::runtime_error(std::string("There are not enough ") + delim + "'s in file! (" + parse_filename + ":" + std::to_string(parse_line_number) + ")\n");
-
-        // not enough colons in file!
-        log_error( "There are not enough %c's in file! (%s:%d)\n", delim, parse_filename, parse_line_number);
+        std::ostringstream msg;
+        msg << ctxt.getLoadName() << ":" << ctxt.getLineNumber()
+            << "not enough " << delim << "'s in file";
+        throw std::runtime_error(msg.str());
     }
 
     return ( delim == iTmp );
 }
 
 //--------------------------------------------------------------------------------------------
-char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool optional )
+char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * delim_list, bool optional )
 {
     /// @author ZZ
     /// @details This function moves a file read pointer to the next colon char iTmp;
@@ -178,14 +172,14 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
     int iTmp, write;
 	bool is_delim;
 
-    if ( INVALID_CSTR( delim_list ) ) return false;
+    if (INVALID_CSTR(delim_list)) return false;
 
-    if ( vfs_eof( fileread ) || vfs_error( fileread ) ) return false;
+    if (vfs_eof(ctxt._file) || vfs_error(ctxt._file)) return false;
 
     // use a simpler function if it is easier
     if ( 1 == strlen( delim_list ) )
     {
-		bool rv = goto_delimiter_vfs(buffer, fileread, delim_list[0], optional);
+		bool rv = goto_delimiter_vfs(ctxt, buffer, delim_list[0], optional);
         retval = rv ? delim_list[0] : retval;
     }
 
@@ -193,8 +187,8 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
 
     is_delim = false;
     write    = 0;
-    iTmp = vfs_getc( fileread );
-    while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
+    iTmp = vfs_getc(ctxt._file);
+    while (!vfs_eof(ctxt._file) && !vfs_error(ctxt._file))
     {
         if (( unsigned )iTmp > 0xFF ) break;
 
@@ -215,29 +209,30 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
             if ( NULL != buffer ) buffer[write++] = ( char )iTmp;
         }
 
-        iTmp = vfs_getc( fileread );
+        iTmp = vfs_getc(ctxt._file);
     }
     if ( NULL != buffer ) buffer[write] = CSTR_END;
 
     if ( !optional && !is_delim )
     {
         // not enough colons in file!
-        log_error( "There are not enough delimiters (%s) in file! (%s)\n", delim_list, parse_filename );
+        log_error("%s:%"PRIuZ": not enough delimiters %s\n", ctxt.getLoadName().c_str(), ctxt.getLineNumber(), delim_list);
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool optional )
+bool goto_colon_vfs(ReadContext& ctxt,char * buffer, bool optional)
 {
     /// @author BB
     /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
-    parse_line_number++;
-    return goto_delimiter_vfs( buffer, fileread, ':', optional );
+    ctxt._lineNumber++;
+    return goto_delimiter_vfs(ctxt, buffer, ':', optional);
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optional )
 {
     /// @author ZZ
@@ -274,27 +269,32 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optiona
     if ( !optional && ':' != cTmp )
     {
         // not enough colons in file!
-        log_error( "There are not enough colons in file! (%s)\n", parse_filename );
+        log_error("%s: not enough colons in file\n", ctxt.getLoadName().c_str());
     }
 
     return pmem;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 char vfs_get_first_letter(ReadContext& ctxt)
 {
     /// @author ZZ
     /// @details This function returns the next non-whitespace character
-    char cTmp;
-
-	vfs_scanf(ctxt._file, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
-
-    while ( isspace(( unsigned )cTmp ) )
+    int c = ctxt.readChar();
+    if (ReadContext::EndOfInput == c || ReadContext::Error == c)
     {
-		vfs_scanf(ctxt._file, "%c", &cTmp); /* @todo Do not us scanf to read a single letter. */
+        throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt.getLoadName(),ctxt.getLineNumber()));
     }
-
-    return cTmp;
+    while (char_isspace(c))
+    {
+        c = ctxt.readChar();
+        if (ReadContext::EndOfInput == c || ReadContext::Error == c)
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+        }
+    }
+    return (char)c;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -630,7 +630,7 @@ bool vfs_get_next_range(ReadContext& ctxt, FRange * prange)
     /// @author ZZ
     /// @details This function reads a damage/stat range ( eg. 5-9 )
 
-    goto_colon_vfs( NULL, ctxt._file, false );
+    goto_colon_vfs(ctxt, NULL, false );
 
     return vfs_get_range(ctxt, prange);
 }
@@ -711,7 +711,7 @@ int vfs_get_version(ReadContext& ctxt)
     while (!vfs_eof(ctxt._file) && !isspace(( unsigned )vfs_getc(ctxt._file)));
 
     // Get the version number
-    result = vfs_get_int(ctxt);
+    result = ctxt.readInt();
 
     // reset the file pointer
     vfs_seek(ctxt._file, filepos);
@@ -870,17 +870,17 @@ char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite
 //--------------------------------------------------------------------------------------------
 char vfs_get_next_char(ReadContext& ctxt)
 {
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
 
     return vfs_get_first_letter(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_get_int(ReadContext& ctxt)
+int ReadContext::readInt()
 {
-    int iTmp = 0;
-    vfs_scanf(ctxt._file, "%d", &iTmp);
-    return iTmp;
+    int tmp = 0;
+    vfs_scanf(_file, "%d", &tmp);
+    return tmp;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -899,7 +899,7 @@ UFP8_T vfs_get_ufp8(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 SFP8_T vfs_get_sfp8(ReadContext& ctxt)
 {
-    float fval = vfs_get_int(ctxt);
+    float fval = ctxt.readInt();
 
     return FLOAT_TO_FP8( fval );
 }
@@ -907,15 +907,15 @@ SFP8_T vfs_get_sfp8(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 int vfs_get_next_int(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, ctxt._file, false );
+    goto_colon_vfs(ctxt, NULL, false);
 
-    return vfs_get_int(ctxt);
+    return ctxt.readInt();
 }
 
 //--------------------------------------------------------------------------------------------
 UFP8_T vfs_get_next_ufp8(ReadContext& ctxt)
 {
-    goto_colon_vfs( NULL, ctxt._file, false );
+    goto_colon_vfs(ctxt, NULL, false);
 
     return vfs_get_ufp8(ctxt);
 }
@@ -923,7 +923,7 @@ UFP8_T vfs_get_next_ufp8(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 SFP8_T vfs_get_next_sfp8(ReadContext& ctxt)
 {
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
     return vfs_get_sfp8(ctxt);
 }
 
@@ -947,9 +947,9 @@ bool vfs_get_string(ReadContext& ctxt, char * str, size_t str_len)
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_string(ReadContext& ctxt, char * str, size_t str_len)
 {
-    goto_colon_vfs( NULL, ctxt._file, false );
+    goto_colon_vfs(ctxt, NULL, false);
 
-    return vfs_get_string(ctxt, str, str_len );
+    return vfs_get_string(ctxt, str, str_len);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -988,9 +988,9 @@ bool vfs_get_line(ReadContext& ctxt, char * str, size_t str_len )
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_line(ReadContext& ctxt, char * str, size_t str_len )
 {
-    goto_colon_vfs( NULL, ctxt._file, false );
+    goto_colon_vfs(ctxt, NULL, false);
 
-    return vfs_get_line( ctxt, str, str_len );
+    return vfs_get_line(ctxt, str, str_len);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1004,7 +1004,7 @@ float vfs_get_float(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 float vfs_get_next_float(ReadContext& ctxt)
 {
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
 
     return vfs_get_float(ctxt);
 }
@@ -1012,14 +1012,14 @@ float vfs_get_next_float(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_name(ReadContext& ctxt, char *name, size_t name_len)
 {
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
     return vfs_get_name(ctxt, name, name_len);
 }
 
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair)
 {
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
 
     return vfs_get_pair(ctxt, pair);
 }
@@ -1027,7 +1027,7 @@ bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair)
 //--------------------------------------------------------------------------------------------
 IDSZ vfs_get_next_idsz(ReadContext& ctxt)
 {
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
     return vfs_get_idsz(ctxt);
 }
 
@@ -1056,30 +1056,30 @@ DamageType vfs_get_damage_type(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 DamageType vfs_get_next_damage_type(ReadContext& ctxt)
 {
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
 
     return vfs_get_damage_type(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_bool(ReadContext& ctxt)
+bool ReadContext::readBool()
 {
-    char chr = vfs_get_first_letter(ctxt);
+    char chr = vfs_get_first_letter(*this);
     chr = char_tolower(chr);
     switch (char_tolower(chr))
     {
     case 't': return true;
     case 'f': return false;
-    default:  throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+    default:  throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(_loadName, _lineNumber));
     };
 }
 
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_bool(ReadContext& ctxt)
 {
-    goto_colon_vfs(NULL, ctxt._file, false);
+    goto_colon_vfs(ctxt, NULL, false);
 
-    return vfs_get_bool(ctxt);
+    return ctxt.readBool();
 }
 
 //--------------------------------------------------------------------------------------------

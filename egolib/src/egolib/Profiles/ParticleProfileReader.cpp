@@ -156,7 +156,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->homingaccel = vfs_get_next_float(ctxt);
     profile->rotatetoface = vfs_get_next_bool(ctxt);
 
-    goto_colon_vfs(NULL, ctxt._file, false);  // !!Respawn on hit is unused
+    goto_colon_vfs(ctxt, NULL, false);  // !!Respawn on hit is unused
 
     profile->manadrain = vfs_get_next_ufp8(ctxt);
     profile->lifedrain = vfs_get_next_ufp8(ctxt);
@@ -168,7 +168,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     if (profile->homing)  profile->damfx = DAMFX_NONE;
 
     // Read expansions
-    while (goto_colon_vfs(NULL, ctxt._file, true))
+    while (goto_colon_vfs(ctxt, NULL, true))
     {
         idsz = vfs_get_idsz(ctxt);
 
@@ -178,15 +178,15 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('A', 'R', 'R', 'O'))  SET_BIT(profile->damfx, DAMFX_ARRO);
         else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E'))  SET_BIT(profile->damfx, DAMFX_TIME);
         else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = vfs_get_float(ctxt);
-        else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = vfs_get_int(ctxt);
-        else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = vfs_get_int(ctxt);
-        else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != vfs_get_int(ctxt));
-        else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != vfs_get_int(ctxt));
-        else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = vfs_get_int(ctxt) / 1000.0f;
-        else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = vfs_get_int(ctxt) / 1000.0f;
-        else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->intdamagebonus = (0 != vfs_get_int(ctxt));
-        else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  profile->wisdamagebonus = (0 != vfs_get_int(ctxt));
-        else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != vfs_get_int(ctxt));
+        else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = ctxt.readInt() / 1000.0f;
+        else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = ctxt.readInt() / 1000.0f;
+        else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->intdamagebonus = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  profile->wisdamagebonus = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readInt());
         else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
         {
             char cTmp = vfs_get_first_letter(ctxt);

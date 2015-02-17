@@ -116,7 +116,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     result->_reference = buffer;
 
     result->_unlockQuest.id = vfs_get_next_idsz(ctxt);
-    result->_unlockQuest.level = vfs_get_int(ctxt);
+    result->_unlockQuest.level = ctxt.readInt();
 
     result->_importAmount = vfs_get_next_int(ctxt);
     result->_allowExport  = vfs_get_next_bool(ctxt);
@@ -167,7 +167,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     result->_moduleType = FILTER_SIDE_QUEST;
 
     // Read expansions
-    while (goto_colon_vfs(nullptr, ctxt._file, true))
+    while (goto_colon_vfs(ctxt, nullptr, true))
     {
         IDSZ idsz = vfs_get_idsz(ctxt);
 
@@ -227,26 +227,26 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
     if (!ctxt.ensureOpen()) return false;
 
     // Read basic data
-    goto_colon_vfs(NULL, ctxt._file, false);  // Name of module...  Doesn't matter
-    goto_colon_vfs(NULL, ctxt._file, false);  // Reference directory...
-    goto_colon_vfs(NULL, ctxt._file, false);  // Reference IDSZ...
-    goto_colon_vfs(NULL, ctxt._file, false);  // Import...
-    goto_colon_vfs(NULL, ctxt._file, false);  // Export...
-    goto_colon_vfs(NULL, ctxt._file, false);  // Min players...
-    goto_colon_vfs(NULL, ctxt._file, false);  // Max players...
-    goto_colon_vfs(NULL, ctxt._file, false);  // Respawn...
-    goto_colon_vfs(NULL, ctxt._file, false);  // BAD! NOT USED
-    goto_colon_vfs(NULL, ctxt._file, false);  // Rank...
+    goto_colon_vfs(ctxt, NULL, false);  // Name of module...  Doesn't matter
+    goto_colon_vfs(ctxt, NULL, false);  // Reference directory...
+    goto_colon_vfs(ctxt, NULL, false);  // Reference IDSZ...
+    goto_colon_vfs(ctxt, NULL, false);  // Import...
+    goto_colon_vfs(ctxt, NULL, false);  // Export...
+    goto_colon_vfs(ctxt, NULL, false);  // Min players...
+    goto_colon_vfs(ctxt, NULL, false);  // Max players...
+    goto_colon_vfs(ctxt, NULL, false);  // Respawn...
+    goto_colon_vfs(ctxt, NULL, false);  // BAD! NOT USED
+    goto_colon_vfs(ctxt, NULL, false);  // Rank...
 
     // Summary...
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
-        goto_colon_vfs(NULL, ctxt._file, false);
+        goto_colon_vfs(ctxt, NULL, false);
     }
 
     // Now check expansions
     foundidsz = false;
-    while (goto_colon_vfs(NULL, ctxt._file, true))
+    while (goto_colon_vfs(ctxt, NULL, true))
     {
         newidsz = vfs_get_idsz(ctxt);
         if ( newidsz == idsz )

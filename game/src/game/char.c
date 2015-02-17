@@ -1638,12 +1638,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             [](const grab_data_t &a, const grab_data_t &b)
             { 
                 float distance = a.horizontalDistance - b.horizontalDistance;
-
-                if(distance <= FLT_EPSILON) {
+                if(distance <= FLT_EPSILON)
+                {
                     distance += a.verticalDistance - b.verticalDistance;
                 }
 
-                return distance;
+                return distance < 0.0f;
             });
     }
 

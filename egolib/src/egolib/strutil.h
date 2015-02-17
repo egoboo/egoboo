@@ -35,8 +35,6 @@
 #   define VALID_CSTR(PSTR)   ((NULL!=PSTR) && (CSTR_END != PSTR[0]))
 #   define INVALID_CSTR(PSTR) ((NULL==PSTR) || (CSTR_END == PSTR[0]))
 
-#include <locale>
-
 /**
  * @brief
  *  Convert a character to upper case using the current locale.
@@ -58,6 +56,17 @@ inline CharType char_toupper(CharType chr) { return std::toupper(chr, std::local
 */
 template <class CharType>
 inline CharType char_tolower(CharType chr) { return std::tolower(chr, std::locale()); }
+
+/**
+ * @brief
+ *  Get if a character is a whitespace character using the current locale.
+ * @param chr
+ *  the character
+ * @return
+ *  @a true if the character is a whitespace character, @a false otherwise
+ */
+template <class CharType>
+inline bool char_isspace(CharType chr) { return std::isspace(chr, std::locale()); }
 
 // libc++ doesn't define std::toupper<int>(int, std::locale),
 // so narrow the int to a char.

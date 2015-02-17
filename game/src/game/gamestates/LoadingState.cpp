@@ -265,7 +265,7 @@ bool LoadingState::loadGlobalHints()
     }
 
     // Load the data
-    while (!vfs_eof(ctxt._file) && goto_colon_vfs(NULL, ctxt._file, true))
+    while (!vfs_eof(ctxt._file) && goto_colon_vfs(ctxt, NULL, true))
     {
         STRING buffer;
 
@@ -297,7 +297,7 @@ bool LoadingState::loadLocalModuleHints()
     ReadContext ctxt(buffer);
     if (!ctxt.ensureOpen()) return false;
     // Load the data
-    while (!vfs_eof(ctxt._file) && goto_colon_vfs(NULL, ctxt._file, true))
+    while (!vfs_eof(ctxt._file) && goto_colon_vfs(ctxt, NULL, true))
     {
 
         //Read the line

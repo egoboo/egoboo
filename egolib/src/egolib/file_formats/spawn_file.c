@@ -79,7 +79,7 @@ bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
     spawn_file_info_reinit( pinfo );
 
     // check for another entry, either the "#" or ":" delimiters
-    delim = goto_delimiter_list_vfs( pinfo->spawn_coment, ctxt._file, "#:", true );
+    delim = goto_delimiter_list_vfs(ctxt, pinfo->spawn_coment, "#:", true );
     if ( CSTR_END == delim ) return false;
 
     retval = false;
@@ -99,7 +99,7 @@ bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
             pinfo->pname = NULL;
         }
 
-        pinfo->slot = vfs_get_int(ctxt);
+        pinfo->slot = ctxt.readInt();
 
         pinfo->pos.x = vfs_get_float(ctxt) * GRID_FSIZE;
         pinfo->pos.y = vfs_get_float(ctxt) * GRID_FSIZE;
@@ -116,11 +116,11 @@ bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
         else if ( 'R' == char_toupper( cTmp ) )  pinfo->attach = ATTACH_RIGHT;
         else if ( 'I' == char_toupper( cTmp ) )  pinfo->attach = ATTACH_INVENTORY;
 
-        pinfo->money   = vfs_get_int(ctxt);
-        pinfo->skin    = vfs_get_int(ctxt);
-        pinfo->passage = vfs_get_int(ctxt);
-        pinfo->content = vfs_get_int(ctxt);
-        pinfo->level = vfs_get_int(ctxt);
+        pinfo->money   = ctxt.readInt();
+        pinfo->skin    = ctxt.readInt();
+        pinfo->passage = ctxt.readInt();
+        pinfo->content = ctxt.readInt();
+        pinfo->level   = ctxt.readInt();
 
         if ( pinfo->skin >= MAX_SKIN )
         {
@@ -128,7 +128,7 @@ bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
             pinfo->skin = irand % MAX_SKIN;     // Randomize skin?
         }
 
-        pinfo->stat = vfs_get_bool(ctxt);
+        pinfo->stat = ctxt.readBool();
 
         vfs_get_first_letter(ctxt);   ///< BAD! Unused ghost value
 

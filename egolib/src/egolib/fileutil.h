@@ -97,6 +97,7 @@
 
 #include "egolib/Profiles/ReaderUtilities.hpp"
 #include "egolib/Script/Location.hpp"
+#include "egolib/Script/Buffer.hpp"
 #include "egolib/Script/LexicalError.hpp"
 
 // Forward declaration.
@@ -157,6 +158,17 @@ public:
     const std::string& getLoadName() const
     {
         return _loadName;
+    }
+
+    /**
+     * @brief
+     *  Get the line number within the file associated with this context.
+     * @return
+     *  the line number within the file associated with this context
+     */
+    size_t getLineNumber() const
+    {
+        return _lineNumber;
     }
 
     /**
@@ -260,11 +272,63 @@ public:
         }
         return *it;
     }
+
+    /// Special value for extended character indicating the end of input.
+    static const int EndOfInput = -1;
+    /// Special value for extended character indicating an error.
+    static const int Error = -2;
+
+    /**
+     * @brief
+     *  Read a single character.
+     * @return
+     *  the character, EndOfInput (if the end of the input was reached) or Error (if an error occured)
+     */
+    int readChar()
+    {
+        int chr = vfs_getc(_file);
+        if (EOF == chr)
+        {
+            if (vfs_error(_file)) return Error;
+            else EndOfInput;
+        }
+        return chr;
+    }
+
+    /**
+     * @remark
+     *  An integer literal in this revision is the string
+     *  @code
+     *  integer := digit+ ('e'|'E' digit+)?
+     *  @endcode
+     */
+    int readInt();
+
+    /**
+     * @throw Id::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *   A boolean literal in this revision is the string
+     *   @code
+     *   boolean := 'T' | 'F'
+     *   @endcode
+     */
+    bool readBool();
+
 };
 
+UFP8_T vfs_get_ufp8(ReadContext& ctxt);
+SFP8_T vfs_get_sfp8(ReadContext& ctxt);
 
-extern const char *parse_filename;          ///< For debuggin' goto_colon_vfs
-extern int parse_line_number;               ///< For debuggin' goto_colon_vfs
+float vfs_get_float(ReadContext& ctxt);
+
+IDSZ vfs_get_idsz(ReadContext& ctxt);
+
+char vfs_get_next_char(ReadContext& ctxt);
+int vfs_get_next_int(ReadContext& ctxt);
+float vfs_get_next_float(ReadContext& ctxt);
+UFP8_T vfs_get_next_ufp8(ReadContext& ctxt);
+SFP8_T vfs_get_next_sfp8(ReadContext& ctxt);
 
 extern  STRING     TxFormatSupported[20]; ///< OpenGL icon surfaces
 extern  Uint8      maxformattypes;
@@ -275,10 +339,12 @@ extern  Uint8      maxformattypes;
 
 void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
 
-bool goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool optional );
-char   goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool optional );
-bool goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool optional );
+bool goto_delimiter_vfs(ReadContext& ctxt, char * buffer, char delim, bool optional);
+char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * delim_list, bool optional);
+bool goto_colon_vfs(ReadContext& ctxt, char * buffer, bool optional);
+#if 0
 char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optional );
+#endif
 
 bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite );
 char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
@@ -287,11 +353,7 @@ bool copy_to_delimiter_vfs( vfs_FILE * fileread, vfs_FILE * filewrite, int delim
 int    vfs_get_version(ReadContext& ctxt);
 bool vfs_put_version( vfs_FILE* filewrite, const int version );
 
-char   vfs_get_next_char(ReadContext& ctxt);
-int    vfs_get_next_int(ReadContext& ctxt);
-float  vfs_get_next_float(ReadContext& ctxt);
-UFP8_T vfs_get_next_ufp8(ReadContext& ctxt);
-SFP8_T vfs_get_next_sfp8(ReadContext& ctxt);
+
 bool vfs_get_next_name(ReadContext& ctxt, char * name, size_t name_len);
 bool vfs_get_next_range(ReadContext& ctxt, FRange *prange);
 bool vfs_get_next_pair(ReadContext& ctxt, IPair *ppair);
@@ -302,21 +364,7 @@ bool vfs_get_next_line(ReadContext& ctxt, char *str, size_t str_len);
 
 char vfs_get_first_letter(ReadContext& ctxt);
     
-UFP8_T vfs_get_ufp8(ReadContext& ctxt);
-SFP8_T vfs_get_sfp8(ReadContext& ctxt);
-/**
- * @throw Id::LexicalError
- *  if a lexical error occurs
- * @remark
- *   A boolean literal in this revision is the string
- *   @code
- *   boolean := 'T' | 'F'
- *   @endcode
- */
-bool vfs_get_bool(ReadContext& ctxt);
-float vfs_get_float(ReadContext& ctxt);
-Sint32 vfs_get_int(ReadContext& ctxt);
-IDSZ   vfs_get_idsz(ReadContext& ctxt);
+
 DamageType vfs_get_damage_type(ReadContext& ctxt);
 DamageType vfs_get_next_damage_type(ReadContext& ctxt);
 Uint8 vfs_get_damage_modifier(ReadContext& ctxt);
