@@ -135,6 +135,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <new>
 #include <random>
 #include <stdexcept>
 #include <sstream>

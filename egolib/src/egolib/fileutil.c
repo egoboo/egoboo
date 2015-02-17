@@ -216,7 +216,7 @@ char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * deli
     if ( !optional && !is_delim )
     {
         // not enough colons in file!
-        log_error("%s:%"PRIuZ": not enough delimiters %s\n", ctxt.getLoadName().c_str(), ctxt.getLineNumber(), delim_list);
+        log_error("%s:%" PRIuZ ": not enough delimiters %s\n", ctxt.getLoadName().c_str(), ctxt.getLineNumber(), delim_list);
     }
 
     return retval;

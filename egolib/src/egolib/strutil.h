@@ -83,6 +83,12 @@ inline int char_tolower<int>(int chr)
     EGOBOO_ASSERT(chr >= 0 && chr <= 255);
     return char_tolower(static_cast<char>(chr));
 }
+template <>
+inline bool char_isspace<int>(int chr)
+{
+    EGOBOO_ASSERT(chr >= 0 && chr <= 255);
+    return char_isspace(static_cast<char>(chr));
+}
 #endif
 
 //--------------------------------------------------------------------------------------------
