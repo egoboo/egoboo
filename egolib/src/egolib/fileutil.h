@@ -139,20 +139,9 @@ public:
      */
     int _current;
 
-    ReadContext(const std::string& loadName)
-        : _loadName(loadName), _file(nullptr), _lineNumber(1), _current(StartOfInput)
-    {
-    }
+    ReadContext(const std::string& loadName);
 
-    ~ReadContext()
-    {
-        if (_file)
-        {
-            vfs_close(_file);
-            _file = nullptr;
-        }
-            
-    }
+    ~ReadContext();
 
     /**
      * @brief
@@ -160,10 +149,7 @@ public:
      * @return
      *  the load name of the file associated with this context
      */
-    const std::string& getLoadName() const
-    {
-        return _loadName;
-    }
+    const std::string& getLoadName() const;
 
     /**
      * @brief
@@ -171,10 +157,7 @@ public:
      * @return
      *  the line number within the file associated with this context
      */
-    size_t getLineNumber() const
-    {
-        return _lineNumber;
-    }
+    size_t getLineNumber() const;
 
     /**
      * @brief
@@ -182,10 +165,7 @@ public:
      * @return
      *  @a true if the context is open, @a false otherwise
      */
-    bool isOpen() const
-    {
-        return nullptr != _file;
-    }
+    bool isOpen() const;
 
     /**
      * @brief
@@ -193,24 +173,7 @@ public:
      * @return
      *  @a true if the context is open, @a false otherwise
      */
-    bool ensureOpen()
-    {
-        if (!_file)
-        {
-            if (0 == vfs_exists(_loadName.c_str()))
-            {
-                return false;
-            }
-            _file = vfs_openRead(_loadName.c_str());
-            if (!_file)
-            {
-                return false;
-            }
-            _current = StartOfInput;
-            _lineNumber = 1;
-        }
-        return true;
-    }
+    bool ensureOpen();
 
     /**
      * @brief
@@ -220,14 +183,7 @@ public:
      * @remark
      *  If the context is not open, a call to this method is noop.
      */
-    void close()
-    {
-        if (_file)
-        {
-            vfs_close(_file);
-        }
-        _file = nullptr;
-    }
+    void close();
 
     /**
      * @brief
@@ -300,10 +256,7 @@ public:
      *  newline = LineFeed | CarriageReturn
      *  @endcode
      */
-    bool isNewLine(char chr)
-    {
-        return LineFeed == chr || CarriageReturn == chr;
-    }
+    bool isNewLine(char chr);
 
     /// The new line character.
     static const char LineFeed = '\n';
@@ -318,18 +271,11 @@ public:
      * @return
      *  the character, EndOfInput (if the end of the input was reached) or Error (if an error occured)
      */
-    int readChar()
-    {
-        int chr = vfs_getc(_file);
-        if (EOF == chr)
-        {
-            if (vfs_error(_file)) return Error;
-            else EndOfInput;
-        }
-        return chr;
-    }
+    int readChar();
 
     /**
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
      * @remark
      *  An integer literal in this revision is the string
      *  @code
@@ -339,7 +285,7 @@ public:
     int readInt();
 
     /**
-     * @throw Id::LexicalError
+     * @throw Ego::Script::LexicalError
      *  if a lexical error occurs
      * @remark
      *   A boolean literal in this revision is the string

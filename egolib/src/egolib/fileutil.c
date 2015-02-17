@@ -41,6 +41,69 @@
 STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 Uint8           maxformattypes;
 
+ReadContext::ReadContext(const std::string& loadName) :
+    _loadName(loadName), _file(nullptr), _lineNumber(1), _current(StartOfInput)
+{
+}
+
+ReadContext::~ReadContext()
+{
+    if (_file)
+    {
+        vfs_close(_file);
+        _file = nullptr;
+    }
+
+}
+
+const std::string& ReadContext::getLoadName() const
+{
+    return _loadName;
+}
+
+size_t ReadContext::getLineNumber() const
+{
+    return _lineNumber;
+}
+
+bool ReadContext::isOpen() const
+{
+    return nullptr != _file;
+}
+
+bool ReadContext::ensureOpen()
+{
+    if (!_file)
+    {
+        if (0 == vfs_exists(_loadName.c_str()))
+        {
+            return false;
+        }
+        _file = vfs_openRead(_loadName.c_str());
+        if (!_file)
+        {
+            return false;
+        }
+        _current = StartOfInput;
+        _lineNumber = 1;
+    }
+    return true;
+}
+
+void ReadContext::close()
+{
+    if (_file)
+    {
+        vfs_close(_file);
+    }
+    _file = nullptr;
+}
+
+bool ReadContext::isNewLine(char chr)
+{
+    return LineFeed == chr || CarriageReturn == chr;
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 IDSZ vfs_get_idsz(ReadContext& ctxt)
@@ -259,6 +322,25 @@ char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * deli
 }
 
 //--------------------------------------------------------------------------------------------
+
+int ReadContext::readChar()
+{
+    int chr = vfs_getc(_file);
+    if (EOF == chr)
+    {
+        if (vfs_error(_file))
+        {
+            return Error;
+        }
+        else
+        {
+            return EndOfInput;
+        }
+    }
+    return chr;
+}
+
+
 bool ReadContext::skipToColon(bool optional)
 {
     return skipToDelimiter(':', optional);
@@ -266,10 +348,13 @@ bool ReadContext::skipToColon(bool optional)
 
 bool goto_colon_vfs(ReadContext& ctxt, bool optional)
 {
+#if 0
     /// @author BB
     /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
     ctxt._lineNumber++;
     return goto_delimiter_vfs(ctxt, nullptr, ':', optional);
+#endif
+    return ctxt.skipToColon(optional);
 }
 
 bool goto_colon_vfs(ReadContext& ctxt,char *buffer, bool optional)
