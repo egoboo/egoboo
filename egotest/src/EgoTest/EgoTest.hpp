@@ -31,8 +31,12 @@
 
 #include "EgoTest/EgoTest_VSCppUnitTest.hpp"
 
+#elif defined(EGOTEST_USE_HANDWRITTEN)
+
+#include "EgoTest/EgoTest_Handwritten.hpp"
+
 #else
 
-#error EgoTest isn't supported here, sorry.
+#error No backend has been selected for EgoTest.
 
 #endif

@@ -17,58 +17,56 @@
 //*
 //********************************************************************************************
 
-/// @file EgoTest/EgoTest_doxygen.hpp
-/// @brief Doxygen comments for the EgoTest backends
+/// @file EgoTest/EgoTest_Handwritten.hpp
+/// @brief A handwritten EgoTest backend
 /// @ingroup EgoTest
 
 #pragma once
 
-#ifndef DOXYGEN_SHOULD_IGNORE_THIS
-#error This file is only used for Doxygen comments; it should never be included.
+#include <functional>
+#include <map>
+#include <string>
+
+namespace EgoTest
+{
+    class TestCase
+    {
+    protected:
+        TestCase();
+    public:
+        virtual ~TestCase();
+        virtual void setUp();
+        virtual void tearDown();
+        virtual void setUpClass();
+        virtual void tearDownClass();
+    };
+    
+    void assert(bool condition, std::string conditionStr, std::string function, std::string file, int line);
+    
+    int handleTest(const std::function<void(void)> &test);
+}
+
+#if defined(_MSC_VER)
+#define EgoTest_FUNCTION __FUNCSIG__
+#elif defined(__GNUC__)
+#define EgoTest_FUNCTION __PRETTY_FUNCTION__
+#else
+#define EgoTest_FUNCTION __func__
 #endif
 
-/**
- * @brief
- * Declare a test case.
- * @param TESTCASENAME
- * The test case's class name.
- */
 #define EgoTest_DeclareTestCase(TESTCASENAME)
 
-/**
- * @brief
- * End the declaration of a test case.
- */
 #define EgoTest_EndDeclaration()
 
-/**
- * @brief 
- * Define a test case.
- * @param TESTCASENAME
- * The test case's class name.
- * @note
- * The test case's class name should be the same as the one used by @c EgoTest_DeclareTestCase.
- */
-#define EgoTest_TestCase(TESTCASENAME) class TESTCASENAME {
+#define EgoTest_TestCase(TESTCASENAME) struct TESTCASENAME : EgoTest::TestCase {
 
-/**
- * @brief
- * End a definition of a test case.
- */
 #define EgoTest_EndTestCase() };
 
-/**
- * @brief
- * Define a test.
- * @param TESTNAME
- * The test's method name.
- */
 #define EgoTest_Test(TESTNAME) void TESTNAME()
 
-/**
- * @brief
- * Test an expression.
- * @param EXPRESSION
- * The expression to test, if it evaluates to @c false, the current test fails.
- */
-#define EgoTest_Assert(EXPRESSION)
+#define EgoTest_Assert(EXPRESSION) \
+try { \
+    EgoTest::assert(EXPRESSION, "\"" #EXPRESSION"\" was false", EgoTest_FUNCTION, __FILE__, __LINE__); \
+} catch (...) { \
+    EgoTest::assert(false, "uncaught exception", EgoTest_FUNCTION, __FILE__, __LINE__); \
+}
