@@ -1,8 +1,8 @@
 #pragma once
 
-/// @brief  A reader for enumerations.
-/// @detail Maps strings to enumeration elements.
-/// @author Michael Heilmann
+/// @brief   A reader for enumerations.
+/// @details Maps strings to enumeration elements.
+/// @author  Michael Heilmann
 template <typename EnumType>
 struct EnumReader
 {

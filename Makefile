@@ -61,7 +61,7 @@ export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CART
 #------------------------------------
 # definitions of the target projects
 
-.PHONY: all clean idlib egolib egoboo cartman install
+.PHONY: all clean idlib egolib egoboo cartman install doxygen
 
 all: idlib egolib egoboo cartman
 
@@ -83,6 +83,9 @@ clean:
 	${MAKE} -C $(EGOLIB_DIR) clean
 	${MAKE} -C $(EGO_DIR) clean
 	${MAKE} -C $(CARTMAN_DIR) clean
+
+doxygen:
+	doxygen
 
 install: egoboo
 
