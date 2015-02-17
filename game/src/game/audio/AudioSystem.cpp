@@ -329,7 +329,7 @@ void AudioSystem::loadAllMusic()
     // Load all music data into memory
     while ( !vfs_eof( ctxt._file ) )
     {
-        if (goto_colon_vfs(ctxt, NULL, true))
+        if (goto_colon_vfs(ctxt, true))
         {
         	char songName[256];
 
