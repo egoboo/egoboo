@@ -20,107 +20,93 @@
 
 #include "egolib/platform.h"
 
-namespace Ego { namespace Script {
-
-/** 
- * @brief
- *  A lociation (w.r.t. to Egoboo's languages files) is identified by the load name of a file and a line number with that file.
- * @author
- *  Michael Heilmann
- */
-class Location
+namespace Ego
 {
+    namespace Script
+    {
 
-private:
+        /**
+         * @brief
+         *  A lociation (w.r.t. to Egoboo's languages files) is identified by the load name of a file and a line number with that file.
+         * @author
+         *  Michael Heilmann
+         */
+        class Location
+        {
 
-	/**
-	 * @brief
-	 *  The load name of the file.
-	 */
-	std::string _loadName;
+        private:
 
-	/**
-	 * @brief
-	 *  The line number of a line within the file.
-	 */
-	size_t _lineNumber;
+            /**
+             * @brief
+             *  The load name of the file.
+             */
+            std::string _loadName;
 
-public:
+            /**
+             * @brief
+             *  The line number of a line within the file.
+             */
+            size_t _lineNumber;
 
-	/**
-	 * @brief
-	 *  Construct this position from the specified arguments.
-	 * @param loadName
-	 *  the load name of the file
-	 * @param lineNumber
-	 *  the line number of a line within the file
-	 */
-	Location(const std::string& loadName, const size_t lineNumber) :
-		 _loadName(loadName), _lineNumber(lineNumber)
-	{}
+        public:
 
-	/**
-	 * @brief
-	 *  Construct this lociation from another location (copy constructor).
-	 * @param other
-	 *  the other location
-	 */
-	Location(const Location& other) :
-		_loadName(other._loadName), _lineNumber(other._lineNumber)
-	{
-	}
+            /**
+             * @brief
+             *  Construct this position from the specified arguments.
+             * @param loadName
+             *  the load name of the file
+             * @param lineNumber
+             *  the line number of a line within the file
+             */
+            Location(const std::string& loadName, const size_t lineNumber);
 
-	/**
-	 * @brief
-	 *  Is this location equal to another location.
-	 * @param other
-	 *  the other location
-	 * @return
-	 *  @a true if this position is equal to the other location,
-	 *  @a false otherwise
-	 */
-	bool operator==(const Location& other)
-	{
-		return _loadName == other._loadName
-			&& _lineNumber == other._lineNumber;
-	}
+            /**
+             * @brief
+             *  Construct this lociation from another location (copy constructor).
+             * @param other
+             *  the other location
+             */
+            Location(const Location& other);
 
-	/**
-	* @brief
-	*  Is this location not equal to another location.
-	* @param other
-	*  the other location
-	* @return
-	*  @a true if this position is not equal to the other location,
-	*  @a false otherwise
-	*/
-	bool operator!=(const Location& other)
-	{
-		return _loadName != other._loadName
-			|| _lineNumber != other._lineNumber;
-	}
+            /**
+             * @brief
+             *  Is this location equal to another location.
+             * @param other
+             *  the other location
+             * @return
+             *  @a true if this position is equal to the other location,
+             *  @a false otherwise
+             */
+            bool operator==(const Location& other);
 
-	/**
-	 * @brief
-	 *  Get the load name of the file.
-	 * @return
-	 *  the load name of the file
-	 */
-	const std::string& getLoadName() const
-	{
-		return _loadName;
-	}
+            /**
+             * @brief
+             *  Is this location not equal to another location.
+             * @param other
+             *  the other location
+             * @return
+             *  @a true if this position is not equal to the other location,
+             *  @a false otherwise
+             */
+            bool operator!=(const Location& other);
 
-	/**
-	 * @brief
-	 *  Get the line number in the file.
-	 * @return
-	 *  the line number in the file
-	 */
-	size_t getLineNumber() const
-	{
-		return _lineNumber;
-	}
-};
+            /**
+             * @brief
+             *  Get the load name of the file.
+             * @return
+             *  the load name of the file
+             */
+            const std::string& getLoadName() const;
 
-} }
+            /**
+             * @brief
+             *  Get the line number in the file.
+             * @return
+             *  the line number in the file
+             */
+            size_t getLineNumber() const;
+
+        };
+
+    }
+}

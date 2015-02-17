@@ -115,47 +115,83 @@ bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 }
 
 //--------------------------------------------------------------------------------------------
-bool goto_delimiter_vfs(ReadContext& ctxt, char * buffer, char delim, bool optional)
+bool ReadContext::skipToDelimiter(char delimiter, bool optional)
 {
     /// @author ZZ
     /// @details This function moves a file read pointer to the next delimiter char iTmp;
     /// @author BB
     /// @details buffer points to a 256 character buffer that will get the data between the newline and the delim
+    if ('\0' == delimiter) std::invalid_argument("\\0 == delimiter");
+    while (true)
+    {
+        _current = readChar();
+        if (Error == _current)
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
+        }
+        if (EndOfInput == _current)
+        {
+            if (optional)
+            {
+                return false;
+            }
+            else
+            {
+                throw Ego::Script::MissingDelimiterError(__FILE__,__LINE__,Ego::Script::Location(getLoadName(), getLineNumber()),delimiter);
+            }
+        }
+        if (CSTR_END == static_cast<char>(_current))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
+        }
+        if (delimiter == static_cast<char>(_current))
+        {
+            return true;
+        }
 
-    int iTmp, write;
+        if (isNewLine(static_cast<char>(_current)))
+        {
+            _lineNumber++;
+        }
+        _current = readChar();
+    }
+}
 
+bool goto_delimiter_vfs(ReadContext& ctxt, char * buffer, char delimiter, bool optional)
+{
+    /// @author ZZ
+    /// @details This function moves a file read pointer to the next delimiter char iTmp;
+    /// @author BB
+    /// @details buffer points to a 256 character buffer that will get the data between the newline and the delim
     if (vfs_eof(ctxt._file)  || vfs_error(ctxt._file) ) return false;
 
-    write = 0;
+    size_t write = 0;
     if ( NULL != buffer ) buffer[0] = CSTR_END;
 
-    iTmp = vfs_getc(ctxt._file);
+    int current = vfs_getc(ctxt._file);
     while (!vfs_eof(ctxt._file) && !vfs_error(ctxt._file))
     {
-        if (( unsigned )iTmp > 0xFF || delim == iTmp ) break;
+        if (current > 0xFF || delimiter == current) break;
 
-        if ( ASCII_LINEFEED_CHAR ==  iTmp || C_CARRIAGE_RETURN_CHAR ==  iTmp || CSTR_END == iTmp )
+        if (ctxt.isNewLine(static_cast<char>(current)) || CSTR_END == current)
         {
             write = 0;
         }
         else
         {
-            if ( NULL != buffer ) buffer[write++] = ( char )iTmp;
+            if (buffer) buffer[write++] = static_cast<char>(current);
         }
 
-        iTmp = vfs_getc(ctxt._file);
+        current = vfs_getc(ctxt._file);
     }
-    if ( NULL != buffer ) buffer[write] = CSTR_END;
+    if (buffer) buffer[write] = CSTR_END;
 
-    if ( !optional && delim != iTmp )
+    if (!optional && delimiter != current)
     {
-        std::ostringstream msg;
-        msg << ctxt.getLoadName() << ":" << ctxt.getLineNumber()
-            << "not enough " << delim << "'s in file";
-        throw std::runtime_error(msg.str());
+        throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()), delimiter);
     }
 
-    return ( delim == iTmp );
+    return (delimiter == current);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -200,7 +236,7 @@ char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * deli
             break;
         }
 
-        if ( ASCII_LINEFEED_CHAR ==  iTmp || C_CARRIAGE_RETURN_CHAR ==  iTmp || CSTR_END == iTmp )
+        if (ctxt.isNewLine((char)iTmp) || CSTR_END == iTmp )
         {
             write = 0;
         }
@@ -223,7 +259,20 @@ char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * deli
 }
 
 //--------------------------------------------------------------------------------------------
-bool goto_colon_vfs(ReadContext& ctxt,char * buffer, bool optional)
+bool ReadContext::skipToColon(bool optional)
+{
+    return skipToDelimiter(':', optional);
+}
+
+bool goto_colon_vfs(ReadContext& ctxt, bool optional)
+{
+    /// @author BB
+    /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
+    ctxt._lineNumber++;
+    return goto_delimiter_vfs(ctxt, nullptr, ':', optional);
+}
+
+bool goto_colon_vfs(ReadContext& ctxt,char *buffer, bool optional)
 {
     /// @author BB
     /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
@@ -253,7 +302,7 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optiona
     {
         if ( ':' == cTmp ) { pmem++; break; }
 
-        if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp )
+        if (ctxt.isNewLine(cTmp))
         {
             write = 0;
         }
@@ -281,20 +330,20 @@ char vfs_get_first_letter(ReadContext& ctxt)
 {
     /// @author ZZ
     /// @details This function returns the next non-whitespace character
-    int c = ctxt.readChar();
-    if (ReadContext::EndOfInput == c || ReadContext::Error == c)
+    int current = ctxt.readChar();
+    if (ReadContext::EndOfInput == current || ReadContext::Error == current)
     {
         throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt.getLoadName(),ctxt.getLineNumber()));
     }
-    while (char_isspace(c))
+    while (char_isspace(static_cast<char>(current)))
     {
-        c = ctxt.readChar();
-        if (ReadContext::EndOfInput == c || ReadContext::Error == c)
+        current = ctxt.readChar();
+        if (ReadContext::EndOfInput == current || ReadContext::Error == current)
         {
             throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
         }
     }
-    return (char)c;
+    return static_cast<char>(current);
 }
 
 //--------------------------------------------------------------------------------------------

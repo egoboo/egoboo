@@ -28,7 +28,7 @@ namespace Ego
 
         /**
          * @brief
-         *  An exception to indicate a lexical error in a file.
+         *  An exception to indicate a (generic) lexical error in a file.
          * @author
          *  Michael Heilmann
          */
@@ -43,6 +43,10 @@ namespace Ego
              */
             Location _location;
 
+        protected:
+
+            std::ostringstream& writeLocation(std::ostringstream& o) const;
+
         public:
 
             /**
@@ -55,12 +59,8 @@ namespace Ego
              * @param location
              *  the location associated with this error
              *  the load name of the file associated with this error
-             * @param lineNumber
-             *  the line number in the file asssociated with this error
              */
-            LexicalError(const char *file, int line, const Location& location) :
-                Ego::Exception(file, line), _location(location)
-            {}
+            LexicalError(const char *file, int line, const Location& location);
 
             /**
              * @brief
@@ -68,18 +68,48 @@ namespace Ego
              * @return
              *  the location associated with this error
              */
-            const Location& getLocation() const
-            {
-                return _location;
-            }
+            const Location& getLocation() const;
 
-            operator std::string() const override
-            {
-                std::ostringstream buffer;
-                buffer << _location.getLoadName() << ": " << _location.getLineNumber() << ": " << "lexical error";
-                buffer << " (raised in file " << getFile() << ", line " << getLine() << ")";
-                return buffer.str();
-            }
+            /**
+             * @brief
+             *  Overloaded cast to std::string operator.
+             * @return
+             *  the result of the cast
+             */
+            operator std::string() const override;
+
+        };
+
+        /**
+         * @brief
+         *  An exception to indicate a missing delimiter error in a file.
+         * @author
+         *  Michael Heilmann
+         */
+        class MissingDelimiterError : public LexicalError
+        {
+
+        private:
+
+            /**
+             * @brief
+             *  The expected delimiter.
+             */
+            char _delimiter;
+
+        public:
+
+            /**
+             * @brief
+             *  Construct a missing delimiter error.
+             * @param file, line, location
+             *  see documentation of Ego::Script::LexicalError(const char *,int,const Ego::Script::Location&)
+             * @param delimiter
+             *  the expected delimiter
+             */
+            MissingDelimiterError(const char *file, int line, const Location& location, char delimiter);
+
+            operator std::string() const override;
 
         };
 

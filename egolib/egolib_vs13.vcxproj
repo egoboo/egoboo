@@ -255,6 +255,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Script\Buffer.cpp" />
+    <ClCompile Include="src\egolib\Script\Errors.cpp" />
+    <ClCompile Include="src\egolib\Script\Location.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileReader.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileWriter.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfileReader.cpp" />
@@ -426,7 +429,7 @@
     <ClInclude Include="src\egolib\Exception.hpp" />
     <ClInclude Include="src\egolib\Profiles\ReaderUtilities.hpp" />
     <ClInclude Include="src\egolib\Script\Buffer.hpp" />
-    <ClInclude Include="src\egolib\Script\LexicalError.hpp" />
+    <ClInclude Include="src\egolib\Script\Errors.hpp" />
     <ClInclude Include="src\egolib\Script\Location.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfileReader.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfileWriter.hpp" />

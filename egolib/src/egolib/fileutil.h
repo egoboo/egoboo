@@ -98,7 +98,7 @@
 #include "egolib/Profiles/ReaderUtilities.hpp"
 #include "egolib/Script/Location.hpp"
 #include "egolib/Script/Buffer.hpp"
-#include "egolib/Script/LexicalError.hpp"
+#include "egolib/Script/Errors.hpp"
 
 // Forward declaration.
 struct ReadContext;
@@ -133,9 +133,14 @@ public:
      *  The file handle if the context is open, @a nullptr otherwise.
      */
     vfs_FILE *_file;
+    /**
+     * @brief
+     *  The current extended character.
+     */
+    int _current;
 
     ReadContext(const std::string& loadName)
-        : _loadName(loadName), _file(nullptr), _lineNumber(1)
+        : _loadName(loadName), _file(nullptr), _lineNumber(1), _current(StartOfInput)
     {
     }
 
@@ -201,6 +206,8 @@ public:
             {
                 return false;
             }
+            _current = StartOfInput;
+            _lineNumber = 1;
         }
         return true;
     }
@@ -273,10 +280,37 @@ public:
         return *it;
     }
 
-    /// Special value for extended character indicating the end of input.
-    static const int EndOfInput = -1;
+    /// Special value for extended character indicating the start of the input.
+    static const int StartOfInput = -1;
+    /// Special value for extended character indicating the end of the input.
+    static const int EndOfInput = -2;
     /// Special value for extended character indicating an error.
-    static const int Error = -2;
+    static const int Error = -3;
+
+    /**
+     * @brief
+     *  Get if a character is a new line character.
+     * @param chr
+     *  the character
+     * @return
+     *  @a true if the character is a new line character,
+     *  @a false otherwise
+     * @remark
+     *  @code
+     *  newline = LineFeed | CarriageReturn
+     *  @endcode
+     */
+    bool isNewLine(char chr)
+    {
+        return LineFeed == chr || CarriageReturn == chr;
+    }
+
+    /// The new line character.
+    static const char LineFeed = '\n';
+    /// The carriage return character.
+    static const char CarriageReturn = '\r';
+    /// The zero terminator character.
+    static const char ZeroTerminator = '\0';
 
     /**
      * @brief
@@ -315,6 +349,9 @@ public:
      */
     bool readBool();
 
+    bool skipToDelimiter(char delimiter, bool optional);
+    bool skipToColon(bool optional);
+
 };
 
 UFP8_T vfs_get_ufp8(ReadContext& ctxt);
@@ -339,9 +376,13 @@ extern  Uint8      maxformattypes;
 
 void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
 
-bool goto_delimiter_vfs(ReadContext& ctxt, char * buffer, char delim, bool optional);
+
+bool goto_delimiter_vfs(ReadContext& ctxt, char *buffer, char delimiter, bool optional);
+bool goto_colon_vfs(ReadContext& ctxt, bool optional);
+bool goto_colon_vfs(ReadContext& ctxt, char *buffer, bool optional);
+
 char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * delim_list, bool optional);
-bool goto_colon_vfs(ReadContext& ctxt, char * buffer, bool optional);
+
 #if 0
 char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optional );
 #endif
