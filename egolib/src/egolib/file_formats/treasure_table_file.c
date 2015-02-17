@@ -66,7 +66,7 @@ void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table 
     new_table->size = 0;
 
     //Keep adding objects into the table until we encounter a :END
-    while (goto_colon_vfs(ctxt, NULL, false))
+    while (goto_colon_vfs(ctxt, false))
     {
         STRING szTemp;
         vfs_get_string(ctxt, szTemp, SDL_arraysize( szTemp ) );
@@ -94,7 +94,7 @@ egolib_rv init_random_treasure_tables_vfs( const char* filepath )
 
     //Load each treasure table
     num_table = 0;
-    while ( goto_colon_vfs(ctxt, NULL, true ) )
+    while (goto_colon_vfs(ctxt, true))
     {
         //Load the name of this table
         STRING szTemp;

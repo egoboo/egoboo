@@ -156,7 +156,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->homingaccel = vfs_get_next_float(ctxt);
     profile->rotatetoface = vfs_get_next_bool(ctxt);
 
-    goto_colon_vfs(ctxt, NULL, false);  // !!Respawn on hit is unused
+    goto_colon_vfs(ctxt, false);  // !!Respawn on hit is unused
 
     profile->manadrain = vfs_get_next_ufp8(ctxt);
     profile->lifedrain = vfs_get_next_ufp8(ctxt);
@@ -168,7 +168,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     if (profile->homing)  profile->damfx = DAMFX_NONE;
 
     // Read expansions
-    while (goto_colon_vfs(ctxt, NULL, true))
+    while (goto_colon_vfs(ctxt, true))
     {
         idsz = vfs_get_idsz(ctxt);
 

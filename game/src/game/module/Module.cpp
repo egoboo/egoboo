@@ -66,7 +66,7 @@ void GameModule::loadAllPassages()
     if (!ctxt.ensureOpen()) return;
 
     //Load all passages in file
-    while (goto_colon_vfs(ctxt, NULL, true))
+    while (goto_colon_vfs(ctxt, true))
     {
         //read passage area
         irect_t area;

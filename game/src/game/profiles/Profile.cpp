@@ -349,7 +349,7 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     if (!ctxt.ensureOpen()) return;
     STRING line;
 
-    while ( goto_colon_vfs(ctxt, NULL, true ) )
+    while ( goto_colon_vfs(ctxt, true ) )
     {
         //Load one line
         vfs_get_string( ctxt, line, SDL_arraysize( line ) );
@@ -573,7 +573,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     }
 
     // Skin defenses ( 4 skins )
-    goto_colon_vfs(ctxt, NULL, false);
+    goto_colon_vfs(ctxt, false);
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         int iTmp = 0xFF - ctxt.readInt();
@@ -582,7 +582,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        goto_colon_vfs(ctxt, NULL, false);
+        goto_colon_vfs(ctxt,  false);
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
             _skinInfo[cnt].damageResistance[damagetype] = vfs_get_damage_resist(ctxt);
@@ -591,7 +591,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        goto_colon_vfs(ctxt, NULL, false);
+        goto_colon_vfs(ctxt, false);
 
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
@@ -608,7 +608,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
         }
     }
 
-    goto_colon_vfs(ctxt, NULL, false);
+    goto_colon_vfs(ctxt, false);
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++)
     {
         _skinInfo[cnt].maxAccel = vfs_get_float(ctxt) / 80.0f;
@@ -712,8 +712,8 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _canBeDazed = vfs_get_next_bool(ctxt);
     _canBeGrogged = vfs_get_next_bool(ctxt);
 
-    goto_colon_vfs(ctxt, NULL, false);  // Depracated, no longer used (permanent life add)
-    goto_colon_vfs(ctxt, NULL, false);  // Depracated, no longer used (permanent mana add)
+    goto_colon_vfs(ctxt, false);  // Depracated, no longer used (permanent life add)
+    goto_colon_vfs(ctxt, false);  // Depracated, no longer used (permanent mana add)
     if (vfs_get_next_bool(ctxt)) {
         _seeInvisibleLevel = 1;
     }
@@ -735,7 +735,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _canUsePlatforms = !_isPlatform;
 
     // Read expansions
-    while (goto_colon_vfs(ctxt, NULL, true))
+    while (goto_colon_vfs(ctxt, true))
     {
         const IDSZ idsz = vfs_get_idsz(ctxt);
 

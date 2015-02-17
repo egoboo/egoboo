@@ -260,7 +260,7 @@ wawalite_data_t * read_wawalite_fog(ReadContext &ctxt, wawalite_data_t * pdata )
     if ( NULL == pdata ) return pdata;
 
     // Read unnecessary data...  Only read if it exists...
-    if (goto_colon_vfs(ctxt, NULL, true))
+    if (goto_colon_vfs(ctxt, true))
     {
         pdata->fog.found         = true;
         pdata->fog.top = vfs_get_float(ctxt);
@@ -271,7 +271,7 @@ wawalite_data_t * read_wawalite_fog(ReadContext &ctxt, wawalite_data_t * pdata )
         pdata->fog.affects_water = vfs_get_next_bool(ctxt);
 
         // Read extra stuff for damage tile particles...
-        if (goto_colon_vfs(ctxt, NULL, true))
+        if (goto_colon_vfs(ctxt, true))
         {
             pdata->damagetile.part_gpip = ctxt.readInt();
             pdata->damagetile.partand = vfs_get_next_int(ctxt);

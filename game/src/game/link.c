@@ -146,7 +146,7 @@ bool link_build_vfs( const char * fname, Link_t list[] )
     if (!ctxt.ensureOpen()) return false;
 
     size_t i = 0;
-    while (goto_colon_vfs(ctxt, NULL, true) && i < LINK_COUNT)
+    while (goto_colon_vfs(ctxt, true) && i < LINK_COUNT)
     {
         vfs_get_string( ctxt, list[i].modname, SDL_arraysize( list[i].modname ) );
         list[i].valid = true;
