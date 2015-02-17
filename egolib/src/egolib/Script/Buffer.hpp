@@ -126,7 +126,14 @@ public:
             // raise an exception.
             if (avl < req)
             {
+                // GCC 4.9 added std::bad_array_new_length() to libstdc++,
+                // fallback on older versions.
+                // This check doesn't support clang on libstdc++ though.
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 9))
+                throw std::runtime_error("std::bad_array_new_length");
+#else
                 throw std::bad_array_new_length();
+#endif
             }
             best = avl;
         }

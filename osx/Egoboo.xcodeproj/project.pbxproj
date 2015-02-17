@@ -649,6 +649,10 @@
 		CD5B0CAE1A6204EC00F076F9 /* WaypointList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaypointList.h; sourceTree = "<group>"; };
 		CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicArray.cpp; sourceTree = "<group>"; };
 		CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicArray.hpp; sourceTree = "<group>"; };
+		CD78A75F1A934C8D00778820 /* Exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Exception.hpp; sourceTree = "<group>"; };
+		CD78A7611A934C8D00778820 /* Buffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Buffer.hpp; sourceTree = "<group>"; };
+		CD78A7621A934C8D00778820 /* LexicalError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LexicalError.hpp; sourceTree = "<group>"; };
+		CD78A7631A934C8D00778820 /* Location.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Location.hpp; sourceTree = "<group>"; };
 		CD792BF61A881FE20086270E /* GameEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameEngine.cpp; sourceTree = "<group>"; };
 		CD792BF71A881FE20086270E /* GameEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameEngine.hpp; sourceTree = "<group>"; };
 		CD792BF91A881FE20086270E /* GameState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
@@ -1268,6 +1272,7 @@
 				CD1329761A90130300D1B221 /* Profiles */,
 				CD0FE1541A7B09AD00F3392B /* Renderer */,
 				CD44E4511A8959CF00D345DF /* Scene */,
+				CD78A7601A934C8D00778820 /* Script */,
 				CD39B3011A374B6000B377BE /* _math.c */,
 				CD39B3021A374B6000B377BE /* _math.h */,
 				CDCA1F8F1A3F56AB00002E76 /* bbox.c */,
@@ -1294,6 +1299,7 @@
 				CD39B30E1A374B6000B377BE /* egolib.h */,
 				CD39B3101A374B6000B377BE /* endian.c */,
 				CD39B3111A374B6000B377BE /* endian.h */,
+				CD78A75F1A934C8D00778820 /* Exception.hpp */,
 				CD39B31F1A374B6000B377BE /* file_common.c */,
 				CD39B3201A374B6000B377BE /* file_common.h */,
 				CD39B3531A374B6000B377BE /* fileutil.c */,
@@ -1495,6 +1501,16 @@
 				CD5B0CAE1A6204EC00F076F9 /* WaypointList.h */,
 			);
 			path = ai;
+			sourceTree = "<group>";
+		};
+		CD78A7601A934C8D00778820 /* Script */ = {
+			isa = PBXGroup;
+			children = (
+				CD78A7611A934C8D00778820 /* Buffer.hpp */,
+				CD78A7621A934C8D00778820 /* LexicalError.hpp */,
+				CD78A7631A934C8D00778820 /* Location.hpp */,
+			);
+			path = Script;
 			sourceTree = "<group>";
 		};
 		CD792BF51A881FE20086270E /* core */ = {
