@@ -153,17 +153,11 @@ struct fvec2_t
     
     float& operator[](size_t const& index)
     {
-#ifdef _DEBUG
-        EGOBOO_ASSERT(index < 2);
-#endif
         return this->v[index];
     }
     
     const float &operator[](size_t const& index) const
     {
-#ifdef _DEBUG
-        EGOBOO_ASSERT(index < 2);
-#endif
         return this->v[index];
     }
     
