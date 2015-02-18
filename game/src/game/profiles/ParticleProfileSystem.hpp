@@ -17,14 +17,23 @@
 //*
 //********************************************************************************************
 
-#define EGOLIB_PROFILES_PRIVATE 1
-#include "egolib/Profiles/EnchantProfile.hpp"
+#pragma once
+#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
+#error(do not include directly, include `game/profiles/_Include.hpp` instead)
+#endif
 
-eve_t *eve_t::init()
-{
-    BLANK_STRUCT_PTR(this);
+#include "game/profiles/_AbstractProfileSystem.hpp"
 
-    this->endsound_index = -1;
+extern _AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP> PipStack;
 
-    return this;
-}
+#define VALID_PIP_RANGE(ref) (PipStack.isValidRange(ref))
+#define LOADED_PIP(ref) (PipStack.isLoaded(ref))
+
+// PipStack functions
+/// @brief Load a particle profile into the particle profile stack.
+/// @return a reference to the particle profile on sucess, MAX_PIP on failure
+PIP_REF PipStack_load_one(const char *loadName, const PIP_REF _override);
+void PipStack_init_all();
+void PipStack_release_all();
+bool PipStack_release_one(const PIP_REF ref);
+PIP_REF PipStack_get_free();

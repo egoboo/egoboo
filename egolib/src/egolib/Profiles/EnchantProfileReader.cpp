@@ -33,7 +33,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
 
     if (!profile) return nullptr;
 
-    eve_t::init(profile);
+    profile->init();
 
     ReadContext ctxt(loadName);
     if (!ctxt.ensureOpen()) return nullptr;

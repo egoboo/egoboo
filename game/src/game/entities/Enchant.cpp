@@ -40,10 +40,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-Stack<eve_t, MAX_EVE> EveStack;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -74,6 +72,9 @@ bool enc_t::free(enc_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
+enc_t::enc_t()
+{
+}
 enc_t *enc_t::ctor()
 {
     // grab the base object
@@ -110,6 +111,9 @@ enc_t *enc_t::ctor()
 }
 
 //--------------------------------------------------------------------------------------------
+enc_t::~enc_t()
+{
+}
 enc_t *enc_t::dtor()
 {
     // Destroy the object.
@@ -1289,28 +1293,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 }
 
 //--------------------------------------------------------------------------------------------
-EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
-{
-    /// @author ZZ
-    /// @details This function loads an enchantment profile into the EveStack
 
-    EVE_REF retval = INVALID_EVE_REF;
-
-    if ( VALID_EVE_RANGE( ieve ) )
-    {
-        eve_t * peve = EveStack.get_ptr( ieve );
-
-        if (EnchantProfileReader::read(peve, szLoadName) )
-        {
-            retval = ieve;
-
-            // limit the endsound_index
-            peve->endsound_index = CLIP<Sint16>( peve->endsound_index, INVALID_SOUND_ID, MAX_WAVE );
-        }
-    }
-
-    return retval;
-}
 
 //--------------------------------------------------------------------------------------------
 void enc_remove_set( const ENC_REF ienc, int value_idx )
@@ -1581,40 +1564,6 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
 
         penc->_add[value_idx]._modified = false;
     }
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void EveStack_init_all()
-{
-    for (EVE_REF ref = 0; ref < MAX_EVE; ++ref )
-    {
-        eve_t::init(EveStack.get_ptr(ref));
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void EveStack_release_all()
-{
-    for (EVE_REF ref = 0; ref < MAX_EVE; ++ref)
-    {
-        EveStack_release_one(ref);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool EveStack_release_one( const EVE_REF ieve )
-{
-    eve_t * peve;
-
-    if ( !VALID_EVE_RANGE( ieve ) ) return false;
-    peve = EveStack.get_ptr( ieve );
-
-    if ( !peve->loaded ) return true;
-
-    eve_t::init( peve );
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------

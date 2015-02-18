@@ -48,22 +48,14 @@ static const float STOPBOUNCINGPART = 10.0f;        ///< To make particles stop 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 int prt_stoppedby_tests = 0;
 int prt_pressure_tests = 0;
-
-Stack<pip_t, MAX_PIP> PipStack;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static int prt_do_end_spawn(const PRT_REF iprt);
-
-
-
-
-
-static PIP_REF PipStack_get_free();
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -82,9 +74,12 @@ bool prt_t::free(prt_t * pprt)
 }
 
 //--------------------------------------------------------------------------------------------
+prt_t::prt_t()
+{
+}
 /// @brief Set all particle parameters to safe values.
 /// @details The C equivalent of a parameterless constructor.
-prt_t * prt_t::ctor()
+prt_t *prt_t::ctor()
 {
     // save the base object data, do not construct it with this function.
     Ego::Entity *parent = POBJ_GET_PBASE(this);
@@ -132,7 +127,11 @@ prt_t * prt_t::ctor()
 }
 
 //--------------------------------------------------------------------------------------------
-prt_t * prt_t::dtor()
+prt_t::~prt_t()
+{
+}
+
+prt_t *prt_t::dtor()
 {
     // destruct/free any allocated data
     prt_t::free(this);
@@ -779,84 +778,6 @@ PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF ip
 
     return iprt;
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
-{
-    float retval = 0.0f;
-    BIT_FIELD  stoppedby;
-    pip_t      * ppip;
-    const float * loc_test_pos = NULL;
-
-    if ( !DEFINED_PPRT( pprt ) ) return retval;
-
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return retval;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
-
-    stoppedby = MAPFX_IMPASS;
-    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
-
-    // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ).v : test_pos;
-    if ( NULL == test_pos ) return 0;
-
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    {
-        retval = ego_mesh_get_pressure( PMesh, loc_test_pos, 0.0f, stoppedby );
-    }
-    prt_stoppedby_tests += mesh_mpdfx_tests;
-    prt_pressure_tests += mesh_pressure_tests;
-
-    return retval;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-#if 0
-fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
-{
-    fvec2_t retval = fvec2_t::zero;
-    float radius;
-    BIT_FIELD stoppedby;
-    pip_t *ppip;
-    ego_tile_info_t *ptile = NULL;
-    const float *loc_test_pos = NULL;
-
-    if ( !DEFINED_PPRT( pprt ) ) return retval;
-
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return retval;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
-
-    stoppedby = MAPFX_IMPASS;
-    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
-
-    // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ).v : test_pos;
-    if ( NULL == test_pos ) return retval;
-
-    // calculate the radius based on whether the particle is on camera
-    radius = 0.0f;
-    ptile = ego_mesh_get_ptile( PMesh, pprt->onwhichgrid );
-    if ( NULL != ptile && ptile->inrenderlist )
-    {
-        radius = pprt->bump_real.size;
-    }
-
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    {
-        retval = ego_mesh_get_diff( PMesh, loc_test_pos, radius, center_pressure, stoppedby );
-    }
-    prt_stoppedby_tests += mesh_mpdfx_tests;
-    prt_pressure_tests += mesh_pressure_tests;
-
-    return retval;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 BIT_FIELD prt_t::hit_wall(prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata)
@@ -2165,133 +2086,6 @@ bool prt_is_over_water(const PRT_REF iprt)
     return false;
 }
 
-//--------------------------------------------------------------------------------------------
-PIP_REF PipStack_get_free()
-{
-    int retval = INVALID_PIP_REF;
-
-    if (PipStack.count < MAX_PIP)
-    {
-        retval = PipStack.count;
-        PipStack.count++;
-    }
-
-    return CLIP(retval, 0, MAX_PIP);
-}
-
-//--------------------------------------------------------------------------------------------
-PIP_REF PipStack_load_one(const char *szLoadName, const PIP_REF pip_override)
-{
-    /// @author ZZ
-    /// @details This function loads a particle template, returning MAX_PIP if the file wasn't
-    ///    found
-
-    PIP_REF ipip;
-    pip_t * ppip;
-
-    ipip = INVALID_PIP_REF;
-    if (VALID_PIP_RANGE(pip_override))
-    {
-        PipStack_release_one(pip_override);
-        ipip = pip_override;
-    }
-    else
-    {
-        ipip = PipStack_get_free();
-    }
-
-    if (!VALID_PIP_RANGE(ipip))
-    {
-        return INVALID_PIP_REF;
-    }
-    ppip = PipStack.get_ptr(ipip);
-
-    if (!ParticleProfileReader::read(ppip, szLoadName))
-    {
-        return INVALID_PIP_REF;
-    }
-
-    ppip->end_sound = CLIP<Sint8>(ppip->end_sound, INVALID_SOUND_ID, MAX_WAVE);
-    ppip->soundspawn = CLIP<Sint8>(ppip->soundspawn, INVALID_SOUND_ID, MAX_WAVE);
-
-    return ipip;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void PipStack_init_all()
-{
-    for (PIP_REF ref = 0; ref < MAX_PIP; ++ref)
-    {
-        pip_t::init(PipStack.get_ptr(ref));
-    }
-
-    // Reset the pip stack "pointer"
-    PipStack.count = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-void PipStack_release_all()
-{
-    PIP_REF cnt;
-    int tnc;
-    int max_request;
-
-    max_request = 0;
-    for (cnt = 0, tnc = 0; cnt < MAX_PIP; cnt++)
-    {
-        if (LOADED_PIP(cnt))
-        {
-            pip_t * ppip = PipStack.get_ptr(cnt);
-
-            max_request = std::max(max_request, ppip->request_count);
-            tnc++;
-        }
-    }
-
-    if (tnc > 0 && max_request > 0)
-    {
-        vfs_FILE * ftmp = vfs_openWriteB("/debug/pip_usage.txt");
-        if (NULL != ftmp)
-        {
-            vfs_printf(ftmp, "List of used pips\n\n");
-
-            for (cnt = 0; cnt < MAX_PIP; cnt++)
-            {
-                if (LOADED_PIP(cnt))
-                {
-                    pip_t * ppip = PipStack.get_ptr(cnt);
-                    vfs_printf(ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT(cnt), ppip->name, ppip->create_count, ppip->request_count);
-                }
-            }
-
-            vfs_close(ftmp);
-
-            for (cnt = 0; cnt < MAX_PIP; cnt++)
-            {
-                PipStack_release_one(cnt);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool PipStack_release_one(const PIP_REF ipip)
-{
-    pip_t * ppip;
-
-    if (!VALID_PIP_RANGE(ipip)) return false;
-    ppip = PipStack.get_ptr(ipip);
-
-    if (!ppip->loaded) return true;
-
-    pip_t::init(ppip);
-
-    ppip->loaded = false;
-    ppip->name[0] = CSTR_END;
-
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------
 bool prt_t::request_terminate(prt_t * pprt)

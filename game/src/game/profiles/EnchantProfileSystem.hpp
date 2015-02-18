@@ -17,14 +17,23 @@
 //*
 //********************************************************************************************
 
-#define EGOLIB_PROFILES_PRIVATE 1
-#include "egolib/Profiles/EnchantProfile.hpp"
+#pragma once
+#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
+#error(do not include directly, include `game/profiles/_Include.hpp` instead)
+#endif
 
-eve_t *eve_t::init()
-{
-    BLANK_STRUCT_PTR(this);
+#include "game/profiles/_AbstractProfileSystem.hpp"
 
-    this->endsound_index = -1;
+extern _AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, MAX_EVE> EveStack;
 
-    return this;
-}
+#define VALID_EVE_RANGE(ref) (EveStack.isValidRange(ref))
+#define LOADED_EVE(ref) (EveStack.isLoaded(ref))
+
+// EveStack functions
+/// @brief Load an enchantment profile into the enchant profile stack.
+/// @return a reference to the particle profile on sucess, MAX_EVE on failure
+EVE_REF EveStack_load_one(const char* loadName, const EVE_REF _override);
+void EveStack_init_all();
+void EveStack_release_all();
+bool EveStack_release_one(const EVE_REF ref);
+EVE_REF EveStack_get_free();

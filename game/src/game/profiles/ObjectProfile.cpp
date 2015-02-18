@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file  game/Profile.cpp
+/// @file  game/ObjectProfile.cpp
 /// @brief ObjectProfile handling
 /// @details
 /// @author Johan Jansen
 
 #define GAME_PROFILES_PRIVATE 1
-#include "game/profiles/Profile.hpp"
+#include "game/profiles/ObjectProfile.hpp"
 #include "game/graphic_texture.h"
 #include "game/game.h"
 #include "game/entities/_Include.hpp"
@@ -989,7 +989,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
         // Load the enchantment for this profile (optional)
         STRING newloadname;
         make_newloadname( folderPath.c_str(), "/enchant.txt", newloadname );
-        profile->_ieve = EveStack_losd_one( newloadname, static_cast<EVE_REF>(slotNumber) );
+        profile->_ieve = EveStack_load_one( newloadname, static_cast<EVE_REF>(slotNumber) );
 
         // Load the messages for this profile, do this before loading the AI script
         // to ensure any dynamic loaded messages get loaded last (optional)

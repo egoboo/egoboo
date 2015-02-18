@@ -45,10 +45,7 @@ struct ParticleManager;
 
 #define SPAWNNOCHARACTER                255         ///< For particles that spawn characters...
 
-extern Stack<pip_t, MAX_PIP> PipStack;
 
-#define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
-#define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
 
 //--------------------------------------------------------------------------------------------
 
@@ -198,6 +195,9 @@ struct prt_t : public _StateMachine<prt_t,ParticleManager>
     Uint32            safe_time;               ///< the last "safe" time
     Uint32            safe_grid;               ///< the last "safe" grid
 
+    prt_t();
+    ~prt_t();
+
     /// @brief Set all particle parameters to safe values.
     /// @details The C equivalent of a parameterless constructor.
     prt_t *ctor();
@@ -320,8 +320,4 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
 PIP_REF prt_get_ipip(const PRT_REF ref); /**< @deprecated */
 pip_t *prt_get_ppip(const PRT_REF ref);  /**< @deprecated */
 
-// PipStack functions
-PIP_REF PipStack_load_one(const char *szLoadName, const PIP_REF pip_override);
-void PipStack_init_all();
-void PipStack_release_all();
-bool PipStack_release_one(const PIP_REF ipip);
+

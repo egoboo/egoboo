@@ -204,7 +204,7 @@ struct pip_t
 
     prt_ori_t orientation;                ///< the way the particle orientation is calculated for display
 
-    static pip_t *init(pip_t *self);
+    pip_t *init();
 };
 
 /// @todo Remove globals.

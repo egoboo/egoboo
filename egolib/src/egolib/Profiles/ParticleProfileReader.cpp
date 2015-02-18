@@ -32,11 +32,12 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     char cTmp;
 
     ReadContext ctxt(loadName);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         return false;
     }
 
-    pip_t::init(profile);
+    profile->init();
 
     // set up the EGO_PROFILE_STUFF
     strncpy(profile->name, loadName, SDL_arraysize(profile->name));

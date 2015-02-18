@@ -40,17 +40,7 @@ class Object;
 #define ENC_LEAVE_FIRST         1
 #define ENC_LEAVE_NONE          2
 
-
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// Enchantment template
-extern Stack<eve_t, MAX_EVE> EveStack;
-
-#define VALID_EVE_RANGE(IEVE) (((IEVE) >= 0) && ((IEVE) < MAX_EVE))
-#define LOADED_EVE(IEVE)      (VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded)
-
 //--------------------------------------------------------------------------------------------
 struct enc_spawn_data_t
 {
@@ -106,6 +96,9 @@ struct enc_t : public _StateMachine < enc_t, EnchantManager >
     /// & the unmodified property values.
     Modification _add[eve_t::MAX_ENCHANT_ADD];
 
+    enc_t();
+    ~enc_t();
+
     enc_t *ctor();
     enc_t *dtor();
 
@@ -144,14 +137,6 @@ void enc_apply_set(const ENC_REF encRef, int value_idx, const PRO_REF profile);
 void enc_apply_add(const ENC_REF encRef, int value_idx, const EVE_REF enchanttype);
 void enc_remove_set(const ENC_REF encRef, int value_idx);
 void enc_remove_add(const ENC_REF encRef, int value_idx);
-
-// EveStack functions
-void EveStack_init_all();
-void EveStack_release_all();
-bool EveStack_release_one(const EVE_REF eveRef);
-EVE_REF EveStack_losd_one(const char* szLoadName, const EVE_REF profile);
-
-
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARARIONS (inline)

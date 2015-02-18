@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file game/Profile.hpp
+/// @file game/ObjectProfile.hpp
 /// @author Johan Jansen
 
 #pragma once

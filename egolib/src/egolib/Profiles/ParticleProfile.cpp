@@ -40,22 +40,23 @@ particle_direction_t prt_direction[256] =
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_u, prt_u, prt_u, prt_u
 };
 
-pip_t *pip_t::init(pip_t *self)
+pip_t *pip_t::init()
 {
-    if (!self) return nullptr;
-
     // clear the pip
-    BLANK_STRUCT_PTR(self);
+    BLANK_STRUCT_PTR(this);
 
-    self->end_sound = -1;
-    self->end_sound_floor = -1;
-    self->end_sound_wall = -1;
-    self->damfx = DAMFX_TURN;
+    this->loaded = false;
+    this->name[0] = '\0';
 
-    self->allowpush = true;
+    this->end_sound = -1;
+    this->end_sound_floor = -1;
+    this->end_sound_wall = -1;
+    this->damfx = DAMFX_TURN;
 
-    self->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
-    self->type = SPRITE_SOLID;
+    this->allowpush = true;
 
-    return self;
+    this->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
+    this->type = SPRITE_SOLID;
+
+    return this;
 }

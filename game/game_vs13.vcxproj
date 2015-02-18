@@ -380,6 +380,8 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\profiles\EnchantProfileSystem.cpp" />
+    <ClCompile Include="src\game\profiles\ParticleProfileSystem.cpp" />
     <ClCompile Include="src\game\entities\Enchant.cpp" />
     <ClCompile Include="src\game\entities\EnchantHandler.cpp" />
     <ClCompile Include="src\game\entities\ObjectHandler.cpp" />
@@ -409,7 +411,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\profiles\ModuleProfile.cpp" />
     <ClCompile Include="src\game\module\Module.cpp" />
     <ClCompile Include="src\game\graphics\MD2Model.cpp" />
-    <ClCompile Include="src\game\profiles\Profile.cpp" />
+    <ClCompile Include="src\game\profiles\ObjectProfile.cpp" />
     <ClCompile Include="src\game\profiles\ProfileSystem.cpp" />
     <ClCompile Include="src\game\audio\AudioSystem.cpp" />
     <ClCompile Include="src\game\graphics\Camera.cpp" />
@@ -451,6 +453,9 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\profiles\_AbstractProfileSystem.hpp" />
+    <ClInclude Include="src\game\profiles\EnchantProfileSystem.hpp" />
+    <ClInclude Include="src\game\profiles\ParticleProfileSystem.hpp" />
     <ClInclude Include="src\game\entities\Enchant.hpp" />
     <ClInclude Include="src\game\entities\_Include.hpp" />
     <ClInclude Include="src\game\profiles\_Include.hpp" />
@@ -483,7 +488,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\profiles\ModuleProfile.hpp" />
     <ClInclude Include="src\game\module\Module.hpp" />
     <ClInclude Include="src\game\graphics\MD2Model.hpp" />
-    <ClInclude Include="src\game\profiles\Profile.hpp" />
+    <ClInclude Include="src\game\profiles\ObjectProfile.hpp" />
     <ClInclude Include="src\game\profiles\ProfileSystem.hpp" />
     <ClInclude Include="src\game\audio\AudioSystem.hpp" />
     <ClInclude Include="src\game\graphics\Camera.hpp" />

@@ -182,10 +182,8 @@ struct eve_t
     /**
     * @brief
     *  Initialize an enchant profile with safe default values.
-    * @param self
-    *  the enchant profile
     * @return
     *  a pointer to the profile on success, @a nullptr on failure
     */
-    static eve_t *init(eve_t *self);
+    eve_t *init();
 };

@@ -46,7 +46,7 @@
 #include "game/char.h"
 #include "game/mesh.h"
 
-#include "game/profiles/Profile.hpp"
+#include "game/profiles/_Include.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/profiles/_Include.hpp"
 #include "game/module/Module.hpp"

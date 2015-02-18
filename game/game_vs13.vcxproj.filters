@@ -188,12 +188,6 @@
     <ClCompile Include="src\game\audio\AudioSystem.cpp">
       <Filter>Game Sources\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\profiles\Profile.cpp">
-      <Filter>Game Sources\Profile</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\profiles\ProfileSystem.cpp">
-      <Filter>Game Sources\Profile</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\module\Passage.cpp">
       <Filter>Game Sources\Module</Filter>
     </ClCompile>
@@ -283,6 +277,18 @@
     </ClCompile>
     <ClCompile Include="src\game\entities\Object.cpp">
       <Filter>Game Sources\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\profiles\ObjectProfile.cpp">
+      <Filter>Game Sources\Profile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\profiles\ProfileSystem.cpp">
+      <Filter>Game Sources\Profile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\profiles\EnchantProfileSystem.cpp">
+      <Filter>Game Sources\Profile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\profiles\ParticleProfileSystem.cpp">
+      <Filter>Game Sources\Profile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -409,9 +415,6 @@
     <ClInclude Include="src\game\module\Passage.hpp">
       <Filter>Game Header Files\Module</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\profiles\Profile.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\profiles\ProfileSystem.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
@@ -509,6 +512,18 @@
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\game\profiles\_Include.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\profiles\ObjectProfile.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\profiles\ParticleProfileSystem.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\profiles\EnchantProfileSystem.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="\src\game\profiles\_AbstractProfileSystem.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
   </ItemGroup>
