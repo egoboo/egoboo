@@ -44,23 +44,23 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
 
     bool isLoaded(REFTYPE ref)
     {
-        return isValidRange(ref) && lst[ref].loaded;
+        return isValidRange(ref) && this->lst[ref].loaded;
     }
 
     void init_all()
     {
         for (REFTYPE ref = 0; ref < COUNT; ++ref)
         {
-            get_ptr(ref)->init();
+            this->get_ptr(ref)->init();
         }
         // Reset the stack "pointer".
-        count = 0;
+        this->count = 0;
     }
 
     bool release_one(const REFTYPE ref)
     {
         if (!isValidRange(ref)) return false;
-        TYPE *profile = get_ptr(ref);
+        TYPE *profile = this->get_ptr(ref);
         if (profile->loaded) profile->init();
         return true;
     }
@@ -69,10 +69,10 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
     {
         REFTYPE ref = INVALIDREF;
 
-        if (count < COUNT)
+        if (this->count < COUNT)
         {
-            ref = count;
-            count++;
+            ref = this->count;
+            this->count++;
         }
 
         return ref;
@@ -98,7 +98,7 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
         {
             return INVALIDREF;
         }
-        TYPE *profile = get_ptr(ref);
+        TYPE *profile = this->get_ptr(ref);
 
         if (!READER::read(profile, loadName))
         {
@@ -120,7 +120,7 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
         {
             if (isLoaded(ref))
             {
-                TYPE *profile = get_ptr(ref);
+                TYPE *profile = this->get_ptr(ref);
 
                 max_request = std::max(max_request, profile->request_count);
                 numLoaded++;
@@ -138,7 +138,7 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
                 {
                     if (isLoaded(ref))
                     {
-                        eve_t *profile = EveStack.get_ptr(ref);
+                        TYPE *profile = this->get_ptr(ref);
                         vfs_printf(ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n",
                             REF_TO_INT(ref), profile->name, profile->create_count, profile->request_count);
                     }

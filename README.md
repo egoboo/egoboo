@@ -13,5 +13,5 @@ Developers can usually be found in the Egoboo Gitter channel:
 
 ### Travis CI Build Status
 Travis CI build status of [master](https://github.com/egoboo/egoboo/tree/master) branch:
-[![Build Status](https://travis-ci.org/egoboo/egoboo.svg)](https://travis-ci.org/egoboo/egoboo)
+[![Build Status](https://travis-ci.org/egoboo/egoboo.svg?branch=master)](https://travis-ci.org/egoboo/egoboo)
 
