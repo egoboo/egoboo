@@ -19,7 +19,7 @@
 /// @author Johan Jansen
 
 #include "game/core/GameEngine.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/gamestates/MainMenuState.hpp"
 #include "game/profiles/_Include.hpp"

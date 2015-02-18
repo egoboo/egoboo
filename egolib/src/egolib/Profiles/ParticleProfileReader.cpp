@@ -20,6 +20,7 @@
 #define EGOLIB_PROFILES_PRIVATE 1
 #include "egolib/Profiles/ParticleProfileReader.hpp"
 
+#include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/file_formats/template.h"
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
@@ -202,5 +203,11 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
             }
         }
     }
+
+    // Limit the end_sound index.
+    profile->end_sound = CLIP<Sint8>(profile->end_sound, INVALID_SOUND_ID, MAX_WAVE);
+    // Limit the soundspawn index.
+    profile->soundspawn = CLIP<Sint8>(profile->soundspawn, INVALID_SOUND_ID, MAX_WAVE);
+
     return true;
 }

@@ -1,5 +1,5 @@
 #include "game/gui/Button.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
 const GLXvector4f Button::DEFAULT_BUTTON_COLOUR  = {0.66f, 0.00f, 0.00f, 0.60f};
 const GLXvector4f Button::HOVER_BUTTON_COLOUR    = {0.54f, 0.00f, 0.00f, 1.00f};

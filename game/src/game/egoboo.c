@@ -34,7 +34,7 @@
 
 #include "game/module/Module.hpp"
 #include "game/profiles/_Include.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
 #if defined(__cplusplus)
 extern "C"

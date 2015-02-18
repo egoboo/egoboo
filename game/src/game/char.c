@@ -27,7 +27,7 @@
 #include "egolib/math/Random.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/module/Passage.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "game/module/Module.hpp"
 #include "game/gui/UIManager.hpp"
 
@@ -44,7 +44,7 @@
 #include "game/obj_BSP.h"
 #include "game/egoboo.h"
 #include "game/module/Passage.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "game/profiles/_Include.hpp"
 #include "game/module/Module.hpp"
 

@@ -27,13 +27,14 @@
 
 /// Temporary abstract profile system for unifying particle- and
 /// enchant-profiles systems before merging both into ProfileSystem.
-template <typename TYPE,typename REFTYPE,REFTYPE INVALIDREF,size_t COUNT>
+template <typename TYPE,typename REFTYPE,REFTYPE INVALIDREF,size_t COUNT,typename READER>
 struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
 {
+    const std::string _profileTypeName;
     const std::string _debugPathName;
 
-    _AbstractProfileSystem(const std::string& debugPathName) :
-        _debugPathName(debugPathName)
+    _AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
+        _profileTypeName(profileTypeName), _debugPathName(debugPathName)
     {}
 
     bool isValidRange(REFTYPE ref)
@@ -46,7 +47,105 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
         return isValidRange(ref) && lst[ref].loaded;
     }
 
+    void init_all()
+    {
+        for (REFTYPE ref = 0; ref < COUNT; ++ref)
+        {
+            get_ptr(ref)->init();
+        }
+        // Reset the stack "pointer".
+        count = 0;
+    }
+
+    bool release_one(const REFTYPE ref)
+    {
+        if (!isValidRange(ref)) return false;
+        TYPE *profile = get_ptr(ref);
+        if (profile->loaded) profile->init();
+        return true;
+    }
+
+    REFTYPE get_free()
+    {
+        REFTYPE ref = INVALIDREF;
+
+        if (count < COUNT)
+        {
+            ref = count;
+            count++;
+        }
+
+        return ref;
+    }
+
+
     /// @brief Load an profile into the profile stack.
     /// @return a reference to the profile on sucess, INVALIDREF on failure
+    REFTYPE load_one(const char *loadName, const REFTYPE _override)
+    {
+        REFTYPE ref = INVALIDREF;
+        if (isValidRange(_override))
+        {
+            release_one(_override);
+            ref = _override;
+        }
+        else
+        {
+            ref = get_free();
+        }
+
+        if (!isValidRange(ref))
+        {
+            return INVALIDREF;
+        }
+        TYPE *profile = get_ptr(ref);
+
+        if (!READER::read(profile, loadName))
+        {
+            return INVALIDREF;
+        }
+
+        return ref;
+    }
+
+    void release_all()
+    {
+        size_t numLoaded = 0;
+        int max_request = 0;
+        for (REFTYPE ref = 0; ref < COUNT; ref++)
+        {
+            if (isLoaded(ref))
+            {
+                TYPE *profile = get_ptr(ref);
+
+                max_request = std::max(max_request, profile->request_count);
+                numLoaded++;
+            }
+        }
+
+        if (numLoaded > 0 && max_request > 0)
+        {
+            vfs_FILE * ftmp = vfs_openWriteB(_debugPathName.c_str());
+            if (NULL != ftmp)
+            {
+                vfs_printf(ftmp, "List of used %s profiles\n\n", _profileTypeName.c_str());
+
+                for (REFTYPE ref = 0; ref < COUNT; ref++)
+                {
+                    if (isLoaded(ref))
+                    {
+                        eve_t *profile = EveStack.get_ptr(ref);
+                        vfs_printf(ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n",
+                            REF_TO_INT(ref), profile->name, profile->create_count, profile->request_count);
+                    }
+                }
+                vfs_close(ftmp);
+            }
+            for (REFTYPE ref = 0; ref < COUNT; ++ref)
+            {
+                release_one(ref);
+            }
+        }
+    }
 
 };

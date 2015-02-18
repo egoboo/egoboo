@@ -42,7 +42,7 @@
 #include "game/core/GameEngine.hpp"
 #include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "game/profiles/_Include.hpp"
 #include "game/module/Module.hpp"
 #include "game/char.h"

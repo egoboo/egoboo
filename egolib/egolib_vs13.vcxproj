@@ -255,6 +255,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Audio\AudioSystem.cpp" />
     <ClCompile Include="src\egolib\Script\Buffer.cpp" />
     <ClCompile Include="src\egolib\Script\Errors.cpp" />
     <ClCompile Include="src\egolib\Script\Location.cpp" />
@@ -426,6 +427,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Audio\AudioSystem.hpp" />
     <ClInclude Include="src\egolib\Exception.hpp" />
     <ClInclude Include="src\egolib\Profiles\ReaderUtilities.hpp" />
     <ClInclude Include="src\egolib\Script\Buffer.hpp" />

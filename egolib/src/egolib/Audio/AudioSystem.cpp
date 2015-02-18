@@ -18,9 +18,9 @@
 //********************************************************************************************
 /// @author Johan Jansen
 
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
-#include "game/graphics/CameraSystem.hpp"
+#include "game/Graphics/CameraSystem.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/char.h"

@@ -23,7 +23,7 @@
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/entities/Enchant.hpp"
 
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "game/game.h"
 #include "game/script_functions.h"
 #include "game/egoboo.h"

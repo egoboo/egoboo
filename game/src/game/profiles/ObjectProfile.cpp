@@ -28,7 +28,7 @@
 #include "game/game.h"
 #include "game/entities/_Include.hpp"
 #include "game/mad.h"       //for loading md2
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/file_formats/template.h"
 #include "egolib/math/Random.hpp"
 

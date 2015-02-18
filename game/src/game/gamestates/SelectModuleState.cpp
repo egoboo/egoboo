@@ -22,7 +22,7 @@
 /// @author Johan Jansen
 
 #include "game/core/GameEngine.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "game/gamestates/SelectModuleState.hpp"
 #include "game/gamestates/LoadingState.hpp"
 #include "game/game.h"

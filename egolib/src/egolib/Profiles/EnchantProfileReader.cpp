@@ -20,6 +20,7 @@
 #define EGOLIB_PROFILES_PRIVATE 1
 #include "egolib/Profiles/EnchantProfileReader.hpp"
 
+#include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/file_formats/template.h"
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
@@ -187,6 +188,9 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
 
     strncpy(profile->name, loadName, SDL_arraysize(profile->name));
     profile->loaded = true;
+
+    // Limit the endsound_index.
+    profile->endsound_index = CLIP<Sint16>(profile->endsound_index, INVALID_SOUND_ID, MAX_WAVE);
 
     return true;
 }

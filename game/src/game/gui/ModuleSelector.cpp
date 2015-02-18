@@ -24,7 +24,7 @@
 #include "game/gui/ModuleSelector.hpp"
 #include "game/gui/Button.hpp"
 #include "game/profiles/_Include.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
 ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules) :
 	_startIndex(0),

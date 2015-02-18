@@ -26,7 +26,7 @@
 #include "game/gamestates/VictoryScreen.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/profiles/_Include.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/game.h"
 #include "game/graphic.h"

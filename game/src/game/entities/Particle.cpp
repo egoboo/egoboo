@@ -22,7 +22,7 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/core/GameEngine.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 #include "game/profiles/_Include.hpp"
 #include "game/game.h"
 #include "game/mesh.h"

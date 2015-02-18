@@ -30,7 +30,7 @@
 #include "game/physics.h"
 #include "game/entities/_Include.hpp"
 #include "game/profiles/_Include.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

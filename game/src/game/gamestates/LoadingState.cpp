@@ -31,7 +31,7 @@
 #include "game/gui/Label.hpp"
 #include "game/gui/Image.hpp"
 #include "egolib/math/Random.hpp"
-#include "game/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
 //For loading stuff
 #include "game/graphics/CameraSystem.hpp"

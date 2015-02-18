@@ -55,6 +55,12 @@
     <Filter Include="Source Files\Script">
       <UniqueIdentifier>{e7e4f5d1-4324-40a7-91ac-59384ec37bdf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Audio">
+      <UniqueIdentifier>{587b9e09-efc9-4563-b4a3-2f35c3f8ac6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{9cf4ea1f-7c01-4ae6-b32e-d0492691f815}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -314,6 +320,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Script\Location.cpp">
       <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Audio\AudioSystem.cpp">
+      <Filter>Source Files\Audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -616,6 +625,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Script\Errors.hpp">
       <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Audio\AudioSystem.hpp">
+      <Filter>Header Files\Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

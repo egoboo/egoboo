@@ -24,16 +24,13 @@
 
 #include "game/profiles/_AbstractProfileSystem.hpp"
 
-extern _AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, MAX_EVE> EveStack;
+extern _AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, MAX_EVE, EnchantProfileReader> EveStack;
 
 #define VALID_EVE_RANGE(ref) (EveStack.isValidRange(ref))
 #define LOADED_EVE(ref) (EveStack.isLoaded(ref))
 
-// EveStack functions
-/// @brief Load an enchantment profile into the enchant profile stack.
-/// @return a reference to the particle profile on sucess, MAX_EVE on failure
-EVE_REF EveStack_load_one(const char* loadName, const EVE_REF _override);
-void EveStack_init_all();
-void EveStack_release_all();
-bool EveStack_release_one(const EVE_REF ref);
-EVE_REF EveStack_get_free();
+EVE_REF EveStack_load_one(const char* loadName, const EVE_REF _override); ///< @todo Remove this.
+void EveStack_init_all(); ///< @todo Remove this.
+void EveStack_release_all(); ///< @todo Remove this.
+bool EveStack_release_one(const EVE_REF ref); ///< @todo Remove this.
+EVE_REF EveStack_get_free(); ///< @todo Remove this.
