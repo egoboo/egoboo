@@ -120,6 +120,13 @@
 		CD44E45B1A8959CF00D345DF /* Branch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4531A8959CF00D345DF /* Branch.cpp */; };
 		CD44E45C1A8959CF00D345DF /* LeafList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4571A8959CF00D345DF /* LeafList.cpp */; };
 		CD44E45D1A8959CF00D345DF /* Tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD44E4591A8959CF00D345DF /* Tree.cpp */; };
+		CD4803A71A94419B006DB980 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803A31A94419A006DB980 /* Buffer.cpp */; };
+		CD4803A81A94419B006DB980 /* Errors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803A41A94419A006DB980 /* Errors.cpp */; };
+		CD4803A91A94419B006DB980 /* Location.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803A61A94419A006DB980 /* Location.cpp */; };
+		CD4803AD1A9441F5006DB980 /* AudioSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803AB1A9441F5006DB980 /* AudioSystem.cpp */; };
+		CD4803B51A944228006DB980 /* EnchantProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803AF1A944228006DB980 /* EnchantProfileSystem.cpp */; };
+		CD4803B61A944228006DB980 /* ObjectProfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803B11A944228006DB980 /* ObjectProfile.cpp */; };
+		CD4803B71A944228006DB980 /* ParticleProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */; };
 		CD4B64E61A7EE94C00A52646 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4B64E41A7EE94C00A52646 /* Object.cpp */; };
 		CD5953901A3F5C430052A682 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085C9E12ED4FAD0051AF5F /* host.c */; };
 		CD5953911A3F5C430052A682 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAB12ED4FAD0051AF5F /* list.c */; };
@@ -161,9 +168,7 @@
 		CD94B4A51A8B3F1500BECFC9 /* IdLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD94B4A31A8B3F1500BECFC9 /* IdLib.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
 		CDB3DC981A659EF30098D3B9 /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC961A659ED40098D3B9 /* mem.c */; };
-		CDB3DC9C1A65D0760098D3B9 /* AudioSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC9A1A65D0760098D3B9 /* AudioSystem.cpp */; };
 		CDBD89411A6C02AF00250CE2 /* MD2Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */; };
-		CDBD89491A6C02C100250CE2 /* Profile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89431A6C02C100250CE2 /* Profile.cpp */; };
 		CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */; };
 		CDBDE3EC1A43A3EF008E5FD1 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3A81A43A2CC008E5FD1 /* lapi.c */; };
 		CDBDE3EE1A43A3EF008E5FD1 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AA1A43A2CC008E5FD1 /* lauxlib.c */; };
@@ -640,6 +645,19 @@
 		CD44E4591A8959CF00D345DF /* Tree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tree.cpp; sourceTree = "<group>"; };
 		CD44E45A1A8959CF00D345DF /* Tree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tree.hpp; sourceTree = "<group>"; };
 		CD44E45E1A895D9B00D345DF /* ComparisonFunction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ComparisonFunction.hpp; sourceTree = "<group>"; };
+		CD4803A31A94419A006DB980 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
+		CD4803A41A94419A006DB980 /* Errors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Errors.cpp; sourceTree = "<group>"; };
+		CD4803A51A94419A006DB980 /* Errors.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Errors.hpp; sourceTree = "<group>"; };
+		CD4803A61A94419A006DB980 /* Location.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Location.cpp; sourceTree = "<group>"; };
+		CD4803AB1A9441F5006DB980 /* AudioSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioSystem.cpp; sourceTree = "<group>"; };
+		CD4803AC1A9441F5006DB980 /* AudioSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AudioSystem.hpp; sourceTree = "<group>"; };
+		CD4803AE1A944228006DB980 /* _AbstractProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = _AbstractProfileSystem.hpp; sourceTree = "<group>"; };
+		CD4803AF1A944228006DB980 /* EnchantProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnchantProfileSystem.cpp; sourceTree = "<group>"; };
+		CD4803B01A944228006DB980 /* EnchantProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnchantProfileSystem.hpp; sourceTree = "<group>"; };
+		CD4803B11A944228006DB980 /* ObjectProfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjectProfile.cpp; sourceTree = "<group>"; };
+		CD4803B21A944228006DB980 /* ObjectProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ObjectProfile.hpp; sourceTree = "<group>"; };
+		CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleProfileSystem.cpp; sourceTree = "<group>"; };
+		CD4803B41A944228006DB980 /* ParticleProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParticleProfileSystem.hpp; sourceTree = "<group>"; };
 		CD4B64E41A7EE94C00A52646 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		CD4B64E51A7EE94C00A52646 /* Object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
 		CD58B7191A911BD900F2D2E6 /* ReaderUtilities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReaderUtilities.hpp; sourceTree = "<group>"; };
@@ -651,7 +669,6 @@
 		CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicArray.hpp; sourceTree = "<group>"; };
 		CD78A75F1A934C8D00778820 /* Exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Exception.hpp; sourceTree = "<group>"; };
 		CD78A7611A934C8D00778820 /* Buffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Buffer.hpp; sourceTree = "<group>"; };
-		CD78A7621A934C8D00778820 /* LexicalError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LexicalError.hpp; sourceTree = "<group>"; };
 		CD78A7631A934C8D00778820 /* Location.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Location.hpp; sourceTree = "<group>"; };
 		CD792BF61A881FE20086270E /* GameEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameEngine.cpp; sourceTree = "<group>"; };
 		CD792BF71A881FE20086270E /* GameEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameEngine.hpp; sourceTree = "<group>"; };
@@ -748,12 +765,8 @@
 		CD97C1611A629E2500179A2C /* Passage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Passage.cpp; sourceTree = "<group>"; };
 		CD97C1621A629E2500179A2C /* Passage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Passage.hpp; sourceTree = "<group>"; };
 		CDB3DC961A659ED40098D3B9 /* mem.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mem.c; sourceTree = "<group>"; };
-		CDB3DC9A1A65D0760098D3B9 /* AudioSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioSystem.cpp; sourceTree = "<group>"; };
-		CDB3DC9B1A65D0760098D3B9 /* AudioSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AudioSystem.hpp; sourceTree = "<group>"; };
 		CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MD2Model.cpp; sourceTree = "<group>"; };
 		CDBD89401A6C02AF00250CE2 /* MD2Model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MD2Model.hpp; sourceTree = "<group>"; };
-		CDBD89431A6C02C100250CE2 /* Profile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Profile.cpp; sourceTree = "<group>"; };
-		CDBD89441A6C02C100250CE2 /* Profile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Profile.hpp; sourceTree = "<group>"; };
 		CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfileSystem.cpp; sourceTree = "<group>"; };
 		CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProfileSystem.hpp; sourceTree = "<group>"; };
 		CDBDE3A31A43726C008E5FD1 /* file_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_linux.c; sourceTree = "<group>"; };
@@ -1023,7 +1036,6 @@
 			isa = PBXGroup;
 			children = (
 				CD5B0CAA1A6204EC00F076F9 /* ai */,
-				CDB3DC991A65D0760098D3B9 /* audio */,
 				CD792BF51A881FE20086270E /* core */,
 				CD4B64E31A7EE94C00A52646 /* entities */,
 				CD792BF81A881FE20086270E /* gamestates */,
@@ -1264,6 +1276,7 @@
 		CD39B2EF1A374AD600B377BE /* egolib */ = {
 			isa = PBXGroup;
 			children = (
+				CD4803AA1A9441F5006DB980 /* Audio */,
 				CD39B3121A374B6000B377BE /* extensions */,
 				CD39B3211A374B6000B377BE /* file_formats */,
 				CD39B3621A374B6000B377BE /* lua */,
@@ -1472,6 +1485,15 @@
 			path = Scene;
 			sourceTree = "<group>";
 		};
+		CD4803AA1A9441F5006DB980 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				CD4803AB1A9441F5006DB980 /* AudioSystem.cpp */,
+				CD4803AC1A9441F5006DB980 /* AudioSystem.hpp */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
 		CD4B64E31A7EE94C00A52646 /* entities */ = {
 			isa = PBXGroup;
 			children = (
@@ -1506,8 +1528,11 @@
 		CD78A7601A934C8D00778820 /* Script */ = {
 			isa = PBXGroup;
 			children = (
+				CD4803A31A94419A006DB980 /* Buffer.cpp */,
 				CD78A7611A934C8D00778820 /* Buffer.hpp */,
-				CD78A7621A934C8D00778820 /* LexicalError.hpp */,
+				CD4803A41A94419A006DB980 /* Errors.cpp */,
+				CD4803A51A94419A006DB980 /* Errors.hpp */,
+				CD4803A61A94419A006DB980 /* Location.cpp */,
 				CD78A7631A934C8D00778820 /* Location.hpp */,
 			);
 			path = Script;
@@ -1741,23 +1766,19 @@
 			path = module;
 			sourceTree = "<group>";
 		};
-		CDB3DC991A65D0760098D3B9 /* audio */ = {
-			isa = PBXGroup;
-			children = (
-				CDB3DC9A1A65D0760098D3B9 /* AudioSystem.cpp */,
-				CDB3DC9B1A65D0760098D3B9 /* AudioSystem.hpp */,
-			);
-			path = audio;
-			sourceTree = "<group>";
-		};
 		CDBD89421A6C02C100250CE2 /* profiles */ = {
 			isa = PBXGroup;
 			children = (
 				CDF3163B1A8F5B93009E6F33 /* _Include.hpp */,
+				CD4803AE1A944228006DB980 /* _AbstractProfileSystem.hpp */,
+				CD4803AF1A944228006DB980 /* EnchantProfileSystem.cpp */,
+				CD4803B01A944228006DB980 /* EnchantProfileSystem.hpp */,
 				CD792C311A88204E0086270E /* ModuleProfile.cpp */,
 				CD792C321A88204E0086270E /* ModuleProfile.hpp */,
-				CDBD89431A6C02C100250CE2 /* Profile.cpp */,
-				CDBD89441A6C02C100250CE2 /* Profile.hpp */,
+				CD4803B11A944228006DB980 /* ObjectProfile.cpp */,
+				CD4803B21A944228006DB980 /* ObjectProfile.hpp */,
+				CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */,
+				CD4803B41A944228006DB980 /* ParticleProfileSystem.hpp */,
 				CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */,
 				CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */,
 			);
@@ -2124,7 +2145,6 @@
 				CD39B4681A37506100B377BE /* game.c in Sources */,
 				CD39B48A1A37506100B377BE /* player.c in Sources */,
 				CD792C2D1A881FE20086270E /* Image.cpp in Sources */,
-				CDBD89491A6C02C100250CE2 /* Profile.cpp in Sources */,
 				CD97C1651A629E2500179A2C /* Passage.cpp in Sources */,
 				CDED15AD1A88393A00AFA2AD /* UIManager.cpp in Sources */,
 				CD0FE1531A7B096800F3392B /* ObjectHandler.cpp in Sources */,
@@ -2143,7 +2163,6 @@
 				CD792C201A881FE20086270E /* InGameMenuState.cpp in Sources */,
 				CDF316371A8F5B80009E6F33 /* Enchant.cpp in Sources */,
 				CD792C261A881FE20086270E /* SelectModuleState.cpp in Sources */,
-				CDB3DC9C1A65D0760098D3B9 /* AudioSystem.cpp in Sources */,
 				CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */,
 				CD39B45F1A37506100B377BE /* collision.c in Sources */,
 				CD4B64E61A7EE94C00A52646 /* Object.cpp in Sources */,
@@ -2270,6 +2289,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD4803B71A944228006DB980 /* ParticleProfileSystem.cpp in Sources */,
 				CDD931A51A428D970004A8B2 /* vec.c in Sources */,
 				CDCA1FAC1A3F57D000002E76 /* egoboo_setup.c in Sources */,
 				CDCA1FDA1A3F57D000002E76 /* NSFileManager+DirectoryLocations.m in Sources */,
@@ -2295,18 +2315,22 @@
 				CDE4EC621A7167CD00A4BC62 /* Sphere.cpp in Sources */,
 				CD44E45D1A8959CF00D345DF /* Tree.cpp in Sources */,
 				CDC1871B1A7B08BC001E69ED /* Colour3f.cpp in Sources */,
+				CD4803A91A94419B006DB980 /* Location.cpp in Sources */,
 				CDCA1FD41A3F57D000002E76 /* input_device.c in Sources */,
 				CDD8806F1A44A8EF007177F3 /* bv.c in Sources */,
 				CDCA1FD11A3F57D000002E76 /* geometry.c in Sources */,
 				CD0FE15A1A7B09AD00F3392B /* Renderer.cpp in Sources */,
 				CDCA1FD71A3F57D000002E76 /* network_file.c in Sources */,
 				CDCA1FCA1A3F57D000002E76 /* template.c in Sources */,
+				CD4803B51A944228006DB980 /* EnchantProfileSystem.cpp in Sources */,
 				CDE4EC611A7167CD00A4BC62 /* Plane.cpp in Sources */,
+				CD4803A81A94419B006DB980 /* Errors.cpp in Sources */,
 				CDCA1FDE1A3F57D000002E76 /* strutil.c in Sources */,
 				CDCA1FBE1A3F57D000002E76 /* map_file-v2.c in Sources */,
 				CDCA1FD01A3F57D000002E76 /* frustum.c in Sources */,
 				CDCA1FC21A3F57D000002E76 /* map_tile_dictionary.c in Sources */,
 				CDD880701A44A8EF007177F3 /* matrix.c in Sources */,
+				CD4803B61A944228006DB980 /* ObjectProfile.cpp in Sources */,
 				CDCA1FC11A3F57D000002E76 /* map_file.c in Sources */,
 				CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */,
 				CD13298B1A90130300D1B221 /* ParticleProfileReader.cpp in Sources */,
@@ -2315,7 +2339,9 @@
 				CDCA1FD21A3F57D000002E76 /* hash.c in Sources */,
 				CDCA1FDC1A3F57D000002E76 /* process.c in Sources */,
 				CDCA1FA81A3F57D000002E76 /* bbox.c in Sources */,
+				CD4803AD1A9441F5006DB980 /* AudioSystem.cpp in Sources */,
 				CDCA1FC61A3F57D000002E76 /* quest_file.c in Sources */,
+				CD4803A71A94419B006DB980 /* Buffer.cpp in Sources */,
 				CDCA1FE11A3F57D000002E76 /* timer.c in Sources */,
 				CDCA1FD81A3F57D000002E76 /* network.c in Sources */,
 				CDCA1FAE1A3F57D000002E76 /* ogl_debug.c in Sources */,
