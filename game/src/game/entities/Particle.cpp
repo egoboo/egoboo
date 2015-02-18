@@ -1854,25 +1854,6 @@ void move_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void particle_system_begin()
-{
-    /// @author ZZ
-    /// @details This function sets up particle data
-
-    // Reset the allocation table
-    PrtList.ctor();
-    PipStack_init_all();
-}
-
-//--------------------------------------------------------------------------------------------
-void particle_system_end()
-{
-    PipStack_release_all();
-    PrtList.dtor();
-}
-
-//--------------------------------------------------------------------------------------------
 int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
 {
     /// @author ZZ

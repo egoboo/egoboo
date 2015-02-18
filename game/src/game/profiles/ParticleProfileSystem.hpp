@@ -28,9 +28,3 @@ extern _AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, Particle
 
 #define VALID_PIP_RANGE(ref) (PipStack.isValidRange(ref))
 #define LOADED_PIP(ref) (PipStack.isLoaded(ref))
-
-PIP_REF PipStack_load_one(const char *loadName, const PIP_REF _override); ///< @todo Remove this.
-void PipStack_init_all(); ///< @todo Remove this.
-void PipStack_release_all(); ///< @todo Remove this.
-bool PipStack_release_one(const PIP_REF ref); ///< @todo Remove this.
-PIP_REF PipStack_get_free(); ///< @todo Remove this.

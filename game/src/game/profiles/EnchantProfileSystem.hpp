@@ -28,9 +28,3 @@ extern _AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, MAX_EVE, EnchantP
 
 #define VALID_EVE_RANGE(ref) (EveStack.isValidRange(ref))
 #define LOADED_EVE(ref) (EveStack.isLoaded(ref))
-
-EVE_REF EveStack_load_one(const char* loadName, const EVE_REF _override); ///< @todo Remove this.
-void EveStack_init_all(); ///< @todo Remove this.
-void EveStack_release_all(); ///< @todo Remove this.
-bool EveStack_release_one(const EVE_REF ref); ///< @todo Remove this.
-EVE_REF EveStack_get_free(); ///< @todo Remove this.

@@ -116,6 +116,11 @@ bool AudioSystem::initialize(const egoboo_config_t &pcfg)
     return true;
 }
 
+void AudioSystem::uninitialize()
+{
+    Mix_Quit();
+}
+
 void AudioSystem::loadGlobalSounds()
 {
     //Load global sounds

@@ -113,6 +113,7 @@ public:
 	~AudioSystem();
 
 	bool initialize(const egoboo_config_t &pcfg);
+    void uninitialize();
 
 	void loadGlobalSounds();
 

@@ -231,8 +231,9 @@ ObjectProfile::~ObjectProfile()
     //EveStack_release_one( pobj->ieve );
 
     //Release particle profiles
-    for(const auto &element : _particleProfiles) {
-        PipStack_release_one(element.second);
+    for(const auto &element : _particleProfiles)
+    {
+        PipStack.release_one(element.second);
     }
 
     // release whatever textures are being used
@@ -989,7 +990,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
         // Load the enchantment for this profile (optional)
         STRING newloadname;
         make_newloadname( folderPath.c_str(), "/enchant.txt", newloadname );
-        profile->_ieve = EveStack_load_one( newloadname, static_cast<EVE_REF>(slotNumber) );
+        profile->_ieve = EveStack.load_one( newloadname, static_cast<EVE_REF>(slotNumber) );
 
         // Load the messages for this profile, do this before loading the AI script
         // to ensure any dynamic loaded messages get loaded last (optional)
@@ -999,7 +1000,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
         for (size_t cnt = 0; cnt < 30; cnt++ ) //TODO: find better way of listing files
         {
             const std::string particleName = folderPath + "/part" + std::to_string(cnt) + ".txt";
-            PIP_REF particleProfile = PipStack_load_one(particleName.c_str(), INVALID_PIP_REF);
+            PIP_REF particleProfile = PipStack.load_one(particleName.c_str(), INVALID_PIP_REF);
 
             // Make sure it's referenced properly
             if(particleProfile != INVALID_PIP_REF) {

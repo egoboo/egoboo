@@ -115,10 +115,6 @@ struct enc_t : public _StateMachine < enc_t, EnchantManager >
 
 };
 
-// enchant_system functions
-void enchant_system_begin();
-void enchant_system_end();
-
 ENC_REF spawn_one_enchant(const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional);
 
 void update_all_enchants();

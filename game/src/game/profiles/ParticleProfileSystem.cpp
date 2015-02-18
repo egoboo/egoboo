@@ -22,28 +22,3 @@
 #include "egolib/Audio/AudioSystem.hpp"
 
 _AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader> PipStack("particle", "/debug/particle_profile_usage.txt");
-
-PIP_REF PipStack_load_one(const char *loadName, const PIP_REF _override)
-{
-    return PipStack.load_one(loadName, _override);
-}
-
-void PipStack_release_all()
-{
-    PipStack.release_all();
-}
-
-void PipStack_init_all()
-{
-    PipStack.init_all();
-}
-
-bool PipStack_release_one(const PIP_REF ref)
-{
-    return PipStack.release_one(ref);
-}
-
-PIP_REF PipStack_get_free()
-{
-    return PipStack.get_free();
-}

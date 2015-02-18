@@ -192,7 +192,7 @@ void LoadingState::loadModuleData()
     DisplayMsg_reset();
 
     // intialize the "profile system"
-    _profileSystem.begin();
+    _profileSystem.initialize();
 
     // do some graphics initialization
     //make_lightdirectionlookup();

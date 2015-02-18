@@ -47,7 +47,7 @@ ProfileSystem::ProfileSystem() :
 	//ctor
 }
 
-void ProfileSystem::begin()
+bool ProfileSystem::initialize()
 {
 
     if (_initialized)
@@ -62,8 +62,8 @@ void ProfileSystem::begin()
     }
 
     // initialize all the sub-profile lists
-    PipStack_init_all();
-    EveStack_init_all();
+    PipStack.init_all();
+    EveStack.init_all();
     MadStack_reconstruct_all();
 
     // fix the book icon list
@@ -83,9 +83,11 @@ void ProfileSystem::begin()
 
     // let the code know that everything is initialized
     _initialized = true;
+
+    return true;
 }
 
-void ProfileSystem::end()
+void ProfileSystem::uninitialize()
 {
     if (_initialized)
     {
@@ -111,8 +113,8 @@ void ProfileSystem::releaseAllProfiles()
     _profilesLoaded.clear();
 
     // relese every type of sub-profile and re-initalize the lists
-    PipStack_release_all();
-    EveStack_release_all();
+    PipStack.release_all();
+    EveStack.release_all();
     MadStack_release_all();
 }
 

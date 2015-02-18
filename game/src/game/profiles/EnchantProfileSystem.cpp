@@ -22,28 +22,3 @@
 #include "egolib/Audio/AudioSystem.hpp"
 
 _AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, MAX_EVE, EnchantProfileReader> EveStack("enchant", "/debug/enchant_profile_usage.txt");
-
-EVE_REF EveStack_load_one(const char *loadName, const EVE_REF _override)
-{
-    return EveStack.load_one(loadName, _override);
-}
-
-void EveStack_release_all()
-{
-    EveStack.release_all();
-}
-
-void EveStack_init_all()
-{
-    EveStack.init_all();
-}
-
-bool EveStack_release_one(const EVE_REF ref)
-{
-    return EveStack.release_one(ref);
-}
-
-EVE_REF EveStack_get_free()
-{
-    return EveStack.get_free();
-}

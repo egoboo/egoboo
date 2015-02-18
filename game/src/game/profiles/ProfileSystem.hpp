@@ -46,15 +46,19 @@ class ProfileSystem
 public:
 	ProfileSystem();
 
-    /// @author BB
-    /// @details initialize the profile list and load up some intialization files
-    ///     necessary for the the profile loading code to work
-	void begin();
+    /**
+     * @brief
+     *  Initialize the profile system.
+     * @return
+     *  @a true on success, @a false on failure.
+     */
+	bool initialize();
 
 	/**
-	* Unloads all object profiles
-	**/
-	void end();
+     * @brief
+     *  Uninitialize the profile system.
+     */
+	void uninitialize();
 
 	void releaseAllProfiles();
 

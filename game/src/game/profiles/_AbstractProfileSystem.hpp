@@ -108,6 +108,10 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
         return ref;
     }
 
+    void unintialize()
+    {
+    }
+
     void release_all()
     {
         size_t numLoaded = 0;

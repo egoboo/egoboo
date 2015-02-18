@@ -45,8 +45,6 @@ struct ParticleManager;
 
 #define SPAWNNOCHARACTER                255         ///< For particles that spawn characters...
 
-
-
 //--------------------------------------------------------------------------------------------
 
 /// Everything that is necessary to compute the character's interaction with the environment
@@ -278,10 +276,6 @@ extern int prt_pressure_tests;
 // function prototypes
 //--------------------------------------------------------------------------------------------
 
-// particle_system functions
-void particle_system_begin();
-void particle_system_end();
-
 void update_all_particles();
 void move_all_particles();
 void cleanup_all_particles();
@@ -319,5 +313,3 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
 
 PIP_REF prt_get_ipip(const PRT_REF ref); /**< @deprecated */
 pip_t *prt_get_ppip(const PRT_REF ref);  /**< @deprecated */
-
-

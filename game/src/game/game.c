@@ -3756,8 +3756,8 @@ bool wawalite_finalize( wawalite_data_t * pdata )
         snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
 
         //try to load the particle files, we need at least the first particle for weather to work
-        success = INVALID_PIP_REF != PipStack_load_one( prt_file, ( PIP_REF )PIP_WEATHER );
-        PipStack_load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
+        success = INVALID_PIP_REF != PipStack.load_one( prt_file, ( PIP_REF )PIP_WEATHER );
+        PipStack.load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
 
         //Unknown weather parsed
         if ( !success )

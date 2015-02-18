@@ -285,10 +285,10 @@ bool GameEngine::initialize()
     for (int i = 0; i < 4; i++) SDL_PumpEvents();
 #endif
 
-    //Load basic textures
+    // Load basic textures
     gfx_system_load_basic_textures();
 
-    // initialize the sound system
+    // Initialize the sound system.
     renderPreloadText("Loading audio...");
     _audioSystem.initialize(cfg);
     _audioSystem.loadAllMusic();
@@ -315,12 +315,15 @@ bool GameEngine::initialize()
     // initialize the console
     egolib_console_begin();
 
+    // Initialize the profile system.
+    _profileSystem.initialize();
+
     // make sure that a bunch of stuff gets initialized properly
-    particle_system_begin();
-    enchant_system_begin();
+    PrtList.initialize();
+    EncList.initialize();
     model_system_begin();
     ego_mesh_ctor(PMesh);
-    _profileSystem.begin();
+
 
     renderPreloadText("Loading modules...");
     _profileSystem.loadModuleProfiles();
@@ -365,10 +368,16 @@ void GameEngine::uninitialize()
     scripting_system_end();
 
     // deallocate all dynamically allocated memory for characters, particles, enchants, and models
-    particle_system_end();
-    enchant_system_end();
+    PrtList.uninitialize();
+    EncList.uninitialize();
     _gameObjects.clear();
     model_system_end();
+
+    // Uninitialize the profile system.
+    _profileSystem.uninitialize();
+
+    // Uninitialize the audio system.
+    _audioSystem.uninitialize();
 
     // shut down the log services
     log_message( "Success!\n" );

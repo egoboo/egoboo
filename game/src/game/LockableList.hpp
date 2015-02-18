@@ -72,7 +72,7 @@ public:
     }
 
     //--------------------------------------------------------------------------------------------
-    void ctor()
+    void initialize()
     {
         // Initialize the list.
         init();
@@ -93,7 +93,7 @@ public:
         }
     }
 
-    void dtor()
+    void uninitialize()
     {
         // Construct the sub-objects.
         for (size_t i = 0; i < getCount(); ++i)
@@ -111,7 +111,7 @@ public:
         deinit();
     }
 
-
+protected:
     void init()
     {
         clear();
@@ -134,6 +134,7 @@ public:
         clear();
     }
 
+public:
     void clear()
     {
         // Clear out the free and used lists.
