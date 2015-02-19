@@ -261,7 +261,7 @@ prt_t *prt_t::config_do_init()
     ppip = PipStack.get_ptr(pdata->ipip);
 
     // let the object be activated
-    POBJ_ACTIVATE(pprt, ppip->name);
+    POBJ_ACTIVATE(pprt, ppip->_name);
 
     // make some local copies of the spawn data
     loc_facing = pdata->facing;
@@ -285,9 +285,9 @@ prt_t *prt_t::config_do_init()
     pprt->owner_ref = loc_chr_origin;
     pprt->parent_ref = pdata->prt_origin;
     pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? PrtList.get_ptr(pdata->prt_origin)->obj_base.guid : ((Uint32)(~0));
-    pprt->damagetype = ppip->damagetype;
-    pprt->lifedrain = ppip->lifedrain;
-    pprt->manadrain = ppip->manadrain;
+    pprt->damagetype = ppip->damageType;
+    pprt->lifedrain = ppip->lifeDrain;
+    pprt->manadrain = ppip->manaDrain;
 
     // Lighting and sound
     pprt->dynalight = ppip->dynalight;
@@ -511,7 +511,7 @@ prt_t *prt_t::config_do_init()
     range_to_pair(ppip->damage, &(pprt->damage));
 
     // Spawning data
-    pprt->contspawn_timer = ppip->contspawn_delay;
+    pprt->contspawn_timer = ppip->contspawn._delay;
     if (0 != pprt->contspawn_timer)
     {
         pprt->contspawn_timer = 1;
@@ -522,9 +522,9 @@ prt_t *prt_t::config_do_init()
     }
 
     // the end-spawn data. determine the
-    pprt->endspawn_amount = ppip->endspawn_amount;
-    pprt->endspawn_facingadd = ppip->endspawn_facingadd;
-    pprt->endspawn_lpip = ppip->endspawn_lpip;
+    pprt->endspawn_amount = ppip->endspawn._amount;
+    pprt->endspawn_facingadd = ppip->endspawn._facingAdd;
+    pprt->endspawn_lpip = ppip->endspawn._lpip;
 
     // set up the particle transparency
     pprt->inst.alpha = 0xFF;
@@ -654,14 +654,14 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
     pip_t *ppip = PipStack.get_ptr(ipip);
 
     // count all the requests for this particle type
-    ppip->request_count++;
+    ppip->_spawnRequestCount++;
 
     PRT_REF iprt = PrtList.allocate(ppip->force);
     if (!DEFINED_PRT(iprt))
     {
         log_debug("spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
             chr_origin, _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
-            ipip, LOADED_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
+            ipip, LOADED_PIP(ipip) ? PipStack.lst[ipip]._name : "INVALID",
             iprofile, _profileSystem.isValidProfileID(iprofile) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID");
 
         return INVALID_PRT_REF;
@@ -692,7 +692,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
     if (NULL != pprt)
     {
         POBJ_END_SPAWN(pprt);
-        ppip->create_count++;
+        ppip->_spawnCount++;
     }
 
     return iprt;
@@ -733,7 +733,7 @@ PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF ip
     ppip = PipStack.get_ptr(ipip);
 
     // count all the requests for this particle type
-    ppip->request_count++;
+    ppip->_spawnRequestCount++;
 
     iprt = PrtList.allocate(ppip->force);
     if (!DEFINED_PRT(iprt))
@@ -773,7 +773,7 @@ PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF ip
     if (NULL != pprt)
     {
         POBJ_END_SPAWN(pprt);
-        ppip->create_count++;
+        ppip->_spawnCount++;
     }
 
     return iprt;
@@ -1878,8 +1878,8 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     ppip = PipStack.get_ptr(pprt->pip_ref);
 
     // no point in going on, is there?
-    if (0 == ppip->bumpspawn_amount && !ppip->spawnenchant) return 0;
-    amount = ppip->bumpspawn_amount;
+    if (0 == ppip->bumpspawn._amount && !ppip->spawnenchant) return 0;
+    amount = ppip->bumpspawn._amount;
 
     if (!_gameObjects.exists(character)) return 0;
     pchr = _gameObjects.get(character);
@@ -1898,7 +1898,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     // Check that direction
     if (!is_invictus_direction(direction, character, ppip->damfx))
     {
-        IPair loc_rand = { 0, 100 };
+        IPair loc_rand(0, 100);
         int damage_resistance;
 
         // Spawn new enchantments
@@ -2011,7 +2011,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                             }
                         }
 
-                        bs_part = spawn_one_particle(pchr->getPosition(), pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
+                        bs_part = spawn_one_particle(pchr->getPosition(), pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn._lpip,
                             character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
 
                         if (DEFINED_PRT(bs_part))
@@ -2442,7 +2442,7 @@ int prt_bundle_t::do_contspawn(prt_bundle_t * pbdl_prt)
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
-    if (loc_ppip->contspawn_amount <= 0 || -1 == loc_ppip->contspawn_lpip)
+    if (loc_ppip->contspawn._amount <= 0 || -1 == loc_ppip->contspawn._lpip)
     {
         return spawn_count;
     }
@@ -2450,12 +2450,12 @@ int prt_bundle_t::do_contspawn(prt_bundle_t * pbdl_prt)
     if (loc_pprt->contspawn_timer > 0) return spawn_count;
 
     // reset the spawn timer
-    loc_pprt->contspawn_timer = loc_ppip->contspawn_delay;
+    loc_pprt->contspawn_timer = loc_ppip->contspawn._delay;
 
     facing = loc_pprt->facing;
-    for (tnc = 0; tnc < loc_ppip->contspawn_amount; tnc++)
+    for (tnc = 0; tnc < loc_ppip->contspawn._amount; tnc++)
     {
-        PRT_REF prt_child = spawn_one_particle(prt_t::get_pos_v_const(loc_pprt), facing, loc_pprt->profile_ref, loc_ppip->contspawn_lpip,
+        PRT_REF prt_child = spawn_one_particle(prt_t::get_pos_v_const(loc_pprt), facing, loc_pprt->profile_ref, loc_ppip->contspawn._lpip,
             INVALID_CHR_REF, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref);
 
         if (DEFINED_PRT(prt_child))
@@ -2478,7 +2478,7 @@ int prt_bundle_t::do_contspawn(prt_bundle_t * pbdl_prt)
             spawn_count++;
         }
 
-        facing += loc_ppip->contspawn_facingadd;
+        facing += loc_ppip->contspawn._facingAdd;
     }
 
     return spawn_count;

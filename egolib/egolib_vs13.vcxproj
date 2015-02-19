@@ -255,6 +255,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\IDSZ.cpp" />
     <ClCompile Include="src\egolib\Audio\AudioSystem.cpp" />
     <ClCompile Include="src\egolib\Script\Buffer.cpp" />
     <ClCompile Include="src\egolib\Script\Errors.cpp" />
@@ -427,6 +428,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\IDSZ.hpp" />
+    <ClInclude Include="src\egolib\Profiles\AbstractProfile.hpp" />
     <ClInclude Include="src\egolib\Audio\AudioSystem.hpp" />
     <ClInclude Include="src\egolib\Exception.hpp" />
     <ClInclude Include="src\egolib\Profiles\ReaderUtilities.hpp" />

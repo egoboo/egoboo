@@ -40,17 +40,95 @@ particle_direction_t prt_direction[256] =
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_u, prt_u, prt_u, prt_u
 };
 
+dynalight_info_t::dynalight_info_t() :
+    mode(0), on(0),
+    level(0.0f), level_add(0.0f),
+    falloff(0.0f), falloff_add(0.0f)
+{
+}
+
+pip_t::pip_t() :
+    orientation(ORIENTATION_B), // Orientation is billboard orientation.
+    dynalight(),
+    damfx(DAMFX_TURN),
+    allowpush(true),
+    type(SPRITE_SOLID),
+    // Ending conditions,
+    end_time(0),
+    end_water(false),
+    end_bump(false),
+    end_ground(false),
+    end_wall(false),
+    end_lastframe(false),
+    // Ending sounds.
+    end_sound(-1),
+    end_sound_floor(-1),
+    end_sound_wall(-1),
+    // Initial spawning of this particle.
+    facing_pair(),
+    spacing_hrz_pair(), 
+    spacing_vrt_pair(),
+    vel_hrz_pair(),
+    vel_vrt_pair(),
+    // Any life drain.
+    lifeDrain(0),
+    manaDrain(0),
+    // What/how to spawn continuously.
+    contspawn(),
+    // What/how to spawn at the end.
+    endspawn()
+{
+    damageBoni._intelligence = false;
+    damageBoni._wisdom = false;
+    // Metadata.
+    comment[0] = '\0';
+}
+
+pip_t::~pip_t()
+{
+}
+
 pip_t *pip_t::init()
 {
     // clear the pip
     BLANK_STRUCT_PTR(this);
 
-    this->loaded = false;
-    this->name[0] = '\0';
+    this->AbstractProfile::init();
 
-    this->end_sound = -1;
-    this->end_sound_floor = -1;
-    this->end_sound_wall = -1;
+    // Metadata.
+    strcpy(comment, "");
+
+    // Ending conditions,
+    end_time = 0;
+    end_water = false;
+    end_bump = false;
+    end_ground = false;
+    end_wall = false;
+    end_lastframe = false;
+
+    // Ending sounds.
+    end_sound = -1;
+    end_sound_floor = -1;
+    end_sound_wall = -1;
+
+    // Initial spawning of this particle.
+    facing_pair.init();
+    spacing_hrz_pair.init();
+    spacing_vrt_pair.init();
+    vel_hrz_pair.init();
+    vel_vrt_pair.init();
+
+    // Damage boni.
+    damageBoni._intelligence = 0;
+    damageBoni._wisdom = 0;
+
+    // What/how to spawn continuously.
+    contspawn.init();
+    // What/how to spawn at the end.
+    endspawn.init();
+    // What/how to spawn when bumped.
+    bumpspawn.init();
+    
     this->damfx = DAMFX_TURN;
 
     this->allowpush = true;

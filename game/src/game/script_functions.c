@@ -7172,7 +7172,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
         pip_t * ppip = _profileSystem.pro_get_ppip( pchr->profile_ref, iTmp );
         if ( NULL == ppip ) continue;
 
-        if ( ppip->intdamagebonus || ppip->wisdamagebonus )
+        if ( ppip->damageBoni._intelligence || ppip->damageBoni._wisdom )
         {
             returncode = true;
             break;

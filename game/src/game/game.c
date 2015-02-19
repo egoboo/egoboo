@@ -4045,7 +4045,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
         iowner = PMod->getShopOwner( pitem->getPosX(), pitem->getPosY() );
         if ( _gameObjects.exists( iowner ) )
         {
-            IPair  tmp_rand = {1, 100};
+            IPair  tmp_rand(1, 100);
             int  detection;
             Object * powner = _gameObjects.get( iowner );
 

@@ -41,8 +41,8 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->init();
 
     // set up the EGO_PROFILE_STUFF
-    strncpy(profile->name, loadName, SDL_arraysize(profile->name));
-    profile->loaded = true;
+    strncpy(profile->_name, loadName, SDL_arraysize(profile->_name));
+    profile->_loaded = true;
 
     // read the 1 line comment at the top of the file
     vfs_gets(profile->comment, SDL_arraysize(profile->comment) - 1, ctxt._file);
@@ -90,7 +90,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->bump_height = vfs_get_next_int(ctxt);
 
     vfs_get_next_range(ctxt, &(profile->damage));
-    profile->damagetype = vfs_get_next_damage_type(ctxt);
+    profile->damageType = vfs_get_next_damage_type(ctxt);
 
     // Lighting data
     cTmp = vfs_get_next_char(ctxt);
@@ -104,33 +104,38 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     // Initial spawning of this particle
     profile->facing_pair.base = vfs_get_next_int(ctxt);
     profile->facing_pair.rand = vfs_get_next_int(ctxt);
+
     profile->spacing_hrz_pair.base = vfs_get_next_int(ctxt);
     profile->spacing_hrz_pair.rand = vfs_get_next_int(ctxt);
+
     profile->spacing_vrt_pair.base = vfs_get_next_int(ctxt);
     profile->spacing_vrt_pair.rand = vfs_get_next_int(ctxt);
+
     profile->vel_hrz_pair.base = vfs_get_next_int(ctxt);
     profile->vel_hrz_pair.rand = vfs_get_next_int(ctxt);
+
     profile->vel_vrt_pair.base = vfs_get_next_int(ctxt);
     profile->vel_vrt_pair.rand = vfs_get_next_int(ctxt);
 
     // Continuous spawning of other particles
-    profile->contspawn_delay = vfs_get_next_int(ctxt);
-    profile->contspawn_amount = vfs_get_next_int(ctxt);
-    profile->contspawn_facingadd = vfs_get_next_int(ctxt);
-    profile->contspawn_lpip = vfs_get_next_int(ctxt);
+    profile->contspawn._delay = vfs_get_next_int(ctxt);
+    profile->contspawn._amount = vfs_get_next_int(ctxt);
+    profile->contspawn._facingAdd = vfs_get_next_int(ctxt);
+    profile->contspawn._lpip = vfs_get_next_int(ctxt);
 
     // End spawning of other particles
-    profile->endspawn_amount = vfs_get_next_int(ctxt);
-    profile->endspawn_facingadd = vfs_get_next_int(ctxt);
-    profile->endspawn_lpip = vfs_get_next_int(ctxt);
+    profile->endspawn._amount = vfs_get_next_int(ctxt);
+    profile->endspawn._facingAdd = vfs_get_next_int(ctxt);
+    profile->endspawn._lpip = vfs_get_next_int(ctxt);
 
     // Bump spawning of attached particles
-    profile->bumpspawn_amount = vfs_get_next_int(ctxt);
-    profile->bumpspawn_lpip = vfs_get_next_int(ctxt);
+    profile->bumpspawn._amount = vfs_get_next_int(ctxt);
+    profile->bumpspawn._facingAdd = 0; // @to add.
+    profile->bumpspawn._lpip = vfs_get_next_int(ctxt);
 
     // Random stuff  !!!BAD!!! Not complete
-    profile->daze_time = vfs_get_next_int(ctxt);
-    profile->grog_time = vfs_get_next_int(ctxt);
+    profile->dazeTime = vfs_get_next_nat(ctxt);
+    profile->grogTime = vfs_get_next_nat(ctxt);
     profile->spawnenchant = vfs_get_next_bool(ctxt);
 
     profile->cause_roll = vfs_get_next_bool(ctxt);  // !!Cause roll
@@ -160,8 +165,8 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
 
     goto_colon_vfs(ctxt, false);  // !!Respawn on hit is unused
 
-    profile->manadrain = vfs_get_next_ufp8(ctxt);
-    profile->lifedrain = vfs_get_next_ufp8(ctxt);
+    profile->manaDrain = vfs_get_next_ufp8(ctxt);
+    profile->lifeDrain = vfs_get_next_ufp8(ctxt);
 
     // assume default end_wall
     profile->end_wall = profile->end_ground;
@@ -174,7 +179,8 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     {
         idsz = vfs_get_idsz(ctxt);
 
-        if (idsz == MAKE_IDSZ('T', 'U', 'R', 'N'))       SET_BIT(profile->damfx, DAMFX_NONE);        //ZF> This line doesnt do anything?
+        if (idsz == MAKE_IDSZ('N', 'O', 'N', 'E'))       SET_BIT(profile->damfx, DAMFX_NONE);
+        else if (idsz == MAKE_IDSZ('T', 'U', 'R', 'N'))  SET_BIT(profile->damfx, DAMFX_TURN);
         else if (idsz == MAKE_IDSZ('A', 'R', 'M', 'O'))  SET_BIT(profile->damfx, DAMFX_ARMO);
         else if (idsz == MAKE_IDSZ('B', 'L', 'O', 'C'))  SET_BIT(profile->damfx, DAMFX_NBLOC);
         else if (idsz == MAKE_IDSZ('A', 'R', 'R', 'O'))  SET_BIT(profile->damfx, DAMFX_ARRO);
@@ -186,8 +192,8 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != ctxt.readInt());
         else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = ctxt.readInt() / 1000.0f;
         else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = ctxt.readInt() / 1000.0f;
-        else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->intdamagebonus = (0 != ctxt.readInt());
-        else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  profile->wisdamagebonus = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->damageBoni._intelligence = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  profile->damageBoni._wisdom = (0 != ctxt.readInt());
         else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readInt());
         else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
         {

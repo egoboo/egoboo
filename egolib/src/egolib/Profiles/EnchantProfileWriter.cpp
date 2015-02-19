@@ -51,7 +51,7 @@ bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const cha
 
     // true/false values
     template_put_bool(filetemp, filewrite, profile->retarget);
-    template_put_bool(filetemp, filewrite, profile->override);
+    template_put_bool(filetemp, filewrite, profile->_override);
     template_put_bool(filetemp, filewrite, profile->remove_overridden);
     template_put_bool(filetemp, filewrite, profile->killtargetonend);
 
@@ -62,16 +62,16 @@ bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const cha
     template_put_int(filetemp, filewrite, profile->endmessage);
 
     // Drain stuff
-    template_put_float(filetemp, filewrite, FP8_TO_FLOAT(profile->owner_mana));
-    template_put_float(filetemp, filewrite, FP8_TO_FLOAT(profile->target_mana));
-    template_put_bool(filetemp, filewrite, profile->endifcantpay);
-    template_put_float(filetemp, filewrite, FP8_TO_FLOAT(profile->owner_life));
-    template_put_float(filetemp, filewrite, FP8_TO_FLOAT(profile->target_life));
+    template_put_sfp8(filetemp, filewrite, profile->_owner._manaDrain);
+    template_put_sfp8(filetemp, filewrite, profile->_target._manaDrain);
+    template_put_bool(filetemp, filewrite, profile->endIfCannotPay);
+    template_put_sfp8(filetemp, filewrite, profile->_owner._lifeDrain);
+    template_put_sfp8(filetemp, filewrite, profile->_target._lifeDrain);
 
     // Specifics
     template_put_damage_type(filetemp, filewrite, profile->required_damagetype);
     template_put_damage_type(filetemp, filewrite, profile->require_damagetarget_damagetype);
-    template_put_idsz(filetemp, filewrite, profile->removedbyidsz);
+    template_put_idsz(filetemp, filewrite, profile->removedByIDSZ);
 
     // Now the set values
     template_put_bool(filetemp, filewrite, profile->_set[eve_t::SETDAMAGETYPE].apply);
@@ -174,24 +174,24 @@ bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const cha
     // copy the template file to the next free output section
     template_seek_free(filetemp, filewrite);
 
-    if (profile->contspawn_amount > 0)
+    if (profile->contspawn._amount > 0)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('A', 'M', 'O', 'U'), profile->contspawn_amount);
+        vfs_put_expansion(filewrite, "", MAKE_IDSZ('A', 'M', 'O', 'U'), profile->contspawn._amount);
     }
 
-    if (profile->contspawn_lpip > 0)
+    if (profile->contspawn._lpip > 0)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('T', 'Y', 'P', 'E'), profile->contspawn_lpip);
+        vfs_put_expansion(filewrite, "", MAKE_IDSZ('T', 'Y', 'P', 'E'), profile->contspawn._lpip);
     }
 
-    if (profile->contspawn_facingadd > 0)
+    if (profile->contspawn._facingAdd > 0)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('T', 'I', 'M', 'E'), profile->contspawn_facingadd);
+        vfs_put_expansion(filewrite, "", MAKE_IDSZ('T', 'I', 'M', 'E'), profile->contspawn._facingAdd);
     }
 
-    if (profile->contspawn_delay > 0)
+    if (profile->contspawn._delay > 0)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('F', 'A', 'C', 'E'), profile->contspawn_delay);
+        vfs_put_expansion(filewrite, "", MAKE_IDSZ('F', 'A', 'C', 'E'), profile->contspawn._delay);
     }
 
     if (-1 != profile->endsound_index)
@@ -199,7 +199,7 @@ bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const cha
         vfs_put_expansion(filewrite, "", MAKE_IDSZ('S', 'E', 'N', 'D'), profile->endsound_index);
     }
 
-    if (profile->stayifnoowner)
+    if (profile->_owner._stay)
     {
         vfs_put_expansion(filewrite, "", MAKE_IDSZ('S', 'T', 'A', 'Y'), 1);
     }
@@ -209,9 +209,9 @@ bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const cha
         vfs_put_expansion(filewrite, "", MAKE_IDSZ('O', 'V', 'E', 'R'), profile->spawn_overlay);
     }
 
-    if (profile->seekurse)
+    if (profile->seeKurses)
     {
-        vfs_put_expansion(filewrite, "", MAKE_IDSZ('C', 'K', 'U', 'R'), profile->seekurse);
+        vfs_put_expansion(filewrite, "", MAKE_IDSZ('C', 'K', 'U', 'R'), profile->seeKurses);
     }
 
     if (profile->darkvision)
@@ -219,7 +219,7 @@ bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const cha
         vfs_put_expansion(filewrite, "", MAKE_IDSZ('D', 'A', 'R', 'K'), profile->darkvision);
     }
 
-    if (profile->stayiftargetdead)
+    if (profile->_target._stay)
     {
         vfs_put_expansion(filewrite, "", MAKE_IDSZ('D', 'E', 'A', 'D'), 1);
     }

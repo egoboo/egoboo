@@ -30,40 +30,11 @@
 template <typename TYPE,typename REFTYPE,REFTYPE INVALIDREF,size_t COUNT,typename READER>
 struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
 {
+
+protected:
+
     const std::string _profileTypeName;
     const std::string _debugPathName;
-
-    _AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
-        _profileTypeName(profileTypeName), _debugPathName(debugPathName)
-    {}
-
-    bool isValidRange(REFTYPE ref)
-    {
-        return ref < COUNT;
-    }
-
-    bool isLoaded(REFTYPE ref)
-    {
-        return isValidRange(ref) && this->lst[ref].loaded;
-    }
-
-    void init_all()
-    {
-        for (REFTYPE ref = 0; ref < COUNT; ++ref)
-        {
-            this->get_ptr(ref)->init();
-        }
-        // Reset the stack "pointer".
-        this->count = 0;
-    }
-
-    bool release_one(const REFTYPE ref)
-    {
-        if (!isValidRange(ref)) return false;
-        TYPE *profile = this->get_ptr(ref);
-        if (profile->loaded) profile->init();
-        return true;
-    }
 
     REFTYPE get_free()
     {
@@ -78,6 +49,39 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
         return ref;
     }
 
+
+public:
+    _AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
+        _profileTypeName(profileTypeName), _debugPathName(debugPathName)
+    {}
+
+    bool isValidRange(REFTYPE ref)
+    {
+        return ref < COUNT;
+    }
+
+    bool isLoaded(REFTYPE ref)
+    {
+        return isValidRange(ref) && this->lst[ref]._loaded;
+    }
+
+    void initialize()
+    {
+        for (REFTYPE ref = 0; ref < COUNT; ++ref)
+        {
+            this->get_ptr(ref)->init();
+        }
+        // Reset the stack "pointer".
+        this->count = 0;
+    }
+
+    bool release_one(const REFTYPE ref)
+    {
+        if (!isValidRange(ref)) return false;
+        TYPE *profile = this->get_ptr(ref);
+        if (profile->_loaded) profile->init();
+        return true;
+    }
 
     /// @brief Load an profile into the profile stack.
     /// @return a reference to the profile on sucess, INVALIDREF on failure
@@ -110,24 +114,25 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
 
     void unintialize()
     {
+        release_all();
     }
 
     void release_all()
     {
         size_t numLoaded = 0;
-        int max_request = 0;
+        size_t maxSpawnRequestCount = 0;
         for (REFTYPE ref = 0; ref < COUNT; ref++)
         {
             if (isLoaded(ref))
             {
                 TYPE *profile = this->get_ptr(ref);
 
-                max_request = std::max(max_request, profile->request_count);
+                maxSpawnRequestCount = std::max(maxSpawnRequestCount, profile->_spawnRequestCount);
                 numLoaded++;
             }
         }
 
-        if (numLoaded > 0 && max_request > 0)
+        if (numLoaded > 0 && maxSpawnRequestCount > 0)
         {
             vfs_FILE * ftmp = vfs_openWriteB(_debugPathName.c_str());
             if (NULL != ftmp)
@@ -139,8 +144,8 @@ struct _AbstractProfileSystem : public Stack<TYPE, COUNT>
                     if (isLoaded(ref))
                     {
                         TYPE *profile = this->get_ptr(ref);
-                        vfs_printf(ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n",
-                            REF_TO_INT(ref), profile->name, profile->create_count, profile->request_count);
+                        vfs_printf(ftmp, "index == %d\tname == \"%s\"\tspawn count == %d\tspawn request count == %d\n",
+                                   REF_TO_INT(ref), profile->_name, profile->_spawnCount, profile->_spawnRequestCount);
                     }
                 }
                 vfs_close(ftmp);

@@ -22,7 +22,9 @@
 #error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
 #endif
 
-#include "egolib/typedef.h"
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/AbstractProfile.hpp"
+#undef EGBOLIB_PROFILES_PRIVATE
 
 /// Special modes for particle reflections from characters
 enum e_missle_treatment
@@ -38,10 +40,8 @@ enum e_missle_treatment
 * @details
 *  An internal representation of the "enchant.txt" file.
 */
-struct eve_t
+struct eve_t : public AbstractProfile
 {
-    EGO_PROFILE_STUFF
-
     /**
      * @brief
      *  A list of all the properties to which an enchant (of this enchant profile) can apply the "set" modifier to.
@@ -125,29 +125,51 @@ struct eve_t
 
     };
 
+    /// An enchant maintains relations to its "owner" object (if any) and its "target" object (if any).
+    /// This structure describes some aspects of this relation.
+    struct ObjectRelation
+    {
 
-    // enchant spawning info
-    bool override;                         ///< Override other enchants?
+        bool _stay;         ///< Stay even the related object has died?
+        SFP8_T _manaDrain;  ///< Mana drain from related object?
+        SFP8_T _lifeDrain;  ///< Life drain from related object?
+
+        ObjectRelation() :
+            _stay(false), _manaDrain(0), _lifeDrain(0)
+        {}
+
+        ObjectRelation(bool stay, SFP8_T manaDrain, SFP8_T lifeDrain) :
+            _stay(stay), _manaDrain(manaDrain), _lifeDrain(lifeDrain)
+        {}
+
+        /// @todo Rename to reset.
+        void init()
+        {
+            _stay = false;
+            _manaDrain = 0;
+            _lifeDrain = 0;
+        }
+
+    };
+
+    // Enchant spawn description.
+    bool _override;                         ///< Override other enchants?
     bool remove_overridden;                ///< Remove other enchants?
     bool retarget;                         ///< Pick a weapon?
-    Uint8 required_damagetype;             ///< Don't enchant if the target is immune to required_damagetype
-    Uint8 require_damagetarget_damagetype; ///< Only enchant the target if the target damagetarget_damagetype matches this value
+    DamageType required_damagetype;             ///< Don't enchant if the target is immune to required_damagetype
+    DamageType require_damagetarget_damagetype; ///< Only enchant the target if the target damagetarget_damagetype matches this value
     bool  spawn_overlay;                   ///< Spawn an overlay?
 
-    // ending conditions
-    int lifetime;                           ///< Time in seconds
-    bool endifcantpay;                      ///< End on out of mana
-    IDSZ removedbyidsz;                     ///< By particle or [NONE]
+    // Enchant despawn conditions.
+    int lifetime;                          ///< Time until end in seconds (-1 for infinite).
+    bool endIfCannotPay;                   ///< End on out of mana
+    IDSZ removedByIDSZ;                    ///< By particle or [NONE]
 
-    // despawning info
-    bool stayiftargetdead;                  ///< Stay if target has died?
-    bool stayifnoowner;                     ///< Stay if owner has died?
+    // Relation of an enchant (of this profile) to the owner. 
+    ObjectRelation _owner;
 
-    // skill modifications
-    Sint16 owner_mana;
-    Sint16 owner_life;
-    Sint16 target_mana;
-    Sint16 target_life;
+    // Relation of an enchant (of this profile) to the target.
+    ObjectRelation _target;
 
     /// If an enchant (of this enchant profile) applies a "set" or "add" modifier to a property
     /// & the value to set the property to. Related to Enchant::Modification.
@@ -155,6 +177,18 @@ struct eve_t
     {
         bool apply;   /// Does the modifier apply?
         float value;  /// The value to be assigned/added to the property.
+
+        Modifier() :
+            apply(false),
+            value(0.0f)
+        {}
+
+        /// @todo Rename to reset.
+        void init()
+        {
+            apply = false;
+            value = 0.0f;
+        }
     };
 
     // The "set" modifiers of this enchant.
@@ -164,20 +198,29 @@ struct eve_t
     Modifier _add[MAX_ENCHANT_ADD];
 
     // special modifications
-    int seekurse;                        ///< Allow target to see kurses.
-    int darkvision;                      ///< Allow target to see in darkness.
+    int seeKurses;                       ///< Allows target to see kurses.
+    int darkvision;                      ///< Allows target to see in darkness.
 
-    // continuous spawning
-    Uint16 contspawn_delay;              ///< Spawn timer
-    Uint8 contspawn_amount;              ///< Spawn amount
-    Uint16 contspawn_facingadd;          ///< Spawn in circle
-    int contspawn_lpip;                  ///< Spawn type ( local )
+    // What/how to spawn continuously.
+    ContinuousSpawnDescriptor contspawn;
 
-    // what to so when the enchant ends
+    // What to do when the enchant ends.
     Sint16 endsound_index;               ///< Sound on end (-1 for none)
     bool killtargetonend;                ///< Kill the target on end?
     bool poofonend;                      ///< Spawn a poof on end?
-    int endmessage;                      ///< Message for end -1 for none
+    int endmessage;                      ///< Message on end (-1 for none)
+
+    /**
+     * @brief
+     *  Construct this enchant profile with default values.
+     */
+    eve_t();
+
+    /**
+     * @brief
+     *  Destruct this enchant profile.
+     */
+    virtual ~eve_t();
 
     /**
     * @brief

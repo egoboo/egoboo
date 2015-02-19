@@ -41,7 +41,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
 
     // true/false values
     profile->retarget = vfs_get_next_bool(ctxt);
-    profile->override = vfs_get_next_bool(ctxt);
+    profile->_override = vfs_get_next_bool(ctxt);
     profile->remove_overridden = vfs_get_next_bool(ctxt);
     profile->killtargetonend = vfs_get_next_bool(ctxt);
 
@@ -52,16 +52,16 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     profile->endmessage = vfs_get_next_int(ctxt);
 
     // Drain stuff
-    profile->owner_mana = vfs_get_next_sfp8(ctxt);
-    profile->target_mana = vfs_get_next_sfp8(ctxt);
-    profile->endifcantpay = vfs_get_next_bool(ctxt);
-    profile->owner_life = vfs_get_next_sfp8(ctxt);
-    profile->target_life = vfs_get_next_sfp8(ctxt);
+    profile->_owner._manaDrain = vfs_get_next_sfp8(ctxt);
+    profile->_target._manaDrain = vfs_get_next_sfp8(ctxt);
+    profile->endIfCannotPay = vfs_get_next_bool(ctxt);
+    profile->_owner._lifeDrain = vfs_get_next_sfp8(ctxt);
+    profile->_target._lifeDrain = vfs_get_next_sfp8(ctxt);
 
     // Specifics
     profile->required_damagetype = vfs_get_next_damage_type(ctxt);
     profile->require_damagetarget_damagetype = vfs_get_next_damage_type(ctxt);
-    profile->removedbyidsz = vfs_get_next_idsz(ctxt);
+    profile->removedByIDSZ = vfs_get_next_idsz(ctxt);
 
     // Now the set values
     profile->_set[eve_t::SETDAMAGETYPE].apply = vfs_get_next_bool(ctxt);
@@ -173,21 +173,21 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     {
         idsz = vfs_get_idsz(ctxt);
 
-        if (idsz == MAKE_IDSZ('A', 'M', 'O', 'U')) profile->contspawn_amount = ctxt.readInt();
-        else if (idsz == MAKE_IDSZ('T', 'Y', 'P', 'E')) profile->contspawn_lpip = ctxt.readInt();
-        else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E')) profile->contspawn_delay = ctxt.readInt();
-        else if (idsz == MAKE_IDSZ('F', 'A', 'C', 'E')) profile->contspawn_facingadd = ctxt.readInt();
+        if (idsz == MAKE_IDSZ('A', 'M', 'O', 'U')) profile->contspawn._amount = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('T', 'Y', 'P', 'E')) profile->contspawn._lpip = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E')) profile->contspawn._delay = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('F', 'A', 'C', 'E')) profile->contspawn._facingAdd = ctxt.readInt();
         else if (idsz == MAKE_IDSZ('S', 'E', 'N', 'D')) profile->endsound_index = ctxt.readInt();
-        else if (idsz == MAKE_IDSZ('S', 'T', 'A', 'Y')) profile->stayifnoowner = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('S', 'T', 'A', 'Y')) profile->_owner._stay = (0 != ctxt.readInt());
         else if (idsz == MAKE_IDSZ('O', 'V', 'E', 'R')) profile->spawn_overlay = (0 != ctxt.readInt());
-        else if (idsz == MAKE_IDSZ('D', 'E', 'A', 'D')) profile->stayiftargetdead = (0 != ctxt.readInt());
+        else if (idsz == MAKE_IDSZ('D', 'E', 'A', 'D')) profile->_target._stay = (0 != ctxt.readInt());
 
-        else if (idsz == MAKE_IDSZ('C', 'K', 'U', 'R')) profile->seekurse = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('C', 'K', 'U', 'R')) profile->seeKurses = ctxt.readInt();
         else if (idsz == MAKE_IDSZ('D', 'A', 'R', 'K')) profile->darkvision = ctxt.readInt();
     }
 
-    strncpy(profile->name, loadName, SDL_arraysize(profile->name));
-    profile->loaded = true;
+    strncpy(profile->_name, loadName, SDL_arraysize(profile->_name));
+    profile->_loaded = true;
 
     // Limit the endsound_index.
     profile->endsound_index = CLIP<Sint16>(profile->endsound_index, INVALID_SOUND_ID, MAX_WAVE);

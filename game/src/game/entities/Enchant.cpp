@@ -205,7 +205,7 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
         ienc_nxt  = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
         peve = enc_get_peve( ienc_now );
-        if ( NULL != peve && ( IDSZ_NONE == remove_idsz || remove_idsz == peve->removedbyidsz ) )
+        if ( NULL != peve && ( IDSZ_NONE == remove_idsz || remove_idsz == peve->removedByIDSZ ) )
         {
             remove_enchant( ienc_now, NULL );
             retval = true;
@@ -342,7 +342,7 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
         if ( NULL != target_ptr )
         {
             //Reset see kurses
-            if ( 0 != peve->seekurse )
+            if ( 0 != peve->seeKurses )
             {
                 target_ptr->see_kurse_level = chr_get_skill( target_ptr, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) );
             }
@@ -443,7 +443,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     if ( peve->_set[value_idx].apply )
     {
         conflict = enc_value_filled( ienc, value_idx );
-        if ( peve->override || INVALID_ENC_REF == conflict )
+        if ( peve->_override || INVALID_ENC_REF == conflict )
         {
             // Check for multiple enchantments
             if ( DEFINED_ENC( conflict ) )
@@ -617,7 +617,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList.get_ptr( ienc );
 
-    if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
+    if ( ieve >= MAX_EVE || !EveStack.lst[ieve]._loaded ) return;
     peve = EveStack.get_ptr( ieve );
 
     if ( !peve->_add[value_idx].apply )
@@ -853,7 +853,7 @@ enc_t *enc_t::config_do_init()
     peve = EveStack.get_ptr( pdata->eve_ref );
 
     // turn the enchant on here. you can't fail to spawn after this point.
-    POBJ_ACTIVATE( penc, peve->name );
+    POBJ_ACTIVATE( penc, peve->_name );
 
     // does the target exist?
     if ( !_gameObjects.exists( pdata->target_ref ) )
@@ -866,8 +866,8 @@ enc_t *enc_t::config_do_init()
         penc->target_ref = pdata->target_ref;
         ptarget = _gameObjects.get( penc->target_ref );
     }
-    penc->target_mana  = peve->target_mana;
-    penc->target_life  = peve->target_life;
+    penc->target_mana  = peve->_target._manaDrain;
+    penc->target_life  = peve->_target._lifeDrain;
 
     // does the owner exist?
     if ( !_gameObjects.exists( pdata->owner_ref ) )
@@ -878,8 +878,8 @@ enc_t *enc_t::config_do_init()
     {
         penc->owner_ref  = pdata->owner_ref;
     }
-    penc->owner_mana = peve->owner_mana;
-    penc->owner_life = peve->owner_life;
+    penc->owner_mana = peve->_owner._manaDrain;
+    penc->owner_life = peve->_owner._lifeDrain;
 
     // does the spawner exist?
     if ( !_gameObjects.exists( pdata->spawner_ref ) )
@@ -960,9 +960,9 @@ enc_t *enc_t::config_do_init()
     {
 
         // Allow them to see kurses?
-        if ( 0 != peve->seekurse )
+        if ( 0 != peve->seeKurses )
         {
-            ptarget->see_kurse_level = peve->seekurse;
+            ptarget->see_kurse_level = peve->seeKurses;
         }
 
         // Allow them to see in darkness (or blindness if negative)
@@ -1001,20 +1001,20 @@ enc_t *enc_t::config_do_active()
     // check to see whether the enchant needs to spawn some particles
     if ( penc->spawn_timer > 0 ) penc->spawn_timer--;
 
-    if ( 0 == penc->spawn_timer && peve->contspawn_amount <= 0 )
+    if ( 0 == penc->spawn_timer && peve->contspawn._amount <= 0 )
     {
         int      tnc;
         FACING_T facing;
-        penc->spawn_timer = peve->contspawn_delay;
+        penc->spawn_timer = peve->contspawn._delay;
         ptarget = _gameObjects.get( penc->target_ref );
 
         facing = ptarget->ori.facing_z;
-        for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
+        for ( tnc = 0; tnc < peve->contspawn._amount; tnc++ )
         {
-            spawn_one_particle( ptarget->getPosition(), facing, penc->profile_ref, peve->contspawn_lpip,
+            spawn_one_particle( ptarget->getPosition(), facing, penc->profile_ref, peve->contspawn._lpip,
                                 INVALID_CHR_REF, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
 
-            facing += peve->contspawn_facingadd;
+            facing += peve->contspawn._facingAdd;
         }
     }
 
@@ -1058,14 +1058,14 @@ enc_t *enc_t::config_do_active()
                 if ( 0 != penc->owner_mana )
                 {
                     bool mana_paid = cost_mana( owner, -penc->owner_mana, target );
-                    if ( EveStack.lst[eve].endifcantpay && !mana_paid )
+                    if ( EveStack.lst[eve].endIfCannotPay && !mana_paid )
                     {
                         EncList.request_terminate( ienc );
                     }
                 }
 
             }
-            else if ( !EveStack.lst[eve].stayifnoowner )
+            else if ( !EveStack.lst[eve]._owner._stay )
             {
                 EncList.request_terminate( ienc );
             }
@@ -1095,14 +1095,14 @@ enc_t *enc_t::config_do_active()
                     if ( 0 != penc->target_mana )
                     {
                         bool mana_paid = cost_mana( target, -penc->target_mana, owner );
-                        if ( EveStack.lst[eve].endifcantpay && !mana_paid )
+                        if ( EveStack.lst[eve].endIfCannotPay && !mana_paid )
                         {
                             EncList.request_terminate( ienc );
                         }
                     }
 
                 }
-                else if ( !EveStack.lst[eve].stayiftargetdead )
+                else if ( !EveStack.lst[eve]._target._stay )
                 {
                     EncList.request_terminate( ienc );
                 }
@@ -1181,10 +1181,10 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     peve = EveStack.get_ptr( eve_ref );
 
     // count all the requests for this enchantment type
-    peve->request_count++;
+    peve->_spawnRequestCount++;
 
     // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
-    if ( !peve->stayifnoowner && ( !_gameObjects.exists( owner ) || !_gameObjects.get(owner)->alive ) )
+    if ( !peve->_owner._stay && ( !_gameObjects.exists( owner ) || !_gameObjects.get(owner)->alive ) )
     {
         log_warning( "spawn_one_enchant() - failed because the required enchant owner cannot be found.\n" );
         return INVALID_ENC_REF;
@@ -1266,7 +1266,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     if ( NULL != penc )
     {
         POBJ_END_SPAWN( penc );
-        peve->create_count++;
+        peve->_spawnCount++;
     }
 
     return enc_ref;
@@ -1680,17 +1680,17 @@ void cleanup_all_enchants()
             // the enchant has been marked for removal
             do_remove = true;
         }
-        else if ( !valid_owner && !peve->stayifnoowner )
+        else if ( !valid_owner && !peve->_owner._stay )
         {
             // the enchant's owner has died
             do_remove = true;
         }
-        else if ( !valid_target && !peve->stayiftargetdead )
+        else if ( !valid_target && !peve->_target._stay )
         {
             // the enchant's target has died
             do_remove = true;
         }
-        else if ( valid_owner && peve->endifcantpay )
+        else if ( valid_owner && peve->endIfCannotPay )
         {
             // Undo enchants that cannot be sustained anymore
             if ( 0 == _gameObjects.get(penc->owner_ref)->mana ) do_remove = true;
@@ -1817,7 +1817,7 @@ IDSZ enc_get_idszremove( const ENC_REF ienc )
     eve_t * peve = enc_get_peve( ienc );
     if ( NULL == peve ) return IDSZ_NONE;
 
-    return peve->removedbyidsz;
+    return peve->removedByIDSZ;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -1016,6 +1016,17 @@ int ReadContext::readInt()
     return tmp;
 }
 
+unsigned int ReadContext::readNat()
+{
+    int tmp = 0;
+    vfs_scanf(_file, "%d", &tmp);
+    if (tmp < 0)
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    return static_cast<unsigned int>(tmp);
+}
+
 //--------------------------------------------------------------------------------------------
 UFP8_T vfs_get_ufp8(ReadContext& ctxt)
 {
@@ -1043,6 +1054,13 @@ int vfs_get_next_int(ReadContext& ctxt)
     goto_colon_vfs(ctxt, false);
 
     return ctxt.readInt();
+}
+
+unsigned int vfs_get_next_nat(ReadContext& ctxt)
+{
+    goto_colon_vfs(ctxt, false);
+
+    return ctxt.readNat();
 }
 
 //--------------------------------------------------------------------------------------------

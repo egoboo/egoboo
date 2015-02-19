@@ -277,12 +277,20 @@ public:
      * @throw Ego::Script::LexicalError
      *  if a lexical error occurs
      * @remark
-     *  An integer literal in this revision is the string
+     *  An integer literal in this revision is given by
      *  @code
-     *  integer := digit+ ('e'|'E' digit+)?
+     *  integer := ('+'|'-')?digit+ ('e'|'E' digit+)?
      *  @endcode
      */
     int readInt();
+
+    /**
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *  A natural literal in this revision is given by
+     */
+    unsigned int readNat();
 
     /**
      * @throw Ego::Script::LexicalError
@@ -309,6 +317,7 @@ IDSZ vfs_get_idsz(ReadContext& ctxt);
 
 char vfs_get_next_char(ReadContext& ctxt);
 int vfs_get_next_int(ReadContext& ctxt);
+unsigned int vfs_get_next_nat(ReadContext& ctxt);
 float vfs_get_next_float(ReadContext& ctxt);
 UFP8_T vfs_get_next_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_next_sfp8(ReadContext& ctxt);

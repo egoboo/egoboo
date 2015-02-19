@@ -169,11 +169,11 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     bool       has_bump;
 
     // make sure we have a character leaf
-    if ( NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
+    if (!pprt_leaf || !pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
     {
         return false;
     }
-    pprt = ( prt_t * )( pprt_leaf->data );
+    pprt = static_cast<prt_t *>(pprt_leaf->data);
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return false;
     ppip = PipStack.get_ptr( pprt->pip_ref );
@@ -193,7 +193,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
 
     // the other possible status effects
     // do not require damage
-    does_status_effect  = ( 0 != ppip->grog_time ) || ( 0 != ppip->daze_time ) || ( 0 != ppip->lifedrain ) || ( 0 != ppip->manadrain );
+    does_status_effect  = ( 0 != ppip->grogTime ) || ( 0 != ppip->dazeTime ) || ( 0 != ppip->lifeDrain ) || ( 0 != ppip->manaDrain );
 
     // these are not implemented yet
     does_special_effect = ppip->cause_pancake || ppip->cause_roll;

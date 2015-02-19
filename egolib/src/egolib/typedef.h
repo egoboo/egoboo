@@ -299,6 +299,21 @@ typedef Uint16 FACING_T;
     struct IPair
     {
         int base, rand;
+        IPair() :
+            base(0), rand(0)
+        {
+        }
+        IPair(int _base, int _rand) :
+            base(_base), rand(_rand)
+        {
+
+        }
+        /// @todo Rename to "reset".
+        void init()
+        {
+            base = 0;
+            rand = 0;
+        }
     };
 
     /// Specifies a value from "from" to "to"

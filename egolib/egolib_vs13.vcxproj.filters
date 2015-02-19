@@ -324,6 +324,9 @@
     <ClCompile Include="src\egolib\Audio\AudioSystem.cpp">
       <Filter>Source Files\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\IDSZ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -628,6 +631,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Audio\AudioSystem.hpp">
       <Filter>Header Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\AbstractProfile.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\IDSZ.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

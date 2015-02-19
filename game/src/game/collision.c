@@ -3063,17 +3063,17 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     }
 
     // Do grog
-    if ( pdata->ppip->grog_time > 0 && _profileSystem.getProfile(pdata->pchr->profile_ref)->canBeGrogged() )
+    if ( pdata->ppip->grogTime > 0 && _profileSystem.getProfile(pdata->pchr->profile_ref)->canBeGrogged() )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
-        pdata->pchr->grog_timer = std::max( (int)pdata->pchr->grog_timer, pdata->ppip->grog_time );
+        pdata->pchr->grog_timer = std::max(static_cast<unsigned>(pdata->pchr->grog_timer), pdata->ppip->grogTime );
     }
 
     // Do daze
-    if ( pdata->ppip->daze_time > 0 && _profileSystem.getProfile(pdata->pchr->profile_ref)->canBeDazed()  )
+    if ( pdata->ppip->dazeTime > 0 && _profileSystem.getProfile(pdata->pchr->profile_ref)->canBeDazed()  )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
-        pdata->pchr->daze_timer = std::max( (int)pdata->pchr->daze_timer, pdata->ppip->daze_time );
+        pdata->pchr->daze_timer = std::max(static_cast<unsigned>(pdata->pchr->daze_timer), pdata->ppip->dazeTime );
     }
 
     //---- Damage the character, if necessary
@@ -3104,7 +3104,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
 
                 // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
                 // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-                if ( pdata->ppip->intdamagebonus )
+                if ( pdata->ppip->damageBoni._intelligence )
                 {
                     float percent;
                     percent = ( FP8_TO_FLOAT( powner->intelligence ) - 14 ) * 2;
@@ -3113,7 +3113,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                     loc_damage.rand *= 1.00f + percent;
                 }
 
-                if ( pdata->ppip->wisdamagebonus )
+                if ( pdata->ppip->damageBoni._wisdom )
                 {
                     float percent;
                     percent = ( FP8_TO_FLOAT( powner->wisdom ) - 14 ) * 2;

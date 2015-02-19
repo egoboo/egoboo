@@ -22,7 +22,7 @@
 #error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
 #endif
 
-#include "egolib/typedef.h"
+#include "egolib/Profiles/AbstractProfile.hpp"
 
 /// Pre-defined global particle types
 /// @note I can't place all the money particles in the same place because it is expected
@@ -107,14 +107,21 @@ struct dynalight_info_t
 
     float   falloff;             ///< range
     float   falloff_add;         ///< range changes
+
+    dynalight_info_t();
 };
 
 /// The definition of a particle profile
-struct pip_t
+struct pip_t : public AbstractProfile
 {
-    EGO_PROFILE_STUFF
-
     char comment[1024];   ///< The first line of the file has a comment line.
+
+    // Initial spawning of this particle.
+    IPair facing_pair;      ///< Facing
+    IPair spacing_hrz_pair; ///< Spacing
+    IPair spacing_vrt_pair; ///< Altitude
+    IPair vel_hrz_pair;     ///< Shot velocity
+    IPair vel_vrt_pair;     ///< Up velocity
 
     // spawning
     bool force;             ///< Force spawn?
@@ -128,70 +135,61 @@ struct pip_t
     Sint16 size_add;        ///< Size rate
     Sint8 soundspawn;       ///< Beginning sound
     Uint16 facingadd;       ///< Facing
-    IPair facing_pair;      ///< Facing
-    IPair spacing_hrz_pair; ///< Spacing
-    IPair spacing_vrt_pair; ///< Altitude
-    IPair vel_hrz_pair;     ///< Shot velocity
-    IPair vel_vrt_pair;     ///< Up velocity
     bool newtargetonspawn;  ///< Get new target?
     bool needtarget;        ///< Need a target?
     bool startontarget;     ///< Start on target?
 
-    // ending conditions
-    int end_time;                    ///< Time until end
+    // Ending conditions.
+    int end_time;                    ///< Time until end in seconds, (-1 for infinite).
     bool end_water;                  ///< End if underwater
     bool end_bump;                   ///< End if bumped
     bool end_ground;                 ///< End if on ground
     bool end_wall;                   ///< End if hit a wall
     bool end_lastframe;              ///< End on last frame
-    Sint8 end_sound;                 ///< Ending sound
-    Sint8 end_sound_floor;           ///< Floor sound
-    Sint8 end_sound_wall;            ///< Ricochet sound
+    // Ending sounds.
+    Sint8 end_sound;                 ///< Ending sound (-1 for none).
+    Sint8 end_sound_floor;           ///< Floor sound (-1 for none).
+    Sint8 end_sound_wall;            ///< Ricochet sound (-1 for none).
 
-    // end spawn
-    Uint8 endspawn_amount;           ///< Spawn amount
-    Uint16 endspawn_facingadd;       ///< Spawn in circle
-    int endspawn_lpip;               ///< Spawn type ( local )
+    // What/how to spawn continuously.
+    ContinuousSpawnDescriptor contspawn;
+    // What/how to spawn at the end.
+    SpawnDescriptor endspawn;
+    // What/how to spawn when bumped.
+    SpawnDescriptor bumpspawn;
 
-    // bumping
+    // Bumping of particle into particles/objects.
     int bump_money;                  ///< Value of particle
     Uint32 bump_size;                ///< Bounding box size
     Uint32 bump_height;              ///< Bounding box height
 
-    // "bump particle" spawning
-    Uint8 bumpspawn_amount;          ///< Spawn amount
-    int bumpspawn_lpip;              ///< Spawn type ( local )
-
-    // continuous spawning
-    Uint16 contspawn_delay;       ///< Spawn timer
-    Uint8 contspawn_amount;       ///< Spawn amount
-    Uint16 contspawn_facingadd;   ///< Spawn in circle
-    int contspawn_lpip;           ///< Spawn type ( local )
-
-    // damage
+    // Damage.
     FRange damage;                    ///< Damage
-    Uint8 damagetype;                 ///< Damage type
-    int daze_time;                    ///< Daze
-    int grog_time;                    ///< Drunkeness
+    DamageType damageType;            ///< Damage type
+    unsigned int dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
+    unsigned int grogTime;            ///< How long is an Object "grogged" if hit by this particle.
     BIT_FIELD damfx;                  ///< Damage effects
-    bool intdamagebonus;              ///< Add intelligence as damage bonus
-    bool wisdamagebonus;              ///< Add wisdom as damage bonus
+    struct
+    {
+        bool _intelligence; ///< Add intelligence as damage bonus.
+        bool _wisdom;       ///< Add wisdom as damage bonus.
+    } damageBoni;   
     bool spawnenchant;                ///< Spawn enchant?
     bool onlydamagefriendly;          ///< Only friends?
     bool friendlyfire;                ///< Friendly fire
     bool hateonly;                    ///< Only hit hategroup
     bool cause_roll;                  ///< @todo Not implemented!!
     bool cause_pancake;               ///< @todo Not implemented!!
-    Uint16 lifedrain;                 ///< Steal this much life
-    Uint16 manadrain;                 ///< Steal this much mana
+    UFP8_T lifeDrain;                 ///< Life drain from target and given to the source when the target is hit.
+    UFP8_T manaDrain;                 ///< Mana drain from target and given to the source when the target is hit.
 
-    // homing
-    bool homing;                       ///< Homing?
-    FACING_T targetangle;              ///< To find target
-    float homingaccel;                 ///< Acceleration rate
-    float homingfriction;              ///< Deceleration rate
-    float zaimspd;                     ///< [ZSPD] For Z aiming
-    bool rotatetoface;                 ///< Arrows/Missiles
+    // Homing.
+    bool homing;                       ///< Is the particle homing?
+    FACING_T targetangle;              ///< To find target.
+    float homingaccel;                 ///< Acceleration rate.
+    float homingfriction;              ///< Deceleration rate.
+    float zaimspd;                     ///< [ZSPD] For Z aiming.
+    bool rotatetoface;                 ///< Arrows/Missiles.
     bool targetcaster;                 ///< Target caster?
 
     // physics
@@ -203,6 +201,18 @@ struct pip_t
     dynalight_info_t dynalight;           ///< Dynamic lighting info
 
     prt_ori_t orientation;                ///< the way the particle orientation is calculated for display
+
+    /**
+     * @brief
+     *  Construct this particle profile with default values.
+     */
+    pip_t();
+
+    /**
+     * @brief
+     *  Destruct this particle profile.
+     */
+    virtual ~pip_t();
 
     pip_t *init();
 };

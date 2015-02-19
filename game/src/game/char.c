@@ -2437,7 +2437,7 @@ void cleanup_one_character( Object * pchr )
             ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
 
             peve = enc_get_peve( ienc_now );
-            if ( NULL != peve && !peve->stayiftargetdead )
+            if ( NULL != peve && !peve->_target._stay )
             {
                 remove_enchant( ienc_now, NULL );
             }
@@ -3785,7 +3785,7 @@ bool update_chr_darkvision( const CHR_REF character )
         peve = enc_get_peve( ienc_now );
 
         //Is it true poison?
-        if ( NULL != peve && MAKE_IDSZ( 'H', 'E', 'A', 'L' ) == peve->removedbyidsz )
+        if ( NULL != peve && MAKE_IDSZ( 'H', 'E', 'A', 'L' ) == peve->removedByIDSZ )
         {
             life_regen += EncList.get_ptr(ienc_now)->target_life;
             if ( EncList.get_ptr(ienc_now)->owner_ref == pchr->ai.index ) life_regen += EncList.get_ptr(ienc_now)->owner_life;

@@ -62,8 +62,8 @@ bool ProfileSystem::initialize()
     }
 
     // initialize all the sub-profile lists
-    PipStack.init_all();
-    EveStack.init_all();
+    PipStack.initialize();
+    EveStack.initialize();
     MadStack_reconstruct_all();
 
     // fix the book icon list
@@ -113,8 +113,8 @@ void ProfileSystem::releaseAllProfiles()
     _profilesLoaded.clear();
 
     // relese every type of sub-profile and re-initalize the lists
-    PipStack.release_all();
-    EveStack.release_all();
+    PipStack.unintialize();
+    EveStack.unintialize();
     MadStack_release_all();
 }
 
