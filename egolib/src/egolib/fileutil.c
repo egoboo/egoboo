@@ -99,9 +99,39 @@ void ReadContext::close()
     _file = nullptr;
 }
 
+void ReadContext::skipWhiteSpaces()
+{
+    _current = readChar();
+    if (ReadContext::Error == _current)
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
+    }
+    if (ReadContext::EndOfInput == _current)
+    {
+        return;
+    }
+    while (isWhiteSpace(static_cast<char>(_current)))
+    {
+        _current = readChar();
+        if (ReadContext::Error == _current)
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
+        }
+        if (ReadContext::EndOfInput == _current)
+        {
+            return;
+        }
+    }
+}
+
 bool ReadContext::isNewLine(char chr)
 {
     return LineFeed == chr || CarriageReturn == chr;
+}
+
+bool ReadContext::isWhiteSpace(char chr)
+{
+    return Space == chr || Tabulator == chr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -202,10 +232,6 @@ bool ReadContext::skipToDelimiter(char delimiter, bool optional)
             {
                 throw Ego::Script::MissingDelimiterError(__FILE__,__LINE__,Ego::Script::Location(getLoadName(), getLineNumber()),delimiter);
             }
-        }
-        if (ZeroTerminator == static_cast<char>(_current))
-        {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
         }
         if (delimiter == static_cast<char>(_current))
         {
@@ -336,6 +362,10 @@ int ReadContext::readChar()
             return EndOfInput;
         }
     }
+    if (ZeroTerminator == chr)
+    {
+        return Error;
+    }
     return chr;
 }
 
@@ -343,17 +373,6 @@ int ReadContext::readChar()
 bool ReadContext::skipToColon(bool optional)
 {
     return skipToDelimiter(':', optional);
-}
-
-bool goto_colon_vfs(ReadContext& ctxt, bool optional)
-{
-#if 0
-    /// @author BB
-    /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
-    ctxt._lineNumber++;
-    return goto_delimiter_vfs(ctxt, nullptr, ':', optional);
-#endif
-    return ctxt.skipToColon(optional);
 }
 
 bool goto_colon_vfs(ReadContext& ctxt,char *buffer, bool optional)
@@ -763,7 +782,7 @@ bool vfs_get_next_range(ReadContext& ctxt, FRange * prange)
     /// @author ZZ
     /// @details This function reads a damage/stat range ( eg. 5-9 )
 
-    goto_colon_vfs(ctxt, false);
+    ctxt.skipToColon(false);
 
     return vfs_get_range(ctxt, prange);
 }
@@ -1003,8 +1022,7 @@ char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite
 //--------------------------------------------------------------------------------------------
 char vfs_get_next_char(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
-
+    ctxt.skipToColon(false);
     return vfs_get_first_letter(ctxt);
 }
 
@@ -1051,30 +1069,27 @@ SFP8_T vfs_get_sfp8(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 int vfs_get_next_int(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
-
+    ctxt.skipToColon(false);
     return ctxt.readInt();
 }
 
 unsigned int vfs_get_next_nat(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
-
+    ctxt.skipToColon(false);
     return ctxt.readNat();
 }
 
 //--------------------------------------------------------------------------------------------
 UFP8_T vfs_get_next_ufp8(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
-
+    ctxt.skipToColon(false);
     return vfs_get_ufp8(ctxt);
 }
 
 //--------------------------------------------------------------------------------------------
 SFP8_T vfs_get_next_sfp8(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
+    ctxt.skipToColon(false);
     return vfs_get_sfp8(ctxt);
 }
 
@@ -1098,8 +1113,7 @@ bool vfs_get_string(ReadContext& ctxt, char * str, size_t str_len)
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_string(ReadContext& ctxt, char * str, size_t str_len)
 {
-    goto_colon_vfs(ctxt, false);
-
+    ctxt.skipToColon(false);
     return vfs_get_string(ctxt, str, str_len);
 }
 
@@ -1139,7 +1153,7 @@ bool vfs_get_line(ReadContext& ctxt, char * str, size_t str_len )
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_line(ReadContext& ctxt, char * str, size_t str_len )
 {
-    goto_colon_vfs(ctxt, false);
+    ctxt.skipToColon(false);
 
     return vfs_get_line(ctxt, str, str_len);
 }
@@ -1155,7 +1169,7 @@ float vfs_get_float(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 float vfs_get_next_float(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
+    ctxt.skipToColon(false);
 
     return vfs_get_float(ctxt);
 }
@@ -1163,22 +1177,21 @@ float vfs_get_next_float(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_name(ReadContext& ctxt, char *name, size_t name_len)
 {
-    goto_colon_vfs(ctxt, false);
+    ctxt.skipToColon(false);
     return vfs_get_name(ctxt, name, name_len);
 }
 
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair)
 {
-    goto_colon_vfs(ctxt, false);
-
+    ctxt.skipToColon(false);
     return vfs_get_pair(ctxt, pair);
 }
 
 //--------------------------------------------------------------------------------------------
 IDSZ vfs_get_next_idsz(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
+    ctxt.skipToColon(false);
     return vfs_get_idsz(ctxt);
 }
 
@@ -1207,8 +1220,7 @@ DamageType vfs_get_damage_type(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 DamageType vfs_get_next_damage_type(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
-
+    ctxt.skipToColon(false);
     return vfs_get_damage_type(ctxt);
 }
 
@@ -1228,8 +1240,7 @@ bool ReadContext::readBool()
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_bool(ReadContext& ctxt)
 {
-    goto_colon_vfs(ctxt, false);
-
+    ctxt.skipToColon(false);
     return ctxt.readBool();
 }
 

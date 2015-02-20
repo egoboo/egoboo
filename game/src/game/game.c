@@ -542,8 +542,11 @@ void activate_alliance_file_vfs()
 
     // Load the file
     ReadContext ctxt("mp_data/alliance.txt");
-    if (!ctxt.ensureOpen()) return;
-    while (goto_colon_vfs(ctxt, true))
+    if (!ctxt.ensureOpen())
+    {
+        return;
+    }
+    while (ctxt.skipToColon(true))
     {
         vfs_get_string( ctxt, szTemp, SDL_arraysize( szTemp ) );
         teama = ( szTemp[0] - 'A' ) % TEAM_MAX;

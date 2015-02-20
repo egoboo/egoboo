@@ -169,7 +169,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     }
 
     // Read expansions
-    while (goto_colon_vfs(ctxt, true))
+    while (ctxt.skipToColon(true))
     {
         idsz = vfs_get_idsz(ctxt);
 

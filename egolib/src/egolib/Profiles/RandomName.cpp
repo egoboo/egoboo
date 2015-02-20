@@ -59,7 +59,7 @@ bool RandomName::loadFromFile(const std::string &filePath)
 
 	//Parse the entire file
 	std::vector<std::string> *currentBlock = nullptr;
-	while(goto_colon_vfs(ctxt, true))
+	while(ctxt.skipToColon(true))
 	{
 		char buffer[256];
         vfs_get_string(ctxt, buffer, SDL_arraysize(buffer));

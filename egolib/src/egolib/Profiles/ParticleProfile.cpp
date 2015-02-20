@@ -47,13 +47,31 @@ dynalight_info_t::dynalight_info_t() :
 {
 }
 
+void dynalight_info_t::init() 
+{
+    mode = 0;
+    on = 0;
+    level = 0.0f;
+    level_add = 0.0f;
+    falloff = 0.0f;
+    falloff_add = 0.0f;
+}
+
 pip_t::pip_t() :
-    orientation(ORIENTATION_B), // Orientation is billboard orientation.
-    dynalight(),
-    damfx(DAMFX_TURN),
-    allowpush(true),
-    type(SPRITE_SOLID),
-    // Ending conditions,
+    // comment - see below
+    // Initial spawning of this particle.
+    facing_pair(),
+    spacing_hrz_pair(),
+    spacing_vrt_pair(),
+    vel_hrz_pair(),
+    vel_vrt_pair(),
+    // Spawning.
+    force(false),
+    newtargetonspawn(false),
+    needtarget(false),
+    startontarget(false),
+    soundspawn(-1),
+    // Ending conditions.
     end_time(0),
     end_water(false),
     end_bump(false),
@@ -64,19 +82,58 @@ pip_t::pip_t() :
     end_sound(-1),
     end_sound_floor(-1),
     end_sound_wall(-1),
-    // Initial spawning of this particle.
-    facing_pair(),
-    spacing_hrz_pair(), 
-    spacing_vrt_pair(),
-    vel_hrz_pair(),
-    vel_vrt_pair(),
-    // Any life drain.
-    lifeDrain(0),
-    manaDrain(0),
     // What/how to spawn continuously.
     contspawn(),
     // What/how to spawn at the end.
-    endspawn()
+    endspawn(),
+    // What/how to spawn when bumped.
+    bumpspawn(),
+    // Bumping of particle into particles/objects.
+    bump_money(0),
+    bump_size(0),
+    bump_height(0),
+    damage(),
+    damageType(DamageType::DAMAGE_NONE),
+    dazeTime(),
+    grogTime(),
+    damfx(DAMFX_TURN),
+    // Hitting.
+    // damageBoni - see below
+    spawnenchant(false),
+    onlydamagefriendly(false),
+    friendlyfire(false),
+    hateonly(false),
+    cause_roll(false),
+    cause_pancake(false),
+    // Drains.
+    lifeDrain(0),
+    manaDrain(0),
+    // Homing.
+    homing(false),
+    targetangle(0.0f),
+    homingaccel(0.0f),
+    homingfriction(0.0f),
+    zaimspd(0.0f),
+    rotatetoface(false),
+    targetcaster(false),
+    // Physics.
+    spdlimit(0.0f),
+    dampen(0.0f),
+    allowpush(true),
+    ignore_gravity(false),
+    // Visual aspects.
+    type(e_sprite_mode::SPRITE_SOLID),
+    numframes(0),
+    image_base(0),
+    image_add(),
+    rotate_pair(),
+    rotate_add(0),
+    size_base(0),
+    size_add(0),
+    facingadd(0),
+    orientation(ORIENTATION_B),
+    dynalight()
+
 {
     damageBoni._intelligence = false;
     damageBoni._wisdom = false;
@@ -118,9 +175,20 @@ pip_t *pip_t::init()
     vel_hrz_pair.init();
     vel_vrt_pair.init();
 
-    // Damage boni.
+    // Hitting.
+    damage.init();
+    damageType = DamageType::DAMAGE_NONE;
     damageBoni._intelligence = 0;
     damageBoni._wisdom = 0;
+    damfx = DAMFX_TURN;
+    spawnenchant = false;
+    onlydamagefriendly = false;
+    friendlyfire = false;
+    hateonly = false;
+    cause_roll = false;
+    cause_pancake = false;
+    dazeTime = 0;
+    grogTime = 0;
 
     // What/how to spawn continuously.
     contspawn.init();
@@ -129,12 +197,32 @@ pip_t *pip_t::init()
     // What/how to spawn when bumped.
     bumpspawn.init();
     
-    this->damfx = DAMFX_TURN;
+    // Spawning.
+    force = false;
+    newtargetonspawn = false;
+    needtarget = false;
+    startontarget = false;
+    soundspawn = -1;
 
-    this->allowpush = true;
+    // Physics.
+    spdlimit = 0.0f;
+    dampen = 0.0f;
+    allowpush = true;
+    ignore_gravity = false;
 
-    this->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
-    this->type = SPRITE_SOLID;
+    // Visual aspects.
+    type = e_sprite_mode::SPRITE_SOLID;
+    numframes = 0;
+    image_base = 0;
+    image_add.init();
+    rotate_pair.init();
+    rotate_add = 0;
+    size_base = 0;
+    size_add = 0;
+    facingadd = 0;
+    orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
+    type = SPRITE_SOLID;
+    dynalight.init();
 
     return this;
 }

@@ -120,7 +120,7 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
     if (!ctxt.ensureOpen()) return rv_error;
     // Load each IDSZ
     retval = rv_success;
-    while (goto_colon_vfs(ctxt, true))
+    while (ctxt.skipToColon(true))
     {
         egolib_rv rv;
 

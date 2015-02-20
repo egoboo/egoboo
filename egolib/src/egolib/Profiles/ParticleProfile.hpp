@@ -52,9 +52,9 @@ enum e_global_pips
 /// particle types / sprite dosplay modes
 enum e_sprite_mode
 {
-    SPRITE_LIGHT = 0,                         ///< Magic effect particle
-    SPRITE_SOLID,                             ///< Sprite particle
-    SPRITE_ALPHA                              ///< Smoke particle
+    SPRITE_LIGHT = 0, ///< Magic effect particle
+    SPRITE_SOLID,     ///< Sprite particle
+    SPRITE_ALPHA      ///< Smoke particle
 };
 
 /// dynamic lighting modes
@@ -79,9 +79,9 @@ enum prt_ori_t
 // The special damage effects for particles
 enum e_damage_fx
 {
-    DAMFX_NONE = 0,                       ///< Damage effects
+    DAMFX_NONE = 0,                     ///< Damage effects
     DAMFX_ARMO = (1 << 1),              ///< Armor piercing
-    DAMFX_NBLOC = (1 << 2),              ///< Cannot be blocked by shield
+    DAMFX_NBLOC = (1 << 2),             ///< Cannot be blocked by shield
     DAMFX_ARRO = (1 << 3),              ///< Only hurts the one it's attached to
     DAMFX_TURN = (1 << 4),              ///< Turn to attached direction
     DAMFX_TIME = (1 << 5)               ///< Do not reset the damage timer
@@ -109,6 +109,9 @@ struct dynalight_info_t
     float   falloff_add;         ///< range changes
 
     dynalight_info_t();
+
+    /// @todo Rename to "reset".
+    void init();
 };
 
 /// The definition of a particle profile
@@ -123,21 +126,14 @@ struct pip_t : public AbstractProfile
     IPair vel_hrz_pair;     ///< Shot velocity
     IPair vel_vrt_pair;     ///< Up velocity
 
-    // spawning
-    bool force;             ///< Force spawn?
-    Uint8 type;             ///< Transparency mode
-    Uint8 numframes;        ///< Number of frames
-    Uint8 image_base;       ///< Starting image
-    IPair image_add;        ///< Frame rate
-    IPair rotate_pair;      ///< Rotation
-    Sint16 rotate_add;      ///< Rotation rate
-    Uint16 size_base;       ///< Size
-    Sint16 size_add;        ///< Size rate
+    // Spawning.
     Sint8 soundspawn;       ///< Beginning sound
-    Uint16 facingadd;       ///< Facing
+    bool force;             ///< Force spawn?
     bool newtargetonspawn;  ///< Get new target?
     bool needtarget;        ///< Need a target?
     bool startontarget;     ///< Start on target?
+
+
 
     // Ending conditions.
     int end_time;                    ///< Time until end in seconds, (-1 for infinite).
@@ -163,7 +159,7 @@ struct pip_t : public AbstractProfile
     Uint32 bump_size;                ///< Bounding box size
     Uint32 bump_height;              ///< Bounding box height
 
-    // Damage.
+    // Hitting.
     FRange damage;                    ///< Damage
     DamageType damageType;            ///< Damage type
     unsigned int dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
@@ -180,6 +176,8 @@ struct pip_t : public AbstractProfile
     bool hateonly;                    ///< Only hit hategroup
     bool cause_roll;                  ///< @todo Not implemented!!
     bool cause_pancake;               ///< @todo Not implemented!!
+
+    // Drains.
     UFP8_T lifeDrain;                 ///< Life drain from target and given to the source when the target is hit.
     UFP8_T manaDrain;                 ///< Mana drain from target and given to the source when the target is hit.
 
@@ -192,15 +190,24 @@ struct pip_t : public AbstractProfile
     bool rotatetoface;                 ///< Arrows/Missiles.
     bool targetcaster;                 ///< Target caster?
 
-    // physics
+    // Physics.
     float spdlimit;                    ///< Speed limit
     float dampen;                      ///< Bounciness
     bool allowpush;                    ///< Allow particle to push characters around
     bool ignore_gravity;               ///< Ignores gravity
 
-    dynalight_info_t dynalight;           ///< Dynamic lighting info
-
-    prt_ori_t orientation;                ///< the way the particle orientation is calculated for display
+    // Visual properties.
+    dynalight_info_t dynalight; ///< Dynamic lighting info
+    e_sprite_mode type;         ///< Transparency mode
+    Uint8 numframes;            ///< Number of frames
+    Uint8 image_base;           ///< Starting image
+    IPair image_add;            ///< Frame rate
+    IPair rotate_pair;          ///< Rotation
+    Sint16 rotate_add;          ///< Rotation rate
+    Uint16 size_base;           ///< Size
+    Sint16 size_add;            ///< Size rate
+    Uint16 facingadd;           ///< Facing
+    prt_ori_t orientation;      ///< The way the particle orientation is calculated for display
 
     /**
      * @brief

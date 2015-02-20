@@ -320,6 +320,21 @@ typedef Uint16 FACING_T;
     struct FRange
     {
         float from, to;
+        FRange() :
+            from(0), to(0)
+        {
+        }
+        FRange(float _from, float _to) :
+            from(_from), to(_to)
+        {
+
+        }
+        /// @todo Rename to "reset".
+        void init()
+        {
+            from = 0.0f;
+            to = 0.0f;
+        }
     };
 
     void pair_to_range( IPair pair, FRange * prange );

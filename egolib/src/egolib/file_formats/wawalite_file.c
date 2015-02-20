@@ -255,31 +255,31 @@ wawalite_camera_t * read_wawalite_camera(ReadContext& ctxt, wawalite_camera_t * 
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite_fog(ReadContext &ctxt, wawalite_data_t * pdata )
+wawalite_data_t * read_wawalite_fog(ReadContext &ctxt, wawalite_data_t *data)
 {
-    if ( NULL == pdata ) return pdata;
+    if (!data) return data;
 
     // Read unnecessary data...  Only read if it exists...
-    if (goto_colon_vfs(ctxt, true))
+    if (ctxt.skipToColon(true))
     {
-        pdata->fog.found         = true;
-        pdata->fog.top = vfs_get_float(ctxt);
-        pdata->fog.bottom = vfs_get_next_float(ctxt);
-        pdata->fog.red = vfs_get_next_float(ctxt) * 255;
-        pdata->fog.grn = vfs_get_next_float(ctxt) * 255;
-        pdata->fog.blu = vfs_get_next_float(ctxt) * 255;
-        pdata->fog.affects_water = vfs_get_next_bool(ctxt);
+        data->fog.found = true;
+        data->fog.top = vfs_get_float(ctxt);
+        data->fog.bottom = vfs_get_next_float(ctxt);
+        data->fog.red = vfs_get_next_float(ctxt) * 255;
+        data->fog.grn = vfs_get_next_float(ctxt) * 255;
+        data->fog.blu = vfs_get_next_float(ctxt) * 255;
+        data->fog.affects_water = vfs_get_next_bool(ctxt);
 
         // Read extra stuff for damage tile particles...
-        if (goto_colon_vfs(ctxt, true))
+        if (ctxt.skipToColon(true))
         {
-            pdata->damagetile.part_gpip = ctxt.readInt();
-            pdata->damagetile.partand = vfs_get_next_int(ctxt);
-            pdata->damagetile.sound_index = vfs_get_next_int(ctxt);
+            data->damagetile.part_gpip = ctxt.readInt();
+            data->damagetile.partand = vfs_get_next_int(ctxt);
+            data->damagetile.sound_index = vfs_get_next_int(ctxt);
         }
     }
 
-    return pdata;
+    return data;
 }
 
 //--------------------------------------------------------------------------------------------

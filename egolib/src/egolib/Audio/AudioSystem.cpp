@@ -326,7 +326,8 @@ void AudioSystem::loadAllMusic()
 
     // Open the playlist listing all music files
     ReadContext ctxt("mp_data/music/playlist.txt");
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_warning("Unable to read playlist file `%s`\n",ctxt.getLoadName().c_str());
         return;
     }
@@ -334,7 +335,7 @@ void AudioSystem::loadAllMusic()
     // Load all music data into memory
     while ( !vfs_eof( ctxt._file ) )
     {
-        if (goto_colon_vfs(ctxt, true))
+        if (ctxt.skipToColon(true))
         {
         	char songName[256];
 

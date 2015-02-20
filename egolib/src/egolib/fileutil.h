@@ -245,6 +245,21 @@ public:
 
     /**
      * @brief
+     *  Get if a character is a whitespace character.
+     * @param chr
+     *  the character
+     * @return
+     *  @a true if the character is a whitespace character,
+     *  @a false otherwise
+     * @remark
+     *  @code
+     *  whitespace = Space | Tabulator
+     *  @endcode
+     */
+    bool isWhiteSpace(char chr);
+
+    /**
+     * @brief
      *  Get if a character is a new line character.
      * @param chr
      *  the character
@@ -264,6 +279,10 @@ public:
     static const char CarriageReturn = '\r';
     /// The zero terminator character.
     static const char ZeroTerminator = '\0';
+    /// The tabulator character.
+    static const char Tabulator = '\t';
+    /// The space character.
+    static const char Space = ' ';
 
     /**
      * @brief
@@ -303,7 +322,36 @@ public:
      */
     bool readBool();
 
+    /**
+     * @brief
+     *  Skip input until either the end of the input or a non-whitespace character is reached.
+     */
+    void skipWhiteSpaces();
+
+    /**
+     * @brief
+     *  Skip input until either the end of the input or the specified delimiter is reached.
+     *  If the specified delimiter is reached, skip it as well.
+     * @param option
+     *  if @a true and the specified delimiter was not encountered, a lexical error is raised
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @return
+     *  @a true if the specifed delimiter is was skipped, @a false otherwise
+     */
     bool skipToDelimiter(char delimiter, bool optional);
+
+    /**
+     * @brief
+     *  Skip input until either the end of the input or a colon is reached.
+     *  If a colon is reached, skip it as well.
+     * @param option
+     *  if @a true and a colon was not encountered, a lexical error is raised
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @return
+     *  @a true if a colon was skipped, @a false otherwise
+     */
     bool skipToColon(bool optional);
 
 };
@@ -333,7 +381,9 @@ void   make_newloadname( const char *modname, const char *appendname, char *newl
 
 
 bool goto_delimiter_vfs(ReadContext& ctxt, char *buffer, char delimiter, bool optional);
+#if 0
 bool goto_colon_vfs(ReadContext& ctxt, bool optional);
+#endif
 bool goto_colon_vfs(ReadContext& ctxt, char *buffer, bool optional);
 
 char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * delim_list, bool optional);

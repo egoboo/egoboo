@@ -22,6 +22,14 @@
 
 eve_t::eve_t() :
     AbstractProfile(),
+    _set(), _add(), contspawn(),
+    _owner(), _target(),
+    seeKurses(false), darkvision(false),
+    // What to do when the enchant ends.
+    endsound_index(-1),
+    killtargetonend(false),
+    poofonend(false),
+    endmessage(-1),
     // Enchant spawn description.
     _override(false),
     remove_overridden(false),
@@ -32,15 +40,7 @@ eve_t::eve_t() :
     // Enchant despawn conditions.
     lifetime(0),
     endIfCannotPay(false),
-    removedByIDSZ(IDSZ_NONE),
-    _set(), _add(), _owner(), _target(),
-    seeKurses(false), darkvision(false),
-    contspawn(),
-    // What to do when the enchant ends.
-    endsound_index(-1),
-    killtargetonend(false),
-    poofonend(false),
-    endmessage(-1)
+    removedByIDSZ(IDSZ_NONE)
 {
 }
 
@@ -61,11 +61,12 @@ eve_t *eve_t::init()
     {
         this->_add[i].init();
     }
-    this->seeKurses = false;
-    this->darkvision = false;
-    this->contspawn.init();
+    contspawn.init();
     _owner.init();
     _target.init();
+    this->seeKurses = false;
+    this->darkvision = false;
+
 
     // What to do when the enchant ends.
     endsound_index = -1;

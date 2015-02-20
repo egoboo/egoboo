@@ -188,9 +188,11 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
     if ( NULL == pmad ) return pmad;
 
     ReadContext ctxt(loadname);
-    if (!ctxt.ensureOpen()) return pmad;
-
-    while (goto_colon_vfs(ctxt, true))
+    if (!ctxt.ensureOpen())
+    {
+        return pmad;
+    }
+    while (ctxt.skipToColon(true))
     {
         vfs_get_string( ctxt, szOne, SDL_arraysize( szOne ) );
         actiona = action_which( szOne[0] );
@@ -639,7 +641,7 @@ void load_action_names_vfs( const char* loadname )
         comment[0] = CSTR_END;
 
         found = false;
-        if (goto_colon_vfs(ctxt, false))
+        if (ctxt.skipToColon(false))
         {
             if ( vfs_scanf(ctxt._file, " %c%c %s", &first, &second, comment ) >= 2 )
             {

@@ -116,7 +116,7 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     // Uniform font height is at the top
     yspacing = vfs_get_next_int(ctxt);
     fontoffset = yspacing;
-    for ( cnt = 0; cnt < NUMFONT && goto_colon_vfs(ctxt, true); cnt++ )
+    for ( cnt = 0; cnt < NUMFONT && ctxt.skipToColon(true); cnt++ )
     {
 		vfs_scanf(ctxt._file, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
         xspacing = ctxt.readInt();
