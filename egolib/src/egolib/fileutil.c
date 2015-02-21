@@ -1701,6 +1701,7 @@ DamageModifier vfs_get_damage_modifier(ReadContext& ctxt)
             { "C", DamageModifier::DAMAGECHARGE },
             { "M", DamageModifier::DAMAGEMANA },
             { "I", DamageModifier::DAMAGEINVICTUS },
+            { "F", DamageModifier::NONE },
         }
     );
     return ReadContext::readEnum(ctxt, rdr, DamageModifier::NONE);
