@@ -44,7 +44,10 @@
  *  the upper case character
  */
 template <class CharType>
-inline CharType char_toupper(CharType chr) { return std::toupper(chr, std::locale()); }
+inline CharType char_toupper(CharType chr, const std::locale& locale = std::locale())
+{
+    return std::toupper(chr, locale);
+}
 
 /**
 * @brief
@@ -55,7 +58,10 @@ inline CharType char_toupper(CharType chr) { return std::toupper(chr, std::local
 *  the lower case character
 */
 template <class CharType>
-inline CharType char_tolower(CharType chr) { return std::tolower(chr, std::locale()); }
+inline CharType char_tolower(CharType chr, const std::locale& locale = std::locale())
+{
+    return std::tolower(chr, locale);
+}
 
 /**
  * @brief
@@ -66,7 +72,10 @@ inline CharType char_tolower(CharType chr) { return std::tolower(chr, std::local
  *  @a true if the character is a whitespace character, @a false otherwise
  */
 template <class CharType>
-inline bool char_isspace(CharType chr) { return std::isspace(chr, std::locale()); }
+inline bool char_isspace(CharType chr, const std::locale& locale = std::locale())
+{
+    return std::isspace(chr, locale);
+}
 
 /**
  * @brief
@@ -76,10 +85,12 @@ inline bool char_isspace(CharType chr) { return std::isspace(chr, std::locale())
  * @return
  *  a string equal to @a str but with leading and trailing spaces removed
  */
-inline std::string trim(const std::string& str)
+template <typename CharType>
+inline std::basic_string<CharType> trim(const std::basic_string<CharType>& str, const std::locale& locale = std::locale())
 {
-    auto front = std::find_if_not(str.begin(), str.end(), std::isspace);
-    return std::string(front, std::find_if_not(str.rbegin(), std::string::const_reverse_iterator(front), std::isspace).base());
+    auto isspace = [=,&locale](const CharType chr) { return std::isspace(chr, locale); };
+    auto front = std::find_if_not(str.begin(), str.end(), isspace);
+    return std::basic_string<CharType>(front, std::find_if_not(str.rbegin(), std::basic_string<CharType>::const_reverse_iterator(front), isspace).base());
 }
 
 // libc++ doesn't define std::toupper<int>(int, std::locale),
