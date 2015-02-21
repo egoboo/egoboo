@@ -258,10 +258,10 @@ bool BSP_leaf_t::remove_link(BSP_leaf_t *L)
 
 bool BSP_leaf_t::clear(BSP_leaf_t * L)
 {
-	if (NULL == L) return false;
+	if (!L) return false;
 
 	L->data_type = BSP_LEAF_NONE;
-	L->data = NULL;
+	L->data = nullptr;
 
 	BSP_leaf_t::remove_link(L);
 
@@ -912,20 +912,20 @@ BSP_tree_t::Parameters::Parameters(size_t dim, size_t maxDepth) :
 	// Validate dimensionality.
 	if (dim < BSP_tree_t::Parameters::ALLOWED_DIM_MIN)
 	{
-		log_error("%s: %d: specified dimensionality %zu is smaller than allowed minimum dimensionality %zu\n", \
+		log_error("%s: %d: specified dimensionality %" PRIuZ " is smaller than allowed minimum dimensionality %" PRIuZ "\n", \
 			      __FILE__, __LINE__, dim, BSP_tree_t::Parameters::ALLOWED_DIM_MIN);
 		throw std::domain_error("dimensionality out of range");
 	}
 	if (dim > BSP_tree_t::Parameters::ALLOWED_DEPTH_MAX)
 	{
-		log_error("%s:%d: specified dimensionality %zu is greater than allowed maximum dimensionality %zu\n", \
+		log_error("%s:%d: specified dimensionality %" PRIuZ " is greater than allowed maximum dimensionality %" PRIuZ "\n", \
 			__FILE__, __LINE__, dim, BSP_tree_t::Parameters::ALLOWED_DIM_MAX);
 		throw std::domain_error("dimensionality out of range");
 	}
 	// Validate maximum depth.
 	if (maxDepth > BSP_tree_t::Parameters::ALLOWED_DEPTH_MAX)
 	{
-		log_error("%s: %d: specified maximum depth %zu is greater than allowed maximum depth %zu\n", \
+		log_error("%s: %d: specified maximum depth %" PRIuZ " is greater than allowed maximum depth %" PRIuZ "\n", \
 			      __FILE__, __LINE__, maxDepth, BSP_tree_t::Parameters::ALLOWED_DEPTH_MAX);
 		throw std::domain_error("maximum depth out of range");
 	}
@@ -1227,7 +1227,7 @@ bool BSP_leaf_list_t::add_all(Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 	// Warn if any leaves were rejected.
 	if (lost_leaves > 0)
 	{
-		log_warning("%s:%d: %d leaves not added.\n", __FILE__, __LINE__, lost_leaves);
+		log_warning("%s:%d: %" PRIuZ " leaves not added.\n", __FILE__, __LINE__, lost_leaves);
 	}
 
 	return (collisions.size() < collisions.capacity());
@@ -1255,7 +1255,7 @@ bool BSP_leaf_list_t::add_all(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t 
 	// Warn if any leaves were lost.
 	if (lost_leaves > 0)
 	{
-		log_warning("%s:%d: %d nodes not added.\n", __FILE__, __LINE__, lost_leaves);
+		log_warning("%s:%d: %" PRIuZ " nodes not added.\n", __FILE__, __LINE__, lost_leaves);
 	}
 
 	return (collisions.size() < collisions.capacity());
@@ -1307,7 +1307,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 		// Warn if any leaves were lost.
 		if (lost_leaves > 0)
 		{
-			log_warning("%s:%d: %d leaves not lost\n", __FILE__, __LINE__, lost_leaves);
+			log_warning("%s:%d: %" PRIuZ " leaves not lost\n", __FILE__, __LINE__, lost_leaves);
 		}
 		return;
 	}
@@ -1372,7 +1372,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 		// Warn if any leaves were lost.
 		if (lost_leaves > 0)
 		{
-			log_warning("%s:%d: %d leaves lost\n", __FILE__, __LINE__, lost_leaves);
+			log_warning("%s:%d: %" PRIuZ " leaves lost\n", __FILE__, __LINE__, lost_leaves);
 		}
 		return;
 	}
@@ -1429,7 +1429,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 		// Warn if any nodes were lost.
 		if (lost_leaves > 0)
 		{
-			log_warning("%s:%d: %d leaves lost\n", __FILE__, __LINE__, lost_leaves);
+			log_warning("%s:%d: %" PRIuZ " leaves lost\n", __FILE__, __LINE__, lost_leaves);
 		}
 		return;
 	}
@@ -1493,7 +1493,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& te
 		// Warn if any nodes were lost.
 		if (lost_leaves > 0)
 		{
-			log_warning("%s:%d: %d leaves lost\n", __FILE__, __LINE__, lost_leaves);
+			log_warning("%s:%d: %" PRIuZ " leaves lost\n", __FILE__, __LINE__, lost_leaves);
 		}
 		return;
 	}

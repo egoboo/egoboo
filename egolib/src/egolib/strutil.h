@@ -68,6 +68,20 @@ inline CharType char_tolower(CharType chr) { return std::tolower(chr, std::local
 template <class CharType>
 inline bool char_isspace(CharType chr) { return std::isspace(chr, std::locale()); }
 
+/**
+ * @brief
+ *  Trim leading and trailing spaces.
+ * @param str
+ *  the string
+ * @return
+ *  a string equal to @a str but with leading and trailing spaces removed
+ */
+inline std::string trim(const std::string& str)
+{
+    auto front = std::find_if_not(str.begin(), str.end(), std::isspace);
+    return std::string(front, std::find_if_not(str.rbegin(), std::string::const_reverse_iterator(front), std::isspace).base());
+}
+
 // libc++ doesn't define std::toupper<int>(int, std::locale),
 // so narrow the int to a char.
 #ifdef _LIBCPP_VERSION

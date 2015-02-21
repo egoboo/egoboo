@@ -69,15 +69,6 @@ spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo )
 
 //--------------------------------------------------------------------------------------------
 
-std::string& trim(std::string& str)
-{
-    str.erase(str.begin(), find_if(str.begin(), str.end(),
-        [](char& ch)->bool { return !isspace(ch); }));
-    str.erase(find_if(str.rbegin(), str.rend(),
-        [](char& ch)->bool { return !isspace(ch); }).base(), str.end());
-    return str;
-}
-
 bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
 {
     // trap bad pointers
