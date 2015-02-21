@@ -432,6 +432,11 @@ int ReadContext::readInput()
             return EndOfInput;
         }
     }
+    if (chr < std::numeric_limits<char>::min() || chr > std::numeric_limits<char>::max())
+    {
+        printf("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
     if (ZeroTerminator == chr)
     {
         return Error;
@@ -449,63 +454,6 @@ bool read_to_colon_vfs(ReadContext& ctxt,std::string& buffer, bool optional)
     return read_to_delimiter_vfs(ctxt, buffer, ':', optional);
 }
 
-//--------------------------------------------------------------------------------------------
-#if 0
-char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optional )
-{
-    /// @author ZZ
-    /// @details This function moves a file read pointer to the next colon char *pmem;
-    /// @author BB
-    /// @details buffer points to a 256 character buffer that will get the data between the newline and the ':'
-    ///    Also, the two functions goto_colon_vfs and goto_colon_yesno have been combined
-
-    char cTmp;
-    int    write;
-
-    if ( NULL == pmem || pmem >= pmem_end ) return pmem;
-
-    write = 0;
-    if ( NULL != buffer ) buffer[0] = CSTR_END;
-    cTmp = *( pmem++ );
-    while ( pmem < pmem_end )
-    {
-        if ( ':' == cTmp ) { pmem++; break; }
-
-        if (ctxt.isNewLine(cTmp))
-        {
-            write = 0;
-        }
-        else
-        {
-            if ( NULL != buffer ) buffer[write++] = cTmp;
-        }
-
-        cTmp = *( pmem++ );
-    }
-    if ( NULL != buffer ) buffer[write] = CSTR_END;
-
-    if ( !optional && ':' != cTmp )
-    {
-        // not enough colons in file!
-        log_error("%s: not enough colons in file\n", ctxt.getLoadName().c_str());
-    }
-
-    return pmem;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-#if 0
-char vfs_get_first_letter(ReadContext& ctxt)
-{
-    ctxt.skipWhiteSpaces();
-    if (ctxt.is(ReadContext::EndOfInput) || ctxt.is(ReadContext::Error))
-    {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
-    }
-    return static_cast<char>(ctxt._current);
-}
-#endif
 //--------------------------------------------------------------------------------------------
 void vfs_read_string_lit(ReadContext& ctxt, char *buffer, size_t max)
 {
@@ -888,85 +836,6 @@ int vfs_get_version(ReadContext& ctxt)
     
 }
 
-/*int vfs_get_version( vfs_FILE* fileread )
-{
-    /// @author BB
-    /// @details scanr the file for a "// file_version blah" flag
-    long filepos;
-    int  ch;
-    bool newline, iscomment;
-    STRING keyword;
-    int file_version, fields;
-
-    if ( vfs_error( fileread ) ) return -1;
-
-    filepos = vfs_tell( fileread );
-
-    vfs_seek( fileread, 0 );
-
-    file_version = -1;
-    iscomment = false;
-    while ( !vfs_eof( fileread ) )
-    {
-        ch = vfs_getc( fileread );
-
-        // trap new lines
-        if ( ASCII_LINEFEED_CHAR ==  ch || C_CARRIAGE_RETURN_CHAR ==  ch ) { newline = true; iscomment = false; continue; }
-
-        // ignore whitespace
-        if ( isspace( ch ) ) continue;
-
-        // possible comment
-        if ( C_SLASH_CHR == ch )
-        {
-            ch = vfs_getc( fileread );
-            if ( C_SLASH_CHR == ch )
-            {
-                iscomment = true;
-            }
-        }
-
-        if ( iscomment )
-        {
-            // this is a comment. if the first word is not "file_version", then it is
-            // the wrong type of line to be a file_version statement
-
-            fields = vfs_scanf( fileread, "%255s %d", keyword, &file_version );
-            if ( 2 == fields && 0 == stricmp( keyword, "file_version" ) )
-            {
-                // !! found it !!
-                break;
-            }
-            else
-            {
-                iscomment = false;
-            }
-        }
-        else
-        {
-            // read everything to the end of the line because it is
-            // the wrong type of line to be a file_version statement
-
-            ch = vfs_getc( fileread );
-            while ( !vfs_eof( fileread ) && ASCII_LINEFEED_CHAR != ch && C_CARRIAGE_RETURN_CHAR != ch )
-            {
-                ch = vfs_getc( fileread );
-            }
-
-            iscomment = false;
-            continue;
-        }
-    };
-
-    // reset the file pointer
-    vfs_seek( fileread, filepos );
-
-    // flear any error we may have generated
-    // clearerr( fileread );
-
-    return file_version;
-}*/
-
 //--------------------------------------------------------------------------------------------
 bool vfs_put_version( vfs_FILE* filewrite, const int version )
 {
@@ -1067,6 +936,7 @@ std::string ReadContext::readToEndOfLine()
     }
     return _buffer.toString();
 }
+
 std::string ReadContext::readSingleLineComment()
 {
     if (is(StartOfInput))
@@ -1102,7 +972,6 @@ std::string ReadContext::readSingleLineComment()
     return _buffer.toString();
 }
 
-/// @todo Rename: Read a printable character.
 char ReadContext::readPrintable()
 {
     if (is(StartOfInput))
@@ -1122,6 +991,7 @@ char ReadContext::readPrintable()
     next();
     return tmp;
 }
+
 char ReadContext::readCharLit()
 {
     if (is(StartOfInput))
@@ -1329,14 +1199,6 @@ void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
     }
 }
 
-//--------------------------------------------------------------------------------------------
-#if 0
-char vfs_get_next_printable(ReadContext& ctxt)
-{
-    ctxt.skipToColon(false);
-    return ctxt.readPrintable();
-}
-#endif
 void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max)
 {
     ctxt.skipToColon(false);
@@ -1344,21 +1206,7 @@ void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max)
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-void vfs_get_line(ReadContext& ctxt, char *buf, size_t max)
-{
-    vfs_read_string_lit(ctxt, buf, max);
-}
-#endif
-//--------------------------------------------------------------------------------------------
-#if 0
-void vfs_get_next_line(ReadContext& ctxt, char *buf, size_t max)
-{
-    ctxt.skipToColon(false);
-    vfs_get_line(ctxt, buf, max);
-}
-#endif
-//--------------------------------------------------------------------------------------------
+
 void ReadContext::write(char chr)
 {
     EGOBOO_ASSERT('\0' != chr);

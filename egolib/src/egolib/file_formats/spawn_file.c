@@ -68,6 +68,16 @@ spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
+
+std::string& trim(std::string& str)
+{
+    str.erase(str.begin(), find_if(str.begin(), str.end(),
+        [](char& ch)->bool { return !isspace(ch); }));
+    str.erase(find_if(str.rbegin(), str.rend(),
+        [](char& ch)->bool { return !isspace(ch); }).base(), str.end());
+    return str;
+}
+
 bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
 {
     // trap bad pointers
@@ -75,7 +85,7 @@ bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
 
     spawn_file_info_reinit( pinfo );
 Again:
-    // Until we hit '# or ':'.
+    // Until we hit something else than newlines, whitespaces or comments.
     while (true)
     {
         ctxt.skipWhiteSpaces();
@@ -95,15 +105,31 @@ Again:
             break;
         }
     }
-    if (ctxt.isAlpha())
+    if (ctxt.isAlpha()||ctxt.is('%'))
     {
-        std::string name = ctxt.readName();
+        ctxt._buffer.clear();
+        // Read everything into the buffer until a ':', a new line, an error or the end of the input is reached.
+        do
+        {
+            ctxt.saveAndNext();
+        } while (!ctxt.is(':') && !ctxt.isNewLine() && !ctxt.is(ReadContext::EndOfInput) && !ctxt.is(ReadContext::Error));
+        if (ctxt.is(ReadContext::Error))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+        }
+        if (ctxt.is(ReadContext::EndOfInput))
+        {
+            return false;
+        }
         if (!ctxt.is(':'))
         {
             ctxt.readToEndOfLine();
             goto Again;
         }
         ctxt.next();
+        std::string name = trim(ctxt._buffer.toString());
+
+        
         strncpy(pinfo->spawn_coment, name.c_str(), SDL_arraysize(pinfo->spawn_coment));
         pinfo->do_spawn = true;
 
@@ -185,6 +211,10 @@ Again:
         strncpy(pinfo->spawn_coment, who.c_str(), SDL_arraysize(pinfo->spawn_coment));
         pinfo->slot = slot;
         return true;
+    }
+    else if (!ctxt.is(ReadContext::EndOfInput))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
     }
     return false;
 }
