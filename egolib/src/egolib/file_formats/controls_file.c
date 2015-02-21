@@ -74,7 +74,8 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
     file_version     = -1;
 
     ReadContext ctxt(szFilename);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_warning("unable to read input settings file `%s`\n",szFilename);
         return false;
     }

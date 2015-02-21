@@ -42,7 +42,7 @@ STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 Uint8           maxformattypes;
 
 ReadContext::ReadContext(const std::string& loadName) :
-    _loadName(loadName), _file(nullptr), _lineNumber(1), _current(StartOfInput)
+    _loadName(loadName), _file(nullptr), _lineNumber(1), _buffer(5012), _current(StartOfInput)
 {
 }
 
@@ -54,6 +54,62 @@ ReadContext::~ReadContext()
         _file = nullptr;
     }
 
+}
+
+std::string ReadContext::toString() const
+{
+    return _buffer.toString();
+}
+
+float ReadContext::toReal() const
+{
+    float x;
+    try
+    {
+        x = std::stof(_buffer.toString());
+    }
+    catch (std::exception&)
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    return x;
+
+}
+
+signed int ReadContext::toInteger() const
+{
+    long x;
+    try
+    {
+        x = std::stol(_buffer.toString());
+    }
+    catch (std::exception&)
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    if (x < std::numeric_limits<int>::min() || x > std::numeric_limits<int>::max())
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    return static_cast<int>(x);
+}
+
+unsigned int ReadContext::toNatural() const
+{
+    unsigned long x;
+    try
+    {
+        x = std::stoul(_buffer.toString());
+    }
+    catch (std::exception&)
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    if (x > std::numeric_limits<int>::max())
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    return static_cast<unsigned int>(x);
 }
 
 const std::string& ReadContext::getLoadName() const
@@ -101,27 +157,42 @@ void ReadContext::close()
 
 void ReadContext::skipWhiteSpaces()
 {
-    _current = readChar();
-    if (ReadContext::Error == _current)
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    if (is(Error))
     {
         throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
     }
-    if (ReadContext::EndOfInput == _current)
+    if (is(EndOfInput))
     {
         return;
     }
-    while (isWhiteSpace(static_cast<char>(_current)))
+    while (isWhiteSpace())
     {
-        _current = readChar();
-        if (ReadContext::Error == _current)
+        next();
+        if (is(Error))
         {
             throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
         }
-        if (ReadContext::EndOfInput == _current)
+        if (is(EndOfInput))
         {
             return;
         }
     }
+}
+
+bool ReadContext::is(int chr)
+{
+    return chr == _current;
+}
+
+bool ReadContext::is(int first, int last)
+{
+    if (first > last) throw std::invalid_argument("first > last");
+    return (first <= _current)
+        && (_current <= last);
 }
 
 bool ReadContext::isNewLine(char chr)
@@ -129,60 +200,69 @@ bool ReadContext::isNewLine(char chr)
     return LineFeed == chr || CarriageReturn == chr;
 }
 
+bool ReadContext::isNewLine()
+{
+    return is(LineFeed) || is(CarriageReturn);
+
+}
+
 bool ReadContext::isWhiteSpace(char chr)
 {
     return Space == chr || Tabulator == chr;
 }
 
+bool ReadContext::isWhiteSpace()
+{
+    return is(Space) || is(Tabulator);
+}
+
+bool ReadContext::isAlpha()
+{
+    return is('a', 'z') || is('A', 'Z');
+}
+
+bool ReadContext::isDigit()
+{
+    return is('0', '9');
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-IDSZ vfs_get_idsz(ReadContext& ctxt)
+
+IDSZ ReadContext::readIDSZ()
 {
     /// @author ZZ
     /// @details This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
-    IDSZ idsz = IDSZ_NONE;
-    char cTmp;
-    int  iTmp;
-
-    iTmp = vfs_get_first_letter( ctxt );
-    if ( '[' == iTmp )
+    char c[4];
+    if (is(StartOfInput))
     {
-        //long fpos;
-        int  i;
-        char idsz_str[5] = EMPTY_CSTR;
-
-        vfs_tell( ctxt._file );
-
-        for ( i = 0; i < 4; i++ )
-        {
-            iTmp = vfs_getc( ctxt._file );
-            if (( unsigned )iTmp > 0xFF )
-                break;
-
-            cTmp = char_toupper( iTmp );
-            if ( !isalpha(( unsigned )cTmp ) && !isdigit(( unsigned )cTmp ) && ( '_' != cTmp ) ) break;
-
-            idsz_str[i] = cTmp;
-        }
-
-        if ( i != 4 )
-        {
-            log_warning("unable to read IDSZ in \"%s\"\n", ctxt.getLoadName().c_str());
-        }
-        else
-        {
-            idsz = MAKE_IDSZ( idsz_str[0], idsz_str[1], idsz_str[2], idsz_str[3] );
-
-            iTmp = vfs_getc( ctxt._file );
-            if ( ']' != iTmp )
-            {
-                log_warning("unable to read IDZ in \"%s\"\n", ctxt.getLoadName().c_str());
-            }
-        }
+        next();
     }
-
-    return idsz;
+    skipWhiteSpaces();
+    // `'['`
+    if (!is('['))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName,_lineNumber));
+    }
+    next();
+    // `(<alphabetic>|<digit>|'_')^4`
+    for (size_t i = 0; i < 4; ++i)
+    {
+        if (!isAlpha() && !isDigit() && !is('_'))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        c[i] = static_cast<char>(_current);
+        next();
+    }
+    // `']'`
+    if (!is(']'))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    next();
+    return MAKE_IDSZ(c[0], c[1], c[2], c[3]);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -210,19 +290,18 @@ bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 //--------------------------------------------------------------------------------------------
 bool ReadContext::skipToDelimiter(char delimiter, bool optional)
 {
-    /// @author ZZ
-    /// @details This function moves a file read pointer to the next delimiter char iTmp;
-    /// @author BB
-    /// @details buffer points to a 256 character buffer that will get the data between the newline and the delim
     if ('\0' == delimiter) std::invalid_argument("\\0 == delimiter");
+    if (is(StartOfInput))
+    {
+        next();
+    }
     while (true)
     {
-        _current = readChar();
-        if (Error == _current)
+        if (is(Error))
         {
             throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
         }
-        if (EndOfInput == _current)
+        if (is(EndOfInput))
         {
             if (optional)
             {
@@ -233,122 +312,113 @@ bool ReadContext::skipToDelimiter(char delimiter, bool optional)
                 throw Ego::Script::MissingDelimiterError(__FILE__,__LINE__,Ego::Script::Location(getLoadName(), getLineNumber()),delimiter);
             }
         }
-        if (delimiter == static_cast<char>(_current))
+        if (is(delimiter))
         {
+            next();
             return true;
         }
 
-        if (isNewLine(static_cast<char>(_current)))
+        if (isNewLine())
         {
             _lineNumber++;
         }
+        next();
     }
 }
 
-bool goto_delimiter_vfs(ReadContext& ctxt, char * buffer, char delimiter, bool optional)
+bool read_to_delimiter_vfs(ReadContext& ctxt, std::string& buffer, char delimiter, bool optional)
 {
-    /// @author ZZ
-    /// @details This function moves a file read pointer to the next delimiter char iTmp;
-    /// @author BB
-    /// @details buffer points to a 256 character buffer that will get the data between the newline and the delim
-    if (vfs_eof(ctxt._file)  || vfs_error(ctxt._file) ) return false;
-
-    size_t write = 0;
-    if ( NULL != buffer ) buffer[0] = CSTR_END;
-
-    int current = vfs_getc(ctxt._file);
-    while (!vfs_eof(ctxt._file) && !vfs_error(ctxt._file))
+    if ('\0' == delimiter) std::invalid_argument("\\0 == delimiter");
+    if (ctxt.is(ReadContext::StartOfInput))
     {
-        if (current > 0xFF || delimiter == current) break;
-
-        if (ctxt.isNewLine(static_cast<char>(current)) || CSTR_END == current)
-        {
-            write = 0;
-        }
-        else
-        {
-            if (buffer) buffer[write++] = static_cast<char>(current);
-        }
-
-        current = vfs_getc(ctxt._file);
+        ctxt.next();
     }
-    if (buffer) buffer[write] = CSTR_END;
-
-    if (!optional && delimiter != current)
+    ctxt._buffer.clear();
+    while (true)
     {
-        throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()), delimiter);
-    }
+        if (ctxt.is(ReadContext::Error))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+        }
+        if (ctxt.is(ReadContext::EndOfInput))
+        {
+            if (optional)
+            {
+                buffer = ctxt._buffer.toString();
+                return false;
+            }
+            else
+            {
+                throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()), delimiter);
+            }
+        }
+        if (ctxt.is(delimiter))
+        {
+            ctxt.saveAndNext();
+            buffer = ctxt._buffer.toString();
+            return true;
+        }
 
-    return (delimiter == current);
+        if (ctxt.isNewLine())
+        {
+            ctxt._lineNumber++;
+        }
+        ctxt.saveAndNext();
+    }
+    
 }
 
 //--------------------------------------------------------------------------------------------
-char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * delim_list, bool optional )
+bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const char *delimiters, bool optional)
 {
-    /// @author ZZ
-    /// @details This function moves a file read pointer to the next colon char iTmp;
-    /// @author BB
-    /// @details buffer points to a 256 character buffer that will get the data between the newline and the ':'
-    ///
-    ///    returns the delimiter that was found, or CSTR_END if no delimiter found
-
-    char retval = CSTR_END;
-    int iTmp, write;
-	bool is_delim;
-
-    if (INVALID_CSTR(delim_list)) return false;
-
-    if (vfs_eof(ctxt._file) || vfs_error(ctxt._file)) return false;
-
-    // use a simpler function if it is easier
-    if ( 1 == strlen( delim_list ) )
+    if (!delimiters) std::invalid_argument("\\0 == delimiter");
+    if (ctxt.is(ReadContext::StartOfInput))
     {
-		bool rv = goto_delimiter_vfs(ctxt, buffer, delim_list[0], optional);
-        retval = rv ? delim_list[0] : retval;
+        ctxt.next();
+    }
+    ctxt._buffer.clear();
+    while (true)
+    {
+        if (ctxt.is(ReadContext::Error))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+        }
+        if (ctxt.is(ReadContext::EndOfInput))
+        {
+            if (optional)
+            {
+                buffer = ctxt._buffer.toString();
+                return false;
+            }
+            else
+            {
+                /// @todo Need to be able to pass a list of delimiters.
+                throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()), delimiters[0]);
+            }
+        }
+        if (ctxt.isNewLine())
+        {
+            ctxt._lineNumber++;
+        }
+        bool isDelimiter = false;
+        for (size_t i = 0, n = strlen(delimiters); i < n; ++i)
+        {
+            isDelimiter |= ctxt.is(delimiters[i]);
+        }
+        if (isDelimiter)
+        {
+            ctxt.saveAndNext();
+            buffer = ctxt._buffer.toString();
+            return true;
+        }
+        ctxt.saveAndNext();
     }
 
-    if ( NULL != buffer ) buffer[0] = CSTR_END;
-
-    is_delim = false;
-    write    = 0;
-    iTmp = vfs_getc(ctxt._file);
-    while (!vfs_eof(ctxt._file) && !vfs_error(ctxt._file))
-    {
-        if (( unsigned )iTmp > 0xFF ) break;
-
-        is_delim = ( NULL != strchr( delim_list, iTmp ) );
-
-        if ( is_delim )
-        {
-            retval = ( char )iTmp;
-            break;
-        }
-
-        if (ctxt.isNewLine((char)iTmp) || CSTR_END == iTmp )
-        {
-            write = 0;
-        }
-        else
-        {
-            if ( NULL != buffer ) buffer[write++] = ( char )iTmp;
-        }
-
-        iTmp = vfs_getc(ctxt._file);
-    }
-    if ( NULL != buffer ) buffer[write] = CSTR_END;
-
-    if ( !optional && !is_delim )
-    {
-        // not enough colons in file!
-        log_error("%s:%" PRIuZ ": not enough delimiters %s\n", ctxt.getLoadName().c_str(), ctxt.getLineNumber(), delim_list);
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 
-int ReadContext::readChar()
+int ReadContext::readInput()
 {
     int chr = vfs_getc(_file);
     if (EOF == chr)
@@ -369,18 +439,14 @@ int ReadContext::readChar()
     return chr;
 }
 
-
 bool ReadContext::skipToColon(bool optional)
 {
     return skipToDelimiter(':', optional);
 }
 
-bool goto_colon_vfs(ReadContext& ctxt,char *buffer, bool optional)
+bool read_to_colon_vfs(ReadContext& ctxt,std::string& buffer, bool optional)
 {
-    /// @author BB
-    /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
-    ctxt._lineNumber++;
-    return goto_delimiter_vfs(ctxt, buffer, ':', optional);
+    return read_to_delimiter_vfs(ctxt, buffer, ':', optional);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -431,57 +497,26 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optiona
 //--------------------------------------------------------------------------------------------
 char vfs_get_first_letter(ReadContext& ctxt)
 {
-    /// @author ZZ
-    /// @details This function returns the next non-whitespace character
-    int current = ctxt.readChar();
-    if (ReadContext::EndOfInput == current || ReadContext::Error == current)
+    ctxt.skipWhiteSpaces();
+    if (ctxt.is(ReadContext::EndOfInput) || ctxt.is(ReadContext::Error))
     {
-        throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt.getLoadName(),ctxt.getLineNumber()));
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
     }
-    while (char_isspace(static_cast<char>(current)))
-    {
-        current = ctxt.readChar();
-        if (ReadContext::EndOfInput == current || ReadContext::Error == current)
-        {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
-        }
-    }
-    return static_cast<char>(current);
+    return static_cast<char>(ctxt._current);
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_name(ReadContext& ctxt, char *szName, size_t max_len)
+void vfs_read_string_lit(ReadContext& ctxt, char *buffer, size_t max)
 {
-    /// @author ZZ
-    /// @details This function loads a string of up to MAXCAPNAMESIZE characters, parsing
-    ///    it for underscores.  The szName argument is rewritten with the null terminated
-    ///    string
-
-    int fields;
-
-    STRING format;
-
-    if ( NULL == szName ) return false;
-    szName[0] = CSTR_END;
-
-    if (( 0 != vfs_error( ctxt._file ) ) || vfs_eof( ctxt._file ) ) return false;
-
-    // limit the max length of the string!
-    // return value if the number of fields fields, not amount fields from file
-    snprintf( format, SDL_arraysize( format ), "%%%llus", max_len - 1 );
-
-    szName[0] = CSTR_END;
-    fields = vfs_scanf( ctxt._file, format, szName );
-
-    if ( fields > 0 )
-    {
-        szName[max_len-1] = CSTR_END;
-        str_decode( szName, max_len, szName );
-    };
-
-    return ( 1 == fields ) && vfs_error( ctxt._file );
+    std::string _literal = ctxt.readStringLit();
+    strncpy(buffer,_literal.c_str(), max);
+    str_decode(buffer, max, buffer);
 }
-
+void vfs_read_name(ReadContext& ctxt, char *buffer, size_t max)
+{
+    std::string _literal = ctxt.readName();
+    strncpy(buffer,_literal.c_str(),max);
+}
 //--------------------------------------------------------------------------------------------
 void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival )
 {
@@ -738,39 +773,28 @@ void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz,
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool vfs_get_range(ReadContext& ctxt, FRange *prange)
+
+bool vfs_get_range(ReadContext& ctxt, FRange *range)
 {
-    /// @author ZZ
-    /// @details This function reads a damage/stat range ( eg. 5-9 )
-
-    char  cTmp;
-    float fFrom, fTo;
-
-    if (vfs_error(ctxt._file) || vfs_eof(ctxt._file)) return false;
-
-    // read the range
-    fFrom = vfs_get_float(ctxt);  // The first number
-    fTo   = fFrom;
-
-    // The optional hyphen
-    vfs_tell(ctxt._file);
-    cTmp = vfs_get_first_letter(ctxt);
-
-    if ( '-' != cTmp )
+    // Read minimum.
+    ctxt.skipWhiteSpaces();
+    float from = ctxt.readReal();
+    float to = from;
+    // Read hyphen and maximum if present.
+    ctxt.skipWhiteSpaces();
+    if (ctxt.is('-'))
     {
-        // oops... reset the file position, just in calse
-        //vfs_seek( fileread, fpos );
-    }
-    else
-    {
-        // The optional second number
-        fTo = vfs_get_float(ctxt);
+        ctxt.next();
+
+        // Read maximum.
+        ctxt.skipWhiteSpaces();
+        to = ctxt.readReal();
     }
 
-    if ( NULL != prange )
+    if (range)
     {
-        prange->from = std::min( fFrom, fTo );
-        prange->to   = std::max( fFrom, fTo );
+        range->from = std::min(from, to);
+        range->to   = std::max(from, to);
     }
 
     return true;
@@ -788,21 +812,17 @@ bool vfs_get_next_range(ReadContext& ctxt, FRange * prange)
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool vfs_get_pair(ReadContext& ctxt, IPair * ppair )
+bool vfs_get_pair(ReadContext& ctxt, IPair *pair)
 {
-    /// @author ZZ
-    /// @details This function reads a damage/stat loc_pair ( eg. 5-9 )
+    FRange range;
 
-    FRange loc_range;
+    if (!vfs_get_range(ctxt, &range)) return false;
 
-    if ( !vfs_get_range( ctxt, &loc_range ) ) return false;
-
-    if ( NULL != ppair )
+    if (pair)
     {
-        // convert the range to a pair
-        ppair->base = FLOAT_TO_FP8( loc_range.from );
-        ppair->rand = FLOAT_TO_FP8( loc_range.to - loc_range.from );
+        // Convert the range to a pair.
+        pair->base = FLOAT_TO_FP8(range.from );
+        pair->rand = FLOAT_TO_FP8(range.to - range.from);
     }
 
     return true;
@@ -840,35 +860,31 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// Read a version number.
+/// @code
+/// versionNumber = '$VERSION_NUMBER' natural
+/// @endcode
 int vfs_get_version(ReadContext& ctxt)
 {
-    /// @author ZF
-    /// @details This gets the version number of the file which is preceeded by a $ symbol
-    ///          and must be in the first line of the file.
-
-    long filepos;
-    int result;
-
-    // Stop here if file can't be read
-    if ( vfs_error(ctxt._file) ) return 0;
-
-    // Remember where we were
-    filepos = vfs_tell(ctxt._file);
-
-    //Begin at the beginning
-    vfs_seek(ctxt._file, 0 );
-
-    // Make sure the first line is actually the version tag
-    if ('$' != vfs_getc(ctxt._file)) return 0;
-    while (!vfs_eof(ctxt._file) && !isspace(( unsigned )vfs_getc(ctxt._file)));
-
-    // Get the version number
-    result = ctxt.readInt();
-
-    // reset the file pointer
-    vfs_seek(ctxt._file, filepos);
-
-    return result;
+    if (ctxt.is(ReadContext::StartOfInput))
+    {
+        ctxt.next();
+    }
+    ctxt.skipWhiteSpaces();
+    if (!ctxt.is('$'))
+    {
+        return -1;
+    }
+    ctxt.next();
+    std::string tag = ctxt.readName();
+    if (tag != "FILE_VERSION")
+    {
+        return -1;
+    }
+    
+    // Get the version number.
+    return ctxt.readInt();
+    
 }
 
 /*int vfs_get_version( vfs_FILE* fileread )
@@ -1027,43 +1043,236 @@ char vfs_get_next_char(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
+std::string ReadContext::readToEndOfLine()
+{
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    skipWhiteSpaces();
+    _buffer.clear();
+    while (true)
+    {
+        if (is(EndOfInput) || is(Error))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        if (isNewLine())
+        {
+            next();
+            break;
+        }
+        saveAndNext();
+    }
+    return _buffer.toString();
+}
+std::string ReadContext::readSingleLineComment()
+{
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    skipWhiteSpaces();
+    _buffer.clear();
+    if (!is('/'))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    next();
+    if (!is('/'))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    next();
+    skipWhiteSpaces();
+    while (true)
+    {
+        if (is(EndOfInput) || is(Error))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        if (isNewLine())
+        {
+            next();
+            break;
+        }
+        saveAndNext();
+    }
+    return _buffer.toString();
+}
+
+/// @todo Rename: Read a printable character.
+char ReadContext::readPrintable()
+{
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    skipWhiteSpaces();
+    if (is(EndOfInput) || is(Error))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    if (!isAlpha() && !isDigit() && !is('!') && !is('?') && !is('='))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    char tmp = static_cast<char>(_current);
+    next();
+    return tmp;
+}
+char ReadContext::readCharLit()
+{
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    skipWhiteSpaces();
+    if (is(EndOfInput) || is(Error))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    char chr;
+    if (!is('\''))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    next();
+    if (is('\\'))
+    {
+        next();
+        if (is('\''))
+        {
+            chr = '\'';
+        }
+        else if (is('n'))
+        {
+            chr = '\n';
+        }
+        else if (is('t'))
+        {
+            chr = '\t';
+        }
+        else if (is('\\'))
+        {
+            chr = '\\';
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        next();
+    }
+    else
+    {
+        if (is(EndOfInput) || is(Error))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        chr = static_cast<char>(_current);
+        next();
+    }
+    if (!is('\''))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    next();
+    return chr;
+}
 int ReadContext::readInt()
 {
-    int tmp = 0;
-    vfs_scanf(_file, "%d", &tmp);
-    return tmp;
+    skipWhiteSpaces();
+    _buffer.clear();
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    if (is('+') || is('-'))
+    {
+        saveAndNext();
+    }
+    if (!isDigit())
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    do
+    {
+        saveAndNext();
+    } while (isDigit());
+    if (is('e') || is('E'))
+    {
+        saveAndNext();
+        if (is('+'))
+        {
+            saveAndNext();
+        }
+        if (!isDigit())
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        do
+        {
+            saveAndNext();
+        } while (isDigit());
+    }
+    return toInteger();
 }
 
 unsigned int ReadContext::readNat()
 {
-    int tmp = 0;
-    vfs_scanf(_file, "%d", &tmp);
-    if (tmp < 0)
+    skipWhiteSpaces();
+    _buffer.clear();
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    if (is('+'))
+    {
+        saveAndNext();
+    }
+    if (!isDigit())
     {
         throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
     }
-    return static_cast<unsigned int>(tmp);
+    do
+    {
+        saveAndNext();
+    } while (isDigit());
+    if (is('e') || is('E'))
+    {
+        saveAndNext();
+        if (is('+'))
+        {
+            saveAndNext();
+        }
+        if (!isDigit())
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        do
+        {
+            saveAndNext();
+        } while (isDigit());
+    }
+    return toNatural();
 }
 
 //--------------------------------------------------------------------------------------------
 UFP8_T vfs_get_ufp8(ReadContext& ctxt)
 {
-    float fval = vfs_get_float(ctxt);
-
-    if ( fval < 0.0f )
+    float x = ctxt.readReal();
+    if (x < 0.0f)
     {
-        log_warning( "%s - encountered a negative number\n", __FUNCTION__ );
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
     }
-
-    return FLOAT_TO_FP8( fval );
+    return FLOAT_TO_FP8(x);
 }
 
 //--------------------------------------------------------------------------------------------
 SFP8_T vfs_get_sfp8(ReadContext& ctxt)
 {
-    float fval = ctxt.readInt();
-
-    return FLOAT_TO_FP8( fval );
+    float x = ctxt.readReal();
+    return FLOAT_TO_FP8(x);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1079,14 +1288,12 @@ unsigned int vfs_get_next_nat(ReadContext& ctxt)
     return ctxt.readNat();
 }
 
-//--------------------------------------------------------------------------------------------
 UFP8_T vfs_get_next_ufp8(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
     return vfs_get_ufp8(ctxt);
 }
 
-//--------------------------------------------------------------------------------------------
 SFP8_T vfs_get_next_sfp8(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
@@ -1094,91 +1301,146 @@ SFP8_T vfs_get_next_sfp8(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_string(ReadContext& ctxt, char * str, size_t str_len)
+void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
 {
-    int fields;
-    STRING format_str;
-
-    if ( NULL == str || 0 == str_len ) return false;
-
-    snprintf( format_str, SDL_arraysize( format_str ), "%%%llus", str_len - 1 );
-
-    str[0] = CSTR_END;
-    fields = vfs_scanf(ctxt._file, format_str, str );
-    str[str_len-1] = CSTR_END;
-
-    return 1 == fields;
+    ctxt.skipWhiteSpaces();
+    ctxt._buffer.clear();
+    if (!max)
+    {
+        str[0] = '\0';
+        return;
+    }
+    else
+    {
+        size_t cur = 0;
+        while (cur < max && !ctxt.isNewLine() && !ctxt.isWhiteSpace() && !ctxt.is(ReadContext::EndOfInput) && !ctxt.is(ReadContext::Error))
+        {
+            ctxt.saveAndNext();
+            cur++;
+        }
+        if (ctxt.is(ReadContext::Error))
+        {
+            throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
+        }
+        EGOBOO_ASSERT(ctxt._buffer.getSize() == cur && cur <= max);
+        strcpy(str, ctxt._buffer.toString().c_str());
+        return;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_string(ReadContext& ctxt, char * str, size_t str_len)
+void vfs_get_next_string(ReadContext& ctxt, char *str, size_t max)
 {
     ctxt.skipToColon(false);
-    return vfs_get_string(ctxt, str, str_len);
+    vfs_read_string_lit(ctxt, str, max);
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_line(ReadContext& ctxt, char * str, size_t str_len )
+void vfs_get_line(ReadContext& ctxt, char *buf, size_t max)
 {
-    char * gets_rv;
-	bool found;
+    vfs_read_string_lit(ctxt, buf, max);
+}
 
-    if ( NULL == str || 0 == str_len ) return false;
+//--------------------------------------------------------------------------------------------
+void vfs_get_next_line(ReadContext& ctxt, char *buf, size_t max)
+{
+    ctxt.skipToColon(false);
+    vfs_get_line(ctxt, buf, max);
+}
 
-    gets_rv = vfs_gets( str, str_len, ctxt._file );
-
-    found = false;
-    if ( gets_rv == str )
+//--------------------------------------------------------------------------------------------
+void ReadContext::write(char chr)
+{
+    EGOBOO_ASSERT('\0' != chr);
+    _buffer.append(chr);
+}
+void ReadContext::save()
+{
+    EGOBOO_ASSERT(0x00 <= _current && _current <= 0xff);
+    write(static_cast<char>(_current)); 
+}
+void ReadContext::next()
+{
+    _current = readInput();
+}
+void ReadContext::writeAndNext(char chr)
+{
+    write(chr); next();
+}
+void ReadContext::saveAndNext()
+{
+    save(); next();
+}
+float ReadContext::readReal()
+{
+    skipWhiteSpaces();
+    _buffer.clear();
+    if (is(StartOfInput))
     {
-        found = true;
-
-        // make sure the string terminates as egoboo expects
-        for (size_t cnt = 0; cnt < str_len; cnt++ )
+        next();
+    }
+    if (is('+') || is('-'))
+    {
+        saveAndNext();
+    }
+    if (is('.'))
+    {
+        saveAndNext();
+        if (!isDigit())
         {
-            if ( ASCII_LINEFEED_CHAR == str[cnt] || C_FORMFEED_CHAR == str[cnt] || C_NEW_LINE_CHAR == str[cnt] )
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        do
+        {
+            saveAndNext();
+        } while (isDigit());
+    }
+    else if (isDigit())
+    {
+        do
+        {
+            saveAndNext();
+        } while (isDigit());
+        if (is('.'))
+        {
+            saveAndNext();
+            while (isDigit())
             {
-                str[cnt] = CSTR_END;
-                break;
+                saveAndNext();
             }
         }
-        if ( str_len > 0 )
-        {
-            str[str_len-1] = CSTR_END;
-        }
     }
-
-    return found;
-}
-
-//--------------------------------------------------------------------------------------------
-bool vfs_get_next_line(ReadContext& ctxt, char * str, size_t str_len )
-{
-    ctxt.skipToColon(false);
-
-    return vfs_get_line(ctxt, str, str_len);
-}
-
-//--------------------------------------------------------------------------------------------
-float vfs_get_float(ReadContext& ctxt)
-{
-    float tmp = 0.0f;
-    vfs_scanf(ctxt._file, "%f", &tmp);
-    return tmp;
+    if (is('e') || is('E'))
+    {
+        saveAndNext();
+        if (is('+') || is('-'))
+        {
+            saveAndNext();
+        }
+        if (!isDigit())
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        do
+        {
+            saveAndNext();
+        } while (isDigit());
+    }
+    return toReal();
 }
 
 //--------------------------------------------------------------------------------------------
 float vfs_get_next_float(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
-
-    return vfs_get_float(ctxt);
+    return ctxt.readReal();
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_name(ReadContext& ctxt, char *name, size_t name_len)
+void vfs_get_next_name(ReadContext& ctxt, char *buffer, size_t max)
 {
     ctxt.skipToColon(false);
-    return vfs_get_name(ctxt, name, name_len);
+    vfs_read_name(ctxt, buffer, max);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1192,7 +1454,7 @@ bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair)
 IDSZ vfs_get_next_idsz(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
-    return vfs_get_idsz(ctxt);
+    return ctxt.readIDSZ();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1203,15 +1465,42 @@ DamageType vfs_get_damage_type(ReadContext& ctxt)
     (
         "DamageType",
         {
-            { "S", DAMAGE_SLASH },
-            { "C", DAMAGE_CRUSH },
-            { "P", DAMAGE_POKE  },
-            { "H", DAMAGE_HOLY  },
-            { "E", DAMAGE_EVIL  },
-            { "F", DAMAGE_FIRE  },
-            { "I", DAMAGE_ICE   },
-            { "Z", DAMAGE_ZAP   },
-            { "N", DAMAGE_NONE  },
+            // Slash.
+            { "Slash", DAMAGE_SLASH },
+            { "SLASH", DAMAGE_SLASH },
+            { "S",     DAMAGE_SLASH },
+            // Crush.
+            { "Crush", DAMAGE_CRUSH },
+            { "CRUSH", DAMAGE_CRUSH },
+            { "C",     DAMAGE_CRUSH },
+            // Poke.
+            { "Poke",  DAMAGE_POKE  },
+            { "POKE",  DAMAGE_POKE  },
+            { "P",     DAMAGE_POKE  },
+            // Holy.
+            { "Holy",  DAMAGE_HOLY  },
+            { "HOLY",  DAMAGE_HOLY  },
+            { "H",     DAMAGE_HOLY  },
+            // Evil.
+            { "Evil",  DAMAGE_EVIL  },
+            { "EVIL",  DAMAGE_EVIL  },
+            { "E",     DAMAGE_EVIL  },
+            // Fire.
+            { "Fire",  DAMAGE_FIRE  },
+            { "FIRE",  DAMAGE_FIRE  },
+            { "F",     DAMAGE_FIRE  },
+            // Ice.
+            { "Ice",   DAMAGE_ICE   },
+            { "ICE",   DAMAGE_ICE   },
+            { "I",     DAMAGE_ICE   },
+            // Zap.
+            { "Zap",   DAMAGE_ZAP   },
+            { "ZAP",   DAMAGE_ZAP   },
+            { "Z",     DAMAGE_ZAP   },
+            // None.
+            { "None",  DAMAGE_NONE  },
+            { "NONE",  DAMAGE_NONE  },
+            { "N",     DAMAGE_NONE  },
         }
     );
     return ReadContext::readEnum(ctxt,rdr,DAMAGE_NONE);
@@ -1225,22 +1514,81 @@ DamageType vfs_get_next_damage_type(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
+std::string ReadContext::readStringLit()
+{
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    skipWhiteSpaces();
+    _buffer.clear();
+    while (true)
+    {
+        if (is(Error))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        }
+        else if (is('~'))
+        {
+            writeAndNext('\t');
+        }
+        else if (is('_'))
+        {
+            writeAndNext(' ');
+        }
+        else if (isNewLine() || isWhiteSpace() || is(EndOfInput))
+        {
+            break;
+        }
+        else
+        {
+            saveAndNext();
+        }
+    }
+    return toString();
+}
+std::string ReadContext::readName()
+{
+    if (is(StartOfInput))
+    {
+        next();
+    }
+    skipWhiteSpaces();
+    _buffer.clear();
+    if (!isAlpha() && !is('_'))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    do
+    {
+        saveAndNext();
+    } while (isAlpha()||isDigit()||is('_'));
+    return toString();
+}
+
 bool ReadContext::readBool()
 {
-    char chr = vfs_get_first_letter(*this);
-    chr = char_tolower(chr);
-    switch (char_tolower(chr))
+    std::string name = readName();
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+    if (name == "true" || name == "t")
     {
-    case 't': return true;
-    case 'f': return false;
-    default:  throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(_loadName, _lineNumber));
-    };
+        return true;
+    }
+    else if (name == "false" || name == "f")
+    {
+        return false;
+    }
+    else
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
 }
 
 //--------------------------------------------------------------------------------------------
 bool vfs_get_next_bool(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
+    ctxt.skipWhiteSpaces();
     return ctxt.readBool();
 }
 
@@ -1343,30 +1691,30 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 vfs_get_damage_modifier(ReadContext& ctxt)
+DamageModifier vfs_get_damage_modifier(ReadContext& ctxt)
 {
-    EnumReader<DamageShift> rdr
+    EnumReader<DamageModifier> rdr
         (
         "damageModifier",
         {
-            { "T", DAMAGEINVERT   },
-            { "C", DAMAGECHARGE   },
-            { "M", DAMAGEMANA     },
-            { "I", DAMAGEINVICTUS },
+            { "T", DamageModifier::DAMAGEINVERT },
+            { "C", DamageModifier::DAMAGECHARGE },
+            { "M", DamageModifier::DAMAGEMANA },
+            { "I", DamageModifier::DAMAGEINVICTUS },
         }
     );
-    return ReadContext::readEnum(ctxt, rdr, (DamageShift)0);
+    return ReadContext::readEnum(ctxt, rdr, DamageModifier::NONE);
 }
 
 //--------------------------------------------------------------------------------------------
 float vfs_get_damage_resist(ReadContext& ctxt)
 {
-    //ugly hack to allow it to work with the old damage system assume that numbers below 4 are shifts
-    float resistance = vfs_get_float(ctxt);
-    if ( resistance == 1 )   resistance = 0.50f;        //50% reduction, same as shift 1
-    else if ( resistance == 2 )   resistance = 0.75f;   //75% reduction, same as shift 2
-    else if ( resistance == 3 )   resistance = 0.90f;   //90% reduction, same as shift 3
-    else                        resistance = resistance / 100.0f;
+    /// @todo Ugly hack to allow it to work with the old damage system assume that numbers below 4 are shifts.
+    float resistance = ctxt.readReal();
+    if (resistance == 1) resistance = 0.50f;        //50% reduction, same as shift 1
+    else if (resistance == 2) resistance = 0.75f;   //75% reduction, same as shift 2
+    else if (resistance == 3) resistance = 0.90f;   //90% reduction, same as shift 3
+    else resistance = resistance / 100.0f;
 
     return resistance;
 }
@@ -1383,7 +1731,8 @@ int read_skin_vfs( const char *filename )
     }
     // Read the contents.
     int skin = vfs_get_next_int(ctxt);
-    if (skin < 0 || skin > MAX_SKIN) {
+    if (skin < 0 || skin > MAX_SKIN)
+    {
         /** @todo Use context to produce a nice warning message. */
     }
     skin %= MAX_SKIN;

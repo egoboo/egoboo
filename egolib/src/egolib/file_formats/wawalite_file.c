@@ -263,7 +263,7 @@ wawalite_data_t * read_wawalite_fog(ReadContext &ctxt, wawalite_data_t *data)
     if (ctxt.skipToColon(true))
     {
         data->fog.found = true;
-        data->fog.top = vfs_get_float(ctxt);
+        data->fog.top = ctxt.readReal();
         data->fog.bottom = vfs_get_next_float(ctxt);
         data->fog.red = vfs_get_next_float(ctxt) * 255;
         data->fog.grn = vfs_get_next_float(ctxt) * 255;

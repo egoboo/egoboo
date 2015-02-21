@@ -117,6 +117,19 @@ char vfs_get_first_letter(ReadContext& ctxt);
  */
 struct ReadContext
 {
+protected:
+    /**
+     * @brief
+     *  Read the next input character.
+     * @return
+     *  the character, EndOfInput (if the end of the input was reached) or Error (if an error occured)
+     */
+    int readInput();
+    /**
+     * @brief
+     *  The file handle if the context is open, @a nullptr otherwise.
+      */
+    vfs_FILE *_file;
 public:
     /**
      * @brief
@@ -128,20 +141,61 @@ public:
      *  The line number in the file of this context.
      */
     size_t _lineNumber;
-    /**
-     * @brief
-     *  The file handle if the context is open, @a nullptr otherwise.
-     */
-    vfs_FILE *_file;
+
     /**
      * @brief
      *  The current extended character.
      */
     int _current;
+    /**
+     * @brief
+     *  Lexeme accumulation buffer.
+     */
+    Ego::Script::Buffer _buffer;
 
     ReadContext(const std::string& loadName);
 
     ~ReadContext();
+
+    /**
+     * @brief
+     *  Convert the contents of the buffer to a string value.
+     * @return
+     *  the string value
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     */
+    std::string toString() const;
+
+    /**
+     * @brief
+     *  Convert the contents of the buffer to a float value.
+     * @return
+     *  the float value
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     */
+    float toReal() const;
+
+    /**
+     * @brief
+     *  Convert the contents of the buffer to an signed int value.
+     * @return
+     *  the signed int value
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     */
+    signed int toInteger() const;
+
+    /**
+     * @brief
+     *  Convert the contents of the buffer to an unsigned int value.
+     * @return
+     *  the unsigned int value
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     */
+    unsigned int toNatural() const;
 
     /**
      * @brief
@@ -201,8 +255,8 @@ public:
     static EnumType readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader)
     {
         using namespace std;
-        char chr = vfs_get_first_letter(ctxt);
-        auto it = enumReader.get(std::string(1, chr));
+        std::string name = ctxt.readName();
+        auto it = enumReader.get(name);
         if (it == enumReader.end())
         {
             throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
@@ -226,11 +280,11 @@ public:
     static EnumType readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType defaultValue)
     {
         using namespace std;
-        char chr = vfs_get_first_letter(ctxt);
-        auto it = enumReader.get(std::string(1, chr));
+        std::string name = ctxt.readName();
+        auto it = enumReader.get(name);
         if (it == enumReader.end())
         {
-            log_warning("%s:%d: in file `%s`: `%c` is not an element of enum `%s`\n", __FILE__, __LINE__, ctxt._loadName.c_str(), chr, enumReader.getName().c_str());
+            log_warning("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__, ctxt._loadName.c_str(), name.c_str(), enumReader.getName().c_str());
             return defaultValue;
         }
         return *it;
@@ -242,6 +296,14 @@ public:
     static const int EndOfInput = -2;
     /// Special value for extended character indicating an error.
     static const int Error = -3;
+
+    void write(char chr);
+    void save();
+    void next();
+    void writeAndNext(char chr);
+    void saveAndNext();
+    bool is(int chr);
+    bool is(int first, int last);
 
     /**
      * @brief
@@ -255,8 +317,11 @@ public:
      *  @code
      *  whitespace = Space | Tabulator
      *  @endcode
+     * @todo
+     *  Remove parameterized form.
      */
     bool isWhiteSpace(char chr);
+    bool isWhiteSpace();
 
     /**
      * @brief
@@ -270,8 +335,14 @@ public:
      *  @code
      *  newline = LineFeed | CarriageReturn
      *  @endcode
+     * @todo
+     *  Remove parameterized form.
      */
     bool isNewLine(char chr);
+    bool isNewLine();
+
+    bool isAlpha();
+    bool isDigit();
 
     /// The new line character.
     static const char LineFeed = '\n';
@@ -286,19 +357,62 @@ public:
 
     /**
      * @brief
-     *  Read a single character.
-     * @return
-     *  the character, EndOfInput (if the end of the input was reached) or Error (if an error occured)
+     *  Read everything from the current character to the next newline character or end of file.
+     *  Whitespaces in front and the newline character are dropped.
      */
-    int readChar();
+    std::string readToEndOfLine();
+    /**
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *  A single line comment in this revision are the strings
+     *  @code
+     *  singleLineComment := '//'(any - NewLine)* 
+     *  @endcode
+     */
+    std::string readSingleLineComment();
 
     /**
      * @throw Ego::Script::LexicalError
      *  if a lexical error occurs
      * @remark
-     *  An integer literal in this revision is given by
+     *  A printable character in this revision are the strings
      *  @code
-     *  integer := ('+'|'-')?digit+ ('e'|'E' digit+)?
+     *  verbatimChar := alphabetic | digit | '!' | '?' | '='
+     *  @endcode
+     */
+    char readPrintable();
+
+    /**
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *  A character literal in this revision are the strings
+     *  @code
+     *  charLit := '\'' charLitBody '\''
+     *  charLitBody := (any - '\'') | ('\\n' | '\\t' | '\\\'')
+     *  @endcode
+     * @todo
+     *  Use Unicode notation for better readbility.
+     */
+    char readCharLit();
+
+    /**
+     * @remark
+     *  A string literal in this revision are the strings
+     *  @code
+     *  stringLiteral := (character|digit|'~'|'_')*
+     *  @endcode
+     */
+    std::string readStringLit();
+
+    /**
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *  An integer literal in this revision are the strings
+     *  @code
+     *  integer := ('+'|'-')? digit+ ('e'|'E' digit+)?
      *  @endcode
      */
     int readInt();
@@ -307,7 +421,10 @@ public:
      * @throw Ego::Script::LexicalError
      *  if a lexical error occurs
      * @remark
-     *  A natural literal in this revision is given by
+     *  A natural literal in this revision is a string
+     *  @code
+     *  integer := '+'? digit+ ('e'|'E' digit+)?
+     *  @endcode
      */
     unsigned int readNat();
 
@@ -315,12 +432,47 @@ public:
      * @throw Ego::Script::LexicalError
      *  if a lexical error occurs
      * @remark
-     *   A boolean literal in this revision is the string
+     *  A real literal in this revision is a string
+     *  @code
+     *  float := ('+'|'-')? digit+ ('.' digit)* realExponent?
+     *        | ('+'|'-')? '.' digit+ realExponent?
+     *  realExponent := ('e'|'E' ('+'|'-')? digit+)?
+     *  @endcode
+     */
+    float readReal();
+
+    /**
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *   A boolean literal in this revision is a string
      *   @code
      *   boolean := 'T' | 'F'
      *   @endcode
      */
     bool readBool();
+
+    /**
+    * @throw Ego::Script::LexicalError
+    *  if a lexical error occurs
+    * @remark
+    *   A name in this revision is a string
+    *   @code
+    *   name := (alphabetic|underscore) (digit|alphabetic|underscore)*
+    *   @endcode
+    */
+    std::string readName();
+
+    /**
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *  An IDSZ literal in this revision is a string
+     *  @code
+     *  idsz := '[' (alphabetic|digit|'_')^4 ']'
+     *  @endcode
+     */
+    IDSZ readIDSZ();
 
     /**
      * @brief
@@ -358,87 +510,126 @@ public:
 
 UFP8_T vfs_get_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_sfp8(ReadContext& ctxt);
-
-float vfs_get_float(ReadContext& ctxt);
-
-IDSZ vfs_get_idsz(ReadContext& ctxt);
-
 char vfs_get_next_char(ReadContext& ctxt);
-int vfs_get_next_int(ReadContext& ctxt);
+
+// Utility functions.
+signed int vfs_get_next_int(ReadContext& ctxt);
 unsigned int vfs_get_next_nat(ReadContext& ctxt);
 float vfs_get_next_float(ReadContext& ctxt);
 UFP8_T vfs_get_next_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_next_sfp8(ReadContext& ctxt);
 
-extern  STRING     TxFormatSupported[20]; ///< OpenGL icon surfaces
-extern  Uint8      maxformattypes;
-
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
-
-
-bool goto_delimiter_vfs(ReadContext& ctxt, char *buffer, char delimiter, bool optional);
-#if 0
-bool goto_colon_vfs(ReadContext& ctxt, bool optional);
-#endif
-bool goto_colon_vfs(ReadContext& ctxt, char *buffer, bool optional);
-
-char goto_delimiter_list_vfs(ReadContext& ctxt, char * buffer, const char * delim_list, bool optional);
-
-#if 0
-char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optional );
-#endif
-
-bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite );
-char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
-bool copy_to_delimiter_vfs( vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen );
-
 int    vfs_get_version(ReadContext& ctxt);
-bool vfs_put_version( vfs_FILE* filewrite, const int version );
-
-
-bool vfs_get_next_name(ReadContext& ctxt, char * name, size_t name_len);
-bool vfs_get_next_range(ReadContext& ctxt, FRange *prange);
-bool vfs_get_next_pair(ReadContext& ctxt, IPair *ppair);
-IDSZ   vfs_get_next_idsz(ReadContext& ctxt);
-bool vfs_get_next_bool(ReadContext& ctxt);
-bool vfs_get_next_string(ReadContext& ctxt, char *str, size_t str_len);
-bool vfs_get_next_line(ReadContext& ctxt, char *str, size_t str_len);
-
-char vfs_get_first_letter(ReadContext& ctxt);
-    
-
 DamageType vfs_get_damage_type(ReadContext& ctxt);
-DamageType vfs_get_next_damage_type(ReadContext& ctxt);
-Uint8 vfs_get_damage_modifier(ReadContext& ctxt);
+DamageModifier vfs_get_damage_modifier(ReadContext& ctxt);
 float  vfs_get_damage_resist(ReadContext& ctxt);
-bool vfs_get_name(ReadContext& ctxt, char *szName, size_t max_len);
-bool vfs_get_string(ReadContext& ctxt, char * str, size_t str_len);
-bool vfs_get_line(ReadContext& ctxt, char * str, size_t str_len);
-bool vfs_get_range(ReadContext& ctxt, FRange * prange);
-bool vfs_get_pair(ReadContext& ctxt, IPair * ppair);
+/**
+ * @brief
+ *  Read a name (transitional C form).
+ * @param buf, max
+ *  @a buf is a pointer to a buffer of <tt>max+1</tt> bytes
+ * @see
+ *  ReadContext::readName
+ * @todo
+ *  Transitional C form, remove this.
+ */
+void vfs_read_name(ReadContext& ctxt, char *buf, size_t max);
+/**
+ * @brief
+ *  Read a string (transitional C form).
+ * @param buf, max
+ *  @a buf is a pointer to a buffer of <tt>max+1</tt> bytes
+ * @see
+ *  ReadContext::readString
+ * @todo
+ *  Transitional C form, remove this.
+ */
+void vfs_read_string_lit(ReadContext& ctxt, char *buf, size_t max);
+/**
+ * @brief
+ *  Read a line.
+ * @param buf, max
+ *  @a buf is a pointer to a buffer of <tt>max+1</tt> bytes
+ * @remark
+ *  A line in this revision are the strings
+ *  @code
+ *  line := string
+ *  @endcode
+ */
+void vfs_get_line(ReadContext& ctxt, char *str, size_t max);
+/**
+ * @brief
+ *  Read a range.
+ * @remark
+ *  In this revision a range are the strings
+ *  @code
+ *  range := real ('-' real)?
+ *  @endcode
+ */
+bool vfs_get_range(ReadContext& ctxt, FRange *range);
+/**
+ * @brief
+ *  Read a pair.
+ * @remark
+ *  In this revision a pair are the strings
+ *  @code
+ *  pair := range
+ *  @endcode
+ */
+bool vfs_get_pair(ReadContext& ctxt, IPair *pair);
 
-void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival );
-void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval );
-void vfs_put_ufp8( vfs_FILE* filewrite, const char* text, UFP8_T ival );
-void vfs_put_sfp8( vfs_FILE* filewrite, const char* text, SFP8_T ival );
-void vfs_put_bool( vfs_FILE* filewrite, const char* text, bool truth );
-void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype );
-void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action );
-void vfs_put_gender( vfs_FILE* filewrite, const char* text, Uint8 gender );
-void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val );
-void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val );
-void vfs_put_string_under( vfs_FILE* filewrite, const char* text, const char* usename );
-void vfs_put_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz );
-void vfs_put_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value );
-void vfs_put_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, float value );
-void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str );
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void vfs_put_range_raw( vfs_FILE* filewrite, FRange val );
-int read_skin_vfs( const char *filename );
+void vfs_get_next_name(ReadContext& ctxt, char *buf, size_t max);
+bool vfs_get_next_range(ReadContext& ctxt, FRange *range);
+bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair);
+IDSZ vfs_get_next_idsz(ReadContext& ctxt);
+bool vfs_get_next_bool(ReadContext& ctxt);
+void vfs_get_next_string(ReadContext& ctxt, char *str, size_t max);
+void vfs_get_next_line(ReadContext& ctxt, char *str, size_t max);
+DamageType vfs_get_next_damage_type(ReadContext& ctxt);
 
-void    GLSetup_SupportedFormats();
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+// Stuff to remove.
+
+bool read_to_delimiter_vfs(ReadContext& ctxt, std::string& buffer, char delimiter, bool optional);
+bool read_to_colon_vfs(ReadContext& ctxt, std::string& buffer, bool optional);
+bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const char *delimiters, bool optional);
+
+void make_newloadname(const char *modname, const char *appendname, char *newloadname);
+
+bool copy_line_vfs(vfs_FILE * fileread, vfs_FILE * filewrite);
+char vfs_get_first_letter(ReadContext& ctxt);
+char * copy_to_delimiter_mem(char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len);
+bool copy_to_delimiter_vfs(vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen);
+int read_skin_vfs(const char *filename);
+void GLSetup_SupportedFormats();
 Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key);
+extern STRING TxFormatSupported[20]; ///< OpenGL icon surfaces
+extern Uint8 maxformattypes;
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+// Stuff to encapsulte in a WriterContext.
+bool vfs_put_version(vfs_FILE* filewrite, const int version);
+void vfs_put_int(vfs_FILE* filewrite, const char* text, int value);
+void vfs_put_float(vfs_FILE* filewrite, const char* text, float value);
+void vfs_put_ufp8(vfs_FILE* filewrite, const char* text, UFP8_T value);
+void vfs_put_sfp8(vfs_FILE* filewrite, const char* text, SFP8_T value);
+void vfs_put_bool(vfs_FILE* filewrite, const char* text, bool value);
+void vfs_put_damage_type(vfs_FILE* filewrite, const char* text, Uint8 value);
+void vfs_put_action(vfs_FILE* filewrite, const char* text, Uint8 value);
+void vfs_put_gender(vfs_FILE* filewrite, const char* text, Uint8 value);
+void vfs_put_range(vfs_FILE* filewrite, const char* text, FRange value);
+void vfs_put_pair(vfs_FILE* filewrite, const char* text, IPair value);
+void vfs_put_string_under(vfs_FILE* filewrite, const char* text, const char* usename);
+void vfs_put_idsz(vfs_FILE* filewrite, const char* text, IDSZ idsz);
+void vfs_put_expansion(vfs_FILE* filewrite, const char* text, IDSZ idsz, int value);
+void vfs_put_expansion_float(vfs_FILE* filewrite, const char* text, IDSZ idsz, float value);
+void vfs_put_expansion_string(vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * value);
+void vfs_put_range_raw(vfs_FILE* filewrite, FRange val);
+
+

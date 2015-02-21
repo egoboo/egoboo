@@ -45,11 +45,13 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->_loaded = true;
 
     // read the 1 line comment at the top of the file
-    vfs_gets(profile->comment, SDL_arraysize(profile->comment) - 1, ctxt._file);
-
+    std::string comment = ctxt.readSingleLineComment();
+    strncpy(profile->comment,comment.c_str(),SDL_arraysize(profile->comment));
+#if 0
+    vfs_get_line(ctxt,profile->comment,SDL_arraysize(profile->comment) - 1);
     // rewind the file
     vfs_seek(ctxt._file, 0);
-
+#endif
     // General data
     profile->force = vfs_get_next_bool(ctxt);
 
@@ -177,7 +179,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     // Read expansions
     while (ctxt.skipToColon(true))
     {
-        idsz = vfs_get_idsz(ctxt);
+        idsz = ctxt.readIDSZ();
 
         if (idsz == MAKE_IDSZ('N', 'O', 'N', 'E'))       SET_BIT(profile->damfx, DAMFX_NONE);
         else if (idsz == MAKE_IDSZ('T', 'U', 'R', 'N'))  SET_BIT(profile->damfx, DAMFX_TURN);
@@ -185,7 +187,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('B', 'L', 'O', 'C'))  SET_BIT(profile->damfx, DAMFX_NBLOC);
         else if (idsz == MAKE_IDSZ('A', 'R', 'R', 'O'))  SET_BIT(profile->damfx, DAMFX_ARRO);
         else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E'))  SET_BIT(profile->damfx, DAMFX_TIME);
-        else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = vfs_get_float(ctxt);
+        else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = ctxt.readReal();
         else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = ctxt.readInt();
         else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = ctxt.readInt();
         else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != ctxt.readInt());
@@ -197,8 +199,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readInt());
         else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
         {
-            char cTmp = vfs_get_first_letter(ctxt);
-            switch (char_toupper(cTmp))
+            switch (char_toupper(vfs_get_first_letter(ctxt)))
             {
             case 'X': profile->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
             case 'Y': profile->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis

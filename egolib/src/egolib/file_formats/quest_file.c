@@ -124,7 +124,7 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
     {
         egolib_rv rv;
 
-        IDSZ idsz = vfs_get_idsz(ctxt);
+        IDSZ idsz = ctxt.readIDSZ();
         int  level = ctxt.readInt();
 
         // Try to add a single quest to the map

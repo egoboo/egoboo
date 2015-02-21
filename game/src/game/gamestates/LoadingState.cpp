@@ -266,16 +266,15 @@ bool LoadingState::loadGlobalHints()
     }
 
     // Load the data
-    while (!vfs_eof(ctxt._file) && ctxt.skipToColon(true))
+    while (ctxt.skipToColon(true))
     {
-        STRING buffer;
+        char buffer[1024+1];
 
         //Read the line
-        vfs_get_string(ctxt, buffer, SDL_arraysize(buffer));
+        vfs_read_string_lit(ctxt, buffer, 1024);
 
         //Make it look nice
-        str_decode(buffer, SDL_arraysize(buffer), buffer);
-        str_add_linebreaks(buffer, SDL_arraysize(buffer), 50);
+        str_add_linebreaks(buffer, 1024, 50);
 
         _globalGameTips.push_back(buffer);
     }
@@ -301,14 +300,13 @@ bool LoadingState::loadLocalModuleHints()
         return false;
     }
     // Load the data
-    while (!vfs_eof(ctxt._file) && ctxt.skipToColon(true))
+    while (ctxt.skipToColon(true))
     {
 
         //Read the line
-        vfs_get_string(ctxt, buffer, SDL_arraysize(buffer));
+        vfs_read_string_lit(ctxt, buffer, SDL_arraysize(buffer));
 
         //Make it look nice
-        str_decode(buffer, SDL_arraysize(buffer), buffer);
         str_add_linebreaks(buffer, SDL_arraysize(buffer), 50);
 
         _localGameTips.push_back(buffer);

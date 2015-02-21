@@ -1,15 +1,17 @@
-Module Name :Archeologist_Starter
-Reference Directory :palsand.mod
-Required reference IDSZ :[ARCH]
+// This file contains info for the module's menu description
+Name ( with underscores for spaces ) : Archeologist_Starter
+Reference module ( Directory name or NONE ) : palsand.mod
+Required reference IDSZ ( or [NONE] ):[ARCH]
 Number of imports ( 0 to 4 ) :0
-Exporting ( TRUE or FALSE ) :FALSE
-Minimum players ( 1 to 4 ) :1
-Maximum players ( 1 to 4 ) :1
-Respawning ( TRUE or FALSE ) :TRUE
-RTS control (TRUE, FALSE, ALL) :FALSE
-Level rating ( * to  ***** ) :*****
+Allow exporting of characters ( TRUE or FALSE ) :FALSE
+Minimum number of players ( 1 to 4 ) : 1
+Maximum number of players ( 1 to 4 ) : 1
+Allow respawning ( TRUE or FALSE ) :TRUE
+RTS control (TRUE, FALSE, ALL) : FALSE
+Level rating ( * to  ***** ) : *****
 
-// Module summary
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
 :Help_your_friend_Marcus_by_
 :recovering_the_ancient_Golden_
 :Cetza_Idol_for_the_Royal_Bishopian

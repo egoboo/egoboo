@@ -299,15 +299,19 @@ typedef Uint16 FACING_T;
     struct IPair
     {
         int base, rand;
+
         IPair() :
             base(0), rand(0)
-        {
-        }
+        {}
+
+        IPair(const IPair& other) :
+            base(other.base), rand(other.rand)
+        {}
+
         IPair(int _base, int _rand) :
             base(_base), rand(_rand)
-        {
+        {}
 
-        }
         /// @todo Rename to "reset".
         void init()
         {
@@ -320,21 +324,26 @@ typedef Uint16 FACING_T;
     struct FRange
     {
         float from, to;
+
         FRange() :
             from(0), to(0)
-        {
-        }
+        {}
+        
+        FRange(const FRange& other) :
+            from(other.from), to(other.to)
+        {}
+        
         FRange(float _from, float _to) :
             from(_from), to(_to)
-        {
+        {}
 
-        }
         /// @todo Rename to "reset".
         void init()
         {
             from = 0.0f;
             to = 0.0f;
         }
+
     };
 
     void pair_to_range( IPair pair, FRange * prange );
@@ -578,13 +587,26 @@ enum CharacterGender : uint8_t
     GENDER_COUNT
 };
 
-//Damage shifts
-enum DamageShift
+/**
+ * @brief
+ *  Enumeration of "damage modifications" i.e. cancellation or redirections of incoming damage.
+ * @todo
+ *  Rename to "damage redirections".
+ * @todo
+ *  It would be perfectly possible to simplify things here in terms of "redirection" and "inversion".
+ *  There are three redirections: void, mana and life which redirects damage nowhere (making the
+ *  target immune) or redirects damage to mana and/or life. On the second stage we determine if
+ *  the damage increases/decreases mana or life by specifying an inversion or identity operation.
+ *  E.g. to make damage decrease the mana simply <tt>redirect(Mana)</tt>. To make damage heal
+ *  <tt>inverse . redirect(Life)</tt> and so on.
+ */
+enum DamageModifier : uint8_t
 {
-    DAMAGEINVICTUS = (1 << 5),      ///< 00x00000 Invictus to this type of damage
-    DAMAGEMANA =     (1 << 4),      ///< 000x0000 Deals damage to mana
-    DAMAGECHARGE =   (1 << 3),      ///< 0000x000 Converts damage to mana
-    DAMAGEINVERT =   (1 << 2)       ///< 00000x00 Makes damage heal
+    DAMAGEINVICTUS = (1 << 5),  ///< 00x00000 Invictus to this type of damage.
+    DAMAGEMANA = (1 << 4),      ///< 000x0000 Deals damage to mana.
+    DAMAGECHARGE = (1 << 3),    ///< 0000x000 Converts damage to mana.
+    DAMAGEINVERT = (1 << 2),    ///< 00000x00 Makes damage heal.
+    NONE = (0),                 ///< 00000000 Do no conversion.
 };
 
 /// Where an item is being held

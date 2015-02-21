@@ -333,18 +333,12 @@ void AudioSystem::loadAllMusic()
     }
 
     // Load all music data into memory
-    while ( !vfs_eof( ctxt._file ) )
+    while (ctxt.skipToColon(true))
     {
-        if (ctxt.skipToColon(true))
-        {
-        	char songName[256];
-
-            vfs_get_string( ctxt, songName, SDL_arraysize( songName ) );
-
-            std::string path = std::string("mp_data/music/") + songName;
-
-            loadMusic(path.c_str());
-        }
+        char songName[256];
+        vfs_read_string_lit(ctxt, songName, SDL_arraysize(songName));
+        std::string path = std::string("mp_data/music/") + songName;
+        loadMusic(path.c_str());
     }
 
     //Special xmas theme, override the default menu theme song

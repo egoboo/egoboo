@@ -98,6 +98,14 @@ namespace Ego
 
             /**
              * @brief
+             *  Get the contents of this buffer as a string.
+             * @return
+             *  the contents of this buffer as a string
+             */
+            std::string toString() const;
+
+            /**
+             * @brief
              *	Append a byte to the buffer growing the buffer if necessary.
              * @param byte
              *	the byte

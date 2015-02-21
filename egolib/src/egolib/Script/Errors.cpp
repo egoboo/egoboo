@@ -49,6 +49,32 @@ namespace Ego
             return o;
         }
 
+        SyntaxError::SyntaxError(const char *file, int line, const Location& location) :
+            Ego::Exception(file, line), _location(location)
+        {}
+
+        const Location& SyntaxError::getLocation() const
+        {
+            return _location;
+        }
+
+        SyntaxError::operator std::string() const
+        {
+            std::ostringstream o;
+            writeLocation(o);
+            o << " - "
+                << "<generic syntax error>"
+                ;
+            return o.str();
+        }
+
+        std::ostringstream& SyntaxError::writeLocation(std::ostringstream& o) const
+        {
+            o << _location.getLoadName() << ": " << _location.getLineNumber()
+                << " (raised in file " << getFile() << ", line " << getLine() << ")";
+            return o;
+        }
+
         MissingDelimiterError::MissingDelimiterError(const char *file, int line, const Location& location, char delimiter) :
             LexicalError(file, line, location), _delimiter(delimiter)
         {}

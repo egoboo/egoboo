@@ -147,9 +147,6 @@ pip_t::~pip_t()
 
 pip_t *pip_t::init()
 {
-    // clear the pip
-    BLANK_STRUCT_PTR(this);
-
     this->AbstractProfile::init();
 
     // Metadata.

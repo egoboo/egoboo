@@ -103,21 +103,28 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
 
     // see if we can open menu.txt file (required)
     ReadContext ctxt(folderPath + "/gamedat/menu.txt");
-    if (!ctxt.ensureOpen()) return nullptr;
+    if (!ctxt.ensureOpen())
+    {
+        return nullptr;
+    }
 
     //Allocate memory
     std::shared_ptr<ModuleProfile> result = std::make_shared<ModuleProfile>();
 
     // Read basic data
-    vfs_get_next_name(ctxt, buffer, SDL_arraysize(buffer));
+    vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
     result->_name = buffer;
 
-    vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
+    vfs_get_next_name(ctxt, buffer, SDL_arraysize(buffer));
     result->_reference = buffer;
 
     result->_unlockQuest.id = vfs_get_next_idsz(ctxt);
-    result->_unlockQuest.level = ctxt.readInt();
-
+    result->_unlockQuest.level = 0;
+    ctxt.skipWhiteSpaces();
+    if (!ctxt.isNewLine() && !ctxt.is(ReadContext::EndOfInput))
+    {
+        result->_unlockQuest.level = ctxt.readInt();
+    }
     result->_importAmount = vfs_get_next_int(ctxt);
     result->_allowExport  = vfs_get_next_bool(ctxt);
     result->_minPlayers = vfs_get_next_int(ctxt);
@@ -157,9 +164,6 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
         // load the string
         vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
 
-        // remove the '_' characters
-        str_decode(buffer, SDL_arraysize(buffer),  buffer);
-
         result->_summary.push_back(buffer);
     }
 
@@ -169,7 +173,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     // Read expansions
     while (ctxt.skipToColon(true))
     {
-        IDSZ idsz = vfs_get_idsz(ctxt);
+        IDSZ idsz = ctxt.readIDSZ();
 
         // Read module type
         if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
@@ -212,20 +216,20 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
 {
     /// @author ZZ
     /// @details This function returns true if the named module has the required IDSZ
-    STRING newloadname;
     Uint32 newidsz;
     bool foundidsz;
-    int cnt;
 
     if ( idsz == IDSZ_NONE ) return true;
 
     if ( 0 == strcmp( szModName, "NONE" ) ) return false;
 
-    snprintf( newloadname, SDL_arraysize( newloadname ), "mp_modules/%s/gamedat/menu.txt", szModName );
+    std::string newLoadName = "mp_modules/" + std::string(szModName) + "/gamedat/menu.txt";
 
-    ReadContext ctxt(newloadname);
-    if (!ctxt.ensureOpen()) return false;
-
+    ReadContext ctxt(newLoadName);
+    if (!ctxt.ensureOpen())
+    {
+        return false;
+    }
     // Read basic data
     ctxt.skipToColon(false);  // Name of module...  Doesn't matter
     ctxt.skipToColon(false);  // Reference directory...
@@ -239,7 +243,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
     ctxt.skipToColon(false);  // Rank...
 
     // Summary...
-    for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
+    for (size_t cnt = 0; cnt < SUMMARYLINES; cnt++)
     {
         ctxt.skipToColon(false);
     }
@@ -248,7 +252,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
     foundidsz = false;
     while (ctxt.skipToColon(true))
     {
-        newidsz = vfs_get_idsz(ctxt);
+        newidsz = ctxt.readIDSZ();
         if ( newidsz == idsz )
         {
             foundidsz = true;
@@ -256,19 +260,19 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
         }
     }
 
-    if ( NULL != buffer )
+    if (buffer)
     {
-        if ( buffer_len < 1 )
+        if (buffer_len < 1 )
         {
             /* nothing */
         }
-        else if ( 1 == buffer_len )
+        else if (1 == buffer_len)
         {
             buffer[0] = CSTR_END;
         }
         else
         {
-            vfs_gets(buffer, buffer_len, ctxt._file);
+            vfs_get_line(ctxt, buffer, buffer_len);
         }
     }
 

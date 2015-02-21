@@ -55,17 +55,19 @@ bool input_settings_load_vfs_1(const char* szFilename)
 
     // find the settings file
     ReadContext ctxt(szFilename);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_error("unable to read input settings file `%s`\n",szFilename);
         return false;
     }
 
-    // read the keyboard InputDevices
+    // Read the keyboard input devices.
     idevice = INPUT_DEVICE_KEYBOARD;
     pdevice = InputDevices.lst + idevice;
-    for ( i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++ )
+    for (size_t i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; ++i)
     {
-        if ( vfs_get_next_line( ctxt, currenttag, SDL_arraysize( currenttag ) ) )
+        vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
+        if (strlen(currenttag) > 0)
         {
             scantag_parse_control( currenttag, pdevice->keyMap[i] );
         }
@@ -73,12 +75,13 @@ bool input_settings_load_vfs_1(const char* szFilename)
     pdevice->device_type = idevice;
     InputDevices.count++;
 
-    // read the mouse InputDevices
+    // Read the mouse input devices.
     idevice = INPUT_DEVICE_MOUSE;
     pdevice = InputDevices.lst + idevice;
     for ( i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
     {
-        if ( vfs_get_next_line(ctxt, currenttag, SDL_arraysize( currenttag ) ) )
+        vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
+        if (strlen(currenttag) > 0)
         {
             scantag_parse_control( currenttag, pdevice->keyMap[i] );
         }
@@ -86,14 +89,15 @@ bool input_settings_load_vfs_1(const char* szFilename)
     pdevice->device_type = idevice;
     InputDevices.count++;
 
-    // read in however many joysticks there are...
-    for ( cnt = 0; !vfs_eof(ctxt._file) && cnt < MAX_JOYSTICK; cnt++ )
+    // Read in however many joysticks there are...
+    for ( cnt = 0; !ctxt.is(ReadContext::EndOfInput) && cnt < MAX_JOYSTICK; cnt++ )
     {
         idevice = ( INPUT_DEVICE )( INPUT_DEVICE_JOY + cnt );
         pdevice = InputDevices.lst + idevice;
         for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
         {
-            if ( vfs_get_next_line( ctxt, currenttag, SDL_arraysize( currenttag ) ) )
+            vfs_get_next_line(ctxt, currenttag, SDL_arraysize(currenttag));
+            if (strlen(currenttag) > 0)
             {
                 scantag_parse_control( currenttag, pdevice->keyMap[i] );
             }

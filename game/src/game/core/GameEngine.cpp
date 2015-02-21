@@ -124,7 +124,8 @@ void GameEngine::start()
         {
             //Don't hog CPU if we have nothing to do
             int delay = std::min<int>(_renderTimeout-SDL_GetTicks(), _updateTimeout-SDL_GetTicks());
-            if(delay > 1) {
+            if(delay > 1)
+            {
                 std::this_thread::sleep_for(std::chrono::milliseconds(delay));
             }
         }

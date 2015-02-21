@@ -77,15 +77,9 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     /// @author ZZ
     /// @details This function loads the font bitmap and sets up the coordinates
     ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
-
-    int cnt, xsize, ysize;
-    int stt_x, stt_y;
-    int xspacing, yspacing;
-    char cTmp;
-
     font_bmp_init();
 
-    if ( NULL == tx_font ) return;
+    if (!tx_font) return;
 
     if ( INVALID_GL_ID == ego_texture_load_vfs( tx_font, szBitmap, TRANSCOLOR ) )
     {
@@ -93,34 +87,31 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     }
 
     // Get the size of the bitmap
-    xsize = oglx_texture_getImageWidth( tx_font );
-    ysize = oglx_texture_getImageHeight( tx_font );
+    int xsize = oglx_texture_getImageWidth(tx_font);
+    int ysize = oglx_texture_getImageHeight(tx_font);
     if ( 0 == xsize || 0 == ysize )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );
     }
 
-    // Figure out the general size of each font
-    //int ydiv = ysize / NUMFONTY;
-    //int xdiv = xsize / NUMFONTX;
-
     // Figure out where each font is and its spacing
     ReadContext ctxt(szSpacing);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_error("unable to read font spacing file %s for spacing (%i,%i)\n", szSpacing, xsize, ysize);
     }
 
-    stt_x = 0;
-    stt_y = 0;
+    int stt_x = 0;
+    int stt_y = 0;
 
     // Uniform font height is at the top
-    yspacing = vfs_get_next_int(ctxt);
+    int yspacing = vfs_get_next_int(ctxt);
     fontoffset = yspacing;
-    for ( cnt = 0; cnt < NUMFONT && ctxt.skipToColon(true); cnt++ )
+    for (size_t cnt = 0; cnt < NUMFONT && ctxt.skipToColon(true); ++cnt)
     {
-		vfs_scanf(ctxt._file, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
-        xspacing = ctxt.readInt();
-        if ( asciitofont[( Uint8 )cTmp] == 255 ) asciitofont[( Uint8 )cTmp] = ( Uint8 ) cnt;
+        char chr = ctxt.readCharLit();
+        int xspacing = ctxt.readInt();
+        if ( asciitofont[( Uint8 )chr] == 255 ) asciitofont[( Uint8 )chr] = ( Uint8 ) cnt;
         if ( stt_x + xspacing + 1 > 255 )
         {
             stt_x = 0;

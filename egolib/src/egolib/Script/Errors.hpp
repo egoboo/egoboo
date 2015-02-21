@@ -82,6 +82,60 @@ namespace Ego
 
         /**
          * @brief
+         *  An exception to indicate a (generic) syntax error in a file.
+         * @author
+         *  Michael Heilmann
+         */
+        class SyntaxError : public Exception
+        {
+
+        private:
+
+            /**
+            * @brief
+            *  The location associated with this error.
+            */
+            Location _location;
+
+        protected:
+
+            std::ostringstream& writeLocation(std::ostringstream& o) const;
+
+        public:
+
+            /**
+             * @brief
+             *  Construct a syntax error.
+             * @param file
+             *  the C++ source file name associated with this error
+             * @param line
+             *  the line within the C++ source file associated with this error
+             * @param location
+             *  the location associated with this error
+             *  the load name of the file associated with this error
+             */
+            SyntaxError(const char *file, int line, const Location& location);
+
+            /**
+             * @brief
+             *  Get the location associated with this error.
+             * @return
+             *  the location associated with this error
+             */
+            const Location& getLocation() const;
+
+            /**
+             * @brief
+             *  Overloaded cast to std::string operator.
+             * @return
+             *  the result of the cast
+             */
+            operator std::string() const override;
+
+        };
+
+        /**
+         * @brief
          *  An exception to indicate a missing delimiter error in a file.
          * @author
          *  Michael Heilmann

@@ -194,10 +194,10 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
     }
     while (ctxt.skipToColon(true))
     {
-        vfs_get_string( ctxt, szOne, SDL_arraysize( szOne ) );
+        vfs_read_string_lit( ctxt, szOne, SDL_arraysize( szOne ) );
         actiona = action_which( szOne[0] );
 
-        vfs_get_string( ctxt, szTwo, SDL_arraysize( szTwo ) );
+        vfs_read_string_lit( ctxt, szTwo, SDL_arraysize( szTwo ) );
         actionb = action_which( szTwo[0] );
 
         action_copy_correct( pmad, actiona + 0, actionb + 0 );
@@ -627,39 +627,26 @@ void load_action_names_vfs( const char* loadname )
 {
     /// @author ZZ
     /// @details This function loads all of the 2 letter action names
-    int cnt;
-
-    char first = CSTR_END, second = CSTR_END;
-    STRING comment;
-    bool found;
-
     ReadContext ctxt(loadname);
-    if (!ctxt.ensureOpen()) return;
-
-    for ( cnt = 0; cnt < ACTION_COUNT; cnt++ )
+    if (!ctxt.ensureOpen())
     {
-        comment[0] = CSTR_END;
+        return;
+    }
 
-        found = false;
+    for (size_t cnt = 0; cnt < ACTION_COUNT; ++cnt)
+    {
         if (ctxt.skipToColon(false))
         {
-            if ( vfs_scanf(ctxt._file, " %c%c %s", &first, &second, comment ) >= 2 )
-            {
-                found = true;
-            }
-        }
+            // The 1st letter.
+            char frst = ctxt.readPrintable();
+            // The 2nd letter.
+            char scnd = ctxt.readPrintable();
+            // Read comment.
+            std::string comment = ctxt.readToEndOfLine();
 
-        if ( found )
-        {
-            cActionName[cnt][0] = first;
-            cActionName[cnt][1] = second;
-            cActionComent[cnt][0] = CSTR_END;
-
-            if ( VALID_CSTR( comment ) )
-            {
-                strncpy( cActionComent[cnt], comment, SDL_arraysize( cActionComent[cnt] ) );
-                cActionComent[cnt][255] = CSTR_END;
-            }
+            cActionName[cnt][0] = frst;
+            cActionName[cnt][1] = scnd;
+            strncpy(cActionComent[cnt], comment.c_str(), SDL_arraysize(cActionComent[cnt]));
         }
         else
         {

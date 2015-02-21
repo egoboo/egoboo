@@ -353,7 +353,7 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     while (ctxt.skipToColon(true))
     {
         //Load one line
-        vfs_get_string( ctxt, line, SDL_arraysize( line ) );
+        vfs_read_string_lit(ctxt, line, SDL_arraysize(line));
         addMessage(line);
     }
 }
@@ -475,7 +475,8 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 {
     // Open the file
     ReadContext ctxt(filePath);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         return false;
     }
 
@@ -612,7 +613,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     ctxt.skipToColon(false);
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++)
     {
-        _skinInfo[cnt].maxAccel = vfs_get_float(ctxt) / 80.0f;
+        _skinInfo[cnt].maxAccel = ctxt.readReal() / 80.0f;
     }
 
     // Experience and level data
@@ -738,7 +739,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // Read expansions
     while (ctxt.skipToColon(true))
     {
-        const IDSZ idsz = vfs_get_idsz(ctxt);
+        const IDSZ idsz = ctxt.readIDSZ();
 
         switch(idsz)
         {
@@ -829,11 +830,11 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'L', 'I', 'F', 'E' ): 
-                _spawnLife = 0xff * vfs_get_float(ctxt);
+                _spawnLife = 0xff * ctxt.readReal();
             break;
 
             case MAKE_IDSZ( 'M', 'A', 'N', 'A' ): 
-                _spawnMana = 0xff * vfs_get_float(ctxt);
+                _spawnMana = 0xff * ctxt.readReal();
             break;
 
             case MAKE_IDSZ( 'B', 'O', 'O', 'K' ):
@@ -856,25 +857,26 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'R', 'D' ):
-                _strengthBonus = vfs_get_float(ctxt);
+                _strengthBonus = ctxt.readReal();
             break;
 
             case MAKE_IDSZ( 'I', 'N', 'T', 'D' ):
-                _intelligenceBonus = vfs_get_float(ctxt);
+                _intelligenceBonus = ctxt.readReal();
             break;
 
             case MAKE_IDSZ( 'W', 'I', 'S', 'D' ):
-                _wisdomBonus = vfs_get_float(ctxt);
+                _wisdomBonus = ctxt.readReal();
             break;
 
             case MAKE_IDSZ( 'D', 'E', 'X', 'D' ):
-                _dexterityBonus = vfs_get_float(ctxt);
+                _dexterityBonus = ctxt.readReal();
             break;
 
             case MAKE_IDSZ( 'M', 'O', 'D', 'L' ):
             {
-                STRING tmp_buffer;
-                if (vfs_get_string(ctxt, tmp_buffer, SDL_arraysize(tmp_buffer)))
+                char tmp_buffer[1024+1];
+                vfs_read_string_lit(ctxt, tmp_buffer, 1024);
+                if (strlen(tmp_buffer) > 0)
                 {
                     char * ptr;
 

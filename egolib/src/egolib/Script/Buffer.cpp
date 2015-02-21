@@ -90,6 +90,11 @@ namespace Ego
             _size = 0;
         }
 
+        std::string Buffer::toString() const
+        {
+            return std::string(_elements, _size);
+        }
+
         void Buffer::append(char byte)
         {
             if (_size == _capacity)

@@ -548,11 +548,14 @@ void activate_alliance_file_vfs()
     }
     while (ctxt.skipToColon(true))
     {
-        vfs_get_string( ctxt, szTemp, SDL_arraysize( szTemp ) );
-        teama = ( szTemp[0] - 'A' ) % TEAM_MAX;
+        char buffer[1024 + 1];
+        vfs_read_string_lit(ctxt, buffer, 1024);
+        if (strlen(buffer) < 1) throw Ego::Script::SyntaxError(__FILE__,__LINE__,Ego::Script::Location(ctxt.getLoadName(),ctxt.getLineNumber()));
+        teama = (buffer[0] - 'A') % TEAM_MAX;
 
-        vfs_get_string( ctxt, szTemp, SDL_arraysize( szTemp ) );
-        teamb = ( szTemp[0] - 'A' ) % TEAM_MAX;
+        vfs_read_string_lit(ctxt, buffer, 1024);
+        if (strlen(buffer) < 1) throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+        teamb = (buffer[0] - 'A') % TEAM_MAX;
         TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = false;
     }
 }
@@ -2362,22 +2365,23 @@ void activate_spawn_file_vfs()
     PlaStack.count = 0;
 
     // Turn some back on
-    const char *loadName = "mp_data/spawn.txt";
-    ReadContext ctxt(loadName);
+    ReadContext ctxt("mp_data/spawn.txt");
     if (!ctxt.ensureOpen())
     {
-        log_error("unable to read spawn file `%s`", loadName);
+        log_error("unable to read spawn file `%s`", ctxt.getLoadName().c_str());
     }
     {
         CHR_REF parent = INVALID_CHR_REF;
 
-        //First load spawn data of every object
-        while(!vfs_eof(ctxt._file))
+        // First load spawn data of every object.
+        ctxt.next(); /// @todo Remove this hack.
+        while(!ctxt.is(ReadContext::EndOfInput))
         {
             spawn_file_info_t entry;
 
-            //Read next entry
-            if(!spawn_file_scan(ctxt, &entry)) {
+            // Read next entry
+            if(!spawn_file_scan(ctxt, &entry))
+            {
                 break; //no more entries
             }
 

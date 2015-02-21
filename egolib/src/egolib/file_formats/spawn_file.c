@@ -70,27 +70,44 @@ spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo )
 //--------------------------------------------------------------------------------------------
 bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
 {
-    char cTmp, delim;
-    bool retval;
-
     // trap bad pointers
-    if (NULL == pinfo ) return false;
+    if (!pinfo ) return false;
 
     spawn_file_info_reinit( pinfo );
-
-    // check for another entry, either the "#" or ":" delimiters
-    delim = goto_delimiter_list_vfs(ctxt, pinfo->spawn_coment, "#:", true );
-    if ( CSTR_END == delim ) return false;
-
-    retval = false;
-    if ( ':' == delim )
+Again:
+    // Until we hit '# or ':'.
+    while (true)
     {
-        retval = true;
-
+        ctxt.skipWhiteSpaces();
+        while (ctxt.isNewLine()) /// @todo Add and use ReadContext::skipNewLines().
+        {
+            ctxt.next();
+            ctxt._lineNumber++;
+            continue;
+        }
+        if (ctxt.is('/'))
+        {
+            ctxt.readSingleLineComment(); /// @todo Add and use ReadContext::skipSingleLineComment().
+            continue;
+        }
+        if (!ctxt.isWhiteSpace() && !ctxt.isNewLine() && !ctxt.is('/'))
+        {
+            break;
+        }
+    }
+    if (ctxt.isAlpha())
+    {
+        std::string name = ctxt.readName();
+        if (!ctxt.is(':'))
+        {
+            ctxt.readToEndOfLine();
+            goto Again;
+        }
+        ctxt.next();
+        strncpy(pinfo->spawn_coment, name.c_str(), SDL_arraysize(pinfo->spawn_coment));
         pinfo->do_spawn = true;
 
-        vfs_get_string(ctxt, pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ) );
-        str_decode( pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ), pinfo->spawn_name );
+        vfs_read_string_lit(ctxt, pinfo->spawn_name, SDL_arraysize(pinfo->spawn_name));
 
         pinfo->pname = pinfo->spawn_name;
         if ( 0 == strcmp( pinfo->spawn_name, "NONE" ) )
@@ -101,21 +118,28 @@ bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
 
         pinfo->slot = ctxt.readInt();
 
-        pinfo->pos.x = vfs_get_float(ctxt) * GRID_FSIZE;
-        pinfo->pos.y = vfs_get_float(ctxt) * GRID_FSIZE;
-        pinfo->pos.z = vfs_get_float(ctxt) * GRID_FSIZE;
+        pinfo->pos.x = ctxt.readReal() * GRID_FSIZE;
+        pinfo->pos.y = ctxt.readReal() * GRID_FSIZE;
+        pinfo->pos.z = ctxt.readReal() * GRID_FSIZE;
 
         pinfo->facing = FACE_NORTH;
         pinfo->attach = ATTACH_NONE;
-        cTmp = vfs_get_first_letter(ctxt);
-        if ( 'S' == char_toupper( cTmp ) )       pinfo->facing = FACE_SOUTH;
-        else if ( 'E' == char_toupper( cTmp ) )  pinfo->facing = FACE_EAST;
-        else if ( 'W' == char_toupper( cTmp ) )  pinfo->facing = FACE_WEST;
-        else if ( '?' == char_toupper( cTmp ) )  pinfo->facing = FACE_RANDOM;
-        else if ( 'L' == char_toupper( cTmp ) )  pinfo->attach = ATTACH_LEFT;
-        else if ( 'R' == char_toupper( cTmp ) )  pinfo->attach = ATTACH_RIGHT;
-        else if ( 'I' == char_toupper( cTmp ) )  pinfo->attach = ATTACH_INVENTORY;
-
+        char chr = ctxt.readPrintable();
+        switch (char_toupper(chr))
+        {
+        case 'S': pinfo->facing = FACE_SOUTH;       break;
+        case 'E': pinfo->facing = FACE_EAST;        break;
+        case 'W': pinfo->facing = FACE_WEST;        break;
+        case 'N': pinfo->facing = FACE_NORTH;       break;
+        case '?': pinfo->facing = FACE_RANDOM;      break;
+        case 'L': pinfo->attach = ATTACH_LEFT;      break;
+        case 'R': pinfo->attach = ATTACH_RIGHT;     break;
+        case 'I': pinfo->attach = ATTACH_INVENTORY; break;
+        default:
+        {
+            throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+        }
+        };
         pinfo->money   = ctxt.readInt();
         pinfo->skin    = ctxt.readInt();
         pinfo->passage = ctxt.readInt();
@@ -132,28 +156,36 @@ bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
 
         vfs_get_first_letter(ctxt);   ///< BAD! Unused ghost value
 
-        cTmp = vfs_get_first_letter(ctxt);
-        pinfo->team = ( cTmp - 'A' ) % TEAM_MAX;
+        chr = vfs_get_first_letter(ctxt);
+        pinfo->team = (chr - 'A' ) % TEAM_MAX;
+        
+        return true;
     }
-    else if ( '#' == delim )
+    else if (ctxt.is('#'))
     {
-        STRING szTmp1, szTmp2;
-        int    iTmp, fields;
-
+        ctxt.next();
         pinfo->do_spawn = false;
 
-        fields = vfs_scanf(ctxt._file, "%255s%255s%d", szTmp1, szTmp2, &iTmp );
-        if ( 3 == fields && 0 == strcmp( szTmp1, "dependency" ) )
+        std::string what = ctxt.readName();
+        if (what != "dependency")
         {
-            retval = true;
-
-            // seed the info with the data
-            strncpy( pinfo->spawn_coment, szTmp2, SDL_arraysize( pinfo->spawn_coment ) );
-            pinfo->slot = iTmp;
+            throw Ego::Script::SyntaxError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
         }
+        std::string who = ctxt.readName();
+        if (who.empty()) /// @todo Verify that this is unnecessary based on the definition of readName.
+        {
+            throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+        }
+        if (who.length() >= SDL_arraysize(pinfo->spawn_coment))
+        {
+            throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+        }
+        int slot = ctxt.readInt();
+        // Store the data.
+        strncpy(pinfo->spawn_coment, who.c_str(), SDL_arraysize(pinfo->spawn_coment));
+        pinfo->slot = slot;
+        return true;
     }
-
-    return retval;
 }
 
 

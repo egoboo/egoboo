@@ -52,7 +52,8 @@ bool input_settings_load_vfs_2( const char* szFilename )
     InputDevices.count = 0;
 
     ReadContext ctxt(szFilename);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_warning("unable to read input settings file `%s`\n", szFilename);
         return false;
     }
@@ -62,7 +63,8 @@ bool input_settings_load_vfs_2( const char* szFilename )
         pdevice = InputDevices.lst + idevice;
 
         // figure out how we move
-        if ( !vfs_get_next_string(ctxt, currenttag, SDL_arraysize( currenttag ) ) )
+        vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
+        if (strlen(currenttag) == 0)
         {
             continue;
         }
@@ -82,7 +84,8 @@ bool input_settings_load_vfs_2( const char* szFilename )
         //Read each input control button
         for ( size_t icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
-            if ( vfs_get_next_line(ctxt, currenttag, SDL_arraysize( currenttag ) ) )
+            vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
+            if (strlen(currenttag) > 0)
             {
                 scantag_parse_control( currenttag, pdevice->keyMap[icontrol] );
             }

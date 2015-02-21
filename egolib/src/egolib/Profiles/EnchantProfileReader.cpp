@@ -37,7 +37,10 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     profile->init();
 
     ReadContext ctxt(loadName);
-    if (!ctxt.ensureOpen()) return nullptr;
+    if (!ctxt.ensureOpen())
+    {
+        return nullptr;
+    }
 
     // true/false values
     profile->retarget = vfs_get_next_bool(ctxt);
@@ -136,7 +139,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     else profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_NORMAL;
 
     profile->_set[eve_t::SETCOSTFOREACHMISSILE].apply = vfs_get_next_bool(ctxt);
-    profile->_set[eve_t::SETCOSTFOREACHMISSILE].value = vfs_get_float(ctxt);
+    profile->_set[eve_t::SETCOSTFOREACHMISSILE].value = ctxt.readReal();
 
     profile->_set[eve_t::SETMORPH].apply = vfs_get_next_bool(ctxt);
     profile->_set[eve_t::SETMORPH].value = true;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
@@ -171,7 +174,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     // Read expansions
     while (ctxt.skipToColon(true))
     {
-        idsz = vfs_get_idsz(ctxt);
+        idsz = ctxt.readIDSZ();
 
         if (idsz == MAKE_IDSZ('A', 'M', 'O', 'U')) profile->contspawn._amount = ctxt.readInt();
         else if (idsz == MAKE_IDSZ('T', 'Y', 'P', 'E')) profile->contspawn._lpip = ctxt.readInt();

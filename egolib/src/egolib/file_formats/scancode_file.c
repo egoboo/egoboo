@@ -59,18 +59,14 @@ bool scantag_read_one(ReadContext& ctxt)
 {
     /// @author ZZ
     /// @details This function finds the next tag, returning true if it found one
-
-    bool retval;
-
-    retval = ctxt.skipToColon(true) && (scantag_count < MAXTAG);
-    if ( retval )
+    bool read = ctxt.skipToColon(true) && (scantag_count < MAXTAG);
+    if (read)
     {
-        vfs_get_string(ctxt, scantag_lst[scantag_count].name, SDL_arraysize( scantag_lst[scantag_count].name ) );
+        vfs_read_name(ctxt, scantag_lst[scantag_count].name, SDL_arraysize(scantag_lst[scantag_count].name));
         scantag_lst[scantag_count].value = ctxt.readInt();
         scantag_count++;
     }
-
-    return retval;
+    return read;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -83,7 +79,8 @@ void scantag_read_all_vfs( const char *szFilename )
     scantag_reset();
 
     ReadContext ctxt(szFilename);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_error("unable to read scan tag file `%s`\n", szFilename);
     }
 

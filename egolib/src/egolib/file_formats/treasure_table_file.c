@@ -68,14 +68,26 @@ void load_one_treasure_table_vfs(ReadContext& ctxt, treasure_table_t* new_table 
     //Keep adding objects into the table until we encounter a :END
     while (ctxt.skipToColon(false))
     {
-        STRING szTemp;
-        vfs_get_string(ctxt, szTemp, SDL_arraysize( szTemp ) );
+        STRING temporary;
+        // We need to distinguish between regular names and references starting with '%'.
+        ctxt.skipWhiteSpaces();
+        if (ctxt.is('%'))
+        {
+            ctxt.next();
+            temporary[0] = '%';
+            vfs_read_name(ctxt, temporary + 1, SDL_arraysize(temporary) - 1);
+        }
+        else
+        {
+            vfs_read_name(ctxt, temporary, SDL_arraysize(temporary));
+        }
+
 
         //Check if we reached the end of this table
-        if ( 0 == strcmp( szTemp, "END" ) ) break;
+        if ( 0 == strcmp( temporary, "END" ) ) break;
 
         //Nope, add one more to the table
-        add_object_to_table( new_table, szTemp );
+        add_object_to_table( new_table, temporary);
     }
 }
 
@@ -87,7 +99,8 @@ egolib_rv init_random_treasure_tables_vfs( const char* filepath )
 
     // Try to open a context.
     ReadContext ctxt(filepath);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_warning("unable to load random treasure tables file `%s`\n", filepath);
         return rv_error;
     }
@@ -97,17 +110,17 @@ egolib_rv init_random_treasure_tables_vfs( const char* filepath )
     while (ctxt.skipToColon(true))
     {
         //Load the name of this table
-        STRING szTemp;
-        vfs_get_string( ctxt, szTemp, SDL_arraysize( szTemp ) );
+        STRING temporary;
+        vfs_read_name(ctxt, temporary, SDL_arraysize(temporary));
 
         //Stop here if we are already full
-        if ( num_table >= MAX_TABLES )
+        if (num_table >= MAX_TABLES)
         {
-            log_warning( "Cannot load random treasure table: %s (We only support up to %i tables, consider increasing MAX_TABLES) \n", szTemp, MAX_TABLES );
+            log_warning("Cannot load random treasure table: %s (We only support up to %i tables, consider increasing MAX_TABLES) \n", temporary, MAX_TABLES);
             break;
         }
 
-        snprintf( treasureTableList[num_table].table_name, SDL_arraysize( treasureTableList[num_table].table_name ), "%%%s", szTemp );
+        snprintf(treasureTableList[num_table].table_name, SDL_arraysize(treasureTableList[num_table].table_name), "%%%s", temporary);
 
         //Load all objects in this treasure table
         treasureTableList[num_table].size = 0;
