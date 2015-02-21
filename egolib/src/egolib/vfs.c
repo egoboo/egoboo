@@ -885,6 +885,8 @@ int vfs_seek( vfs_FILE * pfile, long offset )
         pfile->flags = 0;
 
         retval = PHYSFS_seek( pfile->ptr.p, offset );
+        if (retval == 0) pfile->flags &= ~VFS_ERROR;
+        else             pfile->flags |= VFS_ERROR;
     }
 
     if ( 0 != offset )
@@ -986,6 +988,7 @@ size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
+        pfile->flags &= ~VFS_ERROR;
         PHYSFS_sint64 retval = PHYSFS_read( pfile->ptr.p, buffer, size, count );
 
         if ( retval < 0 ) { error = true; pfile->flags |= VFS_ERROR; }
@@ -1015,6 +1018,7 @@ size_t vfs_write( const void * buffer, size_t size, size_t count, vfs_FILE * pfi
     }
     else if ( vfs_physfs == pfile->type )
     {
+        pfile->flags &= ~VFS_ERROR;
         PHYSFS_sint64 write_length = PHYSFS_write( pfile->ptr.p, buffer, size, count );
         
         if ( write_length < 0 ) { error = true; pfile->flags |= VFS_ERROR; }
@@ -1049,6 +1053,9 @@ int vfs_read_Sint8( vfs_FILE * pfile, Sint8 * val )
         retval = PHYSFS_read(pfile->ptr.p, val, 1, sizeof(Sint8));
         
         error = ( 1 != retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1078,6 +1085,9 @@ int vfs_read_Uint8( vfs_FILE * pfile, Uint8 * val )
         retval = PHYSFS_read(pfile->ptr.p, val, 1, sizeof(Sint8));
         
         error = ( 1 != retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1110,6 +1120,9 @@ int vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val )
         retval = PHYSFS_readSLE16( pfile->ptr.p, val );
 
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
 
     if ( error ) _vfs_translate_error( pfile );
@@ -1142,6 +1155,9 @@ int vfs_read_Uint16( vfs_FILE * pfile, Uint16 * val )
         retval = PHYSFS_readULE16( pfile->ptr.p, val );
 
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
 
     if ( error ) _vfs_translate_error( pfile );
@@ -1174,6 +1190,9 @@ int vfs_read_Sint32( vfs_FILE * pfile, Sint32 * val )
         retval = PHYSFS_readSLE32( pfile->ptr.p, val );
 
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
 
     if ( error ) _vfs_translate_error( pfile );
@@ -1206,6 +1225,9 @@ int vfs_read_Uint32( vfs_FILE * pfile, Uint32 * val )
         retval = PHYSFS_readULE32( pfile->ptr.p, val );
 
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
 
     if ( error ) _vfs_translate_error( pfile );
@@ -1238,6 +1260,9 @@ int vfs_read_Sint64( vfs_FILE * pfile, Sint64 * val )
         retval = PHYSFS_readSLE64( pfile->ptr.p, (PHYSFS_sint64*)val );
 
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
 
     if ( error ) _vfs_translate_error( pfile );
@@ -1270,6 +1295,9 @@ int vfs_read_Uint64( vfs_FILE * pfile, Uint64 * val )
         retval = PHYSFS_readULE64( pfile->ptr.p, (PHYSFS_uint64 *)val );
 
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
 
     if ( error ) _vfs_translate_error( pfile );
@@ -1303,6 +1331,9 @@ int vfs_read_float( vfs_FILE * pfile, float * val )
         retval = PHYSFS_readULE32( pfile->ptr.p, &( convert.i ) );
 
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
 
         *val = convert.f;
     }
@@ -1334,6 +1365,9 @@ int vfs_write_Sint8( vfs_FILE * pfile, const Sint8 val )
         retval = PHYSFS_write(pfile->ptr.p, &val, 1, sizeof(Sint8));
         
         error = ( 1 != retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1363,6 +1397,9 @@ int vfs_write_Uint8( vfs_FILE * pfile, const Uint8 val )
         retval = PHYSFS_write(pfile->ptr.p, &val, 1, sizeof(Sint8));
         
         error = ( 1 != retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1393,6 +1430,9 @@ int vfs_write_Sint16( vfs_FILE * pfile, const Sint16 val )
         retval = PHYSFS_writeSLE16( pfile->ptr.p, val );
         
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1423,6 +1463,9 @@ int vfs_write_Uint16( vfs_FILE * pfile, const Uint16 val )
         retval = PHYSFS_writeULE16( pfile->ptr.p, val );
         
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1453,6 +1496,9 @@ int vfs_write_Sint32( vfs_FILE * pfile, const Sint32 val )
         retval = PHYSFS_writeSLE32( pfile->ptr.p, val );
         
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1483,6 +1529,9 @@ int vfs_write_Uint32( vfs_FILE * pfile, const Uint32 val )
         retval = PHYSFS_writeULE32( pfile->ptr.p, val );
         
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1513,6 +1562,9 @@ int vfs_write_Sint64( vfs_FILE * pfile, const Sint64 val )
         retval = PHYSFS_writeSLE64( pfile->ptr.p, val );
         
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1543,6 +1595,9 @@ int vfs_write_Uint64( vfs_FILE * pfile, const Uint64 val )
         retval = PHYSFS_writeULE64( pfile->ptr.p, val );
         
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1575,6 +1630,9 @@ int vfs_write_float( vfs_FILE * pfile, const float val )
         retval = PHYSFS_writeULE32( pfile->ptr.p, convert.i );
         
         error = ( 0 == retval );
+        
+        if (error) pfile->flags |= VFS_ERROR;
+        else       pfile->flags &= ~VFS_ERROR;
     }
     
     if ( error ) _vfs_translate_error( pfile );
@@ -1586,8 +1644,8 @@ int vfs_write_float( vfs_FILE * pfile, const float val )
 //--------------------------------------------------------------------------------------------
 static int fake_physfs_vscanf_read_char( PHYSFS_File * pfile )
 {
-    char ch;
-    int retval = PHYSFS_read( pfile, &ch, sizeof( char ), 1);
+    unsigned char ch;
+    int retval = PHYSFS_read( pfile, &ch, sizeof( unsigned char ), 1);
 	if (1 != retval) return -1;
 	return ch;
 }
@@ -2363,9 +2421,11 @@ int vfs_ungetc( int c, vfs_FILE * pfile )
     else if ( vfs_physfs == pfile->type )
     {
         // fake it
-        PHYSFS_seek(pfile->ptr.p, PHYSFS_tell(pfile->ptr.p) - 1);
+        int seeked = PHYSFS_seek(pfile->ptr.p, PHYSFS_tell(pfile->ptr.p) - 1);
         retval = c;
-        //retval = PHYSFS_write( pfile->ptr.p, &c, 1, sizeof(char) );
+        
+        if (!seeked) pfile->flags |= VFS_ERROR;
+        else         pfile->flags &= ~VFS_ERROR;
     }
 
     return retval;
@@ -2388,7 +2448,7 @@ int vfs_getc( vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        char cTmp;
+        unsigned char cTmp;
         retval = PHYSFS_read( pfile->ptr.p, &cTmp, sizeof( cTmp ), 1 );
 
         if ( -1 == retval ) pfile->flags |= VFS_ERROR;
@@ -2415,7 +2475,9 @@ int vfs_putc( int c, vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = PHYSFS_write( pfile->ptr.p, &c, 1, sizeof( char ) );
+        EGOBOO_ASSERT(0 <= c && c <= 0xff);
+        unsigned char ch = static_cast<unsigned char>(c);
+        retval = PHYSFS_write( pfile->ptr.p, &ch, 1, sizeof( unsigned char ) );
     }
 
     return retval;
@@ -2438,7 +2500,7 @@ int vfs_puts( const char * str , vfs_FILE * pfile )
     {
         size_t len = strlen( str );
 
-        retval = PHYSFS_write( pfile->ptr.p, str, len, sizeof( char ) );
+        retval = vfs_write( str, len, sizeof( char ), pfile );
     }
 
     return retval;
@@ -2500,81 +2562,6 @@ void vfs_empty_temp_directories( void )
 
     vfs_removeDirectoryAndContents( "import", VFS_TRUE );
     vfs_removeDirectoryAndContents( "remote", VFS_TRUE );
-}
-
-//--------------------------------------------------------------------------------------------
-int _vfs_vfscanf( FILE * file, const char * format, va_list args )
-{
-    // UGH! Just break the format code into pieces and call fscanf on each piece
-
-    char   sub_format[256] = EMPTY_CSTR;
-    char * format_end, * format_next;
-    int    argcount = 0;
-    void * ptr;
-
-    BAIL_IF_NOT_INIT();
-
-    if ( NULL == file || INVALID_CSTR( format ) ) return 0;
-
-    format_end = ( char * )( format + strlen( format ) );
-
-    // scan through the format string looking for formats
-    argcount = 0;
-    while ( format < format_end )
-    {
-		bool found_format;
-        char * format_tmp;
-
-        // find everything up to the first valid format code in the format string
-        found_format = false;
-        format_tmp   = ( char * )format;
-        format_next  = format_tmp;
-        while ( format_next < format_end )
-        {
-            format_next = strchr( format_tmp, '%' );
-
-            // handle the occurrence of "%%"
-            if ( '%' == *( format_next + 1 ) )
-            {
-                format_tmp = format_next + 1;
-            }
-            else
-            {
-                found_format = true;
-                break;
-            }
-        }
-
-        // copy the format string fragment
-        if ( found_format && format_next < format_end )
-        {
-            // scan the valid format code
-            format_next += strcspn( format_next, "cCsSdioxXnueEfgG" ) + 1;
-        }
-        strncpy( sub_format, format, format_next - format );
-
-        // get a pointer to the variable to be filled
-        ptr = NULL;
-        if ( found_format )
-        {
-            ptr = va_arg( args, void * );
-        }
-
-        // do the call to fscanf()
-        if ( NULL == ptr )
-        {
-            // this may cause a problem...
-            fscanf( file, sub_format, NULL );
-        }
-        else
-        {
-            argcount += fscanf( file, sub_format, ptr );
-        }
-
-        format = format_next;
-    }
-
-    return argcount;
 }
 
 //--------------------------------------------------------------------------------------------

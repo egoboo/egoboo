@@ -199,7 +199,7 @@ Sound of Jump ( -1 for none )			: 1
 :[DRES] 3         // All his clothes are fancy!
 :[READ] 1		// Literate
 :[AWEP] 1		// Can use Advanced Weapons
-:[STAB] 1		// Jiive special only: Backstab
+:[STAB] 1		// Jiive special only (Backstab)
 :[DARK] 2         // Level 2 darkvision from living in a cave
 
 //-Notes------------------------------------------------------------------------
