@@ -47,15 +47,11 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     // read the 1 line comment at the top of the file
     std::string comment = ctxt.readSingleLineComment();
     strncpy(profile->comment,comment.c_str(),SDL_arraysize(profile->comment));
-#if 0
-    vfs_get_line(ctxt,profile->comment,SDL_arraysize(profile->comment) - 1);
-    // rewind the file
-    vfs_seek(ctxt._file, 0);
-#endif
+
     // General data
     profile->force = vfs_get_next_bool(ctxt);
 
-    cTmp = vfs_get_next_char(ctxt);
+    cTmp = vfs_get_next_printable(ctxt);
     if ('L' == char_toupper(cTmp))  profile->type = SPRITE_LIGHT;
     else if ('S' == char_toupper(cTmp))  profile->type = SPRITE_SOLID;
     else if ('T' == char_toupper(cTmp))  profile->type = SPRITE_ALPHA;
@@ -95,7 +91,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->damageType = vfs_get_next_damage_type(ctxt);
 
     // Lighting data
-    cTmp = vfs_get_next_char(ctxt);
+    cTmp = vfs_get_next_printable(ctxt);
     if ('T' == char_toupper(cTmp)) profile->dynalight.mode = DYNA_MODE_ON;
     else if ('L' == char_toupper(cTmp)) profile->dynalight.mode = DYNA_MODE_LOCAL;
     else profile->dynalight.mode = DYNA_MODE_OFF;
@@ -199,7 +195,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readInt());
         else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
         {
-            switch (char_toupper(vfs_get_first_letter(ctxt)))
+            switch (char_toupper(ctxt.readPrintable()))
             {
             case 'X': profile->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
             case 'Y': profile->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis

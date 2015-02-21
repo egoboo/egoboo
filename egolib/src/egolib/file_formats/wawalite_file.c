@@ -213,7 +213,7 @@ wawalite_weather_t * read_wawalite_weather(ReadContext& ctxt, wawalite_data_t * 
         STRING line;
 
         //Parse the weather type line
-        vfs_get_next_string(ctxt, line, SDL_arraysize(line));
+        vfs_get_next_string_lit(ctxt, line, SDL_arraysize(line));
         strncpy( pweather->weather_name, strupr( line ), SDL_arraysize( pweather->weather_name ) );
 
         // convert the text in the calling function

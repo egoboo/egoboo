@@ -133,7 +133,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
     profile->_set[eve_t::SETCANSEEINVISIBLE].value = ctxt.readBool();
 
     profile->_set[eve_t::SETMISSILETREATMENT].apply = vfs_get_next_bool(ctxt);
-    cTmp = vfs_get_first_letter(ctxt);
+    cTmp = ctxt.readPrintable();
     if ('R' == char_toupper(cTmp)) profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_REFLECT;
     else if ('D' == char_toupper(cTmp)) profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_DEFLECT;
     else profile->_set[eve_t::SETMISSILETREATMENT].value = MISSILE_NORMAL;

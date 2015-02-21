@@ -96,7 +96,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
         pdevice = InputDevices.lst + idevice;
         for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
         {
-            vfs_get_next_line(ctxt, currenttag, SDL_arraysize(currenttag));
+            vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
             if (strlen(currenttag) > 0)
             {
                 scantag_parse_control( currenttag, pdevice->keyMap[i] );

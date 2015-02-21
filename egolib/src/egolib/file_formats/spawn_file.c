@@ -154,9 +154,9 @@ Again:
 
         pinfo->stat = ctxt.readBool();
 
-        vfs_get_first_letter(ctxt);   ///< BAD! Unused ghost value
+        ctxt.readPrintable();   ///< BAD! Unused ghost value
 
-        chr = vfs_get_first_letter(ctxt);
+        chr = ctxt.readPrintable();
         pinfo->team = (chr - 'A' ) % TEAM_MAX;
         
         return true;
@@ -186,6 +186,7 @@ Again:
         pinfo->slot = slot;
         return true;
     }
+    return false;
 }
 
 

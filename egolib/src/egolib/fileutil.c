@@ -495,6 +495,7 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool optiona
 #endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 char vfs_get_first_letter(ReadContext& ctxt)
 {
     ctxt.skipWhiteSpaces();
@@ -504,7 +505,7 @@ char vfs_get_first_letter(ReadContext& ctxt)
     }
     return static_cast<char>(ctxt._current);
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
 void vfs_read_string_lit(ReadContext& ctxt, char *buffer, size_t max)
 {
@@ -1036,10 +1037,10 @@ char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite
 }
 
 //--------------------------------------------------------------------------------------------
-char vfs_get_next_char(ReadContext& ctxt)
+char vfs_get_next_printable(ReadContext& ctxt)
 {
     ctxt.skipToColon(false);
-    return vfs_get_first_letter(ctxt);
+    return ctxt.readPrintable();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1329,25 +1330,34 @@ void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_get_next_string(ReadContext& ctxt, char *str, size_t max)
+#if 0
+char vfs_get_next_printable(ReadContext& ctxt)
+{
+    ctxt.skipToColon(false);
+    return ctxt.readPrintable();
+}
+#endif
+void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max)
 {
     ctxt.skipToColon(false);
     vfs_read_string_lit(ctxt, str, max);
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void vfs_get_line(ReadContext& ctxt, char *buf, size_t max)
 {
     vfs_read_string_lit(ctxt, buf, max);
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
+#if 0
 void vfs_get_next_line(ReadContext& ctxt, char *buf, size_t max)
 {
     ctxt.skipToColon(false);
     vfs_get_line(ctxt, buf, max);
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
 void ReadContext::write(char chr)
 {

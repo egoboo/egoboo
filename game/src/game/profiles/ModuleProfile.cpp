@@ -112,7 +112,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     std::shared_ptr<ModuleProfile> result = std::make_shared<ModuleProfile>();
 
     // Read basic data
-    vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
+    vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
     result->_name = buffer;
 
     vfs_get_next_name(ctxt, buffer, SDL_arraysize(buffer));
@@ -130,7 +130,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     result->_minPlayers = vfs_get_next_int(ctxt);
     result->_maxPlayers = vfs_get_next_int(ctxt);
 
-    switch (vfs_get_next_char(ctxt))
+    switch (vfs_get_next_printable(ctxt))
     {
         case 'T':
             result->_respawnValid = true;
@@ -145,10 +145,10 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
         break;
     }
 
-    //Skip char
-    vfs_get_next_char(ctxt);
+    // Skip RTS option.
+    vfs_get_next_printable(ctxt);
 
-    vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
+    vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
     str_trim(buffer);
     result->_rank = strlen(buffer);
 
@@ -162,7 +162,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     for (size_t cnt = 0; cnt < SUMMARYLINES; cnt++)
     {
         // load the string
-        vfs_get_next_string(ctxt, buffer, SDL_arraysize(buffer));
+        vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
 
         result->_summary.push_back(buffer);
     }
@@ -179,7 +179,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
         if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
         {
             // parse the expansion value
-            switch (char_toupper(vfs_get_first_letter(ctxt)))
+            switch (char_toupper(ctxt.readPrintable()))
             {
                 case 'M': result->_moduleType = FILTER_MAIN; break;
                 case 'S': result->_moduleType = FILTER_SIDE_QUEST; break;
@@ -272,7 +272,7 @@ bool ModuleProfile::moduleHasIDSZ(const char *szModName, IDSZ idsz, size_t buffe
         }
         else
         {
-            vfs_get_line(ctxt, buffer, buffer_len);
+            vfs_read_string_lit(ctxt, buffer, buffer_len);
         }
     }
 

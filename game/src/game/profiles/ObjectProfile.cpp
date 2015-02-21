@@ -501,7 +501,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _ammo = vfs_get_next_int(ctxt);
 
     // Gender
-    switch (char_toupper(vfs_get_next_char(ctxt)))
+    switch (char_toupper(vfs_get_next_printable(ctxt)))
     {
         case 'F': _gender = GENDER_FEMALE; break;
         case 'M': _gender = GENDER_MALE; break;
@@ -597,7 +597,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            switch (char_toupper(vfs_get_first_letter(ctxt)))
+            switch (char_toupper(ctxt.readPrintable()))
             {
                 case 'T': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGEINVERT;   break;
                 case 'C': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGECHARGE;   break;
@@ -655,12 +655,12 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _canOpenStuff = vfs_get_next_bool(ctxt);
 
     // More item and damage stuff
-    _damageTargetDamageType = static_cast<DamageType>(vfs_get_next_damage_type(ctxt));
-    _weaponAction = action_which(vfs_get_next_char(ctxt));
+    _damageTargetDamageType = vfs_get_next_damage_type(ctxt);
+    _weaponAction = action_which(vfs_get_next_printable(ctxt));
 
     // Particle attachments
     _attachedParticleAmount = vfs_get_next_int(ctxt);
-    _attachedParticleReaffirmDamageType = static_cast<DamageType>(vfs_get_next_damage_type(ctxt));
+    _attachedParticleReaffirmDamageType = vfs_get_next_damage_type(ctxt);
     _attachedParticle = vfs_get_next_int(ctxt);
 
     // Character hands
@@ -677,7 +677,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _goPoofParticle = vfs_get_next_int(ctxt);
 
     // Blud
-    switch (char_toupper(vfs_get_next_char(ctxt)))
+    switch (char_toupper(vfs_get_next_printable(ctxt)))
     {
         case 'T': _bludValid = true;        break;
         case 'U': _bludValid = ULTRABLUDY;  break;

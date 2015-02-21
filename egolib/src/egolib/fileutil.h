@@ -102,7 +102,9 @@
 
 // Forward declaration.
 struct ReadContext;
+#if 0
 char vfs_get_first_letter(ReadContext& ctxt);
+#endif
 
 /**
  * @brief
@@ -508,11 +510,16 @@ public:
 
 };
 
+// Utility functions.
+void vfs_get_next_name(ReadContext& ctxt, char *buf, size_t max);
+bool vfs_get_next_range(ReadContext& ctxt, FRange *range);
+bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair);
+IDSZ vfs_get_next_idsz(ReadContext& ctxt);
+bool vfs_get_next_bool(ReadContext& ctxt);
+void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max);
 UFP8_T vfs_get_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_sfp8(ReadContext& ctxt);
-char vfs_get_next_char(ReadContext& ctxt);
-
-// Utility functions.
+char vfs_get_next_printable(ReadContext& ctxt);
 signed int vfs_get_next_int(ReadContext& ctxt);
 unsigned int vfs_get_next_nat(ReadContext& ctxt);
 float vfs_get_next_float(ReadContext& ctxt);
@@ -549,6 +556,7 @@ void vfs_read_name(ReadContext& ctxt, char *buf, size_t max);
  *  Transitional C form, remove this.
  */
 void vfs_read_string_lit(ReadContext& ctxt, char *buf, size_t max);
+#if 0
 /**
  * @brief
  *  Read a line.
@@ -561,6 +569,7 @@ void vfs_read_string_lit(ReadContext& ctxt, char *buf, size_t max);
  *  @endcode
  */
 void vfs_get_line(ReadContext& ctxt, char *str, size_t max);
+#endif
 /**
  * @brief
  *  Read a range.
@@ -584,13 +593,11 @@ bool vfs_get_pair(ReadContext& ctxt, IPair *pair);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void vfs_get_next_name(ReadContext& ctxt, char *buf, size_t max);
-bool vfs_get_next_range(ReadContext& ctxt, FRange *range);
-bool vfs_get_next_pair(ReadContext& ctxt, IPair *pair);
-IDSZ vfs_get_next_idsz(ReadContext& ctxt);
-bool vfs_get_next_bool(ReadContext& ctxt);
-void vfs_get_next_string(ReadContext& ctxt, char *str, size_t max);
+
+#if 0
+char vfs_get_next_printable(ReadContext& ctxt);
 void vfs_get_next_line(ReadContext& ctxt, char *str, size_t max);
+#endif
 DamageType vfs_get_next_damage_type(ReadContext& ctxt);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
