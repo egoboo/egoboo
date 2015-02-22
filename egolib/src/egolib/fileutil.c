@@ -427,7 +427,8 @@ bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const ch
 
 int ReadContext::readInput()
 {
-    char byte;
+    // (1) Read a single Byte.
+    uint8_t byte;
     size_t result = vfs_read(&byte, 1, 1, _file);
     if (result != 1)
     {
@@ -450,7 +451,15 @@ int ReadContext::readInput()
             return EndOfInput;
         }
     }
-    if (ZeroTerminator == byte)
+    // (2) Verify that it is a Byte the represents the starting Byte of a UTF-8 character sequence of length 1.
+    if (byte > 0x7F)
+    {
+        return Error;
+    }
+    // (3) Propage the Byte to an extended character.
+    int chr = byte;
+    // (4) Verify that it is not the zero terminator.
+    if (ZeroTerminator == chr)
     {
         return Error;
     }

@@ -351,15 +351,15 @@ public:
     bool isDigit();
 
     /// The new line character.
-    static const char LineFeed = '\n';
+    static const int LineFeed = '\n';
     /// The carriage return character.
-    static const char CarriageReturn = '\r';
+    static const int CarriageReturn = '\r';
     /// The zero terminator character.
-    static const char ZeroTerminator = '\0';
+    static const int ZeroTerminator = '\0';
     /// The tabulator character.
-    static const char Tabulator = '\t';
+    static const int Tabulator = '\t';
     /// The space character.
-    static const char Space = ' ';
+    static const int Space = ' ';
 
     /**
      * @brief
