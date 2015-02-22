@@ -31,21 +31,6 @@
 struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
-// internal types
-//--------------------------------------------------------------------------------------------
-
-// Forward declarations.
-struct ego_mesh_t;
-struct ego_tile_info_t;
-struct ego_grid_info_t;
-struct grid_mem_t;
-struct tile_mem_t;
-struct mpdfx_list_ary_t;
-struct mpdfx_lists_t;
-struct ego_mesh_info_t;
-struct mesh_wall_data_t;
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #define GRID_BITS      7

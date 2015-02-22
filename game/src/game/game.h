@@ -56,38 +56,10 @@ class ModuleProfile;
 // forward declaration of internal structs
 //--------------------------------------------------------------------------------------------
 
-struct s_game_process;
-typedef struct s_game_process game_process_t;
-
-struct s_animtile_instance;
-typedef struct s_animtile_instance animtile_instance_t;
-
-struct s_damagetile_instance;
-typedef struct s_damagetile_instance damagetile_instance_t;
-
-struct s_weather_instance;
-typedef struct s_weather_instance weather_instance_t;
-
 struct s_water_layer_instance;
 typedef struct s_water_layer_instance water_instance_layer_t;
 
-struct s_water_instance;
-typedef struct s_water_instance water_instance_t;
 
-struct s_fog_instance;
-typedef struct s_fog_instance fog_instance_t;
-
-struct s_import_element;
-typedef struct s_import_element import_element_t;
-
-struct s_import_list;
-typedef struct s_import_list import_list_t;
-
-struct s_pit_info;
-typedef struct s_pit_info pit_info_t;
-
-struct s_status_list_element;
-typedef struct s_status_list_element status_list_element_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -176,7 +148,7 @@ enum e_time
 //--------------------------------------------------------------------------------------------
 
 /// a process that controls a single game
-struct s_game_process
+struct game_process_t
 {
     process_t base;
 
@@ -198,7 +170,7 @@ int              game_process_run( game_process_t * gproc, double frameDuration 
 //--------------------------------------------------------------------------------------------
 
 /// The actual state of the animated tiles in-game
-struct s_animtile_instance
+struct animtile_instance_t
 {
     int    update_and;            ///< how often to update the tile
 
@@ -217,7 +189,7 @@ int update_game();
 //--------------------------------------------------------------------------------------------
 
 /// The actual in-game state of the damage tiles
-struct s_damagetile_instance
+struct damagetile_instance_t
 {
     IPair   amount;                    ///< Amount of damage
     int     damagetype;
@@ -235,7 +207,7 @@ bool upload_damagetile_data( damagetile_instance_t * dst, const struct s_wawalit
 //--------------------------------------------------------------------------------------------
 
 /// The data descibing the weather state
-struct s_weather_instance
+struct weather_instance_t
 {
     int     timer_reset;        ///< How long between each spawn?
     bool  over_water;         ///< Only spawn over water?
@@ -275,7 +247,7 @@ float water_instance_layer_get_level( water_instance_layer_t * ptr );
 //--------------------------------------------------------------------------------------------
 
 /// The data descibing the water state
-struct s_water_instance
+struct water_instance_t
 {
     float  surface_level;          ///< Surface level for water striders
     float  douse_level;            ///< Surface level for torches
@@ -306,7 +278,7 @@ bool    upload_water_data( water_instance_t * dst, const wawalite_water_t * src 
 
 /// The in-game fog state
 /// @warn Fog is currently not used
-struct s_fog_instance
+struct fog_instance_t
 {
     bool  on;            ///< Do ground fog?
     float   top, bottom;
@@ -318,7 +290,7 @@ bool upload_fog_data( fog_instance_t * dst, const struct s_wawalite_fog * src );
 
 //--------------------------------------------------------------------------------------------
 // Imports
-struct s_import_element
+struct import_element_t
 {
     STRING          srcDir;
     STRING          dstDir;
@@ -333,7 +305,7 @@ bool import_element_init( import_element_t * );
 
 //--------------------------------------------------------------------------------------------
 
-struct s_import_list
+struct import_list_t
 {
     size_t           count;              ///< Number of imports
     import_element_t lst[MAX_IMPORTS];
@@ -347,7 +319,7 @@ egolib_rv import_list_from_players( import_list_t * imp_lst );
 //--------------------------------------------------------------------------------------------
 
 /// Pitty stuff
-struct s_pit_info
+struct pit_info_t
 {
     bool     kill;          ///< Do they kill?
     bool     teleport;      ///< Do they teleport?
@@ -359,7 +331,7 @@ struct s_pit_info
 //--------------------------------------------------------------------------------------------
 
 /// Status display info
-struct s_status_list_element
+struct status_list_element_t
 {
     int camera_index;
     CHR_REF who;
@@ -509,7 +481,7 @@ bool attach_prt_to_platform( prt_t * pprt, Object * pplat );
 bool detach_character_from_platform( Object * pchr );
 bool detach_particle_from_platform( prt_t * pprt );
 
-egolib_rv game_copy_imports( struct s_import_list * imp_lst );
+egolib_rv game_copy_imports( import_list_t * imp_lst );
 
 bool check_time( Uint32 check );
 void   game_update_timers();

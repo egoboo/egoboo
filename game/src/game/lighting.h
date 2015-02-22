@@ -27,18 +27,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_lighting_cache_base;
-typedef struct s_lighting_cache_base lighting_cache_base_t;
-
-struct s_lighting_cache;
-typedef struct s_lighting_cache lighting_cache_t;
-
-struct s_dynalight_data;
-typedef struct s_dynalight_data dynalight_data_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 enum
 {
     LVEC_PX,               ///< light from +x
@@ -61,7 +49,7 @@ void lighting_vector_evaluate( const lighting_vector_t lvec, const fvec3_t& nrm,
 void lighting_vector_sum( lighting_vector_t lvec, const fvec3_t& nrm, const float direct, const float ambient );
 
 //--------------------------------------------------------------------------------------------
-struct s_lighting_cache_base
+struct lighting_cache_base_t
 {
     float             max_light;  ///< max amplitude of direct light
     float             max_delta;  ///< max change in the light amplitude
@@ -73,7 +61,7 @@ bool                  lighting_cache_base_max_light( lighting_cache_base_t * cac
 bool                  lighting_cache_base_blend( lighting_cache_base_t * cache, const lighting_cache_base_t * cnew, float keep );
 
 //--------------------------------------------------------------------------------------------
-struct s_lighting_cache
+struct lighting_cache_t
 {
     float                 max_light;              ///< max amplitude of direct light
     float                 max_delta;              ///< max change in amplitude of all light
@@ -91,7 +79,7 @@ bool             lighting_cache_blend( lighting_cache_t * cache, lighting_cache_
 #define TOTAL_MAX_DYNA                    64          // Absolute max number of dynamic lights
 
 /// A definition of a single in-game dynamic light
-struct s_dynalight_data
+struct dynalight_data_t
 {
     float   distance;      ///< The distance from the center of the camera view
     fvec3_t pos;           ///< Light position
