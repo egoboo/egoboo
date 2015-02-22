@@ -147,6 +147,7 @@ enum e_time
 
 //--------------------------------------------------------------------------------------------
 
+#if 0
 /// a process that controls a single game
 struct game_process_t
 {
@@ -165,6 +166,7 @@ struct game_process_t
 
 game_process_t * game_process_init( game_process_t * gproc );
 int              game_process_run( game_process_t * gproc, double frameDuration );
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -323,7 +325,7 @@ struct pit_info_t
 {
     bool     kill;          ///< Do they kill?
     bool     teleport;      ///< Do they teleport?
-    fvec3_t    teleport_pos;
+    fvec3_t  teleport_pos;
 };
 
 #define PIT_INFO_INIT { false /* kill */, false /* teleport */, fvec3_t::zero /* teleport_pos */ }

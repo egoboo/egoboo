@@ -56,7 +56,9 @@
 
 static ego_mesh_t         _mesh[2];
 
+#if 0
 static game_process_t    _gproc;
+#endif
 
 static egolib_throttle_t     game_throttle = EGOLIB_THROTTLE_INIT;
 
@@ -144,10 +146,12 @@ static void   game_reset_players();
 // Model stuff
 static void log_madused_vfs( const char *savename );
 
+#if 0
 // "process" management
 static int game_process_do_begin( game_process_t * gproc );
 static int game_process_do_running( game_process_t * gproc );
 static int game_process_do_leaving( game_process_t * gproc );
+#endif
 
 // place the object lists in the initial state
 void reset_all_object_lists();

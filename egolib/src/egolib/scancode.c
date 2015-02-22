@@ -23,44 +23,37 @@
 
 #include "egolib/scancode.h"
 #include "egolib/strutil.h"
+#include "egolib/log.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+int scancode_to_ascii[SDLK_LAST];
+int scancode_to_ascii_shift[SDLK_LAST];
 
-int  scancode_to_ascii[SDLK_LAST];
-int  scancode_to_ascii_shift[SDLK_LAST];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void scancode_begin( void )
+void scancode_begin()
 {
-    /// @author BB
-    /// @details initialize the scancode translation
-
-    int src, dst;
-
-    // do the basic translation
-    for ( src = 0; src < SDLK_LAST; src++ )
+    // Do the basic translation.
+    for (int src = 0; src < SDLK_LAST; src++)
     {
-        // SDL uses ASCII values for it's virtual scancodes
+        // SDL uses ASCII values for it's virtual scancodes.
         scancode_to_ascii[src] = src;
 
-        // find the shifted value using char_toupper()
-        dst = src;
-        if ( src < 255 )
+        // Find the shifted value using char_toupper().
+        int dst = src;
+        if (src < 255)
         {
-            dst = char_toupper( src );
+            dst = char_toupper(src);
 
-            if ( dst > 255 )
+            if (dst > 255)
             {
-                fprintf( stderr, "%s - char_toupper() returned an out of range value \'%c\' -> %d\n", __FUNCTION__, src, dst );
+                /// @todo Use log error.
+                log_error("%s:%d: char_topper() returned an out of range value `%d` for `%d`\n", \
+                          __FILE__, __LINE__, dst, src);
             }
         }
 
         scancode_to_ascii_shift[src] = dst;
     }
 
-    // fix the keymap
+    // Fix the keymap.
     scancode_to_ascii_shift[SDLK_1]  = '!';
     scancode_to_ascii_shift[SDLK_2]  = '@';
     scancode_to_ascii_shift[SDLK_3]  = '#';

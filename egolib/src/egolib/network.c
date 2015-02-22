@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// The state of the network code used in old-egoboo
-struct s_egonet_instance
+struct egonet_instance_t
 {
     bool initialized;             ///< the singleton has been initialized
     bool req_enet;                ///< Try to connect?

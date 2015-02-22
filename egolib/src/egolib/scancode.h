@@ -24,16 +24,13 @@
 
 #include "egolib/platform.h"
 
-//--------------------------------------------------------------------------------------------
-// EXTERNAL VARIABLES
-//--------------------------------------------------------------------------------------------
+/// @brief Maps SDL 1 scan codes to ASCII characters as if shift up is not held down.
+extern int scancode_to_ascii[SDLK_LAST];
+/// @brief Maps SDL 1 scan codes to ASCII characters as if shift up is     held down.
+extern int scancode_to_ascii_shift[SDLK_LAST];
 
-    // the fgetc(), char_toupper() and other character-related functions return int values...
-    extern int  scancode_to_ascii[SDLK_LAST];
-    extern int  scancode_to_ascii_shift[SDLK_LAST];
-
-//--------------------------------------------------------------------------------------------
-// GLOBAL FUNCTION PROTOTYPES
-//--------------------------------------------------------------------------------------------
-
-    void scancode_begin( void );
+/**
+ * @brief
+ *  Initialize the scancode translation.
+ */
+void scancode_begin();

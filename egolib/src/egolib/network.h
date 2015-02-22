@@ -43,28 +43,18 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// an opaque struct for encapsulating network data
-    struct s_egonet_instance;
-    typedef struct s_egonet_instance egonet_instance_t;
+    struct egonet_instance_t;
 
-    struct s_time_latch;
-    typedef struct s_time_latch time_latch_t;
+    struct time_latch_t;
 
 /// opaque wrapper for the enet packet data
-    struct s_ego_packet;
-    typedef struct s_ego_packet ego_packet_t;
+    struct ego_packet_t;
 
 /// opaque wrapper for the enet packet data
-    struct s_enet_packet;
-    typedef struct s_enet_packet enet_packet_t;
-
-    struct s_BaseConnectionInfo;
-    typedef struct s_BaseConnectionInfo BaseConnectionInfo_t;
-
-    struct s_BaseServerState;
-    typedef struct s_BaseServerState BaseServerState_t;
-
-    struct s_BaseClientState;
-    typedef struct s_BaseClientState BaseClientState_t;
+    struct enet_packet_t;
+    struct BaseConnectionInfo_t;
+    struct BaseServerState_t;
+    struct BaseClientState_t;
 
 //--------------------------------------------------------------------------------------------
 // Fixing some API changes in Enet
@@ -147,7 +137,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// Network information on connected players
-    struct s_BaseConnectionInfo
+    struct BaseConnectionInfo_t
     {
         int connection_slot;
     };
@@ -164,7 +154,7 @@ extern "C"
 // BaseServerState_t
 //--------------------------------------------------------------------------------------------
 
-    struct s_BaseServerState
+    struct BaseServerState_t
     {
         bool am_host;
 
@@ -192,7 +182,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A mockup of an actual client state
-    struct s_BaseClientState
+    struct BaseClientState_t
     {
         ENetPeer* gameHost;
 
@@ -217,7 +207,7 @@ extern "C"
 /// A latch with a time attached
 /// @details This is recieved over the network, or inserted into the list by the local system to simulate
 ///  network traffic
-    struct s_time_latch
+    struct time_latch_t
     {
         float   x;
         float   y;
@@ -237,7 +227,7 @@ extern "C"
 // Packet reading/writing
 //--------------------------------------------------------------------------------------------
 
-    struct s_ego_packet
+    struct ego_packet_t
     {
         Uint32  head;                             // The write head
         Uint32  size;                             // The size of the packet
@@ -265,7 +255,7 @@ extern "C"
     bool ego_packet_readSint32( ego_packet_t * ptr, Sint32 * pval );
 
 /// enet packet wrapper
-    struct s_enet_packet
+    struct enet_packet_t
     {
         ENetPacket*    ptr;
         size_t         read_location;

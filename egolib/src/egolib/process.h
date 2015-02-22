@@ -17,6 +17,7 @@
 //*
 //********************************************************************************************
 
+#if 0
 /// @file egolib/process.h
 
 #pragma once
@@ -70,4 +71,4 @@ struct process_t
 	static bool running(process_t *self);
 
 };
-
+#endif

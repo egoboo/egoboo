@@ -17,6 +17,7 @@
 //*
 //********************************************************************************************
 
+#if 0
 /// @file egolib/process.c
 /// @brief Implementation of Egoboo "process" control routines
 /// @details
@@ -129,3 +130,4 @@ bool process_t::running(process_t *self)
 
     return !self->paused;
 }
+#endif
