@@ -90,29 +90,29 @@ inline std::basic_string<CharType> trim(const std::basic_string<CharType>& str, 
 {
     auto isspace = [=,&locale](const CharType chr) { return std::isspace(chr, locale); };
     auto front = std::find_if_not(str.begin(), str.end(), isspace);
-    return std::basic_string<CharType>(front, std::find_if_not(str.rbegin(), std::basic_string<CharType>::const_reverse_iterator(front), isspace).base());
+    return std::basic_string<CharType>(front, std::find_if_not(str.rbegin(), typename std::basic_string<CharType>::const_reverse_iterator(front), isspace).base());
 }
 
 // libc++ doesn't define std::toupper<int>(int, std::locale),
 // so narrow the int to a char.
 #ifdef _LIBCPP_VERSION
 template <>
-inline int char_toupper<int>(int chr)
+inline int char_toupper<int>(int chr, const std::locale& locale)
 {
     EGOBOO_ASSERT(chr >= 0 && chr <= 255);
-    return char_toupper(static_cast<char>(chr));
+    return char_toupper(static_cast<char>(chr), locale);
 }
 template <>
-inline int char_tolower<int>(int chr)
+inline int char_tolower<int>(int chr, const std::locale& locale)
 {
     EGOBOO_ASSERT(chr >= 0 && chr <= 255);
-    return char_tolower(static_cast<char>(chr));
+    return char_tolower(static_cast<char>(chr), locale);
 }
 template <>
-inline bool char_isspace<int>(int chr)
+inline bool char_isspace<int>(int chr, const std::locale& locale)
 {
     EGOBOO_ASSERT(chr >= 0 && chr <= 255);
-    return char_isspace(static_cast<char>(chr));
+    return char_isspace(static_cast<char>(chr), locale);
 }
 #endif
 

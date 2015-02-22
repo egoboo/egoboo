@@ -87,7 +87,7 @@ signed int ReadContext::toInteger() const
     {
         throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
     }
-    if (x < std::numeric_limits<int>::min() || x > std::numeric_limits<int>::max())
+    if (x < std::numeric_limits<signed int>::min() || x > std::numeric_limits<signed int>::max())
     {
         throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
     }
@@ -105,7 +105,7 @@ unsigned int ReadContext::toNatural() const
     {
         throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
     }
-    if (x > std::numeric_limits<int>::max())
+    if (x > std::numeric_limits<unsigned int>::max())
     {
         throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
     }
@@ -432,7 +432,7 @@ int ReadContext::readInput()
             return EndOfInput;
         }
     }
-    if (chr < std::numeric_limits<char>::min() || chr > std::numeric_limits<char>::max())
+    if (chr < std::numeric_limits<unsigned char>::min() || chr > std::numeric_limits<unsigned char>::max())
     {
         printf("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
