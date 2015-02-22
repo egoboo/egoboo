@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="../main.css">			
+</head>
+<body>
+	<p style='font-weight:bold;'>
+	Proposal<br /><br/>
+	Definition of a monster for spawning 
+	</p>
+	<table class='visible' style='width:60%;' border='1'>
+		<tr>
+			<th colspan='2'>MONSTER</th>
+		</tr>
+		<tr>
+			<td>XML-Tag</td>
+			<td>Description</td>
+		</tr>
+		<tr>
+			<td>&lt;cooldown&gt;</td>
+			<td>Time between attacks</td>
+		</tr>
+		<tr>
+			<td>&lt;type&gt;</td>
+			<td>Which MONSTER_TYPE (Name)</td>
+		</tr>
+		<tr>
+			<td>&lt;model&gt;</td>
+			<td>Name of model to use</td>
+		</tr>
+		<tr>
+			<td>&lt;initstate&gt;</td>
+			<td>State at spawn time</td>
+		</tr>
+		<tr>
+			<td>&lt;attacks&gt;</td>
+			<td>Number of attacks or spells</td>
+		</tr>
+		<tr>
+			<td>&lt;pocketitem&gt;</td>
+			<td>Name of item in pocket, is dropped if monster is killed</td>
+		</tr>
+		<tr>
+			<td>&lt;weapon&gt;</td>
+			<td>Weapon in hand, is dropped if monster is killed</td>
+		</tr>
+		<tr>
+			<td>&lt;skin_no&gt;</td>
+			<td>
+				Which skin to use, if the model has multiple skins [1 .. num_skins]<br />
+				0: Use random skin, if more than one is available
+			</td>
+		</tr>
+	</table>	
+	<br />
+	<table class='visible' style='width:60%;' border='1'>
+		<tr>
+			<th colspan='2'>MONSTER_TYPE</th>
+		</tr>
+		<tr>
+			<td>XML-Tag</td>
+			<td>Description</td>
+		</tr>
+		<tr>
+			<td>&lt;name&gt;</td>
+			<td>Name of type, given a spawning monster, defines it abilities and how it behaves in the game </td>
+		</tr>
+		<tr>
+			<td>&lt;armorclass&gt;</td>
+			<td>Base defense, attack points are reduced by armor class</td>
+		</tr>
+		<tr>
+			<td>&lt;dice&gt;</td>
+			<td>Life at creation time DICE(numthrow, sides, addvalue)</td>
+		</tr>
+		<tr>
+			<td>&lt;attackcnt&gt;</td>
+			<td>Number of attacks</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>
+				<table>
+					<tr>
+						<td style='font-weight:bold;' colspan='4'>&lt;attack_list&gt;</td>
+					</tr>
+					<tr>
+						<td style='width:25px;'></td><td style='width:25px;'>&lt;attack&gt;</td><td colspan='2'></td>
+					</tr>
+					<tr>
+						<td colspan='2'></td><td style='width:50px;'>&lt;type&gt;</td>
+						<td>
+							ATT_POSION, ATT_TURNSTONE, ... (like items)
+						</td>
+					</tr>
+					<tr>
+						<td colspan='2'></td><td style='width:50px;'>&lt;dice&gt;</td>
+						<td>
+							Dice to roll for each attack (numthrow, numsides, addvalue)
+						</td>
+					</tr>
+					<tr><td></td><td>&lt;attack&gt;</td><td colspan='2'></td></tr>
+					<tr><td style='font-weight:bold;' colspan='4'>&lt;/attack_list&gt;</td></tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;size&gt;</td>
+			<td>
+				Size of monster<br />
+				&nbsp;0: A quarter of a tile<br /> 
+				&nbsp;1: Full tile<br /> 
+				&nbsp;2: Half of a tile 
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;attacksound&gt;</td>
+			<td>Number of sound to play if monster attacks</td>
+		</tr>
+		<tr>
+			<td>&lt;walksound&gt;</td>
+			<td>Sound to play as the monster walks</td>
+		</tr>
+		<tr>
+			<td>&lt;killexperience&gt;</td>
+			<td>Experience the player gets if he kills that monster</td>
+		</tr>
+		<tr>
+			<td>&lt;thcount&gt;</td>
+			<td>
+				How many weapons the monster has to throw (Item 'in Hand')<br />
+				After the items are used up, the monster needs to change to melee battle
+			</td>
+		</tr>
+	</table>
+	<br />
+	<br />
+	18.01.2015 / Paul Mueller<br />
+	<br />
+</body>

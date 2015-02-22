@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="main.css">			
+</head>
+<table class='visible' style='width:60%;' border='1'>
+		<tr>
+			<th colspan='2'>ITEM</th>			
+		</tr>
+		<tr>
+			<td colspan='2'>
+				General Info:<br />
+				If an item-name is not given, it is generated off the item &lt;type&gt; 
+			</td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td>Data-Struct</td>
+			<td style='white-space:nowrap;'>&lt;item&gt;</td>
+		</tr>
+		<tr>
+			<td>&lt;number&gt;</td>
+			<td>Number of item (for inventory)</td>
+		</tr>
+		<tr>
+			<td>&lt;idname&gt;</td>
+			<td>Number of Name, if not identified</td>
+		</tr>
+		<tr>
+			<td>&lt;unidname&gt;</td>
+			<td>Number of Name, if identified</td>
+		</tr><tr>
+			<td>&lt;flags&gt;</td>
+			<td>ITEMFLAG_IDENTIFIED, ITEMFLAG_MAGIC and so on...</td>
+		</tr>
+		<tr>
+			<td>&lt;ammo&gt;</td>
+			<td>
+				Depending on <b>&lt;use&gt;</b><br />
+				USE_FIREDWEAPON (e.g. Bow, Gun) : Number of shots<br />
+				USE_WAND: Number of spells that can be cast (after that it has no effect)<br /> 
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;iconno&gt;</td>
+			<td>
+				Which icon to use for display.<br />
+				It is translated in an own table which model to use for 3D-Display  
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;acadd&gt;</td>
+			<td>Adds this amount of points to the armor-class (defense)</td>
+		</tr>
+		<tr>
+			<td>&lt;wear&gt;</td>
+			<td>
+				If item can be 'weared', then it adds AC and cann addd additional defense<br />
+				Where it can be weared:<br />
+				WEAR_NONE<br />
+				WEAR_HELMET<br />
+				WEAR_NECKLACE<br />
+				WEAR_FINGER</br >
+				WEAR_WRIST<br />
+				WEAR_BODY: Armor --&gt; Additional defense points<br />
+				WEAR_FEET<br />				
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;weareff&gt;</td>
+			<td>
+				Effect on character, if the item is weared: Additional defense<br />
+				EFFECT_... and value
+			</td>
+		</tr>
+		</tr>
+		<tr>
+			<td>&lt;handbits&gt;</td>
+			<td>In which hand it can be held: LEFT, RIGHT, BOTH</td>
+		</tr>
+		<tr>
+			<td>&lt;type&gt;</td>
+			<td>
+				Type of item:<br />
+				TYPE_NONE<br />
+				TYPE_HELMET<br />
+				TYPE_WEAPON<br />
+				TYPE_SHIELD<br />
+				TYPE_SHOES<br />
+				TYPE_STONE<br />
+				TYPE_ARROW<br />
+				TYPE_KEY<br />
+				TYPE_POTION <br />
+				TYPE_RING<br />
+				TYPE_WAND<br />
+				TYPE_TWOHANDWEAPON<br />
+				TYPE_SLING<br />
+				TYPE_BOW<br />
+				TYPE_DART<br />
+				TYPE_SPELLBOOK<br />
+				TYPE_CLERICHOLYSYMBOL<br />
+				TYPE_ARMOR<br />
+				TYPE_ROBE<br />
+				TYPE_BRACERS<br />
+				TYPE_MAGESCROLL<br />
+				TYPE_CLERICSCROLL<br />
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;cooldown&gt;</td>
+			<td>Time to wait unit it can be used again (for WEAPONS), in tenths of a seconds</td>
+		</tr>
+		<tr>
+			<td>&lt;skill&gt;</td>
+			<td>
+				Skill needed to use this item:<br />
+				SKILL_NONE<br />
+				SKILL_FIGHTER<br />
+				SKILL_MAGE<br />
+				SKILL_CLERIC<br />				
+				SKILL_...<br />
+				<br />
+				Is checked against a characters skill
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;itemuse&gt;</td>
+			<td>
+				How the item is used (to know for player characters):<br />
+				ITEMUSE_SHIELD<br />
+				ITEMUSE_MELEEWEAPON<br />
+				ITEMUSE_FIREDWEAPON<br />
+				ITEMUSE_RANGEDWEAPON<br />
+				ITEMUSE_KEYS<br />
+				ITEMUSE_CLERICSYMBOL<br />
+				ITEMUSE_SPELLBOOK<br />
+				ITEMUSE_RATION<br />
+				ITEMUSE_WRISTS<br />
+				ITEMUSE_CLERICSCROLL<br />
+				ITEMUSE_MAGESCROLL<br />
+				ITEMUSE_ARMOR<br />
+				ITEMUSE_NECKLACE<br />
+				ITEMUSE_MISC<br />
+				ITEMUSE_STONEITEM<br />
+				ITEMUSE_LOCKPICKS<br />
+				ITEMUSE_16<br />
+				ITEMUSE_COIN<br />
+				ITEMUSE_POTION<br />
+				ITEMUSE_WAND<br />
+				ITEMUSE_HORN<br />
+				ITEMUSE_RING<br />
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;effuse&gt;</td>
+			<td>
+				How the &lt;effect&gt; has to be applied:<br />
+				EFFUSE_OTHER<br />
+				EFFUSE_ATTACK<br />
+				EFFUSE_HEAL<br />
+			</td>
+		</tr>
+		<tr>
+			<td style='font-weight:bold;'>&lt;effect&gt;</td>
+			<td>
+				See this struct
+		</tr>
+		<tr>
+			<td>&lt;singleuse&gt;</td>
+			<td>TRUE: Consume item after use (e. g. POTIONS, FOOD)</td>
+		</tr>
+		
+		<tr>
+			<td>&lt;value&gt;</td>
+			<td>
+				Additional info about item, depending on &lt;use&gt;<br />
+				USE_SHIELD: Additional defense point<br />
+				USE_MELEEWEAPON: Additional damage for attack (&lt; 0: cursed)<br />
+				USE_FIREDWEAPON (e.g. Bow): Additional damage for attack (&lt; 0: cursed)<br />
+				USE_RANGEDWEAPON (e. g. Darts): Additional damage for attack (&lt; 0: cursed)<br />
+				USE_KEY: Number of key (To check out with locks for fit)<br />
+				USE_CLERICSYMBOL: None<br />
+				USE_SPELLBOOK: None<br />
+				USE_RATION: How many food points to add(&lt; 0: Rotten food)<br />
+				USE_WRISTS: Additional defense points<br />
+				USE_CLERICSCROLL: Number of <span style='font-weight:bold;'>'spell'</span> to cast / learn<br />
+				USE_MAGESCROLL: Number of <span style='font-weight:bold;'>'spell'</span> to cast / learn<br />
+				USE_ARMOR: Additional defense points<br />
+				USE_NECKLACE: None<br />
+				USE_MISC: None<br />
+				USE_STONEITEM: Which item (To check out if used for fit)<br />
+				USE_LOCKPICKS: None<br />
+				USE_MISC2: None<br />
+				USE_COIN: None<br />
+				USE_POTION: Number of use effect
+					(EFFECT_HEAL, EFFECT_POISON, EFFECT_STRENGTH, EFFECT_SPEED, EFFECT_FOOD, EFFECT_INVISIBLE, EFFECT_CUREPOISON<br />
+				USE_WAND: Number of <span style='font-weight:bold;'>'spell'</span> to cast<br />
+				USE_HORN: Number of sound to play<br />
+				USE_RING: Number of effect<br />
+			</td>
+		</tr>
+		<!-- The following data is only needed, if a global item list is used (EOB-CLONE)			
+		<tr>
+			<td>&lt;level&gt;</td>
+			<td>Number of Maze-Level</td>
+		</tr>			
+		</tr>		
+			<td>&lt;tile_no&gt;</td>
+			<td>Position in Maxe (x, y)</td>
+		</tr>
+		<tr>
+			<td>&lt;tilepos&gt;</td>
+			<td>
+				Position on Tile:<br />
+				[0..3] if Bottom<br />
+				[4..7] if compartment in wall
+			</td>
+		<tr>
+		-->
+	</table>
+	<br />
+	15.02.2015 / Paul Mueller<br />
+	<br />

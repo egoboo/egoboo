@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="main.css">			
+</head>
+<body>	
+	<table class='visible' style='width:60%;' border='1'>
+		<tr>
+			<th colspan='2'>
+				EGO2XML				
+			</th>
+		</tr>
+		<tr>
+			<td colspan='2'>
+				The conversion tool translates the existing 'txt' files int XML-Files.
+				It tries to preserve all existing info as much as possible. 
+                Part of the data are reformated to new tags or merged into single tags with
+             	multiple values, whci belong together.<br />
+				<br />
+				Following are the general descriptions of the different files in EGOBOO,
+				including an link to information how it will be translated to XML<br />
+				<br /> 
+				<b>Proposal: This info could be merged into one single XML-File</b><br />
+				<br />
+				</br>
+				In the <a href='proposal/proposal.html' target='_blank'>Proposal</a> are some
+				Ideas how the data could be streamlined and simplified with different types
+				of objects<br>			
+			</td>
+		</tr>
+	</table>
+	<br />
+	<table class='visible' style='width:60%;' border='1'>
+		<tr>
+			<th colspan='2'>OBJECT</th>
+		</tr>
+		<tr>
+			<td colspan='2'>The description of an object is held in following files</td>
+		</tr>
+		<tr>
+			<td><a href='copy.html'>copy.txt</a></td>
+			<td>This file contains information for copying actions to save memory...</td>
+		</tr>
+		<tr>
+			<td><a href='data.html'>data.txt</a></td>
+			<td><b>is required</b>, the other info is optional</td>
+		</tr>
+		<tr>
+			<td>enchant.txt</td>
+			<td>Magic for this character</td>
+		</tr>
+		<tr>
+			<td>message.txt</td>
+			<td>Holds the messages used by 'SendMessage...'-Functions in 'script.txt'</td>
+		</tr>
+		<tr>
+			<td>naming.txt</td>
+			<td>Used to give the character a random name</td>
+		</tr>
+		<tr>
+		<td>part0.txt - part10.txt</td>
+		<td>
+			Particle definitions<br />
+			Referenced in 'data.txt' for 'Attack'-Particles' attached to the character<br />
+			<br />
+			Referenced by '...Particle...'-Functions in 'script.txt'
+		</td>
+		<tr>
+			<td>script.txt</td>
+			<td>Script for this character (Behaviour)</td>
+		</tr>
+	</table>
+	<br />
+	<table style='width:60%;' border='1'>
+		<tr>
+			<th colspan='2'>MODULE/GAMEDAT</th>
+		</tr>
+		<tr>
+			<td colspan='2'>The description of a module is held in following files</td>
+		</tr>
+		<tr>
+			<td>alliance.txt</td>
+			<td>
+				This file tells the module which teams should ally with which teams.<br />
+				Multiple alliances can be defined
+			</td>
+		</tr>
+		<tr>
+			<td>EgoMapExtra.txt</td>
+			<td>Holds info about lighting (?)</td>
+		</tr>
+
+		<tr>
+			<td>gametips.txt</td>
+			<td>Lists all the game tips that are randomly displayed whenever you are loading a module.</td>
+		</tr>
+		<tr>
+			<td>menu.txt</td>
+			<td>
+				This file contains info for the module's menu description
+				and a short text summary whats the level is all about
+			</td>
+		</tr>
+		<tr>
+			<td>passage.txt</td>
+			<td>
+				This file contains passage rectangles, which are areas that behave like
+				an invisible wall when closed or a floor when open.<br />Passages are used
+				primarily in doors, but could have other uses.
+			</td>
+		</tr>
+		<tr>
+			<td>ripple.txt</td>
+			<td>This is a particle type: Water Particle definition for ripples</td>
+		</tr>		
+		<tr>
+			<td>spawn.txt</td>
+			<td>
+				Describes, where and how the different objects have to be spawned at start of module<br />
+				<pre>Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team</pre>
+			</td>
+		</tr>
+		<tr>
+			<td>splash.txt</td>
+			<td>This is a particle type: Particle definition for water splash</td>
+		</tr>
+		<tr>
+			<td>wawalite.txt</td>
+			<td>
+				This file tells the game how to model lighting and water...<br />
+				Please fill in all of the data even if you only use one layer of
+				water.  2 is the maximum number of layers.
+				This file also gives information regarding damage tiles and
+				friction for the module.
+			</td>
+		</tr>
+	
+	</table>
+	<br />
+	<br />
+	21.02.2015 / Paul Mueller<br />
+	<br />
+	<br />	
+</body>

@@ -1,0 +1,99 @@
+<!-- Replaces 'copy.txt' -->
+<object>
+	<copylist>
+		<copy>BASH CHOP</copy>
+		<copy>THRUST XBOW</copy>
+		<copy>THRUST ZAP</copy>
+		<copy></copy>
+	</copylist>
+
+	<!-- Replaces 'data.txt' -->
+	<charinfo>
+		<class>Adventurer</class>		<!-- Get additional data from 'classes.xml as experience is gained --> 
+		<unilit>F</unilit>
+		<ammo>0 0</ammo>				<!-- start max -->		
+		<gender>M</gender>				<!-- MALE, FEMALE, NEUTRAL -->
+		<lifebarcol>1</lifebarcol>
+		<manabarcol>5</manabarcol>
+		<grips>T T</grips>				<!-- LEFT, RIGHT -->
+		<expexc>0.01</expexc>
+		<!-- Info for character creation -->
+		<lifebase>5 8</lifebase>		<!-- min max -->
+		<defbase>30</defbase>
+		<expworth>30</expworth>			<!-- Experience worth killing this one -->
+		<accelrate>60</accelrate>
+		<small>F</small>
+		<!-- physics -->
+		<size>1.0</size>
+		<sizeinc>0.4</sizeinc>
+		<shadow>25</shadow>
+		<bumpsize>30 90</bumpsize>	<!-- size height -->
+		<bumpdampen>0.35</bumpdampen>
+		<weight>110</weight>
+		<speed>1 1 5</speed>		<!-- Sneak, walk, run -->			
+		<flyheight>0</flyheight>
+		<bounciness>0.6</bounciness>
+		<!-- render -->	
+		<flash>255</flash>	<!-- 255 is none -->
+		<trans>255</trans>
+		<lightblend>255</lightblend>
+		<transblend>T</transblend>
+		<sheen>0</sheen>
+		<phong>F</phong>
+		<texmovexy>0.0 0.0</texmovexy>
+		<!-- Particles for rendering -->	
+		<poofprt>
+			<amount>8</amount>
+			<diradd>45.0</diradd>	<!-- IS float = (8192 / 65535) * 360 Degrees -->
+			<no>1</no>				<!-- Number into internal <partlist>, belongs to the character --> 		
+		</poofprt>
+		<!--
+		<bludprt>
+			<no>-1</no>	Lees then zero: Invalid
+		</bludprt>
+		-->
+	</charinfo>
+
+	<!-- Replaces 'enchant.txt' -->
+	<enchant>	
+	
+	</enchant>
+
+	<!-- Replaces 'message.txt', messages are used by 'script' -->		
+	<messages>
+
+	</messages>	
+
+	<!-- Replaces 'naming.txt', dynamic naming of character -->	
+	<naming>
+	</naming>
+
+
+	<!-- Replaces 'part0.txt' to 'part[xx].txt -->	
+	<partlist>
+		<!-- part0 -->	
+		<parttype>
+			<force>F</force>			
+			<imgtype>TRANS</imgtype>		
+			<sframe>65</sframe>			
+			<nframe>4</nframe>			
+			<framerate>40</framerate>	
+			<framerand>0</framerand>		
+			<rotbase>24576</rotbase>		<!-- 24576 / 65535 * 360 degrees-->
+			<rotadd>0</rotadd>
+			<rotrate>0</rotrate>		
+			<size>10000</size>				<!-- 10000 / 65535 degrees-->
+			<sizeinc>400</sizeinc>			<!-- 400 / 65535 degrees-->
+			<!-- Ending conditions -->
+			<endw>F</endw>
+			<endb>F</endb>
+			<endg>F</endg>		
+			<endl>T</endl>
+		</parttype>
+		<!-- part1 -->
+		<!-- part2 -->
+	</partlist>
+</object>
+
+
+

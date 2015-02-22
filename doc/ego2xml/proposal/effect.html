@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="../main.css">			
+</head>
+<body>
+	<p >
+		Proposal<br /><br/>
+		This are the descriptions for the different types of characters in EGOBOO<br />
+		The data structs are given in XML<br />
+        The <b>effects</b> are at the heart of the matter:<br />
+        - Items have effects<br />
+        - Monster-attacks have effects<br />
+        - Spells have effects<br />
+		<br />
+	    Effects can be temporary or permanent<br />
+		<br />
+		Tag: &lt;effect&gt;  
+	</p>
+	<table class='visible' style='width:75%;'  border='1'>
+		<tr>
+			<th colspan='3'>EFFECT</th>
+		</tr>
+		<tr>
+			<td>XML-Tag</td>
+			<td>value</td>
+			<td>Description</td>
+		</tr>
+		<tr>
+			<td>&lt;use&gt;</td>
+			<td>char</td>
+			<td>
+				EFFTYPE_ATTACK:&nbsp;Attacks a game character<br />
+				EFFTYPE_HEAL:&nbsp;Heals a game character<br />
+				EFFTYPE_SKILL:&nbsp;Changes skill of a game character<br />
+				EFFTYPE_DEFENSE:&nbsp;Changes defense/vulnerability of a game character for an effect<br />	
+				EFFTYPE_ABILITY&nbsp;Changes the value of an ability (ABILITY_MANA etc.)<br />
+				EFFTYPE_MISC:&nbsp;E.g. bump money			
+			</td>			
+		</tr>
+		<tr>
+			<td>&lt;type&gt;</td>
+			<td>char</td>
+			<td>
+				e. g. EFFECT_ZAP<br />
+				Attack is modified by the defense / vulnerability of a character for this type<br />	
+				If the character has 100% defense, then the attack has no effect<br />
+				<br />
+				If EFFECT_NONE, then there is no defense against this effect
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;dice&gt;</td>
+			<td style='white-space:nowrap;'>char / char / char</td>
+			<td>
+				Value of attack / heal:<br />
+				[Number of throws (0..10)]<br />
+				[Number of sides (1..20)]<br />
+				[Add to thrown dice value (0..100)] Can be negative<br />
+				<span style='font-weight:bold;'>
+					If the number of throws is zero, then the added value is used as fixed value
+				</span>
+			</td>			
+		</tr>
+		<tr>
+			<td>&lt;duration&gt;</td>
+			<td>float</td>
+			<td>
+				Time in seconds for this effect (float)<br />
+				&gt; 0: Timer ist set in character, effect lasts for this time. After that, it is removed from the character<br />
+				0: Effect is once and permanent, no timer is set
+			</td>			
+		</tr>
+		<tr>
+			<td>&lt;repeat&gt;</td>
+			<td>char</td>
+			<td>
+				How many time the timer is repeated:<br />
+				&gt; 0: Timer is restarted and effect is applied each time the timer is restarted (e. g. for poison effects)<br />
+				0: Timer is runned once<br />
+				&lt; 0: Timer is repeated until removed by another effect / spell whatever<br /> 
+			</td>
+		</tr>
+	</table>
+	<br />
+	13.02.2015 / Paul Mueller<br />
+	<br />
+</body>

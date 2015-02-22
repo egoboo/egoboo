@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="main.css">			
+</head>
+<body>	
+	<table class='visible' style='width:70%;' border='1'>
+		<tr>
+			<th colspan='2'>List of built in IDSZs</th>
+		</tr>
+		<tr>
+			<th>IDSZ</th>
+			<th>Description</th>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td colspan='2'>Fixed IDSZs for character profiles</td>
+		</tr>
+		<tr>
+			<td>'DRES'</td>
+			<td>ADD_BITS( pcap->skindressy, 1 &lt;&lt; fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'GOLD'</td>
+			<td>pcap->money = fget_int( fileread );</td>
+		</tr>
+		<tr>
+			<td>'STUK'</td>
+			<td>pcap->resistbumpspawn = ( 0 != ( 1 - fget_int( fileread ) ) )</td>
+		</tr>
+		<tr>
+			<td>'PACK'</td>
+			<td>pcap->istoobig = !( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'VAMP'</td>
+			<td>pcap->reflect = !( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'DRAW'</td>
+			<td>pcap->alwaysdraw = ( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'RANG'</td>
+			<td>pcap->isranged = ( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'HIDE'</td>
+			<td>pcap->hidestate = fget_int( fileread )</td>
+		</tr>
+		<tr>
+			<td>'EQUI'</td>
+			<td>pcap->isequipment = ( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'SQUA'</td>
+			<td>pcap->bump_sizebig = pcap->bump_size * 2;</td>
+		</tr>
+		<tr>
+			<td>'ICON'</td>
+			<td>pcap->draw_icon = ( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'SHAD'</td>
+			<td>pcap->forceshadow = ( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'SKIN'</td>
+			<td>pcap->skin_override = fget_int( fileread ) & 3</td>
+		</tr>
+		<tr>
+			<td>'CONT'</td>
+			<td>pcap->content_override = fget_int( fileread )</td>
+		</tr>
+		<tr>
+			<td>'STAT'</td>
+			<td>pcap->state_override = fget_int( fileread )</td>
+		</tr>
+		<tr>
+			<td>'LEVL'</td>
+			<td>pcap->level_override = fget_int( fileread )</td>
+		</tr>
+		<tr>
+			<td>'PLAT'</td>
+			<td>pcap->canuseplatforms = ( 0 != fget_int( fileread ) );</td>
+		</tr>
+		<tr>
+			<td>'RIPP'</td>
+			<td>pcap->ripple = ( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr>
+			<td>'VALU'</td>
+			<td>pcap->isvaluable = fget_int( fileread )</td>
+		</tr>
+		<tr>
+			<td>'LIFE'</td>
+			<td>pcap->life_spawn = 256.0f * fget_float( fileread )</td>
+		</tr>
+		<tr>
+			<td>'MANA'</td>
+			<td>pcap->mana_spawn = 256.0f * fget_float( fileread )</td>
+		</tr>
+		<tr>
+			<td>'BOOK'</td>
+			<td>pcap->spelleffect_type = fget_int( fileread ) % CHAR_MAX_SKIN</td>
+		</tr>
+		<tr>
+			<td>'FAST'</td>
+			<td>pcap->attack_fast = ( 0 != fget_int( fileread ) )</td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td colspan='2'>Damage bonuses from stats</td>
+		</tr>
+		<tr>
+			<td>'STRD'</td>
+			<td>pcap->str_bonus = fget_float( fileread )</td>
+		</tr>
+		<tr>
+			<td>'INTD'</td>
+			<td>pcap->int_bonus = fget_float( fileread )</td>
+		</tr>
+		<tr>
+			<td>'WISD'</td>
+			<td>pcap->wis_bonus = fget_float( fileread )</td>
+		</tr>
+		<tr>
+			<td>'DEXD'</td>
+			<td>pcap->dex_bonus = fget_float( fileread )</td>
+		</tr>
+		<tr>
+			<td>'MODL'</td>
+			<td>
+				fget_string( fileread) "SBH" Special case:<br />
+				'S' pcap->bump_override_size = btrue;<br />
+                'B' pcap->bump_override_sizebig = btrue;<br />
+                'H' pcap->bump_override_height = btrue;<br />
+			</td>
+		</tr>
+		<tr>
+			<td>'DARK'</td>
+			<td>
+				pchr->darkvision_level = chr_get_skill( pchr, MAKE_IDSZ( 'DARK' ) )<br />
+				'enchant.c': target_ptr->see_kurse_level = chr_get_skill( target_ptr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
+			</td>
+		</tr>
+		<tr>
+			<td>'HEAL'</td>
+			<td>Script: HealTarget( tmpargument = "amount" )</td>
+		</tr>
+		<tr>
+			<td>'XWEP'</td>
+			<td>pcap->isranged || chr_has_idsz( pself->target, MAKE_IDSZ( 'XWEP' ) );</td>
+		</tr>
+		<tr>
+			<td>'STAB'</td>
+			<td>
+				Script: IfBackstabbed()<br />
+				'char.c': Do not allow poison or backstab skill if we are restricted by code of conduct
+			</td>
+		</tr>
+		<tr>
+			<td>'POIS'</td>
+			<td>'char.c': chr_get_skill</td>
+		</tr>
+		<tr>
+			<td>'CODE'</td>
+			<td>'char.c': chr_get_skill</td>
+		</tr>
+		<tr>
+			<td>'READ'</td>
+			<td>'char.c': chr_get_skill</td>
+		</tr>
+		<tr>
+			<td>'CKUR'</td>
+			<td>
+				'char.c': chr_get_skill<br />
+				'enchant.c': target_ptr->see_kurse_level = chr_get_skill( target_ptr, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) );
+			</td>
+		</tr>
+		<tr>
+			<td>'BLOC'</td>
+			<td>
+				'collision.c':<br />
+				'char.c': init_slot_idsz: [INVEN_PACK]  = IDSZ_NONE;
+			</td>
+		</tr>
+		<tr>
+			<td>'NECK'</td>
+			<td>'char.c': init_slot_idsz: [INVEN_NECK]  = MAKE_IDSZ( 'N', 'E', 'C', 'K' );</td>
+		</tr>
+		<tr>
+			<td>'WRIS'</td>
+			<td>'char.c': init_slot_idsz: [INVEN_WRIS]  = MAKE_IDSZ( 'W', 'R', 'I', 'S' );</td>
+		</tr>
+		<tr>
+			<td>'FOOT'</td>
+			<td>'char.c': [INVEN_FOOT]  = MAKE_IDSZ( 'F', 'O', 'O', 'T' );</td>
+		</tr>
+	</table>	
+	<br />
+	18.01.2015 / Paul Mueller<br />
+	<br />
+	<br />	
+</body>

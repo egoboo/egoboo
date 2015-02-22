@@ -1,0 +1,990 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="main.css">			
+</head>
+<body>
+	<p style='font-weight:bold;'>
+		This is the description of the actual data files for the objects in EGOBOO.<br />
+		Additional there is proposed tag for XML and the data format.<br />
+		<br />
+		The different files could be packed into one file 
+		<a href='charinfo.xml' target='_blank'>Example</a>
+	</p>
+	<table class='visible' style='width:95%;' border='1'>
+		<tr>
+			<th>File-Name</th><th>XML-Tag</th><th>Description</th>
+		</tr>
+		<tr>
+			<td><a href='copy.txt' target='_blank'>copy.txt</a></td><td>&lt;copy_list&gt;</td>
+			<td>
+				This file contains information for copying actions to save memory...<br />
+				The format is action names between tags
+			</td>
+		</tr>
+		<tr>
+			<td></td><td>&lt;copy&gt;</td><td>Example for Actions to copy &lt;copy&gt;BASH CHOP&lt;copy&gt;</td>
+		</tr>
+	</table>
+	<br />
+	<table class='visible' style='width:95%;' border='1'>
+		<tr>
+			<th>File-Name</th><th>XML-Tag</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td><a href='data.txt' target='_blank'>data.txt</a></td><td>&lt;charinfo&gt;</td>
+			<td>Start-Tag for character info</td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td colspan='3'>Real general data</td>
+		</tr>
+		<tr>
+			<td>Object slot number ( 0 to 63, don't use twice )</td><td></td><td><i>omitted</i></td>
+		</tr>
+		<tr>
+			<td>Object class name ( use underscore for spaces )</td><td>&lt;class&gt;</td>
+			<td>Underscores not needed in xml. Could be name of class in proposed 'classes.xml'</td>
+		</tr>
+		<tr>
+			<td>Object is lit uniformly ( TRUE or FALSE )</td><td>&lt;<unilit>&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Maximum ammo ( 0 for doesn't matter )</td><td>&lt;ammo_max&gt;</td><td>For ITEMS</td>
+		</tr>
+		<tr>
+			<td>Starting ammo ( 0 for doesn't matter )</td><td>&lt;ammo_start&gt;</td><td>For ITEMS</td>
+		</tr>
+		<tr>
+			<td>Gender ( MALE or FEMALE or OTHER )</td><td>&lt;gender&gt;</td><td></td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td colspan='3'>Object stats</td>
+		</tr>
+		<tr>
+			<td>Life point bar color ( 0 to 5, 1 is red )</td><td>&lt;lifebar_col&gt;</td><td>Should be in section &lt;render&gt;</td>
+		</tr>
+		<tr>
+			<td>Mana point bar color ( 0 to 5, 5 is purple )</td><td>&lt;manabar_col&gt;</td><td>Should be in section &lt;render&gt;</td>
+		</tr>
+		<tr>
+			<td>Life points ( eg. 3-5 )</td><td>&lt;life_base&gt;</td><td>Life points at spawning time</td>
+		</tr>
+		<tr>
+			<td>Life points increase per level ( eg. 1-3 )</td><td>&lt;live_inc&gt;</td>
+			<td>Only needed for player characters (could be in proposed 'classes.xml')</td>
+		</tr>
+		<tr>
+			<td>Mana points ( eg. 0-0 )</td><td>&lt;mana_base&gt;</td><td>Mana points at spawning time</td>
+		</tr>
+		<tr>
+			<td>Mana return rate ( eg. 0-1 )</td><td>&lt;mana_return&gt;</td><td>Used for PLAYER CHARACTER</td>
+		</tr>
+		<tr>
+			<td>Mana return increase per level ( eg. 0-1 )</td><td>&lt;mana_returninc&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Mana flow rate ( eg. 0-1 )</td><td>&lt;mana_flow&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Mana flow increase per level ( eg. 0-1 )</td><td>&lt;mana_flowinc&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Strength ( eg. 3-18 )</td><td>&lt;str&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Strength increase per level ( eg. 0-1 )</td><td>&lt;str_inc&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Wisdom ( eg. 3-18 )</td><td>&lt;wis&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Wisdom increase per level ( eg. 0-1 )</td><td>&lt;wis_inc&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Intelligence ( eg. 3-18 )</td><td>&lt;int&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Intelligence increase per level ( eg. 0-1 )</td><td>&lt;int_inc&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Dexterity ( eg. 3-18 )</td><td>&lt;dex&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Dexterity increase per level ( eg. 0-1 )</td><td>&lt;dex_inc&gt;</td><td></td>
+		</tr>
+		<tr style=font-weight:bold;'>
+			<td colspan='3'>More physical attribute</td>
+		</tr>
+		<tr style=font-weight:bold;'>
+			<td>&lt;physics&gt;</td><td colspan='2'></td>
+		<tr>
+		<tr>
+			<td>Size ( eg. 1.0 )</td><td>&lt;size&gt;</td><td>Size of displayed model (&lt;render&gr;)</td>
+		</tr>
+		<tr>
+			<td>Size increase per level ( eg. 0.05 )</td><td>&lt;sizeinc&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Shadow size ( eg. 30, 0 is none )</td><td>&lt;shadow&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Bump size ( eg. 30 )</td><td>&lt;bump_size&gt;</td><td>Of displayed Model, For collision</td>
+		</tr>
+		<tr>
+			<td>Bump height ( eg. 70 )</td><td>&lt;bump_height&gt;</td><td>Of displayed Model, For collisions</td>
+		</tr>
+		<tr>
+			<td>Bump dampen ( 0.0 to 1.0, lower is massive )</td><td>&lt;bump_dampen&gt;</td><td>For collisions</td>
+		</tr>
+		<tr>
+			<td>Weight ( 0 to 255 )</td><td>&lt;weight&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Jump power ( eg. 14.0 )</td><td>&lt;jumppower&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Number of jumps ( eg. 1 )</td><td>&lt;numjump&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td></td><td>&lt;speed&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Sneak speed ( 1 to 20, 1 is good )</td><td>&lt;sneak&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Walk speed ( 1 to 20, 3 is good )</td><td>&lt;walk&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Run speed ( 1 to 20, 5 is good )</td><td>&lt;run&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td></td><td>&lt;/speed&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Fly to height ( 0 is none )</td><td>&lt;flyheight&gt;</td><td></td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td>Info for display of model</td><td>&lt;render&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Flashing AND ( 1, 3, 7, 15...  255 is don't )</td><td>&lt;flash&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Transparency blending ( 255 is normal )</td><td>&lt;trans&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Light blending ( 255 is normal )</td><td>&lt;lightblend&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Transfer blending to weapons ( TRUE or FALSE )</td><td>&lt;transblend&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Sheen ( 0 - 15, 0 is dull, 15 is shiny )</td><td>&lt;sheen&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Phong mapping ( TRUE or FALSE )</td><td>&lt;phong&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Texture X movement rate ( eg. 0.0 )</td><td>&lt;texmovex&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Texture Y movement rate ( eg. 0.0 )</td><td>&lt;texmovey&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Conform to hills like a chair ( TRUE or FALSE )</td><td>&lt;small&gt;</td><td></td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td colspan='3'>Invulnerability data</td>
+		</tr>
+		<tr>
+			<td>Object is totally invincible ( TRUE or FALSE )</td><td>&lt;is_inv&gt;</td><td>E. g. DECORATION (haystack, chair)</td>
+		</tr>
+		<tr>
+			<td>NonIFrame Invulnerability facing ( 0 to 65535 )</td><td>&lt;inv_face&gt;</td><td>Convert to float (360.0 * [value] / 65535)</td>
+		</tr>
+		<tr>
+			<td>NonIFrame Invulnerability angle ( 0 to 32768 )</td><td>&lt;inv_angle&gt;</td><td>Convert to float (360.0 * [value] / 65535)</td>
+		</tr>
+		<tr>
+			<td>IFrame Invulnerability facing ( 0 to 65535 )</td>
+			<td>&lt;inv_face2&gt;</td><td>Convert to float (360.0 * [value] / 65535)</td>
+		</tr>
+		<tr>
+			<td>IFrame Invulnerability angle ( 0 to 32768 )</td><td>&lt;inv_angle2&gt;</td><td>Convert to float (360.0 * [value] / 65535)</td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td = colspan='3'>Skin defenses</td>
+		</tr>
+		<tr>
+			<td style='font-weight:bold;'>In XML: &lt;skins&gt;</td>
+			<td></td>
+			<td>	
+				The 'horizontal' values from the second column on are replaced by the following xml,<br />
+				The names of the skins are incorporated into it, too.<br />
+				<table class='invisible'>	
+					<tr><td colspan='3' style='font-weight:bold;'>&lt;skin&gt;</td></tr>		
+					<tr><td style='width:50px;'></td><td>&lt;no&gt;</td><td>Number of skin (More than 4 skins are possible</td></tr>
+					<tr><td></td><td>&lt;name&gt;</td><td>Skin Name %d ( use underscores for spaces )</td></tr>
+					<tr><td></td><td>&lt;defense&gt;</td><td>Base defense rating of skin ( eg. 2 5 10 17 )</td></tr>
+					<tr><td></td><td>&lt;def_shift&gt;</td><td>[TYPE] [value] (Eg. SLASH 1) SLASH defense shift ( eg. 1 1 1 1 )</td></tr>
+					<tr><td></td><td>&lt;inversion&gt;</td><td>[TYPE] [value] (Eg. HOLY F) HOLY inversion ( eg. T T T T )</td></tr>
+					<tr><td></td><td>&lt;cost&gt;</td><td>Skin Cost 0 ( 0 to 65535 )</td></tr>
+					<tr><td></td><td>&lt;accel_rate&gt;</td><td>Acceleration rate ( eg. 40 38 30 20 )</td></tr>
+					<tr><td colspan='3' style='font-weight:bold;'>&lt;/skin&gt;</td></tr>	
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>Base defense rating of skin ( eg. 2 5 10 17 )</td><td>&lt;def_base&gt;</td>
+			<td>The first value is set as the characters base defense</td>
+		</tr>
+		<tr>
+			<td>[TYPE] defense shift ( eg. 1 1 1 1 ):  1  2  2  2</td><td>&lt;def_shift&gt;</td>
+			<td>
+				(SLASH, CRUSH, POKE, HOLY, EVIL, FIRE, ICE, ZAP)<br />
+				The first value is set as the characters base defense
+			</td>
+		</tr>
+		<tr>
+			<td>[TYPE] inversion</td><td>&lt;def_inversion&gt;</td>	
+			<td>			
+				(SLASH, CRUSH, POKE, HOLY, EVIL, FIRE, ICE, ZAP)<br />
+				The first value is set as the characters base defense
+				
+			</td>
+		</tr>
+		<tr>
+			<td>Acceleration rate ( eg. 40 38 30 20 )</td><td>&lt;accel_rate&gt;</td><td>The first value is set as the characters base defense</td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td>Experience and level data</td>
+			<td>&lt;experience&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>
+				Experience for level 1 ( 200 ):<br />
+				Experience for level 2 ( 400 )<br />
+				Experience for level 3 ( 800 )<br />
+				Experience for level 4 ( 1600 )<br />
+				Experience for level 5 ( 3200 )<br />
+				... (XML: Maximum number of levels limited game code)<br />
+			</td>
+			<td>&lt;level&gt;</td>
+			<td>
+				Two values (for each level):<br />
+				&nbsp;&nbsp;&lt;level&gt;<br />
+				&nbsp;&nbsp;&lt;no&gt;[Number of level]&lt;/no&gt;<br />&lt;exp&gt;[Experience for this level]&lt;/exp&gt;<br />
+				&lt;/level&gt;
+			</td>
+		</tr>
+		<tr>
+			<td>Starting experience ( eg. 0-500 )</td><td>&lt;start&gt;</td><td></td>
+		</tr>
+		<tr>
+			<td>Experience worth for this object ( 10 )</td>
+			<td>&lt;exp_worth&gt;</td>
+			<td>Experience gained by killing this one</td>
+		</tr>
+		<tr>
+			<td>Experience exchange for this object ( 0.001 )</td>
+			<td>&lt;exp_exc&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td style='font-weight:bold;'>&lt;exp_rate&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Experience rate... Finding secret ( 0.0 )</td>
+			<td>&lt;secret&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Experience rate... Winning quest ( 1.0 )</td>
+			<td>&lt;quest&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Experience rate... Using unknown ( 0.0 )</td>
+			<td>&lt;use_unknown&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Experience rate... Killing enemy ( 0.9 )</td>
+			<td>&lt;kill_enemy&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Experience rate... Killing sleepy enemy ( 0.0 )</td>
+			<td>&lt;kill_sleepenemy&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Experience rate... Killing hated enemy ( 2.0 )</td>
+			<td>&lt;kill_hated&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Experience rate... Team kills enemy ( 0.1 )</td>
+			<td>&lt;team_kills&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Experience rate... Talking in character ( 1.0 )</td>
+			<td>&lt;talk&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td style='font-weight:bold;'>&lt;/exp_rate&gt;</td>
+			<td></td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td></td>
+			<td>&lt;/experience&gt;</td>
+			<td></td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td colspan='3'>IDSZ Identification tags ( [NONE] is valid )</td>
+		</tr>
+		<tr>
+			<td>Parent ID ( eg. [FROG] for Trogs )</td>
+			<td>&lt;parent&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Type ID ( eg. [TROG] for Trogs )</td>
+			<td>&lt;type&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Skill ID ( eg. [WMAG] for wizard spells )</td>
+			<td>&lt;skill&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Special ID ( eg. [SUM0] for animated bones )</td>
+			<td>&lt;special&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Hate group ID ( eg. [GOBL] for dwarves )</td>
+			<td>&lt;hate&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Vuilnerability ID ( eg. [SILV] for werewolves )/td>
+			<td>&lt;vuln&gt;</td>			
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold;'>Item and damage flags</td>
+		<tr>
+		<tr>
+			<td>Object is an item ( TRUE or FALSE )	</td>
+			<td>&lt;is_item&gt;</td>
+			<td>Cold be replaced by class ITEM</td>
+		</tr>
+		<tr>
+			<td>Object is a mount ( TRUE or FALSE )</td>
+			<td>&lt;is_mount&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Object is stackable ( TRUE or FALSE )</td>
+			<td>&lt;canstack&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Object's name is known ( TRUE or FALSE )</td>
+			<td>&lt;nameknown&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Item of known usage ( TRUE or FALSE )</td>
+			<td>&lt;usageknown&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Item carries to next module ( TRUE or FALSE )</td>
+			<td>&lt;can_carry&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Item requires skill ID to use ( TRUE or FALSE )</td>
+			<td>&lt;needskill&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Object is a platform ( TRUE or FALSE)</td>
+			<td>&lt;is_platform&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Object collects money ( TRUE or FALSE )</td>
+			<td>&lt;collect_money&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Object can open chests/doors ( TRUE or FALSE )</td>
+			<td>&lt;can_open&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold'>Other item and damage stuff</td>
+		</tr>	
+		<tr>
+			<td>DamageTarget type ( SLASH, CRUSH, POKE, HOLY, EVIL, FIRE, ICE, or ZAP )</td>
+			<td>&lt;dmg_type&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Attack type if it's a weapon ( UNARMED, THRUST, SLICE, CHOP, BASH, LONGBOW, XBOW, FLINGED, PARRY, ZAP)</td>
+			<td>&lt;attack_type&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold'>Particle attachments</td>
+		</tr>
+		<tr>
+			<td>Number of particles to attach ( 0 )</td>
+			<td>&lt;prt_no_att&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Reaffirm attachments when damaged ( NONE, SLASH, CRUSH, POKE, HOLY, EVIL, FIRE, ICE, ZAP,)</td>
+			<td>&lt;prt_no_reaff&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Particle type ( 0 to 3 )</td>
+			<td>&lt;prt_no_att_type&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold'>Character hands</td>
+		</tr>
+		<tr>
+			<td>Left ( or only ) grip valid ( TRUE or FALSE )</td>
+			<td>&lt;gripleft&gt;</td>
+			<td>Model can have something attached to the left or only (for riders)</td>
+		</tr>
+		<tr>
+			<td>Right grip valid ( TRUE or FALSE )</td>
+			<td>&lt;gripright&gt;</td>
+			<td>Model can have someting attached to the right hand</td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold'>Particle spawning on attack order ( for weapon characters )</td>
+		</tr>
+		<tr>
+			<td>Particle attached to weapon ( TRUE or FALSE )</td>
+			<td>&lt;prt_att_weapon&gt;</td>
+			<td>
+				Particle type ( 0 to 3 )<br />
+				Cold by replaced for ITEM by 'direct damage' if the attacked char is in the radius of the weapon/attacker
+			</td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold'>Particle spawning for GoPoof</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td style='font-weight:bold;'>&lt;poof_prt&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Amount to spawn ( 0 to 10, 0 is NoPoof )</td>
+			<td>&lt;amount&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Facing add for each one ( 0 to 65535 )</td>
+			<td>&lt;diradd&gt;</td>
+			<td>Translate to float: (360.0 * [value] / 65535)</td>
+		</tr>
+		<tr>
+			<td>Particle type ( 0 to 3 )</td>
+			<td>&lt;no&gt;</td>
+			<td>Number of objects local particle definition to use</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td style='font-weight:bold;'>&lt;/poof_prt&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold'>Particle spawning for Blud ( If you want it, you put it in... )</td>
+		</tr>
+		<tr>
+			<td>Blud valid ( TRUE or FALSE )</td>
+			<td>&lt;blud_valid&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Particle type ( 0 to 3 )</td>
+			<td>&lt;blud_prt&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold'>Extra stuff</td>
+		</tr>
+		<tr>
+			<td>Character can walk on water ( TRUE or FALSE )</td>
+			<td>&lt;waterwalk&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Character bounciness ( 0.00 to 0.95 )</td>
+			<td>&lt;bounciness&gt;</td>
+			<td>Add to &lt;physics&gt;</td>
+		</tr>
+		<tr>
+			<td>Life healing when used ( 0.0 to 100.0 )	</td>
+			<td>&lt;life_heal_used&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Mana cost to use ( 0.0 to 100.0 )</td>
+			<td>&lt;mana_cost_use&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Life return rate, ( 0 to 255 )	</td>
+			<td>&lt;life_return&gt;</td>
+			<td></td>
+		</tr>	
+		<tr>
+			<td>Stoppedby mask ( 48 is the only one )</td>
+			<td>&lt;stop_mask&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Strength dampen for weapons ( 0.0 to 1.0 )</td>
+			<td>&lt;str_damp&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Rider cannot attack ( TRUE or FALSE )</td>
+			<td>&lt;no_riderattack&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Can be dazed ( TRUE or FALSE )</td>
+			<td>&lt;can_be_dazed&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Can be grogged ( TRUE or FALSE )</td>
+			<td>&lt;can_be_grogged&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Permanent life add when used ( -256 to 256 )</td>
+			<td>&lt;lifeadd&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Permanent mana add when used ( -256 to 256 )</td>
+			<td>&lt;manaadd&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Can see invisible ( TRUE or FALSE )</td>
+			<td>&lt;can_see_invisi&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Chance of being cursed ( 0 to 100 )</td>
+			<td>&lt;curse_chance&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td style='font-weight:bold;'>&lt;sounds&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Sound of Footfall ( -1 for none )</td>
+			<td>&lt;footfall&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Sound of Jump ( -1 for none )</td>
+			<td>&lt;jump&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td style='font-weight:bold;'>&lt;/sounds&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style='font-weight:bold'>Expansions</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td style='font-weight:bold;'>&lt;expansions&gt;</td>
+			<td>One Tag for each expansion</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>&lt;idsz&gt;</td>
+			<td>(eg. [DRES] 0)</td>
+		</tr>
+		<tr>
+			<td></td>
+			<tdstyle='font-weight:bold;'>&lt;/expansions&gt;</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table class='visible' style='width:95%;' border='1'>
+		<tr>
+			<th>File-Name</th>
+			<th>XML-Tag</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td><a href='enchant.txt' target='_blank'>enchant.txt</a></td><td>&lt;enchant&gt;</td><td></td>
+		</tr>		
+		<tr>
+			<td colspan='3' style?=font-weight:bold;'>Basic enchantment stuff</td>
+		</tr>
+		<tr>
+			<td>Retarget as target's weapon ( TRUE or FALSE )</td>
+			<td>&lt;retarget&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Override set values ( TRUE or FALSE )</td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Remove overridden enchants ( TRUE or FALSE )</td>
+			<td>&lt;&gt;</td>
+			<td></td>	
+		</tr>
+		<tr>
+			<td>Kill character on end ( TRUE or FALSE )</td>
+			<td>&lt;&gt;</td>
+			<td></td>			
+		</tr>
+		<tr>			
+			<td>Spawn poof on end ( TRUE or FALSE )</td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>			
+			<td>Seconds before end ( -1 for infinite )</td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			
+			<td>End message ( -1 for none )</td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style?=font-weight:bold;'>Enchantment draining/sustaining</td>
+		</tr>
+		<tr>			
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			
+			<td></td>
+			<td>&lt;&gt;</td>	
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>&lt;&gt;</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3' style?=font-weight:bold;'></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table class='visible' style='width:95%;' border='1'>
+		<tr>
+			<th>File-Name</th>
+			<th>XML-Tag</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>message.txt</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table class='visible' style='width:95%;' border='1'>
+		<tr>
+			<th>File-Name</th>
+			<th>XML-Tag</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>naming.txt</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table class='visible' style='width:95%;' border='1'>
+		<tr>
+			<th>File-Name</th>
+			<th>XML-Tag</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>naming.txt</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<table class='visible' style='width:95%;' border='1'>
+		<tr>
+			<th>File-Name</th>
+			<th>XML-Tag</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>part%d.txt</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<br /><table class='visible' style='width:95%;' border='1'>
+		<tr>
+			<th>File-Name</th>
+			<th>XML-Tag</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>script.txt</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<br />
+	18.01.2015 / Paul Mueller<br />
+	<br />
+</body>

@@ -1,0 +1,638 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="main.css">			
+</head>
+<body>
+	<p style='font-weight:bold;'>		
+		This are the descriptions of a data file in EGOBOO<br />
+		The data structs are given in XML 
+	</p>
+	<table class='visible' style='width:70%;' border='1'>
+		<tr>
+			<th colspan='3'><a href='index.html'>data.txt</a> ==&gt; data.xml </th>
+		</tr>
+		<tr>
+			<th colspan='3'>Enclosing tag <b>&lt;data&gt;</b></th>
+		</tr>
+		<tr>
+			<td>XML-Tag</td>
+			<td>Description</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Real general data</b></td>
+		</tr>
+		<tr>
+			<td>omitted</td>
+			<td>Object slot number ( 0 to 63, don't use twice )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;class&gt;</td>
+			<td>Object class name ( use underscore for spaces ) </td>
+			<td><b>Proposal: Name of class in 'classes.xml'</b></td>
+		</tr>
+		<tr>
+			<td>&lt;unilit&gt;</td>
+			<td>Object is lit uniformly ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;ammo&gt;</td>
+			<td>
+				Maximum ammo ( 0 for doesn't matter )<br />
+				Starting ammo ( 0 for doesn't matter )
+			</td>
+			<td>[start] [max]</td>
+		</tr>
+		<tr>
+			<td>&lt;gender&gt;</td>
+			<td>MALE or FEMALE or OTHER</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Object stats</b></td>
+		</tr>		
+		<tr>
+			<td colspan='3'><b>Proposal: 'Move this to classes.xml'</b></td>
+		</tr>
+		<tr>
+			<td>&lt;lifebarcol&gt;</td>
+			<td>Life point bar color ( 0 to 5, 1 is red )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;manabarcol&gt;</td>
+			<td>Mana point bar color ( 0 to 5, 5 is purple )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;life&gt;</td>
+			<td>Life points ( eg. 3-5 )	</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;lifeinc&gt;</td>
+			<td>Life points increase per level ( eg. 1-3 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;mana&gt;</td>
+			<td>Mana points ( eg. 0-0 )	</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;manainc&gt;</td>
+			<td>Mana points increase per level ( eg. 1-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;manareturn&gt;</td>
+			<td>Mana return rate ( eg. 0-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;manareturninc&gt;</td>
+			<td>Mana return increase per level ( eg. 0-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;manaflow&gt;</td>
+			<td>Mana flow rate ( eg. 0-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;manaflowinc&gt;</td>
+			<td>Mana flow increase per level ( eg. 0-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;strength&gt;</td>
+			<td>Strength ( eg. 3-18 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;strengthinc&gt;</td>
+			<td>Strength increase per level ( eg. 0-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;wisdom&gt;</td>
+			<td>Wisdom ( eg. 3-18 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;wisdominc&gt;</td>
+			<td>Wisdom increase per level ( eg. 0-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;intelligence&gt;</td>
+			<td>Intelligence ( eg. 3-18 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;intelligenceinc&gt;</td>
+			<td>Intelligence increase per level ( eg. 0-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;dexterity&gt;</td>
+			<td>Dexterity ( eg. 3-18 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;dexterityinc&gt;</td>
+			<td>Dexterity increase per level ( eg. 0-1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;size&gt;</td>
+			<td>Size ( eg. 1.0 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;sizeinc&gt;</td>
+			<td>Size increase per level ( eg. 0.05 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>More physical attributes</b></td>
+		</tr>
+		<tr>
+			<td>&lt;shadow&gt;</td>
+			<td>Shadow size ( eg. 30, 0 is none )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;bumpsize&gt;</td>
+			<td>
+				Bump size ( eg. 30 )<br />
+				Bump height ( eg. 70 )
+			</td>
+			<td>[size] [height]</td>
+		</tr>
+		<tr>
+			<td>&lt;bumpdampen&gt;</td>
+			<td>Bump dampen ( 0.0 to 1.0, lower is massive )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;weight&gt;</td>
+			<td>Weight ( 0 to 255 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;jumppower&gt;</td>
+			<td>Jump power ( eg. 14.0 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;numjumps&gt;</td>
+			<td>Number of jumps ( eg. 1 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;speed&gt;</td>
+			<td>
+				Sneak speed ( 1 to 20, 1 is good )<br />
+				Walk speed ( 1 to 20, 3 is good )<br />
+				Run speed ( 1 to 20, 5 is good )
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;flyheight&gt;</td>
+			<td>Fly to height ( 0 is none )	</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;flash&gt;</td>
+			<td>Flashing AND ( 1, 3, 7, 15...  255 is don't )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;trans&gt;</td>
+			<td>Transparency blending ( 255 is normal )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;lightblend&gt;</td>
+			<td>Light blending ( 255 is normal )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;transblend&gt;</td>
+			<td>Transfer blending to weapons ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;sheen&gt;</td>
+			<td>Sheen ( 0 - 15, 0 is dull, 15 is shiny )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;phong&gt;</td>
+			<td>Phong mapping ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;texmove&gt;</td>
+			<td>
+				Texture X movement rate ( eg. 0.0 )<br />
+				Texture Y movement rate ( eg. 0.0 )
+			</td>
+			<td>[x] [y]</td>
+		</tr>
+		<tr>
+			<td>&lt;small&gt;</td>
+			<td>Conform to hills like a chair ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Invulnerability data</b></td>
+		</tr>
+		<tr>
+			<td>&lt;decorate&gt;</td>
+			<td>Object is totally invincible ( TRUE or FALSE )</td>
+			<td>Proposal: Replace by class DECORATE</td>
+		</tr>
+		<tr>
+			<td>omitted</td>
+			<td>NonIFrame Invulnerability facing ( 0 to 65535 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>omitted</td>
+			<td>NonIFrame Invulnerability angle ( 0 to 32768 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>omitted</td>
+			<td>IFrame Invulnerability facing ( 0 to 65535 )</td>
+			<td></td>
+		</tr>	
+		<tr>
+			<td>omitted</td>
+			<td>IFrame Invulnerability angle ( 0 to 32768 )</td>
+			<td></td>
+		</tr>			
+		<tr>
+			<td colspan='3'><b>Skin defenses</b></td>
+		</tr>			
+		<tr>
+			<td colspan='3'>	
+				These are packed together for each skin<br />
+				For &lt;defshift&gt; only values &gt; 1 are taken into account<br />
+				For &lt;inversion&gt; only the first TRUE value is taken into account<br />
+				&lt;skin&gt;<br />
+				&nbsp;&nbsp;&lt;no&gt;[0..3]&lt;/no&gt;<br />
+				&nbsp;&nbsp;&lt;defbase&gt;[Base defense rating of skin ( eg. 2 5 10 17 )]&lt;/defbase&gt;<br />	
+				&nbsp;&nbsp;&lt;defshift&gt;[.... defense shift ( eg. 1 1 1 1 )]&lt;/defshift&gt;<br />
+				&nbsp;&nbsp;&lt;inversion&gt;[.... inversion ( eg. F F F T )]&lt;/inversion&gt;<br />
+				&nbsp;&nbsp;&lt;accel&gt;[Acceleration rate ( eg. 40 38 30 20 )]&lt;/accel&gt;<br />
+				&nbsp;&nbsp;&lt;name&gt;[Skin Name 0 ( use underscores for spaces )]&lt;/name&gt;<br />
+				&nbsp;&nbsp;&lt;cost&gt;[Skin Cost 0 ( 0 to 65535 )]&lt;/cost&gt;<br />					
+				&lt;/skin&gt;<br />
+			</td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Experience and level data</b></td>
+		</tr>
+		<tr>
+			<td colspan='3'>
+				These are packed together per level<br />
+				Proposal: Move it to 'class.xml'<br />
+				&lt;level&gt;<br />
+				&nbsp;&nbsp;&lt;no&gt;[0..5]&lt;/no&gt;<br />
+				&nbsp;&nbsp;&lt;exp&gt;[Experience for level 1 ( 200 )	]&lt;/exp&gt;<br />
+				&lt;level&gt;<br />				
+			</td>
+		</tr>		
+		<tr>
+			<td>&lt;expstart&gt;</td>
+			<td>Starting experience ( eg. 0-500 )</td>
+			<td></td>
+		</tr>	
+		<tr>
+			<td>&lt;expworth&gt;</td>
+			<td>Experience worth for this object ( 10 )</td>
+			<td>Experience gained by killing this one </td>
+		</tr>
+		<tr>
+			<td>&lt;expexchange&gt;</td>
+			<td>Experience exchange for this object ( 0.001 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;exprate&gt;</td>
+			<td>
+				[secret] [quest] [useunknown] [killenemy] [killsleepenemy] [killhated] [teamkills] [talk]
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>IDSZ Identification tags ( [NONE] is valid )</b></td>
+		</tr>
+		<tr>
+			<td>&lt;idszparent&gt;</td>
+			<td>Parent ID ( eg. [FROG] for Trogs )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;idsztype&gt;</td>
+			<td>Type ID ( eg. [TROG] for Trogs )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;idszskill&gt;</td>
+			<td>Skill ID ( eg. [WMAG] for wizard spells )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;idszspecial&gt;</td>
+			<td>Special ID ( eg. [SUM0] for animated bones )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;idszhate&gt;</td>
+			<td>Hate group ID ( eg. [GOBL] for dwarves )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;idszdefense&gt;</td>
+			<td>Vuilnerability ID ( eg. [SILV] for werewolves )</td>
+			<td>Negative Defense -100: 100% vulnerable / +100: Not affected</td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Item and damage flags</b></td>
+		</tr>
+		<tr>
+			<td>&lt;isitem&gt;</td>
+			<td>Object is an item ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;ismount&gt;</td>
+			<td>Object is a mount ( TRUE or FALSE )	</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;isstackable&gt;</td>
+			<td>Object is stackable ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;isidentified&gt;</td>
+			<td>Object's name is known ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;usageknown&gt;</td>
+			<td>Item of known usage ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;carrytomodule&gt;</td>
+			<td>Item carries to next module ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;needskill&gt;</td>
+			<td>Item requires skill ID to use ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;isplatform&gt;</td>
+			<td>Object is a platform ( TRUE or FALSE)</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;collectsmoney&gt;</td>
+			<td>Object collects money ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;canopenthings&gt;</td>
+			<td>Object can open chests/doors ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Other item and damage stuff</b></td>
+		</tr>
+		<tr>
+			<td>&lt;itemdamage&gt;</td>
+			<td>DamageTarget type ( SLASH, CRUSH, POKE, HOLY,
+                    EVIL, FIRE, ICE, or ZAP )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;itemattackuse&gt;</td>
+			<td>Attack type if it's a weapon ( UNARMED, THRUST,
+                     SLICE, CHOP, BASH, LONGBOW,
+                     XBOW, FLINGED, PARRY, ZAP)</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Particle attachments</b></td>
+		</tr>
+		<tr>
+			<td>&lt;attachnum&gt;</td>
+			<td>Number of particles to attach ( 0 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;attachreaffirm&gt;</td>
+			<td>Reaffirm attachments when damaged ( NONE, SLASH,
+ 				CRUSH, POKE, HOLY, EVIL, FIRE, ICE, ZAP,)</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;attachprt&gt;</td>
+			<td>Particle type ( 0 to 3 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Character hands</b></td>
+		</tr>
+		<tr>
+			<td>&lt;gripvalid&gt;</td>
+			<td>
+				Left ( or only ) grip valid ( TRUE or FALSE )<br />
+				Right grip valid ( TRUE or FALSE )
+			</td>
+			<td>	
+				[grip1] [grip2]
+			</td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Particle spawning on attack order ( for weapon characters )</b></td>
+		</tr>
+		<tr>
+			<td>&lt;hasattackprt&gt;</td>
+			<td>Particle attached to weapon ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;attackprt&gt;</td>
+			<td>Particle type ( 0 to 3 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Particle spawning for GoPoof</b></td>
+		</tr>
+		<tr>
+			<td>&lt;poofamount&gt;</td>
+			<td>Amount to spawn ( 0 to 10, 0 is NoPoof )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;pooffacing&gt;</td>
+			<td>Facing add for each one ( 0 to 65535 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;poofprt&gt;</td>
+			<td>Particle type ( 0 to 3 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Particle spawning for Blud ( If you want it, you put it in... )</b></td>
+		</tr>
+		<tr>
+			<td>&lt;bludvalid&gt;</td>
+			<td>Blud valid ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;bludprt&gt;</td>
+			<td>Particle type ( 0 to 3 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Extra stuff I forgot </b></td>
+		</tr>
+		<tr>
+			<td>&lt;waterwalk&gt;</td>
+			<td>Character can walk on water ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;bounciness&gt;</td>
+			<td>Character bounciness ( 0.00 to 0.95 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>More stuff I forgot</b></td>
+		</tr>
+		<tr>
+			<td>&lt;healvalue&gt;</td>
+			<td>Life healing when used ( 0.0 to 100.0 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;manacost&gt;</td>
+			<td>Mana cost to use ( 0.0 to 100.0 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;lifereturn&gt;</td>
+			<td>Life return rate, ( 0 to 255 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;stopmask&gt;</td>
+			<td>Stoppedby mask ( 48 is the only one )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Skin Name 0 ( use underscores for spaces )</td>
+			<td>
+				Added to &lt;skin&gt; tag &lt;name&gt;<br />
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Skin Cost 0 ( 0 to 65535 )</td>
+			<td>
+				Added to &lt;skin&gt; tag &lt;cost&gt;<br />
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;strengthdampen&gt;</td>
+			<td>Strength dampen for weapons ( 0.0 to 1.0 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Another memory lapse</b></td>
+		</tr>
+		<tr>
+			<td>&lt;ridercantattack&gt;</td>
+			<td>Rider cannot attack ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;canbedazed&gt;</td>
+			<td>Can be dazed ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;canbegrogged&gt;</td>
+			<td>Can be grogged ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;permanentlifeadd&gt;</td>
+			<td>Permanent life add when used ( -256 to 256 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;permanentmanaadd&gt;</td>
+			<td>Permanent mana add when used ( -256 to 256 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;canseeinvisible&gt;</td>
+			<td>Can see invisible ( TRUE or FALSE </td>
+			<td>Proposal: Addas SKILL_...</td>
+		</tr>
+		<tr>
+			<td>&lt;cursechance&gt;</td>
+			<td>Chance of being cursed ( 0 to 100 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;sounds&gt;</td>
+			<td>
+				Sound of Footfall ( -1 for none )<br />
+				Sound of Jump ( -1 for none )
+			</td>
+			<td>[footfall] [jump]</td>
+		</tr>
+		<tr>
+			<td colspan='3'><b>Expansions</b></td>
+		</tr>
+		<tr>
+			<td colspan='3'>Variable amount of IDSZ-Values (SKILLS...)</td>
+		</tr>
+		<!--
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;&gt;</td>
+			<td></td>
+			<td></td>
+		</tr>
+		-->
+	</table>
+	<br />
+	21.02.2015 / Paul Mueller<br />
+	<br />
+</body>

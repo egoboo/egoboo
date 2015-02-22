@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="../main.css">			
+</head>
+<body>
+	<p style='font-weight:bold;'>
+		Proposal<br /><br/>
+		This are the descriptions for the different types of characters in EGOBOO<br />
+		The data structs are given in XML<br />
+		SPELL is to replace the 'ENCHANT.TXT'
+	</p>
+	<table class='visible' style='width:60%;'  border='1'>
+		<tr>
+			<th colspan='2'>SPELL</th>
+		</tr>
+		<tr>
+			<td>XML-Tag</td>
+			<td>Description</td>
+		</tr>
+		<tr>
+			<td>&lt;name&gt;</td>
+			<td>Name of spell</td>
+		</tr>
+		<tr>
+			<td>&lt;distance&gt;</td>
+			<td>
+				USE_MELEE: On Character in 'Attack-Radius'<br />
+				USE_FIRED: Effect is calculated if target is hit by 'THROWN' Particle.
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;effect&gt;</td>
+			<td>
+				<table class='visible'>
+						<td>&lt;type&gt;</td>
+						<td>
+							How the effect has to be handled:<br />
+							EFFTYPE_NONE<br />
+							EFFTYPE_ATTACK<br />
+							EFFTYPE_HEAL<br />
+						</td>
+					</tr>
+					<tr>
+						<td>&lt;which&gt;</td>
+						<td>EFFECT_... like items</td>
+					</tr>
+					<tr>
+						<td>&lt;dice&gt;</td>
+						<td>DICE: [Number of throws], [Number of sides], [added value]</td>
+					</tr>
+					<tr>
+						<td>&lt;duration&gt;</td>
+						<td>
+							In seconds<br />
+							E.g for EFFECT_POISON, EFFECT_STRENGTH, EFFECT_SPEED
+						</td>
+					</tr>
+					<tr>
+						<td>&lt;repeat&gt;</td>
+						<td>
+							E.g for EFFECT_POISON, repeated this much times. 0: Forever 
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;start_script&gt;</td>
+			<td style='font-weight:bold;'>
+				Script to run, as the spell is executed<br />
+				(E. g. generate PARTICLE(s) which apply the end script if the a target is hit).
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;end_script&gt;</td>
+			<td style='font-weight:bold;'>
+				Script to run, if the spell is applied on target. (E.g. play a sound)
+			</td>
+		</tr>
+	</table>
+	<br />
+	18.01.2015 / Paul Mueller<br />
+	<br />
+</body>

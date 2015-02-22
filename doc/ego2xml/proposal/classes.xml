@@ -1,0 +1,2158 @@
+<!-- This file defines the different character classes -->
+<!--
+Information about stats:
+STR - Directly adds bonus damage to most melee weapons, unarmed attacks and
+      longbows. You need 21 strength to use the Maul of the Titans. Increases chance
+      to correctly block an attack with an shield.
+WIS - Reduces chances of poisoning self. Increases damage/effect of all Divine 
+      spells. Reduces damage taken from arcane spells. Increases resistance vs.
+      Bind spell. Increases chance to find hidden bottoms in chests. Very slightly
+      increases the amount of experience gained.
+INT - Required to read specific scripts and identify special items. Increases damage
+      dealt and control for all Arcane spells. Reduces damage from divine spells.
+      Slightly increases reload time for gunpowder weapons. Slightly increases the
+      amount of experience gained.
+DEX - Increases aim for ranged weapons and spells. Increases attack speed with all
+      weapons. Increases chance to sneak successfully. Adds bonus damage to backstabs.
+DEF - Every point of defence adds about 0,4% damage reduction. Someone with 70 DEF
+      reduces all damage taken by about 27% (After applying damage resistances)
+
+All classes also gain additional special abillities when gaining levels. Thes abilities are
+usually passive and need not to be activated. Certain abillities also improves further with 
+each gained level after gaining the skill in the first place (duration, chance, power, etc.)
+
+SKILL DESCRIPTION
+=================
+Acrobatic Mastery: Can preform the incredible feat of jumping three times in a row.
+Acrobatics: Can preform double jumps.
+Alchemy: Automatically identify all potions and flasks.
+Ancient Blud: Slowly regenerate life naturally.
+Arcane Magic: Can use arcane spellbooks.
+Backstab: Deal extra damage when attacking sleeping creatures or enemies from behind.
+Backpacker: Character doesn't drop any of his/her money and keys when dying.
+Butcher Form: Zombi becomes a Butcher. Extra life, damage and size but somewhat reduced speed.
+Cartography: The character always has the minimap of the current dungeon/area.
+Class Mastery: +3 bonus to all stats.
+Crackshot: % chance based on DEX to daze enemies with Gunpowder.
+Critical Strike: 1% chance per level to deal +1 damage per 2 levels. Sound effect is played.
+Crusader: Converts EVIL damage taken into mana.
+Darkvision: The character has enhanced vision in darkness and doesn't always need a light source to see
+            in deep darkness.
+Danger Sense: This reveals all enemies on the minimap if the map has been found.
+Defender: Gives a full 100% block rating with all shields.
+Deadly Strike: When being hidden and attacking a non-undead opponent, this skill gives +1 bonus damage 
+               for every 4 DEX the character posesses.
+Disarm Trap: Can detect and disarm traps. Also pick locks.
+Divine Magic: Can heal, banish and use divine runes.
+Divine Power: Can spend life as mana if needed.
+Elemental Staff: A Wizard's Staff crackles with elemental energies as it smashes into his enemies.
+Elven Senses: The keen elven senses allows him to sense invisible stuff and gives a +5 bonus to wisdom.
+Groggy Strike: % chance to grog enemy. Sound effect is played. Duration increases with level.
+Guardian Angel: 1% per 2 points of WIS to ressurect when killed without any XP or money loss!
+Halo: The Paladin becomes a beacon of all that is good and pure.
+Hardy: Reduces all damage taken by 1/2 life point per 4 character levels.
+Hide in Plain Sight: The character can move quickly around while being stealthed, even when near enemies.
+Holy Aura: Deals holy damage to all undead who bump the character. Damage increases with level.
+Holy Smite: Deals extra damage against [EVIL] creatures. Damage increases with level.
+Improvised Weapons: +0.25 bonus damage per level to improvised weapons (shovel, toilet plunger. etc)
+Jousting: Can use the lance weapon in combat.
+Last Boon: Using her last breath, the Healer heals all her remaining allies in a burst of holy light.
+Listen: Increases listen range by 33% (Works through walls and doors)
+Literate: Character can read scrolls, bookstands, libraries, scripts, etc.
+Lore Mastery: The character automatically identies everything that is grabbed.
+Lucky: Gives a small bonus to everything.
+Magical Ampitude: Automatically identify all magic scrolls and wands.
+Mobility: Character automatically jumps over corpses.
+Mystic Intellect: Gain a vast 10 bonus to intelligence.
+Poison Use: Can use poison without failure. Automatically identifies any poisenous items that are picked up.
+            This skill also allows the character to throw poison potions at enemies in combat.
+Sense Undead: All enemy undead shows up on the minimap (if the map has been found).
+Sharpshooter: Deal bonus damage based on DEX with Gunpowder weapons.
+Sneak: Can stealth while moving one step at the time. Tap keyboard movement very slowly.
+Speed: Gives an extra +1% extra movement speed per level as long as the character has not lost more than
+       one-fourth of his or her maximum life.
+Stalker: Can stealth while sneaking around. Tap keyboard movement.
+Stealth: When not moving, fade away into the shadows.
+Sunder Attack: Percent chance based on level to reduce enemy armor by 10. Sound effect is played.
+Teleport Mastery: The spellcaster can cast teleport with 100% accuracy and 33% less mana cost.
+Things that go Boom: The G'nome won't go down without a "little" firework. Very dangerous.
+Too Silly to Die: The Tourist has a % chance equal to his level to instantly respawn when killed with
+                  no XP or money loss at all! He is simply too silly to die!
+Ultimate Sacrifice: In his death, the character engulfs his opponents in divine fury.
+Use Technological Items: Use g'nomish items and toys like gunpowder and bombs.
+Weapon Mastery: Gives a permanent full +2 damage bonus with the specified weapon.
+Weapon Profiency: Allows the character to use the more advanced weapons like big swords and axes.
+Wizard's Missile: Shoots rapidly red homing missiles when doing unarmed attacks (costs 1 mana)
+-->
+<classlist>
+<class>
+	<name>ITEM</name>	
+	<!-- The following values are the definitions of the item itself -->
+	<canstack>F</canstack>
+	<nameknown>T</nameknown>	
+	<usageknown>T</usageknown>
+	<carry>F</carry>
+	<needskill>F</needskill>	
+	<dmg_type>CRUSH</dmg_type>
+	<!-- SLASH, CRUSH, POKE, HOLY, EVIL, FIRE, ICE, or ZAP -->
+	<attack_type>SLICE</attack_type>
+	<!--  SLICE, CHOP, BASH, LONGBOW, XBOW, FLINGED, PARRY, ZAP -->
+	<lifeadd>0</lifeadd>
+	<manaadd>0</manaadd>
+</class>
+
+<class>
+	<name>MOUNT</name>
+</class>
+
+<class>
+	<name>PLATFORM</name>
+</class>
+
+<class>
+	<name>DECORATE</name>
+</class>
+
+<class>
+	<name>ADVENTURER</name>
+	<level>
+		<no>1</no>
+		<exp>0</exp>
+		<initinfo>
+			<parent>[HUMA]</parent>
+			<type>[ADVE]</type>
+			<special>[NONE]</special>
+			<hate>[NONE]</hate>
+			<defense>[NONE]</defense><!-- Proposal: Negative defense is vulnerabilty ( eg. [SILV] -100 ) 100% vulnerability -->
+			<!-- Info for character creation -->
+			<life_base>5 8</life_base>
+			<live_inc>0.7 1.3</live_inc>
+			<mana_base>2 4</mana_base>
+			<mana_inc>0.6 1.2</mana_inc>
+			<mana_return>5 7</mana_return>
+			<mana_returninc>0</mana_returninc>
+			<mana_flow>1.1</mana_flow>
+			<mana_flowinc>0.7</mana_flowinc>
+			<str>6 10</str>
+			<str_inc>0.6 1.2</str_inc>
+			<wis>10 12</wis>
+			<wis_inc>0.6 1.2</wis_inc>
+			<int>13 15</int>
+			<int_inc>0.6 1.2</int_inc>
+			<dex>14 15</dex>
+			<dex_inc>0.6 1.2</dex_inc>			
+			<blud_valid>F</blud_valid>
+			<gripleft>T</gripleft>
+			<gripright>T</gripright>
+			<waterwalk>F</waterwalk>
+			<exp_rates>
+				<secret>1.5</secret>
+				<quest>1.25</quest>
+				<use_unknown>0.2</use_unknown>
+				<kill_enemy>0.6</kill_enemy>
+				<kill_sleepenemy>0.0</kill_sleepenemy>
+				<kill_hated>0.0</kill_hated>
+				<team_kills>0.4</team_kills>
+				<talk>1.1</talk>	
+			</exp_rates>			
+		</initinfo>
+		<abilities>
+			<!--Weapon Profiency, Arcane Magic, Literate  -->
+			<skill>
+				<idsz>[AWEP] 1</idsz>	
+				<idsz>[READ] 1</idsz>
+				<idsz>[WMAG] 1</idsz>
+			</skill>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>300</exp>
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>900</exp>
+	</level>
+	<level>	
+		<no>4</no>
+		<exp>2700</exp>
+		<abilities>
+			<ability>
+				<!-- Alchemy -->
+				<idsz>[ALCH] 1</idsz>
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>5400</exp>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>6500</exp>
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>7500</exp>
+		<abilities>
+			<ability>
+				<!-- Speed: Run code, if this ability is given -->
+				<idsz>[SPED] 1</idsz>
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>10000</exp>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp>
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>12500</exp>
+		<abilities>
+			<ability>
+				<!-- Stealth -->
+				<idsz></idsz>
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>15000</exp>
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>17500</exp>
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>20000</exp>
+		<abilities>
+			<ability>
+				<skill>
+					<!-- Listen -->
+					<idsz>[LIST] 1</idsz>					
+				</skill>
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>22500</exp>
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp>
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>25000</exp>
+		<abilities>
+			<ability>
+				<!-- Class Mastery -->
+				<idsz>[CLMA] 1</idsz> 
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>27500</exp>
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>30000</exp>		
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>32500</exp>
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>35000</exp>
+	</level>
+</class>
+
+<class>
+	<name>VALKYRIE</name>
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Immune vs. Cold, Weapon Profiency, Poison Use, Backstab -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Weapon Mastery (Spear) -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Speed -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Stealth (While standing still)-->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Sneak (Can move 1 step at the time while stealthing) -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Hardy -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Stalker (Can sneak while stealthing) -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Critical Strike -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Shade (Can move and jump while stealthing) -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Ultimate Sacrifice -->
+			</ability>
+		</abilities>
+	</level>
+</class>
+
+<class>
+	<name>GNOME</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Use Technological Items, Read G'nomish, Immune vs. Grog, Poison Resistance, Literate, Darkvision -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Listen -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Crackshot -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Sharpshooter -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Hardy -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>135</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Ancient Blud-->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Things that go Boom -->
+			</ability>
+		</abilities>
+	</level>
+</class>
+
+<class>
+	<name>ARCHEOLOGIST</name>
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Acrobacy, Disarm Trap, Use Technological Items, Mobility, Literate -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Weapon Mastery (Whip)-->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Lore Mastery -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Lucky -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Cartography -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Danger Sense -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+</class>
+
+
+
+<class>
+	<name>HEALER</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Divine Magic, See Kurses, Literate -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Holy Aura -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Divine Power -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Guardian Angel -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Last Boon -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		</abilities>
+	</level>
+</class>
+
+<class>
+	<name>PALADIN</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Weapon Profiency, Jousting, Literate -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Divine Magic -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Holy Smite -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Crusader -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Halo -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Sense Undead -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Ultimate Sacrifice -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+</class>
+
+<class>
+	<name>WIZARD</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Alchemy, Arcane Magic, Literate -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Magical Ampitude -->
+			</ability>
+		</abilities>
+	</level>	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Teleport Mastery -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Elemental Staff -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Mystic Intellect -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Wizard's Missile -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+</class>
+
+<class>
+	<name>WOOD_ELF</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>
+
+-------------------------------------------
+Level   Abillity
+1     - Weapon Profiency, Arcane Magic, Literate, Darkvision
+2     - Listen
+3     - n/a
+4     - n/a
+5     - Stealth (While standing still)
+6     - n/a
+7     - n/a
+8     - Weapon Mastery (Longbow)
+9     - n/a
+10    - n/a
+11    - Elven Senses
+12    - n/a
+13    - n/a
+14    - Danger Sense
+15    - n/a
+16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+</class>
+<class>
+	<name>SOLDIER</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>
+
+
+-------------------------------------------
+Level   Abillity
+1     - Weapon Profiency, Defender, Jousting
+2     - Critical Strike
+3     - n/a
+4     - n/a
+5     - Sunder Attack
+6     - n/a
+7     - n/a
+8     - Weapon Mastery (All)
+9     - n/a
+10    - n/a
+11    - Grogging Hit
+12    - n/a
+13    - n/a
+14    - Hardy
+15    - n/a
+16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+</class>
+<class>
+	<name>ROGUE</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Backstab, Disarm Traps, Poison Use, Acrobatics -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Stealth (Standing still) -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Mobility -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Sneak (Can move 1 step at the time while stealthing) -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Listen -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Stalker (Can sneak while stealthing) -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Master Acrobacy -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Shade (Can move and jump while stealthing) -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Hide in Plain Sight -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Deadly Strike -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+</class>
+
+<class>
+	<name>TOURIST</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Use Technological Items, Use Poison, Backstab, Literate -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Mobility -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Improvised Weapons -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Cartography -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Lucky -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Backpacker -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- To Silly to Die -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+</class>
+
+<class>
+	<name>ZOMBI</name>	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Immune vs Grog and Daze, Darkvision -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Immune vs. Banishment -->
+			</ability>
+		</abilities>
+	</level>	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Immune vs. Kurses -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Life Steal attack -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Butcher Form -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Daze attacks -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Explosive Death attack	-->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+	</level>
+</class>
+
+<class>
+	<name>HOBGOBLIN</name><!-- (Under Development) -->	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>
+</class>
+
+<class>
+	<name>VAMPYRE</name><!-- (Under Development) -->	
+	<level>	
+		<no>1</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!-- Literate -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>2</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>3</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	<level>	
+		<no>4</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>5</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>6</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>7</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>8</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>9</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>10</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>
+	<level>	
+		<no>11</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>12</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>13</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>14</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>15</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>16</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>17</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>18</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>19</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>	
+	<level>	
+		<no>20</no>
+		<exp>0</exp><!-- @todo: Experience points needed for this level -->
+		<abilities>
+			<ability>
+				<!--  -->
+			</ability>
+		</abilities>
+	</level>
+</class>
+</classlist>

@@ -1,0 +1,763 @@
+<!-- 
+	Replaces the multiple files for the module info.
+	Values that are not given are initalised with 0 or empty string or FALSE
+-->
+<module>
+<!-- Replaces 'menu.txt' -->
+<menu>
+	<name>Adventurer Start</name>
+	<ref_mod>NONE</ref_mod>
+	<req_idsz>[NONE]</req_idsz>
+	<imports>0</imports>
+	<export>true</export>
+	<min_player>1</min_player>
+	<max_player>1</max_player>
+	<respawn>true</respawn>
+	<rating>**</rating>
+	<summary>
+		A_colony_of_grub_bugs_has_nested far_below_Lord_Bishop's_castle.
+		As_a_Royal_Torch_Bearer,_duty requires_you_to_guide_his_majesty's
+		champions,_Sir_Brom_and_Mother_Mim, to_the_source_of_this_evil.
+		Good_Luck!
+	</summary>
+	<!-- Module expansion IDSZs [IDSZ] <value> Which is the Maximum -->
+	<!-- 
+	<exp_idszs>
+		<idsz></idsz>
+		<idsz></idsz>
+		<idsz></idsz>
+	</exp_idszs>
+	-->
+</menu>
+<!-- Replaces 'alliance.xt' -->
+<!-- 
+This file tells the module which teams should ally with which teams.
+Only the first letter of a team name is used, case insensitive.  
+N is predefined to be neutral.  If one team allies with another,
+but the other team does not reciprocate the alliance, then the first
+team can still be killed by the second.
+-->
+<alliances>
+	<teampair>Trog Magic</teampair>
+	<teampair>Magic Trog</teampair>
+	<teampair>Insect Magic</teampair>
+	<teampair>Magic Insect</teampair>
+	<teampair>Insect Vermin</teampair>
+	<teampair>Good Vermin</teampair>
+</alliances>
+<!-- 
+	Replaces gametips.txt 
+	Lists all the game tips that are randomly displayed whenever you are loading a module.
+	Underlines are not needed anymore
+-->
+<gametips>
+	<tip>If_you_are_damaged,_let_Mother_Mim_tend_to_your_wounds!</tip>	
+	<tip>Your_torch_is_your_only_lightsource!_Keep_it_lit.</tip>	
+	<tip>Let_Sir_Brom_do_all_the_heavy_duty_fighting_as_he_is_more_armored_than_you.</tip>	
+	<tip>You_know_a_little_magic_already,_but_without_a_spellbook_you_can't_cast_anything_yet.</tip>	
+	<tip>Grubs_have_super_armor._Try_poking_them_in_the_eye.</tip>	
+</gametips>
+<!-- Replaces 'passage.txt' -->
+<!--
+	This contains passage rectangles, which are areas that behave like
+	an invisible wall when closed or a floor when open.  Passages are used
+	primarily in doors, but could have other uses.
+-->
+<passages>
+	<!--  TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose -->  
+	<psg>3  51      4  52          F       T             F</psg><!-- Deadend -->
+	<psg>53 7       54 8           F       T             F</psg><!-- Deadend -->
+	<psg>40 53      41 54          F       F             F</psg><!-- Door -->
+	<psg>48 27      49 28          F       F             F</psg><!-- Armor -->
+	<psg>17 18      18 19          F       F             F</psg><!-- Trog -->
+	<psg>24 25      25 26          F       F             F</psg><!-- MamaLeft -->
+	<psg>29 15      30 16          F       F             F</psg><!-- GoodiesOut -->
+	<psg>29  6      30  7          F       F             F</psg><!-- GoodiesIn -->
+	<psg>49 45      50 46          F       T             F</psg><!-- Gelfeet -->
+	<psg>59 51      60 52          F       T             F</psg><!-- Gelfeet -->
+	<psg>2  2       20 18          T       T             F</psg><!-- MuseBoss -->
+	<psg>50 40      61 51          T       T             F</psg><!-- MuseGel -->
+	<psg>4  29      11 40          T       T             F</psg><!-- MuseTrog -->
+	<psg>22 8       31 14          T       T             F</psg><!-- MuseBook -->
+	<psg>50 22      61 33          T       T             F</psg><!-- MuseMouse -->
+	<psg>16 34      23 41          T       T             F</psg><!-- MuseMimic -->
+</passages>
+<!-- Replaces 'spawn.txt' -->
+<spawn>
+	<!-- Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team -->
+	<char>
+		<name>player0</name><!-- A players character is loaded into this object -->
+		<!-- Slot is ignored -->
+		<pos>14.5 60.5 6.0</pos><!-- x, y, z -->
+		<dir>N</dir><!-- N S E W and ? -->
+		<money>2</money>
+		<skn></skn><!-- Which skin to use -->
+		<pas></pas><!-- attached to this passage: buttons and doors -->	
+		<con></con><!-- content setting for this character.  Used for armor chests -->	
+		<lvl></lvl><!-- is the starting level for this character.  This is ignored for players -->
+		<stt>T</stt><!-- is T or F to decide whether a status bar should appear -->
+		<gho></gho><!-- is T to make the character a ghost, F for default  -->
+		<team>Good</team><!-- is the character's team, only the first letter is used, so from A-Z. -->
+		<!-- The inventory -->
+		<invent>
+			<item>
+				<name>Torch</name>
+				<pos>R</pos><!-- 'L'eft Hand, 'R'ight Hand, 'I'nventory -->
+			</item>
+		</invent>
+	</char>
+	<char>
+		<name>Knight</name>
+		<!-- <charname></charname>The characters Name-->
+		<pos>15.5 60.5 4.0</pos>
+		<dir>W</dir>
+		<money>15</money>
+		<con>2</con>
+		<stt>T</stt>
+		<team>Good</team>
+		<invent>
+			<item>
+				<name>Sword</name>
+				<pos>R</pos>	
+			</item>
+			<item>
+				<name>KiteShield</name>
+				<pos>L</pos>	
+			</item>
+		</invent>
+	</char>	
+	<char>
+		<name>Healer</name>
+		<pos>13.5 60.5 4.0</pos>
+		<dir>N</dir>
+		<money>8</money>
+		<stt>T</stt>
+		<team>Good</team>
+		<invent>
+			<item>
+				<name>SpkMace</name>
+				<pos>R</pos>	
+			</item>
+		</invent>
+	</char>
+	<char>
+		<name>GrubMum</name>
+		<pos>16.5 60.5 0</pos>
+		<dir>S</dir>
+		<money></money>
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>Trog</name>
+		<pos>7.0  31.0 4.0</pos>
+		<dir>N</dir>
+		<money>3</money>	
+		<team>Trog</team>
+		<invent>
+			<item>
+				<name>Spear</name>
+				<pos>L</pos>	
+			</item>
+		</invent>
+	</char>
+	<char>
+		<name>Trog</name>
+		<pos>6.0  30.0 4.0</pos>
+		<dir>N</dir>
+		<money>1</money>
+		<skn>1</skn>	
+		<team>Trog</team>
+		<invent>
+			<item>
+				<name>Spear</name>
+				<pos>L</pos>	
+			</item>
+		</invent>
+	</char>
+	<char>
+		<name>Trog</name>
+		<pos>6.0  32.0 4.0</pos>
+		<dir>N</dir>
+		<money>2</money>	
+		<team>Trog</team>
+		<invent>
+			<item>
+				<name>Spear</name>
+				<pos>L</pos>	
+			</item>
+		</invent>
+	</char>
+	<char>
+		<name>Trog</name>
+		<pos>8.0  30.0 4.0</pos>
+		<dir>N</dir>
+		<money>2</money>
+		<skn>4</skn>	
+		<team>Trog</team>
+		<invent>
+			<item>
+				<name>Spear</name>
+				<pos>R</pos>	
+			</item>
+		</invent>
+	</char>
+	<char>
+		<name>Trog</name>
+		<pos>8.0  32.0 4.0</pos>
+		<dir>N</dir>
+		<money>1</money>	
+		<skn>4</skn>
+		<team>Trog</team>
+		<invent>
+			<item>
+				<name>Spear</name>
+				<pos>R</pos>	
+			</item>
+		</invent>
+	</char>
+	<char>
+		<name>Spit</name>
+		<pos> 5    27   0</pos>
+		<dir>S</dir>
+	</char>
+	<char>
+		<name>Chest</name>
+		<pos>3    25   0</pos>
+		<dir>E</dir>		
+		<invent>
+			<item>
+				<name>%RANDOM_SCROLL</name>
+				<pos>I</pos>	
+			</item>
+			<item>
+				<name>GrubBug</name>
+				<pos>I</pos>	
+			</item>
+			<item>
+				<name>%NORMAL_TREASURE</name>
+				<pos>I</pos>	
+			</item>		
+		</invent>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>29   47   6</pos>
+		<dir>N</dir>
+		<team>Insect</team>		
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>36   54   6</pos>
+		<dir>N</dir>
+		<team>Insect</team>		
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>53   59   6</pos>
+		<dir>N</dir>			
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>35   36   6</pos>
+		<dir>N</dir>
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>37   34   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>35   34   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>30   27   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>30   14   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>30   12   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>27   31   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>28   44   6 </pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>5    29   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>29   28   6</pos>
+		<dir>N</dir>
+		<team>Insect</team>		
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>32   30   6</pos>
+		<dir>N</dir>	
+		<team>Insect</team>	
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>39   19   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>41   8    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>4    7    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>5    5    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>6    10   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>7    15   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>8    14   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>9    11   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>10   8    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>11   12   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>12   10   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>13   8    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>8    15   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>10   6    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>5    5    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>6    10   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>7    15   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>8    14   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>9    11   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>10   8    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>11   12   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>12   10   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>13   8    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>8    15   6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>GrubBug</name>
+		<pos>10   6    6</pos>
+		<dir>N</dir>		
+		<team>Insect</team>
+	</char>
+	<char>
+		<name>Mimic</name>
+		<pos>17   39   0</pos>
+		<dir>E</dir>
+		<money>24</money>	
+		<team>Magic</team>	
+	</char>
+	<char>
+		<name>Gelfeet</name>
+		<pos>60.4 41.3 0</pos>
+		<dir>S</dir>	
+		<team>Magic</team>
+		<invent>
+			<item>
+				<name>KeyA</name>
+				<pos>L</pos>	
+			</item>
+		</invent>	
+	</char>
+	<char>
+		<name>Deadend</name>
+		<pos>4    51   0</pos>
+		<dir>N</dir>
+		<pas>0</pas>	
+	</char>
+	<char>
+		<name>Deadend</name>
+		<pos>53   8    0</pos>
+		<dir>W</dir>	
+		<pas>1</pas>	
+	</char>
+	<char>
+		<name>Door</name>
+		<pos>41   54   0</pos>
+		<dir>E</dir>	
+		<pas>2</pas>	
+	</char>
+	<char>
+		<name>Door</name>
+		<pos>48.9 28   0</pos>
+		<dir>E</dir>	
+		<pas>3</pas>	
+	</char>
+	<char>
+		<name>Door</name>
+		<pos>18   19   0</pos>
+		<dir>N</dir>	
+		<pas>4</pas>	
+	</char>
+	<char>
+		<name>Door</name>
+		<pos>25   26   0</pos>
+		<dir>E</dir>	
+		<pas>5</pas>	
+	</char>
+	<char>
+		<name>Door</name>
+		<pos>30   16   0</pos>
+		<dir>S</dir>	
+		<pas>6</pas>	
+	</char>
+	<char>
+		<name>Door</name>
+		<pos>30    7   0</pos>
+		<dir>S</dir>	
+		<pas>7</pas>	
+	</char>
+	<char>
+		<name>Gate</name>
+		<pos>48.9 46   0</pos>
+		<dir>W</dir>	
+		<pas>8</pas>	
+	</char>
+	<char>
+		<name>Gate</name>
+		<pos>60   53   0</pos>
+		<dir>N</dir>	
+		<pas>9</pas>	
+	</char>
+	<char>
+		<name>KButton</name>
+		<pos>47   27   0</pos>
+		<dir>W</dir>	
+		<pas>3</pas>	
+	</char>
+	<char>
+		<name>DButton</name>
+		<pos>47   45   0</pos>
+		<dir>S</dir>	
+		<pas>8</pas>	
+	</char>
+	<char>
+		<name>WButton</name>
+		<pos>35   49   0</pos>
+		<dir>N</dir>	
+		<pas>2</pas>	
+	</char>
+	<char>
+		<name>KButton</name>
+		<pos>19.3 21   0</pos>
+		<dir>W</dir>	
+		<pas>4</pas>	
+	</char>
+	<char>
+		<name>OButton</name>
+		<pos>23   24.7 0</pos>
+		<dir>W</dir>	
+		<pas>5</pas>	
+	</char>
+	<char>
+		<name>CButton</name>
+		<pos>23   27.3 0</pos>
+		<dir>N</dir>	
+		<pas>5</pas>	
+	</char>
+	<char>
+		<name>OButton</name>
+		<pos>31.3 14   0</pos>
+		<dir>S</dir>	
+		<pas>6</pas>	
+	</char>
+	<char>
+		<name>OButton</name>
+		<pos>31.3  5   0 </pos>
+		<dir>S</dir>	
+		<pas>7</pas>	
+	</char>
+	<char>
+		<name>Platform</name>
+		<pos>28.5 10   0.9</pos>
+		<dir>S</dir>
+	</char>
+	<char>
+		<name>Chest</name>
+		<pos>58   30   0</pos>
+		<dir>W</dir>
+		<invent>
+			<item>
+				<name>Advent_Armor</name>
+				<pos>I</pos>	
+				<skn>1</skn>
+			</item>
+		</invent>
+	</char>
+	<char>
+		<name>Shaft</name>
+		<pos>14.5 60.5 0</pos>
+		<dir>N</dir>
+	</char>
+	<char>
+		<name>Mouse</name>
+		<charname>Mickey</charname>
+		<pos>55   28   0</pos>
+		<dir>S</dir>	
+		<team>Vermin</team>	
+	</char>
+	<char>
+		<name>moduletool</name>
+		<pos>24.5   10.5   2</pos>
+		<dir>S</dir>
+		<invent>
+			<item>
+				<name>missile</name>
+				<pos>I</pos>	
+			</item>
+		</invent>		
+	</char>
+</spawn>
+<!-- replaces 'ripple.txt' -->
+<ripple>
+	<!-- This is a particle type: Water ripples -->
+	<part_type>
+		<force>F</force>			
+		<imgtyp>TRANS</imgtyp>		
+		<sframe>65</sframe>			
+		<nframe>4</nframe>			
+		<framerate>40</framerate>	
+		<framerand>0</framerand>		
+		<rot_base>24576</rot_base>		
+		<rot_add>0</rot_add>
+		<rot_rate>0</rot_rate>		
+		<size>10000</size>
+		<size_inc>400</size_inc>
+		<!-- Ending conditions -->
+		<endw>F</endw>
+		<endb>F</endb>
+		<endg>F</endg>		
+		<endl>T</endl>
+	</part_type>
+</ripple>
+<!-- replaces 'splash.txt' Water splash -->
+<splash>
+	<!-- This is a particle type -->
+	<part_type>
+		<force>F</force>			
+		<imgtyp>TRANS</imgtyp>		
+		<sframe>52</sframe>			
+		<nframe>4</nframe>			
+		<framerate>60</framerate>	
+		<framerand>0</framerand>		
+		<rot_base>24576</rot_base>		
+		<rot_add>0</rot_add>
+		<rot_rate>0</rot_rate>		
+		<size>25000</size>
+		<size_inc>-200</size_inc>
+		<!-- Ending conditions -->			
+		<endl>T</endl>
+	</part_type>
+</splash>
+<!-- replaces 'wawalite.txt' -->
+<!--
+	This file tells the game how to model lighting and water...
+	Please fill in all of the data even if you only use one layer of
+	water.  2 is the maximum number of layers.
+	This file also gives information regarding damage tiles and
+	friction for the module.
+-->
+<wawalite>
+	<randmap>F</randmap>		
+	<numwl>2</numwl>			
+	<water_specs>128</water_specs>	
+	<water_specl>128</water_specl>	
+	<water_dousl>85</water_dousl>	
+	<water_surfl>65</water_surfl>	
+	<water_light>F</water_light>	
+	<water_real>T</water_real>		
+	<wt_overlay>F</wt_overlay>		
+	<wl_overlay>F</wl_overlay>		
+
+	<fdist_x>0.000</fdist_x>		
+	<fdist_y>0.000</fdist_y>		
+	<bdist_x>0.000</bdist_x>		
+	<bdist_y>0.000</bdist_y>		
+	<frepeat>1</frepeat>			
+	<brepeat>2</brepeat>			
+
+	<level>
+		<base>55</base>				
+		<alpha>110</alpha>			
+		<wspeed>8</wspeed>			
+		<bright>15</bright>			
+		<ambient>15</ambient>		
+		<amplitude>5.0</amplitude>		
+		<uspeed>-.0010</uspeed>			
+		<vspeed>-.0025</vspeed>			
+	</level>
+	<level>
+		<base>55</base>				
+		<alpha>170</alpha>			
+		<wspeed>6</wspeed>			
+		<bright>31</bright>			
+		<ambient>15</ambient>		
+		<amplitude>3.0</amplitude>		
+		<uspeed>.0005</uspeed>			
+		<vspeed>-.0044</vspeed>			
+	
+	</level>
+	<light>
+		<dir_xyz>1.00 1.00 0.50</dir_xyz>	
+		<ambient>0.10</ambient>				
+	</light>
+	<enviro>
+		<slide>2.00</slide>				
+		<slippyfric>0.80</slippyfric>	
+		<airfric>0.91</airfric>			
+		<waterfric>0.80</waterfric>		
+		<normalfric>0.91</normalfric>	
+		<gravity>-1.00</gravity>		
+
+		<anim_updand>3</anim_updand>		
+		<anim_frameand>3</anim_frameand>	
+		<tile_dmg>512</tile_dmg>			<!-- 512 is 1 life block -->	
+		<tile_dmgtype>FIRE</tile_dmgtype>	<!-- SLASH, CRUSH, POKE, HOLY, EVIL, FIRE, ICE, ZAP -->
+	</enviro>
+	<weather>
+		<which>RAIN</which>
+		<onlywater>T</onlywater>
+		<spawnrate>4</spawnrate>
+	</weather>
+	<modes>
+		<explore>F</explore>
+		<faredge>F</faredge>
+		<camswing>0</camswing>
+		<camampl>.000</camampl>
+	</modes>
+</wawalite>
+</module>
+

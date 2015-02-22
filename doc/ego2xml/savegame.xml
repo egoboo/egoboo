@@ -1,0 +1,39 @@
+<savegame>
+	<name>[Characters Name]</name>
+	<class>Name of class in 'classes.xml'</class>
+	<gender></gender>
+	<life>[Actual life]</life>
+	<mana>[Actual mana]</mana>
+	<str>[Actual strength]</str>
+	<wis>[Actual wisdom]</wis>
+	<int>[Actual intelligence]</int>
+	<dex>[Actual dexterity]</dex>
+	<waterwalk>[Can waterwalk, yes/no]</waterwalk>
+	<speed>[Sneak] [walk] [run]</speed>
+	<exp>[Actual experience points]</exp>	
+	<!-- -->
+	</size><size>
+	<shadow></shadow>
+	<weight></weight>
+	<jumppower></jumppower>
+	<numjump></numjump>
+	<!-- NEW: Inventory for carrying items to next module -->
+	<!-- -->
+	<skills>
+		<!-- The actual skills the character has -->
+		<!-- 
+			PROPOSAL <skill>SKILL_...</skill>
+		-->		
+		<idsz>[AWEP] 1</idsz>	
+		<idsz>[READ] 1</idsz>
+		<idsz>[WMAG] 1</idsz>
+	</skills>
+	<defenses>
+		<!-- PROPOSAL: EFFTYPE_... [value] -->
+		<effect>EFFTYPE_... [value]</effect>
+	</defenses>
+	<quest>
+		<!-- The actual quests already done -->
+		<idsz></idsz>	
+	</quest>
+</savegame>
