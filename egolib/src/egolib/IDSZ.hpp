@@ -32,6 +32,7 @@ public:
 	IDSZ2& operator=(const IDSZ2& other)
 	{
 		_value = other._value;
+        return *this;
 	}
 	
 	bool operator==(const IDSZ2& other)

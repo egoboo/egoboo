@@ -1,0 +1,41 @@
+body {
+	font-family: Tahoma, Arial, Sans, Helvetica;
+	color: #000000;
+	background-color: #FFFFFF;
+	margin: 20px;
+}
+
+/* ** Tables ** */
+table {
+	border-collapse: collapse;
+	empty-cells: show;
+	text-align: left;
+}
+table.visible {
+	border: 2px solid #000000;
+}
+table.invisible {
+	border: 0px;
+}
+
+/* * Table rows * */
+tr {
+	background-color: #FFFFFF;
+	border: 1px solid #000000;
+}
+tr.yellow {
+	background-color: #FFFF00;
+}
+tr.white {
+	background-color: #FFFFFF;
+}
+
+/* Column */
+th {
+	background-color: #D0D0D0;
+	vertical-align: middle;
+	text-align: center;
+	font-weight: bold;
+	padding: 2px 5px 1px 5px;
+	border: 1px solid #000000;
+}

@@ -1,0 +1,81 @@
+<!--
+$FILE_VERSION 2
+
+Controls
+========
+This file lets users modify the handling of input devices.
+See the game manual for a list of settings and more info.
+Note that you can mix KEY_ type settings with other 
+devices...
+
+General Controls
+========
+These are general controls and cannot be changed
+ESC                       - Open ingame menu
+SPACE                     - Respawn character (if dead and possible)
+1 to 7                    - Show character detailed stats
+LEFT SHIFT   + 1 to 8     - Show selected character armor without magic enchants
+LEFT CONTROL + 1 to 8     - Show armor stats with magic enchants included
+LEFT ALT     + 1 to 8     - Show character magic enchants
+F11                       - Take screenshot
+-->
+<player>
+	<no>1</no>
+	<controller>KEYBOARD</controller>
+	<jump>KEY_SPACE</jump>
+	<leftuse>KEY_T</leftuse>
+	<leftget>KEY_G</leftget>
+	<levftinvent>KEY_B</levftinvent>
+	<rightuse>KEY_Y</rightuse>
+	<rightget>KEY_H</rightget>
+	<rightinvent>KEY_N</rightinvent>
+	<sneak>KEY_LEFT_SHIFT</sneak>
+	<sendmessage>KEY_M</sendmessage>
+	<camrotleft>KEY_5</camrotleft>
+	<camrotright>KEY_6</camrotright>
+	<camzoomin>KEY_EQUALS</camzoomin>
+	<camzoomout>KEY_MINUS</camzoomout>
+	<up>KEY_UP</up>
+	<down>KEY_DOWN</down>
+	<left>KEY_LEFT</left>
+	<right>KEY_RIGHT</right>
+</player>
+<player>	
+	<no>2</no>
+	<controller>MOUSE</controller>	
+	<jump>MOD_MIDDLE</jump>
+	<leftuse>MOS_LEFT</leftuse>	
+	<leftget>MOS_RIGHT_AND_MIDDLE</leftget>
+	<levftinvent>KEY_DELETE</levftinvent>	
+	<rightuse>MOS_RIGHT</rightuse>
+	<rightget>MOS_LEFT_AND_MIDDLE</rightget>	
+	<rightinvent>KEY_INSERT</rightinvent>
+	<sneak>MOS_FOURTH</sneak>	
+	<camcontrol>MOS_LEFT_AND_RIGHT</camcontrol>
+</player>
+<player>	
+	<no>3</no>
+	<controller>JOYSTICK_A</controller>	
+	<jump>JOY_1</jump>
+	<leftuse>JOY_4</leftuse>		
+	<leftget>JOY_6</leftget>
+	<levftinvent>JOY_7</levftinvent>		
+	<rightuse>JOY_0</rightuse>
+	<rightget>JOY_2</rightget>	
+	<rightinvent>JOY_5</rightinvent>
+	<sneak>JOY_0_AND_1</sneak>	
+	<camcontrol>JOY_3</camcontrol>
+</player>
+<player>	
+	<no>4</no>
+	<controller>JOYSTICK_A</controller>	
+	<jump>JOY_1</jump>
+	<leftuse>JOY_4</leftuse>		
+	<leftget>JOY_6</leftget>
+	<levftinvent>JOY_7</levftinvent>		
+	<rightuse>JOY_0</rightuse>
+	<rightget>JOY_2</rightget>	
+	<rightinvent>JOY_5</rightinvent>
+	<sneak>JOY_0_AND_1</sneak>	
+	<camcontrol>JOY_3</camcontrol>
+</player>

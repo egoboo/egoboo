@@ -1,0 +1,61 @@
+<!-- replaces 'setup.txt -->
+<setup>
+	<game>
+		<msgtime>200</msgtime>	<!-- [MESSAGE_DURATION] : "200" --> 
+		<msgmax>6</msgmax>	<!-- [MAX_TEXT_MESSAGE] : "6" --> 
+		<camturn>T</camturn><!-- [AUTOTURN_CAMERA] : "TRUE" --> 
+		<feedback>1</feedback><!-- [FEEDBACK] : "1" --> 
+		<difficulty>NORMAL</difficulty><!-- [DIFFICULTY_MODE] : "NORMAL" -->
+	</game>
+	<graphic>
+		<prt_refl>TRUE</prt_refl><!-- [PARTICLE_REFLECTION] : "TRUE" --> 
+		<maxvert>100</maxvert><!-- [MAX_NUMBER_VERTICES] : "100" --> 
+		<coldepth>24</coldepth><!-- [COLOR_DEPTH] : "24" --> 
+		<zdepth>24</zdepth><!-- [Z_DEPTH] : "24" --> 
+		<fullscreen>FALSE</fullscreen><!-- [FULLSCREEN] : "FALSE" --> 
+		<zreflect>TRUE</zreflect><!-- [Z_REFLECTION] : "TRUE" -->
+		<scrx>800</scrx><!-- [SCREENSIZE_X] : "800" --> 
+		<scry>600</scry><!-- [SCREENSIZE_Y] : "600" --> 	
+		<persp>TRUE</persp><!-- [PERSPECTIVE_CORRECT] : "TRUE" --> 
+		<texturefilter>TRILINEAR</texturefilter><!-- [TEXTURE_FILTERING] : "TRILINEAR" --> 
+		<gourad>TRUE</gourad><!-- [GOURAUD_SHADING] : "TRUE" --> 
+		<antialiasing>1</antialiasing><!-- [ANTIALIASING] : "1" -->
+		<dithering>TRUE</dithering><!-- [DITHERING] : "TRUE" --> 
+		<reflection>TRUE</reflection><!-- [REFLECTION] : "TRUE" -->  
+		<shadows>TRUE</shadows><!-- [SHADOWS] : "TRUE" --> 
+		<shadowsprite>FALSE</shadowsprite><!-- [SHADOW_AS_SPRITE] : "FALSE" --> 
+		<phong>TRUE</phong><!-- [PHONG] : "TRUE" --> 
+		<fog>FALSE</fog><!-- [FOG] : "FALSE" --> 
+		<floor_reflectfade>FALSE</floor_reflectfade><!-- [FLOOR_REFLECTION_FADEOUT] : "FALSE" --> 
+		<water_multilayer>TRUE</water_multilayer><!-- [MULTI_LAYER_WATER] : "TRUE" --> 
+		<overlay>TRUE</overlay><!-- [OVERLAY] : "TRUE" --> 
+		<background>TRUE</background><!-- [BACKGROUND] : "TRUE" --> 
+		<maxdynlight>32</maxdynlight><!-- [MAX_DYNAMIC_LIGHTS] : "32" --> 
+		<maxparticle>768</maxparticle>		
+		<maxfpslimit>30</maxfpslimit>
+	</graphic>
+	<sound>
+		<enablefootsteps>TRUE</enablefootsteps><!-- [ENABLE_FOOTSTEPS] : "TRUE" --> 
+		<highquality>FALSE</highquality><!-- [HIGH_SOUND_QUALITY] : "FALSE" --> 	
+		<music>TRUE</music><!-- [MUSIC] : "TRUE" --> 
+		<musicvolume>70</musicvolume>[MUSIC_VOLUME] : "70"
+		<sound>TRUE</sound><!-- [SOUND] : "TRUE" --> 	
+		<soundvolume>90</soundvolume><!-- [SOUND_VOLUME] : "90" --> 
+		<outputbufsize>4096</outputbufsize><!-- [OUTPUT_BUFFER_SIZE] : "4096" -->	
+		<maxsoundchannel>32</maxsoundchannel><!-- [MAX_SOUND_CHANNEL] : "32" --> 	
+	</sound>
+	<network>
+		<on>FALSE</on><!-- [NETWORK_ON] : "FALSE" --> 
+		<hostname>HostName</hostname><!-- [HOST_NAME] : "HostName" --> 
+		<multiplyer_name>EgoPlayer</multiplyer_name><!-- [MULTIPLAYER_NAME] : "EgoPlayer" --> 
+		<lag_tolerance>10</lag_tolerance><!-- [LAG_TOLERANCE] : "10" --> 
+	</network>
+	<debug>
+		<statusbar>TRUE</statusbar><!-- [STATUS_BAR] : "TRUE" --> 
+		<showfps></showfps><!-- [DISPLAY_FPS] : "TRUE" --> 
+		<hidemouse>TRUE</hidemouse><!-- [HIDE_MOUSE] : "TRUE" --> 
+		<grabmouse>FALSE</grabmouse><!-- [GRAB_MOUSE] : "FALSE" --> 
+		<devmode>FALSE</devmode><!-- [DEV_MODE] : "FALSE" -->
+		<sdl_image>TRUE</sdl_image><!-- [SDL_IMAGE] : "TRUE" --> 
+	</debug>
+</setup>

@@ -1,0 +1,348 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	
+	<link rel="stylesheet" href="../main.css">			
+</head>
+<body>
+	<p style='font-weight:bold;'>
+		Proposal<br /><br/>
+		This is a description of a particle, how to write it in XML<br />
+		The data structs are given in XML 
+	</p>
+	<table class='visible' style='width:60%;' border='1'>
+		<tr>
+			<th colspan='3'>Particle</th>
+		</tr>
+		<tr>
+			<td>XML-Tag</td>
+			<td>Description</td>
+			<td>Type of value</td>
+		</tr>
+		<tr>
+			<td>&lt;force&gt;</td>
+			<td>Force spawn ( TRUE or FALSE )</td>
+			<td>char</td>
+		</tr>
+		<tr>
+			<td>&lt;imgtype&gt;</td>
+			<td>Image type ( SOLID, LIGHT, or TRANS )</td>
+			<td>char</td>
+		</tr>
+		<tr>
+			<td>&lt;frames&gt;</td>
+			<td>
+				Starting frame ( 0 to 255 )<br />
+				Number of frames ( 1 to 16 )	
+			</td>
+			<td>int[2]</td>
+		</tr>
+		<tr>
+			<td>&lt;framerate&gt;</td>
+			<td>
+				Frame rate ( 0 to 1000 )<br />
+				Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )
+			</td>
+			<td>short int[2]</td>
+		</tr>
+		<tr>
+			<td>&lt;rotation&gt;</td>
+			<td>
+				Rotation base ( 0 to 65535 )<br />
+				Random rotation add ( 0, 1, 3, 7, 15, 31, 63... )<br />
+				Rotation rate ( 0 to 1000 )	
+			</td>
+			<td>int[3]</td>
+		</tr>
+		<tr>
+			<td>&lt;size&gt;</td>
+			<td>
+				Starting size ( 0 to 65535 )<br />
+				Size increase rate ( 0 to 1000 )
+			</td>
+			<td>int[2]</td>
+		</tr>
+		<tr>
+			<td>&lt;speedlimit&gt;</td>
+			<td>Speed limit ( 0.0 to 10.0 )	</td>
+			<td>float</td>
+		</tr>
+		<tr>
+			<td>&lt;facerate&gt;</td>
+			<td>Facing rate ( 0 to 1000 )</td>
+			<td>short int</td>
+		</tr>
+		<tr style='font-weight:bold;'>
+			<td>&lt;weight&gt;</td>
+			<td>
+				For physics:<br />
+				0:  Not affected by any physics<br />
+				&gt; 0: Drops to bottom (-z), accelerated by gravity<br />
+				&lt; 0: Goes up (+z) e. g. for smoke
+			</td>
+			<td>NEW</td>
+		</tr>
+		<tr>
+			<td colspan='3'>Ending conditions</td>
+		</tr>
+		<tr>
+			<td>&lt;endwater&gt;</td>
+			<td>Water ends particle ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;endbump&gt;</td>
+			<td>Bump ends particle ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;endground&gt;</td>
+			<td>End if hits ground ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;endframe&gt;</td>
+			<td>End after last frame ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;endtime&gt;</td>
+			<td>Time before end ( 1 to 1000, 0 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'>Collision data</td>
+		</tr>
+		<tr>
+			<td>&lt;dampen&gt;</td>
+			<td>Bounce dampen ( 0.0 to 0.9 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Bump money ( 0 to 100 )	</td>
+			<td>
+				See <span style='font-weight:bold;'>&lt;effect&gt;&lt;use&gt;</span><br />
+				EFFTYPE_MISC<br />
+				ACTION_DROPMONEY
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;bumpsize&gt;</td>
+			<td>
+				Bump size ( 0 to 60 )<br />
+				Bump height ( 0 to 60 )	
+			</td>
+			<td>int[2]</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Bump damage amount ( 0-0 to 0-16 to 16-16 )</td>
+			<td>
+				See <span style='font-weight:bold;'>&lt;effect&gt;</span><br />
+				&lt;use&gt;EFFTYPE_ATTACK<br />
+				&lt;type&gt;EFFECT_NONE<br />
+				&lt;dice&gt;
+			</td>
+		</tr>
+		<tr>
+			<td>&lt;dynalight&gt;</td>
+			<td>
+				Does it act as a dynamic light? ( TRUE or FALSE )<br />
+				Dynalight level ( around 0.7 )<br />
+				Dynalight falloff ( around 1000 )	
+			</td>
+			<td>char, float, int</td>
+		</tr>
+		<tr>
+			<td colspan='3'>Initial spawning of this particle</td>
+		</tr>
+		<tr>
+			<td>&lt;facing&gt;</td>
+			<td>
+				Facing base ( 0 to 65535 )<br />
+				Facing randomness ( 0, 1, 3, 7, 15, 31, 63... )
+			</td>
+			<td>int[2]</td>
+		</tr>
+		<tr>
+			<td>&lt;xyspacing&gt;</td>
+			<td>
+				XY Spacing ( 0 to 100 )<br />
+				XY Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )
+			</td>
+			<td>int[2]</td>
+		</tr>
+		<tr>
+			<td>&lt;zspacing&gt;</td>
+			<td>
+				Z Spacing ( -100 to 100 )<br />
+				Z Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;xyvel&gt;</td>
+			<td>
+				XY Velocity ( 0 to 100 )<br />
+				XY Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;zvel&gt;</td>
+			<td>
+				Z Velocity ( -100 to 100 )<br />
+				Z Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'>Continuous spawning of other particles</td>
+		</tr>
+		<tr>
+			<td>&lt;spawntime&gt;</td>
+			<td>Spawn time ( 0 to 100 )</td>
+			<td>char</td>
+		</tr>
+		<tr>
+			<td>&lt;spawn&gt;</td>
+			<td>
+				Amount to spawn each time ( 0 to 10 )<br />
+				Facing add for each one ( 0 to 65535 )<br />
+				Spawn type ( 0 to 3 )	
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;spawnend&gt;</td>
+			<td>
+				Amount to spawn at end ( 0 to 10 )<br />
+				Facing add for each one ( 0 to 65535 )<br />
+				Spawn type ( 0 to 3 )
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;spawnbump&gt;</td>
+			<td>
+				Amount to spawn on bump ( 0 to 10 )<br />
+				Spawn type ( 0 to 3 )
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan='3'>Random stuff</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Daze time on hit ( 0 to 250 )</td>
+			<td>See <span style='font-weight:bold;'>&lt;effect&gt;</span></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Grog time on hit ( 0 to 250 )</td>
+			<td>See <span style='font-weight:bold;'>&lt;effect&gt;</span></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Spawn enchant on hit ( TRUE or FALSE )</td>
+			<td>See <span style='font-weight:bold;'>&lt;effect&gt;</span></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Cause roll on hit ( TRUE or FALSE )</td>
+			<td>See <span style='font-weight:bold;'>&lt;effect&gt;</span></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Cause pancake on hit ( TRUE or FALSE )</td>
+			<td>See <span style='font-weight:bold;'>&lt;effect&gt;</span></td>
+		</tr>
+		<tr>
+			<td>&lt;targetneeded&gt;</td>
+			<td>Need target to spawn ( TRUE or FALSE )</td>
+			<td>Proposal: Move to <span style='font-weight:bold;'>&lt;spell&gt;</td>
+		</tr>
+		<tr>
+			<td>&lt;targetcaster&gt;</td>
+			<td>Target is caster ( TRUE or FALSE )</td>
+			<td>Proposal: Move to <span style='font-weight:bold;'>&lt;spell&gt;</td>
+		</tr>
+		<tr>
+			<td>&lt;targetstart&gt;</td>
+			<td>Start on target ( TRUE or FALSE )</td>
+			<td>Proposal: Move to <span style='font-weight:bold;'>&lt;spell&gt;</td>
+		</tr>
+		<tr>
+			<td>&lt;damagefriendly&gt;</td>
+			<td>Only damage friendly ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;sound&gt;</td>
+			<td>
+				Spawn sound ( -1 for none )<br />
+				End sound ( -1 for none )
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;friendlyfire&gt;</td>
+			<td>Friendly fire ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;onlyhithate&gt;</td>
+			<td>Only hit hate group ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;spawnnewtarget&gt;</td>
+			<td>New target on spawn ( TRUE or FALSE )</td>
+			<td>Proposal: Move to <span style='font-weight:bold;'>&lt;spell&gt;</td>
+		</tr>
+		<tr>
+			<td>&lt;targetangle&gt;</td>
+			<td>Target angle ( 0 to 32768 )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;dohoming&gt;</td>
+			<td>Home in on target ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;homing&gt;</td>
+			<td>
+				Homing friction ( 0.0 to 1.0 )<br />
+				Homing acceleration ( 0.0 to 1.0 )
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;rotatetoface&gt;</td>
+			<td>Rotate to face direction ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>&lt;respawnhit&gt;</td>
+			<td>Respawn character on hit ( TRUE or FALSE )</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Mana drain on hit ( 0 to 50 )</td>
+			<td>See <span style='font-weight:bold;'>&lt;effect&gt;</span></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Life drain on hit ( 0 to 50 )</td>
+			<td>See <span style='font-weight:bold;'>&lt;effect&gt;</span></td>
+		</tr>
+	</table>
+	<br />
+	13.02.2015 / Paul Mueller<br />
+	<br />
+</body>
