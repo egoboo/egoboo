@@ -1405,6 +1405,19 @@ std::string ReadContext::readStringLit()
     }
     return toString();
 }
+
+void ReadContext::readName0()
+{
+    if (!isAlpha() && !is('_'))
+    {
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+    }
+    do
+    {
+        saveAndNext();
+    } while (isAlpha() || isDigit() || is('_'));
+}
+
 std::string ReadContext::readName()
 {
     if (is(StartOfInput))
@@ -1413,14 +1426,29 @@ std::string ReadContext::readName()
     }
     skipWhiteSpaces();
     _buffer.clear();
-    if (!isAlpha() && !is('_'))
+    readName0();
+    return toString();
+}
+
+void ReadContext::readReference0()
+{
+    if (!is('%'))
     {
         throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
     }
-    do
+    saveAndNext();
+    readName0();
+}
+
+std::string ReadContext::readReference()
+{
+    if (is(StartOfInput))
     {
-        saveAndNext();
-    } while (isAlpha()||isDigit()||is('_'));
+        next();
+    }
+    skipWhiteSpaces();
+    _buffer.clear();
+    readReference0();
     return toString();
 }
 

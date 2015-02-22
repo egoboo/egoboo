@@ -26,24 +26,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_mpd_info;
-    typedef struct s_mpd_info map_info_t;
-
-    struct s_tile_info;
-    typedef struct s_tile_info tile_info_t;
-
-    struct s_mpd_vertex;
-    typedef struct s_mpd_vertex map_vertex_t;
-
-    struct s_mpd_mem;
-    typedef struct s_mpd_mem map_mem_t;
-
-    struct s_map;
-    typedef struct s_map map_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 #   define CURRENT_MAP_VERSION_LETTER 'D'
 
 // mesh constants
@@ -103,7 +85,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// The basic parameters needed to create an mpd
-    struct s_mpd_info
+    struct map_info_t
     {
         size_t          vertcount;                        ///< For malloc
         int             tiles_x;                          ///< Size in tiles
@@ -113,7 +95,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// The data describing a mpd tile
-    struct s_tile_info
+    struct tile_info_t
     {
         Uint8   type;                              ///< Tile type
         Uint16  img;                               ///< Get texture from this
@@ -124,7 +106,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// The information for a single mpd vertex
-    struct s_mpd_vertex
+    struct map_vertex_t
     {
         fvec3_t    pos;                               ///< Vertex position
         Uint8      a;                                 ///< Vertex base light
@@ -133,7 +115,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the dynamically allocated memory in an mpd
-    struct s_mpd_mem
+    struct map_mem_t
     {
         size_t          tile_count;                       ///< Number of tiles
         tile_info_t *   tile_list;                        ///< Tile info
@@ -145,7 +127,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// The data describing a single mpd
-    struct s_map
+    struct map_t
     {
         map_info_t info;
         map_mem_t   mem;
@@ -155,11 +137,11 @@
 //--------------------------------------------------------------------------------------------
 
 /// the raw mpd loader
-    map_t *      map_load( const char *modname, map_t * pmesh );
-    map_t *      map_save( const char *modname, map_t * pmesh );
+    map_t *map_load(const char *modname, map_t *map);
+    map_t *map_save(const char *modname, map_t *map);
 
-    map_t *      map_ctor( map_t * pmesh );
-    map_t *      map_dtor( map_t * pmesh );
-    map_t *      map_renew( map_t * pmesh );
-    bool         map_free( map_t * pmesh );
-    bool         map_init( map_t * pmesh, map_info_t * pinfo );
+    map_t *map_ctor(map_t *self);
+    map_t *map_dtor(map_t *self);
+    map_t *map_renew(map_t *self);
+    bool map_free(map_t *self);
+    bool map_init(map_t *self, map_info_t *info);

@@ -25,15 +25,10 @@
 
 #include "egolib/typedef.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_map;
+    struct map_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -45,22 +40,13 @@ extern "C"
 // generic functions
 //--------------------------------------------------------------------------------------------
 
-    bool twist_to_normal( Uint8 twist, float v[], float slide );
-
-    struct s_map * map_generate_tile_twist_data( struct s_map * pmesh );
-    struct s_map * map_generate_fan_type_data( struct s_map * pmesh );
-    struct s_map * map_generate_vertex_data( struct s_map * pmesh );
+    bool twist_to_normal(Uint8 twist, float v[], float slide);
+    map_t *map_generate_tile_twist_data(map_t *map);
+    map_t *map_generate_fan_type_data(map_t *map);
+    map_t *map_generate_vertex_data(map_t *map);
 
 //--------------------------------------------------------------------------------------------
 // Cartman functions
 //--------------------------------------------------------------------------------------------
 
     Uint8  cartman_calc_twist( int dx, int dy );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif

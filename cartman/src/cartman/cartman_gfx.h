@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------
 
 struct s_window;
-struct s_cartman_mpd;
+struct cartman_mpd_t;
 struct s_select_lst;
 struct s_Font;
 
@@ -145,14 +145,14 @@ extern struct Font * gfx_font_ptr;
 SDL_Color MAKE_SDLCOLOR( Uint8 BB, Uint8 RR, Uint8 GG );
 
 // make a bitmap of the mesh
-void make_hitemap( struct s_cartman_mpd * pmesh );
-void make_planmap( struct s_cartman_mpd * pmesh );
+void make_hitemap( cartman_mpd_t * pmesh );
+void make_planmap( cartman_mpd_t * pmesh );
 
 // tile rendering routines
 void draw_top_fan( struct s_select_lst * plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_side_fan( struct s_select_lst * plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_schematic( struct s_window * pwin, int fantype, int x, int y );
-void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool draw_tile, struct s_cartman_mpd * pmesh );
+void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
 void draw_tile_fx( float x, float y, Uint8 fx, float scale );
 
 // ogl routines
@@ -181,8 +181,8 @@ void load_img( void );
 void get_tiles( SDL_Surface* bmpload );
 
 // misc
-oglx_texture_t * tiny_tile_at( struct s_cartman_mpd * pmesh, int mapx, int mapy );
-oglx_texture_t * tile_at( struct s_cartman_mpd * pmesh, int fan );
+oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy );
+oglx_texture_t * tile_at( cartman_mpd_t * pmesh, int fan );
 
 // initialization
 void gfx_system_begin();

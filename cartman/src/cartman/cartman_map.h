@@ -28,34 +28,22 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_map;
-
+#if 0
+struct map_t;
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_tile_line_data;
-typedef struct s_tile_line_data tile_line_data_t;
-
-struct s_cartman_gl_command;
-typedef struct s_cartman_gl_command cartman_gl_command_t;
-
-struct s_cartman_mpd;
-typedef struct s_cartman_mpd cartman_mpd_t;
-
-struct s_cartman_mpd_create_info;
-typedef struct s_cartman_mpd_create_info cartman_mpd_create_info_t;
-
-struct s_tile_dictionary_lines;
-typedef struct s_tile_dictionary_lines tile_dictionary_lines_t;
-
-struct s_cartman_mpd_info;
-typedef struct s_cartman_mpd_info cartman_mpd_info_t;
-
-struct s_cartman_mpd_vertex;
-typedef struct s_cartman_mpd_vertex cartman_mpd_vertex_t;
-
-struct s_cartman_mpd_tile;
-typedef struct s_cartman_mpd_tile cartman_mpd_tile_t;
+#if 0
+struct tile_line_data_t;
+struct cartman_gl_command_t;
+struct cartman_mpd_t;
+struct cartman_mpd_create_info_t;
+struct tile_dictionary_lines_t;
+struct  cartman_mpd_info_t;
+struct cartman_mpd_vertex_t;
+struct cartman_mpd_tile_t;
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -104,13 +92,13 @@ typedef struct s_cartman_mpd_tile cartman_mpd_tile_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_cartman_mpd_create_info
+struct cartman_mpd_create_info_t
 {
     int tiles_x, tiles_y;
 };
 
 //--------------------------------------------------------------------------------------------
-struct s_tile_line_data
+struct tile_line_data_t
 {
     Uint32    count;
     Uint8     start[MAP_FAN_TYPE_MAX];
@@ -118,7 +106,7 @@ struct s_tile_line_data
 };
 
 //--------------------------------------------------------------------------------------------
-struct s_cartman_mpd_info
+struct cartman_mpd_info_t
 {
     int     tiles_x;                  // Size of mesh
     int     tiles_y;                  //
@@ -136,7 +124,7 @@ cartman_mpd_info_t * cartman_mpd_info_dtor( cartman_mpd_info_t * );
 bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y );
 
 //--------------------------------------------------------------------------------------------
-struct s_cartman_mpd_vertex
+struct cartman_mpd_vertex_t
 {
     Uint32  next;   // Next vertex in fan
     float   x;      // Vertex position
@@ -152,7 +140,7 @@ bool cartman_mpd_vertex_ary_ctor( cartman_mpd_vertex_t ary[], size_t size );
 bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size );
 
 //--------------------------------------------------------------------------------------------
-struct s_cartman_mpd_tile
+struct cartman_mpd_tile_t
 {
     Uint8   type;        // Tile fan type
     Uint8   fx;             // Rile special effects flags
@@ -168,7 +156,7 @@ bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size );
 bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size );
 
 //--------------------------------------------------------------------------------------------
-struct s_cartman_mpd
+struct cartman_mpd_t
 {
     Uint32               vrt_free;                        // Number of free vertices
     Uint32               vrt_at;                          // Current vertex check for new

@@ -423,7 +423,7 @@ public:
      * @throw Ego::Script::LexicalError
      *  if a lexical error occurs
      * @remark
-     *  A natural literal in this revision is a string
+     *  A natural literal in this revision are the strings
      *  @code
      *  integer := '+'? digit+ ('e'|'E' digit+)?
      *  @endcode
@@ -434,7 +434,7 @@ public:
      * @throw Ego::Script::LexicalError
      *  if a lexical error occurs
      * @remark
-     *  A real literal in this revision is a string
+     *  A real literal in this revision are the strings
      *  @code
      *  float := ('+'|'-')? digit+ ('.' digit)* realExponent?
      *        | ('+'|'-')? '.' digit+ realExponent?
@@ -447,7 +447,7 @@ public:
      * @throw Ego::Script::LexicalError
      *  if a lexical error occurs
      * @remark
-     *   A boolean literal in this revision is a string
+     *   A boolean literal in this revision are the strings
      *   @code
      *   boolean := 'T' | 'F'
      *   @endcode
@@ -455,15 +455,28 @@ public:
     bool readBool();
 
     /**
-    * @throw Ego::Script::LexicalError
-    *  if a lexical error occurs
-    * @remark
-    *   A name in this revision is a string
-    *   @code
-    *   name := (alphabetic|underscore) (digit|alphabetic|underscore)*
-    *   @endcode
-    */
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *   A name in this revision are the strings
+     *   @code
+     *   name := (alphabetic|underscore) (digit|alphabetic|underscore)*
+     *   @endcode
+     */
+    void readName0();
     std::string readName();
+
+    /**
+     * @throw Ego::Script::LexicalError
+     *  if a lexical error occurs
+     * @remark
+     *  A reference in this revision are the strings
+     *  @code
+     *  reference := '%' name
+     *  @endcode
+     */
+    void readReference0();
+    std::string readReference();
 
     /**
      * @throw Ego::Script::LexicalError

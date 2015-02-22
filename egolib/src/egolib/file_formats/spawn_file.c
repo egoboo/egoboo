@@ -96,7 +96,7 @@ Again:
             break;
         }
     }
-    if (ctxt.isAlpha()||ctxt.is('%'))
+    if (ctxt.isAlpha()||ctxt.is('%')||ctxt.is('_'))
     {
         ctxt._buffer.clear();
         // Read everything into the buffer until a ':', a new line, an error or the end of the input is reached.
@@ -188,7 +188,15 @@ Again:
         {
             throw Ego::Script::SyntaxError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
         }
-        std::string who = ctxt.readName();
+        std::string who;
+        if (ctxt.is('%'))
+        {
+            who = ctxt.readReference();
+        }
+        else
+        {
+            who = ctxt.readName();
+        }
         if (who.empty()) /// @todo Verify that this is unnecessary based on the definition of readName.
         {
             throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));

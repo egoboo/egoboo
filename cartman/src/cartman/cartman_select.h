@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_cartman_mpd;
+struct cartman_mpd_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -44,25 +44,25 @@ typedef struct s_select_lst select_lst_t;
 
 struct s_select_lst
 {
-    struct s_cartman_mpd * pmesh;
-    int                    count;
-    Uint32                 which[MAXSELECT];
+    cartman_mpd_t    *pmesh;
+    int               count;
+    Uint32 which[MAXSELECT];
 };
 
 #define SELECT_LST_INIT \
     {\
-        NULL,        /* struct s_cartman_mpd * pmesh */ \
-        0,           /* int     count                */ \
-        { CHAINEND } /* Uint32  which[MAXSELECT]     */ \
+        NULL,        /* cartman_mpd_t *pmesh     */ \
+        0,           /* int     count            */ \
+        { CHAINEND } /* Uint32  which[MAXSELECT] */ \
     }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 select_lst_t * select_lst_default();
-select_lst_t * select_lst_synch_mesh( select_lst_t *, struct s_cartman_mpd * );
+select_lst_t * select_lst_synch_mesh( select_lst_t *, cartman_mpd_t * );
 
-select_lst_t * select_lst_init( select_lst_t *, struct s_cartman_mpd * );
+select_lst_t * select_lst_init( select_lst_t *, cartman_mpd_t * );
 select_lst_t * select_lst_clear( select_lst_t * );
 select_lst_t * select_lst_add( select_lst_t * , int vert );
 select_lst_t * select_lst_remove( select_lst_t * , int vert );
@@ -70,4 +70,4 @@ select_lst_t * select_lst_remove( select_lst_t * , int vert );
 int select_lst_count( const select_lst_t * );
 int select_lst_find( const select_lst_t * , int vert );
 
-select_lst_t * select_lst_set_mesh( select_lst_t *, struct s_cartman_mpd * );
+select_lst_t * select_lst_set_mesh( select_lst_t *, cartman_mpd_t * );
