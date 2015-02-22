@@ -189,6 +189,7 @@ Again:
             throw Ego::Script::SyntaxError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
         }
         std::string who;
+        ctxt.skipWhiteSpaces();
         if (ctxt.is('%'))
         {
             who = ctxt.readReference();

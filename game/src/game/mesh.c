@@ -34,26 +34,6 @@
 // mesh initialization - not accessible by scripts
 static void   ego_mesh_make_vrtstart( ego_mesh_t * pmesh );
 
-static grid_mem_t *  grid_mem_ctor( grid_mem_t * pmem );
-static grid_mem_t *  grid_mem_dtor( grid_mem_t * pmem );
-static bool        grid_mem_alloc( grid_mem_t * pmem, const ego_mesh_info_t * pinfo );
-static bool        grid_mem_free( grid_mem_t * pmem );
-static void          grid_make_fanstart( grid_mem_t * pmesh, const ego_mesh_info_t * pinfo );
-
-static tile_mem_t *    tile_mem_ctor( tile_mem_t * pmem );
-static tile_mem_t *    tile_mem_dtor( tile_mem_t * pmem );
-static bool          tile_mem_free( tile_mem_t * pmem );
-static bool          tile_mem_alloc( tile_mem_t * pmem, const ego_mesh_info_t * pinfo );
-
-static ego_mesh_info_t * ego_mesh_info_ctor( ego_mesh_info_t * pinfo );
-static ego_mesh_info_t * ego_mesh_info_dtor( ego_mesh_info_t * pinfo );
-static void             ego_mesh_info_init( ego_mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y );
-
-static bool mpdfx_lists_alloc( mpdfx_lists_t * plst, const ego_mesh_info_t * pinfo );
-static bool mpdfx_lists_dealloc( mpdfx_lists_t * plst );
-static bool mpdfx_lists_reset( mpdfx_lists_t * plst );
-static int    mpdfx_lists_push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t value );
-
 // some twist/normal functions
 static bool ego_mesh_make_normals( ego_mesh_t * pmesh );
 
@@ -62,15 +42,7 @@ static bool ego_mesh_make_bbox( ego_mesh_t * pmesh );
 
 static float grid_get_mix( float u0, float u, float v0, float v );
 
-static ego_mesh_t * ego_mesh_ctor_1( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
-static bool ego_mesh_remove_ambient( ego_mesh_t * pmesh );
-static bool ego_mesh_recalc_twist( ego_mesh_t * pmesh );
-static bool ego_mesh_make_texture( ego_mesh_t * pmesh );
-static ego_mesh_t * ego_mesh_finalize( ego_mesh_t * pmesh );
-static bool ego_mesh_test_one_corner( ego_mesh_t * pmesh, GLXvector3f pos, float * pdelta );
-static bool ego_mesh_light_one_corner( const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight );
 
-static oglx_texture_t * ego_mesh_get_texture( Uint8 image, Uint8 size );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -93,62 +65,69 @@ Uint8     mesh_tx_size   = 0xFF;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mesh_info_t * ego_mesh_info_ctor( ego_mesh_info_t * pinfo )
+ego_mesh_info_t *ego_mesh_info_t::ctor(ego_mesh_info_t *self)
 {
-    if ( NULL == pinfo ) return pinfo;
-
-    BLANK_STRUCT_PTR( pinfo )
-
-    return pinfo;
-}
-
-//--------------------------------------------------------------------------------------------
-void ego_mesh_info_init( ego_mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y )
-{
-    // set the desired number of tiles
-    pinfo->tiles_x = tiles_x;
-    pinfo->tiles_y = tiles_y;
-    pinfo->tiles_count = pinfo->tiles_x * pinfo->tiles_y;
-
-    // set the desired number of vertices
-    if ( numvert < 0 )
+    if (!self)
     {
-        numvert = MAP_FAN_VERTICES_MAX * pinfo->tiles_count;
-    };
-    pinfo->vertcount = numvert;
+        return nullptr;
+    }
+    self->tiles_x = 0; self->tiles_y = 0;
+    self->tiles_count = 0;
+    self->vertcount = 0;
+    return self;
+}
+
+ego_mesh_info_t *ego_mesh_info_t::dtor(ego_mesh_info_t *self)
+{
+    if (!self)
+    {
+        return nullptr;
+    }
+    self->tiles_x = 0; self->tiles_y = 0;
+    self->tiles_count = 0;
+    self->vertcount = 0;
+    return self;
+}
+
+void ego_mesh_info_t::init(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y)
+{
+    // Set the desired number of tiles.
+    self->tiles_x = tiles_x;
+    self->tiles_y = tiles_y;
+    self->tiles_count = self->tiles_x * self->tiles_y;
+
+    // Set the desired number of vertices.
+    if (numvert < 0)
+    {
+        numvert = MAP_FAN_VERTICES_MAX * self->tiles_count;
+    }
+    self->vertcount = numvert;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_mesh_info_t * ego_mesh_info_dtor( ego_mesh_info_t * pinfo )
+//--------------------------------------------------------------------------------------------
+tile_mem_t *tile_mem_ctor(tile_mem_t *self)
 {
-    if ( NULL == pinfo ) return NULL;
-
-    BLANK_STRUCT_PTR( pinfo )
-
-    return pinfo;
+    if (!self)
+    {
+        return nullptr;
+    }
+    BLANK_STRUCT_PTR(self);
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-tile_mem_t * tile_mem_ctor( tile_mem_t * pmem )
+tile_mem_t *tile_mem_dtor(tile_mem_t *self)
 {
-    if ( NULL == pmem ) return pmem;
+    if (!self)
+    {
+        return nullptr;
+    }
+    tile_mem_free(self);
 
-    BLANK_STRUCT_PTR( pmem )
+    BLANK_STRUCT_PTR(self);
 
-    return pmem;
-}
-
-//--------------------------------------------------------------------------------------------
-tile_mem_t * tile_mem_dtor( tile_mem_t * pmem )
-{
-    if ( NULL == pmem ) return NULL;
-
-    tile_mem_free( pmem );
-
-    BLANK_STRUCT_PTR( pmem )
-
-    return pmem;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -222,57 +201,58 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mesh_t * ego_mesh_ctor( ego_mesh_t * pmesh )
+ego_mesh_t *ego_mesh_t::ctor(ego_mesh_t *self)
 {
     /// @author BB
     /// @details initialize the ego_mesh_t structure
 
-    if ( NULL != pmesh )
+    if (self)
     {
-        BLANK_STRUCT_PTR( pmesh )
+        BLANK_STRUCT_PTR(self);
 
-        tile_mem_ctor( &( pmesh->tmem ) );
-        grid_mem_ctor( &( pmesh->gmem ) );
-        ego_mesh_info_ctor( &( pmesh->info ) );
-        mpdfx_lists_ctor( &( pmesh->fxlists ) );
+        tile_mem_ctor(&(self->tmem ));
+        grid_mem_ctor(&(self->gmem));
+        ego_mesh_info_t::ctor(&(self->info));
+        mpdfx_lists_ctor(&(self->fxlists));
     }
 
     // global initialization
     ego_mesh_make_twist();
 
-    return pmesh;
+    return self;
+}
+
+ego_mesh_t * ego_mesh_t::dtor(ego_mesh_t *self)
+{
+    if (!self)
+    {
+        return nullptr;
+    }
+    if (!tile_mem_dtor(&(self->tmem))) return nullptr;
+    if (!grid_mem_dtor(&(self->gmem))) return nullptr;
+    if (!ego_mesh_info_t::dtor(&(self->info))) return nullptr;
+
+    return self;
+}
+
+
+ego_mesh_t *ego_mesh_t::renew(ego_mesh_t *self)
+{
+    self = ego_mesh_t::dtor(self);
+    return ego_mesh_t::ctor(self);
 }
 
 //--------------------------------------------------------------------------------------------
-ego_mesh_t * ego_mesh_dtor( ego_mesh_t * pmesh )
-{
-    if ( NULL == pmesh ) return NULL;
-
-    if ( NULL == tile_mem_dtor( &( pmesh->tmem ) ) ) return NULL;
-    if ( NULL == grid_mem_dtor( &( pmesh->gmem ) ) ) return NULL;
-    if ( NULL == ego_mesh_info_dtor( &( pmesh->info ) ) ) return NULL;
-
-    return pmesh;
-}
-
-//--------------------------------------------------------------------------------------------
-ego_mesh_t * ego_mesh_renew( ego_mesh_t * pmesh )
-{
-    pmesh = ego_mesh_dtor( pmesh );
-
-    return ego_mesh_ctor( pmesh );
-}
-
 //--------------------------------------------------------------------------------------------
 ego_mesh_t * ego_mesh_ctor_1( ego_mesh_t * pmesh, int tiles_x, int tiles_y )
 {
 
     if ( NULL == pmesh ) return pmesh;
 
-    BLANK_STRUCT_PTR( pmesh )
+    BLANK_STRUCT_PTR(pmesh);
 
     // intitalize the mesh info using the max number of vertices for each tile
-    ego_mesh_info_init( &( pmesh->info ), -1, tiles_x, tiles_y );
+    ego_mesh_info_t::init( &( pmesh->info ), -1, tiles_x, tiles_y );
 
     // allocate the mesh memory
     tile_mem_alloc( &( pmesh->tmem ), &( pmesh->info ) );
@@ -288,7 +268,7 @@ ego_mesh_t * ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y )
     if ( NULL == pmesh )
     {
         pmesh = EGOBOO_NEW( ego_mesh_t );
-        pmesh = ego_mesh_ctor( pmesh );
+        pmesh = ego_mesh_t::ctor( pmesh );
     }
 
     return ego_mesh_ctor_1( pmesh, tiles_x, tiles_y );
@@ -299,7 +279,7 @@ bool ego_mesh_destroy( ego_mesh_t ** ppmesh )
 {
     if ( NULL == ppmesh || NULL == *ppmesh ) return false;
 
-    ego_mesh_dtor( *ppmesh );
+    ego_mesh_t::dtor( *ppmesh );
 
     *ppmesh = NULL;
 
@@ -465,14 +445,14 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     pinfo_src = &( pmesh_src->info );
 
     // clear out all data in the destination mesh
-    if ( NULL == ego_mesh_renew( pmesh_dst ) ) return false;
+    if ( NULL == ego_mesh_t::renew( pmesh_dst ) ) return false;
     ptmem_dst  = &( pmesh_dst->tmem );
     pgmem_dst  = &( pmesh_dst->gmem );
     plists_dst = &( pmesh_dst->fxlists );
     pinfo_dst  = &( pmesh_dst->info );
 
     // set up the destination mesh from the source mesh
-    ego_mesh_info_init( pinfo_dst, pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y );
+    ego_mesh_info_t::init( pinfo_dst, pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y );
 
     allocated_dst = tile_mem_alloc( ptmem_dst, pinfo_dst );
     if ( !allocated_dst ) return false;
@@ -551,13 +531,13 @@ ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh )
         // create a new mesh if we are passed a NULL pointer
         if ( NULL == pmesh )
         {
-            pmesh = ego_mesh_ctor( pmesh );
+            pmesh = ego_mesh_t::ctor( pmesh );
         }
 
         if ( NULL == pmesh ) return pmesh;
 
         // free any memory that has been allocated
-        pmesh = ego_mesh_renew( pmesh );
+        pmesh = ego_mesh_t::renew( pmesh );
     }
 
     // actually do the loading
@@ -1441,7 +1421,7 @@ float grid_get_mix( float u0, float u, float v0, float v )
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD ego_mesh_test_wall( const ego_mesh_t *pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * pdata )
+BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *pmesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *pdata)
 {
     /// @author BB
     /// @details an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
@@ -1457,9 +1437,6 @@ BIT_FIELD ego_mesh_test_wall( const ego_mesh_t *pmesh, const float pos[], const 
 
     // if there is no interaction with the mesh, return 0
     if ( EMPTY_BIT_FIELD == bits ) return EMPTY_BIT_FIELD;
-
-    // require a valid position
-    if ( NULL == pos ) return EMPTY_BIT_FIELD;
 
     // if the mesh is empty, return 0
     if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return EMPTY_BIT_FIELD;
@@ -1554,7 +1531,7 @@ BIT_FIELD ego_mesh_test_wall( const ego_mesh_t *pmesh, const float pos[], const 
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float radius, const BIT_FIELD bits )
+float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const fvec3_t& pos, float radius, const BIT_FIELD bits )
 {
     const float tile_area = GRID_FSIZE * GRID_FSIZE;
 
@@ -1572,7 +1549,7 @@ float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float 
     // deal with the optional parameters
     loc_pressure = 0.0f;
 
-    if ( NULL == pos || 0 == bits ) return 0;
+    if (0 == bits) return 0;
 
     if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
     pinfo = &( pmesh->info );
@@ -1694,7 +1671,7 @@ float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float 
 }
 
 //--------------------------------------------------------------------------------------------
-fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits )
+fvec3_t ego_mesh_get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float radius, float center_pressure, const BIT_FIELD bits )
 {
     /// @author BB
     /// @details determine the shortest "way out", but creating an array of "pressures"
@@ -1704,41 +1681,36 @@ fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float ra
     const float jitter_size = GRID_FSIZE * 0.5f;
     float pressure_ary[9];
     float fx, fy;
-    fvec2_t diff = fvec2_t::zero;
+    fvec3_t diff = fvec3_t::zero;
     float   sum_diff = 0.0f;
     float   dpressure;
 
     int cnt;
 
-    // find the pressure for the 9 points of jittering around the current position
+    // Find the pressure for the 9 points of jittering around the current position.
     pressure_ary[4] = center_pressure;
     for ( cnt = 0, fy = pos[kY] - jitter_size; fy <= pos[kY] + jitter_size; fy += jitter_size )
     {
         for ( fx = pos[kX] - jitter_size; fx <= pos[kX] + jitter_size; fx += jitter_size, cnt++ )
         {
-            fvec2_t jitter_pos;
-
-            jitter_pos.x = fx;
-            jitter_pos.y = fy;
-
-            if ( 4 == cnt ) continue;
-
-            pressure_ary[cnt] = ego_mesh_get_pressure( pmesh, jitter_pos.v, radius, bits );
+            fvec3_t jitter_pos(fx,fy,0.0f);
+            if (4 == cnt) continue;
+            pressure_ary[cnt] = ego_mesh_get_pressure(mesh, jitter_pos, radius, bits);
         }
     }
 
-    // determine the "minimum number of tiles to move" to get into a clear area
+    // Determine the "minimum number of tiles to move" to get into a clear area.
     diff.x = diff.y = 0.0f;
     sum_diff = 0.0f;
     for ( cnt = 0, fy = -0.5f; fy <= 0.5f; fy += 0.5f )
     {
         for ( fx = -0.5f; fx <= 0.5f; fx += 0.5f, cnt++ )
         {
-            if ( 4 == cnt ) continue;
+            if (4 == cnt) continue;
 
             dpressure = ( pressure_ary[cnt] - center_pressure );
 
-            // find the maximal pressure gradient == the minimal distance to move
+            // Find the maximal pressure gradient == the minimal distance to move.
             if ( 0.0f != dpressure )
             {
                 float   weight;
@@ -1764,10 +1736,10 @@ fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float ra
     //    diff.y /= sum_diff;
     //}
 
-    // limit the maximum displacement to less than one tile
-    if ( ABS( diff.x ) + ABS( diff.y ) > 0.0f )
+    // Limit the maximum displacement to less than one tile.
+    if (ABS(diff.x) + ABS(diff.y) > 0.0f)
     {
-        float fmax = std::max( ABS( diff.x ), ABS( diff.y ) );
+        float fmax = std::max(ABS(diff.x), ABS(diff.y));
 
         diff.x /= fmax;
         diff.y /= fmax;
@@ -1777,7 +1749,7 @@ fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float ra
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * pdata )
+BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
     /// @author BB
     /// @details an abstraction of the functions of chr_hit_wall() and prt_hit_wall()

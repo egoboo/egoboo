@@ -41,6 +41,13 @@
 STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 Uint8           maxformattypes;
 
+
+const int ReadContext::FirstValidChar = static_cast<int>(std::numeric_limits<char>::min()) - 1;
+const int ReadContext::LastValidChar = static_cast<int>(std::numeric_limits<char>::max()) + 1;
+const int ReadContext::StartOfInput = ReadContext::FirstValidChar - 1;
+const int ReadContext::EndOfInput = ReadContext::FirstValidChar - 2;
+const int ReadContext::Error = ReadContext::FirstValidChar - 3;
+
 ReadContext::ReadContext(const std::string& loadName) :
     _loadName(loadName), _file(nullptr), _lineNumber(1), _buffer(5012), _current(StartOfInput)
 {
@@ -420,28 +427,34 @@ bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const ch
 
 int ReadContext::readInput()
 {
-    int chr = vfs_getc(_file);
-    if (EOF == chr)
+    char byte;
+    size_t result = vfs_read(&byte, 1, 1, _file);
+    if (result != 1)
     {
+        if (result > 1)
+        {
+            printf("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+            exit(EXIT_FAILURE);
+        }
         if (vfs_error(_file))
         {
             return Error;
         }
         else
         {
+            if (!vfs_eof(_file))
+            {
+                printf("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+                exit(EXIT_FAILURE);
+            }
             return EndOfInput;
         }
     }
-    if (chr < std::numeric_limits<unsigned char>::min() || chr > std::numeric_limits<unsigned char>::max())
-    {
-        printf("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-    if (ZeroTerminator == chr)
+    if (ZeroTerminator == byte)
     {
         return Error;
     }
-    return chr;
+    return byte;
 }
 
 bool ReadContext::skipToColon(bool optional)

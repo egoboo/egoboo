@@ -114,8 +114,7 @@ static int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_ver
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
 
-static fvec2_t chr_get_mesh_diff( Object * pchr, float test_pos[], float center_pressure );
-static float   chr_get_mesh_pressure( Object * pchr, float test_pos[] );
+
 
 static egolib_rv chr_invalidate_child_instances( Object * pchr );
 
@@ -597,167 +596,179 @@ void free_all_chraracters()
 }
 
 //--------------------------------------------------------------------------------------------
-float chr_get_mesh_pressure( Object * pchr, float test_pos[] )
+float chr_get_mesh_pressure(Object *chr)
 {
-    float retval = 0.0f;
+    if (!chr)
+    {
+        return 0.0f;
+    }
+    return chr_get_mesh_pressure(chr, chr->getPosition());
+}
+float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
+{
+    if (!chr)
+    {
+        return 0.0f;
+    }
+
+    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
+    {
+        return 0.0f;
+    }
+
+    // Calculate the radius based on whether the character is on camera.
     float radius = 0.0f;
-    const float *loc_test_pos = NULL;
-
-    if ( nullptr == ( pchr ) ) return retval;
-
-    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
-
-    // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? pchr->getPosition().v : test_pos;
-    if ( NULL == loc_test_pos ) return 0;
-
-    // calculate the radius based on whether the character is on camera
-    radius = 0.0f;
-    if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
+    if (cfg.dev_mode && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
+        ego_tile_info_t *tile = ego_mesh_get_ptile(PMesh, chr->onwhichgrid);
 
-        if ( NULL != ptile && ptile->inrenderlist )
+        if (nullptr != tile && tile->inrenderlist)
         {
-            radius = pchr->bump_1.size;
+            radius = chr->bump_1.size;
         }
     }
 
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    {
-        retval = ego_mesh_get_pressure( PMesh, test_pos, radius, pchr->stoppedby );
-    }
+    float result = ego_mesh_get_pressure( PMesh, pos, radius, chr->stoppedby);
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
-
-    return retval;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
-fvec2_t chr_get_mesh_diff( Object * pchr, float test_pos[], float center_pressure )
+fvec3_t chr_get_mesh_diff(Object *chr, float center_pressure)
 {
-    fvec2_t retval = fvec2_t::zero;
-    float radius;
-    const float * loc_test_pos = NULL;
-
-    if ( nullptr == ( pchr ) ) return retval;
-
-    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
-
-    // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? pchr->getPosition().v : test_pos;
-    if ( NULL == loc_test_pos ) return retval;
-
-    // calculate the radius based on whether the character is on camera
-    radius = 0.0f;
-    if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
+    if (!chr)
     {
-        ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
+        return fvec3_t::zero;
+    }
+    return chr_get_mesh_diff(chr, chr->getPosition(), center_pressure);
+}
+fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure)
+{
+    if (!chr)
+    {
+        return fvec3_t::zero;
+    }
 
-        if ( NULL != ptile && ptile->inrenderlist )
+    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
+    {
+        return fvec3_t::zero;
+    }
+
+    // Calculate the radius based on whether the character is on camera.
+    float radius = 0.0f;
+    if (cfg.dev_mode && !SDL_KEYDOWN(keyb, SDLK_F8))
+    {
+        ego_tile_info_t *tile = ego_mesh_get_ptile(PMesh, chr->onwhichgrid);
+
+        if (nullptr != tile && tile->inrenderlist)
         {
-            radius = pchr->bump_1.size;
+            radius = chr->bump_1.size;
         }
     }
 
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    {
-        retval = ego_mesh_get_diff( PMesh, loc_test_pos, radius, center_pressure, pchr->stoppedby );
-    }
+    fvec3_t result = ego_mesh_get_diff(PMesh, pos, radius, center_pressure, chr->stoppedby);
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
-
-    return retval;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD chr_hit_wall( Object * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
+BIT_FIELD chr_hit_wall(Object *chr, float nrm[], float *pressure, mesh_wall_data_t *data)
+/// @brief This function returns nonzero if the character hit a wall that the
+///        character is not allowed to cross.
 {
-    /// @author ZZ
-    /// @details This function returns nonzero if the character hit a wall that the
-    ///    character is not allowed to cross
-
-    BIT_FIELD    retval;
-    float        radius;
-    const float * loc_test_pos = NULL;
-
-    if ( nullptr == ( pchr ) ) return 0;
-
-    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return 0;
-
-    // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? pchr->getPosition().v : test_pos;
-    if ( NULL == loc_test_pos ) return 0;
-
-    // calculate the radius based on whether the character is on camera
-    radius = 0.0f;
-    if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
+    if (!chr)
     {
-        ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
-
-        if ( NULL != ptile && ptile->inrenderlist )
-        {
-            radius = pchr->bump_1.size;
-        }
+        return 0;
     }
-
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    {
-        retval = ego_mesh_hit_wall( PMesh, loc_test_pos, radius, pchr->stoppedby, nrm, pressure, pdata );
-    }
-    chr_stoppedby_tests += mesh_mpdfx_tests;
-    chr_pressure_tests  += mesh_pressure_tests;
-
-    return retval;
+    return chr_hit_wall(chr, chr->getPosition(), nrm, pressure, data);
 }
 
-//--------------------------------------------------------------------------------------------
-BIT_FIELD Objectest_wall( Object * pchr, const float test_pos[], mesh_wall_data_t * pdata )
+BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, float nrm[], float * pressure, mesh_wall_data_t *data)
+/// @brief This function returns nonzero if the character hit a wall that the
+///        character is not allowed to cross.
 {
-    /// @author ZZ
-    /// @details This function returns nonzero if the character hit a wall that the
-    ///    character is not allowed to cross
-
-    BIT_FIELD retval;
-    float  radius;
-
-    if ( !ACTIVE_PCHR( pchr ) ) return EMPTY_BIT_FIELD;
-
-    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return EMPTY_BIT_FIELD;
-
-    const float *loc_test_pos = ( NULL == test_pos ) ? pchr->getPosition().v : test_pos;
-    if(NULL == loc_test_pos) {
+    if (!chr)
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
+    {
         return EMPTY_BIT_FIELD;
     }
 
-    // calculate the radius based on whether the character is on camera
-    radius = 0.0f;
+    // Calculate the radius based on whether the character is on camera.
+    float radius = 0.0f;
     if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
     {
-        ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
-        if ( NULL != ptile && ptile->inrenderlist )
+        ego_tile_info_t *tile = ego_mesh_get_ptile(PMesh, chr->onwhichgrid);
+
+        if (nullptr != tile && tile->inrenderlist)
         {
-            radius = pchr->bump_1.size;
+            radius = chr->bump_1.size;
         }
     }
 
-    // do the wall test
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
+    BIT_FIELD result = ego_mesh_hit_wall( PMesh, pos, radius, chr->stoppedby, nrm, pressure, data);
+    chr_stoppedby_tests += mesh_mpdfx_tests;
+    chr_pressure_tests  += mesh_pressure_tests;
+
+    return result;
+}
+
+BIT_FIELD Objectest_wall(Object *chr, mesh_wall_data_t *data)
+/// @brief This function returns nonzero if the character hit a wall that the
+///        character is not allowed to cross
+{
+    if (!ACTIVE_PCHR(chr))
     {
-        retval = ego_mesh_test_wall( PMesh, loc_test_pos, radius, pchr->stoppedby, pdata );
+        return EMPTY_BIT_FIELD;
     }
+    return Objectest_wall(chr, chr->getPosition(), data);
+}
+BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t *data)
+/// @brief This function returns nonzero if the character hit a wall that the
+///        character is not allowed to cross.
+{
+    if (!ACTIVE_PCHR(chr))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
+    {
+        return EMPTY_BIT_FIELD;
+    }
+
+    // Calculate the radius based on whether the character is on camera.
+    float radius = 0.0f;
+    if (cfg.dev_mode && !SDL_KEYDOWN(keyb, SDLK_F8))
+    {
+        ego_tile_info_t *tile = ego_mesh_get_ptile(PMesh, chr->onwhichgrid);
+        if (nullptr != tile && tile->inrenderlist)
+        {
+            radius = chr->bump_1.size;
+        }
+    }
+
+    // Do the wall test.
+    mesh_mpdfx_tests = 0;
+    mesh_bound_tests = 0;
+    mesh_pressure_tests = 0;
+    BIT_FIELD result = ego_mesh_test_wall(PMesh, pos, radius, chr->stoppedby, data);
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
 
-    return retval;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1926,11 +1937,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         pprt->attachedto_ref = INVALID_CHR_REF;
 
                         // Don't spawn in walls
-                        if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos.v, NULL ) )
+                        if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
                         {
                             tmp_pos.x = pweapon->getPosX();
                             tmp_pos.y = pweapon->getPosY();
-                            if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos.v, NULL ) )
+                            if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
                             {
                                 tmp_pos.x = pchr->getPosX();
                                 tmp_pos.y = pchr->getPosY();
@@ -4736,7 +4747,7 @@ bool chr_update_safe_raw( Object * pchr )
 
     if ( nullptr == ( pchr ) ) return false;
 
-    hit_a_wall = chr_hit_wall( pchr, NULL, NULL, &pressure, NULL );
+    hit_a_wall = chr_hit_wall( pchr, NULL, &pressure, NULL );
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pchr->safe_valid = true;
@@ -4810,7 +4821,7 @@ bool chr_get_safe(Object * pchr)
 
     if ( !found && pchr->safe_valid )
     {
-        if ( !chr_hit_wall( pchr, NULL, NULL, NULL, NULL ) )
+        if ( !chr_hit_wall( pchr, NULL, NULL, NULL ) )
         {
             found = true;
         }
@@ -4820,7 +4831,7 @@ bool chr_get_safe(Object * pchr)
     {
         breadcrumb_t * bc;
 
-        bc = breadcrumb_list_last_valid( &( pchr->crumbs ) );
+        bc = breadcrumb_list_t::last_valid( &( pchr->crumbs ) );
 
         if ( NULL != bc )
         {
@@ -4849,7 +4860,7 @@ bool chr_update_breadcrumb_raw( Object * pchr )
 
     if ( bc.valid )
     {
-        retval = breadcrumb_list_add( &( pchr->crumbs ), &bc );
+        retval = breadcrumb_list_t::add( &( pchr->crumbs ), &bc );
     }
 
     return retval;
@@ -4865,7 +4876,7 @@ bool chr_update_breadcrumb( Object * pchr, bool force )
 
     if ( nullptr == ( pchr ) ) return false;
 
-    bc_ptr = breadcrumb_list_last_valid( &( pchr->crumbs ) );
+    bc_ptr = breadcrumb_list_t::last_valid( &( pchr->crumbs ) );
     if ( NULL == bc_ptr )
     {
         force  = true;
@@ -4910,7 +4921,7 @@ breadcrumb_t * chr_get_last_breadcrumb( Object * pchr )
 
     if ( 0 == pchr->crumbs.count ) return NULL;
 
-    return breadcrumb_list_last_valid( &( pchr->crumbs ) );
+    return breadcrumb_list_t::last_valid( &( pchr->crumbs ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5022,7 +5033,7 @@ bool move_one_character_integrate_motion( Object * pchr )
         tmp_pos.x = new_x;
         tmp_pos.y = new_y;
 
-        if ( EMPTY_BIT_FIELD == Objectest_wall( pchr, tmp_pos.v, &wdata ) )
+        if ( EMPTY_BIT_FIELD == Objectest_wall( pchr, tmp_pos, &wdata ) )
         {
             updated_2d = true;
         }
@@ -5032,7 +5043,7 @@ bool move_one_character_integrate_motion( Object * pchr )
             float   pressure;
             bool diff_function_called = false;
 
-            chr_hit_wall( pchr, tmp_pos.v, nrm.v, &pressure, &wdata );
+            chr_hit_wall( pchr, tmp_pos, nrm.v, &pressure, &wdata );
 
             // how is the character hitting the wall?
             if ( 0.0f != pressure )
@@ -5095,9 +5106,9 @@ bool move_one_character_integrate_motion( Object * pchr )
                 // try to get a normal from the ego_mesh_get_diff() function
                 if ( !found_nrm )
                 {
-                    fvec2_t tmp_diff;
+                    fvec3_t tmp_diff;
 
-                    tmp_diff = chr_get_mesh_diff( pchr, tmp_pos.v, pressure );
+                    tmp_diff = chr_get_mesh_diff(pchr, tmp_pos, pressure);
                     diff_function_called = true;
 
                     nrm.x = tmp_diff.x;
@@ -5201,8 +5212,8 @@ bool move_one_character_integrate_motion( Object * pchr )
 					tmp_pos += fvec3_t(diff_perp[kX],diff_perp[kY], 0.0f);
 
                     // determine whether the pressure is less at this location
-                    pressure_old = chr_get_mesh_pressure( pchr, save_pos.v );
-                    pressure_new = chr_get_mesh_pressure( pchr, tmp_pos.v );
+                    pressure_old = chr_get_mesh_pressure(pchr, save_pos);
+                    pressure_new = chr_get_mesh_pressure(pchr, tmp_pos);
 
                     if ( pressure_new < pressure_old )
                     {

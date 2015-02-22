@@ -2205,12 +2205,12 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
         // Don't spawn in walls
         tmp_pos.x += pstate->x;
-        if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos.v, NULL ) )
+        if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
         {
             tmp_pos.x = pprt->pos.x;
 
             tmp_pos.y += pstate->y;
-            if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
             {
                 tmp_pos.y = pprt->pos.y;
             }

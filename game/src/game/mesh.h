@@ -28,6 +28,7 @@
 // external types
 //--------------------------------------------------------------------------------------------
 
+struct ego_mesh_info_t;
 struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
@@ -172,6 +173,12 @@ struct grid_mem_t
     ego_grid_info_t* grid_list;                        ///< tile command info
 };
 
+grid_mem_t *grid_mem_ctor(grid_mem_t *self);
+grid_mem_t *grid_mem_dtor(grid_mem_t *self);
+bool grid_mem_alloc(grid_mem_t *self, const ego_mesh_info_t *info);
+bool grid_mem_free(grid_mem_t *self);
+void grid_make_fanstart(grid_mem_t *self, const ego_mesh_info_t *info);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -191,6 +198,11 @@ struct tile_mem_t
     GLXvector3f   * nlst;                              ///< the normal list
     GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
 };
+
+tile_mem_t *tile_mem_ctor(tile_mem_t *self);
+tile_mem_t *tile_mem_dtor(tile_mem_t *self);
+bool tile_mem_free(tile_mem_t *self);
+bool tile_mem_alloc(tile_mem_t *self, const ego_mesh_info_t *info);
 
 //--------------------------------------------------------------------------------------------
 
@@ -224,9 +236,12 @@ struct mpdfx_lists_t
     mpdfx_list_ary_t slp;
 };
 
-mpdfx_lists_t * mpdfx_lists_ctor( mpdfx_lists_t * );
-mpdfx_lists_t * mpdfx_lists_dtor( mpdfx_lists_t * );
-
+mpdfx_lists_t *mpdfx_lists_ctor(mpdfx_lists_t *self);
+mpdfx_lists_t *mpdfx_lists_dtor(mpdfx_lists_t *self);
+bool mpdfx_lists_alloc(mpdfx_lists_t *self, const ego_mesh_info_t *info);
+bool mpdfx_lists_dealloc(mpdfx_lists_t *self);
+bool mpdfx_lists_reset(mpdfx_lists_t *self);
+int mpdfx_lists_push(mpdfx_lists_t *self, GRID_FX_BITS fx_bits, size_t value);
 bool mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool force );
 
 //--------------------------------------------------------------------------------------------
@@ -234,22 +249,54 @@ bool mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool for
 /// The generic parameters describing an ego_mesh
 struct ego_mesh_info_t
 {
-    size_t          vertcount;                         ///< For malloc
+    size_t vertcount;    ///< For malloc
 
-    int             tiles_x;                          ///< Size in tiles
-    int             tiles_y;
-    Uint32          tiles_count;                      ///< Number of tiles
+    /**
+     * @brief
+     *  The size, in tiles, along the x-axis.
+     * @todo
+     *  Rename to @a sizeX. The type should be @a size_t.
+     */
+    int tiles_x;
+    /**
+     * @brief
+     *  The size, in tiles, along the y-axis.
+     * @todo
+     *  Rename to @a sizeY. The type should be @a size_t.
+     */
+    int tiles_y;
+    /**
+     * @brief
+     *  The number of tiles in the mesh.
+     * @invariant
+     *  <tt>size = sizeX * sizeY</tt>
+     * @todo
+     *  Rename to @a size. The type should be @a size_t.
+     */
+    Uint32 tiles_count;
+
+    static ego_mesh_info_t *ctor(ego_mesh_info_t *self);
+    static ego_mesh_info_t *dtor(ego_mesh_info_t *self);
+    static void init(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y);
 };
+
+
+
 
 //--------------------------------------------------------------------------------------------
 
 /// Egoboo's representation of the .mpd mesh file
 struct ego_mesh_t
 {
-    ego_mesh_info_t  info;
-    tile_mem_t      tmem;
-    grid_mem_t      gmem;
-    mpdfx_lists_t   fxlists;
+    ego_mesh_info_t info;
+    tile_mem_t tmem;
+    grid_mem_t gmem;
+    mpdfx_lists_t fxlists;
+    static ego_mesh_t *ctor(ego_mesh_t *self);
+    static ego_mesh_t *dtor(ego_mesh_t *self);
+    /// @todo Needs to be removed or re-coded as it invokes ctor and dtor which will become
+    ///       proper constructors and destructors.
+    static ego_mesh_t *renew(ego_mesh_t *self); 
 };
 
 //--------------------------------------------------------------------------------------------
@@ -286,41 +333,46 @@ extern Uint8   mesh_tx_size;           ///< what size texture?
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ego_mesh_t *ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
-bool        ego_mesh_destroy( ego_mesh_t ** pmesh );
-
-ego_mesh_t * ego_mesh_ctor( ego_mesh_t * pmesh );
-ego_mesh_t * ego_mesh_dtor( ego_mesh_t * pmesh );
-ego_mesh_t * ego_mesh_renew( ego_mesh_t * pmesh );
+bool ego_mesh_destroy( ego_mesh_t ** pmesh );
 
 /// loading/saving
-ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh );
+ego_mesh_t *ego_mesh_load( const char *modname, ego_mesh_t * pmesh );
 
 void   ego_mesh_make_twist();
 
-bool ego_mesh_test_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, float threshold );
-float  ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep );
-bool ego_mesh_interpolate_vertex( tile_mem_t * pmem, ego_tile_info_t * ptile, float pos[], float * plight );
+bool ego_mesh_test_corners(ego_mesh_t *mesh, ego_tile_info_t * ptile, float threshold );
+float ego_mesh_light_corners(ego_mesh_t *mesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep );
+bool ego_mesh_interpolate_vertex(tile_mem_t *mem, ego_tile_info_t * ptile, float pos[], float * plight );
 
-bool grid_light_one_corner( const ego_mesh_t * pmesh, int fan, float height, float nrm[], float * plight );
+bool grid_light_one_corner(const ego_mesh_t *mesh, int fan, float height, float nrm[], float * plight );
 
-BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * private_data );
-BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * private_data );
+BIT_FIELD ego_mesh_hit_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, float nrm[], float *pressure, mesh_wall_data_t * private_data);
+BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data);
 
-float ego_mesh_get_max_vertex_0( const ego_mesh_t * pmesh, int grid_x, int grid_y );
-float ego_mesh_get_max_vertex_1( const ego_mesh_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
+float ego_mesh_get_max_vertex_0(const ego_mesh_t *mesh, int grid_x, int grid_y);
+float ego_mesh_get_max_vertex_1(const ego_mesh_t *mesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax);
 
-bool ego_mesh_set_texture( ego_mesh_t * pmesh, Uint32 tile, Uint16 image );
-bool ego_mesh_update_texture( ego_mesh_t * pmesh, Uint32 tile );
+bool ego_mesh_set_texture(ego_mesh_t *mesh, Uint32 tile, Uint16 image);
+bool ego_mesh_update_texture(ego_mesh_t *mesh, Uint32 tile);
 
-fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits );
-float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float radius, const BIT_FIELD bits );
+fvec3_t ego_mesh_get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float radius, float center_pressure, const BIT_FIELD bits);
+float ego_mesh_get_pressure(const ego_mesh_t *mesh, const fvec3_t& pos, float radius, const BIT_FIELD bits);
 
-bool ego_mesh_update_water_level( ego_mesh_t * pmesh );
+bool ego_mesh_update_water_level(ego_mesh_t *mesh);
 
 void mesh_texture_invalidate();
 oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
 
 //Previously inlined
+ego_mesh_t * ego_mesh_ctor_1(ego_mesh_t * pmesh, int tiles_x, int tiles_y);
+bool ego_mesh_remove_ambient(ego_mesh_t * pmesh);
+bool ego_mesh_recalc_twist(ego_mesh_t * pmesh);
+bool ego_mesh_make_texture(ego_mesh_t * pmesh);
+ego_mesh_t * ego_mesh_finalize(ego_mesh_t * pmesh);
+bool ego_mesh_test_one_corner(ego_mesh_t * pmesh, GLXvector3f pos, float * pdelta);
+bool ego_mesh_light_one_corner(const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
+
+static oglx_texture_t * ego_mesh_get_texture(Uint8 image, Uint8 size);
 float  ego_mesh_get_level( const ego_mesh_t * pmesh, float pos_x, float pos_y );
 Uint32 ego_mesh_get_block( const ego_mesh_t * pmesh, float pos_x, float pos_y );
 Uint32 ego_mesh_get_grid( const ego_mesh_t * pmesh, float pos_x, float pos_y );

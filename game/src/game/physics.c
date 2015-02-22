@@ -1092,7 +1092,7 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, Object * pchr )
     bc->pos.z  = pchr->getPosZ();
 
     bc->grid   = ego_mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
-    bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
+    bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos, bc->radius, bc->bits, NULL ) );
 
     bc->id = breadcrumb_guid++;
 
@@ -1126,7 +1126,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     bc->pos.y  = ( FLOOR( bc->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
 
     bc->grid   = ego_mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
-    bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
+    bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos, bc->radius, bc->bits, NULL ) );
 
     bc->id = breadcrumb_guid++;
 
@@ -1153,81 +1153,64 @@ int breadcrumb_cmp( const void * lhs, const void * rhs )
 }
 
 //--------------------------------------------------------------------------------------------
-bool breadcrumb_list_full(const breadcrumb_list_t *self)
+void breadcrumb_list_t::validate(breadcrumb_list_t *self)
 {
-    if (nullptr == self) return true;
-	return self->full();
-}
+    if (!self || !self->on) return;
 
-bool breadcrumb_list_empty(const breadcrumb_list_t *self)
-{
-    if (nullptr == self) return true;
-	return self->empty();
-}
-
-void breadcrumb_list_compact(breadcrumb_list_t *self)
-{
-    if (nullptr == self) return;
-	return self->compact();
-}
-
-//--------------------------------------------------------------------------------------------
-void breadcrumb_list_validate(breadcrumb_list_t * lst)
-{
-    if ( NULL == lst || !lst->on ) return;
-
-    // invalidate all bad breadcrumbs
-	size_t cnt, invalid_cnt;
-    for (cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++ )
+    // Invalidate breadcrumbs which are not valid anymore.
+	size_t invalid = 0;
+    for (size_t i = 0; i < self->count; ++i)
     {
-        breadcrumb_t *bc = lst->lst + cnt;
+        breadcrumb_t *breadcrumb = self->lst + i;
 
-        if ( !bc->valid )
+        if (!breadcrumb->valid)
         {
-            invalid_cnt++;
+            invalid++;
         }
         else
         {
-            if (0 != ego_mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL))
+            if (0 != ego_mesh_test_wall(PMesh, breadcrumb->pos, breadcrumb->radius, breadcrumb->bits, nullptr))
             {
-                bc->valid = false;
-                invalid_cnt++;
+                breadcrumb->valid = false;
+                invalid++;
             }
         }
     }
 
-    // clean up the list
-    if (invalid_cnt > 0)
+    // If there were invalid breadcrumbs ...
+    if (invalid > 0)
     {
-        breadcrumb_list_compact(lst);
+        // ... compact the list.
+        self->compact();
     }
 
-    // sort the values from lowest to highest
-    if (lst->count > 1)
+    // Sort the values from lowest to highest.
+    if (self->count > 1)
     {
-        qsort(lst->lst, lst->count, sizeof( breadcrumb_t ), breadcrumb_cmp);
+        qsort(self->lst, self->count, sizeof(breadcrumb_t), breadcrumb_cmp);
     }
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst )
+breadcrumb_t * breadcrumb_list_t::last_valid(breadcrumb_list_t * self)
 {
-    breadcrumb_t * retval = NULL;
-
-    if ( NULL == lst || !lst->on ) return NULL;
-
-    breadcrumb_list_validate( lst );
-
-    if ( !breadcrumb_list_empty( lst ) )
+    if (!self || !self->on)
     {
-        retval = lst->lst + 0;
+        return nullptr;
     }
 
-    return retval;
+    breadcrumb_list_t::validate(self);
+
+    if (!self->empty())
+    {
+        return self->lst + 0;
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst )
+breadcrumb_t * breadcrumb_list_t::newest( breadcrumb_list_t * lst )
 {
     int cnt;
 
@@ -1273,7 +1256,7 @@ breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst )
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t *breadcrumb_list_oldest( breadcrumb_list_t * lst )
+breadcrumb_t *breadcrumb_list_t::oldest( breadcrumb_list_t * lst )
 {
     int cnt;
 
@@ -1319,7 +1302,7 @@ breadcrumb_t *breadcrumb_list_oldest( breadcrumb_list_t * lst )
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t *breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid )
+breadcrumb_t *breadcrumb_list_t::oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid )
 {
     int cnt;
 
@@ -1366,31 +1349,37 @@ breadcrumb_t *breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t *breadcrumb_list_alloc( breadcrumb_list_t * lst )
+breadcrumb_t *breadcrumb_list_t::alloc( breadcrumb_list_t * lst )
 {
-    breadcrumb_t * retval = NULL;
-
-    if ( breadcrumb_list_full( lst ) )
+    if (!lst)
     {
-        breadcrumb_list_compact( lst );
+        return nullptr;
     }
 
-    if ( breadcrumb_list_full( lst ) )
+    // If the list is full ...
+    if (lst->full())
     {
-        retval = breadcrumb_list_oldest( lst );
+        // ... try to compact it.
+        lst->compact();
+    }
+
+    // If the list is still full after compaction ...
+    if (lst->full())
+    {
+        // .. re-use the oldest element.
+        return breadcrumb_list_t::oldest(lst);
     }
     else
     {
-        retval = lst->lst + lst->count;
+        breadcrumb_t *breadcrumb = lst->lst + lst->count;
         lst->count++;
-        retval->id = breadcrumb_guid++;
+        breadcrumb->id = breadcrumb_guid++;
+        return breadcrumb;
     }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
+bool breadcrumb_list_t::add(breadcrumb_list_t * lst, breadcrumb_t * pnew)
 {
     int cnt, invalid_cnt;
 
@@ -1414,11 +1403,11 @@ bool breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
 
     if ( invalid_cnt > 0 )
     {
-        breadcrumb_list_compact( lst );
+        lst->compact();
     }
 
-    // find the newest tile with the same grid position
-    ptmp = breadcrumb_list_newest( lst );
+    // Find the newest tile with the same grid position.
+    ptmp = breadcrumb_list_t::newest( lst );
     if ( NULL != ptmp && ptmp->valid )
     {
         if ( ptmp->grid == pnew->grid )
@@ -1440,24 +1429,24 @@ bool breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
         }
     }
 
-    if ( breadcrumb_list_full( lst ) )
+    if ( lst->full() )
     {
         // the list is full, so we have to reuse an element
 
         // try the oldest element at this grid position
-        pold = breadcrumb_list_oldest_grid( lst, pnew->grid );
+        pold = breadcrumb_list_t::oldest_grid( lst, pnew->grid );
 
         if ( NULL == pold )
         {
             // not found, so find the oldest breadcrumb
-            pold = breadcrumb_list_oldest( lst );
+            pold = breadcrumb_list_t::oldest( lst );
         }
     }
     else
     {
         // the list is not full, so just allocate an element as normal
 
-        pold = breadcrumb_list_alloc( lst );
+        pold = breadcrumb_list_t::alloc( lst );
     }
 
     // assign the data to the list element

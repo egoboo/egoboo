@@ -1309,7 +1309,7 @@ void do_weather_spawn_particles()
                         {
                             destroy_particle = true;
                         }
-                        else if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, NULL, NULL ) )
+                        else if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, NULL ) )
                         {
                             destroy_particle = true;
                         }

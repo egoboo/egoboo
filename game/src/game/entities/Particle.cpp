@@ -536,7 +536,7 @@ prt_t *prt_t::config_do_init()
     }
 
     // is the spawn location safe?
-    if (0 == prt_t::hit_wall(pprt, tmp_pos.v, NULL, NULL, NULL))
+    if (0 == prt_t::hit_wall(pprt, tmp_pos, NULL, NULL, NULL))
     {
         pprt->safe_pos = tmp_pos;
         pprt->safe_valid = true;
@@ -780,74 +780,98 @@ PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF ip
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD prt_t::hit_wall(prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata)
+BIT_FIELD prt_t::hit_wall(prt_t *prt, float nrm[], float *pressure, mesh_wall_data_t *data)
+/// @brief This function returns nonzero if the particle hit a wall that the
+///        particle is not allowed to cross.
 {
-    /// @author ZZ
-    /// @details This function returns nonzero if the particle hit a wall that the
-    ///    particle is not allowed to cross
+    if (!DEFINED_PPRT(prt))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    if (!LOADED_PIP(prt->pip_ref))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    fvec3_t pos;
+    if (!prt_t::get_pos(prt, pos))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    return prt_t::hit_wall(prt, pos, nrm, pressure, data);
+}
+BIT_FIELD prt_t::hit_wall(prt_t *prt, const fvec3_t& pos, float nrm[], float *pressure, mesh_wall_data_t *data)
+/// @brief This function returns nonzero if the particle hit a wall that the
+///        particle is not allowed to cross.
+{
+    if (!DEFINED_PPRT(prt))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    if (!LOADED_PIP(prt->pip_ref))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    pip_t *ppip = PipStack.get_ptr(prt->pip_ref);
 
-    BIT_FIELD  retval;
-    BIT_FIELD  stoppedby;
-    pip_t      * ppip;
-
-    if (!DEFINED_PPRT(pprt)) return EMPTY_BIT_FIELD;
-
-    if (!LOADED_PIP(pprt->pip_ref)) return EMPTY_BIT_FIELD;
-    ppip = PipStack.get_ptr(pprt->pip_ref);
-
-    stoppedby = MAPFX_IMPASS;
+    BIT_FIELD stoppedby = MAPFX_IMPASS;
     if (0 != ppip->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
-
-    // deal with the optional parameters
-    if (NULL == test_pos) test_pos = prt_t::get_pos_v_const(pprt).v;
-    if (NULL == test_pos) return EMPTY_BIT_FIELD;
 
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    {
-        retval = ego_mesh_hit_wall(PMesh, test_pos, 0.0f, stoppedby, nrm, pressure, pdata);
-    }
+    BIT_FIELD  result = ego_mesh_hit_wall(PMesh, pos, 0.0f, stoppedby, nrm, pressure, data);
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
 
-    return retval;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD prt_t::test_wall(prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata)
+BIT_FIELD prt_t::test_wall(prt_t *prt, mesh_wall_data_t *data)
+/// @brief This function returns nonzero if the particle hit a wall that the
+///        particle is not allowed to cross.
 {
-    /// @author ZZ
-    /// @details This function returns nonzero if the particle hit a wall that the
-    ///    particle is not allowed to cross
+    if (!ACTIVE_PPRT(prt))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    if (!LOADED_PIP(prt->pip_ref))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    fvec3_t pos;
+    if (!prt_t::get_pos(prt, pos))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    return prt_t::test_wall(prt, pos, data);
+}
+BIT_FIELD prt_t::test_wall(prt_t *prt, const fvec3_t& pos, mesh_wall_data_t *data)
+/// @brief This function returns nonzero if the particle hit a wall that the
+///        particle is not allowed to cross.
+{
+    if (!ACTIVE_PPRT(prt))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    if (!LOADED_PIP(prt->pip_ref))
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    pip_t *pip = PipStack.get_ptr(prt->pip_ref);
 
-    BIT_FIELD retval;
-    pip_t * ppip;
-    BIT_FIELD  stoppedby;
+    BIT_FIELD  stoppedby = MAPFX_IMPASS;
+    if (0 != pip->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
 
-    if (!ACTIVE_PPRT(pprt)) return EMPTY_BIT_FIELD;
-
-    if (!LOADED_PIP(pprt->pip_ref)) return EMPTY_BIT_FIELD;
-    ppip = PipStack.get_ptr(pprt->pip_ref);
-
-    stoppedby = MAPFX_IMPASS;
-    if (0 != ppip->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
-
-    // handle optional parameters
-    if (NULL == test_pos) test_pos = prt_t::get_pos_v_const(pprt).v;
-    if (NULL == test_pos) return EMPTY_BIT_FIELD;
-
-    // do the wall test
+    // Do the wall test.
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    {
-        retval = ego_mesh_test_wall(PMesh, test_pos, 0.0f, stoppedby, pdata);
-    }
+    BIT_FIELD result = ego_mesh_test_wall(PMesh, pos, 0.0f, stoppedby, data);
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
 
-    return retval;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1468,14 +1492,14 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
     {
         mesh_wall_data_t wdata;
 
-        if (EMPTY_BIT_FIELD != prt_t::test_wall(loc_pprt, tmp_pos.v, &wdata))
+        if (EMPTY_BIT_FIELD != prt_t::test_wall(loc_pprt, tmp_pos, &wdata))
         {
             Uint32  hit_bits;
             fvec2_t nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            hit_bits = prt_t::hit_wall(loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata);
+            hit_bits = prt_t::hit_wall(loc_pprt, tmp_pos, nrm.v, &pressure, &wdata);
 
             if (0 != hit_bits)
             {
@@ -1636,13 +1660,13 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
         tmp_pos.y += loc_pprt->vel.y;
 
         //Hitting a wall?
-        if (EMPTY_BIT_FIELD != prt_t::test_wall(loc_pprt, tmp_pos.v, &wdata))
+        if (EMPTY_BIT_FIELD != prt_t::test_wall(loc_pprt, tmp_pos, &wdata))
         {
             fvec2_t nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            if (EMPTY_BIT_FIELD != prt_t::hit_wall(loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata))
+            if (EMPTY_BIT_FIELD != prt_t::hit_wall(loc_pprt, tmp_pos, nrm.v, &pressure, &wdata))
             {
                 touch_a_wall = true;
 
@@ -2117,7 +2141,7 @@ bool prt_t::update_safe_raw(prt_t * pprt)
 
     if (!ALLOCATED_PPRT(pprt)) return false;
 
-    hit_a_wall = prt_t::hit_wall(pprt, NULL, NULL, &pressure, NULL);
+    hit_a_wall = prt_t::hit_wall(pprt, NULL, &pressure, NULL);
     if ((0 == hit_a_wall) && (0.0f == pressure))
     {
         pprt->safe_valid = true;

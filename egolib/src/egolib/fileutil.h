@@ -292,12 +292,16 @@ public:
         return *it;
     }
 
+    /// The minimum of the sub-range of extended character values representing valid characters.
+    static const int FirstValidChar;
+    /// The maximum of the sub-range of extended character values representing valid characters.
+    static const int LastValidChar;
     /// Special value for extended character indicating the start of the input.
-    static const int StartOfInput = -1;
+    static const int StartOfInput;
     /// Special value for extended character indicating the end of the input.
-    static const int EndOfInput = -2;
+    static const int EndOfInput;
     /// Special value for extended character indicating an error.
-    static const int Error = -3;
+    static const int Error;
 
     void write(char chr);
     void save();

@@ -179,47 +179,28 @@ struct breadcrumb_list_t
 	{
 		return (count >= MAX_BREADCRUMB) || !on;
 	}
+#if 0
+    /**
+     * @brief
+     *	Compact this breadcrumb list.
+     * @param self
+     *	this breakcrumb list
+     */
+    static void compact(breadcrumb_list_t *self);
+#endif
+
+    static void validate(breadcrumb_list_t *self);
+    static bool add(breadcrumb_list_t *self, breadcrumb_t *breadcrumb);
+    static breadcrumb_t *last_valid(breadcrumb_list_t *self);
+    static breadcrumb_t *alloc(breadcrumb_list_t *self);
+    static breadcrumb_t *oldest_grid(breadcrumb_list_t *self, Uint32 match_grid);
+    static breadcrumb_t *oldest(breadcrumb_list_t *self);
+    static breadcrumb_t *newest(breadcrumb_list_t *self);
 
 };
 
-void breadcrumb_list_validate( breadcrumb_list_t * lst );
-bool breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew );
-breadcrumb_t *breadcrumb_list_last_valid( breadcrumb_list_t * lst );
-breadcrumb_t *breadcrumb_list_alloc( breadcrumb_list_t * lst );
-breadcrumb_t *breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid );
-breadcrumb_t *breadcrumb_list_oldest( breadcrumb_list_t * lst );
-breadcrumb_t *breadcrumb_list_newest( breadcrumb_list_t * lst );
-/**
- * @brief
- *	Compact this breadcrumb list.
- * @param self
- *	this breakcrumb list
- * @todo
- *	Remove this.
- */
-void breadcrumb_list_compact(breadcrumb_list_t *self);
-/**
- * @brief
- *	Is this breadcrumb list empty.
- * @param self
- *	this breadcrumb list
- * @return
- *	@a true if this breadcrumb list is empty, @a false otherwise
- * @todo
- *	Remove this.
- */
-bool breadcrumb_list_empty(const breadcrumb_list_t *self);
-/**
- * @brief
- *	Is this breadcrumb list full.
- * @param self
- *	this breadcrumb list
- * @return
- *	@a true if this breadcrumb list is full, @a false otherwise
- * @todo
- *	Remove this.
- */
-bool breadcrumb_list_full(const breadcrumb_list_t *self);
+
+
 
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values

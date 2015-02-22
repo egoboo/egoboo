@@ -783,7 +783,7 @@ bool Object::teleport(const float x, const float y, const float z, const FACING_
     fvec3_t newPosition = fvec3_t(x, y, z);
 
     //Cannot teleport inside a wall
-    if ( !chr_hit_wall(this, newPosition.v, NULL, NULL, NULL) )
+    if ( !chr_hit_wall(this, newPosition, NULL, NULL, NULL) )
     {
         // Yeah!  It worked!
 
@@ -983,7 +983,7 @@ void Object::updateResize()
         {
             bump.size += bump_increase;
 
-            if ( EMPTY_BIT_FIELD != Objectest_wall(this, NULL, NULL ) )
+            if ( EMPTY_BIT_FIELD != Objectest_wall(this, NULL ) )
             {
                 willgetcaught = true;
             }
@@ -1142,7 +1142,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Make sure it's not dropped in a wall...
-    if (EMPTY_BIT_FIELD != Objectest_wall(this, NULL, NULL))
+    if (EMPTY_BIT_FIELD != Objectest_wall(this, NULL))
     {
         fvec3_t pos_tmp = pholder->getPosition();
         pos_tmp.z = getPosZ();

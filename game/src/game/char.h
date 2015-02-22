@@ -295,8 +295,14 @@ void keep_weapons_with_holders();
 void make_one_character_matrix( const CHR_REF cnt );
 void move_one_character_get_environment( Object * pchr );
 
-BIT_FIELD chr_hit_wall( Object * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata );
-BIT_FIELD Objectest_wall( Object * pchr, const float test_pos[], mesh_wall_data_t * pdata );
+fvec3_t chr_get_mesh_diff(Object *chr, float center_pressure);
+fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
+float chr_get_mesh_pressure(Object *chr);
+float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
+BIT_FIELD chr_hit_wall(Object *chr, float nrm[], float *pressure, mesh_wall_data_t *data);
+BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, float nrm[], float *pressure, mesh_wall_data_t *data);
+BIT_FIELD Objectest_wall(Object *chr, mesh_wall_data_t *data);
+BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t * data);
 
 /**
  * @brief

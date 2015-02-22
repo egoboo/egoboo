@@ -202,8 +202,10 @@ struct prt_t : public _StateMachine<prt_t,ParticleManager>
     prt_t *dtor();
     static bool request_terminate(prt_t *self);
     static void set_level(prt_t *self, const float level);
-    static BIT_FIELD hit_wall(prt_t *self, const float test_pos[], float nrm[], float *pressure, mesh_wall_data_t *data);
-    static BIT_FIELD test_wall(prt_t *self, const float test_pos[], mesh_wall_data_t *data);
+    static BIT_FIELD hit_wall(prt_t *self, float nrm[], float *pressure, mesh_wall_data_t *data);
+    static BIT_FIELD hit_wall(prt_t *self, const fvec3_t& pos, float nrm[], float *pressure, mesh_wall_data_t *data);
+    static BIT_FIELD test_wall(prt_t *self, mesh_wall_data_t *data);
+    static BIT_FIELD test_wall(prt_t *self, const fvec3_t& pos, mesh_wall_data_t *data);
     static bool set_size(prt_t *self, int size);
     /// @brief Get the scale factor between the "graphical size" of the particle and the actual display size.
     static float get_scale(prt_t *self);

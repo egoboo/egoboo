@@ -323,7 +323,7 @@ bool GameEngine::initialize()
     PrtList.initialize();
     EncList.initialize();
     model_system_begin();
-    ego_mesh_ctor(PMesh);
+    ego_mesh_t::ctor(PMesh);
 
 
     renderPreloadText("Loading modules...");
