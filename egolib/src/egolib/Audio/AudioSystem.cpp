@@ -336,7 +336,7 @@ void AudioSystem::loadAllMusic()
     while (ctxt.skipToColon(true))
     {
         char songName[256];
-        vfs_read_string_lit(ctxt, songName, SDL_arraysize(songName));
+        vfs_read_name(ctxt, songName, SDL_arraysize(songName));
         std::string path = std::string("mp_data/music/") + songName;
         loadMusic(path.c_str());
     }
