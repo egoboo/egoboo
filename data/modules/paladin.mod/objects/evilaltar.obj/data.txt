@@ -191,7 +191,7 @@ Chance of being cursed ( 0 to 100 )		: 0
 Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
 
-[SKIN] : 1
+:[SKIN] 1
 
 
 //-Notes------------------------------------------------------------------------

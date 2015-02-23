@@ -199,7 +199,7 @@ IfTimeOut
       DoNothing
     Else
       // Found something?
-      SetTargetToNearbyWeapon
+      SetTargetToNearbyMeleeWeapon
         tmpx = targetdistance
         tmpy = 75
         IfXIsLessThanY

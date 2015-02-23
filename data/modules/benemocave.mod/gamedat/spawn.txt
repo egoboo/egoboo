@@ -138,7 +138,7 @@ Chest: NONE     40    46.5 44.5 0    W  99   0   8   0   0   F   F   Null       
 Chest: NONE     40    45.5 41.5 0    S   0   0   1   0   0   F   F   Null           //Locked
   %MAGIC_ITEM: NONE     -1    0    0    0    I   0   0   0   0   0   F   F   Null
 Chest: NONE     40    42.5 43.5 0    E  99   0   0   2   0   F   F   Null
-  %TREASURE_RARE:   NONE     -1    0    0    0    I   0   0   0   0   0   F   F   Null
+  %RARE_TREASURE:   NONE     -1    0    0    0    I   0   0   0   0   0   F   F   Null
 Chest: NONE     40    14.5 33.5 0    S  24   0   16   2   0   F   F   Null          //Invisible
   KeyA:    NONE     41    0    0    0    I   0   0   0   0   0   F   F   Null
 

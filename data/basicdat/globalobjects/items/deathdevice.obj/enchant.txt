@@ -38,7 +38,7 @@ EVIL  damage modifier ( InversionTFC, Shift )	: F F 1
 FIRE  damage modifier ( InversionTFC, Shift )	: F F 1
 ICE   damage modifier ( InversionTFC, Shift )	: F F 1
 ZAP   damage modifier ( InversionTFC, Shift )	: F F 1
-Flashing AND ( 1, 3, 7, 15...  255 is don't )	: 64
+Flashing AND ( 1, 3, 7, 15...  255 is don't )	: F 64
 Light blending ( 255 is normal )		: F 128
 Alpha blending ( 255 is normal )		: F 128
 Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: F 0

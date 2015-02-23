@@ -211,7 +211,7 @@ chest:   NONE    59  27.0   13.5   0.0   W    1   0  0   96   7   F   F   N
 chest:   NONE    59  27.0   14.5   0.0   W    0   0  0   96   7   F   F   N
 
 tent:   NONE    43  21.0 27.0   0.0   ?    0   2  0   0   0   F   F   N
-alchemist   NONE    ??  22.0 27.0   0.0   E    0   0  0   0   0   F   F   G         //TODO: Add alchemist shop
+alchemist   NONE    ??  22.0 27.0   0.0   E    0   0  0   0   0   F   F   G         //@todo Add alchemist shop
 
 dTree:   NONE    134  8.5 23.0   0.0   ?    0   2  0   0   0   F   F   N
 dTree:   NONE    134  56.0 10.0   0.0   ?    0   2  0   0   0   F   F   N

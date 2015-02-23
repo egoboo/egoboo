@@ -14,8 +14,8 @@ Water douse level ( For torches, 90 )			: 40
 Water surface level ( For water striders, 55 )		: 30
 Water light ( TRUE or FALSE )				: TRUE
 Water is really water? ( TRUE or FALSE )		: TRUE
-Use watertop.bmp as an overlay? ( TRUE or FALSE )       : FTRUE
-Use waterlow.bmp as a background? ( TRUE or FALSE )	: FTRUE
+Use watertop.bmp as an overlay? ( TRUE or FALSE )       : FALSE
+Use waterlow.bmp as a background? ( TRUE or FALSE )	: FALSE
 Foreground distance effect X ( 0.0 to 1.0 )		: 0.0020
 Foreground distance effect Y ( 0.0 to 1.0 )		: 0.0020
 Background distance effect X ( 0.0 to 1.0 )		: 0.0001

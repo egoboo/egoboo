@@ -70,7 +70,7 @@ dirtcobol:   NONE    38  25.0   68.0   1.0   N    0   0  0   200   0   F   F   E
 dirtcobol:   NONE    38  25.0   72.0   1.0   N    3   0  0   600   0   F   F   E
   LBow:   NONE    61  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 dirtcobol:   NONE    38  26.0   74.0   1.0   N    4   0  0  150   0   F   F   E
-  Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0 0   0   F   F   N
+  Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 dirtcobol:   NONE    38  23.0   70.0   1.0   N    5   0  0   200   0   F   F   E
   whip:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 shutdoor:   NONE    82  19.0   71.0   1.0   E    0   0  20   0   0   F   F   N
@@ -223,13 +223,13 @@ Chest:   NONE    59  68.0   43.0   0.0   N    0   0  0   0   0   F   F   N
 shutdoor:   NONE    82  54.0   64.0   0.0   S    0   0  36   0   0   F   F   N
 shutdoor:   NONE    82  61.0   57.0   0.0   W    0   0  40   0   0   F   F   N
 slayercobol:   NONE    62  50.0   54.0   1.0   N    0   0  0   0   0   F   F   E
-  %POISONED_WEAPON::   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  %POISONED_WEAPON:   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  50.0   60.0   1.0   N    0   0  0   0   0   F   F   E
-  %POISONED_WEAPON::   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  %POISONED_WEAPON:   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  57.0   54.0   1.0   N    0   0  0   0   0   F   F   E
-  %POISONED_WEAPON::   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  %POISONED_WEAPON:   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  58.0   61.0   1.0   N    0   0  0   0   0   F   F   E
-  %POISONED_WEAPON::   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  %POISONED_WEAPON:   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 KeyC:   NONE    94  54.0   57.0   0.0   ?    0   0  0   0   0   F   F   N
 
 //Sneaky room
@@ -239,9 +239,9 @@ slayercobol:   NONE    62  64.0   32.0   1.0   N    0   0  0   0   0   F   F   E
 slayercobol:   NONE    62  66.0   33.0   1.0   N    0   0  0   0   0   F   F   E
   %POISONED_WEAPON:   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  64.0   33.0   1.0   N    0   0  0   0   0   F   F   E
-  %POISONED_WEAPON::   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  %POISONED_WEAPON:   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  72.0   25.0   1.0   N    0   0  0   0   0   F   F   E
-  %POISONED_WEAPON::   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  %POISONED_WEAPON:   NONE    -1  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 //Battle room
 shutdoor:   NONE    82  61.0   71.0   0.0   E    0   0  34   0   0   F   F   N

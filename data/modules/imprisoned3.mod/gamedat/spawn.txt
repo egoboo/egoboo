@@ -115,7 +115,7 @@ bouldertrap.obj:   NONE    47  71.0   29.5   1.0   N    9088   0  0   6400   0  
 firelizard.obj:   NONE    49  13.0   26.0   0.0   N    0   0  0   0   0   F   F   E
 firelizard.obj:   NONE    49  9.0   27.0   0.0   N    0   0  0   0   0   F   F   E
 firelizard.obj:   NONE    49  15.0   28.0   0.0   N    0   0  0   0   0   F   F   E
-keyc.obj:   NONE    91  13.0   27.5   ?    0   0  0   0   0   F   F   N
+keyc.obj:   NONE    91  13.0   27.5 0.0  ?    0   0  0   0   0   F   F   N
 
 //Labyrinth
 minotore.obj:   NONE    50  72.5   67.5   1.0   N    0   0  0   0   0   F   F   E
@@ -227,13 +227,13 @@ museumstatue.obj:   NONE    95  16.5   12.5   1.0   N    0   0  0   0   0   F   
 museumstatue.obj:   NONE    95  8.5   12.5   1.0   N    0   0  0   0   0   F   F   N
 
 bosschest.obj:   NONE    108   32.5   10.0   1.0   S    0   0  0   0   0   F   F   N
-  %MAGIC_ITEM:   NONE    -1  0.0   0.0   I    0   0  0   0   0   F   F   N
-  %RARE_TREASURE:   NONE    -1  0.0   0.0   I    0   0  0   0   0   F   F   N
-  keyb.obj:   NONE    111  0.0   0.0   I    0   0  0   0   0   F   F   N
+  %MAGIC_ITEM:   NONE    -1  0.0   0.0  0.0  I    0   0  0   0   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0 0.0  I    0   0  0   0   0   F   F   N
+  keyb.obj:   NONE    111  0.0   0.0 0.0  I    0   0  0   0   0   F   F   N
 cambion.obj:   NONE    96   32.0   11.5   1.0   N    0   0  0   0   0   F   F   N
   cleaver.obj:   NONE   106  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
   missile.obj:   NONE   105  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
-  keyc.obj:   NONE    91  0.0   0.0   I    0   0  0   0   0   F   F   N
+  keyc.obj:   NONE    91  0.0   0.0 0.0  I    0   0  0   0   0   F   F   N
 grell.obj:   NONE    97 35.0   9.0   1.0   ?    0   0  0   0   0   F   F   N
   mephitwing.obj:   NONE    42  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   broadsword.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

@@ -164,7 +164,7 @@ Chest: NONE          43   39   41   0    N   0   0   0   0   0   F   F   Null
   %RARE_TREASURE: NONE      -1    0    0   0    I   0   0   0   0   0   F   F   Null
 Chest: NONE          43   54.5 54.5 0    W 199   0   0   8   0   F   F   Null     //Secret bottom
   %RANDOM_SCROLL: NONE      -1    0    0   0    I   0   0   0   0   0   F   F   Null
-  Knife:             46    0    0   0    I   0   0   0   0   0   F   F   Null
+  Knife:      NONE   46    0    0   0    I   0   0   0   0   0   F   F   Null
 Chest: NONE          43   51.5 54.5 0    N   0   0   0   0   0   F   F   Null
   LPotion: NONE      86    0    0   0    I   0   0   0   0   0   F   F   Null
   LPotion: NONE      86    0    0   0    I   0   0   0   0   0   F   F   Null

@@ -38,7 +38,7 @@ Level 1... Wave speed ( 2 )				: 4
 Level 1... Brightness ( 31 )				: 20
 Level 1... Ambient light ( 15 )				: 5
 Level 1... Wave amplitude ( 8.0 )			: 0.0
-Level 1... U speed ( -.0005 )				: - .0005
+Level 1... U speed ( -.0005 )				: -.0005
 Level 1... V speed ( .0005 )				: .0005
 
 Light X direction ( 1.00 )				: 1.00

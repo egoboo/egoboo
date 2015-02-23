@@ -13,13 +13,13 @@
 :A_light_source_-_lamp,_torch,_magic,_etc.
 :A_melee_weapon_-_anything_from_knives_to_broadswords.
 :~The_bigger,_the_better.
-:A_ranged_weapon_–_longbows,_xbows,_a_gonne,_ninja_stars,_etc.
+:A_ranged_weapon_-_longbows,_xbows,_a_gonne,_ninja_stars,_etc.
 :~Sometimes_you_just_have_to_kill_a_monster_from_a_distance.
-:Some_healing_potions_–_read_the_label_
+:Some_healing_potions_-_read_the_label_
 :These_will_keep_you_alive..._and_they_freshen_your_breath!
 :This_concludes_your_basic_equipment_for_survival..._Next_chapter!
 :CHAPTER_3_-_ADVENTURING_IN_LORULE
-:Rule_number_one_for_survival_is:_“Be_careful.”
+:Rule_number_one_for_survival_is:_"Be_careful."
 :Recklessness_will_most_likely_get_you_killed!
 :Before_entering_the_dungeon,_make_sure_you_have_anything_you_need.
 :Treasure_chest_aren't_always_friendly._They_might_jump_up_and_bite_you!

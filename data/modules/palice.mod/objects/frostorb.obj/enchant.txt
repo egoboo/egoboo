@@ -36,7 +36,7 @@ POKE  damage modifier ( InversionTFC, Shift )	: F F 2
 HOLY  damage modifier ( InversionTFC, Shift )	: F T 1
 EVIL  damage modifier ( InversionTFC, Shift )	: F F 1
 FIRE  damage modifier ( InversionTFC, Shift )	: F F 1
-ICE   damage modifier ( InversionTFC, Shift )	: F 3
+ICE   damage modifier ( InversionTFC, Shift )	: F F 3
 ZAP   damage modifier ( InversionTFC, Shift )	: F F 1
 Flashing AND ( 1, 3, 7, 15...  255 is don't )	: F 7
 Light blending ( 255 is normal )		: F 128
