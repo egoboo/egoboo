@@ -212,8 +212,17 @@ public:
 
     struct input_device_t
     {
+    public:
 		input_device_t();
 
+        void clear();
+
+        /// @brief Reset this input device.
+        /// @param type the new type of the input device.
+        ///             If this is @a INPUT_DEVICE_UNKNOWN, then the original device type is retained.
+        void initialize(e_input_device type);
+
+    public:
         float sustain;                            ///< Falloff rate for old movement
         float cover;                              ///< For falloff
 
@@ -222,13 +231,9 @@ public:
 
 		e_input_device device_type;               ///< Device type - mouse, keyboard, etc.
         std::array<control_t, CONTROL_COMMAND_COUNT> keyMap;        ///< Key mappings
+
     };
 
-    input_device_t *input_device_ctor(input_device_t *self);
-	/// @brief Reset this input device.
-	/// @param type the new type of the input device.
-	///             If this is @a INPUT_DEVICE_UNKNOWN, then the original device type is retained.
-	void input_device_init(input_device_t *self, e_input_device type);
     void input_device_add_latch(input_device_t *self, float newx, float newy);
 
 // special functions that must be implemented by the user
@@ -241,8 +246,15 @@ public:
 
     struct device_list_t
     {
+        device_list_t() :
+            count(0),
+            lst()
+        {
+            //ctor
+        }
+
         size_t         count;
-        input_device_t lst[MAX_LOCAL_PLAYERS];      // up to MAX_LOCAL_PLAYERS input controllers
+        std::array<input_device_t, MAX_LOCAL_PLAYERS> lst;      // up to MAX_LOCAL_PLAYERS input controllers
     };
 
 //--------------------------------------------------------------------------------------------

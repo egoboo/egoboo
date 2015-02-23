@@ -10,15 +10,26 @@
 template <typename TYPE, typename REFTYPE, REFTYPE INVALIDREF, size_t COUNT, bsp_type_t BSPTYPE>
 struct _LockableList
 {
-    _LockableList()
+    _LockableList() :
+        update_guid(INVALID_UPDATE_GUID),
+        usedCount(0),
+        freeCount(0),
+        termination_count(0),
+        termination_list(),
+        activation_count(0),
+        activation_list(),
+        used_ref(),
+        lst(),
+        lockCount(0)
     {
-        update_guid = INVALID_UPDATE_GUID;
-        usedCount = 0;
-        freeCount = 0;
-        lockCount = 0;
-        termination_count = 0;
-        activation_count = 0;
+       //ctor
     }
+
+    virtual ~_LockableList()
+    {
+        //dtor
+    }
+
     void reinit()
     {
         deinit();
@@ -29,6 +40,7 @@ protected:
     unsigned update_guid;
     int usedCount;
     int freeCount;
+
 public:
     bool isValidRef(const REFTYPE ref) const
     {
@@ -111,6 +123,10 @@ public:
         deinit();
     }
 
+    //Disable copying class
+    _LockableList(const _LockableList& copy) = delete;
+    _LockableList& operator=(const _LockableList&) = delete;
+
 protected:
     void init()
     {
@@ -170,11 +186,14 @@ protected:
     // while the particle list was locked.
     size_t  activation_count;
     REFTYPE activation_list[COUNT];
+
 public:
     REFTYPE used_ref[COUNT];
+
 protected:
     REFTYPE free_ref[COUNT];
     TYPE lst[COUNT];
+
 public:
     TYPE *get_ptr(const size_t index)
     {

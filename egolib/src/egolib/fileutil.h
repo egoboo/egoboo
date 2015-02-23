@@ -531,6 +531,9 @@ public:
      */
     bool skipToColon(bool optional);
 
+    //Disable copying class
+    ReadContext(const ReadContext& copy) = delete;
+    ReadContext& operator=(const ReadContext&) = delete;
 };
 
 // Utility functions.

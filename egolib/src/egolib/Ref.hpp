@@ -118,7 +118,7 @@ public:
 
     // Post- and pre-increment operators.
 
-    Ref<MIN, MAX, INVALID>& operator++(int)
+    Ref<MIN, MAX, INVALID> operator++(int)
     {
         if (_ref == MAX)
         {
@@ -143,7 +143,7 @@ public:
 
     // Post- and pre-decrement operators.
 
-    Ref<MIN, MAX, INVALID> &operator--(int)
+    Ref<MIN, MAX, INVALID> operator--(int)
     {
         if (0 == _ref)
         {

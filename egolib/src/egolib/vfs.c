@@ -134,10 +134,10 @@ static bool _vfs_initialized = false;
 //--------------------------------------------------------------------------------------------
 static void                   _vfs_exit(void);
 static vfs_search_context_t * _vfs_search(vfs_search_context_t ** ctxt);
-static int                    _vfs_vfscanf(FILE * file, const char * format, va_list args);
+//static int                    _vfs_vfscanf(FILE * file, const char * format, va_list args);
 
 static int          _vfs_ensure_write_directory(const char * filename, bool is_directory);
-static bool       _vfs_ensure_destination_file(const char * filename);
+//static bool       _vfs_ensure_destination_file(const char * filename);
 
 static void         _vfs_translate_error(vfs_FILE * pfile);
 
@@ -694,6 +694,7 @@ vfs_FILE * vfs_openWrite( const char * filename )
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool _vfs_ensure_destination_file(const char * filename)
 {
     /// @author BB
@@ -718,6 +719,7 @@ bool _vfs_ensure_destination_file(const char * filename)
     
     return vfs_copyFile(filename, filename);
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 vfs_FILE * vfs_openAppend( const char * filename )

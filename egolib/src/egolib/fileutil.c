@@ -49,8 +49,13 @@ const int ReadContext::EndOfInput = ReadContext::FirstValidChar - 2;
 const int ReadContext::Error = ReadContext::FirstValidChar - 3;
 
 ReadContext::ReadContext(const std::string& loadName) :
-    _loadName(loadName), _file(nullptr), _lineNumber(1), _buffer(5012), _current(StartOfInput)
+    _file(nullptr),
+    _loadName(loadName),  
+    _lineNumber(1), 
+    _current(StartOfInput),
+    _buffer(5012)
 {
+    //constructor
 }
 
 ReadContext::~ReadContext()

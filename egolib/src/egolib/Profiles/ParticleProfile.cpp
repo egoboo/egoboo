@@ -58,6 +58,8 @@ void dynalight_info_t::init()
 }
 
 pip_t::pip_t() :
+    comment{'\0'},
+
     // comment - see below
     // Initial spawning of this particle.
     facing_pair(),
@@ -65,12 +67,14 @@ pip_t::pip_t() :
     spacing_vrt_pair(),
     vel_hrz_pair(),
     vel_vrt_pair(),
+
     // Spawning.
+    soundspawn(-1),
     force(false),
     newtargetonspawn(false),
     needtarget(false),
     startontarget(false),
-    soundspawn(-1),
+
     // Ending conditions.
     end_time(0),
     end_water(false),
@@ -78,36 +82,43 @@ pip_t::pip_t() :
     end_ground(false),
     end_wall(false),
     end_lastframe(false),
+
     // Ending sounds.
     end_sound(-1),
     end_sound_floor(-1),
     end_sound_wall(-1),
+
     // What/how to spawn continuously.
     contspawn(),
     // What/how to spawn at the end.
     endspawn(),
     // What/how to spawn when bumped.
     bumpspawn(),
+
     // Bumping of particle into particles/objects.
     bump_money(0),
     bump_size(0),
     bump_height(0),
+
     damage(),
     damageType(DamageType::DAMAGE_NONE),
-    dazeTime(),
-    grogTime(),
+    dazeTime(0),
+    grogTime(0),
     damfx(DAMFX_TURN),
+
     // Hitting.
-    // damageBoni - see below
+    damageBoni{false, false}, //{intelligence, wisdom}
     spawnenchant(false),
     onlydamagefriendly(false),
     friendlyfire(false),
     hateonly(false),
     cause_roll(false),
     cause_pancake(false),
+
     // Drains.
     lifeDrain(0),
     manaDrain(0),
+
     // Homing.
     homing(false),
     targetangle(0.0f),
@@ -116,12 +127,15 @@ pip_t::pip_t() :
     zaimspd(0.0f),
     rotatetoface(false),
     targetcaster(false),
+
     // Physics.
     spdlimit(0.0f),
     dampen(0.0f),
     allowpush(true),
     ignore_gravity(false),
+
     // Visual aspects.
+    dynalight(),
     type(e_sprite_mode::SPRITE_SOLID),
     numframes(0),
     image_base(0),
@@ -131,14 +145,10 @@ pip_t::pip_t() :
     size_base(0),
     size_add(0),
     facingadd(0),
-    orientation(ORIENTATION_B),
-    dynalight()
+    orientation(ORIENTATION_B)
 
 {
-    damageBoni._intelligence = false;
-    damageBoni._wisdom = false;
-    // Metadata.
-    comment[0] = '\0';
+    //ctor
 }
 
 pip_t::~pip_t()

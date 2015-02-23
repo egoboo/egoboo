@@ -142,6 +142,7 @@ struct pip_t : public AbstractProfile
     bool end_ground;                 ///< End if on ground
     bool end_wall;                   ///< End if hit a wall
     bool end_lastframe;              ///< End on last frame
+    
     // Ending sounds.
     Sint8 end_sound;                 ///< Ending sound (-1 for none).
     Sint8 end_sound_floor;           ///< Floor sound (-1 for none).

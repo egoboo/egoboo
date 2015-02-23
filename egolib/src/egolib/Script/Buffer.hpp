@@ -114,6 +114,10 @@ namespace Ego
              */
             void append(char byte);
 
+
+            //Disable copying class
+            Buffer(const Buffer& copy) = delete;
+            Buffer& operator=(const Buffer&) = delete;
         };
 
     }

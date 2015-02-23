@@ -19,14 +19,15 @@ public:
 	}
 
 	IDSZ2(char C0, char C1, char C2, char C3)
-	{
-		_value = static_cast<Uint32>
+		_value(static_cast<Uint32>
 			(
 				(((C0-'A') & 0x1F) << 15) |
 				(((C1-'A') & 0x1F) << 10) |
 				(((C2-'A') & 0x1F) <<  5) |
 				(((C3-'A') & 0x1F) <<  0)
-			);
+			))
+	{
+		//ctor
 	}
 	
 	IDSZ2& operator=(const IDSZ2& other)

@@ -75,6 +75,10 @@ public:
 			_handler->unlock();
 		}
 
+	    //Disable copying class
+	    ObjectIterator(const ObjectIterator& copy) = delete;
+	    ObjectIterator& operator=(const ObjectIterator&) = delete;
+    
 	private:
 		ObjectIterator(ObjectHandler *handler) :
 			_handler(handler)

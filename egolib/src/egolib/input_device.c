@@ -122,42 +122,40 @@ void control_t::clear()
 //--------------------------------------------------------------------------------------------
 // input_device_t
 //--------------------------------------------------------------------------------------------
-input_device_t::input_device_t()
+input_device_t::input_device_t() :
+    sustain(0.0f),
+    cover(0.0f),
+    latch(),
+    latch_old(),
+    device_type(INPUT_DEVICE_UNKNOWN),
+    keyMap()
 {
 	// Clear out all the data, including all control data.
-	sustain = 0.0f;
-	cover = 0.0f;
-
 	latch.clear();
 	latch_old.clear();
-
-	device_type = INPUT_DEVICE_UNKNOWN;
 
 	for (control_t &control : keyMap)
 	{
 		control.clear();
 	}
 }
-input_device_t * input_device_ctor( input_device_t * pdevice )
-{
-    if ( NULL == pdevice ) return NULL;
 
+void input_device_t::clear()
+{
     // clear out all the data, including all
     // control data
-    pdevice->sustain = 0.0f;
-    pdevice->cover = 0.0f;
+    sustain = 0.0f;
+    cover = 0.0f;
 
-    pdevice->latch.clear();
-    pdevice->latch_old.clear();
+    latch.clear();
+    latch_old.clear();
 
-    pdevice->device_type = INPUT_DEVICE_UNKNOWN;
+    device_type = INPUT_DEVICE_UNKNOWN;
 
-    for (control_t &control : pdevice->keyMap)
+    for (control_t &control : keyMap)
     {
         control.clear();
     }
-
-    return pdevice;
 }
 
 //--------------------------------------------------------------------------------------------

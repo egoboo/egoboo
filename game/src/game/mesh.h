@@ -425,7 +425,6 @@ ego_mesh_t * ego_mesh_finalize(ego_mesh_t * pmesh);
 bool ego_mesh_test_one_corner(ego_mesh_t * pmesh, GLXvector3f pos, float * pdelta);
 bool ego_mesh_light_one_corner(const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
 
-static oglx_texture_t * ego_mesh_get_texture(Uint8 image, Uint8 size);
 float  ego_mesh_get_level( const ego_mesh_t * pmesh, float pos_x, float pos_y );
 Uint32 ego_mesh_get_block( const ego_mesh_t * pmesh, float pos_x, float pos_y );
 Uint32 ego_mesh_get_grid( const ego_mesh_t * pmesh, float pos_x, float pos_y );

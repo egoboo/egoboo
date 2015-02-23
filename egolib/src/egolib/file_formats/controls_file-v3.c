@@ -46,13 +46,12 @@ bool input_settings_load_vfs_3( const char* szFilename )
     /// @details This function reads the controls.txt file, version 3
 
     TAG_STRING currenttag = EMPTY_CSTR;
-    input_device_t * pdevice;
 
     // clear out all existing control data
     for ( size_t idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
         // clear the input control
-        input_device_ctor( InputDevices.lst + idevice );
+        InputDevices.lst[idevice].clear();
     }
     InputDevices.count = 0;
 
@@ -68,7 +67,7 @@ bool input_settings_load_vfs_3( const char* szFilename )
         size_t count;
         int type;
 
-        pdevice = InputDevices.lst + idevice;
+        input_device_t &pdevice = InputDevices.lst[idevice];
 
         // figure out how we move
         vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
@@ -81,10 +80,10 @@ bool input_settings_load_vfs_3( const char* szFilename )
         type = translate_string_to_input_type( currenttag );
 
         // set the device type based on the control name
-        input_device_init( pdevice, (e_input_device)type );
+        pdevice.initialize(static_cast<e_input_device>(type));
 
         //Find out how many fields we are to read
-        if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type ) count = CONTROL_COMMAND_COUNT;
+        if ( INPUT_DEVICE_KEYBOARD == pdevice.device_type ) count = CONTROL_COMMAND_COUNT;
         else                                                 count = CONTROL_CAMERA + 1;
 
         //Read each input control button
@@ -96,9 +95,9 @@ bool input_settings_load_vfs_3( const char* szFilename )
             vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
             if (strlen(currenttag) > 0)
             {
-                scantag_parse_control( currenttag, pdevice->keyMap[iactual] );
+                scantag_parse_control( currenttag, pdevice.keyMap[iactual] );
 
-                if ( pdevice->keyMap[iactual].loaded )
+                if ( pdevice.keyMap[iactual].loaded )
                 {
                     iactual++;
                 }
@@ -116,8 +115,6 @@ bool input_settings_save_vfs_3( const char* szFilename )
 {
     /// @author ZF
     /// @details This function saves all current game settings to "controls.txt"
-
-    input_device_t * pdevice;
     vfs_FILE* filewrite;
     STRING write;
     Uint32 i;
@@ -155,7 +152,7 @@ bool input_settings_save_vfs_3( const char* szFilename )
     // The actual settings
     for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
     {
-        pdevice = InputDevices.lst + i;
+        input_device_t &pdevice = InputDevices.lst[i];
         snprintf( write, SDL_arraysize( write ), "\nPLAYER %i\n", i + 1 );
 
         //which player
@@ -163,41 +160,41 @@ bool input_settings_save_vfs_3( const char* szFilename )
         vfs_puts( "========\n", filewrite );
 
         //controller type
-        snprintf( write, SDL_arraysize( write ), "CONTROLLER:         %s\n", translate_input_type_to_string( pdevice->device_type ) );
+        snprintf( write, SDL_arraysize( write ), "CONTROLLER:         %s\n", translate_input_type_to_string( pdevice.device_type ) );
         vfs_puts( write, filewrite );
 
         //Default input InputDevices
-        export_control( filewrite, "Jump                 ", pdevice->device_type, pdevice->keyMap[CONTROL_JUMP] );
-        export_control( filewrite, "Left Hand Use        ", pdevice->device_type, pdevice->keyMap[CONTROL_LEFT_USE] );
-        export_control( filewrite, "Left Hand Get/Drop   ", pdevice->device_type, pdevice->keyMap[CONTROL_LEFT_PACK] );
-        export_control( filewrite, "Left Hand Inventory  ", pdevice->device_type, pdevice->keyMap[CONTROL_INVENTORY] );
-        export_control( filewrite, "Right Hand Use       ", pdevice->device_type, pdevice->keyMap[CONTROL_RIGHT_USE] );
-        export_control( filewrite, "Right Hand Get/Drop  ", pdevice->device_type, pdevice->keyMap[CONTROL_RIGHT_GET] );
-        export_control( filewrite, "Right Hand Inventory ", pdevice->device_type, pdevice->keyMap[CONTROL_RIGHT_PACK] );
+        export_control( filewrite, "Jump                 ", pdevice.device_type, pdevice.keyMap[CONTROL_JUMP] );
+        export_control( filewrite, "Left Hand Use        ", pdevice.device_type, pdevice.keyMap[CONTROL_LEFT_USE] );
+        export_control( filewrite, "Left Hand Get/Drop   ", pdevice.device_type, pdevice.keyMap[CONTROL_LEFT_PACK] );
+        export_control( filewrite, "Left Hand Inventory  ", pdevice.device_type, pdevice.keyMap[CONTROL_INVENTORY] );
+        export_control( filewrite, "Right Hand Use       ", pdevice.device_type, pdevice.keyMap[CONTROL_RIGHT_USE] );
+        export_control( filewrite, "Right Hand Get/Drop  ", pdevice.device_type, pdevice.keyMap[CONTROL_RIGHT_GET] );
+        export_control( filewrite, "Right Hand Inventory ", pdevice.device_type, pdevice.keyMap[CONTROL_RIGHT_PACK] );
 
-        export_control( filewrite, "Sneak                ", pdevice->device_type, pdevice->keyMap[CONTROL_SNEAK] );
+        export_control( filewrite, "Sneak                ", pdevice.device_type, pdevice.keyMap[CONTROL_SNEAK] );
 
         //this is only needed for keyboard
-        if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type )
+        if ( INPUT_DEVICE_KEYBOARD == pdevice.device_type )
         {
             //Could be a global key?
-            export_control( filewrite, "Send Message", pdevice->device_type, pdevice->keyMap[CONTROL_MESSAGE] );
+            export_control( filewrite, "Send Message", pdevice.device_type, pdevice.keyMap[CONTROL_MESSAGE] );
 
-            export_control( filewrite, "Camera Rotate Left    ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA_LEFT] );
-            export_control( filewrite, "Camera Rotate Right ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA_RIGHT] );
-            export_control( filewrite, "Camera Zoom In        ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA_IN] );
-            export_control( filewrite, "Camera Zoom Out    ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA_OUT] );
+            export_control( filewrite, "Camera Rotate Left    ", pdevice.device_type, pdevice.keyMap[CONTROL_CAMERA_LEFT] );
+            export_control( filewrite, "Camera Rotate Right ", pdevice.device_type, pdevice.keyMap[CONTROL_CAMERA_RIGHT] );
+            export_control( filewrite, "Camera Zoom In        ", pdevice.device_type, pdevice.keyMap[CONTROL_CAMERA_IN] );
+            export_control( filewrite, "Camera Zoom Out    ", pdevice.device_type, pdevice.keyMap[CONTROL_CAMERA_OUT] );
 
-            export_control( filewrite, "Up                    ", pdevice->device_type, pdevice->keyMap[CONTROL_UP] );
-            export_control( filewrite, "Down                ", pdevice->device_type, pdevice->keyMap[CONTROL_DOWN] );
-            export_control( filewrite, "Left                ", pdevice->device_type, pdevice->keyMap[CONTROL_LEFT] );
-            export_control( filewrite, "Right                ", pdevice->device_type, pdevice->keyMap[CONTROL_RIGHT] );
+            export_control( filewrite, "Up                    ", pdevice.device_type, pdevice.keyMap[CONTROL_UP] );
+            export_control( filewrite, "Down                ", pdevice.device_type, pdevice.keyMap[CONTROL_DOWN] );
+            export_control( filewrite, "Left                ", pdevice.device_type, pdevice.keyMap[CONTROL_LEFT] );
+            export_control( filewrite, "Right                ", pdevice.device_type, pdevice.keyMap[CONTROL_RIGHT] );
         }
 
         //Mouse and Joystick specific
         else
         {
-            export_control( filewrite, "Camera Control Mode	 ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA] );
+            export_control( filewrite, "Camera Control Mode	 ", pdevice.device_type, pdevice.keyMap[CONTROL_CAMERA] );
         }
     }
 

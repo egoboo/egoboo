@@ -102,6 +102,9 @@ namespace Ego
          */
         virtual operator ::std::string() const = 0;
 
+        //Make exceptions non-copyable
+        Exception(const Exception& copy) = default;
+        Exception& operator=(const Exception&) = delete;
     };
 
     /**
@@ -158,6 +161,9 @@ namespace Ego
             return buffer.str();
         }
 
+        //Make exceptions non-copyable
+        AssertionFailed(const AssertionFailed& copy) = default;
+        AssertionFailed& operator=(const AssertionFailed&) = delete;
     };
 };
 

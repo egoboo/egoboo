@@ -88,7 +88,8 @@ public:
 
 #ifdef _MSC_VER
     EnumReader(const std::string& name, const std::initializer_list<std::pair<const std::string, EnumType>>& list) :
-        _name(name), _elements()
+        _elements(),
+        _name(name)
     {
         for (auto it = list.begin(); it != list.end(); ++it)
         {
@@ -98,12 +99,14 @@ public:
     }
 #else
     EnumReader(const std::string& name, const std::initializer_list<std::pair<const std::string, EnumType>>& list) :
-        _name(name), _elements{ list }
+         _elements{ list }, 
+         _name(name)
     {
     }
 #endif
 
     EnumReader() :
+        _name(),
         _elements()
     {
     }

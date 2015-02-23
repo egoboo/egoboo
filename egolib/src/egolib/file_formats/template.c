@@ -34,7 +34,7 @@
 
 static char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffer_end, char * pcarat );
 
-static bool template_seek_marker( vfs_FILE * tempfile, const char * marker_str );
+//static bool template_seek_marker( vfs_FILE * tempfile, const char * marker_str );
 static bool template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const char * marker_str );
 static void template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile );
 
@@ -64,6 +64,7 @@ char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffe
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 bool template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
 {
     bool       found;
@@ -94,6 +95,7 @@ bool template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
 
     return found;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const char * marker_str )

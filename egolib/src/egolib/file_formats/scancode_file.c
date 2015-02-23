@@ -38,8 +38,8 @@ static scantag_t scantag_lst[MAXTAG];
 
 static void scantag_reset();
 static bool scantag_read_one(ReadContext& ctxt);
-static bool scantag_matches_control( scantag_t * ptag, control_t * pcontrol );
-static bool scantag_matches_device( scantag_t * ptag, int device_type );
+//static bool scantag_matches_control( scantag_t * ptag, control_t * pcontrol );
+//static bool scantag_matches_device( scantag_t * ptag, int device_type );
 
 static const char * scantag_tok( char * tag_string );
 
@@ -421,7 +421,6 @@ const char * scantag_get_string( int device_type, const control_t &pcontrol, cha
     static STRING tmp_buffer = EMPTY_CSTR;
 
     char      device_char;
-    BIT_FIELD control_bits;
 
     char * loc_buffer_stt = NULL;
     char * loc_buffer_end = NULL;
