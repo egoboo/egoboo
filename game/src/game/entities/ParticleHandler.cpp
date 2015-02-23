@@ -425,13 +425,20 @@ void ParticleManager::reset_all()
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
-
+#if 0
     // Load module specific information
     loadpath = "mp_data/weather4.txt";
-    PipStack.load_one( loadpath, ( PIP_REF )PIP_WEATHER );              //It's okay if weather particles fail
+    if (INVALID_PIP_REF == PipStack.load_one(loadpath, (PIP_REF)PIP_WEATHER)) 
+    {
+        log_error("Data file was not found! (\"%s\")\n", loadpath);
+    }
 
     loadpath = "mp_data/weather5.txt";
-    PipStack.load_one( loadpath, ( PIP_REF )PIP_WEATHER_FINISH );
+    if (INVALID_PIP_REF == PipStack.load_one(loadpath, (PIP_REF)PIP_WEATHER_FINISH))
+    {
+        log_error("Data file was not found! (\"%s\")\n", loadpath);
+    }
+#endif
 
     loadpath = "mp_data/splash.txt";
     if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_SPLASH ) )
@@ -451,6 +458,4 @@ void ParticleManager::reset_all()
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
-
-    PipStack._size = GLOBAL_PIP_COUNT;
 }

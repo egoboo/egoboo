@@ -281,12 +281,6 @@
     <ClCompile Include="src\game\profiles\ProfileSystem.cpp">
       <Filter>Game Sources\Profile</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\profiles\EnchantProfileSystem.cpp">
-      <Filter>Game Sources\Profile</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\profiles\ParticleProfileSystem.cpp">
-      <Filter>Game Sources\Profile</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -509,15 +503,6 @@
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
     <ClInclude Include="src\game\profiles\ObjectProfile.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\ParticleProfileSystem.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\EnchantProfileSystem.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\_AbstractProfileSystem.hpp">
       <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
   </ItemGroup>

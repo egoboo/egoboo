@@ -18,12 +18,14 @@
 //********************************************************************************************
 
 #pragma once
-#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
-#error(do not include directly, include `game/profiles/_Include.hpp` instead)
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo_typedef.h"
+#include "egolib/typedef.h"
+#if 0
 #include "game/egoboo_object.h"
+#endif
 
 /// Temporary abstract profile system for unifying particle- and
 /// enchant-profiles systems before merging both into ProfileSystem.
@@ -31,11 +33,11 @@ template <typename TYPE,typename REFTYPE,REFTYPE INVALIDREF,size_t CAPACITY,type
 struct _AbstractProfileSystem
 {
 
-public:
+protected:
 
     size_t _size;
 
-protected:
+    unsigned _updateGUID;
 
     TYPE _elements[CAPACITY];
 
@@ -47,6 +49,15 @@ protected:
     {
         REFTYPE ref = INVALIDREF;
 
+        for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
+        {
+            if (!isLoaded(ref))
+            {
+                return ref;
+            }
+        }
+        return INVALIDREF;
+#if 0
         if (_size < CAPACITY)
         {
             ref = _size;
@@ -54,19 +65,20 @@ protected:
         }
 
         return ref;
+#endif
     }
 
 
 public:
     _AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
         _profileTypeName(profileTypeName), _debugPathName(debugPathName),
-        _update_guid(INVALID_UPDATE_GUID), _size(0)
+        _updateGUID(INVALID_UPDATE_GUID), _size(0)
     {}
 
-    unsigned _update_guid;
-    
-
-    
+    unsigned getUpdateGUID() const
+    {
+        return _updateGUID;
+    }
 
     /**
      * @brief
@@ -129,7 +141,14 @@ public:
     {
         if (!isValidRange(ref)) return false;
         TYPE *profile = this->get_ptr(ref);
-        if (profile->_loaded) profile->init();
+        if (profile->_loaded)
+        {
+            profile->init();
+#if 1
+            if (_size == 0) throw std::underflow_error(_profileTypeName + " stack underflow");
+            _size--;
+#endif
+        }
         return true;
     }
 
@@ -158,6 +177,10 @@ public:
         {
             return INVALIDREF;
         }
+#if 1
+        if (_size == CAPACITY) throw std::overflow_error(_profileTypeName + " stack overflow");
+        _size++;
+#endif
 
         return ref;
     }

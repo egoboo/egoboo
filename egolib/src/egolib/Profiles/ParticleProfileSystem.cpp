@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-#define GAME_PROFILES_PRIVATE 1
-#include "game/profiles/ParticleProfileSystem.hpp"
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/ParticleProfileSystem.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 
 _AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader> PipStack("particle", "/debug/particle_profile_usage.txt");

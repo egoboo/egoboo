@@ -17,14 +17,8 @@
 //*
 //********************************************************************************************
 
-#pragma once
-#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
-#error(do not include directly, include `game/profiles/_Include.hpp` instead)
-#endif
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/EnchantProfileSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
-#include "game/profiles/_AbstractProfileSystem.hpp"
-
-extern _AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader> PipStack;
-
-#define VALID_PIP_RANGE(ref) (PipStack.isValidRange(ref))
-#define LOADED_PIP(ref) (PipStack.isLoaded(ref))
+_AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, MAX_EVE, EnchantProfileReader> EveStack("enchant", "/debug/enchant_profile_usage.txt");

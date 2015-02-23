@@ -29,7 +29,8 @@ namespace Ego {
 	 * @brief
 	 *	Data related to the totality of entities.
 	 */
-	struct Entities {
+	struct Entities
+    {
 		/**
 		 * @brief
 		 *	The number of entities currently being spawned.
