@@ -430,13 +430,13 @@ void ParticleManager::reset_all()
     loadpath = "mp_data/weather4.txt";
     if (INVALID_PIP_REF == PipStack.load_one(loadpath, (PIP_REF)PIP_WEATHER)) 
     {
-        log_error("Data file was not found! (\"%s\")\n", loadpath);
+        /*log_error("Data file was not found! (\"%s\")\n", loadpath);*/
     }
 
     loadpath = "mp_data/weather5.txt";
     if (INVALID_PIP_REF == PipStack.load_one(loadpath, (PIP_REF)PIP_WEATHER_FINISH))
     {
-        log_error("Data file was not found! (\"%s\")\n", loadpath);
+        /*log_error("Data file was not found! (\"%s\")\n", loadpath);*/
     }
 #endif
 

@@ -225,9 +225,9 @@ void ObjectHandler::maybeRunDeferred()
 	// Add any allocated objects to the containers (do first, in case they get removed again).
     if(!_allocateList.empty())
     {
-        for (const std::shared_ptr<Object> &object : _allocateList)
+        for (const std::shared_ptr<Object>& object : _allocateList)
         {
-            assert(object != nullptr);
+            EGOBOO_ASSERT(nullptr != object);
             _iteratorList.push_back(object);
         }
         _allocateList.clear();        
@@ -237,44 +237,43 @@ void ObjectHandler::maybeRunDeferred()
 	// supposed to be deleted while the list was iterating.
     if(_deletedCharacters > 0) 
     {
-        _iteratorList.erase(
-            std::remove_if(_iteratorList.begin(), _iteratorList.end(),
-                [this](const std::shared_ptr<Object> &element)
+        auto condition = 
+            [this](const std::shared_ptr<Object>& element)
+            {
+                EGOBOO_ASSERT(nullptr != element);
+                if (element->bsp_leaf.isInList()) return false;
+
+                if (element->isTerminated())
                 {
-                    if (element->bsp_leaf.isInList()) return false;
+                    //Delete this character
+                    _unusedChrRefs.push(element->getCharacterID());
+                    _deletedCharacters--;
 
-                    if(element->isTerminated())
+                    // Make sure everyone knows it died
+                    for (const std::shared_ptr<Object>& chr : _iteratorList)
                     {
-                        //Delete this character
-                        _unusedChrRefs.push(element->getCharacterID());
-                        _deletedCharacters--;
+                        // std::remove_if results in temporary nullptrs in _iteratorList.
+                        if (nullptr == chr) continue;
+                        //Don't do ourselves or terminated characters
+                        if (chr->isTerminated() || chr == element) continue;
+                        ai_state_t *ai = chr_get_pai(chr->getCharacterID());
 
-                        // Make sure everyone knows it died
-                        for(const std::shared_ptr<Object> &chr : _iteratorList)
+                        if (ai->target == element->getCharacterID())
                         {
-                            ai_state_t * pai;
+                            SET_BIT(ai->alert, ALERTIF_TARGETKILLED);
+                        }
 
-                            //Don't do ourselves or terminated characters
-                            if ( chr->isTerminated() || chr == element ) continue;
-                            pai = chr_get_pai( chr->getCharacterID() );
-
-                            if ( pai->target == element->getCharacterID() )
-                            {
-                                SET_BIT( pai->alert, ALERTIF_TARGETKILLED );
-                            }
-
-                            if ( chr_get_pteam( chr->getCharacterID() )->leader == element->getCharacterID() )
-                            {
-                                SET_BIT( pai->alert, ALERTIF_LEADERKILLED );
-                            }
-                        }                        
-                        return true;
+                        if (chr_get_pteam(chr->getCharacterID())->leader == element->getCharacterID())
+                        {
+                            SET_BIT(ai->alert, ALERTIF_LEADERKILLED);
+                        }
                     }
+                    return true;
+                }
 
-                    return false;
-                }), 
-            _iteratorList.end()
-        );
+                return false;
+            };
+        _iteratorList.erase(std::remove_if(_iteratorList.begin(), _iteratorList.end(), condition),_iteratorList.end());
     }
 
     //Finally unlock list
