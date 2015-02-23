@@ -20,16 +20,8 @@
 #define EGOLIB_PROFILES_PRIVATE 1
 #include "egolib/Profiles/EnchantProfile.hpp"
 
-eve_t::eve_t() :
-    AbstractProfile(),
-    _set(), _add(), contspawn(),
-    _owner(), _target(),
-    seeKurses(false), darkvision(false),
-    // What to do when the enchant ends.
-    endsound_index(-1),
-    killtargetonend(false),
-    poofonend(false),
-    endmessage(-1),
+eve_t::eve_t() : AbstractProfile(),
+
     // Enchant spawn description.
     _override(false),
     remove_overridden(false),
@@ -37,20 +29,39 @@ eve_t::eve_t() :
     required_damagetype(DamageType::DAMAGE_NONE),
     require_damagetarget_damagetype(DamageType::DAMAGE_NONE),
     spawn_overlay(false),
+
     // Enchant despawn conditions.
     lifetime(0),
     endIfCannotPay(false),
-    removedByIDSZ(IDSZ_NONE)
+    removedByIDSZ(IDSZ_NONE),
+
+    _owner(), 
+    _target(),
+
+    _set(), 
+    _add(), 
+
+    seeKurses(0), 
+    darkvision(0),
+
+    contspawn(),
+
+    // What to do when the enchant ends.
+    endsound_index(-1),
+    killtargetonend(false),
+    poofonend(false),
+    endmessage(-1)
 {
+    //ctor
 }
 
 eve_t::~eve_t()
 {
+    //dtor
 }
 
 eve_t *eve_t::init()
 {
-    BLANK_STRUCT_PTR(this);
     this->AbstractProfile::init();
 
     for (size_t i = 0; i < MAX_ENCHANT_SET; ++i)

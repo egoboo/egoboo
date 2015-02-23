@@ -51,43 +51,42 @@ public:
 
 		inline std::vector<std::shared_ptr<Object>>::const_iterator cbegin() const 
 		{
-			return _handler->_iteratorList.cbegin();
+			return _handler._iteratorList.cbegin();
 		}
 
 		inline std::vector<std::shared_ptr<Object>>::const_iterator cend() const 
 		{
-			return _handler->_iteratorList.cend();
+			return _handler._iteratorList.cend();
 		}
 
 		inline std::vector<std::shared_ptr<Object>>::iterator begin()
 		{
-			return _handler->_iteratorList.begin();
+			return _handler._iteratorList.begin();
 		}
 
 		inline std::vector<std::shared_ptr<Object>>::iterator end()
 		{
-			return _handler->_iteratorList.end();
+			return _handler._iteratorList.end();
 		}	
 
 		~ObjectIterator()
 		{
 			//Free the ObjectHandler lock
-			_handler->unlock();
+			_handler.unlock();
 		}
 
 	    //Disable copying class
-	    ObjectIterator(const ObjectIterator& copy) = delete;
 	    ObjectIterator& operator=(const ObjectIterator&) = delete;
     
 	private:
-		ObjectIterator(ObjectHandler *handler) :
+		ObjectIterator(ObjectHandler &handler) :
 			_handler(handler)
 		{
 			// Ensure the ObjectHandler is locked as long as we are in existance.
-			_handler->lock();
+			_handler.lock();
 		}
 
-		ObjectHandler *_handler;
+		ObjectHandler &_handler;
 
 		friend class ObjectHandler;
 	};

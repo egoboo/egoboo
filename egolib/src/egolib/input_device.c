@@ -159,16 +159,14 @@ void input_device_t::clear()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_device_init(input_device_t *self, e_input_device req_type)
+void input_device_t::initialize(e_input_device req_type)
 {
 	e_input_device type;
-
-    if (!self) return;
 
     // save the old type
     if (INPUT_DEVICE_UNKNOWN == req_type)
     {
-        type = self->device_type;
+        type = device_type;
     }
     else
     {
@@ -176,12 +174,12 @@ void input_device_init(input_device_t *self, e_input_device req_type)
     }
 
     // set everything that is not 0, false, 0.0f, etc.
-	self->latch.clear();
-	self->latch_old.clear();
-    self->sustain = 0.58f;
-    self->cover = 1.0f - self->sustain;
-    self->device_type = type;
-	for (control_t &control : self->keyMap)
+	latch.clear();
+	latch_old.clear();
+    sustain = 0.58f;
+    cover = 1.0f - sustain;
+    device_type = type;
+	for (control_t &control : keyMap)
 	{
 		control.clear();
 	}

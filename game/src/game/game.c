@@ -2308,7 +2308,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             bool player_added;
 
-            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, InputDevices.lst + local_stats.player_count );
+            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
 
             if ( PMod->getImportAmount() == 0 && player_added )
             {
@@ -2341,7 +2341,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, InputDevices.lst + ImportList.lst[local_index].local_player_num );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[ImportList.lst[local_index].local_player_num] );
             }
             else
             {

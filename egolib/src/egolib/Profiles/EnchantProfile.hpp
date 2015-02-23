@@ -205,7 +205,7 @@ struct eve_t : public AbstractProfile
     ContinuousSpawnDescriptor contspawn;
 
     // What to do when the enchant ends.
-    Sint16 endsound_index;               ///< Sound on end (-1 for none)
+    int endsound_index;                  ///< Sound on end (-1 for none)
     bool killtargetonend;                ///< Kill the target on end?
     bool poofonend;                      ///< Spawn a poof on end?
     int endmessage;                      ///< Message on end (-1 for none)

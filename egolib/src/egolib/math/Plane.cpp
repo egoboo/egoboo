@@ -29,7 +29,7 @@ plane_t::plane_t() :
 	//ctor
 }
 
-plane_t::plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c)
+plane_t::plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c) : plane_t()
 {
 	fvec3_t u = b - a;
 	if (u == fvec3_t::zero)
@@ -50,7 +50,9 @@ plane_t::plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c)
 	_d = -_n.dot(a);
 }
 
-plane_t::plane_t(const fvec3_t& p, const fvec3_t& n)
+plane_t::plane_t(const fvec3_t& p, const fvec3_t& n) :
+	_n(n),
+	_d(0.0f)
 {
 	_n = n;
 	if (_n.normalize() == 0.0f)

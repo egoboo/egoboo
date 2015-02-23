@@ -297,7 +297,7 @@ void ObjectHandler::unlock()
 
 ObjectHandler::ObjectIterator ObjectHandler::iterator()
 {
-    return ObjectIterator(this);
+    return ObjectIterator(*this);
 }
 
 size_t ObjectHandler::getObjectCount() const 

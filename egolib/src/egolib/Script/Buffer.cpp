@@ -24,9 +24,11 @@ namespace Ego
     {
 
         Buffer::Buffer(size_t initialCapacity) :
-            _size(0), _capacity(initialCapacity)
+            _size(0), 
+            _capacity(initialCapacity),
+            _elements(new char[initialCapacity])
         {
-            _elements = new char[initialCapacity];
+            //ctor
         }
 
         Buffer::~Buffer()

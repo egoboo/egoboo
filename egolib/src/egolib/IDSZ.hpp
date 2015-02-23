@@ -7,7 +7,7 @@ struct IDSZ2
 
 private:
 
-	Uint32 _value;
+	uint32_t _value;
 
 public:
 
@@ -18,8 +18,8 @@ public:
 	{
 	}
 
-	IDSZ2(char C0, char C1, char C2, char C3)
-		_value(static_cast<Uint32>
+	IDSZ2(char C0, char C1, char C2, char C3) :
+		_value(static_cast<uint32_t>
 			(
 				(((C0-'A') & 0x1F) << 15) |
 				(((C1-'A') & 0x1F) << 10) |
@@ -46,7 +46,7 @@ public:
 		return _value != other._value;
 	}
 	
-	Uint32 get() const
+	uint32_t get() const
 	{
 		return _value;
 	}

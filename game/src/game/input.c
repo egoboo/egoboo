@@ -102,7 +102,7 @@ void input_system_init_devices()
 
     for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
     {
-        input_device_ctor( InputDevices.lst + cnt );
+        InputDevices.lst[cnt].clear();
     }
     InputDevices.count = 0;
 }
