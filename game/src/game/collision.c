@@ -3269,8 +3269,8 @@ bool do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata )
     prt_hates_chr = team_hates_team( pdata->pprt->team, pdata->pchr->team );
 
     // Only bump into hated characters?
-    prt_hateonly = PipStack.lst[pdata->pprt->pip_ref].hateonly;
-    valid_onlydamagehate = TO_C_BOOL( prt_hates_chr && PipStack.lst[pdata->pprt->pip_ref].hateonly );
+    prt_hateonly = PipStack.get_ptr(pdata->pprt->pip_ref)->hateonly;
+    valid_onlydamagehate = TO_C_BOOL( prt_hates_chr && PipStack.get_ptr(pdata->pprt->pip_ref)->hateonly );
 
     // allow neutral particles to attack anything
 	prt_attacks_chr = TO_C_BOOL(prt_hates_chr || ((TEAM_NULL != pdata->pchr->team) && (TEAM_NULL == pdata->pprt->team)));

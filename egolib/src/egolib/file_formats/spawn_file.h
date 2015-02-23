@@ -26,53 +26,45 @@
 #include "egolib/fileutil.h"
 #include "egolib/vec.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct s_spawn_file_info;
-    typedef struct s_spawn_file_info spawn_file_info_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 /// Where a spawned character can be attached
-    enum e_attachment_type
-    {
-        ATTACH_NONE       = 0,
-        ATTACH_INVENTORY,
-        ATTACH_LEFT,
-        ATTACH_RIGHT
-    };
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+enum e_attachment_type
+{
+    ATTACH_NONE       = 0,
+    ATTACH_INVENTORY,
+    ATTACH_LEFT,
+    ATTACH_RIGHT
+};
 
 /// The internal representation of a single line in "spawn.txt"
-    struct s_spawn_file_info
-    {
-        bool       do_spawn;
-        STRING     spawn_coment;
+struct spawn_file_info_t
+{
+    bool       do_spawn;
+    STRING     spawn_coment;
 
-        STRING     spawn_name;
-        char      *pname;
-        int        slot;
-        fvec3_t    pos;
-        int        passage;
-        int        content;
-        int        money;
-        int        level;
-        int        skin;
-        bool       stat;
-        REF_T      team;
-        FACING_T   facing;
-        REF_T      attach;
-        REF_T      parent;
-    };
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-    spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo );
-    spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo );
-
-    bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo );
+    STRING     spawn_name;
+    char      *pname;
+    int        slot;
+    fvec3_t    pos;
+    int        passage;
+    int        content;
+    int        money;
+    int        level;
+    int        skin;
+    bool       stat;
+    REF_T      team;
+    FACING_T   facing;
+    REF_T      attach;
+    REF_T      parent;
+};
+/**
+ * @brief
+ *  Assign safe values to all fields.
+ */
+spawn_file_info_t *spawn_file_info_init(spawn_file_info_t *self);
+/**
+ * @brief
+ *  Assign safe values to all fields, keep the parent.
+ */
+spawn_file_info_t *spawn_file_info_reinit(spawn_file_info_t *self);
+bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *self);
 

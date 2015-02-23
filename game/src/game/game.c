@@ -2384,7 +2384,7 @@ void activate_spawn_file_vfs()
             spawn_file_info_t entry;
 
             // Read next entry
-            if(!spawn_file_scan(ctxt, &entry))
+            if(!spawn_file_read(ctxt, &entry))
             {
                 break; //no more entries
             }

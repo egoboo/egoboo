@@ -244,7 +244,7 @@ PRT_REF ParticleManager::allocate(const bool force)
                 }
 
                 // Do not bump another.
-                was_forced = TO_C_BOOL(PipStack.lst[pprt->pip_ref].force);
+                was_forced = TO_C_BOOL(PipStack.get_ptr(pprt->pip_ref)->force);
 
                 if (WAITING_PRT(iprt))
                 {
@@ -452,5 +452,5 @@ void ParticleManager::reset_all()
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
-    PipStack.count = GLOBAL_PIP_COUNT;
+    PipStack._size = GLOBAL_PIP_COUNT;
 }

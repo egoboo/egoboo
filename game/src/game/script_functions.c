@@ -2201,7 +2201,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         prt_t::get_pos(pprt, tmp_pos);
 
         // Correct X, Y, Z spacing
-        tmp_pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
+        tmp_pos.z += PipStack.get_ptr(pprt->pip_ref)->spacing_vrt_pair.base;
 
         // Don't spawn in walls
         tmp_pos.x += pstate->x;

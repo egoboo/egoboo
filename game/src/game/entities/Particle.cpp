@@ -660,9 +660,9 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
     if (!DEFINED_PRT(iprt))
     {
         log_debug("spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-            chr_origin, _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
-            ipip, LOADED_PIP(ipip) ? PipStack.lst[ipip]._name : "INVALID",
-            iprofile, _profileSystem.isValidProfileID(iprofile) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID");
+                  chr_origin, _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
+                  ipip, LOADED_PIP(ipip) ? PipStack.get_ptr(ipip)->_name : "INVALID",
+                  iprofile, _profileSystem.isValidProfileID(iprofile) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID");
 
         return INVALID_PRT_REF;
     }

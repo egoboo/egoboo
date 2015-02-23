@@ -220,10 +220,10 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
         local_pip = _profilesLoaded[iobj]->getParticleProfile(pip_index);
     }
 
-    return LOADED_PIP( local_pip ) ? PipStack.lst + local_pip : nullptr;
+    return LOADED_PIP( local_pip ) ? PipStack.get_ptr(local_pip) : nullptr;
 }
 
-PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override )
+PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override)
 {
     bool required = !(slot_override < 0 || slot_override >= INVALID_PRO_REF);
 

@@ -31,65 +31,46 @@
 // includes for egoboo constants
 #include "game/char.h"       // for TEAM_* constants
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo )
+spawn_file_info_t *spawn_file_info_init(spawn_file_info_t *self)
 {
-    /// @author BB
-    /// @details safe values for all parameters
-
-    if ( NULL == pinfo ) return pinfo;
-
-    BLANK_STRUCT_PTR( pinfo )
-
-    pinfo->attach = ATTACH_NONE;
-    pinfo->team   = TEAM_NULL;
-
-    return pinfo;
+    if (!self)
+    {
+        return nullptr;
+    }
+    BLANK_STRUCT_PTR(self);
+    self->attach = ATTACH_NONE;
+    self->team = TEAM_NULL;
+    return self;
 }
 
-//--------------------------------------------------------------------------------------------
-spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo )
+spawn_file_info_t *spawn_file_info_reinit(spawn_file_info_t *self)
 {
-    CHR_REF old_parent;
-
-    if ( NULL == pinfo ) return pinfo;
-
-    // save the parent data just in case
-    old_parent = pinfo->parent;
-
-    // init the data
-    spawn_file_info_init( pinfo );
-
-    // restore the parent data
-    pinfo->parent = old_parent;
-
-    return pinfo;
+    if (!self)
+    {
+        return nullptr;
+    }
+    // Save the parent.
+    CHR_REF parent = self->parent;
+    // Reset the data.
+    spawn_file_info_init(self);
+    // Restore the parent.
+    self->parent = parent;
+    return self;
 }
 
-//--------------------------------------------------------------------------------------------
-
-bool spawn_file_scan(ReadContext& ctxt, spawn_file_info_t *pinfo)
+bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
 {
-    // trap bad pointers
-    if (!pinfo ) return false;
-
-    spawn_file_info_reinit( pinfo );
+    if (!info)
+    {
+        return false;
+    }
+    spawn_file_info_reinit(info);
 Again:
     // Until we hit something else than newlines, whitespaces or comments.
     while (true)
     {
         ctxt.skipWhiteSpaces();
         ctxt.skipNewLines();
-#if 0
-        while (ctxt.isNewLine()) /// @todo Add and use ReadContext::skipNewLines().
-        {
-            ctxt.sk
-            ctxt.next();
-            ctxt._lineNumber++;
-            continue;
-        }
-#endif
         if (ctxt.is('/'))
         {
             ctxt.readSingleLineComment(); /// @todo Add and use ReadContext::skipSingleLineComment().
@@ -125,67 +106,67 @@ Again:
         std::string name = trim(ctxt._buffer.toString());
 
         
-        strncpy(pinfo->spawn_coment, name.c_str(), SDL_arraysize(pinfo->spawn_coment));
-        pinfo->do_spawn = true;
+        strncpy(info->spawn_coment, name.c_str(), SDL_arraysize(info->spawn_coment));
+        info->do_spawn = true;
 
-        vfs_read_string_lit(ctxt, pinfo->spawn_name, SDL_arraysize(pinfo->spawn_name));
+        vfs_read_string_lit(ctxt, info->spawn_name, SDL_arraysize(info->spawn_name));
 
-        pinfo->pname = pinfo->spawn_name;
-        if ( 0 == strcmp( pinfo->spawn_name, "NONE" ) )
+        info->pname = info->spawn_name;
+        if (!strcmp(info->spawn_name, "NONE"))
         {
-            // Random pinfo->pname
-            pinfo->pname = NULL;
+            // A random name is selected.
+            info->pname = nullptr;
         }
 
-        pinfo->slot = ctxt.readInt();
+        info->slot = ctxt.readInt();
 
-        pinfo->pos.x = ctxt.readReal() * GRID_FSIZE;
-        pinfo->pos.y = ctxt.readReal() * GRID_FSIZE;
-        pinfo->pos.z = ctxt.readReal() * GRID_FSIZE;
+        info->pos.x = ctxt.readReal() * GRID_FSIZE;
+        info->pos.y = ctxt.readReal() * GRID_FSIZE;
+        info->pos.z = ctxt.readReal() * GRID_FSIZE;
 
-        pinfo->facing = FACE_NORTH;
-        pinfo->attach = ATTACH_NONE;
+        info->facing = FACE_NORTH;
+        info->attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
         switch (char_toupper(chr))
         {
-        case 'S': pinfo->facing = FACE_SOUTH;       break;
-        case 'E': pinfo->facing = FACE_EAST;        break;
-        case 'W': pinfo->facing = FACE_WEST;        break;
-        case 'N': pinfo->facing = FACE_NORTH;       break;
-        case '?': pinfo->facing = FACE_RANDOM;      break;
-        case 'L': pinfo->attach = ATTACH_LEFT;      break;
-        case 'R': pinfo->attach = ATTACH_RIGHT;     break;
-        case 'I': pinfo->attach = ATTACH_INVENTORY; break;
+        case 'S': info->facing = FACE_SOUTH;       break;
+        case 'E': info->facing = FACE_EAST;        break;
+        case 'W': info->facing = FACE_WEST;        break;
+        case 'N': info->facing = FACE_NORTH;       break;
+        case '?': info->facing = FACE_RANDOM;      break;
+        case 'L': info->attach = ATTACH_LEFT;      break;
+        case 'R': info->attach = ATTACH_RIGHT;     break;
+        case 'I': info->attach = ATTACH_INVENTORY; break;
         default:
         {
             throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
         }
         };
-        pinfo->money   = ctxt.readInt();
-        pinfo->skin    = ctxt.readInt();
-        pinfo->passage = ctxt.readInt();
-        pinfo->content = ctxt.readInt();
-        pinfo->level   = ctxt.readInt();
+        info->money = ctxt.readInt();
+        info->skin = ctxt.readInt();
+        info->passage = ctxt.readInt();
+        info->content = ctxt.readInt();
+        info->level = ctxt.readInt();
 
-        if ( pinfo->skin >= MAX_SKIN )
+        if (info->skin >= MAX_SKIN)
         {
             int irand = RANDIE;
-            pinfo->skin = irand % MAX_SKIN;     // Randomize skin?
+            info->skin = irand % MAX_SKIN;     // Randomize skin?
         }
 
-        pinfo->stat = ctxt.readBool();
+        info->stat = ctxt.readBool();
 
         ctxt.readPrintable();   ///< BAD! Unused ghost value
 
         chr = ctxt.readPrintable();
-        pinfo->team = (chr - 'A' ) % TEAM_MAX;
+        info->team = (chr - 'A') % TEAM_MAX;
         
         return true;
     }
     else if (ctxt.is('#'))
     {
         ctxt.next();
-        pinfo->do_spawn = false;
+        info->do_spawn = false;
 
         std::string what = ctxt.readName();
         if (what != "dependency")
@@ -206,14 +187,14 @@ Again:
         {
             throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
         }
-        if (who.length() >= SDL_arraysize(pinfo->spawn_coment))
+        if (who.length() >= SDL_arraysize(info->spawn_coment))
         {
             throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
         }
         int slot = ctxt.readInt();
         // Store the data.
-        strncpy(pinfo->spawn_coment, who.c_str(), SDL_arraysize(pinfo->spawn_coment));
-        pinfo->slot = slot;
+        strncpy(info->spawn_coment, who.c_str(), SDL_arraysize(info->spawn_coment));
+        info->slot = slot;
         return true;
     }
     else if (!ctxt.is(ReadContext::EndOfInput))

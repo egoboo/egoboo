@@ -617,7 +617,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList.get_ptr( ienc );
 
-    if ( ieve >= MAX_EVE || !EveStack.lst[ieve]._loaded ) return;
+    if ( ieve >= MAX_EVE || !EveStack.get_ptr(ieve)->_loaded ) return;
     peve = EveStack.get_ptr( ieve );
 
     if ( !peve->_add[value_idx].apply )
@@ -1058,14 +1058,14 @@ enc_t *enc_t::config_do_active()
                 if ( 0 != penc->owner_mana )
                 {
                     bool mana_paid = cost_mana( owner, -penc->owner_mana, target );
-                    if ( EveStack.lst[eve].endIfCannotPay && !mana_paid )
+                    if ( EveStack.get_ptr(eve)->endIfCannotPay && !mana_paid )
                     {
                         EncList.request_terminate( ienc );
                     }
                 }
 
             }
-            else if ( !EveStack.lst[eve]._owner._stay )
+            else if ( !EveStack.get_ptr(eve)->_owner._stay )
             {
                 EncList.request_terminate( ienc );
             }
@@ -1095,14 +1095,14 @@ enc_t *enc_t::config_do_active()
                     if ( 0 != penc->target_mana )
                     {
                         bool mana_paid = cost_mana( target, -penc->target_mana, owner );
-                        if ( EveStack.lst[eve].endIfCannotPay && !mana_paid )
+                        if ( EveStack.get_ptr(eve)->endIfCannotPay && !mana_paid )
                         {
                             EncList.request_terminate( ienc );
                         }
                     }
 
                 }
-                else if ( !EveStack.lst[eve]._target._stay )
+                else if ( !EveStack.get_ptr(eve)->_target._stay )
                 {
                     EncList.request_terminate( ienc );
                 }
