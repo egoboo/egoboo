@@ -93,9 +93,9 @@ inline std::basic_string<CharType> trim(const std::basic_string<CharType>& str, 
     return std::basic_string<CharType>(front, std::find_if_not(str.rbegin(), typename std::basic_string<CharType>::const_reverse_iterator(front), isspace).base());
 }
 
-// libc++ doesn't define std::toupper<int>(int, std::locale),
+// libc++ and gcc doesn't define std::toupper<int>(int, std::locale),
 // so narrow the int to a char.
-#ifdef _LIBCPP_VERSION
+#if defined(_LIBCPP_VERSION) || defined(__GNUC__)
 template <>
 inline int char_toupper<int>(int chr, const std::locale& locale)
 {
