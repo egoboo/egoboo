@@ -152,32 +152,82 @@ ego_grid_info_t * ego_grid_info_dtor_ary( ego_grid_info_t * ptr, size_t count );
 ego_grid_info_t * ego_grid_info_create_ary( size_t count );
 ego_grid_info_t * ego_grid_info_destroy_ary( ego_grid_info_t * ary, size_t count );
 
+#if 0
+template <typename Type>
+class Size
+{
+private:
+    /// The size in the x-direction.
+    Type _x;
+    /// the size in the y-direction.
+    Type _y;
+public:
+    /**
+     * @brief
+     *  Construct a size.
+     * @param x
+     *  the size in the x-direction
+     * @param y
+     *  the size in the y-direction
+     */
+    Size(const Type& x,const Type& y) :
+        _x(x), _y(y)
+    {}
+    /**
+     * @brief
+     *  Construct a size (copy-constructor).
+     * @param other
+     *  the source of the copy operation
+     */
+    Size(const Size<Type>& other) :
+        _x(other.x), _y(other._y)
+    {}
+    /// @brief Get the size along the x-axis.
+    /// @return the size along the x-axis
+    const Type& getX() const {
+        return _x;
+    }
+    /// @brief Get the size along the y-axis.
+    /// @return the size along the y-axis
+    const Type& getY() const {
+        return _y;
+    }
+};
+#endif
+
 //--------------------------------------------------------------------------------------------
 struct grid_mem_t
 {
-    int             grids_x;                          ///< Size in grids
-    int             grids_y;
-    size_t          grid_count;                       ///< how many grids
+    int grids_x;         ///< Size in grids
+    int grids_y;
+    size_t grid_count;   ///< How many grids.
 
-    int             blocks_x;                         ///< Size in blocks
-    int             blocks_y;
-    Uint32          blocks_count;                     ///< Number of blocks (collision areas)
+    int blocks_x;        ///< Size in blocks
+    int blocks_y;
+    Uint32 blocks_count; ///< Number of blocks (collision areas)
 
-    float           edge_x;                           ///< Limits
-    float           edge_y;
+    float edge_x; ///< Limits.
+    float edge_y;
 
-    Uint32        * blockstart;                       ///< list of blocks that start each row
-    Uint32        * tilestart;                        ///< list of tiles  that start each row
+    Uint32 *blockstart; ///< List of blocks that start each row.
+    Uint32 *tilestart;  ///< List of tiles  that start each row.
 
     // the per-grid info
-    ego_grid_info_t* grid_list;                        ///< tile command info
+    ego_grid_info_t* grid_list;                       ///< tile command info
+
+    static grid_mem_t *ctor(grid_mem_t *self);
+    static grid_mem_t *dtor(grid_mem_t *self);
+    static bool alloc(grid_mem_t *self, const ego_mesh_info_t *info);
+    static bool free(grid_mem_t *self);
+    /**
+     * @brief
+     *  This function builds a look up table to ease calculating the fan number given an x,y pair.
+     */
+    static void make_fanstart(grid_mem_t *self, const ego_mesh_info_t *info);
 };
 
-grid_mem_t *grid_mem_ctor(grid_mem_t *self);
-grid_mem_t *grid_mem_dtor(grid_mem_t *self);
-bool grid_mem_alloc(grid_mem_t *self, const ego_mesh_info_t *info);
-bool grid_mem_free(grid_mem_t *self);
-void grid_make_fanstart(grid_mem_t *self, const ego_mesh_info_t *info);
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -192,17 +242,20 @@ struct tile_mem_t
     ego_tile_info_t* tile_list;                        ///< tile command info
 
     // the per-vertex info to be presented to OpenGL
-    size_t          vert_count;                        ///< number of vertices
-    GLXvector3f   * plst;                              ///< the position list
-    GLXvector2f   * tlst;                              ///< the texture coordinate list
-    GLXvector3f   * nlst;                              ///< the normal list
-    GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
+    size_t vert_count;                        ///< number of vertices
+    GLXvector3f *plst;                        ///< the position list
+    GLXvector2f *tlst;                        ///< the texture coordinate list
+    GLXvector3f *nlst;                        ///< the normal list
+    GLXvector3f *clst;                        ///< the color list (for lighting the mesh)
+
+    static tile_mem_t *ctor(tile_mem_t *self);
+    static tile_mem_t *dtor(tile_mem_t *self);
+    static bool free(tile_mem_t *self);
+    static bool alloc(tile_mem_t *self, const ego_mesh_info_t *info);
+
 };
 
-tile_mem_t *tile_mem_ctor(tile_mem_t *self);
-tile_mem_t *tile_mem_dtor(tile_mem_t *self);
-bool tile_mem_free(tile_mem_t *self);
-bool tile_mem_alloc(tile_mem_t *self, const ego_mesh_info_t *info);
+
 
 //--------------------------------------------------------------------------------------------
 

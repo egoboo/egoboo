@@ -498,6 +498,12 @@ public:
      *  Skip input until either the end of the input or a non-whitespace character is reached.
      */
     void skipWhiteSpaces();
+    /**
+     * @brief
+     *  Skip input until either the end of the input or a non-newline character is reached.
+     */
+    void skipNewLines();
+    void skipNewLine();
 
     /**
      * @brief

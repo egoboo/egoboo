@@ -316,20 +316,22 @@ bool ReadContext::skipToDelimiter(char delimiter, bool optional)
             }
             else
             {
-                throw Ego::Script::MissingDelimiterError(__FILE__,__LINE__,Ego::Script::Location(getLoadName(), getLineNumber()),delimiter);
+                throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()), delimiter);
             }
         }
-        if (is(delimiter))
-        {
-            next();
-            return true;
-        }
-
+        bool isDelimiter = is(delimiter);
         if (isNewLine())
         {
-            _lineNumber++;
+            skipNewLine();
         }
-        next();
+        else
+        {
+            next();
+        }
+        if (isDelimiter)
+        {
+            return true;
+        }
     }
 }
 
@@ -359,18 +361,27 @@ bool read_to_delimiter_vfs(ReadContext& ctxt, std::string& buffer, char delimite
                 throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()), delimiter);
             }
         }
-        if (ctxt.is(delimiter))
+        bool isDelimiter = ctxt.is(delimiter);
+        if (ctxt.isNewLine())
+        {
+            int old = ctxt._current;
+            ctxt.next();
+            if (ctxt.isNewLine() && old != ctxt._current)
+            {
+                ctxt.next();
+            }
+            ctxt.write('\n');
+            ctxt._lineNumber++;
+        }
+        else
         {
             ctxt.saveAndNext();
+        }
+        if (isDelimiter)
+        {
             buffer = ctxt._buffer.toString();
             return true;
         }
-
-        if (ctxt.isNewLine())
-        {
-            ctxt._lineNumber++;
-        }
-        ctxt.saveAndNext();
     }
     
 }
@@ -403,22 +414,32 @@ bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const ch
                 throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()), delimiters[0]);
             }
         }
-        if (ctxt.isNewLine())
-        {
-            ctxt._lineNumber++;
-        }
+
         bool isDelimiter = false;
         for (size_t i = 0, n = strlen(delimiters); i < n; ++i)
         {
             isDelimiter |= ctxt.is(delimiters[i]);
         }
-        if (isDelimiter)
+        if (ctxt.isNewLine())
+        {
+            int old = ctxt._current;
+            ctxt.next();
+            if (ctxt.isNewLine() && old != ctxt._current)
+            {
+                ctxt.next();
+            }
+            ctxt.write('\n');
+            ctxt._lineNumber++;
+        }
+        else
         {
             ctxt.saveAndNext();
+        }
+        if (isDelimiter)
+        {
             buffer = ctxt._buffer.toString();
             return true;
         }
-        ctxt.saveAndNext();
     }
 
 }
@@ -935,6 +956,32 @@ char vfs_get_next_printable(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
+void ReadContext::skipNewLine()
+{
+    if (isNewLine())
+    {
+        int old = _current;
+        next();
+        if (isNewLine() && old != _current)
+        {
+            next();
+        }
+        _lineNumber++;
+    }
+}
+void ReadContext::skipNewLines()
+{
+    while (isNewLine())
+    {
+        int old = _current;
+        next();
+        if (isNewLine() && old != _current)
+        {
+            next();
+        }
+        _lineNumber++;
+    }
+}
 std::string ReadContext::readToEndOfLine()
 {
     if (is(StartOfInput))
@@ -943,15 +990,15 @@ std::string ReadContext::readToEndOfLine()
     }
     skipWhiteSpaces();
     _buffer.clear();
-    while (true)
+    while (!is(EndOfInput))
     {
-        if (is(EndOfInput) || is(Error))
+        if (is(Error))
         {
             throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
         }
         if (isNewLine())
         {
-            next();
+            skipNewLine();
             break;
         }
         saveAndNext();
@@ -978,15 +1025,15 @@ std::string ReadContext::readSingleLineComment()
     }
     next();
     skipWhiteSpaces();
-    while (true)
+    while (!is(EndOfInput))
     {
-        if (is(EndOfInput) || is(Error))
+        if (is(Error))
         {
             throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
         }
         if (isNewLine())
         {
-            next();
+            skipNewLine();
             break;
         }
         saveAndNext();

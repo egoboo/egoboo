@@ -486,7 +486,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     // Read in the class name
     char buffer[256];
-    vfs_get_next_name(ctxt, buffer, SDL_arraysize(buffer));
+    vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
 
     // fix class name capitalization
     buffer[0] = char_toupper(buffer[0]);

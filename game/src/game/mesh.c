@@ -63,6 +63,12 @@ bool    mesh_tx_none   = false;
 TX_REF    mesh_tx_image  = MESH_IMG_COUNT;
 Uint8     mesh_tx_size   = 0xFF;
 
+static void warnNumberOfVertices(const char *file, int line, size_t numberOfVertices)
+{
+    log_warning("%s:%d: mesh has too many vertices - %" PRIuZ " requested, but maximum is %" PRIuZ "\n", \
+        file, line, numberOfVertices, MAP_VERTICES_MAX);
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ego_mesh_info_t *ego_mesh_info_t::ctor(ego_mesh_info_t *self)
@@ -106,7 +112,10 @@ void ego_mesh_info_t::init(ego_mesh_info_t *self, int numvert, size_t tiles_x, s
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-tile_mem_t *tile_mem_ctor(tile_mem_t *self)
+
+
+
+tile_mem_t *tile_mem_t::ctor(tile_mem_t *self)
 {
     if (!self)
     {
@@ -116,19 +125,109 @@ tile_mem_t *tile_mem_ctor(tile_mem_t *self)
     return self;
 }
 
-//--------------------------------------------------------------------------------------------
-tile_mem_t *tile_mem_dtor(tile_mem_t *self)
+tile_mem_t *tile_mem_t::dtor(tile_mem_t *self)
 {
     if (!self)
     {
         return nullptr;
     }
-    tile_mem_free(self);
+    tile_mem_t::free(self);
 
     BLANK_STRUCT_PTR(self);
 
     return self;
 }
+
+bool tile_mem_t::alloc(tile_mem_t *self, const ego_mesh_info_t *info)
+{
+    if (!self || !info || 0 == info->vertcount)
+    {
+        return false;
+    }
+
+    // Free any memory already allocated.
+    if (!tile_mem_t::free(self))
+    {
+        return false;
+    }
+    if (info->vertcount > MAP_VERTICES_MAX)
+    {
+        warnNumberOfVertices(__FILE__, __LINE__, info->vertcount);
+        return false;
+    }
+
+    // Allocate per-vertex memory.
+    try
+    {
+        self->plst = new GLXvector3f[info->vertcount];
+        self->tlst = new GLXvector2f[info->vertcount];
+        self->clst = new GLXvector3f[info->vertcount];
+        self->nlst = new GLXvector3f[info->vertcount];
+    }
+    catch (std::bad_alloc& ex)
+    {
+        goto mesh_mem_alloc_fail;
+    }
+    // Allocate per-tile memory.
+    self->tile_list = ego_tile_info_create_ary(info->tiles_count);
+    if (!self->tile_list)
+    {
+        goto mesh_mem_alloc_fail;
+    }
+    self->vert_count = info->vertcount;
+    self->tile_count = info->tiles_count;
+
+    return true;
+
+mesh_mem_alloc_fail:
+
+    tile_mem_t::free(self);
+    log_error("%s:%d: unable to allocate tile memory - reduce the maximum number of vertices" \
+              " (check MAP_VERTICES_MAX)\n", __FILE__, __LINE__);
+
+    return false;
+}
+
+bool tile_mem_t::free(tile_mem_t *self)
+{
+    if (!self)
+    {
+        return false;
+    }
+    // Free the vertex data.
+    if (self->plst)
+    {
+        delete[] self->plst;
+        self->plst = nullptr;
+    }
+    if (self->nlst)
+    {
+        delete[] self->nlst;
+        self->nlst = nullptr;
+    }
+    if (self->clst)
+    {
+        delete[] self->clst;
+        self->clst = nullptr;
+    }
+    if (self->tlst)
+    {
+        delete[] self->tlst;
+        self->tlst = nullptr;
+    }
+
+    // Free the tile data.
+    ego_tile_info_destroy_ary(self->tile_list, self->tile_count);
+    self->tile_list = nullptr;
+
+    // Set the vertex count to 0.
+    self->vert_count = 0;
+    // Set the tile count to 0.
+    self->tile_count = 0;
+
+    return true;
+}
+
 
 //--------------------------------------------------------------------------------------------
 oglx_texture_t * ego_mesh_get_texture( Uint8 image, Uint8 size )
@@ -210,8 +309,8 @@ ego_mesh_t *ego_mesh_t::ctor(ego_mesh_t *self)
     {
         BLANK_STRUCT_PTR(self);
 
-        tile_mem_ctor(&(self->tmem ));
-        grid_mem_ctor(&(self->gmem));
+        tile_mem_t::ctor(&(self->tmem ));
+        grid_mem_t::ctor(&(self->gmem));
         ego_mesh_info_t::ctor(&(self->info));
         mpdfx_lists_ctor(&(self->fxlists));
     }
@@ -228,8 +327,8 @@ ego_mesh_t * ego_mesh_t::dtor(ego_mesh_t *self)
     {
         return nullptr;
     }
-    if (!tile_mem_dtor(&(self->tmem))) return nullptr;
-    if (!grid_mem_dtor(&(self->gmem))) return nullptr;
+    if (!tile_mem_t::dtor(&(self->tmem))) return nullptr;
+    if (!grid_mem_t::dtor(&(self->gmem))) return nullptr;
     if (!ego_mesh_info_t::dtor(&(self->info))) return nullptr;
 
     return self;
@@ -255,8 +354,8 @@ ego_mesh_t * ego_mesh_ctor_1( ego_mesh_t * pmesh, int tiles_x, int tiles_y )
     ego_mesh_info_t::init( &( pmesh->info ), -1, tiles_x, tiles_y );
 
     // allocate the mesh memory
-    tile_mem_alloc( &( pmesh->tmem ), &( pmesh->info ) );
-    grid_mem_alloc( &( pmesh->gmem ), &( pmesh->info ) );
+    tile_mem_t::alloc( &( pmesh->tmem ), &( pmesh->info ) );
+    grid_mem_t::alloc( &( pmesh->gmem ), &( pmesh->info ) );
     mpdfx_lists_alloc( &( pmesh->fxlists ), &( pmesh->info ) );
 
     return pmesh;
@@ -454,10 +553,10 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     // set up the destination mesh from the source mesh
     ego_mesh_info_t::init( pinfo_dst, pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y );
 
-    allocated_dst = tile_mem_alloc( ptmem_dst, pinfo_dst );
+    allocated_dst = tile_mem_t::alloc( ptmem_dst, pinfo_dst );
     if ( !allocated_dst ) return false;
 
-    allocated_dst = grid_mem_alloc( pgmem_dst, pinfo_dst );
+    allocated_dst = grid_mem_t::alloc( pgmem_dst, pinfo_dst );
     if ( !allocated_dst ) return false;
 
     allocated_dst = mpdfx_lists_alloc( plists_dst, pinfo_dst );
@@ -567,204 +666,168 @@ ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-grid_mem_t * grid_mem_ctor( grid_mem_t * pmem )
+grid_mem_t *grid_mem_t::ctor(grid_mem_t *self)
 {
-    if ( NULL == pmem ) return pmem;
-
-    BLANK_STRUCT_PTR( pmem )
-
-    return pmem;
-}
-
-//--------------------------------------------------------------------------------------------
-grid_mem_t * grid_mem_dtor( grid_mem_t * pmem )
-{
-    if ( NULL == pmem ) return NULL;
-
-    grid_mem_free( pmem );
-
-    BLANK_STRUCT_PTR( pmem )
-
-    return pmem;
-}
-
-//--------------------------------------------------------------------------------------------
-bool grid_mem_alloc( grid_mem_t * pgmem, const ego_mesh_info_t * pinfo )
-{
-
-    if ( NULL == pgmem || NULL == pinfo || 0 == pinfo->vertcount ) return false;
-
-    // free any memory already allocated
-    if ( !grid_mem_free( pgmem ) ) return false;
-
-    if ( pinfo->vertcount > MAP_VERTICES_MAX )
+    if (!self)
     {
-        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MAP_VERTICES_MAX );
+        return nullptr;
+    }
+    BLANK_STRUCT_PTR(self);
+    return self;
+}
+
+grid_mem_t *grid_mem_t::dtor(grid_mem_t *self)
+{
+    if (!self)
+    {
+        return nullptr;
+    }
+    grid_mem_t::free(self);
+    BLANK_STRUCT_PTR(self);
+    return self;
+}
+
+bool grid_mem_t::alloc(grid_mem_t *self, const ego_mesh_info_t *info)
+{
+    if (!self || !info || 0 == info->vertcount)
+    {
+        return false;
+    }
+    // Free any memory already allocated.
+    if (!grid_mem_t::free(self))
+    {
+        return false;
+    }
+    if (info->vertcount > MAP_VERTICES_MAX)
+    {
+        warnNumberOfVertices(__FILE__, __LINE__, info->vertcount);
         return false;
     }
 
-    // set the desired blocknumber of grids
-    pgmem->grids_x = pinfo->tiles_x;
-    pgmem->grids_y = pinfo->tiles_y;
-    pgmem->grid_count = pgmem->grids_x * pgmem->grids_y;
+    // Set the desired block number of grids.
+    self->grids_x = info->tiles_x;
+    self->grids_y = info->tiles_y;
+    self->grid_count = self->grids_x * self->grids_y;
 
-    // set the mesh edge info
-    pgmem->edge_x = ( pgmem->grids_x + 1 ) * GRID_ISIZE;
-    pgmem->edge_y = ( pgmem->grids_y + 1 ) * GRID_ISIZE;
+    // Set the mesh edge info.
+    self->edge_x = (self->grids_x + 1) * GRID_ISIZE;
+    self->edge_y = (self->grids_y + 1) * GRID_ISIZE;
 
-    // set the desired blocknumber of blocks
-    // this only works if BLOCK_BITS = GRID_BITS + 2
-    pgmem->blocks_x = ( pinfo->tiles_x >> 2 );
-    if ( HAS_SOME_BITS( pinfo->tiles_x, 0x03 ) ) pgmem->blocks_x++;
+    // Set the desired blocknumber of blocks.
+    // This only works if BLOCK_BITS = GRID_BITS + 2.
+    self->blocks_x = (info->tiles_x >> 2);
+    if (HAS_SOME_BITS(info->tiles_x, 0x03))
+    {
+        self->blocks_x++;
+    }
+    self->blocks_y = (info->tiles_y >> 2);
+    if (HAS_SOME_BITS(info->tiles_y, 0x03))
+    {
+        self->blocks_y++;
+    }
+    self->blocks_count = self->blocks_x * self->blocks_y;
 
-    pgmem->blocks_y = ( pinfo->tiles_y >> 2 );
-    if ( HAS_SOME_BITS( pinfo->tiles_y, 0x03 ) ) pgmem->blocks_y++;
+    // Allocate per-grid memory.
+    self->grid_list  = ego_grid_info_create_ary(info->tiles_count);
+    if (!self->grid_list)
+    {
+        goto grid_mem_alloc_fail;
+    }
+    // Allocate the array for the block start data.
+    try
+    {
+        self->blockstart = new Uint32[self->blocks_y];
+    }
+    catch (std::bad_alloc& ex)
+    {
+        goto grid_mem_alloc_fail;
+    }
+    
+    // Allocate the array for the tile start data.
+    try
+    {
+        self->tilestart = new Uint32[info->tiles_y];
+    }
+    catch (std::bad_alloc& ex)
+    {
+        goto grid_mem_alloc_fail;
+    }
 
-    pgmem->blocks_count = pgmem->blocks_x * pgmem->blocks_y;
-
-    // allocate per-grid memory
-    pgmem->grid_list  = ego_grid_info_create_ary( pinfo->tiles_count );
-    if ( NULL == pgmem->grid_list ) goto grid_mem_alloc_fail;
-
-    // helper info
-    pgmem->blockstart = EGOBOO_NEW_ARY( Uint32, pgmem->blocks_y );
-    if ( NULL == pgmem->blockstart ) goto grid_mem_alloc_fail;
-
-    pgmem->tilestart  = EGOBOO_NEW_ARY( Uint32, pinfo->tiles_y );
-    if ( NULL == pgmem->tilestart ) goto grid_mem_alloc_fail;
-
-    // initialize the fanstart/blockstart data
-    grid_make_fanstart( pgmem, pinfo );
+    // Compute the tile start/block start data.
+    grid_mem_t::make_fanstart(self, info);
 
     return true;
 
 grid_mem_alloc_fail:
 
-    grid_mem_free( pgmem );
-    log_error( "grid_mem_alloc() - reduce the maximum number of vertices! (Check MAP_VERTICES_MAX)\n" );
+    grid_mem_t::free(self);
+    log_error("%s:%d: unable to allocate grid memory - reduce the maximum number of vertices" \
+              " (check MAP_VERTICES_MAX)\n",__FILE__,__LINE__);
 
     return false;
 }
 
-//--------------------------------------------------------------------------------------------
-bool grid_mem_free( grid_mem_t * pmem )
+bool grid_mem_t::free(grid_mem_t *self)
 {
-    if ( NULL == pmem ) return false;
-
-    // free the memory
-    EGOBOO_DELETE_ARY( pmem->blockstart );
-    EGOBOO_DELETE_ARY( pmem->tilestart );
-
-    // deconstruct the grid list
-    pmem->grid_list = ego_grid_info_destroy_ary( pmem->grid_list, pmem->grid_count );
-
-    // reset some values to safe values
-    BLANK_STRUCT_PTR( pmem )
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool tile_mem_alloc( tile_mem_t * pmem, const ego_mesh_info_t * pinfo )
-{
-
-    if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return false;
-
-    // free any memory already allocated
-    if ( !tile_mem_free( pmem ) ) return false;
-
-    if ( pinfo->vertcount > MAP_VERTICES_MAX )
+    if (!self)
     {
-        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MAP_VERTICES_MAX );
         return false;
     }
+    // Free the block start and tile start arrays.
+    if (self->blockstart)
+    {
+        delete[] self->blockstart;
+        self->blockstart = nullptr;
+    }
+    if (self->tilestart)
+    {
+        delete[] self->tilestart;
+        self->tilestart = nullptr;
+    }
 
-    // allocate per-vertex memory
-    pmem->plst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
-    if ( NULL == pmem->plst ) goto mesh_mem_alloc_fail;
+    // Destroy the grid list.
+    ego_grid_info_destroy_ary(self->grid_list, self->grid_count);
+    self->grid_list = nullptr;
 
-    pmem->tlst = EGOBOO_NEW_ARY( GLXvector2f, pinfo->vertcount );
-    if ( NULL == pmem->tlst ) goto mesh_mem_alloc_fail;
-
-    pmem->clst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
-    if ( NULL == pmem->clst ) goto mesh_mem_alloc_fail;
-
-    pmem->nlst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
-    if ( NULL == pmem->nlst ) goto mesh_mem_alloc_fail;
-
-    // allocate per-tile memory
-    pmem->tile_list  = ego_tile_info_create_ary( pinfo->tiles_count );
-    if ( NULL == pmem->tile_list ) goto mesh_mem_alloc_fail;
-
-    pmem->vert_count = pinfo->vertcount;
-    pmem->tile_count = pinfo->tiles_count;
-
-    return true;
-
-mesh_mem_alloc_fail:
-
-    tile_mem_free( pmem );
-    log_error( "tile_mem_alloc() - reduce the maximum number of vertices! (Check MAP_VERTICES_MAX)\n" );
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------
-bool tile_mem_free( tile_mem_t * pmem )
-{
-    if ( NULL == pmem ) return false;
-
-    // free the memory
-    EGOBOO_DELETE_ARY( pmem->plst );
-    EGOBOO_DELETE_ARY( pmem->nlst );
-    EGOBOO_DELETE_ARY( pmem->clst );
-    EGOBOO_DELETE_ARY( pmem->tlst );
-
-    // per-tile values
-    pmem->tile_list = ego_tile_info_destroy_ary( pmem->tile_list, pmem->tile_count );
-
-    // reset some values to safe values
-    pmem->vert_count  = 0;
-    pmem->tile_count = 0;
+    // Blank this struct.
+    BLANK_STRUCT_PTR(self);
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-void grid_make_fanstart( grid_mem_t * pgmem, const ego_mesh_info_t * pinfo )
+void grid_mem_t::make_fanstart(grid_mem_t *self, const ego_mesh_info_t *info)
 {
-    /// @author ZZ
-    /// @details This function builds a look up table to ease calculating the
-    ///    fan number given an x,y pair
-
-    int cnt;
-
-    if ( NULL == pgmem || NULL == pinfo ) return;
-
-    // do the tilestart
-    for ( cnt = 0; cnt < pinfo->tiles_y; cnt++ )
+    if (!self || !info)
     {
-        pgmem->tilestart[cnt] = pinfo->tiles_x * cnt;
+        return;
+    }
+    // Compute look-up table for tile starts.
+    for (int i = 0; i < info->tiles_y; i++)
+    {
+        self->tilestart[i] = info->tiles_x * i;
     }
 
-    // calculate some of the block info
-    if ( pgmem->blocks_x >= GRID_BLOCKY_MAX )
+    // Calculate some of the block info
+    if (self->blocks_x >= GRID_BLOCKY_MAX)
     {
-        log_warning( "Number of mesh blocks in the x direction too large (%d out of %d).\n", pgmem->blocks_x, GRID_BLOCKY_MAX );
+        log_warning("%s:%d: number of mesh blocks in the x direction too large (%d out of %d).\n", __FILE__,__LINE__,\
+                    self->blocks_x, GRID_BLOCKY_MAX);
     }
 
-    if ( pgmem->blocks_y >= GRID_BLOCKY_MAX )
+    if (self->blocks_y >= GRID_BLOCKY_MAX)
     {
-        log_warning( "Number of mesh blocks in the y direction too large (%d out of %d).\n", pgmem->blocks_y, GRID_BLOCKY_MAX );
+        log_warning("%s:%d: number of mesh blocks in the y direction too large (%d out of %d).\n", __FILE__, __LINE__,\
+                    self->blocks_y, GRID_BLOCKY_MAX);
     }
 
-    // do the blockstart
-    for ( cnt = 0; cnt < pgmem->blocks_y; cnt++ )
+    // Compute look-up table for block starts.
+    for (int i = 0; i < self->blocks_y; i++)
     {
-        pgmem->blockstart[cnt] = pgmem->blocks_x * cnt;
+        self->blockstart[i] = self->blocks_x * i;
     }
 }
 
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void ego_mesh_make_vrtstart( ego_mesh_t * pmesh )
 {

@@ -80,12 +80,16 @@ Again:
     while (true)
     {
         ctxt.skipWhiteSpaces();
+        ctxt.skipNewLines();
+#if 0
         while (ctxt.isNewLine()) /// @todo Add and use ReadContext::skipNewLines().
         {
+            ctxt.sk
             ctxt.next();
             ctxt._lineNumber++;
             continue;
         }
+#endif
         if (ctxt.is('/'))
         {
             ctxt.readSingleLineComment(); /// @todo Add and use ReadContext::skipSingleLineComment().

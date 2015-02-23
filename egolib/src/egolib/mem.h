@@ -52,5 +52,5 @@ void *EgoNew(size_t sz, size_t esz);
 #define EGOBOO_NEW(TYPE) (TYPE *)EgoNew(1, sizeof(TYPE))
 #define EGOBOO_NEW_ARY(TYPE,COUNT) (TYPE *)EgoNew(COUNT, sizeof(TYPE))
 
-#define EGOBOO_DELETE(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
-#define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
+#define EGOBOO_DELETE(PTR) if(nullptr != (PTR)) { free(PTR); (PTR) = nullptr; }
+#define EGOBOO_DELETE_ARY(PTR) if(nullptr != (PTR)) { free(PTR); (PTR) = nullptr; }
