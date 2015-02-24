@@ -110,7 +110,7 @@ bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, con
     ego_tile_info_t * ptile;
 
     // do not start if the initial point is off the mesh
-    if ( ego_mesh_get_tile_int( PMesh, src_ix, src_iy ) == INVALID_TILE )
+    if (ego_mesh_t::get_tile_int( PMesh, PointGrid(src_ix, src_iy)) == INVALID_TILE)
     {
 #ifdef DEBUG_ASTAR
         printf( "AStar failed because source position is off the mesh.\n" );
@@ -119,7 +119,7 @@ bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, con
     }
 
     //be a bit flexible if the destination is inside a wall
-    if ( ego_mesh_tile_has_bits( PMesh, dst_ix, dst_iy, stoppedby ) )
+    if ( ego_mesh_tile_has_bits( PMesh, PointGrid(dst_ix, dst_iy), stoppedby ) )
     {
         //check all tiles edging to this one, including corners
         for ( j = -1; j <= 1; j++ )
@@ -129,7 +129,7 @@ bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, con
                 if ( j == 0 && k == 0 ) continue;
 
                 //Did we find a free tile?
-                if ( !ego_mesh_tile_has_bits( PMesh, dst_ix + j, dst_iy + k, stoppedby ) )
+                if ( !ego_mesh_tile_has_bits( PMesh, PointGrid(dst_ix + j, dst_iy + k), stoppedby ) )
                 {
                     dst_ix = dst_ix + j;
                     dst_iy = dst_iy + k;
@@ -193,7 +193,7 @@ flexible_destination:
                     }
 
                     // is the test node on the mesh?
-                    itile = ego_mesh_get_tile_int( PMesh, tmp_x, tmp_y );
+                    itile = ego_mesh_t::get_tile_int( PMesh, PointGrid(tmp_x, tmp_y));
                     if ( INVALID_TILE == itile )
                     {
                         deadend_count++;
@@ -215,7 +215,7 @@ flexible_destination:
 
                     //Dont walk into pits
                     //@todo: might need to check tile Z level here instead
-                    ptile = ego_mesh_get_ptile( PMesh, itile );
+                    ptile = ego_mesh_t::get_ptile( PMesh, itile );
                     if ( NULL == ptile ) continue;
 
                     if ( TILE_IS_FANOFF( *ptile ) )
@@ -227,7 +227,7 @@ flexible_destination:
                     }
 
                     // is this a wall or impassable?
-                    if ( ego_mesh_tile_has_bits( PMesh, tmp_x, tmp_y, stoppedby ) )
+                    if ( ego_mesh_tile_has_bits( PMesh, PointGrid(tmp_x, tmp_y), stoppedby ) )
                     {
                         // add the invalid tile to the list as a closed tile
                         AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );

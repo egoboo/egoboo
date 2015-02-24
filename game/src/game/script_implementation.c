@@ -264,10 +264,10 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
         }
 
         // check to see if the "ray" collides with the mesh
-        fan = ego_mesh_get_tile_int( PMesh, ix, iy );
+        fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(ix, iy));
         if ( INVALID_TILE != fan && fan != fan_last )
         {
-            Uint32 collide_fx = ego_mesh_test_fx( PMesh, fan, plos->stopped_by );
+            Uint32 collide_fx = ego_mesh_t::test_fx( PMesh, fan, plos->stopped_by );
             // collide the ray with the mesh
 
             if ( EMPTY_BIT_FIELD != collide_fx )
@@ -536,9 +536,9 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        fan = ego_mesh_get_grid( PMesh, pchr->getPosX(), pchr->getPosY() );
+        fan = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
 
-        ptile = ego_mesh_get_ptile( PMesh, fan );
+        ptile = ego_mesh_t::get_ptile( PMesh, fan );
         if ( NULL != ptile )
         {
             Uint16 img      = ptile->img & TILE_LOWER_MASK;
@@ -622,7 +622,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     ///    depending on if it finds one or not
 
     int x, y;
-    Uint32 fan;
+    TileIndex fan;
     ego_tile_info_t * ptile = NULL;
 
     const std::shared_ptr<Passage> &passage = PMod->getPassageByID(passageID);
@@ -639,9 +639,9 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( /*nothing*/; x <= passage->getRight(); x++ )
         {
-            fan = ego_mesh_get_tile_int( PMesh, x, y );
+            fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(x, y));
 
-            ptile = ego_mesh_get_ptile( PMesh, fan );
+            ptile = ego_mesh_t::get_ptile( PMesh, fan );
             if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
             {
                 *px1 = ( x * GRID_ISIZE ) + 64;
@@ -657,9 +657,9 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( x = passage->getLeft(); x <= passage->getRight(); x++ )
         {
-            fan = ego_mesh_get_tile_int( PMesh, x, y );
+            fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(x, y));
 
-            ptile = ego_mesh_get_ptile( PMesh, fan );
+            ptile = ego_mesh_t::get_ptile( PMesh, fan );
             if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
             {
                 *px1 = x * GRID_ISIZE + 64;

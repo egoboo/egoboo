@@ -24,9 +24,6 @@
 
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
-#if 0
-#include "game/egoboo_object.h"
-#endif
 
 /// Temporary abstract profile system for unifying particle- and
 /// enchant-profiles systems before merging both into ProfileSystem.
@@ -48,8 +45,6 @@ protected:
 
     REFTYPE get_free()
     {
-        REFTYPE ref = INVALIDREF;
-
         for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
         {
             if (!isLoaded(ref))
@@ -58,15 +53,6 @@ protected:
             }
         }
         return INVALIDREF;
-#if 0
-        if (_size < CAPACITY)
-        {
-            ref = _size;
-            _size++;
-        }
-
-        return ref;
-#endif
     }
 
 

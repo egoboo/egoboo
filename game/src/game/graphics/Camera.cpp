@@ -393,7 +393,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 	            _turnZAdd -= DEFAULT_TURN_KEY;
 	        }
 
-	        _trackPos.z = 128 + ego_mesh_get_level( pmesh, _trackPos.x, _trackPos.y );
+	        _trackPos.z = 128 + ego_mesh_t::get_level( pmesh, PointWorld(_trackPos.x, _trackPos.y));
 
        break;
 

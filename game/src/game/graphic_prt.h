@@ -33,10 +33,9 @@ struct prt_bundle_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-struct s_prt_instance;
-typedef struct s_prt_instance prt_instance_t;
-
+#if 0
+struct prt_instance_t;
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -61,7 +60,7 @@ void prt_set_texture_params( const TX_REF itex );
 //--------------------------------------------------------------------------------------------
 
 /// All the data necessary to diaplay a partile
-struct s_prt_instance
+struct prt_instance_t
 {
     bool valid;                ///< is the infor in this struct valid?
 

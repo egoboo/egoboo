@@ -58,7 +58,7 @@ void dynalight_info_t::init()
 }
 
 pip_t::pip_t() :
-    comment{'\0'},
+    /*comment{'\0'},*/
 
     // comment - see below
     // Initial spawning of this particle.
@@ -107,7 +107,7 @@ pip_t::pip_t() :
     damfx(DAMFX_TURN),
 
     // Hitting.
-    damageBoni{false, false}, //{intelligence, wisdom}
+    damageBoni({false, false}), //{intelligence, wisdom}
     spawnenchant(false),
     onlydamagefriendly(false),
     friendlyfire(false),
@@ -148,7 +148,7 @@ pip_t::pip_t() :
     orientation(ORIENTATION_B)
 
 {
-    //ctor
+    comment[0] = '\0';
 }
 
 pip_t::~pip_t()

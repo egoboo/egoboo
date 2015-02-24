@@ -102,9 +102,6 @@
 
 // Forward declaration.
 struct ReadContext;
-#if 0
-char vfs_get_first_letter(ReadContext& ctxt);
-#endif
 
 /**
  * @brief
@@ -326,7 +323,9 @@ public:
      * @todo
      *  Remove parameterized form.
      */
+#if 0
     bool isWhiteSpace(char chr);
+#endif
     bool isWhiteSpace();
 
     /**
@@ -344,7 +343,9 @@ public:
      * @todo
      *  Remove parameterized form.
      */
+#if 0
     bool isNewLine(char chr);
+#endif
     bool isNewLine();
 
     bool isAlpha();

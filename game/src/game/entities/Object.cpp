@@ -310,7 +310,7 @@ bool Object::isOverWater(bool anyLiquid) const
     	return false;
     }
 
-    return 0 != ego_mesh_test_fx(PMesh, onwhichgrid, MAPFX_WATER);
+    return 0 != ego_mesh_t::test_fx(PMesh, onwhichgrid, MAPFX_WATER);
 }
 
 bool Object::isInWater(bool anyLiquid) const
@@ -328,8 +328,8 @@ bool Object::setPosition(const fvec3_t& position)
     {
         _position = position;
 
-        onwhichgrid   = ego_mesh_get_grid(PMesh, _position.x, _position.y);
-        onwhichblock  = ego_mesh_get_block(PMesh, _position.x, _position.y);
+        onwhichgrid   = ego_mesh_t::get_grid(PMesh, PointWorld(_position.x, _position.y));
+        onwhichblock  = ego_mesh_t::get_block(PMesh, PointWorld(_position.x, _position.y));
 
         // update whether the current character position is safe
         chr_update_safe( this, false );

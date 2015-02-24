@@ -76,13 +76,13 @@ bool animate_tile( ego_mesh_t * pmesh, Uint32 itile )
     ego_tile_info_t * ptile;
 
     // do nothing if the tile is not animated
-    if ( 0 == ego_mesh_test_fx( pmesh, itile, MAPFX_ANIM ) )
+    if ( 0 == ego_mesh_t::test_fx( pmesh, itile, MAPFX_ANIM ) )
     {
         return true;
     }
 
     // grab a pointer to the tile
-    ptile = ego_mesh_get_ptile( pmesh, itile );
+    ptile = ego_mesh_t::get_ptile( pmesh, itile );
     if ( NULL == ptile )
     {
         return false;
@@ -129,7 +129,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     const ego_tile_info_t * ptile;
 
     // grab a pointer to the tile
-    ptile = ego_mesh_get_ptile( pmesh, itile );
+    ptile = ego_mesh_t::get_ptile( pmesh, itile );
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
@@ -244,14 +244,14 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * pmesh, const Uint32 itile )
 
     ptmem  = &( pmesh->tmem );
 
-    ptile = ego_mesh_get_ptile( pmesh, itile );
+    ptile = ego_mesh_t::get_ptile( pmesh, itile );
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
         return gfx_error;
     }
 
-    pgrid = ego_mesh_get_pgrid( pmesh, itile );
+    pgrid = ego_mesh_t::get_pgrid( pmesh, itile );
     if ( NULL == pgrid )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
@@ -347,7 +347,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 
     pinfo = &( pmesh->info );
 
-    ptile = ego_mesh_get_ptile( pmesh, itile );
+    ptile = ego_mesh_t::get_ptile( pmesh, itile );
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
@@ -437,7 +437,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
             v[cnt].tex[TT] = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            jtile = ego_mesh_get_tile_int( pmesh, jx, jy );
+            jtile = ego_mesh_t::get_tile_int(pmesh, PointGrid(jx, jy));
             if ( grid_light_one_corner( pmesh, jtile, v[cnt].pos[ZZ], nrm, &dlight ) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly

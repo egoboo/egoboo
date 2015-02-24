@@ -628,11 +628,11 @@ gfx_rv renderlist_t::add(renderlist_t *self, const Ego::DynamicArray<BSP_leaf_t 
             ifan = (Uint32)(leaf->index);
 
 			// Get tile for fan index.
-            ptile = ego_mesh_get_ptile( pmesh, ifan );
+            ptile = ego_mesh_t::get_ptile( pmesh, ifan );
             if ( NULL == ptile ) continue;
 
 			// Get grid for fan index.
-            pgrid = ego_mesh_get_pgrid( pmesh, ifan );
+            pgrid = ego_mesh_t::get_pgrid( pmesh, ifan );
             if ( NULL == pgrid ) continue;
 
             if (gfx_error == gfx_capture_mesh_tile(ptile))
@@ -3193,7 +3193,7 @@ void render_shadow( const CHR_REF character )
     if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
 
     // no shadow if off the mesh
-    ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
+    ptile = ego_mesh_t::get_ptile( PMesh, pchr->onwhichgrid );
     if ( NULL == ptile ) return;
 
     // no shadow if invalid tile image
@@ -3207,7 +3207,7 @@ void render_shadow( const CHR_REF character )
     if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_DRAWREF ) )
+    if ( 0 != ego_mesh_t::test_fx( PMesh, pchr->onwhichgrid, MAPFX_DRAWREF ) )
     {
         alpha *= 0.1f;
     }
@@ -3327,7 +3327,7 @@ void render_bad_shadow( const CHR_REF character )
     if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
 
     // no shadow if off the mesh
-    ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
+    ptile = ego_mesh_t::get_ptile( PMesh, pchr->onwhichgrid );
     if ( NULL == ptile ) return;
 
     // no shadow if invalid tile image
@@ -3341,7 +3341,7 @@ void render_bad_shadow( const CHR_REF character )
     if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_DRAWREF ) )
+    if ( 0 != ego_mesh_t::test_fx( PMesh, pchr->onwhichgrid, MAPFX_DRAWREF ) )
     {
         alpha *= 0.1f;
     }
@@ -3808,7 +3808,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
                 ichr  = pdolist->lst[cnt].ichr;
                 itile = _gameObjects.get(ichr)->onwhichgrid;
 
-                if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
+                if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
 					Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
@@ -3835,7 +3835,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
                 iprt = pdolist->lst[cnt].iprt;
                 itile = PrtList.get_ptr(iprt)->onwhichgrid;
 
-                if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
+                if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
 					Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
 
@@ -4871,16 +4871,16 @@ float grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff,
     ix = FLOOR( pos[XX] / GRID_FSIZE );
     iy = FLOOR( pos[YY] / GRID_FSIZE );
 
-    fan[0] = ego_mesh_get_tile_int( pmesh, ix,     iy );
-    fan[1] = ego_mesh_get_tile_int( pmesh, ix + 1, iy );
-    fan[2] = ego_mesh_get_tile_int( pmesh, ix,     iy + 1 );
-    fan[3] = ego_mesh_get_tile_int( pmesh, ix + 1, iy + 1 );
+    fan[0] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
+    fan[1] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix + 1, iy));
+    fan[2] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy + 1));
+    fan[3] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix + 1, iy + 1));
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = NULL;
 
-        pgrid = ego_mesh_get_pgrid( pmesh, fan[cnt] );
+        pgrid = ego_mesh_t::get_pgrid( pmesh, fan[cnt] );
         if ( NULL == pgrid )
         {
             cache_list[cnt] = NULL;
@@ -4901,7 +4901,7 @@ float grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff,
 bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_t& pos )
 {
     int ix, iy, cnt;
-    Uint32 fan[4];
+    TileIndex fan[4];
     float u, v;
     fvec2_t tpos;
 
@@ -4929,14 +4929,14 @@ bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst
     iy = FLOOR( tpos.y );
 
     // find the tile id for the surrounding tiles
-    fan[0] = ego_mesh_get_tile_int( pmesh, ix,     iy );
-    fan[1] = ego_mesh_get_tile_int( pmesh, ix + 1, iy );
-    fan[2] = ego_mesh_get_tile_int( pmesh, ix,     iy + 1 );
-    fan[3] = ego_mesh_get_tile_int( pmesh, ix + 1, iy + 1 );
+    fan[0] = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix, iy));
+    fan[1] = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix + 1, iy));
+    fan[2] = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix, iy + 1));
+    fan[3] = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix + 1, iy + 1));
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-        pgrid = ego_mesh_get_pgrid( pmesh, fan[cnt] );
+        pgrid = ego_mesh_t::get_pgrid( pmesh, fan[cnt] );
 
         if ( NULL == pgrid )
         {
@@ -5325,7 +5325,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         fan = prlist->all.lst[entry].index;
 
         // grab a pointer to the tile
-        ptile = ego_mesh_get_ptile( pmesh, fan );
+        ptile = ego_mesh_t::get_ptile( pmesh, fan );
         if ( NULL == ptile ) continue;
 
         // Test to see whether the lcache was already updated
@@ -5354,7 +5354,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         if ( !ptile->request_lcache_update ) continue;
 
         // is the tile reflective?
-        pgrid = ego_mesh_get_pgrid( pmesh, fan );
+        pgrid = ego_mesh_t::get_pgrid( pmesh, fan );
         reflective = ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) );
 
         // light the corners of this tile
@@ -5416,7 +5416,7 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
         if ( INVALID_TILE == fan ) continue;
 
         // valid tile?
-        ptile = ego_mesh_get_ptile( pmesh, fan );
+        ptile = ego_mesh_t::get_ptile( pmesh, fan );
         if ( NULL == ptile )
         {
             retval = gfx_fail;
@@ -5902,7 +5902,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
         fan = prlist->all.lst[entry].index;
 
         // a valid tile?
-        pgrid = ego_mesh_get_pgrid( pmesh, fan );
+        pgrid = ego_mesh_t::get_pgrid( pmesh, fan );
         if ( NULL == pgrid ) continue;
 
         // do not update this more than once a frame

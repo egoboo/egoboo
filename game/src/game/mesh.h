@@ -35,11 +35,13 @@ struct oglx_texture_t;
 //--------------------------------------------------------------------------------------------
 
 #define GRID_BITS      7
+/// Grid bits isize is an unsigned power of two integer (hence a bitwise and modulus is possible).
 #define GRID_ISIZE     (1<<(GRID_BITS))
 #define GRID_FSIZE     ((float)GRID_ISIZE)
 #define GRID_MASK      (GRID_ISIZE - 1)
 
 #define BLOCK_BITS      9
+/// Block isize is an unsigned power of two integer (hence a bitwise and modulus is possible).
 #define BLOCK_ISIZE     (1<<(BLOCK_BITS))
 #define BLOCK_FSIZE     ((float)BLOCK_ISIZE)
 #define BLOCK_MASK      (BLOCK_ISIZE - 1)
@@ -110,16 +112,16 @@ struct ego_tile_info_t
     BSP_leaf_t     bsp_leaf;                   ///< the octree node for this object
 };
 
-ego_tile_info_t * ego_tile_info_ctor( ego_tile_info_t * ptr, int index );
-ego_tile_info_t * ego_tile_info_dtor( ego_tile_info_t * ptr );
-ego_tile_info_t * ego_tile_info_free( ego_tile_info_t * ptr );
-ego_tile_info_t * ego_tile_info_create( int index );
-ego_tile_info_t * ego_tile_info_destroy( ego_tile_info_t * ptr );
+ego_tile_info_t *ego_tile_info_ctor(ego_tile_info_t *self, int index);
+ego_tile_info_t *ego_tile_info_dtor(ego_tile_info_t *self);
+ego_tile_info_t *ego_tile_info_free(ego_tile_info_t *self);
+ego_tile_info_t *ego_tile_info_create(int index);
+ego_tile_info_t *ego_tile_info_destroy(ego_tile_info_t *self);
 
-ego_tile_info_t * ego_tile_info_ctor_ary( ego_tile_info_t * ptr, size_t count );
-ego_tile_info_t * ego_tile_info_dtor_ary( ego_tile_info_t * ptr, size_t count );
-ego_tile_info_t * ego_tile_info_create_ary( size_t count );
-ego_tile_info_t * ego_tile_info_destroy_ary( ego_tile_info_t * ary, size_t count );
+ego_tile_info_t *ego_tile_info_ctor_ary(ego_tile_info_t *self, size_t count);
+ego_tile_info_t *ego_tile_info_dtor_ary(ego_tile_info_t *self, size_t count);
+ego_tile_info_t *ego_tile_info_create_ary(size_t count);
+ego_tile_info_t *ego_tile_info_destroy_ary(ego_tile_info_t *self, size_t count);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -139,18 +141,36 @@ struct ego_grid_info_t
     Uint8            a, l;                     ///< the raw mesh lighting... pretty much ignored
     lighting_cache_t cache;                    ///< the per-grid lighting info
     int              cache_frame;              ///< the last frame in which the cache was calculated
+
+    static ego_grid_info_t *ctor(ego_grid_info_t *self);
+    static ego_grid_info_t *dtor(ego_grid_info_t *self);
+    static ego_grid_info_t *free(ego_grid_info_t *self);
+    static ego_grid_info_t *create();
+    static ego_grid_info_t *destroy(ego_grid_info_t *self);
 };
 
-ego_grid_info_t * ego_grid_info_ctor( ego_grid_info_t * ptr );
-ego_grid_info_t * ego_grid_info_dtor( ego_grid_info_t * ptr );
-ego_grid_info_t * ego_grid_info_free( ego_grid_info_t * ptr );
-ego_grid_info_t * ego_grid_info_create();
-ego_grid_info_t * ego_grid_info_destroy( ego_grid_info_t * ptr );
 
-ego_grid_info_t * ego_grid_info_ctor_ary( ego_grid_info_t * ptr, size_t count );
-ego_grid_info_t * ego_grid_info_dtor_ary( ego_grid_info_t * ptr, size_t count );
-ego_grid_info_t * ego_grid_info_create_ary( size_t count );
-ego_grid_info_t * ego_grid_info_destroy_ary( ego_grid_info_t * ary, size_t count );
+GRID_FX_BITS ego_grid_info_get_all_fx(const ego_grid_info_t *self);
+GRID_FX_BITS ego_grid_info_test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits);
+bool ego_grid_info_add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
+bool ego_grid_info_sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
+bool ego_grid_info_set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
+
+#if 0
+template <typename Type>
+struct _Array2
+{
+    /// The size of the array.
+    size_t _size;
+    /// A pointer to the elements of the array.
+    Type *_elements;
+};
+#endif
+
+ego_grid_info_t *ego_grid_info_ctor_ary( ego_grid_info_t *self, size_t size);
+ego_grid_info_t *ego_grid_info_dtor_ary( ego_grid_info_t *self, size_t size);
+ego_grid_info_t *ego_grid_info_create_ary(size_t size);
+ego_grid_info_t *ego_grid_info_destroy_ary(ego_grid_info_t *self, size_t size);
 
 #if 0
 template <typename Type>
@@ -184,12 +204,14 @@ public:
     {}
     /// @brief Get the size along the x-axis.
     /// @return the size along the x-axis
-    const Type& getX() const {
+    const Type& getX() const 
+    {
         return _x;
     }
     /// @brief Get the size along the y-axis.
     /// @return the size along the y-axis
-    const Type& getY() const {
+    const Type& getY() const
+    {
         return _y;
     }
 };
@@ -265,14 +287,16 @@ struct mpdfx_list_ary_t
 
     size_t   idx;
     size_t * lst;
+
+    static mpdfx_list_ary_t *ctor(mpdfx_list_ary_t *self);
+    static mpdfx_list_ary_t *dtor(mpdfx_list_ary_t *self);
+    static mpdfx_list_ary_t *alloc(mpdfx_list_ary_t *self, size_t size);
+    static mpdfx_list_ary_t *dealloc(mpdfx_list_ary_t *self);
+    static mpdfx_list_ary_t *reset(mpdfx_list_ary_t *self);
+    static bool push(mpdfx_list_ary_t *self, size_t value);
 };
 
-mpdfx_list_ary_t * mpdfx_list_ary_ctor( mpdfx_list_ary_t * ptr );
-mpdfx_list_ary_t * mpdfx_list_ary_dtor( mpdfx_list_ary_t * ptr );
-mpdfx_list_ary_t * mpdfx_list_ary_alloc( mpdfx_list_ary_t * ptr, size_t count );
-mpdfx_list_ary_t * mpdfx_list_ary_dealloc( mpdfx_list_ary_t * ptr );
-mpdfx_list_ary_t * mpdfx_list_ary_reset( mpdfx_list_ary_t * ptr );
-bool mpdfx_list_ary_push( mpdfx_list_ary_t * ptr, size_t value );
+
 
 //--------------------------------------------------------------------------------------------
 struct mpdfx_lists_t
@@ -333,8 +357,180 @@ struct ego_mesh_info_t
     static void init(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y);
 };
 
+/**
+ * @brief
+ *  An enumeration of coordinate system used by/for/together with meshes.
+ */
+enum class CoordinateSystem
+{
+    /**
+     * @brief
+     *  "world" coordinates.
+     */
+    World,
+    /**
+     * @brief
+     *  "grid" coordinates.
+     */
+    Grid,
+    /**
+     * @brief
+     *  "block" coordinates.
+     */
+    Block,
+};
 
+/**
+ * @brief
+ *  A template of a point.
+ * @param _Type
+ *  the type of the coordinate values of the point
+ * @param _CoordinateSystem
+ *  the coordinate system of the point
+ */
+template <typename _Type,CoordinateSystem _CoordinateSystem>
+struct Point
+{
+private:
 
+    _Type _x;
+
+    _Type _y;
+
+public:
+
+    Point(const _Type& x, const _Type& y) :
+        _x(x), _y(y)
+    {}
+
+    Point(const Point<_Type, _CoordinateSystem>& other) :
+        _x(other._x), _y(other._y)
+    {}
+
+    Point<_Type, _CoordinateSystem>& operator=(const Point<_Type, _CoordinateSystem>& other)
+    {
+        _x = other._x;
+        _y = other._y;
+    }
+
+    const _Type& getX() const
+    {
+        return _x;
+    }
+
+    const _Type& getY() const
+    {
+        return _y;
+    }
+
+};
+
+typedef Point<int, CoordinateSystem::Block> PointBlock;
+typedef Point<int, CoordinateSystem::Grid> PointGrid;
+typedef Point<float, CoordinateSystem::World> PointWorld;
+
+/**
+ * @brief
+ *  An enumeration of index systems used by/for/together with meshes.
+ */
+enum class IndexSystem
+{
+    /**
+     * @brief
+     *  "tile" indices.
+     */
+    Tile,
+    /**
+     * @brief
+     *  "grid" indices.
+     */
+    Grid,
+    /**
+     * @brief
+     *  "block" indices.
+     */
+    Block,
+};
+
+/**
+ * @brief
+ *  A template of an index.
+ * @param _Type
+ *  the type of the index value of the index
+ * @param _IndexSystem
+ *  the index type of the index
+ */
+template <typename _Type, IndexSystem _IndexSystem>
+struct Index
+{
+
+private:
+
+    _Type _i;
+
+public:
+
+    Index(const _Type& i) :
+        _i(i)
+    {}
+
+    Index(const Index<_Type, _IndexSystem>& other) :
+        _x(other._x), _y(other._y)
+    {}
+
+    Index<_Type, _IndexSystem>& operator=(const Index<_Type, _IndexSystem>& other)
+    {
+        _i = other._i;
+    }
+
+    bool operator==(const Index<_Type, _IndexSystem>& other)
+    {
+        return _i == other._i;
+    }
+
+    bool operator!=(const Index<_Type, _IndexSystem>& other)
+    {
+        return _i != other.i;
+    }
+
+    bool operator<(const Index<_Type, _IndexSystem>& other)
+    {
+        return _i < other._i;
+    }
+
+    bool operator<=(const Index<_Type, _IndexSystem>& other)
+    {
+        return _i <= other._i;
+    }
+
+    bool operator>(const Index<_Type, _IndexSystem>& other)
+    {
+        return _i > other._i;
+    }
+
+    bool operator>=(const Index<_Type, _IndexSystem>& other)
+    {
+        return _i >= other._i;
+    }
+
+    const _Type& getI() const
+    {
+        return _i;
+    }
+
+};
+
+/// The index of a tile.
+/// @todo Use the Index template to define this.
+typedef Uint32 TileIndex;
+
+/// The index of a block.
+/// @todo Use the Index template to define this.
+typedef Uint32 BlockIndex;
+
+/// The index of a grid.
+/// @todo Use the Index template to define this.
+typedef Uint32 GridIndex;
 
 //--------------------------------------------------------------------------------------------
 
@@ -349,8 +545,87 @@ struct ego_mesh_t
     static ego_mesh_t *dtor(ego_mesh_t *self);
     /// @todo Needs to be removed or re-coded as it invokes ctor and dtor which will become
     ///       proper constructors and destructors.
-    static ego_mesh_t *renew(ego_mesh_t *self); 
+    static ego_mesh_t *renew(ego_mesh_t *self);
+
+    static fvec3_t get_diff(const ego_mesh_t *self, const fvec3_t& pos, float radius, float center_pressure, const BIT_FIELD bits);
+    static float get_pressure(const ego_mesh_t *self, const fvec3_t& pos, float radius, const BIT_FIELD bits);
+    static ego_mesh_t *ctor_1(ego_mesh_t *self, int tiles_x, int tiles_y);
+    static bool remove_ambient(ego_mesh_t *self);
+    static bool recalc_twist(ego_mesh_t *self);
+    static bool make_texture(ego_mesh_t *self);
+    static ego_mesh_t *finalize(ego_mesh_t *self);
+    static bool test_one_corner(ego_mesh_t *self, GLXvector3f pos, float * pdelta);
+    static bool light_one_corner(const ego_mesh_t *self, ego_tile_info_t *ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
+    /// @brief Get the precise height of the mesh at a given point (world coordinates).
+    /// @param point the point (world coordinates)
+    /// @return the precise height of the mesh at the given point if there is a height at that point,
+    ///         @a 0 otherwise
+    static float get_level(const ego_mesh_t *self, const PointWorld& point);
+    /// @brief Get the block index of the block at a given point (world coordinates).
+    /// @param point the point (world coordinates)
+    /// @return the block index of the block at the given point if there is a block at that point,
+    ///         #INVALID_BLOCK otherwise
+    static BlockIndex get_block(const ego_mesh_t *self, const PointWorld& point);
+    /// @brief Get the grid index of the grid at a given point (world coordinates).
+    /// @param point the point (world coordinates)
+    /// @return the grid index of the grid at the given point if there is a grid at that point,
+    ///         #INVALID_TILE otherwise
+    static TileIndex get_grid(const ego_mesh_t *self, const PointWorld& point);
+    /// @brief Get the block index of the block at a given point (block coordinates).
+    /// @param point the point (block coordinates)
+    /// @return the block index of the block at the given point if there is a block at that point,
+    ///         #INVALID_BLOCK otherwise
+    static BlockIndex get_block_int(const ego_mesh_t *self, const PointBlock& point);
+    /// @brief Get the tile index of the tile at a given point (grid coordinates).
+    /// @param point the point (grid coordinates)
+    /// @return the tile index of the tile at the given point if there is a tile at that point,
+    ///         #INVALID_TILE otherwise
+    static TileIndex get_tile_int(const ego_mesh_t *self, const PointGrid& point);
+
+    /**
+     * @brief
+     *  Get the tile information for at a tile index in a mesh.
+     * @param self
+     *  the mesh
+     * @param index
+     *  the tile index
+     * @return
+     *  a pointer to the tile information of the tile at the index in this mesh
+     *  if the tiles are allocated and the index is within bounds, @a nullptr otherwise.
+     */
+    static ego_tile_info_t *get_ptile(const ego_mesh_t *self, const TileIndex& index);
+    /**
+     * @brief
+     *  Get the grid information for at a tile index in a mesh.
+     * @param self
+     *  the mesh
+     * @param index
+     *  the tile index
+     * @return
+     *  a pointer to the grid information of the tile at the index in this mesh
+     *  if the grids are allocated and the index is within bounds, @a nullptr otherwise.
+     */
+    static ego_grid_info_t *get_pgrid(const ego_mesh_t *self, const TileIndex& index);
+
+
+    static Uint32 test_fx(const ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
+
 };
+
+
+float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point);
+float ego_mesh_get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, float xmin, float ymin, float xmax, float ymax);
+
+
+//Previously inlined
+
+bool ego_mesh_clear_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
+bool ego_mesh_add_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
+bool ego_mesh_grid_is_valid(const ego_mesh_t *self, Uint32 id);
+bool ego_mesh_tile_has_bits(const ego_mesh_t *, const PointGrid& point, const BIT_FIELD bits);
+
+Uint8 ego_mesh_get_twist(ego_mesh_t *self, const GridIndex& index);
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -393,60 +668,26 @@ ego_mesh_t *ego_mesh_load( const char *modname, ego_mesh_t * pmesh );
 
 void   ego_mesh_make_twist();
 
-bool ego_mesh_test_corners(ego_mesh_t *mesh, ego_tile_info_t * ptile, float threshold );
-float ego_mesh_light_corners(ego_mesh_t *mesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep );
-bool ego_mesh_interpolate_vertex(tile_mem_t *mem, ego_tile_info_t * ptile, float pos[], float * plight );
+bool ego_mesh_test_corners(ego_mesh_t *self, ego_tile_info_t *tile, float threshold);
+float ego_mesh_light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
+bool ego_mesh_interpolate_vertex(tile_mem_t *mem, ego_tile_info_t *tile, float pos[], float *plight);
 
-bool grid_light_one_corner(const ego_mesh_t *mesh, int fan, float height, float nrm[], float * plight );
+bool grid_light_one_corner(const ego_mesh_t *mesh, int fan, float height, float nrm[], float *plight);
 
+/// @todo @a pos and @a radius should be passed as a sphere.
 BIT_FIELD ego_mesh_hit_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, float nrm[], float *pressure, mesh_wall_data_t * private_data);
+/// @todo @a pos and @a radius should be passed as a sphere.
 BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data);
 
-float ego_mesh_get_max_vertex_0(const ego_mesh_t *mesh, int grid_x, int grid_y);
-float ego_mesh_get_max_vertex_1(const ego_mesh_t *mesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax);
 
-bool ego_mesh_set_texture(ego_mesh_t *mesh, Uint32 tile, Uint16 image);
-bool ego_mesh_update_texture(ego_mesh_t *mesh, Uint32 tile);
+bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& tile, Uint16 image);
+bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& tile);
 
-fvec3_t ego_mesh_get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float radius, float center_pressure, const BIT_FIELD bits);
-float ego_mesh_get_pressure(const ego_mesh_t *mesh, const fvec3_t& pos, float radius, const BIT_FIELD bits);
 
-bool ego_mesh_update_water_level(ego_mesh_t *mesh);
+bool ego_mesh_update_water_level(ego_mesh_t *self);
 
 void mesh_texture_invalidate();
 oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
 
-//Previously inlined
-ego_mesh_t * ego_mesh_ctor_1(ego_mesh_t * pmesh, int tiles_x, int tiles_y);
-bool ego_mesh_remove_ambient(ego_mesh_t * pmesh);
-bool ego_mesh_recalc_twist(ego_mesh_t * pmesh);
-bool ego_mesh_make_texture(ego_mesh_t * pmesh);
-ego_mesh_t * ego_mesh_finalize(ego_mesh_t * pmesh);
-bool ego_mesh_test_one_corner(ego_mesh_t * pmesh, GLXvector3f pos, float * pdelta);
-bool ego_mesh_light_one_corner(const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
 
-float  ego_mesh_get_level( const ego_mesh_t * pmesh, float pos_x, float pos_y );
-Uint32 ego_mesh_get_block( const ego_mesh_t * pmesh, float pos_x, float pos_y );
-Uint32 ego_mesh_get_grid( const ego_mesh_t * pmesh, float pos_x, float pos_y );
-
-Uint32 ego_mesh_get_block_int( const ego_mesh_t * pmesh, int block_x, int block_y );
-Uint32 ego_mesh_get_tile_int( const ego_mesh_t * pmesh, int grid_x,  int grid_y );
-
-Uint32 ego_mesh_test_fx( const ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
-bool ego_mesh_clear_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
-bool ego_mesh_add_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
-
-Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test );
-bool ego_mesh_grid_is_valid( const ego_mesh_t *, Uint32 id );
-
-bool ego_mesh_tile_has_bits( const ego_mesh_t *, const int ix, const int iy, const BIT_FIELD bits );
-
-ego_tile_info_t * ego_mesh_get_ptile( const ego_mesh_t *, const Uint32 itile );
-ego_grid_info_t * ego_mesh_get_pgrid( const ego_mesh_t *, const Uint32 itile );
-Uint8             ego_mesh_get_twist( ego_mesh_t * pmesh, const Uint32 igrid );
-
-GRID_FX_BITS ego_grid_info_get_all_fx( const ego_grid_info_t * );
-GRID_FX_BITS ego_grid_info_test_all_fx( const ego_grid_info_t *, const GRID_FX_BITS bits );
-bool       ego_grid_info_add_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
-bool       ego_grid_info_sub_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
-bool       ego_grid_info_set_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
+Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);

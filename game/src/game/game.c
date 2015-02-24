@@ -166,8 +166,7 @@ static bool upload_camera_data( const wawalite_camera_t * pdata );
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-static float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool waterwalk );
-static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool waterwalk );
+static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk );
 static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr );
 
 static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
@@ -1135,7 +1134,7 @@ void do_damage_tiles()
 
         // are we on a damage tile?
         if ( !ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
-        if ( 0 == ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_DAMAGE ) ) continue;
+        if ( 0 == ego_mesh_t::test_fx( PMesh, pchr->onwhichgrid, MAPFX_DAMAGE ) ) continue;
 
         // are we low enough?
         if ( pchr->getPosZ() > pchr->enviro.floor_level + DAMAGERAISE ) continue;
@@ -3091,13 +3090,13 @@ float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk )
 
     float zdone;
 
-    zdone = ego_mesh_get_level( pmesh, x, y );
+    zdone = ego_mesh_t::get_level(pmesh, PointWorld(x, y));
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = ego_mesh_get_grid( pmesh, x, y );
+        int tile = ego_mesh_t::get_grid( pmesh, PointWorld(x, y));
 
-        if ( 0 != ego_mesh_test_fx( pmesh, tile, MAPFX_WATER ) )
+        if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
         {
             zdone = water.surface_level;
         }
@@ -4125,17 +4124,16 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 
     return can_grab;
 }
-
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk )
 {
-    float zdone = ego_mesh_get_max_vertex_0( pmesh, grid_x, grid_y );
+    float zdone = ego_mesh_get_max_vertex_1( pmesh, point, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = ego_mesh_get_grid( pmesh, grid_x, grid_y );
+        int tile = ego_mesh_t::get_tile_int( pmesh, point );
 
-        if ( 0 != ego_mesh_test_fx( pmesh, tile, MAPFX_WATER ) )
+        if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
         {
             zdone = water.surface_level;
         }
@@ -4143,25 +4141,6 @@ float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool wa
 
     return zdone;
 }
-
-//--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool waterwalk )
-{
-    float zdone = ego_mesh_get_max_vertex_1( pmesh, grid_x, grid_y, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
-
-    if ( waterwalk && water.surface_level > zdone && water.is_water )
-    {
-        int tile = ego_mesh_get_grid( pmesh, grid_x, grid_y );
-
-        if ( 0 != ego_mesh_test_fx( pmesh, tile, MAPFX_WATER ) )
-        {
-            zdone = water.surface_level;
-        }
-    }
-
-    return zdone;
-}
-
 //--------------------------------------------------------------------------------------------
 float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
 {
@@ -4191,7 +4170,6 @@ float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
 
     return zmax;
 }
-
 //--------------------------------------------------------------------------------------------
 float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
 {
@@ -4248,7 +4226,7 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump.mins[OCT_YX] || ftmp > bump.maxs[OCT_YX] ) continue;
 
-            itile = ego_mesh_get_tile_int( pmesh, ix, iy );
+            itile = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix, iy));
             if ( INVALID_TILE == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
@@ -4270,10 +4248,10 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( pmesh, grid_vert_x[0], grid_vert_y[0], &bump, pchr->waterwalk );
+        zmax = get_mesh_max_vertex_1( pmesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->waterwalk );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( pmesh, grid_vert_x[cnt], grid_vert_y[cnt], &bump, pchr->waterwalk );
+            fval = get_mesh_max_vertex_1( pmesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->waterwalk );
             zmax = std::max( zmax, fval );
         }
     }

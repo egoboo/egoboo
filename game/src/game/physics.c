@@ -1091,7 +1091,7 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, Object * pchr )
     bc->pos.y  = ( FLOOR( pchr->getPosY() / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
     bc->pos.z  = pchr->getPosZ();
 
-    bc->grid   = ego_mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
+    bc->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(bc->pos.x, bc->pos.y));
     bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos, bc->radius, bc->bits, NULL ) );
 
     bc->id = breadcrumb_guid++;
@@ -1125,7 +1125,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     bc->pos.x  = ( FLOOR( bc->pos.x / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
     bc->pos.y  = ( FLOOR( bc->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
 
-    bc->grid   = ego_mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
+    bc->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(bc->pos.x, bc->pos.y));
     bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos, bc->radius, bc->bits, NULL ) );
 
     bc->id = breadcrumb_guid++;

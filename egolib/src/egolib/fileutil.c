@@ -207,10 +207,12 @@ bool ReadContext::is(int first, int last)
         && (_current <= last);
 }
 
+#if 0
 bool ReadContext::isNewLine(char chr)
 {
     return LineFeed == chr || CarriageReturn == chr;
 }
+#endif
 
 bool ReadContext::isNewLine()
 {
@@ -218,10 +220,12 @@ bool ReadContext::isNewLine()
 
 }
 
+#if 0
 bool ReadContext::isWhiteSpace(char chr)
 {
     return Space == chr || Tabulator == chr;
 }
+#endif
 
 bool ReadContext::isWhiteSpace()
 {

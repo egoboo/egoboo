@@ -935,7 +935,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
     penviro = &(loc_pprt->enviro);
 
     //---- character "floor" level
-    penviro->floor_level = ego_mesh_get_level(PMesh, loc_pprt->pos.x, loc_pprt->pos.y);
+    penviro->floor_level = ego_mesh_t::get_level(PMesh, PointWorld(loc_pprt->pos.x, loc_pprt->pos.y));
     penviro->level = penviro->floor_level;
 
     //---- The actual level of the characer.
@@ -965,7 +965,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water.is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && (0 != ego_mesh_test_fx(PMesh, loc_pprt->onwhichgrid, MAPFX_SLIPPY));
+    penviro->is_slippy = !penviro->is_watery && (0 != ego_mesh_t::test_fx(PMesh, loc_pprt->onwhichgrid, MAPFX_SLIPPY));
 
     //---- traction
     penviro->traction = 1.0f;
@@ -2074,18 +2074,18 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_is_over_water(const PRT_REF iprt)
+bool prt_is_over_water(const PRT_REF ref)
 {
     /// @author ZZ
     /// @details This function returns true if the particle is over a water tile
-    Uint32 fan;
 
-    if (!ALLOCATED_PRT(iprt)) return false;
+    if (!ALLOCATED_PRT(ref)) return false;
 
-    fan = ego_mesh_get_grid(PMesh, PrtList.get_ptr(iprt)->pos.x, PrtList.get_ptr(iprt)->pos.y);
+    prt_t *prt = PrtList.get_ptr(ref);
+    Uint32 fan = ego_mesh_t::get_grid(PMesh, PointWorld(prt->pos.x, prt->pos.y));
     if (ego_mesh_grid_is_valid(PMesh, fan))
     {
-        if (0 != ego_mesh_test_fx(PMesh, fan, MAPFX_WATER))  return true;
+        if (0 != ego_mesh_t::test_fx(PMesh, fan, MAPFX_WATER))  return true;
     }
 
     return false;
@@ -2147,7 +2147,7 @@ bool prt_t::update_safe_raw(prt_t * pprt)
         pprt->safe_valid = true;
         prt_t::get_pos(pprt, pprt->safe_pos);
         pprt->safe_time = update_wld;
-        pprt->safe_grid = ego_mesh_get_grid(PMesh, pprt->pos.x, pprt->pos.y);
+        pprt->safe_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos.x, pprt->pos.y));
 
         retval = true;
     }
@@ -2169,7 +2169,7 @@ bool prt_t::update_safe(prt_t * pprt, bool force)
     }
     else
     {
-        new_grid = ego_mesh_get_grid(PMesh, pprt->pos.x, pprt->pos.y);
+        new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos.x, pprt->pos.y));
 
         if (INVALID_TILE == new_grid)
         {
@@ -2197,8 +2197,8 @@ bool prt_t::update_pos(prt_t *self)
 {
     if (!ALLOCATED_PPRT(self)) return false;
 
-    self->onwhichgrid = ego_mesh_get_grid(PMesh, self->pos.x, self->pos.y);
-    self->onwhichblock = ego_mesh_get_block(PMesh, self->pos.x, self->pos.y);
+    self->onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos.x, self->pos.y));
+    self->onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(self->pos.x, self->pos.y));
 
     // update whether the current character position is safe
     prt_t::update_safe(self, false);
@@ -2523,7 +2523,7 @@ prt_bundle_t * prt_bundle_t::update_do_water(prt_bundle_t * pbdl_prt)
     loc_ppip = pbdl_prt->pip_ptr;
     penviro = &(loc_pprt->enviro);
 
-    inwater = (pbdl_prt->prt_ptr->pos.z < water.surface_level) && (0 != ego_mesh_test_fx(PMesh, pbdl_prt->prt_ptr->onwhichgrid, MAPFX_WATER));
+    inwater = (pbdl_prt->prt_ptr->pos.z < water.surface_level) && (0 != ego_mesh_t::test_fx(PMesh, pbdl_prt->prt_ptr->onwhichgrid, MAPFX_WATER));
 
     if (inwater && water.is_water && pbdl_prt->pip_ptr->end_water)
     {

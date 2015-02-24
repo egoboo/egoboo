@@ -5311,19 +5311,16 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets tmpargument to the tile type at the specified
     /// coordinates
 
-    Uint32 iTmp;
-    ego_tile_info_t * ptile = NULL;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    iTmp = ego_mesh_get_grid( PMesh, pstate->x, pstate->y );
+    TileIndex idx = ego_mesh_t::get_grid(PMesh, PointWorld(pstate->x, pstate->y));
 
-    ptile = ego_mesh_get_ptile( PMesh, iTmp );
-    if ( NULL != ptile )
+    ego_tile_info_t *ptr = ego_mesh_t::get_ptile(PMesh, idx);
+    if (ptr)
     {
         returncode = true;
-        pstate->argument = ptile->img & TILE_LOWER_MASK;
+        pstate->argument = ptr->img & TILE_LOWER_MASK;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5340,7 +5337,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp       = ego_mesh_get_grid( PMesh, pstate->x, pstate->y );
+    iTmp       = ego_mesh_t::get_grid(PMesh, PointWorld(pstate->x, pstate->y));
     returncode = ego_mesh_set_texture( PMesh, iTmp, pstate->argument );
 
     SCRIPT_FUNCTION_END();
