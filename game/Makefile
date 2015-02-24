@@ -18,7 +18,6 @@ IDLIB_L  := ../idlib/$(IDLIB_TARGET)
 # the compiler options
 
 INC      := -Isrc -I../egolib/src -I../idlib/src
-LDFLAGS  := ${EGOLIB_L} ${IDLIB_L} $(LDFLAGS)
 
 CFLAGS   += $(INC)
 CXXFLAGS += $(INC)
@@ -28,7 +27,7 @@ CXXFLAGS += $(INC)
 
 .PHONY: all clean
 
-$(EGO_TARGET): ${EGO_OBJ}
+$(EGO_TARGET): ${EGO_OBJ} ${EGOLIB_L} ${IDLIB_L}
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 all: $(EGO_TARGET)

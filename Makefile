@@ -37,7 +37,11 @@ SDLCONF_L := $(shell ${SDL_CONF} --libs)
 #---------------------
 # the compiler options
 # todo: use pkg-config for lua?
-TMPFLAGS += -I/usr/include/lua5.2
+# TODO: We're not currently using lua,
+# and how to get the locations for lua 5.2
+# is different for some distros than others.
+# Just don't link and don't include lua just yet
+#TMPFLAGS += -I/usr/include/lua5.2
 TMPFLAGS += -x c++ -std=c++11
 
 # for now, find a better way to do this?
@@ -54,7 +58,7 @@ endif
 
 CFLAGS   += $(TMPFLAGS)
 CXXFLAGS += $(TMPFLAGS)
-LDFLAGS  := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -llua5.2 -lGL -lGLU
+LDFLAGS  += ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
 
 export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET
 

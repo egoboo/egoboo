@@ -18,14 +18,13 @@ INC      := -Isrc -I../egolib/src -I../idlib/src
 
 CFLAGS   += $(INC)
 CXXFLAGS += $(INC)
-LDFLAGS  := ${EGOLIB_L} ${IDLIB_L} $(LDFLAGS)
 
 #------------------------------------
 # definitions of the target projects
 
 .PHONY: all clean
 
-$(CARTMAN_TARGET): ${CARTMAN_OBJ}
+$(CARTMAN_TARGET): ${CARTMAN_OBJ} ${EGOLIB_L} ${IDLIB_L}
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 all: $(CARTMAN_TARGET)

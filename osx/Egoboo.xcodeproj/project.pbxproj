@@ -307,7 +307,6 @@
 		CDFE08591A3F69C6005395E7 /* cartman.c in Sources */ = {isa = PBXBuildFile; fileRef = CDFE08511A3F69C6005395E7 /* cartman.c */; };
 		CDFE085A1A3F69C6005395E7 /* SDL_GetPixel.c in Sources */ = {isa = PBXBuildFile; fileRef = CDFE08531A3F69C6005395E7 /* SDL_GetPixel.c */; };
 		CDFE085B1A3F69C6005395E7 /* SDL_PutPixel.c in Sources */ = {isa = PBXBuildFile; fileRef = CDFE08551A3F69C6005395E7 /* SDL_PutPixel.c */; };
-		CDFE085C1A3F69C6005395E7 /* SDL_rotozoom.c in Sources */ = {isa = PBXBuildFile; fileRef = CDFE08561A3F69C6005395E7 /* SDL_rotozoom.c */; };
 		CDFE085F1A3F6A8D005395E7 /* egomap.icns in Resources */ = {isa = PBXBuildFile; fileRef = CDFE085E1A3F6A8D005395E7 /* egomap.icns */; };
 		CDFE08601A3F6B39005395E7 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 275CAA8512ED608600CE4247 /* SDLMain.m */; };
 /* End PBXBuildFile section */
@@ -917,8 +916,6 @@
 		CDFE08531A3F69C6005395E7 /* SDL_GetPixel.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = SDL_GetPixel.c; sourceTree = "<group>"; };
 		CDFE08541A3F69C6005395E7 /* SDL_Pixel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_Pixel.h; sourceTree = "<group>"; };
 		CDFE08551A3F69C6005395E7 /* SDL_PutPixel.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = SDL_PutPixel.c; sourceTree = "<group>"; };
-		CDFE08561A3F69C6005395E7 /* SDL_rotozoom.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = SDL_rotozoom.c; sourceTree = "<group>"; };
-		CDFE08571A3F69C6005395E7 /* SDL_rotozoom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_rotozoom.h; sourceTree = "<group>"; };
 		CDFE08581A3F69C6005395E7 /* standard.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = standard.inl; sourceTree = "<group>"; };
 		CDFE085E1A3F6A8D005395E7 /* egomap.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = egomap.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1257,18 +1254,23 @@
 		CD1329761A90130300D1B221 /* Profiles */ = {
 			isa = PBXGroup;
 			children = (
+				CD4803AE1A944228006DB980 /* _AbstractProfileSystem.hpp */,
 				CD1329771A90130300D1B221 /* _Include.hpp */,
 				CD406C7E1A96B15900465793 /* AbstractProfile.hpp */,
 				CD1329781A90130300D1B221 /* EnchantProfile.cpp */,
 				CD1329791A90130300D1B221 /* EnchantProfile.hpp */,
 				CD13297A1A90130300D1B221 /* EnchantProfileReader.cpp */,
 				CD13297B1A90130300D1B221 /* EnchantProfileReader.hpp */,
+				CD4803AF1A944228006DB980 /* EnchantProfileSystem.cpp */,
+				CD4803B01A944228006DB980 /* EnchantProfileSystem.hpp */,
 				CD13297C1A90130300D1B221 /* EnchantProfileWriter.cpp */,
 				CD13297D1A90130300D1B221 /* EnchantProfileWriter.hpp */,
 				CD13297E1A90130300D1B221 /* ParticleProfile.cpp */,
 				CD13297F1A90130300D1B221 /* ParticleProfile.hpp */,
 				CD1329801A90130300D1B221 /* ParticleProfileReader.cpp */,
 				CD1329811A90130300D1B221 /* ParticleProfileReader.hpp */,
+				CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */,
+				CD4803B41A944228006DB980 /* ParticleProfileSystem.hpp */,
 				CD1329821A90130300D1B221 /* ParticleProfileWriter.cpp */,
 				CD1329831A90130300D1B221 /* ParticleProfileWriter.hpp */,
 				CD1329841A90130300D1B221 /* RandomName.cpp */,
@@ -1777,15 +1779,10 @@
 			isa = PBXGroup;
 			children = (
 				CDF3163B1A8F5B93009E6F33 /* _Include.hpp */,
-				CD4803AE1A944228006DB980 /* _AbstractProfileSystem.hpp */,
-				CD4803AF1A944228006DB980 /* EnchantProfileSystem.cpp */,
-				CD4803B01A944228006DB980 /* EnchantProfileSystem.hpp */,
 				CD792C311A88204E0086270E /* ModuleProfile.cpp */,
 				CD792C321A88204E0086270E /* ModuleProfile.hpp */,
 				CD4803B11A944228006DB980 /* ObjectProfile.cpp */,
 				CD4803B21A944228006DB980 /* ObjectProfile.hpp */,
-				CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */,
-				CD4803B41A944228006DB980 /* ParticleProfileSystem.hpp */,
 				CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */,
 				CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */,
 			);
@@ -1905,8 +1902,6 @@
 				CDFE08531A3F69C6005395E7 /* SDL_GetPixel.c */,
 				CDFE08541A3F69C6005395E7 /* SDL_Pixel.h */,
 				CDFE08551A3F69C6005395E7 /* SDL_PutPixel.c */,
-				CDFE08561A3F69C6005395E7 /* SDL_rotozoom.c */,
-				CDFE08571A3F69C6005395E7 /* SDL_rotozoom.h */,
 				CDFE08581A3F69C6005395E7 /* standard.inl */,
 			);
 			name = cartman;
@@ -2417,7 +2412,6 @@
 				CDFE085B1A3F69C6005395E7 /* SDL_PutPixel.c in Sources */,
 				CDFE084C1A3F6978005395E7 /* cartman_input.c in Sources */,
 				CDFE085A1A3F69C6005395E7 /* SDL_GetPixel.c in Sources */,
-				CDFE085C1A3F69C6005395E7 /* SDL_rotozoom.c in Sources */,
 				CDFE084A1A3F6978005395E7 /* cartman_gfx.c in Sources */,
 				CDFE084D1A3F6978005395E7 /* cartman_map.c in Sources */,
 				CDFE084E1A3F6978005395E7 /* cartman_math.c in Sources */,
