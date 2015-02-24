@@ -40,7 +40,7 @@ void scancode_begin()
         int dst = src;
         if (src < 255)
         {
-            dst = char_toupper(src);
+            dst = char_toupper((char)src);
 
             if (dst > 255)
             {
