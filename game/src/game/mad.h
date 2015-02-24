@@ -183,7 +183,7 @@ void model_system_begin();
 void model_system_end();
 
 void    MadStack_reconstruct_all();
-void    MadStack_release_all();
+void    MadStack_reset();
 bool  MadStack_release_one( const MAD_REF imad );
 MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF object );
 

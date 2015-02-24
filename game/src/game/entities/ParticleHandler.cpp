@@ -374,8 +374,7 @@ void ParticleManager::reset_all()
 
     const char *loadpath;
 
-    //release_all_local_pips();
-    PipStack.release_all();
+    PipStack.reset();
 
     // Load in the standard global particles ( the coins for example )
     loadpath = "mp_data/1money.txt";

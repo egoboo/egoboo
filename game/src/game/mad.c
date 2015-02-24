@@ -949,7 +949,7 @@ void MadStack_reconstruct_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_release_all()
+void MadStack_reset()
 {
     MAD_REF cnt;
 

@@ -37,7 +37,7 @@ protected:
 
     unsigned _updateGUID;
 
-    TYPE _elements[CAPACITY];
+    TYPE *_elements[CAPACITY];
 
     const std::string _profileTypeName;
 
@@ -104,7 +104,7 @@ public:
      */
     TYPE *get_ptr(size_t index)
     {
-        return (index >= CAPACITY) ? nullptr : _elements + index;
+        return (index >= CAPACITY) ? nullptr : _elements[index];
     }
 
     bool isValidRange(REFTYPE ref)
@@ -114,12 +114,28 @@ public:
 
     bool isLoaded(REFTYPE ref)
     {
-        return isValidRange(ref) && _elements[ref]._loaded;
+        return isValidRange(ref) && _elements[ref]->_loaded;
     }
 
     void initialize()
     {
-        for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
+        REFTYPE ref = 0;
+        try
+        {
+            for (ref = 0; ref < CAPACITY; ++ref)
+            {
+                _elements[ref] = new TYPE();
+            }
+        } 
+        catch (std::exception& ex)
+        {
+            while (ref > 0)
+            {
+                delete _elements[--ref];
+                _elements[ref] = nullptr;
+            }
+        }
+        for (ref = 0; ref < CAPACITY; ++ref)
         {
             this->get_ptr(ref)->init();
         }
@@ -177,10 +193,15 @@ public:
 
     void unintialize()
     {
-        release_all();
+        reset();
+        for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
+        {
+            delete _elements[ref];
+            _elements[ref] = nullptr;
+        }
     }
 
-    void release_all()
+    void reset()
     {
         size_t numLoaded = 0;
         size_t maxSpawnRequestCount = 0;

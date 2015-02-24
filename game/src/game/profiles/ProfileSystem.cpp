@@ -49,8 +49,13 @@ ProfileSystem::ProfileSystem() :
 
 bool ProfileSystem::initialize()
 {
-
     if (_initialized)
+    {
+        log_warning("%s:%d: profile system already initialized - ignoring\n",__FILE__,__LINE__);
+        return true;
+    }
+#if 0
+        if (_initialized)
     {
         // release all profile data and reinitialize the profile list
         releaseAllProfiles();
@@ -60,17 +65,19 @@ bool ProfileSystem::initialize()
 
         _initialized = false;
     }
+#endif
 
-    // initialize all the sub-profile lists
+    // Initialize all the sub-profile lists.
     PipStack.initialize();
     EveStack.initialize();
+    MadStack_ctor();
+#if 0
     MadStack_reconstruct_all();
-
     // fix the book icon list
     _bookIcons.clear();
-
-    // initialize the models
+    // Initialize the models.
     model_system_begin();
+#endif
 
     // initialize the script compiler
     script_compiler_init();
@@ -89,36 +96,42 @@ bool ProfileSystem::initialize()
 
 void ProfileSystem::uninitialize()
 {
-    if (_initialized)
+    if (!_initialized)
     {
-        // release all profile data and reinitialize the profile list
-        releaseAllProfiles();
-
-        // initialize the models
-        model_system_end();
-
-        _initialized = false;
+        log_warning("%s:%d: profile system not initialized - ignoring\n", __FILE__, __LINE__);
     }
+    // Reset all profiles.
+    reset();
 
-    // reset the bookicon stuff
+    // Uninitialize the particle and enchant profile system.
+    EveStack.unintialize();
+    PipStack.unintialize();
+
+    // Uninitialize the model system.
+    MadStack_dtor();
+
+    // Clear the book icons.
     _bookIcons.clear();
+
+    _initialized = false;
 }
 
-void ProfileSystem::releaseAllProfiles()
+void ProfileSystem::reset()
 {
     /// @author ZZ
     /// @details This function clears out all of the model data
 
-    // release the allocated data in all profiles (sounds, textures, etc.)
+    // Release the allocated data in all profiles (sounds, textures, etc.).
     _profilesLoaded.clear();
 
-    // relese every type of sub-profile and re-initalize the lists
-    PipStack.unintialize();
-    EveStack.unintialize();
-    MadStack_release_all();
+    // Reset particle, enchant and models.
+    PipStack.reset();
+    EveStack.reset();
+    MadStack_reset();
 }
 
-const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const {
+const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const
+{
     auto foundElement = _profilesLoaded.find(slotNumber);
     if(foundElement == _profilesLoaded.end()) return NULL_PROFILE;
     return foundElement->second;

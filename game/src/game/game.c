@@ -2517,7 +2517,7 @@ void game_reset_module_data()
 
     // unload a lot of data
     reset_teams();
-    _profileSystem.releaseAllProfiles();
+    _profileSystem.reset();
     free_all_objects();
     DisplayMsg_reset();
     game_reset_players();
@@ -2860,13 +2860,13 @@ void game_release_module_data()
 
     // deallocate any dynamically allocated scripting memory
     scripting_system_end();
-
+#if 0
     // clean up any remaining models that might have dynamic data
-    MadStack_release_all();
-
+    MadStack_reset();
+#endif
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
-    _profileSystem.releaseAllProfiles();
+    _profileSystem.reset();
 
     // delete the mesh data
     ptmp = PMesh;

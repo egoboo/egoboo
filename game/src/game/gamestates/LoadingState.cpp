@@ -191,8 +191,8 @@ void LoadingState::loadModuleData()
     //Ready message display
     DisplayMsg_reset();
 
-    // intialize the "profile system"
-    _profileSystem.initialize();
+    // Reset all "profiles" in the "profile system".
+    _profileSystem.reset();
 
     // do some graphics initialization
     //make_lightdirectionlookup();

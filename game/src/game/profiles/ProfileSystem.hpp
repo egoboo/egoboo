@@ -60,7 +60,11 @@ public:
      */
 	void uninitialize();
 
-	void releaseAllProfiles();
+    /**
+     * @brief
+     *  Reset all profile systems to state (conceptually) equivalent to their states directly after their initialization.
+     */
+	void reset();
 
 	//ZF> TODO: These C-like functions need to be removed
 	EVE_REF pro_get_ieve( const PRO_REF iobj );

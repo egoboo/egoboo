@@ -121,68 +121,7 @@
 	    //Disable copying class
 	    hash_list_t(const hash_list_t& copy) = delete;
 	    hash_list_t& operator=(const hash_list_t&) = delete;
-	    
-#if 0
-		/**
-		 * @brief
-		 *	Deallocate the data of a hash list.
-		 * @param self
-		 *	a pointer the hash list
-		 * @return
-		 *	@a true on success, @a false on failure
-		 * @post
-		 *	<tt>self->capacity = 0</tt>, <tt>self->subcount = nullptr</tt>, <tt>self->sublist = nullptr</tt>
-		 */
-		static bool dealloc(hash_list_t *self)
-		{
-			if (nullptr == self)
-			{
-				return false;
-			}
-			if (0 == self->capacity)
-			{
-				return true;
-			}
-			EGOBOO_DELETE_ARY(self->subcount);
-			self->subcount = nullptr;
-			EGOBOO_DELETE_ARY(self->sublist);
-			self->sublist = nullptr;
-			self->capacity = 0;
 
-			return true;
-		}
-		static bool alloc(hash_list_t *self, size_t capacity)
-		{
-			if (nullptr == self)
-			{
-				return false;
-			}
-			// Ensure subcount and sublist are null pointers and capacity is zero.
-			dealloc(self);
-
-			self->subcount = EGOBOO_NEW_ARY(int, capacity);
-			if (!self->subcount)
-			{
-				return false;
-			}
-			self->sublist = EGOBOO_NEW_ARY(hash_node_t *, capacity);
-			if (!self->sublist)
-			{
-				EGOBOO_DELETE(self->subcount);
-				self->subcount = nullptr;
-				return false;
-			}
-			else
-			{
-				for (size_t i = 0, n = capacity; i < n; ++i)
-				{
-					self->sublist[i] = nullptr;
-				}
-			}
-			self->capacity = capacity;
-			return true;
-		}
-#endif
 		/**
 		 * @brief
 		 *	Remove all entries from this hash list.
@@ -239,9 +178,7 @@
 	 *	the hash list
 	 */
 	void hash_list_destroy(hash_list_t *self);
-#if 0
-    int hash_list_get_allocd(hash_list_t *self);
-#endif
+
     size_t hash_list_get_count(hash_list_t *self, size_t index);
     hash_node_t *hash_list_get_node(hash_list_t *self, size_t index);
 

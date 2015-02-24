@@ -320,8 +320,10 @@ bool GameEngine::initialize()
     _profileSystem.initialize();
 
     // make sure that a bunch of stuff gets initialized properly
+#if 0
     PrtList.initialize();
     EncList.initialize();
+#endif
     model_system_begin();
     ego_mesh_t::ctor(PMesh);
 

@@ -87,18 +87,9 @@ struct chr_prt_collsion_data_t
     bool terminate_particle;
     bool prt_bumps_chr;
     bool prt_damages_chr;
+
+    static chr_prt_collsion_data_t *init(chr_prt_collsion_data_t *);
 };
-
-#define  CHR_PRT_COLLSION_DATA_INIT  \
-    {\
-        INVALID_CHR_REF, /* CHR_REF ichr */ \
-        NULL,            /* Object * pchr */ \
-        INVALID_PRT_REF, /* PRT_REF iprt */ \
-        NULL,            /* prt_t * pprt */ \
-        NULL             /* pip_t * ppip */ \
-    }
-
-chr_prt_collsion_data_t *chr_prt_collsion_data__init(chr_prt_collsion_data_t *);
 
 //--------------------------------------------------------------------------------------------
 
@@ -261,7 +252,7 @@ Uint8 CoNode_t::generate_hash(const CoNode_t *self)
 {
     Uint32 AA, BB;
 
-    AA = ( Uint32 )( ~(( Uint32 )0 ) );
+    AA = UINT32_MAX;
     if ( VALID_CHR_RANGE( self->chra ) )
     {
         AA = REF_TO_INT( self->chra );
@@ -271,7 +262,7 @@ Uint8 CoNode_t::generate_hash(const CoNode_t *self)
         AA = REF_TO_INT( self->prta );
     }
 
-    BB = ( Uint32 )( ~(( Uint32 )0 ) );
+    BB = UINT32_MAX;
     if ( VALID_CHR_RANGE( self->chrb ) )
     {
         BB = REF_TO_INT( self->chrb );
@@ -3380,7 +3371,8 @@ bool do_chr_prt_collision( CoNode_t * d )
     bool prt_deflected;
     bool prt_can_hit_chr;
 
-    chr_prt_collsion_data_t cn_data = CHR_PRT_COLLSION_DATA_INIT;
+    chr_prt_collsion_data_t cn_data;
+    chr_prt_collsion_data_t::init(&cn_data);
     bool intialized;
 
     // valid node?
@@ -3402,7 +3394,7 @@ bool do_chr_prt_collision( CoNode_t * d )
         intialized = false;
 
         // in here to keep the compiler from complaining
-        chr_prt_collsion_data__init( &cn_data );
+        chr_prt_collsion_data_t::init( &cn_data );
     }
 
     if ( !intialized ) return false;
@@ -3550,7 +3542,7 @@ bool do_chr_prt_collision( CoNode_t * d )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-chr_prt_collsion_data_t * chr_prt_collsion_data__init( chr_prt_collsion_data_t * ptr )
+chr_prt_collsion_data_t * chr_prt_collsion_data_t::init( chr_prt_collsion_data_t * ptr )
 {
     if ( NULL == ptr ) return ptr;
 
