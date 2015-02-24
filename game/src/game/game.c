@@ -790,7 +790,7 @@ int update_game()
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
-    mpdfx_lists_synch( &( PMesh->fxlists ), &( PMesh->gmem ), false );
+    mpdfx_lists_t::synch( &( PMesh->fxlists ), &( PMesh->gmem ), false );
     
     // Get immediate mode state for the rest of the game
     input_read_keyboard();
@@ -3088,13 +3088,11 @@ float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk )
     ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
     ///    level of the water.
 
-    float zdone;
-
-    zdone = ego_mesh_t::get_level(pmesh, PointWorld(x, y));
+    float zdone = ego_mesh_t::get_level(pmesh, PointWorld(x, y));
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = ego_mesh_t::get_grid( pmesh, PointWorld(x, y));
+        TileIndex tile = ego_mesh_t::get_grid( pmesh, PointWorld(x, y));
 
         if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
         {
@@ -4131,7 +4129,7 @@ float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = ego_mesh_t::get_tile_int( pmesh, point );
+        TileIndex tile = ego_mesh_t::get_tile_int( pmesh, point );
 
         if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
         {
@@ -4217,7 +4215,6 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
         for ( ix = ixmin; ix <= ixmax; ix++ )
         {
             float ftmp;
-            int   itile;
             float grid_x = ix * GRID_ISIZE;
 
             ftmp = grid_x + grid_y;
@@ -4226,8 +4223,8 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump.mins[OCT_YX] || ftmp > bump.maxs[OCT_YX] ) continue;
 
-            itile = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix, iy));
-            if ( INVALID_TILE == itile ) continue;
+            TileIndex itile = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
+            if (TileIndex::Invalid == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
             grid_vert_y[grid_vert_count] = iy;

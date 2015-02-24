@@ -394,7 +394,7 @@ gfx_rv renderlist_lst_t::reset(renderlist_lst_t *self)
 		return gfx_error;
 	}
     self->count = 0;
-    self->lst[0].index = INVALID_TILE; /// @todo This is redundant.
+    self->lst[0].index = TileIndex::Invalid.getI(); /// @todo index should be of type TileIndex.
 
     return gfx_success;
 }
@@ -456,7 +456,7 @@ gfx_rv renderlist_t::reset(renderlist_t *self)
     }
 
     // Clear out the "in render list" flag for the old mesh.
-	ego_tile_info_t *tlist = mesh->tmem.tile_list;
+	ego_tile_info_t *tlist = tile_mem_t::get(&(mesh->tmem),0);
 
     for (size_t i = 0; i < self->all.count; ++i)
     {
@@ -478,8 +478,8 @@ gfx_rv renderlist_t::reset(renderlist_t *self)
 gfx_rv renderlist_t::insert(renderlist_t * plst, const Uint32 index, const std::shared_ptr<Camera> &camera)
 {
     // aliases
-    ego_mesh_t      * pmesh = NULL;
-    ego_grid_info_t * pgrid = NULL;
+    
+    
     float distance;
 
     // Make sure it doesn't die ugly
@@ -494,14 +494,18 @@ gfx_rv renderlist_t::insert(renderlist_t * plst, const Uint32 index, const std::
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist not connected to a mesh" );
         return gfx_error;
     }
-    pmesh = plst->mesh;
+    ego_mesh_t *pmesh = plst->mesh;
 
     // check for a valid tile
-    if ( NULL == pmesh->gmem.grid_list || 0 == pmesh->gmem.grid_count || index >= pmesh->gmem.grid_count )
+    if (index >= pmesh->gmem.grid_count)
     {
         return gfx_fail;
     }
-    pgrid = pmesh->gmem.grid_list + index;
+    ego_grid_info_t *pgrid = grid_mem_t::get(&(pmesh->gmem), index);
+    if (!pgrid)
+    {
+        return gfx_fail;
+    }
 
     // we can only accept so many tiles
     if ( plst->all.count >= renderlist_lst_t::CAPACITY) return gfx_fail;
@@ -521,7 +525,7 @@ gfx_rv renderlist_t::insert(renderlist_t * plst, const Uint32 index, const std::
     renderlist_lst_t::push( &( plst->all ), index, distance );
 
     // Put each tile in one other list, for shadows and relections
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_SHA ) )
+    if ( 0 != ego_grid_info_t::test_all_fx( pgrid, MAPFX_SHA ) )
     {
         renderlist_lst_t::push( &( plst->sha ), index, distance );
     }
@@ -530,7 +534,7 @@ gfx_rv renderlist_t::insert(renderlist_t * plst, const Uint32 index, const std::
         renderlist_lst_t::push( &( plst->ref ), index, distance );
     }
 
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) )
+    if ( 0 != ego_grid_info_t::test_all_fx( pgrid, MAPFX_DRAWREF ) )
     {
         renderlist_lst_t::push( &( plst->drf ), index, distance );
     }
@@ -539,7 +543,7 @@ gfx_rv renderlist_t::insert(renderlist_t * plst, const Uint32 index, const std::
         renderlist_lst_t::push( &( plst->ndr ), index, distance );
     }
 
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_WATER ) )
+    if ( 0 != ego_grid_info_t::test_all_fx( pgrid, MAPFX_WATER ) )
     {
         renderlist_lst_t::push( &( plst->wat ), index, distance );
     }
@@ -3197,7 +3201,7 @@ void render_shadow( const CHR_REF character )
     if ( NULL == ptile ) return;
 
     // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF( *ptile ) ) return;
+    if ( TILE_IS_FANOFF( ptile ) ) return;
 
     // no shadow if completely transparent
     alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
@@ -3331,7 +3335,7 @@ void render_bad_shadow( const CHR_REF character )
     if ( NULL == ptile ) return;
 
     // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF( *ptile ) ) return;
+    if ( TILE_IS_FANOFF( ptile ) ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
@@ -3470,22 +3474,14 @@ by_list_t * by_list_qsort( by_list_t * lst )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * rlst )
 {
-    Uint32 cnt;
-    gfx_rv render_rv;
-
-    size_t                  tcnt;
-    const ego_tile_info_t * tlst;
-
-    by_list_t lst_vals = {0};
-
     if ( NULL == pmesh ) pmesh = PMesh;
     if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
         return gfx_error;
     }
-    tcnt = pmesh->tmem.tile_count;
-    tlst = pmesh->tmem.tile_list;
+    size_t tcnt = pmesh->tmem.tile_count;
+    const ego_tile_info_t *tlst = tile_mem_t::get(&(pmesh->tmem), 0);
 
     if ( NULL == rlst )
     {
@@ -3496,8 +3492,9 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
     if ( 0 == rlst->count ) return gfx_success;
 
     // insert the rlst values into lst_vals
+    by_list_t lst_vals = { 0 };
     lst_vals.count = rlst->count;
-    for ( cnt = 0; cnt < rlst->count; cnt++ )
+    for (Uint32 cnt = 0; cnt < rlst->count; cnt++ )
     {
         lst_vals.lst[cnt].tile = rlst->lst[cnt].index;
         lst_vals.lst[cnt].dist = rlst->lst[cnt].distance;
@@ -3526,11 +3523,11 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
     // restart the mesh texture code
     mesh_texture_invalidate();
 
-    for ( cnt = 0; cnt < rlst->count; cnt++ )
+    for (Uint32 cnt = 0; cnt < rlst->count; cnt++ )
     {
         Uint32 tmp_itile = lst_vals.lst[cnt].tile;
 
-        render_rv = render_fan( pmesh, tmp_itile );
+        gfx_rv render_rv = render_fan(pmesh, tmp_itile);
         if ( cfg.dev_mode && gfx_error == render_rv )
         {
             log_warning( "%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile );
@@ -3794,7 +3791,6 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
             if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && INVALID_CHR_REF != pdolist->lst[cnt].ichr )
             {
                 CHR_REF ichr;
-                Uint32 itile;
 
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
@@ -3806,7 +3802,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
                 ichr  = pdolist->lst[cnt].ichr;
-                itile = _gameObjects.get(ichr)->onwhichgrid;
+                TileIndex itile = _gameObjects.get(ichr)->onwhichgrid;
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
@@ -3820,7 +3816,6 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
             }
             else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && INVALID_PRT_REF != pdolist->lst[cnt].iprt )
             {
-                Uint32 itile;
                 PRT_REF iprt;
 
                 // draw draw front and back faces of polygons
@@ -3833,7 +3828,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
                 iprt = pdolist->lst[cnt].iprt;
-                itile = PrtList.get_ptr(iprt)->onwhichgrid;
+                TileIndex itile = PrtList.get_ptr(iprt)->onwhichgrid;
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
@@ -4855,7 +4850,7 @@ void gfx_error_clear()
 float grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff )
 {
     int ix, iy, cnt;
-    Uint32 fan[4];
+
     float u, v;
 
     const lighting_cache_t * cache_list[4];
@@ -4871,6 +4866,7 @@ float grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff,
     ix = FLOOR( pos[XX] / GRID_FSIZE );
     iy = FLOOR( pos[YY] / GRID_FSIZE );
 
+    TileIndex fan[4];
     fan[0] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
     fan[1] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix + 1, iy));
     fan[2] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy + 1));
@@ -5355,7 +5351,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
 
         // is the tile reflective?
         pgrid = ego_mesh_t::get_pgrid( pmesh, fan );
-        reflective = ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) );
+        reflective = ( 0 != ego_grid_info_t::test_all_fx( pgrid, MAPFX_DRAWREF ) );
 
         // light the corners of this tile
         delta = ego_mesh_light_corners( prlist->mesh, ptile, reflective, local_mesh_lighting_keep );
@@ -5383,7 +5379,6 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
     int numvertices;
     int ivrt, vertex;
     float light;
-    Uint32 fan;
 
     ego_tile_info_t   * ptile = NULL;
     ego_mesh_t         * pmesh = NULL;
@@ -5412,8 +5407,8 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
     // use the grid to light the tiles
     for ( size_t entry = 0; entry < prlist->all.count; entry++ )
     {
-        fan = prlist->all.lst[entry].index;
-        if ( INVALID_TILE == fan ) continue;
+        TileIndex fan = prlist->all.lst[entry].index;
+        if (TileIndex::Invalid == fan) continue;
 
         // valid tile?
         ptile = ego_mesh_t::get_ptile( pmesh, fan );
@@ -5694,7 +5689,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
     /// @details Do all tile lighting, dynamic and global
 
     size_t cnt;
-    Uint32 fan;
+    
     int    tnc;
     int ix, iy;
     float x0, y0, local_keep;
@@ -5745,10 +5740,10 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
     mesh_bound.ymax = 0;
     for ( size_t entry = 0; entry < prlist->all.count; entry++ )
     {
-        fan = prlist->all.lst[entry].index;
-        if ( fan >= pinfo->tiles_count ) continue;
+        TileIndex fan = prlist->all.lst[entry].index;
+        if (fan.getI() >= pinfo->tiles_count) continue;
 
-        poct = &( ptmem->tile_list[fan].oct );
+        poct = &(tile_mem_t::get(ptmem,fan)->oct);
 
         mesh_bound.xmin = std::min( mesh_bound.xmin, poct->mins[OCT_X] );
         mesh_bound.xmax = std::max( mesh_bound.xmax, poct->maxs[OCT_X] );
@@ -5899,7 +5894,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
         lighting_cache_t   cache_new;
 
         // grab each grid box in the "frustum"
-        fan = prlist->all.lst[entry].index;
+        TileIndex fan = prlist->all.lst[entry].index;
 
         // a valid tile?
         pgrid = ego_mesh_t::get_pgrid( pmesh, fan );
@@ -5908,8 +5903,8 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
         // do not update this more than once a frame
         if ( pgrid->cache_frame >= 0 && ( Uint32 )pgrid->cache_frame >= game_frame_all ) continue;
 
-        ix = fan % pinfo->tiles_x;
-        iy = fan / pinfo->tiles_x;
+        ix = fan.getI() % pinfo->tiles_x;
+        iy = fan.getI() / pinfo->tiles_x;
 
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that

@@ -4753,7 +4753,7 @@ bool chr_update_safe_raw( Object * pchr )
         pchr->safe_valid = true;
         pchr->safe_pos = pchr->getPosition();
         pchr->safe_time  = update_wld;
-        pchr->safe_grid  = ego_mesh_t::get_grid( PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
+        pchr->safe_grid  = ego_mesh_t::get_grid( PMesh, PointWorld(pchr->getPosX(), pchr->getPosY())).getI();
 
         retval = true;
     }
@@ -4764,7 +4764,6 @@ bool chr_update_safe_raw( Object * pchr )
 //--------------------------------------------------------------------------------------------
 bool chr_update_safe( Object * pchr, bool force )
 {
-    Uint32 new_grid;
     bool retval = false;
     bool needs_update = false;
 
@@ -4776,9 +4775,9 @@ bool chr_update_safe( Object * pchr, bool force )
     }
     else
     {
-        new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
 
-        if ( INVALID_TILE == new_grid )
+        if (TileIndex::Invalid == new_grid )
         {
             if ( ABS( pchr->getPosX() - pchr->safe_pos.x ) > GRID_FSIZE ||
                  ABS( pchr->getPosY() - pchr->safe_pos.y ) > GRID_FSIZE )
@@ -4869,7 +4868,6 @@ bool chr_update_breadcrumb_raw( Object * pchr )
 //--------------------------------------------------------------------------------------------
 bool chr_update_breadcrumb( Object * pchr, bool force )
 {
-    Uint32 new_grid;
     bool retval = false;
     bool needs_update = false;
     breadcrumb_t * bc_ptr, bc;
@@ -4890,9 +4888,9 @@ bool chr_update_breadcrumb( Object * pchr, bool force )
     }
     else
     {
-        new_grid = ego_mesh_t::get_grid( PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
 
-        if ( INVALID_TILE == new_grid )
+        if (TileIndex::Invalid == new_grid )
         {
             if ( ABS( pchr->getPosX() - bc_ptr->pos.x ) > GRID_FSIZE ||
                  ABS( pchr->getPosY() - bc_ptr->pos.y ) > GRID_FSIZE )

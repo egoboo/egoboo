@@ -23,32 +23,3 @@
 
 #include "game/mesh_functions.h"
 #include "game/mesh.h"
-
-//--------------------------------------------------------------------------------------------
-// Translated Cartman functions
-//--------------------------------------------------------------------------------------------
-
-Uint8 cartman_get_fan_twist( const ego_mesh_t * pmesh, Uint32 tile )
-{
-    size_t vrtstart;
-    float z0, z1, z2, z3;
-    float zx, zy;
-
-    // check for a valid tile
-    if ( INVALID_TILE == tile  || tile > pmesh->info.tiles_count ) return TWIST_FLAT;
-
-    // if the tile is actually labelled as MAP_FANOFF, ignore it completely
-    if ( TILE_IS_FANOFF( pmesh->tmem.tile_list[tile] ) ) return TWIST_FLAT;
-
-    vrtstart = pmesh->tmem.tile_list[tile].vrtstart;
-
-    z0 = pmesh->tmem.plst[vrtstart + 0][ZZ];
-    z1 = pmesh->tmem.plst[vrtstart + 1][ZZ];
-    z2 = pmesh->tmem.plst[vrtstart + 2][ZZ];
-    z3 = pmesh->tmem.plst[vrtstart + 3][ZZ];
-
-    zx = CARTMAN_FIXNUM * ( z0 + z3 - z1 - z2 ) / CARTMAN_SLOPE;
-    zy = CARTMAN_FIXNUM * ( z2 + z3 - z0 - z1 ) / CARTMAN_SLOPE;
-
-    return cartman_calc_twist( zx, zy );
-}

@@ -145,7 +145,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     ptmem  = &( pmesh->tmem );
 
     // do not render the itile if the image image is invalid
-    if ( TILE_IS_FANOFF( *ptile ) )  return gfx_success;
+    if (TILE_IS_FANOFF(ptile))  return gfx_success;
 
     pdef = TILE_DICT_PTR( tile_dict, ptile->type );
     if ( NULL == pdef ) return gfx_fail;
@@ -422,7 +422,6 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         {
             float dlight;
             int jx, jy;
-            Uint32 jtile;
 
             tnc = imap[cnt];
 
@@ -437,7 +436,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
             v[cnt].tex[TT] = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            jtile = ego_mesh_t::get_tile_int(pmesh, PointGrid(jx, jy));
+            TileIndex jtile = ego_mesh_t::get_tile_int(pmesh, PointGrid(jx, jy));
             if ( grid_light_one_corner( pmesh, jtile, v[cnt].pos[ZZ], nrm, &dlight ) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly

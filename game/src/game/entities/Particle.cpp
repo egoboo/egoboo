@@ -924,7 +924,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
     ///               environment (like friction, etc.) that will be necessary for the other
     ///               move_one_particle_*() functions to work
 
-    Uint32 itile;
+    
     float loc_level = 0.0f;
 
     prt_t             * loc_pprt;
@@ -950,7 +950,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
 
     //---- the "twist" of the floor
     penviro->twist = TWIST_FLAT;
-    itile = INVALID_TILE;
+    TileIndex itile = TileIndex::Invalid;
     if (_gameObjects.exists(loc_pprt->onwhichplatform_ref))
     {
         // this only works for 1 level of attachment
@@ -2082,7 +2082,7 @@ bool prt_is_over_water(const PRT_REF ref)
     if (!ALLOCATED_PRT(ref)) return false;
 
     prt_t *prt = PrtList.get_ptr(ref);
-    Uint32 fan = ego_mesh_t::get_grid(PMesh, PointWorld(prt->pos.x, prt->pos.y));
+    TileIndex fan = ego_mesh_t::get_grid(PMesh, PointWorld(prt->pos.x, prt->pos.y));
     if (ego_mesh_grid_is_valid(PMesh, fan))
     {
         if (0 != ego_mesh_t::test_fx(PMesh, fan, MAPFX_WATER))  return true;
@@ -2147,7 +2147,7 @@ bool prt_t::update_safe_raw(prt_t * pprt)
         pprt->safe_valid = true;
         prt_t::get_pos(pprt, pprt->safe_pos);
         pprt->safe_time = update_wld;
-        pprt->safe_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos.x, pprt->pos.y));
+        pprt->safe_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos.x, pprt->pos.y)).getI();
 
         retval = true;
     }
@@ -2157,7 +2157,6 @@ bool prt_t::update_safe_raw(prt_t * pprt)
 
 bool prt_t::update_safe(prt_t * pprt, bool force)
 {
-    Uint32 new_grid;
     bool retval = false;
     bool needs_update = false;
 
@@ -2169,9 +2168,9 @@ bool prt_t::update_safe(prt_t * pprt, bool force)
     }
     else
     {
-        new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos.x, pprt->pos.y));
+        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos.x, pprt->pos.y));
 
-        if (INVALID_TILE == new_grid)
+        if (TileIndex::Invalid == new_grid)
         {
             if (ABS(pprt->pos.x - pprt->safe_pos.x) > GRID_FSIZE ||
                 ABS(pprt->pos.y - pprt->safe_pos.y) > GRID_FSIZE)
@@ -2197,8 +2196,8 @@ bool prt_t::update_pos(prt_t *self)
 {
     if (!ALLOCATED_PPRT(self)) return false;
 
-    self->onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos.x, self->pos.y));
-    self->onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(self->pos.x, self->pos.y));
+    self->onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos.x, self->pos.y)).getI();
+    self->onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(self->pos.x, self->pos.y)).getI();
 
     // update whether the current character position is safe
     prt_t::update_safe(self, false);

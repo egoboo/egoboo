@@ -160,8 +160,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     pos_old(0, 0, 0), 
     vel_old(0, 0, 0),
     ori_old(),
-    onwhichgrid(0),
-    onwhichblock(0),
+    onwhichgrid(),
+    onwhichblock(),
     bumplist_next(INVALID_CHR_REF),
 
     waterwalk(false),
@@ -301,12 +301,14 @@ Object::~Object()
 bool Object::isOverWater(bool anyLiquid) const
 {
 	//Make sure water in the current module is actually water (could be lava, acid, etc.)
-	if(!anyLiquid && !water.is_water) {
+	if(!anyLiquid && !water.is_water)
+    {
 		return false;
 	}
 
 	//Check if we are on a valid tile
-    if (!ego_mesh_grid_is_valid(PMesh, onwhichgrid)) {
+    if (!ego_mesh_grid_is_valid(PMesh, onwhichgrid))
+    {
     	return false;
     }
 
@@ -379,27 +381,32 @@ void Object::setSheen(const int sheen)
 bool Object::canMount(const std::shared_ptr<Object> mount) const
 {
     //Cannot mount ourselves!
-    if(this == mount.get()) {
+    if(this == mount.get())
+    {
         return false;
     }
 
     //Make sure they are a mount and alive
-    if(!mount->isMount() || !mount->alive) {
+    if(!mount->isMount() || !mount->alive)
+    {
         return false;
     }
 
     //We must be alive and not an item to become a rider
-    if(!alive || isitem || _gameObjects.exists(attachedto)) {
+    if(!alive || isitem || _gameObjects.exists(attachedto))
+    {
         return false;
     }
 
     //Cannot mount while flying
-    if(flyheight != 0) {
+    if(flyheight != 0)
+    {
         return false;
     }
 
     //Make sure they aren't mounted already
-    if(!mount->getProfile()->isSlotValid(SLOT_LEFT) || _gameObjects.exists(mount->holdingwhich[SLOT_LEFT])) {
+    if(!mount->getProfile()->isSlotValid(SLOT_LEFT) || _gameObjects.exists(mount->holdingwhich[SLOT_LEFT]))
+    {
         return false;
     }
 
@@ -411,7 +418,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
 }
 
 int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
-                      const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
+                   const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
 {
     int     action;
     bool do_feedback = ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback );

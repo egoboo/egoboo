@@ -545,8 +545,8 @@ public:
     fvec3_t        vel_old;                       ///< Character's last velocity
     orientation_t  ori_old;                       ///< Character's last orientation
 
-    uint32_t         onwhichgrid;                   ///< Where the char is
-    uint32_t         onwhichblock;                  ///< The character's collision block
+    TileIndex      onwhichgrid;                   ///< Where the char is
+    BlockIndex     onwhichblock;                  ///< The character's collision block
     CHR_REF        bumplist_next;                 ///< Next character on fanblock
 
     // movement properties

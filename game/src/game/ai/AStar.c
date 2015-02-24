@@ -110,7 +110,7 @@ bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, con
     ego_tile_info_t * ptile;
 
     // do not start if the initial point is off the mesh
-    if (ego_mesh_t::get_tile_int( PMesh, PointGrid(src_ix, src_iy)) == INVALID_TILE)
+    if (TileIndex::Invalid == ego_mesh_t::get_tile_int( PMesh, PointGrid(src_ix, src_iy)))
     {
 #ifdef DEBUG_ASTAR
         printf( "AStar failed because source position is off the mesh.\n" );
@@ -172,8 +172,6 @@ flexible_destination:
 
                 for ( k = -1; k <= 1; k++ )
                 {
-                    Uint32 itile;
-
                     // do not recompute the open node!
                     if ( j == 0 && k == 0 ) continue;
 
@@ -193,8 +191,8 @@ flexible_destination:
                     }
 
                     // is the test node on the mesh?
-                    itile = ego_mesh_t::get_tile_int( PMesh, PointGrid(tmp_x, tmp_y));
-                    if ( INVALID_TILE == itile )
+                    TileIndex itile = ego_mesh_t::get_tile_int(PMesh, PointGrid(tmp_x, tmp_y));
+                    if (TileIndex::Invalid == itile)
                     {
                         deadend_count++;
                         continue;
@@ -218,7 +216,7 @@ flexible_destination:
                     ptile = ego_mesh_t::get_ptile( PMesh, itile );
                     if ( NULL == ptile ) continue;
 
-                    if ( TILE_IS_FANOFF( *ptile ) )
+                    if ( TILE_IS_FANOFF( ptile ) )
                     {
                         // add the invalid tile to the list as a closed tile
                         AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );

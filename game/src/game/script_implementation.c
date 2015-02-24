@@ -171,8 +171,6 @@ bool line_of_sight_blocked( line_of_sight_info_t * plos )
 //--------------------------------------------------------------------------------------------
 bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
 {
-    Uint32 fan_last;
-
     int Dx, Dy;
     int ix, ix_stt, ix_end;
     int iy, iy_stt, iy_end;
@@ -247,11 +245,9 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
     TwoDsmallMinusTwoDbig = TwoDsmall - 2 * Dbig;
     TwoDsmallMinusDbig    = TwoDsmall - Dbig;
 
-    fan_last = INVALID_TILE;
+    TileIndex fan_last = TileIndex::Invalid;
     for ( ibig = ibig_stt, ismall = ismall_stt;  ibig != ibig_end;  ibig += dbig )
     {
-        Uint32 fan;
-
         if ( steep )
         {
             ix = ismall;
@@ -264,8 +260,8 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
         }
 
         // check to see if the "ray" collides with the mesh
-        fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(ix, iy));
-        if ( INVALID_TILE != fan && fan != fan_last )
+        TileIndex fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(ix, iy));
+        if (TileIndex::Invalid != fan && fan != fan_last )
         {
             Uint32 collide_fx = ego_mesh_t::test_fx( PMesh, fan, plos->stopped_by );
             // collide the ray with the mesh
@@ -504,7 +500,6 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
 
     Uint32 endtile;
-    Uint32 fan;
     bool       useful;
     ego_tile_info_t * ptile = NULL;
     int loc_starttile;
@@ -536,7 +531,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        fan = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex fan = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
 
         ptile = ego_mesh_t::get_ptile( PMesh, fan );
         if ( NULL != ptile )
@@ -622,7 +617,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     ///    depending on if it finds one or not
 
     int x, y;
-    TileIndex fan;
+    
     ego_tile_info_t * ptile = NULL;
 
     const std::shared_ptr<Passage> &passage = PMod->getPassageByID(passageID);
@@ -639,7 +634,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( /*nothing*/; x <= passage->getRight(); x++ )
         {
-            fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(x, y));
+            TileIndex fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(x, y));
 
             ptile = ego_mesh_t::get_ptile( PMesh, fan );
             if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
@@ -657,7 +652,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( x = passage->getLeft(); x <= passage->getRight(); x++ )
         {
-            fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(x, y));
+            TileIndex fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(x, y));
 
             ptile = ego_mesh_t::get_ptile( PMesh, fan );
             if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )

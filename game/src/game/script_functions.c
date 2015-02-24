@@ -5333,12 +5333,10 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function changes the tile type at the specified coordinates
 
-    Uint32 iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp       = ego_mesh_t::get_grid(PMesh, PointWorld(pstate->x, pstate->y));
-    returncode = ego_mesh_set_texture( PMesh, iTmp, pstate->argument );
+    TileIndex index = ego_mesh_t::get_grid(PMesh, PointWorld(pstate->x, pstate->y));
+    returncode = ego_mesh_set_texture( PMesh, index, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }

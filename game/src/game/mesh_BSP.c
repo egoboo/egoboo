@@ -90,7 +90,7 @@ bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh)
     // error trap
     if (NULL == self || NULL == mesh) return false;
     tcount = mesh->tmem.tile_count;
-    tlist  = mesh->tmem.tile_list;
+    tlist  = tile_mem_t::get(&(mesh->tmem),0);
 
     // make sure the mesh is allocated
     if (0 == tcount || NULL == tlist) return false;
@@ -164,7 +164,7 @@ bool mesh_BSP_can_collide(BSP_leaf_t *pleaf)
     }
 	ego_tile_info_t *ptile = (ego_tile_info_t *)(pleaf->data);
 
-    if (TILE_IS_FANOFF(*ptile)) return false;
+    if (TILE_IS_FANOFF(ptile)) return false;
 
     return true;
 }
@@ -184,7 +184,7 @@ bool mesh_BSP_is_visible(BSP_leaf_t *pleaf)
     }
 	ego_tile_info_t *ptile = (ego_tile_info_t *)(pleaf->data);
 
-    if (TILE_IS_FANOFF(*ptile)) return false;
+    if (TILE_IS_FANOFF(ptile)) return false;
 
     return true;
 }

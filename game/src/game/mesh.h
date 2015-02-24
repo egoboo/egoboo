@@ -48,8 +48,7 @@ struct oglx_texture_t;
 
 #define GRID_BLOCKY_MAX             (( MAP_TILEY_MAX >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
 
-#define INVALID_BLOCK ((Uint32)(~0))
-#define INVALID_TILE  ((Uint32)(~0))
+
 
 #define VALID_GRID(PMPD, ID) ( (INVALID_TILE!=(ID)) && (NULL != (PMPD)) && (ID < (PMPD)->info.tiles_count) )
 
@@ -67,8 +66,7 @@ struct oglx_texture_t;
 #define TILE_GET_UPPER_BITS(XX)         (( TILE_UPPER_MASK & (XX) ) >> TILE_UPPER_SHIFT )
 #define TILE_SET_UPPER_BITS(XX)         (( (XX) << TILE_UPPER_SHIFT ) & TILE_UPPER_MASK )
 
-#define TILE_IS_FANOFF(XX)              ( MAP_FANOFF == (XX).img )
-
+#define TILE_IS_FANOFF(XX)              ( MAP_FANOFF == (XX)->img )
 #define TILE_HAS_INVALID_IMAGE(XX)      HAS_SOME_BITS( TILE_UPPER_MASK, (XX).img )
 
 //--------------------------------------------------------------------------------------------
@@ -77,6 +75,204 @@ typedef GLXvector3f normal_cache_t[4];
 typedef float       light_cache_t[4];
 
 //--------------------------------------------------------------------------------------------
+
+/**
+ * @brief
+ *  An enumeration of coordinate system used by/for/together with meshes.
+ */
+enum class CoordinateSystem
+{
+    /**
+     * @brief
+     *  "world" coordinates.
+     */
+    World,
+    /**
+     * @brief
+     *  "grid" coordinates.
+     */
+    Grid,
+    /**
+     * @brief
+     *  "block" coordinates.
+     */
+    Block,
+};
+
+/**
+ * @brief
+ *  A template of a point.
+ * @param _Type
+ *  the type of the coordinate values of the point
+ * @param _CoordinateSystem
+ *  the coordinate system of the point
+ */
+template <typename _Type, CoordinateSystem _CoordinateSystem>
+struct Point
+{
+private:
+
+    _Type _x;
+
+    _Type _y;
+
+public:
+
+    Point(const _Type& x, const _Type& y) :
+        _x(x), _y(y)
+    {}
+
+    Point(const Point<_Type, _CoordinateSystem>& other) :
+        _x(other._x), _y(other._y)
+    {}
+
+    Point<_Type, _CoordinateSystem>& operator=(const Point<_Type, _CoordinateSystem>& other)
+    {
+        _x = other._x;
+        _y = other._y;
+    }
+
+    const _Type& getX() const
+    {
+        return _x;
+    }
+
+    const _Type& getY() const
+    {
+        return _y;
+    }
+
+};
+
+typedef Point<int, CoordinateSystem::Block> PointBlock;
+typedef Point<int, CoordinateSystem::Grid> PointGrid;
+typedef Point<float, CoordinateSystem::World> PointWorld;
+
+/**
+ * @brief
+ *  An enumeration of index systems used by/for/together with meshes.
+ */
+enum class IndexSystem
+{
+    /**
+     * @brief
+     *  "tile" indices.
+     */
+    Tile,
+
+    /**
+     * @brief
+     *  "block" indices.
+     */
+    Block,
+};
+
+/**
+ * @brief
+ *  A template of an index.
+ * @param _Type
+ *  the type of the index value of the index
+ * @param _IndexSystem
+ *  the index type of the index
+ * @param _InvalidIndex
+ *   the index value for an invalid index of the index
+ * @todo
+ *  Because of (and as always just because of) Microsoft (and always only Microsoft) is
+ *  incapable of providing proper C++ 11 support in time (unlike other compiler vendors)
+ *  <tt>_Type _InvalidIndex = std::numeric_limits<_Type>::max()</tt> can't be used.
+ */
+template <typename _Type, IndexSystem _IndexSystem, _Type _InvalidIndex>
+struct Index
+{
+
+private:
+
+    _Type _i;
+
+public:
+
+    static const Index<_Type, _IndexSystem, _InvalidIndex> Invalid;
+
+    Index() :
+        _i(_InvalidIndex)
+    {}
+
+    Index(const _Type& i) :
+        _i(i)
+    {}
+
+    Index(const Index<_Type, _IndexSystem, _InvalidIndex>& other) :
+        _i(other._i)
+    {}
+
+    Index<_Type, _IndexSystem, _InvalidIndex>& operator=(const Index<_Type, _IndexSystem, _InvalidIndex>& other)
+    {
+        _i = other._i;
+        return *this;
+    }
+
+    bool operator==(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
+    {
+        return _i == other._i;
+    }
+
+    bool operator!=(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
+    {
+        return _i != other._i;
+    }
+
+    bool operator<(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
+    {
+        return _i < other._i;
+    }
+
+    bool operator<=(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
+    {
+        return _i <= other._i;
+    }
+
+    bool operator>(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
+    {
+        return _i > other._i;
+    }
+
+    bool operator>=(const Index<_Type, _IndexSystem, _InvalidIndex>& other) const
+    {
+        return _i >= other._i;
+    }
+
+    const _Type& getI() const
+    {
+        return _i;
+    }
+
+    Index<_Type, _IndexSystem, _InvalidIndex>& operator++()
+    {
+        _i++;
+        return *this;
+    }
+    Index<_Type, _IndexSystem, _InvalidIndex>& operator++(int)
+    {
+        _Type j = _i;
+        _i++;
+        return Index<_Type,_IndexSystem,_InvalidIndex>(j);
+    }
+
+};
+
+template <typename _Type, IndexSystem _IndexSystem, _Type _InvalidIndex>
+const Index<_Type, _IndexSystem, _InvalidIndex> Index<_Type,_IndexSystem,_InvalidIndex>::Invalid;
+
+/// @brief The index of a tile.
+/// @todo UINT32_MAX is used because of Microsoft's Visual Studio 2013 lacking constexpr support
+///       such that we could use std::numeric_limits<Uint32>::max().
+typedef Index<Uint32, IndexSystem::Tile,UINT32_MAX> TileIndex;
+
+/// @brief The index of a block.
+/// @todo UINT32_MAX is used because of Microsoft's Visual Studio 2013 lacking constexpr support
+///       such that we could use std::numeric_limits<Uint32>::max().
+typedef Index<Uint32, IndexSystem::Block,UINT32_MAX> BlockIndex;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -110,13 +306,15 @@ struct ego_tile_info_t
     // the bounding boc of this tile
     oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
     BSP_leaf_t     bsp_leaf;                   ///< the octree node for this object
+
+    static ego_tile_info_t *ctor(ego_tile_info_t *self, int index);
+    static ego_tile_info_t *dtor(ego_tile_info_t *self);
+    static ego_tile_info_t *free(ego_tile_info_t *self);
+    static ego_tile_info_t *create(int index);
+    static ego_tile_info_t *destroy(ego_tile_info_t *self);
 };
 
-ego_tile_info_t *ego_tile_info_ctor(ego_tile_info_t *self, int index);
-ego_tile_info_t *ego_tile_info_dtor(ego_tile_info_t *self);
-ego_tile_info_t *ego_tile_info_free(ego_tile_info_t *self);
-ego_tile_info_t *ego_tile_info_create(int index);
-ego_tile_info_t *ego_tile_info_destroy(ego_tile_info_t *self);
+
 
 ego_tile_info_t *ego_tile_info_ctor_ary(ego_tile_info_t *self, size_t count);
 ego_tile_info_t *ego_tile_info_dtor_ary(ego_tile_info_t *self, size_t count);
@@ -147,11 +345,11 @@ struct ego_grid_info_t
     static ego_grid_info_t *free(ego_grid_info_t *self);
     static ego_grid_info_t *create();
     static ego_grid_info_t *destroy(ego_grid_info_t *self);
+    static GRID_FX_BITS get_all_fx(const ego_grid_info_t *self);
+    static GRID_FX_BITS test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits);
 };
 
 
-GRID_FX_BITS ego_grid_info_get_all_fx(const ego_grid_info_t *self);
-GRID_FX_BITS ego_grid_info_test_all_fx(const ego_grid_info_t *self, const GRID_FX_BITS bits);
 bool ego_grid_info_add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 bool ego_grid_info_sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 bool ego_grid_info_set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
@@ -164,11 +362,15 @@ struct _Array2
     size_t _size;
     /// A pointer to the elements of the array.
     Type *_elements;
+    _Array2(size_t size) :
+        _size(size),T
+    {
+    }
 };
 #endif
 
-ego_grid_info_t *ego_grid_info_ctor_ary( ego_grid_info_t *self, size_t size);
-ego_grid_info_t *ego_grid_info_dtor_ary( ego_grid_info_t *self, size_t size);
+ego_grid_info_t *ego_grid_info_ctor_ary(ego_grid_info_t *self, size_t size);
+ego_grid_info_t *ego_grid_info_dtor_ary(ego_grid_info_t *self, size_t size);
 ego_grid_info_t *ego_grid_info_create_ary(size_t size);
 ego_grid_info_t *ego_grid_info_destroy_ary(ego_grid_info_t *self, size_t size);
 
@@ -234,9 +436,10 @@ struct grid_mem_t
     Uint32 *blockstart; ///< List of blocks that start each row.
     Uint32 *tilestart;  ///< List of tiles  that start each row.
 
+protected:
     // the per-grid info
     ego_grid_info_t* grid_list;                       ///< tile command info
-
+public:
     static grid_mem_t *ctor(grid_mem_t *self);
     static grid_mem_t *dtor(grid_mem_t *self);
     static bool alloc(grid_mem_t *self, const ego_mesh_info_t *info);
@@ -246,6 +449,21 @@ struct grid_mem_t
      *  This function builds a look up table to ease calculating the fan number given an x,y pair.
      */
     static void make_fanstart(grid_mem_t *self, const ego_mesh_info_t *info);
+
+    static ego_grid_info_t *get(const grid_mem_t *self, const TileIndex& index)
+    {
+        // Validate arguments.
+        if (!self || TileIndex::Invalid == index)
+        {
+            return nullptr;
+        }
+        // Assert that the grids are allocated and the index is within bounds.
+        if (!self->grid_list || index.getI() >= self->grid_count)
+        {
+            return nullptr;
+        }
+        return self->grid_list + index.getI();
+    }
 };
 
 
@@ -261,8 +479,9 @@ struct tile_mem_t
 
     // the per-tile info
     size_t           tile_count;                       ///< number of tiles
+protected:
     ego_tile_info_t* tile_list;                        ///< tile command info
-
+public:
     // the per-vertex info to be presented to OpenGL
     size_t vert_count;                        ///< number of vertices
     GLXvector3f *plst;                        ///< the position list
@@ -274,6 +493,20 @@ struct tile_mem_t
     static tile_mem_t *dtor(tile_mem_t *self);
     static bool free(tile_mem_t *self);
     static bool alloc(tile_mem_t *self, const ego_mesh_info_t *info);
+    static ego_tile_info_t *get(const tile_mem_t *self,const TileIndex& index)
+    {
+        // Validate arguments.
+        if (!self || TileIndex::Invalid == index)
+        {
+            return nullptr;
+        }
+        // Assert that the tiles are allocated and the index is within bounds.
+        if (!self->tile_list || index.getI() >= self->tile_count)
+        {
+            return nullptr;
+        }
+        return self->tile_list + index.getI();
+    }
 
 };
 
@@ -311,15 +544,17 @@ struct mpdfx_lists_t
     mpdfx_list_ary_t imp;
     mpdfx_list_ary_t dam;
     mpdfx_list_ary_t slp;
+
+    static mpdfx_lists_t *ctor(mpdfx_lists_t *self);
+    static mpdfx_lists_t *dtor(mpdfx_lists_t *self);
+    static bool alloc(mpdfx_lists_t *self, const ego_mesh_info_t *info);
+    static bool dealloc(mpdfx_lists_t *self);
+    static bool reset(mpdfx_lists_t *self);
+    static int push(mpdfx_lists_t *self, GRID_FX_BITS fx_bits, size_t value);
+    static bool synch(mpdfx_lists_t *self, const grid_mem_t *other, bool force);
 };
 
-mpdfx_lists_t *mpdfx_lists_ctor(mpdfx_lists_t *self);
-mpdfx_lists_t *mpdfx_lists_dtor(mpdfx_lists_t *self);
-bool mpdfx_lists_alloc(mpdfx_lists_t *self, const ego_mesh_info_t *info);
-bool mpdfx_lists_dealloc(mpdfx_lists_t *self);
-bool mpdfx_lists_reset(mpdfx_lists_t *self);
-int mpdfx_lists_push(mpdfx_lists_t *self, GRID_FX_BITS fx_bits, size_t value);
-bool mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool force );
+
 
 //--------------------------------------------------------------------------------------------
 
@@ -356,181 +591,6 @@ struct ego_mesh_info_t
     static ego_mesh_info_t *dtor(ego_mesh_info_t *self);
     static void init(ego_mesh_info_t *self, int numvert, size_t tiles_x, size_t tiles_y);
 };
-
-/**
- * @brief
- *  An enumeration of coordinate system used by/for/together with meshes.
- */
-enum class CoordinateSystem
-{
-    /**
-     * @brief
-     *  "world" coordinates.
-     */
-    World,
-    /**
-     * @brief
-     *  "grid" coordinates.
-     */
-    Grid,
-    /**
-     * @brief
-     *  "block" coordinates.
-     */
-    Block,
-};
-
-/**
- * @brief
- *  A template of a point.
- * @param _Type
- *  the type of the coordinate values of the point
- * @param _CoordinateSystem
- *  the coordinate system of the point
- */
-template <typename _Type,CoordinateSystem _CoordinateSystem>
-struct Point
-{
-private:
-
-    _Type _x;
-
-    _Type _y;
-
-public:
-
-    Point(const _Type& x, const _Type& y) :
-        _x(x), _y(y)
-    {}
-
-    Point(const Point<_Type, _CoordinateSystem>& other) :
-        _x(other._x), _y(other._y)
-    {}
-
-    Point<_Type, _CoordinateSystem>& operator=(const Point<_Type, _CoordinateSystem>& other)
-    {
-        _x = other._x;
-        _y = other._y;
-    }
-
-    const _Type& getX() const
-    {
-        return _x;
-    }
-
-    const _Type& getY() const
-    {
-        return _y;
-    }
-
-};
-
-typedef Point<int, CoordinateSystem::Block> PointBlock;
-typedef Point<int, CoordinateSystem::Grid> PointGrid;
-typedef Point<float, CoordinateSystem::World> PointWorld;
-
-/**
- * @brief
- *  An enumeration of index systems used by/for/together with meshes.
- */
-enum class IndexSystem
-{
-    /**
-     * @brief
-     *  "tile" indices.
-     */
-    Tile,
-    /**
-     * @brief
-     *  "grid" indices.
-     */
-    Grid,
-    /**
-     * @brief
-     *  "block" indices.
-     */
-    Block,
-};
-
-/**
- * @brief
- *  A template of an index.
- * @param _Type
- *  the type of the index value of the index
- * @param _IndexSystem
- *  the index type of the index
- */
-template <typename _Type, IndexSystem _IndexSystem>
-struct Index
-{
-
-private:
-
-    _Type _i;
-
-public:
-
-    Index(const _Type& i) :
-        _i(i)
-    {}
-
-    Index(const Index<_Type, _IndexSystem>& other) :
-        _x(other._x), _y(other._y)
-    {}
-
-    Index<_Type, _IndexSystem>& operator=(const Index<_Type, _IndexSystem>& other)
-    {
-        _i = other._i;
-    }
-
-    bool operator==(const Index<_Type, _IndexSystem>& other)
-    {
-        return _i == other._i;
-    }
-
-    bool operator!=(const Index<_Type, _IndexSystem>& other)
-    {
-        return _i != other.i;
-    }
-
-    bool operator<(const Index<_Type, _IndexSystem>& other)
-    {
-        return _i < other._i;
-    }
-
-    bool operator<=(const Index<_Type, _IndexSystem>& other)
-    {
-        return _i <= other._i;
-    }
-
-    bool operator>(const Index<_Type, _IndexSystem>& other)
-    {
-        return _i > other._i;
-    }
-
-    bool operator>=(const Index<_Type, _IndexSystem>& other)
-    {
-        return _i >= other._i;
-    }
-
-    const _Type& getI() const
-    {
-        return _i;
-    }
-
-};
-
-/// The index of a tile.
-/// @todo Use the Index template to define this.
-typedef Uint32 TileIndex;
-
-/// The index of a block.
-/// @todo Use the Index template to define this.
-typedef Uint32 BlockIndex;
-
-/// The index of a grid.
-/// @todo Use the Index template to define this.
-typedef Uint32 GridIndex;
 
 //--------------------------------------------------------------------------------------------
 
@@ -621,10 +681,10 @@ float ego_mesh_get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, 
 
 bool ego_mesh_clear_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
 bool ego_mesh_add_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
-bool ego_mesh_grid_is_valid(const ego_mesh_t *self, Uint32 id);
+bool ego_mesh_grid_is_valid(const ego_mesh_t *self, const TileIndex& id);
 bool ego_mesh_tile_has_bits(const ego_mesh_t *, const PointGrid& point, const BIT_FIELD bits);
 
-Uint8 ego_mesh_get_twist(ego_mesh_t *self, const GridIndex& index);
+Uint8 ego_mesh_get_twist(ego_mesh_t *self, const TileIndex& index);
 
 
 //--------------------------------------------------------------------------------------------
@@ -672,7 +732,7 @@ bool ego_mesh_test_corners(ego_mesh_t *self, ego_tile_info_t *tile, float thresh
 float ego_mesh_light_corners(ego_mesh_t *self, ego_tile_info_t *tile, bool reflective, float mesh_lighting_keep);
 bool ego_mesh_interpolate_vertex(tile_mem_t *mem, ego_tile_info_t *tile, float pos[], float *plight);
 
-bool grid_light_one_corner(const ego_mesh_t *mesh, int fan, float height, float nrm[], float *plight);
+bool grid_light_one_corner(const ego_mesh_t *mesh, const TileIndex& fan, float height, float nrm[], float *plight);
 
 /// @todo @a pos and @a radius should be passed as a sphere.
 BIT_FIELD ego_mesh_hit_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, float nrm[], float *pressure, mesh_wall_data_t * private_data);
@@ -691,3 +751,14 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
 
 
 Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define CARTMAN_SLOPE             50                        ///< increments for terrain slope
+
+//--------------------------------------------------------------------------------------------
+// Translated Cartman functions
+//--------------------------------------------------------------------------------------------
+
+Uint8 cartman_get_fan_twist(const ego_mesh_t *self, const TileIndex& tile);
