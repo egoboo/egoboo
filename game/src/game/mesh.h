@@ -251,7 +251,7 @@ public:
         _i++;
         return *this;
     }
-    Index<_Type, _IndexSystem, _InvalidIndex>& operator++(int)
+    Index<_Type, _IndexSystem, _InvalidIndex> operator++(int)
     {
         _Type j = _i;
         _i++;
