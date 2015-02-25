@@ -319,11 +319,10 @@ bool GameEngine::initialize()
     // Initialize the profile system.
     _profileSystem.initialize();
 
-    // make sure that a bunch of stuff gets initialized properly
-#if 0
-    PrtList.initialize();
-    EncList.initialize();
-#endif
+    // Initialize the collision system.
+    CollisionSystem::initialize();
+
+    // Initialize the model system.
     model_system_begin();
     ego_mesh_t::ctor(PMesh);
 
@@ -333,6 +332,8 @@ bool GameEngine::initialize()
 
     renderPreloadText("Loading save games...");
     _profileSystem.loadAllSavedCharacters("mp_players");
+
+
 
     // clear out the import and remote directories
     renderPreloadText("Finished!");
@@ -361,18 +362,16 @@ void GameEngine::uninitialize()
     // make sure that the current control configuration is written
     input_settings_save_vfs( "controls.txt", -1 );
 
-	//shut down the ui
+	// @todo This should be 'UIManager::uninitialize'.
     _uiManager.reset(nullptr);
 
-	// deallocate any dynamically allocated collision memory
-    collision_system_end();
+	// Uninitialize the collision system.
+    CollisionSystem::uninitialize();
 
-    // deallocate any dynamically allocated scripting memory
+    // Uninitialize the scripting system.
     scripting_system_end();
 
-    // deallocate all dynamically allocated memory for characters, particles, enchants, and models
-    PrtList.uninitialize();
-    EncList.uninitialize();
+    // Deallocate all dynamically allocated memory for characters, particles, enchants, and models.
     _gameObjects.clear();
     model_system_end();
 

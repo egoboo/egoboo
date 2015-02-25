@@ -83,14 +83,35 @@ struct CoHashList_t : public hash_list_t
 /// @param collisions the list of collisions
 /// @param hashNodes the list of hash nodes
 bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *coNode, Ego::DynamicArray<CoNode_t> *coNodeAry, Ego::DynamicArray<hash_node_t> *hashNodeAry);
-
+#if 0
 CoHashList_t *CoHashList_getInstance();
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // global functions
 
-bool collision_system_begin();
-void collision_system_end();
+struct CollisionSystem
+{
+    static CollisionSystem *_singleton;
+    CoHashList_t *_hash;
+    Ego::DynamicArray<hash_node_t> _hn_ary; ///< the available hash_node_t collision nodes for the CHashList_t
+    Ego::DynamicArray<CoNode_t> _co_ary;    ///< the available CoNode_t data pointed to by the hash_node_t nodes
+    Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
+    Ego::DynamicArray<CoNode_t> _coll_node_lst;
+
+    CollisionSystem();
+    virtual ~CollisionSystem();
+    static bool initialize();
+    static CollisionSystem *get()
+    {
+        if (!CollisionSystem::_singleton)
+        {
+            throw std::runtime_error("collision system not initialized");
+        }
+        return CollisionSystem::_singleton;
+    }
+    static void uninitialize();
+    void reset();
+};
 
 void bump_all_objects();

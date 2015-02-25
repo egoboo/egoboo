@@ -186,7 +186,7 @@ void LoadingState::loadModuleData()
 
     // initialize the collision system
     singleThreadRedrawHack("Preparing collisions...");
-    collision_system_begin();
+    CollisionSystem::get()->reset();
 
     //Ready message display
     DisplayMsg_reset();
