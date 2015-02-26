@@ -34,15 +34,18 @@ SDL_CONF  := sdl-config
 TMPFLAGS  := $(shell ${SDL_CONF} --cflags)
 SDLCONF_L := $(shell ${SDL_CONF} --libs)
 
+EXTERNAL_LUA := $(shell pwd)/external/lua-5.2.3
+
+# set LUA_LDFLAGS to not use the lua in external/
+ifeq ($(LUA_LDFLAGS),)
+LUA_CFLAGS := -I${EXTERNAL_LUA}/src
+LUA_LDFLAGS := ${EXTERNAL_LUA}/src/liblua.a
+USE_EXTERNAL_LUA := 1
+endif
+
 #---------------------
 # the compiler options
-# todo: use pkg-config for lua?
-# TODO: We're not currently using lua,
-# and how to get the locations for lua 5.2
-# is different for some distros than others.
-# Just don't link and don't include lua just yet
-#TMPFLAGS += -I/usr/include/lua5.2
-TMPFLAGS += -x c++ -std=c++11
+TMPFLAGS += -x c++ -std=c++11 $(LUA_CFLAGS)
 
 # for now, find a better way to do this?
 ifeq ($(PREFIX),)
@@ -58,6 +61,7 @@ endif
 
 CFLAGS   += $(TMPFLAGS)
 CXXFLAGS += $(TMPFLAGS)
+LDFLAGS  += $(LUA_LDFLAGS)
 LDFLAGS  += ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
 
 export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET
@@ -65,28 +69,35 @@ export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CART
 #------------------------------------
 # definitions of the target projects
 
-.PHONY: all clean idlib egolib egoboo cartman install doxygen
+.PHONY: all clean idlib egolib egoboo cartman install doxygen external_lua
 
 all: idlib egolib egoboo cartman
 
 idlib:
 	${MAKE} -C $(IDLIB_DIR)
 
-egolib: idlib
+egolib: idlib external_lua
 	${MAKE} -C $(EGOLIB_DIR)
 
-egoboo: idlib egolib
+egoboo: idlib external_lua egolib
 	${MAKE} -C $(EGO_DIR)
 
-cartman: idlib egolib
+cartman: idlib external_lua egolib
 	${MAKE} -C $(CARTMAN_DIR)
 
+external_lua:
+ifeq ($(USE_EXTERNAL_LUA), 1)
+	${MAKE} -C $(EXTERNAL_LUA) linux
+endif
 
 clean:
 	${MAKE} -C $(IDLIB_DIR) clean
 	${MAKE} -C $(EGOLIB_DIR) clean
 	${MAKE} -C $(EGO_DIR) clean
 	${MAKE} -C $(CARTMAN_DIR) clean
+ifeq ($(USE_EXTERNAL_LUA), 1)
+	${MAKE} -C $(EXTERNAL_LUA) clean
+endif
 
 doxygen:
 	doxygen
