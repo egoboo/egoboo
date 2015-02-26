@@ -698,7 +698,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         char skinName[256];
-        vfs_get_next_name(ctxt, skinName, 256);
+        vfs_get_next_string_lit(ctxt, skinName, 256);
         _skinInfo[cnt].name = skinName;
     }
 
