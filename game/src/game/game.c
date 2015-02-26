@@ -2429,8 +2429,8 @@ void activate_spawn_file_vfs()
             //Find first free slot that is not the spellbook slot
             for (profileSlot = 1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER; profileSlot < INVALID_PRO_REF; ++profileSlot)
             {
-                //dont try to grab the spellbook slot
-                if (profileSlot == SPELLBOOK) continue;
+                //don't try to grab loaded profiles
+                if (_profileSystem.isValidProfileID(profileSlot)) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
                 if(reservedSlots[profileSlot] == spawnName) {
