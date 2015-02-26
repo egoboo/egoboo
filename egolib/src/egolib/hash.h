@@ -27,27 +27,39 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct hash_node_t;
-    struct hash_list_t;
-    struct hash_list_iterator_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 	/**
 	 * @brief
 	 *	A node in a hash list.
 	 */
     struct hash_node_t
     {
-        hash_node_t *next;
-        void *data;
-		static hash_node_t *ctor(hash_node_t *self, void * data);
-		static void dtor(hash_node_t *self);
+        hash_node_t *next; /// @todo Rename to _next.
+        void *data; /// @todo Rename to _data.
+        hash_node_t() :
+            next(nullptr), data(nullptr)
+        {
+        }
+        /// @todo Rename ArgData to data (after renaming data to _data).
+        hash_node_t(void *ArgData) :
+            next(nullptr), data(ArgData)
+        {
+        }
+        static hash_node_t *ctor(hash_node_t *self, void *data)
+        {
+            if (!self)
+            {
+                return nullptr;
+            }
+            self->next = nullptr;
+            self->data = data;
+            return self;
+        }
+        static void dtor(hash_node_t *self)
+        {
+            EGOBOO_ASSERT(nullptr != self);
+            self->data = nullptr;
+        }
     };
-
-    hash_node_t *hash_node_create( void * data );
-    bool         hash_node_destroy( hash_node_t ** );
 
     hash_node_t *hash_node_insert_after( hash_node_t lst[], hash_node_t * n );
     hash_node_t *hash_node_insert_before( hash_node_t lst[], hash_node_t * n );
@@ -150,6 +162,24 @@
 			}
 			return size;
 		}
+        /**
+         * @brief
+         *	Get the number of elements in a bucket of a hash list.
+         * @param self
+         *	the hash list
+         * @param index
+         *	the bucket index
+         * @return
+         *	the number of elements in the bucket of the specified index
+         */
+        static size_t get_count(hash_list_t *self, size_t index)
+        {
+            if (!self || !self->subcount)
+            {
+                return 0;
+            }
+            return self->subcount[index];
+        }
 		/**
 		 * @brief
 		 *	Get the capacity of this hash list.
@@ -160,32 +190,12 @@
 		{
 			return capacity;
 		}
+
     };
 
-	/**
-	 * @brief
-	 *	Heap-allocate and construct a hash list.
-	 * @param capacity
-	 *	the initial capacity of the hash list
-	 * @return
-	 *	a pointer to the hash list on success, @a NULL on failure
-	 */
-    hash_list_t *hash_list_create(size_t capacity);
-	/**
-	 * @brief
-	 *	Destruct and heap-deallocate a hash list.
-	 * @param self
-	 *	the hash list
-	 */
-	void hash_list_destroy(hash_list_t *self);
-
-    size_t hash_list_get_count(hash_list_t *self, size_t index);
     hash_node_t *hash_list_get_node(hash_list_t *self, size_t index);
-
     bool hash_list_set_count(hash_list_t *self, size_t index, size_t count);
     bool hash_list_set_node(hash_list_t *self, size_t index, hash_node_t *node);
-
-    bool hash_list_insert_unique( hash_list_t * phash, hash_node_t * pnode );
 
 //--------------------------------------------------------------------------------------------
 

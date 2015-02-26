@@ -27,6 +27,10 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
+#define CHR_MAX_COLLISIONS       (MAX_CHR*8 + MAX_PRT)
+#define COLLISION_HASH_NODES     (CHR_MAX_COLLISIONS*2)
+#define COLLISION_LIST_SIZE      256
+
 class Object;
 struct prt_t;
 
@@ -77,30 +81,100 @@ struct CoHashList_t : public hash_list_t
 	{}
 };
 
-/// Insert a collision into a collision hash list if it does not exist yet.
-/// @param self the collision hash list
-/// @param collision the collision
-/// @param collisions the list of collisions
-/// @param hashNodes the list of hash nodes
-bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *coNode, Ego::DynamicArray<CoNode_t> *coNodeAry, Ego::DynamicArray<hash_node_t> *hashNodeAry);
-#if 0
-CoHashList_t *CoHashList_getInstance();
-#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // global functions
 
+// A temporary magazine allocator supporting the operations "acquire" and "refill".
+template <typename Type,size_t Capacity>
+struct Magazine
+{
+private:
+    size_t _size;
+    Type *_elements[Capacity];
+public:
+    void reset()
+    {
+        _size = Capacity;
+    }
+    Type *acquire()
+    {
+        if (!_size) throw std::underflow_error("magazine underflow");
+        return _elements[--_size];
+    }
+    Magazine() :
+        _elements(),
+        _size(Capacity)
+    {
+        size_t index;
+        try
+        {
+            for (size_t index = 0; index < Capacity; ++index)
+            {
+                _elements[index] = new Type();
+            }
+        }
+        catch (std::exception& ex)
+        {
+            while (index > 0)
+            {
+                delete _elements[--index];
+                _elements[index] = nullptr;
+            }
+            _size = 0;
+        }
+    }
+    virtual ~Magazine()
+    {
+        if (_size != Capacity)
+        {
+            throw std::runtime_error("invalid magazine state");
+        }
+        for (size_t index = 0; index < Capacity; ++index)
+        {
+            delete _elements[index];
+            _elements[index] = nullptr;
+        }
+    }
+};
+
 struct CollisionSystem
 {
+public:
+    typedef Magazine < hash_node_t, COLLISION_HASH_NODES > HashNodeAry;
+    typedef Magazine < CoNode_t, CHR_MAX_COLLISIONS > CollNodeAry;
+protected:
+    /**
+     * @brief
+     *  The collision system singleton.
+     */
     static CollisionSystem *_singleton;
+    /**
+     * @brief
+     *  Construct this collision system.
+     * @remark
+     *  Intentionally protected.
+     */
+    CollisionSystem();
+    /**
+     * @brief
+     *  Destruct this collision system.
+     * @remark
+     *  Intentionally protected.
+     */
+    virtual ~CollisionSystem();
+public:
+    /// Magazine of hash nodes.
+    HashNodeAry _hn_ary_2;
+    /// Magazine of collision nodes.
+    CollNodeAry _cn_ary_2;
+public:
     CoHashList_t *_hash;
-    Ego::DynamicArray<hash_node_t> _hn_ary; ///< the available hash_node_t collision nodes for the CHashList_t
-    Ego::DynamicArray<CoNode_t> _co_ary;    ///< the available CoNode_t data pointed to by the hash_node_t nodes
     Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
     Ego::DynamicArray<CoNode_t> _coll_node_lst;
 
-    CollisionSystem();
-    virtual ~CollisionSystem();
+
     static bool initialize();
     static CollisionSystem *get()
     {
@@ -113,5 +187,13 @@ struct CollisionSystem
     static void uninitialize();
     void reset();
 };
+
+/// Insert a collision into a collision hash list if it does not exist yet.
+/// @param self the collision hash list
+/// @param collision the collision
+/// @param collisions the list of collisions
+/// @param hashNodes the list of hash nodes
+bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *coNode, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry);
+
 
 void bump_all_objects();

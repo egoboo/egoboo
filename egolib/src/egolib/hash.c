@@ -28,61 +28,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void hash_node_t::dtor(hash_node_t *self)
-{
-	EGOBOO_ASSERT(nullptr != self);
-    self->data = nullptr;
-}
-
-//--------------------------------------------------------------------------------------------
-hash_node_t *hash_node_t::ctor(hash_node_t *self, void *data)
-{
-	if (!self)
-	{
-		return nullptr;
-	}
-	self->next = nullptr;
-    self->data = data;
-    return self;
-}
-
-//--------------------------------------------------------------------------------------------
-hash_node_t *hash_node_create(void *data)
-{
-    hash_node_t *self = EGOBOO_NEW(hash_node_t);
-	if (!self)
-	{
-		return NULL;
-	}
-	if (!hash_node_t::ctor(self, data))
-	{
-		EGOBOO_DELETE(self);
-		return NULL;
-	}
-	return self;
-}
-
-//--------------------------------------------------------------------------------------------
-/**
- * @brief
- *	Destruct and deallocate a hash node.
- * @param pn
- *	a pointer to a hash node pointer
- */
-bool hash_node_destroy( hash_node_t ** pn )
-{
-    bool retval = false;
-
-    if ( NULL == pn || NULL == *pn ) return false;
-
-    hash_node_t::dtor( *pn );
-
-    EGOBOO_DELETE( *pn );
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 hash_node_t *hash_node_insert_after( hash_node_t lst[], hash_node_t * n )
 {
     if ( NULL == n ) return lst;
@@ -96,7 +41,6 @@ hash_node_t *hash_node_insert_after( hash_node_t lst[], hash_node_t * n )
     return lst;
 }
 
-//--------------------------------------------------------------------------------------------
 hash_node_t *hash_node_insert_before( hash_node_t lst[], hash_node_t * n )
 {
     if ( NULL == n ) return lst;
@@ -109,7 +53,6 @@ hash_node_t *hash_node_insert_before( hash_node_t lst[], hash_node_t * n )
     return n;
 }
 
-//--------------------------------------------------------------------------------------------
 hash_node_t *hash_node_remove_after( hash_node_t lst[] )
 {
     hash_node_t * n;
@@ -125,7 +68,6 @@ hash_node_t *hash_node_remove_after( hash_node_t lst[] )
     return lst;
 }
 
-//--------------------------------------------------------------------------------------------
 hash_node_t *hash_node_remove( hash_node_t lst[] )
 {
     hash_node_t * n;
@@ -140,6 +82,7 @@ hash_node_t *hash_node_remove( hash_node_t lst[] )
     return n;
 }
 
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 size_t hash_list_count_nodes(hash_list_t *self)
 {
@@ -158,43 +101,6 @@ size_t hash_list_count_nodes(hash_list_t *self)
     return count;
 }
 
-//--------------------------------------------------------------------------------------------
-hash_list_t *hash_list_create(size_t initialCapacity)
-{
-    return new hash_list_t(initialCapacity);
-}
-
-//--------------------------------------------------------------------------------------------
-void hash_list_destroy(hash_list_t *self)
-{
-	EGOBOO_ASSERT(NULL != self);
-	delete self;
-}
-
-//--------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------
-/**
- * @brief
- *	Get the number of elements in a bucket of a hash list.
- * @param self
- *	the hash list
- * @param index
- *	the bucket index
- * @return
- *	the number of elements in the bucket of the specified index
- */
-size_t hash_list_get_count(hash_list_t *self, size_t index)
-{
-	if (NULL == self || NULL == self->subcount)
-	{
-		return 0;
-	}
-    return self->subcount[index];
-}
-
-//--------------------------------------------------------------------------------------------
 hash_node_t *hash_list_get_node(hash_list_t *self, size_t index)
 {
 	if (NULL == self || NULL == self->sublist)
@@ -204,7 +110,6 @@ hash_node_t *hash_list_get_node(hash_list_t *self, size_t index)
     return self->sublist[index];
 }
 
-//--------------------------------------------------------------------------------------------
 bool hash_list_set_count(hash_list_t *self, size_t index, size_t count)
 {
     if ( NULL == self || NULL == self->subcount ) return false;
@@ -216,7 +121,6 @@ bool hash_list_set_count(hash_list_t *self, size_t index, size_t count)
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
 bool hash_list_set_node(hash_list_t *self, size_t index, hash_node_t *node)
 {
 	if (NULL == self || NULL == self->sublist)
@@ -232,10 +136,8 @@ bool hash_list_set_node(hash_list_t *self, size_t index, hash_node_t *node)
 }
 
 //--------------------------------------------------------------------------------------------
-
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 hash_list_iterator_t *hash_list_iterator_t::ctor()
 {
 	this->hash = 0;
@@ -243,7 +145,6 @@ hash_list_iterator_t *hash_list_iterator_t::ctor()
     return this;
 }
 
-//--------------------------------------------------------------------------------------------
 bool hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst )
 {
 	if (nullptr == it) return false;
@@ -260,7 +161,6 @@ bool hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst
     return NULL != it->pnode;
 }
 
-//--------------------------------------------------------------------------------------------
 bool hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst )
 {
     if ( NULL == it || NULL == hlst ) return true;
@@ -271,7 +171,6 @@ bool hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst )
     return false;
 }
 
-//--------------------------------------------------------------------------------------------
 bool hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst )
 {
     int i, inext;
@@ -309,7 +208,6 @@ bool hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst )
     return NULL != it->pnode;
 }
 
-//--------------------------------------------------------------------------------------------
 void * hash_list_iterator_ptr( hash_list_iterator_t * it )
 {
     if ( NULL == it || NULL == it->pnode ) return NULL;

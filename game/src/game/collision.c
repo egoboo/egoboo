@@ -39,9 +39,7 @@ CollisionSystem *CollisionSystem::_singleton = nullptr;
 
 #define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
 
-#define CHR_MAX_COLLISIONS       (MAX_CHR*8 + MAX_PRT)
-#define COLLISION_HASH_NODES     (CHR_MAX_COLLISIONS*2)
-#define COLLISION_LIST_SIZE      256
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -93,6 +91,13 @@ struct chr_prt_collsion_data_t
     static chr_prt_collsion_data_t *init(chr_prt_collsion_data_t *);
 };
 
+static bool do_chr_prt_collision_deflect(chr_prt_collsion_data_t * pdata);
+static bool do_chr_prt_collision_recoil(chr_prt_collsion_data_t * pdata);
+static bool do_chr_prt_collision_damage(chr_prt_collsion_data_t * pdata);
+static bool do_chr_prt_collision_impulse(chr_prt_collsion_data_t * pdata);
+static bool do_chr_prt_collision_bump(chr_prt_collsion_data_t * pdata);
+static bool do_chr_prt_collision_handle_bump(chr_prt_collsion_data_t * pdata);
+
 //--------------------------------------------------------------------------------------------
 
 /// one element of the data for partitioning character and particle positions
@@ -108,19 +113,21 @@ struct bumplist_t
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool add_chr_chr_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, const CHR_REF ichr_b, Ego::DynamicArray<CoNode_t> *pcn_lst, Ego::DynamicArray<hash_node_t> *phn_lst);
-static bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, const PRT_REF iprt_b, Ego::DynamicArray<CoNode_t> * pcn_lst, Ego::DynamicArray<hash_node_t> *phn_lst);
+static bool add_chr_chr_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, const CHR_REF ichr_b, Ego::DynamicArray<CoNode_t> *pcn_lst, CollisionSystem::HashNodeAry& hashNodeAry);
+static bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, const PRT_REF iprt_b, Ego::DynamicArray<CoNode_t> * pcn_lst, CollisionSystem::HashNodeAry& hashNodeAry);
 
 static bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
-//static bool detect_chr_chr_interaction( const CHR_REF ichr_a, const CHR_REF ichr_b );
-//static bool detect_chr_prt_interaction( const CHR_REF ichr_a, const PRT_REF iprt_b );
+#if 0
+static bool detect_chr_chr_interaction( const CHR_REF ichr_a, const CHR_REF ichr_b );
+static bool detect_chr_prt_interaction( const CHR_REF ichr_a, const PRT_REF iprt_b );
+#endif
 
 static bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
-static bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t> *pcn_lst, Ego::DynamicArray<hash_node_t> *phn_lst );
+static bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry);
 static bool fill_bumplists();
 
 static bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary );
@@ -133,12 +140,7 @@ static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, f
 static bool do_chr_chr_collision( CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata );
-static bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata );
-static bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata );
-static bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata );
-static bool do_chr_prt_collision_impulse( chr_prt_collsion_data_t * pdata );
-static bool do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata );
-static bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata );
+
 static bool do_chr_prt_collision( CoNode_t * d );
 
 static bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata );
@@ -147,33 +149,16 @@ static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Obj
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 CollisionSystem::CollisionSystem() :
-    _hash(nullptr)
+    _hash(nullptr), _hn_ary_2(), _cn_ary_2()
 {
-    if (!_co_ary.ctor(CHR_MAX_COLLISIONS))
-    {
-        goto Fail;
-    }
-    if (!_hn_ary.ctor(COLLISION_HASH_NODES))
-    {
-        _co_ary.dtor();
-        goto Fail;
-    }
     if (!_coll_leaf_lst.ctor(COLLISION_LIST_SIZE))
     {
-        _hn_ary.dtor();
-        _co_ary.dtor();
         goto Fail;
     }
     if (!_coll_node_lst.ctor(COLLISION_LIST_SIZE))
     {
         _coll_leaf_lst.dtor();
-        _hn_ary.dtor();
-        _co_ary.dtor();
         goto Fail;
     }
     try
@@ -184,8 +169,6 @@ CollisionSystem::CollisionSystem() :
     {
         _coll_node_lst.dtor();
         _coll_leaf_lst.dtor();
-        _hn_ary.dtor();
-        _co_ary.dtor();
         goto Fail;
     }
     return;
@@ -195,13 +178,12 @@ Fail:
 
 CollisionSystem::~CollisionSystem()
 {
+    reset();
     if (_hash)
     {
         delete _hash;
         _hash = nullptr;
     }
-    _co_ary.dtor();
-    _hn_ary.dtor();
     _coll_leaf_lst.dtor();
     _coll_node_lst.dtor();
 }
@@ -242,11 +224,11 @@ void CollisionSystem::reset()
         log_warning("%s:%d: collision system not initialized - ignoring\n", __FILE__, __LINE__);
         return;
     }
-    // Fill the collision node array.
-    _co_ary.sz = CollisionSystem::_co_ary.cp;
+    // Reset the collision node magazine.
+    _cn_ary_2.reset();
 
-    // Fill the hash node array.
-    _hn_ary.sz = CollisionSystem::_hn_ary.cp;
+    // Reset the hash node magazine.
+    _hn_ary_2.reset();
 
     // Clear the collision hash.
     _hash->clear();
@@ -327,22 +309,7 @@ int CoNode_t::cmp(const CoNode_t *self, const CoNode_t *other)
     if (ftmp <= 0.0f) return -1;
     else if (ftmp >= 0.0f) return 1;
 
-    itmp = (signed)REF_TO_INT(self->chra) - (signed)REF_TO_INT(other->chra);
-    if (0 != itmp) return itmp;
-
-    itmp = (signed)REF_TO_INT(self->prta) - (signed)REF_TO_INT(other->prta);
-    if (0 != itmp) return itmp;
-
-    itmp = (signed)REF_TO_INT(self->chrb) - (signed)REF_TO_INT(other->chrb);
-    if (0 != itmp) return itmp;
-
-    itmp = (signed)REF_TO_INT(self->prtb) - (signed)REF_TO_INT(other->prtb);
-    if (0 != itmp) return itmp;
-
-    itmp = (signed)self->tileb            - (signed)other->tileb;
-    if (0 != itmp) return itmp;
-
-    return 0;
+    return CoNode_t::cmp_unique(self, other);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -393,18 +360,8 @@ int CoNode_t::matches(const CoNode_t *self, const CoNode_t *other)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if 0
-CoHashList_t *CoHashList_getInstance()
-{
-    /// @details allows access to a "private" CHashList singleton object. This will automatically
-    ///               initialze the _Colist_singleton and (almost) prevent anything from messing up
-    ///               the initialization.
-    return CollisionSystem::_CoHashList_ptr;
-}
-#endif
-
 //--------------------------------------------------------------------------------------------
-bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, Ego::DynamicArray<CoNode_t> *free_cdata, Ego::DynamicArray<hash_node_t> *free_hnodes)
+bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry)
 {
 	if (NULL == coHashList || NULL == data)
 	{
@@ -412,52 +369,58 @@ bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, Ego::Dyn
 	}
     // Compute the hash for this collision.
 	Uint32 hash = CoNode_t::generate_hash(data);
-
-    bool found = false;
+    if (hash >= coHashList->getCapacity())
+    {
+        throw std::runtime_error("hash out of bounds");
+    }
 	// Get the number of entries in this bucket.
-    size_t bucketSize = hash_list_get_count(coHashList,hash);
+    size_t bucketSize = hash_list_t::get_count(coHashList,hash);
     // If the bucket is not empty ...
 	if (bucketSize > 0)
     {
 		// ... search the bucket for an entry for this collision.
-		hash_node_t *node = hash_list_get_node(coHashList, hash);
-        for (size_t bucketIndex = 0; bucketIndex < bucketSize; ++bucketIndex)
+        for (hash_node_t *node = coHashList->sublist[hash]; nullptr != node; node = node->next)
         {
             if (CoNode_t::matches((CoNode_t *)(node->data), data))
             {
-                found = true;
-                break;
+                return false;
             }
-			node = node->next;
         }
     }
 
     // If no entry for this collision was found ...
-    if (!found)
     {
 		// ... add it:
         // Pick a free collision data ...
-        CoNode_t *cnode = free_cdata->pop_back();
+        CoNode_t *cnode = collNodeAry.acquire();
+        if (!cnode)
+        {
+            throw std::runtime_error("no more free collision nodes");
+        }
 		// ... and store the data in that.
 		*cnode = *data;
 
         // Generate a new hash node.
-		hash_node_t *tmp_hn = free_hnodes->pop_back();
+		hash_node_t *hnode = hashNodeAry.acquire();
+        if (!hnode)
+        {
+            throw std::runtime_error("no more free hash nodes");
+        }
 
         // link the hash node to the free CoNode
-        tmp_hn->data = cnode;
+        hnode->data = cnode;
 
         // insert the node at the front of the collision list for this hash
         hash_node_t *old_head = hash_list_get_node(coHashList, hash);
-        hash_node_t *new_head = hash_node_insert_before(old_head, tmp_hn);
+        hash_node_t *new_head = hash_node_insert_before(old_head, hnode);
         hash_list_set_node(coHashList, hash, new_head);
 
         // add 1 to the count at this hash
-        size_t old_count = hash_list_get_count(coHashList, hash);
+        size_t old_count = hash_list_t::get_count(coHashList, hash);
         hash_list_set_count(coHashList, hash, old_count + 1);
     }
 
-    return TO_C_BOOL( !found );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -669,6 +632,7 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool add_chr_chr_interaction(CoHashList_t *pchlst, const CHR_REF ichr_a, const CHR_REF ichr_b, Ego::DynamicArray<CoNode_t> *pcn_lst, Ego::DynamicArray<hash_node_t> *phn_lst)
 {
     Uint32 hashval = 0;
@@ -732,9 +696,11 @@ bool add_chr_chr_interaction(CoHashList_t *pchlst, const CHR_REF ichr_a, const C
 
     return TO_C_BOOL( !found );
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
-bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, const PRT_REF iprt_b, Ego::DynamicArray<CoNode_t> *pcn_lst, Ego::DynamicArray<hash_node_t> *phn_lst)
+#if 0
+bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, const PRT_REF iprt_b, Ego::DynamicArray<CoNode_t> *pcn_lst, CollisionSystem::HashNodeAry& hashNodeAry)
 {
     bool found;
     int    count;
@@ -780,8 +746,7 @@ bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, con
         d->prtb = iprt_b;
 
         // generate a new hash node
-        EGOBOO_ASSERT( phn_lst->size() < COLLISION_HASH_NODES );
-		n = phn_lst->pop_back();
+		n = hashNodeAry.acquire();
 
         hash_node_t::ctor( n, ( void* )d );
 
@@ -792,16 +757,17 @@ bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, con
 
     return TO_C_BOOL( !found );
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
-bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t> *cn_lst, Ego::DynamicArray<hash_node_t> *hn_lst)
+bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAry& collNodeAry, CollisionSystem::HashNodeAry& hashNodeAry)
 {
     int              cnt;
     int              reaffirmation_count;
     int              reaffirmation_list[DAMAGE_COUNT];
     aabb_t           tmp_aabb;
 
-    if ( NULL == coHashList || NULL == cn_lst || NULL == hn_lst ) return false;
+    if ( NULL == coHashList) return false;
 
     // Clear the collision hash.
 	coHashList->clear();
@@ -899,7 +865,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
                 if ( do_insert )
                 {
-					CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst);
+					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
                 }
             }
         }
@@ -953,7 +919,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
                 if ( do_insert )
                 {
-					CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst);
+					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
                 }
             }
         }
@@ -1099,7 +1065,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
                 if ( do_insert )
                 {
-					CoHashList_insert_unique(coHashList, &tmp_codata, cn_lst, hn_lst);
+					CoHashList_insert_unique(coHashList, &tmp_codata, collNodeAry, hashNodeAry);
                 }
             }
         }
@@ -1425,17 +1391,21 @@ void bump_all_objects()
 		return;
     }
 
-    // set up the collision node array
-    CollisionSystem::get()->_co_ary.sz = CollisionSystem::get()->_co_ary.cp;
-
-    // set up the hash node array
-    CollisionSystem::get()->_hn_ary.sz = CollisionSystem::get()->_hn_ary.cp;
-
+    // Reset the collision node magazine.
+    CollisionSystem::get()->_cn_ary_2.reset();
+#if 0
+    sz = CollisionSystem::get()->_co_ary.cp;
+#endif
+    // Reset the hash node magazine.
+    CollisionSystem::get()->_hn_ary_2.reset();
+#if 0
+    .sz = CollisionSystem::get()->_hn_ary.cp;
+#endif
     // fill up the BSP structures
     fill_bumplists();
 
     // use the BSP structures to detect possible binary interactions
-    fill_interaction_list(hash, &CollisionSystem::get()->_co_ary, &CollisionSystem::get()->_hn_ary);
+    fill_interaction_list(hash, CollisionSystem::get()->_cn_ary_2, CollisionSystem::get()->_hn_ary_2);
 
     // convert the CHashList_t into a CoNode_ary_t and sort
     co_node_count = hash->getSize();
