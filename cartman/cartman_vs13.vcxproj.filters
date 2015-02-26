@@ -48,9 +48,6 @@
     <ClCompile Include="src\cartman\SDL_PutPixel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\cartman\SDL_rotozoom.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\cartman\cartman_math.inl">
@@ -92,9 +89,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cartman\SDL_Pixel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\cartman\SDL_rotozoom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cartman\res\resource.h">

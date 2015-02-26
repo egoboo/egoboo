@@ -281,6 +281,9 @@
     <ClCompile Include="src\game\profiles\ProfileSystem.cpp">
       <Filter>Game Sources\Profile</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\gui\InternalDebugWindow.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -504,6 +507,9 @@
     </ClInclude>
     <ClInclude Include="src\game\profiles\ObjectProfile.hpp">
       <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\InternalDebugWindow.hpp">
+      <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
