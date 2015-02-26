@@ -337,7 +337,7 @@ void AudioSystem::loadAllMusic()
     {
         char songName[256];
         vfs_read_name(ctxt, songName, SDL_arraysize(songName));
-        std::string path = std::string("mp_data/music/") + songName;
+        std::string path = std::string("mp_data/music/") + songName + ".ogg";
         loadMusic(path.c_str());
     }
 

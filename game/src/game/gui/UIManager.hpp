@@ -48,6 +48,12 @@ public:
 
 	/**
 	* @return
+	*	The default debug Font for the GUI system
+	**/
+	Font* getDebugFont() const;
+
+	/**
+	* @return
 	*	Current screen resolution width
 	**/
 	int getScreenWidth() const;
@@ -79,6 +85,7 @@ public:
 private:
 	Font *_defaultFont;
 	Font *_floatingTextFont;
+	Font *_debugFont;
 	int _renderSemaphore;
 };
 

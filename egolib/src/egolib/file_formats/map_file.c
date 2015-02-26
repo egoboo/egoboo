@@ -131,7 +131,7 @@ bool map_init( map_t * pmesh, map_info_t * pinfo )
     // check the total number of vertices
     if ( loc_info.vertcount > MAP_VERTICES_MAX )
     {
-        log_warning( "%s - invalid mpd size. too many vertices, %d.\n", __FUNCTION__ , loc_info.vertcount );
+        log_warning( "%s - invalid mpd size. too many vertices, %" PRIuZ ".\n", __FUNCTION__ , loc_info.vertcount );
     }
 
     // allocate the mesh memory
@@ -208,7 +208,7 @@ bool map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo )
 
     if ( pinfo->vertcount > MAP_VERTICES_MAX )
     {
-        log_warning( "map_mem_alloc() - mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MAP_VERTICES_MAX );
+        log_warning( "map_mem_alloc() - mesh requires too much memory ( %" PRIuZ " requested, but max is %d ). \n", pinfo->vertcount, MAP_VERTICES_MAX );
         return false;
     }
 

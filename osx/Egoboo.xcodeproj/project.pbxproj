@@ -267,6 +267,7 @@
 		CDCA20081A3F5AE000002E76 /* compress.c in Sources */ = {isa = PBXBuildFile; fileRef = CDCA20061A3F5AE000002E76 /* compress.c */; };
 		CDCE212D1A6404770084D934 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDCE21291A6404770084D934 /* Camera.cpp */; };
 		CDCE212E1A6404770084D934 /* CameraSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDCE212B1A6404770084D934 /* CameraSystem.cpp */; };
+		CDD104F41A9FC38900EFF37D /* InternalDebugWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDD104F21A9FC38900EFF37D /* InternalDebugWindow.cpp */; };
 		CDD8806F1A44A8EF007177F3 /* bv.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD8806B1A44A8EF007177F3 /* bv.c */; };
 		CDD880701A44A8EF007177F3 /* matrix.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD8806D1A44A8EF007177F3 /* matrix.c */; };
 		CDD931A31A428D970004A8B2 /* cube.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319C1A428D970004A8B2 /* cube.c */; };
@@ -307,7 +308,6 @@
 		CDFE08591A3F69C6005395E7 /* cartman.c in Sources */ = {isa = PBXBuildFile; fileRef = CDFE08511A3F69C6005395E7 /* cartman.c */; };
 		CDFE085A1A3F69C6005395E7 /* SDL_GetPixel.c in Sources */ = {isa = PBXBuildFile; fileRef = CDFE08531A3F69C6005395E7 /* SDL_GetPixel.c */; };
 		CDFE085B1A3F69C6005395E7 /* SDL_PutPixel.c in Sources */ = {isa = PBXBuildFile; fileRef = CDFE08551A3F69C6005395E7 /* SDL_PutPixel.c */; };
-		CDFE085C1A3F69C6005395E7 /* SDL_rotozoom.c in Sources */ = {isa = PBXBuildFile; fileRef = CDFE08561A3F69C6005395E7 /* SDL_rotozoom.c */; };
 		CDFE085F1A3F6A8D005395E7 /* egomap.icns in Resources */ = {isa = PBXBuildFile; fileRef = CDFE085E1A3F6A8D005395E7 /* egomap.icns */; };
 		CDFE08601A3F6B39005395E7 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 275CAA8512ED608600CE4247 /* SDLMain.m */; };
 /* End PBXBuildFile section */
@@ -862,6 +862,8 @@
 		CDCE212A1A6404770084D934 /* Camera.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Camera.hpp; sourceTree = "<group>"; };
 		CDCE212B1A6404770084D934 /* CameraSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraSystem.cpp; sourceTree = "<group>"; };
 		CDCE212C1A6404770084D934 /* CameraSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CameraSystem.hpp; sourceTree = "<group>"; };
+		CDD104F21A9FC38900EFF37D /* InternalDebugWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InternalDebugWindow.cpp; sourceTree = "<group>"; };
+		CDD104F31A9FC38900EFF37D /* InternalDebugWindow.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = InternalDebugWindow.hpp; sourceTree = "<group>"; };
 		CDD8806B1A44A8EF007177F3 /* bv.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bv.c; sourceTree = "<group>"; };
 		CDD8806C1A44A8EF007177F3 /* bv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bv.h; sourceTree = "<group>"; };
 		CDD8806D1A44A8EF007177F3 /* matrix.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = matrix.c; sourceTree = "<group>"; };
@@ -917,8 +919,6 @@
 		CDFE08531A3F69C6005395E7 /* SDL_GetPixel.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = SDL_GetPixel.c; sourceTree = "<group>"; };
 		CDFE08541A3F69C6005395E7 /* SDL_Pixel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_Pixel.h; sourceTree = "<group>"; };
 		CDFE08551A3F69C6005395E7 /* SDL_PutPixel.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = SDL_PutPixel.c; sourceTree = "<group>"; };
-		CDFE08561A3F69C6005395E7 /* SDL_rotozoom.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = SDL_rotozoom.c; sourceTree = "<group>"; };
-		CDFE08571A3F69C6005395E7 /* SDL_rotozoom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_rotozoom.h; sourceTree = "<group>"; };
 		CDFE08581A3F69C6005395E7 /* standard.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = standard.inl; sourceTree = "<group>"; };
 		CDFE085E1A3F6A8D005395E7 /* egomap.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = egomap.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1257,18 +1257,23 @@
 		CD1329761A90130300D1B221 /* Profiles */ = {
 			isa = PBXGroup;
 			children = (
+				CD4803AE1A944228006DB980 /* _AbstractProfileSystem.hpp */,
 				CD1329771A90130300D1B221 /* _Include.hpp */,
 				CD406C7E1A96B15900465793 /* AbstractProfile.hpp */,
 				CD1329781A90130300D1B221 /* EnchantProfile.cpp */,
 				CD1329791A90130300D1B221 /* EnchantProfile.hpp */,
 				CD13297A1A90130300D1B221 /* EnchantProfileReader.cpp */,
 				CD13297B1A90130300D1B221 /* EnchantProfileReader.hpp */,
+				CD4803AF1A944228006DB980 /* EnchantProfileSystem.cpp */,
+				CD4803B01A944228006DB980 /* EnchantProfileSystem.hpp */,
 				CD13297C1A90130300D1B221 /* EnchantProfileWriter.cpp */,
 				CD13297D1A90130300D1B221 /* EnchantProfileWriter.hpp */,
 				CD13297E1A90130300D1B221 /* ParticleProfile.cpp */,
 				CD13297F1A90130300D1B221 /* ParticleProfile.hpp */,
 				CD1329801A90130300D1B221 /* ParticleProfileReader.cpp */,
 				CD1329811A90130300D1B221 /* ParticleProfileReader.hpp */,
+				CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */,
+				CD4803B41A944228006DB980 /* ParticleProfileSystem.hpp */,
 				CD1329821A90130300D1B221 /* ParticleProfileWriter.cpp */,
 				CD1329831A90130300D1B221 /* ParticleProfileWriter.hpp */,
 				CD1329841A90130300D1B221 /* RandomName.cpp */,
@@ -1596,6 +1601,8 @@
 				CD792C171A881FE20086270E /* Image.hpp */,
 				CD792C181A881FE20086270E /* InputListener.cpp */,
 				CD792C191A881FE20086270E /* InputListener.hpp */,
+				CDD104F21A9FC38900EFF37D /* InternalDebugWindow.cpp */,
+				CDD104F31A9FC38900EFF37D /* InternalDebugWindow.hpp */,
 				CD792C1A1A881FE20086270E /* Label.cpp */,
 				CD792C1B1A881FE20086270E /* Label.hpp */,
 				CD792C1C1A881FE20086270E /* ModuleSelector.cpp */,
@@ -1777,15 +1784,10 @@
 			isa = PBXGroup;
 			children = (
 				CDF3163B1A8F5B93009E6F33 /* _Include.hpp */,
-				CD4803AE1A944228006DB980 /* _AbstractProfileSystem.hpp */,
-				CD4803AF1A944228006DB980 /* EnchantProfileSystem.cpp */,
-				CD4803B01A944228006DB980 /* EnchantProfileSystem.hpp */,
 				CD792C311A88204E0086270E /* ModuleProfile.cpp */,
 				CD792C321A88204E0086270E /* ModuleProfile.hpp */,
 				CD4803B11A944228006DB980 /* ObjectProfile.cpp */,
 				CD4803B21A944228006DB980 /* ObjectProfile.hpp */,
-				CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */,
-				CD4803B41A944228006DB980 /* ParticleProfileSystem.hpp */,
 				CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */,
 				CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */,
 			);
@@ -1905,8 +1907,6 @@
 				CDFE08531A3F69C6005395E7 /* SDL_GetPixel.c */,
 				CDFE08541A3F69C6005395E7 /* SDL_Pixel.h */,
 				CDFE08551A3F69C6005395E7 /* SDL_PutPixel.c */,
-				CDFE08561A3F69C6005395E7 /* SDL_rotozoom.c */,
-				CDFE08571A3F69C6005395E7 /* SDL_rotozoom.h */,
 				CDFE08581A3F69C6005395E7 /* standard.inl */,
 			);
 			name = cartman;
@@ -2158,6 +2158,7 @@
 				CD39B46C1A37506100B377BE /* graphic_mad.c in Sources */,
 				CD792C2C1A881FE20086270E /* IconButton.cpp in Sources */,
 				CD39B4901A37506100B377BE /* renderer_3d.c in Sources */,
+				CDD104F41A9FC38900EFF37D /* InternalDebugWindow.cpp in Sources */,
 				CDF316391A8F5B80009E6F33 /* Particle.cpp in Sources */,
 				CD39B4921A37506100B377BE /* script_compile.c in Sources */,
 				CD792C2E1A881FE20086270E /* InputListener.cpp in Sources */,
@@ -2417,7 +2418,6 @@
 				CDFE085B1A3F69C6005395E7 /* SDL_PutPixel.c in Sources */,
 				CDFE084C1A3F6978005395E7 /* cartman_input.c in Sources */,
 				CDFE085A1A3F69C6005395E7 /* SDL_GetPixel.c in Sources */,
-				CDFE085C1A3F69C6005395E7 /* SDL_rotozoom.c in Sources */,
 				CDFE084A1A3F6978005395E7 /* cartman_gfx.c in Sources */,
 				CDFE084D1A3F6978005395E7 /* cartman_map.c in Sources */,
 				CDFE084E1A3F6978005395E7 /* cartman_math.c in Sources */,
@@ -2477,6 +2477,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Egoboo;
@@ -2488,6 +2490,8 @@
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Egoboo;
