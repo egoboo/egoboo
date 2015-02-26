@@ -26,6 +26,7 @@
 #include "game/gamestates/VictoryScreen.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/profiles/_Include.hpp"
+#include "game/gui/InternalDebugWindow.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/egoboo_setup.h"
 #include "game/game.h"
@@ -39,7 +40,19 @@
 
 PlayingState::PlayingState()
 {
-	//ctor
+	//For debug only
+	if(cfg.dev_mode)
+	{
+		std::shared_ptr<InternalDebugWindow> debugWindow = std::make_shared<InternalDebugWindow>("CurrentModule");
+		debugWindow->addWatchVariable("Passages", []{return std::to_string(PMod->getPassageCount());} );
+		debugWindow->addWatchVariable("ExportValid", []{return PMod->isExportValid() ? "true" : "false";} );
+		debugWindow->addWatchVariable("ModuleBeaten", []{return PMod->isBeaten() ? "true" : "false";} );
+		debugWindow->addWatchVariable("Players", []{return std::to_string(PMod->getPlayerAmount());} );
+		debugWindow->addWatchVariable("Imports", []{return std::to_string(PMod->getImportAmount());} );
+		debugWindow->addWatchVariable("Name", []{return PMod->getName();} );
+		debugWindow->addWatchVariable("Path", []{return PMod->getPath();} );
+		addComponent(debugWindow);		
+	}
 }
 
 PlayingState::~PlayingState()

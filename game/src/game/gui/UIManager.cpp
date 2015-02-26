@@ -30,17 +30,20 @@
 UIManager::UIManager() :
 	_defaultFont(nullptr),
     _floatingTextFont(nullptr),
+    _debugFont(nullptr),
 	_renderSemaphore(0)
 {
 	fnt_init();
 	_defaultFont = fnt_loadFont("mp_data/Bo_Chen.ttf", 24);
     _floatingTextFont = fnt_loadFont("mp_data/FrostysWinterland.ttf", 24);
+    _debugFont = fnt_loadFont("mp_data/DejaVuSansMono.ttf", 10);
 }
 
 UIManager::~UIManager()
 {
 	fnt_freeFont(_defaultFont);
     fnt_freeFont(_floatingTextFont);
+    fnt_freeFont(_debugFont);
 }
 
 void UIManager::beginRenderUI()
@@ -146,4 +149,9 @@ Font* UIManager::getDefaultFont() const
 Font* UIManager::getFloatingTextFont() const
 {
     return _floatingTextFont;
+}
+
+Font* UIManager::getDebugFont() const
+{
+    return _debugFont;
 }
