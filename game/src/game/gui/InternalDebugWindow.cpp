@@ -90,7 +90,7 @@ void InternalDebugWindow::draw()
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     //Draw window title first
-	Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
+	Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
     fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0x00}, xOffset, yOffset, "%s", _title.c_str());
     yOffset += textHeight + 5;
 

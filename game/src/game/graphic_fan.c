@@ -484,7 +484,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         GLboolean use_depth_mask = ( !water.light && ( 1.0f == falpha ) ) ? GL_TRUE : GL_FALSE;
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                                   // GL_DEPTH_BUFFER_BIT
 
         // only use the depth mask if the tile is NOT transparent

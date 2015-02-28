@@ -166,7 +166,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
         // Use the depth test to eliminate hidden portions of the particle
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LESS );                                   // GL_DEPTH_BUFFER_BIT
 
         // enable the depth mask for the solid portion of the particles
@@ -238,7 +238,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
         GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
         // draw draw front and back faces of polygons
@@ -383,7 +383,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
             GL_DEBUG( glDepthMask )( GL_FALSE );      // ENABLE_BIT
 
             // do not draw hidden surfaces
-			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+			Ego::Renderer::get().setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
@@ -397,7 +397,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
 
                 GL_DEBUG( glDisable )( GL_ALPHA_TEST );         // ENABLE_BIT
 
-                GL_DEBUG( glEnable )( GL_BLEND );               // ENABLE_BIT
+                Ego::Renderer::get().setBlendingEnabled(true);
                 GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
 
                 particle_color[RR] = intens;
@@ -424,7 +424,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 GL_DEBUG( glEnable )( GL_ALPHA_TEST );         // ENABLE_BIT
                 GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );      // GL_COLOR_BUFFER_BIT
 
-                GL_DEBUG( glEnable )( GL_BLEND );                                 // ENABLE_BIT
+                Ego::Renderer::get().setBlendingEnabled(true);
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
                 particle_color[RR] = pinst->fintens;
@@ -600,7 +600,7 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::getSingleton()->multiplyMatrix(pinst->matrix);
+	Ego::Renderer::get().multiplyMatrix(pinst->matrix);
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
         GL_DEBUG( glVertex3fv )( pinst->vrt_lst[vrt].pos );
@@ -1161,7 +1161,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
 
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
-			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
+			Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
 
             render_oct_bb( &loc_bb, true, true );
         }

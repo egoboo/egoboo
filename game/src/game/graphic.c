@@ -1519,32 +1519,31 @@ void gfx_system_end()
 //--------------------------------------------------------------------------------------------
 void gfx_system_uninit_OpenGL()
 {
-	TextureManager::shutDown();
-	Ego::Renderer::shutDown();
+	TextureManager::uninitialize();
+	Ego::Renderer::uninitialize();
 }
 
 //--------------------------------------------------------------------------------------------
 int gfx_system_init_OpenGL()
 {
 	// Start-up the renderer.
-	Ego::Renderer::startUp(); ///< @todo Add error handling.
+	Ego::Renderer::initialize(); ///< @todo Add error handling.
 	// Start-up the texture manager.
-	TextureManager::startUp(); ///< @todo Add error handling.
+	TextureManager::initialize(); ///< @todo Add error handling.
 
-    // GL_DEBUG(glClear)) stuff
-    GL_DEBUG( glClearColor )( 0.0f, 0.0f, 0.0f, 0.0f ); // Set the background black
+    // Set clear colour and clear depth.
+    Ego::Renderer::get().setClearColour(Ego::Math::Colour4f(0,0,0,0));
     GL_DEBUG( glClearDepth )( 1.0f );
 
     // depth buffer stuff
-    GL_DEBUG( glClearDepth )( 1.0f );
     GL_DEBUG( glDepthMask )( GL_TRUE );
 
     // do not draw hidden surfaces
-	Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+	Ego::Renderer::get().setDepthTestEnabled(true);
     GL_DEBUG( glDepthFunc )( GL_LESS );
 
-    // alpha stuff
-    GL_DEBUG( glDisable )( GL_BLEND );
+    // Disable blending.
+    Ego::Renderer::get().setBlendingEnabled(false);
 
     // do not display the completely transparent portion
     GL_DEBUG( glEnable )( GL_ALPHA_TEST );
@@ -2177,7 +2176,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     ticks = std::min( ticks, (Uint8)NUMTICK );
 
     gfx_enable_texturing();               // Enable texture mapping
-	Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
+	Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
 
     //---- Draw the tab (always colored)
 
@@ -2599,7 +2598,7 @@ void draw_map()
         GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
+		Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
         draw_map_texture( 0, sdl_scr.y - MAPSIZE );
 
         GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
@@ -3661,11 +3660,11 @@ gfx_rv render_scene_mesh_ndr( const renderlist_t * prlist )
         GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
         // no transparency
-        GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT
+        Ego::Renderer::get().setBlendingEnabled(false);
 
         // draw draw front and back faces of polygons
         oglx_end_culling();      // GL_ENABLE_BIT
@@ -3711,11 +3710,11 @@ gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist )
         GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
         // black out any backgound, but allow the background to show through any holes in the floor
-        GL_DEBUG( glEnable )( GL_BLEND );                              // GL_ENABLE_BIT
+        Ego::Renderer::get().setBlendingEnabled(true);
         // use the alpha channel to modulate the transparency
         GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );    // GL_COLOR_BUFFER_BIT
 
@@ -3782,7 +3781,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
         GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         // surfaces must be closer to the camera to be drawn
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
 
@@ -3797,7 +3796,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
                 oglx_begin_culling( GL_BACK, MAP_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
                 // allow transparent objects
-                GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT
+                Ego::Renderer::get().setBlendingEnabled(true);
                 // use the alpha channel to modulate the transparency
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
@@ -3806,7 +3805,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-					Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
+					Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
 
                     if ( gfx_error == render_one_mad_ref( pcam, ichr ) )
                     {
@@ -3823,7 +3822,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 // render_one_prt_ref() actually sets its own blend function, but just to be safe
                 // allow transparent objects
-                GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT
+                Ego::Renderer::get().setBlendingEnabled(true);
                 // set the default particle blending
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
@@ -3832,7 +3831,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-					Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
+					Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
 
                     if ( gfx_error == render_one_prt_ref( iprt ) )
                     {
@@ -3871,14 +3870,14 @@ gfx_rv render_scene_mesh_ref_chr( const renderlist_t * prlist )
         // set the depth of these tiles
         GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT
 
-        GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
+        Ego::Renderer::get().setBlendingEnabled(true);
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
 
         // draw draw front and back faces of polygons
         oglx_end_culling();                // GL_ENABLE_BIT
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
@@ -3917,7 +3916,7 @@ gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist )
         oglx_end_culling();                // GL_ENABLE_BIT
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true); // GL_ENABLE_BIT
+		Ego::Renderer::get().setDepthTestEnabled(true); // GL_ENABLE_BIT
 
         // store the surface depth
         GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT
@@ -3966,9 +3965,8 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
     GL_DEBUG( glDepthMask )( GL_FALSE );
 
     // do not draw hidden surfaces
-	Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
-
-    GL_DEBUG( glEnable )( GL_BLEND );
+	Ego::Renderer::get().setScissorTestEnabled(true);
+    Ego::Renderer::get().setBlendingEnabled(true);
     GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
 
     // keep track of the number of shadows actually rendered
@@ -4145,7 +4143,7 @@ gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
             GL_DEBUG( glDepthMask )( GL_TRUE );                     // GL_ENABLE_BIT
 
             // do not draw hidden surfaces
-			Ego::Renderer::getSingleton()->setDepthTestEnabled(true); // GL_ENABLE_BIT
+			Ego::Renderer::get().setDepthTestEnabled(true); // GL_ENABLE_BIT
             GL_DEBUG( glDepthFunc )( GL_LESS );                       // GL_DEPTH_BUFFER_BIT
 
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
@@ -4207,7 +4205,7 @@ gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
         GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true); // GL_ENABLE_BIT
+        Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                     // GL_DEPTH_BUFFER_BIT
 
         // Now render all transparent and light objects
@@ -4479,7 +4477,7 @@ gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF textu
         GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
 
         // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
 
         // draw draw front and back faces of polygons
@@ -4631,7 +4629,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
             GL_DEBUG( glDepthMask )( GL_FALSE );                             // GL_DEPTH_BUFFER_BIT
 
             // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
-			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+			Ego::Renderer::get().setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_ALWAYS );                            // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons

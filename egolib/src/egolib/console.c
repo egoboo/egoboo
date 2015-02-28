@@ -318,7 +318,7 @@ void egolib_console_draw_begin( void )
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
-	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
+	Ego::Renderer::get().setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
     oglx_end_culling();                                         // GL_ENABLE_BIT
@@ -415,7 +415,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
         GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, ( GLuint )( ~0 ) );
 
         // clip the viewport
-		Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
+		Ego::Renderer::get().setScissorTestEnabled(true);
         GL_DEBUG( glScissor )( pwin->x, surf->h - ( pwin->y + pwin->h ), pwin->w, pwin->h );
 
         height = pwin->h;

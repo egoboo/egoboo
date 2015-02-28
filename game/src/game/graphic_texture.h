@@ -72,12 +72,59 @@ enum e_global_tx_type
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-
-
-#define VALID_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<TX_COUNT) )
-struct TextureManager : public _List<oglx_texture_t *, TX_COUNT>
+inline bool VALID_TX_RANGE(const TX_REF ref)
 {
-	TextureManager();
+    return ref >= 0 && ref < TX_COUNT;
+}
+
+struct TextureManager
+{
+protected:
+    /**
+     * @brief
+     *  The texture manager singleton.
+     */
+    static TextureManager *_singleton;
+
+    /**
+     * @brief
+     *  The list of texture objects.
+     */
+    oglx_texture_t *_lst[TX_COUNT];
+
+    /**
+     * @brief
+     *  The set of free texture references.
+     */
+    std::unordered_set<TX_REF> _free;
+
+    /**
+     * @brief
+     *  Construct this texture manager.
+     * @remark
+     *  Intentionally protected.
+     */
+    TextureManager();
+
+    /**
+     * @brief
+     *  Destruct this texture manager.
+     * @remark
+     *  Intentionally protected.
+     */
+    virtual ~TextureManager();
+
+    /**
+     * @brief
+     *  Mark all textures as free.
+     */
+    void freeAll();
+
+public:
+
+    //Disable copying class
+    TextureManager(const TextureManager& copy) = delete;
+    TextureManager& operator=(const TextureManager&) = delete;
 
 	/**
 	 * @brief
@@ -85,9 +132,9 @@ struct TextureManager : public _List<oglx_texture_t *, TX_COUNT>
 	 * @return
 	 *	the texture manager
 	 * @pre
-	 *	The texture manager must be started up.
+	 *	The texture manager must be initialized.
 	 * @warning
-	 *	Shutting-down the texture manager will invalidate any pointers returned by calls to this method prior to shut-down.
+	 *	Uninitializing the texture manager will invalidate any pointers returned by calls to this method prior to uninitialization.
 	 */
 	static TextureManager *getSingleton();
 	
@@ -95,38 +142,39 @@ struct TextureManager : public _List<oglx_texture_t *, TX_COUNT>
 	 * @brief
 	 *	Start-up the texture manager.
 	 * @remark
-	 *	If the texture manager is started-up, a call to this method is a no-op.
+	 *	If the texture manager is initialized, a call to this method is a no-op.
 	 */
-	static void startUp();
+	static void initialize();
+
 	/**
 	 * @brief
-	 *	Shut-down the texture manager.
+	 *	Uninitialize the texture manager.
 	 * @remark
-	 *	If the texture manager is not started-up, a call to this method is a no-op.
+	 *	If the texture manager is not initialized, a call to this method is a no-op.
 	 */
-	static void shutDown();
+	static void uninitialize();
 
 	/**
 	 * @brief
-	 *	Acquire a texture index.
-	 * @param itex
-	 *	if this is the index of an existing texture, that texture is acquired
+	 *	Acquire a texture reference.
+	 * @param ref
+     *  if not equal to #INVALID_TX_REF, this texture reference is acquired
 	 * @return
-	 *	the texture index on success, #INVALID_TX_REF on failure
-	 *
+	 *	the texture reference on success, #INVALID_TX_REF on failure
 	 */
-	TX_REF acquire(const TX_REF itex);
-	/**
-	 * @brief
-	 *	Relinquish texture index.
-	 * @param itex
-	 *	the texture index
-	 */
-	bool relinquish(const TX_REF itex);
+	TX_REF acquire(const TX_REF ref);
 
 	/**
 	 * @brief
-	 *	Reload all textures.
+	 *	Relinquish texture reference.
+	 * @param ref
+	 *	the texture reference
+	 */
+	bool relinquish(const TX_REF ref);
+
+	/**
+	 * @brief
+	 *	Reload all textures from their surfaces.
 	 */
 	void reload_all();
 	/**
@@ -135,9 +183,7 @@ struct TextureManager : public _List<oglx_texture_t *, TX_COUNT>
 	 */
 	void release_all();
 
-	TX_REF load(const char *filename, const TX_REF  itex_src, Uint32 key);
-	oglx_texture_t *get_valid_ptr(const TX_REF itex);
+	TX_REF load(const char *filename, const TX_REF ref, Uint32 key);
+	oglx_texture_t *get_valid_ptr(const TX_REF ref);
 
-private:
-	void reset_freelist();
 };

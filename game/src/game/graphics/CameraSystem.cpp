@@ -215,7 +215,7 @@ void CameraSystem::endCameraMode( GLint mode )
     glViewport( 0, 0, sdl_scr.x, sdl_scr.y );
 
     // turn off the scissor mode
-	Ego::Renderer::getSingleton()->setScissorTestEnabled(false);
+	Ego::Renderer::get().setScissorTestEnabled(false);
 
     // return the matrix mode to whatever it was before
     glMatrixMode( mode );
@@ -231,7 +231,7 @@ GLint CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, &mode );
 
     // scissor the output to the this area
-	Ego::Renderer::getSingleton()->setScissorTestEnabled(true);
+	Ego::Renderer::get().setScissorTestEnabled(true);
     GL_DEBUG( glScissor )( camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin );
 
     // set the viewport

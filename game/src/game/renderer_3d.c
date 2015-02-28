@@ -41,11 +41,11 @@ void gfx_begin_3d(std::shared_ptr<Camera> camera)
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::getSingleton()->loadMatrix(camera->getProjection());
+	Ego::Renderer::get().loadMatrix(camera->getProjection());
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::getSingleton()->loadMatrix(camera->getView());
+	Ego::Renderer::get().loadMatrix(camera->getView());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ void line_list_draw_all( std::shared_ptr<Camera> pcam )
             GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+			Ego::Renderer::get().setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
@@ -281,13 +281,13 @@ void point_list_draw_all( std::shared_ptr<Camera> pcam )
             GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-			Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+			Ego::Renderer::get().setDepthTestEnabled(true);
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
             oglx_end_culling();   // GL_ENABLE_BIT
 
-            GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(false);
 
             // we do not want texture mapped points
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
@@ -412,7 +412,7 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
         GL_DEBUG( glDepthMask )( GL_FALSE );
 
         // do not draw hidden surfaces
-		Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+		Ego::Renderer::get().setDepthTestEnabled(true);
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );
 
         // fix the poorly chosen normals...
@@ -433,7 +433,7 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
             float p1_x, p1_y;
             float p2_x, p2_y;
 
-			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f(0.5,1,1,1));
+			Ego::Renderer::get().setColour(Ego::Math::Colour4f(0.5,1,1,1));
 
             p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
             p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
@@ -490,7 +490,7 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
         // SQUARE BBOX
         if ( draw_square )
         {
-			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f(1,0.5,1,1));
+			Ego::Renderer::get().setColour(Ego::Math::Colour4f(1,0.5,1,1));
 
             // XZ FACE, min Y
             GL_DEBUG( glBegin )( GL_QUADS );

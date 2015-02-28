@@ -108,7 +108,7 @@ void gfx_system_begin()
 {
     // set the graphics state
     gfx_system_init_SDL_graphics();
-    Ego::Renderer::startUp();
+    Ego::Renderer::initialize();
     gfx_init_ogl();
 
     theSurface = SDL_GetVideoSurface();
@@ -119,7 +119,7 @@ void gfx_system_begin()
 //--------------------------------------------------------------------------------------------
 void gfx_system_end()
 {
-    Ego::Renderer::shutDown();
+    Ego::Renderer::uninitialize();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -972,11 +972,11 @@ void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[]
 void ogl_beginFrame()
 {
     glPushAttrib( GL_ENABLE_BIT );
-	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
+	Ego::Renderer::get().setDepthTestEnabled(false);
     glDisable( GL_CULL_FACE );
     glEnable( GL_TEXTURE_2D );
 
-    glEnable( GL_BLEND );
+    Ego::Renderer::get().setBlendingEnabled(true);
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
     glViewport( 0, 0, theSurface->w, theSurface->h );
@@ -1485,7 +1485,7 @@ int gfx_init_ogl()
     gfx_system_init_SDL_graphics();
 
     // GL_DEBUG(glClear)) stuff
-    GL_DEBUG( glClearColor )( 0.0f, 0.0f, 0.0f, 0.0f ); // Set the background black
+    Ego::Renderer::get().setClearColour(Ego::Math::Colour4f(0, 0, 0, 0)); // Set black/transparent background.
     GL_DEBUG( glClearDepth )( 1.0f );
 
     // depth buffer stuff
@@ -1493,7 +1493,7 @@ int gfx_init_ogl()
     GL_DEBUG( glDepthMask )( GL_TRUE );
 
     // do not draw hidden surfaces
-	Ego::Renderer::getSingleton()->setDepthTestEnabled(true);
+	Ego::Renderer::get().setDepthTestEnabled(true);
     GL_DEBUG( glDepthFunc )( GL_LESS );
 
     // alpha stuff

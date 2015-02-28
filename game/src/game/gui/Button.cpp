@@ -79,7 +79,7 @@ void Button::draw()
         int textWidth, textHeight;
         fnt_getTextSize(_gameEngine->getUIManager()->getDefaultFont(), _buttonText.c_str(), &textWidth, &textHeight);
 
-		Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
+		Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
         fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX() + (getWidth()-textWidth)/2, getY() + (getHeight()-textHeight)/2, "%s", _buttonText.c_str());        
     }
 }

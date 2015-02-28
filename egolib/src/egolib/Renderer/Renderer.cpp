@@ -37,10 +37,14 @@ namespace Ego
 		}
 	}
 
-	Renderer *Renderer::getSingleton()
+	Renderer &Renderer::get()
 	{
+        if (!singleton)
+        {
+            throw std::runtime_error("renderer not initialized");
+        }
 		EGOBOO_ASSERT(nullptr != singleton);
-		return singleton;
+		return *singleton;
 	}
 
 	void Renderer::uninitialize()

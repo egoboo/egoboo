@@ -58,7 +58,7 @@ void UIManager::beginRenderUI()
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
-	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
+	Ego::Renderer::get().setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
     oglx_end_culling();                                     				   // GL_ENABLE_BIT
@@ -66,7 +66,7 @@ void UIManager::beginRenderUI()
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                     // GL_ENABLE_BIT
 
     // use normal alpha blending
-    GL_DEBUG( glEnable )( GL_BLEND );                                          // GL_ENABLE_BIT
+    Ego::Renderer::get().setBlendingEnabled(true);
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );           // GL_COLOR_BUFFER_BIT
 
     // do not display the completely transparent portion
@@ -85,7 +85,7 @@ void UIManager::beginRenderUI()
 
 	fmat_4x4_t projection;
 	projection.setOrtho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
-	Ego::Renderer::getSingleton()->loadMatrix(projection);
+	Ego::Renderer::get().loadMatrix(projection);
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );

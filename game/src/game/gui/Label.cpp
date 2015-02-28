@@ -10,7 +10,7 @@ Label::Label(const std::string &text) :
 void Label::draw()
 {
     //Draw text
-	Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
+	Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
     fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX(), getY(), getWidth(), getHeight(), 25, nullptr, "%s", _text.c_str());
 }
 

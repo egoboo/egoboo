@@ -164,7 +164,7 @@ namespace Ego
 		 * @warning
 		 *	Uninitializing the renderer will invalidate any references returned by calls to this method prior to uninitialization.
 		 */
-		static Renderer *getSingleton();
+		static Renderer& get();
 
 		/**
 		 * @brief

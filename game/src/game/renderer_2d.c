@@ -278,7 +278,7 @@ void gfx_begin_2d()
 	         use Egoboo_Renderer_OpenGL_loadMatrix to load the matrix. */
 	fmat_4x4_t projection;
 	projection.setOrtho(0.0, sdl_scr.x, sdl_scr.y, 0.0, -1.0f, +1.0f);
-	Ego::Renderer::getSingleton()->loadMatrix(projection);
+	Ego::Renderer::get().loadMatrix(projection);
 #if 0
 	GL_DEBUG( glLoadIdentity )();
     GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
@@ -286,15 +286,15 @@ void gfx_begin_2d()
     // Reset the Modelview Matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::getSingleton()->loadMatrix(fmat_4x4_t::identity);
+	Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity);
 #if 0
     GL_DEBUG( glLoadIdentity )();
 #endif
     // remove any scissor test
-	Ego::Renderer::getSingleton()->setScissorTestEnabled(false);
+	Ego::Renderer::get().setScissorTestEnabled(false);
 
     // don't worry about hidden surfaces
-	Ego::Renderer::getSingleton()->setScissorTestEnabled(false);
+	Ego::Renderer::get().setScissorTestEnabled(false);
 
     // stop culling backward facing polygons
     oglx_end_culling();                            // GL_ENABLE_BIT
@@ -337,12 +337,12 @@ void gfx_begin_text()
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
     // don't worry about hidden surfaces
-	Ego::Renderer::getSingleton()->setDepthTestEnabled(false);
+	Ego::Renderer::get().setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
     oglx_end_culling();                                                  // GL_ENABLE_BIT
 
-	Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);// GL_CURRENT_BIT
+	Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);// GL_CURRENT_BIT
 }
 
 //--------------------------------------------------------------------------------------------
@@ -399,7 +399,7 @@ void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_fre
             oglx_texture_bind( tex );
         }
 
-		Ego::Renderer::getSingleton()->setColour(tint);
+		Ego::Renderer::get().setColour(tint);
 
         if ( use_alpha )
         {
