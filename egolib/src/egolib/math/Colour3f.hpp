@@ -61,6 +61,24 @@ namespace Ego {
 			 */
 			static const Colour3f BLACK;
 
+            /**
+             * @brief The colour "cyan" (0,255,255).
+             * @remark This is the complementary colour of red.
+             */
+            static const Colour3f CYAN;
+
+            /**
+             * @brief The colour "magenta" (255,0,255).
+             * @remark This is the complementary colour of green. 
+             */
+            static const Colour3f MAGENTA;
+
+            /**
+             * @brief The colour "yellow" (255,255,0).
+             * @remark This is the complementary colour of yellow.
+             */
+            static const Colour3f YELLOW;
+
 		private:
 
 			/**

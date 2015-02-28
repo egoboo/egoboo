@@ -54,23 +54,29 @@ namespace Ego
 		public:
 			virtual ~Renderer();
 
+            /** @copydoc Ego::Renderer::setClearColour */
+            virtual void setClearColour(const Colour4f& colour) override;
+
+            /** @copydoc Ego::Renderer::setBlendingEnabled */
+            virtual void setBlendingEnabled(bool enabled) override;
+
 			/** @copydoc Ego::Renderer::multMatrix */
-			void multiplyMatrix(const fmat_4x4_t& matrix);
+			virtual void multiplyMatrix(const fmat_4x4_t& matrix) override;
 
 			/** @copydoc Ego::Renderer::loadMatrix */
-			void loadMatrix(const fmat_4x4_t& matrix);
+            virtual void loadMatrix(const fmat_4x4_t& matrix) override;
 
 			/** @copydoc Ego::Renderer::setColour */
-			virtual void setColour(const Colour4f& colour);
+            virtual void setColour(const Colour4f& colour) override;
 
 			/** @copydoc Ego::Renderer::setDepthTestEnabled */
-			virtual void setDepthTestEnabled(bool enabled);
+            virtual void setDepthTestEnabled(bool enabled) override;
 
 			/** @copydoc Ego::Renderer::setStencilTestEnabled */
-			virtual void setStencilTestEnabled(bool enabled);
+            virtual void setStencilTestEnabled(bool enabled) override;
 
 			/** @copydoc Ego::Renderer::setScissorTestEnabled */
-			virtual void setScissorTestEnabled(bool enabled);
+            virtual void setScissorTestEnabled(bool enabled) override;
 		};
 	};
 

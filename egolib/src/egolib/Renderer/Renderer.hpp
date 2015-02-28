@@ -74,6 +74,18 @@ namespace Ego
 
 	public:
 
+        //Disable copying class
+        Renderer(const Renderer& copy) = delete;
+        Renderer& operator=(const Renderer&) = delete;
+
+        /**
+         * @brief
+         *  Set the clear colour.
+         * @param colour
+         *  the clear colour
+         */
+        virtual void setClearColour(const Colour4f& colour) = 0;
+
 		/**
 		 * @brief
 		 *	Set the current colour.
@@ -81,6 +93,15 @@ namespace Ego
 		 *	the current colour
 		 */
 		virtual void setColour(const Colour4f& colour) = 0;
+
+        /**
+         * @brief
+         *  Enable/disable blending.
+         * @param enabled
+         *  @a true enables blending,
+         *  @a false disables it
+         */
+        virtual void setBlendingEnabled(bool enabled) = 0;
 
 		/**
 		 * @brief
@@ -129,9 +150,9 @@ namespace Ego
 		 * @brief
 		 *	Start-up the renderer.
 		 * @remark
-		 *	If the renderer is started-up, a call to this method is a no-op.
+		 *	If the renderer is initialized, a call to this method is a no-op.
 		 */
-		static void startUp();
+		static void initialize();
 
 		/**
 		 * @brief
@@ -139,9 +160,9 @@ namespace Ego
 		 * @return
 		 *	the renderer
 		 * @pre
-		 *	The renderer must be started-up.
+		 *	The renderer must be initialized.
 		 * @warning
-		 *	Shutting-down the renderer will invalidate any pointers returned by calls to this method prior to shut-down.
+		 *	Uninitializing the renderer will invalidate any references returned by calls to this method prior to uninitialization.
 		 */
 		static Renderer *getSingleton();
 
@@ -149,8 +170,8 @@ namespace Ego
 		 * @brief
 		 *	Shut-down the renderer.
 		 * @remark
-		 *	If the renderer is not started-up, a calll to this method is a no-op.
+		 *	If the renderer is not initialized, a calll to this method is a no-op.
 		 */
-		static void shutDown();
+		static void uninitialize();
 	};
 };

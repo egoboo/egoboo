@@ -22,12 +22,17 @@
 
 #include "egolib/math/Colour3f.hpp"
 
-namespace Ego {
-	namespace Math {
-		const Colour3f Colour3f::RED = Colour3f(1.0f, 0.0f, 0.0f);
-		const Colour3f Colour3f::GREEN = Colour3f(0.0f, 1.0f, 0.0f);
-		const Colour3f Colour3f::BLUE = Colour3f(0.0f, 0.0f, 1.0f);
-		const Colour3f Colour3f::WHITE = Colour3f(1.0f, 1.0f, 1.0f);
-		const Colour3f Colour3f::BLACK = Colour3f(0.0f, 0.0f, 0.0f);
+namespace Ego
+{
+	namespace Math
+    {
+		const Colour3f Colour3f::RED(1.0f, 0.0f, 0.0f);
+		const Colour3f Colour3f::GREEN(0.0f, 1.0f, 0.0f);
+		const Colour3f Colour3f::BLUE(0.0f, 0.0f, 1.0f);
+		const Colour3f Colour3f::WHITE(1.0f, 1.0f, 1.0f);
+		const Colour3f Colour3f::BLACK(0.0f, 0.0f, 0.0f);
+        const Colour3f Colour3f::CYAN(0.0f,1.0f,1.0f);
+        const Colour3f Colour3f::MAGENTA(1.0f, 0.0f, 1.0f);
+        const Colour3f Colour3f::YELLOW(1.0f, 1.0f, 0.0f);
 	};
 };

@@ -29,7 +29,7 @@ namespace Ego
 
 	Renderer *Renderer::singleton = nullptr;
 
-	void Renderer::startUp()
+	void Renderer::initialize()
 	{
 		if (!singleton)
 		{
@@ -43,7 +43,7 @@ namespace Ego
 		return singleton;
 	}
 
-	void Renderer::shutDown()
+	void Renderer::uninitialize()
 	{
 		if (singleton)
 		{

@@ -32,6 +32,23 @@ namespace Ego
 			//dtor
 		}
 
+        void Renderer::setClearColour(const Colour4f& colour)
+        {
+            glClearColor(colour.getRed(), colour.getGreen(), colour.getBlue(), colour.getAlpha());
+        }
+
+        void Renderer::setBlendingEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                glEnable(GL_BLEND);
+            }
+            else
+            {
+                glDisable(GL_BLEND);
+            }
+        }
+
 		void Renderer::multiplyMatrix(const fmat_4x4_t& matrix)
 		{
 			// fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed

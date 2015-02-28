@@ -1,17 +1,24 @@
 
-/// @file    egolib/math/DynamicVector.hpp
+/// @file    egolib/math/Vector.hpp
 /// @brief   Vectors with compile-time dimensionality.
-/// @details The efficiency of this template depends on the optimization capabilities of your compiler (in particular, loop unrolling).
-/// @todo    Rename to <tt>egolib/math/CTVector.hpp</tt>.
-/// @todo    Rename to <tt>Ego::Math::CTVector</tt>.
+/// @details The efficiency of this template depends on the optimization capabilities of your compiler
+///          (in particular, loop unrolling).
+/// @author  Michael Heilmann
 #pragma once
 
-namespace Ego {
-	namespace Math {
+namespace Ego
+{
+	namespace Math
+    {
 		template <typename Type, size_t Dimensionality>
-		struct Vector {
-			static_assert(Dimensionality > 0);
-			private Type components[Dimensionality];
+		struct Vector
+        {
+        private:
+            static_assert(std::is_floating_point<Type>::value, "Type must be a floating point type");
+            static_assert(std::integral_constant<size_t, Dimensionality>::value > 0, "Dimensionality must be positive");
+
+        public:
+			Type components[Dimensionality];
 			
 			Vector()
 			{

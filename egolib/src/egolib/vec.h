@@ -52,7 +52,8 @@ struct fvec2_t
 
 	const static fvec2_t zero;
 
-	fvec2_t() : x(), y()
+	fvec2_t() :
+        x(), y()
 	{
 	}
 
@@ -76,8 +77,8 @@ struct fvec2_t
 	 */
 	float dot(const fvec2_t& other) const
 	{
-		return this->v[kX] * other.v[kX]
-			 + this->v[kY] * other.v[kY]
+		return v[kX] * other.v[kX]
+			 + v[kY] * other.v[kY]
 			 ;
 	}
 
@@ -91,8 +92,8 @@ struct fvec2_t
 	 */
 	void multiply(float scalar)
 	{
-		this->v[kX] *= scalar;
-		this->v[kY] *= scalar;
+		v[kX] *= scalar;
+		v[kY] *= scalar;
 	}
 
 	/**
@@ -142,30 +143,30 @@ struct fvec2_t
 	 */
 	bool equals(const fvec2_t& other) const
 	{
-		return this->x == other.x
-			&& this->y == other.y;
+		return x == other.x
+			&& y == other.y;
 	}
 
 	/**
 	 * @brief
-	 *	Get the squared length of this vector
-	 *	(using the Euclidian metric).
+	 *  Get the squared length of this vector
+	 *  (using the Euclidian metric).
 	 * @return
 	 *	the squared length of this vector
 	 */
 	float length_2() const
 	{
-		return this->v[kX] * this->v[kX]
-	 		 + this->v[kY] * this->v[kY]
+		return v[kX] * v[kX]
+             + v[kY] * v[kY]
 			 ;
 	}
 
 	/**
 	 * @brief
-	 *	Get the length of this vector
-	 *	(using the Euclidian metric).
+	 *  Get the length of this vector
+	 *  (using the Euclidian metric).
 	 * @return
-	 *	the length of this vector
+	 *  the length of this vector
 	 */
 	float length() const
 	{
@@ -174,15 +175,28 @@ struct fvec2_t
 
 	/**
 	 * @brief
-	 *	Get the length of this vector
-	 *	(using the taxicab metric).
+	 *  Get the length of this vector
+	 *  (using the Manhattan metric).
 	 * @return
-	 *	the length of this vector
+	 *  the length of this vector
 	 */
 	float length_abs() const
 	{
-		return std::abs(this->v[kX]) + std::abs(this->v[kY]);
+		return std::abs(v[kX])
+             + std::abs(v[kY]);
 	}
+
+    /**
+     * @brief
+     *  Get the length of this vector
+     *  (using the Maximum metric).
+     * @return
+     *  the length of this vector
+     */
+    float length_max() const
+    {
+        return std::max({std::abs(v[kX]),std::abs(v[kY])});
+    }
 
 	const fvec2_t& operator=(const fvec2_t& other)
 	{
@@ -231,7 +245,7 @@ struct fvec2_t
 #ifdef _DEBUG
 		EGOBOO_ASSERT(index < 2);
 #endif
-		return this->v[index];
+		return v[index];
 	}
 
 	const float &operator[](size_t const& index) const
@@ -239,7 +253,7 @@ struct fvec2_t
 #ifdef _DEBUG
 		EGOBOO_ASSERT(index < 2);
 #endif
-		return this->v[index];
+		return v[index];
 	}
 
 };
@@ -271,7 +285,8 @@ struct fvec3_t
 
 	const static fvec3_t zero;
 
-	fvec3_t() : x(), y(), z()
+	fvec3_t() :
+        x(), y(), z()
 	{
 	}
 
@@ -385,10 +400,12 @@ struct fvec3_t
 	 */
 	float dot(const fvec3_t& other) const
 	{
-		return this->v[kX] * other.v[kX]
-			 + this->v[kY] * other.v[kY]
-			 + this->v[kZ] * other.v[kZ]
-			 ;
+        float dot = v[0] * other.v[0];
+        for (size_t i = 1; i < 3; ++i)
+        {
+            dot += v[i] * other.v[i];
+        }
+        return dot;
 	}
 
 	/**
@@ -401,9 +418,10 @@ struct fvec3_t
 	 */
 	void multiply(float scalar)
 	{
-		this->v[kX] *= scalar;
-		this->v[kY] *= scalar;
-		this->v[kZ] *= scalar;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            v[i] *= scalar;
+        }
 	}
 
 	/**
@@ -453,31 +471,39 @@ struct fvec3_t
 	 */
 	bool equals(const fvec3_t& other) const
 	{
-		return this->x == other.x
-			&& this->y == other.y
-			&& this->z == other.z;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            if (v[i] != other.v[i])
+            {
+                return false;
+            }
+        }
+        return true;
 	}
 
 	/**
  	 * @brief
-	 *	Get the squared length of this vector
-	 *	(using the Euclidian metric).
+	 *  Get the squared length of this vector
+	 *  (using the Euclidian metric).
 	 * @return
-	 *	the squared length of this vector
+	 *  the squared length of this vector
 	 */
 	float length_2() const
 	{
-		return this->v[kX] * this->v[kX]
-			 + this->v[kY] * this->v[kY]
-			 + this->v[kZ] * this->v[kZ];
+        float length = v[0] * v[0];
+        for (size_t i = 1; i < 3; ++i)
+        {
+            length += v[i] * v[i];
+        }
+        return length;
 	}
 
 	/**
 	 * @brief
-	 *	Get the length of this vector
-	 *	(using the Euclidian metric).
+	 *  Get the length of this vector
+	 *  (using the Euclidian metric).
 	 * @return
-	 *	the length of this vector
+	 *  the length of this vector
 	 */
 	float length() const
 	{
@@ -495,21 +521,44 @@ struct fvec3_t
 
 	/**
 	 * @brief
-	 *	Get the length of this vector
-	 *	(using the taxicab metric).
+	 *  Get the length of this vector
+	 *  (using the Manhattan metric).
 	 * @return
-	 *	the length of this vector
+	 *  the length of this vector
 	 */
 	float length_abs() const
 	{
-		return std::abs(this->v[kX]) + std::abs(this->v[kY]) + std::abs(this->v[kZ]);
+        float length = std::abs(v[0]);
+        for (size_t i = 1; i < 3; ++i)
+        {
+            length += std::abs(v[i]);
+        }
+        return length;
 	}
+
+    /**
+     * @brief
+     *  Get the length of this vector
+     *  (using the Maximum metric).
+     * @return
+     *  the length of this vector
+     */
+    float length_max() const
+    {
+        float length = std::abs(v[0]);
+        for (size_t i = 1; i < 3; ++i)
+        {
+            length = std::max(length, std::abs(v[i]));
+        }
+        return length;
+    }
 
 	const fvec3_t& operator=(const fvec3_t& other)
 	{
-		x = other.x;
-		y = other.y;
-		z = other.z;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            v[i] = other.v[i];
+        }
 		return *this;
 	}
 
@@ -520,9 +569,10 @@ struct fvec3_t
 
 	fvec3_t& operator+=(const fvec3_t& other)
 	{
-		x += other.x;
-		y += other.y;
-		z += other.z;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            v[i] += other.v[i];
+        }
 		return *this;
 	}
 
@@ -533,9 +583,10 @@ struct fvec3_t
 
 	fvec3_t& operator-=(const fvec3_t& other)
 	{
-		x -= other.x;
-		y -= other.y;
-		z -= other.z;
+        for (size_t i = 0; i < 3; ++i)
+        {
+            v[i] -= other.v[i];
+        }
 		return *this;
 	}
 
@@ -565,7 +616,7 @@ struct fvec3_t
 #ifdef _DEBUG
 		EGOBOO_ASSERT(index < 3);
 #endif
-		return this->v[index];
+		return v[index];
 	}
 
 	const float &operator[](size_t const& index) const
@@ -573,7 +624,7 @@ struct fvec3_t
 #ifdef _DEBUG
 		EGOBOO_ASSERT(index < 3);
 #endif
-		return this->v[index];
+		return v[index];
 	}
 
 };
@@ -616,16 +667,17 @@ struct fvec4_t
 		this->w = w;
 	}
 
-	fvec4_t(const fvec4_t& other) : x(other.x), y(other.y), z(other.z), w(other.w)
+	fvec4_t(const fvec4_t& other) :
+        x(other.x), y(other.y), z(other.z), w(other.w)
 	{
 	}
 
 	const fvec4_t& operator=(const fvec4_t& other)
 	{
-		x = other.x;
-		y = other.y;
-		z = other.z;
-		w = other.w;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            v[i] = other.v[i];
+        }
 		return *this;
 	}
 
@@ -634,7 +686,7 @@ struct fvec4_t
 #ifdef _DEBUG
 		EGOBOO_ASSERT(index < 4);
 #endif
-		return this->v[index];
+		return v[index];
 	}
 
 	const float &operator[](size_t const& index) const
@@ -642,7 +694,7 @@ struct fvec4_t
 #ifdef _DEBUG
 		EGOBOO_ASSERT(index < 4);
 #endif
-		return this->v[index];
+		return v[index];
 	}
 
 	/**
@@ -655,10 +707,10 @@ struct fvec4_t
 	 */
 	void multiply(float scalar)
 	{
-		this->v[kX] *= scalar;
-		this->v[kY] *= scalar;
-		this->v[kZ] *= scalar;
-		this->v[kW] *= scalar;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            v[i] *= scalar;
+        }
 	}
 
 	/**
@@ -690,25 +742,30 @@ struct fvec4_t
 	 */
 	bool equals(const fvec4_t& other) const
 	{
-		return this->x == other.x
-			&& this->y == other.y
-			&& this->z == other.z
-			&& this->w == other.w;
+        for (size_t i = 0; i < 4; ++i)
+        {
+            if (v[i] != other.v[i])
+            {
+                return false;
+            }
+        }
+        return true;
 	}
 	/**
 	 * @brief
-	 *	Get the squared length of this vector
-	 *	(using the Euclidian metric).
+	 *  Get the squared length of this vector
+	 *  (using the Euclidian metric).
 	 * @return
-	 *	the squared length of this vector
+	 *  the squared length of this vector
 	 */
 	float length_2() const
 	{
-		return this->v[kX] * this->v[kX]
-			 + this->v[kY] * this->v[kY]
-			 + this->v[kZ] * this->v[kZ]
-			 + this->v[kW] * this->v[kW]
-			 ;
+        float length = v[0] * v[0];
+        for (size_t i = 1; i < 4; ++i)
+        {
+            length += v[i] * v[i];
+        }
+        return length;
 	}
 
 	/**
@@ -725,15 +782,37 @@ struct fvec4_t
 
 	/**
 	 * @brief
-	 *	Get the length of this vector
-	 *	(using the taxicab metric).
+	 *  Get the length of this vector
+	 *  (using the Manhattan metric).
 	 * @return
-	 *	the length of this vector
+	 *  the length of this vector
 	 */
 	float length_abs() const
 	{
-		return std::abs(this->v[kX]) + std::abs(this->v[kY]) + std::abs(this->v[kZ]) + std::abs(this->v[kW]);
+        float length = std::abs(v[0]);
+        for (size_t i = 1; i < 4; ++i)
+        {
+            length += std::abs(v[i]);
+        }
+        return length;
 	}
+
+    /**
+     * @brief
+     *  Get the length of this vector
+     *  (using the Maximum metric).
+     * @return
+     *  the length of this vector
+     */
+    float length_max() const
+    {
+        float length = std::abs(v[0]);
+        for (size_t i = 1; i < 4; ++i)
+        {
+            length = std::max(length, std::abs(v[i]));
+        }
+        return length;
+    }
 
 };
 

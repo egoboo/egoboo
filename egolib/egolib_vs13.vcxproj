@@ -464,7 +464,7 @@
     <ClInclude Include="src\egolib\Renderer\Renderer.hpp" />
     <ClInclude Include="src\egolib\math\Colour3f.hpp" />
     <ClInclude Include="src\egolib\math\Colour4f.hpp" />
-    <ClInclude Include="src\egolib\math\DynamicVector.hpp" />
+    <ClInclude Include="src\egolib\math\Vector.hpp" />
     <ClInclude Include="src\egolib\math\AABB.h" />
     <ClInclude Include="src\egolib\math\Cube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.h" />

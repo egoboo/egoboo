@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "egolib/platform.h"
+#include "egolib/math/Colour3f.hpp"
 
 namespace Ego {
 	namespace Math {
@@ -61,10 +61,20 @@ namespace Ego {
 			 */
 			static const Colour4f BLACK;
 
+            /**
+             * @brief The colour "cyan" (0,255,255,255).
+             */
+            static const Colour4f CYAN;
+
 			/**
 			 * @brief The colour "magenta" (255,0,255,255).
 			 */
 			static const Colour4f MAGENTA;
+
+            /**
+             * @brief The colour "yellow" (255,255,0,255).
+             */
+            static const Colour4f YELLOW;
 
 		private:
 			/**
@@ -155,6 +165,27 @@ namespace Ego {
 				//ctor
 			}
 
+            /**
+             * @brief
+             *  Create a colour.
+             * @param rgb
+             *  the red, green and blue components of the colour as a colour in RGB colour space
+             *  the colour in RGB space
+             * @param a
+             *  the alpha component
+             */
+            Colour4f(const Colour3f& other,float a) :
+                _r(other.getRed()),
+                _g(other.getGreen()),
+                _b(other.getBlue()),
+                _a(a)
+            {
+                if (_a < 0.0f || _a > 1.0f)
+                {
+                    throw std::domain_error("alpha component outside bounds");
+                }
+            }
+
 			/**
 			 * @brief
 			 *	Create a colour.
@@ -168,6 +199,7 @@ namespace Ego {
 				_a(other._a)
 			{
 			}
+
 			/**
 			 * @brief
 			 *	Create a color.
