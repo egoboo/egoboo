@@ -22,7 +22,7 @@
 /// @author Johan Jansen
 
 #include "game/gui/InternalDebugWindow.hpp"
-#include "egolib/audio/AudioSystem.hpp"
+#include "egolib/Audio/AudioSystem.hpp"
 
 InternalDebugWindow::InternalDebugWindow(const std::string &title) :
 	_mouseOver(false),
