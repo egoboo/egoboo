@@ -22,9 +22,11 @@
 /// @author Johan Jansen
 
 #include "game/gui/InternalDebugWindow.hpp"
+#include "egolib/audio/AudioSystem.hpp"
 
 InternalDebugWindow::InternalDebugWindow(const std::string &title) :
 	_mouseOver(false),
+	_mouseOverCloseButton(false),
 	_isDragging(false),
 	_title(title),
 	_watchedVariables()
@@ -104,17 +106,27 @@ void InternalDebugWindow::draw()
     }
 
     //Draw an X in top right corner
-    fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0x00}, getX()+getWidth()-16, getY(), "X");
+    SDL_Color X_HOVER = {0xFF, 0xFF, 0xFF, 0x00};
+    SDL_Color X_DEFAULT = {0x8F, 0x8F, 0x8F, 0x00};
+    fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDefaultFont(), _mouseOverCloseButton ?  X_HOVER : X_DEFAULT, getX()+getWidth()-16, getY(), "X");
 }
 
 bool InternalDebugWindow::notifyMouseMoved(const int x, const int y)
 {
-
     if(_isDragging) {
     	setPosition(x, y);
     }
     else {
 	    _mouseOver = contains(x, y);
+
+	    //Check if mouse is hovering over the close button
+	    if(_mouseOver) {
+	    	Ego::Rectangle<int> closeButton = Ego::Rectangle<int>(getX() + getWidth()-32, getY()+32, getX() + getWidth(), getY());
+		    _mouseOverCloseButton = closeButton.point_inside(x, y);
+	    }
+	    else {
+	    	_mouseOverCloseButton = false;
+	    }
     }
 
     return false;
@@ -124,11 +136,19 @@ bool InternalDebugWindow::notifyMouseClicked(const int button, const int x, cons
 {
     if(_mouseOver && button == SDL_BUTTON_LEFT)
     {
+    	//Check if close button is pressed first
+    	if(_mouseOverCloseButton) {
+    		_audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_BUTTON_CLICK));
+    		destroy();
+    		return true;
+    	}
+
     	_isDragging = !_isDragging;
         return true;
     }
     else if(button == SDL_BUTTON_RIGHT) {
     	_isDragging = false;
+    	return true;
     }
 
     return false;

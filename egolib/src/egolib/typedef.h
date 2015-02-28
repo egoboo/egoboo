@@ -266,7 +266,7 @@ typedef Uint16 FACING_T;
 				_top = top;
 			}
 
-			bool point_inside(const Type& x, const Type& y)
+			bool point_inside(const Type& x, const Type& y) const
 			{
 				EGOBOO_ASSERT(_left <= _right && _top <= _bottom);
 				if (x < _left || x > _right) return false;
