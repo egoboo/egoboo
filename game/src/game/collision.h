@@ -50,6 +50,9 @@ struct CoNode_t;
 /// hash_list_t
 struct CoNode_t
 {
+public:
+    CoNode_t();
+
     // the "colliding" objects
     CHR_REF chra;
     PRT_REF prta;
@@ -90,19 +93,19 @@ struct CoHashList_t : public hash_list_t
 template <typename Type,size_t Capacity>
 struct Magazine
 {
-private:
-    size_t _size;
-    Type *_elements[Capacity];
 public:
+
     void reset()
     {
         _size = Capacity;
     }
+
     Type *acquire()
     {
         if (!_size) throw std::underflow_error("magazine underflow");
         return _elements[--_size];
     }
+
     Magazine() :
         _elements(),
         _size(Capacity)
@@ -125,6 +128,7 @@ public:
             _size = 0;
         }
     }
+
     virtual ~Magazine()
     {
         if (_size != Capacity)
@@ -137,6 +141,14 @@ public:
             _elements[index] = nullptr;
         }
     }
+
+    //Disable copying class
+    Magazine(const Magazine& copy) = delete;
+    Magazine& operator=(const Magazine&) = delete;
+
+private:
+    size_t _size;
+    std::array<Type*, Capacity> _elements;
 };
 
 struct CollisionSystem
@@ -144,6 +156,7 @@ struct CollisionSystem
 public:
     typedef Magazine < hash_node_t, COLLISION_HASH_NODES > HashNodeAry;
     typedef Magazine < CoNode_t, CHR_MAX_COLLISIONS > CollNodeAry;
+
 protected:
     /**
      * @brief
@@ -164,11 +177,14 @@ protected:
      *  Intentionally protected.
      */
     virtual ~CollisionSystem();
+
 public:
     /// Magazine of hash nodes.
     HashNodeAry _hn_ary_2;
+    
     /// Magazine of collision nodes.
     CollNodeAry _cn_ary_2;
+
 public:
     CoHashList_t *_hash;
     Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
@@ -185,7 +201,12 @@ public:
         return CollisionSystem::_singleton;
     }
     static void uninitialize();
+
     void reset();
+    
+    //Disable copying class
+    CollisionSystem(const CollisionSystem& copy) = delete;
+    CollisionSystem& operator=(const CollisionSystem&) = delete;
 };
 
 /// Insert a collision into a collision hash list if it does not exist yet.

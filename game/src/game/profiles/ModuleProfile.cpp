@@ -46,6 +46,7 @@ ModuleProfile::ModuleProfile() :
     _maxPlayers(0),
     _respawnValid(false),
 	_summary(),
+    _unlockQuest(),
     _moduleType(FILTER_SIDE_QUEST),
     _beaten(false),
 	_icon(),

@@ -82,6 +82,11 @@ public:
 	**/
 	void drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::WHITE);
 
+
+    //Disable copying class
+    UIManager(const UIManager& copy) = delete;
+    UIManager& operator=(const UIManager&) = delete;
+
 private:
 	Font *_defaultFont;
 	Font *_floatingTextFont;

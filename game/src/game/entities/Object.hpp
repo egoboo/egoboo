@@ -51,8 +51,37 @@ enum turn_mode_t : uint8_t
 /// Everything that is necessary to compute the character's interaction with the environment
 struct chr_environment_t
 {
+    chr_environment_t() :
+        grid_twist(0),
+        grid_level(0.0f),
+        grid_lerp(0.0f),
+        water_level(0.0f),
+        water_lerp(0.0f),
+        floor_level(0.0f),
+        level(0.0f),
+        fly_level(0.0f),
+        zlerp(0.0f),
+        floor_speed(),
+        is_slipping(false),
+        is_slippy(false),
+        is_watery(false),
+        air_friction(0.0f),
+        ice_friction(0.0f),
+        fluid_friction_hrz(0.0f),
+        fluid_friction_vrt(0.0f),
+        traction(0.0f),
+        friction_hrz(0.0f),
+        inwater(false),
+        grounded(true),
+        new_v(),
+        acc(),
+        vel()
+    {
+        //ctor
+    }
+
     // floor stuff
-    Uint8   grid_twist;           ///< The twist parameter of the current grid (what angle it it at)
+    uint8_t   grid_twist;           ///< The twist parameter of the current grid (what angle it it at)
     float   grid_level;           ///< Height relative to the current grid
     float   grid_lerp;
 
@@ -87,6 +116,18 @@ struct chr_environment_t
 /// the data used to define the spawning of a character
 struct chr_spawn_data_t
 {
+    chr_spawn_data_t() :
+        pos(),
+        profile(INVALID_PRO_REF),
+        team(0),
+        skin(0),
+        facing(0),
+        name(),
+        override(INVALID_CHR_REF)
+    {
+        //ctor
+    }
+
     fvec3_t     pos;
     PRO_REF     profile;
     TEAM_REF    team;

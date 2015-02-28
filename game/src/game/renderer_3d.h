@@ -65,6 +65,15 @@ struct s_GLvertex
 
 struct s_line_data
 {
+    s_line_data() :
+        dst(),
+        src(),
+        color(),
+        time(0)
+    {
+        //ctor
+    }
+
     fvec3_t   dst;
     fvec4_t   src, color;
     int time;
@@ -80,6 +89,14 @@ void line_list_draw_all( std::shared_ptr<Camera> pcam );
 
 struct s_point_data
 {
+    s_point_data() :
+        src(),
+        color(),
+        time(0)
+    {
+        //ctor
+    }
+
     fvec4_t   src, color;
     int time;
 };

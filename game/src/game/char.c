@@ -72,6 +72,17 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 struct grab_data_t
 {
+    grab_data_t() :
+        object(nullptr),
+        horizontalDistance(0.0f),
+        verticalDistance(0.0f),
+        too_dark(false),
+        too_invis(false),
+        isFacingObject(false)
+    {
+        //ctor
+    }
+
     std::shared_ptr<Object> object;
     float horizontalDistance;
     float verticalDistance;
@@ -84,6 +95,15 @@ struct grab_data_t
 //--------------------------------------------------------------------------------------------
 struct s_chr_anim_data
 {
+    s_chr_anim_data() :
+        allowed(false),
+        action(ACTION_DA),
+        lip(0),
+        speed(0.0f)
+    {
+        //ctor
+    }
+
     bool allowed;
     int    action;
     int    lip;
@@ -6546,7 +6566,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 
                 mc_tmp->grip_chr  = pchr->attachedto;
                 mc_tmp->grip_slot = pchr->inwhich_slot;
-                get_grip_verts( mc_tmp->grip_verts, pchr->attachedto, slot_to_grip_offset( pchr->inwhich_slot ) );
+                get_grip_verts( mc_tmp->grip_verts.data(), pchr->attachedto, slot_to_grip_offset( pchr->inwhich_slot ) );
 
                 itarget = pchr->attachedto;
             }
@@ -6677,7 +6697,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
     pweap_mcache->matrix_valid = false;
 
     // grab the grip points in world coordinates
-    iweap_points = convert_grip_to_global_points( mc_tmp->grip_chr, mc_tmp->grip_verts, nupoint );
+    iweap_points = convert_grip_to_global_points( mc_tmp->grip_chr, mc_tmp->grip_verts.data(), nupoint );
 
     if ( 4 == iweap_points )
     {
@@ -7000,7 +7020,7 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
         Object   * ptarget = _gameObjects.get( mc_tmp.grip_chr );
 
         // has that character changes its animation?
-        grip_retval = ( egolib_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
+        grip_retval = ( egolib_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts.data(), GRIP_VERTS );
 
         if ( rv_error   == grip_retval ) return rv_error;
         if ( rv_success == grip_retval ) needs_update = true;

@@ -55,6 +55,14 @@ struct orientation_t
 //--------------------------------------------------------------------------------------------
 struct apos_t
 {
+	apos_t() :
+		mins(),
+		maxs(),
+		sum()
+	{
+		//ctor
+	}
+
     fvec3_t mins;
     fvec3_t maxs;
     fvec3_t sum;

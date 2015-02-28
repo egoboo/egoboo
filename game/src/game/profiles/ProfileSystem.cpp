@@ -42,7 +42,10 @@ static const std::shared_ptr<ObjectProfile> NULL_PROFILE = nullptr;
 
 ProfileSystem::ProfileSystem() :
 	_initialized(false),
-	_bookIcons()
+	_bookIcons(),
+    _profilesLoaded(),
+    _moduleProfilesLoaded(),
+    _loadPlayerList()
 {
 	//ctor
 }

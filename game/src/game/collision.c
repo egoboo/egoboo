@@ -45,8 +45,12 @@ CollisionSystem *CollisionSystem::_singleton = nullptr;
 //--------------------------------------------------------------------------------------------
 
 /// data block used to communicate between the different "modules" governing the character-particle collision
-struct chr_prt_collsion_data_t
+struct chr_prt_collision_data_t
 {
+public:
+    chr_prt_collision_data_t();
+
+public:
     // object parameters
     CHR_REF ichr;
     Object *pchr;
@@ -88,15 +92,51 @@ struct chr_prt_collsion_data_t
     bool prt_bumps_chr;
     bool prt_damages_chr;
 
-    static chr_prt_collsion_data_t *init(chr_prt_collsion_data_t *);
+    static chr_prt_collision_data_t *init(chr_prt_collision_data_t *);
 };
 
-static bool do_chr_prt_collision_deflect(chr_prt_collsion_data_t * pdata);
-static bool do_chr_prt_collision_recoil(chr_prt_collsion_data_t * pdata);
-static bool do_chr_prt_collision_damage(chr_prt_collsion_data_t * pdata);
-static bool do_chr_prt_collision_impulse(chr_prt_collsion_data_t * pdata);
-static bool do_chr_prt_collision_bump(chr_prt_collsion_data_t * pdata);
-static bool do_chr_prt_collision_handle_bump(chr_prt_collsion_data_t * pdata);
+static bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata);
+static bool do_chr_prt_collision_recoil(chr_prt_collision_data_t * pdata);
+static bool do_chr_prt_collision_damage(chr_prt_collision_data_t * pdata);
+static bool do_chr_prt_collision_impulse(chr_prt_collision_data_t * pdata);
+static bool do_chr_prt_collision_bump(chr_prt_collision_data_t * pdata);
+static bool do_chr_prt_collision_handle_bump(chr_prt_collision_data_t * pdata);
+
+chr_prt_collision_data_t::chr_prt_collision_data_t() :
+    ichr(INVALID_CHR_REF),
+    pchr(nullptr),
+
+    iprt(INVALID_PRT_REF),
+    pprt(nullptr),
+    ppip(nullptr),
+
+    int_min(false),
+    depth_min(0.0f),
+    int_max(false),
+    depth_max(0.0f),
+
+    is_impact(false),
+    is_pressure(false),
+    is_collision(false),
+    dot(0.0f),
+    nrm(),
+
+    mana_paid(false),
+    max_damage(0),
+    actual_damage(0),
+    vdiff(), 
+    vdiff_para(), 
+    vdiff_perp(),
+    block_factor(0.0f),
+
+    vimpulse(),                      ///< the velocity impulse
+    pimpulse(),                      ///< the position impulse
+    terminate_particle(false),
+    prt_bumps_chr(false),
+    prt_damages_chr(false)
+{
+    //ctor
+}
 
 //--------------------------------------------------------------------------------------------
 
@@ -139,18 +179,22 @@ static bool do_chr_platform_physics( Object * pitem, Object * pplat );
 static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
 static bool do_chr_chr_collision( CoNode_t * d );
 
-static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata );
+static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
 
 static bool do_chr_prt_collision( CoNode_t * d );
 
-static bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata );
-static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * pdata );
+static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
+static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * pdata );
 static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_t *podepth, fvec3_t& nrm, float * tmin );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 CollisionSystem::CollisionSystem() :
-    _hash(nullptr), _hn_ary_2(), _cn_ary_2()
+    _hn_ary_2(), 
+    _cn_ary_2(),
+    _hash(nullptr),
+    _coll_leaf_lst(),
+    _coll_node_lst()
 {
     if (!_coll_leaf_lst.ctor(COLLISION_LIST_SIZE))
     {
@@ -239,6 +283,20 @@ void CollisionSystem::reset()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+CoNode_t::CoNode_t() :
+    chra(INVALID_CHR_REF),
+    prta(INVALID_PRT_REF),
+    chrb(INVALID_CHR_REF),
+    prtb(INVALID_PRT_REF),
+    
+    tileb(MAP_FANOFF),
+    tmin(-1.0f),
+    tmax(-1.0f),
+    cv()
+{
+    //ctor
+}
+
 CoNode_t *CoNode_ctor(CoNode_t *self)
 {
     if (!self) return nullptr;
@@ -2482,7 +2540,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * pdata )
+bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * pdata )
 {
     // Get details about the character-particle interaction
     //
@@ -2599,7 +2657,7 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * p
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
+bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
 {
     /// @author BB
     /// @details handle the particle interaction with a platform it is not attached "on".
@@ -2687,7 +2745,7 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
+bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
 {
     bool prt_deflected = false;
 
@@ -2841,7 +2899,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
+bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
 {
     /// @author BB
     /// @details make the character and particle recoil from the collision
@@ -2983,7 +3041,7 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
+bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 {
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
@@ -3157,7 +3215,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_impulse( chr_prt_collsion_data_t * pdata )
+bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
 {
     // estimate the impulse on the particle
 
@@ -3221,7 +3279,7 @@ bool do_chr_prt_collision_impulse( chr_prt_collsion_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata )
+bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
 {
     bool prt_belongs_to_chr;
     bool prt_hates_chr, prt_attacks_chr, prt_hateonly;
@@ -3284,7 +3342,7 @@ bool do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
+bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
 {
     if ( NULL == pdata || !pdata->prt_bumps_chr ) return false;
 
@@ -3332,7 +3390,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata )
+bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata )
 {
     if ( NULL == pdata ) return false;
 
@@ -3375,8 +3433,8 @@ bool do_chr_prt_collision( CoNode_t * d )
     bool prt_deflected;
     bool prt_can_hit_chr;
 
-    chr_prt_collsion_data_t cn_data;
-    chr_prt_collsion_data_t::init(&cn_data);
+    chr_prt_collision_data_t cn_data;
+    chr_prt_collision_data_t::init(&cn_data);
     bool intialized;
 
     // valid node?
@@ -3398,7 +3456,7 @@ bool do_chr_prt_collision( CoNode_t * d )
         intialized = false;
 
         // in here to keep the compiler from complaining
-        chr_prt_collsion_data_t::init( &cn_data );
+        chr_prt_collision_data_t::init( &cn_data );
     }
 
     if ( !intialized ) return false;
@@ -3546,7 +3604,7 @@ bool do_chr_prt_collision( CoNode_t * d )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-chr_prt_collsion_data_t * chr_prt_collsion_data_t::init( chr_prt_collsion_data_t * ptr )
+chr_prt_collision_data_t * chr_prt_collision_data_t::init( chr_prt_collision_data_t * ptr )
 {
     if ( NULL == ptr ) return ptr;
 

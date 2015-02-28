@@ -200,7 +200,11 @@ typedef Uint16 FACING_T;
 			 * @brief
 			 *	Construct an empty rectangle.
 			 */
-			Rectangle() : _left(), _bottom(), _right(), _top()
+			Rectangle() : 
+				_left{}, 
+				_bottom{}, 
+				_right{}, 
+				_top{}
 			{
 			}
 
@@ -250,20 +254,20 @@ typedef Uint16 FACING_T;
 			 * @throws std::domain_error
 			 *	if <tt>left > right</tt> or <tt>bottom > top</tt>
 			 */
-			Rectangle(const Type& left, const Type& bottom, const Type& right, const Type& top)
+			Rectangle(const Type& left, const Type& bottom, const Type& right, const Type& top) : 
+				_left(left), 
+				_bottom(bottom), 
+				_right(right), 
+				_top(top)
 			{
-				if (!(left <= right))
+				if (!(_left <= _right))
 				{
 					throw std::domain_error("the coordinate of the left side must be smaller than or equal to the coordinate of the right side");
 				}
-				if (!(top <= bottom))
+				if (!(_top <= _bottom))
 				{
 					throw std::domain_error("the coordinate of the top side must be smaller than or equal to the coordinate of the bottom side");
 				}
-				_left = left;
-				_bottom = bottom;
-				_right = right;
-				_top = top;
 			}
 
 			bool point_inside(const Type& x, const Type& y) const

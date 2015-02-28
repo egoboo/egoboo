@@ -37,6 +37,10 @@ public:
 
 	void beginState() override;
 
+    //Disable copying class
+    VictoryScreen(const VictoryScreen& copy) = delete;
+    VictoryScreen& operator=(const VictoryScreen&) = delete;
+    
 protected:
 	void drawContainer() override;
 
