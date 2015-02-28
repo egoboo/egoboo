@@ -22,15 +22,17 @@
 
 #include "egolib/math/Colour4f.hpp"
 
-namespace Ego {
-	namespace Math {
-		const Colour4f Colour4f::RED(Colour3f::RED, 1.0f);
-		const Colour4f Colour4f::GREEN(Colour3f::GREEN, 1.0f);
-		const Colour4f Colour4f::BLUE(Colour3f::BLUE, 1.0f);
-		const Colour4f Colour4f::WHITE(Colour3f::WHITE, 1.0f);
-		const Colour4f Colour4f::BLACK(Colour3f::BLACK, 1.0f);
-        const Colour4f Colour4f::CYAN(Colour3f::CYAN, 1.0f);
-		const Colour4f Colour4f::MAGENTA(Colour3f::MAGENTA, 1.0f);
-        const Colour4f Colour4f::YELLOW(Colour3f::YELLOW, 1.0f);
+namespace Ego
+{
+	namespace Math
+    {
+		const Colour4f Colour4f::RED(1.0f, 0.0f, 0.0f, 1.0f);
+		const Colour4f Colour4f::GREEN(0.0f, 1.0f, 0.0f, 1.0f);
+		const Colour4f Colour4f::BLUE(0.0f, 0.0f, 1.0f, 1.0f);
+		const Colour4f Colour4f::WHITE(1.0f, 1.0f, 1.0f, 1.0f);
+		const Colour4f Colour4f::BLACK(0.0f, 0.0f, 0.0f, 1.0f);
+        const Colour4f Colour4f::CYAN(0.0f, 1.0f, 1.0f, 1.0f);
+		const Colour4f Colour4f::MAGENTA(1.0f, 0.0f, 1.0f, 1.0f);
+        const Colour4f Colour4f::YELLOW(1.0f, 1.0f, 0.0f, 1.0f);
 	};
 };
