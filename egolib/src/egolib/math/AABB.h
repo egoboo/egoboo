@@ -35,6 +35,11 @@ struct oct_bb_t;
  */
 struct aabb_t
 {
+    /// @brief The minimum of the bounding box.
+    fvec3_t mins;
+    /// @brief The maximum of the bounding box.
+    fvec3_t maxs;
+
 	aabb_t() :
 		mins(0.0f, 0.0f, 0.0f),
 		maxs(0.0f, 0.0f, 0.0f)
@@ -42,10 +47,38 @@ struct aabb_t
 		//ctor
 	}
 
-	/// @brief The minimum of the bounding box.
-	fvec3_t mins;
-	/// @brief The maximum of the bounding box.
-	fvec3_t maxs;
+    /**
+     * @brief
+     *  Get the minimum.
+     * @return
+     *  the minimum
+     */
+    const fvec3_t& getMin() const
+    {
+        return mins;
+    }
+
+    /**
+     * @brief
+     *  Get the maximum.
+     * @return
+     *  the maximum
+     */
+    const fvec3_t& getMax() const
+    {
+        return maxs;
+    }
+
+    /**
+     * @brief
+     *  Get the center.
+     * @return
+     *  the center
+     */
+    fvec3_t getCenter() const
+    {
+        return (mins + maxs) * 0.5f;
+    }
 
 	/**
 	 * @brief
@@ -76,6 +109,16 @@ struct aabb_t
 			mins[i] = maxs[i] = 0.0f;
 		}
 	}
+
+    /**
+     * @brief
+     *  Assign the values of this axis-aligned bounding box
+     *  such that it is the smallest AABB enclosing the given octagonal bounding box.
+     * @param other
+     *  the octagonal bounding box
+     */
+    void from(const oct_bb_t& other);
+
 	/**
 	 * @brief
 	 *	Assign this bounding box the values of another bounding box.
@@ -107,6 +150,44 @@ struct aabb_t
 		assign(other);
 		return *this;
 	}
+
+    /**
+     * @brief
+     *	Assign this AABB the join if itself with another AABB.
+     * @param other
+     *	the other AABB
+     * @post
+     *	The result of the join was assigned to this AABB.
+     */
+    void join(const aabb_t& other);
+
+    /**
+     * @brief
+     *	Get if an AABB contains another AABB.
+     * @param x
+     *	this AABB
+     * @param y
+     *	the other AABB
+     * @return
+     *	@a true if @a x contains @a y, @a false otherwise
+     * @remark
+     *  This function is <em>not</em> commutative.
+     */
+    static bool contains(const aabb_t& x, const aabb_t& y);
+
+    /**
+     * @brief
+     *	Get if an AABB overlaps with another AABB.
+     * @param x
+     *	the AABB
+     * @param y
+     *	the other AABB
+     * @return
+     *	@a true if the AABBs overlap, @a false otherwise
+     * @remark
+     *  The function is commutative.
+     */
+    static bool overlaps(const aabb_t& x, const aabb_t& y);
 };
 
 /** @todo Remove this. */
@@ -115,43 +196,4 @@ bool aabb_self_clear(aabb_t *dst);
 /** @todo Remove this. */
 bool aabb_is_clear(const aabb_t *dst);
 
-/** @todo Add documentation. */
-bool aabb_from_oct_bb(aabb_t *self, const oct_bb_t *src);
 
-/**
- * @brief
- *	Get if this AABB contains another AABB.
- * @param self
- *	this AABB
- * @param other
- *	the other AABB
- * @return
- *	@a true if the other AABB is contained in this AABB
- */
-bool aabb_lhs_contains_rhs(const aabb_t& self, const aabb_t& other);
-
-/**
- * @brief
- *	Get if this AABB and another AABB overlap.
- * @param self
- *	this AABB
- * @param other
- *	the other AABB
- * @return
- *	@a true if this AABB and the other AABB overlap
- */
-bool aabb_overlap(const aabb_t& self, const aabb_t& other);
-
-/**
- * @brief
- *	Compute the union of this AABB and another AABB.
- * @param self
- *	this AABB
- * @param other
- *	the other AABB
- * @return
- *	@a true if this AABB and the other AABB overlap
- * @post
- *	The union of this AABB and the other AABB was assigned to this AABB.
- */
-void aabb_self_union(aabb_t& self, const aabb_t& other);

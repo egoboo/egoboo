@@ -61,68 +61,50 @@ void gfx_end_3d()
 }
 
 //--------------------------------------------------------------------------------------------
-// LINE IMPLENTATION
+// Lines.
 //--------------------------------------------------------------------------------------------
 void line_list_init()
 {
-    /// @details  BB@> initialize the list so that no lines are valid
-
-    int cnt;
-
-    for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
+    for (size_t i = 0; i < LINE_COUNT; ++i)
     {
-        line_list[cnt].time = -1;
+        line_list[i].time = -1;
     }
 }
 
-//--------------------------------------------------------------------------------------------
-int line_list_get_free()
+size_t line_list_get_free()
 {
-    /// @details  BB@> get the 1st free line
-
-    int cnt;
-
-    for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
+    for (size_t i = 0; i < LINE_COUNT; ++i)
     {
-        if ( line_list[cnt].time < 0 )
+        if (line_list[i].time < 0)
         {
-            break;
+            return i;
         }
     }
-
-    return cnt < LINE_COUNT ? cnt : -1;
+    return LINE_COUNT;
 }
 
-//--------------------------------------------------------------------------------------------
-bool line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration )
+bool line_list_add( const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration )
 {
-    int iline = line_list_get_free();
+    size_t index = line_list_get_free();
+    if (index == LINE_COUNT) return false;
+    line_data_t& line = line_list[index];
+    
+    // Source.
+    line.src = fvec3_t(src_x,src_y,src_z);
 
-    if ( iline == LINE_COUNT ) return false;
+    // Target.
+    line.dst = fvec3_t(dst_x,dst_y,dst_z);
 
-    //Source
-    line_list[iline].src.x = src_x;
-    line_list[iline].src.y = src_y;
-    line_list[iline].src.z = src_z;
+    // Colour: white.
+    line.color = fvec4_t(1,1,1,0.5);
 
-    //Destination
-    line_list[iline].dst.x = pos_x;
-    line_list[iline].dst.y = dst_y;
-    line_list[iline].dst.z = dst_z;
-
-    //White color
-    line_list[iline].color.r = 1.00f;
-    line_list[iline].color.g = 1.00f;
-    line_list[iline].color.b = 1.00f;
-    line_list[iline].color.a = 0.50f;
-
-    line_list[iline].time = SDL_GetTicks() + duration;
+    // Time.
+    line.time = SDL_GetTicks() + duration;
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-void line_list_draw_all( std::shared_ptr<Camera> pcam )
+void line_list_draw_all(std::shared_ptr<Camera> camera)
 {
     /// @author BB
     /// @details draw some lines for debugging purposes
@@ -139,7 +121,7 @@ void line_list_draw_all( std::shared_ptr<Camera> pcam )
     if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
-    gfx_begin_3d( pcam );
+    gfx_begin_3d(camera);
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
@@ -199,61 +181,47 @@ void line_list_draw_all( std::shared_ptr<Camera> pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-// POINT IMPLENTATION
+// Points.
 //--------------------------------------------------------------------------------------------
 void point_list_init()
 {
-    /// @details  BB@> initialize the list so that no points are valid
-
-    int cnt;
-
-    for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
+    for (size_t i = 0; i < POINT_COUNT; ++i)
     {
-        point_list[cnt].time = -1;
+        point_list[i].time = -1;
     }
 }
 
-//--------------------------------------------------------------------------------------------
-bool point_list_add( const float x, const float y, const float z, const int duration )
+size_t point_list_get_free()
 {
-    int ipoint = point_list_get_free();
+    for (size_t i = 0; i < POINT_COUNT; ++i)
+    {
+        if (point_list[i].time < 0)
+        {
+            return i;
+        }
+    }
+    return POINT_COUNT;
+}
 
-    if ( ipoint == POINT_COUNT ) return false;
+bool point_list_add(const float x, const float y, const float z, const int duration)
+{
+    size_t index = point_list_get_free();
+    if (index == POINT_COUNT) return false;
+    point_data_t& point = point_list[index];
 
-    //position
-    point_list[ipoint].src.x = x;
-    point_list[ipoint].src.y = y;
-    point_list[ipoint].src.z = z;
+    // Position.
+    point.src = fvec3_t(x,y,z);
 
-    //Red color
-    point_list[ipoint].color.r = 1.00f;
-    point_list[ipoint].color.g = 0.00f;
-    point_list[ipoint].color.b = 0.00f;
-    point_list[ipoint].color.a = 0.50f;
+    // Colour: red.
+    point.color = fvec4_t(1, 0, 0, 0.5);
 
-    point_list[ipoint].time = SDL_GetTicks() + duration;
+    // Time.
+    point.time = SDL_GetTicks() + duration;
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-int point_list_get_free()
-{
-    int cnt;
-
-    for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
-    {
-        if ( point_list[cnt].time < 0 )
-        {
-            break;
-        }
-    }
-
-    return cnt < POINT_COUNT ? cnt : -1;
-}
-
-//--------------------------------------------------------------------------------------------
-void point_list_draw_all( std::shared_ptr<Camera> pcam )
+void point_list_draw_all(std::shared_ptr<Camera> camera)
 {
     /// @author BB
     /// @details draw some points for debugging purposes
@@ -270,7 +238,7 @@ void point_list_draw_all( std::shared_ptr<Camera> pcam )
     if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
-    gfx_begin_3d( pcam );
+    gfx_begin_3d(camera);
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
@@ -330,12 +298,12 @@ void point_list_draw_all( std::shared_ptr<Camera> pcam )
 //--------------------------------------------------------------------------------------------
 // AXIS BOUNDING BOX IMPLEMENTATION(S)
 //--------------------------------------------------------------------------------------------
-bool render_aabb( aabb_t * pbbox )
+bool render_aabb(aabb_t *bv)
 {
     GLXvector3f * pmin, * pmax;
     GLint matrix_mode[1];
 
-    if ( NULL == pbbox ) return false;
+    if (!bv) return false;
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
@@ -344,8 +312,8 @@ bool render_aabb( aabb_t * pbbox )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     {
-        pmin = &( pbbox->mins.v );
-        pmax = &( pbbox->maxs.v );
+        pmin = &( bv->mins.v );
+        pmax = &( bv->maxs.v );
 
         // !!!! there must be an optimized way of doing this !!!!
 

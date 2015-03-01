@@ -1489,7 +1489,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
     CHR_REF   ichr_b;
     slot_t    slot;
-    oct_vec_t mids;
+    oct_vec_v2_t mids;
     fvec3_t   slot_pos;
 
     bool retval;
@@ -1514,7 +1514,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         return false;
 
     //Determine the position of the grip
-    oct_bb_get_mids( &pchr_a->slot_cv[slot], mids );
+    mids = pchr_a->slot_cv[slot].getMid();
     slot_pos.x = mids[OCT_X];
     slot_pos.y = mids[OCT_Y];
     slot_pos.z = mids[OCT_Z];

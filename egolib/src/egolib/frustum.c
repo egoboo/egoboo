@@ -105,7 +105,7 @@ void egolib_frustum_t::calculate(const fmat_4x4_t& projection, const fmat_4x4_t&
 									  _planes[Planes::BACK]);
 
         // get the distance from the origin to the far plane
-        float dist = plane_point_distance(_planes[Planes::BACK], _origin.v);
+        float dist = plane_point_distance(_planes[Planes::BACK], _origin);
 
         // calculate the center of the sphere
 		_sphere.origin = _origin + vlook * (dist * 0.5f);
@@ -168,7 +168,7 @@ geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool 
 	// Scan through the frustum's planes:
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		if (plane_point_distance(_planes[i], point.v) <= 0.0f)
+		if (plane_point_distance(_planes[i], point) <= 0.0f)
 		{
 			inside = false;
 			break;
@@ -207,7 +207,7 @@ geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bo
 	// scan each plane
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		float dist = plane_point_distance(_planes[i], sphere.origin.v);
+		float dist = plane_point_distance(_planes[i], sphere.origin);
 
 		// If the sphere is completely behind the current plane, it is outside the frustum.
 		if (dist <= -sphere.radius)
@@ -227,8 +227,6 @@ geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bo
 
 geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const
 {
-	fvec3_base_t vmin, vmax;
-
 	// Assume the cube is inside the frustum.
 	geometry_rv retval = geometry_inside;
 
@@ -248,7 +246,7 @@ geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float
 	for (int i = i_stt; i <= i_end; i++)
 	{
 		const plane_base_t *plane = _planes + i;
-
+        fvec3_t vmin, vmax;
 		// find the most-positive and most-negative points of the aabb
 		for (int j = 0; j < 3; j++)
 		{
@@ -347,12 +345,8 @@ bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) co
 	}
 	bool retval = false;
 	aabb_t aabb;
-	if (aabb_from_oct_bb(&aabb, oct))
-	{
-		geometry_rv frustum_rv = this->intersects_aabb(aabb.mins, aabb.maxs, doEnds);
-
-		retval = (frustum_rv > geometry_outside);
-	}
-
+    aabb.from(*oct);
+    geometry_rv frustum_rv = this->intersects_aabb(aabb.mins, aabb.maxs, doEnds);
+    retval = (frustum_rv > geometry_outside);
 	return retval;
 }

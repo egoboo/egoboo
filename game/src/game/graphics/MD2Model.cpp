@@ -54,7 +54,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
 
         for(MD2_Vertex& vertex : frame.vertexList)
         {
-            oct_vec_t opos;
+            oct_vec_v2_t opos;
 
             vertex.pos.x *= scaleX;
             vertex.pos.y *= scaleY;
@@ -66,7 +66,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
 
 			vertex.nrm.normalize();
 
-            oct_vec_ctor(opos, vertex.pos);
+            opos.ctor(vertex.pos);
 
             // Re-calculate the bounding box for this frame
             if (!boundingBoxFound)
@@ -88,7 +88,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
                  std::abs(frame.bb.maxs[OCT_Y] - frame.bb.mins[OCT_Y] ) +
                  std::abs(frame.bb.maxs[OCT_Z] - frame.bb.mins[OCT_Z] ) > 0.0f )
             {
-                oct_vec_t ovec;
+                oct_vec_v2_t ovec;
 
                 ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 1e-6;
                 ovec[OCT_XY] = ovec[OCT_YX] = SQRT_TWO * ovec[OCT_X];
@@ -227,7 +227,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
         bool boundingBoxFound = false;
         for(MD2_Vertex &vertex : frame.vertexList)
         {
-            oct_vec_t ovec;
+            oct_vec_v2_t ovec;
             id_md2_vertex_t frame_vert;
 
             // read vertex_lst one-by-one. I hope this is not endian dependent, but I have no way to check it.
@@ -250,7 +250,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             vertex.nrm.z = MD2_NORMALS[frame_vert.normalIndex][2];
 
             // Calculate the bounding box for this frame
-            oct_vec_ctor(ovec, vertex.pos);
+            ovec.ctor(vertex.pos);
             if (!boundingBoxFound)
             {
                 oct_bb_set_ovec(&frame.bb, ovec);
@@ -258,7 +258,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             }
             else
             {
-                oct_bb_self_sum_ovec(&frame.bb, ovec);
+                oct_bb_self_sum_ovec(&frame.bb, ovec); /// @todo Check.
             }
         }
 

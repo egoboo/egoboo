@@ -33,11 +33,8 @@ class Camera;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_line_data;
-typedef struct s_line_data line_data_t;
-
-struct s_point_data;
-typedef struct s_point_data point_data_t;
+struct line_data_t;
+struct point_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -63,37 +60,44 @@ struct s_GLvertex
 //--------------------------------------------------------------------------------------------
 // some lines to be drawn in the display
 
-struct s_line_data
+struct line_data_t
 {
-    fvec3_t   dst;
-    fvec4_t   src, color;
+    fvec3_t src, dst;
+    fvec4_t color;
     int time;
 };
 
+/// @brief Initialize the line list so that all lines are free.
 void line_list_init();
-int  line_list_get_free();
-bool line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration );
-void line_list_draw_all( std::shared_ptr<Camera> pcam );
+/// @brief Get the index of a free line.
+/// @return the index of a free line if any, #LINE_COUNT otherwise
+size_t line_list_get_free();
+bool line_list_add(const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration);
+void line_list_draw_all(std::shared_ptr<Camera> camera);
 
 //--------------------------------------------------------------------------------------------
 // some points to be drawn in the display
 
-struct s_point_data
+struct point_data_t
 {
-    fvec4_t   src, color;
+    fvec3_t src;
+    fvec4_t color;
     int time;
 };
 
+/// @brief Initialize the point list so that all points are free.
 void point_list_init();
-int  point_list_get_free();
-bool point_list_add( const float x, const float y, const float z, const int duration );
-void point_list_draw_all( std::shared_ptr<Camera> pcam );
+/// @brief Get the index of a free point.
+/// @return the index of a free point if any, #POINT_COUNT otherwise
+size_t point_list_get_free();
+bool point_list_add(const float x, const float y, const float z, const int duration);
+void point_list_draw_all(std::shared_ptr<Camera> camera);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void gfx_begin_3d( std::shared_ptr<Camera> pcam );
+void gfx_begin_3d(std::shared_ptr<Camera> camera);
 void gfx_end_3d();
 
-bool render_oct_bb( oct_bb_t *bb, bool draw_square, bool draw_diamond );
-bool render_aabb( aabb_t * pbbox );
+bool render_oct_bb(oct_bb_t *bv, bool draw_square, bool draw_diamond);
+bool render_aabb(aabb_t *bv);

@@ -43,6 +43,15 @@ struct bv_t
 
 	sphere_t sphere;
 	aabb_t aabb;
+
+    /**
+     * @brief
+     *  Assign the values of this bounding volume
+     *  such that it is the smallest bounding volume enclosing the given octagonal bounding box.
+     * @param other
+     *  the octagonal bounding box
+     */
+    void from(const oct_bb_t& other);
 	/**
 	 * @brief
 	 *	Construct this convex bounding volume assigning the default values of a convex bounding volume.
@@ -96,6 +105,10 @@ struct bv_t
 		assign(other);
 		return *this;
 	}
+
+    bool contains(const bv_t *x, const bv_t *y);
+    bool overlaps(const bv_t *x, const bv_t *y);
+
 };
 
 
@@ -103,10 +116,8 @@ bool  bv_self_clear(bv_t *);
 bool  bv_is_clear(const bv_t * pdst);
 
 bool  bv_self_union(bv_t * pdst, const bv_t * psrc);
-bool  bv_lhs_contains_rhs(const bv_t * lhs_ptr, const bv_t * rhs_ptr);
-bool  bv_overlap(const bv_t * lhs_ptr, const bv_t * rhs_ptr);
 
-bool  bv_from_oct_bb(bv_t * dst, const oct_bb_t * src);
+
 
 bool  bv_validate(bv_t * rhs);
 bool  bv_test(const bv_t * rhs);

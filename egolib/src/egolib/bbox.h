@@ -57,6 +57,147 @@
     typedef float * oct_vec_base_t;
     typedef float oct_vec_t[OCT_COUNT];
 
+    struct oct_vec_v2_t
+    {
+    public:
+        oct_vec_t _v;
+    public:
+        oct_vec_v2_t()
+        {
+            _v[OCT_X] = 0.0f;
+            _v[OCT_Y] = 0.0f;
+            _v[OCT_Z] = 0.0f;
+            _v[OCT_XY] = 0.0f;
+            _v[OCT_YX] = 0.0f;
+        }
+        oct_vec_v2_t(const fvec3_t& point)
+        {
+            _v[OCT_X] = point[kX];
+            _v[OCT_Y] = point[kY];
+            _v[OCT_Z] = point[kZ];
+            // x + y
+            _v[OCT_XY] = point[kX] + point[kY];
+            // y - x
+            _v[OCT_YX] = point[kY] - point[kX];
+        }
+        oct_vec_v2_t(float x, float y, float z, float xy, float yx)
+        {
+            _v[OCT_X] = x;
+            _v[OCT_Y] = y;
+            _v[OCT_Z] = z;
+            _v[OCT_XY] = xy;
+            _v[OCT_YX] = yx;
+        }
+        oct_vec_v2_t(const oct_vec_v2_t& other)
+        {
+            for (size_t i = 0; i < OCT_COUNT; ++i)
+            {
+                _v[i] = other._v[i];
+            }
+        }
+        void assign(const oct_vec_v2_t& other)
+        {
+            for (size_t i = 0; i < OCT_COUNT; ++i)
+            {
+                _v[i] = other._v[i];
+            }
+        }
+        oct_vec_v2_t operator+(const oct_vec_v2_t& other) const
+        {
+            return
+                oct_vec_v2_t
+                (
+                    _v[OCT_X]  + other._v[OCT_X],
+                    _v[OCT_Y]  + other._v[OCT_Y],
+                    _v[OCT_Z]  + other._v[OCT_Z],
+                    _v[OCT_XY] + other._v[OCT_XY],
+                    _v[OCT_YX] + other._v[OCT_YX]
+                );
+        }
+        oct_vec_v2_t operator*(const float scalar) const
+        {
+            return
+                oct_vec_v2_t
+                (
+                _v[OCT_X]  * scalar,
+                _v[OCT_Y]  * scalar,
+                _v[OCT_Z]  * scalar,
+                // x * scalar + y * scalar = (x + y) * scalar
+                _v[OCT_XY] * scalar,
+                // y * scalar - x * scalar = (y - x) * scalar
+                _v[OCT_YX] * scalar
+                );
+        }
+        oct_vec_v2_t& operator=(const oct_vec_v2_t& other)
+        {
+            assign(other);
+            return *this;
+        }
+        void setZero()
+        {
+            for (size_t i = 0; i < OCT_COUNT; ++i)
+            {
+                _v[i] = 0.0f;
+            }
+        }
+        void ctor(const fvec3_t& point)
+        {
+            _v[OCT_X]  = point[kX];
+            _v[OCT_Y]  = point[kY];
+            _v[OCT_Z]  = point[kZ];
+            // x + y
+            _v[OCT_XY] = point[kX] + point[kY];
+            // y - x
+            _v[OCT_YX] = point[kY] - point[kX];
+        }
+#if 1
+        void sub(const fvec3_t& point)
+        {
+            _v[OCT_X] -= point[kX];
+            _v[OCT_Y] -= point[kY];
+            _v[OCT_Z] -= point[kZ];
+            // x + y
+            _v[OCT_XY] -= point[kX] + point[kY];
+            // y - x
+            _v[OCT_YX] -= point[kY] - point[kX];
+        }
+        void add(const fvec3_t& point)
+        {
+            _v[OCT_X]  += point[kX];
+            _v[OCT_Y]  += point[kY];
+            _v[OCT_Z]  += point[kZ];
+            // x + y
+            _v[OCT_XY] += point[kX] + point[kY];
+            // y - x
+            _v[OCT_YX] += point[kY] - point[kX];
+        }
+#endif
+        const float& operator[] (const size_t index) const
+        {
+            if (index >= OCT_COUNT)
+            {
+                throw std::out_of_range("index out of range");
+            }
+            return _v[index];
+        }
+        float& operator[](const size_t index)
+        {
+            if (index >= OCT_COUNT)
+            {
+                throw std::out_of_range("index out of range");
+            }
+            return _v[index];
+        }
+        
+    };
+#if 0
+    bool oct_vec_ctor(oct_vec_t ovec, const fvec3_t& pos);
+#endif
+    bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const fvec3_t& fvec, oct_vec_v2_t& odst);
+#if 0
+    bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_t& fvec);
+    bool oct_vec_self_clear(oct_vec_t * ovec);
+#endif
 //--------------------------------------------------------------------------------------------
 
 /// generic octagonal bounding box
@@ -65,23 +206,113 @@
 /// values in data.txt. Computed on the fly.
     struct oct_bb_t
     {
+        bool empty;
+        oct_vec_v2_t mins, maxs;
+
         oct_bb_t() :
-            empty(true)
+            mins(),maxs(),empty(true)
         {
-			for (size_t i = 0; i < 5; ++i)
-			{
-				mins[i] = 0.0f;
-				maxs[i] = 0.0f;
-			}
         }
 
-        bool  empty;
-        oct_vec_t mins,
-		          maxs;
+        oct_bb_t(const oct_bb_t& other)
+            : mins(other.mins), maxs(other.maxs), empty(other.empty)
+        {
+        }
 
+        void assign(const oct_bb_t& other)
+        {
+            mins = other.mins;
+            maxs = other.maxs;
+            empty = other.empty;
+        }
+
+        oct_bb_t& operator=(const oct_bb_t& other)
+        {
+            assign(other);
+            return *this;
+        }
+
+        const oct_vec_v2_t& getMin() const
+        {
+            if (empty)
+            {
+                throw std::invalid_argument("an empty obb does not have a min-point");
+            }
+            return mins;
+        }
+
+        const oct_vec_v2_t& getMax() const
+        {
+            if (empty)
+            {
+                throw std::invalid_argument("an empty obb does not have a max-point");
+            }
+            return maxs;
+        }
+
+        oct_vec_v2_t getMid() const
+        {
+            if (empty)
+            {
+                throw std::invalid_argument("an empty obb does not have a mid-point");
+            }
+            return (mins + maxs) * 0.5f;
+        }
+
+        /**
+         * @brief
+         *	Translate this bounding box.
+         * @param t
+         *	the translation vector
+         */
+        void translate(const fvec3_t& t)
+        {
+            mins.add(t);
+            maxs.add(t);
+        }
+
+        /**
+         * @brief
+         *  Get if this bounding volume contains a point.
+         * @param self
+         *  this bounding volume
+         * @param other
+         *  the point
+         * @return
+         *  @a true if this bounding volume contains the point, @a false otherwise
+         */
+        static bool contains(const oct_bb_t *self, const oct_vec_v2_t& other);
+        
+        /**
+         * @brief
+         *  Get if this bounding volume contains another bounding volume.
+         * @param self
+         *  this bounding volume
+         * @param other
+         *  the other bounding volume
+         * @return
+         *  @a true if this bounding volume contains the other bounding volume, @a false otherwise
+         */
+        static bool contains(const oct_bb_t *self, const oct_bb_t *other);
+        
 		static oct_bb_t *ctor(oct_bb_t *self);
 		static void dtor(oct_bb_t *self);
     };
+
+
+
+    /**
+    * @brief
+    *	Translate this bounding box.
+    * @param src
+    *	the source bounding box
+    * @param t
+    *	the translation vector
+    * @param dst
+    *	the target bounding box
+    */
+    egolib_rv oct_bb_add_fvec3(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst);
+
 
     egolib_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
 
@@ -159,11 +390,7 @@
 //inline
 //--------------------------------------------------------------------------------------------
 
-bool oct_vec_ctor(oct_vec_t ovec, const fvec3_t& pos);
-bool oct_vec_add_fvec3(const oct_vec_t osrc, const fvec3_t& fvec, oct_vec_t odst);
-bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_t& fvec);
 
-bool oct_vec_self_clear( oct_vec_t * ovec );
 
 
 egolib_rv oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src );
@@ -171,12 +398,13 @@ egolib_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc );
 egolib_rv oct_bb_validate( oct_bb_t * pobb );
 bool oct_bb_empty_raw( const oct_bb_t * pbb );
 bool oct_bb_empty( const oct_bb_t * pbb );
-egolib_rv  oct_bb_set_ovec( oct_bb_t * pobb, const oct_vec_t ovec );
+void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& ovec );
 oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index );
 egolib_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
 egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index );
 bool oct_bb_empty_index_raw( const oct_bb_t * pbb, int index );
 bool oct_bb_empty_index( const oct_bb_t * pbb, int index );
+
 egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst, int index );
 egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
 egolib_rv oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
@@ -186,32 +414,13 @@ egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
 egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc );
 egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc );
 
-/**
- * @brief
- *	Translate this bounding box.
- * @param src
- *	the source bounding box
- * @param t
- *	the translation vector
- * @param dst
- *	the target bounding box
- */
-egolib_rv oct_bb_add_fvec3(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst);
 
-/**
- * @brief
- *	Translate this bounding box.
- * @param dst
- * 	the bounding box
- * @param t
- *	the translation vector
- */
-egolib_rv oct_bb_self_add_fvec3(oct_bb_t *dst, const fvec3_t& t);
 
-egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t * pdst );
-egolib_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
-egolib_rv oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
-egolib_rv oct_bb_self_grow( oct_bb_t * pdst, const oct_vec_t ovec );
-bool oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec );
-bool oct_bb_lhs_contains_rhs( const oct_bb_t * plhs, const oct_bb_t * prhs );
-bool oct_bb_get_mids( const oct_bb_t * pbb, oct_vec_t mids );
+
+
+egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_v2_t& ovec, oct_bb_t * pdst );
+egolib_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_v2_t& ovec );
+/// Ensure that the octagonal bounding box encloses the specified point.
+/// @todo Rename to join.
+egolib_rv oct_bb_self_sum_ovec(oct_bb_t *self, const oct_vec_v2_t& v);
+egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v);

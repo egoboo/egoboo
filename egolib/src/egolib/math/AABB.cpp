@@ -67,72 +67,43 @@ bool aabb_is_clear(const aabb_t * pdst)
 	return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-bool aabb_from_oct_bb(aabb_t * dst, const oct_bb_t * src)
+void aabb_t::from(const oct_bb_t& other)
 {
-	if (NULL == dst) return false;
+    // The indices do not match up, so be careful.
+	mins[kX] = other.mins[OCT_X];
+	mins[kY] = other.mins[OCT_Y];
+	mins[kZ] = other.mins[OCT_Z];
 
-	if (NULL == src)
+	maxs[kX] = other.maxs[OCT_X];
+	maxs[kY] = other.maxs[OCT_Y];
+	maxs[kZ] = other.maxs[OCT_Z];
+}
+
+void aabb_t::join(const aabb_t& other)
+{
+    for (size_t i = 0; i < 3; ++i)
+    {
+        mins[i] = std::min(mins[i], other.mins[i]);
+        maxs[i] = std::max(maxs[i], other.maxs[i]);
+    }
+}
+
+bool aabb_t::contains(const aabb_t& x, const aabb_t& y)
+{
+	for (size_t i = 0; i < 3; ++i)
 	{
-		BLANK_STRUCT_PTR(dst);
+		if (y.maxs[i] > x.maxs[i]) return false;
+		if (y.mins[i] < x.mins[i]) return false;
 	}
-	else
-	{
-		// the indices do not match up, so be careful
-		dst->mins[kX] = src->mins[OCT_X];
-		dst->mins[kY] = src->mins[OCT_Y];
-		dst->mins[kZ] = src->mins[OCT_Z];
-
-		dst->maxs[kX] = src->maxs[OCT_X];
-		dst->maxs[kY] = src->maxs[OCT_Y];
-		dst->maxs[kZ] = src->maxs[OCT_Z];
-	}
-
 	return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool aabb_lhs_contains_rhs(const aabb_t& self, const aabb_t& other)
+bool aabb_t::overlaps(const aabb_t& x, const aabb_t& y)
 {
-	// The optimizer is supposed to do this stuff all by itself, but isn't.
-	const float *rhs_mins = other.mins.v + 0;
-	const float *rhs_maxs = other.maxs.v + 0;
-	const float *lhs_mins = self.mins.v + 0;
-	const float *lhs_maxs = self.maxs.v + 0;
-
-	for (size_t cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
-	{
-		if ((*rhs_maxs) >(*lhs_maxs)) return false;
-		if ((*rhs_mins) < (*lhs_mins)) return false;
-	}
-
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
-void aabb_self_union(aabb_t& self, const aabb_t& other)
-{
-	for (size_t cnt = 0; cnt < 3; cnt++)
-	{
-		self.mins[cnt] = std::min(self.mins[cnt], other.mins[cnt]);
-		self.maxs[cnt] = std::max(self.maxs[cnt], other.maxs[cnt]);
-	}
-}
-
-//--------------------------------------------------------------------------------------------
-bool aabb_overlap(const aabb_t& self, const aabb_t& other)
-{
-	// The optimizer is supposed to do this stuff all by itself, but isn't.
-	const float *rhs_mins = other.mins.v + 0;
-	const float *rhs_maxs = other.maxs.v + 0;
-	const float *lhs_mins = self.mins.v + 0;
-	const float *lhs_maxs = self.maxs.v + 0;
-
-	for (size_t cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
-	{
-		if ((*rhs_maxs) < (*lhs_mins)) return false;
-		if ((*rhs_mins) > (*lhs_maxs)) return false;
-	}
-
-	return true;
+    for (size_t i = 0; i < 3; ++i)
+    {
+        if (y.maxs[i] < x.mins[i]) return false;
+        if (y.mins[i] > x.maxs[i]) return false;
+    }
+    return true;
 }

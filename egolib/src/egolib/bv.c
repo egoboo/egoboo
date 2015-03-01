@@ -38,24 +38,17 @@ bool bv_self_clear(bv_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-bool bv_from_oct_bb(bv_t * dst, const oct_bb_t * src)
+void bv_t::from(const oct_bb_t& other)
 {
-	bool retval;
-
-	if (NULL == dst) return false;
-
-	retval = aabb_from_oct_bb(&(dst->aabb), src);
-
-	if (retval)
-	{
-		retval = bv_validate(dst);
-	}
-	else
-	{
-		bv_self_clear(dst);
-	}
-
-	return retval;
+    if (!other.empty)
+    {
+        aabb.from(other);
+        bv_validate(this);
+    }
+    else
+    {
+        bv_self_clear(this);
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -88,30 +81,22 @@ bool bv_self_union(bv_t * pdst, const bv_t * psrc)
 	{
 		return true;
 	}
-	aabb_self_union(pdst->aabb, psrc->aabb);
+	pdst->aabb.join(psrc->aabb);
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool bv_lhs_contains_rhs(const bv_t * lhs_ptr, const bv_t * rhs_ptr)
+bool bv_t::contains(const bv_t *x, const bv_t *y)
 {
-	if (NULL == lhs_ptr || NULL == rhs_ptr) return false;
-
-	bv_test(lhs_ptr);
-	bv_test(rhs_ptr);
-
-	return aabb_lhs_contains_rhs(lhs_ptr->aabb, rhs_ptr->aabb);
+	if (!x || !y) return false;
+	return aabb_t::contains(x->aabb,y->aabb);
 }
 
 //--------------------------------------------------------------------------------------------
-bool bv_overlap(const bv_t * lhs_ptr, const bv_t * rhs_ptr)
+bool bv_t::overlaps(const bv_t *x, const bv_t *y)
 {
-	if (NULL == lhs_ptr || NULL == rhs_ptr) return false;
-
-	bv_test(lhs_ptr);
-	bv_test(rhs_ptr);
-
-	return aabb_overlap(lhs_ptr->aabb, rhs_ptr->aabb);
+	if (!x || !y) return false;
+	return aabb_t::overlaps(x->aabb,y->aabb);
 }
 
 //--------------------------------------------------------------------------------------------

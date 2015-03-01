@@ -949,7 +949,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
 	{
 		Uint16 vertices;
 		Uint8 type;
-		oct_vec_t ovec;
+		oct_vec_v2_t ovec;
 
         ego_tile_info_t *ptile = tile_mem_t::get(ptmem, cnt);
         oct_bb_t *poct = &(ptile->oct);
@@ -964,14 +964,14 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
 		vertices = pdef->numvertices;                 // Number of vertices
 
 		// initialize the bounding box
-		oct_vec_ctor(ovec, fvec3_t(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
+	    ovec = oct_vec_v2_t(fvec3_t(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
         oct_bb_set_ovec( poct, ovec );
         mesh_vrt++;
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            oct_vec_ctor( ovec, fvec3_t(ptmem->plst[mesh_vrt][0],ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
+            ovec.ctor(fvec3_t(ptmem->plst[mesh_vrt][0],ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
             oct_bb_self_sum_ovec( poct, ovec );
         }
 

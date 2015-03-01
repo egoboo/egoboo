@@ -175,7 +175,7 @@ geometry_rv cone_intersects_sphere(const cone_t * lhs, const sphere_t * rhs);
 fvec3_t plane_get_normal(const plane_base_t self);
 
 /// The distance between a point and a plane
-float plane_point_distance( const plane_base_t plane, const point_base_t pos );
+float plane_point_distance( const plane_base_t plane, const fvec3_t& pos);
 
 /// find the parametric line where two planes intersect
 bool two_plane_intersection( fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_base_t p0, const plane_base_t p1 );

@@ -188,7 +188,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	phys_expand_prt_bb(loc_pprt, 0.0f, 1.0f, &tmp_oct);
 
 	// convert the bounding box
-	bv_from_oct_bb(&(pleaf->bbox), &tmp_oct);
+	pleaf->bbox.from(tmp_oct);
 
 	retval = prt_BSP_root->insert_leaf(pleaf);
 	if (retval)
@@ -266,7 +266,7 @@ bool chr_BSP_insert(Object * pchr)
 		phys_expand_chr_bb(pchr, 0.0f, 1.0f, &tmp_oct);
 
 		// convert the bounding box
-		bv_from_oct_bb(&(pleaf->bbox), &tmp_oct);
+		pleaf->bbox.from(tmp_oct);
 
 		// insert the leaf
 		retval = chr_BSP_root->insert_leaf(pleaf);

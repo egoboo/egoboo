@@ -135,7 +135,7 @@ static bool mesh_BSP_insert(mesh_BSP_t *self, ego_tile_info_t *ptile, int index)
     };
 
     // Convert the octagonal bounding box to an AABB.
-    bv_from_oct_bb(&(pleaf->bbox), &(ptile->oct));
+    pleaf->bbox.from(ptile->oct);
 
     // Insert the leaf.
 	bool retval = self->insert_leaf(pleaf);

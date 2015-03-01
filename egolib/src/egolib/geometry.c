@@ -57,16 +57,16 @@ bool plane_base_normalize( plane_base_t * plane )
 //--------------------------------------------------------------------------------------------
 // point functions
 //--------------------------------------------------------------------------------------------
-float plane_point_distance( const plane_base_t plane, const point_base_t pos )
+float plane_point_distance(const plane_base_t plane, const fvec3_t& pos)
 {
     // calculate the perpendicular from the point to the plane.
     // assumes a normalized plane.
     // negative numbers indicate that the point in in the "negative half-space" of the plane
 
-    if ( NULL == plane || NULL == pos ) return 0.0f;
+    if ( NULL == plane) return 0.0f;
 
 	/// @todo Use plane_t::get_normal(). Use point3_t::tovec3().
-    return fvec3_t(plane[0],plane[1],plane[2]).dot(fvec3_t(pos[0],pos[1],pos[2])) + plane[kW];
+    return fvec3_t(plane[0],plane[1],plane[2]).dot(pos) + plane[kW];
 }
 
 //--------------------------------------------------------------------------------------------
