@@ -432,7 +432,8 @@ typedef Uint16 REF_T;
 	// a simple list structure that tracks free elements
 
 template <typename TYPE,size_t COUNT>
-struct _List {
+struct _List
+{
 	unsigned update_guid;
 	int used_count;
 	int free_count;

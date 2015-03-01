@@ -24,8 +24,10 @@
 
 #include "egolib/math/Colour3f.hpp"
 
-namespace Ego {
-	namespace Math {
+namespace Ego
+{
+	namespace Math
+    {
 
 		/**
 		 * @brief

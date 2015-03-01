@@ -194,7 +194,8 @@ void GameEngine::renderOneFrame()
     game_frame_all++;
 
     //Draw mouse cursor last
-    if(_drawCursor) {
+    if(_drawCursor)
+    {
         draw_mouse_cursor();
     }
 
@@ -203,8 +204,10 @@ void GameEngine::renderOneFrame()
 	gfx_do_flip_pages();
 
     //Save screenshot if it has been requested
-    if(_screenshotRequested) {
-        if(_screenshotReady) {
+    if(_screenshotRequested)
+    {
+        if(_screenshotReady)
+        {
             _screenshotReady = false;
             _screenshotRequested = false;
             
@@ -215,7 +218,8 @@ void GameEngine::renderOneFrame()
             }
         }
     }
-    else {
+    else
+    {
         _screenshotReady = true;
     }
 }
