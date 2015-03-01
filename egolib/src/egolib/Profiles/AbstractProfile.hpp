@@ -41,6 +41,9 @@ public:
         _spawnCount = 0;
     }
 
+    //Disable copying class
+    AbstractProfile(const AbstractProfile& copy) = delete;
+    AbstractProfile& operator=(const AbstractProfile&) = delete;
 };
 
 /// Enchants as well as particles can spawn other particles.

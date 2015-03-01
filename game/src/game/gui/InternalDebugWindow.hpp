@@ -45,6 +45,7 @@ class InternalDebugWindow : public GUIComponent
 
     private:
         bool _mouseOver;
+        bool _mouseOverCloseButton;
         bool _isDragging;
         std::string _title;
 

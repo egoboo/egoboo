@@ -83,6 +83,21 @@ enum matrix_cache_type_t
 /// the data necessary to cache the last values required to create the character matrix
 struct matrix_cache_t
 {
+    matrix_cache_t() :
+        valid(false),
+        matrix_valid(false),
+        type_bits(0),
+        rotate(),
+        pos(),
+        grip_chr(INVALID_CHR_REF),
+        grip_slot(SLOT_LEFT),
+        grip_verts(),
+        grip_scale(),
+        self_scale()
+    {
+        //ctor
+    }
+
     // is the cache data valid?
     bool valid;
 
@@ -104,7 +119,7 @@ struct matrix_cache_t
 
     CHR_REF grip_chr;                   ///< != INVALID_CHR_REF if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
-    Uint16  grip_verts[GRIP_VERTS];     ///< Vertices which describe the weapon grip
+    std::array<uint16_t, GRIP_VERTS> grip_verts;     ///< Vertices which describe the weapon grip
     fvec3_t grip_scale;
 
     //---- data used for both

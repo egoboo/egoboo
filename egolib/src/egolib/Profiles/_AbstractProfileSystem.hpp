@@ -241,4 +241,8 @@ public:
         }
     }
 
+
+    //Disable copying class
+    _AbstractProfileSystem(const _AbstractProfileSystem& copy) = delete;
+    _AbstractProfileSystem& operator=(const _AbstractProfileSystem&) = delete;
 };

@@ -35,6 +35,15 @@ struct mad_t;
 /// Placeholders used while importing profiles
 struct pro_import_t
 {
+	pro_import_t() :
+		slot(-1),
+		player(0),
+		slot_lst(),
+		max_slot(0)
+	{
+		//ctor
+	}
+
     int   slot;
     int   player;
     std::array<int, 10*4> slot_lst; //MAX_IMPORT_PER_PLAYER * MAX_PLAYER;

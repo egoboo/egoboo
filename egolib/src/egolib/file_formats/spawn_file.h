@@ -38,6 +38,9 @@ enum e_attachment_type
 /// The internal representation of a single line in "spawn.txt"
 struct spawn_file_info_t
 {
+public:
+    spawn_file_info_t();
+
     bool       do_spawn;
     STRING     spawn_coment;
 

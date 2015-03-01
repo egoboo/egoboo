@@ -31,6 +31,27 @@
 // includes for egoboo constants
 #include "game/char.h"       // for TEAM_* constants
 
+spawn_file_info_t::spawn_file_info_t() :
+    do_spawn(false),
+    spawn_coment(),
+    spawn_name(),
+    pname(nullptr),
+    slot(-1),
+    pos(0, 0, 0),
+    passage(-1),
+    content(0),
+    money(0),
+    level(0),
+    skin(0),
+    stat(false),
+    team(TEAM_NULL),
+    facing(FACE_NORTH),
+    attach(ATTACH_NONE),
+    parent(INVALID_CHR_REF)   
+{
+    //ctor
+}
+
 spawn_file_info_t *spawn_file_info_init(spawn_file_info_t *self)
 {
     if (!self)
