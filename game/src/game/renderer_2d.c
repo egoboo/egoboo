@@ -294,7 +294,7 @@ void gfx_begin_2d()
 	Ego::Renderer::get().setScissorTestEnabled(false);
 
     // don't worry about hidden surfaces
-	Ego::Renderer::get().setScissorTestEnabled(false);
+	Ego::Renderer::get().setDepthTestEnabled(false);
 
     // stop culling backward facing polygons
     oglx_end_culling();                            // GL_ENABLE_BIT
