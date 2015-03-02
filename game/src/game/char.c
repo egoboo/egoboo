@@ -6167,7 +6167,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 
     // convert the point cloud in the GLvertex array (pchr->inst.vrt_lst) to
     // a level 1 bounding box. Subtract off the position of the character
-    memcpy( &bsrc, &( pchr->inst.bbox ), sizeof( bsrc ) );
+    bsrc = pchr->inst.bbox;
 
     // convert the corners of the level 1 bounding box to a point cloud
     vcount = oct_bb_to_points( &bsrc, src, 16 );
@@ -6225,7 +6225,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 
         chr_calc_grip_cv( pchr, GRIP_LEFT, &pchr->slot_cv[cnt], false );
 
-        oct_bb_self_union( &( pchr->chr_max_cv ), &pchr->slot_cv[cnt] );
+        oct_bb_self_join(pchr->chr_max_cv, pchr->slot_cv[cnt]);
     }
 
     // convert the level 1 bounding box to a level 0 bounding box

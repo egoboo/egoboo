@@ -59,9 +59,57 @@
 
     struct oct_vec_v2_t
     {
+
     public:
+
         oct_vec_t _v;
+
     public:
+
+        void add(const fvec3_t& other)
+        {
+            sub(oct_vec_v2_t(other));
+        }
+
+        void add(const oct_vec_v2_t& other)
+        {
+            for (size_t i = 0; i < OCT_COUNT; ++i)
+            {
+                _v[i] += other[i];
+            }
+        }
+
+        void sub(const fvec3_t& other)
+        {
+            sub(oct_vec_v2_t(other));
+        }
+
+        void sub(const oct_vec_v2_t& other)
+        {
+            for (size_t i = 0; i < OCT_COUNT; ++i)
+            {
+                _v[i] -= other[i];
+            }
+        }
+
+        void mul(const float scalar)
+        {
+            for (size_t i = 0; i < OCT_COUNT; ++i)
+            {
+                _v[i] *= scalar;
+            }
+        }
+
+        void assign(const oct_vec_v2_t& other)
+        {
+            for (size_t i = 0; i < OCT_COUNT; ++i)
+            {
+                _v[i] = other._v[i];
+            }
+        }
+
+    public:
+
         oct_vec_v2_t()
         {
             _v[OCT_X] = 0.0f;
@@ -70,6 +118,7 @@
             _v[OCT_XY] = 0.0f;
             _v[OCT_YX] = 0.0f;
         }
+
         oct_vec_v2_t(const fvec3_t& point)
         {
             _v[OCT_X] = point[kX];
@@ -80,6 +129,7 @@
             // y - x
             _v[OCT_YX] = point[kY] - point[kX];
         }
+
         oct_vec_v2_t(float x, float y, float z, float xy, float yx)
         {
             _v[OCT_X] = x;
@@ -88,6 +138,7 @@
             _v[OCT_XY] = xy;
             _v[OCT_YX] = yx;
         }
+
         oct_vec_v2_t(const oct_vec_v2_t& other)
         {
             for (size_t i = 0; i < OCT_COUNT; ++i)
@@ -95,25 +146,53 @@
                 _v[i] = other._v[i];
             }
         }
-        void assign(const oct_vec_v2_t& other)
-        {
-            for (size_t i = 0; i < OCT_COUNT; ++i)
-            {
-                _v[i] = other._v[i];
-            }
-        }
+
+    public:
+
         oct_vec_v2_t operator+(const oct_vec_v2_t& other) const
         {
             return
                 oct_vec_v2_t
                 (
-                    _v[OCT_X]  + other._v[OCT_X],
-                    _v[OCT_Y]  + other._v[OCT_Y],
-                    _v[OCT_Z]  + other._v[OCT_Z],
-                    _v[OCT_XY] + other._v[OCT_XY],
-                    _v[OCT_YX] + other._v[OCT_YX]
+                _v[OCT_X]  + other._v[OCT_X],
+                _v[OCT_Y]  + other._v[OCT_Y],
+                _v[OCT_Z]  + other._v[OCT_Z],
+                _v[OCT_XY] + other._v[OCT_XY],
+                _v[OCT_YX] + other._v[OCT_YX]
                 );
         }
+
+        oct_vec_v2_t& operator+=(const oct_vec_v2_t& other)
+        {
+            add(other);
+            return *this;
+        }
+
+        oct_vec_v2_t operator-(const oct_vec_v2_t& other) const
+        {
+            return
+                oct_vec_v2_t
+                (
+                _v[OCT_X]  - other._v[OCT_X],
+                _v[OCT_Y]  - other._v[OCT_Y],
+                _v[OCT_Z]  - other._v[OCT_Z],
+                _v[OCT_XY] - other._v[OCT_XY],
+                _v[OCT_YX] - other._v[OCT_YX]
+                );
+        }
+
+        oct_vec_v2_t& operator-=(const oct_vec_v2_t& other)
+        {
+            sub(other);
+            return *this;
+        }
+
+        oct_vec_v2_t& operator*=(const float scalar)
+        {
+            mul(scalar);
+            return *this;
+        }
+
         oct_vec_v2_t operator*(const float scalar) const
         {
             return
@@ -150,28 +229,6 @@
             // y - x
             _v[OCT_YX] = point[kY] - point[kX];
         }
-#if 1
-        void sub(const fvec3_t& point)
-        {
-            _v[OCT_X] -= point[kX];
-            _v[OCT_Y] -= point[kY];
-            _v[OCT_Z] -= point[kZ];
-            // x + y
-            _v[OCT_XY] -= point[kX] + point[kY];
-            // y - x
-            _v[OCT_YX] -= point[kY] - point[kX];
-        }
-        void add(const fvec3_t& point)
-        {
-            _v[OCT_X]  += point[kX];
-            _v[OCT_Y]  += point[kY];
-            _v[OCT_Z]  += point[kZ];
-            // x + y
-            _v[OCT_XY] += point[kX] + point[kY];
-            // y - x
-            _v[OCT_YX] += point[kY] - point[kX];
-        }
-#endif
         const float& operator[] (const size_t index) const
         {
             if (index >= OCT_COUNT)
@@ -299,18 +356,60 @@
 		static void dtor(oct_bb_t *self);
     };
 
+    /**
+     * @brief
+     *  Assign this octagonal bounding box the join of itself with a octagonal vector.
+     * @param self
+     *  this octagonal bounding box
+     * @param other
+     *  the octagonal vector
+     * @post
+     *  This octagonal bounding box was assigned the join of itself with the octagonal vector.
+     */
+    egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_vec_v2_t& other);
+    egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_bb_t& other);
+    egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other);
+    egolib_rv oct_bb_self_add_ovec(oct_bb_t *self, const oct_vec_v2_t& t);
+    egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v);
+    /**
+     * @brief
+     *  Assign this octagonal bounding box the restricted join of itself with another octagonal bounding box.
+     * @param self
+     *  this octagonal bounding box
+     * @param other
+     *  the other octagonal bounding box
+     * @param index
+     *  the axis the join is restricted to
+     * @post
+     *  This octagonal bounding box was asisigned the restricted intersection of itself with the other octagonal bounding box.
+     */
+    egolib_rv oct_bb_self_union_index(oct_bb_t *self, const oct_bb_t *other, int index);
+    /**
+     * @brief
+     *  Assign this octagonal bounding box the restricted intersection of itself with another octagonal bounding box.
+     * @param self
+     *  this octagonal bounding box
+     * @param other
+     *  the other octagonal bounding box
+     * @param index
+     *  the axis the join is restricted to
+     * @post
+     *  This octagonal bounding box was assigned the restricted intersection of itself with the other octagonal bounding box.
+     */
+    egolib_rv oct_bb_self_intersection_index(oct_bb_t *self, const oct_bb_t *other, int index);
+
 
 
     /**
-    * @brief
-    *	Translate this bounding box.
-    * @param src
-    *	the source bounding box
-    * @param t
-    *	the translation vector
-    * @param dst
-    *	the target bounding box
-    */
+     * @brief
+     *	Translate this bounding box.
+     * @param src
+     *	the source bounding box
+     * @param t
+     *	the translation vector
+     * @param dst
+     *	the target bounding box
+     */
     egolib_rv oct_bb_add_fvec3(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst);
 
 
@@ -404,23 +503,8 @@ egolib_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
 egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index );
 bool oct_bb_empty_index_raw( const oct_bb_t * pbb, int index );
 bool oct_bb_empty_index( const oct_bb_t * pbb, int index );
-
 egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst, int index );
 egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
-egolib_rv oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
-egolib_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
 egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst );
 egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
-egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc );
-egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc );
-
-
-
-
-
 egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_v2_t& ovec, oct_bb_t * pdst );
-egolib_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_v2_t& ovec );
-/// Ensure that the octagonal bounding box encloses the specified point.
-/// @todo Rename to join.
-egolib_rv oct_bb_self_sum_ovec(oct_bb_t *self, const oct_vec_v2_t& v);
-egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v);
