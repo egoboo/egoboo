@@ -281,7 +281,6 @@ extern "C"
     void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t size, bool req_enet );
     void egonet_shutDown( void );
     bool egonet_begin( bool req_enet );
-    bool egonet_end( void );
 
     egonet_instance_t * egonet_get_instance( void );
 

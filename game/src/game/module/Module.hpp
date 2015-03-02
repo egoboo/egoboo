@@ -124,16 +124,23 @@ public:
 	uint8_t getMaxPlayers() const;
 	uint8_t getMinPlayers() const;
 
+	const std::shared_ptr<ModuleProfile>& getModuleProfile() const {return _moduleProfile;}
+
+	void setImportPlayers(const std::list<std::string> &players) {_playerList = players;}
+
+	const std::list<std::string>& getImportPlayers() const {return _playerList;}
+
 private:
 	const std::shared_ptr<ModuleProfile> _moduleProfile;
+	std::list<std::string> _playerList; 	///< List of all import players
 
-    std::string  _name;               ///< Module load names
-    bool _exportValid;				  ///< Allow to export when module is reset?
-    bool  _exportReset;               ///< Remember original export mode if the module is restarted
-    bool  _canRespawnAnyTime;         ///< True if it's a small level...
-    bool _isRespawnValid;			  ///< Can players respawn with Spacebar?
-    bool _isBeaten;				 	  ///< Have the players won?
-    uint32_t  _seed;                  ///< The module seed
+    std::string  _name;               		///< Module load names
+    bool _exportValid;				  		///< Allow to export when module is reset?
+    bool  _exportReset;               		///< Remember original export mode if the module is restarted
+    bool  _canRespawnAnyTime;         		///< True if it's a small level...
+    bool _isRespawnValid;			  		///< Can players respawn with Spacebar?
+    bool _isBeaten;				 	  		///< Have the players won?
+    uint32_t  _seed;                  		///< The module seed
 
     std::vector<std::shared_ptr<Passage>> _passages;	///< All passages in this module
 };

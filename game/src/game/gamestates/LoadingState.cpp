@@ -42,13 +42,10 @@
 #include "game/renderer_2d.h"
 #include "game/bsp.h"
 #include "egolib/fileutil.h"
+#include "game/module/Module.hpp"
 
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :
-#ifdef _MSC_VER
 	_finishedLoading({0}),
-#else
-	_finishedLoading(false),
-#endif
 	_loadingThread(),
     _loadingLabel(nullptr),
 	_loadModule(module),
@@ -191,7 +188,7 @@ void LoadingState::loadModuleData()
     //Ready message display
     DisplayMsg_reset();
 
-    // Reset all "profiles" in the "profile system".
+    // Reset all loaded "profiles" in the "profile system".
     _profileSystem.reset();
 
     // do some graphics initialization
@@ -215,6 +212,7 @@ void LoadingState::loadModuleData()
     	endState();
     	return;
     }
+    PMod->setImportPlayers(_playersToLoad);
 
     singleThreadRedrawHack("Almost done...");
 
