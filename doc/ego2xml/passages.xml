@@ -1,0 +1,29 @@
+<passages>
+	<!--  TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose -->  
+	<psg>3  51      4  52          F       T             F</psg><!-- Deadend1 -->
+	<psg>53 7       54 8           F       T             F</psg><!-- Deadend2 -->
+	<psg>40 53      41 54          F       F             F</psg><!-- Door -->
+	<psg>48 27      49 28          F       F             F</psg><!-- Armor -->
+	<psg>17 18      18 19          F       F             F</psg><!-- Trog -->
+	<psg>24 25      25 26          F       F             F</psg><!-- MamaLeft -->
+	<psg>29 15      30 16          F       F             F</psg><!-- GoodiesOut -->
+	<psg>29  6      30  7          F       F             F</psg><!-- GoodiesIn -->
+	<psg>49 45      50 46          F       T             F</psg><!-- Gelfeet -->
+	<psg>59 51      60 52          F       T             F</psg><!-- Gelfeet -->
+	<psg>2  2       20 18          T       T             F</psg><!-- MuseBoss -->
+	<psg>50 40      61 51          T       T             F</psg><!-- MuseGel -->
+	<psg>4  29      11 40          T       T             F</psg><!-- MuseTrog -->
+	<psg>22 8       31 14          T       T             F</psg><!-- MuseBook -->
+	<psg>50 22      61 33          T       T             F</psg><!-- MuseMouse -->
+	<psg>16 34      23 41          T       T             F</psg><!-- MuseMimic -->
+	<!--
+		Deadend 
+		<psg>
+			<topleft>3  5</topleft>
+			<bottomright>4  52</bottomright>
+			<open>F</open>
+			<shoot>T</shoot>
+			<slipclose>F</slipclose>
+		</psg>
+	-->
+</passages>
