@@ -297,24 +297,25 @@ CoNode_t::CoNode_t() :
     //ctor
 }
 
-CoNode_t *CoNode_ctor(CoNode_t *self)
+CoNode_t *CoNode_t::ctor(CoNode_t *self)
 {
     if (!self) return nullptr;
-
+#if 0
     // clear all data
 	BLANK_STRUCT_PTR(self);
-
-    // the "colliding" objects
+#endif
+    // The "colliding" objects.
     self->chra = INVALID_CHR_REF;
     self->prta = INVALID_PRT_REF;
 
-    // the "collided with" objects
+    // The "collided with" objects.
     self->chrb  = INVALID_CHR_REF;
     self->prtb  = INVALID_PRT_REF;
     self->tileb = MAP_FANOFF;
 
-    // intialize the time
+    // The time.
     self->tmin = self->tmax = -1.0f;
+    oct_bb_t::ctor(&self->cv);
 
     return self;
 }
@@ -737,7 +738,7 @@ bool add_chr_chr_interaction(CoHashList_t *pchlst, const CHR_REF ichr_a, const C
         d = pcn_lst->pop_back();
 
         // fill it in
-        CoNode_ctor( d );
+        CoNode_t::ctor(d);
         d->chra = ichr_a;
         d->chrb = ichr_b;
 
@@ -799,7 +800,7 @@ bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, con
         d = pcn_lst->pop_back();
 
         // fill it in
-        CoNode_ctor( d );
+        CoNode_t::ctor( d );
         d->chra = ichr_a;
         d->prtb = iprt_b;
 
@@ -898,7 +899,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     {
                         Object * pchr_b = _gameObjects.get( ichr_b );
 
-                        CoNode_ctor( &tmp_codata );
+                        CoNode_t::ctor( &tmp_codata );
 
                         // do a simple test, since I do not want to resolve the ObjectPRofile for these objects here
                         test_platform = EMPTY_BIT_FIELD;
@@ -954,7 +955,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     {
                         prt_t * pprt_b = PrtList.get_ptr( iprt_b );
 
-                        CoNode_ctor( &tmp_codata );
+                        CoNode_t::ctor( &tmp_codata );
 
                         // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
@@ -1099,7 +1100,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     // particle can interact with the object
                     if ( interaction_valid )
                     {
-                        CoNode_ctor( &tmp_codata );
+                        CoNode_t::ctor( &tmp_codata );
 
                         // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
                         test_platform = EMPTY_BIT_FIELD;
@@ -1706,10 +1707,10 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             apos_t  apos_tmp;
 
             // copy 1/2 of the data over
-            memmove( &apos_tmp, &( pchr->phys.aplat ), sizeof( apos_tmp ) );
+            apos_tmp = pchr->phys.aplat;
 
             // get the resultant apos_t
-            apos_self_union( &apos_tmp, &( pchr->phys.acoll ) );
+            apos_t::self_union( &apos_tmp, &( pchr->phys.acoll ) );
 
             // turn this into a vector
             apos_evaluate(&apos_tmp, max_apos);
@@ -1809,10 +1810,10 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             apos_t  apos_tmp;
 
             // copy 1/2 of the data over
-            memmove( &apos_tmp, &( bdl.prt_ptr->phys.aplat ), sizeof( apos_tmp ) );
+            apos_tmp = bdl.prt_ptr->phys.aplat;
 
             // get the resultant apos_t
-            apos_self_union( &apos_tmp, &( bdl.prt_ptr->phys.acoll ) );
+            apos_t::self_union( &apos_tmp, &( bdl.prt_ptr->phys.acoll ) );
 
             // turn this into a vector
             apos_evaluate(&apos_tmp, max_apos);

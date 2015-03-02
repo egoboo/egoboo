@@ -568,9 +568,6 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
     oct_bb_t src1, src2;
     oct_bb_t exp1, exp2;
 
-    oct_vec_v2_t opos1, opos2;
-    oct_vec_v2_t ovel1, ovel2;
-
     int    index;
     bool found;
     float  local_tmin, local_tmax;
@@ -583,11 +580,8 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
     if ( NULL == tmax ) tmax = &local_tmax;
 
     // convert the position and velocity vectors to octagonal format
-    ovel1.ctor( vel1 );
-    opos1.ctor( pos1 );
-
-    ovel2.ctor( vel2 );
-    opos2.ctor( pos2 );
+    oct_vec_v2_t opos1(pos1), opos2(pos2),
+                 ovel1(vel1), ovel2(vel2);
 
     // shift the bounding boxes to their starting positions
     oct_bb_add_ovec( src1_orig, opos1, &src1 );
@@ -692,7 +686,7 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
     if ( 0 != test_platform )
     {
         pdst->maxs[OCT_Z] += PLATTOLERANCE;
-        oct_bb_validate( pdst );
+        oct_bb_t::validate( pdst );
     }
 
     if ( pdst->empty ) return false;
@@ -887,9 +881,6 @@ bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos
 
     oct_bb_t intersection;
 
-    oct_vec_v2_t opos1, opos2;
-    oct_vec_v2_t ovel1, ovel2;
-
     int    cnt, index;
     bool found;
     float  tolerance;
@@ -911,11 +902,8 @@ bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos
     }
 
     // convert the position and velocity vectors to octagonal format
-    ovel1.ctor( vel1 );
-    opos1.ctor( pos1 );
-
-    ovel2.ctor( vel2 );
-    opos2.ctor( pos2 );
+    oct_vec_v2_t opos1(pos1), opos2(pos2),
+                 ovel1(vel1), ovel2(vel2);
 
     oct_bb_add_ovec( src1_orig, opos1, &src1 );
     oct_bb_add_ovec( src2_orig, opos2, &src2 );
@@ -973,7 +961,7 @@ bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_t& vel, const float tmin, const float tmax, oct_bb_t * pdst )
+bool phys_expand_oct_bb(const oct_bb_t *psrc, const fvec3_t& vel, const float tmin, const float tmax, oct_bb_t *pdst)
 {
     oct_bb_t tmp_min, tmp_max;
 
@@ -990,12 +978,7 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_t& vel, const float 
     }
     else
     {
-        fvec3_t tmp_diff;
-
-        tmp_diff.x = vel[kX] * tmin;
-        tmp_diff.y = vel[kY] * tmin;
-        tmp_diff.z = vel[kZ] * tmin;
-
+        fvec3_t tmp_diff = vel * tmin;
         // adjust the bounding box to take in the position at the next step
         if ( !oct_bb_add_fvec3( psrc, tmp_diff, &tmp_min ) ) return false;
     }
@@ -1007,12 +990,7 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_t& vel, const float 
     }
     else
     {
-        fvec3_t tmp_diff;
-
-        tmp_diff.x = vel[kX] * tmax;
-        tmp_diff.y = vel[kY] * tmax;
-        tmp_diff.z = vel[kZ] * tmax;
-
+        fvec3_t tmp_diff = vel * tmax;
         // adjust the bounding box to take in the position at the next step
         if ( !oct_bb_add_fvec3( psrc, tmp_diff, &tmp_max ) ) return false;
     }
@@ -1026,16 +1004,13 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_t& vel, const float 
 //--------------------------------------------------------------------------------------------
 bool phys_expand_chr_bb( Object * pchr, float tmin, float tmax, oct_bb_t * pdst )
 {
-
-
-    oct_bb_t tmp_oct1, tmp_oct2;
-
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
     // copy the volume
-    oct_bb_copy( &tmp_oct1, &( pchr->chr_max_cv ) );
+    oct_bb_t tmp_oct1 = pchr->chr_max_cv;
 
     // add in the current position to the bounding volume
+    oct_bb_t tmp_oct2;
     oct_bb_add_fvec3( &( tmp_oct1 ), pchr->getPosition(), &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
@@ -1049,14 +1024,13 @@ bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
     /// @details use the object velocity to figure out where the volume that the particle will
     ///               occupy during this update
 
-    oct_bb_t tmp_oct1, tmp_oct2;
-
     if ( !ACTIVE_PPRT( pprt ) ) return false;
 
     // copy the volume
-    oct_bb_copy( &tmp_oct1, &( pprt->prt_max_cv ) );
+    oct_bb_t tmp_oct1 = pprt->prt_max_cv;
 
     // add in the current position to the bounding volume
+    oct_bb_t tmp_oct2;
     oct_bb_add_fvec3( &tmp_oct1, pprt->pos, &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
@@ -1452,74 +1426,83 @@ bool breadcrumb_list_t::add(breadcrumb_list_t * lst, breadcrumb_t * pnew)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_clear( phys_data_t * pphys )
+phys_data_t *phys_data_clear(phys_data_t *self)
 {
-    if ( NULL == pphys ) return pphys;
-
-    apos_self_clear( &( pphys->aplat ) );
-    apos_self_clear( &( pphys->acoll ) );
-	pphys->avel = fvec3_t::zero;
-
-    return pphys;
-}
-
-//--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_ctor( phys_data_t * pphys )
-{
-    if ( NULL == pphys ) return pphys;
-
-    phys_data_clear( pphys );
-
-    pphys->bumpdampen = 1.0f;
-    pphys->weight     = 1.0f;
-    pphys->dampen     = 0.5f;
-
-    return pphys;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool apos_self_union( apos_t * lhs, apos_t * rhs )
-{
-    int cnt;
-
-    if ( NULL == lhs || NULL == rhs ) return false;
-
-    // scan through the components of the vector and find the
-    // maximum displacement
-    for ( cnt = 0; cnt < 3; cnt ++ )
+    if (!self)
     {
-        lhs->mins.v[cnt] = std::min( lhs->mins.v[cnt], rhs->mins.v[cnt] );
-        lhs->maxs.v[cnt] = std::max( lhs->maxs.v[cnt], rhs->maxs.v[cnt] );
-        lhs->sum.v[cnt] += rhs->sum.v[cnt];
+        return nullptr;
+    }
+
+    apos_t::self_clear(&(self->aplat));
+    apos_t::self_clear(&(self->acoll));
+    self->avel = fvec3_t::zero;
+    /// @todo Seems like dynamic and loaded data are mixed here;
+    /// We may not blank bumpdampen, weight or dampen for now.
+#if 0
+    self->bumpdampen = 1.0f;
+    self->weight = 1.0f;
+    self->dampen = 0.5f;
+#endif
+    return self;
+}
+
+phys_data_t *phys_data_ctor(phys_data_t *self)
+{
+    if (!self)
+    {
+        return nullptr;
+    }
+    
+    apos_t::ctor(&(self->aplat));
+    apos_t::ctor(&(self->acoll));
+    self->avel = fvec3_t::zero;
+    self->bumpdampen = 1.0f;
+    self->weight = 1.0f;
+    self->dampen = 0.5f;
+
+    return self;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool apos_t::self_union(apos_t *self, const apos_t *other)
+{
+    if (!self || !other)
+    {
+        return false;
+    }
+    // Scan through the components of the vector and find the maximum displacement.
+    for (size_t i = 0; i < 3; ++i)
+    {
+        self->mins[i] = std::min(self->mins[i], other->mins[i]);
+        self->maxs[i] = std::max(self->maxs[i], other->maxs[i]);
+        self->sum[i] += other->sum[i];
     }
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool apos_self_union_fvec3( apos_t * lhs, const fvec3_t& rhs )
+bool apos_t::self_union(apos_t *self, const fvec3_t& other)
 {
-    int cnt;
-
-    if ( NULL == lhs ) return false;
-
-    // scan through the components of the vector and find the
-    // maximum displacement
-    for ( cnt = 0; cnt < 3; cnt ++ )
+    if (!self)
     {
-        // find the extrema of the displacement
-        if ( rhs[cnt] > 0.0f )
+        return false;
+    }
+    // Scan through the components of the vector and find the maximum displacement.
+    for (size_t i = 0; i < 3; ++i)
+    {
+        // Find the extrema of the displacement.
+        if (other[i] > 0.0f)
         {
-            lhs->maxs.v[cnt] = std::max( lhs->maxs.v[cnt], rhs[cnt] );
+            self->maxs[i] = std::max(self->maxs[i], other[i]);
         }
-        else if ( rhs[cnt] < 0.0f )
+        else if (other[i] < 0.0f)
         {
-            lhs->mins.v[cnt] = std::min( lhs->mins.v[cnt], rhs[cnt] );
+            self->mins[i] = std::min(self->mins[i], other[i]);
         }
 
-        // find the sum of the displacement
-        lhs->sum.v[cnt] += rhs[cnt];
+        // Find the sum of the displacement.
+        self->sum.v[i] += other[i];
     }
 
     return true;
@@ -1561,9 +1544,9 @@ bool apos_evaluate(const apos_t *src, fvec3_t& dst)
 		return true;
     }
 
-    for (size_t cnt = 0; cnt < 3; cnt ++ )
+    for (size_t i = 0; i < 3; ++i)
     {
-        dst[cnt] = src->maxs.v[cnt] + src->mins.v[cnt];
+        dst[i] = src->maxs[i] + src->mins[i];
     }
 
     return true;
@@ -1571,33 +1554,37 @@ bool apos_evaluate(const apos_t *src, fvec3_t& dst)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_t& vec )
+phys_data_t *phys_data_sum_aplat(phys_data_t *self, const fvec3_t& v)
 {
-    if ( NULL == pphys ) return pphys;
-
-    apos_self_union_fvec3( &( pphys->aplat ), vec );
-
-    return pphys;
+    if (!self)
+    {
+        return nullptr;
+    }
+    apos_t::self_union(&(self->aplat ), v);
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_t& vec )
+phys_data_t *phys_data_sum_acoll(phys_data_t *self, const fvec3_t& v)
 {
-    if ( NULL == pphys ) return pphys;
-
-    apos_self_union_fvec3( &( pphys->acoll ), vec );
-
-    return pphys;
+    if (!self)
+    {
+        return nullptr;
+    }
+    apos_t::self_union(&(self->acoll), v);
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-phys_data_t *phys_data_sum_avel(phys_data_t * pphys, const fvec3_t& vec)
+phys_data_t *phys_data_sum_avel(phys_data_t *self, const fvec3_t& v)
 {
-    if (NULL == pphys) return pphys;
+    if (!self)
+    {
+        return nullptr;
+    }
+    self->avel += v;
 
-    pphys->avel += vec;
-
-    return pphys;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1647,8 +1634,8 @@ bool test_interaction_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t b
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    oct_bb_set_bumper( &cv_a, bump_a );
-    oct_bb_set_bumper( &cv_b, bump_b );
+    cv_a.assign(bump_a);
+    cv_b.assign(bump_b);
 
     return test_interaction_close_2( &cv_a, pos_a, &cv_b, pos_b, test_platform );
 }
@@ -1659,8 +1646,8 @@ bool test_interaction_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b,
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    oct_bb_set_bumper( &cv_a, bump_a );
-    oct_bb_set_bumper( &cv_b, bump_b );
+    cv_a.assign(bump_a);
+    cv_b.assign(bump_b);
 
     return test_interaction_2( &cv_a, pos_a, &cv_b, pos_b, test_platform );
 }
@@ -1671,7 +1658,7 @@ bool test_interaction_close_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bump
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    oct_bb_set_bumper( &cv_b, bump_b );
+    cv_b.assign(bump_b);
 
     return test_interaction_close_2( cv_a, pos_a, &cv_b, pos_b, test_platform );
 }
@@ -1682,7 +1669,7 @@ bool test_interaction_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t b
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    oct_bb_set_bumper( &cv_b, bump_b );
+    cv_b.assign(bump_b);
 
     return test_interaction_2( cv_a, pos_a, &cv_b, pos_b, test_platform );
 }
@@ -1754,8 +1741,8 @@ bool get_depth_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, 
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    oct_bb_set_bumper( &cv_a, bump_a );
-    oct_bb_set_bumper( &cv_b, bump_b );
+    cv_a.assign(bump_a);
+    cv_b.assign(bump_b);
 
     // shift the bumpers
     cv_a.translate( pos_a );
@@ -1770,11 +1757,8 @@ bool get_depth_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const 
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    oct_bb_set_bumper( &cv_a, bump_a );
-    oct_bb_set_bumper( &cv_b, bump_b );
-
-    // convert the bumper to the correct format
-    oct_bb_set_bumper( &cv_b, bump_b );
+    cv_a.assign(bump_a);
+    cv_b.assign(bump_b);
 
     return get_depth_2( &cv_a, pos_a, &cv_b, pos_b, break_out, depth );
 }
@@ -1785,10 +1769,10 @@ bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_t& p
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    oct_bb_set_bumper( &cv_b, bump_b );
+    cv_b.assign(bump_b);
 
     // shift the bumper
-    cv_b.translate( pos_b );
+    cv_b.translate(pos_b);
 
     return get_depth_close_2( cv_a, &cv_b, break_out, depth );
 }
@@ -1799,7 +1783,7 @@ bool get_depth_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t bump_b, 
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    oct_bb_set_bumper( &cv_b, bump_b );
+    cv_b.assign(bump_b);
 
     return get_depth_2( cv_a, pos_a, &cv_b, pos_b, break_out, depth );
 }
@@ -1886,6 +1870,7 @@ bool get_depth_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * 
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 apos_t * apos_self_clear( apos_t * val )
 {
     if ( NULL == val ) return val;
@@ -1894,3 +1879,4 @@ apos_t * apos_self_clear( apos_t * val )
 
     return val;
 }
+#endif

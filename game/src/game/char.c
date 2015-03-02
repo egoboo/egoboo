@@ -6182,7 +6182,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     oct_bb_copy( &( pchr->chr_min_cv ), &bdst );
     oct_bb_copy( &( pchr->chr_max_cv ), &bdst );
 
-    oct_bb_set_bumper( &bmin, pchr->bump );
+    bmin.assign(pchr->bump);
 
     // only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
     if ( profile->getBumpOverrideSize() )
@@ -7861,7 +7861,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     bmp.height   = default_chr_height * pmount->fat * 2.00f;
     bmp.size_big = bmp.size * SQRT_TWO;
 
-    oct_bb_set_bumper( &tmp_cv, bmp );
+    tmp_cv.assign(bmp);
 
     // move the vertical bounding box down a little
     tmp_cv.mins[OCT_Z] -= bmp.height * 0.25f;

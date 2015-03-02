@@ -62,7 +62,7 @@
 
     public:
 
-        oct_vec_t _v;
+        float _v[OCT_COUNT];
 
     public:
 
@@ -247,14 +247,9 @@
         }
         
     };
-#if 0
-    bool oct_vec_ctor(oct_vec_t ovec, const fvec3_t& pos);
-#endif
+
     bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const fvec3_t& fvec, oct_vec_v2_t& odst);
-#if 0
-    bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_t& fvec);
-    bool oct_vec_self_clear(oct_vec_t * ovec);
-#endif
+
 //--------------------------------------------------------------------------------------------
 
 /// generic octagonal bounding box
@@ -263,8 +258,15 @@
 /// values in data.txt. Computed on the fly.
     struct oct_bb_t
     {
+    public:
         bool empty;
+    public:
         oct_vec_v2_t mins, maxs;
+
+        bool isEmpty() const
+        {
+            return empty;
+        }
 
         oct_bb_t() :
             mins(),maxs(),empty(true)
@@ -316,6 +318,26 @@
             return (mins + maxs) * 0.5f;
         }
 
+        void assign(const bumper_t& other)
+        {
+            mins[OCT_X] = -other.size;
+            maxs[OCT_X] = +other.size;
+
+            mins[OCT_Y] = -other.size;
+            maxs[OCT_Y] = +other.size;
+
+            mins[OCT_XY] = -other.size_big;
+            maxs[OCT_XY] = +other.size_big;
+
+            mins[OCT_YX] = -other.size_big;
+            maxs[OCT_YX] = +other.size_big;
+
+            mins[OCT_Z] = -other.height;
+            maxs[OCT_Z] = +other.height;
+
+            oct_bb_t::validate(this);
+        }
+
         /**
          * @brief
          *	Translate this bounding box.
@@ -354,6 +376,8 @@
         
 		static oct_bb_t *ctor(oct_bb_t *self);
 		static void dtor(oct_bb_t *self);
+        static egolib_rv validate(oct_bb_t *self);
+        static bool empty_raw(const oct_bb_t *self);
     };
 
     /**
@@ -369,7 +393,7 @@
     egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_vec_v2_t& other);
     egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_bb_t& other);
     egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other);
-    egolib_rv oct_bb_self_add_ovec(oct_bb_t *self, const oct_vec_v2_t& t);
+    void oct_bb_self_translate(oct_bb_t& self, const oct_vec_v2_t& t);
     egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v);
     /**
      * @brief
@@ -492,19 +516,23 @@
 
 
 
-egolib_rv oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src );
-egolib_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc );
-egolib_rv oct_bb_validate( oct_bb_t * pobb );
-bool oct_bb_empty_raw( const oct_bb_t * pbb );
-bool oct_bb_empty( const oct_bb_t * pbb );
-void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& ovec );
-oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index );
-egolib_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
-egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index );
-bool oct_bb_empty_index_raw( const oct_bb_t * pbb, int index );
-bool oct_bb_empty_index( const oct_bb_t * pbb, int index );
-egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst, int index );
-egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
-egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst );
-egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
-egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_v2_t& ovec, oct_bb_t * pdst );
+
+
+egolib_rv oct_bb_copy(oct_bb_t *dst, const oct_bb_t *src);
+egolib_rv oct_bb_copy_index(oct_bb_t *dst, const oct_bb_t *src, int index);
+
+
+egolib_rv oct_bb_validate_index(oct_bb_t *self, int index);
+
+bool oct_bb_empty(const oct_bb_t *self);
+void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v);
+oct_bb_t *oct_bb_ctor_index(oct_bb_t *self, int index);
+
+
+bool oct_bb_empty_index_raw(const oct_bb_t *self, int index);
+bool oct_bb_empty_index(const oct_bb_t *self, int index);
+egolib_rv oct_bb_union_index(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t * pdst, int index );
+egolib_rv oct_bb_intersection_index( const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t * pdst, int index );
+egolib_rv oct_bb_union(const oct_bb_t *src1, const oct_bb_t  *src2, oct_bb_t *dst);
+egolib_rv oct_bb_intersection(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst);
+egolib_rv oct_bb_add_ovec(const oct_bb_t *src, const oct_vec_v2_t& t, oct_bb_t *dst);

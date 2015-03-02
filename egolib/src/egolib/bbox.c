@@ -367,7 +367,7 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 
             // optimize the bounding volume
             opd.ctor(pd[tnc].pos);
-            oct_bb_self_sum_ovec(&(pov->oct), opd);
+            oct_bb_self_join(pov->oct, opd);
 
             // determine the area for this element
             diff1.x = pd[cnt].pos.x - center.x;
@@ -816,7 +816,7 @@ void points_to_oct_bb(oct_bb_t *self, const fvec4_t points[], const size_t numbe
         }
     }
 
-    oct_bb_validate(self);
+    oct_bb_t::validate(self);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -903,7 +903,7 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
             pdst_bb->mins[OCT_YX] = pdst_bb->maxs[OCT_YX] = 0.0f;
         }
 
-        oct_bb_validate(pdst_bb);
+        oct_bb_t::validate(pdst_bb);
     }
 
     return rv_success;
@@ -945,7 +945,7 @@ egolib_rv oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oc
         pdst->maxs[cnt] = psrc1->maxs[cnt] + ( psrc2->maxs[cnt] - psrc1->maxs[cnt] ) * flip;
     }
 
-    return oct_bb_validate( pdst );
+    return oct_bb_t::validate( pdst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -995,23 +995,6 @@ bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const fvec3_t& fvec, oct_vec_v2
 	}
 	return true;
 }
-#if 0
-bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_t& fvec)
-{
-	if (NULL == osrc)
-	{
-		return false;
-	}
-	oct_vec_t otmp;
-	oct_vec_ctor(otmp, fvec);
-	for (size_t cnt = 0; cnt < OCT_COUNT; cnt++)
-	{
-		osrc[cnt] += otmp[cnt];
-	}
-	return true;
-}
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 oct_bb_t *oct_bb_t::ctor(oct_bb_t *self)
@@ -1033,29 +1016,6 @@ void oct_bb_t::dtor(oct_bb_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src )
-{
-    if ( NULL == pobb ) return rv_error;
-
-    pobb->mins[OCT_X] = -src.size;
-    pobb->maxs[OCT_X] =  src.size;
-
-    pobb->mins[OCT_Y] = -src.size;
-    pobb->maxs[OCT_Y] =  src.size;
-
-    pobb->mins[OCT_XY] = -src.size_big;
-    pobb->maxs[OCT_XY] =  src.size_big;
-
-    pobb->mins[OCT_YX] = -src.size_big;
-    pobb->maxs[OCT_YX] =  src.size_big;
-
-    pobb->mins[OCT_Z] = -src.height;
-    pobb->maxs[OCT_Z] =  src.height;
-
-    return oct_bb_validate( pobb );
-}
-
-//--------------------------------------------------------------------------------------------
 egolib_rv oct_bb_copy(oct_bb_t *self, const oct_bb_t *other)
 {
     if (!self)
@@ -1069,36 +1029,31 @@ egolib_rv oct_bb_copy(oct_bb_t *self, const oct_bb_t *other)
     self->mins = other->mins;
     self->maxs = other->maxs;
     self->empty = other->empty;
-    return oct_bb_validate(self);
+    return oct_bb_t::validate(self);
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_validate(oct_bb_t *self)
+egolib_rv oct_bb_t::validate(oct_bb_t *self)
 {
     if (!self)
     {
         throw std::invalid_argument("nullptr == self");
     }
-    self->empty = oct_bb_empty_raw(self);
+    self->empty = oct_bb_t::empty_raw(self);
     return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_empty_raw( const oct_bb_t * pbb )
+bool oct_bb_t::empty_raw(const oct_bb_t *self)
 {
-    int cnt;
-    bool rv = false;
-
-    for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )
+    for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        if ( pbb->mins[cnt] >= pbb->maxs[cnt] )
+        if (self->mins[i] >= self->maxs[i])
         {
-            rv = true;
-            break;
+            return true;
         }
     }
-
-    return rv;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1106,7 +1061,7 @@ bool oct_bb_empty( const oct_bb_t * pbb )
 {
     if ( NULL == pbb || pbb->empty ) return true;
 
-    return oct_bb_empty_raw( pbb );
+    return oct_bb_t::empty_raw( pbb );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1116,6 +1071,7 @@ void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v)
     self->mins = v;
     self->maxs = v;
     // This is true by the definition of this function.
+    /// @todo The converse is true.
     self->empty = true;
 }
 
@@ -1221,7 +1177,7 @@ egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, o
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index )
+egolib_rv oct_bb_intersection_index(const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index )
 {
     /// @author BB
     /// @details find the intersection of two oct_bb_t
@@ -1250,31 +1206,23 @@ egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * ps
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
+egolib_rv oct_bb_self_union_index(oct_bb_t *self, const oct_bb_t *other, int index)
 {
-    /// @author BB
-    /// @details find the union of two oct_bb_t
-
-    bool src_empty;
-
-    if ( NULL == pdst ) return rv_error;
-
-    if ( index < 0 || index >= OCT_COUNT ) return rv_error;
-
-    src_empty = ( NULL == psrc );
-
-    if ( src_empty )
+    if (!self || index < 0 || index >= OCT_COUNT)
     {
-        // !!!! DO NOTHING !!!!
-        return rv_success;
+        return rv_error;
     }
 
-    // no simple case, do the hard work
+    if (!other)
+    {
+        return rv_success; /// @todo Return rv_error.
+    }
 
-    pdst->mins[index] = std::min(pdst->mins[index], psrc->mins[index]);
-    pdst->maxs[index]  = std::max( pdst->maxs[index],  psrc->maxs[index] );
+    // No simple cases, do the hard work.
+    self->mins[index] = std::min(self->mins[index], other->mins[index]);
+    self->maxs[index] = std::max(self->maxs[index], other->maxs[index] );
 
-    return oct_bb_validate_index( pdst, index );
+    return oct_bb_validate_index(self, index);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1340,7 +1288,7 @@ egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_
         pdst->maxs[cnt]  = std::max( psrc1->maxs[cnt],  psrc2->maxs[cnt] );
     }
 
-    return oct_bb_validate( pdst );
+    return oct_bb_t::validate( pdst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1370,64 +1318,48 @@ egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
         pdst->maxs[cnt]  = std::min( psrc1->maxs[cnt],  psrc2->maxs[cnt] );
     }
 
-    return oct_bb_validate( pdst );
+    return oct_bb_t::validate( pdst );
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc )
+egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_vec_v2_t& v)
 {
-    /// @author BB
-    /// @details find the union of two oct_bb_t
-
-    bool src_null;
-    int cnt;
-
-    if ( NULL == pdst ) return rv_error;
-
-    src_null = ( NULL == psrc );
-
-    if ( src_null )
+    for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        // !!!! DO NOTHING !!!!
-        return rv_success;
+        self.mins[i] = std::min(self.mins[i], v[i]);
+        self.maxs[i] = std::max(self.maxs[i], v[i]);
+    }
+    return oct_bb_t::validate(&self);
+}
+
+egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_bb_t& other)
+{
+    // No simple case, do the hard work.
+    for (size_t i = 0; i < OCT_COUNT; ++i)
+    {
+        self.mins[i] = std::min(self.mins[i], other.mins[i]);
+        self.maxs[i] = std::max(self.maxs[i], other.maxs[i]);
     }
 
-    // no simple case, do the hard work
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-    {
-        pdst->mins[cnt]  = std::min( pdst->mins[cnt],  psrc->mins[cnt] );
-        pdst->maxs[cnt]  = std::max( pdst->maxs[cnt],  psrc->maxs[cnt] );
-    }
-
-    return oct_bb_validate( pdst );
+    return oct_bb_t::validate(&self);
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc )
+egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other)
 {
-    /// @author BB
-    /// @details find the intersection of two oct_bb_t
-
-    bool src_empty;
-    int cnt;
-
-    if ( NULL == pdst ) return rv_error;
-
-    src_empty = ( NULL == psrc || psrc->empty );
-
-    if ( src_empty )
+    if (other.empty) /// @todo Obviously the author does not know how set intersection works.
     {
         return rv_fail;
     }
 
-    // no simple case. do the hard work
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    // No simple case, do the hard work.
+    for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        pdst->mins[cnt]  = std::max( pdst->mins[cnt],  psrc->mins[cnt] );
-        pdst->maxs[cnt]  = std::min( pdst->maxs[cnt],  psrc->maxs[cnt] );
+        self.mins[i] = std::max(self.mins[i], other.mins[i]);
+        self.maxs[i] = std::min(self.maxs[i], other.maxs[i]);
     }
 
-    return oct_bb_validate( pdst );
+    return oct_bb_t::validate(&self);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1459,7 +1391,7 @@ egolib_rv oct_bb_add_fvec3(const oct_bb_t *psrc, const fvec3_t& vec, oct_bb_t *p
 	pdst->mins[OCT_Z] += vec[kZ];
 	pdst->maxs[OCT_Z] += vec[kZ];
 
-	return oct_bb_validate(pdst);
+	return oct_bb_t::validate(pdst);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1490,42 +1422,14 @@ egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_v2_t& ovec, oct_
         pdst->maxs[cnt] += ovec[cnt];
     }
 
-    return oct_bb_validate( pdst );
+    return oct_bb_t::validate( pdst );
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_v2_t& ovec )
+void oct_bb_self_translate(oct_bb_t& self, const oct_vec_v2_t& t)
 {
-    /// @author BB
-    /// @details shift the bounding box by the vector ovec
-
-    int cnt;
-
-    if ( NULL == pdst ) return rv_error;
-
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-    {
-        pdst->mins[cnt] += ovec[cnt];
-        pdst->maxs[cnt] += ovec[cnt];
-    }
-
-    return rv_success;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv  oct_bb_self_sum_ovec(oct_bb_t *self, const oct_vec_v2_t& v)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    for (size_t i = 0; i < OCT_COUNT; ++i)
-    {
-        self->mins[i] = std::min(self->mins[i], v[i]);
-        self->maxs[i] = std::max(self->maxs[i], v[i]);
-    }
-
-    return oct_bb_validate(self);
+    self.mins.add(t);
+    self.maxs.add(t);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1541,7 +1445,7 @@ egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v)
         self->maxs[i] = self->maxs[i] + ABS(v[i]);
     }
 
-    return oct_bb_validate(self);
+    return oct_bb_t::validate(self);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1595,35 +1499,3 @@ bool oct_bb_t::contains(const oct_bb_t *self, const oct_bb_t *other)
     }
     return true;
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-bool oct_bb_get_mids(const oct_bb_t *self, oct_vec_t mids )
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    if (self->empty)
-    {
-        throw std::invalid_argument("an empty obb does not have a mid-point");
-    }
-    if ( NULL == pbb || NULL == mids ) return false;
-
-    if (oct_bb_empty( pbb ) )
-    {
-        memmove( mids, pbb->maxs, sizeof( oct_vec_t ) );
-    }
-    else
-    {
-        int cnt;
-
-        for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-        {
-            mids[cnt] = 0.5f * ( pbb->mins[cnt] + pbb->maxs[cnt] );
-        }
-    }
-
-    return true;
-}
-#endif

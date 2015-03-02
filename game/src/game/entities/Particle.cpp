@@ -2305,10 +2305,10 @@ bool prt_t::set_size(prt_t * pprt, int size)
     }
 
     // set the real size of the particle
-    oct_bb_set_bumper(&(pprt->prt_min_cv), pprt->bump_real);
+    pprt->prt_min_cv.assign(pprt->bump_real);
 
     // use the padded bumper to figure out the chr_max_cv
-    oct_bb_set_bumper(&(pprt->prt_max_cv), pprt->bump_padded);
+    pprt->prt_max_cv.assign(pprt->bump_padded);
 
     return true;
 }

@@ -55,6 +55,10 @@ struct orientation_t
 //--------------------------------------------------------------------------------------------
 struct apos_t
 {
+    fvec3_t mins;
+    fvec3_t maxs;
+    fvec3_t sum;
+
 	apos_t() :
 		mins(),
 		maxs(),
@@ -63,14 +67,52 @@ struct apos_t
 		//ctor
 	}
 
-    fvec3_t mins;
-    fvec3_t maxs;
-    fvec3_t sum;
+    apos_t(const apos_t& other) :
+        mins(other.mins),
+        maxs(other.maxs),
+        sum(other.sum)
+    {
+    }
+
+    apos_t& operator=(const apos_t& other)
+    {
+        mins = other.mins;
+        maxs = other.maxs;
+        sum  = other.sum;
+        return *this;
+    }
+
+    static void ctor(apos_t *self)
+    {
+        if (!self)
+        {
+            throw std::invalid_argument("nullptr == self");
+        }
+        self->mins = fvec3_t::zero;
+        self->maxs = fvec3_t::zero;
+        self->sum  = fvec3_t::zero;
+    }
+
+
+    static apos_t *self_clear(apos_t *self)
+    {
+        if (!self)
+        {
+            return nullptr;
+        }
+        self->mins = fvec3_t::zero;
+        self->maxs = fvec3_t::zero;
+        self->sum  = fvec3_t::zero;
+    
+        return self;
+    }
+
+    static bool self_union(apos_t *self, const apos_t *other);
+    static bool self_union(apos_t *self, const fvec3_t& other);
 };
 
-bool apos_self_union( apos_t * lhs, apos_t * rhs );
-bool apos_self_union_fvec3( apos_t * lhs, const fvec3_t& rhs );
-bool apos_self_union_index( apos_t * lhs, const float val, const int index );
+
+bool apos_self_union_index(apos_t * lhs, const float val, const int index );
 bool apos_evaluate( const apos_t * src, fvec3_t& dst );
 
 //--------------------------------------------------------------------------------------------
@@ -88,16 +130,16 @@ struct phys_data_t
     float          dampen;                        ///< Bounciness
 };
 
-phys_data_t * phys_data_clear( phys_data_t * pphys );
-phys_data_t * phys_data_ctor( phys_data_t * pphys );
+phys_data_t *phys_data_clear(phys_data_t *self);
+phys_data_t *phys_data_ctor(phys_data_t *self);
 
-phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_t& vec );
-phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_t& vec );
-phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_t& vec );
+phys_data_t *phys_data_sum_aplat(phys_data_t *self, const fvec3_t& v);
+phys_data_t *phys_data_sum_acoll(phys_data_t *self, const fvec3_t& v);
+phys_data_t *phys_data_sum_avel(phys_data_t *self, const fvec3_t& v);
 
-phys_data_t * phys_data_sum_aplat_index( phys_data_t * pphys, const float val, const int index );
-phys_data_t * phys_data_sum_acoll_index( phys_data_t * pphys, const float val, const int index );
-phys_data_t * phys_data_sum_avel_index( phys_data_t * pphys, const float val, const int index );
+phys_data_t *phys_data_sum_aplat_index(phys_data_t *self, const float v, const int index);
+phys_data_t *phys_data_sum_acoll_index(phys_data_t *self, const float v, const int index);
+phys_data_t *phys_data_sum_avel_index(phys_data_t *self, const float v, const int index);
 
 //--------------------------------------------------------------------------------------------
 struct breadcrumb_t
@@ -249,8 +291,10 @@ bool get_chr_mass( Object * pchr, float * wt );
 bool get_prt_mass( prt_t * pprt, Object * pchr, float * wt );
 void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 
+#if 0
 //Inline below
 apos_t * apos_self_clear( apos_t * val );
+#endif
 
 /// @brief Test whether two objects could interact based on the "collision bounding box".
 ///        This version is for character-particle collisions.

@@ -53,27 +53,26 @@ struct CoNode_t
 public:
     CoNode_t();
 
-    // the "colliding" objects
+    // The "colliding" objects.
     CHR_REF chra;
     PRT_REF prta;
 
-    // the "collided with" objects
+    // The "collided with" objects.
     CHR_REF chrb;
     PRT_REF prtb;
     Uint32  tileb;
 
-    // some information about the estimated collision
-    float    tmin, tmax;
+    // Some information about the estimated collision.
+    float tmin, tmax;
     oct_bb_t cv;
 
+    static CoNode_t *ctor(CoNode_t *self);
 	static int matches(const CoNode_t *self, const CoNode_t *other);
 	/** @todo This test is broken or has dead code. */
 	static int cmp(const CoNode_t *self, const CoNode_t *other);
 	static int cmp_unique(const CoNode_t *self, const CoNode_t *other);
 	static Uint8 generate_hash(const CoNode_t *self);
 };
-
-CoNode_t *CoNode_ctor(CoNode_t *self);
 
 //--------------------------------------------------------------------------------------------
 
