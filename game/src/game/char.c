@@ -4868,38 +4868,38 @@ bool chr_get_safe(Object * pchr)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_update_breadcrumb_raw( Object * pchr )
+bool chr_update_breadcrumb_raw(Object * object)
 {
     breadcrumb_t bc;
     bool retval = false;
 
-    if ( nullptr == ( pchr ) ) return false;
+    if (nullptr == object) return false;
 
-    breadcrumb_init_chr( &bc, pchr );
+    breadcrumb_t::init(&bc, object);
 
-    if ( bc.valid )
+    if (bc.valid)
     {
-        retval = breadcrumb_list_t::add( &( pchr->crumbs ), &bc );
+        retval = breadcrumb_list_t::add(&(object->crumbs), &bc);
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_update_breadcrumb( Object * pchr, bool force )
+bool chr_update_breadcrumb( Object * object, bool force )
 {
     bool retval = false;
     bool needs_update = false;
     breadcrumb_t * bc_ptr, bc;
 
-    if ( nullptr == ( pchr ) ) return false;
+    if (nullptr == (object)) return false;
 
-    bc_ptr = breadcrumb_list_t::last_valid( &( pchr->crumbs ) );
+    bc_ptr = breadcrumb_list_t::last_valid(&(object->crumbs));
     if ( NULL == bc_ptr )
     {
         force  = true;
         bc_ptr = &bc;
-        breadcrumb_init_chr( bc_ptr, pchr );
+        breadcrumb_t::init(bc_ptr, object);
     }
 
     if ( force )
@@ -4908,12 +4908,12 @@ bool chr_update_breadcrumb( Object * pchr, bool force )
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(object->getPosX(), object->getPosY()));
 
         if (TileIndex::Invalid == new_grid )
         {
-            if ( ABS( pchr->getPosX() - bc_ptr->pos.x ) > GRID_FSIZE ||
-                 ABS( pchr->getPosY() - bc_ptr->pos.y ) > GRID_FSIZE )
+            if (std::abs(object->getPosX() - bc_ptr->pos.x) > GRID_FSIZE ||
+                std::abs(object->getPosY() - bc_ptr->pos.y) > GRID_FSIZE)
             {
                 needs_update = true;
             }
@@ -4926,7 +4926,7 @@ bool chr_update_breadcrumb( Object * pchr, bool force )
 
     if ( needs_update )
     {
-        retval = chr_update_breadcrumb_raw( pchr );
+        retval = chr_update_breadcrumb_raw(object);
     }
 
     return retval;

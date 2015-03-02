@@ -142,33 +142,108 @@ phys_data_t *phys_data_sum_acoll_index(phys_data_t *self, const float v, const i
 phys_data_t *phys_data_sum_avel_index(phys_data_t *self, const float v, const int index);
 
 //--------------------------------------------------------------------------------------------
+/**
+ * @brief
+ *  A "breadcrumb" associates various information with a position.
+ */
 struct breadcrumb_t
 {
-    bool valid;     /// is this position valid
-    fvec3_t pos;    ///< A stored safe position
-    Uint32 grid;    ///< the grid index of this position
-    float radius;   ///< the size of the object at this position
-    float bits;     ///< the collision buts of the object at this position
-    Uint32 time;    ///< the time when the breadcrumb was created
-    Uint32 id;      ///< an id for differentiating the timing of several events at the same "time"
+    bool valid;     ///< Is this position valid?
+    fvec3_t pos;    ///< A stored safe position.
+    Uint32 grid;    ///< The grid index of this position.
+                    ///< @todo Should be GridIndex.
+    float radius;   ///< The size of the object at this position.
+    BIT_FIELD bits; ///< The collision bits of the object at this position.
+                    ///< @todo Should certainly not be a float.
+    Uint32 time;    ///< the time when the breadcrumb was created.
+    Uint32 id;      ///< an id for differentiating the timing of several events at the same "time".
+
+    void assign(const breadcrumb_t& other)
+    {
+        valid = other.valid;
+        pos = other.pos;
+        grid = other.grid;
+        radius = other.radius;
+        bits = other.bits;
+        time = other.time;
+        id = other.id;
+    }
 
 	breadcrumb_t() : 
 		valid(false),
 		pos(0.0f, 0.0f, 0.0f),
 		grid(0),
 		radius(0.0f),
-		bits(0.0f),
+		bits(0),
 		time(0),
 		id(0)
 	{
 		//ctor
 	}
+
+    void reset()
+    {
+        valid = false;
+        pos = fvec3_t::zero;
+        grid = 0;
+        radius = 0.0f;
+        bits = 0;
+        time = 0;
+        id = 0;
+    }
+
+    breadcrumb_t(const breadcrumb_t& other) :
+        valid(other.valid),
+        pos(other.pos),
+        grid(other.grid),
+        radius(other.radius),
+        bits(other.bits),
+        time(other.time),
+        id(other.id)
+    {
+    }
+
+    breadcrumb_t& operator=(const breadcrumb_t& other)
+    {
+        assign(other);
+        return *this;
+    }
+    /**
+     * @brief
+     *  Get if a breadcrumb is older than another breadcrumb.
+     * @param x
+     *  the first breadcrumb
+     * @param y
+     *  the second breadcrumb
+     * @return
+     *  @a true if the first breadcrumb is older than the second breadcrumb
+     */
+    static bool isOlder(const breadcrumb_t& x,const breadcrumb_t& y)
+    {
+        return x.time < y.time;
+    }
+
+    /**
+     * @brief
+     *  Get if a breadcrumb is younger than another breadcrumb.
+     * @param x
+     *  the first breadcrumb
+     * @param y
+     *  the second breadcrumb
+     * @return
+     *  @a true if this breadcrumb is younger than the other breadcrumb
+     */
+    static bool isYounger(const breadcrumb_t& x,const breadcrumb_t& y)
+    {
+        return x.time > y.time;
+    }
+
+    static breadcrumb_t *init(breadcrumb_t *self, Object *object);
+    static breadcrumb_t *init(breadcrumb_t *self, prt_t *particle);
+    static bool cmp(const breadcrumb_t& x, const breadcrumb_t& y);
 };
 
-breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, Object * pchr );
-breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt );
 
-int breadcrumb_cmp( const void * lhs, const void * rhs );
 
 //--------------------------------------------------------------------------------------------
 
@@ -176,14 +251,14 @@ struct breadcrumb_list_t
 {
 	static const size_t MAX_BREADCRUMB = 32;
     bool on;
-    int count;
-    breadcrumb_t lst[MAX_BREADCRUMB];
+    size_t count;
+    std::array<breadcrumb_t, MAX_BREADCRUMB> lst;
 
 	breadcrumb_list_t()
-		: on(false), count(0)
+		: lst(), on(false), count(0)
 	{
 	}
-	
+
 	/**
  	 * @brief
 	 *	Compact this breadcrumb list.
@@ -194,13 +269,13 @@ struct breadcrumb_list_t
 		size_t total, valid;
 		for (total = 0, valid = 0; total < count; ++total)
 		{
-			breadcrumb_t *source = lst + total;
-			if (source->valid)
+			breadcrumb_t& source = lst[total];
+			if (source.valid)
 			{
 				if (total != valid)
 				{
-					breadcrumb_t *target = lst + valid;
-					memcpy(target, source, sizeof(breadcrumb_t));
+					breadcrumb_t& target = lst[valid];
+                    target = source;
 				}
 				valid++;
 			}
@@ -229,24 +304,37 @@ struct breadcrumb_list_t
 	{
 		return (count >= MAX_BREADCRUMB) || !on;
 	}
-#if 0
-    /**
-     * @brief
-     *	Compact this breadcrumb list.
-     * @param self
-     *	this breakcrumb list
-     */
-    static void compact(breadcrumb_list_t *self);
-#endif
 
-    static void validate(breadcrumb_list_t *self);
     static bool add(breadcrumb_list_t *self, breadcrumb_t *breadcrumb);
     static breadcrumb_t *last_valid(breadcrumb_list_t *self);
-    static breadcrumb_t *alloc(breadcrumb_list_t *self);
-    static breadcrumb_t *oldest_grid(breadcrumb_list_t *self, Uint32 match_grid);
-    static breadcrumb_t *oldest(breadcrumb_list_t *self);
-    static breadcrumb_t *newest(breadcrumb_list_t *self);
 
+    /**
+     * @brief
+     *  Get the oldest, valid breadcrumb of the given grid index.
+     * @param gridIndex
+     *   the grid index
+     * @return
+     *  a pointer to the oldest, valid breadcrumb of the given grid index if one exists,
+     *  @a nullptr otherwise
+     */
+    static breadcrumb_t *oldest_grid(breadcrumb_list_t *self, Uint32 gridIndex);
+    /**
+     * @brief
+     *  Get the oldest, valid breadcrumb.
+     * @return
+     *  a pointer to the oldest, valid breadcrumb if one exists, @a nullptr otherwise
+     */
+    static breadcrumb_t *oldest(breadcrumb_list_t *self);
+    /**
+     * @brief
+     *  Get the youngest, valid breadcrumb.
+     * @return
+     *  a pointer to the youngest, valid breadcrumb if one exists, @a nullptr otherwise
+     */
+    static breadcrumb_t *newest(breadcrumb_list_t *self);
+protected:
+    static void validate(breadcrumb_list_t *self);
+    static breadcrumb_t *alloc(breadcrumb_list_t *self);
 };
 
 
@@ -290,11 +378,6 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1, const fvec3_t& pos1, const fv
 bool get_chr_mass( Object * pchr, float * wt );
 bool get_prt_mass( prt_t * pprt, Object * pchr, float * wt );
 void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
-
-#if 0
-//Inline below
-apos_t * apos_self_clear( apos_t * val );
-#endif
 
 /// @brief Test whether two objects could interact based on the "collision bounding box".
 ///        This version is for character-particle collisions.
