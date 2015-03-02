@@ -774,11 +774,6 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
  */
 void points_to_oct_bb(oct_bb_t *self, const fvec4_t points[], const size_t numberOfPoints)
 {
-    oct_vec_v2_t otmp;
-#if 0
-    oct_vec_base_t pmins, pmaxs;
-#endif
-
     if (!self)
     {
         throw std::invalid_argument("nullptr == self");
@@ -791,14 +786,9 @@ void points_to_oct_bb(oct_bb_t *self, const fvec4_t points[], const size_t numbe
     {
         throw std::invalid_argument("0 == numberOfPoints");
     }
-#if 0
-    // resolve the pointers
-    pmins = self->mins._v;
-    pmaxs = self->maxs._v;
-#endif
 
     // Initialize the octagonal bounding box using the first point.
-    otmp.ctor(fvec3_t(points[0][kX], points[0][kY], points[0][kZ]));
+    oct_vec_v2_t otmp(fvec3_t(points[0][kX], points[0][kY], points[0][kZ]));
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
         self->mins[i] = self->maxs[i] = otmp[i];
@@ -965,23 +955,6 @@ bool oct_vec_ctor(oct_vec_t ovec, const fvec3_t& pos)
 	ovec[OCT_YX] = -pos[kX] + pos[kY];
 	return true;
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-bool oct_vec_self_clear( oct_vec_t * ovec )
-{
-    int cnt;
-
-    if ( NULL == ovec ) return false;
-
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-    {
-        ( *ovec )[cnt] = 0.0f;
-    }
-
-    return true;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const fvec3_t& fvec, oct_vec_v2_t& odst)
@@ -1363,73 +1336,44 @@ egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_add_fvec3(const oct_bb_t *psrc, const fvec3_t& vec, oct_bb_t *pdst)
+egolib_rv oct_bb_translate(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst)
 {
-	if (NULL == pdst) return rv_error;
+	if (!dst) return rv_error;
 
-	if (NULL == psrc)
+	if (!src)
 	{
-		oct_bb_t::ctor(pdst);
+		oct_bb_t::ctor(dst);
 	}
 	else
 	{
-		oct_bb_copy(pdst, psrc);
-	}
+        *dst = *src;
+    }
 
-	pdst->mins[OCT_X] += vec[kX];
-	pdst->maxs[OCT_X] += vec[kX];
+    dst->translate(t);
 
-	pdst->mins[OCT_Y] += vec[kY];
-	pdst->maxs[OCT_Y] += vec[kY];
-
-	pdst->mins[OCT_XY] += vec[kX] + vec[kY];
-	pdst->maxs[OCT_XY] += vec[kX] + vec[kY];
-
-	pdst->mins[OCT_YX] += -vec[kX] + vec[kY];
-	pdst->maxs[OCT_YX] += -vec[kX] + vec[kY];
-
-	pdst->mins[OCT_Z] += vec[kZ];
-	pdst->maxs[OCT_Z] += vec[kZ];
-
-	return oct_bb_t::validate(pdst);
+	return oct_bb_t::validate(dst);
 }
 
 //--------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_v2_t& ovec, oct_bb_t * pdst )
+egolib_rv oct_bb_translate(const oct_bb_t *src, const oct_vec_v2_t& t, oct_bb_t *dst)
 {
     /// @author BB
     /// @details shift the bounding box by the vector ovec
 
-    int cnt;
+    if (!dst) return rv_error;
 
-    if ( NULL == pdst ) return rv_error;
-
-    if ( NULL == psrc )
+    if (!src)
     {
-        oct_bb_t::ctor( pdst );
+        oct_bb_t::ctor(dst);
     }
     else
     {
-        oct_bb_copy( pdst, psrc );
+        *dst = *src;
     }
 
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-    {
-        pdst->mins[cnt] += ovec[cnt];
-        pdst->maxs[cnt] += ovec[cnt];
-    }
+    dst->translate(oct_vec_v2_t(t));
 
-    return oct_bb_t::validate( pdst );
-}
-
-//--------------------------------------------------------------------------------------------
-void oct_bb_self_translate(oct_bb_t& self, const oct_vec_v2_t& t)
-{
-    self.mins.add(t);
-    self.maxs.add(t);
+    return oct_bb_t::validate(dst);
 }
 
 //--------------------------------------------------------------------------------------------

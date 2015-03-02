@@ -1144,7 +1144,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         oct_bb_t loc_bb, tmp_bb, exp_bb;
 
         // copy the bounding volume
-        oct_bb_copy( &tmp_bb, &( loc_pprt->prt_max_cv ) );
+        tmp_bb = loc_pprt->prt_max_cv;
 
         // make sure that it has some minimum extent
         //for(cnt = 0; cnt < OCT_COUNT; cnt++ )
@@ -1157,7 +1157,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         phys_expand_oct_bb( &tmp_bb, loc_pprt->vel, 0, 1, &exp_bb );
 
         // shift the source bounding boxes to be centered on the given positions
-        oct_bb_add_fvec3( &exp_bb, loc_pprt->pos, &loc_bb );
+        oct_bb_translate( &exp_bb, loc_pprt->pos, &loc_bb );
 
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {

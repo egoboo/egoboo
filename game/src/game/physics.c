@@ -58,13 +58,6 @@ static bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * p
 //--------------------------------------------------------------------------------------------
 bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_v2_t& podepth )
 {
-    int cnt;
-    float fdiff, fdepth;
-    bool retval;
-
-    oct_bb_t otmp;
-    oct_vec_v2_t opos_a, opos_b;
-
     podepth.setZero();
 
     // are the initial volumes any good?
@@ -72,30 +65,32 @@ bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, o
     if ( NULL == pbb_b || pbb_b->empty ) return false;
 
     // is there any overlap?
+    oct_bb_t otmp;
     if ( rv_success != oct_bb_intersection( pbb_a, pbb_b, &otmp ) )
     {
         return false;
     }
-
+    oct_vec_v2_t opos_a, opos_b;
+    /// @todo use oct_bb_t::getMid().
     // estimate the "cm position" of the objects by the bounding volumes
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        opos_a[cnt] = ( pbb_a->maxs[cnt] + pbb_a->mins[cnt] ) * 0.5f;
-        opos_b[cnt] = ( pbb_b->maxs[cnt] + pbb_b->mins[cnt] ) * 0.5f;
+        opos_a[i] = ( pbb_a->maxs[i] + pbb_a->mins[i] ) * 0.5f;
+        opos_b[i] = ( pbb_b->maxs[i] + pbb_b->mins[i] ) * 0.5f;
     }
 
     // find the (signed) depth in each dimension
-    retval = true;
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    bool retval = true;
+    for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        fdiff  = opos_b[cnt] - opos_a[cnt];
-        fdepth = otmp.maxs[cnt] - otmp.mins[cnt];
+        float fdiff = opos_b[i] - opos_a[i];
+        float fdepth = otmp.maxs[i] - otmp.mins[i];
 
         // if the measured depth is less than zero, or the difference in positions
         // is ambiguous, this algorithm fails
         if ( fdepth <= 0.0f || 0.0f == fdiff ) retval = false;
 
-        podepth[cnt] = ( fdiff < 0.0f ) ? -fdepth : fdepth;
+        podepth[i] = ( fdiff < 0.0f ) ? -fdepth : fdepth;
     }
     podepth[OCT_XY] *= INV_SQRT_TWO;
     podepth[OCT_YX] *= INV_SQRT_TWO;
@@ -106,24 +101,18 @@ bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, o
 //--------------------------------------------------------------------------------------------
 bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_v2_t& podepth )
 {
-    int cnt;
-    bool rv;
-
     podepth.setZero();
 
-    if ( NULL == pbb_a || NULL == pbb_b ) return false;
+    if (!pbb_a || !pbb_b) return false;
 
     // assume the best
-    rv = true;
+    bool result = true;
 
     // scan through the dimensions of the oct_bbs
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        float diff1 = 0.0f;
-        float diff2 = 0.0f;
-
-        diff1 = pbb_a->maxs[cnt] - pbb_b->mins[cnt];
-        diff2 = pbb_b->maxs[cnt] - pbb_a->mins[cnt];
+        float diff1 = pbb_a->maxs[i] - pbb_b->mins[i];
+        float diff2 = pbb_b->maxs[i] - pbb_a->mins[i];
 
         if ( diff1 < 0.0f || diff2 < 0.0f )
         {
@@ -133,26 +122,26 @@ bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oc
             // the normal pointing away from b.
             if ( ABS( diff1 ) < ABS( diff2 ) )
             {
-                podepth[cnt] = diff1;
+                podepth[i] = diff1;
             }
             else
             {
-                podepth[cnt] = -diff2;
+                podepth[i] = -diff2;
             }
 
-            rv = false;
+            result = false;
         }
         else if ( diff1 < diff2 )
         {
-            podepth[cnt] = -diff1;
+            podepth[i] = -diff1;
         }
         else
         {
-            podepth[cnt] = diff2;
+            podepth[i] = diff2;
         }
     }
 
-    return rv;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -181,30 +170,26 @@ float phys_get_depth( const oct_vec_v2_t& podepth, const fvec3_t& nrm )
 {
     const float max_val = 1e6;
 
-    int cnt;
-    float depth, ftmp;
-    oct_vec_v2_t onrm;
-
     if ( 0.0f == nrm.length_abs() ) return max_val;
 
-    // convert the normal into an oct_vec_t
-    onrm.ctor( nrm );
+    // Convert the normal vector into an octagonal normal vector.
+    oct_vec_v2_t onrm(nrm);
     onrm[OCT_XY] *= INV_SQRT_TWO;
     onrm[OCT_YX] *= INV_SQRT_TWO;
 
     // calculate the minimum depth in each dimension
-    depth = max_val;
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    float depth = max_val;
+    for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        if ( 0.0f == podepth[cnt] )
+        if ( 0.0f == podepth[i] )
         {
             depth = 0.0f;
             break;
         }
 
-        if ( 0.0f != onrm[cnt] )
+        if ( 0.0f != onrm[i] )
         {
-            ftmp = podepth[cnt] / onrm[cnt];
+            float ftmp = podepth[i] / onrm[i];
             if ( ftmp <= 0.0f )
             {
                 depth = 0.0f;
@@ -224,11 +209,7 @@ bool phys_estimate_depth( const oct_vec_v2_t& podepth, const float exponent, fve
     // use the given (signed) podepth info to make a normal vector, and measure
     // the shortest distance to the border
 
-    float   tmin_aa, tmin_diag, ftmp, tmin;
-    fvec3_t nrm_aa, nrm_diag;
-
-    bool rv;
-
+    fvec3_t nrm_aa;
 
     if ( 0.0f != podepth[OCT_X] ) nrm_aa.x = 1.0f / podepth[OCT_X];
     if ( 0.0f != podepth[OCT_Y] ) nrm_aa.y = 1.0f / podepth[OCT_Y];
@@ -236,7 +217,7 @@ bool phys_estimate_depth( const oct_vec_v2_t& podepth, const float exponent, fve
 
     if ( 1.0f == exponent )
     {
-        nrm_aa.normalize();
+        nrm_aa.normalize(); /// @todo Divide-by-zero ...
     }
     else
     {
@@ -244,25 +225,25 @@ bool phys_estimate_depth( const oct_vec_v2_t& podepth, const float exponent, fve
     }
 
     // find a minimum distance
-    tmin_aa = 1e6;
+    float tmin_aa = 1e6;
 
     if ( nrm_aa.x != 0.0f )
     {
-        ftmp = podepth[OCT_X] / nrm_aa.x;
+        float ftmp = podepth[OCT_X] / nrm_aa.x;
         ftmp = std::max( 0.0f, ftmp );
         tmin_aa = std::min( tmin_aa, ftmp );
     }
 
     if ( nrm_aa.y != 0.0f )
     {
-        ftmp = podepth[OCT_Y] / nrm_aa.y;
+        float ftmp = podepth[OCT_Y] / nrm_aa.y;
         ftmp = std::max( 0.0f, ftmp );
         tmin_aa = std::min( tmin_aa, ftmp );
     }
 
     if ( nrm_aa.z != 0.0f )
     {
-        ftmp = podepth[OCT_Z] / nrm_aa.z;
+        float ftmp = podepth[OCT_Z] / nrm_aa.z;
         ftmp = std::max( 0.0f, ftmp );
         tmin_aa = std::min( tmin_aa, ftmp );
     }
@@ -270,7 +251,7 @@ bool phys_estimate_depth( const oct_vec_v2_t& podepth, const float exponent, fve
     if ( tmin_aa <= 0.0f || tmin_aa >= 1e6 ) return false;
 
     // next do the diagonal axes
-	nrm_diag = fvec3_t::zero;
+	fvec3_t nrm_diag = fvec3_t::zero;
 
     if ( 0.0f != podepth[OCT_XY] ) nrm_diag.x = 1.0f / (podepth[OCT_XY] * INV_SQRT_TWO );
     if ( 0.0f != podepth[OCT_YX] ) nrm_diag.y = 1.0f / (podepth[OCT_YX] * INV_SQRT_TWO );
@@ -286,31 +267,32 @@ bool phys_estimate_depth( const oct_vec_v2_t& podepth, const float exponent, fve
     }
 
     // find a minimum distance
-    tmin_diag = 1e6;
+    float tmin_diag = 1e6;
 
     if ( nrm_diag.x != 0.0f )
     {
-        ftmp = INV_SQRT_TWO * podepth[OCT_XY] / nrm_diag.x;
+        float ftmp = INV_SQRT_TWO * podepth[OCT_XY] / nrm_diag.x;
         ftmp = std::max( 0.0f, ftmp );
         tmin_diag = std::min( tmin_diag, ftmp );
     }
 
     if ( nrm_diag.y != 0.0f )
     {
-        ftmp = INV_SQRT_TWO * podepth[OCT_YX] / nrm_diag.y;
+        float ftmp = INV_SQRT_TWO * podepth[OCT_YX] / nrm_diag.y;
         ftmp = std::max( 0.0f, ftmp );
         tmin_diag = std::min( tmin_diag, ftmp );
     }
 
     if ( nrm_diag.z != 0.0f )
     {
-        ftmp = podepth[OCT_Z] / nrm_diag.z;
+        float ftmp = podepth[OCT_Z] / nrm_diag.z;
         ftmp = std::max( 0.0f, ftmp );
         tmin_diag = std::min( tmin_diag, ftmp );
     }
 
     if ( tmin_diag <= 0.0f || tmin_diag >= 1e6 ) return false;
 
+    float tmin;
     if ( tmin_aa < tmin_diag )
     {
         tmin = tmin_aa;
@@ -328,15 +310,15 @@ bool phys_estimate_depth( const oct_vec_v2_t& podepth, const float exponent, fve
 
     // normalize this normal
 	nrm.normalize();
-    rv = nrm.length() > 0.0f;
+    bool result = nrm.length() > 0.0f;
 
     // find the depth in the direction of the normal, if possible
-    if ( rv && NULL != depth )
+    if ( result && NULL != depth )
     {
         *depth = tmin;
     }
 
-    return rv;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -344,13 +326,11 @@ bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * p
 {
     // estimate the normal for collision volumes that are partially overlapping
 
-    bool use_pressure;
-
     // is everything valid?
     if ( NULL == pobb_a || NULL == pobb_b ) return false;
 
     // do we need to use the more expensive algorithm?
-    use_pressure = false;
+    bool use_pressure = false;
     if ( oct_bb_t::contains( pobb_a, pobb_b ) )
     {
         use_pressure = true;
@@ -382,19 +362,14 @@ bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * po
 {
     // use a more robust algorithm to get the normal no matter how the 2 volumes are
     // related
-
-    float     loc_tmin;
-    fvec3_t   loc_nrm;
-    oct_vec_t loc_odepth;
-
-    bool rv;
+    float loc_tmin;
 
     // handle "optional" parameters
     if ( NULL == depth ) depth = &loc_tmin;
     if ( NULL == pobb_a || NULL == pobb_b ) return false;
 
     // calculate the direction of the nearest way out for each octagonal axis
-    rv = phys_get_pressure_depth( pobb_a, pobb_b, podepth );
+    bool rv = phys_get_pressure_depth( pobb_a, pobb_b, podepth );
     if ( !rv ) return false;
 
     return phys_estimate_depth( podepth, exponent, nrm, depth );
@@ -404,21 +379,17 @@ bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * po
 //--------------------------------------------------------------------------------------------
 egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_v2_t& ovel1, const oct_bb_t * src2, const oct_vec_v2_t& ovel2, int test_platform, float *tmin, float *tmax )
 {
-    float vdiff;
-    float src1_min, src1_max;
-    float src2_min, src2_max;
-
     if ( NULL == tmin || NULL == tmax ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    vdiff = ovel2[index] - ovel1[index];
+    float vdiff = ovel2[index] - ovel1[index];
     if ( 0.0f == vdiff ) return rv_fail;
 
-    src1_min = src1->mins[index];
-    src1_max = src1->maxs[index];
-    src2_min = src2->mins[index];
-    src2_max = src2->maxs[index];
+    float src1_min = src1->mins[index];
+    float src1_max = src1->maxs[index];
+    float src2_min = src2->mins[index];
+    float src2_max = src2->maxs[index];
 
     if ( OCT_Z != index )
     {
@@ -562,16 +533,7 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
 	/// @details A test to determine whether two "fast moving" objects are interacting within a frame.
 	///               Designed to determine whether a bullet particle will interact with character.
 
-
-    oct_bb_t src1, src2;
-    oct_bb_t exp1, exp2;
-
-    int    index;
-    bool found;
     float  local_tmin, local_tmax;
-
-    int    failure_count = 0;
-    bool failure[OCT_COUNT];
 
     // handle optional parameters
     if ( NULL == tmin ) tmin = &local_tmin;
@@ -581,13 +543,19 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
     oct_vec_v2_t opos1(pos1), opos2(pos2),
                  ovel1(vel1), ovel2(vel2);
 
-    // shift the bounding boxes to their starting positions
-    oct_bb_add_ovec( src1_orig, opos1, &src1 );
-    oct_bb_add_ovec( src2_orig, opos2, &src2 );
+    oct_bb_t src1, src2;
 
-    found = false;
+    // shift the bounding boxes to their starting positions
+    oct_bb_translate( src1_orig, opos1, &src1 );
+    oct_bb_translate( src2_orig, opos2, &src2 );
+
+    bool found = false;
     *tmin = +1.0e6;
     *tmax = -1.0e6;
+
+    int failure_count = 0;
+    bool failure[OCT_COUNT];
+    int index;
     if ( fvec3_dist_abs( vel1, vel2 ) < 1.0e-6 )
     {
         // no relative motion, so avoid the loop to save time
@@ -596,7 +564,7 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
     else
     {
         // cycle through the coordinates to see when the two volumes might coincide
-        for ( index = 0; index < OCT_COUNT; index++ )
+        for (size_t index = 0; index < OCT_COUNT; ++index)
         {
             egolib_rv retval;
 
@@ -674,6 +642,7 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
         tmp_max = CLIP( *tmax, 0.0f, 1.0f );
 
         // determine the expanded collision volumes for both objects (for this frame)
+        oct_bb_t exp1, exp2;
         phys_expand_oct_bb( &src1, vel1, tmp_min, tmp_max, &exp1 );
         phys_expand_oct_bb( &src2, vel2, tmp_min, tmp_max, &exp2 );
 
@@ -696,25 +665,20 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, con
 //--------------------------------------------------------------------------------------------
 egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_v2_t& ovel1, const oct_bb_t * src2, const oct_vec_v2_t& ovel2, int test_platform, float *tmin, float *tmax )
 {
-    float vdiff;
-    float opos1, opos2;
-    float src1_min, src1_max;
-    float src2_min, src2_max;
-
     if ( NULL == tmin || NULL == tmax ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    vdiff = ovel2[index] - ovel1[index];
+    float vdiff = ovel2[index] - ovel1[index];
     if ( 0.0f == vdiff ) return rv_fail;
 
-    src1_min = src1->mins[index];
-    src1_max = src1->maxs[index];
-    opos1 = ( src1_min + src1_max ) * 0.5f;
+    float src1_min = src1->mins[index];
+    float src1_max = src1->maxs[index];
+    float opos1 = ( src1_min + src1_max ) * 0.5f;
 
-    src2_min = src2->mins[index];
-    src2_max = src2->maxs[index];
-    opos2 = ( src2_min + src2_max ) * 0.5f;
+    float src2_min = src2->mins[index];
+    float src2_max = src2->maxs[index];
+    float opos2 = ( src2_min + src2_max ) * 0.5f;
 
     if ( OCT_Z != index )
     {
@@ -874,14 +838,6 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
 //--------------------------------------------------------------------------------------------
 bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t *  src2_orig, const fvec3_t& pos2, const fvec3_t& vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
-    oct_bb_t src1, src2;
-    oct_bb_t exp1, exp2;
-
-    oct_bb_t intersection;
-
-    int    cnt, index;
-    bool found;
-    float  tolerance;
     float  local_tmin, local_tmax;
 
     // handle optional parameters
@@ -903,18 +859,20 @@ bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos
     oct_vec_v2_t opos1(pos1), opos2(pos2),
                  ovel1(vel1), ovel2(vel2);
 
-    oct_bb_add_ovec( src1_orig, opos1, &src1 );
-    oct_bb_add_ovec( src2_orig, opos2, &src2 );
+    oct_bb_t src1, src2;
+
+    oct_bb_translate( src1_orig, opos1, &src1 );
+    oct_bb_translate( src2_orig, opos2, &src2 );
 
     // cycle through the coordinates to see when the two volumes might coincide
-    found = false;
+    bool found = false;
     *tmin = *tmax = -1.0f;
-    for ( index = 0; index < OCT_COUNT; index ++ )
+    for (size_t i = 0; i < OCT_COUNT; i ++ )
     {
         egolib_rv retval;
         float tmp_min, tmp_max;
 
-        retval = phys_intersect_oct_bb_close_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
+        retval = phys_intersect_oct_bb_close_index( i, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
         if ( rv_fail == retval ) return false;
 
         if ( rv_success == retval )
@@ -939,19 +897,21 @@ bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos
     if ( *tmin > 1.0f || *tmax < 0.0f ) return false;
 
     // determine the expanded collision volumes for both objects
+    oct_bb_t exp1, exp2;
     phys_expand_oct_bb( &src1, vel1, *tmin, *tmax, &exp1 );
     phys_expand_oct_bb( &src2, vel2, *tmin, *tmax, &exp2 );
 
     // determine the intersection of these two volumes
+    oct_bb_t intersection;
     oct_bb_intersection( &exp1, &exp2, &intersection );
 
     // check to see if there is any possibility of interaction at all
-    for ( cnt = 0; cnt < OCT_Z; cnt++ )
+    for (size_t i = 0; i < OCT_Z; ++i)
     {
-        if ( intersection.mins[cnt] > intersection.maxs[cnt] ) return false;
+        if ( intersection.mins[i] > intersection.maxs[i] ) return false;
     }
 
-    tolerance = ( 0 == test_platform ) ? 0.0f : PLATTOLERANCE;
+    float tolerance = ( 0 == test_platform ) ? 0.0f : PLATTOLERANCE;
     if ( intersection.mins[OCT_Z] > intersection.maxs[OCT_Z] + tolerance ) return false;
 
     return true;
@@ -961,40 +921,45 @@ bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos
 //--------------------------------------------------------------------------------------------
 bool phys_expand_oct_bb(const oct_bb_t *psrc, const fvec3_t& vel, const float tmin, const float tmax, oct_bb_t *pdst)
 {
-    oct_bb_t tmp_min, tmp_max;
 
-    float abs_vel = vel.length_abs();
-    if ( 0.0f == abs_vel )
+    if (!psrc || !pdst)
     {
-        return oct_bb_copy( pdst, psrc ) ? true : false;
+        return false;
     }
 
-    // determine the bounding volume at t == tmin
-    if ( 0.0f == tmin )
+    if (0.0f == vel.length_abs())
     {
-        oct_bb_copy( &tmp_min, psrc );
+        *pdst = *psrc;
+        return true;
+    }
+
+    oct_bb_t tmp_min, tmp_max;
+    // Determine the bounding volume at t == tmin.
+    if (0.0f == tmin)
+    {
+        tmp_min = *psrc;
     }
     else
     {
         fvec3_t tmp_diff = vel * tmin;
-        // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_fvec3( psrc, tmp_diff, &tmp_min ) ) return false;
+        // Adjust the bounding box to take in the position at the next step.
+        if (!oct_bb_translate(psrc, tmp_diff, &tmp_min)) return false;
     }
 
-    // determine the bounding volume at t == tmax
+    // Determine the bounding volume at t == tmax.
     if ( tmax == 0.0f )
     {
-        oct_bb_copy( &tmp_max, psrc );
+        tmp_max = *psrc;
     }
     else
     {
         fvec3_t tmp_diff = vel * tmax;
-        // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_fvec3( psrc, tmp_diff, &tmp_max ) ) return false;
+        // Adjust the bounding box to take in the position at the next step.
+        if (!oct_bb_translate(psrc, tmp_diff, &tmp_max)) return false;
     }
 
-    // determine bounding box for the range of times
-    if ( !oct_bb_union( &tmp_min, &tmp_max, pdst ) ) return false;
+    // Determine bounding box for the range of times.
+    if (!oct_bb_union(&tmp_min, &tmp_max, pdst)) return false;
 
     return true;
 }
@@ -1009,7 +974,7 @@ bool phys_expand_chr_bb( Object * pchr, float tmin, float tmax, oct_bb_t * pdst 
 
     // add in the current position to the bounding volume
     oct_bb_t tmp_oct2;
-    oct_bb_add_fvec3( &( tmp_oct1 ), pchr->getPosition(), &tmp_oct2 );
+    oct_bb_translate( &( tmp_oct1 ), pchr->getPosition(), &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb( &tmp_oct2, pchr->vel, tmin, tmax, pdst );
@@ -1029,7 +994,7 @@ bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
 
     // add in the current position to the bounding volume
     oct_bb_t tmp_oct2;
-    oct_bb_add_fvec3( &tmp_oct1, pprt->pos, &tmp_oct2 );
+    oct_bb_translate( &tmp_oct1, pprt->pos, &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb( &tmp_oct2, pprt->vel, tmin, tmax, pdst );
@@ -1655,21 +1620,17 @@ bool test_interaction_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t b
 //--------------------------------------------------------------------------------------------
 bool test_interaction_close_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * cv_b, const fvec3_t& pos_b, int test_platform )
 {
-    int cnt;
-    float depth;
-    oct_vec_v2_t oa, ob;
+    if (!cv_a || !cv_b) return false;
 
-    if ( NULL == cv_a || NULL == cv_b ) return false;
-
-    // translate the positions to oct_vecs
-    oa.ctor( pos_a );
-    ob.ctor( pos_b );
+    // Translate the vector positions to octagonal vector positions.
+    oct_vec_v2_t oa(pos_a), ob(pos_b);
 
     // calculate the depth
-    for ( cnt = 0; cnt < OCT_Z; cnt++ )
+    float depth;
+    for (size_t i = 0; i < OCT_Z; ++i)
     {
-        float ftmp1 = std::min(( ob[cnt] + cv_b->maxs[cnt] ) - oa[cnt], oa[cnt] - ( ob[cnt] + cv_b->mins[cnt] ) );
-        float ftmp2 = std::min(( oa[cnt] + cv_a->maxs[cnt] ) - ob[cnt], ob[cnt] - ( oa[cnt] + cv_a->mins[cnt] ) );
+        float ftmp1 = std::min(( ob[i] + cv_b->maxs[i] ) - oa[i], oa[i] - ( ob[i] + cv_b->mins[i] ) );
+        float ftmp2 = std::min(( oa[i] + cv_a->maxs[i] ) - ob[i], ob[i] - ( oa[i] + cv_a->mins[i] ) );
         depth = std::max( ftmp1, ftmp2 );
         if ( depth <= 0.0f ) return false;
     }
@@ -1684,23 +1645,20 @@ bool test_interaction_close_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, cons
 //--------------------------------------------------------------------------------------------
 bool test_interaction_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * cv_b, const fvec3_t& pos_b, int test_platform )
 {
+    if (!cv_a || !cv_b)
+    {
+        return false;
+    }
 
-
-    int cnt;
-    oct_vec_v2_t oa, ob;
-    float depth;
-
-    if ( NULL == cv_a || NULL == cv_b ) return false;
-
-    // translate the positions to oct_vecs
-    oa.ctor( pos_a );
-    ob.ctor( pos_b );
+    // Convert the vector positions to octagonal vector positions.
+    oct_vec_v2_t oa(pos_a), ob(pos_b);
 
     // calculate the depth
-    for ( cnt = 0; cnt < OCT_Z; cnt++ )
+    float depth;
+    for (size_t i = 0; i < OCT_Z; ++i)
     {
-        depth  = std::min( cv_b->maxs[cnt] + ob[cnt], cv_a->maxs[cnt] + oa[cnt] ) -
-                 std::max( cv_b->mins[cnt] + ob[cnt], cv_a->mins[cnt] + oa[cnt] );
+        depth  = std::min( cv_b->maxs[i] + ob[i], cv_a->maxs[i] + oa[i] ) -
+                 std::max( cv_b->mins[i] + ob[i], cv_a->mins[i] + oa[i] );
 
         if ( depth <= 0.0f ) return false;
     }
@@ -1769,27 +1727,22 @@ bool get_depth_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t bump_b, 
 //--------------------------------------------------------------------------------------------
 bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break_out, oct_vec_v2_t& depth )
 {
-    int cnt;
-    bool valid;
-    float ftmp1, ftmp2;
-    float opos_a, opos_b;
-
-    if ( NULL == cv_a || NULL == cv_b ) return false;
+    if (!cv_a || !cv_b) return false;
 
     // calculate the depth
-    valid = true;
-    for ( cnt = 0; cnt < OCT_Z; cnt++ )
+    bool valid = true;
+    for (size_t i = 0; i < OCT_Z; ++i)
     {
         // get positions from the bounding volumes
-        opos_a = ( cv_a->mins[cnt] + cv_a->maxs[cnt] ) * 0.5f;
-        opos_b = ( cv_b->mins[cnt] + cv_b->maxs[cnt] ) * 0.5f;
+        float opos_a = ( cv_a->mins[i] + cv_a->maxs[i] ) * 0.5f;
+        float opos_b = ( cv_b->mins[i] + cv_b->maxs[i] ) * 0.5f;
 
         // measue the depth
-        ftmp1 = std::min( cv_b->maxs[cnt] - opos_a, opos_a - cv_b->mins[cnt] );
-        ftmp2 = std::min( cv_a->maxs[cnt] - opos_b, opos_b - cv_a->mins[cnt] );
-        depth[cnt] = std::max( ftmp1, ftmp2 );
+        float ftmp1 = std::min( cv_b->maxs[i] - opos_a, opos_a - cv_b->mins[i] );
+        float ftmp2 = std::min( cv_a->maxs[i] - opos_b, opos_b - cv_a->mins[i] );
+        depth[i] = std::max( ftmp1, ftmp2 );
 
-        if ( depth[cnt] <= 0.0f )
+        if ( depth[i] <= 0.0f )
         {
             valid = false;
             if ( break_out ) return false;
@@ -1816,27 +1769,22 @@ bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break
 //--------------------------------------------------------------------------------------------
 bool get_depth_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * cv_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth )
 {
-    int cnt;
-    oct_vec_v2_t oa, ob;
-    bool valid;
+    if (!cv_a || !cv_b) return false;
 
-    if ( NULL == cv_a || NULL == cv_b) return false;
-
-    // translate the positions to oct_vecs
-    oa.ctor( pos_a );
-    ob.ctor( pos_b );
+    // Translate the vector positions to octagonal vector positions.
+    oct_vec_v2_t oa(pos_a), ob(pos_b);
 
     // calculate the depth
-    valid = true;
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    bool valid = true;
+    for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        depth[cnt]  = std::min( cv_b->maxs[cnt] + ob[cnt], cv_a->maxs[cnt] + oa[cnt] ) -
-                      std::max( cv_b->mins[cnt] + ob[cnt], cv_a->mins[cnt] + oa[cnt] );
+        depth[i] = std::min( cv_b->maxs[i] + ob[i], cv_a->maxs[i] + oa[i] ) -
+                   std::max( cv_b->mins[i] + ob[i], cv_a->mins[i] + oa[i] );
 
-        if ( depth[cnt] <= 0.0f )
+        if (depth[i] <= 0.0f)
         {
             valid = false;
-            if ( break_out ) return false;
+            if (break_out) return false;
         }
     }
 
@@ -1846,15 +1794,3 @@ bool get_depth_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * 
 
     return valid;
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-apos_t * apos_self_clear( apos_t * val )
-{
-    if ( NULL == val ) return val;
-
-    BLANK_STRUCT_PTR( val )
-
-    return val;
-}
-#endif

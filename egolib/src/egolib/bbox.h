@@ -346,6 +346,10 @@
          */
         void translate(const fvec3_t& t)
         {
+            translate(oct_vec_v2_t(t));
+        }
+        void translate(const oct_vec_v2_t& t)
+        {
             mins.add(t);
             maxs.add(t);
         }
@@ -393,7 +397,7 @@
     egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_vec_v2_t& other);
     egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_bb_t& other);
     egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other);
-    void oct_bb_self_translate(oct_bb_t& self, const oct_vec_v2_t& t);
+    
     egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v);
     /**
      * @brief
@@ -434,8 +438,8 @@
      * @param dst
      *	the target bounding box
      */
-    egolib_rv oct_bb_add_fvec3(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst);
-
+    egolib_rv oct_bb_translate(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst);
+    egolib_rv oct_bb_translate(const oct_bb_t *src, const oct_vec_v2_t& t, oct_bb_t *dst);
 
     egolib_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
 
@@ -535,4 +539,4 @@ egolib_rv oct_bb_union_index(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_
 egolib_rv oct_bb_intersection_index( const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t * pdst, int index );
 egolib_rv oct_bb_union(const oct_bb_t *src1, const oct_bb_t  *src2, oct_bb_t *dst);
 egolib_rv oct_bb_intersection(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst);
-egolib_rv oct_bb_add_ovec(const oct_bb_t *src, const oct_vec_v2_t& t, oct_bb_t *dst);
+

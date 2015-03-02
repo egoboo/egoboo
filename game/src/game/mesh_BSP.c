@@ -97,7 +97,7 @@ bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh)
 
     // initialize the bsp volume
     // assumes tlist[0] is insterted
-    oct_bb_copy(&(self->volume), &(tlist[0].oct));
+    self->volume = tlist[0].oct;
 
     // insert each tile
     for (cnt = 0, ptile = tlist; cnt < tcount; cnt++, ptile++)

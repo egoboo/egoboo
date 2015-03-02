@@ -6179,8 +6179,8 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     points_to_oct_bb( &bdst, dst, vcount );
 
     //---- set the bounding boxes
-    oct_bb_copy( &( pchr->chr_min_cv ), &bdst );
-    oct_bb_copy( &( pchr->chr_max_cv ), &bdst );
+    pchr->chr_min_cv = bdst;
+    pchr->chr_max_cv = bdst;
 
     bmin.assign(pchr->bump);
 
@@ -7948,7 +7948,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
     {
-        oct_bb_add_fvec3( &tmp_cv, fvec3_t(grip_nupoints[0][kX],grip_nupoints[0][kY],grip_nupoints[0][kZ]), grip_cv_ptr );
+        oct_bb_translate( &tmp_cv, fvec3_t(grip_nupoints[0][kX],grip_nupoints[0][kY],grip_nupoints[0][kZ]), grip_cv_ptr );
     }
 
     return true;

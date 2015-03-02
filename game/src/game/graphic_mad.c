@@ -805,7 +805,7 @@ void draw_chr_bbox( Object * pchr )
         {
             oct_bb_t bb;
 
-            oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->getPosition(), &bb );
+            oct_bb_translate( &( pchr->slot_cv[SLOT_LEFT] ), pchr->getPosition(), &bb );
 
 			Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
             render_oct_bb( &bb, true, true );
@@ -1152,11 +1152,11 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
-        oct_bb_copy( &( pinst->bbox ), &lastFrame.bb);
+        pinst->bbox = lastFrame.bb;
     }
     else if ( pinst->flip == 1.0f )
     {
-        oct_bb_copy( &( pinst->bbox ), &nextFrame.bb );
+        pinst->bbox = nextFrame.bb;
     }
     else
     {
