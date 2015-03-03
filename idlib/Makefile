@@ -19,6 +19,12 @@ INC := -Isrc
 CFLAGS   += $(INC)
 CXXFLAGS += $(INC)
 
+# variables for EgoTest's makefile 
+
+EGOTEST_DIR  := ../egotest
+TEST_SOURCES := $(wildcard tests/*.cpp)
+TEST_LDFLAGS := $(IDLIB_TARGET) $(LDFLAGS)
+
 #------------------------------------
 # definitions of the target projects
 
@@ -29,5 +35,9 @@ $(IDLIB_TARGET): ${IDLIB_OBJ}
 
 all: $(IDLIB_TARGET)
 
-clean:
+include $(EGOTEST_DIR)/EgoTest.makefile
+
+test: $(IDLIB_TARGET) do_test
+
+clean: test_clean
 	rm -f ${IDLIB_OBJ} $(IDLIB_TARGET)

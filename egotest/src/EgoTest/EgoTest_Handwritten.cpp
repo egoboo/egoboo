@@ -57,7 +57,7 @@ namespace EgoTest
     void TestCase::tearDownClass() {}
 }
 
-void EgoTest::assert(bool condition, std::string conditionStr, std::string function, std::string file, int line)
+void EgoTest::doAssert(bool condition, std::string conditionStr, std::string function, std::string file, int line)
 {
     if (condition) return;
     currentTestFailures++;

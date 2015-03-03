@@ -29,14 +29,17 @@ TEST_REQUIREDFILES = ${EGOTEST_DIR}/generate_main_cpp ${EGOTEST_DIR}/src/EgoTest
 do_test: test_check_vars $(TEST_BINARY)
 	$(TEST_BINARY)
 
-$(TEST_BINARY): $(TEST_BINARY).cpp
-	$(CXX) -o $@ $^ $(TEST_CXXFLAGS) $(TEST_LDFLAGS)
+$(TEST_BINARY): $(TEST_BINARY).o
+	$(CXX) -o $@ $^ $(TEST_LDFLAGS)
+
+$(TEST_BINARY).o: $(TEST_BINARY).cpp
+	$(CXX) $(TEST_CXXFLAGS) -o $@ -c $^
 
 $(TEST_BINARY).cpp: ${TEST_SOURCES} $(TEST_REQUIREDFILES)
 	perl ${EGOTEST_DIR}/generate_main_cpp $@ ${TEST_SOURCES}
 
 test_clean:
-	rm -f $(TEST_BINARY) $(TEST_BINARY).cpp
+	rm -f $(TEST_BINARY) $(TEST_BINARY).cpp $(TEST_BINARY).o
 
 test_check_vars:
 ifeq ($(EGOTEST_DIR),)

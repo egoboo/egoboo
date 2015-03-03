@@ -3,7 +3,8 @@
 #---------------------
 # the source files
 CARTMAN_SRC := ${wildcard src/cartman/*.c}
-CARTMAN_OBJ := ${CARTMAN_SRC:.c=.o}
+CARTMAN_SRC_CPP := ../unix/main.cpp
+CARTMAN_OBJ := ${CARTMAN_SRC:.c=.o} ${CARTMAN_SRC_CPP:.cpp=.o}
 
 #---------------------
 # the egolib configuration

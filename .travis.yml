@@ -10,6 +10,7 @@ before_install:
 language: cpp
 script:
 - make PREFIX=/usr/local
+- make PREFIX=/usr/local test
 
 notifications:
   webhooks:

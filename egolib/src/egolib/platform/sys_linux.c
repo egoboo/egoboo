@@ -75,10 +75,12 @@ double sys_getTime()
 
 //--------------------------------------------------------------------------------------------
 // This is where the whole thing actually starts in Linux
+#if 0
 int main( int argc, char* argv[] )
 {
     return SDL_main( argc, argv );
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )

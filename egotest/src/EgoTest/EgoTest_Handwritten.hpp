@@ -41,7 +41,7 @@ namespace EgoTest
         virtual void tearDownClass();
     };
     
-    void assert(bool condition, std::string conditionStr, std::string function, std::string file, int line);
+    void doAssert(bool condition, std::string conditionStr, std::string function, std::string file, int line);
     
     int handleTest(const std::function<void(void)> &test);
 }
@@ -66,7 +66,7 @@ namespace EgoTest
 
 #define EgoTest_Assert(EXPRESSION) \
 try { \
-    EgoTest::assert(EXPRESSION, "\"" #EXPRESSION"\" was false", EgoTest_FUNCTION, __FILE__, __LINE__); \
+    EgoTest::doAssert(EXPRESSION, "\"" #EXPRESSION"\" was false", EgoTest_FUNCTION, __FILE__, __LINE__); \
 } catch (...) { \
-    EgoTest::assert(false, "uncaught exception", EgoTest_FUNCTION, __FILE__, __LINE__); \
+    EgoTest::doAssert(false, "uncaught exception", EgoTest_FUNCTION, __FILE__, __LINE__); \
 }
