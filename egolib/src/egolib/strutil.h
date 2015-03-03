@@ -35,64 +35,6 @@
 #   define VALID_CSTR(PSTR)   ((NULL!=PSTR) && (CSTR_END != PSTR[0]))
 #   define INVALID_CSTR(PSTR) ((NULL==PSTR) || (CSTR_END == PSTR[0]))
 
-/**
- * @brief
- *  Convert a character to upper case using the current locale.
- * @param chr
- *  the character
- * @return
- *  the upper case character
- */
-template <class CharType>
-inline CharType char_toupper(CharType chr, const std::locale& locale = std::locale())
-{
-    return std::toupper(chr, locale);
-}
-
-/**
-* @brief
-*  Convert a character to lower case using the current locale.
-* @param chr
-*  the character
-* @return
-*  the lower case character
-*/
-template <class CharType>
-inline CharType char_tolower(CharType chr, const std::locale& locale = std::locale())
-{
-    return std::tolower(chr, locale);
-}
-
-/**
- * @brief
- *  Get if a character is a whitespace character using the current locale.
- * @param chr
- *  the character
- * @return
- *  @a true if the character is a whitespace character, @a false otherwise
- */
-template <class CharType>
-inline bool char_isspace(CharType chr, const std::locale& locale = std::locale())
-{
-    return std::isspace(chr, locale);
-}
-
-/**
- * @brief
- *  Trim leading and trailing spaces.
- * @param str
- *  the string
- * @return
- *  a string equal to @a str but with leading and trailing spaces removed
- */
-template <typename CharType>
-inline std::basic_string<CharType> trim(const std::basic_string<CharType>& str, const std::locale& locale = std::locale())
-{
-    auto isspace = [=,&locale](const CharType chr) { return std::isspace(chr, locale); };
-    auto front = std::find_if_not(str.begin(), str.end(), isspace);
-    return std::basic_string<CharType>(front, std::find_if_not(str.rbegin(), typename std::basic_string<CharType>::const_reverse_iterator(front), isspace).base());
-}
-
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------

@@ -76,7 +76,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
             }
             else
             {
-                oct_bb_self_join(frame.bb, opos);
+                frame.bb.join(opos);
             }
         }
 
@@ -258,7 +258,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             }
             else
             {
-                oct_bb_self_join(frame.bb, ovec);
+                frame.bb.join(ovec);
             }
         }
 

@@ -430,6 +430,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp" />
+    <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
+    <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp" />
     <ClInclude Include="src\egolib\Profiles\EnchantProfileSystem.hpp" />
     <ClInclude Include="src\egolib\Profiles\ParticleProfileSystem.hpp" />
     <ClInclude Include="src\egolib\Profiles\_AbstractProfileSystem.hpp" />

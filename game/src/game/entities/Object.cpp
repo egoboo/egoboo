@@ -1037,7 +1037,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
         // capitalize the name ?
         if (capitalLetter)
         {
-            result[0] = char_toupper(result[0]);
+            result[0] = Ego::toupper(result[0]);
         }
     }
     else
@@ -1063,7 +1063,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
             }
             else
             {
-                char lTmp = char_toupper(result[0]);
+                char lTmp = Ego::toupper(result[0]);
 
                 if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                 {

@@ -3045,8 +3045,8 @@ void draw_inventory()
         max_weight = 200 + FP8_TO_FLOAT( pchr->strength ) * FP8_TO_FLOAT( pchr->strength );
 
         //draw the backdrop
-        const GLXvector4f INVENTORY_COLOR = {0.66f, 0.00f, 0.00f, 0.60f};
-        GL_DEBUG( glColor4fv )(INVENTORY_COLOR);
+        const Ego::Math::Colour4f INVENTORY_COLOUR(0.6f, 0.0f, 0.0f, 0.6f);
+        Ego::Renderer::get().setColour(INVENTORY_COLOUR);
         GL_DEBUG( glBegin )( GL_QUADS );
         {
             GL_DEBUG( glVertex2f )( x, y );

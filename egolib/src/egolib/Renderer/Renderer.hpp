@@ -74,8 +74,8 @@ namespace Ego
 
 	public:
 
-        //Disable copying class
-        Renderer(const Renderer& copy) = delete;
+        // Disable copying class.
+        Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
 
         /**
@@ -102,6 +102,15 @@ namespace Ego
          *  @a false disables it
          */
         virtual void setBlendingEnabled(bool enabled) = 0;
+
+        /**
+         * @brief
+         *  Enable/disable alpha tests.
+         * @param enabled
+         *  @a true enables alpha tests,
+         *  @a false disables them
+         */
+        virtual void setAlphaTestEnabled(bool enabled) = 0;
 
 		/**
 		 * @brief

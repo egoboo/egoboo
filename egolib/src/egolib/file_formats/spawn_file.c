@@ -124,7 +124,7 @@ Again:
             goto Again;
         }
         ctxt.next();
-        std::string name = trim(ctxt._buffer.toString());
+        std::string name = Ego::trim(ctxt._buffer.toString());
 
         
         strncpy(info->spawn_coment, name.c_str(), SDL_arraysize(info->spawn_coment));
@@ -148,7 +148,7 @@ Again:
         info->facing = FACE_NORTH;
         info->attach = ATTACH_NONE;
         char chr = ctxt.readPrintable();
-        switch (char_toupper(chr))
+        switch (Ego::toupper(chr))
         {
         case 'S': info->facing = FACE_SOUTH;       break;
         case 'E': info->facing = FACE_EAST;        break;

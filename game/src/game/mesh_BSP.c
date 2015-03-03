@@ -106,7 +106,7 @@ bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh)
         if (mesh_BSP_insert(self, ptile, cnt ))
         {
             // add this tile's volume to the bsp's volume
-            oct_bb_self_join(self->volume, ptile->oct);
+            self->volume.join(ptile->oct);
         }
     }
 

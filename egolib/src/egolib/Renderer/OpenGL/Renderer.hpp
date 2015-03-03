@@ -51,11 +51,43 @@ namespace Ego
 	{
 		class Renderer : public Ego::Renderer
 		{
+        protected:
+            /**
+             * @brief
+             *  The list of OpenGL extensions supported by this OpenGL implementation.
+             */
+            std::unordered_set<std::string> _extensions;
+            /**
+             * @brief
+             *  The name of the vendor of this OpenGL implementation.
+             */
+            std::string _vendor;
+            /**
+             * @brief
+             *  The name of this OpenGL implementation.
+             */
+            std::string _name;
 		public:
+            /**
+             * @brief
+             *  Construct this OpenGL renderer.
+             */
+            Renderer();
+            /**
+             * @brief
+             *  Destruct this OpenGL renderer.
+             */
 			virtual ~Renderer();
+
+            // Disable copying class.
+            Renderer(const Renderer&) = delete;
+            Renderer& operator=(const Renderer&) = delete;
 
             /** @copydoc Ego::Renderer::setClearColour */
             virtual void setClearColour(const Colour4f& colour) override;
+
+            /** @copydoc Ego::Renderer::setAlphaTestEnabled */
+            virtual void setAlphaTestEnabled(bool enabled) override;
 
             /** @copydoc Ego::Renderer::setBlendingEnabled */
             virtual void setBlendingEnabled(bool enabled) override;

@@ -23,17 +23,6 @@
 
 #include "egolib/typedef.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct s_treasure_table;
-    typedef struct s_treasure_table treasure_table_t;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -45,7 +34,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     ///Data structure for one treasure table, we can have up to MAX_TABLES of these
-    struct s_treasure_table
+    struct treasure_table_t
     {
         STRING table_name;                          //< What is the name of this treasure table
         STRING object_list[TREASURE_TABLE_SIZE];    //< List of treasure objects in this table
@@ -66,11 +55,3 @@ extern "C"
 
     egolib_rv init_random_treasure_tables_vfs( const char* filepath );
     egolib_rv get_random_treasure( char * buffer, size_t buffer_length );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif

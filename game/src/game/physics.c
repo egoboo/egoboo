@@ -47,26 +47,25 @@ static egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * 
 
 /// @brief A test to determine whether two "fast moving" objects are interacting within a frame.
 ///        Designed to determine whether a bullet particle will interact with character.
-static bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
-static bool phys_estimate_depth( const oct_vec_v2_t& podepth, const float exponent, fvec3_t& nrm, float * depth );
-static float phys_get_depth( const oct_vec_v2_t& podepth, const fvec3_t& nrm );
-static bool phys_warp_normal( const float exponent, fvec3_t& nrm );
-static bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_v2_t& podepth);
-static bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_v2_t& podepth);
+static bool phys_intersect_oct_bb_close(const oct_bb_t * src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t *src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+static bool phys_estimate_depth(const oct_vec_v2_t& podepth, const float exponent, fvec3_t& nrm, float *depth);
+static float phys_get_depth(const oct_vec_v2_t& podepth, const fvec3_t& nrm);
+static bool phys_warp_normal(const float exponent, fvec3_t& nrm);
+static bool phys_get_pressure_depth(const oct_bb_t& pbb_a, const oct_bb_t& pbb_b, oct_vec_v2_t& podepth);
+static bool phys_get_collision_depth(const oct_bb_t& pbb_a, const oct_bb_t& pbb_b, oct_vec_v2_t& podepth);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_v2_t& podepth )
+bool phys_get_collision_depth(const oct_bb_t& pbb_a, const oct_bb_t& pbb_b, oct_vec_v2_t& podepth)
 {
     podepth.setZero();
 
     // are the initial volumes any good?
-    if ( NULL == pbb_a || pbb_a->empty ) return false;
-    if ( NULL == pbb_b || pbb_b->empty ) return false;
+    if (pbb_a.empty || pbb_b.empty) return false;
 
     // is there any overlap?
     oct_bb_t otmp;
-    if ( rv_success != oct_bb_intersection( pbb_a, pbb_b, &otmp ) )
+    if ( rv_success != oct_bb_intersection(&pbb_a, &pbb_b, &otmp ) )
     {
         return false;
     }
@@ -75,8 +74,8 @@ bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, o
     // estimate the "cm position" of the objects by the bounding volumes
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        opos_a[i] = ( pbb_a->maxs[i] + pbb_a->mins[i] ) * 0.5f;
-        opos_b[i] = ( pbb_b->maxs[i] + pbb_b->mins[i] ) * 0.5f;
+        opos_a[i] = ( pbb_a.maxs[i] + pbb_a.mins[i] ) * 0.5f;
+        opos_b[i] = ( pbb_b.maxs[i] + pbb_b.mins[i] ) * 0.5f;
     }
 
     // find the (signed) depth in each dimension
@@ -99,11 +98,9 @@ bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, o
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_v2_t& podepth )
+bool phys_get_pressure_depth(const oct_bb_t& pbb_a, const oct_bb_t& pbb_b, oct_vec_v2_t& podepth)
 {
     podepth.setZero();
-
-    if (!pbb_a || !pbb_b) return false;
 
     // assume the best
     bool result = true;
@@ -111,8 +108,8 @@ bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oc
     // scan through the dimensions of the oct_bbs
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        float diff1 = pbb_a->maxs[i] - pbb_b->mins[i];
-        float diff2 = pbb_b->maxs[i] - pbb_a->mins[i];
+        float diff1 = pbb_a.maxs[i] - pbb_b.mins[i];
+        float diff2 = pbb_b.maxs[i] - pbb_a.mins[i];
 
         if ( diff1 < 0.0f || diff2 < 0.0f )
         {
@@ -343,7 +340,7 @@ bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * p
     if ( !use_pressure )
     {
         // try to get the collision depth using the given oct_bb's
-        if ( !phys_get_collision_depth( pobb_a, pobb_b, podepth ) )
+        if ( !phys_get_collision_depth(*pobb_a, *pobb_b, podepth ) )
         {
             use_pressure = true;
         }
@@ -369,7 +366,7 @@ bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * po
     if ( NULL == pobb_a || NULL == pobb_b ) return false;
 
     // calculate the direction of the nearest way out for each octagonal axis
-    bool rv = phys_get_pressure_depth( pobb_a, pobb_b, podepth );
+    bool rv = phys_get_pressure_depth(*pobb_a, *pobb_b, podepth );
     if ( !rv ) return false;
 
     return phys_estimate_depth( podepth, exponent, nrm, depth );

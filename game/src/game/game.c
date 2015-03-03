@@ -3411,7 +3411,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
             }
 
             // make the line capitalized if necessary
-            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = char_toupper( *ebuffer );
+            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = Ego::toupper( *ebuffer );
 
             // Copy the generated text
             while ( CSTR_END != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )
@@ -3717,20 +3717,22 @@ void upload_wawalite()
 //--------------------------------------------------------------------------------------------
 wawalite_data_t * read_wawalite_vfs( void /* const char *modname */ )
 {
-    wawalite_data_t * pdata;
+    wawalite_data_t *data;
 
     // if( INVALID_CSTR(modname) ) return NULL;
 
-    pdata = read_wawalite_file_vfs( "mp_data/wawalite.txt", NULL );
-    if ( NULL == pdata ) return NULL;
-
-    memcpy( &wawalite_data, pdata, sizeof( wawalite_data_t ) );
+    data = read_wawalite_file_vfs("mp_data/wawalite.txt", nullptr);
+    if (!data)
+    {
+        return nullptr;
+    }
+    memcpy(&wawalite_data, data, sizeof(wawalite_data_t));
 
     // fix any out-of-bounds data
-    wawalite_limit( &wawalite_data );
+    wawalite_limit(&wawalite_data);
 
     // finish up any data that has to be calculated
-    wawalite_finalize( &wawalite_data );
+    wawalite_finalize(&wawalite_data);
 
     return &wawalite_data;
 }

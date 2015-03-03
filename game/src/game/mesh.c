@@ -972,7 +972,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
             ovec.ctor(fvec3_t(ptmem->plst[mesh_vrt][0],ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
-            oct_bb_self_join(*poct, ovec );
+            poct->join(ovec);
         }
 
         // ensure that NO tile has zero volume.

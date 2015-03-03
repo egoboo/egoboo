@@ -489,7 +489,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
 
     // fix class name capitalization
-    buffer[0] = char_toupper(buffer[0]);
+    buffer[0] = Ego::toupper(buffer[0]);
 
     _className = buffer;
 
@@ -501,7 +501,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _ammo = vfs_get_next_int(ctxt);
 
     // Gender
-    switch (char_toupper(vfs_get_next_printable(ctxt)))
+    switch (Ego::toupper(vfs_get_next_printable(ctxt)))
     {
         case 'F': _gender = GENDER_FEMALE; break;
         case 'M': _gender = GENDER_MALE; break;
@@ -597,7 +597,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            switch (char_toupper(ctxt.readPrintable()))
+            switch (Ego::toupper(ctxt.readPrintable()))
             {
                 case 'T': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGEINVERT;   break;
                 case 'C': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGECHARGE;   break;
@@ -677,7 +677,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _goPoofParticle = vfs_get_next_int(ctxt);
 
     // Blud
-    switch (char_toupper(vfs_get_next_printable(ctxt)))
+    switch (Ego::toupper(vfs_get_next_printable(ctxt)))
     {
         case 'T': _bludValid = true;        break;
         case 'U': _bludValid = ULTRABLUDY;  break;

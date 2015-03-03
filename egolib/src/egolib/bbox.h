@@ -382,20 +382,22 @@
 		static void dtor(oct_bb_t *self);
         static egolib_rv validate(oct_bb_t *self);
         static bool empty_raw(const oct_bb_t *self);
+
+        /**
+         * @brief
+         *  Assign this octagonal bounding box the join of itself with a octagonal vector.
+         * @param self
+         *  this octagonal bounding box
+         * @param other
+         *  the octagonal vector
+         * @post
+         *  This octagonal bounding box was assigned the join of itself with the octagonal vector.
+         */
+        egolib_rv join(const oct_vec_v2_t& other);
+        egolib_rv join(const oct_bb_t& other);
     };
 
-    /**
-     * @brief
-     *  Assign this octagonal bounding box the join of itself with a octagonal vector.
-     * @param self
-     *  this octagonal bounding box
-     * @param other
-     *  the octagonal vector
-     * @post
-     *  This octagonal bounding box was assigned the join of itself with the octagonal vector.
-     */
-    egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_vec_v2_t& other);
-    egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_bb_t& other);
+
     egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other);
     
     egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v);

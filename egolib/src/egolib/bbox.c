@@ -367,7 +367,7 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 
             // optimize the bounding volume
             opd.ctor(pd[tnc].pos);
-            oct_bb_self_join(pov->oct, opd);
+            pov->oct.join(opd);
 
             // determine the area for this element
             diff1.x = pd[cnt].pos.x - center.x;
@@ -1295,26 +1295,26 @@ egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_vec_v2_t& v)
+egolib_rv oct_bb_t::join(const oct_vec_v2_t& v)
 {
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        self.mins[i] = std::min(self.mins[i], v[i]);
-        self.maxs[i] = std::max(self.maxs[i], v[i]);
+        mins[i] = std::min(mins[i], v[i]);
+        maxs[i] = std::max(maxs[i], v[i]);
     }
-    return oct_bb_t::validate(&self);
+    return oct_bb_t::validate(this);
 }
 
-egolib_rv oct_bb_self_join(oct_bb_t& self, const oct_bb_t& other)
+egolib_rv oct_bb_t::join(const oct_bb_t& other)
 {
     // No simple case, do the hard work.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        self.mins[i] = std::min(self.mins[i], other.mins[i]);
-        self.maxs[i] = std::max(self.maxs[i], other.maxs[i]);
+        mins[i] = std::min(mins[i], other.mins[i]);
+        maxs[i] = std::max(maxs[i], other.maxs[i]);
     }
 
-    return oct_bb_t::validate(&self);
+    return oct_bb_t::validate(this);
 }
 
 //--------------------------------------------------------------------------------------------

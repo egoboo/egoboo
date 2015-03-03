@@ -154,7 +154,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     result->_rank = strlen(buffer);
 
     // convert the special ranks of "unranked" or "-" ("rank 0")
-    if ( '-' == buffer[0] || 'U' == char_toupper(buffer[0]) )
+    if ( '-' == buffer[0] || 'U' == Ego::toupper(buffer[0]) )
     {
         result->_rank = 0;
     }
@@ -180,7 +180,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
         if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
         {
             // parse the expansion value
-            switch (char_toupper(ctxt.readPrintable()))
+            switch (Ego::toupper(ctxt.readPrintable()))
             {
                 case 'M': result->_moduleType = FILTER_MAIN; break;
                 case 'S': result->_moduleType = FILTER_SIDE_QUEST; break;

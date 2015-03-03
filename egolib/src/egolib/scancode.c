@@ -22,7 +22,8 @@
 /// @details
 
 #include "egolib/scancode.h"
-#include "egolib/strutil.h"
+#include "egolib/strutil.h" /**< @todo Remove this include. */
+#include "egolib/Core/StringUtilities.hpp"
 #include "egolib/log.h"
 
 int scancode_to_ascii[SDLK_LAST];
@@ -40,7 +41,7 @@ void scancode_begin()
         int dst = src;
         if (src < 255)
         {
-            dst = char_toupper((char)src);
+            dst = Ego::toupper((char)src);
 
             if (dst > 255)
             {

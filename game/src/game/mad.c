@@ -216,7 +216,7 @@ int action_which( char cTmp )
     /// @details This function changes a letter into an action code
     int action;
 
-    switch ( char_toupper( cTmp ) )
+    switch ( Ego::toupper( cTmp ) )
     {
         case 'D': action = ACTION_DA; break;
         case 'U': action = ACTION_UA; break;

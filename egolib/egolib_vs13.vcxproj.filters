@@ -61,6 +61,9 @@
     <Filter Include="Source Files\Audio">
       <UniqueIdentifier>{9cf4ea1f-7c01-4ae6-b32e-d0492691f815}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{6f89c9b2-6080-4995-bf78-46e277b4068c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -652,6 +655,15 @@
     </ClInclude>
     <ClInclude Include="src\egolib\math\Vector.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\StringUtilities.hpp">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

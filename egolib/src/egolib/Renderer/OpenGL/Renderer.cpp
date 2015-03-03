@@ -22,11 +22,74 @@
 /// @author Michael Heilmann
 
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
+#include "egolib/Core/StringUtilities.hpp"
+#include "egolib/Core/CollectionUtilities.hpp"
 
 namespace Ego
 {
 	namespace OpenGL
 	{
+
+        /**
+         * @brief
+         *  Get the name of this OpenGL implementation.
+         * @return
+         *  the name of this OpenGL implementation
+         */
+        std::string getName()
+        {
+            while (GL_NO_ERROR != glGetError()) {}
+            const GLubyte *bytes = glGetString(GL_RENDERER);
+            GLenum error = glGetError();
+            if (GL_NO_ERROR != error)
+            {
+                throw std::runtime_error("unable to acquire renderer back-end information");
+            }
+            return (const char *)bytes;
+        }
+        /**
+         * @brief
+         *  Get the name of the vendor of this OpenGL implementation.
+         * @return
+         *  the name of the vendor of this OpenGL implementation
+         */
+        std::string getVendor()
+        {
+            while (GL_NO_ERROR != glGetError()) {}
+            const GLubyte *bytes = glGetString(GL_RENDERER);
+            GLenum error = glGetError();
+            if (GL_NO_ERROR != error)
+            {
+                throw std::runtime_error("unable to acquire renderer back-end information");
+            }
+            return (const char *)bytes;
+        }
+        /**
+         * @brief
+         *  Get the list of extensions supported by this OpenGL implementation.
+         * @param [out] extensions
+         *  a set of strings
+         * @post
+         *  the set of extensions supported by this OpenGL implementation was added to the set
+         */
+        std::vector<std::string> getExtensions()
+        {
+            while (GL_NO_ERROR != glGetError()) {}
+            const GLubyte *bytes = glGetString(GL_EXTENSIONS);
+            GLenum error = glGetError();
+            if (GL_NO_ERROR != error)
+            {
+                throw std::runtime_error("unable to acquire renderer back-end information");
+            }
+            return Ego::split(std::string((const char *)bytes),std::string(" "));
+        }
+
+        Renderer::Renderer() :
+            _name(getName()), _vendor(getVendor()),
+            _extensions(make_unordered_set(getExtensions()))
+        {
+        }
+
 		Renderer::~Renderer()
 		{
 			//dtor
@@ -35,6 +98,18 @@ namespace Ego
         void Renderer::setClearColour(const Colour4f& colour)
         {
             glClearColor(colour.getRed(), colour.getGreen(), colour.getBlue(), colour.getAlpha());
+        }
+
+        void Renderer::setAlphaTestEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                glEnable(GL_ALPHA_TEST);
+            }
+            else
+            {
+                glDisable(GL_ALPHA_TEST);
+            }
         }
 
         void Renderer::setBlendingEnabled(bool enabled)

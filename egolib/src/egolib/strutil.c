@@ -22,8 +22,9 @@
 /// @details
 
 #include "egolib/strutil.h"
-#include "egolib/fileutil.h"
-#include "egolib/platform.h"
+#include "egolib/fileutil.h" /**<< @tood Remove this include. */
+#include "egolib/Core/StringUtilities.hpp"
+#include "egolib/platform.h" /**<< @todo Remove this include. */
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     {
         if ( !isspace(( unsigned )( *pin ) ) && isprint(( unsigned )( *pin ) ) )
         {
-            chrlast = *pout = char_tolower(*pin);
+            chrlast = *pout = Ego::tolower(*pin);
             pin++;
             pout++;
         }
@@ -305,7 +306,7 @@ char * str_encode_path( const char *szName )
     ppath_end = szPathname + SDL_arraysize( szPathname ) - 5;
     while ( CSTR_END != *pname && pname < pname_end && ppath < ppath_end )
     {
-        letter = char_tolower(*pname);
+        letter = Ego::tolower(*pname);
 
         if ( isspace(( unsigned )letter ) || !( isalpha(( unsigned )letter ) || isdigit(( unsigned )letter ) ) ) letter = '_';
 

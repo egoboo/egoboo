@@ -6225,7 +6225,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
 
         chr_calc_grip_cv( pchr, GRIP_LEFT, &pchr->slot_cv[cnt], false );
 
-        oct_bb_self_join(pchr->chr_max_cv, pchr->slot_cv[cnt]);
+        pchr->chr_max_cv.join(pchr->slot_cv[cnt]);
     }
 
     // convert the level 1 bounding box to a level 0 bounding box

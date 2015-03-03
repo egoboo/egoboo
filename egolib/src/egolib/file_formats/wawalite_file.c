@@ -293,7 +293,8 @@ wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t 
     if (!wawalite_data_init(pdata)) return pdata;
 
     ReadContext ctxt(filename);
-    if (!ctxt.ensureOpen()) {
+    if (!ctxt.ensureOpen())
+    {
         log_warning("unable to read water and weather file `%s`\n", filename);
         return nullptr;
     }

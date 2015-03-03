@@ -44,7 +44,7 @@ namespace BSP
 {
 	/**
 	 * @brief
-	 *	Indicates the relation between an entity an branch.
+	 *	Indicates the relation between an entity and a branch.
 	 *	If -2, the entity is larger than the bounds of the branch and if -1 the entity belongs to this branch.
 	 *	Positive values range from 0 to 2^d-1 where d is the dimensionality and indicate the index of the
 	 *	child branchat which the entity must be deferred to.
