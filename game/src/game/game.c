@@ -2761,9 +2761,6 @@ void game_quit_module()
 
     // remove the module-dependent mount points from the vfs
     setup_clear_module_vfs_paths();
-
-    // turn off networking
-    net_end();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2849,8 +2846,6 @@ void game_release_module_data()
     /// @author ZZ
     /// @details This function frees up memory used by the module
 
-    ego_mesh_t * ptmp;
-
     // Disable ESP
     local_stats.sense_enemies_idsz = IDSZ_NONE;
     local_stats.sense_enemies_team = ( TEAM_REF ) TEAM_MAX;
@@ -2869,7 +2864,7 @@ void game_release_module_data()
     _profileSystem.reset();
 
     // delete the mesh data
-    ptmp = PMesh;
+    ego_mesh_t *ptmp = PMesh;
     ego_mesh_destroy( &ptmp );
 
     // deallocate any dynamically allocated collision memory

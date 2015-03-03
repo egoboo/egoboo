@@ -843,7 +843,7 @@
 		CDC187151A7B08B4001E69ED /* Colour3f.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Colour3f.hpp; sourceTree = "<group>"; };
 		CDC187161A7B08B4001E69ED /* Colour4f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Colour4f.cpp; sourceTree = "<group>"; };
 		CDC187171A7B08B4001E69ED /* Colour4f.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Colour4f.hpp; sourceTree = "<group>"; };
-		CDC187181A7B08B4001E69ED /* DynamicVector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicVector.hpp; sourceTree = "<group>"; };
+		CDC187181A7B08B4001E69ED /* Vector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Vector.hpp; sourceTree = "<group>"; };
 		CDCA1F8F1A3F56AB00002E76 /* bbox.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bbox.c; sourceTree = "<group>"; };
 		CDCA1F901A3F56AB00002E76 /* bbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bbox.h; sourceTree = "<group>"; };
 		CDCA1F921A3F56AB00002E76 /* bsp.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp.c; sourceTree = "<group>"; };
@@ -1748,13 +1748,13 @@
 				CDC187171A7B08B4001E69ED /* Colour4f.hpp */,
 				CDE4EC591A7167CD00A4BC62 /* Cube.cpp */,
 				CDE4EC5A1A7167CD00A4BC62 /* Cube.hpp */,
-				CDC187181A7B08B4001E69ED /* DynamicVector.hpp */,
 				CDE4EC5B1A7167CD00A4BC62 /* Plane.cpp */,
 				CDE4EC5C1A7167CD00A4BC62 /* Plane.hpp */,
 				CD9059321A69A67C00DC425D /* Random.cpp */,
 				CD9059331A69A67C00DC425D /* Random.hpp */,
 				CDE4EC5D1A7167CD00A4BC62 /* Sphere.cpp */,
 				CDE4EC5E1A7167CD00A4BC62 /* Sphere.h */,
+				CDC187181A7B08B4001E69ED /* Vector.hpp */,
 			);
 			path = math;
 			sourceTree = "<group>";

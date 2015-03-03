@@ -24,6 +24,7 @@
 #include "game/gamestates/InGameMenuState.hpp"
 #include "game/gamestates/MainMenuState.hpp"
 #include "game/gamestates/PlayingState.hpp"
+#include "game/gamestates/LoadingState.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/game.h"
 #include "game/gui/Button.hpp"
@@ -55,13 +56,18 @@ InGameMenuState::InGameMenuState(PlayingState *playingState) :
 
 	yOffset -= optionsButton->getHeight() + 10;
 
-	std::shared_ptr<Button> loadGameButton = std::make_shared<Button>("Restart Module", SDLK_r);
-	loadGameButton->setPosition(20, yOffset);
-	loadGameButton->setSize(200, 30);
-	addComponent(loadGameButton);
-	_slidyButtons.push_front(loadGameButton);
+	std::shared_ptr<Button> restartModuleButton = std::make_shared<Button>("Restart Module", SDLK_r);
+	restartModuleButton->setPosition(20, yOffset);
+	restartModuleButton->setSize(200, 30);
+	restartModuleButton->setOnClickFunction(
+	[this]{
+		//Reload current module with current players
+		_gameEngine->setGameState(std::make_shared<LoadingState>(PMod->getModuleProfile(), PMod->getImportPlayers()));
+	});
+	addComponent(restartModuleButton);
+	_slidyButtons.push_front(restartModuleButton);
 
-	yOffset -= loadGameButton->getHeight() + 10;
+	yOffset -= restartModuleButton->getHeight() + 10;
 
 	std::shared_ptr<Button> newGameButton = std::make_shared<Button>("Return to Module", SDLK_ESCAPE);
 	newGameButton->setPosition(20, yOffset);

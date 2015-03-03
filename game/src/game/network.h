@@ -74,7 +74,6 @@ extern int     net_players_loaded;
 void net_initialize();
 void net_shutDown();
 bool net_begin();
-bool net_end();
 
 void net_unbuffer_player_latches();
 

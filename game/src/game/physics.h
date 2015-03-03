@@ -150,24 +150,13 @@ struct breadcrumb_t
 {
     bool valid;     ///< Is this position valid?
     fvec3_t pos;    ///< A stored safe position.
-    Uint32 grid;    ///< The grid index of this position.
+    uint32_t grid;  ///< The grid index of this position.
                     ///< @todo Should be GridIndex.
     float radius;   ///< The size of the object at this position.
     BIT_FIELD bits; ///< The collision bits of the object at this position.
                     ///< @todo Should certainly not be a float.
-    Uint32 time;    ///< the time when the breadcrumb was created.
-    Uint32 id;      ///< an id for differentiating the timing of several events at the same "time".
-
-    void assign(const breadcrumb_t& other)
-    {
-        valid = other.valid;
-        pos = other.pos;
-        grid = other.grid;
-        radius = other.radius;
-        bits = other.bits;
-        time = other.time;
-        id = other.id;
-    }
+    uint32_t time;  ///< the time when the breadcrumb was created.
+    uint32_t id;    ///< an id for differentiating the timing of several events at the same "time".
 
 	breadcrumb_t() : 
 		valid(false),
@@ -181,6 +170,17 @@ struct breadcrumb_t
 		//ctor
 	}
 
+    void assign(const breadcrumb_t& other)
+    {
+        valid = other.valid;
+        pos = other.pos;
+        grid = other.grid;
+        radius = other.radius;
+        bits = other.bits;
+        time = other.time;
+        id = other.id;
+    }
+    
     void reset()
     {
         valid = false;
@@ -250,12 +250,15 @@ struct breadcrumb_t
 struct breadcrumb_list_t
 {
 	static const size_t MAX_BREADCRUMB = 32;
+
     bool on;
     size_t count;
     std::array<breadcrumb_t, MAX_BREADCRUMB> lst;
 
-	breadcrumb_list_t()
-		: lst(), on(false), count(0)
+	breadcrumb_list_t() :
+        on(false), 
+        count(0),
+        lst()
 	{
 	}
 
@@ -332,6 +335,7 @@ struct breadcrumb_list_t
      *  a pointer to the youngest, valid breadcrumb if one exists, @a nullptr otherwise
      */
     static breadcrumb_t *newest(breadcrumb_list_t *self);
+
 protected:
     static void validate(breadcrumb_list_t *self);
     static breadcrumb_t *alloc(breadcrumb_list_t *self);

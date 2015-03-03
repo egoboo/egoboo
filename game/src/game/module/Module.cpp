@@ -34,6 +34,7 @@
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
+    _playerList(),
     _name(profile->getName()),
     _exportValid(profile->isExportAllowed()),
     _exportReset(profile->isExportAllowed()),

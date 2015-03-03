@@ -260,6 +260,7 @@
     {
     public:
         bool empty;
+
     public:
         oct_vec_v2_t mins, maxs;
 
@@ -269,13 +270,19 @@
         }
 
         oct_bb_t() :
-            mins(),maxs(),empty(true)
+            empty(true),
+            mins(),
+            maxs()
         {
+            //ctor
         }
 
-        oct_bb_t(const oct_bb_t& other)
-            : mins(other.mins), maxs(other.maxs), empty(other.empty)
+        oct_bb_t(const oct_bb_t& other) :
+            empty(other.empty),
+            mins(other.mins), 
+            maxs(other.maxs)
         {
+            //copy ctor
         }
 
         void assign(const oct_bb_t& other)
@@ -342,12 +349,19 @@
          * @brief
          *	Translate this bounding box.
          * @param t
-         *	the translation vector
+         *	the 3D translation vector
          */
         void translate(const fvec3_t& t)
         {
             translate(oct_vec_v2_t(t));
         }
+
+        /**
+         * @brief
+         *  Translate this bounding box.
+         * @param t
+         *  the 2D translation vector
+         */
         void translate(const oct_vec_v2_t& t)
         {
             mins.add(t);

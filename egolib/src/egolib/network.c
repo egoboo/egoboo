@@ -280,21 +280,6 @@ bool egonet_begin(bool req_enet)
 }
 
 //--------------------------------------------------------------------------------------------
-bool egonet_end(void)
-{
-    if ( !gnet.initialized ) return false;
-
-    egonet_disconnect();
-
-    gnet.req_enet    = false;
-
-    // clear the file transfer code
-    netfile_initialize();
-
-    return !gnet.enet_on;
-}
-
-//--------------------------------------------------------------------------------------------
 void egonet_initialize(BaseServerState_t * ps, BaseClientState_t * pc, size_t size, bool req_enet)
 {
     /// @author ZZ
