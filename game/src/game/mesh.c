@@ -977,16 +977,13 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
 
         // ensure that NO tile has zero volume.
         // if a tile is declared to have all the same height, it will accidentally be called "empty".
-        if ( poct->empty )
+        if (poct->empty || (std::abs(poct->maxs[OCT_X] - poct->mins[OCT_X]) +
+                            std::abs(poct->maxs[OCT_Y] - poct->mins[OCT_Y]) +
+                            std::abs(poct->maxs[OCT_Z] - poct->mins[OCT_Z])) < std::numeric_limits<float>::epsilon())
         {
-            if ( ABS( poct->maxs[OCT_X] - poct->mins[OCT_X] ) +
-                 ABS( poct->maxs[OCT_Y] - poct->mins[OCT_Y] ) +
-                 ABS( poct->maxs[OCT_Z] - poct->mins[OCT_Z] ) > 0.0f )
-            {
-                ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 1e-6;
-                ovec[OCT_XY] = ovec[OCT_YX] = SQRT_TWO * ovec[OCT_X];
-                oct_bb_self_grow( poct, ovec );
-            }
+            ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 0.1;
+            ovec[OCT_XY] = ovec[OCT_YX] = SQRT_TWO * ovec[OCT_X];
+            oct_bb_self_grow( poct, ovec );
         }
 
         // extend the mesh bounding box

@@ -1021,7 +1021,7 @@ bool oct_bb_t::empty_raw(const oct_bb_t *self)
 {
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        if (self->mins[i] >= self->maxs[i])
+        if (self->mins[i] > self->maxs[i])
         {
             return true;
         }
@@ -1045,7 +1045,7 @@ void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v)
     self->maxs = v;
     // This is true by the definition of this function.
     /// @todo The converse is true.
-    self->empty = true;
+    self->empty = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1385,8 +1385,8 @@ egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v)
     }
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        self->mins[i] = self->mins[i] - ABS(v[i]);
-        self->maxs[i] = self->maxs[i] + ABS(v[i]);
+        self->mins[i] -= std::abs(v[i]);
+        self->maxs[i] += std::abs(v[i]);
     }
 
     return oct_bb_t::validate(self);
