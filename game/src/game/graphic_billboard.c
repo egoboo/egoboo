@@ -499,7 +499,7 @@ gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam )
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                          // GL_COLOR_BUFFER_BIT
 
 			Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);

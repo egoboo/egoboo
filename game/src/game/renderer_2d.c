@@ -330,10 +330,10 @@ void gfx_begin_text()
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     // do not display the completely transparent portion
-    GL_DEBUG( glEnable )( GL_ALPHA_TEST );                               // GL_ENABLE_BIT
+    Ego::Renderer::get().setAlphaTestEnabled(true);
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                         // GL_COLOR_BUFFER_BIT
 
-    GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_COLOR_BUFFER_BIT
+    Ego::Renderer::get().setBlendingEnabled(true);
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
     // don't worry about hidden surfaces
@@ -403,16 +403,16 @@ void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_fre
 
         if ( use_alpha )
         {
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT
         }
         else
         {
-            GL_DEBUG( glDisable )( GL_BLEND );                                 // GL_ENABLE_BIT
-            GL_DEBUG( glDisable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(false);
+            Ego::Renderer::get().setAlphaTestEnabled(false);
         }
 
         GL_DEBUG( glBegin )( GL_QUADS );

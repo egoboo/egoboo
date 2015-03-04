@@ -325,8 +325,8 @@ void egolib_console_draw_begin( void )
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                         // GL_ENABLE_BIT
 
-    GL_DEBUG( glEnable )( GL_BLEND );                                              // GL_ENABLE_BIT
-    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );               // GL_COLOR_BUFFER_BIT
+    Ego::Renderer::get().setBlendingEnabled(true);
+    GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
     GL_DEBUG( glViewport )( 0, 0, sdl_scr.x, sdl_scr.y );                          // GL_VIEWPORT_BIT
 

@@ -581,7 +581,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
         if ( pinst->ref.alpha != 255 && pinst->ref.light == 255 )
         {
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ALPHA, GL_ONE_MINUS_SRC_ALPHA );                        // GL_COLOR_BUFFER_BIT
 
             chr_instance_get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
@@ -596,7 +596,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
         if ( pinst->ref.light != 255 )
         {
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                        // GL_COLOR_BUFFER_BIT
 
             chr_instance_get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
@@ -611,7 +611,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
         if ( gfx.phongon && pinst->sheen > 0 )
         {
-            GL_DEBUG( glEnable )( GL_BLEND );
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
 
             chr_instance_get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
@@ -670,10 +670,10 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
             oglx_begin_culling( GL_BACK, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
             // get a speed-up by not displaying completely transparent portions of the skin
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                             // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
             chr_instance_get_tint( pinst, tint, CHR_ALPHA );
@@ -689,10 +689,10 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
             oglx_end_culling();         // GL_ENABLE_BIT
 
             // the alpha test can only mess us up here
-            GL_DEBUG( glDisable )( GL_ALPHA_TEST );     // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(false);
 
-            GL_DEBUG( glEnable )( GL_BLEND );           // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
+            GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE);  // GL_COLOR_BUFFER_BIT
 
             chr_instance_get_tint( pinst, tint, CHR_LIGHT );
 
@@ -704,7 +704,7 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
         if ( gfx.phongon && pinst->sheen > 0 )
         {
-            GL_DEBUG( glEnable )( GL_BLEND );             // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );    // GL_COLOR_BUFFER_BIT
 
             chr_instance_get_tint( pinst, tint, CHR_PHONG );
@@ -755,11 +755,11 @@ gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
         // Objects with partially transparent skins should enable the [MODL] parameter "T"
         // which will enable the display of the partially transparent portion of the skin
 
-        GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
+        Ego::Renderer::get().setAlphaTestEnabled(true);
         GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );             // GL_COLOR_BUFFER_BIT
 
         // can I turn this off?
-        GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
+        Ego::Renderer::get().setBlendingEnabled(true);
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );   // GL_COLOR_BUFFER_BIT
 
         if ( 255 == pinst->alpha && 255 == pinst->light )

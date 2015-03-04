@@ -70,7 +70,7 @@ void UIManager::beginRenderUI()
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );           // GL_COLOR_BUFFER_BIT
 
     // do not display the completely transparent portion
-    GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                     // GL_ENABLE_BIT
+    Ego::Renderer::get().setAlphaTestEnabled(true);
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                               // GL_COLOR_BUFFER_BIT
 
     GL_DEBUG( glViewport )( 0, 0, getScreenWidth(), getScreenHeight());                      // GL_VIEWPORT_BIT

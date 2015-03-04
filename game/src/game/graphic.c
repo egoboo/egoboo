@@ -1546,7 +1546,7 @@ int gfx_system_init_OpenGL()
     Ego::Renderer::get().setBlendingEnabled(false);
 
     // do not display the completely transparent portion
-    GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+    Ego::Renderer::get().setAlphaTestEnabled(true);
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
@@ -1842,9 +1842,11 @@ void gfx_system_load_assets()
         GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
 
         // PLEASE do not turn this on unless you use
-        // GL_DEBUG(glEnable)(GL_BLEND);
+        // @code
+        // Ego::Renderer::get().setBlendingEnabled(true);
         // GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        // before every single draw command
+        // @endcode
+        // before every single draw command.
         //
         // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
         // GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -2595,7 +2597,7 @@ void draw_map()
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
 
-        GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT
+        Ego::Renderer::get().setBlendingEnabled(true);
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
 		Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
@@ -3671,7 +3673,7 @@ gfx_rv render_scene_mesh_ndr( const renderlist_t * prlist )
 
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
-        GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT
+        Ego::Renderer::get().setAlphaTestEnabled(true);
         // speed-up drawing of surfaces with alpha == 0.0f sections
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
@@ -3720,7 +3722,7 @@ gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist )
 
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
-        GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT
+        Ego::Renderer::get().setAlphaTestEnabled(true);
         // speed-up drawing of surfaces with alpha == 0.0f sections
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
@@ -3909,8 +3911,8 @@ gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
     {
-        // no transparency
-        GL_DEBUG( glDisable )( GL_BLEND );                    // GL_ENABLE_BIT
+        // Disable blending.
+        Ego::Renderer::get().setBlendingEnabled(false);
 
         // draw draw front and back faces of polygons
         oglx_end_culling();                // GL_ENABLE_BIT
@@ -3923,7 +3925,7 @@ gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist )
 
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
-        GL_DEBUG( glEnable )( GL_ALPHA_TEST );                // GL_ENABLE_BIT
+        Ego::Renderer::get().setAlphaTestEnabled(true);
         // speed-up drawing of surfaces with alpha = 0.0f sections
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );          // GL_COLOR_BUFFER_BIT
 
@@ -4146,7 +4148,7 @@ gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
 			Ego::Renderer::get().setDepthTestEnabled(true); // GL_ENABLE_BIT
             GL_DEBUG( glDepthFunc )( GL_LESS );                       // GL_DEPTH_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );             // GL_COLOR_BUFFER_BIT
 
             if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
@@ -4487,15 +4489,15 @@ gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF textu
         {
             ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
             {
-                GL_DEBUG( glColor4f )( intens, intens, intens, alpha );             // GL_CURRENT_BIT
+                Ego::Renderer::get().setColour(Ego::Math::Colour4f(intens,intens,intens,alpha));
 
                 if ( alpha >= 1.0f )
                 {
-                    GL_DEBUG( glDisable )( GL_BLEND );                               // GL_ENABLE_BIT
+                    Ego::Renderer::get().setBlendingEnabled(false);
                 }
                 else
                 {
-                    GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT
+                    Ego::Renderer::get().setBlendingEnabled(true);
                     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
                 }
 
@@ -4516,10 +4518,9 @@ gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF textu
         {
             ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
             {
-                GL_DEBUG( glDisable )( GL_BLEND );                           // GL_COLOR_BUFFER_BIT
-                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );            // GL_COLOR_BUFFER_BIT
+                Ego::Renderer::get().setBlendingEnabled(false);
 
-                GL_DEBUG( glColor4f )( light, light, light, 1.0f );         // GL_CURRENT_BIT
+                Ego::Renderer::get().setColour(Ego::Math::Colour4f(light, light, light, 1.0f));
 
                 GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
                 {
@@ -4636,11 +4637,11 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
             oglx_end_culling();                           // GL_ENABLE_BIT
 
             // do not display the completely transparent portion
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT
 
             // make the texture a filter
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
 
             oglx_texture_bind( ptex );

@@ -143,19 +143,21 @@ SDL_bool SDL_GL_set_gl_mode( oglx_video_parameters_t * v )
     // Enable antialiasing?
     if ( v->antialiasing )
     {
-        GL_DEBUG( glEnable )( GL_LINE_SMOOTH );
-        GL_DEBUG( glHint )( GL_LINE_SMOOTH_HINT,    GL_NICEST );
+        GL_DEBUG(glEnable)(GL_LINE_SMOOTH);
+        GL_DEBUG(glHint)(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-        GL_DEBUG( glEnable )( GL_POINT_SMOOTH );
-        GL_DEBUG( glHint )( GL_POINT_SMOOTH_HINT,   GL_NICEST );
+        GL_DEBUG(glEnable)(GL_POINT_SMOOTH );
+        GL_DEBUG(glHint)(GL_POINT_SMOOTH_HINT, GL_NICEST);
 
-        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
-        GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
+        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH );
+        GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
 
         // PLEASE do not turn this on unless you use
-        // GL_DEBUG(glEnable)(GL_BLEND);
+        // @code
+        // Ego::Renderer::get().setBlendingEnabled(true);
         // GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        // before every single draw command
+        // @endcode
+        // before every single draw command.
         //
         // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
         // GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);

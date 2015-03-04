@@ -495,15 +495,14 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         oglx_begin_culling( GL_BACK, MAP_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
         // set the blending mode
-        if ( water.light )
+        Ego::Renderer::get().setBlendingEnabled(true);
+        if (water.light)
         {
-            GL_DEBUG( glEnable )( GL_BLEND );                                   // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_COLOR );          // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR);          // GL_COLOR_BUFFER_BIT
         }
         else
         {
-            GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    // GL_COLOR_BUFFER_BIT
         }
 
         // per-vertex coloring

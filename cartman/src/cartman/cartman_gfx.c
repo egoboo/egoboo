@@ -1496,8 +1496,8 @@ int gfx_init_ogl()
 	Ego::Renderer::get().setDepthTestEnabled(true);
     GL_DEBUG( glDepthFunc )( GL_LESS );
 
-    // alpha stuff
-    GL_DEBUG( glDisable )( GL_BLEND );
+    // Disable blending.
+    Ego::Renderer::get().setBlendingEnabled(false);
 
     // do not display the completely transparent portion
     GL_DEBUG( glEnable )( GL_ALPHA_TEST );

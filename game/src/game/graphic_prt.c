@@ -176,13 +176,12 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
         oglx_end_culling();        // GL_ENABLE_BIT
 
         // Since the textures are probably mipmapped or minified with some kind of
-        // interpolation, we can never really turn blending off,
-        GL_DEBUG( glEnable )( GL_BLEND );                                           // GL_ENABLE_BIT
+        // interpolation, we can never really turn blending off.
+        Ego::Renderer::get().setBlendingEnabled(true);
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );            // GL_ENABLE_BIT
 
-        // only display the portion of the particle that is
-        // 100% solid
-        GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
+        // only display the portion of the particle that is 100% solid
+        Ego::Renderer::get().setAlphaTestEnabled(true);
         GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );       // GL_COLOR_BUFFER_BIT
 
 		oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_PARTICLE_TRANS));
@@ -250,10 +249,10 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             // do the alpha blended edge ("anti-aliasing") of the solid particle
 
             // only display the alpha-edge of the particle
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_LESS, 1.0f );     // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
             particle_color[RR] = pinst->fintens;
@@ -271,9 +270,9 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             // do the light sprites
             float intens = pinst->fintens * pinst->falpha;
 
-            GL_DEBUG( glDisable )( GL_ALPHA_TEST );                         // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(false);
 
-            GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                      // GL_COLOR_BUFFER_BIT
 
             particle_color[RR] = intens;
@@ -291,10 +290,10 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             // do the transparent sprites
 
             // do not display the completely transparent portion
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+            Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                         // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
             particle_color[RR] = pinst->fintens;
@@ -395,7 +394,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 // do the light sprites
                 float intens = startalpha * INV_FF * pinst->falpha * pinst->fintens;
 
-                GL_DEBUG( glDisable )( GL_ALPHA_TEST );         // ENABLE_BIT
+                Ego::Renderer::get().setAlphaTestEnabled(false);
 
                 Ego::Renderer::get().setBlendingEnabled(true);
                 GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
@@ -421,7 +420,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 }
 
                 // do not display the completely transparent portion
-                GL_DEBUG( glEnable )( GL_ALPHA_TEST );         // ENABLE_BIT
+                Ego::Renderer::get().setAlphaTestEnabled(true);
                 GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );      // GL_COLOR_BUFFER_BIT
 
                 Ego::Renderer::get().setBlendingEnabled(true);
@@ -547,7 +546,7 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 //--------------------------------------------------------------------------------------------
 void render_all_prt_attachment()
 {
-    GL_DEBUG( glDisable )( GL_BLEND );
+    Ego::Renderer::get().setBlendingEnabled(false);
 
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {

@@ -138,7 +138,7 @@ void line_list_draw_all(std::shared_ptr<Camera> camera)
             // draw draw front and back faces of polygons
             oglx_end_culling();   // GL_ENABLE_BIT
 
-            GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
+            Ego::Renderer::get().setBlendingEnabled(false);
 
             // we do not want texture mapped lines
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
@@ -388,7 +388,7 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
         oglx_end_culling();                 // GL_ENABLE_BIT
 
         // make them transparent
-        GL_DEBUG( glEnable )( GL_BLEND );
+        Ego::Renderer::get().setBlendingEnabled(true);
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
         // choose a "white" texture
