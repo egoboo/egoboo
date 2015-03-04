@@ -387,7 +387,7 @@ char* strupr( char * str )
     {
         while ( CSTR_END != *str )
         {
-            *str = char_toupper( *str );
+            *str = Ego::toupper( *str );
             str++;
         }
     }
@@ -401,7 +401,7 @@ char* strlwr( char * str )
     {
         while ( CSTR_END != *str )
         {
-            *str = char_tolower( *str );
+            *str = Ego::tolower( *str );
             str++;
         }
     }
