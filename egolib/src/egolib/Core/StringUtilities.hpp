@@ -109,7 +109,7 @@ namespace Ego
     vector< basic_string<CharType> > split(const basic_string<CharType>& str, const basic_string<CharType>& delims)
     {
         vector< basic_string<CharType> > v;
-        basic_string<CharType>::size_type start = 0;
+        typename basic_string<CharType>::size_type start = 0;
         auto pos = str.find_first_of(delims, start);
         while (pos != basic_string<CharType>::npos)
         {
