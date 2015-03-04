@@ -394,16 +394,20 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
     if ( pmad->md2_ptr == nullptr ) return pmad;
 
     // check for a valid frame number
-    if(frame >= pmad->md2_ptr->getFrames().size()){
+    if(frame >= pmad->md2_ptr->getFrames().size())
+    {
         return pmad; 
     }
     MD2_Frame &pframe = pmad->md2_ptr->getFrames()[frame];
 
     // this should only be initializwd the first time through
-    if ( token_count < 0 )
+    if (token_count < 0)
     {
         token_count = 0;
-        for ( cnt = 0; NULL != tokens[token_count] && cnt < 256; cnt++ ) token_count++;
+        for (cnt = 0; nullptr != tokens[token_count] && cnt < 256; cnt++)
+        {
+            token_count++;
+        }
     }
 
     // set the default values
@@ -416,14 +420,14 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
     // skip over whitespace
     ptmp     = cFrameName;
     ptmp_end = cFrameName + 16;
-    for ( /* nothing */; ptmp < ptmp_end && isspace(( unsigned )( *ptmp ) ); ptmp++ ) {};
+    for ( /* nothing */; ptmp < ptmp_end && Ego::isspace(*ptmp); ptmp++) {};
 
     // copy non-numerical text
     paction     = name_action;
     paction_end = name_action + 16;
-    for ( /* nothing */; ptmp < ptmp_end && paction < paction_end && !isspace(( unsigned )( *ptmp ) ); ptmp++, paction++ )
+    for ( /* nothing */; ptmp < ptmp_end && paction < paction_end && !Ego::isspace(*ptmp); ptmp++, paction++ )
     {
-        if ( isdigit(( unsigned )( *ptmp ) ) ) break;
+        if (Ego::isdigit(*ptmp)) break;
         *paction = *ptmp;
     }
     if ( paction < paction_end ) *paction = CSTR_END;

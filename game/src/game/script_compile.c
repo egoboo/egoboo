@@ -621,12 +621,12 @@ size_t insert_space( size_t position, char buffer[], size_t buffer_length, const
     char cTmp, cSwap;
 
     // fail if the new length will be too long
-    if ( buffer_length >= buffer_max )
+    if (buffer_length >= buffer_max)
     {
         return std::min( buffer_length, buffer_max );
     }
 
-    if ( !isspace(( unsigned )buffer[position] ) )
+    if (!Ego::isspace(buffer[position]))
     {
         // we are definitely going to add one character to the length
         buffer_length++;
@@ -709,7 +709,7 @@ size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
             cTmp = ' ';
         }
 
-        if ( !isspace(( unsigned )cTmp ) )
+        if (!Ego::isspace(cTmp))
         {
             break;
         }
@@ -753,13 +753,13 @@ size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
                 // convert tab characters to the '~' symbol
                 cTmp = '~';
             }
-            else if ( isspace(( unsigned )cTmp ) || iscntrl(( unsigned )cTmp ) )
+            else if (Ego::isspace(cTmp) || Ego::iscntrl(cTmp))
             {
                 // all whitespace and control characters are converted to '_'
                 cTmp = '_';
             }
         }
-        else if ( iscntrl(( unsigned )cTmp ) )
+        else if (Ego::iscntrl(cTmp))
         {
             // Convert control characters to whitespace
             cTmp = ' ';
@@ -839,7 +839,7 @@ int get_indentation( parser_state_t * ps, script_info_t *pscript )
 
     cnt = 0;
     cTmp = ps->line_buffer[cnt];
-    while ( isspace(( unsigned )cTmp ) )
+    while (Ego::isspace(cTmp))
     {
         cnt++;
         cTmp = ps->line_buffer[cnt];
@@ -933,7 +933,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
 
     // Skip any initial spaces
     cTmp = ps->line_buffer[read];
-    while ( isspace(( unsigned )cTmp ) && read < ps->line_buffer_count )
+    while (Ego::isspace(cTmp) && read < ps->line_buffer_count)
     {
         read++;
         cTmp = ps->line_buffer[read];
@@ -986,7 +986,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
         ptok->szWord_length = 0;
         ptok->szWord[0] = CSTR_END;
 
-        while ( !isspace(( unsigned )cTmp ) && CSTR_END != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count )
+        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count )
         {
             ptok->szWord[ptok->szWord_length] = cTmp;
             ptok->szWord_length++;
@@ -1005,7 +1005,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
     ptok->szWord[szWord_length_max-1] = CSTR_END;
 
     // Check for numeric constant
-    if ( !parsed && ( 0 != isdigit(( unsigned )ptok->szWord[0] ) ) )
+    if (!parsed && Ego::isdigit(ptok->szWord[0]))
     {
         sscanf( ptok->szWord, "%d", &ptok->iValue );
         ptok->cType  = 'C';

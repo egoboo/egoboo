@@ -31,7 +31,7 @@ namespace Ego
 
     /**
      * @brief
-     *  Convert a character to upper case using the current locale.
+     *  Convert a character to upper case.
      * @param chr
      *  the character
      * @param lc
@@ -47,7 +47,7 @@ namespace Ego
 
     /**
      * @brief
-     *  Convert a character to lower case using the current locale.
+     *  Convert a character to lower case.
      * @param chr
      *  the character
      * @param lc
@@ -63,7 +63,71 @@ namespace Ego
 
     /**
      * @brief
-     *  Get if a character is a whitespace character using the current locale.
+     *  Get if a character is an alphabetic character.
+     * @param chr
+     *  the character
+     * @param lc
+     *  the locale to use. Default is std::locale().
+     * @return
+     *  @a true if the character is an alphabetic character, @a false otherwise
+     */
+    template <class CharType>
+    inline bool isalpha(CharType chr, const std::locale& lc = locale())
+    {
+        return std::isalpha(chr, lc);
+    }
+
+    /**
+     * @brief
+     *  Get if a character is a printable character.
+     * @param chr
+     *  the character
+     * @param lc
+     *  the locale to use. Default is std::locale().
+     * @return
+     *  @a true if the character is a printable character, @a false otherwise
+     */
+    template <class CharType>
+    inline bool isprint(CharType chr, const std::locale& lc = std::locale())
+    {
+        return std::isprint(chr, lc);
+    }
+
+    /**
+     * @brief
+     *  Get if a character is a digit character.
+     * @param chr
+     *  the character
+     * @param lc
+     *  the locale to use. Default is std::locale().
+     * @return
+     *  @a true if the character is a digit character, @a false otherwise
+     */
+    template <class CharType>
+    inline bool isdigit(CharType chr, const std::locale& lc = std::locale())
+    {
+        return std::isdigit(chr, lc);
+    }
+
+    /**
+     * @brief
+     *  Get if a character is a control character.
+     * @param chr
+     *  the character
+     * @param lc
+     *  the locale to use. Default is std::locale().
+     * @return
+     *  @a true if the character is a control character, @a false otherwise
+     */
+    template <class CharType>
+    inline bool iscntrl(CharType chr, const std::locale& lc = std::locale())
+    {
+        return std::iscntrl(chr, lc);
+    }
+
+    /**
+     * @brief
+     *  Get if a character is a whitespace character.
      * @param chr
      *  the character
      * @param lc

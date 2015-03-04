@@ -42,7 +42,7 @@ void str_trim( char *pStr )
 
     // look for the first character in string
     DebPos = 0;
-    while ( isspace(( unsigned )pStr[DebPos] ) && CSTR_END != pStr[DebPos] )
+    while (Ego::isspace(pStr[DebPos]) && CSTR_END != pStr[DebPos])
     {
         DebPos++;
     }
@@ -51,7 +51,7 @@ void str_trim( char *pStr )
     CurPos = DebPos;
     while ( pStr[CurPos] != 0 )
     {
-        if ( !isspace(( unsigned )pStr[CurPos] ) )
+        if (!Ego::isspace(pStr[CurPos]))
         {
             EndPos = CurPos;
         }
@@ -108,25 +108,25 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
     while ( pout < plast && CSTR_END != *pin )
     {
-        if ( !isspace(( unsigned )( *pin ) ) && isprint(( unsigned )( *pin ) ) )
+        if (!Ego::isspace(*pin) && Ego::isprint(*pin))
         {
             chrlast = *pout = Ego::tolower(*pin);
             pin++;
             pout++;
         }
-        else if ( ' ' == *pin )
+        else if (' ' == *pin)
         {
             chrlast = *pout = '_';
             pin++;
             pout++;
         }
-        else if ( C_TAB_CHAR == *pin )
+        else if (C_TAB_CHAR == *pin)
         {
             chrlast = *pout = '~';
             pin++;
             pout++;
         }
-        else if ( isspace(( unsigned )( *pin ) ) )
+        else if (Ego::isspace(*pin))
         {
             chrlast = *pout = '_';
             pin++;
@@ -308,7 +308,10 @@ char * str_encode_path( const char *szName )
     {
         letter = Ego::tolower(*pname);
 
-        if ( isspace(( unsigned )letter ) || !( isalpha(( unsigned )letter ) || isdigit(( unsigned )letter ) ) ) letter = '_';
+        if (Ego::isspace(letter) || !(Ego::isalpha(letter) || Ego::isdigit(letter)))
+        {
+            letter = '_';
+        }
 
         *ppath = letter;
 
@@ -387,7 +390,7 @@ char* strupr( char * str )
     {
         while ( CSTR_END != *str )
         {
-            *str = char_toupper( *str );
+            *str = Ego::toupper( *str );
             str++;
         }
     }
@@ -401,7 +404,7 @@ char* strlwr( char * str )
     {
         while ( CSTR_END != *str )
         {
-            *str = char_tolower( *str );
+            *str = Ego::tolower( *str );
             str++;
         }
     }
