@@ -1043,8 +1043,7 @@ void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v)
     if (!self) throw std::invalid_argument("nullptr == self");
     self->mins = v;
     self->maxs = v;
-    // This is true by the definition of this function.
-    /// @todo The converse is true.
+    // The octagonal bounding box is not empty.
     self->empty = false;
 }
 
@@ -1082,15 +1081,16 @@ egolib_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index )
+egolib_rv oct_bb_validate_index(oct_bb_t *self, int index)
 {
-    if ( NULL == pobb ) return rv_error;
-
-    if ( oct_bb_empty_index( pobb, index ) )
+    if (!self)
     {
-        pobb->empty = true;
+        throw std::invalid_argument("nullptr == self");
     }
-
+    if (oct_bb_empty_index(self, index))
+    {
+        self->empty = true;
+    }
     return rv_success;
 }
 
@@ -1179,50 +1179,38 @@ egolib_rv oct_bb_intersection_index(const oct_bb_t * psrc1, const oct_bb_t * psr
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_union_index(oct_bb_t *self, const oct_bb_t *other, int index)
+egolib_rv oct_bb_t::join(const oct_bb_t& other, int index)
 {
-    if (!self || index < 0 || index >= OCT_COUNT)
+    if (index < 0 || index >= OCT_COUNT)
     {
         return rv_error;
     }
 
-    if (!other)
-    {
-        return rv_success; /// @todo Return rv_error.
-    }
-
     // No simple cases, do the hard work.
-    self->mins[index] = std::min(self->mins[index], other->mins[index]);
-    self->maxs[index] = std::max(self->maxs[index], other->maxs[index] );
+    mins[index] = std::min(mins[index], other.mins[index]);
+    maxs[index] = std::max(maxs[index], other.maxs[index] );
 
-    return oct_bb_validate_index(self, index);
+    return oct_bb_validate_index(this, index);
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
+egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
 {
-    /// @author BB
-    /// @details find the intersection of two oct_bb_t
+    if (index < 0 || index >= OCT_COUNT)
+    {
+        return rv_error;
+    }
 
-    bool src_empty;
-
-    if ( NULL == pdst ) return rv_error;
-
-    if ( index < 0 || index >= OCT_COUNT ) return rv_error;
-
-    src_empty = ( NULL == psrc || psrc->empty );
-
-    if ( src_empty )
+    if (other.empty) /// @todo Obviously the author does not know how set intersection works.
     {
         return rv_fail;
     }
 
-    // no simple case. do the hard work
+    // No simple case. do the hard work.
+    mins[index]  = std::max(mins[index], other.mins[index]);
+    maxs[index]  = std::min(maxs[index], other.maxs[index]);
 
-    pdst->mins[index]  = std::max( pdst->mins[index],  psrc->mins[index] );
-    pdst->maxs[index]  = std::min( pdst->maxs[index],  psrc->maxs[index] );
-
-    return oct_bb_validate_index( pdst, index );
+    return oct_bb_validate_index(this, index);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1318,7 +1306,7 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other)
+egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 {
     if (other.empty) /// @todo Obviously the author does not know how set intersection works.
     {
@@ -1328,11 +1316,11 @@ egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other)
     // No simple case, do the hard work.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        self.mins[i] = std::max(self.mins[i], other.mins[i]);
-        self.maxs[i] = std::min(self.maxs[i], other.maxs[i]);
+        mins[i] = std::max(mins[i], other.mins[i]);
+        maxs[i] = std::min(maxs[i], other.maxs[i]);
     }
 
-    return oct_bb_t::validate(&self);
+    return oct_bb_t::validate(this);
 }
 
 //--------------------------------------------------------------------------------------------

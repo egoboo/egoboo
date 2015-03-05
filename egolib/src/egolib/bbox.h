@@ -252,10 +252,18 @@
 
 //--------------------------------------------------------------------------------------------
 
-/// generic octagonal bounding box
-/// to be used for the Level 1 character "bumper"
-/// The best possible octagonal bounding volume. A generalization of the old octagonal bounding box
-/// values in data.txt. Computed on the fly.
+    /**
+     * @brief
+     *  An octagonal bounding box.
+     * @remark
+     *  Note that Egoboo still considers the z - axis as the "up" axis. Given that,
+     *  the following bounding volume is representing an octagonal prism in terms
+     *  of the intersection of an axis-aligned bounding box and a diamond prism.
+     *  This is currently the best (*cry*) bounding volume Egoboo has available and
+     *  is computed on the fly from the model or mesh data.
+     * @see
+     *  http ://mathworld.wolfram.com/Prism.html
+     */
     struct oct_bb_t
     {
     public:
@@ -408,39 +416,56 @@
          *  This octagonal bounding box was assigned the join of itself with the octagonal vector.
          */
         egolib_rv join(const oct_vec_v2_t& other);
+
+        /**
+         * @brief
+         *  Assign this octagonal bounding box the join of itself with a another octagonal bounding box.
+         * @param other
+         *  the other octagonal bounding box
+         * @post
+         *  This octagonal bounding box was assigned the join of itself with the other octagonal bounding box.
+         */
         egolib_rv join(const oct_bb_t& other);
+
+        /**
+         * @brief
+         *  Assign this octagonal bounding box the cut of itself with a another octagonal bounding box.
+         * @param other
+         *  the other octagonal bounding box
+         * @post
+         *  This octagonal bounding box was assigned the cut of itself with the other octagonal bounding box.
+         */
+        egolib_rv cut(const oct_bb_t& other);
+
+        /**
+         * @brief
+         *  Assign this octagonal bounding box the restricted join of itself with another octagonal bounding box.
+         * @param other
+         *  the other octagonal bounding box
+         * @param index
+         *  the axis the join is restricted to
+         * @post
+         *  This octagonal bounding box was asisigned the restricted intersection of itself with the other octagonal bounding box.
+         */
+        egolib_rv join(const oct_bb_t& other, int index);
+
+        /**
+         * @brief
+         *  Assign this octagonal bounding box the restricted cut of itself with another octagonal bounding box.
+         * @param other
+         *  the other octagonal bounding box
+         * @param index
+         *  the axis the join is restricted to
+         * @post
+         *  This octagonal bounding box was assigned the restricted cut of itself with the other octagonal bounding box.
+         */
+        egolib_rv cut(const oct_bb_t& other, int index);
+
     };
-
-
-    egolib_rv oct_bb_self_cut(oct_bb_t& self, const oct_bb_t& other);
     
+    void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v);
     egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v);
-    /**
-     * @brief
-     *  Assign this octagonal bounding box the restricted join of itself with another octagonal bounding box.
-     * @param self
-     *  this octagonal bounding box
-     * @param other
-     *  the other octagonal bounding box
-     * @param index
-     *  the axis the join is restricted to
-     * @post
-     *  This octagonal bounding box was asisigned the restricted intersection of itself with the other octagonal bounding box.
-     */
-    egolib_rv oct_bb_self_union_index(oct_bb_t *self, const oct_bb_t *other, int index);
-    /**
-     * @brief
-     *  Assign this octagonal bounding box the restricted intersection of itself with another octagonal bounding box.
-     * @param self
-     *  this octagonal bounding box
-     * @param other
-     *  the other octagonal bounding box
-     * @param index
-     *  the axis the join is restricted to
-     * @post
-     *  This octagonal bounding box was assigned the restricted intersection of itself with the other octagonal bounding box.
-     */
-    egolib_rv oct_bb_self_intersection_index(oct_bb_t *self, const oct_bb_t *other, int index);
+
 
 
 
@@ -457,7 +482,7 @@
     egolib_rv oct_bb_translate(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst);
     egolib_rv oct_bb_translate(const oct_bb_t *src, const oct_vec_v2_t& t, oct_bb_t *dst);
 
-    egolib_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
+    egolib_rv  oct_bb_interpolate(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst, float flip);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -545,14 +570,14 @@ egolib_rv oct_bb_copy_index(oct_bb_t *dst, const oct_bb_t *src, int index);
 egolib_rv oct_bb_validate_index(oct_bb_t *self, int index);
 
 bool oct_bb_empty(const oct_bb_t *self);
-void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v);
+
 oct_bb_t *oct_bb_ctor_index(oct_bb_t *self, int index);
 
 
 bool oct_bb_empty_index_raw(const oct_bb_t *self, int index);
 bool oct_bb_empty_index(const oct_bb_t *self, int index);
-egolib_rv oct_bb_union_index(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t * pdst, int index );
-egolib_rv oct_bb_intersection_index( const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t * pdst, int index );
+egolib_rv oct_bb_union_index(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst, int index);
+egolib_rv oct_bb_intersection_index( const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst, int index);
 egolib_rv oct_bb_union(const oct_bb_t *src1, const oct_bb_t  *src2, oct_bb_t *dst);
 egolib_rv oct_bb_intersection(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst);
 

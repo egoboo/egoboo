@@ -6187,29 +6187,28 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     // only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
     if ( profile->getBumpOverrideSize() )
     {
-        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_X );
-        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_Y );
+        pchr->chr_min_cv.cut(bmin, OCT_X);
+        pchr->chr_min_cv.cut(bmin, OCT_Y);
 
-        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_X );
-        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_Y );
+        pchr->chr_max_cv.join(bmin, OCT_X);
+        pchr->chr_max_cv.join(bmin, OCT_Y);
     }
 
     // only use pchr->bump.size_big if it was overridden in data.txt through the [MODL] expansion
     if ( profile->getBumpOverrideSizeBig() )
     {
-        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_XY );
-        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_YX );
+        pchr->chr_min_cv.cut(bmin, OCT_XY);
+        pchr->chr_min_cv.cut(bmin, OCT_YX);
 
-        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_XY );
-        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_YX );
+        pchr->chr_max_cv.join(bmin, OCT_XY);
+        pchr->chr_max_cv.join(bmin, OCT_YX);
     }
 
     // only use pchr->bump.height if it was overridden in data.txt through the [MODL] expansion
     if ( profile->getBumpOverrideHeight() )
     {
-        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_Z );
-
-        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_Z );
+        pchr->chr_min_cv.cut(bmin, OCT_Z);
+        pchr->chr_max_cv.join(bmin, OCT_Z );
     }
 
     //// raise the upper bound for platforms
