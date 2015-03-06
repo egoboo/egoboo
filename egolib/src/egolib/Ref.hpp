@@ -121,26 +121,10 @@ public:
 		_ref = other;
         return *this;
 	}
-	
-	// Cast operator overloads.
-	
-    operator unsigned int() const
-    {
-        if (_ref > std::numeric_limits<unsigned int>::max())
-        {
-            throw std::bad_cast();
-        }
-    }
 
-    operator int() const
-    {
-        if (_ref > std::numeric_limits<int>::max())
-        {
-            throw std::bad_cast();
-        }
-    }
+    // Cast operators.
 
-	operator size_t() const
+	operator TYPE() const
 	{
 		return _ref;
 	}

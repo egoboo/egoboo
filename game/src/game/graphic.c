@@ -889,7 +889,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
         // Tell all valid objects that they are removed from this dolist.
         if (INVALID_CHR_REF == element->ichr && VALID_PRT_RANGE(element->iprt))
         {
-            PrtList.get_ptr(element->iprt)->inst.indolist = false;
+            ParticleHandler::get().get_ptr(element->iprt)->inst.indolist = false;
         }
         else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
         {
@@ -1100,10 +1100,10 @@ gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_
 
             // is it in the array?
             if ( !VALID_PRT_RANGE( iprt ) ) continue;
-            pprt = PrtList.get_ptr( iprt );
+            pprt = ParticleHandler::get().get_ptr(iprt);
 
             // do some more obvious tests before testing the frustum
-            if ( dolist_t::test_prt( pdlist, pprt ) )
+            if (dolist_t::test_prt(pdlist, pprt))
             {
                 // Add the particle
                 if ( gfx_error == dolist_t::add_prt_raw( pdlist, pprt ) )
@@ -1186,11 +1186,11 @@ gfx_rv dolist_t::sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bo
 
             if ( do_reflect )
             {
-                vtmp = PrtList.get_ptr(iprt)->inst.pos - pcam->getPosition();
+                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.pos - pcam->getPosition();
             }
             else
             {
-                vtmp = PrtList.get_ptr(iprt)->inst.ref_pos - pcam->getPosition();
+                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.ref_pos - pcam->getPosition();
             }
         }
         else
@@ -2844,7 +2844,7 @@ float draw_debug( float y )
     {
         // More debug information
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
-        y = draw_string_raw( 0, y, "~~FREEPRT %d", PrtList.getFreeCount() );
+        y = draw_string_raw( 0, y, "~~FREEPRT %d", ParticleHandler::get().getFreeCount() );
         y = draw_string_raw( 0, y, "~~FREECHR %d", MAX_CHR - _gameObjects.getObjectCount() );
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
         y = draw_string_raw( 0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE" );
@@ -3829,7 +3829,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
                 iprt = pdolist->lst[cnt].iprt;
-                TileIndex itile = PrtList.get_ptr(iprt)->onwhichgrid;
+                TileIndex itile = ParticleHandler::get().get_ptr(iprt)->onwhichgrid;
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {

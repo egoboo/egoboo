@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  game/entities/EnchantManager.hpp
+/// @file  game/entities/EnchantHandler.hpp
 /// @brief Manager of enchantment entities.
 
 #pragma once
@@ -31,9 +31,6 @@
 #include "game/LockableList.hpp"
 #include "game/entities/Enchant.hpp"
 
-//Forward declarations
-struct enc_t;
-
 //--------------------------------------------------------------------------------------------
 // looping macros
 //--------------------------------------------------------------------------------------------
@@ -43,36 +40,36 @@ struct enc_t;
 #define ENC_BEGIN_LOOP_ACTIVE(IT, PENC) \
     { \
         int IT##_internal; \
-        int enc_loop_start_depth = EncList.getLockCount(); \
-        EncList.lock(); \
-        for(IT##_internal=0;IT##_internal<EncList.getUsedCount();IT##_internal++) \
+        int enc_loop_start_depth = EnchantHandler::get().getLockCount(); \
+        EnchantHandler::get().lock(); \
+        for(IT##_internal=0;IT##_internal<EnchantHandler::get().getUsedCount();IT##_internal++) \
         { \
             ENC_REF IT; \
             enc_t * PENC = NULL; \
-            IT = (ENC_REF)EncList.used_ref[IT##_internal]; \
+            IT = (ENC_REF)EnchantHandler::get().used_ref[IT##_internal]; \
             if(!ACTIVE_ENC(IT)) continue; \
-            PENC =  EncList.get_ptr(IT);
+            PENC =  EnchantHandler::get().get_ptr(IT);
 
 #define ENC_END_LOOP() \
         } \
-        EncList.unlock(); \
-        EGOBOO_ASSERT(enc_loop_start_depth == EncList.getLockCount()); \
-        EncList.maybeRunDeferred(); \
+        EnchantHandler::get().unlock(); \
+        EGOBOO_ASSERT(enc_loop_start_depth == EnchantHandler::get().getLockCount()); \
+        EnchantHandler::get().maybeRunDeferred(); \
     }
 
 //--------------------------------------------------------------------------------------------
 // external variables
 //--------------------------------------------------------------------------------------------
 
-struct EnchantManager : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, MAX_ENC, BSP_LEAF_ENC>
+struct EnchantHandler : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, MAX_ENC, BSP_LEAF_ENC>
 {
-    EnchantManager() :
+    EnchantHandler() :
         _LockableList()
     {
     }
 
 public:
-    static EnchantManager& getSingleton();
+    static EnchantHandler& get();
     void maybeRunDeferred();
     ENC_REF allocate(const ENC_REF override);
     bool free_one(const ENC_REF ref);
@@ -81,8 +78,6 @@ public:
     void prune_used_list();
     void prune_free_list();
 };
-
-extern EnchantManager EncList;
 
 //--------------------------------------------------------------------------------------------
 // testing functions

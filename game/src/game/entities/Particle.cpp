@@ -64,7 +64,7 @@ bool prt_t::free(prt_t * pprt)
     if (!ALLOCATED_PPRT(pprt)) return false;
 
     // do not allow this if you are inside a particle loop
-    EGOBOO_ASSERT(0 == PrtList.getLockCount());
+    EGOBOO_ASSERT(0 == ParticleHandler::get().getLockCount());
 
     if (TERMINATED_PPRT(pprt)) return true;
 
@@ -153,7 +153,7 @@ void prt_play_sound(const PRT_REF particle, Sint8 sound)
     prt_t * pprt;
 
     if (!DEFINED_PRT(particle)) return;
-    pprt = PrtList.get_ptr(particle);
+    pprt = ParticleHandler::get().get_ptr(particle);
 
     if (_profileSystem.isValidProfileID(pprt->profile_ref))
     {
@@ -176,7 +176,7 @@ PRT_REF end_one_particle_now(const PRT_REF particle)
     if (!ALLOCATED_PRT(particle)) return INVALID_PRT_REF;
 
     retval = particle;
-    if (PrtList.request_terminate(particle))
+    if (ParticleHandler::get().request_terminate(particle))
     {
         retval = INVALID_PRT_REF;
     }
@@ -192,7 +192,7 @@ PRT_REF end_one_particle_in_game(const PRT_REF particle)
     // does the particle have valid data?
     if (DEFINED_PRT(particle))
     {
-        prt_t *pprt = PrtList.get_ptr(particle);
+        prt_t *pprt = ParticleHandler::get().get_ptr(particle);
         pip_t *ppip = prt_get_ppip(particle);
 
         // The object is waiting to be killed, so do all of the end of life care for the particle.
@@ -284,7 +284,7 @@ prt_t *prt_t::config_do_init()
     pprt->team = pdata->team;
     pprt->owner_ref = loc_chr_origin;
     pprt->parent_ref = pdata->prt_origin;
-    pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? PrtList.get_ptr(pdata->prt_origin)->obj_base.guid : ((Uint32)(~0));
+    pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? ParticleHandler::get().get_ptr(pdata->prt_origin)->obj_base.guid : ((Uint32)(~0));
     pprt->damagetype = ppip->damageType;
     pprt->lifedrain = ppip->lifeDrain;
     pprt->manadrain = ppip->manaDrain;
@@ -656,7 +656,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
     // count all the requests for this particle type
     ppip->_spawnRequestCount++;
 
-    PRT_REF iprt = PrtList.allocate(ppip->force);
+    PRT_REF iprt = ParticleHandler::get().allocate(ppip->force);
     if (!DEFINED_PRT(iprt))
     {
         log_debug("spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
@@ -666,7 +666,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
 
         return INVALID_PRT_REF;
     }
-    prt_t *pprt = PrtList.get_ptr(iprt);
+    prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
     POBJ_BEGIN_SPAWN(pprt);
 
@@ -735,19 +735,19 @@ PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF ip
     // count all the requests for this particle type
     ppip->_spawnRequestCount++;
 
-    iprt = PrtList.allocate(ppip->force);
+    iprt = ParticleHandler::get().allocate(ppip->force);
     if (!DEFINED_PRT(iprt))
     {
 #if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
-        log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-            chr_origin, _gameObjects.exists( chr_origin ) ? _gameObjects.get(chr_origin)->Name : "INVALID",
-            ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
-            iprofile, _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
+        log_debug("spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+                  chr_origin, _gameObjects.exists( chr_origin ) ? _gameObjects.get(chr_origin)->Name : "INVALID",
+                  ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
+                  iprofile, _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 #endif
 
         return INVALID_PRT_REF;
     }
-    pprt = PrtList.get_ptr(iprt);
+    pprt = ParticleHandler::get().get_ptr(iprt);
 
     POBJ_BEGIN_SPAWN(pprt);
 
@@ -883,12 +883,12 @@ void update_all_particles()
     ///               Converted all the update functions to the prt_run_config() paradigm.
 
     // Activate any particles might have been generated last update in an in-active state
-    for (PRT_REF ref = 0; ref < PrtList.getCount(); ++ref)
+    for (PRT_REF ref = 0; ref < ParticleHandler::get().getCount(); ++ref)
     {
         if (!ALLOCATED_PRT(ref)) continue;
 
         prt_bundle_t prt_bdl;
-        prt_bundle_t::set(&prt_bdl, PrtList.get_ptr(ref));
+        prt_bundle_t::set(&prt_bdl, ParticleHandler::get().get_ptr(ref));
         prt_bundle_t::update(&prt_bdl);
     }
 }
@@ -1896,7 +1896,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     prt_t * pprt;
 
     if (!INGAME_PRT(particle)) return 0;
-    pprt = PrtList.get_ptr(particle);
+    pprt = ParticleHandler::get().get_ptr(particle);
 
     if (!LOADED_PIP(pprt->pip_ref)) return 0;
     ppip = PipStack.get_ptr(pprt->pip_ref);
@@ -2041,7 +2041,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                         if (DEFINED_PRT(bs_part))
                         {
                             vertex_occupied[bestvertex] = bs_part;
-                            PrtList.get_ptr(bs_part)->is_bumpspawn = true;
+                            ParticleHandler::get().get_ptr(bs_part)->is_bumpspawn = true;
                             bs_count++;
                         }
                     }
@@ -2081,7 +2081,7 @@ bool prt_is_over_water(const PRT_REF ref)
 
     if (!ALLOCATED_PRT(ref)) return false;
 
-    prt_t *prt = PrtList.get_ptr(ref);
+    prt_t *prt = ParticleHandler::get().get_ptr(ref);
     TileIndex fan = ego_mesh_t::get_grid(PMesh, PointWorld(prt->pos.x, prt->pos.y));
     if (ego_mesh_grid_is_valid(PMesh, fan))
     {
@@ -2943,7 +2943,7 @@ prt_bundle_t *prt_bundle_t::validate(prt_bundle_t *self)
 
     if (ALLOCATED_PRT(self->prt_ref))
     {
-        self->prt_ptr = PrtList.get_ptr(self->prt_ref);
+        self->prt_ptr = ParticleHandler::get().get_ptr(self->prt_ref);
     }
     else if (nullptr != self->prt_ptr)
     {
@@ -3002,7 +3002,7 @@ int prt_do_end_spawn(const PRT_REF iprt)
 
     if (!ALLOCATED_PRT(iprt)) return endspawn_count;
 
-    pprt = PrtList.get_ptr(iprt);
+    pprt = ParticleHandler::get().get_ptr(iprt);
 
     // Spawn new particles if time for old one is up
     if (pprt->endspawn_amount > 0 && _profileSystem.isValidProfileID(pprt->profile_ref) && pprt->endspawn_lpip > -1)
@@ -3042,12 +3042,12 @@ void cleanup_all_particles()
 
     // do end-of-life care for particles. Must iterate over all particles since the
     // number of particles could change inside this list
-    for (iprt = 0; iprt < PrtList.getCount(); iprt++)
+    for (iprt = 0; iprt < ParticleHandler::get().getCount(); iprt++)
     {
         prt_t *pprt;
         Ego::Entity *base_ptr;
 
-        pprt = PrtList.get_ptr(iprt);
+        pprt = ParticleHandler::get().get_ptr(iprt);
 
         base_ptr = POBJ_GET_PBASE(pprt);
         if (!FLAG_ALLOCATED_PBASE(base_ptr)) continue;
@@ -3056,7 +3056,7 @@ void cleanup_all_particles()
         {
             // now that the object is in the "killed" state,
             // actually put it back into the free store
-            PrtList.free_one(GET_REF_PPRT(pprt));
+            ParticleHandler::get().free_one(GET_REF_PPRT(pprt));
         }
         else if (STATE_WAITING_PBASE(base_ptr))
         {
@@ -3069,29 +3069,24 @@ void cleanup_all_particles()
 
 void bump_all_particles_update_counters()
 {
-    PRT_REF cnt;
-
-    for (cnt = 0; cnt < PrtList.getCount(); cnt++)
+    for (PRT_REF cnt = 0; cnt < ParticleHandler::get().getCount(); cnt++)
     {
-        Ego::Entity *base_ptr;
-
-        base_ptr = POBJ_GET_PBASE(PrtList.get_ptr(cnt));
-        if (!ACTIVE_PBASE(base_ptr)) continue;
-
-        base_ptr->update_count++;
+        Ego::Entity *entity = POBJ_GET_PBASE(ParticleHandler::get().get_ptr(cnt));
+        if (!ACTIVE_PBASE(entity)) continue;
+        entity->update_count++;
     }
 }
 
 PIP_REF prt_get_ipip(const PRT_REF ref)
 {
-    if (!PrtList.isValidRef(ref)) return INVALID_PIP_REF;
-    return prt_t::get_ipip(PrtList.get_ptr(ref));
+    if (!ParticleHandler::get().isValidRef(ref)) return INVALID_PIP_REF;
+    return prt_t::get_ipip(ParticleHandler::get().get_ptr(ref));
 }
 
 pip_t *prt_get_ppip(const PRT_REF ref)
 {
-    if (!PrtList.isValidRef(ref)) return nullptr;
-    return prt_t::get_ppip(PrtList.get_ptr(ref));
+    if (!ParticleHandler::get().isValidRef(ref)) return nullptr;
+    return prt_t::get_ppip(ParticleHandler::get().get_ptr(ref));
 }
 
 CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
@@ -3111,16 +3106,13 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
     /// @note this function should be completely trivial for anything other than
     ///       damage particles created by an explosion
 
-    CHR_REF iowner = INVALID_CHR_REF;
-
-    prt_t * pprt;
-
     // be careful because this can be recursive
-    if (depth > (int)PrtList.getCount() - (int)PrtList.getFreeCount()) return INVALID_CHR_REF;
+    if (depth > (int)ParticleHandler::get().getCount() - (int)ParticleHandler::get().getFreeCount()) return INVALID_CHR_REF;
 
     if (!DEFINED_PRT(iprt)) return INVALID_CHR_REF;
-    pprt = PrtList.get_ptr(iprt);
+    prt_t *pprt = ParticleHandler().get_ptr(iprt);
 
+    CHR_REF iowner = INVALID_CHR_REF;
     if (_gameObjects.exists(pprt->owner_ref))
     {
         iowner = pprt->owner_ref;
@@ -3143,7 +3135,7 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
             // not the parent. Depending on how scrambled the list gets, there could actually
             // be looping structures. I have actually seen this, so don't laugh :)
 
-            if (PrtList.get_ptr(pprt->parent_ref)->obj_base.guid == pprt->parent_guid)
+            if (ParticleHandler::get().get_ptr(pprt->parent_ref)->obj_base.guid == pprt->parent_guid)
             {
                 if (iprt != pprt->parent_ref)
                 {

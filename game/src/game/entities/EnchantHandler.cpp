@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  game/entities/EnchantManager.cpp
+/// @file  game/entities/EnchantHandler.cpp
 /// @brief Manager of enchantment entities.
 
 #define GAME_ENTITIES_PRIVATE 1
@@ -40,17 +40,17 @@
 //--------------------------------------------------------------------------------------------
 //inlined before
 
-bool VALID_ENC_RANGE(const ENC_REF IENC) { return EncList.isValidRef(IENC); }
+bool VALID_ENC_RANGE(const ENC_REF IENC) { return EnchantHandler::get().isValidRef(IENC); }
 
-bool DEFINED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && DEFINED_PENC_RAW(EncList.get_ptr(IENC))); }
+bool DEFINED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && DEFINED_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
-bool ALLOCATED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ALLOCATED_PENC_RAW(EncList.get_ptr(IENC))); }
+bool ALLOCATED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ALLOCATED_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
-bool ACTIVE_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ACTIVE_PENC_RAW(EncList.get_ptr(IENC))); }
+bool ACTIVE_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ACTIVE_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
-bool WAITING_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && WAITING_PENC_RAW(EncList.get_ptr(IENC))); }
+bool WAITING_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && WAITING_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
-bool TERMINATED_ENC(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && TERMINATED_PENC_RAW(EncList.get_ptr(IENC))); }
+bool TERMINATED_ENC(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && TERMINATED_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
 ENC_REF GET_REF_PENC(const enc_t *PENC) { return LAMBDA(NULL == (PENC), INVALID_ENC_REF, GET_INDEX_POBJ(PENC, INVALID_ENC_REF)); }
 
@@ -66,7 +66,7 @@ bool WAITING_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && WAITING_PE
 
 bool TERMINATED_PENC(const enc_t * PENC) { return (VALID_ENC_PTR(PENC) && TERMINATED_PENC_RAW(PENC)); }
 
-bool INGAME_ENC_BASE(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && INGAME_PENC_BASE_RAW(EncList.get_ptr(IENC))); }
+bool INGAME_ENC_BASE(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && INGAME_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
 bool INGAME_PENC_BASE(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && INGAME_PENC_BASE_RAW(PENC)); }
 
@@ -76,15 +76,15 @@ bool INGAME_PENC(const enc_t *PENC) { return LAMBDA(Ego::Entities::spawnDepth > 
 
 //--------------------------------------------------------------------------------------------
 
-EnchantManager EncList;
+EnchantHandler EncList;
 
-EnchantManager& EnchantManager::getSingleton()
+EnchantHandler& EnchantHandler::get()
 {
     return EncList;
 }
 
 //--------------------------------------------------------------------------------------------
-void EnchantManager::prune_used_list()
+void EnchantHandler::prune_used_list()
 {
     // prune the used list
     for (size_t i = 0; i < usedCount; ++i)
@@ -106,7 +106,7 @@ void EnchantManager::prune_used_list()
 }
 
 //--------------------------------------------------------------------------------------------
-void EnchantManager::prune_free_list()
+void EnchantHandler::prune_free_list()
 {
     // prune the free list
     for (size_t i = 0; i < freeCount; ++i)
@@ -128,7 +128,7 @@ void EnchantManager::prune_free_list()
 }
 
 //--------------------------------------------------------------------------------------------
-void EnchantManager::update_used()
+void EnchantHandler::update_used()
 {
     prune_used_list();
     prune_free_list();
@@ -170,7 +170,7 @@ void EnchantManager::update_used()
 }
 
 //--------------------------------------------------------------------------------------------
-bool EnchantManager::free_one(const ENC_REF ref)
+bool EnchantHandler::free_one(const ENC_REF ref)
 {
     /// @details Stick an object back into the free object list.
 
@@ -216,7 +216,7 @@ bool EnchantManager::free_one(const ENC_REF ref)
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF EnchantManager::allocate(const ENC_REF override)
+ENC_REF EnchantHandler::allocate(const ENC_REF override)
 {
     ENC_REF ref = INVALID_ENC_REF;
 
@@ -280,7 +280,7 @@ ENC_REF EnchantManager::allocate(const ENC_REF override)
 }
 
 //--------------------------------------------------------------------------------------------
-void EnchantManager::maybeRunDeferred()
+void EnchantHandler::maybeRunDeferred()
 {
     // Go through the list and activate all the enchants that
     // were created while the list was iterating.

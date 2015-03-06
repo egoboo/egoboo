@@ -148,7 +148,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
     }
-    pprt = PrtList.get_ptr( iprt );
+    pprt = ParticleHandler::get().get_ptr( iprt );
 
     // if the particle is hidden, do not continue
     if ( pprt->is_hidden ) return gfx_fail;
@@ -219,7 +219,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
     }
-    pprt = PrtList.get_ptr( iprt );
+    pprt = ParticleHandler::get().get_ptr( iprt );
 
     // if the particle is hidden, do not continue
     if ( pprt->is_hidden ) return gfx_fail;
@@ -354,7 +354,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
     }
-    pprt = PrtList.get_ptr( iprt );
+    pprt = ParticleHandler::get().get_ptr( iprt );
 
     // if the particle is hidden, do not continue
     if ( pprt->is_hidden ) return gfx_fail;
@@ -1101,7 +1101,7 @@ gfx_rv prt_instance_update( std::shared_ptr<Camera> pcam, const PRT_REF particle
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, particle, "invalid particle" );
         return gfx_error;
     }
-    pprt = PrtList.get_ptr( particle );
+    pprt = ParticleHandler::get().get_ptr( particle );
     pinst = &( pprt->inst );
 
     // assume the best

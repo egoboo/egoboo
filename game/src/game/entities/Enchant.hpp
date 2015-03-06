@@ -29,7 +29,7 @@
 #include "game/egoboo_object.h"
 
 // Forward declarations.
-struct EnchantManager;
+struct EnchantHandler;
 class ObjectProfile;
 class Object;
 
@@ -57,7 +57,7 @@ struct enc_spawn_data_t
  * @extends
  *  Ego::Entity
  */
-struct enc_t : public _StateMachine < enc_t, EnchantManager >
+struct enc_t : public _StateMachine < enc_t, EnchantHandler >
 {
     enc_spawn_data_t spawn_data;
 

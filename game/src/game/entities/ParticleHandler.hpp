@@ -40,43 +40,43 @@
 #define PRT_BEGIN_LOOP_ACTIVE(IT, PRT_BDL) \
     { \
         int IT##_internal; \
-        int prt_loop_start_depth = PrtList.getLockCount(); \
-        PrtList.lock(); \
-        for(IT##_internal=0;IT##_internal<PrtList.getUsedCount();IT##_internal++) \
+        int prt_loop_start_depth = ParticleHandler::get().getLockCount(); \
+        ParticleHandler::get().lock(); \
+        for(IT##_internal=0;IT##_internal<ParticleHandler::get().getUsedCount();IT##_internal++) \
         { \
             PRT_REF IT; \
             prt_bundle_t PRT_BDL; \
-            IT = (PRT_REF)PrtList.used_ref[IT##_internal]; \
+            IT = (PRT_REF)ParticleHandler::get().used_ref[IT##_internal]; \
             if(!ACTIVE_PRT(IT)) continue; \
-            prt_bundle_t::set(&PRT_BDL, PrtList.get_ptr( IT ));
+            prt_bundle_t::set(&PRT_BDL, ParticleHandler::get().get_ptr( IT ));
 
 #define PRT_BEGIN_LOOP_DISPLAY(IT, PRT_BDL) \
     { \
         int IT##_internal; \
-        int prt_loop_start_depth = PrtList.getLockCount(); \
-        PrtList.lock(); \
-        for(IT##_internal=0;IT##_internal<PrtList.getUsedCount();IT##_internal++) \
+        int prt_loop_start_depth = ParticleHandler::get().getLockCount(); \
+        ParticleHandler::get().lock(); \
+        for(IT##_internal=0;IT##_internal<ParticleHandler::get().getUsedCount();IT##_internal++) \
         { \
             PRT_REF IT; \
             prt_bundle_t PRT_BDL; \
-            IT = (PRT_REF)PrtList.used_ref[IT##_internal]; \
+            IT = (PRT_REF)ParticleHandler::get().used_ref[IT##_internal]; \
             if(!DISPLAY_PRT(IT)) continue; \
-            prt_bundle_t::set(&PRT_BDL, PrtList.get_ptr(IT));
+            prt_bundle_t::set(&PRT_BDL, ParticleHandler::get().get_ptr(IT));
 
 #define PRT_END_LOOP() \
         } \
-        PrtList.unlock(); \
-        EGOBOO_ASSERT(prt_loop_start_depth == PrtList.getLockCount()); \
-        PrtList.maybeRunDeferred(); \
+        ParticleHandler::get().unlock(); \
+        EGOBOO_ASSERT(prt_loop_start_depth == ParticleHandler::get().getLockCount()); \
+        ParticleHandler::get().maybeRunDeferred(); \
     }
 
 //--------------------------------------------------------------------------------------------
 // external variables
 //--------------------------------------------------------------------------------------------
 
-struct ParticleManager : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF, MAX_PRT, BSP_LEAF_PRT>
+struct ParticleHandler : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF, MAX_PRT, BSP_LEAF_PRT>
 {
-    ParticleManager() :
+    ParticleHandler() :
         _LockableList(),
         _displayLimit(512)
     {
@@ -102,7 +102,7 @@ struct ParticleManager : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF,
     void reset_all();
 
 public:
-    static ParticleManager& getSingleton();
+    static ParticleHandler& get();
     bool free_one(const PRT_REF iprt);
     bool push_free(const PRT_REF);
     void prune_used_list();
@@ -140,8 +140,6 @@ public:
         }
     }
 };
-
-extern ParticleManager PrtList;
 
 //--------------------------------------------------------------------------------------------
 // testing functions

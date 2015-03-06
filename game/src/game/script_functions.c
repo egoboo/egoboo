@@ -2192,7 +2192,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     if ( returncode )
     {
         fvec3_t tmp_pos;
-        prt_t * pprt = PrtList.get_ptr( iprt );
+        prt_t * pprt = ParticleHandler::get().get_ptr( iprt );
 
         // attach the particle
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
@@ -4592,7 +4592,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     if ( returncode )
     {
-        returncode = prt_t::set_size( PrtList.get_ptr( iprt ), pstate->turn );
+        returncode = prt_t::set_size( ParticleHandler::get().get_ptr( iprt ), pstate->turn );
     }
 
     SCRIPT_FUNCTION_END();
@@ -5446,10 +5446,10 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     if ( INGAME_ENC( iTmp ) )
     {
-        EncList.get_ptr(iTmp)->owner_mana = pstate->argument;
-        EncList.get_ptr(iTmp)->owner_life = pstate->distance;
-        EncList.get_ptr(iTmp)->target_mana = pstate->x;
-        EncList.get_ptr(iTmp)->target_life = pstate->y;
+        EnchantHandler::get().get_ptr(iTmp)->owner_mana = pstate->argument;
+        EnchantHandler::get().get_ptr(iTmp)->owner_life = pstate->distance;
+        EnchantHandler::get().get_ptr(iTmp)->target_mana = pstate->x;
+        EnchantHandler::get().get_ptr(iTmp)->target_life = pstate->y;
 
         returncode = true;
     }
@@ -5628,7 +5628,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
 
     if ( returncode )
     {
-        PrtList.get_ptr(iprt)->target_ref = pself->target;
+        ParticleHandler::get().get_ptr(iprt)->target_ref = pself->target;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6805,7 +6805,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
 
     if ( returncode )
     {
-        PrtList.get_ptr(iprt)->endspawn_characterstate = pstate->turn;
+        ParticleHandler::get().get_ptr(iprt)->endspawn_characterstate = pstate->turn;
     }
 
     SCRIPT_FUNCTION_END();

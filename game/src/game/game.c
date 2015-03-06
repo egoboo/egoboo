@@ -565,8 +565,8 @@ void activate_alliance_file_vfs()
 //--------------------------------------------------------------------------------------------
 void update_used_lists()
 {
-    PrtList.update_used();
-    EncList.update_used();
+    ParticleHandler::get().update_used();
+    EnchantHandler::get().update_used();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1299,7 +1299,7 @@ void do_weather_spawn_particles()
                     PRT_REF particle = spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
                     if ( DEFINED_PRT( particle ) )
                     {
-                        prt_t * pprt = PrtList.get_ptr( particle );
+                        prt_t * pprt = ParticleHandler::get().get_ptr( particle );
 
                         bool destroy_particle = false;
 
@@ -1326,7 +1326,7 @@ void do_weather_spawn_particles()
 
                         if ( destroy_particle )
                         {
-                            PrtList.free_one( particle );
+                            ParticleHandler::get().free_one( particle );
                         }
                     }
                 }
@@ -2564,7 +2564,7 @@ void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
     _audioSystem.loadGlobalSounds();
-    PrtList.reset_all();
+    ParticleHandler::get().reset_all();
 
     if ( NULL == read_wawalite_vfs() )
     {
@@ -2718,7 +2718,7 @@ int reaffirm_attached_particles( const CHR_REF character )
         particle = spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
         if ( DEFINED_PRT( particle ) )
         {
-            prt_t * pprt = PrtList.get_ptr( particle );
+            prt_t * pprt = ParticleHandler::get().get_ptr( particle );
 
             pprt = place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
             if ( NULL == pprt ) continue;
@@ -3050,17 +3050,17 @@ void free_all_objects()
     /// @author BB
     /// @details free every instance of the three object types used in the game.
 
-    PrtList.free_all();
-    EncList.free_all();
+    ParticleHandler::get().free_all();
+    EnchantHandler::get().free_all();
     free_all_chraracters();
 }
 
 //--------------------------------------------------------------------------------------------
 void reset_all_object_lists()
 {
-    PrtList.reinit();
+    ParticleHandler::get().reinit();
     _gameObjects.clear();
-    EncList.reinit();
+    EnchantHandler::get().reinit();
 }
 
 //--------------------------------------------------------------------------------------------

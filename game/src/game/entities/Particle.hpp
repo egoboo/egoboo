@@ -35,7 +35,7 @@
 
 // Forward declarations.
 struct mesh_wall_data_t;
-struct ParticleManager;
+struct ParticleHandler;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -98,14 +98,14 @@ struct prt_spawn_data_t
  * @extends
  *  Ego::Entity
  */
-struct prt_t : public _StateMachine<prt_t,ParticleManager>
+struct prt_t : public _StateMachine<prt_t,ParticleHandler>
 {
     bool is_ghost;                   ///< the particla has been killed, but is hanging around a while...
 
     prt_spawn_data_t  spawn_data;
 
     // profiles
-    PIP_REF pip_ref;                           ///< The part template
+    PIP_REF pip_ref;                           ///< The particle profile
     PRO_REF profile_ref;                       ///< the profile related to the spawned particle
 
     // links
@@ -148,12 +148,12 @@ struct prt_t : public _StateMachine<prt_t,ParticleManager>
     UFP8_T            image_max;               ///< Maximum image offset (8.8 fixed point)
 
     // lifetime stuff
-    bool              is_eternal;              ///< Does the particle ever time-out?
-    size_t            lifetime_total;          ///< Total particle lifetime in updates
-    size_t            lifetime_remaining;      ///< How many updates does the particle have left?
-    size_t            frames_total;            ///< Total number of particle frames
-    size_t            frames_remaining;        ///< How many frames does the particle have left?
-    int               contspawn_timer;         ///< Time until spawn
+    bool is_eternal;                    ///< Does the particle ever time-out?
+    size_t lifetime_total;              ///< Total particle lifetime in updates
+    size_t lifetime_remaining;          ///< How many updates does the particle have left?
+    size_t frames_total;                ///< Total number of particle frames
+    size_t frames_remaining;            ///< How many frames does the particle have left?
+    int               contspawn_timer;  ///< Time until spawn
 
     // bunping
     Uint32            bump_size_stt;           ///< the starting size of the particle (8.8 fixed point)

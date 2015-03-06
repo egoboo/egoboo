@@ -281,6 +281,15 @@ struct _StateMachine
 {
     Ego::Entity obj_base; ///< The "inheritance" from Ego::Entity.
 
+    _StateMachine() :
+        obj_base()
+    {
+    }
+
+    virtual ~_StateMachine()
+    {
+    }
+
     static TYPE *config_ctor(TYPE *self)
     {
         if (!self) return nullptr;
@@ -394,13 +403,13 @@ struct _StateMachine
         self = self->config_do_init();
         if (!self) return nullptr;
 
-        if (0 == LISTTYPE::getSingleton().getLockCount())
+        if (0 == LISTTYPE::get().getLockCount())
         {
             parent->on = true;
         }
         else
         {
-            LISTTYPE::getSingleton().add_activation(self->obj_base.index);
+            LISTTYPE::get().add_activation(self->obj_base.index);
         }
 
         parent->state = Ego::Entity::State::Active;
@@ -462,7 +471,7 @@ struct _StateMachine
 
         if (parent->state == Ego::Entity::State::Active)
         {
-            LISTTYPE::getSingleton().push_used(self->obj_base.index);
+            LISTTYPE::get().push_used(self->obj_base.index);
         }
 
         return self;
@@ -562,7 +571,7 @@ struct _StateMachine
         }
         else if (Ego::Entity::State::Active == parent->state)
         {
-            parent->update_guid = LISTTYPE::getSingleton().getUpdateGUID();
+            parent->update_guid = LISTTYPE::get().getUpdateGUID();
         }
 
         return self;

@@ -428,7 +428,7 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     DisplayMsg_on    = cfg.message_count_req > 0;
 
     // Adjust the particle limit.
-    PrtList.setDisplayLimit(cfg.particle_count_req);
+    ParticleHandler::get().setDisplayLimit(cfg.particle_count_req);
 
     // camera options
     _cameraSystem.getCameraOptions().turnMode = cfg.autoturncamera;

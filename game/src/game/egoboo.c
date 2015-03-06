@@ -74,7 +74,7 @@ bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
     // Get the particle limit
     // if the particle limit has changed, make sure to make not of it
     // number of particles
-    PrtList.setDisplayLimit(pcfg->particle_count_req);
+    ParticleHandler::get().setDisplayLimit(pcfg->particle_count_req);
 
     // camera options
     _cameraSystem.getCameraOptions().turnMode = pcfg->autoturncamera;
@@ -100,7 +100,7 @@ bool config_upload( egoboo_config_t * pcfg )
     pcfg->fps_allowed    = TO_C_BOOL( fpson );
 
     // number of particles
-    pcfg->particle_count_req = CLIP( PrtList.getDisplayLimit(), (size_t)0, (size_t)MAX_PRT );
+    pcfg->particle_count_req = CLIP( ParticleHandler::get().getDisplayLimit(), (size_t)0, (size_t)MAX_PRT );
 
     // messages
     pcfg->messageon_req     = TO_C_BOOL( DisplayMsg_on );

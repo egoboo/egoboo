@@ -812,7 +812,7 @@ void reset_character_accel( const CHR_REF character )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
         enc_remove_add(ienc_now, eve_t::ADDACCEL);
 
@@ -838,7 +838,7 @@ void reset_character_accel( const CHR_REF character )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
         enc_apply_add(ienc_now, eve_t::ADDACCEL, enc_get_ieve(ienc_now));
 
@@ -879,7 +879,7 @@ void reset_character_alpha( const CHR_REF character )
         ienc_count = 0;
         while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
-            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
             enc_remove_set(ienc_now, eve_t::SETALPHABLEND);
             enc_remove_set(ienc_now, eve_t::SETLIGHTBLEND);
@@ -901,7 +901,7 @@ void reset_character_alpha( const CHR_REF character )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
 
-            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
             if ( _profileSystem.isValidProfileID( ipro ) )
             {
@@ -1923,9 +1923,9 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
                 if ( DEFINED_PRT( iparticle ) )
                 {
-                    fvec3_t tmp_pos;
-                    prt_t * pprt = PrtList.get_ptr( iparticle );
+                    prt_t * pprt = ParticleHandler::get().get_ptr( iparticle );
 
+                    fvec3_t tmp_pos;
                     prt_t::get_pos(pprt, tmp_pos);
 
                     if ( weaponProfile->spawnsAttackParticle() )
@@ -2465,7 +2465,7 @@ void cleanup_one_character( Object * pchr )
         ienc_count = 0;
         while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
-            ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
             peve = enc_get_peve( ienc_now );
             if ( NULL != peve && !peve->_target._stay )
@@ -3091,7 +3091,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
         enc_remove_set(ienc_now, eve_t::SETSLASHMODIFIER);
         enc_remove_set(ienc_now, eve_t::SETCRUSHMODIFIER);
@@ -3137,7 +3137,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     {
         PRO_REF ipro = enc_get_ipro( ienc_now );
 
-        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
         if ( _profileSystem.isValidProfileID( ipro ) )
         {
@@ -3337,11 +3337,11 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
             ENC_REF ienc_now, ienc_nxt;
             size_t  ienc_count;
 
-            ienc_now = EncList.get_ptr(pchr->firstenchant)->nextenchant_ref;
+            ienc_now = EnchantHandler::get().get_ptr(pchr->firstenchant)->nextenchant_ref;
             ienc_count = 0;
             while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
-                ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+                ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
                 remove_enchant( ienc_now, NULL );
 
@@ -3812,14 +3812,14 @@ bool update_chr_darkvision( const CHR_REF character )
     ienc_count = 0;
     while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
-        ienc_nxt = EncList.get_ptr(ienc_now)->nextenchant_ref;
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
         peve = enc_get_peve( ienc_now );
 
         //Is it true poison?
         if ( NULL != peve && MAKE_IDSZ( 'H', 'E', 'A', 'L' ) == peve->removedByIDSZ )
         {
-            life_regen += EncList.get_ptr(ienc_now)->target_life;
-            if ( EncList.get_ptr(ienc_now)->owner_ref == pchr->ai.index ) life_regen += EncList.get_ptr(ienc_now)->owner_life;
+            life_regen += EnchantHandler::get().get_ptr(ienc_now)->target_life;
+            if (EnchantHandler::get().get_ptr(ienc_now)->owner_ref == pchr->ai.index ) life_regen += EnchantHandler::get().get_ptr(ienc_now)->owner_life;
         }
 
         ienc_now = ienc_nxt;

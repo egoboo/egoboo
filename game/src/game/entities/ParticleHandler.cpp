@@ -42,12 +42,12 @@
 //Inline
 //--------------------------------------------------------------------------------------------
 
-bool VALID_PRT_RANGE(const PRT_REF IPRT) { return PrtList.isValidRef(IPRT); }
-bool DEFINED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && DEFINED_PPRT_RAW(PrtList.get_ptr(IPRT))); }
-bool ALLOCATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ALLOCATED_PPRT_RAW(PrtList.get_ptr(IPRT))); }
-bool ACTIVE_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ACTIVE_PPRT_RAW(PrtList.get_ptr(IPRT))); }
-bool WAITING_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && WAITING_PPRT_RAW(PrtList.get_ptr(IPRT))); }
-bool TERMINATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && TERMINATED_PPRT_RAW(PrtList.get_ptr(IPRT))); }
+bool VALID_PRT_RANGE(const PRT_REF IPRT) { return ParticleHandler::get().isValidRef(IPRT); }
+bool DEFINED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && DEFINED_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool ALLOCATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ALLOCATED_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool ACTIVE_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ACTIVE_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool WAITING_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && WAITING_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool TERMINATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && TERMINATED_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
 PRT_REF GET_REF_PPRT(const prt_t *PPRT) { return LAMBDA(NULL == (PPRT), INVALID_PRT_REF, GET_INDEX_POBJ(PPRT, INVALID_PRT_REF)); }
 bool  VALID_PRT_PTR(const prt_t *PPRT) { return ((NULL != (PPRT)) && VALID_PRT_RANGE(GET_REF_POBJ(PPRT, INVALID_PRT_REF))); }
 bool  DEFINED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && DEFINED_PPRT_RAW(PPRT)); }
@@ -55,24 +55,24 @@ bool ALLOCATED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && ALLOCATE
 bool ACTIVE_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && ACTIVE_PPRT_RAW(PPRT)); }
 bool WAITING_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && WAITING_PPRT_RAW(PPRT)); }
 bool TERMINATED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && TERMINATED_PPRT_RAW(PPRT)); }
-bool INGAME_PRT_BASE(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && INGAME_PPRT_BASE_RAW(PrtList.get_ptr(IPRT))); }
+bool INGAME_PRT_BASE(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && INGAME_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
 bool INGAME_PPRT_BASE(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && INGAME_PPRT_BASE_RAW(PPRT)); }
 bool DISPLAY_PRT(const PRT_REF IPRT) { return INGAME_PRT_BASE(IPRT); }
 bool DISPLAY_PPRT(const prt_t *PPRT) { return INGAME_PPRT_BASE(PPRT); }
-bool INGAME_PRT(const PRT_REF IPRT) { return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PRT(IPRT), INGAME_PRT_BASE(IPRT) && (!PrtList.get_ptr(IPRT)->is_ghost)); }
+bool INGAME_PRT(const PRT_REF IPRT) { return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PRT(IPRT), INGAME_PRT_BASE(IPRT) && (!ParticleHandler::get().get_ptr(IPRT)->is_ghost)); }
 bool INGAME_PPRT(const prt_t *PPRT) { return LAMBDA(Ego::Entities::spawnDepth > 0, INGAME_PPRT_BASE(PPRT), DISPLAY_PPRT(PPRT) && (!(PPRT)->is_ghost)); }
 
 //--------------------------------------------------------------------------------------------
 
-ParticleManager PrtList;
+ParticleHandler PrtList;
 
-ParticleManager& ParticleManager::getSingleton()
+ParticleHandler& ParticleHandler::get()
 {
     return PrtList;
 }
 
 //--------------------------------------------------------------------------------------------
-void ParticleManager::prune_used_list()
+void ParticleHandler::prune_used_list()
 {
     // prune the used list
     for (size_t i = 0; i < usedCount; ++i)
@@ -94,7 +94,7 @@ void ParticleManager::prune_used_list()
 }
 
 //--------------------------------------------------------------------------------------------
-void ParticleManager::prune_free_list()
+void ParticleHandler::prune_free_list()
 {
     for (size_t i = 0; i < freeCount; ++i)
     {
@@ -115,7 +115,7 @@ void ParticleManager::prune_free_list()
 }
 
 //--------------------------------------------------------------------------------------------
-void ParticleManager::update_used()
+void ParticleHandler::update_used()
 {
     prune_used_list();
     prune_free_list();
@@ -157,7 +157,7 @@ void ParticleManager::update_used()
 }
 
 //--------------------------------------------------------------------------------------------
-bool ParticleManager::free_one(const PRT_REF ref)
+bool ParticleHandler::free_one(const PRT_REF ref)
 {
     /// @details Stick an object back into the free object list.
 
@@ -204,7 +204,7 @@ bool ParticleManager::free_one(const PRT_REF ref)
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF ParticleManager::allocate(const bool force)
+PRT_REF ParticleHandler::allocate(const bool force)
 {
     PRT_REF iprt;
 
@@ -339,7 +339,7 @@ PRT_REF ParticleManager::allocate(const bool force)
 }
 
 //--------------------------------------------------------------------------------------------
-void ParticleManager::maybeRunDeferred()
+void ParticleHandler::maybeRunDeferred()
 {
     // Go through the list and activate all the particles that
     // were created while the list was iterating.
@@ -367,7 +367,7 @@ void ParticleManager::maybeRunDeferred()
 }
 
 //--------------------------------------------------------------------------------------------
-void ParticleManager::reset_all()
+void ParticleHandler::reset_all()
 {
     /// @author ZZ
     /// @details This resets all particle data and reads in the coin and water particles
