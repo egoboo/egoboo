@@ -627,15 +627,18 @@ enum slot_t : uint8_t
 
 #include "egolib/Ref.hpp"
 
+typedef Ref<REF_T, 0, UINT16_MAX, MAX_CHR,RefKind::Object> ObjectRef;
 DECLARE_REF(CHR_REF);
 #define INVALID_CHR_REF ((CHR_REF)MAX_CHR)
 
 DECLARE_REF(TEAM_REF);
 /// @todo TEAM_REF has no corresponding INVALID_TEAM_REF value.
 
+typedef Ref<REF_T, 0, UINT16_MAX, MAX_EVE, RefKind::EnchantProfile> EnchantProfileRef;
 DECLARE_REF(EVE_REF);
 #define INVALID_EVE_REF ((EVE_REF)MAX_EVE)
 
+typedef Ref<REF_T, 0, UINT16_MAX, MAX_ENC, RefKind::Enchant> EnchantRef;
 DECLARE_REF(ENC_REF);
 #define INVALID_ENC_REF ((ENC_REF)MAX_ENC)
 
@@ -648,14 +651,16 @@ DECLARE_REF(PLA_REF);
 DECLARE_REF(PIP_REF);
 #define INVALID_PIP_REF ((PIP_REF)MAX_PIP)
 
+typedef Ref<REF_T, 0, UINT16_MAX, MAX_PRT, RefKind::Particle> ParticleRef;
 DECLARE_REF(PRT_REF);
 #define INVALID_PRT_REF ((PRT_REF)MAX_PRT)
 
 DECLARE_REF(PASS_REF);
 /// @todo PASS_REF has no correspnding INVALID_PASS_REF value.
 
+typedef Ref<REF_T, 0, UINT16_MAX, UINT16_MAX, RefKind::ObjectProfile> ObjectProfileRef;
 DECLARE_REF(PRO_REF);
-#define INVALID_PRO_REF ((PRO_REF)0xFFFF)
+#define INVALID_PRO_REF ((PRO_REF)UINT16_MAX)
 
 DECLARE_REF(TX_REF);
 #define INVALID_TX_REF ((TX_REF)TX_COUNT)
@@ -666,5 +671,6 @@ DECLARE_REF(MNU_TX_REF);
 DECLARE_REF(BBOARD_REF);
 #define INVALID_BBOARD_REF ((BBOARD_REF)MAX_BBOARD)
 
+typedef Ref<REF_T, 0, UINT16_MAX, UINT16_MAX, RefKind::Module> ModuleRef;
 DECLARE_REF(MOD_REF);
-#define INVALID_MOD_REF ((MOD_REF)MAX_MODULE)
+#define INVALID_MOD_REF ((MOD_REF)UINT16_MAX)

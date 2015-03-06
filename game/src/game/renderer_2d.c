@@ -477,13 +477,6 @@ void draw_one_font( oglx_texture_t * ptex, int fonttype, float x_stt, float y_st
 //--------------------------------------------------------------------------------------------
 float draw_string( float x, float y, const char *format, ... )
 {
-    /// @author ZZ
-    /// @details This function spits a line of null terminated text onto the backbuffer
-    ///
-    /// details BB@> Uses gfx_begin_2d() ... gfx_end_2d() so that the function can basically be called from anywhere
-    ///    The way they are currently implemented, this breaks the icon drawing in draw_status() if
-    ///    you use draw_string() and then draw_icon(). Use draw_string_raw(), instead.
-
     va_list args;
 
     gfx_begin_2d();

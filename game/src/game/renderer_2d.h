@@ -83,13 +83,20 @@ void gfx_disable_texturing();
 void gfx_reshape_viewport( int w, int h );
 
 // bitmap font functions
-float draw_string( float x, float y, const char *format, ... ) GCC_PRINTF_FUNC( 3 );
-float draw_wrap_string( const char *szText, float x, float y, int maxx );
-void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
-int   draw_string_raw( float x, float y, const char *format, ... ) GCC_PRINTF_FUNC( 3 );
+/**
+ * @details This function spits a line of null terminated text onto the backbuffer
+ * @details Uses gfx_begin_2d() ... gfx_end_2d() so that the function can basically be called from anywhere.
+ *          The way they are currently implemented, this breaks the icon drawing in draw_status() if
+ *          you use draw_string() and then draw_icon(). Use draw_string_raw(), instead.
+ * @todo    Is there actually anything that does not break something else or is itself broken or conceptually flawed?
+ */
+float draw_string(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
+float draw_wrap_string(const char *szText, float x, float y, int maxx);
+void draw_one_font(oglx_texture_t * ptex, int fonttype, float x, float y);
+int draw_string_raw(float x, float y, const char *format, ...) GCC_PRINTF_FUNC( 3 );
 
 // debugging functions
-int   DisplayMsg_printf( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
+int DisplayMsg_printf( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
 
 // graphics primitive functions
 void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool useAlpha, const Ego::Colour4f& tint = Ego::Colour4f::WHITE);

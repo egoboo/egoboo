@@ -460,9 +460,13 @@
         wawalite_camera_t     camera;
         wawalite_fog_t        fog;
 
-        // Directional light vector.
+        /// @brief Directional light vector.
+        /// @todo  Egoboo does not allow for specifying a directional light colour.
         float light_x, light_y, light_z; ///< @todo Should be fvec3_t.
-        // Ambient light.
+        /// @brief Ambient light brightniess.
+        /// @todo Egoboo does not allow for specifying an ambient light colour,
+        /// only its alpha value; the effective ambient light color is given by
+        /// (1, 1, 1, light_a).        
         float light_a;
 
         wawalite_data_t() :

@@ -540,7 +540,6 @@ void activate_alliance_file_vfs()
 {
     /// @author ZZ
     /// @details This function reads the alliance file
-    STRING szTemp;
     TEAM_REF teama, teamb;
 
     // Load the file
@@ -3721,7 +3720,7 @@ wawalite_data_t * read_wawalite_vfs( void /* const char *modname */ )
     {
         return nullptr;
     }
-    memcpy(&wawalite_data, data, sizeof(wawalite_data_t));
+    wawalite_data = *data;
 
     // fix any out-of-bounds data
     wawalite_limit(&wawalite_data);
