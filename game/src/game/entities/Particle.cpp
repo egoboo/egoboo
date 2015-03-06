@@ -3110,7 +3110,7 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
     if (depth > (int)ParticleHandler::get().getCount() - (int)ParticleHandler::get().getFreeCount()) return INVALID_CHR_REF;
 
     if (!DEFINED_PRT(iprt)) return INVALID_CHR_REF;
-    prt_t *pprt = ParticleHandler().get_ptr(iprt);
+    prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
     CHR_REF iowner = INVALID_CHR_REF;
     if (_gameObjects.exists(pprt->owner_ref))
