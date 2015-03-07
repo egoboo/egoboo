@@ -220,8 +220,6 @@ ObjectProfile::ObjectProfile() :
     _experienceRate.fill(0.0f);
     _idsz.fill(IDSZ_NONE);
     _experienceForLevel.fill(UINT32_MAX);
-
-    memset(&_aiScript, 0, sizeof(script_info_t));
 }
 
 ObjectProfile::~ObjectProfile()

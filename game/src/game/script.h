@@ -117,15 +117,28 @@ enum chr_alert_bits
 //--------------------------------------------------------------------------------------------
 struct script_info_t
 {
+public:
+    script_info_t() :
+        name(),
+        indent(0),
+        indent_last(0),
+        length(0),
+        position(0),
+        data{}
+    {
+        //ctor
+    }
+
+public:
     STRING          name;                            // Name of the script file
 
-    Uint32          indent;
-    Uint32          indent_last;
+    uint32_t        indent;
+    uint32_t        indent_last;
 
-    Uint32          length;                          // Actual length of the compiled ai buffer
+    uint32_t        length;                          // Actual length of the compiled ai buffer
     size_t          position;                        // Our current position in the script
 
-    Uint32          data[MAXAICOMPILESIZE];          // Compiled script data
+    uint32_t        data[MAXAICOMPILESIZE];          // Compiled script data
 };
 
 //--------------------------------------------------------------------------------------------
