@@ -106,8 +106,8 @@ public:
     }
 
     Magazine() :
-        _elements(),
-        _size(Capacity)
+        _size(Capacity),
+        _elements()
     {
         size_t index;
         try

@@ -34,7 +34,7 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
         void setSize(const int width, const int height);
         void setX(const int x);
         void setY(const int y);
-        void setPosition(const int x, const int y);
+        virtual void setPosition(const int x, const int y);
 
         bool contains(const int x, const int y) const;
 

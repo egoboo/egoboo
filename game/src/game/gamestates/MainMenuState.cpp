@@ -24,6 +24,7 @@
 #include "game/gamestates/MainMenuState.hpp"
 #include "game/gamestates/SelectModuleState.hpp"
 #include "game/gamestates/SelectPlayersState.hpp"
+#include "game/gamestates/OptionsScreen.hpp"
 #include "game/core/GameEngine.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/platform.h"
@@ -89,6 +90,10 @@ MainMenuState::MainMenuState() :
 	std::shared_ptr<Button> optionsButton = std::make_shared<Button>("Options", SDLK_o);
 	optionsButton->setPosition(20, yOffset);
 	optionsButton->setSize(200, 30);
+	optionsButton->setOnClickFunction(
+	[]{
+		_gameEngine->pushGameState(std::make_shared<OptionsScreen>());
+	});
 	addComponent(optionsButton);
 	_slidyButtons.push_front(optionsButton);
 

@@ -85,8 +85,9 @@ namespace Ego
         }
 
         Renderer::Renderer() :
-            _name(getName()), _vendor(getVendor()),
-            _extensions(make_unordered_set(getExtensions()))
+            _extensions(make_unordered_set(getExtensions())),
+            _vendor(getVendor()),
+            _name(getName())
         {
         }
 

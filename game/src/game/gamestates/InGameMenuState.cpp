@@ -25,6 +25,7 @@
 #include "game/gamestates/MainMenuState.hpp"
 #include "game/gamestates/PlayingState.hpp"
 #include "game/gamestates/LoadingState.hpp"
+#include "game/gamestates/OptionsScreen.hpp"
 #include "game/core/GameEngine.hpp"
 #include "game/game.h"
 #include "game/gui/Button.hpp"
@@ -51,6 +52,10 @@ InGameMenuState::InGameMenuState(PlayingState *playingState) :
 	std::shared_ptr<Button> optionsButton = std::make_shared<Button>("Options", SDLK_o);
 	optionsButton->setPosition(20, yOffset);
 	optionsButton->setSize(200, 30);
+	optionsButton->setOnClickFunction(
+		[]{
+			_gameEngine->pushGameState(std::make_shared<OptionsScreen>());
+		});
 	addComponent(optionsButton);
 	_slidyButtons.push_front(optionsButton);
 

@@ -90,7 +90,6 @@ egonet_instance_t * egonet_instance_dtor( egonet_instance_t * pnet );
 //--------------------------------------------------------------------------------------------
 
 static void egonet_connect( void );
-static void egonet_disconnect( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -237,30 +236,6 @@ void egonet_connect( void )
             gnet.service_on    = true;
             gnet.service_count = 1;
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void egonet_disconnect( void )
-{
-    if ( !gnet.initialized ) return;
-
-    if ( !gnet.req_enet )
-    {
-        // We're not doing networking this time...
-        log_info( "egonet_disconnect: Networking not enabled.\n" );
-    }
-    else if ( gnet.enet_on )
-    {
-        log_info( "egonet_disconnect: deinitializing enet... " );
-
-        enet_deinitialize();
-
-        gnet.enet_on = false;
-        gnet.service_on    = false;
-        gnet.service_count = 0;
-
-        log_info( "Finished!\n" );
     }
 }
 
