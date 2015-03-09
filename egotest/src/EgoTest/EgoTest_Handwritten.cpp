@@ -36,6 +36,23 @@ namespace
     static int currentTestFailures;
     static int currentTestsRan;
     static int totalTestsRan;
+    
+    enum class ColorCodes : uint8_t
+    {
+        NORMAL = 0,
+        RED    = 31,
+        YELLOW = 33,
+    };
+    
+    template<class CharT, class Traits>
+    std::basic_ostream<CharT, Traits> &operator<<(std::basic_ostream<CharT, Traits> &stream, ColorCodes color)
+    {
+#ifdef _MSC_VER
+        return stream;
+#else
+        return stream << "\033[" << static_cast<uint16_t>(color) << "m";
+#endif
+    }
 }
 
 namespace EgoTest
@@ -44,10 +61,12 @@ namespace EgoTest
     TestCase::TestCase() 
     {
         currentTestCase = this;
+        setUpClass();
     }
 
     TestCase::~TestCase()
     {
+        tearDownClass();
         currentTestCase = nullptr;
     }
 
@@ -57,29 +76,28 @@ namespace EgoTest
     void TestCase::tearDownClass() {}
 }
 
-void EgoTest::doAssert(bool condition, std::string conditionStr, std::string function, std::string file, int line)
+void EgoTest::doAssert(bool condition, const std::string &conditionStr, const std::string &function, const std::string &file, int line)
 {
     if (condition) return;
     currentTestFailures++;
-    std::cout << function << " (" << file << ":" << line << "): " << conditionStr << "\n";
+    std::cout << ColorCodes::RED << file << ":" << line << ": " << conditionStr << "\n" << ColorCodes::NORMAL;
 }
 
-int EgoTest::handleTest(const std::function<void(void)> &test)
+int EgoTest::handleTest(const std::string &testName, const std::function<void(void)> &test)
 {
     currentTestFailures = 0;
     bool setUp = false;
     totalTestsRan++;
+    std::cout << "Running test '" << testName << "'...\n";
     
     try
     {
         currentTestCase->setUp();
         setUp = true;
-        currentTestsRan++;
-        test();
     }
     catch (...)
     {
-        std::cerr << "Uncaught exception in EgoTest::handleTest.\n";
+        std::cout << ColorCodes::RED << "Uncaught exception while setting up.\n" << ColorCodes::NORMAL;
         currentTestFailures++;
     }
     
@@ -87,11 +105,22 @@ int EgoTest::handleTest(const std::function<void(void)> &test)
     {
         try
         {
+            currentTestsRan++;
+            test();
+        }
+        catch (...)
+        {
+            std::cout << ColorCodes::RED << "Uncaught exception in EgoTest::handleTest.\n" << ColorCodes::NORMAL;
+            currentTestFailures++;
+        }
+        
+        try
+        {
             currentTestCase->tearDown();
         }
         catch (...)
         {
-            std::cerr << "Uncaught exception while cleaning up after a test.\n";
+            std::cout << ColorCodes::RED << "Uncaught exception while cleaning up.\n" << ColorCodes::NORMAL;
             currentTestFailures++;
         }
     }
@@ -100,6 +129,7 @@ int EgoTest::handleTest(const std::function<void(void)> &test)
 
 int main(int argc, char *argv[])
 {
+    std::cout << "\n";
     auto testCases = EgoTest::getTestCases();
     int totalFailures = 0;
     int numTestCasesRan = 0;
@@ -111,16 +141,17 @@ int main(int argc, char *argv[])
         totalTestsRan = 0;
         try
         {
+            std::cout << "Starting test case \"" << testCase.first << "\".\n";
             int failures = testCase.second();
             numTestCasesRan++;
             if (failures) numTestCasesFailured++;
             totalFailures += failures;
-            std::cout << "Test case \"" << testCase.first << "\": " << totalTestsRan << " tests, " << failures << " failures\n"; 
+            std::cout << "Test case \"" << testCase.first << "\": " << totalTestsRan << " tests, " << failures << " failures\n\n"; 
         }
         catch (...)
         {
-            std::cerr << "Test case \"" << testCase.first << "\" has thrown an exception?\n";
-            std::cerr << "Ran " << totalTestsRan << "tests before failure.\n";
+            std::cout << ColorCodes::RED << "Test case \"" << testCase.first << "\" has thrown an exception?\n";
+            std::cout << ColorCodes::YELLOW << "Ran " << totalTestsRan << "tests before failure.\n" << ColorCodes::NORMAL;
         }
         numTestsRan += totalTestsRan;
     }
@@ -130,7 +161,7 @@ int main(int argc, char *argv[])
     
     std::cout << numTestCases << " total test cases, " << failedTestCases << " failed to run, "
                 << numTestCasesFailured << " had failures.\n";
-    std::cout << numTestsRan << " total tests, " << totalFailures << " failures.\n";
+    std::cout << numTestsRan << " total tests, " << totalFailures << " failures.\n\n";
     
     return totalFailures ? EXIT_FAILURE : EXIT_SUCCESS;
 }

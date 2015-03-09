@@ -57,7 +57,7 @@ sub outputTests ($) {
         print $out "    $testCase *testCasePtr = &testCase;\n";
         my @tests = $testCases{$testCase} =~ /EgoTest_Test\s*\(\s*(\w+)\s*\)/g;
         for my $test (@tests) {
-            print $out "    failures += EgoTest::handleTest([testCasePtr]() mutable {testCasePtr->$test();});\n";
+            print $out "    failures += EgoTest::handleTest(\"$test\", [testCasePtr]() mutable {testCasePtr->$test();});\n";
         }
         print $out "    return failures;\n";
         print $out "}\n\n";
