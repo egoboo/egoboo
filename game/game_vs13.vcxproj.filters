@@ -75,6 +75,12 @@
     <Filter Include="Game Header Files\Script">
       <UniqueIdentifier>{f505190e-bdea-4737-9ff4-47d789358e21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Sources\Physics">
+      <UniqueIdentifier>{3ab75b78-5396-498d-973c-77cd68b6228a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\Physics">
+      <UniqueIdentifier>{ef5e71a0-09a8-4d6b-ad8b-2b53b8b6e52b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\char.c">
@@ -283,6 +289,15 @@
     </ClCompile>
     <ClCompile Include="src\game\gui\InternalDebugWindow.cpp">
       <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gui\OptionsButton.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\OptionsScreen.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\gamestates\VideoOptionsScreen.cpp">
+      <Filter>Game Sources\GameStates</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -510,6 +525,15 @@
     </ClInclude>
     <ClInclude Include="src\game\gui\InternalDebugWindow.hpp">
       <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gui\OptionsButton.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\gamestates\OptionsScreen.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Physics\Constants.hpp">
+      <Filter>Game Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

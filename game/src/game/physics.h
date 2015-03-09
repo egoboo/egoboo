@@ -409,6 +409,7 @@ bool get_depth_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t bump_b, 
 /// @brief Estimate the depth of collision based on the "collision bounding box".
 ///        This version is for character-character collisions
 bool get_depth_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * cv_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth );
+#if 0
 /// @brief Estimate the depth of collision based on the "collision bounding box".
 ///        This version is for character-particle collisions.
 bool get_depth_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth );
@@ -418,3 +419,4 @@ bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_t& p
 /// @brief Estimate the depth of collision based on the "collision bounding box"
 ///        This version is for character-character collisions.
 bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break_out, oct_vec_v2_t& depth );
+#endif

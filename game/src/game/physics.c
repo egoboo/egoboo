@@ -1669,6 +1669,7 @@ bool test_interaction_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 bool get_depth_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth )
 {
     oct_bb_t cv_a, cv_b;
@@ -1683,7 +1684,7 @@ bool get_depth_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, 
 
     return get_depth_close_2( &cv_a, &cv_b, break_out, depth );
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
 bool get_depth_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth )
 {
@@ -1697,6 +1698,7 @@ bool get_depth_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const 
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth )
 {
     oct_bb_t cv_b;
@@ -1709,7 +1711,7 @@ bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_t& p
 
     return get_depth_close_2( cv_a, &cv_b, break_out, depth );
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
 bool get_depth_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth )
 {
@@ -1722,6 +1724,7 @@ bool get_depth_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t bump_b, 
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break_out, oct_vec_v2_t& depth )
 {
     if (!cv_a || !cv_b) return false;
@@ -1762,7 +1765,7 @@ bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break
 
     return valid;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
 bool get_depth_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * cv_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth )
 {
