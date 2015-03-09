@@ -794,34 +794,56 @@ gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void draw_chr_bbox( Object * pchr )
+void draw_chr_bbox(Object *pchr)
 {
-    if ( !ACTIVE_PCHR( pchr ) ) return;
-
-    // draw the object bounding box as a part of the graphics debug mode F7
-    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F7 ) && pchr->isMount() )
+    static const bool drawLeftSlot = true;
+    static const bool drawRightSlot = true;
+    static const bool drawCharacter = true;
+    if (!ACTIVE_PCHR(pchr))
     {
-        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+        return;
+    }
+    // Draw the object bounding box as a part of the graphics debug mode F7.
+    if (cfg.dev_mode && SDL_KEYDOWN(keyb, SDLK_F7))
+    {
+        GL_DEBUG(glDisable)(GL_TEXTURE_2D);
         {
-            oct_bb_t bb;
-
-            oct_bb_translate( &( pchr->slot_cv[SLOT_LEFT] ), pchr->getPosition(), &bb );
-
-			Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
-            render_oct_bb( &bb, true, true );
+            if (drawLeftSlot)
+            {
+                oct_bb_t bb;
+                oct_bb_translate(&(pchr->slot_cv[SLOT_LEFT]), pchr->getPosition(), &bb);
+                Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+                render_oct_bb(&bb, true, true);
+            }
+            if (drawRightSlot)
+            {
+                oct_bb_t bb;
+                oct_bb_translate(&(pchr->slot_cv[SLOT_RIGHT]), pchr->getPosition(), &bb);
+                Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+                render_oct_bb(&bb, true, true);
+            }
+            if (drawCharacter)
+            {
+                oct_bb_t bb;
+                oct_bb_translate(&(pchr->chr_min_cv), pchr->getPosition(), &bb);
+                Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+                render_oct_bb(&bb, true, true);
+            }
         }
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+        GL_DEBUG(glEnable)(GL_TEXTURE_2D);
     }
 
-    //// the grips and vertrices of all objects
-    //if ( cfg.dev_mode && SDL_KEYDOWN(keyb, SDLK_F6 ) )
-    //{
-    //    draw_chr_attached_grip( pchr );
+    //// The grips and vertrices of all objects.
+    /*
+    if (cfg.dev_mode && SDL_KEYDOWN(keyb, SDLK_F6))
+    {
+        draw_chr_attached_grip( pchr );
 
-    //    // draw all the vertices of an object
-    //    GL_DEBUG( glPointSize( 5 ) );
-    //    draw_chr_verts( pchr, 0, pchr->inst.vrt_count );
-    //}
+        // Draw all the vertices of an object
+        GL_DEBUG(glPointSize(5));
+        draw_chr_verts(pchr, 0, pchr->inst.vrt_count);
+    }
+    */
 }
 
 //--------------------------------------------------------------------------------------------
