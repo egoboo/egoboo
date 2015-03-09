@@ -72,6 +72,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "physfs-static", "external\p
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib", "idlib\idlib_vs13.vcxproj", "{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib-tests", "egolib\egolib-tests.vcxproj", "{72193166-DDB9-4393-8413-59E8D843DD9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -427,6 +429,24 @@ Global
 		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Release|Win32.Build.0 = Release|Win32
 		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Release|x64.ActiveCfg = Release|x64
 		{F59E5A93-844C-4C7F-BFFA-C0E59785B9A2}.Release|x64.Build.0 = Release|x64
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|Win32.Build.0 = Debug|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|x64.ActiveCfg = Debug|x64
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Debug|x64.Build.0 = Debug|x64
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release_NoSTDIO|Mixed Platforms.ActiveCfg = Release|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release_NoSTDIO|Mixed Platforms.Build.0 = Release|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release_NoSTDIO|Win32.ActiveCfg = Release|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release_NoSTDIO|Win32.Build.0 = Release|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release_NoSTDIO|x64.ActiveCfg = Release|x64
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release_NoSTDIO|x64.Build.0 = Release|x64
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release|Win32.ActiveCfg = Release|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release|Win32.Build.0 = Release|Win32
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release|x64.ActiveCfg = Release|x64
+		{72193166-DDB9-4393-8413-59E8D843DD9D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
