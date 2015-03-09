@@ -175,8 +175,8 @@
 
 #undef  DEBUG_ASTAR           ///< Debug AStar pathfinding
 
-#undef  DRAW_CHR_BBOX         ///< display selected character bounding boxes
-#undef  DRAW_PRT_BBOX         ///< display selected particle bounding boxes
+#define DRAW_CHR_BBOX         ///< display selected character bounding boxes
+#define DRAW_PRT_BBOX         ///< display selected particle bounding boxes
 #define DRAW_LISTS            ///< display any lines or points that have been added to various lists
 
 #define MAD_CULL_RIGHT        ///< helps to define which faces are clipped when rendering character models
