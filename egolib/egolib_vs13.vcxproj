@@ -255,6 +255,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfileSystem.cpp" />
     <ClCompile Include="src\egolib\IDSZ.cpp" />
@@ -430,6 +431,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.hpp" />
     <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp" />
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp" />

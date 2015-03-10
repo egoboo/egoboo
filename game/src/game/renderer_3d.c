@@ -368,40 +368,41 @@ bool render_aabb(aabb_t *bv)
 }
 
 //--------------------------------------------------------------------------------------------
-bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
+bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Math::Colour4f& squareColour,const Ego::Math::Colour4f& diamondColour)
 {
     bool retval = false;
 
-    if ( NULL == bb ) return false;
+    if (NULL == bb) return false;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
     {
-        // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        GL_DEBUG( glDepthMask )( GL_FALSE );
+        // Do not write write into the depth buffer.
+        // (disable glDepthMask for transparent objects)
+        GL_DEBUG(glDepthMask)(GL_FALSE);
 
         // do not draw hidden surfaces
 		Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
+        GL_DEBUG(glDepthFunc)(GL_LEQUAL);
 
         // fix the poorly chosen normals...
         // draw draw front and back faces of polygons
-        oglx_end_culling();                 // GL_ENABLE_BIT
+        GL_DEBUG(glDisable)(GL_CULL_FACE);  // GL_ENABLE_BIT
 
         // make them transparent
         Ego::Renderer::get().setBlendingEnabled(true);
-        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // choose a "white" texture
         oglx_texture_bind( NULL );
 
         //------------------------------------------------
         // DIAGONAL BBOX
-        if ( draw_diamond )
+        if (drawDiamond)
         {
             float p1_x, p1_y;
             float p2_x, p2_y;
 
-			Ego::Renderer::get().setColour(Ego::Math::Colour4f(0.5,1,1,1));
+			Ego::Renderer::get().setColour(diamondColour);
 
             p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
             p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
@@ -456,9 +457,9 @@ bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
 
         //------------------------------------------------
         // SQUARE BBOX
-        if ( draw_square )
+        if (drawSquare)
         {
-			Ego::Renderer::get().setColour(Ego::Math::Colour4f(1,0.5,1,1));
+			Ego::Renderer::get().setColour(squareColour);
 
             // XZ FACE, min Y
             GL_DEBUG( glBegin )( GL_QUADS );

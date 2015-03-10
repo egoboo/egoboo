@@ -185,7 +185,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 
 	// use the object velocity to figure out where the volume that the object will occupy during this
 	// update
-	phys_expand_prt_bb(loc_pprt, 0.0f, 1.0f, &tmp_oct);
+	phys_expand_prt_bb(loc_pprt, 0.0f, 1.0f, tmp_oct);
 
 	// convert the bounding box
 	pleaf->bbox.from(tmp_oct);
@@ -263,7 +263,7 @@ bool chr_BSP_insert(Object * pchr)
 
 		// use the object velocity to figure out where the volume that the object will occupy during this
 		// update
-		phys_expand_chr_bb(pchr, 0.0f, 1.0f, &tmp_oct);
+		phys_expand_chr_bb(pchr, 0.0f, 1.0f, tmp_oct);
 
 		// convert the bounding box
 		pleaf->bbox.from(tmp_oct);

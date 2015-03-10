@@ -383,7 +383,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\gamestates\OptionsScreen.cpp" />
     <ClCompile Include="src\game\gamestates\VideoOptionsScreen.cpp" />
     <ClCompile Include="src\game\gui\OptionsButton.cpp" />
-    <ClCompile Include="src\game\Physics\Estimator.cpp" />
     <ClCompile Include="src\game\gui\InternalDebugWindow.cpp" />
     <ClCompile Include="src\game\entities\Enchant.cpp" />
     <ClCompile Include="src\game\entities\EnchantHandler.cpp" />
@@ -547,9 +546,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ProjectReference Include="..\egolib\egolib_vs13.vcxproj">
       <Project>{0f32dd35-a264-4906-8fc9-2d0fe0613230}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="src\game\Physics\Estimator.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

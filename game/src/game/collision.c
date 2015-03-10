@@ -185,7 +185,7 @@ static bool do_chr_prt_collision( CoNode_t * d );
 
 static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * pdata );
-static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_t *podepth, fvec3_t& nrm, float * tmin );
+static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -863,7 +863,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
-        phys_expand_chr_bb( pchr_a.get(), 0.0f, 1.0f, &tmp_oct );
+        phys_expand_chr_bb(pchr_a.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
         tmp_aabb.from(tmp_oct);
@@ -906,7 +906,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                         if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), pchr_a->getPosition(), pchr_a->vel, &( pchr_b->chr_max_cv ), pchr_b->getPosition(), pchr_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pchr_b->chr_max_cv, pchr_b->getPosition(), pchr_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
                         {
                             tmp_codata.chra = pchr_a->getCharacterID();
                             tmp_codata.chrb = ichr_b;
@@ -960,7 +960,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), pchr_a->getPosition(), pchr_a->vel, &( pprt_b->prt_max_cv ), prt_t::get_pos_v_const( pprt_b ), pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if (phys_intersect_oct_bb(pchr_a->chr_max_cv, pchr_a->getPosition(), pchr_a->vel, pprt_b->prt_max_cv, prt_t::get_pos_v_const(pprt_b), pprt_b->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
                         {
                             tmp_codata.chra = pchr_a->getCharacterID();
                             tmp_codata.prtb = iprt_b;
@@ -1008,7 +1008,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
-        phys_expand_prt_bb( bdl.prt_ptr, 0.0f, 1.0f, &tmp_oct );
+        phys_expand_prt_bb(bdl.prt_ptr, 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
         tmp_aabb.from(tmp_oct);
@@ -1106,7 +1106,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                         if ( pchr_a->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
                         // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(&(pchr_a->chr_min_cv), pchr_a->getPosition(), pchr_a->vel, &(bdl.prt_ptr->prt_max_cv), prt_t::get_pos_v_const(bdl.prt_ptr), bdl.prt_ptr->vel, test_platform, &(tmp_codata.cv), &(tmp_codata.tmin), &(tmp_codata.tmax)))
+                        if (phys_intersect_oct_bb(pchr_a->chr_min_cv, pchr_a->getPosition(), pchr_a->vel, bdl.prt_ptr->prt_max_cv, prt_t::get_pos_v_const(bdl.prt_ptr), bdl.prt_ptr->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
                         {
 
                             tmp_codata.chra = ichr_a;
@@ -1960,7 +1960,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
         // the position of the saddle over the frame
         oct_bb_translate( &pchr_b->slot_cv[SLOT_LEFT], pchr_b->getPosition(), &tmp_cv );
-        phys_expand_oct_bb( &tmp_cv, pchr_b->vel, 0.0f, 1.0f, &saddle_cv );
+        phys_expand_oct_bb(tmp_cv, pchr_b->vel, 0.0f, 1.0f, saddle_cv);
 
         if ( oct_bb_t::contains( &saddle_cv, apos ) )
         {
@@ -1994,8 +1994,8 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_translate( &pchr_a->slot_cv[SLOT_LEFT], pchr_a->getPosition(), &tmp_cv );
-        phys_expand_oct_bb( &tmp_cv, pchr_a->vel, 0.0f, 1.0f, &saddle_cv );
+        oct_bb_translate(&(pchr_a->slot_cv[SLOT_LEFT]), pchr_a->getPosition(), &tmp_cv );
+        phys_expand_oct_bb(tmp_cv, pchr_a->vel, 0.0f, 1.0f, saddle_cv);
 
         if ( oct_bb_t::contains( &saddle_cv, bpos ) )
         {
@@ -2156,14 +2156,14 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_chr_collision_pressure_normal( const Object * pchr_a, const Object * pchr_b, const float exponent, oct_vec_v2_t& podepth, fvec3_t& nrm, float * tmin )
+bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth)
 {
     oct_bb_t otmp_a, otmp_b;
 
-    oct_bb_translate( &( pchr_a->chr_min_cv ), pchr_a->getPosition(), &otmp_a );
-    oct_bb_translate( &( pchr_b->chr_min_cv ), pchr_b->getPosition(), &otmp_b );
+    oct_bb_translate(&(pchr_a->chr_min_cv ), pchr_a->getPosition(), &otmp_a);
+    oct_bb_translate(&(pchr_b->chr_min_cv ), pchr_b->getPosition(), &otmp_b);
 
-    return phys_estimate_pressure_normal( &otmp_a, &otmp_b, exponent, podepth, nrm, tmin );
+    return phys_estimate_pressure_normal(otmp_a, otmp_b, exponent, odepth, nrm, depth);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2323,15 +2323,15 @@ bool do_chr_chr_collision( CoNode_t * d )
         tmp_max = d->tmin + ( d->tmax - d->tmin ) * 0.1f;
 
         // determine the expanded collision volumes for both objects
-        phys_expand_oct_bb( &map_bb_a, pchr_a->vel, tmp_min, tmp_max, &exp1 );
-        phys_expand_oct_bb( &map_bb_b, pchr_b->vel, tmp_min, tmp_max, &exp2 );
+        phys_expand_oct_bb(map_bb_a, pchr_a->vel, tmp_min, tmp_max, exp1);
+        phys_expand_oct_bb(map_bb_b, pchr_b->vel, tmp_min, tmp_max, exp2);
 
-        valid_normal = phys_estimate_collision_normal( &exp1, &exp2, exponent, odepth, nrm, &depth_min );
+        valid_normal = phys_estimate_collision_normal(exp1, exp2, exponent, odepth, nrm, depth_min);
     }
 
     if ( !collision || depth_min <= 0.0f )
     {
-        valid_normal = phys_estimate_pressure_normal( &map_bb_a, &map_bb_b, exponent, odepth, nrm, &depth_min );
+        valid_normal = phys_estimate_pressure_normal(map_bb_a, map_bb_b, exponent, odepth, nrm, depth_min);
     }
 
     if ( depth_min <= 0.0f )
@@ -2579,7 +2579,7 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
     if ( d->tmin <= 0.0f || ABS( d->tmin ) > 1e6 || ABS( d->tmax ) > 1e6 )
     {
         // use "pressure" to determine the normal and overlap
-        phys_estimate_pressure_normal( &cv_prt_min, &cv_chr, exponent, odepth, pdata->nrm, &( pdata->depth_min ) );
+        phys_estimate_pressure_normal(cv_prt_min, cv_chr, exponent, odepth, pdata->nrm, pdata->depth_min);
 
         handled = true;
         if ( d->tmin <= 0.0f )
@@ -2602,11 +2602,11 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
         tmp_max = d->tmin + ( d->tmax - d->tmin ) * 0.1f;
 
         // determine the expanded collision volumes for both objects
-        phys_expand_oct_bb( &cv_prt_min, pdata->pprt->vel, tmp_min, tmp_max, &exp1 );
-        phys_expand_oct_bb( &cv_chr,     pdata->pchr->vel, tmp_min, tmp_max, &exp2 );
+        phys_expand_oct_bb(cv_prt_min, pdata->pprt->vel, tmp_min, tmp_max, exp1);
+        phys_expand_oct_bb(cv_chr,     pdata->pchr->vel, tmp_min, tmp_max, exp2);
 
         // use "collision" to determine the normal and overlap
-        handled = phys_estimate_collision_normal( &exp1, &exp2, exponent, odepth, pdata->nrm, &( pdata->depth_min ) );
+        handled = phys_estimate_collision_normal(exp1, exp2, exponent, odepth, pdata->nrm, pdata->depth_min);
 
         // tag the type of interaction
         pdata->int_min      = handled;
@@ -2618,7 +2618,7 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
         if ( d->tmin <= 0.0f || ABS( d->tmin ) > 1e6 || ABS( d->tmax ) > 1e6 )
         {
             // use "pressure" to determine the normal and overlap
-            phys_estimate_pressure_normal( &cv_prt_max, &cv_chr, exponent, odepth, pdata->nrm, &( pdata->depth_max ) );
+            phys_estimate_pressure_normal(cv_prt_max, cv_chr, exponent, odepth, pdata->nrm, pdata->depth_max);
 
             handled = true;
             if ( d->tmin <= 0.0f )
@@ -2641,11 +2641,11 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
             tmp_max = d->tmin + ( d->tmax - d->tmin ) * 0.1f;
 
             // determine the expanded collision volumes for both objects
-            phys_expand_oct_bb( &cv_prt_max, pdata->pprt->vel, tmp_min, tmp_max, &exp1 );
-            phys_expand_oct_bb( &cv_chr,     pdata->pchr->vel, tmp_min, tmp_max, &exp2 );
+            phys_expand_oct_bb(cv_prt_max, pdata->pprt->vel, tmp_min, tmp_max, exp1);
+            phys_expand_oct_bb(cv_chr,     pdata->pchr->vel, tmp_min, tmp_max, exp2);
 
             // use "collision" to determine the normal and overlap
-            handled = phys_estimate_collision_normal( &exp1, &exp2, exponent, odepth, pdata->nrm, &( pdata->depth_max ) );
+            handled = phys_estimate_collision_normal(exp1, exp2, exponent, odepth, pdata->nrm, pdata->depth_max);
 
             // tag the type of interaction
             pdata->int_max      = handled;
@@ -2680,7 +2680,7 @@ bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), pdata->pchr->getPosition(), pdata->pprt->bump_padded, prt_t::get_pos_v_const( pdata->pprt ), true );
+    plat_collision = test_interaction_close_1(pdata->pchr->chr_max_cv, pdata->pchr->getPosition(), pdata->pprt->bump_padded, prt_t::get_pos_v_const( pdata->pprt ), true );
 
     if ( !plat_collision ) return false;
 

@@ -1153,18 +1153,18 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         //}
 
         // determine the expanded collision volumes for both objects
-        phys_expand_oct_bb( &tmp_bb, loc_pprt->vel, 0, 1, &exp_bb );
+        phys_expand_oct_bb(tmp_bb, loc_pprt->vel, 0, 1, exp_bb);
 
         // shift the source bounding boxes to be centered on the given positions
         oct_bb_translate( &exp_bb, loc_pprt->pos, &loc_bb );
 
-        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+        GL_DEBUG(glDisable)(GL_TEXTURE_2D);
         {
 			Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
 
-            render_oct_bb( &loc_bb, true, true );
+            render_oct_bb(&loc_bb, true, true);
         }
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+        GL_DEBUG(glEnable)(GL_TEXTURE_2D);
     }
 }
 

@@ -99,5 +99,5 @@ void point_list_draw_all(std::shared_ptr<Camera> camera);
 void gfx_begin_3d(std::shared_ptr<Camera> camera);
 void gfx_end_3d();
 
-bool render_oct_bb(oct_bb_t *bv, bool draw_square, bool draw_diamond);
+bool render_oct_bb(oct_bb_t *bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5, 1, 1), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5, 1, 1, 1));
 bool render_aabb(aabb_t *bv);

@@ -336,6 +336,9 @@
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp">
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -664,6 +667,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
