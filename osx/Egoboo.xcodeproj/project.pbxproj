@@ -156,6 +156,7 @@
 		CD4ABB041AAED52300A87097 /* OptionsScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4ABB001AAED52300A87097 /* OptionsScreen.cpp */; };
 		CD4ABB051AAED52300A87097 /* VideoOptionsScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4ABB021AAED52300A87097 /* VideoOptionsScreen.cpp */; };
 		CD4B64E61A7EE94C00A52646 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4B64E41A7EE94C00A52646 /* Object.cpp */; };
+		CD54B3351AAEE9C800C1F15D /* CompileTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */; };
 		CD5953901A3F5C430052A682 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085C9E12ED4FAD0051AF5F /* host.c */; };
 		CD5953911A3F5C430052A682 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAB12ED4FAD0051AF5F /* list.c */; };
 		CD5953921A3F5C430052A682 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAE12ED4FAD0051AF5F /* packet.c */; };
@@ -742,6 +743,7 @@
 		CD4ABB031AAED52300A87097 /* VideoOptionsScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VideoOptionsScreen.hpp; sourceTree = "<group>"; };
 		CD4B64E41A7EE94C00A52646 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		CD4B64E51A7EE94C00A52646 /* Object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
+		CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = CompileTest.cpp; sourceTree = "<group>"; };
 		CD58B7191A911BD900F2D2E6 /* ReaderUtilities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReaderUtilities.hpp; sourceTree = "<group>"; };
 		CD5B0CAB1A6204EC00F076F9 /* AStar.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AStar.c; sourceTree = "<group>"; };
 		CD5B0CAC1A6204EC00F076F9 /* AStar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AStar.h; sourceTree = "<group>"; };
@@ -1594,6 +1596,7 @@
 		CD39CD0F1AA537440005E3EA /* egolib */ = {
 			isa = PBXGroup;
 			children = (
+				CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */,
 			);
 			name = egolib;
 			path = ../egolib/tests;
@@ -2434,6 +2437,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD54B3351AAEE9C800C1F15D /* CompileTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
