@@ -82,7 +82,7 @@ void sys_fs_init( const char * root_dir )
 
 #if defined(_NIX_PREFIX) && defined(PREFIX)
     // the access to these directories is completely unknown
-    // The default setting from the Makefile is to set PREFIX = "/usr",
+    // The default setting from the Makefile is to set PREFIX = "/usr/local",
     // so that the program will compile and install just like any other
     // .rpm or .deb package.
 

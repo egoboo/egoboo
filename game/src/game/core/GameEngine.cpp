@@ -273,8 +273,8 @@ bool GameEngine::initialize()
     input_system_init();
 
     //Initialize graphics
-    log_info("Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
     gfx_system_begin();
+    log_info("Initializing SDL_image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
     GLSetup_SupportedFormats();
     gfx_system_init_all_graphics();
     gfx_do_clear_screen();
@@ -306,7 +306,8 @@ bool GameEngine::initialize()
 	// synchronize the config values with the various game subsystems
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
-    loadConfiguration(true);
+    loadConfiguration(false);
+    config_synch(&cfg, false);
 
     // read all the scantags
     scantag_read_all_vfs("mp_data/scancode.txt");

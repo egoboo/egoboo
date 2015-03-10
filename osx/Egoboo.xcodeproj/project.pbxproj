@@ -153,6 +153,8 @@
 		CD4803B51A944228006DB980 /* EnchantProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803AF1A944228006DB980 /* EnchantProfileSystem.cpp */; };
 		CD4803B61A944228006DB980 /* ObjectProfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803B11A944228006DB980 /* ObjectProfile.cpp */; };
 		CD4803B71A944228006DB980 /* ParticleProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */; };
+		CD4ABB041AAED52300A87097 /* OptionsScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4ABB001AAED52300A87097 /* OptionsScreen.cpp */; };
+		CD4ABB051AAED52300A87097 /* VideoOptionsScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4ABB021AAED52300A87097 /* VideoOptionsScreen.cpp */; };
 		CD4B64E61A7EE94C00A52646 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4B64E41A7EE94C00A52646 /* Object.cpp */; };
 		CD5953901A3F5C430052A682 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085C9E12ED4FAD0051AF5F /* host.c */; };
 		CD5953911A3F5C430052A682 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 27085CAB12ED4FAD0051AF5F /* list.c */; };
@@ -734,6 +736,10 @@
 		CD4803B21A944228006DB980 /* ObjectProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ObjectProfile.hpp; sourceTree = "<group>"; };
 		CD4803B31A944228006DB980 /* ParticleProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleProfileSystem.cpp; sourceTree = "<group>"; };
 		CD4803B41A944228006DB980 /* ParticleProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParticleProfileSystem.hpp; sourceTree = "<group>"; };
+		CD4ABB001AAED52300A87097 /* OptionsScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OptionsScreen.cpp; sourceTree = "<group>"; };
+		CD4ABB011AAED52300A87097 /* OptionsScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OptionsScreen.hpp; sourceTree = "<group>"; };
+		CD4ABB021AAED52300A87097 /* VideoOptionsScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VideoOptionsScreen.cpp; sourceTree = "<group>"; };
+		CD4ABB031AAED52300A87097 /* VideoOptionsScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VideoOptionsScreen.hpp; sourceTree = "<group>"; };
 		CD4B64E41A7EE94C00A52646 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		CD4B64E51A7EE94C00A52646 /* Object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
 		CD58B7191A911BD900F2D2E6 /* ReaderUtilities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReaderUtilities.hpp; sourceTree = "<group>"; };
@@ -1711,6 +1717,8 @@
 				CD792C001A881FE20086270E /* LoadPlayerElement.hpp */,
 				CD792C011A881FE20086270E /* MainMenuState.cpp */,
 				CD792C021A881FE20086270E /* MainMenuState.hpp */,
+				CD4ABB001AAED52300A87097 /* OptionsScreen.cpp */,
+				CD4ABB011AAED52300A87097 /* OptionsScreen.hpp */,
 				CD792C031A881FE20086270E /* PlayingState.cpp */,
 				CD792C041A881FE20086270E /* PlayingState.hpp */,
 				CD792C051A881FE20086270E /* SelectCharacterState.cpp */,
@@ -1721,6 +1729,8 @@
 				CD792C0A1A881FE20086270E /* SelectPlayersState.hpp */,
 				CD792C0B1A881FE20086270E /* VictoryScreen.cpp */,
 				CD792C0C1A881FE20086270E /* VictoryScreen.hpp */,
+				CD4ABB021AAED52300A87097 /* VideoOptionsScreen.cpp */,
+				CD4ABB031AAED52300A87097 /* VideoOptionsScreen.hpp */,
 			);
 			path = gamestates;
 			sourceTree = "<group>";
@@ -2410,11 +2420,13 @@
 				CD792C291A881FE20086270E /* Button.cpp in Sources */,
 				CD792C281A881FE20086270E /* VictoryScreen.cpp in Sources */,
 				CD792C331A88204E0086270E /* ModuleProfile.cpp in Sources */,
+				CD4ABB041AAED52300A87097 /* OptionsScreen.cpp in Sources */,
 				CD39B4821A37506100B377BE /* network.c in Sources */,
 				CD792C251A881FE20086270E /* SelectCharacterState.cpp in Sources */,
 				CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */,
 				CD39B47E1A37506100B377BE /* mesh.c in Sources */,
 				CD39B4781A37506100B377BE /* mad.c in Sources */,
+				CD4ABB051AAED52300A87097 /* VideoOptionsScreen.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
