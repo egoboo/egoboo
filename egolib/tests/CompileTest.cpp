@@ -28,7 +28,7 @@ EgoTest_TestCase(CompileTest)
 
 EgoTest_Test(compileTest)
 {
-    EgoTest_Assert(std::cout << "Hello, World!\n");
+    EgoTest_Assert(1 == 1);
 }
 
 EgoTest_EndTestCase()

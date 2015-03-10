@@ -404,7 +404,7 @@ void gfx_system_load_basic_textures( const char *modname )
 bool load_module( const char *modname, cartman_mpd_t * pmesh )
 {
     STRING mod_path = EMPTY_CSTR;
-    wawalite_data_t * pdata;
+    wawalite_data_t *pdata;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -425,7 +425,7 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
     }
 
     // read the wawalite file from the module directory
-    pdata = read_wawalite_file_vfs( "mp_data/wawalite.txt", NULL );
+    pdata = wawalite_data_read("mp_data/wawalite.txt", &wawalite_data);
 
     // make sure the values are in range
     pdata = wawalite_limit( pdata );

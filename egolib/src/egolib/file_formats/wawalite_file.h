@@ -25,6 +25,9 @@
 #include "egolib/_math.h"
 #include "egolib/vec.h"
 
+struct ReadContext;
+struct wawalite_data_t;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -110,19 +113,25 @@
         float foregroundrepeat;
         float backgroundrepeat;
 
+        static const wawalite_water_t& getDefaults()
+        {
+            static const wawalite_water_t DEFAULTS;
+            return DEFAULTS;
+        }
+
         wawalite_water_t() :
             layer_count(0),
             layer(),
             surface_level(0.0f),
             douse_level(0.0f),
-            spek_start(0),
-            spek_level(0),
+            spek_start(128),
+            spek_level(128),
             is_water(true),
             overlay_req(false),
             background_req(false),
             light(false),
-            foregroundrepeat(0.0f),
-            backgroundrepeat(0.0f)
+            foregroundrepeat(1.0f),
+            backgroundrepeat(1.0f)
         {
             // default ctor            
         }
@@ -167,7 +176,13 @@
             }
             return *this;
         }
+
+        static wawalite_water_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_water_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_water_t *profile);
+
     };
+
+
 
 //--------------------------------------------------------------------------------------------
 
@@ -180,6 +195,12 @@
         float waterfriction;
         float noslipfriction;
         float gravity;
+
+        static const wawalite_physics_t& getDefaults()
+        {
+            static const wawalite_physics_t DEFAULTS;
+            return DEFAULTS;
+        }
 
         wawalite_physics_t() :
             hillslide(0.0f),
@@ -214,7 +235,12 @@
             return *this;
         }
 
+        static wawalite_physics_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_physics_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_physics_t *profile);
+
     };
+
+
 
 //--------------------------------------------------------------------------------------------
 
@@ -222,12 +248,24 @@
     struct wawalite_animtile_t
     {
 
-        uint32_t update_and;
-        uint32_t frame_and;
+        uint32_t update_and; ///< @default A new tile every 7 frames (i.e. 7).
+        uint32_t frame_and;  ///< @default Only four frames (i.e. 3).
+
+        /**
+         * @brief
+         *  Get animated tile data default values.
+         * @return
+         *  the animated tile data default values.
+         */
+        static const wawalite_animtile_t& getDefaults()
+        {
+            static const wawalite_animtile_t DEFAULTS;
+            return DEFAULTS;
+        }
 
         wawalite_animtile_t() :
-            update_and(0),
-            frame_and(0)
+            update_and(7),
+            frame_and(3)
         {
             // default ctor
         }
@@ -246,6 +284,9 @@
             return *this;
         }
 
+        static wawalite_animtile_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_animtile_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_animtile_t *profile);
+
     };
 
 //--------------------------------------------------------------------------------------------
@@ -253,18 +294,30 @@
 /// A wrapper for the damagetile data in "wawalite.txt"
     struct wawalite_damagetile_t
     {
-        uint32_t amount; /// The amount of damage dealt.
+        uint32_t amount; ///< The amount of damage dealt.
         int damagetype;  ///< The type of damage dealt.
 
         int part_gpip;
         uint32_t partand;
         int sound_index;
 
+        /**
+         * @brief
+         *  Get damage tile data default values.
+         * @return
+         *  the damage tile data default values
+         */
+        static const wawalite_damagetile_t& getDefaults()
+        {
+            static const wawalite_damagetile_t DEFAULTS;
+            return DEFAULTS;
+        }
+
         wawalite_damagetile_t() :
-            amount(0),
-            damagetype(0),
+            amount(256),
+            damagetype(DAMAGE_FIRE),
             part_gpip(-1),
-            partand(0),
+            partand(255),
             sound_index(-1)
         {
             // default ctor
@@ -289,6 +342,10 @@
             sound_index = other.sound_index;
             return *this;
         }
+
+        static wawalite_damagetile_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_damagetile_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_damagetile_t *profile);
+
     };
 
 //--------------------------------------------------------------------------------------------
@@ -301,9 +358,22 @@
         int part_gpip; ///< Which particle to spawn?
         STRING weather_name;
 
+        /**
+         * @brief
+         *  Get weather data default values.
+         * @return
+         *  the weather data default values.
+         */
+        static const wawalite_weather_t& getDefaults()
+        {
+            static const wawalite_weather_t DEFAULTS;
+            return DEFAULTS;
+        }
+
+
         wawalite_weather_t() :
             over_water(false),
-            timer_reset(0),
+            timer_reset(10),
             part_gpip(-1)
         {
 			weather_name[0] = '\0';
@@ -325,6 +395,10 @@
             strcpy(weather_name, other.weather_name);
             return *this;
         }
+
+        static wawalite_weather_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_weather_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_weather_t *profile);
+
     };
 
 //--------------------------------------------------------------------------------------------
@@ -335,6 +409,19 @@
 
         bool exploremode;
         bool usefaredge;
+
+        /**
+         * @brief
+         *  Get graphics data default values.
+         * @return
+         *  the graphics data default values.
+         */
+        static const wawalite_graphics_t& getDefaults()
+        {
+            static const wawalite_graphics_t DEFAULTS;
+            return DEFAULTS;
+        }
+
 
         wawalite_graphics_t() :
             exploremode(false),
@@ -357,6 +444,9 @@
             return *this;
         }
 
+        static wawalite_graphics_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_graphics_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_graphics_t *profile);
+
     };
 
 //--------------------------------------------------------------------------------------------
@@ -367,6 +457,18 @@
         bool swing;
         float swing_rate;
         float swing_amp;
+
+        /**
+         * @brief
+         *  Get camera data default values.
+         * @return
+         *  the camera data default values.
+         */
+        static const wawalite_camera_t& getDefaults()
+        {
+            static const wawalite_camera_t DEFAULTS;
+            return DEFAULTS;
+        }
 
         wawalite_camera_t() :
             swing(false),
@@ -392,6 +494,9 @@
             return *this;
         }
 
+        static wawalite_camera_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_camera_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_camera_t *profile);
+
     };
 
 //--------------------------------------------------------------------------------------------
@@ -405,14 +510,26 @@
         float red, grn, blu; ///< @todo Should be Ego::Math::Colour3f.
         bool affects_water;
 
+        /**
+         * @brief
+         *  Get fog data default values.
+         * @return
+         *  the fog data default values.
+         */
+        static const wawalite_fog_t& getDefaults()
+        {
+            static const wawalite_fog_t DEFAULTS;
+            return DEFAULTS;
+        }
+
         wawalite_fog_t() :
             found(false),
             top(0),
-            bottom(0),
-            red(0),
-            grn(0),
-            blu(0),
-            affects_water(false)
+            bottom(-100),
+            red(255),
+            grn(255),
+            blu(255),
+            affects_water(true)
         {
             // default ctor
         }
@@ -440,7 +557,83 @@
             affects_water = other.affects_water;
             return *this;
         }
+
+        static wawalite_fog_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_fog_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_fog_t *profile);
     };
+
+//--------------------------------------------------------------------------------------------
+
+/// A wrapper for the lighting data in "wawalite.txt"
+    struct wawalite_light_t
+    {
+        /**
+         * @brief
+         *  Directional light vector.
+         * @todo
+         *  Egoboo does not allow for specifying a directional light colour.
+         * @todo
+         *  Should be fvec3_t.
+         * @todo
+         *  A direction *must* be provided, it may not be @a 0.
+         */
+        float light_x, light_y, light_z; ///< @todo Should be fvec3_t.
+        /**
+         * @brief
+         *  Ambient light brightness.
+         * @todo
+         *  Egoboo does not allow for specifying an ambient light colour,
+         *  only its alpha value; the effective ambient light color is given by
+         *  (1, 1, 1, light_a).
+         */
+        float light_a;
+
+        /**
+         * @brief
+         *  Get light data default values.
+         * @return
+         *  the light data default values.
+         */
+        static const wawalite_light_t& getDefaults()
+        {
+            static const wawalite_light_t DEFAULTS;
+            return DEFAULTS;
+        }
+
+        /** @todo The defaults are not reasonable as the directional light direction is (0,0,0). */
+        wawalite_light_t() :
+            light_x(0.0f),
+            light_y(0.0f),
+            light_z(0.0f),
+            light_a(0.0f)
+        {
+            // default ctor
+        }
+
+        wawalite_light_t(const wawalite_light_t& other) :
+            light_x(other.light_x),
+            light_y(other.light_y),
+            light_z(other.light_z),
+            light_a(other.light_a)
+        {
+            // copy ctor
+        }
+
+        wawalite_light_t& operator=(const wawalite_light_t& other)
+        {
+            light_x = other.light_x;
+            light_y = other.light_y;
+            light_z = other.light_z;
+            light_a = other.light_a;
+            return *this;
+        }
+
+        static wawalite_light_t *read(ReadContext& ctxt, wawalite_data_t *enclosing, wawalite_light_t *profile);
+        static bool write(vfs_FILE *filewrite, const wawalite_data_t *enclosing, const wawalite_light_t *profile);
+
+    };
+
+
 
 //--------------------------------------------------------------------------------------------
 
@@ -454,21 +647,25 @@
         wawalite_physics_t    phys;
         wawalite_animtile_t   animtile;
         wawalite_damagetile_t damagetile;
-
         wawalite_weather_t    weather;
         wawalite_graphics_t   graphics;
         wawalite_camera_t     camera;
         wawalite_fog_t        fog;
+        wawalite_light_t      light;
 
-        /// @brief Directional light vector.
-        /// @todo  Egoboo does not allow for specifying a directional light colour.
-        float light_x, light_y, light_z; ///< @todo Should be fvec3_t.
-        /// @brief Ambient light brightniess.
-        /// @todo Egoboo does not allow for specifying an ambient light colour,
-        /// only its alpha value; the effective ambient light color is given by
-        /// (1, 1, 1, light_a).        
-        float light_a;
+        /**
+         * @brief
+         *  Get data default values.
+         * @return
+         *  the data default values.
+         */
+        static const wawalite_data_t& getDefaults()
+        {
+            static const wawalite_data_t DEFAULTS;
+            return DEFAULTS;
+        }
 
+        /// @todo Version default should be the current version.
         wawalite_data_t() :
             seed(0),
             version(0),
@@ -480,13 +677,11 @@
             graphics(),
             camera(),
             fog(),
-            light_x(0.0f),
-            light_y(0.0f),
-            light_z(0.0f),
-            light_a(0.0f)
+            light()
         {
             // default ctor
         }
+
 
         wawalite_data_t(const wawalite_data_t& other) :
             seed(other.seed),
@@ -499,10 +694,7 @@
             graphics(other.graphics),
             camera(other.camera),
             fog(other.fog),
-            light_x(other.light_x),
-            light_y(other.light_y),
-            light_z(other.light_z),
-            light_a(other.light_a)
+            light(other.light)
         {
             // copy ctor
         }
@@ -519,12 +711,10 @@
             graphics = other.graphics;
             camera = other.camera;
             fog = other.fog;
-            light_x = other.light_x;
-            light_y = other.light_y;
-            light_z = other.light_z;
-            light_a = other.light_a;
+            light = other.light;
             return *this;
         }
+
     };
 
 //--------------------------------------------------------------------------------------------
@@ -535,6 +725,22 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    bool write_wawalite_file_vfs(const wawalite_data_t *self);
-    wawalite_data_t *read_wawalite_file_vfs(const char *filename, wawalite_data_t *profile);
+    /**
+     * @brief
+     *  Write environmental data to current module.
+     * @param filename
+     *  the filename
+     * @param self
+     *  the environmental data
+     */
+    bool wawalite_data_write(const char *filename,const wawalite_data_t *profile);
+    /**
+     * @brief
+     *  Read environmental data from current module.
+     * @param filename
+     *  the filename
+     * @param self
+     *  the environmental data
+     */
+    wawalite_data_t *wawalite_data_read(const char *filename, wawalite_data_t *profile);
     wawalite_data_t *wawalite_limit(wawalite_data_t *self);

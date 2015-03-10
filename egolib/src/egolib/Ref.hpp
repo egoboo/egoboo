@@ -16,24 +16,43 @@ enum class RefKind
 template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
 struct Ref
 {
+
 private:
+
     size_t _ref;
+
 public:
+
+
+    // Instantiation time static assertions.
+
     static_assert(std::is_integral<TYPE>::value, "TYPE must be an integral type");
+
     static_assert(std::integral_constant<uint16_t, MIN>::value <= 
                   std::integral_constant<uint16_t, MAX>::value,
                   "minimum ref must be smaller than or equal to maximum ref");
+
     static_assert(std::integral_constant<uint16_t, INVALID>::value >=
                   std::integral_constant<uint16_t, MIN>::value,
                   "invalid ref must be greater than or equal to minimum ref");
+
     static_assert(std::integral_constant<uint16_t, INVALID>::value <=
                   std::integral_constant<uint16_t, MAX>::value,
                   "invalid ref must be smaller than or equal to maximum ref");
+    
+
+    // Static variables.
+
     static const Ref<TYPE, MIN, MAX, INVALID, KIND> Invalid;
-	Ref() :
+
+
+    // Constructs.
+
+    Ref() :
 		_ref(INVALID)
 	{
 	}
+
     Ref(const TYPE ref) :
         _ref(ref)
     {
@@ -42,15 +61,20 @@ public:
             throw std::domain_error("out of range");
         }
     }
+
     Ref(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) :
         _ref(other._ref)
     {
     }
+
+
+    // Logical operator overloads.
 		
 	bool operator!() const
 	{
 		return _ref == INVALID;
 	}
+
 
 	// Relational operator overloads.
 	
@@ -84,6 +108,7 @@ public:
         return _ref != other._ref;
     }
 	
+
 	// Assignment operator overloads.
 
     Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other)
@@ -112,7 +137,17 @@ public:
         return *this;
     }
 
-	Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const size_t& other)
+    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const unsigned long& other)
+    {
+        if (other < MIN || other > MAX)
+        {
+            throw std::domain_error("out of range");
+        }
+        _ref = other;
+        return *this;
+    }
+
+	Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const long& other)
 	{
 		if (other < MIN || other > MAX)
 		{
@@ -122,14 +157,24 @@ public:
         return *this;
 	}
 
-    // Cast operators.
+
+    // Cast operator overloads.
 
 	operator TYPE() const
 	{
 		return _ref;
 	}
 
-    // Post- and pre-increment operators.
+
+    // Accessors.
+
+    TYPE get() const
+    {
+        return _ref;
+    }
+
+
+    // Post- and pre-increment operator overloads.
 
     Ref<TYPE, MIN, MAX, INVALID, KIND> operator++(int)
     {
@@ -155,7 +200,8 @@ public:
         return *this;
     }
 
-    // Post- and pre-decrement operators.
+
+    // Post- and pre-decrement operator overloads.
 
     Ref<TYPE, MIN, MAX, INVALID, KIND> operator--(int)
     {
@@ -168,11 +214,6 @@ public:
         size_t ref = _ref;
         _ref--;
         return Ref<TYPE, MIN, MAX, INVALID, KIND>(ref);
-    }
-
-    TYPE get() const
-    {
-        return _ref;
     }
 
     Ref<TYPE, MIN, MAX, INVALID, KIND>& operator--()

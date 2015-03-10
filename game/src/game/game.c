@@ -3607,39 +3607,41 @@ bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_light_data( const wawalite_data_t * pdata )
+bool upload_light_data(const wawalite_data_t *pdata)
 {
     if ( NULL == pdata ) return false;
 
-    // upload the lighting data
-    light_nrm[kX] = pdata->light_x;
-    light_nrm[kY] = pdata->light_y;
-    light_nrm[kZ] = pdata->light_z;
-    light_a = pdata->light_a;
+    // Upload the lighting data.
+    light_nrm[kX] = pdata->light.light_x;
+    light_nrm[kY] = pdata->light.light_y;
+    light_nrm[kZ] = pdata->light.light_z;
+    light_a = pdata->light.light_a;
 
-    if ( ABS( light_nrm[kX] ) + ABS( light_nrm[kY] ) + ABS( light_nrm[kZ] ) > 0.0f )
+    if (light_nrm.length() > 0.0f)
     {
-        float fTmp = std::sqrt( light_nrm[kX] * light_nrm[kX] + light_nrm[kY] * light_nrm[kY] + light_nrm[kZ] * light_nrm[kZ] );
+        float length = light_nrm.length();
 
-        // get the extra magnitude of the direct light
-        if ( gfx.usefaredge )
+        // Get the extra magnitude of the direct light.
+        if (gfx.usefaredge)
         {
-            // we are outside, do the direct light as sunlight
+            // We are outside, do the direct light as sunlight.
             light_d = 1.0f;
-            light_a = light_a / fTmp;
+            light_a = light_a / length;
             light_a = CLIP( light_a, 0.0f, 1.0f );
         }
         else
         {
-            // we are inside. take the lighting values at face value.
+            // We are inside. take the lighting values at face value.
             //light_d = (1.0f - light_a) * fTmp;
             //light_d = CLIP(light_d, 0.0f, 1.0f);
-            light_d = CLIP( fTmp, 0.0f, 1.0f );
+            light_d = CLIP(length, 0.0f, 1.0f);
         }
 
-        light_nrm[kX] /= fTmp;
-        light_nrm[kY] /= fTmp;
-        light_nrm[kZ] /= fTmp;
+        light_nrm *= 1.0f / length;
+    }
+    else
+    {
+        log_warning("%s:%d: directional light vector is 0\n", __FILE__, __LINE__);
     }
 
     //make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
@@ -3709,80 +3711,67 @@ void upload_wawalite()
 
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite_vfs( void /* const char *modname */ )
+wawalite_data_t *read_wawalite_vfs()
 {
-    wawalite_data_t *data;
-
-    // if( INVALID_CSTR(modname) ) return NULL;
-
-    data = read_wawalite_file_vfs("mp_data/wawalite.txt", nullptr);
+    wawalite_data_t *data = wawalite_data_read("mp_data/wawalite.txt", &wawalite_data);
     if (!data)
     {
         return nullptr;
     }
-    wawalite_data = *data;
 
-    // fix any out-of-bounds data
+    // Fix any out-of-bounds data.
     wawalite_limit(&wawalite_data);
 
-    // finish up any data that has to be calculated
+    // Finish up any data that has to be calculated.
     wawalite_finalize(&wawalite_data);
 
     return &wawalite_data;
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_finalize( wawalite_data_t * pdata )
+bool wawalite_finalize(wawalite_data_t *data)
 {
     /// @author BB
     /// @details coerce all parameters to in-bounds values
+    if (!data) return false;
 
-    int waterspeed_count, windspeed_count;
-
-    wawalite_water_layer_t * ilayer;
-
-    if ( NULL == pdata ) return false;
-
-    //No weather?
-    if ( 0 == strcmp( pdata->weather.weather_name, "NONE" ) )
+    // No weather?
+    if (!strcmp(data->weather.weather_name, "NONE"))
     {
-        pdata->weather.part_gpip = -1;
+        data->weather.part_gpip = -1;
     }
     else
     {
-        STRING prt_file, prt_end_file, line;
-        bool success;
+        std::string weather_name = data->weather.weather_name;
 
-        strncpy( line, pdata->weather.weather_name, SDL_arraysize( line ) );
+        // Compute load paths.
+        std::string prt_file = "mp_data/weather_" + weather_name + ".txt";
+        std::string prt_end_file = "mp_data/weather_" + weather_name + "_finish.txt";
 
-        //prepeare the load paths
-        snprintf( prt_file, SDL_arraysize( prt_file ), "mp_data/weather_%s.txt", strlwr( line ) );
-        snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
+        // Try to load the particle files. We need at least the first particle for weather to work.
+        bool success = INVALID_PIP_REF != PipStack.load_one(prt_file.c_str(), (PIP_REF)PIP_WEATHER);
+        PipStack.load_one(prt_end_file.c_str(), (PIP_REF)PIP_WEATHER_FINISH);
 
-        //try to load the particle files, we need at least the first particle for weather to work
-        success = INVALID_PIP_REF != PipStack.load_one( prt_file, ( PIP_REF )PIP_WEATHER );
-        PipStack.load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
-
-        //Unknown weather parsed
-        if ( !success )
+        // Unknown weather parsed.
+        if (!success)
         {
-            log_warning( "Failed to load weather type from wawalite.txt: %s - (%s)\n", line, prt_file );
-            pdata->weather.part_gpip = -1;
-            strncpy( pdata->weather.weather_name, "NONE", SDL_arraysize( pdata->weather.weather_name ) );
+            log_warning("%s:%d: failed to load weather type from wawalite.txt: %s - (%s)\n", __FILE__,__LINE__, weather_name.c_str(), prt_file.c_str());
+            data->weather.part_gpip = -1;
+            strncpy(data->weather.weather_name, "NONE", SDL_arraysize(data->weather.weather_name));
         }
     }
 
-    windspeed_count = 0;
+    int windspeed_count = 0;
 	windspeed = fvec3_t::zero;
 
-    waterspeed_count = 0;
+    int waterspeed_count = 0;
 	waterspeed = fvec3_t::zero;
 
-    ilayer = wawalite_data.water.layer + 0;
-    if ( wawalite_data.water.background_req )
+    wawalite_water_layer_t *ilayer = wawalite_data.water.layer + 0;
+    if (wawalite_data.water.background_req)
     {
-        // this is a bit complicated.
-        // it is the best I can do at reverse engineering what I did in render_world_background()
+        // This is a bit complicated.
+        // It is the best I can do at reverse engineering what I did in render_world_background().
 
         const float cam_height = 1500.0f;
         const float default_bg_repeat = 4.0f;
@@ -3838,14 +3827,14 @@ bool wawalite_finalize( wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool write_wawalite_vfs( const wawalite_data_t * pdata )
+bool write_wawalite_vfs(const wawalite_data_t *data)
 {
     /// @author BB
     /// @details Prepare and write the wawalite file
 
-    if ( NULL == pdata ) return false;
+    if (!data) return false;
 
-    return write_wawalite_file_vfs( pdata );
+    return wawalite_data_write("mp_data/wawalite.txt",data);
 }
 
 //--------------------------------------------------------------------------------------------
