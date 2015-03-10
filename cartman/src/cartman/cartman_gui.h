@@ -35,9 +35,6 @@ struct s_Font;
 struct s_ui_state;
 typedef struct s_ui_state ui_state_t;
 
-struct s_window;
-typedef struct s_window window_t;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -52,7 +49,7 @@ typedef struct s_window window_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_window
+struct Cartman_Window
 {
     Uint8             on;       // Draw it?
 
@@ -71,16 +68,29 @@ struct s_window
     int               surfacey;
 
     // window data
-    int               id;       // unique window id
-    Uint16            mode;     // display mode bits
-    cartman_mpd_t   * pmesh;    // which mesh
+    int id;                // unique window id
+    Uint16 mode;           // display mode bits
+    cartman_mpd_t *pmesh;  // which mesh
+
+    /**
+     * @brief
+     *  Get if the cursor is over this window.
+     * @param self
+     *  the window
+     * @param x, y
+     *  the cursor position (world coordinates)
+     * @return
+     *  @a true if the mouse is over this window and the window is "on", @a false otherwise
+     */
+    bool isOver(int x,int y) const;
 };
 
 //--------------------------------------------------------------------------------------------
 struct s_ui_state
 {
-    int    cur_x;              // Cursor position
-    int    cur_y;              //
+    /// @brief The cursor position.
+    /// @todo Use Point2i and rename to cursorPosition;
+    int cur_x, cur_y;
 
     bool pressed;                //
     bool clicked;                //
@@ -93,9 +103,11 @@ struct s_ui_state
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern window_t window_lst[MAXWIN];
+void Cartman_GUI_initialize();
+void Cartman_GUI_uninitialize();
+extern std::vector<std::shared_ptr<Cartman_Window>> _window_lst;
 extern ui_state_t ui;
-extern SDL_Surface * bmpcursor;         // Cursor image
+extern SDL_Surface *bmpcursor;         // Cursor image
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,5 +115,5 @@ extern SDL_Surface * bmpcursor;         // Cursor image
 void do_cursor();
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue );
 void show_name( const char *newloadname, SDL_Color fnt_color );
-void load_window( window_t * pwin, int id, char *loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh );
-window_t * find_window( int x, int y );
+void load_window(std::shared_ptr<Cartman_Window> pwin, int id, char *loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
+std::shared_ptr<Cartman_Window> find_window(int x, int y);

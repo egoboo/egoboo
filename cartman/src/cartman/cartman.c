@@ -136,7 +136,7 @@ static bool _ttf_atexit_registered = false;
 //--------------------------------------------------------------------------------------------
 
 // ui functions
-static void draw_cursor_in_window( window_t * pwin );
+static void draw_cursor_in_window(std::shared_ptr<Cartman_Window> pwin);
 static void unbound_mouse();
 static void bound_mouse();
 static bool cartman_check_keys( const char *modname, cartman_mpd_t * pmesh );
@@ -154,15 +154,15 @@ static void cartman_save_mesh( const char *modname, cartman_mpd_t * pmesh );
 // gfx functions
 static void load_all_windows( cartman_mpd_t * pmesh );
 
-static void render_tile_window( window_t * pwin, float zoom_hrz, float zoom_vrt );
-static void render_fx_window( window_t * pwin, float zoom_hrz, float zoom_vrt );
-static void render_vertex_window( window_t * pwin, float zoom_hrz, float zoom_vrt );
-static void render_side_window( window_t * pwin, float zoom_hrz, float zoom_vrt );
-static void render_window( window_t * pwin );
+static void render_tile_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
+static void render_fx_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
+static void render_vertex_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
+static void render_side_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
+static void render_window(std::shared_ptr<Cartman_Window> pwin);
 static void render_all_windows();
 
-static void draw_window_background( window_t * pwin );
-static void draw_all_windows( void );
+static void draw_window_background(std::shared_ptr<Cartman_Window> pwin);
+static void draw_all_windows();
 static void draw_lotsa_stuff( cartman_mpd_t * pmesh );
 
 static void draw_main( cartman_mpd_t * pmesh );
@@ -185,12 +185,12 @@ static int cartman_get_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, int nu
 // light functions
 static void add_light( int x, int y, int radius, int level );
 static void alter_light( int x, int y );
-static void draw_light( int number, window_t * pwin, float zoom_hrz );
+static void draw_light(int number, std::shared_ptr<Cartman_Window> pwin, float zoom_hrz);
 
-static void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt );
-static void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt );
-static void cartman_check_mouse_fx( window_t * pwin, float zoom_hrz, float zoom_vrt );
-static void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt );
+static void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_tile(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
+static void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt);
 
 // shutdown function
 static void main_end( void );
@@ -251,7 +251,7 @@ void alter_light( int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_light( int number, window_t * pwin, float zoom_hrz )
+void draw_light(int number, std::shared_ptr<Cartman_Window> pwin, float zoom_hrz)
 {
     int xdraw, ydraw, radius;
     Uint8 color;
@@ -266,7 +266,7 @@ void draw_light( int number, window_t * pwin, float zoom_hrz )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_cursor_in_window( window_t * pwin )
+void draw_cursor_in_window(std::shared_ptr<Cartman_Window> pwin)
 {
     int x, y;
 
@@ -276,8 +276,8 @@ void draw_cursor_in_window( window_t * pwin )
     {
         int size = POINT_SIZE( 10 );
 
-        x = pwin->x + ( mos.x - window_lst[mdata.win_id].x );
-        y = pwin->y + ( mos.y - window_lst[mdata.win_id].y );
+        x = pwin->x + ( Cartman_Input::get()._mouse.x - _window_lst[mdata.win_id]->x );
+        y = pwin->y + ( Cartman_Input::get()._mouse.y - _window_lst[mdata.win_id]->y );
 
         ogl_draw_sprite_2d( &tx_pointon, x - size / 2, y - size / 2, size, size );
     }
@@ -437,7 +437,7 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_tile_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
+void render_tile_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     oglx_texture_t * tx_tile;
     float x, y;
@@ -506,7 +506,7 @@ void render_tile_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_fx_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
+void render_fx_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     oglx_texture_t * tx_tile;
     float x, y;
@@ -573,7 +573,7 @@ void render_fx_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_vertex_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
+void render_vertex_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     int mapx, mapxstt, mapxend;
     int mapy, mapystt, mapyend;
@@ -645,7 +645,7 @@ void render_vertex_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_side_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
+void render_side_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     int mapx, mapxstt, mapxend;
     int mapy, mapystt, mapyend;
@@ -715,7 +715,7 @@ void render_side_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_window( window_t * pwin )
+void render_window(std::shared_ptr<Cartman_Window> pwin)
 {
     if ( NULL == pwin || !pwin->on ) return;
 
@@ -753,39 +753,35 @@ void render_window( window_t * pwin )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_windows( void )
+void render_all_windows()
 {
-    int cnt;
-
-    for ( cnt = 0; cnt < MAXWIN; cnt++ )
+    for (auto window : _window_lst)
     {
-        render_window( window_lst + cnt );
+        render_window(window);
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void load_all_windows( cartman_mpd_t * pmesh )
 {
-    int cnt;
-
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    for ( cnt = 0; cnt < MAXWIN; cnt++ )
+    for (auto window : _window_lst)
     {
-        window_lst[cnt].on = false;
-        oglx_texture_release( &( window_lst[cnt].tex ) );
+        window->on = false;
+        oglx_texture_release(&(window->tex));
     }
 
-    load_window( window_lst + 0, 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );
-    load_window( window_lst + 1, 1, "editor/window.png", 410, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   pmesh );
-    load_window( window_lst + 2, 2, "editor/window.png", 180, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   pmesh );
-    load_window( window_lst + 3, 3, "editor/window.png", 410, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     pmesh );
+    load_window( _window_lst[0], 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );
+    load_window( _window_lst[1], 1, "editor/window.png", 410, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   pmesh );
+    load_window( _window_lst[2], 2, "editor/window.png", 180, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   pmesh );
+    load_window( _window_lst[3], 3, "editor/window.png", 410, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     pmesh );
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_window_background( window_t * pwin )
+void draw_window_background(std::shared_ptr<Cartman_Window> pwin)
 {
-    if ( NULL == pwin || !pwin->on ) return;
+    if (!pwin || !pwin->on ) return;
 
     ogl_draw_sprite_2d( &( pwin->tex ), pwin->x, pwin->y, pwin->surfacex, pwin->surfacey );
 }
@@ -793,11 +789,9 @@ void draw_window_background( window_t * pwin )
 //--------------------------------------------------------------------------------------------
 void draw_all_windows( void )
 {
-    int cnt;
-
-    for ( cnt = 0; cnt < MAXWIN; cnt++ )
+    for (auto window : _window_lst)
     {
-        draw_window_background( window_lst + cnt );
+        draw_window_background(window);
     }
 }
 
@@ -836,12 +830,12 @@ void bound_camera( cartman_mpd_info_t * pinfo )
 //--------------------------------------------------------------------------------------------
 void unbound_mouse()
 {
-    if ( !mos.drag )
+    if (!Cartman_Input::get()._mouse.drag)
     {
-        mos.tlx = 0;
-        mos.tly = 0;
-        mos.brx = sdl_scr.x - 1;
-        mos.bry = sdl_scr.y - 1;
+        Cartman_Input::get()._mouse.tlx = 0;
+        Cartman_Input::get()._mouse.tly = 0;
+        Cartman_Input::get()._mouse.brx = sdl_scr.x - 1;
+        Cartman_Input::get()._mouse.bry = sdl_scr.y - 1;
     }
 }
 
@@ -850,10 +844,11 @@ void bound_mouse()
 {
     if ( mdata.win_id != -1 )
     {
-        mos.tlx = window_lst[mdata.win_id].x + window_lst[mdata.win_id].borderx;
-        mos.tly = window_lst[mdata.win_id].y + window_lst[mdata.win_id].bordery;
-        mos.brx = mos.tlx + window_lst[mdata.win_id].surfacex - 1;
-        mos.bry = mos.tly + window_lst[mdata.win_id].surfacey - 1;
+        auto window = _window_lst[mdata.win_id];
+        Cartman_Input::get()._mouse.tlx = window->x + window->borderx;
+        Cartman_Input::get()._mouse.tly = window->y + window->bordery;
+        Cartman_Input::get()._mouse.brx = Cartman_Input::get()._mouse.tlx + window->surfacex - 1;
+        Cartman_Input::get()._mouse.bry = Cartman_Input::get()._mouse.tly + window->surfacey - 1;
     }
 }
 
@@ -970,18 +965,18 @@ void move_camera( cartman_mpd_info_t * pinfo )
 {
     if (( -1 != mdata.win_id ) && ( MOUSE_PRESSED( SDL_BUTTON_MIDDLE ) || CART_KEYDOWN( SDLK_m ) ) )
     {
-        cam.x += mos.x - mos.x_old;
-        cam.y += mos.y - mos.y_old;
+        cam.x += Cartman_Input::get()._mouse.x - Cartman_Input::get()._mouse.x_old;
+        cam.y += Cartman_Input::get()._mouse.y - Cartman_Input::get()._mouse.y_old;
 
-        mos.x = mos.x_old;
-        mos.y = mos.y_old;
+        Cartman_Input::get()._mouse.x = Cartman_Input::get()._mouse.x_old;
+        Cartman_Input::get()._mouse.y = Cartman_Input::get()._mouse.y_old;
 
         bound_camera( pinfo );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
+void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     int    mpix_x, mpix_z;
     float  mpos_x, mpos_z;
@@ -992,8 +987,8 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = mos.x - ( pwin->x + pwin->surfacex / 2 );
-    mpix_z = mos.y - ( pwin->y + pwin->surfacey / 2 );
+    mpix_x = Cartman_Input::get()._mouse.x - (pwin->x + pwin->surfacex / 2);
+    mpix_z = Cartman_Input::get()._mouse.y - (pwin->y + pwin->surfacey / 2);
 
     inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
              ( mpix_z >= -( pwin->surfacey / 2 ) ) && ( mpix_z <= ( pwin->surfacey / 2 ) );
@@ -1105,13 +1100,13 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
         if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
         {
-            mesh_select_move( &( mdata.win_select ), mos.cx / zoom_hrz, 0, - mos.cy / zoom_vrt );
+            mesh_select_move(&(mdata.win_select), Cartman_Input::get()._mouse.cx / zoom_hrz, 0, -Cartman_Input::get()._mouse.cy / zoom_vrt);
             bound_mouse();
         }
 
         if ( CART_KEYDOWN( SDLK_y ) )
         {
-            mesh_select_move( &( mdata.win_select ), 0, 0, -mos.cy / zoom_vrt );
+            mesh_select_move( &( mdata.win_select ), 0, 0, -Cartman_Input::get()._mouse.cy / zoom_vrt );
             bound_mouse();
         }
 
@@ -1119,11 +1114,11 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
         {
             if ( mdata.type >= tile_dict.offset )
             {
-                move_mesh_z( mdata.win_mesh, -mos.cy / zoom_vrt, mdata.tx, 0xC0 );
+                move_mesh_z(mdata.win_mesh, -Cartman_Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xC0);
             }
             else
             {
-                move_mesh_z( mdata.win_mesh, -mos.cy / zoom_vrt, mdata.tx, 0xF0 );
+                move_mesh_z(mdata.win_mesh, -Cartman_Input::get()._mouse.cy / zoom_vrt, mdata.tx, 0xF0);
             }
             bound_mouse();
         }
@@ -1133,12 +1128,12 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
             if ( CART_KEYDOWN( SDLK_RSHIFT ) )
             {
                 // Move the first 16 up and down
-                move_mesh_z( mdata.win_mesh, -mos.cy / zoom_vrt, 0, 0xF0 );
+                move_mesh_z(mdata.win_mesh, -Cartman_Input::get()._mouse.cy / zoom_vrt, 0, 0xF0);
             }
             else
             {
                 // Move the entire mesh up and down
-                move_mesh_z( mdata.win_mesh, -mos.cy / zoom_vrt, 0, 0 );
+                move_mesh_z(mdata.win_mesh, -Cartman_Input::get()._mouse.cy / zoom_vrt, 0, 0);
             }
             bound_mouse();
         }
@@ -1146,7 +1141,7 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
+void cartman_check_mouse_tile(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     int fan_tmp;
     int mpix_x, mpix_y;
@@ -1157,8 +1152,8 @@ void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = mos.x - ( pwin->x + pwin->borderx + pwin->surfacex / 2 );
-    mpix_y = mos.y - ( pwin->y + pwin->bordery + pwin->surfacey / 2 );
+    mpix_x = Cartman_Input::get()._mouse.x - (pwin->x + pwin->borderx + pwin->surfacex / 2);
+    mpix_y = Cartman_Input::get()._mouse.y - (pwin->y + pwin->bordery + pwin->surfacey / 2);
 
     inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
              ( mpix_y >= -( pwin->surfacey / 2 ) ) && ( mpix_y <= ( pwin->surfacey / 2 ) );
@@ -1257,7 +1252,7 @@ void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_check_mouse_fx( window_t * pwin, float zoom_hrz, float zoom_vrt )
+void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     int mpix_x, mpix_y;
     float mpos_x, mpos_y;
@@ -1267,8 +1262,8 @@ void cartman_check_mouse_fx( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = mos.x - ( pwin->x + pwin->borderx + pwin->surfacex / 2 );
-    mpix_y = mos.y - ( pwin->y + pwin->bordery + pwin->surfacey / 2 );
+    mpix_x = Cartman_Input::get()._mouse.x - (pwin->x + pwin->borderx + pwin->surfacex / 2);
+    mpix_y = Cartman_Input::get()._mouse.y - (pwin->y + pwin->bordery + pwin->surfacey / 2);
 
     inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
              ( mpix_y >= -( pwin->surfacey / 2 ) ) && ( mpix_y <= ( pwin->surfacey / 2 ) );
@@ -1356,7 +1351,7 @@ void cartman_check_mouse_fx( window_t * pwin, float zoom_hrz, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt )
+void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz, float zoom_vrt)
 {
     int mpix_x, mpix_y;
     float mpos_x, mpos_y;
@@ -1367,8 +1362,8 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
 
     if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
 
-    mpix_x = mos.x - ( pwin->x + pwin->surfacex / 2 );
-    mpix_y = mos.y - ( pwin->y + pwin->surfacey / 2 );
+    mpix_x = Cartman_Input::get()._mouse.x - (pwin->x + pwin->surfacex / 2);
+    mpix_y = Cartman_Input::get()._mouse.y - (pwin->y + pwin->surfacey / 2);
 
     inside = ( mpix_x >= -( pwin->surfacex / 2 ) ) && ( mpix_x <= ( pwin->surfacex / 2 ) ) &&
              ( mpix_y >= -( pwin->surfacey / 2 ) ) && ( mpix_y <= ( pwin->surfacey / 2 ) );
@@ -1478,7 +1473,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
 
         if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
         {
-            mesh_select_move( &( mdata.win_select ), mos.cx / zoom_vrt, mos.cy / zoom_vrt, 0 );
+            mesh_select_move( &( mdata.win_select ), Cartman_Input::get()._mouse.cx / zoom_vrt, Cartman_Input::get()._mouse.cy / zoom_vrt, 0 );
             bound_mouse();
         }
 
@@ -1500,7 +1495,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
 {
     int cnt;
 
-    if ( !mos.on ) return false;
+    if (!Cartman_Input::get()._mouse.on) return false;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1508,7 +1503,7 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     move_camera( &( pmesh->info ) );
 
     // place this after move_camera()
-    update_mouse();
+    Cartman_Mouse::update(&Cartman_Input::get()._mouse);
 
     // handle all window-specific commands
     //if( mos.drag && NULL != mos.drag_window )
@@ -1523,14 +1518,12 @@ bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
     {
         mdata.win_id = -1;
 
-        for ( cnt = 0; cnt < MAXWIN; cnt++ )
+        for (auto window : _window_lst)
         {
-            window_t * pwin = window_lst + cnt;
-
-            cartman_check_mouse_tile( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
-            cartman_check_mouse_vertex( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
-            cartman_check_mouse_side( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
-            cartman_check_mouse_fx( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
+            cartman_check_mouse_tile(window, cartman_zoom_hrz, cartman_zoom_vrt);
+            cartman_check_mouse_vertex(window, cartman_zoom_hrz, cartman_zoom_vrt);
+            cartman_check_mouse_side(window, cartman_zoom_hrz, cartman_zoom_vrt);
+            cartman_check_mouse_fx(window, cartman_zoom_hrz, cartman_zoom_vrt);
         }
     }
 
@@ -1544,10 +1537,10 @@ void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    mos.y = mos.y_old;
-    mos.x = mos.x_old;
+    Cartman_Input::get()._mouse.y = Cartman_Input::get()._mouse.y_old;
+    Cartman_Input::get()._mouse.x = Cartman_Input::get()._mouse.x_old;
 
-    mesh_move( pmesh, 0, 0, -mos.cy / zoom_vrt );
+    mesh_move( pmesh, 0, 0, -Cartman_Input::get()._mouse.cy / zoom_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1561,54 +1554,54 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     if ( CART_KEYDOWN( SDLK_h ) )
     {
         cart_mouse_data_toggle_fx( MAPFX_DAMAGE );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     // Impassable
     if ( CART_KEYDOWN( SDLK_i ) )
     {
         cart_mouse_data_toggle_fx( MAPFX_IMPASS );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     // Barrier
     if ( CART_KEYDOWN( SDLK_b ) )
     {
         cart_mouse_data_toggle_fx( MAPFX_WALL );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     // Overlay
     if ( CART_KEYDOWN( SDLK_o ) )
     {
         cart_mouse_data_toggle_fx( MAPFX_WATER );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     // Reflective
     if ( CART_KEYDOWN( SDLK_r ) )
     {
         cart_mouse_data_toggle_fx( MAPFX_SHA );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     // Draw reflections
     if ( CART_KEYDOWN( SDLK_d ) )
     {
         cart_mouse_data_toggle_fx( MAPFX_DRAWREF );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     // Animated
     if ( CART_KEYDOWN( SDLK_a ) )
     {
         cart_mouse_data_toggle_fx( MAPFX_ANIM );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     // Slippy
     if ( CART_KEYDOWN( SDLK_s ) )
     {
         cart_mouse_data_toggle_fx( MAPFX_SLIPPY );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_g ) )
     {
         fix_mesh( pmesh );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_z ) )
     {
@@ -1617,7 +1610,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
             Uint16 tx_bits = pmesh->fan[mdata.win_fan].tx_bits;
             cart_mouse_data_mesh_set_tile( tx_bits );
         }
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_x ) )
@@ -1637,7 +1630,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
             }
         }
 
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_e ) )
@@ -1652,13 +1645,13 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     if ( CART_KEYDOWN( SDLK_8 ) )
     {
         cart_mouse_data_three_e_mesh();
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_j ) )
     {
         if ( 0 == select_lst_count( &( mdata.win_select ) ) ) { jitter_mesh( pmesh ); }
         else { mesh_select_jitter( &( mdata.win_select ) ); }
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_w ) )
@@ -1666,12 +1659,12 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
         //impass_edges(2);
         mesh_calc_vrta( pmesh );
         cartman_save_mesh( modname, pmesh );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_SPACE ) )
     {
         mesh_select_weld( &( mdata.win_select ) );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_INSERT ) )
     {
@@ -1680,7 +1673,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
         {
             mdata.type = ( mdata.type - 1 ) % tile_dict.def_count;
         }
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_DELETE ) )
     {
@@ -1689,17 +1682,17 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
         {
             mdata.type = ( mdata.type + 1 ) % tile_dict.def_count;
         }
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_KP_PLUS ) )
     {
         mdata.tx = ( mdata.tx + 1 ) & 0xFF;
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_KP_MINUS ) )
     {
         mdata.tx = ( mdata.tx - 1 ) & 0xFF;
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_UP ) || CART_KEYDOWN( SDLK_LEFT ) || CART_KEYDOWN( SDLK_DOWN ) || CART_KEYDOWN( SDLK_RIGHT ) )
@@ -1747,7 +1740,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
         }
         else
         {
-            key.delay = KEYDELAY;
+            Cartman_Input::get()._keyboard.delay = KEYDELAY;
         }
     }
 
@@ -1760,7 +1753,7 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
         }
         else
         {
-            key.delay = KEYDELAY;
+            Cartman_Input::get()._keyboard.delay = KEYDELAY;
         }
     }
 
@@ -1769,13 +1762,13 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     if ( CART_KEYDOWN( SDLK_f ) )
     {
         cart_mouse_data_flatten_mesh();
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_q ) )
     {
         fix_walls( pmesh );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     //------------------
@@ -1784,25 +1777,25 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     if ( CART_KEYDOWN( SDLK_5 ) )
     {
         mesh_select_set_z_no_bound( &( mdata.win_select ), -8000 * 4 );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_6 ) )
     {
         mesh_select_set_z_no_bound( &( mdata.win_select ), -127 * 4 );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_7 ) )
     {
         mesh_select_set_z_no_bound( &( mdata.win_select ), 127 * 4 );
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN_MOD( SDLK_c, KMOD_SHIFT ) )
     {
         cart_mouse_data_clear_mesh();
-        key.delay = KEYDELAY;
+        Cartman_Input::get()._keyboard.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN_MOD( SDLK_l, KMOD_SHIFT ) )
@@ -1854,12 +1847,12 @@ bool check_input_mouse( SDL_Event * pevt )
 {
     bool handled = false;
 
-    if ( NULL == pevt || !mos.on ) return false;
+    if (NULL == pevt || !Cartman_Input::get()._mouse.on) return false;
 
-    if ( 0 == mos.b )
+    if (0 == Cartman_Input::get()._mouse.b)
     {
-        mos.drag = false;
-        mos.drag_begin = false;
+        Cartman_Input::get()._mouse.drag = false;
+        Cartman_Input::get()._mouse.drag_begin = false;
 
         // set mdata??
     }
@@ -1870,15 +1863,15 @@ bool check_input_mouse( SDL_Event * pevt )
             switch ( pevt->button.button )
             {
                 case SDL_BUTTON_LEFT:
-                    mos.b |= SDL_BUTTON( SDL_BUTTON_LEFT );
+                    Cartman_Input::get()._mouse.b |= SDL_BUTTON(SDL_BUTTON_LEFT);
                     break;
 
                 case SDL_BUTTON_MIDDLE:
-                    mos.b |= SDL_BUTTON( SDL_BUTTON_MIDDLE );
+                    Cartman_Input::get()._mouse.b |= SDL_BUTTON(SDL_BUTTON_MIDDLE);
                     break;
 
                 case SDL_BUTTON_RIGHT:
-                    mos.b |= SDL_BUTTON( SDL_BUTTON_RIGHT );
+                    Cartman_Input::get()._mouse.b |= SDL_BUTTON(SDL_BUTTON_RIGHT);
                     break;
             }
             ui.pending_click = true;
@@ -1889,15 +1882,15 @@ bool check_input_mouse( SDL_Event * pevt )
             switch ( pevt->button.button )
             {
                 case SDL_BUTTON_LEFT:
-                    mos.b &= ~SDL_BUTTON( SDL_BUTTON_LEFT );
+                    Cartman_Input::get()._mouse.b &= ~SDL_BUTTON(SDL_BUTTON_LEFT);
                     break;
 
                 case SDL_BUTTON_MIDDLE:
-                    mos.b &= ~SDL_BUTTON( SDL_BUTTON_MIDDLE );
+                    Cartman_Input::get()._mouse.b &= ~SDL_BUTTON(SDL_BUTTON_MIDDLE);
                     break;
 
                 case SDL_BUTTON_RIGHT:
-                    mos.b &= ~SDL_BUTTON( SDL_BUTTON_RIGHT );
+                    Cartman_Input::get()._mouse.b &= ~SDL_BUTTON(SDL_BUTTON_RIGHT);
                     break;
             }
             ui.pending_click = false;
@@ -1905,55 +1898,55 @@ bool check_input_mouse( SDL_Event * pevt )
             break;
 
         case SDL_MOUSEMOTION:
-            mos.b = pevt->motion.state;
-            if ( mos.drag )
+            Cartman_Input::get()._mouse.b = pevt->motion.state;
+            if (Cartman_Input::get()._mouse.drag)
             {
-                if ( 0 != mos.b )
+                if (0 != Cartman_Input::get()._mouse.b)
                 {
-                    mos.brx = pevt->motion.x;
-                    mos.bry = pevt->motion.y;
+                    Cartman_Input::get()._mouse.brx = pevt->motion.x;
+                    Cartman_Input::get()._mouse.bry = pevt->motion.y;
                 }
                 else
                 {
-                    mos.drag = false;
+                    Cartman_Input::get()._mouse.drag = false;
                 }
             }
 
-            if ( mos.relative )
+            if (Cartman_Input::get()._mouse.relative)
             {
-                mos.cx = pevt->motion.xrel;
-                mos.cy = pevt->motion.yrel;
+                Cartman_Input::get()._mouse.cx = pevt->motion.xrel;
+                Cartman_Input::get()._mouse.cy = pevt->motion.yrel;
             }
             else
             {
-                mos.x = pevt->motion.x;
-                mos.y = pevt->motion.y;
+                Cartman_Input::get()._mouse.x = pevt->motion.x;
+                Cartman_Input::get()._mouse.y = pevt->motion.y;
             }
             break;
     }
 
-    if ( 0 != mos.b )
+    if (0 != Cartman_Input::get()._mouse.b)
     {
-        if ( mos.drag_begin )
+        if (Cartman_Input::get()._mouse.drag_begin)
         {
             // start dragging
-            mos.drag = true;
+            Cartman_Input::get()._mouse.drag = true;
         }
-        else if ( !mos.drag )
+        else if (!Cartman_Input::get()._mouse.drag)
         {
             // set the dragging to begin the next mouse time the mouse moves
-            mos.drag_begin = true;
+            Cartman_Input::get()._mouse.drag_begin = true;
 
             // initialize the drag rect
-            mos.tlx = mos.x;
-            mos.tly = mos.y;
+            Cartman_Input::get()._mouse.tlx = Cartman_Input::get()._mouse.x;
+            Cartman_Input::get()._mouse.tly = Cartman_Input::get()._mouse.y;
 
-            mos.brx = mos.x;
-            mos.bry = mos.y;
+            Cartman_Input::get()._mouse.brx = Cartman_Input::get()._mouse.x;
+            Cartman_Input::get()._mouse.bry = Cartman_Input::get()._mouse.y;
 
             // set the drag window
-            mos.drag_window = find_window( mos.x, mos.y );
-            mos.drag_mode   = ( NULL == mos.drag_window ) ? 0 : mos.drag_mode;
+            Cartman_Input::get()._mouse.drag_window = find_window(Cartman_Input::get()._mouse.x, Cartman_Input::get()._mouse.y);
+            Cartman_Input::get()._mouse.drag_mode = (NULL == Cartman_Input::get()._mouse.drag_window) ? 0 : Cartman_Input::get()._mouse.drag_mode;
         }
     }
 
@@ -1965,14 +1958,14 @@ bool check_input_keyboard( SDL_Event * pevt )
 {
     bool handled = false;
 
-    if ( NULL == pevt || !key.on ) return false;
+    if (NULL == pevt || !Cartman_Input::get()._keyboard.on) return false;
 
     switch ( pevt->type )
     {
         case SDL_KEYDOWN:
         case SDL_KEYUP:
-            key.state = pevt->key.state;
-            key.needs_update = true;
+            Cartman_Input::get()._keyboard.state = pevt->key.state;
+            Cartman_Input::get()._keyboard.needs_update = true;
             handled = true;
             break;
     }
@@ -2182,14 +2175,6 @@ int SDL_main( int argcnt, char* argtext[] )
     char modulename[100];
     STRING fname;
 
-    // char *blah[3];
-
-    //blah[0] = malloc(256); strcpy(blah[0], "");
-    //blah[1] = malloc(256); strcpy(blah[1], "/home/bgbirdsey/egoboo");
-    //blah[2] = malloc(256); strcpy(blah[2], "advent" );
-
-    //argcnt = 3;
-    //argtext = blah;
 #ifdef __APPLE__
     // hack to change current directory
     assert(chdir("Cartman.app/Contents/Resources/") == 0);
@@ -2198,12 +2183,11 @@ int SDL_main( int argcnt, char* argtext[] )
     // register the function to be called to deinitialize the program
     atexit( main_end );
 
-    // construct some global variables
-    mouse_ctor( &mos );
-    keyboard_ctor( &key );
-    cart_mouse_data_ctor( &mdata );
+    // Construct the input system.
+    Cartman_Input::initialize();
+    cart_mouse_data_ctor(&mdata); /// @todo What is this crap?
 
-    // initial text for the console
+    // Initial text for the console.
     show_info();
 
     // grab the egoboo directory and the module name from the command line
@@ -2238,7 +2222,7 @@ int SDL_main( int argcnt, char* argtext[] )
 	*/
     setup_init_base_vfs_paths();
 
-    // register the logging code
+    // Register the logging code.
     log_init("/debug/log.txt", LOG_INFO);
 
     if (!setup_read_vfs())
@@ -2254,7 +2238,7 @@ int SDL_main( int argcnt, char* argtext[] )
     cartman_init_SDL_base();
     gfx_system_begin();
 
-    // begin the console
+    // Begin the console.
     egolib_console_begin();
 
     make_randie();                      // Random number table
@@ -2266,6 +2250,7 @@ int SDL_main( int argcnt, char* argtext[] )
     }
 
     fill_fpstext();                     // Make the FPS text
+    Cartman_GUI_initialize();
     load_all_windows( &mesh );          // Load windows
     create_imgcursor();                 // Make cursor image
     load_img();                         // Load cartman icons
@@ -2285,7 +2270,8 @@ int SDL_main( int argcnt, char* argtext[] )
 
         timclock = SDL_GetTicks() >> 3;
     }
-
+    Cartman_GUI_uninitialize();
+    Cartman_Input::uninitialize();
     exit( 0 );                      // End
 }
 

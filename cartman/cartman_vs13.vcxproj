@@ -312,7 +312,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
   </ItemGroup>
   <ItemGroup>
     <None Include="src\cartman\standard.inl" />
-    <None Include="src\cartman\cartman_math.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cartman\res\resource.h" />

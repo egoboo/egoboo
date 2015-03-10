@@ -26,26 +26,12 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_window;
+struct Cartman_Window;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_keyboard;
-typedef struct s_keyboard keyboard_t;
-
-struct s_mouse;
-typedef struct s_mouse mouse_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define MOUSE_PRESSED( BUTTON ) HAS_BITS( mos.b, SDL_BUTTON( BUTTON ) )
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct s_mouse
+struct Cartman_Mouse
 {
     bool on;
 
@@ -56,30 +42,59 @@ struct s_mouse
     bool relative;
     int   cx, cy;
 
-    bool            drag, drag_begin;
-    struct s_window * drag_window;
-    int               drag_mode;
-    int               tlx, tly, brx, bry;
+    bool drag, drag_begin;
+    std::shared_ptr<Cartman_Window> drag_window;
+    int drag_mode;
+    int tlx, tly, brx, bry;
+
+    Cartman_Mouse();
+    virtual ~Cartman_Mouse();
+#if 0
+    static Cartman_Mouse *ctor(Cartman_Mouse *self);
+    static void dtor(Cartman_Mouse *self);
+#endif
+    static void update(Cartman_Mouse *self);
+    /**
+    * @brief
+    *  Get if a mouse button is down.
+    * @param self
+    *  the mouse
+    * @param button
+    *  the button
+    * @return
+    *  @a true if the mouse button is down
+    */
+    static bool isButtonDown(Cartman_Mouse *self, int button);
 };
 
-mouse_t * mouse_ctor( mouse_t * );
+
 
 //--------------------------------------------------------------------------------------------
 
-struct s_keyboard
+struct Cartman_Keyboard
 {
-    bool   on;                //< Is the keyboard alive?
-    bool   override;          //< has the console overridden the keyboard?
-    int      count;
-    int      delay;
+    bool on;                //< Is the keyboard alive?
+    bool override;          //< has the console overridden the keyboard?
+    int count;
+    int delay;
 
-    bool   needs_update;
-    Uint8  * sdlbuffer;
-    Uint8    state;
-    SDLMod   mod;
+    bool needs_update;
+    Uint8 *sdlbuffer;
+    Uint8 state;
+    SDLMod mod;
+    Cartman_Keyboard();
+    virtual ~Cartman_Keyboard();
+#if 0
+    static Cartman_Keyboard *ctor(Cartman_Keyboard *self);
+    static void dtor(Cartman_Keyboard *self);
+#endif
+    static bool isKeyDown(Cartman_Keyboard *self, int key);
+    static bool isModDown(Cartman_Keyboard *self, int mod);
+    static bool isDown(Cartman_Keyboard *self, int key, int mod);
 };
 
-keyboard_t * keyboard_ctor( keyboard_t * );
+
+
 
 //KMOD_NONE No modifiers applicable
 //KMOD_NUM Numlock is down
@@ -97,19 +112,58 @@ keyboard_t * keyboard_ctor( keyboard_t * );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern mouse_t      mos;
-extern keyboard_t   key;
+struct Cartman_Input
+{
+private:
+    static Cartman_Input *singleton;
+public:
+    /**
+     * @brief
+     *  Get the input system singleton.
+     * @return
+     *  the input system singleton
+     * @throw std::logic_error
+     *  if the input system is not initialized
+     */
+    static Cartman_Input& get();
+    /**
+     * @brief
+     *  Initialize the input system.
+     */
+    static void initialize();
+    /**
+     * @brief
+     *  Uninitialize the input system-
+     */
+    static void uninitialize();
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+    Cartman_Mouse _mouse;
+    Cartman_Keyboard _keyboard;
+    Cartman_Input();
+    virtual ~Cartman_Input();
+#if 0
+    static Cartman_Input *ctor(Cartman_Input *self);
+    static void dtor(Cartman_Input *self);
+#endif
+};
 
-#define CART_KEYDOWN(k)       ( (!key.on || key.override || (k >= key.count) || (NULL == key.sdlbuffer)) ? false : (0 != key.sdlbuffer[k]))     // Helper for gettin' em
-#define CART_KEYMOD(m)        ( key.on && !key.override && (NULL != key.sdlbuffer) && (0 != (key.state & (m))) )
-#define CART_KEYDOWN_MOD(k,m) ( CART_KEYDOWN(k) && (0 != (key.state & (m))) )
+#if 0
+extern Cartman_Input g_input;
+#endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-void   check_input();
-bool check_keys( Uint32 resolution );
-void   update_mouse();
+void check_input();
+bool check_keys(Uint32 resolution);
+
+/// @todo At least rename to CART_BUTTONDOWN.
+#define MOUSE_PRESSED(button) \
+    Cartman_Mouse::isButtonDown(&(Cartman_Input::get()._mouse),button)
+
+#define CART_KEYDOWN(key) \
+    Cartman_Keyboard::isKeyDown(&(Cartman_Input::get()._keyboard),key)
+
+#define CART_KEYMOD(mod) \
+    Cartman_Keyboard::isModDown(&(Cartman_Input::get()._keyboard),mod)
+
+#define CART_KEYDOWN_MOD(key,mod) \
+    Cartman_Keyboard::isDown(&(Cartman_Input::get()._keyboard),key,mod)

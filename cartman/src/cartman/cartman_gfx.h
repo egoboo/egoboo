@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_window;
+struct Cartman_Window;
 struct cartman_mpd_t;
 struct s_select_lst;
 struct s_Font;
@@ -151,7 +151,7 @@ void make_planmap( cartman_mpd_t * pmesh );
 // tile rendering routines
 void draw_top_fan( struct s_select_lst * plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_side_fan( struct s_select_lst * plst, int fan, float zoom_hrz, float zoom_vrt );
-void draw_schematic( struct s_window * pwin, int fantype, int x, int y );
+void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, int y);
 void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool draw_tile, cartman_mpd_t * pmesh );
 void draw_tile_fx( float x, float y, Uint8 fx, float scale );
 
@@ -171,8 +171,8 @@ int cartman_BlitSurface( SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, 
 SDL_Surface * cartman_LoadIMG( const char * szName );
 
 // camera stuff
-void cartman_begin_ortho_camera_hrz( struct s_window * pwin, camera_t *pcam, float zoom_x, float zoom_y );
-void cartman_begin_ortho_camera_vrt( struct s_window * pwin, camera_t *pcam, float zoom_x, float zoom_z );
+void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera_t *pcam, float zoom_x, float zoom_y);
+void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera_t *pcam, float zoom_x, float zoom_z);
 void cartman_end_ortho_camera();
 
 // setup

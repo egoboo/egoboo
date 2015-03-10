@@ -25,8 +25,47 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-mouse_t      mos = { true };
-keyboard_t   key = { true, false };
+#if 0
+Cartman_Input g_input;
+#endif
+
+Cartman_Input *_singleton = nullptr;
+
+Cartman_Input& Cartman_Input::get()
+{
+    if (!_singleton)
+    {
+        throw std::logic_error("input system not initialized");
+    }
+    return *_singleton;
+}
+
+void Cartman_Input::initialize()
+{
+    if (!_singleton)
+    {
+        _singleton = new Cartman_Input();
+    }
+
+}
+
+void Cartman_Input::uninitialize()
+{
+    if (_singleton)
+    {
+        delete _singleton;
+        _singleton = nullptr;
+    }
+}
+
+Cartman_Input::Cartman_Input() :
+    _mouse(), _keyboard()
+{
+}
+
+Cartman_Input::~Cartman_Input()
+{
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -36,13 +75,6 @@ static bool check_input_keyboard( SDL_Event * pevt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void update_mouse()
-{
-    if ( !mos.on ) return;
-
-    mos.x_old = mos.x;
-    mos.y_old = mos.y;
-}
 
 //--------------------------------------------------------------------------------------------
 bool check_keys( Uint32 resolution )
@@ -50,23 +82,25 @@ bool check_keys( Uint32 resolution )
     static int last_tick = -1;
     int tick;
 
-    // 20 ticks per key dalay
+    // 20 ticks per key delay
     tick = SDL_GetTicks();
     if ( tick < last_tick + resolution ) return false;
     last_tick = tick;
 
-    if ( key.delay > 0 )
+    if (Cartman_Input::get()._keyboard.delay > 0)
     {
-        key.delay--;
+        Cartman_Input::get()._keyboard.delay--;
         return false;
     }
 
-    if ( !key.on ) return false;
-
-    if ( key.needs_update )
+    if (!Cartman_Input::get()._keyboard.on)
     {
-        key.sdlbuffer = SDL_GetKeyState( &( key.count ) );
-        key.needs_update = false;
+        return false;
+    }
+    if (Cartman_Input::get()._keyboard.needs_update)
+    {
+        Cartman_Input::get()._keyboard.sdlbuffer = SDL_GetKeyState(&(Cartman_Input::get()._keyboard.count));
+        Cartman_Input::get()._keyboard.needs_update = false;
     }
 
     return true;
@@ -82,12 +116,12 @@ void check_input()
     {
         if ( NULL == egolib_console_handle_events( &evt ) )
         {
-            key.override = true;
+            Cartman_Input::get()._keyboard.override = true;
             continue;
         }
         else
         {
-            key.override = false;
+            Cartman_Input::get()._keyboard.override = false;
         }
 
         switch ( evt.type )
@@ -96,21 +130,21 @@ void check_input()
 
                 if ( HAS_BITS( evt.active.state, SDL_APPMOUSEFOCUS ) )
                 {
-                    mos.on = ( 1 == evt.active.gain );
+                    Cartman_Input::get()._mouse.on = ( 1 == evt.active.gain );
                 }
 
                 if ( HAS_BITS( evt.active.state, SDL_APPINPUTFOCUS ) )
                 {
-                    key.on = ( 1 == evt.active.gain );
-                    if ( key.on ) key.needs_update = true;
+                    Cartman_Input::get()._keyboard.on = (1 == evt.active.gain);
+                    if (Cartman_Input::get()._keyboard.on) Cartman_Input::get()._keyboard.needs_update = true;
                 }
 
                 if ( HAS_BITS( evt.active.state, SDL_APPACTIVE ) )
                 {
                     if ( 1 != evt.active.gain )
                     {
-                        mos.on = false;
-                        key.on = false;
+                        Cartman_Input::get()._mouse.on = false;
+                        Cartman_Input::get()._keyboard.on = false;
                     }
                 }
                 break;
@@ -130,35 +164,38 @@ void check_input()
 };
 
 //--------------------------------------------------------------------------------------------
-bool check_input_mouse( SDL_Event * pevt )
+bool check_input_mouse(SDL_Event *event)
 {
     bool handled = false;
 
-    if ( NULL == pevt || !mos.on ) return false;
-
-    if ( 0 == mos.b )
+    if (!event || !Cartman_Input::get()._mouse.on)
     {
-        mos.drag = false;
-        mos.drag_begin = false;
+        return false;
+    }
+
+    if (0 == Cartman_Input::get()._mouse.b)
+    {
+        Cartman_Input::get()._mouse.drag = false;
+        Cartman_Input::get()._mouse.drag_begin = false;
 
         // set mdata??
     }
 
-    switch ( pevt->type )
+    switch (event->type)
     {
         case SDL_MOUSEBUTTONDOWN:
-            switch ( pevt->button.button )
+            switch (event->button.button)
             {
                 case SDL_BUTTON_LEFT:
-                    mos.b |= SDL_BUTTON( SDL_BUTTON_LEFT );
+                    Cartman_Input::get()._mouse.b |= SDL_BUTTON( SDL_BUTTON_LEFT );
                     break;
 
                 case SDL_BUTTON_MIDDLE:
-                    mos.b |= SDL_BUTTON( SDL_BUTTON_MIDDLE );
+                    Cartman_Input::get()._mouse.b |= SDL_BUTTON( SDL_BUTTON_MIDDLE );
                     break;
 
                 case SDL_BUTTON_RIGHT:
-                    mos.b |= SDL_BUTTON( SDL_BUTTON_RIGHT );
+                    Cartman_Input::get()._mouse.b |= SDL_BUTTON( SDL_BUTTON_RIGHT );
                     break;
             }
             ui.pending_click = true;
@@ -166,18 +203,18 @@ bool check_input_mouse( SDL_Event * pevt )
             break;
 
         case SDL_MOUSEBUTTONUP:
-            switch ( pevt->button.button )
+            switch (event->button.button)
             {
                 case SDL_BUTTON_LEFT:
-                    mos.b &= ~SDL_BUTTON( SDL_BUTTON_LEFT );
+                    Cartman_Input::get()._mouse.b &= ~SDL_BUTTON( SDL_BUTTON_LEFT );
                     break;
 
                 case SDL_BUTTON_MIDDLE:
-                    mos.b &= ~SDL_BUTTON( SDL_BUTTON_MIDDLE );
+                    Cartman_Input::get()._mouse.b &= ~SDL_BUTTON( SDL_BUTTON_MIDDLE );
                     break;
 
                 case SDL_BUTTON_RIGHT:
-                    mos.b &= ~SDL_BUTTON( SDL_BUTTON_RIGHT );
+                    Cartman_Input::get()._mouse.b &= ~SDL_BUTTON( SDL_BUTTON_RIGHT );
                     break;
             }
             ui.pending_click = false;
@@ -185,55 +222,56 @@ bool check_input_mouse( SDL_Event * pevt )
             break;
 
         case SDL_MOUSEMOTION:
-            mos.b = pevt->motion.state;
-            if ( mos.drag )
+            Cartman_Input::get()._mouse.b = event->motion.state;
+            if (Cartman_Input::get()._mouse.drag)
             {
-                if ( 0 != mos.b )
+                if (0 != Cartman_Input::get()._mouse.b)
                 {
-                    mos.brx = pevt->motion.x;
-                    mos.bry = pevt->motion.y;
+                    Cartman_Input::get()._mouse.brx = event->motion.x;
+                    Cartman_Input::get()._mouse.bry = event->motion.y;
                 }
                 else
                 {
-                    mos.drag = false;
+                    Cartman_Input::get()._mouse.drag = false;
                 }
             }
 
-            if ( mos.relative )
+            if (Cartman_Input::get()._mouse.relative)
             {
-                mos.cx = pevt->motion.xrel;
-                mos.cy = pevt->motion.yrel;
+                Cartman_Input::get()._mouse.cx = event->motion.xrel;
+                Cartman_Input::get()._mouse.cy = event->motion.yrel;
             }
             else
             {
-                mos.x = pevt->motion.x;
-                mos.y = pevt->motion.y;
+                Cartman_Input::get()._mouse.x = event->motion.x;
+                Cartman_Input::get()._mouse.y = event->motion.y;
             }
             break;
     }
 
-    if ( 0 != mos.b )
+    if (0 != Cartman_Input::get()._mouse.b)
     {
-        if ( mos.drag_begin )
+        if (Cartman_Input::get()._mouse.drag_begin)
         {
             // start dragging
-            mos.drag = true;
+            Cartman_Input::get()._mouse.drag = true;
         }
-        else if ( !mos.drag )
+        else if (!Cartman_Input::get()._mouse.drag)
         {
             // set the dragging to begin the next mouse time the mouse moves
-            mos.drag_begin = true;
+            Cartman_Input::get()._mouse.drag_begin = true;
 
             // initialize the drag rect
-            mos.tlx = mos.x;
-            mos.tly = mos.y;
+            Cartman_Input::get()._mouse.tlx = Cartman_Input::get()._mouse.x;
+            Cartman_Input::get()._mouse.tly = Cartman_Input::get()._mouse.y;
 
-            mos.brx = mos.x;
-            mos.bry = mos.y;
+            Cartman_Input::get()._mouse.brx = Cartman_Input::get()._mouse.x;
+            Cartman_Input::get()._mouse.bry = Cartman_Input::get()._mouse.y;
 
             // set the drag window
-            mos.drag_window = find_window( mos.x, mos.y );
-            mos.drag_mode   = ( NULL == mos.drag_window ) ? 0 : mos.drag_mode;
+            Cartman_Input::get()._mouse.drag_window = find_window(Cartman_Input::get()._mouse.x, Cartman_Input::get()._mouse.y);
+            Cartman_Input::get()._mouse.drag_mode = (NULL == Cartman_Input::get()._mouse.drag_window)
+                                     ? 0 : Cartman_Input::get()._mouse.drag_mode;
         }
     }
 
@@ -241,19 +279,19 @@ bool check_input_mouse( SDL_Event * pevt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool check_input_keyboard( SDL_Event * pevt )
+bool check_input_keyboard(SDL_Event *event)
 {
     bool handled = false;
 
-    if ( NULL == pevt || !key.on ) return false;
+    if (NULL == event || !Cartman_Input::get()._keyboard.on) return false;
 
-    switch ( pevt->type )
+    switch (event->type)
     {
         case SDL_KEYDOWN:
         case SDL_KEYUP:
-            key.state = pevt->key.state;
-            key.mod   = pevt->key.keysym.mod;
-            key.needs_update = true;
+            Cartman_Input::get()._keyboard.state = event->key.state;
+            Cartman_Input::get()._keyboard.mod = event->key.keysym.mod;
+            Cartman_Input::get()._keyboard.needs_update = true;
             handled = true;
             break;
     }
@@ -263,26 +301,113 @@ bool check_input_keyboard( SDL_Event * pevt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mouse_t * mouse_ctor( mouse_t * ptr )
+Cartman_Mouse::Cartman_Mouse() :
+    on(true),
+    x(0), y(0), x_old(0), y_old(0),
+    b(0), relative(false),
+    cx(0), cy(0),
+    drag(false), drag_begin(false),
+    drag_window(nullptr),
+    drag_mode(0),
+    tlx(0), tly(0), brx(0), bry(0)
 {
-    if ( NULL == ptr ) return NULL;
-
-    memset( ptr, 0, sizeof( *ptr ) );
-
-    ptr->on = true;
-
-    return ptr;
 }
 
-//--------------------------------------------------------------------------------------------
-keyboard_t * keyboard_ctor( keyboard_t * ptr )
+#if 0
+Cartman_Mouse *Cartman_Mouse::ctor(Cartman_Mouse *self)
 {
-    if ( NULL == ptr ) return NULL;
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr != self");
+    }
+    memset(self, 0, sizeof(Cartman_Mouse));
+    self->on = true;
+    return self;
+}
+#endif
 
-    memset( ptr, 0, sizeof( *ptr ) );
+Cartman_Mouse::~Cartman_Mouse()
+{
+}
 
-    ptr->on           = true;
-    ptr->needs_update = true;
+#if 0
+void Cartman_Mouse::dtor(Cartman_Mouse *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr != self");
+    }
+    memset(self, 0, sizeof(Cartman_Mouse));
+}
+#endif
 
-    return ptr;
+void Cartman_Mouse::update(Cartman_Mouse *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr != self");
+    }
+    if (!self->on) return;
+
+    self->x_old = self->x;
+    self->y_old = self->y;
+}
+
+bool Cartman_Mouse::isButtonDown(Cartman_Mouse *self, int button)
+{
+    return HAS_BITS(self->b, SDL_BUTTON(button));
+}
+
+Cartman_Keyboard::Cartman_Keyboard() :
+    on(true), needs_update(true),
+    override(false), count(0), delay(0),
+    sdlbuffer(nullptr), state(0), mod(KMOD_NONE)
+{}
+
+#if 0
+Cartman_Keyboard *Cartman_Keyboard::ctor(Cartman_Keyboard *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr != self");
+    }
+    memset(self, 0, sizeof(Cartman_Keyboard));
+    self->on = true;
+    self->needs_update = true;
+    return self;
+}
+#endif
+
+Cartman_Keyboard::~Cartman_Keyboard()
+{}
+
+#if 0
+void Cartman_Keyboard::dtor(Cartman_Keyboard *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr != self");
+    }
+    memset(self, 0, sizeof(Cartman_Keyboard));
+}
+#endif
+
+bool Cartman_Keyboard::isKeyDown(Cartman_Keyboard *self,int key)
+{
+    if (!self->on || self->override || (key >= self->count)) return false;
+    if (!self->sdlbuffer) return false;
+    return self->sdlbuffer[key];
+}
+
+bool Cartman_Keyboard::isModDown(Cartman_Keyboard *self, int mod)
+{
+    if (!self->on || self->override) return false;
+    if (!self->sdlbuffer) return false;
+    return 0 != (self->state & mod);
+}
+
+bool Cartman_Keyboard::isDown(Cartman_Keyboard *self, int key, int mod)
+{
+    return Cartman_Keyboard::isKeyDown(self, key)
+        && Cartman_Keyboard::isModDown(self, mod);
 }

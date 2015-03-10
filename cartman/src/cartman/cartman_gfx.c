@@ -544,7 +544,7 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_schematic( window_t * pwin, int fantype, int x, int y )
+void draw_schematic(std::shared_ptr<Cartman_Window> pwin, int fantype, int x, int y)
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     The wireframe on the left side of the theSurface.
@@ -1101,7 +1101,7 @@ SDL_Surface * cartman_LoadIMG( const char * szName )
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_hrz( window_t * pwin, camera_t * pcam, float zoom_x, float zoom_y )
+void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera_t * pcam, float zoom_x, float zoom_y)
 {
     float w, h, d;
     float aspect;
@@ -1148,7 +1148,7 @@ void cartman_begin_ortho_camera_hrz( window_t * pwin, camera_t * pcam, float zoo
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_begin_ortho_camera_vrt( window_t * pwin, camera_t * pcam, float zoom_x, float zoom_z )
+void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera_t * pcam, float zoom_x, float zoom_z)
 {
     float w, h, d;
     float aspect;
@@ -1205,7 +1205,7 @@ void cartman_end_ortho_camera()
 }
 
 //--------------------------------------------------------------------------------------------
-void create_imgcursor( void )
+void create_imgcursor()
 {
     int x, y;
     Uint32 col, loc, clr;
@@ -1234,7 +1234,7 @@ void create_imgcursor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_img( void )
+void load_img()
 {
     if ( INVALID_GL_ID == oglx_texture_load( &tx_point, "editor/point.png", INVALID_KEY ) )
     {
