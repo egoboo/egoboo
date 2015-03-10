@@ -69,11 +69,11 @@ export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CART
 #------------------------------------
 # definitions of the target projects
 
-.PHONY: all clean idlib egolib egoboo cartman install doxygen external_lua
+.PHONY: all clean idlib egolib egoboo cartman install doxygen external_lua test
 
 all: idlib egolib egoboo cartman
 
-idlib:
+idlib: external_lua
 	${MAKE} -C $(IDLIB_DIR)
 
 egolib: idlib external_lua
@@ -84,6 +84,10 @@ egoboo: idlib external_lua egolib
 
 cartman: idlib external_lua egolib
 	${MAKE} -C $(CARTMAN_DIR)
+
+test: all
+	${MAKE} -C ${IDLIB_DIR} test
+	${MAKE} -C ${EGOLIB_DIR} test
 
 external_lua:
 ifeq ($(USE_EXTERNAL_LUA), 1)

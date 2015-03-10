@@ -1,0 +1,402 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CD680EA11A91DC9B009171C5 /* Vec2Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB1042F1A91D5DA0077CD45 /* Vec2Test.cpp */; };
+		CD680EAF1A927B9E009171C5 /* FailureFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD680EAD1A927B9E009171C5 /* FailureFile.cpp */; };
+		CD680EB11A927BE8009171C5 /* libEgoTestExampleLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD680EA61A91DE4E009171C5 /* libEgoTestExampleLib.a */; };
+		CD680EB31A927CB7009171C5 /* FailureTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD680EB21A927CB7009171C5 /* FailureTest.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CD680EAB1A91E34A009171C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDB103D01A91D3EF0077CD45 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CD680EA51A91DE4E009171C5;
+			remoteInfo = EgoTestExampleLib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		CD680EA61A91DE4E009171C5 /* libEgoTestExampleLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libEgoTestExampleLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD680EAD1A927B9E009171C5 /* FailureFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FailureFile.cpp; sourceTree = "<group>"; };
+		CD680EAE1A927B9E009171C5 /* FailureFile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FailureFile.hpp; sourceTree = "<group>"; };
+		CD680EB21A927CB7009171C5 /* FailureTest.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = FailureTest.cpp; sourceTree = "<group>"; };
+		CDB103EE1A91D4890077CD45 /* EgoTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest.hpp; sourceTree = "<group>"; };
+		CDB103EF1A91D4890077CD45 /* EgoTest_doxygen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_doxygen.hpp; sourceTree = "<group>"; };
+		CDB103F01A91D4890077CD45 /* EgoTest_VSCppUnitTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_VSCppUnitTest.hpp; sourceTree = "<group>"; };
+		CDB103F11A91D4890077CD45 /* EgoTest_XCTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_XCTest.hpp; sourceTree = "<group>"; };
+		CDB103F71A91D4BA0077CD45 /* EgoTestExample.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EgoTestExample.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDB1042C1A91D5BA0077CD45 /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
+		CDB1042F1A91D5DA0077CD45 /* Vec2Test.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Vec2Test.cpp; sourceTree = "<group>"; };
+		CDB104321A91D6200077CD45 /* vec2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = vec2.hpp; sourceTree = "<group>"; };
+		CDB104351A91D75F0077CD45 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CD680EA31A91DE4E009171C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDB103F41A91D4BA0077CD45 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CD680EB11A927BE8009171C5 /* libEgoTestExampleLib.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CDB103CF1A91D3EF0077CD45 = {
+			isa = PBXGroup;
+			children = (
+				CDB103F21A91D4920077CD45 /* EgoTestExample */,
+				CDB1042E1A91D5DA0077CD45 /* EgoTestExampleTests */,
+				CDB103ED1A91D4890077CD45 /* EgoTest */,
+				CDB1042A1A91D5BA0077CD45 /* osx */,
+				CDB103D91A91D3EF0077CD45 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CDB103D91A91D3EF0077CD45 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CDB103F71A91D4BA0077CD45 /* EgoTestExample.xctest */,
+				CD680EA61A91DE4E009171C5 /* libEgoTestExampleLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CDB103ED1A91D4890077CD45 /* EgoTest */ = {
+			isa = PBXGroup;
+			children = (
+				CDB103EE1A91D4890077CD45 /* EgoTest.hpp */,
+				CDB103EF1A91D4890077CD45 /* EgoTest_doxygen.hpp */,
+				CDB103F01A91D4890077CD45 /* EgoTest_VSCppUnitTest.hpp */,
+				CDB103F11A91D4890077CD45 /* EgoTest_XCTest.hpp */,
+			);
+			name = EgoTest;
+			path = ../src/EgoTest;
+			sourceTree = "<group>";
+		};
+		CDB103F21A91D4920077CD45 /* EgoTestExample */ = {
+			isa = PBXGroup;
+			children = (
+				CD680EAD1A927B9E009171C5 /* FailureFile.cpp */,
+				CD680EAE1A927B9E009171C5 /* FailureFile.hpp */,
+				CDB104321A91D6200077CD45 /* vec2.hpp */,
+			);
+			name = EgoTestExample;
+			path = src;
+			sourceTree = "<group>";
+		};
+		CDB1042A1A91D5BA0077CD45 /* osx */ = {
+			isa = PBXGroup;
+			children = (
+				CDB104351A91D75F0077CD45 /* Cocoa.framework */,
+				CDB1042C1A91D5BA0077CD45 /* Test-Info.plist */,
+			);
+			path = osx;
+			sourceTree = "<group>";
+		};
+		CDB1042E1A91D5DA0077CD45 /* EgoTestExampleTests */ = {
+			isa = PBXGroup;
+			children = (
+				CD680EB21A927CB7009171C5 /* FailureTest.cpp */,
+				CDB1042F1A91D5DA0077CD45 /* Vec2Test.cpp */,
+			);
+			name = EgoTestExampleTests;
+			path = tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CD680EA51A91DE4E009171C5 /* EgoTestExampleLib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CD680EA71A91DE4E009171C5 /* Build configuration list for PBXNativeTarget "EgoTestExampleLib" */;
+			buildPhases = (
+				CD680EA21A91DE4E009171C5 /* Sources */,
+				CD680EA31A91DE4E009171C5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EgoTestExampleLib;
+			productName = EgoTestExampleLib;
+			productReference = CD680EA61A91DE4E009171C5 /* libEgoTestExampleLib.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		CDB103F61A91D4BA0077CD45 /* EgoTestExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDB103FD1A91D4BB0077CD45 /* Build configuration list for PBXNativeTarget "EgoTestExample" */;
+			buildPhases = (
+				CDB103F31A91D4BA0077CD45 /* Sources */,
+				CDB103F41A91D4BA0077CD45 /* Frameworks */,
+				CDB103F51A91D4BA0077CD45 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CD680EAC1A91E34A009171C5 /* PBXTargetDependency */,
+			);
+			name = EgoTestExample;
+			productName = EgoTestExampleTests;
+			productReference = CDB103F71A91D4BA0077CD45 /* EgoTestExample.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CDB103D01A91D3EF0077CD45 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = net.sourceforge.egoboo;
+				TargetAttributes = {
+					CD680EA51A91DE4E009171C5 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					CDB103F61A91D4BA0077CD45 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
+			};
+			buildConfigurationList = CDB103D31A91D3EF0077CD45 /* Build configuration list for PBXProject "EgoTestExample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CDB103CF1A91D3EF0077CD45;
+			productRefGroup = CDB103D91A91D3EF0077CD45 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CD680EA51A91DE4E009171C5 /* EgoTestExampleLib */,
+				CDB103F61A91D4BA0077CD45 /* EgoTestExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CDB103F51A91D4BA0077CD45 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CD680EA21A91DE4E009171C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CD680EAF1A927B9E009171C5 /* FailureFile.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDB103F31A91D4BA0077CD45 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CD680EB31A927CB7009171C5 /* FailureTest.cpp in Sources */,
+				CD680EA11A91DC9B009171C5 /* Vec2Test.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CD680EAC1A91E34A009171C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CD680EA51A91DE4E009171C5 /* EgoTestExampleLib */;
+			targetProxy = CD680EAB1A91E34A009171C5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		CD680EA81A91DE4E009171C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CD680EA91A91DE4E009171C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				EXECUTABLE_PREFIX = lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		CDB103DD1A91D3EF0077CD45 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Debug;
+		};
+		CDB103DE1A91D3EF0077CD45 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+			};
+			name = Release;
+		};
+		CDB103FE1A91D4BB0077CD45 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					EGOTEST_USE_XCTEST,
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "osx/Test-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../src $(PROJECT_DIR/src";
+			};
+			name = Debug;
+		};
+		CDB103FF1A91D4BB0077CD45 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					EGOTEST_USE_XCTEST,
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "osx/Test-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../src $(PROJECT_DIR/src";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CD680EA71A91DE4E009171C5 /* Build configuration list for PBXNativeTarget "EgoTestExampleLib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CD680EA81A91DE4E009171C5 /* Debug */,
+				CD680EA91A91DE4E009171C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CDB103D31A91D3EF0077CD45 /* Build configuration list for PBXProject "EgoTestExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDB103DD1A91D3EF0077CD45 /* Debug */,
+				CDB103DE1A91D3EF0077CD45 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CDB103FD1A91D4BB0077CD45 /* Build configuration list for PBXNativeTarget "EgoTestExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDB103FE1A91D4BB0077CD45 /* Debug */,
+				CDB103FF1A91D4BB0077CD45 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CDB103D01A91D3EF0077CD45 /* Project object */;
+}
