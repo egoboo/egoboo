@@ -1621,7 +1621,7 @@ void gfx_system_init_SDL_graphics()
         theSurface = IMG_Load_RW(vfs_openRWopsRead(fileload), 1);
         if ( NULL == theSurface )
         {
-            log_warning( "Unable to load icon (%s)\n", fname );
+            log_warning( "Unable to load icon (%s): %s\n", fname, SDL_GetError() );
         }
         else
         {
@@ -1671,11 +1671,36 @@ void gfx_system_init_SDL_graphics()
 	ogl_vparam.userAnisotropy = 16.0f * std::max(0, cfg.texturefilter_req - Ego::TextureFilter::TRILINEAR_2);
 
     log_info( "Opening SDL Video Mode...\n" );
+    
+    bool setVideoMode = false;
 
     // actually set the video mode
     if ( NULL == SDL_GL_set_mode( NULL, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics ) )
     {
         log_message( "Failed!\n" );
+        if (cfg.fullscreen_req)
+        {
+            log_info("SDL error with fullscreen mode on: %s\n", SDL_GetError());
+            log_info("Trying again in windowed mode...\n");
+            sdl_vparam.flags.full_screen = SDL_FALSE;
+            if (nullptr == SDL_GL_set_mode(nullptr, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics))
+            {
+                log_message("Failed!\n");
+            }
+            else
+            {
+                cfg.fullscreen_req = false;
+                setVideoMode = true;
+            }
+        }
+    }
+    else
+    {
+        setVideoMode = true;
+    }
+    
+    if (!setVideoMode)
+    {
         log_error( "I can't get SDL to set any video mode: %s\n", SDL_GetError() );
     }
     else

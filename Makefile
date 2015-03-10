@@ -49,7 +49,7 @@ TMPFLAGS += -x c++ -std=c++11 $(LUA_CFLAGS)
 
 # for now, find a better way to do this?
 ifeq ($(PREFIX),)
-	PREFIX := /usr
+	PREFIX := /usr/local
 endif
 
 # use different options if the environmental variable PREFIX is defined
