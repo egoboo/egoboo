@@ -105,12 +105,15 @@ struct s_ui_state
 
 struct Cartman_GUI_Cursor;
 
-struct Cartman_GUI
+namespace Cartman
 {
-    static void initialize();
-    static void uninitialize();
-    static std::shared_ptr<Cartman_Window> findWindow(int x, int y);
-};
+    struct GUI
+    {
+        static void initialize();
+        static void uninitialize();
+        static std::shared_ptr<Cartman_Window> findWindow(int x, int y);
+    };
+}
 
 
 extern std::vector<std::shared_ptr<Cartman_Window>> _window_lst;

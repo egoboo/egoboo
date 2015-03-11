@@ -155,7 +155,7 @@ oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
         return NULL;
     }
 
-    pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+    pfan = pmesh->get_pfan(mapx, mapy);
     if ( NULL == pfan ) return NULL;
 
     if ( TILE_IS_FANOFF( pfan->tx_bits ) )
@@ -257,9 +257,6 @@ oglx_texture_t *tile_at( cartman_mpd_t * pmesh, int fan )
 //--------------------------------------------------------------------------------------------
 void make_hitemap( cartman_mpd_t * pmesh )
 {
-    int x, y, pixx, pixy, level;
-    cartman_mpd_tile_t * pfan;
-
     if ( NULL == pmesh ) pmesh = &mesh;
 
     if ( bmphitemap ) SDL_FreeSurface( bmphitemap );
@@ -267,14 +264,14 @@ void make_hitemap( cartman_mpd_t * pmesh )
     bmphitemap = cartman_CreateSurface( pmesh->info.tiles_x << 2, pmesh->info.tiles_y << 2 );
     if ( NULL == bmphitemap ) return;
 
-    for ( pixy = 0, y = 16; pixy < ( pmesh->info.tiles_y << 2 ); pixy++, y += 32 )
+    for (int pixy = 0, y = 16; pixy < ( pmesh->info.tiles_y << 2 ); pixy++, y += 32 )
     {
-        for ( pixx = 0, x = 16; pixx < ( pmesh->info.tiles_x << 2 ); pixx++, x += 32 )
+        for (int pixx = 0, x = 16; pixx < ( pmesh->info.tiles_x << 2 ); pixx++, x += 32 )
         {
-            level = ( cartman_mpd_get_level( pmesh, x, y ) * 255 ) / pmesh->info.edgez;  // level is 0 to 255
+            int level = ( pmesh->get_level(x, y) * 255 ) / pmesh->info.edgez;  // level is 0 to 255
             if ( level > 252 ) level = 252;
 
-            pfan = cartman_mpd_get_pfan( pmesh, pixx >> 2, pixy >> 2 );
+            cartman_mpd_tile_t *pfan = pmesh->get_pfan(pixx >> 2, pixy >> 2);
             if ( NULL == pfan ) continue;
 
             if ( HAS_BITS( pfan->fx, MAPFX_WALL ) ) level = 253;  // Wall
@@ -346,10 +343,9 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
     cart_vec_t vpos;
 
     // aliases
-    const cartman_mpd_t  * pmesh  = NULL;
+    cartman_mpd_t  * pmesh  = NULL;
     tile_definition_t    * pdef   = NULL;
     const cartman_mpd_tile_t   * pfan   = NULL;
-    const cartman_mpd_vertex_t * vlst   = NULL;
     tile_line_data_t     * plines = NULL;
 
     plst = select_lst_synch_mesh( plst, &mesh );
@@ -357,7 +353,6 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
 
     if ( NULL == plst->pmesh ) return;
     pmesh = plst->pmesh;
-    vlst  = pmesh->vrt;
 
     pfan = CART_MPD_FAN_PTR( pmesh, fan );
     if ( NULL == pfan ) return;
@@ -377,7 +372,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
 
     for ( cnt = 0, vert = pfan->vrtstart;
           cnt < pdef->numvertices && CHAINEND != vert;
-          cnt++, vert = vlst[vert].next )
+          cnt++, vert = pmesh->vrt2[vert].next)
     {
         faketoreal[cnt] = vert;
     }
@@ -394,8 +389,8 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
                 stt = faketoreal[plines->start[cnt]];
                 end = faketoreal[plines->end[cnt]];
 
-                glVertex3f( vlst[stt].x, vlst[stt].y, vlst[stt].z );
-                glVertex3f( vlst[end].x, vlst[end].y, vlst[end].z );
+                glVertex3f(pmesh->vrt2[stt].x, pmesh->vrt2[stt].y, pmesh->vrt2[stt].z);
+                glVertex3f(pmesh->vrt2[end].x, pmesh->vrt2[end].y, pmesh->vrt2[end].z);
             }
         }
         glEnd();
@@ -409,7 +404,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
 
         vert = faketoreal[cnt];
 
-        size = MAXPOINTSIZE * vlst[vert].z / ( float ) pmesh->info.edgez;
+        size = MAXPOINTSIZE * pmesh->vrt2[vert].z / (float)pmesh->info.edgez;
         if ( size < 0.0f ) size = 0.0f;
         if ( size > MAXPOINTSIZE ) size = MAXPOINTSIZE;
 
@@ -430,9 +425,9 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
                 tx_tmp = &tx_pointon;
             }
 
-            vpos[kX] = vlst[vert].x;
-            vpos[kY] = vlst[vert].y;
-            vpos[kZ] = vlst[vert].z;
+            vpos[kX] = pmesh->vrt2[vert].x;
+            vpos[kY] = pmesh->vrt2[vert].y;
+            vpos[kZ] = pmesh->vrt2[vert].z;
 
             ogl_draw_sprite_3d( tx_tmp, vpos, vup, vright, point_size, point_size );
         }
@@ -460,7 +455,6 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
     cartman_mpd_t        * pmesh  = NULL;
     tile_definition_t    * pdef   = NULL;
     cartman_mpd_tile_t   * pfan   = NULL;
-    cartman_mpd_vertex_t * vlst   = NULL;
     tile_line_data_t     * plines = NULL;
 
     plst = select_lst_synch_mesh( plst, &mesh );
@@ -468,9 +462,6 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
 
     if ( NULL == plst->pmesh ) return;
     pmesh = plst->pmesh;
-
-    // get aliases
-    vlst = pmesh->vrt;
 
     pfan = CART_MPD_FAN_PTR( pmesh, fan );
     if ( NULL == pfan ) return;
@@ -488,7 +479,7 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
 
     for ( cnt = 0, vert = pfan->vrtstart;
           cnt < pdef->numvertices && CHAINEND != vert;
-          cnt++, vert = vlst[vert].next )
+          cnt++, vert = pmesh->vrt2[vert].next )
     {
         faketoreal[cnt] = vert;
     }
@@ -505,8 +496,8 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
                 stt = faketoreal[plines->start[cnt]];
                 end = faketoreal[plines->end[cnt]];
 
-                glVertex3f( vlst[stt].x, vlst[stt].y, vlst[stt].z );
-                glVertex3f( vlst[end].x, vlst[end].y, vlst[end].z );
+                glVertex3f(pmesh->vrt2[stt].x, pmesh->vrt2[stt].y, pmesh->vrt2[stt].z);
+                glVertex3f(pmesh->vrt2[end].x, pmesh->vrt2[end].y, pmesh->vrt2[end].z);
             }
         }
         glEnd();
@@ -535,9 +526,9 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
             tx_tmp = &tx_pointon;
         }
 
-        vpos[kX] = vlst[vert].x;
-        vpos[kY] = vlst[vert].y;
-        vpos[kZ] = vlst[vert].z;
+        vpos[kX] = pmesh->vrt2[vert].x;
+        vpos[kY] = pmesh->vrt2[vert].y;
+        vpos[kZ] = pmesh->vrt2[vert].z;
 
         ogl_draw_sprite_3d( tx_tmp, vpos, vup, vright, point_size, point_size );
     }
@@ -601,10 +592,8 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
 
     // aliases
     cartman_mpd_tile_t   * pfan   = NULL;
-    cartman_mpd_vertex_t * vlst   = NULL;
 
     if ( NULL == pmesh ) pmesh = &mesh;
-    vlst = pmesh->vrt;
 
     pfan = CART_MPD_FAN_PTR( pmesh, fan );
     if ( NULL == pfan ) return;
@@ -646,28 +635,28 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
         loc_vrt[0].x = x0;
         loc_vrt[0].y = y0;
         loc_vrt[0].z = 0;
-        loc_vrt[0].l = vlst[ivrt].a / 255.0f;
-        ivrt = vlst[ivrt].next;
+        loc_vrt[0].l = pmesh->vrt2[ivrt].a / 255.0f;
+        ivrt = pmesh->vrt2[ivrt].next;
 
         // Top Right
         loc_vrt[1].x = x0 + TILE_FSIZE;
         loc_vrt[1].y = y0;
         loc_vrt[1].z = 0;
-        loc_vrt[1].l = vlst[ivrt].a / 255.0f;
-        ivrt = vlst[ivrt].next;
+        loc_vrt[1].l = pmesh->vrt2[ivrt].a / 255.0f;
+        ivrt = pmesh->vrt2[ivrt].next;
 
         // Bottom Right
         loc_vrt[2].x = x0 + TILE_FSIZE;
         loc_vrt[2].y = y0 + TILE_FSIZE;
         loc_vrt[2].z = 0;
-        loc_vrt[2].l = vlst[ivrt].a / 255.0f;
-        ivrt = vlst[ivrt].next;
+        loc_vrt[2].l = pmesh->vrt2[ivrt].a / 255.0f;
+        ivrt = pmesh->vrt2[ivrt].next;
 
         // Bottom Left
         loc_vrt[3].x = x0;
         loc_vrt[3].y = y0 + TILE_FSIZE;
         loc_vrt[3].z = 0;
-        loc_vrt[3].l = vlst[ivrt].a / 255.0f;
+        loc_vrt[3].l = pmesh->vrt2[ivrt].a / 255.0f;
     }
     else
     {
@@ -678,12 +667,12 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
         ivrt = pfan->vrtstart;
         for ( cnt = 0;
               cnt < 4 && CHAINEND != ivrt;
-              cnt++, ivrt = vlst[ivrt].next )
+              cnt++, ivrt = pmesh->vrt2[ivrt].next)
         {
-            loc_vrt[cnt].x = vlst[ivrt].x;
-            loc_vrt[cnt].y = vlst[ivrt].y;
-            loc_vrt[cnt].z = vlst[ivrt].z;
-            loc_vrt[cnt].l = vlst[ivrt].a / 255.0f;
+            loc_vrt[cnt].x = pmesh->vrt2[ivrt].x;
+            loc_vrt[cnt].y = pmesh->vrt2[ivrt].y;
+            loc_vrt[cnt].z = pmesh->vrt2[ivrt].z;
+            loc_vrt[cnt].l = pmesh->vrt2[ivrt].a / 255.0f;
         }
     }
 

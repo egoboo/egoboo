@@ -71,7 +71,7 @@ std::vector<std::shared_ptr<Cartman_Window>> _window_lst;
 std::shared_ptr<Cartman_GUI_Cursor> _cursor_2;
 ui_state_t ui;
 
-void Cartman_GUI::initialize()
+void Cartman::GUI::initialize()
 {
     for (size_t i = 0; i < MAXWIN; ++i)
     {
@@ -80,7 +80,7 @@ void Cartman_GUI::initialize()
     _cursor_2 = std::make_shared<Cartman_GUI_Cursor>();
 }
 
-void Cartman_GUI::uninitialize()
+void Cartman::GUI::uninitialize()
 {
     _cursor_2 = nullptr;
     _window_lst.clear();
@@ -95,9 +95,9 @@ void do_cursor()
     bool left_press;
 
     // This function implements a mouse cursor
-    ui.cur_x = Cartman_Input::get()._mouse.x;
+    ui.cur_x = Cartman::Input::get()._mouse.x;
     if ( ui.cur_x < 6 )  ui.cur_x = 6;  if ( ui.cur_x > sdl_scr.x - 6 )  ui.cur_x = sdl_scr.x - 6;
-    ui.cur_y = Cartman_Input::get()._mouse.y;
+    ui.cur_y = Cartman::Input::get()._mouse.y;
     if ( ui.cur_y < 6 )  ui.cur_y = 6;  if ( ui.cur_y > sdl_scr.y - 6 )  ui.cur_y = sdl_scr.y - 6;
 
     left_press = CART_BUTTONDOWN(SDL_BUTTON_LEFT);
@@ -120,9 +120,9 @@ void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue,
 
     // Pick a new value
     value = *pvalue;
-    if (( Cartman_Input::get()._mouse.x >= tlx ) && ( Cartman_Input::get()._mouse.x <= brx ) && ( Cartman_Input::get()._mouse.y >= tly ) && ( Cartman_Input::get()._mouse.y <= bry ) && ( 0 != Cartman_Input::get()._mouse.b ) )
+    if (( Cartman::Input::get()._mouse.x >= tlx ) && ( Cartman::Input::get()._mouse.x <= brx ) && ( Cartman::Input::get()._mouse.y >= tly ) && ( Cartman::Input::get()._mouse.y <= bry ) && ( 0 != Cartman::Input::get()._mouse.b ) )
     {
-        value = ((( Cartman_Input::get()._mouse.y - tly ) * ( maxvalue - minvalue ) ) / ( bry - tly ) ) + minvalue;
+        value = ((( Cartman::Input::get()._mouse.y - tly ) * ( maxvalue - minvalue ) ) / ( bry - tly ) ) + minvalue;
     }
     if ( value < minvalue ) value = minvalue;
     if ( value > maxvalue ) value = maxvalue;
@@ -190,7 +190,7 @@ bool Cartman_Window::isOver(int x, int y) const
     return true;
 }
 
-std::shared_ptr<Cartman_Window> Cartman_GUI::findWindow(int x, int y)
+std::shared_ptr<Cartman_Window> Cartman::GUI::findWindow(int x, int y)
 {
     std::shared_ptr<Cartman_Window> result = nullptr;
     for (auto window : _window_lst)

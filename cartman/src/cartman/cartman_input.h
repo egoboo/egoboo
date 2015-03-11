@@ -31,61 +31,65 @@ struct Cartman_Window;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct Cartman_Mouse
+namespace Cartman
 {
-    bool on;
+    struct Mouse
+    {
+        bool on;
 
-    int   x, y;
-    int   x_old, y_old;
-    int   b;
+        int   x, y;
+        int   x_old, y_old;
+        int   b;
 
-    bool relative;
-    int   cx, cy;
+        bool relative;
+        int   cx, cy;
 
-    bool drag, drag_begin;
-    std::shared_ptr<Cartman_Window> drag_window;
-    int drag_mode;
-    int tlx, tly, brx, bry;
+        bool drag, drag_begin;
+        std::shared_ptr<Cartman_Window> drag_window;
+        int drag_mode;
+        int tlx, tly, brx, bry;
 
-    Cartman_Mouse();
-    virtual ~Cartman_Mouse();
+        Mouse();
+        virtual ~Mouse();
 
-    static void update(Cartman_Mouse *self);
-    /**
-    * @brief
-    *  Get if a mouse button is down.
-    * @param self
-    *  the mouse
-    * @param button
-    *  the button
-    * @return
-    *  @a true if the mouse button is down
-    */
-    static bool isButtonDown(Cartman_Mouse *self, int button);
-};
-
+        static void update(Mouse *self);
+        /**
+        * @brief
+        *  Get if a mouse button is down.
+        * @param self
+        *  the mouse
+        * @param button
+        *  the button
+        * @return
+        *  @a true if the mouse button is down
+        */
+        static bool isButtonDown(Mouse *self, int button);
+    };
+}
 
 
 //--------------------------------------------------------------------------------------------
 
-struct Cartman_Keyboard
+namespace Cartman
 {
-    bool on;                //< Is the keyboard alive?
-    bool override;          //< has the console overridden the keyboard?
-    int count;
-    int delay;
+    struct Keyboard
+    {
+        bool on;                //< Is the keyboard alive?
+        bool override;          //< has the console overridden the keyboard?
+        int count;
+        int delay;
 
-    bool needs_update;
-    Uint8 *sdlbuffer;
-    Uint8 state;
-    SDLMod mod;
-    Cartman_Keyboard();
-    virtual ~Cartman_Keyboard();
-    static bool isKeyDown(Cartman_Keyboard *self, int key);
-    static bool isModDown(Cartman_Keyboard *self, int mod);
-    static bool isDown(Cartman_Keyboard *self, int key, int mod);
-};
-
+        bool needs_update;
+        Uint8 *sdlbuffer;
+        Uint8 state;
+        SDLMod mod;
+        Keyboard();
+        virtual ~Keyboard();
+        static bool isKeyDown(Cartman::Keyboard *self, int key);
+        static bool isModDown(Cartman::Keyboard *self, int mod);
+        static bool isDown(Cartman::Keyboard *self, int key, int mod);
+    };
+}
 
 
 
@@ -105,54 +109,57 @@ struct Cartman_Keyboard
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct Cartman_Input
+namespace Cartman
 {
-private:
-    static Cartman_Input *singleton;
-public:
-    /**
-     * @brief
-     *  Get the input system singleton.
-     * @return
-     *  the input system singleton
-     * @throw std::logic_error
-     *  if the input system is not initialized
-     */
-    static Cartman_Input& get();
-    /**
-     * @brief
-     *  Initialize the input system.
-     */
-    static void initialize();
-    /**
-     * @brief
-     *  Uninitialize the input system-
-     */
-    static void uninitialize();
+    struct Input
+    {
+    private:
+        static Input *_singleton;
+    public:
+        /**
+         * @brief
+         *  Get the input system singleton.
+         * @return
+         *  the input system singleton
+         * @throw std::logic_error
+         *  if the input system is not initialized
+         */
+        static Input& get();
+        /**
+         * @brief
+         *  Initialize the input system.
+         */
+        static void initialize();
+        /**
+         * @brief
+         *  Uninitialize the input system-
+         */
+        static void uninitialize();
 
-    Cartman_Mouse _mouse;
-    Cartman_Keyboard _keyboard;
-    Cartman_Input();
-    virtual ~Cartman_Input();
-    void checkInput();
-protected:
-    bool onMouse(SDL_Event * event);
-    bool onKeyboard(SDL_Event *event);
+        Mouse _mouse;
+        Keyboard _keyboard;
+        Input();
+        virtual ~Input();
+        void checkInput();
+    protected:
+        bool onMouse(SDL_Event * event);
+        bool onKeyboard(SDL_Event *event);
 
-};
+    };
+}
 
 
 bool check_keys(Uint32 resolution);
 
 
 #define CART_BUTTONDOWN(button) \
-    Cartman_Mouse::isButtonDown(&(Cartman_Input::get()._mouse),button)
+    Cartman::Mouse::isButtonDown(&(Cartman::Input::get()._mouse),button)
 
 #define CART_KEYDOWN(key) \
-    Cartman_Keyboard::isKeyDown(&(Cartman_Input::get()._keyboard),key)
+    Cartman::Keyboard::isKeyDown(&(Cartman::Input::get()._keyboard),key)
 
 #define CART_KEYMOD(mod) \
-    Cartman_Keyboard::isModDown(&(Cartman_Input::get()._keyboard),mod)
+    Cartman::Keyboard::isModDown(&(Cartman::Input::get()._keyboard),mod)
 
 #define CART_KEYDOWN_MOD(key,mod) \
-    Cartman_Keyboard::isDown(&(Cartman_Input::get()._keyboard),key,mod)
+    Cartman::Keyboard::isDown(&(Cartman::Input::get()._keyboard),key,mod)

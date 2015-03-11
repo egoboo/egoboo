@@ -65,8 +65,7 @@
 #define DEFAULT_Z_SIZE ( 180 << 4 )
 
 #define CART_VALID_VERTEX_RANGE(IVRT) ( (CHAINEND != (IVRT)) && VALID_MPD_VERTEX_RANGE(IVRT) )
-#define CART_MPD_FAN_PTR(PMESH, IFAN) ( ((NULL == PMESH) || !VALID_MPD_TILE_RANGE(IFAN)) ? NULL : (PMESH)->fan + (IFAN) )
-#define CART_MPD_VERTEX_PTR(PMESH, IVRT) ( ((NULL == PMESH) || !CART_VALID_VERTEX_RANGE(IVRT)) ? NULL : (PMESH)->vrt + (IVRT) )
+
 
 #define GRID_TO_POS( GRID ) ( (float)(GRID) / 3.0f * TILE_FSIZE )
 
@@ -93,11 +92,19 @@ struct cartman_mpd_info_t
     size_t  tiles_count;
     size_t  vertex_count;
 
-    float   edgex;            // Borders of mesh
-    float   edgey;            //
-    float   edgez;            //
-    static cartman_mpd_info_t *ctor(cartman_mpd_info_t *self);
-    static cartman_mpd_info_t *dtor(cartman_mpd_info_t *self);
+    /**
+     * @{
+     * @brief
+     *  The borders of the mesh.
+     */
+    float edgex, edgey, edgez;
+    /**@}*/
+
+    cartman_mpd_info_t();
+    static cartman_mpd_info_t *ctor(cartman_mpd_info_t *self); ///< @todo Remove this.
+    virtual ~cartman_mpd_info_t();
+    static cartman_mpd_info_t *dtor(cartman_mpd_info_t *self); ///< @todo Remove this.
+    static void reset(cartman_mpd_info_t *self);    
 };
 
 
@@ -105,30 +112,127 @@ struct cartman_mpd_info_t
 bool cartman_mpd_info_init(cartman_mpd_info_t *self, int vert_count, size_t tiles_x, size_t tiles_y);
 
 //--------------------------------------------------------------------------------------------
-struct cartman_mpd_vertex_t
+namespace Cartman
 {
-    Uint32  next;   // Next vertex in fan
-    float   x;      // Vertex position
-    float   y;      //
-    float   z;      // Vertex elevation
-    Uint8   a;      // Vertex base light, VERTEXUNUSED == unused
-    static cartman_mpd_vertex_t *ctor(cartman_mpd_vertex_t *self);
-    static cartman_mpd_vertex_t *dtor(cartman_mpd_vertex_t *self);
-};
+    struct mpd_vertex_t
+    {
+        /**
+         * @brief
+         *  The next vertex in the fan of this vertex.
+         * @default
+         *  CHAINEND
+         */
+        Uint32 next;
+        /**
+         * @{
+         * @brief
+         *  The vertex position.
+         * @remark
+         *  @a z is sometimes referred to as the "elevation" of the vertex.
+         * @default
+         *  <tt>(0,0,0)</tt>
+         * @todo
+         *  Use a 3D vector type to represent the position.
+         */
+        float x, y, z;
+        /** @} */
+
+        /**
+         * @brief
+         *  The basic light of the vertex.
+         * @remark
+         *  If this is @a VERTEXUNUSED then the basic light is ignored.
+         * @default
+         *  @a VERTEXUNUSED
+         */
+        Uint8 a;
+
+        /**
+         * @brief
+         *  Construct this vertex with its default values.
+         */
+        mpd_vertex_t();
+        /**
+         * @brief
+         *  Destruct this vertex
+         */
+        virtual ~mpd_vertex_t();
+        /**
+         * @brief
+         *  Reset this vertex to its default values.
+         */
+        static void reset(mpd_vertex_t *self);
+
+        static mpd_vertex_t *ctor(mpd_vertex_t *self); ///< @todo Remove this.
+        static mpd_vertex_t *dtor(mpd_vertex_t *self); ///< @todo Remove this.
+
+    };
+}
 
 
 
-bool cartman_mpd_vertex_ary_ctor( cartman_mpd_vertex_t ary[], size_t size );
-bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size );
+bool cartman_mpd_vertex_ary_ctor(Cartman::mpd_vertex_t ary[], size_t size); ///< @todo Remove this.
+void cartman_mpd_vertex_ary_reset(Cartman::mpd_vertex_t ary[], size_t size);
+bool cartman_mpd_vertex_ary_dtor(Cartman::mpd_vertex_t ary[], size_t size); ///< @todo Remove this.
 
 //--------------------------------------------------------------------------------------------
+/**
+ * @brief
+ *  Information about a tile.
+ */
 struct cartman_mpd_tile_t
 {
-    Uint8   type;           // Tile fan type
-    Uint8   fx;             // Rile special effects flags
-    Uint16  tx_bits;        // Tile texture bits and special tile bits
-    Uint8   twist;          // Surface normal
-    Uint32  vrtstart;       // Which vertex to start at
+    /**
+     * @brief
+     *  The fan type of the tile.
+     * @default
+     *  <tt>0</tt>
+     */
+    Uint8 type;
+    /**
+     * @brief
+     *  The special effects flags of the tile.
+     * @default
+     *  <tt>MAPFX_WALL | MAPFX_IMPASS</tt>
+     */
+    Uint8 fx;
+    /**
+     * @brief
+     *  The texture bits and special tile bits of the tile.
+     * @default
+     *  <tt>MAP_FANOFF</tt>
+     */
+    Uint16 tx_bits;
+    /**
+     * @brief
+     *  The surface normal of this tile.
+     * @default
+     *  <tt>TWIST_FLAT</tt>
+     */
+    Uint8 twist;
+    /**
+     * @brief
+     *  The index of the first vertex of this tile in the vertex array.
+     * @default
+     *  <tt>MAP_FAN_ENTRIES_MAX</tt>
+     */
+    Uint32 vrtstart;
+    /**
+     * @brief
+     *  Construct this tile with its default values.
+     */
+    cartman_mpd_tile_t();
+    /**
+     * @brief
+     *  Destruct this tile.
+     */
+    /**
+     * @brief
+     *  Reset the tile to its default values.
+     * @param self
+     *  the tile
+     */
+    static void reset(cartman_mpd_tile_t *self);
     static cartman_mpd_tile_t *ctor(cartman_mpd_tile_t *self);
     static cartman_mpd_tile_t *dtor(cartman_mpd_tile_t *self);
 };
@@ -141,23 +245,285 @@ bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size );
 //--------------------------------------------------------------------------------------------
 struct cartman_mpd_t
 {
-    Uint32               vrt_free;                        // Number of free vertices
-    Uint32               vrt_at;                          // Current vertex check for new
-    cartman_mpd_vertex_t vrt[MAP_VERTICES_MAX];
+    /**
+     * @brief
+     *  The number of free vertices.
+     * @default
+     *  <tt>MAP_VERTICES_MAX</tt>
+     */
+    Uint32 vrt_free;
+    Uint32 vrt_at;                          // Current vertex check for new
+    std::array<Cartman::mpd_vertex_t, MAP_VERTICES_MAX> vrt2;
 
     cartman_mpd_info_t   info;
-    cartman_mpd_tile_t   fan[MAP_TILE_MAX];
+    std::array<cartman_mpd_tile_t,MAP_TILE_MAX> fan2;
 
-    Uint32               fanstart[MAP_TILEY_MAX];   // Y to fan number
+    /**
+     * @brief
+     *  Maps y-coordinates to "fan indices" i.e. indices into the array @a fan.
+     * @default
+     *  All y-coordinates are mapped to fan index @a 0.
+     */
+    std::array<Uint32,MAP_TILEY_MAX> fanstart2;
 
+    cartman_mpd_t();
     static cartman_mpd_t *ctor(cartman_mpd_t *self);
+    virtual ~cartman_mpd_t();
     static cartman_mpd_t *dtor(cartman_mpd_t *self);
+    static cartman_mpd_t *renew(cartman_mpd_t *self);
+
+    /**
+     * @brief
+     *  Allocates the vertices needed for a fan.
+     * @param ifan
+     *  the fan index
+     * @param x, y
+     *  the position in world coordinates
+     * @return
+     *  the index of the firt vertex of the fan on success, a negative value on failure
+     * @todo
+     *  Rename to <tt>addFan</tt>.
+     */
+    int add_ifan(int ifan, float x, float y);
+    /**
+     * @brief
+     *  Allocates the vertices needed for a fan.
+     * @param pfan
+     *  the fan
+     * @param x, y
+     *  the position in world coordinates
+     * @return
+     *  the index of the firt vertex of the fan on success, a negative value on failure
+     * @todo
+     *  Rename to <tt>addFan</tt>.
+     */
+    int add_pfan(cartman_mpd_tile_t *pfan, float x, float y);
+    /**
+     * @brief
+     *  Removes a fan's vertices from usage and sets the fan to not be drawn.
+     * @param ifan
+     *  the fan index
+     * @todo
+     *  Rename to <tt>removeFan</tt>.
+     */
+    void remove_ifan(int ifan);
+    /**
+     * @brief
+     *  Removes a fan's vertices from usage and sets the fan to not be drawn.
+     * @param pfan
+     *  the fan
+     * @todo
+     *  Rename to <tt>removeFan</tt>.
+     */
+    void remove_pfan(cartman_mpd_tile_t *pfan);
+
+    /**
+     * @brief
+     *  Get the fan index at a point.
+     * @param mapx, mapy
+     *  the point in map coordinates
+     * @return
+     *  the fan index if it exists at the point, @a -1 otherwise
+     */
+    int get_ifan(int mapx, int mapy);
+
+    /**
+     * @brief
+     *  Get the fan at a point.
+     * @param mapx, mapy
+     *  the point in map coordinates
+     * @retun
+     *  the fan if it exists at the point, @a nullptr otherwise
+     * @remark
+     *  A call
+     *  @code
+     *  get_pfan(mapx,mapy)
+     *  @endcode
+     *  is conceptually equivalent to
+     *  @code
+     *  get_pfan(get_ifan(mapx,mapy))
+     *  @endcode
+     */
+    cartman_mpd_tile_t *get_pfan(int mapx, int mapy);
+
+    /**
+     * @brief
+     *  Get the fan at a fan index.
+     * @param ifan
+     *  the fan index
+     * @return
+     *  the fan if the fan index is within bounds, @a nullptr otherwise
+     */
+    cartman_mpd_tile_t *get_pfan(int ifan);
+
+    /**
+     * @brief
+     *  Get the index of a free vertex.
+     * @return
+     *  the index of a free vertex, @a -1 if none was found
+     */
+    int find_free_vertex();
+
+    /**
+     * @brief
+     *  Get the elevation at a point.
+     * @param x,y
+     *  the point in map coordinates
+     * @return
+     *  the elevation at the point.
+     *  In particular, the elevation is @a 0 if the point is outside the map bounds.
+     */
+    float get_level(int mapx, int mapy);
+
+    /**
+     * @brief
+     *  Get the elevation at a point.
+     * @param x,y
+     *  the point in world coordinates
+     * @return
+     *  the elevation at the point.
+     *  In particular, the elevation is @a 0 if the point is outside the map bounds.
+     */
+    float get_level(float x, float y);
+
+    /**
+     * @brief
+     *  Get the vertex index of a vertex in a fan.
+     * @param mapx, mapy
+     *  a point in map coordinates
+     * @param index
+     *  the fan-relative vertex index
+     * @return
+     *  the vertex index if it exists, @a -1 otherwise.
+     * @remark
+     *  A call
+     *  @code
+     *  get_ivrt(mapx,mapy,index)
+     *  @endcode
+     *  is conceptually equivalent to
+     *  @code
+     *  get_ivrt(get_fan(mapx,mapy),index)
+     *  @endcode
+     */
+    int get_ivrt_xy(int mapx, int mapy, int index);
+    /**
+     * @brief
+     *  Get the vertex index of a vertex in a fan.
+     * @param ifan
+     *  the fan index
+     * @param index
+     *  the fan-relative vertex index
+     * @return
+     *  the vertex index if it exists, @a -1 otherwise.
+     */
+    int get_ivrt_fan(int ifan, int index);
+    /**
+     * @brief
+     *  Get the vertex index of a vertex in a fan.
+     * @param pfan
+     *  the fan
+     * @param index
+     *  the fan-relative vertex index
+     * @return
+     *  the vertex index if it exists, @a -1 otherwise.
+     */
+    int get_ivrt_pfan(cartman_mpd_tile_t *pfan, int index);
+
+    /**
+     * @brief
+     *  Get the vertex at a vertex index.
+     * @param ivert
+     *  the vertex index
+     * @return
+     *  the vertex if the vertex index is within bounds, @a nullptr otherwise
+     */
+    Cartman::mpd_vertex_t *get_vertex(int ivert);
+    const Cartman::mpd_vertex_t *get_vertex(int ivert) const;
+
+public:
+
+    /**
+     * @brief
+     *  Re-count used vertices.
+     * @return
+     *  the number of used vertices.
+     */
+    int count_used_vertices();
+
+protected:
+    /**
+     * @brief
+     *  Re-count unused vertices and update self->vrt_free.
+     */
+    void free_vertex_count();
 };
 
+/// @todo Removet his, use cartman_mpd_t::get_vertex(int).
+#define CART_MPD_VERTEX_PTR(PMESH, IVERTEX) (!(PMESH) ? nullptr : (PMESH)->get_vertex(IVERTEX))
 
-cartman_mpd_t *cartman_mpd_renew(cartman_mpd_t *self);
+/// @todo Remove this, use cartman_mpd_t::get_pfan(int).
+#define CART_MPD_FAN_PTR(PMESH, IFAN)       (!(PMESH) ? nullptr : (PMESH)->get_pfan(IFAN))
+
+/**
+ * @brief
+ *  Project a point from world to map coordinates.
+ * @param worldx, worldy
+ *  the point in world coordinates
+ * @param mapx, mapy
+ *  the point in map coordinates
+ * @remark
+ *  Many world coordinate points are be projected on the same map coordinate.
+ */
+inline void worldToMap(float worldx, float worldy, int& mapx, int& mapy)
+{
+    mapx = FLOOR(worldx / TILE_FSIZE);
+    mapy = FLOOR(worldy / TILE_FSIZE);
+}
+
+/**
+ * @brief
+ *  Project a point from map coordinates to world coordinates.
+ * @param mapx, mapy
+ *  the point in map coordinates
+ * @param worldx, worldy
+ *  the point in world coordinates
+ * @param tx, ty
+ *   see remarks
+ * @remark
+ *   As a point in map coordinates maps to a rectangle of points in world coordinates;
+ *   to select a distinct point from the rectangle, the paramters @a tx and @a ty are
+ *   used.
+ */
+inline void mapToWorld(int mapx, int mapy, float& worldx, float& worldy, float tx,float ty)
+{
+    worldx = mapx * TILE_FSIZE + tx * TILE_FSIZE;
+    worldy = mapy * TILE_FSIZE + ty * TILE_FSIZE;
+}
+
+
+
+
+
 int cartman_mpd_free_vertex_list(cartman_mpd_t *self, int list[], size_t size);
 int cartman_mpd_allocate_vertex_list(cartman_mpd_t *self, int list[], size_t size, size_t count);
+void cartman_mpd_make_fanstart(cartman_mpd_t *self);
+
+
+/**
+ * @brief
+ *  Set all vertices to unused.
+ */
+void cartman_mpd_free_vertices(cartman_mpd_t *self);
+
+bool cartman_mpd_link_vertex(cartman_mpd_t *self, int iparent, int child);
+Uint8 cartman_mpd_get_fan_twist(cartman_mpd_t *self, Uint32 fan);
+
+
+
+Cartman::mpd_vertex_t *cartman_mpd_get_pvrt_idx(cartman_mpd_t *self, cartman_mpd_tile_t *pfan, int idx, int *ivrt_ptr);
+Cartman::mpd_vertex_t *cartman_mpd_get_pvrt_ivrt(cartman_mpd_t *self, cartman_mpd_tile_t *pfan, int ivrt);
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -177,33 +543,9 @@ cartman_mpd_t *cartman_mpd_load_vfs( /* const char *modname, */ cartman_mpd_t *s
 cartman_mpd_t *cartman_mpd_save_vfs( /*const char *modname,*/ cartman_mpd_t *self);
 cartman_mpd_t *cartman_mpd_create(cartman_mpd_t *self, int tiles_x, int tiles_y);
 
+
+
 void cartman_mpd_make_twist();
-void cartman_mpd_make_fanstart( cartman_mpd_t * pmesh );
-
-void cartman_mpd_free_vertex_count( cartman_mpd_t * pmesh );
-int  cartman_mpd_count_vertices( cartman_mpd_t * pmesh );
-
-void cartman_mpd_free_vertices( cartman_mpd_t * pmesh );
-int cartman_mpd_find_free_vertex( cartman_mpd_t * pmesh );
-bool cartman_mpd_link_vertex( cartman_mpd_t * pmesh, int iparent, int child );
-
-Uint8 cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, Uint32 fan );
-float cartman_mpd_get_level( cartman_mpd_t * pmesh, float x, float y );
-int cartman_mpd_get_ifan( cartman_mpd_t * pmesh, int mapx, int mapy );
-cartman_mpd_tile_t * cartman_mpd_get_pfan( cartman_mpd_t * pmesh, int mapx, int mapy );
-
-int cartman_mpd_get_ivrt_xy( cartman_mpd_t * pmesh, int mapx, int mapy, int index );
-int cartman_mpd_get_ivrt_fan( cartman_mpd_t * pmesh, int fan, int index );
-int cartman_mpd_get_ivrt_pfan( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int index );
-
-cartman_mpd_vertex_t * cartman_mpd_get_pvrt_idx( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int idx, int * ivrt_ptr );
-cartman_mpd_vertex_t * cartman_mpd_get_pvrt_ivrt( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int ivrt );
-
-void cartman_mpd_remove_ifan( cartman_mpd_t * pmesh, int fan );
-void cartman_mpd_remove_pfan( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan );
-int cartman_mpd_add_ifan( cartman_mpd_t * pmesh, int ifan, float x, float y );
-int cartman_mpd_add_pfan( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, float x, float y );
-
 void tile_dict_lines_add( int fantype, int start, int end );
 void cartman_tile_dictionary_load_vfs();
 
