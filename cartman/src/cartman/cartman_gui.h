@@ -103,11 +103,35 @@ struct s_ui_state
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void Cartman_GUI_initialize();
-void Cartman_GUI_uninitialize();
+struct Cartman_GUI_Cursor;
+
+struct Cartman_GUI
+{
+    static void initialize();
+    static void uninitialize();
+    static std::shared_ptr<Cartman_Window> findWindow(int x, int y);
+};
+
+
 extern std::vector<std::shared_ptr<Cartman_Window>> _window_lst;
+extern std::shared_ptr<Cartman_GUI_Cursor> _cursor_2;
 extern ui_state_t ui;
-extern SDL_Surface *bmpcursor;         // Cursor image
+
+/**
+ * @brief
+ *  An image cursor.
+ * @todo
+ *  The SDL surface is not used as it seems.
+ */
+struct Cartman_GUI_Cursor
+{
+    /// The cursor image.
+    SDL_Surface *_surface;
+    /// Create a cursor.
+    Cartman_GUI_Cursor();
+    /// Destroy a cursor.
+    virtual ~Cartman_GUI_Cursor();
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -116,4 +140,4 @@ void do_cursor();
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue );
 void show_name( const char *newloadname, SDL_Color fnt_color );
 void load_window(std::shared_ptr<Cartman_Window> pwin, int id, char *loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
-std::shared_ptr<Cartman_Window> find_window(int x, int y);
+

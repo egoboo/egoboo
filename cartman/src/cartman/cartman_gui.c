@@ -23,28 +23,70 @@
 #include "cartman/cartman_input.h"
 #include "cartman/cartman_math.h"
 #include "cartman/cartman_gfx.h"
+#include "cartman/SDL_Pixel.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+Cartman_GUI_Cursor::Cartman_GUI_Cursor() :
+    _surface(nullptr)
+{
+    _surface = cartman_CreateSurface(8, 8);
+    if (!_surface)
+    {
+        throw std::bad_alloc();
+    }
+    Uint32 col = MAKE_BGR(_surface, 31, 31, 31);    // White color
+    Uint32 loc = MAKE_BGR(_surface, 3, 3, 3);       // Gray color
+    Uint32 clr = MAKE_ABGR(_surface, 0, 0, 0, 8);
+
+    // Simple triangle
+    SDL_Rect rtmp;
+    rtmp.x = 0;
+    rtmp.y = 0;
+    rtmp.w = 8;
+    rtmp.h = 1;
+    SDL_FillRect(_surface, &rtmp, loc);
+
+    for (int y = 0; y < 8; y++)
+    {
+        for (int x = 0; x < 8; x++)
+        {
+            if (x + y < 8) SDL_PutPixel(_surface, x, y, col);
+            else SDL_PutPixel(_surface, x, y, clr);
+        }
+    }
+}
+
+Cartman_GUI_Cursor::~Cartman_GUI_Cursor()
+{
+    if (_surface)
+    {
+        SDL_FreeSurface(_surface);
+        _surface = nullptr;
+    }
+}
 
 std::vector<std::shared_ptr<Cartman_Window>> _window_lst;
+std::shared_ptr<Cartman_GUI_Cursor> _cursor_2;
+ui_state_t ui;
 
-void Cartman_GUI_initialize()
+void Cartman_GUI::initialize()
 {
     for (size_t i = 0; i < MAXWIN; ++i)
     {
         _window_lst.push_back(std::make_shared<Cartman_Window>());
     }
+    _cursor_2 = std::make_shared<Cartman_GUI_Cursor>();
 }
 
-void Cartman_GUI_uninitialize()
+void Cartman_GUI::uninitialize()
 {
+    _cursor_2 = nullptr;
     _window_lst.clear();
 }
 
-ui_state_t ui;
 
-SDL_Surface * bmpcursor = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -58,7 +100,7 @@ void do_cursor()
     ui.cur_y = Cartman_Input::get()._mouse.y;
     if ( ui.cur_y < 6 )  ui.cur_y = 6;  if ( ui.cur_y > sdl_scr.y - 6 )  ui.cur_y = sdl_scr.y - 6;
 
-    left_press = MOUSE_PRESSED( SDL_BUTTON_LEFT );
+    left_press = CART_BUTTONDOWN(SDL_BUTTON_LEFT);
 
     ui.clicked = false;
     if ( left_press && !ui.pressed )
@@ -148,7 +190,7 @@ bool Cartman_Window::isOver(int x, int y) const
     return true;
 }
 
-std::shared_ptr<Cartman_Window> find_window(int x, int y)
+std::shared_ptr<Cartman_Window> Cartman_GUI::findWindow(int x, int y)
 {
     std::shared_ptr<Cartman_Window> result = nullptr;
     for (auto window : _window_lst)

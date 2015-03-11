@@ -49,10 +49,7 @@ struct Cartman_Mouse
 
     Cartman_Mouse();
     virtual ~Cartman_Mouse();
-#if 0
-    static Cartman_Mouse *ctor(Cartman_Mouse *self);
-    static void dtor(Cartman_Mouse *self);
-#endif
+
     static void update(Cartman_Mouse *self);
     /**
     * @brief
@@ -84,10 +81,6 @@ struct Cartman_Keyboard
     SDLMod mod;
     Cartman_Keyboard();
     virtual ~Cartman_Keyboard();
-#if 0
-    static Cartman_Keyboard *ctor(Cartman_Keyboard *self);
-    static void dtor(Cartman_Keyboard *self);
-#endif
     static bool isKeyDown(Cartman_Keyboard *self, int key);
     static bool isModDown(Cartman_Keyboard *self, int mod);
     static bool isDown(Cartman_Keyboard *self, int key, int mod);
@@ -141,22 +134,18 @@ public:
     Cartman_Keyboard _keyboard;
     Cartman_Input();
     virtual ~Cartman_Input();
-#if 0
-    static Cartman_Input *ctor(Cartman_Input *self);
-    static void dtor(Cartman_Input *self);
-#endif
+    void checkInput();
+protected:
+    bool onMouse(SDL_Event * event);
+    bool onKeyboard(SDL_Event *event);
+
 };
 
-#if 0
-extern Cartman_Input g_input;
-#endif
 
-
-void check_input();
 bool check_keys(Uint32 resolution);
 
-/// @todo At least rename to CART_BUTTONDOWN.
-#define MOUSE_PRESSED(button) \
+
+#define CART_BUTTONDOWN(button) \
     Cartman_Mouse::isButtonDown(&(Cartman_Input::get()._mouse),button)
 
 #define CART_KEYDOWN(key) \

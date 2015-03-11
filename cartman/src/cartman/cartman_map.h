@@ -28,26 +28,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if 0
-struct map_t;
-#endif
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-struct tile_line_data_t;
-struct cartman_gl_command_t;
-struct cartman_mpd_t;
-struct cartman_mpd_create_info_t;
-struct tile_dictionary_lines_t;
-struct  cartman_mpd_info_t;
-struct cartman_mpd_vertex_t;
-struct cartman_mpd_tile_t;
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 #define CHAINEND 0xFFFFFFFF     // End of vertex chain
 #define VERTEXUNUSED 0          // Check mesh.vrta to see if used
 
@@ -116,12 +96,13 @@ struct cartman_mpd_info_t
     float   edgex;            // Borders of mesh
     float   edgey;            //
     float   edgez;            //
+    static cartman_mpd_info_t *ctor(cartman_mpd_info_t *self);
+    static cartman_mpd_info_t *dtor(cartman_mpd_info_t *self);
 };
 
-cartman_mpd_info_t * cartman_mpd_info_ctor( cartman_mpd_info_t * );
-cartman_mpd_info_t * cartman_mpd_info_dtor( cartman_mpd_info_t * );
 
-bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y );
+
+bool cartman_mpd_info_init(cartman_mpd_info_t *self, int vert_count, size_t tiles_x, size_t tiles_y);
 
 //--------------------------------------------------------------------------------------------
 struct cartman_mpd_vertex_t
@@ -131,10 +112,11 @@ struct cartman_mpd_vertex_t
     float   y;      //
     float   z;      // Vertex elevation
     Uint8   a;      // Vertex base light, VERTEXUNUSED == unused
+    static cartman_mpd_vertex_t *ctor(cartman_mpd_vertex_t *self);
+    static cartman_mpd_vertex_t *dtor(cartman_mpd_vertex_t *self);
 };
 
-cartman_mpd_vertex_t * cartman_mpd_vertex_ctor( cartman_mpd_vertex_t * );
-cartman_mpd_vertex_t * cartman_mpd_vertex_dtor( cartman_mpd_vertex_t * );
+
 
 bool cartman_mpd_vertex_ary_ctor( cartman_mpd_vertex_t ary[], size_t size );
 bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size );
@@ -142,15 +124,16 @@ bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size );
 //--------------------------------------------------------------------------------------------
 struct cartman_mpd_tile_t
 {
-    Uint8   type;        // Tile fan type
+    Uint8   type;           // Tile fan type
     Uint8   fx;             // Rile special effects flags
     Uint16  tx_bits;        // Tile texture bits and special tile bits
     Uint8   twist;          // Surface normal
     Uint32  vrtstart;       // Which vertex to start at
+    static cartman_mpd_tile_t *ctor(cartman_mpd_tile_t *self);
+    static cartman_mpd_tile_t *dtor(cartman_mpd_tile_t *self);
 };
 
-cartman_mpd_tile_t * cartman_mpd_tile_ctor( cartman_mpd_tile_t * );
-cartman_mpd_tile_t * cartman_mpd_tile_dtor( cartman_mpd_tile_t * );
+
 
 bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size );
 bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size );
@@ -166,14 +149,15 @@ struct cartman_mpd_t
     cartman_mpd_tile_t   fan[MAP_TILE_MAX];
 
     Uint32               fanstart[MAP_TILEY_MAX];   // Y to fan number
+
+    static cartman_mpd_t *ctor(cartman_mpd_t *self);
+    static cartman_mpd_t *dtor(cartman_mpd_t *self);
 };
 
-cartman_mpd_t * cartman_mpd_ctor( cartman_mpd_t * );
-cartman_mpd_t * cartman_mpd_dtor( cartman_mpd_t * );
-cartman_mpd_t * cartman_mpd_renew( cartman_mpd_t * );
 
-int cartman_mpd_free_vertex_list( cartman_mpd_t * pmesh, int list[], size_t size );
-int cartman_mpd_allocate_vertex_list( cartman_mpd_t * pmesh, int list[], size_t size, size_t count );
+cartman_mpd_t *cartman_mpd_renew(cartman_mpd_t *self);
+int cartman_mpd_free_vertex_list(cartman_mpd_t *self, int list[], size_t size);
+int cartman_mpd_allocate_vertex_list(cartman_mpd_t *self, int list[], size_t size, size_t count);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -189,9 +173,9 @@ extern tile_line_data_t tile_dict_lines[MAP_FAN_TYPE_MAX];
 //--------------------------------------------------------------------------------------------
 
 // loading/saving
-cartman_mpd_t * cartman_mpd_load_vfs( /* const char *modname, */ cartman_mpd_t * pmesh );
-cartman_mpd_t * cartman_mpd_save_vfs( /*const char *modname,*/ cartman_mpd_t * pmesh );
-cartman_mpd_t * cartman_mpd_create( cartman_mpd_t * pmesh, int tiles_x, int tiles_y );
+cartman_mpd_t *cartman_mpd_load_vfs( /* const char *modname, */ cartman_mpd_t *self);
+cartman_mpd_t *cartman_mpd_save_vfs( /*const char *modname,*/ cartman_mpd_t *self);
+cartman_mpd_t *cartman_mpd_create(cartman_mpd_t *self, int tiles_x, int tiles_y);
 
 void cartman_mpd_make_twist();
 void cartman_mpd_make_fanstart( cartman_mpd_t * pmesh );
@@ -225,23 +209,3 @@ void cartman_tile_dictionary_load_vfs();
 
 // utility
 Uint8 cartman_mpd_calc_twist( int dx, int dy );
-
-//--------------------------------------------------------------------------------------------
-// OBSOLETE?
-//--------------------------------------------------------------------------------------------
-//struct s_cartman_gl_command
-//{
-//    Uint8   numvertices;                // Number of vertices
-//
-//    Uint8   ref[MAP_FAN_VERTICES_MAX];       // Lighting references
-//
-//    int     x[MAP_FAN_VERTICES_MAX];         // Vertex texture posi
-//    int     y[MAP_FAN_VERTICES_MAX];         //
-//
-//    float   u[MAP_FAN_VERTICES_MAX];         // Vertex texture posi
-//    float   v[MAP_FAN_VERTICES_MAX];         //
-//
-//    int     count;                      // how many commands
-//    int     size[MAP_FAN_MAX];      // how many command entries
-//    int     vrt[MAP_FAN_ENTRIES_MAX];       // which vertex for each command entry
-//};

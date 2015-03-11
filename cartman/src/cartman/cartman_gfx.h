@@ -176,9 +176,9 @@ void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera
 void cartman_end_ortho_camera();
 
 // setup
-void create_imgcursor( void );
-void load_img( void );
-void get_tiles( SDL_Surface* bmpload );
+
+void load_img();
+void get_tiles(SDL_Surface* bmpload);
 
 // misc
 oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy );

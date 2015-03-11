@@ -48,7 +48,7 @@ Font * gfx_font_ptr = NULL;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-camera_t        cam;
+camera_t cam;
 
 Sint16          damagetileparttype;
 short           damagetilepartand;
@@ -1205,33 +1205,6 @@ void cartman_end_ortho_camera()
 }
 
 //--------------------------------------------------------------------------------------------
-void create_imgcursor()
-{
-    int x, y;
-    Uint32 col, loc, clr;
-    SDL_Rect rtmp;
-
-    bmpcursor = cartman_CreateSurface( 8, 8 );
-    col = MAKE_BGR( bmpcursor, 31, 31, 31 );    // White color
-    loc = MAKE_BGR( bmpcursor, 3, 3, 3 );           // Gray color
-    clr = MAKE_ABGR( bmpcursor, 0, 0, 0, 8 );
-
-    // Simple triangle
-    rtmp.x = 0;
-    rtmp.y = 0;
-    rtmp.w = 8;
-    rtmp.h = 1;
-    SDL_FillRect( bmpcursor, &rtmp, loc );
-
-    for ( y = 0; y < 8; y++ )
-    {
-        for ( x = 0; x < 8; x++ )
-        {
-            if ( x + y < 8 ) SDL_PutPixel( bmpcursor, x, y, col );
-            else SDL_PutPixel( bmpcursor, x, y, clr );
-        }
-    }
-}
 
 //--------------------------------------------------------------------------------------------
 void load_img()
@@ -1375,17 +1348,18 @@ void get_tiles( SDL_Surface* bmpload )
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_Surface * cartman_CreateSurface( int w, int h )
+SDL_Surface *cartman_CreateSurface(int w, int h)
 {
-    SDL_PixelFormat   tmpformat;
-
     if ( NULL == theSurface ) return NULL;
 
-    // expand the screen format to support alpha
-    memcpy( &tmpformat, theSurface->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
-    SDLX_ExpandFormat( &tmpformat );
+    // Expand the screen format to support alpha.
+    // a) Copy the format of the main surface.
+    SDL_PixelFormat format;
+    memcpy(&format, theSurface->format, sizeof(SDL_PixelFormat));
+    // b) Expand the format.
+    SDLX_ExpandFormat(&format);
 
-    return SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
+    return SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, format.BitsPerPixel, format.Rmask, format.Gmask, format.Bmask, format.Amask);
 }
 
 //--------------------------------------------------------------------------------------------

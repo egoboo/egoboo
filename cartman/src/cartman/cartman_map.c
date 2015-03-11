@@ -64,102 +64,106 @@ Uint8 cartman_mpd_calc_twist( int dx, int dy )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-cartman_mpd_t * cartman_mpd_ctor( cartman_mpd_t * ptr )
+cartman_mpd_t *cartman_mpd_t::ctor(cartman_mpd_t *self)
 {
-    if ( NULL == ptr ) ptr = &mesh;
-
-    BLANK_STRUCT_PTR( ptr );
-
-    cartman_mpd_vertex_ary_ctor( ptr->vrt, SDL_arraysize( ptr->vrt ) );
-    ptr->vrt_free = SDL_arraysize( ptr->vrt );
-    ptr->vrt_at   = 0;
-
-    cartman_mpd_info_ctor( &( ptr->info ) );
-
-    cartman_mpd_tile_ary_ctor( ptr->fan, SDL_arraysize( ptr->fan ) );
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-cartman_mpd_t * cartman_mpd_dtor( cartman_mpd_t * ptr )
-{
-    if ( NULL == ptr ) ptr = &mesh;
-
-    cartman_mpd_vertex_ary_dtor( ptr->vrt, SDL_arraysize( ptr->vrt ) );
-    ptr->vrt_free = 0;
-    ptr->vrt_at   = 0;
-
-    cartman_mpd_info_ctor( &( ptr->info ) );
-
-    cartman_mpd_tile_ary_dtor( ptr->fan, SDL_arraysize( ptr->fan ) );
-
-    BLANK_STRUCT_PTR( ptr );
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-cartman_mpd_t * cartman_mpd_renew( cartman_mpd_t * ptr )
-{
-    ptr = cartman_mpd_dtor( ptr );
-    ptr = cartman_mpd_ctor( ptr );
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-cartman_mpd_tile_t * cartman_mpd_tile_ctor( cartman_mpd_tile_t * ptr )
-{
-    if ( NULL == ptr ) return ptr;
-
-    BLANK_STRUCT_PTR( ptr );
-
-    ptr->tx_bits  = MAP_FANOFF;
-    ptr->twist    = TWIST_FLAT;
-    ptr->fx       = MAPFX_WALL | MAPFX_IMPASS;
-    ptr->vrtstart = MAP_FAN_ENTRIES_MAX;
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-cartman_mpd_tile_t * cartman_mpd_tile_dtor( cartman_mpd_tile_t * ptr )
-{
-    if ( NULL == ptr ) return ptr;
-
-    BLANK_STRUCT_PTR( ptr );
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool cartman_mpd_vertex_ary_ctor( cartman_mpd_vertex_t ary[], size_t size )
-{
-    size_t cnt;
-
-    if ( NULL == ary || 0 == size ) return false;
-
-    for ( cnt = 0; cnt < size; cnt++ )
+    if (!self)
     {
-        cartman_mpd_vertex_ctor( ary + cnt );
+        self = &mesh; /// @todo Bad!
+    }
+    BLANK_STRUCT_PTR(self);
+
+    cartman_mpd_vertex_ary_ctor(self->vrt, SDL_arraysize(self->vrt));
+    self->vrt_free = SDL_arraysize(self->vrt);
+    self->vrt_at   = 0;
+
+    cartman_mpd_info_t::ctor(&(self->info));
+
+    cartman_mpd_tile_ary_ctor(self->fan, SDL_arraysize(self->fan));
+
+    return self;
+}
+
+//--------------------------------------------------------------------------------------------
+cartman_mpd_t *cartman_mpd_t::dtor(cartman_mpd_t *self)
+{
+    if (!self)
+    {
+        self = &mesh; /// @todo Bad!
+    }
+    cartman_mpd_vertex_ary_dtor(self->vrt, SDL_arraysize(self->vrt));
+    self->vrt_free = 0;
+    self->vrt_at   = 0;
+
+    cartman_mpd_info_t::ctor(&(self->info));
+
+    cartman_mpd_tile_ary_dtor(self->fan, SDL_arraysize(self->fan ));
+
+    BLANK_STRUCT_PTR(self);
+
+    return self;
+}
+
+//--------------------------------------------------------------------------------------------
+cartman_mpd_t *cartman_mpd_renew(cartman_mpd_t *self)
+{
+    self = cartman_mpd_t::dtor(self);
+    self = cartman_mpd_t::ctor(self);
+
+    return self;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+cartman_mpd_tile_t *cartman_mpd_tile_t::ctor(cartman_mpd_tile_t *self)
+{
+    if (!self)
+    {
+        return nullptr;
+    }
+    BLANK_STRUCT_PTR(self);
+
+    self->tx_bits = MAP_FANOFF;
+    self->twist = TWIST_FLAT;
+    self->fx = MAPFX_WALL | MAPFX_IMPASS;
+    self->vrtstart = MAP_FAN_ENTRIES_MAX;
+
+    return self;
+}
+
+//--------------------------------------------------------------------------------------------
+cartman_mpd_tile_t *cartman_mpd_tile_t::dtor(cartman_mpd_tile_t *self)
+{
+    if (!self)
+    {
+        return self;
+    }
+    BLANK_STRUCT_PTR(self);
+
+    return self;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool cartman_mpd_vertex_ary_ctor(cartman_mpd_vertex_t ary[], size_t size)
+{
+    if (!ary || !size) return false;
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        cartman_mpd_vertex_t::ctor(ary + i);
     }
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size )
+bool cartman_mpd_vertex_ary_dtor(cartman_mpd_vertex_t ary[], size_t size)
 {
-    size_t cnt;
+    if (!ary || !size) return false;
 
-    if ( NULL == ary || 0 == size ) return false;
-
-    for ( cnt = 0; cnt < size; cnt++ )
+    for (size_t i = 0; i < size; ++i)
     {
-        cartman_mpd_vertex_ctor( ary + cnt );
+        cartman_mpd_vertex_t::ctor(ary + i);
     }
 
     return true;
@@ -169,13 +173,11 @@ bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size )
 //--------------------------------------------------------------------------------------------
 bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size )
 {
-    size_t cnt;
-
     if ( NULL == ary || 0 == size ) return false;
 
-    for ( cnt = 0; cnt < size; cnt++ )
+    for (size_t i = 0; i < size; ++i)
     {
-        cartman_mpd_tile_ctor( ary + cnt );
+        cartman_mpd_tile_t::ctor(ary + i);
     }
 
     return true;
@@ -184,13 +186,11 @@ bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size )
 //--------------------------------------------------------------------------------------------
 bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size )
 {
-    size_t cnt;
-
     if ( NULL == ary || 0 == size ) return false;
 
-    for ( cnt = 0; cnt < size; cnt++ )
+    for (size_t i = 0; i < size; ++i)
     {
-        cartman_mpd_tile_ctor( ary + cnt );
+        cartman_mpd_tile_t::ctor(ary + i);
     }
 
     return true;
@@ -198,47 +198,53 @@ bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-cartman_mpd_vertex_t * cartman_mpd_vertex_ctor( cartman_mpd_vertex_t * ptr )
+cartman_mpd_vertex_t *cartman_mpd_vertex_t::ctor(cartman_mpd_vertex_t *self)
 {
-    if ( NULL == ptr ) return ptr;
+    if (!self)
+    {
+        return self;
+    }
+    BLANK_STRUCT_PTR(self);
 
-    BLANK_STRUCT_PTR( ptr );
+    self->a = VERTEXUNUSED;
+    self->next = CHAINEND;
 
-    ptr->a    = VERTEXUNUSED;
-    ptr->next = CHAINEND;
-
-    return ptr;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-cartman_mpd_vertex_t * cartman_mpd_vertex_dtor( cartman_mpd_vertex_t * ptr )
+cartman_mpd_vertex_t *cartman_mpd_vertex_t::dtor(cartman_mpd_vertex_t *self)
 {
-    if ( NULL == ptr ) return ptr;
+    if (!self)
+    {
+        return self;
+    }
+    BLANK_STRUCT_PTR(self);
 
-    BLANK_STRUCT_PTR( ptr );
-
-    return ptr;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-cartman_mpd_info_t * cartman_mpd_info_ctor( cartman_mpd_info_t * ptr )
+cartman_mpd_info_t *cartman_mpd_info_t::ctor(cartman_mpd_info_t *self)
 {
-    if ( NULL == ptr ) return ptr;
-
-    BLANK_STRUCT_PTR( ptr );
-
-    return ptr;
+    if (!self)
+    {
+        return nullptr;
+    }
+    BLANK_STRUCT_PTR(self);
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-cartman_mpd_info_t * cartman_mpd_info_dtor( cartman_mpd_info_t * ptr )
+cartman_mpd_info_t *cartman_mpd_info_t::dtor(cartman_mpd_info_t *self)
 {
-    if ( NULL == ptr ) return ptr;
-
-    BLANK_STRUCT_PTR( ptr );
-
-    return ptr;
+    if (!self)
+    {
+        return nullptr;
+    }
+    BLANK_STRUCT_PTR(self);
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -279,7 +285,7 @@ cartman_mpd_t * cartman_mpd_load_vfs( /* const char *modname, */ cartman_mpd_t *
         // create a new mesh if we are passed a NULL pointer
         if ( NULL == pmesh )
         {
-            pmesh = cartman_mpd_ctor( pmesh );
+            pmesh = cartman_mpd_t::ctor(pmesh);
         }
 
         if ( NULL == pmesh ) return pmesh;
@@ -742,7 +748,7 @@ int cartman_mpd_allocate_vertex_list( cartman_mpd_t * pmesh, int list[], size_t 
         pmesh->vrt_free = vrt_free_old;
         for ( cnt = 0; cnt < valid_verts; cnt++ )
         {
-            cartman_mpd_vertex_ctor( pmesh->vrt + list[cnt] );
+            cartman_mpd_vertex_t::ctor( pmesh->vrt + list[cnt] );
         }
 
         // tell the caller we failed

@@ -33,9 +33,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_cart_mouse_data;
-typedef struct s_cart_mouse_data cart_mouse_data_t;
-
 struct s_light;
 typedef struct s_light light_t;
 
@@ -51,7 +48,7 @@ struct s_light
 };
 
 //--------------------------------------------------------------------------------------------
-struct s_cart_mouse_data
+struct Cartman_MouseData
 {
     // click/drag window
     int             win_id;
@@ -82,7 +79,7 @@ struct s_cart_mouse_data
     float   rect_z1;     //
 };
 
-static cart_mouse_data_t * cart_mouse_data_ctor( cart_mouse_data_t * );
+static Cartman_MouseData *cart_mouse_data_ctor(Cartman_MouseData *self);
 static void cart_mouse_data_toggle_fx( int fxmask );
 
 // helper functions
@@ -107,7 +104,7 @@ Uint32  onscreen_vert[MAXPOINTS];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static cart_mouse_data_t mdata = { -1 };
+static Cartman_MouseData mdata = { -1 };
 
 static float cartman_zoom_hrz = 1.0f;
 static float cartman_zoom_vrt = 1.0f;
@@ -963,7 +960,7 @@ void mesh_calc_vrta( cartman_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 void move_camera( cartman_mpd_info_t * pinfo )
 {
-    if (( -1 != mdata.win_id ) && ( MOUSE_PRESSED( SDL_BUTTON_MIDDLE ) || CART_KEYDOWN( SDLK_m ) ) )
+    if ((-1 != mdata.win_id) && (CART_BUTTONDOWN(SDL_BUTTON_MIDDLE) || CART_KEYDOWN(SDLK_m)))
     {
         cam.x += Cartman_Input::get()._mouse.x - Cartman_Input::get()._mouse.x_old;
         cam.y += Cartman_Input::get()._mouse.y - Cartman_Input::get()._mouse.y_old;
@@ -1045,7 +1042,7 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_h
         debugx = mpos_x;
         debugy = mpos_z;
 
-        if ( MOUSE_PRESSED( SDL_BUTTON_LEFT ) )
+        if (CART_BUTTONDOWN(SDL_BUTTON_LEFT))
         {
             if ( -1 == mdata.rect_drag )
             {
@@ -1098,7 +1095,7 @@ void cartman_check_mouse_side(std::shared_ptr<Cartman_Window> pwin, float zoom_h
             mdata.rect_done = -1;
         }
 
-        if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
+        if (CART_BUTTONDOWN(SDL_BUTTON_RIGHT))
         {
             mesh_select_move(&(mdata.win_select), Cartman_Input::get()._mouse.cx / zoom_hrz, 0, -Cartman_Input::get()._mouse.cy / zoom_vrt);
             bound_mouse();
@@ -1211,12 +1208,12 @@ void cartman_check_mouse_tile(std::shared_ptr<Cartman_Window> pwin, float zoom_h
         fan_tmp = cartman_mpd_get_ifan( pwin->pmesh, mdata.win_fan_x, mdata.win_fan_y );
         if ( VALID_MPD_TILE_RANGE( fan_tmp ) ) mdata.win_fan = fan_tmp;
 
-        if ( MOUSE_PRESSED( SDL_BUTTON_LEFT ) )
+        if (CART_BUTTONDOWN(SDL_BUTTON_LEFT))
         {
             cart_mouse_data_mesh_replace_tile( CART_KEYDOWN( SDLK_t ), CART_KEYDOWN( SDLK_v ) );
         }
 
-        if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
+        if (CART_BUTTONDOWN(SDL_BUTTON_RIGHT))
         {
             // force an update of mdata.win_fan
             mdata.win_fan = fan_tmp;
@@ -1322,7 +1319,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz
         fan_tmp = cartman_mpd_get_ifan( pwin->pmesh, mdata.win_fan_x, mdata.win_fan_y );
         if ( VALID_MPD_TILE_RANGE( fan_tmp ) ) mdata.win_fan = fan_tmp;
 
-        if ( MOUSE_PRESSED( SDL_BUTTON_LEFT ) )
+        if (CART_BUTTONDOWN(SDL_BUTTON_LEFT))
         {
             if ( !CART_KEYDOWN( SDLK_LSHIFT ) )
             {
@@ -1334,7 +1331,7 @@ void cartman_check_mouse_fx(std::shared_ptr<Cartman_Window> pwin, float zoom_hrz
             }
         }
 
-        if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
+        if (CART_BUTTONDOWN(SDL_BUTTON_RIGHT))
         {
             mdata.win_fan = fan_tmp;
 
@@ -1420,7 +1417,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom
         debugx = mpos_x;
         debugy = mpos_y;
 
-        if ( MOUSE_PRESSED( SDL_BUTTON_LEFT ) )
+        if (CART_BUTTONDOWN(SDL_BUTTON_LEFT))
         {
             if ( -1 == mdata.rect_drag )
             {
@@ -1471,7 +1468,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom
             mdata.rect_done = -1;
         }
 
-        if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
+        if (CART_BUTTONDOWN(SDL_BUTTON_RIGHT))
         {
             mesh_select_move( &( mdata.win_select ), Cartman_Input::get()._mouse.cx / zoom_vrt, Cartman_Input::get()._mouse.cy / zoom_vrt, 0 );
             bound_mouse();
@@ -1483,7 +1480,7 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom
             fix_vertices( pwin->pmesh,  FLOOR( mdata.win_mpos_x / TILE_FSIZE ), FLOOR( mdata.win_mpos_y / TILE_FSIZE ) );
         }
 
-        if ( CART_KEYDOWN( SDLK_p ) || ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) && 0 == select_lst_count( &( mdata.win_select ) ) ) )
+        if (CART_KEYDOWN(SDLK_p) || (CART_BUTTONDOWN(SDL_BUTTON_RIGHT) && 0 == select_lst_count(&(mdata.win_select))))
         {
             raise_mesh( mdata.win_mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
         }
@@ -1546,7 +1543,7 @@ void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
 //--------------------------------------------------------------------------------------------
 bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 {
-    if ( !check_keys( 20 ) ) return false;
+    if (!check_keys(20)) return false;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1945,29 +1942,9 @@ bool check_input_mouse( SDL_Event * pevt )
             Cartman_Input::get()._mouse.bry = Cartman_Input::get()._mouse.y;
 
             // set the drag window
-            Cartman_Input::get()._mouse.drag_window = find_window(Cartman_Input::get()._mouse.x, Cartman_Input::get()._mouse.y);
+            Cartman_Input::get()._mouse.drag_window = Cartman_GUI::findWindow(Cartman_Input::get()._mouse.x, Cartman_Input::get()._mouse.y);
             Cartman_Input::get()._mouse.drag_mode = (NULL == Cartman_Input::get()._mouse.drag_window) ? 0 : Cartman_Input::get()._mouse.drag_mode;
         }
-    }
-
-    return handled;
-}
-
-//--------------------------------------------------------------------------------------------
-bool check_input_keyboard( SDL_Event * pevt )
-{
-    bool handled = false;
-
-    if (NULL == pevt || !Cartman_Input::get()._keyboard.on) return false;
-
-    switch ( pevt->type )
-    {
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-            Cartman_Input::get()._keyboard.state = pevt->key.state;
-            Cartman_Input::get()._keyboard.needs_update = true;
-            handled = true;
-            break;
     }
 
     return handled;
@@ -2250,9 +2227,8 @@ int SDL_main( int argcnt, char* argtext[] )
     }
 
     fill_fpstext();                     // Make the FPS text
-    Cartman_GUI_initialize();
+    Cartman_GUI::initialize();
     load_all_windows( &mesh );          // Load windows
-    create_imgcursor();                 // Make cursor image
     load_img();                         // Load cartman icons
 
     dunframe   = 0;                     // Timer resets
@@ -2270,9 +2246,9 @@ int SDL_main( int argcnt, char* argtext[] )
 
         timclock = SDL_GetTicks() >> 3;
     }
-    Cartman_GUI_uninitialize();
+    Cartman_GUI::uninitialize();
     Cartman_Input::uninitialize();
-    exit( 0 );                      // End
+    exit(EXIT_SUCCESS);                      // End
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2402,7 +2378,7 @@ void cartman_check_input( const char * modulename, cartman_mpd_t * pmesh )
     debugx = -1;
     debugy = -1;
 
-    check_input();
+    Cartman_Input::get().checkInput();
 
     cartman_check_mouse( modulename, pmesh );
     cartman_check_keys( modulename, pmesh );
@@ -2423,24 +2399,26 @@ bool config_upload( egoboo_config_t * pcfg )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-cart_mouse_data_t * cart_mouse_data_ctor( cart_mouse_data_t * ptr )
+Cartman_MouseData *cart_mouse_data_ctor(Cartman_MouseData *self)
 {
-    if ( NULL == ptr ) return NULL;
+    if (!self)
+    {
+        return nullptr;
+    }
+    memset(self, 0, sizeof(*self));
 
-    memset( ptr, 0, sizeof( *ptr ) );
+    self->win_id = -1;
+    self->win_mode = (Uint16)(~0);
+    self->win_fan = -1;
+    self->win_fan_x = -1;
+    self->win_fan_y = -1;
 
-    ptr->win_id   = -1;
-    ptr->win_mode = ( Uint16 )( ~0 );
-    ptr->win_fan   = -1;
-    ptr->win_fan_x = -1;
-    ptr->win_fan_y = -1;
+    self->fx = MAPFX_SHA;
 
-    ptr->fx = MAPFX_SHA;
+    self->rect_drag = -1;
+    self->rect_done = -1;
 
-    ptr->rect_drag = -1;
-    ptr->rect_done = -1;
-
-    return ptr;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
