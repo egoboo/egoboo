@@ -612,7 +612,7 @@ int SDL_main(int argc, char **argv)
         try
         {
             // initialize the virtual filesystem first
-            vfs_init(argv[0]);
+            vfs_init(argv[0], nullptr);
             setup_init_base_vfs_paths();
 
             _gameEngine = std::unique_ptr<GameEngine>(new GameEngine());

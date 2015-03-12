@@ -76,7 +76,7 @@ enum e_vfs_serach_bits
 
 /// the initlization routing. there is no need to call the de-initialization. That
 /// will be called automatically at program termination
-void vfs_init(const char *root_dir);
+void vfs_init(const char *argv0, const char *root_dir);
 
 /// these functions open in "binary mode" this means that they are reading using
 /// physfs and not using the c stdio routines

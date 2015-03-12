@@ -193,6 +193,9 @@
 		CD792C2F1A881FE20086270E /* Label.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C1A1A881FE20086270E /* Label.cpp */; };
 		CD792C301A881FE20086270E /* ModuleSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C1C1A881FE20086270E /* ModuleSelector.cpp */; };
 		CD792C331A88204E0086270E /* ModuleProfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C311A88204E0086270E /* ModuleProfile.cpp */; };
+		CD80C4E11AB2089B00D915FF /* FP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4DC1AB2089B00D915FF /* FP.cpp */; };
+		CD80C4E21AB2089B00D915FF /* LERP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4DE1AB2089B00D915FF /* LERP.cpp */; };
+		CD80C4E71AB2092400D915FF /* OptionsButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4E51AB2092400D915FF /* OptionsButton.cpp */; };
 		CD9059341A69A67C00DC425D /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD9059321A69A67C00DC425D /* Random.cpp */; };
 		CD94B4A11A8B3EEC00BECFC9 /* libIdLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD94B49E1A8B3E6000BECFC9 /* libIdLib.a */; };
 		CD94B4A51A8B3F1500BECFC9 /* IdLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD94B4A31A8B3F1500BECFC9 /* IdLib.cpp */; };
@@ -794,6 +797,17 @@
 		CD792C1D1A881FE20086270E /* ModuleSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ModuleSelector.hpp; sourceTree = "<group>"; };
 		CD792C311A88204E0086270E /* ModuleProfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModuleProfile.cpp; sourceTree = "<group>"; };
 		CD792C321A88204E0086270E /* ModuleProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ModuleProfile.hpp; sourceTree = "<group>"; };
+		CD80C4D91AB1F06600D915FF /* CollectionUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CollectionUtilities.hpp; sourceTree = "<group>"; };
+		CD80C4DA1AB1F06600D915FF /* Component.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Component.hpp; sourceTree = "<group>"; };
+		CD80C4DB1AB1F06600D915FF /* StringUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StringUtilities.hpp; sourceTree = "<group>"; };
+		CD80C4DC1AB2089B00D915FF /* FP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FP.cpp; sourceTree = "<group>"; };
+		CD80C4DD1AB2089B00D915FF /* FP.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FP.hpp; sourceTree = "<group>"; };
+		CD80C4DE1AB2089B00D915FF /* LERP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LERP.cpp; sourceTree = "<group>"; };
+		CD80C4DF1AB2089B00D915FF /* LERP.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LERP.hpp; sourceTree = "<group>"; };
+		CD80C4E01AB2089B00D915FF /* Math.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Math.hpp; sourceTree = "<group>"; };
+		CD80C4E41AB208EC00D915FF /* Constants.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Constants.hpp; sourceTree = "<group>"; };
+		CD80C4E51AB2092400D915FF /* OptionsButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OptionsButton.cpp; sourceTree = "<group>"; };
+		CD80C4E61AB2092400D915FF /* OptionsButton.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OptionsButton.hpp; sourceTree = "<group>"; };
 		CD8679321A76ED8F00B28D92 /* dir.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dir.c; sourceTree = "<group>"; };
 		CD8679331A76ED8F00B28D92 /* grp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = grp.c; sourceTree = "<group>"; };
 		CD8679341A76ED8F00B28D92 /* hog.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hog.c; sourceTree = "<group>"; };
@@ -1165,6 +1179,7 @@
 				CD792C0D1A881FE20086270E /* gui */,
 				CDBDE4291A43A65E008E5FD1 /* lua */,
 				CD97C1601A629E2500179A2C /* module */,
+				CD80C4E31AB208EC00D915FF /* Physics */,
 				CDBD89421A6C02C100250CE2 /* profiles */,
 				CD44DD7E1A476046005E6DF0 /* bsp.c */,
 				CD44DD7F1A476046005E6DF0 /* bsp.h */,
@@ -1334,7 +1349,6 @@
 				27D3915F12EEA6730093D60A /* data */,
 				CDFE07C81A3F68EC005395E7 /* cartman */,
 				CD39B2EF1A374AD600B377BE /* egolib */,
-				CDB103CA1A91C6F80077CD45 /* EgoTest */,
 				27085AC112ED47930051AF5F /* game */,
 				CD94B4A21A8B3F1500BECFC9 /* IdLib */,
 				275CAA7E12ED606F00CE4247 /* osx */,
@@ -1409,6 +1423,7 @@
 			isa = PBXGroup;
 			children = (
 				CD4803AA1A9441F5006DB980 /* Audio */,
+				CD80C4D81AB1F06600D915FF /* Core */,
 				CD39B3121A374B6000B377BE /* extensions */,
 				CD39B3211A374B6000B377BE /* file_formats */,
 				CD39B3621A374B6000B377BE /* lua */,
@@ -1605,6 +1620,7 @@
 		CD39CD121AA537600005E3EA /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				CDB103CA1A91C6F80077CD45 /* EgoTest */,
 				CD39CD0F1AA537440005E3EA /* egolib */,
 				CD39CD231AA5412D0005E3EA /* idlib */,
 			);
@@ -1759,10 +1775,30 @@
 				CD792C1B1A881FE20086270E /* Label.hpp */,
 				CD792C1C1A881FE20086270E /* ModuleSelector.cpp */,
 				CD792C1D1A881FE20086270E /* ModuleSelector.hpp */,
+				CD80C4E51AB2092400D915FF /* OptionsButton.cpp */,
+				CD80C4E61AB2092400D915FF /* OptionsButton.hpp */,
 				CDED15AB1A88393A00AFA2AD /* UIManager.cpp */,
 				CDED15AC1A88393A00AFA2AD /* UIManager.hpp */,
 			);
 			path = gui;
+			sourceTree = "<group>";
+		};
+		CD80C4D81AB1F06600D915FF /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				CD80C4D91AB1F06600D915FF /* CollectionUtilities.hpp */,
+				CD80C4DA1AB1F06600D915FF /* Component.hpp */,
+				CD80C4DB1AB1F06600D915FF /* StringUtilities.hpp */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		CD80C4E31AB208EC00D915FF /* Physics */ = {
+			isa = PBXGroup;
+			children = (
+				CD80C4E41AB208EC00D915FF /* Constants.hpp */,
+			);
+			path = Physics;
 			sourceTree = "<group>";
 		};
 		CD8679301A76ED8F00B28D92 /* physfs */ = {
@@ -1900,6 +1936,11 @@
 				CDC187171A7B08B4001E69ED /* Colour4f.hpp */,
 				CDE4EC591A7167CD00A4BC62 /* Cube.cpp */,
 				CDE4EC5A1A7167CD00A4BC62 /* Cube.hpp */,
+				CD80C4DC1AB2089B00D915FF /* FP.cpp */,
+				CD80C4DD1AB2089B00D915FF /* FP.hpp */,
+				CD80C4DE1AB2089B00D915FF /* LERP.cpp */,
+				CD80C4DF1AB2089B00D915FF /* LERP.hpp */,
+				CD80C4E01AB2089B00D915FF /* Math.hpp */,
 				CDE4EC5B1A7167CD00A4BC62 /* Plane.cpp */,
 				CDE4EC5C1A7167CD00A4BC62 /* Plane.hpp */,
 				CD9059321A69A67C00DC425D /* Random.cpp */,
@@ -2361,6 +2402,7 @@
 			files = (
 				CD39B4711A37506100B377BE /* lighting.c in Sources */,
 				CD39B48F1A37506100B377BE /* renderer_2d.c in Sources */,
+				CD80C4E71AB2092400D915FF /* OptionsButton.cpp in Sources */,
 				CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */,
 				CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */,
 				CDCE212D1A6404770084D934 /* Camera.cpp in Sources */,
@@ -2555,6 +2597,7 @@
 				CD13298A1A90130300D1B221 /* ParticleProfile.cpp in Sources */,
 				CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */,
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
+				CD80C4E21AB2089B00D915FF /* LERP.cpp in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
 				CDB3DC981A659EF30098D3B9 /* mem.c in Sources */,
 				CDC1871C1A7B08BC001E69ED /* Colour4f.cpp in Sources */,
@@ -2577,6 +2620,7 @@
 				CDCA1FD01A3F57D000002E76 /* frustum.c in Sources */,
 				CDCA1FC21A3F57D000002E76 /* map_tile_dictionary.c in Sources */,
 				CDD880701A44A8EF007177F3 /* matrix.c in Sources */,
+				CD80C4E11AB2089B00D915FF /* FP.cpp in Sources */,
 				CD4803B61A944228006DB980 /* ObjectProfile.cpp in Sources */,
 				CDCA1FC11A3F57D000002E76 /* map_file.c in Sources */,
 				CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */,
@@ -3046,7 +3090,6 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				INFOPLIST_FILE = "Cartman-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = Cartman;
 				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../cartman/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src";
 				WRAPPER_EXTENSION = app;

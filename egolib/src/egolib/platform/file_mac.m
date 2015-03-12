@@ -29,9 +29,24 @@ void sys_fs_init(const char * root_path)
 {
     // JF> This function determines the temporary, import,
     // game data and save paths
+    
+    NSBundle *rootBundle = nil;
+    if (root_path != nullptr)
+    {
+        rootBundle = [NSBundle bundleWithPath:[NSString stringWithUTF8String:root_path]];
+        if (rootBundle != nil && [rootBundle bundleIdentifier] == nil) rootBundle = nil;
+        if (rootBundle == nil) NSLog(@"sys_fs_init warning: root_path given but it's not a bundle! ('%s')", root_path);
+    }
+    if (rootBundle == nil) rootBundle = [NSBundle mainBundle];
+    if (rootBundle == nil)
+    {
+        throw new std::runtime_error("neither root_path nor [NSBundle mainBundle] gave a valid NSBundle!");
+    }
+    
+    NSLog(@"Loading from bundle identified as %@", [rootBundle bundleIdentifier]);
 
-    binaryPath = [[NSBundle mainBundle] bundlePath];
-    dataPath = [binaryPath stringByAppendingString:@"/Contents/Resources"];
+    binaryPath = [rootBundle bundlePath];
+    dataPath = [rootBundle resourcePath];
     userPath = [[NSFileManager defaultManager] documentsDirectory];
     //configPath = [[NSFileManager defaultManager] applicationSupportDirectory];
 
@@ -43,7 +58,6 @@ void sys_fs_init(const char * root_path)
     NSLog(@"sys_fs_init: Data directory is %@", dataPath);
     NSLog(@"sys_fs_init: User directory is %@", userPath);
     NSLog(@"sys_fs_init: Config directory is %@", dataPath);
-    NSLog(@"sys_fs_init: got a thing: %s", root_path);
 }
 
 const char *fs_getBinaryDirectory()

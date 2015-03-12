@@ -2063,7 +2063,7 @@ int SDL_main( int argcnt, char* argtext[] )
     }
 
     // initialize the virtual file system
-    vfs_init(egoboo_path);
+    vfs_init(argtext[0], egoboo_path);
 	/*
 	// Uncomment to display the search paths.
 	vfs_listSearchPaths();
