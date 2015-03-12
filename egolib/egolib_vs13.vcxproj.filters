@@ -165,63 +165,6 @@
     <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\configfile.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\controls_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\controls_file-v1.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\controls_file-v2.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\controls_file-v3.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\id_md2.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\map_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\map_file-v1.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\map_file-v2.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\map_file-v3.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\map_file-v4.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\map_tile_dictionary.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\quest_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\scancode_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\SDL_md2.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\spawn_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\template.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\treasure_table_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\wawalite_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\platform\file_win.c">
       <Filter>Platforms</Filter>
     </ClCompile>
@@ -337,6 +280,63 @@
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.cpp">
+    <ClCompile Include="src\egolib\FileFormats\configfile.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\controls_file.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\controls_file-v1.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\controls_file-v2.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\controls_file-v3.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\id_md2.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\map_file.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\map_file-v1.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\map_file-v2.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\map_file-v3.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\map_file-v4.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\map_tile_dictionary.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\quest_file.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\scancode_file.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\SDL_md2.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\spawn_file.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\template.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\treasure_table_file.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\FileFormats\wawalite_file.c">
+      <Filter>File Formats</Filter>
+    </ClCompile>
       <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -460,63 +460,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\extensions\SDL_GL_extensions.h">
       <Filter>Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\configfile.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\controls_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\controls_file-v1.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\controls_file-v2.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\controls_file-v3.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\id_md2.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\map_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\map_file-v1.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\map_file-v2.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\map_file-v3.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\map_file-v4.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\map_tile_dictionary.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\quest_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\scancode_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\SDL_md2.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\spawn_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\template.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\treasure_table_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\wawalite_file.h">
-      <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">
       <Filter>Platforms</Filter>
@@ -669,13 +612,67 @@
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.hpp">
+    <ClInclude Include="src\egolib\FileFormats\configfile.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\controls_file.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\controls_file-v1.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\controls_file-v2.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\controls_file-v3.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\id_md2.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\map_file.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\map_file-v1.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\map_file-v2.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\map_file-v3.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\map_file-v4.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\map_tile_dictionary.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\quest_file.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\scancode_file.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\SDL_md2.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\spawn_file.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\template.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\treasure_table_file.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\FileFormats\wawalite_file.h">
+      <Filter>File Formats</Filter>
+    </ClInclude>
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\egolib\file_formats\id_normals.inl">
-      <Filter>File Formats</Filter>
-    </None>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
       <Filter>Platforms</Filter>
     </None>
@@ -684,6 +681,9 @@
     </None>
     <None Include="src\egolib\platform\sys_mac.m">
       <Filter>Platforms</Filter>
+    </None>
+    <None Include="src\egolib\FileFormats\id_normals.inl">
+      <Filter>File Formats</Filter>
     </None>
   </ItemGroup>
 </Project>

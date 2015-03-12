@@ -67,17 +67,17 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#include "egolib/file_formats/configfile.h"
-#include "egolib/file_formats/controls_file.h"
-#include "egolib/file_formats/id_md2.h"
-#include "egolib/file_formats/map_file.h"
-#include "egolib/file_formats/map_tile_dictionary.h"
-#include "egolib/file_formats/quest_file.h"
-#include "egolib/file_formats/scancode_file.h"
-#include "egolib/file_formats/spawn_file.h"
-#include "egolib/file_formats/template.h"
-#include "egolib/file_formats/treasure_table_file.h"
-#include "egolib/file_formats/wawalite_file.h"
+#include "egolib/FileFormats/configfile.h"
+#include "egolib/FileFormats/controls_file.h"
+#include "egolib/FileFormats/id_md2.h"
+#include "egolib/FileFormats/map_file.h"
+#include "egolib/FileFormats/map_tile_dictionary.h"
+#include "egolib/FileFormats/quest_file.h"
+#include "egolib/FileFormats/scancode_file.h"
+#include "egolib/FileFormats/spawn_file.h"
+#include "egolib/FileFormats/template.h"
+#include "egolib/FileFormats/treasure_table_file.h"
+#include "egolib/FileFormats/wawalite_file.h"
 
 #if defined(USE_LUA_CONSOLE)
 	#include "egolib/lua/lua_console.h"

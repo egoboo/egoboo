@@ -23,7 +23,7 @@
 
 #include "cartman/cartman_typedef.h"
 
-#include "egolib/file_formats/map_tile_dictionary.h"
+#include "egolib/FileFormats/map_tile_dictionary.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

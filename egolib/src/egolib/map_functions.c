@@ -24,7 +24,7 @@
 #include "egolib/map_functions.h"
 
 #include "egolib/log.h"
-#include "egolib/file_formats/map_file.h"
+#include "egolib/FileFormats/map_file.h"
 
 //--------------------------------------------------------------------------------------------
 // Generic functions

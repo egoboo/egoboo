@@ -27,7 +27,7 @@
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 
-#include "egolib/file_formats/configfile.h"
+#include "egolib/FileFormats/configfile.h"
 #include "egolib/extensions/ogl_texture.h"
 
 #include "egolib/_math.h"
