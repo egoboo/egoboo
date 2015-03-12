@@ -163,7 +163,7 @@ void vfs_init(const char *argv0, const char *root_dir)
     {
         // We can call log functions, they won't try to write to unopened log files
         // But mainly this is used for sys_popup
-        log_error("The data path isn't a directory.\nData path: '%s'", fs_getDataDirectory());
+        log_error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory());
         throw std::runtime_error("the data path is not a directory");
     }
 

@@ -24,6 +24,7 @@
 #include <unistd.h>      // For message box in linux
 #include <stdarg.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 
 #include "egolib/log.h"
 #include "egolib/system.h"
@@ -31,23 +32,81 @@
 
 //--------------------------------------------------------------------------------------------
 //Different methods of displaying messages in Linux
-enum e_dialog
+enum dialog_t
 {
     ZENITY = 0,
     KDIALOG,
+    SDL2,
     XMESSAGE,
     DIALOG_PROGRAM_END,
     DIALOG_PROGRAM_BEGIN = ZENITY
 };
 
-// this typedef must be after the enum definition or gcc has a fit
-typedef enum e_dialog dialog_t;
+/**
+ * @brief
+ *  Tries using SDL2's message box if available.
+ * @param title
+ *  The title of the message box.
+ * @param message
+ *  The message of the message box.
+ * @return
+ *  @c true if SDL2's message box was successfully used, @c false otherwise.
+ */
+bool handleSDL2MessageBox(const std::string &title, const std::string message)
+{
+    void *sdl2Library = SDL_LoadObject("libSDL2.so");
+    if (sdl2Library)
+    {
+        struct SDL_Window;
+        uint32_t SDL_MESSAGEBOX_ERROR = 0x10;
+        typedef int (*SDLMessageBoxFunc)(uint32_t, const char *, const char *, SDL_Window *);
+        SDLMessageBoxFunc showMessageBox = (SDLMessageBoxFunc) SDL_LoadFunction(sdl2Library, "SDL_ShowSimpleMessageBox");
+        int ret = -1;
+        if (showMessageBox)
+        {
+            ret = showMessageBox(SDL_MESSAGEBOX_ERROR, title.c_str(), message.c_str(), nullptr);
+        }
+        SDL_UnloadObject(sdl2Library);
+        if (ret == 0) return true;
+    }
+    return false;
+}
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// Linux hook into the main function
-
-extern int SDL_main( int argc, char **argv );
+/**
+ * @brief
+ *  Execute a command without the shell (as in @a system)
+ * @param args
+ *  Arguments for the process to fork
+ * @return
+ *  @c true if successfully ran the command, @c false otherwise.
+ */
+bool executeArgs(const std::vector<std::string> &args)
+{
+    printf("Trying %s...\n", args[0].c_str());
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+        perror("fork failed");
+        return false;
+    }
+    else if (pid == 0)
+    {
+        char **argv = new char *[args.size() + 1];
+        for (size_t i = 0; i < args.size(); i++)
+        {
+            argv[i] = new char[args[i].length() + 1];
+            strncpy(argv[i], args[i].c_str(), args[i].length() + 1);
+        }
+        argv[args.size()] = nullptr;
+        execvp(argv[0], argv);
+        int olderrno = errno;
+        perror("execvp failed");
+        _Exit(olderrno);
+    }
+    int status;
+    pid_t wait = waitpid(pid, &status, 0);
+    return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -74,48 +133,64 @@ double sys_getTime()
 }
 
 //--------------------------------------------------------------------------------------------
-// This is where the whole thing actually starts in Linux
-#if 0
-int main( int argc, char* argv[] )
-{
-    return SDL_main( argc, argv );
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
 {
     //ZF> Basic untested implementation of error messaging in Linux
     // @TODO: It has been reported that this doesn't work (22.02.2011)
+    // Should work a lot better now
 
-    STRING message, buffer;
+    std::string title = popup_title;
+    std::string message = warning;
+    char buffer[4096];
     bool tried[DIALOG_PROGRAM_END];
     int i, type = DIALOG_PROGRAM_BEGIN;
-    const char *session = getenv( "DESKTOP_SESSION" );
+    const char *session = getenv("XDG_CURRENT_DESKTOP");
+    if (!session) session = getenv("DESKTOP_SESSION");
 
     for (int cnt = DIALOG_PROGRAM_BEGIN; cnt < DIALOG_PROGRAM_END; cnt++) tried[cnt] = false;
+    
     //Ready the message
-    strncpy( message, warning, SDL_arraysize( message ) );
     vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
-    strcat( message, buffer );
-    strcat( message, "\n Press OK to exit." );
+    message += buffer;
 
     //Figure out if there is a method we prefer
-    if ( 0 == strcmp( session, "gnome" ) ) type = ZENITY;
-    else if ( 0 == strcmp( session, "kde-plasma" ) ) type = KDIALOG;
+    if ( 0 == strcasecmp( session, "GNOME" ) || 0 == strcasecmp(session, "Unity")) type = ZENITY;
+    else if ( 0 == strcasecmp( session, "KDE" ) ) type = KDIALOG;
 
     while ( true )
     {
+        std::vector<std::string> command{};
+        bool success = false;
         //Ready the command
         switch ( type )
         {
-            case ZENITY:   sprintf( buffer, "zenity --error --text='%s' --title='%s'", message, popup_title ); break;
-            case KDIALOG:  sprintf( buffer, "kdialog --error '%s' --title '%s'", message, popup_title ); break;
-            case XMESSAGE: sprintf( buffer, "xmessage -center '%s'", message ); break;
+            case ZENITY:
+                command.emplace_back("zenity");
+                command.emplace_back("--error");
+                command.emplace_back("--text=" + message);
+                command.emplace_back("--title=" + title);
+                break;
+            case KDIALOG:
+                command.emplace_back("kdialog");
+                command.emplace_back("--error");
+                command.emplace_back(message);
+                command.emplace_back("--title");
+                command.emplace_back(title);
+                break;
+            case SDL2:
+                success = handleSDL2MessageBox(title, message);
+                break;
+            case XMESSAGE:
+                command.emplace_back("xmessage");
+                command.emplace_back("-center");
+                command.emplace_back(message);
+                break;
         }
 
         //Did we succeed?
-        if ( 0 == system( buffer ) ) break;
+        if (!command.empty()) success = executeArgs(command);
+        
+        if (success) break;
 
         //Nope, try the next solution
         tried[type] = true;
