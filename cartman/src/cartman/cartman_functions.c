@@ -542,9 +542,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
         if ( NULL != pfan )
         {
             int ivrt;
-            Cartman::mpd_vertex_t * pvrt;
-
-            pvrt = cartman_mpd_get_pvrt_idx( pmesh, pfan, cnt, &ivrt );
+            Cartman::mpd_vertex_t *pvrt = cartman_mpd_t::get_pvrt_idx(pmesh, pfan, cnt, &ivrt);
             if ( NULL != pvrt )
             {
                 select_lst_add( &loc_lst, ivrt );

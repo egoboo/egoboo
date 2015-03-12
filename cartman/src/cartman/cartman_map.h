@@ -100,11 +100,24 @@ struct cartman_mpd_info_t
     float edgex, edgey, edgez;
     /**@}*/
 
+    /**
+     * @brief
+     *  Construct this map information with its default values.
+     */
     cartman_mpd_info_t();
-    static cartman_mpd_info_t *ctor(cartman_mpd_info_t *self); ///< @todo Remove this.
+
+    /**
+     * @brief
+     *  Destruct this map information.
+     */
     virtual ~cartman_mpd_info_t();
-    static cartman_mpd_info_t *dtor(cartman_mpd_info_t *self); ///< @todo Remove this.
-    static void reset(cartman_mpd_info_t *self);    
+
+    /**
+     * @brief
+     *  Reset this map information to its default values.
+     */
+    void reset();    
+
 };
 
 
@@ -116,6 +129,7 @@ namespace Cartman
 {
     struct mpd_vertex_t
     {
+
         /**
          * @brief
          *  The next vertex in the fan of this vertex.
@@ -123,6 +137,7 @@ namespace Cartman
          *  CHAINEND
          */
         Uint32 next;
+
         /**
          * @{
          * @brief
@@ -152,36 +167,29 @@ namespace Cartman
          *  Construct this vertex with its default values.
          */
         mpd_vertex_t();
+
         /**
          * @brief
          *  Destruct this vertex
          */
         virtual ~mpd_vertex_t();
+
         /**
          * @brief
          *  Reset this vertex to its default values.
          */
-        static void reset(mpd_vertex_t *self);
-
-        static mpd_vertex_t *ctor(mpd_vertex_t *self); ///< @todo Remove this.
-        static mpd_vertex_t *dtor(mpd_vertex_t *self); ///< @todo Remove this.
+        void reset();
 
     };
 }
 
-
-
-bool cartman_mpd_vertex_ary_ctor(Cartman::mpd_vertex_t ary[], size_t size); ///< @todo Remove this.
-void cartman_mpd_vertex_ary_reset(Cartman::mpd_vertex_t ary[], size_t size);
-bool cartman_mpd_vertex_ary_dtor(Cartman::mpd_vertex_t ary[], size_t size); ///< @todo Remove this.
-
-//--------------------------------------------------------------------------------------------
 /**
  * @brief
  *  Information about a tile.
  */
 struct cartman_mpd_tile_t
 {
+
     /**
      * @brief
      *  The fan type of the tile.
@@ -189,6 +197,7 @@ struct cartman_mpd_tile_t
      *  <tt>0</tt>
      */
     Uint8 type;
+
     /**
      * @brief
      *  The special effects flags of the tile.
@@ -196,6 +205,7 @@ struct cartman_mpd_tile_t
      *  <tt>MAPFX_WALL | MAPFX_IMPASS</tt>
      */
     Uint8 fx;
+
     /**
      * @brief
      *  The texture bits and special tile bits of the tile.
@@ -203,6 +213,7 @@ struct cartman_mpd_tile_t
      *  <tt>MAP_FANOFF</tt>
      */
     Uint16 tx_bits;
+
     /**
      * @brief
      *  The surface normal of this tile.
@@ -210,6 +221,7 @@ struct cartman_mpd_tile_t
      *  <tt>TWIST_FLAT</tt>
      */
     Uint8 twist;
+
     /**
      * @brief
      *  The index of the first vertex of this tile in the vertex array.
@@ -217,30 +229,20 @@ struct cartman_mpd_tile_t
      *  <tt>MAP_FAN_ENTRIES_MAX</tt>
      */
     Uint32 vrtstart;
+
     /**
      * @brief
      *  Construct this tile with its default values.
      */
     cartman_mpd_tile_t();
+
     /**
      * @brief
-     *  Destruct this tile.
+     *  Reset this tile to its default values.
      */
-    /**
-     * @brief
-     *  Reset the tile to its default values.
-     * @param self
-     *  the tile
-     */
-    static void reset(cartman_mpd_tile_t *self);
-    static cartman_mpd_tile_t *ctor(cartman_mpd_tile_t *self);
-    static cartman_mpd_tile_t *dtor(cartman_mpd_tile_t *self);
+    void reset();
+
 };
-
-
-
-bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size );
-bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size );
 
 //--------------------------------------------------------------------------------------------
 struct cartman_mpd_t
@@ -266,11 +268,23 @@ struct cartman_mpd_t
      */
     std::array<Uint32,MAP_TILEY_MAX> fanstart2;
 
+    /**
+     * @brief
+     *  Construct this mesh.
+     */
     cartman_mpd_t();
-    static cartman_mpd_t *ctor(cartman_mpd_t *self);
+
+    /**
+     * @brief
+     *  Destruct this mesh.
+     */
     virtual ~cartman_mpd_t();
-    static cartman_mpd_t *dtor(cartman_mpd_t *self);
-    static cartman_mpd_t *renew(cartman_mpd_t *self);
+
+    /**
+     * @brief
+     *  Reset this mesh.
+     */
+    cartman_mpd_t *reset();
 
     /**
      * @brief
@@ -285,6 +299,7 @@ struct cartman_mpd_t
      *  Rename to <tt>addFan</tt>.
      */
     int add_ifan(int ifan, float x, float y);
+
     /**
      * @brief
      *  Allocates the vertices needed for a fan.
@@ -298,6 +313,7 @@ struct cartman_mpd_t
      *  Rename to <tt>addFan</tt>.
      */
     int add_pfan(cartman_mpd_tile_t *pfan, float x, float y);
+
     /**
      * @brief
      *  Removes a fan's vertices from usage and sets the fan to not be drawn.
@@ -307,6 +323,7 @@ struct cartman_mpd_t
      *  Rename to <tt>removeFan</tt>.
      */
     void remove_ifan(int ifan);
+
     /**
      * @brief
      *  Removes a fan's vertices from usage and sets the fan to not be drawn.
@@ -406,6 +423,7 @@ struct cartman_mpd_t
      *  @endcode
      */
     int get_ivrt_xy(int mapx, int mapy, int index);
+
     /**
      * @brief
      *  Get the vertex index of a vertex in a fan.
@@ -417,6 +435,7 @@ struct cartman_mpd_t
      *  the vertex index if it exists, @a -1 otherwise.
      */
     int get_ivrt_fan(int ifan, int index);
+
     /**
      * @brief
      *  Get the vertex index of a vertex in a fan.
@@ -429,16 +448,22 @@ struct cartman_mpd_t
      */
     int get_ivrt_pfan(cartman_mpd_tile_t *pfan, int index);
 
+    /**@{*/
     /**
      * @brief
      *  Get the vertex at a vertex index.
-     * @param ivert
+     * @param ivrt
      *  the vertex index
      * @return
      *  the vertex if the vertex index is within bounds, @a nullptr otherwise
      */
-    Cartman::mpd_vertex_t *get_vertex(int ivert);
-    const Cartman::mpd_vertex_t *get_vertex(int ivert) const;
+    Cartman::mpd_vertex_t *get_vertex(int ivrt);
+    const Cartman::mpd_vertex_t *get_vertex(int ivrt) const;
+    /**@}*/
+
+    static Cartman::mpd_vertex_t *get_pvrt_idx(cartman_mpd_t *self, cartman_mpd_tile_t *pfan, int idx, int *ivrt_ptr);
+    static Cartman::mpd_vertex_t *get_pvrt_ivrt(cartman_mpd_t *self, cartman_mpd_tile_t *pfan, int ivrt);
+
 
 public:
 
@@ -457,6 +482,8 @@ protected:
      */
     void free_vertex_count();
 };
+
+
 
 /// @todo Removet his, use cartman_mpd_t::get_vertex(int).
 #define CART_MPD_VERTEX_PTR(PMESH, IVERTEX) (!(PMESH) ? nullptr : (PMESH)->get_vertex(IVERTEX))
@@ -518,13 +545,6 @@ void cartman_mpd_free_vertices(cartman_mpd_t *self);
 bool cartman_mpd_link_vertex(cartman_mpd_t *self, int iparent, int child);
 Uint8 cartman_mpd_get_fan_twist(cartman_mpd_t *self, Uint32 fan);
 
-
-
-Cartman::mpd_vertex_t *cartman_mpd_get_pvrt_idx(cartman_mpd_t *self, cartman_mpd_tile_t *pfan, int idx, int *ivrt_ptr);
-Cartman::mpd_vertex_t *cartman_mpd_get_pvrt_ivrt(cartman_mpd_t *self, cartman_mpd_tile_t *pfan, int ivrt);
-
-
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -533,14 +553,33 @@ extern cartman_mpd_t mesh;
 extern size_t numwritten;
 extern size_t numattempt;
 
+/// @todo This global has to be merged into the map.
 extern tile_line_data_t tile_dict_lines[MAP_FAN_TYPE_MAX];
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-// loading/saving
-cartman_mpd_t *cartman_mpd_load_vfs( /* const char *modname, */ cartman_mpd_t *self);
-cartman_mpd_t *cartman_mpd_save_vfs( /*const char *modname,*/ cartman_mpd_t *self);
+/**
+ * @brief
+ *  Load a Cartman map from the map file.
+ * @param self
+ *  the Cartman map to write the data to
+ */
+cartman_mpd_t *cartman_mpd_load_vfs(cartman_mpd_t *self);
+/**
+ * @brief
+ *  Save a Cartman map to the map file.
+ * @param self
+ *  the Cartman map to read the data from
+ */
+cartman_mpd_t *cartman_mpd_save_vfs(cartman_mpd_t *self);
+/**
+ * @brief
+ *  Create an empty Cartman map.
+ * @param self
+ *  the Cartman map to write the data to
+ * @param tiles_x, tiles_y
+ *  the size, in tiles, of the map along the x- and y-axes
+ */
 cartman_mpd_t *cartman_mpd_create(cartman_mpd_t *self, int tiles_x, int tiles_y);
 
 

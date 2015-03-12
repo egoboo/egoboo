@@ -26,69 +26,108 @@
 
 #include "cartman/cartman_config.h"
 
-struct Vector2i
+namespace Cartman
 {
-private:
-    int _x, _y;
-public:
-    Vector2i(int x,int y) :
-        _x(x), _y(y)
-    {}
-    Vector2i(const Vector2i& other) :
-        _x(other._x), _y(other._y)
-    {}
-    int operator()(size_t i) const
+    struct Vector2i
     {
-        switch (i)
+    private:
+        int _x, _y;
+    public:
+        Vector2i() :
+            _x(0), _y(0)
+        {}
+        Vector2i(int x, int y) :
+            _x(x), _y(y)
+        {}
+        Vector2i(const Vector2i& other) :
+            _x(other._x), _y(other._y)
+        {}
+        const int& operator()(size_t i) const
         {
-        case 0:
-            return _x;
-        case 1:
-            return _y;
-        default:
-            throw std::invalid_argument("i > 1");
+            switch (i)
+            {
+            case 0:
+                return _x;
+            case 1:
+                return _y;
+            default:
+                throw std::invalid_argument("i > 1");
+            }
         }
-    }
-    int& operator()(size_t i)
-    {
-        switch (i)
+        int& operator()(size_t i)
         {
-        case 0:
-            return _x;
-        case 1:
-            return _y;
-        default:
-            throw std::invalid_argument("i > 1");
+            switch (i)
+            {
+            case 0:
+                return _x;
+            case 1:
+                return _y;
+            default:
+                throw std::invalid_argument("i > 1");
+            }
         }
-    }
-};
+    };
+}
 
-struct Point2i
+namespace Cartman
 {
-private:
-    int _x, _y;
-public:
-    Point2i(int x, int y) :
-        _x(x), _y(y)
-    {}
-    Point2i(const Point2i& other) :
-        _x(other._x), _y(other._y)
-    {}
-    void translate(const Vector2i& t)
+    struct Point2i
     {
-        _x += t(0);
-        _y += t(1);
-    }
-    int operator()(size_t i)
-    {
-        switch (i)
+    private:
+        int _x, _y;
+    public:
+        Point2i() :
+            _x(0), _y(0)
+        {}
+        Point2i(int x, int y) :
+            _x(x), _y(y)
+        {}
+        Point2i(const Point2i& other) :
+            _x(other._x), _y(other._y)
+        {}
+        bool operator==(const Point2i& other) const
         {
-        case 0:
-            return _x;
-        case 1:
-            return _y;
-        default:
-            throw std::invalid_argument("i > 1");
-        } 
-    }
-};
+            return _x == other._x
+                && _y == other._y;
+        }
+        bool operator!=(const Point2i& other) const
+        {
+            return _x != other._x
+                || _y != other._y;
+        }
+        Point2i& operator=(const Point2i& other)
+        {
+            _x = other._x;
+            _y = other._y;
+        }
+        void translate(const Vector2i& t)
+        {
+            _x += t(0);
+            _y += t(1);
+        }
+        const int& operator()(size_t i) const
+        {
+            switch (i)
+            {
+            case 0:
+                return _x;
+            case 1:
+                return _y;
+            default:
+                throw std::invalid_argument("i > 1");
+            }
+        }
+        int& operator()(size_t i)
+        {
+            switch (i)
+            {
+            case 0:
+                return _x;
+            case 1:
+                return _y;
+            default:
+                throw std::invalid_argument("i > 1");
+            }
+        }
+    };
+}

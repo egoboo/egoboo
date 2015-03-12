@@ -35,7 +35,6 @@ size_t numattempt = 0;
 tile_line_data_t tile_dict_lines[MAP_FAN_TYPE_MAX];
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 cartman_mpd_t *cartman_mpd_finalize( cartman_mpd_t * );
 
@@ -43,7 +42,7 @@ cartman_mpd_t *cartman_mpd_convert( cartman_mpd_t *, map_t * );
 map_t *cartman_mpd_revert( map_t *, cartman_mpd_t * );
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 Uint8 cartman_mpd_calc_twist( int dx, int dy )
 {
     Uint8 twist;
@@ -63,90 +62,43 @@ Uint8 cartman_mpd_calc_twist( int dx, int dy )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 cartman_mpd_t::cartman_mpd_t() :
-vrt2(), vrt_free(MAP_VERTICES_MAX), vrt_at(0), info(),
-fan2(), fanstart2()
+    vrt2(), vrt_free(MAP_VERTICES_MAX), vrt_at(0), info(),
+    fan2(), fanstart2()
 {
 }
 
-cartman_mpd_t *cartman_mpd_t::ctor(cartman_mpd_t *self)
-{
-    if (!self)
-    {
-        self = &mesh; /// @todo Bad!
-    }
-
-    for (auto& e : self->vrt2)
-    {
-        Cartman::mpd_vertex_t::ctor(&e);
-    }
-    self->vrt_free = MAP_VERTICES_MAX;
-    self->vrt_at   = 0;
-
-    cartman_mpd_info_t::ctor(&(self->info));
-
-    for (auto& e: self->fan2)
-    {
-        cartman_mpd_tile_t::ctor(&e);
-    }
-
-    for (auto& e : self->fanstart2)
-    {
-        e = 0;
-    }
-
-    return self;
-}
-
-//--------------------------------------------------------------------------------------------
 cartman_mpd_t::~cartman_mpd_t()
 {
 }
 
-cartman_mpd_t *cartman_mpd_t::dtor(cartman_mpd_t *self)
+cartman_mpd_t *cartman_mpd_t::reset()
 {
-    if (!self)
+    for (auto& e : vrt2)
     {
-        self = &mesh; /// @todo Bad!
+        e.reset();
+    }
+    vrt_free = MAP_VERTICES_MAX;
+    vrt_at = 0;
+
+    info.reset();
+
+    for (auto& e : fan2)
+    {
+        e.reset();
     }
 
-    for (auto& e : self->vrt2)
-    {
-        Cartman::mpd_vertex_t::dtor(&e);
-    }
-    self->vrt_free = 0;
-    self->vrt_at   = 0;
-
-    cartman_mpd_info_t::dtor(&(self->info));
-
-    for (auto& e : self->fan2)
-    {
-        cartman_mpd_tile_t::dtor(&e);
-    }
-
-    for (auto& e : self->fanstart2)
+    for (auto& e : fanstart2)
     {
         e = 0;
     }
 
-    return self;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-cartman_mpd_t *cartman_mpd_t::renew(cartman_mpd_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    self = cartman_mpd_t::dtor(self);
-    self = cartman_mpd_t::ctor(self);
 
-    return self;
-}
-
-//--------------------------------------------------------------------------------------------
 cartman_mpd_tile_t::cartman_mpd_tile_t() :
     type(0),
     tx_bits(MAP_FANOFF),
@@ -156,120 +108,21 @@ cartman_mpd_tile_t::cartman_mpd_tile_t() :
 {
 }
 
-void cartman_mpd_tile_t::reset(cartman_mpd_tile_t *self)
+void cartman_mpd_tile_t::reset()
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    self->type = 0;
-    self->tx_bits = MAP_FANOFF;
-    self->twist = TWIST_FLAT;
-    self->fx = MAPFX_WALL | MAPFX_IMPASS;
-    self->vrtstart = MAP_FAN_ENTRIES_MAX;
+    type = 0;
+    tx_bits = MAP_FANOFF;
+    twist = TWIST_FLAT;
+    fx = MAPFX_WALL | MAPFX_IMPASS;
+    vrtstart = MAP_FAN_ENTRIES_MAX;
 }
 
-cartman_mpd_tile_t *cartman_mpd_tile_t::ctor(cartman_mpd_tile_t *self)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-
-    self->type = 0;
-    self->tx_bits = MAP_FANOFF;
-    self->twist = TWIST_FLAT;
-    self->fx = MAPFX_WALL | MAPFX_IMPASS;
-    self->vrtstart = MAP_FAN_ENTRIES_MAX;
-
-    return self;
-}
-
-cartman_mpd_tile_t *cartman_mpd_tile_t::dtor(cartman_mpd_tile_t *self)
-{
-    if (!self)
-    {
-        return self;
-    }
-
-    self->type = 0;
-    self->tx_bits = MAP_FANOFF;
-    self->twist = TWIST_FLAT;
-    self->fx = MAPFX_WALL | MAPFX_IMPASS;
-    self->vrtstart = MAP_FAN_ENTRIES_MAX;
-
-    return self;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool cartman_mpd_vertex_ary_ctor(Cartman::mpd_vertex_t ary[], size_t size)
-{
-    if (!ary || !size) return false;
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        Cartman::mpd_vertex_t::ctor(ary + i);
-    }
-
-    return true;
-}
-
-void cartman_mpd_vertex_ary_reset(Cartman::mpd_vertex_t ary[], size_t size)
-{
-    if (!ary) throw std::invalid_argument("nullptr == ary");
-    for (size_t i = 0; i < size; ++i)
-    {
-        Cartman::mpd_vertex_t::reset(ary + i);
-    }
-}
-
-bool cartman_mpd_vertex_ary_dtor(Cartman::mpd_vertex_t ary[], size_t size)
-{
-    if (!ary || !size) return false;
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        Cartman::mpd_vertex_t::ctor(ary + i);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size )
-{
-    if ( NULL == ary || 0 == size ) return false;
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        cartman_mpd_tile_t::ctor(ary + i);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size )
-{
-    if ( NULL == ary || 0 == size ) return false;
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        cartman_mpd_tile_t::ctor(ary + i);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 Cartman::mpd_vertex_t::mpd_vertex_t() :
-    next(CHAINEND),
-    x(0.0f), y(0.0f), z(0.0f),
-    a(VERTEXUNUSED)
+next(CHAINEND),
+x(0.0f), y(0.0f), z(0.0f),
+a(VERTEXUNUSED)
 {}
 
 Cartman::mpd_vertex_t::~mpd_vertex_t()
@@ -280,104 +133,39 @@ Cartman::mpd_vertex_t::~mpd_vertex_t()
 }
 
 
-void Cartman::mpd_vertex_t::reset(mpd_vertex_t *self)
+void Cartman::mpd_vertex_t::reset()
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-
-    self->x = 0.0f; self->y = 0.0f; self->z = 0.0f;
-    self->a = VERTEXUNUSED;
-    self->next = CHAINEND;
-}
-
-Cartman::mpd_vertex_t *Cartman::mpd_vertex_t::ctor(mpd_vertex_t *self)
-{
-    if (!self)
-    {
-        return self;
-    }
-
-    self->x = 0.0f; self->y = 0.0f; self->z = 0.0f;
-    self->a = VERTEXUNUSED;
-    self->next = CHAINEND;
-
-    return self;
-}
-
-Cartman::mpd_vertex_t *Cartman::mpd_vertex_t::dtor(mpd_vertex_t *self)
-{
-    if (!self)
-    {
-        return self;
-    }
-
-    self->x = 0.0f; self->y = 0.0f; self->z = 0.0f;
-    self->a = VERTEXUNUSED;
-    self->next = CHAINEND;
-
-    return self;
+    x = 0.0f; y = 0.0f; z = 0.0f;
+    a = VERTEXUNUSED;
+    next = CHAINEND;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 cartman_mpd_info_t::cartman_mpd_info_t() :
-    tiles_x(0), tiles_y(0),
-    tiles_count(0), vertex_count(0),
-    edgex(0), edgey(0), edgez(0)
+tiles_x(0), tiles_y(0),
+tiles_count(0), vertex_count(0),
+edgex(0), edgey(0), edgez(0)
 {}
-
-cartman_mpd_info_t *cartman_mpd_info_t::ctor(cartman_mpd_info_t *self)
-{
-    if (!self)
-    {
-        return nullptr;
-    }
-    self->tiles_x = 0;
-    self->tiles_y = 0;
-    self->tiles_count = 0;
-    self->vertex_count = 0;
-    self->edgex = self->edgey = self->edgez = 0;
-    return self;
-}
 
 cartman_mpd_info_t::~cartman_mpd_info_t()
 {}
 
-cartman_mpd_info_t *cartman_mpd_info_t::dtor(cartman_mpd_info_t *self)
+void cartman_mpd_info_t::reset()
 {
-    if (!self)
-    {
-        return nullptr;
-    }
-    self->tiles_x = 0;
-    self->tiles_y = 0;
-    self->tiles_count = 0;
-    self->vertex_count = 0;
-    self->edgex = self->edgey = self->edgez = 0;
-    return self;
-}
-
-void cartman_mpd_info_t::reset(cartman_mpd_info_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    self->tiles_x = 0;
-    self->tiles_y = 0;
-    self->tiles_count = 0;
-    self->vertex_count = 0;
-    self->edgex = self->edgey = self->edgez = 0;
+    tiles_x = 0;
+    tiles_y = 0;
+    tiles_count = 0;
+    vertex_count = 0;
+    edgex = edgey = edgez = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y )
+bool cartman_mpd_info_init(cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y)
 {
 
     // handle default values
-    if ( vert_count < 0 )
+    if (vert_count < 0)
     {
         vert_count = MAP_FAN_VERTICES_MAX * pinfo->tiles_count;
     }
@@ -396,76 +184,6 @@ bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size_t t
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-cartman_mpd_t * cartman_mpd_load_vfs( /* const char *modname, */ cartman_mpd_t * pmesh )
-{
-    // trap bad module names
-    //if ( !VALID_CSTR( modname ) ) return pmesh;
-
-    // make sure we have the tile dictionary
-    cartman_tile_dictionary_load_vfs();
-
-    // initialize the mesh
-    {
-        // create a new mesh if we are passed a NULL pointer
-        if ( NULL == pmesh )
-        {
-            pmesh = cartman_mpd_t::ctor(pmesh);
-        }
-
-        if ( NULL == pmesh ) return pmesh;
-
-        // free any memory that has been allocated
-        pmesh = cartman_mpd_t::renew(pmesh);
-    }
-
-    // actually do the loading
-    {
-        map_t  local_mpd, * pmpd;
-
-        // load a raw mpd
-        map_ctor( &local_mpd );
-        pmpd = map_load( "mp_data/level.mpd", &local_mpd );
-
-        // convert it into a convenient version for cartman
-        pmesh = cartman_mpd_convert( pmesh, pmpd );
-
-        // delete the now useless mpd data
-        map_dtor( &local_mpd );
-    }
-
-    // do some calculation to set up the mpd as a game mesh
-    pmesh = cartman_mpd_finalize( pmesh );
-
-    return pmesh;
-}
-
-//--------------------------------------------------------------------------------------------
-cartman_mpd_t * cartman_mpd_save_vfs( /*const char *modname,*/ cartman_mpd_t * pmesh )
-{
-    if ( NULL == pmesh /*|| INVALID_CSTR( modname )*/ ) return NULL;
-
-    // make sure we have the tile dictionary
-    cartman_tile_dictionary_load_vfs();
-
-    // actually do the saving
-    {
-        map_t  local_mpd, * pmpd;
-
-        // load a raw mpd
-        pmpd = map_ctor( &local_mpd );
-
-        // convert it into a convenient version for Egoboo
-        pmpd = cartman_mpd_revert( pmpd, pmesh );
-        pmpd = map_save( "mp_data/level.mpd", pmpd );
-
-        // delete the now useless mpd data
-        map_dtor( &local_mpd );
-    }
-
-    return pmesh;
-}
-
 //--------------------------------------------------------------------------------------------
 void cartman_mpd_make_fanstart( cartman_mpd_t * pmesh )
 {
@@ -495,45 +213,7 @@ void cartman_mpd_make_twist( cartman_mpd_t * pmesh )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-cartman_mpd_t * cartman_mpd_create( cartman_mpd_t * pmesh, int tiles_x, int tiles_y )
-{
-    // ZZ> This function makes the mesh
-    int mapx, mapy, fan, tile;
-    int x, y;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    cartman_mpd_free_vertices( pmesh );
-
-    pmesh->info.tiles_x = tiles_x;
-    pmesh->info.tiles_y = tiles_y;
-
-    pmesh->info.edgex = pmesh->info.tiles_x * TILE_ISIZE;
-    pmesh->info.edgey = pmesh->info.tiles_y * TILE_ISIZE;
-    pmesh->info.edgez = 180 << 4;
-
-    fan = 0;
-    tile = 0;
-    for ( mapy = 0; mapy < pmesh->info.tiles_y; mapy++ )
-    {
-        y = mapy * TILE_ISIZE;
-        for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
-        {
-            x = mapx * TILE_ISIZE;
-
-            pmesh->fan2[fan].type = 0;
-            pmesh->fan2[fan].tx_bits = ((( mapx & 1 ) + ( mapy & 1 ) ) & 1 ) + DEFAULT_TILE;
-
-            fan++;
-        }
-    }
-
-    cartman_mpd_make_fanstart( pmesh );
-
-    return pmesh;
-}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -567,7 +247,7 @@ cartman_mpd_tile_t *cartman_mpd_t::get_pfan(int ifan)
 }
 
 //--------------------------------------------------------------------------------------------
-Cartman::mpd_vertex_t *cartman_mpd_get_pvrt_ivrt( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int ivrt )
+Cartman::mpd_vertex_t *cartman_mpd_t::get_pvrt_ivrt(cartman_mpd_t *pmesh, cartman_mpd_tile_t *pfan, int ivrt)
 {
     if (!pmesh || !pfan || !CART_VALID_VERTEX_RANGE(ivrt))
     {
@@ -588,7 +268,7 @@ Cartman::mpd_vertex_t *cartman_mpd_get_pvrt_ivrt( cartman_mpd_t * pmesh, cartman
 }
 
 //--------------------------------------------------------------------------------------------
-Cartman::mpd_vertex_t * cartman_mpd_get_pvrt_idx( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int idx, int * ivrt_ptr )
+Cartman::mpd_vertex_t * cartman_mpd_t::get_pvrt_idx( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int idx, int * ivrt_ptr )
 {
     int loc_ivrt;
 
@@ -602,7 +282,7 @@ Cartman::mpd_vertex_t * cartman_mpd_get_pvrt_idx( cartman_mpd_t * pmesh, cartman
 
     *ivrt_ptr = pmesh->get_ivrt_pfan(pfan, idx);
 
-    Cartman::mpd_vertex_t *pvrt = cartman_mpd_get_pvrt_ivrt(pmesh, pfan, *ivrt_ptr);
+    Cartman::mpd_vertex_t *pvrt = cartman_mpd_t::get_pvrt_ivrt(pmesh, pfan, *ivrt_ptr);
 
     return pvrt;
 }
@@ -668,22 +348,22 @@ void cartman_mpd_free_vertices(cartman_mpd_t *self)
     self->vrt_free = MAP_VERTICES_MAX;
 }
 
-Cartman::mpd_vertex_t *cartman_mpd_t::get_vertex(int ivert)
+Cartman::mpd_vertex_t *cartman_mpd_t::get_vertex(int ivrt)
 {
-    if (!CART_VALID_VERTEX_RANGE(ivert))
+    if (!CART_VALID_VERTEX_RANGE(ivrt))
     {
         return nullptr;
     }
-    return &(vrt2[ivert]);
+    return &(vrt2[ivrt]);
 }
 
-const Cartman::mpd_vertex_t *cartman_mpd_t::get_vertex(int ivert) const
+const Cartman::mpd_vertex_t *cartman_mpd_t::get_vertex(int ivrt) const
 {
-    if (!CART_VALID_VERTEX_RANGE(ivert))
+    if (!CART_VALID_VERTEX_RANGE(ivrt))
     {
         return nullptr;
     }
-    return &(vrt2[ivert]);
+    return &(vrt2[ivrt]);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -885,7 +565,7 @@ int cartman_mpd_allocate_vertex_list(cartman_mpd_t * pmesh, int list[], size_t s
         pmesh->vrt_free = vrt_free_old;
         for ( cnt = 0; cnt < valid_verts; cnt++ )
         {
-            Cartman::mpd_vertex_t::ctor(&(pmesh->vrt2[list[cnt]]));
+            pmesh->vrt2[list[cnt]].reset();
         }
 
         // tell the caller we failed
@@ -1146,8 +826,11 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
     fan_ary_src = pmem_src->tile_list;
     vrt_ary_src = pmem_src->vlst;
 
-    // clear out all data in the destination mesh
-    if (!cartman_mpd_t::renew(pmesh_dst)) return NULL;
+    // Reset the destination mesh.
+    if (!pmesh_dst->reset())
+    {
+        return nullptr;
+    }
 
     // set up the destination mesh from the source mesh
     cartman_mpd_info_init(&(pmesh_dst->info), pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y);
@@ -1238,7 +921,7 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
 
 cartman_mpd_convert_fail:
 
-    cartman_mpd_t::renew( pmesh_dst );
+    pmesh_dst->reset();
 
     return nullptr;
 }
@@ -1413,6 +1096,125 @@ void tile_dict_lines_add( int fantype, int start, int end )
 }
 
 //--------------------------------------------------------------------------------------------
+cartman_mpd_t *cartman_mpd_load_vfs(cartman_mpd_t *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+
+    // Load the tile dictionary.
+    cartman_tile_dictionary_load_vfs();
+
+    // Reset the mesh.
+    if (!self->reset())
+    {
+        return nullptr;
+    }
+
+    // Create a raw map.
+    map_t local;
+    if (!map_ctor(&local))
+    {
+        return nullptr;
+    }
+
+    // Load the raw map.
+    if (!map_load("mp_data/level.mpd", &local))
+    {
+        map_dtor(&local);
+        return nullptr;
+    }
+
+    // Convert the raw map into a Cartman map.
+    if (!cartman_mpd_convert(self, &local))
+    {
+        map_dtor(&local);
+        return nullptr;
+    }
+
+    map_dtor(&local);
+
+    // Do finishing calculations.
+    if (!cartman_mpd_finalize(self))
+    {
+        self->reset();
+        return nullptr;
+    }
+
+    return self;
+}
+
+cartman_mpd_t *cartman_mpd_save_vfs(cartman_mpd_t *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+
+    // Load the tile dictionary.
+    /// @todo Why the hell do you load the tile dictionary?
+    cartman_tile_dictionary_load_vfs();
+
+    // Construct a raw map.
+    map_t local;
+    if (map_ctor(&local))
+    {
+        return nullptr;
+    }
+
+    // Convert the map map into a raw map.
+    if (!cartman_mpd_revert(&local, self))
+    {
+        map_dtor(&local);
+        return nullptr;
+    }
+
+    // Save the raw map.
+    if (!map_save("mp_data/level.mpd", &local))
+    {
+        map_dtor(&local);
+        return nullptr;
+    }
+
+    map_dtor(&local);
+
+    return self;
+}
+
+cartman_mpd_t *cartman_mpd_create(cartman_mpd_t *self, int tiles_x, int tiles_y)
+{
+    if (!self)
+    {
+        self = &mesh; ///< @todo Bad!
+    }
+    cartman_mpd_free_vertices(self);
+
+    self->info.tiles_x = tiles_x;
+    self->info.tiles_y = tiles_y;
+
+    self->info.edgex = self->info.tiles_x * TILE_ISIZE;
+    self->info.edgey = self->info.tiles_y * TILE_ISIZE;
+    self->info.edgez = 180 << 4;
+
+    for (int mapy = 0, fan = 0; mapy < self->info.tiles_y; mapy++)
+    {
+        int y = mapy * TILE_ISIZE;
+        for (int mapx = 0; mapx < self->info.tiles_x; mapx++)
+        {
+            int x = mapx * TILE_ISIZE;
+
+            self->fan2[fan].type = 0;
+            self->fan2[fan].tx_bits = (((mapx & 1) + (mapy & 1)) & 1) + DEFAULT_TILE;
+
+            fan++;
+        }
+    }
+
+    cartman_mpd_make_fanstart(self);
+
+    return self;
+}
 //--------------------------------------------------------------------------------------------
 void cartman_tile_dictionary_load_vfs()
 {
