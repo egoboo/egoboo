@@ -167,7 +167,7 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
     float fov_deg_big   = multiplyFOV( DEFAULT_FOV, fov_mag );
     float fov_deg_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
     
-	fmat_4x4_t identity = fmat_4x4_t::identity;
+	fmat_4x4_t identity = fmat_4x4_t::identity();
     
 	_mProjection.setPerspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
 	_mProjectionBig.setPerspective(fov_deg_big, aspect_ratio, frustum_near, frustum_far);
@@ -256,7 +256,7 @@ void Camera::updateZoom()
     _zoom = ( CAM_ZOOM_MIN * percentmin ) + ( CAM_ZOOM_MAX * percentmax );
 
     // update _turn_z
-    if ( ABS( _turnZAdd ) < 0.5f )
+    if (std::abs( _turnZAdd ) < 0.5f)
     {
         _turnZAdd = 0.0f;
     }

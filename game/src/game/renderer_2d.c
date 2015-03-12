@@ -286,10 +286,11 @@ void gfx_begin_2d()
     // Reset the Modelview Matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity);
 #if 0
     GL_DEBUG( glLoadIdentity )();
 #endif
+	Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
+
     // remove any scissor test
 	Ego::Renderer::get().setScissorTestEnabled(false);
 

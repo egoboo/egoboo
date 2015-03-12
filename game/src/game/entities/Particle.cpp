@@ -985,7 +985,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
         chr_getMatUp(_gameObjects.get(loc_pprt->onwhichplatform_ref), platform_up);
         platform_up.normalize();
 
-        penviro->traction = ABS(platform_up.z) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
+        penviro->traction = std::abs(platform_up.z) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
 
         if (penviro->is_slippy)
         {
@@ -994,7 +994,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
     }
     else if (ego_mesh_grid_is_valid(PMesh, loc_pprt->onwhichgrid))
     {
-        penviro->traction = ABS(map_twist_nrm[penviro->twist].z) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
+        penviro->traction = std::abs(map_twist_nrm[penviro->twist].z) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
 
         if (penviro->is_slippy)
         {

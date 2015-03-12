@@ -1002,7 +1002,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 }
                 else
                 {
-                    iTmp = ABS( ptarget->getPosX() - pchr->getPosX() ) + ABS( ptarget->getPosY() - pchr->getPosY() );
+                    iTmp = std::abs(ptarget->getPosX() - pchr->getPosX())
+                         + std::abs(ptarget->getPosY() - pchr->getPosY());
                 }
                 break;
 
@@ -1040,7 +1041,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                     }
                     else
                     {
-                        iTmp = ABS( pleader->getPosX() - pchr->getPosX() ) + ABS( pleader->getPosY() - pchr->getPosY() );
+                        iTmp = std::abs(pleader->getPosX() - pchr->getPosX())
+                             + std::abs(pleader->getPosY() - pchr->getPosY());
                     }
                 }
                 break;
@@ -1094,8 +1096,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 }
                 else
                 {
-                    iTmp = ABS( pself->wp[kX] - pchr->getPosX() ) +
-                           ABS( pself->wp[kY] - pchr->getPosY() );
+                    iTmp = std::abs(pself->wp[kX] - pchr->getPosX())
+                         + std::abs(pself->wp[kY] - pchr->getPosY());
                 }
                 break;
 
@@ -1190,17 +1192,17 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARTARGETSPEEDX:
                 varname = "TARGETSPEEDX";
-                iTmp = ( NULL == ptarget ) ? 0 : ABS( ptarget->vel.x );
+                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel.x);
                 break;
 
             case VARTARGETSPEEDY:
                 varname = "TARGETSPEEDY";
-                iTmp = ( NULL == ptarget ) ? 0 : ABS( ptarget->vel.y );
+                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel.y);
                 break;
 
             case VARTARGETSPEEDZ:
                 varname = "TARGETSPEEDZ";
-                iTmp = ( NULL == ptarget ) ? 0 : ABS( ptarget->vel.z );
+                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel.z);
                 break;
 
             case VARSELFSPAWNX:

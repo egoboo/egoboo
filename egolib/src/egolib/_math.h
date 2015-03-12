@@ -47,7 +47,8 @@
  * @return
  *	the clipped value
  */
-template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& _maximum) {
+template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& _maximum)
+{
 	return std::min(std::max(_value, _minimum), _maximum);
 }
 
@@ -61,6 +62,170 @@ template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& 
 #else
 #    define LOG_NAN(XX)
 #endif
+
+namespace Ego
+{
+    namespace Math
+    {
+        inline float degToRad(float x)
+        {
+            return x * 0.017453292519943295769236907684886f;
+        }
+
+        inline double degToRad(double x)
+        {
+            return x * 0.017453292519943295769236907684886;
+        }
+    }
+}
+
+namespace Ego
+{
+    namespace Math
+    {
+        /**
+         * @brief
+         *  Get \f$\pi\f$.
+         * @return
+         *  \f$\pi\f$
+         */
+        template <typename Type>
+        Type pi();
+
+        /**
+         * @brief
+         *  Get \f$\pi\f$.
+         * @return
+         *  \f$\pi\f$
+         */
+        template <>
+        inline float pi<float>()
+        {
+            return 3.1415926535897932384626433832795f;
+        }
+
+        /**
+         * @brief
+         *  Get \f$\pi\f$.
+         * @return
+         *  \f$\pi\f$
+         */
+        template <>
+        inline double pi<double>()
+        {
+            return 3.1415926535897932384626433832795;
+        }
+
+        /**
+         * @brief
+         *  Get \f$\frac{1}{\pi}\f$.
+         * @return
+         *  \f$\frac{1}{\pi}\f$
+         */
+        template <typename Type>
+        Type invPi();
+
+        /**
+        * @brief
+        *  Get \f$\frac{1}{\pi}\f$.
+        * @return
+        *  \f$\frac{1}{\pi}\f$
+        */
+        template <>
+        inline float invPi<float>()
+        {
+            return 0.31830988618379067153776752674503f;
+        }
+
+        /**
+        * @brief
+        *  Get \f$\frac{1}{\pi}\f$.
+        * @return
+        *  \f$\frac{1}{\pi}\f$
+        */
+        template <>
+        inline double invPi<double>()
+        {
+            return 0.31830988618379067153776752674503;
+        }
+
+        /**
+         * @brief
+         *  Get \f$2 \cdot \pi\f$.
+         * @return
+         *  \f$2 \cdot \pi\f$
+         */
+        template <typename Type>
+        Type twoPi();
+
+        /**
+         * @brief
+         *  Get \f$2 \cdot \pi\f$.
+         * @return
+         *  \f$2 \cdot \pi\f$
+         */
+        template <>
+        inline float twoPi<float>()
+        {
+            return 6.283185307179586476925286766559f;
+        }
+
+        /**
+         * @brief
+         *  Get \f$2 \cdot \pi\f$.
+         * @return
+         *  \f$2 \cdot \pi\f$
+         */
+        template <>
+        inline double twoPi<double>()
+        {
+            return 6.283185307179586476925286766559;
+        }
+
+        /**
+         * @brief
+         *  Get \f$\frac{1}{2 \cdot \pi}\f$.
+         * @return
+         *  \f$\frac{1}{2 \cdot \pi}\f$
+         */
+        template <typename Type>
+        Type invTwoPi();
+
+        /**
+         * @brief
+         *  Get \f$\frac{1}{2 \cdot \pi}\f$.
+         * @return
+         *  \f$\frac{1}{2 \cdot \pi}\f$
+         */
+        template <>
+        inline float invTwoPi<float>()
+        {
+            return 0.15915494309189533576888376337251f;
+        }
+
+        /**
+         * @brief
+         *  Get \f$\frac{1}{2 \cdot \pi}\f$.
+         * @return
+         *  \f$\frac{1}{2 \cdot \pi}\f$
+         */
+        template <>
+        inline double invTwoPi<double>()
+        {
+            return 0.15915494309189533576888376337251;
+        }
+
+        inline float radToDeg(float x)
+        {
+            return x * 57.295779513082320876798154814105f;
+        }
+
+        inline double radToDeg(double x)
+        {
+            return x * 57.295779513082320876798154814105;
+        }
+    }
+}
 
 
 #if defined(__cplusplus)

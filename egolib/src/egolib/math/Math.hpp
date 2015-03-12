@@ -37,7 +37,8 @@ namespace Math
      *  the constrained value
      */
     template <typename T>
-    T constrain(const T& n, const T& lower, const T& upper) {
+    T constrain(const T& n, const T& lower, const T& upper)
+    {
         return std::max(lower, std::min(n, upper));
     }
 
@@ -49,7 +50,8 @@ namespace Math
      *  the number to square
      **/
     template <typename T>
-    T sq(const T &value) {
+    T sq(const T &value)
+    {
         return value * value;
     }
 }

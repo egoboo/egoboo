@@ -197,7 +197,7 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
     Dx = plos->x1 - plos->x0;
     Dy = plos->y1 - plos->y0;
 
-    steep = ( ABS( Dy ) >= ABS( Dx ) );
+    steep = (std::abs(Dy) >= std::abs(Dx));
 
     // determine which are the big and small values
     if ( steep )

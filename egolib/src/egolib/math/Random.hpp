@@ -16,8 +16,9 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file  egolib/math/Random.hpp
-/// @brief Utility helper to generate random numbers
+
+/// @file   egolib/Math/Random.hpp
+/// @brief  Utility helper to generate random numbers
 /// @author Johan Jansen
 
 #pragma once
@@ -28,13 +29,23 @@ class Random
 {
 public:
 	/**
-	* @brief Returns random floating point number between 0.0f and 1.0f
-	**/
+	 * @brief
+     *  Generate a random floating point number in the interval <tt>[0,1]</tt>.
+     * @return
+     *  a random floating point number in the interval <tt>[0,1]</tt>
+	 */
     static float nextFloat();
     
     /**
-	* @brief Generates an integer between 0 and high (inclusive)
-	**/
+	 * @brief
+     *  Generate an integer number in the interval <tt>[0,high]</tt>.
+     * @param high
+     *  the upper bound (inclusive) for the random integer number generated
+     * @return
+     *  a random integer number in the interval <tt>[0,high]</tt>
+     * @pre
+     *  <tt>high >= 0</tt>
+	 */
     template<typename T>
     static T next(const T high)
     {
@@ -42,45 +53,81 @@ public:
     }
 
     /**
-	* @brief Generates an integer number between 0 and high (inclusive)
-	**/
+	 * @brief
+     *  Generates an integer number in the interval <tt>[low,high]</tt>.
+     * @param low
+     *  the lower bound (inclusive) for the integer number returned by this function
+     * @param high
+     *  the upper bound (inclusive) for the integer number returned by this function
+     * @return
+     *  a random integer number in the interval <tt>[low,high]</tt>
+     * @pre
+     *  <tt>low <= high</tt>
+	 */
     template<typename T>
     static T next(const T low, const T high)
     {
-        assert(low <= high);
-        if(low >= high) return low;
+        static_assert(std::is_same<T, short>::value || std::is_same<T, int>::value ||
+                      std::is_same<T, long>::value || std::is_same<T, long long>::value ||
+                      std::is_same<T, unsigned short>::value || std::is_same<T, unsigned int>::value  ||
+                      std::is_same<T, unsigned long>::value || std::is_same<T, unsigned long long>::value,
+                      "T must be one of short, int, long, long long, unsigned short, "
+                      "unsigned int, unsigned long, or unsigned long long");
+        if (low > high)
+        {
+            throw std::invalid_argument("low > high");
+        }
+        if (low == high)
+        {
+            return low;
+        }
         std::uniform_int_distribution<T> rand(low, high);
         return rand(generator);
     }
 
 	/**
-	* @brief Randomly returns true or false
-	**/
+	 * @brief
+     *  Randomly returns @a true or @a false.
+     * @return
+     *  @a true or @a false
+	 */
     static bool nextBool();
 
 	/**
-	* @brief Generates a number from 1 to 100
-	**/
+	 * @brief
+     *  Generates a random integer number in the interval <tt>[0,1]</tt>.
+     * @return
+     *  a random integer number in the interval <tt>[0,1]</tt>
+	 */
     static int getPercent();
 
     /**
-    * @brief Sets the random seed used for randomization
-    **/
+     * @brief
+     *  Sets the random seed used for randomization.
+     * @param seed
+     *  the seed
+     */
     static void setSeed(const long seed);
 
     /**
-    * @brief Returns a reference to a random element in this vector
-    **/
+     * @brief
+     *  Returns a reference to a random element in a vector.
+     * @param container
+     *  the container
+     * @return
+     *  a reference to a random element in the container
+     */
     template<typename T>
-    static const T& getRandomElement(const std::vector<T> &container)
+    static const T& getRandomElement(const std::vector<T>& container)
     {
         assert(!container.empty());
         return container[ Random::next<size_t>(container.size()-1) ];
     }
 
     /**
-    * @brief Returns a reference to a random element in this vector
-    **/
+     * @brief
+     *  Returns a reference to a random element in this vector
+     */
     template<typename T>
     static T& getRandomElement(std::vector<T> &container)
     {

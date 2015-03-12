@@ -421,7 +421,7 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     }
 
     // determine the volume
-    volume = ABS( area ) * ( pov->oct.maxs[OCT_Z] - pov->oct.mins[OCT_Z] );
+    volume = std::abs( area ) * ( pov->oct.maxs[OCT_Z] - pov->oct.mins[OCT_Z] );
     if ( NULL != pvolume )
     {
         ( *pvolume ) = volume;

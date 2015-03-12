@@ -16,13 +16,14 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file  egolib/math/Random.hpp
-/// @brief Utility helper to generate random numbers
+
+/// @file   egolib/Math/Random.hpp
+/// @brief  Utility helper to generate random numbers
 /// @author Johan Jansen
 
-#include "Random.hpp"
+#include "egolib/Math/Random.hpp"
 
-//Static data initializer
+// Static data initializer
 std::random_device rd;
 std::mt19937 Random::generator = std::mt19937(time(nullptr));
 
@@ -33,7 +34,7 @@ void Random::setSeed(const long seed)
 
 float Random::nextFloat()
 {
-    static std::uniform_real_distribution<float> rand(0.0f, 1.0f);
+    static std::uniform_real_distribution<float> rand(0.0f, std::nextafter(1.0f, std::numeric_limits<float>::max()));
     return rand(generator);
 }
 

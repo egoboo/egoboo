@@ -277,7 +277,7 @@ bool three_plane_intersection( fvec3_t& dst_pos, const plane_base_t p0, const pl
         p0[kZ] * ( p1[kX] * p2[kY] - p2[kX] * p1[kY] );
 
     // check for system that is too close to being degenerate
-    if ( ABS( det ) < 1e-6 ) return false;
+    if ( std::abs( det ) < 1e-6 ) return false;
 
     // the x component
     tmp =
