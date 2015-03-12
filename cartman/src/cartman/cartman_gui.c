@@ -148,7 +148,7 @@ void show_name( const char *newloadname, SDL_Color fnt_color )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_window(std::shared_ptr<Cartman_Window> pwin, int id, char *loadname, int x, int y, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh)
+void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadname, int x, int y, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh)
 {
     if ( NULL == pwin ) return;
 
@@ -193,7 +193,7 @@ bool Cartman_Window::isOver(int x, int y) const
 std::shared_ptr<Cartman_Window> Cartman::GUI::findWindow(int x, int y)
 {
     std::shared_ptr<Cartman_Window> result = nullptr;
-    for (auto window : _window_lst)
+    for (auto &window : _window_lst)
     {
         if (window->isOver(x, y))
         {

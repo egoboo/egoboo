@@ -1076,7 +1076,7 @@ SDL_Surface * cartman_LoadIMG( const char * szName )
     SDL_Surface * bmptemp, * bmpconvert;
 
     // load the bitmap
-    bmptemp = IMG_Load( szName );
+    bmptemp = IMG_Load_RW( vfs_openRWopsRead(szName), 1 );
 
     // expand the screen format to support alpha
     memcpy( &tmpformat, theSurface->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format

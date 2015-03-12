@@ -399,7 +399,7 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    sprintf( mod_path, "%s" SLASH_STR "modules" SLASH_STR "%s", egoboo_path, modname );
+    sprintf( mod_path, "/modules/%s", modname );
 
     if ( !setup_init_module_vfs_paths( modname ) )
     {
@@ -2022,11 +2022,6 @@ int SDL_main( int argcnt, char* argtext[] )
 {
     char modulename[100];
     STRING fname;
-
-#ifdef __APPLE__
-    // hack to change current directory
-    assert(chdir("Cartman.app/Contents/Resources/") == 0);
-#endif
 
     // register the function to be called to deinitialize the program
     atexit( main_end );

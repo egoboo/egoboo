@@ -142,5 +142,5 @@ struct Cartman_GUI_Cursor
 void do_cursor();
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue );
 void show_name( const char *newloadname, SDL_Color fnt_color );
-void load_window(std::shared_ptr<Cartman_Window> pwin, int id, char *loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
+void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh);
 

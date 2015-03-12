@@ -486,7 +486,7 @@ bool wawalite_data_write(const char *filename,const wawalite_data_t *profile)
     vfs_FILE *filewrite = vfs_openWrite(filename);
     if ( NULL == filewrite )
     {
-        log_warning("%s:%d: unable to write file `%s`\n", filename);
+        log_warning("%s:%d: unable to write file `%s`\n", __FILE__, __LINE__, filename);
         return false;
     }
 

@@ -674,26 +674,26 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
     if (!pfan)
     {
         log_warning("%s - tried to add null fan pointer\n", __FUNCTION__);
-        goto cartman_mpd_add_fan_fail;
+        return -1;
     }
 
     tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan->type);
     if (!pdef)
     {
         log_warning("%s - invalid fan type %d\n", __FUNCTION__, pfan->type);
-        goto cartman_mpd_add_fan_fail;
+        return -1;
     }
 
     int vert_count = pdef->numvertices;
     if (0 == vert_count)
     {
         log_warning("%s - undefined fan type %d\n", __FUNCTION__, pfan->type);
-        goto cartman_mpd_add_fan_fail;
+        return -1;
     }
     else if (vert_count > MAP_FAN_VERTICES_MAX)
     {
         log_warning("%s - too many vertices in fan type %d\n", __FUNCTION__, pfan->type);
-        goto cartman_mpd_add_fan_fail;
+        return -1;
     }
 
     // allocate the verts for this fan
@@ -701,7 +701,7 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
     if (start_vertex < 0)
     {
         log_warning("%s - could not allocate vertices for fan\n", __FUNCTION__);
-        goto cartman_mpd_add_fan_fail;
+        return -1;
     }
 
     // Initialize the vertices.
@@ -720,10 +720,6 @@ int cartman_mpd_t::add_pfan(cartman_mpd_tile_t *pfan, float x, float y)
     }
 
     return pfan->vrtstart;
-
-cartman_mpd_add_fan_fail:
-
-    return -1;
 }
 
 //--------------------------------------------------------------------------------------------

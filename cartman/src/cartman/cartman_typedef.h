@@ -99,6 +99,7 @@ namespace Cartman
         {
             _x = other._x;
             _y = other._y;
+            return *this;
         }
         void translate(const Vector2i& t)
         {
