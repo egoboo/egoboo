@@ -26,7 +26,7 @@
 
 static const float MD2_NORMALS[EGO_NORMAL_COUNT][3] =
 {
-#include "egolib/file_formats/id_normals.inl"
+#include "egolib/FileFormats/id_normals.inl"
     , {0, 0, 0}                     ///< the "equal light" normal
 };
 

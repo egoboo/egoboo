@@ -23,7 +23,7 @@
 #define GAME_PROFILES_PRIVATE 1
 #include "game/profiles/ModuleProfile.hpp"
 
-#include "egolib/file_formats/quest_file.h"
+#include "egolib/FileFormats/quest_file.h"
 
 #include "egolib/log.h"
 

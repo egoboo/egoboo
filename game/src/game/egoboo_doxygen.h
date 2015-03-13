@@ -71,9 +71,9 @@
  *
  *  <LI><P>Please respect that certain functions and modules will not be converted to
  *  C++. These modules have not been marked yet, but they are : enet,
- *  and the file_formats/id_*.* md2 loading code, and the extensions/*.*
+ *  and the FileFormats/id_*.* md2 loading code, and the extensions/*.*
  *  code. This also includes (to a lesser degree) the the
- *  file_formats/configfile.* module. The basic reason is  that this
+ *  FileFormats/configfile.* module. The basic reason is  that this
  *  code is being used in multiple projects that are intended to share
  *  the code. If you must, do something to upgrade the code, make
  *  wrapper code. :)</P>

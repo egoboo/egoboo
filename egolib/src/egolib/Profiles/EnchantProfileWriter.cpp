@@ -20,7 +20,7 @@
 #define EGOLIB_PROFILES_PRIVATE 1
 #include "egolib/Profiles/EnchantProfileWriter.hpp"
 
-#include "egolib/file_formats/template.h"
+#include "egolib/FileFormats/template.h"
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 #include "egolib/vfs.h"

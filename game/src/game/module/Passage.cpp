@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/file_formats/Passage.cpp
+/// @file egolib/FileFormats/Passage.cpp
 /// @brief A scanner for the passage file for a given module ( /modules/*.mod/basicdat/passages.txt )
 /// @author Johan Jansen
 

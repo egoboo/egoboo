@@ -21,7 +21,7 @@
 #include "egolib/Profiles/ParticleProfileReader.hpp"
 
 #include "egolib/Audio/AudioSystem.hpp"
-#include "egolib/file_formats/template.h"
+#include "egolib/FileFormats/template.h"
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 #include "egolib/vfs.h"
