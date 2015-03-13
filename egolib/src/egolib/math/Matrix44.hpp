@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/matrix.h
-/// @details matrices
+/// @file    egolib/Math/Matrix44.hpp
+/// @brief 4x4 matrices.
 #pragma once
 
 #include "egolib/_math.h"
-#include "egolib/vec.h"
+#include "egolib/Math/Vector.hpp"
 
 /// @brief Egoboo currently uses column-major format. This will change to column major.
 #define fmat_4x4_layout_RowMajor (1)
@@ -56,6 +56,7 @@ struct fmat_4x4_t
 		float v2[4][4];
 	};
 
+#if 0
 	/**
 	 * @brief
 	 *	The \f$4 \times 4\f$ identity/multiplicative neutral matrix is defined as
@@ -85,6 +86,63 @@ struct fmat_4x4_t
 	 *	\f]
 	 */
 	static const fmat_4x4_t zero;
+#endif
+
+    /**
+     * @brief
+     *  Get the identity (aka multiplicative neutral) matrix.
+     * @return
+     *  the identity matrix
+     * @remark
+     *	The \f$4 \times 4\f$ identity (aka multiplicative neutral) matrix is defined as
+     *	\f[
+     *		\left[\begin{matrix}
+     *		1 & 0 & 0 & 0 \\
+     *		0 & 1 & 0 & 0 \\
+     *		0 & 0 & 1 & 0 \\
+     *		0 & 0 & 0 & 1
+     *		\end{matrix}\right]
+     * \f]
+     */
+    static const fmat_4x4_t& identity()
+    {
+        static const fmat_4x4_t identity
+            (
+                1.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+            );
+        return identity;
+    }
+
+    /**
+     * @brief
+     *	Get the zero (aka additive neutral) matrix.
+     * @return
+     *  the zero matrix
+     * @remark
+     *	The \f$4 \times 4\f$ zero (aka additive neutral) matrix is defined as
+     *	\f[
+     *	\left[\begin{matrix}
+     *	0 & 0 & 0 & 0 \\
+     *	0 & 0 & 0 & 0 \\
+     *	0 & 0 & 0 & 0 \\
+     *	0 & 0 & 0 & 0
+     *	\end{matrix}\right]
+     *	\f]
+     */
+    static const fmat_4x4_t& zero()
+    {
+        static const fmat_4x4_t zero
+            (
+                0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f
+            );
+        return zero;
+    }
 
 	fmat_4x4_t()
 	{
@@ -345,7 +403,7 @@ struct fmat_4x4_t
 	 */
 	void setZero()
 	{
-		(*this) = fmat_4x4_t::zero;
+		(*this) = fmat_4x4_t::zero();
 	}
 
 	/**
@@ -355,7 +413,7 @@ struct fmat_4x4_t
 	 */
 	void setIdentity()
 	{
-		(*this) = fmat_4x4_t::identity;
+		(*this) = fmat_4x4_t::identity();
 	}
 
 	/**
@@ -593,7 +651,7 @@ struct fmat_4x4_t
 	void setRotationX(const float a)
 	{
 		float c = COS(a), s = SIN(a);
-		(*this) = fmat_4x4_t::identity;
+		(*this) = fmat_4x4_t::identity();
 		// 1st column.
 		(*this)(1, 1) = +c;
 		(*this)(2, 1) = +s;
@@ -636,7 +694,7 @@ struct fmat_4x4_t
 	void setRotationY(const float a)
 	{
 		float c = COS(a), s = SIN(a);
-		(*this) = fmat_4x4_t::identity;
+		(*this) = fmat_4x4_t::identity();
 		// 0th column.
 		(*this)(0, 0) = +c;
 		(*this)(2, 0) = -s;
@@ -679,7 +737,7 @@ struct fmat_4x4_t
 	void setRotationZ(const float a)
 	{
 		float c = COS(a), s = SIN(a);
-		(*this) = fmat_4x4_t::identity;
+		(*this) = fmat_4x4_t::identity();
 		// 0th column.
 		(*this)(0, 0) = +c;
 		(*this)(1, 0) = +s;
@@ -722,7 +780,7 @@ struct fmat_4x4_t
 	 */
 	void setScaling(const fvec3_t& s)
 	{
-		(*this) = fmat_4x4_t::identity;
+		(*this) = fmat_4x4_t::identity();
 		(*this)(0, 0) = s.x;
 		(*this)(1, 1) = s.y;
 		(*this)(2, 2) = s.z;

@@ -24,9 +24,9 @@
 
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
-#include "egolib/math/AABB.h"
-#include "egolib/math/Colour4f.hpp"
-#include "egolib/math/Random.hpp"
+#include "egolib/Math/AABB.h"
+#include "egolib/Math/Colour4f.hpp"
+#include "egolib/Math/Random.hpp"
 #include "egolib/bsp.h"
 #include "egolib/bbox.h"
 #include "egolib/clock.h"
@@ -41,7 +41,7 @@
 #include "egolib/_math.h"
 #include "egolib/input_device.h"
 #include "egolib/log.h"
-#include "egolib/matrix.h"
+#include "egolib/Math/Matrix44.hpp"
 #include "egolib/map_functions.h"
 #include "egolib/network.h"
 #include "egolib/network_file.h"
@@ -56,7 +56,7 @@
 #include "egolib/typedef.h"
 #include "egolib/DynamicArray.hpp"
 #include "egolib/vfs.h"
-#include "egolib/vec.h"
+#include "egolib/Math/Vector.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

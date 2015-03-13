@@ -24,13 +24,15 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
-#include "egolib/_math.h"
-#include "egolib/math/Plane.hpp"
-#include "egolib/math/Sphere.h"
+#include "egolib/platform.h"
+#include "egolib/Math/Plane.hpp" /// @todo Remove this.
 
 // Forward declaration.
+struct fvec3_t;
 struct aabb_t;
+struct cone_t;
+struct plane_t;
+struct sphere_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -53,75 +55,28 @@ struct aabb_t;
     typedef fvec3_base_t point_base_t;
 
 //--------------------------------------------------------------------------------------------
-// a datatype for cones
-//--------------------------------------------------------------------------------------------
-
-    struct cone_t
-    {
-        fvec3_t origin;
-        fvec3_t axis;
-
-        // use these values to pre-calculate trig functions based off of the opening angle
-        float   inv_sin;
-        float   sin_2;
-        float   cos_2;
-
-        cone_t() :
-            origin(0, 0, 0),
-            axis(0, 0, 0),
-            inv_sin(0.0f),
-            sin_2(0.0f),
-            cos_2(0.0f)
-        {
-            //ctor
-        }
-		/**
-		 * @brief
-		 *	Assign this cone the values of another cone.
-		 * @param other
-		 *	the other cone
-		 * @post
-		 *	This cone was assigned the values of the other cone.
-		 */
-		void assign(const cone_t& other)
-		{
-			origin = other.origin;
-			axis = other.axis;
-			inv_sin = other.inv_sin;
-			sin_2 = other.sin_2;
-			cos_2 = other.cos_2;
-		}
-		/**
-		 * @brief
-		 *	Assign this cone the values of another cone.
-		 * @param other
-		 *	the other cone
-		 * @return
-		 *	this cone
-		 * @post
-		 *	This cone was assigned the values of the other cone.
-		 */
-		cone_t& operator=(const cone_t& other)
-		{
-			assign(other);
-			return *this;
-		}
-    };
-
-//--------------------------------------------------------------------------------------------
-// a datatype for frustums
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
 // intersection routines
 //--------------------------------------------------------------------------------------------
 
-    geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2 );
+/**
+ * @brief
+ *  Get the relation of a point to an AABB.
+ * @param point
+ *  the point
+ * @param corner1, corner2
+ *  the AABB
+ * @todo
+ *  @a corner1 and @a corner2 should be replaced by @ aabb_t.
+ * @todo
+ *  Document return value.
+ */
+geometry_rv point_intersects_aabb(const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2);
 
-    geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs);
+geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs);
 
-	geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
-	geometry_rv plane_intersects_aabb_max(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
+geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
+geometry_rv plane_intersects_aabb_max(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
+
 /**
  * @brief
  *	Get if a plane and an AABB intersect.
@@ -155,6 +110,17 @@ geometry_rv sphere_intersects_sphere(const sphere_t *lhs, const sphere_t *rhs);
  *	a point
  */
 geometry_rv cone_intersects_point(const cone_t * lhs, const fvec3_t& rhs);
+
+/**
+ * @brief
+ *  Get the relation of a cone to a sphere.
+ * @param lhs
+ *  the cone
+ * @param rhs
+ *  the sphere
+ * @todo
+ *  Document return value.
+ */
 geometry_rv cone_intersects_sphere(const cone_t * lhs, const sphere_t * rhs);
 
 
@@ -174,8 +140,19 @@ geometry_rv cone_intersects_sphere(const cone_t * lhs, const sphere_t * rhs);
  */
 fvec3_t plane_get_normal(const plane_base_t self);
 
-/// The distance between a point and a plane
-float plane_point_distance( const plane_base_t plane, const fvec3_t& pos);
+/**
+ * @brief
+ *  Get the signed distance of a point to a plane.
+ * @param plane
+ *  the plane
+ * @param point
+ *  the point
+ * @todo
+ *  @a plane should be of type <tt>const plane_t&</tt>.
+ * @todo
+ *  Document return value.
+ */
+float plane_point_distance( const plane_base_t plane, const fvec3_t& point);
 
 /// find the parametric line where two planes intersect
 bool two_plane_intersection( fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_base_t p0, const plane_base_t p1 );

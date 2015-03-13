@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "egolib/vec.h"
+#include "egolib/Math/Vector.hpp"
 #include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------

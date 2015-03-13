@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Plane.h
+/// @file  egolib/Math/Plane.hpp
 /// @brief Planes.
 
 #pragma once
 
-#include "egolib/vec.h"
+#include "egolib/Math/Vector.hpp"
 
 // The base type of the plane data.
 // @todo Remove this.

@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Colour4f.cpp
+/// @file  egolib/Math/Colour4f.cpp
 /// @brief Colours in real-valued, normalized RGBA space.
 
-#include "egolib/math/Colour4f.hpp"
+#include "egolib/Math/Colour4f.hpp"
 
 namespace Ego
 {

@@ -255,7 +255,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.cpp" />
     <ClCompile Include="src\egolib\FileFormats\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\controls_file-v1.c" />
     <ClCompile Include="src\egolib\FileFormats\controls_file-v2.c" />
@@ -275,6 +274,10 @@
     <ClCompile Include="src\egolib\FileFormats\template.c" />
     <ClCompile Include="src\egolib\FileFormats\treasure_table_file.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
+    <ClCompile Include="src\egolib\Math\Cone.cpp" />
+    <ClCompile Include="src\egolib\math\LERP.cpp" />
+    <ClCompile Include="src\egolib\Math\Matrix44.c" />
+    <ClCompile Include="src\egolib\Math\Vector.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfileSystem.cpp" />
     <ClCompile Include="src\egolib\IDSZ.cpp" />
@@ -398,7 +401,6 @@
     <ClCompile Include="src\egolib\log.c" />
     <ClCompile Include="src\egolib\lua\lua_console.c" />
     <ClCompile Include="src\egolib\map_functions.c" />
-    <ClCompile Include="src\egolib\matrix.c" />
     <ClCompile Include="src\egolib\network.c" />
     <ClCompile Include="src\egolib\network_file.c" />
     <ClCompile Include="src\egolib\platform\file_linux.c">
@@ -426,12 +428,10 @@
     <ClCompile Include="src\egolib\throttle.c" />
     <ClCompile Include="src\egolib\timer.c" />
     <ClCompile Include="src\egolib\typedef.c" />
-    <ClCompile Include="src\egolib\vec.c" />
     <ClCompile Include="src\egolib\vfs.c" />
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.hpp" />
     <ClInclude Include="src\egolib\FileFormats\configfile.h" />
     <ClInclude Include="src\egolib\FileFormats\controls_file-v1.h" />
     <ClInclude Include="src\egolib\FileFormats\controls_file-v2.h" />
@@ -451,6 +451,11 @@
     <ClInclude Include="src\egolib\FileFormats\template.h" />
     <ClInclude Include="src\egolib\FileFormats\treasure_table_file.h" />
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />
+    <ClInclude Include="src\egolib\Math\Cone.hpp" />
+    <ClInclude Include="src\egolib\math\LERP.hpp" />
+    <ClInclude Include="src\egolib\Math\Math.hpp" />
+    <ClInclude Include="src\egolib\Math\Matrix44.hpp" />
+    <ClInclude Include="src\egolib\Math\StaticVector.hpp" />
     <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp" />
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp" />
@@ -523,7 +528,6 @@
     <ClInclude Include="src\egolib\log.h" />
     <ClInclude Include="src\egolib\lua\lua_console.h" />
     <ClInclude Include="src\egolib\map_functions.h" />
-    <ClInclude Include="src\egolib\matrix.h" />
     <ClInclude Include="src\egolib\mem.h" />
     <ClInclude Include="src\egolib\network.h" />
     <ClInclude Include="src\egolib\network_file.h" />
@@ -543,7 +547,6 @@
     <ClInclude Include="src\egolib\throttle.h" />
     <ClInclude Include="src\egolib\timer.h" />
     <ClInclude Include="src\egolib\typedef.h" />
-    <ClInclude Include="src\egolib\vec.h" />
     <ClInclude Include="src\egolib\vfs.h" />
     <ClInclude Include="src\egolib\_math.h" />
   </ItemGroup>

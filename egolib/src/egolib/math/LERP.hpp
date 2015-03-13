@@ -1,3 +1,8 @@
+
+/// @file   egolib/Math/LERP.hpp
+/// @brief  Linear interpolation.
+/// @author Michael Heilmann
+
 #pragma once
 
 #include "egolib/platform.h"

@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Colour4f.h
+/// @file  egolib/Math/Colour4f.h
 /// @brief Colours in real-valued, normalized RGBA space.
 
 #pragma once
 
-#include "egolib/math/Colour3f.hpp"
+#include "egolib/Math/Colour3f.hpp"
 
 namespace Ego
 {

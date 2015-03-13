@@ -1,7 +1,7 @@
 #include "egolib/Math/LERP.hpp"
-#include "egolib/vec.h"
-#include "egolib/math/Colour3f.hpp"
-#include "egolib/math/Colour4f.hpp"
+#include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Colour3f.hpp"
+#include "egolib/Math/Colour4f.hpp"
 
 namespace Ego
 {

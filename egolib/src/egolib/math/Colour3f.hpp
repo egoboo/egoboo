@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Colour3.h
+/// @file  egolib/Math/Colour3.h
 /// @brief Colours in real-valued, normalized RGB space.
 
 #pragma once

@@ -24,7 +24,9 @@
 #include "egolib/geometry.h"
 
 #include "egolib/_math.h"
-
+#include "egolib/_math.h"
+#include "egolib/Math/Plane.hpp"
+#include "egolib/Math/Sphere.h"
 #include "egolib/frustum.h"
 
 //--------------------------------------------------------------------------------------------

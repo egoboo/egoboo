@@ -23,10 +23,10 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/vec.h"
+#include "egolib/Math/Vector.hpp"
 #include "egolib/platform.h"
 #include "egolib/log.h"
-#include "egolib/math/Math.hpp"
+#include "egolib/Math/Math.hpp"
 
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"

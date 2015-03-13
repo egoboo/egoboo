@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/math/Cube.h
+/// @file  egolib/Math/Cube.hpp
 /// @brief Cubes.
 
 #pragma once
 
-#include "egolib/vec.h"
+#include "egolib/Math/Vector.hpp"
 
 struct cube_t
 {

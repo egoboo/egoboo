@@ -136,6 +136,11 @@ public:
     }
 
 private:
-    //Mersenne Twister randomizer
+
+    /**
+     * @brief
+     *  Mersenne Twister randomizer.
+     */
     static std::mt19937 generator;
+
 };

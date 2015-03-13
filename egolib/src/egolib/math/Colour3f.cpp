@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Colour3f.cpp
+/// @file  egolib/Math/Colour3f.cpp
 /// @brief Colours in real-valued, normalized RGB space.
 
-#include "egolib/math/Colour3f.hpp"
+#include "egolib/Math/Colour3f.hpp"
 
 namespace Ego
 {

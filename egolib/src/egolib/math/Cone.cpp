@@ -17,5 +17,5 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Math/Cube.cpp
-/// @brief Cubes.
+/// @file  egolib/Math/Cone.cpp
+/// @brief Cones.

@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Sphere.h
+/// @file  egolib/Math/Sphere.h
 /// @brief Spheres.
 
 #pragma once
 
-#include "egolib/vec.h"
+#include "egolib/Math/Vector.hpp"
 
 /**
 * @brief

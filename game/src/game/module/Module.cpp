@@ -22,7 +22,7 @@
 /// @author Johan Jansen
 
 #include "game/module/Module.hpp"
-#include "egolib/math/Random.hpp"
+#include "egolib/Math/Random.hpp"
 #include "game/module/Passage.hpp"
 #include "game/game.h"
 #include "game/network.h"

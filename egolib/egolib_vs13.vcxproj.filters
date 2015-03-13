@@ -180,12 +180,6 @@
     <ClCompile Include="src\egolib\platform\sys_linux.c">
       <Filter>Platforms</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\matrix.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\vec.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\bv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -279,7 +273,9 @@
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp">
       <Filter>Source Files\Profiles</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.cpp">
+    <ClCompile Include="src\egolib\math\LERP.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
     <ClCompile Include="src\egolib\FileFormats\configfile.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -337,6 +333,13 @@
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Math\Vector.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Math\Matrix44.c">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Math\Cone.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -466,12 +469,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\lua\lua_console.h">
       <Filter>Lua</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\matrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\vec.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\bv.h">
       <Filter>Header Files</Filter>
@@ -611,7 +608,9 @@
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\LERP.hpp">
+    <ClInclude Include="src\egolib\math\LERP.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
     <ClInclude Include="src\egolib\FileFormats\configfile.h">
       <Filter>File Formats</Filter>
     </ClInclude>
@@ -669,6 +668,16 @@
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\StaticVector.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Matrix44.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Math.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Cone.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>

@@ -16,10 +16,13 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file egolib/matrix.c
-/// @details matrices
-#include "egolib/matrix.h"
 
+/// @file  egolib/Math/Matrix44.cpp
+/// @brief 4x4 matrices.
+
+#include "egolib/Math/Matrix44.hpp"
+
+#if 0
 const fmat_4x4_t fmat_4x4_t::identity
 	(
 		1.0f, 0.0f, 0.0f, 0.0f,
@@ -34,6 +37,7 @@ const fmat_4x4_t fmat_4x4_t::zero
 		0.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 0.0f
 	);
+#endif
 
 //--------------------------------------------------------------------------------------------
 float *mat_Zero(fmat_4x4_base_t DST)
@@ -205,7 +209,7 @@ void mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_
 {
 	fvec3_t up, right, view_dir, temp;
 
-	DST = fmat_4x4_t::identity;
+	DST = fmat_4x4_t::identity();
 	view_dir = at - from;
 	view_dir.normalize();
 	right = world_up.cross(view_dir);

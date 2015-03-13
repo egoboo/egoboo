@@ -1488,7 +1488,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
     // interaction with the mesh walls
     hit_a_wall = false;
     needs_test = false;
-    if (ABS(loc_pprt->vel.x) + ABS(loc_pprt->vel.y) > 0.0f)
+    if (std::abs(loc_pprt->vel.x) + std::abs(loc_pprt->vel.y) > 0.0f)
     {
         mesh_wall_data_t wdata;
 

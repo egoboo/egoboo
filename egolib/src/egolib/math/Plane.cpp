@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Plane.cpp
+/// @file  egolib/Math/Plane.cpp
 /// @brief Planes.
 
-#include "egolib/math/Plane.hpp"
+#include "egolib/Math/Plane.hpp"
 
 plane_t::plane_t() :
 	_n(0.0f, 0.0f, 1.0f),

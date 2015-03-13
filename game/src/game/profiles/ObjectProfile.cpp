@@ -30,7 +30,7 @@
 #include "game/mad.h"       //for loading md2
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/file_formats/template.h"
-#include "egolib/math/Random.hpp"
+#include "egolib/Math/Random.hpp"
 
 static const SkinInfo INVALID_SKIN = SkinInfo();
 

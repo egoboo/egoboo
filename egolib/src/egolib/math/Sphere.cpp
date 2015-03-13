@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Sphere.c
+/// @file  egolib/Math/Sphere.c
 /// @brief Spheres.
 
-#include "egolib/math/Sphere.h"
+#include "egolib/Math/Sphere.h"
 
 const fvec3_t& sphere_t::getCenter() const
 {

@@ -30,7 +30,7 @@
 #include "game/gui/Button.hpp"
 #include "game/gui/Label.hpp"
 #include "game/gui/Image.hpp"
-#include "egolib/math/Random.hpp"
+#include "egolib/Math/Random.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 
 //For loading stuff
