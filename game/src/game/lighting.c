@@ -24,7 +24,7 @@
 #include "game/lighting.h"
 
 #include "egolib/_math.h"
-#include "egolib/vec.h"
+#include "egolib/Math/Vector.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ bool lighting_cache_base_blend( lighting_cache_base_t * cold, const lighting_cac
         max_delta = 0.0f;
         for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
-            float delta = ABS( cnew->lighting[tnc] - cold->lighting[tnc] );
+            float delta = std::abs( cnew->lighting[tnc] - cold->lighting[tnc] );
 
             cold->lighting[tnc] = cnew->lighting[tnc];
 
@@ -181,7 +181,7 @@ bool lighting_cache_base_blend( lighting_cache_base_t * cold, const lighting_cac
 
             ftmp = cold->lighting[tnc];
             cold->lighting[tnc] = ftmp * keep + cnew->lighting[tnc] * ( 1.0f - keep );
-            max_delta = std::max( max_delta, ABS( cold->lighting[tnc] - ftmp ) );
+            max_delta = std::max( max_delta, std::abs( cold->lighting[tnc] - ftmp ) );
         }
     }
 

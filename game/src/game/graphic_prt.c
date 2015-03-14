@@ -741,7 +741,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 	vfwd_ref.normalize();
 
     // set the up and right vectors
-    if ( ppip->rotatetoface && !_gameObjects.exists( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
+    if (ppip->rotatetoface && !_gameObjects.exists(pprt->attachedto_ref) && (pprt->vel.length_abs() > 0))
     {
         // the particle points along its direction of travel
 
@@ -789,7 +789,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 
         // adjust the vector so that the particle doesn't disappear if
         // you are viewing it from from the top or the bottom
-        weight = 1.0f - ABS( vup_cam.z );
+        weight = 1.0f - std::abs(vup_cam.z);
         if ( vup_cam.z < 0 ) weight *= -1;
 
         vup.x = vup.x + weight * vup_cam.x;
@@ -969,13 +969,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
                 // since we know the only non-zero component of world_up is z
                 zdot = pinst->ref_right.dot(world_up);
 
-                if ( ABS( zdot ) > 1e-6 )
+                if (std::abs(zdot) > 1e-6)
                 {
                     factor = zdot / ( 1.0f - ndot * ndot );
 
-                    pinst->ref_right.x += 2.0f * factor * ( ndot * pinst->nrm.x - world_up.x );
-                    pinst->ref_right.y += 2.0f * factor * ( ndot * pinst->nrm.y - world_up.y );
-                    pinst->ref_right.z += 2.0f * factor * ( ndot * pinst->nrm.z - world_up.z );
+                    pinst->ref_right += ((pinst->nrm * ndot) - world_up) * 2.0f * factor;
                 }
             }
 
@@ -985,7 +983,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
                 // since we know the only non-zero component of world_up is z
                 zdot = pinst->ref_up.dot(world_up);
 
-                if ( ABS( zdot ) > 1e-6 )
+                if ( std::abs( zdot ) > 1e-6 )
                 {
                     factor = zdot / ( 1.0f - ndot * ndot );
 
@@ -1011,7 +1009,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 //--------------------------------------------------------------------------------------------
 fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst )
 {
-    fmat_4x4_t mat = fmat_4x4_t::identity;
+    fmat_4x4_t mat = fmat_4x4_t::identity();
 
     mat.CNV( 0, 1 ) = -pinst->up.x;
     mat.CNV( 1, 1 ) = -pinst->up.y;

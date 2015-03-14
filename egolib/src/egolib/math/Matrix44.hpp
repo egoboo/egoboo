@@ -552,7 +552,7 @@ struct fmat_4x4_t
 		EGOBOO_ASSERT(zFar > 0.0f && zNear > 0.0f);
 		EGOBOO_ASSERT((zNear - zFar) != 0.0f);
 
-		float tan = std::tan(DEG_TO_RAD(fovy) * 0.5f);
+		float tan = std::tan(Ego::Math::degToRad(fovy) * 0.5f);
 		EGOBOO_ASSERT(tan != 0.0f);
 		float f = 1 / tan;
 

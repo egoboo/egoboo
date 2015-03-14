@@ -1993,9 +1993,9 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 // prepare the array values
                 for (cnt = 0; cnt < vertices; cnt++)
                 {
-                    dist = ABS(x - pchr->inst.vrt_lst[vertices - cnt - 1].pos[XX]) +
-                        ABS(y - pchr->inst.vrt_lst[vertices - cnt - 1].pos[YY]) +
-                        ABS(z - pchr->inst.vrt_lst[vertices - cnt - 1].pos[ZZ]);
+                    dist = std::abs(x - pchr->inst.vrt_lst[vertices - cnt - 1].pos[XX])
+                         + std::abs(y - pchr->inst.vrt_lst[vertices - cnt - 1].pos[YY])
+                         + std::abs(z - pchr->inst.vrt_lst[vertices - cnt - 1].pos[ZZ]);
 
                     vertex_distance[cnt] = dist;
                     vertex_occupied[cnt] = INVALID_PRT_REF;
@@ -2172,8 +2172,8 @@ bool prt_t::update_safe(prt_t * pprt, bool force)
 
         if (TileIndex::Invalid == new_grid)
         {
-            if (ABS(pprt->pos.x - pprt->safe_pos.x) > GRID_FSIZE ||
-                ABS(pprt->pos.y - pprt->safe_pos.y) > GRID_FSIZE)
+            if (std::abs(pprt->pos.x - pprt->safe_pos.x) > GRID_FSIZE ||
+                std::abs(pprt->pos.y - pprt->safe_pos.y) > GRID_FSIZE)
             {
                 needs_update = true;
             }
@@ -2285,7 +2285,7 @@ bool prt_t::set_size(prt_t * pprt, int size)
         {
             // just set the size, assuming a spherical particle
             pprt->bump_real.size = real_size;
-            pprt->bump_real.size_big = real_size * SQRT_TWO;
+            pprt->bump_real.size_big = real_size * Ego::Math::sqrtTwo<float>();
             pprt->bump_real.height = real_size;
         }
         else
@@ -2300,7 +2300,7 @@ bool prt_t::set_size(prt_t * pprt, int size)
 
         // make sure that the virtual bumper size is at least as big as what is in the pip file
         pprt->bump_padded.size = std::max(pprt->bump_real.size, ((float)ppip->bump_size));
-        pprt->bump_padded.size_big = std::max(pprt->bump_real.size_big, ((float)ppip->bump_size) * ((float)SQRT_TWO));
+        pprt->bump_padded.size_big = std::max(pprt->bump_real.size_big, ((float)ppip->bump_size) * Ego::Math::sqrtTwo<float>());
         pprt->bump_padded.height = std::max(pprt->bump_real.height, ((float)ppip->bump_height));
     }
 

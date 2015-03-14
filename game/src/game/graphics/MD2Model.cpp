@@ -91,7 +91,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
                 oct_vec_v2_t ovec;
 
                 ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 1e-6;
-                ovec[OCT_XY] = ovec[OCT_YX] = SQRT_TWO * ovec[OCT_X];
+                ovec[OCT_XY] = ovec[OCT_YX] = Ego::Math::sqrtTwo<float>() * ovec[OCT_X];
                 oct_bb_self_grow(&frame.bb, ovec);
             }
         }

@@ -4331,7 +4331,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     chr_getMatUp(pplat, platform_up);
 	platform_up.normalize();
 
-    pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
+    pchr->enviro.traction = std::abs( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
@@ -4653,7 +4653,10 @@ bool water_instance_make( water_instance_t * pinst, const wawalite_water_t * pda
             // Do first mode
             for ( point = 0; point < WATERPOINTS; point++ )
             {
-                temp = SIN(( frame * TWO_PI / MAXWATERFRAME ) + ( TWO_PI * point / WATERPOINTS ) + ( PI_OVER_TWO * layer / MAXWATERLAYER ) );
+                using namespace Ego::Math;
+                temp = (frame * twoPi<float>() / MAXWATERFRAME)
+                     + (twoPi<float>() * point / WATERPOINTS) + (piOverTwo<float>() * layer / MAXWATERLAYER);
+                temp = SIN(temp);
                 pinst->layer_z_add[layer][frame][point] = temp * pdata->layer[layer].amp;
             }
         }

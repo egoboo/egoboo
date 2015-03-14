@@ -982,7 +982,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
                             std::abs(poct->maxs[OCT_Z] - poct->mins[OCT_Z])) < std::numeric_limits<float>::epsilon())
         {
             ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 0.1;
-            ovec[OCT_XY] = ovec[OCT_YX] = SQRT_TWO * ovec[OCT_X];
+            ovec[OCT_XY] = ovec[OCT_YX] = Ego::Math::sqrtTwo<float>() * ovec[OCT_X];
             oct_bb_self_grow( poct, ovec );
         }
 
@@ -1109,7 +1109,7 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
 
                     vdot = nrm_lst[j].dot(nrm_lst[m]);
 
-                    edge_is_crease[j] = ( vdot < INV_SQRT_TWO );
+                    edge_is_crease[j] = (vdot < Ego::Math::invSqrtTwo<float>());
 
                     weight_lst[j] = nrm_lst[j].dot(nrm_lst[0]);
                 }
@@ -1385,10 +1385,10 @@ float ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, bool 
             *plight = light_old * mesh_lighting_keep + light_new * ( 1.0f - mesh_lighting_keep );
 
             // measure the actual delta
-            delta = ABS( light_old - *plight );
+            delta = std::abs( light_old - *plight );
 
             // measure the relative change of the lighting
-            light_tmp = 0.5f * ( ABS( *plight ) + ABS( light_old ) );
+            light_tmp = 0.5f * (std::abs(*plight) + std::abs(light_old));
             if ( 0.0f == light_tmp )
             {
                 delta = 10.0f;
@@ -1400,7 +1400,7 @@ float ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, bool 
             }
 
             // add in the actual change this update
-            *pdelta2 += ABS( delta );
+            *pdelta2 += std::abs( delta );
 
             // update the estimate to match the actual change
             *pdelta1 = *pdelta2;
@@ -1476,11 +1476,11 @@ float grid_get_mix( float u0, float u, float v0, float v )
     float dv = v - v0;
 
     // du *= 1.0f;
-    if ( ABS( du ) > 1.0f ) return 0.0f;
+    if ( std::abs( du ) > 1.0f ) return 0.0f;
     wt_u = ( 1.0f - du ) * ( 1.0f + du );
 
     // dv *= 1.0f;
-    if ( ABS( dv ) > 1.0f ) return 0.0f;
+    if ( std::abs( dv ) > 1.0f ) return 0.0f;
     wt_v = ( 1.0f - dv ) * ( 1.0f + dv );
 
     return wt_u * wt_v;
@@ -1520,7 +1520,7 @@ BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *pmesh, const fvec3_t& pos, const 
     }
 
     // make sure it is positive
-    loc_radius = ABS( loc_radius );
+    loc_radius = std::abs( loc_radius );
 
     pdata->fx_min = pos[kX] - loc_radius;
     pdata->fx_max = pos[kX] + loc_radius;
@@ -1633,7 +1633,7 @@ float ego_mesh_t::get_pressure( const ego_mesh_t * pmesh, const fvec3_t& pos, fl
     }
 
     // make sure it is positive
-    loc_radius = ABS( loc_radius );
+    loc_radius = std::abs( loc_radius );
 
     fx_min = pos[kX] - loc_radius;
     fx_max = pos[kX] + loc_radius;
@@ -1791,7 +1791,7 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
 
                 diff.x += tmp.y * weight;
                 diff.y += tmp.x * weight;
-                sum_diff += ABS( weight );
+                sum_diff += std::abs(weight);
             }
         }
     }
@@ -1804,9 +1804,9 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
     //}
 
     // Limit the maximum displacement to less than one tile.
-    if (ABS(diff.x) + ABS(diff.y) > 0.0f)
+    if (std::abs(diff.x) + std::abs(diff.y) > 0.0f)
     {
-        float fmax = std::max(ABS(diff.x), ABS(diff.y));
+        float fmax = std::max(std::abs(diff.x), std::abs(diff.y));
 
         diff.x /= fmax;
         diff.y /= fmax;

@@ -1248,7 +1248,7 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bo
     // test to see if we have already calculated this data
     *verts_match = ( vmin >= psave->vmin ) && ( vmax <= psave->vmax );
 
-    flips_match = ( ABS( psave->flip - pinst->flip ) < flip_tolerance );
+    flips_match = (std::abs(psave->flip - pinst->flip) < flip_tolerance);
 
     *frames_match = ( pinst->frame_nxt == pinst->frame_lst && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst ) ||
                     ( flips_match && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst );
@@ -1966,7 +1966,7 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
 
     // the matrix should never be referenced if the cache is not valid,
     // but it never pays to have a 0 matrix...
-	pinst->matrix = fmat_4x4_t::identity;
+	pinst->matrix = fmat_4x4_t::identity();
 
     // set the animation state
     pinst->rate         = 1.0f;
@@ -2463,7 +2463,7 @@ gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
         pcache->valid = false;
     }
 
-    if (( pinst->frame_lst != pcache->frame_lst )  && ABS( pinst->flip - pcache->flip ) > flip_tolerance )
+    if (( pinst->frame_lst != pcache->frame_lst )  && std::abs( pinst->flip - pcache->flip ) > flip_tolerance )
     {
         pcache->valid = false;
     }

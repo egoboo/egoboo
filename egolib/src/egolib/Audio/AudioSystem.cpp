@@ -495,7 +495,7 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fv
     float angle = std::atan2(cameraY-soundPosition.y, cameraX-soundPosition.x);
     
     //Adjust for camera rotation
-    angle += _cameraSystem.getMainCamera()->getTurnZOne() * 2.0f * PI;
+    angle += _cameraSystem.getMainCamera()->getTurnZOne() * Ego::Math::twoPi<float>();
 
     //limited global sound volume
     Mix_Volume(channel, ( 128*_audioConfig.soundvolume ) / 100);

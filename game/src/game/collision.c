@@ -541,7 +541,7 @@ bool get_prt_mass( prt_t * pprt, Object * pchr, float * wt )
     }
     else
     {
-        float max_damage = ABS( pprt->damage.base ) + ABS( pprt->damage.rand );
+        float max_damage = std::abs(pprt->damage.base) + std::abs(pprt->damage.rand);
 
         *wt = 1.0f;
 
@@ -1721,7 +1721,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         max_apos.z = CLIP( max_apos.z, -GRID_FSIZE, GRID_FSIZE );
 
         // do the "integration" on the position
-        if ( ABS( max_apos.x ) > 0.0f )
+        if (std::abs(max_apos.x) > 0.0f)
         {
             tmpx = tmp_pos.x;
             tmp_pos.x += max_apos.x;
@@ -1737,7 +1737,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             }
         }
 
-        if ( ABS( max_apos.y ) > 0.0f )
+        if (std::abs(max_apos.y) > 0.0f)
         {
             tmpy = tmp_pos.y;
             tmp_pos.y += max_apos.y;
@@ -1753,7 +1753,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             }
         }
 
-        if ( ABS( max_apos.z ) > 0.0f )
+        if (std::abs(max_apos.z) > 0.0f)
         {
             tmpz = tmp_pos.z;
             tmp_pos.z += max_apos.z;
@@ -1823,7 +1823,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         max_apos.z = CLIP( max_apos.z, -GRID_FSIZE, GRID_FSIZE );
 
         // do the "integration" on the position
-        if ( ABS( max_apos.x ) > 0.0f )
+        if (std::abs(max_apos.x) > 0.0f)
         {
             tmpx = tmp_pos.x;
             tmp_pos.x += max_apos.x;
@@ -1839,7 +1839,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             }
         }
 
-        if ( ABS( max_apos.y ) > 0.0f )
+        if (std::abs(max_apos.y) > 0.0f)
         {
             tmpy = tmp_pos.y;
             tmp_pos.y += max_apos.y;
@@ -1855,7 +1855,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             }
         }
 
-        if ( ABS( max_apos.z ) > 0.0f )
+        if (std::abs(max_apos.z) > 0.0f)
         {
             tmpz = tmp_pos.z;
             tmp_pos.z += max_apos.z;
@@ -2045,7 +2045,7 @@ bool do_chr_platform_physics( Object * pitem, Object * pplat )
     // platform, there is no need to suck you to the level of the platform
     // this was one of the things preventing you from jumping from platforms
     // properly
-    vlerp_z = ABS( pitem->vel.z - pplat->vel.z ) / 5;
+    vlerp_z = std::abs(pitem->vel.z - pplat->vel.z) / 5;
     vlerp_z  = 1.0f - CLIP( vlerp_z, 0.0f, 1.0f );
 
     // determine the rotation rates
@@ -2491,39 +2491,33 @@ bool do_chr_chr_collision( CoNode_t * d )
 
         //// add in the friction due to the "collision"
         //// assume coeff of friction of 0.5
-        //if ( ABS( vimp_a.x ) + ABS( vimp_a.y ) + ABS( vimp_a.z ) > 0.0f &&
-        //     ABS( vpara_a.x ) + ABS( vpara_a.y ) + ABS( vpara_a.z ) > 0.0f &&
-        //     pchr_a->dismount_timer <= 0 )
+        //if (vimp_a.length_abs() > 0.0f && vpara_a.length_abs() > 0.0f &&
+        //    pchr_a->dismount_timer <= 0 )
         //{
         //    float imp, vel, factor;
 
-        //    imp = 0.5f * SQRT( vimp_a.x * vimp_a.x + vimp_a.y * vimp_a.y + vimp_a.z * vimp_a.z );
-        //    vel = SQRT( vpara_a.x * vpara_a.x + vpara_a.y * vpara_a.y + vpara_a.z * vpara_a.z );
+        //    imp = 0.5f * vimp_a.length();
+        //    vel = vpara.length();
 
         //    factor = imp / vel;
         //    factor = CLIP( factor, 0.0f, 1.0f );
 
-        //    pchr_a->phys.avel.x -= factor * vpara_a.x * interaction_strength;
-        //    pchr_a->phys.avel.y -= factor * vpara_a.y * interaction_strength;
-        //    pchr_a->phys.avel.z -= factor * vpara_a.z * interaction_strength;
+        //    pchr_a->phys.avel -=  vpara_a * factor * interaction_strength;
         //    LOG_NAN( pchr_a->phys.avel.z );
         //}
 
-        //if ( ABS( vimp_b.x ) + ABS( vimp_b.y ) + ABS( vimp_b.z ) > 0.0f &&
-        //     ABS( vpara_b.x ) + ABS( vpara_b.y ) + ABS( vpara_b.z ) > 0.0f &&
-        //     pchr_b->dismount_timer <= 0 )
+        //if (vimp_b.length_abs() > 0.0f && vpara_b.length_abs() > 0.0f &&
+        //    pchr_b->dismount_timer <= 0)
         //{
         //    float imp, vel, factor;
 
-        //    imp = 0.5f * SQRT( vimp_b.x * vimp_b.x + vimp_b.y * vimp_b.y + vimp_b.z * vimp_b.z );
-        //    vel = SQRT( vpara_b.x * vpara_b.x + vpara_b.y * vpara_b.y + vpara_b.z * vpara_b.z );
+        //    imp = 0.5f * vimp_b.length();
+        //    vel = vpara_b.length();
 
         //    factor = imp / vel;
         //    factor = CLIP( factor, 0.0f, 1.0f );
 
-        //    pchr_b->phys.avel.x -= factor * vpara_b.x * interaction_strength;
-        //    pchr_b->phys.avel.y -= factor * vpara_b.y * interaction_strength;
-        //    pchr_b->phys.avel.z -= factor * vpara_b.z * interaction_strength;
+        //    pchr_b->phys.avel -= vpara_b * factor * interaction_strength;
         //    LOG_NAN( pchr_b->phys.avel.z );
         //}
     }
@@ -2576,7 +2570,7 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
     // the largest particle collision volume (the hit-box)
     oct_bb_translate(&(pdata->pprt->prt_max_cv), prt_t::get_pos_v_const(pdata->pprt), &cv_prt_max);
 
-    if ( d->tmin <= 0.0f || ABS( d->tmin ) > 1e6 || ABS( d->tmax ) > 1e6 )
+    if ( d->tmin <= 0.0f || std::abs( d->tmin ) > 1e6 || std::abs( d->tmax ) > 1e6 )
     {
         // use "pressure" to determine the normal and overlap
         phys_estimate_pressure_normal(cv_prt_min, cv_chr, exponent, odepth, pdata->nrm, pdata->depth_min);
@@ -2615,7 +2609,7 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
 
     if ( !handled )
     {
-        if ( d->tmin <= 0.0f || ABS( d->tmin ) > 1e6 || ABS( d->tmax ) > 1e6 )
+        if ( d->tmin <= 0.0f || std::abs( d->tmin ) > 1e6 || std::abs( d->tmax ) > 1e6 )
         {
             // use "pressure" to determine the normal and overlap
             phys_estimate_pressure_normal(cv_prt_max, cv_chr, exponent, odepth, pdata->nrm, pdata->depth_max);
@@ -2936,7 +2930,7 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
     else
     {
         // all other damage types are in the middle
-        attack_factor = INV_SQRT_TWO;
+        attack_factor = Ego::Math::invSqrtTwo<float>();
     }
 
     // get some type of mass info for the particle
@@ -3005,7 +2999,7 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
 
             get_chr_mass( pattached, &attached_mass );
 
-            total_mass = ABS( holder_mass ) + ABS( attached_mass );
+            total_mass = std::abs( holder_mass ) + std::abs( attached_mass );
             if ( holder_mass < 0.0f ||  attached_mass < 0.0f )
             {
                 total_mass = -total_mass;
@@ -3233,9 +3227,9 @@ bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
         did_something = true;
 
         left_over_damage = 0;
-        if ( ABS( pdata->actual_damage ) < ABS( pdata->max_damage ) )
+        if ( std::abs( pdata->actual_damage ) < std::abs( pdata->max_damage ) )
         {
-            left_over_damage = ABS( pdata->max_damage ) - ABS( pdata->actual_damage );
+            left_over_damage = std::abs( pdata->max_damage ) - std::abs( pdata->actual_damage );
         }
 
         if ( 0 == pdata->max_damage )
@@ -3244,7 +3238,8 @@ bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
         }
         else
         {
-            pdata->block_factor = ( float )left_over_damage / ( float )ABS( pdata->max_damage );
+            pdata->block_factor = static_cast<float>(left_over_damage)
+                                / static_cast<float>(std::abs(pdata->max_damage));
             pdata->block_factor = pdata->block_factor / ( 1.0f + pdata->block_factor );
         }
 
@@ -3411,7 +3406,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
     // estimate the maximum possible "damage" from this particle
     // other effects can magnify this number, like vulnerabilities
     // or DAMFX_* bits
-    pdata->max_damage = ABS( pdata->pprt->damage.base ) + ABS( pdata->pprt->damage.rand );
+    pdata->max_damage = std::abs( pdata->pprt->damage.base ) + std::abs( pdata->pprt->damage.rand );
 
     return true;
 }

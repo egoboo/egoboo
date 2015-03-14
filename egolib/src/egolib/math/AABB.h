@@ -195,5 +195,3 @@ bool aabb_self_clear(aabb_t *dst);
 
 /** @todo Remove this. */
 bool aabb_is_clear(const aabb_t *dst);
-
-

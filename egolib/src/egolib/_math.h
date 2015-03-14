@@ -31,10 +31,6 @@
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
 
-#if !defined(ABS)
-	#define ABS(x) std::abs(x)
-#endif
-
 /**
  * @brief
  *	Clip a value.
@@ -67,14 +63,110 @@ namespace Ego
 {
     namespace Math
     {
+        /**
+         * @brief
+         *  Convert an angle from degree to radian.
+         * @param x
+         *  the angle in degree
+         * @return
+         *  the angle in radian
+         */
         inline float degToRad(float x)
         {
             return x * 0.017453292519943295769236907684886f;
         }
 
+        /**
+         * @brief
+         *  Convert an angle from degree to radian.
+         * @param x
+         *  the angle in degree
+         * @return
+         *  the angle in radian
+         */
         inline double degToRad(double x)
         {
             return x * 0.017453292519943295769236907684886;
+        }
+
+        /**
+         * @brief
+         *  Convert an angle from radian to degree.
+         * @param x
+         *  the angle in radian
+         * @return
+         *  the angle in degree
+         */
+        inline float radToDeg(float x)
+        {
+            return x * 57.295779513082320876798154814105f;
+        }
+
+        /**
+         * @brief
+         *  Convert an angle from radian to degree.
+         * @param x
+         *  the angle in radian
+         * @return
+         *  the angle in degree
+         */
+        inline double radToDeg(double x)
+        {
+            return x * 57.295779513082320876798154814105;
+        }
+    }
+}
+
+namespace Ego
+{
+    namespace Math
+    {
+        /**
+         * @brief
+         *  Get \f$\sqrt{2}\f$.
+         * @return
+         *  \f$\sqrt{2}\f$
+         * @remark
+         *  Specializations for @a float and @a double are provided.
+         */
+        template <typename Type>
+        Type sqrtTwo();
+
+        template <>
+        inline float sqrtTwo<float>()
+        {
+            return 1.4142135623730950488016887242097f;
+        }
+
+        template <>
+        inline double sqrtTwo<double>()
+        {
+            return 1.4142135623730950488016887242097;
+        }
+
+        /**
+         * @brief
+         *  Get \f$\frac{1}{\sqrt{2}}\f$.
+         * @return
+         *  \f$\frac{1}{\sqrt{2}}\f$
+         * @remark
+         *  Specializations for @a float and @a double are provided.
+         */
+        template <typename Type>
+        Type invSqrtTwo();
+
+        template <>
+        inline float invSqrtTwo()
+        {
+            return 0.70710678118654752440084436210485f;
+        }
+
+        template <>
+        inline double invSqrtTwo()
+        {
+            // 		.70710678118654757
+            //      .70710678118654752440
+            return 0.70710678118654752440084436210485;
         }
     }
 }
@@ -88,28 +180,18 @@ namespace Ego
          *  Get \f$\pi\f$.
          * @return
          *  \f$\pi\f$
+         * @remark
+         *  Overloads for @a float and @a double are provided.
          */
         template <typename Type>
         Type pi();
 
-        /**
-         * @brief
-         *  Get \f$\pi\f$.
-         * @return
-         *  \f$\pi\f$
-         */
         template <>
         inline float pi<float>()
         {
             return 3.1415926535897932384626433832795f;
         }
 
-        /**
-         * @brief
-         *  Get \f$\pi\f$.
-         * @return
-         *  \f$\pi\f$
-         */
         template <>
         inline double pi<double>()
         {
@@ -121,28 +203,18 @@ namespace Ego
          *  Get \f$\frac{1}{\pi}\f$.
          * @return
          *  \f$\frac{1}{\pi}\f$
+         * @remark
+         *  Specializations for @a float and @a double are provided.
          */
         template <typename Type>
         Type invPi();
 
-        /**
-        * @brief
-        *  Get \f$\frac{1}{\pi}\f$.
-        * @return
-        *  \f$\frac{1}{\pi}\f$
-        */
         template <>
         inline float invPi<float>()
         {
             return 0.31830988618379067153776752674503f;
         }
 
-        /**
-        * @brief
-        *  Get \f$\frac{1}{\pi}\f$.
-        * @return
-        *  \f$\frac{1}{\pi}\f$
-        */
         template <>
         inline double invPi<double>()
         {
@@ -154,28 +226,18 @@ namespace Ego
          *  Get \f$2 \cdot \pi\f$.
          * @return
          *  \f$2 \cdot \pi\f$
+         * @remark
+         *  Specializations for @a float and @a double are provided.
          */
         template <typename Type>
         Type twoPi();
 
-        /**
-         * @brief
-         *  Get \f$2 \cdot \pi\f$.
-         * @return
-         *  \f$2 \cdot \pi\f$
-         */
         template <>
         inline float twoPi<float>()
         {
             return 6.283185307179586476925286766559f;
         }
 
-        /**
-         * @brief
-         *  Get \f$2 \cdot \pi\f$.
-         * @return
-         *  \f$2 \cdot \pi\f$
-         */
         template <>
         inline double twoPi<double>()
         {
@@ -187,42 +249,88 @@ namespace Ego
          *  Get \f$\frac{1}{2 \cdot \pi}\f$.
          * @return
          *  \f$\frac{1}{2 \cdot \pi}\f$
+         * @remark
+         *  Specializations for @a float and @a double are provided.
          */
         template <typename Type>
         Type invTwoPi();
 
-        /**
-         * @brief
-         *  Get \f$\frac{1}{2 \cdot \pi}\f$.
-         * @return
-         *  \f$\frac{1}{2 \cdot \pi}\f$
-         */
         template <>
         inline float invTwoPi<float>()
         {
             return 0.15915494309189533576888376337251f;
         }
 
-        /**
-         * @brief
-         *  Get \f$\frac{1}{2 \cdot \pi}\f$.
-         * @return
-         *  \f$\frac{1}{2 \cdot \pi}\f$
-         */
         template <>
         inline double invTwoPi<double>()
         {
             return 0.15915494309189533576888376337251;
         }
 
-        inline float radToDeg(float x)
+        /**
+         * @brief
+         *  Get \f$\frac{\pi}{2}\f$.
+         * @return
+         *  \f$\frac{\pi}{2}\f$
+         */
+        template <typename Type>
+        Type piOverTwo();
+
+        /**
+         * @brief
+         *  Get \f$\frac{\pi}{2}\f$.
+         * @return
+         *  \f$\frac{\pi}{2}\f$
+         */
+        template <>
+        inline float piOverTwo<float>()
         {
-            return x * 57.295779513082320876798154814105f;
+            return 1.5707963267948966192313216916398f;
         }
 
-        inline double radToDeg(double x)
+        /**
+         * @brief
+         *  Get \f$\frac{\pi}{2}\f$.
+         * @return
+         *  \f$\frac{\pi}{2}\f$
+         */
+        template <>
+        inline double piOverTwo<double>()
         {
-            return x * 57.295779513082320876798154814105;
+            return 1.5707963267948966192313216916398;
+        }
+
+        /**
+         * @brief
+         *  Get \f$\frac{\pi}{4}\f$.
+         * @return
+         *  \f$\frac{\pi}{4}\f$
+         */
+        template <typename Type>
+        Type piOverFour();
+
+        /**
+         * @brief
+         *  Get \f$\frac{\pi}{4}\f$.
+         * @return
+         *  \f$\frac{\pi}{4}\f$
+         */
+        template <>
+        inline float piOverFour<float>()
+        {
+            return 0.78539816339744830961566084581988f;
+        }
+
+        /**
+         * @brief
+         *  Get \f$\frac{\pi}{4}\f$.
+         * @return
+         *  \f$\frac{\pi}{4}\f$
+         */
+        template <>
+        inline double piOverFour<double>()
+        {
+            return 0.78539816339744830961566084581988;
         }
     }
 }
@@ -239,52 +347,12 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // basic constants
 
-#if !defined(PI)
-#   define PI                  3.1415926535897932384626433832795f
-#endif
-
-#if !defined(INV_PI)
-#   define INV_PI              0.31830988618379067153776752674503f
-#endif
-
-#if !defined(TWO_PI)
-#   define TWO_PI              6.283185307179586476925286766559f
-#endif
-
-#if !defined(INV_TWO_PI)
-#   define INV_TWO_PI          0.15915494309189533576888376337251f
-#endif
-
-#if !defined(PI_OVER_TWO)
-#   define PI_OVER_TWO         1.5707963267948966192313216916398f
-#endif
-
-#if !defined(PI_OVER_FOUR)
-#   define PI_OVER_FOUR         0.78539816339744830961566084581988f
-#endif
-
-#if !defined(SQRT_TWO)
-#   define SQRT_TWO            1.4142135623730950488016887242097f
-#endif
-
-#if !defined(INV_SQRT_TWO)
-#   define INV_SQRT_TWO        0.70710678118654752440084436210485f
-#endif
-
 #if !defined(RAD_TO_FACING)
 #   define RAD_TO_FACING(XX)     ( (XX) * 10430.378350470452724949566316381f )
 #endif
 
 #if !defined(FACING_TO_RAD)
 #   define FACING_TO_RAD(XX)     ( (XX) * 0.000095873799242852576857380474343257f )
-#endif
-
-#if !defined(DEG_TO_RAD)
-#   define DEG_TO_RAD(XX)         ( (XX) * 0.017453292519943295769236907684886f )
-#endif
-
-#if !defined(RAD_TO_DEG)
-#   define RAD_TO_DEG(XX)         ( (XX) * 57.295779513082320876798154814105f )
 #endif
 
 #if !defined(ONE_TO_TURN)
@@ -296,11 +364,11 @@ extern "C"
 #endif
 
 #if !defined(RAD_TO_ONE)
-#   define RAD_TO_ONE(XX)         ( (XX) * INV_TWO_PI )
+#   define RAD_TO_ONE(XX)         ((XX) * Ego::Math::invTwoPi<float>())
 #endif
 
 #if !defined(ONE_TO_RAD)
-#   define ONE_TO_RAD(XX)         ( (XX) * TWO_PI )
+#   define ONE_TO_RAD(XX)         ((XX) * Ego::Math::twoPi<float>())
 #endif
 
 //--------------------------------------------------------------------------------------------

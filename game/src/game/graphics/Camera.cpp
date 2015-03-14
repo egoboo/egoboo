@@ -66,7 +66,7 @@ Camera::Camera(const CameraOptions &options) :
 	_zaddGoto(CAM_ZADD_AVG),
 	_zGoto(CAM_ZADD_AVG),
 
-	_turnZRad(-PI_OVER_FOUR),
+	_turnZRad(-Ego::Math::piOverFour<float>()),
 	_turnZOne(0.0f),
 	_turnZAdd(0.0f),
 	_turnZSustain(0.60f),	
@@ -152,17 +152,17 @@ float Camera::multiplyFOV( const float old_fov_deg, const float factor )
     float old_fov_rad;
     float new_fov_rad, new_fov_deg;
 
-    old_fov_rad = DEG_TO_RAD( old_fov_deg );
+    old_fov_rad = Ego::Math::degToRad(old_fov_deg);
 
     new_fov_rad = 2.0f * ATAN( factor * TAN( old_fov_rad * 0.5f ) );
-    new_fov_deg = RAD_TO_DEG( new_fov_rad );
+    new_fov_deg = Ego::Math::radToDeg( new_fov_rad );
 
     return new_fov_deg;
 }
 
 void Camera::updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near, const float frustum_far)
 {
-    const float fov_mag = SQRT_TWO;
+    const float fov_mag = Ego::Math::sqrtTwo<float>();
 
     float fov_deg_big   = multiplyFOV( DEFAULT_FOV, fov_mag );
     float fov_deg_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
@@ -181,7 +181,7 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
 
 void Camera::resetView()
 {
-	float roll_deg = RAD_TO_DEG(_roll);
+	float roll_deg = Ego::Math::radToDeg(_roll);
 
     // check for stupidity
     if (_pos != _center)
@@ -736,7 +736,7 @@ void Camera::reset( const ego_mesh_t * pmesh )
     _zadd         = CAM_ZADD_AVG;
     _zaddGoto     = CAM_ZADD_AVG;
     _zGoto        = CAM_ZADD_AVG;
-    _turnZRad     = -PI_OVER_FOUR;
+    _turnZRad     = -Ego::Math::piOverFour<float>();
     _turnZAdd     = 0.0f;
     _roll         = 0.0f;
 
@@ -876,7 +876,7 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
     frustum_near = GRID_ISIZE * 0.25f;
 
     // set the maximum depth to be the "largest possible size" of a mesh
-    frustum_far  = GRID_ISIZE * 256 * SQRT_TWO;
+    frustum_far  = GRID_ISIZE * 256 * Ego::Math::sqrtTwo<float>();
 
     updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
 }

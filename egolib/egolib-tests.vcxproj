@@ -24,6 +24,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="tests\MathConstantTest.cpp" />
     <ClCompile Include="tests\CompileTest.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

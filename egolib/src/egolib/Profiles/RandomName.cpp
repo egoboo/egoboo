@@ -24,7 +24,7 @@
 #include "egolib/Profiles/RandomName.hpp"
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
-#include "egolib/math/Random.hpp"
+#include "egolib/Math/Random.hpp"
 
 RandomName::RandomName() :
 	_randomNameBlocks()

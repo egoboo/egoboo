@@ -96,8 +96,8 @@ bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_ve
 
         odepth[i] = (fdiff < 0.0f) ? -fdepth : fdepth;
     }
-    odepth[OCT_XY] *= INV_SQRT_TWO;
-    odepth[OCT_YX] *= INV_SQRT_TWO;
+    odepth[OCT_XY] *= Ego::Math::invSqrtTwo<float>();
+    odepth[OCT_YX] *= Ego::Math::invSqrtTwo<float>();
 
     return retval;
 }
@@ -176,8 +176,8 @@ float phys_get_depth(const oct_vec_v2_t& podepth, const fvec3_t& nrm)
 
     // Convert the normal vector into an octagonal normal vector.
     oct_vec_v2_t onrm(nrm);
-    onrm[OCT_XY] *= INV_SQRT_TWO;
-    onrm[OCT_YX] *= INV_SQRT_TWO;
+    onrm[OCT_XY] *= Ego::Math::invSqrtTwo<float>();
+    onrm[OCT_YX] *= Ego::Math::invSqrtTwo<float>();
 
     // Calculate the minimum depth in each dimension.
     float depth = max_val;
@@ -255,8 +255,8 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
     // Next do the diagonal axes.
 	fvec3_t nrm_diag = fvec3_t::zero;
 
-    if (0.0f != odepth[OCT_XY]) nrm_diag.x = 1.0f / (odepth[OCT_XY] * INV_SQRT_TWO);
-    if (0.0f != odepth[OCT_YX]) nrm_diag.y = 1.0f / (odepth[OCT_YX] * INV_SQRT_TWO);
+    if (0.0f != odepth[OCT_XY]) nrm_diag.x = 1.0f / (odepth[OCT_XY] * Ego::Math::invSqrtTwo<float>());
+    if (0.0f != odepth[OCT_YX]) nrm_diag.y = 1.0f / (odepth[OCT_YX] * Ego::Math::invSqrtTwo<float>());
     if (0.0f != odepth[OCT_Z ]) nrm_diag.z = 1.0f / odepth[OCT_Z];
 
     if (1.0f == exponent)
@@ -273,14 +273,14 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
 
     if (nrm_diag.x != 0.0f)
     {
-        float ftmp = INV_SQRT_TWO * odepth[OCT_XY] / nrm_diag.x;
+        float ftmp = Ego::Math::invSqrtTwo<float>() * odepth[OCT_XY] / nrm_diag.x;
         ftmp = std::max(0.0f, ftmp);
         tmin_diag = std::min(tmin_diag, ftmp);
     }
 
     if (nrm_diag.y != 0.0f)
     {
-        float ftmp = INV_SQRT_TWO * odepth[OCT_YX] / nrm_diag.y;
+        float ftmp = Ego::Math::invSqrtTwo<float>() * odepth[OCT_YX] / nrm_diag.y;
         ftmp = std::max(0.0f, ftmp);
         tmin_diag = std::min(tmin_diag, ftmp);
     }
@@ -305,8 +305,8 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
         tmin = tmin_diag;
 
         // !!!! rotate the diagonal axes onto the axis aligned ones !!!!!
-        nrm[kX] = (nrm_diag.x - nrm_diag.y) * INV_SQRT_TWO;
-        nrm[kY] = (nrm_diag.x + nrm_diag.y) * INV_SQRT_TWO;
+        nrm[kX] = (nrm_diag.x - nrm_diag.y) * Ego::Math::invSqrtTwo<float>();
+        nrm[kY] = (nrm_diag.x + nrm_diag.y) * Ego::Math::invSqrtTwo<float>();
         nrm[kZ] = nrm_diag.z;
     }
 
@@ -534,8 +534,8 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
     // Normalize the results for the diagonal directions.
     if (OCT_XY == index || OCT_YX == index)
     {
-        *tmin *= INV_SQRT_TWO;
-        *tmax *= INV_SQRT_TWO;
+        *tmin *= Ego::Math::invSqrtTwo<float>();
+        *tmax *= Ego::Math::invSqrtTwo<float>();
     }
 
     if (*tmax <= *tmin) return rv_fail;
@@ -853,8 +853,8 @@ egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, con
     // Normalize the results for the diagonal directions.
     if (OCT_XY == index || OCT_YX == index)
     {
-        *tmin *= INV_SQRT_TWO;
-        *tmax *= INV_SQRT_TWO;
+        *tmin *= Ego::Math::invSqrtTwo<float>();
+        *tmax *= Ego::Math::invSqrtTwo<float>();
     }
 
     if (*tmax < *tmin) return rv_fail;
@@ -1799,8 +1799,8 @@ bool get_depth_close_2(const oct_bb_t& cv_a, const oct_bb_t& cv_b, bool break_ou
     }
 
     // scale the diagonal components so that they are actually distances
-    depth[OCT_XY] *= INV_SQRT_TWO;
-    depth[OCT_YX] *= INV_SQRT_TWO;
+    depth[OCT_XY] *= Ego::Math::invSqrtTwo<float>();
+    depth[OCT_YX] *= Ego::Math::invSqrtTwo<float>();
 
     return valid;
 }
@@ -1829,8 +1829,8 @@ bool get_depth_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_
     }
 
     // scale the diagonal components so that they are actually distances
-    depth[OCT_XY] *= INV_SQRT_TWO;
-    depth[OCT_YX] *= INV_SQRT_TWO;
+    depth[OCT_XY] *= Ego::Math::invSqrtTwo<float>();
+    depth[OCT_YX] *= Ego::Math::invSqrtTwo<float>();
 
     return valid;
 }

@@ -2006,21 +2006,19 @@ void gfx_system_make_enviro()
 {
     /// @author ZZ
     /// @details This function sets up the environment mapping table
-    int cnt;
-    float x, y, z;
 
     // Find the environment map positions
-    for ( cnt = 0; cnt < EGO_NORMAL_COUNT; cnt++ )
+    for (size_t i = 0; i < EGO_NORMAL_COUNT; ++i)
     {
-        x = MD2Model::getMD2Normal(cnt, 0);
-        y = MD2Model::getMD2Normal(cnt, 1);
-        indextoenvirox[cnt] = ATAN2( y, x ) * INV_TWO_PI;
+        float x = MD2Model::getMD2Normal(i, 0);
+        float y = MD2Model::getMD2Normal(i, 1);
+        indextoenvirox[i] = ATAN2(y, x) * Ego::Math::invTwoPi<float>();
     }
 
-    for ( cnt = 0; cnt < 256; cnt++ )
+    for (size_t i = 0; i < 256; ++i)
     {
-        z = cnt / INV_FF;  // Z is between 0 and 1
-        lighttoenviroy[cnt] = z;
+        float z = i / INV_FF;  // z is between 0.0 and 1.0.
+        lighttoenviroy[i] = z;
     }
 }
 
@@ -4671,7 +4669,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
 
             oglx_texture_bind( ptex );
 
-            GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f - ABS( alpha ) );
+            Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
             GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
             for ( i = 0; i < 4; i++ )
             {
@@ -5855,7 +5853,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
             diff.y = pdyna->pos.y - pcam->getCenter().y;
             diff.z = pdyna->pos.z - pcam->getCenter().z - 90.0f;   // evaluated at the "head height" of a character
 
-            dyna_weight = ABS( dyna_lighting_intensity( pdyna, diff ) );
+            dyna_weight = std::abs( dyna_lighting_intensity( pdyna, diff ) );
 
             fake_dynalight.distance += dyna_weight * pdyna->distance;
             fake_dynalight.falloff  += dyna_weight * pdyna->falloff;

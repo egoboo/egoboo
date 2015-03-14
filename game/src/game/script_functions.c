@@ -47,7 +47,7 @@
 #include "game/profiles/_Include.hpp"
 #include "game/module/Module.hpp"
 #include "game/gamestates/VictoryScreen.hpp"
-#include "egolib/math/Random.hpp"
+#include "egolib/Math/Random.hpp"
 
 #include "game/entities/_Include.hpp"
 

@@ -40,7 +40,7 @@ void make_turntosin( void )
     /// @details This function makes the lookup table for chrturn...
 
     int cnt;
-    const float ftmp = TWO_PI / ( float )TRIG_TABLE_SIZE;
+    const float ftmp = Ego::Math::twoPi<float>() / ( float )TRIG_TABLE_SIZE;
 
     for ( cnt = 0; cnt < TRIG_TABLE_SIZE; cnt++ )
     {
@@ -101,7 +101,7 @@ void make_randie( void )
 
 FACING_T vec_to_facing( const float dx, const float dy )
 {
-    return ( FACING_T )( RAD_TO_FACING( ATAN2( dy, dx ) + PI ) );
+    return (FACING_T)(RAD_TO_FACING(ATAN2(dy, dx) + Ego::Math::pi<float>()));
 }
 
 //--------------------------------------------------------------------------------------------

@@ -1321,7 +1321,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 }
                 else
                 {
-                    iTmp = ABS( powner->getPosX() - pchr->getPosX() ) + ABS( powner->getPosY() - pchr->getPosY() );
+                    iTmp = std::abs(powner->getPosX() - pchr->getPosX())
+                         + std::abs(powner->getPosY() - pchr->getPosY());
                 }
                 break;
 
@@ -1399,7 +1400,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-                iTmp = ABS( pchr->pos_stt.x - pchr->getPosX() ) + ABS( pchr->pos_stt.y - pchr->getPosY() );
+                iTmp = std::abs( pchr->pos_stt.x - pchr->getPosX() )
+                     + std::abs( pchr->pos_stt.y - pchr->getPosY() );
                 break;
 
             case VARTARGETMAXLIFE:
@@ -1601,8 +1603,8 @@ void set_alerts( const CHR_REF character )
     at_waypoint = false;
     if ( pai->wp_valid )
     {
-        at_waypoint = ( ABS( pchr->getPosX() - pai->wp[kX] ) < WAYTHRESH ) &&
-                      ( ABS( pchr->getPosY() - pai->wp[kY] ) < WAYTHRESH );
+        at_waypoint = (std::abs(pchr->getPosX() - pai->wp[kX]) < WAYTHRESH) &&
+                      (std::abs(pchr->getPosY() - pai->wp[kY]) < WAYTHRESH);
     }
 
     if ( at_waypoint )

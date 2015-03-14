@@ -726,7 +726,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _causesRipples = !_isItem;
 
     // assume a round object
-    _bumpSizeBig = _bumpSize * SQRT_TWO;
+    _bumpSizeBig = _bumpSize * Ego::Math::sqrtTwo<float>();
 
     // assume the normal icon usage
     _drawIcon = _usageIsKnown;

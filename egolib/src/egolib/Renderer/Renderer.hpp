@@ -23,8 +23,8 @@
 #pragma once
 
 #include "egolib/_math.h"
-#include "egolib/math/Colour4f.hpp"
-#include "egolib/matrix.h"
+#include "egolib/Math/Colour4f.hpp"
+#include "egolib/Math/Matrix44.hpp"
 #include "egolib/platform.h"
 #include "egolib/typedef.h"
 #include "egolib/extensions/ogl_debug.h"
@@ -33,9 +33,6 @@
 #include "egolib/extensions/ogl_texture.h"
 #include "egolib/extensions/SDL_extensions.h"
 #include "egolib/extensions/SDL_GL_extensions.h"
-#include "egolib/_math.h"
-#include "egolib/math/Colour4f.hpp"
-#include "egolib/matrix.h"
 
 namespace Ego
 {

@@ -189,7 +189,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     }
 
     // any possible damage?
-    does_damage         = ( ABS( pprt->damage.base ) + ABS( pprt->damage.rand ) ) > 0;
+    does_damage         = (std::abs(pprt->damage.base) + std::abs(pprt->damage.rand)) > 0;
 
     // the other possible status effects
     // do not require damage

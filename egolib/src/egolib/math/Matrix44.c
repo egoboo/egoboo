@@ -425,8 +425,8 @@ void mat_glRotate(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float 
 {
     fmat_4x4_base_t M;
     fvec3_t vec(x, y, z);
-    float s = std::sin(DEG_TO_RAD(angle));
-    float c = std::cos(DEG_TO_RAD(angle));
+    float s = std::sin(Ego::Math::degToRad(angle));
+    float c = std::cos(Ego::Math::degToRad(angle));
     
     mat_Zero(M);
     vec.normalize();

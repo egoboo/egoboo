@@ -3959,7 +3959,7 @@ void move_one_character_get_environment( Object * pchr )
         chr_getMatUp(pplatform, platform_up);
 		platform_up.normalize();
 
-        penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
+        penviro->traction = std::abs(platform_up.z) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
         if ( penviro->is_slippy )
         {
@@ -3968,7 +3968,7 @@ void move_one_character_get_environment( Object * pchr )
     }
     else if ( ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
-        penviro->traction = ABS( map_twist_nrm[penviro->grid_twist].z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
+        penviro->traction = std::abs( map_twist_nrm[penviro->grid_twist].z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
         if ( penviro->is_slippy )
         {
@@ -4139,7 +4139,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     fric = fric_floor + penviro->acc;
 
     // limit the friction to whatever is horizontal to the mesh
-    if ( 1.0f == ABS( vup.z ) )
+    if (1.0f == std::abs(vup.z))
     {
         fric.z = 0.0f;
         floor_acc.z = 0.0f;
@@ -4308,7 +4308,7 @@ void move_one_character_do_voluntary( Object * pchr )
             default:
             case TURNMODE_VELOCITY:
                 {
-                    if ( ABS( dvx ) > TURNSPD || ABS( dvy ) > TURNSPD )
+                    if (std::abs(dvx) > TURNSPD || std::abs(dvy) > TURNSPD)
                     {
                         if ( VALID_PLA( pchr->is_which_player ) )
                         {
@@ -4327,7 +4327,7 @@ void move_one_character_do_voluntary( Object * pchr )
                 // Get direction from the DESIRED change in velocity
             case TURNMODE_WATCH:
                 {
-                    if (( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
+                    if (( std::abs( dvx ) > WATCHMIN || std::abs( dvy ) > WATCHMIN ) )
                     {
                         pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
                     }
@@ -4799,8 +4799,8 @@ bool chr_update_safe( Object * pchr, bool force )
 
         if (TileIndex::Invalid == new_grid )
         {
-            if ( ABS( pchr->getPosX() - pchr->safe_pos.x ) > GRID_FSIZE ||
-                 ABS( pchr->getPosY() - pchr->safe_pos.y ) > GRID_FSIZE )
+            if ( std::abs( pchr->getPosX() - pchr->safe_pos.x ) > GRID_FSIZE ||
+                 std::abs( pchr->getPosY() - pchr->safe_pos.y ) > GRID_FSIZE )
             {
                 needs_update = true;
             }
@@ -4991,7 +4991,7 @@ bool move_one_character_integrate_motion( Object * pchr )
     bumpdampen = ( bumpdampen + 1.0f ) * 0.5f;
 
     // interaction with the mesh
-    //if ( ABS( pchr->vel.z ) > 0.0f )
+    //if ( std::abs( pchr->vel.z ) > 0.0f )
     {
         const float vert_offset = RAISE * 0.25f;
         float grid_level = pchr->enviro.grid_level + vert_offset + 5;
@@ -5036,7 +5036,7 @@ bool move_one_character_integrate_motion( Object * pchr )
     // interaction with the grid flags
     updated_2d = false;
     needs_test = false;
-    //if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) > 0.0f )
+    //if (std::abs(pchr->vel.x) + std::abs(pchr->vel.y) > 0.0f)
     {
         mesh_wall_data_t wdata;
 
@@ -5092,7 +5092,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                     diff.x = pchr->safe_pos.x - pchr->getPosX();
                     diff.y = pchr->safe_pos.y - pchr->getPosY();
 
-					if (std::abs(diff.x) + std::abs(diff.y) > 0.0f)
+					if (diff.length_abs() > 0.0f)
                     {
                         found_diff = true;
                     }
@@ -5114,7 +5114,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                         diff.x = bc->pos.x - pchr->getPosX();
                         diff.y = bc->pos.y - pchr->getPosY();
 
-                        if ( ABS( diff.x ) + ABS( diff.y ) > 0.0f )
+                        if (diff.length_abs() > 0.0f )
                         {
                             found_diff = true;
                         }
@@ -5132,7 +5132,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                     nrm.x = tmp_diff.x;
                     nrm.y = tmp_diff.y;
 
-                    if ( ABS( nrm.x ) + ABS( nrm.y ) > 0.0f )
+                    if (nrm.length_abs() > 0.0f)
                     {
                         found_nrm = true;
                     }
@@ -5216,7 +5216,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                     }
 
                     // normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
-                    ftmp = std::max(ABS(diff_perp.x), ABS(diff_perp.y));
+                    ftmp = diff_perp.length_max();
 
                     // protect us from a virtual divide by zero
                     if (ftmp < 1e-6) ftmp = 1.00f;
@@ -7858,7 +7858,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // tune the grip radius
     bmp.size     = default_chr_radius * pmount->fat * 0.75f;
     bmp.height   = default_chr_height * pmount->fat * 2.00f;
-    bmp.size_big = bmp.size * SQRT_TWO;
+    bmp.size_big = bmp.size * Ego::Math::sqrtTwo<float>();
 
     tmp_cv.assign(bmp);
 
