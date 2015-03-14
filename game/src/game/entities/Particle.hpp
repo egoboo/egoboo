@@ -198,8 +198,6 @@ struct prt_t : public _StateMachine<prt_t,ParticleHandler>
 
     /// @brief Set all particle parameters to safe values.
     /// @details The C equivalent of a parameterless constructor.
-    prt_t *ctor();
-    prt_t *dtor();
     static bool request_terminate(prt_t *self);
     static void set_level(prt_t *self, const float level);
     static BIT_FIELD hit_wall(prt_t *self, float nrm[], float *pressure, mesh_wall_data_t *data);
@@ -221,6 +219,10 @@ struct prt_t : public _StateMachine<prt_t,ParticleHandler>
 
     static bool free(prt_t * pprt);
 
+    // particle state machine function
+    prt_t *ctor();
+    // particle state machine function
+    prt_t *dtor();
     // particle state machine function
     prt_t *config_do_init();
     // particle state machine function

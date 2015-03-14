@@ -279,16 +279,10 @@ void gfx_begin_2d()
 	fmat_4x4_t projection;
 	projection.setOrtho(0.0, sdl_scr.x, sdl_scr.y, 0.0, -1.0f, +1.0f);
 	Ego::Renderer::get().loadMatrix(projection);
-#if 0
-	GL_DEBUG( glLoadIdentity )();
-    GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
-#endif
+
     // Reset the Modelview Matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-#if 0
-    GL_DEBUG( glLoadIdentity )();
-#endif
 	Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
 
     // remove any scissor test

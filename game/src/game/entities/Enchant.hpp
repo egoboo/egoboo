@@ -99,13 +99,16 @@ struct enc_t : public _StateMachine < enc_t, EnchantHandler >
     enc_t();
     ~enc_t();
 
-    enc_t *ctor();
-    enc_t *dtor();
+
 
     static bool request_terminate(enc_t *self);
 
     static bool free(enc_t *self);
 
+    // enchant state machine function
+    enc_t *ctor();
+    // enchant state machine function
+    enc_t *dtor();
     // enchant state machine function
     enc_t *config_do_init();
     // enchant state machine function
