@@ -25,7 +25,7 @@
 
 #include "game/mesh.h"
 #include "game/mad.h"
-#include "game/graphics/CameraSystem.hpp"
+#include "game/Graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------

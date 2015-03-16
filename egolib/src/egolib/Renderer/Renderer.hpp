@@ -27,12 +27,12 @@
 #include "egolib/Math/Matrix44.hpp"
 #include "egolib/platform.h"
 #include "egolib/typedef.h"
-#include "egolib/extensions/ogl_debug.h"
-#include "egolib/extensions/ogl_extensions.h"
-#include "egolib/extensions/ogl_include.h"
-#include "egolib/extensions/ogl_texture.h"
-#include "egolib/extensions/SDL_extensions.h"
-#include "egolib/extensions/SDL_GL_extensions.h"
+#include "egolib/Extensions/ogl_debug.h"
+#include "egolib/Extensions/ogl_extensions.h"
+#include "egolib/Extensions/ogl_include.h"
+#include "egolib/Extensions/ogl_texture.h"
+#include "egolib/Extensions/SDL_extensions.h"
+#include "egolib/Extensions/SDL_GL_extensions.h"
 
 namespace Ego
 {

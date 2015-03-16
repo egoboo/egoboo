@@ -11,8 +11,8 @@ EGOLIB_CPPSRC += $(wildcard src/egolib/*/*/*.cpp)
 
 # remove some files
 EGOLIB_SOURCE := $(filter-out src/egolib/bsp_leaf.c, $(EGOLIB_SOURCE))
-EGOLIB_SOURCE := $(filter-out src/egolib/platform/file_win.c, $(EGOLIB_SOURCE))
-EGOLIB_SOURCE := $(filter-out src/egolib/platform/sys_win32.c, $(EGOLIB_SOURCE))
+EGOLIB_SOURCE := $(filter-out src/egolib/Platform/file_win.c, $(EGOLIB_SOURCE))
+EGOLIB_SOURCE := $(filter-out src/egolib/Platform/sys_win32.c, $(EGOLIB_SOURCE))
 
 EGOLIB_OBJ := ${EGOLIB_SOURCE:.c=.o} ${EGOLIB_CPPSRC:.cpp=.o}
 

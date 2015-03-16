@@ -29,12 +29,12 @@
 #include "egolib/vfs.h"
 
 #include "egolib/Renderer/Renderer.hpp"
-#include "egolib/extensions/ogl_debug.h"
-#include "egolib/extensions/ogl_extensions.h"
-#include "egolib/extensions/SDL_extensions.h"
+#include "egolib/Extensions/ogl_debug.h"
+#include "egolib/Extensions/ogl_extensions.h"
+#include "egolib/Extensions/SDL_extensions.h"
 
 #if defined(USE_LUA_CONSOLE)
-#include "egolib/lua/lua_console.h"
+#include "egolib/Lua/lua_console.h"
 #endif
 
 #include "egolib/_math.h"

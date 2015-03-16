@@ -23,8 +23,8 @@
 #include "game/char.h"
 #include "game/mesh.h"
 #include "game/game.h"
-#include "game/entities/ParticleHandler.hpp"
-#include "game/entities/ObjectHandler.hpp"
+#include "game/Entities/ParticleHandler.hpp"
+#include "game/Entities/ObjectHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 

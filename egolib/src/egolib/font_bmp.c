@@ -28,7 +28,7 @@
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 
-#include "egolib/extensions/ogl_texture.h"
+#include "egolib/Extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

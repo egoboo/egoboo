@@ -28,11 +28,11 @@
 #include "game/game.h"
 #include "game/network.h"
 #include "game/player.h"
-#include "game/profiles/_Include.hpp"
-#include "game/entities/_Include.hpp"
+#include "game/Profiles/_Include.hpp"
+#include "game/Entities/_Include.hpp"
 #include "game/char.h"
-#include "game/core/GameEngine.hpp"
-#include "game/graphics/CameraSystem.hpp"
+#include "game/Core/GameEngine.hpp"
+#include "game/Graphics/CameraSystem.hpp"
 
 
 //--------------------------------------------------------------------------------------------

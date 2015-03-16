@@ -23,7 +23,7 @@
 
 #include <SDL_mixer.h>
 
-#include "game/entities/_Include.hpp"
+#include "game/Entities/_Include.hpp"
 
 //Forward declarations
 struct egoboo_config_t;

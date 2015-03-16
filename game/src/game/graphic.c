@@ -21,7 +21,7 @@
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
-#include "game/core/GameEngine.hpp"
+#include "game/Core/GameEngine.hpp"
 #include "egolib/egolib.h"
 #include "egolib/bsp.h"
 #include "game/graphic.h"
@@ -46,14 +46,14 @@
 #include "game/char.h"
 #include "game/mesh.h"
 
-#include "game/profiles/_Include.hpp"
-#include "game/graphics/CameraSystem.hpp"
-#include "game/profiles/_Include.hpp"
-#include "game/module/Module.hpp"
+#include "game/Profiles/_Include.hpp"
+#include "game/Graphics/CameraSystem.hpp"
+#include "game/Profiles/_Include.hpp"
+#include "game/Module/Module.hpp"
 
-#include "game/entities/ObjectHandler.hpp"
-#include "game/entities/EnchantHandler.hpp"
-#include "game/entities/ParticleHandler.hpp"
+#include "game/Entities/ObjectHandler.hpp"
+#include "game/Entities/EnchantHandler.hpp"
+#include "game/Entities/ParticleHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

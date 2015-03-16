@@ -28,8 +28,8 @@
 #include "egolib/log.h"
 #include "egolib/Math/Math.hpp"
 
-#include "egolib/extensions/ogl_include.h"
-#include "egolib/extensions/ogl_debug.h"
+#include "egolib/Extensions/ogl_include.h"
+#include "egolib/Extensions/ogl_debug.h"
 
 /**
  * @brief

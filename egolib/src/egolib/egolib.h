@@ -80,7 +80,7 @@
 #include "egolib/FileFormats/wawalite_file.h"
 
 #if defined(USE_LUA_CONSOLE)
-	#include "egolib/lua/lua_console.h"
+	#include "egolib/Lua/lua_console.h"
 #else
 	#include "egolib/console.h"
 #endif

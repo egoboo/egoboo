@@ -35,21 +35,21 @@
 #include "game/player.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
-#include "game/ai/AStar.h"
+#include "game/AI/AStar.h"
 #include "game/char.h"
-#include "game/entities/_Include.hpp"
+#include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
 
-#include "game/core/GameEngine.hpp"
-#include "game/module/Passage.hpp"
-#include "game/graphics/CameraSystem.hpp"
+#include "game/Core/GameEngine.hpp"
+#include "game/Module/Passage.hpp"
+#include "game/Graphics/CameraSystem.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
-#include "game/profiles/_Include.hpp"
-#include "game/module/Module.hpp"
-#include "game/gamestates/VictoryScreen.hpp"
+#include "game/Profiles/_Include.hpp"
+#include "game/Module/Module.hpp"
+#include "game/GameStates/VictoryScreen.hpp"
 #include "egolib/Math/Random.hpp"
 
-#include "game/entities/_Include.hpp"
+#include "game/Entities/_Include.hpp"
 
 
 //--------------------------------------------------------------------------------------------

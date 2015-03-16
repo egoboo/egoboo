@@ -159,7 +159,6 @@ extern "C"
 // osx definitions
 
 #if defined(__APPLE__) || defined(macintosh)
-#define __OSX__
 // trap non-osx mac builds
 #    if !defined(__MACH__)
 #        error Only OS X builds are supported
@@ -175,7 +174,6 @@ extern "C"
 // windows definitions
 
 #if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) || defined(__WIN64__) || defined(WIN64) || defined(_WIN64) || defined(__WIN64)
-#define __WINDOWS__
 // map all of these possibilities to WIN32
 #    if !defined(WIN32)
 #        define WIN32

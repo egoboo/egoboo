@@ -31,9 +31,9 @@
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/char.h"
-#include "game/profiles/_Include.hpp"
-#include "game/graphics/CameraSystem.hpp"
-#include "game/entities/_Include.hpp"
+#include "game/Profiles/_Include.hpp"
+#include "game/Graphics/CameraSystem.hpp"
+#include "game/Entities/_Include.hpp"
 
 
 //--------------------------------------------------------------------------------------------

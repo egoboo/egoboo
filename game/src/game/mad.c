@@ -25,8 +25,8 @@
 #include "game/graphic.h"
 #include "game/graphic_texture.h"
 #include "game/script_compile.h"
-#include "game/graphics/MD2Model.hpp"
-#include "game/entities/_Include.hpp"
+#include "game/Graphics/MD2Model.hpp"
+#include "game/Entities/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

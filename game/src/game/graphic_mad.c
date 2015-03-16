@@ -31,15 +31,15 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/profiles/_Include.hpp"
+#include "game/Profiles/_Include.hpp"
 #include "game/char.h"
-#include "game/graphics/MD2Model.hpp"
+#include "game/Graphics/MD2Model.hpp"
 
-#include "game/graphics/CameraSystem.hpp"
+#include "game/Graphics/CameraSystem.hpp"
 
-#include "game/entities/ObjectHandler.hpp"
-#include "game/entities/EnchantHandler.hpp"
-#include "game/entities/ParticleHandler.hpp"
+#include "game/Entities/ObjectHandler.hpp"
+#include "game/Entities/EnchantHandler.hpp"
+#include "game/Entities/ParticleHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

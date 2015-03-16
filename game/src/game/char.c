@@ -24,12 +24,12 @@
 #include "game/char.h"
 
 #include "egolib/_math.h"
-#include "egolib/math/Random.hpp"
-#include "game/core/GameEngine.hpp"
-#include "game/module/Passage.hpp"
+#include "egolib/Math/Random.hpp"
+#include "game/Core/GameEngine.hpp"
+#include "game/Module/Passage.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
-#include "game/module/Module.hpp"
-#include "game/gui/UIManager.hpp"
+#include "game/Module/Module.hpp"
+#include "game/GUI/UIManager.hpp"
 
 #include "game/mad.h"
 #include "game/player.h"
@@ -43,14 +43,14 @@
 #include "game/collision.h"                  //Only or detach_character_from_platform()
 #include "game/obj_BSP.h"
 #include "game/egoboo.h"
-#include "game/module/Passage.hpp"
+#include "game/Module/Passage.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
-#include "game/profiles/_Include.hpp"
-#include "game/module/Module.hpp"
+#include "game/Profiles/_Include.hpp"
+#include "game/Module/Module.hpp"
 
-#include "game/entities/ObjectHandler.hpp"
-#include "game/entities/EnchantHandler.hpp"
-#include "game/entities/ParticleHandler.hpp"
+#include "game/Entities/ObjectHandler.hpp"
+#include "game/Entities/EnchantHandler.hpp"
+#include "game/Entities/ParticleHandler.hpp"
 #include "game/mesh.h"
 
 //--------------------------------------------------------------------------------------------

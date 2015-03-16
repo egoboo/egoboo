@@ -23,7 +23,7 @@
 
 #include "game/renderer_3d.h"
 
-#include "game/graphics/CameraSystem.hpp"
+#include "game/Graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------

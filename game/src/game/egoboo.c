@@ -28,12 +28,12 @@
 #include "game/char.h"
 #include "game/collision.h"
 
-#include "game/entities/EnchantHandler.hpp"
-#include "game/entities/ParticleHandler.hpp"
-#include "game/entities/ObjectHandler.hpp"
+#include "game/Entities/EnchantHandler.hpp"
+#include "game/Entities/ParticleHandler.hpp"
+#include "game/Entities/ObjectHandler.hpp"
 
-#include "game/module/Module.hpp"
-#include "game/profiles/_Include.hpp"
+#include "game/Module/Module.hpp"
+#include "game/Profiles/_Include.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 
 #if defined(__cplusplus)

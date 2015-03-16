@@ -23,7 +23,7 @@
 #include "game/game.h"
 #include "game/char.h"
 #include "game/mesh.h"
-#include "game/entities/_Include.hpp"
+#include "game/Entities/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

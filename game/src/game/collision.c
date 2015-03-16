@@ -28,8 +28,8 @@
 #include "game/graphic_billboard.h"
 #include "game/char.h"
 #include "game/physics.h"
-#include "game/entities/_Include.hpp"
-#include "game/profiles/_Include.hpp"
+#include "game/Entities/_Include.hpp"
+#include "game/Profiles/_Include.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 
 CollisionSystem *CollisionSystem::_singleton = nullptr;

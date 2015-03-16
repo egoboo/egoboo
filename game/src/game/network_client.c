@@ -24,7 +24,7 @@
 #include "game/game.h"
 #include "game/player.h"
 #include "game/egoboo.h"
-#include "game/module/Module.hpp"
+#include "game/Module/Module.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

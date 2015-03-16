@@ -25,9 +25,9 @@
 #include "egolib/font_ttf.h"
 #include "egolib/log.h"
 
-#include "egolib/extensions/ogl_include.h"
-#include "egolib/extensions/ogl_debug.h"
-#include "egolib/extensions/SDL_GL_extensions.h"
+#include "egolib/Extensions/ogl_include.h"
+#include "egolib/Extensions/ogl_debug.h"
+#include "egolib/Extensions/SDL_GL_extensions.h"
 
 #include "egolib/typedef.h"
 #include "egolib/strutil.h"

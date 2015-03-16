@@ -26,9 +26,9 @@
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "game/graphics/Camera.hpp"
+#include "game/Graphics/Camera.hpp"
 #include "game/char.h"
-#include "game/entities/_Include.hpp"
+#include "game/Entities/_Include.hpp"
 #include "game/game.h"
 
 //--------------------------------------------------------------------------------------------

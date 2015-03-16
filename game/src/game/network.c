@@ -31,8 +31,8 @@
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
 #include "game/char.h"
-#include "game/module/Module.hpp"
-#include "game/entities/_Include.hpp"
+#include "game/Module/Module.hpp"
+#include "game/Entities/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

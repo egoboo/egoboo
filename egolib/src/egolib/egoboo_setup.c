@@ -28,12 +28,12 @@
 #include "egolib/strutil.h"
 
 #include "egolib/FileFormats/configfile.h"
-#include "egolib/extensions/ogl_texture.h"
+#include "egolib/Extensions/ogl_texture.h"
 
 #include "egolib/_math.h"
 
 // includes for egoboo constants
-#include "game/graphics/Camera.hpp"            // for CAM_TURN_*
+#include "game/Graphics/Camera.hpp"            // for CAM_TURN_*
 #include "game/renderer_2d.h"       // for EGO_MESSAGE_MAX
 
 //--------------------------------------------------------------------------------------------

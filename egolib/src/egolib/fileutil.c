@@ -28,7 +28,7 @@
 #include "egolib/platform.h"
 #include "egolib/egoboo_setup.h"
 
-#include "egolib/extensions/ogl_texture.h"
+#include "egolib/Extensions/ogl_texture.h"
 
 #include "egolib/_math.h"
 

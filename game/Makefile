@@ -3,7 +3,7 @@
 #---------------------
 # the source files
 
-EGO_SRC    := ${wildcard src/game/*.c} ${wildcard src/game/ai/*.c}
+EGO_SRC    := ${wildcard src/game/*.c} ${wildcard src/game/AI/*.c}
 EGO_CPPSRC := ${wildcard src/game/*.cpp} ${wildcard src/game/*/*.cpp} ../unix/main.cpp
 EGO_CPPSRC := $(filter-out src/game/PhysicalConstants.cpp, $(EGO_CPPSRC))
 EGO_OBJ    := ${EGO_SRC:.c=.o} ${EGO_CPPSRC:.cpp=.o}
