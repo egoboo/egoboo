@@ -20,11 +20,6 @@
 #include "EgoTest/EgoTest.hpp"
 #include "egolib/_math.h" /// @todo Remove this.
 
-EgoTest_DeclareTestCase(MathConstants)
-EgoTest_EndDeclaration()
-
-EgoTest_TestCase(MathConstants)
-
 /**
  * @brief
  *  The error tolerance for mathematical constants.
@@ -48,6 +43,11 @@ double tolerance<double>()
 {
     return 1.0e-14;
 }
+
+EgoTest_DeclareTestCase(MathConstants)
+EgoTest_EndDeclaration()
+
+EgoTest_TestCase(MathConstants)
 
 EgoTest_Test(piFlt)
 {
