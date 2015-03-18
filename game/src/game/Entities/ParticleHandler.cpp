@@ -31,30 +31,55 @@
 //--------------------------------------------------------------------------------------------
 
 // macros without range checking
-#define INGAME_PPRT_BASE_RAW(PPRT)      ( ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) && ON_PBASE( POBJ_GET_PBASE(PPRT) ) )
-#define DEFINED_PPRT_RAW( PPRT )        ( ALLOCATED_PBASE ( POBJ_GET_PBASE(PPRT) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PPRT) ) )
-#define ALLOCATED_PPRT_RAW( PPRT )      ALLOCATED_PBASE( POBJ_GET_PBASE(PPRT) )
-#define ACTIVE_PPRT_RAW( PPRT )         ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) )
-#define WAITING_PPRT_RAW( PPRT )        WAITING_PBASE   ( POBJ_GET_PBASE(PPRT) )
-#define TERMINATED_PPRT_RAW( PPRT )     TERMINATED_PBASE( POBJ_GET_PBASE(PPRT) )
+bool INGAME_PPRT_BASE_RAW(const prt_t *ptr)
+{
+    return ACTIVE_PBASE(POBJ_GET_PBASE(ptr))
+        && ON_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool DEFINED_PPRT_BASE_RAW(const prt_t *ptr)
+{
+    return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr))
+        && !TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool ALLOCATED_PPRT_BASE_RAW(const prt_t *ptr)
+{
+    return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool ACTIVE_PPRT_BASE_RAW(const prt_t *ptr)
+{
+    return ACTIVE_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool WAITING_PPRT_BASE_RAW(const prt_t *ptr)
+{
+    return WAITING_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool TERMINATED_PPRT_BASE_RAW(const prt_t *ptr)
+{
+    return TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+}
 
 //--------------------------------------------------------------------------------------------
 //Inline
 //--------------------------------------------------------------------------------------------
 
 bool VALID_PRT_RANGE(const PRT_REF IPRT) { return ParticleHandler::get().isValidRef(IPRT); }
-bool DEFINED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && DEFINED_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool ALLOCATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ALLOCATED_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool ACTIVE_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ACTIVE_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool WAITING_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && WAITING_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool TERMINATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && TERMINATED_PPRT_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool DEFINED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && DEFINED_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool ALLOCATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ALLOCATED_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool ACTIVE_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ACTIVE_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool WAITING_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && WAITING_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
+bool TERMINATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && TERMINATED_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
 PRT_REF GET_REF_PPRT(const prt_t *PPRT) { return LAMBDA(NULL == (PPRT), INVALID_PRT_REF, GET_INDEX_POBJ(PPRT, INVALID_PRT_REF)); }
 bool  VALID_PRT_PTR(const prt_t *PPRT) { return ((NULL != (PPRT)) && VALID_PRT_RANGE(GET_REF_POBJ(PPRT, INVALID_PRT_REF))); }
-bool  DEFINED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && DEFINED_PPRT_RAW(PPRT)); }
-bool ALLOCATED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && ALLOCATED_PPRT_RAW(PPRT)); }
-bool ACTIVE_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && ACTIVE_PPRT_RAW(PPRT)); }
-bool WAITING_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && WAITING_PPRT_RAW(PPRT)); }
-bool TERMINATED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && TERMINATED_PPRT_RAW(PPRT)); }
+bool  DEFINED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && DEFINED_PPRT_BASE_RAW(PPRT)); }
+bool ALLOCATED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && ALLOCATED_PPRT_BASE_RAW(PPRT)); }
+bool ACTIVE_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && ACTIVE_PPRT_BASE_RAW(PPRT)); }
+bool WAITING_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && WAITING_PPRT_BASE_RAW(PPRT)); }
+bool TERMINATED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && TERMINATED_PPRT_BASE_RAW(PPRT)); }
 bool INGAME_PRT_BASE(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && INGAME_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
 bool INGAME_PPRT_BASE(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && INGAME_PPRT_BASE_RAW(PPRT)); }
 bool DISPLAY_PRT(const PRT_REF IPRT) { return INGAME_PRT_BASE(IPRT); }
@@ -125,7 +150,7 @@ void ParticleHandler::update_used()
     {
         if (!isValidRef(ref)) continue; /// @todo Redundant.
         prt_t *x = get_ptr(ref);
-        if (!ALLOCATED_PPRT_RAW(x)) continue;
+        if (!ALLOCATED_PPRT_BASE_RAW(x)) continue;
 
         if (DISPLAY_PPRT(x))
         {

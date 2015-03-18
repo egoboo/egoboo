@@ -1,0 +1,1 @@
+#include "egolib/Core/Component.hpp"

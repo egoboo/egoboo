@@ -30,41 +30,66 @@
 //--------------------------------------------------------------------------------------------
 
 // macros without range checking
-#define INGAME_PENC_BASE_RAW(PENC)    (ACTIVE_PBASE( POBJ_GET_PBASE(PENC)) && ON_PBASE(POBJ_GET_PBASE(PENC)))
-#define DEFINED_PENC_RAW(PENC)        (ALLOCATED_PBASE (POBJ_GET_PBASE(PENC)) && !TERMINATED_PBASE (POBJ_GET_PBASE(PENC)))
-#define ALLOCATED_PENC_RAW(PENC)      ALLOCATED_PBASE(POBJ_GET_PBASE(PENC))
-#define ACTIVE_PENC_RAW(PENC)         ACTIVE_PBASE(POBJ_GET_PBASE(PENC))
-#define WAITING_PENC_RAW(PENC)        WAITING_PBASE(POBJ_GET_PBASE(PENC))
-#define TERMINATED_PENC_RAW(PENC)     TERMINATED_PBASE(POBJ_GET_PBASE(PENC))
+bool INGAME_PENC_BASE_RAW(const enc_t *ptr)
+{
+    return ACTIVE_PBASE(POBJ_GET_PBASE(ptr))
+        && ON_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool DEFINED_PENC_BASE_RAW(const enc_t *ptr)
+{
+    return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr))
+        && !TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool ALLOCATED_PENC_BASE_RAW(const enc_t *ptr)
+{
+    return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool ACTIVE_PENC_BASE_RAW(const enc_t *ptr)
+{
+    return ACTIVE_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool WAITING_PENC_BASE_RAW(const enc_t *ptr)
+{
+    return WAITING_PBASE(POBJ_GET_PBASE(ptr));
+}
+
+bool TERMINATED_PENC_BASE_RAW(const enc_t *ptr)
+{
+    return TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+}
 
 //--------------------------------------------------------------------------------------------
 //inlined before
 
 bool VALID_ENC_RANGE(const ENC_REF IENC) { return EnchantHandler::get().isValidRef(IENC); }
 
-bool DEFINED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && DEFINED_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
+bool DEFINED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && DEFINED_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
-bool ALLOCATED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ALLOCATED_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
+bool ALLOCATED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ALLOCATED_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
-bool ACTIVE_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ACTIVE_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
+bool ACTIVE_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ACTIVE_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
-bool WAITING_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && WAITING_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
+bool WAITING_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && WAITING_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
-bool TERMINATED_ENC(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && TERMINATED_PENC_RAW(EnchantHandler::get().get_ptr(IENC))); }
+bool TERMINATED_ENC(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && TERMINATED_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
 ENC_REF GET_REF_PENC(const enc_t *PENC) { return LAMBDA(NULL == (PENC), INVALID_ENC_REF, GET_INDEX_POBJ(PENC, INVALID_ENC_REF)); }
 
-bool DEFINED_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && DEFINED_PENC_RAW(PENC)); }
+bool DEFINED_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && DEFINED_PENC_BASE_RAW(PENC)); }
 
 bool VALID_ENC_PTR(const enc_t *PENC) { return ((NULL != (PENC)) && VALID_ENC_RANGE(GET_REF_POBJ(PENC, INVALID_ENC_REF))); }
 
-bool ALLOCATED_PENC(const enc_t *PENC)  { return (VALID_ENC_PTR(PENC) && ALLOCATED_PENC_RAW(PENC)); }
+bool ALLOCATED_PENC(const enc_t *PENC)  { return (VALID_ENC_PTR(PENC) && ALLOCATED_PENC_BASE_RAW(PENC)); }
 
-bool _ACTIVE_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && ACTIVE_PENC_RAW(PENC)); }
+bool _ACTIVE_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && ACTIVE_PENC_BASE_RAW(PENC)); }
 
-bool WAITING_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && WAITING_PENC_RAW(PENC)); }
+bool WAITING_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && WAITING_PENC_BASE_RAW(PENC)); }
 
-bool TERMINATED_PENC(const enc_t * PENC) { return (VALID_ENC_PTR(PENC) && TERMINATED_PENC_RAW(PENC)); }
+bool TERMINATED_PENC(const enc_t * PENC) { return (VALID_ENC_PTR(PENC) && TERMINATED_PENC_BASE_RAW(PENC)); }
 
 bool INGAME_ENC_BASE(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && INGAME_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
 
@@ -138,7 +163,7 @@ void EnchantHandler::update_used()
     {
         if (!isValidRef(ref)) continue; /// @todo Redundant.
         enc_t *x = get_ptr(ref);
-        if (!ALLOCATED_PENC_RAW(x)) continue;
+        if (!ALLOCATED_PENC_BASE_RAW(x)) continue;
 
         if (INGAME_PENC(x))
         {
