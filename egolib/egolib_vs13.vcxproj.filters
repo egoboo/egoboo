@@ -336,10 +336,10 @@
     <ClCompile Include="src\egolib\Math\Vector.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Math\Matrix44.c">
+    <ClCompile Include="src\egolib\Math\Cone.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Math\Cone.cpp">
+    <ClCompile Include="src\egolib\Math\Matrix44.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -524,9 +524,6 @@
     <ClInclude Include="src\egolib\Scene\LeafList.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Renderer\TextureFilter.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -678,6 +675,12 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Cone.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Rectangle2.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>

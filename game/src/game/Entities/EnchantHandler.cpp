@@ -108,7 +108,7 @@ void EnchantHandler::prune_used_list()
 //--------------------------------------------------------------------------------------------
 void EnchantHandler::prune_free_list()
 {
-    // prune the free list
+    // Prune the free list.
     for (size_t i = 0; i < freeCount; ++i)
     {
         bool removed = false;

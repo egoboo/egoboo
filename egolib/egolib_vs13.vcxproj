@@ -255,6 +255,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Math\Matrix44.cpp" />
     <ClCompile Include="src\egolib\FileFormats\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\controls_file-v1.c" />
     <ClCompile Include="src\egolib\FileFormats\controls_file-v2.c" />
@@ -276,7 +277,6 @@
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
     <ClCompile Include="src\egolib\Math\Cone.cpp" />
     <ClCompile Include="src\egolib\math\LERP.cpp" />
-    <ClCompile Include="src\egolib\Math\Matrix44.c" />
     <ClCompile Include="src\egolib\Math\Vector.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfileSystem.cpp" />
@@ -432,6 +432,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Rectangle2.hpp" />
     <ClInclude Include="src\egolib\FileFormats\configfile.h" />
     <ClInclude Include="src\egolib\FileFormats\controls_file-v1.h" />
     <ClInclude Include="src\egolib\FileFormats\controls_file-v2.h" />
@@ -481,7 +482,7 @@
     <ClInclude Include="src\egolib\Ref.hpp" />
     <ClInclude Include="src\egolib\Debug.hpp" />
     <ClInclude Include="src\egolib\Float.hpp" />
-    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp" />
+    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp" />
     <ClInclude Include="src\egolib\Scene\Bounds.hpp" />
     <ClInclude Include="src\egolib\Scene\Branch.hpp" />
     <ClInclude Include="src\egolib\Scene\LeafHolder.hpp" />
