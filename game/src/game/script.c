@@ -946,7 +946,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARRAND:
                 varname = "RAND";
-                iTmp = RANDIE;
+                iTmp = Random::next(std::numeric_limits<uint16_t>::max());
                 break;
 
             case VARSELFX:

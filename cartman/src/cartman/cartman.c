@@ -2084,8 +2084,6 @@ int SDL_main( int argcnt, char* argtext[] )
     // Begin the console.
     egolib_console_begin();
 
-    make_randie();                      // Random number table
-
     // Load the module
     if ( !load_module( modulename, &mesh ) )
     {

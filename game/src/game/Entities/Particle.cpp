@@ -1274,13 +1274,13 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt
     // make a little incertainty about the target
     uncertainty = 256.0f * (1.0f - _gameObjects.get(loc_pprt->owner_ref)->intelligence / (float)PERFECTBIG);
 
-    ival = RANDIE;
+    ival = Random::next(std::numeric_limits<uint16_t>::max());
     vdither.x = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
-    ival = RANDIE;
+    ival = Random::next(std::numeric_limits<uint16_t>::max());
     vdither.y = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
-    ival = RANDIE;
+    ival = Random::next(std::numeric_limits<uint16_t>::max());
     vdither.z = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
     // take away any dithering along the direction of motion of the particle
@@ -2051,7 +2051,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 //    // Multiple particles are attached to character
                 //    for ( cnt = 0; cnt < amount; cnt++ )
                 //    {
-                //        int irand = RANDIE;
+                //        int irand = Random::next(std::numeric_limits<uint16_t>::max());
 
                 //        bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
                 //                            character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );

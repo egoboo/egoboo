@@ -127,7 +127,7 @@ struct chr_spawn_data_t;
 #define DAMAGETILETIME      32                            ///< Invincibility time
 #define DAMAGETIME          32                            ///< Invincibility time
 #define DEFENDTIME          24                            ///< Invincibility time
-#define BORETIME            ((Uint16)generate_randmask( 255, 511 )) ///< IfBored timer
+#define BORETIME            ((Uint16)Random::next(255, 255 + 511)) ///< IfBored timer
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
 

@@ -597,7 +597,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     action = ACTION_HA;
                     if ( base_damage > HURTDAMAGE )
                     {
-                        action += generate_randmask(0, 3);
+                        action += Random::next(3);
                         chr_play_action(this, action, false);
 
                         // Make the character invincible for a limited time only
@@ -1134,7 +1134,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     else if ( inst.action_which < ACTION_KA || inst.action_which > ACTION_KD )
     {
         // play the "killed" animation...
-        chr_play_action( this, generate_randmask( ACTION_KA, 3 ), false );
+        chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
         chr_instance_set_action_keep( &( inst ), true );
     }
 
@@ -1253,7 +1253,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if (!isAlive())
     {
         // the object is dead. play the killed animation and make it freeze there
-        chr_play_action( this, generate_randmask( ACTION_KA, 3 ), false );
+        chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
         chr_instance_set_action_keep( &inst, true );
     }
     else
