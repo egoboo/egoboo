@@ -484,4 +484,215 @@ protected:
     }
 protected:
     int lockCount;
+
+public:
+    
+    /**
+     * @brief
+     *  Get if an object is in-game.
+     * @param ptr
+     *  the object
+     * @return
+     *  @a true if the object is in-game, @a false otherwise
+     */
+    bool INGAME_BASE_RAW(const TYPE *ptr)
+    {
+        return ACTIVE_PBASE(POBJ_GET_PBASE(ptr))
+            && ON_PBASE(POBJ_GET_PBASE(ptr));
+    }
+
+    /**
+     * @brief
+     *  Get if an object is defined.
+     * @param ptr
+     *  the object
+     * @return
+     *  @a true if the object is defined, @a false otherwise
+     */
+    bool DEFINED_BASE_RAW(const TYPE *ptr)
+    {
+        return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr))
+            && !TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+    }
+
+    /**
+     * @brief
+     *  Get if an object is allocated.
+     * @param ptr
+     *  the object
+     * @return
+     *  @a true if the object is allocated, @a false otherwise
+     */
+    bool ALLOCATED_BASE_RAW(const TYPE *ptr)
+    {
+        return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr));
+    }
+
+    /**
+     * @brief
+     *  Get if an object is active.
+     * @param ptr
+     *  the object
+     * @return
+     *  @a true if the object is active, @a false otherwise
+     */
+    bool ACTIVE_BASE_RAW(const TYPE *ptr)
+    {
+        return ACTIVE_PBASE(POBJ_GET_PBASE(ptr));
+    }
+
+    /**
+     * @brief
+     *  Get if an object is waiting.
+     * @param ptr
+     *  the object
+     * @return
+     *  @a true if the object is waiting, @a false otherwise
+     */
+    bool WAITING_BASE_RAW(const TYPE *ptr)
+    {
+        return WAITING_PBASE(POBJ_GET_PBASE(ptr));
+    }
+
+    /**
+     * @brief
+     *  Get if an object is terminated.
+     * @param ptr
+     *  the object
+     * @return
+     *  @a true if the object is terminated, @a false otherwise
+     */
+    bool TERMINATED_BASE_RAW(const TYPE *ptr)
+    {
+        return TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+    }
+
+public:
+    /**
+     * @brief
+     *  Get if a reference refers to a defined object.
+     * @param ref
+     *  the reference
+     * @return
+     *  @a true if the reference is valid and refers to a defined object, @a false otherwise
+     */
+    bool DEFINED(const REFTYPE ref)
+    {
+        return isValidRef(ref)
+            && DEFINED_BASE_RAW(get_ptr(ref));
+    }
+
+    /**
+     * @brief
+     *  Get if a reference refers to an active object.
+     * @param ref
+     *  the reference
+     * @return
+     *  @a true if the reference is valid and refers to an active object, @a false otherwise
+     */
+    bool ACTIVE(const REFTYPE ref)
+    {
+        return isValidRef(ref)
+            && ACTIVE_BASE_RAW(get_ptr(ref));
+    }
+
+    /**
+     * @brief
+     *  Get if a reference refers to a waiting object.
+     * @param ref
+     *  the reference
+     * @return
+     *  @a true if the reference is valid and refers to a waiting object, @a false otherwise
+     */
+    bool WAITING(const REFTYPE ref)
+    {
+        return isValidRef(ref)
+            && WAITING_BASE_RAW(get_ptr(ref));
+    }
+
+    /**
+     * @brief
+     *  Get if a reference refers to an allocated object.
+     * @param ref
+     *  the reference
+     * @return
+     *  @a true if the reference is valid and refers to an allocated object, @a false otherwise
+     */
+    bool ALLOCATED(const REFTYPE ref)
+    {
+        return isValidRef(ref)
+            && ALLOCATED_BASE_RAW(get_ptr(ref));
+    }
+
+    /**
+     * @brief
+     *  Get if a reference refers to a terminated object.
+     * @param ref
+     *  the reference
+     * @return
+     *  @a true if the reference is valid and refers to a terminated object, @a false otherwise
+     */
+    bool TERMINATED(const REFTYPE ref)
+    {
+        return isValidRef(ref)
+            && TERMINATED_BASE_RAW(get_ptr(ref));
+    }
+
+    /**
+     * @brief
+     *  Get if an object pointer refers to a valid object.
+     * @param ptr
+     *  the pointer
+     * @return
+     *  @a true if @a ptr is not @a nullptr and refers to an object with a valid reference,
+     *  @a false otherwise
+     */
+    bool VALID_PTR(const TYPE *ptr)
+    {
+        return (nullptr != ptr)
+            && isValidRef(GET_REF_POBJ(ptr, INVALIDREF));
+    }
+
+    bool DEFINED(const TYPE *ptr)
+    {
+        return VALID_PTR(ptr)
+            && DEFINED_BASE_RAW(ptr);
+    }
+
+    bool ALLOCATED(const TYPE *ptr)
+    {
+        return VALID_PTR(ptr)
+            && ALLOCATED_BASE_RAW(ptr);
+    }
+
+    bool ACTIVE(const TYPE *ptr)
+    {
+        return VALID_PTR(ptr)
+            && ACTIVE_BASE_RAW(ptr);
+    }
+
+    bool WAITING(const TYPE *ptr)
+    {
+        return VALID_PTR(ptr)
+            && WAITING_BASE_RAW(ptr);
+    }
+
+    bool TERMINATED(const TYPE *ptr)
+    {
+        return VALID_PTR(ptr)
+            && TERMINATED_BASE_RAW(ptr);
+    }
+
+    bool INGAME_BASE(const REFTYPE ref)
+    {
+        return isValidRef(ref)
+            && INGAME_BASE_RAW(get_ptr(ref));
+    }
+
+    bool INGAME_BASE(const TYPE *ptr)
+    {
+        return VALID_PTR(ptr)
+            && INGAME_BASE_RAW(ptr);
+    }
+
 };

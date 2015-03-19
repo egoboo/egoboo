@@ -26,82 +26,92 @@
 #include "game/Entities/Enchant.hpp"
 
 //--------------------------------------------------------------------------------------------
-// testing macros
-//--------------------------------------------------------------------------------------------
 
-// macros without range checking
-bool INGAME_PENC_BASE_RAW(const enc_t *ptr)
+bool VALID_ENC_RANGE(const ENC_REF ref)
 {
-    return ACTIVE_PBASE(POBJ_GET_PBASE(ptr))
-        && ON_PBASE(POBJ_GET_PBASE(ptr));
+    return EnchantHandler::get().isValidRef(ref);
 }
 
-bool DEFINED_PENC_BASE_RAW(const enc_t *ptr)
+bool DEFINED_ENC(const ENC_REF ref)
 {
-    return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr))
-        && !TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+    return EnchantHandler::get().DEFINED(ref);
 }
 
-bool ALLOCATED_PENC_BASE_RAW(const enc_t *ptr)
+bool ALLOCATED_ENC(const ENC_REF ref)
 {
-    return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr));
+    return EnchantHandler::get().ALLOCATED(ref);
 }
 
-bool ACTIVE_PENC_BASE_RAW(const enc_t *ptr)
+bool ACTIVE_ENC(const ENC_REF ref)
 {
-    return ACTIVE_PBASE(POBJ_GET_PBASE(ptr));
+    return EnchantHandler::get().ACTIVE(ref);
 }
 
-bool WAITING_PENC_BASE_RAW(const enc_t *ptr)
+bool WAITING_ENC(const ENC_REF ref)
 {
-    return WAITING_PBASE(POBJ_GET_PBASE(ptr));
+    return EnchantHandler::get().WAITING(ref);
 }
 
-bool TERMINATED_PENC_BASE_RAW(const enc_t *ptr)
+bool TERMINATED_ENC(const ENC_REF ref)
 {
-    return TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+    return EnchantHandler::get().TERMINATED(ref);
 }
 
-//--------------------------------------------------------------------------------------------
-//inlined before
-
-bool VALID_ENC_RANGE(const ENC_REF IENC) { return EnchantHandler::get().isValidRef(IENC); }
-
-bool DEFINED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && DEFINED_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
-
-bool ALLOCATED_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ALLOCATED_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
-
-bool ACTIVE_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && ACTIVE_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
-
-bool WAITING_ENC(const ENC_REF IENC) { return (VALID_ENC_RANGE(IENC) && WAITING_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
-
-bool TERMINATED_ENC(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && TERMINATED_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
-
-ENC_REF GET_REF_PENC(const enc_t *PENC) { return LAMBDA(NULL == (PENC), INVALID_ENC_REF, GET_INDEX_POBJ(PENC, INVALID_ENC_REF)); }
-
-bool DEFINED_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && DEFINED_PENC_BASE_RAW(PENC)); }
-
-bool VALID_ENC_PTR(const enc_t *PENC) { return ((NULL != (PENC)) && VALID_ENC_RANGE(GET_REF_POBJ(PENC, INVALID_ENC_REF))); }
-
-bool ALLOCATED_PENC(const enc_t *PENC)  { return (VALID_ENC_PTR(PENC) && ALLOCATED_PENC_BASE_RAW(PENC)); }
-
-bool _ACTIVE_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && ACTIVE_PENC_BASE_RAW(PENC)); }
-
-bool WAITING_PENC(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && WAITING_PENC_BASE_RAW(PENC)); }
-
-bool TERMINATED_PENC(const enc_t * PENC) { return (VALID_ENC_PTR(PENC) && TERMINATED_PENC_BASE_RAW(PENC)); }
-
-bool INGAME_ENC_BASE(const ENC_REF IENC)  { return (VALID_ENC_RANGE(IENC) && INGAME_PENC_BASE_RAW(EnchantHandler::get().get_ptr(IENC))); }
-
-bool INGAME_PENC_BASE(const enc_t *PENC) { return (VALID_ENC_PTR(PENC) && INGAME_PENC_BASE_RAW(PENC)); }
-
-bool INGAME_ENC(const ENC_REF IENC) { return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_ENC(IENC), INGAME_ENC_BASE(IENC)); }
-
-bool INGAME_PENC(const enc_t *PENC) { return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PENC(PENC), INGAME_PENC_BASE(PENC)); }
+ENC_REF GET_REF_PENC(const enc_t *ptr)
+{
+    return LAMBDA(nullptr == ptr, INVALID_ENC_REF, GET_INDEX_POBJ(ptr, INVALID_ENC_REF));
+}
 
 //--------------------------------------------------------------------------------------------
 
-EnchantHandler EncList;
+bool DEFINED_PENC(const enc_t *ptr)
+{
+    return EnchantHandler::get().DEFINED(ptr);
+}
+
+bool ALLOCATED_PENC(const enc_t *ptr)
+{
+    return EnchantHandler::get().ALLOCATED(ptr);
+}
+
+bool ACTIVE_PENC(const enc_t *ptr)
+{
+    return EnchantHandler::get().ACTIVE(ptr);
+}
+
+bool WAITING_PENC(const enc_t *ptr)
+{
+    return EnchantHandler::get().WAITING(ptr);
+}
+
+bool TERMINATED_PENC(const enc_t *ptr)
+{
+    return EnchantHandler::get().TERMINATED(ptr);
+}
+
+bool INGAME_ENC_BASE(const ENC_REF ref)
+{
+    return EnchantHandler::get().INGAME_BASE(ref);
+}
+
+bool INGAME_PENC_BASE(const enc_t *ptr)
+{
+    return EnchantHandler::get().INGAME_BASE(ptr);
+}
+
+bool INGAME_ENC(const ENC_REF ref)
+{
+    return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_ENC(ref), INGAME_ENC_BASE(ref));
+}
+
+bool INGAME_PENC(const enc_t *ptr)
+{
+    return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PENC(ptr), INGAME_PENC_BASE(ptr));
+}
+
+//--------------------------------------------------------------------------------------------
+
+static EnchantHandler EncList;
 
 EnchantHandler& EnchantHandler::get()
 {
@@ -163,7 +173,7 @@ void EnchantHandler::update_used()
     {
         if (!isValidRef(ref)) continue; /// @todo Redundant.
         enc_t *x = get_ptr(ref);
-        if (!ALLOCATED_PENC_BASE_RAW(x)) continue;
+        if (!EnchantHandler::get().ALLOCATED_BASE_RAW(x)) continue;
 
         if (INGAME_PENC(x))
         {

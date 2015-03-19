@@ -19,7 +19,6 @@
 
 /// @file  game/Entities/ParticleHandler.cpp
 /// @brief Handler of particle entities.
-/// @details
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/ParticleHandler.hpp"
@@ -27,69 +26,102 @@
 #include "game/Entities/Particle.hpp"
 
 //--------------------------------------------------------------------------------------------
-// testing macros
-//--------------------------------------------------------------------------------------------
 
-// macros without range checking
-bool INGAME_PPRT_BASE_RAW(const prt_t *ptr)
+bool VALID_PRT_RANGE(const PRT_REF ref)
 {
-    return ACTIVE_PBASE(POBJ_GET_PBASE(ptr))
-        && ON_PBASE(POBJ_GET_PBASE(ptr));
+    return ParticleHandler::get().isValidRef(ref);
 }
 
-bool DEFINED_PPRT_BASE_RAW(const prt_t *ptr)
+bool DEFINED_PRT(const PRT_REF ref)
 {
-    return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr))
-        && !TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+    return ParticleHandler::get().DEFINED(ref);
 }
 
-bool ALLOCATED_PPRT_BASE_RAW(const prt_t *ptr)
+bool ALLOCATED_PRT(const PRT_REF ref)
 {
-    return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr));
+    return ParticleHandler::get().ALLOCATED(ref);
 }
 
-bool ACTIVE_PPRT_BASE_RAW(const prt_t *ptr)
+bool ACTIVE_PRT(const PRT_REF ref)
 {
-    return ACTIVE_PBASE(POBJ_GET_PBASE(ptr));
+    return ParticleHandler::get().ACTIVE(ref);
 }
 
-bool WAITING_PPRT_BASE_RAW(const prt_t *ptr)
+bool WAITING_PRT(const PRT_REF ref)
 {
-    return WAITING_PBASE(POBJ_GET_PBASE(ptr));
+    return ParticleHandler::get().WAITING(ref);
 }
 
-bool TERMINATED_PPRT_BASE_RAW(const prt_t *ptr)
+bool TERMINATED_PRT(const PRT_REF ref)
 {
-    return TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+    return ParticleHandler::get().TERMINATED(ref);
 }
 
-//--------------------------------------------------------------------------------------------
-//Inline
-//--------------------------------------------------------------------------------------------
-
-bool VALID_PRT_RANGE(const PRT_REF IPRT) { return ParticleHandler::get().isValidRef(IPRT); }
-bool DEFINED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && DEFINED_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool ALLOCATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ALLOCATED_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool ACTIVE_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && ACTIVE_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool WAITING_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && WAITING_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool TERMINATED_PRT(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && TERMINATED_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-PRT_REF GET_REF_PPRT(const prt_t *PPRT) { return LAMBDA(NULL == (PPRT), INVALID_PRT_REF, GET_INDEX_POBJ(PPRT, INVALID_PRT_REF)); }
-bool  VALID_PRT_PTR(const prt_t *PPRT) { return ((NULL != (PPRT)) && VALID_PRT_RANGE(GET_REF_POBJ(PPRT, INVALID_PRT_REF))); }
-bool  DEFINED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && DEFINED_PPRT_BASE_RAW(PPRT)); }
-bool ALLOCATED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && ALLOCATED_PPRT_BASE_RAW(PPRT)); }
-bool ACTIVE_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && ACTIVE_PPRT_BASE_RAW(PPRT)); }
-bool WAITING_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && WAITING_PPRT_BASE_RAW(PPRT)); }
-bool TERMINATED_PPRT(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && TERMINATED_PPRT_BASE_RAW(PPRT)); }
-bool INGAME_PRT_BASE(const PRT_REF IPRT) { return (VALID_PRT_RANGE(IPRT) && INGAME_PPRT_BASE_RAW(ParticleHandler::get().get_ptr(IPRT))); }
-bool INGAME_PPRT_BASE(const prt_t *PPRT) { return (VALID_PRT_PTR(PPRT) && INGAME_PPRT_BASE_RAW(PPRT)); }
-bool DISPLAY_PRT(const PRT_REF IPRT) { return INGAME_PRT_BASE(IPRT); }
-bool DISPLAY_PPRT(const prt_t *PPRT) { return INGAME_PPRT_BASE(PPRT); }
-bool INGAME_PRT(const PRT_REF IPRT) { return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PRT(IPRT), INGAME_PRT_BASE(IPRT) && (!ParticleHandler::get().get_ptr(IPRT)->is_ghost)); }
-bool INGAME_PPRT(const prt_t *PPRT) { return LAMBDA(Ego::Entities::spawnDepth > 0, INGAME_PPRT_BASE(PPRT), DISPLAY_PPRT(PPRT) && (!(PPRT)->is_ghost)); }
+PRT_REF GET_REF_PPRT(const prt_t *ptr)
+{
+    return LAMBDA(nullptr == ptr, INVALID_PRT_REF, GET_INDEX_POBJ(ptr, INVALID_PRT_REF));
+}
 
 //--------------------------------------------------------------------------------------------
 
-ParticleHandler PrtList;
+bool DEFINED_PPRT(const prt_t *ptr)
+{
+    return ParticleHandler::get().DEFINED(ptr);
+}
+
+bool ALLOCATED_PPRT(const prt_t *ptr)
+{
+    return ParticleHandler::get().ALLOCATED(ptr);
+}
+
+bool ACTIVE_PPRT(const prt_t *ptr)
+{
+    return ParticleHandler::get().ACTIVE(ptr);
+}
+
+bool WAITING_PPRT(const prt_t *ptr)
+{
+    return ParticleHandler::get().WAITING(ptr);
+}
+
+bool TERMINATED_PPRT(const prt_t *ptr)
+{
+    return ParticleHandler::get().TERMINATED(ptr);
+}
+
+bool INGAME_PRT_BASE(const PRT_REF ref)
+{
+    return ParticleHandler::get().INGAME_BASE(ref);
+}
+
+bool INGAME_PPRT_BASE(const prt_t *ptr)
+{
+    return ParticleHandler::get().INGAME_BASE(ptr);
+}
+
+bool DISPLAY_PRT(const PRT_REF ref)
+{
+    return INGAME_PRT_BASE(ref);
+}
+
+bool DISPLAY_PPRT(const prt_t *ptr)
+{
+    return INGAME_PPRT_BASE(ptr);
+}
+
+bool INGAME_PRT(const PRT_REF ref)
+{
+    return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PRT(ref), INGAME_PRT_BASE(ref) && (!ParticleHandler::get().get_ptr(ref)->is_ghost));
+}
+
+bool INGAME_PPRT(const prt_t *ptr)
+{
+    return LAMBDA(Ego::Entities::spawnDepth > 0, INGAME_PPRT_BASE(ptr), DISPLAY_PPRT(ptr) && (!(ptr)->is_ghost));
+}
+
+//--------------------------------------------------------------------------------------------
+
+static ParticleHandler PrtList;
 
 ParticleHandler& ParticleHandler::get()
 {
@@ -150,7 +182,7 @@ void ParticleHandler::update_used()
     {
         if (!isValidRef(ref)) continue; /// @todo Redundant.
         prt_t *x = get_ptr(ref);
-        if (!ALLOCATED_PPRT_BASE_RAW(x)) continue;
+        if (!ParticleHandler::get().ALLOCATED_BASE_RAW(x)) continue;
 
         if (DISPLAY_PPRT(x))
         {

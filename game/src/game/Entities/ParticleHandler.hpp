@@ -153,7 +153,9 @@ bool WAITING_PRT(const PRT_REF ref);
 bool TERMINATED_PRT(const PRT_REF ref);
 PRT_REF GET_REF_PPRT(const prt_t *ptr);
 bool DEFINED_PPRT(const prt_t *ptr);
+#if 0
 bool VALID_PRT_PTR(const prt_t *ptr);
+#endif
 bool ALLOCATED_PPRT(const prt_t *ptr);
 bool ACTIVE_PPRT(const prt_t *ptr);
 bool WAITING_PPRT(const prt_t *ptr);

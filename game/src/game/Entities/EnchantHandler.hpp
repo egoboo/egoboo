@@ -90,7 +90,9 @@ bool WAITING_ENC(const ENC_REF ref);
 bool TERMINATED_ENC(const ENC_REF ref);
 ENC_REF GET_REF_PENC(const enc_t *ptr);
 bool DEFINED_PENC(const enc_t *ptr);
+#if 0
 bool VALID_ENC_PTR(const enc_t *ptr);
+#endif
 bool ALLOCATED_PENC(const enc_t *ptr);
 bool ACTIVE_PENC(const enc_t *ptr);
 bool WAITIN_PENC(const enc_t *ptr);
