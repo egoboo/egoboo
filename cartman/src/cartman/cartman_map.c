@@ -935,21 +935,8 @@ cartman_mpd_t * cartman_mpd_finalize( cartman_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
 {
-	size_t cnt;
-    int ivrt_dst, itile;
-
-    cartman_mpd_info_t   * pinfo_src;
-    cartman_mpd_tile_t   * fan_ary_src;
-    Cartman::mpd_vertex_t * vrt_ary_src;
-
-    map_mem_t    * pmem_dst;
-    map_info_t   * pinfo_dst;
-    tile_info_t  * fan_ary_dst;
-    map_vertex_t * vrt_ary_dst;
-    map_info_t     loc_info_dst;
-
     if ( NULL == pmesh_src ) return NULL;
-    pinfo_src = &( pmesh_src->info );
+    cartman_mpd_info_t *pinfo_src = &(pmesh_src->info);
 
     // clear out all data in the destination mesh
     if ( NULL == map_renew( pmesh_dst ) ) return NULL;
@@ -958,21 +945,23 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
     pinfo_src->vertex_count = pmesh_src->count_used_vertices();
 
     // allocate the correct size for the destination mesh
+    map_info_t loc_info_dst;
     loc_info_dst.tiles_x   = pinfo_src->tiles_x;
     loc_info_dst.tiles_y   = pinfo_src->tiles_y;
     loc_info_dst.vertcount = pinfo_src->vertex_count;
     map_init( pmesh_dst, &loc_info_dst );
     
-    pmem_dst = &( pmesh_dst->mem );
-    pinfo_dst = &( pmesh_dst->info );
-    fan_ary_dst = pmem_dst->tile_list;
-    vrt_ary_dst = pmem_dst->vlst;
+    map_mem_t *pmem_dst = &(pmesh_dst->mem);
+    map_info_t *pinfo_dst = &(pmesh_dst->info);
+    tile_info_t *fan_ary_dst = pmem_dst->tile_list;
+    map_vertex_t *vrt_ary_dst = pmem_dst->vlst;
 
     // revert the tile information
-    for (cnt = 0; cnt < pinfo_src->tiles_count; cnt++ )
+    for (size_t cnt = 0; cnt < pinfo_src->tiles_count; cnt++ )
     {
-        tile_info_t        * ptile_dst = fan_ary_dst + cnt;
-        cartman_mpd_tile_t * pfan_src  = &(pmesh_src->fan2[cnt]);
+        tile_info_t *fan_ary_dst = pmem_dst->tile_list;
+        tile_info_t *ptile_dst = fan_ary_dst + cnt;
+        cartman_mpd_tile_t *pfan_src = &(pmesh_src->fan2[cnt]);
 
         ptile_dst->type   = pfan_src->type;
         ptile_dst->img    = pfan_src->tx_bits;
@@ -981,45 +970,40 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
     }
 
     // revert the vertex information
-    for ( itile = 0, ivrt_dst = 0; itile < pinfo_src->tiles_count; itile++ )
+    for (int itile = 0, ivrt_dst = 0; itile < pinfo_src->tiles_count; itile++ )
     {
-        int tnc, vert_count, ivrt_src;
-        cartman_mpd_tile_t   * pfan_src;
-        Cartman::mpd_vertex_t * pvrt_src;
-        map_vertex_t         * pvrt_dst;
-        tile_definition_t    * pdef;
-
         // grab the source fan
-        pfan_src = &(pmesh_src->fan2[itile]);
+        cartman_mpd_tile_t *pfan_src = &(pmesh_src->fan2[itile]);
 
         // is the type valid?
-        pdef = TILE_DICT_PTR( tile_dict, pfan_src->type );
+        tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan_src->type);
         if ( NULL == pdef )
         {
-            log_warning( "%s - invalid fan type %d used in the mesh\n", __FUNCTION__, pfan_src->type );
+            log_warning("%s:%d: invalid fan type %d used in the mesh\n", __FILE__, __LINE__, pfan_src->type );
             goto cartman_mpd_revert_fail;
         }
 
         // is the vertex_count valid?
-        vert_count = pdef->numvertices;
+        int vert_count = pdef->numvertices;
         if ( 0 == vert_count )
         {
-            log_warning( "%s - undefined fan type %d used in the mesh\n", __FUNCTION__, pfan_src->type );
+            log_warning("%s:%d: undefined fan type %d used in the mesh\n", __FILE__,__LINE__, pfan_src->type );
         }
         else if ( vert_count > MAP_FAN_VERTICES_MAX )
         {
-            log_warning( "%s - too many vertices %d used in tile type %d\n", __FUNCTION__, vert_count, pfan_src->type );
+            log_warning("%s:%d: too many vertices %d used in tile type %d\n", __FILE__,__LINE__, vert_count, pfan_src->type );
             goto cartman_mpd_revert_fail;
         }
 
         // is the initial vertex valid?
         if ( !CART_VALID_VERTEX_RANGE( pfan_src->vrtstart ) )
         {
-            log_warning( "%s - vertex %d is outside of valid vertex range\n", __FUNCTION__, pfan_src->vrtstart );
+            log_warning("%s:%d: vertex %d is outside of valid vertex range\n", __FILE__, __LINE__, pfan_src->vrtstart );
             goto cartman_mpd_revert_fail;
         }
 
-        pvrt_src = NULL;
+        Cartman::mpd_vertex_t *pvrt_src = NULL;
+        int tnc, ivrt_src;
         for ( tnc = 0, ivrt_src = pfan_src->vrtstart;
               tnc < vert_count;
               tnc++, ivrt_src = pvrt_src->next, ivrt_dst++ )
@@ -1032,7 +1016,7 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
             }
 
             // grab the src pointer
-            pvrt_src = vrt_ary_src + ivrt_src;
+            pvrt_src = &(pmesh_src->vrt2[ivrt_src]);
 
             // check for VERTEXUNUSED
             if ( VERTEXUNUSED == pvrt_src->a )
@@ -1042,7 +1026,7 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
             }
 
             // grab the destination vertex
-            pvrt_dst = vrt_ary_dst + ivrt_dst;
+            map_vertex_t *pvrt_dst = vrt_ary_dst + ivrt_dst;
 
             pvrt_dst->pos.x = pvrt_src->x;
             pvrt_dst->pos.y = pvrt_src->y;
