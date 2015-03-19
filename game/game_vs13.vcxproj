@@ -454,7 +454,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\game\Physics\Constants.hpp" />
     <ClInclude Include="src\game\gamestates\OptionsScreen.hpp" />
     <ClInclude Include="src\game\gui\OptionsButton.hpp" />
     <ClInclude Include="src\game\gui\InternalDebugWindow.hpp" />

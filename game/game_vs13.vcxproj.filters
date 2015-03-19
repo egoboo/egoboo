@@ -532,9 +532,6 @@
     <ClInclude Include="src\game\gamestates\OptionsScreen.hpp">
       <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\Physics\Constants.hpp">
-      <Filter>Game Header Files\Physics</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\egoboo.ico">

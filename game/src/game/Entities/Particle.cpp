@@ -36,7 +36,6 @@
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Profiles/_Include.hpp"
-#include "game/Physics/Constants.hpp"
 
 
 //--------------------------------------------------------------------------------------------
