@@ -1,6 +1,7 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/log.h"
 
 namespace Component
 {
@@ -147,7 +148,7 @@ namespace Component
         }
     };
 
-    template <typename _Type, typename _Factory = Factory<_Type>>
+    template <typename _Type, typename _Factory>
     _Type *Singleton<_Type, _Factory>::_singleton = nullptr;
 
 };
