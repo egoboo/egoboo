@@ -27,20 +27,13 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float   hillslide       =  1.00f;
-float   slippyfriction  =  1.00f;
-float   airfriction     =  0.91f;
-float   waterfriction   =  0.80f;
-float   noslipfriction  =  0.91f;
-float   gravity         = -1.00f;
+
+Physics::Environment Physics::g_environment;
+
 const float PLATFORM_STICKINESS =  0.01f;
-fvec3_t windspeed       = fvec3_t::zero;
-fvec3_t waterspeed      = fvec3_t::zero;
+
 
 static int breadcrumb_guid = 0;
-
-const float air_friction = 0.9868f;
-const float ice_friction = 0.9738f;  // the square of air_friction
 
 static egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct_vec_v2_t& ovel1, const oct_bb_t& src2, const oct_vec_v2_t& ovel2, int test_platform, float *tmin, float *tmax);
 static egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, const oct_vec_v2_t& ovel1, const oct_bb_t& src2, const oct_vec_v2_t& ovel2, int test_platform, float *tmin, float *tmax);
@@ -69,19 +62,10 @@ bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_ve
     {
         return false;
     }
-#if 0
-    oct_vec_v2_t opos_a, opos_b;
-#endif
+
     // Estimate the "cm position" of the objects by the bounding volumes.
     oct_vec_v2_t opos_a = bb_a.getMid();
     oct_vec_v2_t opos_b = bb_b.getMid();
-#if 0
-    for (size_t i = 0; i < OCT_COUNT; ++i)
-    {
-        opos_a[i] = ( pbb_a.maxs[i] + pbb_a.mins[i] ) * 0.5f;
-        opos_b[i] = ( pbb_b.maxs[i] + pbb_b.mins[i] ) * 0.5f;
-    }
-#endif
 
     // find the (signed) depth in each dimension
     bool retval = true;

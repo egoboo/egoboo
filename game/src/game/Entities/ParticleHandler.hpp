@@ -86,12 +86,6 @@ struct ParticleHandler : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF,
 
     /**
      * @brief
-     *	Run all deferred updates if the particle list is not locked.
-     */
-    void maybeRunDeferred();
-
-    /**
-     * @brief
      *  Get an unused particle.
      *   If all particles are in use and @a force is @a true, get the first unimportant one.
      * @return
@@ -99,21 +93,24 @@ struct ParticleHandler : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF,
      */
     PRT_REF allocate(const bool force);
 
+    /**
+     * @brief
+     *  This resets all particle data and reads in global particles (e.g. money).
+     */
     void reset_all();
 
 public:
+
     static ParticleHandler& get();
-    bool free_one(const PRT_REF iprt);
-    bool push_free(const PRT_REF);
-    void prune_used_list();
-    void prune_free_list();
 
 protected:
+
     /**
      * @brief
      *  An display limit smaller than @a MAX_PRT is an upper-bound for the number of particles rendered.
      */
     size_t _displayLimit;
+
 public:
     /**
      * @brief
@@ -153,9 +150,6 @@ bool WAITING_PRT(const PRT_REF ref);
 bool TERMINATED_PRT(const PRT_REF ref);
 PRT_REF GET_REF_PPRT(const prt_t *ptr);
 bool DEFINED_PPRT(const prt_t *ptr);
-#if 0
-bool VALID_PRT_PTR(const prt_t *ptr);
-#endif
 bool ALLOCATED_PPRT(const prt_t *ptr);
 bool ACTIVE_PPRT(const prt_t *ptr);
 bool WAITING_PPRT(const prt_t *ptr);

@@ -3963,7 +3963,7 @@ void move_one_character_get_environment( Object * pchr )
 
         if ( penviro->is_slippy )
         {
-            penviro->traction /= 4.00f * hillslide * ( 1.0f - penviro->zlerp ) + 1.0f * penviro->zlerp;
+            penviro->traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
     else if ( ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
@@ -3972,15 +3972,15 @@ void move_one_character_get_environment( Object * pchr )
 
         if ( penviro->is_slippy )
         {
-            penviro->traction /= 4.00f * hillslide * ( 1.0f - penviro->zlerp ) + 1.0f * penviro->zlerp;
+            penviro->traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
 
     //---- the friction of the fluid we are in
     if ( penviro->is_watery )
     {
-        penviro->fluid_friction_vrt  = waterfriction;
-        penviro->fluid_friction_hrz = waterfriction;
+        penviro->fluid_friction_vrt  = Physics::g_environment.waterfriction;
+        penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;
     }
     else
     {
@@ -4002,11 +4002,11 @@ void move_one_character_get_environment( Object * pchr )
     else
     {
         // Make the characters slide
-        float temp_friction_xy = noslipfriction;
+        float temp_friction_xy = Physics::g_environment.noslipfriction;
         if ( ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) && penviro->is_slippy )
         {
             // It's slippy all right...
-            temp_friction_xy = slippyfriction;
+            temp_friction_xy = Physics::g_environment.slippyfriction;
         }
 
         penviro->friction_hrz = penviro->zlerp * 1.0f + ( 1.0f - penviro->zlerp ) * temp_friction_xy;
@@ -4180,14 +4180,9 @@ void move_one_character_do_floor_friction( Object * pchr )
 void move_one_character_do_voluntary( Object * pchr )
 {
     // do voluntary motion
-
-    float dvx, dvy;
-    float new_ax, new_ay;
-    CHR_REF ichr;
-
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    ichr = GET_INDEX_PCHR( pchr );
+    CHR_REF ichr = GET_INDEX_PCHR( pchr );
 
     if ( !pchr->alive || pchr->maxaccel == 0.00f ) return;
 
@@ -4196,8 +4191,8 @@ void move_one_character_do_voluntary( Object * pchr )
 
     if ( _gameObjects.exists( pchr->attachedto ) ) return;
 
-    dvx = dvy = 0.0f;
-    new_ax = new_ay = 0.0f;
+    float dvx = 0.0f, dvy = 0.0f;
+    float new_ax = 0.0f, new_ay = 0.0f;
 
     // Character latches for generalized movement
     dvx = pchr->latch.x;
@@ -4217,7 +4212,7 @@ void move_one_character_do_voluntary( Object * pchr )
     }
 
     // this is the maximum speed that a character could go under the v2.22 system
-    float maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
+    float maxspeed = pchr->maxaccel * Physics::g_environment.airfriction / (1.0f - Physics::g_environment.airfriction);
 
     //Check animation frame freeze movement
     if ( chr_get_framefx( pchr ) & MADFX_STOP )
@@ -4745,7 +4740,7 @@ void move_one_character_do_z_motion( Object * pchr )
 
         gperp.x = 0       - gpara.x;
         gperp.y = 0       - gpara.y;
-        gperp.z = gravity - gpara.z;
+        gperp.z = Physics::g_environment.gravity - gpara.z;
 
         pchr->vel.x += gpara.x * ( 1.0f - loc_zlerp ) + gperp.x * loc_zlerp;
         pchr->vel.y += gpara.y * ( 1.0f - loc_zlerp ) + gperp.y * loc_zlerp;
@@ -4753,7 +4748,7 @@ void move_one_character_do_z_motion( Object * pchr )
     }
     else
     {
-        pchr->vel.z += pchr->enviro.zlerp * gravity;
+        pchr->vel.z += pchr->enviro.zlerp * Physics::g_environment.gravity;
     }
 }
 
@@ -5811,8 +5806,8 @@ void move_all_characters()
     for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         // prime the environment
-        object->enviro.air_friction = air_friction;
-        object->enviro.ice_friction = ice_friction;
+        object->enviro.air_friction = Physics::g_environment.airfriction;
+        object->enviro.ice_friction = Physics::g_environment.icefriction;
 
         move_one_character( object.get() );
     }

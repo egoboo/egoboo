@@ -119,50 +119,6 @@ EnchantHandler& EnchantHandler::get()
 }
 
 //--------------------------------------------------------------------------------------------
-void EnchantHandler::prune_used_list()
-{
-    // prune the used list
-    for (size_t i = 0; i < usedCount; ++i)
-    {
-        bool removed = false;
-
-        ENC_REF ref = used_ref[i];
-
-        if (!isValidRef(ref) || !DEFINED_ENC(ref))
-        {
-            removed = remove_used_idx(i);
-        }
-
-        if (removed && !lst[ref].obj_base.in_free_list)
-        {
-            add_free_ref(ref);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void EnchantHandler::prune_free_list()
-{
-    // Prune the free list.
-    for (size_t i = 0; i < freeCount; ++i)
-    {
-        bool removed = false;
-
-        ENC_REF ref = free_ref[i];
-
-        if (isValidRef(ref) && INGAME_ENC_BASE(ref))
-        {
-            removed = remove_free_idx(i);
-        }
-
-        if (removed && !lst[ref].obj_base.in_free_list)
-        {
-            push_used(ref);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void EnchantHandler::update_used()
 {
     prune_used_list();
@@ -171,9 +127,9 @@ void EnchantHandler::update_used()
     // Go through the object list to see if there are any dangling objects.
     for (ENC_REF ref = 0; ref < getCount(); ++ref)
     {
-        if (!isValidRef(ref)) continue; /// @todo Redundant.
+        if (!isValidRef(ref)) continue;
         enc_t *x = get_ptr(ref);
-        if (!EnchantHandler::get().ALLOCATED_BASE_RAW(x)) continue;
+        if (!ALLOCATED_BASE_RAW(x)) continue;
 
         if (INGAME_PENC(x))
         {
@@ -182,7 +138,7 @@ void EnchantHandler::update_used()
                 push_used(ref);
             }
         }
-        else if (!DEFINED_PENC(x))
+        else if (!DEFINED_BASE_RAW(x)) // We can use DEFINED_BASE_RAW as the reference is valid.
         {
             if (!x->obj_base.in_free_list)
             {
@@ -201,52 +157,6 @@ void EnchantHandler::update_used()
     for (size_t i = getFreeCount(); i < getCount(); ++i)
     {
         free_ref[i] = INVALID_ENC_REF;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool EnchantHandler::free_one(const ENC_REF ref)
-{
-    /// @details Stick an object back into the free object list.
-
-    // Ensure that we have a valid reference.
-    if (!isValidRef(ref)) return false;
-    enc_t *obj = get_ptr(ref);
-
-    // If the object is not allocated (i.e. in the state range ["constructing","destructing"])
-    // then its reference is in the free list.
-    if (!ALLOCATED_PENC(obj)) return false;
-
-    Ego::Entity *parentObj = POBJ_GET_PBASE(obj);
-
-    // If we are inside an iteration, do not actually change the length of the list.
-    // This would invalidate all iterators.
-    if (getLockCount() > 0)
-    {
-        return add_termination(ref);
-    }
-    else
-    {
-        // Ensure that the entity reaches the "destructing" state.
-        // @todo This is redundant.
-        obj = enc_t::config_deinitialize(obj, 100);
-        if (!obj) return false;
-        // Ensure that the entity reaches the "terminated" state.
-        obj = enc_t::config_deconstruct(obj, 100);
-        if (!obj) return false;
-
-        if (parentObj->in_used_list)
-        {
-            remove_used_ref(ref);
-        }
-        if (parentObj->in_free_list)
-        {
-            return true;
-        }
-        else
-        {
-            return add_free_ref(ref);
-        }
     }
 }
 
@@ -312,32 +222,4 @@ ENC_REF EnchantHandler::allocate(const ENC_REF override)
     }
 
     return ref;
-}
-
-//--------------------------------------------------------------------------------------------
-void EnchantHandler::maybeRunDeferred()
-{
-    // Go through the list and activate all the enchants that
-    // were created while the list was iterating.
-    for (size_t i = 0; i < activation_count; ++i)
-    {
-        ENC_REF ref = activation_list[i];
-
-        if (!ALLOCATED_ENC(ref)) continue;
-        enc_t *x = get_ptr(ref);
-
-        if (!x->obj_base.turn_me_on) continue;
-
-        x->obj_base.on         = true;
-        x->obj_base.turn_me_on = false;
-    }
-    activation_count = 0;
-
-    // Go through and delete any enchants that were
-    // supposed to be deleted while the list was iterating
-    for (size_t i = 0; i < termination_count; ++i)
-    {
-        free_one(termination_list[i]);
-    }
-    termination_count = 0;
 }

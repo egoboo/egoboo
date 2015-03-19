@@ -25,6 +25,125 @@
 #include "egolib/bbox.h"
 
 //--------------------------------------------------------------------------------------------
+
+namespace Physics
+{
+    struct Environment
+    {
+
+        /**
+         * @brief
+         *  Extra downhill force.
+         * @default
+         *  1.0f
+         * @todo
+         *  Short description of (reasonable) limits and effect.
+         */
+        float hillslide;
+
+        /**
+         * @brief
+         *  Friction on tiles that are marked with MAPFX_SLIPPY.
+         * @default
+         *  1.0f
+         * @todo
+         *  Short description of (reasonable) limits and effect.
+         */
+        float slippyfriction;
+
+        /**
+         * @brief
+         *  Air friction.
+         * @default
+         *  0.9868f
+         * @remark
+         *  0.9868f is approximately real world air friction.
+         * @todo
+         *  Short description of (reasonable) limits and effect.
+         */
+        float airfriction;
+
+        /**
+         * @brief
+         *  Ice friction.
+         * @default
+         *  0.9738f (square of air friction)
+         * @todo
+         *  Short description of (reasonable) limits and effect.
+         */
+        float icefriction;
+
+        /**
+         * @brief
+         *  Water friction.  
+         * @default
+         *  0.8f
+         * @todo     
+         *  Short description of (reasonable) limits and effect.
+         */
+        float waterfriction;
+
+        /**
+         * @brief
+         *  Friction on tiles that are not marked with MAPFX_SLIPPY.
+         * @default
+         *  0.91f
+         * @todo
+         *  Short description of (reasonable) limits and effect.
+         */
+        float noslipfriction;
+
+        /**
+         * @brief
+         *  Gravitational force.
+         * @default
+         *  -1.0f
+         * @todo
+         *  Short description of (reasonable) limits and effect.
+         */
+        float gravity;
+
+        /**
+         * @brief
+         *  The game's windspeed.
+         * @default
+         *  <tt>(0,0,0)</tt>
+         * @todo
+         *  Short description of (reasonable) limits and effect.
+         */
+        fvec3_t windspeed;
+
+        /**
+         * @brief
+         *  The game's waterspeed.
+         * @default
+         *  <tt>(0,0,0)</tt>
+         * @todo
+         *  Short description of (reasonable) limits and effect.
+         */
+        fvec3_t waterspeed;
+
+        /**
+         * @brief
+         *  Construct this environment with its default values.
+         */
+        Environment() :
+            hillslide(1.0f),
+            slippyfriction(1.0f),
+            airfriction(0.9868f),
+            waterfriction(0.80f),
+            icefriction(0.9738f),
+            noslipfriction(0.91),
+            gravity(-1.0f),
+            windspeed(),
+            waterspeed()
+        {}
+
+    };
+
+    extern Environment g_environment;
+}
+
 //--------------------------------------------------------------------------------------------
 
 class Object;
@@ -347,19 +466,6 @@ protected:
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values
 
-#define STANDARD_GRAVITY -1.0f              ///< The ordinary amount of gravity
-
-extern float   hillslide;                   ///< Extra downhill force
-extern float   airfriction;                 ///< 0.9868 is approximately real world air friction
-extern float   waterfriction;               ///< Water resistance
-extern float   slippyfriction;              ///< Friction on tiles that are marked with MAPFX_SLIPPY
-extern float   noslipfriction;              ///< Friction on normal tiles
-extern float   gravity;                     ///< Gravitational accel
-extern fvec3_t windspeed;                   ///< The game's windspeed
-extern fvec3_t waterspeed;                  ///< The game's waterspeed
-
-extern const float air_friction;            ///< gives the same terminal velocity in terms of the size of the game characters
-extern const float ice_friction;            ///< estimte if the friction on ice
 extern const float PLATFORM_STICKINESS;     ///< Friction between characters and platforms
 
 //--------------------------------------------------------------------------------------------
@@ -409,14 +515,3 @@ bool get_depth_1(const oct_bb_t& cv_a, const fvec3_t& pos_a, bumper_t bump_b, co
 /// @brief Estimate the depth of collision based on the "collision bounding box".
 ///        This version is for character-character collisions
 bool get_depth_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth);
-#if 0
-/// @brief Estimate the depth of collision based on the "collision bounding box".
-///        This version is for character-particle collisions.
-bool get_depth_close_0(bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth);
-/// @brief Estimate the depth of collision based on the "collision bounding box".
-///        This version is for character-particle collisions.
-bool get_depth_close_1(const oct_bb_t& cv_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth);
-/// @brief Estimate the depth of collision based on the "collision bounding box"
-///        This version is for character-character collisions.
-bool get_depth_close_2(const oct_bb_t& cv_a, const oct_bb_t * cv_b, bool break_out, oct_vec_v2_t& depth);
-#endif

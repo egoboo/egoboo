@@ -3965,7 +3965,7 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 
     pself_target->vel.x = 0;
     pself_target->vel.y = 0;
-    if ( pself_target->vel.z > 0 ) pself_target->vel.z = gravity;
+    if ( pself_target->vel.z > 0 ) pself_target->vel.z = Physics::g_environment.gravity;
 
     SCRIPT_FUNCTION_END();
 }

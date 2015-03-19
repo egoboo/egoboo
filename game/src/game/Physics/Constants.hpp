@@ -28,6 +28,7 @@ namespace Physics
 {
     struct Constants
     {
+#if 0
         /// @brief The gravity default amount and direction.
         /// @return the default gravity amount and direction
         /// @todo Should be a vector.
@@ -35,16 +36,6 @@ namespace Physics
         {
             return -1.0f;
         }
-#if 0
-        const static float gravity;
-#endif
-#if 0
-        /// @brief The default windspeed  amount and direction.
-        const static fvec3_t windspeed;
-
-        /// @brief The default waterspeed amount and direction.
-        const static fvec3_t waterspeed;
-#endif
 
         /// @brief The default friction of air.
         /// @return the default air friction
@@ -61,21 +52,6 @@ namespace Physics
         {
             return 0.9738f;
         }
-#if 0
-        /// @brief The default friction of water.
-        const static float waterfriction;
-
-        /// @brief The default friction on slippy ground.
-        ///        i.e. tiles for which the MAPFX_SLIPPY bit is
-        ///        set.
-        const static float  slippyGroundFriction;
-
-        /// @brief The default friction on normal ground.
-        ///        i.e. tiles for which the MAPFX_SLIPPY bit is
-        ///        NOT
-        ///        set.
-        const static float normalGroundFriction;
 #endif
-
     };
 }

@@ -268,7 +268,7 @@ public:
         return retval;
     }
 
-    /// @brief Reset all particles.
+    /// @brief Move all objects to the free list
     void free_all()
     {
         for (REFTYPE ref = 0; ref < getCount(); ++ref)
@@ -277,9 +277,128 @@ public:
         }
     }
 
-protected:
-    virtual bool free_one(const REFTYPE ref) = 0;
+    /**
+     * @brief
+     *	Run all deferred updates if the list is not locked.
+     */
+    void maybeRunDeferred()
+    {
+        // Go through the list and activate all the objects that
+        // were created while the list was iterating.
+        for (size_t i = 0; i < activation_count; ++i)
+        {
+            REFTYPE ref = activation_list[i];
 
+            if (!ALLOCATED(ref)) continue;
+            TYPE *x = get_ptr(ref);
+
+            if (!x->obj_base.turn_me_on) continue;
+
+            x->obj_base.on = true;
+            x->obj_base.turn_me_on = false;
+        }
+        activation_count = 0;
+
+        // Go through and delete any objects that were
+        // supposed to be deleted while the list was iterating
+        for (size_t i = 0; i < termination_count; ++i)
+        {
+            free_one(termination_list[i]);
+        }
+        termination_count = 0;
+    }
+
+protected:
+    /// @brief Prune the free list.
+    void prune_free_list()
+    {
+        for (size_t i = 0; i < freeCount; ++i)
+        {
+            bool removed = false;
+
+            REFTYPE ref = free_ref[i];
+
+            if (isValidRef(ref) && INGAME_BASE(ref))
+            {
+                removed = remove_free_idx(i);
+            }
+
+            if (removed && !lst[ref].obj_base.in_free_list)
+            {
+                push_used(ref);
+            }
+        }
+    }
+
+    /// @brief Prune the used list.
+    void prune_used_list()
+    {
+        // prune the used list
+        for (size_t i = 0; i < usedCount; ++i)
+        {
+            bool removed = false;
+
+            REFTYPE ref = used_ref[i];
+
+            if (!isValidRef(ref) || !DEFINED(ref))
+            {
+                removed = remove_used_idx(i);
+            }
+
+            if (removed && !lst[ref].obj_base.in_free_list)
+            {
+                add_free_ref(ref);
+            }
+        }
+    }
+
+public:
+    /// @brief Stick an object back into the free object list.
+    bool free_one(const REFTYPE ref)
+    {
+        // Ensure that we have a valid reference.
+        if (!isValidRef(ref)) return false;
+        TYPE *obj = get_ptr(ref);
+
+        // If the object is not allocated (i.e. in the state range ["constructing","destructing"])
+        // then its reference is in the free list.
+        if (!ALLOCATED(obj)) return false;
+
+        Ego::Entity *parentObj = POBJ_GET_PBASE(obj);
+
+        // If we are inside an iteration, do not actually change the length of the list.
+        // This would invalidate all iterators.
+        if (getLockCount() > 0)
+        {
+            return add_termination(ref);
+        }
+        else
+        {
+            // Ensure that the entity reaches the "destructing" state.
+            // @todo This is redundant.
+            obj = TYPE::config_deinitialize(obj, 100);
+            if (!obj) return false;
+            // Ensure that the entity reaches the "terminated" state.
+            obj = TYPE::config_deconstruct(obj, 100);
+            if (!obj) return false;
+
+            if (parentObj->in_used_list)
+            {
+                remove_used_ref(ref);
+            }
+
+            if (parentObj->in_free_list)
+            {
+                return true;
+            }
+            else
+            {
+                return add_free_ref(ref);
+            }
+        }
+    }
+
+protected:
     bool remove_free_ref(const REFTYPE ref)
     {
         // Find the reference in the free list.
@@ -292,6 +411,7 @@ protected:
         }
         return remove_free_idx(index);
     }
+
     bool remove_used_ref(const REFTYPE ref)
     {
         // Find the object in the used list.
@@ -334,6 +454,7 @@ protected:
 
         return true;
     }
+
     bool add_free_ref(const REFTYPE ref)
     {
         bool retval;

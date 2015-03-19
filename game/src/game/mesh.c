@@ -886,7 +886,7 @@ void ego_mesh_make_twist()
     float   gdot;
     fvec3_t grav = fvec3_t::zero;
 
-    grav.z = gravity;
+    grav.z = Physics::g_environment.gravity;
 
     for ( cnt = 0; cnt < 256; cnt++ )
     {

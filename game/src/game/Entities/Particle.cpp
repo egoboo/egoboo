@@ -36,6 +36,7 @@
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Profiles/_Include.hpp"
+#include "game/Physics/Constants.hpp"
 
 
 //--------------------------------------------------------------------------------------------
@@ -554,13 +555,13 @@ prt_t *prt_t::config_do_init()
 
     {
         const float buoyancy_min = 0.0f;
-        const float buoyancy_max = 2.0f * std::abs(STANDARD_GRAVITY);
+        const float buoyancy_max = 2.0f * std::abs(Physics::g_environment.gravity);
         const float air_resistance_min = 0.0f;
         const float air_resistance_max = 1.0f;
 
         // find the buoyancy, assuming that the air_resistance of the particle
         // is equal to air_friction at standard gravity
-        pprt->buoyancy = -loc_spdlimit * (1.0f - air_friction) - STANDARD_GRAVITY;
+        pprt->buoyancy = -loc_spdlimit * (1.0f - Physics::g_environment.airfriction) - Physics::g_environment.gravity;
         pprt->buoyancy = CLIP(pprt->buoyancy, buoyancy_min, buoyancy_max);
 
         // reduce the buoyancy if the particle falls
@@ -569,10 +570,10 @@ prt_t *prt_t::config_do_init()
         // determine if there is any left-over air resistance
         if (std::abs(loc_spdlimit) > 0.0001f)
         {
-            pprt->air_resistance = 1.0f - (pprt->buoyancy + STANDARD_GRAVITY) / -loc_spdlimit;
+            pprt->air_resistance = 1.0f - (pprt->buoyancy + Physics::g_environment.gravity) / -loc_spdlimit;
             pprt->air_resistance = CLIP(pprt->air_resistance, air_resistance_min, air_resistance_max);
 
-            pprt->air_resistance /= air_friction;
+            pprt->air_resistance /= Physics::g_environment.airfriction;
             pprt->air_resistance = CLIP(pprt->air_resistance, 0.0f, 1.0f);
         }
         else
@@ -989,7 +990,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
 
         if (penviro->is_slippy)
         {
-            penviro->traction /= hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
+            penviro->traction /= Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
     else if (ego_mesh_grid_is_valid(PMesh, loc_pprt->onwhichgrid))
@@ -998,15 +999,15 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
 
         if (penviro->is_slippy)
         {
-            penviro->traction /= hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
+            penviro->traction /= Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
 
     //---- the friction of the fluid we are in
     if (penviro->is_watery)
     {
-        penviro->fluid_friction_vrt = waterfriction;
-        penviro->fluid_friction_hrz = waterfriction;
+        penviro->fluid_friction_vrt = Physics::g_environment.waterfriction;
+        penviro->fluid_friction_hrz = Physics::g_environment.waterfriction;
     }
     else
     {
@@ -1019,11 +1020,11 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
     if (!loc_pprt->is_homing)
     {
         // Make the characters slide
-        float temp_friction_xy = noslipfriction;
+        float temp_friction_xy = Physics::g_environment.noslipfriction;
         if (ego_mesh_grid_is_valid(PMesh, loc_pprt->onwhichgrid) && penviro->is_slippy)
         {
             // It's slippy all right...
-            temp_friction_xy = slippyfriction;
+            temp_friction_xy = Physics::g_environment.slippyfriction;
         }
 
         penviro->friction_hrz = penviro->zlerp * 1.0f + (1.0f - penviro->zlerp) * temp_friction_xy;
@@ -1068,11 +1069,11 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * 
     // get the speed relative to the fluid
     if (loc_pprt->enviro.inwater)
     {
-        fluid_acc = waterspeed - loc_pprt->vel;
+        fluid_acc = Physics::g_environment.waterspeed - loc_pprt->vel;
     }
     else
     {
-        fluid_acc = windspeed - loc_pprt->vel;
+        fluid_acc = Physics::g_environment.windspeed - loc_pprt->vel;
     }
 
     // get the fluid friction
@@ -1080,7 +1081,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * 
     {
         // this is a buoyant particle, like smoke
 
-        float loc_buoyancy_friction = air_friction * loc_pprt->air_resistance;
+        float loc_buoyancy_friction = Physics::g_environment.airfriction * loc_pprt->air_resistance;
 
         if (loc_pprt->enviro.inwater)
         {
@@ -1325,7 +1326,8 @@ prt_bundle_t * prt_bundle_t::updateParticleSimpleGravity(prt_bundle_t * pbdl_prt
     //Only do gravity for solid particles
     if (!pbdl_prt->prt_ptr->no_gravity && pbdl_prt->prt_ptr->type == SPRITE_SOLID && !pbdl_prt->prt_ptr->is_homing  && !_gameObjects.exists(pbdl_prt->prt_ptr->attachedto_ref))
     {
-        pbdl_prt->prt_ptr->vel.z += STANDARD_GRAVITY*airfriction; //ZF> My magic EgoGravity constant
+        pbdl_prt->prt_ptr->vel.z += Physics::g_environment.gravity 
+                                  * Physics::g_environment.airfriction;
     }
     return pbdl_prt;
 }
@@ -1364,7 +1366,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
     z_motion_acc = fvec3_t::zero;
 
     // in higher gravity environments, buoyancy is larger
-    tmp_buoyancy = loc_pprt->buoyancy * gravity / STANDARD_GRAVITY;
+    tmp_buoyancy = loc_pprt->buoyancy * std::abs(Physics::g_environment.gravity);
 
     // handle bouyancy near the ground
     if (loc_zlerp >= 1.0f)
@@ -1379,7 +1381,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
     {
         // Do particle buoyancy. This is kinda BS the way it is calculated
         loc_buoyancy = 0.0f;
-        if (tmp_buoyancy + gravity < 0.0f)
+        if (tmp_buoyancy + Physics::g_environment.gravity < 0.0f)
         {
             // the particle cannot hold itself up
 
@@ -1410,7 +1412,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
 
         gperp.x = 0 - gpara.x;
         gperp.y = 0 - gpara.y;
-        gperp.z = gravity - gpara.z;
+        gperp.z = Physics::g_environment.gravity - gpara.z;
 
         z_motion_acc.x += gpara.x * (1.0f - loc_zlerp) + gperp.x * loc_zlerp;
         z_motion_acc.y += gpara.y * (1.0f - loc_zlerp) + gperp.y * loc_zlerp;
@@ -1418,7 +1420,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
     }
     else
     {
-        z_motion_acc.z += loc_zlerp * gravity;
+        z_motion_acc.z += loc_zlerp * Physics::g_environment.gravity;
     }
 
     loc_pprt->vel.x += z_motion_acc.x;
@@ -1869,8 +1871,8 @@ void move_all_particles()
     PRT_BEGIN_LOOP_DISPLAY(cnt, prt_bdl)
     {
         // prime the environment
-        prt_bdl.prt_ptr->enviro.air_friction = air_friction;
-        prt_bdl.prt_ptr->enviro.ice_friction = ice_friction;
+        prt_bdl.prt_ptr->enviro.air_friction = Physics::g_environment.airfriction;
+        prt_bdl.prt_ptr->enviro.ice_friction = Physics::g_environment.icefriction;
 
         prt_bundle_t::move_one_particle(&prt_bdl);
     }

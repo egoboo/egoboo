@@ -3656,12 +3656,12 @@ bool upload_phys_data( const wawalite_physics_t * pdata )
     if ( NULL == pdata ) return false;
 
     // upload the physics data
-    hillslide      = pdata->hillslide;
-    slippyfriction = pdata->slippyfriction;
-    noslipfriction = pdata->noslipfriction;
-    airfriction    = pdata->airfriction;
-    waterfriction  = pdata->waterfriction;
-    gravity        = pdata->gravity;
+    Physics::g_environment.hillslide = pdata->hillslide;
+    Physics::g_environment.slippyfriction = pdata->slippyfriction;
+    Physics::g_environment.noslipfriction = pdata->noslipfriction;
+    Physics::g_environment.airfriction = pdata->airfriction;
+    Physics::g_environment.waterfriction = pdata->waterfriction;
+    Physics::g_environment.gravity = pdata->gravity;
 
     return true;
 }
@@ -3762,10 +3762,10 @@ bool wawalite_finalize(wawalite_data_t *data)
     }
 
     int windspeed_count = 0;
-	windspeed = fvec3_t::zero;
+    Physics::g_environment.windspeed = fvec3_t::zero;
 
     int waterspeed_count = 0;
-	waterspeed = fvec3_t::zero;
+    Physics::g_environment.waterspeed = fvec3_t::zero;
 
     wawalite_water_layer_t *ilayer = wawalite_data.water.layer + 0;
     if (wawalite_data.water.background_req)
@@ -3778,17 +3778,17 @@ bool wawalite_finalize(wawalite_data_t *data)
 
         windspeed_count++;
 
-        windspeed.x += -ilayer->tx_add.x * GRID_FSIZE / ( wawalite_data.water.backgroundrepeat / default_bg_repeat ) * ( cam_height + 1.0f / ilayer->dist.x ) / cam_height;
-        windspeed.y += -ilayer->tx_add.y * GRID_FSIZE / ( wawalite_data.water.backgroundrepeat / default_bg_repeat ) * ( cam_height + 1.0f / ilayer->dist.y ) / cam_height;
-        windspeed.z += -0;
+        Physics::g_environment.windspeed.x += -ilayer->tx_add.x * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.x) / cam_height;
+        Physics::g_environment.windspeed.y += -ilayer->tx_add.y * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.y) / cam_height;
+        Physics::g_environment.windspeed.z += -0;
     }
     else
     {
         waterspeed_count++;
 
-        waterspeed.x += -ilayer->tx_add.x * GRID_FSIZE;
-        waterspeed.y += -ilayer->tx_add.y * GRID_FSIZE;
-        waterspeed.z += -0;
+        Physics::g_environment.waterspeed.x += -ilayer->tx_add.x * GRID_FSIZE;
+        Physics::g_environment.waterspeed.y += -ilayer->tx_add.y * GRID_FSIZE;
+        Physics::g_environment.waterspeed.z += -0;
     }
 
     ilayer = wawalite_data.water.layer + 1;
@@ -3796,31 +3796,31 @@ bool wawalite_finalize(wawalite_data_t *data)
     {
         windspeed_count++;
 
-        windspeed.x += -600 * ilayer->tx_add.x * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
-        windspeed.y += -600 * ilayer->tx_add.y * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
-        windspeed.z += -0;
+        Physics::g_environment.windspeed.x += -600 * ilayer->tx_add.x * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        Physics::g_environment.windspeed.y += -600 * ilayer->tx_add.y * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        Physics::g_environment.windspeed.z += -0;
     }
     else
     {
         waterspeed_count++;
 
-        waterspeed.x += -ilayer->tx_add.x * GRID_FSIZE;
-        waterspeed.y += -ilayer->tx_add.y * GRID_FSIZE;
-        waterspeed.z += -0;
+        Physics::g_environment.waterspeed.x += -ilayer->tx_add.x * GRID_FSIZE;
+        Physics::g_environment.waterspeed.y += -ilayer->tx_add.y * GRID_FSIZE;
+        Physics::g_environment.waterspeed.z += -0;
     }
 
     if ( waterspeed_count > 1 )
     {
-        waterspeed.x /= ( float )waterspeed_count;
-        waterspeed.y /= ( float )waterspeed_count;
-        waterspeed.z /= ( float )waterspeed_count;
+        Physics::g_environment.waterspeed.x /= (float)waterspeed_count;
+        Physics::g_environment.waterspeed.y /= (float)waterspeed_count;
+        Physics::g_environment.waterspeed.z /= (float)waterspeed_count;
     }
 
     if ( windspeed_count > 1 )
     {
-        windspeed.x /= ( float )windspeed_count;
-        windspeed.y /= ( float )windspeed_count;
-        windspeed.z /= ( float )windspeed_count;
+        Physics::g_environment.windspeed.x /= (float)windspeed_count;
+        Physics::g_environment.windspeed.y /= (float)windspeed_count;
+        Physics::g_environment.windspeed.z /= (float)windspeed_count;
     }
 
     return true;

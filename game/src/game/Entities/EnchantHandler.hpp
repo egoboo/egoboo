@@ -70,13 +70,8 @@ struct EnchantHandler : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, 
 
 public:
     static EnchantHandler& get();
-    void maybeRunDeferred();
     ENC_REF allocate(const ENC_REF override);
-    bool free_one(const ENC_REF ref);
     void update_used();
-    bool push_free(const ENC_REF ref);
-    void prune_used_list();
-    void prune_free_list();
 };
 
 //--------------------------------------------------------------------------------------------
@@ -90,9 +85,6 @@ bool WAITING_ENC(const ENC_REF ref);
 bool TERMINATED_ENC(const ENC_REF ref);
 ENC_REF GET_REF_PENC(const enc_t *ptr);
 bool DEFINED_PENC(const enc_t *ptr);
-#if 0
-bool VALID_ENC_PTR(const enc_t *ptr);
-#endif
 bool ALLOCATED_PENC(const enc_t *ptr);
 bool ACTIVE_PENC(const enc_t *ptr);
 bool WAITIN_PENC(const enc_t *ptr);

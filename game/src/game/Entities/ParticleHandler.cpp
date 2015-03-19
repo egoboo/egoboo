@@ -129,49 +129,6 @@ ParticleHandler& ParticleHandler::get()
 }
 
 //--------------------------------------------------------------------------------------------
-void ParticleHandler::prune_used_list()
-{
-    // prune the used list
-    for (size_t i = 0; i < usedCount; ++i)
-    {
-        bool removed = false;
-
-        PRT_REF ref = used_ref[i];
-
-        if (!isValidRef(ref) || !DEFINED_PRT(ref))
-        {
-            removed = remove_used_idx(i);
-        }
-
-        if (removed && !lst[ref].obj_base.in_free_list)
-        {
-            add_free_ref(ref);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void ParticleHandler::prune_free_list()
-{
-    for (size_t i = 0; i < freeCount; ++i)
-    {
-        bool removed = false;
-
-        PRT_REF ref = free_ref[i];
-
-        if (isValidRef(ref) && INGAME_PRT_BASE(ref))
-        {
-            removed = remove_free_idx(i);
-        }
-
-        if (removed && !lst[ref].obj_base.in_free_list)
-        {
-            push_used(ref);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void ParticleHandler::update_used()
 {
     prune_used_list();
@@ -180,9 +137,9 @@ void ParticleHandler::update_used()
     // Go through the object list to see if there are any dangling objects.
     for (PRT_REF ref = 0; ref < getCount(); ++ref)
     {
-        if (!isValidRef(ref)) continue; /// @todo Redundant.
+        if (!isValidRef(ref)) continue;
         prt_t *x = get_ptr(ref);
-        if (!ParticleHandler::get().ALLOCATED_BASE_RAW(x)) continue;
+        if (!ALLOCATED_BASE_RAW(x)) continue;
 
         if (DISPLAY_PPRT(x))
         {
@@ -191,7 +148,7 @@ void ParticleHandler::update_used()
                 push_used(ref);
             }
         }
-        else if (!DEFINED_PPRT(x))
+        else if (!DEFINED_BASE_RAW(x)) // We can use DEFINED_BASE_RAW as the reference is valid.
         {
             if (!x->obj_base.in_free_list)
             {
@@ -214,83 +171,31 @@ void ParticleHandler::update_used()
 }
 
 //--------------------------------------------------------------------------------------------
-bool ParticleHandler::free_one(const PRT_REF ref)
-{
-    /// @details Stick an object back into the free object list.
-
-    // Ensure that we have a valid reference.
-    if (!isValidRef(ref)) return false;
-    prt_t *obj = get_ptr(ref);
-
-    // If the object is not allocated (i.e. in the state range ["constructing","destructing"])
-    // then its reference is in the free list.
-    if (!ALLOCATED_PPRT(obj)) return false;
-
-    Ego::Entity *parentObj = POBJ_GET_PBASE(obj);
-
-    // If we are inside an iteration, do not actually change the length of the list.
-    // This would invalidate all iterators.
-    if (getLockCount() > 0)
-    {
-        return add_termination(ref);
-    }
-    else
-    {
-        // Ensure that the entity reaches the "destructing" state.
-        // @todo This is redundant.
-        obj = prt_t::config_deinitialize(obj, 100);
-        if (!obj) return false;
-        // Ensure that the entity reaches the "terminated" state.
-        obj = prt_t::config_deconstruct(obj, 100);
-        if (!obj) return false;
-
-        if (parentObj->in_used_list)
-        {
-            remove_used_ref(ref);
-        }
-
-        if (parentObj->in_free_list)
-        {
-            return true;
-        }
-        else
-        {
-            return add_free_ref(ref);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 PRT_REF ParticleHandler::allocate(const bool force)
 {
-    PRT_REF iprt;
-
     // Return INVALID_PRT_REF if we can't find one.
-    iprt = INVALID_PRT_REF;
+    PRT_REF iprt = INVALID_PRT_REF;
 
     if (0 == freeCount)
     {
         if (force)
         {
             PRT_REF found        = INVALID_PRT_REF;
-            size_t  min_life     = ( size_t )( ~0 );
+            size_t  min_life     = std::numeric_limits<size_t>::max();
             PRT_REF min_life_idx = INVALID_PRT_REF;
-            size_t  min_anim     = ( size_t )( ~0 );
+            size_t  min_anim     = std::numeric_limits<size_t>::max();
             PRT_REF min_anim_idx = INVALID_PRT_REF;
 
             // Gotta find one, so go through the list and replace a unimportant one.
             for (iprt = 0; iprt < getCount(); iprt++)
             {
-                bool was_forced = false;
-                prt_t *pprt;
-
                 // Is this an invalid particle? The particle allocation count is messed up! :(
                 if (!DEFINED_PRT(iprt))
                 {
                     found = iprt;
                     break;
                 }
-                pprt =  get_ptr(iprt);
+                prt_t *pprt = get_ptr(iprt);
 
                 // Does it have a valid profile?
                 if (!LOADED_PIP(pprt->pip_ref))
@@ -301,7 +206,7 @@ PRT_REF ParticleHandler::allocate(const bool force)
                 }
 
                 // Do not bump another.
-                was_forced = TO_C_BOOL(PipStack.get_ptr(pprt->pip_ref)->force);
+                bool was_forced = TO_C_BOOL(PipStack.get_ptr(pprt->pip_ref)->force);
 
                 if (WAITING_PRT(iprt))
                 {
@@ -360,75 +265,38 @@ PRT_REF ParticleHandler::allocate(const bool force)
     }
     else
     {
-        if ( freeCount > ( getCount() / 4 ) )
-        {
-            // Just grab the next one
-            iprt = pop_free();
-        }
-        else if ( force )
+        if (freeCount > (getCount() / 4) || force)
         {
             iprt = pop_free();
         }
     }
 
-    // return a proper value
-    iprt = ( iprt >= getCount() ) ? INVALID_PRT_REF : iprt;
-
+    // If we have found a a particle ...
     if (isValidRef(iprt))
     {
+        // Make sure it is terminated.
         // If the particle is already being used, make sure to destroy the old one.
         if (DEFINED_PRT(iprt))
         {
             end_one_particle_in_game(iprt);
         }
 
-        // allocate the new one
+        // Allocate the new one.
         get_ptr(iprt)->obj_base.allocate(REF_TO_INT(iprt));
     }
 
     if (ALLOCATED_PRT(iprt))
     {
         // construct the new structure
-        prt_t::config_construct(get_ptr( iprt ), 100);
+        prt_t::config_construct(get_ptr(iprt), 100);
     }
 
     return iprt;
 }
 
 //--------------------------------------------------------------------------------------------
-void ParticleHandler::maybeRunDeferred()
-{
-    // Go through the list and activate all the particles that
-    // were created while the list was iterating.
-    for (size_t i = 0; i < activation_count; i++)
-    {
-        PRT_REF iprt = activation_list[i];
-
-        if (!ALLOCATED_PRT(iprt)) continue;
-        prt_t *pprt = get_ptr(iprt);
-
-        if (!pprt->obj_base.turn_me_on) continue;
-
-        pprt->obj_base.on         = true;
-        pprt->obj_base.turn_me_on = false;
-    }
-    activation_count = 0;
-
-    // Go through and delete any particles that
-    // were supposed to be deleted while the list was iterating.
-    for (size_t i = 0; i < termination_count; i++ )
-    {
-        free_one(termination_list[i]);
-    }
-    termination_count = 0;
-}
-
-//--------------------------------------------------------------------------------------------
 void ParticleHandler::reset_all()
 {
-    /// @author ZZ
-    /// @details This resets all particle data and reads in the coin and water particles
-
     const char *loadpath;
 
     PipStack.reset();
