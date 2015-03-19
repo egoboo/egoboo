@@ -5229,12 +5229,12 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
         if ( pchr->inwhich_slot == SLOT_LEFT )
         {
             // A or B
-            pstate->argument = generate_randmask( pstate->argument, 1 );
+            pstate->argument += Random::next(1);
         }
         else
         {
             // C or D
-            pstate->argument = generate_randmask( pstate->argument + 2, 1 );
+            pstate->argument += 2 + Random::next(1);
         }
     }
 

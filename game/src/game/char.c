@@ -1378,7 +1378,7 @@ void drop_keys( const CHR_REF character )
         if (( idsz_parent < testa && idsz_parent > testz ) &&
             ( idsz_type < testa && idsz_type > testz ) ) continue;
 
-        direction = RANDIE;
+        direction = Random::next(std::numeric_limits<uint16_t>::max());
         turn      = TO_TURN( direction );
 
         //remove it from inventory
@@ -2324,7 +2324,7 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     pchr->skin = profile->getSkinOverride();
     if ( pchr->skin >= MAX_SKIN )
     {
-        int irnd = RANDIE;
+        int irnd = Random::next(std::numeric_limits<uint16_t>::max());
         pchr->skin = irnd % MAX_SKIN;
     }
 
@@ -2533,7 +2533,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     pchr->phys.bumpdampen = pchr->phys.bumpdampen * 0.5f;
 
     // Play the death animation
-    action = generate_randmask( ACTION_KA, 3 );
+    action = Random::next((int)ACTION_KA, ACTION_KA + 3);
     chr_play_action( pchr, action, false );
     chr_instance_set_action_keep( &( pchr->inst ), true );
 
@@ -3477,7 +3477,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     }
     else
     {
-        chr_play_action( pchr, generate_randmask( ACTION_KA, 3 ), false );
+        chr_play_action( pchr, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
         chr_instance_set_action_keep( &( pchr->inst ), true );
     }
 
@@ -4467,7 +4467,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !mountProfile->riderCanAttack() )
                     {
-                        chr_play_action( pmount.get(), generate_randmask( ACTION_UA, 1 ), false );
+                        chr_play_action( pmount.get(), Random::next((int)ACTION_UA, ACTION_UA + 1), false );
                         SET_BIT( pmount->ai.alert, ALERTIF_USED );
                         pchr->ai.lastitemused = pmount->getCharacterID();
 
@@ -5626,7 +5626,7 @@ float set_character_animation_rate( Object * pchr )
             pchr->bore_timer = BORETIME;
 
             // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
-            rand_val   = RANDIE;
+            rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
             tmp_action = mad_get_action_ref( pinst->imad, ACTION_DB + ( rand_val % 3 ) );
             chr_start_anim( pchr, tmp_action, true, true );
         }
@@ -6023,17 +6023,17 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
         if ( HAS_SOME_BITS( opt_bits, bb_opt_randomize_pos ) )
         {
             // make a random offset from the character
-            pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_FSIZE / 5.0f;
-            pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_FSIZE / 5.0f;
-            pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_FSIZE / 5.0f;
+            pbb->offset[XX] = (Random::nextFloat() * 2 - 1) * GRID_FSIZE / 5.0f;
+            pbb->offset[YY] = (Random::nextFloat() * 2 - 1) * GRID_FSIZE / 5.0f;
+            pbb->offset[ZZ] = (Random::nextFloat() * 2 - 1) * GRID_FSIZE / 5.0f;
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_randomize_vel ) )
         {
             // make the text fly away in a random direction
-            pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
-            pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
-            pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            pbb->offset_add[XX] += (Random::nextFloat() * 2 - 1) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            pbb->offset_add[YY] += (Random::nextFloat() * 2 - 1) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            pbb->offset_add[ZZ] += (Random::nextFloat() * 2 - 1) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_fade ) )

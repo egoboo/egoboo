@@ -1018,35 +1018,35 @@ int randomize_action( int action, int slot )
 
     //---- actions that can be randomized, but are not left/right sensitive
     // D = dance
-    else if ( ACTION_IS_TYPE( action, D ) ) action = ACTION_TYPE( D ) + generate_randmask( 0, 3 );
+    else if ( ACTION_IS_TYPE( action, D ) ) action = ACTION_TYPE( D ) + Random::next(3);
 
     //---- handle all the normal attack/defense animations
     // U = unarmed
-    else if ( ACTION_IS_TYPE( action, U ) ) action = ACTION_TYPE( U ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, U ) ) action = ACTION_TYPE( U ) + diff + Random::next(1);
     // T = thrust
-    else if ( ACTION_IS_TYPE( action, T ) ) action = ACTION_TYPE( T ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, T ) ) action = ACTION_TYPE( T ) + diff + Random::next(1);
     // C = chop
-    else if ( ACTION_IS_TYPE( action, C ) ) action = ACTION_TYPE( C ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, C ) ) action = ACTION_TYPE( C ) + diff + Random::next(1);
     // S = slice
-    else if ( ACTION_IS_TYPE( action, S ) ) action = ACTION_TYPE( S ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, S ) ) action = ACTION_TYPE( S ) + diff + Random::next(1);
     // B = bash
-    else if ( ACTION_IS_TYPE( action, B ) ) action = ACTION_TYPE( B ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, B ) ) action = ACTION_TYPE( B ) + diff + Random::next(1);
     // L = longbow
-    else if ( ACTION_IS_TYPE( action, L ) ) action = ACTION_TYPE( L ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, L ) ) action = ACTION_TYPE( L ) + diff + Random::next(1);
     // X = crossbow
-    else if ( ACTION_IS_TYPE( action, X ) ) action = ACTION_TYPE( X ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, X ) ) action = ACTION_TYPE( X ) + diff + Random::next(1);
     // F = fling
-    else if ( ACTION_IS_TYPE( action, F ) ) action = ACTION_TYPE( F ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, F ) ) action = ACTION_TYPE( F ) + diff + Random::next(1);
     // P = parry/block
-    else if ( ACTION_IS_TYPE( action, P ) ) action = ACTION_TYPE( P ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, P ) ) action = ACTION_TYPE( P ) + diff + Random::next(1);
     // Z = zap
-    else if ( ACTION_IS_TYPE( action, Z ) ) action = ACTION_TYPE( Z ) + diff + generate_randmask( 0, 1 );
+    else if ( ACTION_IS_TYPE( action, Z ) ) action = ACTION_TYPE( Z ) + diff + Random::next(1);
 
     //---- these are passive actions
     // H = hurt
-    else if ( ACTION_IS_TYPE( action, H ) ) action = ACTION_TYPE( H ) + generate_randmask( 0, 3 );
+    else if ( ACTION_IS_TYPE( action, H ) ) action = ACTION_TYPE( H ) + Random::next(3);
     // K = killed
-    else if ( ACTION_IS_TYPE( action, K ) ) action = ACTION_TYPE( K ) + generate_randmask( 0, 3 );
+    else if ( ACTION_IS_TYPE( action, K ) ) action = ACTION_TYPE( K ) + Random::next(3);
 
     return action;
 }

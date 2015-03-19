@@ -341,7 +341,7 @@ extern "C"
 {
 #endif
 
-#define FACE_RANDOM  ((FACING_T)generate_randmask(0, 0xFFFF))
+#define FACE_RANDOM  ((FACING_T)Random::next(0xFFFF))
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -493,33 +493,12 @@ extern "C"
 #endif
 
 
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// My lil' random number table
-
-// swig chokes on the definition below
-#if defined(SWIG)
-#    define RANDIE_BITS    12
-#    define RANDIE_COUNT 4096
-#else
-#    define RANDIE_BITS   12
-#    define RANDIE_COUNT (1 << RANDIE_BITS)
-#endif
-
-#define RANDIE_MASK  ((Uint32)(RANDIE_COUNT - 1))
-#define RANDIE       randie[randindex & RANDIE_MASK ];  randindex++; randindex &= RANDIE_MASK
-
-    extern Uint32  randindex;
-    extern Uint16  randie[RANDIE_COUNT];   ///< My lil' random number table
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // prototypes of other math functions
 
     void make_turntosin( void );
-    void make_randie( void );
 
 // conversion functions
     FACING_T vec_to_facing( const float dx, const float dy );
@@ -535,7 +514,6 @@ extern "C"
 // random functions
     int generate_irand_pair( const IPair num );
     int generate_irand_range( const FRange num );
-    int generate_randmask( const int base, const Uint32 mask );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

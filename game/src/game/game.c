@@ -3472,7 +3472,7 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
     // set the frame
     for ( layer = 0; layer < layer_count; layer++ )
     {
-        inst[layer].frame = ( Uint16 )generate_randmask( 0 , WATERFRAMEAND );
+        inst[layer].frame = ( Uint16 )Random::next(WATERFRAMEAND);
     }
 
     if ( NULL != data )

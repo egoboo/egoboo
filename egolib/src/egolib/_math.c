@@ -22,16 +22,13 @@
 /// @details This is the remainder of non-inlined math functions that deal with initialization
 
 #include "egolib/_math.h"
-
+#include "egolib/Math/Random.hpp"
 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine
-
-Uint32  randindex = 0;
-Uint16  randie[RANDIE_COUNT];
 
 //--------------------------------------------------------------------------------------------
 void make_turntosin( void )
@@ -49,32 +46,6 @@ void make_turntosin( void )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void make_randie( void )
-{
-    /// @author ZZ
-    /// @details This function makes the random number table
-    int tnc, cnt;
-
-    // Fill in the basic values
-    for ( cnt = 0; cnt < RANDIE_COUNT; cnt++ )
-    {
-        randie[cnt] = 0;
-    }
-
-    // Keep adjusting those values
-    for ( tnc = 0; tnc < 20; tnc++ )
-    {
-        for ( cnt = 0; cnt < RANDIE_COUNT; cnt++ )
-        {
-            randie[cnt] = ( randie[cnt] << 1 ) + rand();
-        }
-    }
-
-    // All done
-    randindex = 0;
-}
-
 
 // conversion functions
     FACING_T vec_to_facing( const float dx, const float dy );
@@ -90,7 +61,6 @@ void make_randie( void )
 // random functions
     int generate_irand_pair( const IPair num );
     int generate_irand_range( const FRange num );
-    int generate_randmask( const int base, const Uint32 mask );
 
 // matrix functions
 
@@ -209,7 +179,7 @@ int generate_irand_pair( const IPair num )
     /// @details This function generates a random number
 
     int tmp;
-    int irand = RANDIE;
+    int irand = Random::next(std::numeric_limits<uint16_t>::max());
 
     tmp = num.base;
     if ( num.rand > 1 )
@@ -231,19 +201,4 @@ int generate_irand_range( const FRange num )
     range_to_pair( num, &loc_pair );
 
     return generate_irand_pair( loc_pair );
-}
-
-//--------------------------------------------------------------------------------------------
-int generate_randmask( const int base, const Uint32 mask )
-{
-    /// @author ZZ
-    /// @details This function generates a random number
-
-    int tmp;
-    int irand = RANDIE;
-
-    tmp = base;
-    tmp += irand & mask;
-
-    return tmp;
 }

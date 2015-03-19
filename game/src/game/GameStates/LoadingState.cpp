@@ -173,7 +173,6 @@ void LoadingState::loadModuleData()
     BillboardList_init_all();
 
     //initialize math objects
-    make_randie();
     make_turntosin();
 
     // Linking system

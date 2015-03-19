@@ -862,7 +862,7 @@ void mesh_select_jitter( select_lst_t * plst )
     {
 		Uint32 vert = plst->which[cnt];
 
-        move_vert( plst->pmesh,  vert, ( rand() % 3 ) - 1, ( rand() % 3 ) - 1, 0 );
+        move_vert( plst->pmesh,  vert, ( Random::next(2) ) - 1, ( Random::next(2) ) - 1, 0 );
     }
 }
 
@@ -1004,15 +1004,15 @@ void mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16
                         break;
 
                     case 1:
-                        tx_bits |= ( tx & 0xFE ) + ( rand() & 1 );
+                        tx_bits |= ( tx & 0xFE ) + Random::next(1);
                         break;
 
                     case 2:
-                        tx_bits |= ( tx & 0xFC ) + ( rand() & 3 );
+                        tx_bits |= ( tx & 0xFC ) + Random::next(3);
                         break;
 
                     case 3:
-                        tx_bits |= ( tx & 0xF8 ) + ( rand() & 7 );
+                        tx_bits |= ( tx & 0xF8 ) + Random::next(7);
                         break;
 
                     default:
@@ -1167,7 +1167,7 @@ void jitter_mesh( cartman_mpd_t * pmesh )
             }
 
             // jitter the tile verts
-            mesh_select_move( &loc_lst, ( rand()&7 ) - 3, ( rand()&7 ) - 3, ( rand()&63 ) - 32 );
+            mesh_select_move( &loc_lst, Random::next(-3, 4), Random::next(-3, 4), Random::next(-32, 31) );
         }
     }
 }
@@ -1235,13 +1235,13 @@ void clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, U
                         tx_bits |= tx & 0xFF;
                         break;
                     case 1:
-                        tx_bits |= ( tx & 0xFE ) | ( rand() & 1 );
+                        tx_bits |= ( tx & 0xFE ) | Random::next(1);
                         break;
                     case 2:
-                        tx_bits |= ( tx & 0xFC ) | ( rand() & 3 );
+                        tx_bits |= ( tx & 0xFC ) | Random::next(3);
                         break;
                     case 3:
-                        tx_bits |= ( tx & 0xF8 ) | ( rand() & 7 );
+                        tx_bits |= ( tx & 0xF8 ) | Random::next(7);
                         break;
                     default:
                         tx_bits = pfan->tx_bits;
@@ -1250,8 +1250,8 @@ void clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, U
                 pfan->tx_bits = tx_bits;
 
                 loc_type = type;
-                if ( loc_type <= 1 ) loc_type = rand() & 1;
-                if ( loc_type == 32 || loc_type == 33 ) loc_type = 32 + ( rand() & 1 );
+                if ( loc_type <= 1 ) loc_type = Random::next(1);
+                if ( loc_type == 32 || loc_type == 33 ) loc_type = 32 + Random::next(1);
                 pfan->type = loc_type;
 
                 pmesh->add_pfan(pfan, mapx * TILE_ISIZE, mapy * TILE_ISIZE);
@@ -1685,7 +1685,7 @@ Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
     if ( tile_is_different( pmesh,  mapx, mapy - 1, fx_bits, 0xC0 ) )
     {
         // Top
-        code = ( rand() & 2 ) + 20;
+        code = Random::next(1) * 2 + 20;
         if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xC0 ) )
         {
             // Left
@@ -1703,7 +1703,7 @@ Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
     if ( tile_is_different( pmesh,  mapx, mapy + 1, fx_bits, 0xC0 ) )
     {
         // Bottom
-        code = ( rand() & 2 );
+        code = Random::next(1) * 2;
         if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xC0 ) )
         {
             // Left
@@ -1720,14 +1720,14 @@ Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
     if ( tile_is_different( pmesh,  mapx - 1, mapy, fx_bits, 0xC0 ) )
     {
         // Left
-        code = ( rand() & 2 ) + 16;
+        code = Random::next(1) * 2 + 16;
         return code;
     }
 
     if ( tile_is_different( pmesh,  mapx + 1, mapy, fx_bits, 0xC0 ) )
     {
         // Right
-        code = ( rand() & 2 ) + 4;
+        code = Random::next(1) * 2 + 4;
         return code;
     }
 
@@ -1845,13 +1845,13 @@ void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan,
             tx_bits |= _tx & 0xFF;
             break;
         case 1:
-            tx_bits |= ( _tx & 0xFE ) | ( rand() & 1 );
+            tx_bits |= ( _tx & 0xFE ) | Random::next(1);
             break;
         case 2:
-            tx_bits |= ( _tx & 0xFC ) | ( rand() & 3 );
+            tx_bits |= ( _tx & 0xFC ) | Random::next(3);
             break;
         case 3:
-            tx_bits |= ( _tx & 0xF8 ) | ( rand() & 7 );
+            tx_bits |= ( _tx & 0xF8 ) | Random::next(7);
             break;
         default:
             tx_bits = pfan->tx_bits;

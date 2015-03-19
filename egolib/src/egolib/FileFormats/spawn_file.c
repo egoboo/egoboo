@@ -171,7 +171,7 @@ Again:
 
         if (info->skin >= MAX_SKIN)
         {
-            int irand = RANDIE;
+            int irand = Random::next(std::numeric_limits<uint16_t>::max());
             info->skin = irand % MAX_SKIN;     // Randomize skin?
         }
 
