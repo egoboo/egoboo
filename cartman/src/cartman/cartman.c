@@ -437,11 +437,11 @@ void Views::render_tile_window(std::shared_ptr<Cartman_Window> pwin, float zoom_
     glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT );
     {
         // set the viewport transformation
-        glViewport( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setViewportRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
 
         // clip the viewport
 		Ego::Renderer::get().setScissorTestEnabled(true);
-        glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
         {
@@ -502,11 +502,11 @@ void Views::render_fx_window(std::shared_ptr<Cartman_Window> pwin, float zoom_hr
     glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT );
     {
         // set the viewport transformation
-        glViewport( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setViewportRectangle(pwin->x, sdl_scr.y - (pwin->y + pwin->surfacey), pwin->surfacex, pwin->surfacey);
 
         // clip the viewport
 		Ego::Renderer::get().setScissorTestEnabled(true);
-        glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - (pwin->y + pwin->surfacey), pwin->surfacex, pwin->surfacey);
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
         {
@@ -560,11 +560,11 @@ void Views::render_vertex_window(std::shared_ptr<Cartman_Window> pwin, float zoo
     glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT );
     {
         // set the viewport transformation
-        glViewport( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setViewportRectangle(pwin->x, sdl_scr.y - (pwin->y + pwin->surfacey), pwin->surfacex, pwin->surfacey);
 
         // clip the viewport
 		Ego::Renderer::get().setScissorTestEnabled(true);
-        glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - (pwin->y + pwin->surfacey), pwin->surfacex, pwin->surfacey);
 
         cartman_begin_ortho_camera_hrz( pwin, &cam, zoom_hrz, zoom_hrz );
         {
@@ -628,11 +628,11 @@ void Views::render_side_window(std::shared_ptr<Cartman_Window> pwin, float zoom_
     glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_ENABLE_BIT );
     {
         // set the viewport transformation
-        glViewport( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setViewportRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
 
         // clip the viewport
 		Ego::Renderer::get().setScissorTestEnabled(true);
-        glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
 
         cartman_begin_ortho_camera_vrt( pwin, &cam, zoom_hrz, zoom_vrt * 2.0f );
         {
@@ -692,7 +692,7 @@ void render_window(std::shared_ptr<Cartman_Window> pwin)
     glPushAttrib( GL_SCISSOR_BIT );
     {
 		Ego::Renderer::get().setScissorTestEnabled(true);
-        glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
+        Ego::Renderer::get().setScissorRectangle(pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey);
 
         make_onscreen( pwin->pmesh );
 

@@ -172,10 +172,58 @@ struct orientation_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/**
+ * @brief
+ *  Tracks the extrema and the sum of translations.
+ * @remark
+ *  Given a set of translation vectors \f$t_0,t_1,t_2,\ldots,t_n\f$
+ *  the minimum of the translations is defined as
+ *  \f[
+ *  \left(
+ *  min(t_{0_x},\ldots,t_{n_x}),
+ *  min(t_{0_y},\ldots,t_{n_y}),
+ *  min(t_{0_z},\ldots,t_{n_z})
+ *  \right)
+ *  \f]
+ *  and the maximum as
+ *  \f[
+ *  \left(
+ *  max(t_{0_x},\ldots,t_{n_x}),
+ *  max(t_{0_y},\ldots,t_{n_y}),
+ *  max(t_{0_z},\ldots,t_{n_z})
+ *  \right)
+ *  \f]
+ *  The sum of the translations is
+ *  \[
+ *  \sum_{i=0}^n t_i
+ *  \]
+ *  If the set of translations is empty, the minimum, the maximum and the sum are all 0.
+ */
 struct apos_t
 {
+    
+    /**
+     * @brief
+     *  The minimum of the translations.
+     * @default
+     *  <tt>(0,0,0)</tt>
+     */
     fvec3_t mins;
+    
+    /**
+     * @brief
+     *  The maximum of the translations.
+     * @default
+     *  <tt>(0,0,0)</tt>
+     */
     fvec3_t maxs;
+
+    /**
+     * @brief
+     *  The translation induced by the translation sequence.
+     * @default
+     *  <tt>(0,0,0)</tt>
+     */
     fvec3_t sum;
 
 	apos_t() :

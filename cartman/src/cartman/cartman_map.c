@@ -219,9 +219,9 @@ void cartman_mpd_make_twist( cartman_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 int cartman_mpd_t::get_ifan(int mapx, int mapy)
 {
-    if (mapy >= 0 && mapy < info.tiles_y && mapy < MAP_TILEY_MAX)
+    if (mapy >= 0 && mapy < info.tiles_y && mapy < MAP_TILE_MAX_Y)
     {
-        if (mapx >= 0 && mapx < info.tiles_x && mapx < MAP_TILEY_MAX)
+        if (mapx >= 0 && mapx < info.tiles_x && mapx < MAP_TILE_MAX_X)
         {
             return fanstart2[mapy] + mapx;
         }
@@ -807,56 +807,51 @@ int cartman_mpd_t::get_ivrt_xy(int mapx, int mapy, int index)
 }
 
 //--------------------------------------------------------------------------------------------
-cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_src )
+cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
 {
-    int itile_src, ifan_dst, ivrt_src;
-
-    map_mem_t    * pmem_src;
-    map_info_t   * pinfo_src;
-    tile_info_t  * fan_ary_src;
-    map_vertex_t * vrt_ary_src;
-
-    if ( NULL == pmesh_src ) return NULL;
-    pmem_src = &( pmesh_src->mem );
-    pinfo_src = &( pmesh_src->info );
-    fan_ary_src = pmem_src->tile_list;
-    vrt_ary_src = pmem_src->vlst;
+    if (!src || !dst)
+    {
+        return nullptr;
+    }
+    
+    map_mem_t *mem_src = &(src->_mem);
+    map_info_t *info_src = &(src->_info);
 
     // Reset the destination mesh.
-    if (!pmesh_dst->reset())
+    if (!dst->reset())
     {
         return nullptr;
     }
 
     // set up the destination mesh from the source mesh
-    cartman_mpd_info_init(&(pmesh_dst->info), pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y);
+    cartman_mpd_info_init(&(dst->info), info_src->vertexCount, info_src->tileCountX, info_src->tileCountY);
 
     // copy all the per-tile info
-    for ( itile_src = 0; itile_src < pmesh_dst->info.tiles_count; itile_src++ )
+    for (int itile_src = 0; itile_src < dst->info.tiles_count; itile_src++ )
     {
-        tile_info_t        * ptile_src = fan_ary_src + itile_src;
-        cartman_mpd_tile_t * pfan_dst  = &(pmesh_dst->fan2[itile_src]);
+        const tile_info_t& ptile_src = mem_src->tiles[itile_src];
+        cartman_mpd_tile_t *pfan_dst  = &(dst->fan2[itile_src]);
 
-        pfan_dst->type     = ptile_src->type;
-        pfan_dst->tx_bits  = ptile_src->img;
-        pfan_dst->fx       = ptile_src->fx;
-        pfan_dst->twist    = ptile_src->twist;
+        pfan_dst->type     = ptile_src.type;
+        pfan_dst->tx_bits  = ptile_src.img;
+        pfan_dst->fx       = ptile_src.fx;
+        pfan_dst->twist    = ptile_src.twist;
     }
 
     // store the vertices in the vertex chain for editing
-    for (ifan_dst = 0, ivrt_src = 0; ifan_dst < pmesh_dst->info.tiles_count; ifan_dst++)
+    for (int ifan_dst = 0, ivrt_src = 0; ifan_dst < dst->info.tiles_count; ifan_dst++)
     {
         int ivrt_dst, cnt;
         int vert_count, allocate_rv;
 
-        map_vertex_t         * pvrt_src = NULL;
+        
         Cartman::mpd_vertex_t * pvrt_dst = NULL;
 
         // use the data that was transferred to the destination fan
-        cartman_mpd_tile_t *pfan_dst = &(pmesh_dst->fan2[ifan_dst]);
+        cartman_mpd_tile_t& fan_dst = dst->fan2[ifan_dst];
 
         // check for valid fan type
-        tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan_dst->type);
+        tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, fan_dst.type);
         if (!pdef)
         {
             log_warning( "%s - invalid fan type in fan # %d\n", __FUNCTION__, ifan_dst );
@@ -866,7 +861,7 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
         // get an appropriate number of vertices from the tile definition
         if ( 0 == pdef->numvertices )
         {
-            log_warning( "%s - undefined fan type %d in fan # %d\n", __FUNCTION__, pfan_dst->type, ifan_dst );
+            log_warning( "%s - undefined fan type %d in fan # %d\n", __FUNCTION__, fan_dst.type, ifan_dst );
             vert_count = 4;
         }
         else
@@ -877,12 +872,12 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
         // check for valid vertex count
         if ( vert_count > MAP_FAN_VERTICES_MAX )
         {
-            log_warning( "%s - too many vertices in fan type %d in fan # %d\n", __FUNCTION__, pfan_dst->type, ifan_dst );
+            log_warning( "%s - too many vertices in fan type %d in fan # %d\n", __FUNCTION__, fan_dst.type, ifan_dst );
             goto cartman_mpd_convert_fail;
         }
 
         // allocate the vertices
-        allocate_rv = cartman_mpd_allocate_verts( pmesh_dst, vert_count );
+        allocate_rv = cartman_mpd_allocate_verts(dst, vert_count);
         if ( -1 == allocate_rv )
         {
             log_warning( "%s - could not allocate enough vertices for the mesh at fan # %d\n", __FUNCTION__, ifan_dst );
@@ -890,10 +885,10 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
         }
 
         // set the fan's vertex start position
-        pfan_dst->vrtstart = allocate_rv;
+        fan_dst.vrtstart = allocate_rv;
 
         // fill in the vertex values
-        for ( cnt = 0, ivrt_dst = pfan_dst->vrtstart, pvrt_dst = NULL;
+        for ( cnt = 0, ivrt_dst = fan_dst.vrtstart, pvrt_dst = NULL;
               cnt < vert_count;
               cnt++, ivrt_dst = pvrt_dst->next, ivrt_src++ )
         {
@@ -903,21 +898,21 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
                 goto cartman_mpd_convert_fail;
             }
 
-            pvrt_src = vrt_ary_src + ivrt_src;
-            pvrt_dst = &(pmesh_dst->vrt2[ivrt_dst]);
+            const map_vertex_t& pvrt_src = mem_src->vertices[ivrt_src];
+            pvrt_dst = &(dst->vrt2[ivrt_dst]);
 
-            pvrt_dst->x = pvrt_src->pos.x;
-            pvrt_dst->y = pvrt_src->pos.y;
-            pvrt_dst->z = pvrt_src->pos.z;
-            pvrt_dst->a = std::max( pvrt_src->a, (Uint8)1 );  // force a != VERTEXUNUSED
+            pvrt_dst->x = pvrt_src.pos.x;
+            pvrt_dst->y = pvrt_src.pos.y;
+            pvrt_dst->z = pvrt_src.pos.z;
+            pvrt_dst->a = std::max(pvrt_src.a, (Uint8)(VERTEXUNUSED+1));  // force a != VERTEXUNUSED
         };
     }
 
-    return pmesh_dst;
+    return dst;
 
 cartman_mpd_convert_fail:
 
-    pmesh_dst->reset();
+    dst->reset();
 
     return nullptr;
 }
@@ -933,53 +928,54 @@ cartman_mpd_t * cartman_mpd_finalize( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
+map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
 {
-    if ( NULL == pmesh_src ) return NULL;
-    cartman_mpd_info_t *pinfo_src = &(pmesh_src->info);
+    if (!dst || !src)
+    {
+        return nullptr;
+    }
+    cartman_mpd_info_t& info_src = src->info;
 
-    // clear out all data in the destination mesh
-    if ( NULL == map_renew( pmesh_dst ) ) return NULL;
+    // Clear out all data in the destination mesh.
+    dst->setInfo();
 
-    // make sure we have an accurate vertex count
-    pinfo_src->vertex_count = pmesh_src->count_used_vertices();
+    // Make sure we have the accurate(!) vertx count.
+    info_src.vertex_count = src->count_used_vertices();
 
-    // allocate the correct size for the destination mesh
+    // Allocate the correct size for the destination mesh.
     map_info_t loc_info_dst;
-    loc_info_dst.tiles_x   = pinfo_src->tiles_x;
-    loc_info_dst.tiles_y   = pinfo_src->tiles_y;
-    loc_info_dst.vertcount = pinfo_src->vertex_count;
-    map_init( pmesh_dst, &loc_info_dst );
+    loc_info_dst.tileCountX  = info_src.tiles_x;
+    loc_info_dst.tileCountY  = info_src.tiles_y;
+    loc_info_dst.vertexCount = info_src.vertex_count;
+    dst->setInfo(loc_info_dst);
     
-    map_mem_t *pmem_dst = &(pmesh_dst->mem);
-    map_info_t *pinfo_dst = &(pmesh_dst->info);
-    tile_info_t *fan_ary_dst = pmem_dst->tile_list;
-    map_vertex_t *vrt_ary_dst = pmem_dst->vlst;
+    map_mem_t *pmem_dst = &(dst->_mem);
+    map_info_t *pinfo_dst = &(dst->_info);
 
     // revert the tile information
-    for (size_t cnt = 0; cnt < pinfo_src->tiles_count; cnt++ )
+    for (size_t cnt = 0; cnt < info_src.tiles_count; cnt++ )
     {
-        tile_info_t *fan_ary_dst = pmem_dst->tile_list;
-        tile_info_t *ptile_dst = fan_ary_dst + cnt;
-        cartman_mpd_tile_t *pfan_src = &(pmesh_src->fan2[cnt]);
+        tile_info_t& tile_dst = pmem_dst->tiles[cnt];
+        cartman_mpd_tile_t& tile_src = src->fan2[cnt];
 
-        ptile_dst->type   = pfan_src->type;
-        ptile_dst->img    = pfan_src->tx_bits;
-        ptile_dst->fx     = pfan_src->fx;
-        ptile_dst->twist  = pfan_src->twist;
+        tile_dst.type   = tile_src.type;
+        tile_dst.img    = tile_src.tx_bits;
+        tile_dst.fx     = tile_src.fx;
+        tile_dst.twist  = tile_src.twist;
     }
 
     // revert the vertex information
-    for (int itile = 0, ivrt_dst = 0; itile < pinfo_src->tiles_count; itile++ )
+    for (int itile = 0, ivrt_dst = 0; itile < info_src.tiles_count; itile++ )
     {
+
         // grab the source fan
-        cartman_mpd_tile_t *pfan_src = &(pmesh_src->fan2[itile]);
+        const cartman_mpd_tile_t& fan_src = src->fan2[itile];
 
         // is the type valid?
-        tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, pfan_src->type);
-        if ( NULL == pdef )
+        tile_definition_t *pdef = TILE_DICT_PTR(tile_dict, fan_src.type);
+        if (!pdef)
         {
-            log_warning("%s:%d: invalid fan type %d used in the mesh\n", __FILE__, __LINE__, pfan_src->type );
+            log_warning("%s:%d: invalid fan type %d used in the mesh\n", __FILE__, __LINE__, fan_src.type);
             goto cartman_mpd_revert_fail;
         }
 
@@ -987,24 +983,24 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
         int vert_count = pdef->numvertices;
         if ( 0 == vert_count )
         {
-            log_warning("%s:%d: undefined fan type %d used in the mesh\n", __FILE__,__LINE__, pfan_src->type );
+            log_warning("%s:%d: undefined fan type %d used in the mesh\n", __FILE__,__LINE__, fan_src.type);
         }
         else if ( vert_count > MAP_FAN_VERTICES_MAX )
         {
-            log_warning("%s:%d: too many vertices %d used in tile type %d\n", __FILE__,__LINE__, vert_count, pfan_src->type );
+            log_warning("%s:%d: too many vertices %d used in tile type %d\n", __FILE__,__LINE__, vert_count, fan_src.type );
             goto cartman_mpd_revert_fail;
         }
 
         // is the initial vertex valid?
-        if ( !CART_VALID_VERTEX_RANGE( pfan_src->vrtstart ) )
+        if (!CART_VALID_VERTEX_RANGE(fan_src.vrtstart))
         {
-            log_warning("%s:%d: vertex %d is outside of valid vertex range\n", __FILE__, __LINE__, pfan_src->vrtstart );
+            log_warning("%s:%d: vertex %d is outside of valid vertex range\n", __FILE__, __LINE__, fan_src.vrtstart );
             goto cartman_mpd_revert_fail;
         }
 
-        Cartman::mpd_vertex_t *pvrt_src = NULL;
+        Cartman::mpd_vertex_t *pvrt_src = nullptr;
         int tnc, ivrt_src;
-        for ( tnc = 0, ivrt_src = pfan_src->vrtstart;
+        for ( tnc = 0, ivrt_src = fan_src.vrtstart;
               tnc < vert_count;
               tnc++, ivrt_src = pvrt_src->next, ivrt_dst++ )
         {
@@ -1016,7 +1012,7 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
             }
 
             // grab the src pointer
-            pvrt_src = &(pmesh_src->vrt2[ivrt_src]);
+            pvrt_src = &(src->vrt2[ivrt_src]);
 
             // check for VERTEXUNUSED
             if ( VERTEXUNUSED == pvrt_src->a )
@@ -1026,22 +1022,24 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
             }
 
             // grab the destination vertex
-            map_vertex_t *pvrt_dst = vrt_ary_dst + ivrt_dst;
+            map_vertex_t& pvrt_dst = pmem_dst->vertices[ivrt_dst];
 
-            pvrt_dst->pos.x = pvrt_src->x;
-            pvrt_dst->pos.y = pvrt_src->y;
-            pvrt_dst->pos.z = pvrt_src->z;
-            pvrt_dst->a     = pvrt_src->a;
+            pvrt_dst.pos.x = pvrt_src->x;
+            pvrt_dst.pos.y = pvrt_src->y;
+            pvrt_dst.pos.z = pvrt_src->z;
+            pvrt_dst.a     = pvrt_src->a;
         }
     }
 
-    return pmesh_dst;
+    return dst;
 
 cartman_mpd_revert_fail:
 
     // deallocate any dynamic memory
+    dst->setInfo();
+#if 0
     map_renew( pmesh_dst );
-
+#endif
     return NULL;
 }
 
@@ -1094,26 +1092,18 @@ cartman_mpd_t *cartman_mpd_load_vfs(cartman_mpd_t *self)
 
     // Create a raw map.
     map_t local;
-    if (!map_ctor(&local))
-    {
-        return nullptr;
-    }
 
     // Load the raw map.
-    if (!map_load("mp_data/level.mpd", &local))
+    if (!local.load("mp_data/level.mpd"))
     {
-        map_dtor(&local);
         return nullptr;
     }
 
     // Convert the raw map into a Cartman map.
     if (!cartman_mpd_convert(self, &local))
     {
-        map_dtor(&local);
         return nullptr;
     }
-
-    map_dtor(&local);
 
     // Do finishing calculations.
     if (!cartman_mpd_finalize(self))
@@ -1138,26 +1128,18 @@ cartman_mpd_t *cartman_mpd_save_vfs(cartman_mpd_t *self)
 
     // Construct a raw map.
     map_t local;
-    if (map_ctor(&local))
-    {
-        return nullptr;
-    }
 
     // Convert the map map into a raw map.
     if (!cartman_mpd_revert(&local, self))
     {
-        map_dtor(&local);
         return nullptr;
     }
 
     // Save the raw map.
-    if (!map_save("mp_data/level.mpd", &local))
+    if (!local.save("mp_data/level.mpd"))
     {
-        map_dtor(&local);
         return nullptr;
     }
-
-    map_dtor(&local);
 
     return self;
 }

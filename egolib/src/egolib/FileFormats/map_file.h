@@ -21,6 +21,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
+#include "egolib/Exception.hpp"
 #include "egolib/Math/Vector.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -30,9 +31,19 @@
 
 // mesh constants
 #   define MAP_ID_BASE               0x4D617041 //'MapA'        ///< The string... MapA
-#   define MAP_TILEY_MAX             1024                       ///< Max tiles in y direction
-#   define MAP_TILE_MAX              (512*512)                  ///< Terrain mesh size
-#   define MAP_VERTICES_MAX          (MAP_TILE_MAX*MAP_FAN_VERTICES_MAX)
+
+/// The maximum number of tiles in x direction.
+#define MAP_TILE_MAX_X 1024
+/// The maximum number of tiles in y direction.
+#define MAP_TILE_MAX_Y 1024
+/// The maximum number of tiles.
+#define MAP_TILE_MAX (MAP_TILE_MAX_X * MAP_TILE_MAX_Y)
+/// The maximum number of vertices.
+#define MAP_VERTICES_MAX (MAP_TILE_MAX*MAP_FAN_VERTICES_MAX)
+
+static_assert(MAP_TILE_MAX_X <= UINT32_MAX, "MAP_TILE_MAX_X may not exceed UINT32_MAX");
+static_assert(MAP_TILE_MAX_Y <= UINT32_MAX, "MAP_TILE_MAX_Y may not exceed UINT32_MAX");
+static_assert(MAP_TILE_MAX <= UINT32_MAX, "MAP_TILE_MAX may not exceed UINT32_MAX");
 
 #   define TILE_BITS   7
 #   define TILE_ISIZE (1<<TILE_BITS)
@@ -85,63 +96,191 @@
 //--------------------------------------------------------------------------------------------
 
 /// The basic parameters needed to create an mpd
-    struct map_info_t
+struct map_info_t
+{
+    /// The number of vertices.
+    Uint32 vertexCount;
+    /// The number of tiles in the x direction.
+    Uint32 tileCountX;
+    /// The number of tiles in the y direction.
+    Uint32 tileCountY;
+
+    /**
+     * @brief
+     *  Get the number of vertices.
+     * @return
+     *  the number of vertices
+     */
+    Uint32 getVertexCount() const
     {
-        size_t          vertcount;                        ///< For malloc
-        int             tiles_x;                          ///< Size in tiles
-        int             tiles_y;
-    };
+        return vertexCount;
+    }
+
+    /**
+     * @brief
+     *  Get the number of tiles in the x direction.
+     * @return
+     *  the number of tiles in the x direction
+     */
+    Uint32 getTileCountX() const
+    {
+        return tileCountX;
+    }
+
+    /**
+     * @brief
+     *  Load creation parameters from a file.
+     * @param file
+     *  the source file
+     */
+    void load(vfs_FILE& file);
+
+    /**
+     * @brief
+     *  Save creation parameters to a file.
+     * @param file
+     *  the target file
+     */
+    void save(vfs_FILE& file) const;
+
+    /**
+     * @brief
+     *  Validate creation parameters.
+     * @return
+     *  @a true if the creation parameters are valid, @a false otherwise
+     */
+    bool validate() const;
+
+    /**
+     * @brief
+     *  Reset this creation parameters to their default values.
+     * @remark
+     *  The default values are for an empty map.
+     */
+    void reset();
+
+    /**
+     * @brief
+     *  Default constructor.
+     * @remark
+     *  The default values are for an empty map.
+     */
+    map_info_t();
+
+    /**
+     * @brief
+     *  Copy constructor.
+     * @param other
+     *  the source of the copy operation
+     */
+    map_info_t(const map_info_t& other);
+
+    /**
+     * @brief
+     *  Assignment operator.
+     * @param other
+     *  the source of the copy operation
+     */
+    map_info_t& operator=(const map_info_t& other);
+
+};
 
 //--------------------------------------------------------------------------------------------
 
-/// The data describing a mpd tile
-    struct tile_info_t
-    {
-        Uint8   type;                              ///< Tile type
-        Uint16  img;                               ///< Get texture from this
-        Uint8   fx;                                ///< Special effects flags
-        Uint8   twist;
-    };
+/// The information for an mpd tile.
+struct tile_info_t
+{
+    Uint8   type;   ///< Tile type
+    Uint16  img;    ///< Get texture from this
+    Uint8   fx;     ///< Special effects flags
+    Uint8   twist;
+};
 
 //--------------------------------------------------------------------------------------------
 
-/// The information for a single mpd vertex
-    struct map_vertex_t
-    {
-        fvec3_t    pos;                               ///< Vertex position
-        Uint8      a;                                 ///< Vertex base light
-    };
+/// The information for a single mpd vertex.
+struct map_vertex_t
+{
+    fvec3_t pos; ///< Vertex position.
+    Uint8 a;     ///< Vertex base light.
+};
 
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the dynamically allocated memory in an mpd
-    struct map_mem_t
-    {
-        size_t          tile_count;                       ///< Number of tiles
-        tile_info_t *   tile_list;                        ///< Tile info
-
-        size_t          vcount;                           ///< number of vertices
-        map_vertex_t *  vlst;                             ///< list of vertices
-    };
+struct map_mem_t
+{
+    std::vector<tile_info_t> tiles;
+    std::vector<map_vertex_t> vertices;
+    map_mem_t();
+    map_mem_t(uint32_t tileCount,uint32_t vertexCount);
+    virtual ~map_mem_t();
+    void setInfo(uint32_t tileCount, uint32_t vertexCount);
+};
 
 //--------------------------------------------------------------------------------------------
 
 /// The data describing a single mpd
-    struct map_t
-    {
-        map_info_t info;
-        map_mem_t   mem;
-    };
+struct map_t
+{
+public:
+    map_info_t _info;
+    map_mem_t _mem;
+public:
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+    /**
+     * @brief
+     *  Create this map.
+     * @param info
+     *  the map info. Default is an empty map.
+     */
+    map_t(const map_info_t& info = map_info_t());
 
-/// the raw mpd loader
-    map_t *map_load(const char *modname, map_t *map);
-    map_t *map_save(const char *modname, map_t *map);
+    /**
+     * @brief
+     *  Destruct this map.
+     */
+    virtual ~map_t();
 
-    map_t *map_ctor(map_t *self);
-    map_t *map_dtor(map_t *self);
-    map_t *map_renew(map_t *self);
-    bool map_free(map_t *self);
-    bool map_init(map_t *self, map_info_t *info);
+    /**
+     * @brief
+     *  Set the map info.
+     * @param info
+     *  the map info. Default is an empty map.
+     */
+    bool setInfo(const map_info_t& info = map_info_t());
+
+    /**
+     * @brief
+     *  Load a map from a file.
+     * @param file
+     *  the file to load the map from
+     */
+    bool load(vfs_FILE& file);
+
+    /**
+     * @brief
+     *  Load a map from a file.
+     * @param name
+     *  the name to load the map from
+     */
+    bool load(const char *name);
+
+    /**
+     * @brief
+     *  Save a map to a file.
+     * @param file
+     *  the file to save the map to
+     */
+    bool save(vfs_FILE& file) const;
+
+    /**
+     * @brief
+     *  Save a map to a file.
+     * @param name
+     *  the name to save the map to
+     */
+    bool save(const char *name) const;
+
+};
+

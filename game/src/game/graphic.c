@@ -1533,14 +1533,14 @@ int gfx_system_init_OpenGL()
 
     // Set clear colour and clear depth.
     Ego::Renderer::get().setClearColour(Ego::Math::Colour4f(0,0,0,0));
-    GL_DEBUG( glClearDepth )( 1.0f );
+    GL_DEBUG(glClearDepth)(1.0f);
 
     // depth buffer stuff
-    GL_DEBUG( glDepthMask )( GL_TRUE );
+    Ego::Renderer::get().setDepthWriteEnabled(true);
 
     // do not draw hidden surfaces
 	Ego::Renderer::get().setDepthTestEnabled(true);
-    GL_DEBUG( glDepthFunc )( GL_LESS );
+    Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::Less);
 
     // Disable blending.
     Ego::Renderer::get().setBlendingEnabled(false);
@@ -1598,25 +1598,25 @@ void gfx_system_init_SDL_graphics()
 
     //ego_init_SDL_base();
 
-    log_info( "Intializing SDL Video... " );
-    if ( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 )
+    log_info("Intializing SDL Video... ");
+    if (SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0)
     {
-        log_message( "Failed!\n" );
-        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
+        log_message("Failed!\n" );
+        log_warning("SDL error == \"%s\"\n", SDL_GetError());
     }
     else
     {
-        log_message( "Success!\n" );
+        log_message("Success!\n");
     }
 
 #if !defined(__APPLE__)
     {
         //Setup the cute windows manager icon, don't do this on Mac
         SDL_Surface *theSurface;
-        const char * fname = "icon.bmp";
+        const char *fname = "icon.bmp";
         STRING fileload;
 
-        snprintf( fileload, SDL_arraysize( fileload ), "mp_data/%s", fname );
+        snprintf(fileload, SDL_arraysize( fileload ), "mp_data/%s", fname);
 
         theSurface = IMG_Load_RW(vfs_openRWopsRead(fileload), 1);
         if ( NULL == theSurface )
@@ -3682,7 +3682,7 @@ gfx_rv render_scene_mesh_ndr( const renderlist_t * prlist )
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
     {
         // store the surface depth
-        GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthWriteEnabled(true);
 
         // do not draw hidden surfaces
 		Ego::Renderer::get().setDepthTestEnabled(true);
@@ -3732,7 +3732,7 @@ gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist )
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
     {
         // DO NOT store the surface depth
-        GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthWriteEnabled(false);
 
         // do not draw hidden surfaces
 		Ego::Renderer::get().setDepthTestEnabled(true);
@@ -3803,7 +3803,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
     {
         // don't write into the depth buffer (disable glDepthMask for transparent objects)
         // turn off the depth mask by default. Can cause glitches if used improperly.
-        GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthWriteEnabled(false);
 
         // do not draw hidden surfaces
 		Ego::Renderer::get().setDepthTestEnabled(true);
@@ -3893,7 +3893,7 @@ gfx_rv render_scene_mesh_ref_chr( const renderlist_t * prlist )
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
     {
         // set the depth of these tiles
-        GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthWriteEnabled(true);
 
         Ego::Renderer::get().setBlendingEnabled(true);
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
@@ -3944,7 +3944,7 @@ gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist )
 		Ego::Renderer::get().setDepthTestEnabled(true); // GL_ENABLE_BIT
 
         // store the surface depth
-        GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthWriteEnabled(true);
 
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
@@ -3987,7 +3987,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
     if ( !gfx.shaon ) return gfx_success;
 
     // don't write into the depth buffer (disable glDepthMask for transparent objects)
-    GL_DEBUG( glDepthMask )( GL_FALSE );
+    Ego::Renderer::get().setDepthWriteEnabled(false);
 
     // do not draw hidden surfaces
 	Ego::Renderer::get().setScissorTestEnabled(true);
@@ -4140,53 +4140,50 @@ gfx_rv render_scene_mesh( std::shared_ptr<Camera> pcam, const renderlist_t * prl
 gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
 {
     /// @detaile BB@> Render all solid objects
-
-    Uint32 cnt;
-    gfx_rv retval;
-
-    if ( NULL == pdolist )
+    
+    if (!pdolist)
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdolist->size >= dolist_t::CAPACITY )
+    if (pdolist->size >= dolist_t::CAPACITY)
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
     }
 
     // assume the best
-    retval = gfx_success;
+    gfx_rv retval = gfx_success;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT )
     {
         // scan for solid objects
-        for ( cnt = 0; cnt < pdolist->size; cnt++ )
+        for (size_t i = 0; i < pdolist->size; ++i)
         {
             // solid objects draw into the depth buffer for hidden surface removal
-            GL_DEBUG( glDepthMask )( GL_TRUE );                     // GL_ENABLE_BIT
+            Ego::Renderer::get().setDepthWriteEnabled(true);
 
             // do not draw hidden surfaces
-			Ego::Renderer::get().setDepthTestEnabled(true); // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_LESS );                       // GL_DEPTH_BUFFER_BIT
+			Ego::Renderer::get().setDepthTestEnabled(true);
+            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::Less);
 
             Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );             // GL_COLOR_BUFFER_BIT
 
-            if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
+            if ( INVALID_PRT_REF == pdolist->lst[i].iprt && VALID_CHR_RANGE( pdolist->lst[i].ichr ) )
             {
-                if ( gfx_error == render_one_mad_solid( pcam, pdolist->lst[cnt].ichr ) )
+                if ( gfx_error == render_one_mad_solid( pcam, pdolist->lst[i].ichr ) )
                 {
                     retval = gfx_error;
                 }
             }
-            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
+            else if ( INVALID_CHR_REF == pdolist->lst[i].ichr && VALID_PRT_RANGE( pdolist->lst[i].iprt ) )
             {
                 // draw draw front and back faces of polygons
                 oglx_end_culling();              // GL_ENABLE_BIT
 
-                if ( gfx_error == render_one_prt_solid( pdolist->lst[cnt].iprt ) )
+                if ( gfx_error == render_one_prt_solid( pdolist->lst[i].iprt ) )
                 {
                     retval = gfx_error;
                 }
@@ -4199,54 +4196,53 @@ gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
+gfx_rv render_scene_trans(std::shared_ptr<Camera> pcam, dolist_t *pdolist)
 {
     /// @author BB
     /// @details draw transparent objects
-
-    int cnt;
-    gfx_rv retval;
-
-    if ( NULL == pdolist )
+    
+    if (!pdolist)
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdolist->size >= dolist_t::CAPACITY )
+    if (pdolist->size >= dolist_t::CAPACITY)
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
     }
 
     // assume the best
-    retval = gfx_success;
+    gfx_rv retval = gfx_success;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT )
     {
         //---- set the the transparency parameters
 
         // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthWriteEnabled(false);
 
         // do not draw hidden surfaces
         Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );                     // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // Now render all transparent and light objects
-        for ( cnt = (( int )pdolist->size ) - 1; cnt >= 0; cnt-- )
+        for (size_t i = pdolist->size; i > 0; --i)
         {
-            if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && INVALID_CHR_REF != pdolist->lst[cnt].ichr )
+            size_t j = i - 1;
+            // A character.
+            if (INVALID_PRT_REF == pdolist->lst[j].iprt && INVALID_CHR_REF != pdolist->lst[j].ichr)
             {
-                if ( gfx_error == render_one_mad_trans( pcam, pdolist->lst[cnt].ichr ) )
+                if (gfx_error == render_one_mad_trans(pcam, pdolist->lst[j].ichr))
                 {
                     retval = gfx_error;
                 }
             }
-            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && INVALID_PRT_REF != pdolist->lst[cnt].iprt )
+            // A particle.
+            else if (INVALID_CHR_REF == pdolist->lst[j].ichr && INVALID_PRT_REF != pdolist->lst[j].iprt)
             {
-                // this is a particle
-                if ( gfx_error == render_one_prt_trans( pdolist->lst[cnt].iprt ) )
+                if (gfx_error == render_one_prt_trans( pdolist->lst[j].iprt))
                 {
                     retval = gfx_error;
                 }
@@ -4498,12 +4494,13 @@ gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF textu
         // flat shading
         GL_DEBUG( glShadeModel )( GL_FLAT );      // GL_LIGHTING_BIT
 
-        // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
+        // Do not write into the depth buffer.
+        Ego::Renderer::get().setDepthWriteEnabled(false);
 
-        // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
+        // Essentially disable the depth test without calling
+        // Ego::Renderer::get().setDepthTestEnabled(false).
 		Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG( glDepthFunc )( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::AlwaysPass);
 
         // draw draw front and back faces of polygons
         oglx_end_culling();    // GL_ENABLE_BIT
@@ -4649,12 +4646,13 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
             // flat shading
             GL_DEBUG( glShadeModel )( GL_FLAT );                             // GL_LIGHTING_BIT
 
-            // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );                             // GL_DEPTH_BUFFER_BIT
+            // Do not write into the depth buffer.
+            Ego::Renderer::get().setDepthWriteEnabled(false);
 
-            // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
+            // Essentially disable the depth test without calling
+            // Ego::Renderer::get().setDepthTestEnabled(false).
 			Ego::Renderer::get().setDepthTestEnabled(true);
-            GL_DEBUG( glDepthFunc )( GL_ALWAYS );                            // GL_DEPTH_BUFFER_BIT
+            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::AlwaysPass);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();                           // GL_ENABLE_BIT
@@ -5188,11 +5186,12 @@ void gfx_do_clear_screen()
 {
     if ( !gfx_page_clear_requested ) return;
 
-    // clear the depth buffer if anything was drawn
-    GL_DEBUG( glDepthMask )( GL_TRUE );
-    GL_DEBUG( glClear )( GL_DEPTH_BUFFER_BIT );
+    // Clear the depth buffer.
+    Ego::Renderer::get().setDepthWriteEnabled(true);
+    GL_DEBUG(glClear)(GL_DEPTH_BUFFER_BIT);
 
-    GL_DEBUG( glClear )( GL_COLOR_BUFFER_BIT );
+    // Clear the colour buffer.
+    GL_DEBUG(glClear)(GL_COLOR_BUFFER_BIT);
 
     gfx_page_clear_requested = false;
 

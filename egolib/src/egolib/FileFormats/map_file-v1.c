@@ -26,78 +26,52 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-map_t * map_read_v1( vfs_FILE * fileread, map_t * pmesh )
+bool map_read_v1(vfs_FILE *file, map_t *map)
 {
-    /// @author ZZ
-    /// @details This function loads the level.mpd file
-
-    Uint32 itile;
-    size_t tile_count;
-
-    Uint32 ui32_tmp;
-
-    map_mem_t   * pmem  = NULL;
-    tile_info_t * ptile = NULL;
-
-    // if there is no filename, fail
-    if ( NULL == fileread ) return pmesh;
-
-    // if there is no mesh struct, fail
-    if ( NULL == pmesh ) return pmesh;
-    pmem  = &( pmesh->mem );
-
-    // a valid number of tiles?
-    if ( 0 == pmem->tile_count || NULL == pmem->tile_list ) return pmesh;
-
-    // Load itile data
-    tile_count = pmem->tile_count;
-    for ( itile = 0; itile < tile_count; itile++ )
+    // Validate arguments.
+    if (!map || !file)
     {
-        ptile = pmem->tile_list + itile;
-
-        vfs_read_Uint32( fileread, &ui32_tmp );
-
-        ptile->type = CLIP_TO_08BITS( ui32_tmp >> 24 );
-        ptile->fx   = CLIP_TO_08BITS( ui32_tmp >> 16 );
-        ptile->img  = CLIP_TO_16BITS( ui32_tmp >>  0 );
+        return false;
     }
 
-    return pmesh;
+    // Alias.
+    auto& mem = map->_mem;
+
+    // Load tile data.
+    for (auto& tile : mem.tiles)
+    {
+        Uint32 ui32_tmp;
+        vfs_read_Uint32(file, &ui32_tmp);
+
+        tile.type = CLIP_TO_08BITS( ui32_tmp >> 24 );
+        tile.fx   = CLIP_TO_08BITS( ui32_tmp >> 16 );
+        tile.img  = CLIP_TO_16BITS( ui32_tmp >>  0 );
+    }
+
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-map_t * map_write_v1( vfs_FILE * filewrite, map_t * pmesh )
+bool map_write_v1(vfs_FILE *file, const map_t *map)
 {
-    size_t itile, tile_count;
-    Uint32 ui32_tmp;
-
-    map_mem_t   * pmem  = NULL;
-    tile_info_t * ptile = NULL;
-
-    // if there is no filename, fail
-    if ( NULL == filewrite ) return pmesh;
-
-    // if there is no mesh struct, fail
-    if ( NULL == pmesh ) return pmesh;
-    pmem  = &( pmesh->mem );
-
-    // a valid number of tiles?
-    if ( 0 == pmem->tile_count || NULL == pmem->tile_list ) return pmesh;
-
-    // write the fx data for each tile
-    tile_count = pmem->tile_count;
-    for ( itile = 0; itile < tile_count; itile++ )
+    // Validate arguments.
+    if (!map || !file)
     {
-        ptile = pmem->tile_list + itile;
-
-        ui32_tmp  = CLIP_TO_16BITS( ptile->img ) <<  0;
-        ui32_tmp |= CLIP_TO_08BITS( ptile->fx ) << 16;
-        ui32_tmp |= CLIP_TO_08BITS( ptile->type ) << 24;
-
-        vfs_write_Uint32( filewrite, ui32_tmp );
+        return false;
     }
 
-    return pmesh;
+    // Alias.
+    const auto& mem = map->_mem;
+
+    // Save tile data.
+    for (const auto& tile : mem.tiles)
+    {
+        Uint32 ui32_tmp;
+        ui32_tmp  = CLIP_TO_16BITS( tile.img ) <<  0;
+        ui32_tmp |= CLIP_TO_08BITS( tile.fx ) << 16;
+        ui32_tmp |= CLIP_TO_08BITS( tile.type ) << 24;
+
+        vfs_write_Uint32(file, ui32_tmp);
+    }
+
+    return true;
 }

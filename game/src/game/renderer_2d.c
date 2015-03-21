@@ -366,9 +366,9 @@ void gfx_disable_texturing()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_reshape_viewport( int w, int h )
+void gfx_reshape_viewport(int w, int h)
 {
-    GL_DEBUG( glViewport )( 0, 0, w, h );
+    Ego::Renderer::get().setViewportRectangle(0, 0, w, h);
 }
 
 //--------------------------------------------------------------------------------------------

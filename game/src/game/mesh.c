@@ -536,11 +536,6 @@ ego_mesh_t * ego_mesh_t::finalize( ego_mesh_t * pmesh )
 //--------------------------------------------------------------------------------------------
 bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
 {
-    
-
-    map_mem_t  * pmem_src;
-    map_info_t * pinfo_src;
-
     tile_mem_t * ptmem_dst;
     grid_mem_t * pgmem_dst;
     mpdfx_lists_t * plists_dst;
@@ -548,8 +543,8 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     bool allocated_dst;
 
     if ( NULL == pmesh_src ) return false;
-    pmem_src = &( pmesh_src->mem );
-    pinfo_src = &( pmesh_src->info );
+    map_mem_t  *pmem_src = &(pmesh_src->_mem);
+    map_info_t *pinfo_src = &(pmesh_src->_info);
 
     // clear out all data in the destination mesh
     if ( NULL == ego_mesh_t::renew( pmesh_dst ) ) return false;
@@ -559,7 +554,7 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     pinfo_dst  = &( pmesh_dst->info );
 
     // set up the destination mesh from the source mesh
-    ego_mesh_info_t::init( pinfo_dst, pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y );
+    ego_mesh_info_t::init( pinfo_dst, pinfo_src->vertexCount, pinfo_src->tileCountX, pinfo_src->tileCountY );
 
     allocated_dst = tile_mem_t::alloc( ptmem_dst, pinfo_dst );
     if ( !allocated_dst ) return false;
@@ -573,19 +568,19 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     // copy all the per-tile info
     for (Uint32 cnt = 0; cnt < pinfo_dst->tiles_count; cnt++)
     {
-        tile_info_t     * ptile_src = pmem_src->tile_list  + cnt;
-        ego_tile_info_t * ptile_dst = tile_mem_t::get(ptmem_dst,cnt);
-        ego_grid_info_t * pgrid_dst = grid_mem_t::get(pgmem_dst,cnt);
+        tile_info_t& ptile_src = pmem_src->tiles[cnt];
+        ego_tile_info_t *ptile_dst = tile_mem_t::get(ptmem_dst,cnt);
+        ego_grid_info_t *pgrid_dst = grid_mem_t::get(pgmem_dst,cnt);
 
         // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         // BLANK_STRUCT_PTR( ptile_dst )
-        ptile_dst->type         = ptile_src->type;
-        ptile_dst->img          = ptile_src->img;
+        ptile_dst->type         = ptile_src.type;
+        ptile_dst->img          = ptile_src.img;
 
         // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         // BLANK_STRUCT_PTR( pgrid_dst )
-        pgrid_dst->base_fx = ptile_src->fx;
-        pgrid_dst->twist   = ptile_src->twist;
+        pgrid_dst->base_fx = ptile_src.fx;
+        pgrid_dst->twist   = ptile_src.twist;
 
         // set the local fx flags
         pgrid_dst->wall_fx = pgrid_dst->base_fx;
@@ -596,16 +591,16 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     }
 
     // copy all the per-vertex info
-    for (Uint32 cnt = 0; cnt < pinfo_src->vertcount; cnt++ )
+    for (Uint32 cnt = 0; cnt < pinfo_src->vertexCount; cnt++ )
     {
         GLXvector3f     * ppos_dst = ptmem_dst->plst + cnt;
         GLXvector3f     * pcol_dst = ptmem_dst->clst + cnt;
-        map_vertex_t    * pvrt_src = pmem_src->vlst + cnt;
+        const map_vertex_t& pvrt_src = pmem_src->vertices[cnt];
 
         // copy all info from map_mem_t
-        ( *ppos_dst )[XX] = pvrt_src->pos.x;
-        ( *ppos_dst )[YY] = pvrt_src->pos.y;
-        ( *ppos_dst )[ZZ] = pvrt_src->pos.z;
+        ( *ppos_dst )[XX] = pvrt_src.pos.x;
+        ( *ppos_dst )[YY] = pvrt_src.pos.y;
+        ( *ppos_dst )[ZZ] = pvrt_src.pos.z;
 
         // default color
         ( *pcol_dst )[RR] = ( *pcol_dst )[GG] = ( *pcol_dst )[BB] = 0.0f;
@@ -617,10 +612,10 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
     for (Uint32 cnt = 0; cnt < pinfo_dst->tiles_count; cnt++ )
     {
         size_t vertex = tile_mem_t::get(ptmem_dst,cnt)->vrtstart;
-        ego_grid_info_t * pgrid_dst = grid_mem_t::get(pgmem_dst,cnt);
-        map_vertex_t    * pvrt_src = pmem_src->vlst + vertex;
+        ego_grid_info_t *pgrid_dst = grid_mem_t::get(pgmem_dst,cnt);
+        const map_vertex_t& pvrt_src = pmem_src->vertices[vertex];
 
-        pgrid_dst->a = pvrt_src->a;
+        pgrid_dst->a = pvrt_src.a;
         pgrid_dst->l = 0.0f;
     }
 
@@ -649,21 +644,20 @@ ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh )
 
     // actually do the loading
     {
-        map_t  local_mpd, * pmpd;
+        map_t local_mpd, * pmpd;
 
         // load a raw mpd
-        map_ctor( &local_mpd );
         tile_dictionary_load_vfs( "mp_data/fans.txt", &tile_dict, -1 );
-        pmpd = map_load("mp_data/level.mpd", &local_mpd );
-
-        // convert it into a convenient version for Egoboo
-        if ( !ego_mesh_convert( pmesh, pmpd ) )
+        if (!local_mpd.load("mp_data/level.mpd"))
         {
-            pmesh = NULL;
+            return nullptr;
         }
 
-        // delete the now useless mpd data
-        map_dtor( &local_mpd );
+        // convert it into a convenient version for Egoboo
+        if (!ego_mesh_convert(pmesh, &local_mpd))
+        {
+            return nullptr;
+        }
     }
 
     // do some calculation to set up the mpd as a game mesh

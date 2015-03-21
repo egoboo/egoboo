@@ -25,21 +25,7 @@
 
 #include "egolib/FileFormats/map_file.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    map_t * map_read_v2( vfs_FILE * fileread, map_t * pmesh );
-    map_t * map_write_v2( vfs_FILE * filewrite, map_t * pmesh );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
+/// Load a map.
+bool map_read_v2(vfs_FILE *file, map_t *map);
+/// Save a map.
+bool map_write_v2(vfs_FILE *file, const map_t *map);

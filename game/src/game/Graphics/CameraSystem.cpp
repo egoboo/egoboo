@@ -212,7 +212,7 @@ void CameraSystem::endCameraMode( GLint mode )
     glPopMatrix();
 
     // make the viewport the entire screen
-    glViewport( 0, 0, sdl_scr.x, sdl_scr.y );
+    Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
     // turn off the scissor mode
 	Ego::Renderer::get().setScissorTestEnabled(false);
@@ -232,10 +232,10 @@ GLint CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
 
     // scissor the output to the this area
 	Ego::Renderer::get().setScissorTestEnabled(true);
-    GL_DEBUG( glScissor )( camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin );
+    Ego::Renderer::get().setScissorRectangle(camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
 
     // set the viewport
-    GL_DEBUG( glViewport )( camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin );
+    Ego::Renderer::get().setViewportRectangle(camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
 
     return mode;
 }

@@ -482,12 +482,13 @@ gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam )
         {
             billboard_data_t * pbb;
 
-            // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
+            // Do not write into the depth buffer.
+            Ego::Renderer::get().setDepthWriteEnabled(false);
 
-            // do not draw hidden surfaces
+            // Essentially disable the depth test without calling
+            // Ego::Renderer::get().setDepthTestEnabled(false).
 			Ego::Renderer::get().setDepthTestEnabled(true);
-            GL_DEBUG( glDepthFunc )( GL_ALWAYS );                 // GL_DEPTH_BUFFER_BIT
+            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::AlwaysPass);
 
             // flat shading
             GL_DEBUG( glShadeModel )( GL_FLAT );                                  // GL_LIGHTING_BIT

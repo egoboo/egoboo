@@ -26,67 +26,39 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-map_t * map_read_v4( vfs_FILE * fileread, map_t * pmesh )
+bool map_read_v4(vfs_FILE *file, map_t *map)
 {
-    /// @author ZZ
-    /// @details This function loads the level.mpd file
+    // Validate arguments.
+    if (!map || !file)
+    {
+        return false;
+    }
 
-    size_t ivert, vert_count;
-    Uint8 ui08_tmp;
-
-    map_mem_t    * pmem = NULL;
-    map_vertex_t * pvert = NULL;
-
-    // if there is no filename, fail
-    if ( NULL == fileread ) return pmesh;
-
-    // if there is no mesh struct, fail
-    if ( NULL == pmesh ) return pmesh;
-    pmem  = &( pmesh->mem );
-
-    // a valid number of vertices?
-    if ( 0 == pmem->vcount || NULL == pmem->vlst ) return pmesh;
-
-    // get the vertex count
-    vert_count = pmem->vcount;
+    // Alias.
+    auto& mem = map->_mem;
 
     // Load vertex a data
-    for ( ivert = 0; ivert < vert_count; ivert++ )
+    for (map_vertex_t& vertex : mem.vertices)
     {
-        pvert = pmem->vlst + ivert;
-
-        vfs_read_Uint8(fileread, &ui08_tmp);
-
-        pvert->a = ui08_tmp;
+        vfs_read_Uint8(file, &vertex.a);
     }
 
-    return pmesh;
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-map_t * map_write_v4( vfs_FILE * filewrite, map_t * pmesh )
+bool map_write_v4(vfs_FILE *file, const map_t *map)
 {
-    size_t ivert;
-
-    map_mem_t    * pmem  = NULL;
-    map_vertex_t * pvert = NULL;
-
-    if ( NULL == filewrite ) return pmesh;
-
-    if ( NULL == pmesh ) return pmesh;
-    pmem  = &( pmesh->mem );
-
-    // a valid number of vertices?
-    if ( 0 == pmem->vcount || NULL == pmem->vlst ) return NULL;
-
-    for ( ivert = 0; ivert < pmem->vcount; ivert++ )
+    if (!map || !file)
     {
-        pvert = pmem->vlst + ivert;
-
-        vfs_write_Uint8(filewrite, pvert->a);
+        return false;
     }
 
-    return pmesh;
+    const auto& mem = map->_mem;
+
+    for (const auto& vertex : mem.vertices)
+    {
+        vfs_write_Uint8(file, vertex.a);
+    }
+
+    return true;
 }

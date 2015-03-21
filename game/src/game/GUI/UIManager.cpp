@@ -73,7 +73,7 @@ void UIManager::beginRenderUI()
     Ego::Renderer::get().setAlphaTestEnabled(true);
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                               // GL_COLOR_BUFFER_BIT
 
-    GL_DEBUG( glViewport )( 0, 0, getScreenWidth(), getScreenHeight());                      // GL_VIEWPORT_BIT
+    Ego::Renderer::get().setViewportRectangle(0, 0, getScreenWidth(), getScreenHeight());                      // GL_VIEWPORT_BIT
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -82,7 +82,6 @@ void UIManager::beginRenderUI()
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-
 	fmat_4x4_t projection;
 	projection.setOrtho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
 	Ego::Renderer::get().loadMatrix(projection);

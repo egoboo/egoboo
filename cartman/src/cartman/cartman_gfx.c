@@ -968,18 +968,19 @@ void ogl_beginFrame()
     Ego::Renderer::get().setBlendingEnabled(true);
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    glViewport( 0, 0, theSurface->w, theSurface->h );
+    Ego::Renderer::get().setViewportRectangle(0, 0, theSurface->w, theSurface->h);
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    glLoadIdentity();
-    glOrtho( 0, theSurface->w, theSurface->h, 0, -1, 1 );
+    fmat_4x4_t projection;
+    projection.setOrtho(0, theSurface->w, theSurface->h, 0, -1, 1);
+    Ego::Renderer::get().loadMatrix(projection);
 
     glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1447,23 +1448,24 @@ int gfx_init_ogl()
 {
     gfx_system_init_SDL_graphics();
 
-    // GL_DEBUG(glClear)) stuff
+    // Set clear colour.
     Ego::Renderer::get().setClearColour(Ego::Math::Colour4f(0, 0, 0, 0)); // Set black/transparent background.
-    GL_DEBUG( glClearDepth )( 1.0f );
+    
+    // Set clear depth.
+    GL_DEBUG(glClearDepth)(1.0f);
 
-    // depth buffer stuff
-    GL_DEBUG( glClearDepth )( 1.0f );
-    GL_DEBUG( glDepthMask )( GL_TRUE );
+    // Enable writing to the depth buffer.
+    Ego::Renderer::get().setDepthWriteEnabled(true);
 
-    // do not draw hidden surfaces
+    // Enable depth testing: Incoming fragment's depth value must be less.
 	Ego::Renderer::get().setDepthTestEnabled(true);
-    GL_DEBUG( glDepthFunc )( GL_LESS );
+    Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::Less);
 
     // Disable blending.
     Ego::Renderer::get().setBlendingEnabled(false);
 
     // do not display the completely transparent portion
-    GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+    Ego::Renderer::get().setAlphaTestEnabled(true);
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
 
     /// @todo Including backface culling here prevents the mesh from getting rendered

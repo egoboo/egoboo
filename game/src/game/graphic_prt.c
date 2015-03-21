@@ -167,10 +167,10 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
     {
         // Use the depth test to eliminate hidden portions of the particle
 		Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG( glDepthFunc )( GL_LESS );                                   // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::Less);                                   // GL_DEPTH_BUFFER_BIT
 
         // enable the depth mask for the solid portion of the particles
-        GL_DEBUG( glDepthMask )( GL_TRUE );           // GL_ENABLE_BIT
+        Ego::Renderer::get().setDepthWriteEnabled(true);
 
         // draw draw front and back faces of polygons
         oglx_end_culling();        // GL_ENABLE_BIT
@@ -230,81 +230,70 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
-        bool draw_particle;
-        GLXvector4f particle_color;
+        // Do not write into the depth buffer.
+        Ego::Renderer::get().setDepthWriteEnabled(false);
 
-        // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
-
-        // do not draw hidden surfaces
+        // Enable depth test: Incoming fragment's depth value must be less or equal.
 		Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
-        // draw draw front and back faces of polygons
-        oglx_end_culling();    // ENABLE_BIT
+        // Draw front-facing and back-facing polygons.
+        oglx_end_culling();
 
-        draw_particle = false;
-        if ( SPRITE_SOLID == pprt->type )
+        Ego::Math::Colour4f particleColour;
+        bool drawParticle = false;
+        // Solid sprites.
+        if (SPRITE_SOLID == pprt->type)
         {
-            // do the alpha blended edge ("anti-aliasing") of the solid particle
-
-            // only display the alpha-edge of the particle
+            // Do the alpha blended edge ("anti-aliasing") of the solid particle.
+            // Only display the alpha-edge of the particle.
             Ego::Renderer::get().setAlphaTestEnabled(true);
-            GL_DEBUG( glAlphaFunc )( GL_LESS, 1.0f );     // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glAlphaFunc)(GL_LESS, 1.0f);     // GL_COLOR_BUFFER_BIT
 
             Ego::Renderer::get().setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
-            particle_color[RR] = pinst->fintens;
-            particle_color[GG] = pinst->fintens;
-            particle_color[BB] = pinst->fintens;
-            particle_color[AA] = 1.0f;
+            float fintens = pinst->fintens;
+            particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
 			oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(pinst->texture_ref));
 
-            draw_particle = true;
+            drawParticle = true;
         }
-        else if ( SPRITE_LIGHT == pprt->type )
+        // Light sprites.
+        else if (SPRITE_LIGHT == pprt->type)
         {
-            // do the light sprites
-            float intens = pinst->fintens * pinst->falpha;
-
             Ego::Renderer::get().setAlphaTestEnabled(false);
-
             Ego::Renderer::get().setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                      // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE);
 
-            particle_color[RR] = intens;
-            particle_color[GG] = intens;
-            particle_color[BB] = intens;
-            particle_color[AA] = 1.0f;
+            float fintens = pinst->fintens * pinst->falpha;
+            particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
             pinst->texture_ref = TX_PARTICLE_LIGHT;
 			oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(pinst->texture_ref));
 
-            draw_particle = ( intens > 0.0f );
+            drawParticle = (fintens > 0.0f);
         }
-        else if ( SPRITE_ALPHA == pprt->type )
+        // Transparent sprites.
+        else if (SPRITE_ALPHA == pprt->type)
         {
-            // do the transparent sprites
-
             // do not display the completely transparent portion
             Ego::Renderer::get().setAlphaTestEnabled(true);
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                         // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);                      // GL_COLOR_BUFFER_BIT
 
             Ego::Renderer::get().setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
-            particle_color[RR] = pinst->fintens;
-            particle_color[GG] = pinst->fintens;
-            particle_color[BB] = pinst->fintens;
-            particle_color[AA] = pinst->falpha;
+            float fintens = pinst->fintens;
+            float falpha = pinst->falpha;
+            particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
 			oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(pinst->texture_ref));
 
-            draw_particle = ( pinst->falpha > 0.0f );
+            drawParticle = (falpha > 0.0f);
         }
         else
         {
@@ -312,11 +301,11 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             return gfx_error;
         }
 
-        if ( draw_particle )
+        if (drawParticle)
         {
-            calc_billboard_verts( vtlist, pinst, pinst->size, false );
+            calc_billboard_verts(vtlist, pinst, pinst->size, false);
 
-            GL_DEBUG( glColor4fv )( particle_color );             // GL_CURRENT_BIT
+            Ego::Renderer::get().setColour(particleColour);
 
             // Go on and draw it
             GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );

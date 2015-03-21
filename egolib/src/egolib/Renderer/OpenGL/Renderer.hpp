@@ -52,6 +52,7 @@ namespace Ego
 		class Renderer : public Ego::Renderer
 		{
         protected:
+            PFNGLSTENCILMASKSEPARATEPROC glStencilMaskSeparate;
             /**
              * @brief
              *  The list of OpenGL extensions supported by this OpenGL implementation.
@@ -83,8 +84,7 @@ namespace Ego
             Renderer(const Renderer&) = delete;
             Renderer& operator=(const Renderer&) = delete;
 
-            /** @copydoc Ego::Renderer::setClearColour */
-            virtual void setClearColour(const Colour4f& colour) override;
+        public:
 
             /** @copydoc Ego::Renderer::setAlphaTestEnabled */
             virtual void setAlphaTestEnabled(bool enabled) override;
@@ -92,23 +92,55 @@ namespace Ego
             /** @copydoc Ego::Renderer::setBlendingEnabled */
             virtual void setBlendingEnabled(bool enabled) override;
 
-			/** @copydoc Ego::Renderer::multMatrix */
-			virtual void multiplyMatrix(const fmat_4x4_t& matrix) override;
+            /** @copydoc Ego::Renderer::setClearColour */
+            virtual void setClearColour(const Colour4f& colour) override;
 
-			/** @copydoc Ego::Renderer::loadMatrix */
-            virtual void loadMatrix(const fmat_4x4_t& matrix) override;
+            /** @copydoc Ego::Renderer::setClearDepth */
+            virtual void setClearDepth(float depth) override;
 
 			/** @copydoc Ego::Renderer::setColour */
             virtual void setColour(const Colour4f& colour) override;
 
+            /** @copydoc Ego::Renderer::setCullingMode */
+            virtual void setCullingMode(CullingMode mode) override;
+
+            /** @copydoc Ego::Renderer::setDepthFunction */
+            virtual void setDepthFunction(CompareFunction function) override;
+
 			/** @copydoc Ego::Renderer::setDepthTestEnabled */
             virtual void setDepthTestEnabled(bool enabled) override;
 
-			/** @copydoc Ego::Renderer::setStencilTestEnabled */
+            /** @copydoc Ego::Renderer::setDepthWriteEnabled */
+            virtual void setDepthWriteEnabled(bool enabled) override;
+
+            /** @copydoc Ego::Renderer::setScissorTestEnabled */
+            virtual void setScissorTestEnabled(bool enabled) override;
+
+            /** @copydoc Ego::Renderer::setScissorRectangle */
+            virtual void setScissorRectangle(float left, float bottom, float width, float height) override;
+
+            /** @copydoc Ego::Renderer::setStencilMaskBack */
+            virtual void setStencilMaskBack(uint32_t mask) override;
+
+            /** @copydoc Ego::Renderer::setStencilMaskFront */
+            virtual void setStencilMaskFront(uint32_t mask) override;
+
+            /** @copydoc Ego::Renderer::setStencilTestEnabled */
             virtual void setStencilTestEnabled(bool enabled) override;
 
-			/** @copydoc Ego::Renderer::setScissorTestEnabled */
-            virtual void setScissorTestEnabled(bool enabled) override;
+            /** @copydoc Ego::Renderer::setViewportRectangle */
+            virtual void setViewportRectangle(float left, float bottom, float width, float height) override;
+
+            /** @copydoc Ego::Renderer::setWindingMode */
+            virtual void setWindingMode(WindingMode mode) override;
+
+            /** @copydoc Ego::Renderer::loadMatrix */
+            virtual void loadMatrix(const fmat_4x4_t& matrix) override;
+
+            /** @copydoc Ego::Renderer::multMatrix */
+            virtual void multiplyMatrix(const fmat_4x4_t& matrix) override;
+
+
 		};
 	};
 

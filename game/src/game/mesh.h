@@ -46,7 +46,7 @@ struct oglx_texture_t;
 #define BLOCK_FSIZE     ((float)BLOCK_ISIZE)
 #define BLOCK_MASK      (BLOCK_ISIZE - 1)
 
-#define GRID_BLOCKY_MAX             (( MAP_TILEY_MAX >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
+#define GRID_BLOCKY_MAX             (( MAP_TILE_MAX_Y >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
 
 
 

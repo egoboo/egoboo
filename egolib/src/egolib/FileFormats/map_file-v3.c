@@ -26,108 +26,74 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-map_t * map_read_v3( vfs_FILE * fileread, map_t * pmesh )
+bool map_read_v3(vfs_FILE *file, map_t *map)
 {
-    /// @author ZZ
-    /// @details This function loads the level.mpd file
-
-    size_t ivert, vert_count;
-    float ieee32_tmp;
-
-    map_mem_t    * pmem = NULL;
-    map_vertex_t * pvert = NULL;
-
-    // if there is no filename, fail
-    if ( NULL == fileread ) return pmesh;
-
-    // if there is no mesh struct, fail
-    if ( NULL == pmesh ) return pmesh;
-    pmem  = &( pmesh->mem );
-
-    // a valid number of vertices?
-    if ( 0 == pmem->vcount || NULL == pmem->vlst ) return pmesh;
-
-    // get the vertex count
-    vert_count = pmem->vcount;
-
-    // Load vertex x data
-    for ( ivert = 0; ivert < vert_count; ivert++ )
+    // Validate arguments.
+    if (!map || !file)
     {
-        pvert = pmem->vlst + ivert;
-
-        vfs_read_float( fileread, &ieee32_tmp );
-
-        pvert->pos.x = ieee32_tmp;
+        return nullptr;
     }
 
-    // Load vertex y data
-    for ( ivert = 0; ivert < vert_count; ivert++ )
+    // Alias.
+    auto& mem = map->_mem;
+
+    // Load the x-coordinate of each vertex.
+    for (auto& vertex : mem.vertices)
     {
-        pvert = pmem->vlst + ivert;
-
-        vfs_read_float( fileread, &ieee32_tmp );
-
-        pvert->pos.y = ieee32_tmp;
+        float ieee32_tmp;
+        vfs_read_float(file, &ieee32_tmp);
+        vertex.pos.x = ieee32_tmp;
     }
 
-    // Load vertex z data
-    for ( ivert = 0; ivert < vert_count; ivert++ )
+    // Load the y-coordinate of each vertex.
+    for (auto& vertex : mem.vertices)
     {
-        pvert = pmem->vlst + ivert;
-
-        vfs_read_float( fileread, &ieee32_tmp );
-
-        pvert->pos.z = ieee32_tmp / 16.0f;
+        float ieee32_tmp;
+        vfs_read_float(file, &ieee32_tmp);
+        vertex.pos.y = ieee32_tmp;
     }
 
-    return pmesh;
+    // Load the z-coordinate of each vertex.
+    for (auto& vertex : mem.vertices)
+    {
+        float ieee32_tmp;
+        vfs_read_float(file, &ieee32_tmp);
+        // Cartman scales the z-axis based off of a 4 bit fixed precision number.
+        vertex.pos.z = ieee32_tmp / 16.0f;
+    }
+
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-map_t * map_write_v3( vfs_FILE * filewrite, map_t * pmesh )
+bool map_write_v3(vfs_FILE *file, const map_t *map)
 {
-    size_t ivert, vert_count;
-
-    map_mem_t    * pmem = NULL;
-    map_vertex_t * pvert = NULL;
-
-    if ( NULL == filewrite ) return pmesh;
-
-    if ( NULL == pmesh ) return pmesh;
-    pmem  = &( pmesh->mem );
-
-    // a valid number of vertices?
-    if ( 0 == pmem->vcount || NULL == pmem->vlst ) return pmesh;
-
-    // get the vertex count
-    vert_count = pmem->vcount;
-
-    // write the x-coordinate data for each vertex
-    for ( ivert = 0; ivert < vert_count; ivert++ )
+    // Validate arguments.
+    if (!map || !file)
     {
-        pvert = pmem->vlst + ivert;
-
-        vfs_write_float( filewrite, pvert->pos.x );
+        return false;
     }
 
-    // write the y-coordinate data for each vertex
-    for ( ivert = 0; ivert < vert_count; ivert++ )
-    {
-        pvert = pmem->vlst + ivert;
+    // Alias.
+    const auto& mem  = map->_mem;
 
-        vfs_write_float( filewrite, pvert->pos.y );
+    // Write the x-coordinate of each vertex.
+    for (const auto& vertex : mem.vertices)
+    {
+        vfs_write_float(file, vertex.pos.x);
     }
 
-    // write the y-coordinate data for each vertex
-    for ( ivert = 0; ivert < vert_count; ivert++ )
+    // Write the y-coordinate of each vertex.
+    for (const auto& vertex : mem.vertices)
     {
-        pvert = pmem->vlst + ivert;
-
-        // cartman scales the z-axis based off of a 4 bit fixed precision number
-        vfs_write_float( filewrite, pvert->pos.z * 16.0f );
+        vfs_write_float(file, vertex.pos.y);
     }
 
-    return pmesh;
+    // Write the y-coordinate of each vertex.
+    for (const auto& vertex : mem.vertices)
+    {
+        // Cartman scales the z-axis based off of a 4 bit fixed precision number.
+        vfs_write_float(file, vertex.pos.z * 16.0f);
+    }
+
+    return true;
 }

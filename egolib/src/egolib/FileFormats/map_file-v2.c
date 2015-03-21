@@ -26,67 +26,42 @@
 #include "egolib/log.h"
 #include "egolib/strutil.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-map_t * map_read_v2( vfs_FILE * fileread, map_t * pmesh )
+bool map_read_v2(vfs_FILE *file, map_t *map)
 {
-    /// @author ZZ
-    /// @details This function loads the level.mpd file
-
-    Uint32 itile;
-    Uint32 tile_count;
-
-    Uint8 ui08_tmp;
-
-    map_mem_t   * pmem  = NULL;
-    tile_info_t * ptile = NULL;
-
-    // if there is no filename, fail
-    if ( NULL == fileread ) return pmesh;
-
-    // if there is no mesh struct, fail
-    if ( NULL == pmesh ) return pmesh;
-    pmem  = &( pmesh->mem );
-
-    // a valid number of tiles?
-    if ( 0 == pmem->tile_count || NULL == pmem->tile_list ) return pmesh;
-
-    // Load twist data
-    tile_count = pmem->tile_count;
-    for ( itile = 0; itile < tile_count; itile++ )
+    // Validate arguments.
+    if (!map || !file)
     {
-        ptile = pmem->tile_list + itile;
-        
-        vfs_read_Uint8(fileread, &ui08_tmp);
-
-        ptile->twist = ui08_tmp;
+        return nullptr;
     }
 
-    return pmesh;
+    // Alias.
+    auto& mem = map->_mem;
+
+    // Load twist data.
+    for (auto& tile : mem.tiles)
+    {
+        vfs_read_Uint8(file, &tile.twist);
+    }
+
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-map_t * map_write_v2( vfs_FILE * filewrite, map_t * pmesh )
+bool map_write_v2(vfs_FILE *file, const map_t *map)
 {
-    size_t itile;
-
-    map_mem_t   * pmem  = NULL;
-    tile_info_t * ptile = NULL;
-
-    if ( NULL == filewrite ) return pmesh;
-
-    if ( NULL == pmesh ) return pmesh;
-    pmem  = &( pmesh->mem );
-
-    // a valid number of tiles?
-    if ( 0 == pmem->tile_count || NULL == pmem->tile_list ) return pmesh;
-
-    // write the twist data for each tile
-    for ( itile = 0; itile < pmem->tile_count; itile++ )
+    // Validate arguments.
+    if (!map || !file)
     {
-        ptile = pmem->tile_list + itile;
-        vfs_write_Uint8( filewrite, ptile->twist);
+        return false;
     }
 
-    return pmesh;
+    // Alias.
+    const auto& mem = map->_mem;
+
+    // Write twist data.
+    for (const auto& tile : mem.tiles)
+    {
+        vfs_write_Uint8(file, tile.twist);
+    }
+
+    return true;
 }

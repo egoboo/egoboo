@@ -25,6 +25,9 @@
 #include "egolib/_math.h"
 #include "egolib/Math/Colour4f.hpp"
 #include "egolib/Math/Matrix44.hpp"
+#include "egolib/Renderer/CompareFunction.hpp"
+#include "egolib/Renderer/CullingMode.hpp"
+#include "egolib/Renderer/WindingMode.hpp"
 #include "egolib/platform.h"
 #include "egolib/typedef.h"
 #include "egolib/Extensions/ogl_debug.h"
@@ -75,21 +78,16 @@ namespace Ego
         Renderer(const Renderer&) = delete;
         Renderer& operator=(const Renderer&) = delete;
 
+    public:
+
         /**
          * @brief
-         *  Set the clear colour.
-         * @param colour
-         *  the clear colour
+         *  Enable/disable alpha tests.
+         * @param enabled
+         *  @a true enables alpha tests,
+         *  @a false disables them
          */
-        virtual void setClearColour(const Colour4f& colour) = 0;
-
-		/**
-		 * @brief
-		 *	Set the current colour.
-		 * @param colour
-		 *	the current colour
-		 */
-		virtual void setColour(const Colour4f& colour) = 0;
+        virtual void setAlphaTestEnabled(bool enabled) = 0;
 
         /**
          * @brief
@@ -102,12 +100,43 @@ namespace Ego
 
         /**
          * @brief
-         *  Enable/disable alpha tests.
-         * @param enabled
-         *  @a true enables alpha tests,
-         *  @a false disables them
+         *  Set the clear colour.
+         * @param colour
+         *  the clear colour
          */
-        virtual void setAlphaTestEnabled(bool enabled) = 0;
+        virtual void setClearColour(const Colour4f& colour) = 0;
+
+        /**
+         * @brief
+         *  Set the clear depth.
+         * @param depth
+         *  the clear depth
+         */
+        virtual void setClearDepth(float depth) = 0;
+
+        /**
+         * @brief
+         *	Set the current colour.
+         * @param colour
+         *	the current colour
+         */
+        virtual void setColour(const Colour4f& colour) = 0;
+
+        /**
+         * @brief
+         *  Set the culling mode.
+         * @param mode
+         *  the culling mode
+         */
+        virtual void setCullingMode(CullingMode mode) = 0;
+
+        /**
+         * @brief
+         *  Set the depth test compare function.
+         * @param function
+         *  the depth test compare function
+         */
+        virtual void setDepthFunction(CompareFunction function) = 0;
 
 		/**
 		 * @brief
@@ -118,23 +147,88 @@ namespace Ego
 		 */
 		virtual void setDepthTestEnabled(bool enabled) = 0;
 
-		/**
-		 * @brief
-		 *	Enable/disable stencil test and stencil buffer updates.
-		 * @param enable
-		 *	@a true enables stencil tests and stencil buffer updates,
-		 *	@a false disables them
-		 */
-		virtual void setStencilTestEnabled(bool enabled) = 0;
+        /**
+         * @brief
+         *  Enable/disable the depth buffer writes.
+         * @param enable
+         *	@a true enables scissor tests,
+         *	@a false disables then
+         */
+        virtual void setDepthWriteEnabled(bool enabled) = 0;
 
-		/**
-		 * @brief
-		 *	Enable/disable scissor tests.
-		 * @param enable
-		 *	@a true enables scissor tests,
-		 *	@a false disables then
-		 */
-		virtual void setScissorTestEnabled(bool enabled) = 0;
+        /**
+         * @brief
+         *  Set the scissor rectangle.
+         * @param left, bottom
+         *  the left/bottom corner of the scissor rectangle
+         * @param width, height
+         *  the width and height of the scissor rectangle
+         * @throw std::invalid_argument
+         *  if @a width or @a height are smaller than @a 0
+         */
+        virtual void setScissorRectangle(float left, float bottom, float width, float height) = 0;
+
+        /**
+         * @brief
+         *	Enable/disable scissor tests.
+         * @param enable
+         *	@a true enables scissor tests,
+         *	@a false disables then
+         */
+        virtual void setScissorTestEnabled(bool enabled) = 0;
+
+        /**
+         * @brief
+         *  Set the stencil bit mask affecting back-facing polygons.
+         * @param mask
+         *  the mask
+         * @see
+         *  Ego::Renderer::setStencilMaskFront
+         */
+        virtual void setStencilMaskBack(uint32_t mask) = 0;
+
+        /**
+         * @brief
+         *  Set the stencil bit mask affecting all primitives except of back-facing polygons.
+         * @param mask
+         *  the mask
+         * @remark
+         *  For a stencil buffer of @a n bits, the least @a n bits in the mask
+         *  are the mask.  Where a @a 1 appears in the mask, it's possible to
+         *  write to the corresponding bit in the stencil buffer. Where a @a 0
+         *  appears, the corresponding bit is write-protected.
+         */
+        virtual void setStencilMaskFront(uint32_t mask) = 0;
+
+        /**
+         * @brief
+         *	Enable/disable stencil test and stencil buffer updates.
+         * @param enable
+         *	@a true enables stencil tests and stencil buffer updates,
+         *	@a false disables them
+         */
+        virtual void setStencilTestEnabled(bool enabled) = 0;
+
+
+        /**
+         * @brief
+         *  Set the viewport rectangle.
+         * @param left, bottom
+         *  the left/bottom corner of the viewport rectangle
+         * @param width, height
+         *  the width and height of the viewport rectangle
+         * @throw std::invalid_argument
+         *  if @a width or @a height are smaller than @a 0
+         */
+        virtual void setViewportRectangle(float left, float bottom, float width, float height) = 0;
+
+        /**
+         * @brief
+         *  Set the winding mode.
+         * @param mode
+         *  the winding mode
+         */
+        virtual void setWindingMode(WindingMode mode) = 0;
 
 		/**
 		 * @brief

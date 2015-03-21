@@ -89,6 +89,11 @@ namespace Ego
             _vendor(getVendor()),
             _name(getName())
         {
+            glStencilMaskSeparate = static_cast<PFNGLSTENCILMASKSEPARATEPROC>(SDL_GL_GetProcAddress("glStencilMaskSeparate"));
+            if (!glStencilMaskSeparate)
+            {
+                throw std::runtime_error("OpenGL driver does not support glStencilMaskSeparate");
+            }
         }
 
 		Renderer::~Renderer()
@@ -96,20 +101,15 @@ namespace Ego
 			//dtor
 		}
 
-        void Renderer::setClearColour(const Colour4f& colour)
-        {
-            glClearColor(colour.getRed(), colour.getGreen(), colour.getBlue(), colour.getAlpha());
-        }
-
         void Renderer::setAlphaTestEnabled(bool enabled)
         {
             if (enabled)
             {
-                glEnable(GL_ALPHA_TEST);
+                GL_DEBUG(glEnable)(GL_ALPHA_TEST);
             }
             else
             {
-                glDisable(GL_ALPHA_TEST);
+                GL_DEBUG(glDisable)(GL_ALPHA_TEST);
             }
         }
 
@@ -117,49 +117,84 @@ namespace Ego
         {
             if (enabled)
             {
-                glEnable(GL_BLEND);
+                GL_DEBUG(glEnable)(GL_BLEND);
             }
             else
             {
-                glDisable(GL_BLEND);
+                GL_DEBUG(glDisable)(GL_BLEND);
             }
         }
 
-		void Renderer::multiplyMatrix(const fmat_4x4_t& matrix)
-		{
-			// fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
-			// to the OpenGL API. However, currently this code is redundant.
-			GLXmatrix t;
-			for (size_t i = 0; i < 4; ++i)
-			{
-				for (size_t j = 0; j < 4; ++j)
-				{
-					t[i * 4 + j] = matrix.v[i * 4 + j];
-				}
-			}
-			GL_DEBUG(glMultMatrixf)(t);
-		}
+        void Renderer::setClearColour(const Colour4f& colour)
+        {
+            GL_DEBUG(glClearColor)(colour.getRed(), colour.getGreen(),
+                                   colour.getBlue(), colour.getAlpha());
+        }
 
-		void Renderer::loadMatrix(const fmat_4x4_t& matrix)
-		{
-			// fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
-			// to the OpenGL API. However, currently this code is redundant.
-			GLXmatrix t;
-			for (size_t i = 0; i < 4; ++i)
-			{
-				for (size_t j = 0; j < 4; ++j)
-				{
-					t[i * 4 + j] = matrix.v[i * 4 + j];
-				}
-			}
-			GL_DEBUG(glLoadMatrixf)(t);
-		}
+        void Renderer::setClearDepth(float depth)
+        {
+            GL_DEBUG(glClearDepth)(depth);
+        }
 
 		void Renderer::setColour(const Colour4f& colour)
 		{
-			GL_DEBUG(glColor4f(colour.getRed(), colour.getGreen(),
-				               colour.getBlue(), colour.getAlpha()));
+			GL_DEBUG(glColor4f)(colour.getRed(), colour.getGreen(),
+				                colour.getBlue(), colour.getAlpha());
 		}
+
+        void Renderer::setCullingMode(CullingMode mode)
+        {
+            switch (mode)
+            {
+            case CullingMode::None:
+                GL_DEBUG(glDisable)(GL_CULL_FACE);
+                break;
+            case CullingMode::Front:
+                GL_DEBUG(glEnable)(GL_CULL_FACE);
+                GL_DEBUG(glCullFace)(GL_FRONT);
+                break;
+            case CullingMode::Back:
+                GL_DEBUG(glEnable)(GL_CULL_FACE);
+                GL_DEBUG(glCullFace)(GL_BACK);
+                break;
+            case CullingMode::BackAndFront:
+                GL_DEBUG(glEnable)(GL_CULL_FACE);
+                GL_DEBUG(glCullFace)(GL_FRONT_AND_BACK);
+                break;
+            };
+            
+        }
+
+        void Renderer::setDepthFunction(CompareFunction function)
+        {
+            switch (function)
+            {
+            case CompareFunction::AlwaysFail:
+                GL_DEBUG(glDepthFunc)(GL_NEVER);
+                break;
+            case CompareFunction::AlwaysPass:
+                GL_DEBUG(glDepthFunc)(GL_ALWAYS);
+                break;
+            case CompareFunction::Less:
+                GL_DEBUG(glDepthFunc)(GL_LESS);
+                break;
+            case CompareFunction::LessOrEqual:
+                GL_DEBUG(glDepthFunc)(GL_LEQUAL);
+                break;
+            case CompareFunction::Equal:
+                GL_DEBUG(glDepthFunc)(GL_EQUAL);
+                break;
+            case CompareFunction::NotEqual:
+                GL_DEBUG(glDepthFunc)(GL_NOTEQUAL);
+                break;
+            case CompareFunction::GreaterOrEqual:
+                GL_DEBUG(glDepthFunc)(GL_GEQUAL);
+                break;
+            case CompareFunction::Greater:
+                GL_DEBUG(glDepthFunc)(GL_GREATER);
+                break;
+            };
+        }
 
 		void Renderer::setDepthTestEnabled(bool enabled)
 		{
@@ -173,6 +208,48 @@ namespace Ego
 			}
 		}
 
+        void Renderer::setDepthWriteEnabled(bool enabled)
+        {
+            GL_DEBUG(glDepthMask)(enabled ? GL_TRUE : GL_FALSE);
+        }
+
+        void Renderer::setScissorRectangle(float left, float bottom, float width, float height)
+        {
+            if (width < 0)
+            {
+                throw std::invalid_argument("width < 0");
+            }
+            if (height < 0)
+            {
+                throw std::invalid_argument("height < 0");
+            }
+            GL_DEBUG(glScissor)(left, bottom, width, height);
+        }
+
+        void Renderer::setScissorTestEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                GL_DEBUG(glEnable)(GL_SCISSOR_TEST);
+            }
+            else
+            {
+                GL_DEBUG(glDisable)(GL_SCISSOR_TEST);
+            }
+        }
+
+        void Renderer::setStencilMaskBack(uint32_t mask)
+        {
+            static_assert(sizeof(GLint) >= sizeof(uint32_t), "GLint is smaller than uint32_t");
+            GL_DEBUG(glStencilMaskSeparate)(GL_BACK, mask);
+        }
+
+        void Renderer::setStencilMaskFront(uint32_t mask)
+        {
+            static_assert(sizeof(GLint) >= sizeof(uint32_t), "GLint is smaller than uint32_t");
+            GL_DEBUG(glStencilMaskSeparate)(GL_FRONT, mask);
+        }
+
 		void Renderer::setStencilTestEnabled(bool enabled)
 		{
 			if (enabled)
@@ -185,17 +262,62 @@ namespace Ego
 			}
 		}
 
-		void Renderer::setScissorTestEnabled(bool enabled)
-		{
-			if (enabled)
-			{
-				GL_DEBUG(glEnable)(GL_SCISSOR_TEST);
-			}
-			else
-			{
-				GL_DEBUG(glDisable)(GL_SCISSOR_TEST);
-			}
-		}
+        void Renderer::setViewportRectangle(float left, float bottom, float width, float height)
+        {
+            if (width < 0)
+            {
+                throw std::invalid_argument("width < 0");
+            }
+            if (height < 0)
+            {
+                throw std::invalid_argument("height < 0");
+            }
+            GL_DEBUG(glViewport)(left, bottom, width, height);
+        }
+
+        void Renderer::setWindingMode(WindingMode mode)
+        {
+            switch (mode)
+            {
+            case WindingMode::Clockwise:
+                GL_DEBUG(glFrontFace)(GL_CW);
+                break;
+            case WindingMode::AntiClockwise:
+                GL_DEBUG(glFrontFace)(GL_CCW);
+                break;
+            }
+        }
+
+        void Renderer::loadMatrix(const fmat_4x4_t& matrix)
+        {
+            // fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
+            // to the OpenGL API. However, currently this code is redundant.
+            GLXmatrix t;
+            for (size_t i = 0; i < 4; ++i)
+            {
+                for (size_t j = 0; j < 4; ++j)
+                {
+                    t[i * 4 + j] = matrix.v[i * 4 + j];
+                }
+            }
+            GL_DEBUG(glLoadMatrixf)(t);
+        }
+
+        void Renderer::multiplyMatrix(const fmat_4x4_t& matrix)
+        {
+            // fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
+            // to the OpenGL API. However, currently this code is redundant.
+            GLXmatrix t;
+            for (size_t i = 0; i < 4; ++i)
+            {
+                for (size_t j = 0; j < 4; ++j)
+                {
+                    t[i * 4 + j] = matrix.v[i * 4 + j];
+                }
+            }
+            GL_DEBUG(glMultMatrixf)(t);
+        }
+
 	};
 
 };

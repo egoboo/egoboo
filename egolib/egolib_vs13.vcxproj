@@ -255,6 +255,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Core\Component.cpp" />
     <ClCompile Include="src\egolib\Math\Matrix44.cpp" />
     <ClCompile Include="src\egolib\FileFormats\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\controls_file-v1.c" />
@@ -432,6 +433,9 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Core\Component.hpp" />
+    <ClInclude Include="src\egolib\Renderer\CullingMode.hpp" />
+    <ClInclude Include="src\egolib\Renderer\WindingMode.hpp" />
     <ClInclude Include="src\egolib\Math\Rectangle2.hpp" />
     <ClInclude Include="src\egolib\FileFormats\configfile.h" />
     <ClInclude Include="src\egolib\FileFormats\controls_file-v1.h" />

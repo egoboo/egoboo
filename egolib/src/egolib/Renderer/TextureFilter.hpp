@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/TextureFilter.h
+/// @file   egolib/Renderer/TextureFilter.hpp
 /// @brief  An enumeration of texture filtering methods.
 /// @author Michael Heilmann
 
@@ -28,6 +28,8 @@ namespace Ego
 	/**
 	 * @brief
 	 *	An enumeration of texture filtering methods.
+     * @todo
+     *  Add documentation. Fix naming. Make enum class.
 	 */
 	enum TextureFilter
 	{
@@ -47,6 +49,5 @@ namespace Ego
 		ANISOTROPIC,
 
 		FILTER_COUNT,
-
 	};
 };

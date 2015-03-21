@@ -17,15 +17,40 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/FileFormats/map_file-v1.h
-/// @brief Load and save version 1 ("MapA") files
-/// @details
+/// @file   egolib/Renderer/CullingMode.hpp
+/// @brief  Enumeration of culling modes.
+/// @author Michael Heilmann
 
-#pragma once
+namespace Ego
+{
+    /**
+     * @brief
+     *	Culling modes.
+     */
+    enum class CullingMode
+    {
+        /**
+         * @brief
+         *  Neither front-facing nor back-facing polygons are culled.
+         */
+        None,
 
-#include "egolib/FileFormats/map_file.h"
+        /**
+         * @brief
+         *  Front-facing polygons are culled.
+         */
+        Front,
 
-/// Load a map.
-bool map_read_v1(vfs_FILE *file, map_t *map);
-/// Save a map.
-bool map_write_v1(vfs_FILE *file, const map_t *map);
+        /**
+         * @brief
+         *  Back-facing polygons are culled.
+         */
+        Back,
+
+        /**
+         * @brief
+         *  Back-facing and front-facing polygons are culled.
+         */
+         BackAndFront,
+    };
+}

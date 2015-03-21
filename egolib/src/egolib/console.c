@@ -328,7 +328,7 @@ void egolib_console_draw_begin( void )
     Ego::Renderer::get().setBlendingEnabled(true);
     GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
-    GL_DEBUG( glViewport )( 0, 0, sdl_scr.x, sdl_scr.y );                          // GL_VIEWPORT_BIT
+    Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);                          // GL_VIEWPORT_BIT
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -416,7 +416,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
 
         // clip the viewport
 		Ego::Renderer::get().setScissorTestEnabled(true);
-        GL_DEBUG( glScissor )( pwin->x, surf->h - ( pwin->y + pwin->h ), pwin->w, pwin->h );
+        Ego::Renderer::get().setScissorRectangle(pwin->x, surf->h - ( pwin->y + pwin->h ), pwin->w, pwin->h);
 
         height = pwin->h;
 

@@ -266,7 +266,7 @@ struct cartman_mpd_t
      * @default
      *  All y-coordinates are mapped to fan index @a 0.
      */
-    std::array<Uint32,MAP_TILEY_MAX> fanstart2;
+    std::array<Uint32,MAP_TILE_MAX_Y> fanstart2;
 
     /**
      * @brief

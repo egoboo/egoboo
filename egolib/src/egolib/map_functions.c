@@ -77,21 +77,22 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
     size_t   mapx, mapy;
     size_t   tile_x, tile_y, itile;
     int      step_x, step_y;
-
+#if 0
     tile_info_t * tlst = NULL;
-
+#endif
     // does the mesh exist?
     if ( NULL == pmesh ) return pmesh;
-    tlst = pmesh->mem.tile_list;
-
+#if 0
+    tlst = pmesh->_mem.tile_list;
+#endif
     // are there tiles?
-    if ( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list ) return pmesh;
+    if (pmesh->_mem.tiles.empty()) return pmesh;
 
     step_x = 1;
-    step_y = pmesh->info.tiles_y;
-    for ( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
+    step_y = pmesh->_info.tileCountY;
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.tileCountY; mapy++, tile_y += step_y )
     {
-        for ( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.tileCountX; mapx++, tile_x += step_x )
         {
             int itile_mx, itile_px, itile_my, itile_py;
             float hgt_mx, hgt_px, hgt_my, hgt_py;
@@ -105,17 +106,17 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
             }
             else
             {
-                hgt_mx = LAMBDA( HAS_SOME_BITS( tlst[itile_mx].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
+                hgt_mx = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_mx].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
             }
 
-            itile_px = LAMBDA( mapx >= pmesh->info.tiles_x - 1, -1, itile + step_x );
+            itile_px = LAMBDA( mapx >= pmesh->_info.tileCountX - 1, -1, itile + step_x );
             if ( itile_px < 0 )
             {
                 hgt_px = TILE_FSIZE;
             }
             else
             {
-                hgt_px = LAMBDA( HAS_SOME_BITS( tlst[itile_px].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
+                hgt_px = LAMBDA( HAS_SOME_BITS(pmesh->_mem.tiles[itile_px].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
             }
 
             itile_my = LAMBDA( mapy <= 0, -1, itile - step_y );
@@ -125,21 +126,21 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
             }
             else
             {
-                hgt_my = LAMBDA( HAS_SOME_BITS( tlst[itile_my].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
+                hgt_my = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_my].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
             }
 
-            itile_py = LAMBDA( mapy >= pmesh->info.tiles_y - 1, -1, itile + step_y );
+            itile_py = LAMBDA( mapy >= pmesh->_info.tileCountY - 1, -1, itile + step_y );
             if ( itile_py < 0 )
             {
                 hgt_py = TILE_FSIZE;
             }
             else
             {
-                hgt_py = LAMBDA( HAS_SOME_BITS( tlst[itile_py].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
+                hgt_py = LAMBDA( HAS_SOME_BITS( pmesh->_mem.tiles[itile_py].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
             }
 
             // calculate the twist of this tile
-            tlst[itile].twist = cartman_calc_twist(( hgt_px - hgt_mx ) / 8, ( hgt_py - hgt_my ) / 8 );
+            pmesh->_mem.tiles[itile].twist = cartman_calc_twist(( hgt_px - hgt_mx ) / 8, ( hgt_py - hgt_my ) / 8 );
         }
     }
 
@@ -155,13 +156,13 @@ int map_get_itile( map_t * pmesh, int mapx, int mapy )
     {
         itile = -1;
     }
-    else if ( mapx < 0 || mapx >= pmesh->info.tiles_x || mapy < 0 || mapy >= pmesh->info.tiles_y )
+    else if ( mapx < 0 || mapx >= pmesh->_info.tileCountX || mapy < 0 || mapy >= pmesh->_info.tileCountY )
     {
         itile = -1;
     }
     else
     {
-        itile = mapx + pmesh->info.tiles_x * mapy;
+        itile = mapx + pmesh->_info.tileCountX * mapy;
     }
 
     return itile;
@@ -177,17 +178,17 @@ int map_get_fx_itile( map_t * pmesh, int itile )
     {
         tile_fx = WALL_BITS;
     }
-    else if ( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list )
+    else if (pmesh->_mem.tiles.empty())
     {
         tile_fx = WALL_BITS;
     }
-    else if ( itile < 0 || itile >= pmesh->mem.tile_count )
+    else if ( itile < 0 || itile >= pmesh->_mem.tiles.size() )
     {
         tile_fx = WALL_BITS;
     }
     else
     {
-        tile_fx = pmesh->mem.tile_list[itile].fx;
+        tile_fx = pmesh->_mem.tiles[itile].fx;
     }
 
     return tile_fx;
@@ -238,19 +239,18 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     Uint32   WALL_BITS = MAPFX_WALL | MAPFX_IMPASS;
     Uint8 *  ary = NULL;
 
-    tile_info_t * tlst = NULL;
-
     enum { FLOOR = 'F', WALL = 'W', ROCK = 'R' };
 
     // does the mesh exist?
     if ( NULL == pmesh ) return pmesh;
-    tlst = pmesh->mem.tile_list;
-
+#if 0
+    tile_info_t *tlst = pmesh->_mem.tile_list;
+#endif
     // are there tiles?
-    if ( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list ) return pmesh;
+    if (pmesh->_mem.tiles.empty()) return pmesh;
 
     // allocate a temp array
-    ary = EGOBOO_NEW_ARY( Uint8, pmesh->mem.tile_count );
+    ary = EGOBOO_NEW_ARY( Uint8, pmesh->_mem.tiles.size() );
     if ( NULL == ary )
     {
         log_warning( "%s - coul not allocate a temporary array.\n", __FUNCTION__ );
@@ -259,12 +259,12 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
     // set up some loop variables
     step_x = 1;
-    step_y = pmesh->info.tiles_y;
+    step_y = pmesh->_info.tileCountY;
 
     // label all transition tiles
-    for ( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.tileCountY; mapy++, tile_y += step_y )
     {
-        for ( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.tileCountX; mapx++, tile_x += step_x )
         {
             int wall_count, cnt;
             int dx, dy;
@@ -304,9 +304,9 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
         }
     }
 
-    for ( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->_info.tileCountY; mapy++, tile_y += step_y )
     {
-        for ( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->_info.tileCountX; mapx++, tile_x += step_x )
         {
             // the z positions of the tile's edge vertices starting from <mapx,mapy-1> and moving around clockwise
             float zpos[8];
@@ -325,14 +325,14 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             // default floor type is a 0 or 1
             if ( FLOOR == ary[itile] )
             {
-                tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) ) & 1;
+                pmesh->_mem.tiles[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) ) & 1;
                 continue;
             }
 
             // default rock type is a 0 or 1
             if ( ROCK == ary[itile] )
             {
-                tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) + 1 ) & 1;
+                pmesh->_mem.tiles[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) + 1 ) & 1;
                 continue;
             }
 

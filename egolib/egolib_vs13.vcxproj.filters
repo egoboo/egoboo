@@ -64,6 +64,9 @@
     <Filter Include="Header Files\Core">
       <UniqueIdentifier>{6f89c9b2-6080-4995-bf78-46e277b4068c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{d2ac6229-c307-4554-b7a4-97552fbeb81a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -341,6 +344,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Math\Matrix44.cpp">
       <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Core\Component.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -682,6 +688,15 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\Rectangle2.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\Component.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\CullingMode.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\WindingMode.hpp">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
