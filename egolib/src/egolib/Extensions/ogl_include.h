@@ -73,60 +73,6 @@ typedef GLfloat GLXvector3f[3];      ///< generic 3-vector
 typedef GLfloat GLXvector2f[2];      ///< generic 2-vector
 
 //--------------------------------------------------------------------------------------------
-/// generic OpenGL vertex
-#if 0
-    struct s_oglx_vertex
-    {
-        GLXvector4f pos;     ///< the position of the vertex
-        GLXvector3f rt, up;  ///< 3-vectors for billboarding
-        GLfloat     dist;    ///< a generic float parameter
-        GLXvector4f col;     ///< r,g,b,a usinf glColor4fv
-        GLuint      color;   ///< r,g,b,a using glColor4ubv
-        GLXvector2f tx;      ///< s,t coorsinates for texture mapping glTexCoord2fv
-    };
-#endif
-
-//--------------------------------------------------------------------------------------------
-/// generic OpenGL lighting struct
-#if 0
-    struct s_oglx_light
-    {
-        GLXvector4f emission, diffuse, specular;
-        float     shininess[1];
-    };
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if 0
-    GLboolean handle_opengl_error( void );
-#endif
-#if 0
-    void oglx_ViewMatrix( GLXmatrix view,
-                          const GLXvector3f from,      ///< @var camera location
-                          const GLXvector3f at,        ///< @var camera look-at target
-                          const GLXvector3f world_up,  ///< @var world’s up, usually 0, 0, 1
-                          const GLfloat roll );        ///< @var clockwise roll around viewing direction, in radians
-#endif
-#if 0
-    void oglx_ProjectionMatrix( GLXmatrix proj,
-                                const GLfloat near_plane,    ///< @var distance to near clipping plane
-                                const GLfloat far_plane,     ///< @var distance to far clipping plane
-                                const GLfloat fov_rad );     ///< @var vertical field-of-view angle, in radians
-#endif
-#if 0
-    GLboolean oglx_ProjectionMatrix_2( GLXmatrix proj,
-                                       GLfloat frustum_near, ///< @var distance to near clipping plane
-                                       GLfloat frustum_far,  ///< @var distance to far clipping plane
-                                       GLfloat fov_rad,      ///< @var vertical field-of-view angle, in radians
-                                       GLfloat screen[] );   ///< @var the screen coordinates of the current viewport
-#endif
-/// Set the FILE that ogl_include will use to dump debugging information.
-/// If not set, it will default to stderr.
-#if 0
-    FILE * set_ogl_include_stderr( FILE * pfile );
-#endif
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #if defined(__cplusplus)

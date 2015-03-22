@@ -950,7 +950,6 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
     dst->setInfo(loc_info_dst);
     
     map_mem_t *pmem_dst = &(dst->_mem);
-    map_info_t *pinfo_dst = &(dst->_info);
 
     // revert the tile information
     for (size_t cnt = 0; cnt < info_src.tiles_count; cnt++ )
@@ -1161,11 +1160,8 @@ cartman_mpd_t *cartman_mpd_create(cartman_mpd_t *self, int tiles_x, int tiles_y)
 
     for (int mapy = 0, fan = 0; mapy < self->info.tiles_y; mapy++)
     {
-        int y = mapy * TILE_ISIZE;
         for (int mapx = 0; mapx < self->info.tiles_x; mapx++)
         {
-            int x = mapx * TILE_ISIZE;
-
             self->fan2[fan].type = 0;
             self->fan2[fan].tx_bits = (((mapx & 1) + (mapy & 1)) & 1) + DEFAULT_TILE;
 

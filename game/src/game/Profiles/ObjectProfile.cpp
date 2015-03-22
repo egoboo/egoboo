@@ -239,7 +239,7 @@ ObjectProfile::~ObjectProfile()
     {
         if ( element.second > TX_SPECIAL_LAST )
         {
-			TextureManager::getSingleton()->relinquish(element.second);
+			TextureManager::get().relinquish(element.second);
         }
     }
 
@@ -247,7 +247,7 @@ ObjectProfile::~ObjectProfile()
     {
         if ( element.second > TX_SPECIAL_LAST )
         {
-			TextureManager::getSingleton()->relinquish(element.second);
+			TextureManager::get().relinquish(element.second);
         }
     }
 }
@@ -275,7 +275,7 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
         // do the texture
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%" PRIuZ, folderPath.c_str(), cnt );
 
-		TX_REF skin = TextureManager::getSingleton()->load(newloadname, INVALID_TX_REF, TRANSCOLOR);
+		TX_REF skin = TextureManager::get().load(newloadname, INVALID_TX_REF, TRANSCOLOR);
         if ( VALID_TX_RANGE( skin ) )
         {
             _texturesLoaded[cnt] = skin;
@@ -284,7 +284,7 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
         // do the icon
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%" PRIuZ, folderPath.c_str(), cnt );
 
-		TX_REF icon = TextureManager::getSingleton()->load(newloadname, INVALID_TX_REF, INVALID_KEY);
+		TX_REF icon = TextureManager::get().load(newloadname, INVALID_TX_REF, INVALID_KEY);
         if ( VALID_TX_RANGE( icon ) )
         {
             _iconsLoaded[cnt] = icon;

@@ -644,7 +644,7 @@ ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh )
 
     // actually do the loading
     {
-        map_t local_mpd, * pmpd;
+        map_t local_mpd;
 
         // load a raw mpd
         tile_dictionary_load_vfs( "mp_data/fans.txt", &tile_dict, -1 );

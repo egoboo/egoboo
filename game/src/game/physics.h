@@ -276,11 +276,19 @@ struct apos_t
 
     static bool self_union(apos_t *self, const apos_t *other);
     static bool self_union(apos_t *self, const fvec3_t& other);
+    /**
+     * @brief
+     *  Update the maximum displacement at a given axis.
+     * @param t
+     *  the translation along the axis
+     * @param i
+     *  the index of the axis
+     */
+    static bool self_union_index(apos_t *self, const float displacement, const size_t index);
+    static bool evaluate(const apos_t *self, fvec3_t& dst);
 };
 
 
-bool apos_self_union_index(apos_t * lhs, const float val, const int index );
-bool apos_evaluate( const apos_t * src, fvec3_t& dst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -304,9 +312,9 @@ phys_data_t *phys_data_sum_aplat(phys_data_t *self, const fvec3_t& v);
 phys_data_t *phys_data_sum_acoll(phys_data_t *self, const fvec3_t& v);
 phys_data_t *phys_data_sum_avel(phys_data_t *self, const fvec3_t& v);
 
-phys_data_t *phys_data_sum_aplat_index(phys_data_t *self, const float v, const int index);
-phys_data_t *phys_data_sum_acoll_index(phys_data_t *self, const float v, const int index);
-phys_data_t *phys_data_sum_avel_index(phys_data_t *self, const float v, const int index);
+phys_data_t *phys_data_sum_aplat_index(phys_data_t *self, const float v, const size_t index);
+phys_data_t *phys_data_sum_acoll_index(phys_data_t *self, const float v, const size_t index);
+phys_data_t *phys_data_sum_avel_index(phys_data_t *self, const float v, const size_t index);
 
 //--------------------------------------------------------------------------------------------
 /**

@@ -30,6 +30,7 @@
 
 #include "egolib/egoboo_setup.h"
 #include "egolib/strutil.h"
+#include "egolib/Image/Image.hpp"
 #include "egolib/vfs.h"
 
 //--------------------------------------------------------------------------------------------
@@ -67,7 +68,7 @@ void ErrorImage_create( void )
     {
         for ( j = 0; j < ErrorImage_width; j++ )
         {
-            if ( 0 == (( i&0x1 ) ^( j&0x1 ) ) )
+            if ( 0 == (( i & 0x1 ) ^( j & 0x1 ) ) )
             {
                 ErrorImage[i][j][0] = ( GLubyte ) 255;
                 ErrorImage[i][j][1] = ( GLubyte ) 0;
@@ -189,7 +190,7 @@ void oglx_texture_t::dtor(oglx_texture_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint oglx_texture_convert(oglx_texture_t *self, SDL_Surface * image, Uint32 key)
+GLuint oglx_texture_convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key)
 {
     /// @author BB
     /// @details an oglx_texture_t wrapper for the SDL_GL_convert_surface() function
@@ -207,7 +208,7 @@ GLuint oglx_texture_convert(oglx_texture_t *self, SDL_Surface * image, Uint32 ke
         SDL_SetColorKey(image, SDL_SRCCOLORKEY, key);
     }
 
-    // Determine the correct power of two greater than or equal to the original image's size
+    // Determine the correct power of two greater than or equal to the original image's size.
     self->base.binding = SDL_GL_convert_surface(self->base.binding, image, self->base.wrap_s, self->base.wrap_t);
 
     self->base.target = (( 1 == image->h) && (image->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
@@ -221,94 +222,76 @@ GLuint oglx_texture_convert(oglx_texture_t *self, SDL_Surface * image, Uint32 ke
     self->imgH       = image->h;
     strncpy(self->name, "SDL_Surface()", SDL_arraysize(self->name));
 
-    //// use the following command to grab every possible texture attribute in OpenGL v1.4 for
-    //// this texture. Useful for debugging
-    // ptex->base_valid = false;
-    //oglx_grab_texture_state( tx_target, 0, ptex );
-
     return self->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool IMG_test_alpha( SDL_Surface * psurf )
+bool IMG_test_alpha(SDL_Surface *surface)
 {
     // test to see whether an image requires alpha blending
 
-    // aliases
-    SDL_PixelFormat * pformat;
-
-    // the color values
-    Uint32 pix_value;
-    Uint8  r, g, b, a;
-
-    // the info necessary to scan the image
-    //int bit_mask;
-    int bypp;
-    int w, h;
-    int pitch;
-
-    // the location in the pixel data
-    int ix, iy;
-    const char * row_ptr;
-    const char * char_ptr;
-#if 0
-    Uint32     * ui32_ptr;
-#endif
-
-    if ( NULL == psurf ) return SDL_FALSE;
-
-    // save this alias
-    pformat = psurf->format;
-
-    // if the surface is tagged as having an alpha value,
-    // it is partially transparent
-    if ( 0xff != pformat->alpha )
+    if (!surface)
     {
-        return SDL_TRUE;
+        throw std::invalid_argument("nullptr == surface");
     }
 
-    // If it is an image without an alpha channel, then there is no alpha in the image
-    if ( NULL == pformat->palette && 0x00 == pformat->Amask )
+    // Alias.
+    SDL_PixelFormat *format = surface->format;
+
+    // If the surface has a per-surface color key, it is partially transparent.
+    Uint32 colorKey;
+    int rslt = SDL_GetColorKey(surface, &colorKey);
+    if (rslt < -1)
+    {
+        // If a value smaller than -1 is returned, an error occured.
+        throw std::invalid_argument("SDL_GetColorKey failed");
+    }
+    else if (rslt >= 0)
+    {
+        // If a value greater or equal than 0 is returned, the surface has a color key.
+        return true;
+    }
+    /*
+    else if (rslt == -1)
+    {
+        // If a value of -1 is returned, the surface has no color key: Continue.
+    }
+    */
+
+    // If it is an image without an alpha channel, then there is no alpha in the image.
+    if (!format->palette && 0x00 == format->Amask )
     {
         return SDL_FALSE;
     }
 
     // grab the info for scanning the surface
     //bit_mask = pformat->Rmask | pformat->Gmask | pformat->Bmask | pformat->Amask;
-    bypp = pformat->BytesPerPixel;
-    w = psurf->w;
-    h = psurf->h;
-    pitch = psurf->pitch;
+    int bytesPerPixel = format->BytesPerPixel;
+    int width = surface->w;
+    int height = surface->h;
+    int pitch = surface->pitch;
 
-    row_ptr = ( const char * )psurf->pixels;
-    for ( iy = 0; iy < h; iy++ )
+    const char *row_ptr = static_cast<const char *>(surface->pixels);
+    for (int y = 0; y < height; ++y)
     {
-        char_ptr = row_ptr;
-        for ( ix = 0; ix < w; ix++ )
+        const char *char_ptr = row_ptr;
+        for (int x = 0; x < width; ++x)
         {
-            pix_value = 0;
-            for (int i = 0; i < bypp; i++)
+            Uint32 pixel = 0;
+            for (int i = 0; i < bytesPerPixel; ++i)
             {
-                if (pix_value) pix_value <<= 8;
-                pix_value |= *((uint8_t *)char_ptr);
+                if (pixel) pixel <<= 8;
+                pixel |= *((uint8_t *)char_ptr);
                 char_ptr++;
             }
-#if 0
-            ui32_ptr = ( Uint32 * )char_ptr;
-            pix_value = ( *ui32_ptr ) & bit_mask;
-#endif
 
-            SDL_GetRGBA( pix_value, pformat, &r, &g, &b, &a );
+            Uint8 r, g, b, a;
+            SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
 
-            if ( 0xFF != a )
+            if (0xFF != a)
             {
                 return SDL_TRUE;
             }
-
-#if 0
-            // advance to the next entry
-            char_ptr += bypp;
-#endif
         }
         row_ptr += pitch;
     }
@@ -317,74 +300,56 @@ SDL_bool IMG_test_alpha( SDL_Surface * psurf )
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool IMG_test_alpha_key( SDL_Surface * psurf, Uint32 key )
+bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
 {
     // test to see whether an image requires alpha blending
-
-    // aliases
-    SDL_PixelFormat * pformat;
-
-    // the color values
-    Uint32 pix_value;
-    Uint8  r, g, b, a;
-
-    // the info necessary to scan the image
-    int bypp, bit_mask;
-    int w, h;
-    int pitch;
-
-    // the location in the pixel data
-    int ix, iy;
-    const char * row_ptr;
-    const char * char_ptr;
-    Uint32     * ui32_ptr;
-
-    if ( NULL == psurf ) return SDL_FALSE;
+    if (NULL == surface) return SDL_FALSE;
 
     // save this alias
-    pformat = psurf->format;
+    SDL_PixelFormat *format = surface->format;
 
-    // if there is no key specified (or the image has an alpha channel), use the basic version
-    if ( INVALID_KEY == key || pformat->Aloss < 8 )
+    // If there is no key specified (or the image has an alpha channel), use the basic version.
+    if (INVALID_KEY == key || format->Aloss < 8)
     {
-        return IMG_test_alpha( psurf );
+        return IMG_test_alpha(surface);
     }
 
     // if the surface is tagged as having an alpha value,
     // it is partially transparent
-    if ( 0xff != pformat->alpha ) return SDL_TRUE;
+    if ( 0xff != format->alpha ) return SDL_TRUE;
 
     // grab the info for scanning the surface
-    bit_mask = pformat->Rmask | pformat->Gmask | pformat->Bmask | pformat->Amask;
-    bypp = pformat->BytesPerPixel;
-    w = psurf->w;
-    h = psurf->h;
-    pitch = psurf->pitch;
+    Uint32 bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
+    int bytesPerPixel = format->BytesPerPixel;
+    int w = surface->w;
+    int h = surface->h;
+    int pitch = surface->pitch;
 
-    row_ptr = ( const char * )psurf->pixels;
-    for ( iy = 0; iy < h; iy++ )
+    const char *row_ptr = static_cast<const char *>(surface->pixels);
+    for (int iy = 0; iy < h; iy++)
     {
-        char_ptr = row_ptr;
-        for ( ix = 0; ix < w; ix++ )
+        const char *char_ptr = row_ptr;
+        for (int ix = 0; ix < w; ix++)
         {
-            ui32_ptr = ( Uint32 * )char_ptr;
-            pix_value = ( *ui32_ptr ) & bit_mask;
+            Uint32 *ui32_ptr = (Uint32 *)char_ptr;
+            Uint32 pixel = (*ui32_ptr)&bitMask;
 
-            if ( pix_value == key )
+            if (pixel == key)
             {
                 return SDL_TRUE;
             }
             else
             {
-                SDL_GetRGBA( pix_value, pformat, &r, &g, &b, &a );
-                if ( 0xFF != a )
+                Uint8 r, g, b, a;
+                SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
+                if (0xFF != a)
                 {
                     return SDL_TRUE;
                 }
             }
 
             // advance to the next entry
-            char_ptr += bypp;
+            char_ptr += bytesPerPixel;
         }
         row_ptr += pitch;
     }
@@ -417,11 +382,11 @@ GLuint oglx_texture_load(oglx_texture_t *self, const char *filename, Uint32 key)
     self->has_alpha = SDL_FALSE;
     if (INVALID_KEY == key)
     {
-        self->has_alpha = IMG_test_alpha(image);
+        self->has_alpha = IMG_test_alpha(image) ? SDL_TRUE : SDL_FALSE;
     }
     else
     {
-        self->has_alpha = IMG_test_alpha_key(image, key);
+        self->has_alpha = IMG_test_alpha_key(image, key) ? SDL_TRUE : SDL_FALSE;
     }
 
     // Upload the SDL_surface to OpenGL.
@@ -618,9 +583,9 @@ GLboolean oglx_texture_Valid( oglx_texture_t *ptex )
 //--------------------------------------------------------------------------------------------
 void oglx_grab_texture_state( GLenum target, GLint level, oglx_texture_t * texture )
 {
-    if ( NULL == texture ) return;
+    if (NULL == texture) return;
 
-    gl_grab_texture_state( target, level, &( texture->base ) );
+    gl_grab_texture_state(&(texture->base), target, level);
 
     texture->base_valid = GL_TRUE;
 }

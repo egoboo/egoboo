@@ -74,14 +74,11 @@ int prt_get_texture_style( const TX_REF itex )
 //--------------------------------------------------------------------------------------------
 void prt_set_texture_params( const TX_REF itex )
 {
-    int index;
-    oglx_texture_t * ptex;
+    int index = prt_get_texture_style( itex );
+    if (index < 0) return;
 
-    index = prt_get_texture_style( itex );
-    if ( index < 0 ) return;
-
-	ptex = TextureManager::getSingleton()->get_valid_ptr(itex);
-    if ( NULL == ptex ) return;
+    oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(itex);
+    if (NULL == ptex) return;
 
     ptex_w[index] = ptex->imgW;
     ptex_h[index] = ptex->imgH;
@@ -184,7 +181,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
         Ego::Renderer::get().setAlphaTestEnabled(true);
         GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );       // GL_COLOR_BUFFER_BIT
 
-		oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_PARTICLE_TRANS));
+		oglx_texture_bind(TextureManager::get().get_valid_ptr((TX_REF)TX_PARTICLE_TRANS));
 
         GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );  // GL_CURRENT_BIT
 
@@ -257,7 +254,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
-			oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(pinst->texture_ref));
+			oglx_texture_bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
 
             drawParticle = true;
         }
@@ -272,7 +269,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, 1.0f);
 
             pinst->texture_ref = TX_PARTICLE_LIGHT;
-			oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(pinst->texture_ref));
+			oglx_texture_bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
 
             drawParticle = (fintens > 0.0f);
         }
@@ -291,7 +288,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particleColour = Ego::Math::Colour4f(fintens, fintens, fintens, falpha);
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
-			oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(pinst->texture_ref));
+			oglx_texture_bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
 
             drawParticle = (falpha > 0.0f);
         }
@@ -394,7 +391,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[AA] = 1.0f;
 
                 pinst->texture_ref = TX_PARTICLE_LIGHT;
-				oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(pinst->texture_ref));
+				oglx_texture_bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
 
                 draw_particle = intens > 0.0f;
             }
@@ -421,7 +418,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[AA] = alpha;
 
                 pinst->texture_ref = TX_PARTICLE_TRANS;
-				oglx_texture_bind(TextureManager::getSingleton()->get_valid_ptr(pinst->texture_ref));
+				oglx_texture_bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
 
                 draw_particle = alpha > 0.0f;
             }

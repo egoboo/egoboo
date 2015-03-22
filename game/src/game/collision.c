@@ -1712,7 +1712,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             apos_t::self_union( &apos_tmp, &( pchr->phys.acoll ) );
 
             // turn this into a vector
-            apos_evaluate(&apos_tmp, max_apos);
+            apos_t::evaluate(&apos_tmp, max_apos);
         }
 
         // limit the size of the displacement
@@ -1815,7 +1815,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             apos_t::self_union( &apos_tmp, &( bdl.prt_ptr->phys.acoll ) );
 
             // turn this into a vector
-            apos_evaluate(&apos_tmp, max_apos);
+            apos_t::evaluate(&apos_tmp, max_apos);
         }
 
         max_apos.x = CLIP( max_apos.x, -GRID_FSIZE, GRID_FSIZE );

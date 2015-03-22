@@ -127,7 +127,7 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
     ptex = NULL;
     if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
-		ptex = TextureManager::getSingleton()->get_valid_ptr((TX_REF)TX_PHONG);
+		ptex = TextureManager::get().get_valid_ptr((TX_REF)TX_PHONG);
     }
 
     if ( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
@@ -137,7 +137,7 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
 
     if ( NULL == ptex )
     {
-        ptex = TextureManager::getSingleton()->get_valid_ptr( pinst->texture );
+        ptex = TextureManager::get().get_valid_ptr( pinst->texture );
     }
 
     uoffset = pinst->uoffset - pcam->getTurnZOne();
@@ -328,7 +328,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
     pmd2 = pmad->md2_ptr;
 
     // To make life easier
-	ptex = TextureManager::getSingleton()->get_valid_ptr(pinst->texture);
+	ptex = TextureManager::get().get_valid_ptr(pinst->texture);
 
     uoffset = pinst->uoffset * INV_FFFF;
     voffset = pinst->voffset * INV_FFFF;
@@ -2510,7 +2510,7 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
     }
 
     // grab the texture
-	ptex = TextureManager::getSingleton()->get_valid_ptr(itex);
+	ptex = TextureManager::get().get_valid_ptr(itex);
 
     // get the transparency info from the texture
     pinst->skin_has_transparency = false;

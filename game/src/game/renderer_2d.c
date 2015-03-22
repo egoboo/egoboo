@@ -51,7 +51,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
     STRING szText;
     Uint8 cTmp;
 
-    oglx_texture_t * tx_ptr = TextureManager::getSingleton()->get_valid_ptr(( TX_REF )TX_FONT_BMP );
+    oglx_texture_t * tx_ptr = TextureManager::get().get_valid_ptr(( TX_REF )TX_FONT_BMP );
     if ( NULL == tx_ptr ) return y;
 
     if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
@@ -498,7 +498,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
     Uint8 newword = true;
     int cnt = 1;
 
-    oglx_texture_t * tx_ptr = TextureManager::getSingleton()->get_valid_ptr(( TX_REF )TX_FONT_BMP );
+    oglx_texture_t * tx_ptr = TextureManager::get().get_valid_ptr(( TX_REF )TX_FONT_BMP );
     if ( NULL == tx_ptr ) return y;
 
     gfx_begin_text();

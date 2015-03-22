@@ -1468,7 +1468,6 @@ void cartman_check_mouse_vertex(std::shared_ptr<Cartman_Window> pwin, float zoom
 bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
 {
     using namespace Cartman;
-    int cnt;
 
     if (!Input::get()._mouse.on) return false;
 

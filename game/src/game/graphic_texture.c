@@ -90,13 +90,13 @@ void TextureManager::freeAll()
     }
 }
 
-TextureManager *TextureManager::getSingleton()
+TextureManager& TextureManager::get()
 {
     if (!_singleton)
     {
         throw std::logic_error("texture manager not initialized");
     }
-	return _singleton;
+	return *_singleton;
 }
 
 void TextureManager::initialize()

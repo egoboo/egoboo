@@ -51,90 +51,76 @@ static bool _billboard_system_started = false;
 //--------------------------------------------------------------------------------------------
 // billboard_data_t IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-billboard_data_t * billboard_data_init( billboard_data_t * pbb )
+billboard_data_t *billboard_data_t::init(billboard_data_t *self)
 {
-    if ( NULL == pbb ) return pbb;
+    if (!self)
+    {
+        return nullptr;
+    }
 
-    BLANK_STRUCT_PTR( pbb )
+    BLANK_STRUCT_PTR(self);
 
-    pbb->tex_ref = INVALID_TX_REF;
-    pbb->ichr    = INVALID_CHR_REF;
+    self->tex_ref = INVALID_TX_REF;
+    self->ichr = INVALID_CHR_REF;
 
-    pbb->tint[RR] = pbb->tint[GG] = pbb->tint[BB] = pbb->tint[AA] = 1.0f;
-    pbb->size = 1.0f;
+    self->tint[RR] = self->tint[GG] = self->tint[BB] = self->tint[AA] = 1.0f;
+    self->size = 1.0f;
 
-    /*    pbb->tint_add[AA] -= 1.0f / 400.0f;
-
-        pbb->size_add -= 1.0f / 400.0f;
-
-        pbb->offset_add[ZZ] += 127 / 50.0f * 2.0f;
-    */
-    return pbb;
+    return self;
 }
 
-//--------------------------------------------------------------------------------------------
-bool billboard_data_free( billboard_data_t * pbb )
+bool billboard_data_t::free(billboard_data_t * self)
 {
-    if ( NULL == pbb || !pbb->valid ) return false;
+    if (!self || !self->valid)
+    {
+        return false;
+    }
 
     // free any allocated texture
-	TextureManager::getSingleton()->relinquish(pbb->tex_ref);
+    TextureManager::get().relinquish(self->tex_ref);
 
-    billboard_data_init( pbb );
+    billboard_data_t::init(self);
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool billboard_data_update( billboard_data_t * pbb )
+bool billboard_data_t::update(billboard_data_t *self)
 {
     fvec3_t     vup, pos_new;
-    Object     * pchr;
 
-    if ( NULL == pbb || !pbb->valid ) return false;
+    if (!self || !self->valid)
+    {
+        return false;
+    }
 
-    if ( !_gameObjects.exists( pbb->ichr ) ) return false;
-    pchr = _gameObjects.get( pbb->ichr );
+    if (!_gameObjects.exists(self->ichr))
+    {
+        return false;
+    }
+    Object *pchr = _gameObjects.get(self->ichr);
 
     // determine where the new position should be
     chr_getMatUp(pchr, vup);
 
-/*
-    height = pchr->bump.height;
-    offset = std::min( pchr->bump.height * 0.5f, pchr->bump.size );
+    self->size += self->size_add;
 
-    pos_new.x = pchr->getPosX() + vup.x * ( height + offset );
-    pos_new.y = pchr->getPosY() + vup.y * ( height + offset );
-    pos_new.z = pchr->getPosZ() + vup.z * ( height + offset );
+    self->tint[RR] += self->tint_add[RR];
+    self->tint[GG] += self->tint_add[GG];
+    self->tint[BB] += self->tint_add[BB];
+    self->tint[AA] += self->tint_add[AA];
 
-    // allow the billboards to be a bit bouncy
-    pbb->pos.x = pbb->pos.x * 0.5f + pos_new.x * 0.5f;
-    pbb->pos.y = pbb->pos.y * 0.5f + pos_new.y * 0.5f;
-    pbb->pos.z = pbb->pos.z * 0.5f + pos_new.z * 0.5f;
-*/
-
-    pbb->size += pbb->size_add;
-
-    pbb->tint[RR] += pbb->tint_add[RR];
-    pbb->tint[GG] += pbb->tint_add[GG];
-    pbb->tint[BB] += pbb->tint_add[BB];
-    pbb->tint[AA] += pbb->tint_add[AA];
-
-    //pbb->offset[XX] += pbb->offset_add[XX];
-    //pbb->offset[YY] += pbb->offset_add[YY];
-    pbb->offset[ZZ] += pbb->offset_add[ZZ];
+    self->offset[ZZ] += self->offset_add[ZZ];
 
     // automatically kill a billboard that is no longer useful
-    if ( pbb->tint[AA] <= 0.0f || pbb->size <= 0.0f )
+    if (self->tint[AA] <= 0.0f || self->size <= 0.0f)
     {
-        billboard_data_free( pbb );
+        billboard_data_t::free(self);
     }
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... )
+bool billboard_data_t::printf_ttf(billboard_data_t *self, Font *font, SDL_Color color, const char * format, ...)
 {
     va_list args;
 
@@ -142,10 +128,10 @@ bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color co
     oglx_texture_t * ptex;
     GLfloat loc_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-    if ( NULL == pbb || !pbb->valid ) return false;
+    if (!self || !self->valid) return false;
 
     // release any existing texture in case there is an error
-	ptex = TextureManager::getSingleton()->get_valid_ptr(pbb->tex_ref);
+    ptex = TextureManager::get().get_valid_ptr(self->tex_ref);
     oglx_texture_release( ptex );
 
     va_start( args, format );
@@ -171,11 +157,9 @@ IMPLEMENT_LIST( billboard_data_t, BillboardList, MAX_BBOARD );
 //--------------------------------------------------------------------------------------------
 void BillboardList_init_all()
 {
-    BBOARD_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_BBOARD; cnt++ )
+    for (BBOARD_REF ref = 0; ref < MAX_BBOARD; ++ref)
     {
-        billboard_data_init( BillboardList_get_ptr( cnt ) );
+        billboard_data_t::init(BillboardList_get_ptr( ref));
     }
 
     BillboardList_clear_data();
@@ -198,7 +182,7 @@ void BillboardList_update_all()
         if ( !pbb->valid ) continue;
 
         is_invalid = false;
-		if ((ticks >= pbb->time) || (nullptr == TextureManager::getSingleton()->get_valid_ptr(pbb->tex_ref)))
+		if ((ticks >= pbb->time) || (nullptr == TextureManager::get().get_valid_ptr(pbb->tex_ref)))
         {
             is_invalid = true;
         }
@@ -223,7 +207,7 @@ void BillboardList_update_all()
         }
         else
         {
-            billboard_data_update( BillboardList_get_ptr( cnt ) );
+            billboard_data_t::update( BillboardList_get_ptr( cnt ) );
         }
     }
 }
@@ -231,13 +215,13 @@ void BillboardList_update_all()
 //--------------------------------------------------------------------------------------------
 void BillboardList_free_all()
 {
-    BBOARD_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_BBOARD; cnt++ )
+    for (BBOARD_REF ref = 0; ref < MAX_BBOARD; ++ref)
     {
-        if ( !BillboardList.lst[cnt].valid ) continue;
-
-        billboard_data_update( BillboardList_get_ptr( cnt ) );
+        if (!BillboardList.lst[ref].valid)
+        {
+            continue;
+        }
+        billboard_data_t::update(BillboardList_get_ptr(ref));
     }
 }
 
@@ -253,7 +237,7 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
 
     if ( 0 == lifetime_secs ) return INVALID_BBOARD_REF;
 
-    itex = TextureManager::getSingleton()->acquire( INVALID_TX_REF );
+    itex = TextureManager::get().acquire( INVALID_TX_REF );
     if ( !VALID_TX_RANGE( itex ) ) return INVALID_BBOARD_REF;
 
     while ( BillboardList.free_count > 0 )
@@ -281,7 +265,7 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
     {
         pbb = BillboardList_get_ptr( ibb );
 
-        billboard_data_init( pbb );
+        billboard_data_t::init( pbb );
 
         pbb->tex_ref = itex;
         pbb->time    = SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC;
@@ -291,7 +275,7 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
     {
         // the billboard allocation returned an ivaild value
         // deallocate the texture
-		TextureManager::getSingleton()->relinquish(itex);
+		TextureManager::get().relinquish(itex);
 
         ibb = INVALID_BBOARD_REF;
     }
@@ -302,21 +286,18 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
 //--------------------------------------------------------------------------------------------
 bool BillboardList_free_one( size_t ibb )
 {
-    billboard_data_t * pbb;
+    if (!VALID_BILLBOARD_RANGE(ibb)) return false;
+    billboard_data_t *pbb = BillboardList_get_ptr(ibb);
 
-    if ( !VALID_BILLBOARD_RANGE( ibb ) ) return false;
-    pbb = BillboardList_get_ptr( ibb );
-
-    billboard_data_free( pbb );
+    billboard_data_t::free(pbb);
 
 #if defined(_DEBUG)
     {
-        int cnt;
-        // determine whether this texture is already in the list of free textures
-        // that is an error
-        for ( cnt = 0; cnt < BillboardList.free_count; cnt++ )
+        // If the billboard is already in the list of free billboards,
+        // then this is an error.
+        for (size_t i = 0; i < BillboardList.free_count; ++i)
         {
-            if ( ibb == BillboardList.free_ref[cnt] ) return false;
+            if (ibb == BillboardList.free_ref[i]) return false;
         }
     }
 #endif
@@ -401,7 +382,7 @@ bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fve
     // do not display for objects that are mounted or being held
     if (IS_ATTACHED_CHR_RAW(pbb->ichr)) return false;
 
-	oglx_texture_t *ptex = TextureManager::getSingleton()->get_valid_ptr(pbb->tex_ref);
+	oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(pbb->tex_ref);
 
     oglx_texture_bind(ptex);
 

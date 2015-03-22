@@ -178,7 +178,33 @@ bool vfs_writeEntireFile(const char *filename, const char *data, const size_t le
 
 // Wrap vfs into SDL_RWops
 struct SDL_RWops;
-    
+   
+/**
+ * @brief
+ *  Create SDL RW ops for the given filename.
+ * @param filename
+ *  the filename
+ * @return
+ *  the SDL RW ops on success, @a nullptr on failure
+ */
 SDL_RWops *vfs_openRWopsRead(const char *filename);
+
+/**
+ * @brief
+ *  Create SDL RW ops for the given filename.
+ * @param filename
+ *  the filename
+ * @return
+ *  the SDL RW ops on success, @a nullptr on failure
+ */
 SDL_RWops *vfs_openRWopsWrite(const char *filename);
+
+/**
+ * @brief
+ *  Create SDL RW ops for the given filename.
+ * @param filename
+ *  the filename
+ * @return
+ *  the SDL RW ops on success, @a nullptr on failure
+ */
 SDL_RWops *vfs_openRWopsAppend(const char *filename);

@@ -668,7 +668,6 @@ select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, 
 {
     // ZZ> This function checks the rectangular selection, and removes any fans
     //     in the selection area
-    Cartman::mpd_vertex_t * pvrt;
 
     float xmin, ymin, zmin;
     float xmax, ymax, zmax;

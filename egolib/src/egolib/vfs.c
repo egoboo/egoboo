@@ -3119,67 +3119,100 @@ static int vfs_rwops_seek( SDL_RWops * context, int offset, int whence )
 }
 
 //--------------------------------------------------------------------------------------------
-static int vfs_rwops_read( SDL_RWops * context, void * ptr, int size, int maxnum )
+static int vfs_rwops_read(SDL_RWops *context, void *ptr, int size, int maxnum)
 {
-    int retval = -1;
     if (context->type)
+    {
         return -1;
-    vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
-    retval = vfs_read(ptr, size, maxnum, pfile);
-    return retval;
+    }
+    vfs_FILE *file = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
+    return vfs_read(ptr, size, maxnum, file);
 }
 
 //--------------------------------------------------------------------------------------------
-static int vfs_rwops_write( SDL_RWops * context, const void * ptr, int size, int num )
+static int vfs_rwops_write(SDL_RWops *context, const void *ptr, int size, int num)
 {
     if (!context->type)
+    {
         return -1;
-    vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
-    return vfs_write(ptr, size, num, pfile);
+    }
+    vfs_FILE *file = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
+    return vfs_write(ptr, size, num, file);
 }
 
 //--------------------------------------------------------------------------------------------
-static int vfs_rwops_close( SDL_RWops * context )
+static int vfs_rwops_close(SDL_RWops *context)
 {
-    vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
-    vfs_close(pfile);
-    EGOBOO_DELETE(context);
+    vfs_FILE *file = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
+    vfs_close(file);
+    free(context);
     return 0;
 }
 
 //--------------------------------------------------------------------------------------------
-static SDL_RWops * vfs_rwops_create( vfs_FILE * pfile, bool writable )
+static SDL_RWops *vfs_rwops_create(vfs_FILE *file, bool writable)
 {
-    SDL_RWops * prwops = EGOBOO_NEW(SDL_RWops);
-    prwops->type = writable;
-    prwops->seek = vfs_rwops_seek;
-    prwops->read = vfs_rwops_read;
-    prwops->write = vfs_rwops_write;
-    prwops->close = vfs_rwops_close;
-    prwops->hidden.unknown.data1 = pfile;
-    return prwops;
+    SDL_RWops *rwops = (SDL_RWops *)malloc(sizeof(SDL_RWops));
+    if (!rwops)
+    {
+        return nullptr;
+    }
+    rwops->type = writable;
+    rwops->seek = vfs_rwops_seek;
+    rwops->read = vfs_rwops_read;
+    rwops->write = vfs_rwops_write;
+    rwops->close = vfs_rwops_close;
+    rwops->hidden.unknown.data1 = file;
+    return rwops;
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_RWops * vfs_openRWopsRead( const char * filename )
+SDL_RWops *vfs_openRWopsRead( const char * filename )
 {
-    vfs_FILE * pfile = vfs_openRead(filename);
-    if (NULL == pfile) return NULL;
-    return vfs_rwops_create(pfile, false);
+    vfs_FILE *file = vfs_openRead(filename);
+    if (!file)
+    {
+        return nullptr;
+    }
+    SDL_RWops *rwops = vfs_rwops_create(file, false);
+    if (!rwops)
+    {
+        vfs_close(file);
+        return nullptr;
+    }
+    return rwops;
 }
 
 //--------------------------------------------------------------------------------------------
 SDL_RWops * vfs_openRWopsWrite( const char * filename )
 {
-    vfs_FILE * pfile = vfs_openWrite(filename);
-    if (NULL == pfile) return NULL;
-    return vfs_rwops_create(pfile, true);
+    vfs_FILE *file = vfs_openWrite(filename);
+    if (!file)
+    {
+        return nullptr;
+    }
+    SDL_RWops *rwops = vfs_rwops_create(file, true);
+    if (!rwops)
+    {
+        vfs_close(file);
+        return nullptr;
+    }
+    return rwops;
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_RWops * vfs_openRWopsAppend( const char * filename )
+SDL_RWops *vfs_openRWopsAppend(const char *filename)
 {
-    vfs_FILE * pfile = vfs_openAppend(filename);
-    if (NULL == pfile) return NULL;
-    return vfs_rwops_create(pfile, true);
+    vfs_FILE *file = vfs_openAppend(filename);
+    if (!file)
+    {
+        return nullptr;
+    }
+    SDL_RWops *rwops = vfs_rwops_create(file, true);
+    if (!rwops)
+    {
+        vfs_close(file);
+        return nullptr;
+    }
+    return rwops;
 }

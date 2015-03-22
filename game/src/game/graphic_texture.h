@@ -136,7 +136,7 @@ public:
 	 * @warning
 	 *	Uninitializing the texture manager will invalidate any pointers returned by calls to this method prior to uninitialization.
 	 */
-	static TextureManager *getSingleton();
+	static TextureManager& get();
 	
 	/**
 	 * @brief

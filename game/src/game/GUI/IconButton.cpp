@@ -66,7 +66,7 @@ void IconButton::draw()
  	//Draw icon
  	int iconSize = getHeight()-4;
  	if(_icon != INVALID_TX_REF) {
-    	draw_icon_texture(TextureManager::getSingleton()->get_valid_ptr(_icon), getX() + getWidth() - getHeight()-2, getY()+2, 0xFF, 0, iconSize);
+    	draw_icon_texture(TextureManager::get().get_valid_ptr(_icon), getX() + getWidth() - getHeight()-2, getY()+2, 0xFF, 0, iconSize);
  	}
 
     //Draw text on left side in button

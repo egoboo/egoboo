@@ -255,6 +255,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Image\Image.cpp" />
     <ClCompile Include="src\egolib\Core\Component.cpp" />
     <ClCompile Include="src\egolib\Math\Matrix44.cpp" />
     <ClCompile Include="src\egolib\FileFormats\configfile.c" />
@@ -433,6 +434,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Image\Image.hpp" />
     <ClInclude Include="src\egolib\Core\Component.hpp" />
     <ClInclude Include="src\egolib\Renderer\CullingMode.hpp" />
     <ClInclude Include="src\egolib\Renderer\WindingMode.hpp" />
@@ -573,6 +575,11 @@
     </CustomBuildStep>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\OpenGL.inl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
+    </ClInclude>
     <None Include="src\egolib\FileFormats\id_normals.inl" />
     <None Include="src\egolib\platform\file_mac.m">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

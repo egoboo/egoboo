@@ -6007,7 +6007,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     pbb = BillboardList_get_ptr( pchr->ibillboard );
     if ( NULL == pbb ) return pbb;
 
-    rv = billboard_data_printf_ttf( pbb, _gameEngine->getUIManager()->getFloatingTextFont(), text_color, "%s", txt );
+    rv = billboard_data_t::printf_ttf( pbb, _gameEngine->getUIManager()->getFloatingTextFont(), text_color, "%s", txt );
 
     if ( rv < 0 )
     {

@@ -133,7 +133,7 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
+void SDLX_output_sdl_gl_attrib(SDLX_sdl_gl_attrib_t *self)
 {
     log_message("\nSDL_GL_Attribtes\n");
 
@@ -142,72 +142,72 @@ void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     // the framebuffer has, specifying depths > the framebuffer one
     // will cause SDL_SetVideoMode to fail with: "Unable to set video mode: Couldn't find matching GLX visual"
 
-    log_message("\tSDL_GL_RED_SIZE           == %d\n", patt->color[0]);
-    log_message("\tSDL_GL_GREEN_SIZE         == %d\n", patt->color[1]);
-    log_message("\tSDL_GL_BLUE_SIZE          == %d\n", patt->color[2]);
-    log_message("\tSDL_GL_ALPHA_SIZE         == %d\n", patt->color[3]);
-    log_message("\tSDL_GL_BUFFER_SIZE        == %d\n", patt->buffer_size);
-    log_message("\tSDL_GL_DEPTH_SIZE         == %d\n", patt->depth_size);
+    log_message("\tSDL_GL_RED_SIZE           == %d\n", self->color[0]);
+    log_message("\tSDL_GL_GREEN_SIZE         == %d\n", self->color[1]);
+    log_message("\tSDL_GL_BLUE_SIZE          == %d\n", self->color[2]);
+    log_message("\tSDL_GL_ALPHA_SIZE         == %d\n", self->color[3]);
+    log_message("\tSDL_GL_BUFFER_SIZE        == %d\n", self->buffer_size);
+    log_message("\tSDL_GL_DEPTH_SIZE         == %d\n", self->depth_size);
 #endif
 
-    log_message("\tSDL_GL_DOUBLEBUFFER       == %d\n", patt->doublebuffer);
-    log_message("\tSDL_GL_STENCIL_SIZE       == %d\n", patt->stencil_size);
-    log_message("\tSDL_GL_ACCUM_RED_SIZE     == %d\n", patt->accum[0]);
-    log_message("\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", patt->accum[1]);
-    log_message("\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", patt->accum[2]);
-    log_message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", patt->accum[3]);
-    log_message("\tSDL_GL_STEREO             == %d\n", patt->stereo);
+    log_message("\tSDL_GL_DOUBLEBUFFER       == %d\n", self->doublebuffer);
+    log_message("\tSDL_GL_STENCIL_SIZE       == %d\n", self->stencil_size);
+    log_message("\tSDL_GL_ACCUM_RED_SIZE     == %d\n", self->accum[0]);
+    log_message("\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", self->accum[1]);
+    log_message("\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", self->accum[2]);
+    log_message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", self->accum[3]);
+    log_message("\tSDL_GL_STEREO             == %d\n", self->stereo);
 
 #if !defined(__unix__)
-    log_message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", patt->multi_buffers );
-    log_message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", patt->multi_samples );
-    log_message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", patt->accelerated_visual);
+    log_message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", self->multi_buffers);
+    log_message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", self->multi_samples);
+    log_message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", self->accelerated_visual);
 
-    // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
-    log_message("\tSDL_GL_SWAP_CONTROL       == %d\n", patt->swap_control);
+    // Fedora 7 doesn't support SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
+    log_message("\tSDL_GL_SWAP_CONTROL       == %d\n", self->swap_control);
 #endif
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
+void SDLX_output_sdl_video_flags(SDLX_sdl_video_flags_t *self)
 {
     log_message("\nSDL flags\n");
 
-    log_message("    %s\n", flags.full_screen ? "fullscreen"           : "windowed");
-    log_message("    %s\n", flags.hw_surface  ? "SDL hardware surface" : "SDL software surface");
-    log_message("    %s\n", flags.double_buf  ? "SDL double buffer"    : "SDL single buffer");
+    log_message("    %s\n", self->full_screen ? "fullscreen" : "windowed");
+    log_message("    %s\n", self->hw_surface ? "SDL hardware surface" : "SDL software surface");
+    log_message("    %s\n", self->double_buf ? "SDL double buffer" : "SDL single buffer");
 
-    if ( flags.opengl )
+    if (self->opengl)
     {
         log_message("\tOpenGL support\n");
     }
 
-    if ( flags.opengl_blit )
+    if (self->opengl_blit)
     {
         log_message("\tOpenGL-compatible blitting\n");
     }
 
-    if ( flags.async_blit )
+    if (self->async_blit)
     {
         log_message("\tasynchronous blit\n");
     }
 
-    if ( flags.any_format )
+    if (self->any_format)
     {
         log_message("\tuse closest format\n");
     }
 
-    if ( flags.hw_palette )
+    if (self->hw_palette)
     {
         log_message("\texclusive palate access\n");
     }
 
-    if ( flags.resizable )
+    if (self->resizable)
     {
         log_message("\tresizable window\n");
     }
 
-    if ( flags.no_frame )
+    if (self->no_frame)
     {
         log_message("\tno external frame\n");
     }
@@ -267,20 +267,23 @@ void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pfla
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
+void SDLX_report_video_parameters(SDLX_video_parameters_t *self)
 {
     /// @author BB
     /// @details make a report
 
-    if ( NULL == v ) return;
-
-    log_message("\twidth == %d, height == %d, depth == %d\n", v->width, v->height, v->depth);
-
-    SDLX_output_sdl_video_flags( v->flags );
-
-    if ( v->flags.opengl )
+    if (!self)
     {
-        SDLX_output_sdl_gl_attrib( &( v->gl_att ) );
+        return;
+    }
+
+    log_message("\twidth == %d, height == %d, depth == %d\n", self->width, self->height, self->depth);
+
+    SDLX_output_sdl_video_flags(&(self->flags));
+
+    if (self->flags.opengl)
+    {
+        SDLX_output_sdl_gl_attrib(&(self->gl_att));
     }
 }
 
@@ -553,53 +556,62 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool SDLX_sdl_video_flags_default( SDLX_sdl_video_flags_t * pflags )
+SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t *self)
 {
-    if ( NULL == pflags ) return SDL_FALSE;
+    if (!self)
+    {
+        return SDL_FALSE;
+    }
 
-    BLANK_STRUCT_PTR( pflags )
+    BLANK_STRUCT_PTR(self);
 
-    pflags->double_buf  = 1;
-    pflags->full_screen = 1;
-    pflags->opengl      = 1;
+    self->double_buf  = 1;
+    self->full_screen = 1;
+    self->opengl      = 1;
+
+    return SDL_TRUE;
+}
+
+//--------------------------------------------------------------------------------------------
+SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t *self)
+{
+    if (!self)
+    {
+        return SDL_FALSE;
+    }
+
+    BLANK_STRUCT_PTR(self);
+
+    self->multi_buffers = 1;
+    self->multi_samples = 2;
+    self->accelerated_visual = 1;
+
+    self->color[0] = 8;
+    self->color[1] = 8;
+    self->color[2] = 8;
+    self->color[2] = 8;
+    self->buffer_size = 32;
+
+    self->depth_size = 8;
 
     return  SDL_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool SDLX_sdl_gl_attrib_default( SDLX_sdl_gl_attrib_t * patt )
+SDL_bool SDLX_video_parameters_default(SDLX_video_parameters_t *self)
 {
-    if ( NULL == patt ) return SDL_FALSE;
+    if (!self)
+    {
+        return SDL_FALSE;
+    }
 
-    BLANK_STRUCT_PTR( patt )
+    self->surface = nullptr;
+    self->width = 640;
+    self->height = 480;
+    self->depth = 32;
 
-    patt->multi_buffers      = 1;
-    patt->multi_samples      = 2;
-    patt->accelerated_visual = 1;
-
-    patt->color[0]    = 8;
-    patt->color[1]    = 8;
-    patt->color[2]    = 8;
-    patt->color[2]    = 8;
-    patt->buffer_size = 32;
-
-    patt->depth_size = 8;
-
-    return  SDL_TRUE;
-}
-
-//--------------------------------------------------------------------------------------------
-SDL_bool SDLX_video_parameters_default( SDLX_video_parameters_t * v )
-{
-    if ( NULL == v ) return SDL_FALSE;
-
-    v->surface = NULL;
-    v->width   = 640;
-    v->height  = 480;
-    v->depth   =  32;
-
-    SDLX_sdl_video_flags_default( &( v->flags ) );
-    SDLX_sdl_gl_attrib_default( &( v->gl_att ) );
+    SDLX_sdl_video_flags_default(&(self->flags));
+    SDLX_sdl_gl_attrib_default(&(self->gl_att));
 
     return SDL_TRUE;
 }

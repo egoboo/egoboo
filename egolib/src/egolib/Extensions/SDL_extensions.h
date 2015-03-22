@@ -31,42 +31,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-    struct oglx_video_parameters_t;
-    struct SDLX_sdl_video_flags_t;
-    struct SDLX_sdl_gl_attrib_t;
-    struct SDLX_screen_info_t;
-    struct SDLX_video_parameters_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// bitwise operations
-    /*#if !defined(BOOL_TO_BIT)
-    #    define BOOL_TO_BIT(X)       ((X) ? 1 : 0 )
-    #endif
-
-    #if !defined(BIT_TO_BOOL)
-    #    define BIT_TO_BOOL(X)       ((1 == X) ? SDL_TRUE : SDL_FALSE )
-    #endif
-
-    #if !defined(HAS_SOME_BITS)
-    #    define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
-    #endif
-
-    #if !defined(HAS_ALL_BITS)
-    #    define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))
-    #endif
-
-    #if !defined(HAS_NO_BITS)
-    #    define HAS_NO_BITS(XX,YY)   (0 == ((XX)&(YY)))
-    #endif
-
-    #if !defined(MISSING_BITS)
-    #    define MISSING_BITS(XX,YY)  (HAS_SOME_BITS(XX,YY) && !HAS_ALL_BITS(XX,YY))
-    #endif*/
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /// A structure holding some of SDL's video data
     struct SDLX_sdl_video_flags_t
     {
@@ -91,6 +55,9 @@
 
     };
 
+    void SDLX_output_sdl_video_flags(SDLX_sdl_video_flags_t *self);
+    SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t *self);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -111,6 +78,9 @@
         int swap_control;       ///< SDL_GL_SWAP_CONTROL
     };
 
+    void SDLX_output_sdl_gl_attrib(SDLX_sdl_gl_attrib_t *self);
+    SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t *self);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -118,15 +88,15 @@
     struct SDLX_screen_info_t
     {
         // JF - Added so that the video mode might be determined outside of the graphics code
-        SDL_Surface * pscreen;
+        SDL_Surface *pscreen;
 
-        SDL_Rect **   video_mode_list;
+        SDL_Rect **video_mode_list;
 
-        char          szDriver[256];    ///< graphics driver name;
+        char szDriver[256];    ///< graphics driver name;
 
-        int           d;                ///< Screen bit depth
-        int           x;                ///< Screen X size
-        int           y;                ///< Screen Y size
+        int d;                ///< Screen bit depth
+        int x;                ///< Screen X size
+        int y;                ///< Screen Y size
 
         // SDL OpenGL attributes
         SDLX_sdl_gl_attrib_t gl_att;
@@ -151,17 +121,18 @@
 /// Parameters for setting an SDL video state
     struct SDLX_video_parameters_t
     {
-        int    width;
-        int    height;
-        int    depth;
+        int width;
+        int height;
+        int depth;
 
         SDLX_sdl_video_flags_t flags;
-        SDLX_sdl_gl_attrib_t   gl_att;
+        SDLX_sdl_gl_attrib_t gl_att;
 
-        SDL_Surface * surface;
+        SDL_Surface *surface;
     };
 
-    SDL_bool SDLX_video_parameters_default( SDLX_video_parameters_t * v );
+    void SDLX_report_video_parameters(SDLX_video_parameters_t *self);
+    SDL_bool SDLX_video_parameters_default(SDLX_video_parameters_t *self);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -33,12 +33,6 @@ class Camera;
 struct Font;
 
 //--------------------------------------------------------------------------------------------
-// internal structs
-//--------------------------------------------------------------------------------------------
-#if 0
-struct billboard_data_t;
-#endif
-//--------------------------------------------------------------------------------------------
 // constants
 //--------------------------------------------------------------------------------------------
 
@@ -76,12 +70,14 @@ struct billboard_data_t
 
     float       size;
     float       size_add;
+
+    static billboard_data_t *init(billboard_data_t *self);
+    static bool free(billboard_data_t *self);
+    static bool update(billboard_data_t *self);
+    static bool printf_ttf(billboard_data_t *self, Font *font, SDL_Color color, const char * format, ...) GCC_PRINTF_FUNC(4);
 };
 
-billboard_data_t * billboard_data_init( billboard_data_t * pbb );
-bool             billboard_data_free( billboard_data_t * pbb );
-bool             billboard_data_update( billboard_data_t * pbb );
-bool             billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... ) GCC_PRINTF_FUNC( 4 );
+
 
 #define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < MAX_BBOARD ) )
 #define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
@@ -105,5 +101,5 @@ bool billboard_system_begin();
 bool billboard_system_end();
 bool billboard_system_init();
 
-bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt );
-gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam );
+bool billboard_system_render_one(billboard_data_t *self, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt );
+gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera);

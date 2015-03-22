@@ -67,6 +67,12 @@
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{d2ac6229-c307-4554-b7a4-97552fbeb81a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Image">
+      <UniqueIdentifier>{8151f5d0-34b1-4296-af87-c4422c3e97e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Image">
+      <UniqueIdentifier>{35e2959d-0b60-4b8c-9ff7-1194d1da903c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -347,6 +353,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Core\Component.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Image\Image.cpp">
+      <Filter>Source Files\Image</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -698,6 +707,9 @@
     <ClInclude Include="src\egolib\Renderer\WindingMode.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Image\Image.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
@@ -711,6 +723,9 @@
     </None>
     <None Include="src\egolib\FileFormats\id_normals.inl">
       <Filter>File Formats</Filter>
+    </None>
+    <None Include="src\egolib\Renderer\OpenGL\OpenGL.inl">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
     </None>
   </ItemGroup>
 </Project>

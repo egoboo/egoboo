@@ -146,21 +146,14 @@ static void   game_reset_players();
 // Model stuff
 static void log_madused_vfs( const char *savename );
 
-#if 0
-// "process" management
-static int game_process_do_begin( game_process_t * gproc );
-static int game_process_do_running( game_process_t * gproc );
-static int game_process_do_leaving( game_process_t * gproc );
-#endif
-
 // place the object lists in the initial state
 void reset_all_object_lists();
 
 // implementing wawalite data
-static bool upload_light_data( const wawalite_data_t * pdata );
-static bool upload_phys_data( const wawalite_physics_t * pdata );
-static bool upload_graphics_data( const wawalite_graphics_t * pdata );
-static bool upload_camera_data( const wawalite_camera_t * pdata );
+static bool upload_light_data(const wawalite_data_t *data);
+static bool upload_phys_data(const wawalite_physics_t *data);
+static bool upload_graphics_data(const wawalite_graphics_t *data);
+static bool upload_camera_data(const wawalite_camera_t *data);
 
 // implementing water layer data
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
@@ -177,10 +170,10 @@ static void game_setup_module( const char *smallname );
 static void game_reset_module_data();
 
 static egolib_rv game_load_global_assets();
-static void      game_load_module_assets( const char *modname );
+static void game_load_module_assets( const char *modname );
 
 static void load_all_profiles_import();
-static void import_dir_profiles_vfs( const std::string &importDirectory );
+static void import_dir_profiles_vfs(const std::string &importDirectory);
 static void game_load_global_profiles();
 static void game_load_module_profiles( const char *modname );
 
