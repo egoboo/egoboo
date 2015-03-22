@@ -25,39 +25,37 @@
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 // The following code ensures that for each OpenGL function variable static PF...PROC gl... = NULL; is declared/defined.
 #define GLPROC(variable,type,name) \
     static type variable = NULL;
 #include "egolib/Renderer/OpenGL/OpenGL.inl"
 #undef GLPROC
 
-// The following function dynamically links the OpenGL function.
-static bool link()
+namespace Ego
 {
-    static bool linked = false;
-    if (!linked)
+    namespace OpenGL
     {
+        // The following function dynamically links the OpenGL function.
+        static bool link()
+        {
+            static bool linked = false;
+            if (!linked)
+            {
 #define GLPROC(variable,type,name) \
-    variable = (type)SDL_GL_GetProcAddress(name); \
-    if (!variable) \
-        { \
-        return false; \
-        }
+                variable = (type)SDL_GL_GetProcAddress(name); \
+                if (!variable) \
+                { \
+                    return false; \
+                }
 #include "egolib/Renderer/OpenGL/OpenGL.inl"
 #undef GLPROC
-    }
-    linked = true;
-    return true;
-}
+            }
+            linked = true;
+            return true;
+        }
 
-#if defined(__cplusplus)
+    }
 }
-#endif
 
 namespace Ego
 {
@@ -123,7 +121,7 @@ namespace Ego
             _vendor(getVendor()),
             _name(getName())
         {
-            link();
+            Ego::OpenGL::link();
         }
 
 		Renderer::~Renderer()
