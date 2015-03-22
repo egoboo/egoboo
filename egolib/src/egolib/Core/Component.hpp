@@ -109,7 +109,8 @@ namespace Component
             {
                 std::ostringstream msg;
                 msg << __FILE__ << ":" << __LINE__ << ": " << _Factory().getName() << " already initialized - ignoring";
-                log_warning("%s\n", msg.str().c_str());
+                std::string msgStr = msg.str();
+                log_warning("%s\n", msgStr.c_str());
                 return true;
             }
             try
@@ -120,7 +121,8 @@ namespace Component
             {
                 std::ostringstream msg;
                 msg << __FILE__ << ":" << __LINE__ << ": " << " unable to initialize " << _Factory().getName();
-                log_warning("%s\n", msg.str().c_str());
+                std::string msgStr = msg.str();
+                log_warning("%s\n", msgStr.c_str());
                 return false;
             }
             return true;
@@ -140,7 +142,8 @@ namespace Component
             {
                 std::ostringstream msg;
                 msg << __FILE__ << ":" << __LINE__ << ": " << _Factory().getName() << " not initialized - ignoring";
-                log_warning("%s\n", msg.str().c_str());
+                std::string msgStr = msg.str();
+                log_warning("%s\n", msgStr.c_str());
                 return;
             }
             delete _singleton;

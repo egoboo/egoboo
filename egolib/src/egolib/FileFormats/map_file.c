@@ -55,7 +55,9 @@ bool map_t::setInfo(const map_info_t& info)
     // Validate the map info.
     if (!info.validate())
     {
-        goto Fail;
+        setInfo();
+
+        return false;
     }
 
     // Allocate the map's tile and vertex memory.
@@ -67,12 +69,6 @@ bool map_t::setInfo(const map_info_t& info)
     _info = info;
 
     return true;
-
-Fail:
-
-    setInfo();
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------

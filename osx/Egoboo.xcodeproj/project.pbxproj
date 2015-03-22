@@ -112,6 +112,7 @@
 		CD39CD361AA541410005E3EA /* SDL_mixer.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = CD39B4A91A37629B00B377BE /* SDL_mixer.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CD39CD371AA541410005E3EA /* SDL_ttf.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = CD39B4AA1A37629C00B377BE /* SDL_ttf.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CD39CD381AA541410005E3EA /* SDL.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = CD39B4AB1A37629C00B377BE /* SDL.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CD39FF8C1ABB865F00F1A2FB /* Component.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD39FF8B1ABB865F00F1A2FB /* Component.cpp */; };
 		CD406C811A96B16B00465793 /* IDSZ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD406C7F1A96B16B00465793 /* IDSZ.cpp */; };
 		CD44DD801A476046005E6DF0 /* bsp.c in Sources */ = {isa = PBXBuildFile; fileRef = CD44DD7E1A476046005E6DF0 /* bsp.c */; };
 		CD44E25E1A76F36B00D22608 /* dir.c in Sources */ = {isa = PBXBuildFile; fileRef = CD8679321A76ED8F00B28D92 /* dir.c */; };
@@ -715,6 +716,7 @@
 		CD39CD3C1AA541410005E3EA /* IdLib Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "IdLib Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD39CD3E1AA541940005E3EA /* egolib-tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "egolib-tests-Info.plist"; sourceTree = "<group>"; };
 		CD39CD3F1AA541940005E3EA /* idlib-tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "idlib-tests-Info.plist"; sourceTree = "<group>"; };
+		CD39FF8B1ABB865F00F1A2FB /* Component.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Component.cpp; sourceTree = "<group>"; };
 		CD406C7E1A96B15900465793 /* AbstractProfile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AbstractProfile.hpp; sourceTree = "<group>"; };
 		CD406C7F1A96B16B00465793 /* IDSZ.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IDSZ.cpp; sourceTree = "<group>"; };
 		CD406C801A96B16B00465793 /* IDSZ.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IDSZ.hpp; sourceTree = "<group>"; };
@@ -749,6 +751,11 @@
 		CD4ABB031AAED52300A87097 /* VideoOptionsScreen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VideoOptionsScreen.hpp; sourceTree = "<group>"; };
 		CD4B64E41A7EE94C00A52646 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		CD4B64E51A7EE94C00A52646 /* Object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
+		CD50B11A1ABEFA7900F3ABAF /* OpenGL.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = OpenGL.inl; sourceTree = "<group>"; };
+		CD50B11B1ABF008700F3ABAF /* CompareFunction.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CompareFunction.hpp; sourceTree = "<group>"; };
+		CD50B11C1ABF008700F3ABAF /* CullingMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CullingMode.hpp; sourceTree = "<group>"; };
+		CD50B11D1ABF008700F3ABAF /* TextureAddressMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureAddressMode.hpp; sourceTree = "<group>"; };
+		CD50B11E1ABF008700F3ABAF /* WindingMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WindingMode.hpp; sourceTree = "<group>"; };
 		CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = CompileTest.cpp; sourceTree = "<group>"; };
 		CD58B7191A911BD900F2D2E6 /* ReaderUtilities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReaderUtilities.hpp; sourceTree = "<group>"; };
 		CD5B0CAB1A6204EC00F076F9 /* AStar.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AStar.c; sourceTree = "<group>"; };
@@ -1377,10 +1384,14 @@
 			isa = PBXGroup;
 			children = (
 				CD0FE1551A7B09AD00F3392B /* OpenGL */,
+				CD50B11B1ABF008700F3ABAF /* CompareFunction.hpp */,
 				CD44E45E1A895D9B00D345DF /* ComparisonFunction.hpp */,
+				CD50B11C1ABF008700F3ABAF /* CullingMode.hpp */,
 				CD0FE1581A7B09AD00F3392B /* Renderer.cpp */,
 				CD0FE1591A7B09AD00F3392B /* Renderer.hpp */,
+				CD50B11D1ABF008700F3ABAF /* TextureAddressMode.hpp */,
 				CD0CB08B1A84AAF800D78E80 /* TextureFilter.hpp */,
+				CD50B11E1ABF008700F3ABAF /* WindingMode.hpp */,
 			);
 			path = Renderer;
 			sourceTree = "<group>";
@@ -1388,6 +1399,7 @@
 		CD0FE1551A7B09AD00F3392B /* OpenGL */ = {
 			isa = PBXGroup;
 			children = (
+				CD50B11A1ABEFA7900F3ABAF /* OpenGL.inl */,
 				CD0FE1561A7B09AD00F3392B /* Renderer.cpp */,
 				CD0FE1571A7B09AD00F3392B /* Renderer.hpp */,
 			);
@@ -1788,6 +1800,7 @@
 			isa = PBXGroup;
 			children = (
 				CD80C4D91AB1F06600D915FF /* CollectionUtilities.hpp */,
+				CD39FF8B1ABB865F00F1A2FB /* Component.cpp */,
 				CD80C4DA1AB1F06600D915FF /* Component.hpp */,
 				CD80C4DB1AB1F06600D915FF /* StringUtilities.hpp */,
 			);
@@ -2633,6 +2646,7 @@
 				CD13298B1A90130300D1B221 /* ParticleProfileReader.cpp in Sources */,
 				CDCA1FC91A3F57D000002E76 /* spawn_file.c in Sources */,
 				CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */,
+				CD39FF8C1ABB865F00F1A2FB /* Component.cpp in Sources */,
 				CDCA1FD21A3F57D000002E76 /* hash.c in Sources */,
 				CDCA1FDC1A3F57D000002E76 /* process.c in Sources */,
 				CDCA1FA81A3F57D000002E76 /* bbox.c in Sources */,
