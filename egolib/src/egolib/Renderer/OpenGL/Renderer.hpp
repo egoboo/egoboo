@@ -52,7 +52,6 @@ namespace Ego
 		class Renderer : public Ego::Renderer
 		{
         protected:
-            PFNGLSTENCILMASKSEPARATEPROC glStencilMaskSeparate;
             /**
              * @brief
              *  The list of OpenGL extensions supported by this OpenGL implementation.

@@ -25,6 +25,40 @@
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+// The following code ensures that for each OpenGL function variable static PF...PROC gl... = NULL; is declared/defined.
+#define GLPROC(variable,type,name) \
+    static type variable = NULL;
+#include "egolib/Renderer/OpenGL/OpenGL.inl"
+#undef GLPROC
+
+// The following function dynamically links the OpenGL function.
+static bool link()
+{
+    static bool linked = false;
+    if (!linked)
+    {
+#define GLPROC(variable,type,name) \
+    variable = (type)SDL_GL_GetProcAddress(name); \
+    if (!variable) \
+        { \
+        return false; \
+        }
+#include "egolib/Renderer/OpenGL/OpenGL.inl"
+#undef GLPROC
+    }
+    linked = true;
+    return true;
+}
+
+#if defined(__cplusplus)
+}
+#endif
+
 namespace Ego
 {
 	namespace OpenGL
@@ -89,11 +123,7 @@ namespace Ego
             _vendor(getVendor()),
             _name(getName())
         {
-            glStencilMaskSeparate = static_cast<PFNGLSTENCILMASKSEPARATEPROC>(SDL_GL_GetProcAddress("glStencilMaskSeparate"));
-            if (!glStencilMaskSeparate)
-            {
-                throw std::runtime_error("OpenGL driver does not support glStencilMaskSeparate");
-            }
+            link();
         }
 
 		Renderer::~Renderer()
