@@ -43,7 +43,7 @@ static GLboolean _ogl_initialized = GL_FALSE;
 const SDL_Color cart_white = { 0xFF, 0xFF, 0xFF, 0xFF };
 const SDL_Color cart_black = { 0x00, 0x00, 0x00, 0xFF };
 
-Font * gfx_font_ptr = NULL;
+std::shared_ptr<Ego::Font> gfx_font_ptr = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -113,12 +113,15 @@ void gfx_system_begin()
 
     theSurface = SDL_GetVideoSurface();
 
-    gfx_font_ptr = fnt_loadFont("editor/pc8x8.fon", 12);
+    Ego::FontManager::initialize();
+    gfx_font_ptr = Ego::FontManager::loadFont("editor/pc8x8.fon", 12);
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_system_end()
 {
+    gfx_font_ptr.reset();
+    Ego::FontManager::uninitialize();
     Ego::Renderer::uninitialize();
 }
 

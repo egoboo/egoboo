@@ -23,7 +23,6 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/font_ttf.h"
 
 //--------------------------------------------------------------------------------------------
 // TYPEDEFS
@@ -56,6 +55,10 @@
 
     SDL_Event * egolib_console_handle_events( SDL_Event * evt );
 
+
+/// @todo: Remove when egolib_console_t is a proper C++ class
+class egolib_console_FontWrapper;
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -82,7 +85,7 @@ extern "C"
         egolib_console_callback_t    run_func;
         void                       * run_data;
 
-        Font * pfont;
+        egolib_console_FontWrapper * pfont;
 
         SDL_bool on;
 

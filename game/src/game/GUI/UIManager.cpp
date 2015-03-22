@@ -33,17 +33,19 @@ UIManager::UIManager() :
     _debugFont(nullptr),
 	_renderSemaphore(0)
 {
-	fnt_init();
-	_defaultFont = fnt_loadFont("mp_data/Bo_Chen.ttf", 24);
-    _floatingTextFont = fnt_loadFont("mp_data/FrostysWinterland.ttf", 24);
-    _debugFont = fnt_loadFont("mp_data/DejaVuSansMono.ttf", 10);
+    Ego::FontManager::initialize();
+	_defaultFont = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
+    _floatingTextFont = Ego::FontManager::loadFont("mp_data/FrostysWinterland.ttf", 24);
+    _debugFont = Ego::FontManager::loadFont("mp_data/DejaVuSansMono.ttf", 10);
 }
 
 UIManager::~UIManager()
 {
-	fnt_freeFont(_defaultFont);
-    fnt_freeFont(_floatingTextFont);
-    fnt_freeFont(_debugFont);
+    // free fonts before font manager
+    _defaultFont.reset();
+    _floatingTextFont.reset();
+    _debugFont.reset();
+    Ego::FontManager::uninitialize();
 }
 
 void UIManager::beginRenderUI()
@@ -140,17 +142,17 @@ void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, fl
     draw_quad_2d(&img, destination, source, true, tint);
 }
 
-Font* UIManager::getDefaultFont() const
+std::shared_ptr<Ego::Font> UIManager::getDefaultFont() const
 {
     return _defaultFont;
 }
 
-Font* UIManager::getFloatingTextFont() const
+std::shared_ptr<Ego::Font> UIManager::getFloatingTextFont() const
 {
     return _floatingTextFont;
 }
 
-Font* UIManager::getDebugFont() const
+std::shared_ptr<Ego::Font> UIManager::getDebugFont() const
 {
     return _debugFont;
 }

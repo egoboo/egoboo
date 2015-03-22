@@ -134,13 +134,14 @@ bool billboard_data_update( billboard_data_t * pbb )
 }
 
 //--------------------------------------------------------------------------------------------
-bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... )
+bool billboard_data_printf_ttf( billboard_data_t * pbb, const std::shared_ptr<Ego::Font> &font, SDL_Color color, const char * format, ... )
 {
     va_list args;
 
     int rv;
     oglx_texture_t * ptex;
-    GLfloat loc_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    Ego::Math::Colour4f colour4(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1.0f);
+    char buffer[256];
 
     if ( NULL == pbb || !pbb->valid ) return false;
 
@@ -149,8 +150,10 @@ bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color co
     oglx_texture_release( ptex );
 
     va_start( args, format );
-    rv = fnt_vprintf_OGL( font, color, ptex->base.binding, loc_coords, format, args, &( ptex->surface ) );
+    vsnprintf(buffer, SDL_arraysize(buffer), format, args);
     va_end( args );
+    font->drawTextToTexture(ptex, buffer, colour4);
+    rv = rv_success;
 
     ptex->base_valid = false;
     oglx_grab_texture_state( GL_TEXTURE_2D, 0, ptex );

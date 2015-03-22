@@ -10,8 +10,7 @@ Label::Label(const std::string &text) :
 void Label::draw()
 {
     //Draw text
-	Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
-    fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX(), getY(), getWidth(), getHeight(), 25, nullptr, "%s", _text.c_str());
+    _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_text, getX(), getY(), getWidth(), getHeight(), 25);
 }
 
 void Label::setText(const std::string &text)
@@ -20,6 +19,6 @@ void Label::setText(const std::string &text)
 
 	//Recalculate our size
 	int textWidth, textHeight;
-	fnt_getTextBoxSize(_gameEngine->getUIManager()->getDefaultFont(), 25, _text.c_str(), &textWidth, &textHeight);
+    _gameEngine->getUIManager()->getDefaultFont()->getTextBoxSize(_text, 25, &textWidth, &textHeight);
 	setSize(textWidth, textHeight);
 }

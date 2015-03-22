@@ -41,6 +41,8 @@
 		CD0FE1531A7B096800F3392B /* ObjectHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1511A7B096800F3392B /* ObjectHandler.cpp */; };
 		CD0FE15A1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1561A7B09AD00F3392B /* Renderer.cpp */; };
 		CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1581A7B09AD00F3392B /* Renderer.cpp */; };
+		CD113DBC1ABF31B20067B227 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD113DB81ABF31B20067B227 /* Font.cpp */; };
+		CD113DBD1ABF31B20067B227 /* FontManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD113DBA1ABF31B20067B227 /* FontManager.cpp */; };
 		CD1329871A90130300D1B221 /* EnchantProfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1329781A90130300D1B221 /* EnchantProfile.cpp */; };
 		CD1329881A90130300D1B221 /* EnchantProfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD13297A1A90130300D1B221 /* EnchantProfileReader.cpp */; };
 		CD1329891A90130300D1B221 /* EnchantProfileWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD13297C1A90130300D1B221 /* EnchantProfileWriter.cpp */; };
@@ -276,7 +278,6 @@
 		CDCA1FCC1A3F57D000002E76 /* wawalite_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3511A374B6000B377BE /* wawalite_file.c */; };
 		CDCA1FCD1A3F57D000002E76 /* fileutil.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3531A374B6000B377BE /* fileutil.c */; };
 		CDCA1FCE1A3F57D000002E76 /* font_bmp.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3551A374B6000B377BE /* font_bmp.c */; };
-		CDCA1FCF1A3F57D000002E76 /* font_ttf.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3571A374B6000B377BE /* font_ttf.c */; };
 		CDCA1FD01A3F57D000002E76 /* frustum.c in Sources */ = {isa = PBXBuildFile; fileRef = CDCA1F991A3F56C900002E76 /* frustum.c */; };
 		CDCA1FD11A3F57D000002E76 /* geometry.c in Sources */ = {isa = PBXBuildFile; fileRef = CDCA1F9B1A3F56C900002E76 /* geometry.c */; };
 		CDCA1FD21A3F57D000002E76 /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3591A374B6000B377BE /* hash.c */; };
@@ -512,6 +513,10 @@
 		CD0FE1571A7B09AD00F3392B /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
 		CD0FE1581A7B09AD00F3392B /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = "<group>"; };
 		CD0FE1591A7B09AD00F3392B /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
+		CD113DB81ABF31B20067B227 /* Font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Font.cpp; sourceTree = "<group>"; };
+		CD113DB91ABF31B20067B227 /* Font.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Font.hpp; sourceTree = "<group>"; };
+		CD113DBA1ABF31B20067B227 /* FontManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontManager.cpp; sourceTree = "<group>"; };
+		CD113DBB1ABF31B20067B227 /* FontManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FontManager.hpp; sourceTree = "<group>"; };
 		CD12C5811A8C7BB700027122 /* LockableList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LockableList.hpp; sourceTree = "<group>"; };
 		CD1329771A90130300D1B221 /* _Include.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = _Include.hpp; sourceTree = "<group>"; };
 		CD1329781A90130300D1B221 /* EnchantProfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnchantProfile.cpp; sourceTree = "<group>"; };
@@ -603,8 +608,6 @@
 		CD39B3541A374B6000B377BE /* fileutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileutil.h; sourceTree = "<group>"; };
 		CD39B3551A374B6000B377BE /* font_bmp.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = font_bmp.c; sourceTree = "<group>"; };
 		CD39B3561A374B6000B377BE /* font_bmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = font_bmp.h; sourceTree = "<group>"; };
-		CD39B3571A374B6000B377BE /* font_ttf.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = font_ttf.c; sourceTree = "<group>"; };
-		CD39B3581A374B6000B377BE /* font_ttf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = font_ttf.h; sourceTree = "<group>"; };
 		CD39B3591A374B6000B377BE /* hash.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = hash.c; sourceTree = "<group>"; };
 		CD39B35A1A374B6000B377BE /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
 		CD39B35B1A374B6000B377BE /* IDSZ_map.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = IDSZ_map.c; sourceTree = "<group>"; };
@@ -1406,6 +1409,17 @@
 			path = OpenGL;
 			sourceTree = "<group>";
 		};
+		CD113DB71ABF31B20067B227 /* Graphics */ = {
+			isa = PBXGroup;
+			children = (
+				CD113DB81ABF31B20067B227 /* Font.cpp */,
+				CD113DB91ABF31B20067B227 /* Font.hpp */,
+				CD113DBA1ABF31B20067B227 /* FontManager.cpp */,
+				CD113DBB1ABF31B20067B227 /* FontManager.hpp */,
+			);
+			path = Graphics;
+			sourceTree = "<group>";
+		};
 		CD1329761A90130300D1B221 /* Profiles */ = {
 			isa = PBXGroup;
 			children = (
@@ -1442,6 +1456,7 @@
 				CD80C4D81AB1F06600D915FF /* Core */,
 				CD39B3121A374B6000B377BE /* Extensions */,
 				CD39B3211A374B6000B377BE /* FileFormats */,
+				CD113DB71ABF31B20067B227 /* Graphics */,
 				CD39B3621A374B6000B377BE /* Lua */,
 				CD9059311A69A67C00DC425D /* Math */,
 				CD39B3711A374B6000B377BE /* Platform */,
@@ -1484,8 +1499,6 @@
 				CD1D57F81A8A9E9300C5B298 /* Float.hpp */,
 				CD39B3551A374B6000B377BE /* font_bmp.c */,
 				CD39B3561A374B6000B377BE /* font_bmp.h */,
-				CD39B3571A374B6000B377BE /* font_ttf.c */,
-				CD39B3581A374B6000B377BE /* font_ttf.h */,
 				CDCA1F991A3F56C900002E76 /* frustum.c */,
 				CDCA1F9A1A3F56C900002E76 /* frustum.h */,
 				CDCA1F9B1A3F56C900002E76 /* geometry.c */,
@@ -2616,6 +2629,7 @@
 				CD13298A1A90130300D1B221 /* ParticleProfile.cpp in Sources */,
 				CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */,
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
+				CD113DBC1ABF31B20067B227 /* Font.cpp in Sources */,
 				CD80C4E21AB2089B00D915FF /* LERP.cpp in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
 				CDB3DC981A659EF30098D3B9 /* mem.c in Sources */,
@@ -2648,6 +2662,7 @@
 				CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */,
 				CD39FF8C1ABB865F00F1A2FB /* Component.cpp in Sources */,
 				CDCA1FD21A3F57D000002E76 /* hash.c in Sources */,
+				CD113DBD1ABF31B20067B227 /* FontManager.cpp in Sources */,
 				CDCA1FDC1A3F57D000002E76 /* process.c in Sources */,
 				CDCA1FA81A3F57D000002E76 /* bbox.c in Sources */,
 				CD4803AD1A9441F5006DB980 /* AudioSystem.cpp in Sources */,
@@ -2670,7 +2685,6 @@
 				CDCA1FDB1A3F57D000002E76 /* sys_mac.m in Sources */,
 				CDCA1FBD1A3F57D000002E76 /* map_file-v1.c in Sources */,
 				CDEA079D1AB7564200A5C523 /* Matrix44.cpp in Sources */,
-				CDCA1FCF1A3F57D000002E76 /* font_ttf.c in Sources */,
 				CDCA1FAF1A3F57D000002E76 /* ogl_extensions.c in Sources */,
 				CD1D57FA1A8A9F0D00C5B298 /* Debug.cpp in Sources */,
 				CDCA1FCD1A3F57D000002E76 /* fileutil.c in Sources */,

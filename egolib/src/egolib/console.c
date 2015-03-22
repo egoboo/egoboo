@@ -28,6 +28,7 @@
 #include "egolib/strutil.h"
 #include "egolib/vfs.h"
 
+#include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/ogl_extensions.h"
@@ -67,6 +68,27 @@ static void egolib_console_add_output( egolib_console_t * pcon, char * szNew );
 static void egolib_console_draw_begin( void );
 static void egolib_console_draw_end( void );
 static SDL_bool egolib_console_draw( egolib_console_t * pcon );
+
+/**
+ * @brief
+ *  This class is to wrap the font's std::shared_ptr for use in calloc and friends
+ * @todo
+ *  Remove this when egolib_console_t is a proper C++ class.
+ */
+class egolib_console_FontWrapper final
+{
+public:
+    egolib_console_FontWrapper(const std::shared_ptr<Ego::Font> &font) :
+    _font(font)
+    {
+        // ctor
+    }
+    ~egolib_console_FontWrapper()
+    {
+        // dtor
+    }
+    std::shared_ptr<Ego::Font> _font;
+};
 
 //--------------------------------------------------------------------------------------------
 void egolib_console_begin( void )
@@ -244,7 +266,7 @@ egolib_console_t * egolib_console_ctor( egolib_console_t * pcon, SDL_Rect Con_re
     BLANK_STRUCT_PTR( pcon )
 
     // set the console's font
-    pcon->pfont = fnt_loadFont( "mp_data/pc8x8.fon", 12 );
+    pcon->pfont = new egolib_console_FontWrapper(Ego::FontManager::loadFont("mp_data/pc8x8.fon", 12));
 
     // set the console's rectangle
     pcon->rect = Con_rect;
@@ -291,7 +313,7 @@ egolib_console_t * egolib_console_dtor( egolib_console_t * pcon )
 {
     if ( NULL == pcon ) return NULL;
 
-    fnt_freeFont( pcon->pfont );
+    delete pcon->pfont;
 
     // remove the console from the stack
     egolib_console_stack_unlink( pcon );
@@ -409,7 +431,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
     ATTRIB_PUSH( __FUNCTION__, GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
         int text_w, text_h, height;
-        SDL_Color con_color = { 0xFF, 0xFF, 0xFF, 0x00 };
+        Ego::Math::Colour4f con_color = Ego::Math::Colour4f::WHITE;
 
         // make the texture a "null" texture
         GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, ( GLuint )( ~0 ) );
@@ -428,9 +450,9 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
         strncat( buffer, pcon->buffer, 1022 );
         buffer[1022] = CSTR_END;
 
-        fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
+        pcon->pfont->_font->getTextSize(buffer, &text_w, &text_h);
         height -= text_h;
-        fnt_drawText_OGL_immediate( pcon->pfont, con_color, pwin->x, height - text_h, "%s", buffer );
+        pcon->pfont->_font->drawText(buffer, pwin->x, height - text_h, con_color);
 
         if ( CSTR_END != pcon->output_buffer[0] )
         {
@@ -461,10 +483,10 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
 
                 strncpy( buffer, pcon->output_buffer + console_line_offsets[i], len );
                 buffer[len] = CSTR_END;
-
-                fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
+                
+                pcon->pfont->_font->getTextSize(buffer, &text_w, &text_h);
                 height -= text_h;
-                fnt_drawText_OGL_immediate( pcon->pfont, con_color, pwin->x, height - text_h, "%s", buffer );
+                pcon->pfont->_font->drawText(buffer, pwin->x, height - text_h, con_color);
             }
         }
 

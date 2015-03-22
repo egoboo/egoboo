@@ -31,6 +31,7 @@ struct Cartman_Window;
 struct cartman_mpd_t;
 struct s_select_lst;
 struct s_Font;
+namespace Ego { class Font; }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -136,7 +137,7 @@ extern int GFX_HEIGHT;
 extern const SDL_Color cart_white;
 extern const SDL_Color cart_black;
 
-extern struct Font * gfx_font_ptr;
+extern std::shared_ptr<Ego::Font> gfx_font_ptr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
