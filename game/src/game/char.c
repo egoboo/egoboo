@@ -598,9 +598,9 @@ void free_all_chraracters()
     /// @details This function resets the character allocation list
 
     //Remove all enchants
-    for (size_t iTmp = 0; iTmp < MAX_ENC; iTmp++ )
+    for (ENC_REF ref = 0; ref < MAX_ENC; ++ref)
     {
-        remove_enchant( iTmp, nullptr );
+        remove_enchant(ref, nullptr);
     }
 
     // free all the characters
@@ -5974,7 +5974,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
         pchr->ibillboard = INVALID_BBOARD_REF;
     }
 
-    pchr->ibillboard = ( BBOARD_REF )BillboardList_get_free_ref( lifetime_secs );
+    pchr->ibillboard = BillboardList_get_free_ref( lifetime_secs );
 
     // attachr the billboard to the character
     if ( INVALID_BBOARD_REF != pchr->ibillboard )

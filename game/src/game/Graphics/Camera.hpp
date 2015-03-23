@@ -73,6 +73,9 @@ class Camera
 public:
 	Camera(const CameraOptions &options);
     ~Camera();
+
+    Camera(const Camera&) = delete;
+    Camera& operator=(const Camera&) = delete;
     
     /// The default field of view angle (in degrees).
     static const float DEFAULT_FOV;

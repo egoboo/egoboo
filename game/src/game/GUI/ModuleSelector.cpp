@@ -111,13 +111,14 @@ void ModuleSelector::drawContainer()
 
     	//Draw module Name first
 		Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
-    	fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 5, getWidth() - 10, 20, 25, nullptr, "%s", _selectedModule->getName().c_str());
+        _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 20, 25);
+        
 
     	//Now difficulty
     	if(_selectedModule->getRank() > 0) {
 	        int textWidth, textHeight;
-	        fnt_getTextSize(_gameEngine->getUIManager()->getDefaultFont(), "Difficulty: ", &textWidth, &textHeight);
-	        fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25, nullptr, "Difficulty: ");
+            _gameEngine->getUIManager()->getDefaultFont()->getTextSize("Difficulty: ", &textWidth, &textHeight);
+            _gameEngine->getUIManager()->getDefaultFont()->drawTextBox("Difficulty: ", getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25);
 
 	    	//Draw one skull per rated difficulty
 	    	for(int i = 0; i < _selectedModule->getRank(); ++i) {
@@ -152,10 +153,7 @@ void ModuleSelector::drawContainer()
     		buffer << line << '\n';;
     	}
         
-        std::string bufferString = buffer.str();
-
-		Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
-	    fnt_drawTextBox_OGL(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0xFF}, getX() + 5, getY() + 45, getWidth() - 10, getHeight()-50, 25, nullptr, "%s", bufferString.c_str());
+        _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(buffer.str(), getX() + 5, getY() + 45, getWidth() - 10, getHeight() - 50, 25);
     }
 }
 

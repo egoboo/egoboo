@@ -255,6 +255,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\Font.cpp" />
+    <ClCompile Include="src\egolib\Graphics\FontManager.cpp" />
     <ClCompile Include="src\egolib\Image\Image.cpp" />
     <ClCompile Include="src\egolib\Core\Component.cpp" />
     <ClCompile Include="src\egolib\Math\Matrix44.cpp" />
@@ -394,7 +396,6 @@
     <ClCompile Include="src\egolib\fileutil.c" />
     <ClCompile Include="src\egolib\file_common.c" />
     <ClCompile Include="src\egolib\font_bmp.c" />
-    <ClCompile Include="src\egolib\font_ttf.c" />
     <ClCompile Include="src\egolib\frustum.c" />
     <ClCompile Include="src\egolib\geometry.c" />
     <ClCompile Include="src\egolib\hash.c" />
@@ -434,6 +435,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\Font.hpp" />
+    <ClInclude Include="src\egolib\Graphics\FontManager.hpp" />
     <ClInclude Include="src\egolib\Image\Image.hpp" />
     <ClInclude Include="src\egolib\Core\Component.hpp" />
     <ClInclude Include="src\egolib\Renderer\CullingMode.hpp" />
@@ -526,7 +529,6 @@
     <ClInclude Include="src\egolib\fileutil.h" />
     <ClInclude Include="src\egolib\file_common.h" />
     <ClInclude Include="src\egolib\font_bmp.h" />
-    <ClInclude Include="src\egolib\font_ttf.h" />
     <ClInclude Include="src\egolib\frustum.h" />
     <ClInclude Include="src\egolib\geometry.h" />
     <ClInclude Include="src\egolib\hash.h" />

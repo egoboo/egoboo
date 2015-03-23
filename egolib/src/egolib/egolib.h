@@ -35,7 +35,6 @@
 #include "egolib/file_common.h"
 #include "egolib/fileutil.h"
 #include "egolib/font_bmp.h"
-#include "egolib/font_ttf.h"
 #include "egolib/frustum.h"
 #include "egolib/hash.h"
 #include "egolib/_math.h"
@@ -61,6 +60,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#include "egolib/Graphics/FontManager.hpp"
+#include "egolib/Graphics/Font.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Profiles/_Include.hpp"
 

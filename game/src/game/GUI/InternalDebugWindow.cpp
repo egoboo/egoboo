@@ -33,7 +33,7 @@ InternalDebugWindow::InternalDebugWindow(const std::string &title) :
 {
 	//Set window size depending on title string
     int textWidth, textHeight;
-    fnt_getTextSize(_gameEngine->getUIManager()->getDefaultFont(), _title.c_str(), &textWidth, &textHeight);
+    _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
     textWidth = std::max(32, textWidth);
     textHeight = std::max(8, textHeight);
     setSize(std::max(getWidth(), 5 + static_cast<int>(textWidth*1.5f)), getY()+textHeight+5);
@@ -46,7 +46,7 @@ void InternalDebugWindow::addWatchVariable(const std::string &variableName, std:
 
 	//Make the window bigger
     int textWidth, textHeight;
-    fnt_getTextSize(_gameEngine->getUIManager()->getDebugFont(), variableName.c_str(), &textWidth, &textHeight);
+    _gameEngine->getUIManager()->getDebugFont()->getTextSize(variableName, &textWidth, &textHeight);
     textWidth = std::max(32, textWidth);
     textHeight = std::max(8, textHeight);
     setSize(std::max(getWidth(), 5 + textWidth*2), getHeight()+textHeight+5);
@@ -76,7 +76,7 @@ void InternalDebugWindow::draw()
     int textWidth, textHeight;
     int xOffset = getX() + 5;
     int yOffset = getY();
-    fnt_getTextSize(_gameEngine->getUIManager()->getDefaultFont(), _title.c_str(), &textWidth, &textHeight);
+    _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
 
     //Draw title bar
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );
@@ -92,23 +92,22 @@ void InternalDebugWindow::draw()
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     //Draw window title first
-	Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
-    fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDefaultFont(), {0xFF, 0xFF, 0xFF, 0x00}, xOffset, yOffset, "%s", _title.c_str());
+    _gameEngine->getUIManager()->getDefaultFont()->drawText(_title, xOffset, yOffset);
     yOffset += textHeight + 5;
 
     //Draw all monitored variables
     for(const auto &element : _watchedVariables)
     {
-        fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDebugFont(), {0xFF, 0xFF, 0xFF, 0x00}, xOffset, yOffset, "%s: %s", element.first.c_str(), element.second().c_str());
+        _gameEngine->getUIManager()->getDebugFont()->drawText(element.first + ": " + element.second(), xOffset, yOffset);
 
-        fnt_getTextSize(_gameEngine->getUIManager()->getDebugFont(), element.first.c_str(), &textWidth, &textHeight);
+        _gameEngine->getUIManager()->getDebugFont()->getTextSize(element.first, &textWidth, &textHeight);
         yOffset += textHeight + 5;
     }
 
     //Draw an X in top right corner
-    SDL_Color X_HOVER = {0xFF, 0xFF, 0xFF, 0x00};
-    SDL_Color X_DEFAULT = {0x8F, 0x8F, 0x8F, 0x00};
-    fnt_drawText_OGL_immediate(_gameEngine->getUIManager()->getDefaultFont(), _mouseOverCloseButton ?  X_HOVER : X_DEFAULT, getX()+getWidth()-16, getY(), "X");
+    Ego::Math::Colour4f X_HOVER = Ego::Math::Colour4f::WHITE;
+    Ego::Math::Colour4f X_DEFAULT(.56f, .56f, .56f, 1.0f);
+    _gameEngine->getUIManager()->getDefaultFont()->drawText("X", getX() + getWidth() - 16, getY(), _mouseOverCloseButton ? X_HOVER : X_DEFAULT);
 }
 
 bool InternalDebugWindow::notifyMouseMoved(const int x, const int y)

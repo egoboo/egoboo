@@ -1829,45 +1829,37 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 
 #if defined(CARTMAN_DEBUG)
     // Tell which tile we're in
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 226,
-                                "X = %6.2f", debugx );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 234,
-                                "Y = %6.2f", debugy );
+    {
+        std::stringstream tempBuffer{};
+        tempBuffer << "X = " << std::setprecision(2) << std::setw(6) << debugx;
+        gfx_font_ptr->drawText(tempBuffer.str(), 0, 226);
+    }
+    {
+        std::stringstream tempBuffer{};
+        tempBuffer << "Y = " << std::setprecision(2) << std::setw(6) << debugy;
+        gfx_font_ptr->drawText(tempBuffer.str(), 0, 234);
+    }
 #endif
 
     // Tell user what keys are important
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 120,
-                                "O = Overlay (Water)" );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 112,
-                                "R = Reflective" );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 104,
-                                "D = Draw Reflection" );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 96,
-                                "A = Animated" );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 88,
-                                "B = Barrier (Slit)" );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 80,
-                                "I = Impassable (Wall)" );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 72,
-                                "H = Hurt" );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 64,
-                                "S = Slippy" );
+    gfx_font_ptr->drawText("O = Overlay (Water)", 0, sdl_scr.y - 120);
+    gfx_font_ptr->drawText("R = Reflective", 0, sdl_scr.y - 112);
+    gfx_font_ptr->drawText("D = Draw Reflection", 0, sdl_scr.y - 104);
+    gfx_font_ptr->drawText("A = Animated", 0, sdl_scr.y - 96);
+    gfx_font_ptr->drawText("B = Barrier (Slit)", 0, sdl_scr.y - 88);
+    gfx_font_ptr->drawText("I = Impassable (Wall)", 0, sdl_scr.y - 80);
+    gfx_font_ptr->drawText("H = Hurt", 0, sdl_scr.y - 72);
+    gfx_font_ptr->drawText("S = Slippy", 0, sdl_scr.y - 64);
 
     // Vertices left
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 56,
-                                "Vertices %d", pmesh->vrt_free );
+    gfx_font_ptr->drawText("Vertices " + std::to_string(pmesh->vrt_free), 0, sdl_scr.y - 56);
 
     // Misc data
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 40,
-                                "Ambient   %d", ambi );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 32,
-                                "Ambicut   %d", ambicut );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 24,
-                                "Direct    %d", direct );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 16,
-                                "Brush amount %d", brushamount );
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 8,
-                                "Brush size   %d", brushsize );
+    gfx_font_ptr->drawText("Ambient   " + std::to_string(ambi), 0, sdl_scr.y - 40);
+    gfx_font_ptr->drawText("Ambicut   " + std::to_string(ambicut), 0, sdl_scr.y - 32);
+    gfx_font_ptr->drawText("Direct    " + std::to_string(direct), 0, sdl_scr.y - 24);
+    gfx_font_ptr->drawText("Brush amount " + std::to_string(brushamount), 0, sdl_scr.y - 16);
+    gfx_font_ptr->drawText("Brush size   " + std::to_string(brushsize), 0, sdl_scr.y - 8);
 
     // Cursor
     //if (mos.x >= 0 && mos.x < sdl_scr.x && mos.y >= 0 && mos.y < sdl_scr.y)
@@ -1919,22 +1911,24 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
             x += SMALLXY;
             tile += add;
         }
+        
+        {
+            std::stringstream tempBuffer{};
+            tempBuffer << "Tile 0x" << std::hex << std::setfill('0') << std::setw(2) << (uint16_t)mdata.upper <<
+                            " 0x" << std::setw(2) << (uint16_t)mdata.tx;
 
-        fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 32,
-                                    "Tile 0x%02x 0x%02x", mdata.upper, mdata.tx );
+            gfx_font_ptr->drawText(tempBuffer.str(), 0, 32);
+        }
 
-        fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 40,
-                                    "Eats %d verts", tile_dict.def_lst[mdata.type].numvertices );
+        gfx_font_ptr->drawText("Eats " + std::to_string(tile_dict.def_lst[mdata.type].numvertices) + " verts", 0, 40);
 
         if ( mdata.type >= tile_dict.offset )
         {
-            fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 56,
-                                        "63x63 Tile" );
+            gfx_font_ptr->drawText("63x63 Tile", 0, 56);
         }
         else
         {
-            fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 56,
-                                        "31x31 Tile" );
+            gfx_font_ptr->drawText("31x31 Tile", 0, 56);
         }
         draw_schematic( NULL, mdata.type, 0, 64 );
     }
@@ -1944,13 +1938,11 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 
     if ( numattempt > 0 )
     {
-        fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 0,
-                                    "numwritten %d/%d", numwritten, numattempt );
+        gfx_font_ptr->drawText("numwritten " + std::to_string(numwritten) + "/" + std::to_string(numattempt), 0, 0);
     }
 
 #if defined(CARTMAN_DEBUG)
-    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 0,
-                                "<%f, %f>", mos.x, mos.y );
+    gfx_font_ptr->drawText("<" + std::to_string(mos.x) + ", " std::to_string(mos.y) + ">", 0, 0);
 #endif
 
 }
@@ -2214,7 +2206,7 @@ void cartman_save_mesh( const char * modname, cartman_mpd_t * pmesh )
     make_planmap( pmesh );
     if ( bmphitemap )
     {
-        SDL_SaveBMP( bmphitemap, newloadname );
+        SDL_SaveBMP_RW( bmphitemap, vfs_openRWopsWrite(newloadname), 1 );
     }
 
     //  make_newloadname(modname, SLASH_STR "gamedat" SLASH_STR "level.png", newloadname);

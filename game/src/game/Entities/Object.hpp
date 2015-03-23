@@ -145,15 +145,22 @@ public:
 
 public:
     /**
-    * @brief Default constructor
-    * @param profile Which character profile this character should be spawned with
-    * @param id The unique CHR_REF associated with this character
-    **/
+     * @brief
+     *  Constructor
+     * @param profile
+     *  which character profile this character should be spawned with
+     * @param id
+     *  the unique CHR_REF associated with this character
+     */
     Object(const PRO_REF profile, const CHR_REF id);
 
+    Object(const Object&) = delete;
+    Object& operator=(const Object&) = delete;
+
     /**
-    * @brief Deconstructor
-    **/
+     * @brief
+     *  Destructor.
+     */
     virtual ~Object();
 
     /**

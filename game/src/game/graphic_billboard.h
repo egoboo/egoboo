@@ -30,7 +30,7 @@
 
 // Forward declarations.
 class Camera;
-struct Font;
+namespace Ego { class Font; }
 
 //--------------------------------------------------------------------------------------------
 // constants
@@ -74,25 +74,34 @@ struct billboard_data_t
     static billboard_data_t *init(billboard_data_t *self);
     static bool free(billboard_data_t *self);
     static bool update(billboard_data_t *self);
-    static bool printf_ttf(billboard_data_t *self, Font *font, SDL_Color color, const char * format, ...) GCC_PRINTF_FUNC(4);
+    static bool printf_ttf(billboard_data_t *self, const std::shared_ptr<Ego::Font>& font, SDL_Color color, const char * format, ...) GCC_PRINTF_FUNC(4);
+
 };
 
-
-
-#define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < MAX_BBOARD ) )
-#define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
 
 //--------------------------------------------------------------------------------------------
 // BillboardList
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, MAX_BBOARD );
+DECLARE_LIST_EXTERN(billboard_data_t, BillboardList, MAX_BBOARD);
 
-void   BillboardList_init_all();
-void   BillboardList_update_all();
-void   BillboardList_free_all();
-size_t BillboardList_get_free_ref( Uint32 lifetime_secs );
-bool   BillboardList_free_one( size_t ibb );
+inline bool VALID_BILLBOARD_RANGE(BBOARD_REF ref)
+{
+    return (ref >= 0)
+        && (ref < MAX_BBOARD);
+}
+
+inline bool VALID_BILLBOARD(BBOARD_REF ref)
+{
+    return VALID_BILLBOARD_RANGE(ref)
+        && BillboardList.lst[ref].valid;
+}
+
+void BillboardList_init_all();
+void BillboardList_update_all();
+void BillboardList_free_all();
+BBOARD_REF BillboardList_get_free_ref(Uint32 lifetime_secs);
+bool BillboardList_free_one(BBOARD_REF ref);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -101,5 +110,5 @@ bool billboard_system_begin();
 bool billboard_system_end();
 bool billboard_system_init();
 
-bool billboard_system_render_one(billboard_data_t *self, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt );
+bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt);
 gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera);

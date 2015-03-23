@@ -112,7 +112,7 @@ public:
         size_t index;
         try
         {
-            for (size_t index = 0; index < Capacity; ++index)
+            for (index = 0; index < Capacity; ++index)
             {
                 _elements[index] = new Type();
             }

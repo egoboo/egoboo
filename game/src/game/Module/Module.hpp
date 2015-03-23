@@ -33,12 +33,18 @@ class Passage;
 class GameModule
 {
 public:
-    //Prepeares a module to be played
+    /**
+     * @brief
+     *  Prepeares a module to be played
+     */
 	GameModule(const std::shared_ptr<ModuleProfile> &module, const uint32_t seed);
 
+    GameModule(const GameModule&) = delete;
+    GameModule& operator=(const GameModule&) = delete;
+
 	/**
-	* Deconstructor
-	**/
+	 * Destructor.
+	 */
 	~GameModule();
 
 	/**

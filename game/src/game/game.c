@@ -112,7 +112,9 @@ Uint32          true_update      = 0;
 Uint32          true_frame       = 0;
 int             update_lag       = 0;
 
-static MOD_REF _currentModuleID = -1;
+#if 0
+static MOD_REF _currentModuleID = INVALID_MOD_REF;
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -409,7 +411,8 @@ void log_madused_vfs( const char *savename )
             //ZF> ugh, import objects are currently handled in a weird special way.
             for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
             {
-                if ( !_profileSystem.isValidProfileID(i) ) {
+                if (!_profileSystem.isValidProfileID(i))
+                {
                     vfs_printf( hFileWrite, "%3lu  %32s.\n", i, "Slot reserved for import players" );
                 }
             }

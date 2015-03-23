@@ -73,6 +73,9 @@ public:
 		//ctor
 	}
 
+    LoopingSound(const LoopingSound&) = delete;
+    LoopingSound& operator=(const LoopingSound&) = delete;
+
 	inline int getChannel() const {return _channel;}
 	inline CHR_REF getOwner() const {return _object;}
 	inline void setChannel(int channel) {_channel = channel;}

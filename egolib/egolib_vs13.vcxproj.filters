@@ -73,6 +73,12 @@
     <Filter Include="Source Files\Image">
       <UniqueIdentifier>{35e2959d-0b60-4b8c-9ff7-1194d1da903c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{c7cd99e4-6cdb-40e3-9697-55212fda82e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{30b3faf6-6d85-4443-94cc-f403c45e83cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -103,9 +109,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\font_bmp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\font_ttf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\frustum.c">
@@ -357,6 +360,12 @@
     <ClCompile Include="src\egolib\Image\Image.cpp">
       <Filter>Source Files\Image</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\Font.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\FontManager.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -420,9 +429,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\frustum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\font_ttf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\font_bmp.h">
@@ -710,6 +716,15 @@
     <ClInclude Include="src\egolib\Image\Image.hpp">
       <Filter>Header Files\Image</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\Font.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\FontManager.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\OpenGL.inl">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
@@ -723,9 +738,6 @@
     </None>
     <None Include="src\egolib\FileFormats\id_normals.inl">
       <Filter>File Formats</Filter>
-    </None>
-    <None Include="src\egolib\Renderer\OpenGL\OpenGL.inl">
-      <Filter>Header Files\Renderer\OpenGL</Filter>
     </None>
   </ItemGroup>
 </Project>

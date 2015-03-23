@@ -133,9 +133,8 @@ protected:
         clear();
 
         // Add the objects to the free list.
-        for (size_t i = 0; i < getCount(); i++)
+        for (REFTYPE ref = 0; ref < getCount(); ++ref)
         {
-            REFTYPE ref = i;
             add_free_ref(ref);
         }
     }

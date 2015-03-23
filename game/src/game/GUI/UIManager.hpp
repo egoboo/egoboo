@@ -25,7 +25,7 @@
 
 #include "game/egoboo_typedef.h"
 
-struct Font;
+namespace Ego { class Font; }
 
 class UIManager
 {
@@ -38,19 +38,19 @@ public:
 	* @return
 	*	The default rendering Font for the GUI system
 	**/
-	Font* getDefaultFont() const;
+    std::shared_ptr<Ego::Font> getDefaultFont() const;
 
 	/**
 	* @return
 	*	The default rendering Font for in-game floating texts
 	**/
-	Font *getFloatingTextFont() const;
+	std::shared_ptr<Ego::Font> getFloatingTextFont() const;
 
 	/**
 	* @return
 	*	The default debug Font for the GUI system
 	**/
-	Font* getDebugFont() const;
+	std::shared_ptr<Ego::Font> getDebugFont() const;
 
 	/**
 	* @return
@@ -88,9 +88,9 @@ public:
     UIManager& operator=(const UIManager&) = delete;
 
 private:
-	Font *_defaultFont;
-	Font *_floatingTextFont;
-	Font *_debugFont;
+	std::shared_ptr<Ego::Font> _defaultFont;
+    std::shared_ptr<Ego::Font> _floatingTextFont;
+	std::shared_ptr<Ego::Font> _debugFont;
 	int _renderSemaphore;
 };
 
