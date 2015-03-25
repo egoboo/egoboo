@@ -31,8 +31,8 @@ struct egoboo_config_t;
 typedef int MusicID;
 typedef int SoundID;
 
-constexpr int INVALID_SOUND_CHANNEL = -1;
-constexpr SoundID INVALID_SOUND_ID = -1;
+CONSTEXPR int INVALID_SOUND_CHANNEL = -1;
+CONSTEXPR SoundID INVALID_SOUND_ID = -1;
 
 //Sound settings
 struct SoundConfiguration
@@ -108,8 +108,8 @@ enum GlobalSound : uint8_t
 class AudioSystem
 {
 public:
-	static constexpr int MIX_HIGH_QUALITY = 44100;
-	static constexpr size_t MENU_SONG = 0;
+	static CONSTEXPR int MIX_HIGH_QUALITY = 44100;
+	static CONSTEXPR size_t MENU_SONG = 0;
 
 public:
 	AudioSystem();

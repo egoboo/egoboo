@@ -2,6 +2,7 @@
 
 enum class RefKind
 {
+    Animation, /// @todo Formerly known as MAD_REF.
     Particle, /// @todo Formerly known as PRT_REF.
     ParticleProfile, /// @todo Formerly known as PIP_REF.
     Enchant, /// @todo Formerly known as ENC_REF.
@@ -12,48 +13,57 @@ enum class RefKind
     ObjectProfile, /// @todo Formerly known as PRO_REF.
 };
 
-/// @todo Assert that MIN <= INVALID <= MAX upon template instantiation. 
+/**
+ * @brief
+ *  Type-safe references.
+ * @author
+ *  Michael Heilmann
+ */
 template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
 struct Ref
 {
 
 private:
 
-    size_t _ref;
+    TYPE _ref;
 
 public:
 
 
     // Instantiation time static assertions.
 
-    static_assert(std::is_integral<TYPE>::value, "TYPE must be an integral type");
+    // bool, char, char16_t, char32_t, wchar_t, short, int, long, long long
+    // or any implementation-defined extended integer types, including any signed, unsigned, and cv-qualified variants.
+    static_assert(std::is_integral<TYPE>::value,
+                  "the underlaying type must be an unsigned, arithmetic, integral type");
+    // Same as above but without signed variants.
+    static_assert(std::is_unsigned<TYPE>::value,
+                  "the underlaying type must be an unsigned, arithmetic, integral type");
+    // Same as above but without cv-qualified variants.
+    static_assert(!std::is_const<TYPE>::value,
+                  "the underlaying type must be an unsigned, arithmetic, integral type");
 
-    static_assert(std::integral_constant<uint16_t, MIN>::value <= 
-                  std::integral_constant<uint16_t, MAX>::value,
-                  "minimum ref must be smaller than or equal to maximum ref");
-
-    static_assert(std::integral_constant<uint16_t, INVALID>::value >=
-                  std::integral_constant<uint16_t, MIN>::value,
-                  "invalid ref must be greater than or equal to minimum ref");
-
-    static_assert(std::integral_constant<uint16_t, INVALID>::value <=
-                  std::integral_constant<uint16_t, MAX>::value,
-                  "invalid ref must be smaller than or equal to maximum ref");
+    // Instantiation time static assertions.
+    static_assert(std::integral_constant<TYPE, MIN>::value <= 
+                  std::integral_constant<TYPE, MAX>::value,
+                  "the minimum ref must be smaller than or equal to the maximum ref");
     
 
     // Static variables.
 
     static const Ref<TYPE, MIN, MAX, INVALID, KIND> Invalid;
+    static const Ref<TYPE, MIN, MAX, INVALID, KIND> Min;
+    static const Ref<TYPE, MIN, MAX, INVALID, KIND> Max;
 
 
     // Constructs.
 
-    Ref() :
+    Ref() _NOEXCEPT :
 		_ref(INVALID)
 	{
 	}
 
-    Ref(const TYPE ref) :
+    explicit Ref(const TYPE ref) _NOEXCEPT :
         _ref(ref)
     {
         if (ref < MIN || ref > MAX)
@@ -62,7 +72,7 @@ public:
         }
     }
 
-    Ref(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) :
+    Ref(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) _NOEXCEPT :
         _ref(other._ref)
     {
     }
@@ -70,7 +80,7 @@ public:
 
     // Logical operator overloads.
 		
-	bool operator!() const
+	bool operator!() const NOEXCEPT
 	{
 		return _ref == INVALID;
 	}
@@ -78,32 +88,32 @@ public:
 
 	// Relational operator overloads.
 	
-    bool operator>=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const
+    bool operator>=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
     {
         return _ref >= other._ref;
     }
 
-    bool operator<=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const
+    bool operator<=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
     {
         return _ref <= other._ref;
     }
 
-    bool operator<(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const
+    bool operator<(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
     {
         return _ref < other._ref;
     }
 
-    bool operator>(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const
+    bool operator>(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
     {
         return _ref > other._ref;
     }
 
-    bool operator==(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const
+    bool operator==(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
     {
         return _ref == other._ref;
     }
 
-    bool operator!=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const
+    bool operator!=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
     {
         return _ref != other._ref;
     }
@@ -111,9 +121,9 @@ public:
 
 	// Assignment operator overloads.
 
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other)
+    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) NOEXCEPT
     {
-        _ref(other._ref);
+        _ref = other._ref;
         return *this;
     }
 
@@ -159,16 +169,14 @@ public:
 
 
     // Cast operator overloads.
-
-	operator TYPE() const
+    explicit operator bool() const NOEXCEPT
 	{
-		return _ref;
+		return INVALID != _ref;
 	}
-
 
     // Accessors.
 
-    TYPE get() const
+    TYPE get() const NOEXCEPT
     {
         return _ref;
     }
@@ -229,3 +237,12 @@ public:
     }
 	
 };
+
+template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
+const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Invalid(INVALID);
+
+template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
+const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Min(MIN);
+
+template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
+const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Max(MAX);

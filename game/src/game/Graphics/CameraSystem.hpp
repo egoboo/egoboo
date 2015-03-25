@@ -27,7 +27,7 @@
 // Forward declaration.
 struct ego_mesh_t;
 
-constexpr size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
+CONSTEXPR size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
 
 class CameraSystem
 {

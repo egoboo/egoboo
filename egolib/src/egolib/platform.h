@@ -245,37 +245,41 @@ extern "C"
 // Compiler-specific definitions
 
 //------------
-// Fix how MSVC handles throw specifications on member functions.
-#if defined(_MSC_VER)
-	#define DECL_THROW(XX) throw(...)
-#else
-	#define DECL_THROW(XX) throw(XX)
-#endif
 
 // MSVC does not support constexpr yet.
 #if defined(_MSC_VER)
-	#define constexpr const
-#endif
-
-// MSCV does not support usual format specifier for size_t (what does it actually properly support?).
-#if defined(_MSC_VER)
-//// printf format specifier for size_t.
-#define PRIuZ "Iu"
-/// printf format specifier for ssize_t.
-#define PRIdZ "Id"
+	#define CONSTEXPR const
 #else
-/// printf format specifier for size_t.
-#define PRIuZ "zu"
-/// printf format specifier for ssize_t.
-#define PRIdZ "zd"
+    #define CONSTEXPR constexpr
+#endif
+// MSVC does not support noexcept yet.
+#if defined(_MSC_VER)
+    #define NOEXCEPT throw()
+#else
+    #define NOEXCEPT noexcept()
 #endif
 
+// MSCV does not support usual format specifier for size_t (what does it actually support?).
+#if defined(_MSC_VER)
+    //// printf format specifier for size_t.
+    #define PRIuZ "Iu"
+    /// printf format specifier for ssize_t.
+    #define PRIdZ "Id"
+#else
+    /// printf format specifier for size_t.
+    #define PRIuZ "zu"
+    /// printf format specifier for ssize_t.
+    #define PRIdZ "zd"
+#endif
+
+#if 0
 // Localize the inline keyword to the compiler.
 #if defined(_MSC_VER)
-	// In MSVC, the "inline" keyword seems to be depricated. Must to be promoted to "_inline" or "__inline".
+	// In MSVC, the "inline" keyword seems to be deprecated. Must to be promoted to "_inline" or "__inline".
 	#define INLINE __inline
 #else
 	#define INLINE inline
+#endif
 #endif
 
 //------------

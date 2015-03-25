@@ -53,10 +53,10 @@ typedef struct s_GLvertex GLvertex;
 #define ICON_SIZE 32
 
 /// The maximum number of dolists that can exist.
-constexpr size_t MAX_DO_LISTS = MAX_CAMERAS;
+CONSTEXPR size_t MAX_DO_LISTS = MAX_CAMERAS;
 
 /// The maximum number of renderlists that can exist.
-constexpr size_t MAX_RENDER_LISTS = MAX_CAMERAS;
+CONSTEXPR size_t MAX_RENDER_LISTS = MAX_CAMERAS;
 
 /// max number of blips on the minimap
 #define MAXBLIP        128                          ///<Max blips on the screen

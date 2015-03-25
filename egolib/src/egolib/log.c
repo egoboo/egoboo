@@ -36,7 +36,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static constexpr size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages
+static CONSTEXPR size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages
 
 static vfs_FILE *logFile = nullptr;
 static LogLevel   _logLevel = LOG_WARNING;   ///default log level
@@ -114,7 +114,7 @@ static void setConsoleColor(ConsoleColor color)
 //--------------------------------------------------------------------------------------------
 static void writeLogMessage(LogLevel logLevel, const char *format, va_list args)
 {
-    char  logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
+    char logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
 
     //Add prefix
     const char *prefix;

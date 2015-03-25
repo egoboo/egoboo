@@ -52,22 +52,23 @@ struct CameraOptions
 };
 
 /// Multi cam uses macro to switch between old and new camera
-constexpr float CAM_ZOOM_FACTOR = 0.5f;
+CONSTEXPR float CAM_ZOOM_FACTOR = 0.5f;
 #ifdef OLD_CAMERA_MODE
-    constexpr float CAM_ZOOM_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera distance
-    constexpr float CAM_ZOOM_MAX = (700 * CAM_ZOOM_FACTOR);
-    constexpr float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
-    constexpr float CAM_ZADD_MAX = (2750 * CAM_ZOOM_FACTOR);
+    CONSTEXPR float CAM_ZOOM_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera distance
+    CONSTEXPR float CAM_ZOOM_MAX = (700 * CAM_ZOOM_FACTOR);
+    CONSTEXPR float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
+    CONSTEXPR float CAM_ZADD_MAX = (2750 * CAM_ZOOM_FACTOR);
 #else
-    constexpr float CAM_ZOOM_MIN = (500 * CAM_ZOOM_FACTOR);       ///< Camera distance
-    constexpr float CAM_ZOOM_MAX = (800 * CAM_ZOOM_FACTOR);
-    constexpr float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
-    constexpr float CAM_ZADD_MAX = (1900 * CAM_ZOOM_FACTOR);
+    CONSTEXPR float CAM_ZOOM_MIN = (500 * CAM_ZOOM_FACTOR);       ///< Camera distance
+    CONSTEXPR float CAM_ZOOM_MAX = (800 * CAM_ZOOM_FACTOR);
+    CONSTEXPR float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
+    CONSTEXPR float CAM_ZADD_MAX = (1900 * CAM_ZOOM_FACTOR);
 #endif
 
 /**
-* @brief class for handling camera
-**/
+ * @brief
+ *  Egoboo's camera.
+ */
 class Camera
 {
 public:

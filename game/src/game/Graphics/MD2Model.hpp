@@ -24,7 +24,7 @@
 #include "game/physics.h"
 #include "game/egoboo_typedef.h"
 
-static constexpr size_t EGO_NORMAL_COUNT = MD2_MAX_NORMALS + 1;
+static CONSTEXPR size_t EGO_NORMAL_COUNT = MD2_MAX_NORMALS + 1;
 
 typedef id_md2_skin_t MD2_SkinName;
 typedef id_md2_triangle_t MD2_Triangle;

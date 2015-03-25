@@ -29,16 +29,14 @@
 //Forward declarations
 class Object;
 
-#define constexpr const
-
 class Passage
 {
 public:
-	static constexpr int32_t NO_MUSIC = -1;				///< For passages that play no music
-	static constexpr uint32_t CLOSE_TOLERANCE = 3;		///< For closing doors
-	static constexpr size_t MAX_PASSAGES = 256;			///< Maximum allowed passages
-	static constexpr CHR_REF SHOP_NOOWNER = 0xFFFF;		///< Shop has no owner
-	static constexpr uint32_t SHOP_STOLEN = 0xFFFF;
+    static CONSTEXPR int32_t NO_MUSIC = -1;				///< For passages that play no music
+    static CONSTEXPR uint32_t CLOSE_TOLERANCE = 3;		///< For closing doors
+    static CONSTEXPR size_t MAX_PASSAGES = 256;			///< Maximum allowed passages
+    static CONSTEXPR CHR_REF SHOP_NOOWNER = 0xFFFF;		///< Shop has no owner
+    static CONSTEXPR uint32_t SHOP_STOLEN = 0xFFFF;
 
 	/// The pre-defined orders for communicating with shopkeepers
 	enum ShopOrders : uint8_t
