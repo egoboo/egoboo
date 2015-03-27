@@ -169,10 +169,10 @@ Again:
         info->content = ctxt.readInt();
         info->level = ctxt.readInt();
 
-        if (info->skin >= MAX_SKIN)
+        if (info->skin >= SKINS_PEROBJECT_MAX)
         {
             int irand = Random::next(std::numeric_limits<uint16_t>::max());
-            info->skin = irand % MAX_SKIN;     // Randomize skin?
+            info->skin = irand % SKINS_PEROBJECT_MAX;     // Randomize skin?
         }
 
         info->stat = ctxt.readBool();

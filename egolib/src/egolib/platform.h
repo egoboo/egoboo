@@ -256,7 +256,7 @@ extern "C"
 #if defined(_MSC_VER)
     #define EGO_NOEXCEPT throw()
 #else
-    #define EGO_NOEXCEPT noexcept()
+    #define EGO_NOEXCEPT noexcept
 #endif
 
 // MSCV does not support usual format specifier for size_t (what does it actually support?).
@@ -270,16 +270,6 @@ extern "C"
     #define PRIuZ "zu"
     /// printf format specifier for ssize_t.
     #define PRIdZ "zd"
-#endif
-
-#if 0
-// Localize the inline keyword to the compiler.
-#if defined(_MSC_VER)
-	// In MSVC, the "inline" keyword seems to be deprecated. Must to be promoted to "_inline" or "__inline".
-	#define INLINE __inline
-#else
-	#define INLINE inline
-#endif
 #endif
 
 //------------

@@ -268,7 +268,7 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     _iconsLoaded.clear();
 
     // Load the skins and icons
-    for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
+    for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
         STRING newloadname;
 
@@ -430,28 +430,28 @@ uint16_t ObjectProfile::getSkinOverride() const
 {
     /// @details values of spelleffect_type or skin_override less than zero mean that the values are not valid.
     ///          values >= mean that the value is random.
-    uint16_t retval = MAX_SKIN;
+    uint16_t retval = SKINS_PEROBJECT_MAX;
 
     if ( _spellEffectType >= 0 )
     {
-        if ( _spellEffectType >= MAX_SKIN )
+        if (_spellEffectType >= SKINS_PEROBJECT_MAX)
         {
             retval = getRandomSkinID();
         }
         else
         {
-            retval = _spellEffectType % MAX_SKIN;
+            retval = _spellEffectType % SKINS_PEROBJECT_MAX;
         }
     }
     else if ( _skinOverride >= 0 )
     {
-        if ( _skinOverride >= MAX_SKIN )
+        if (_skinOverride >= SKINS_PEROBJECT_MAX)
         {
             retval = getRandomSkinID();
         }
         else
         {
-            retval = _skinOverride % MAX_SKIN;
+            retval = _skinOverride % SKINS_PEROBJECT_MAX;
         }
     }
 
@@ -574,7 +574,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     // Skin defenses ( 4 skins )
     ctxt.skipToColon(false);
-    for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
+    for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
         int iTmp = 0xFF - ctxt.readInt();
         _skinInfo[cnt].defence = CLIP( iTmp, 0, 0xFF );
@@ -583,7 +583,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         ctxt.skipToColon(false);
-        for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
+        for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
         {
             _skinInfo[cnt].damageResistance[damagetype] = vfs_get_damage_resist(ctxt);
         }
@@ -593,7 +593,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     {
         ctxt.skipToColon(false);
 
-        for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
+        for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
         {
             switch (Ego::toupper(ctxt.readPrintable()))
             {
@@ -609,7 +609,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     }
 
     ctxt.skipToColon(false);
-    for (size_t cnt = 0; cnt < MAX_SKIN; cnt++)
+    for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
         _skinInfo[cnt].maxAccel = ctxt.readReal() / 80.0f;
     }
@@ -693,14 +693,14 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _startingLifeRegeneration = vfs_get_next_int(ctxt);
     _stoppedBy |= vfs_get_next_int(ctxt);
 
-    for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
+    for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
         char skinName[256];
         vfs_get_next_string_lit(ctxt, skinName, 256);
         _skinInfo[cnt].name = skinName;
     }
 
-    for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
+    for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
         _skinInfo[cnt].cost = vfs_get_next_int(ctxt);
     }
@@ -793,12 +793,12 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             {
                 /// @note BB@> This is the skin value of a saved character.
                 ///            It should(!) correspond to a valid skin for this object,
-                ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or MAX_SKIN)
+                ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX)
 
                 int iTmp = ctxt.readInt();
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
-                iTmp = ( iTmp > MAX_SKIN ) ? MAX_SKIN : iTmp;
+                iTmp = (iTmp > SKINS_PEROBJECT_MAX) ? SKINS_PEROBJECT_MAX : iTmp;
                 _skinOverride = iTmp;  
             }          
             break;
@@ -839,12 +839,12 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             {
                 /// @note BB@> This is the skin value of a saved character.
                 ///            It should(!) correspond to a valid skin for this object,
-                ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or MAX_SKIN)
+                ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or SKINS_PEROBJECT_MAX)
 
                 int iTmp = ctxt.readInt();
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
-                iTmp = ( iTmp > MAX_SKIN ) ? MAX_SKIN : iTmp;
+                iTmp = (iTmp > SKINS_PEROBJECT_MAX) ? SKINS_PEROBJECT_MAX : iTmp;
                 _spellEffectType = iTmp;
             }
             break;
@@ -1191,7 +1191,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     {
         char code;
 
-        for (size_t skin = 0; skin < MAX_SKIN; skin++ )
+        for (size_t skin = 0; skin < SKINS_PEROBJECT_MAX; skin++)
         {
             if ( HAS_SOME_BITS( profile->getSkinInfo(skin).damageModifier[damagetype], DAMAGEMANA ) )
             {

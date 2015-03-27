@@ -109,7 +109,7 @@
  * @todo
  *  Rename to SKINS_PEROBJECT_MAX.
  */
-#define MAX_SKIN 4
+#define SKINS_PEROBJECT_MAX 4
 
 
 /**
@@ -120,7 +120,7 @@
  * @todo
  *  Rename to SKINS_MAX.
  */
-#define MAX_TEXTURE (OBJECTS_MAX * 4)
+#define MAX_TEXTURE (OBJECTS_MAX * SKINS_PEROBJECT_MAX)
 
 /**
  * @brief

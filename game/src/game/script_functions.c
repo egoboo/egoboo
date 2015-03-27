@@ -2435,7 +2435,7 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     if ( NULL != pcap )
     {
         iskin = ( iskin < 0 ) ? NO_SKIN_OVERRIDE : iskin;
-        iskin = ( iskin > MAX_SKIN ) ? MAX_SKIN : iskin;
+        iskin = ( iskin > SKINS_PEROBJECT_MAX ) ? SKINS_PEROBJECT_MAX : iskin;
 
         pcap->spelleffect_type = iskin;
     }

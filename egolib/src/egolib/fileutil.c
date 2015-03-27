@@ -1696,10 +1696,10 @@ int read_skin_vfs( const char *filename )
     }
     // Read the contents.
     int skin = vfs_get_next_int(ctxt);
-    if (skin < 0 || skin > MAX_SKIN)
+    if (skin < 0 || skin > SKINS_PEROBJECT_MAX)
     {
         /** @todo Use context to produce a nice warning message. */
     }
-    skin %= MAX_SKIN;
+    skin %= SKINS_PEROBJECT_MAX;
     return skin;
 }

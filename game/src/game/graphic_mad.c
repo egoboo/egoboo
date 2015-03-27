@@ -2158,7 +2158,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     loc_skin = 0;
     if ( skin >= 0 )
     {
-        loc_skin = skin % MAX_SKIN;
+        loc_skin = skin % SKINS_PEROBJECT_MAX;
     }
 
     // lighting parameters
