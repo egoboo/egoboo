@@ -1207,7 +1207,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         // Okay, reset transparency
         ienc_now = firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
         {
             ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -1217,7 +1217,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
         setAlpha(getProfile()->getAlpha());
         setLight(getProfile()->getLight());
@@ -1228,7 +1228,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
         // apply the blend enchants
         ienc_now = firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
             ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
@@ -1242,7 +1242,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Set twist

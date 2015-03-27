@@ -598,7 +598,7 @@ void free_all_chraracters()
     /// @details This function resets the character allocation list
 
     //Remove all enchants
-    for (ENC_REF ref = 0; ref < MAX_ENC; ++ref)
+    for (ENC_REF ref = 0; ref < ENCHANTS_MAX; ++ref)
     {
         remove_enchant(ref, nullptr);
     }
@@ -810,7 +810,7 @@ void reset_character_accel( const CHR_REF character )
     // Okay, remove all acceleration enchants
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -819,7 +819,7 @@ void reset_character_accel( const CHR_REF character )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Set the starting value
     pchr->maxaccel_reset = 0;
@@ -836,7 +836,7 @@ void reset_character_accel( const CHR_REF character )
     // Put the acceleration enchants back on
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -845,7 +845,7 @@ void reset_character_accel( const CHR_REF character )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -877,7 +877,7 @@ void reset_character_alpha( const CHR_REF character )
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
         {
             ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -887,7 +887,7 @@ void reset_character_alpha( const CHR_REF character )
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
         pchr->setAlpha(pchr->getProfile()->getAlpha());
         pchr->setLight(pchr->getProfile()->getLight());
@@ -897,7 +897,7 @@ void reset_character_alpha( const CHR_REF character )
 
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -912,7 +912,7 @@ void reset_character_alpha( const CHR_REF character )
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 }
 
@@ -2463,7 +2463,7 @@ void cleanup_one_character( Object * pchr )
         // remove all invalid enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
         {
             ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -2476,7 +2476,7 @@ void cleanup_one_character( Object * pchr )
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Stop all sound loops for this object
@@ -3089,7 +3089,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     // Remove armor enchantments
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -3105,7 +3105,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Change the skin
     std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( pchr->profile_ref );
@@ -3133,7 +3133,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     /// I don't care at this point !!!BAD!!!
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -3167,7 +3167,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return loc_skin;
 }
@@ -3339,7 +3339,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
             ienc_now = EnchantHandler::get().get_ptr(pchr->firstenchant)->nextenchant_ref;
             ienc_count = 0;
-            while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+            while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
             {
                 ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -3348,7 +3348,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
                 ienc_now = ienc_nxt;
                 ienc_count++;
             }
-            if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+            if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
         }
     }
     else if ( ENC_LEAVE_NONE == leavewhich )
@@ -3810,7 +3810,7 @@ bool update_chr_darkvision( const CHR_REF character )
     // clean up the enchant list before doing anything
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
         peve = enc_get_peve( ienc_now );
@@ -3825,7 +3825,7 @@ bool update_chr_darkvision( const CHR_REF character )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     if ( life_regen < 0 )
     {

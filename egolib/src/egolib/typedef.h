@@ -637,9 +637,9 @@ typedef Ref<REF_T, 0, UINT16_MAX, MAX_EVE, RefKind::EnchantProfile> EnchantProfi
 DECLARE_REF(EVE_REF);
 #define INVALID_EVE_REF ((EVE_REF)MAX_EVE)
 
-typedef Ref<REF_T, 0, UINT16_MAX, MAX_ENC, RefKind::Enchant> EnchantRef;
+typedef Ref<REF_T, 0, ENCHANTS_MAX, ENCHANTS_MAX, RefKind::Enchant> EnchantRef;
 DECLARE_REF(ENC_REF);
-#define INVALID_ENC_REF ((ENC_REF)MAX_ENC)
+#define INVALID_ENC_REF ((ENC_REF)ENCHANTS_MAX)
 
 DECLARE_REF(MAD_REF);
 #define INVALID_MAD_REF ((MAD_REF)MAX_MAD)

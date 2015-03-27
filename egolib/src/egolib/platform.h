@@ -254,9 +254,9 @@ extern "C"
 #endif
 // MSVC does not support noexcept yet.
 #if defined(_MSC_VER)
-    #define NOEXCEPT throw()
+    #define EGO_NOEXCEPT throw()
 #else
-    #define NOEXCEPT noexcept()
+    #define EGO_NOEXCEPT noexcept()
 #endif
 
 // MSCV does not support usual format specifier for size_t (what does it actually support?).

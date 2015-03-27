@@ -61,7 +61,7 @@
 // external variables
 //--------------------------------------------------------------------------------------------
 
-struct EnchantHandler : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, MAX_ENC, BSP_LEAF_ENC>
+struct EnchantHandler : public _LockableList < enc_t, ENC_REF, INVALID_ENC_REF, ENCHANTS_MAX, BSP_LEAF_ENC>
 {
     EnchantHandler() :
         _LockableList()

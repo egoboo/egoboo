@@ -3057,7 +3057,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     // Check all enchants to see if they are removed
     ienc_now = pdata->pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -3069,7 +3069,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Steal some life.
     if ( pdata->pprt->lifedrain > 0 && pdata->pchr->life > 0)

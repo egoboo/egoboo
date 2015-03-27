@@ -58,12 +58,12 @@ public:
 
     // Constructs.
 
-    Ref() _NOEXCEPT :
+    Ref() EGO_NOEXCEPT :
 		_ref(INVALID)
 	{
 	}
 
-    explicit Ref(const TYPE ref) _NOEXCEPT :
+    explicit Ref(const TYPE ref) EGO_NOEXCEPT :
         _ref(ref)
     {
         if (ref < MIN || ref > MAX)
@@ -72,7 +72,7 @@ public:
         }
     }
 
-    Ref(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) _NOEXCEPT :
+    Ref(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) EGO_NOEXCEPT :
         _ref(other._ref)
     {
     }
@@ -80,7 +80,7 @@ public:
 
     // Logical operator overloads.
 		
-	bool operator!() const NOEXCEPT
+	bool operator!() const EGO_NOEXCEPT
 	{
 		return _ref == INVALID;
 	}
@@ -88,32 +88,32 @@ public:
 
 	// Relational operator overloads.
 	
-    bool operator>=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
+    bool operator>=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
         return _ref >= other._ref;
     }
 
-    bool operator<=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
+    bool operator<=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
         return _ref <= other._ref;
     }
 
-    bool operator<(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
+    bool operator<(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
         return _ref < other._ref;
     }
 
-    bool operator>(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
+    bool operator>(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
         return _ref > other._ref;
     }
 
-    bool operator==(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
+    bool operator==(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
         return _ref == other._ref;
     }
 
-    bool operator!=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const NOEXCEPT
+    bool operator!=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
         return _ref != other._ref;
     }
@@ -121,7 +121,7 @@ public:
 
 	// Assignment operator overloads.
 
-    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) NOEXCEPT
+    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) EGO_NOEXCEPT
     {
         _ref = other._ref;
         return *this;
@@ -169,14 +169,14 @@ public:
 
 
     // Cast operator overloads.
-    explicit operator bool() const NOEXCEPT
+    explicit operator bool() const EGO_NOEXCEPT
 	{
 		return INVALID != _ref;
 	}
 
     // Accessors.
 
-    TYPE get() const NOEXCEPT
+    TYPE get() const EGO_NOEXCEPT
     {
         return _ref;
     }

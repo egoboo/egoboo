@@ -6554,7 +6554,7 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    for ( iTmp = 0; iTmp < MAX_ENC; iTmp++ )
+    for ( iTmp = 0; iTmp < ENCHANTS_MAX; iTmp++ )
     {
         remove_enchant( iTmp, NULL );
     }

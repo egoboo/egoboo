@@ -144,7 +144,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             // Search until we find it
             ienc_last = ienc_now = ptarget->firstenchant;
             ienc_count = 0;
-            while (EnchantHandler::get().isValidRef( ienc_now ) && ( ienc_count < MAX_ENC ) )
+            while (EnchantHandler::get().isValidRef( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
             {
                 ienc_last = ienc_now;
                 ienc_nxt  = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
@@ -154,7 +154,7 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
                 ienc_now  = ienc_nxt;
                 ienc_count++;
             }
-            if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+            if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
             // Relink the last enchantment
             if ( ienc_now == ienc )
@@ -198,7 +198,7 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
     // Check all enchants to see if they are removed
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (EnchantHandler::get().isValidRef( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (EnchantHandler::get().isValidRef( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         ienc_nxt  = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -212,7 +212,7 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return retval;
 }
@@ -376,7 +376,7 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
 {
     /// @author ZZ
-    /// @details This function returns MAX_ENC if the enchantment's target has no conflicting
+    /// @details This function returns INVALID_ENC_REF if the enchantment's target has no conflicting
     ///    set values in its other enchantments.  Otherwise it returns the ienc
     ///    of the conflicting enchantment
 
@@ -400,7 +400,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     // scan the enchant list
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (EnchantHandler::get().isValidRef( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (EnchantHandler::get().isValidRef( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -412,7 +412,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return ienc_now;
 }
@@ -1127,7 +1127,7 @@ enc_t *enc_t::config_do_deinit()
 ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional )
 {
     /// @author ZZ
-    /// @details This function enchants a target, returning the enchantment index or MAX_ENC
+    /// @details This function enchants a target, returning the enchantment index or INVALID_ENC_REF
     ///    if failed
 
     ENC_REF enc_ref;
@@ -1550,7 +1550,7 @@ void update_all_enchants()
     ENC_REF ienc;
 
     // update all enchants
-    for ( ienc = 0; ienc < MAX_ENC; ienc++ )
+    for ( ienc = 0; ienc < ENCHANTS_MAX; ienc++ )
     {
         enc_t::run_config( EnchantHandler::get().get_ptr( ienc ) );
     }
@@ -1570,14 +1570,14 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     /// @details remove all the dead enchants from the enchant list
     ///     and report back the first non-dead enchant in the list.
 
-    bool enc_used[MAX_ENC];
+    bool enc_used[ENCHANTS_MAX];
 
     ENC_REF first_valid_enchant;
 
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
 
-    if ( !VALID_ENC_RANGE( ienc ) ) return MAX_ENC;
+    if ( !VALID_ENC_RANGE( ienc ) ) return ENCHANTS_MAX;
 
     // clear the list
     BLANK_ARY( enc_used )
@@ -1586,7 +1586,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     ienc_nxt            = INVALID_ENC_REF;
     first_valid_enchant = ienc_now = ienc;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
@@ -1627,7 +1627,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
         ienc_now    = ienc_nxt;
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return first_valid_enchant;
 }
@@ -1710,7 +1710,7 @@ void cleanup_all_enchants()
 //--------------------------------------------------------------------------------------------
 void bump_all_enchants_update_counters()
 {
-    for (ENC_REF ref = 0; ref < MAX_ENC; ++ref)
+    for (ENC_REF ref = 0; ref < ENCHANTS_MAX; ++ref)
     {
         Ego::Entity *entity = POBJ_GET_PBASE( EnchantHandler::get().get_ptr(ref));
         if (!ACTIVE_PBASE(entity)) continue;

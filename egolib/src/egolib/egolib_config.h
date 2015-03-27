@@ -57,7 +57,7 @@
  * @ingroup
  *  compile-time
  */
-#define MAX_ENC 200
+#define ENCHANTS_MAX 200
 
 /**
  * @brief

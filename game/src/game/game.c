@@ -4252,7 +4252,7 @@ void disenchant_character( const CHR_REF cnt )
     pchr = _gameObjects.get( cnt );
 
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < ENCHANTS_MAX ) )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
         if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
@@ -4261,7 +4261,7 @@ void disenchant_character( const CHR_REF cnt )
         }
         ienc_count++;
     }
-    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
 }
 
