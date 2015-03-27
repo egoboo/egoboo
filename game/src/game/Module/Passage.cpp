@@ -164,7 +164,7 @@ CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_
     Object *psrc = _gameObjects.get( isrc );
 
     // Look at each character
-    for ( CHR_REF character = 0; character < MAX_CHR; character++ )
+    for ( CHR_REF character = 0; character < OBJECTS_MAX; character++ )
     {
         if ( !_gameObjects.exists( character ) ) continue;
         Object * pchr = _gameObjects.get( character );

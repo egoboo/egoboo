@@ -2633,7 +2633,7 @@ void draw_map()
         {
             CHR_REF ichr;
 
-            for ( ichr = 0; ichr < MAX_CHR && blip_count < MAXBLIP; ichr++ )
+            for ( ichr = 0; ichr < OBJECTS_MAX && blip_count < MAXBLIP; ichr++ )
             {
                 Object * pchr;
 
@@ -2868,7 +2868,7 @@ float draw_debug( float y )
         // More debug information
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
         y = draw_string_raw( 0, y, "~~FREEPRT %d", ParticleHandler::get().getFreeCount() );
-        y = draw_string_raw( 0, y, "~~FREECHR %d", MAX_CHR - _gameObjects.getObjectCount() );
+        y = draw_string_raw( 0, y, "~~FREECHR %d", OBJECTS_MAX - _gameObjects.getObjectCount() );
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
         y = draw_string_raw( 0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE" );
         y = draw_string_raw( 0, y, "~~PASS %d", PMod->getPassageCount() );

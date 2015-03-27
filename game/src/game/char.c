@@ -1284,7 +1284,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
     /// @author ZZ
     /// @details This function looks in the character's pack for an item similar
     ///    to the one given.  If it finds one, it returns the similar item's
-    ///    index number, otherwise it returns MAX_CHR.
+    ///    index number, otherwise it returns INVALID_CHR_REF.
 
     bool found  = false;
     CHR_REF istack = INVALID_CHR_REF;
@@ -7118,8 +7118,8 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
 {
     /// @author BB
     /// @details is ichr holding an item matching idsz, or is such an item in his pack?
-    ///               return the index of the found item, or MAX_CHR if not found. Also return
-    ///               the previous pack item in *pack_last, or MAX_CHR if it was not in a pack.
+    ///               return the index of the found item, or INVALID_CHR_REF if not found. Also return
+    ///               the previous pack item in *pack_last, or INVALID_CHR_REF if it was not in a pack.
 
     bool found;
     CHR_REF item;
@@ -7515,7 +7515,7 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     if ( !_gameObjects.exists( ichr ) ) return INVALID_CHR_REF;
 
     original_object = object = ichr;
-    for ( cnt = 0, object = ichr; cnt < MAX_CHR; cnt++ )
+    for ( cnt = 0, object = ichr; cnt < OBJECTS_MAX; cnt++ )
     {
         // check for one of the ending condiitons
         if ( non_item && !_gameObjects.get(object)->isitem )

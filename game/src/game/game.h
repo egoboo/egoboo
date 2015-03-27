@@ -339,7 +339,7 @@ struct status_list_element_t
     CHR_REF who;
 };
 
-#define STATUS_LIST_ELEMENT_INIT { -1 /* camera_ptr */, MAX_CHR /* who */ }
+#define STATUS_LIST_ELEMENT_INIT { -1 /* camera_ptr */, INVALID_CHR_REF /* who */ }
 
 //--------------------------------------------------------------------------------------------
 

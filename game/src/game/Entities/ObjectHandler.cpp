@@ -34,8 +34,8 @@ ObjectHandler::ObjectHandler() :
     _deletedCharacters(0),
     _totalCharactersSpawned(0)
 {
-	_internalCharacterList.reserve(MAX_CHR);
-    _iteratorList.reserve(MAX_CHR);
+	_internalCharacterList.reserve(OBJECTS_MAX);
+    _iteratorList.reserve(OBJECTS_MAX);
 }
 
 bool ObjectHandler::remove(const CHR_REF ichr)
@@ -84,7 +84,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_R
     }
 
     // Limit total number of characters active at the same time.
-    if(getObjectCount() > MAX_CHR)
+    if(getObjectCount() > OBJECTS_MAX)
 	{
         log_warning("ObjectHandler - No free character slots available\n");
         return nullptr;

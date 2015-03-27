@@ -39,110 +39,130 @@
 //--------------------------------------------------------------------------------------------
 
 /**
-* @defgroup compile-time Compile-time settings
-* @brief Settings to choose at compile-time
-*/
+ * @defgroup compile-time Compile-time settings
+ * @brief Settings to choose at compile-time
+ */
 
 /**
-* @brief
-*  Maximum number of characters.
-* @ingroup
-*  compile-time
-*/
-#define MAX_CHR 512
+ * @brief
+ *  Maximum number of objects.
+ * @ingroup
+ *  compile-time
+ */
+#define OBJECTS_MAX 512
 
 /**
-* @brief
-*  Maximum number of enchants.
-* @ingroup
-*  compile-time
-*/
+ * @brief
+ *  Maximum number of enchants.
+ * @ingroup
+ *  compile-time
+ */
 #define MAX_ENC 200
 
 /**
-* @brief
-*  Maximum numberof EVEs.
-*/
+ * @brief
+ *  Maximum numberof enchant profiles.
+ * @ingroup
+ *  compile-time
+ */
 #define MAX_EVE 256
 
 /**
-* @brief
-*  Maximum number of particles.
-* @ingroup
-*  compile-time
-*/
+ * @brief
+ *  Maximum number of particles.
+ * @ingroup
+ *  compile-time
+ */
 #define MAX_PRT 2048
 
 /**
-* @brief
-*  Maximum number of <tt>part*.text</tt> files per object.
-* @ingroup
-*  compile-time
-*/
+ * @brief
+ *  Maximum number of particle profiles (i.e. <tt>part*.text</tt> files) per object profile.
+ * @ingroup
+ *  compile-time
+ * @todo
+ *  Rename to PARTICLEPROFILES_PEROBJECTPROFILE_MAX.
+ */
 #define MAX_PIP_PER_PROFILE 13
 
 /**
-* @brief
-*  Maximum number of textures of all characters.
-* @ingroup
-*  compile-time
-*/
-#define MAX_TEXTURE (MAX_CHR * 4)
+ * @brief
+ *  The maximum number of skins per object.
+ * @ingroup
+ *  compile-time
+ * @todo
+ *  Rename to SKINS_PEROBJECT_MAX.
+ */
+#define MAX_SKIN 4
+
 
 /**
-* @brief
-*  Maximum number if icons of all characters.
-* @ingroup
-*  compile-time
-*/
-#define MAX_ICON (MAX_TEXTURE + 4)
+ * @brief
+ *  Maximum number of skins of all characters.
+ * @ingroup
+ *  compile-time
+ * @todo
+ *  Rename to SKINS_MAX.
+ */
+#define MAX_TEXTURE (OBJECTS_MAX * 4)
 
 /**
-* @brief
-*  The maximum number of textures.
-* @ingroup
-*  compile-time
-*/
+ * @brief
+ *  Maximum number if icons of all characters.
+ * @ingroup
+ *  compile-time
+ * @todo
+ *  Rename to ICONS_MAX.
+ */
+#define MAX_ICON (OBJECTS_MAX * 4 + 4)
+
+/**
+ * @brief
+ *  The maximum number of textures.
+ * @ingroup
+ *  compile-time
+ */
 #define TX_COUNT (2*(MAX_TEXTURE + MAX_ICON))
 
 /**
-* @brief
-*  Maximum number of audio files per object.
-* @ingroup
-*  compile-time
-*/
+ * @brief
+ *  Maximum number of audio files per object.
+ * @ingroup
+ *  compile-time
+ */
 #define MAX_WAVE 30
 
 /**
-* @brief
-*  Maximum number of PIPs.
-* @ingroup
-*  compile-time
-*/
+ * @brief
+ *  Maximum number of PIPs.
+ * @ingroup
+ *  compile-time
+ */
 #define MAX_PIP (256 * MAX_PIP_PER_PROFILE)
 
 /**
-* @brief
-*  Maximum number of dynamic lights.
-* @ingroup
-*  compile-time
-*/
+ * @brief
+ *  Maximum number of dynamic lights.
+ * @ingroup
+ *  compile-time
+ */
 #define TOTAL_MAX_DYNA 64
 
 /**
-* @brief
-*  Maximum number of MADs.
-* @ingroup compile-time
-*/
+ * @brief
+ *  Maximum number of MADs.
+ * @ingroup
+ *  compile-time
+ */
 #define MAX_MAD 256
 
 /**
-* @brief
-*  Maximum number of billboards.
-* @ingroup
-*  compile-time
-*/
-#define MAX_BBOARD (2 * MAX_CHR)
+ * @brief
+ *  Maximum number of billboards.
+ * @ingroup
+ *  compile-time
+ */
+#define MAX_BBOARD (2 * OBJECTS_MAX)
 
 // Some macro switches
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style

@@ -308,7 +308,7 @@ BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t * dat
  * @brief
  *	Spawn a character.
  * @return
- *	the index of the character on success success, #MAX_CHR on failure
+ *	the index of the character on success success, #INVALID_CHR_REF on failure
  */
 CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
 void    respawn_character( const CHR_REF character );

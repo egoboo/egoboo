@@ -6580,7 +6580,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     // Find the closest Teammate
     iTmp = 10000;
     sTmp = 0;
-    while(sTmp < MAX_CHR)
+    while(sTmp < OBJECTS_MAX)
     {
     if(_gameObjects.exists(sTmp) && ChrList.lst[sTmp].alive && ChrList.lst[sTmp].Team == pchr->Team)
     {

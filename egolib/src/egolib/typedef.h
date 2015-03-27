@@ -623,13 +623,12 @@ enum slot_t : uint8_t
 };
 
 #define NO_SKIN_OVERRIDE    -1                      ///< For import
-#define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.
 
 #include "egolib/Ref.hpp"
 
-typedef Ref<REF_T, 0, UINT16_MAX, MAX_CHR,RefKind::Object> ObjectRef;
+typedef Ref<REF_T, 0, OBJECTS_MAX, OBJECTS_MAX, RefKind::Object> ObjectRef;
 DECLARE_REF(CHR_REF);
-#define INVALID_CHR_REF ((CHR_REF)MAX_CHR)
+#define INVALID_CHR_REF ((CHR_REF)OBJECTS_MAX)
 
 DECLARE_REF(TEAM_REF);
 /// @todo TEAM_REF has no corresponding INVALID_TEAM_REF value.

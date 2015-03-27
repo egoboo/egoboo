@@ -2384,9 +2384,9 @@ void activate_spawn_file_vfs()
             }
 
             //Spit out a warning if they break the limit
-            if ( objectsToSpawn.size() >= MAX_CHR )
+            if ( objectsToSpawn.size() >= OBJECTS_MAX )
             {
-                log_warning("Too many objects in file \"%s\"! Maximum number of objects is %d.\n", ctxt.getLoadName().c_str(), MAX_CHR );
+                log_warning("Too many objects in file \"%s\"! Maximum number of objects is %d.\n", ctxt.getLoadName().c_str(), OBJECTS_MAX );
                 break;
             }
 
