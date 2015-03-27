@@ -100,7 +100,7 @@ bool config_upload( egoboo_config_t * pcfg )
     pcfg->fps_allowed    = TO_C_BOOL( fpson );
 
     // number of particles
-    pcfg->particle_count_req = CLIP( ParticleHandler::get().getDisplayLimit(), (size_t)0, (size_t)MAX_PRT );
+    pcfg->particle_count_req = CLIP( ParticleHandler::get().getDisplayLimit(), (size_t)0, (size_t)PARTICLES_MAX );
 
     // messages
     pcfg->messageon_req     = TO_C_BOOL( DisplayMsg_on );

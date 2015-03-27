@@ -45,7 +45,23 @@
 
 /**
  * @brief
- *  Maximum number of objects.
+ *  The maximum number of modules.
+ * @ingroup
+ *  compile-time
+ */
+#define MODULES_MAX UINT16_MAX
+
+/**
+ * @brief
+ *  The maximum number of object profiles.
+ * @ingroup
+ *  compile-time
+ */
+#define OBJECTPROFILES_MAX UINT16_MAX
+
+/**
+ * @brief
+ *  The maximum number of objects.
  * @ingroup
  *  compile-time
  */
@@ -53,7 +69,7 @@
 
 /**
  * @brief
- *  Maximum number of enchants.
+ *  The maximum number of enchants.
  * @ingroup
  *  compile-time
  */
@@ -61,19 +77,19 @@
 
 /**
  * @brief
- *  Maximum numberof enchant profiles.
+ *  The maximum number of enchant profiles.
  * @ingroup
  *  compile-time
  */
-#define MAX_EVE 256
+#define ENCHANTPROFILES_MAX 256
 
 /**
  * @brief
- *  Maximum number of particles.
+ *  The maximum number of particles.
  * @ingroup
  *  compile-time
  */
-#define MAX_PRT 2048
+#define PARTICLES_MAX 2048
 
 /**
  * @brief
@@ -98,7 +114,7 @@
 
 /**
  * @brief
- *  Maximum number of skins of all characters.
+ *  The maximum number of skins of all characters.
  * @ingroup
  *  compile-time
  * @todo

@@ -1169,10 +1169,10 @@ void render_all_particles( std::shared_ptr<Camera> pcam )
     /// @author ZZ
     /// @details This function draws the sprites for particle systems
 
-    prt_registry_entity_t reg[MAX_PRT];
+    prt_registry_entity_t reg[PARTICLES_MAX];
     size_t numparticle;
 
-    numparticle = render_all_prt_begin( pcam, reg, MAX_PRT );
+    numparticle = render_all_prt_begin( pcam, reg, PARTICLES_MAX );
 
     render_all_prt_solid( pcam, reg, numparticle );
     render_all_prt_trans( pcam, reg, numparticle );
@@ -1287,10 +1287,10 @@ void render_prt_ref( std::shared_ptr<Camera> pcam )
     /// @author ZZ
     /// @details This function draws sprites reflected in the floor
 
-    prt_registry_entity_t reg[MAX_PRT];
+    prt_registry_entity_t reg[PARTICLES_MAX];
     size_t numparticle;
 
-    numparticle = render_all_prt_ref_begin( pcam, reg, MAX_PRT );
+    numparticle = render_all_prt_ref_begin( pcam, reg, PARTICLES_MAX );
     render_all_prt_ref( pcam, reg, numparticle );
 }
 

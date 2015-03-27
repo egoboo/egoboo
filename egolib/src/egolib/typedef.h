@@ -633,9 +633,9 @@ DECLARE_REF(CHR_REF);
 DECLARE_REF(TEAM_REF);
 /// @todo TEAM_REF has no corresponding INVALID_TEAM_REF value.
 
-typedef Ref<REF_T, 0, UINT16_MAX, MAX_EVE, RefKind::EnchantProfile> EnchantProfileRef;
+typedef Ref<REF_T, 0, ENCHANTPROFILES_MAX, ENCHANTPROFILES_MAX, RefKind::EnchantProfile> EnchantProfileRef;
 DECLARE_REF(EVE_REF);
-#define INVALID_EVE_REF ((EVE_REF)MAX_EVE)
+#define INVALID_EVE_REF ((EVE_REF)ENCHANTPROFILES_MAX)
 
 typedef Ref<REF_T, 0, ENCHANTS_MAX, ENCHANTS_MAX, RefKind::Enchant> EnchantRef;
 DECLARE_REF(ENC_REF);
@@ -647,19 +647,20 @@ DECLARE_REF(MAD_REF);
 DECLARE_REF(PLA_REF);
 /// @todo PLA_REF has no corresponding INVALID_PLA_REF value.
 
+typedef Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile> ParticleProfileRef;
 DECLARE_REF(PIP_REF);
 #define INVALID_PIP_REF ((PIP_REF)MAX_PIP)
 
-typedef Ref<REF_T, 0, UINT16_MAX, MAX_PRT, RefKind::Particle> ParticleRef;
+typedef Ref<REF_T, 0, PARTICLES_MAX, PARTICLES_MAX, RefKind::Particle> ParticleRef;
 DECLARE_REF(PRT_REF);
-#define INVALID_PRT_REF ((PRT_REF)MAX_PRT)
+#define INVALID_PRT_REF ((PRT_REF)PARTICLES_MAX)
 
 DECLARE_REF(PASS_REF);
 /// @todo PASS_REF has no correspnding INVALID_PASS_REF value.
 
-typedef Ref<REF_T, 0, UINT16_MAX, UINT16_MAX, RefKind::ObjectProfile> ObjectProfileRef;
+typedef Ref<REF_T, 0, OBJECTPROFILES_MAX, OBJECTPROFILES_MAX, RefKind::ObjectProfile> ObjectProfileRef;
 DECLARE_REF(PRO_REF);
-#define INVALID_PRO_REF ((PRO_REF)UINT16_MAX)
+#define INVALID_PRO_REF ((PRO_REF)OBJECTPROFILES_MAX)
 
 DECLARE_REF(TX_REF);
 #define INVALID_TX_REF ((TX_REF)TX_COUNT)
@@ -670,6 +671,6 @@ DECLARE_REF(MNU_TX_REF);
 DECLARE_REF(BBOARD_REF);
 #define INVALID_BBOARD_REF ((BBOARD_REF)MAX_BBOARD)
 
-typedef Ref<REF_T, 0, UINT16_MAX, UINT16_MAX, RefKind::Module> ModuleRef;
+typedef Ref<REF_T, 0, MODULES_MAX, MODULES_MAX, RefKind::Module> ModuleRef;
 DECLARE_REF(MOD_REF);
-#define INVALID_MOD_REF ((MOD_REF)UINT16_MAX)
+#define INVALID_MOD_REF ((MOD_REF)MODULES_MAX)

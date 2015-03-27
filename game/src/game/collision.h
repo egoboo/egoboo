@@ -27,7 +27,7 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
-#define CHR_MAX_COLLISIONS       (OBJECTS_MAX*8 + MAX_PRT)
+#define CHR_MAX_COLLISIONS       (OBJECTS_MAX*8 + PARTICLES_MAX)
 #define COLLISION_HASH_NODES     (CHR_MAX_COLLISIONS*2)
 #define COLLISION_LIST_SIZE      256
 

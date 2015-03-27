@@ -74,7 +74,7 @@
 // external variables
 //--------------------------------------------------------------------------------------------
 
-struct ParticleHandler : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF, MAX_PRT, BSP_LEAF_PRT>
+struct ParticleHandler : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF, PARTICLES_MAX, BSP_LEAF_PRT>
 {
     ParticleHandler() :
         _LockableList(),
@@ -107,7 +107,7 @@ protected:
 
     /**
      * @brief
-     *  An display limit smaller than @a MAX_PRT is an upper-bound for the number of particles rendered.
+     *  An display limit smaller than @a PARTICLES_MAX is an upper-bound for the number of particles rendered.
      */
     size_t _displayLimit;
 
@@ -130,7 +130,7 @@ public:
      */
     void setDisplayLimit(size_t displayLimit)
     {
-        displayLimit = Math::constrain<uint16_t>(displayLimit, 256, MAX_PRT);
+        displayLimit = Math::constrain<uint16_t>(displayLimit, 256, PARTICLES_MAX);
         if (_displayLimit != displayLimit)
         {
             _displayLimit = displayLimit;

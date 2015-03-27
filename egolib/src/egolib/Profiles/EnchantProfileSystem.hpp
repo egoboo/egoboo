@@ -26,7 +26,7 @@
 #include "egolib/Profiles/EnchantProfile.hpp"
 #include "egolib/Profiles/EnchantProfileReader.hpp"
 
-extern _AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, MAX_EVE, EnchantProfileReader> EveStack;
+extern _AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX, EnchantProfileReader> EveStack;
 
 #define VALID_EVE_RANGE(ref) (EveStack.isValidRange(ref))
 #define LOADED_EVE(ref) (EveStack.isLoaded(ref))

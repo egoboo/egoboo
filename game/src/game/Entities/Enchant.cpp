@@ -615,7 +615,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     if ( !DEFINED_ENC( ienc ) ) return;
     penc = EnchantHandler::get().get_ptr( ienc );
 
-    if ( ieve >= MAX_EVE || !EveStack.get_ptr(ieve)->_loaded ) return;
+    if ( ieve >= ENCHANTPROFILES_MAX || !EveStack.get_ptr(ieve)->_loaded ) return;
     peve = EveStack.get_ptr( ieve );
 
     if ( !peve->_add[value_idx].apply )
