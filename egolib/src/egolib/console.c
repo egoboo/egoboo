@@ -431,7 +431,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
     ATTRIB_PUSH( __FUNCTION__, GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
         int text_w, text_h, height;
-        Ego::Math::Colour4f con_color = Ego::Math::Colour4f::WHITE;
+        Ego::Math::Colour4f con_color = Ego::Math::Colour4f::white();
 
         // make the texture a "null" texture
         GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, ( GLuint )( ~0 ) );

@@ -465,7 +465,7 @@ gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera)
             Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                          // GL_COLOR_BUFFER_BIT
 
-			Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
+			Ego::Renderer::get().setColour(Ego::Colour4f::white());
 
             for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
             {

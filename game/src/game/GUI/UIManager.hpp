@@ -80,7 +80,7 @@ public:
 	* @brief
 	*	Convinience function to draw a 2D image
 	**/
-	void drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::WHITE);
+	void drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
 
     //Disable copying class

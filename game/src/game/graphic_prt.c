@@ -1144,7 +1144,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
 
         GL_DEBUG(glDisable)(GL_TEXTURE_2D);
         {
-			Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+			Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
             render_oct_bb(&loc_bb, true, true);
         }

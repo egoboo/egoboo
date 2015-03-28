@@ -18,21 +18,6 @@
 //********************************************************************************************
 
 /// @file  egolib/Math/Colour3f.cpp
-/// @brief Colours in real-valued, normalized RGB space.
+/// @brief Colours in RGB colour space.
 
 #include "egolib/Math/Colour3f.hpp"
-
-namespace Ego
-{
-	namespace Math
-    {
-		const Colour3f Colour3f::RED(1.0f, 0.0f, 0.0f);
-		const Colour3f Colour3f::GREEN(0.0f, 1.0f, 0.0f);
-		const Colour3f Colour3f::BLUE(0.0f, 0.0f, 1.0f);
-		const Colour3f Colour3f::WHITE(1.0f, 1.0f, 1.0f);
-		const Colour3f Colour3f::BLACK(0.0f, 0.0f, 0.0f);
-        const Colour3f Colour3f::CYAN(0.0f,1.0f,1.0f);
-        const Colour3f Colour3f::MAGENTA(1.0f, 0.0f, 1.0f);
-        const Colour3f Colour3f::YELLOW(1.0f, 1.0f, 0.0f);
-	};
-};

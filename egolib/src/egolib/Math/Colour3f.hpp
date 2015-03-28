@@ -18,18 +18,22 @@
 //********************************************************************************************
 
 /// @file  egolib/Math/Colour3.h
-/// @brief Colours in real-valued, normalized RGB space.
+/// @brief Colours in RGB colour space.
 
 #pragma once
 
 #include "egolib/platform.h"
 
-namespace Ego {
-	namespace Math {
+namespace Ego
+{
+	namespace Math
+    {
 
 		/**
 		 * @brief
-		 *	A colour in real-valued, normalized RGB space
+		 *	A colour value in RGB colour space represented by
+         *      three single-precision floating point values
+         *          each within the range of 0 (inclusive) to 1 (inclusive).
 		 * @author
 		 *	Michael Heilmann
 		 */
@@ -38,46 +42,87 @@ namespace Ego {
 		public:
 			/**
 			 * @brief The colour "red" (255,0,0).
+             * @return the colour "red"
 			 */
-			static const Colour3f RED;
+            static const Colour3f& red()
+            {
+                static const Colour3f colour(1.0f, 0.0f, 0.0f);
+                return colour;
+            }
 
 			/**
 			 * @brief The colour "green" (0,255,0).
+             * @return the colour "green"
 			 */
-			static const Colour3f GREEN;
+            static const Colour3f& green()
+            {
+                static const Colour3f colour(0.0f, 1.0f, 0.0f);
+                return colour;
+            }
 
 			/**
 			 * @brief The colour "blue" (0,0,255).
+             * @return the colour "blue"
 			 */
-			static const Colour3f BLUE;
+            static const Colour3f& blue()
+            {
+                static const Colour3f colour(0.0f, 0.0f, 1.0f);
+                return colour;
+            }
 
 			/**
 			 * @brief The colour "white" (255,255,255).
+             * @return the colour "white"
 			 */
-			static const Colour3f WHITE;
+            static const Colour3f& white()
+            {
+                static const Colour3f colour(1.0f, 1.0f, 1.0f);
+                return colour;
+            }
 
 			/**
 			 * @brief The colour "black" (0,0,0).
+             * @return the colour "black"
 			 */
-			static const Colour3f BLACK;
+            static const Colour3f& black()
+            {
+                static const Colour3f colour(0.0f, 0.0f, 0.0f);
+                return colour;
+            }
 
             /**
              * @brief The colour "cyan" (0,255,255).
-             * @remark This is the complementary colour of red.
+             * @return the colour "cyan"
+             * @remark The colour "cyan" is the complementary colour of the colour "red".
              */
-            static const Colour3f CYAN;
+            static const Colour3f& cyan()
+            {
+                static const Colour3f colour(0.0f, 1.0f, 1.0f);
+                return colour;
+            }
 
             /**
              * @brief The colour "magenta" (255,0,255).
-             * @remark This is the complementary colour of green. 
+             * @return the colour "magenta"
+             * @remark The colour "magenta" is the complementary colour of the colour "green". 
              */
-            static const Colour3f MAGENTA;
+            static const Colour3f& magenta()
+            {
+                static const Colour3f colour(1.0f, 0.0f, 1.0f);
+                return colour;
+            }
 
             /**
              * @brief The colour "yellow" (255,255,0).
-             * @remark This is the complementary colour of yellow.
+             * @return the colour "yellow"
+             * @remark The colour "yellow" is the complementary colour of the colour "blue".
              */
-            static const Colour3f YELLOW;
+            static const Colour3f& yellow()
+            {
+                static const Colour3f colour(1.0f, 1.0f, 0.0f);
+                return colour;
+            }
+
 
 		private:
 
@@ -203,7 +248,7 @@ namespace Ego {
 			 * @remark
 			 *	Given a colour  \f$(r,g,b)\f$ in real-valued, normalized RGB space,
 			 *	then corresponding inverted colour is \f$(1-r,1-g,1-b)\f$. Inverting
-			 *	a colour twice yields the same colour (modula floating-point precision).
+			 *	a colour twice yields the same colour (modulo floating-point precision).
 			 * @remark
 			 *	The corresponding inverted colour is also known as the complementary colour.
 			 */
@@ -211,6 +256,26 @@ namespace Ego {
 			{
 				return Colour3f(1.0f - _r, 1.0f - _g, 1.0f - _b);
 			}
+
+            /**
+             * @brief
+             *	Convert a colour value in RGB colour space represented by
+             *      three Byte values
+             *  into the internal representation.
+             * @param r
+             *  the Byte value of the red component
+             * @param g
+             *  the Byte value of the green component
+             * @param b
+             *  the Byte value of the blue component
+             * @return
+             *  the colour
+             */
+            static Colour3f parse(uint8_t r, uint8_t g, uint8_t b)
+            {
+                return Colour3f(((float)r) / 255.0f, ((float)g) / 255.0f, ((float)b) / 255.0f);
+            }
+
 		};
 
 	};

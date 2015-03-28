@@ -74,7 +74,7 @@ namespace Ego
          *  the colour of the text (default white)
          */
         void drawTextToTexture(oglx_texture_t *tex, const std::string &text,
-                               const Ego::Math::Colour4f &color = Ego::Math::Colour4f::WHITE) const;
+                               const Ego::Math::Colour4f &color = Ego::Math::Colour4f::white()) const;
         
 #if 0
         /**
@@ -112,7 +112,7 @@ namespace Ego
          *  the colour of the text (default white)
          */
         void drawText(const std::string &text, int x, int y,
-                      const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::WHITE);
+                      const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
         
         /**
          * @brief
@@ -133,7 +133,7 @@ namespace Ego
          *  the colour of the text (default white)
          */
         void drawTextBox(const std::string &text, int x, int y, int width, int height, int spacing,
-                         const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::WHITE);
+                         const Ego::Math::Colour4f &colour = Ego::Math::Colour4f::white());
         
         /** 
          * @brief

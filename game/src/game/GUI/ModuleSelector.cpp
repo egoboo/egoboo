@@ -110,7 +110,7 @@ void ModuleSelector::drawContainer()
     {
 
     	//Draw module Name first
-		Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
+		Ego::Renderer::get().setColour(Ego::Colour4f::white());
         _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 20, 25);
         
 

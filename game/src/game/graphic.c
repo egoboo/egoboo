@@ -2201,7 +2201,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     ticks = std::min( ticks, (Uint8)NUMTICK );
 
     gfx_enable_texturing();               // Enable texture mapping
-	Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
     //---- Draw the tab (always colored)
 
@@ -2623,7 +2623,7 @@ void draw_map()
         Ego::Renderer::get().setBlendingEnabled(true);
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-		Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
+		Ego::Renderer::get().setColour(Ego::Colour4f::white());
         draw_map_texture( 0, sdl_scr.y - MAPSIZE );
 
         GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
@@ -3830,7 +3830,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-					Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
+					Ego::Renderer::get().setColour(Ego::Colour4f::white());
 
                     if ( gfx_error == render_one_mad_ref( pcam, ichr ) )
                     {
@@ -3856,7 +3856,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_t::test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-					Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
+					Ego::Renderer::get().setColour(Ego::Colour4f::white());
 
                     if ( gfx_error == render_one_prt_ref( iprt ) )
                     {

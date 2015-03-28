@@ -812,21 +812,21 @@ void draw_chr_bbox(Object *pchr)
             {
                 oct_bb_t bb;
                 oct_bb_translate(&(pchr->slot_cv[SLOT_LEFT]), pchr->getPosition(), &bb);
-                Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+                Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
                 render_oct_bb(&bb, true, true);
             }
             if (drawRightSlot)
             {
                 oct_bb_t bb;
                 oct_bb_translate(&(pchr->slot_cv[SLOT_RIGHT]), pchr->getPosition(), &bb);
-                Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+                Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
                 render_oct_bb(&bb, true, true);
             }
             if (drawCharacter)
             {
                 oct_bb_t bb;
                 oct_bb_translate(&(pchr->chr_min_cv), pchr->getPosition(), &bb);
-                Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+                Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
                 render_oct_bb(&bb, true, true);
             }
         }
@@ -989,7 +989,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
         GL_DEBUG_END();
     }
 
-	Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);
+	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 }
 
 //--------------------------------------------------------------------------------------------

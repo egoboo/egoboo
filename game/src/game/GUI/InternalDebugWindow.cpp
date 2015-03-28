@@ -105,7 +105,7 @@ void InternalDebugWindow::draw()
     }
 
     //Draw an X in top right corner
-    Ego::Math::Colour4f X_HOVER = Ego::Math::Colour4f::WHITE;
+    Ego::Math::Colour4f X_HOVER = Ego::Math::Colour4f::white();
     Ego::Math::Colour4f X_DEFAULT(.56f, .56f, .56f, 1.0f);
     _gameEngine->getUIManager()->getDefaultFont()->drawText("X", getX() + getWidth() - 16, getY(), _mouseOverCloseButton ? X_HOVER : X_DEFAULT);
 }

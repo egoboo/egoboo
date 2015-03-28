@@ -18,21 +18,6 @@
 //********************************************************************************************
 
 /// @file  egolib/Math/Colour4f.cpp
-/// @brief Colours in real-valued, normalized RGBA space.
+/// @brief Colours in RGBA colour space.
 
 #include "egolib/Math/Colour4f.hpp"
-
-namespace Ego
-{
-	namespace Math
-    {
-		const Colour4f Colour4f::RED(1.0f, 0.0f, 0.0f, 1.0f);
-		const Colour4f Colour4f::GREEN(0.0f, 1.0f, 0.0f, 1.0f);
-		const Colour4f Colour4f::BLUE(0.0f, 0.0f, 1.0f, 1.0f);
-		const Colour4f Colour4f::WHITE(1.0f, 1.0f, 1.0f, 1.0f);
-		const Colour4f Colour4f::BLACK(0.0f, 0.0f, 0.0f, 1.0f);
-        const Colour4f Colour4f::CYAN(0.0f, 1.0f, 1.0f, 1.0f);
-		const Colour4f Colour4f::MAGENTA(1.0f, 0.0f, 1.0f, 1.0f);
-        const Colour4f Colour4f::YELLOW(1.0f, 1.0f, 0.0f, 1.0f);
-	};
-};

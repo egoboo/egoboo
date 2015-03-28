@@ -337,7 +337,7 @@ void gfx_begin_text()
     // draw draw front and back faces of polygons
     oglx_end_culling();                                                  // GL_ENABLE_BIT
 
-	Ego::Renderer::get().setColour(Ego::Math::Colour4f::WHITE);// GL_CURRENT_BIT
+	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());// GL_CURRENT_BIT
 }
 
 //--------------------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ void draw_one_font( oglx_texture_t * ptex, int fonttype, float x_stt, float y_st
     tx_rect.ymin += border;
     tx_rect.ymax -= border;
 
-    draw_quad_2d(ptex, sc_rect, tx_rect, true, Ego::Colour4f::WHITE);
+    draw_quad_2d(ptex, sc_rect, tx_rect, true, Ego::Colour4f::white());
 }
 
 //--------------------------------------------------------------------------------------------
