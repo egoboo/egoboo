@@ -307,18 +307,6 @@ extern "C"
     #endif
 #endif
 
-#if 0
-//------------
-// it seems that the gcc community has a bug up its ass about the forward declaration of enums
-// to get around this (so we can use the strong type checking of c++ to look for errors in the code)
-// we will define
-#if !defined(_MSC_VER)
-#    define FWD_ENUM(XX) typedef int i_##XX
-#else
-#    define FWD_ENUM(XX) enum e_##XX; typedef enum e_##XX i_##XX;
-#endif
-#endif
-
 //------------
 #if !defined(SET_PACKED)
     // set the packing of a data structure at declaration time

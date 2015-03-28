@@ -111,26 +111,21 @@
  */
 #define SKINS_PEROBJECT_MAX 4
 
-
 /**
  * @brief
  *  The maximum number of skins of all characters.
  * @ingroup
  *  compile-time
- * @todo
- *  Rename to SKINS_MAX.
  */
-#define MAX_TEXTURE (OBJECTS_MAX * SKINS_PEROBJECT_MAX)
+#define SKINS_MAX (OBJECTS_MAX * SKINS_PEROBJECT_MAX)
 
 /**
  * @brief
  *  Maximum number if icons of all characters.
  * @ingroup
  *  compile-time
- * @todo
- *  Rename to ICONS_MAX.
  */
-#define MAX_ICON (OBJECTS_MAX * 4 + 4)
+#define ICONS_MAX (OBJECTS_MAX * 4 + 4)
 
 /**
  * @brief
@@ -138,7 +133,7 @@
  * @ingroup
  *  compile-time
  */
-#define TX_COUNT (2*(MAX_TEXTURE + MAX_ICON))
+#define TX_COUNT (2*(SKINS_MAX + ICONS_MAX))
 
 /**
  * @brief
