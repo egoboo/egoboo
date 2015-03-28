@@ -2,15 +2,17 @@
 
 enum class RefKind
 {
-    Animation, /// @todo Formerly known as MAD_REF.
-    Particle, /// @todo Formerly known as PRT_REF.
-    ParticleProfile, /// @todo Formerly known as PIP_REF.
-    Enchant, /// @todo Formerly known as ENC_REF.
-    EnchantProfile, // @todo Formerly known as EVE_REF.
-    Player, /// @todo Formerly known as PLA_REF.
-    Object, /// @todo Formerly known as CHR_REF.
-    Module, /// @todo Formerly knownas MOD_REF.
-    ObjectProfile, /// @todo Formerly known as PRO_REF.
+    Animation,       ///< @todo Formerly known as MAD_REF.
+    Billboard,       ///< @see BillboardRef
+    Particle,        ///< @see ParticleRef
+    ParticleProfile, ///< @see ParticleProfileRef
+    Enchant,         ///< @see EnchantRef.
+    EnchantProfile,  ///< @see EnchantProfileRef
+    Object,          ///< @see ObjectRef
+    ObjectProfile,   ///< @see ObjectProfileRef
+    Module,          ///< @see ModuleRef
+    Player,           /// @todo Formerly known as PLA_REF.
+    Texture,         ///< @see TextureRef
 };
 
 /**

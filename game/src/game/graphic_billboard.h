@@ -83,12 +83,12 @@ struct billboard_data_t
 // BillboardList
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LIST_EXTERN(billboard_data_t, BillboardList, MAX_BBOARD);
+DECLARE_LIST_EXTERN(billboard_data_t, BillboardList, BILLBOARDS_MAX);
 
 inline bool VALID_BILLBOARD_RANGE(BBOARD_REF ref)
 {
     return (ref >= 0)
-        && (ref < MAX_BBOARD);
+        && (ref < BILLBOARDS_MAX);
 }
 
 inline bool VALID_BILLBOARD(BBOARD_REF ref)

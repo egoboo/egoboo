@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST(, billboard_data_t, BillboardList, BILLBOARD_COUNT );
+INSTANTIATE_LIST(, billboard_data_t, BillboardList, BILLBOARDS_MAX);
 
 //--------------------------------------------------------------------------------------------
 // private functions
@@ -160,11 +160,11 @@ bool billboard_data_t::printf_ttf(billboard_data_t *self, const std::shared_ptr<
 // BillboardList IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
-IMPLEMENT_LIST(billboard_data_t, BillboardList, MAX_BBOARD);
+IMPLEMENT_LIST(billboard_data_t, BillboardList, BILLBOARDS_MAX);
 
 void BillboardList_init_all()
 {
-    for (BBOARD_REF ref = 0; ref < MAX_BBOARD; ++ref)
+    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
     {
         billboard_data_t::init(BillboardList_get_ptr(ref));
     }
@@ -176,7 +176,7 @@ void BillboardList_update_all()
 {
     Uint32 ticks = SDL_GetTicks();
 
-    for (BBOARD_REF ref = 0; ref < MAX_BBOARD; ++ref)
+    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
     {
         billboard_data_t *pbb = BillboardList_get_ptr(ref);
 
@@ -215,7 +215,7 @@ void BillboardList_update_all()
 
 void BillboardList_free_all()
 {
-    for (BBOARD_REF ref = 0; ref < MAX_BBOARD; ++ref)
+    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
     {
         if (!BillboardList.lst[ref].valid) continue;
 
@@ -234,10 +234,6 @@ BBOARD_REF BillboardList_get_free_ref(Uint32 lifetime_secs)
     {
         return INVALID_BBOARD_REF;
     }
-
-#if 0
-    TX_REF             itex = INVALID_TX_REF;
-#endif
 
 
     TX_REF itex = TextureManager::get().acquire(INVALID_TX_REF);
@@ -308,7 +304,7 @@ bool BillboardList_free_one(BBOARD_REF ref)
     }
 #endif
 
-    if (BillboardList.free_count >= MAX_BBOARD)
+    if (BillboardList.free_count >= BILLBOARDS_MAX)
     {
         return false;
     }
@@ -325,12 +321,12 @@ void BillboardList_clear_data()
     /// @author BB
     /// @details reset the free billboard list.
 
-    for (BBOARD_REF ref = 0; ref < MAX_BBOARD; ++ref)
+    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
     {
         BillboardList.free_ref[ref] = REF_TO_INT(ref);
     }
 
-    BillboardList.free_count = MAX_BBOARD;
+    BillboardList.free_count = BILLBOARDS_MAX;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -471,7 +467,7 @@ gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera)
 
 			Ego::Renderer::get().setColour(Ego::Colour4f::WHITE);
 
-            for (BBOARD_REF ref = 0; ref < MAX_BBOARD; ++ref)
+            for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
             {
                 billboard_data_t *pbb = BillboardList_get_ptr(ref);
                 if (!pbb || !pbb->valid ) continue;

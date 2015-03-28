@@ -102,6 +102,14 @@
 #define MAX_PIP_PER_PROFILE 13
 
 /**
+* @brief
+*  Maximum number of PIPs.
+* @ingroup
+*  compile-time
+*/
+#define MAX_PIP (256 * MAX_PIP_PER_PROFILE)
+
+/**
  * @brief
  *  The maximum number of skins per object.
  * @ingroup
@@ -133,7 +141,7 @@
  * @ingroup
  *  compile-time
  */
-#define TX_COUNT (2*(SKINS_MAX + ICONS_MAX))
+#define TEXTURES_MAX (2*(SKINS_MAX + ICONS_MAX))
 
 /**
  * @brief
@@ -142,14 +150,6 @@
  *  compile-time
  */
 #define MAX_WAVE 30
-
-/**
- * @brief
- *  Maximum number of PIPs.
- * @ingroup
- *  compile-time
- */
-#define MAX_PIP (256 * MAX_PIP_PER_PROFILE)
 
 /**
  * @brief
@@ -173,7 +173,7 @@
  * @ingroup
  *  compile-time
  */
-#define MAX_BBOARD (2 * OBJECTS_MAX)
+#define BILLBOARDS_MAX (2 * OBJECTS_MAX)
 
 // Some macro switches
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style

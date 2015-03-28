@@ -74,7 +74,7 @@ enum e_global_tx_type
 
 inline bool VALID_TX_RANGE(const TX_REF ref)
 {
-    return ref >= 0 && ref < TX_COUNT;
+    return ref >= 0 && ref < TEXTURES_MAX;
 }
 
 struct TextureManager
@@ -90,7 +90,7 @@ protected:
      * @brief
      *  The list of texture objects.
      */
-    oglx_texture_t *_lst[TX_COUNT];
+    oglx_texture_t *_lst[TEXTURES_MAX];
 
     /**
      * @brief

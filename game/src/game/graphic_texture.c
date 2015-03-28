@@ -33,14 +33,14 @@ TextureManager::TextureManager()
     : _lst(), _free()
 {
     // Fill the _free set with all texture references
-    // from TX_SPECIAL_LAST (inclusive) to TX_COUNT (exclusive).
-    for (TX_REF ref = TX_SPECIAL_LAST; ref < TX_COUNT; ++ref)
+    // from TX_SPECIAL_LAST (inclusive) to TEXTURES_MAX (exclusive).
+    for (TX_REF ref = TX_SPECIAL_LAST; ref < TEXTURES_MAX; ++ref)
     {
         _free.insert(ref);
     }
 	
     // Initialize the actual list of textures.
-	for (TX_REF ref = 0; ref < TX_COUNT; ++ref)
+    for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
 	{
         oglx_texture_t *texture;
         try
@@ -72,7 +72,7 @@ TextureManager::TextureManager()
 
 TextureManager::~TextureManager()
 {
-    for (TX_REF ref = 0; ref < TX_COUNT; ++ref)
+    for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
     {
         oglx_texture_t::dtor(_lst[ref]);
         free(_lst[ref]);
@@ -83,8 +83,8 @@ TextureManager::~TextureManager()
 void TextureManager::freeAll()
 {
     // Fill the _free set with all texture references
-    // from TX_SPECIAL_LAST (inclusive) to TX_COUNT (exclusive).
-    for (TX_REF ref = TX_SPECIAL_LAST; ref < TX_COUNT; ++ref)
+    // from TX_SPECIAL_LAST (inclusive) to TEXTURES_MAX (exclusive).
+    for (TX_REF ref = TX_SPECIAL_LAST; ref < TEXTURES_MAX; ++ref)
     {
         _free.insert(ref);
     }
@@ -122,7 +122,7 @@ void TextureManager::uninitialize()
 
 void TextureManager::release_all()
 {
-	for (TX_REF ref = 0; ref < TX_COUNT; ++ref)
+    for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
 	{
 		oglx_texture_release(_lst[ref]);
 	}
@@ -132,7 +132,7 @@ void TextureManager::release_all()
 
 void TextureManager::reload_all()
 {
-	for (TX_REF ref = 0; ref < TX_COUNT; ++ref)
+    for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
     {
         oglx_texture_t *texture = _lst[ref];
 
@@ -174,7 +174,7 @@ TX_REF TextureManager::acquire(const TX_REF ref)
 //--------------------------------------------------------------------------------------------
 bool TextureManager::relinquish(const TX_REF ref)
 {
-    if (ref < 0 || ref >= TX_COUNT) return false;
+    if (ref < 0 || ref >= TEXTURES_MAX) return false;
 
     // Release the texture.
     oglx_texture_release(_lst[ref]);
@@ -192,7 +192,7 @@ bool TextureManager::relinquish(const TX_REF ref)
 #endif
 #endif
 #if 0
- 	if (free_count >= TX_COUNT)
+    if (free_count >= TEXTURES_MAX)
 	{
 		return false;
 	}
@@ -244,7 +244,7 @@ TX_REF TextureManager::load(const char *filename, const TX_REF ref, Uint32 key)
 
 oglx_texture_t *TextureManager::get_valid_ptr(const TX_REF ref)
 {
-	oglx_texture_t *texture = LAMBDA(ref >= TX_COUNT, nullptr, _lst[ref]);
+    oglx_texture_t *texture = LAMBDA(ref >= TEXTURES_MAX, nullptr, _lst[ref]);
     if (!oglx_texture_Valid(texture))
     {
         return nullptr;
