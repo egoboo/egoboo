@@ -186,9 +186,7 @@ void Camera::resetView()
     // check for stupidity
     if (_pos != _center)
     {
-        fmat_4x4_t tmp1, tmp2;
-        
-        tmp1.setScaling(fvec3_t(-1, 1, 1));
+        fmat_4x4_t tmp1 = fmat_4x4_t::scaling(fvec3_t(-1, 1, 1)), tmp2;
         mat_glRotate(tmp2.v, tmp1.v, roll_deg, 0, 0, 1);
         mat_gluLookAt(_mView.v, tmp2.v, _pos.x, _pos.y, _pos.z,
                       _center.x, _center.y, _center.z, 0.0f, 0.0f, 1.0f);

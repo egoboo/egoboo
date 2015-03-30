@@ -223,8 +223,7 @@ void mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_
 	if (roll != 0.0f)
 	{
 		// mat_Multiply function shown above
-		fmat_4x4_t tmp1, tmp2;
-		tmp1.setRotationZ(-roll);
+		fmat_4x4_t tmp1 = fmat_4x4_t::rotationZ(-roll), tmp2;
 		tmp2 = DST;
 		mat_Multiply(DST.v, tmp1.v, tmp2.v);
 	}
@@ -336,8 +335,7 @@ void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float
     u = s.cross(f);
     
     mat_Zero(M);
-	fmat_4x4_t eyeTranslate;
-	eyeTranslate.setTranslation(fvec3_t(-eyeX, -eyeY, -eyeZ));
+    fmat_4x4_t eyeTranslate = fmat_4x4_t::translation(fvec3_t(-eyeX, -eyeY, -eyeZ));
     
     M[MAT_IDX(0, 0)] = s.x;
     M[MAT_IDX(1, 0)] = s.y;

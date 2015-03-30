@@ -130,7 +130,7 @@ public:
      */
     void setDisplayLimit(size_t displayLimit)
     {
-        displayLimit = Math::constrain<uint16_t>(displayLimit, 256, PARTICLES_MAX);
+        displayLimit = Math::constrain<size_t>(displayLimit, 256, PARTICLES_MAX);
         if (_displayLimit != displayLimit)
         {
             _displayLimit = displayLimit;

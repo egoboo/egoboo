@@ -108,7 +108,52 @@ struct fmat_4x4_t
         return zero;
     }
 
-	fmat_4x4_t()
+    /**
+     * @brief
+     *  Compute the tensor product matrix of two vectors.
+     * @param u, v
+     *  the vector
+     * @return
+     *  the tensor product matrix
+     * @remark
+     *  The \f$3 \times 3\f$ tensor product matrix \f$\vec{u}\Oplus\vec{v}\f$ of two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^3\f$ is defined as
+     *  \f[
+     *  \vec{u}\otimes\vec{v} =
+     *  \left[\begin{matrix}
+     *  u_x v_x & u_x v_y & u_x v_z \\
+     *  u_y v_x & u_y v_y & u_y v_z \\
+     *  u_z v_x & u_z v_y & u_z v_z
+     *  \end{matrix}\right]
+     *  \f]
+     * @remark
+     *  For the special case of \f$\vec{u}=\vec{w}\f$,\f$\vec{v}=\vec{w}\f$ the tensor product matrix reduces to
+     *  \f[
+     *  \vec{w}\otimes\vec{w} =
+     *  \left[\begin{matrix}
+     *  w^2_x   & w_x w_y & w_x w_z \\
+     *  w_x w_y & w^2_y   & w_y w_z \\
+     *  w_x w_z & w_y w_z & w^2_z
+     *  \end{matrix}\right]
+     *  \f]
+     * @todo
+     *  Move this into fvec4_t.
+     * @todo
+     *  Add an implementation for fvec2_t and fvec3_t returning fmat_2x2_t and fmat_3x3_t.
+     */
+    static fmat_4x4_t tensor(const fvec4_t& v, const fvec4_t& w)
+    {
+        return
+            fmat_4x4_t
+            (
+                v.x * w.x, v.x * w.y, v.x * w.z, v.x * w.w,
+                v.y * w.x, v.y * w.y, v.y * w.z, v.y * w.w,
+                v.z * w.x, v.z * w.y, v.z * w.z, v.z * w.w,
+                v.w * w.w, v.w * w.y, v.w * w.z, v.w * w.w            
+            );
+    }
+public:
+
+    fmat_4x4_t()
 	{
 		for (size_t i = 0; i < 16; ++i)
 		{
@@ -412,16 +457,6 @@ struct fmat_4x4_t
 
 	/**
 	 * @brief
-	 *	Set this matrix to the identity/multiplicative neutral matrix.
-	 * @see fmat_4x4_t::identity
-	 */
-	void setIdentity()
-	{
-		(*this) = fmat_4x4_t::identity();
-	}
-
-	/**
-	 * @brief
 	 *	Assign this matrix the values of a viewing transformation (~ world space -> camera space) matrix.
 	 * @param eye
 	 *	the position of the eye point
@@ -597,50 +632,25 @@ struct fmat_4x4_t
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-	void setTranslation(const fvec3_t& t)
+	static fmat_4x4_t translation(const fvec3_t& t)
 	{
-		// Column 0.
-		(*this)(0, 0) = 1.0f;
-		(*this)(1, 0) = 0.0f;
-		(*this)(2, 0) = 0.0f;
-		(*this)(3, 0) = 0.0f;
-		// Column 1.
-		(*this)(0, 1) = 0.0f;
-		(*this)(1, 1) = 1.0f;
-		(*this)(2, 1) = 0.0f;
-		(*this)(3, 1) = 0.0f;
-		// Column 2.
-		(*this)(0, 2) = 0.0f;
-		(*this)(1, 2) = 0.0f;
-		(*this)(2, 2) = 1.0f;
-		(*this)(3, 2) = 0.0f;
-		// Column 3.
-		(*this)(0, 3) = t.x;
-		(*this)(1, 3) = t.y;
-		(*this)(2, 3) = t.z;
-		(*this)(3, 3) = 1.0f;
+        return
+            fmat_4x4_t
+            (
+                1, 0, 0, t.x,
+                0, 1, 0, t.y,
+                0, 0, 1, t.z,
+                0, 0, 0,   1
+            );
 	}
 
 	/**
 	 * @brief
-	 *	Assign a matrix the values of a translation matrix.
-	 * @param M
-	 *	the matrix
-	 * @param t
-	 *	the translation vector
-	 * @see
-	 *	fmat_4x4_t::setTransation(const fvec3_t&)
-	 */
-	static void setTranslation(fmat_4x4_t& M, const fvec3_t& t)
-	{
-		M.setTranslation(t);
-	}
-
-	/**
-	 * @brief
-	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the x-axis.
+	 *	Get a matrix representing an anticlockwise rotation around the x-axis.
 	 * @param a
 	 *	the angle of rotation, in Radians
+     * @return
+     *  the matrix
 	 * @remark
 	 *	\f[
 	 *	\left[\begin{matrix}
@@ -650,40 +660,30 @@ struct fmat_4x4_t
 	 *	0 & 0 &  0 & 1 \\
 	 *	\end{matrix}\right]
 	 *	\f]
-	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
+	 *	where \f$c=\cos(a)\f$ and \f$s=\sin(a)\f$.
+     * @todo
+     *  Angles should be in degrees.
 	 */
-	void setRotationX(const float a)
+	static fmat_4x4_t rotationX(const float a)
 	{
 		float c = std::cos(a), s = std::sin(a);
-		(*this) = fmat_4x4_t::identity();
-		// 1st column.
-		(*this)(1, 1) = +c;
-		(*this)(2, 1) = +s;
-		// 2nd column.
-		(*this)(1, 2) = -s;
-		(*this)(2, 2) = +c;
+        return
+            fmat_4x4_t
+            (
+                1,  0,  0, 0,
+                0, +c, -s, 0,
+                0, +s,  c, 0,
+                0,  0,  0, 1
+            );
 	}
 
 	/**
 	 * @brief
-	 *	Assign a matrix the values of a rotation matrix for counter-clockwise rotation around the x-axis.
-	 * @param M
-	 *	the matrix
+	 *	Get a matrix representing a anticlockwise rotation around the y-axis.
 	 * @param a
 	 *	the angle of rotation, in Radians
-	 * @see
-	 *	fmat_4x4_t::setRotationX(const float)
-	 */
-	static void setRotationX(fmat_4x4_t& M, const float a)
-	{
-		M.setRotationX(a);
-	}
-
-	/**
-	 * @brief
-	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the y-axis.
-	 * @param a
-	 *	the angle of rotation, in Radians
+     * @return
+     *  the matrix
 	 * @remark
 	 *	\f[
 	 *	\left[\begin{matrix}
@@ -693,76 +693,54 @@ struct fmat_4x4_t
 	 *	 0 & 0 & 0 & 1 \\
 	 *	\end{matrix}\right]
 	 *	\f]
-	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
+	 *	where \f$c=\cos(a)\f$ and \f$s=\sin(a)\f$.
+     * @todo
+     *  Angles should be in degree.
 	 */
-	void setRotationY(const float a)
+	static fmat_4x4_t rotationY(const float a)
 	{
-		float c = std::cos(a), s = std::sin(a);
-		(*this) = fmat_4x4_t::identity();
-		// 0th column.
-		(*this)(0, 0) = +c;
-		(*this)(2, 0) = -s;
-		// 2nd column.
-		(*this)(0, 2) = +s;
-		(*this)(2, 2) = +c;
+        float c = std::cos(a), s = std::sin(a);
+        return
+            fmat_4x4_t
+            (
+                +c, 0, +s, 0,
+                 0, 1,  0, 0,
+                -s, 0, +c, 0,
+                 0, 0,  0, 1
+            );
 	}
 
 	/**
 	 * @brief
-	 *	Assign a matrix the values of a rotation matrix for counter-clockwise rotation around the y-axis.
-	 * @param M
-	 *	the matrix
+	 *	Get a matrix representing an anticlockwise rotation about the z-axis.
 	 * @param a
 	 *	the angle of rotation, in Radians
-	 * @see
-	 *	fmat_4x4_t::setRotationY(const float)
+     * @return
+     *  the matrix
+     * @remark
+     *	\f[
+     *	\left[\begin{matrix}
+     *	c & -s & 0 & 0 \\
+     *	s &  c & 0 & 0 \\
+     *	0 &  0 & 1 & 0 \\
+     *	0 &  0 & 0 & 1 \\
+     *	\end{matrix}\right]
+     *	\f]
+     *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
+     * @todo
+     *  Angles should be in degrees.
 	 */
-	static void setRotationY(fmat_4x4_t& M, const float a)
+    static fmat_4x4_t rotationZ(const float a)
 	{
-		M.setRotationY(a);
-	}
-
-	/**
-	 * @brief
-	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the z-axis.
-	 * @param a
-	 *	the angle of rotation, in Radians
-	 * @remark
-	 *	\f[
-	 *	\left[\begin{matrix}
-	 *	c & -s & 0 & 0 \\
-	 *	s &  c & 0 & 0 \\
-	 *	0 &  0 & 1 & 0 \\
-	 *	0 &  0 & 0 & 1 \\
-	 *	\end{matrix}\right]
-	 *	\f]
-	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
-	 */
-	void setRotationZ(const float a)
-	{
-		float c = std::cos(a), s = std::sin(a);
-		(*this) = fmat_4x4_t::identity();
-		// 0th column.
-		(*this)(0, 0) = +c;
-		(*this)(1, 0) = +s;
-		// 1st column.
-		(*this)(0, 1) = -s;
-		(*this)(1, 1) = +c;
-	}
-
-	/**
-	 * @brief
-	 *	Assign a matrix the values of a rotation matrix for counter-clockwise rotation around the z-axis.
-	 * @param M
-	 *	the matrix
-	 * @param a
-	 *	the angle of rotation, in Radians
-	 * @see
-	 *	fmat_4x4_t::setRotationZ
-	 */
-	static void setRotationZ(fmat_4x4_t& M, const float a)
-	{
-		M.setRotationZ(a);
+        float c = std::cos(a), s = std::sin(a);
+        return
+            fmat_4x4_t
+            (
+                +c, -s, 0, 0,
+                +s, +c, 0, 0,
+                 0,  0, 1, 0,
+                 0,  0, 0, 1
+            );
 	}
 
 	/**
@@ -782,27 +760,16 @@ struct fmat_4x4_t
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-	void setScaling(const fvec3_t& s)
+    static fmat_4x4_t scaling(const fvec3_t& s)
 	{
-		(*this) = fmat_4x4_t::identity();
-		(*this)(0, 0) = s.x;
-		(*this)(1, 1) = s.y;
-		(*this)(2, 2) = s.z;
-	}
-
-	/**
-	 * @brief
-	 *	Assign a matrix the values of a scaling matrix.
-	 * @param M
-	 *	the matrix
-	 * @param s
-	 *	a scaling vector
-	 * @see
-	 *	fmat_4x4_t::setScaling(const fvec3_t& s)
-	 */
-	static void setScaling(fmat_4x4_t& M, const fvec3_t& s)
-	{
-		M.setScaling(s);
+        return
+            fmat_4x4_t
+            (
+                s.x,   0,   0, 0,
+                  0, s.y,   0, 0,
+                  0,   0, s.z, 0,
+                  0,   0,   0, 1
+            );
 	}
 
 	/**
@@ -869,13 +836,9 @@ struct fmat_4x4_t
 			target++;
 		}
 	}
+
 };
 
-#if 0
-// A wrapper for dmat_4x4_base_t.
-/// Necessary in C so that the function return can be assigned to another matrix more simply.
-struct s_dmat_4x4 { dmat_4x4_base_t v;  };
-#endif
 float *mat_Zero(fmat_4x4_base_t DST);
 float *mat_Multiply(fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2);
 
@@ -886,7 +849,6 @@ float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_b
 /// @param roll clockwise roll around viewing direction in Radians
 void mat_View(fmat_4x4_t& self, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
 // gl matrix support
-void mat_gluPerspective(fmat_4x4_t& dst, const fmat_4x4_t& src, const float fovy, const float aspect, const float zNear, const float zFar);
 void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ);
 void mat_glRotate(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float angle, const float x, const float y, const float z);
 
