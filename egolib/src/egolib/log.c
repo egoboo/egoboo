@@ -59,7 +59,7 @@ static void setConsoleColor(ConsoleColor color)
 {
 
     //Windows implementation to set console colour
-#ifdef __WINDOWS__
+#ifdef _WIN32
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     switch(color)
     {
