@@ -35,7 +35,7 @@
 #define EgoTest_EndDeclaration() \
 @end
 
-#define EgoTest_TestCase(TESTCASENAME) \
+#define EgoTest_BeginTestCase(TESTCASENAME) \
 @implementation TESTCASENAME
 
 #define EgoTest_EndTestCase() \

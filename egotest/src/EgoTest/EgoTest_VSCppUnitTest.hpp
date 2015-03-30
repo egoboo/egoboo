@@ -28,7 +28,7 @@
 
 #define EgoTest_EndDeclaration()
 
-#define EgoTest_TestCase(TESTCASENAME) \
+#define EgoTest_BeginTestCase(TESTCASENAME) \
 TEST_CLASS(TESTCASENAME) {
 
 #define EgoTest_EndTestCase() };

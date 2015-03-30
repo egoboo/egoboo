@@ -435,6 +435,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\_Include.hpp" />
     <ClInclude Include="src\egolib\Graphics\Font.hpp" />
     <ClInclude Include="src\egolib\Graphics\FontManager.hpp" />
     <ClInclude Include="src\egolib\Image\Image.hpp" />

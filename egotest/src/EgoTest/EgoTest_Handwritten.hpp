@@ -58,7 +58,7 @@ namespace EgoTest
 
 #define EgoTest_EndDeclaration()
 
-#define EgoTest_TestCase(TESTCASENAME) struct TESTCASENAME : EgoTest::TestCase {
+#define EgoTest_BeginTestCase(TESTCASENAME) struct TESTCASENAME : EgoTest::TestCase {
 
 #define EgoTest_EndTestCase() };
 

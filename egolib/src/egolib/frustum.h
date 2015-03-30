@@ -24,11 +24,8 @@
 
 #include "egolib/geometry.h"
 #include "egolib/bbox.h"
-#include "egolib/Math/AABB.h"
 #include "egolib/bv.h"
-#include "egolib/Math/Cone.hpp"
-#include "egolib/Math/Cube.hpp"
-#include "egolib/Math/Matrix44.hpp"
+#include "egolib/Math/_Include.hpp"
 
 
 /**

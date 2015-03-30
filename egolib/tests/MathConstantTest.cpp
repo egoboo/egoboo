@@ -47,7 +47,7 @@ double tolerance<double>()
 EgoTest_DeclareTestCase(MathConstants)
 EgoTest_EndDeclaration()
 
-EgoTest_TestCase(MathConstants)
+EgoTest_BeginTestCase(MathConstants)
 
 EgoTest_Test(piFlt)
 {

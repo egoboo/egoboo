@@ -284,6 +284,19 @@ struct fvec2_t
 		return v[index];
 	}
 
+    /**
+     * @brief
+     *  Get if this vector is a unit vector.
+     * @return
+     *  @a true if this vector is a unit vector, @a false otherwise
+     */
+    bool isUnit() const
+    {
+        float t = length_2();
+        return 0.99f < t && t < 1.01f;
+    }
+
+
 };
 
 fvec2_t operator-(const fvec2_t& v);
@@ -406,6 +419,97 @@ struct fvec3_t
 	 *	the other vector
 	 * @return
 	 *	the cross product <tt>(*this) x other</tt> of this vector and the other vector
+     * @remark
+     *  For any two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^3\f$ the cross product is defined as
+     *  \f[
+     *  \vec{u} \times \vec{v} =
+     *  \left[\begin{matrix}
+     *  u_y v_z - u_z v_y\\
+     *  u_z v_x - u_x v_z\\
+     *  u_x v_y - u_y v_x
+     *  \end{matrix}\right]
+     *  \f]
+     * @remark
+     *  The cross product is distributive of vector addition i.e.
+     *  \f[
+     *  \vec{u} \times \left(\vec{v} + \vec{w}\right) = \vec{u} \times \vec{v} + \vec{u} \times \vec{w}
+     *  \f]
+     *  holds for any three vector \f$\vec{u},\vec{v},\vec{w}\in\mathbb{R}^3\f$.
+     *  This follows from
+     *  \f[
+     *  &\vec{u} \times (\vec{v} + \vec{w})\\
+     * =&\left[\begin{matrix}
+     *   u_y (v_z + w_z) - u_z (v_y + w_y)\\
+     *   u_z (v_x + w_x) - u_x (v_z + w_z)\\
+     *   u_x (v_y + w_y) - u_y (v_x + w_x) 
+     *   \end{matrix}\right]\\
+     * =&\left[\begin{matrix}
+     *   (u_y v_z - u_z v_y) + (u_y w_z - u_z w_y)\\
+     *   (u_z v_x - u_x v_z) + (u_z w_x - u_x w_z)\\
+     *   (u_x v_y - u_y v_x) + (u_x w_y - u_y w_x)
+     *   \end{matrix}\right]\\
+     * =&\left[\begin{matrix}
+     *   u_y v_z - u_z v_y\\
+     *   u_z v_x - u_x v_z\\
+     *   u_x v_y - u_y v_x
+     *   \end{matrix}\right]
+     *  +
+     *   \left[\begin{matrix}
+     *   u_y w_z - u_z w_y\\
+     *   u_z w_x - u_x w_z\\
+     *   u_x w_y - u_y w_x
+     *   \end{matrix}\right]\\
+     * =&\vec{u} \times \vec{v} + \vec{u} \times \vec{w}
+     *  \f]
+     * @remark
+     *  The cross product is compatible with scalar multiplication i.e.
+     *  \f[
+     *  \left(s\vec{u}\right) \times \vec{v} = \vec{u} \times \left(s\vec{v}\right) = s \left(\vec{u} \times \vec{v}\right) 
+     *  \f]
+     *  holds for any two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^3\f$ and any scalar \f$s\in\mathbb{R}\f$.
+     *  This follows from
+     *  \f[
+     *  \left(s\vec{u}\right) \times \vec{v}
+     * =\left[\begin{matrix}
+     *  (s u_y) v_z - (s u_z) v_y\\
+     *  (s u_z) v_x - (s u_x) v_z\\
+     *  (s u_x) v_y - (s u_y) v_x
+     *  \end{matrix}\right]
+     * =\left[\begin{matrix}
+     *  u_y (s v_z) - u_z (s v_y)\\
+     *  u_z (s v_x) - u_x (s v_z)\\
+     *  u_x (s v_y) - u_y (s v_x)
+     *  \end{matrix}\right]
+     *  =\vec{u} \times (s \vec{v}) 
+     *  \f]
+     *  and
+     *  \f[
+     *  \left(s\vec{u}\right) \times \vec{v}
+     * =\left[\begin{matrix}
+     *  (s u_y) v_z - (s u_z) v_y\\
+     *  (s u_z) v_x - (s u_x) v_z\\
+     *  (s u_x) v_y - (s u_y) v_x
+     *  \end{matrix}\right]
+     * =s \left[\begin{matrix}
+     *  u_y v_z - u_z v_y\\
+     *  u_z v_x - u_x v_z\\
+     *  u_x v_y - u_y v_x
+     *  \end{matrix}\right]
+     * = s (\vec{u} \times \vec{v})
+     * @remark
+     *  \f[
+     *  \vec{v} \times \vec{v} = \vec{0}
+     *  \f]
+     *  holds by
+     *  \f[
+     *  \vec{v} \times \vec{v} =
+     *  \left[\begin{matrix}
+     *  v_y v_z - v_z v_y\\
+     *  v_z v_x - v_x v_z\\
+     *  v_x v_y - v_y v_x
+     *  \end{matrix}\right]
+     *  = \vec{0}
+     *  \f]
 	 */
 	fvec3_t cross(const fvec3_t& other) const
 	{
@@ -655,6 +759,30 @@ struct fvec3_t
 		return v[index];
 	}
 
+    /**
+     * @brief
+     *  Get if this vector is a unit vector.
+     * @return
+     *  @a true if this vector is a unit vector, @a false otherwise
+     */
+    bool isUnit() const
+    {
+        float t = length();
+        return 0.9f < t && t < 1.1f;
+    }
+
+    /**
+     * @brief
+     *  Get if this vector is a zero vector.
+     * @return
+     *  @a true if this vector is a zero vector, @a false otherwise
+     */
+    bool isZero() const
+    {
+        float t = length();
+        return t < 0.01f;
+    }
+
 };
 
 fvec3_t operator-(const fvec3_t& v);
@@ -840,6 +968,18 @@ struct fvec4_t
             length = std::max(length, std::abs(v[i]));
         }
         return length;
+    }
+
+    /**
+     * @brief
+     *  Get if this vector is a unit vector.
+     * @return
+     *  @a true if this vector is a unit vector, @a false otherwise
+     */
+    bool isUnit() const
+    {
+        float t = length_2();
+        return 0.99f < t && t < 1.01f;
     }
 
 };

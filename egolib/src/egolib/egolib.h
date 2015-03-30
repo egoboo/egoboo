@@ -24,9 +24,7 @@
 
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
-#include "egolib/Math/AABB.h"
-#include "egolib/Math/Colour4f.hpp"
-#include "egolib/Math/Random.hpp"
+#include "egolib/Math/_Include.hpp"
 #include "egolib/bsp.h"
 #include "egolib/bbox.h"
 #include "egolib/clock.h"

@@ -558,33 +558,6 @@ int GameEngine::getFrameSkip() const
     return _frameSkip;
 }
 
-/// @todo Move into unit test.
-static void test0()
-{
-    std::vector<std::string> v;
-
-    v = Ego::split(std::string(""), std::string("\n"));
-    if (v.size() != 0) throw std::runtime_error("");
-    v.clear();
-
-    v = Ego::split(std::string("\n"), std::string("\n"));
-    if (v.size() != 1) throw std::runtime_error("");
-    if (v[0] != "\n") throw std::runtime_error("");
-    v.clear();
-
-    v = Ego::split(std::string("x\ny"), std::string("\n"));
-    if (v.size() != 3) throw std::runtime_error("");
-    if (v[0] != "x") throw std::runtime_error("");
-    if (v[1] != "\n") throw std::runtime_error("");
-    if (v[2] != "y") throw std::runtime_error("");
-    v.clear();
-
-    v = Ego::split(std::string("x\n"), std::string("\n"));
-    if (v.size() != 2) throw std::runtime_error("");
-    if (v[0] != "x" || v[1] != "\n") throw std::runtime_error("");
-    v.clear();
-}
-
 /**
  * @brief
  *  The entry point of the program.
@@ -597,15 +570,6 @@ static void test0()
  */
 int SDL_main(int argc, char **argv)
 {
-    /// @todo Move into unit test.
-    try
-    {
-        test0();
-    }
-    catch (std::exception& ex)
-    {
-        return EXIT_FAILURE;
-    }
     try
     {
         try

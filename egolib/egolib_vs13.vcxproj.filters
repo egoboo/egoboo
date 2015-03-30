@@ -725,6 +725,9 @@
     <ClInclude Include="src\egolib\Renderer\OpenGL\OpenGL.inl">
       <Filter>Header Files\Renderer\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\_Include.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

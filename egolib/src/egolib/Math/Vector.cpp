@@ -168,24 +168,6 @@ float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v)
     return (u - v).length_2();
 }
 //--------------------------------------------------------------------------------------------
-#if 0
-bool fvec4_valid(const fvec4_base_t v)
-{
-	if (nullptr == v)
-	{
-		return false;
-	}
-	for (size_t cnt = 0; cnt < 4; cnt++)
-	{
-		if (float_bad(v[cnt]))
-		{
-			return false;
-		}
-	}
-	return true;
-}
-#endif
-//--------------------------------------------------------------------------------------------
 bool fvec4_self_clear(fvec4_base_t v)
 {
 	if (nullptr == v)

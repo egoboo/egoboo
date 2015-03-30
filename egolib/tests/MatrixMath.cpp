@@ -18,17 +18,39 @@
 //********************************************************************************************
 
 #include "EgoTest/EgoTest.hpp"
+#include "egolib/egolib.h"
 
-#include <iostream>
-
-EgoTest_DeclareTestCase(CompileTest)
+EgoTest_DeclareTestCase(MatrixMath)
 EgoTest_EndDeclaration()
 
-EgoTest_BeginTestCase(CompileTest)
+EgoTest_BeginTestCase(MatrixMath)
 
-EgoTest_Test(compileTest)
+EgoTest_Test(add)
 {
-    EgoTest_Assert(1 == 1);
+    fmat_4x4_t a, b, c;
+    c = a + b;
+    EgoTest_Assert(c - b == a);
+    EgoTest_Assert(c - a == b);
+}
+
+EgoTest_Test(sub)
+{
+    fmat_4x4_t a, b, c;
+    c = a - b;
+    EgoTest_Assert(c + b == a);
+    EgoTest_Assert(b == a - c);
+}
+
+EgoTest_Test(muls)
+{
+    fmat_4x4_t a, b;
+    float s;
+    do
+    {
+        s = Random::nextFloat();
+    } while (s == 0.0f);
+    b = a * s;
+    EgoTest_Assert(b * (1.0f/s) == a);
 }
 
 EgoTest_EndTestCase()

@@ -15,8 +15,8 @@ namespace Ego
     namespace Math
     {
 
-        struct Colour3f;
-        struct Colour4f;
+        class Colour3f;
+        class Colour4f;
 
         /**
          * @ingroup math

@@ -30,10 +30,6 @@
 #define fmat_4x4_layout fmat_4x4_layout_ColumnMajor
 
 typedef float fmat_4x4_base_t[16];      ///< the basic 4x4 single precision floating point ("float")  matrix type
-#if 0
-typedef double dmat_4x4_base_t[16];      ///< the basic 4x4 double precision floating point ("double") matrix type
-#endif
-
 
 /// A wrapper for fmat_4x4_base_t.
 /// Necessary in C so that the function return can be assigned to another matrix more simply.
@@ -55,38 +51,6 @@ struct fmat_4x4_t
 		 */
 		float v2[4][4];
 	};
-
-#if 0
-	/**
-	 * @brief
-	 *	The \f$4 \times 4\f$ identity/multiplicative neutral matrix is defined as
-	 *	\f[
-	 *		\left[\begin{matrix}
-	 *		1 & 0 & 0 & 0 \\
-	 *		0 & 1 & 0 & 0 \\
-	 *		0 & 0 & 1 & 0 \\
-	 *		0 & 0 & 0 & 1
-	 *		\end{matrix}\right]
-	 * \f]
-	 */
-	static const fmat_4x4_t identity;
-
-	/**
-	 * @brief
-	 *	Set this matrix to the zero matrix.
-	 * @remark
-	 *	The \f$4 \times 4\f$ zero matrix is defined as
-	 *	\f[
-	 *	\left[\begin{matrix}
-	 *	0 & 0 & 0 & 0 \\
-	 *	0 & 0 & 0 & 0 \\
-	 *	0 & 0 & 0 & 0 \\
-	 *	0 & 0 & 0 & 0
-	 *	\end{matrix}\right]
-	 *	\f]
-	 */
-	static const fmat_4x4_t zero;
-#endif
 
     /**
      * @brief
@@ -258,17 +222,37 @@ struct fmat_4x4_t
 	}
 
 	/**
-	* @brief
-	*	Compute the product of this matrix and another matrix.
-	* @param other
-	*	the other matrix
-	* @return
-	*	the product <tt>(*a) * b</tt>
-	*/
+	 * @brief
+	 *	Compute the product of this matrix and another matrix.
+	 * @param other
+	 *	the other matrix
+	 * @return
+	 *	the product <tt>(*a) * b</tt>
+	 */
 	fmat_4x4_t operator*(const fmat_4x4_t& other) const
 	{
 		return multiply(other);
 	}
+
+    /**
+     * @brief
+     *  Compute the product of this matrix and a scalar.
+     * @param scalar
+     *  the scalar
+     * @return
+     *  the matrix
+     */
+    fmat_4x4_t operator*(const float& scalar) const
+    {
+        return
+            fmat_4x4_t
+            (
+                (*this)(0, 0) * scalar, (*this)(0, 1) * scalar, (*this)(0, 2) * scalar, (*this)(0, 3) * scalar,
+                (*this)(1, 0) * scalar, (*this)(1, 1) * scalar, (*this)(1, 2) * scalar, (*this)(1, 3) * scalar,
+                (*this)(2, 0) * scalar, (*this)(2, 1) * scalar, (*this)(2, 2) * scalar, (*this)(2, 3) * scalar,
+                (*this)(3, 0) * scalar, (*this)(3, 1) * scalar, (*this)(3, 2) * scalar, (*this)(3, 3) * scalar
+            );
+    }
 
 	/**
 	 * @brief
@@ -295,6 +279,16 @@ struct fmat_4x4_t
 			);
 	}
 
+    /**
+     * @brief
+     *  Overloaded addition operator.
+     */
+    fmat_4x4_t operator+(const fmat_4x4_t& other) const
+    {
+        fmat_4x4_t result = *this;
+        return result += other;
+    }
+
 	/**
 	 * @brief
 	 *	Overloaded assignment addition operator.
@@ -307,6 +301,16 @@ struct fmat_4x4_t
 		}
 		return *this;
 	}
+
+    /**
+     * @brief
+     *  Overloaded subtraction operator.
+     */
+    fmat_4x4_t operator-(const fmat_4x4_t& other) const
+    {
+        fmat_4x4_t result = *this;
+        return result -= other;
+    }
 
 	/**
 	 * @brief
@@ -650,7 +654,7 @@ struct fmat_4x4_t
 	 */
 	void setRotationX(const float a)
 	{
-		float c = COS(a), s = SIN(a);
+		float c = std::cos(a), s = std::sin(a);
 		(*this) = fmat_4x4_t::identity();
 		// 1st column.
 		(*this)(1, 1) = +c;
@@ -693,7 +697,7 @@ struct fmat_4x4_t
 	 */
 	void setRotationY(const float a)
 	{
-		float c = COS(a), s = SIN(a);
+		float c = std::cos(a), s = std::sin(a);
 		(*this) = fmat_4x4_t::identity();
 		// 0th column.
 		(*this)(0, 0) = +c;
@@ -736,7 +740,7 @@ struct fmat_4x4_t
 	 */
 	void setRotationZ(const float a)
 	{
-		float c = COS(a), s = SIN(a);
+		float c = std::cos(a), s = std::sin(a);
 		(*this) = fmat_4x4_t::identity();
 		// 0th column.
 		(*this)(0, 0) = +c;

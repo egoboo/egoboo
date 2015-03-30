@@ -22,23 +22,6 @@
 
 #include "egolib/Math/Matrix44.hpp"
 
-#if 0
-const fmat_4x4_t fmat_4x4_t::identity
-	(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	);
-const fmat_4x4_t fmat_4x4_t::zero
-	(
-		0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f
-	);
-#endif
-
 //--------------------------------------------------------------------------------------------
 float *mat_Zero(fmat_4x4_base_t DST)
 {
@@ -335,53 +318,6 @@ fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat)
 }
 
 //--------------------------------------------------------------------------------------------
-
-#if 0
-namespace Ego {
-	namespace Math {
-
-		template <typename Type>
-		Type pi();
-
-		template <typename Type>
-		Type deg_to_rad(const Type& x);
-
-		template <>
-		float pi()
-		{
-			return 0.0f;
-		}
-
-		template <>
-		double pi()
-		{
-			return 0.0;
-		}
-
-		template<>
-		float deg_to_rad(const float& x)
-		{
-			return 0.0f;
-		}
-
-		template<>
-		double deg_to_rad(const double& x)
-		{
-			return 0.0;
-		}
-
-	};
-};
-#endif
-
-
-
-void mat_gluPerspective(fmat_4x4_t &dst, const fmat_4x4_t& src, const float fovy, const float aspect, const float zNear, const float zFar)
-{
-    fmat_4x4_t M;
-	M.setPerspective(fovy, aspect, zNear, zFar);
-    mat_Multiply(dst.v, src.v, M.v);
-}
 
 void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ)
 {
