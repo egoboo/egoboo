@@ -978,8 +978,7 @@ void ogl_beginFrame()
     // of a frame
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    fmat_4x4_t projection;
-    projection.setOrtho(0, theSurface->w, theSurface->h, 0, -1, 1);
+    fmat_4x4_t projection = fmat_4x4_t::ortho(0, theSurface->w, theSurface->h, 0, -1, 1);
     Ego::Renderer::get().loadMatrix(projection);
 
     glMatrixMode( GL_MODELVIEW );

@@ -23,56 +23,118 @@
 ///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)
 
 #include "egolib/frustum.h"
-#include "egolib/Renderer/Renderer.hpp"
-#include "egolib/_math.h"
+
+egolib_frustum_t::egolib_frustum_t()
+{
+}
+
+egolib_frustum_t::~egolib_frustum_t()
+{
+}
+
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, plane_t& _left, plane_t& _right, plane_t& _bottom, plane_t& _top, plane_t& _near, plane_t& _far)
+{
+    calculatePlanes(projection * view * world, _left, _right, _bottom, _top, _near, _far);
+}
+
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, plane_t& _left, plane_t& _right, plane_t& _bottom, plane_t& _top, plane_t& _near, plane_t& _far)
+{
+    calculatePlanes(projection * view, _left, _right, _bottom, _top, _near, _far);
+}
+
+
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, plane_t& _left, plane_t& _right, plane_t& _bottom, plane_t& _top, plane_t& _near, plane_t& _far)
+{
+    fvec3_t t;
+    float d;
+
+    // Compute the left clipping plane of the frustum.
+    t = fvec3_t(matrix(3, 0) + matrix(0, 0),
+                matrix(3, 1) + matrix(0, 1),
+                matrix(3, 2) + matrix(0, 2));
+    d = matrix(3, 3) + matrix(0, 3);
+    _left = plane_t(t, d);
+
+    // Compute the right clipping plane of the frustum.
+    t = fvec3_t(matrix(3, 0) - matrix(0, 0),
+                matrix(3, 1) - matrix(0, 1),
+                matrix(3, 2) - matrix(0, 2));
+    d = matrix(3, 3) - matrix(0, 3);
+    _right = plane_t(t, d);
+
+    // Compute the bottom clipping plane of the frustum.
+    t = fvec3_t(matrix(3, 0) + matrix(1, 0),
+                matrix(3, 1) + matrix(1, 1),
+                matrix(3, 2) + matrix(1, 2));
+    d = matrix(3, 3) + matrix(1, 3);
+    _bottom = plane_t(t, d);
+
+    // Compute the top clipping plane of the frustum.
+    t = fvec3_t(matrix(3, 0) - matrix(1, 0),
+                matrix(3, 1) - matrix(1, 1),
+                matrix(3, 2) - matrix(1, 2));
+    d = matrix(3, 3) - matrix(1, 3);
+    _top = plane_t(t, d);
+
+    // Compute the near clipping plane of the frustum.
+    t = fvec3_t(matrix(3, 0) - matrix(2, 0),
+                matrix(3, 1) - matrix(2, 1),
+                matrix(3, 2) - matrix(2, 2));
+    d = matrix(3, 3) - matrix(2, 3);
+    _near = plane_t(t, d);
+
+    // Compute the far clipping plane of the frustum.
+    t = fvec3_t(matrix(3, 0) - matrix(2, 0),
+                matrix(3, 1) - matrix(2, 1),
+                matrix(3, 2) - matrix(2, 2));
+    d = matrix(3, 3) - matrix(2, 3);
+    _far = plane_t(t, d);
+}
 
 void egolib_frustum_t::calculate(base_t planes, const fmat_4x4_t& projection, const fmat_4x4_t& view)
 {
-    float clip[16];        // This will hold the clipping planes
-
-	//fmat_4x4_t _clip = projection * view;
-    mat_Multiply(clip, projection.v, view.v);
+    fmat_4x4_t clip = projection * view;
 
     // This will extract the right side of the frustum.
-    planes[Planes::RIGHT][kX] = clip[ 3] - clip[ 0];
-    planes[Planes::RIGHT][kY] = clip[ 7] - clip[ 4];
-    planes[Planes::RIGHT][kZ] = clip[11] - clip[ 8];
-    planes[Planes::RIGHT][kW] = clip[15] - clip[12];
+    planes[Planes::RIGHT][kX] = clip( 3) - clip( 0);
+    planes[Planes::RIGHT][kY] = clip( 7) - clip( 4);
+    planes[Planes::RIGHT][kZ] = clip(11) - clip( 8);
+    planes[Planes::RIGHT][kW] = clip(15) - clip(12);
     plane_base_normalize(planes + Planes::RIGHT);
 
     // This will extract the left side of the frustum.
-    planes[Planes::LEFT][kX] = clip[ 3] + clip[ 0];
-    planes[Planes::LEFT][kY] = clip[ 7] + clip[ 4];
-    planes[Planes::LEFT][kZ] = clip[11] + clip[ 8];
-    planes[Planes::LEFT][kW] = clip[15] + clip[12];
+    planes[Planes::LEFT][kX] = clip( 3) + clip( 0);
+    planes[Planes::LEFT][kY] = clip( 7) + clip( 4);
+    planes[Planes::LEFT][kZ] = clip(11) + clip( 8);
+    planes[Planes::LEFT][kW] = clip(15) + clip(12);
     plane_base_normalize(planes + Planes::LEFT);
 
     // This will extract the bottom side of the frustum.
-    planes[Planes::BOTTOM][kX] = clip[ 3] + clip[ 1];
-    planes[Planes::BOTTOM][kY] = clip[ 7] + clip[ 5];
-    planes[Planes::BOTTOM][kZ] = clip[11] + clip[ 9];
-    planes[Planes::BOTTOM][kW] = clip[15] + clip[13];
+    planes[Planes::BOTTOM][kX] = clip( 3) + clip( 1);
+    planes[Planes::BOTTOM][kY] = clip( 7) + clip( 5);
+    planes[Planes::BOTTOM][kZ] = clip(11) + clip( 9);
+    planes[Planes::BOTTOM][kW] = clip(15) + clip(13);
     plane_base_normalize(planes + Planes::BOTTOM);
 
     // This will extract the top side of the frustum.
-    planes[Planes::TOP][kX] = clip[ 3] - clip[ 1];
-    planes[Planes::TOP][kY] = clip[ 7] - clip[ 5];
-    planes[Planes::TOP][kZ] = clip[11] - clip[ 9];
-    planes[Planes::TOP][kW] = clip[15] - clip[13];
+    planes[Planes::TOP][kX] = clip( 3) - clip( 1);
+    planes[Planes::TOP][kY] = clip( 7) - clip( 5);
+    planes[Planes::TOP][kZ] = clip(11) - clip( 9);
+    planes[Planes::TOP][kW] = clip(15) - clip(13);
     plane_base_normalize(planes + Planes::TOP);
 
     // This will extract the back side of the frustum.
-    planes[Planes::BACK][kX] = clip[ 3] - clip[ 2];
-    planes[Planes::BACK][kY] = clip[ 7] - clip[ 6];
-    planes[Planes::BACK][kZ] = clip[11] - clip[10];
-    planes[Planes::BACK][kW] = clip[15] - clip[14];
+    planes[Planes::BACK][kX] = clip( 3) - clip( 2);
+    planes[Planes::BACK][kY] = clip( 7) - clip( 6);
+    planes[Planes::BACK][kZ] = clip(11) - clip(10);
+    planes[Planes::BACK][kW] = clip(15) - clip(14);
     plane_base_normalize(planes + Planes::BACK);
 
     // This will extract the front side of the frustum.
-    planes[Planes::FRONT][kX] = clip[ 3] + clip[ 2];
-    planes[Planes::FRONT][kY] = clip[ 7] + clip[ 6];
-    planes[Planes::FRONT][kZ] = clip[11] + clip[10];
-    planes[Planes::FRONT][kW] = clip[15] + clip[14];
+    planes[Planes::FRONT][kX] = clip( 3) + clip( 2);
+    planes[Planes::FRONT][kY] = clip( 7) + clip( 6);
+    planes[Planes::FRONT][kZ] = clip(11) + clip(10);
+    planes[Planes::FRONT][kW] = clip(15) + clip(14);
     plane_base_normalize(planes + Planes::FRONT);
 }
 

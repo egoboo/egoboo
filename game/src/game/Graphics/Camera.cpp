@@ -169,9 +169,9 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
     
 	fmat_4x4_t identity = fmat_4x4_t::identity();
     
-	_mProjection.setPerspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
-	_mProjectionBig.setPerspective(fov_deg_big, aspect_ratio, frustum_near, frustum_far);
-	_mProjectionSmall.setPerspective(fov_deg_small, aspect_ratio, frustum_near, frustum_far);
+	_mProjection = fmat_4x4_t::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
+	_mProjectionBig = fmat_4x4_t::perspective(fov_deg_big, aspect_ratio, frustum_near, frustum_far);
+	_mProjectionSmall = fmat_4x4_t::perspective(fov_deg_small, aspect_ratio, frustum_near, frustum_far);
     
     // recalculate the frustum, too
     _frustum.calculate(_mProjection, _mView);

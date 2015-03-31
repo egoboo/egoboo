@@ -51,15 +51,22 @@ plane_t::plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c) : plane_t
 }
 
 plane_t::plane_t(const fvec3_t& p, const fvec3_t& n) :
-	_n(n),
-	_d(0.0f)
+	_n(n), _d(0.0f)
 {
-	_n = n;
 	if (_n.normalize() == 0.0f)
 	{
 		throw std::domain_error("normal vector is zero vector");
 	}
 	_d = -_n.dot(p);
+}
+
+plane_t::plane_t(const fvec3_t& t, const float d) :
+    _n(t), _d(d)
+{
+    if (_n.normalize() == 0.0f)
+    {
+        throw std::domain_error("axis vector is zero vector");
+    }
 }
 
 plane_t::plane_t(const plane_t& other) :

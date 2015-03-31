@@ -366,6 +366,15 @@ public:
         return result -= other;
     }
 
+    /**
+     * @brief
+     *  Overloaded unary minus operator.
+     */
+    fmat_4x4_t operator-() const
+    {
+        return (*this) * (-1.0f);
+    }
+
 	/**
 	 * @brief
 	 *	Overloaded assignment subtraction operator.
@@ -456,16 +465,6 @@ public:
 
 	/**
 	 * @brief
-	 *	Set this matrix to the zero matrix.
-	 * @see fmat_4x4_t::zero
-	 */
-	void setZero()
-	{
-		(*this) = fmat_4x4_t::zero();
-	}
-
-	/**
-	 * @brief
 	 *	Assign this matrix the values of a viewing transformation (~ world space -> camera space) matrix.
 	 * @param eye
 	 *	the position of the eye point
@@ -517,7 +516,7 @@ public:
 
 	/**
 	 * @brief
-	 *	Assign this matrix the values of a orthographic projection (~ camera space -> screen space) matrix.
+	 *	Get an orthographic projection (~ camera space -> normalized device coordinate space) matrix.
 	 * @param left, right
 	 *	the coordinates of the left and right vertical clipping planes
 	 * @param bottom, top
@@ -525,58 +524,51 @@ public:
 	 * @param zNear, zFar
 	 *	the distance to the nearer and farther depth clipping planes.
 	 *  These values are negative if the plane is to be behind the viewer.
+     * @return
+     *  the matrix
 	 * @remark
 	 *	The orthographic projection matrix is
 	 *	\f[
 	 *	\left[\begin{matrix}
-	 *	\frac{2}{right-left} & 0                    &  0                    & t_x \\
-	 *	0                    & \frac{2}{top-bottom} &  0                    & t_y \\
-	 *	0                    & 0                    &  \frac{2}{zFar-zNear} & t_z \\
-	 *  0                    & 0                    &  0                    & 1 \\
+	 *	\frac{2}{right-left} & 0                    &   0                    & t_x \\
+	 *	0                    & \frac{2}{top-bottom} &   0                    & t_y \\
+	 *	0                    & 0                    &  \frac{-2}{zFar-zNear} & t_z \\
+	 *  0                    & 0                    &   0                    & 1 \\
 	 *	\end{matrix}\right]
 	 *	\f]
 	 *	where \f$t_x = -\frac{right+left}{right-left}\f$,
 	 *        \f$t_y = -\frac{top+bottom}{top-bottom}\f$,
 	 *        \f$t_z = -\frac{zFar+zNear}{zFar-zNear}\f$.
 	 */
-	void setOrtho(const float left, const float right, const float bottom, const float top, const float zNear, const float zFar)
+    static fmat_4x4_t ortho(const float left, const float right, const float bottom, const float top, const float zNear, const float zFar)
 	{
 		float dx = right - left, dy = top - bottom, dz = zFar - zNear;
 		EGOBOO_ASSERT(dx != 0.0f && dy != 0.0f && dz != 0.0f);
 		float tx = -(right + left) / dx, ty = -(top + bottom) / dy, tz = -(zFar + zNear) / (dz);
 
-		(*this)(0, 0) = 2.0f/dx;
-		(*this)(1, 0) = 0.0f;
-		(*this)(2, 0) = 0.0f;
-		(*this)(3, 0) = 0.0f;
-
-		(*this)(0, 1) = 0.0f;
-		(*this)(1, 1) = 2.0f/dy;
-		(*this)(2, 1) = 0.0f;
-		(*this)(3, 1) = 0.0f;
-
-		(*this)(0, 2) = 0.0f;
-		(*this)(1, 2) = 0.0f;
-		(*this)(2, 2) = 2.0f/dz;
-		(*this)(3, 2) = 1.0f;
-
-		(*this)(0, 3) = tx;
-		(*this)(1, 3) = ty;
-		(*this)(2, 3) = tz;
-		(*this)(3, 3) = 1.0f;
+        return
+            fmat_4x4_t
+            (
+                2.0f / dx, 0.0f,     0.0f,    tx,
+                0.0f,      2.0f/dy,  0.0f,    ty,
+                0.0f,      0.0f,    -2.0f/dz, tz,
+                0.0f,      0.0f,     0.0f,    1.0f
+            );
 	}
 
 	/**
 	 * @brief
-	 *	Assign this matrix the values of a perspective projection (~ camera space -> screen space) matrix.
+	 *	Get a perspective projection (~ view space -> normalized device coordinate space) matrix.
 	 * @param fovy
 	 *	the field of view angle, in degrees, in the y direction
 	 * @param aspect
 	 *	the aspect ratio in the x direction
 	 * @param zNear
 	 *	the distance of the viewer to the near clipping plane
-	 * @param zFar
+	 * @param zFrar
 	 *	the distance of the viewer to the far clipping plane
+     * @return
+     *  the matrix
 	 * @pre
 	 *	@a zNear as well as @a zFar must be positive, <tt>zNear - zFar</tt> must not be @a 0,
 	 *	@a aspect must not be @a 0.
@@ -594,36 +586,25 @@ public:
 	 *	\f]
 	 *	where \f$f = cot(0.5 fovy)\f$.
 	 */
-	void setPerspective(const float fovy, const float aspect, const float zNear, const float zFar)
-	{
-		EGOBOO_ASSERT(aspect != 0.0f);
-		EGOBOO_ASSERT(zFar > 0.0f && zNear > 0.0f);
-		EGOBOO_ASSERT((zNear - zFar) != 0.0f);
+    static fmat_4x4_t perspective(const float fovy, const float aspect, const float zNear, const float zFar)
+    {
+        EGOBOO_ASSERT(aspect != 0.0f);
+        EGOBOO_ASSERT(zFar > 0.0f && zNear > 0.0f);
+        EGOBOO_ASSERT((zNear - zFar) != 0.0f);
 
-		float tan = std::tan(Ego::Math::degToRad(fovy) * 0.5f);
-		EGOBOO_ASSERT(tan != 0.0f);
-		float f = 1 / tan;
+        float tan = std::tan(Ego::Math::degToRad(fovy) * 0.5f);
+        EGOBOO_ASSERT(tan != 0.0f);
+        float f = 1 / tan;
 
-		(*this)(0, 0) = f / aspect;
-		(*this)(1, 0) = 0.0f;
-		(*this)(2, 0) = 0.0f;
-		(*this)(3, 0) = 0.0f;
-
-		(*this)(0, 1) = 0.0f;
-		(*this)(1, 1) = f;
-		(*this)(2, 1) = 0.0f;
-		(*this)(3, 1) = 0.0f;
-
-		(*this)(0, 2) = 0.0f;
-		(*this)(1, 2) = 0.0f;
-		(*this)(2, 2) = (zFar + zNear) / (zNear - zFar);
-		(*this)(3, 2) = -1;
-
-		(*this)(0, 3) = 0.0f;
-		(*this)(1, 3) = 0.0f;
-		(*this)(2, 3) = (2.0f * zFar * zNear) / (zNear - zFar);
-		(*this)(3, 3) = 0.0f;
-	}
+        return
+            fmat_4x4_t
+            (
+                f / aspect, 0.0f, 0.0f,                            0.0f,
+                0.0f,       f,    0.0f,                            0.0f,
+                0.0f,       0.0f, (zFar + zNear) / (zNear - zFar), (2.0f * zFar * zNear) / (zNear - zFar),
+                0.0f,       0.0f, -1.0f,                           1.0f
+            );
+    }
 
 	/**
 	 * @brief

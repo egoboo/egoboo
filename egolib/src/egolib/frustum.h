@@ -55,11 +55,28 @@ struct egolib_frustum_t
     typedef plane_base_t base_t[Planes::COUNT];
     // basic frustum data
     base_t _planes;
-
+#if 0
+    /// The frustum planes.
+    std::array<plane_t, Planes::COUNT> planes2;
+#endif
     // data for intersection optimization
     fvec3_t _origin;
     sphere_t _sphere;
     cone_t _cone;
+
+public:
+
+    /**
+     * @brief
+     *  Construct this frustum.
+     */
+    egolib_frustum_t();
+    /**
+     * @brief
+     *  Destruct this frustum.
+     */
+    virtual ~egolib_frustum_t();
+
 	/**
 	 * @brief
 	 *	Get the relation of a point to this frustum.
@@ -161,6 +178,43 @@ struct egolib_frustum_t
 protected:
     /// Call this every time the camera moves to update the frustum
     static void calculate(base_t planes, const fmat_4x4_t& projection, const fmat_4x4_t& view);
+
+    /**
+     * @brief
+     *  Extract the view frustum planes for given projection, view and world matrices.
+     * @param projection, view, world
+     *  the projection, view and world matrices
+     * @param [out] left, right, bottom, top, near, far
+     *  the view frustum planes
+     * @remark
+     *  The non-standard parameter naming prevents naming clashes with preprocessor definitions @a near and @a far under windows (whatever they are still used for).
+     */
+    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& _near, plane_t& _far);
+
+
+    /**
+     * @brief
+     *  Extract the view frustum planes for given vprojection and view matrix.
+     * @param projection, view
+     *  the projection and view matrices
+     * @param [out] left, right, bottom, top, near, far
+     *  the view frustum planes
+     * @remark
+     *  The non-standard parameter naming prevents naming clashes with preprocessor definitions @a near and @a far under windows (whatever they are still used for).
+     */
+    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& _near, plane_t& _far);
+
+    /**
+     * @brief
+     *  Extract the view frustum planes from the combined view and projection matrix.
+     * @param matrix combined view and projection matrix
+     *  this must be either a) the projection matrix, b) the combined view projection matrix or c) the combined world view projection matrix
+     * @param [out] left, right, bottom, top, near, far
+     *  the view frustum planes
+     * @remark
+     *  The non-standard parameter naming prevents naming clashes with preprocessor definitions @a near and @a far under windows (whatever they are still used for).
+     */
+    static void calculatePlanes(const fmat_4x4_t& matrix, plane_t& left, plane_t& right, plane_t& bottom, plane_t& _top, plane_t& _near, plane_t& _far);
 
 };
 

@@ -130,6 +130,24 @@ public:
 	 */
 	plane_t(const fvec3_t& p, const fvec3_t& n);
 
+    /**
+     * @brief
+     *  Construct a plane from a translation axis and a distance from the origin.
+     * @param t
+     *  the translation axis
+     * @param d
+     *  the distance from the origin
+     * @post
+     *  Given an axis \f$\vec{t}\f$ and a distance from the origin \f$d\f$
+     *  the plane equation is given by
+     *  \f{align*}{
+     *  \hat{n} \cdot p + d = 0, \hat{n}=\frac{\vec{t}}{|\vec{t}|}
+     *  \f}
+     * @throw std::domain_error
+     *	if the translation axis is the zero vector
+     */
+    plane_t(const fvec3_t& t, const float d);
+
 	/**
 	 * @brief
 	 *	Create a plane from another plane (copy constructor).
