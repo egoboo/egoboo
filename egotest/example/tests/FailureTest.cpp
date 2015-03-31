@@ -24,7 +24,7 @@
 EgoTest_DeclareTestCase(FailureTest)
 EgoTest_EndDeclaration()
 
-EgoTest_TestCase(FailureTest)
+EgoTest_BeginTestCase(FailureTest)
 
 EgoTest_Test(throwsNothing)
 {
