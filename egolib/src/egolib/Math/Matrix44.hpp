@@ -169,10 +169,19 @@ public:
 			float m30, float m31, float m32, float m33
 		)
 	{
-		v2[0][0] = m00; v2[0][1] = m01; v2[0][2] = m02; v2[0][3] = m03;
-		v2[1][0] = m10; v2[1][1] = m11; v2[1][2] = m12; v2[1][3] = m13;
-		v2[2][0] = m20; v2[2][1] = m21; v2[2][2] = m22; v2[2][3] = m23;
-		v2[3][0] = m30; v2[3][1] = m31; v2[3][2] = m32; v2[3][3] = m33;
+#if fmat_4x4_layout == fmat_4x4_layout_RowMajor
+        v2[0][0] = m00; v2[0][1] = m01; v2[0][2] = m02; v2[0][3] = m03;
+        v2[1][0] = m10; v2[1][1] = m11; v2[1][2] = m12; v2[1][3] = m13;
+        v2[2][0] = m20; v2[2][1] = m21; v2[2][2] = m22; v2[2][3] = m23;
+        v2[3][0] = m30; v2[3][1] = m31; v2[3][2] = m32; v2[3][3] = m33;
+#elif fmat_4x4_layout == fmat_4x4_layout_ColumnMajor
+        v2[0][0] = m00; v2[1][0] = m01; v2[2][0] = m02; v2[3][0] = m03;
+        v2[0][1] = m10; v2[1][1] = m11; v2[2][1] = m12; v2[3][1] = m13;
+        v2[0][2] = m20; v2[1][2] = m21; v2[2][2] = m22; v2[3][2] = m23;
+        v2[0][3] = m30; v2[1][3] = m31; v2[2][3] = m32; v2[3][3] = m33;
+#else
+#error(fmat_4x4_layout must be either fmat_4x4_layout_RowMajor or fmat_4x4_layout_ColumnMajor)
+#endif
 	}
 
 	fmat_4x4_t(const fmat_4x4_t& other)
