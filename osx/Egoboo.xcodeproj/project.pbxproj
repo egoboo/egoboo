@@ -43,6 +43,7 @@
 		CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1581A7B09AD00F3392B /* Renderer.cpp */; };
 		CD113DBC1ABF31B20067B227 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD113DB81ABF31B20067B227 /* Font.cpp */; };
 		CD113DBD1ABF31B20067B227 /* FontManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD113DBA1ABF31B20067B227 /* FontManager.cpp */; };
+		CD12E6361AC6FDFD00ECD765 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD12E6341AC6FDFD00ECD765 /* Image.cpp */; };
 		CD1329871A90130300D1B221 /* EnchantProfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1329781A90130300D1B221 /* EnchantProfile.cpp */; };
 		CD1329881A90130300D1B221 /* EnchantProfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD13297A1A90130300D1B221 /* EnchantProfileReader.cpp */; };
 		CD1329891A90130300D1B221 /* EnchantProfileWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD13297C1A90130300D1B221 /* EnchantProfileWriter.cpp */; };
@@ -52,6 +53,8 @@
 		CD13298D1A90130300D1B221 /* RandomName.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1329841A90130300D1B221 /* RandomName.cpp */; };
 		CD1D57F91A8A9F0600C5B298 /* Float.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F71A8A9E9300C5B298 /* Float.cpp */; };
 		CD1D57FA1A8A9F0D00C5B298 /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F51A8A9E9300C5B298 /* Debug.cpp */; };
+		CD2C60FD1ACAF9E0003CF3D6 /* MatrixMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */; };
+		CD2C60FE1ACAF9E0003CF3D6 /* StringUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */; };
 		CD39B45B1A37506100B377BE /* char.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3E61A37506100B377BE /* char.c */; };
 		CD39B45F1A37506100B377BE /* collision.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3EC1A37506100B377BE /* collision.c */; };
 		CD39B4601A37506100B377BE /* egoboo_object.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F01A37506100B377BE /* egoboo_object.c */; };
@@ -518,6 +521,8 @@
 		CD113DBA1ABF31B20067B227 /* FontManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontManager.cpp; sourceTree = "<group>"; };
 		CD113DBB1ABF31B20067B227 /* FontManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FontManager.hpp; sourceTree = "<group>"; };
 		CD12C5811A8C7BB700027122 /* LockableList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LockableList.hpp; sourceTree = "<group>"; };
+		CD12E6341AC6FDFD00ECD765 /* Image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
+		CD12E6351AC6FDFD00ECD765 /* Image.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Image.hpp; sourceTree = "<group>"; };
 		CD1329771A90130300D1B221 /* _Include.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = _Include.hpp; sourceTree = "<group>"; };
 		CD1329781A90130300D1B221 /* EnchantProfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnchantProfile.cpp; sourceTree = "<group>"; };
 		CD1329791A90130300D1B221 /* EnchantProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnchantProfile.hpp; sourceTree = "<group>"; };
@@ -539,6 +544,8 @@
 		CD1D57F71A8A9E9300C5B298 /* Float.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Float.cpp; sourceTree = "<group>"; };
 		CD1D57F81A8A9E9300C5B298 /* Float.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Float.hpp; sourceTree = "<group>"; };
 		CD2A94201A8C273E000D7319 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = MatrixMath.cpp; sourceTree = "<group>"; };
+		CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = StringUtilities.cpp; sourceTree = "<group>"; };
 		CD39B3011A374B6000B377BE /* _math.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = _math.c; sourceTree = "<group>"; };
 		CD39B3021A374B6000B377BE /* _math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _math.h; sourceTree = "<group>"; };
 		CD39B3041A374B6000B377BE /* clock.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = clock.c; sourceTree = "<group>"; };
@@ -1420,6 +1427,15 @@
 			path = Graphics;
 			sourceTree = "<group>";
 		};
+		CD12E6331AC6FDFD00ECD765 /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				CD12E6341AC6FDFD00ECD765 /* Image.cpp */,
+				CD12E6351AC6FDFD00ECD765 /* Image.hpp */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
 		CD1329761A90130300D1B221 /* Profiles */ = {
 			isa = PBXGroup;
 			children = (
@@ -1457,6 +1473,7 @@
 				CD39B3121A374B6000B377BE /* Extensions */,
 				CD39B3211A374B6000B377BE /* FileFormats */,
 				CD113DB71ABF31B20067B227 /* Graphics */,
+				CD12E6331AC6FDFD00ECD765 /* Image */,
 				CD39B3621A374B6000B377BE /* Lua */,
 				CD9059311A69A67C00DC425D /* Math */,
 				CD39B3711A374B6000B377BE /* Platform */,
@@ -1636,6 +1653,8 @@
 		CD39CD0F1AA537440005E3EA /* egolib */ = {
 			isa = PBXGroup;
 			children = (
+				CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */,
+				CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */,
 				CD048BF41AB7515400E1E52D /* MathConstantTest.cpp */,
 				CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */,
 			);
@@ -2511,8 +2530,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD2C60FD1ACAF9E0003CF3D6 /* MatrixMath.cpp in Sources */,
 				CD54B3351AAEE9C800C1F15D /* CompileTest.cpp in Sources */,
 				CD048BF51AB7515400E1E52D /* MathConstantTest.cpp in Sources */,
+				CD2C60FE1ACAF9E0003CF3D6 /* StringUtilities.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2705,6 +2726,7 @@
 				CDCA1FB71A3F57D000002E76 /* controls_file-v1.c in Sources */,
 				CDBDE4251A43A51F008E5FD1 /* lua_console.c in Sources */,
 				CDCA1FBC1A3F57D000002E76 /* id_md2.c in Sources */,
+				CD12E6361AC6FDFD00ECD765 /* Image.cpp in Sources */,
 				CDCA1FCB1A3F57D000002E76 /* treasure_table_file.c in Sources */,
 				CDCA1FB11A3F57D000002E76 /* ogl_texture.c in Sources */,
 			);
