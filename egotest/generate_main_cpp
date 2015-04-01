@@ -44,7 +44,7 @@ sub outputTests ($) {
         warn "Cannot open $testFile: $!, ignoring";
         return;
     }
-    my %testCases = $testContents =~ /EgoTest_TestCase\s*\(\s*(\w+)\s*\)(.+?)EgoTest_EndTestCase\s*\(\s*\)\s*/smg;
+    my %testCases = $testContents =~ /EgoTest_BeginTestCase\s*\(\s*(\w+)\s*\)(.+?)EgoTest_EndTestCase\s*\(\s*\)\s*/smg;
     unless (%testCases) {
         warn "Found no test cases in $testFile";
         return;

@@ -49,7 +49,7 @@
  * @note
  * The test case's class name should be the same as the one used by @c EgoTest_DeclareTestCase.
  */
-#define EgoTest_TestCase(TESTCASENAME) class TESTCASENAME {
+#define EgoTest_BeginTestCase(TESTCASENAME) class TESTCASENAME {
 
 /**
  * @brief

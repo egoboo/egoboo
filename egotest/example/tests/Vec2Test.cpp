@@ -26,7 +26,7 @@
 EgoTest_DeclareTestCase(Vec2Test)
 EgoTest_EndDeclaration()
 
-EgoTest_TestCase(Vec2Test)
+EgoTest_BeginTestCase(Vec2Test)
 
 EgoTest_Test(lengthTest)
 {
