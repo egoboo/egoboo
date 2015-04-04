@@ -29,11 +29,11 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
         int getHeight() const;
 
         void setCenterPosition(const int x, const int y, const bool onlyHorizontal = false);
-        void setWidth(const int width);
-        void setHeight(const int height);
+        virtual void setWidth(const int width);
+        virtual void setHeight(const int height);
         void setSize(const int width, const int height);
-        void setX(const int x);
-        void setY(const int y);
+        virtual void setX(const int x);
+        virtual void setY(const int y);
         virtual void setPosition(const int x, const int y);
 
         bool contains(const int x, const int y) const;

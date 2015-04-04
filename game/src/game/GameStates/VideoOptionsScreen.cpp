@@ -25,8 +25,10 @@
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Image.hpp"
 #include "game/GUI/Label.hpp"
+#include "game/GUI/ScrollableList.hpp"
 
-VideoOptionsScreen::VideoOptionsScreen()
+VideoOptionsScreen::VideoOptionsScreen() :
+	_resolutionList(std::make_shared<ScrollableList>())
 {
 	std::shared_ptr<Image> background = std::make_shared<Image>("mp_data/menu/menu_video");
 
@@ -38,14 +40,33 @@ VideoOptionsScreen::VideoOptionsScreen()
 	background->setCenterPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 	addComponent(background);
 
-	//Add the buttons
-	int yOffset = SCREEN_HEIGHT-80;
+	//Resolution
+	std::shared_ptr<Label> resolutionLabel = std::make_shared<Label>("Resolution");
+	resolutionLabel->setPosition(20, 5);
+	addComponent(resolutionLabel);
+
+	_resolutionList->setSize(SCREEN_WIDTH/3, SCREEN_HEIGHT/2);
+	_resolutionList->setPosition(resolutionLabel->getX(), resolutionLabel->getY() + resolutionLabel->getHeight());
+	addComponent(_resolutionList);
+
+	//Build list of available resolutions
+	int yOffset = 20;
+    for (int i = 0; nullptr != sdl_scr.video_mode_list[i]; ++i )
+    {
+    	yOffset = addResolutionButton(sdl_scr.video_mode_list[i]->w, sdl_scr.video_mode_list[i]->h, yOffset);
+    }
+
+	//Back button
+	yOffset = SCREEN_HEIGHT-80;
 	std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
 	backButton->setPosition(20, yOffset);
 	backButton->setSize(200, 30);
 	backButton->setOnClickFunction(
 	[this]{
 		endState();
+
+		// save the setup file
+		setup_upload(&cfg);
 	});
 	addComponent(backButton);
 
@@ -70,4 +91,38 @@ void VideoOptionsScreen::beginState()
 	// menu settings
     SDL_WM_GrabInput(SDL_GRAB_OFF);
     _gameEngine->enableMouseCursor();
+}
+
+int VideoOptionsScreen::addResolutionButton(int width, int height, int yOffset)
+{
+	if(!SDL_VideoModeOK(width, height, 24, SDL_HWSURFACE | SDL_FULLSCREEN)) {
+		return yOffset;
+	}
+
+	std::shared_ptr<Button> resolutionButton = std::make_shared<Button>(std::to_string(width) + "x" + std::to_string(height));
+	resolutionButton->setSize(200, 30);
+	resolutionButton->setPosition(20, 30 + yOffset);
+	resolutionButton->setOnClickFunction(
+		[width, height, resolutionButton, this] {
+
+			//Set new resolution requested
+			cfg.scrx_req = width;
+			cfg.scry_req = height;
+
+			//enable all resolution buttons except the one we just selected
+			for(const std::shared_ptr<GUIComponent> &button : *_resolutionList.get()) {
+				button->setEnabled(true);
+			}
+			resolutionButton->setEnabled(false);
+		}
+	);
+	_resolutionList->addComponent(resolutionButton);
+
+	//If this is our current resolution then make it greyed out
+	if(cfg.scrx_req == width && cfg.scry_req == height) {
+		resolutionButton->setEnabled(false);
+	}
+
+	//return position of next resolution button
+	return yOffset + resolutionButton->getHeight() + 5;
 }

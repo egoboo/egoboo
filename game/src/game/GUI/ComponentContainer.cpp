@@ -22,7 +22,7 @@ void ComponentContainer::addComponent(std::shared_ptr<GUIComponent> component)
 void ComponentContainer::removeComponent(std::shared_ptr<GUIComponent> component)
 {
     _componentListMutex.lock();
-    _componentList.remove(component);
+    _componentList.erase(std::remove(_componentList.begin(), _componentList.end(), component), _componentList.end());
     _componentListMutex.unlock();
 }
 
@@ -111,9 +111,8 @@ void ComponentContainer::cleanDestroyedComponents()
 
     _componentDestroyed = false;
     _componentListMutex.lock();
-    _componentList.remove_if([](const std::shared_ptr<GUIComponent> &component)
-        {
-            return component->isDestroyed();
-        });
+    _componentList.erase(std::remove_if(_componentList.begin(), _componentList.end(), 
+        [](const std::shared_ptr<GUIComponent> &component) {return component->isDestroyed(); }), 
+        _componentList.end());
     _componentListMutex.unlock();
 }

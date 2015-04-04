@@ -24,6 +24,19 @@ public:
 
     void notifyDestruction();
 
+    /**
+    * For each iterators
+    **/
+    inline std::vector<std::shared_ptr<GUIComponent>>::iterator begin() 
+    {
+        return _componentList.begin();
+    }
+
+    inline std::vector<std::shared_ptr<GUIComponent>>::iterator end() 
+    {
+        return _componentList.end();
+    }
+
 protected:
     virtual void drawContainer() = 0;
 
@@ -31,7 +44,7 @@ private:
     void cleanDestroyedComponents();
 
 protected:
-    std::list<std::shared_ptr<GUIComponent>> _componentList;
+    std::vector<std::shared_ptr<GUIComponent>> _componentList;
     std::mutex _componentListMutex;
     bool _componentDestroyed;
 };

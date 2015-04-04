@@ -52,8 +52,8 @@ void GUIComponent::setHeight(const int height)
 
 void GUIComponent::setSize(const int width, const int height)
 {
-    _bounds.w = width;
-    _bounds.h = height;
+    setWidth(width);
+    setHeight(height);
 }
 
 void GUIComponent::setX(const int x)
@@ -68,8 +68,8 @@ void GUIComponent::setY(const int y)
 
 void GUIComponent::setPosition(const int x, const int y)
 {
-    _bounds.x = x;
-    _bounds.y = y;
+    setX(x);
+    setY(y);
 }
 
 void GUIComponent::setCenterPosition(const int x, const int y, const bool onlyHorizontal)

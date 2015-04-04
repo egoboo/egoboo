@@ -25,6 +25,9 @@
 
 #include "game/GameStates/GameState.hpp"
 
+//Forward declarations
+class ScrollableList;
+
 class VideoOptionsScreen : public GameState
 {
 public:
@@ -36,4 +39,10 @@ public:
 
 protected:
 	void drawContainer() override;
+
+private:
+	int addResolutionButton(int width, int height, int yOffset);
+
+private:
+	std::shared_ptr<ScrollableList> _resolutionList;
 };
