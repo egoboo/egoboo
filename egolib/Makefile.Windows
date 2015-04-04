@@ -11,7 +11,7 @@ SOURCES += $(wildcard ./src/egolib/*.cpp) $(wildcard ./src/egolib/*/*.cpp) $(wil
 SOURCES := $(filter-out ./src/egolib/bsp_leaf.c, $(SOURCES))
 SOURCES := $(filter-out ./src/egolib/platform/sys_linux.c, $(SOURCES))
 SOURCES := $(filter-out ./src/egolib/platform/file_linux.c, $(SOURCES))
-SOURCES := $(filter-out ./src/egolib/lua/lua_console.c, $(SOURCES))
+SOURCES := $(filter-out ./src/egolib/Lua/lua_console.c, $(SOURCES))
 
 
 #-------------------
