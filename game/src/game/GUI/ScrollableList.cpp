@@ -1,5 +1,5 @@
-#include "ScrollableList.hpp"
-#include "game/gui/Button.hpp"
+#include "game/GUI/ScrollableList.hpp"
+#include "game/GUI/Button.hpp"
 
 const size_t ScrollableList::COMPONENT_LINE_SPACING = 5;
 

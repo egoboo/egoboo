@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "game/gui/ComponentContainer.hpp"
-#include "game/gui/GUIComponent.hpp"
+#include "game/GUI/ComponentContainer.hpp"
+#include "game/GUI/GUIComponent.hpp"
 
 //Forward declaration
 class Button;
