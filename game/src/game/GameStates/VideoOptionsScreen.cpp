@@ -95,10 +95,6 @@ void VideoOptionsScreen::beginState()
 
 int VideoOptionsScreen::addResolutionButton(int width, int height, int yOffset)
 {
-	if(!SDL_VideoModeOK(width, height, 24, SDL_HWSURFACE | SDL_FULLSCREEN)) {
-		return yOffset;
-	}
-
 	std::shared_ptr<Button> resolutionButton = std::make_shared<Button>(std::to_string(width) + "x" + std::to_string(height));
 	resolutionButton->setSize(200, 30);
 	resolutionButton->setPosition(20, 30 + yOffset);
