@@ -2869,10 +2869,14 @@ float draw_debug( float y )
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
         y = draw_string_raw( 0, y, "~~FREEPRT %d", ParticleHandler::get().getFreeCount() );
         y = draw_string_raw( 0, y, "~~FREECHR %d", OBJECTS_MAX - _gameObjects.getObjectCount() );
+#if 0
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
+#endif
         y = draw_string_raw( 0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE" );
         y = draw_string_raw( 0, y, "~~PASS %d", PMod->getPassageCount() );
+#if 0
         y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
+#endif
         y = draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
 
         // y = draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
@@ -2914,12 +2918,13 @@ float draw_timer( float y )
 //--------------------------------------------------------------------------------------------
 float draw_game_status( float y )
 {
-
-    if ( egonet_get_waitingforclients() )
+#if 0
+    if ( egonet_getWaitingForClients() )
     {
         y = draw_string_raw( 0, y, "Waiting for players... " );
     }
-    else if ( ServerState.player_count > 0 )
+    else if (g_serverState.player_count > 0 )
+#endif
     {
         if ( local_stats.allpladead || PMod->canRespawnAnyTime() )
         {
@@ -2937,10 +2942,12 @@ float draw_game_status( float y )
             y = draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
         }
     }
+#if 0
     else
     {
         y = draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
     }
+#endif
 
     return y;
 }
@@ -3272,7 +3279,7 @@ void render_shadow( const CHR_REF character )
 
     // Choose texture.
     itex = TX_PARTICLE_LIGHT;
-	oglx_texture_bind(TextureManager::get().get_valid_ptr(itex));
+	oglx_texture_t::bind(TextureManager::get().get_valid_ptr(itex));
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -3409,7 +3416,7 @@ void render_bad_shadow( const CHR_REF character )
 
     // Choose texture and matrix
     itex = TX_PARTICLE_LIGHT;
-	oglx_texture_bind(TextureManager::get().get_valid_ptr(itex));
+	oglx_texture_t::bind(TextureManager::get().get_valid_ptr(itex));
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -4487,7 +4494,7 @@ gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF textu
 
 	ptex = TextureManager::get().get_valid_ptr(texture);
 
-    oglx_texture_bind( ptex );
+    oglx_texture_t::bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT );
     {
@@ -4665,7 +4672,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
 
-            oglx_texture_bind( ptex );
+            oglx_texture_t::bind( ptex );
 
             Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
             GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
@@ -5229,7 +5236,7 @@ void _flip_pages()
     //GL_DEBUG( glFlush )();
 
     // draw the console on top of everything
-    egolib_console_draw_all();
+    egolib_console_handler_t::draw_all();
 
     SDL_GL_SwapBuffers();
 
@@ -6466,7 +6473,7 @@ int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_
             blit_rv = SDL_BlitSurface( src_img, &src_img_rect, dst_img, NULL );
 
             // upload the SDL_Surface into OpenGL
-            oglx_texture_convert( dst_tx, dst_img, INVALID_KEY );
+            oglx_texture_t::convert( dst_tx, dst_img, INVALID_KEY );
 
             // count the number of textures we're using
             tx_lst_cnt++;
@@ -6533,7 +6540,7 @@ void gfx_reload_decimated_textures()
     {
         if ( oglx_texture_Valid( mesh_tx_sml + cnt ) )
         {
-            oglx_texture_convert( mesh_tx_sml + cnt, mesh_tx_sml[cnt].surface, INVALID_KEY );
+            oglx_texture_t::convert( mesh_tx_sml + cnt, mesh_tx_sml[cnt].surface, INVALID_KEY );
         }
     }
 
@@ -6542,7 +6549,7 @@ void gfx_reload_decimated_textures()
     {
         if ( oglx_texture_Valid( mesh_tx_big + cnt ) )
         {
-            oglx_texture_convert( mesh_tx_big + cnt, mesh_tx_big[cnt].surface, INVALID_KEY );
+            oglx_texture_t::convert( mesh_tx_big + cnt, mesh_tx_big[cnt].surface, INVALID_KEY );
         }
     }
 }

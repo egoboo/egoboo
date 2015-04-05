@@ -99,9 +99,9 @@ void Cartman::Input::checkInput()
     // ZZ> This function gets all the current player input states
     SDL_Event evt;
 
-    while ( SDL_PollEvent( &evt ) )
+    while (SDL_PollEvent(&evt))
     {
-        if ( NULL == egolib_console_handle_events( &evt ) )
+        if (!egolib_console_handler_t::handle_event(&evt))
         {
             _keyboard.override = true;
             continue;

@@ -693,10 +693,10 @@ int update_game()
 
     //Passage music
     PMod->checkPassageMusic();
-
+#if 0
     // count the total number of players
     net_count_players();
-
+#endif
     int numdead = 0;
     int numalive = 0;
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -2741,10 +2741,10 @@ void game_quit_module()
 
     // get rid of the game/module data
     game_release_module_data();
-
+#if 0
     // turn off networking
-    egonet_close_session();
-
+    egonet_instance_t::get()->close_session();
+#endif
     // reset the "ui" mouse state
     input_cursor_reset();
 
@@ -4454,7 +4454,7 @@ bool import_element_init( import_element_t * ptr )
     BLANK_STRUCT_PTR( ptr )
 
     // all non-zero, non-null values
-    ptr->player = INVALID_PLAYER_REF;
+    ptr->player = INVALID_PLA_REF;
     ptr->slot   = -1;
 
     return true;

@@ -465,7 +465,7 @@ public:
 
 	/**
 	 * @brief
-	 *	Assign this matrix the values of a viewing transformation (~ world space -> camera space) matrix.
+	 *	Get a viewing transformation (~ world space -> camera space) matrix.
 	 * @param eye
 	 *	the position of the eye point
 	 * @param center
@@ -476,7 +476,7 @@ public:
 	 *	eye != center (debug & release)
 	 *	up  != 0
 	 */
-	void setLookAt(const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
+    fmat_4x4_t lookAt(const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
 	{
 		fvec3_t f = center - eye;
 		fvec3_t u = up;
@@ -489,29 +489,22 @@ public:
 
 		u = s.cross(f);
 
-		/* Row 0. */
-		(*this)(0, 0) = s.x;
-		(*this)(0, 1) = s.y;
-		(*this)(0, 2) = s.z;
-		(*this)(0, 2) = 0.0f;
-
-		/* Row 1. */
-		(*this)(1, 0) = u.x;
-		(*this)(1, 1) = u.y;
-		(*this)(1, 2) = u.z;
-		(*this)(1, 3) = 0.0f;
-
-		/* Row 2. */
-		(*this)(2, 0) = -f.x;
-		(*this)(2, 1) = -f.y;
-		(*this)(2, 2) = -f.z;
-		(*this)(2, 3) = 0.0f;
-
-		/* Row 3. */
-		(*this)(3, 0) = 0.0f;
-		(*this)(3, 1) = 0.0f;
-		(*this)(3, 2) = 0.0f;
-		(*this)(3, 3) = 1.0f;
+        return
+            fmat_4x4_t
+            (
+            s.x,   s.y,  s.z, 0.0f,
+            u.x,   u.y,  u.z, 0.0f,
+            -f.x, -f.y, -f.z, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+            )
+            *
+            fmat_4x4_t
+            (
+            1.0f, 0.0f, 0.0f, -eye.x,
+            0.0f, 1.0f, 0.0f, -eye.y,
+            0.0f, 0.0f, 1.0f, -eye.z,
+            0.0f, 0.0f, 0.0f, 1.0f
+            );
 	}
 
 	/**
@@ -839,8 +832,8 @@ float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_b
 /// @param roll clockwise roll around viewing direction in Radians
 void mat_View(fmat_4x4_t& self, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
 // gl matrix support
-void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ);
-void mat_glRotate(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float angle, const float x, const float y, const float z);
+void mat_gluLookAt(fmat_4x4_t& dst, const fmat_4x4_t& src, const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up);
+void mat_glRotate(fmat_4x4_t &dst, const fmat_4x4_t& src, const float angle, const fvec3_t& axis);
 
 
 bool mat_getChrUp(const fmat_4x4_t& mat, fvec3_t& up);

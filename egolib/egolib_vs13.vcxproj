@@ -255,6 +255,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.cpp" />
     <ClCompile Include="src\egolib\Graphics\Font.cpp" />
     <ClCompile Include="src\egolib\Graphics\FontManager.cpp" />
     <ClCompile Include="src\egolib\Image\Image.cpp" />
@@ -435,6 +436,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.hpp" />
     <ClInclude Include="src\egolib\Math\_Include.hpp" />
     <ClInclude Include="src\egolib\Graphics\Font.hpp" />
     <ClInclude Include="src\egolib\Graphics\FontManager.hpp" />

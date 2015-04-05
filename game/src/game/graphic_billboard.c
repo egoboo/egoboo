@@ -136,7 +136,7 @@ bool billboard_data_t::printf_ttf(billboard_data_t *self, const std::shared_ptr<
 
     // release any existing texture in case there is an error
     oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(self->tex_ref);
-    oglx_texture_release(ptex);
+    oglx_texture_t::release(ptex);
 
     va_list args;
     char buffer[256];
@@ -370,7 +370,7 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
 
 	oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(pbb->tex_ref);
 
-    oglx_texture_bind(ptex);
+    oglx_texture_t::bind(ptex);
 
 	float w = oglx_texture_getImageWidth(ptex);
     float h = oglx_texture_getImageHeight(ptex);

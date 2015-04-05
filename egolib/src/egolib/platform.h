@@ -116,10 +116,6 @@
 #include <SDL_ttf.h>
 
 //--------------------------------------------------------------------------------------------
-// Fast file I/O. This is available under Windows, Linux and Mac OS X. 
-#include <fcntl.h>
-
-//--------------------------------------------------------------------------------------------
 // Exclusive C++ headers from here on (in alphabetic order).
 #include <array>
 #include <algorithm>

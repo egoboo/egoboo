@@ -58,7 +58,7 @@ ModuleProfile::ModuleProfile() :
 
 ModuleProfile::~ModuleProfile()
 {
-	oglx_texture_release(&_icon);
+	oglx_texture_t::release(&_icon);
 }
 
 bool ModuleProfile::isModuleUnlocked() const

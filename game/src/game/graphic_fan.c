@@ -298,7 +298,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * pmesh, const Uint32 itile )
         badvertex++;
     }
 
-    oglx_texture_bind( NULL );
+    oglx_texture_t::bind(nullptr);
 
     // Render each command
     GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
@@ -477,7 +477,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
     mesh_texture_invalidate();
 
     // set the texture
-    oglx_texture_bind( ptex );
+    oglx_texture_t::bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {

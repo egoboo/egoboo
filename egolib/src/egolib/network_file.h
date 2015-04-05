@@ -17,43 +17,6 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/network_file.h
-/// @brief File transfer protocol.
-
 #pragma once
 
 #include "egolib/typedef.h"
-
-#include <enet/enet.h>
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct egonet_instance_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// All the supported netfile messages
-    enum NetworkMessage
-    {
-        NETFILE_TRANSFER       = 10001,  ///< Packet contains a file.
-        NETFILE_TRANSFER_OK         = 10002,  ///< Acknowledgement packet for a file send
-        NETFILE_CREATE_DIRECTORY    = 10003,  ///< Tell the peer to create the named directory
-        NETFILE_DONE_SENDING  = 10009,  ///< Sent when there are no more files to send.
-        NETFILE_NUM_TO_SEND   = 10010  ///< Let the other person know how many files you're sending
-    };
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-    void netfile_initialize( void );
-    int  netfile_pendingTransfers( void );
-    void netfile_updateTransfers( void );
-
-    void netfile_copyToAllPlayers( const char *source, const char *dest );
-    void netfile_copyToPeer( const char *source, const char *dest, ENetPeer *peer );
-
-    void netfile_copyDirectoryToAllPlayers( const char *dirname, const char *todirname );
-    void netfile_copyDirectoryToPeer( const char *dirname, const char *todirname, ENetPeer * peer );
-
-    egolib_rv netfile_handleEvent( ENetEvent * event );

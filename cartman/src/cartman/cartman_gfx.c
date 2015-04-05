@@ -606,7 +606,7 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
 
     // don't draw if there is no texture
     if ( NULL == tx_tile ) return;
-    oglx_texture_bind( tx_tile );
+    oglx_texture_t::bind( tx_tile );
 
     min_s = dst;
     min_t = dst;
@@ -838,9 +838,9 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
     }
 
     // Draw the image
-    oglx_texture_bind( img );
+    oglx_texture_t::bind( img );
 
-    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+    Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f));
 
     glBegin( GL_TRIANGLE_STRIP );
     {
@@ -888,7 +888,7 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
     }
 
     // Draw the image
-    oglx_texture_bind( img );
+    oglx_texture_t::bind( img );
 
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
@@ -1201,52 +1201,52 @@ void cartman_end_ortho_camera()
 //--------------------------------------------------------------------------------------------
 void load_img()
 {
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_point, "editor/point.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_point, "editor/point.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_pointon, "editor/pointon.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_pointon, "editor/pointon.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_ref, "editor/ref.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_ref, "editor/ref.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_drawref, "editor/drawref.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_drawref, "editor/drawref.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_anim, "editor/anim.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_anim, "editor/anim.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_water, "editor/water.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_water, "editor/water.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_wall, "editor/slit.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_wall, "editor/slit.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_impass, "editor/impass.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_impass, "editor/impass.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_damage, "editor/damage.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_damage, "editor/damage.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_load( &tx_slippy, "editor/slippy.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_slippy, "editor/slippy.png", INVALID_KEY ) )
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
     }
@@ -1278,7 +1278,7 @@ void get_small_tiles( SDL_Surface* bmpload )
             SDL_FillRect( image, NULL, MAKE_BGR( image, 0, 0, 0 ) );
             SDL_SoftStretch( bmpload, &src1, image, NULL );
 
-            oglx_texture_convert( tx_smalltile + numsmalltile, image, INVALID_KEY );
+            oglx_texture_t::convert( tx_smalltile + numsmalltile, image, INVALID_KEY );
 
             numsmalltile++;
         }
@@ -1325,7 +1325,7 @@ void get_big_tiles( SDL_Surface* bmpload )
 
             SDL_SoftStretch( bmpload, &src1, image, NULL );
 
-            oglx_texture_convert( tx_bigtile + numbigtile, image, INVALID_KEY );
+            oglx_texture_t::convert( tx_bigtile + numbigtile, image, INVALID_KEY );
 
             numbigtile++;
         }

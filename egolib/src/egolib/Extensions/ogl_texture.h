@@ -69,18 +69,20 @@
 		static void dtor(oglx_texture_t *self);
 		static GLsizei getTextureWidth(const oglx_texture_t *self);
 		static GLsizei getTextureHeight(const oglx_texture_t *self);
+        static GLuint convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
+        static GLuint load(oglx_texture_t *self, const char *filename, Uint32 key);
+        /**
+         * @brief
+         *	Delete the SDL image, delete OpenGL ID, assign OpenGL ID of the error texture.
+         * @param self
+         *	this texture
+         */
+        static void release(oglx_texture_t *self);
+        static void bind(oglx_texture_t *self);
     };
 	
-    GLuint oglx_texture_convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
-    GLuint oglx_texture_load(oglx_texture_t *self, const char *filename, Uint32 key);
-	/**
-	 * @brief
-	 *	Delete the SDL image, delete OpenGL ID, assign OpenGL ID of the error texture.
-	 * @param self
-	 *	this texture
-	 */
-    void oglx_texture_release(oglx_texture_t *self);
-    void oglx_texture_bind(oglx_texture_t *self);
+
+
 
     GLuint oglx_texture_getTextureID(const oglx_texture_t *self);
     GLsizei oglx_texture_getImageHeight(const oglx_texture_t *self);
@@ -107,10 +109,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    void      oglx_grab_texture_state( GLenum target, GLint level, oglx_texture_t * texture );
-    GLboolean oglx_texture_Valid( oglx_texture_t *ptex );
+    void      oglx_grab_texture_state(GLenum target, GLint level, oglx_texture_t * texture);
+    GLboolean oglx_texture_Valid(oglx_texture_t *ptex);
 
-    GLuint    oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t );
+    GLuint    oglx_bind_to_tex_params(GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t);
 
-    void      ErrorImage_bind( GLenum target, GLuint id );
-    GLuint    ErrorImage_get_binding( void );
+    void      ErrorImage_bind(GLenum target, GLuint id);
+    GLuint    ErrorImage_get_binding();

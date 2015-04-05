@@ -255,6 +255,7 @@ void oglx_end_culling( void )
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void oglx_set_culling( oglx_culling_data_t * new_data, oglx_culling_data_t * old_data )
 {
     // save the old culling state and set new culling state
@@ -291,3 +292,4 @@ void oglx_set_culling( oglx_culling_data_t * new_data, oglx_culling_data_t * old
         GL_DEBUG( glFrontFace )( new_data->mode[0] );      // GL_POLYGON_BIT
     }
 }
+#endif

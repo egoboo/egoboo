@@ -393,7 +393,7 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
         GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // choose a "white" texture
-        oglx_texture_bind( NULL );
+        oglx_texture_t::bind(nullptr);
 
         //------------------------------------------------
         // DIAGONAL BBOX

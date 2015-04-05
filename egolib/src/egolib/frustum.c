@@ -24,6 +24,11 @@
 
 #include "egolib/frustum.h"
 
+#pragma push_macro("far")
+#undef far
+#pragma push_macro("near")
+#undef near
+
 egolib_frustum_t::egolib_frustum_t()
 {
 }
@@ -32,18 +37,18 @@ egolib_frustum_t::~egolib_frustum_t()
 {
 }
 
-void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, plane_t& _left, plane_t& _right, plane_t& _bottom, plane_t& _top, plane_t& _near, plane_t& _far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far)
 {
-    calculatePlanes(projection * view * world, _left, _right, _bottom, _top, _near, _far);
+    calculatePlanes(projection * view * world, left, right, bottom, top, near, far);
 }
 
-void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, plane_t& _left, plane_t& _right, plane_t& _bottom, plane_t& _top, plane_t& _near, plane_t& _far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far)
 {
-    calculatePlanes(projection * view, _left, _right, _bottom, _top, _near, _far);
+    calculatePlanes(projection * view, left, right, bottom, top, near, far);
 }
 
 
-void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, plane_t& _left, plane_t& _right, plane_t& _bottom, plane_t& _top, plane_t& _near, plane_t& _far)
+void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far)
 {
     fvec3_t t;
     float d;
@@ -53,42 +58,42 @@ void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, plane_t& _left,
                 matrix(3, 1) + matrix(0, 1),
                 matrix(3, 2) + matrix(0, 2));
     d = matrix(3, 3) + matrix(0, 3);
-    _left = plane_t(t, d);
+    left = plane_t(t, d);
 
     // Compute the right clipping plane of the frustum.
     t = fvec3_t(matrix(3, 0) - matrix(0, 0),
                 matrix(3, 1) - matrix(0, 1),
                 matrix(3, 2) - matrix(0, 2));
     d = matrix(3, 3) - matrix(0, 3);
-    _right = plane_t(t, d);
+    right = plane_t(t, d);
 
     // Compute the bottom clipping plane of the frustum.
     t = fvec3_t(matrix(3, 0) + matrix(1, 0),
                 matrix(3, 1) + matrix(1, 1),
                 matrix(3, 2) + matrix(1, 2));
     d = matrix(3, 3) + matrix(1, 3);
-    _bottom = plane_t(t, d);
+    bottom = plane_t(t, d);
 
     // Compute the top clipping plane of the frustum.
     t = fvec3_t(matrix(3, 0) - matrix(1, 0),
                 matrix(3, 1) - matrix(1, 1),
                 matrix(3, 2) - matrix(1, 2));
     d = matrix(3, 3) - matrix(1, 3);
-    _top = plane_t(t, d);
+    top = plane_t(t, d);
 
     // Compute the near clipping plane of the frustum.
     t = fvec3_t(matrix(3, 0) - matrix(2, 0),
                 matrix(3, 1) - matrix(2, 1),
                 matrix(3, 2) - matrix(2, 2));
     d = matrix(3, 3) - matrix(2, 3);
-    _near = plane_t(t, d);
+    near = plane_t(t, d);
 
     // Compute the far clipping plane of the frustum.
     t = fvec3_t(matrix(3, 0) - matrix(2, 0),
                 matrix(3, 1) - matrix(2, 1),
                 matrix(3, 2) - matrix(2, 2));
     d = matrix(3, 3) - matrix(2, 3);
-    _far = plane_t(t, d);
+    far = plane_t(t, d);
 }
 
 void egolib_frustum_t::calculate(base_t planes, const fmat_4x4_t& projection, const fmat_4x4_t& view)
@@ -412,3 +417,6 @@ bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) co
     retval = (frustum_rv > geometry_outside);
 	return retval;
 }
+
+#pragma pop_macro("near")
+#pragma pop_macro("far")

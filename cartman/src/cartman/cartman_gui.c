@@ -155,7 +155,7 @@ void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadn
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( INVALID_GL_ID == oglx_texture_load( &( pwin->tex ), loadname, INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &( pwin->tex ), loadname, INVALID_KEY ) )
     {
         log_warning( "Cannot load \"%s\".\n", loadname );
     }

@@ -141,7 +141,7 @@ namespace Ego
             return;
         }
         
-        oglx_texture_convert(tex, textSurface, INVALID_KEY);
+        oglx_texture_t::convert(tex, textSurface, INVALID_KEY);
         std::string name = "Font text '" + text + "'";
         strncpy(tex->name, name.c_str(), SDL_arraysize(tex->name));
         tex->name[SDL_arraysize(tex->name) - 1] = '\0';
@@ -178,7 +178,7 @@ namespace Ego
         float v = h / cache->tex->base.height;
         
         Ego::Renderer::get().setColour(colour);
-        oglx_texture_bind(cache->tex);
+        oglx_texture_t::bind(cache->tex);
         
         GL_DEBUG(glBegin)(GL_QUADS);
         {

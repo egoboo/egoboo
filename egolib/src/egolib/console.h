@@ -28,41 +28,25 @@
 // TYPEDEFS
 //--------------------------------------------------------------------------------------------
 
-    // opaque console struct
-    struct s_egolib_console;
-    typedef struct s_egolib_console egolib_console_t;
+// opaque console struct
+struct egolib_console_t;
 
-    /// console callback used to implement specializations of the egolib_console
-    typedef SDL_bool( *egolib_console_callback_t )( egolib_console_t * pcon, void * data );
+/// console callback used to implement specializations of the egolib_console
+typedef SDL_bool (*egolib_console_callback_t)(egolib_console_t *console, void *data);
 
 //--------------------------------------------------------------------------------------------
 // struct s_egolib_console
 //--------------------------------------------------------------------------------------------
 
-    egolib_console_t * egolib_console_create( egolib_console_t * pcon, SDL_Rect Con_rect, egolib_console_callback_t pcall, void * data );
-    SDL_bool           egolib_console_destroy( egolib_console_t ** pcon, SDL_bool do_free );
-    void               egolib_console_show( egolib_console_t * pcon );
-    void               egolib_console_hide( egolib_console_t * pcon );
-    void               egolib_console_fprint( egolib_console_t * pcon, const char *format, ... ) GCC_PRINTF_FUNC( 2 );
+egolib_console_t *egolib_console_create(egolib_console_t *pcon, SDL_Rect rect, egolib_console_callback_t callback, void *data);
+SDL_bool egolib_console_destroy(egolib_console_t **console, SDL_bool do_free);
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    void        egolib_console_begin();
-    void        egolib_console_end();
-    void        egolib_console_draw_all();
-
-    SDL_Event * egolib_console_handle_events( SDL_Event * evt );
-
-
 /// @todo: Remove when egolib_console_t is a proper C++ class
 class egolib_console_FontWrapper;
-
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -78,39 +62,102 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
-    struct s_egolib_console
-    {
-        egolib_console_t           * pnext;
+struct egolib_console_t
+{
+    egolib_console_t *pnext;
 
-        egolib_console_callback_t    run_func;
-        void                       * run_data;
+    egolib_console_callback_t run_func;
+    void *run_data;
 
-        egolib_console_FontWrapper * pfont;
+    egolib_console_FontWrapper *pfont;
 
-        SDL_bool on;
+    /**
+     * @brief
+     *  Is the console visible?
+     */
+    bool on;
 
-        SDL_Rect rect;
+    SDL_Rect rect;
 
-        int    save_count;
-        int    save_index;
-        char   save_buffer[EGOBOO_CONSOLE_LINES][EGOBOO_CONSOLE_LENGTH];
+    int save_count;
+    int save_index;
+    char save_buffer[EGOBOO_CONSOLE_LINES][EGOBOO_CONSOLE_LENGTH];
 
-        size_t buffer_carat;
-        char   buffer[EGOBOO_CONSOLE_LENGTH];
+    size_t buffer_carat;
+    char buffer[EGOBOO_CONSOLE_LENGTH];
 
-        size_t output_carat;
-        char   output_buffer[EGOBOO_CONSOLE_OUTPUT];
-    };
+    size_t output_carat;
+    char output_buffer[EGOBOO_CONSOLE_OUTPUT];
+
+    static bool draw(egolib_console_t *self);
+
+    static void show(egolib_console_t *self);
+    static void hide(egolib_console_t *self);
+
+    static bool run(egolib_console_t *self);
+    static egolib_console_t *ctor(egolib_console_t *self, SDL_Rect rect, egolib_console_callback_t callback, void *data);
+    static egolib_console_t *dtor(egolib_console_t *self);
+
+    static void print(egolib_console_t *self, const char *format, ...) GCC_PRINTF_FUNC(2);
+    static void printv(egolib_console_t *self, const char *format, va_list args);
+
+    /**
+     * @brief
+     *  Get a saved line.
+     * @return
+     *  the saved line
+     * @todo
+     *  Semantics if there are no saved lines?
+     */
+    static const char *get_saved(egolib_console_t *self);
+    /**
+     * @brief
+     *  Add a line to the saved lines.
+     * @param line
+     *  the line
+     * @post
+     *  If the array of lines was full, the first line was removed from the array.
+     *  The given line was appended to the array. The save index refers to the appended line.
+     */
+    static void add_saved(egolib_console_t *self, char *line);
+
+    static void add_output(egolib_console_t *self, char *line);
+
+
+};
+
+struct egolib_console_handler_t
+{
+protected:
+    static void draw_begin();
+    static void draw_end();
+public:
+    static void draw_all();
+    static void begin();
+    static void end();
+    static bool push_front(egolib_console_t *console);
+    /**
+     * @brief
+     *  Remove the console from the console stack.
+     * @param console
+     *  the console
+     * @return
+     *  @a true if the console was removed, @a false otherwise
+     */
+    static bool unlink(egolib_console_t *console);
+
+    /**
+    * @return
+    *  @a nullptr if
+    *  - @a event is @a nullptr or
+    *  - @a event is not @a nullptr and the event was handled by some console.
+    *  @a event in all other cases.
+    */
+    static SDL_Event *handle_event(SDL_Event *event);
+
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    extern egolib_console_t * egolib_console_top;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
+extern egolib_console_t * egolib_console_top;

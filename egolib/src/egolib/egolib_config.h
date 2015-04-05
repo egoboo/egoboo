@@ -43,6 +43,10 @@
  * @brief Settings to choose at compile-time
  */
 
+#define MAX_LOCAL_PLAYERS    4
+#define MAX_PLAYER           MAX_LOCAL_PLAYERS      ///< ZF> used to be 8, but caused some memset issues if MAX_PLAYER > MAX_LOCAL_PLAYERS
+
+
 /**
  * @brief
  *  The maximum number of modules.

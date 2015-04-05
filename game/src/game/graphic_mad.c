@@ -160,7 +160,7 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
     }
 
     // Choose texture and matrix
-    oglx_texture_bind( ptex );
+    oglx_texture_t::bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
@@ -350,7 +350,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
     }
 
     // Choose texture and matrix
-    oglx_texture_bind( ptex );
+    oglx_texture_t::bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
@@ -358,7 +358,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
 
         // set the basic tint. if the object is marked with CHR_LIGHT
         // the color will not be set again inside the loop
-        GL_DEBUG( glColor4fv )( tint );
+        Ego::Renderer::get().setColour(Ego::Math::Colour4f(tint[0],tint[1],tint[2],tint[3]));
 
         base_amb = 0.0f;
         if ( 0 == ( bits & CHR_LIGHT ) )
@@ -425,7 +425,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
                         col[1] *= tint[GG];
                         col[2] *= tint[BB];
 
-                        GL_DEBUG( glColor4fv )( col );
+                        Ego::Renderer::get().setColour(Ego::Math::Colour4f(col[0], col[1], col[2], col[3]));
                     }
 
                     GL_DEBUG( glNormal3fv )( pvrt->nrm );

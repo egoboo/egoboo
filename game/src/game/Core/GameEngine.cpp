@@ -241,7 +241,7 @@ void GameEngine::renderPreloadText(const std::string &text)
 bool GameEngine::initialize()
 {
 	//Initialize logging next, so that we can use it everywhere.
-    log_init("/debug/log.txt", LOG_DEBUG);
+    log_initialize("/debug/log.txt", LOG_DEBUG);
 
     // start initializing the various subsystems
     log_message("Starting Egoboo %s ...\n", GAME_VERSION.c_str());
@@ -318,7 +318,7 @@ bool GameEngine::initialize()
     init_random_treasure_tables_vfs("mp_data/randomtreasure.txt");
 
     // initialize the console
-    egolib_console_begin();
+    egolib_console_handler_t::begin();
 
     // Initialize the profile system.
     _profileSystem.initialize();
@@ -388,7 +388,7 @@ void GameEngine::uninitialize()
     // shut down the log services
     log_message( "Success!\n" );
     log_info("Exiting Egoboo %s the good way...\n", GAME_VERSION.c_str());
-    log_shutdown();
+    log_uninitialize();
 
     //Shutdown SDL last
 	SDL_Quit();
@@ -454,7 +454,7 @@ void GameEngine::pollEvents()
         //Console has first say in events
         if (cfg.dev_mode)
         {
-            if (NULL == egolib_console_handle_events(&event))
+            if (!egolib_console_handler_t::handle_event(&event))
             {
                 continue;
             }

@@ -41,8 +41,7 @@ void PlaStack_reset_all()
         pla_reinit( PlaStack.get_ptr( cnt ) );
     }
     PlaStack.count = 0;
-
-    nexttimestamp = (( Uint32 )~0 );
+    nexttimestamp = std::numeric_limits<Uint32>::max();
     numplatimes   = 0;
 }
 

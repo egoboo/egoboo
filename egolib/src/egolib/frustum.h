@@ -27,6 +27,10 @@
 #include "egolib/bv.h"
 #include "egolib/Math/_Include.hpp"
 
+#pragma push_macro("far")
+#undef far
+#pragma push_macro("near")
+#undef near
 
 /**
  * @brief
@@ -186,10 +190,8 @@ protected:
      *  the projection, view and world matrices
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
-     * @remark
-     *  The non-standard parameter naming prevents naming clashes with preprocessor definitions @a near and @a far under windows (whatever they are still used for).
      */
-    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& _near, plane_t& _far);
+    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, const fmat_4x4_t& world, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far);
 
 
     /**
@@ -199,10 +201,8 @@ protected:
      *  the projection and view matrices
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
-     * @remark
-     *  The non-standard parameter naming prevents naming clashes with preprocessor definitions @a near and @a far under windows (whatever they are still used for).
      */
-    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& _near, plane_t& _far);
+    static void calculatePlanes(const fmat_4x4_t& projection, const fmat_4x4_t& view, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far);
 
     /**
      * @brief
@@ -211,10 +211,10 @@ protected:
      *  this must be either a) the projection matrix, b) the combined view projection matrix or c) the combined world view projection matrix
      * @param [out] left, right, bottom, top, near, far
      *  the view frustum planes
-     * @remark
-     *  The non-standard parameter naming prevents naming clashes with preprocessor definitions @a near and @a far under windows (whatever they are still used for).
      */
-    static void calculatePlanes(const fmat_4x4_t& matrix, plane_t& left, plane_t& right, plane_t& bottom, plane_t& _top, plane_t& _near, plane_t& _far);
+    static void calculatePlanes(const fmat_4x4_t& matrix, plane_t& left, plane_t& right, plane_t& bottom, plane_t& top, plane_t& near, plane_t& far);
 
 };
 
+#pragma pop_macro("near")
+#pragma pop_macro("far")

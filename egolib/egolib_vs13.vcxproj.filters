@@ -79,6 +79,12 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{30b3faf6-6d85-4443-94cc-f403c45e83cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network">
+      <UniqueIdentifier>{1a5010ae-3fe6-4a04-9abc-eb111e4585ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{ef741b91-2a21-4125-89d5-17cbe9438860}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -365,6 +371,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Graphics\FontManager.cpp">
       <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.cpp">
+      <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -727,6 +736,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\_Include.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.hpp">
+      <Filter>Header Files\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

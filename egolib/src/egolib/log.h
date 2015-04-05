@@ -24,11 +24,6 @@
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 enum LogLevel : uint8_t
 {
     LOG_NONE,       ///< No log level, always printed directly to output
@@ -42,24 +37,71 @@ enum LogLevel : uint8_t
 // FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    void   log_init(const char * logname, LogLevel logLevel);
-    void   log_shutdown( void );
+void log_initialize(const char *logname, LogLevel logLevel);
+void log_uninitialize();
 
-    vfs_FILE * log_get_file( void );
+vfs_FILE *log_get_file();
 
-    void   log_message( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
-    void   log_debug( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
-    void   log_info( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
-    void   log_warning( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
-	/// @todo "logging" should have no side effects except of (eventually)
-	/// writing the log entry. However, log_error in fact terminates the
-	/// program.
-    void   log_error( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
+/**
+ * @brief
+ *  Write a log message on the specified log level.
+ * @param level
+ *   the log level
+ * @param format, args
+ *  printf-style format string and variadic argument list
+ */
+void logv(LogLevel level, const char *format, va_list args);
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+/**
+ * @brief
+ *  Write a log message on the specified log level.
+ * @param level
+ *   the log level
+ * @param format, ...
+ *  printf-style format string and variadic argument list
+ */
+void log(LogLevel level, const char *format, ...) GCC_PRINTF_FUNC(2);
 
-#if defined(__cplusplus)
-}
+/**
+ * @brief
+ *  Write a log message on log level "none".
+ * @param format, ...
+ *  printf-style format string and variadic argument list
+ */
+void log_message(const char *format, ...) GCC_PRINTF_FUNC(1);
 
-#endif
+/**
+ * @brief
+ *  Write a log message on log level "none".
+ * @param format, ...
+ *  printf-style format string and variadic argument list
+ */
+void log_debug(const char *format, ...) GCC_PRINTF_FUNC(1);
+
+/**
+ * @brief
+ *  Write a log message on log level "info".
+ * @param format, ...
+ *  printf-style format string and variadic argument list
+ */
+void log_info(const char *format, ...) GCC_PRINTF_FUNC(1);
+
+/**
+ * @brief
+ *  Write a log message on log level "warning".
+ * @param format, ...
+ *  printf-style format string and variadic argument list
+ */
+void log_warning(const char *format, ...) GCC_PRINTF_FUNC(1);
+
+/**
+ * @brief
+ *  Write a log message on log level "warning".
+ * @param format, ...
+ *  printf-style format string and variadic argument list
+ * @todo
+ *  "logging" should have no side effects except of (eventually)
+ *  writing the log entry. However, log_error in fact terminates the
+ *  program.
+ */
+void log_error(const char *format, ...) GCC_PRINTF_FUNC(1);

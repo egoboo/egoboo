@@ -124,7 +124,7 @@ void TextureManager::release_all()
 {
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
 	{
-		oglx_texture_release(_lst[ref]);
+		oglx_texture_t::release(_lst[ref]);
 	}
 
 	freeAll();
@@ -138,7 +138,7 @@ void TextureManager::reload_all()
 
         if (oglx_texture_Valid(texture))
         {
-            oglx_texture_convert(texture, texture->surface, INVALID_KEY );
+            oglx_texture_t::convert(texture, texture->surface, INVALID_KEY );
         }
     }
 }
@@ -147,7 +147,7 @@ TX_REF TextureManager::acquire(const TX_REF ref)
 {
     if (ref >= 0 && ref < TX_SPECIAL_LAST)
     {
-        oglx_texture_release(_lst[ref]);
+        oglx_texture_t::release(_lst[ref]);
         return ref;
     }
     else if (!VALID_TX_RANGE(ref))
@@ -164,7 +164,7 @@ TX_REF TextureManager::acquire(const TX_REF ref)
     else
     {
         // Release the texture under the specified reference.
-        oglx_texture_release(_lst[ref]);
+        oglx_texture_t::release(_lst[ref]);
         // Remove this reference from the free set.
         _free.erase(_free.find(ref));
         return ref;
@@ -177,7 +177,7 @@ bool TextureManager::relinquish(const TX_REF ref)
     if (ref < 0 || ref >= TEXTURES_MAX) return false;
 
     // Release the texture.
-    oglx_texture_release(_lst[ref]);
+    oglx_texture_t::release(_lst[ref]);
 #if 0
 #if defined(_DEBUG)
     {

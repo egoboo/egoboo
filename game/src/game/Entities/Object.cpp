@@ -102,7 +102,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     is_hidden(false),
     alive(true),
     waskilled(false),
-    is_which_player(INVALID_PLAYER_REF),
+    is_which_player(INVALID_PLA_REF),
     islocalplayer(false),
     invictus(false),
     iskursed(false),

@@ -45,15 +45,18 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 {
     srand( _seed );
     Random::setSeed(_seed);
-
+#if 0
     // very important or the input will not work
-    egonet_set_hostactive( true );  
+    egonet_setServerEnabled(true);
+#endif
 }
 
 GameModule::~GameModule()
 {
+#if 0
     // network stuff
-    egonet_set_hostactive( false );
+    egonet_setServerEnabled(false);
+#endif
 }
 
 void GameModule::loadAllPassages()

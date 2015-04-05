@@ -45,29 +45,26 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_console_t * egolib_console_top = NULL;
+egolib_console_t *egolib_console_top = nullptr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void * _egolib_console_top = NULL;
+static void *_egolib_console_top = nullptr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static egolib_console_t * egolib_console_ctor( egolib_console_t * pcon, SDL_Rect Con_rect, egolib_console_callback_t pcall, void * data );
-static egolib_console_t * egolib_console_dtor( egolib_console_t * pcon );
-
-static SDL_bool egolib_console_run( egolib_console_t * pcon );
-static void egolib_console_write( egolib_console_t * pcon, const char *format, va_list args );
-
-static const char * egolib_console_get_saved( egolib_console_t * pcon );
-static void egolib_console_add_saved( egolib_console_t * pcon, char * str );
-static void egolib_console_add_output( egolib_console_t * pcon, char * szNew );
-
-static void egolib_console_draw_begin( void );
-static void egolib_console_draw_end( void );
-static SDL_bool egolib_console_draw( egolib_console_t * pcon );
+#if 0
+static egolib_console_t *egolib_console_ctor(egolib_console_t *self, SDL_Rect con_rect, egolib_console_callback_t callback, void *data);
+static egolib_console_t *egolib_console_dtor(egolib_console_t *self);
+static SDL_bool egolib_console_run(egolib_console_t *self);
+static void egolib_console_write(egolib_console_t *self, const char *format, va_list args);
+static const char * egolib_console_get_saved(egolib_console_t *self);
+static void egolib_console_add_saved(egolib_console_t *self, char *str);
+static void egolib_console_add_output(egolib_console_t *self, char *szNew);
+static SDL_bool egolib_console_draw(egolib_console_t *self);
+#endif
 
 /**
  * @brief
@@ -90,8 +87,7 @@ public:
     std::shared_ptr<Ego::Font> _font;
 };
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_begin( void )
+void egolib_console_handler_t::begin()
 {
     /// @author BB
     /// @details initialize the console. This must happen after the screen has been defines,
@@ -101,7 +97,7 @@ void egolib_console_begin( void )
     SDL_Rect blah;
 
     // autimatically shut down
-    atexit( egolib_console_end );
+    atexit(egolib_console_handler_t::end);
 
     blah.x = 0;
     blah.y = 0;
@@ -111,230 +107,228 @@ void egolib_console_begin( void )
     scancode_begin();
 
 #if defined(USE_LUA_CONSOLE)
-    _egolib_console_top = lua_console_create( NULL, blah );
+    _egolib_console_top = lua_console_create(nullptr, blah);
 #else
     // without a callback, this console just dumps the input and generates no output
-    _egolib_console_top = egolib_console_create( NULL, blah, NULL, NULL );
+    _egolib_console_top = egolib_console_create(nullptr, blah, nullptr, nullptr);
 #endif
 }
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_end( void )
+void egolib_console_handler_t::end()
 {
     /// @author BB
     /// @details de-initialize the top console
 
 #if defined(USE_LUA_CONSOLE)
     {
-        lua_console_t * ptmp = ( lua_console_t* )_egolib_console_top;
-        lua_console_destroy( &ptmp );
+        lua_console_t *ptmp = (lua_console_t *)_egolib_console_top;
+        lua_console_destroy(&ptmp);
     }
 #else
     // without a callback, this console just dumps the input and generates no output
     {
-        egolib_console_t * ptmp = ( egolib_console_t* )_egolib_console_top;
-        egolib_console_destroy( &ptmp, SDL_TRUE );
+        egolib_console_t *ptmp = (egolib_console_t *)_egolib_console_top;
+        egolib_console_destroy(&ptmp, SDL_TRUE);
     }
 #endif
 
-    _egolib_console_top = NULL;
+    _egolib_console_top = nullptr;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static SDL_bool egolib_console_stack_unlink( egolib_console_t * pcon )
+bool egolib_console_handler_t::unlink(egolib_console_t *console)
 {
-    SDL_bool retval = SDL_FALSE;
+    bool retval = false;
 
-    if ( NULL == pcon ) return retval;
-
-    if ( pcon == egolib_console_top )
+    if (!console)
     {
-        egolib_console_top = pcon->pnext;
-        retval = SDL_TRUE;
+        return false;
+    }
+
+    if (console == egolib_console_top)
+    {
+        egolib_console_top = console->pnext;
+        retval = true;
     }
     else
     {
-        egolib_console_t * ptmp;
-
         // find the console that points to this one
-        ptmp = egolib_console_top;
-        while ( NULL != ptmp && NULL != ptmp->pnext )
+        egolib_console_t *tmp = egolib_console_top;
+        while (nullptr != tmp && nullptr != tmp->pnext)
         {
-            if ( ptmp->pnext == pcon )
+            if (tmp->pnext == console)
             {
-                retval = SDL_TRUE;
-                ptmp->pnext = pcon->pnext;
+                retval = true;
+                tmp->pnext = console->pnext;
                 break;
             }
-            ptmp = ptmp->pnext;
+            tmp = tmp->pnext;
         }
     }
 
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-static SDL_bool egolib_console_stack_push_front( egolib_console_t * pcon )
+bool egolib_console_handler_t::push_front(egolib_console_t *console)
 {
-    if ( NULL == pcon ) return SDL_FALSE;
+    if (!console)
+    {
+        return false;
+    }
 
-    pcon->pnext = egolib_console_top;
-    egolib_console_top = pcon;
+    console->pnext = egolib_console_top;
+    egolib_console_top = console;
 
-    return SDL_TRUE;
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void egolib_console_write( egolib_console_t * pcon, const char *format, va_list args )
+void egolib_console_t::printv(egolib_console_t *self, const char *format, va_list args)
 {
     char buffer[EGOBOO_CONSOLE_WRITE_LEN] = EMPTY_CSTR;
 
-    if ( NULL != pcon )
+    if (nullptr != self)
     {
-        vsnprintf( buffer, EGOBOO_CONSOLE_WRITE_LEN - 1, format, args );
+        vsnprintf(buffer, EGOBOO_CONSOLE_WRITE_LEN - 1, format, args);
 
-        egolib_console_add_output( pcon, buffer );
+        egolib_console_t::add_output(self, buffer);
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_fprint( egolib_console_t * pcon, const char *format, ... )
+void egolib_console_t::print(egolib_console_t *self, const char *format, ...)
 {
     va_list args;
-
-    va_start( args, format );
-    egolib_console_write( pcon, format, args );
-    va_end( args );
+    va_start(args, format);
+    egolib_console_t::printv(self, format, args);
+    va_end(args);
 }
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_add_output( egolib_console_t * pcon, char * szNew )
+void egolib_console_t::add_output(egolib_console_t *self, char *line)
 {
-    size_t out_len;
-    //size_t copy_len;
-    char * src, * dst;
+    if (!self || line)
+    {
+        return;
+    }
 
-    if ( NULL == pcon ) return;
-
-    // how many characters are we adding?
-    out_len = strlen( szNew );
+    // How many characters are we adding?
+    size_t lineLength = strlen(line);
 
     // initialize the pointers for the copy operation
-    src      = szNew;
-    dst      = pcon->output_buffer + pcon->output_carat;
+    char *src = line;
+    char *dst = self->output_buffer + self->output_carat;
     //copy_len = out_len;
 
     // check to make sure that the ranges are valid
-    if ( out_len > EGOBOO_CONSOLE_OUTPUT )
+    if (lineLength > EGOBOO_CONSOLE_OUTPUT)
     {
         // we need to replace the entire output buffer with
         // a portion of szNew
 
-        size_t offset = out_len - EGOBOO_CONSOLE_OUTPUT - 1;
+        size_t offset = lineLength - EGOBOO_CONSOLE_OUTPUT - 1;
 
         // update the copy parameters
-        src      = szNew + offset;
+        src      = line + offset;
         //copy_len = out_len - offset;
     }
-    else if ( pcon->output_carat + out_len > EGOBOO_CONSOLE_OUTPUT )
+    else if (self->output_carat + lineLength > EGOBOO_CONSOLE_OUTPUT)
     {
         // the length of the buffer after adding szNew would be too large
         // get rid of some of the input buffer and then add szNew
 
-        size_t offset = ( pcon->output_carat + out_len ) - EGOBOO_CONSOLE_OUTPUT - 1;
+        size_t offset = (self->output_carat + lineLength) - EGOBOO_CONSOLE_OUTPUT - 1;
 
         // move the memory so that we create some space
-        memmove( pcon->output_buffer, pcon->output_buffer + offset, pcon->output_carat - offset );
+        memmove(self->output_buffer, self->output_buffer + offset, self->output_carat - offset);
 
         // update the copy parameters
-        pcon->output_carat -= offset;
-        dst = pcon->output_buffer - pcon->output_carat;
+        self->output_carat -= offset;
+        dst = self->output_buffer - self->output_carat;
     }
 
-    pcon->output_carat += snprintf( dst, EGOBOO_CONSOLE_OUTPUT - pcon->output_carat, "%s", src );
-    pcon->output_buffer[EGOBOO_CONSOLE_OUTPUT-1] = CSTR_END;
+    self->output_carat += snprintf(dst, EGOBOO_CONSOLE_OUTPUT - self->output_carat, "%s", src);
+    self->output_buffer[EGOBOO_CONSOLE_OUTPUT-1] = CSTR_END;
 }
 
-//--------------------------------------------------------------------------------------------
-egolib_console_t * egolib_console_ctor( egolib_console_t * pcon, SDL_Rect Con_rect, egolib_console_callback_t pcall, void * data )
+egolib_console_t *egolib_console_t::ctor(egolib_console_t *self, SDL_Rect con_rect, egolib_console_callback_t callback, void *data)
 {
-    if ( NULL == pcon ) return NULL;
+    if (!self)
+    {
+        return nullptr;
+    }
 
     // reset all the console data
-    BLANK_STRUCT_PTR( pcon )
+    BLANK_STRUCT_PTR(self);
 
     // set the console's font
-    pcon->pfont = new egolib_console_FontWrapper(Ego::FontManager::loadFont("mp_data/pc8x8.fon", 12));
+    self->pfont = new egolib_console_FontWrapper(Ego::FontManager::loadFont("mp_data/pc8x8.fon", 12));
 
     // set the console's rectangle
-    pcon->rect = Con_rect;
+    self->rect = con_rect;
 
     // register the "run" callback
-    pcon->run_func = pcall;
-    pcon->run_data = data;
+    self->run_func = callback;
+    self->run_data = data;
 
     // insert the new console as the top console
-    egolib_console_stack_push_front( pcon );
+    egolib_console_handler_t::push_front(self);
 
-    return pcon;
+    return self;
 }
 
-//--------------------------------------------------------------------------------------------
-egolib_console_t * egolib_console_create( egolib_console_t * pcon, SDL_Rect Con_rect, egolib_console_callback_t pcall, void * data )
+egolib_console_t *egolib_console_create(egolib_console_t *console, SDL_Rect rect, egolib_console_callback_t callback, void *data)
 {
-
-    if ( NULL == pcon )
+    if (!console )
     {
-        pcon = EGOBOO_NEW( egolib_console_t );
+        console = EGOBOO_NEW(egolib_console_t);
     }
 
-    return egolib_console_ctor( pcon, Con_rect, pcall,  data );
+    return egolib_console_t::ctor(console, rect, callback, data);
 }
 
-//--------------------------------------------------------------------------------------------
-SDL_bool egolib_console_run( egolib_console_t * pcon )
+bool egolib_console_t::run(egolib_console_t *self)
 {
-    SDL_bool retval = SDL_FALSE;
+    bool retval = false;
 
-    if ( NULL == pcon ) return retval;
-
-    if ( NULL != pcon->run_func )
+    if (!self)
     {
-        retval = pcon->run_func( pcon, pcon->run_data );
+        return false;
+    }
+
+    if (nullptr != self->run_func)
+    {
+        retval = (SDL_TRUE == self->run_func(self, self->run_data)) ? true : false;
     }
 
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-egolib_console_t * egolib_console_dtor( egolib_console_t * pcon )
+egolib_console_t *egolib_console_t::dtor(egolib_console_t *self)
 {
-    if ( NULL == pcon ) return NULL;
+    if (!self)
+    {
+        return nullptr;
+    }
 
-    delete pcon->pfont;
+    // Remove the console from the stack.
+    egolib_console_handler_t::unlink(self);
 
-    // remove the console from the stack
-    egolib_console_stack_unlink( pcon );
+    // Delete its font.
+    delete self->pfont;
+    self->pfont = nullptr;
 
-    return pcon;
+    return self;
 }
 
-//--------------------------------------------------------------------------------------------
 SDL_bool egolib_console_destroy( egolib_console_t ** pcon, SDL_bool do_free )
 {
     if ( NULL == pcon ) return SDL_FALSE;
 
-    if ( NULL == egolib_console_dtor( *pcon ) ) return SDL_FALSE;
+    if ( NULL == egolib_console_t::dtor( *pcon ) ) return SDL_FALSE;
 
     if ( do_free ) EGOBOO_DELETE( *pcon );
 
     return SDL_TRUE;
 }
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_draw_begin( void )
+void egolib_console_handler_t::draw_begin()
 {
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
@@ -368,8 +362,7 @@ void egolib_console_draw_begin( void )
     GL_DEBUG( glLoadIdentity )();
 }
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_draw_end( void )
+void egolib_console_handler_t::draw_end()
 {
     // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
@@ -384,8 +377,7 @@ void egolib_console_draw_end( void )
     GL_DEBUG( glPopAttrib )();
 }
 
-//--------------------------------------------------------------------------------------------
-SDL_bool egolib_console_draw( egolib_console_t * pcon )
+bool egolib_console_t::draw(egolib_console_t *self)
 {
     char   buffer[EGOBOO_CONSOLE_WRITE_LEN] = EMPTY_CSTR;
     size_t console_line_count;
@@ -396,9 +388,9 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
     SDL_Rect * pwin;
     SDL_Surface * surf = SDL_GetVideoSurface();
 
-    if ( NULL == surf || NULL == pcon || !pcon->on ) return SDL_FALSE;
+    if ( NULL == surf || NULL == self || !self->on ) return false;
 
-    pwin = &( pcon->rect );
+    pwin = &(self->rect);
 
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
@@ -427,7 +419,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
-    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+    Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f));
     ATTRIB_PUSH( __FUNCTION__, GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
         int text_w, text_h, height;
@@ -447,27 +439,27 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
         buffer[1] = ' ';
         buffer[2] = CSTR_END;
 
-        strncat( buffer, pcon->buffer, 1022 );
+        strncat( buffer, self->buffer, 1022 );
         buffer[1022] = CSTR_END;
 
-        pcon->pfont->_font->getTextSize(buffer, &text_w, &text_h);
+        self->pfont->_font->getTextSize(buffer, &text_w, &text_h);
         height -= text_h;
-        pcon->pfont->_font->drawText(buffer, pwin->x, height - text_h, con_color);
+        self->pfont->_font->drawText(buffer, pwin->x, height - text_h, con_color);
 
-        if ( CSTR_END != pcon->output_buffer[0] )
+        if ( CSTR_END != self->output_buffer[0] )
         {
             int i;
 
             // grab the line offsets
             console_line_count = 0;
-            pstr = pcon->output_buffer;
+            pstr = self->output_buffer;
             while ( NULL != pstr )
             {
                 size_t len;
 
                 len = strcspn( pstr, "\n" );
 
-                console_line_offsets[console_line_count] = pstr - pcon->output_buffer;
+                console_line_offsets[console_line_count] = pstr - self->output_buffer;
                 console_line_lengths[console_line_count] = len;
 
                 if ( 0 == len ) break;
@@ -481,289 +473,296 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
             {
                 size_t len = std::min( (size_t)1023, console_line_lengths[i] );
 
-                strncpy( buffer, pcon->output_buffer + console_line_offsets[i], len );
+                strncpy( buffer, self->output_buffer + console_line_offsets[i], len );
                 buffer[len] = CSTR_END;
                 
-                pcon->pfont->_font->getTextSize(buffer, &text_w, &text_h);
+                self->pfont->_font->getTextSize(buffer, &text_w, &text_h);
                 height -= text_h;
-                pcon->pfont->_font->drawText(buffer, pwin->x, height - text_h, con_color);
+                self->pfont->_font->drawText(buffer, pwin->x, height - text_h, con_color);
             }
         }
 
     };
     ATTRIB_POP( __FUNCTION__ );
 
-    return SDL_TRUE;
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_draw_all( void )
+void egolib_console_handler_t::draw_all()
 {
-    egolib_console_t * pcon = egolib_console_top;
+    egolib_console_t *console = egolib_console_top;
 
-    if ( NULL == pcon ) return;
-
-    egolib_console_draw_begin();
+    if (!console)
     {
-        for ( pcon = egolib_console_top; NULL != pcon; pcon = pcon->pnext )
-        {
-            egolib_console_draw( pcon );
-        }
+        return;
     }
-    egolib_console_draw_end();
+
+    egolib_console_handler_t::draw_begin();
+
+    for (; nullptr != console; console = console->pnext)
+    {
+        egolib_console_t::draw(console);
+    }
+
+    egolib_console_handler_t::draw_end();
 }
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_show( egolib_console_t * pcon )
+void egolib_console_t::show(egolib_console_t *self)
 {
-    if ( NULL != pcon )
+    if (nullptr != self)
     {
-        // turn the console on
-        pcon->on = SDL_TRUE;
+        // Turn the console on.
+        self->on = true;
     }
 
-    // fix the keyrepeat
-    if ( NULL == egolib_console_top )
+    // Fix the keyrepeat.
+    if (nullptr == egolib_console_top)
     {
-        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
+        SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
     }
     else
     {
-        SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
+        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void egolib_console_hide( egolib_console_t * pcon )
+void egolib_console_t::hide(egolib_console_t *self)
 {
-    if ( NULL != pcon )
+    if (nullptr != self)
     {
-        // turn the console on
-        pcon->on = SDL_FALSE;
+        // Turn the console off.
+        self->on = SDL_FALSE;
     }
 
-    // fix the keyrepeat
-    if ( NULL == egolib_console_top )
+    // Fix the keyrepeat.
+    if (nullptr == egolib_console_top)
     {
-        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
+        SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
     }
     else
     {
-        SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
+        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     }
 }
 
-//--------------------------------------------------------------------------------------------
-const char * egolib_console_get_saved( egolib_console_t * pcon )
+const char *egolib_console_t::get_saved(egolib_console_t *self)
 {
-    if ( NULL == pcon ) return "";
-
-    pcon->save_count = CLIP( pcon->save_count, 0, EGOBOO_CONSOLE_LINES );
-    pcon->save_index = CLIP( pcon->save_index, 0, pcon->save_count - 1 );
-
-    return pcon->save_buffer[pcon->save_index];
-}
-
-//--------------------------------------------------------------------------------------------
-void egolib_console_add_saved( egolib_console_t * pcon, char * str )
-{
-    if ( NULL == pcon ) return;
-
-    pcon->save_count = CLIP( pcon->save_count, 0, EGOBOO_CONSOLE_LINES );
-
-    if ( pcon->save_count >= EGOBOO_CONSOLE_LINES )
+    if (!self)
     {
-        int i;
-
-        // bump all of the saved lines so that we can insert a new one
-        for ( i = 0; i < EGOBOO_CONSOLE_LINES - 1; i++ )
-        {
-            strncpy( pcon->save_buffer[i], pcon->save_buffer[i+1], EGOBOO_CONSOLE_LENGTH );
-        }
-        pcon->save_count--;
+        return "";
     }
 
-    strncpy( pcon->save_buffer[pcon->save_count], str, EGOBOO_CONSOLE_LENGTH );
-    pcon->save_count++;
-    pcon->save_index = pcon->save_count;
+    self->save_count = CLIP(self->save_count, 0, EGOBOO_CONSOLE_LINES);
+    self->save_index = CLIP(self->save_index, 0, self->save_count - 1);
+
+    return self->save_buffer[self->save_index];
 }
 
-//--------------------------------------------------------------------------------------------
-SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
+void egolib_console_t::add_saved(egolib_console_t *self, char *line)
 {
-    egolib_console_t     * pcon = egolib_console_top;
-    SDLKey              vkey;
-
-    Uint32 kmod;
-    SDL_bool is_alt, is_shift;
-
-    if ( NULL == pcon || NULL == pevt ) return pevt;
-
-    // only handle keyboard events
-    if ( SDL_KEYDOWN != pevt->type ) return pevt;
-
-    // grab the virtual key code
-    vkey = pevt->key.keysym.sym;
-
-    // get any keymods
-    kmod = SDL_GetModState();
-
-    is_alt   = ( SDL_bool )HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
-    is_shift = ( SDL_bool )HAS_SOME_BITS( kmod, KMOD_SHIFT );
-
-    // start the top console
-    if ( !is_alt && !is_shift && SDLK_BACKQUOTE == vkey )
+    if (!self)
     {
-        if ( !pcon->on )
-        {
-            pcon->on = SDL_TRUE;
-            pcon->buffer_carat = 0;
-            pcon->buffer[0]    = CSTR_END;
+        return;
+    }
 
-            SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_DELAY );
-            return NULL;
+    self->save_count = CLIP(self->save_count, 0, EGOBOO_CONSOLE_LINES);
+
+    if (self->save_count == EGOBOO_CONSOLE_LINES)
+    {
+        // Bump all of the saved lines so that we can insert a new one.
+        for (size_t i = 0; i < EGOBOO_CONSOLE_LINES - 1; ++i)
+        {
+            strncpy(self->save_buffer[i], self->save_buffer[i+1], EGOBOO_CONSOLE_LENGTH);
+        }
+        self->save_count--;
+    }
+
+    strncpy(self->save_buffer[self->save_count], line, EGOBOO_CONSOLE_LENGTH);
+    self->save_count++;
+    self->save_index = self->save_count;
+}
+
+SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
+{
+    egolib_console_t *console = egolib_console_top;
+
+    if (!event)
+    {
+        return nullptr;
+    }
+    if (!console)
+    {
+        return event;
+    }
+
+    // Only handle keyboard events.
+    if (SDL_KEYDOWN != event->type)
+    {
+        return event;
+    }
+
+    // Grab the virtual key code.
+    SDLKey vkey = event->key.keysym.sym;
+
+    // Get the key modifiers.
+    Uint32 kmod = SDL_GetModState();
+
+    // Is alt or shift down?
+    bool is_alt   = HAS_SOME_BITS(kmod, KMOD_ALT | KMOD_CTRL);
+    bool is_shift = HAS_SOME_BITS(kmod, KMOD_SHIFT);
+
+    // If the virtual key code for the backquote is pressed,
+    // toggle the console on the top of the console stack.
+    if (!is_alt && !is_shift && SDLK_BACKQUOTE == vkey)
+    {
+        if (!console->on)
+        {
+            console->on = true;
+            console->buffer_carat = 0;
+            console->buffer[0] = CSTR_END;
+
+            SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_DELAY);
+            return nullptr;
+        }
+        else
+        {
+            console->on = false;
+            console->buffer_carat = 0;
+            console->buffer[0] = CSTR_END;
+
+            SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
+            return nullptr;
         }
     };
 
-    // quit the top console. I would like escape, but it is getting confused with the ui "quit" command
-    if ( !is_alt && !is_shift && SDLK_BACKQUOTE == vkey )
+    // Only grab the keycodes if the console is on.
+    if (!console->on)
     {
-        if ( pcon->on )
-        {
-            pcon->on           = SDL_FALSE;
-            pcon->buffer_carat = 0;
-            pcon->buffer[0]    = CSTR_END;
+        return event;
+    }
 
-            SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
-            return NULL;
-        }
-    };
-
-    // Only grab the keycodes if the terminal is on
-    if ( !pcon->on ) return pevt;
-
-    // handle any terminal commands
-    if ( NULL != pevt && !is_alt && !is_shift )
+    // Handle any console commands.
+    if (nullptr != event && !is_alt && !is_shift)
     {
-        if ( SDLK_BACKSPACE == vkey )
+        // backspace: delete character before the carat.
+        if (SDLK_BACKSPACE == vkey)
         {
-            if ( pcon->buffer_carat > 0 )
+            if (console->buffer_carat > 0)
             {
-                pcon->buffer_carat--;
+                console->buffer_carat--;
             }
-            pcon->buffer[pcon->buffer_carat] = CSTR_END;
+            console->buffer[console->buffer_carat] = CSTR_END;
 
-            pevt = NULL;
+            event = nullptr;
         }
-        else if ( SDLK_UP == vkey )
+        else if (SDLK_UP == vkey)
         {
-            pcon->save_index--;
+            console->save_index--;
 
-            if ( pcon->save_index < 0 )
+            if (console->save_index < 0)
             {
-                // after the last command line. blank the line
-                pcon->save_index   = 0;
-                pcon->buffer[0]    = CSTR_END;
-                pcon->buffer_carat = 0;
+                // Behind the last saved line. Blank the line.
+                console->save_index = 0;
+                console->buffer[0] = CSTR_END;
+                console->buffer_carat = 0;
             }
             else
             {
-                pcon->save_index = CLIP( pcon->save_index, 0, pcon->save_count - 1 );
+                console->save_index = CLIP(console->save_index, 0, console->save_count - 1);
 
-                if ( pcon->save_count > 0 )
+                if (console->save_count > 0)
                 {
-                    strncpy( pcon->buffer, egolib_console_get_saved( pcon ), SDL_arraysize( pcon->buffer ) );
-                    pcon->buffer_carat = strlen( pcon->buffer );
+                    strncpy(console->buffer, egolib_console_t::get_saved(console), EGOBOO_CONSOLE_LENGTH - 1);
+                    console->buffer_carat = strlen(console->buffer);
                 }
             }
 
-            pevt = NULL;
+            event = nullptr;
         }
-        else if ( SDLK_DOWN == vkey )
+        else if (SDLK_DOWN == vkey)
         {
-            pcon->save_index++;
+            console->save_index++;
 
-            if ( pcon->save_index >= pcon->save_count )
+            if (console->save_index >= console->save_count)
             {
-                // before the first command line. blank the line
-                pcon->save_index   = pcon->save_count;
-                pcon->buffer[0]    = CSTR_END;
-                pcon->buffer_carat = 0;
+                // Before the first saved line. Blank the line.
+                console->save_index = console->save_count;
+                console->buffer[0] = CSTR_END;
+                console->buffer_carat = 0;
             }
             else
             {
-                pcon->save_index = CLIP( pcon->save_index, 0, pcon->save_count - 1 );
+                console->save_index = CLIP(console->save_index, 0, console->save_count - 1);
 
-                if ( pcon->save_count > 0 )
+                if (console->save_count > 0)
                 {
-                    strncpy( pcon->buffer, egolib_console_get_saved( pcon ), EGOBOO_CONSOLE_LENGTH - 1 );
-                    pcon->buffer_carat = strlen( pcon->buffer );
+                    strncpy(console->buffer, egolib_console_t::get_saved(console), EGOBOO_CONSOLE_LENGTH - 1);
+                    console->buffer_carat = strlen(console->buffer);
                 }
             }
 
-            pevt = NULL;
+            event = nullptr;
         }
-        else if ( SDLK_LEFT == vkey )
+        else if (SDLK_LEFT == vkey)
         {
-            pcon->buffer_carat--;
-            pcon->buffer_carat = CLIP( pcon->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1) );
+            console->buffer_carat--;
+            console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1));
 
-            pevt = NULL;
-        }
-
-        else if ( SDLK_RIGHT == vkey )
-        {
-            pcon->buffer_carat++;
-            pcon->buffer_carat = CLIP( pcon->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1) );
-
-            pevt = NULL;
+            event = nullptr;
         }
 
-        else if ( SDLK_RETURN == vkey || SDLK_KP_ENTER == vkey )
+        else if (SDLK_RIGHT == vkey)
         {
-            pcon->buffer[pcon->buffer_carat] = CSTR_END;
+            console->buffer_carat++;
+            console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1));
 
-            // add this command to the "saved command list"
-            egolib_console_add_saved( pcon, pcon->buffer );
+            event = nullptr;
+        }
+        else if (SDLK_RETURN == vkey || SDLK_KP_ENTER == vkey)
+        {
+            console->buffer[console->buffer_carat] = CSTR_END;
 
-            // add the command to the output buffer
-            egolib_console_fprint( pcon, "%c %s\n", EGOBOO_CONSOLE_PROMPT, pcon->buffer );
+            // Add this command line to the list of saved command line.
+            egolib_console_t::add_saved(console, console->buffer);
 
-            // actually execute the command
-            egolib_console_run( pcon );
+            // Add the command line to the output buffer.
+            egolib_console_t::print(console, "%c %s\n", EGOBOO_CONSOLE_PROMPT, console->buffer);
 
-            // blank the command line
-            pcon->buffer_carat = 0;
-            pcon->buffer[0] = CSTR_END;
+            // Actually execute the command line.
+            egolib_console_t::run(console);
 
-            pevt = NULL;
+            // Blank the command line.
+            console->buffer_carat = 0;
+            console->buffer[0] = CSTR_END;
+
+            event = nullptr;
         }
     }
 
     // handle normal keystrokes
-    if ( NULL != pevt && !is_alt && vkey < SDLK_NUMLOCK )
+    if (nullptr != event && !is_alt && vkey < SDLK_NUMLOCK )
     {
-        if ( pcon->buffer_carat < EGOBOO_CONSOLE_LENGTH )
+        if (console->buffer_carat < EGOBOO_CONSOLE_LENGTH)
         {
-            if ( is_shift )
+            if (is_shift)
             {
-                if (( unsigned )scancode_to_ascii_shift[vkey] <= 0xFF )
+                if ((unsigned)scancode_to_ascii_shift[vkey] <= 0xFF)
                 {
-                    pcon->buffer[pcon->buffer_carat++] = ( char )scancode_to_ascii_shift[vkey];
+                    console->buffer[console->buffer_carat++] = (char)scancode_to_ascii_shift[vkey];
                 }
             }
             else
             {
-                if (( unsigned )scancode_to_ascii[vkey] <= 0xFF )
+                if ((unsigned)scancode_to_ascii[vkey] <= 0xFF)
                 {
-                    pcon->buffer[pcon->buffer_carat++] = ( char )scancode_to_ascii[vkey];
+                    console->buffer[console->buffer_carat++] = (char)scancode_to_ascii[vkey];
                 }
             }
-            pcon->buffer[pcon->buffer_carat] = CSTR_END;
+            console->buffer[console->buffer_carat] = CSTR_END;
 
-            pevt = NULL;
+            event = nullptr;
         }
     }
 
-    return pevt;
+    return event;
 }

@@ -242,9 +242,9 @@ bool mat_getTranslate(const fmat_4x4_t& mat, fvec3_t& translate)
 bool mat_getChrUp(const fmat_4x4_t& mat, fvec3_t& up)
 {
 	// for a character
-	up[kX] = mat.v[MAT_IDX(2, 0)];
-	up[kY] = mat.v[MAT_IDX(2, 1)];
-	up[kZ] = mat.v[MAT_IDX(2, 2)];
+	up[kX] = mat.v[MAT_IDX(2, 0)]; // m(0,2)
+	up[kY] = mat.v[MAT_IDX(2, 1)]; // m(1,2)
+	up[kZ] = mat.v[MAT_IDX(2, 2)]; // m(2,2)
 
 	return true;
 }
@@ -253,9 +253,9 @@ bool mat_getChrUp(const fmat_4x4_t& mat, fvec3_t& up)
 bool mat_getChrForward(const fmat_4x4_t& mat, fvec3_t& forward)
 {
 	// for a character
-	forward[kX] = -mat.v[MAT_IDX(0, 0)];
-	forward[kY] = -mat.v[MAT_IDX(0, 1)];
-	forward[kZ] = -mat.v[MAT_IDX(0, 2)];
+	forward[kX] = -mat.v[MAT_IDX(0, 0)]; // -mat(0,0)
+	forward[kY] = -mat.v[MAT_IDX(0, 1)]; // -mat(1,0)
+	forward[kZ] = -mat.v[MAT_IDX(0, 2)]; // -mat(2,0)
 
 	return true;
 }
@@ -264,9 +264,9 @@ bool mat_getChrForward(const fmat_4x4_t& mat, fvec3_t& forward)
 bool mat_getChrRight(const fmat_4x4_t& mat, fvec3_t& right)
 {
 	// for a character's matrix
-	right[kX] = mat.v[MAT_IDX(1, 0)];
-	right[kY] = mat.v[MAT_IDX(1, 1)];
-	right[kZ] = mat.v[MAT_IDX(1, 2)];
+	right[kX] = mat.v[MAT_IDX(1, 0)]; // mat(0,1)
+	right[kY] = mat.v[MAT_IDX(1, 1)]; // mat(1,1)
+	right[kZ] = mat.v[MAT_IDX(1, 2)]; // mat(2,1)
 
 	return true;
 }
@@ -275,9 +275,9 @@ bool mat_getChrRight(const fmat_4x4_t& mat, fvec3_t& right)
 bool mat_getCamUp(const fmat_4x4_t& mat, fvec3_t& up)
 {
 	// for the camera
-	up[kX] = mat.v[MAT_IDX(0, 1)];
-	up[kY] = mat.v[MAT_IDX(1, 1)];
-	up[kZ] = mat.v[MAT_IDX(2, 1)];
+	up[kX] = mat.v[MAT_IDX(0, 1)]; // m(1,0)
+	up[kY] = mat.v[MAT_IDX(1, 1)]; // m(1,1)
+	up[kZ] = mat.v[MAT_IDX(2, 1)]; // m(1,2)
 
 	return true;
 }
@@ -286,9 +286,9 @@ bool mat_getCamUp(const fmat_4x4_t& mat, fvec3_t& up)
 bool mat_getCamRight(const fmat_4x4_t& mat, fvec3_t& right)
 {
 	// for the camera
-	right[kX] = -mat.v[MAT_IDX(0, 0)];
-	right[kY] = -mat.v[MAT_IDX(1, 0)];
-	right[kZ] = -mat.v[MAT_IDX(2, 0)];
+	right[kX] = -mat.v[MAT_IDX(0, 0)]; // -m(0,0)
+	right[kY] = -mat.v[MAT_IDX(1, 0)]; // -m(0,1)
+	right[kZ] = -mat.v[MAT_IDX(2, 0)]; // -m(0,2)
 
 	return true;
 }
@@ -318,68 +318,62 @@ fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat)
 
 //--------------------------------------------------------------------------------------------
 
-void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ)
+void mat_gluLookAt(fmat_4x4_t &dst, const fmat_4x4_t &src, const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
 {
-    fmat_4x4_base_t M, tmp;
-    fvec3_t f(centerX - eyeX, centerY - eyeY, centerZ - eyeZ);
-    fvec3_t up(upX, upY, upZ);
-    fvec3_t s;
-    fvec3_t u;
-    
+    fvec3_t f = center - eye;
     f.normalize();
-    up.normalize();
-    
-    s = f.cross(up);
+    fvec3_t up_ = up;
+    up_.normalize();
+
+    fvec3_t s = f.cross(up);
     s.normalize();
     
-    u = s.cross(f);
+    fvec3_t u = s.cross(f);
     
-    mat_Zero(M);
-    fmat_4x4_t eyeTranslate = fmat_4x4_t::translation(fvec3_t(-eyeX, -eyeY, -eyeZ));
+    auto M = fmat_4x4_t
+        (
+         s.x,  s.y,  s.z, 0.0f,
+         u.x,  u.y,  u.z, 0.0f,
+        -f.x, -f.y, -f.z, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+        );
     
-    M[MAT_IDX(0, 0)] = s.x;
-    M[MAT_IDX(1, 0)] = s.y;
-    M[MAT_IDX(2, 0)] = s.z;
-    
-    M[MAT_IDX(0, 1)] = u.x;
-    M[MAT_IDX(1, 1)] = u.y;
-    M[MAT_IDX(2, 1)] = u.z;
-    
-    M[MAT_IDX(0, 2)] = -f.x;
-    M[MAT_IDX(1, 2)] = -f.y;
-    M[MAT_IDX(2, 2)] = -f.z;
-    
-    M[MAT_IDX(3, 3)] = 1;
-    
-    mat_Multiply(tmp, src, M);
-    mat_Multiply(DST, tmp, eyeTranslate.v);
+    dst = src * M * fmat_4x4_t::translation(-eye);
 }
 
-void mat_glRotate(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float angle, const float x, const float y, const float z)
+void mat_glRotate(fmat_4x4_t &dst, const fmat_4x4_t &src, const float angle, const fvec3_t& axis)
 {
-    fmat_4x4_base_t M;
-    fvec3_t vec(x, y, z);
+    fmat_4x4_t R;
     float s = std::sin(Ego::Math::degToRad(angle));
     float c = std::cos(Ego::Math::degToRad(angle));
     
-    mat_Zero(M);
-    vec.normalize();
+    fvec3_t axis_ = axis;
+    axis_.normalize();
+
+    // First row.
+    R(0, 0) = axis_.x * axis_.x * (1 - c) + c;
+    R(0, 1) = axis_.x * axis_.y * (1 - c) - axis_.z * s;
+    R(0, 2) = axis_.x * axis_.z * (1 - c) + axis_.y * s;
+    R(0, 3) = 0.0f;
     
-    M[MAT_IDX(0, 0)] = vec.x * vec.x * (1 - c) + c;
-    M[MAT_IDX(1, 0)] = vec.x * vec.y * (1 - c) - vec.z * s;
-    M[MAT_IDX(2, 0)] = vec.x * vec.z * (1 - c) + vec.y * s;
+    // 2nd row.
+    R(1, 0) = axis_.y * axis_.x * (1 - c) + axis_.z * s;
+    R(1, 1) = axis_.y * axis_.y * (1 - c) + c;
+    R(1, 2) = axis_.y * axis_.z * (1 - c) - axis_.x * s;
+    R(1, 3) = 0.0f;
     
-    M[MAT_IDX(0, 1)] = vec.y * vec.x * (1 - c) + vec.z * s;
-    M[MAT_IDX(1, 1)] = vec.y * vec.y * (1 - c) + c;
-    M[MAT_IDX(2, 1)] = vec.y * vec.z * (1 - c) - vec.x * s;
+    // 3rd row.
+    R(2, 0) = axis_.z * axis_.x * (1 - c) - axis_.y * s;
+    R(2, 1) = axis_.z * axis_.y * (1 - c) + axis_.x * s;
+    R(2, 2) = axis_.z * axis_.z * (1 - c) + c;
+    R(2, 3) = 0.0f;
     
-    M[MAT_IDX(0, 2)] = vec.z * vec.x * (1 - c) - vec.y * s;
-    M[MAT_IDX(1, 2)] = vec.z * vec.y * (1 - c) + vec.x * s;
-    M[MAT_IDX(2, 2)] = vec.z * vec.z * (1 - c) + c;
+    R(3, 0) = 0;
+    R(3, 1) = 0;
+    R(3, 2) = 0;
+    R(3, 3) = 1;
     
-    M[MAT_IDX(3, 3)] = 1;
-    
-    mat_Multiply(DST, src, M);
+    dst = src * R;
 }
 
 void dump_matrix(const fmat_4x4_base_t a)

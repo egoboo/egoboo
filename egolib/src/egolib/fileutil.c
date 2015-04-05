@@ -1609,11 +1609,9 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
     STRING fullname;
     Uint32 retval;
     Uint8 type = 0;
-    SDL_Surface * image = NULL;
-    //GLenum tx_target;
 
     // get rid of any old data
-    oglx_texture_release( texture );
+    oglx_texture_t::release(texture);
 
     // load the image
     retval = INVALID_GL_ID;
@@ -1623,28 +1621,21 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
         for ( type = 0; type < maxformattypes; type++ )
         {
             snprintf( fullname, SDL_arraysize( fullname ), "%s%s", filename, TxFormatSupported[type] );
-            retval = oglx_texture_load( texture, fullname, key );
+            retval = oglx_texture_t::load( texture, fullname, key );
             if ( INVALID_GL_ID != retval ) break;
         }
     }
     else
     {
-        image = NULL;
-
         // normal SDL only supports bmp
         snprintf( fullname, SDL_arraysize( fullname ), "%s.bmp", filename );
-        image = SDL_LoadBMP_RW(vfs_openRWopsRead(fullname), 1);
+        SDL_Surface *image = SDL_LoadBMP_RW(vfs_openRWopsRead(fullname), 1);
+        if (!image)
+        {
+            return INVALID_GL_ID;
+        }
 
-        // We could not load the image
-        if ( NULL == image ) return INVALID_GL_ID;
-
-        //tx_target = GL_TEXTURE_2D;
-        //if ( image->w != image->h && ( 1 == image->w || image->h ) )
-        //{
-        //    tx_target = GL_TEXTURE_1D;
-        //}
-
-        retval = oglx_texture_convert( texture, image, key );
+        retval = oglx_texture_t::convert( texture, image, key );
         strncpy( texture->name, fullname, SDL_arraysize( texture->name ) );
 
         texture->base.wrap_s = GL_REPEAT;

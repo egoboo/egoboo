@@ -34,18 +34,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// An encapsulation of the OpenGL texture gen state.
-struct gl_texture_gen_t
-{
-    GLboolean enabled;
-    GLfloat   eye_plane[4];
-    GLfloat   object_plane[4];
-    GLint     mode[1];
-};
-
-/// Grab the OpenGL texture gen state.
-void gl_grab_texture_gen_state(gl_texture_gen_t *self, GLenum coord);
-
 /// An encapsulation of the OpenGL texture state.
 struct gl_texture_t
 {
@@ -71,29 +59,10 @@ struct gl_texture_t
     GLfloat priority;
     GLint   resident;
 
-    gl_texture_gen_t gen[4];
 };
 
 /// Grab the OpenGL texture state.
 void gl_grab_texture_state(gl_texture_t *self, GLenum target, GLint level);
-
-/// An encapsulation of the OpenGL texturing state.
-struct gl_texturing_t
-{
-    GLboolean        texture_1d_enabled;
-    gl_texture_t     texture_1d;
-
-    GLboolean        texture_2d_enabled;
-    gl_texture_t     texture_2d;
-
-    GLint            env_mode[1];
-    GLfloat          env_color[4];
-
-    gl_texture_gen_t texture_gen[4];
-};
-
-/// Grab the OpenGL texturing state.
-void gl_grab_texturing_state(gl_texturing_t *self);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

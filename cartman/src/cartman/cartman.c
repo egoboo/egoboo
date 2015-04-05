@@ -739,7 +739,7 @@ void load_all_windows( cartman_mpd_t * pmesh )
     for (auto window : _window_lst)
     {
         window->on = false;
-        oglx_texture_release(&(window->tex));
+        oglx_texture_t::release(&(window->tex));
     }
 
     load_window( _window_lst[0], 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );
@@ -1987,7 +1987,7 @@ void draw_main( cartman_mpd_t * pmesh )
         mesh_calc_vrta( pmesh );
     }
 
-    egolib_console_draw_all();
+    egolib_console_handler_t::draw_all();
 
     dunframe++;
     secframe++;
@@ -2057,7 +2057,7 @@ int SDL_main( int argcnt, char* argtext[] )
     setup_init_base_vfs_paths();
 
     // Register the logging code.
-    log_init("/debug/log.txt", LOG_INFO);
+    log_initialize("/debug/log.txt", LOG_INFO);
 
     if (!setup_read_vfs())
     {
@@ -2073,7 +2073,7 @@ int SDL_main( int argcnt, char* argtext[] )
     gfx_system_begin();
 
     // Begin the console.
-    egolib_console_begin();
+    egolib_console_handler_t::begin();
 
     // Load the module
     if ( !load_module( modulename, &mesh ) )

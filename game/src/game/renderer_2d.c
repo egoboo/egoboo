@@ -390,7 +390,7 @@ void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_fre
         else
         {
             GL_DEBUG( glEnable )( tex->base.target );                        // GL_ENABLE_BIT
-            oglx_texture_bind( tex );
+            oglx_texture_t::bind( tex );
         }
 
 		Ego::Renderer::get().setColour(tint);
@@ -398,7 +398,7 @@ void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_fre
         if ( use_alpha )
         {
             Ego::Renderer::get().setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
             Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT

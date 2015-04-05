@@ -34,14 +34,12 @@
 #include <windows.h>
 #endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static CONSTEXPR size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages
+static CONSTEXPR size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages.
 
-static vfs_FILE *logFile = nullptr;
-static LogLevel   _logLevel = LOG_WARNING;   ///default log level
+static vfs_FILE *logFile = nullptr;             ///< Log file.
+static LogLevel _logLevel = LOG_WARNING;        ///< Default log level.
 
-static int _atexit_registered = 0;
+static bool _atexit_registered = false;
 
 enum ConsoleColor
 {
@@ -53,12 +51,12 @@ enum ConsoleColor
 };
 
 /**
-* Setting console colours is not cross-platform, so we have to do it with macros
-**/
+ * Setting console colours is not cross-platform, so we have to do it with macros
+ */
 static void setConsoleColor(ConsoleColor color)
 {
 
-    //Windows implementation to set console colour
+    // Windows implementation to set console colour
 #ifdef _WIN32
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     switch(color)
@@ -82,7 +80,7 @@ static void setConsoleColor(ConsoleColor color)
     }
 #endif
 
-    //unix implementation to set console colour
+    // unix implementation to set console colour
 #if defined(__unix__)
     switch(color)
     {
@@ -110,13 +108,11 @@ static void setConsoleColor(ConsoleColor color)
 #endif
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 static void writeLogMessage(LogLevel logLevel, const char *format, va_list args)
 {
     char logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
 
-    //Add prefix
+    // Add prefix
     const char *prefix;
     switch(logLevel)
     {
@@ -143,123 +139,139 @@ static void writeLogMessage(LogLevel logLevel, const char *format, va_list args)
         default:
         case LOG_NONE:
             setConsoleColor(CONSOLE_TEXT_WHITE);
-            prefix = "";//no prefix
+            prefix = ""; // no prefix
         break;
     }
 
-    //Build log message
+    // Build log message
     vsnprintf(logBuffer, MAX_LOG_MESSAGE - 1, format, args);
 
     if (nullptr != logFile)
     {
-        //Log to file
+        // Log to file
         vfs_puts(prefix, logFile);
         vfs_puts(logBuffer, logFile);
     }
 
-    //Log to console
+    // Log to console
     fputs(prefix, stdout);
     fputs(logBuffer, stdout);
 
-    //Restore default color
+    // Restore default color
     setConsoleColor(CONSOLE_TEXT_DEFAULT);
 }
 
-//--------------------------------------------------------------------------------------------
-void log_init(const char *logname, LogLevel logLevel)
+void log_initialize(const char *logname, LogLevel logLevel)
 {
     _logLevel = logLevel;
 
     if (nullptr == logFile)
     {
         logFile = vfs_openWriteB(logname);
-        if (nullptr != logFile && !_atexit_registered)
+        if (!logFile)
         {
-            _atexit_registered = 1;
-            atexit( log_shutdown );
+            _logLevel = LOG_WARNING;
+            throw std::runtime_error("unable to initialize logging system");
         }
+    }
+    if (!_atexit_registered)
+    {
+        if (atexit(log_uninitialize))
+        {
+            vfs_close(logFile);
+            logFile = nullptr;
+            _logLevel = LOG_WARNING;
+            throw std::runtime_error("unable to initialize logging system");
+        }
+        _atexit_registered = true;
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void log_shutdown()
+void log_uninitialize()
 {
     if (nullptr != logFile)
     {
         vfs_close(logFile);
         logFile = nullptr;
     }
+    _logLevel = LOG_WARNING;
 }
 
-//--------------------------------------------------------------------------------------------
+void logv(LogLevel level, const char *format, va_list args)
+{
+    writeLogMessage(level, format, args);
+}
+
+void log(LogLevel level, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    writeLogMessage(level, format, args);
+    va_end(args);
+}
+
 void log_message(const char *format, ...)
 {
     va_list args;
-
     va_start(args, format);
-    writeLogMessage(LOG_NONE, format, args);
+    logv(LOG_NONE, format, args);
     va_end(args);
 }
 
-//--------------------------------------------------------------------------------------------
 void log_debug(const char *format, ...)
 {
-    va_list args;
-
-    // Only if developer mode is enabled
+    // Only if developer mode is enabled.
     if (!cfg.dev_mode) return;
 
+    va_list args;
     va_start(args, format);
     if (_logLevel >= LOG_DEBUG)
     {
-        writeLogMessage(LOG_DEBUG, format, args);
+        logv(LOG_DEBUG, format, args);
     }
     va_end(args);
 }
 
-//--------------------------------------------------------------------------------------------
 void log_info(const char *format, ...)
 {
-    va_list args;
     if (_logLevel >= LOG_INFO)
     {
+        va_list args;
         va_start(args, format);
-        writeLogMessage(LOG_INFO, format, args);
+        logv(LOG_INFO, format, args);
         va_end(args);
     }
 }
 
-//--------------------------------------------------------------------------------------------
 void log_warning(const char *format, ...)
 {
-    va_list args;
     if (_logLevel >= LOG_WARNING)
     {
+        va_list args;
         va_start(args, format);
-        writeLogMessage(LOG_WARNING, format, args);
+        logv(LOG_WARNING, format, args);
         va_end(args);
     }
 }
 
-//--------------------------------------------------------------------------------------------
 void log_error(const char *format, ...)
 {
     va_list args, args2;
 
-    va_start( args, format );
-    va_copy( args2, args );
-    writeLogMessage(LOG_ERROR, format, args );
+    va_start(args, format);
+    va_copy(args2, args);
+    logv(LOG_ERROR, format, args);
 
-    //Display an OS messagebox
-    sys_popup( "Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting. \nThis is the error report: \n", format, args2 );
+    // Display an OS messagebox.
+    sys_popup("Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting.\n"
+              "This is the error report: \n", format, args2 );
 
-    va_end( args );
-    va_end( args2 );
+    va_end(args);
+    va_end(args2);
 
     exit(EXIT_FAILURE);
 }
 
-//--------------------------------------------------------------------------------------------
 vfs_FILE *log_get_file()
 {
     return logFile;

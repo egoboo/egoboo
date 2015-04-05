@@ -123,7 +123,7 @@ lua_console_t * lua_console_ctor( lua_console_t * pcon, SDL_Rect Con_rect )
     pcon->L = lua_newthread( global_L );  /* create state */
     if ( NULL == pcon->L )
     {
-        egolib_console_fprint( &( pcon->base ), "lua_console_init() - cannot create Lua state\n" );
+        egolib_console_t::print(&(pcon->base), "lua_console_init() - cannot create Lua state\n");
         return pcon;
     }
 
@@ -212,7 +212,7 @@ int lua_console_report( lua_console_t * pcon, int status )
             msg = "(error object is not a string)";
         };
 
-        egolib_console_fprint( &( pcon->base ), "%s\n", msg );
+        egolib_console_t::print(&(pcon->base), "%s\n", msg);
 
         lua_pop( pcon->L, 1 );
     }
@@ -236,8 +236,8 @@ SDL_bool lua_console_run( egolib_console_t * ego_con, void * data )
 
     if ( status )
     {
-        egolib_console_fprint( ego_con, "Could not load the line \"%s\"\n", ego_con->buffer );
-        egolib_console_fprint( ego_con, "Lua status: \"%s\"\n", lua_tostring( lua_con->L, -1 ) );
+        egolib_console_t::print(ego_con, "Could not load the line \"%s\"\n", ego_con->buffer);
+        egolib_console_t::print(ego_con, "Lua status: \"%s\"\n", lua_tostring( lua_con->L, -1 ));
     }
     else
     {
@@ -271,11 +271,11 @@ int lua_console_print( lua_State * L )
         {
             return SDL_FALSE;
         }
-        if ( i > 1 ) egolib_console_fprint( ego_con, "    ", stdout );
-        egolib_console_fprint( ego_con, "%s", s );
+        if ( i > 1 ) egolib_console_t::print(ego_con, "    ", stdout);
+        egolib_console_t::print(ego_con, "%s", s);
         lua_pop( L, 1 );  /* pop result */
     }
-    egolib_console_fprint( ego_con, "\n" );
+    egolib_console_t::print(ego_con, "\n");
 
     return SDL_TRUE;
 }

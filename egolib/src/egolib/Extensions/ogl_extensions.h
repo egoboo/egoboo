@@ -135,7 +135,8 @@
         GLint     face[1];
         GLint     mode[1];
     };
-
-    void oglx_set_culling( oglx_culling_data_t * new_data, oglx_culling_data_t * old_data );
-    void oglx_begin_culling( GLenum which, GLenum mode );
-    void oglx_end_culling( void );
+#if 0
+    void oglx_set_culling(oglx_culling_data_t *new_data, oglx_culling_data_t *old_data);
+#endif
+    void oglx_begin_culling(GLenum which, GLenum mode );
+    void oglx_end_culling();

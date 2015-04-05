@@ -644,8 +644,9 @@ DECLARE_REF(ENC_REF);
 DECLARE_REF(MAD_REF);
 #define INVALID_MAD_REF ((MAD_REF)MAX_MAD)
 
+typedef Ref<REF_T, 0, MAX_PLAYER, MAX_PLAYER, RefKind::Player> PlayerRef;
 DECLARE_REF(PLA_REF);
-/// @todo PLA_REF has no corresponding INVALID_PLA_REF value.
+#define INVALID_PLA_REF ((PLA_REF)MAX_PLAYER)
 
 typedef Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile> ParticleProfileRef;
 DECLARE_REF(PIP_REF);

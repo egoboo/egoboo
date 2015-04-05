@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "egolib/Core/Enum.hpp"
-
 namespace Ego
 {
     /**
