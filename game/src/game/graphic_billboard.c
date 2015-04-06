@@ -126,8 +126,7 @@ bool billboard_data_t::update(billboard_data_t *self)
 
 bool billboard_data_t::printf_ttf(billboard_data_t *self, const std::shared_ptr<Ego::Font> &font, SDL_Color color, const char * format, ...)
 {
-    Ego::Math::Colour4f colour4(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1.0f);
-    
+    Ego::Math::Colour3f fontColour = Ego::Math::Colour3f::parse(color.r, color.g, color.b);
 
     if (!self || !self->valid)
     {
@@ -144,13 +143,8 @@ bool billboard_data_t::printf_ttf(billboard_data_t *self, const std::shared_ptr<
     vsnprintf(buffer, SDL_arraysize(buffer), format, args);
     va_end(args);
     
-    font->drawTextToTexture(ptex, buffer, colour4);
+    font->drawTextToTexture(ptex, buffer, fontColour);
 
-    ptex->base_valid = false;
-    oglx_grab_texture_state(GL_TEXTURE_2D, 0, ptex);
-
-    ptex->imgW  = ptex->surface->w;
-    ptex->imgH  = ptex->surface->h;
     strncpy(ptex->name, "billboard text", SDL_arraysize(ptex->name));
 
     return true;

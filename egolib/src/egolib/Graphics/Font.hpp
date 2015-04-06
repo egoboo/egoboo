@@ -42,11 +42,11 @@ namespace Ego
          * @param text
          *  the text to draw
          * @param[out] width
-         *  the width of the text box
+         *  the width of the text box (may be nullptr)
          * @param[out] height
-         *  the height of the text box
+         *  the height of the text box (may be nullptr)
          */
-        void getTextSize(const std::string &text, int *width = nullptr, int *height = nullptr) const;
+        void getTextSize(const std::string &text, int *width, int *height) const;
         
         /**
          * @brief
@@ -56,11 +56,11 @@ namespace Ego
          * @param spacing
          *  the spacing (in pixels) between each line
          * @param[out] width
-         *  the width of the text box
+         *  the width of the text box (may be nullptr)
          * @param[out] height
-         *  the height of the text box
+         *  the height of the text box (may be nullptr)
          */
-        void getTextBoxSize(const std::string &text, int spacing, int *width = nullptr, int *height = nullptr) const;
+        void getTextBoxSize(const std::string &text, int spacing, int *width, int *height) const;
         
         
         /**
@@ -74,7 +74,7 @@ namespace Ego
          *  the colour of the text (default white)
          */
         void drawTextToTexture(oglx_texture_t *tex, const std::string &text,
-                               const Ego::Math::Colour4f &color = Ego::Math::Colour4f::white()) const;
+                               const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white()) const;
         
 #if 0
         /**
@@ -95,7 +95,7 @@ namespace Ego
          *  the colour of the text (default white)
          */
         void drawTextBoxToTexture(oglx_texture_t *tex, const std::string &text, int width, int height, int spacing,
-                                  const Ego::Math::Colour4f &color = Ego::Math::Colour4f::WHITE) const;
+                                  const Ego::Math::Colour3f &color = Ego::Math::Colour3f::white()) const;
 #endif
         
         
