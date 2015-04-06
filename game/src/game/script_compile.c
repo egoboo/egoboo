@@ -27,66 +27,751 @@
 #include "game/egoboo.h"
 #include "game/Profiles/_Include.hpp"
 
-//--------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------
-
-struct s_token;
-typedef struct s_token token_t;
-
-//--------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------
-
-/// The description of a single pre-defined egoscript token
-struct s_token
+struct aicode_t
 {
-    int    iLine;                       ///< Line number
-    int    iIndex;
-    char   cType;                       ///< Constant, Variable, Function, etc.
-    int    iValue;                      ///< Integer value
-
-    size_t szWord_length;
-    STRING szWord;                      ///< The text representation
+    /// The type.
+    uint8_t _type;
+    /// The value of th constant.
+    uint32_t _value;
+    /// The name.
+    const char *_name;
 };
 
-token_t * token_ctor( token_t * pt );
-
-//--------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------
-
-// the current state of the parser
-struct s_parser_state
+static const aicode_t AICODES[] =
 {
-    bool       error;
-    token_t      token;
-    int          line_count;
-
-    size_t       line_buffer_count;
-    char         line_buffer[MAXLINESIZE];
-
-    size_t       load_buffer_count;
-    Uint8        load_buffer[AISMAXLOADSIZE];
+    { 'F', 0, "IfSpawned" },
+    { 'F', 1, "IfTimeOut" },
+    { 'F', 2, "IfAtWaypoint" },
+    { 'F', 3, "IfAtLastWaypoint" },
+    { 'F', 3, "IfPutAway" },
+    { 'F', 4, "IfAttacked" },
+    { 'F', 5, "IfBumped" },
+    { 'F', 6, "IfOrdered" },
+    { 'F', 7, "IfCalledForHelp" },
+    { 'F', 8, "SetContent" },
+    { 'F', 9, "IfKilled" },
+    { 'F', 10, "IfTargetKilled" },
+    { 'F', 11, "ClearWaypoints" },
+    { 'F', 12, "AddWaypoint" },
+    { 'F', 13, "FindPath" },
+    { 'F', 14, "Compass" },
+    { 'F', 15, "GetTargetArmorPrice" },
+    { 'F', 16, "SetTime" },
+    { 'F', 17, "GetContent" },
+    { 'F', 18, "JoinTargetTeam" },
+    { 'F', 19, "SetTargetToNearbyEnemy" },
+    { 'F', 20, "SetTargetToTargetLeftHand" },
+    { 'F', 21, "SetTargetToTargetRightHand" },
+    { 'F', 22, "SetTargetToWhoeverAttacked" },
+    { 'F', 22, "SetTargetToWhoeverHealed" },
+    { 'F', 23, "SetTargetToWhoeverBumped" },
+    { 'F', 24, "SetTargetToWhoeverCalledForHelp" },
+    { 'F', 25, "SetTargetToOldTarget" },
+    { 'F', 26, "SetTurnModeToVelocity" },
+    { 'F', 27, "SetTurnModeToWatch" },
+    { 'F', 28, "SetTurnModeToSpin" },
+    { 'F', 29, "SetBumpHeight" },
+    { 'F', 30, "IfTargetHasID" },
+    { 'F', 31, "IfTargetHasItemID" },
+    { 'F', 32, "IfTargetHoldingItemID" },
+    { 'F', 33, "IfTargetHasSkillID" },
+    { 'F', 34, "Else" },
+    { 'F', 35, "Run" },
+    { 'F', 36, "Walk" },
+    { 'F', 37, "Sneak" },
+    { 'F', 38, "DoAction" },
+    { 'F', 39, "KeepAction" },
+    { 'F', 40, "IssueOrder" },
+    { 'F', 41, "DropWeapons" },
+    { 'F', 42, "TargetDoAction" },
+    { 'F', 43, "OpenPassage" },
+    { 'F', 44, "ClosePassage" },
+    { 'F', 45, "IfPassageOpen" },
+    { 'F', 46, "GoPoof" },
+    { 'F', 47, "CostTargetItemID" },
+    { 'F', 48, "DoActionOverride" },
+    { 'F', 49, "IfHealed" },
+    { 'F', 50, "SendMessage" },
+    { 'F', 51, "CallForHelp" },
+    { 'F', 52, "AddIDSZ" },
+    { 'F', 53, "End" },
+    { 'F', 54, "SetState" },
+    { 'F', 55, "GetState" },
+    { 'F', 56, "IfStateIs" },
+    { 'F', 57, "IfTargetCanOpenStuff" },
+    { 'F', 58, "IfGrabbed" },
+    { 'F', 58, "IfMounted" },
+    { 'F', 59, "IfDropped" },
+    { 'F', 59, "IfDismounted" },
+    { 'F', 60, "SetTargetToWhoeverIsHolding" },
+    { 'F', 61, "DamageTarget" },
+    { 'F', 62, "IfXIsLessThanY" },
+    { 'F', 62, "IfYIsMoreThanX" },
+    { 'F', 63, "SetWeatherTime" },
+    { 'F', 64, "GetBumpHeight" },
+    { 'F', 65, "IfReaffirmed" },
+    { 'F', 66, "UnkeepAction" },
+    { 'F', 67, "IfTargetIsOnOtherTeam" },
+    { 'F', 68, "IfTargetIsOnHatedTeam" },
+    { 'F', 69, "PressLatchButton" },
+    { 'F', 70, "SetTargetToTargetOfLeader" },
+    { 'F', 71, "IfLeaderKilled" },
+    { 'F', 72, "BecomeLeader" },
+    { 'F', 73, "ChangeTargetArmor" },
+    { 'F', 74, "GiveMoneyToTarget" },
+    { 'F', 75, "DropKeys" },
+    { 'F', 76, "IfLeaderIsAlive" },
+    { 'F', 77, "IfTargetIsOldTarget" },
+    { 'F', 78, "SetTargetToLeader" },
+    { 'F', 79, "SpawnCharacter" },
+    { 'F', 80, "RespawnCharacter" },
+    { 'F', 81, "ChangeTile" },
+    { 'F', 82, "IfUsed" },
+    { 'F', 83, "DropMoney" },
+    { 'F', 84, "SetOldTarget" },
+    { 'F', 85, "DetachFromHolder" },
+    { 'F', 86, "IfTargetHasVulnerabilityID" },
+    { 'F', 87, "CleanUp" },
+    { 'F', 88, "IfCleanedUp" },
+    { 'F', 89, "IfSitting" },
+    { 'F', 89, "IfHeld" },
+    { 'F', 90, "IfTargetIsHurt" },
+    { 'F', 91, "IfTargetIsAPlayer" },
+    { 'F', 92, "PlaySound" },
+    { 'F', 93, "SpawnParticle" },
+    { 'F', 94, "IfTargetIsAlive" },
+    { 'F', 95, "Stop" },
+    { 'F', 96, "DisaffirmCharacter" },
+    { 'F', 97, "ReaffirmCharacter" },
+    { 'F', 98, "IfTargetIsSelf" },
+    { 'F', 99, "IfTargetIsMale" },
+    { 'F', 100, "IfTargetIsFemale" },
+    { 'F', 101, "SetTargetToSelf" },
+    { 'F', 102, "SetTargetToRider" },
+    { 'F', 103, "GetAttackTurn" },
+    { 'F', 104, "GetDamageType" },
+    { 'F', 105, "BecomeSpell" },
+    { 'F', 106, "BecomeSpellbook" },
+    { 'F', 107, "IfScoredAHit" },
+    { 'F', 108, "IfDisaffirmed" },
+    { 'F', 109, "TranslateOrder" },
+    { 'F', 110, "SetTargetToWhoeverWasHit" },
+    { 'F', 111, "SetTargetToWideEnemy" },
+    { 'F', 112, "IfChanged" },
+    { 'F', 113, "IfInWater" },
+    { 'F', 114, "IfBored" },
+    { 'F', 115, "IfTooMuchBaggage" },
+    { 'F', 116, "IfGrogged" },
+    { 'F', 117, "IfDazed" },
+    { 'F', 118, "IfTargetHasSpecialID" },
+    { 'F', 119, "PressTargetLatchButton" },
+    { 'F', 120, "IfInvisible" },
+    { 'F', 121, "IfArmorIs" },
+    { 'F', 122, "GetTargetGrogTime" },
+    { 'F', 123, "GetTargetDazeTime" },
+    { 'F', 124, "SetDamageType" },
+    { 'F', 125, "SetWaterLevel" },
+    { 'F', 126, "EnchantTarget" },
+    { 'F', 127, "EnchantChild" },
+    { 'F', 128, "TeleportTarget" },
+    { 'F', 129, "GiveExperienceToTarget" },
+    { 'F', 130, "IncreaseAmmo" },
+    { 'F', 131, "UnkurseTarget" },
+    { 'F', 132, "GiveExperienceToTargetTeam" },
+    { 'F', 133, "IfUnarmed" },
+    { 'F', 134, "RestockTargetAmmoIDAll" },
+    { 'F', 135, "RestockTargetAmmoIDFirst" },
+    { 'F', 136, "FlashTarget" },
+    { 'F', 137, "SetRedShift" },
+    { 'F', 138, "SetGreenShift" },
+    { 'F', 139, "SetBlueShift" },
+    { 'F', 140, "SetLight" },
+    { 'F', 141, "SetAlpha" },
+    { 'F', 142, "IfHitFromBehind" },
+    { 'F', 143, "IfHitFromFront" },
+    { 'F', 144, "IfHitFromLeft" },
+    { 'F', 145, "IfHitFromRight" },
+    { 'F', 146, "IfTargetIsOnSameTeam" },
+    { 'F', 147, "KillTarget" },
+    { 'F', 148, "UndoEnchant" },
+    { 'F', 149, "GetWaterLevel" },
+    { 'F', 150, "CostTargetMana" },
+    { 'F', 151, "IfTargetHasAnyID" },
+    { 'F', 152, "SetBumpSize" },
+    { 'F', 153, "IfNotDropped" },
+    { 'F', 154, "IfYIsLessThanX" },
+    { 'F', 154, "IfXIsMoreThanY" },
+    { 'F', 155, "SetFlyHeight" },
+    { 'F', 156, "IfBlocked" },
+    { 'F', 157, "IfTargetIsDefending" },
+    { 'F', 158, "IfTargetIsAttacking" },
+    { 'F', 159, "IfStateIs0" },
+    { 'F', 159, "IfStateIsParry" },
+    { 'F', 160, "IfStateIs1" },
+    { 'F', 160, "IfStateIsWander" },
+    { 'F', 161, "IfStateIs2" },
+    { 'F', 161, "IfStateIsGuard" },
+    { 'F', 162, "IfStateIs3" },
+    { 'F', 162, "IfStateIsFollow" },
+    { 'F', 163, "IfStateIs4" },
+    { 'F', 163, "IfStateIsSurround" },
+    { 'F', 164, "IfStateIs5" },
+    { 'F', 164, "IfStateIsRetreat" },
+    { 'F', 165, "IfStateIs6" },
+    { 'F', 165, "IfStateIsCharge" },
+    { 'F', 166, "IfStateIs7" },
+    { 'F', 166, "IfStateIsCombat" },
+    { 'F', 167, "IfContentIs" },
+    { 'F', 168, "SetTurnModeToWatchTarget" },
+    { 'F', 169, "IfStateIsNot" },
+    { 'F', 170, "IfXIsEqualToY" },
+    { 'F', 170, "IfYIsEqualToX" },
+    { 'F', 171, "DebugMessage" },
+    { 'F', 172, "BlackTarget" },
+    { 'F', 173, "SendMessageNear" },
+    { 'F', 174, "IfHitGround" },
+    { 'F', 175, "IfNameIsKnown" },
+    { 'F', 176, "IfUsageIsKnown" },
+    { 'F', 177, "IfHoldingItemID" },
+    { 'F', 178, "IfHoldingRangedWeapon" },
+    { 'F', 179, "IfHoldingMeleeWeapon" },
+    { 'F', 180, "IfHoldingShield" },
+    { 'F', 181, "IfKursed" },
+    { 'F', 182, "IfTargetIsKursed" },
+    { 'F', 183, "IfTargetIsDressedUp" },
+    { 'F', 184, "IfOverWater" },
+    { 'F', 185, "IfThrown" },
+    { 'F', 186, "MakeNameKnown" },
+    { 'F', 187, "MakeUsageKnown" },
+    { 'F', 188, "StopTargetMovement" },
+    { 'F', 189, "SetXY" },
+    { 'F', 190, "GetXY" },
+    { 'F', 191, "AddXY" },
+    { 'F', 192, "MakeAmmoKnown" },
+    { 'F', 193, "SpawnAttachedParticle" },
+    { 'F', 194, "SpawnExactParticle" },
+    { 'F', 195, "AccelerateTarget" },
+    { 'F', 196, "IfDistanceIsMoreThanTurn" },
+    { 'F', 197, "IfCrushed" },
+    { 'F', 198, "MakeCrushValid" },
+    { 'F', 199, "SetTargetToLowestTarget" },
+    { 'F', 200, "IfNotPutAway" },
+    { 'F', 200, "IfNotTakenOut" },
+    { 'F', 201, "IfTakenOut" },
+    { 'F', 202, "IfAmmoOut" },
+    { 'F', 203, "PlaySoundLooped" },
+    { 'F', 204, "StopSound" },
+    { 'F', 205, "HealSelf" },
+    { 'F', 206, "Equip" },
+    { 'F', 207, "IfTargetHasItemIDEquipped" },
+    { 'F', 208, "SetOwnerToTarget" },
+    { 'F', 209, "SetTargetToOwner" },
+    { 'F', 210, "SetFrame" },
+    { 'F', 211, "BreakPassage" },
+    { 'F', 212, "SetReloadTime" },
+    { 'F', 213, "SetTargetToWideBlahID" },
+    { 'F', 214, "PoofTarget" },
+    { 'F', 215, "ChildDoActionOverride" },
+    { 'F', 216, "SpawnPoof" },
+    { 'F', 217, "SetSpeedPercent" },
+    { 'F', 218, "SetChildState" },
+    { 'F', 219, "SpawnAttachedSizedParticle" },
+    { 'F', 220, "ChangeArmor" },
+    { 'F', 221, "ShowTimer" },
+    { 'F', 222, "IfFacingTarget" },
+    { 'F', 223, "PlaySoundVolume" },
+    { 'F', 224, "SpawnAttachedFacedParticle" },
+    { 'F', 225, "IfStateIsOdd" },
+    { 'F', 226, "SetTargetToDistantEnemy" },
+    { 'F', 227, "Teleport" },
+    { 'F', 228, "GiveStrengthToTarget" },
+    { 'F', 229, "GiveWisdomToTarget" },
+    { 'F', 230, "GiveIntelligenceToTarget" },
+    { 'F', 231, "GiveDexterityToTarget" },
+    { 'F', 232, "GiveLifeToTarget" },
+    { 'F', 233, "GiveManaToTarget" },
+    { 'F', 234, "ShowMap" },
+    { 'F', 235, "ShowYouAreHere" },
+    { 'F', 236, "ShowBlipXY" },
+    { 'F', 237, "HealTarget" },
+    { 'F', 238, "PumpTarget" },
+    { 'F', 239, "CostAmmo" },
+    { 'F', 240, "MakeSimilarNamesKnown" },
+    { 'F', 241, "SpawnAttachedHolderParticle" },
+    { 'F', 242, "SetTargetReloadTime" },
+    { 'F', 243, "SetFogLevel" },
+    { 'F', 244, "GetFogLevel" },
+    { 'F', 245, "SetFogTAD" },
+    { 'F', 246, "SetFogBottomLevel" },
+    { 'F', 247, "GetFogBottomLevel" },
+    { 'F', 248, "CorrectActionForHand" },
+    { 'F', 249, "IfTargetIsMounted" },
+    { 'F', 250, "SparkleIcon" },
+    { 'F', 251, "UnsparkleIcon" },
+    { 'F', 252, "GetTileXY" },
+    { 'F', 253, "SetTileXY" },
+    { 'F', 254, "SetShadowSize" },
+    { 'F', 255, "OrderTarget" },
+    { 'F', 256, "SetTargetToWhoeverIsInPassage" },
+    { 'F', 257, "IfCharacterWasABook" },
+    { 'F', 258, "SetEnchantBoostValues" },
+    { 'F', 259, "SpawnCharacterXYZ" },
+    { 'F', 260, "SpawnExactCharacterXYZ" },
+    { 'F', 261, "ChangeTargetClass" },
+    { 'F', 262, "PlayFullSound" },
+    { 'F', 263, "SpawnExactChaseParticle" },
+    { 'F', 264, "CreateOrder" },
+    { 'F', 265, "OrderSpecialID" },
+    { 'F', 266, "UnkurseTargetInventory" },
+    { 'F', 267, "IfTargetIsSneaking" },
+    { 'F', 268, "DropItems" },
+    { 'F', 269, "RespawnTarget" },
+    { 'F', 270, "TargetDoActionSetFrame" },
+    { 'F', 271, "IfTargetCanSeeInvisible" },
+    { 'F', 272, "SetTargetToNearestBlahID" },
+    { 'F', 273, "SetTargetToNearestEnemy" },
+    { 'F', 274, "SetTargetToNearestFriend" },
+    { 'F', 275, "SetTargetToNearestLifeform" },
+    { 'F', 276, "FlashPassage" },
+    { 'F', 277, "FindTileInPassage" },
+    { 'F', 278, "IfHeldInLeftHand" },
+    { 'F', 279, "NotAnItem" },
+    { 'F', 280, "SetChildAmmo" },
+    { 'F', 281, "IfHitVulnerable" },
+    { 'F', 282, "IfTargetIsFlying" },
+    { 'F', 283, "IdentifyTarget" },
+    { 'F', 284, "BeatModule" },
+    { 'F', 285, "EndModule" },
+    { 'F', 286, "DisableExport" },
+    { 'F', 287, "EnableExport" },
+    { 'F', 288, "GetTargetState" },
+    { 'F', 289, "IfEquipped" },
+    { 'F', 290, "DropTargetMoney" },
+    { 'F', 291, "GetTargetContent" },
+    { 'F', 292, "DropTargetKeys" },
+    { 'F', 293, "JoinTeam" },
+    { 'F', 294, "TargetJoinTeam" },
+    { 'F', 295, "ClearMusicPassage" },
+    { 'F', 296, "ClearEndMessage" },
+    { 'F', 297, "AddEndMessage" },
+    { 'F', 298, "PlayMusic" },
+    { 'F', 299, "SetMusicPassage" },
+    { 'F', 300, "MakeCrushInvalid" },
+    { 'F', 301, "StopMusic" },
+    { 'F', 302, "FlashVariable" },
+    { 'F', 303, "AccelerateUp" },
+    { 'F', 304, "FlashVariableHeight" },
+    { 'F', 305, "SetDamageTime" },
+    { 'F', 306, "IfStateIs8" },
+    { 'F', 307, "IfStateIs9" },
+    { 'F', 308, "IfStateIs10" },
+    { 'F', 309, "IfStateIs11" },
+    { 'F', 310, "IfStateIs12" },
+    { 'F', 311, "IfStateIs13" },
+    { 'F', 312, "IfStateIs14" },
+    { 'F', 313, "IfStateIs15" },
+    { 'F', 314, "IfTargetIsAMount" },
+    { 'F', 315, "IfTargetIsAPlatform" },
+    { 'F', 316, "AddStat" },
+    { 'F', 317, "DisenchantTarget" },
+    { 'F', 318, "DisenchantAll" },
+    { 'F', 319, "SetVolumeNearestTeammate" },
+    { 'F', 320, "AddShopPassage" },
+    { 'F', 321, "TargetPayForArmor" },
+    { 'F', 322, "JoinEvilTeam" },
+    { 'F', 323, "JoinNullTeam" },
+    { 'F', 324, "JoinGoodTeam" },
+    { 'F', 325, "PitsKill" },
+    { 'F', 326, "SetTargetToPassageID" },
+    { 'F', 327, "MakeNameUnknown" },
+    { 'F', 328, "SpawnExactParticleEndSpawn" },
+    { 'F', 329, "SpawnPoofSpeedSpacingDamage" },
+    { 'F', 330, "GiveExperienceToGoodTeam" },
+    { 'F', 331, "DoNothing" },
+    { 'F', 332, "GrogTarget" },
+    { 'F', 333, "DazeTarget" },
+    { 'F', 334, "EnableRespawn" },
+    { 'F', 335, "DisableRespawn" },
+    { 'F', 336, "DispelTargetEnchantID" },
+    { 'F', 337, "IfHolderBlocked" },
+    { 'F', 338, "GetTargetShieldProfiency" },
+    { 'F', 339, "IfTargetHasNotFullMana" },
+    { 'F', 340, "EnableListenSkill" },
+    { 'F', 341, "SetTargetToLastItemUsed" },
+    { 'F', 342, "FollowLink" },
+    { 'F', 343, "IfOperatorIsLinux" },
+    { 'F', 344, "IfTargetIsAWeapon" },
+    { 'F', 345, "IfSomeoneIsStealing" },
+    { 'F', 346, "IfTargetIsASpell" },
+    { 'F', 347, "IfBackstabbed" },
+    { 'F', 348, "GetTargetDamageType" },
+    { 'F', 349, "AddTargetQuest" },
+    { 'F', 350, "BeatQuestAllPlayers" },
+    { 'F', 351, "IfTargetHasQuest" },
+    { 'F', 352, "SetTargetQuestLevel" },
+    { 'F', 353, "AddQuestAllPlayers" },
+    { 'F', 354, "AddBlipAllEnemies" },
+    { 'F', 355, "PitsFall" },
+    { 'F', 356, "IfTargetIsOwner" },
+    { 'F', 357, "SetSpeech" },
+    { 'F', 364, "TakePicture" },
+    { 'F', 365, "IfOperatorIsMacintosh" },
+    { 'F', 366, "IfModuleHasIDSZ" },
+    { 'F', 367, "MorphToTarget" },
+    { 'F', 368, "GiveManaFlowToTarget" },
+    { 'F', 369, "GiveManaReturnToTarget" },
+    { 'F', 370, "SetMoney" },
+    { 'F', 371, "IfTargetCanSeeKurses" },
+    { 'F', 372, "SpawnAttachedCharacter" },
+    { 'F', 373, "KurseTarget" },
+    { 'F', 374, "SetChildContent" },
+    { 'F', 375, "SetTargetToChild" },
+    { 'F', 376, "SetDamageThreshold" },
+    { 'F', 377, "AccelerateTargetUp" },
+    { 'F', 378, "SetTargetAmmo" },
+    { 'F', 379, "EnableInvictus" },
+    { 'F', 380, "DisableInvictus" },
+    { 'F', 381, "TargetDamageSelf" },
+    { 'F', 382, "SetTargetSize" },
+    { 'F', 383, "IfTargetIsFacingSelf" },
+    { 'F', 384, "DrawBillboard" },
+    { 'F', 385, "SetTargetToBlahInPassage" },
+    { 'F', 386, "IfLevelUp" },
+    { 'F', 387, "GiveSkillToTarget" },
+    { 'F', 388, "SetTargetToNearbyMeleeWeapon" },
+    { 'C', 1, "BLAHDEAD" },
+    { 'C', 2, "BLAHENEMIES" },
+    { 'C', 4, "BLAHFRIENDS" },
+    { 'C', 8, "BLAHITEMS" },
+    { 'C', 16, "BLAHINVERTID" },
+    { 'C', 32, "BLAHPLAYERS" },
+    { 'C', 64, "BLAHSKILL" },
+    { 'C', 128, "BLAHQUEST" },
+    { 'C', 0, "STATEPARRY" },
+    { 'C', 1, "STATEWANDER" },
+    { 'C', 2, "STATEGUARD" },
+    { 'C', 3, "STATEFOLLOW" },
+    { 'C', 4, "STATESURROUND" },
+    { 'C', 5, "STATERETREAT" },
+    { 'C', 6, "STATECHARGE" },
+    { 'C', 7, "STATECOMBAT" },
+    { 'C', 4, "GRIPONLY" },
+    { 'C', 4, "GRIPLEFT" },
+    { 'C', 8, "GRIPRIGHT" },
+    { 'C', 0, "SPAWNORIGIN" },
+    { 'C', 1, "SPAWNLAST" },
+    { 'C', 0, "LATCHLEFT" },
+    { 'C', 1, "LATCHRIGHT" },
+    { 'C', 2, "LATCHJUMP" },
+    { 'C', 3, "LATCHALTLEFT" },
+    { 'C', 4, "LATCHALTRIGHT" },
+    { 'C', 5, "LATCHPACKLEFT" },
+    { 'C', 6, "LATCHPACKRIGHT" },
+    { 'C', 0, "DAMAGESLASH" },
+    { 'C', 1, "DAMAGECRUSH" },
+    { 'C', 2, "DAMAGEPOKE" },
+    { 'C', 3, "DAMAGEHOLY" },
+    { 'C', 4, "DAMAGEEVIL" },
+    { 'C', 5, "DAMAGEFIRE" },
+    { 'C', 6, "DAMAGEICE" },
+    { 'C', 7, "DAMAGEZAP" },
+    { 'C', 0, "ACTIONDA" },
+    { 'C', 1, "ACTIONDB" },
+    { 'C', 2, "ACTIONDC" },
+    { 'C', 3, "ACTIONDD" },
+    { 'C', 4, "ACTIONUA" },
+    { 'C', 5, "ACTIONUB" },
+    { 'C', 6, "ACTIONUC" },
+    { 'C', 7, "ACTIONUD" },
+    { 'C', 8, "ACTIONTA" },
+    { 'C', 9, "ACTIONTB" },
+    { 'C', 10, "ACTIONTC" },
+    { 'C', 11, "ACTIONTD" },
+    { 'C', 12, "ACTIONCA" },
+    { 'C', 13, "ACTIONCB" },
+    { 'C', 14, "ACTIONCC" },
+    { 'C', 15, "ACTIONCD" },
+    { 'C', 16, "ACTIONSA" },
+    { 'C', 17, "ACTIONSB" },
+    { 'C', 18, "ACTIONSC" },
+    { 'C', 19, "ACTIONSD" },
+    { 'C', 20, "ACTIONBA" },
+    { 'C', 21, "ACTIONBB" },
+    { 'C', 22, "ACTIONBC" },
+    { 'C', 23, "ACTIONBD" },
+    { 'C', 24, "ACTIONLA" },
+    { 'C', 25, "ACTIONLB" },
+    { 'C', 26, "ACTIONLC" },
+    { 'C', 27, "ACTIONLD" },
+    { 'C', 28, "ACTIONXA" },
+    { 'C', 29, "ACTIONXB" },
+    { 'C', 30, "ACTIONXC" },
+    { 'C', 31, "ACTIONXD" },
+    { 'C', 32, "ACTIONFA" },
+    { 'C', 33, "ACTIONFB" },
+    { 'C', 34, "ACTIONFC" },
+    { 'C', 35, "ACTIONFD" },
+    { 'C', 36, "ACTIONPA" },
+    { 'C', 37, "ACTIONPB" },
+    { 'C', 38, "ACTIONPC" },
+    { 'C', 39, "ACTIONPD" },
+    { 'C', 40, "ACTIONEA" },
+    { 'C', 41, "ACTIONEB" },
+    { 'C', 42, "ACTIONRA" },
+    { 'C', 43, "ACTIONZA" },
+    { 'C', 44, "ACTIONZB" },
+    { 'C', 45, "ACTIONZC" },
+    { 'C', 46, "ACTIONZD" },
+    { 'C', 47, "ACTIONWA" },
+    { 'C', 48, "ACTIONWB" },
+    { 'C', 49, "ACTIONWC" },
+    { 'C', 50, "ACTIONWD" },
+    { 'C', 51, "ACTIONJA" },
+    { 'C', 52, "ACTIONJB" },
+    { 'C', 53, "ACTIONJC" },
+    { 'C', 54, "ACTIONHA" },
+    { 'C', 55, "ACTIONHB" },
+    { 'C', 56, "ACTIONHC" },
+    { 'C', 57, "ACTIONHD" },
+    { 'C', 58, "ACTIONKA" },
+    { 'C', 59, "ACTIONKB" },
+    { 'C', 60, "ACTIONKC" },
+    { 'C', 61, "ACTIONKD" },
+    { 'C', 62, "ACTIONMA" },
+    { 'C', 63, "ACTIONMB" },
+    { 'C', 64, "ACTIONMC" },
+    { 'C', 65, "ACTIONMD" },
+    { 'C', 66, "ACTIONME" },
+    { 'C', 67, "ACTIONMF" },
+    { 'C', 68, "ACTIONMG" },
+    { 'C', 69, "ACTIONMH" },
+    { 'C', 70, "ACTIONMI" },
+    { 'C', 71, "ACTIONMJ" },
+    { 'C', 072, "ACTIONMK" },
+    { 'C', 073, "ACTIONML" },
+    { 'C', 074, "ACTIONMM" },
+    { 'C', 75, "ACTIONMN" },
+    { 'C', 0, "EXPSECRET" },
+    { 'C', 1, "EXPQUEST" },
+    { 'C', 2, "EXPDARE" },
+    { 'C', 3, "EXPKILL" },
+    { 'C', 4, "EXPMURDER" },
+    { 'C', 5, "EXPREVENGE" },
+    { 'C', 6, "EXPTEAMWORK" },
+    { 'C', 7, "EXPROLEPLAY" },
+    { 'C', 0, "MESSAGEDEATH" },
+    { 'C', 1, "MESSAGEHATE" },
+    { 'C', 2, "MESSAGEOUCH" },
+    { 'C', 3, "MESSAGEFRAG" },
+    { 'C', 4, "MESSAGEACCIDENT" },
+    { 'C', 5, "MESSAGECOSTUME" },
+    { 'C', 0, "ORDERMOVE" },
+    { 'C', 1, "ORDERATTACK" },
+    { 'C', 2, "ORDERASSIST" },
+    { 'C', 3, "ORDERSTAND" },
+    { 'C', 4, "ORDERTERRAIN" },
+    { 'C', 0, "WHITE" },
+    { 'C', 1, "RED" },
+    { 'C', 2, "YELLOW" },
+    { 'C', 3, "GREEN" },
+    { 'C', 4, "BLUE" },
+    { 'C', 5, "PURPLE" },
+    { 'C', 1, "FXNOREFLECT" },
+    { 'C', 2, "FXDRAWREFLECT" },
+    { 'C', 4, "FXANIM" },
+    { 'C', 8, "FXWATER" },
+    { 'C', 16, "FXBARRIER" },
+    { 'C', 32, "FXIMPASS" },
+    { 'C', 64, "FXDAMAGE" },
+    { 'C', 128, "FXSLIPPY" },
+    { 'C', 0, "TEAMA" },
+    { 'C', 1, "TEAMB" },
+    { 'C', 2, "TEAMC" },
+    { 'C', 3, "TEAMD" },
+    { 'C', 4, "TEAME" },
+    { 'C', 5, "TEAMF" },
+    { 'C', 6, "TEAMG" },
+    { 'C', 7, "TEAMH" },
+    { 'C', 8, "TEAMI" },
+    { 'C', 9, "TEAMJ" },
+    { 'C', 10, "TEAMK" },
+    { 'C', 11, "TEAML" },
+    { 'C', 12, "TEAMM" },
+    { 'C', 13, "TEAMN" },
+    { 'C', 14, "TEAMO" },
+    { 'C', 15, "TEAMP" },
+    { 'C', 16, "TEAMQ" },
+    { 'C', 17, "TEAMR" },
+    { 'C', 18, "TEAMS" },
+    { 'C', 19, "TEAMT" },
+    { 'C', 20, "TEAMU" },
+    { 'C', 21, "TEAMV" },
+    { 'C', 22, "TEAMW" },
+    { 'C', 23, "TEAMX" },
+    { 'C', 24, "TEAMY" },
+    { 'C', 25, "TEAMZ" },
+    { 'C', 1, "INVENTORY" },
+    { 'C', 2, "LEFT" },
+    { 'C', 3, "RIGHT" },
+    { 'C', 0, "EASY" },
+    { 'C', 1, "NORMAL" },
+    { 'C', 2, "HARD" },
+    { 'V', 0, "tmpx" },
+    { 'V', 1, "tmpy" },
+    { 'V', 2, "tmpdist" },
+    { 'V', 2, "tmpdistance" },
+    { 'V', 3, "tmpturn" },
+    { 'V', 4, "tmpargument" },
+    { 'V', 5, "rand" },
+    { 'V', 6, "selfx" },
+    { 'V', 7, "selfy" },
+    { 'V', 8, "selfturn" },
+    { 'V', 9, "selfcounter" },
+    { 'V', 10, "selforder" },
+    { 'V', 11, "selfmorale" },
+    { 'V', 12, "selflife" },
+    { 'V', 13, "targetx" },
+    { 'V', 14, "targety" },
+    { 'V', 15, "targetdistance" },
+    { 'V', 16, "targetturn" },
+    { 'V', 17, "leaderx" },
+    { 'V', 18, "leadery" },
+    { 'V', 19, "leaderdistance" },
+    { 'V', 20, "leaderturn" },
+    { 'V', 21, "gotox" },
+    { 'V', 22, "gotoy" },
+    { 'V', 23, "gotodistance" },
+    { 'V', 24, "targetturnto" },
+    { 'V', 25, "passage" },
+    { 'V', 26, "weight" },
+    { 'V', 27, "selfaltitude" },
+    { 'V', 28, "selfid" },
+    { 'V', 29, "selfhateid" },
+    { 'V', 30, "selfmana" },
+    { 'V', 31, "targetstr" },
+    { 'V', 32, "targetwis" },
+    { 'V', 33, "targetint" },
+    { 'V', 34, "targetdex" },
+    { 'V', 35, "targetlife" },
+    { 'V', 36, "targetmana" },
+    { 'V', 37, "targetlevel" },
+    { 'V', 38, "targetspeedx" },
+    { 'V', 39, "targetspeedy" },
+    { 'V', 40, "targetspeedz" },
+    { 'V', 41, "selfspawnx" },
+    { 'V', 42, "selfspawny" },
+    { 'V', 43, "selfstate" },
+    { 'V', 44, "selfstr" },
+    { 'V', 45, "selfwis" },
+    { 'V', 46, "selfint" },
+    { 'V', 47, "selfdex" },
+    { 'V', 48, "selfmanaflow" },
+    { 'V', 49, "targetmanaflow" },
+    { 'V', 50, "selfattached" },
+    { 'V', 51, "swingturn" },
+    { 'V', 52, "xydistance" },
+    { 'V', 53, "selfz" },
+    { 'V', 54, "targetaltitude" },
+    { 'V', 55, "targetz" },
+    { 'V', 56, "selfindex" },
+    { 'V', 57, "ownerx" },
+    { 'V', 58, "ownery" },
+    { 'V', 59, "ownerturn" },
+    { 'V', 60, "ownerdistance" },
+    { 'V', 61, "ownerturnto" },
+    { 'V', 62, "xyturnto" },
+    { 'V', 63, "selfmoney" },
+    { 'V', 64, "selfaccel" },
+    { 'V', 65, "targetexp" },
+    { 'V', 66, "selfammo" },
+    { 'V', 67, "targetammo" },
+    { 'V', 68, "targetmoney" },
+    { 'V', 69, "targetturnfrom" },
+    { 'V', 70, "selflevel" },
+    { 'V', 71, "targetreloadtime" },
+    { 'V', 72, "selfcontent" },
+    { 'V', 73, "spawndistance" },
+    { 'V', 74, "targetmaxlife" },
+    { 'V', 75, "targetteam" },
+    { 'V', 76, "targetarmor" },
+    { 'V', 77, "difficulty" },
+    { 'V', 78, "timehours" },
+    { 'V', 79, "timeminutes" },
+    { 'V', 80, "timeseconds" },
+    { 'V', 81, "datemonth" },
+    { 'V', 82, "dateday" },
+    { 'O', 0, "+" },
+    { 'O', 1, "-" },
+    { 'O', 2, "&" },
+    { 'O', 3, ">" },
+    { 'O', 4, "<" },
+    { 'O', 5, "*" },
+    { 'O', 6, "/" },
+    { 'O', 7, "%" },
 };
 
-parser_state_t *  parser_state_ctor( parser_state_t * ps )
+static bool load_ai_codes_vfs(const char* loadname);
+
+parser_state_t *parser_state_t::ctor(parser_state_t *self)
 {
-    if ( NULL == ps ) return NULL;
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
 
-    BLANK_STRUCT_PTR( ps )
+    BLANK_STRUCT_PTR(self);
 
-    // construct any sub-objects
-    token_ctor( &( ps->token ) );
+    // Construct the token.
+    token_t::ctor(&(self->token));
+
+    load_ai_codes_vfs("mp_data/aicodes.txt");
+    debug_script_file = vfs_openWrite("/debug/script_debug.txt");
 
     // just to be explicit
-    ps->error = false;
+    self->error = false;
 
-    return ps;
+    return self;
 }
 
-/// the parser singleton
-static parser_state_t _parser_state;
+void parser_state_t::dtor(parser_state_t *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+
+    BLANK_STRUCT_PTR(self);
+
+    // Destruct the token.
+    token_t::dtor(&(self->token));
+
+    vfs_close(debug_script_file);
+    debug_script_file = nullptr;
+
+    // just to be explicit
+    self->error = false;
+}
+
+bool parser_state_t::get_error(parser_state_t *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+    return self->error;
+}
+
+void parser_state_t::clear_error(parser_state_t *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+    self->error = false;
+}
 
 /// the pointer to the singleton
-static parser_state_t * _parser_state_ptr = NULL;
+parser_state_t * parser_state_t::_singleton = nullptr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -99,9 +784,9 @@ static script_info_t default_ai_script;
 StaticArray<opcode_data_t, MAX_OPCODE> OpList;
 
 bool debug_scripts = false;
-vfs_FILE * debug_script_file = NULL;
+vfs_FILE *debug_script_file = NULL;
 
-const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
+const char *script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 {
     /// Scripted AI functions (v0.10)
     "FIFSPAWNED",                          // == 0
@@ -532,8 +1217,6 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 
 static size_t       surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max );
 static size_t       insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max );
-static size_t       ai_goto_colon( size_t read, Uint8 buffer[], const size_t buffer_size );
-static egolib_rv    get_code( size_t read, Uint8 buffer[], const size_t buffer_size );
 static size_t       fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max );
 
 static size_t       load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript );
@@ -545,70 +1228,52 @@ static Uint32       jump_goto( int index, int index_end, script_info_t *pscript 
 static void         parse_jumps( script_info_t *pscript );
 static egolib_rv    ai_script_upload_default( script_info_t *pscript );
 
-static void load_ai_codes_vfs( const char* loadname );
+
 
 // functions for debugging the scripts
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
-static void print_token();
-static void print_line();
+    static void print_token();
+    static void print_line();
 #else
-#   define print_token()
-#   define print_line()
+    #define print_token()
+    #define print_line()
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-parser_state_t *  script_compiler_init()
+parser_state_t *parser_state_t::initialize()
 {
-    /// @author BB
-    /// @details initalize the sctipt compiling module
-
-    load_ai_codes_vfs( "mp_data/aicodes.txt" );
-
-    debug_script_file = vfs_openWrite("/debug/script_debug.txt");
-
-    // find the singleton
-    _parser_state_ptr = script_compiler_get_state();
-
-    // initialize the singleton
-    _parser_state_ptr = parser_state_ctor( _parser_state_ptr );
-
-    // return a pointer to the singleton
-    return _parser_state_ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-parser_state_t * script_compiler_get_state()
-{
-    // get a valid singleton
-
-    if ( NULL == _parser_state_ptr )
+    if (!_singleton)
     {
-        _parser_state_ptr = &_parser_state;
-
-        _parser_state_ptr = parser_state_ctor( _parser_state_ptr );
+        _singleton = (parser_state_t *)malloc(sizeof(parser_state_t));
+        if (!_singleton)
+        {
+            return nullptr;
+        }
+        if (!parser_state_t::ctor(_singleton))
+        {
+            free(_singleton);
+            _singleton = nullptr;
+            return nullptr;
+        }
     }
-
-    return _parser_state_ptr;
+    return _singleton;
 }
 
-//--------------------------------------------------------------------------------------------
-bool script_compiler_error( parser_state_t * ps )
+void parser_state_t::uninitialize()
 {
-    if ( NULL == ps ) return true;
-
-    return ps->error;
+    if (_singleton)
+    {
+        parser_state_t::dtor(_singleton);
+        free(_singleton);
+        _singleton = nullptr;
+    }
 }
 
-//--------------------------------------------------------------------------------------------
-bool script_compiler_clear_error( parser_state_t * ps )
+parser_state_t *parser_state_t::get()
 {
-    if ( NULL == ps ) return true;
-
-    ps->error = false;
-
-    return true;
+    return _singleton;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -899,7 +1564,7 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, script_info_t *pscript, size_t read )
+size_t parse_token(parser_state_t *self, token_t *ptok, ObjectProfile *ppro, script_info_t *pscript, size_t read)
 {
     /// @author ZZ
     /// @details This function tells what code is being indexed by read, it
@@ -914,33 +1579,37 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
     size_t       szWord_length_max = 0;
 
     // check for bad pointers
-    if ( NULL == ps || NULL == ptok || NULL == pscript ) return AISMAXLOADSIZE;
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+    if (!ptok || NULL == pscript ) return AISMAXLOADSIZE;
 
     // figure out what the max word length actually is
     szWord_length_max = SDL_arraysize( ptok->szWord );
 
     // Reset the token
-    token_ctor( ptok );
+    token_t::ctor( ptok );
 
     // Check bounds
-    if ( read >= ps->line_buffer_count )
+    if ( read >= self->line_buffer_count )
     {
-        return ps->line_buffer_count;
+        return self->line_buffer_count;
     }
 
     // nothing is parsed yet
     parsed = false;
 
     // Skip any initial spaces
-    cTmp = ps->line_buffer[read];
-    while (Ego::isspace(cTmp) && read < ps->line_buffer_count)
+    cTmp = self->line_buffer[read];
+    while (Ego::isspace(cTmp) && read < self->line_buffer_count)
     {
         read++;
-        cTmp = ps->line_buffer[read];
+        cTmp = self->line_buffer[read];
     }
 
     // break if there was nothing here
-    if ( read >= ps->line_buffer_count )
+    if ( read >= self->line_buffer_count )
     {
         goto parse_token_end;
     }
@@ -959,18 +1628,18 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
             ptok->szWord_length++;
 
             read++;
-            cTmp = ps->line_buffer[read];
+            cTmp = self->line_buffer[read];
 
             // Break out if we find the end of the string
             // Strings of the form "Here lies \"The Sandwich King\"" are not supported
         }
-        while ( CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count );
+        while ( CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && ptok->szWord_length < szWord_length_max && read < self->line_buffer_count );
 
         if ( C_DOUBLE_QUOTE_CHAR == cTmp )
         {
             // skip the ending qoutation mark
             read++;
-            cTmp = ps->line_buffer[read];
+            cTmp = self->line_buffer[read];
 
             ptok->szWord[ptok->szWord_length] = CSTR_END;
             ptok->szWord_length++;
@@ -986,13 +1655,13 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
         ptok->szWord_length = 0;
         ptok->szWord[0] = CSTR_END;
 
-        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count )
+        while (!Ego::isspace(cTmp) && CSTR_END != cTmp && ptok->szWord_length < szWord_length_max && read < self->line_buffer_count )
         {
             ptok->szWord[ptok->szWord_length] = cTmp;
             ptok->szWord_length++;
 
             read++;
-            cTmp = ps->line_buffer[read];
+            cTmp = self->line_buffer[read];
         }
 
         if ( ptok->szWord_length < szWord_length_max )
@@ -1149,7 +1818,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
         ptok->cType  = '?';
         ptok->iIndex = MAX_OPCODE;
 
-        ps->error = true;
+        self->error = true;
     }
 
 parse_token_end:
@@ -1416,107 +2085,20 @@ void parse_jumps( script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t ai_goto_colon( size_t read, Uint8 buffer[], const size_t buffer_size )
-{
-    /// @author ZZ
-    /// @details This function goes to spot after the next colon
-
-    char cTmp;
-
-    cTmp = buffer[read];
-
-    while ( ':' != cTmp && read < buffer_size )
-    {
-        read++;
-        cTmp = buffer[read];
-    }
-
-    if ( read < buffer_size )
-    {
-        read++;
-    }
-
-    return read;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv get_code( size_t read, Uint8 buffer[], const size_t buffer_size )
-{
-    /// @author ZZ
-    /// @details This function gets code names and other goodies
-
-    char cTmp;
-    int iTmp, fields;
-    STRING sTmp;
-    egolib_rv retval;
-
-    if ( NULL == buffer || 0 == buffer_size || read >= buffer_size )
-    {
-        // use rv_error to break out of the loop
-        return rv_error;
-    }
-
-    fields = sscanf(( char* )( buffer + read ), "%c%d%255s", &cTmp, &iTmp, sTmp );
-    if ( 3 == fields )
-    {
-        strncpy( OpList.ary[OpList.count].cName, sTmp, SDL_arraysize( OpList.ary[OpList.count].cName ) );
-        OpList.ary[OpList.count].cType  = Ego::toupper( cTmp );
-        OpList.ary[OpList.count].iValue = iTmp;
-
-        // use rv_success to signal a correct opcode
-        retval = rv_success;
-    }
-    else if ( 0 == strncmp(( char * )( buffer + read ), "END", 3 ) )
-    {
-        // use rv_error to break out of the loop
-        retval = rv_error;
-    }
-    else
-    {
-        // use rv_fail to indicate a bad opcode, but do not terminate the scanning
-        log_message( "SCRIPT ERROR: %s() - error loading an opcode definition.\n", __FUNCTION__ );
-        retval = rv_fail;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void load_ai_codes_vfs( const char* loadname )
+bool load_ai_codes_vfs(const char *loadname)
 {
     /// @author ZZ
     /// @details This function loads all of the function and variable names
 
-    vfs_FILE* fileread;
-    size_t read;
-
-    // make a stack-local buffer for reading in the file
-    int           tmp_buffer_size = 0;
-    Uint8       * tmp_buffer      = NULL;
-
-    tmp_buffer = EGOBOO_NEW_ARY( Uint8, AISMAXLOADSIZE );
-    if ( NULL == tmp_buffer ) return;
-    tmp_buffer_size = sizeof( Uint8 ) * AISMAXLOADSIZE;
-
     OpList.count = 0;
-    fileread = vfs_openRead( loadname );
-    if ( fileread )
+    for (size_t i = 0, n = sizeof(AICODES) / sizeof(aicode_t); i < n; ++i)
     {
-        tmp_buffer_size = ( int )vfs_read( tmp_buffer, 1, AISMAXLOADSIZE, fileread );
-        read = 0;
-        read = ai_goto_colon( read, tmp_buffer, tmp_buffer_size );
-
-        while ( rv_error != get_code( read, tmp_buffer, tmp_buffer_size ) )
-        {
-            OpList.count++;
-            read = ai_goto_colon( read, tmp_buffer, tmp_buffer_size );
-        }
-
-        vfs_close( fileread );
+        strncpy(OpList.ary[OpList.count].cName, AICODES[i]._name, SDL_arraysize(OpList.ary[OpList.count].cName));
+        OpList.ary[OpList.count].cType = AICODES[i]._type;
+        OpList.ary[OpList.count].iValue = AICODES[i]._value;
+        OpList.count++;
     }
-
-    EGOBOO_DELETE_ARY( tmp_buffer );
-    tmp_buffer_size = 0;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1596,21 +2178,7 @@ egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, ObjectP
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-token_t * token_ctor( token_t * pt )
-{
-    if ( NULL == pt ) return NULL;
 
-    // blank every thing
-    BLANK_STRUCT_PTR( pt )
-
-    // to be explicit
-    pt->iIndex   = MAX_OPCODE;
-    pt->iValue   = 0;
-    pt->cType    = '?';
-    pt->szWord[0] = CSTR_END;
-
-    return pt;
-}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1657,729 +2225,3 @@ void print_line( parser_state_t * ps )
 }
 
 #endif
-
-/** Preparation for eliminating aicodes.txt except for introducing aliases
-DEFINE_FUNCTION( FIFSPAWNED,                       "IfSpawned"    )                          // == 0
-DEFINE_FUNCTION( FIFTIMEOUT,                       "IfTimeOut"    )                              // == 1
-DEFINE_FUNCTION( FIFATWAYPOINT,                    "IfAtWaypoint"    )                           // == 2
-DEFINE_FUNCTION( FIFATLASTWAYPOINT,                "IfAtLastWaypoint"    )                       // == 3
-DEFINE_FUNCTION( FIFATTACKED,                      "IfAttacked"    )                             // == 4
-DEFINE_FUNCTION( FIFBUMPED,                        "IfBumped"    )                               // == 5
-DEFINE_FUNCTION( FIFORDERED,                       "IfOrdered"    )                              // == 6
-DEFINE_FUNCTION( FIFCALLEDFORHELP,                 "IfCalledForHelp"    )                        // == 7
-DEFINE_FUNCTION( FSETCONTENT,                      "SetContent"    )                             // == 8
-DEFINE_FUNCTION( FIFKILLED,                        "IfKilled"    )                               // == 9
-DEFINE_FUNCTION( FIFTARGETKILLED,                  "IfTargetKilled"    )                         // == 10
-DEFINE_FUNCTION( FCLEARWAYPOINTS,                  "ClearWaypoints"    )                         // == 11
-DEFINE_FUNCTION( FADDWAYPOINT,                     "AddWaypoint"    )                            // == 12
-DEFINE_FUNCTION( FFINDPATH,                        "FindPath"    )                               // == 13
-DEFINE_FUNCTION( FCOMPASS,                         "Compass"    )                                // == 14
-DEFINE_FUNCTION( FGETTARGETARMORPRICE,             "GetTargetArmorPrice"    )                    // == 15
-DEFINE_FUNCTION( FSETTIME,                         "SetTime"    )                                // == 16
-DEFINE_FUNCTION( FGETCONTENT,                      "GetContent"    )                             // == 17
-DEFINE_FUNCTION( FJOINTARGETTEAM,                  "JoinTargetTeam"    )                         // == 18
-DEFINE_FUNCTION( FSETTARGETTONEARBYENEMY,          "SetTargetToNearbyEnemy"    )                 // == 19
-DEFINE_FUNCTION( FSETTARGETTOTARGETLEFTHAND,       "SetTargetToTargetLeftHand"    )              // == 20
-DEFINE_FUNCTION( FSETTARGETTOTARGETRIGHTHAND,      "SetTargetToTargetRightHand"    )             // == 21
-DEFINE_FUNCTION( FSETTARGETTOWHOEVERATTACKED,      "SetTargetToWhoeverAttacked"    )             // == 22
-DEFINE_FUNCTION( FSETTARGETTOWHOEVERBUMPED,        "SetTargetToWhoeverBumped"    )               // == 23
-DEFINE_FUNCTION( FSETTARGETTOWHOEVERCALLEDFORHELP, "SetTargetToWhoeverCalledForHelp"    )        // == 24
-DEFINE_FUNCTION( FSETTARGETTOOLDTARGET,            "SetTargetToOldTarget"    )                   // == 25
-DEFINE_FUNCTION( FSETTURNMODETOVELOCITY,           "SetTurnModeToVelocity"    )                  // == 26
-DEFINE_FUNCTION( FSETTURNMODETOWATCH,              "SetTurnModeToWatch"    )                     // == 27
-DEFINE_FUNCTION( FSETTURNMODETOSPIN,               "SetTurnModeToSpin"    )                      // == 28
-DEFINE_FUNCTION( FSETBUMPHEIGHT,                   "SetBumpHeight"    )                          // == 29
-DEFINE_FUNCTION( FIFTARGETHASID,                   "IfTargetHasID"    )                          // == 30
-DEFINE_FUNCTION( FIFTARGETHASITEMID,               "IfTargetHasItemID"    )                      // == 31
-DEFINE_FUNCTION( FIFTARGETHOLDINGITEMID,           "IfTargetHoldingItemID"    )                  // == 32
-DEFINE_FUNCTION( FIFTARGETHASSKILLID,              "IfTargetHasSkillID"    )                     // == 33
-DEFINE_FUNCTION( FELSE,                            "Else"    )                                   // == 34
-DEFINE_FUNCTION( FRUN,                             "Run"    )                                    // == 35
-DEFINE_FUNCTION( FWALK,                            "Walk"    )                                   // == 36
-DEFINE_FUNCTION( FSNEAK,                           "Sneak"    )                                  // == 37
-DEFINE_FUNCTION( FDOACTION,                        "DoAction"    )                               // == 38
-DEFINE_FUNCTION( FKEEPACTION,                      "KeepAction"    )                             // == 39
-DEFINE_FUNCTION( FISSUEORDER,                      "IssueOrder"    )                             // == 40
-DEFINE_FUNCTION( FDROPWEAPONS,                     "DropWeapons"    )                            // == 41
-DEFINE_FUNCTION( FTARGETDOACTION,                  "TargetDoAction"    )                         // == 42
-DEFINE_FUNCTION( FOPENPASSAGE,                     "OpenPassage"    )                            // == 43
-DEFINE_FUNCTION( FCLOSEPASSAGE,                    "ClosePassage"    )                           // == 44
-DEFINE_FUNCTION( FIFPASSAGEOPEN,                   "IfPassageOpen"    )                          // == 45
-DEFINE_FUNCTION( FGOPOOF,                          "GoPoof"    )                                 // == 46
-DEFINE_FUNCTION( FCOSTTARGETITEMID,                "CostTargetItemID"    )                       // == 47
-DEFINE_FUNCTION( FDOACTIONOVERRIDE,                "DoActionOverride"    )                       // == 48
-DEFINE_FUNCTION( FIFHEALED,                        "IfHealed"    )                               // == 49
-DEFINE_FUNCTION( FSENDMESSAGE,                     "SendMessage"    )                            // == 50
-DEFINE_FUNCTION( FCALLFORHELP,                     "CallForHelp"    )                            // == 51
-DEFINE_FUNCTION( FADDIDSZ,                         "AddIDSZ"    )                                // == 52
-DEFINE_FUNCTION( FEND,                             "End"    )                                    // == 53
-DEFINE_FUNCTION( FSETSTATE,                        "SetState"    )                               // == 54
-DEFINE_FUNCTION( FGETSTATE,                        "GetState"    )                               // == 55
-DEFINE_FUNCTION( FIFSTATEIS,                       "IfStateIs"    )                              // == 56
-DEFINE_FUNCTION( FIFTARGETCANOPENSTUFF,            "IfTargetCanOpenStuff"    )                   // == 57
-DEFINE_FUNCTION( FIFGRABBED,                       "IfGrabbed"    )                              // == 58
-DEFINE_FUNCTION( FIFDROPPED,                       "IfDropped"    )                              // == 59
-DEFINE_FUNCTION( FSETTARGETTOWHOEVERISHOLDING,     "SetTargetToWhoeverIsHolding"    )            // == 60
-DEFINE_FUNCTION( FDAMAGETARGET,                    "DamageTarget"    )                           // == 61
-DEFINE_FUNCTION( FIFXISLESSTHANY,                  "IfXIsLessThanY"    )                         // == 62
-DEFINE_FUNCTION( FSETWEATHERTIME,                  "SetWeatherTime"    )                         // == 63
-DEFINE_FUNCTION( FGETBUMPHEIGHT,                   "GetBumpHeight"    )                          // == 64
-DEFINE_FUNCTION( FIFREAFFIRMED,                    "IfReaffirmed"    )                           // == 65
-DEFINE_FUNCTION( FUNKEEPACTION,                    "UnkeepAction"    )                           // == 66
-DEFINE_FUNCTION( FIFTARGETISONOTHERTEAM,           "IfTargetIsOnOtherTeam"    )                  // == 67
-DEFINE_FUNCTION( FIFTARGETISONHATEDTEAM,           "IfTargetIsOnHatedTeam"    )                  // == 68
-DEFINE_FUNCTION( FPRESSLATCHBUTTON,                "PressLatchButton"    )                       // == 69
-DEFINE_FUNCTION( FSETTARGETTOTARGETOFLEADER,       "SetTargetToTargetOfLeader"    )              // == 70
-DEFINE_FUNCTION( FIFLEADERKILLED,                  "IfLeaderKilled"    )                         // == 71
-DEFINE_FUNCTION( FBECOMELEADER,                    "BecomeLeader"    )                           // == 72
-DEFINE_FUNCTION( FCHANGETARGETARMOR,               "ChangeTargetArmor"    )                      // == 73
-DEFINE_FUNCTION( FGIVEMONEYTOTARGET,               "GiveMoneyToTarget"    )                      // == 74
-DEFINE_FUNCTION( FDROPKEYS,                        "DropKeys"    )                               // == 75
-DEFINE_FUNCTION( FIFLEADERISALIVE,                 "IfLeaderIsAlive"    )                        // == 76
-DEFINE_FUNCTION( FIFTARGETISOLDTARGET,             "IfTargetIsOldTarget"    )                    // == 77
-DEFINE_FUNCTION( FSETTARGETTOLEADER,               "SetTargetToLeader"    )                      // == 78
-DEFINE_FUNCTION( FSPAWNCHARACTER,                  "SpawnCharacter"    )                         // == 79
-DEFINE_FUNCTION( FRESPAWNCHARACTER,                "RespawnCharacter"    )                       // == 80
-DEFINE_FUNCTION( FCHANGETILE,                      "ChangeTile"    )                             // == 81
-DEFINE_FUNCTION( FIFUSED,                          "IfUsed"    )                                 // == 82
-DEFINE_FUNCTION( FDROPMONEY,                       "DropMoney"    )                              // == 83
-DEFINE_FUNCTION( FSETOLDTARGET,                    "SetOldTarget"    )                           // == 84
-DEFINE_FUNCTION( FDETACHFROMHOLDER,                "DetachFromHolder"    )                       // == 85
-DEFINE_FUNCTION( FIFTARGETHASVULNERABILITYID,      "IfTargetHasVulnerabilityID"    )             // == 86
-DEFINE_FUNCTION( FCLEANUP,                         "CleanUp"    )                                // == 87
-DEFINE_FUNCTION( FIFCLEANEDUP,                     "IfCleanedUp"    )                            // == 88
-DEFINE_FUNCTION( FIFSITTING,                       "IfSitting"    )                              // == 89
-DEFINE_FUNCTION( FIFTARGETISHURT,                  "IfTargetIsHurt"    )                         // == 90
-DEFINE_FUNCTION( FIFTARGETISAPLAYER,               "IfTargetIsAPlayer"    )                      // == 91
-DEFINE_FUNCTION( FPLAYSOUND,                       "PlaySound"    )                              // == 92
-DEFINE_FUNCTION( FSPAWNPARTICLE,                   "SpawnParticle"    )                          // == 93
-DEFINE_FUNCTION( FIFTARGETISALIVE,                 "IfTargetIsAlive"    )                        // == 94
-DEFINE_FUNCTION( FSTOP,                            "Stop"    )                                   // == 95
-DEFINE_FUNCTION( FDISAFFIRMCHARACTER,              "DisaffirmCharacter"    )                     // == 96
-DEFINE_FUNCTION( FREAFFIRMCHARACTER,               "ReaffirmCharacter"    )                      // == 97
-DEFINE_FUNCTION( FIFTARGETISSELF,                  "IfTargetIsSelf"    )                         // == 98
-DEFINE_FUNCTION( FIFTARGETISMALE,                  "IfTargetIsMale"    )                         // == 99
-DEFINE_FUNCTION( FIFTARGETISFEMALE,                "IfTargetIsFemale"    )                       // == 100
-DEFINE_FUNCTION( FSETTARGETTOSELF,                 "SetTargetToSelf"    )                        // == 101
-DEFINE_FUNCTION( FSETTARGETTORIDER,                "SetTargetToRider"    )                       // == 102
-DEFINE_FUNCTION( FGETATTACKTURN,                   "GetAttackTurn"    )                          // == 103
-DEFINE_FUNCTION( FGETDAMAGETYPE,                   "GetDamageType"    )                          // == 104
-DEFINE_FUNCTION( FBECOMESPELL,                    "BecomeSpell"    )                            // == 105
-DEFINE_FUNCTION( FBECOMESPELLBOOK,                "BecomeSpellbook"    )                        // == 106
-DEFINE_FUNCTION( FIFSCOREDAHIT,                   "IfScoredAHit"    )                           // == 107
-DEFINE_FUNCTION( FIFDISAFFIRMED,                  "IfDisaffirmed"    )                          // == 108
-DEFINE_FUNCTION( FTRANSLATEORDER,                 "TranslateOrder"    )                         // == 109
-DEFINE_FUNCTION( FSETTARGETTOWHOEVERWASHIT,       "SetTargetToWhoeverWasHit"    )               // == 110
-DEFINE_FUNCTION( FSETTARGETTOWIDEENEMY,           "SetTargetToWideEnemy"    )                   // == 111
-DEFINE_FUNCTION( FIFCHANGED,                      "IfChanged"    )                              // == 112
-DEFINE_FUNCTION( FIFINWATER,                      "IfInWater"    )                              // == 113
-DEFINE_FUNCTION( FIFBORED,                        "IfBored"    )                                // == 114
-DEFINE_FUNCTION( FIFTOOMUCHBAGGAGE,               "IfTooMuchBaggage"    )                       // == 115
-DEFINE_FUNCTION( FIFGROGGED,                      "IfGrogged"    )                              // == 116
-DEFINE_FUNCTION( FIFDAZED,                        "IfDazed"    )                                // == 117
-DEFINE_FUNCTION( FIFTARGETHASSPECIALID,           "IfTargetHasSpecialID"    )                   // == 118
-DEFINE_FUNCTION( FPRESSTARGETLATCHBUTTON,         "PressTargetLatchButton"    )                 // == 119
-DEFINE_FUNCTION( FIFINVISIBLE,                    "IfInvisible"    )                            // == 120
-DEFINE_FUNCTION( FIFARMORIS,    "IfArmorIs"    )                              // == 121
-DEFINE_FUNCTION( FGETTARGETGROGTIME,    "GetTargetGrogTime"    )                      // == 122
-DEFINE_FUNCTION( FGETTARGETDAZETIME,    "GetTargetDazeTime"    )                      // == 123
-DEFINE_FUNCTION( FSETDAMAGETYPE,    "SetDamageType"    )                          // == 124
-DEFINE_FUNCTION( FSETWATERLEVEL,    "SetWaterLevel"    )                          // == 125
-DEFINE_FUNCTION( FENCHANTTARGET,    "EnchantTarget"    )                          // == 126
-DEFINE_FUNCTION( FENCHANTCHILD,    "EnchantChild"    )                           // == 127
-DEFINE_FUNCTION( FTELEPORTTARGET,    "TeleportTarget"    )                         // == 128
-DEFINE_FUNCTION( FGIVEEXPERIENCETOTARGET,    "GiveExperienceToTarget"    )                 // == 129
-DEFINE_FUNCTION( FINCREASEAMMO,    "IncreaseAmmo"    )                           // == 130
-DEFINE_FUNCTION( FUNKURSETARGET,    "UnkurseTarget"    )                          // == 131
-DEFINE_FUNCTION( FGIVEEXPERIENCETOTARGETTEAM,    "GiveExperienceToTargetTeam"    )             // == 132
-DEFINE_FUNCTION( FIFUNARMED,    "IfUnarmed"    )                              // == 133
-DEFINE_FUNCTION( FRESTOCKTARGETAMMOIDALL,    "RestockTargetAmmoIDAll"    )                 // == 134
-DEFINE_FUNCTION( FRESTOCKTARGETAMMOIDFIRST,    "RestockTargetAmmoIDFirst"    )               // == 135
-DEFINE_FUNCTION( FFLASHTARGET,    "FlashTarget"    )                            // == 136
-DEFINE_FUNCTION( FSETREDSHIFT,    "SetRedShift"    )                            // == 137
-DEFINE_FUNCTION( FSETGREENSHIFT,    "SetGreenShift"    )                          // == 138
-DEFINE_FUNCTION( FSETBLUESHIFT,    "SetBlueShift"    )                           // == 139
-DEFINE_FUNCTION( FSETLIGHT,    "SetLight"    )                               // == 140
-DEFINE_FUNCTION( FSETALPHA,    "SetAlpha"    )                               // == 141
-DEFINE_FUNCTION( FIFHITFROMBEHIND,    "IfHitFromBehind"    )                        // == 142
-DEFINE_FUNCTION( FIFHITFROMFRONT,    "IfHitFromFront"    )                         // == 143
-DEFINE_FUNCTION( FIFHITFROMLEFT,    "IfHitFromLeft"    )                          // == 144
-DEFINE_FUNCTION( FIFHITFROMRIGHT,    "IfHitFromRight"    )                         // == 145
-DEFINE_FUNCTION( FIFTARGETISONSAMETEAM,    "IfTargetIsOnSameTeam"    )                   // == 146
-DEFINE_FUNCTION( FKILLTARGET,    "KillTarget"    )                             // == 147
-DEFINE_FUNCTION( FUNDOENCHANT,    "UndoEnchant"    )                            // == 148
-DEFINE_FUNCTION( FGETWATERLEVEL,    "GetWaterLevel"    )                          // == 149
-DEFINE_FUNCTION( FCOSTTARGETMANA,    "CostTargetMana"    )                         // == 150
-DEFINE_FUNCTION( FIFTARGETHASANYID,    "IfTargetHasAnyID"    )                       // == 151
-DEFINE_FUNCTION( FSETBUMPSIZE,    "SetBumpSize"    )                            // == 152
-DEFINE_FUNCTION( FIFNOTDROPPED,    "IfNotDropped"    )                           // == 153
-DEFINE_FUNCTION( FIFYISLESSTHANX,    "IfYIsLessThanX"    )                         // == 154
-DEFINE_FUNCTION( FSETFLYHEIGHT,    "SetFlyHeight"    )                           // == 155
-DEFINE_FUNCTION( FIFBLOCKED,    "IfBlocked"    )                              // == 156
-DEFINE_FUNCTION( FIFTARGETISDEFENDING,    "IfTargetIsDefending"    )                    // == 157
-DEFINE_FUNCTION( FIFTARGETISATTACKING,    "IfTargetIsAttacking"    )                    // == 158
-DEFINE_FUNCTION( FIFSTATEIS0,    "IfStateIs0"    )                             // == 159
-DEFINE_FUNCTION( FIFSTATEIS1,    "IfStateIs1"    )                             // == 160
-DEFINE_FUNCTION( FIFSTATEIS2,    "IfStateIs2"    )                             // == 161
-DEFINE_FUNCTION( FIFSTATEIS3,    "IfStateIs3"    )                             // == 162
-DEFINE_FUNCTION( FIFSTATEIS4,    "IfStateIs4"    )                             // == 163
-DEFINE_FUNCTION( FIFSTATEIS5,    "IfStateIs5"    )                             // == 164
-DEFINE_FUNCTION( FIFSTATEIS6,    "IfStateIs6"    )                             // == 165
-DEFINE_FUNCTION( FIFSTATEIS7,    "IfStateIs7"    )                             // == 166
-DEFINE_FUNCTION( FIFCONTENTIS,    "IfContentIs"    )                            // == 167
-DEFINE_FUNCTION( FSETTURNMODETOWATCHTARGET,    "SetTurnModeToWatchTarget"    )               // == 168
-DEFINE_FUNCTION( FIFSTATEISNOT,    "IfStateIsNot"    )                           // == 169
-DEFINE_FUNCTION( FIFXISEQUALTOY,    "IfXIsEqualToY"    )                          // == 170
-DEFINE_FUNCTION( FDEBUGMESSAGE,    "DebugMessage"    )                           // == 171
-DEFINE_FUNCTION( FBLACKTARGET,    "BlackTarget"    )                            // == 172
-DEFINE_FUNCTION( FSENDMESSAGENEAR,    "SendMessageNear"    )                        // == 173
-DEFINE_FUNCTION( FIFHITGROUND,    "IfHitGround"    )                            // == 174
-DEFINE_FUNCTION( FIFNAMEISKNOWN,    "IfNameIsKnown"    )                          // == 175
-DEFINE_FUNCTION( FIFUSAGEISKNOWN,    "IfUsageIsKnown"    )                         // == 176
-DEFINE_FUNCTION( FIFHOLDINGITEMID,    "IfHoldingItemID"    )                        // == 177
-DEFINE_FUNCTION( FIFHOLDINGRANGEDWEAPON,    "IfHoldingRangedWeapon"    )                  // == 178
-DEFINE_FUNCTION( FIFHOLDINGMELEEWEAPON,    "IfHoldingMeleeWeapon"    )                   // == 179
-DEFINE_FUNCTION( FIFHOLDINGSHIELD,    "IfHoldingShield"    )                        // == 180
-DEFINE_FUNCTION( FIFKURSED,    "IfKursed"    )                               // == 181
-DEFINE_FUNCTION( FIFTARGETISKURSED,    "IfTargetIsKursed"    )                       // == 182
-DEFINE_FUNCTION( FIFTARGETISDRESSEDUP,    "IfTargetIsDressedUp"    )                    // == 183
-DEFINE_FUNCTION( FIFOVERWATER,    "IfOverWater"    )                            // == 184
-DEFINE_FUNCTION( FIFTHROWN,    "IfThrown"    )                               // == 185
-DEFINE_FUNCTION( FMAKENAMEKNOWN,    "MakeNameKnown"    )                          // == 186
-DEFINE_FUNCTION( FMAKEUSAGEKNOWN,    "MakeUsageKnown"    )                         // == 187
-DEFINE_FUNCTION( FSTOPTARGETMOVEMENT,    "StopTargetMovement"    )                     // == 188
-DEFINE_FUNCTION( FSETXY,    "SetXY"    )                                  // == 189
-DEFINE_FUNCTION( FGETXY,    "GetXY"    )                                  // == 190
-DEFINE_FUNCTION( FADDXY,    "AddXY"    )                                  // == 191
-DEFINE_FUNCTION( FMAKEAMMOKNOWN,    "MakeAmmoKnown"    )                          // == 192
-DEFINE_FUNCTION( FSPAWNATTACHEDPARTICLE,    "SpawnAttachedParticle"    )                  // == 193
-DEFINE_FUNCTION( FSPAWNEXACTPARTICLE,    "SpawnExactParticle"    )                     // == 194
-DEFINE_FUNCTION( FACCELERATETARGET,    "AccelerateTarget"    )                       // == 195
-DEFINE_FUNCTION( FIFDISTANCEISMORETHANTURN,    "IfDistanceIsMoreThanTurn"    )               // == 196
-DEFINE_FUNCTION( FIFCRUSHED,    "IfCrushed"    )                              // == 197
-DEFINE_FUNCTION( FMAKECRUSHVALID,    "MakeCrushValid"    )                         // == 198
-DEFINE_FUNCTION( FSETTARGETTOLOWESTTARGET,    "SetTargetToLowestTarget"    )                // == 199
-DEFINE_FUNCTION( FIFNOTPUTAWAY,    "IfNotPutAway"    )                           // == 200
-DEFINE_FUNCTION( FIFTAKENOUT,    "IfTakenOut"    )                             // == 201
-DEFINE_FUNCTION( FIFAMMOOUT,    "IfAmmoOut"    )                              // == 202
-DEFINE_FUNCTION( FPLAYSOUNDLOOPED,    "PlaySoundLooped"    )                        // == 203
-DEFINE_FUNCTION( FSTOPSOUND,    "StopSound"    )                              // == 204
-DEFINE_FUNCTION( FHEALSELF,    "HealSelf"    )                               // == 205
-DEFINE_FUNCTION( FEQUIP,    "Equip"    )                                  // == 206
-DEFINE_FUNCTION( FIFTARGETHASITEMIDEQUIPPED,    "IfTargetHasItemIDEquipped"    )              // == 207
-DEFINE_FUNCTION( FSETOWNERTOTARGET,    "SetOwnerToTarget"    )                       // == 208
-DEFINE_FUNCTION( FSETTARGETTOOWNER,    "SetTargetToOwner"    )                       // == 209
-DEFINE_FUNCTION( FSETFRAME,    "SetFrame"    )                               // == 210
-DEFINE_FUNCTION( FBREAKPASSAGE,    "BreakPassage"    )                           // == 211
-DEFINE_FUNCTION( FSETRELOADTIME,    "SetReloadTime"    )                          // == 212
-DEFINE_FUNCTION( FSETTARGETTOWIDEBLAHID,    "SetTargetToWideBlahID"    )                  // == 213
-DEFINE_FUNCTION( FPOOFTARGET,    "PoofTarget"    )                             // == 214
-DEFINE_FUNCTION( FCHILDDOACTIONOVERRIDE,    "ChildDoActionOverride"    )                  // == 215
-DEFINE_FUNCTION( FSPAWNPOOF,    "SpawnPoof"    )                              // == 216
-DEFINE_FUNCTION( FSETSPEEDPERCENT,    "SetSpeedPercent"    )                        // == 217
-DEFINE_FUNCTION( FSETCHILDSTATE,    "SetChildState"    )                          // == 218
-DEFINE_FUNCTION( FSPAWNATTACHEDSIZEDPARTICLE,    "SpawnAttachedSizedParticle"    )             // == 219
-DEFINE_FUNCTION( FCHANGEARMOR,    "ChangeArmor"    )                            // == 220
-DEFINE_FUNCTION( FSHOWTIMER,    "ShowTimer"    )                              // == 221
-DEFINE_FUNCTION( FIFFACINGTARGET,    "IfFacingTarget"    )                         // == 222
-DEFINE_FUNCTION( FPLAYSOUNDVOLUME,    "PlaySoundVolume"    )                        // == 223
-DEFINE_FUNCTION( FSPAWNATTACHEDFACEDPARTICLE,    "SpawnAttachedFacedParticle"    )             // == 224
-DEFINE_FUNCTION( FIFSTATEISODD,    "IfStateIsOdd"    )                           // == 225
-DEFINE_FUNCTION( FSETTARGETTODISTANTENEMY,    "SetTargetToDistantEnemy"    )                // == 226
-DEFINE_FUNCTION( FTELEPORT,    "Teleport"    )                               // == 227
-DEFINE_FUNCTION( FGIVESTRENGTHTOTARGET,    "GiveStrengthToTarget"    )                   // == 228
-DEFINE_FUNCTION( FGIVEWISDOMTOTARGET,    "GiveWisdomToTarget"    )                     // == 229
-DEFINE_FUNCTION( FGIVEINTELLIGENCETOTARGET,    "GiveIntelligenceToTarget"    )               // == 230
-DEFINE_FUNCTION( FGIVEDEXTERITYTOTARGET,    "GiveDexterityToTarget"    )                  // == 231
-DEFINE_FUNCTION( FGIVELIFETOTARGET,    "GiveLifeToTarget"    )                       // == 232
-DEFINE_FUNCTION( FGIVEMANATOTARGET,    "GiveManaToTarget"    )                       // == 233
-DEFINE_FUNCTION( FSHOWMAP,    "ShowMap"    )                                // == 234
-DEFINE_FUNCTION( FSHOWYOUAREHERE,    "ShowYouAreHere"    )                         // == 235
-DEFINE_FUNCTION( FSHOWBLIPXY,    "ShowBlipXY"    )                             // == 236
-DEFINE_FUNCTION( FHEALTARGET,    "HealTarget"    )                             // == 237
-DEFINE_FUNCTION( FPUMPTARGET,    "PumpTarget"    )                             // == 238
-DEFINE_FUNCTION( FCOSTAMMO,    "CostAmmo"    )                               // == 239
-DEFINE_FUNCTION( FMAKESIMILARNAMESKNOWN,    "MakeSimilarNamesKnown"    )                  // == 240
-DEFINE_FUNCTION( FSPAWNATTACHEDHOLDERPARTICLE,    "SpawnAttachedHolderParticle"    )            // == 241
-DEFINE_FUNCTION( FSETTARGETRELOADTIME,    "SetTargetReloadTime"    )                    // == 242
-DEFINE_FUNCTION( FSETFOGLEVEL,    "SetFogLevel"    )                            // == 243
-DEFINE_FUNCTION( FGETFOGLEVEL,    "GetFogLevel"    )                            // == 244
-DEFINE_FUNCTION( FSETFOGTAD,    "SetFogTAD"    )                              // == 245
-DEFINE_FUNCTION( FSETFOGBOTTOMLEVEL,    "SetFogBottomLevel"    )                      // == 246
-DEFINE_FUNCTION( FGETFOGBOTTOMLEVEL,    "GetFogBottomLevel"    )                      // == 247
-DEFINE_FUNCTION( FCORRECTACTIONFORHAND,    "CorrectActionForHand"    )                   // == 248
-DEFINE_FUNCTION( FIFTARGETISMOUNTED,    "IfTargetIsMounted"    )                      // == 249
-DEFINE_FUNCTION( FSPARKLEICON,    "SparkleIcon"    )                            // == 250
-DEFINE_FUNCTION( FUNSPARKLEICON,    "UnsparkleIcon"    )                          // == 251
-DEFINE_FUNCTION( FGETTILEXY,    "GetTileXY"    )                              // == 252
-DEFINE_FUNCTION( FSETTILEXY,    "SetTileXY"    )                              // == 253
-DEFINE_FUNCTION( FSETSHADOWSIZE,    "SetShadowSize"    )                          // == 254
-DEFINE_FUNCTION( FORDERTARGET,    "OrderTarget"    )                            // == 255
-DEFINE_FUNCTION( FSETTARGETTOWHOEVERISINPASSAGE,    "SetTargetToWhoeverIsInPassage"    )          // == 256
-DEFINE_FUNCTION( FIFCHARACTERWASABOOK,    "IfCharacterWasABook"    )                    // == 257
-DEFINE_FUNCTION( FSETENCHANTBOOSTVALUES,    "SetEnchantBoostValues"    )                  // == 258
-DEFINE_FUNCTION( FSPAWNCHARACTERXYZ,    "SpawnCharacterXYZ"    )                      // == 259
-DEFINE_FUNCTION( FSPAWNEXACTCHARACTERXYZ,    "SpawnExactCharacterXYZ"    )                 // == 260
-DEFINE_FUNCTION( FCHANGETARGETCLASS,    "ChangeTargetClass"    )                      // == 261
-DEFINE_FUNCTION( FPLAYFULLSOUND,    "PlayFullSound"    )                          // == 262
-DEFINE_FUNCTION( FSPAWNEXACTCHASEPARTICLE,    "SpawnExactChaseParticle"    )                // == 263
-DEFINE_FUNCTION( FCREATEORDER,    "CreateOrder"    )                            // == 264
-DEFINE_FUNCTION( FORDERSPECIALID,    "OrderSpecialID"    )                         // == 265
-DEFINE_FUNCTION( FUNKURSETARGETINVENTORY,    "UnkurseTargetInventory"    )                 // == 266
-DEFINE_FUNCTION( FIFTARGETISSNEAKING,    "IfTargetIsSneaking"    )                     // == 267
-DEFINE_FUNCTION( FDROPITEMS,    "DropItems"    )                              // == 268
-DEFINE_FUNCTION( FRESPAWNTARGET,    "RespawnTarget"    )                          // == 269
-DEFINE_FUNCTION( FTARGETDOACTIONSETFRAME,    "TargetDoActionSetFrame"    )                 // == 270
-DEFINE_FUNCTION( FIFTARGETCANSEEINVISIBLE,    "IfTargetCanSeeInvisible"    )                // == 271
-DEFINE_FUNCTION( FSETTARGETTONEARESTBLAHID,    "SetTargetToNearestBlahID"    )               // == 272
-DEFINE_FUNCTION( FSETTARGETTONEARESTENEMY,    "SetTargetToNearestEnemy"    )                // == 273
-DEFINE_FUNCTION( FSETTARGETTONEARESTFRIEND,    "SetTargetToNearestFriend"    )               // == 274
-DEFINE_FUNCTION( FSETTARGETTONEARESTLIFEFORM,    "SetTargetToNearestLifeform"    )             // == 275
-DEFINE_FUNCTION( FFLASHPASSAGE,    "FlashPassage"    )                           // == 276
-DEFINE_FUNCTION( FFINDTILEINPASSAGE,    "FindTileInPassage"    )                      // == 277
-DEFINE_FUNCTION( FIFHELDINLEFTHAND,    "IfHeldInLeftHand"    )                       // == 278
-DEFINE_FUNCTION( FNOTANITEM,    "NotAnItem"    )                              // == 279
-DEFINE_FUNCTION( FSETCHILDAMMO,    "SetChildAmmo"    )                           // == 280
-DEFINE_FUNCTION( FIFHITVULNERABLE,    "IfHitVulnerable"    )                        // == 281
-DEFINE_FUNCTION( FIFTARGETISFLYING,    "IfTargetIsFlying"    )                       // == 282
-DEFINE_FUNCTION( FIDENTIFYTARGET,    "IdentifyTarget"    )                         // == 283
-DEFINE_FUNCTION( FBEATMODULE,    "BeatModule"    )                             // == 284
-DEFINE_FUNCTION( FENDMODULE,    "EndModule"    )                              // == 285
-DEFINE_FUNCTION( FDISABLEEXPORT,    "DisableExport"    )                          // == 286
-DEFINE_FUNCTION( FENABLEEXPORT,    "EnableExport"    )                           // == 287
-DEFINE_FUNCTION( FGETTARGETSTATE,    "GetTargetState"    )                         // == 288
-DEFINE_FUNCTION( FIFEQUIPPED,    "IfEquipped"    )                             // == 289
-DEFINE_FUNCTION( FDROPTARGETMONEY,    "DropTargetMoney"    )                        // == 290
-DEFINE_FUNCTION( FGETTARGETCONTENT,    "GetTargetContent"    )                       // == 291
-DEFINE_FUNCTION( FDROPTARGETKEYS,    "DropTargetKeys"    )                         // == 292
-DEFINE_FUNCTION( FJOINTEAM,    "JoinTeam"    )                               // == 293
-DEFINE_FUNCTION( FTARGETJOINTEAM,    "TargetJoinTeam"    )                         // == 294
-DEFINE_FUNCTION( FCLEARMUSICPASSAGE,    "ClearMusicPassage"    )                      // == 295
-DEFINE_FUNCTION( FCLEARENDMESSAGE,    "ClearEndMessage"    )                        // == 296
-DEFINE_FUNCTION( FADDENDMESSAGE,    "AddEndMessage"    )                          // == 297
-DEFINE_FUNCTION( FPLAYMUSIC,    "PlayMusic"    )                              // == 298
-DEFINE_FUNCTION( FSETMUSICPASSAGE,    "SetMusicPassage"    )                        // == 299
-DEFINE_FUNCTION( FMAKECRUSHINVALID,    "MakeCrushInvalid"    )                       // == 300
-DEFINE_FUNCTION( FSTOPMUSIC,    "StopMusic"    )                              // == 301
-DEFINE_FUNCTION( FFLASHVARIABLE,    "FlashVariable"    )                          // == 302
-DEFINE_FUNCTION( FACCELERATEUP,    "AccelerateUp"    )                           // == 303
-DEFINE_FUNCTION( FFLASHVARIABLEHEIGHT,    "FlashVariableHeight"    )                    // == 304
-DEFINE_FUNCTION( FSETDAMAGETIME,    "SetDamageTime"    )                          // == 305
-DEFINE_FUNCTION( FIFSTATEIS8,    "IfStateIs8"    )                             // == 306
-DEFINE_FUNCTION( FIFSTATEIS9,    "IfStateIs9"    )                             // == 307
-DEFINE_FUNCTION( FIFSTATEIS10,    "IfStateIs10"    )                            // == 308
-DEFINE_FUNCTION( FIFSTATEIS11,    "IfStateIs11"    )                            // == 309
-DEFINE_FUNCTION( FIFSTATEIS12,    "IfStateIs12"    )                            // == 310
-DEFINE_FUNCTION( FIFSTATEIS13,    "IfStateIs13"    )                            // == 311
-DEFINE_FUNCTION( FIFSTATEIS14,    "IfStateIs14"    )                            // == 312
-DEFINE_FUNCTION( FIFSTATEIS15,    "IfStateIs15"    )                            // == 313
-DEFINE_FUNCTION( FIFTARGETISAMOUNT,    "IfTargetIsAMount"    )                       // == 314
-DEFINE_FUNCTION( FIFTARGETISAPLATFORM,    "IfTargetIsAPlatform"    )                    // == 315
-DEFINE_FUNCTION( FADDSTAT,    "AddStat"    )                                // == 316
-DEFINE_FUNCTION( FDISENCHANTTARGET,    "DisenchantTarget"    )                       // == 317
-DEFINE_FUNCTION( FDISENCHANTALL,    "DisenchantAll"    )                          // == 318
-DEFINE_FUNCTION( FSETVOLUMENEARESTTEAMMATE,    "SetVolumeNearestTeammate"    )               // == 319
-DEFINE_FUNCTION( FADDSHOPPASSAGE,    "AddShopPassage"    )                         // == 320
-DEFINE_FUNCTION( FTARGETPAYFORARMOR,    "TargetPayForArmor"    )                      // == 321
-DEFINE_FUNCTION( FJOINEVILTEAM,    "JoinEvilTeam"    )                           // == 322
-DEFINE_FUNCTION( FJOINNULLTEAM,    "JoinNullTeam"    )                           // == 323
-DEFINE_FUNCTION( FJOINGOODTEAM,    "JoinGoodTeam"    )                           // == 324
-DEFINE_FUNCTION( FPITSKILL,    "PitsKill"    )                               // == 325
-DEFINE_FUNCTION( FSETTARGETTOPASSAGEID,    "SetTargetToPassageID"    )                   // == 326
-DEFINE_FUNCTION( FMAKENAMEUNKNOWN,    "MakeNameUnknown"    )                        // == 327
-DEFINE_FUNCTION( FSPAWNEXACTPARTICLEENDSPAWN,    "SpawnExactParticleEndSpawn"    )             // == 328
-DEFINE_FUNCTION( FSPAWNPOOFSPEEDSPACINGDAMAGE,    "SpawnPoofSpeedSpacingDamage"    )            // == 329
-DEFINE_FUNCTION( FGIVEEXPERIENCETOGOODTEAM,    "GiveExperienceToGoodTeam"    )               // == 330
-DEFINE_FUNCTION( FDONOTHING,    "DoNothing"    )                              // == 331
-DEFINE_FUNCTION( FGROGTARGET,    "DazeTarget"    )                             // == 332
-DEFINE_FUNCTION( FDAZETARGET,    "GrogTarget"    )                             // == 333
-DEFINE_FUNCTION( FENABLERESPAWN,    "EnableRespawn"    )                          // == 334
-DEFINE_FUNCTION( FDISABLERESPAWN,    "DisableRespawn"    )                         // == 335
-DEFINE_FUNCTION( FDISPELTARGETENCHANTID,    "DispelTargetEnchantID"    )                  // == 336
-DEFINE_FUNCTION( FIFHOLDERBLOCKED,    "IfHolderBlocked"    )                        // == 337
-DEFINE_FUNCTION( FGETSKILLLEVEL,    "GetTargetShieldProfiency"    )                          // == 338
-DEFINE_FUNCTION( FIFTARGETHASNOTFULLMANA,    "IfTargetHasNotFullMana"    )                 // == 339
-DEFINE_FUNCTION( FENABLELISTENSKILL,    "EnableListenSkill"    )                      // == 340
-DEFINE_FUNCTION( FSETTARGETTOLASTITEMUSED,    "SetTargetToLastItemUsed"    )                // == 341
-DEFINE_FUNCTION( FFOLLOWLINK,    "FollowLink"    )                             // == 342  Scripted AI functions ( v1.00)
-DEFINE_FUNCTION( FIFOPERATORISLINUX,    "IfOperatorIsLinux"    )                      // == 343
-DEFINE_FUNCTION( FIFTARGETISAWEAPON,    "IfTargetIsAWeapon"    )                      // == 344
-DEFINE_FUNCTION( FIFSOMEONEISSTEALING,    "IfSomeoneIsStealing"    )                    // == 345
-DEFINE_FUNCTION( FIFTARGETISASPELL,    "IfTargetIsASpell"    )                       // == 346
-DEFINE_FUNCTION( FIFBACKSTABBED,    "IfBackstabbed"    )                          // == 347
-DEFINE_FUNCTION( FGETTARGETDAMAGETYPE,    "GetTargetDamageType"    )                    // == 348
-DEFINE_FUNCTION( FADDQUEST,    "AddTargetQuest"    )                               // == 349
-DEFINE_FUNCTION( FBEATQUESTALLPLAYERS,    "BeatQuestAllPlayers"    )                    // == 350
-DEFINE_FUNCTION( FIFTARGETHASQUEST,    "IfTargetHasQuest"    )                       // == 351
-DEFINE_FUNCTION( FSETQUESTLEVEL,    "SetTargetQuestLevel"    )                          // == 352
-DEFINE_FUNCTION( FADDQUESTALLPLAYERS,    "AddQuestAllPlayers"    )                     // == 353
-DEFINE_FUNCTION( FADDBLIPALLENEMIES,    "AddBlipAllEnemies"    )                      // == 354
-DEFINE_FUNCTION( FPITSFALL,    "PitsFall"    )                               // == 355
-DEFINE_FUNCTION( FIFTARGETISOWNER,    "IfTargetIsOwner"    )                        // == 356
-DEFINE_FUNCTION( FSETSPEECH,    "SetSpeech"    )                      // == 357
-DEFINE_FUNCTION( FSETMOVESPEECH,        "FSETMOVESPEECH"    )                  // == 358
-DEFINE_FUNCTION( FSETSECONDMOVESPEECH,        "FSETSECONDMOVESPEECH"    )            // == 359
-DEFINE_FUNCTION( FSETATTACKSPEECH,        "FSETATTACKSPEECH"    )                // == 360
-DEFINE_FUNCTION( FSETASSISTSPEECH,        "FSETASSISTSPEECH"    )                // == 361
-DEFINE_FUNCTION( FSETTERRAINSPEECH,        "FSETTERRAINSPEECH"    )               // == 362
-DEFINE_FUNCTION( FSETSELECTSPEECH,        "FSETSELECTSPEECH"    )                // == 363
-DEFINE_FUNCTION( FTAKEPICTURE,    "TakePicture"    )                    // == 364
-DEFINE_FUNCTION( FIFOPERATORISMACINTOSH,    "IfOperatorIsMacintosh"    )          // == 365
-DEFINE_FUNCTION( FIFMODULEHASIDSZ,    "IfModuleHasIDSZ"    )                // == 366
-DEFINE_FUNCTION( FMORPHTOTARGET,    "MorphToTarget"    )                  // == 367
-DEFINE_FUNCTION( FGIVEMANAFLOWTOTARGET,    "GiveManaFlowToTarget"    )           // == 368
-DEFINE_FUNCTION( FGIVEMANARETURNTOTARGET,    "GiveManaReturnToTarget"    )         // == 369
-DEFINE_FUNCTION( FSETMONEY,    "SetMoney"    )                       // == 370
-DEFINE_FUNCTION( FIFTARGETCANSEEKURSES,    "IfTargetCanSeeKurses"    )           // == 371
-DEFINE_FUNCTION( FSPAWNATTACHEDCHARACTER,    "SpawnAttachedCharacter"    )         // == 372
-DEFINE_FUNCTION( FKURSETARGET,    "KurseTarget"    )                    // == 373
-DEFINE_FUNCTION( FSETCHILDCONTENT,    "SetChildContent"    )                // == 374
-DEFINE_FUNCTION( FSETTARGETTOCHILD,    "SetTargetToChild"    )               // == 375
-DEFINE_FUNCTION( FSETDAMAGETHRESHOLD,    "SetDamageThreshold"    )    //
-
-DEFINE_CONSTANT(,    "BLAHDEAD"    )    //
-DEFINE_CONSTANT(,    "BLAHENEMIES"    )    //
-DEFINE_CONSTANT(,    "BLAHFRIENDS"    )    //
-DEFINE_CONSTANT(,    "BLAHITEMS"    )    //
-DEFINE_CONSTANT(,    "BLAHINVERTID"    )    //
-DEFINE_CONSTANT(,    "BLAHPLAYERS"    )    //
-
-DEFINE_CONSTANT(,    "STATEPARRY"    )    //
-DEFINE_CONSTANT(,    "STATEWANDER"    )    //
-DEFINE_CONSTANT(,    "STATEGUARD"    )    //
-DEFINE_CONSTANT(,    "STATEFOLLOW"    )    //
-DEFINE_CONSTANT(,    "STATESURROUND"    )    //
-DEFINE_CONSTANT(,    "STATERETREAT"    )    //
-DEFINE_CONSTANT(,    "STATECHARGE"    )    //
-DEFINE_CONSTANT(,    "STATECOMBAT"    )    //
-
-DEFINE_CONSTANT( GRIP_ONLY,    "GRIPONLY"    )    //
-DEFINE_CONSTANT( GRIP_LEFT,    "GRIPLEFT"    )    //
-DEFINE_CONSTANT( GRIP_RIGHT,    "GRIPRIGHT"    )    //
-DEFINE_CONSTANT( GRIP_ORIGIN,    "SPAWNORIGIN"    )    //
-DEFINE_CONSTANT( GRIP_LAST,    "SPAWNLAST"    )    //
-
-DEFINE_CONSTANT( LATCHBUTTON_LEFT,    "LATCHLEFT"    )    //
-DEFINE_CONSTANT( LATCHBUTTON_RIGHT,    "LATCHRIGHT"    )    //
-DEFINE_CONSTANT( LATCHBUTTON_JUMP,    "LATCHJUMP"    )    //
-DEFINE_CONSTANT( LATCHBUTTON_ALTLEFT,    "LATCHALTLEFT"    )    //
-DEFINE_CONSTANT( LATCHBUTTON_ALTRIGHT,    "LATCHALTRIGHT"    )    //
-
-DEFINE_CONSTANT( DAMAGE_SLASH,    "DAMAGESLASH"    )    //
-DEFINE_CONSTANT( DAMAGE_CRUSH,    "DAMAGECRUSH"    )    //
-DEFINE_CONSTANT( DAMAGE_POKE ,    "DAMAGEPOKE"    )    //
-DEFINE_CONSTANT( DAMAGE_HOLY ,    "DAMAGEHOLY"    )    //
-DEFINE_CONSTANT( DAMAGE_EVIL ,    "DAMAGEEVIL"    )    //
-DEFINE_CONSTANT( DAMAGE_FIRE ,    "DAMAGEFIRE"    )    //
-DEFINE_CONSTANT( DAMAGE_ICE  ,    "DAMAGEICE"    )    //
-DEFINE_CONSTANT( DAMAGE_ZAP  ,    "DAMAGEZAP"    )    //
-
-DEFINE_CONSTANT( ACTION_DA,    "ACTIONDA"    )    //
-DEFINE_CONSTANT( ACTION_DB,    "ACTIONDB"    )    //
-DEFINE_CONSTANT( ACTION_DC,    "ACTIONDC"    )    //
-DEFINE_CONSTANT( ACTION_DD,    "ACTIONDD"    )    //
-DEFINE_CONSTANT( ACTION_UA,    "ACTIONUA"    )    //
-DEFINE_CONSTANT( ACTION_UB,    "ACTIONUB"    )    //
-DEFINE_CONSTANT( ACTION_UC,    "ACTIONUC"    )    //
-DEFINE_CONSTANT( ACTION_UD,    "ACTIONUD"    )    //
-DEFINE_CONSTANT( ACTION_TA,    "ACTIONTA"    )    //
-DEFINE_CONSTANT( ACTION_TB,    "ACTIONTB"    )    //
-DEFINE_CONSTANT( ACTION_TC,    "ACTIONTC"    )    //
-DEFINE_CONSTANT( ACTION_TD,    "ACTIONTD"    )    //
-DEFINE_CONSTANT( ACTION_CA,    "ACTIONCA"    )    //
-DEFINE_CONSTANT( ACTION_CB,    "ACTIONCB"    )    //
-DEFINE_CONSTANT( ACTION_CC,    "ACTIONCC"    )    //
-DEFINE_CONSTANT( ACTION_CD,    "ACTIONCD"    )    //
-DEFINE_CONSTANT( ACTION_SA,    "ACTIONSA"    )    //
-DEFINE_CONSTANT( ACTION_SB,    "ACTIONSB"    )    //
-DEFINE_CONSTANT( ACTION_SC,    "ACTIONSC"    )    //
-DEFINE_CONSTANT( ACTION_SD,    "ACTIONSD"    )    //
-DEFINE_CONSTANT( ACTION_BA,    "ACTIONBA"    )    //
-DEFINE_CONSTANT( ACTION_BB,    "ACTIONBB"    )    //
-DEFINE_CONSTANT( ACTION_BC,    "ACTIONBC"    )    //
-DEFINE_CONSTANT( ACTION_BD,    "ACTIONBD"    )    //
-DEFINE_CONSTANT( ACTION_LA,    "ACTIONLA"    )    //
-DEFINE_CONSTANT( ACTION_LB,    "ACTIONLB"    )    //
-DEFINE_CONSTANT( ACTION_LC,    "ACTIONLC"    )    //
-DEFINE_CONSTANT( ACTION_LD,    "ACTIONLD"    )    //
-DEFINE_CONSTANT( ACTION_XA,    "ACTIONXA"    )    //
-DEFINE_CONSTANT( ACTION_XB,    "ACTIONXB"    )    //
-DEFINE_CONSTANT( ACTION_XC,    "ACTIONXC"    )    //
-DEFINE_CONSTANT( ACTION_XD,    "ACTIONXD"    )    //
-DEFINE_CONSTANT( ACTION_FA,    "ACTIONFA"    )    //
-DEFINE_CONSTANT( ACTION_FB,    "ACTIONFB"    )    //
-DEFINE_CONSTANT( ACTION_FC,    "ACTIONFC"    )    //
-DEFINE_CONSTANT( ACTION_FD,    "ACTIONFD"    )    //
-DEFINE_CONSTANT( ACTION_PA,    "ACTIONPA"    )    //
-DEFINE_CONSTANT( ACTION_PB,    "ACTIONPB"    )    //
-DEFINE_CONSTANT( ACTION_PC,    "ACTIONPC"    )    //
-DEFINE_CONSTANT( ACTION_PD,    "ACTIONPD"    )    //
-DEFINE_CONSTANT( ACTION_EA,    "ACTIONEA"    )    //
-DEFINE_CONSTANT( ACTION_EB,    "ACTIONEB"    )    //
-DEFINE_CONSTANT( ACTION_RA,    "ACTIONRA"    )    //
-DEFINE_CONSTANT( ACTION_ZA,    "ACTIONZA"    )    //
-DEFINE_CONSTANT( ACTION_ZB,    "ACTIONZB"    )    //
-DEFINE_CONSTANT( ACTION_ZC,    "ACTIONZC"    )    //
-DEFINE_CONSTANT( ACTION_ZD,    "ACTIONZD"    )    //
-DEFINE_CONSTANT( ACTION_WA,    "ACTIONWA"    )    //
-DEFINE_CONSTANT( ACTION_WB,    "ACTIONWB"    )    //
-DEFINE_CONSTANT( ACTION_WC,    "ACTIONWC"    )    //
-DEFINE_CONSTANT( ACTION_WD,    "ACTIONWD"    )    //
-DEFINE_CONSTANT( ACTION_JA,    "ACTIONJA"    )    //
-DEFINE_CONSTANT( ACTION_JB,    "ACTIONJB"    )    //
-DEFINE_CONSTANT( ACTION_JC,    "ACTIONJC"    )    //
-DEFINE_CONSTANT( ACTION_HA,    "ACTIONHA"    )    //
-DEFINE_CONSTANT( ACTION_HB,    "ACTIONHB"    )    //
-DEFINE_CONSTANT( ACTION_HC,    "ACTIONHC"    )    //
-DEFINE_CONSTANT( ACTION_HD,    "ACTIONHD"    )    //
-DEFINE_CONSTANT( ACTION_KA,    "ACTIONKA"    )    //
-DEFINE_CONSTANT( ACTION_KB,    "ACTIONKB"    )    //
-DEFINE_CONSTANT( ACTION_KC,    "ACTIONKC"    )    //
-DEFINE_CONSTANT( ACTION_KD,    "ACTIONKD"    )    //
-DEFINE_CONSTANT( ACTION_MA,    "ACTIONMA"    )    //
-DEFINE_CONSTANT( ACTION_MB,    "ACTIONMB"    )    //
-DEFINE_CONSTANT( ACTION_MC,    "ACTIONMC"    )    //
-DEFINE_CONSTANT( ACTION_MD,    "ACTIONMD"    )    //
-DEFINE_CONSTANT( ACTION_ME,    "ACTIONME"    )    //
-DEFINE_CONSTANT( ACTION_MF,    "ACTIONMF"    )    //
-DEFINE_CONSTANT( ACTION_MG,    "ACTIONMG"    )    //
-DEFINE_CONSTANT( ACTION_MH,    "ACTIONMH"    )    //
-DEFINE_CONSTANT( ACTION_MI,    "ACTIONMI"    )    //
-DEFINE_CONSTANT( ACTION_MJ,    "ACTIONMJ"    )    //
-DEFINE_CONSTANT( ACTION_MK,    "ACTIONMK"    )    //
-DEFINE_CONSTANT( ACTION_ML,    "ACTIONML"    )    //
-DEFINE_CONSTANT( ACTION_MM,    "ACTIONMM"    )    //
-DEFINE_CONSTANT( ACTION_MN,    "ACTIONMN"    )    //
-
-DEFINE_CONSTANT( XP_FINDSECRET,    "EXPSECRET"    )    //
-DEFINE_CONSTANT( XP_WINQUEST,    "EXPQUEST"    )    //
-DEFINE_CONSTANT( XP_USEDUNKOWN,    "EXPDARE"    )    //
-DEFINE_CONSTANT( XP_KILLENEMY,    "EXPKILL"    )    //
-DEFINE_CONSTANT( XP_KILLSLEEPY,    "EXPMURDER"    )    //
-DEFINE_CONSTANT( XP_KILLHATED,    "EXPREVENGE"    )    //
-DEFINE_CONSTANT( XP_TEAMKILL,    "EXPTEAMWORK"    )    //
-DEFINE_CONSTANT( XP_TALKGOOD,    "EXPROLEPLAY"    )    //
-
-DEFINE_CONSTANT(,    "MESSAGEDEATH"    )    //
-DEFINE_CONSTANT(,    "MESSAGEHATE"    )    //
-DEFINE_CONSTANT(,    "MESSAGEOUCH"    )    //
-DEFINE_CONSTANT(,    "MESSAGEFRAG"    )    //
-DEFINE_CONSTANT(,    "MESSAGEACCIDENT"    )    //
-DEFINE_CONSTANT(,    "MESSAGECOSTUME"    )    //
-
-DEFINE_CONSTANT(,    "ORDERMOVE"    )    //
-DEFINE_CONSTANT(,    "ORDERATTACK"    )    //
-DEFINE_CONSTANT(,    "ORDERASSIST"    )    //
-DEFINE_CONSTANT(,    "ORDERSTAND"    )    //
-DEFINE_CONSTANT(,    "ORDERTERRAIN"    )    //
-
-DEFINE_CONSTANT(,    "WHITE"    )    //
-DEFINE_CONSTANT(,    "RED"    )    //
-DEFINE_CONSTANT(,    "YELLOW"    )    //
-DEFINE_CONSTANT(,    "GREEN"    )    //
-DEFINE_CONSTANT(,    "BLUE"    )    //
-DEFINE_CONSTANT(,    "PURPLE"    )    //
-
-DEFINE_CONSTANT(,    "FXNOREFLECT"    )    //
-DEFINE_CONSTANT(,    "FXDRAWREFLECT"    )    //
-DEFINE_CONSTANT(,    "FXANIM"    )    //
-DEFINE_CONSTANT(,    "FXWATER"    )    //
-DEFINE_CONSTANT(,    "FXBARRIER"    )    //
-DEFINE_CONSTANT(,    "FXIMPASS"    )    //
-DEFINE_CONSTANT(,    "FXDAMAGE"    )    //
-DEFINE_CONSTANT(,    "FXSLIPPY"    )    //
-
-DEFINE_CONSTANT(,    "MOVEMELEE"    )    //
-DEFINE_CONSTANT(,    "MOVERANGED"    )    //
-DEFINE_CONSTANT(,    "MOVEDISTANCE"    )    //
-DEFINE_CONSTANT(,    "MOVERETREAT"    )    //
-DEFINE_CONSTANT(,    "MOVECHARGE"    )    //
-
-DEFINE_CONSTANT(,    "TEAMA"    )    //
-DEFINE_CONSTANT(,    "TEAMB"    )    //
-DEFINE_CONSTANT(,    "TEAMC"    )    //
-DEFINE_CONSTANT(,    "TEAMD"    )    //
-DEFINE_CONSTANT(,    "TEAME"    )    //
-DEFINE_CONSTANT(,    "TEAMF"    )    //
-DEFINE_CONSTANT(,    "TEAMG"    )    //
-DEFINE_CONSTANT(,    "TEAMH"    )    //
-DEFINE_CONSTANT(,    "TEAMI"    )    //
-DEFINE_CONSTANT(,    "TEAMJ"    )    //
-DEFINE_CONSTANT(,    "TEAMK"    )    //
-DEFINE_CONSTANT(,    "TEAML"    )    //
-DEFINE_CONSTANT(,    "TEAMM"    )    //
-DEFINE_CONSTANT(,    "TEAMN"    )    //
-DEFINE_CONSTANT(,    "TEAMO"    )    //
-DEFINE_CONSTANT(,    "TEAMP"    )    //
-DEFINE_CONSTANT(,    "TEAMQ"    )    //
-DEFINE_CONSTANT(,    "TEAMR"    )    //
-DEFINE_CONSTANT(,    "TEAMS"    )    //
-DEFINE_CONSTANT(,    "TEAMT"    )    //
-DEFINE_CONSTANT(,    "TEAMV"    )    //
-DEFINE_CONSTANT(,    "TEAMW"    )    //
-DEFINE_CONSTANT(,    "TEAMX"    )    //
-DEFINE_CONSTANT(,    "TEAMY"    )    //
-DEFINE_CONSTANT(,    "TEAMZ"    )    //
-
-DEFINE_CONSTANT(,    "INVENTORY"    )    //
-DEFINE_CONSTANT(,    "LEFT"    )    //
-DEFINE_CONSTANT(,    "RIGHT"    )    //
-
-DEFINE_CONSTANT(,    "EASY"    )    //
-DEFINE_CONSTANT(,    "NORMAL"    )    //
-DEFINE_CONSTANT(,    "HARD"    )    //
-
-DEFINE_VARIABLE( VARTMPX = 0,    "tmpx"    )             // == 0
-DEFINE_VARIABLE( VARTMPY,    "tmpy"    )                 // == 1
-DEFINE_VARIABLE( VARTMPDISTANCE,    "tmpdistance"    )          // == 2
-DEFINE_VARIABLE( VARTMPTURN,    "tmpturn"    )              // == 3
-DEFINE_VARIABLE( VARTMPARGUMENT,    "tmpargument"    )          // == 4
-DEFINE_VARIABLE( VARRAND,    "rand"    )                 // == 5
-DEFINE_VARIABLE( VARSELFX,    "selfx"    )                // == 6
-DEFINE_VARIABLE( VARSELFY,    "selfy"    )                // == 7
-DEFINE_VARIABLE( VARSELFTURN,    "selfturn"    )             // == 8
-DEFINE_VARIABLE( VARSELFCOUNTER,    "selfcounter"    )          // == 9
-DEFINE_VARIABLE( VARSELFORDER,    "selforder"    )            // == 10
-DEFINE_VARIABLE( VARSELFMORALE,    "selfmorale"    )           // == 11
-DEFINE_VARIABLE( VARSELFLIFE,    "selflife"    )             // == 12
-DEFINE_VARIABLE( VARTARGETX,    "targetx"    )              // == 13
-DEFINE_VARIABLE( VARTARGETY,    "targety"    )              // == 14
-DEFINE_VARIABLE( VARTARGETDISTANCE,    "targetdistance"    )       // == 15
-DEFINE_VARIABLE( VARTARGETTURN,    "targetturn"    )           // == 16
-DEFINE_VARIABLE( VARLEADERX,    "leaderx"    )              // == 17
-DEFINE_VARIABLE( VARLEADERY,    "leadery"    )              // == 18
-DEFINE_VARIABLE( VARLEADERDISTANCE,    "leaderdistance"    )       // == 19
-DEFINE_VARIABLE( VARLEADERTURN,    "leaderturn"    )           // == 20
-DEFINE_VARIABLE( VARGOTOX,    "gotox"    )                // == 21
-DEFINE_VARIABLE( VARGOTOY,    "gotoy"    )                // == 22
-DEFINE_VARIABLE( VARGOTODISTANCE,    "gotodistance"    )         // == 23
-DEFINE_VARIABLE( VARTARGETTURNTO,    "targetturnto"    )         // == 24
-DEFINE_VARIABLE( VARPASSAGE,    "passage"    )              // == 25
-DEFINE_VARIABLE( VARWEIGHT,    "weight"    )               // == 26
-DEFINE_VARIABLE( VARSELFALTITUDE,    "selfaltitude"    )         // == 27
-DEFINE_VARIABLE( VARSELFID,    "selfid"    )               // == 28
-DEFINE_VARIABLE( VARSELFHATEID,    "selfhateid"    )           // == 29
-DEFINE_VARIABLE( VARSELFMANA,    "selfmana"    )             // == 30
-DEFINE_VARIABLE( VARTARGETSTR,    "targetstr"    )            // == 31
-DEFINE_VARIABLE( VARTARGETWIS,    "targetwis"    )            // == 32
-DEFINE_VARIABLE( VARTARGETINT,    "targetint"    )            // == 33
-DEFINE_VARIABLE( VARTARGETDEX,    "targetdex"    )            // == 34
-DEFINE_VARIABLE( VARTARGETLIFE,    "target_life"    )           // == 35
-DEFINE_VARIABLE( VARTARGETMANA,    "target_mana"    )           // == 36
-DEFINE_VARIABLE( VARTARGETLEVEL,    "targetlevel"    )          // == 37
-DEFINE_VARIABLE( VARTARGETSPEEDX,    "targetspeedx"    )         // == 38
-DEFINE_VARIABLE( VARTARGETSPEEDY,    "targetspeedy"    )         // == 39
-DEFINE_VARIABLE( VARTARGETSPEEDZ,    "targetspeedz"    )         // == 40
-DEFINE_VARIABLE( VARSELFSPAWNX,    "selfspawnx"    )           // == 41
-DEFINE_VARIABLE( VARSELFSPAWNY,    "selfspawny"    )           // == 42
-DEFINE_VARIABLE( VARSELFSTATE,    "selfstate"    )            // == 43
-DEFINE_VARIABLE( VARSELFSTR,    "selfstr"    )              // == 44
-DEFINE_VARIABLE( VARSELFWIS,    "selfwis"    )              // == 45
-DEFINE_VARIABLE( VARSELFINT,    "selfint"    )              // == 46
-DEFINE_VARIABLE( VARSELFDEX,    "selfdex"    )              // == 47
-DEFINE_VARIABLE( VARSELFMANAFLOW,    "selfmanaflow"    )         // == 48
-DEFINE_VARIABLE( VARTARGETMANAFLOW,    "targetmanaflow"    )       // == 49
-DEFINE_VARIABLE( VARSELFATTACHED,    "selfattached"    )         // == 50
-DEFINE_VARIABLE( VARSWINGTURN,    "swingturn"    )            // == 51
-DEFINE_VARIABLE( VARXYDISTANCE,    "xydistance"    )           // == 52
-DEFINE_VARIABLE( VARSELFZ,    "selfz"    )                // == 53
-DEFINE_VARIABLE( VARTARGETALTITUDE,    "targetaltitude"    )       // == 54
-DEFINE_VARIABLE( VARTARGETZ,    "targetz"    )              // == 55
-DEFINE_VARIABLE( VARSELFINDEX,    "selfindex"    )            // == 56
-DEFINE_VARIABLE( VAROWNERX,    "ownerx"    )               // == 57
-DEFINE_VARIABLE( VAROWNERY,    "ownery"    )               // == 58
-DEFINE_VARIABLE( VAROWNERTURN,    "ownerturn"    )            // == 59
-DEFINE_VARIABLE( VAROWNERDISTANCE,    "ownerdistance"    )        // == 60
-DEFINE_VARIABLE( VAROWNERTURNTO,    "ownerturnto"    )          // == 61
-DEFINE_VARIABLE( VARXYTURNTO,    "xyturnto"    )             // == 62
-DEFINE_VARIABLE( VARSELFMONEY,    "selfmoney"    )            // == 63
-DEFINE_VARIABLE( VARSELFACCEL,    "selfaccel"    )            // == 64
-DEFINE_VARIABLE( VARTARGETEXP,    "targetexp"    )            // == 65
-DEFINE_VARIABLE( VARSELFAMMO,    "selfammo"    )             // == 66
-DEFINE_VARIABLE( VARTARGETAMMO,    "targetammo"    )           // == 67
-DEFINE_VARIABLE( VARTARGETMONEY,    "targetmoney"    )          // == 68
-DEFINE_VARIABLE( VARTARGETTURNAWAY,    "targetturnfrom"    )       // == 69
-DEFINE_VARIABLE( VARSELFLEVEL,    "selflevel"    )            // == 70
-DEFINE_VARIABLE( VARTARGETRELOADTIME,    "targetreloadtime"    )     // == 71
-DEFINE_VARIABLE( VARSELFCONTENT,    "selfcontent"    )          // == 72
-DEFINE_VARIABLE( VARSPAWNDISTANCE,    "spawndistance"    )        // == 73
-DEFINE_VARIABLE( VARTARGETMAXLIFE,    "targetmaxlife"    )        // == 74
-DEFINE_VARIABLE( VARTARGETTEAM,    "targetteam"    )           // == 75
-DEFINE_VARIABLE( VARTARGETARMOR,    "targetarmor"    )          // == 76
-DEFINE_VARIABLE( VARDIFFICULTY        // == 77,    "difficulty"    )    //
-
-DEFINE_OPERATOR( OPADD,    "+”    )    //
-DEFINE_OPERATOR( OPSUB,    "-"    )    //
-DEFINE_OPERATOR( OPAND,    "&"    )    //
-DEFINE_OPERATOR( OPSHR,    ">"    )    //
-DEFINE_OPERATOR( OPSHL,    "<"    )    //
-DEFINE_OPERATOR( OPMUL,    "*"    )    //
-DEFINE_OPERATOR( OPDIV,    "/"    )    //
-DEFINE_OPERATOR( OPMOD     "%"    )    //
-
-// Aliases
-DEFINE_FUNCTION( FIFATLASTWAYPOINT,              IfPutAway    )
-DEFINE_FUNCTION( FSETTARGETTOWHOEVERATTACKED,    SetTargetToWhoeverHealed    )
-DEFINE_FUNCTION( FIFGRABBED,    IfMounted    )
-DEFINE_FUNCTION( FIFDROPPED,    IfDismounted    )
-DEFINE_FUNCTION( FIFXISLESSTHANY,    IfYIsMoreThanX    )
-DEFINE_FUNCTION( FIFSITTING,    IfHeld    )
-DEFINE_FUNCTION( FIFYISLESSTHANX,    IfXIsMoreThanY    )
-DEFINE_FUNCTION( FIFSTATEIS0,    IfStateIsParry    )
-DEFINE_FUNCTION( FIFSTATEIS1,    IfStateIsWander    )
-DEFINE_FUNCTION( FIFSTATEIS2,    IfStateIsGuard    )
-DEFINE_FUNCTION( FIFSTATEIS3,    IfStateIsFollow    )
-DEFINE_FUNCTION( FIFSTATEIS4,    IfStateIsSurround    )
-DEFINE_FUNCTION( FIFSTATEIS5,    IfStateIsRetreat    )
-DEFINE_FUNCTION( FIFSTATEIS6,    IfStateIsCharge    )
-DEFINE_FUNCTION( FIFSTATEIS7,    IfStateIsCombat    )
-DEFINE_FUNCTION( FIFXISEQUALTOY,    IfYIsEqualToX    )
-DEFINE_FUNCTION( FIFNOTPUTAWAY,    IfNotTakenOut    )
-*/
-
-//--------------------------------------------------------------------------------------------
-// int load_parsed_line( parser_state_t * ps, size_t read )
-// {
-//   /// @author ZZ
-//   /// @details This function loads a line into the line buffer
-//
-//   char cTmp;
-
-//   // Parse to start to maintain indentation
-//   ps->line_buffer_count = 0;
-//   cTmp = ps->load_buffer[read];
-
-//   while ( CSTR_END != cTmp )
-//   {
-//       ps->line_buffer[ps->line_buffer_count] = cTmp;  ps->line_buffer_count++;
-//       read++;  cTmp = ps->load_buffer[read];
-//   }
-
-//   ps->line_buffer[ps->line_buffer_count] = CSTR_END;
-//   read++; // skip terminating zero for next call of load_parsed_line()
-//   return read;
-// }
-
-//--------------------------------------------------------------------------------------------
-// void parse_null_terminate_comments()
-// {
-//   /// @author ZZ
-//   /// @details This function removes comments and endline codes, replacing
-//   ///    them with a 0
-//
-//   size_t read, write;
-
-//   read = 0;
-//   write = 0;
-
-//   while ( read < ps->load_buffer_count )
-//   {
-//       read = load_one_line( read );
-
-//       if ( ps->line_buffer_count > 2 )
-//       {
-//           copy_one_line( write );
-//           write += ps->line_buffer_count;
-//       }
-//   }
-// }

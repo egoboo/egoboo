@@ -2719,14 +2719,14 @@ float draw_fps( float y )
 {
     // FPS text
 
-    parser_state_t * ps = script_compiler_get_state();
+    parser_state_t * ps = parser_state_t::get();
 
     if ( outofsync )
     {
         y = draw_string_raw( 0, y, "OUT OF SYNC" );
     }
 
-    if ( script_compiler_error( ps ) )
+    if ( parser_state_t::get_error( ps ) )
     {
         y = draw_string_raw( 0, y, "SCRIPT ERROR ( see \"/debug/log.txt\" )" );
     }

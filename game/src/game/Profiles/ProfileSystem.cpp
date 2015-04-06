@@ -57,33 +57,16 @@ bool ProfileSystem::initialize()
         log_warning("%s:%d: profile system already initialized - ignoring\n",__FILE__,__LINE__);
         return true;
     }
-#if 0
-        if (_initialized)
-    {
-        // release all profile data and reinitialize the profile list
-        releaseAllProfiles();
 
-        // initialize the models
-        model_system_end();
-
-        _initialized = false;
-    }
-#endif
-
-    // Initialize all the sub-profile lists.
+    // Initialize the particle and enchant profile system.
     PipStack.initialize();
     EveStack.initialize();
-    MadStack_ctor();
-#if 0
-    MadStack_reconstruct_all();
-    // fix the book icon list
-    _bookIcons.clear();
-    // Initialize the models.
-    model_system_begin();
-#endif
 
-    // initialize the script compiler
-    script_compiler_init();
+    // Initialize the MAD stack system.
+    MadStack_ctor();
+
+    // Initialize the script compiler.
+    parser_state_t::initialize();
 
     // necessary for loading up the copy.txt file
     load_action_names_vfs( "mp_data/actions.txt" );
@@ -106,11 +89,14 @@ void ProfileSystem::uninitialize()
     // Reset all profiles.
     reset();
 
-    // Uninitialize the particle and enchant profile system.
+    // Uninitialize the script compiler.
+    parser_state_t::uninitialize();
+
+    // Uninitialize the enchant and particle profile system.
     EveStack.unintialize();
     PipStack.unintialize();
 
-    // Uninitialize the model system.
+    // Uninitialize the MAD stack system.
     MadStack_dtor();
 
     // Clear the book icons.
