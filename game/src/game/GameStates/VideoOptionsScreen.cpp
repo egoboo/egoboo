@@ -66,7 +66,7 @@ VideoOptionsScreen::VideoOptionsScreen() :
 		endState();
 
 		// save the setup file
-		setup_upload(&cfg);
+        setup_upload(&egoboo_config_t::get());
 	});
 	addComponent(backButton);
 
@@ -99,14 +99,16 @@ int VideoOptionsScreen::addResolutionButton(int width, int height, int yOffset)
 	resolutionButton->setSize(200, 30);
 	resolutionButton->setPosition(20, 30 + yOffset);
 	resolutionButton->setOnClickFunction(
-		[width, height, resolutionButton, this] {
+		[width, height, resolutionButton, this]
+        {
 
-			//Set new resolution requested
-			cfg.scrx_req = width;
-			cfg.scry_req = height;
+			// Set new resolution requested.
+            egoboo_config_t::get().graphic_resolution_horizontal.setValue(width);
+            egoboo_config_t::get().graphic_resolution_vertical.setValue(height);
 
-			//enable all resolution buttons except the one we just selected
-			for(const std::shared_ptr<GUIComponent> &button : *_resolutionList.get()) {
+			// Enable all resolution buttons except the one we just selected.
+			for(const std::shared_ptr<GUIComponent> &button : *_resolutionList.get())
+            {
 				button->setEnabled(true);
 			}
 			resolutionButton->setEnabled(false);
@@ -115,7 +117,9 @@ int VideoOptionsScreen::addResolutionButton(int width, int height, int yOffset)
 	_resolutionList->addComponent(resolutionButton);
 
 	//If this is our current resolution then make it greyed out
-	if(cfg.scrx_req == width && cfg.scry_req == height) {
+    if (egoboo_config_t::get().graphic_resolution_horizontal.getValue() == width &&
+        egoboo_config_t::get().graphic_resolution_vertical.getValue() == height)
+    {
 		resolutionButton->setEnabled(false);
 	}
 

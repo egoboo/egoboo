@@ -41,7 +41,7 @@
 PlayingState::PlayingState()
 {
 	//For debug only
-	if(cfg.dev_mode)
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue())
 	{
 		std::shared_ptr<InternalDebugWindow> debugWindow = std::make_shared<InternalDebugWindow>("CurrentModule");
 		debugWindow->addWatchVariable("Passages", []{return std::to_string(PMod->getPassageCount());} );
@@ -86,13 +86,15 @@ void PlayingState::drawContainer()
 void PlayingState::beginState()
 {
 	// in-game settings
-    SDL_ShowCursor( cfg.hide_mouse ? SDL_DISABLE : SDL_ENABLE );
-    SDL_WM_GrabInput( cfg.grab_mouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+    SDL_ShowCursor(egoboo_config_t::get().debug_hideMouse.getValue() ? SDL_DISABLE : SDL_ENABLE );
+    SDL_WM_GrabInput(egoboo_config_t::get().debug_grabMouse.getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF );
 
-    if(cfg.hide_mouse) {
+    if(egoboo_config_t::get().debug_hideMouse.getValue())
+    {
 	    _gameEngine->disableMouseCursor();
     }
-    else {
+    else
+    {
 	    _gameEngine->enableMouseCursor();
     }
 }
@@ -116,7 +118,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
 
 		//Cheat debug button to win a module
 		case SDLK_F9:
-			if(cfg.dev_mode)
+            if (egoboo_config_t::get().debug_developerMode_enable.getValue())
 			{
 				for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
 				{

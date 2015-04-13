@@ -548,11 +548,19 @@ void activate_alliance_file_vfs()
     {
         char buffer[1024 + 1];
         vfs_read_string_lit(ctxt, buffer, 1024);
-        if (strlen(buffer) < 1) throw Ego::Script::SyntaxError(__FILE__,__LINE__,Ego::Script::Location(ctxt.getLoadName(),ctxt.getLineNumber()));
+        if (strlen(buffer) < 1)
+        {
+            throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                                "empty string literal");
+        }
         teama = (buffer[0] - 'A') % TEAM_MAX;
 
         vfs_read_string_lit(ctxt, buffer, 1024);
-        if (strlen(buffer) < 1) throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+        if (strlen(buffer) < 1)
+        {
+            throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                                "empty string literal");
+        }
         teamb = (buffer[0] - 'A') % TEAM_MAX;
         TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = false;
     }
@@ -768,12 +776,12 @@ int update_game()
 
         if ( !pchr->alive )
         {
-            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDL_KEYDOWN( keyb, SDLK_SPACE ) && PMod->isRespawnValid() && 0 == local_stats.revivetimer )
+            if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && local_stats.allpladead && SDL_KEYDOWN(keyb, SDLK_SPACE) && PMod->isRespawnValid() && 0 == local_stats.revivetimer)
             {
                 respawn_character( ichr );
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
 
-                if ( cfg.difficulty > GAME_EASY )
+                if (egoboo_config_t::get().game_difficulty.getValue() > Ego::GameDifficulty::Easy)
                 {
                     pchr->money *= EXPKEEP;        //Apply money loss
                 }
@@ -1364,7 +1372,7 @@ void set_one_player_latch( const PLA_REF ipla )
     if ( nullptr == pcam ) return;
 
     // fast camera turn if it is enabled and there is only 1 local player
-    fast_camera_turn = ( 1 == local_stats.player_count ) && ( CAM_TURN_GOOD == pcam->getTurnMode() );
+    fast_camera_turn = ( 1 == local_stats.player_count ) && ( CameraTurnMode::Good == pcam->getTurnMode() );
 
     // Clear the player's latch buffers
     sum.clear();
@@ -1560,11 +1568,11 @@ void set_local_latches()
     }
 
     // Let the players respawn
-    if ( SDL_KEYDOWN( keyb, SDLK_SPACE )
-         && ( local_stats.allpladead || PMod->canRespawnAnyTime() )
-         && PMod->isRespawnValid()
-         && cfg.difficulty < GAME_HARD
-         && !keyb.chat_mode )
+    if (SDL_KEYDOWN(keyb, SDLK_SPACE)
+        && (local_stats.allpladead || PMod->canRespawnAnyTime())
+        && PMod->isRespawnValid()
+        && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
+        && !keyb.chat_mode )
     {
         for (PLA_REF player = 0; player < MAX_PLAYER; player++)
         {
@@ -1636,7 +1644,7 @@ void check_stats()
         return;
 
     // Show map cheat
-    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_m ) && SDL_KEYDOWN( keyb, SDLK_LSHIFT ) && mapvalid )
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_m) && SDL_KEYDOWN(keyb, SDLK_LSHIFT) && mapvalid)
     {
         mapon = !mapon;
         youarehereon = true;
@@ -1644,7 +1652,7 @@ void check_stats()
     }
 
     // XP CHEAT
-    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_x ) )
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_x))
     {
         PLA_REF docheat = ( PLA_REF )MAX_PLAYER;
         if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  docheat = 0;
@@ -1667,9 +1675,9 @@ void check_stats()
     }
 
     // LIFE CHEAT
-    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_z ) )
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_z))
     {
-        PLA_REF docheat = ( PLA_REF )MAX_PLAYER;
+        PLA_REF docheat = INVALID_PLA_REF;
 
         if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  docheat = 0;
         else if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  docheat = 1;
@@ -2373,7 +2381,7 @@ void activate_spawn_file_vfs()
 
         // First load spawn data of every object.
         ctxt.next(); /// @todo Remove this hack.
-        while(!ctxt.is(ReadContext::EndOfInput))
+        while(!ctxt.is(ReadContext::Traits::endOfInput()))
         {
             spawn_file_info_t entry;
 
@@ -2786,7 +2794,7 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     game_setup_module( module->getPath().c_str() );
 
     // make sure the per-module configuration settings are correct
-    config_synch( &cfg, true );
+    config_synch(&egoboo_config_t::get(), true, false);
 
     // initialize the game objects
     initialize_all_objects();
@@ -2796,7 +2804,10 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     attach_all_particles();
 
     // log debug info for every object loaded into the module
-    if ( cfg.dev_mode ) log_madused_vfs( "/debug/slotused.txt" );
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue())
+    {
+        log_madused_vfs("/debug/slotused.txt");
+    }
 
     // initialize the network
     //net_begin();
@@ -3530,7 +3541,7 @@ bool upload_fog_data( fog_instance_t * pinst, const wawalite_fog_t * pdata )
 
     if ( NULL != pdata )
     {
-        pinst->on     = pdata->found && pinst->on && cfg.fog_allowed;
+        pinst->on     = pdata->found && pinst->on && egoboo_config_t::get().graphic_fog_enable.getValue();
         pinst->top    = pdata->top;
         pinst->bottom = pdata->bottom;
 
@@ -4724,7 +4735,7 @@ bool upload_water_data( water_instance_t * pinst, const wawalite_water_t * pdata
     water_instance_make( pinst, pdata );
 
     // Allow slow machines to ignore the fancy stuff
-    if ( !cfg.twolayerwater_allowed && pinst->layer_count > 1 )
+    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && pinst->layer_count > 1)
     {
         int iTmp = pdata->layer[0].light_add;
         iTmp = ( pdata->layer[1].light_add * iTmp * INV_FF ) + iTmp;
@@ -4794,16 +4805,13 @@ bool water_instance_set_douse_level( water_instance_t * pinst, float level )
 //--------------------------------------------------------------------------------------------
 float water_instance_get_water_level( water_instance_t * ptr )
 {
-    int cnt;
-    float level;
-
     if ( NULL == ptr ) return 0.0f;
 
-    level = water_instance_layer_get_level( ptr->layer + 0 );
+    float level = water_instance_layer_get_level( ptr->layer + 0 );
 
-    if ( cfg.twolayerwater_allowed )
+    if (egoboo_config_t::get().graphic_twoLayerWater_enable.getValue())
     {
-        for ( cnt = 1; cnt < MAXWATERLAYER; cnt++ )
+        for (int cnt = 1; cnt < MAXWATERLAYER; cnt++ )
         {
             // do it this way so the macro does not evaluate water_instance_layer_get_level() twice
             float tmpval = water_instance_layer_get_level( ptr->layer + cnt );

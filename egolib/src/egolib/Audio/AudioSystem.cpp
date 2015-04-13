@@ -80,8 +80,8 @@ bool AudioSystem::initialize(const egoboo_config_t &pcfg)
             log_message( "Failed!\n" );
             log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
 
-            _audioConfig.musicvalid = false;
-            _audioConfig.soundvalid = false;
+            _audioConfig.enableMusic = false;
+            _audioConfig.enableSound = false;
             return false;
         }
         else
@@ -91,7 +91,7 @@ bool AudioSystem::initialize(const egoboo_config_t &pcfg)
     }
 
     //Next do SDL_Mixer
-    if ( !_initialized && ( _audioConfig.musicvalid || _audioConfig.soundvalid ) )
+    if ( !_initialized && ( _audioConfig.enableMusic || _audioConfig.enableSound ) )
     {
         const SDL_version* link_version = Mix_Linked_Version();
         log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", link_version->major, link_version->minor, link_version->patch );
@@ -104,7 +104,7 @@ bool AudioSystem::initialize(const egoboo_config_t &pcfg)
         }
         else
         {
-            Mix_VolumeMusic( _audioConfig.musicvolume );
+            Mix_VolumeMusic( _audioConfig.musicVolume );
             Mix_AllocateChannels( _audioConfig.maxsoundchannel );
 
             _initialized = true;
@@ -170,7 +170,7 @@ void AudioSystem::reset()
     //Restore audio if needed
     if(!_initialized)
     {
-        if ( _audioConfig.musicvalid || _audioConfig.soundvalid )
+        if ( _audioConfig.enableMusic || _audioConfig.enableSound )
         {
             if ( -1 != Mix_OpenAudio( _audioConfig.highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, _audioConfig.buffersize ) )
             {
@@ -185,33 +185,34 @@ void AudioSystem::reset()
     }
 
     // Do we restart the music?
-    if ( cfg.music_allowed )
+    if (egoboo_config_t::get().sound_music_enable.getValue())
     {
-        //load music if required
+        // Load music if required.
         _audioSystem.loadAllMusic();
         
-        //start playing queued/paused song
-        if(_initialized && _currentSongPlaying >= 0 && _currentSongPlaying < _musicLoaded.size()) {
+        // start playing queued/paused song.
+        if(_initialized && _currentSongPlaying >= 0 && _currentSongPlaying < _musicLoaded.size())
+        {
             Mix_FadeInMusic(_musicLoaded[_currentSongPlaying], -1, 500);
         }
     }
 }
 
-void AudioSystem::setConfiguration(const egoboo_config_t &pcfg)
+void AudioSystem::setConfiguration(const egoboo_config_t &cfg)
 {
     //Load config
-    _audioConfig.soundvalid      = pcfg.sound_allowed;
-    _audioConfig.soundvolume     = pcfg.sound_volume;
-    _audioConfig.musicvalid      = pcfg.music_allowed;
-    _audioConfig.musicvolume     = pcfg.music_volume;
-    _audioConfig.maxsoundchannel = CLIP<uint16_t>(pcfg.sound_channel_count, 8, 128);
-    _audioConfig.buffersize      = CLIP<uint16_t>(pcfg.sound_buffer_size, 512, 8196);
-    _audioConfig.highquality     = pcfg.sound_highquality;
+    _audioConfig.enableSound     = cfg.sound_effects_enable.getValue();
+    _audioConfig.soundVolume     = cfg.sound_effects_volume.getValue();
+    _audioConfig.enableMusic     = cfg.sound_music_enable.getValue();
+    _audioConfig.musicVolume     = cfg.sound_music_volume.getValue();
+    _audioConfig.maxsoundchannel = CLIP<uint16_t>(cfg.sound_channel_count.getValue(), 8, 128);
+    _audioConfig.buffersize      = CLIP<uint16_t>(cfg.sound_outputBuffer_size.getValue(), 512, 8196);
+    _audioConfig.highquality     = cfg.sound_highQuality_enable.getValue();
 }
 
 void AudioSystem::stopMusic()
 {
-    if ( _initialized && _audioConfig.musicvalid )
+    if ( _initialized && _audioConfig.enableMusic )
     {
     	Mix_FadeOutMusic(2000);
         //Mix_HaltMusic();
@@ -305,14 +306,14 @@ void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
     //Remember desired music
     _currentSongPlaying = musicID;
 
-    if ( !_audioConfig.musicvalid || !_initialized ) return;
+    if ( !_audioConfig.enableMusic || !_initialized ) return;
 
     if(musicID < 0 || musicID >= _musicLoaded.size()) {
     	return;
     }
 
     //Set music volume
-    Mix_VolumeMusic( _audioConfig.musicvolume );
+    Mix_VolumeMusic( _audioConfig.musicVolume );
 
     // Mix_FadeOutMusic(fadetime);      // Stops the game too
     if(Mix_FadeInMusic(_musicLoaded[musicID], -1, fadetime) == -1) {
@@ -322,7 +323,7 @@ void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
 
 void AudioSystem::loadAllMusic()
 {
-    if ( !_musicLoaded.empty() || !_audioConfig.musicvalid ) return;
+    if ( !_musicLoaded.empty() || !_audioConfig.enableMusic ) return;
 
     // Open the playlist listing all music files
     ReadContext ctxt("mp_data/music/playlist.txt");
@@ -458,7 +459,7 @@ int AudioSystem::playSoundFull(SoundID soundID)
 		return INVALID_SOUND_CHANNEL;
 	}
 
-    if ( !_audioConfig.soundvalid || !_initialized ) {
+    if ( !_audioConfig.enableSound || !_initialized ) {
     	return INVALID_SOUND_CHANNEL;
     }
 
@@ -467,7 +468,7 @@ int AudioSystem::playSoundFull(SoundID soundID)
 
     if(channel != INVALID_SOUND_CHANNEL) {
 	    // we are still limited by the global sound volume
-	    Mix_Volume(channel, ( 128*_audioConfig.soundvolume ) / 100);
+	    Mix_Volume(channel, ( 128*_audioConfig.soundVolume ) / 100);
     }
 
     return channel;
@@ -498,7 +499,7 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fv
     angle += _cameraSystem.getMainCamera()->getTurnZOne() * Ego::Math::twoPi<float>();
 
     //limited global sound volume
-    Mix_Volume(channel, ( 128*_audioConfig.soundvolume ) / 100);
+    Mix_Volume(channel, ( 128*_audioConfig.soundVolume ) / 100);
 
     //Do 3D sound mixing
     Mix_SetPosition(channel, angle, distance);  
@@ -542,7 +543,7 @@ int AudioSystem::playSound(const fvec3_t snd_pos, const SoundID soundID)
 	}
 
     //Make sure sound is valid
-    if ( !_audioConfig.soundvalid || !_initialized ) {
+    if ( !_audioConfig.enableSound || !_initialized ) {
     	return INVALID_SOUND_CHANNEL;
     }
 

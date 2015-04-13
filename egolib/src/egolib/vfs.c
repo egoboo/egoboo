@@ -2550,7 +2550,7 @@ char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
             *str_ptr = cTmp;
             str_ptr++;
 
-            if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp ) break;
+            if ( C_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp ) break;
 
             iTmp = PHYSFS_read( pfile->ptr.p, &cTmp, 1, sizeof( cTmp ) );
 

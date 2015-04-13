@@ -1122,7 +1122,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
     if ( !DISPLAY_PPRT( loc_pprt ) ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if (( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F7 ) ) )
+    if ((egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_F7)))
     {
         oct_bb_t loc_bb, tmp_bb, exp_bb;
 

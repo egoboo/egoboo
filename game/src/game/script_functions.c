@@ -5137,7 +5137,7 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
     fTmp = ( pstate->argument / 10.0f ) - fog.top;
     fog.top += fTmp;
     fog.distance += fTmp;
-    fog.on = cfg.fog_allowed;
+    fog.on = egoboo_config_t::get().graphic_fog_enable.getValue();
     if ( fog.distance < 1.0f )  fog.on = false;
 
     SCRIPT_FUNCTION_END();
@@ -5192,7 +5192,7 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
     fTmp = ( pstate->argument / 10.0f ) - fog.bottom;
     fog.bottom += fTmp;
     fog.distance -= fTmp;
-    fog.on = cfg.fog_allowed;
+    fog.on = egoboo_config_t::get().graphic_fog_enable.getValue();
     if ( fog.distance < 1.0f )  fog.on = false;
 
     SCRIPT_FUNCTION_END();

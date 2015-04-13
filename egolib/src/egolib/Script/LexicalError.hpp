@@ -18,8 +18,7 @@
 //********************************************************************************************
 #pragma once
 
-#include "egolib/Script/LexicalError.hpp"
-#include "egolib/Script/SyntacticalError.hpp"
+#include "egolib/Script/AbstractLexicalError.hpp"
 
 namespace Ego
 {
@@ -29,46 +28,57 @@ namespace Ego
 
         /**
          * @brief
-         *  An exception to indicate a missing delimiter lexical error.
+         *  An exception for generic lexical errors.
          * @author
          *  Michael Heilmann
          */
-        class MissingDelimiterError : public AbstractLexicalError
+        class LexicalError : public AbstractLexicalError
         {
 
         private:
 
             /**
              * @brief
-             *  The expected delimiter.
+             *  A message describing the error.
              */
-            char _delimiter;
+            string _message;
 
         public:
 
             /**
              * @brief
-             *  Construct a missing delimiter error.
-             * @param file, line, location
-             *  see documentation of Ego::Script::LexicalError(const char *,int,const Ego::Script::Location&)
-             * @param delimiter
-             *  the expected delimiter
+             *  Construct this exception.
+             * @param file
+             *  the C++ source file name associated with this error
+             * @param line
+             *  the line within the C++ source file associated with this error
+             * @param location
+             *  the location associated with this error
+             *  the load name of the file associated with this error
+             * @param message
+             *  a message describing the error
              */
-            MissingDelimiterError(const char *file, int line, const Location& location, char delimiter) :
-                AbstractLexicalError(file, line, location), _delimiter(delimiter)
+            LexicalError(const char *file, int line, const Location& location, const string& message) :
+                AbstractLexicalError(file, line, location), _message(message)
             {}
 
+            /**
+             * @brief
+             *  Overloaded cast to std::string operator.
+             * @return
+             *  the result of the cast
+             */
             operator string() const override
             {
-                std::ostringstream o;
+                ostringstream o;
                 writeLocation(o);
                 o << " - "
-                    << "missing delimiter `" << _delimiter << "`"
-                    ;
+                    << "lexical error: "
+                    << _message;
+                ;
                 return o.str();
             }
 
         };
-
     }
 }

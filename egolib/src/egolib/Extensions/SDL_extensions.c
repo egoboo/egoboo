@@ -277,7 +277,7 @@ void SDLX_report_video_parameters(SDLX_video_parameters_t *self)
         return;
     }
 
-    log_message("\twidth == %d, height == %d, depth == %d\n", self->width, self->height, self->depth);
+    log_message("\thorizontalResolution == %d, verticalResolution == %d, colorBufferDepth == %d\n", self->horizontalResolution, self->verticalResolution, self->colorBufferDepth);
 
     SDLX_output_sdl_video_flags(&(self->flags));
 
@@ -322,9 +322,9 @@ void SDLX_synch_video_parameters( SDL_Surface * ret, SDLX_video_parameters_t * v
 
     if ( NULL == ret || NULL == v ) return;
 
-    v->width  = ret->w;
-    v->height = ret->h;
-    v->depth  = ret->format->BitsPerPixel;
+    v->horizontalResolution  = ret->w;
+    v->verticalResolution = ret->h;
+    v->colorBufferDepth  = ret->format->BitsPerPixel;
 
     // translate the surface flags into the bitfield
     SDLX_download_sdl_video_flags( ret->flags, &( v->flags ) );
@@ -399,10 +399,10 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
         // do our one-and-only video initialization
         ret = NULL;
-        sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, v->depth, flags );
+        sdl_nearset_bpp = SDL_VideoModeOK(v->horizontalResolution, v->verticalResolution, v->colorBufferDepth, flags);
         if ( 0 != sdl_nearset_bpp )
         {
-            ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+            ret = SDL_SetVideoMode(v->horizontalResolution, v->verticalResolution, sdl_nearset_bpp, flags);
 
             if ( NULL == ret )
             {
@@ -414,7 +414,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
     {
         int buffer_size = v->gl_att.buffer_size;
 
-        if ( 0 == buffer_size ) buffer_size = v->depth;
+        if ( 0 == buffer_size ) buffer_size = v->colorBufferDepth;
         if ( 0 == buffer_size ) buffer_size = 32;
         if ( buffer_size > 32 ) buffer_size = 32;
 
@@ -447,7 +447,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         buffer_size &= ~7;
 
         // synch some parameters between OpenGL and SDL
-        v->depth               = buffer_size;
+        v->colorBufferDepth    = buffer_size;
         v->gl_att.buffer_size  = buffer_size;
         v->gl_att.doublebuffer = v->flags.double_buf ? SDL_TRUE : SDL_FALSE;
 
@@ -460,10 +460,10 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         // try a softer video initialization
         // if it fails, then it tries to get the closest possible valid video mode
         ret = NULL;
-        sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, buffer_size, flags );
+        sdl_nearset_bpp = SDL_VideoModeOK(v->horizontalResolution, v->verticalResolution, buffer_size, flags);
         if ( 0 != sdl_nearset_bpp )
         {
-            ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+            ret = SDL_SetVideoMode(v->horizontalResolution, v->verticalResolution, sdl_nearset_bpp, flags);
 
             if ( NULL == ret )
             {
@@ -496,10 +496,10 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
                     SDLX_set_sdl_gl_attrib( v );
 
-                    sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, buffer_size, flags );
+                    sdl_nearset_bpp = SDL_VideoModeOK(v->horizontalResolution, v->verticalResolution, buffer_size, flags);
                     if ( 0 != sdl_nearset_bpp )
                     {
-                        ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+                        ret = SDL_SetVideoMode(v->horizontalResolution, v->verticalResolution, sdl_nearset_bpp, flags);
                         if ( NULL == ret )
                         {
                             log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
@@ -523,10 +523,10 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
             SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 0 );
             SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 0 );
 
-            sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, buffer_size, flags );
+            sdl_nearset_bpp = SDL_VideoModeOK( v->horizontalResolution, v->verticalResolution, buffer_size, flags );
             if ( 0 != sdl_nearset_bpp )
             {
-                ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+                ret = SDL_SetVideoMode( v->horizontalResolution, v->verticalResolution, sdl_nearset_bpp, flags );
                 if ( NULL == ret )
                 {
                     log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
@@ -606,9 +606,9 @@ SDL_bool SDLX_video_parameters_default(SDLX_video_parameters_t *self)
     }
 
     self->surface = nullptr;
-    self->width = 640;
-    self->height = 480;
-    self->depth = 32;
+    self->horizontalResolution = 640;
+    self->verticalResolution = 480;
+    self->colorBufferDepth = 32;
 
     SDLX_sdl_video_flags_default(&(self->flags));
     SDLX_sdl_gl_attrib_default(&(self->gl_att));

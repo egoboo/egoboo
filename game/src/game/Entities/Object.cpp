@@ -420,15 +420,16 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
 int Object::damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
                    const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus)
 {
-    int     action;
-    bool do_feedback = ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback );
+    int action;
+    bool do_feedback = (Ego::FeedbackType::None != egoboo_config_t::get().hud_feedback.getValue());
 
-    //Simply ignore damaging invincible targets
-    if(invictus && !ignore_invictus) {
+    // Simply ignore damaging invincible targets.
+    if(invictus && !ignore_invictus)
+    {
         return 0;
     }
 
-    //Don't continue if there is no damage or the character isn't alive
+    // Don't continue if there is no damage or the character isn't alive.
     int max_damage = std::abs( damage.base ) + std::abs( damage.rand );
     if ( !isAlive() || 0 == max_damage ) return 0;
 
@@ -538,13 +539,13 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         if ( 0 == damage_timer || ignore_invictus )
         {
             // Normal mode reduces damage dealt by monsters with 30%!
-            if (cfg.difficulty == GAME_NORMAL && VALID_PLA(is_which_player))
+            if (egoboo_config_t::get().game_difficulty.getValue() == Ego::GameDifficulty::Normal && VALID_PLA(is_which_player))
             {
                 actual_damage *= 0.70f;
             }
 
             // Easy mode deals 25% extra actual damage by players and 50% less to players
-            if ( cfg.difficulty <= GAME_EASY )
+            if (egoboo_config_t::get().game_difficulty.getValue() <= Ego::GameDifficulty::Easy)
             {
                 if ( VALID_PLA( attacker->is_which_player )  && !VALID_PLA(is_which_player) ) actual_damage *= 1.25f;
                 if ( !VALID_PLA( attacker->is_which_player ) &&  VALID_PLA(is_which_player) ) actual_damage *= 0.5f;

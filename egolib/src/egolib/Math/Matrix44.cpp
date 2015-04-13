@@ -320,25 +320,7 @@ fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat)
 
 void mat_gluLookAt(fmat_4x4_t &dst, const fmat_4x4_t &src, const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
 {
-    fvec3_t f = center - eye;
-    f.normalize();
-    fvec3_t up_ = up;
-    up_.normalize();
-
-    fvec3_t s = f.cross(up);
-    s.normalize();
-    
-    fvec3_t u = s.cross(f);
-    
-    auto M = fmat_4x4_t
-        (
-         s.x,  s.y,  s.z, 0.0f,
-         u.x,  u.y,  u.z, 0.0f,
-        -f.x, -f.y, -f.z, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-        );
-    
-    dst = src * M * fmat_4x4_t::translation(-eye);
+    dst = src * fmat_4x4_t::lookAt(eye, center, up);
 }
 
 void mat_glRotate(fmat_4x4_t &dst, const fmat_4x4_t &src, const float angle, const fvec3_t& axis)

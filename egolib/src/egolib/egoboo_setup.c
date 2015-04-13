@@ -23,670 +23,261 @@
 
 #include "egolib/egoboo_setup.h"
 
-#include "egolib/log.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-
-#include "egolib/FileFormats/configfile.h"
-#include "egolib/Extensions/ogl_texture.h"
-
 #include "egolib/_math.h"
-
-// includes for egoboo constants
-#include "game/Graphics/Camera.hpp"            // for CAM_TURN_*
-#include "game/renderer_2d.h"       // for EGO_MESSAGE_MAX
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// Macros for reading values from a ConfigFile
-//  - Must have a valid ConfigFilePtr_t named _lpConfigSetup
-//  - Must have a string named lCurSectionName to define the section
-//  - Must have temporary variables defined of the correct type (lTempBool, lTempInt, and lTempStr)
-
-#define GetKey_bool(LABEL, VAR, DEFAULT) \
-    { \
-        if ( 0 == ConfigFile_GetValue_Boolean( _lpConfigSetup, lCurSectionName, LABEL, &lTempBool ) ) \
-        { \
-            lTempBool = DEFAULT; \
-        } \
-        VAR = lTempBool; \
-    }
-
-#define GetKey_int(LABEL, VAR, DEFAULT) \
-    { \
-        if ( 0 == ConfigFile_GetValue_Int( _lpConfigSetup, lCurSectionName, LABEL, &lTempInt ) ) \
-        { \
-            lTempInt = DEFAULT; \
-        } \
-        VAR = lTempInt; \
-    }
-
-// Don't make LEN larger than 64
-#define GetKey_string(LABEL, VAR, LEN, DEFAULT) \
-    { \
-        if ( 0 == ConfigFile_GetValue_String( _lpConfigSetup, lCurSectionName, LABEL, lTempStr, SDL_arraysize( lTempStr ) ) ) \
-        { \
-            strncpy( lTempStr, DEFAULT, SDL_arraysize( lTempStr ) ); \
-        } \
-        if ( lTempStr != VAR ) \
-        { \
-            strncpy( VAR, lTempStr, LEN ); \
-        } \
-        VAR[(LEN) - 1] = CSTR_END; \
-    }
-
-#define SetKey_bool(LABEL, VAR)     ConfigFile_SetValue_Boolean( _lpConfigSetup, lCurSectionName, LABEL, VAR )
-#define SetKey_int(LABEL, VAR)      ConfigFile_SetValue_Int( _lpConfigSetup, lCurSectionName, LABEL, VAR )
-#define SetKey_string( LABEL, VAR ) ConfigFile_SetValue_String( _lpConfigSetup, lCurSectionName, LABEL, VAR )
+#include "game/Graphics/Camera.hpp"
+#include "game/renderer_2d.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static bool _setup_started = false;
-static STRING _config_filename = EMPTY_CSTR;
-static ConfigFilePtr_t _lpConfigSetup = NULL;
+static std::string _config_filename = "";
+std::shared_ptr<ConfigFile> _lpConfigSetup = nullptr;
 
-static egoboo_config_t cfg_default;
+egoboo_config_t egoboo_config_t::_singleton;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-egoboo_config_t  cfg;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static void egoboo_config__init( egoboo_config_t * pcfg );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-extern "C"
+egoboo_config_t& egoboo_config_t::get()
 {
-#endif
-/// download the data from the egoboo_config_t data structure to program
-/// @note this function must be implemented by the user
-    extern bool config_download( egoboo_config_t * pcfg, bool synch_from_file );
-
-/// convert program settings to an egoboo_config_t data structure
-/// @note this function must be implemented by the user
-    extern bool config_upload( egoboo_config_t * pcfg );
-
-#if defined(__cplusplus)
+    return _singleton;
 }
 
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void egoboo_config__init( egoboo_config_t * pcfg )
-{
-    // {GRAPHIC}
-    pcfg->fullscreen_req        = false;        // Start in fullscreen?
-    pcfg->scrd_req              = 24;                 // Screen bit depth
-    pcfg->scrz_req              = 8;                // Screen z-buffer depth ( 8 unsupported )
-    pcfg->scrx_req              = 640;               // Screen X size
-    pcfg->scry_req              = 480;               // Screen Y size
-    pcfg->use_perspective       = false;      // Perspective correct textures?
-    pcfg->use_dither            = false;           // Dithering?
-    pcfg->reflect_fade          = true;            // 255 = Don't fade reflections
-    pcfg->reflect_allowed       = false;            // Reflections?
-    pcfg->reflect_prt           = false;         // Reflect particles?
-    pcfg->shadow_allowed        = false;            // Shadows?
-    pcfg->shadow_sprite         = false;        // Shadow sprites?
-    pcfg->use_phong             = true;              // Do phong overlay?
-    pcfg->twolayerwater_allowed = true;      // Two layer water?
-    pcfg->overlay_allowed       = false;               // Allow large overlay?
-    pcfg->background_allowed    = false;            // Allow large background?
-    pcfg->fog_allowed           = true;
-    pcfg->gouraud_req           = true;              // Gouraud shading?
-    pcfg->multisamples          = 0;                  // Antialiasing?
-    pcfg->texturefilter_req     = Ego::TextureFilter::UNFILTERED;      // Texture filtering?
-    pcfg->dyna_count_req        = 12;                 // Max number of lights to draw
-    pcfg->framelimit            = 30;
-    pcfg->particle_count_req    = 512;                              // max number of particles
-
-    // {SOUND}
-    pcfg->sound_allowed         = false;
-    pcfg->music_allowed         = false;
-    pcfg->music_volume          = 50;               // The sound volume of music
-    pcfg->sound_volume          = 75;               // Volume of sounds played
-    pcfg->sound_channel_count   = 16;               // Max number of sounds playing at the same time
-    pcfg->sound_buffer_size     = 2048;             // Buffer chunk size
-    pcfg->sound_highquality     = false;           // High quality sounds
-    pcfg->sound_footfall        = true;            // Play footstep sounds
-
-    // {NETWORK}
-    pcfg->network_allowed       = false;            // Try to connect?
-    pcfg->network_lag           = 2;                             // Lag tolerance
-    strncpy( pcfg->network_hostname,    "no host",      SDL_arraysize( pcfg->network_hostname ) );                            // Name for hosting session
-    strncpy( pcfg->network_messagename, "little Raoul", SDL_arraysize( pcfg->network_messagename ) );                      // Name for messages
-
-    // {GAME}
-    pcfg->message_count_req     = 6;
-    pcfg->message_duration      = 50;                      // Time to keep the message alive
-    pcfg->show_stats            = true;                  // Draw the status bars?
-    pcfg->autoturncamera        = CAM_TURN_GOOD;           // Type of camera control...
-    pcfg->feedback              = EGO_FEEDBACK_TYPE_TEXT;  // What feedback does the player want
-    pcfg->difficulty            = GAME_NORMAL;             // What is the current game difficulty
-
-    // {DEBUG}
-    pcfg->fps_allowed       = true;             // FPS displayed?
-    pcfg->hide_mouse        = true;
-    pcfg->grab_mouse        = true;
-    pcfg->dev_mode          = false;
-    pcfg->sdl_image_allowed = true;    // Allow advanced SDL_Image functions?
-
-    // other values
-    pcfg->messageon_req     = ( pcfg->message_count_req > 0 );  // make it consistent with the default
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool setup_begin( void )
-{
-    if ( _setup_started ) return true;
-
-    // set the default Egoboo values
-    egoboo_config__init( &cfg_default );
-
-    // Read the local setup.txt
-#if 0
-    if ( fs_ensureUserFile( "setup.txt", true ) )
+egoboo_config_t::egoboo_config_t() :
+    // Graphic configuration section.
+    graphic_fullscreen(true,"graphic.fullscreen","enable/disable fullscreen mode"),
+    graphic_colorBuffer_bitDepth(24,"graphic.colourBuffer.bitDepth","bit depth of the colour buffer"),
+    graphic_depthBuffer_bitDepth(8,"graphic.depthBuffer.bitDepth","bit depth of the depth buffer"),
+    graphic_resolution_horizontal(800,"graphic.resolution.horizontal", "horizontal resolution"),
+    graphic_resolution_vertical(600,"graphic.resolution.vertical", "vertical resolution"),
+    graphic_perspectiveCorrection_enable(false,"graphic.perspectiveCorrection.enable","enable/displable perspective correction"),
+    graphic_dithering_enable(false, "graphic.dithering.enable","enable/disable dithering"),
+    graphic_reflections_enable(true, "graphic.reflections.enable","enable/disable reflections"),
+    graphic_reflections_particleReflections_enable(true, "graphic.reflections.particleReflections.enable", "enable/disable particle reflections"),
+    graphic_shadows_enable(true, "graphic.shadows.enable", "enable/disable shadows"),
+    graphic_shadows_highQuality_enable(true, "graphic.shadows.highQuality.enable", "enable/disable high quality shadows"),                              // Shadow sprites?
+    graphic_overlay_enable(true, "graphic.overlay.enable", "enable/disable overlay"),
+    graphic_specularHighlights_enable(true,"graphic.specularHighlights.enable","enable/disable specular highlights"),
+    graphic_twoLayerWater_enable(true,"graphic.twoLayerWater.enable","enable/disable two layer water"),
+    graphic_background_enable(true, "graphic.background.enable", "enable/disable background"),
+    graphic_fog_enable(false, "graphic.fog.enable", "enable/disable fog"),
+    graphic_gouraudShading_enable(true, "graphic.gouraudShading.enable", "enable/disable Gouraud shading"),
+    graphic_antialiasing(2, "graphic.antialiasing", "set antialiasing level 0 (off), 1 (2x), 2 (4x), 3 (8x), 4 (16x)"),
+    graphic_textureFiltering(Ego::TextureFilter::TRILINEAR_2, "graphic.textureFiltering", "texture filter used for texture filtering",
     {
-        snprintf( _config_filename, SDL_arraysize( _config_filename ), "%s" SLASH_STR "setup.txt", fs_getUserDirectory() );
+        { "unfiltered",  Ego::TextureFilter::UNFILTERED  },
+        { "linear",      Ego::TextureFilter::LINEAR      },
+        { "mipmap",      Ego::TextureFilter::MIPMAP      },
+        { "bilinear",    Ego::TextureFilter::BILINEAR    },
+        { "trilinear 1", Ego::TextureFilter::TRILINEAR_1 },
+        { "trilinear 2", Ego::TextureFilter::TRILINEAR_2 },
+        { "anisotropic", Ego::TextureFilter::ANISOTROPIC },
+    }),
+    graphic_simultaneousDynamicLights_max(32, "graphic.simultaneousDynamicLights.max", "inclusive upper bound of simultaneous dynamic lights"),
+    graphic_framesPerSecond_max(30, "graphic.framesPerSecond.max", "inclusive upper bound of frames per second"),
+    graphic_simultaneousParticles_max(768, "graphic.simultaneousParticles.max", "inclusive upper bound of simultaneous particles"),
+    // Sound configuration section.
+    sound_effects_enable(true, "sound.effects.enable", "enable/disable effects"),
+    sound_effects_volume(90, "sound.effects.volume", "effects volume"),
+    sound_music_enable(true, "sound.music.enable", "enable/disable music"),
+    sound_music_volume(70,"sound.music.volume", "music volume"),
+    sound_channel_count(32,"sound.channel.count", "number of audio channels.\n"
+    "The number of audio channels available limits the number of sounds playing at the same time"),
+    sound_outputBuffer_size(4096, "sound.outputBuffer.size", "size of the output buffers in samples.\n"
+    "Should be a power of 2, good values seem to range between 512 (inclusive) and 8192 (inclusive).\n"
+    "Smaller values yield faster response time, but can lead to underflow if the audio buffer is not filled in time"),
+    sound_highQuality_enable(false,"sound.highQuality.enable","enable/disable high quality sound"),
+    sound_footfallEffects_enable(true,"sound.footfallEffects.enable","enable/disable footfall effects"),
+    // Network configuration section.
+    network_enable(false,"network.enable","enable/disable networking"),
+    network_lagTolerance(10,"network.lagTolerance","tolerance of lag in seconds"),
+    network_hostName("Egoboo host","network.hostName", "name of host to join"),
+    network_playerName("Egoboo player", "network.playerName", "player name in network games"),
+    // Game configuration section.
+    game_difficulty(Ego::GameDifficulty::Normal, "game.difficulty", "game difficulty",
+    {
+        { "Easy", Ego::GameDifficulty::Easy },
+        { "Normal", Ego::GameDifficulty::Normal },
+        { "Hard", Ego::GameDifficulty::Hard },
+    }),
+    // Camera configuration section.
+    camera_control(CameraTurnMode::Auto, "camera.control", "type of camera control",
+    {
+        { "Good", CameraTurnMode::Good },
+        { "Auto", CameraTurnMode::Auto },
+        { "None", CameraTurnMode::None },
+    }),
+    // HUD configuration section.
+    hud_feedback(Ego::FeedbackType::Text, "hud.feedback", "feed back given to the player",
+    {
+        { "None",    Ego::FeedbackType::None },
+        { "Numeric", Ego::FeedbackType::Number },
+        { "Textual", Ego::FeedbackType::Text },
+    }),
+    hud_simultaneousMessages_max(6, "hud.simultaneousMessages.max", "inclusive upper bound of simultaneous messages"),
+    hud_messageDuration(200, "hud.messageDuration", "time in seconds to keep a message alive"),
+    hud_messages_enable(true, "hud.messages.enable", "enable/disable messages"),
+    hud_displayStatusBars(true, "hud.displayStatusBars", "show/hide status bar"),
+    hud_displayGameTime(false, "hud.displayGameTime","show/hide game timer"),
+    hud_displayFramesPerSecond(false, "hud.displayFramesPerSecond", "show/hide frames per second"),
+    // Debug configuration section.
+    debug_hideMouse(true,"debug.hideMouse","show/hide mouse"),
+    debug_grabMouse(true,"debug.grabMouse","grab/don't grab mouse"),
+    debug_developerMode_enable(false,"debug.developerMode.enable","enable/disable developer mode"),
+    debug_sdlImage_enable(true,"debug.SDL_Image.enable","enable/disable advanced SDL_image function")
+{}
 
-        // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
-        // linux if the directory is read-only
-        _lpConfigSetup = ConfigFile_Load( _config_filename, false );
+egoboo_config_t::~egoboo_config_t()
+{}
+
+egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
+{
+    // Graphic configuration section.
+    graphic_fullscreen = other.graphic_fullscreen;
+    graphic_resolution_horizontal = other.graphic_resolution_horizontal;
+    graphic_resolution_vertical = other.graphic_resolution_vertical;
+    graphic_colorBuffer_bitDepth = other.graphic_colorBuffer_bitDepth;
+    graphic_depthBuffer_bitDepth = other.graphic_depthBuffer_bitDepth;
+    graphic_perspectiveCorrection_enable = other.graphic_perspectiveCorrection_enable;
+    graphic_dithering_enable = other.graphic_dithering_enable;
+    graphic_reflections_enable = other.graphic_reflections_enable;
+    graphic_reflections_particleReflections_enable = other.graphic_reflections_particleReflections_enable;
+    graphic_shadows_enable = other.graphic_shadows_enable;
+    graphic_shadows_highQuality_enable = other.graphic_shadows_highQuality_enable;
+    graphic_specularHighlights_enable = other.graphic_specularHighlights_enable;
+    graphic_twoLayerWater_enable = other.graphic_twoLayerWater_enable;
+    graphic_overlay_enable = other.graphic_overlay_enable;
+    graphic_background_enable = other.graphic_background_enable;
+    graphic_fog_enable = other.graphic_fog_enable;
+    graphic_gouraudShading_enable = other.graphic_gouraudShading_enable;
+    graphic_antialiasing = other.graphic_antialiasing;
+    graphic_textureFiltering = other.graphic_textureFiltering;
+    graphic_simultaneousDynamicLights_max = other.graphic_simultaneousDynamicLights_max;
+    graphic_framesPerSecond_max = other.graphic_framesPerSecond_max;
+    graphic_simultaneousParticles_max = other.graphic_simultaneousParticles_max;
+
+    // Sound configuration section.
+    sound_effects_enable = other.sound_effects_enable;
+    sound_effects_volume = other.sound_effects_volume;
+    sound_music_enable = other.sound_music_enable;
+    sound_music_volume = other.sound_music_volume;
+
+    sound_channel_count = other.sound_channel_count;
+    sound_outputBuffer_size = other.sound_outputBuffer_size;
+    sound_highQuality_enable = other.sound_highQuality_enable;
+    sound_footfallEffects_enable = other.sound_footfallEffects_enable;
+
+    // Network configuration section.
+    network_enable = other.network_enable;
+    network_lagTolerance = other.network_lagTolerance;
+    network_hostName = other.network_hostName;
+    network_playerName = other.network_playerName;
+
+    // Camera configuration section.
+    camera_control = other.camera_control;
+
+    // Game configuration section.
+    game_difficulty = other.game_difficulty;
+    
+    // HUD configuration section.
+    hud_displayGameTime = other.hud_displayGameTime;
+    hud_messages_enable = other.hud_messages_enable;
+    hud_simultaneousMessages_max = other.hud_simultaneousMessages_max;
+    hud_messageDuration = other.hud_messageDuration;
+    hud_displayStatusBars = other.hud_displayStatusBars;
+    hud_feedback = other.hud_feedback;
+    hud_displayFramesPerSecond = other.hud_displayFramesPerSecond;
+
+    // Debug configuration section.
+    debug_hideMouse = other.debug_hideMouse;
+    debug_grabMouse = other.debug_grabMouse;
+    debug_developerMode_enable = other.debug_developerMode_enable;
+    debug_sdlImage_enable = other.debug_sdlImage_enable;
+
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool setup_begin()
+{
+    if (_setup_started)
+    {
+        return true;
     }
-#endif
-    strncpy(_config_filename, "setup.txt", SDL_arraysize(_config_filename));
-    _lpConfigSetup = ConfigFile_Load("setup.txt", false);
 
-    if ( NULL != _lpConfigSetup )
+    // Select the local "setup.txt".
+    _config_filename = "setup.txt";
+    // Parse the local "setup.txt".
+    ConfigFileParser parser;
+    _lpConfigSetup = parser.parse(_config_filename);
+    if (!_lpConfigSetup)
     {
+        log_warning("unable to load setup file `%s`\n", _config_filename.c_str());
+        try
+        {
+            _lpConfigSetup = std::make_shared<ConfigFile>(_config_filename);
+        }
+        catch (...)
+        {
+            return false;
+        }
         _setup_started = true;
     }
-
+    else
+    {
+        log_info("loaded setup file `%s`\n", _config_filename.c_str());
+        _setup_started = true;
+    }
     return _setup_started;
 }
 
-//--------------------------------------------------------------------------------------------
-bool setup_end( void )
+bool setup_end()
 {
-    return ConfigFile_succeed == ConfigFile_destroy( &_lpConfigSetup );
-}
-
-//--------------------------------------------------------------------------------------------
-bool setup_read_vfs( void )
-{
-    /// @author BB
-    /// @details read the setup file
-
-    bool retval;
-
-    if ( !setup_begin() ) return false;
-
-    //Did something go wrong?
-    retval = ( NULL != _lpConfigSetup );
-
-    if ( retval )
+    if (ConfigFileUnParser().unparse(_lpConfigSetup))
     {
-        log_info( "Loaded setup file - \"%s\".\n", _config_filename );
+        _lpConfigSetup = nullptr;
+        return true;
     }
     else
     {
-        log_error( "Could not load setup settings: \"%s\"\n", _config_filename );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool setup_write_vfs( void )
-{
-    /// @author BB
-    /// @details save the current setup file
-
-    ConfigFile_retval retval  = ConfigFile_fail;
-    bool            success = false;
-
-    if ( !setup_begin() ) return false;
-
-    retval = ConfigFile_SaveAs( _lpConfigSetup, _config_filename );
-
-    success = false;
-    if ( ConfigFile_succeed != retval )
-    {
-        success = false;
-        log_warning( "Failed to save setup.txt!\n" );
-    }
-    else
-    {
-        success = true;
-    }
-
-    return success;
-}
-
-//--------------------------------------------------------------------------------------------
-bool setup_download( egoboo_config_t * pcfg )
-{
-    /// @author BB
-    /// @details download the ConfigFile_t keys into game variables
-    ///     use default values to fill in any missing keys
-
-    const char *lCurSectionName;
-    config_bool_t lTempBool;
-    Sint32 lTempInt;
-    STRING lTempStr;
-
-    if ( NULL == _lpConfigSetup || NULL == pcfg ) return false;
-
-    //*********************************************
-    //* GRAPHIC Section
-    //*********************************************
-
-    lCurSectionName = "GRAPHIC";
-
-    // Do fullscreen?
-    GetKey_bool( "FULLSCREEN", pcfg->fullscreen_req, cfg_default.fullscreen_req );
-
-    // Screen Size
-    GetKey_int( "SCREENSIZE_X", pcfg->scrx_req, cfg_default.scrx_req );
-    GetKey_int( "SCREENSIZE_Y", pcfg->scry_req, cfg_default.scry_req );
-
-    // Color depth
-    GetKey_int( "COLOR_DEPTH", pcfg->scrd_req, cfg_default.scrd_req );
-
-    // The z depth
-    GetKey_int( "Z_DEPTH", pcfg->scrz_req, cfg_default.scrz_req );
-
-    // Perspective correction
-    GetKey_bool( "PERSPECTIVE_CORRECT", pcfg->use_perspective, cfg_default.use_perspective );
-
-    // Enable dithering?
-    GetKey_bool( "DITHERING", pcfg->use_dither, cfg_default.use_dither );
-
-    // Reflection fadeout
-    GetKey_bool( "FLOOR_REFLECTION_FADEOUT", lTempBool, 0 != cfg_default.reflect_fade );
-    pcfg->reflect_fade = lTempBool ? 255 : 0;
-
-    // Draw Reflection?
-    GetKey_bool( "REFLECTION", pcfg->reflect_allowed, cfg_default.reflect_allowed );
-
-    // Draw particles in reflection?
-    GetKey_bool( "PARTICLE_REFLECTION", pcfg->reflect_prt, cfg_default.reflect_prt );
-
-    // Draw shadows?
-    GetKey_bool( "SHADOWS", pcfg->shadow_allowed, cfg_default.shadow_allowed );
-
-    // Draw good shadows?
-    GetKey_bool( "SHADOW_AS_SPRITE", pcfg->shadow_sprite, cfg_default.shadow_sprite );
-
-    // Draw phong mapping?
-    GetKey_bool( "PHONG", pcfg->use_phong, cfg_default.use_phong );
-
-    // Draw water with more layers?
-    GetKey_bool( "MULTI_LAYER_WATER", pcfg->twolayerwater_allowed, cfg_default.twolayerwater_allowed );
-
-    // Allow overlay effects?
-    GetKey_bool( "OVERLAY", pcfg->overlay_allowed, cfg_default.overlay_allowed );
-
-    // Allow backgrounds?
-    GetKey_bool( "BACKGROUND", pcfg->background_allowed, cfg_default.background_allowed );
-
-    // Enable fog?
-    GetKey_bool( "FOG", pcfg->fog_allowed, cfg_default.fog_allowed );
-
-    // Do Gouraud shading?
-    GetKey_bool( "GOURAUD_SHADING", pcfg->gouraud_req, cfg_default.gouraud_req );
-
-    // Enable antialiasing?
-    GetKey_int( "ANTIALIASING", pcfg->multisamples, cfg_default.multisamples );
-
-    // coerce a "valid" multisample value
-    pcfg->multisamples = CLIP( pcfg->multisamples, (Uint8)0, (Uint8)4 );
-
-    // Do we do texture filtering?
-    GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
-    pcfg->texturefilter_req =  cfg_default.texturefilter_req;
-    if ('U' == Ego::toupper(lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::UNFILTERED;
-	if ('L' == Ego::toupper(lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::LINEAR;
-	if ('M' == Ego::toupper(lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::MIPMAP;
-	if ('B' == Ego::toupper(lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::BILINEAR;
-	if ('T' == Ego::toupper(lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::TRILINEAR_1;
-	if ('2' == Ego::toupper(lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::TRILINEAR_2;
-	if ('A' == Ego::toupper(lTempStr[0]))  pcfg->texturefilter_req = Ego::TextureFilter::ANISOTROPIC;
-
-    // Max number of lights
-    GetKey_int( "MAX_DYNAMIC_LIGHTS", pcfg->dyna_count_req, cfg_default.dyna_count_req );
-
-    // Get the FPS limit
-    GetKey_int( "MAX_FPS_LIMIT", pcfg->framelimit, 30 );
-
-    // Get the particle limit
-    GetKey_int( "MAX_PARTICLES", pcfg->particle_count_req, cfg_default.particle_count_req );
-
-    //*********************************************
-    //* SOUND Section
-    //*********************************************
-
-    lCurSectionName = "SOUND";
-
-    // Enable sound
-    GetKey_bool( "SOUND", pcfg->sound_allowed, cfg_default.sound_allowed );
-
-    // Enable music
-    GetKey_bool( "MUSIC", pcfg->music_allowed, cfg_default.music_allowed );
-
-    // Music volume
-    GetKey_int( "MUSIC_VOLUME", pcfg->music_volume, cfg_default.music_volume );
-
-    // Sound volume
-    GetKey_int( "SOUND_VOLUME", pcfg->sound_volume, cfg_default.sound_volume );
-
-    // Max number of sound channels playing at the same time
-    GetKey_int( "MAX_SOUND_CHANNEL", pcfg->sound_channel_count, cfg_default.sound_channel_count );
-
-    // The output buffer size
-    GetKey_int( "OUTPUT_BUFFER_SIZE", pcfg->sound_buffer_size, cfg_default.sound_buffer_size );
-
-    // Extra high sound quality?
-    GetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality, cfg_default.sound_highquality );
-    pcfg->sound_highquality_base = pcfg->sound_highquality;
-
-    // Extra high sound quality?
-    GetKey_bool( "ENABLE_FOOTSTEPS", pcfg->sound_footfall, cfg_default.sound_footfall );
-
-    //*********************************************
-    //* CONTROL Section
-    //*********************************************
-
-    lCurSectionName = "GAME";
-
-    // Which difficulty mode do we use?
-    GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
-    pcfg->difficulty = cfg_default.difficulty;
-    if ( 'E' == Ego::toupper(lTempStr[0] ) )  pcfg->difficulty = GAME_EASY;
-    if ( 'N' == Ego::toupper(lTempStr[0] ) )  pcfg->difficulty = GAME_NORMAL;
-    if ( 'H' == Ego::toupper(lTempStr[0] ) )  pcfg->difficulty = GAME_HARD;
-
-    //Feedback
-    GetKey_int( "FEEDBACK", lTempInt, cfg_default.feedback );
-    pcfg->feedback = ( EGO_FEEDBACK_TYPE )lTempInt;
-
-    // Camera control mode
-    GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
-    pcfg->autoturncamera = cfg_default.autoturncamera;
-    if ( 'G' == Ego::toupper(lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_GOOD;
-    else if ( 'T' == Ego::toupper(lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_AUTO;
-    else if ( 'F' == Ego::toupper(lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_NONE;
-
-    // Max number of messages displayed
-    GetKey_int( "MAX_TEXT_MESSAGE", pcfg->message_count_req, cfg_default.message_count_req );
-
-    // Max number of messages displayed
-    GetKey_int( "MESSAGE_DURATION", pcfg->message_duration, cfg_default.message_duration );
-
-    //*********************************************
-    //* NETWORK Section
-    //*********************************************
-
-    lCurSectionName = "NETWORK";
-
-    // Enable networking systems?
-    GetKey_bool( "NETWORK_ON", pcfg->network_allowed, cfg_default.network_allowed );
-
-    // Max lag
-    GetKey_int( "LAG_TOLERANCE", pcfg->network_lag, cfg_default.network_lag );
-
-    // Name or IP of the host or the target to join
-    GetKey_string( "HOST_NAME", pcfg->network_hostname, SDL_arraysize( pcfg->network_hostname ), cfg_default.network_hostname );
-
-    // Multiplayer name
-    GetKey_string( "MULTIPLAYER_NAME", pcfg->network_messagename, SDL_arraysize( pcfg->network_messagename ), cfg_default.network_messagename );
-
-    //*********************************************
-    //* DEBUG Section
-    //*********************************************
-
-    lCurSectionName = "DEBUG";
-
-    // Some special debug settings
-    GetKey_bool( "DISPLAY_FPS", pcfg->fps_allowed,       cfg_default.fps_allowed );
-    GetKey_bool( "HIDE_MOUSE",  pcfg->hide_mouse,        cfg_default.hide_mouse );
-    GetKey_bool( "GRAB_MOUSE",  pcfg->grab_mouse,        cfg_default.grab_mouse );
-    GetKey_bool( "DEV_MODE",    pcfg->dev_mode,          cfg_default.dev_mode );
-    GetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed, cfg_default.sdl_image_allowed );
-
-    // Show status bars? (Life, mana, character icons, etc.)
-    GetKey_bool( "STATUS_BAR", pcfg->show_stats, cfg_default.show_stats );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool setup_upload( egoboo_config_t * pcfg )
-{
-    /// @author BB
-    /// @details upload game variables into the ConfigFile_t keys
-
-    const char  *lCurSectionName;
-    if ( NULL == _lpConfigSetup || NULL == pcfg ) return false;
-
-    //*********************************************
-    //* GRAPHIC Section
-    //*********************************************
-
-    lCurSectionName = "GRAPHIC";
-
-    // Do fullscreen?
-    SetKey_bool( "FULLSCREEN", pcfg->fullscreen_req );
-
-    // Screen Size
-    SetKey_int( "SCREENSIZE_X", pcfg->scrx_req );
-    SetKey_int( "SCREENSIZE_Y", pcfg->scry_req );
-
-    // Color depth
-    SetKey_int( "COLOR_DEPTH", pcfg->scrd_req );
-
-    // The z depth
-    SetKey_int( "Z_DEPTH", pcfg->scrz_req );
-
-    // Perspective correction
-    SetKey_bool( "PERSPECTIVE_CORRECT", pcfg->use_perspective );
-
-    // Enable dithering?
-    SetKey_bool( "DITHERING", pcfg->use_dither );
-
-    // Reflection fadeout
-    SetKey_bool( "FLOOR_REFLECTION_FADEOUT", 0 != pcfg->reflect_fade );
-
-    // Draw Reflection?
-    SetKey_bool( "REFLECTION", pcfg->reflect_allowed );
-
-    // Draw particles in reflection?
-    SetKey_bool( "PARTICLE_REFLECTION", pcfg->reflect_prt );
-
-    // Draw shadows?
-    SetKey_bool( "SHADOWS", pcfg->shadow_allowed );
-
-    // Draw good shadows?
-    SetKey_bool( "SHADOW_AS_SPRITE", pcfg->shadow_sprite );
-
-    // Draw phong mapping?
-    SetKey_bool( "PHONG", pcfg->use_phong );
-
-    // Draw water with more layers?
-    SetKey_bool( "MULTI_LAYER_WATER", pcfg->twolayerwater_allowed );
-
-    // Allow overlay effects?
-    SetKey_bool( "OVERLAY", pcfg->overlay_allowed );
-
-    // Allow backgrounds?
-    SetKey_bool( "BACKGROUND", pcfg->background_allowed );
-
-    // Enable fog?
-    SetKey_bool( "FOG", pcfg->fog_allowed );
-
-    // Do Gouraud shading?
-    SetKey_bool( "GOURAUD_SHADING", pcfg->gouraud_req );
-
-    // Enable antialiasing?
-    SetKey_int( "ANTIALIASING", pcfg->multisamples );
-
-    // Do we do texture filtering?
-    switch ( pcfg->texturefilter_req )
-    {
-		case Ego::TextureFilter::UNFILTERED:  SetKey_string("TEXTURE_FILTERING", "UNFILTERED"); break;
-		case Ego::TextureFilter::MIPMAP:      SetKey_string("TEXTURE_FILTERING", "MIPMAP"); break;
-		case Ego::TextureFilter::BILINEAR:    SetKey_string("TEXTURE_FILTERING", "BILINEAR"); break;
-		case Ego::TextureFilter::TRILINEAR_1: SetKey_string("TEXTURE_FILTERING", "TRILINEAR"); break;
-		case Ego::TextureFilter::TRILINEAR_2: SetKey_string("TEXTURE_FILTERING", "2_TRILINEAR"); break;
-		case Ego::TextureFilter::ANISOTROPIC: SetKey_string("TEXTURE_FILTERING", "ANISOTROPIC"); break;
-
-        default:
-		case Ego::TextureFilter::LINEAR:      SetKey_string("TEXTURE_FILTERING", "LINEAR"); break;
-    }
-
-    // Max number of lights
-    SetKey_int( "MAX_DYNAMIC_LIGHTS", pcfg->dyna_count_req );
-
-    // Get the FPS limit
-    SetKey_int( "MAX_FPS_LIMIT", pcfg->framelimit );
-
-    // Get the particle limit
-    SetKey_int( "MAX_PARTICLES", pcfg->particle_count_req );
-
-    //*********************************************
-    //* SOUND Section
-    //*********************************************
-
-    lCurSectionName = "SOUND";
-
-    // Enable sound
-    SetKey_bool( "SOUND", pcfg->sound_allowed );
-
-    // Enable music
-    SetKey_bool( "MUSIC", pcfg->music_allowed );
-
-    // Music volume
-    SetKey_int( "MUSIC_VOLUME", pcfg->music_volume );
-
-    // Sound volume
-    SetKey_int( "SOUND_VOLUME", pcfg->sound_volume );
-
-    // Max number of sound channels playing at the same time
-    SetKey_int( "MAX_SOUND_CHANNEL", pcfg->sound_channel_count );
-
-    // The output buffer size
-    SetKey_int( "OUTPUT_BUFFER_SIZE", pcfg->sound_buffer_size );
-
-    // Extra high sound quality
-    SetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality );
-
-    // Draw phong mapping?
-    SetKey_bool( "ENABLE_FOOTSTEPS", pcfg->sound_footfall );
-
-    //*********************************************
-    //* GAME Section
-    //*********************************************
-
-    lCurSectionName = "GAME";
-
-    // Save diffculty mode
-    switch ( pcfg->difficulty )
-    {
-        case GAME_EASY:         SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
-        case GAME_HARD:         SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
-
-        default:
-        case GAME_NORMAL:       SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
-    }
-
-    // Feedback type
-    SetKey_int( "FEEDBACK", pcfg->feedback );
-
-    // Camera control mode
-    switch ( pcfg->autoturncamera )
-    {
-        case CAM_TURN_NONE:  SetKey_bool( "AUTOTURN_CAMERA", false ); break;
-        case CAM_TURN_GOOD:  SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
-
-        default:
-        case CAM_TURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", true );  break;
-    }
-
-    // Max number of messages displayed
-    SetKey_int( "MAX_TEXT_MESSAGE", !pcfg->messageon_req ? 0 : CLIP( pcfg->message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX ) );
-
-    // Max number of messages displayed
-    SetKey_int( "MESSAGE_DURATION", pcfg->message_duration );
-
-    //*********************************************
-    //* NETWORK Section
-    //*********************************************
-
-    lCurSectionName = "NETWORK";
-
-    // Enable networking systems?
-    SetKey_bool( "NETWORK_ON", pcfg->network_allowed );
-
-    // Name or IP of the host or the target to join
-    SetKey_string( "HOST_NAME", pcfg->network_hostname );
-
-    // Multiplayer name
-    SetKey_string( "MULTIPLAYER_NAME", pcfg->network_messagename );
-
-    // Max lag
-    SetKey_int( "LAG_TOLERANCE", pcfg->network_lag );
-
-    //*********************************************
-    //* DEBUG Section
-    //*********************************************
-
-    lCurSectionName = "DEBUG";
-
-    // Some special debug settings
-    SetKey_bool( "DISPLAY_FPS", pcfg->fps_allowed );
-    SetKey_bool( "HIDE_MOUSE",  pcfg->hide_mouse );
-    SetKey_bool( "GRAB_MOUSE",  pcfg->grab_mouse );
-    SetKey_bool( "DEV_MODE",    pcfg->dev_mode );
-    SetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed );
-
-    // Show status bars? (Life, mana, character icons, etc.)
-    SetKey_bool( "STATUS_BAR", pcfg->show_stats );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool config_synch( egoboo_config_t * pcfg, bool synch_from_file )
-{
-    if ( !config_download( pcfg, synch_from_file ) )
-    {
+        log_warning("unable to save setup file `%s`\n", _lpConfigSetup->getFileName().c_str());
+        _lpConfigSetup = nullptr;
         return false;
     }
+}
 
-    if ( !config_upload( pcfg ) )
+//--------------------------------------------------------------------------------------------
+bool setup_download(egoboo_config_t *cfg)
+{
+    if (!cfg)
     {
-        return false;
+        throw std::invalid_argument("nullptr == cfg");
     }
+    if (!_lpConfigSetup)
+    {
+        throw std::logic_error("`setup.txt` not initialized");
+    }
+    cfg->for_each(egoboo_config_t::Load(_lpConfigSetup));
+    return true;
+}
 
+bool setup_upload(egoboo_config_t *cfg)
+{
+    if (!cfg)
+    {
+        throw std::invalid_argument("nullptr == cfg");
+    }
+    if (!_lpConfigSetup)
+    {
+        throw std::logic_error("`setup.txt` not initialized");
+    }
+    cfg->for_each(egoboo_config_t::Store(_lpConfigSetup));   
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void setup_init_base_vfs_paths( void )
+void setup_init_base_vfs_paths()
 {
-    /// @author BB
-    /// @details set the basic mount points used by the main program
-
     //---- tell the vfs to add the basic search paths
     vfs_set_base_search_paths();
 
@@ -714,12 +305,8 @@ void setup_init_base_vfs_paths( void )
     vfs_add_mount_point( fs_getUserDirectory(), "remote", "mp_remote", 1 );
 }
 
-//--------------------------------------------------------------------------------------------
-void setup_clear_base_vfs_paths( void )
+void setup_clear_base_vfs_paths()
 {
-    /// @author BB
-    /// @details clear out the basic mount points
-
     vfs_remove_mount_point( "mp_data" );
     vfs_remove_mount_point( "mp_modules" );
     vfs_remove_mount_point( "mp_players" );
@@ -727,13 +314,8 @@ void setup_clear_base_vfs_paths( void )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool setup_init_module_vfs_paths( const char * mod_path )
+bool setup_init_module_vfs_paths(const char *mod_path)
 {
-    /// @author BB
-    /// @details set up the virtual mount points for the module's data
-    ///               and objects
-
     const char * path_seperator_1, * path_seperator_2;
     const char * mod_dir_ptr;
     STRING mod_dir_string;
@@ -804,7 +386,7 @@ bool setup_init_module_vfs_paths( const char * mod_path )
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_clear_module_vfs_paths( void )
+void setup_clear_module_vfs_paths()
 {
     /// @author BB
     /// @details clear out the all mount points

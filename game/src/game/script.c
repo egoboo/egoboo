@@ -1422,7 +1422,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARDIFFICULTY:
                 varname = "DIFFICULTY";
-                iTmp = cfg.difficulty;
+                iTmp = static_cast<Uint32>(egoboo_config_t::get().game_difficulty.getValue());
                 break;
 
             case VARTIMEHOURS:

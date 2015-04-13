@@ -256,6 +256,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Conversion.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\TextInputFile.cpp" />
+    <ClCompile Include="src\egolib\Script\TextFile.cpp" />
     <ClCompile Include="src\egolib\Graphics\Font.cpp" />
     <ClCompile Include="src\egolib\Graphics\FontManager.cpp" />
     <ClCompile Include="src\egolib\Image\Image.cpp" />
@@ -437,6 +440,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractLexicalError.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractReader.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractSyntacticalError.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Conversion.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\EnumDescriptor.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\LexicalError.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\SyntacticalError.hpp" />
+    <ClInclude Include="src\egolib\Script\QualifiedName.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\TextInputFile.hpp" />
+    <ClInclude Include="src\egolib\Script\TextFile.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Traits.hpp" />
     <ClInclude Include="src\egolib\Math\_Include.hpp" />
     <ClInclude Include="src\egolib\Graphics\Font.hpp" />
     <ClInclude Include="src\egolib\Graphics\FontManager.hpp" />

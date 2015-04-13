@@ -143,7 +143,7 @@ int font_bmp_length_of_word( const char *szText )
     int cnt = 0;
     Uint8 cTmp = szText[cnt];
 
-    while ( ' ' == cTmp || '~' == cTmp || C_NEW_LINE_CHAR == cTmp )
+    while ( ' ' == cTmp || '~' == cTmp || C_LINEFEED_CHAR == cTmp )
     {
         if ( ' ' == cTmp )
         {
@@ -158,7 +158,7 @@ int font_bmp_length_of_word( const char *szText )
         cTmp = szText[cnt];
     }
 
-    while ( ' ' != cTmp && '~' != cTmp && C_NEW_LINE_CHAR != cTmp && CSTR_END != cTmp )
+    while ( ' ' != cTmp && '~' != cTmp && C_LINEFEED_CHAR != cTmp && CSTR_END != cTmp )
     {
         x += fontxspacing[asciitofont[cTmp]];
         cnt++;

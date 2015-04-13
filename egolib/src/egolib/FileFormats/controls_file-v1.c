@@ -89,7 +89,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
     InputDevices.count++;
 
     // Read in however many joysticks there are...
-    for ( cnt = 0; !ctxt.is(ReadContext::EndOfInput) && cnt < MAX_JOYSTICK; cnt++ )
+    for (cnt = 0; !ctxt.is(ReadContext::Traits::endOfInput()) && cnt < MAX_JOYSTICK; cnt++)
     {
         idevice = ( INPUT_DEVICE )( INPUT_DEVICE_JOY + cnt );
         pdevice = InputDevices.lst[idevice];

@@ -315,7 +315,9 @@ struct gfx_config_t
 {
     GLuint shading;
     bool refon;
+#if 0
     Uint8  reffadeor;
+#endif
     bool antialiasing;
     bool dither;
     bool perspective;

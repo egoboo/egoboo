@@ -681,7 +681,7 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     if ( !ppro->isValidMessageID( message ) ) return false;
 
     slot = DisplayMsg_get_free();
-    DisplayMsg.ary[slot].time = cfg.message_duration;
+    DisplayMsg.ary[slot].time = egoboo_config_t::get().hud_messageDuration.getValue();
 
     length = ppro->getMessage(message).length();
 

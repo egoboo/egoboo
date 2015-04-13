@@ -121,9 +121,9 @@
 /// Parameters for setting an SDL video state
     struct SDLX_video_parameters_t
     {
-        int width;
-        int height;
-        int depth;
+        int horizontalResolution;
+        int verticalResolution;
+        int colorBufferDepth;
 
         SDLX_sdl_video_flags_t flags;
         SDLX_sdl_gl_attrib_t gl_att;

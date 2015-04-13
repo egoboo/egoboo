@@ -56,9 +56,10 @@
 	int       quest_log_get_level(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz);
 	egolib_rv quest_log_add(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level);
 
-	ConfigFilePtr_t quest_file_open(const char *player_directory);
-	egolib_rv       quest_file_export(ConfigFilePtr_t pfile);
-	egolib_rv       quest_file_close(ConfigFilePtr_t * ppfile, bool do_export);
-	egolib_rv       quest_file_set_level(ConfigFilePtr_t ppfile, IDSZ idsz, int level);
-	egolib_rv       quest_file_adjust_level(ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment);
-	egolib_rv       quest_file_get_level(ConfigFilePtr_t ppfile, IDSZ idsz);
+	std::shared_ptr<ConfigFile> quest_file_open(const char *player_directory);
+    egolib_rv quest_file_export(std::shared_ptr<ConfigFile> file);
+#if 0
+    egolib_rv quest_file_set_level(std::shared_ptr<ConfigFile> file, IDSZ idsz, int level);
+    egolib_rv quest_file_adjust_level(std::shared_ptr<ConfigFile> file, IDSZ idsz, int adjustment);
+    egolib_rv quest_file_get_level(std::shared_ptr<ConfigFile> file, IDSZ idsz);
+#endif

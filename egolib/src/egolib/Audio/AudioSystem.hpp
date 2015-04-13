@@ -25,9 +25,6 @@
 
 #include "game/Entities/_Include.hpp"
 
-//Forward declarations
-struct egoboo_config_t;
-
 typedef int MusicID;
 typedef int SoundID;
 
@@ -38,26 +35,36 @@ CONSTEXPR SoundID INVALID_SOUND_ID = -1;
 struct SoundConfiguration
 {
 public:
-	bool       soundvalid;           ///< Allow playing of sound?
-	uint8_t    soundvolume;          ///< Volume of sounds played
+    /**
+     * @brief
+     *  Enable/disable playing of sounds.
+     */
+	bool enableSound;
+	uint8_t soundVolume;          ///< Volume of sounds.
 
-	bool       musicvalid;           ///< Allow music and loops?
-	uint8_t    musicvolume;          ///< The sound volume of music
+    /**
+     * @brief
+     *  Enable/disable playing of music and loops.
+     * @todo
+     *  Music and loops should be seperated.
+     */
+	bool enableMusic;
+	uint8_t musicVolume;         ///< The volume of music.
 
 	int        maxsoundchannel;      ///< Max number of sounds playing at the same time
 	int        buffersize;           ///< Buffer size set in setup.txt
 	bool       highquality;          ///< Allow CD quality frequency sounds?
 
 	SoundConfiguration() :
-    	soundvalid(false),
-    	soundvolume(75),  
-    	musicvalid(false),
-    	musicvolume(50),  
+    	enableSound(false),
+    	soundVolume(75),  
+    	enableMusic(false),
+    	musicVolume(50),  
     	maxsoundchannel(16),
     	buffersize(2048),
     	highquality(false)
 	{
-		//ctor to safe default values
+		// ctor to safe default values
 	}
 };
 

@@ -61,18 +61,19 @@
 #define STABILIZED_KEEP  0.65f
 #define STABILIZED_COVER (1.0f - STABILIZED_KEEP)
 
-EXTERN Uint32          game_fps_loops             EQ( 0 );             ///< The number of frames drawn this second
+EXTERN Uint32 game_fps_loops EQ(0);             ///< The number of frames drawn this second
 
-EXTERN Sint32          gfx_clear_loops       EQ( 0 );             ///< The number of times the screen has been cleared
+EXTERN Sint32 gfx_clear_loops EQ(0);            ///< The number of times the screen has been cleared
 
 /// Timers
-EXTERN Uint32          outofsync   EQ( 0 );
+EXTERN Uint32 outofsync EQ(0);
 
 //HUD
-EXTERN bool          timeron        EQ( false );        ///< Game timer displayed?
-EXTERN Uint32          timervalue     EQ( 0 );             ///< Timer time ( 50ths of a second )      
-EXTERN bool          fpson          EQ( true );         ///< Show FPS?
-
+EXTERN bool timeron EQ(false);  ///< Game timer displayed?
+EXTERN Uint32 timervalue EQ(0); ///< Timer time ( 50ths of a second )
+#if 0
+EXTERN bool fpson EQ(true);     ///< Show FPS?
+#endif
 /// EWWWW. GLOBALS ARE EVIL.
 
 #define INVISIBLE           20                      ///< The character can't be detected
@@ -82,33 +83,41 @@ EXTERN bool          fpson          EQ( true );         ///< Show FPS?
 
 struct local_stats_t
 {
-    bool  noplayers;          ///< Are there any local players?
-    int     player_count;
+    bool noplayers;          ///< Are there any local players?
+    int player_count;
 
-    float   grog_level;
-    float   daze_level;
-    float   seeinvis_level;
-    float   seeinvis_mag;
-    float   seedark_level;
-    float   seedark_mag;
-    float   seekurse_level;
-    float   listening_level;    ///< Players with listen skill?
+    float grog_level;
+    float daze_level;
+    float seeinvis_level;
+    float seeinvis_mag;
+    float seedark_level;
+    float seedark_mag;
+    float seekurse_level;
+    float listening_level;    ///< Players with listen skill?
 
-    bool  allpladead;         ///< Have players died?
-    int     revivetimer;        ///< Cooldown to respawn
+    bool allpladead;         ///< Have players died?
+    int revivetimer;        ///< Cooldown to respawn
 
     //ESP
     TEAM_REF sense_enemies_team;
-    IDSZ     sense_enemies_idsz;
+    IDSZ sense_enemies_idsz;
 };
 
 EXTERN local_stats_t local_stats;
 
+/**
+ * @brief
+ * @param sync_from_file
+ *  see remarks
+ * @remark
+ *  If @a fromfile is @a true, the values from <tt>"setup.txt"</tt> are downloaded
+ *  into the egoboo_config_t data structure, otherwise not. Next, the data from the program
+ *  variables are downloaded into the egoboo_config_t data structure and the program variables
+ *  are uploaded into the egoboo_config_data_t data structure. Finally, if @a tofile
+ *  is @a true, the values from the egoboo_config_data_t are uploaded into <tt>"setup.txt"</tt>.
+ */
+bool config_synch(egoboo_config_t *pcfg, bool fromfile, bool tofile);
+
 //---------------------------------------------------------------------------------------------------------------------
 
 #include "egolib/egolib.h"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define  _egoboo_h_
