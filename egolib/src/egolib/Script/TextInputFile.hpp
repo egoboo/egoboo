@@ -47,6 +47,8 @@ private:
      *  The backing VFS file.
      */
     vfs_FILE *_file;
+    
+    typedef typename TextFile<_Traits>::Traits Traits;
 
     /**
      * @brief
@@ -68,7 +70,7 @@ public:
      *  advance() for more information.
      */
     TextInputFile(const string& fileName) :
-        TextFile(fileName, Mode::Read),
+        TextFile<_Traits>(fileName, TextFile<_Traits>::Mode::Read),
         _file(nullptr),
         _current(Traits::startOfInput())
     {
@@ -141,7 +143,7 @@ public:
             {
                 ostringstream message;
                 message << __FILE__ << ":" << __LINE__ << ": "
-                        << "inconsistent state of file object  of file `" << getFileName() << "`";
+                        << "inconsistent state of file object  of file `" << this->getFileName() << "`";
                 throw runtime_error(message.str());
             }
         }
@@ -158,7 +160,7 @@ public:
             return;
         }
         // (6) Propage the Byte to an extended character and store it.
-        _current = (Traits::ExtendedType)byte;
+        _current = (typename Traits::ExtendedType)byte;
     }
 
     /**
