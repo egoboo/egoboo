@@ -156,63 +156,81 @@ public:
 
     private:
         OuterIteratorTy _inner;
+    
     public:
+        
         EntryIterator() :
             _inner()
         {}
+        
         EntryIterator(const OuterIteratorTy& outer) :
             _inner(outer)
         {}
+        
         EntryIterator(const EntryIterator& other) :
             _inner(other._inner)
         {}
+        
         reference operator->() const
         {
             return _inner->second;
         }
+        
         reference operator*() const
         {
             return _inner->second;
         }
+
         bool operator!=(const EntryIterator& other) const
         {
             return _inner != other._inner;
         }
+
         bool operator==(const EntryIterator& other) const
         {
             return _inner == other._inner;
         }
+
+#if 0
         // Prefix decrement.
-        EntryIterator& operator--(int)
+        EntryIterator& operator--()
         {
-            _inner--;
+            --_inner;
             return *this;
         }
+#endif
+
         // Prefix increment.
-        EntryIterator& operator++(int)
+        EntryIterator& operator++()
         {
-            _inner++;
+            ++_inner;
             return *this;
         }
+
+#if 0
         // Postfix decrement.
-        EntryIterator operator--()
+        EntryIterator operator--(int)
         {
             EntryIterator t = *this;
-            _inner--;
+            --_inner;
             return t;
         }
+#endif
+
         // Postfix increment.
-        EntryIterator operator++()
+        EntryIterator operator++(int)
         {
             EntryIterator t = *this;
-            _inner++;
+            ++_inner;
             return t;
         }
+
         EntryIterator& operator=(const EntryIterator& other)
         {
             _inner = other._inner;
             return *this;
         }
+
     };
 
     /**
@@ -378,7 +396,7 @@ public:
      * @brief
      *  Destruct this configuration file.
      */
-    ConfigFile::~ConfigFile()
+    virtual ~ConfigFile()
     {}
 
 };
@@ -390,15 +408,15 @@ struct ConfigFileUnParser
 {
 protected:
     /**
-        * @brief
-        *  The configuration file.
-        */
+     * @brief
+     *  The configuration file.
+     */
     shared_ptr<ConfigFile> _source;
         
     /**
-        * @brief
-        *  The target file.
-        */
+     * @brief
+     *  The target file.
+     */
     vfs_FILE *_target;
 
     /**
@@ -413,21 +431,21 @@ protected:
 
 public:
     /**
-        * @brief
-        *  Construct this configuration file unparser.
-        */
+     * @brief
+     *  Construct this configuration file unparser.
+     */
     ConfigFileUnParser();
     /**
-        * @brief
-        *  Destruct this configuration file unparser.
-        */
+     * @brief
+     *  Destruct this configuration file unparser.
+     */
     virtual ~ConfigFileUnParser();
     /**
-        * @brief
-        *  Save the configuration file.
-        * @param source
-        *  the configuration file
-        */
+     * @brief
+     *  Save the configuration file.
+     * @param source
+     *  the configuration file
+     */
     bool unparse(shared_ptr<ConfigFile> source);
 };
 
@@ -442,24 +460,24 @@ public:
 
 protected:
     /**
-        * @brief
-        *  The current qualified name or @a nullptr.
-        */
+     * @brief
+     *  The current qualified name or @a nullptr.
+     */
     unique_ptr<QualifiedName> _currentQualifiedName;
     /**
-        * @brief
-        *  The current value or @a nullptr.
-        */
+     * @brief
+     *  The current value or @a nullptr.
+     */
     unique_ptr<string> _currentValue;
 
     vector<string> _commentLines;
     shared_ptr<ConfigFile> _target;
 
     /**
-        * @brief
-        *  Flush the comment buffer:
-        *  Concatenate all comments in the buffer to a single string and empty the buffer.
-        */
+     * @brief
+     *  Flush the comment buffer:
+     *  Concatenate all comments in the buffer to a single string and empty the buffer.
+     */
     string makeComment();
 
 public:

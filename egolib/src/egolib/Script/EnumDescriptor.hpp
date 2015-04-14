@@ -101,7 +101,7 @@ public:
     {}
 #else
     EnumDescriptor(const string& name, const initializer_list<pair<const string, EnumType>>& list) :
-            _name(name), _elements{ list }
+        _name(name), _elements{ list }
     {}
 #endif
 

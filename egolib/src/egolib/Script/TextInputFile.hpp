@@ -139,10 +139,10 @@ public:
             }
             else
             {
-                std::ostringstream message;
+                ostringstream message;
                 message << __FILE__ << ":" << __LINE__ << ": "
-                    << "inconsistent state of file object  of file `" << getFileName() << "`";
-                throw std::runtime_error(message.str());
+                        << "inconsistent state of file object  of file `" << getFileName() << "`";
+                throw runtime_error(message.str());
             }
         }
         // (4) Verify that it is a Byte the represents the starting Byte of a UTF-8 character sequence of length 1.

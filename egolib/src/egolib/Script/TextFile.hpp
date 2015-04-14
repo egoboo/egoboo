@@ -28,6 +28,7 @@ namespace Ego
 {
 namespace Script
 {
+
 using namespace std;
 
 /**
@@ -60,7 +61,7 @@ struct TextFile
      * @brief
      *  The traits used.
      */
-    typedef typename _Traits Traits;
+    typedef _Traits Traits;
 
 private:
 
