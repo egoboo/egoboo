@@ -1639,8 +1639,10 @@ void gfx_system_init_SDL_graphics()
     // GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
     // will cause SDL_SetVideoMode to fail with:
     // "Unable to set video mode: Couldn't find matching GLX visual"
-    if ( 32 == cfg.scrd_req ) egoboo_config_t::get().scrd_req = 24;
-    if ( 32 == cfg.scrz_req ) egoboo_config_t::get().scrz_req = 24;
+    if (32 == egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue())
+        egoboo_config_t::get().graphic_colorBuffer_bitDepth.setValue(24);
+    if (32 == egoboo_config_t::get().graphic_depthBuffer_bitDepth.getValue())
+        egoboo_config_t::get().graphic_depthBuffer_bitDepth.setValue(24);
 
 #endif
 
