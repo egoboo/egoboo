@@ -221,7 +221,10 @@ void log_message(const char *format, ...)
 void log_debug(const char *format, ...)
 {
     // Only if developer mode is enabled.
-    if (!cfg.dev_mode) return;
+    if (!egoboo_config_t::get().debug_developerMode_enable.getValue())
+    {
+        return;
+    }
 
     va_list args;
     va_start(args, format);

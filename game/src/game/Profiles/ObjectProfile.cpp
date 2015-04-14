@@ -1040,7 +1040,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     }
 
     // Fix lighting if need be
-    if (profile->_uniformLit && cfg.gouraud_req)
+    if (profile->_uniformLit && egoboo_config_t::get().graphic_gouraudShading_enable.getValue())
     {
         mad_make_equally_lit_ref(profile->_imad);
     }

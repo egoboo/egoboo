@@ -251,7 +251,7 @@ bool GameEngine::initialize()
     sys_initialize();
 
     // read the "setup.txt" file
-    setup_read_vfs();
+    setup_begin();
 
     // download the "setup.txt" values into the cfg struct
     loadConfiguration(true);
@@ -294,7 +294,7 @@ bool GameEngine::initialize()
 
     // Initialize the sound system.
     renderPreloadText("Loading audio...");
-    _audioSystem.initialize(cfg);
+    _audioSystem.initialize(egoboo_config_t::get());
     _audioSystem.loadAllMusic();
     _audioSystem.playMusic(AudioSystem::MENU_SONG);
     _audioSystem.loadGlobalSounds();
@@ -306,7 +306,7 @@ bool GameEngine::initialize()
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
     loadConfiguration(false);
-    config_synch(&cfg, false);
+    config_synch(&egoboo_config_t::get(), false, false);
 
     // read all the scantags
     scantag_read_all_vfs("mp_data/scancode.txt");
@@ -354,10 +354,9 @@ void GameEngine::uninitialize()
     log_info( "memory_cleanUp() - Attempting to clean up loaded things in memory... " );
 
     // synchronize the config values with the various game subsystems
-    config_synch(&cfg, true);
+    config_synch(&egoboo_config_t::get(), true, true);
 
     // quit the setup system, making sure that the setup file is written
-    setup_write_vfs();
     setup_end();
 
     // delete all the graphics allocated by SDL and OpenGL
@@ -414,33 +413,31 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     // synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)
     if (syncFromFile)
     {
-        if (!setup_download(&cfg)) return false;
+        if (!setup_download(&egoboo_config_t::get())) return false;
     }
 
     // status display
-    StatusList.on = cfg.show_stats;
-
-    // fps display
-    fpson = cfg.fps_allowed;
+    StatusList.on = egoboo_config_t::get().hud_displayStatusBars.getValue();
 
     // message display
-    DisplayMsg_count = Math::constrain(cfg.message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
-    DisplayMsg_on    = cfg.message_count_req > 0;
+    DisplayMsg_count = Math::constrain(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(),
+                                       (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
+    DisplayMsg_on = egoboo_config_t::get().hud_simultaneousMessages_max.getValue() > 0;
 
     // Adjust the particle limit.
-    ParticleHandler::get().setDisplayLimit(cfg.particle_count_req);
+    ParticleHandler::get().setDisplayLimit(egoboo_config_t::get().graphic_simultaneousParticles_max.getValue());
 
     // camera options
-    _cameraSystem.getCameraOptions().turnMode = cfg.autoturncamera;
+    _cameraSystem.getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
 
     // sound options
-    _audioSystem.setConfiguration(cfg);
+    _audioSystem.setConfiguration(egoboo_config_t::get());
 
     // renderer options
-    gfx_config_download_from_egoboo_config(&gfx, &cfg);
+    gfx_config_download_from_egoboo_config(&gfx, &egoboo_config_t::get());
 
     // texture options
-    oglx_texture_parameters_download_gfx(&tex_params, &cfg);
+    oglx_texture_parameters_download_gfx(&tex_params, &egoboo_config_t::get());
 
     return true;
 }
@@ -452,7 +449,7 @@ void GameEngine::pollEvents()
     while (SDL_PollEvent(&event))
     {
         //Console has first say in events
-        if (cfg.dev_mode)
+        if (egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
             if (!egolib_console_handler_t::handle_event(&event))
             {

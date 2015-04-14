@@ -348,7 +348,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
             // reached the end of the string
             break;
         }
-        else if ( C_NEW_LINE_CHAR == *text )
+        else if ( C_LINEFEED_CHAR == *text )
         {
             // respect existing line breaks
             text_break = text;
@@ -366,7 +366,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
             }
 
             // convert the character
-            *text_break = C_NEW_LINE_CHAR;
+            *text_break = C_LINEFEED_CHAR;
 
             // start over again
             text = text_break;

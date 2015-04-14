@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "game/script_scanner.hpp"
 #include "game/egoboo_typedef.h"
 #include "game/script.h"
 #include "game/Profiles/_Include.hpp"
@@ -28,17 +29,14 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_parser_state;
-typedef struct s_parser_state parser_state_t;
-
-struct s_opcode_data;
-typedef struct s_opcode_data opcode_data_t;
+struct parser_state_t;
+struct opcode_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // AI stuff
-#define AISMAXLOADSIZE      (1024*1024)            ///< For parsing AI scripts
+#define AISMAXLOADSIZE      (1024*1024)         ///< For parsing AI scripts
 #define MAXLINESIZE         1024
 #define MAX_OPCODE          1024                ///< Number of lines in AICODES.TXT
 #define MAXCODENAMESIZE     64
@@ -58,11 +56,11 @@ extern bool debug_scripts;
 extern vfs_FILE * debug_script_file;
 
 /// temporary data describing a single egoscript opcode
-struct s_opcode_data
+struct opcode_data_t
 {
-    Uint8  cType;
-    Uint32 iValue;
-    char   cName[MAXCODENAMESIZE];
+    uint8_t cType;
+    uint32_t iValue;
+    char cName[MAXCODENAMESIZE];
 };
 
 extern StaticArray<opcode_data_t, MAX_OPCODE> OpList;
@@ -607,13 +605,77 @@ enum e_script_variables
 };
 
 //--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+
+struct token_t;
+
+//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+
+// the current state of the parser
+struct parser_state_t
+{
+    /**
+     * @brief
+     *  A pointer to the singleton instance of the parser.
+     */
+    static parser_state_t *_singleton;
+
+    bool error;
+    token_t token;
+    int line_count;
+
+    size_t line_buffer_count;
+    char line_buffer[MAXLINESIZE];
+
+    size_t load_buffer_count;
+    Uint8 load_buffer[AISMAXLOADSIZE];
+
+    /**
+     * @brief
+     *  Initialize the singleton.
+     * @return
+     *  a pointer to the singleton if the singleton is initialized, @a nullptr on failure
+     * @remark
+     *  This function has no effect if the singeton is already initialized.
+     */
+    static parser_state_t *initialize();
+    /**
+     * @brief
+     *  Uninitialize the singleton.
+     * @remark
+     *  This function has no effect is the singleton is already uninitialized.
+     */
+    static void uninitialize();
+    /**
+     * @brief
+     *  Get a pointer to the singleton.
+     * @return
+     *  a pointer to the singleton on success, @a nullptr on failure
+     */
+    static parser_state_t *get();
+
+    static parser_state_t *ctor(parser_state_t *self);
+    static void dtor(parser_state_t *self);
+    /**
+    * @brief
+    *  Get the error variable value.
+    * @return
+    *  the error variable value
+    */
+    static bool get_error(parser_state_t *self);
+    /**
+    * @brief
+    *  Clear the error variable.
+    */
+    static void clear_error(parser_state_t *self);
+
+};
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // function prototypes
 
-parser_state_t * script_compiler_init();
-parser_state_t * script_compiler_get_state();
-bool           script_compiler_error( parser_state_t * );
-bool           script_compiler_clear_error( parser_state_t * );
 
-egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript );
+egolib_rv load_ai_script_vfs(parser_state_t *ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript);

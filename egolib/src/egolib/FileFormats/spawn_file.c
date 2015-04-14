@@ -109,19 +109,26 @@ Again:
         do
         {
             ctxt.saveAndNext();
-        } while (!ctxt.is(':') && !ctxt.isNewLine() && !ctxt.is(ReadContext::EndOfInput) && !ctxt.is(ReadContext::Error));
-        if (ctxt.is(ReadContext::Error))
+        } while (!ctxt.is(':') && !ctxt.isNewLine() && !ctxt.is(ReadContext::Traits::endOfInput()) &&
+                 !ctxt.is(ReadContext::Traits::error()));
+        if (ctxt.is(ReadContext::Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber),
+                                            "read error");
         }
-        if (ctxt.is(ReadContext::EndOfInput))
+        if (ctxt.is(ReadContext::Traits::endOfInput()))
         {
             return false;
         }
         if (!ctxt.is(':'))
         {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber),
+                                            "expected `:`");
+#if 0
+            return false;
             ctxt.readToEndOfLine();
             goto Again;
+#endif
         }
         ctxt.next();
         std::string name = Ego::trim(ctxt._buffer.toString());
@@ -160,7 +167,8 @@ Again:
         case 'I': info->attach = ATTACH_INVENTORY; break;
         default:
         {
-            throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+            throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                                "invalid enumeration element");
         }
         };
         info->money = ctxt.readInt();
@@ -192,7 +200,8 @@ Again:
         std::string what = ctxt.readName();
         if (what != "dependency")
         {
-            throw Ego::Script::SyntaxError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
+            throw Ego::Script::SyntacticalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber),
+                                                "syntax error");
         }
         std::string who;
         ctxt.skipWhiteSpaces();
@@ -206,11 +215,13 @@ Again:
         }
         if (who.empty()) /// @todo Verify that this is unnecessary based on the definition of readName.
         {
-            throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+            throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber),
+                                                "syntax error");
         }
         if (who.length() >= SDL_arraysize(info->spawn_coment))
         {
-            throw Ego::Script::SyntaxError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+            throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber),
+                                                "syntax error");
         }
         int slot = ctxt.readInt();
         // Store the data.
@@ -218,9 +229,10 @@ Again:
         info->slot = slot;
         return true;
     }
-    else if (!ctxt.is(ReadContext::EndOfInput))
+    else if (!ctxt.is(ReadContext::Traits::endOfInput()))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber));
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber),
+                                        "junk after end of spawn file");
     }
     return false;
 }

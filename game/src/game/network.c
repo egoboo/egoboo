@@ -169,7 +169,7 @@ void net_unbuffer_player_latches()
         if ( !_gameObjects.exists( character ) ) continue;
         Object *pchr = _gameObjects.get( character );
 
-        if ( cfg.difficulty < GAME_HARD && pchr->latch.b[LATCHBUTTON_RESPAWN] && PMod->isRespawnValid() )
+        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && pchr->latch.b[LATCHBUTTON_RESPAWN] && PMod->isRespawnValid())
         {
             if ( !pchr->alive && 0 == local_stats.revivetimer )
             {
@@ -179,7 +179,7 @@ void net_unbuffer_player_latches()
 
                 // cost some experience for doing this...  never lose a level
                 pchr->experience *= EXPKEEP;
-                if ( cfg.difficulty > GAME_EASY ) pchr->money *= EXPKEEP;
+                if (egoboo_config_t::get().game_difficulty.getValue() > Ego::GameDifficulty::Easy) pchr->money *= EXPKEEP;
             }
 
             // remove all latches other than latchbutton_respawn

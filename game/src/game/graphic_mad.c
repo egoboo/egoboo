@@ -804,7 +804,7 @@ void draw_chr_bbox(Object *pchr)
         return;
     }
     // Draw the object bounding box as a part of the graphics debug mode F7.
-    if (cfg.dev_mode && SDL_KEYDOWN(keyb, SDLK_F7))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_F7))
     {
         GL_DEBUG(glDisable)(GL_TEXTURE_2D);
         {

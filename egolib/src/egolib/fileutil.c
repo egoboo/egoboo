@@ -41,87 +41,55 @@
 STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 Uint8           maxformattypes;
 
-
-const int ReadContext::FirstValidChar = static_cast<int>(std::numeric_limits<char>::min()) - 1;
-const int ReadContext::LastValidChar = static_cast<int>(std::numeric_limits<char>::max()) + 1;
-const int ReadContext::StartOfInput = ReadContext::FirstValidChar - 1;
-const int ReadContext::EndOfInput = ReadContext::FirstValidChar - 2;
-const int ReadContext::Error = ReadContext::FirstValidChar - 3;
-
 ReadContext::ReadContext(const std::string& loadName) :
-    _file(nullptr),
-    _loadName(loadName),  
-    _lineNumber(1), 
-    _current(StartOfInput),
-    _buffer(5012)
+    AbstractReader(5012),
+    _loadName(loadName)
 {
-    //constructor
+    _source = std::make_shared<Ego::Script::TextInputFile<Traits>>(loadName);
 }
 
 ReadContext::~ReadContext()
 {
-    if (_file)
-    {
-        vfs_close(_file);
-        _file = nullptr;
-    }
-
-}
-
-std::string ReadContext::toString() const
-{
-    return _buffer.toString();
+    _source = nullptr;
 }
 
 float ReadContext::toReal() const
 {
-    float x;
-    try
+    float temporary;
+    auto lexeme = _buffer.toString();
+    if (!Ego::Script::Decoder<float>()(lexeme,temporary))
     {
-        x = std::stof(_buffer.toString());
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                        "unable to convert current lexeme `" + lexeme + "` into a value of type "
+                                        "`float`");
     }
-    catch (std::exception&)
-    {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
-    }
-    return x;
-
+    return temporary;
 }
 
-signed int ReadContext::toInteger() const
+int ReadContext::toInteger() const
 {
-    long x;
-    try
+    int temporary;
+    auto lexeme = _buffer.toString();
+    if (!Ego::Script::Decoder<int>()(lexeme, temporary))
     {
-        x = std::stol(_buffer.toString());
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                        "unable to convert current lexeme `" + lexeme + "` into a value of type "
+                                        "`int`");
     }
-    catch (std::exception&)
-    {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
-    }
-    if (x < std::numeric_limits<signed int>::min() || x > std::numeric_limits<signed int>::max())
-    {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
-    }
-    return static_cast<int>(x);
+    return temporary;
 }
 
 unsigned int ReadContext::toNatural() const
 {
-    unsigned long x;
-    try
+    unsigned int temporary;
+    auto lexeme = _buffer.toString();
+    if (!Ego::Script::Decoder<unsigned int>()(lexeme, temporary))
     {
-        x = std::stoul(_buffer.toString());
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                        "unable to convert current lexeme `" + _buffer.toString() + "` into a value of type "
+                                        "`unsigned int`");
     }
-    catch (std::exception&)
-    {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
-    }
-    if (x > std::numeric_limits<unsigned int>::max())
-    {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
-    }
-    return static_cast<unsigned int>(x);
+    return temporary;
 }
 
 const std::string& ReadContext::getLoadName() const
@@ -129,117 +97,54 @@ const std::string& ReadContext::getLoadName() const
     return _loadName;
 }
 
-size_t ReadContext::getLineNumber() const
-{
-    return _lineNumber;
-}
-
 bool ReadContext::isOpen() const
 {
-    return nullptr != _file;
+    return nullptr != _source && _source->isOpen();
 }
 
 bool ReadContext::ensureOpen()
 {
-    if (!_file)
+    if (!_source || !_source->isOpen())
     {
-        if (0 == vfs_exists(_loadName.c_str()))
-        {
-            return false;
-        }
-        _file = vfs_openRead(_loadName.c_str());
-        if (!_file)
-        {
-            return false;
-        }
-        _current = StartOfInput;
+        _source = std::make_shared<Ego::Script::TextInputFile<Traits>>(_loadName);
         _lineNumber = 1;
     }
-    return true;
+    return _source->isOpen();
 }
 
 void ReadContext::close()
 {
-    if (_file)
-    {
-        vfs_close(_file);
-    }
-    _file = nullptr;
+    _source = nullptr;
 }
 
 void ReadContext::skipWhiteSpaces()
 {
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
-    if (is(Error))
+    if (is(Traits::error()))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()),
+                                        "read error");
     }
-    if (is(EndOfInput))
+    if (is(Traits::endOfInput()))
     {
         return;
     }
     while (isWhiteSpace())
     {
         next();
-        if (is(Error))
+        if (is(Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()),
+                                            "read error");
         }
-        if (is(EndOfInput))
+        if (is(Traits::endOfInput()))
         {
             return;
         }
     }
-}
-
-bool ReadContext::is(int chr)
-{
-    return chr == _current;
-}
-
-bool ReadContext::is(int first, int last)
-{
-    if (first > last) throw std::invalid_argument("first > last");
-    return (first <= _current)
-        && (_current <= last);
-}
-
-#if 0
-bool ReadContext::isNewLine(char chr)
-{
-    return LineFeed == chr || CarriageReturn == chr;
-}
-#endif
-
-bool ReadContext::isNewLine()
-{
-    return is(LineFeed) || is(CarriageReturn);
-
-}
-
-#if 0
-bool ReadContext::isWhiteSpace(char chr)
-{
-    return Space == chr || Tabulator == chr;
-}
-#endif
-
-bool ReadContext::isWhiteSpace()
-{
-    return is(Space) || is(Tabulator);
-}
-
-bool ReadContext::isAlpha()
-{
-    return is('a', 'z') || is('A', 'Z');
-}
-
-bool ReadContext::isDigit()
-{
-    return is('0', '9');
 }
 
 //--------------------------------------------------------------------------------------------
@@ -251,7 +156,7 @@ IDSZ ReadContext::readIDSZ()
     /// @details This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
     char c[4];
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
@@ -259,7 +164,21 @@ IDSZ ReadContext::readIDSZ()
     // `'['`
     if (!is('['))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName,_lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning IDSZ");
+        }
+        else if (is(Traits::endOfInput()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning IDSZ");
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "unexpected character while scanning IDSZ");
+        }
     }
     next();
     // `(<alphabetic>|<digit>|'_')^4`
@@ -267,15 +186,43 @@ IDSZ ReadContext::readIDSZ()
     {
         if (!isAlpha() && !isDigit() && !is('_'))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            if (is(Traits::error()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "read error while scanning IDSZ");
+            }
+            else if (is(Traits::endOfInput()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "premature end of input while scanning IDSZ");
+            }
+            else
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "unexpected character while scanning IDSZ");
+            }
         }
-        c[i] = static_cast<char>(_current);
+        c[i] = static_cast<char>(current());
         next();
     }
     // `']'`
     if (!is(']'))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning IDSZ");
+        }
+        else if (is(Traits::endOfInput()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning IDSZ");
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "unexpected character while scanning IDSZ");
+        }
     }
     next();
     return MAKE_IDSZ(c[0], c[1], c[2], c[3]);
@@ -306,18 +253,22 @@ bool copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 //--------------------------------------------------------------------------------------------
 bool ReadContext::skipToDelimiter(char delimiter, bool optional)
 {
-    if ('\0' == delimiter) std::invalid_argument("\\0 == delimiter");
-    if (is(StartOfInput))
+    if (!Traits::isValid(delimiter))
+    {
+        std::invalid_argument("!Ego::VFS::Traits<char>::isValid(delimiter)");
+    }
+    if (is(Traits::startOfInput()))
     {
         next();
     }
     while (true)
     {
-        if (is(Error))
+        if (is(Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()));
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(getLoadName(), getLineNumber()),
+                                            "read error");
         }
-        if (is(EndOfInput))
+        if (is(Traits::endOfInput()))
         {
             if (optional)
             {
@@ -346,19 +297,23 @@ bool ReadContext::skipToDelimiter(char delimiter, bool optional)
 
 bool read_to_delimiter_vfs(ReadContext& ctxt, std::string& buffer, char delimiter, bool optional)
 {
-    if ('\0' == delimiter) std::invalid_argument("\\0 == delimiter");
-    if (ctxt.is(ReadContext::StartOfInput))
+    if (!ReadContext::Traits::isValid(delimiter))
+    {
+        std::invalid_argument("!ReadContext::Traits::isValid(delimiter)");
+    }
+    if (ctxt.is(ReadContext::Traits::startOfInput()))
     {
         ctxt.next();
     }
     ctxt._buffer.clear();
     while (true)
     {
-        if (ctxt.is(ReadContext::Error))
+        if (ctxt.is(ReadContext::Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                            "read error");
         }
-        if (ctxt.is(ReadContext::EndOfInput))
+        if (ctxt.is(ReadContext::Traits::endOfInput()))
         {
             if (optional)
             {
@@ -373,9 +328,9 @@ bool read_to_delimiter_vfs(ReadContext& ctxt, std::string& buffer, char delimite
         bool isDelimiter = ctxt.is(delimiter);
         if (ctxt.isNewLine())
         {
-            int old = ctxt._current;
+            ReadContext::Traits::ExtendedType old = ctxt.current();
             ctxt.next();
-            if (ctxt.isNewLine() && old != ctxt._current)
+            if (ctxt.isNewLine() && old != ctxt.current())
             {
                 ctxt.next();
             }
@@ -398,19 +353,23 @@ bool read_to_delimiter_vfs(ReadContext& ctxt, std::string& buffer, char delimite
 //--------------------------------------------------------------------------------------------
 bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const char *delimiters, bool optional)
 {
-    if (!delimiters) std::invalid_argument("\\0 == delimiter");
-    if (ctxt.is(ReadContext::StartOfInput))
+    if (!delimiters)
+    {
+        std::invalid_argument("nullptr == delimiters");
+    }
+    if (ctxt.is(ReadContext::Traits::startOfInput()))
     {
         ctxt.next();
     }
     ctxt._buffer.clear();
     while (true)
     {
-        if (ctxt.is(ReadContext::Error))
+        if (ctxt.is(ReadContext::Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()));
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
+                                            "read error");
         }
-        if (ctxt.is(ReadContext::EndOfInput))
+        if (ctxt.is(ReadContext::Traits::endOfInput()))
         {
             if (optional)
             {
@@ -431,9 +390,9 @@ bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const ch
         }
         if (ctxt.isNewLine())
         {
-            int old = ctxt._current;
+            ReadContext::Traits::ExtendedType old = ctxt.current();
             ctxt.next();
-            if (ctxt.isNewLine() && old != ctxt._current)
+            if (ctxt.isNewLine() && old != ctxt.current())
             {
                 ctxt.next();
             }
@@ -454,47 +413,6 @@ bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const ch
 }
 
 //--------------------------------------------------------------------------------------------
-
-int ReadContext::readInput()
-{
-    // (1) Read a single Byte.
-    uint8_t byte;
-    size_t result = vfs_read(&byte, 1, 1, _file);
-    if (result != 1)
-    {
-        if (result > 1)
-        {
-            printf("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
-            exit(EXIT_FAILURE);
-        }
-        if (vfs_error(_file))
-        {
-            return Error;
-        }
-        else
-        {
-            if (!vfs_eof(_file))
-            {
-                printf("%s:%d: unreachable code reached\n", __FILE__, __LINE__);
-                exit(EXIT_FAILURE);
-            }
-            return EndOfInput;
-        }
-    }
-    // (2) Verify that it is a Byte the represents the starting Byte of a UTF-8 character sequence of length 1.
-    if (byte > 0x7F)
-    {
-        return Error;
-    }
-    // (3) Propage the Byte to an extended character.
-    int chr = byte;
-    // (4) Verify that it is not the zero terminator.
-    if (ZeroTerminator == chr)
-    {
-        return Error;
-    }
-    return byte;
-}
 
 bool ReadContext::skipToColon(bool optional)
 {
@@ -867,7 +785,7 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 /// @endcode
 int vfs_get_version(ReadContext& ctxt)
 {
-    if (ctxt.is(ReadContext::StartOfInput))
+    if (ctxt.is(ReadContext::Traits::startOfInput()))
     {
         ctxt.next();
     }
@@ -965,46 +883,17 @@ char vfs_get_next_printable(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
-void ReadContext::skipNewLine()
-{
-    if (isNewLine())
-    {
-        int old = _current;
-        next();
-        if (isNewLine() && old != _current)
-        {
-            next();
-        }
-        _lineNumber++;
-    }
-}
-void ReadContext::skipNewLines()
-{
-    while (isNewLine())
-    {
-        int old = _current;
-        next();
-        if (isNewLine() && old != _current)
-        {
-            next();
-        }
-        _lineNumber++;
-    }
-}
+
 std::string ReadContext::readToEndOfLine()
 {
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
     skipWhiteSpaces();
     _buffer.clear();
-    while (!is(EndOfInput))
+    while (!is(Traits::endOfInput()))
     {
-        if (is(Error))
-        {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
-        }
         if (isNewLine())
         {
             skipNewLine();
@@ -1017,7 +906,7 @@ std::string ReadContext::readToEndOfLine()
 
 std::string ReadContext::readSingleLineComment()
 {
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
@@ -1025,20 +914,23 @@ std::string ReadContext::readSingleLineComment()
     _buffer.clear();
     if (!is('/'))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                        "unexpected character while scanning single line comment");
     }
     next();
     if (!is('/'))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                        "unexpected character while scanning single line comment");
     }
     next();
     skipWhiteSpaces();
-    while (!is(EndOfInput))
+    while (!is(Traits::endOfInput()))
     {
-        if (is(Error))
+        if (is(Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning single line comment");
         }
         if (isNewLine())
         {
@@ -1052,39 +944,85 @@ std::string ReadContext::readSingleLineComment()
 
 char ReadContext::readPrintable()
 {
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
     skipWhiteSpaces();
-    if (is(EndOfInput) || is(Error))
+    if (is(Traits::endOfInput()) || is(Traits::error()))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning printable character");
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning printable character");
+        }
     }
     if (!isAlpha() && !isDigit() && !is('!') && !is('?') && !is('='))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning printable character");
+        }
+        else if (is(Traits::endOfInput()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning a printable character");
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "unexpected character while scanning a printable characters");
+        }
     }
-    char tmp = static_cast<char>(_current);
+    char tmp = static_cast<char>(current());
     next();
     return tmp;
 }
 
 char ReadContext::readCharLit()
 {
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
     skipWhiteSpaces();
-    if (is(EndOfInput) || is(Error))
+    if (is(Traits::endOfInput()) || is(Traits::error()))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning character literal");
+        }
+        else if (is(Traits::endOfInput()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning character literal");
+        }
     }
     char chr;
     if (!is('\''))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning character literal");
+        }
+        else if (is(Traits::endOfInput()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning character literal");
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "unexpected character while scanning character literal");
+        }
     }
     next();
     if (is('\\'))
@@ -1108,31 +1046,55 @@ char ReadContext::readCharLit()
         }
         else
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            if (is(Traits::error()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "read error while scanning character literal");
+            }
+            else if (is(Traits::endOfInput()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "premature end of input while scanning character literal");
+            }
+            else
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "unknown/unsupported escape sequence");
+            }
         }
         next();
     }
     else
     {
-        if (is(EndOfInput) || is(Error))
+        if (is(Traits::endOfInput()) || is(Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            if (is(Traits::error()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "read error while scanning character literal");
+            }
+            else if (is(Traits::endOfInput()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "empty character literal");
+            }
         }
-        chr = static_cast<char>(_current);
+        chr = static_cast<char>(current());
         next();
     }
     if (!is('\''))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        throw Ego::Script::MissingDelimiterError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),'\'');
     }
     next();
     return chr;
 }
+
 int ReadContext::readInt()
 {
     skipWhiteSpaces();
     _buffer.clear();
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
@@ -1142,7 +1104,21 @@ int ReadContext::readInt()
     }
     if (!isDigit())
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning integer literal");
+        }
+        else if (is(Traits::endOfInput()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning integer literal");
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "unexpected character while scanning integer literal");
+        }
     }
     do
     {
@@ -1157,7 +1133,21 @@ int ReadContext::readInt()
         }
         if (!isDigit())
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            if (is(Traits::error()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "read error while scanning integer literal");
+            }
+            else if (is(Traits::endOfInput()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "premature end of input while scanning integer literal");
+            }
+            else
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "unexpected character while scanning integer literal");
+            }
         }
         do
         {
@@ -1171,7 +1161,7 @@ unsigned int ReadContext::readNat()
 {
     skipWhiteSpaces();
     _buffer.clear();
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
@@ -1181,7 +1171,21 @@ unsigned int ReadContext::readNat()
     }
     if (!isDigit())
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning natural literal");
+        }
+        else if (is(Traits::endOfInput()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning natural literal");
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "unexpected character while scanning natural literal");
+        }
     }
     do
     {
@@ -1196,7 +1200,21 @@ unsigned int ReadContext::readNat()
         }
         if (!isDigit())
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            if (is(Traits::error()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "read error while scanning natural literal");
+            }
+            else if (is(Traits::endOfInput()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "premature end of input while scanning natural literal");
+            }
+            else
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "unexpected character while scanning natural literal");
+            }
         }
         do
         {
@@ -1212,7 +1230,8 @@ UFP8_T vfs_get_ufp8(ReadContext& ctxt)
     float x = ctxt.readReal();
     if (x < 0.0f)
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName,ctxt._lineNumber),
+                                        "unable to convert current lexeme to a unsigned fixed-point number");
     }
     return FLOAT_TO_FP8(x);
 }
@@ -1262,14 +1281,16 @@ void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
     else
     {
         size_t cur = 0;
-        while (cur < max && !ctxt.isNewLine() && !ctxt.isWhiteSpace() && !ctxt.is(ReadContext::EndOfInput) && !ctxt.is(ReadContext::Error))
+        while (cur < max && !ctxt.isNewLine() && !ctxt.isWhiteSpace() &&
+               !ctxt.is(ReadContext::Traits::endOfInput()) && !ctxt.is(ReadContext::Traits::error()))
         {
             ctxt.saveAndNext();
             cur++;
         }
-        if (ctxt.is(ReadContext::Error))
+        if (ctxt.is(ReadContext::Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
+            throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber),
+                                            "read error while reading string literal");
         }
         EGOBOO_ASSERT(ctxt._buffer.getSize() == cur && cur <= max);
         strcpy(str, ctxt._buffer.toString().c_str());
@@ -1285,33 +1306,11 @@ void vfs_get_next_string_lit(ReadContext& ctxt, char *str, size_t max)
 
 //--------------------------------------------------------------------------------------------
 
-void ReadContext::write(char chr)
-{
-    EGOBOO_ASSERT('\0' != chr);
-    _buffer.append(chr);
-}
-void ReadContext::save()
-{
-    EGOBOO_ASSERT(0x00 <= _current && _current <= 0xff);
-    write(static_cast<char>(_current)); 
-}
-void ReadContext::next()
-{
-    _current = readInput();
-}
-void ReadContext::writeAndNext(char chr)
-{
-    write(chr); next();
-}
-void ReadContext::saveAndNext()
-{
-    save(); next();
-}
 float ReadContext::readReal()
 {
     skipWhiteSpaces();
     _buffer.clear();
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
@@ -1324,7 +1323,21 @@ float ReadContext::readReal()
         saveAndNext();
         if (!isDigit())
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            if (is(Traits::error()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "read error while scanning real literal");
+            }
+            else if (is(Traits::endOfInput()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "premature end of input while scanning real literal");
+            }
+            else
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "unexpected character while scanning real literal");
+            }
         }
         do
         {
@@ -1355,7 +1368,21 @@ float ReadContext::readReal()
         }
         if (!isDigit())
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            if (is(Traits::error()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "read error while scanning real literal exponent");
+            }
+            else if (is(Traits::endOfInput()))
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "premature end of input while scanning real literal exponent");
+            }
+            else
+            {
+                throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                                "unexpected character while scanning real literal exponent");
+            }
         }
         do
         {
@@ -1452,7 +1479,7 @@ DamageType vfs_get_next_damage_type(ReadContext& ctxt)
 //--------------------------------------------------------------------------------------------
 std::string ReadContext::readStringLit()
 {
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
@@ -1460,9 +1487,10 @@ std::string ReadContext::readStringLit()
     _buffer.clear();
     while (true)
     {
-        if (is(Error))
+        if (is(Traits::error()))
         {
-            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                "read error");
         }
         else if (is('~'))
         {
@@ -1472,7 +1500,7 @@ std::string ReadContext::readStringLit()
         {
             writeAndNext(' ');
         }
-        else if (isNewLine() || isWhiteSpace() || is(EndOfInput))
+        else if (isNewLine() || isWhiteSpace() || is(Traits::endOfInput()))
         {
             break;
         }
@@ -1488,7 +1516,8 @@ void ReadContext::readName0()
 {
     if (!isAlpha() && !is('_'))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                        "invalid name");
     }
     do
     {
@@ -1498,7 +1527,7 @@ void ReadContext::readName0()
 
 std::string ReadContext::readName()
 {
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
@@ -1512,7 +1541,21 @@ void ReadContext::readReference0()
 {
     if (!is('%'))
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        if (is(Traits::error()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "read error while scanning reference literal");
+        }
+        else if (is(Traits::endOfInput()))
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "premature end of input while scanning reference literal");
+        }
+        else
+        {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                            "unexpected character while scanning reference literal");
+        }
     }
     saveAndNext();
     readName0();
@@ -1520,7 +1563,7 @@ void ReadContext::readReference0()
 
 std::string ReadContext::readReference()
 {
-    if (is(StartOfInput))
+    if (is(Traits::startOfInput()))
     {
         next();
     }
@@ -1544,7 +1587,8 @@ bool ReadContext::readBool()
     }
     else
     {
-        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber));
+        throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(_loadName, _lineNumber),
+                                        "unexpected character while scanning natural literal");
     }
 }
 
@@ -1568,7 +1612,7 @@ void GLSetup_SupportedFormats()
     // define extra supported file types with SDL_image
     // these should probably be ordered so that the types that
     // support transparency are first
-    if ( cfg.sdl_image_allowed )
+    if (egoboo_config_t::get().debug_sdlImage_enable.getValue())
     {
         snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".png" ); type++;
         snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".tif" ); type++;
@@ -1592,7 +1636,7 @@ void GLSetup_SupportedFormats()
 
     // Save the amount of format types we have in store
     maxformattypes = type;
-    if ( !cfg.sdl_image_allowed )
+    if (!egoboo_config_t::get().debug_sdlImage_enable.getValue())
     {
         log_message( "Failed!\n" );
         log_info( "[SDL_IMAGE] set to \"FALSE\" in setup.txt, only support for .bmp files\n" );
@@ -1615,7 +1659,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
 
     // load the image
     retval = INVALID_GL_ID;
-    if ( cfg.sdl_image_allowed )
+    if (egoboo_config_t::get().debug_sdlImage_enable.getValue())
     {
         // try all different formats
         for ( type = 0; type < maxformattypes; type++ )

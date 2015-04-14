@@ -33,79 +33,46 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ConfigFilePtr_t quest_file_open( const char *player_directory )
+std::shared_ptr<ConfigFile> quest_file_open(const char *player_directory)
 {
-    STRING          newloadname = EMPTY_CSTR;
-    ConfigFilePtr_t retval      = NULL;
-
-    if ( !VALID_CSTR( player_directory ) ) return NULL;
-
+    if (!player_directory || !strlen(player_directory))
+    {
+        return nullptr;
+    }
     // Figure out the file path
-    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
-
-    retval = ConfigFile_Load( newloadname, false );
-    if ( NULL == retval )
+    std::string newLoadName = std::string(player_directory) + "/quest.txt";
+    std::shared_ptr<ConfigFile> configFile = ConfigFileParser().parse(newLoadName);
+    if (!configFile)
     {
-        retval = ConfigFile_create();
+        configFile = std::make_shared<ConfigFile>(newLoadName);
     }
-
-    return retval;
+    return configFile;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_file_export( ConfigFilePtr_t pfile )
+egolib_rv quest_file_export(std::shared_ptr<ConfigFile> file)
 {
-    egolib_rv         rv      = rv_error;
-    ConfigFile_retval save_rv = ConfigFile_succeed;
-
-    if ( NULL == pfile ) return rv_error;
-
-    save_rv = ConfigFile_Save( pfile );
-
-    rv = ( ConfigFile_succeed == save_rv ) ? rv_success : rv_fail;
-
-    return rv;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv quest_file_close( ConfigFilePtr_t * ppfile, bool do_export )
-{
-    egolib_rv export_rv = rv_success;
-
-    if ( NULL == ppfile || NULL == *ppfile ) return rv_error;
-
-    if ( do_export )
+    if (!file)
     {
-        export_rv = quest_file_export( *ppfile );
-
-        if ( rv_error == export_rv )
-        {
-            log_warning( "quest_file_close() - error writing quest.txt\n" );
-        }
-        else if ( rv_fail == export_rv )
-        {
-            log_warning( "quest_file_close() - could not export quest.txt\n" );
-        }
+        return rv_error;
     }
-
-    if ( ConfigFile_succeed != ConfigFile_destroy( ppfile ) )
+    if (!ConfigFileUnParser().unparse(file))
     {
-        log_warning( "quest_file_close() - could not successfully close quest.txt\n" );
+        log_warning("%s:%d: unable to export quest file `%s`\n", __FILE__, __LINE__, file->getFileName().c_str());
+        return rv_fail;
     }
-
-    return ( NULL == *ppfile ) && ( rv_success == export_rv ) ? rv_success : rv_fail;
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len, const char* player_directory )
+egolib_rv quest_log_download_vfs(IDSZ_node_t *quest_log, size_t quest_log_len, const char* player_directory)
 {
     /// @author ZF
     /// @details Reads a quest.txt for a player and turns it into a data structure
     ///               we can use. If the file isn't found, the quest log will be initialized as empty.
 
     egolib_rv retval = rv_success;
-    STRING newloadname;
 
     if ( NULL == quest_log ) return rv_error;
 
@@ -113,10 +80,10 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
     idsz_map_init( quest_log, quest_log_len );
 
     // Figure out the file path
-    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
+    std::string newLoadName = std::string(player_directory) + "/quest.txt";
 
     // Try to open a context
-    ReadContext ctxt(newloadname);
+    ReadContext ctxt(newLoadName);
     if (!ctxt.ensureOpen()) return rv_error;
     // Load each IDSZ
     retval = rv_success;
@@ -133,13 +100,13 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
         // Stop here if it failed
         if ( rv_error == rv )
         {
-            log_warning( "quest_log_download_vfs() - Encountered an error while trying to add a quest. (%s)\n", newloadname );
+            log_warning("quest_log_download_vfs() - Encountered an error while trying to add a quest. (%s)\n", newLoadName.c_str());
             retval = rv;
             break;
         }
         else if ( rv_fail == rv )
         {
-            log_warning( "quest_log_download_vfs() - Unable to load all quests. (%s)\n", newloadname );
+            log_warning( "quest_log_download_vfs() - Unable to load all quests. (%s)\n", newLoadName.c_str());
             retval = rv;
             break;
         }

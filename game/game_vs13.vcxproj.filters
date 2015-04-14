@@ -299,6 +299,15 @@
     <ClCompile Include="src\game\gamestates\VideoOptionsScreen.cpp">
       <Filter>Game Sources\GameStates</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\ScrollableList.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\script_parser.cpp">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\script_scanner.cpp">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -531,6 +540,15 @@
     </ClInclude>
     <ClInclude Include="src\game\gamestates\OptionsScreen.hpp">
       <Filter>Game Header Files\GameStates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\ScrollableList.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\script_parser.hpp">
+      <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\script_scanner.hpp">
+      <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

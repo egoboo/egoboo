@@ -638,7 +638,7 @@ float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
 
     // Calculate the radius based on whether the character is on camera.
     float radius = 0.0f;
-    if (cfg.dev_mode && !SDL_KEYDOWN(keyb, SDLK_F8))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
         ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->onwhichgrid);
 
@@ -680,7 +680,7 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
 
     // Calculate the radius based on whether the character is on camera.
     float radius = 0.0f;
-    if (cfg.dev_mode && !SDL_KEYDOWN(keyb, SDLK_F8))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
         ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->onwhichgrid);
 
@@ -726,7 +726,7 @@ BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, float nrm[], float * pre
 
     // Calculate the radius based on whether the character is on camera.
     float radius = 0.0f;
-    if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
         ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->onwhichgrid);
 
@@ -771,7 +771,7 @@ BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t *data
 
     // Calculate the radius based on whether the character is on camera.
     float radius = 0.0f;
-    if (cfg.dev_mode && !SDL_KEYDOWN(keyb, SDLK_F8))
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
         ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->onwhichgrid);
         if (nullptr != tile && tile->inrenderlist)
@@ -1733,7 +1733,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         fvec3_t vforward;
 
         //---- generate billboards for things that players can interact with
-        if ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback && VALID_PLA( pchr_a->is_which_player ) )
+        if (Ego::FeedbackType::None != egoboo_config_t::get().hud_feedback.getValue() && VALID_PLA(pchr_a->is_which_player))
         {
             // things that can be grabbed
             for(const grab_data_t &grabData : grabList)
@@ -2203,9 +2203,14 @@ void give_experience( const CHR_REF character, int amount, XPType xptype, bool o
         newamount *= 1.00f + intadd + wisadd;
 
         // Apply XP bonus/penality depending on game difficulty
-        if ( cfg.difficulty >= GAME_HARD ) newamount *= 1.20f;                // 20% extra on hard
-        else if ( cfg.difficulty >= GAME_NORMAL ) newamount *= 1.10f;       // 10% extra on normal
-
+        if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
+        {
+            newamount *= 1.20f; // 20% extra on hard
+        }
+        else if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Normal)
+        {
+            newamount *= 1.10f; // 10% extra on normal
+        }
         pchr->experience += newamount;
     }
 }
@@ -2702,8 +2707,14 @@ Object * chr_config_do_init( Object * pchr )
     if ( ppro->isItem() )
     {
         kursechance = ppro->getKurseChance();
-        if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
-        if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
+        if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
+        {
+            kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
+        }
+        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal && kursechance != 100)
+        {
+            kursechance *= 0.5f;  // Easy mode halves chance for Kurses
+        }
         pchr->iskursed = Random::getPercent() <= kursechance;
     }
 
@@ -2758,7 +2769,7 @@ Object * chr_config_do_init( Object * pchr )
     }
 
     // override the default behavior for an "easy" game
-    if ( cfg.difficulty < GAME_NORMAL )
+    if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal)
     {
         pchr->life = pchr->life_max;
         pchr->mana = pchr->mana_max;
@@ -3549,7 +3560,7 @@ bool cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
         {
             pchr->life -= mana_debt;
 
-            if ( pchr->life <= 0 && cfg.difficulty >= GAME_HARD )
+            if (pchr->life <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
             {
                 kill_character( character, !_gameObjects.exists( killer ) ? character : killer, false );
             }
@@ -4429,7 +4440,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     {
         // This character can't use this iweapon
         pweapon->reload_timer = ONESECOND;
-        if ( pchr->show_stats || cfg.dev_mode )
+        if (pchr->show_stats || egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
             // Tell the player that they can't use this iweapon
             DisplayMsg_printf( "%s can't use this item...", pchr->getName(false, true, true).c_str());
@@ -5348,7 +5359,7 @@ bool chr_handle_madfx( Object * pchr )
     }
 
     //Do footfall sound effect
-    if ( cfg.sound_footfall && HAS_SOME_BITS( framefx, MADFX_FOOTFALL ) )
+    if (egoboo_config_t::get().sound_footfallEffects_enable.getValue() && HAS_SOME_BITS(framefx, MADFX_FOOTFALL))
     {
         _audioSystem.playSound(pchr->getPosition(), _profileSystem.getProfile(pchr->profile_ref)->getFootFallSound());
     }
@@ -6236,18 +6247,17 @@ const char* describe_value( float value, float maxval, int * rank_ptr )
 
     static STRING retval;
 
-    float fval;
     int local_rank;
 
     if ( NULL == rank_ptr ) rank_ptr = &local_rank;
 
-    if ( cfg.feedback == EGO_FEEDBACK_TYPE_NUMBER )
+    if (egoboo_config_t::get().hud_feedback.getValue() == Ego::FeedbackType::Number)
     {
         snprintf( retval, SDL_arraysize( retval ), "%2.1f", value );
         return retval;
     }
 
-    fval = ( 0 == maxval ) ? 1.0f : value / maxval;
+    float fval = ( 0 == maxval ) ? 1.0f : value / maxval;
 
     *rank_ptr = -5;
     strcpy( retval, "Unknown" );
@@ -6282,7 +6292,7 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
 
     if ( NULL == rank_ptr ) rank_ptr = &local_rank;
 
-    if ( cfg.feedback == EGO_FEEDBACK_TYPE_NUMBER )
+    if (egoboo_config_t::get().hud_feedback.getValue() == Ego::FeedbackType::Number)
     {
         snprintf( retval, SDL_arraysize( retval ), "%2.1f", FP8_TO_FLOAT( value ) );
         return retval;
@@ -6326,7 +6336,7 @@ const char* describe_wounds( float max, float current )
     if ( 0 == max ) return NULL;
     fval = ( current / max ) * 100;
 
-    if ( cfg.feedback == EGO_FEEDBACK_TYPE_NUMBER )
+    if (egoboo_config_t::get().hud_feedback.getValue() == Ego::FeedbackType::Number)
     {
         snprintf( retval, SDL_arraysize( retval ), "%2.1f", FP8_TO_FLOAT( current ) );
         return retval;

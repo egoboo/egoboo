@@ -380,6 +380,9 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\GUI\ScrollableList.cpp" />
+    <ClCompile Include="src\game\script_parser.cpp" />
+    <ClCompile Include="src\game\script_scanner.cpp" />
     <ClCompile Include="src\game\gamestates\OptionsScreen.cpp" />
     <ClCompile Include="src\game\gamestates\VideoOptionsScreen.cpp" />
     <ClCompile Include="src\game\gui\OptionsButton.cpp" />
@@ -454,6 +457,9 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\GUI\ScrollableList.hpp" />
+    <ClInclude Include="src\game\script_parser.hpp" />
+    <ClInclude Include="src\game\script_scanner.hpp" />
     <ClInclude Include="src\game\gamestates\OptionsScreen.hpp" />
     <ClInclude Include="src\game\gui\OptionsButton.hpp" />
     <ClInclude Include="src\game\gui\InternalDebugWindow.hpp" />

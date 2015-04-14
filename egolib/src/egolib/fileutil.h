@@ -25,6 +25,7 @@
 #include "egolib/typedef.h"
 
 #include "egolib/vfs.h"
+#include "egolib/Script/Traits.hpp"
 #include "egolib/log.h"
 #include "egolib/file_common.h"
 
@@ -32,76 +33,21 @@
 // TYPEDEFS
 //--------------------------------------------------------------------------------------------
 
-    struct oglx_texture_t;
+/// @todo What the heck is this doing here? Remove!
+#define TRANSCOLOR 0
+/// @todo What the heck is this doing here? Remove!
+struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
 // MACROS
 //--------------------------------------------------------------------------------------------
 
-// ASCII terminal/printer control codes
-#    define ASCII_NUL_CHAR  '\x00'            /**< null */
-#    define ASCII_SOH_CHAR  '\x01'            /**< start of heading */
-#    define ASCII_STX_CHAR  '\x02'            /**< start of text */
-#    define ASCII_ETX_CHAR  '\x03'            /**< end of text */
-#    define ASCII_EOT_CHAR  '\x04'            /**< end of transmission */
-#    define ASCII_ENQ_CHAR  '\x05'            /**< enquiry */
-#    define ASCII_ACK_CHAR  '\x06'            /**< acknowledge */
-#    define ASCII_BEL_CHAR  '\x07'            /**< bell */
-#    define ASCII_BS_CHAR   '\x08'            /**< backspace */
-#    define ASCII_HT_CHAR   '\x09'            /**< horizontal tab */
-#    define ASCII_NL_CHAR   '\x0A'            /**< new line (or LF, line feed) */
-#    define ASCII_VT_CHAR   '\x0B'            /**< vertical tab */
-#    define ASCII_NP_CHAR   '\x0C'            /**< new page (or FF, form feed) */
-#    define ASCII_CR_CHAR   '\x0D'            /**< carriage return */
-#    define ASCII_SO_CHAR   '\x0E'            /**< shift out */
-#    define ASCII_SI_CHAR   '\x0F'            /**< shift in */
-#    define ASCII_DLE_CHAR  '\x10'            /**< data link escape */
-#    define ASCII_DC1_CHAR  '\x11'            /**< device control 1 */
-#    define ASCII_DC2_CHAR  '\x12'            /**< device control 2 */
-#    define ASCII_DC3_CHAR  '\x13'            /**< device control 3 */
-#    define ASCII_DC4_CHAR  '\x14'            /**< device control 4 */
-#    define ASCII_NAK_CHAR  '\x15'            /**< negative acknowledge */
-#    define ASCII_SYN_CHAR  '\x16'            /**< synchronous idle */
-#    define ASCII_ETB_CHAR  '\x17'            /**< end of transmission block */
-#    define ASCII_CAN_CHAR  '\x18'            /**< cancel */
-#    define ASCII_EM_CHAR   '\x19'            /**< end of medium */
-#    define ASCII_SUB_CHAR  '\x1A'            /**< substitute */
-#    define ASCII_ESC_CHAR  '\x1B'            /**< escape */
-#    define ASCII_FS_CHAR   '\x1C'            /**< file separator */
-#    define ASCII_GS_CHAR   '\x1D'            /**< group separator */
-#    define ASCII_RS_CHAR   '\x1E'            /**< record separator */
-#    define ASCII_US_CHAR   '\x1F'            /**< unit separator */
-#    define ASCII_SP_CHAR   '\x20'            /**< space  */
-
-/// @note win32 systems (and some others) handle newlines by using a combinarion
-///       of linefeed and carriage return characters. So...
-///       the numerical values of '\n' and '\r' may vary from system to system and
-///       may be different for input and output (i.e. '\n' writing '\x0D\x0A" on win32 systems)
-
-#    define ASCII_LINEFEED_CHAR    ASCII_NL_CHAR
-
-/// @note the following escape codes are translated by the compiler
-///       to whatever encoding is necessary
-#    define C_BELL_CHAR            '\a'
-#    define C_BACKSPACE_CHAR       '\b'
-#    define C_FORMFEED_CHAR        '\f'
-#    define C_NEW_LINE_CHAR        '\n'
-#    define C_CARRIAGE_RETURN_CHAR '\r'
-#    define C_TAB_CHAR             '\t'
-#    define C_VERTICAL TAB_CHAR    '\v'
-#    define C_SINGLE_QUOTE_CHAR    '\''
-#    define C_DOUBLE_QUOTE_CHAR    '\"'
-
-#define TRANSCOLOR                      0
 
 
 #include "egolib/Profiles/ReaderUtilities.hpp"
 #include "egolib/Script/Location.hpp"
-#include "egolib/Script/Buffer.hpp"
+#include "egolib/Script/AbstractReader.hpp"
 #include "egolib/Script/Errors.hpp"
-
-// Forward declaration.
-struct ReadContext;
 
 /**
  * @brief
@@ -114,57 +60,20 @@ struct ReadContext;
  * @author
  *  Michael Heilmann
  */
-struct ReadContext
+struct ReadContext : public Ego::Script::AbstractReader<Ego::Script::Traits<char>>
 {
-protected:
-    /**
-     * @brief
-     *  Read the next input character.
-     * @return
-     *  the character, EndOfInput (if the end of the input was reached) or Error (if an error occured)
-     */
-    int readInput();
-    /**
-     * @brief
-     *  The file handle if the context is open, @a nullptr otherwise.
-      */
-    vfs_FILE *_file;
+
 public:
+
     /**
      * @brief
      *  The load name of the file of this context.
      */
     std::string _loadName;
-    /**
-     * @brief
-     *  The line number in the file of this context.
-     */
-    size_t _lineNumber;
-
-    /**
-     * @brief
-     *  The current extended character.
-     */
-    int _current;
-    /**
-     * @brief
-     *  Lexeme accumulation buffer.
-     */
-    Ego::Script::Buffer _buffer;
 
     ReadContext(const std::string& loadName);
 
     ~ReadContext();
-
-    /**
-     * @brief
-     *  Convert the contents of the buffer to a string value.
-     * @return
-     *  the string value
-     * @throw Ego::Script::LexicalError
-     *  if a lexical error occurs
-     */
-    std::string toString() const;
 
     /**
      * @brief
@@ -203,14 +112,6 @@ public:
      *  the load name of the file associated with this context
      */
     const std::string& getLoadName() const;
-
-    /**
-     * @brief
-     *  Get the line number within the file associated with this context.
-     * @return
-     *  the line number within the file associated with this context
-     */
-    size_t getLineNumber() const;
 
     /**
      * @brief
@@ -288,68 +189,6 @@ public:
         }
         return *it;
     }
-
-    /// The minimum of the sub-range of extended character values representing valid characters.
-    static const int FirstValidChar;
-    /// The maximum of the sub-range of extended character values representing valid characters.
-    static const int LastValidChar;
-    /// Special value for extended character indicating the start of the input.
-    static const int StartOfInput;
-    /// Special value for extended character indicating the end of the input.
-    static const int EndOfInput;
-    /// Special value for extended character indicating an error.
-    static const int Error;
-
-    void write(char chr);
-    void save();
-    void next();
-    void writeAndNext(char chr);
-    void saveAndNext();
-    bool is(int chr);
-    bool is(int first, int last);
-
-    /**
-     * @brief
-     *  Get if a character is a whitespace character.
-     * @param chr
-     *  the character
-     * @return
-     *  @a true if the character is a whitespace character,
-     *  @a false otherwise
-     * @remark
-     *  @code
-     *  whitespace = Space | Tabulator
-     *  @endcode
-     * @todo
-     *  Remove parameterized form.
-     */
-#if 0
-    bool isWhiteSpace(char chr);
-#endif
-    bool isWhiteSpace();
-
-    /**
-     * @brief
-     *  Get if a character is a new line character.
-     * @param chr
-     *  the character
-     * @return
-     *  @a true if the character is a new line character,
-     *  @a false otherwise
-     * @remark
-     *  @code
-     *  newline = LineFeed | CarriageReturn
-     *  @endcode
-     * @todo
-     *  Remove parameterized form.
-     */
-#if 0
-    bool isNewLine(char chr);
-#endif
-    bool isNewLine();
-
-    bool isAlpha();
-    bool isDigit();
 
     /// The new line character.
     static const int LineFeed = '\n';
@@ -496,15 +335,11 @@ public:
 
     /**
      * @brief
-     *  Skip input until either the end of the input or a non-whitespace character is reached.
+     *  Skip input until
+     *  a non-whitespace
+     *  extended character is the current character.
      */
     void skipWhiteSpaces();
-    /**
-     * @brief
-     *  Skip input until either the end of the input or a non-newline character is reached.
-     */
-    void skipNewLines();
-    void skipNewLine();
 
     /**
      * @brief
@@ -620,11 +455,6 @@ bool vfs_get_pair(ReadContext& ctxt, IPair *pair);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-
-#if 0
-char vfs_get_next_printable(ReadContext& ctxt);
-void vfs_get_next_line(ReadContext& ctxt, char *str, size_t max);
-#endif
 DamageType vfs_get_next_damage_type(ReadContext& ctxt);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

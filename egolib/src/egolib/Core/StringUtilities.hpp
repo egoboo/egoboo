@@ -38,11 +38,31 @@ namespace Ego
      *  the locale to use. Default is std::locale().
      * @return
      *  the upper case character
+     * @todo
+     *  Rename to @a toUpper.
      */
     template <class CharType>
-    inline CharType toupper(CharType chr, const locale& lc = locale())
+    inline CharType toupper(CharType chr, const std::locale& lc = locale())
     {
         return std::toupper(chr, lc);
+    }
+
+    /**
+     * @brief
+     *  In-place convert a string to upper case.
+     * @param str
+     *  the string
+     * @param lc
+     *  the locale to use. Default is std::locale().
+     * @todo
+     *  Rename to @a toUpper.
+     */
+    template <typename CharType>
+    inline void toupper(basic_string<CharType>& str, const locale& lc = locale())
+    {
+        // Capture lc by reference, capture nothing else.
+        auto f = [&lc](const CharType chr) -> CharType { return Ego::toupper(chr, lc); };
+        return for_each(str.begin(), str.end(), f);
     }
 
     /**
@@ -54,11 +74,31 @@ namespace Ego
      *  the locale to use. Default is std::locale().
      * @return
      *  the lower case character
+     * @todo
+     *  Rename to @a toLower.
      */
     template <class CharType>
     inline CharType tolower(CharType chr, const locale& lc = locale())
     {
         return std::tolower(chr, lc);
+    }
+
+    /**
+     * @brief
+     *  In-place convert a string to lower case.
+     * @param str
+     *  the string
+     * @param lc
+     *  the locale to use. Default is std::locale().
+     * @todo
+     *  Rename to @a toLower.
+     */
+    template <class CharType>
+    inline void tolower(basic_string<CharType>& str, const locale& lc = locale())
+    {
+        // Capture lc by reference, capture nothing else.
+        auto f = [&lc] (const CharType chr) -> CharType { return Ego::tolower(chr, lc); };
+        for_each(str.begin(), str.end(), f);
     }
 
     /**
@@ -70,6 +110,8 @@ namespace Ego
      *  the locale to use. Default is std::locale().
      * @return
      *  @a true if the character is an alphabetic character, @a false otherwise
+     * @todo
+     *  Rename to @a isAlpha.
      */
     template <class CharType>
     inline bool isalpha(CharType chr, const std::locale& lc = locale())
@@ -86,6 +128,8 @@ namespace Ego
      *  the locale to use. Default is std::locale().
      * @return
      *  @a true if the character is a printable character, @a false otherwise
+     * @todo
+     *  Rename to @a isPrint.
      */
     template <class CharType>
     inline bool isprint(CharType chr, const std::locale& lc = std::locale())
@@ -102,6 +146,8 @@ namespace Ego
      *  the locale to use. Default is std::locale().
      * @return
      *  @a true if the character is a digit character, @a false otherwise
+     * @todo
+     *  Rename to @a isDigit.
      */
     template <class CharType>
     inline bool isdigit(CharType chr, const std::locale& lc = std::locale())
@@ -118,6 +164,8 @@ namespace Ego
      *  the locale to use. Default is std::locale().
      * @return
      *  @a true if the character is a control character, @a false otherwise
+     * @todo
+     *  Rename to @a isCntrl.
      */
     template <class CharType>
     inline bool iscntrl(CharType chr, const std::locale& lc = std::locale())
@@ -134,6 +182,8 @@ namespace Ego
      *  the locale to use. Default is std::locale().
      * @return
      *  @a true if the character is a whitespace character, @a false otherwise
+     * @todo
+     *  Rename to @a isSpace.
      */
     template <class CharType>
     inline bool isspace(CharType chr, const std::locale& lc = locale())
@@ -152,11 +202,12 @@ namespace Ego
      *  a string equal to @a str but with leading and trailing spaces removed
      */
     template <typename CharType>
-    inline basic_string<CharType> trim(const basic_string<CharType>& str, const locale& lc = locale())
+    inline std::basic_string<CharType> trim(const std::basic_string<CharType>& str, const locale& lc = locale())
     {
-        auto isspace = [=, &lc](const CharType chr) { return std::isspace(chr, lc); };
-        auto front = find_if_not(str.begin(), str.end(), isspace);
-        return basic_string<CharType>(front, find_if_not(str.rbegin(), typename basic_string<CharType>::const_reverse_iterator(front), isspace).base());
+        // Capture lc by reference, capture nothing else.
+        auto f = [&lc](const CharType chr) { return Ego::isspace(chr, lc); };
+        auto front = std::find_if_not(str.begin(), str.end(), f);
+        return std::basic_string<CharType>(front, std::find_if_not(str.rbegin(), typename std::basic_string<CharType>::const_reverse_iterator(front), f).base());
     }
 
     /**

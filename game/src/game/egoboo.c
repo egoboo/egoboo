@@ -36,76 +36,98 @@
 #include "game/Profiles/_Include.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 
-#if defined(__cplusplus)
-extern "C"
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+/**
+ * @brief
+ *  Download the data from the egoboo_config_t data structure to program variables.
+ * @param cfg
+ *  the configuration
+ * @return
+ *  @a true on success, @a false on failure
+ */
+bool config_download(egoboo_config_t *cfg);
+
+/**
+ * @brief
+ *  Upload the data from program variables into an egoboo_config_t data structure.
+ * @param cfg
+ *  the configuration
+ * @return
+ *  @a true on success, @a false on failure
+ * @note
+ *  This function must be implemented by the user
+ */
+bool config_upload(egoboo_config_t *cfg);
+
+
+bool config_synch(egoboo_config_t *cfg, bool fromFile,bool toFile)
 {
-#endif
-    extern bool config_download( egoboo_config_t * pcfg, bool synch_from_file );
-    extern bool config_upload( egoboo_config_t * pcfg );
-#if defined(__cplusplus)
+    if (fromFile)
+    {
+        if (!setup_download(cfg))   // Download 'setup.txt' into the Egoboo configuration.
+        {
+            return false;
+        }
+    }
+    if (!config_download(cfg))      // Download the the program variables into the Egoboo configuration.
+    {
+        return false;
+    }
+    if (!config_upload(cfg))        // Upload the Egoboo configuration into the program variables.
+    {
+        return false;
+    }
+    if (toFile)
+    {
+        return setup_upload(cfg);   // Upload the Egoboo configuration into 'setup.txt'.
+    }
+    return true;
 }
 
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
+bool config_download( egoboo_config_t *cfg)
 {
-    bool rv;
-
-    // synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)
-    if ( synch_from_file )
+    if (!cfg)
     {
-        rv = setup_download( pcfg );
-        if ( !rv ) return false;
+        return false;
     }
+    // Status display.
+    StatusList.on = cfg->hud_displayStatusBars.getValue();
+    // Message display.
+    DisplayMsg_count = CLIP(cfg->hud_simultaneousMessages_max.getValue(), (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
+    DisplayMsg_on = cfg->hud_simultaneousMessages_max.getValue() > 0;
 
-    // status display
-    StatusList.on = pcfg->show_stats;
+    // Particle display limit.
+    ParticleHandler::get().setDisplayLimit(cfg->graphic_simultaneousParticles_max.getValue());
 
-    // fps display
-    fpson = pcfg->fps_allowed;
+    // Camera options.
+    _cameraSystem.getCameraOptions().turnMode = cfg->camera_control.getValue();
 
-    // message display
-    DisplayMsg_count    = CLIP( pcfg->message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX );
-    DisplayMsg_on       = pcfg->message_count_req > 0;
+    // Sound options.
+    _audioSystem.setConfiguration(*cfg);
 
-    // Get the particle limit
-    // if the particle limit has changed, make sure to make not of it
-    // number of particles
-    ParticleHandler::get().setDisplayLimit(pcfg->particle_count_req);
+    // Rendering options.
+    gfx_config_download_from_egoboo_config(&gfx, cfg);
 
-    // camera options
-    _cameraSystem.getCameraOptions().turnMode = pcfg->autoturncamera;
-
-    // sound options
-    _audioSystem.setConfiguration(*pcfg);
-
-    // renderer options
-    gfx_config_download_from_egoboo_config( &gfx, pcfg );
-
-    // texture options
-    oglx_texture_parameters_download_gfx( &tex_params, pcfg );
+    // Texture options.
+    oglx_texture_parameters_download_gfx(&tex_params, cfg);
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool config_upload( egoboo_config_t * pcfg )
+bool config_upload(egoboo_config_t *cfg)
 {
-    if ( NULL == pcfg ) return false;
+    if (!cfg) return false;
 
-    pcfg->autoturncamera = _cameraSystem.getCameraOptions().turnMode;
-    pcfg->fps_allowed    = TO_C_BOOL( fpson );
+    cfg->camera_control.setValue(_cameraSystem.getCameraOptions().turnMode);
 
-    // number of particles
-    pcfg->particle_count_req = CLIP( ParticleHandler::get().getDisplayLimit(), (size_t)0, (size_t)PARTICLES_MAX );
+    // Particle limit.
+    cfg->graphic_simultaneousParticles_max.setValue(ParticleHandler::get().getDisplayLimit());
 
     // messages
-    pcfg->messageon_req     = TO_C_BOOL( DisplayMsg_on );
-    pcfg->message_count_req = !DisplayMsg_on ? 0 : std::max( EGO_MESSAGE_MIN, DisplayMsg_count );
+    cfg->hud_messages_enable.setValue(DisplayMsg_on);
+    cfg->hud_simultaneousMessages_max.setValue(!DisplayMsg_on ? 0 : std::max(EGO_MESSAGE_MIN, DisplayMsg_count));
 
-    // convert the config values to a setup file
-    return setup_upload( pcfg );
+    return true;
 }

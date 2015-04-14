@@ -63,8 +63,8 @@ ModuleProfile::~ModuleProfile()
 
 bool ModuleProfile::isModuleUnlocked() const
 {
-    // First check if we are in developers mode or that the right module has been beaten before
-    if ( cfg.dev_mode )
+    // First check if we are in developers mode or that the right module has been beaten before.
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue())
     {
         return true;
     }
@@ -122,7 +122,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
     result->_unlockQuest.id = vfs_get_next_idsz(ctxt);
     result->_unlockQuest.level = 0;
     ctxt.skipWhiteSpaces();
-    if (!ctxt.isNewLine() && !ctxt.is(ReadContext::EndOfInput))
+    if (!ctxt.isNewLine() && !ctxt.is(ReadContext::Traits::endOfInput()))
     {
         result->_unlockQuest.level = ctxt.readInt();
     }

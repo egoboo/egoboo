@@ -1402,31 +1402,31 @@ void gfx_system_init_SDL_graphics()
     // GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
     // will cause SDL_SetVideoMode to fail with:
     // "Unable to set video mode: Couldn't find matching GLX visual"
-    if ( 32 == cfg.scrd_req ) cfg.scrd_req = 24;
-    if ( 32 == cfg.scrz_req ) cfg.scrz_req = 24;
+    if ( 32 == cfg.scrd_req ) egoboo_config_t::get().scrd_req = 24;
+    if ( 32 == cfg.scrz_req ) egoboo_config_t::get().scrz_req = 24;
 
 #endif
 
     // the flags to pass to SDL_SetVideoMode
-    sdl_vparam.width                     = cfg.scrx_req;
-    sdl_vparam.height                    = cfg.scry_req;
-    sdl_vparam.depth                     = cfg.scrd_req;
+    sdl_vparam.horizontalResolution = egoboo_config_t::get().graphic_resolution_horizontal.getValue();
+    sdl_vparam.verticalResolution = egoboo_config_t::get().graphic_resolution_vertical.getValue();
+    sdl_vparam.colorBufferDepth = egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue();
 
     sdl_vparam.flags.opengl              = SDL_TRUE;
     sdl_vparam.flags.double_buf          = SDL_TRUE;
-    sdl_vparam.flags.full_screen         = cfg.fullscreen_req;
+    sdl_vparam.flags.full_screen = egoboo_config_t::get().graphic_fullscreen.getValue();
 
-    sdl_vparam.gl_att.buffer_size        = cfg.scrd_req;
-    sdl_vparam.gl_att.depth_size         = cfg.scrz_req;
-    sdl_vparam.gl_att.multi_buffers      = ( cfg.multisamples > 1 ) ? 1 : 0;
-    sdl_vparam.gl_att.multi_samples      = cfg.multisamples;
+    sdl_vparam.gl_att.buffer_size = egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue();
+    sdl_vparam.gl_att.depth_size = egoboo_config_t::get().graphic_depthBuffer_bitDepth.getValue();
+    sdl_vparam.gl_att.multi_buffers = (egoboo_config_t::get().graphic_antialiasing.getValue() > 1) ? 1 : 0;
+    sdl_vparam.gl_att.multi_samples = egoboo_config_t::get().graphic_antialiasing.getValue();
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
 
-    ogl_vparam.dither         = cfg.use_dither ? GL_TRUE : GL_FALSE;
+    ogl_vparam.dither = egoboo_config_t::get().graphic_dithering_enable.getValue() ? GL_TRUE : GL_FALSE;
     ogl_vparam.antialiasing   = GL_TRUE;
-    ogl_vparam.perspective    = cfg.use_perspective ? GL_NICEST : GL_FASTEST;
+    ogl_vparam.perspective    = egoboo_config_t::get().graphic_perspectiveCorrection_enable.getValue() ? GL_NICEST : GL_FASTEST;
     ogl_vparam.shading        = GL_SMOOTH;
-	ogl_vparam.userAnisotropy = 16.0f * std::max(0, cfg.texturefilter_req - Ego::TextureFilter::TRILINEAR_2);
+	ogl_vparam.userAnisotropy = 16.0f * std::max(0, egoboo_config_t::get().graphic_textureFiltering.getValue() - Ego::TextureFilter::TRILINEAR_2);
 
     log_info( "Opening SDL Video Mode...\n" );
 
@@ -1438,7 +1438,7 @@ void gfx_system_init_SDL_graphics()
     }
     else
     {
-        GFX_WIDTH = ( float )GFX_HEIGHT / ( float )sdl_vparam.height * ( float )sdl_vparam.width;
+        GFX_WIDTH = ( float )GFX_HEIGHT / ( float )sdl_vparam.verticalResolution * ( float )sdl_vparam.horizontalResolution;
         log_message( "Success!\n" );
     }
 

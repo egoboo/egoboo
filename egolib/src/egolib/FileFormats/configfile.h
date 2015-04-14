@@ -18,151 +18,522 @@
 //********************************************************************************************
 
 /// @file egolib/FileFormats/configfile.h
-/// @details Configuration file loading code.
+/// @details Configuration files
 
 #pragma once
 
-#include "egolib/platform.h"
 #include "egolib/vfs.h"
+#include "egolib/Script/Traits.hpp"
+#include "egolib/Script/QualifiedName.hpp"
+#include "egolib/Script/AbstractReader.hpp"
+#include "egolib/Script/Buffer.hpp"
+#include "egolib/Script/TextInputFile.hpp"
+
+using namespace std;
+using namespace Ego::Script;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_ConfigFileValue;
-typedef struct s_ConfigFileValue ConfigFileValue_t;
-typedef struct s_ConfigFileValue *ConfigFileValuePtr_t;
-
-struct s_ConfigFileSection;
-typedef struct s_ConfigFileSection ConfigFileSection_t;
-typedef struct s_ConfigFileSection *ConfigFileSectionPtr_t;
-
-struct s_ConfigFileCarat;
-typedef struct s_ConfigFileCarat ConfigFileCarat_t;
-typedef struct s_ConfigFileCarat *ConfigFileCaratPtr_t;
-
-struct s_ConfigFile;
-typedef struct s_ConfigFile ConfigFile_t;
-typedef struct s_ConfigFile *ConfigFilePtr_t;
-
-//--------------------------------------------------------------------------------------------
-// BOOLEAN
-
-#if defined(__cplusplus)
-typedef bool config_bool_t;
-#define config_true true
-#define config_false false
-#else
-enum e_config_bool
+struct AbstractConfigFile
 {
-    config_true  = ( 1 == 1 ),
-    config_false = ( !config_true )
+
+public:
+
+    /**
+     * @brief
+     *  A single comment line.
+     */
+    struct CommentLine
+    {
+        string _text;
+        CommentLine(const string& text) :
+            _text(text)
+        {}
+        virtual ~CommentLine()
+        {}
+        const string& getText() const
+        {
+            return _text;
+        }
+    };
+
+    /**
+     * @brief
+     *  A single entry in a configuration file.
+     */
+    struct Entry
+    {
+
+    protected:
+
+        /**
+         * @brief
+         *  The comment lines associated with this entry.
+         */
+        vector<CommentLine> _commentLines;
+
+        /**
+         * @brief
+         *  The qualified name of this entry.
+         */
+        QualifiedName _qualifiedName;
+
+        /**
+         * @brief
+         *  The value of this entry.
+         */
+        string _value;
+
+    public:
+
+        /**
+         * @brief
+         *  Construct this entry.
+         * @param qualifiedName
+         *  the qualified name
+         * @param value
+         *  the value
+         */
+        Entry(const QualifiedName& qualifiedName, const string& value) :
+            _qualifiedName(qualifiedName), _value(value),
+            _commentLines()
+        {}
+
+        /**
+         * @brief
+         *  Destruct this entry.
+         */
+        virtual ~Entry()
+        {}
+
+        /**
+         * @brief
+         *  Get the qualified name of this entry.
+         * @return
+         *  the qualified name of this entry
+         */
+        const QualifiedName& getQualifiedName() const
+        {
+            return _qualifiedName;
+        }
+
+        /**
+         * @brief
+         *  Get the value of this entry.
+         * @return
+         *  the value of this entry
+         */
+        const string& getValue() const
+        {
+            return _value;
+        }
+
+        /**
+         * @brief
+         *  Get the comment lines of this entry.
+         * @return
+         *  the comment lines of this entry
+         */
+        const vector<CommentLine>& getCommentLines() const
+        {
+            return _commentLines;
+        }
+    };
+
+public:
+
+    typedef unordered_map<QualifiedName, shared_ptr<Entry>> MapTy;
+    typedef MapTy::const_iterator ConstMapIteratorTy;
+
+    /// @internal Custom iterator.
+    struct EntryIterator : iterator<forward_iterator_tag, const shared_ptr<Entry>>
+    {
+    public:
+        typedef forward_iterator_tag iterator_category;
+
+        typedef ConstMapIteratorTy OuterIteratorTy;
+
+    private:
+        OuterIteratorTy _inner;
+    public:
+        EntryIterator() :
+            _inner()
+        {}
+        EntryIterator(const OuterIteratorTy& outer) :
+            _inner(outer)
+        {}
+        EntryIterator(const EntryIterator& other) :
+            _inner(other._inner)
+        {}
+        reference operator->() const
+        {
+            return _inner->second;
+        }
+        reference operator*() const
+        {
+            return _inner->second;
+        }
+        bool operator!=(const EntryIterator& other) const
+        {
+            return _inner != other._inner;
+        }
+        bool operator==(const EntryIterator& other) const
+        {
+            return _inner == other._inner;
+        }
+        // Prefix decrement.
+        EntryIterator& operator--(int)
+        {
+            _inner--;
+            return *this;
+        }
+        // Prefix increment.
+        EntryIterator& operator++(int)
+        {
+            _inner++;
+            return *this;
+        }
+        // Postfix decrement.
+        EntryIterator operator--()
+        {
+            EntryIterator t = *this;
+            _inner--;
+            return t;
+        }
+        // Postfix increment.
+        EntryIterator operator++()
+        {
+            EntryIterator t = *this;
+            _inner++;
+            return t;
+        }
+        EntryIterator& operator=(const EntryIterator& other)
+        {
+            _inner = other._inner;
+            return *this;
+        }
+    };
+
+    /**
+     * @brief
+     *  The file name of the configuration file.
+     */
+    string _fileName;
+
+    /**
+     * @brief
+     *  A map of qualified names (keys) to shared pointers of entries (values).
+     */
+    unordered_map<QualifiedName,shared_ptr<Entry>> _map;
+
+public:
+
+    // STL-style
+    typedef EntryIterator iterator;
+    // STL-style
+    typedef EntryIterator const_iterator;
+
+    /**
+     * @brief
+     *  Construct this configuration.
+     * @param fileName
+     *  the file name
+     * @post
+     *  The configuration file is empty and has the specified file name.
+     */
+    AbstractConfigFile(const string& fileName) :
+        _fileName(fileName), _map()
+    {}
+
+    /**
+     * @brief
+     *  Destruct this configuration file.
+     */
+    virtual ~AbstractConfigFile()
+    {}
+
+    /**
+     * @brief
+     *  Get an iterator to the beginning of the entries.
+     * @return
+     *  the iterator
+     */
+    iterator begin() const
+    {
+        return EntryIterator(_map.begin());
+    }
+
+    /**
+     * @brief
+     *  Get an iterator to the end of the entries.
+     * @return
+     *  the iterator
+     */
+    iterator end() const
+    {
+        return EntryIterator(_map.end());
+    }
+
+    /**
+     * @brief
+     *  Get the file name of this configuration file.
+     * @return
+     *  the file name
+     */
+    const string& getFileName() const
+    {
+        return _fileName;
+    }
+
+    /**
+     * @brief
+     *  Set the file name of this configuration file.
+     * @param fileName
+     *  the file name
+     */
+    void setFileName(const string& fileName)
+    {
+        _fileName = fileName;
+    }
+
+public:
+
+    /**
+     * @brief
+     *  Set an entry.
+     * @param qn
+     *  the qualified name
+     * @param v
+     *  the value
+     * @return
+     *  @a true on success, @a false on failure
+     */
+    bool set(const QualifiedName& qn, const string& v)
+    {
+        try
+        {
+            _map[qn] = make_shared<Entry>(qn,v);
+        }
+        catch (...)
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * @brief
+     *  Get a value.
+     * @param qn
+     *  the qualified name
+     * @param [out] v
+     *  reference to a variable in which the value is stored
+     * @return
+     *  @a true if the value exists, @a false otherwise.
+     *  If @a true is returned, the value was stored @a v.
+     *  the value if it exists, @a nullptr otherwise
+     */
+    bool get(const QualifiedName& qn, string& v) const
+    {
+        auto it = _map.find(qn);
+        if (it != _map.end())
+        {
+            v = (*it).second->getValue();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 };
 
-// this typedef must be after the enum definition or gcc has a fit
-typedef enum e_config_bool config_bool_t;
-#endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-extern "C"
+/**
+ * @brief
+ *  A configuration file.
+ * @todo
+ *  Refactor to @a ConfigFile.
+ */
+struct ConfigFile : public AbstractConfigFile
 {
-#endif
+
+public:
+
+    /**
+     * @brief
+     *  Construct this configuration.
+     * @param fileName
+     *  the file name
+     * @post
+     *  The configuration file is empty and has the specified file name.
+     */
+    ConfigFile(const string& fileName) :
+        AbstractConfigFile(fileName)
+    {}
+
+    /**
+     * @brief
+     *  Destruct this configuration file.
+     */
+    ConfigFile::~ConfigFile()
+    {}
+
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define ConfigFile_succeed  1
-#define ConfigFile_fail 0
+struct ConfigFileUnParser
+{
+protected:
+    /**
+        * @brief
+        *  The configuration file.
+        */
+    shared_ptr<ConfigFile> _source;
+        
+    /**
+        * @brief
+        *  The target file.
+        */
+    vfs_FILE *_target;
 
-#define MAX_CONFIG_SECTION_LENGTH    64
-#define MAX_CONFIG_KEY_LENGTH      64
-#define MAX_CONFIG_VALUE_LENGTH      256
-#define MAX_CONFIG_COMMENTARY_LENGTH  256
+    /**
+     * @brief
+     *  Unparse an entry.
+     * @param entry
+     *  the entry
+     * @return
+     *  @a true on success, @a false on failure
+     */
+    bool unparse(shared_ptr<ConfigFile::Entry> entry);
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    /// the ConfigFile return value type
-    typedef int ConfigFile_retval;
-
-//--------------------------------------------------------------------------------------------
-// struct s_ConfigFileValue
-//--------------------------------------------------------------------------------------------
-
-/// A single value in the congiguration file, specified by ["TAG"] = "VALUE"
-    struct s_ConfigFileValue
-    {
-        ConfigFileValuePtr_t NextValue;
-
-        char KeyName[MAX_CONFIG_KEY_LENGTH];
-        char *Value;
-        char *Commentary;
-    };
-
-//--------------------------------------------------------------------------------------------
-// struct s_ConfigFileSection
-//--------------------------------------------------------------------------------------------
-
-    /// One section of the congiguration file, delimited by {"BLAH"}
-    struct s_ConfigFileSection
-    {
-        ConfigFileSectionPtr_t NextSection;
-
-        char SectionName[MAX_CONFIG_SECTION_LENGTH];
-
-        ConfigFileValuePtr_t   FirstValuePtr;
-    };
-
-//--------------------------------------------------------------------------------------------
-// struct s_ConfigFileCarat
-//--------------------------------------------------------------------------------------------
-
-    struct s_ConfigFileCarat
-    {
-        ConfigFileSectionPtr_t  SectionPtr;
-        ConfigFileValuePtr_t    ValuePtr;
-    };
-
-//--------------------------------------------------------------------------------------------
-// struct s_ConfigFile
-//--------------------------------------------------------------------------------------------
-
-    /// The congiguration file
-    struct s_ConfigFile
-    {
-        vfs_FILE *f;
-        char      filename[256];
-
-        ConfigFileSectionPtr_t  SectionList;
-        ConfigFileCarat_t       Current;
-    };
-
-//--------------------------------------------------------------------------------------------
-// External module functions
-//--------------------------------------------------------------------------------------------
-
-    extern ConfigFilePtr_t   ConfigFile_create( void );
-    extern ConfigFile_retval ConfigFile_destroy( ConfigFilePtr_t * ptmp );
-
-    extern ConfigFilePtr_t   ConfigFile_Load( const char *szFileName, config_bool_t force );
-    extern ConfigFile_retval ConfigFile_Save( ConfigFilePtr_t pConfigFile );
-    extern ConfigFile_retval ConfigFile_SaveAs( ConfigFilePtr_t pConfigFile, const char *szFileName );
-
-    extern ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, char *pValue, size_t pValueBufferLength );
-    extern ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, config_bool_t *pBool );
-    extern ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, int *pInt );
-
-    extern ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, const char *szValue );
-    extern ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, config_bool_t Bool );
-    extern ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, int Int );
-    extern ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, float Float );
+public:
+    /**
+        * @brief
+        *  Construct this configuration file unparser.
+        */
+    ConfigFileUnParser();
+    /**
+        * @brief
+        *  Destruct this configuration file unparser.
+        */
+    virtual ~ConfigFileUnParser();
+    /**
+        * @brief
+        *  Save the configuration file.
+        * @param source
+        *  the configuration file
+        */
+    bool unparse(shared_ptr<ConfigFile> source);
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if defined(__cplusplus)
-}
+struct ConfigFileParser : public AbstractReader<Traits<char>>
+{
+public:
 
-#endif
+    typedef Ego::Script::Traits<char> Traits;
+
+protected:
+    /**
+        * @brief
+        *  The current qualified name or @a nullptr.
+        */
+    unique_ptr<QualifiedName> _currentQualifiedName;
+    /**
+        * @brief
+        *  The current value or @a nullptr.
+        */
+    unique_ptr<string> _currentValue;
+
+    vector<string> _commentLines;
+    shared_ptr<ConfigFile> _target;
+
+    /**
+        * @brief
+        *  Flush the comment buffer:
+        *  Concatenate all comments in the buffer to a single string and empty the buffer.
+        */
+    string makeComment();
+
+public:
+
+    ConfigFileParser();
+
+    virtual ~ConfigFileParser();
+
+
+    shared_ptr<ConfigFile> parse(const string& fileName);
+
+protected:
+
+    /**
+     * @remark
+     *  @code
+     *  file -> entries*
+     *  @endcode
+     */
+    bool parseFile();
+
+    /**
+     * @remark
+     *  @code
+     *  entry -> sectionName keyValuePair*
+     *  @endcode
+     */
+    bool parseEntry();
+
+    /**
+     * @remark
+     *  @code
+     *  variable -> qualifiedName ':' value
+     *              {
+     *                  @variables.append(Variable::new(@qualifiedName,@string))
+     *              }
+     *  @endcode
+     */
+    bool parseVariable();
+
+    /**
+     * @remark
+     *  @code
+     *  qualifiedName -> (name('.' name)*)@qualifiedName
+     *                   {
+     *                     @currentQualifiedName := @qualifiedName
+     *                   }
+     *  @endcode
+     */
+    bool parseQualifiedName();
+
+    /**
+     * @remark
+     *  @code
+     *  name -> '_' * alphabetic (alphabetic | digit | '_')
+     *  @endcode
+     */
+    bool parseName();
+
+    /**
+     * @remark
+     *  @code
+     *  value := '"' (valueChar*)@value '"'
+     *         {
+     *           @currentValue := @value
+     *         }
+     *  valueChar := . - (endOfInput | error | '"' | newLine)
+     *  @endcode
+     *  where @code{'.'} is any character. 
+     */
+    bool parseValue();
+
+    bool parseComment(string& comment);
+
+    bool skipWhiteSpaces();
+
+};

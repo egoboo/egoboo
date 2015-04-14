@@ -201,20 +201,6 @@ static void main_end();
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-    extern bool config_download( egoboo_config_t * pcfg );
-    extern bool config_upload( egoboo_config_t * pcfg );
-#if defined(__cplusplus)
-}
-
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 #include "cartman/standard.inl"           // Some functions that I always use
 
 //--------------------------------------------------------------------------------------------
@@ -2059,11 +2045,11 @@ int SDL_main( int argcnt, char* argtext[] )
     // Register the logging code.
     log_initialize("/debug/log.txt", LOG_INFO);
 
-    if (!setup_read_vfs())
+    if (!setup_begin())
     {
         log_error( "Cannot load the setup file \"%s\".\n", fname );
     }
-    config_download(&cfg);
+    setup_download(&egoboo_config_t::get());
 	/*
 	// Uncomment to display the search paths.
 	vfs_listSearchPaths();
@@ -2238,13 +2224,13 @@ void cartman_check_input( const char * modulename, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool config_download( egoboo_config_t * pcfg )
+bool config_download(egoboo_config_t * pcfg)
 {
-    return setup_download( pcfg );
+    return setup_download(pcfg);
 }
 
 //--------------------------------------------------------------------------------------------
-bool config_upload( egoboo_config_t * pcfg )
+bool config_upload(egoboo_config_t * pcfg)
 {
     return setup_upload( pcfg );
 }

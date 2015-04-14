@@ -57,7 +57,7 @@ void CameraSystem::begin(const size_t numberOfCameras)
 
     //If there are no valid players then make free movement camera
     if(numberOfCameras == 0) {
-        _cameraList[0]->setCameraMode(CAM_FREE);
+        _cameraList[0]->setCameraMovementMode(CameraMovementMode::Free);
     }
 
     // we're initialized.
@@ -381,7 +381,8 @@ void CameraSystem::autoSetTargets()
         }
 
         // turn off all cameras with no targets
-        while(_cameraList.size() > cameraIndex) {
+        while(_cameraList.size() > cameraIndex)
+        {
         	_cameraList.pop_back();
         }
     }

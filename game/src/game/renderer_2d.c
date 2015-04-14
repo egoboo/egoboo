@@ -74,7 +74,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
                 // Use squiggle for tab
                 x = ( FLOOR(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
             }
-            else if ( C_NEW_LINE_CHAR == cTmp )
+            else if ( C_LINEFEED_CHAR == cTmp )
             {
                 x  = x_stt;
                 y += fontyspacing;
@@ -209,7 +209,7 @@ void DisplayMsg_print( const char *text )
     if ( dst < dst_end ) *dst = CSTR_END;
 
     // Set the time
-    pmsg->time = cfg.message_duration;
+    pmsg->time = egoboo_config_t::get().hud_messageDuration.getValue();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -535,7 +535,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
                 // Use squiggle for tab
                 x = ( FLOOR(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
             }
-            else if ( C_NEW_LINE_CHAR == cTmp )
+            else if ( C_LINEFEED_CHAR == cTmp )
             {
                 x = stt_x;
                 y += fontyspacing;
@@ -558,7 +558,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
             cTmp = szText[cnt];
             cnt++;
 
-            if ( '~' == cTmp || C_NEW_LINE_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || isspace( cTmp ) )
+            if ( '~' == cTmp || C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || isspace( cTmp ) )
             {
                 newword = true;
             }

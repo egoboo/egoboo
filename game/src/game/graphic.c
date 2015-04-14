@@ -1639,24 +1639,24 @@ void gfx_system_init_SDL_graphics()
     // GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
     // will cause SDL_SetVideoMode to fail with:
     // "Unable to set video mode: Couldn't find matching GLX visual"
-    if ( 32 == cfg.scrd_req ) cfg.scrd_req = 24;
-    if ( 32 == cfg.scrz_req ) cfg.scrz_req = 24;
+    if ( 32 == cfg.scrd_req ) egoboo_config_t::get().scrd_req = 24;
+    if ( 32 == cfg.scrz_req ) egoboo_config_t::get().scrz_req = 24;
 
 #endif
 
     // the flags to pass to SDL_SetVideoMode
-    sdl_vparam.width                     = cfg.scrx_req;
-    sdl_vparam.height                    = cfg.scry_req;
-    sdl_vparam.depth                     = cfg.scrd_req;
+    sdl_vparam.horizontalResolution = egoboo_config_t::get().graphic_resolution_horizontal.getValue();
+    sdl_vparam.verticalResolution = egoboo_config_t::get().graphic_resolution_vertical.getValue();
+    sdl_vparam.colorBufferDepth = egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue();
 
     sdl_vparam.flags.opengl              = SDL_TRUE;
     sdl_vparam.flags.double_buf          = SDL_TRUE;
-    sdl_vparam.flags.full_screen         = cfg.fullscreen_req;
+    sdl_vparam.flags.full_screen = egoboo_config_t::get().graphic_fullscreen.getValue();
 
-    sdl_vparam.gl_att.buffer_size        = cfg.scrd_req;
-    sdl_vparam.gl_att.depth_size         = cfg.scrz_req;
-    sdl_vparam.gl_att.multi_buffers      = ( cfg.multisamples > 1 ) ? 1 : 0;
-    sdl_vparam.gl_att.multi_samples      = cfg.multisamples;
+    sdl_vparam.gl_att.buffer_size = egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue();
+    sdl_vparam.gl_att.depth_size = egoboo_config_t::get().graphic_depthBuffer_bitDepth.getValue();
+    sdl_vparam.gl_att.multi_buffers = (egoboo_config_t::get().graphic_antialiasing.getValue() > 1) ? 1 : 0;
+    sdl_vparam.gl_att.multi_samples = egoboo_config_t::get().graphic_antialiasing.getValue();
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
     
     sdl_vparam.gl_att.accum[0]           = 8;
@@ -1664,11 +1664,11 @@ void gfx_system_init_SDL_graphics()
     sdl_vparam.gl_att.accum[2]           = 8;
     sdl_vparam.gl_att.accum[3]           = 8;
 
-    ogl_vparam.dither         = cfg.use_dither ? GL_TRUE : GL_FALSE;
-    ogl_vparam.antialiasing   = GL_TRUE;
-    ogl_vparam.perspective    = cfg.use_perspective ? GL_NICEST : GL_FASTEST;
-    ogl_vparam.shading        = GL_SMOOTH;
-	ogl_vparam.userAnisotropy = 16.0f * std::max(0, cfg.texturefilter_req - Ego::TextureFilter::TRILINEAR_2);
+    ogl_vparam.dither = egoboo_config_t::get().graphic_dithering_enable.getValue() ? GL_TRUE : GL_FALSE;
+    ogl_vparam.antialiasing = GL_TRUE;
+    ogl_vparam.perspective = egoboo_config_t::get().graphic_perspectiveCorrection_enable.getValue() ? GL_NICEST : GL_FASTEST;
+    ogl_vparam.shading = GL_SMOOTH;
+    ogl_vparam.userAnisotropy = 16.0f * std::max(0, egoboo_config_t::get().graphic_textureFiltering.getValue() - Ego::TextureFilter::TRILINEAR_2);
 
     log_info( "Opening SDL Video Mode...\n" );
     
@@ -1678,7 +1678,7 @@ void gfx_system_init_SDL_graphics()
     if ( NULL == SDL_GL_set_mode( NULL, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics ) )
     {
         log_message( "Failed!\n" );
-        if (cfg.fullscreen_req)
+        if (egoboo_config_t::get().graphic_fullscreen.getValue())
         {
             log_info("SDL error with fullscreen mode on: %s\n", SDL_GetError());
             log_info("Trying again in windowed mode...\n");
@@ -1689,7 +1689,7 @@ void gfx_system_init_SDL_graphics()
             }
             else
             {
-                cfg.fullscreen_req = false;
+                egoboo_config_t::get().graphic_fullscreen.setValue(false);
                 setVideoMode = true;
             }
         }
@@ -1705,7 +1705,7 @@ void gfx_system_init_SDL_graphics()
     }
     else
     {
-        GFX_WIDTH = ( float )GFX_HEIGHT / ( float )sdl_vparam.height * ( float )sdl_vparam.width;
+        GFX_WIDTH = ( float )GFX_HEIGHT / ( float )sdl_vparam.verticalResolution * ( float )sdl_vparam.horizontalResolution;
         log_message( "Success!\n" );
     }
 
@@ -2719,24 +2719,25 @@ float draw_fps( float y )
 {
     // FPS text
 
-    parser_state_t * ps = script_compiler_get_state();
+    parser_state_t * ps = parser_state_t::get();
 
     if ( outofsync )
     {
         y = draw_string_raw( 0, y, "OUT OF SYNC" );
     }
 
-    if ( script_compiler_error( ps ) )
+    if ( parser_state_t::get_error( ps ) )
     {
         y = draw_string_raw( 0, y, "SCRIPT ERROR ( see \"/debug/log.txt\" )" );
     }
 
-    if ( fpson )
+    /// @todo Add extra options for UPS and update lag don't display UPS or update lag just because FPS are displayed.
+    if (egoboo_config_t::get().hud_displayFramesPerSecond.getValue())
     {
         y = draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", _gameEngine->getFPS(), _gameEngine->getUPS(), _gameEngine->getFrameSkip());
 
         //Extra debug info
-        if ( cfg.dev_mode )
+        if (egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
 
 #    if defined(DEBUG_BSP)
@@ -2827,7 +2828,10 @@ float draw_help( float y )
 //--------------------------------------------------------------------------------------------
 float draw_debug( float y )
 {
-    if ( !cfg.dev_mode ) return y;
+    if (!egoboo_config_t::get().debug_developerMode_enable.getValue())
+    {
+        return y;
+    }
 
     if ( SDL_KEYDOWN( keyb, SDLK_F5 ) )
     {
@@ -2928,7 +2932,7 @@ float draw_game_status( float y )
     {
         if ( local_stats.allpladead || PMod->canRespawnAnyTime() )
         {
-            if ( PMod->isRespawnValid() && cfg.difficulty < GAME_HARD )
+            if (PMod->isRespawnValid() && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard)
             {
                 y = draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
             }
@@ -2979,7 +2983,8 @@ void draw_hud()
         {
             char buffer[CHAT_BUFFER_SIZE + 128] = EMPTY_CSTR;
 
-            snprintf( buffer, SDL_arraysize( buffer ), "%s > %s%s", cfg.network_messagename, net_chat.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
+            snprintf(buffer, SDL_arraysize(buffer), "%s > %s%s", egoboo_config_t::get().network_playerName.getValue().c_str(),
+                     net_chat.buffer, HAS_NO_BITS(update_wld, 8) ? "x" : "+");
 
             y = draw_wrap_string( buffer, 0, y, sdl_scr.x - WRAP_TOLERANCE );
         }
@@ -3341,7 +3346,11 @@ void render_shadow( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_bad_shadow( const CHR_REF character )
+/// @brief
+/// This function draws a sprite shadow.
+/// @remark
+/// Uses a quad + a pre-fabbed texture.
+void render_bad_shadow(const CHR_REF character)
 {
     /// @author ZZ
     /// @details This function draws a sprite shadow
@@ -3352,23 +3361,32 @@ void render_bad_shadow( const CHR_REF character )
     int     itex_style;
     float   size, x, y;
     float   level, height, height_factor, alpha;
-    Object * pchr;
-    ego_tile_info_t * ptile;
 
-    if ( IS_ATTACHED_CHR( character ) ) return;
-    pchr = _gameObjects.get( character );
+    if (IS_ATTACHED_CHR(character))
+    {
+        return;
+    }
+    Object *pchr = _gameObjects.get(character);
 
-    // if the character is hidden, not drawn at all, so no shadow
-    if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
+    // If the object is hidden it is not drawn at all, so it has no shadow.
+    // If the object's shadow size is qa 0, then it has no shadow.
+    if (pchr->is_hidden || 0 == pchr->shadow_size)
+    {
+        return;
+    }
+    // No shadow if off the mesh.
+    ego_tile_info_t *ptile = ego_mesh_t::get_ptile(PMesh, pchr->onwhichgrid);
+    if (!ptile)
+    {
+        return;
+    }
+    // No shadow if invalid tile.
+    if (TILE_IS_FANOFF(ptile))
+    {
+        return;
+    }
 
-    // no shadow if off the mesh
-    ptile = ego_mesh_t::get_ptile( PMesh, pchr->onwhichgrid );
-    if ( NULL == ptile ) return;
-
-    // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF( ptile ) ) return;
-
-    // no shadow if completely transparent or completely glowing
+    // No shadow if completely transparent or completely glowing.
     alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
 
     /// @test ZF@> previous test didn't work, but this one does
@@ -3393,8 +3411,8 @@ void render_bad_shadow( const CHR_REF character )
     alpha *= height_factor * 0.5f + 0.25f;
     if ( alpha < INV_FF ) return;
 
-    x = pchr->inst.matrix.CNV( 3, 0 );
-    y = pchr->inst.matrix.CNV( 3, 1 );
+    x = pchr->inst.matrix.CNV(3, 0); ///< @todo MH: This should be the x/y position of the model.
+    y = pchr->inst.matrix.CNV(3, 1); ///<           Use a more self-descriptive method to describe this.
 
     size = pchr->shadow_size * height_factor;
 
@@ -3443,9 +3461,7 @@ struct by_element_t
     Uint32 tile;
     Uint32 texture;
 };
-#if 0
-typedef struct s_by_element by_element_t;
-#endif
+
 int by_element_cmp( const void *lhs, const void *rhs )
 {
     int retval = 0;
@@ -3559,7 +3575,7 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
         Uint32 tmp_itile = lst_vals.lst[cnt].tile;
 
         gfx_rv render_rv = render_fan(pmesh, tmp_itile);
-        if ( cfg.dev_mode && gfx_error == render_rv )
+        if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
         {
             log_warning( "%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile );
         }
@@ -4749,23 +4765,22 @@ bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, egoboo_config_
     // if there is no config data, do not proceed
     if ( NULL == pcfg ) return false;
 
-    pgfx->antialiasing = pcfg->multisamples > 0;
+    pgfx->antialiasing = pcfg->graphic_antialiasing.getValue() > 0;
 
-    pgfx->refon        = pcfg->reflect_allowed;
-    pgfx->reffadeor    = pcfg->reflect_fade ? 0 : 255;
+    pgfx->refon        = pcfg->graphic_reflections_enable.getValue();
 
-    pgfx->shaon        = pcfg->shadow_allowed;
-    pgfx->shasprite    = pcfg->shadow_sprite;
+    pgfx->shaon        = pcfg->graphic_shadows_enable.getValue();
+    pgfx->shasprite    = !pcfg->graphic_shadows_highQuality_enable.getValue(); // Sprite shadows are low quality shadows.
 
-    pgfx->shading      = pcfg->gouraud_req ? GL_SMOOTH : GL_FLAT;
-    pgfx->dither       = pcfg->use_dither;
-    pgfx->perspective  = pcfg->use_perspective;
-    pgfx->phongon      = pcfg->use_phong;
+    pgfx->shading      = pcfg->graphic_gouraudShading_enable.getValue() ? GL_SMOOTH : GL_FLAT;
+    pgfx->dither       = pcfg->graphic_dithering_enable.getValue();
+    pgfx->perspective  = pcfg->graphic_perspectiveCorrection_enable.getValue();
+    pgfx->phongon      = pcfg->graphic_specularHighlights_enable.getValue();
 
-    pgfx->draw_background = pcfg->background_allowed && water.background_req;
-    pgfx->draw_overlay    = pcfg->overlay_allowed && water.overlay_req;
+    pgfx->draw_background = pcfg->graphic_background_enable.getValue() && water.background_req;
+    pgfx->draw_overlay    = pcfg->graphic_overlay_enable.getValue() && water.overlay_req;
 
-    pgfx->dynalist_max = CLIP( pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA );
+    pgfx->dynalist_max = CLIP(pcfg->graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
 
     pgfx->draw_water_0 = !pgfx->draw_overlay && ( water.layer_count > 0 );
     pgfx->clearson     = !pgfx->draw_background;
@@ -4781,7 +4796,9 @@ bool gfx_config_init( gfx_config_t * pgfx )
 
     pgfx->shading          = GL_SMOOTH;
     pgfx->refon            = true;
+#if 0
     pgfx->reffadeor        = 0;
+#endif
     pgfx->antialiasing     = false;
     pgfx->dither           = false;
     pgfx->perspective      = false;
@@ -4815,11 +4832,11 @@ bool oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, ego
     if ( ogl_caps.maxAnisotropy <= 1.0f )
     {
         ptex->userAnisotropy = 0.0f;
-		ptex->texturefilter = std::min<Ego::TextureFilter>(pcfg->texturefilter_req, Ego::TextureFilter::TRILINEAR_2);
+		ptex->texturefilter = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::TRILINEAR_2);
     }
     else
     {
-		ptex->texturefilter = std::min<Ego::TextureFilter>(pcfg->texturefilter_req, Ego::TextureFilter::FILTER_COUNT);
+		ptex->texturefilter = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::FILTER_COUNT);
 		ptex->userAnisotropy = ogl_caps.maxAnisotropy * std::max(0, (int)ptex->texturefilter - (int)Ego::TextureFilter::TRILINEAR_2);
     }
 
