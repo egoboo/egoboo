@@ -363,9 +363,6 @@
     <ClCompile Include="src\egolib\Math\Matrix44.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Core\Component.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Image\Image.cpp">
       <Filter>Source Files\Image</Filter>
     </ClCompile>
@@ -375,16 +372,16 @@
     <ClCompile Include="src\egolib\Graphics\FontManager.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.cpp">
+    <ClCompile Include="src\egolib\Network\_Include.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Script\TextFile.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\TextInputFile.cpp">
+    <ClCompile Include="src\egolib\Script\TextInputFile.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Conversion.cpp">
+    <ClCompile Include="src\egolib\Script\Conversion.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
   </ItemGroup>
@@ -602,9 +599,6 @@
     <ClInclude Include="src\egolib\Profiles\ParticleProfileWriter.hpp">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Profiles\ReaderUtilities.hpp">
-      <Filter>Header Files\Profiles</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Script\Location.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
@@ -725,9 +719,6 @@
     <ClInclude Include="src\egolib\Math\Rectangle2.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Core\Component.hpp">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Renderer\CullingMode.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -749,40 +740,40 @@
     <ClInclude Include="src\egolib\Math\_Include.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.hpp">
+    <ClInclude Include="src\egolib\Network\_Include.hpp">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Traits.hpp">
+    <ClInclude Include="src\egolib\Script\Traits.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\TextFile.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\TextInputFile.hpp">
+    <ClInclude Include="src\egolib\Script\TextInputFile.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractReader.hpp">
+    <ClInclude Include="src\egolib\Script\AbstractReader.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Script\QualifiedName.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractLexicalError.hpp">
+    <ClInclude Include="src\egolib\Script\AbstractLexicalError.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractSyntacticalError.hpp">
+    <ClInclude Include="src\egolib\Script\AbstractSyntacticalError.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\LexicalError.hpp">
+    <ClInclude Include="src\egolib\Script\LexicalError.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\SyntacticalError.hpp">
+    <ClInclude Include="src\egolib\Script\SyntacticalError.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\EnumDescriptor.hpp">
+    <ClInclude Include="src\egolib\Script\EnumDescriptor.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Conversion.hpp">
+    <ClInclude Include="src\egolib\Script\Conversion.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>

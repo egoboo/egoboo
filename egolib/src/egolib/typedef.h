@@ -388,14 +388,6 @@ const char *undo_idsz(IDSZ idsz);
     typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
-// ego_message_t
-
-    /// the maximum length egoboo messages
-#   define EGO_MESSAGE_SIZE      90
-
-    typedef char ego_message_t[EGO_MESSAGE_SIZE];
-
-//--------------------------------------------------------------------------------------------
 
 /// the "base class" of Egoboo profiles
 #   define  EGO_PROFILE_STUFF \

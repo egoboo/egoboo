@@ -1424,7 +1424,7 @@ IDSZ vfs_get_next_idsz(ReadContext& ctxt)
 
 DamageType vfs_get_damage_type(ReadContext& ctxt)
 {
-    EnumReader<DamageType> rdr
+    Ego::Script::EnumDescriptor<DamageType> enumDescriptor
     (
         "DamageType",
         {
@@ -1466,7 +1466,7 @@ DamageType vfs_get_damage_type(ReadContext& ctxt)
             { "N",     DAMAGE_NONE  },
         }
     );
-    return ReadContext::readEnum(ctxt,rdr,DAMAGE_NONE);
+    return ReadContext::readEnum(ctxt, enumDescriptor, DAMAGE_NONE);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1692,7 +1692,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
 //--------------------------------------------------------------------------------------------
 DamageModifier vfs_get_damage_modifier(ReadContext& ctxt)
 {
-    EnumReader<DamageModifier> rdr
+    Ego::Script::EnumDescriptor<DamageModifier> enumDescriptor
         (
         "damageModifier",
         {
@@ -1703,7 +1703,7 @@ DamageModifier vfs_get_damage_modifier(ReadContext& ctxt)
             { "F", DamageModifier::NONE },
         }
     );
-    return ReadContext::readEnum(ctxt, rdr, DamageModifier::NONE);
+    return ReadContext::readEnum(ctxt, enumDescriptor, DamageModifier::NONE);
 }
 
 //--------------------------------------------------------------------------------------------

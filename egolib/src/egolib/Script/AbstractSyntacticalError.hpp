@@ -16,6 +16,7 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
 #pragma once
 
 #include "egolib/Exception.hpp"

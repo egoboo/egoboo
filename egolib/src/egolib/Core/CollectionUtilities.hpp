@@ -26,29 +26,30 @@
 
 namespace Ego
 {
-    using namespace std;
 
-    /**
-     * @brief
-     *  Convert a vector to an unordered set.
-     * @param v
-     *  the vector
-     * @return
-     *  the unordered set
-     * @remark
-     *  This function is written in the spirit of std::make_shared_ptr, std::make_tuple, etc.
-     */
-    template < typename Key, typename Hash = hash<Key>,
-               typename Pred = equal_to<Key>,
-               typename Alloc = allocator<Key> >
-    unordered_set<Key, Hash, Pred, Alloc> make_unordered_set(const vector<Key>& v)
+using namespace std;
+
+/**
+ * @brief
+ *  Convert a vector to an unordered set.
+ * @param v
+ *  the vector
+ * @return
+ *  the unordered set
+ * @remark
+ *  This function is written in the spirit of std::make_shared_ptr, std::make_tuple, etc.
+ */
+template <typename Key, typename Hash = hash<Key>,
+          typename Pred = equal_to<Key>,
+          typename Alloc = allocator<Key> >
+unordered_set<Key, Hash, Pred, Alloc> make_unordered_set(const vector<Key>& v)
+{
+    unordered_set<Key, Hash, Pred, Alloc> s;
+    for (auto x : v)
     {
-        unordered_set<Key, Hash, Pred, Alloc> s;
-        for (auto x : v)
-        {
-            s.insert(x);
-        }
-        return s;
+        s.insert(x);
     }
-
+    return s;
 }
+
+} // namespace Ego

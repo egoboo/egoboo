@@ -255,14 +255,13 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.cpp" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Conversion.cpp" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\TextInputFile.cpp" />
+    <ClCompile Include="src\egolib\Network\_Include.cpp" />
+    <ClCompile Include="src\egolib\Script\Conversion.cpp" />
+    <ClCompile Include="src\egolib\Script\TextInputFile.cpp" />
     <ClCompile Include="src\egolib\Script\TextFile.cpp" />
     <ClCompile Include="src\egolib\Graphics\Font.cpp" />
     <ClCompile Include="src\egolib\Graphics\FontManager.cpp" />
     <ClCompile Include="src\egolib\Image\Image.cpp" />
-    <ClCompile Include="src\egolib\Core\Component.cpp" />
     <ClCompile Include="src\egolib\Math\Matrix44.cpp" />
     <ClCompile Include="src\egolib\FileFormats\configfile.c" />
     <ClCompile Include="src\egolib\FileFormats\controls_file-v1.c" />
@@ -439,23 +438,22 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Network\_Include.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractLexicalError.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractReader.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\AbstractSyntacticalError.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Conversion.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\EnumDescriptor.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\LexicalError.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\SyntacticalError.hpp" />
+    <ClInclude Include="src\egolib\Network\_Include.hpp" />
+    <ClInclude Include="src\egolib\Script\AbstractLexicalError.hpp" />
+    <ClInclude Include="src\egolib\Script\AbstractReader.hpp" />
+    <ClInclude Include="src\egolib\Script\AbstractSyntacticalError.hpp" />
+    <ClInclude Include="src\egolib\Script\Conversion.hpp" />
+    <ClInclude Include="src\egolib\Script\EnumDescriptor.hpp" />
+    <ClInclude Include="src\egolib\Script\LexicalError.hpp" />
+    <ClInclude Include="src\egolib\Script\SyntacticalError.hpp" />
     <ClInclude Include="src\egolib\Script\QualifiedName.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\TextInputFile.hpp" />
+    <ClInclude Include="src\egolib\Script\TextInputFile.hpp" />
     <ClInclude Include="src\egolib\Script\TextFile.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\Script\Traits.hpp" />
+    <ClInclude Include="src\egolib\Script\Traits.hpp" />
     <ClInclude Include="src\egolib\Math\_Include.hpp" />
     <ClInclude Include="src\egolib\Graphics\Font.hpp" />
     <ClInclude Include="src\egolib\Graphics\FontManager.hpp" />
     <ClInclude Include="src\egolib\Image\Image.hpp" />
-    <ClInclude Include="src\egolib\Core\Component.hpp" />
     <ClInclude Include="src\egolib\Renderer\CullingMode.hpp" />
     <ClInclude Include="src\egolib\Renderer\WindingMode.hpp" />
     <ClInclude Include="src\egolib\Math\Rectangle2.hpp" />
@@ -493,7 +491,6 @@
     <ClInclude Include="src\egolib\Profiles\AbstractProfile.hpp" />
     <ClInclude Include="src\egolib\Audio\AudioSystem.hpp" />
     <ClInclude Include="src\egolib\Exception.hpp" />
-    <ClInclude Include="src\egolib\Profiles\ReaderUtilities.hpp" />
     <ClInclude Include="src\egolib\Script\Buffer.hpp" />
     <ClInclude Include="src\egolib\Script\Errors.hpp" />
     <ClInclude Include="src\egolib\Script\Location.hpp" />

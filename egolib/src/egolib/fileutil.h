@@ -23,14 +23,13 @@
 #pragma once
 
 #include "egolib/typedef.h"
-
+#include "egolib/Script/EnumDescriptor.hpp"
 #include "egolib/vfs.h"
 #include "egolib/Script/Traits.hpp"
 #include "egolib/log.h"
 #include "egolib/file_common.h"
 
 //--------------------------------------------------------------------------------------------
-// TYPEDEFS
 //--------------------------------------------------------------------------------------------
 
 /// @todo What the heck is this doing here? Remove!
@@ -39,12 +38,11 @@
 struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
-// MACROS
 //--------------------------------------------------------------------------------------------
 
 
 
-#include "egolib/Profiles/ReaderUtilities.hpp"
+#include "egolib/Script/EnumDescriptor.hpp"
 #include "egolib/Script/Location.hpp"
 #include "egolib/Script/AbstractReader.hpp"
 #include "egolib/Script/Errors.hpp"
@@ -144,24 +142,24 @@ public:
      *  Read an enumeration.
      * @param ctxt
      *  the context
-     * @param enumReader
-     *  the enum reader to be used
+     * @param enumDescriptor
+     *  the enum descriptor to be used
      * @return
      *  the enumeration value
      * @todo
      *  Add comment about lexical error.
      */
     template <typename EnumType>
-    static EnumType readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader)
+    static EnumType readEnum(ReadContext& ctxt, Ego::Script::EnumDescriptor<EnumType>& enumDescriptor)
     {
         using namespace std;
-        std::string name = ctxt.readName();
-        auto it = enumReader.get(name);
-        if (it == enumReader.end())
+        auto name = ctxt.readName();
+        auto it = enumDescriptor.find(name);
+        if (it == enumDescriptor.end())
         {
             throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
         }
-        return *it;
+        return it->second;
     }
 
     /**
@@ -169,25 +167,26 @@ public:
      *  Read an enumeration.
      * @param ctxt
      *  the context
-     * @param enumReader
-     *  the enum reader to be used
+     * @param enumDescriptor
+     *  the enum descriptor to be used
      * @return
      *  the enumeration value
      * @todo
      *  Add comment about lexical error and default.
      */
     template <typename EnumType>
-    static EnumType readEnum(ReadContext& ctxt, EnumReader<EnumType>& enumReader, EnumType defaultValue)
+    static EnumType readEnum(ReadContext& ctxt, Ego::Script::EnumDescriptor<EnumType>& enumDescriptor, EnumType defaultValue)
     {
         using namespace std;
-        std::string name = ctxt.readName();
-        auto it = enumReader.get(name);
-        if (it == enumReader.end())
+        auto name = ctxt.readName();
+        auto it = enumDescriptor.find(name);
+        if (it == enumDescriptor.end())
         {
-            log_warning("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__, ctxt._loadName.c_str(), name.c_str(), enumReader.getName().c_str());
+            log_warning("%s:%d: in file `%s`: `%s` is not an element of enum `%s`\n", __FILE__, __LINE__,
+                        ctxt._loadName.c_str(), name.c_str(), enumDescriptor.getName().c_str());
             return defaultValue;
         }
-        return *it;
+        return it->second;
     }
 
     /// The new line character.

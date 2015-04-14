@@ -33,6 +33,12 @@ typedef struct s_msg msg_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+//--------------------------------------------------------------------------------------------
+// ego_message_t
+
+/// the maximum length egoboo messages
+#define EGO_MESSAGE_SIZE      90
+
 /// the minimum number of on-screen messages
 #define EGO_MESSAGE_MIN      1
 
@@ -48,8 +54,8 @@ typedef struct s_msg msg_t;
 /// A display messages
 struct s_msg
 {
-    int             time;                            ///< The time for this message
-    ego_message_t   textdisplay;                     ///< The displayed text
+    int time;                            ///< The remaining time for this message.
+    char textdisplay[EGO_MESSAGE_SIZE];  ///< The displayed text.
 };
 
 //--------------------------------------------------------------------------------------------
