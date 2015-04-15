@@ -15,10 +15,6 @@ namespace Ego
 
         public:
 
-            typedef typename Traits Traits;
-
-        public:
-
             /**
              * @brief
              *  The line number.
@@ -199,7 +195,7 @@ namespace Ego
             {
                 if (isNewLine())
                 {
-                    Traits::ExtendedType old = current();
+                    typename Traits::ExtendedType old = current();
                     next();
                     if (isNewLine() && old != current())
                     {
@@ -219,7 +215,7 @@ namespace Ego
             {
                 while (isNewLine())
                 {
-                    Traits::ExtendedType old = current();
+                    typename Traits::ExtendedType old = current();
                     next();
                     if (isNewLine() && old != current())
                     {

@@ -68,6 +68,8 @@ public:
      *  The load name of the file of this context.
      */
     std::string _loadName;
+    
+    typedef Ego::Script::Traits<char> Traits;
 
     ReadContext(const std::string& loadName);
 
@@ -157,7 +159,7 @@ public:
         auto it = enumDescriptor.find(name);
         if (it == enumDescriptor.end())
         {
-            throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber));
+            throw Ego::Script::LexicalError(__FILE__,__LINE__,Ego::Script::Location(ctxt._loadName,ctxt._lineNumber), "invalid enum");
         }
         return it->second;
     }

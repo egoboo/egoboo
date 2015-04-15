@@ -225,16 +225,19 @@ void GameEngine::renderOneFrame()
 
 void GameEngine::renderPreloadText(const std::string &text)
 {
-    static int y = 20;
+    static std::string preloadText("");
+
+    preloadText += text + "\n";
+    
+    gfx_request_clear_screen();
+    gfx_do_clear_screen();
 
     _uiManager->beginRenderUI();
-        _uiManager->getDefaultFont()->drawTextBox(text, 20, y, 800, 600, 25);
+        _uiManager->getDefaultFont()->drawTextBox(preloadText, 20, 20, 800, 600, 25);
     _uiManager->endRenderUI();
 
     gfx_request_flip_pages();
     gfx_do_flip_pages();
-
-    y += 25;
 }
 
 bool GameEngine::initialize()

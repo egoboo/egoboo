@@ -294,18 +294,18 @@ public:
      *  the description of the variable
      */
     StandardVariable(const ValueType& defaultValue, const string& name, const string& description) :
-        Variable(defaultValue, name, description)
+        Variable<ValueType>(defaultValue, name, description)
     {}
 
     StandardVariable& operator=(const StandardVariable& other)
     {
-        setValue(other.getValue());
+        this->setValue(other.getValue());
         return *this;
     }
 
     virtual bool encodeValue(string& target) const override
     {
-        return Ego::Script::Encoder<ValueType>()(getValue(), target);
+        return Ego::Script::Encoder<ValueType>()(this->getValue(), target);
     }
 
     virtual bool decodeValue(const string& source) override
@@ -315,7 +315,7 @@ public:
         {
             return false;
         }
-        setValue(temporary);
+        this->setValue(temporary);
         return true;
     }
 };
@@ -359,18 +359,18 @@ public:
      *  the description of the variable
      */
     EnumVariable(const ValueType& defaultValue, const string& name, const string& description, const initializer_list<pair<const string, ValueType>> list) :
-        Variable(defaultValue, name, description), _enumDescriptor(name, list)
+        Variable<ValueType>(defaultValue, name, description), _enumDescriptor(name, list)
     {}
 
     EnumVariable& operator=(const EnumVariable& other)
     {
-        setValue(other.getValue());
+        this->setValue(other.getValue());
         return *this;
     }
 
     virtual bool encodeValue(string& target) const override
     {
-        auto it = _enumDescriptor.find(getValue());
+        auto it = _enumDescriptor.find(this->getValue());
         if (it == _enumDescriptor.end())
         {
             return false;
@@ -386,7 +386,7 @@ public:
         {
             return false;
         }
-        setValue(it->second);
+        this->setValue(it->second);
         return true;
     }
 };
@@ -445,15 +445,15 @@ public:
     private:
         shared_ptr<ConfigFile> _source;
     public:
-        Load(Load& other) :
+        Load(const Load& other) :
             _source(other._source)
         {}
-        Load& operator=(Load& other)
+        Load& operator=(const Load& other)
         {
             _source = other._source;
             return *this;
         }
-        Load(shared_ptr<ConfigFile> source) :
+        Load(const shared_ptr<ConfigFile> &source) :
             _source(source)
         {}
         template<typename VariableTy>
@@ -479,10 +479,10 @@ public:
         Store(const Store& other) :
             _target(other._target)
         {}
-        Store(shared_ptr<ConfigFile> target) :
+        Store(const shared_ptr<ConfigFile> &target) :
             _target(target)
         {}
-        Store& operator=(Store& other)
+        Store& operator=(const Store& other)
         {
             _target = other._target;
             return *this;
