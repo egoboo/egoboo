@@ -22,6 +22,7 @@
 
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/FileFormats/template.h"
+#include "egolib/Core/StringUtilities.hpp"
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 #include "egolib/vfs.h"

@@ -26,8 +26,6 @@
 #include "game/GameStates/SelectPlayersState.hpp"
 #include "game/GameStates/OptionsScreen.hpp"
 #include "game/Core/GameEngine.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
-#include "egolib/platform.h"
 #include "game/game.h"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Image.hpp"

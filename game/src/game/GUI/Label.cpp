@@ -1,5 +1,4 @@
 #include "game/GUI/Label.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
 
 Label::Label(const std::string &text) :
 	_text()

@@ -22,7 +22,7 @@
 
 #pragma once
 #if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
-#error(do not include directly, include `game/profiles/_Include.hpp` instead)
+#error(do not include directly, include `egolib/profiles/_Include.hpp` instead)
 #endif
 
 #include "egolib/platform.h"

@@ -213,3 +213,6 @@ uint8_t GameModule::getMinPlayers() const
 {
     return _moduleProfile->getMinPlayers();
 }
+
+/// @todo Remove this global.
+std::unique_ptr<GameModule> PMod = nullptr;

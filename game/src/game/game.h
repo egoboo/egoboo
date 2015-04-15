@@ -361,11 +361,6 @@ bool status_list_update_cameras( status_list_t * plst );
 // various global pointers
 extern ego_mesh_t *PMesh;
 
-//TODO: remove this global
-extern CameraSystem _cameraSystem;
-extern AudioSystem  _audioSystem;
-extern std::unique_ptr<GameModule> PMod;
-extern ObjectHandler _gameObjects;
 
 // special terrain and wawalite-related data structs
 extern animtile_instance_t animtile[2];

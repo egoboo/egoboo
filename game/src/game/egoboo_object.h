@@ -23,6 +23,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
+#include "egolib/bsp.h"
 
 namespace Ego {
 	/**

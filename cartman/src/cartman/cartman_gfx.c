@@ -20,15 +20,12 @@
 #include "egolib/egolib.h"
 
 #include "cartman/cartman_gfx.h"
-
 #include "cartman/cartman.h"
 #include "cartman/cartman_map.h"
 #include "cartman/cartman_gui.h"
 #include "cartman/cartman_functions.h"
 #include "cartman/cartman_select.h"
-
 #include "cartman/cartman_math.h"
-
 #include "cartman/SDL_Pixel.h"
 
 //--------------------------------------------------------------------------------------------
@@ -108,6 +105,7 @@ void gfx_system_begin()
 {
     // set the graphics state
     gfx_system_init_SDL_graphics();
+    ImageManager::initialize();
     Ego::Renderer::initialize();
     gfx_init_ogl();
 
@@ -123,6 +121,7 @@ void gfx_system_end()
     gfx_font_ptr.reset();
     Ego::FontManager::uninitialize();
     Ego::Renderer::uninitialize();
+    ImageManager::uninitialize();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1073,23 +1072,30 @@ int cartman_BlitSurface( SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, 
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_Surface * cartman_LoadIMG( const char * szName )
+SDL_Surface *cartman_LoadIMG(const char *name)
 {
-    SDL_PixelFormat tmpformat;
-    SDL_Surface * bmptemp, * bmpconvert;
+    // Load the image.
+    SDL_Surface *originalImage = IMG_Load_RW(vfs_openRWopsRead(name), 1);
+    if (!originalImage)
+    {
+        log_error("unable to load image `%s` - reason `%s`\n", name, IMG_GetError());
+        return nullptr;
+    }
 
-    // load the bitmap
-    bmptemp = IMG_Load_RW( vfs_openRWopsRead(szName), 1 );
+    // Expand the screen format to support alpha.
+    SDL_PixelFormat expandedPixelFormat;
+    memcpy(&expandedPixelFormat, theSurface->format, sizeof(SDL_PixelFormat));   // make a copy of the format
+    SDLX_ExpandFormat(&expandedPixelFormat);
 
-    // expand the screen format to support alpha
-    memcpy( &tmpformat, theSurface->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
-    SDLX_ExpandFormat( &tmpformat );
+    // Convert the image to the same pixel format as the expanded screen format.
+    SDL_Surface *convertedImage = SDL_ConvertSurface(originalImage, &expandedPixelFormat, SDL_SWSURFACE);
+    SDL_FreeSurface(originalImage);
+    if (!convertedImage)
+    {
+        log_error("unable to convert image `%s`\n", name);
+    }
 
-    // convert it to the same pixel format as the screen surface
-    bmpconvert = SDL_ConvertSurface( bmptemp, &tmpformat, SDL_SWSURFACE );
-    SDL_FreeSurface( bmptemp );
-
-    return bmpconvert;
+    return convertedImage;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -27,19 +27,14 @@
 #include "egolib/strutil.h"
 #include "egolib/platform.h"
 #include "egolib/egoboo_setup.h"
-
+#include "egolib/Image/ImageManager.hpp"
 #include "egolib/Extensions/ogl_texture.h"
-
 #include "egolib/_math.h"
-
 // includes for egoboo constants
 #include "game/mad.h"                    // for ACTION_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-STRING          TxFormatSupported[20]; // OpenGL icon surfaces
-Uint8           maxformattypes;
 
 ReadContext::ReadContext(const std::string& loadName) :
     AbstractReader(5012),
@@ -1602,88 +1597,49 @@ bool vfs_get_next_bool(ReadContext& ctxt)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void GLSetup_SupportedFormats()
+
+Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key)
 {
-    /// @author ZF
-    /// @details This need only to be once
-
-    Uint8 type = 0;
-
-    // define extra supported file types with SDL_image
-    // these should probably be ordered so that the types that
-    // support transparency are first
-    if (egoboo_config_t::get().debug_sdlImage_enable.getValue())
-    {
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".png" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".tif" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".tiff" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".gif" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".pcx" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".ppm" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".jpg" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".jpeg" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".xpm" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".pnm" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".lbm" ); type++;
-        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".tga" ); type++;
-    }
-
-    // These typed are natively supported with SDL
-    // Place them *after* the SDL_image types, so that if both are present,
-    // the other types will be preferred over bmp
-    snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".bmp" ); type++;
-    snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".BMP" ); type++;
-
-    // Save the amount of format types we have in store
-    maxformattypes = type;
-    if (!egoboo_config_t::get().debug_sdlImage_enable.getValue())
-    {
-        log_message( "Failed!\n" );
-        log_info( "[SDL_IMAGE] set to \"FALSE\" in setup.txt, only support for .bmp files\n" );
-    }
-    else
-    {
-        log_message( "Success!\n" );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uint32 key )
-{
-    STRING fullname;
-    Uint32 retval;
-    Uint8 type = 0;
-
-    // get rid of any old data
+    // Get rid of any old data.
     oglx_texture_t::release(texture);
 
-    // load the image
-    retval = INVALID_GL_ID;
-    if (egoboo_config_t::get().debug_sdlImage_enable.getValue())
-    {
-        // try all different formats
-        for ( type = 0; type < maxformattypes; type++ )
-        {
-            snprintf( fullname, SDL_arraysize( fullname ), "%s%s", filename, TxFormatSupported[type] );
-            retval = oglx_texture_t::load( texture, fullname, key );
-            if ( INVALID_GL_ID != retval ) break;
-        }
-    }
-    else
-    {
-        // normal SDL only supports bmp
-        snprintf( fullname, SDL_arraysize( fullname ), "%s.bmp", filename );
-        SDL_Surface *image = SDL_LoadBMP_RW(vfs_openRWopsRead(fullname), 1);
-        if (!image)
-        {
-            return INVALID_GL_ID;
-        }
+    // Load the image.
+    GLuint retval = INVALID_GL_ID;
 
-        retval = oglx_texture_t::convert( texture, image, key );
-        strncpy( texture->name, fullname, SDL_arraysize( texture->name ) );
-
-        texture->base.wrap_s = GL_REPEAT;
-        texture->base.wrap_t = GL_REPEAT;
+    // Try all different formats.
+    for (const auto& loader : ImageManager::get())
+    {
+        oglx_texture_t::release(texture);
+        // Build the full file name.
+        std::string fullFilename = filename + loader.getExtension();
+        // Open the file.
+        vfs_FILE *file = vfs_openReadB(fullFilename.c_str());
+        if (!file)
+        {
+            continue;
+        }
+        // Stream the surface.
+        SDL_Surface *surface = nullptr;
+        try
+        {
+            surface = loader.load(file);
+        }
+        catch (...)
+        {
+            vfs_close(file);
+            continue;
+        }
+        vfs_close(file);
+        if (!surface)
+        {
+            continue;
+        }
+        // Create the texture from the surface.
+        retval = oglx_texture_t::load(texture, fullFilename.c_str(), surface, key);
+        if (INVALID_GL_ID != retval)
+        {
+            break;
+        }
     }
 
     return retval;

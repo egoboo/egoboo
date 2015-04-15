@@ -366,11 +366,8 @@ bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 key)
+GLuint oglx_texture_t::load(oglx_texture_t *self, const char *name, SDL_Surface *image, Uint32 key)
 {
-    GLuint        retval;
-    SDL_Surface * image;
-
     if (VALID_TEXTURE(self))
     {
         // Release any old texture.
@@ -382,9 +379,10 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 k
         self = oglx_texture_t::ctor(self);
         if (!self) return INVALID_GL_ID;
     }
-
-    image = IMG_Load_RW(vfs_openRWopsRead(filename), 1);
-    if (!image) return INVALID_GL_ID;
+    if (!image)
+    {
+        return INVALID_GL_ID;
+    }
 
     // Test to see if the image requires alpha blanding.
     self->has_alpha = SDL_FALSE;
@@ -398,7 +396,7 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 k
     }
 
     // Upload the SDL_surface to OpenGL.
-    retval = oglx_texture_t::convert(self, image, key);
+    GLuint retval = oglx_texture_t::convert(self, image, key);
 
     if (!VALID_BINDING(retval))
     {
@@ -406,13 +404,34 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 k
     }
     else
     {
-        strncpy(self->name, filename, SDL_arraysize(self->name));
+        strncpy(self->name, name, SDL_arraysize(self->name));
 
         self->base.wrap_s = GL_REPEAT;
         self->base.wrap_t = GL_REPEAT;
     }
 
     return retval;
+}
+
+GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 key)
+{
+    if (VALID_TEXTURE(self))
+    {
+        // Release any old texture.
+        oglx_texture_t::release(self);
+    }
+    else
+    {
+        // Clean out any uninitialied data.
+        self = oglx_texture_t::ctor(self);
+        if (!self)
+        {
+            return INVALID_GL_ID;
+        }
+    }
+
+    SDL_Surface *image = IMG_Load_RW(vfs_openRWopsRead(filename), 1);
+    return load(self, filename, image, key);
 }
 
 //--------------------------------------------------------------------------------------------

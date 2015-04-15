@@ -577,3 +577,6 @@ int AudioSystem::playSound(const fvec3_t snd_pos, const SoundID soundID)
 
     return channel;
 }
+
+/// @todo Remove this global.
+AudioSystem _audioSystem;

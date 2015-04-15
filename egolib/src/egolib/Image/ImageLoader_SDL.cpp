@@ -17,31 +17,20 @@
 //*
 //********************************************************************************************
 
-/// @file    egolib/Profiles/ParticleProfileReader.hpp
-/// @details Reads Egoboo's particle profile file (<tt>"/modules/*.mod/objects/*.obj/part*.txt"</tt>).-
+#include "egolib/Image/ImageLoader_SDL.hpp"
 
-#pragma once
-#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
-#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
-#endif
+using string = std::string;
 
-#include "egolib/Profiles/ParticleProfile.hpp"
+ImageLoader_SDL::ImageLoader_SDL(const string& extension) :
+    ImageLoader(extension)
+{}
 
-/**
-* @brief
-*  A reader for particle profiles.
-*/
-struct ParticleProfileReader
+SDL_Surface *ImageLoader_SDL::load(vfs_FILE *file) const
 {
-    /**
-    * @brief
-    *  Read a particle profile.
-    * @param [out] profile
-    *  the particle profile in which the data to read is stored in
-    * @param loadName
-    *  the load name
-    * @return
-    *  @a true on success, @a false on failure
-    */
-    static bool read(pip_t *profile, const char *loadName);
-};
+    SDL_Surface *surface = SDL_LoadBMP_RW(vfs_openRWops(file, false), 1);
+    if (!surface)
+    {
+        return nullptr;
+    }
+    return surface;
+}

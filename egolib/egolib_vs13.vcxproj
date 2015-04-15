@@ -255,6 +255,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Image\ImageLoader.cpp" />
+    <ClCompile Include="src\egolib\Image\ImageLoader_SDL.cpp" />
+    <ClCompile Include="src\egolib\Image\ImageLoader_SDL_image.cpp" />
+    <ClCompile Include="src\egolib\Image\ImageManager.cpp" />
     <ClCompile Include="src\egolib\Network\_Include.cpp" />
     <ClCompile Include="src\egolib\Script\Conversion.cpp" />
     <ClCompile Include="src\egolib\Script\TextInputFile.cpp" />
@@ -438,6 +442,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Image\ImageLoader.hpp" />
+    <ClInclude Include="src\egolib\Image\ImageLoader_SDL.hpp" />
+    <ClInclude Include="src\egolib\Image\ImageLoader_SDL_image.hpp" />
+    <ClInclude Include="src\egolib\Image\ImageManager.hpp" />
     <ClInclude Include="src\egolib\Network\_Include.hpp" />
     <ClInclude Include="src\egolib\Script\AbstractLexicalError.hpp" />
     <ClInclude Include="src\egolib\Script\AbstractReader.hpp" />

@@ -26,7 +26,6 @@
 #include "game/char.h"
 #include "game/mesh.h"
 #include "game/Entities/_Include.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
 
 Passage::Passage() :
     _area(),

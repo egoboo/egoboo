@@ -25,13 +25,10 @@
 #include "game/GameStates/PlayingState.hpp"
 #include "game/Profiles/_Include.hpp"
 #include "game/Core/GameEngine.hpp"
-#include "egolib/egoboo_setup.h"
 #include "game/graphic.h"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
-#include "egolib/Math/Random.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
 
 //For loading stuff
 #include "game/Graphics/CameraSystem.hpp"
@@ -41,7 +38,6 @@
 #include "game/collision.h"
 #include "game/renderer_2d.h"
 #include "game/bsp.h"
-#include "egolib/fileutil.h"
 #include "game/Module/Module.hpp"
 
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :

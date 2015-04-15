@@ -23,6 +23,7 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/Object.hpp"
+#include "game/Module/Module.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"

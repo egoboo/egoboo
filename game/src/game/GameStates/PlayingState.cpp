@@ -27,8 +27,6 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Profiles/_Include.hpp"
 #include "game/GUI/InternalDebugWindow.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
-#include "egolib/egoboo_setup.h"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"

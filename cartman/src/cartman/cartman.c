@@ -353,25 +353,31 @@ void make_onscreen( cartman_mpd_t * pmesh )
 void gfx_system_load_basic_textures( const char *modname )
 {
     // ZZ> This function loads the standard textures for a module
+
+    /*
+    // Uncomment to display the search paths.
+    vfs_listSearchPaths();
+    */
+
     STRING newloadname;
     SDL_Surface *bmptemp;       // A temporary bitmap
 
-    make_newloadname( modname, SLASH_STR "gamedat" SLASH_STR "tile0.bmp", newloadname );
+    make_newloadname(modname, C_SLASH_STR"gamedat" C_SLASH_STR "tile0.bmp", newloadname);
     bmptemp = cartman_LoadIMG( newloadname );
     get_tiles( bmptemp );
     SDL_FreeSurface( bmptemp );
 
-    make_newloadname( modname, SLASH_STR "gamedat" SLASH_STR "tile1.bmp", newloadname );
+    make_newloadname(modname, C_SLASH_STR "gamedat" C_SLASH_STR "tile1.bmp", newloadname);
     bmptemp = cartman_LoadIMG( newloadname );
     get_tiles( bmptemp );
     SDL_FreeSurface( bmptemp );
 
-    make_newloadname( modname, SLASH_STR "gamedat" SLASH_STR "tile2.bmp", newloadname );
+    make_newloadname(modname, C_SLASH_STR "gamedat" C_SLASH_STR "tile2.bmp", newloadname);
     bmptemp = cartman_LoadIMG( newloadname );
     get_tiles( bmptemp );
     SDL_FreeSurface( bmptemp );
 
-    make_newloadname( modname, SLASH_STR "gamedat" SLASH_STR "tile3.bmp", newloadname );
+    make_newloadname(modname, C_SLASH_STR "gamedat" C_SLASH_STR "tile3.bmp", newloadname);
     bmptemp = cartman_LoadIMG( newloadname );
     get_tiles( bmptemp );
     SDL_FreeSurface( bmptemp );
@@ -383,11 +389,11 @@ bool load_module( const char *modname, cartman_mpd_t * pmesh )
     STRING mod_path = EMPTY_CSTR;
     wawalite_data_t *pdata;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
+    if (!pmesh) pmesh = &mesh;
 
-    sprintf( mod_path, "/modules/%s", modname );
+    sprintf(mod_path, "/modules/%s", modname);
 
-    if ( !setup_init_module_vfs_paths( modname ) )
+    if (!setup_init_module_vfs_paths(modname))
     {
         return false;
     }
@@ -2062,9 +2068,9 @@ int SDL_main( int argcnt, char* argtext[] )
     egolib_console_handler_t::begin();
 
     // Load the module
-    if ( !load_module( modulename, &mesh ) )
+    if (!load_module(modulename, &mesh))
     {
-        log_error( "%s - cannot load module %s.\n", __FUNCTION__, modulename );
+        log_error("%s - cannot load module %s.\n", __FUNCTION__, modulename);
     }
 
     fill_fpstext();                     // Make the FPS text

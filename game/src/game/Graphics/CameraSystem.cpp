@@ -392,3 +392,5 @@ CameraOptions& CameraSystem::getCameraOptions()
 {
     return _cameraOptions;
 }
+
+CameraSystem _cameraSystem;

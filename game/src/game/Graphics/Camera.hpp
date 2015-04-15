@@ -72,6 +72,9 @@ CONSTEXPR float CAM_ZOOM_FACTOR = 0.5f;
 /**
  * @brief
  *  Egoboo's camera.
+ * @remark
+ *  - "center" the position the camera is focused on
+ *  - "position" the position the camera is located at
  */
 class Camera
 {
@@ -113,7 +116,19 @@ public:
     inline const orientation_t& getOrientation() const { return _ori; }
     inline CameraTurnMode getTurnMode() const { return _turnMode; }
     inline const fvec3_t& getTrackPosition() const { return _trackPos; }
+    /**
+     * @brief
+     *  Get the center of the camera.
+     * @return
+     *  the center of the camera
+     */
     inline const fvec3_t& getCenter() const { return _center; }
+    /**
+     * @brief
+     *  Get the position of the camera
+     * @return
+     *  the position of the camera.
+     */
     inline const fvec3_t& getPosition() const { return _pos; }
     inline uint8_t getTurnTime() const { return _turnTime; }
     inline float getTurnZOne() const { return _turnZOne; }
@@ -269,7 +284,7 @@ private:
 
     // The position that the camera is focused on.
     float    _zoom;    ///< Distance from the center
-    fvec3_t  _center;  ///< Move character to side before tracking.
+    fvec3_t  _center;  ///< The position that the camera is focused on.
 
     // Camera z movement.
     float _zadd;     ///< Camera height above terrain.

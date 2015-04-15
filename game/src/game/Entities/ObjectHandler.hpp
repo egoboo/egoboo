@@ -185,3 +185,6 @@ private:
 
 	friend class ObjectIterator;
 };
+
+/// @todo Remove this global.
+extern ObjectHandler _gameObjects;

@@ -50,10 +50,11 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Profiles/_Include.hpp"
 #include "game/Module/Module.hpp"
-
+#if 0
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/EnchantHandler.hpp"
-#include "game/Entities/ParticleHandler.hpp"
+#endif
+#include "game/Entities/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -282,18 +283,6 @@ static Ego::DynamicArray<BSP_leaf_t *> _dolist_colst = DYNAMIC_ARY_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-/**
- * @brief
- *	Initialize the SDL graphics system.
- */
-static void gfx_system_init_SDL_graphics();
-
-/**
- * @brief
- *	Uninitialize the SDL graphics system.
- */
-static void gfx_system_uninit_SDL_graphics();
 
 static void _flip_pages();
 
@@ -1401,17 +1390,17 @@ dolist_t *dolist_mgr_t::get_ptr(dolist_mgr_t *self, size_t index)
 //--------------------------------------------------------------------------------------------
 // gfx_system INITIALIZATION
 //--------------------------------------------------------------------------------------------
-void gfx_system_begin()
+void GFX::begin()
 {
     // set the graphics state
-	gfx_system_init_SDL_graphics(); /* @todo Error handling. */
-	gfx_system_init_OpenGL();       /* @todo Error handling. */
+	GFX::initializeSDLGraphics(); /* @todo Error handling. */
+	GFX::initializeOpenGL();      /* @todo Error handling. */
 
-    // initialize the renderlist manager
-    renderlist_mgr_t::begin( &_renderlist_mgr_data );
+    // Initialize the renderlist manager.
+    renderlist_mgr_t::begin(&_renderlist_mgr_data);
 
-    // initialize the dolist manager
-    dolist_mgr_t::begin( &_dolist_mgr_data );
+    // Initialize the dolist manager.
+    dolist_mgr_t::begin(&_dolist_mgr_data);
 
     // initialize the dynalist frame
     // otherwise, it will not update until the frame count reaches whatever
@@ -1428,26 +1417,26 @@ void gfx_system_begin()
     gfx_system_begin_decimated_textures();
 
     // initialize the profiling variables
-    PROFILE_INIT( render_scene_init );
-    PROFILE_INIT( render_scene_mesh );
-    PROFILE_INIT( render_scene_solid );
-    PROFILE_INIT( render_scene_water );
-    PROFILE_INIT( render_scene_trans );
+    PROFILE_INIT(render_scene_init);
+    PROFILE_INIT(render_scene_mesh);
+    PROFILE_INIT(render_scene_solid);
+    PROFILE_INIT(render_scene_water);
+    PROFILE_INIT(render_scene_trans);
 
-    PROFILE_INIT( gfx_make_renderlist );
-    PROFILE_INIT( gfx_make_dolist );
-    PROFILE_INIT( do_grid_lighting );
-    PROFILE_INIT( light_fans );
-    PROFILE_INIT( gfx_update_all_chr_instance );
-    PROFILE_INIT( update_all_prt_instance );
+    PROFILE_INIT(gfx_make_renderlist);
+    PROFILE_INIT(gfx_make_dolist);
+    PROFILE_INIT(do_grid_lighting);
+    PROFILE_INIT(light_fans);
+    PROFILE_INIT(gfx_update_all_chr_instance);
+    PROFILE_INIT(update_all_prt_instance);
 
-    PROFILE_INIT( render_scene_mesh_dolist_sort );
-    PROFILE_INIT( render_scene_mesh_ndr );
-    PROFILE_INIT( render_scene_mesh_drf_back );
-    PROFILE_INIT( render_scene_mesh_ref );
-    PROFILE_INIT( render_scene_mesh_ref_chr );
-    PROFILE_INIT( render_scene_mesh_drf_solid );
-    PROFILE_INIT( render_scene_mesh_render_shadows );
+    PROFILE_INIT(render_scene_mesh_dolist_sort);
+    PROFILE_INIT(render_scene_mesh_ndr);
+    PROFILE_INIT(render_scene_mesh_drf_back);
+    PROFILE_INIT(render_scene_mesh_ref);
+    PROFILE_INIT(render_scene_mesh_ref_chr);
+    PROFILE_INIT(render_scene_mesh_drf_solid);
+    PROFILE_INIT(render_scene_mesh_render_shadows);
 
     gfx_clear_loops = 0;
 
@@ -1466,44 +1455,44 @@ void gfx_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_end()
+void GFX::end()
 {
-    // initialize the profiling variables
-    PROFILE_FREE( render_scene_init );
-    PROFILE_FREE( render_scene_mesh );
-    PROFILE_FREE( render_scene_solid );
-    PROFILE_FREE( render_scene_water );
-    PROFILE_FREE( render_scene_trans );
+    // Initialize the profiling variables.
+    PROFILE_FREE(render_scene_init);
+    PROFILE_FREE(render_scene_mesh);
+    PROFILE_FREE(render_scene_solid);
+    PROFILE_FREE(render_scene_water);
+    PROFILE_FREE(render_scene_trans);
 
-    PROFILE_FREE( gfx_make_renderlist );
-    PROFILE_FREE( gfx_make_dolist );
-    PROFILE_FREE( do_grid_lighting );
-    PROFILE_FREE( light_fans );
-    PROFILE_FREE( gfx_update_all_chr_instance );
-    PROFILE_FREE( update_all_prt_instance );
+    PROFILE_FREE(gfx_make_renderlist);
+    PROFILE_FREE(gfx_make_dolist);
+    PROFILE_FREE(do_grid_lighting);
+    PROFILE_FREE(light_fans);
+    PROFILE_FREE(gfx_update_all_chr_instance);
+    PROFILE_FREE(update_all_prt_instance);
 
-    PROFILE_FREE( render_scene_mesh_dolist_sort );
-    PROFILE_FREE( render_scene_mesh_ndr );
-    PROFILE_FREE( render_scene_mesh_drf_back );
-    PROFILE_FREE( render_scene_mesh_ref );
-    PROFILE_FREE( render_scene_mesh_ref_chr );
-    PROFILE_FREE( render_scene_mesh_drf_solid );
-    PROFILE_FREE( render_scene_mesh_render_shadows );
+    PROFILE_FREE(render_scene_mesh_dolist_sort);
+    PROFILE_FREE(render_scene_mesh_ndr);
+    PROFILE_FREE(render_scene_mesh_drf_back);
+    PROFILE_FREE(render_scene_mesh_ref);
+    PROFILE_FREE(render_scene_mesh_ref_chr);
+    PROFILE_FREE(render_scene_mesh_drf_solid);
+    PROFILE_FREE(render_scene_mesh_render_shadows);
 
-    // end the billboard system
+    // End the billboard system.
     billboard_system_end();
 
-    // clear the decimated texture arrays
+    // Clear the decimated texture arrays.
     gfx_system_end_decimated_textures();
 
-    // release all textures
+    // Release all textures
 	TextureManager::get().release_all();
 
-    // de-initialize the renderlist manager
-    renderlist_mgr_t::end( &_renderlist_mgr_data );
+    // Uninitialize the renderlist manager.
+    renderlist_mgr_t::end(&_renderlist_mgr_data);
 
-    // de-initialize the dolist manager
-    dolist_mgr_t::end( &_dolist_mgr_data );
+    // Uninitialize the dolist manager.
+    dolist_mgr_t::end(&_dolist_mgr_data);
 
     gfx_clear_loops = 0;
 
@@ -1511,20 +1500,19 @@ void gfx_system_end()
 	_dolist_colst.dtor();
 	_renderlist_colst.dtor();
 	
-	gfx_system_uninit_OpenGL();
-	gfx_system_uninit_SDL_graphics();
-
+	GFX::uninitializeOpenGL();
+	GFX::uninitializeSDLGraphics();
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_uninit_OpenGL()
+void GFX::uninitializeOpenGL()
 {
 	TextureManager::uninitialize();
 	Ego::Renderer::uninitialize();
 }
 
 //--------------------------------------------------------------------------------------------
-int gfx_system_init_OpenGL()
+int GFX::initializeOpenGL()
 {
 	// Start-up the renderer.
 	Ego::Renderer::initialize(); ///< @todo Add error handling.
@@ -1581,7 +1569,7 @@ int gfx_system_init_OpenGL()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_uninit_SDL_graphics()
+void GFX::uninitializeSDLGraphics()
 {
 	if (!_sdl_initialized_graphics)
 	{
@@ -1589,7 +1577,7 @@ void gfx_system_uninit_SDL_graphics()
 	}
 }
 
-void gfx_system_init_SDL_graphics()
+void GFX::initializeSDLGraphics()
 {
 	if (_sdl_initialized_graphics)
 	{

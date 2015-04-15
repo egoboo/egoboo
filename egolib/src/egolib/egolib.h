@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
 #include "egolib/Math/_Include.hpp"
@@ -36,6 +37,7 @@
 #include "egolib/frustum.h"
 #include "egolib/hash.h"
 #include "egolib/_math.h"
+#include "egolib/Image/ImageManager.hpp"
 #include "egolib/input_device.h"
 #include "egolib/log.h"
 #include "egolib/Math/Matrix44.hpp"
@@ -45,6 +47,7 @@
 #include "egolib/platform.h"
 #include "egolib/process.h"
 #include "egolib/scancode.h"
+#include "egolib/egoboo_setup.h"
 #include "egolib/state_machine.h"
 #include "egolib/strutil.h"
 #include "egolib/system.h"

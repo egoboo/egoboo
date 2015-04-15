@@ -27,6 +27,7 @@
 #include "game/mad.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
+#include "egolib/DynamicArray.hpp"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -395,11 +396,46 @@ extern float           lighttoenviroy[256];                                ///< 
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-void gfx_system_begin();
-void gfx_system_end();
+struct GFX
+{
+    /**
+     * @brief
+     *  Initialize the GFX system.
+     */
+    static void begin();
+    /**
+     * @brief
+     *  Uninitialize the GFX system.
+     */
+    static void end();
+protected:
+    /**
+     * @brief
+     *  Initialize the OpenGL graphics system.
+     */
+    static int initializeOpenGL();
+    /**
+     * @brief
+     *  Uninitialize the OpenGL graphics system.
+     */
+    static void uninitializeOpenGL();
+    /**
+     * @brief
+     *	Initialize the SDL graphics system.
+     */
+    static void initializeSDLGraphics();
 
-int gfx_system_init_OpenGL();
-void gfx_system_uninit_OpenGL();
+    /**
+     * @brief
+     *	Uninitialize the SDL graphics system.
+     */
+    static void uninitializeSDLGraphics();
+};
+
+
+
+
+
 
 void gfx_system_main();
 void gfx_system_reload_all_textures();

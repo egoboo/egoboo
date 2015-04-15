@@ -24,6 +24,7 @@
 #include "egolib/FileFormats/template.h"
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
+#include "egolib/Core/StringUtilities.hpp"
 #include "egolib/vfs.h"
 #include "egolib/_math.h"
 

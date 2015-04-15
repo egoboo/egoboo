@@ -384,6 +384,18 @@
     <ClCompile Include="src\egolib\Script\Conversion.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Image\ImageLoader_SDL.cpp">
+      <Filter>Source Files\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Image\ImageLoader_SDL_image.cpp">
+      <Filter>Source Files\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Image\ImageLoader.cpp">
+      <Filter>Source Files\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Image\ImageManager.cpp">
+      <Filter>Source Files\Image</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -775,6 +787,18 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Script\Conversion.hpp">
       <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\ImageLoader_SDL.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\ImageLoader_SDL_image.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\ImageLoader.hpp">
+      <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Image\ImageManager.hpp">
+      <Filter>Header Files\Image</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

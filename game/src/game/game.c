@@ -42,7 +42,6 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/Graphics/CameraSystem.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
 #include "game/Profiles/_Include.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
@@ -72,13 +71,7 @@ PROFILE_DECLARE( set_local_latches );
 PROFILE_DECLARE( cl_talkToHost );
 
 //--------------------------------------------------------------------------------------------
-//Game engine globals
-CameraSystem        _cameraSystem;
-AudioSystem         _audioSystem;
-ObjectHandler       _gameObjects;
-std::unique_ptr<GameModule> PMod = nullptr;
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool  overrideslots      = false;
 

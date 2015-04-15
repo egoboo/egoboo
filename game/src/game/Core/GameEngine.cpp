@@ -19,7 +19,7 @@
 /// @author Johan Jansen
 
 #include "game/Core/GameEngine.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
+#include "egolib/egolib.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/GameStates/MainMenuState.hpp"
 #include "game/Profiles/_Include.hpp"
@@ -29,8 +29,7 @@
 #include "game/graphic_texture.h"
 #include "game/game.h"
 #include "game/collision.h"
-#include "egolib/egolib.h"
-#include "game/Entities/ParticleHandler.hpp"
+#include "game/Entities/_Include.hpp"
 
 //Global singelton
 std::unique_ptr<GameEngine> _gameEngine;
@@ -271,10 +270,14 @@ bool GameEngine::initialize()
     // do basic system initialization
     input_system_init();
 
-    //Initialize graphics
-    gfx_system_begin();
-    log_info("Initializing SDL_image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+    // Initialize the image manager.
+    ImageManager::initialize();
+#if 0
     GLSetup_SupportedFormats();
+#endif
+
+    // Initialize GFX system.
+    GFX::begin();
     gfx_system_init_all_graphics();
     gfx_do_clear_screen();
 
@@ -383,6 +386,13 @@ void GameEngine::uninitialize()
 
     // Uninitialize the audio system.
     _audioSystem.uninitialize();
+#if 0
+    // Uninitialize the gfx system.
+    // @todo This currently causes a crash.
+    GFX::end();
+#endif
+    ImageManager::uninitialize();
+
 
     // shut down the log services
     log_message( "Success!\n" );

@@ -71,6 +71,7 @@
 		static GLsizei getTextureHeight(const oglx_texture_t *self);
         static GLuint convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
         static GLuint load(oglx_texture_t *self, const char *filename, Uint32 key);
+        static GLuint load(oglx_texture_t *self, const char *name, SDL_Surface *surface, Uint32 key);
         /**
          * @brief
          *	Delete the SDL image, delete OpenGL ID, assign OpenGL ID of the error texture.

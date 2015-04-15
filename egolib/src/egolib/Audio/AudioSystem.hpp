@@ -22,8 +22,11 @@
 #pragma once
 
 #include <SDL_mixer.h>
-
+#include "egolib/egoboo_setup.h"
+#include "egolib/Math/_Include.hpp"
+#if 0
 #include "game/Entities/_Include.hpp"
+#endif
 
 typedef int MusicID;
 typedef int SoundID;
@@ -192,19 +195,33 @@ private:
 	MusicID loadMusic(const std::string &fileName);
 
 	/**
-	* @brief applies 3D spatial effect to the specified sound (using volume and panning)
-	**/
+	 * @brief applies 3D spatial effect to the specified sound (using volume and panning)
+     * @param channel
+     *  the channel
+     * @param distance
+     *  the distance between the sound origin and the listener
+     * @param soundPosition
+     *  the sound origin
+	 */
 	void mixAudioPosition3D(const int channel, float distance, const fvec3_t soundPosition);
 
 	/**
-	* @return calculates distance between the sound origin and the players
-	**/
+     * @brief
+     *  Calculates distance between the sound origin and the players.
+     * @param soundPosition
+     *  the sound origin
+     * @return
+     *  the distance between the sound origin and the players
+	 */
 	float getSoundDistance(const fvec3_t soundPosition);
 
 	/**
-	* @brief Updates one looping sound effect
-	**/
-	void updateLoopingSound(const std::shared_ptr<LoopingSound> &sound);
+	 * @brief
+     *  Updates one looping sound effect.
+     * @param sound
+     *  the looping sound effect
+	 */
+	void updateLoopingSound(const std::shared_ptr<LoopingSound>& sound);
 
 private:
 	bool _initialized;
@@ -216,3 +233,6 @@ private:
 	std::forward_list<std::shared_ptr<LoopingSound>> _loopingSounds;
 	MusicID _currentSongPlaying;
 };
+
+/// @todo Remove this global.
+extern AudioSystem  _audioSystem;

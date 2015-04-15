@@ -23,6 +23,13 @@
 /// @details Almost all filesystem reads and writes should be handled through this interface. The only possible
 /// exceptions would be the log file (?) or something similar.
 /// Currently, this basically just wraps PhysicsFS functions
+/**
+ * @changelog
+ * - MH:
+ *     - added functions vfs_isWriting and vfs_isReading.
+ *     - added support for SDL RW ops that do not take ownership of a file
+ *     - fixed leaks
+ */
 
 #pragma once
 
@@ -72,9 +79,6 @@
 #define C_BELL_CHAR            '\a'
 #define C_BACKSPACE_CHAR       '\b'
 #define C_FORMFEED_CHAR        '\f'
-#if 0
-#define C_NEW_LINE_CHAR        '\n'
-#endif
 #define C_CARRIAGE_RETURN_CHAR '\r'
 #define C_TAB_CHAR             '\t'
 #define C_VERTICAL_TAB_CHAR    '\v'
@@ -101,8 +105,8 @@ struct s_vfs_search_context;
 typedef struct s_vfs_search_context vfs_search_context_t;
 
 // use this ugly thing, since there is no other way to hide the actual structure of the vfs_FILE...
-struct s_vfs_FILE;
-typedef struct s_vfs_FILE vfs_FILE;
+struct vsf_file;
+typedef struct vsf_file vfs_FILE;
 
 //--------------------------------------------------------------------------------------------
 // CONSTANTS
@@ -134,18 +138,82 @@ enum e_vfs_serach_bits
 /// will be called automatically at program termination
 void vfs_init(const char *argv0, const char *root_dir);
 
-/// these functions open in "binary mode" this means that they are reading using
-/// physfs and not using the c stdio routines
+/**@{*/
+/**
+ * These functions open in "binary mode" this means that they are reading using
+ * PhysFS and not using the C stdio routines.
+ */
+
+/**
+ * @brief
+ *  Open a file for reading in binary mode, using PhysFS.
+ * @param filename
+ *  the filename
+ * @return
+ *  a pointer to the file on success, a null pointer on failure
+ */
 vfs_FILE *vfs_openReadB(const char *filename);
+
+/**
+ * @brief
+ *  Open a file for writing in binary mode, using PhysFS.
+ * @param filename
+ *  the filename
+ * @return
+ *  a pointer to the file on success, a null pointer on failure
+ */
 vfs_FILE *vfs_openWriteB(const char *filename);
+
+/**
+ * @brief
+ *  Open a file for appending in binary mode, using PhysFS.
+ * @param filename
+ *  the filename
+ * @return
+ *  a pointer to the file on success, a null pointer on failure
+ */
 vfs_FILE *vfs_openAppendB(const char *filename);
 
-// these functions open in "text mode" this means that they are reading using
-// the c stdio routines. we use physfs to resolve the actual filename
+/**@}*/
+
+/**@{*/
+/**
+ * These functions open in "text mode" this means that they are reading using
+ *  the C stdio routines. However, w use PhysFS to resolve the actual filename.
+ */
+
 vfs_FILE *vfs_openRead(const char *filename);
 vfs_FILE *vfs_openWrite(const char *filename);
 vfs_FILE *vfs_openAppend(const char *filename);
 
+/**@}*/
+
+/**
+ * @brief
+ *  Get if a file is opened for writing.
+ * @param file
+ *  the file
+ * @return
+ *  @a -1 on failure. Otherwise, @a 1 if the file is opened for writing and @a 0 if it is not.
+ */
+int vfs_isWriting(vfs_FILE *file);
+
+/**
+ * @brief
+ *  Get if a file is opened for writing.
+ * @param file
+ *  the file
+ * @return
+ *  @a -1 on failure. Otherwise, @a 1 if the file is opened for reading and @a 0 if it is not.
+ */
+int vfs_isReading(vfs_FILE *file);
+
+/**
+ * @brief
+ *  Close and deallocate a file.
+ * @param file
+ *  the file
+ */
 int vfs_close(vfs_FILE *file);
 int vfs_flush(vfs_FILE *file);
 
@@ -234,6 +302,20 @@ bool vfs_writeEntireFile(const char *filename, const char *data, const size_t le
 
 // Wrap vfs into SDL_RWops
 struct SDL_RWops;
+
+/**
+ * @brief
+ *  Create SDL RW ops for the given file.
+ * @param file
+ *  the file
+ * @param ownership
+ *  if SDL RW ops are returned by this function and this is @a true,
+ *  then the SDL RW ops have taken ownership of the file i.e. when
+ *  the SDL RW ops are closed, they also also the file.
+ * @return
+ *  the SDL RW ops on success, a null pointer on failure
+ */
+SDL_RWops *vfs_openRWops(vfs_FILE *file, bool ownership);
    
 /**
  * @brief
@@ -241,7 +323,7 @@ struct SDL_RWops;
  * @param filename
  *  the filename
  * @return
- *  the SDL RW ops on success, @a nullptr on failure
+ *  the SDL RW ops on success, a null pointer on failure
  */
 SDL_RWops *vfs_openRWopsRead(const char *filename);
 
@@ -251,7 +333,7 @@ SDL_RWops *vfs_openRWopsRead(const char *filename);
  * @param filename
  *  the filename
  * @return
- *  the SDL RW ops on success, @a nullptr on failure
+ *  the SDL RW ops on success, a null pointer on failure
  */
 SDL_RWops *vfs_openRWopsWrite(const char *filename);
 
@@ -261,6 +343,6 @@ SDL_RWops *vfs_openRWopsWrite(const char *filename);
  * @param filename
  *  the filename
  * @return
- *  the SDL RW ops on success, @a nullptr on failure
+ *  the SDL RW ops on success, a null pointer on failure
  */
 SDL_RWops *vfs_openRWopsAppend(const char *filename);

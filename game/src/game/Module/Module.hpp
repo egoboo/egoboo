@@ -151,3 +151,5 @@ private:
     std::vector<std::shared_ptr<Passage>> _passages;	///< All passages in this module
 };
 
+/// @todo Remove this global.
+extern std::unique_ptr<GameModule> PMod;

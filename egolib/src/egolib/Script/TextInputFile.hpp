@@ -52,7 +52,7 @@ private:
      * @brief
      *  The current extended character.
      */
-    typename Traits::ExtendedType _current;
+    typename TextFile<_Traits>::Traits::ExtendedType _current;
 
 public:
 

@@ -25,7 +25,6 @@
 #include "game/GameStates/SelectModuleState.hpp"
 #include "game/GameStates/SelectCharacterState.hpp"
 #include "game/Core/GameEngine.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
 #include "game/GUI/Button.hpp"
 #include "game/GUI/Image.hpp"
 #include "game/GUI/Label.hpp"

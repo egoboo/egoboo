@@ -90,3 +90,5 @@ private:
 	std::vector<std::shared_ptr<Camera>> _cameraList;
 	std::shared_ptr<Camera> _mainCamera;
 };
+
+extern CameraSystem _cameraSystem;

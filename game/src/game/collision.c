@@ -30,7 +30,6 @@
 #include "game/physics.h"
 #include "game/Entities/_Include.hpp"
 #include "game/Profiles/_Include.hpp"
-#include "egolib/Audio/AudioSystem.hpp"
 
 CollisionSystem *CollisionSystem::_singleton = nullptr;
 

@@ -22,10 +22,9 @@
 /// @details
 
 #include "egolib/FileFormats/spawn_file.h"
-
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
-
+#include "egolib/Core/StringUtilities.hpp"
 #include "egolib/_math.h"
 
 // includes for egoboo constants
@@ -124,11 +123,6 @@ Again:
         {
             throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber),
                                             "expected `:`");
-#if 0
-            return false;
-            ctxt.readToEndOfLine();
-            goto Again;
-#endif
         }
         ctxt.next();
         std::string name = Ego::trim(ctxt._buffer.toString());
