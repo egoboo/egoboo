@@ -179,6 +179,10 @@
 		CD5B0CB01A6204EC00F076F9 /* WaypointList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */; };
 		CD5B0CB41A62054300F076F9 /* DynamicArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */; };
 		CD5E73AF1AA5421A005999BC /* libIdLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD94B49E1A8B3E6000BECFC9 /* libIdLib.a */; };
+		CD6491861ADF618E00A3B264 /* ImageLoader_SDL_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD64917E1ADF618E00A3B264 /* ImageLoader_SDL_image.cpp */; };
+		CD6491871ADF618E00A3B264 /* ImageLoader_SDL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD6491801ADF618E00A3B264 /* ImageLoader_SDL.cpp */; };
+		CD6491881ADF618E00A3B264 /* ImageLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD6491821ADF618E00A3B264 /* ImageLoader.cpp */; };
+		CD6491891ADF618E00A3B264 /* ImageManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD6491841ADF618E00A3B264 /* ImageManager.cpp */; };
 		CD6E5FAA1AD053AE00DBA937 /* ScrollableList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD6E5FA81AD053AE00DBA937 /* ScrollableList.cpp */; };
 		CD792C1E1A881FE20086270E /* GameEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BF61A881FE20086270E /* GameEngine.cpp */; };
 		CD792C1F1A881FE20086270E /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BF91A881FE20086270E /* GameState.cpp */; };
@@ -777,6 +781,14 @@
 		CD5B0CAE1A6204EC00F076F9 /* WaypointList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaypointList.h; sourceTree = "<group>"; };
 		CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicArray.cpp; sourceTree = "<group>"; };
 		CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicArray.hpp; sourceTree = "<group>"; };
+		CD64917E1ADF618E00A3B264 /* ImageLoader_SDL_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageLoader_SDL_image.cpp; sourceTree = "<group>"; };
+		CD64917F1ADF618E00A3B264 /* ImageLoader_SDL_image.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ImageLoader_SDL_image.hpp; sourceTree = "<group>"; };
+		CD6491801ADF618E00A3B264 /* ImageLoader_SDL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageLoader_SDL.cpp; sourceTree = "<group>"; };
+		CD6491811ADF618E00A3B264 /* ImageLoader_SDL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ImageLoader_SDL.hpp; sourceTree = "<group>"; };
+		CD6491821ADF618E00A3B264 /* ImageLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageLoader.cpp; sourceTree = "<group>"; };
+		CD6491831ADF618E00A3B264 /* ImageLoader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ImageLoader.hpp; sourceTree = "<group>"; };
+		CD6491841ADF618E00A3B264 /* ImageManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageManager.cpp; sourceTree = "<group>"; };
+		CD6491851ADF618E00A3B264 /* ImageManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ImageManager.hpp; sourceTree = "<group>"; };
 		CD6E5FA81AD053AE00DBA937 /* ScrollableList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScrollableList.cpp; sourceTree = "<group>"; };
 		CD6E5FA91AD053AE00DBA937 /* ScrollableList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ScrollableList.hpp; sourceTree = "<group>"; };
 		CD6E5FAB1AD0545E00DBA937 /* _Include.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _Include.hpp; sourceTree = "<group>"; };
@@ -1460,6 +1472,14 @@
 			children = (
 				CD12E6341AC6FDFD00ECD765 /* Image.cpp */,
 				CD12E6351AC6FDFD00ECD765 /* Image.hpp */,
+				CD64917E1ADF618E00A3B264 /* ImageLoader_SDL_image.cpp */,
+				CD64917F1ADF618E00A3B264 /* ImageLoader_SDL_image.hpp */,
+				CD6491801ADF618E00A3B264 /* ImageLoader_SDL.cpp */,
+				CD6491811ADF618E00A3B264 /* ImageLoader_SDL.hpp */,
+				CD6491821ADF618E00A3B264 /* ImageLoader.cpp */,
+				CD6491831ADF618E00A3B264 /* ImageLoader.hpp */,
+				CD6491841ADF618E00A3B264 /* ImageManager.cpp */,
+				CD6491851ADF618E00A3B264 /* ImageManager.hpp */,
 			);
 			path = Image;
 			sourceTree = "<group>";
@@ -2678,6 +2698,7 @@
 				CDCA1FB81A3F57D000002E76 /* controls_file-v2.c in Sources */,
 				CDCA1FB01A3F57D000002E76 /* ogl_include.c in Sources */,
 				CDE4EC5F1A7167CD00A4BC62 /* AABB.cpp in Sources */,
+				CD6491891ADF618E00A3B264 /* ImageManager.cpp in Sources */,
 				CDCA1FBA1A3F57D000002E76 /* controls_file.c in Sources */,
 				CD13298D1A90130300D1B221 /* RandomName.cpp in Sources */,
 				CDE4EC601A7167CD00A4BC62 /* Cube.cpp in Sources */,
@@ -2711,6 +2732,7 @@
 				CD4803B51A944228006DB980 /* EnchantProfileSystem.cpp in Sources */,
 				CDE4EC611A7167CD00A4BC62 /* Plane.cpp in Sources */,
 				CD4803A81A94419B006DB980 /* Errors.cpp in Sources */,
+				CD6491871ADF618E00A3B264 /* ImageLoader_SDL.cpp in Sources */,
 				CDCA1FDE1A3F57D000002E76 /* strutil.c in Sources */,
 				CDCA1FBE1A3F57D000002E76 /* map_file-v2.c in Sources */,
 				CDCA1FD01A3F57D000002E76 /* frustum.c in Sources */,
@@ -2759,6 +2781,7 @@
 				CDCA1FBF1A3F57D000002E76 /* map_file-v3.c in Sources */,
 				CDCA1FD31A3F57D000002E76 /* IDSZ_map.c in Sources */,
 				CDCA1FA71A3F57D000002E76 /* _math.c in Sources */,
+				CD6491881ADF618E00A3B264 /* ImageLoader.cpp in Sources */,
 				CDD931A31A428D970004A8B2 /* cube.c in Sources */,
 				CD1329881A90130300D1B221 /* EnchantProfileReader.cpp in Sources */,
 				CDCA1FD91A3F57D000002E76 /* file_mac.m in Sources */,
@@ -2771,6 +2794,7 @@
 				CD12E6361AC6FDFD00ECD765 /* Image.cpp in Sources */,
 				CDCA1FCB1A3F57D000002E76 /* treasure_table_file.c in Sources */,
 				CDCA1FB11A3F57D000002E76 /* ogl_texture.c in Sources */,
+				CD6491861ADF618E00A3B264 /* ImageLoader_SDL_image.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -254,7 +254,7 @@ vfs_FILE *vfs_openReadB(const char *filename)
     if (!ftmp)
     {
     #if defined(_DEBUG)
-        log_warning("unable to open file `%s` for reading - reason:\n%s",filename, PHYSFS_getLastError());
+        log_warning("unable to open file `%s` for reading - reason: %s\n",filename, PHYSFS_getLastError());
     #endif
         return NULL;
     }
@@ -298,7 +298,7 @@ vfs_FILE *vfs_openWriteB(const char *filename)
     if (!ftmp)
     {
     #if defined(_DEBUG)
-        log_warning("unable to open file `%s` for writing - reason:\n%s", filename, PHYSFS_getLastError());
+        log_warning("unable to open file `%s` for writing - reason: %s\n", filename, PHYSFS_getLastError());
     #endif
         return NULL;
     }
@@ -330,7 +330,7 @@ vfs_FILE *vfs_openAppendB(const char * filename)
     if (!ftmp)
     {
     #if defined(_DEBUG)
-        log_warning("unable to open file `%s` for appending - reason:\n%s", filename, PHYSFS_getLastError());
+        log_warning("unable to open file `%s` for appending - reason: %s\n", filename, PHYSFS_getLastError());
     #endif
         return NULL;
     }
@@ -928,7 +928,7 @@ int vfs_seek( vfs_FILE * pfile, long offset )
     if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
     {
         // reset the flags
-        pfile->flags = 0;
+        pfile->flags &= ~(VFS_FILE_FLAG_EOF | VFS_FILE_FLAG_ERROR);
 
         // !!!! since we are opening non-binary files in text mode, fseek might act strangely !!!!
         retval = fseek( pfile->ptr.c, offset, SEEK_SET );
@@ -936,7 +936,7 @@ int vfs_seek( vfs_FILE * pfile, long offset )
     else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
     {
         // reset the flags
-        pfile->flags = 0;
+        pfile->flags &= ~(VFS_FILE_FLAG_EOF | VFS_FILE_FLAG_ERROR);
 
         retval = PHYSFS_seek( pfile->ptr.p, offset );
         if (retval == 0) pfile->flags &= ~VFS_FILE_FLAG_ERROR;
@@ -2608,7 +2608,7 @@ char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
         if ( -1 == iTmp ) pfile->flags |= VFS_FILE_FLAG_ERROR;
         if ( 0 == iTmp ) pfile->flags |= VFS_FILE_FLAG_EOF;
 
-        while ( iTmp && ( str_ptr < str_end - 1 ) && CSTR_END != cTmp && 0 == pfile->flags )
+        while ( iTmp && ( str_ptr < str_end - 1 ) && CSTR_END != cTmp && 0 == (pfile->flags & (VFS_FILE_FLAG_EOF | VFS_FILE_FLAG_ERROR)))
         {
             *str_ptr = cTmp;
             str_ptr++;
@@ -3189,28 +3189,28 @@ static int vfs_rwops_seek( SDL_RWops * context, int offset, int whence )
 
 static int vfs_rwops_read(SDL_RWops *context, void *ptr, int size, int maxnum)
 {
-    if (context->type)
+    vfs_FILE *file = (vfs_FILE *)(context->hidden.unknown.data1);
+    if (vfs_isReading(file) != 1)
     {
         return -1;
     }
-    vfs_FILE *file = (vfs_FILE *)(context->hidden.unknown.data1);
     return vfs_read(ptr, size, maxnum, file);
 }
 
 static int vfs_rwops_write(SDL_RWops *context, const void *ptr, int size, int num)
 {
-    if (!context->type)
+    vfs_FILE *file = (vfs_FILE *)(context->hidden.unknown.data1);
+    if (vfs_isWriting(file) != 1)
     {
         return -1;
     }
-    vfs_FILE *file = (vfs_FILE *)(context->hidden.unknown.data1);
     return vfs_write(ptr, size, num, file);
 }
 
 static int vfs_rwops_close(SDL_RWops *context)
 {
     vfs_FILE *file = (vfs_FILE *)(context->hidden.unknown.data1);
-    if (*(bool *)(((char *)context) + sizeof(SDL_RWops)))
+    if (context->type)
     {
         vfs_close(file);
     }
@@ -3226,13 +3226,13 @@ static SDL_RWops *vfs_rwops_create(vfs_FILE *file, bool ownership)
         return NULL;
     }
     // MH: I allocate the boolean variable tracking ownership after the SDL_RWops struct.
-    SDL_RWops *rwops = (SDL_RWops *)malloc(sizeof(SDL_RWops)+sizeof(bool));
+    // PF5: It's been moved to the type variable.
+    SDL_RWops *rwops = (SDL_RWops *)malloc(sizeof(SDL_RWops));
     if (!rwops)
     {
         return NULL;
     }
-    *(bool *)(((char *)rwops) + sizeof(SDL_RWops)) = ownership;
-    rwops->type = isWriting;
+    rwops->type = ownership;
     rwops->seek = vfs_rwops_seek;
     rwops->read = vfs_rwops_read;
     rwops->write = vfs_rwops_write;

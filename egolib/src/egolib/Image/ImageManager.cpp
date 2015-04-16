@@ -32,8 +32,12 @@ ImageManager::ImageManager()
     if (_withSDL_image)
     {
         log_info("initializing SDL_image imaging version %d.%d.%d ...", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
-        int flags = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP;
-        if (IMG_Init(flags) & flags != flags)
+        int flags = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF;
+#if SDL_VERSIONNUM(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL) >= SDL_VERSIONNUM(1, 2, 11)
+        // WebP support added in SDL_image 1.2.11
+        flags |= IMG_INIT_WEBP;
+#endif
+        if ((IMG_Init(flags) & flags) != flags)
         {
             log_warning(" ... failure\n");
             _withSDL_image = false;
