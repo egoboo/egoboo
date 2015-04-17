@@ -38,11 +38,11 @@
 #dependency FiendBug      55
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-PlayerAtOblivion    NONE    0  67.5   108.5   6.0   N    0   0  0   0   0   T   F   G
-PlayerAtBoss    NONE    0  80.5   50.5   6.0   N    0   0  0   0   0   T   F   G
-PlayerAtXar   NONE    0  36.0   111.5   1.0   N    0   0  0   0   0   T   F   G
-PlayerAtElayne   NONE    0  74.5   11.5   1.0   N    0   0  0   0   0   T   F   G
-PlayerAtYeti   NONE    0  64.5   21.5   1.0   N    0   0  0   0   0   T   F   G
+//PlayerAtOblivion    NONE    0  67.5   108.5   6.0   N    0   0  0   0   0   T   F   G
+//PlayerAtBoss    NONE    0  80.5   50.5   6.0   N    0   0  0   0   0   T   F   G
+//PlayerAtXar   NONE    0  36.0   111.5   1.0   N    0   0  0   0   0   T   F   G
+//PlayerAtElayne   NONE    0  74.5   11.5   1.0   N    0   0  0   0   0   T   F   G
+//PlayerAtYeti   NONE    0  64.5   21.5   1.0   N    0   0  0   0   0   T   F   G
 HERO 1:        NONE    0  15.5   51.5   6.0   N    0   0  0   0   0   T   F   G
   LEFT HAND:    NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   RIGHT HAND:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -250,10 +250,10 @@ mephit:   NONE    40  34.0   92.0   1.0   N    0   3  0   0   0   F   F   E
 
 
 //Prison cell of the betrayer
-betrayer:   NONE    64  36.0   112.0   1.0   N    59   0  0   0   0   F   F   Xar
+betrayer:   NONE    64  36.0   112.0   1.0   N    59   0  0   0   0   F   F   X
   elemental:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   teleport:   NONE    65  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   0   0   F   F   Xar
+  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   0   0   F   F   X
 DevilGate:   NONE    74  36.00   102.75   0.0   S    0   0  11   11   0   F   F   N
 
 
@@ -349,8 +349,8 @@ kursetrap:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F   E
 
 //Prison cell of elayne
 devildoor:   NONE    74  69.0   12.0   1.0   E    0   0  26   10   0   F   F   N
-Angel:   NONE   	 94  79.0   12.0   1.0   W    16   0  0   0   0   F   F   Angel
-  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Angel
+Angel:   NONE   	 94  79.0   12.0   1.0   W    16   0  0   0   0   F   F   A
+  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   A
   Retribution:   NONE    130  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Saving the slayer
@@ -389,8 +389,8 @@ GigaGelfeet:   NONE    93  23.5   75.0   1.0   N    0   0  0   1   0   F   F   E
 
 //Prison cell of the slayer
 devildoor:   NONE    74  16.0   73.0   1.0   W    0   0  30   9   0   F   F   N
-loknar:   NONE    75  6.5   73.0   1.0   E    32   0  0   0   0   F   F   Hatred
-  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Hatred
+loknar:   NONE    75  6.5   73.0   1.0   E    32   0  0   0   0   F   F   H
+  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   H
   Cleaver:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   RTowerShield:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
@@ -415,8 +415,8 @@ Dark Glower:    NONE    100  82.5   55.5   1.0   N    0   0  0   0   0   F   F  
 DaBigBossDude:  NONE    108  94.5   50.5   8.0   W    9000   0  39   0   0   F   F   E
   AndHisToy:    NONE    54  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
-KingBishop:  NONE    113  97.5   50.5   8.0   W    999   0  0   0   0   F   F   King
-  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   2   0   F   F   King
+KingBishop:  NONE    113  97.5   50.5   8.0   W    999   0  0   0   0   F   F   K
+  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   2   0   F   F   K
 
 dragonstatue:   NONE    45  97.0   46.5   8.0   N    0   0  0   55000   0   F   F   N
 dragonstatue:   NONE    45  97.0   54.0   8.0   N    0   0  0   12000   0   F   F   N  

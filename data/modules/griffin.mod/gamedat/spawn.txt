@@ -23,7 +23,7 @@
 //         Null is predefined to be the neutral team.
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-PlayerAtTroll   NONE    0  71.5   13.5   2.0   S    0   0  0   0   0   T   F   G
+//PlayerAtTroll   NONE    0  71.5   13.5   2.0   S    0   0  0   0   0   T   F   G
 PLAYER 1:   NONE    0  76.5   42.5   2.0   S    0   0  0   0   0   T   F   G
   unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

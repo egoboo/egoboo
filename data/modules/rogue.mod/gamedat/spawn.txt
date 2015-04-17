@@ -26,211 +26,211 @@
 #dependency IronBall 76
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-PRISONER:  Harry     96   7.5  8.5  0.0  S   0   0   0   0   0   F   F   Null
-  Pick:    NONE      45   0    0    0    L   0   0   0   0   0   F   F   Null
-PRISONER:  Scar      96   13.5 5.5  0.0  W   0   1   0   0   0   F   F   Null
-  Pick:    NONE      45   0    0    0    L   0   0   0   0   0   F   F   Null
-PRISONER:  Butch     96   10.5 9.5  0.0  E   0   2   0   0   0   F   F   Null
-  Pick:    NONE      45   0    0    0    R   0   0   0   0   0   F   F   Null
+PRISONER:  Harry     96   7.5  8.5  0.0  S   0   0   0   0   0   F   F   N
+  Pick:    NONE      45   0    0    0    L   0   0   0   0   0   F   F   N
+PRISONER:  Scar      96   13.5 5.5  0.0  W   0   1   0   0   0   F   F   N
+  Pick:    NONE      45   0    0    0    L   0   0   0   0   0   F   F   N
+PRISONER:  Butch     96   10.5 9.5  0.0  E   0   2   0   0   0   F   F   N
+  Pick:    NONE      45   0    0    0    R   0   0   0   0   0   F   F   N
 
 // Scattered chests
-GASCHEST:  NONE      51   55   33   0.0  W   0   0   0   1   0   F   F   Null
-  Pick:    NONE      45   0    0    0    I   0   0   0   0   0   F   F   Null
-  %NORMAL_TREASURE:    NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:    NONE      53   27.5 7.5  0.0  S   0   0   0   2   0   F   F   Null        //Contains map
-Chest:    NONE      53   14.5 31.5 0.0  W   0   0   0   0   0   F   F   Null
-  XBow:  NONE      49   0    0    0    I   0   0   0   0   0   F   F   Null
-  LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:    NONE      53   7.5  48.5 0.0  S   0   0   0   0   0   F   F   Null
-  KEYA:    NONE      46   0    0    0    I   0   0   0   0   0   F   F   Null
+GASCHEST:  NONE      51   55   33   0.0  W   0   0   0   1   0   F   F   N
+  Pick:    NONE      45   0    0    0    I   0   0   0   0   0   F   F   N
+  %NORMAL_TREASURE:    NONE      -1   0    0    0    I   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
+Chest:    NONE      53   27.5 7.5  0.0  S   0   0   0   2   0   F   F   N        //Contains map
+Chest:    NONE      53   14.5 31.5 0.0  W   0   0   0   0   0   F   F   N
+  XBow:  NONE      49   0    0    0    I   0   0   0   0   0   F   F   N
+  LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   N
+Chest:    NONE      53   7.5  48.5 0.0  S   0   0   0   0   0   F   F   N
+  KEYA:    NONE      46   0    0    0    I   0   0   0   0   0   F   F   N
 
 
 // Item room
-Chest:    NONE      53   37.5 19.5 0.0  E   24  0   0   0   0   F   F   Null
-Chest:   NONE      53   37.5 21.0 0.0  E   0   0   0   0   1   F   F   Null
-  Rogue_Armor:    NONE   -1   0.0 0.0 0.0  I   0   1   0   0   0   F   F   Null
-Chest:    NONE      53   37.5 22.5 0.0  E   24  0   0   0   0   F   F   Null
-Chest:    NONE      53   40.5 19.5 0.0  W   24  0   0   0   0   F   F   Null
-Chest:    NONE      53   40.5 21.0 0.0  W   24  0   0   8   0   F   F   Null      //Secret bottom
-  HanXBow: NONE      43   0    0    0    I   0   0   0   0   0   F   F   Null
-  Stiletto: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
-  LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:    NONE      53   40.5 22.5 0.0  W   24  0   0   0   0   F   F   Null
+Chest:    NONE      53   37.5 19.5 0.0  E   24  0   0   0   0   F   F   N
+Chest:   NONE      53   37.5 21.0 0.0  E   0   0   0   0   1   F   F   N
+  Rogue_Armor:    NONE   -1   0.0 0.0 0.0  I   0   1   0   0   0   F   F   N
+Chest:    NONE      53   37.5 22.5 0.0  E   24  0   0   0   0   F   F   N
+Chest:    NONE      53   40.5 19.5 0.0  W   24  0   0   0   0   F   F   N
+Chest:    NONE      53   40.5 21.0 0.0  W   24  0   0   8   0   F   F   N      //Secret bottom
+  HanXBow: NONE      43   0    0    0    I   0   0   0   0   0   F   F   N
+  Stiletto: NONE      44   0    0    0    I   0   0   0   0   0   F   F   N
+  LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   N
+Chest:    NONE      53   40.5 22.5 0.0  W   24  0   0   0   0   F   F   N
 
 
 
 // Guards by prisoners
-DirtCOBOL:     NONE      36   11.5 19.5 0.0  N   4   0   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   12.5 18.5 0.0  N   3   0   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   11.5 19.5 0.0  N   4   0   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   12.5 18.5 0.0  N   3   0   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   N
 
 
 
 // Sleeping guards by map
-DirtCOBOL:     NONE      36   22.5 9.5  0.0  N   3   2   0   200 0   F   F   Evil
-  KiteShield:  NONE      72   0    0    0    R   0   0   0   0   0   F   F   Null
-  Whip:    NONE      -1   0    0    0    L   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   22.5 12.5 0.0  S   2   2   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   25.5 11.5 0.0  E   3   2   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
-  KiteShield:  NONE      73   0    0    0    L   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   27.5 12.5 0.0  W   4   2   0   200 0   F   F   Evil
-  Whip:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   28.5 8.5  0.0  S   1   2   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   22.5 9.5  0.0  N   3   2   0   200 0   F   F   E
+  KiteShield:  NONE      72   0    0    0    R   0   0   0   0   0   F   F   N
+  Whip:    NONE      -1   0    0    0    L   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   22.5 12.5 0.0  S   2   2   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   25.5 11.5 0.0  E   3   2   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   N
+  KiteShield:  NONE      73   0    0    0    L   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   27.5 12.5 0.0  W   4   2   0   200 0   F   F   E
+  Whip:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   28.5 8.5  0.0  S   1   2   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   N
 
 
 
 // Guards by chest
-DirtCOBOL:     NONE      36   9.5  31.5 0.0  S   1   0   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   11.5 32.5 0.0  N   2   1   0   100 0   F   F   Evil
-  KiteShield:  NONE      74   0    0    0    R   0   0   0   0   0   F   F   Null
-  Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   12.5 30.5 0.0  S   0   0   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   9.5  31.5 0.0  S   1   0   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   11.5 32.5 0.0  N   2   1   0   100 0   F   F   E
+  KiteShield:  NONE      74   0    0    0    R   0   0   0   0   0   F   F   N
+  Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   12.5 30.5 0.0  S   0   0   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   N
 
 
 
 // Guards in empty cave
-DirtCOBOL:     NONE      36   26.5 25.5 0.0  N   1   0   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   24.5 28.5 0.0  N   0   0   0   400 0   F   F   Evil
-  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   26.5 28.5 0.0  N   2   0   0   450 0   F   F   Evil
-  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   29.5 27.5 0.0  N   0   0   0   500 0   F   F   Evil
-  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   26.5 25.5 0.0  N   1   0   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   24.5 28.5 0.0  N   0   0   0   400 0   F   F   E
+  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   26.5 28.5 0.0  N   2   0   0   450 0   F   F   E
+  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   29.5 27.5 0.0  N   0   0   0   500 0   F   F   E
+  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
 
 
 
 // Sleeping guards at intersection
-DirtCOBOL:     NONE      36   15.7 42.5 0.0  N   1   2   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   26.5 42.5 0.0  S   2   2   0   400 0   F   F   Evil
-  XBow:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   24.5 45.5 0.0  E   1   2   0   100 0   F   F   Evil
-  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   15.7 42.5 0.0  N   1   2   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   26.5 42.5 0.0  S   2   2   0   400 0   F   F   E
+  XBow:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   24.5 45.5 0.0  E   1   2   0   100 0   F   F   E
+  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   N
 
 
 
 // Archer guards by wrong-way shutter
-DirtCOBOL:     NONE      36   29.5 53.5 0.0  N   3   1   0   400 0   F   F   Evil
-  XBow:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   27.5 57.5 0.0  N   2   0   0   450 0   F   F   Evil
-  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   31.5 57.5 0.0  N   1   0   0   500 0   F   F   Evil
-  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   29.5 53.5 0.0  N   3   1   0   400 0   F   F   E
+  XBow:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   27.5 57.5 0.0  N   2   0   0   450 0   F   F   E
+  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   31.5 57.5 0.0  N   1   0   0   500 0   F   F   E
+  LBow:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
 
 
 
 // Welcome party after bear traps
-DirtCOBOL:     NONE      36   47.5 41.5 0.0  W   1   0   0   120 0   F   F   Evil
-  Hatchet: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
-  KiteShield:  NONE      75   0    0    0    L   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   50.5 44.0 0.0  W   6   1   0   140 0   F   F   Evil
-  Hatchet: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
-  KiteShield:  NONE      72   0    0    0    L   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   47.5 46.5 0.0  W   2   0   0   120 0   F   F   Evil
-  Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   Null
-  KiteShield:  NONE      73   0    0    0    R   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   47.5 41.5 0.0  W   1   0   0   120 0   F   F   E
+  Hatchet: NONE      42   0    0    0    R   0   0   0   0   0   F   F   N
+  KiteShield:  NONE      75   0    0    0    L   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   50.5 44.0 0.0  W   6   1   0   140 0   F   F   E
+  Hatchet: NONE      42   0    0    0    R   0   0   0   0   0   F   F   N
+  KiteShield:  NONE      72   0    0    0    L   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   47.5 46.5 0.0  W   2   0   0   120 0   F   F   E
+  Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   N
+  KiteShield:  NONE      73   0    0    0    R   0   0   0   0   0   F   F   N
 
 
 
 // Treasure room mounted troops
-DirtCOBOL:     NONE      36   37.5 32.5 1.0  E   6   1   0   200 0   F   F   Evil
-  Whip:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
-BULLWOLF:  NONE      37   37.5 32.5 0.0  E   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   40.5 31.5 1.0  E   6   1   0   200 0   F   F   Evil
-  Whip:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
-BULLWOLF:  NONE      37   40.5 31.5 0.0  E   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   37.5 32.5 1.0  E   6   1   0   200 0   F   F   E
+  Whip:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   N
+BULLWOLF:  NONE      37   37.5 32.5 0.0  E   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   40.5 31.5 1.0  E   6   1   0   200 0   F   F   E
+  Whip:    NONE      -1   0    0    0    R   0   0   0   0   0   F   F   N
+BULLWOLF:  NONE      37   40.5 31.5 0.0  E   0   0   0   0   0   F   F   N
 
 
 
 // Mine gate guards...  Longbows must be in right hand for Cobol to use
-DirtCOBOL:     NONE      36   53.5 10.5 0.0  S   2   1   0   400 0   F   F   Evil
-  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   53.5 16.5 0.0  S   3   1   0   400 0   F   F   Evil
-  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-DirtCOBOL:     NONE      36   53.5 22.5 0.0  S   3   1   0   400 0   F   F   Evil
-  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+DirtCOBOL:     NONE      36   53.5 10.5 0.0  S   2   1   0   400 0   F   F   E
+  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   53.5 16.5 0.0  S   3   1   0   400 0   F   F   E
+  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
+DirtCOBOL:     NONE      36   53.5 22.5 0.0  S   3   1   0   400 0   F   F   E
+  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   N
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   N
 
 
 // Tranches by deadfall chest ( may trigger trap... )
-Tranch:    NONE      38   8.5  57.5 0    W   0   0   0   0   0   F   F   Evil
-Tranch:    NONE      38   10.5 56.5 0    W   0   0   0   0   0   F   F   Evil
-Tranch:    NONE      38   12.5 55.5 0    E   0   0   0   0   0   F   F   Evil
+Tranch:    NONE      38   8.5  57.5 0    W   0   0   0   0   0   F   F   E
+Tranch:    NONE      38   10.5 56.5 0    W   0   0   0   0   0   F   F   E
+Tranch:    NONE      38   12.5 55.5 0    E   0   0   0   0   0   F   F   E
 
 
 // The music, mushrooms and skulls
-MODULETOOL:    NONE      100   7    8    3    N   0   0   0   0   0   F   F   Null
+MODULETOOL:    NONE      100   7    8    3    N   0   0   0   0   0   F   F   N
 
 
 // Some traps...  On evil team so tranches don't trip...
-DEADFALL:  NONE      105  42   44   0    N   0   0   1   0   0   F   F   Evil
-DEADFALL:  NONE      105  7.5  50   0    N   0   0   2   0   0   F   F   Evil
+DEADFALL:  NONE      105  42   44   0    N   0   0   1   0   0   F   F   E
+DEADFALL:  NONE      105  7.5  50   0    N   0   0   2   0   0   F   F   E
 
 
 // Some traps
-BearTrap:  NONE      41   40.4 43.1 0    N   0   0   0   0   0   F   F   Null
-BearTrap:  NONE      41   39.8 43.5 0    W   0   0   0   0   0   F   F   Null
-BearTrap:  NONE      41   40.3 43.8 0    S   0   0   0   0   0   F   F   Null
-BearTrap:  NONE      41   40.5 44.7 0    E   0   0   0   0   0   F   F   Null
-BearTrap:  NONE      41   40.2 44.1 0    W   0   0   0   0   0   F   F   Null
+BearTrap:  NONE      41   40.4 43.1 0    N   0   0   0   0   0   F   F   N
+BearTrap:  NONE      41   39.8 43.5 0    W   0   0   0   0   0   F   F   N
+BearTrap:  NONE      41   40.3 43.8 0    S   0   0   0   0   0   F   F   N
+BearTrap:  NONE      41   40.5 44.7 0    E   0   0   0   0   0   F   F   N
+BearTrap:  NONE      41   40.2 44.1 0    W   0   0   0   0   0   F   F   N
 
 
 // The way out
-EXITAREA:  NONE      110  53   7    0    N   0   0   3   0   0   F   F   Null
+EXITAREA:  NONE      110  53   7    0    N   0   0   3   0   0   F   F   N
 
 
 
 // Gates
-GATE:      NONE      64   53   6    0    N   0   0   4   0   0   F   F   Null
-GATE:      NONE      64   53   12   0    S   0   0   5   0   0   F   F   Null
-GATE:      NONE      64   53   18   0    N   0   0   6   0   0   F   F   Null
-GATE:      NONE      64   53   24   0    S   0   0   7   0   0   F   F   Null
+GATE:      NONE      64   53   6    0    N   0   0   4   0   0   F   F   N
+GATE:      NONE      64   53   12   0    S   0   0   5   0   0   F   F   N
+GATE:      NONE      64   53   18   0    N   0   0   6   0   0   F   F   N
+GATE:      NONE      64   53   24   0    S   0   0   7   0   0   F   F   N
 
 
 
 // Gate buttons
-BUTTON:    NONE      65   51   9    0    N   0   0   4   0   0   F   F   Null
-BUTTON:    NONE      65   55   15   0    S   0   0   5   0   0   F   F   Null
-BUTTON:    NONE      65   51   21   0    E   0   0   6   0   0   F   F   Null
-BUTTON:    NONE      65   55   27   0    W   0   0   7   0   0   F   F   Null
+BUTTON:    NONE      65   51   9    0    N   0   0   4   0   0   F   F   N
+BUTTON:    NONE      65   55   15   0    S   0   0   5   0   0   F   F   N
+BUTTON:    NONE      65   51   21   0    E   0   0   6   0   0   F   F   N
+BUTTON:    NONE      65   55   27   0    W   0   0   7   0   0   F   F   N
 
 
 
 // Doors
-SHUTTER:   NONE      66   40   55   0    E   0   0   8   0   0   F   F   Null
-SHUTTER:   NONE      66   53   50   0    N   0   0   10  0   0   F   F   Null
-SHUTTER:   NONE      66   44   44   0    W   0   0   12  0   0   F   F   Null
-LOCKED:    NONE      67   53   37   0    S   0   0   14  0   0   F   F   Null
-LOCKED:    NONE      67   39   27   0    S   0   0   16  0   0   F   F   Null
+SHUTTER:   NONE      66   40   55   0    E   0   0   8   0   0   F   F   N
+SHUTTER:   NONE      66   53   50   0    N   0   0   10  0   0   F   F   N
+SHUTTER:   NONE      66   44   44   0    W   0   0   12  0   0   F   F   N
+LOCKED:    NONE      67   53   37   0    S   0   0   14  0   0   F   F   N
+LOCKED:    NONE      67   39   27   0    S   0   0   16  0   0   F   F   N
 
 
 // The player...  Spawned last so ball goes over dead bodies...
-PLAYER:    NONE      0    8.5  6.5  0.0  N   0   0   0   0   0   T   F   Good
-  Pick:    NONE      45   0    0    0    R   0   0   0   0   0   F   F   Null
-  IBall:   NONE      76   0    0    0    L   0   0   0   0   0   F   F   Null
+PLAYER:    NONE      0    8.5  6.5  0.0  N   0   0   0   0   0   T   F   G
+  Pick:    NONE      45   0    0    0    R   0   0   0   0   0   F   F   N
+  IBall:   NONE      76   0    0    0    L   0   0   0   0   0   F   F   N
 
 
 // The G'nome with the key
-G'nome:    K'nife    56    50.5 56.5 0    S   0   0   0   0   0   F   F   Good
-  KEYA:    NONE      46   0    0    0    I   0   0   0   0   0   F   F   Null
-  Knife:   NONE      39   0    0    0    I   0   0   0   0   0   F   F   Null
-  Incisor: NONE      40   0    0    0    I   0   0   0   0   0   F   F   Null
-  IBall:   NONE      76   0    0    0    L   0   0   0   0   0   F   F   Null
+G'nome:    K'nife    56    50.5 56.5 0    S   0   0   0   0   0   F   F   G
+  KEYA:    NONE      46   0    0    0    I   0   0   0   0   0   F   F   N
+  Knife:   NONE      39   0    0    0    I   0   0   0   0   0   F   F   N
+  Incisor: NONE      40   0    0    0    I   0   0   0   0   0   F   F   N
+  IBall:   NONE      76   0    0    0    L   0   0   0   0   0   F   F   N
 

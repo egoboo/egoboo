@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------------------------------------
 //         Name    Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-PlayerAtBoss   NONE    0  	69.5   58.5   0.0   N    0   0  0   0   0   T   F   G
+//PlayerAtBoss   NONE    0  	69.5   58.5   0.0   N    0   0  0   0   0   T   F   G
 PLAYER1:   NONE    0  	4.5   38.5   0.0   N    0   0  0   0   0   T   F   G
   unknown:   NONE    1  	0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    2  	0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

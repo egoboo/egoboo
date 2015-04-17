@@ -25,7 +25,7 @@
 #dependency Ghuul          98
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-PlayerAtBoss   NONE    0  54.0   45.0 7.0   N    0   0  0   0   0   T   F   G
+//PlayerAtBoss   NONE    0  54.0   45.0 7.0   N    0   0  0   0   0   T   F   G
 Player1:       NONE    0  30.5   54.5   7.0   N    0   0  0   0   0   T   F   G
   LEFT:        NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   RIGHT:       NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

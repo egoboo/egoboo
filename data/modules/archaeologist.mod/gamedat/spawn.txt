@@ -3,7 +3,7 @@
 #dependency Archaelogist 0
 
 //Encampment
-PlayerAtIdol;   NONE    0  51.5   51.0   0.0   N    0   0  0   0   0   T   F   G
+//PlayerAtIdol;   NONE    0  51.5   51.0   0.0   N    0   0  0   0   0   T   F   G
 HERO:   NONE    0  9.5   87.0   0.0   N    0   0  0   0   0   T   F   G
   pistol:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   whip:   NONE    59  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
