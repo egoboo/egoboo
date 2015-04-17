@@ -604,6 +604,7 @@
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
     </ClInclude>
+    <None Include="src\egolib\Platform\CurrentFunction.inline" />
     <None Include="src\egolib\FileFormats\id_normals.inl" />
     <None Include="src\egolib\platform\file_mac.m">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

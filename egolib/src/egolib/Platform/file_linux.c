@@ -48,15 +48,15 @@ typedef struct s_linux_find_context linux_find_context_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern void sys_fs_init( const char * root_dir );
+extern int sys_fs_init(const char *root_dir);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Paths that the game will deal with
-static char linux_binaryPath[PATH_MAX]   = EMPTY_CSTR;
-static char linux_dataPath[PATH_MAX]     = EMPTY_CSTR;
-static char linux_userdataPath[PATH_MAX] = EMPTY_CSTR;
-static char linux_configPath[PATH_MAX]   = EMPTY_CSTR;
+static char _binaryPath[PATH_MAX]   = EMPTY_CSTR;
+static char _dataPath[PATH_MAX]     = EMPTY_CSTR;
+static char _userdataPath[PATH_MAX] = EMPTY_CSTR;
+static char _configPath[PATH_MAX]   = EMPTY_CSTR;
 
 struct s_linux_find_context
 {
@@ -64,21 +64,16 @@ struct s_linux_find_context
     size_t find_index;
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// File Routines
-void sys_fs_init( const char * root_dir )
+int sys_fs_init(const char *root_dir)
 {
     // root_dir currently has no use in linux, since all of the egoboo game directories
     // are in fixed locations
 
-    char * userhome;
-
-    printf( "Initializing filesystem services...\n" );
+    printf("initializing filesystem services\n");
 
     // grab the user's home directory
-    userhome = getenv( "HOME" );
-    snprintf( linux_userdataPath, SDL_arraysize( linux_userdataPath ), "%s/.egoboo-2.x", userhome );
+    char *userHome = getenv("HOME");
+    snprintf(_userPath, SDL_arraysize(_userPath), "%s/.egoboo-2.x", userHome);
 
 #if defined(_NIX_PREFIX) && defined(PREFIX)
     // the access to these directories is completely unknown
@@ -86,190 +81,223 @@ void sys_fs_init( const char * root_dir )
     // so that the program will compile and install just like any other
     // .rpm or .deb package.
 
-    snprintf( linux_configPath, SDL_arraysize( linux_configPath ), "%s/etc/egoboo-2.x/", PREFIX );
-    snprintf( linux_binaryPath, SDL_arraysize( linux_binaryPath ), "%s/games/", PREFIX );
-    snprintf( linux_dataPath,   SDL_arraysize( linux_dataPath ),   "%s/share/games/egoboo-2.x/", PREFIX );
+    snprintf(_configPath, SDL_arraysize(_configPath), "%s/etc/egoboo-2.x/", PREFIX);
+    snprintf(_binaryPath, SDL_arraysize(_binaryPath), "%s/games/", PREFIX);
+    snprintf(_dataPath, SDL_arraysize(_dataPath), "%s/share/games/egoboo-2.x/", PREFIX);
 #elif !defined(_NIX_PREFIX) && defined(_DEBUG)
     // assume we are debugging using the "install directory" rather than using a real installation
-    strncpy( linux_configPath, ".", SDL_arraysize( linux_configPath ) );
-    strncpy( linux_binaryPath, ".", SDL_arraysize( linux_binaryPath ) );
-    strncpy( linux_dataPath, ".", SDL_arraysize( linux_dataPath ) );
+    strncpy(_configPath, ".", SDL_arraysize(_configPath));
+    strncpy(_binaryPath, ".", SDL_arraysize(_binaryPath));
+    strncpy(_dataPath, ".", SDL_arraysize(_dataPath));
 #else
     // these are read-only directories
-    strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
-    strncpy( linux_binaryPath, "/usr/games/",                  SDL_arraysize( linux_binaryPath ) );
-    strncpy( linux_dataPath,   "/usr/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
+    strncpy(_configPath, "/etc/egoboo-2.x/", SDL_arraysize(_configPath));
+    strncpy(_binaryPath, "/usr/games/", SDL_arraysize(_binaryPath));
+    strncpy(_dataPath, "/usr/share/games/egoboo-2.x/", SDL_arraysize(_dataPath));
 #endif
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout
-    printf( "Game directories are:\n\tBinaries: %s\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
-            linux_binaryPath, linux_dataPath, linux_userdataPath, linux_configPath );
+    printf("game directories are:\n"
+           "\tbinarys: %s\n"
+           "\tdata: %s\n"
+           "\tuser: %s\n"
+           "\tconfiguration: %s\n",
+           _binaryPath, _dataPath, _userPath, _configPath);
 
-    if ( !fs_fileIsDirectory( linux_userdataPath ) )
+    if (!fs_fileIsDirectory(_userPath))
     {
-        fs_createDirectory( linux_userdataPath );
+        fs_createDirectory(_userPath); /// @todo Error handling.
     }
-}
-
-//--------------------------------------------------------------------------------------------
-int fs_fileIsDirectory( const char *filename )
-{
-    struct stat stats;
-    if ( !stat( filename, &stats ) )
-        return S_ISDIR( stats.st_mode );
-
     return 0;
 }
 
-//--------------------------------------------------------------------------------------------
-int fs_createDirectory( const char *dirname )
+int fs_fileIsDirectory(const char *pathname)
 {
-    /// @author ZZ
-    /// @details This function makes a new directory
-    return mkdir( dirname, 0755 );
+    if (!pathname)
+    {
+        return -1;
+    }
+    struct stat stats;
+    if (!stat(pathname, &stats))
+    {
+        return S_ISDIR(stats.st_mode);
+    }
+    return 0;
 }
 
-//--------------------------------------------------------------------------------------------
-int fs_removeDirectory( const char *dirname )
+int fs_createDirectory(const char *pathname)
 {
-    /// @author ZZ
-    /// @details This function removes a directory
-    return rmdir( dirname );
+    if (!pathname)
+    {
+        return -1;
+    }
+    if (0 != mkdir(pathname, 0755))
+    {
+        errno = 0; /// Clear errno.
+        return 1;
+    }
+    return 0;
 }
 
-//--------------------------------------------------------------------------------------------
-void fs_deleteFile( const char *filename )
+int fs_removeDirectory(const char *pathname)
 {
-    /// @author ZZ
-    /// @details This function deletes a file
-    unlink( filename );
+    if (!pathname)
+    {
+        return -1;
+    }
+    if (0 != rmdir(pathname))
+    {
+        errno = 0; // Clear errno.
+        return 1;
+    }
+    return 0;
 }
 
-//--------------------------------------------------------------------------------------------
-bool fs_copyFile( const char *source, const char *dest )
+void fs_deleteFile(const char *pathname)
 {
-    /// @author ZZ
-    /// @details This function copies a file on the local machine
+    if (!pathname)
+    {
+        return;
+    }
+    unlink(pathname);
+}
 
-    FILE *sourcef;
-    FILE *destf;
+bool fs_copyFile(const char *source, const char *dest)
+{
+    if (!source)
+    {
+        return false;
+    }
+    if (!dest)
+    {
+        return false;
+    }
+    
     char buf[4096] = EMPTY_CSTR;
     int bytes_read;
 
-    sourcef = fopen( source, "rb" );
-    if ( !sourcef )
-        return false;
-
-    destf = fopen( dest, "wb" );
-    if ( !destf )
+    // Open source file descriptor.
+    FILE *sourcefd = fopen(source, "rb");
+    if (!sourcef)
     {
-        fclose( sourcef );
         return false;
     }
-
-    while (( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
-        fwrite( buf, 1, bytes_read, destf );
-
-    //Finish it up
-    fclose( sourcef );
-    fclose( destf );
+    // Open target file descriptor.
+    FILE *targetfd = fopen(target, "wb");
+    if (!targetfd)
+    {
+        fclose(sourcefd);
+        return false;
+    }
+    // Read Bytes from the target source file and write them into the target file.
+    while ((bytes_read = fread(buf, 1, sizeof(buf), sourcef)))
+    {
+        fwrite(buf, 1, bytes_read, targetfd);
+    }
+    // Finish file descriptors.
+    fclose(sourcefd);
+    fclose(targetfd);
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-// Read the first directory entry
-const char *fs_findFirstFile( const char *searchDir, const char *searchExtension, fs_find_context_t * fs_search )
+const char *fs_findFirstFile(const char *directory, const char *extension, fs_find_context_t *fs_search)
 {
     char pattern[PATH_MAX] = EMPTY_CSTR;
     char *last_slash;
-    linux_find_context_t * pcnt;
 
-    if ( INVALID_CSTR( searchDir ) || NULL == fs_search ) return NULL;
-
-    pcnt = EGOBOO_NEW( linux_find_context_t );
+    if (INVALID_CSTR(directory) || NULL == fs_search)
+    {
+        return NULL;
+    }
+    linux_find_context *pcnt = EGOBOO_NEW(linux_find_context_t);
     fs_search->type = linux_find;
     fs_search->ptr.l = pcnt;
 
-    if ( searchExtension )
-        snprintf( pattern, PATH_MAX, "%s" SLASH_STR "*.%s", searchDir, searchExtension );
+    if (extension)
+    {
+        snprintf(pattern, PATH_MAX, "%s" SLASH_STR "*.%s", directory, extension);
+    }
     else
-        snprintf( pattern, PATH_MAX, "%s" SLASH_STR "*", searchDir );
-
+    {
+        snprintf(pattern, PATH_MAX, "%s" SLASH_STR "*", directory);
+    }
+ 
     pcnt->last_find.gl_offs = 0;
-    glob( pattern, GLOB_NOSORT, NULL, &pcnt->last_find );
-    if ( !pcnt->last_find.gl_pathc )
+    glob(pattern, GLOB_NOSORT, NULL, &pcnt->last_find);
+    if (!pcnt->last_find.gl_pathc)
+    {
         return NULL;
-
+    }
     pcnt->find_index = 0;
-    last_slash = strrchr( pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR );
-    if ( last_slash )
+    char *last_slash = strrchr(pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR);
+    if (last_slash)
+    {
         return last_slash + 1;
-
+    }
     return NULL; /* should never happen */
 }
 
-//--------------------------------------------------------------------------------------------
-// Read the next directory entry (NULL if done)
-const char *fs_findNextFile( fs_find_context_t * fs_search )
+const char *fs_findNextFile(fs_find_context_t *fs_search)
 {
-    char *last_slash;
-    linux_find_context_t * pcnt;
-
-    if ( NULL == fs_search || fs_search->type != linux_find ) return NULL;
-
-    pcnt = fs_search->ptr.l;
-    if ( NULL == pcnt )  return NULL;
+    if (!fs_search || fs_search->type != linux_find)
+    {
+        return NULL;
+    }
+    linux_find_context_t *pcnt = fs_search->ptr.l;
+    if (!pcnt)
+    {
+        return NULL;
+    }
 
     ++pcnt->find_index;
-    if ( pcnt->find_index >= pcnt->last_find.gl_pathc )
+    if (pcnt->find_index >= pcnt->last_find.gl_pathc)
+    {
         return NULL;
-
-    last_slash = strrchr( pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR );
-    if ( last_slash )
+    }
+    char *last_slash = strrchr(pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR);
+    if (last_slash)
+    {
         return last_slash + 1;
+    }
 
     return NULL; /* should never happen */
 }
 
-//--------------------------------------------------------------------------------------------
-// Close anything left open
-void fs_findClose( fs_find_context_t * fs_search )
+void fs_findClose(fs_find_context_t *fs_search)
 {
-    linux_find_context_t * pcnt;
+    if (NULL == fs_search || fs_search->type != linux_find)
+    {
+        return;
+    }
+    linux_find_context_t *pcnt = fs_search->ptr.l;
+    if (NULL == pcnt)
+    {
+        return;
+    }
+    globfree(&(pcnt->last_find));
 
-    if ( NULL == fs_search || fs_search->type != linux_find ) return;
+    EGOBOO_DELETE(pcnt);
 
-    pcnt = fs_search->ptr.l;
-    if ( NULL == pcnt )  return;
-
-    globfree( &( pcnt->last_find ) );
-
-    EGOBOO_DELETE( pcnt );
-
-    BLANK_STRUCT_PTR( fs_search )
+    BLANK_STRUCT_PTR(fs_search)
 }
 
-//--------------------------------------------------------------------------------------------
 const char *fs_getBinaryDirectory()
 {
-    return linux_binaryPath;
+    return _binaryPath;
 }
 
-//--------------------------------------------------------------------------------------------
 const char *fs_getDataDirectory()
 {
-    return linux_dataPath;
+    return _dataPath;
 }
 
-//--------------------------------------------------------------------------------------------
 const char *fs_getUserDirectory()
 {
-    return linux_userdataPath;
+    return _userPath;
 }
 
-//--------------------------------------------------------------------------------------------
 const char *fs_getConfigDirectory()
 {
-    return linux_configPath;
+    return _configPath;
 }

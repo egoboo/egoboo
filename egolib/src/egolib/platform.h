@@ -143,67 +143,70 @@
 #include <unordered_set>
 #include <vector>
 
+/// Define __EGO_CURRENT_FILE__, __EGO_CURRENT_LINE__ and __EGO_CURRENT_FUNCTION__.
+/// Those constants will either be properly defined or not at all.
+#include "egolib/Platform/CurrentFunction.inline"
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
 
-
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// osx definitions
+// OSX definitions
 
 #if defined(__APPLE__) || defined(macintosh)
-// trap non-osx mac builds
-#    if !defined(__MACH__)
-#        error Only OS X builds are supported
-#    endif
 
-/// make this function work cross-platform
-#    define stricmp  strcasecmp
+    // Trap non-OSX Mac builds.
+    #if !defined(__MACH__)
+        #error Only OS X builds are supported
+    #endif
+
+    /// Make this function work cross-platform.
+    #define stricmp strcasecmp
 
 #endif
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // windows definitions
 
 #if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) || defined(__WIN64__) || defined(WIN64) || defined(_WIN64) || defined(__WIN64)
-// map all of these possibilities to WIN32
-#    if !defined(WIN32)
-#        define WIN32
-#    endif
+    // Map all of these possibilities to WIN32.
+    #if !defined(WIN32)
+        #define WIN32
+    #endif
 
-/// Speeds up compile times a bit.  We don't need everything in windows.h
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
+    /// Speeds up compile times a bit.  We don't need everything in windows.h.
+    /// @todo MH: Nice, except of that system headers like windows.h should not
+    ///       be included in general code at all.
+    #define WIN32_LEAN_AND_MEAN
+    #define VC_EXTRALEAN
 
-/// special win32 macro that lets windows know that you are going to be
-/// starting from a console.  This is useful because you can get real-time
-/// output to the screen just by using printf()!
-#    if defined(_CONSOLE)
-#        define CONSOLE_MODE
-#    else
-#        undef  CONSOLE_MODE
-#    endif
+    /// Special win32 macro that lets windows know that you are going to be
+    /// starting from a console. This is useful because you can get real-time
+    /// output to the screen just by using printf()!
+    #if defined(_CONSOLE)
+        #define CONSOLE_MODE
+    #else
+        #undef CONSOLE_MODE
+    #endif
 
 #endif
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//*nix definitions
+// *nix definitions
+
 #if defined(__unix__) || defined(__unix) || defined(_unix) || defined(unix)
-/// map all of these to __unix__
-#    if !defined(__unix__)
-#        define __unix__
-#    endif
 
-#    include <unistd.h>
+    /// Map all of these possibilities __unix__.
+    #if !defined(__unix__)
+        #define __unix__
+    #endif
 
-/// make this function work cross-platform
-#    define stricmp  strcasecmp
+    #include <unistd.h>
+
+    /// Make this function work cross-platform.
+    #define stricmp strcasecmp
 
 #endif
 
@@ -226,22 +229,16 @@ extern "C"
 #define NET_SLASH_STR C_SLASH_STR
 
 #if defined(WIN32) || defined(_WIN32)
-
-#    define SLASH_STR WIN32_SLASH_STR
-#    define SLASH_CHR WIN32_SLASH_CHR
-
+    #define SLASH_STR WIN32_SLASH_STR
+    #define SLASH_CHR WIN32_SLASH_CHR
 #else
-
-#    define SLASH_STR NET_SLASH_STR
-#    define SLASH_CHR NET_SLASH_CHR
-
+    #define SLASH_STR NET_SLASH_STR
+    #define SLASH_CHR NET_SLASH_CHR
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Compiler-specific definitions
-
-//------------
 
 // MSVC does not support constexpr yet.
 #if defined(_MSC_VER)
@@ -271,6 +268,7 @@ extern "C"
 
 //------------
 // Turn off warnings that we don't care about.
+/// @todo MH: This should be reviewed.
 #if defined(_MSC_VER)
     #pragma warning(disable : 4090) ///< '=' : different 'const' qualifiers (totally unimportant in C)
     #pragma warning(disable : 4200) ///< zero-sized array in struct/union (used in the md2 loader)
@@ -306,12 +304,12 @@ extern "C"
 
 //------------
 #if !defined(SET_PACKED)
-    // set the packing of a data structure at declaration time
+    // Set the packing of a data structure at declaration time.
     #if !defined(USE_PACKING)
-        // do not actually do anything about the packing
+        // Do not actually do anything about the packing.
         #define SET_PACKED()
     #else
-    // use compiler-specific macro definitions
+    // Use compiler-specific macro definitions.
     #if defined(__GNUC__)
         #define SET_PACKED() __attribute__ ((__packed__))
     #elif defined(_MSC_VER)
@@ -319,25 +317,15 @@ extern "C"
     #endif
 #endif
 #endif
-
-#if defined(__GNUC__)
-#  if __STDC_VERSION__ < 199901L
-#    if __GNUC__ >= 2
-#        define __func__ __FUNCTION__
-#    else
-#        define __func__ "<unknown>"
-#    endif
-#  endif
-#endif
     
 //--------------------------------------------------------------------------------------------
-// format attributes for GCC/Clang
+// Format attributes for GCC/Clang
 #if defined(__GNUC__)
-#   define GCC_PRINTF_FUNC( fmtargnum ) __attribute__ (( format( __printf__, fmtargnum, fmtargnum+1 ) ))
-#   define GCC_SCANF_FUNC( fmtargnum ) __attribute__ (( format( __scanf__, fmtargnum, fmtargnum+1 ) ))
+    #define GCC_PRINTF_FUNC(fmtargnum) __attribute__ (( format( __printf__, fmtargnum, fmtargnum+1 ) ))
+    #define GCC_SCANF_FUNC(fmtargnum) __attribute__ (( format( __scanf__, fmtargnum, fmtargnum+1 ) ))
 #else
-#   define GCC_PRINTF_FUNC( fmtargnum )
-#   define GCC_SCANF_FUNC( fmtargnum )
+    #define GCC_PRINTF_FUNC(fmtargnum)
+    #define GCC_SCANF_FUNC(fmtargnum)
 #endif
 
 //--------------------------------------------------------------------------------------------

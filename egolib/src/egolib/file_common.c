@@ -42,26 +42,34 @@ static bool _fs_initialized = false;
 //--------------------------------------------------------------------------------------------
 /**
  * @brief
- *	Initialize the file system.
- * @param argv0 the first argument of the command-line
+ *  Initialize the platform file system.
+ * @param argv0
+ *  the first argument of the command-line
+ * @return
+ *  @a 0 on success, a non-zero value on failure
  */
-void sys_fs_init(const char *argv0);
+int sys_fs_init(const char *argv0);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void fs_init(const char *argv0)
+int fs_init(const char *argv0)
 {
-    if (_fs_initialized) return;
-
-    sys_fs_init(argv0);
-
+    if (_fs_initialized)
+    {
+        return 0;
+    }
+    if (sys_fs_init(argv0))
+    {
+        return 1;
+    }
     _fs_initialized = true;
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void fs_removeDirectoryAndContents( const char *dirname, int recursive )
+void fs_removeDirectoryAndContents(const char *dirname, int recursive)
 {
     /// @author ZZ
     /// @details This function deletes all files in a directory,
@@ -72,184 +80,179 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
     fs_find_context_t fs_search;
 
     // List all the files in the directory
-    fileName = fs_findFirstFile( dirname, NULL, &fs_search );
-    while ( NULL != fileName )
+    fileName = fs_findFirstFile(dirname, NULL, &fs_search);
+    while (NULL != fileName)
     {
         // Ignore files that start with a ., like .svn for example.
-        if ( '.' != fileName[0] )
+        if ('.' != fileName[0])
         {
-            snprintf( filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName );
-            if ( fs_fileIsDirectory( filePath ) )
+            snprintf(filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName);
+            if (fs_fileIsDirectory(filePath))
             {
-                if ( recursive )
+                if (recursive)
                 {
-                    fs_removeDirectoryAndContents( filePath, recursive );
+                    fs_removeDirectoryAndContents(filePath, recursive);
                 }
                 else
                 {
-                    fs_removeDirectory( filePath );
+                    fs_removeDirectory(filePath);
                 }
             }
             else
             {
-                fs_deleteFile( filePath );
+                fs_deleteFile(filePath);
             }
         }
-        fileName = fs_findNextFile( &fs_search );
+        fileName = fs_findNextFile(&fs_search);
     }
-    fs_findClose( &fs_search );
+    fs_findClose(&fs_search);
 
-    fs_removeDirectory( dirname );
+    fs_removeDirectory(dirname);
 }
 
 //--------------------------------------------------------------------------------------------
-void fs_copyDirectory( const char *sourceDir, const char *destDir )
+void fs_copyDirectory(const char *sourceDir, const char *targetDir)
 {
-    /// @author ZZ
-    /// @details This function copies all files in a directory
-    char srcPath[MAX_PATH] = EMPTY_CSTR, destPath[MAX_PATH] = EMPTY_CSTR;
-
-    const char *fileName;
     fs_find_context_t fs_search;
 
     // List all the files in the directory
-    fileName = fs_findFirstFile( sourceDir, NULL, &fs_search );
-    if ( NULL != fileName )
+    const char *filename = fs_findFirstFile(sourceDir, NULL, &fs_search);
+    if (filename)
     {
-        // Make sure the destination directory exists
-        fs_createDirectory( destDir );
+        // Make sure the destination directory exists.
+        fs_createDirectory(targetDir); /// @todo Error handling here - if the directory does not exist, we can stop.
 
-        while ( NULL != fileName )
+        while (filename)
         {
-            // Ignore files that begin with a .
-            if ( '.' != fileName[0] )
+            // Ignore files that begin with a `'.'`.
+            if ('.' != filename[0])
             {
-                snprintf( srcPath, MAX_PATH, "%s" SLASH_STR "%s", sourceDir, fileName );
-                snprintf( destPath, MAX_PATH, "%s" SLASH_STR "%s", destDir, fileName );
-                fs_copyFile( srcPath, destPath );
+                char sourcePath[MAX_PATH] = EMPTY_CSTR, targetPath[MAX_PATH] = EMPTY_CSTR;
+                snprintf(sourcePath, MAX_PATH, "%s" SLASH_STR "%s", sourceDir, filename);
+                snprintf(targetPath, MAX_PATH, "%s" SLASH_STR "%s", targetDir, filename);
+                fs_copyFile(sourcePath, targetPath);
             }
 
-            fileName = fs_findNextFile( &fs_search );
+            filename = fs_findNextFile(&fs_search);
         }
     }
 
-    fs_findClose( &fs_search );
+    fs_findClose(&fs_search);
 }
 
 //--------------------------------------------------------------------------------------------
-int fs_fileExists( const char *filename )
+int fs_fileExists(const char *filename)
 {
-    FILE * ptmp;
-
-    int retval = 0;
-
-    if ( INVALID_CSTR( filename ) ) return retval;
-
-    ptmp = fopen( filename, "rb" );
-    if ( NULL != ptmp )
+    if (INVALID_CSTR(filename))
     {
-        fclose( ptmp );
-        retval = 1;
+        return -1;
     }
-
-    return retval;
+    FILE *ptmp = fopen(filename, "rb");
+    if (ptmp)
+    {
+        fclose(ptmp);
+        return 1;
+    }
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-const char * fs_createBinaryDirectoryFilename( const char * relative_pathname )
+#if 0
+const char *fs_createBinaryDirectoryFilename(const char *relative_pathname)
 {
-    static char path[1024];
-    const char * dir_name_ptr;
+    static char path[1024]; ///< @todo Not mt-safe.
+    const char *dir_name_ptr;
 
     path[0] = CSTR_END;
-    if ( !VALID_CSTR( relative_pathname ) ) return path;
+    if (!VALID_CSTR(relative_pathname)) return path;
 
     dir_name_ptr = fs_getBinaryDirectory();
 
-    if ( VALID_CSTR( dir_name_ptr ) )
+    if (VALID_CSTR(dir_name_ptr))
     {
-        snprintf( path, SDL_arraysize( path ), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
+        snprintf(path, SDL_arraysize(path), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname);
     }
     else
     {
-        snprintf( path, SDL_arraysize( path ), "." SLASH_STR "%s", relative_pathname );
+        snprintf(path, SDL_arraysize(path), "." SLASH_STR "%s", relative_pathname);
     }
 
     return path;
 }
 
 //--------------------------------------------------------------------------------------------
-const char * fs_createDataDirectoryFilename( const char * relative_pathname )
+const char *fs_createDataDirectoryFilename(const char *relative_pathname)
 {
-    static char path[1024];
-    const char * dir_name_ptr;
+    static char path[1024]; ///< @todo Not mt-safe.
+    const char *dir_name_ptr;
 
     path[0] = CSTR_END;
-    if ( !VALID_CSTR( relative_pathname ) ) return path;
+    if (!VALID_CSTR(relative_pathname)) return path;
 
     dir_name_ptr = fs_getDataDirectory();
 
-    if ( VALID_CSTR( dir_name_ptr ) )
+    if (VALID_CSTR(dir_name_ptr))
     {
-        snprintf( path, SDL_arraysize( path ), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
+        snprintf(path, SDL_arraysize(path), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname);
     }
     else
     {
-        snprintf( path, SDL_arraysize( path ), "." SLASH_STR "%s", relative_pathname );
+        snprintf(path, SDL_arraysize(path), "." SLASH_STR "%s", relative_pathname);
     }
 
     return path;
 }
 
 //--------------------------------------------------------------------------------------------
-const char * fs_createUserDirectoryFilename( const char * relative_pathname )
+const char * fs_createUserDirectoryFilename(const char *relative_pathname)
 {
-    static char path[1024];
-    const char * dir_name_ptr;
+    static char path[1024]; ///< @todo Not mt-safe.
+    const char *dir_name_ptr;
 
     path[0] = CSTR_END;
-    if ( !VALID_CSTR( relative_pathname ) ) return path;
+    if (!VALID_CSTR(relative_pathname)) return path;
 
     dir_name_ptr = fs_getUserDirectory();
 
-    if ( VALID_CSTR( dir_name_ptr ) )
+    if (VALID_CSTR(dir_name_ptr))
     {
-        snprintf( path, SDL_arraysize( path ), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
+        snprintf(path, SDL_arraysize(path), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname);
     }
     else
     {
-        snprintf( path, SDL_arraysize( path ), "." SLASH_STR "%s", relative_pathname );
+        snprintf(path, SDL_arraysize(path), "." SLASH_STR "%s", relative_pathname);
     }
 
     return path;
 }
 
 //--------------------------------------------------------------------------------------------
-const char * fs_createConfigDirectoryFilename( const char * relative_pathname )
+const char *fs_createConfigDirectoryFilename(const char *relative_pathname)
 {
     static char path[1024];
     const char * dir_name_ptr;
 
     path[0] = CSTR_END;
-    if ( !VALID_CSTR( relative_pathname ) ) return path;
+    if (!VALID_CSTR(relative_pathname)) return path;
 
     dir_name_ptr = fs_getConfigDirectory();
 
-    if ( VALID_CSTR( dir_name_ptr ) )
+    if (VALID_CSTR(dir_name_ptr))
     {
-        snprintf( path, SDL_arraysize( path ), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
+        snprintf(path, SDL_arraysize(path), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname);
     }
     else
     {
-        snprintf( path, SDL_arraysize( path ), "." SLASH_STR "%s", relative_pathname );
+        snprintf(path, SDL_arraysize(path), "." SLASH_STR "%s", relative_pathname);
     }
 
     return path;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 FILE * fs_openBinaryDirectoryFile( const char * relative_pathname, const char * mode )
 {
     FILE       * file_ptr = NULL;
@@ -270,8 +273,10 @@ FILE * fs_openBinaryDirectoryFile( const char * relative_pathname, const char * 
 
     return file_ptr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 FILE * fs_openDataDirectoryFile( const char * relative_pathname, const char * mode )
 {
     FILE       * file_ptr = NULL;
@@ -292,8 +297,9 @@ FILE * fs_openDataDirectoryFile( const char * relative_pathname, const char * mo
 
     return file_ptr;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
+#if 0
 FILE * fs_openUserDirectoryFile( const char * relative_pathname, const char * mode )
 {
     FILE       * file_ptr = NULL;
@@ -314,8 +320,10 @@ FILE * fs_openUserDirectoryFile( const char * relative_pathname, const char * mo
 
     return file_ptr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 FILE * fs_openConfigDirectoryFile( const char * relative_pathname, const char * mode )
 {
     FILE       * file_ptr = NULL;
@@ -336,7 +344,7 @@ FILE * fs_openConfigDirectoryFile( const char * relative_pathname, const char * 
 
     return file_ptr;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
 bool fs_ensureUserFile( const char * relative_filename, bool required )
 {

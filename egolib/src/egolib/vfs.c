@@ -43,17 +43,25 @@ struct s_vfs_path_data;
 typedef struct s_vfs_path_data vfs_path_data_t;
 
 //--------------------------------------------------------------------------------------------
+
+/**
+ * @brief
+ *  If this is and @a _DEBUG are both defined,
+ *  the VFS system runs in debug mode.
+ */
+#define _VFS_DEBUG 1 
+
 //--------------------------------------------------------------------------------------------
 #define VFS_MAX_PATH 1024
 
-#define BAIL_MACRO(TEST,STR)    if( !(TEST) ) log_error( "egolib vfs system encountered a fatal error - %s", STR );
-
-#if defined(__FUNCSIG__)
-#    define BAIL_IF_NOT_INIT()    if( !_vfs_initialized ) log_error( "egolib vfs function called while the system was not initialized -- %s\n", __FUNCSIG__ );
-#elif defined(__FUNCTION__)
-#    define BAIL_IF_NOT_INIT()    if( !_vfs_initialized ) log_error( "egolib vfs function called while the system was not initialized -- %s\n", __FUNCTION__ );
+#if defined(__EGO_CURRENT_FUNCTION__)
+    #define BAIL_IF_NOT_INIT() \
+        if(!_vfs_initialized) \
+            log_error("egolib VFS function called while the system was not initialized -- function `%s`\n", __EGO_CURRENT_FUNCTION__);
 #else
-#    define BAIL_IF_NOT_INIT()    if( !_vfs_initialized ) log_error( "egolib vfs function called while the system was not initialized -- \"%s\"(line %d)\n", __FILE__, __LINE__ );
+    #define BAIL_IF_NOT_INIT() \
+        if(!_vfs_initialized) \
+            log_error("egolib VFS function called while the system was not initialized -- file `%s`, line %d\n", __EGO_CURRENT_FILE__, __EGO_CURRENT_LINE__ );
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -68,10 +76,10 @@ typedef enum vfs_file_flags
 {
 
     /// End of the file encountered.
-    VFS_FILE_FLAG_EOF   = ( 1 << 0 ),
+    VFS_FILE_FLAG_EOF = (1 << 0),
 
     /// Error was encountered.
-    VFS_FILE_FLAG_ERROR = ( 1 << 1 ),
+    VFS_FILE_FLAG_ERROR = (1 << 1),
 
     /// The file is opened for writing.
     VFS_FILE_FLAG_WRITING = (1 << 2),
@@ -90,13 +98,12 @@ typedef enum vfs_file_type
 } vfs_file_type;
 
 /// An anonymized pointer type
-union u_vfs_fileptr
+typedef union vfs_fileptr_t
 {
-    void        * u;
-    FILE        * c;
-    PHYSFS_File * p;
-};
-typedef union u_vfs_fileptr vfs_fileptr_t;
+    void *u;
+    FILE *c;
+    PHYSFS_File *p;
+} vfs_file_ptr_t;
 
 /// A container holding either a FILE * or a PHYSFS_File *, and translated error states
 struct vsf_file
@@ -162,39 +169,52 @@ static int fake_physfs_vprintf(PHYSFS_File *file, const char *format, va_list ar
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void vfs_init(const char *argv0, const char *root_dir)
+int vfs_init(const char *argv0, const char *root_dir)
 {
     VFS_PATH tmp_path;
 
-    fs_init(root_dir);
+    if (fs_init(root_dir))
+    {
+        return 1;
+    }
     
     if (!fs_fileIsDirectory(fs_getDataDirectory()))
     {
         // We can call log functions, they won't try to write to unopened log files
         // But mainly this is used for sys_popup
         log_error("The data path isn't a directory.\nData path: '%s'\n", fs_getDataDirectory());
-        throw std::runtime_error("the data path is not a directory");
+        return 1;
     }
 
-    if (_vfs_initialized) return;
+    if (_vfs_initialized)
+    {
+        return 0;
+    }
 
-	PHYSFS_init(argv0);
-	// Append the data directory to the search directories.
+    if (!PHYSFS_init(argv0))
+    {
+        return 1;
+    }
+    // Append the data directory to the search directories.
     snprintf(tmp_path, SDL_arraysize(tmp_path), "%s" SLASH_STR, fs_getDataDirectory());
-	PHYSFS_mount(tmp_path, "/", 1);
+    if (!PHYSFS_mount(tmp_path, "/", 1))
+    {
+        PHYSFS_deinit();
+        return 1;
+    }
 
     //---- !!!! make sure the basic directories exist !!!!
 
     // Ensure that the /user directory exists.
     if (!fs_fileIsDirectory(fs_getUserDirectory()))
     {
-        fs_createDirectory(fs_getUserDirectory());
+        fs_createDirectory(fs_getUserDirectory()); ///< @todo Error handling!
     }
 
     // Ensure that the /user/debug directory exists.
     if (!fs_fileIsDirectory(fs_getUserDirectory()))
     {
-        printf("WARNING: Cannot create write directory %s\n", fs_getUserDirectory());
+        printf("WARNING: cannot create write directory %s\n", fs_getUserDirectory());
     }
     else
     {
@@ -207,15 +227,20 @@ void vfs_init(const char *argv0, const char *root_dir)
     }
 
     // Set the write directory to the root user directory.
-    PHYSFS_setWriteDir(fs_getUserDirectory());
+    if (!PHYSFS_setWriteDir(fs_getUserDirectory()))
+    {
+        PHYSFS_deinit();
+        return 1;
+    }
 
     if (!_vfs_atexit_registered)
     {
-        atexit( _vfs_exit );
+        atexit(_vfs_exit); /// @todo Error handling?
         _vfs_atexit_registered = true;
     }
 
     _vfs_initialized = true;
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -253,7 +278,7 @@ vfs_FILE *vfs_openReadB(const char *filename)
     PHYSFS_File *ftmp = PHYSFS_openRead(filename);
     if (!ftmp)
     {
-    #if defined(_DEBUG)
+    #if defined(_DEBUG) && defined(_VFS_DEBUG)
         log_warning("unable to open file `%s` for reading - reason: %s\n",filename, PHYSFS_getLastError());
     #endif
         return NULL;
@@ -297,7 +322,7 @@ vfs_FILE *vfs_openWriteB(const char *filename)
     PHYSFS_File *ftmp = PHYSFS_openWrite(temporary);
     if (!ftmp)
     {
-    #if defined(_DEBUG)
+    #if defined(_DEBUG) && defined(_VFS_DEBUG)
         log_warning("unable to open file `%s` for writing - reason: %s\n", filename, PHYSFS_getLastError());
     #endif
         return NULL;
@@ -329,7 +354,7 @@ vfs_FILE *vfs_openAppendB(const char * filename)
     PHYSFS_File *ftmp = PHYSFS_openAppend(filename);
     if (!ftmp)
     {
-    #if defined(_DEBUG)
+    #if defined(_DEBUG) && defined(_VFS_DEBUG)
         log_warning("unable to open file `%s` for appending - reason: %s\n", filename, PHYSFS_getLastError());
     #endif
         return NULL;
@@ -2580,49 +2605,83 @@ int vfs_puts( const char * str , vfs_FILE * pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
+char * vfs_gets(char *buffer, int buffer_size, vfs_FILE *file)
 {
-    char * retval = NULL;
+    char *retval = NULL;
 
     BAIL_IF_NOT_INIT();
 
-    if ( NULL == pfile ) return NULL;
-
-    if ( NULL == buffer || 0 == buffer_size ) return buffer;
-
-    if ( VFS_FILE_TYPE_CSTDIO == pfile->type )
+    // According to gets spec, both cases are undefined behavior.
+    if (!file || !buffer)
     {
-        retval = fgets( buffer, buffer_size, pfile->ptr.c );
-        if ( NULL == retval ) pfile->flags |= VFS_FILE_FLAG_EOF;
+        return NULL;
     }
-    else if ( VFS_FILE_TYPE_PHYSFS == pfile->type )
+    // Short read.
+    if (0 == buffer_size)
     {
-        int  iTmp;
-        char cTmp;
-        char * str_ptr, * str_end;
+        return buffer;
+    }
+    if (VFS_FILE_TYPE_CSTDIO == file->type)
+    {
+        retval = fgets(buffer, buffer_size, file->ptr.c);
+        if (feof(file->ptr.c))
+        {
+            file->flags |= VFS_FILE_FLAG_EOF;
+            // retval is NULL if nothing was read and not NULL if something was read.
+            return retval;
+        }
+        if (!retval)
+        {
+            file->flags |= VFS_FILE_FLAG_ERROR;
+            // ferror(file->ptr.c) should return non-zero
+            return NULL;
+        }
+    }
+    else if (VFS_FILE_TYPE_PHYSFS == file->type)
+    {
+        char *str_ptr = buffer;
+        char *str_end = buffer + buffer_size;
 
-        str_ptr = buffer;
-        str_end = buffer + buffer_size;
-
-        iTmp = PHYSFS_read( pfile->ptr.p, &cTmp, 1, sizeof( cTmp ) );
-        if ( -1 == iTmp ) pfile->flags |= VFS_FILE_FLAG_ERROR;
-        if ( 0 == iTmp ) pfile->flags |= VFS_FILE_FLAG_EOF;
-
-        while ( iTmp && ( str_ptr < str_end - 1 ) && CSTR_END != cTmp && 0 == (pfile->flags & (VFS_FILE_FLAG_EOF | VFS_FILE_FLAG_ERROR)))
+        int cTmp;
+        int iTmp = PHYSFS_read(file->ptr.p, &cTmp, 1, sizeof(cTmp));
+        if (-1 == iTmp)
+        {
+            file->flags |= VFS_FILE_FLAG_ERROR;
+            return NULL;
+        }
+        if (0 == iTmp)
+        {
+            file->flags |= VFS_FILE_FLAG_EOF;
+            return NULL;
+        }
+        while (iTmp && (str_ptr < str_end - 1) && CSTR_END != cTmp && 0 == (file->flags & (VFS_FILE_FLAG_EOF | VFS_FILE_FLAG_ERROR)))
         {
             *str_ptr = cTmp;
             str_ptr++;
 
-            if ( C_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp ) break;
+            if (C_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp) break;
 
-            iTmp = PHYSFS_read( pfile->ptr.p, &cTmp, 1, sizeof( cTmp ) );
+            iTmp = PHYSFS_read(file->ptr.p, &cTmp, 1, sizeof(cTmp));
 
-            if ( -1 == iTmp ) pfile->flags |= VFS_FILE_FLAG_ERROR;
-            if ( 0 == iTmp ) pfile->flags |= VFS_FILE_FLAG_EOF;
+            if (-1 == iTmp)
+            {
+                file->flags |= VFS_FILE_FLAG_ERROR;
+                return NULL;
+            }
+            if (0 == iTmp)
+            {
+                file->flags |= VFS_FILE_FLAG_EOF;
+                return buffer;
+            }
         }
         *str_ptr = CSTR_END;
 
         retval = buffer;
+    }
+    else
+    {
+        // Corrupted file handle.
+        return NULL;
     }
 
     return retval;

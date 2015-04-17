@@ -33,7 +33,10 @@
 
 #pragma once
 
+#include "egolib/egolib_config.h"
+#if 0
 #include "egolib/typedef.h"
+#endif
 
 //--------------------------------------------------------------------------------------------
 // MACROS
@@ -134,9 +137,14 @@ enum e_vfs_serach_bits
 // FUNCTION PROTOYPES
 //--------------------------------------------------------------------------------------------
 
-/// the initlization routing. there is no need to call the de-initialization. That
-/// will be called automatically at program termination
-void vfs_init(const char *argv0, const char *root_dir);
+/**
+ * @brief
+ *  Initialize the VFS.
+ *  There is no need to uninitialize the VFS: Uninitialization is performed automatically at program termination.
+ * @return
+ *  @a 0 on success, a non-zero value on failure
+ */
+int vfs_init(const char *argv0, const char *root_dir);
 
 /**@{*/
 /**
@@ -222,63 +230,95 @@ int vfs_error(vfs_FILE *file);
 long vfs_tell(vfs_FILE *file);
 int vfs_seek(vfs_FILE *file , long offset);
 
-int vfs_mkdir(const char *dirName);
-int vfs_delete_file(const char *filename);
+int vfs_mkdir(const char *pathname);
+int vfs_delete_file(const char *pathname);
 
-int vfs_exists(const char *fname);
-int vfs_isDirectory(const char *fname);
+int vfs_exists(const char *pathname);
+int vfs_isDirectory(const char *pathname);
 
 // binary reading and writing
-    size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile );
-    int    vfs_read_Sint8(vfs_FILE *pfile, Sint8 *val);
-    int    vfs_read_Uint8(vfs_FILE *pfile, Uint8 *val);
-    int    vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val );
-    int    vfs_read_Uint16( vfs_FILE * pfile, Uint16 * val );
-    int    vfs_read_Sint32( vfs_FILE * pfile, Sint32 * val );
-    int    vfs_read_Uint32( vfs_FILE * pfile, Uint32 * val );
-    int    vfs_read_Sint64( vfs_FILE * pfile, Sint64 * val );
-    int    vfs_read_Uint64( vfs_FILE * pfile, Uint64 * val );
-    int    vfs_read_float( vfs_FILE * pfile, float * val );
-    
-    size_t vfs_write( const void * buffer, size_t size, size_t count, vfs_FILE * pfile );
-    int    vfs_write_Sint8(vfs_FILE *pfile, const Sint8 val);
-    int    vfs_write_Uint8(vfs_FILE *pfile, const Uint8 val);
-    int    vfs_write_Sint16( vfs_FILE * pfile, const Sint16 val );
-    int    vfs_write_Uint16( vfs_FILE * pfile, const Uint16 val );
-    int    vfs_write_Sint32( vfs_FILE * pfile, const Sint32 val );
-    int    vfs_write_Uint32( vfs_FILE * pfile, const Uint32 val );
-    int    vfs_write_Sint64( vfs_FILE * pfile, const Sint64 val );
-    int    vfs_write_Uint64( vfs_FILE * pfile, const Uint64 val );
-    int    vfs_write_float(vfs_FILE *pfile, const float val);
+size_t vfs_read(void *buffer, size_t size, size_t count, vfs_FILE *file);
+int vfs_read_Sint8(vfs_FILE *file, Sint8 *val);
+int vfs_read_Uint8(vfs_FILE *file, Uint8 *val);
+int vfs_read_Sint16(vfs_FILE *file, Sint16 *val);
+int vfs_read_Uint16(vfs_FILE *file, Uint16 *val);
+int vfs_read_Sint32(vfs_FILE *file, Sint32 *val);
+int vfs_read_Uint32(vfs_FILE *file, Uint32 *val);
+int vfs_read_Sint64(vfs_FILE *file, Sint64 *val);
+int vfs_read_Uint64(vfs_FILE *file, Uint64 *val);
+int vfs_read_float(vfs_FILE *file, float *val);
+
+size_t vfs_write(const void *buffer, size_t size, size_t count, vfs_FILE *file);
+int vfs_write_Sint8(vfs_FILE *file, const Sint8 val);
+int vfs_write_Uint8(vfs_FILE *file, const Uint8 val);
+int vfs_write_Sint16(vfs_FILE *file, const Sint16 val);
+int vfs_write_Uint16(vfs_FILE *file, const Uint16 val);
+int vfs_write_Sint32(vfs_FILE *file, const Sint32 val);
+int vfs_write_Uint32(vfs_FILE *file, const Uint32 val);
+int vfs_write_Sint64(vfs_FILE *file, const Sint64 val);
+int vfs_write_Uint64(vfs_FILE *file, const Uint64 val);
+int vfs_write_float(vfs_FILE *file, const float val);
 
 /// the file searching routines
-    char ** vfs_enumerateFiles( const char * dir_name );
-    void    vfs_freeList( void * listVar );
+char **vfs_enumerateFiles(const char *directory);
+void vfs_freeList(void *listVar);
 
-    const char * vfs_search_context_get_current( struct s_vfs_search_context * ctxt );
+const char *vfs_search_context_get_current(struct s_vfs_search_context *ctxt);
 
-    vfs_search_context_t * vfs_findFirst( const char * search_path, const char * search_extension, Uint32 search_bits );
-    vfs_search_context_t * vfs_findNext( vfs_search_context_t ** pctxt );
-    void                   vfs_findClose( vfs_search_context_t ** pctxt );
+vfs_search_context_t *vfs_findFirst(const char *searchPath, const char *searchExtension, Uint32 searchBits);
+vfs_search_context_t *vfs_findNext(vfs_search_context_t **searchContext);
+void vfs_findClose(vfs_search_context_t **searchContext);
 
-    long         vfs_fileLength( vfs_FILE * pfile );
-    int          vfs_rewind( vfs_FILE * pfile );
+long vfs_fileLength(vfs_FILE *file);
+int vfs_rewind(vfs_FILE *file);
 
-    int          vfs_scanf( vfs_FILE * pfile, const char *format, ... ) GCC_SCANF_FUNC( 2 );
-    int          vfs_printf( vfs_FILE * pfile, const char *format, ... ) GCC_PRINTF_FUNC( 2 );
+int vfs_scanf(vfs_FILE *file, const char *format, ...) GCC_SCANF_FUNC(2);
+int vfs_printf(vfs_FILE *file, const char *format, ...) GCC_PRINTF_FUNC(2);
 
-    int          vfs_putc( int c, vfs_FILE * pfile );
-    int          vfs_getc( vfs_FILE * pfile );
-    int          vfs_ungetc( int c, vfs_FILE * pfile );
-    int          vfs_puts( const char * , vfs_FILE * );
-    char *       vfs_gets( char *, int, vfs_FILE * );
+int vfs_putc(int c, vfs_FILE *file);
+int vfs_getc(vfs_FILE *file);
+int vfs_ungetc(int c, vfs_FILE *file);
+int vfs_puts(const char *s, vfs_FILE *file);
+/**
+ * @brief
+ *  Read a single line of characters into a buffer.
+ * @param buffer
+ *  a pointer to a buffer which can accomodate @a buffer_size characters
+ * @param buffer_size
+ *  the size of the buffer,in characters, pointed to by @a buffer
+ * @param file
+ *  the file
+ * @return
+ *  @a buffer or @a NULL
+ * @remark
+ *  This function reacts on invalid arguments as follows:
+ * - If @a buffer is @a NULL,
+ *   then this function returns @a NULL and the file was not modified.
+ * - If @a file is @a NULL,
+ *   then this function returns @a NULL and the buffer was not modified,
+ * - If buffer_size is @a 0,
+ *   then this  function returns @a NULL and neither the buffer nor the file were not modified.
+ * @remark
+ *  Reads characters from stream and stores them into @a buffer until <tt>buffer_size-</tt>
+ *  characters have been read or either a newline or the end-of-file is reached, whichever
+ *  happens first. A newline character makes this function stop reading, but it is considered
+ *  a valid character by the function and included in the string copied. A terminating null
+ *  character is automatically appended after the characters copied to str.
+ * @remark
+ *  If the end-of-file is encountered while attempting to read a character,
+ *  the eof indicator is set. If this happens before any characters could
+ *  be read, the pointer returned is a null pointer (and the contents of buffer remain unchanged).
+ *  If a read error occurs, the error indicator is set and a null pointer is also returned
+ *  (but the contents pointed by buffer may have changed).
+ */
+char *vfs_gets(char *s, int, vfs_FILE *file);
 
-    void         vfs_empty_temp_directories();
+void         vfs_empty_temp_directories();
 
-    int          vfs_copyFile( const char *source, const char *dest );
-    int          vfs_copyDirectory( const char *sourceDir, const char *destDir );
+int          vfs_copyFile(const char *source, const char *dest);
+int          vfs_copyDirectory(const char *sourceDir, const char *destDir);
 
-    int    vfs_removeDirectoryAndContents( const char * dirname, int recursive );
+int    vfs_removeDirectoryAndContents(const char * dirname, int recursive);
 
 const char *vfs_resolveReadFilename(const char *src_filename);
 const char *vfs_resolveWriteFilename(const char *src_filename);
