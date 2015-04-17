@@ -39,108 +39,162 @@
 /**
  * @ingroup egoboo-opengl
  * @brief
- *	The Egoboo OpenGL back-end.
+ *    The Egoboo OpenGL back-end.
  * @author
- *	Michael Heilmann
+ *    Michael Heilmann
  */
 namespace Ego
 {
-	using namespace Math;
+namespace OpenGL
+{
 
-	namespace OpenGL
-	{
-		class Renderer : public Ego::Renderer
-		{
-        protected:
-            /**
-             * @brief
-             *  The list of OpenGL extensions supported by this OpenGL implementation.
-             */
-            std::unordered_set<std::string> _extensions;
-            /**
-             * @brief
-             *  The name of the vendor of this OpenGL implementation.
-             */
-            std::string _vendor;
-            /**
-             * @brief
-             *  The name of this OpenGL implementation.
-             */
-            std::string _name;
-		public:
-            /**
-             * @brief
-             *  Construct this OpenGL renderer.
-             */
-            Renderer();
-            /**
-             * @brief
-             *  Destruct this OpenGL renderer.
-             */
-			virtual ~Renderer();
+using namespace Math;
 
-            // Disable copying class.
-            Renderer(const Renderer&) = delete;
-            Renderer& operator=(const Renderer&) = delete;
-
-        public:
-
-            /** @copydoc Ego::Renderer::setAlphaTestEnabled */
-            virtual void setAlphaTestEnabled(bool enabled) override;
-
-            /** @copydoc Ego::Renderer::setBlendingEnabled */
-            virtual void setBlendingEnabled(bool enabled) override;
-
-            /** @copydoc Ego::Renderer::setClearColour */
-            virtual void setClearColour(const Colour4f& colour) override;
-
-            /** @copydoc Ego::Renderer::setClearDepth */
-            virtual void setClearDepth(float depth) override;
-
-			/** @copydoc Ego::Renderer::setColour */
-            virtual void setColour(const Colour4f& colour) override;
-
-            /** @copydoc Ego::Renderer::setCullingMode */
-            virtual void setCullingMode(CullingMode mode) override;
-
-            /** @copydoc Ego::Renderer::setDepthFunction */
-            virtual void setDepthFunction(CompareFunction function) override;
-
-			/** @copydoc Ego::Renderer::setDepthTestEnabled */
-            virtual void setDepthTestEnabled(bool enabled) override;
-
-            /** @copydoc Ego::Renderer::setDepthWriteEnabled */
-            virtual void setDepthWriteEnabled(bool enabled) override;
-
-            /** @copydoc Ego::Renderer::setScissorTestEnabled */
-            virtual void setScissorTestEnabled(bool enabled) override;
-
-            /** @copydoc Ego::Renderer::setScissorRectangle */
-            virtual void setScissorRectangle(float left, float bottom, float width, float height) override;
-
-            /** @copydoc Ego::Renderer::setStencilMaskBack */
-            virtual void setStencilMaskBack(uint32_t mask) override;
-
-            /** @copydoc Ego::Renderer::setStencilMaskFront */
-            virtual void setStencilMaskFront(uint32_t mask) override;
-
-            /** @copydoc Ego::Renderer::setStencilTestEnabled */
-            virtual void setStencilTestEnabled(bool enabled) override;
-
-            /** @copydoc Ego::Renderer::setViewportRectangle */
-            virtual void setViewportRectangle(float left, float bottom, float width, float height) override;
-
-            /** @copydoc Ego::Renderer::setWindingMode */
-            virtual void setWindingMode(WindingMode mode) override;
-
-            /** @copydoc Ego::Renderer::loadMatrix */
-            virtual void loadMatrix(const fmat_4x4_t& matrix) override;
-
-            /** @copydoc Ego::Renderer::multMatrix */
-            virtual void multiplyMatrix(const fmat_4x4_t& matrix) override;
-
-
-		};
-	};
-
+class AccumulationBuffer : public Ego::AccumulationBuffer
+{
+public:
+    AccumulationBuffer();
+    virtual ~AccumulationBuffer();
+public:
+    /** @copydoc Ego::Buffer<Colour4f>::clear */
+    virtual void clear() override;
+    /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
+    virtual void setClearValue(const Colour4f& value) override;
 };
+
+class ColourBuffer : public Ego::ColourBuffer
+{
+public:
+    ColourBuffer();
+    virtual ~ColourBuffer();
+public:
+    /** @copydoc Ego::Buffer<Colour4f>::clear */
+    virtual void clear() override;
+    /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
+    virtual void setClearValue(const Colour4f& value) override;
+};
+
+class DepthBuffer : public Ego::DepthBuffer
+{
+public:
+    DepthBuffer();
+    virtual ~DepthBuffer();
+public:
+    /** @copydoc Ego::Buffer<float>::clear */
+    virtual void clear() override;
+    /** @copydoc Ego::Buffer<float>::setClearValue */
+    virtual void setClearValue(const float& value) override;
+};
+
+class Renderer : public Ego::Renderer
+{
+protected:
+    /**
+     * @brief
+     *  The accumulation buffer facade.
+     */
+    AccumulationBuffer _accumulationBuffer;
+    /**
+     * @brief
+     *  The colour buffe facade.
+     */
+    ColourBuffer _colourBuffer;
+    /**
+     * @brief
+     *  The depth buffer facade.
+     */
+    DepthBuffer _depthBuffer;
+    /**
+     * @brief
+     *  The list of OpenGL extensions supported by this OpenGL implementation.
+     */
+    std::unordered_set<std::string> _extensions;
+    /**
+     * @brief
+     *  The name of the vendor of this OpenGL implementation.
+     */
+    std::string _vendor;
+    /**
+     * @brief
+     *  The name of this OpenGL implementation.
+     */
+    std::string _name;
+public:
+    /**
+     * @brief
+     *  Construct this OpenGL renderer.
+     */
+    Renderer();
+    /**
+     * @brief
+     *  Destruct this OpenGL renderer.
+     */
+    virtual ~Renderer();
+
+    // Disable copying class.
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+
+public:
+
+    /** @copydoc Ego::Renderer::getAccumulationBuffer() */
+    virtual Ego::AccumulationBuffer& getAccumulationBuffer() override;
+
+    /** @copydoc Ego::Renderer::getColourBuffer */
+    virtual Ego::ColourBuffer& getColourBuffer() override;
+
+    /** @copydoc Ego::Renderer::getDepthBuffer() */
+    virtual Ego::DepthBuffer& getDepthBuffer() override;
+
+    /** @copydoc Ego::Renderer::setAlphaTestEnabled */
+    virtual void setAlphaTestEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setBlendingEnabled */
+    virtual void setBlendingEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setColour */
+    virtual void setColour(const Colour4f& colour) override;
+
+    /** @copydoc Ego::Renderer::setCullingMode */
+    virtual void setCullingMode(CullingMode mode) override;
+
+    /** @copydoc Ego::Renderer::setDepthFunction */
+    virtual void setDepthFunction(CompareFunction function) override;
+
+    /** @copydoc Ego::Renderer::setDepthTestEnabled */
+    virtual void setDepthTestEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setDepthWriteEnabled */
+    virtual void setDepthWriteEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setScissorTestEnabled */
+    virtual void setScissorTestEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setScissorRectangle */
+    virtual void setScissorRectangle(float left, float bottom, float width, float height) override;
+
+    /** @copydoc Ego::Renderer::setStencilMaskBack */
+    virtual void setStencilMaskBack(uint32_t mask) override;
+
+    /** @copydoc Ego::Renderer::setStencilMaskFront */
+    virtual void setStencilMaskFront(uint32_t mask) override;
+
+    /** @copydoc Ego::Renderer::setStencilTestEnabled */
+    virtual void setStencilTestEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setViewportRectangle */
+    virtual void setViewportRectangle(float left, float bottom, float width, float height) override;
+
+    /** @copydoc Ego::Renderer::setWindingMode */
+    virtual void setWindingMode(WindingMode mode) override;
+
+    /** @copydoc Ego::Renderer::loadMatrix */
+    virtual void loadMatrix(const fmat_4x4_t& matrix) override;
+
+    /** @copydoc Ego::Renderer::multMatrix */
+    virtual void multiplyMatrix(const fmat_4x4_t& matrix) override;
+
+}; // class Renderer
+
+} // namespace OpenGL
+} // namespace Ego

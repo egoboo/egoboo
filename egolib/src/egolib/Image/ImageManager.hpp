@@ -32,7 +32,7 @@
  *  The image manager currently abstracts away the SDL_image/SDL image loading facilities.
  *  It is - in the end - just a minor improvement over the previous code, just enough to get going.
  */
-struct ImageManager
+class ImageManager
 {
 private:
     typedef std::vector<std::unique_ptr<ImageLoader>> Vector;

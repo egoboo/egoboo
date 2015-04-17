@@ -27,41 +27,59 @@
 namespace Ego
 {
 
-	Renderer *Renderer::singleton = nullptr;
+AccumulationBuffer::AccumulationBuffer()
+{}
 
-	void Renderer::initialize()
-	{
-		if (!singleton)
-		{
-			singleton = new OpenGL::Renderer();
-		}
-	}
+AccumulationBuffer::~AccumulationBuffer()
+{}
 
-	Renderer &Renderer::get()
-	{
-        if (!singleton)
-        {
-            throw std::runtime_error("renderer not initialized");
-        }
-		EGOBOO_ASSERT(nullptr != singleton);
-		return *singleton;
-	}
+ColourBuffer::ColourBuffer()
+{}
 
-	void Renderer::uninitialize()
-	{
-		if (singleton)
-		{
-			delete singleton;
-			singleton = nullptr;
-		}
-	}
+ColourBuffer::~ColourBuffer()
+{}
 
-	Renderer::Renderer()
-	{
-	}
+DepthBuffer::DepthBuffer()
+{}
 
-	Renderer::~Renderer()
-	{
-	}
+DepthBuffer::~DepthBuffer()
+{}
+
+Renderer *Renderer::singleton = nullptr;
+
+void Renderer::initialize()
+{
+    if (!singleton)
+    {
+        singleton = new OpenGL::Renderer();
+    }
+}
+
+Renderer &Renderer::get()
+{
+    if (!singleton)
+    {
+        throw std::runtime_error("renderer not initialized");
+    }
+    EGOBOO_ASSERT(nullptr != singleton);
+    return *singleton;
+}
+
+void Renderer::uninitialize()
+{
+    if (singleton)
+    {
+        delete singleton;
+        singleton = nullptr;
+    }
+}
+
+Renderer::Renderer()
+{
+}
+
+Renderer::~Renderer()
+{
+}
 
 };

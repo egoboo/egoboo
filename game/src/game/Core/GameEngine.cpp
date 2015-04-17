@@ -242,11 +242,11 @@ void GameEngine::renderPreloadText(const std::string &text)
 
 bool GameEngine::initialize()
 {
-	//Initialize logging next, so that we can use it everywhere.
+	// Initialize logging next, so that we can use it everywhere.
     log_initialize("/debug/log.txt", LOG_DEBUG);
 
     // start initializing the various subsystems
-    log_message("Starting Egoboo %s ...\n", GAME_VERSION.c_str());
+    log_message("Starting Egoboo %s\n", GAME_VERSION.c_str());
     log_info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
 
     //Initialize OS specific stuff
@@ -259,15 +259,15 @@ bool GameEngine::initialize()
     loadConfiguration(true);
 
     //Initialize SDL
-    log_info( "Initializing SDL version %d.%d.%d... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
-    if ( SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTTHREAD) < 0 )
+    log_message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
+    if (0 > SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTTHREAD))
     {
-        log_message( "Failure!\n" );
-        log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
+        log_message(" failure!\n");
+        log_error("Unable to initialize SDL: %s\n", SDL_GetError() );
     }
     else
     {
-        log_message( "Success!\n" );
+        log_message(" success!\n");
     }
 
     // do basic system initialization
@@ -275,12 +275,9 @@ bool GameEngine::initialize()
 
     // Initialize the image manager.
     ImageManager::initialize();
-#if 0
-    GLSetup_SupportedFormats();
-#endif
 
     // Initialize GFX system.
-    GFX::begin();
+    GFX::initialize();
     gfx_system_init_all_graphics();
     gfx_do_clear_screen();
 
@@ -343,8 +340,6 @@ bool GameEngine::initialize()
     renderPreloadText("Loading save games...");
     _profileSystem.loadAllSavedCharacters("mp_players");
 
-
-
     // clear out the import and remote directories
     renderPreloadText("Finished!");
     vfs_empty_temp_directories();
@@ -357,7 +352,7 @@ bool GameEngine::initialize()
 
 void GameEngine::uninitialize()
 {
-    log_info( "memory_cleanUp() - Attempting to clean up loaded things in memory... " );
+    log_message("Uninitializing Egoboo %s",GAME_VERSION.c_str());
 
     // synchronize the config values with the various game subsystems
     config_synch(&egoboo_config_t::get(), true, true);
@@ -369,7 +364,7 @@ void GameEngine::uninitialize()
     gfx_system_delete_all_graphics();
 
     // make sure that the current control configuration is written
-    input_settings_save_vfs( "controls.txt", -1 );
+    input_settings_save_vfs("controls.txt", -1);
 
 	// @todo This should be 'UIManager::uninitialize'.
     _uiManager.reset(nullptr);
@@ -389,21 +384,19 @@ void GameEngine::uninitialize()
 
     // Uninitialize the audio system.
     _audioSystem.uninitialize();
-#if 0
-    // Uninitialize the gfx system.
-    // @todo This currently causes a crash.
-    GFX::end();
-#endif
+
+    // Uninitialize the GFX system.
+    GFX::uninitialize();
+
+    // Uninitialize the image manager.
     ImageManager::uninitialize();
 
+    // Shutdown SDL last.
+    SDL_Quit();
 
-    // shut down the log services
-    log_message( "Success!\n" );
-    log_info("Exiting Egoboo %s the good way...\n", GAME_VERSION.c_str());
+    // Shut down the log services.
+    log_message("Exiting Egoboo %s. See you next time.\n", GAME_VERSION.c_str());
     log_uninitialize();
-
-    //Shutdown SDL last
-	SDL_Quit();
 }
 
 void GameEngine::setGameState(std::shared_ptr<GameState> gameState)

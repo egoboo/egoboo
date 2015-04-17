@@ -42,26 +42,16 @@ TextureManager::TextureManager()
     // Initialize the actual list of textures.
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
 	{
-        oglx_texture_t *texture;
+        oglx_texture_t *texture = nullptr;
         try
         {
-            texture = static_cast<oglx_texture_t *>(malloc(sizeof(oglx_texture_t)));
-            if (!texture)
-            {
-                throw std::bad_alloc();
-            }
-            if (!oglx_texture_t::ctor(texture))
-            {
-                free(texture);
-                throw std::bad_alloc();
-            }
+            texture = oglx_texture_t::create();
         }
         catch (std::exception& ex)
         {
             while (ref > 0)
             {
-                oglx_texture_t::dtor(_lst[--ref]);
-                free(_lst[ref]);
+                oglx_texture_t::destroy(_lst[--ref]);
                 _lst[ref] = nullptr;
             }
             throw std::bad_alloc();

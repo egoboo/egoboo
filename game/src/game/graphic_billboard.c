@@ -366,8 +366,8 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
 
     oglx_texture_t::bind(ptex);
 
-	float w = oglx_texture_getImageWidth(ptex);
-    float h = oglx_texture_getImageHeight(ptex);
+	float w = oglx_texture_t::getImageWidth(ptex);
+    float h = oglx_texture_t::getImageHeight(ptex);
 
     float x1 = w  / (float)oglx_texture_t::getTextureWidth(ptex);
     float y1 = h  / (float)oglx_texture_t::getTextureHeight(ptex);

@@ -104,27 +104,27 @@ Camera::Camera(const CameraOptions &options) :
 
     // Get renderlist manager pointer.
     renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr();
-    if (nullptr == rmgr_ptr)
+    if (!rmgr_ptr)
     {
-        throw "Failed to get renderlist manager";
+        throw std::runtime_error("failed to get renderlist manager");
     }
 
     // Get dolist manager pointer.
     dolist_mgr_t *dmgr_ptr = gfx_system_get_dolist_mgr();
-    if (nullptr == dmgr_ptr)
+    if (!dmgr_ptr)
     {
-        throw "Failed toget dolist manager";
+        throw std::runtime_error("failed to get dolist manager");
     }
 
     // Lock a renderlist for this camera.
-    _renderList = renderlist_mgr_t::get_free_idx(rmgr_ptr);
+    _renderList = rmgr_ptr->get_free_idx();
 
     // Connect the renderlist to the mesh.
-    renderlist_t *rlst_ptr = renderlist_mgr_t::get_ptr(rmgr_ptr, _renderList);
+    renderlist_t *rlst_ptr = rmgr_ptr->get_ptr(_renderList);
 	renderlist_t::setMesh(rlst_ptr, PMesh);
 
     // Lock a dolist for this camera.
-    _doList = dolist_mgr_t::get_free_idx(dmgr_ptr);    
+    _doList = dmgr_ptr->get_free_idx();
 
     // Assume that the camera is fullscreen.
     setScreen(0, 0, sdl_scr.x, sdl_scr.y);
@@ -132,19 +132,19 @@ Camera::Camera(const CameraOptions &options) :
 
 Camera::~Camera()
 {
-    // free any locked renderlist
+    // Free any locked renderlist.
     renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr();
     if (-1 != _renderList)
     {
-        renderlist_mgr_t::free_one(rmgr_ptr, _renderList);
+        rmgr_ptr->free_one(_renderList);
         _renderList = -1;
     }
 
-    // free any locked dolist
+    // Free any locked dolist.
     dolist_mgr_t *dmgr_ptr = gfx_system_get_dolist_mgr();
     if (-1 != _doList)
     {
-        dolist_mgr_t::free_one(dmgr_ptr, _doList);
+        dmgr_ptr->free_one(_doList);
         _doList = -1;
     }
 }

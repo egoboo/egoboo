@@ -610,8 +610,8 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
     min_s = dst;
     min_t = dst;
 
-    max_s = -dst + ( float ) oglx_texture_getImageWidth( tx_tile )  / ( float ) oglx_texture_t::getTextureWidth( tx_tile );
-    max_t = -dst + ( float ) oglx_texture_getImageHeight( tx_tile )  / ( float ) oglx_texture_t::getTextureHeight( tx_tile );
+    max_s = -dst + ( float ) oglx_texture_t::getImageWidth( tx_tile )  / ( float ) oglx_texture_t::getTextureWidth( tx_tile );
+    max_t = -dst + ( float ) oglx_texture_t::getImageHeight( tx_tile )  / ( float ) oglx_texture_t::getTextureHeight( tx_tile );
 
     // set the texture coordinates
     loc_vrt[0].s = min_s;
@@ -824,8 +824,8 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
-        max_t = -dst + ( float ) oglx_texture_getImageHeight( img )  / ( float ) oglx_texture_t::getTextureHeight( img );
+        max_s = -dst + ( float ) oglx_texture_t::getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
+        max_t = -dst + ( float ) oglx_texture_t::getImageHeight( img )  / ( float ) oglx_texture_t::getTextureHeight( img );
     }
     else
     {
@@ -874,8 +874,8 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
-        max_t = -dst + ( float ) oglx_texture_getImageHeight( img )  / ( float ) oglx_texture_t::getTextureHeight( img );
+        max_s = -dst + ( float ) oglx_texture_t::getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
+        max_t = -dst + ( float ) oglx_texture_t::getImageHeight( img )  / ( float ) oglx_texture_t::getTextureHeight( img );
     }
     else
     {
@@ -1456,26 +1456,28 @@ void gfx_system_init_SDL_graphics()
 //--------------------------------------------------------------------------------------------
 int gfx_init_ogl()
 {
+    using namespace Ego;
+    using namespace Ego::Math;
     gfx_system_init_SDL_graphics();
 
     // Set clear colour.
-    Ego::Renderer::get().setClearColour(Ego::Math::Colour4f(0, 0, 0, 0)); // Set black/transparent background.
+    Renderer::get().getColourBuffer().setClearValue(Colour4f(0, 0, 0, 0)); // Set black/transparent background.
     
     // Set clear depth.
-    GL_DEBUG(glClearDepth)(1.0f);
+    Renderer::get().getDepthBuffer().setClearValue(1.0f);
 
     // Enable writing to the depth buffer.
-    Ego::Renderer::get().setDepthWriteEnabled(true);
+    Renderer::get().setDepthWriteEnabled(true);
 
     // Enable depth testing: Incoming fragment's depth value must be less.
-	Ego::Renderer::get().setDepthTestEnabled(true);
-    Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::Less);
+    Renderer::get().setDepthTestEnabled(true);
+    Renderer::get().setDepthFunction(CompareFunction::Less);
 
     // Disable blending.
-    Ego::Renderer::get().setBlendingEnabled(false);
+    Renderer::get().setBlendingEnabled(false);
 
     // do not display the completely transparent portion
-    Ego::Renderer::get().setAlphaTestEnabled(true);
+    Renderer::get().setAlphaTestEnabled(true);
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
@@ -1497,8 +1499,8 @@ int gfx_init_ogl()
     GL_DEBUG( glTexGeni )( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
     //Initialize the motion blur buffer
-    GL_DEBUG( glClearAccum )( 0.0f, 0.0f, 0.0f, 1.0f );
-    GL_DEBUG( glClear )( GL_ACCUM_BUFFER_BIT );
+    Renderer::get().getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
+    Renderer::get().getAccumulationBuffer().clear();
 
     // Load the current graphical settings
     // gfx_system_load_assets();

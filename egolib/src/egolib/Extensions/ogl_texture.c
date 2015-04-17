@@ -161,13 +161,12 @@ oglx_texture_t *oglx_texture_t::ctor(oglx_texture_t *self)
     self->base.target = GL_TEXTURE_2D;
 
     // Set the image to be clamped in s and t.
-	self->base.wrap_s = GL_CLAMP;
-	self->base.wrap_t = GL_CLAMP;
+    self->base.wrap_s = GL_CLAMP;
+    self->base.wrap_t = GL_CLAMP;
 
-	return self;
+    return self;
 }
 
-//--------------------------------------------------------------------------------------------
 void oglx_texture_t::dtor(oglx_texture_t *self)
 {
     if (!VALID_TEXTURE(self)) return;
@@ -197,6 +196,27 @@ void oglx_texture_t::dtor(oglx_texture_t *self)
     }
 }
 
+oglx_texture_t *oglx_texture_t::create()
+{
+    oglx_texture_t *self = static_cast<oglx_texture_t *>(malloc(sizeof(oglx_texture_t)));
+    if (!self)
+    {
+        throw std::bad_alloc();
+    }
+    if (!oglx_texture_t::ctor(self))
+    {
+        free(self);
+        throw std::bad_alloc();
+    }
+    return self;
+}
+
+void oglx_texture_t::destroy(oglx_texture_t *self)
+{
+    oglx_texture_t::dtor(self);
+    free(self);
+}
+
 //--------------------------------------------------------------------------------------------
 GLuint oglx_texture_t::convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key)
 {
@@ -205,7 +225,7 @@ GLuint oglx_texture_t::convert(oglx_texture_t *self, SDL_Surface *image, Uint32 
 
     if (!self) return INVALID_GL_ID;
 
-    // make sure the old texture has been freed
+    // Make sure the old texture has been freed.
     oglx_texture_t::release(self);
 
     if (!image) return INVALID_GL_ID;
@@ -435,19 +455,19 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 k
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint  oglx_texture_getTextureID(const oglx_texture_t *self)
+GLuint  oglx_texture_t::getTextureID(const oglx_texture_t *self)
 {
     return !VALID_TEXTURE(self) ? INVALID_GL_ID : self->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_getImageHeight(const oglx_texture_t *self)
+GLsizei  oglx_texture_t::getImageHeight(const oglx_texture_t *self)
 {
     return !VALID_TEXTURE(self) ? 0 : self->imgH;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_getImageWidth(const oglx_texture_t *self)
+GLsizei  oglx_texture_t::getImageWidth(const oglx_texture_t *self)
 {
     return !VALID_TEXTURE(self) ? 0 : self->imgW;
 }
@@ -465,7 +485,7 @@ GLsizei  oglx_texture_t::getTextureHeight(const oglx_texture_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-GLboolean oglx_texture_getSize( const oglx_texture_t * ptex, oglx_frect_t tx_rect, oglx_frect_t img_rect )
+GLboolean oglx_texture_t::getSize( const oglx_texture_t * ptex, oglx_frect_t tx_rect, oglx_frect_t img_rect )
 {
     GLboolean retval = GL_FALSE;
 

@@ -65,10 +65,15 @@
         SDL_Surface *surface;  ///< the original texture data
         SDL_bool has_alpha;    ///< the alpha for the texture
 
+    public:
 		static oglx_texture_t *ctor(oglx_texture_t *self);
-		static void dtor(oglx_texture_t *self);
-		static GLsizei getTextureWidth(const oglx_texture_t *self);
-		static GLsizei getTextureHeight(const oglx_texture_t *self);
+        static void dtor(oglx_texture_t *self);
+        
+    public:
+        static oglx_texture_t *create();
+        static void destroy(oglx_texture_t *self);
+
+    public:
         static GLuint convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
         static GLuint load(oglx_texture_t *self, const char *filename, Uint32 key);
         static GLuint load(oglx_texture_t *self, const char *name, SDL_Surface *surface, Uint32 key);
@@ -80,18 +85,26 @@
          */
         static void release(oglx_texture_t *self);
         static void bind(oglx_texture_t *self);
+
+    public:
+        static GLuint getTextureID(const oglx_texture_t *self);
+        
+    public:
+        static GLsizei getTextureWidth(const oglx_texture_t *self);
+        static GLsizei getTextureHeight(const oglx_texture_t *self);
+        static GLsizei getImageHeight(const oglx_texture_t *self);
+        static GLsizei getImageWidth(const oglx_texture_t *self);
+        static GLboolean getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect);
     };
 	
 
 
 
-    GLuint oglx_texture_getTextureID(const oglx_texture_t *self);
-    GLsizei oglx_texture_getImageHeight(const oglx_texture_t *self);
-    GLsizei oglx_texture_getImageWidth(const oglx_texture_t *self);
+
 
     void oglx_texture_setAlpha(oglx_texture_t *self, GLfloat alpha);
     GLfloat oglx_texture_getAlpha(const oglx_texture_t *self);
-    GLboolean oglx_texture_getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect);
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

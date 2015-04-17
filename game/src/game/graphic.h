@@ -53,11 +53,7 @@ typedef struct s_GLvertex GLvertex;
 /// the default icon size in pixels
 #define ICON_SIZE 32
 
-/// The maximum number of dolists that can exist.
-CONSTEXPR size_t MAX_DO_LISTS = MAX_CAMERAS;
 
-/// The maximum number of renderlists that can exist.
-CONSTEXPR size_t MAX_RENDER_LISTS = MAX_CAMERAS;
 
 /// max number of blips on the minimap
 #define MAXBLIP        128                          ///<Max blips on the screen
@@ -147,61 +143,96 @@ enum e_color
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#define XX 0
+
 struct renderlist_lst_t
 {
-	struct element_t
-	{
-		Uint32 index;             ///< which tile
-		float  distance;          ///< how far it is
-	};
-	/**
-	* @brief
-	*	The maximum capacity of a renderlist
-	*	i.e. the maximum number of tiles in a render list
-	*	i.e. the maximum number of tiles to draw.
-	*/
-	static const size_t CAPACITY = 1024;
-	size_t count;               ///< how many in the list
-	element_t lst[CAPACITY];  ///< the list
+    struct element_t
+    {
+        Uint32 index;             ///< which tile
+        float distance;          ///< how far it is
+#if XX ==  1
+        element_t() :
+            index(), distance(-1.0f)
+        {}
+        element_t(const element_t& other) :
+            index(other.index), distance(other.distance)
+        {}
+        virtual ~element_t()
+        {}
+        element_t& operator=(const element_t& other)
+        {
+            index = other.index;
+            distance = other.distance;
+            return *this;
+        }
+#endif
+    };
+    /**
+    * @brief
+    *    The maximum capacity of a renderlist
+    *    i.e. the maximum number of tiles in a render list
+    *    i.e. the maximum number of tiles to draw.
+    */
+    static const size_t CAPACITY = 1024;
+    size_t size;              ///< how many in the list
+    element_t lst[CAPACITY];  ///< the list
 
-	static gfx_rv reset(renderlist_lst_t *self);
-	static gfx_rv push(renderlist_lst_t *self, Uint32 index, float distance);
+#if XX == 1
+    renderlist_lst_t() :
+        size(0), lst(),
+    {}
+    virtual ~renderlist_lst_t()
+    {}
+#endif
+
+    static gfx_rv reset(renderlist_lst_t *self);
+    static gfx_rv push(renderlist_lst_t *self, const TileIndex& index, float distance);
 };
 
 /// Which tiles are to be drawn, arranged by MAPFX_* bits
 struct renderlist_t
 {
-	ego_mesh_t *mesh;
+    ego_mesh_t *mesh;
+    size_t index;
+    renderlist_lst_t  all;     ///< List of which to render, total
+    renderlist_lst_t  ref;     ///< ..., is reflected in the floor
+    renderlist_lst_t  sha;     ///< ..., is not reflected in the floor
+    renderlist_lst_t  drf;     ///< ..., draws character reflections
+    renderlist_lst_t  ndr;     ///< ..., draws no character reflections
+    renderlist_lst_t  wat;     ///< ..., draws a water tile
 
-	renderlist_lst_t  all;     ///< List of which to render, total
-	renderlist_lst_t  ref;     ///< ..., is reflected in the floor
-	renderlist_lst_t  sha;     ///< ..., is not reflected in the floor
-	renderlist_lst_t  drf;     ///< ..., draws character reflections
-	renderlist_lst_t  ndr;     ///< ..., draws no character reflections
-	renderlist_lst_t  wat;     ///< ..., draws a water tile
+#if XX == 1
+    renderlist_t() :
+        mesh(nullptr), index(std::numeric_limits<size_t>::max()),
+        all(), ref(), sha(), drf(), ndr(), wat()
+    {}
+    virtual ~renderlist_t() :
+    {}
+#endif
 
-	static renderlist_t *init(renderlist_t *self, ego_mesh_t *mesh);
-	/// @brief Clear a render list
-	static gfx_rv reset(renderlist_t *self);
-	/// @brief Insert a tile into this render list.
-	/// @param index the tile index
-	/// @param camera the camera
-	static gfx_rv insert(renderlist_t *self, const Uint32 index, const std::shared_ptr<Camera>& camera);
-	/// @brief Get mesh this render list is attached to.
-	/// @return the mesh or @a nullptr
-	/// @post If the render list is attached to a mesh, that mesh is returned.
-	///       Otherwise a null pointer is returned.
-	static ego_mesh_t *getMesh(const renderlist_t *self);
-	/// @brief Set mesh this render list is attached to.
-	/// @param mesh the mesh or @a nullptr
-	/// @post If @a mesh is not a null pointer, then this render list is attached to that mesh.
-	///       Otherwise it is detached.
-	static gfx_rv setMesh(renderlist_t *self, ego_mesh_t *mesh);
-	/// @brief Insert tiles into this render list.
-	/// @param leaves a list of tile BSP leaves
-	/// @param camera the camera
-	/// @remark A tile
-	static gfx_rv add(renderlist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *leaves, const std::shared_ptr<Camera>& camera);
+    static renderlist_t *init(renderlist_t *self, size_t index);
+    /// @brief Clear a render list
+    static gfx_rv reset(renderlist_t *self);
+    /// @brief Insert a tile into this render list.
+    /// @param index the tile index
+    /// @param camera the camera
+    static gfx_rv insert(renderlist_t *self, const TileIndex& index, const std::shared_ptr<Camera>& camera);
+    /// @brief Get mesh this render list is attached to.
+    /// @return the mesh or @a nullptr
+    /// @post If the render list is attached to a mesh, that mesh is returned.
+    ///       Otherwise a null pointer is returned.
+    static ego_mesh_t *getMesh(const renderlist_t *self);
+    /// @brief Set mesh this render list is attached to.
+    /// @param mesh the mesh or @a nullptr
+    /// @post If @a mesh is not a null pointer, then this render list is attached to that mesh.
+    ///       Otherwise it is detached.
+    static gfx_rv setMesh(renderlist_t *self, ego_mesh_t *mesh);
+    /// @brief Insert tiles into this render list.
+    /// @param leaves a list of tile BSP leaves
+    /// @param camera the camera
+    /// @remark A tile
+    static gfx_rv add(renderlist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *leaves, const std::shared_ptr<Camera>& camera);
 };
 
 
@@ -210,104 +241,222 @@ struct renderlist_t
 
 /**
  * @brief
- *	List of character and particle entities to be draw by a renderer.
+ *    List of character and particle entities to be draw by a renderer.
  *
- *	Entities in a do list are sorted based on their position from the camera before drawing.
+ *    Entities in a do list are sorted based on their position from the camera before drawing.
  */
 struct dolist_t
 {
-	/**
-	 * @brief
-	 *	The (fixed) capacity of a do list.
-	 */
-	static const size_t CAPACITY = OBJECTS_MAX + PARTICLES_MAX;
-	/**
-	 * @brief
-	 *	An eleemnt of a do list.
-	 */
-	struct element_t
-	{
-		CHR_REF ichr;
-		PRT_REF iprt;
-		float dist;
-		
-		element_t() : ichr(INVALID_CHR_REF), iprt(INVALID_PRT_REF), dist(0.0f) { }
+    /**
+     * @brief
+     *    The (fixed) capacity of a do list.
+     */
+    static const size_t CAPACITY = OBJECTS_MAX + PARTICLES_MAX;
+    /**
+     * @brief
+     *    An eleemnt of a do list.
+     */
+    struct element_t
+    {
+        CHR_REF ichr;
+        PRT_REF iprt;
+        float dist;
+        
+        element_t() :
+            ichr(INVALID_CHR_REF), iprt(INVALID_PRT_REF), dist(0.0f)
+        {}
+#if XX == 1
+        element_t(const element_t& other) :
+            ichr(other.ichr), iprt(other.iprt), dist(other.dist)
+        {}
+        element_t& operator=(const element_t& other)
+        {
+            ichr = other.ichr;
+            iprt = other.iprt;
+            dist = other.dist;
+            return *this;
+        }
+        virtual ~element_t()
+        {}
+#endif
 
-		static element_t *init(element_t *self);
-		static int cmp(const void *left, const void *right);
-	};
+        static element_t *init(element_t *self);
+        static int cmp(const void *left, const void *right);
+    };
 
-	size_t index;            /**< A "name" for the dolist. */
-	size_t size;             /**< The size of the do list:
-							      How many character and particle entities are in the do list. */
-	element_t lst[CAPACITY]; /**< List of which objects to draw. */
-	dolist_t();
-	static dolist_t *init(dolist_t *self, const size_t index = 0);
-	static gfx_rv reset(dolist_t *self, const size_t index);
-	static gfx_rv sort(dolist_t *self, std::shared_ptr<Camera> camera, const bool reflect);
-	static gfx_rv test_chr(dolist_t *self, const Object *pchr);
-	static gfx_rv add_chr_raw(dolist_t *self, Object *pchr);
-	static gfx_rv test_prt(dolist_t *self, const prt_t *pprt);
-	static gfx_rv add_prt_raw(dolist_t *self, prt_t *pprt);
-	/// @brief Insert character or particle entities into this dolist.
-	/// @param leaves
-	static gfx_rv add_colst(dolist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *collisions);
+    size_t index;            /**< A "name" for the dolist. */
+    size_t size;             /**< The size of the do list:
+                                  How many character and particle entities are in the do list. */
+    element_t lst[CAPACITY]; /**< List of which objects to draw. */
+    dolist_t();
+#if XX == 1
+    virtual ~dolist_t()
+    {}
+#endif
+    static dolist_t *init(dolist_t *self, const size_t index = 0);
+    static gfx_rv reset(dolist_t *self, const size_t index);
+    static gfx_rv sort(dolist_t *self, std::shared_ptr<Camera> camera, const bool reflect);
+    static gfx_rv test_chr(dolist_t *self, const Object *pchr);
+    static gfx_rv add_chr_raw(dolist_t *self, Object *pchr);
+    static gfx_rv test_prt(dolist_t *self, const prt_t *pprt);
+    static gfx_rv add_prt_raw(dolist_t *self, prt_t *pprt);
+    /// @brief Insert character or particle entities into this dolist.
+    /// @param leaves
+    static gfx_rv add_colst(dolist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *collisions);
 };
 
 //--------------------------------------------------------------------------------------------
 
-struct dolist_ary_t
+template <typename Type, size_t Capacity>
+struct list_ary_t
 {
-	bool started;
-	size_t free_count;
-	int free_lst[MAX_DO_LISTS];
-	dolist_t lst[MAX_DO_LISTS];
-	static dolist_ary_t *begin(dolist_ary_t *self);
-	static dolist_ary_t *end(dolist_ary_t *self);
-	static int get_free_idx(dolist_ary_t *self);
-	static gfx_rv free_one(dolist_ary_t *self, size_t index);
-	static dolist_t *get_ptr(dolist_ary_t *self, size_t index);
+    size_t free_count;
+    int free_lst[Capacity];
+    Type lst[Capacity];
+    static size_t getCapacity()
+    {
+        return Capacity;
+    }
+    int get_free_idx()
+    {
+        // If no free lists are available ...
+        if (free_count <= 0)
+        {
+            // ... return -1.
+            return -1;
+        }
+
+        // Reduce the number of free lists by 1.
+        free_count--;
+
+        // Get the index into the array of lists.
+        size_t index = free_count;
+
+        // Mark the list as used.
+        free_lst[index] = -1;
+        
+        // Return the index.
+        return index;
+    }
+
+    gfx_rv free_one(size_t index)
+    {
+        // If the index is not valid ...
+        if (index >= getCapacity())
+        {
+            // ... return an error.
+            return gfx_error;
+        }
+
+        // If the index is already free ...
+        for (size_t cnt = 0; cnt < free_count; ++cnt)
+        {
+            if (index == free_lst[cnt])
+            {
+                // ... return a failure.
+                return gfx_fail;
+            }
+        }
+
+        // If the free list is not full ...
+        if (free_count < getCapacity())
+        {
+            // ... add the index to the free list and ...
+            free_lst[free_count] = index;
+            free_count++;
+            // ... return success.
+            return gfx_success;
+        }
+        // Otherwise: Return failure.
+        return gfx_fail;
+    }
+
+    Type *get_ptr(size_t index)
+    {
+        // If the index is not valid ...
+        if (index >= getCapacity())
+        {
+            // ... return nullptr.
+            return nullptr;
+        }
+        // Otherwise: Return a pointer to the list.
+        return &(lst[index]);
+    }
+
+    list_ary_t() :
+        free_lst()
+    {
+        for (size_t cnt = 0; cnt < Capacity; ++cnt)
+        {
+            free_lst[cnt] = cnt;
+            Type::init(&(lst[cnt]), cnt);
+        }
+        free_count = Capacity;
+    }
+
+    virtual ~list_ary_t()
+    {
+        free_count = 0;
+        for (size_t cnt = 0; cnt < Capacity; ++cnt)
+        {
+            free_lst[cnt] = -1;
+            Type::init(&(lst[cnt]), cnt);
+        }
+    }
 };
 
-struct renderlist_ary_t
+struct dolist_ary_t : public list_ary_t<dolist_t,MAX_CAMERAS>
 {
-	bool started;
-	size_t free_count;
-	int free_lst[MAX_RENDER_LISTS];
-	renderlist_t lst[MAX_RENDER_LISTS];
-	static renderlist_ary_t *begin(renderlist_ary_t *self);
-	static renderlist_ary_t *end(renderlist_ary_t *self);
-	static int get_free_idx(renderlist_ary_t *self);
-	static gfx_rv free_one(renderlist_ary_t *self, size_t index);
-	static renderlist_t *get_ptr(renderlist_ary_t *self, size_t index);
+    dolist_ary_t() :
+        list_ary_t()
+    {}
+    virtual ~dolist_ary_t()
+    {}
+};
+
+struct renderlist_ary_t : public list_ary_t<renderlist_t, MAX_CAMERAS>
+{
+    renderlist_ary_t() :
+        list_ary_t()
+    {}
+    virtual ~renderlist_ary_t()
+    {}
 };
 
 struct dolist_mgr_t
 {
-	bool started;
-	dolist_ary_t ary;
-	static gfx_rv begin(dolist_mgr_t *self);
-	static gfx_rv end(dolist_mgr_t *self);
-	static int get_free_idx(dolist_mgr_t *self);
-	static gfx_rv free_one(dolist_mgr_t *self, size_t index);
-	static dolist_t *get_ptr(dolist_mgr_t *self, size_t index);
-#if 0
-	dolist_mgr_t();
-#endif
+private:
+    static dolist_mgr_t *_singleton;
+private:
+    dolist_ary_t ary;
+    dolist_mgr_t();
+    virtual ~dolist_mgr_t();
+public:
+    static void initialize();
+    static void uninitialize();
+    static dolist_mgr_t& get();
+public:
+    int get_free_idx();
+    gfx_rv free_one(size_t index);
+    dolist_t *get_ptr(size_t index);
 };
 
 struct renderlist_mgr_t
 {
-	bool started;
-	renderlist_ary_t ary;
-	static gfx_rv begin(renderlist_mgr_t *self);
-	static gfx_rv end(renderlist_mgr_t *self);
-	static int get_free_idx(renderlist_mgr_t *self);
-	static gfx_rv free_one(renderlist_mgr_t *self, size_t index);
-	static renderlist_t *get_ptr(renderlist_mgr_t *self, size_t index);
-#if 0
-	renderlist_mgr_t();
-#endif
+private:
+    static renderlist_mgr_t *_singleton;
+private:
+    renderlist_ary_t ary;
+    renderlist_mgr_t();
+    virtual ~renderlist_mgr_t();
+public:
+    static void initialize();
+    static void uninitialize();
+    static renderlist_mgr_t& get();
+public:
+    int get_free_idx();
+    gfx_rv free_one(size_t index);
+    renderlist_t *get_ptr(size_t index);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -316,9 +465,6 @@ struct gfx_config_t
 {
     GLuint shading;
     bool refon;
-#if 0
-    Uint8  reffadeor;
-#endif
     bool antialiasing;
     bool dither;
     bool perspective;
@@ -398,16 +544,38 @@ extern float           lighttoenviroy[256];                                ///< 
 
 struct GFX
 {
+#if 0
+    static GFX _singleton;
+#endif
+#if 0
+    /**
+     * @brief
+     *  Get the GFX singleton.
+     * @return
+     *  the GFX singleton.
+     * @warning
+     *  The behavior of this method is undefined if the GFX system is not initialized.
+     */
+    static GFX& get();
+#endif
     /**
      * @brief
      *  Initialize the GFX system.
+     * @remark
+     *  This method has no effect if the GFX system is initialized.
+     * @todo
+     *  Rename to @a initialize.
      */
-    static void begin();
+    static void initialize();
     /**
      * @brief
      *  Uninitialize the GFX system.
+     * @remark
+     *  A call to this method has no effect if the GFX system is not initialized.
+     * @todo
+     *  Rename to @a uninitialize.
      */
-    static void end();
+    static void uninitialize();
 protected:
     /**
      * @brief
@@ -421,23 +589,23 @@ protected:
     static void uninitializeOpenGL();
     /**
      * @brief
-     *	Initialize the SDL graphics system.
+     *  Initialize the SDL graphics system.
      */
     static void initializeSDLGraphics();
 
     /**
      * @brief
-     *	Uninitialize the SDL graphics system.
+     *  Uninitialize the SDL graphics system.
      */
     static void uninitializeSDLGraphics();
 };
 
-
-
-
-
-
 void gfx_system_main();
+/// SDL destroys the OpenGL context at various occassions (e.g. when changing the video mode).
+/// In particular this happens when the video mode is changed from and to fullscreen. In that
+/// case, OpenGL texture become invalid and need to be reloaded. Reloading means here: From
+/// the stored state of the texture and its surface, the backing OpenGL texture needs to be
+/// reconstructed.
 void gfx_system_reload_all_textures();
 void gfx_system_make_enviro();
 void gfx_system_init_all_graphics();

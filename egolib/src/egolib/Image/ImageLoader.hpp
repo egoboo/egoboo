@@ -32,7 +32,7 @@ private:
     friend class ImageManager;
 
     // Befriend with std::default_delete.
-    friend class std::default_delete<ImageLoader>;
+    friend struct std::default_delete<ImageLoader>;
 
     /**
      * @brief
