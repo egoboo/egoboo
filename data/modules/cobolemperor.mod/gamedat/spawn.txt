@@ -1,6 +1,6 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-HeroAtJester  NONE    0  40.5   11.5   1.0   N    0   0  0   0   0   T   F   G
-HeroAtBoss   NONE    0  30.5   11.5   1.0   N    0   0  0   0   0   T   F   G
+//HeroAtJester  NONE    0  40.5   11.5   1.0   N    0   0  0   0   0   T   F   G
+//HeroAtBoss   NONE    0  30.5   11.5   1.0   N    0   0  0   0   0   T   F   G
 HERO 1:        NONE    0  39.5   74.5   0.0   N    0   0  0   0   0   T   F   G
   LEFT HAND:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   RIGHT HAND:  NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -94,8 +94,8 @@ dirtcobol:   NONE    38  53.0   41.0   1.0   N    0   0  0   220   0   F   F   E
 snowcobol:   NONE    53  51.0   43.0   1.0   N    0   0  0   150   0   F   F   E
   Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 snowcobol:   NONE    53  52.0   42.0   0.0   N    5   1  0   200   2   F   F   E
-  Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
-  KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+  Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   N
+  KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   N
 cobol:   NONE    37  53.0   43.0   1.0   N    0   0  0   600   0   F   F   E
   LBow:   NONE    61  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  58.5   46.5   1.0   N    0   0  0   0   0   F   F   E
@@ -113,8 +113,8 @@ Mimic:   NONE    72  49.5   17.5   1.0   N    0   0  0   0   0   F   F   E
   %RANDOM_POTION:   NONE     -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 chest:   NONE    59  62.5   16.0   0.0   W    14   0  0   4   0   F   F   N
   %RANDOM_POTION:   NONE     -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  %NORMAL_TREASURE:   NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
-  %POISONED_WEAPON:   NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  %NORMAL_TREASURE:   NONE      -1   0    0    0    I   0   0   0   0   0   F   F   N
+  %POISONED_WEAPON:   NONE      -1   0    0    0    I   0   0   0   0   0   F   F   N
 toybox:   NONE    54  53.5   16.5   1.0   ?    0   0  0   0   0   F   F   E
 toybox:   NONE    54  55.5   9.5   1.0   ?    0   0  0   0   0   F   F   E
 toybox:   NONE    54  61.5   6.5   1.0   ?    0   0  0   0   0   F   F   E
@@ -169,7 +169,7 @@ Chest:   NONE    59  41.0   43.0   0.0   E    0   0  0   1   0   F   F   N
 //throne room
 throne:   NONE    43  4.5   11.0   1.0   E    0   0  0   0   0   F   F   N
 empcobol:   NONE    39  4.5   11.0   2.0   E    199   0  0   0   0   F   F   E
-  Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
+  Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   N
 brazier:   NONE    79  3.5   9.5   1.0   N    0   0  0   2   0   F   F   N
 brazier:   NONE    79  3.5   12.5   1.0   N    0   0  0   2   0   F   F   N
 brazier:   NONE    79  20.5   8.5   1.0   N    0   0  0   2   0   F   F   N
@@ -184,22 +184,22 @@ Pillar:   NONE    44  5.0   7.0   1.0   ?    0   3  0   0   0   F   F   N
 Pillar:   NONE    44  5.0   15.0   1.0   ?    0   3  0   0   0   F   F   N
 royalguard:   NONE    95  13.0   8.0   0.0   S    0   0  0   0   0   F   F   E
   Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   Null
+  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   N
 royalguard:   NONE    95  17.0   8.0   0.0   S    0   0  0   0   0   F   F   E
   Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   Null
+  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   N
 royalguard:   NONE    95  9.0   8.0   0.0   S    0   0  0   0   0   F   F   E
   Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   Null
+  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   N
 royalguard:   NONE    95  13.0   14.0   0.0   N    0   0  0   0   0   F   F   E
   Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   Null
+  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   N
 royalguard:   NONE    95  17.0   14.0   0.0   N    0   0  0   0   0   F   F   E
   Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   Null
+  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   N
 royalguard:   NONE    95  9.0   14.0   0.0   N    0   0  0   0   0   F   F   E
   Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   Null
+  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   N
 
 //Puzzle room
 shutdoor:   NONE    82  19.0   43.0   0.0   W    0   0  26   0   0   F   F   N
@@ -254,16 +254,16 @@ cobol:   NONE    37  71.0   72.0   1.0   N    4   0  0   550   0   F   F   E
 cobol:   NONE    37  67.0   72.0   1.0   N    5   0  0   175   0   F   F   E
   whip:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 magecobol:   NONE    58  68.0   74.0   1.0   N    0   0  0   32919   0   F   F   E
-  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
-  Missile: NONE      73   0    0    0    L   0   0   0   0   0   F   F   Null
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   N
+  Missile: NONE      73   0    0    0    L   0   0   0   0   0   F   F   N
 BullWolf:   NONE    76  65.0   74.0   1.0   N    0   0  0   0   0   F   F   N
   cobol:   NONE    37  65.0   74.0   2.0   N    5   1  0   200   2   F   F   E
-    Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
-    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+    Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   N
+    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   N
 BullWolf:   NONE    76  71.0   74.0   1.0   N    0   0  0   0   0   F   F   N
   cobol:   NONE    37  71.0   74.0   2.0   N    4   1  0   200   2   F   F   E
-    Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
-    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+    Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   N
+    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   N
 Chest:   NONE    59  71.0   75.0   0.0   N    0   0  0   0   0   F   F   N
   KeyA:   NONE    48  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
@@ -273,13 +273,13 @@ shutdoor:   NONE    82  68.0   50.0   0.0   S    0   0  42   0   0   F   F   N
 knightsuit:   NONE    49  72.5   60.5   0.0   W    0   1  0   0   0   F   F   N
   Torch:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 Rack:   NONE    100  72.5   53.5   0.0   W    0   1  0   0   0   F   F   N
-  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
-  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   Null
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   N
+  TowerShield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   N
 Rack:   NONE    100  63.5   53.5   0.0   E    0   1  0   0   0   F   F   N
-  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
-  Spear:   NONE      51   0    0    0    L   0   0   0   0   0   F   F   Null
+  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   N
+  Spear:   NONE      51   0    0    0    L   0   0   0   0   0   F   F   N
 knightsuit:   NONE    49  63.5   60.5   0.0   E    0   1  0   0   0   F   F   N
-  Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
+  Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   N
 Chest:   NONE    59  72.5   57.0   0.0   W    19   0  0   16   0   F   F   N
   %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -290,7 +290,7 @@ Chest:   NONE    59  72.5   57.0   0.0   W    19   0  0   16   0   F   F   N
 BullWolf:   NONE    76  42.0   57.0   0.0   N    0   0  0   0   0   F   F   N
   cobol:   NONE    37  42.0   57.0   1.0   N    0   0  0   0   0   F   F   E
     SpkMace:   NONE    46  0.0   0.0   0.0   R    4   0  0   175   0   F   F   N
-    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   N
 BullWolf:   NONE    76  38.0   55.0   0.0   N    0   0  0   0   0   F   F   N
   cobol:   NONE    37  38.0   55.0   1.0   N    5   1  0   150   2   F   F   E
     Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -304,20 +304,20 @@ shutdoor:   NONE    82  33.0   29.0   0.0   W    0   0  58   0   0   F   F   N
 brazier:   NONE    79  29.0   5.0   1.0   N    0   0  0   2   0   F   F   N
 brazier:   NONE    79  21.5   33.5   1.0   N    0   0  0   2   0   F   F   N
 knightsuit:   NONE    49  27.5   24.5   0.0   E    0   1  0   0   0   F   F   N
-  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   N
 knightsuit:   NONE    49  30.5   24.5   0.0   W    0   1  0   0   0   F   F   N
-  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   N
 knightsuit:   NONE    49  27.5   15.5   0.0   E    0   1  0   0   0   F   F   N
-  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   N
 knightsuit:   NONE    49  30.5   15.5   0.0   W    0   1  0   0   0   F   F   N
-  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+  Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   N
 lockdoor:   NONE    83  24.25   11.0   0.0   E    0   0  68   0   0   F   F   N
 slayercobol:   NONE    62  30.5   5.5   0.0   S    0   0  0   0   0   F   F   E
   PStiletto:   NONE    74  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 dirtcobol:   NONE    38  29.0   22.0   1.0   S    6   1  0   200   2   F   F   E
-  Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
-  KiteShield:   NONE      78   0    0    0    I   0   0   0   0   0   F   F   Null
+  Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   N
+  KiteShield:   NONE      78   0    0    0    I   0   0   0   0   0   F   F   N
 dirtcobol:   NONE    38  28.0   20.0   1.0   S    3   0  0   600   0   F   F   E
   XBow:   NONE    71  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 dirtcobol:   NONE    38  30.0   20.0   1.0   S    2   0  0   600   0   F   F   E
@@ -348,7 +348,7 @@ snowcobol:   NONE    53  37.5   31.5   1.0   S    4   2  0   500   0   F   F   E
   XBow:   NONE    71  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 snowcobol:   NONE    53  37.5   27.5   1.0   N    3   2  0   200   0   F   F   E
   whip:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+  KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   N
 
 //The Jester hallway
 Chest:   NONE    59  40.0   7.0   0.0   S    14   0  0   1   0   F   F   N

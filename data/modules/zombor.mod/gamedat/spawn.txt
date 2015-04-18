@@ -15,7 +15,7 @@ healer:   NONE    29  34.0   24.25   1.0   N    6   1  0   0   0   F   F   G
 //Necromancer boss
 nercomancer:   NONE    45  13.0   33.0   1.0   N    128   0  0   0   0   T   F   E
   //SCYTHE MODE
-  Scythe   NONE    59  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
+  //Scythe   NONE    59  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
   //SHOCK SPELL MODE  
   Shock: NONE    54  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
   Animate:   NONE    34  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N

@@ -40,7 +40,7 @@
 #dependency ArchElf        123
 	
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-PlayerAtViking        NONE    0  47.0   48.5   0.0   N    0   0  0   0   0   T   F   G
+//PlayerAtViking        NONE    0  47.0   48.5   0.0   N    0   0  0   0   0   T   F   G
 HERO:        NONE    0  16.0   54.5   0.0   N    0   0  0   0   0   T   F   G
   unknown:   NONE    1    0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    2    0.0   0.0   0.0   L    0   0  0   0   0   F   F   N

@@ -129,24 +129,24 @@ kabobspit:   NONE    37  20.5   34.5   0.0   N    0   0  0   0   0   F   F   N
 kabobman:   NONE    38  21.5   34.3   0.0   S    0   0  0   0   0   F   F   G
 
 abdulla:   NONE    42  25.5   41.5   0.0   N    0   0  0   0   0   F   F   G
-  Scimitar:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
+  Scimitar:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 tent:   NONE    43  7.8   35.0   0.0   E    0   0  0   0   0   F   F   N
 lampshop:   NONE    45  8.8   35.0   0.0   E    0   0  0   0   0   F   F   G
-  Light:   NONE    54  0.0   0.0   0.0   R    0   0  0   0   0   F   F   Null
+  Light:   NONE    54  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
-TouristGuide   NONE    52  29.0   35.5   0.0   S    0   0  0   0   0   F   F   G
+//TouristGuide   NONE    52  29.0   35.5   0.0   S    0   0  0   0   0   F   F   G
 
 //Big shop
 shopkeeper:   NONE    53  12.0   42.5   0.0   ?    0   0  1   0   0   F   F   G
-  Scimitar:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
-  XBow:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
-EnchantArmorScroll:   NONE    58  14.0   41.0   0.0   E    0   0  0   0   0   F   F   Null
-EnchantArmorScroll:   NONE    58  14.0   42.0   0.0   E    0   0  0   0   0   F   F   Null
-EnchantArmorScroll:   NONE    58  14.0   43.0   0.0   E    0   0  0   0   0   F   F   Null
-EnchantWeaponScroll:   NONE    60  10.0   41.0   0.0   W    0   0  0   0   0   F   F   Null
-EnchantWeaponScroll:   NONE    60  10.0   42.0   0.0   W    0   0  0   0   0   F   F   Null
-EnchantWeaponScroll:   NONE    60  10.0   43.0   0.0   W    0   0  0   0   0   F   F   Null
+  Scimitar:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  XBow:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+EnchantArmorScroll:   NONE    58  14.0   41.0   0.0   E    0   0  0   0   0   F   F   N
+EnchantArmorScroll:   NONE    58  14.0   42.0   0.0   E    0   0  0   0   0   F   F   N
+EnchantArmorScroll:   NONE    58  14.0   43.0   0.0   E    0   0  0   0   0   F   F   N
+EnchantWeaponScroll:   NONE    60  10.0   41.0   0.0   W    0   0  0   0   0   F   F   N
+EnchantWeaponScroll:   NONE    60  10.0   42.0   0.0   W    0   0  0   0   0   F   F   N
+EnchantWeaponScroll:   NONE    60  10.0   43.0   0.0   W    0   0  0   0   0   F   F   N
 
 //Inhabitants
 peasant:   NONE    103  16.5   37.5   0.0   ?    0   0  0   0   0   F   F   G
@@ -177,7 +177,7 @@ guard:   NONE    104  24.5   42.0   0.0   E    0   0  0   0   0   F   F   G
 guard:   NONE    104  24.5   39.5   0.0   E    0   0  0   0   0   F   F   G
   Trident:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    104  7.5   38.5   0.0   E    0   0  0   0   0   F   F    G
-  Scimitar:   NONE    92  0.0   0.0   0.0   R    0   0  0   0   0   F   F   Null
+  Scimitar:   NONE    92  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    104  13.5   16.5   0.0   N    0   0  0   0   0   F   F   G
   Trident:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    104  9.5   16.5   0.0   N    0   0  0   0   0   F   F    G
@@ -211,7 +211,7 @@ chest:   NONE    59  27.0   13.5   0.0   W    1   0  0   96   7   F   F   N
 chest:   NONE    59  27.0   14.5   0.0   W    0   0  0   96   7   F   F   N
 
 tent:   NONE    43  21.0 27.0   0.0   ?    0   2  0   0   0   F   F   N
-alchemist   NONE    ??  22.0 27.0   0.0   E    0   0  0   0   0   F   F   G         //@todo Add alchemist shop
+//alchemist   NONE    ??  22.0 27.0   0.0   E    0   0  0   0   0   F   F   G         //@todo Add alchemist shop
 
 dTree:   NONE    134  8.5 23.0   0.0   ?    0   2  0   0   0   F   F   N
 dTree:   NONE    134  56.0 10.0   0.0   ?    0   2  0   0   0   F   F   N

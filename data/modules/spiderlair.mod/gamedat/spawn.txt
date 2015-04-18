@@ -60,14 +60,14 @@ chest.obj:   NONE    40  48.0   8.0   1.0   S    0   0  0   0   0   F   F   N
   %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
 //Death trap room
-deadfall.obj:   NONE    38  45.5   13.5   1.0   N    0   0  0   0   0   F   F   Trap 
-deadfall.obj:   NONE    38  51.0   14.0   1.0   N    0   0  0   0   0   F   F   Trap
-deadfall.obj:   NONE    38  49.0   10.0   1.0   N    0   0  0   0   0   F   F   Trap
-deadfall.obj:   NONE    38  45.0   8.0   1.0   N    0   0  0   0   0   F   F   Trap
-deadfall.obj:   NONE    38  51.0   8.0   1.0   N    0   0  0   0   0   F   F   Trap
-deadfall.obj:   NONE    38  48.5   12.5   1.0   N    0   0  0   0   0   F   F   Trap
-deadfall.obj:   NONE    38  46.0   10.0   1.0   N    0   0  0   0   0   F   F   Trap
-deadfall.obj:   NONE    38  48.0   8.0   1.0   N    0   0  0   0   0   F   F   Trap
+deadfall.obj:   NONE    38  45.5   13.5   1.0   N    0   0  0   0   0   F   F   T 
+deadfall.obj:   NONE    38  51.0   14.0   1.0   N    0   0  0   0   0   F   F   T
+deadfall.obj:   NONE    38  49.0   10.0   1.0   N    0   0  0   0   0   F   F   T
+deadfall.obj:   NONE    38  45.0   8.0   1.0   N    0   0  0   0   0   F   F   T
+deadfall.obj:   NONE    38  51.0   8.0   1.0   N    0   0  0   0   0   F   F   T
+deadfall.obj:   NONE    38  48.5   12.5   1.0   N    0   0  0   0   0   F   F   T
+deadfall.obj:   NONE    38  46.0   10.0   1.0   N    0   0  0   0   0   F   F   T
+deadfall.obj:   NONE    38  48.0   8.0   1.0   N    0   0  0   0   0   F   F   T
 
 //Clenchy room
 clencher.obj:   NONE    45  13.0   12.0   0.0   ?    0   0  0   0   0   F   F   E
@@ -96,7 +96,7 @@ sarcophagus.obj:   NONE    64  34.5   44.5   1.0   S    0   0  0   0   0   F   F
 
 //Well room
 well.obj:   NONE    -1  53.5   27.5   0.0   ?    0   0  0   0   0   F   F   N
-arrowtrap:   NONE    -1  46.0   31.0   0.0   ?    0   0  0   0   0   F   F   Trap
+arrowtrap:   NONE    -1  46.0   31.0   0.0   ?    0   0  0   0   0   F   F   T
 
 //Boss room
 throne.obj:   NONE    -1  54.5   47.0   0.0   W    0   0  0   0   0   F   F   N
