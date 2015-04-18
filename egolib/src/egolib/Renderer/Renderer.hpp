@@ -361,7 +361,10 @@ public:
 
     /**
      * @brief
-     *  Start-up the renderer.
+     *  Initialize the renderer.
+     * @post
+     *  The renderer is initialized if no exception was raised by this call,
+     *  otherwise it is not initialized.
      * @remark
      *  If the renderer is initialized, a call to this method is a no-op.
      */
@@ -381,9 +384,9 @@ public:
 
     /**
      * @brief
-     *    Shut-down the renderer.
+     *  Uninitialize the renderer.
      * @remark
-     *    If the renderer is not initialized, a calll to this method is a no-op.
+     *  If the renderer is not initialized, a call to this method is a no-op.
      */
     static void uninitialize();
 };

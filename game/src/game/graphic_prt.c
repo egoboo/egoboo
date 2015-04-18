@@ -364,12 +364,13 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
             bool draw_particle;
             GLXvector4f particle_color;
 
+            auto& renderer = Ego::Renderer::get();
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
             GL_DEBUG( glDepthMask )( GL_FALSE );      // ENABLE_BIT
 
             // do not draw hidden surfaces
-			Ego::Renderer::get().setDepthTestEnabled(true);
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
+            renderer.setDepthTestEnabled(true);
+            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();    // ENABLE_BIT
@@ -380,9 +381,9 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 // do the light sprites
                 float intens = startalpha * INV_FF * pinst->falpha * pinst->fintens;
 
-                Ego::Renderer::get().setAlphaTestEnabled(false);
+                renderer.setAlphaTestEnabled(false);
 
-                Ego::Renderer::get().setBlendingEnabled(true);
+                renderer.setBlendingEnabled(true);
                 GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
 
                 particle_color[RR] = intens;
@@ -391,7 +392,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[AA] = 1.0f;
 
                 pinst->texture_ref = TX_PARTICLE_LIGHT;
-				oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
+                oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
 
                 draw_particle = intens > 0.0f;
             }
@@ -405,11 +406,12 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                     alpha *= pinst->falpha;
                 }
 
+                auto& renderer = Ego::Renderer::get();
                 // do not display the completely transparent portion
-                Ego::Renderer::get().setAlphaTestEnabled(true);
+                renderer.setAlphaTestEnabled(true);
                 GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );      // GL_COLOR_BUFFER_BIT
 
-                Ego::Renderer::get().setBlendingEnabled(true);
+                renderer.setBlendingEnabled(true);
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
                 particle_color[RR] = pinst->fintens;
@@ -418,7 +420,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[AA] = alpha;
 
                 pinst->texture_ref = TX_PARTICLE_TRANS;
-				oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
+                oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
 
                 draw_particle = alpha > 0.0f;
             }

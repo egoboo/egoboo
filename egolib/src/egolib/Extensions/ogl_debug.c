@@ -27,18 +27,16 @@
 #include "egolib/file_common.h"
 #include "egolib/log.h"
 
-//--------------------------------------------------------------------------------------------
-
-const char * next_cmd = NULL;
-int          next_line = -1;
-const char * next_file = "BAD FILE";
+const char *next_cmd = NULL;
+int next_line = -1;
+const char *next_file = "BAD FILE";
 
 void handle_gl_error()
 {
     GLint err = glGetError();
-    if ( GL_NO_ERROR != err )
+    if (GL_NO_ERROR != err)
     {
-        const GLubyte * err_str = gluErrorString( err );
+        const GLubyte *err_str = gluErrorString(err);
         log_warning("%s (\"%s\" - %d)- %s\n", next_cmd, next_file, next_line, err_str);
     }
 }
@@ -46,46 +44,4 @@ void handle_gl_error()
 void print_gl_command()
 {
     log_warning("%s (\"%s\" - %d)\n", next_cmd, next_file, next_line);
-}
-
-//--------------------------------------------------------------------------------------------
-
-void gl_grab_texture_state(gl_texture_t *self, GLenum target, GLint level)
-{
-    GLint itmp;
-
-    // which texture id
-    if ( GL_TEXTURE_1D == target )
-    {
-        self->target = GL_TEXTURE_1D;
-        GL_DEBUG( glGetIntegerv )( GL_TEXTURE_BINDING_1D, &itmp );
-        self->binding = itmp;
-    }
-    else if ( GL_TEXTURE_2D == target )
-    {
-        self->target = GL_TEXTURE_2D;
-        GL_DEBUG( glGetIntegerv )( GL_TEXTURE_BINDING_2D, &itmp );
-        self->binding = itmp;
-    }
-
-    // basic parameters
-    GL_DEBUG(glGetTexParameterfv)(target, GL_TEXTURE_PRIORITY, &self->priority);
-    GL_DEBUG(glGetTexParameteriv)(target, GL_TEXTURE_RESIDENT, &self->resident);
-    GL_DEBUG(glGetTexParameteriv)(target, GL_TEXTURE_WRAP_S, &self->wrap_s);
-    GL_DEBUG(glGetTexParameteriv)(target, GL_TEXTURE_WRAP_T, &self->wrap_t);
-    GL_DEBUG(glGetTexParameteriv)(target, GL_TEXTURE_MIN_FILTER, &self->min_filter);
-    GL_DEBUG(glGetTexParameteriv)(target, GL_TEXTURE_MAG_FILTER, &self->mag_filter);
-    GL_DEBUG(glGetTexParameterfv)(target, GL_TEXTURE_BORDER_COLOR, self->border_color);
-
-    // format
-    GL_DEBUG(glGetTexLevelParameterfv)(target, level, GL_TEXTURE_WIDTH, &self->width);
-    GL_DEBUG(glGetTexLevelParameterfv)(target, level, GL_TEXTURE_HEIGHT, &self->height);
-    GL_DEBUG(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_INTERNAL_FORMAT, &self->internal_format);
-    GL_DEBUG(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_RED_SIZE, &self->red_size);
-    GL_DEBUG(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_GREEN_SIZE, &self->green_size);
-    GL_DEBUG(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_BLUE_SIZE, &self->blue_size);
-    GL_DEBUG(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_ALPHA_SIZE, &self->alpha_size);
-    GL_DEBUG(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_LUMINANCE_SIZE, &self->luminance_size);
-    GL_DEBUG(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_INTENSITY_SIZE, &self->intensity_size);
-    GL_DEBUG(glGetTexLevelParameteriv)(target, level, GL_TEXTURE_BORDER, &self->border);
 }

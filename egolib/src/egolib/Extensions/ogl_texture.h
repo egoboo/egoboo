@@ -37,21 +37,51 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct oglx_texture_parameters_t;
-    struct oglx_texture_t;
+    struct oglx_texture_parameters_t
+    {
+        Ego::TextureFilter texturefilter;
+        GLfloat userAnisotropy;
+    };
 
+    extern oglx_texture_parameters_t tex_params;
     typedef GLfloat oglx_frect_t[4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define INVALID_KEY    ( (Uint32) (~0) )
-
-#define VALID_BINDING( BIND ) ( (0 != (BIND)) && (INVALID_GL_ID != (BIND)) )
-#define ERROR_IMAGE_BINDING( BIND ) ( ErrorImage_get_binding() == (BIND) )
+#define INVALID_KEY ((Uint32)(~0))
+#define VALID_BINDING(BIND) ((0 != (BIND)) && (INVALID_GL_ID != (BIND)))
+#define ERROR_IMAGE_BINDING(BIND) (ErrorImage_get_binding() == (BIND))
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+    /// An encapsulation of the OpenGL texture state.
+    struct gl_texture_t
+    {
+        GLenum  target;
+        GLuint  binding;              /*< The OpenGL texture number */
+
+        GLfloat width;
+        GLfloat height;
+        GLint   border;
+        GLint   internal_format;
+        GLint   red_size;
+        GLint   green_size;
+        GLint   blue_size;
+        GLint   alpha_size;
+        GLint   luminance_size;
+        GLint   intensity_size;
+        GLfloat border_color[4];
+
+        GLint   min_filter;
+        GLint   mag_filter;
+        GLint   wrap_s;
+        GLint   wrap_t;
+        GLfloat priority;
+        GLint   resident;
+
+    };
 
     struct oglx_texture_t
     {
@@ -66,7 +96,7 @@
         SDL_bool has_alpha;    ///< the alpha for the texture
 
     public:
-		static oglx_texture_t *ctor(oglx_texture_t *self);
+        static oglx_texture_t *ctor(oglx_texture_t *self);
         static void dtor(oglx_texture_t *self);
         
     public:
@@ -79,7 +109,7 @@
         static GLuint load(oglx_texture_t *self, const char *name, SDL_Surface *surface, Uint32 key);
         /**
          * @brief
-         *	Delete the SDL image, delete OpenGL ID, assign OpenGL ID of the error texture.
+         *	Delete backing image, delete OpenGL ID, assign OpenGL ID of the error texture, assign no backing image.
          * @param self
          *	this texture
          */
@@ -96,37 +126,10 @@
         static GLsizei getImageWidth(const oglx_texture_t *self);
         static GLboolean getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect);
     };
-	
-
-
-
-
 
     void oglx_texture_setAlpha(oglx_texture_t *self, GLfloat alpha);
     GLfloat oglx_texture_getAlpha(const oglx_texture_t *self);
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct oglx_texture_parameters_t
-    {
-        Ego::TextureFilter texturefilter;
-        GLfloat userAnisotropy;
-    };
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    extern oglx_texture_parameters_t tex_params;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    void      oglx_grab_texture_state(GLenum target, GLint level, oglx_texture_t * texture);
     GLboolean oglx_texture_Valid(oglx_texture_t *ptex);
-
-    GLuint    oglx_bind_to_tex_params(GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t);
-
-    void      ErrorImage_bind(GLenum target, GLuint id);
-    GLuint    ErrorImage_get_binding();
+    GLuint oglx_bind_to_tex_params(GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t);
+    void ErrorImage_bind(GLenum target, GLuint id);
+    GLuint ErrorImage_get_binding();

@@ -215,7 +215,7 @@ void CameraSystem::endCameraMode( GLint mode )
     Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
     // turn off the scissor mode
-	Ego::Renderer::get().setScissorTestEnabled(false);
+    Ego::Renderer::get().setScissorTestEnabled(false);
 
     // return the matrix mode to whatever it was before
     glMatrixMode( mode );
@@ -225,26 +225,28 @@ void CameraSystem::endCameraMode( GLint mode )
 GLint CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
 {
     /// how much bigger is mProjection_big than mProjection?
-	GLint mode;
+    GLint mode;
 
     // grab the initial matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, &mode );
 
+    auto& renderer = Ego::Renderer::get();
     // scissor the output to the this area
-	Ego::Renderer::get().setScissorTestEnabled(true);
-    Ego::Renderer::get().setScissorRectangle(camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
+    renderer.setScissorTestEnabled(true);
+    renderer.setScissorRectangle(camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
 
     // set the viewport
-    Ego::Renderer::get().setViewportRectangle(camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
+    renderer.setViewportRectangle(camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
 
     return mode;
 }
 
 void CameraSystem::autoFormatTargets()
 {
-	if(_cameraList.empty()) {
-		return;
-	}
+    if(_cameraList.empty())
+    {
+        return;
+    }
 
     // 1/2 of border between panes in pixels
     static const int border = 1;
@@ -259,28 +261,28 @@ void CameraSystem::autoFormatTargets()
             default:
             case 1:
                 // fullscreen
-            	_cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x, sdl_scr.y);
+                _cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x, sdl_scr.y);
                 break;
 
             case 2:
                 // wider than tall, so windows are side-by side
-            	_cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x * 0.5f - border, sdl_scr.y);
-            	_cameraList[1]->setScreen(sdl_scr.x * 0.5f + border, 0.0f, sdl_scr.x, sdl_scr.y);
+                _cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x * 0.5f - border, sdl_scr.y);
+                _cameraList[1]->setScreen(sdl_scr.x * 0.5f + border, 0.0f, sdl_scr.x, sdl_scr.y);
                 break;
 
             case 3:
                 // wider than tall, so windows are side-by side
-            	_cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x / 3.0f - border, sdl_scr.y);
-            	_cameraList[1]->setScreen(sdl_scr.x / 3.0f + border, 0.0f, 2.0f * sdl_scr.x / 3.0f - border, sdl_scr.y);
-            	_cameraList[2]->setScreen(2.0f * sdl_scr.x / 3.0f + border, 0.0f, sdl_scr.x, sdl_scr.y);
+                _cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x / 3.0f - border, sdl_scr.y);
+                _cameraList[1]->setScreen(sdl_scr.x / 3.0f + border, 0.0f, 2.0f * sdl_scr.x / 3.0f - border, sdl_scr.y);
+                _cameraList[2]->setScreen(2.0f * sdl_scr.x / 3.0f + border, 0.0f, sdl_scr.x, sdl_scr.y);
                 break;
 
             case 4:
                 // 4 panes
-            	_cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x * 0.5f - border, sdl_scr.y * 0.5f - border);
-            	_cameraList[1]->setScreen(sdl_scr.x * 0.5f + border, 0.0f, sdl_scr.x, sdl_scr.y * 0.5f - border);
-            	_cameraList[2]->setScreen(0.0f, sdl_scr.y * 0.5f + border, sdl_scr.x * 0.5f - border, sdl_scr.y);
-            	_cameraList[3]->setScreen(sdl_scr.x * 0.5f + border, sdl_scr.y * 0.5f + border, sdl_scr.x, sdl_scr.y);
+                _cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x * 0.5f - border, sdl_scr.y * 0.5f - border);
+                _cameraList[1]->setScreen(sdl_scr.x * 0.5f + border, 0.0f, sdl_scr.x, sdl_scr.y * 0.5f - border);
+                _cameraList[2]->setScreen(0.0f, sdl_scr.y * 0.5f + border, sdl_scr.x * 0.5f - border, sdl_scr.y);
+                _cameraList[3]->setScreen(sdl_scr.x * 0.5f + border, sdl_scr.y * 0.5f + border, sdl_scr.x, sdl_scr.y);
                 break;
         }
     }
@@ -291,21 +293,21 @@ void CameraSystem::autoFormatTargets()
             default:
             case 1:
                 // fullscreen
-            	_cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x, sdl_scr.y);
+                _cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x, sdl_scr.y);
                 break;
 
             case 2:
                 if ( sdl_scr.x  >= sdl_scr.y )
                 {
                     // wider than tall, so windows are side-by side
-	            	_cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x * 0.5f - border, sdl_scr.y);
-	            	_cameraList[1]->setScreen(sdl_scr.x * 0.5f + border, 0.0f, sdl_scr.x, sdl_scr.y);
+                    _cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x * 0.5f - border, sdl_scr.y);
+                    _cameraList[1]->setScreen(sdl_scr.x * 0.5f + border, 0.0f, sdl_scr.x, sdl_scr.y);
                 }
                 else
                 {
                     // taller than wide so, windows are one-over-the-other
-	            	_cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x, sdl_scr.y * 0.5f - border);
-	            	_cameraList[1]->setScreen(0.0f, sdl_scr.y * 0.5f + border, sdl_scr.x, sdl_scr.y);
+                    _cameraList[0]->setScreen(0.0f, 0.0f, sdl_scr.x, sdl_scr.y * 0.5f - border);
+                    _cameraList[1]->setScreen(0.0f, sdl_scr.y * 0.5f + border, sdl_scr.x, sdl_scr.y);
                 }
                 break;
 

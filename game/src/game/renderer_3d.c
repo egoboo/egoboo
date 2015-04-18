@@ -132,8 +132,8 @@ void line_list_draw_all(std::shared_ptr<Camera> camera)
             GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-			Ego::Renderer::get().setDepthTestEnabled(true);
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
+            Ego::Renderer::get().setDepthTestEnabled(true);
+            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();   // GL_ENABLE_BIT
@@ -249,8 +249,8 @@ void point_list_draw_all(std::shared_ptr<Camera> camera)
             GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-			Ego::Renderer::get().setDepthTestEnabled(true);
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
+            Ego::Renderer::get().setDepthTestEnabled(true);
+            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();   // GL_ENABLE_BIT
@@ -381,8 +381,8 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
         GL_DEBUG(glDepthMask)(GL_FALSE);
 
         // do not draw hidden surfaces
-		Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL);
+        Ego::Renderer::get().setDepthTestEnabled(true);
+        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // fix the poorly chosen normals...
         // draw draw front and back faces of polygons

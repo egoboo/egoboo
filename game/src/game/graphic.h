@@ -132,7 +132,8 @@ enum e_color
     COLOR_MAX
 };
 
-// the map file only supports 256 texture images
+// The map file only supports 256 tile textures:
+// Four texture atlases each with 8 x 8 textures hence 4 * (8 * 8) = 256 different tile textures.
 #define MESH_IMG_COUNT 256
 
 #define VALID_MESH_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<MESH_IMG_COUNT) )
@@ -487,8 +488,10 @@ struct gfx_config_t
     float vdw, vdh;
 };
 
-bool gfx_config_init( gfx_config_t * pgfx );
-bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, egoboo_config_t * pcfg );
+bool gfx_config_init(gfx_config_t * pgfx);
+bool gfx_config_download_from_egoboo_config(gfx_config_t * pgfx, egoboo_config_t * pcfg);
+
+bool oglx_texture_parameters_download_gfx(oglx_texture_parameters_t *ptex, egoboo_config_t *pcfg);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -626,19 +629,19 @@ bool gfx_flip_pages_requested();
 void gfx_request_flip_pages();
 void gfx_do_flip_pages();
 
-float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
-float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
-float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
-void  draw_map_texture( float x, float y );
-float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
-float draw_status( const CHR_REF character, float x, float y );
-void  draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_ammo, Uint8 sparkle_override );
-void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map );
+float draw_icon_texture(oglx_texture_t *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
+float draw_menu_icon(const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
+float draw_game_icon(const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
+void  draw_map_texture(float x, float y);
+float draw_one_bar(Uint8 bartype, float x, float y, int ticks, int maxticks);
+float draw_status(const CHR_REF character, float x, float y);
+void  draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_ammo, Uint8 sparkle_override);
+void  draw_blip(float sizeFactor, Uint8 color, float x, float y, bool mini_map);
 
 //void   make_lightdirectionlookup();
 
-bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_t& pos );
-float grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
+bool grid_lighting_interpolate(const ego_mesh_t *pmesh, lighting_cache_t * dst, const fvec2_t& pos);
+float grid_lighting_test(ego_mesh_t *pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
 
 void release_all_profile_textures();
 
@@ -655,9 +658,63 @@ gfx_rv chr_instance_flash(chr_instance_t *inst, Uint8 value);
 
 //void gfx_calc_rotmesh();
 
+#define TEXTUREATLASMANAGER_VERSION 1
 
+struct TextureAtlasManager
+{
+protected:
+#if TEXTUREATLASMANAGER_VERSION > 3
+    static TextureAtlasManager *_singleton;
+#else
+    /// has this system been initialized?
+    static bool initialized;
+#endif
 
-bool oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg );
+    // the "small" textures
+    static oglx_texture_t sml[MESH_IMG_COUNT];
+    static int sml_cnt;
 
-oglx_texture_t *gfx_get_mesh_tx_sml( int which );
-oglx_texture_t *gfx_get_mesh_tx_big( int which );
+    // the "large" textures
+    static oglx_texture_t big[MESH_IMG_COUNT];
+    static int big_cnt;
+
+#if TEXTUREATLASMANAGER_VERSION > 3
+    TextureAtlasManager();
+    virtual ~TextureAtlasManager();
+#endif
+
+    // decimate one tiled texture of a mesh
+    static int decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *tx_lst, size_t tx_lst_cnt, int minification);
+
+public:
+    static oglx_texture_t *get_sml(int which);
+    static oglx_texture_t *get_big(int which);
+
+public:
+
+    /**
+     * @brief
+     *  Initialize the texture atlas manager singleton.
+     * @post
+     *  The texture atlas manager is initialized if no exception was raised by this call,
+     *  otherwise it is not initialized.
+     * @remark
+     *  If the texture atlas manager is not initialized, a call to this method is a no-op.
+     */
+    static void initialize();
+    /**
+     * @brief
+     *  Uninitialize the texture atlas manager singleton.
+     * @post
+     *  The texture atlas manager is uninitialized.
+     * @remark
+     *  If the texture atlas manager is not initialized, a call to this method is a no-op.
+     */
+    static void uninitialize();
+    static void reinitialize();
+    static void reload_all();
+
+    // decimate all tiled textures of a mesh
+    static void decimate_all_mesh_textures();
+
+};

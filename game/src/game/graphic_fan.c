@@ -483,9 +483,10 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
     {
         GLboolean use_depth_mask = ( !water.light && ( 1.0f == falpha ) ) ? GL_TRUE : GL_FALSE;
 
+        auto& renderer = Ego::Renderer::get();
         // do not draw hidden surfaces
-		Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );                                   // GL_DEPTH_BUFFER_BIT
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // only use the depth mask if the tile is NOT transparent
         GL_DEBUG( glDepthMask )( use_depth_mask );                              // GL_DEPTH_BUFFER_BIT
@@ -495,7 +496,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         oglx_begin_culling( GL_BACK, MAP_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
         // set the blending mode
-        Ego::Renderer::get().setBlendingEnabled(true);
+        renderer.setBlendingEnabled(true);
         if (water.light)
         {
             GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR);          // GL_COLOR_BUFFER_BIT

@@ -26,68 +26,68 @@
 #include "game/Profiles/_Include.hpp"
 
 ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules) :
-	_startIndex(0),
-	_modules(modules),
-	_nextModuleButton(std::make_shared<Button>("->", SDLK_RIGHT)),
-	_previousModuleButton(std::make_shared<Button>("<-", SDLK_LEFT)),
-	_selectedModule(nullptr)
+    _startIndex(0),
+    _modules(modules),
+    _nextModuleButton(std::make_shared<Button>("->", SDLK_RIGHT)),
+    _previousModuleButton(std::make_shared<Button>("<-", SDLK_LEFT)),
+    _selectedModule(nullptr)
 {
-	const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
-	const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
+    const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
+    const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
     // Figure out at what offset we want to draw the module menu.
-    int moduleMenuOffsetX = ( 800  - 640 ) / 2;
+    int moduleMenuOffsetX = (800 - 640) / 2;
     moduleMenuOffsetX = std::max(0, moduleMenuOffsetX);
 
-    int moduleMenuOffsetY = ( 600 - 480 ) / 2;
+    int moduleMenuOffsetY = (600 - 480) / 2;
     moduleMenuOffsetY = std::max(0, moduleMenuOffsetY);
 
-	//Set backdrop size and position
-	setSize(30 + SCREEN_WIDTH/2, SCREEN_HEIGHT / 2);
-	setPosition(moduleMenuOffsetX + 21, moduleMenuOffsetY + 173);
+    //Set backdrop size and position
+    setSize(30 + SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    setPosition(moduleMenuOffsetX + 21, moduleMenuOffsetY + 173);
 
-	//Next and previous buttons
-	_nextModuleButton->setPosition(SCREEN_WIDTH - 50, moduleMenuOffsetY + 74);
-	_nextModuleButton->setSize(30, 30);
-	_nextModuleButton->setOnClickFunction(
-	[this]{
-		_startIndex++;
-		_nextModuleButton->setEnabled(_modules.size() > _startIndex + 3);
-		_previousModuleButton->setEnabled(true);
-	});
-	addComponent(_nextModuleButton);
+    //Next and previous buttons
+    _nextModuleButton->setPosition(SCREEN_WIDTH - 50, moduleMenuOffsetY + 74);
+    _nextModuleButton->setSize(30, 30);
+    _nextModuleButton->setOnClickFunction(
+        [this]{
+        _startIndex++;
+        _nextModuleButton->setEnabled(_modules.size() > _startIndex + 3);
+        _previousModuleButton->setEnabled(true);
+    });
+    addComponent(_nextModuleButton);
 
-	_previousModuleButton->setPosition(moduleMenuOffsetX + 20, moduleMenuOffsetY + 74);
-	_previousModuleButton->setSize(30, 30);
-	_previousModuleButton->setOnClickFunction(
-	[this]{
-		_startIndex--;
-		_previousModuleButton->setEnabled(_startIndex > 0);
-		_nextModuleButton->setEnabled(true);
-	});
-	addComponent(_previousModuleButton);
+    _previousModuleButton->setPosition(moduleMenuOffsetX + 20, moduleMenuOffsetY + 74);
+    _previousModuleButton->setSize(30, 30);
+    _previousModuleButton->setOnClickFunction(
+        [this]{
+        _startIndex--;
+        _previousModuleButton->setEnabled(_startIndex > 0);
+        _nextModuleButton->setEnabled(true);
+    });
+    addComponent(_previousModuleButton);
 
-	const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth()) / 158);
+    const int numberOfModuleButtons = ((_nextModuleButton->getX() - _previousModuleButton->getX() - _previousModuleButton->getWidth()) / 158);
 
-	//Add as many modules as we can fit with current screen width
-	for(int i = 0; i < numberOfModuleButtons; ++i) {
-		std::shared_ptr<ModuleButton> moduleButton = std::make_shared<ModuleButton>(this, i);
-		moduleButton->setSize(138, 138);
-		moduleButton->setPosition(moduleMenuOffsetX + 93, moduleMenuOffsetY + 20);
-		moduleButton->setOnClickFunction(
-		[this, i]{
-			if(_startIndex + i >= _modules.size()) return;
-			_selectedModule = _modules[_startIndex + i];
-		});
-		addComponent(moduleButton);
+    //Add as many modules as we can fit with current screen width
+    for (int i = 0; i < numberOfModuleButtons; ++i) {
+        std::shared_ptr<ModuleButton> moduleButton = std::make_shared<ModuleButton>(this, i);
+        moduleButton->setSize(138, 138);
+        moduleButton->setPosition(moduleMenuOffsetX + 93, moduleMenuOffsetY + 20);
+        moduleButton->setOnClickFunction(
+            [this, i]{
+            if (_startIndex + i >= _modules.size()) return;
+            _selectedModule = _modules[_startIndex + i];
+        });
+        addComponent(moduleButton);
 
-		moduleMenuOffsetX += moduleButton->getWidth() + 20;
-	}
+        moduleMenuOffsetX += moduleButton->getWidth() + 20;
+    }
 }
 
 void ModuleSelector::drawContainer()
 {
-	const GLXvector4f backDrop = {0.66f, 0.0f, 0.0f, 0.6f};
+    const GLXvector4f backDrop = { 0.66f, 0.0f, 0.0f, 0.6f };
 
     //Draw backdrop
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );
@@ -104,54 +104,56 @@ void ModuleSelector::drawContainer()
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
-    //Module description
+    // Module description
     if(_selectedModule != nullptr)
     {
 
-    	//Draw module Name first
-		Ego::Renderer::get().setColour(Ego::Colour4f::white());
+        // Draw module Name first
+        Ego::Renderer::get().setColour(Ego::Colour4f::white());
         _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(_selectedModule->getName(), getX() + 5, getY() + 5, getWidth() - 10, 20, 25);
         
 
-    	//Now difficulty
-    	if(_selectedModule->getRank() > 0) {
-	        int textWidth, textHeight;
+        // Now difficulty
+        if (_selectedModule->getRank() > 0)
+        {
+            int textWidth, textHeight;
             _gameEngine->getUIManager()->getDefaultFont()->getTextSize("Difficulty: ", &textWidth, &textHeight);
             _gameEngine->getUIManager()->getDefaultFont()->drawTextBox("Difficulty: ", getX() + 5, getY() + 25, getWidth() - 10, textHeight, 25);
 
-	    	//Draw one skull per rated difficulty
-	    	for(int i = 0; i < _selectedModule->getRank(); ++i) {
-	    		draw_icon_texture(TextureManager::get().get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY()+28, 0xFF, 0, textHeight-4, true);
-	    	}
-    	}
+            // Draw one skull per rated difficulty
+            for (int i = 0; i < _selectedModule->getRank(); ++i)
+            {
+                draw_icon_texture(TextureManager::get().get_valid_ptr(TX_SKULL), getX() + 5 + textWidth + i*textHeight, getY() + 28, 0xFF, 0, textHeight - 4, true);
+            }
+        }
 
-    	//Module description
-    	std::stringstream buffer;
-    	if(_selectedModule->getMaxPlayers() > 1)
-    	{
-    		if(_selectedModule->getMaxPlayers() == _selectedModule->getMinPlayers())
-    		{
-    			buffer << _selectedModule->getMinPlayers() << " Players" << '\n';
-    		}
-    		else
-    		{
-    			buffer << std::to_string(_selectedModule->getMinPlayers()) << '-' << std::to_string(_selectedModule->getMaxPlayers()) << " Players" << '\n';
-    		}
-    	}
-    	else if(_selectedModule->isStarterModule())
-    	{
-    		buffer << "Starter Module" << '\n';
-    	}
-    	else
-    	{
-    		buffer << "Single Player" << '\n';
-    	}
+        // Module description
+        std::stringstream buffer;
+        if (_selectedModule->getMaxPlayers() > 1)
+        {
+            if (_selectedModule->getMaxPlayers() == _selectedModule->getMinPlayers())
+            {
+                buffer << _selectedModule->getMinPlayers() << " Players" << '\n';
+            }
+            else
+            {
+                buffer << std::to_string(_selectedModule->getMinPlayers()) << '-' << std::to_string(_selectedModule->getMaxPlayers()) << " Players" << '\n';
+            }
+        }
+        else if (_selectedModule->isStarterModule())
+        {
+            buffer << "Starter Module" << '\n';
+        }
+        else
+        {
+            buffer << "Single Player" << '\n';
+        }
 
-    	for(const std::string &line : _selectedModule->getSummary())
-    	{
-    		buffer << line << '\n';;
-    	}
-        
+        for (const std::string &line : _selectedModule->getSummary())
+        {
+            buffer << line << '\n';;
+        }
+
         _gameEngine->getUIManager()->getDefaultFont()->drawTextBox(buffer.str(), getX() + 5, getY() + 45, getWidth() - 10, getHeight() - 50, 25);
     }
 }
@@ -159,29 +161,29 @@ void ModuleSelector::drawContainer()
 
 void ModuleSelector::notifyModuleListUpdated()
 {
-	_startIndex = 0;
-	_nextModuleButton->setEnabled(_modules.size() > 3);
-	_previousModuleButton->setEnabled(false);
+    _startIndex = 0;
+    _nextModuleButton->setEnabled(_modules.size() > 3);
+    _previousModuleButton->setEnabled(false);
 }
 
 ModuleSelector::ModuleButton::ModuleButton(ModuleSelector *selector, const uint8_t offset) : Button(),
-	_moduleSelector(selector),
-	_offset(offset)
+_moduleSelector(selector),
+_offset(offset)
 {
-	//ctor
+    // ctor
 }
 
 void ModuleSelector::ModuleButton::draw()
 {
-	//Don't do "out of bounds" modules
-	if(_moduleSelector->_startIndex + _offset >= _moduleSelector->_modules.size()) {
-		return;
-	}
+    // Don't do "out of bounds" modules
+    if (_moduleSelector->_startIndex + _offset >= _moduleSelector->_modules.size()) {
+        return;
+    }
 
-    //Draw backdrop
+    // Draw backdrop
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );
     
-    //Determine button color
+    // Determine button color
     if(!isEnabled())
     {
         GL_DEBUG( glColor4fv )( DISABLED_BUTTON_COLOUR );
@@ -212,20 +214,22 @@ void ModuleSelector::ModuleButton::draw()
 
 bool ModuleSelector::notifyMouseScrolled(const int amount)
 {
-	if(amount < 0 && _startIndex == 0) {
-		return false;
-	}
-	if(amount > 0 && _startIndex >= _modules.size()-3) {
-		return false;
-	}
-	_startIndex = Math::constrain<int>(_startIndex + amount, 0, _modules.size()-3);
-	_audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_BUTTON_CLICK));
-	_nextModuleButton->setEnabled(_startIndex < _modules.size()-3);
-	_previousModuleButton->setEnabled(_startIndex > 0);
-	return true;
+    if (amount < 0 && _startIndex == 0)
+    {
+        return false;
+    }
+    if (amount > 0 && _startIndex >= _modules.size() - 3)
+    {
+        return false;
+    }
+    _startIndex = Math::constrain<int>(_startIndex + amount, 0, _modules.size() - 3);
+    _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_BUTTON_CLICK));
+    _nextModuleButton->setEnabled(_startIndex < _modules.size() - 3);
+    _previousModuleButton->setEnabled(_startIndex > 0);
+    return true;
 }
 
 const std::shared_ptr<ModuleProfile>& ModuleSelector::getSelectedModule() const
 {
-	return _selectedModule;	
+    return _selectedModule;	
 }

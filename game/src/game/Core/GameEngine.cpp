@@ -366,10 +366,10 @@ void GameEngine::uninitialize()
     // make sure that the current control configuration is written
     input_settings_save_vfs("controls.txt", -1);
 
-	// @todo This should be 'UIManager::uninitialize'.
+    // @todo This should be 'UIManager::uninitialize'.
     _uiManager.reset(nullptr);
 
-	// Uninitialize the collision system.
+    // Uninitialize the collision system.
     CollisionSystem::uninitialize();
 
     // Uninitialize the scripting system.

@@ -620,15 +620,6 @@ GLboolean oglx_texture_Valid(oglx_texture_t *texture)
 }
 
 //--------------------------------------------------------------------------------------------
-void oglx_grab_texture_state( GLenum target, GLint level, oglx_texture_t * texture )
-{
-    if (NULL == texture) return;
-
-    gl_grab_texture_state(&(texture->base), target, level);
-
-    texture->base_valid = GL_TRUE;
-}
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t )

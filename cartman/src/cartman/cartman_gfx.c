@@ -1460,24 +1460,25 @@ int gfx_init_ogl()
     using namespace Ego::Math;
     gfx_system_init_SDL_graphics();
 
+    auto& renderer = Renderer::get();
     // Set clear colour.
-    Renderer::get().getColourBuffer().setClearValue(Colour4f(0, 0, 0, 0)); // Set black/transparent background.
+    renderer.getColourBuffer().setClearValue(Colour4f(0, 0, 0, 0)); // Set black/transparent background.
     
     // Set clear depth.
-    Renderer::get().getDepthBuffer().setClearValue(1.0f);
+    renderer.getDepthBuffer().setClearValue(1.0f);
 
     // Enable writing to the depth buffer.
-    Renderer::get().setDepthWriteEnabled(true);
+    renderer.setDepthWriteEnabled(true);
 
     // Enable depth testing: Incoming fragment's depth value must be less.
-    Renderer::get().setDepthTestEnabled(true);
-    Renderer::get().setDepthFunction(CompareFunction::Less);
+    renderer.setDepthTestEnabled(true);
+    renderer.setDepthFunction(CompareFunction::Less);
 
     // Disable blending.
-    Renderer::get().setBlendingEnabled(false);
+    renderer.setBlendingEnabled(false);
 
     // do not display the completely transparent portion
-    Renderer::get().setAlphaTestEnabled(true);
+    renderer.setAlphaTestEnabled(true);
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
@@ -1499,8 +1500,8 @@ int gfx_init_ogl()
     GL_DEBUG( glTexGeni )( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
     //Initialize the motion blur buffer
-    Renderer::get().getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
-    Renderer::get().getAccumulationBuffer().clear();
+    renderer.getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
+    renderer.getAccumulationBuffer().clear();
 
     // Load the current graphical settings
     // gfx_system_load_assets();

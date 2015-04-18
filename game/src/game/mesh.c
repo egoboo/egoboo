@@ -236,17 +236,17 @@ bool tile_mem_t::free(tile_mem_t *self)
 
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * ego_mesh_get_texture( Uint8 image, Uint8 size )
+oglx_texture_t *ego_mesh_get_texture(Uint8 image, Uint8 size)
 {
-    oglx_texture_t * tx_ptr = NULL;
+    oglx_texture_t * tx_ptr = nullptr;
 
-    if ( 0 == size )
+    if (0 == size)
     {
-        tx_ptr = gfx_get_mesh_tx_sml( image );
+        tx_ptr = TextureAtlasManager::get_sml(image);
     }
-    else if ( 1 == size )
+    else if (1 == size)
     {
-        tx_ptr = gfx_get_mesh_tx_big( image );
+        tx_ptr = TextureAtlasManager::get_big(image);
     }
 
     return tx_ptr;

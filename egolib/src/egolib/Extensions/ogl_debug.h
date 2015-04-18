@@ -34,42 +34,9 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// An encapsulation of the OpenGL texture state.
-struct gl_texture_t
-{
-    GLenum  target;
-    GLuint  binding;              /*< The OpenGL texture number */
-
-    GLfloat width;
-    GLfloat height;
-    GLint   border;
-    GLint   internal_format;
-    GLint   red_size;
-    GLint   green_size;
-    GLint   blue_size;
-    GLint   alpha_size;
-    GLint   luminance_size;
-    GLint   intensity_size;
-    GLfloat border_color[4];
-
-    GLint   min_filter;
-    GLint   mag_filter;
-    GLint   wrap_s;
-    GLint   wrap_t;
-    GLfloat priority;
-    GLint   resident;
-
-};
-
-/// Grab the OpenGL texture state.
-void gl_grab_texture_state(gl_texture_t *self, GLenum target, GLint level);
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    extern const char * next_cmd;
-    extern int          next_line;
-    extern const char * next_file;
+    extern const char *next_cmd;
+    extern int next_line;
+    extern const char *next_file;
 
 /// grab a text representation of an OpenGL error
     void handle_gl_error();

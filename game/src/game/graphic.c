@@ -95,31 +95,6 @@ static gfx_rv do_grid_lighting(renderlist_t *self, dynalist_t *dynalist, std::sh
 
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
 
-
-
-//--------------------------------------------------------------------------------------------
-// special functions and data related to tiled texture "optimization"
-//--------------------------------------------------------------------------------------------
-
-/// has this system been initialized?
-static bool _gfx_system_mesh_textures_initialized = false;
-
-// the "small" textures
-static oglx_texture_t mesh_tx_sml[MESH_IMG_COUNT];
-static int mesh_tx_sml_cnt = 0;
-
-// the "large" textures
-static oglx_texture_t mesh_tx_big[MESH_IMG_COUNT];
-static int mesh_tx_big_cnt = 0;
-
-// actually break up a texture
-static int  gfx_decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *tx_lst, size_t tx_lst_cnt, int minification);
-static void gfx_decimate_all_mesh_textures();
-
-// control the state of the textures
-static void gfx_system_begin_decimated_textures();
-static void gfx_system_end_decimated_textures();
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -279,7 +254,7 @@ static void  draw_inventory();
 static gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile);
 
 
-static void gfx_reload_decimated_textures();
+
 
 static gfx_rv update_one_chr_instance(Object * pchr);
 static gfx_rv gfx_update_all_chr_instance();
@@ -1077,7 +1052,7 @@ dolist_t *dolist_mgr_t::get_ptr(size_t index)
 //--------------------------------------------------------------------------------------------
 void GFX::initialize()
 {
-    // set the graphics state
+    // Initialize SDL and initialize OpenGL.
     GFX::initializeSDLGraphics(); ///< @todo Error handling.
     GFX::initializeOpenGL();      ///< @todo Error handling.
 
@@ -1098,8 +1073,8 @@ void GFX::initialize()
 
 
 
-    // initialize the decimated texture arrays
-    gfx_system_begin_decimated_textures();
+    // Initialize the texture atlas manager.
+    TextureAtlasManager::initialize();
 
     // initialize the profiling variables
     PROFILE_INIT(render_scene_init);
@@ -1166,8 +1141,8 @@ void GFX::uninitialize()
     // End the billboard system.
     billboard_system_end();
 
-    // Clear the decimated texture arrays.
-    gfx_system_end_decimated_textures();
+    // Uninitialize the texture atlas manager.
+    TextureAtlasManager::uninitialize();
 
     // Release all textures.
     TextureManager::get().release_all();
@@ -1202,22 +1177,23 @@ int GFX::initializeOpenGL()
     // Start-up the texture manager.
     TextureManager::initialize(); ///< @todo Add error handling.
 
+    auto& renderer = Renderer::get();
     // Set clear colour and clear depth.
-    Renderer::get().getColourBuffer().setClearValue(Colour4f(0, 0, 0, 0));
-    Renderer::get().getDepthBuffer().setClearValue(1.0f);
+    renderer.getColourBuffer().setClearValue(Colour4f(0, 0, 0, 0));
+    renderer.getDepthBuffer().setClearValue(1.0f);
 
     // Enable writing to the depth buffer.
-    Renderer::get().setDepthWriteEnabled(true);
+    renderer.setDepthWriteEnabled(true);
 
     // Enable depth test. Incoming fragment's depth value must be less.
-    Renderer::get().setDepthTestEnabled(true);
-    Renderer::get().setDepthFunction(CompareFunction::Less);
+    renderer.setDepthTestEnabled(true);
+    renderer.setDepthFunction(CompareFunction::Less);
 
     // Disable blending.
-    Renderer::get().setBlendingEnabled(false);
+    renderer.setBlendingEnabled(false);
 
     // Enable alpha testing: Hide fully transparent parts.
-    Renderer::get().setAlphaTestEnabled(true);
+    renderer.setAlphaTestEnabled(true);
     GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
@@ -1240,8 +1216,8 @@ int GFX::initializeOpenGL()
     GL_DEBUG(glTexGeni)(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
     //Initialize the motion blur buffer
-    Renderer::get().getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
-    Renderer::get().getAccumulationBuffer().clear();
+    renderer.getAccumulationBuffer().setClearValue(Colour4f(0.0f, 0.0f, 0.0f, 1.0f));
+    renderer.getAccumulationBuffer().clear();
 
     // Load the current graphical settings
     // gfx_system_load_assets();
@@ -1622,10 +1598,10 @@ void gfx_system_load_basic_textures()
     // load the bitmapped font (must be done after gfx_system_init_all_graphics())
     font_bmp_load_vfs(TextureManager::get().get_valid_ptr(static_cast<TX_REF>(TX_FONT_BMP)), "mp_data/font_new_shadow", "mp_data/font.txt");
 
-    //Cursor
+    // Cursor
     TextureManager::get().load("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR), TRANSCOLOR);
 
-    //Skull
+    // Skull
     TextureManager::get().load("mp_data/skull", static_cast<TX_REF>(TX_SKULL), INVALID_KEY);
 
     // Particle sprites
@@ -1654,7 +1630,7 @@ void gfx_system_load_basic_textures()
     TextureManager::get().load("mp_data/joyaicon", static_cast<TX_REF>(TX_ICON_JOYA), INVALID_KEY);
     TextureManager::get().load("mp_data/joybicon", static_cast<TX_REF>(TX_ICON_JOYB), INVALID_KEY);
 
-    gfx_decimate_all_mesh_textures();
+    TextureAtlasManager::decimate_all_mesh_textures();
 
     PROFILE_RESET(render_scene_init);
     PROFILE_RESET(render_scene_mesh);
@@ -1706,8 +1682,8 @@ void gfx_system_reload_all_textures()
     /// @details function is called when the graphics mode is changed or the program is
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
-	TextureManager::get().reload_all();
-    gfx_reload_decimated_textures();
+    TextureManager::get().reload_all();
+    TextureAtlasManager::reload_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2296,11 +2272,11 @@ void draw_map()
 
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
     {
-
-        Ego::Renderer::get().setBlendingEnabled(true);
+        auto& renderer = Ego::Renderer::get();
+        renderer.setBlendingEnabled(true);
         GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
-        Ego::Renderer::get().setColour(Ego::Colour4f::white());
+        renderer.setColour(Ego::Colour4f::white());
         draw_map_texture(0, sdl_scr.y - MAPSIZE);
 
         GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
@@ -2308,14 +2284,10 @@ void draw_map()
         // If one of the players can sense enemies via ESP, draw them as blips on the map
         if (TEAM_MAX != local_stats.sense_enemies_team)
         {
-            CHR_REF ichr;
-
-            for (ichr = 0; ichr < OBJECTS_MAX && blip_count < MAXBLIP; ichr++)
+            for (CHR_REF ichr = 0; ichr < OBJECTS_MAX && blip_count < MAXBLIP; ichr++)
             {
-                Object * pchr;
-
                 if (!_gameObjects.exists(ichr)) continue;
-                pchr = _gameObjects.get(ichr);
+                Object *pchr = _gameObjects.get(ichr);
 
                 const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
 
@@ -3390,22 +3362,23 @@ gfx_rv render_scene_mesh_ndr(const renderlist_t * prlist)
 
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     {
+        auto& renderer = Ego::Renderer::get();
         // store the surface depth
-        Ego::Renderer::get().setDepthWriteEnabled(true);
+        renderer.setDepthWriteEnabled(true);
 
         // do not draw hidden surfaces
-        Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL);       // GL_DEPTH_BUFFER_BIT
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // no transparency
-        Ego::Renderer::get().setBlendingEnabled(false);
+        renderer.setBlendingEnabled(false);
 
         // draw draw front and back faces of polygons
         oglx_end_culling();      // GL_ENABLE_BIT
 
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
-        Ego::Renderer::get().setAlphaTestEnabled(true);
+        renderer.setAlphaTestEnabled(true);
         // speed-up drawing of surfaces with alpha == 0.0f sections
         GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
 
@@ -3445,7 +3418,7 @@ gfx_rv render_scene_mesh_drf_back(const renderlist_t * prlist)
 
         // do not draw hidden surfaces
         Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL);       // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // black out any backgound, but allow the background to show through any holes in the floor
         Ego::Renderer::get().setBlendingEnabled(true);
@@ -3601,18 +3574,19 @@ gfx_rv render_scene_mesh_ref_chr(const renderlist_t * prlist)
 
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     {
+        auto& renderer = Ego::Renderer::get();
         // set the depth of these tiles
-        Ego::Renderer::get().setDepthWriteEnabled(true);
+        renderer.setDepthWriteEnabled(true);
 
-        Ego::Renderer::get().setBlendingEnabled(true);
+        renderer.setBlendingEnabled(true);
         GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE);      // GL_COLOR_BUFFER_BIT
 
         // draw draw front and back faces of polygons
         oglx_end_culling();                // GL_ENABLE_BIT
 
         // do not draw hidden surfaces
-        Ego::Renderer::get().setDepthTestEnabled(true);
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL);                 // GL_DEPTH_BUFFER_BIT
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // reduce texture hashing by loading up each texture only once
         if (gfx_error == render_fans_by_list(prlist->mesh, &(prlist->drf)))
@@ -4349,28 +4323,29 @@ gfx_rv render_world_overlay(std::shared_ptr<Camera> pcam, const TX_REF texture)
             // flat shading
             GL_DEBUG(glShadeModel)(GL_FLAT);                             // GL_LIGHTING_BIT
 
+            auto& renderer = Ego::Renderer::get();
             // Do not write into the depth buffer.
-            Ego::Renderer::get().setDepthWriteEnabled(false);
+            renderer.setDepthWriteEnabled(false);
 
             // Essentially disable the depth test without calling
             // Ego::Renderer::get().setDepthTestEnabled(false).
-            Ego::Renderer::get().setDepthTestEnabled(true);
-            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::AlwaysPass);
+            renderer.setDepthTestEnabled(true);
+            renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();                           // GL_ENABLE_BIT
 
             // do not display the completely transparent portion
-            Ego::Renderer::get().setAlphaTestEnabled(true);
+            renderer.setAlphaTestEnabled(true);
             GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);                      // GL_COLOR_BUFFER_BIT
 
             // make the texture a filter
-            Ego::Renderer::get().setBlendingEnabled(true);
+            renderer.setBlendingEnabled(true);
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);  // GL_COLOR_BUFFER_BIT
 
             oglx_texture_t::bind(ptex);
 
-            Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
+            renderer.setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
             GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
             for (i = 0; i < 4; i++)
             {
@@ -4470,9 +4445,12 @@ bool gfx_config_download_from_egoboo_config(gfx_config_t * pgfx, egoboo_config_t
 }
 
 //--------------------------------------------------------------------------------------------
-bool gfx_config_init(gfx_config_t * pgfx)
+bool gfx_config_init(gfx_config_t *pgfx)
 {
-    if (NULL == pgfx) return false;
+    if (!pgfx)
+    {
+        return false;
+    }
 
     pgfx->shading = GL_SMOOTH;
     pgfx->refon = true;
@@ -6048,203 +6026,300 @@ gfx_rv gfx_update_all_chr_instance()
 //--------------------------------------------------------------------------------------------
 // Tiled texture "optimizations"
 //--------------------------------------------------------------------------------------------
-void gfx_system_begin_decimated_textures()
-{
-    if ( !_gfx_system_mesh_textures_initialized )
-    {
-        for (size_t cnt = 0; cnt < MESH_IMG_COUNT; cnt++ )
-        {
-            oglx_texture_t::ctor( mesh_tx_sml + cnt );
-            oglx_texture_t::ctor( mesh_tx_big + cnt );
-        }
-        mesh_tx_sml_cnt = 0;
-        mesh_tx_big_cnt = 0;
 
-        _gfx_system_mesh_textures_initialized = true;
+oglx_texture_t TextureAtlasManager::sml[MESH_IMG_COUNT];
+oglx_texture_t TextureAtlasManager::big[MESH_IMG_COUNT];
+
+int TextureAtlasManager::big_cnt = 0;
+int TextureAtlasManager::sml_cnt = 0;
+
+#if TEXTUREATLASMANAGER_VERSION > 3
+TextureAtlasManager::TextureAtlasManager() :
+big_cnt(0), sml_cnt(0)
+{
+    for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
+    {
+        if (!oglx_texture_t::ctor(&(sml[i])))
+        {
+            while (i > 0)
+            {
+                --i;
+                oglx_texture_t::dtor(&(big[i]));
+                oglx_texture_t::dtor(&(sml[i]));
+            }
+            throw std::runtime_error("unable to initialize texture atlas manager");
+        }
+        if (!oglx_texture_t::ctor(&(big[i])))
+        {
+            oglx_texture_t::dtor(&(sml[i]));
+            while (i > 0)
+            {
+                --i;
+                oglx_texture_t::dtor(&(big[i]));
+                oglx_texture_t::dtor(&(sml[i]));
+            }
+            throw std::runtime_error("unable to initialize texture atlas manager");
+        }
     }
 }
-
-//--------------------------------------------------------------------------------------------
-void gfx_system_end_decimated_textures()
+TextureAtlasManager::~TextureAtlasManager()
 {
-    if ( _gfx_system_mesh_textures_initialized )
+    for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
     {
-        for (size_t cnt = 0; cnt < MESH_IMG_COUNT; cnt++ )
-        {
-            oglx_texture_t::dtor( mesh_tx_sml + cnt );
-            oglx_texture_t::dtor( mesh_tx_big + cnt );
-        }
-        mesh_tx_sml_cnt = 0;
-        mesh_tx_big_cnt = 0;
-
-        _gfx_system_mesh_textures_initialized = false;
+        oglx_texture_t::dtor(&(sml[i]));
+        oglx_texture_t::dtor(&(big[i]));
     }
 }
+TextureAtlasManager *TextureAtlasManager::_singleton = nullptr;
+#else
+bool TextureAtlasManager::initialized = false;
+#endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-oglx_texture_t * gfx_get_mesh_tx_sml( int which )
+#if TEXTUREATLASMANAGER_VERSION > 3
+TextureAtlasManager& TextureAtlasManager::get()
 {
-    if ( !_gfx_system_mesh_textures_initialized ) return NULL;
+    if (!_singleton)
+    {
+        throw std::logic_error("texture atlas manager is not initialized");
+    }
+    return *_singleton;
+}
+#endif
 
-    if ( which < 0 || which >= mesh_tx_sml_cnt || which >= MESH_IMG_COUNT ) return NULL;
+void TextureAtlasManager::initialize()
+{
+#if TEXTUREATLASMANAGER_VERSION > 3
+    if (!_singleton)
+    {
+        _singleton = new TextureAtlasManager();
+    }
+#else
+    if (!initialized)
+    {
+        for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
+        {
+            if (!oglx_texture_t::ctor(&(sml[i])))
+            {
+                while (i > 0)
+                {
+                    --i;
+                    oglx_texture_t::dtor(&(big[i]));
+                    oglx_texture_t::dtor(&(sml[i]));
+                }
+                throw std::runtime_error("unable to initialize texture atlas manager");
+            }
+            if (!oglx_texture_t::ctor(&(big[i])))
+            {
+                oglx_texture_t::dtor(&(sml[i]));
+                while (i > 0)
+                {
+                    --i;
+                    oglx_texture_t::dtor(&(big[i]));
+                    oglx_texture_t::dtor(&(sml[i]));
+                }
+                throw std::runtime_error("unable to initialize texture atlas manager");
+            }
+        }
+        sml_cnt = 0;
+        big_cnt = 0;
 
-    return mesh_tx_sml + which;
+        initialized = true;
+    }
+#endif
 }
 
-//--------------------------------------------------------------------------------------------
-oglx_texture_t * gfx_get_mesh_tx_big( int which )
+void TextureAtlasManager::uninitialize()
 {
-    if ( !_gfx_system_mesh_textures_initialized ) return NULL;
+#if TEXTUREATLASMANAGER_VERSION > 3
+    if (_singleton)
+    {
+        delete _singleton;
+        _singleton = nullptr;
+    }
+#else
+    if (initialized)
+    {
+        for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
+        {
+            oglx_texture_t::dtor(&(sml[i]));
+            oglx_texture_t::dtor(&(big[i]));
+        }
+        sml_cnt = 0;
+        big_cnt = 0;
 
-    if ( which < 0 || which >= mesh_tx_big_cnt || which >= MESH_IMG_COUNT ) return NULL;
-
-    return mesh_tx_big + which;
+        initialized = false;
+    }
+#endif
 }
 
-//--------------------------------------------------------------------------------------------
-int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_lst, size_t tx_lst_cnt, int minification )
+void TextureAtlasManager::reinitialize()
+{
+    for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
+    {
+        oglx_texture_t::release(&(sml[i]));
+        oglx_texture_t::release(&(big[i]));
+    }
+    sml_cnt = 0;
+    big_cnt = 0;
+}
+
+oglx_texture_t *TextureAtlasManager::get_sml(int which)
+{
+    if (!initialized)
+    {
+        return nullptr;
+    }
+    if (which < 0 || which >= sml_cnt || which >= MESH_IMG_COUNT)
+    {
+        return nullptr;
+    }
+    return &(sml[which]);
+}
+
+oglx_texture_t *TextureAtlasManager::get_big(int which)
+{
+    if (!initialized)
+    {
+        return nullptr;
+    }
+    if (which < 0 || which >= big_cnt || which >= MESH_IMG_COUNT)
+    {
+        return nullptr;
+    }
+    return &(big[which]);
+}
+
+int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *tx_lst, size_t tx_lst_cnt, int minification)
 {
     static const int sub_textures = 8;
-
-    float step_fx, step_fy;
-    float fx, fy;
-    int   blit_rv;
-	size_t ix, iy, cnt;
-
-    SDL_Surface * src_img = NULL;
-    int src_img_w, src_img_h;
-    SDL_Rect src_img_rect;
-
-    oglx_texture_t * dst_tx = NULL;
-    SDL_Surface    * dst_img = NULL;
-
-    if ( NULL == src_tx )
+    size_t cnt = tx_lst_cnt;
+    if (!src_tx)
     {
         // the source image doesn't exist, so punt
         goto gfx_decimate_one_mesh_texture_error;
     }
 
     // make an alias for the texture's SDL_Surface
-    src_img = src_tx->surface;
-    if ( NULL == src_img )
+    SDL_Surface *src_img = src_tx->surface;
+    if (!src_img)
     {
         goto gfx_decimate_one_mesh_texture_error;
     }
 
     // grab parameters from the mesh
-    src_img_w = src_img->w;
-    src_img_h = src_img->h;
+    int src_img_w = src_img->w;
+    int src_img_h = src_img->h;
 
     // how large a step every time through the mesh?
-    step_fx = ( float )src_img_w / ( float )sub_textures;
-    step_fy = ( float )src_img_h / ( float )sub_textures;
+    float step_fx = (float)src_img_w / (float)sub_textures;
+    float step_fy = (float)src_img_h / (float)sub_textures;
 
-    src_img_rect.w = CEIL( step_fx * minification );
-    src_img_rect.w = std::max<Uint16>( 1, src_img_rect.w );
-    src_img_rect.h = CEIL( step_fy * minification );
-    src_img_rect.h = std::max<Uint16>( 1, src_img_rect.h );
+    SDL_Rect src_img_rect;
+    src_img_rect.w = std::ceil(step_fx * minification);
+    src_img_rect.w = std::max<Uint16>(1, src_img_rect.w);
+    src_img_rect.h = std::ceil(step_fy * minification);
+    src_img_rect.h = std::max<Uint16>(1, src_img_rect.h);
 
+
+    size_t ix, iy;
+    float fx, fy;
     // scan across the src_img
-    for ( iy = 0, fy = 0.0f; iy < sub_textures; iy++, fy += step_fy )
+    for (iy = 0, fy = 0.0f; iy < sub_textures; iy++, fy += step_fy)
     {
-        src_img_rect.y = FLOOR( fy );
+        src_img_rect.y = std::floor(fy);
 
-        for ( ix = 0, fx = 0.0f; ix < sub_textures; ix++, fx += step_fx )
+        for (ix = 0, fx = 0.0f; ix < sub_textures; ix++, fx += step_fx)
         {
-            src_img_rect.x = FLOOR( fx );
+            src_img_rect.x = std::floor(fx);
 
             // grab the destination texture
-            dst_tx =  tx_lst + tx_lst_cnt;
+            oglx_texture_t *dst_tx = tx_lst + cnt;
 
             // prepare the destination texture
-            oglx_texture_t::ctor( dst_tx );
+            oglx_texture_t::release(dst_tx);
 
             // create a blank destination SDL_Surface
-            dst_img = gfx_create_SDL_Surface( src_img_rect.w, src_img_rect.h );
-            SDL_FillRect( dst_img, NULL, SDL_MapRGBA( dst_img->format, 0xFF, 0, 0, 0xFF ) );
+            SDL_Surface *dst_img = gfx_create_SDL_Surface(src_img_rect.w, src_img_rect.h);
+            if (!dst_img)
+            {
+                cnt++;
+                continue;
+            }
+            SDL_FillRect(dst_img, nullptr, SDL_MapRGBA(dst_img->format, 0xFF, 0, 0, 0xFF));
 
             // blit the source region into the destination bitmap
-            blit_rv = SDL_BlitSurface( src_img, &src_img_rect, dst_img, NULL );
+            int blit_rv = SDL_BlitSurface(src_img, &src_img_rect, dst_img, nullptr);
 
             // upload the SDL_Surface into OpenGL
-            oglx_texture_t::convert( dst_tx, dst_img, INVALID_KEY );
+            oglx_texture_t::convert(dst_tx, dst_img, INVALID_KEY);
 
             // count the number of textures we're using
-            tx_lst_cnt++;
+            cnt++;
         }
     }
 
-    return tx_lst_cnt;
+    return cnt;
 
 gfx_decimate_one_mesh_texture_error:
 
-    // the source texture doesn't exist. Just blank out the destination textures
-    for ( cnt = 0; cnt < sub_textures*sub_textures; cnt++ )
+    // One source texture does not exist. Stop at the texture which does not exist
+    // and blank out the remaining destination textures
+    for (; cnt < tx_lst_cnt + sub_textures*sub_textures; ++cnt)
     {
-        oglx_texture_t::ctor( tx_lst + tx_lst_cnt );
-        tx_lst_cnt++;
+        oglx_texture_t::release(&(tx_lst[tx_lst_cnt]));
     }
 
-    return tx_lst_cnt;
+    return cnt;
 }
 
-//--------------------------------------------------------------------------------------------
-void gfx_decimate_all_mesh_textures()
+void TextureAtlasManager::decimate_all_mesh_textures()
 {
-    // decimate the tile textures and store them in
-    oglx_texture_t * ptx;
+    // Re-initialize the texture atlas manager.
+    reinitialize();
 
-    // release any existing textures
-    gfx_system_end_decimated_textures();
-    gfx_system_begin_decimated_textures();
-
-    // do the "small" textures
-    mesh_tx_sml_cnt = 0;
-    for ( size_t cnt = 0; cnt < 4; cnt++ )
+    // Do the "small" textures.
+    sml_cnt = 0;
+    for (size_t i = 0; i < 4; ++i)
     {
-		ptx = TextureManager::get().get_valid_ptr(TX_TILE_0 + cnt);
+        oglx_texture_t *ptx = TextureManager::get().get_valid_ptr(TX_TILE_0 + i);
 
-        mesh_tx_sml_cnt = gfx_decimate_one_mesh_texture( ptx, mesh_tx_sml, mesh_tx_sml_cnt, 1 );
+        sml_cnt = decimate_one_mesh_texture(ptx, sml, sml_cnt, 1);
     }
 
-    // do the "big" textures
-    mesh_tx_big_cnt = 0;
-    for ( size_t cnt = 0; cnt < 4; cnt++ )
+    // Do the "big" textures.
+    big_cnt = 0;
+    for (size_t i = 0; i < 4; ++i)
     {
-		ptx = TextureManager::get().get_valid_ptr(TX_TILE_0 + cnt);
+        oglx_texture_t *ptx = TextureManager::get().get_valid_ptr(TX_TILE_0 + i);
 
-        mesh_tx_big_cnt = gfx_decimate_one_mesh_texture( ptx, mesh_tx_big, mesh_tx_big_cnt, 2 );
+        big_cnt = decimate_one_mesh_texture(ptx, big, big_cnt, 2);
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void gfx_reload_decimated_textures()
+void TextureAtlasManager::reload_all()
 {
     /// @author BB
     /// @details This function re-loads all the current textures back into
     ///               OpenGL texture memory using the cached SDL surfaces
 
-    TX_REF cnt;
-    size_t count;
-
-    if ( !_gfx_system_mesh_textures_initialized ) return;
-
-    count = std::min( MESH_IMG_COUNT, mesh_tx_sml_cnt );
-    for ( cnt = 0; cnt < count; cnt++ )
+    if (!initialized)
     {
-        if ( oglx_texture_Valid( mesh_tx_sml + cnt ) )
+        return;
+    }
+
+    for (size_t cnt = 0; cnt < sml_cnt; ++cnt)
+    {
+        if (oglx_texture_Valid(&(sml[cnt])))
         {
-            oglx_texture_t::convert( mesh_tx_sml + cnt, mesh_tx_sml[cnt].surface, INVALID_KEY );
+            oglx_texture_t::convert(&(sml[cnt]), sml[cnt].surface, INVALID_KEY);
         }
     }
 
-    count = std::min( MESH_IMG_COUNT, mesh_tx_big_cnt );
-    for ( cnt = 0; cnt < count; cnt++ )
+    for (size_t cnt = 0; cnt < big_cnt; ++cnt)
     {
-        if ( oglx_texture_Valid( mesh_tx_big + cnt ) )
+        if (oglx_texture_Valid(&(big[cnt])))
         {
-            oglx_texture_t::convert( mesh_tx_big + cnt, mesh_tx_big[cnt].surface, INVALID_KEY );
+            oglx_texture_t::convert(&(big[cnt]), big[cnt].surface, INVALID_KEY);
         }
     }
 }
@@ -6252,17 +6327,14 @@ void gfx_reload_decimated_textures()
 //--------------------------------------------------------------------------------------------
 // chr_instance_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv update_one_chr_instance(Object * pchr)
+gfx_rv update_one_chr_instance(Object *pchr)
 {
-    chr_instance_t * pinst;
-    gfx_rv retval;
-
     if (!ACTIVE_PCHR(pchr))
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr), "invalid character");
         return gfx_error;
     }
-    pinst = &(pchr->inst);
+    chr_instance_t *pinst = &(pchr->inst);
 
     // only update once per frame
     if (pinst->update_frame >= 0 && (Uint32)pinst->update_frame >= game_frame_all)
@@ -6271,7 +6343,7 @@ gfx_rv update_one_chr_instance(Object * pchr)
     }
 
     // make sure that the vertices are interpolated
-    retval = chr_instance_update_vertices(pinst, -1, -1, true);
+    gfx_rv retval = chr_instance_update_vertices(pinst, -1, -1, true);
     if (gfx_error == retval)
     {
         return gfx_error;
@@ -6286,7 +6358,6 @@ gfx_rv update_one_chr_instance(Object * pchr)
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_flash(chr_instance_t * pinst, Uint8 value)
 {
     /// @author ZZ
