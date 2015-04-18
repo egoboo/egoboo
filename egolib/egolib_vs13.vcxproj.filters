@@ -88,9 +88,6 @@
     <Filter Include="Header Files\VFS">
       <UniqueIdentifier>{b4fed5b6-d183-4e21-8375-da563983852e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Platform">
-      <UniqueIdentifier>{31ac577e-52d4-49b7-b013-0a91cc41dcaf}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -818,7 +815,7 @@
       <Filter>File Formats</Filter>
     </None>
     <None Include="src\egolib\Platform\CurrentFunction.inline">
-      <Filter>Header Files\Platform</Filter>
+      <Filter>Platforms</Filter>
     </None>
   </ItemGroup>
 </Project>
