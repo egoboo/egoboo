@@ -1245,26 +1245,26 @@ void GFX::initializeSDLGraphics()
 
     //ego_init_SDL_base();
 
-    log_info("Intializing SDL Video... ");
+    log_info("Intializing SDL Video ... ");
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
     {
-        log_message("Failed!\n");
+        log_message(" failure!\n");
         log_warning("SDL error == \"%s\"\n", SDL_GetError());
     }
     else
     {
-        log_message("Success!\n");
+        log_message(" success!\n");
     }
 
 #if !defined(__APPLE__)
     {
         // Setup the cute windows manager icon, don't do this on Mac.
         const std::string fileName = "icon.bmp";
-        std::string pathName = "mp_data/" + fileName;
+        auto pathName = "mp_data/" + fileName;
         SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
         if (!theSurface)
         {
-            log_warning("unable to load icon (%s): %s\n", fileName.c_str(), SDL_GetError());
+            log_warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
         }
         else
         {
@@ -1274,7 +1274,7 @@ void GFX::initializeSDLGraphics()
 #endif
 
     // Set the window name.
-    std::string title = std::string("Egoboo ") + GameEngine::GAME_VERSION;
+    auto title = std::string("Egoboo ") + GameEngine::GAME_VERSION;
     SDL_WM_SetCaption(title.c_str(), "Egoboo");
 
 #if defined(__unix__)
@@ -1290,30 +1290,17 @@ void GFX::initializeSDLGraphics()
 #endif
 
     // The flags to pass to SDL_SetVideoMode.
-    sdl_vparam.horizontalResolution = egoboo_config_t::get().graphic_resolution_horizontal.getValue();
-    sdl_vparam.verticalResolution = egoboo_config_t::get().graphic_resolution_vertical.getValue();
-    sdl_vparam.colorBufferDepth = egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue();
+    SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
 
     sdl_vparam.flags.opengl = SDL_TRUE;
     sdl_vparam.flags.double_buf = SDL_TRUE;
-    sdl_vparam.flags.full_screen = egoboo_config_t::get().graphic_fullscreen.getValue();
-
-    sdl_vparam.gl_att.buffer_size = egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue();
-    sdl_vparam.gl_att.depth_size = egoboo_config_t::get().graphic_depthBuffer_bitDepth.getValue();
-    sdl_vparam.gl_att.multi_buffers = (egoboo_config_t::get().graphic_antialiasing.getValue() > 1) ? 1 : 0;
-    sdl_vparam.gl_att.multi_samples = egoboo_config_t::get().graphic_antialiasing.getValue();
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
-
     sdl_vparam.gl_att.accum[0] = 8;
     sdl_vparam.gl_att.accum[1] = 8;
     sdl_vparam.gl_att.accum[2] = 8;
     sdl_vparam.gl_att.accum[3] = 8;
 
-    ogl_vparam.dither = egoboo_config_t::get().graphic_dithering_enable.getValue() ? GL_TRUE : GL_FALSE;
-    ogl_vparam.antialiasing = GL_TRUE;
-    ogl_vparam.perspective = egoboo_config_t::get().graphic_perspectiveCorrection_enable.getValue() ? GL_NICEST : GL_FASTEST;
-    ogl_vparam.shading = GL_SMOOTH;
-    ogl_vparam.userAnisotropy = 16.0f * std::max(0, egoboo_config_t::get().graphic_textureFiltering.getValue() - Ego::TextureFilter::TRILINEAR_2);
+    oglx_video_parameters_t::download(&ogl_vparam, &egoboo_config_t::get());
 
     log_info("Opening SDL Video Mode...\n");
 
@@ -1474,11 +1461,11 @@ void gfx_system_load_assets()
 
     // Check if the computer graphic driver supports anisotropic filtering
 
-    if (!ogl_caps.anisotropic_supported)
+    if (!g_ogl_caps.anisotropic_supported)
     {
-        if (tex_params.texturefilter >= Ego::TextureFilter::ANISOTROPIC)
+        if (g_ogl_textureParameters.textureFiltering >= Ego::TextureFilter::ANISOTROPIC)
         {
-            tex_params.texturefilter = Ego::TextureFilter::TRILINEAR_2;
+            g_ogl_textureParameters.textureFiltering = Ego::TextureFilter::TRILINEAR_2;
             log_warning("Your graphics driver does not support anisotropic filtering.\n");
         }
     }
@@ -4487,15 +4474,15 @@ bool oglx_texture_parameters_download_gfx(oglx_texture_parameters_t * ptex, egob
 
     if (NULL == ptex || NULL == pcfg) return false;
 
-    if (ogl_caps.maxAnisotropy <= 1.0f)
+    if (g_ogl_caps.maxAnisotropy <= 1.0f)
     {
-        ptex->userAnisotropy = 0.0f;
-        ptex->texturefilter = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::TRILINEAR_2);
+        ptex->anisotropyLevel = 0.0f;
+        ptex->textureFiltering = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::TRILINEAR_2);
     }
     else
     {
-        ptex->texturefilter = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::FILTER_COUNT);
-        ptex->userAnisotropy = ogl_caps.maxAnisotropy * std::max(0, (int)ptex->texturefilter - (int)Ego::TextureFilter::TRILINEAR_2);
+        ptex->textureFiltering = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::_COUNT);
+        ptex->anisotropyLevel = g_ogl_caps.maxAnisotropy * std::max(0, (int)ptex->textureFiltering - (int)Ego::TextureFilter::TRILINEAR_2);
     }
 
     return true;
@@ -6383,703 +6370,3 @@ gfx_rv chr_instance_flash(chr_instance_t * pinst, Uint8 value)
 
     return gfx_success;
 }
-
-//--------------------------------------------------------------------------------------------
-// OBSOLETE
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
-// projection_bitmap_t
-//--------------------------------------------------------------------------------------------
-
-//struct s_projection_bitmap;
-//typedef struct s_projection_bitmap projection_bitmap_t;
-
-//#define PROJECTION_BITMAP_ROWS 128
-
-//struct s_projection_bitmap
-//{
-//    int y_stt;
-//    int row_cnt;
-//
-//    int row_stt[PROJECTION_BITMAP_ROWS];
-//    int row_end[PROJECTION_BITMAP_ROWS];
-//};
-
-//static projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr );
-
-//projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr )
-//{
-//    if ( NULL == ptr ) return ptr;
-//
-//    ptr->y_stt   = 0;
-//    ptr->row_cnt = 0;
-//
-//    return ptr;
-//}
-
-//--------------------------------------------------------------------------------------------
-// cam_corner_info_t
-//--------------------------------------------------------------------------------------------
-
-//struct s_cam_corner_info;
-//typedef struct s_cam_corner_info cam_corner_info_t;
-
-//struct s_cam_corner_info
-//{
-//    float                   lowx;
-//    float                   highx;
-//    float                   lowy;
-//    float                   highy;
-//
-//    float                   x[4];
-//    float                   y[4];
-//    int                     listlowtohighy[4];
-//};
-
-//void gfx_calc_rotmesh()
-//{
-//    static const float assumed_aspect_ratio = 4.0f / 3.0f;
-//
-//    float aspect_ratio = ( float )sdl_scr.x / ( float )sdl_scr.y;
-//
-//    // Matrix init stuff (from remove.c)
-//    rotmesh_topside    = aspect_ratio / assumed_aspect_ratio * ROTMESH_TOPSIDE ;
-//    rotmesh_bottomside = aspect_ratio / assumed_aspect_ratio * ROTMESH_BOTTOMSIDE;
-//    rotmesh_up         = aspect_ratio / assumed_aspect_ratio * ROTMESH_UP;
-//    rotmesh_down       = aspect_ratio / assumed_aspect_ratio * ROTMESH_DOWN;
-//}
-
-//--------------------------------------------------------------------------------------------
-//void get_clip_planes( const camera_t * pcam, GLfloat planes[] )
-//{
-//    // clip plane normals point IN
-//
-//    GLfloat clip[16];
-//    GLfloat _proj[16];
-//    GLfloat _modl[16];
-//    GLfloat t;
-//
-//    const GLfloat * proj = NULL;
-//    const GLfloat * modl = NULL;
-//
-//    // get the matrices...
-//    if ( NULL != pcam )
-//    {
-//        // ...from the camera
-//        proj = pcam->mProjection_big.v;
-//        modl = pcam->getView().v;
-//    }
-//    else
-//    {
-//        // ... from the current OpenGL state
-//
-//        // The Current PROJECTION Matrix
-//        proj = _proj;
-//        glGetFloatv( GL_PROJECTION_MATRIX, _proj );
-//
-//        // The Current MODELVIEW Matrix
-//        modl = _modl;
-//        glGetFloatv( GL_MODELVIEW_MATRIX, _modl );
-//    }
-//
-//    // Multiply Projection By Modelview
-//    clip[ MAT_IDX( 0, 0 )] = modl[ MAT_IDX( 0, 0 )] * proj[ MAT_IDX( 0, 0 )] + modl[ MAT_IDX( 0, 1 )] * proj[ MAT_IDX( 1, 0 )] + modl[ MAT_IDX( 0, 2 )] * proj[ MAT_IDX( 2, 0 )] + modl[ MAT_IDX( 0, 3 )] * proj[ MAT_IDX( 3, 0 )];
-//    clip[ MAT_IDX( 0, 1 )] = modl[ MAT_IDX( 0, 0 )] * proj[ MAT_IDX( 0, 1 )] + modl[ MAT_IDX( 0, 1 )] * proj[ MAT_IDX( 1, 1 )] + modl[ MAT_IDX( 0, 2 )] * proj[ MAT_IDX( 2, 1 )] + modl[ MAT_IDX( 0, 3 )] * proj[ MAT_IDX( 3, 1 )];
-//    clip[ MAT_IDX( 0, 2 )] = modl[ MAT_IDX( 0, 0 )] * proj[ MAT_IDX( 0, 2 )] + modl[ MAT_IDX( 0, 1 )] * proj[ MAT_IDX( 1, 2 )] + modl[ MAT_IDX( 0, 2 )] * proj[ MAT_IDX( 2, 2 )] + modl[ MAT_IDX( 0, 3 )] * proj[ MAT_IDX( 3, 2 )];
-//    clip[ MAT_IDX( 0, 3 )] = modl[ MAT_IDX( 0, 0 )] * proj[ MAT_IDX( 0, 3 )] + modl[ MAT_IDX( 0, 1 )] * proj[ MAT_IDX( 1, 3 )] + modl[ MAT_IDX( 0, 2 )] * proj[ MAT_IDX( 2, 3 )] + modl[ MAT_IDX( 0, 3 )] * proj[ MAT_IDX( 3, 3 )];
-//
-//    clip[ MAT_IDX( 1, 0 )] = modl[ MAT_IDX( 1, 0 )] * proj[ MAT_IDX( 0, 0 )] + modl[ MAT_IDX( 1, 1 )] * proj[ MAT_IDX( 1, 0 )] + modl[ MAT_IDX( 1, 2 )] * proj[ MAT_IDX( 2, 0 )] + modl[ MAT_IDX( 1, 3 )] * proj[ MAT_IDX( 3, 0 )];
-//    clip[ MAT_IDX( 1, 1 )] = modl[ MAT_IDX( 1, 0 )] * proj[ MAT_IDX( 0, 1 )] + modl[ MAT_IDX( 1, 1 )] * proj[ MAT_IDX( 1, 1 )] + modl[ MAT_IDX( 1, 2 )] * proj[ MAT_IDX( 2, 1 )] + modl[ MAT_IDX( 1, 3 )] * proj[ MAT_IDX( 3, 1 )];
-//    clip[ MAT_IDX( 1, 2 )] = modl[ MAT_IDX( 1, 0 )] * proj[ MAT_IDX( 0, 2 )] + modl[ MAT_IDX( 1, 1 )] * proj[ MAT_IDX( 1, 2 )] + modl[ MAT_IDX( 1, 2 )] * proj[ MAT_IDX( 2, 2 )] + modl[ MAT_IDX( 1, 3 )] * proj[ MAT_IDX( 3, 2 )];
-//    clip[ MAT_IDX( 1, 3 )] = modl[ MAT_IDX( 1, 0 )] * proj[ MAT_IDX( 0, 3 )] + modl[ MAT_IDX( 1, 1 )] * proj[ MAT_IDX( 1, 3 )] + modl[ MAT_IDX( 1, 2 )] * proj[ MAT_IDX( 2, 3 )] + modl[ MAT_IDX( 1, 3 )] * proj[ MAT_IDX( 3, 3 )];
-//
-//    clip[ MAT_IDX( 2, 0 )] = modl[ MAT_IDX( 2, 0 )] * proj[ MAT_IDX( 0, 0 )] + modl[ MAT_IDX( 2, 1 )] * proj[ MAT_IDX( 1, 0 )] + modl[ MAT_IDX( 2, 2 )] * proj[ MAT_IDX( 2, 0 )] + modl[ MAT_IDX( 2, 3 )] * proj[ MAT_IDX( 3, 0 )];
-//    clip[ MAT_IDX( 2, 1 )] = modl[ MAT_IDX( 2, 0 )] * proj[ MAT_IDX( 0, 1 )] + modl[ MAT_IDX( 2, 1 )] * proj[ MAT_IDX( 1, 1 )] + modl[ MAT_IDX( 2, 2 )] * proj[ MAT_IDX( 2, 1 )] + modl[ MAT_IDX( 2, 3 )] * proj[ MAT_IDX( 3, 1 )];
-//    clip[ MAT_IDX( 2, 2 )] = modl[ MAT_IDX( 2, 0 )] * proj[ MAT_IDX( 0, 2 )] + modl[ MAT_IDX( 2, 1 )] * proj[ MAT_IDX( 1, 2 )] + modl[ MAT_IDX( 2, 2 )] * proj[ MAT_IDX( 2, 2 )] + modl[ MAT_IDX( 2, 3 )] * proj[ MAT_IDX( 3, 2 )];
-//    clip[ MAT_IDX( 2, 3 )] = modl[ MAT_IDX( 2, 0 )] * proj[ MAT_IDX( 0, 3 )] + modl[ MAT_IDX( 2, 1 )] * proj[ MAT_IDX( 1, 3 )] + modl[ MAT_IDX( 2, 2 )] * proj[ MAT_IDX( 2, 3 )] + modl[ MAT_IDX( 2, 3 )] * proj[ MAT_IDX( 3, 3 )];
-//
-//    clip[ MAT_IDX( 3, 0 )] = modl[ MAT_IDX( 3, 0 )] * proj[ MAT_IDX( 0, 0 )] + modl[ MAT_IDX( 3, 1 )] * proj[ MAT_IDX( 1, 0 )] + modl[ MAT_IDX( 3, 2 )] * proj[ MAT_IDX( 2, 0 )] + modl[ MAT_IDX( 3, 3 )] * proj[ MAT_IDX( 3, 0 )];
-//    clip[ MAT_IDX( 3, 1 )] = modl[ MAT_IDX( 3, 0 )] * proj[ MAT_IDX( 0, 1 )] + modl[ MAT_IDX( 3, 1 )] * proj[ MAT_IDX( 1, 1 )] + modl[ MAT_IDX( 3, 2 )] * proj[ MAT_IDX( 2, 1 )] + modl[ MAT_IDX( 3, 3 )] * proj[ MAT_IDX( 3, 1 )];
-//    clip[ MAT_IDX( 3, 2 )] = modl[ MAT_IDX( 3, 0 )] * proj[ MAT_IDX( 0, 2 )] + modl[ MAT_IDX( 3, 1 )] * proj[ MAT_IDX( 1, 2 )] + modl[ MAT_IDX( 3, 2 )] * proj[ MAT_IDX( 2, 2 )] + modl[ MAT_IDX( 3, 3 )] * proj[ MAT_IDX( 3, 2 )];
-//    clip[ MAT_IDX( 3, 3 )] = modl[ MAT_IDX( 3, 0 )] * proj[ MAT_IDX( 0, 3 )] + modl[ MAT_IDX( 3, 1 )] * proj[ MAT_IDX( 1, 3 )] + modl[ MAT_IDX( 3, 2 )] * proj[ MAT_IDX( 2, 3 )] + modl[ MAT_IDX( 3, 3 )] * proj[ MAT_IDX( 3, 3 )];
-//
-//    // Extract The Numbers For The RIGHT Plane
-//    planes[MAT_IDX( 0, 0 )] = clip[ MAT_IDX( 0, 3 )] - clip[ MAT_IDX( 0, 0 )];
-//    planes[MAT_IDX( 0, 1 )] = clip[ MAT_IDX( 1, 3 )] - clip[ MAT_IDX( 1, 0 )];
-//    planes[MAT_IDX( 0, 2 )] = clip[ MAT_IDX( 2, 3 )] - clip[ MAT_IDX( 2, 0 )];
-//    planes[MAT_IDX( 0, 3 )] = clip[ MAT_IDX( 3, 3 )] - clip[ MAT_IDX( 3, 0 )];
-//
-//    // Normalize The Result
-//    t = SQRT( planes[MAT_IDX( 0, 0 )] * planes[MAT_IDX( 0, 0 )] + planes[MAT_IDX( 0, 1 )] * planes[MAT_IDX( 0, 1 )] + planes[MAT_IDX( 0, 2 )] * planes[MAT_IDX( 0, 2 )] );
-//    planes[MAT_IDX( 0, 0 )] /= t;
-//    planes[MAT_IDX( 0, 1 )] /= t;
-//    planes[MAT_IDX( 0, 2 )] /= t;
-//    planes[MAT_IDX( 0, 3 )] /= t;
-//
-//    // Extract The Numbers For The LEFT Plane
-//    planes[MAT_IDX( 1, 0 )] = clip[ MAT_IDX( 0, 3 )] + clip[ MAT_IDX( 0, 0 )];
-//    planes[MAT_IDX( 1, 1 )] = clip[ MAT_IDX( 1, 3 )] + clip[ MAT_IDX( 1, 0 )];
-//    planes[MAT_IDX( 1, 2 )] = clip[ MAT_IDX( 2, 3 )] + clip[ MAT_IDX( 2, 0 )];
-//    planes[MAT_IDX( 1, 3 )] = clip[ MAT_IDX( 3, 3 )] + clip[ MAT_IDX( 3, 0 )];
-//
-//    // Normalize The Result
-//    t = SQRT( planes[MAT_IDX( 1, 0 )] * planes[MAT_IDX( 1, 0 )] + planes[MAT_IDX( 1, 1 )] * planes[MAT_IDX( 1, 1 )] + planes[MAT_IDX( 1, 2 )] * planes[MAT_IDX( 1, 2 )] );
-//    planes[MAT_IDX( 1, 0 )] /= t;
-//    planes[MAT_IDX( 1, 1 )] /= t;
-//    planes[MAT_IDX( 1, 2 )] /= t;
-//    planes[MAT_IDX( 1, 3 )] /= t;
-//
-//    // Extract The BOTTOM Plane
-//    planes[MAT_IDX( 2, 0 )] = clip[ MAT_IDX( 0, 3 )] + clip[ MAT_IDX( 0, 1 )];
-//    planes[MAT_IDX( 2, 1 )] = clip[ MAT_IDX( 1, 3 )] + clip[ MAT_IDX( 1, 1 )];
-//    planes[MAT_IDX( 2, 2 )] = clip[ MAT_IDX( 2, 3 )] + clip[ MAT_IDX( 2, 1 )];
-//    planes[MAT_IDX( 2, 3 )] = clip[ MAT_IDX( 3, 3 )] + clip[ MAT_IDX( 3, 1 )];
-//
-//    // Normalize The Result
-//    t = SQRT( planes[MAT_IDX( 2, 0 )] * planes[MAT_IDX( 2, 0 )] + planes[MAT_IDX( 2, 1 )] * planes[MAT_IDX( 2, 1 )] + planes[MAT_IDX( 2, 2 )] * planes[MAT_IDX( 2, 2 )] );
-//    planes[MAT_IDX( 2, 0 )] /= t;
-//    planes[MAT_IDX( 2, 1 )] /= t;
-//    planes[MAT_IDX( 2, 2 )] /= t;
-//    planes[MAT_IDX( 2, 3 )] /= t;
-//
-//    // Extract The TOP Plane
-//    planes[MAT_IDX( 3, 0 )] = clip[ MAT_IDX( 0, 3 )] - clip[ MAT_IDX( 0, 1 )];
-//    planes[MAT_IDX( 3, 1 )] = clip[ MAT_IDX( 1, 3 )] - clip[ MAT_IDX( 1, 1 )];
-//    planes[MAT_IDX( 3, 2 )] = clip[ MAT_IDX( 2, 3 )] - clip[ MAT_IDX( 2, 1 )];
-//    planes[MAT_IDX( 3, 3 )] = clip[ MAT_IDX( 3, 3 )] - clip[ MAT_IDX( 3, 1 )];
-//
-//    // Normalize The Result
-//    t = SQRT( planes[MAT_IDX( 3, 0 )] * planes[MAT_IDX( 3, 0 )] + planes[MAT_IDX( 3, 1 )] * planes[MAT_IDX( 3, 1 )] + planes[MAT_IDX( 3, 2 )] * planes[MAT_IDX( 3, 2 )] );
-//    planes[MAT_IDX( 3, 0 )] /= t;
-//    planes[MAT_IDX( 3, 1 )] /= t;
-//    planes[MAT_IDX( 3, 2 )] /= t;
-//    planes[MAT_IDX( 3, 3 )] /= t;
-//
-//    // Extract The FAR Plane
-//    planes[MAT_IDX( 4, 0 )] = clip[ MAT_IDX( 0, 3 )] - clip[ MAT_IDX( 0, 2 )];
-//    planes[MAT_IDX( 4, 1 )] = clip[ MAT_IDX( 1, 3 )] - clip[ MAT_IDX( 1, 2 )];
-//    planes[MAT_IDX( 4, 2 )] = clip[ MAT_IDX( 2, 3 )] - clip[ MAT_IDX( 2, 2 )];
-//    planes[MAT_IDX( 4, 3 )] = clip[ MAT_IDX( 3, 3 )] - clip[ MAT_IDX( 3, 2 )];
-//
-//    // Normalize The Result
-//    t = SQRT( planes[MAT_IDX( 4, 0 )] * planes[MAT_IDX( 4, 0 )] + planes[MAT_IDX( 4, 1 )] * planes[MAT_IDX( 4, 1 )] + planes[MAT_IDX( 4, 2 )] * planes[MAT_IDX( 4, 2 )] );
-//    planes[MAT_IDX( 4, 0 )] /= t;
-//    planes[MAT_IDX( 4, 1 )] /= t;
-//    planes[MAT_IDX( 4, 2 )] /= t;
-//    planes[MAT_IDX( 4, 3 )] /= t;
-//
-//    // Extract The NEAR Plane
-//    planes[MAT_IDX( 5, 0 )] = clip[ MAT_IDX( 0, 3 )] + clip[ MAT_IDX( 0, 2 )];
-//    planes[MAT_IDX( 5, 1 )] = clip[ MAT_IDX( 1, 3 )] + clip[ MAT_IDX( 1, 2 )];
-//    planes[MAT_IDX( 5, 2 )] = clip[ MAT_IDX( 2, 3 )] + clip[ MAT_IDX( 2, 2 )];
-//    planes[MAT_IDX( 5, 3 )] = clip[ MAT_IDX( 3, 3 )] + clip[ MAT_IDX( 3, 2 )];
-//
-//    // Normalize The Result
-//    t = SQRT( planes[MAT_IDX( 5, 0 )] * planes[MAT_IDX( 5, 0 )] + planes[MAT_IDX( 5, 1 )] * planes[MAT_IDX( 5, 1 )] + planes[MAT_IDX( 5, 2 )] * planes[MAT_IDX( 5, 2 )] );
-//    planes[MAT_IDX( 5, 0 )] /= t;
-//    planes[MAT_IDX( 5, 1 )] /= t;
-//    planes[MAT_IDX( 5, 2 )] /= t;
-//    planes[MAT_IDX( 5, 3 )] /= t;
-//}
-//
-//--------------------------------------------------------------------------------------------
-//gfx_rv gfx_project_cam_view( const camera_t * pcam, cam_corner_info_t * pinfo )
-//{
-//    /// @author ZZ
-/// @details This function figures out where the corners of the view area
-//    ///    go when projected onto the plane of the PMesh.  Used later for
-//    ///    determining which mesh fans need to be rendered
-//
-//    enum
-//    {
-//        plane_RIGHT  = 0,
-//        plane_LEFT   = 1,
-//        plane_BOTTOM = 2,
-//        plane_TOP    = 3,
-//        plane_FAR    = 4,
-//        plane_NEAR   = 5,
-//
-//        // other values
-//        plane_SIZE = 4
-//    };
-//
-//    enum
-//    {
-//        plane_offset_RIGHT  = plane_RIGHT  * plane_SIZE,
-//        plane_offset_LEFT   = plane_LEFT   * plane_SIZE,
-//        plane_offset_BOTTOM = plane_BOTTOM * plane_SIZE,
-//        plane_offset_TOP    = plane_TOP    * plane_SIZE,
-//        plane_offset_FAR    = plane_FAR    * plane_SIZE,
-//        plane_offset_NEAR   = plane_NEAR   * plane_SIZE
-//    };
-//
-//    enum
-//    {
-//        corner_TOP_LEFT = 0,
-//        corner_TOP_RIGHT,
-//        corner_BOTTOM_RIGHT,
-//        corner_BOTTOM_LEFT,
-//        corner_COUNT
-//    };
-//
-//    int cnt, tnc, extra[2];
-//    fvec3_t point;
-//    int corner_count;
-//    fvec3_t corner_pos[corner_COUNT], corner_dir[corner_COUNT];
-//
-//    // six planes with 4 components.
-//    // the plane i starts at planes + 4*i
-//    // plane_offset_RIGHT, plane_offset_LEFT, plane_offset_BOTTOM, plane_offset_TOP, plane_offset_FAR, plane_offset_NEAR
-//    GLfloat planes[ 6 * 4 ];
-//
-//    GLfloat ground_plane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-//
-//    if ( NULL == pinfo )
-//    {
-//        return gfx_fail;
-//    }
-//
-//    if ( NULL == pcam )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
-//        return gfx_error;
-//    }
-//
-//    get_clip_planes( pcam, planes );
-//
-//    // the number of valid points
-//    corner_count = 0;
-//
-//    // grab the coefficients of the rays at the 4 "folds" in the frustum
-//    two_plane_intersection( corner_pos[corner_TOP_LEFT].v, corner_dir[corner_TOP_LEFT].v, planes + plane_offset_LEFT, planes + plane_offset_TOP );
-//    if ( corner_dir[corner_TOP_LEFT].z < 0.0f )
-//    {
-//        float t = corner_pos[corner_TOP_LEFT].z / corner_dir[corner_TOP_LEFT].z;
-//        pinfo->x[corner_count] = corner_pos[corner_TOP_LEFT].x + corner_dir[corner_TOP_LEFT].x * t;
-//        pinfo->y[corner_count] = corner_pos[corner_TOP_LEFT].y + corner_dir[corner_TOP_LEFT].y * t;
-//        corner_count++;
-//    }
-//
-//    two_plane_intersection( corner_pos[corner_TOP_RIGHT].v, corner_dir[corner_TOP_RIGHT].v, planes + plane_offset_TOP, planes + plane_offset_RIGHT );
-//    if ( corner_dir[corner_TOP_RIGHT].z < 0.0f )
-//    {
-//        float t = corner_pos[corner_TOP_RIGHT].z / corner_dir[corner_TOP_RIGHT].z;
-//        pinfo->x[corner_count] = corner_pos[corner_TOP_RIGHT].x + corner_dir[corner_TOP_RIGHT].x * t;
-//        pinfo->y[corner_count] = corner_pos[corner_TOP_RIGHT].y + corner_dir[corner_TOP_RIGHT].y * t;
-//        corner_count++;
-//    }
-//
-//    two_plane_intersection( corner_pos[corner_BOTTOM_RIGHT].v, corner_dir[corner_BOTTOM_RIGHT].v, planes + plane_offset_RIGHT, planes + plane_offset_BOTTOM );
-//    if ( corner_dir[corner_BOTTOM_RIGHT].z < 0.0f )
-//    {
-//        float t = corner_pos[corner_BOTTOM_RIGHT].z / corner_dir[corner_BOTTOM_RIGHT].z;
-//        pinfo->x[corner_count] = corner_pos[corner_BOTTOM_RIGHT].x + corner_dir[corner_BOTTOM_RIGHT].x * t;
-//        pinfo->y[corner_count] = corner_pos[corner_BOTTOM_RIGHT].y + corner_dir[corner_BOTTOM_RIGHT].y * t;
-//        corner_count++;
-//    }
-//
-//    two_plane_intersection( corner_pos[corner_BOTTOM_LEFT].v, corner_dir[corner_BOTTOM_LEFT].v, planes + plane_offset_BOTTOM, planes + plane_offset_LEFT );
-//    if ( corner_dir[corner_BOTTOM_LEFT].z < 0.0f )
-//    {
-//        float t = corner_pos[corner_BOTTOM_LEFT].z / corner_dir[corner_BOTTOM_LEFT].z;
-//        pinfo->x[corner_count] = corner_pos[corner_BOTTOM_LEFT].x + corner_dir[corner_BOTTOM_LEFT].x * t;
-//        pinfo->y[corner_count] = corner_pos[corner_BOTTOM_LEFT].y + corner_dir[corner_BOTTOM_LEFT].y * t;
-//        corner_count++;
-//    }
-//
-//    if ( corner_count < 4 )
-//    {
-//        // try plane_offset_RIGHT, plane_offset_FAR, and GROUND
-//        if ( three_plane_intersection( point.v, planes + plane_offset_RIGHT, planes + plane_offset_FAR, ground_plane ) )
-//        {
-//            pinfo->x[corner_count] = point.x;
-//            pinfo->y[corner_count] = point.y;
-//            corner_count++;
-//        }
-//    }
-//
-//    if ( corner_count < 4 )
-//    {
-//        // try plane_offset_LEFT, plane_offset_FAR, and GROUND
-//        if ( three_plane_intersection( point.v, planes + plane_offset_LEFT, planes + plane_offset_FAR, ground_plane ) )
-//        {
-//            pinfo->x[corner_count] = point.x;
-//            pinfo->y[corner_count] = point.y;
-//            corner_count++;
-//        }
-//    }
-//
-//    if ( corner_count < 4 )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "not enough corner points intersecting with the ground" );
-//        return gfx_error;
-//    }
-//
-//    // Get the extreme values
-//    pinfo->lowx = pinfo->x[0];
-//    pinfo->lowy = pinfo->y[0];
-//    pinfo->highx = pinfo->x[0];
-//    pinfo->highy = pinfo->y[0];
-//    pinfo->listlowtohighy[0] = 0;
-//    pinfo->listlowtohighy[3] = 0;
-//
-//    // sort the corners
-//    for ( cnt = 0; cnt < 4; cnt++ )
-//    {
-//        if ( pinfo->x[cnt] < pinfo->lowx )
-//        {
-//            pinfo->lowx = pinfo->x[cnt];
-//        }
-//
-//        if ( pinfo->x[cnt] > pinfo->highx )
-//        {
-//            pinfo->highx = pinfo->x[cnt];
-//        }
-//
-//        if ( pinfo->y[cnt] < pinfo->lowy )
-//        {
-//            pinfo->lowy = pinfo->y[cnt];
-//            pinfo->listlowtohighy[0] = cnt;
-//        }
-//
-//        if ( pinfo->y[cnt] > pinfo->highy )
-//        {
-//            pinfo->highy = pinfo->y[cnt];
-//            pinfo->listlowtohighy[3] = cnt;
-//        }
-//    }
-//
-//    // Figure out the order of points
-//    for ( cnt = 0, tnc = 0; cnt < 4; cnt++ )
-//    {
-//        if ( cnt != pinfo->listlowtohighy[0] && cnt != pinfo->listlowtohighy[3] )
-//        {
-//            extra[tnc] = cnt;
-//            tnc++;
-//        }
-//    }
-//
-//    pinfo->listlowtohighy[1] = extra[1];
-//    pinfo->listlowtohighy[2] = extra[0];
-//    if ( pinfo->y[extra[0]] < pinfo->y[extra[1]] )
-//    {
-//        pinfo->listlowtohighy[1] = extra[0];
-//        pinfo->listlowtohighy[2] = extra[1];
-//    }
-//
-//    return gfx_success;
-//}
-
-//--------------------------------------------------------------------------------------------
-//gfx_rv gfx_make_projection_bitmap( renderlist_t * prlist, cam_corner_info_t * pinfo, projection_bitmap_t * pbmp )
-//{
-//    int cnt, grid_x, grid_y;
-//    int row, run;
-//    int leftedge[4], leftedge_count;
-//    int rightedge[4], rightedge_count;
-//    int x, center_dx, center_dy, center_x0, center_y0;
-//    int corner_x[4], corner_y[4];
-//    int corner_stt, corner_end;
-//
-//    ego_mesh_t       * pmesh;
-//
-//    if ( NULL == prlist )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
-//
-//        return gfx_error;
-//    }
-//
-//    if ( NULL == pinfo )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera frustum data" );
-//
-//        return gfx_error;
-//    }
-//
-//    if ( NULL == pbmp )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL projection data" );
-//
-//        return gfx_error;
-//    }
-//
-//    pmesh = renderlist_get_pmesh( prlist );
-//    if ( NULL == pmesh )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
-//        return gfx_error;
-//    }
-//
-//    // Make life simpler
-//    for ( cnt = 0; cnt < 4; cnt++ )
-//    {
-//        corner_x[cnt] = pinfo->x[pinfo->listlowtohighy[cnt]];
-//        corner_y[cnt] = pinfo->y[pinfo->listlowtohighy[cnt]];
-//    }
-//
-//    // It works better this way...
-//    corner_y[0] -= 128;
-//    corner_y[3] += 128;
-//
-//    // Find the center line
-//    center_dx = corner_x[3] - corner_x[0];
-//    center_dy = corner_y[3] - corner_y[0];
-//    center_x0 = corner_x[0];
-//    center_y0 = corner_y[0];
-//
-//    if ( center_dy < 1 )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "the corner's y-coordinates are not sorted properly" );
-//        return gfx_error;
-//    }
-//
-//    // Find the points in each edge
-//
-//    // bottom
-//    // corner 0 is on both the left and right edges
-//    leftedge[0] = 0;  leftedge_count = 1;
-//    rightedge[0] = 0;  rightedge_count = 1;
-//
-//    // middle
-//    if ( corner_x[1] < ( ( center_dx * ( corner_y[1] - corner_y[0] ) ) / center_dy ) + center_x0 )
-//    {
-//        // corner 1 is on the left edge
-//
-//        leftedge[leftedge_count] = 1;
-//        leftedge_count++;
-//
-//        corner_x[1] -= 512;
-//    }
-//    else
-//    {
-//        // corner 1 is on the right edge
-//
-//        rightedge[rightedge_count] = 1;
-//        rightedge_count++;
-//
-//        corner_x[1] += 512;
-//    }
-//
-//    // middle
-//    if ( corner_x[2] < (( center_dx * ( corner_y[2] - corner_y[0] )) / center_dy ) + center_x0 )
-//    {
-//        // corner 2 is on the left edge
-//
-//        leftedge[leftedge_count] = 2;
-//        leftedge_count++;
-//
-//        corner_x[2] -= 512;
-//    }
-//    else
-//    {
-//        // corner 2 is on the right edge
-//
-//        rightedge[rightedge_count] = 2;
-//        rightedge_count++;
-//
-//        corner_x[2] += 512;
-//    }
-//
-//    // top
-//    // corner 3 is on the left and the right edge
-//    leftedge[leftedge_count] = 3;  leftedge_count++;
-//    rightedge[rightedge_count] = 3;  rightedge_count++;
-//
-//    // Make the left edge
-//    row = 0;
-//    for ( cnt = 1; cnt < leftedge_count && row < PROJECTION_BITMAP_ROWS; cnt++ )
-//    {
-//        int grid_x, x_stt, x_end;
-//        int grid_y, y_stt, y_end;
-//        int grid_y_stt, grid_y_end;
-//
-//        corner_stt = leftedge[cnt-1];
-//        corner_end = leftedge[cnt];
-//
-//        y_stt = corner_y[corner_stt];
-//        y_end = corner_y[corner_end];
-//
-//        x_stt = corner_x[corner_stt];
-//        x_end = corner_x[corner_end];
-//
-//        edge_dy   = y_end - y_stt;
-//        edge_dx   = x_end - x_stt;
-//        edge_dx_step = edge_dx / edge_dy;
-//
-//        grid_y_stt = y_stt / GRID_ISIZE;
-//        grid_y_end = y_end / GRID_ISIZE;
-//
-//        grid_x_stt = x_stt / GRID_ISIZE;
-//        grid_x_end = x_end / GRID_ISIZE;
-//
-//        if( grid_y_stt < 0 )
-//        {
-//            grid_y_stt = 0;
-//
-//            // move the x starting point
-//            grid_x_stt -= grid_y_stt * edge_step;
-//        }
-//
-//        if( grid_y_end > pmesh->info.tiles_y )
-//        {
-//            grid_y_end = pmesh->info.tiles_y;
-//        }
-//
-//        for ( grid_y = grid_y_stt; grid_y <= grid_y_end && row < PROJECTION_BITMAP_ROWS; grid_y++  )
-//        {
-//            if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
-//            {
-//                grid_x = x / GRID_ISIZE;
-//                pbmp->corner_stt[row] = CLIP( grid_x, 0, pmesh->info.tiles_x - 1 );
-//                row++;
-//            }
-//        }
-//    }
-//    pbmp->row_cnt = row;
-//
-//    // Make the right edge ( rowrun )
-//    grid_y = corner_y[0] / GRID_ISIZE;
-//    row = 0;
-//
-//    for( cnt = 1; cnt < rightedge_count; cnt++ )
-//    {
-//        corner_stt = rightedge[cnt-1];
-//        corner_end = rightedge[cnt];
-//
-//        x = corner_x[corner_stt] + 128;
-//
-//        edge_dy = corner_y[corner_end] - corner_y[corner_stt];
-//        edge_dx = 0;
-//        if ( edge_dy > 0 )
-//        {
-//            edge_dx = (( corner_x[corner_end] - corner_x[corner_stt] ) * GRID_ISIZE ) / edge_dy;
-//        }
-//
-//        run = corner_y[corner_end] / GRID_ISIZE;
-//
-//        for ( /* nothing */; grid_y < run; grid_y++ )
-//        {
-//            if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
-//            {
-//                grid_x = x / GRID_ISIZE;
-//                pbmp->corner_end[row] = CLIP( grid_x, 0, pmesh->info.tiles_x - 1 );
-//                row++;
-//            }
-//
-//            x += edge_dx;
-//        }
-//    }
-//
-//    if ( pbmp->row_cnt != row )
-//    {
-//        log_warning( "ROW error (%i, %i)\n", pbmp->row_cnt, row );
-//        return gfx_fail;
-//    }
-//
-//    // set the starting y value
-//    pbmp->y_stt = corner_y[0] / GRID_ISIZE;
-//
-//    return gfx_success;
-//}
-
-//--------------------------------------------------------------------------------------------
-//gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
-//{
-//    /// @author ZZ
-/// @details This function figures out which mesh fans to draw
-//
-//    int cnt, grid_x, grid_y;
-//    int row;
-//
-//    gfx_rv              retval;
-//    cam_corner_info_t   corner;
-//    projection_bitmap_t proj;
-//
-//    ego_mesh_t * pmesh = NULL;
-//
-//
-//    // Make sure there is a renderlist
-//    if ( NULL == prlist )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
-//        return gfx_error;
-//    }
-//
-//    // make sure the renderlist is attached to a mesh
-//    pmesh = renderlist_get_pmesh( prlist );
-//    if ( NULL == pmesh )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist is not attached to a mesh" );
-//        return gfx_error;
-//    }
-//
-//    // make sure that we have a valid camera
-//    if ( NULL == pcam )
-//    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
-//        return gfx_error;
-//    }
-//
-//    // because the main loop of the program will always flip the
-//    // page before rendering the 1st frame of the actual game,
-//    // game_frame_all will always start at 1
-//    if ( 1 != ( game_frame_all & 3 ) )
-//    {
-//        return gfx_success;
-//    }
-//
-//    // Find the render area corners.
-//    // if this fails, we cannot have a valid list of corners, so this function fails
-//    if ( gfx_error == gfx_project_cam_view( pcam, &corner ) )
-//    {
-//        return gfx_error;
-//    }
-//
-//    // assume the best
-//    retval = gfx_success;
-//
-//    // reset the renderlist
-//    if ( gfx_error == renderlist_reset( prlist ) )
-//    {
-//        retval = gfx_error;
-//    }
-//
-//    // scan through each fan... not as fact as colliding with the BSP, but maybe fast enough
-//    tile_count = pmesh->info.tiles_count;
-//    for ( fan = 0; fan < tile_count; fan++ )
-//    {
-//        inview = egolib_frustum_intersects_ego_aabb( &(pcam->frustum), mm->tilelst[fan].bbox.mins.v, mm->tilelst[fan].bbox.maxs.v );
-//
-//    }
-//
-//    // get the actual projection "bitmap"
-//    gfx_make_projection_bitmap( prlist, &corner, &proj );
-//
-//    // fill the renderlist from the projected view
-//    grid_y = proj.y_stt;
-//    grid_y = CLIP( grid_y, 0, pmesh->info.tiles_y - 1 );
-//    for ( row = 0; row < proj.row_cnt; row++, grid_y++ )
-//    {
-//        for ( grid_x = proj.row_stt[row]; grid_x <= proj.row_end[row] && prlist->all.count < MAXMESHRENDER; grid_x++ )
-//        {
-//            cnt = pmesh->gmem.tilestart[grid_y] + grid_x;
-//
-//            if ( gfx_error == gfx_capture_mesh_tile( ego_mesh_get_ptile( pmesh, cnt ) ) )
-//            {
-//                retval = gfx_error;
-//                goto gfx_make_renderlist_exit;
-//            }
-//
-//            if ( gfx_error == renderlist_insert( prlist, ego_mesh_get_pgrid( pmesh, cnt ), cnt ) )
-//            {
-//                retval = gfx_error;
-//                goto gfx_make_renderlist_exit;
-//            }
-//        }
-//    }
-//
-//gfx_make_renderlist_exit:
-//    return retval;
-//}

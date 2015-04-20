@@ -17,46 +17,33 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/ComparisonFunction.h
-/// @brief  Enumeration of comparison functions used for depth/stencil buffer operations and others.
+/// @file   egolib/Renderer/TextureType.hpp
+/// @brief  An enumeration of texture types.
 /// @author Michael Heilmann
-
 
 namespace Ego
 {
 
 /**
  * @brief
- *	Comparison functions used for the depth/stencil buffer operations and others.
+ *  An enumeration of texture types.
  */
-enum CompareFunction
+enum class TextureType
 {
 
-    /** @brief Always reject. */
-    AlwaysFail,
+    /**
+     * @brief
+     *  A one-dimensional texture.
+     */
+    _1D,
 
-    /** @brief Always pass. */
-    AlwaysPass,
-
-    /** @brief Pass if less. */
-    Less,
-
-    /** @brief Pass if less or equal. */
-    LessOrEqual,
-
-    /** @brief Pass if equal. */
-    Equal,
-
-    /** @brief Pass if not equal. */
-    NotEqual,
-
-    /** @brief Pass if greater or equal. */
-    GreaterOrEqual,
-
-    /** @brief Pass if greater. */
-    Greater,
+    /**
+     * @brief
+     *  A two-dimensional texture.
+     */
+    _2D,
     
-    _COUNT, ///< @todo Remove this.
+    _COUNT,  ///< @todo Remove this.
 
 };
 

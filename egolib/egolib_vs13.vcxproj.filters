@@ -800,6 +800,9 @@
     <ClInclude Include="src\egolib\Image\ImageManager.hpp">
       <Filter>Header Files\Image</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\TextureType.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

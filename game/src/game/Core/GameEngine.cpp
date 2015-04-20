@@ -443,7 +443,7 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     gfx_config_download_from_egoboo_config(&gfx, &egoboo_config_t::get());
 
     // texture options
-    oglx_texture_parameters_download_gfx(&tex_params, &egoboo_config_t::get());
+    oglx_texture_parameters_download_gfx(&g_ogl_textureParameters, &egoboo_config_t::get());
 
     return true;
 }

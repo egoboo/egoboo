@@ -23,34 +23,38 @@
 
 namespace Ego
 {
+
+/**
+ * @brief
+ *  An enumeration of winding modes.
+ *  
+ *  The projection of a polygon to window coordinates is said to have clockwise winding if an
+ *  imaginary object following the path from its first vertex, its second vertex, and so on, to its
+ *  last vertex, and finally back to its first vertex, moves in a clockwise direction about the
+ *  interior of the polygon. The polygon's winding is said to be anticlockwise if the imaginary
+ *  object following the same path moves in a anticlockwise direction about the interior of the
+ *  polygon.
+ *
+ *  The winding mode specifies whether polygons with clockwise winding in window coordinates, or
+ *  anticlockwise winding in window coordinates, are taken to be front-facing. Certain operations -
+ *  in particular but not restricted to culling and tesselation - are influenced by the polygon
+ *  winding.
+ */
+enum class WindingMode
+{
     /**
      * @brief
-     *  An enumeration of winding modes.
-     *  
-     *  The projection of a polygon to window coordinates is said to have clockwise winding if an
-     *  imaginary object following the path from its first vertex, its second vertex, and so on, to its
-     *  last vertex, and finally back to its first vertex, moves in a clockwise direction about the
-     *  interior of the polygon. The polygon's winding is said to be anticlockwise if the imaginary
-     *  object following the same path moves in a anticlockwise direction about the interior of the
-     *  polygon.
-     *
-     *  The winding mode specifies whether polygons with clockwise winding in window coordinates, or
-     *  anticlockwise winding in window coordinates, are taken to be front-facing. Certain operations -
-     *  in particular but not restricted to culling and tesselation - are influenced by the polygon
-     *  winding.
+     *  Clockwise polygons are front-facing.
      */
-    enum class WindingMode
-    {
-        /**
-         * @brief
-         *  Clockwise polygons are front-facing.
-         */
-         Clockwise,
+     Clockwise,
 
-        /**
-         * @brief
-         *  Anticlockwise polygons are front-facing.
-         */
-        AntiClockwise,
-    };
-}
+    /**
+     * @brief
+     *  Anticlockwise polygons are front-facing.
+     */
+    AntiClockwise,
+    
+    _COUNT, ///< @todo Remove this.
+};
+
+} // namespace Ego

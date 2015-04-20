@@ -1364,44 +1364,40 @@ SDL_Surface *cartman_CreateSurface(int w, int h)
 //--------------------------------------------------------------------------------------------
 void gfx_system_init_SDL_graphics()
 {
-    if ( _sdl_initialized_graphics ) return;
+    if (_sdl_initialized_graphics) return;
 
     cartman_init_SDL_base();
 
-    log_info( "Intializing SDL Video... " );
-    if ( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 )
+    log_info("Intializing SDL Video ... ");
+    if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
     {
-        log_message( "Failed!\n" );
-        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
+        log_message(" failure!\n");
+        log_warning("SDL error == \"%s\"\n", SDL_GetError());
     }
     else
     {
-        log_message( "Success!\n" );
+        log_message(" success!\n");
     }
 
 #if !defined(__APPLE__)
     {
-        //Setup the cute windows manager icon, don't do this on Mac
-        SDL_Surface *theSurface;
-        const char * fname = "icon.bmp";
-        STRING fileload;
-
-        snprintf( fileload, SDL_arraysize( fileload ), "mp_data/%s", fname );
-
-        theSurface = IMG_Load_RW( vfs_openRWopsRead( fileload ), 1 );
-        if ( NULL == theSurface )
+        // Setup the cute windows manager icon, don't do this on Mac.
+        const std::string fileName = "icon.bmp";
+        auto pathName = "mp_data/" + fileName;
+        SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
+        if (!theSurface)
         {
-            log_warning( "Unable to load icon (%s)\n", fname );
+            log_warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
         }
         else
         {
-            SDL_WM_SetIcon( theSurface, NULL );
+            SDL_WM_SetIcon(theSurface, nullptr);
         }
     }
 #endif
 
     // Set the window name
-    SDL_WM_SetCaption( NAME " " VERSION_STR, NAME );
+    SDL_WM_SetCaption(NAME " " VERSION_STR, NAME);
 
 #if defined(__unix__)
 
@@ -1415,39 +1411,31 @@ void gfx_system_init_SDL_graphics()
 
 #endif
 
-    // the flags to pass to SDL_SetVideoMode
-    sdl_vparam.horizontalResolution = egoboo_config_t::get().graphic_resolution_horizontal.getValue();
-    sdl_vparam.verticalResolution = egoboo_config_t::get().graphic_resolution_vertical.getValue();
-    sdl_vparam.colorBufferDepth = egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue();
+    // The flags to pass to SDL_SetVideoMode.
+    SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
 
-    sdl_vparam.flags.opengl              = SDL_TRUE;
-    sdl_vparam.flags.double_buf          = SDL_TRUE;
-    sdl_vparam.flags.full_screen = egoboo_config_t::get().graphic_fullscreen.getValue();
-
-    sdl_vparam.gl_att.buffer_size = egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue();
-    sdl_vparam.gl_att.depth_size = egoboo_config_t::get().graphic_depthBuffer_bitDepth.getValue();
-    sdl_vparam.gl_att.multi_buffers = (egoboo_config_t::get().graphic_antialiasing.getValue() > 1) ? 1 : 0;
-    sdl_vparam.gl_att.multi_samples = egoboo_config_t::get().graphic_antialiasing.getValue();
+    sdl_vparam.flags.opengl = SDL_TRUE;
+    sdl_vparam.flags.double_buf = SDL_TRUE;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
+    sdl_vparam.gl_att.accum[0] = 8;
+    sdl_vparam.gl_att.accum[1] = 8;
+    sdl_vparam.gl_att.accum[2] = 8;
+    sdl_vparam.gl_att.accum[3] = 8;
 
-    ogl_vparam.dither = egoboo_config_t::get().graphic_dithering_enable.getValue() ? GL_TRUE : GL_FALSE;
-    ogl_vparam.antialiasing   = GL_TRUE;
-    ogl_vparam.perspective    = egoboo_config_t::get().graphic_perspectiveCorrection_enable.getValue() ? GL_NICEST : GL_FASTEST;
-    ogl_vparam.shading        = GL_SMOOTH;
-	ogl_vparam.userAnisotropy = 16.0f * std::max(0, egoboo_config_t::get().graphic_textureFiltering.getValue() - Ego::TextureFilter::TRILINEAR_2);
+    oglx_video_parameters_t::download(&ogl_vparam, &egoboo_config_t::get());
 
-    log_info( "Opening SDL Video Mode...\n" );
+    log_info("Opening SDL Video Mode...\n");
 
     // actually set the video mode
-    if ( NULL == SDL_GL_set_mode( NULL, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics ) )
+    if (NULL == SDL_GL_set_mode(NULL, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics))
     {
-        log_message( "Failed!\n" );
-        log_error( "I can't get SDL to set any video mode: %s\n", SDL_GetError() );
+        log_message("Failed!\n");
+        log_error("I can't get SDL to set any video mode: %s\n", SDL_GetError());
     }
     else
     {
-        GFX_WIDTH = ( float )GFX_HEIGHT / ( float )sdl_vparam.verticalResolution * ( float )sdl_vparam.horizontalResolution;
-        log_message( "Success!\n" );
+        GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.verticalResolution * (float)sdl_vparam.horizontalResolution;
+        log_message("Success!\n");
     }
 
     _sdl_initialized_graphics = SDL_TRUE;

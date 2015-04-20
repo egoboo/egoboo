@@ -113,7 +113,7 @@ SDL_bool SDL_GL_set_gl_mode( oglx_video_parameters_t * v )
 
     if ( NULL == v || !SDL_WasInit( SDL_INIT_VIDEO ) ) return SDL_FALSE;
 
-    oglx_Get_Screen_Info( &ogl_caps );
+    oglx_Get_Screen_Info(&g_ogl_caps);
 
     if ( v->multisample_arb )
     {
@@ -173,9 +173,9 @@ SDL_bool SDL_GL_set_gl_mode( oglx_video_parameters_t * v )
     if ( v->userAnisotropy > 1.0f )
     {
         // limit the userAnisotropy top be in a valid range
-        if ( v->userAnisotropy > ogl_caps.maxAnisotropy )
+        if (v->userAnisotropy > g_ogl_caps.maxAnisotropy)
         {
-            v->userAnisotropy = ogl_caps.maxAnisotropy;
+            v->userAnisotropy = g_ogl_caps.maxAnisotropy;
         }
 
         GL_DEBUG( glTexParameterf )( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy );
@@ -218,7 +218,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX
     {
         if ( NULL == v_old )
         {
-            SDLX_video_parameters_default( &param_old );
+            SDLX_video_parameters_t::defaults(&param_old);
             v_old = &param_old;
         }
         else
@@ -380,7 +380,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     use_alpha = !( 8 == local_surface->format->Aloss );
     if ( target == GL_TEXTURE_2D )
     {
-		if (tex_params.texturefilter >= Ego::TextureFilter::MIPMAP)
+        if (g_ogl_textureParameters.textureFiltering >= Ego::TextureFilter::MIPMAP)
         {
             oglx_upload_2d_mipmap( use_alpha, local_surface->w, local_surface->h, local_surface->pixels );
         }

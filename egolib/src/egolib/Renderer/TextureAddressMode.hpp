@@ -25,57 +25,58 @@
 
 namespace Ego
 {
+
+/**
+ * @brief
+ *	An enumeration of texture address modes.
+ *  Defines what happens when texture coordinates exceed 1.0.
+ */
+enum class TextureAddressMode
+{
     /**
      * @brief
-     *	An enumeration of texture address modes.
-     *  Defines what happens when texture coordinates exceed 1.0.
+     *  A value \f$t\f$ is clamped to \f$[0,1]\f$
+     *  i.e. is set to \f$0\f$ if \f$t < 0\f$ and to \f$1\f$ if \f$t > 1\f$.
      */
-    enum class TextureAddressMode
-    {
-        /**
-         * @brief
-         *  A value \f$t\f$ is clamped to \f$[0,1]\f$
-         *  i.e. is set to \f$0\f$ if \f$t < 0\f$ and to \f$1\f$ if \f$t > 1\f$.
-         */
-        CLAMP,
-        /**
-         * @brief
-         *  A value \f$t\f$ is set to \f$\{t\}\f$
-         *  i.e. the integer part is <em>ignored</em>.
-         * @remark
-         *  \f$\{x\} = 1 - \lfloor x \rfloor\f$ denotes the fractional part
-         *  of a real number \f$x\f$ e.g. \f$\{2.0\}\f = 0.0$,
-         *  \f$\{2.9\} = 0.9\f$, ...
-         */
-        REPEAT,
-        /**
-         * @brief
-         *  A value \f$t\f$ is set to \f$\{t\}\f$
-         *  if \f$t\f$ is even
-         *  i.e. the integer part is <em>ignored</em>
-         *  (cfg Ego::TextureAddressMode::REPEAT).
-         *  However, if the integer part of \f$t\f$ is odd,
-         *  then the \f$\f$ is set to \f$1 - \{t\}\f$.
-         */
-        MIRRORED_REPEAT,
-        /**
-         * @brief
-         *  A value \f$t\f$ is clamped to \f$\left[\frac{1}{2n},1-\frac{1}{2n}\right]\f$
-         *  i.e. is set to \f$\frac{1}{2n}\f$ if \f$t < \frac{1}{2n}\f$ and to
-         *  \f$1-\frac{1}{2n}\f$ if \f$t > 1 - \frac{1}{2n}\f$. \f$n\f4 is the size of the
-         *  texture in the direction of the clamping.
-         */
-         CLAMP_TO_EDGE,
-         /**
-          * @brief
-          * A value \f$t\f$ is clamped to \f$\left[\frac{-1}{2n},1+\frac{1}{2n}\right]\f$
-          * i.e. is set to \f$\frac{-1}{2n}\f$ if \f$t < \frac{-1}{2n}\f$ and to
-          * \f$1+\frac{1}{2n}\f$ if \f$t > 1+\frac{1}{2n}\f$. \f$n\f$ is the size of the
-          * texture in the direction of the clamping.
-          */
-          CLAMP_TO_BORDER,
+    CLAMP,
+    /**
+     * @brief
+     *  A value \f$t\f$ is set to \f$\{t\}\f$
+     *  i.e. the integer part is <em>ignored</em>.
+     * @remark
+     *  \f$\{x\} = 1 - \lfloor x \rfloor\f$ denotes the fractional part
+     *  of a real number \f$x\f$ e.g. \f$\{2.0\}\f = 0.0$,
+     *  \f$\{2.9\} = 0.9\f$, ...
+     */
+    REPEAT,
+    /**
+     * @brief
+     *  A value \f$t\f$ is set to \f$\{t\}\f$
+     *  if \f$t\f$ is even
+     *  i.e. the integer part is <em>ignored</em>
+     *  (cfg Ego::TextureAddressMode::REPEAT).
+     *  However, if the integer part of \f$t\f$ is odd,
+     *  then the \f$\f$ is set to \f$1 - \{t\}\f$.
+     */
+    MIRRORED_REPEAT,
+    /**
+     * @brief
+     *  A value \f$t\f$ is clamped to \f$\left[\frac{1}{2n},1-\frac{1}{2n}\right]\f$
+     *  i.e. is set to \f$\frac{1}{2n}\f$ if \f$t < \frac{1}{2n}\f$ and to
+     *  \f$1-\frac{1}{2n}\f$ if \f$t > 1 - \frac{1}{2n}\f$. \f$n\f4 is the size of the
+     *  texture in the direction of the clamping.
+     */
+    CLAMP_TO_EDGE,
+     /**
+      * @brief
+      * A value \f$t\f$ is clamped to \f$\left[\frac{-1}{2n},1+\frac{1}{2n}\right]\f$
+      * i.e. is set to \f$\frac{-1}{2n}\f$ if \f$t < \frac{-1}{2n}\f$ and to
+      * \f$1+\frac{1}{2n}\f$ if \f$t > 1+\frac{1}{2n}\f$. \f$n\f$ is the size of the
+      * texture in the direction of the clamping.
+      */
+    CLAMP_TO_BORDER,
 
-          _COUNT, /// @todo Remove this.
-    };
+      _COUNT, ///< @todo Remove this.
+};
 
-}
+} // namespace Ego

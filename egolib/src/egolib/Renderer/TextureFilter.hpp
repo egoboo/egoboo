@@ -25,29 +25,32 @@
 
 namespace Ego
 {
-	/**
-	 * @brief
-	 *	An enumeration of texture filtering methods.
-     * @todo
-     *  Add documentation. Fix naming. Make enum class.
-	 */
-	enum TextureFilter
-	{
 
-		UNFILTERED,
+/**
+ * @brief
+ *	An enumeration of texture filtering methods.
+ * @todo
+ *  Add documentation. Fix naming.
+ *  Semantics are completely off.
+ */
+enum class TextureFilter
+{
 
-		LINEAR,
+    UNFILTERED,
 
-		MIPMAP,
+    LINEAR,
 
-		BILINEAR,
+    MIPMAP,
 
-		TRILINEAR_1,
+    BILINEAR,
 
-		TRILINEAR_2,
+    TRILINEAR_1,
 
-		ANISOTROPIC,
+    TRILINEAR_2,
 
-		FILTER_COUNT,
-	};
+    ANISOTROPIC,
+
+    _COUNT, ///< @todo Remove this.
 };
+
+} // namespace Ego

@@ -23,34 +23,39 @@
 
 namespace Ego
 {
+
+/**
+ * @brief
+ *  Culling modes.
+ */
+enum class CullingMode
+{
     /**
      * @brief
-     *	Culling modes.
+     *  Neither front-facing nor back-facing polygons are culled.
      */
-    enum class CullingMode
-    {
-        /**
-         * @brief
-         *  Neither front-facing nor back-facing polygons are culled.
-         */
-        None,
+    None,
 
-        /**
-         * @brief
-         *  Front-facing polygons are culled.
-         */
-        Front,
+    /**
+     * @brief
+     *  Front-facing polygons are culled.
+     */
+    Front,
 
-        /**
-         * @brief
-         *  Back-facing polygons are culled.
-         */
-        Back,
+    /**
+     * @brief
+     *  Back-facing polygons are culled.
+     */
+    Back,
 
-        /**
-         * @brief
-         *  Back-facing and front-facing polygons are culled.
-         */
-         BackAndFront,
-    };
-}
+    /**
+     * @brief
+     *  Back-facing and front-facing polygons are culled.
+     */
+    BackAndFront,
+    
+    _COUNT, ///< @todo Remove this.
+};
+
+} // namespace Ego
+

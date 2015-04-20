@@ -28,6 +28,7 @@
 #pragma once
 
 #include "egolib/file_common.h"
+#include "egolib/egoboo_setup.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -53,10 +54,9 @@
         unsigned use_srcalpha: 1;     ///< SDL_SRCALPHA    - Surface blit uses alpha blending
         unsigned is_prealloc: 1;      ///< SDL_PREALLOC    - Surface uses preallocated memory
 
+        static void report(SDLX_sdl_video_flags_t *self);
+        static void defaults(SDLX_sdl_video_flags_t *self);
     };
-
-    void SDLX_output_sdl_video_flags(SDLX_sdl_video_flags_t *self);
-    SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t *self);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -76,10 +76,10 @@
         int multi_samples;      ///< SDL_GL_MULTISAMPLESAMPLES
         int accelerated_visual; ///< SDL_GL_ACCELERATED_VISUAL
         int swap_control;       ///< SDL_GL_SWAP_CONTROL
-    };
 
-    void SDLX_output_sdl_gl_attrib(SDLX_sdl_gl_attrib_t *self);
-    SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t *self);
+        static void report(SDLX_sdl_gl_attrib_t *self);
+        static void defaults(SDLX_sdl_gl_attrib_t *self);
+    };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -113,6 +113,8 @@
         unsigned blit_sw: 1;
         unsigned blit_sw_CC: 1;
         unsigned blit_sw_A: 1;
+
+        static void report(SDLX_screen_info_t *self);
     };
 
 //--------------------------------------------------------------------------------------------
@@ -129,10 +131,11 @@
         SDLX_sdl_gl_attrib_t gl_att;
 
         SDL_Surface *surface;
-    };
 
-    void SDLX_report_video_parameters(SDLX_video_parameters_t *self);
-    SDL_bool SDLX_video_parameters_default(SDLX_video_parameters_t *self);
+        static void report(SDLX_video_parameters_t *self);
+        static void defaults(SDLX_video_parameters_t *self);
+        static void download(SDLX_video_parameters_t *self, egoboo_config_t *cfg);
+    };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -24,36 +24,40 @@
 namespace Ego
 {
 
-	/**
-	 * @brief
-	 *	Comparison functions used for the depth/stencil buffer operations and others.
-	 */
-	enum class CompareFunction
-	{
+/**
+ * @brief
+ *	Comparison functions used for the depth/stencil buffer operations and others.
+ */
+enum class CompareFunction
+{
 
-	    /** @brief Always reject. */
-		AlwaysFail,
+    /** @brief Always reject. */
+    AlwaysFail,
 
-		/** @brief Always pass. */
-		AlwaysPass,
+    /** @brief Always pass. */
+    AlwaysPass,
 
-		/** @brief Pass if less. */
-		Less,
+    /** @brief Pass if less. */
+    Less,
 
-		/** @brief Pass if less or equal. */
-		LessOrEqual,
+    /** @brief Pass if less or equal. */
+    LessOrEqual,
 
-		/** @brief Pass if equal. */
-		Equal,
+    /** @brief Pass if equal. */
+    Equal,
 
-		/** @brief Pass if not equal. */
-		NotEqual,
+    /** @brief Pass if not equal. */
+    NotEqual,
 
-		/** @brief Pass if greater or equal. */
-		GreaterOrEqual,
+    /** @brief Pass if greater or equal. */
+    GreaterOrEqual,
 
-		/** @brief Pass if greater. */
-		Greater,
+    /** @brief Pass if greater. */
+    Greater,
+    
+    _COUNT, ///< @todo Remove this.
 
-	};
-}
+};
+
+} // namespace Ego
+

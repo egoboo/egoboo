@@ -45,15 +45,17 @@ static GLuint ErrorImage_binding = INVALID_GL_ID;
 
 oglx_texture_parameters_t tex_params = { Ego::TextureFilter::UNFILTERED, 0 };
 
-static GLboolean ErrorImage_defined = GL_FALSE;
+static bool ErrorImage_defined = false;
 
+#if 0
 typedef GLubyte image_row_t[ErrorImage_width][4];
+#endif
 
 static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ErrorImage_create( void )
+void ErrorImage_create()
 {
     /// @author BB
     /// @details define a default "error texture"
@@ -85,9 +87,9 @@ void ErrorImage_create( void )
         }
     }
 
-    ErrorImage_bind( GL_TEXTURE_2D, ErrorImage_binding );
+    ErrorImage_bind(GL_TEXTURE_2D, ErrorImage_binding);
 
-    ErrorImage_defined = GL_TRUE;
+    ErrorImage_defined = true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -624,8 +626,6 @@ GLboolean oglx_texture_Valid(oglx_texture_t *texture)
 //--------------------------------------------------------------------------------------------
 GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t )
 {
-    int    filt_type, anisotropy;
-
     GLuint local_binding;
 
     // make sure the error texture exists
@@ -637,15 +637,15 @@ GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLi
 
     local_binding = VALID_BINDING( binding ) ? binding : ErrorImage_binding;
 
-    filt_type  = tex_params.texturefilter;
-    anisotropy = tex_params.userAnisotropy;
+    auto filt_type  = tex_params.textureFiltering;
+    auto anisotropy = tex_params.anisotropyLevel;
 
     if ( !GL_DEBUG( glIsEnabled )( target ) )
     {
         GL_DEBUG( glEnable )( target );
     };
 
-	if (filt_type >= Ego::TextureFilter::ANISOTROPIC)
+    if (filt_type >= Ego::TextureFilter::ANISOTROPIC)
     {
         // Anisotropic filtered!
         oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, anisotropy );
@@ -655,32 +655,32 @@ GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLi
         switch ( filt_type )
         {
                 // Unfiltered
-			case Ego::TextureFilter::UNFILTERED:
+            case Ego::TextureFilter::UNFILTERED:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Linear filtered
-			case Ego::TextureFilter::LINEAR:
+            case Ego::TextureFilter::LINEAR:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, 0 );
                 break;
 
                 // Bilinear interpolation
-			case Ego::TextureFilter::MIPMAP:
+            case Ego::TextureFilter::MIPMAP:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Bilinear interpolation
-			case Ego::TextureFilter::BILINEAR:
+            case Ego::TextureFilter::BILINEAR:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Trilinear filtered (quality 1)
-			case Ego::TextureFilter::TRILINEAR_1:
+            case Ego::TextureFilter::TRILINEAR_1:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR, 0 );
                 break;
 
                 // Trilinear filtered (quality 2)
-			case Ego::TextureFilter::TRILINEAR_2:
+            case Ego::TextureFilter::TRILINEAR_2:
                 oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, 0 );
                 break;
         };

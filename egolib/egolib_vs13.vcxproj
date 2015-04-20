@@ -442,6 +442,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Renderer\TextureType.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader_SDL_image.hpp" />

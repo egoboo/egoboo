@@ -37,13 +37,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct oglx_texture_parameters_t
-    {
-        Ego::TextureFilter texturefilter;
-        GLfloat userAnisotropy;
-    };
 
-    extern oglx_texture_parameters_t tex_params;
     typedef GLfloat oglx_frect_t[4];
 
 //--------------------------------------------------------------------------------------------
@@ -64,22 +58,12 @@
 
         GLfloat width;
         GLfloat height;
-        GLint   border;
-        GLint   internal_format;
-        GLint   red_size;
-        GLint   green_size;
-        GLint   blue_size;
-        GLint   alpha_size;
-        GLint   luminance_size;
-        GLint   intensity_size;
-        GLfloat border_color[4];
-
+#if 0
         GLint   min_filter;
         GLint   mag_filter;
+#endif
         GLint   wrap_s;
         GLint   wrap_t;
-        GLfloat priority;
-        GLint   resident;
 
     };
 
