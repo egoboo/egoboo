@@ -354,6 +354,7 @@ namespace Core
  */
 class NonCopyable
 {
+
 protected:
     NonCopyable() { }
     ~NonCopyable() { }
@@ -361,5 +362,355 @@ private:
     NonCopyable(const NonCopyable&) = delete;
     const NonCopyable& operator=(const NonCopyable&) = delete;
 };
+
+} // namespace Core
+} // namespace Ego
+
+namespace Ego
+{
+namespace Core
+{
+
+/**
+ * @brief
+ *  If defined to @a 1,
+ *  the singleton inherits from Ego::Core::NonCopyable.
+ */
+#define EGO_CORE_SINGLETON_NONCOPYABLE (1)
+
+template <typename InstanceType,typename FactoryType>
+class _BasicSingleton
+{
+protected:
+    /// @brief Constructor.
+    /// @remark Intentionally protected.
+    _BasicSingleton() { }
+
+    /// @brief Destructor.
+    /// @remark Intentionally protected.
+    virtual ~_BasicSingleton() { }
+
+protected:
+    /// @brief Mutex protecting non-atomic operations.
+    /// @remark Intentionally private.
+    static std::mutex _mutex;
+
+    /// @brief Singleton instance.
+    /// @remark Intentionally private.
+    static std::atomic<InstanceType *> _instance;
+
+public:
+
+    /**
+    * @warning
+    *  The test is just informative, its information is
+    *  not imperative - by the time the caller acquires
+    *  the information, facts might already have changed.
+    */
+    static bool isInitialized() {
+        InstanceType *t = _instance.load();
+        return nullptr != t;
+    }
+
+    /**
+    * @brief
+    *  Get the instance.
+    * @return
+    *  the instance
+    * @pre
+    *  The singleton must be initialized.
+    * @warning
+    *  Uninitializing the singleton will invalidate any references returned by calls to this method prior to uninitialization.
+    */
+    static InstanceType& get() {
+        InstanceType *t = _instance.load();
+        if (!t) {
+            throw std::logic_error("singleton not initialized");
+        }
+        return *t;
+    }
+
+    /**
+    * @brief
+    *  Initialize the singleton.
+    * @post
+    *  The singleton was initialized if no exception was raised by this call.
+    * @remark
+    *  If the singleton is initialized, a call to this method is a no-op.
+    */
+    static void initialize()
+    {
+        InstanceType *t = _instance.load();
+        if (!t) { // 1st check.
+            std::lock_guard<mutex> lock(_mutex);
+            t = _instance.load();
+            if (!t) { // 2nd check.
+                t = FactoryType()();
+                _instance.store(t);
+            }
+        }
+    }
+
+    /**
+    * @brief
+    *  Uninitialize the singleton.
+    * @remark
+    *  If the singleton is not initialized, a call to this method is a no-op.
+    */
+    static void uninitialize() {
+        InstanceType *t = _instance.load();
+        if (t) { // 1st check.
+            std::lock_guard<mutex> lock(_mutex); // 2nd check.
+            t = _instance.load();
+            if (t) {
+                delete t;
+                _instance.store(nullptr);
+            }
+        }
+    }
+};
+
+/**
+ * @brief
+ *  Double-checked locking singleton.
+ *  The specializations <tt>Singleton&lt;InstanceType&gt;</tt> and
+ *  <tt>singleton&lt;InstanceType,typename FactoryType&gt;</tt>are
+ *  provided. The former creates a singleton of type @a InstanceType
+ *  while the latter creates the singleton via a factory @a FactoryType.
+ *  @a Factory must be a <tt>struct</tt> or <tt>class</tt> which
+ *  provides a <tt>operator()</tt> that takes no arguments and
+ *  returns an @a InstanceType or derived pointer.
+ *
+ *  Furthermore, <tt>Singleton</tt> inherits from Ego::Core::NonCopyable
+ *  and prevents copy-construction and copy-assignment of derived classes.
+ *
+ *  Example usage for <tt>Singleton&lt;InstanceType&gt;</tt>:
+ *  @code
+ *  class A : public Singleton<B> {};
+ *  @endcode
+ *
+ *  Example usage for <tt>Singleton&lt;InstanceType,typename FactoryType&gt;</tt>:
+ *  @code
+ *  class X { }
+ *  class Y : X { }
+ *  class Z : Y { }
+ *  struct F { Y *operator()() { new Z(); } }
+ *  class A : Singleton<X,F> {};
+ * @author
+ *  Michael Heilmann
+ * @see
+ *  Myers, Alexadrescu; "C++ and the Perils of Double-Checked Locking"; 2014
+ */
+template <typename ... Dummy>
+class Singleton;
+
+
+template <typename InstanceType>
+class Singleton<InstanceType>
+#if defined(EGO_CORE_SINGLETON_NONCOPYABLE) && 1 == EGO_CORE_SINGLETON_NONCOPYABLE
+    : NonCopyable
+#endif
+{
+
+protected:
+    /// @brief Constructor.
+    /// @remark Intentionally protected.
+    Singleton() { }
+
+    /// @brief Destructor.
+    /// @remark Intentionally protected.
+    virtual ~Singleton() { }
+
+private:
+
+    /// @brief Mutex protecting non-atomic operations.
+    /// @remark Intentionally private.
+    static std::mutex _mutex;
+
+    /// @brief Singleton instance.
+    /// @remark Intentionally private.
+    static std::atomic<InstanceType *> _instance;
+
+public:
+
+    /**
+     * @warning
+     *  The test is just informative, its information is
+     *  not imperative - by the time the caller acquires
+     *  the information, facts might already have changed.
+     */
+    static bool isInitialized() {
+        InstanceType *t = _instance.load();
+        return nullptr != t;
+    }
+
+    /**
+     * @brief
+     *  Get the instance.
+     * @return
+     *  the instance
+     * @pre
+     *  The singleton must be initialized.
+     * @warning
+     *  Uninitializing the singleton will invalidate any references returned by calls to this method prior to uninitialization.
+     */
+    static InstanceType& get() {
+        InstanceType *t = _instance.load();
+        if (!t) {
+            throw std::logic_error("singleton not initialized");
+        }
+        return *t;
+    }
+
+    /**
+     * @brief
+     *  Initialize the singleton.
+     * @post
+     *  The singleton was initialized if no exception was raised by this call.
+     * @remark
+     *  If the singleton is initialized, a call to this method is a no-op.
+     */
+    static void initialize()
+    {
+        InstanceType *t = _instance.load();
+        if (!t) { // 1st check.
+            std::lock_guard<mutex> lock(_mutex);
+            t = _instance.load();
+            if (!t) { // 2nd check.
+                t = new InstanceType();
+                _instance.store(t);
+            }
+        }
+    }
+
+    /**
+     * @brief
+     *  Uninitialize the singleton.
+     * @remark
+     *  If the singleton is not initialized, a call to this method is a no-op.
+     */
+    static void uninitialize() {
+        InstanceType *t = _instance.load();
+        if (t) { // 1st check.
+            std::lock_guard<mutex> lock(_mutex); // 2nd check.
+            t = _instance.load();
+            if (t) {
+                delete t;
+                _instance.store(nullptr);
+            }
+        }
+    }
+
+};
+
+template <typename InstanceType, typename FactoryType>
+class Singleton<InstanceType, FactoryType>
+#if defined(EGO_CORE_SINGLETON_NONCOPYABLE) && 1 == EGO_CORE_SINGLETON_NONCOPYABLE
+    : NonCopyable
+#endif
+{
+
+protected:
+    /// @brief Constructor.
+    /// @remark Intentionally protected.
+    Singleton() { }
+
+    /// @brief Destructor.
+    /// @remark Intentionally protected.
+    virtual ~Singleton() { }
+
+private:
+    /// @brief Mutex protecting non-atomic operations.
+    /// @remark Intentionally private.
+    static std::mutex _mutex;
+
+    /// @brief Singleton instance.
+    /// @remark Intentionally private.
+    static std::atomic<InstanceType *> _instance;
+
+public:
+
+    /**
+     * @warning
+     *  The test is just informative, its information is
+     *  not imperative - by the time the caller acquires
+     *  the information, facts might already have changed.
+     */
+    static bool isInitialized() {
+        InstanceType *t = _instance.load();
+        return nullptr != t;
+    }
+
+    /**
+     * @brief
+     *  Get the instance.
+     * @return
+     *  the instance
+     * @pre
+     *  The singleton must be initialized.
+     * @warning
+     *  Uninitializing the singleton will invalidate any references returned by calls to this method prior to uninitialization.
+     */
+    static InstanceType& get() {
+        InstanceType *t = _instance.load();
+        if (!t) {
+            throw std::logic_error("singleton not initialized");
+        }
+        return *t;
+    }
+
+    /**
+     * @brief
+     *  Initialize the singleton.
+     * @post
+     *  The singleton was initialized if no exception was raised by this call.
+     * @remark
+     *  If the singleton is initialized, a call to this method is a no-op.
+     */
+    static void initialize()
+    {
+        InstanceType *t = _instance.load();
+        if (!t) { // 1st check.
+            std::lock_guard<mutex> lock(_mutex);
+            t = _instance.load();
+            if (!t) { // 2nd check.
+                t = FactoryType()();
+                _instance.store(t);
+            }
+        }
+    }
+
+    /**
+     * @brief
+     *  Uninitialize the singleton.
+     * @remark
+     *  If the singleton is not initialized, a call to this method is a no-op.
+     */
+    static void uninitialize() {
+        InstanceType *t = _instance.load();
+        if (t) { // 1st check.
+            std::lock_guard<mutex> lock(_mutex); // 2nd check.
+            t = _instance.load();
+            if (t) {
+                delete t;
+                _instance.store(nullptr);
+            }
+        }
+    }
+
+};
+
+template <typename InstanceType>
+std::mutex Singleton<InstanceType>::_mutex;
+
+template <typename InstanceType>
+std::atomic<InstanceType *> Singleton<InstanceType>::_instance(nullptr);
+
+template <typename InstanceType, typename FactoryType>
+std::mutex Singleton<InstanceType, FactoryType>::_mutex;
+
+template <typename InstanceType, typename FactoryType>
+std::atomic<InstanceType *> Singleton<InstanceType, FactoryType>::_instance(nullptr);
+
 } // namespace Core
 } // namespace Ego

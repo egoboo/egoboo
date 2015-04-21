@@ -27,8 +27,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-TextureManager *TextureManager::_singleton = nullptr;
-
 TextureManager::TextureManager()
     : _lst(), _free()
 {
@@ -80,44 +78,14 @@ void TextureManager::freeAll()
     }
 }
 
-TextureManager& TextureManager::get()
-{
-    if (!_singleton)
-    {
-        throw std::logic_error("texture manager not initialized");
-    }
-	return *_singleton;
-}
-
-void TextureManager::initialize()
-{
-    if (_singleton)
-    {
-        log_warning("%s:%d: texture manager already initialized - ignoring\n", __FILE__, __LINE__);
-        return;
-    }
-    _singleton = new TextureManager();
-}
-
-void TextureManager::uninitialize()
-{
-    if (!_singleton)
-    {
-        log_warning("%s:%d: texture manager not initialized - ignoring\n", __FILE__, __LINE__);
-        return;
-    }
-    delete _singleton;
-    _singleton = nullptr;
-}
-
 void TextureManager::release_all()
 {
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
-	{
-		oglx_texture_t::release(_lst[ref]);
-	}
+    {
+        oglx_texture_t::release(_lst[ref]);
+    }
 
-	freeAll();
+    freeAll();
 }
 
 void TextureManager::reload_all()
@@ -128,7 +96,7 @@ void TextureManager::reload_all()
 
         if (oglx_texture_Valid(texture))
         {
-            oglx_texture_t::convert(texture, texture->surface, INVALID_KEY );
+            oglx_texture_t::convert(texture, texture->surface, INVALID_KEY);
         }
     }
 }
@@ -168,41 +136,16 @@ bool TextureManager::relinquish(const TX_REF ref)
 
     // Release the texture.
     oglx_texture_t::release(_lst[ref]);
-#if 0
-#if defined(_DEBUG)
-    {
-        int cnt;
-        // determine whether this texture is already in the list of free textures
-        // that is an error
-        for ( cnt = 0; cnt < free_count; cnt++ )
-        {
-            if ( itex == free_ref[cnt] ) return false;
-        }
-    }
-#endif
-#endif
-#if 0
-    if (free_count >= TEXTURES_MAX)
-	{
-		return false;
-	}
-#endif
+
     // Do not put anything below TX_SPECIAL_LAST back onto the free stack.
     if (ref >= TX_SPECIAL_LAST)
     {
         _free.insert(ref);
-#if 0
-        free_ref[free_count] = REF_TO_INT( itex );
-
-        free_count++;
-        update_guid++;
-#endif
-    }
+}
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
 TX_REF TextureManager::load(const char *filename, const TX_REF ref, Uint32 key)
 {
     /// @author BB
@@ -210,7 +153,7 @@ TX_REF TextureManager::load(const char *filename, const TX_REF ref, Uint32 key)
     ///     If INVALID_TX_IDX == ref, then we just get the next free index
 
     // Acquire a texture reference.
-	TX_REF newRef = acquire(ref);
+    TX_REF newRef = acquire(ref);
     // If no texture reference is available ...
     if (!VALID_TX_RANGE(newRef))
     {

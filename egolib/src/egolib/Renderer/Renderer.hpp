@@ -37,6 +37,7 @@
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 
+
 namespace Ego
 {
 
@@ -147,20 +148,24 @@ protected:
     virtual ~DepthBuffer();
 };
 
-class Renderer : public Ego::Core::NonCopyable
+class Renderer;
+
+class RendererFactory
+{
+public:
+    Renderer *operator()();
+};
+
+class Renderer : public Ego::Core::Singleton<Renderer,RendererFactory>
 {
 
-private:
-
-    /**
-     * @brief
-     *  The singleton instance of this renderer.
-     * @remark
-     *  Intentionally private.
-     */
-    static Renderer *singleton;
-
 protected:
+    // Befriend with the singleton to grant access to Renderer::~Renderer.
+    using TheSingleton = Ego::Core::Singleton<Renderer, RendererFactory>;
+    friend class TheSingleton;
+    // Befriend with the factory to grant access to Renderer::Renderer.
+    using TheFactory = RendererFactory;
+    friend class RendererFactory;
 
     /**
      * @brief
@@ -353,36 +358,6 @@ public:
      */
     virtual void multiplyMatrix(const fmat_4x4_t& matrix) = 0;
 
-    /**
-     * @brief
-     *  Initialize the renderer.
-     * @post
-     *  The renderer is initialized if no exception was raised by this call,
-     *  otherwise it is not initialized.
-     * @remark
-     *  If the renderer is initialized, a call to this method is a no-op.
-     */
-    static void initialize();
-
-    /**
-     * @brief
-     *  Get the renderer.
-     * @return
-     *  the renderer
-     * @pre
-     *  The renderer must be initialized.
-     * @warning
-     *  Uninitializing the renderer will invalidate any references returned by calls to this method prior to uninitialization.
-     */
-    static Renderer& get();
-
-    /**
-     * @brief
-     *  Uninitialize the renderer.
-     * @remark
-     *  If the renderer is not initialized, a call to this method is a no-op.
-     */
-    static void uninitialize();
 };
 
 } // namespace Ego

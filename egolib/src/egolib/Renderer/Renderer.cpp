@@ -45,33 +45,9 @@ DepthBuffer::DepthBuffer()
 DepthBuffer::~DepthBuffer()
 {}
 
-Renderer *Renderer::singleton = nullptr;
-
-void Renderer::initialize()
+Renderer *RendererFactory::operator()()
 {
-    if (!singleton)
-    {
-        singleton = new OpenGL::Renderer();
-    }
-}
-
-Renderer &Renderer::get()
-{
-    if (!singleton)
-    {
-        throw std::runtime_error("renderer not initialized");
-    }
-    EGOBOO_ASSERT(nullptr != singleton);
-    return *singleton;
-}
-
-void Renderer::uninitialize()
-{
-    if (singleton)
-    {
-        delete singleton;
-        singleton = nullptr;
-    }
+    return new OpenGL::Renderer();
 }
 
 Renderer::Renderer()
@@ -82,4 +58,4 @@ Renderer::~Renderer()
 {
 }
 
-};
+}

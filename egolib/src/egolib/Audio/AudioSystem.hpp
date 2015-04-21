@@ -137,16 +137,21 @@ enum GlobalSound : uint8_t
     GSND_COUNT
 };
 
-class AudioSystem : public Ego::Core::NonCopyable
+class AudioSystem : public Ego::Core::Singleton<AudioSystem>
 {
 public:
     static CONSTEXPR int MIX_HIGH_QUALITY = 44100;
     static CONSTEXPR size_t MENU_SONG = 0;
 
-public:
-    AudioSystem();
-    ~AudioSystem();
+protected:
+    // Befriend with the singleton to grant access to AudioSystem::~AudioSystem.
+    using TheSingleton = Ego::Core::Singleton<AudioSystem>;
+    friend class TheSingleton;
 
+    AudioSystem();
+    virtual ~AudioSystem();
+
+public:
     void loadGlobalSounds();
 
     void reset();
@@ -276,9 +281,4 @@ private:
     std::forward_list<std::shared_ptr<LoopingSound>> _loopingSounds;
     MusicID _currentSongPlaying;
 
-public:
-    static AudioSystem *_singleton;
-    static AudioSystem& get();
-    static void initialize();
-    static void uninitialize();
 };

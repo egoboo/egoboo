@@ -41,20 +41,20 @@ static const std::shared_ptr<ObjectProfile> NULL_PROFILE = nullptr;
 
 
 ProfileSystem::ProfileSystem() :
-	_initialized(false),
-	_bookIcons(),
+    _initialized(false),
+    _bookIcons(),
     _profilesLoaded(),
     _moduleProfilesLoaded(),
     _loadPlayerList()
 {
-	//ctor
+    //ctor
 }
 
 bool ProfileSystem::initialize()
 {
     if (_initialized)
     {
-        log_warning("%s:%d: profile system already initialized - ignoring\n",__FILE__,__LINE__);
+        log_warning("%s:%d: profile system already initialized - ignoring\n", __FILE__, __LINE__);
         return true;
     }
 
@@ -69,7 +69,7 @@ bool ProfileSystem::initialize()
     parser_state_t::initialize();
 
     // necessary for loading up the copy.txt file
-    load_action_names_vfs( "mp_data/actions.txt" );
+    load_action_names_vfs("mp_data/actions.txt");
 
     // something that is used in the game that is somewhat related to the profile stuff
     init_slot_idsz();
@@ -122,14 +122,13 @@ void ProfileSystem::reset()
 const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const
 {
     auto foundElement = _profilesLoaded.find(slotNumber);
-    if(foundElement == _profilesLoaded.end()) return NULL_PROFILE;
+    if (foundElement == _profilesLoaded.end()) return NULL_PROFILE;
     return foundElement->second;
 }
 
-//--------------------------------------------------------------------------------------------
 int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_override)
 {
-    if ( slot_override >= 0 && slot_override != INVALID_PRO_REF )
+    if (slot_override >= 0 && slot_override != INVALID_PRO_REF)
     {
         // just use the slot that was provided
         return slot_override;
@@ -138,7 +137,7 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     // grab the slot from the file
     std::string dataFilePath = folderPath + "/data.txt";
 
-    if ( 0 == vfs_exists( dataFilePath.c_str() ) ) {
+    if (0 == vfs_exists(dataFilePath.c_str())) {
 
         return -1;
     }
@@ -148,16 +147,16 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     if (!ctxt.ensureOpen()) return -1;
 
     // load the slot's slot no matter what
-    int slot = vfs_get_next_int( ctxt );
+    int slot = vfs_get_next_int(ctxt);
 
     ctxt.close();
 
     // set the slot slot
-    if ( slot >= 0 )
+    if (slot >= 0)
     {
         return slot;
     }
-    else if ( import_data.slot >= 0 )
+    else if (import_data.slot >= 0)
     {
         return import_data.slot;
     }
@@ -165,49 +164,42 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
     return -1;
 }
 
-//--------------------------------------------------------------------------------------------
-//inline
-//--------------------------------------------------------------------------------------------
-
-EVE_REF ProfileSystem::pro_get_ieve( const PRO_REF iobj )
+EVE_REF ProfileSystem::pro_get_ieve(const PRO_REF iobj)
 {
-    if ( !isValidProfileID( iobj ) ) return INVALID_EVE_REF;
+    if (!isValidProfileID(iobj)) return INVALID_EVE_REF;
 
-    return LOADED_EVE( _profilesLoaded[iobj]->getEnchantRef() ) ? _profilesLoaded[iobj]->getEnchantRef() : INVALID_EVE_REF;
+    return LOADED_EVE(_profilesLoaded[iobj]->getEnchantRef()) ? _profilesLoaded[iobj]->getEnchantRef() : INVALID_EVE_REF;
 }
 
-//--------------------------------------------------------------------------------------------
-mad_t * ProfileSystem::pro_get_pmad( const PRO_REF iobj )
+mad_t * ProfileSystem::pro_get_pmad(const PRO_REF iobj)
 {
-    if ( !isValidProfileID( iobj ) ) return nullptr;
+    if (!isValidProfileID(iobj)) return nullptr;
 
-    if ( !LOADED_MAD( _profilesLoaded[iobj]->getModelRef() ) ) return nullptr;
+    if (!LOADED_MAD(_profilesLoaded[iobj]->getModelRef())) return nullptr;
 
-    return MadStack.get_ptr( _profilesLoaded[iobj]->getModelRef() );
+    return MadStack.get_ptr(_profilesLoaded[iobj]->getModelRef());
 }
 
-//--------------------------------------------------------------------------------------------
-eve_t * ProfileSystem::pro_get_peve( const PRO_REF iobj )
+eve_t * ProfileSystem::pro_get_peve(const PRO_REF iobj)
 {
-    if ( !isValidProfileID( iobj ) ) return nullptr;
+    if (!isValidProfileID(iobj)) return nullptr;
 
-    if ( !LOADED_EVE( _profilesLoaded[iobj]->getEnchantRef() ) ) return nullptr;
+    if (!LOADED_EVE(_profilesLoaded[iobj]->getEnchantRef())) return nullptr;
 
-    return EveStack.get_ptr( _profilesLoaded[iobj]->getEnchantRef() );
+    return EveStack.get_ptr(_profilesLoaded[iobj]->getEnchantRef());
 }
 
-//--------------------------------------------------------------------------------------------
-pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
+pip_t * ProfileSystem::pro_get_ppip(const PRO_REF iobj, int pip_index)
 {
     PIP_REF global_pip, local_pip;
 
-    if ( !isValidProfileID( iobj ) )
+    if (!isValidProfileID(iobj))
     {
         // check for a global pip
-        global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
-        if ( LOADED_PIP( global_pip ) )
+        global_pip = ((pip_index < 0) || (pip_index > MAX_PIP)) ? MAX_PIP : (PIP_REF)pip_index;
+        if (LOADED_PIP(global_pip))
         {
-            return PipStack.get_ptr( global_pip );
+            return PipStack.get_ptr(global_pip);
         }
         else
         {
@@ -217,12 +209,12 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
 
     // find the local pip if it exists
     local_pip = INVALID_PIP_REF;
-    if ( pip_index < MAX_PIP_PER_PROFILE )
+    if (pip_index < MAX_PIP_PER_PROFILE)
     {
         local_pip = _profilesLoaded[iobj]->getParticleProfile(pip_index);
     }
 
-    return LOADED_PIP( local_pip ) ? PipStack.get_ptr(local_pip) : nullptr;
+    return LOADED_PIP(local_pip) ? PipStack.get_ptr(local_pip) : nullptr;
 }
 
 PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override)
@@ -230,19 +222,19 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     bool required = !(slot_override < 0 || slot_override >= INVALID_PRO_REF);
 
     // get a slot value
-    int islot = getProfileSlotNumber( pathName, slot_override );
+    int islot = getProfileSlotNumber(pathName, slot_override);
 
     // throw an error code if the slot is invalid of if the file doesn't exist
-    if ( islot < 0 || islot >= INVALID_PRO_REF )
+    if (islot < 0 || islot >= INVALID_PRO_REF)
     {
         // The data file wasn't found
-        if ( required )
+        if (required)
         {
-            log_debug( "ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName.c_str() );
+            log_debug("ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName.c_str());
         }
-        else if ( required && slot_override > 4 * MAX_IMPORT_PER_PLAYER )
+        else if (required && slot_override > 4 * MAX_IMPORT_PER_PLAYER)
         {
-            log_warning( "ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName.c_str() );
+            log_warning("ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName.c_str());
         }
 
         return INVALID_PRO_REF;
@@ -256,13 +248,13 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     if (_profilesLoaded.find(iobj) != _profilesLoaded.end())
     {
         // Make sure global objects don't load over existing models
-        if ( required && SPELLBOOK == iobj )
+        if (required && SPELLBOOK == iobj)
         {
-            log_error( "ProfileSystem::loadOneProfile() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName.c_str() );
+            log_error("ProfileSystem::loadOneProfile() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName.c_str());
         }
-        else if ( required && overrideslots )
+        else if (required && overrideslots)
         {
-            log_error( "ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), _profilesLoaded[iobj]->getFilePath().c_str(), pathName.c_str() );
+            log_error("ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT(iobj), _profilesLoaded[iobj]->getFilePath().c_str(), pathName.c_str());
         }
         else
         {
@@ -272,7 +264,7 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
     }
 
     std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(pathName, iobj);
-    if(!profile)
+    if (!profile)
     {
         log_warning("ProfileSystem::loadOneProfile() - Failed to load (%s) into slot number %d\n", pathName.c_str(), iobj);
         return INVALID_PRO_REF;
@@ -283,7 +275,7 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
 
     //ZF> TODO: This is kind of a dirty hack and could be done cleaner. If this item is the book object, 
     //    then the icons are also loaded into the global book icon array
-    if ( SPELLBOOK == iobj )
+    if (SPELLBOOK == iobj)
     {
         _bookIcons = profile->getAllIcons();
     }
@@ -295,7 +287,7 @@ TX_REF ProfileSystem::getSpellBookIcon(size_t index) const
 {
     const auto& result = _bookIcons.find(index);
 
-    if(result == _bookIcons.end()) {
+    if (result == _bookIcons.end()) {
         return INVALID_TX_REF;
     }
 
@@ -308,10 +300,10 @@ void ProfileSystem::loadModuleProfiles()
     _moduleProfilesLoaded.clear();
 
     // Search for all .mod directories and load the module info
-    vfs_search_context_t *ctxt = vfs_findFirst( "mp_modules", "mod", VFS_SEARCH_DIR );
-    const char * vfs_ModPath = vfs_search_context_get_current( ctxt );
+    vfs_search_context_t *ctxt = vfs_findFirst("mp_modules", "mod", VFS_SEARCH_DIR);
+    const char * vfs_ModPath = vfs_search_context_get_current(ctxt);
 
-    while (nullptr != ctxt && VALID_CSTR( vfs_ModPath ))
+    while (nullptr != ctxt && VALID_CSTR(vfs_ModPath))
     {
         //Try to load menu.txt
         std::shared_ptr<ModuleProfile> module = ModuleProfile::loadFromFile(vfs_ModPath);
@@ -324,27 +316,27 @@ void ProfileSystem::loadModuleProfiles()
             log_warning("Unable to load module: %s\n", vfs_ModPath);
         }
 
-        ctxt = vfs_findNext( &ctxt );
-        vfs_ModPath = vfs_search_context_get_current( ctxt );
+        ctxt = vfs_findNext(&ctxt);
+        vfs_ModPath = vfs_search_context_get_current(ctxt);
     }
-    vfs_findClose( &ctxt );
+    vfs_findClose(&ctxt);
 }
 
 
 void ProfileSystem::printDebugModuleList()
 {
     // Log a directory list
-    vfs_FILE* filesave = vfs_openWrite( "/debug/modules.txt" );
+    vfs_FILE* filesave = vfs_openWrite("/debug/modules.txt");
 
-    if(filesave == nullptr) {
+    if (filesave == nullptr) {
         return;
     }
 
-    vfs_printf( filesave, "This file logs all of the modules found\n" );
-    vfs_printf( filesave, "** Denotes an invalid module\n" );
-    vfs_printf( filesave, "## Denotes an unlockable module\n\n" );
+    vfs_printf(filesave, "This file logs all of the modules found\n");
+    vfs_printf(filesave, "** Denotes an invalid module\n");
+    vfs_printf(filesave, "## Denotes an unlockable module\n\n");
 
-    for(size_t imod = 0; imod < _moduleProfilesLoaded.size(); ++imod)
+    for (size_t imod = 0; imod < _moduleProfilesLoaded.size(); ++imod)
     {
         const std::shared_ptr<ModuleProfile> &module = _moduleProfilesLoaded[imod];
 
@@ -352,7 +344,7 @@ void ProfileSystem::printDebugModuleList()
         {
             vfs_printf(filesave, "**.  %s\n", module->_vfsPath.c_str());
         }
-        else if ( module->isModuleUnlocked() )
+        else if (module->isModuleUnlocked())
         {
             vfs_printf(filesave, "%02d.  %s\n", REF_TO_INT(imod), module->_vfsPath.c_str());
         }
@@ -376,38 +368,38 @@ void ProfileSystem::loadAllSavedCharacters(const std::string &saveGameDirectory)
     _loadPlayerList.clear();
 
     // Search for all objects
-    vfs_search_context_t *ctxt = vfs_findFirst( saveGameDirectory.c_str(), "obj", VFS_SEARCH_DIR );
-    const char *foundfile = vfs_search_context_get_current( ctxt );
+    vfs_search_context_t *ctxt = vfs_findFirst(saveGameDirectory.c_str(), "obj", VFS_SEARCH_DIR);
+    const char *foundfile = vfs_search_context_get_current(ctxt);
 
-    while ( NULL != ctxt && VALID_CSTR(foundfile) )
+    while (NULL != ctxt && VALID_CSTR(foundfile))
     {
         std::string folderPath = foundfile;
 
         // is it a valid filename?
-        if ( folderPath.empty() ) {
+        if (folderPath.empty()) {
             continue;
         }
 
         // does the directory exist?
-        if ( !vfs_exists( folderPath.c_str() ) ) {
+        if (!vfs_exists(folderPath.c_str())) {
             continue;
         }
 
         // offset the slots so that ChoosePlayer will have space to load the inventory objects
-        int slot = ( MAX_IMPORT_OBJECTS + 2 ) * _loadPlayerList.size();
+        int slot = (MAX_IMPORT_OBJECTS + 2) * _loadPlayerList.size();
 
         // try to load the character profile (do a lightweight load, we don't need all data)
         std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(folderPath, slot, true);
-        if(!profile) {
+        if (!profile) {
             continue;
         }
 
         //Loaded!
-        _loadPlayerList.push_back( std::make_shared<LoadPlayerElement>(profile) );
+        _loadPlayerList.push_back(std::make_shared<LoadPlayerElement>(profile));
 
         //Get next player object
-        ctxt = vfs_findNext( &ctxt );
-        foundfile = vfs_search_context_get_current( ctxt );
+        ctxt = vfs_findNext(&ctxt);
+        foundfile = vfs_search_context_get_current(ctxt);
     }
-    vfs_findClose( &ctxt );
+    vfs_findClose(&ctxt);
 }

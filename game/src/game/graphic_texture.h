@@ -29,33 +29,33 @@
 /// Special Textures
 enum e_global_tx_type
 {
-	/* "mp_data/particle_trans", TRANSCOLOR */
+    /* "mp_data/particle_trans", TRANSCOLOR */
     TX_PARTICLE_TRANS = 0,
-	/* "mp_data/particle_light", INVALID_KEY */
+    /* "mp_data/particle_light", INVALID_KEY */
     TX_PARTICLE_LIGHT,
-	/* "mp_data/tile0",TRANSCOLOR */
+    /* "mp_data/tile0",TRANSCOLOR */
     TX_TILE_0,
-	/* "mp_data/tile1",TRANSCOLOR */
+    /* "mp_data/tile1",TRANSCOLOR */
     TX_TILE_1,
-	/* "mp_data/tile2",TRANSCOLOR */
+    /* "mp_data/tile2",TRANSCOLOR */
     TX_TILE_2,
-	/* "mp_data/tile3",TRANSCOLOR */
+    /* "mp_data/tile3",TRANSCOLOR */
     TX_TILE_3,
-	/* "mp_data/watertop", TRANSCOLOR */
+    /* "mp_data/watertop", TRANSCOLOR */
     TX_WATER_TOP,
-	/* "mp_data/waterlow", TRANSCOLOR */
+    /* "mp_data/waterlow", TRANSCOLOR */
     TX_WATER_LOW,
-	/* "mp_data/phong", TRANSCOLOR */
+    /* "mp_data/phong", TRANSCOLOR */
     TX_PHONG,
-	/* "mp_data/bars", INVALID_KEY vs. TRANSCOLOR */
+    /* "mp_data/bars", INVALID_KEY vs. TRANSCOLOR */
     TX_BARS,
-	/* "mp_data/blip", INVALID_KEY */
+    /* "mp_data/blip", INVALID_KEY */
     TX_BLIP,
-	/* "mp_data/plan", INVALID_KEY */
+    /* "mp_data/plan", INVALID_KEY */
     TX_MAP,
-	/* "mp_data/xpbar", TRANSCOLOR*/
+    /* "mp_data/xpbar", TRANSCOLOR*/
     TX_XP_BAR,
-	/* "mp_data/nullicon", INVALID_KEY */
+    /* "mp_data/nullicon", INVALID_KEY */
     TX_ICON_NULL,           //Empty icon
     TX_FONT_BMP,            //Font bitmap
     TX_ICON_KEYB,           //Keyboard
@@ -77,14 +77,12 @@ inline bool VALID_TX_RANGE(const TX_REF ref)
     return ref >= 0 && ref < TEXTURES_MAX;
 }
 
-struct TextureManager : public Ego::Core::NonCopyable
+struct TextureManager : public Ego::Core::Singleton <TextureManager>
 {
 protected:
-    /**
-     * @brief
-     *  The texture manager singleton.
-     */
-    static TextureManager *_singleton;
+    // Befriend with the singleton to grant access to TextureManager::~TextureManager.
+    using TheSingleton = Ego::Core::Singleton<TextureManager>;
+    friend class TheSingleton;
 
     /**
      * @brief
@@ -122,64 +120,36 @@ protected:
 
 public:
 
-	/**
-	 * @brief
-	 *	Get the texture manager.
-	 * @return
-	 *	the texture manager
-	 * @pre
-	 *	The texture manager must be initialized.
-	 * @warning
-	 *	Uninitializing the texture manager will invalidate any pointers returned by calls to this method prior to uninitialization.
-	 */
-	static TextureManager& get();
-	
-	/**
-	 * @brief
-	 *	Start-up the texture manager.
-	 * @remark
-	 *	If the texture manager is initialized, a call to this method is a no-op.
-	 */
-	static void initialize();
-
-	/**
-	 * @brief
-	 *	Uninitialize the texture manager.
-	 * @remark
-	 *	If the texture manager is not initialized, a call to this method is a no-op.
-	 */
-	static void uninitialize();
-
-	/**
-	 * @brief
-	 *	Acquire a texture reference.
-	 * @param ref
+    /**
+     * @brief
+     *	Acquire a texture reference.
+     * @param ref
      *  if not equal to #INVALID_TX_REF, this texture reference is acquired
-	 * @return
-	 *	the texture reference on success, #INVALID_TX_REF on failure
-	 */
-	TX_REF acquire(const TX_REF ref);
+     * @return
+     *	the texture reference on success, #INVALID_TX_REF on failure
+     */
+    TX_REF acquire(const TX_REF ref);
 
-	/**
-	 * @brief
-	 *	Relinquish texture reference.
-	 * @param ref
-	 *	the texture reference
-	 */
-	bool relinquish(const TX_REF ref);
+    /**
+     * @brief
+     *	Relinquish texture reference.
+     * @param ref
+     *	the texture reference
+     */
+    bool relinquish(const TX_REF ref);
 
-	/**
-	 * @brief
-	 *	Reload all textures from their surfaces.
-	 */
-	void reload_all();
-	/**
-	 * @brief
-	 *	Release all textures.
-	 */
-	void release_all();
+    /**
+     * @brief
+     *	Reload all textures from their surfaces.
+     */
+    void reload_all();
+    /**
+     * @brief
+     *	Release all textures.
+     */
+    void release_all();
 
-	TX_REF load(const char *filename, const TX_REF ref, Uint32 key);
-	oglx_texture_t *get_valid_ptr(const TX_REF ref);
+    TX_REF load(const char *filename, const TX_REF ref, Uint32 key);
+    oglx_texture_t *get_valid_ptr(const TX_REF ref);
 
 };
