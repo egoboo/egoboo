@@ -36,104 +36,138 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define VALID_VALUE        0x32B04E67
-#define ErrorImage_width   2
-#define ErrorImage_height  2
 
 #define VALID_TEXTURE( PTEX ) ( (NULL != (PTEX)) && (VALID_VALUE == (PTEX)->valid) )
 
-static GLuint ErrorImage_binding = INVALID_GL_ID;
+static GLuint ErrorTexture_binding;
+static bool ErrorTexture_created = false;
 
-oglx_texture_parameters_t tex_params = { Ego::TextureFilter::UNFILTERED, 0 };
-
-static bool ErrorImage_defined = false;
-
-#if 0
-typedef GLubyte image_row_t[ErrorImage_width][4];
-#endif
-
-static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void ErrorImage_create()
+struct CErrorImage
 {
-    /// @author BB
-    /// @details define a default "error texture"
-
-    int i, j;
-
-    if ( INVALID_GL_ID != ErrorImage_binding ) return;
-
-    GL_DEBUG( glGenTextures )( 1, &ErrorImage_binding );
-
-    for ( i = 0; i < ErrorImage_height; i++ )
+private:
+    const static size_t width = 2;
+    const static size_t height = 2;
+    GLubyte _bytes[height][width][4];
+public:
+    size_t getWidth() const throw()
+        { return width; }
+    
+    size_t getHeight() const throw()
+        { return height; }
+    
+    const GLubyte *getBytes() const throw()
+        { return &(_bytes[0][0][0]); }
+public:
+    CErrorImage() throw()
     {
-        for ( j = 0; j < ErrorImage_width; j++ )
+        for (size_t i = 0; i < height; i++)
         {
-            if ( 0 == (( i & 0x1 ) ^( j & 0x1 ) ) )
+            for (size_t j = 0; j < width; j++)
             {
-                ErrorImage[i][j][0] = ( GLubyte ) 255;
-                ErrorImage[i][j][1] = ( GLubyte ) 0;
-                ErrorImage[i][j][2] = ( GLubyte ) 0;
-            }
-            else
-            {
-                ErrorImage[i][j][0] = ( GLubyte ) 0;
-                ErrorImage[i][j][1] = ( GLubyte ) 255;
-                ErrorImage[i][j][2] = ( GLubyte ) 255;
-            }
+                if (0 == ((i & 0x1) ^ (j & 0x1)))
+                {
+                    _bytes[i][j][0] = (GLubyte)255;
+                    _bytes[i][j][1] = (GLubyte)0;
+                    _bytes[i][j][2] = (GLubyte)0;
+                }
+                else
+                {
+                    _bytes[i][j][0] = (GLubyte)0;
+                    _bytes[i][j][1] = (GLubyte)255;
+                    _bytes[i][j][2] = (GLubyte)255;
+                }
 
-            ErrorImage[i][j][3] = ( GLubyte ) 255;
+                _bytes[i][j][3] = (GLubyte)255;
+            }
         }
     }
+};
 
-    ErrorImage_bind(GL_TEXTURE_2D, ErrorImage_binding);
+static CErrorImage _errorImage;
 
-    ErrorImage_defined = true;
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void ErrorTexture_create()
+{
+    if (!ErrorTexture_created)
+    {
+        // Clear the OpenGL error state.
+        while (GL_NO_ERROR != glGetError())
+        {
+            /* Intentionally empty. */
+        }
+        glGenTextures(1, &ErrorTexture_binding);
+        if (GL_NO_ERROR != glGetError())
+        {
+            throw std::runtime_error("unable to create error image");
+        }
+        try
+        {
+            ErrorImage_bind(GL_TEXTURE_2D, ErrorTexture_binding);
+        }
+        catch (...)
+        {
+            std::rethrow_exception(std::current_exception());
+        }
+        ErrorTexture_created = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
-void ErrorImage_bind( GLenum target, GLuint id )
+// Bind the given texture ID to the given target and sets its data to the data of the error image.
+void ErrorImage_bind(GLenum target, GLuint id)
 {
-    // make sure the error texture exists
-    if ( !ErrorImage_defined ) ErrorImage_create();
-
-    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_PIXEL_STORE_BIT ) ;
-    {
-        GL_DEBUG( glPixelStorei )( GL_UNPACK_ALIGNMENT, 1 );
-
-        GL_DEBUG( glBindTexture )( target, id );
-
-        GL_DEBUG( glTexParameteri )( target, GL_TEXTURE_WRAP_S, GL_REPEAT );
-        GL_DEBUG( glTexParameteri )( target, GL_TEXTURE_WRAP_T, GL_REPEAT );
-        GL_DEBUG( glTexParameteri )( target, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-        GL_DEBUG( glTexParameteri )( target, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-        if ( target == GL_TEXTURE_1D )
-        {
-            GL_DEBUG( glTexImage1D )( GL_TEXTURE_1D, 0, GL_RGBA, ErrorImage_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage );
-        }
-        else
-        {
-            GL_DEBUG( glTexImage2D )( GL_TEXTURE_2D, 0, GL_RGBA, ErrorImage_width, ErrorImage_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage );
-        }
+    while (GL_NO_ERROR != glGetError())
+    { 
+        /* Intentionally empty. */ 
     }
-    GL_DEBUG( glPopClientAttrib )();
+    glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+
+    glBindTexture(target, id);
+    if (GL_NO_ERROR != glGetError())
+    {
+        throw std::runtime_error("unable to bind error image");
+    }
+
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // Create the image.
+    if (target == GL_TEXTURE_1D)
+    {
+        glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, _errorImage.getWidth(), 0, GL_RGBA, GL_UNSIGNED_BYTE, _errorImage.getBytes());
+    }
+    else
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _errorImage.getWidth(), _errorImage.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, _errorImage.getBytes());
+    }
+
+    glPopClientAttrib();
+    if (GL_NO_ERROR != glGetError())
+    {
+        throw std::runtime_error("unable to bind error image");
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------
 GLuint ErrorImage_get_binding()
 {
-    // make sure the error texture exists
-    if ( !ErrorImage_defined ) ErrorImage_create();
-
-    return ErrorImage_binding;
+    ErrorTexture_create();
+    return ErrorTexture_binding;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 oglx_texture_t *oglx_texture_t::ctor(oglx_texture_t *self)
 {
-    if (!self) return nullptr;
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
 
     BLANK_STRUCT_PTR(self);
 
@@ -171,6 +205,10 @@ oglx_texture_t *oglx_texture_t::ctor(oglx_texture_t *self)
 
 void oglx_texture_t::dtor(oglx_texture_t *self)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     if (!VALID_TEXTURE(self)) return;
 
     // Mark as invalid.
@@ -215,6 +253,10 @@ oglx_texture_t *oglx_texture_t::create()
 
 void oglx_texture_t::destroy(oglx_texture_t *self)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     oglx_texture_t::dtor(self);
     free(self);
 }
@@ -225,7 +267,10 @@ GLuint oglx_texture_t::convert(oglx_texture_t *self, SDL_Surface *image, Uint32 
     /// @author BB
     /// @details an oglx_texture_t wrapper for the SDL_GL_convert_surface() function
 
-    if (!self) return INVALID_GL_ID;
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
 
     // Make sure the old texture has been freed.
     oglx_texture_t::release(self);
@@ -390,6 +435,10 @@ bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
 //--------------------------------------------------------------------------------------------
 GLuint oglx_texture_t::load(oglx_texture_t *self, const char *name, SDL_Surface *image, Uint32 key)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     if (VALID_TEXTURE(self))
     {
         // Release any old texture.
@@ -437,6 +486,10 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *name, SDL_Surface 
 
 GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 key)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     if (VALID_TEXTURE(self))
     {
         // Release any old texture.
@@ -459,61 +512,70 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 k
 //--------------------------------------------------------------------------------------------
 GLuint  oglx_texture_t::getTextureID(const oglx_texture_t *self)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     return !VALID_TEXTURE(self) ? INVALID_GL_ID : self->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_t::getImageHeight(const oglx_texture_t *self)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     return !VALID_TEXTURE(self) ? 0 : self->imgH;
 }
 
 //--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_t::getImageWidth(const oglx_texture_t *self)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     return !VALID_TEXTURE(self) ? 0 : self->imgW;
 }
 
 //--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_t::getTextureWidth(const oglx_texture_t *self)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     return !VALID_TEXTURE(self) ? 0 : self->base.width;
 }
 
 //--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_t::getTextureHeight(const oglx_texture_t *self)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     return !VALID_TEXTURE(self) ? 0 : self->base.height;
 }
 
 //--------------------------------------------------------------------------------------------
-GLboolean oglx_texture_t::getSize( const oglx_texture_t * ptex, oglx_frect_t tx_rect, oglx_frect_t img_rect )
+GLboolean oglx_texture_t::getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect)
 {
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     GLboolean retval = GL_FALSE;
 
-    if ( NULL == ptex )
-    {
-        if ( NULL != tx_rect )
-        {
-            memset( tx_rect, 0, sizeof( *tx_rect ) );
-            retval = GL_TRUE;
-        }
-
-        if ( NULL != img_rect )
-        {
-            memset( img_rect, 0, sizeof( *img_rect ) );
-            retval = GL_TRUE;
-        }
-    }
-    else
     {
         if ( NULL != tx_rect )
         {
             // calculate the texture rectangle
             tx_rect[0] = 0.0f;
             tx_rect[1] = 0.0f;
-            tx_rect[2] = ( 0 == ptex->base.width )  ? 1.0f : ( GLfloat ) ptex->imgW / ( GLfloat )ptex->base.width;
-            tx_rect[3] = ( 0 == ptex->base.height ) ? 1.0f : ( GLfloat ) ptex->imgH / ( GLfloat )ptex->base.height;
+            tx_rect[2] = (0 == self->base.width) ? 1.0f : (GLfloat)self->imgW / (GLfloat)self->base.width;
+            tx_rect[3] = (0 == self->base.height) ? 1.0f : (GLfloat)self->imgH / (GLfloat)self->base.height;
 
             // clamp the values
             if ( tx_rect[2] > 1.0f ) tx_rect[2] = 1.0f;
@@ -529,8 +591,8 @@ GLboolean oglx_texture_t::getSize( const oglx_texture_t * ptex, oglx_frect_t tx_
         {
             img_rect[0] = 0.0f;
             img_rect[1] = 0.0f;
-            img_rect[2] = ( GLfloat ) ptex->imgW;
-            img_rect[3] = ( GLfloat ) ptex->imgH;
+            img_rect[2] = (GLfloat)self->imgW;
+            img_rect[3] = (GLfloat)self->imgH;
 
             retval = GL_TRUE;
         }
@@ -540,40 +602,45 @@ GLboolean oglx_texture_t::getSize( const oglx_texture_t * ptex, oglx_frect_t tx_
 }
 
 //--------------------------------------------------------------------------------------------
-void  oglx_texture_t::release(oglx_texture_t *texture)
+void  oglx_texture_t::release(oglx_texture_t *self)
 {
-    if (!VALID_TEXTURE(texture))
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+    if (!VALID_TEXTURE(self))
     {
         return;
     }
 
     // Delete any existing SDL surface.
-    if (texture->surface)
+    if (self->surface)
     {
-        SDL_FreeSurface(texture->surface);
-        texture->surface = nullptr;
+        SDL_FreeSurface(self->surface);
+        self->surface = nullptr;
     }
 
     // Try to get rid of any stored texture data for this texture.
-    GL_DEBUG(glDeleteTextures)(1, &(texture->base.binding));
-    texture->base.binding = INVALID_GL_ID;
+    GL_DEBUG(glDeleteTextures)(1, &(self->base.binding));
+    self->base.binding = INVALID_GL_ID;
 
-    if (!ErrorImage_defined) ErrorImage_create();
+    // Make sure the error texture exists.
+    ErrorTexture_create();
 
     // Generate a new texture binding.
-    GL_DEBUG(glGenTextures)(1, &(texture->base.binding));
+    GL_DEBUG(glGenTextures)(1, &(self->base.binding));
 
     // Bind the error texture instead of the old texture.
-    ErrorImage_bind(texture->base.target, texture->base.binding);
+    ErrorImage_bind(self->base.target, self->base.binding);
 
     // Reset the other data
-    texture->imgW = texture->base.width = ErrorImage_width;
-    texture->imgH = texture->base.height = ErrorImage_height;
-    strncpy(texture->name, "ErrorImage", sizeof(texture->name));
+    self->imgW = self->base.width = _errorImage.getWidth();
+    self->imgH = self->base.height = _errorImage.getHeight();
+    strncpy(self->name, "ErrorImage", sizeof(self->name));
 
     // Set wrapping for s and t coordinates to clamped.
-    texture->base.wrap_s = GL_CLAMP;
-    texture->base.wrap_t = GL_CLAMP;
+    self->base.wrap_s = GL_CLAMP;
+    self->base.wrap_t = GL_CLAMP;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -586,10 +653,13 @@ void oglx_texture_t::bind( oglx_texture_t *texture )
     GLuint id;
     GLint wrap_s, wrap_t;
 
+    // Make sure the error texture exists.
+    ErrorTexture_create();
+
     // assume the texture is going to be the error texture
     target = GL_TEXTURE_2D;
     wrap_s = wrap_t = GL_REPEAT;
-    id     = ErrorImage_binding;
+    id = ErrorTexture_binding;
 
     if ( NULL == texture )
     {
@@ -616,9 +686,13 @@ void oglx_texture_t::bind( oglx_texture_t *texture )
 }
 
 //--------------------------------------------------------------------------------------------
-GLboolean oglx_texture_Valid(oglx_texture_t *texture)
+GLboolean oglx_texture_Valid(oglx_texture_t *self)
 {
-    return VALID_TEXTURE(texture);
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+    return VALID_TEXTURE(self);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -628,17 +702,17 @@ GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLi
 {
     GLuint local_binding;
 
-    // make sure the error texture exists
-    if ( !ErrorImage_defined ) ErrorImage_create();
+    // Make sure the error texture exists.
+    ErrorTexture_create();
 
     // handle default parameters
     if ( wrap_s < 0 ) wrap_s = GL_REPEAT;
     if ( wrap_t < 0 ) wrap_t = GL_REPEAT;
 
-    local_binding = VALID_BINDING( binding ) ? binding : ErrorImage_binding;
+    local_binding = VALID_BINDING( binding ) ? binding : ErrorTexture_binding;
 
-    auto filt_type  = tex_params.textureFiltering;
-    auto anisotropy = tex_params.anisotropyLevel;
+    auto filt_type  = g_ogl_textureParameters.textureFiltering;
+    auto anisotropy = g_ogl_textureParameters.anisotropyLevel;
 
     if ( !GL_DEBUG( glIsEnabled )( target ) )
     {

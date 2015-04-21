@@ -2105,7 +2105,7 @@ void do_level_up( const CHR_REF character )
             if ( VALID_PLA( pchr->is_which_player ) )
             {
                 DisplayMsg_printf("%s gained a level!!!", pchr->getName().c_str());
-                _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_LEVELUP));
+                AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
             }
 
             // Size
@@ -2482,7 +2482,7 @@ void cleanup_one_character( Object * pchr )
     }
 
     // Stop all sound loops for this object
-    _audioSystem.stopObjectLoopingSounds(ichr);
+    AudioSystem::get().stopObjectLoopingSounds(ichr);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4625,7 +4625,7 @@ bool chr_do_latch_button( Object * pchr )
                 pchr->jumpnumber--;
 
             // Play the jump sound
-            _audioSystem.playSound(pchr->getPosition(), profile->getJumpSound());
+            AudioSystem::get().playSound(pchr->getPosition(), profile->getJumpSound());
         }
 
         //Normal jump
@@ -4657,7 +4657,7 @@ bool chr_do_latch_button( Object * pchr )
                 }
 
                 // Play the jump sound (Boing!)
-                _audioSystem.playSound(pchr->getPosition(), profile->getJumpSound());
+                AudioSystem::get().playSound(pchr->getPosition(), profile->getJumpSound());
             }
         }
 
@@ -5358,7 +5358,7 @@ bool chr_handle_madfx( Object * pchr )
     //Do footfall sound effect
     if (egoboo_config_t::get().sound_footfallEffects_enable.getValue() && HAS_SOME_BITS(framefx, MADFX_FOOTFALL))
     {
-        _audioSystem.playSound(pchr->getPosition(), _profileSystem.getProfile(pchr->profile_ref)->getFootFallSound());
+        AudioSystem::get().playSound(pchr->getPosition(), _profileSystem.getProfile(pchr->profile_ref)->getFootFallSound());
     }
 
     return true;

@@ -65,8 +65,8 @@ PlayingState::~PlayingState()
         _profileSystem.loadAllSavedCharacters("mp_players");
     }
 
-    //Stop any module sounds that are playing
-    _audioSystem.fadeAllSounds();
+    // Stop any module sounds that are playing.
+    AudioSystem::get().fadeAllSounds();
 }
 
 void PlayingState::update()

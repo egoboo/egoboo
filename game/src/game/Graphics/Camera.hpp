@@ -76,15 +76,12 @@ CONSTEXPR float CAM_ZOOM_FACTOR = 0.5f;
  *  - "center" the position the camera is focused on
  *  - "position" the position the camera is located at
  */
-class Camera
+class Camera : public Ego::Core::NonCopyable
 {
 public:
-	Camera(const CameraOptions &options);
+    Camera(const CameraOptions &options);
     ~Camera();
 
-    Camera(const Camera&) = delete;
-    Camera& operator=(const Camera&) = delete;
-    
     /// The default field of view angle (in degrees).
     static const float DEFAULT_FOV;
 

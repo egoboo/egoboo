@@ -28,7 +28,7 @@
 /// Temporary abstract profile system for unifying particle- and
 /// enchant-profiles systems before merging both into ProfileSystem.
 template <typename TYPE,typename REFTYPE,REFTYPE INVALIDREF,size_t CAPACITY,typename READER>
-struct _AbstractProfileSystem
+struct _AbstractProfileSystem : public Ego::Core::NonCopyable
 {
 
 protected:
@@ -241,8 +241,4 @@ public:
         }
     }
 
-
-    //Disable copying class
-    _AbstractProfileSystem(const _AbstractProfileSystem& copy) = delete;
-    _AbstractProfileSystem& operator=(const _AbstractProfileSystem&) = delete;
 };

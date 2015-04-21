@@ -41,11 +41,11 @@ class Object;
 /**
 * @brief A completely recursive loop safe container for accessing instances of in-game objects
 **/
-class ObjectHandler
+class ObjectHandler : public Ego::Core::NonCopyable
 {
 public:
 
-	class ObjectIterator
+	class ObjectIterator : public Ego::Core::NonCopyable
 	{
 	public:
 

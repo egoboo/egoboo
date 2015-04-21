@@ -24,9 +24,6 @@
 #include <SDL_mixer.h>
 #include "egolib/egoboo_setup.h"
 #include "egolib/Math/_Include.hpp"
-#if 0
-#include "game/Entities/_Include.hpp"
-#endif
 
 typedef int MusicID;
 typedef int SoundID;
@@ -42,8 +39,8 @@ public:
      * @brief
      *  Enable/disable playing of sounds.
      */
-	bool enableSound;
-	uint8_t soundVolume;          ///< Volume of sounds.
+    bool enableSound;
+    uint8_t soundVolume;          ///< Volume of sounds.
 
     /**
      * @brief
@@ -51,49 +48,74 @@ public:
      * @todo
      *  Music and loops should be seperated.
      */
-	bool enableMusic;
-	uint8_t musicVolume;         ///< The volume of music.
+    bool enableMusic;
+    uint8_t musicVolume;         ///< The volume of music.
 
-	int        maxsoundchannel;      ///< Max number of sounds playing at the same time
-	int        buffersize;           ///< Buffer size set in setup.txt
-	bool       highquality;          ///< Allow CD quality frequency sounds?
+    int maxsoundchannel;      ///< Max number of sounds playing at the same time
+    int buffersize;           ///< Buffer size set in setup.txt
+    bool highquality;          ///< Allow CD quality frequency sounds?
 
-	SoundConfiguration() :
-    	enableSound(false),
-    	soundVolume(75),  
-    	enableMusic(false),
-    	musicVolume(50),  
-    	maxsoundchannel(16),
-    	buffersize(2048),
-    	highquality(false)
-	{
-		// ctor to safe default values
-	}
+    SoundConfiguration() :
+        enableSound(false),
+        soundVolume(75),
+        enableMusic(false),
+        musicVolume(50),
+        maxsoundchannel(16),
+        buffersize(2048),
+        highquality(false)
+    {
+        /* Nothing do to. */
+    }
+    void download(egoboo_config_t& cfg)
+    {
+        enableSound = cfg.sound_effects_enable.getValue();
+        soundVolume = cfg.sound_effects_volume.getValue();
+        enableMusic = cfg.sound_music_enable.getValue();
+        musicVolume = cfg.sound_music_volume.getValue();
+        maxsoundchannel = CLIP<uint16_t>(cfg.sound_channel_count.getValue(), 8, 128);
+        buffersize = CLIP<uint16_t>(cfg.sound_outputBuffer_size.getValue(), 512, 8196);
+        highquality = cfg.sound_highQuality_enable.getValue();
+    }
 };
 
 /// Data needed to store and manipulate a looped sound
 class LoopingSound
 {
 public:
-	LoopingSound(CHR_REF ref, SoundID soundID) :
-		_channel(INVALID_SOUND_CHANNEL),
-		_object(ref),
-		_soundID(soundID)
-	{
-		//ctor
-	}
+    LoopingSound(CHR_REF ref, SoundID soundID) :
+        _channel(INVALID_SOUND_CHANNEL),
+        _object(ref),
+        _soundID(soundID)
+    {
+        /* Nothing to do. */
+    }
 
     LoopingSound(const LoopingSound&) = delete;
     LoopingSound& operator=(const LoopingSound&) = delete;
 
-	inline int getChannel() const {return _channel;}
-	inline CHR_REF getOwner() const {return _object;}
-	inline void setChannel(int channel) {_channel = channel;}
-	inline SoundID getSoundID() const {return _soundID;}
+    inline int getChannel() const
+    {
+        return _channel;
+    }
+    
+    inline CHR_REF getOwner() const
+    {
+        return _object;
+    }
+    
+    inline void setChannel(int channel)
+    {
+        _channel = channel;
+    }
+
+    inline SoundID getSoundID() const
+    {
+        return _soundID;
+    }
 
 
 private:
-    int     	  _channel;
+    int _channel;
     const CHR_REF _object;
     const SoundID _soundID;
 };
@@ -115,124 +137,148 @@ enum GlobalSound : uint8_t
     GSND_COUNT
 };
 
-class AudioSystem
+class AudioSystem : public Ego::Core::NonCopyable
 {
 public:
-	static CONSTEXPR int MIX_HIGH_QUALITY = 44100;
-	static CONSTEXPR size_t MENU_SONG = 0;
+    static CONSTEXPR int MIX_HIGH_QUALITY = 44100;
+    static CONSTEXPR size_t MENU_SONG = 0;
 
 public:
-	AudioSystem();
-	~AudioSystem();
+    AudioSystem();
+    ~AudioSystem();
 
-	bool initialize(const egoboo_config_t &pcfg);
-    void uninitialize();
+    void loadGlobalSounds();
 
-	void loadGlobalSounds();
+    void reset();
 
-	void reset();
+    /**
+     * @brief
+     *  Stop music.
+     */
+    void stopMusic();
 
-	/// @author ZF
-    /// @details This function sets music track to pause
-	void stopMusic();
-	
-	void resumeMusic();
+    /**
+     * @brief
+     *  Resume music.
+     */
+    void resumeMusic();
 
-	/**
-	* Stop all sounds that are playing
-	**/
-	void fadeAllSounds();
+    /**
+     * Stop all sounds that are playing over time.
+     */
+    void fadeAllSounds();
 
-	/**
-	* @author ZF
+    /**
+    * @author ZF
     * @details This functions plays a specified track loaded into memory
     **/
-	void playMusic(const MusicID musicID, const uint16_t fadetime = 0);
+    void playMusic(const MusicID musicID, const uint16_t fadetime = 0);
 
-	SoundID loadSound(const std::string &fileName);
+    SoundID loadSound(const std::string &fileName);
 
-	/// @author ZF
+    /// @author ZF
     /// @details This function loads all of the music sounds
-	void loadAllMusic();
+    void loadAllMusic();
 
-	/**
-	* @brief Updates all looping sounds (called preiodically by the game engine)
-	**/
-	void updateLoopingSounds();
+    /**
+     * @brief
+     *  Updates all looping sounds (called preiodically by the game engine).
+     */
+    void updateLoopingSounds();
 
-    /** 
-    *  @author ZF
-    *  @details stops looping of a specific sound for all characters.
-    *			If soundID is INVALID_SOUND_ID, then all sounds belonging to this character is stopped
-    **/
-	bool stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soundID = INVALID_SOUND_ID);
+    /**
+     *  @author ZF
+     *  @details stops looping of a specific sound for all characters.
+     *           If soundID is INVALID_SOUND_ID, then all sounds belonging to this character is stopped
+     **/
+    bool stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soundID = INVALID_SOUND_ID);
 
-	void setConfiguration(const egoboo_config_t &pcfg);
+    /**
+     * @todo
+     *  MH: "reconfigure" should be offered by all sub-systems, it is a useful concept.
+     * @param cfg
+     *  the configuration
+     * @remark
+     *  The audio system will adjust its settings to the specified configuration.
+     *  and update the given configuration with information about its new settings.
+     */
+    void reconfigure(egoboo_config_t &cfg);
 
-	void freeAllSounds();
+    void freeAllMusic();
+    void freeAllSounds();
 
     /// @author ZF
     /// @details This function plays a specified sound and returns which channel it's using
-    int playSound(const fvec3_t snd_pos, const SoundID soundID);
+    int playSound(const fvec3_t& snd_pos, const SoundID soundID);
 
     /**
-    * @brief Loops the specified sound until it is explicitly stopped
-    **/
+     * @brief
+     *  Loops the specified sound until it is explicitly stopped.
+     */
     void playSoundLooped(const SoundID soundID, const CHR_REF owner);
 
     /// @author ZF
     /// @details This function plays a specified sound at full possible volume and returns which channel it's using
-	int playSoundFull(SoundID soundID);
+    int playSoundFull(SoundID soundID);
 
-	inline SoundID getGlobalSound(GlobalSound id) const {return _globalSounds[id];}
+    inline SoundID getGlobalSound(GlobalSound id) const
+    {
+        return _globalSounds[id];
+    }
 
-	inline MusicID getCurrentMusicPlaying() const {return _currentSongPlaying;}
+    inline MusicID getCurrentMusicPlaying() const
+    {
+        return _currentSongPlaying;
+    }
 
 private:
-	/**
-	* @brief Loads one music track. Returns nullptr if it fails
-	**/
-	MusicID loadMusic(const std::string &fileName);
+    /**
+    * @brief Loads one music track. Returns nullptr if it fails
+    **/
+    MusicID loadMusic(const std::string &fileName);
 
-	/**
-	 * @brief applies 3D spatial effect to the specified sound (using volume and panning)
+    /**
+     * @brief applies 3D spatial effect to the specified sound (using volume and panning)
      * @param channel
      *  the channel
      * @param distance
      *  the distance between the sound origin and the listener
      * @param soundPosition
      *  the sound origin
-	 */
-	void mixAudioPosition3D(const int channel, float distance, const fvec3_t soundPosition);
+     */
+    void mixAudioPosition3D(const int channel, float distance, const fvec3_t soundPosition);
 
-	/**
+    /**
      * @brief
      *  Calculates distance between the sound origin and the players.
      * @param soundPosition
      *  the sound origin
      * @return
      *  the distance between the sound origin and the players
-	 */
-	float getSoundDistance(const fvec3_t soundPosition);
+     */
+    float getSoundDistance(const fvec3_t soundPosition);
 
-	/**
-	 * @brief
+    /**
+     * @brief
      *  Updates one looping sound effect.
      * @param sound
      *  the looping sound effect
-	 */
-	void updateLoopingSound(const std::shared_ptr<LoopingSound>& sound);
+     */
+    void updateLoopingSound(const std::shared_ptr<LoopingSound>& sound);
 
 private:
-	bool _initialized;
-	SoundConfiguration _audioConfig;
-	std::vector<Mix_Music*> _musicLoaded;
-	std::vector<Mix_Chunk*> _soundsLoaded;
-	std::array<SoundID, GSND_COUNT> _globalSounds;
 
-	std::forward_list<std::shared_ptr<LoopingSound>> _loopingSounds;
-	MusicID _currentSongPlaying;
+    SoundConfiguration _audioConfig;
+    std::vector<Mix_Music*> _musicLoaded;
+    std::vector<Mix_Chunk*> _soundsLoaded;
+    std::array<SoundID, GSND_COUNT> _globalSounds;
+
+    std::forward_list<std::shared_ptr<LoopingSound>> _loopingSounds;
+    MusicID _currentSongPlaying;
+
+public:
+    static AudioSystem *_singleton;
+    static AudioSystem& get();
+    static void initialize();
+    static void uninitialize();
 };
-
-/// @todo Remove this global.
-extern AudioSystem  _audioSystem;

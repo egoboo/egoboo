@@ -76,7 +76,7 @@ namespace Configuration
 using namespace std;
 
 template <typename ValueType>
-class Variable
+class Variable : public Ego::Core::NonCopyable
 {
 
 private:

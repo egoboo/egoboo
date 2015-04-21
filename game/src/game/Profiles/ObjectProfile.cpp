@@ -239,7 +239,7 @@ ObjectProfile::~ObjectProfile()
     {
         if ( element.second > TX_SPECIAL_LAST )
         {
-			TextureManager::get().relinquish(element.second);
+            TextureManager::get().relinquish(element.second);
         }
     }
 
@@ -247,14 +247,15 @@ ObjectProfile::~ObjectProfile()
     {
         if ( element.second > TX_SPECIAL_LAST )
         {
-			TextureManager::get().relinquish(element.second);
+            TextureManager::get().relinquish(element.second);
         }
     }
 }
 
 uint32_t ObjectProfile::getXPNeededForLevel(uint8_t level) const
 {
-    if(level >= _experienceForLevel.size()) {
+    if(level >= _experienceForLevel.size())
+    {
         return UINT32_MAX;
     }
 
@@ -1012,7 +1013,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
         for ( size_t cnt = 0; cnt < 30; cnt++ ) //TODO: make better search than just 30 (list files?)
         {
             const std::string soundName = folderPath + "/sound" + std::to_string(cnt);
-            SoundID soundID = _audioSystem.loadSound(soundName);
+            SoundID soundID = AudioSystem::get().loadSound(soundName);
 
             if(soundID != INVALID_SOUND_ID) {
                 profile->_soundMap[cnt] = soundID;

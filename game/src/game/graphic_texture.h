@@ -77,7 +77,7 @@ inline bool VALID_TX_RANGE(const TX_REF ref)
     return ref >= 0 && ref < TEXTURES_MAX;
 }
 
-struct TextureManager
+struct TextureManager : public Ego::Core::NonCopyable
 {
 protected:
     /**
@@ -121,10 +121,6 @@ protected:
     void freeAll();
 
 public:
-
-    //Disable copying class
-    TextureManager(const TextureManager& copy) = delete;
-    TextureManager& operator=(const TextureManager&) = delete;
 
 	/**
 	 * @brief

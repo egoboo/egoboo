@@ -52,87 +52,72 @@ static const std::array<const char*, GSND_COUNT> wavenames =
 };
 
 AudioSystem::AudioSystem() :
-	_initialized(false),
-	_audioConfig(),
-	_musicLoaded(),
-	_soundsLoaded(),
-	_globalSounds(),
-	_loopingSounds(),
-	_currentSongPlaying(INVALID_SOUND_CHANNEL)
+    _audioConfig(),
+    _musicLoaded(),
+    _soundsLoaded(),
+    _globalSounds(),
+    _loopingSounds(),
+    _currentSongPlaying(INVALID_SOUND_CHANNEL)
 {
-	//ctor
     _globalSounds.fill(INVALID_SOUND_ID);
-}
+    // Set the configuration first.
+    _audioConfig.download(egoboo_config_t::get());
 
-
-bool AudioSystem::initialize(const egoboo_config_t &pcfg)
-{
-	//Set configuration first
-	setConfiguration(pcfg);
-
-    //Initialize SDL Audio first
-    // make sure that SDL audio is turned on
-    if ( 0 == SDL_WasInit( SDL_INIT_AUDIO ) )
+    // Initialize SDL Audio.
+    if (0 == SDL_WasInit(SDL_INIT_AUDIO))
     {
-        log_info( "Intializing SDL Audio... " );
-        if ( SDL_InitSubSystem( SDL_INIT_AUDIO ) < 0 )
+        log_info("intializing SDL audio ... ");
+        if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
         {
-            log_message( "Failed!\n" );
-            log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
+            log_message(" failure!\n");
+            log_warning("unable to initialize SDL audio: \"%s\"\n", SDL_GetError());
 
             _audioConfig.enableMusic = false;
             _audioConfig.enableSound = false;
-            return false;
+            throw std::runtime_error("unable to initialized audio system");
         }
         else
         {
-            log_message( "Success!\n" );
+            log_message(" success!\n");
         }
     }
 
-    //Next do SDL_Mixer
-    if ( !_initialized && ( _audioConfig.enableMusic || _audioConfig.enableSound ) )
+    // Initialize SDL mixer.
+    if (_audioConfig.enableMusic || _audioConfig.enableSound)
     {
         const SDL_version* link_version = Mix_Linked_Version();
-        log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", link_version->major, link_version->minor, link_version->patch );
-        if ( Mix_OpenAudio( _audioConfig.highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, _audioConfig.buffersize ) < 0 )
+        log_info("initializing SDL mixer audio services version %d.%d.%d ... ", link_version->major, link_version->minor, link_version->patch);
+        if (Mix_OpenAudio(_audioConfig.highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, _audioConfig.buffersize) < 0)
         {
-            _initialized = false;
-            log_message( "Failure!\n" );
-            log_warning( "Unable to initialize audio: %s\n", Mix_GetError() );
-            return false;
+            log_message(" failure!\n");
+            log_warning("unable to initialize audio: \"%s\"\n", Mix_GetError());
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+            throw std::runtime_error("unable to initialize audio system");
         }
         else
         {
-            Mix_VolumeMusic( _audioConfig.musicVolume );
-            Mix_AllocateChannels( _audioConfig.maxsoundchannel );
+            Mix_VolumeMusic(_audioConfig.musicVolume);
+            Mix_AllocateChannels(_audioConfig.maxsoundchannel);
 
-            _initialized = true;
-
-            log_message( "Success!\n" );
+            log_message(" ... success!\n");
         }
     }
-
-    return true;
-}
-
-void AudioSystem::uninitialize()
-{
-    Mix_Quit();
 }
 
 void AudioSystem::loadGlobalSounds()
 {
-    //Load global sounds
-    for(size_t i = 0; i < GSND_COUNT; ++i) {
+    // Load global sounds.
+    for (size_t i = 0; i < GSND_COUNT; ++i)
+    {
         _globalSounds[i] = loadSound(std::string("mp_data/") + wavenames[i]);
-        if(_globalSounds[i] == INVALID_SOUND_ID) {
+        if (_globalSounds[i] == INVALID_SOUND_ID)
+        {
             log_warning("global sound not loaded: %s\n", wavenames[i]);
         }
     }
 
-    //Load any override sounds in local .mod folder
-    for(size_t cnt = 0; cnt < GSND_COUNT; cnt++ )
+    // Load any override sounds in local .mod folder.
+    for (size_t cnt = 0; cnt < GSND_COUNT; cnt++)
     {
         const std::string fileName = "mp_data/sound" + std::to_string(cnt);
 
@@ -148,73 +133,55 @@ void AudioSystem::loadGlobalSounds()
 
 AudioSystem::~AudioSystem()
 {
-	if ( _initialized && ( 0 != SDL_WasInit( SDL_INIT_AUDIO ) ) )
+    if (0 != SDL_WasInit(SDL_INIT_AUDIO))
     {
-    	freeAllSounds();
-
-        for(Mix_Music * music : _musicLoaded) {
-            Mix_FreeMusic(music);
-        }
-        _musicLoaded.clear();
+        freeAllSounds();
+        freeAllMusic();
 
         Mix_CloseAudio();
-        _initialized = false;
     }
 }
 
-void AudioSystem::reset()
+void AudioSystem::reconfigure(egoboo_config_t& cfg)
 {
-    //Clear all data
+    // Clear all data.
     _loopingSounds.clear();
 
-    //Restore audio if needed
-    if(!_initialized)
+    // Set the configuration first.
+    _audioConfig.download(cfg);
+
+    // Restore audio if needed
+    if (_audioConfig.enableMusic || _audioConfig.enableSound)
     {
-        if ( _audioConfig.enableMusic || _audioConfig.enableSound )
+        if (-1 != Mix_OpenAudio(_audioConfig.highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, _audioConfig.buffersize))
         {
-            if ( -1 != Mix_OpenAudio( _audioConfig.highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, _audioConfig.buffersize ) )
-            {
-                _initialized = true;
-                Mix_AllocateChannels( _audioConfig.maxsoundchannel );
-            }
-            else
-            {
-                log_warning( "AudioSystem::reset() - Cannot get AudioSystem to start. (%s)\n", Mix_GetError() );
-            }
-        }        
+            Mix_AllocateChannels(_audioConfig.maxsoundchannel);
+        }
+        else
+        {
+            log_warning("AudioSystem::reset() - Cannot get AudioSystem to start. (%s)\n", Mix_GetError());
+        }
     }
 
     // Do we restart the music?
-    if (egoboo_config_t::get().sound_music_enable.getValue())
+    if (_audioConfig.enableMusic)
     {
         // Load music if required.
-        _audioSystem.loadAllMusic();
-        
-        // start playing queued/paused song.
-        if(_initialized && _currentSongPlaying >= 0 && _currentSongPlaying < _musicLoaded.size())
+        loadAllMusic();
+
+        // Start playing queued/paused song.
+        if (_currentSongPlaying >= 0 && _currentSongPlaying < _musicLoaded.size())
         {
             Mix_FadeInMusic(_musicLoaded[_currentSongPlaying], -1, 500);
         }
     }
 }
 
-void AudioSystem::setConfiguration(const egoboo_config_t &cfg)
-{
-    //Load config
-    _audioConfig.enableSound     = cfg.sound_effects_enable.getValue();
-    _audioConfig.soundVolume     = cfg.sound_effects_volume.getValue();
-    _audioConfig.enableMusic     = cfg.sound_music_enable.getValue();
-    _audioConfig.musicVolume     = cfg.sound_music_volume.getValue();
-    _audioConfig.maxsoundchannel = CLIP<uint16_t>(cfg.sound_channel_count.getValue(), 8, 128);
-    _audioConfig.buffersize      = CLIP<uint16_t>(cfg.sound_outputBuffer_size.getValue(), 512, 8196);
-    _audioConfig.highquality     = cfg.sound_highQuality_enable.getValue();
-}
-
 void AudioSystem::stopMusic()
 {
-    if ( _initialized && _audioConfig.enableMusic )
+    if (_audioConfig.enableMusic)
     {
-    	Mix_FadeOutMusic(2000);
+        Mix_FadeOutMusic(2000);
         //Mix_HaltMusic();
         _currentSongPlaying = INVALID_SOUND_CHANNEL;
     }
@@ -222,15 +189,11 @@ void AudioSystem::stopMusic()
 
 SoundID AudioSystem::loadSound(const std::string &fileName)
 {
-    //Can't load sounds if SDL_Mixer is not initialized
-    if(!_initialized) {
-    	return INVALID_SOUND_ID;
-    }
-
-    //Valid filename?
-    if(fileName.empty()) {
+    // Valid filename?
+    if (fileName.empty())
+    {
         log_warning("trying to load empty string sound");
-    	return INVALID_SOUND_ID;
+        return INVALID_SOUND_ID;
     }
 
     // blank out the data
@@ -240,28 +203,28 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
 
     // try an ogg file
     fullFileName = fileName + ".ogg";
-    if ( vfs_exists( fullFileName.c_str() ) )
+    if (vfs_exists(fullFileName.c_str()))
     {
         fileExists = true;
         loadedSound = Mix_LoadWAV_RW(vfs_openRWopsRead(fullFileName.c_str()), 1);
     }
 
     //OGG failed, try WAV instead
-    if ( nullptr == loadedSound )
+    if (nullptr == loadedSound)
     {
-    	fullFileName = fileName + ".wav";
-        if ( vfs_exists( fullFileName.c_str() ) )
+        fullFileName = fileName + ".wav";
+        if (vfs_exists(fullFileName.c_str()))
         {
             fileExists = true;
             loadedSound = Mix_LoadWAV_RW(vfs_openRWopsRead(fullFileName.c_str()), 1);
         }
     }
 
-    if ( nullptr == loadedSound )
+    if (nullptr == loadedSound)
     {
         // there is an error only if the file exists and can't be loaded
-        if(fileExists) {
-            log_warning( "Sound file not found/loaded %s.\n", fileName.c_str() );
+        if (fileExists) {
+            log_warning("Sound file not found/loaded %s.\n", fileName.c_str());
         }
 
         return INVALID_SOUND_ID;
@@ -269,67 +232,69 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
 
     //Sound loaded!
     _soundsLoaded.push_back(loadedSound);
-    return _soundsLoaded.size()-1;
+    return _soundsLoaded.size() - 1;
 }
 
 MusicID AudioSystem::loadMusic(const std::string &fileName)
 {
-    //Can't load sounds if SDL_Mixer is not initialized
-    if(!_initialized) {
-    	return INVALID_SOUND_ID;
-    }
-
-    //Valid filename?
-    if(fileName.empty()) {
-    	return INVALID_SOUND_ID;
+    // Valid filename?
+    if (fileName.empty())
+    {
+        return INVALID_SOUND_ID;
     }
 
     Mix_Music* loadedMusic = Mix_LoadMUSType_RW(vfs_openRWopsRead(fileName.c_str()), MUS_NONE, 1);
 
-    if(!loadedMusic) {
-        log_warning( "Failed to load music (%s): %s.\n", fileName.c_str(), Mix_GetError() );
+    if (!loadedMusic)
+    {
+        log_warning("Failed to load music (%s): %s.\n", fileName.c_str(), Mix_GetError());
         return INVALID_SOUND_ID;
     }
 
-    //Got it!
+    // Got it!
     _musicLoaded.push_back(loadedMusic);
-    return _musicLoaded.size()-1;
+    return _musicLoaded.size() - 1;
 }
 
 void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
 {
-    //Dont restart a song we are already playing
-    if(musicID == _currentSongPlaying) {
+    // Dont restart a song we are already playing.
+    if (musicID == _currentSongPlaying)
+    {
         return;
     }
 
-    //Remember desired music
+    // Remember desired music.
     _currentSongPlaying = musicID;
 
-    if ( !_audioConfig.enableMusic || !_initialized ) return;
+    if (!_audioConfig.enableMusic)
+    {
+        return;
+    }
 
-    if(musicID < 0 || musicID >= _musicLoaded.size()) {
-    	return;
+    if (musicID < 0 || musicID >= _musicLoaded.size())
+    {
+        return;
     }
 
     //Set music volume
-    Mix_VolumeMusic( _audioConfig.musicVolume );
+    Mix_VolumeMusic(_audioConfig.musicVolume);
 
     // Mix_FadeOutMusic(fadetime);      // Stops the game too
-    if(Mix_FadeInMusic(_musicLoaded[musicID], -1, fadetime) == -1) {
+    if (Mix_FadeInMusic(_musicLoaded[musicID], -1, fadetime) == -1) {
         log_warning("failed to play music! %s\n", Mix_GetError());
     }
 }
 
 void AudioSystem::loadAllMusic()
 {
-    if ( !_musicLoaded.empty() || !_audioConfig.enableMusic ) return;
+    if (!_musicLoaded.empty() || !_audioConfig.enableMusic) return;
 
     // Open the playlist listing all music files
     ReadContext ctxt("mp_data/music/playlist.txt");
     if (!ctxt.ensureOpen())
     {
-        log_warning("Unable to read playlist file `%s`\n",ctxt.getLoadName().c_str());
+        log_warning("Unable to read playlist file `%s`\n", ctxt.getLoadName().c_str());
         return;
     }
 
@@ -343,16 +308,16 @@ void AudioSystem::loadAllMusic()
     }
 
     //Special xmas theme, override the default menu theme song
-    if ( check_time( SEASON_CHRISTMAS ) )
+    if (check_time(SEASON_CHRISTMAS))
     {
         MusicID specialSong = loadMusic("mp_data/music/special/xmas.ogg");
-        if(specialSong != INVALID_SOUND_ID)
-        	_musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
+        if (specialSong != INVALID_SOUND_ID)
+            _musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
     }
-    else if ( check_time( SEASON_HALLOWEEN ) )
+    else if (check_time(SEASON_HALLOWEEN))
     {
         MusicID specialSong = loadMusic("mp_data/music/special/halloween.ogg");
-        if(specialSong != INVALID_SOUND_ID)
+        if (specialSong != INVALID_SOUND_ID)
             _musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
     }
 }
@@ -362,13 +327,13 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
     int channel = sound->getChannel();
 
     //skip dead stuff
-    if(!_gameObjects.exists(sound->getOwner())) {
+    if (!_gameObjects.exists(sound->getOwner())) {
 
         //Stop loop if we just died
-        if(channel != INVALID_SOUND_CHANNEL) {
+        if (channel != INVALID_SOUND_CHANNEL) {
             Mix_HaltChannel(channel);
             sound->setChannel(INVALID_SOUND_CHANNEL);
-        }        
+        }
 
         return;
     }
@@ -377,20 +342,20 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
     const float distance = getSoundDistance(soundPosition);
 
     //Sound is close enough to be heard?
-    if(distance < MAX_DISTANCE)
+    if (distance < MAX_DISTANCE)
     {
         //No channel allocated to this sound yet? try to allocate a free one
-        if(channel == INVALID_SOUND_CHANNEL) {
+        if (channel == INVALID_SOUND_CHANNEL) {
             channel = Mix_PlayChannel(-1, _soundsLoaded[sound->getSoundID()], -1);
         }
 
         //Update sound effects
-        if(channel != INVALID_SOUND_CHANNEL) {
+        if (channel != INVALID_SOUND_CHANNEL) {
             mixAudioPosition3D(channel, distance, soundPosition);
             sound->setChannel(channel);
         }
     }
-    else if(channel != INVALID_SOUND_CHANNEL)
+    else if (channel != INVALID_SOUND_CHANNEL)
     {
         //We are too far away to hear sound, stop it and free 
         //channel until we come closer again
@@ -401,7 +366,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
 
 void AudioSystem::updateLoopingSounds()
 {
-	for(const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
+    for (const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
     {
         updateLoopingSound(sound);
     }
@@ -409,26 +374,28 @@ void AudioSystem::updateLoopingSounds()
 
 bool AudioSystem::stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soundID)
 {
-    if ( !_gameObjects.exists( ichr ) ) return false;
+    if (!_gameObjects.exists(ichr)) return false;
 
     std::forward_list<std::shared_ptr<LoopingSound>> removeLoops;
-	for(const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
+    for (const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
     {
         //Either the sound id must match or if INVALID_SOUND_ID is given,
         //stop all sounds that this character owns
-        if(soundID != INVALID_SOUND_ID && sound->getSoundID() != soundID) {
+        if (soundID != INVALID_SOUND_ID && sound->getSoundID() != soundID) {
             continue;
         }
 
-    	if(sound->getOwner() == ichr) {
-    		removeLoops.push_front(sound);
-    	}
+        if (sound->getOwner() == ichr)
+        {
+            removeLoops.push_front(sound);
+        }
     }
 
-    //Remove all looping sounds from list
-    for(const std::shared_ptr<LoopingSound> &sound : removeLoops) {
-    	_loopingSounds.remove(sound);
-    	Mix_HaltChannel(sound->getChannel());
+    // Remove all looping sounds from list.
+    for (const std::shared_ptr<LoopingSound> &sound : removeLoops)
+    {
+        _loopingSounds.remove(sound);
+        Mix_HaltChannel(sound->getChannel());
     }
 
     return !removeLoops.empty();
@@ -436,39 +403,54 @@ bool AudioSystem::stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soun
 
 void AudioSystem::fadeAllSounds()
 {
-    if(!_initialized) {
-    	return;
+#if 0
+    if (!_initialized)
+    {
+        return;
     }
+#endif
 
-    // Stop all sounds that are playing
+    // Stop all sounds that are playing.
     Mix_FadeOutChannel(-1, 500);
+}
+
+void AudioSystem::freeAllMusic()
+{
+    for (Mix_Music * music : _musicLoaded)
+    {
+        Mix_FreeMusic(music);
+    }
+    _musicLoaded.clear();
 }
 
 void AudioSystem::freeAllSounds()
 {
-	for(Mix_Chunk *chunk : _soundsLoaded) {
-		Mix_FreeChunk(chunk);
-	}
-	_soundsLoaded.clear();
-	_loopingSounds.clear();
+    for (Mix_Chunk *chunk : _soundsLoaded)
+    {
+        Mix_FreeChunk(chunk);
+    }
+    _soundsLoaded.clear();
+    _loopingSounds.clear();
 }
 
 int AudioSystem::playSoundFull(SoundID soundID)
 {
-	if(soundID < 0 || soundID >= _soundsLoaded.size()) {
-		return INVALID_SOUND_CHANNEL;
-	}
+    if (soundID < 0 || soundID >= _soundsLoaded.size())
+    {
+        return INVALID_SOUND_CHANNEL;
+    }
 
-    if ( !_audioConfig.enableSound || !_initialized ) {
-    	return INVALID_SOUND_CHANNEL;
+    if (!_audioConfig.enableSound)
+    {
+        return INVALID_SOUND_CHANNEL;
     }
 
     // play the sound
     int channel = Mix_PlayChannel(-1, _soundsLoaded[soundID], 0);
 
-    if(channel != INVALID_SOUND_CHANNEL) {
-	    // we are still limited by the global sound volume
-	    Mix_Volume(channel, ( 128*_audioConfig.soundVolume ) / 100);
+    if (channel != INVALID_SOUND_CHANNEL) {
+        // we are still limited by the global sound volume
+        Mix_Volume(channel, (128 * _audioConfig.soundVolume) / 100);
     }
 
     return channel;
@@ -479,13 +461,13 @@ float AudioSystem::getSoundDistance(const fvec3_t soundPosition)
     const float cameraX = _cameraSystem.getMainCamera()->getCenter().x;
     const float cameraY = _cameraSystem.getMainCamera()->getCenter().y;
     const float cameraZ = _cameraSystem.getMainCamera()->getPosition().z;
-    
+
     //Calculate distance between camera and sound origin
-    return std::sqrt((cameraX-soundPosition.x)*(cameraX-soundPosition.x) + (cameraY-soundPosition.y)*(cameraY-soundPosition.y) + (cameraZ-soundPosition.z)*(cameraZ-soundPosition.z));
+    return std::sqrt((cameraX - soundPosition.x)*(cameraX - soundPosition.x) + (cameraY - soundPosition.y)*(cameraY - soundPosition.y) + (cameraZ - soundPosition.z)*(cameraZ - soundPosition.z));
 }
 
 void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fvec3_t soundPosition)
-{    
+{
     const float cameraX = _cameraSystem.getMainCamera()->getCenter().x;
     const float cameraY = _cameraSystem.getMainCamera()->getCenter().y;
 
@@ -493,34 +475,34 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fv
     distance *= 255.0f / MAX_DISTANCE;
 
     //Calculate angle from camera to sound origin
-    float angle = std::atan2(cameraY-soundPosition.y, cameraX-soundPosition.x);
-    
+    float angle = std::atan2(cameraY - soundPosition.y, cameraX - soundPosition.x);
+
     //Adjust for camera rotation
     angle += _cameraSystem.getMainCamera()->getTurnZOne() * Ego::Math::twoPi<float>();
 
     //limited global sound volume
-    Mix_Volume(channel, ( 128*_audioConfig.soundVolume ) / 100);
+    Mix_Volume(channel, (128 * _audioConfig.soundVolume) / 100);
 
     //Do 3D sound mixing
-    Mix_SetPosition(channel, angle, distance);  
+    Mix_SetPosition(channel, angle, distance);
 }
 
 void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
 {
     //Avoid invalid characters
-    if(!_gameObjects.exists(owner)) {
+    if (!_gameObjects.exists(owner)) {
         return;
     }
 
     //Check for invalid sounds
-    if(soundID < 0 || soundID >= _soundsLoaded.size()) {
+    if (soundID < 0 || soundID >= _soundsLoaded.size()) {
         return;
     }
 
     //Only allow one looping sound instance per character
-    for(const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
+    for (const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
     {
-        if(sound->getOwner() == owner && sound->getSoundID() == soundID) {
+        if (sound->getOwner() == owner && sound->getSoundID() == soundID) {
             return;
         }
     }
@@ -535,38 +517,44 @@ void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
     updateLoopingSound(sound);
 }
 
-int AudioSystem::playSound(const fvec3_t snd_pos, const SoundID soundID)
+int AudioSystem::playSound(const fvec3_t& snd_pos, const SoundID soundID)
 {
-    //Check SoundID first
-	if(soundID < 0 || soundID >= _soundsLoaded.size()) {
-		return INVALID_SOUND_CHANNEL;
-	}
-
-    //Make sure sound is valid
-    if ( !_audioConfig.enableSound || !_initialized ) {
-    	return INVALID_SOUND_CHANNEL;
-    }
-
-    //Don't play sounds until the camera has been properly initialized
-    if(!_cameraSystem.isInitialized()) {
-        return false;
-    }
-
-    //Get distance from sound to camera
-    float distance = getSoundDistance(snd_pos);
-
-    //Outside hearing distance?
-    if(distance > MAX_DISTANCE) {
+    // If the sound ID is not valid ...
+    if (soundID < 0 || soundID >= _soundsLoaded.size())
+    {
+        // ... return invalid channel.
         return INVALID_SOUND_CHANNEL;
     }
-    
-    // play the sound once
+
+    // If sound is not enabled ...
+    if (!_audioConfig.enableSound)
+    {
+        // ... return invalid channel.
+        return INVALID_SOUND_CHANNEL;
+    }
+
+    // Don't play sounds until the camera has been properly initialized.
+    if (!_cameraSystem.isInitialized())
+    {
+        return INVALID_SOUND_CHANNEL;
+    }
+
+    // Get distance from sound to camera.
+    float distance = getSoundDistance(snd_pos);
+
+    // Outside hearing distance?
+    if (distance > MAX_DISTANCE)
+    {
+        return INVALID_SOUND_CHANNEL;
+    }
+
+    // Play the sound once
     int channel = Mix_PlayChannel(-1, _soundsLoaded[soundID], 0);
 
-    //could fail if no free channels are available
-    if ( INVALID_SOUND_CHANNEL != channel )
+    // could fail if no free channels are available.
+    if (INVALID_SOUND_CHANNEL != channel)
     {
-        //Apply 3D positional sound effect
+        // Apply 3D positional sound effect.
         mixAudioPosition3D(channel, distance, snd_pos);
     }
     else
@@ -577,6 +565,3 @@ int AudioSystem::playSound(const fvec3_t snd_pos, const SoundID soundID)
 
     return channel;
 }
-
-/// @todo Remove this global.
-AudioSystem _audioSystem;

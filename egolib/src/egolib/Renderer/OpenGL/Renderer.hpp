@@ -131,10 +131,6 @@ public:
      */
     virtual ~Renderer();
 
-    // Disable copying class.
-    Renderer(const Renderer&) = delete;
-    Renderer& operator=(const Renderer&) = delete;
-
 public:
 
     /** @copydoc Ego::Renderer::getAccumulationBuffer() */

@@ -257,16 +257,18 @@ bool Passage::isPointInside( float xpos, float ypos ) const
 
 bool Passage::checkPassageMusic(const Object * pchr) const
 {
-    if ( _music == INVALID_SOUND_ID || _music == _audioSystem.getCurrentMusicPlaying() ) {
+    if ( _music == INVALID_SOUND_ID || _music == AudioSystem::get().getCurrentMusicPlaying() )
+    {
        return false; 
     } 
 
-    if(!objectIsInPassage(pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size)) {
+    if(!objectIsInPassage(pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size))
+    {
         return false;
     }
 
     // character is inside, start music track
-    _audioSystem.playMusic(_music);
+    AudioSystem::get().playMusic(_music);
     return true;
 }
 

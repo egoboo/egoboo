@@ -297,10 +297,11 @@ bool GameEngine::initialize()
 
     // Initialize the sound system.
     renderPreloadText("Loading audio...");
-    _audioSystem.initialize(egoboo_config_t::get());
-    _audioSystem.loadAllMusic();
-    _audioSystem.playMusic(AudioSystem::MENU_SONG);
-    _audioSystem.loadGlobalSounds();
+    AudioSystem::initialize();
+    auto& audioSystem = AudioSystem::get();
+    audioSystem.loadAllMusic();
+    audioSystem.playMusic(AudioSystem::MENU_SONG);
+    audioSystem.loadGlobalSounds();
 
 
     renderPreloadText("Configurating game data...");
@@ -383,7 +384,7 @@ void GameEngine::uninitialize()
     _profileSystem.uninitialize();
 
     // Uninitialize the audio system.
-    _audioSystem.uninitialize();
+    AudioSystem::uninitialize();
 
     // Uninitialize the GFX system.
     GFX::uninitialize();
@@ -437,7 +438,7 @@ bool GameEngine::loadConfiguration(bool syncFromFile)
     _cameraSystem.getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
 
     // sound options
-    _audioSystem.setConfiguration(egoboo_config_t::get());
+    AudioSystem::get().reconfigure(egoboo_config_t::get());
 
     // renderer options
     gfx_config_download_from_egoboo_config(&gfx, &egoboo_config_t::get());

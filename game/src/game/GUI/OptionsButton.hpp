@@ -6,17 +6,13 @@
 
 class OptionsButton : public Button
 {
-    public:
-        OptionsButton(const std::string &label);
+public:
+    OptionsButton(const std::string &label);
 
-        virtual void draw() override;
+    virtual void draw() override;
 
-        void setPosition(const int x, const int y) override;
+    void setPosition(const int x, const int y) override;
 
-        //Disable copying class
-        OptionsButton(const OptionsButton& copy) = delete;
-        OptionsButton& operator=(const OptionsButton&) = delete;
-
-    private:
-        Label _label;
+private:
+    Label _label;
 };

@@ -150,7 +150,7 @@ private:
     std::array<Type*, Capacity> _elements;
 };
 
-struct CollisionSystem
+struct CollisionSystem : public Ego::Core::NonCopyable
 {
 public:
     typedef Magazine < hash_node_t, COLLISION_HASH_NODES > HashNodeAry;
@@ -202,10 +202,7 @@ public:
     static void uninitialize();
 
     void reset();
-    
-    //Disable copying class
-    CollisionSystem(const CollisionSystem& copy) = delete;
-    CollisionSystem& operator=(const CollisionSystem&) = delete;
+
 };
 
 /// Insert a collision into a collision hash list if it does not exist yet.

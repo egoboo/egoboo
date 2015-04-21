@@ -38,10 +38,10 @@ TextureManager::TextureManager()
     {
         _free.insert(ref);
     }
-	
+
     // Initialize the actual list of textures.
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
-	{
+    {
         oglx_texture_t *texture = nullptr;
         try
         {

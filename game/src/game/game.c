@@ -800,7 +800,7 @@ int update_game()
         BillboardList_update_all();
         animate_tiles();
         water_instance_move( &water );
-        _audioSystem.updateLoopingSounds();
+        AudioSystem::get().updateLoopingSounds();
         do_damage_tiles();
         update_pits();
         do_weather_spawn_particles();
@@ -1238,11 +1238,11 @@ void update_pits()
                         // Play sound effect
                         if ( VALID_PLA( pchr->is_which_player ) )
                         {
-                            _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_PITFALL));
+                            AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_PITFALL));
                         }
                         else
                         {
-                            _audioSystem.playSound(pchr->getPosition(), _audioSystem.getGlobalSound(GSND_PITFALL));
+                            AudioSystem::get().playSound(pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_PITFALL));
                         }
 
                         // Do some damage (same as damage tile)
@@ -2560,7 +2560,7 @@ egolib_rv game_load_global_assets()
 void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
-    _audioSystem.loadGlobalSounds();
+    AudioSystem::get().loadGlobalSounds();
     ParticleHandler::get().reset_all();
 
     if ( NULL == read_wawalite_vfs() )
@@ -2753,7 +2753,7 @@ void game_quit_module()
     game_reset_module_data();
 
     // finish whatever in-game song is playing
-    _audioSystem.fadeAllSounds();
+    AudioSystem::get().fadeAllSounds();
 
     // remove the module-dependent mount points from the vfs
     setup_clear_module_vfs_paths();

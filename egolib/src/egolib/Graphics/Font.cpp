@@ -39,14 +39,11 @@
 
 namespace Ego
 {
-    struct Font::StringCacheData
+    struct Font::StringCacheData : Ego::Core::NonCopyable
     {
         Uint32 lastUseInTicks;
         oglx_texture_t *tex;
         std::string text;
-        
-        StringCacheData(const StringCacheData &) = delete;
-        StringCacheData &operator=(const StringCacheData &) = delete;
         
         StringCacheData() :
         lastUseInTicks(0),

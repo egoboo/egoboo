@@ -223,7 +223,7 @@ bool ModuleSelector::notifyMouseScrolled(const int amount)
         return false;
     }
     _startIndex = Math::constrain<int>(_startIndex + amount, 0, _modules.size() - 3);
-    _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_BUTTON_CLICK));
+    AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
     _nextModuleButton->setEnabled(_startIndex < _modules.size() - 3);
     _previousModuleButton->setEnabled(_startIndex > 0);
     return true;

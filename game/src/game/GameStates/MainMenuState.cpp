@@ -146,12 +146,12 @@ void MainMenuState::beginState()
     SDL_WM_GrabInput( SDL_GRAB_OFF );
     _gameEngine->enableMouseCursor();
 
-    _audioSystem.playMusic(AudioSystem::MENU_SONG);
+    AudioSystem::get().playMusic(AudioSystem::MENU_SONG);
 
     float offset = 0;
     for(const std::shared_ptr<Button> &button : _slidyButtons)
     {
-		button->beginSlidyButtonEffect(button->getWidth() + offset);
-		offset += 20;
+        button->beginSlidyButtonEffect(button->getWidth() + offset);
+        offset += 20;
     }
 }

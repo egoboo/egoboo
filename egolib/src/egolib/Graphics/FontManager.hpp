@@ -29,24 +29,18 @@
 
 namespace Ego
 {
-    class FontManager final
-    {
-    public:
-        static void initialize();
-        static void uninitialize();
+class FontManager final : public Ego::Core::NonCopyable
+{
+public:
+    static void initialize();
+    static void uninitialize();
         
-        static bool isInitialized();
+    static bool isInitialized();
         
-        static std::shared_ptr<Font> loadFont(const std::string &fileName, int pointSize);
+    static std::shared_ptr<Font> loadFont(const std::string &fileName, int pointSize);
         
-    private:
-        FontManager() = delete;
-        ~FontManager() = delete;
-        
-        FontManager(const FontManager &) = delete;
-        FontManager &operator =(const FontManager &) = delete;
-        
-        FontManager(FontManager &&) = delete;
-        FontManager &operator =(FontManager &&) = delete;
-    };
+private:
+    FontManager() = delete;
+    ~FontManager() = delete;
+};
 }

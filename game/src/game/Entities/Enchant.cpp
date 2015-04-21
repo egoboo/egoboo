@@ -316,11 +316,11 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             iwave = peve->endsound_index;
             if ( nullptr != target_ptr )
             {
-                _audioSystem.playSound( target_ptr->pos_old, _profileSystem.getProfile(imodel)->getSoundID(iwave) );
+                AudioSystem::get().playSound( target_ptr->pos_old, _profileSystem.getProfile(imodel)->getSoundID(iwave) );
             }
             else
             {
-                _audioSystem.playSoundFull( _profileSystem.getProfile(imodel)->getSoundID(iwave) );
+                AudioSystem::get().playSoundFull( _profileSystem.getProfile(imodel)->getSoundID(iwave) );
             }
         }
 

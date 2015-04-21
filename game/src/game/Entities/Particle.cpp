@@ -157,12 +157,12 @@ void prt_play_sound(const PRT_REF particle, Sint8 sound)
 
     if (_profileSystem.isValidProfileID(pprt->profile_ref))
     {
-        _audioSystem.playSound(pprt->pos, _profileSystem.getProfile(pprt->profile_ref)->getSoundID(sound));
+        AudioSystem::get().playSound(pprt->pos, _profileSystem.getProfile(pprt->profile_ref)->getSoundID(sound));
     }
     else if (sound >= 0 && sound < GSND_COUNT)
     {
         GlobalSound globalSound = static_cast<GlobalSound>(sound);
-        _audioSystem.playSound(pprt->pos, _audioSystem.getGlobalSound(globalSound));
+        AudioSystem::get().playSound(pprt->pos, AudioSystem::get().getGlobalSound(globalSound));
     }
 }
 

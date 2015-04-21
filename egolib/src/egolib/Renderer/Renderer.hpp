@@ -47,7 +47,7 @@ using namespace Math;
  *  A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
  */
 template <typename DataType>
-class Buffer
+class Buffer : public Ego::Core::NonCopyable
 {
 protected:
     /**
@@ -147,7 +147,7 @@ protected:
     virtual ~DepthBuffer();
 };
 
-class Renderer
+class Renderer : public Ego::Core::NonCopyable
 {
 
 private:
@@ -177,12 +177,6 @@ protected:
      *  Intentionally protected
      */
     virtual ~Renderer();
-
-public:
-
-    // Disable copying class.
-    Renderer(const Renderer&) = delete;
-    Renderer& operator=(const Renderer&) = delete;
 
 public:
 

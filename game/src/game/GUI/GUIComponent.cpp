@@ -7,7 +7,7 @@ GUIComponent::GUIComponent() :
     _visible(true),
     _parent(nullptr)
 {
-	_bounds.x = 0; _bounds.y = 0; _bounds.w = 32; _bounds.h = 32;
+    _bounds.x = 0; _bounds.y = 0; _bounds.w = 32; _bounds.h = 32;
 }
 
 bool GUIComponent::isEnabled() const

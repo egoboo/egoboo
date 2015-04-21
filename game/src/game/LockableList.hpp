@@ -8,7 +8,7 @@
 
 /** @todo Enforce that REFTYPE is an unsigned type.  */
 template <typename TYPE, typename REFTYPE, REFTYPE INVALIDREF, size_t COUNT, bsp_type_t BSPTYPE>
-struct _LockableList
+struct _LockableList : public Ego::Core::NonCopyable
 {
     _LockableList() :
         update_guid(INVALID_UPDATE_GUID),
@@ -122,10 +122,6 @@ public:
         // DeInitialize the list.
         deinit();
     }
-
-    //Disable copying class
-    _LockableList(const _LockableList& copy) = delete;
-    _LockableList& operator=(const _LockableList&) = delete;
 
 protected:
     void init()

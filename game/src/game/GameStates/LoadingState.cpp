@@ -114,9 +114,9 @@ void LoadingState::drawContainer()
 
 void LoadingState::beginState()
 {
-	//Start the background loading thread
-	//_loadingThread = std::thread(&LoadingState::loadModuleData, this);
-    _audioSystem.playMusic(27); //TODO: needs to be referenced by string
+    //Start the background loading thread
+    //_loadingThread = std::thread(&LoadingState::loadModuleData, this);
+    AudioSystem::get().playMusic(27); //TODO: needs to be referenced by string
 }
 
 
@@ -203,9 +203,9 @@ void LoadingState::loadModuleData()
     // try to start a new module
     singleThreadRedrawHack("Loading module data...");
     if(!game_begin_module(_loadModule)) {
-    	log_warning("Failed to load module!\n");
-    	endState();
-    	return;
+        log_warning("Failed to load module!\n");
+        endState();
+        return;
     }
     PMod->setImportPlayers(_playersToLoad);
 
@@ -220,30 +220,29 @@ void LoadingState::loadModuleData()
 
     obj_BSP_system_begin(getMeshBSP()); 
 
-    //Fade out music when finished loading
-    _audioSystem.stopMusic();
+    // Fade out music when finished loading
+    AudioSystem::get().stopMusic();
 
-    //Must wait until music has finished fading out or else update loop will lag first few updates
+    // Must wait until music has finished fading out or else update loop will lag first few updates
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    //Complete!
+    // Complete!
     singleThreadRedrawHack("Finished!");
     _finishedLoading = true;
 
-    //Hit that gong
-    _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_GAME_READY));
+    // Hit that gong
+    AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_GAME_READY));
 
     //Add the start button once we are finished loading
     std::shared_ptr<Button> startButton = std::make_shared<Button>("Press Space to begin", SDLK_SPACE);
     startButton->setSize(400, 30);
     startButton->setPosition(GFX_WIDTH/2 - startButton->getWidth()/2, GFX_HEIGHT-50);
     startButton->setOnClickFunction(
-    	[]{
+        []{
             //Hush gong
-            _audioSystem.fadeAllSounds();
-
-			_gameEngine->setGameState(std::make_shared<PlayingState>());
-    	});
+            AudioSystem::get().fadeAllSounds();
+            _gameEngine->setGameState(std::make_shared<PlayingState>());
+        });
     addComponent(startButton);
 }
 

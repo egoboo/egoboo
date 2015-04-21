@@ -131,20 +131,18 @@ void SelectPlayersState::beginState()
 	// menu settings
     SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-    //Begin the main menu song again (in case we just returned from winning a module)
-    _audioSystem.playMusic(AudioSystem::MENU_SONG);
+    // Begin the main menu song again (in case we just returned from winning a module)
+    AudioSystem::get().playMusic(AudioSystem::MENU_SONG);
 
-    //Update player selection and enable continue button if at least 
-    //one player has selected a character
-	_continueButton->setEnabled(false);
-	for(size_t i = 0; i < _selectedPlayers.size(); ++i) {
-
-		if(_selectedPlayers[i] != nullptr) {
-			_continueButton->setEnabled(true);
-			_playerButtons[i]->setText(_selectedPlayers[i]->getName());
-		}
-		else {
-			_playerButtons[i]->setText("Not playing");
-		}
-	}
+    // Update player selection and enable continue button if at least 
+    // one player has selected a character
+    _continueButton->setEnabled(false);
+    for(size_t i = 0; i < _selectedPlayers.size(); ++i) {
+        if(_selectedPlayers[i] != nullptr) {
+            _continueButton->setEnabled(true);
+            _playerButtons[i]->setText(_selectedPlayers[i]->getName());
+        } else {
+            _playerButtons[i]->setText("Not playing");
+        }
+    }
 }

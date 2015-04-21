@@ -138,10 +138,10 @@ struct chr_spawn_data_t
 };
 
 /// The definition of the character object.
-class Object
+class Object : public Ego::Core::NonCopyable
 {
 public:
-	static const size_t MAXNUMINPACK = 6; ///< Max number of items to carry in pack
+    static const size_t MAXNUMINPACK = 6; ///< Max number of items to carry in pack
 
 public:
     /**
@@ -153,9 +153,6 @@ public:
      *  the unique CHR_REF associated with this character
      */
     Object(const PRO_REF profile, const CHR_REF id);
-
-    Object(const Object&) = delete;
-    Object& operator=(const Object&) = delete;
 
     /**
      * @brief

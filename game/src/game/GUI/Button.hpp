@@ -25,10 +25,6 @@ class Button : public GUIComponent
 
         void setEnabled(const bool enabled) override;
 
-        //Disable copying class
-        Button(const Button& copy) = delete;
-        Button& operator=(const Button&) = delete;
-
     protected:
         void updateSlidyButtonEffect();
 

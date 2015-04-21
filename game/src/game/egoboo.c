@@ -104,7 +104,7 @@ bool config_download( egoboo_config_t *cfg)
     _cameraSystem.getCameraOptions().turnMode = cfg->camera_control.getValue();
 
     // Sound options.
-    _audioSystem.setConfiguration(*cfg);
+    AudioSystem::get().reconfigure(*cfg);
 
     // Rendering options.
     gfx_config_download_from_egoboo_config(&gfx, cfg);

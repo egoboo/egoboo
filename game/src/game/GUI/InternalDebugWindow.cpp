@@ -134,19 +134,19 @@ bool InternalDebugWindow::notifyMouseClicked(const int button, const int x, cons
 {
     if(_mouseOver && button == SDL_BUTTON_LEFT)
     {
-    	//Check if close button is pressed first
-    	if(_mouseOverCloseButton) {
-    		_audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_BUTTON_CLICK));
-    		destroy();
-    		return true;
-    	}
+        //Check if close button is pressed first
+        if(_mouseOverCloseButton) {
+            AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
+            destroy();
+            return true;
+        }
 
-    	_isDragging = !_isDragging;
+        _isDragging = !_isDragging;
         return true;
     }
     else if(button == SDL_BUTTON_RIGHT) {
-    	_isDragging = false;
-    	return true;
+        _isDragging = false;
+        return true;
     }
 
     return false;

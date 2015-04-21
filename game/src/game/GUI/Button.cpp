@@ -104,7 +104,7 @@ void Button::doClick()
 {
     if(!isEnabled()) return;
 
-    _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_BUTTON_CLICK));
+    AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
 
     _mouseOver = true;
     _onClickFunction();

@@ -28,15 +28,11 @@
 
 class IconButton : public Button
 {
-    public:
-        IconButton(const std::string &buttonText, TX_REF icon, int hotkey = SDLK_UNKNOWN);
+public:
+    IconButton(const std::string &buttonText, TX_REF icon, int hotkey = SDLK_UNKNOWN);
 
-        virtual void draw() override;
-      
-        //Disable copying class
-        IconButton(const IconButton& copy) = delete;
-        IconButton& operator=(const IconButton&) = delete;
+    virtual void draw() override;
 
-    private:
-        TX_REF _icon;
+private:
+    TX_REF _icon;
 };

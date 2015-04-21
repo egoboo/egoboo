@@ -8,7 +8,7 @@
 //Forward declarations
 class ComponentContainer;
 
-class GUIComponent : public InputListener, public std::enable_shared_from_this<GUIComponent>
+class GUIComponent : public InputListener, public std::enable_shared_from_this<GUIComponent>, public Ego::Core::NonCopyable
 {
     public:
         GUIComponent();
@@ -45,10 +45,6 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
 
         void destroy();
         bool isDestroyed() const;
-
-        //Disable copying class
-        GUIComponent(const GUIComponent& copy) = delete;
-        GUIComponent& operator=(const GUIComponent&) = delete;
 
     private:
         bool _destroyed;

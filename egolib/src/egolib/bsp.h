@@ -122,7 +122,7 @@ protected:
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-class BSP_leaf_list_t : public BSP::Collider, BSP::LeafHolder
+class BSP_leaf_list_t : public BSP::Collider, BSP::LeafHolder, Ego::Core::NonCopyable
 {
 protected:
 
@@ -229,11 +229,6 @@ public:
 
 	// Override
 	void collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const override;
-
-
-    //Disable copying class
-    BSP_leaf_list_t(const BSP_leaf_list_t& copy) = delete;
-    BSP_leaf_list_t& operator=(const BSP_leaf_list_t&) = delete;
 
 public:
 	/**

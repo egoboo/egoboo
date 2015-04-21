@@ -2152,7 +2152,7 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 
     if ( pchr->pos_old.z > PITNOSOUND )
     {
-        _audioSystem.playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
+        AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4238,13 +4238,13 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
     if ( INVALID_SOUND_ID == sound )
     {
         // Stop existing sound loop (if any)
-        _audioSystem.stopObjectLoopingSounds(pself->index);
+        AudioSystem::get().stopObjectLoopingSounds(pself->index);
     }
     else
     {
         // check whatever might be playing on the channel now
         //ZF> TODO: check if character is already playing a looped sound first!
-        _audioSystem.playSoundLooped(sound, pself->index);
+        AudioSystem::get().playSoundLooped(sound, pself->index);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4259,7 +4259,7 @@ Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _audioSystem.stopObjectLoopingSounds(pself->index, ppro->getSoundID(pstate->argument));
+    AudioSystem::get().stopObjectLoopingSounds(pself->index, ppro->getSoundID(pstate->argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -4661,7 +4661,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 
     if ( pstate->distance > 0 )
     {
-        int channel = _audioSystem.playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
+        int channel = AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
 
         if ( channel != INVALID_SOUND_CHANNEL )
         {
@@ -5586,7 +5586,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _audioSystem.playSoundFull(ppro->getSoundID(pstate->argument));
+    AudioSystem::get().playSoundFull(ppro->getSoundID(pstate->argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -6276,7 +6276,7 @@ Uint8 scr_PlayMusic( script_state_t * pstate, ai_state_t * pself )
     int fadeTime = pstate->distance;
     if(fadeTime < 0) fadeTime = 0;
 
-    _audioSystem.playMusic(pstate->argument, fadeTime);
+    AudioSystem::get().playMusic(pstate->argument, fadeTime);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6323,7 +6323,7 @@ Uint8 scr_StopMusic( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _audioSystem.stopMusic();
+    AudioSystem::get().stopMusic();
 
     SCRIPT_FUNCTION_END();
 }

@@ -2880,7 +2880,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
                         // Attacker broke the block and batters away the shield
                         // Time to raise shield again = 40/50 (0.8 seconds)
                         pdata->pchr->reload_timer += 40;
-                        _audioSystem.playSound(pdata->pchr->getPosition(), _audioSystem.getGlobalSound(GSND_SHIELDBLOCK));
+                        AudioSystem::get().playSound(pdata->pchr->getPosition(), AudioSystem::get().getGlobalSound(GSND_SHIELDBLOCK));
                     }
                 }
             }
