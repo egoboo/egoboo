@@ -38,31 +38,31 @@
 
 PlayingState::PlayingState()
 {
-	//For debug only
+    //For debug only
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
-	{
-		std::shared_ptr<InternalDebugWindow> debugWindow = std::make_shared<InternalDebugWindow>("CurrentModule");
-		debugWindow->addWatchVariable("Passages", []{return std::to_string(PMod->getPassageCount());} );
-		debugWindow->addWatchVariable("ExportValid", []{return PMod->isExportValid() ? "true" : "false";} );
-		debugWindow->addWatchVariable("ModuleBeaten", []{return PMod->isBeaten() ? "true" : "false";} );
-		debugWindow->addWatchVariable("Players", []{return std::to_string(PMod->getPlayerAmount());} );
-		debugWindow->addWatchVariable("Imports", []{return std::to_string(PMod->getImportAmount());} );
-		debugWindow->addWatchVariable("Name", []{return PMod->getName();} );
-		debugWindow->addWatchVariable("Path", []{return PMod->getPath();} );
-		addComponent(debugWindow);		
-	}
+    {
+        std::shared_ptr<InternalDebugWindow> debugWindow = std::make_shared<InternalDebugWindow>("CurrentModule");
+        debugWindow->addWatchVariable("Passages", []{return std::to_string(PMod->getPassageCount());} );
+        debugWindow->addWatchVariable("ExportValid", []{return PMod->isExportValid() ? "true" : "false";} );
+        debugWindow->addWatchVariable("ModuleBeaten", []{return PMod->isBeaten() ? "true" : "false";} );
+        debugWindow->addWatchVariable("Players", []{return std::to_string(PMod->getPlayerAmount());} );
+        debugWindow->addWatchVariable("Imports", []{return std::to_string(PMod->getImportAmount());} );
+        debugWindow->addWatchVariable("Name", []{return PMod->getName();} );
+        debugWindow->addWatchVariable("Path", []{return PMod->getPath();} );
+        addComponent(debugWindow);        
+    }
 }
 
 PlayingState::~PlayingState()
 {
-	//Check for player exports
+    //Check for player exports
     if ( PMod && PMod->isExportValid() )
     {
         // export the players
         export_all_players(false);
 
         //Reload list of loadable characters
-        _profileSystem.loadAllSavedCharacters("mp_players");
+        ProfileSystem::get().loadAllSavedCharacters("mp_players");
     }
 
     // Stop any module sounds that are playing.
@@ -76,63 +76,63 @@ void PlayingState::update()
 
 void PlayingState::drawContainer()
 {
-	gfx_system_main();
+    gfx_system_main();
 
-	DisplayMsg_timechange++;
+    DisplayMsg_timechange++;
 }
 
 void PlayingState::beginState()
 {
-	// in-game settings
+    // in-game settings
     SDL_ShowCursor(egoboo_config_t::get().debug_hideMouse.getValue() ? SDL_DISABLE : SDL_ENABLE );
     SDL_WM_GrabInput(egoboo_config_t::get().debug_grabMouse.getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF );
 
     if(egoboo_config_t::get().debug_hideMouse.getValue())
     {
-	    _gameEngine->disableMouseCursor();
+        _gameEngine->disableMouseCursor();
     }
     else
     {
-	    _gameEngine->enableMouseCursor();
+        _gameEngine->enableMouseCursor();
     }
 }
 
 bool PlayingState::notifyKeyDown(const int keyCode)
 {
-	switch(keyCode)
-	{
-		case SDLK_ESCAPE:
+    switch(keyCode)
+    {
+        case SDLK_ESCAPE:
 
-			//If we have won show the Victory Screen
-			if(PMod->isBeaten()) {
-				_gameEngine->pushGameState(std::make_shared<VictoryScreen>(this));
-			}
+            //If we have won show the Victory Screen
+            if(PMod->isBeaten()) {
+                _gameEngine->pushGameState(std::make_shared<VictoryScreen>(this));
+            }
 
-			//Else do the ingame menu
-			else {
-				_gameEngine->pushGameState(std::make_shared<InGameMenuState>(this));				
-			}
-		return true;
+            //Else do the ingame menu
+            else {
+                _gameEngine->pushGameState(std::make_shared<InGameMenuState>(this));                
+            }
+        return true;
 
-		//Cheat debug button to win a module
-		case SDLK_F9:
+        //Cheat debug button to win a module
+        case SDLK_F9:
             if (egoboo_config_t::get().debug_developerMode_enable.getValue())
-			{
-				for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
-				{
-					if(object->isTerminated() || object->getProfile()->isInvincible()) {
-						continue;
-					}
+            {
+                for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+                {
+                    if(object->isTerminated() || object->getProfile()->isInvincible()) {
+                        continue;
+                    }
 
-					if(!object->isPlayer() && object->isAlive())
-					{
-						kill_character(object->getCharacterID(), INVALID_CHR_REF, false);
-					}
-				}
-				return true;
-			}
-		break;
-	}
+                    if(!object->isPlayer() && object->isAlive())
+                    {
+                        kill_character(object->getCharacterID(), INVALID_CHR_REF, false);
+                    }
+                }
+                return true;
+            }
+        break;
+    }
 
-	return ComponentContainer::notifyKeyDown(keyCode);
+    return ComponentContainer::notifyKeyDown(keyCode);
 }

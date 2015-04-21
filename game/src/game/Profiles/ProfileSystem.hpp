@@ -50,24 +50,20 @@ struct pro_import_t
     int   max_slot;
 };
 
-class ProfileSystem
+class ProfileSystem : public Ego::Core::Singleton<ProfileSystem>
 {
-public:
+
+protected:
+
+    // Befriend with singleton to grant access to ProfileSystem::ProfileSystem and ProfileSystem::~ProfileSystem.
+    using TheSingleton = Ego::Core::Singleton < ProfileSystem > ;
+    friend class TheSingleton;
+
     ProfileSystem();
 
-    /**
-     * @brief
-     *  Initialize the profile system.
-     * @return
-     *  @a true on success, @a false on failure.
-     */
-    bool initialize();
+    ~ProfileSystem();
 
-    /**
-     * @brief
-     *  Uninitialize the profile system.
-     */
-    void uninitialize();
+public:
 
     /**
      * @brief
@@ -145,15 +141,13 @@ public:
     }
 
 private:
-    bool _initialized;
-    std::unordered_map<size_t, TX_REF> _bookIcons;									//List of all book icons loaded											
-    std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded;	//Maps slot numbers to ObjectProfiles
+    std::unordered_map<size_t, TX_REF> _bookIcons; //List of all book icons loaded
+    std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded; //Maps slot numbers to ObjectProfiles
 
-    std::vector<std::shared_ptr<ModuleProfile>> _moduleProfilesLoaded;				//List of all valid game modules loaded
+    std::vector<std::shared_ptr<ModuleProfile>> _moduleProfilesLoaded;  // List of all valid game modules loaded
 
-    std::vector<std::shared_ptr<LoadPlayerElement>> _loadPlayerList;				//List of characters that can be loaded (lightweight)
+    std::vector<std::shared_ptr<LoadPlayerElement>> _loadPlayerList; // List of characters that can be loaded (lightweight)
 };
 
-extern ProfileSystem _profileSystem;
 extern pro_import_t import_data;
 

@@ -301,7 +301,7 @@ struct _StateMachine
         // If we aren't in the correct state, abort.
         if (!STATE_CONSTRUCTING_PBASE(parent)) return self;
 
-        return self->ctor();
+        return self->config_do_ctor();
     }
 
     static TYPE *config_active(TYPE *self)
@@ -339,7 +339,7 @@ struct _StateMachine
 
         POBJ_END_SPAWN(self);
 
-        return self->dtor();
+        return self->config_do_dtor();
     }
 
     static TYPE *config_initialize(TYPE *self, size_t max_iterations)

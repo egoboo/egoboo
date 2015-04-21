@@ -3109,14 +3109,14 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     }
 
     // Do grog
-    if ( pdata->ppip->grogTime > 0 && _profileSystem.getProfile(pdata->pchr->profile_ref)->canBeGrogged() )
+    if (pdata->ppip->grogTime > 0 && ProfileSystem::get().getProfile(pdata->pchr->profile_ref)->canBeGrogged())
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->grog_timer = std::max(static_cast<unsigned>(pdata->pchr->grog_timer), pdata->ppip->grogTime );
     }
 
     // Do daze
-    if ( pdata->ppip->dazeTime > 0 && _profileSystem.getProfile(pdata->pchr->profile_ref)->canBeDazed()  )
+    if (pdata->ppip->dazeTime > 0 && ProfileSystem::get().getProfile(pdata->pchr->profile_ref)->canBeDazed())
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->daze_timer = std::max(static_cast<unsigned>(pdata->pchr->daze_timer), pdata->ppip->dazeTime );
@@ -3129,7 +3129,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || _gameObjects.exists( pdata->pprt->attachedto_ref ) );
 
         if(powner != nullptr) {
-            const std::shared_ptr<ObjectProfile> &ownerProfile = _profileSystem.getProfile(powner->profile_ref);
+            const std::shared_ptr<ObjectProfile> &ownerProfile = ProfileSystem::get().getProfile(powner->profile_ref);
             if ( ownerProfile != nullptr && ownerProfile->isRangedWeapon() ) prt_needs_impact = true;            
         }
 

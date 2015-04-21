@@ -19,6 +19,7 @@
 
 /// @file game/GameStates/LoadingState.cpp
 /// @details Main state where the players are currently playing a module
+/// @todo Wrong doc comment.
 /// @author Johan Jansen
 
 #include "game/GameStates/LoadingState.hpp"
@@ -41,11 +42,11 @@
 #include "game/Module/Module.hpp"
 
 LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad) :
-	_finishedLoading({0}),
-	_loadingThread(),
+    _finishedLoading({0}),
+    _loadingThread(),
     _loadingLabel(nullptr),
-	_loadModule(module),
-	_playersToLoad(playersToLoad),
+    _loadModule(module),
+    _playersToLoad(playersToLoad),
     _globalGameTips(),
     _localGameTips()
 {
@@ -59,7 +60,7 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
     mainLabel->setPosition(GFX_WIDTH/2 - mainLabel->getWidth()/2, 20);
     addComponent(mainLabel);
 
-	_loadingLabel = std::make_shared<Label>("Initializing...");
+    _loadingLabel = std::make_shared<Label>("Initializing...");
     addComponent(_loadingLabel);
 
     //Load game hints. It's OK if we dont get any local hints
@@ -74,10 +75,10 @@ LoadingState::LoadingState(std::shared_ptr<ModuleProfile> module, const std::lis
 
 LoadingState::~LoadingState()
 {
-	//Wait until thread is dead
-	if(_loadingThread.joinable()) {
-		_loadingThread.join();
-	}
+    // Wait until thread is dead:
+    if(_loadingThread.joinable()) {
+        _loadingThread.join();
+    }
 }
 
 //TODO: HACK (no multithreading yet)
@@ -162,7 +163,7 @@ void LoadingState::loadModuleData()
 {
     singleThreadRedrawHack("Tidying some space...");
 
-	//Make sure all data is cleared first
+    //Make sure all data is cleared first
     game_quit_module();
 
     singleThreadRedrawHack("Calculating some math...");
@@ -184,7 +185,7 @@ void LoadingState::loadModuleData()
     DisplayMsg_reset();
 
     // Reset all loaded "profiles" in the "profile system".
-    _profileSystem.reset();
+    ProfileSystem::get().reset();
 
     // do some graphics initialization
     //make_lightdirectionlookup();

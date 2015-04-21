@@ -274,31 +274,23 @@ bool link_push_module()
 //--------------------------------------------------------------------------------------------
 bool link_load_parent( const char * modname, fvec3_t pos )
 {
-    int i;
-    link_stack_entry_t * pentry;
-    fvec3_t   pos_diff;
-
     if ( !VALID_CSTR( modname ) ) return false;
 
-    // push this module onto the stack so we can count the heroes
+    // Push this module onto the stack so we can count the heroes.
     if ( !link_push_module() ) return false;
 
-    // grab the stored data
-    pentry = link_stack + ( link_stack_count - 1 );
+    // Grab the stored data
+    link_stack_entry_t *pentry = link_stack + ( link_stack_count - 1 );
 
-    // determine how you would have to shift the heroes so that they fall on top of the spawn point
-    pos_diff.x = pos.x * GRID_FSIZE - pentry->hero[0].pos_stt.x;
-    pos_diff.y = pos.y * GRID_FSIZE - pentry->hero[0].pos_stt.y;
-    pos_diff.z = pos.z * GRID_FSIZE - pentry->hero[0].pos_stt.z;
+    // Determine how you would have to shift the heroes so that they fall on top of the spawn point.
+    fvec3_t pos_diff = pos * GRID_FSIZE - pentry->hero[0].pos_stt;
 
-    // adjust all the hero spawn points
-    for ( i = 0; i < pentry->hero_count; i++ )
+    // Adjust all the hero spawn points.
+    for (int i = 0; i < pentry->hero_count; ++i)
     {
         hero_spawn_data_t * phero = pentry->hero + i;
 
-        phero->pos_stt.x += pos_diff.x;
-        phero->pos_stt.y += pos_diff.y;
-        phero->pos_stt.z += pos_diff.z;
+        phero->pos_stt += pos_diff;
 
         phero->pos = phero->pos_stt;
     }

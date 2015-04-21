@@ -187,7 +187,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     _terminateRequested(false),
     _characterID(id),
-    _profile(_profileSystem.getProfile(profile)),
+    _profile(ProfileSystem::get().getProfile(profile)),
     _position(0.0f, 0.0f, 0.0f)
 {
     // Construct the BSP node for this entity.
@@ -1045,7 +1045,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
     else
     {
         if(getProfile()->getSpellEffectType() >= 0) {
-            result = _profileSystem.getProfile(SPELLBOOK)->getClassName();
+            result = ProfileSystem::get().getProfile(SPELLBOOK)->getClassName();
         }
         else {
             result = getProfile()->getClassName();
@@ -1235,7 +1235,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
             PRO_REF ipro = enc_get_ipro( ienc_now );
             ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
-            if ( _profileSystem.isValidProfileID( ipro ) )
+            if (ProfileSystem::get().isValidProfileID(ipro))
             {
                 enc_apply_set( ienc_now, eve_t::SETALPHABLEND, ipro );
                 enc_apply_set( ienc_now, eve_t::SETLIGHTBLEND, ipro );

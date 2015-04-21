@@ -49,6 +49,19 @@ struct enc_spawn_data_t
     CHR_REF spawner_ref;
     PRO_REF profile_ref;
     EVE_REF eve_ref;
+
+    static void reset(enc_spawn_data_t *self)
+    {
+        if (!self)
+        {
+            throw std::runtime_error("nullptr == self");
+        }
+        self->owner_ref = INVALID_CHR_REF;
+        self->target_ref = INVALID_CHR_REF;
+        self->spawner_ref = INVALID_CHR_REF;
+        self->profile_ref = INVALID_PRO_REF;
+        self->eve_ref = INVALID_EVE_REF;
+    }
 };
 
 /**
@@ -106,9 +119,9 @@ struct enc_t : public _StateMachine < enc_t, EnchantHandler >
     static bool free(enc_t *self);
 
     // enchant state machine function
-    enc_t *ctor();
+    enc_t *config_do_ctor();
     // enchant state machine function
-    enc_t *dtor();
+    enc_t *config_do_dtor();
     // enchant state machine function
     enc_t *config_do_init();
     // enchant state machine function

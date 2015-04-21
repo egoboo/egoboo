@@ -92,6 +92,7 @@ struct prt_spawn_data_t
 
 
 
+
 /**
  * @brief
  *  The definition of the particle entity.
@@ -100,7 +101,7 @@ struct prt_spawn_data_t
  */
 struct prt_t : public _StateMachine<prt_t,ParticleHandler>
 {
-    bool is_ghost;                   ///< the particla has been killed, but is hanging around a while...
+    bool is_ghost;                   ///< the particle has been killed, but is hanging around a while...
 
     prt_spawn_data_t  spawn_data;
 
@@ -120,8 +121,10 @@ struct prt_t : public _StateMachine<prt_t,ParticleHandler>
     FACING_T facing;                           ///< Direction of the part
     TEAM_REF team;                             ///< Team
 
-    fvec3_t pos, pos_old, pos_stt;             ///< Position
-    fvec3_t vel, vel_old, vel_stt;             ///< Velocity
+    fvec3_t pos_stt;                  ///< Starting/initial position.
+    fvec3_t vel_stt;                  ///< Starting/initial velocity.
+    fvec3_t pos, pos_old;             ///< Current position, old position.
+    fvec3_t vel, vel_old;             ///< Current velocity, old velocity;
     fvec3_t offset;                            ///< The initial offset when spawning the particle
 
     Uint32  onwhichgrid;                       ///< Where the part is
@@ -220,9 +223,9 @@ struct prt_t : public _StateMachine<prt_t,ParticleHandler>
     static bool free(prt_t * pprt);
 
     // particle state machine function
-    prt_t *ctor();
+    prt_t *config_do_ctor();
     // particle state machine function
-    prt_t *dtor();
+    prt_t *config_do_dtor();
     // particle state machine function
     prt_t *config_do_init();
     // particle state machine function

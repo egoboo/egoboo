@@ -36,9 +36,9 @@ public:
     LoadPlayerElement(std::shared_ptr<ObjectProfile> profile);
 
     /**
-    * @brief
-    *   Return the name of this character
-    **/
+     * @brief
+     *   Return the name of this character
+     */
     inline const std::string& getName() const {return _name;}
 
     TX_REF getIcon() const;
@@ -46,27 +46,29 @@ public:
     inline const std::shared_ptr<ObjectProfile>& getProfile() const {return _profile;}
 
     /**
-    * @return which player number has selected this character (-1 for nobody)
-    **/
+     * @return
+     *  which player number has selected this character (@a -1 for nobody)
+     */
     int getSelectedByPlayer() const {return _selectedByPlayer;}
 
     /**
-    * @return true if the player meets the specified requirements for this quest
-    **/
+     * @return
+     *  @a true if the player meets the specified requirements for this quest
+     */
     bool hasQuest(const IDSZ idsz, const int requiredLevel);
 
     void setSelectedByPlayer(int selected) {_selectedByPlayer = selected;}
 
     /**
-    * @return
-    *   true if this character has been picked by a player
-    **/
+     * @return
+     *  @a true if this character has been picked by a player
+     */
     bool isSelected() const;
 
     /**
-    * @brief
-    *   Set whether this LoadPlayerElement has been picked to be played or not
-    **/
+     * @brief
+     *  Set whether this LoadPlayerElement has been picked to be played or not
+     */
     void setSelected(bool selected);
 
 private:
@@ -75,7 +77,7 @@ private:
     std::shared_ptr<ObjectProfile>  _profile;
     uint16_t                        _skinRef;
     IDSZ_node_t                     _questLog[MAX_IDSZ_MAP_SIZE]; ///< all the quests this player has
-    int                             _selectedByPlayer;                    ///< ID of player who has selected this character (-1 for none)
+    int                             _selectedByPlayer;            ///< ID of player who has selected this character (-1 for none)
     int                             _inputDevice;
     bool                            _isSelected;
 };

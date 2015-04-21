@@ -79,7 +79,7 @@ prt_t::prt_t()
 }
 /// @brief Set all particle parameters to safe values.
 /// @details The C equivalent of a parameterless constructor.
-prt_t *prt_t::ctor()
+prt_t *prt_t::config_do_ctor()
 {
     // save the base object data, do not construct it with this function.
     Ego::Entity *parent = POBJ_GET_PBASE(this);
@@ -131,7 +131,7 @@ prt_t::~prt_t()
 {
 }
 
-prt_t *prt_t::dtor()
+prt_t *prt_t::config_do_dtor()
 {
     // destruct/free any allocated data
     prt_t::free(this);
@@ -155,9 +155,9 @@ void prt_play_sound(const PRT_REF particle, Sint8 sound)
     if (!DEFINED_PRT(particle)) return;
     pprt = ParticleHandler::get().get_ptr(particle);
 
-    if (_profileSystem.isValidProfileID(pprt->profile_ref))
+    if (ProfileSystem::get().isValidProfileID(pprt->profile_ref))
     {
-        AudioSystem::get().playSound(pprt->pos, _profileSystem.getProfile(pprt->profile_ref)->getSoundID(sound));
+        AudioSystem::get().playSound(pprt->pos, ProfileSystem::get().getProfile(pprt->profile_ref)->getSoundID(sound));
     }
     else if (sound >= 0 && sound < GSND_COUNT)
     {
@@ -254,7 +254,7 @@ prt_t *prt_t::config_do_init()
     {
         log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
             REF_TO_INT(pdata->ipip), REF_TO_INT(pdata->chr_origin), _gameObjects.exists(pdata->chr_origin) ? _gameObjects.get(pdata->chr_origin)->Name : "INVALID",
-            REF_TO_INT(pdata->iprofile), _profileSystem.isValidProfileID(pdata->iprofile) ? _profileSystem.getProfile(pdata->iprofile)->getFilePath().c_str() : "INVALID");
+            REF_TO_INT(pdata->iprofile), ProfileSystem::get().isValidProfileID(pdata->iprofile) ? ProfileSystem::get().getProfile(pdata->iprofile)->getFilePath().c_str() : "INVALID");
 
         return NULL;
     }
@@ -600,7 +600,7 @@ prt_t *prt_t::config_do_init()
         update_wld, pprt->lifetime, game_frame_all, pprt->safe_time,
         loc_chr_origin, _gameObjects.exists( loc_chr_origin ) ? _gameObjects.get(loc_chr_origin)->Name : "INVALID",
         pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
-        pdata->iprofile, _profileSystem.isValidProfileID( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
+        pdata->iprofile, ProfileSystem::get().isValidProfileID(pdata->iprofile) ? ProList.lst[pdata->iprofile].name : "INVALID");
 #endif
 
     if (INVALID_CHR_REF != pprt->attachedto_ref)
@@ -647,7 +647,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
     {
         log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
             REF_TO_INT(ipip), REF_TO_INT(chr_origin), _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
-            REF_TO_INT(iprofile), _profileSystem.isValidProfileID(iprofile) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID");
+            REF_TO_INT(iprofile), ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getFilePath().c_str() : "INVALID");
 
         return INVALID_PRT_REF;
     }
@@ -662,7 +662,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
         log_debug("spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
                   chr_origin, _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
                   ipip, LOADED_PIP(ipip) ? PipStack.get_ptr(ipip)->_name : "INVALID",
-                  iprofile, _profileSystem.isValidProfileID(iprofile) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID");
+                  iprofile, ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getFilePath().c_str() : "INVALID");
 
         return INVALID_PRT_REF;
     }
@@ -711,7 +711,7 @@ PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF ip
 
     PIP_REF ipip = INVALID_PIP_REF;
 
-    if (!_profileSystem.isValidProfileID(iprofile))
+    if (!ProfileSystem::get().isValidProfileID(iprofile))
     {
         // check for a global pip
         ipip = ((pip_index < 0) || (pip_index > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index);
@@ -719,14 +719,14 @@ PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF ip
     else
     {
         //Local character pip
-        ipip = _profileSystem.getProfile(iprofile)->getParticleProfile(pip_index);
+        ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index);
     }
 
     if (!LOADED_PIP(ipip))
     {
         log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
             REF_TO_INT(ipip), REF_TO_INT(chr_origin), _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
-            REF_TO_INT(iprofile), _profileSystem.isValidProfileID(iprofile) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID");
+            REF_TO_INT(iprofile), ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getFilePath().c_str() : "INVALID");
 
         return INVALID_PRT_REF;
     }
@@ -1912,7 +1912,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     pmad = chr_get_pmad(character);
     if (NULL == pmad) return 0;
 
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
     bs_count = 0;
 
@@ -3006,7 +3006,7 @@ int prt_do_end_spawn(const PRT_REF iprt)
     pprt = ParticleHandler::get().get_ptr(iprt);
 
     // Spawn new particles if time for old one is up
-    if (pprt->endspawn_amount > 0 && _profileSystem.isValidProfileID(pprt->profile_ref) && pprt->endspawn_lpip > -1)
+    if (pprt->endspawn_amount > 0 && ProfileSystem::get().isValidProfileID(pprt->profile_ref) && pprt->endspawn_lpip > -1)
     {
         FACING_T facing;
         int      tnc;

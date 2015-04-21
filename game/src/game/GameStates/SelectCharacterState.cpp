@@ -83,7 +83,7 @@ SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &s
 	yOffset = playersLabel->getY() + playersLabel->getHeight() + 20;
 
 	//Make a button for each loadable character
-	for(const std::shared_ptr<LoadPlayerElement> &character : _profileSystem.getSavedPlayers())
+    for (const std::shared_ptr<LoadPlayerElement> &character : ProfileSystem::get().getSavedPlayers())
 	{
 		std::shared_ptr<Button> characterButton = std::make_shared<IconButton>(character->getName(), character->getIcon());
 		characterButton->setSize(200, 40);

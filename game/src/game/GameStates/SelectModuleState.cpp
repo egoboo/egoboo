@@ -115,7 +115,7 @@ void SelectModuleState::setModuleFilter(const ModuleFilter filter)
 	_validModules.clear();
 
 	//Build list of valid modules
-	for(const std::shared_ptr<ModuleProfile> &module : _profileSystem.getModuleProfiles())
+    for (const std::shared_ptr<ModuleProfile> &module : ProfileSystem::get().getModuleProfiles())
 	{
 		// if this module is not valid given the game options and the
 		// selected players, skip it

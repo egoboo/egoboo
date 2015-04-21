@@ -466,7 +466,7 @@ int GetArmorPrice( Object * pchr, const int skin )
     /// @details This function returns the cost of the desired skin upgrade, setting
     /// tmpx to the price
 
-    return _profileSystem.getProfile(pchr->profile_ref)->getSkinInfo(skin).cost;
+    return ProfileSystem::get().getProfile(pchr->profile_ref)->getSkinInfo(skin).cost;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -588,7 +588,7 @@ Uint8 AddEndMessage( Object * pchr, const int message_index, script_state_t * ps
 
     if ( nullptr == ( pchr ) ) return false;
 
-    const std::shared_ptr<ObjectProfile> &ppro = _profileSystem.getProfile( pchr->profile_ref );
+    const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(pchr->profile_ref);
     if ( !ppro->isValidMessageID( message_index ) ) return false;
 
     ichr           = GET_INDEX_PCHR( pchr );
@@ -677,7 +677,7 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     char * dst, * dst_end;
     size_t length;
 
-    const std::shared_ptr<ObjectProfile> &ppro = _profileSystem.getProfile( iprofile );
+    const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile(iprofile);
     if ( !ppro->isValidMessageID( message ) ) return false;
 
     slot = DisplayMsg_get_free();

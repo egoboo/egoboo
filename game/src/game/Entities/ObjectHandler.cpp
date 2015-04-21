@@ -76,8 +76,8 @@ bool ObjectHandler::exists(const CHR_REF character) const
 
 std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
 {
-	// Make sure the profile is valid.
-    if(!_profileSystem.isValidProfileID(profile))
+    // Make sure the profile is valid.
+    if (!ProfileSystem::get().isValidProfileID(profile))
     {
         log_warning("ObjectHandler - Tried to spawn character with invalid ProfileID: %d\n", profile);
         return nullptr;
@@ -85,7 +85,7 @@ std::shared_ptr<Object> ObjectHandler::insert(const PRO_REF profile, const CHR_R
 
     // Limit total number of characters active at the same time.
     if(getObjectCount() > OBJECTS_MAX)
-	{
+    {
         log_warning("ObjectHandler - No free character slots available\n");
         return nullptr;
     }

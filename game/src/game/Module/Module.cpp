@@ -73,16 +73,16 @@ void GameModule::loadAllPassages()
     {
         //read passage area
         irect_t area;
-        area._left   = ctxt.readInt();
-        area._top    = ctxt.readInt();
-        area._right  = ctxt.readInt();
+        area._left = ctxt.readInt();
+        area._top = ctxt.readInt();
+        area._right = ctxt.readInt();
         area._bottom = ctxt.readInt();
 
         //constrain passage area within the level
-        area._left    = CLIP( area._left,   0, PMesh->info.tiles_x - 1 );
-        area._top     = CLIP( area._top,    0, PMesh->info.tiles_y - 1 );
-        area._right   = CLIP( area._right,  0, PMesh->info.tiles_x - 1 );
-        area._bottom  = CLIP( area._bottom, 0, PMesh->info.tiles_y - 1 );
+        area._left = CLIP(area._left, 0, PMesh->info.tiles_x - 1);
+        area._top = CLIP(area._top, 0, PMesh->info.tiles_y - 1);
+        area._right = CLIP(area._right, 0, PMesh->info.tiles_x - 1);
+        area._bottom = CLIP(area._bottom, 0, PMesh->info.tiles_y - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();
@@ -95,7 +95,7 @@ void GameModule::loadAllPassages()
         std::shared_ptr<Passage> passage = std::make_shared<Passage>(area, mask);
 
         //check if we need to close the passage
-        if(!open) {
+        if (!open) {
             passage->close();
         }
 
@@ -107,39 +107,42 @@ void GameModule::loadAllPassages()
 void GameModule::checkPassageMusic()
 {
     // Look at each player
-    for ( PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
     {
         CHR_REF character = PlaStack.lst[ipla].index;
-        if ( !_gameObjects.exists( character ) ) continue;
+        if (!_gameObjects.exists(character)) continue;
 
-        //dont do items in hands or inventory
-        if ( IS_ATTACHED_CHR( character ) ) continue;
+        // Don't do items in hands or inventory.
+        if (IS_ATTACHED_CHR(character)) continue;
 
-        Object * pchr = _gameObjects.get( character );
-        if ( !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
+        Object *pchr = _gameObjects.get(character);
+        if (!pchr->alive || !VALID_PLA(pchr->is_which_player)) continue;
 
         //Loop through every passage
-        for(const std::shared_ptr<Passage> &passage : _passages)
+        for (const std::shared_ptr<Passage>& passage : _passages)
         {
-            if(passage->checkPassageMusic(pchr)) {
+            if (passage->checkPassageMusic(pchr))
+            {
                 return;
             }
-        }   
+        }
     }
 }
 
 CHR_REF GameModule::getShopOwner(const float x, const float y)
 {
-    //Loop through every passage
-    for(const std::shared_ptr<Passage> &passage : _passages)
+    // Loop through every passage.
+    for(const std::shared_ptr<Passage>& passage : _passages)
     {
-        //Only check actual shops
-        if(!passage->isShop()) {
+        // Only check actual shops.
+        if(!passage->isShop()) 
+        {
             continue;
         }
 
-        //Is item inside this shop?
-        if(passage->isPointInside(x, y)) {
+        // Is item inside this shop?
+        if(passage->isPointInside(x, y))
+        {
             return passage->getShopOwner();
         }
     }
@@ -149,19 +152,21 @@ CHR_REF GameModule::getShopOwner(const float x, const float y)
 
 void GameModule::removeShopOwner(CHR_REF owner)
 {
-    //Loop through every passage
+    // Loop through every passage:
     for(const std::shared_ptr<Passage> &passage : _passages)
     {
-        //Only check actual shops
-        if(!passage->isShop()) {
+        // Only check actual shops:
+        if(!passage->isShop())
+        {
             continue;
         }
 
-        if(passage->getShopOwner() == owner) {
+        if(passage->getShopOwner() == owner)
+        {
             passage->removeShop();
         }
 
-        //TODO: mark all items in shop as normal items again
+        // TODO: Mark all items in shop as normal items again.
     }
 }
 
@@ -172,7 +177,8 @@ int GameModule::getPassageCount()
 
 std::shared_ptr<Passage> GameModule::getPassageByID(int id)
 {
-    if(id < 0 || id >= _passages.size()) {
+    if(id < 0 || id >= _passages.size())
+    {
         return nullptr;
     }
 

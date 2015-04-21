@@ -60,7 +60,7 @@
     Uint8 returncode = true; \
     if( NULL == pstate || NULL == pself || !_gameObjects.exists(pself->index) ) return false; \
     pchr = _gameObjects.get( pself->index ); \
-    const std::shared_ptr<ObjectProfile> &ppro = _profileSystem.getProfile( pchr->profile_ref ); \
+    const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile( pchr->profile_ref ); \
     if(!ppro) return false;
 
 #define SCRIPT_FUNCTION_END() \
@@ -7160,7 +7160,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     for ( iTmp = 0; iTmp < MAX_PIP_PER_PROFILE; iTmp++ )
     {
-        pip_t * ppip = _profileSystem.pro_get_ppip( pchr->profile_ref, iTmp );
+        pip_t * ppip = ProfileSystem::get().pro_get_ppip(pchr->profile_ref, iTmp);
         if ( NULL == ppip ) continue;
 
         if ( ppip->damageBoni._intelligence || ppip->damageBoni._wisdom )
@@ -7479,7 +7479,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, _profileSystem.getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument );
+            log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ProfileSystem::get().getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument);
         }
     }
     else

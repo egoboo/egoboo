@@ -28,16 +28,16 @@
 class PlayingState : public GameState
 {
 public:
-	PlayingState();
+    PlayingState();
 
-	~PlayingState();
+    ~PlayingState();
 
-	void update() override;
+    void update() override;
 
-	void beginState() override;
-	
+    void beginState() override;
+
     bool notifyKeyDown(const int keyCode) override;
 
 protected:
-	void drawContainer() override;
+    void drawContainer() override;
 };

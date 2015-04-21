@@ -1733,7 +1733,7 @@ size_t parse_token(parser_state_t *self, token_t *ptok, ObjectProfile *ppro, scr
             ptok->iValue = INVALID_PRO_REF;
 
             // Convert reference to slot number
-            for(const auto &element : _profileSystem.getLoadedProfiles())
+            for (const auto &element : ProfileSystem::get().getLoadedProfiles())
             {
                 const std::shared_ptr<ObjectProfile> &profile = element.second;
                 if(profile == nullptr) continue;
@@ -1748,7 +1748,7 @@ size_t parse_token(parser_state_t *self, token_t *ptok, ObjectProfile *ppro, scr
             }
 
             // Do we need to load the object?
-            if ( !_profileSystem.isValidProfileID(( PRO_REF ) ptok->iValue ) )
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)ptok->iValue))
             {
                 STRING loadname;
                 snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
@@ -1757,16 +1757,16 @@ size_t parse_token(parser_state_t *self, token_t *ptok, ObjectProfile *ppro, scr
                 for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++ )
                 {
                     //skip loaded profiles
-                    if ( _profileSystem.isValidProfileID(ipro) ) continue;
+                    if (ProfileSystem::get().isValidProfileID(ipro)) continue;
 
                     //found a free slot
-                    ptok->iValue = _profileSystem.loadOneProfile( loadname, REF_TO_INT( ipro ) );
+                    ptok->iValue = ProfileSystem::get().loadOneProfile(loadname, REF_TO_INT(ipro));
                     if (ptok->iValue == ipro) break;
                 }
             }
 
             // Failed to load object!
-            if ( !_profileSystem.isValidProfileID(( PRO_REF ) ptok->iValue ) )
+            if (!ProfileSystem::get().isValidProfileID((PRO_REF)ptok->iValue))
             {
                 log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, ptok->szWord, pscript->name, ptok->iLine );
             }

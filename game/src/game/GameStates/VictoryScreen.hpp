@@ -31,19 +31,19 @@ class PlayingState;
 class VictoryScreen : public GameState
 {
 public:
-	VictoryScreen(PlayingState *playingState, const bool forceExit = false);
+    VictoryScreen(PlayingState *playingState, const bool forceExit = false);
 
-	void update() override;
+    void update() override;
 
-	void beginState() override;
+    void beginState() override;
 
     //Disable copying class
     VictoryScreen(const VictoryScreen& copy) = delete;
     VictoryScreen& operator=(const VictoryScreen&) = delete;
     
 protected:
-	void drawContainer() override;
+    void drawContainer() override;
 
 private:
-	PlayingState *_playingState;
+    PlayingState *_playingState;
 };

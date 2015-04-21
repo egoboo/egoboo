@@ -67,49 +67,49 @@ GameEngine::GameEngine() :
     //Submodules
     _uiManager(nullptr)
 {
-	//ctor
+    //ctor
 }
 
 void GameEngine::shutdown()
 {
-	_terminateRequested = true;
+    _terminateRequested = true;
 }
 
 void GameEngine::start()
 {
-	initialize();
+    initialize();
 
-	//Initialize clock timeout	
-	_updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
-	_renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
+    //Initialize clock timeout	
+    _updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
+    _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
 
-	while(!_terminateRequested)
-	{
+    while(!_terminateRequested)
+    {
         // Test the panic button
         if ( SDL_KEYDOWN( keyb, SDLK_q ) && SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
         {
-            //terminate the program
+            // Terminate the program
             shutdown();
             break;
         }
 
-		//Check if it is time to update everything
-		for(_frameSkip = 0; _frameSkip < MAX_FRAMESKIP && SDL_GetTicks() >= _updateTimeout; ++_frameSkip)
-		{
-			updateOneFrame();
+        // Check if it is time to update everything
+        for(_frameSkip = 0; _frameSkip < MAX_FRAMESKIP && SDL_GetTicks() >= _updateTimeout; ++_frameSkip)
+        {
+            updateOneFrame();
             _updateTimeout += DELAY_PER_UPDATE_FRAME;
-		}
+        }
 
-		//Check if it is time to draw everything
-		if(SDL_GetTicks() >= _renderTimeout)
-		{
-            //Calculate estimations for FPS and UPS
+        // Check if it is time to draw everything
+        if(SDL_GetTicks() >= _renderTimeout)
+        {
+            // Calculate estimations for FPS and UPS
             estimateFrameRate();
 
-            //Draw the current frame
-			renderOneFrame();
+            // Draw the current frame
+            renderOneFrame();
 
-            //Stabilize FPS throttle every so often in case rendering is lagging behind
+            // Stabilize FPS throttle every so often in case rendering is lagging behind
             if(game_frame_all % GAME_TARGET_FPS == 0)
             {
                 _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
@@ -118,7 +118,7 @@ void GameEngine::start()
             {
                 _renderTimeout += DELAY_PER_RENDER_FRAME;
             }
-		}
+        }
         else
         {
             //Don't hog CPU if we have nothing to do
@@ -128,9 +128,9 @@ void GameEngine::start()
                 std::this_thread::sleep_for(std::chrono::milliseconds(delay));
             }
         }
-	}
+    }
 
-	uninitialize();
+    uninitialize();
 }
 
 void GameEngine::estimateFrameRate()
@@ -152,12 +152,12 @@ void GameEngine::estimateFrameRate()
 
 void GameEngine::updateOneFrame()
 {
-	//Fall through to next state if needed
+    // Fall through to next state if needed
     if(_currentGameState->isEnded())
     {
         _gameStateStack.pop_front();
 
-        //No more states? Default back to main menu
+        // No more states? Default back to main menu
         if(_gameStateStack.empty())
         {
             pushGameState(std::make_shared<MainMenuState>());
@@ -171,12 +171,12 @@ void GameEngine::updateOneFrame()
         }
     }
 
-    //Handle all SDL events    
+    // Handle all SDL events    
     pollEvents();
 
     _currentGameState->update();
 
-    //Check for screenshots
+    // Check for screenshots
     if (SDL_KEYDOWN(keyb, SDLK_F11))
     {
         requestScreenshot();
@@ -187,9 +187,9 @@ void GameEngine::renderOneFrame()
 {
     // clear the screen
     gfx_request_clear_screen();
-	gfx_do_clear_screen();
+    gfx_do_clear_screen();
 
-	_currentGameState->drawAll();
+    _currentGameState->drawAll();
     game_frame_all++;
 
     //Draw mouse cursor last
@@ -198,9 +198,9 @@ void GameEngine::renderOneFrame()
         draw_mouse_cursor();
     }
 
-	// flip the graphics page
+    // flip the graphics page
     gfx_request_flip_pages();
-	gfx_do_flip_pages();
+    gfx_do_flip_pages();
 
     //Save screenshot if it has been requested
     if(_screenshotRequested)
@@ -242,7 +242,7 @@ void GameEngine::renderPreloadText(const std::string &text)
 
 bool GameEngine::initialize()
 {
-	// Initialize logging next, so that we can use it everywhere.
+    // Initialize logging next, so that we can use it everywhere.
     log_initialize("/debug/log.txt", LOG_DEBUG);
 
     // start initializing the various subsystems
@@ -252,11 +252,37 @@ bool GameEngine::initialize()
     //Initialize OS specific stuff
     sys_initialize();
 
-    // read the "setup.txt" file
+    // Load "setup.txt".
     setup_begin();
+    // Download "setup.txt" into the Egoboo configuration.
+    setup_download(&egoboo_config_t::get());
+    /* ********************************************************************************** */
+    // >>> This must be done as the crappy old systems do not "pull" their configuration.
+    //      More recent systems like video or audio system pull their configuraiton data
+    //      by the time they are initialized.
+    // Status display.
+    StatusList.on = egoboo_config_t::get().hud_displayStatusBars.getValue();
 
-    // download the "setup.txt" values into the cfg struct
-    loadConfiguration(true);
+    // Message display.
+    DisplayMsg_count = Math::constrain(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(),
+        (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
+    DisplayMsg_on = egoboo_config_t::get().hud_simultaneousMessages_max.getValue() > 0;
+
+    // Adjust the particle limit.
+    ParticleHandler::get().setDisplayLimit(egoboo_config_t::get().graphic_simultaneousParticles_max.getValue());
+    
+
+    // camera options
+    _cameraSystem.getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
+
+    // renderer options
+    gfx_config_download_from_egoboo_config(&gfx, &egoboo_config_t::get());
+
+    // texture options
+    oglx_texture_parameters_download_gfx(&g_ogl_textureParameters, &egoboo_config_t::get());
+
+    // <<<
+    /* ********************************************************************************** */
 
     //Initialize SDL
     log_message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
@@ -306,10 +332,10 @@ bool GameEngine::initialize()
 
     renderPreloadText("Configurating game data...");
 
-	// synchronize the config values with the various game subsystems
+
+    // synchronize the config values with the various game subsystems
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
-    loadConfiguration(false);
     config_synch(&egoboo_config_t::get(), false, false);
 
     // read all the scantags
@@ -325,7 +351,7 @@ bool GameEngine::initialize()
     egolib_console_handler_t::begin();
 
     // Initialize the profile system.
-    _profileSystem.initialize();
+    ProfileSystem::initialize();
 
     // Initialize the collision system.
     CollisionSystem::initialize();
@@ -336,10 +362,10 @@ bool GameEngine::initialize()
 
 
     renderPreloadText("Loading modules...");
-    _profileSystem.loadModuleProfiles();
+    ProfileSystem::get().loadModuleProfiles();
 
     renderPreloadText("Loading save games...");
-    _profileSystem.loadAllSavedCharacters("mp_players");
+    ProfileSystem::get().loadAllSavedCharacters("mp_players");
 
     // clear out the import and remote directories
     renderPreloadText("Finished!");
@@ -353,7 +379,11 @@ bool GameEngine::initialize()
 
 void GameEngine::uninitialize()
 {
-    log_message("Uninitializing Egoboo %s",GAME_VERSION.c_str());
+    log_message("Uninitializing Egoboo %s\n",GAME_VERSION.c_str());
+
+    _gameStateStack.clear();
+    _currentGameState.reset();
+    PMod.release();
 
     // synchronize the config values with the various game subsystems
     config_synch(&egoboo_config_t::get(), true, true);
@@ -381,7 +411,7 @@ void GameEngine::uninitialize()
     model_system_end();
 
     // Uninitialize the profile system.
-    _profileSystem.uninitialize();
+    ProfileSystem::uninitialize();
 
     // Uninitialize the audio system.
     AudioSystem::uninitialize();
@@ -396,7 +426,7 @@ void GameEngine::uninitialize()
     SDL_Quit();
 
     // Shut down the log services.
-    log_message("Exiting Egoboo %s. See you next time.\n", GAME_VERSION.c_str());
+    log_message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());
     log_uninitialize();
 }
 
@@ -413,40 +443,6 @@ void GameEngine::pushGameState(std::shared_ptr<GameState> gameState)
     _currentGameState->beginState();
     _updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
     _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
-}
-
-bool GameEngine::loadConfiguration(bool syncFromFile)
-{
-    // synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)
-    if (syncFromFile)
-    {
-        if (!setup_download(&egoboo_config_t::get())) return false;
-    }
-
-    // status display
-    StatusList.on = egoboo_config_t::get().hud_displayStatusBars.getValue();
-
-    // message display
-    DisplayMsg_count = Math::constrain(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(),
-                                       (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
-    DisplayMsg_on = egoboo_config_t::get().hud_simultaneousMessages_max.getValue() > 0;
-
-    // Adjust the particle limit.
-    ParticleHandler::get().setDisplayLimit(egoboo_config_t::get().graphic_simultaneousParticles_max.getValue());
-
-    // camera options
-    _cameraSystem.getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
-
-    // sound options
-    AudioSystem::get().reconfigure(egoboo_config_t::get());
-
-    // renderer options
-    gfx_config_download_from_egoboo_config(&gfx, &egoboo_config_t::get());
-
-    // texture options
-    oglx_texture_parameters_download_gfx(&g_ogl_textureParameters, &egoboo_config_t::get());
-
-    return true;
 }
 
 void GameEngine::pollEvents()

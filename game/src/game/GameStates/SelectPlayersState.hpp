@@ -32,17 +32,17 @@ class Button;
 class SelectPlayersState : public GameState
 {
 public:
-	SelectPlayersState();
+    SelectPlayersState();
 
-	void update() override;
+    void update() override;
 
-	void beginState() override;
+    void beginState() override;
 
 protected:
-	void drawContainer() override;
+    void drawContainer() override;
 
 private:
-	std::vector<std::shared_ptr<LoadPlayerElement>> _selectedPlayers;
-	std::vector<std::shared_ptr<Button>> 			_playerButtons;
-	std::shared_ptr<Button> 						_continueButton;
+    std::vector<std::shared_ptr<LoadPlayerElement>> _selectedPlayers;
+    std::vector<std::shared_ptr<Button>>             _playerButtons;
+    std::shared_ptr<Button>                         _continueButton;
 };

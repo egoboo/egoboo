@@ -55,23 +55,25 @@ bool enc_t::free(enc_t *self)
 enc_t::enc_t()
 {
 }
-enc_t *enc_t::ctor()
+enc_t *enc_t::config_do_ctor()
 {
     // grab the base object
     Ego::Entity *parent = POBJ_GET_PBASE(this);
 
-	// Save the entity data.
-	Ego::Entity parentState;
-    memcpy(&parentState, parent, sizeof(Ego::Entity));
+    enc_spawn_data_t::reset(&spawn_data);
+    lifetime = 0;
+    spawn_timer = 0;
+    
+    owner_mana = 0;
+    owner_life = 0;
+    target_mana = 0;
+    target_life = 0;
 
-    BLANK_STRUCT_PTR(this);
-
-    // Restore the entity data.
-    memcpy(parent, &parentState, sizeof(Ego::Entity));
-
-    // reset the base counters
-    parent->update_count = 0;
-    parent->frame_count = 0;
+    for (size_t i = 0; i < eve_t::MAX_ENCHANT_SET; ++i)
+    {
+        _set[i]._modified = false; _set[i]._oldValue = 0.0f;
+        _add[i]._modified = false; _add[i]._oldValue = 0.0f;
+    }
 
     this->profile_ref = INVALID_PRO_REF;
     this->eve_ref = INVALID_EVE_REF;
@@ -84,6 +86,9 @@ enc_t *enc_t::ctor()
 
     this->nextenchant_ref = INVALID_ENC_REF;
 
+    // reset the base counters
+    parent->update_count = 0;
+    parent->frame_count = 0;
     // we are done constructing. move on to initializing.
     parent->state = Ego::Entity::State::Initializing;
 
@@ -94,7 +99,7 @@ enc_t *enc_t::ctor()
 enc_t::~enc_t()
 {
 }
-enc_t *enc_t::dtor()
+enc_t *enc_t::config_do_dtor()
 {
     // Destroy the object.
     enc_t::free(this);
@@ -311,16 +316,16 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     {
         // Play the end sound
         PRO_REF imodel = penc->spawnermodel_ref;
-        if ( _profileSystem.isValidProfileID( imodel ) )
+        if (ProfileSystem::get().isValidProfileID(imodel))
         {
             iwave = peve->endsound_index;
             if ( nullptr != target_ptr )
             {
-                AudioSystem::get().playSound( target_ptr->pos_old, _profileSystem.getProfile(imodel)->getSoundID(iwave) );
+                AudioSystem::get().playSound(target_ptr->pos_old, ProfileSystem::get().getProfile(imodel)->getSoundID(iwave));
             }
             else
             {
-                AudioSystem::get().playSoundFull( _profileSystem.getProfile(imodel)->getSoundID(iwave) );
+                AudioSystem::get().playSoundFull(ProfileSystem::get().getProfile(imodel)->getSoundID(iwave));
             }
         }
 
@@ -434,7 +439,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     if ( !DEFINED_ENC( ienc ) ) return;
     penc = EnchantHandler::get().get_ptr( ienc );
 
-    peve = _profileSystem.pro_get_peve( profile );
+    peve = ProfileSystem::get().pro_get_peve(profile);
     if ( NULL == peve ) return;
 
     penc->_set[value_idx]._modified = false;
@@ -1152,7 +1157,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     // you should be able to enchant dead stuff to raise the dead...
     // if( !ptarget->alive ) return INVALID_ENC_REF;
 
-    if ( _profileSystem.isValidProfileID( modeloptional ) )
+    if (ProfileSystem::get().isValidProfileID(modeloptional))
     {
         // The enchantment type is given explicitly
         loc_profile = modeloptional;
@@ -1162,17 +1167,17 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         // The enchantment type is given by the spawner
         loc_profile = chr_get_ipro( spawner );
 
-        if ( !_profileSystem.isValidProfileID( loc_profile ) )
+        if (!ProfileSystem::get().isValidProfileID(loc_profile))
         {
             log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", _gameObjects.get(spawner)->Name, REF_TO_INT( spawner ) );
             return INVALID_ENC_REF;
         }
     }
 
-    eve_ref = _profileSystem.pro_get_ieve( loc_profile );
+    eve_ref = ProfileSystem::get().pro_get_ieve(loc_profile);
     if ( !LOADED_EVE( eve_ref ) )
     {
-        log_warning( "spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", _profileSystem.getProfile(loc_profile)->getFilePath().c_str(), REF_TO_INT( loc_profile ) );
+        log_warning("spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", ProfileSystem::get().getProfile(loc_profile)->getFilePath().c_str(), REF_TO_INT(loc_profile));
 
         return INVALID_ENC_REF;
     }
@@ -1781,7 +1786,7 @@ PRO_REF  enc_get_ipro(const ENC_REF ienc)
     if (!DEFINED_ENC(ienc)) return INVALID_PRO_REF;
     enc_t *penc = EnchantHandler::get().get_ptr(ienc);
 
-    if (!_profileSystem.isValidProfileID(penc->profile_ref)) return INVALID_PRO_REF;
+    if (!ProfileSystem::get().isValidProfileID(penc->profile_ref)) return INVALID_PRO_REF;
 
     return penc->profile_ref;
 }
@@ -1794,9 +1799,9 @@ ObjectProfile * enc_get_ppro( const ENC_REF ienc )
     if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EnchantHandler::get().get_ptr( ienc );
 
-    if ( !_profileSystem.isValidProfileID( penc->profile_ref ) ) return NULL;
+    if (!ProfileSystem::get().isValidProfileID(penc->profile_ref)) return NULL;
 
-    return _profileSystem.getProfile( penc->profile_ref ).get();
+    return ProfileSystem::get().getProfile(penc->profile_ref).get();
 }
 
 //--------------------------------------------------------------------------------------------

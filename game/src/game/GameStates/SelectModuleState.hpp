@@ -19,7 +19,7 @@
 
 /// @file game/GameStates/SelectModuleState.hpp
 /// @details A screen for selecting which module to play. 
-///			 Could be New Game or a Load Game with one or more players
+///             Could be New Game or a Load Game with one or more players
 /// @author Johan Jansen
 
 #pragma once
@@ -35,32 +35,32 @@ class ModuleSelector;
 class SelectModuleState : public GameState
 {
 public:
-	/**
-	* @brief Constructor with no import players (starter modules)
-	**/
-	SelectModuleState();
+    /**
+    * @brief Constructor with no import players (starter modules)
+    **/
+    SelectModuleState();
 
-	/**
-	* @brief Constructor with a list of players who are going to play
-	**/
-	SelectModuleState(const std::list<std::string> &playersToLoad);
+    /**
+    * @brief Constructor with a list of players who are going to play
+    **/
+    SelectModuleState(const std::list<std::string> &playersToLoad);
 
-	void update() override;
+    void update() override;
 
-	void beginState() override;
+    void beginState() override;
 
 protected:
-	void drawContainer() override;
+    void drawContainer() override;
 
-	void setModuleFilter(const ModuleFilter filter);
+    void setModuleFilter(const ModuleFilter filter);
 
 private:
-	bool _onlyStarterModules;
-	std::vector<std::shared_ptr<ModuleProfile>> _validModules;		///< Current selectable modules (filtered, unlocked, etc.)
-	std::shared_ptr<Image> _background;
-	std::shared_ptr<Button> _filterButton;
-	std::shared_ptr<Button> _chooseModule;
-	std::shared_ptr<ModuleSelector> _moduleSelector;
-	ModuleFilter _moduleFilter;
-	std::list<std::string> _selectedPlayerList;
+    bool _onlyStarterModules;
+    std::vector<std::shared_ptr<ModuleProfile>> _validModules;        ///< Current selectable modules (filtered, unlocked, etc.)
+    std::shared_ptr<Image> _background;
+    std::shared_ptr<Button> _filterButton;
+    std::shared_ptr<Button> _chooseModule;
+    std::shared_ptr<ModuleSelector> _moduleSelector;
+    ModuleFilter _moduleFilter;
+    std::list<std::string> _selectedPlayerList;
 };

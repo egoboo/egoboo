@@ -58,10 +58,7 @@
 
         GLfloat width;
         GLfloat height;
-#if 0
-        GLint   min_filter;
-        GLint   mag_filter;
-#endif
+
         GLint   wrap_s;
         GLint   wrap_t;
 

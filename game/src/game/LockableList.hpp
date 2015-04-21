@@ -92,7 +92,7 @@ public:
         // Construct the sub-objects.
         for (size_t i = 0; i < getCount(); ++i)
         {
-            TYPE *x = lst + i;
+            TYPE *x = &(lst[i]);
 
             // Blank out all the data, including the obj_base data.
             BLANK_STRUCT_PTR(x);
@@ -101,7 +101,7 @@ public:
             POBJ_GET_PBASE(x)->ctor(x, BSPTYPE, i);
 
             // Construct the object.
-            x->ctor();
+            x->config_do_ctor();
         }
     }
 
@@ -110,10 +110,10 @@ public:
         // Construct the sub-objects.
         for (size_t i = 0; i < getCount(); ++i)
         {
-            TYPE *x = lst + i;
+            TYPE *x = &(lst[i]);
 
             // Destruct the object
-            x->dtor();
+            x->config_do_dtor();
 
             // Destruct the entity.
             POBJ_GET_PBASE(x)->dtor();

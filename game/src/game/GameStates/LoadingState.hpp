@@ -19,60 +19,65 @@
 
 /// @file game/GameStates/LoadingState.hpp
 /// @details Main state where the players are currently playing a module
+/// @todo Wrong doc comment.
 /// @author Johan Jansen
 
 #pragma once
 
 #include "game/GameStates/GameState.hpp"
 
-//Forward declarations
+// Forward declarations
 class ModuleProfile;
 class Label;
 
 class LoadingState : public GameState
 {
+
 public:
-	LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad);
-	~LoadingState();
 
-	void update() override;
+    LoadingState(std::shared_ptr<ModuleProfile> module, const std::list<std::string> &playersToLoad);
 
-	void beginState() override;
-	
+    ~LoadingState();
+
+    void update() override;
+
+    void beginState() override;
+    
 protected:
-	void drawContainer() override;
 
-	void loadModuleData();
+    void drawContainer() override;
 
-	/**
-	* @brief
-	*	Actually loads all data for the Characters that players have picked.
-	**/
-	bool loadPlayers();
+    void loadModuleData();
 
-	const std::string getRandomHint() const;
+    /**
+     * @brief
+     *    Actually loads all data for the Characters that players have picked.
+     */
+    bool loadPlayers();
+
+    const std::string getRandomHint() const;
 
     /// @author ZF
     /// @details This function loads all module specific hints and tips. If this fails, the game will
     ///       default to the global hints and tips instead
-  	bool loadLocalModuleHints();
+      bool loadLocalModuleHints();
 
     /// @author ZF
     /// @details This function loads all of the game hints and tips
-	bool loadGlobalHints();
+    bool loadGlobalHints();
 
-	/**
-	* ZF> This function is a place-holder hack until we get proper threaded loading working
-	**/
-	void singleThreadRedrawHack(const std::string &loadingText);
+    /**
+     * ZF> This function is a place-holder hack until we get proper threaded loading working
+     */
+    void singleThreadRedrawHack(const std::string &loadingText);
 
 private:
-	std::atomic_bool _finishedLoading;
-	std::thread _loadingThread;
-	std::shared_ptr<Label> _loadingLabel;
-	const std::shared_ptr<ModuleProfile> _loadModule;
-	std::list<std::string> _playersToLoad;
+    std::atomic_bool _finishedLoading;
+    std::thread _loadingThread;
+    std::shared_ptr<Label> _loadingLabel;
+    const std::shared_ptr<ModuleProfile> _loadModule;
+    std::list<std::string> _playersToLoad;
 
-	std::vector<std::string> _globalGameTips;		//Generic game tips for the whole game
-	std::vector<std::string> _localGameTips;		//Game tips specific to this module
+    std::vector<std::string> _globalGameTips;        //Generic game tips for the whole game
+    std::vector<std::string> _localGameTips;        //Game tips specific to this module
 };

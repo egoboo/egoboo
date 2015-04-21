@@ -2141,7 +2141,7 @@ float draw_character_xp_bar(const CHR_REF character, float x, float y)
     //Draw the small XP progress bar
     if (pchr->experiencelevel < MAXLEVEL - 1)
     {
-        std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile(pchr->profile_ref);
+        std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
         uint8_t  curlevel = pchr->experiencelevel + 1;
         uint32_t xplastlevel = profile->getXPNeededForLevel(curlevel - 1);
@@ -2276,7 +2276,7 @@ void draw_map()
                 if (!_gameObjects.exists(ichr)) continue;
                 Object *pchr = _gameObjects.get(ichr);
 
-                const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
+                const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
                 // Show only teams that will attack the player
                 if (team_hates_team(pchr->team, local_stats.sense_enemies_team))

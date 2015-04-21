@@ -786,4 +786,3 @@ private:
     bool       _stickyButt;                       ///< Stick to the ground? (conform to hills like chair)
     float      _useManaCost;                      ///< Mana usage for unarmed attack
 };
-

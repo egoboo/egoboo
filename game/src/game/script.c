@@ -158,7 +158,7 @@ void scr_run_chr_script( const CHR_REF character )
     script_error_model     = pchr->profile_ref;
     if ( script_error_model < INVALID_PRO_REF )
     {
-        script_error_classname = _profileSystem.getProfile(script_error_model)->getClassName().c_str();
+        script_error_classname = ProfileSystem::get().getProfile(script_error_model)->getClassName().c_str();
     }
 
     if (debug_scripts && debug_script_file)
@@ -1808,8 +1808,8 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj
 
     pself->index      = index;
     pself->alert      = ALERTIF_SPAWNED;
-    pself->state      = _profileSystem.getProfile(iobj)->getStateOverride();
-    pself->content    = _profileSystem.getProfile(iobj)->getContentOverride();
+    pself->state      = ProfileSystem::get().getProfile(iobj)->getStateOverride();
+    pself->content    = ProfileSystem::get().getProfile(iobj)->getContentOverride();
     pself->passage    = 0;
     pself->target     = index;
     pself->owner      = index;

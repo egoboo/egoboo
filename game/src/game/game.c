@@ -397,14 +397,14 @@ void log_madused_vfs( const char *savename )
         //vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
 
         PRO_REF lastSlotNumber = 0;
-        for(const auto &element : _profileSystem.getLoadedProfiles())
+        for (const auto &element : ProfileSystem::get().getLoadedProfiles())
         {
             const std::shared_ptr<ObjectProfile> &profile = element.second;
 
             //ZF> ugh, import objects are currently handled in a weird special way.
             for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
             {
-                if (!_profileSystem.isValidProfileID(i))
+                if (!ProfileSystem::get().isValidProfileID(i))
                 {
                     vfs_printf( hFileWrite, "%3lu  %32s.\n", i, "Slot reserved for import players" );
                 }
@@ -1658,7 +1658,7 @@ void check_stats()
         {
             Uint32 xpgain;
             Object * pchr = _gameObjects.get( PlaStack.lst[docheat].index );
-            const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
+            const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
             //Give 10% of XP needed for next level
             xpgain = 0.1f * ( profile->getXPNeededForLevel( std::min( pchr->experiencelevel+1, MAXLEVEL) ) - profile->getXPNeededForLevel(pchr->experiencelevel));
@@ -1759,7 +1759,7 @@ void show_stat( int statindex )
         {
             Object * pchr = _gameObjects.get( character );
 
-            const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
+            const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
             // Name
             DisplayMsg_printf( "=%s=", pchr->getName(true, false, true).c_str());
@@ -1830,7 +1830,7 @@ void show_armor( int statindex )
     pchr = _gameObjects.get( ichr );
     skinlevel = pchr->skin;
 
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
     const SkinInfo &skinInfo = profile->getSkinInfo(skinlevel);
 
     // Armor Name
@@ -2041,7 +2041,7 @@ void import_dir_profiles_vfs( const std::string &dirname )
             import_data.slot = cnt;
 
             // load it
-            import_data.slot_lst[cnt] = _profileSystem.loadOneProfile(importPath);
+            import_data.slot_lst[cnt] = ProfileSystem::get().loadOneProfile(importPath);
             import_data.max_slot      = std::max( import_data.max_slot, cnt );
         }
     }
@@ -2075,7 +2075,7 @@ void game_load_profile_ai()
     // ensure that the script parser exists
     parser_state_t *ps = parser_state_t::get();
 
-    for(const auto &element : _profileSystem.getLoadedProfiles())
+    for (const auto &element : ProfileSystem::get().getLoadedProfiles())
     {
         const std::shared_ptr<ObjectProfile> &profile = element.second;
 
@@ -2107,7 +2107,7 @@ void game_load_module_profiles( const char *modname )
 
     while ( NULL != ctxt && VALID_CSTR( filehandle ) )
     {
-        _profileSystem.loadOneProfile(filehandle);
+        ProfileSystem::get().loadOneProfile(filehandle);
 
         ctxt = vfs_findNext( &ctxt );
         filehandle = vfs_search_context_get_current( ctxt );
@@ -2119,7 +2119,7 @@ void game_load_module_profiles( const char *modname )
 void game_load_global_profiles()
 {
     // load all special objects
-    _profileSystem.loadOneProfile( "mp_data/globalobjects/book.obj", SPELLBOOK );
+    ProfileSystem::get().loadOneProfile("mp_data/globalobjects/book.obj", SPELLBOOK);
 
     // load the objects from various import directories
     load_all_profiles_import();
@@ -2238,7 +2238,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 
     //Is it already loaded?
     ipro = ( PRO_REF )psp_info->slot;
-    if ( _profileSystem.isValidProfileID( ipro ) ) return false;
+    if (ProfileSystem::get().isValidProfileID(ipro)) return false;
 
     // do the loading
     if ( CSTR_END != psp_info->spawn_coment[0] )
@@ -2255,10 +2255,10 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
             return false;
         }
 
-        psp_info->slot = _profileSystem.loadOneProfile(filename, psp_info->slot);
+        psp_info->slot = ProfileSystem::get().loadOneProfile(filename, psp_info->slot);
     }
 
-    return _profileSystem.isValidProfileID(( PRO_REF ) psp_info->slot );
+    return ProfileSystem::get().isValidProfileID((PRO_REF)psp_info->slot);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2320,7 +2320,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             local_index = -1;
             for ( size_t tnc = 0; tnc < ImportList.count; tnc++ )
             {
-                if ( pobject->profile_ref <= import_data.max_slot && _profileSystem.isValidProfileID( pobject->profile_ref ) )
+                if (pobject->profile_ref <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->profile_ref))
                 {
                     int islot = REF_TO_INT( pobject->profile_ref );
 
@@ -2426,7 +2426,7 @@ void activate_spawn_file_vfs()
             for (profileSlot = 1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER; profileSlot < INVALID_PRO_REF; ++profileSlot)
             {
                 //don't try to grab loaded profiles
-                if (_profileSystem.isValidProfileID(profileSlot)) continue;
+                if (ProfileSystem::get().isValidProfileID(profileSlot)) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
                 if(reservedSlots[profileSlot] == spawnName) {
@@ -2469,7 +2469,7 @@ void activate_spawn_file_vfs()
             }
 
             // If nothing is already in that slot, try to load it.
-            if ( !_profileSystem.isValidProfileID(spawnInfo.slot) )
+            if (!ProfileSystem::get().isValidProfileID(spawnInfo.slot))
             {
                 bool import_object = spawnInfo.slot > (PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER);
 
@@ -2513,7 +2513,7 @@ void game_reset_module_data()
 
     // unload a lot of data
     reset_teams();
-    _profileSystem.reset();
+    ProfileSystem::get().reset();
     free_all_objects();
     DisplayMsg_reset();
     game_reset_players();
@@ -2701,7 +2701,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     if ( !_gameObjects.exists( character ) ) return 0;
     pchr = _gameObjects.get( character );
 
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
     amount = profile->getAttachedParticleAmount();
     if ( 0 == amount ) return 0;
@@ -2860,7 +2860,7 @@ void game_release_module_data()
 #endif
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
-    _profileSystem.reset();
+    ProfileSystem::get().reset();
 
     // delete the mesh data
     ego_mesh_t *ptmp = PMesh;
@@ -4294,7 +4294,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
     // check if they can be connected
     if ( !profile->canUsePlatforms() || ( 0 != pchr->flyheight ) ) return false;

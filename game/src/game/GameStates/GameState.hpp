@@ -27,20 +27,25 @@
 
 class GameState : public ComponentContainer
 {
+
 public:
-	GameState();
 
-	void endState();
+    GameState();
 
-	bool isEnded() const;
+    void endState();
 
-	virtual void update() = 0;
+    bool isEnded() const;
 
-	virtual void beginState();
+    virtual void update() = 0;
+
+    virtual void beginState();
 
 protected:
-	virtual void drawContainer() override = 0;
+
+    virtual void drawContainer() override = 0;
 
 private:
-	bool _terminateStateRequested;
+
+    bool _terminateStateRequested;
+
 };

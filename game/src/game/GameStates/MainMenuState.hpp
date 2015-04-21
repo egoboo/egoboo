@@ -31,15 +31,15 @@ class Button;
 class MainMenuState : public GameState
 {
 public:
-	MainMenuState();
+    MainMenuState();
 
-	void update() override;
+    void update() override;
 
-	void beginState() override;
+    void beginState() override;
 
 protected:
-	void drawContainer() override;
+    void drawContainer() override;
 
 private:
-	std::forward_list<std::shared_ptr<Button>> _slidyButtons;
+    std::forward_list<std::shared_ptr<Button>> _slidyButtons;
 };

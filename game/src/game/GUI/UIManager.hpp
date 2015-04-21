@@ -30,57 +30,57 @@ namespace Ego { class Font; }
 class UIManager
 {
 public:
-	UIManager();
+    UIManager();
 
-	~UIManager();
+    ~UIManager();
 
-	/**
-	* @return
-	*	The default rendering Font for the GUI system
-	**/
+    /**
+     * @return
+     *  The default rendering Font for the GUI system
+     */
     std::shared_ptr<Ego::Font> getDefaultFont() const;
 
-	/**
-	* @return
-	*	The default rendering Font for in-game floating texts
-	**/
-	std::shared_ptr<Ego::Font> getFloatingTextFont() const;
+    /**
+     * @return
+     *  The default rendering Font for in-game floating texts
+     */
+    std::shared_ptr<Ego::Font> getFloatingTextFont() const;
 
-	/**
-	* @return
-	*	The default debug Font for the GUI system
-	**/
-	std::shared_ptr<Ego::Font> getDebugFont() const;
+    /**
+     * @return
+     *  The default debug Font for the GUI system
+     */
+    std::shared_ptr<Ego::Font> getDebugFont() const;
 
-	/**
-	* @return
-	*	Current screen resolution width
-	**/
-	int getScreenWidth() const;
+    /**
+     * @return
+     *   Current screen resolution width
+     */
+    int getScreenWidth() const;
 
-	/**
-	* @return
-	*	Current screen resolution height
-	**/
-	int getScreenHeight() const;
+    /**
+     * @return
+     *   Current screen resolution height
+     */
+    int getScreenHeight() const;
 
-	/**
-	* @brief
-	*	Used by the ComponentContainer before rendering GUI components
-	**/
-	void beginRenderUI();
+    /**
+     * @brief
+     *  Used by the ComponentContainer before rendering GUI components
+     */
+    void beginRenderUI();
 
-	/**
-	* @brief
-	* 	Tell the rendering system we are finished drawing GUI components
-	**/
-	void endRenderUI();
+    /**
+     * @brief
+     *   Tell the rendering system we are finished drawing GUI components
+     */
+    void endRenderUI();
 
-	/**
-	* @brief
-	*	Convinience function to draw a 2D image
-	**/
-	void drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    /**
+     * @brief
+     *  Convinience function to draw a 2D image
+     */
+    void drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
 
     //Disable copying class
@@ -88,9 +88,9 @@ public:
     UIManager& operator=(const UIManager&) = delete;
 
 private:
-	std::shared_ptr<Ego::Font> _defaultFont;
+    std::shared_ptr<Ego::Font> _defaultFont;
     std::shared_ptr<Ego::Font> _floatingTextFont;
-	std::shared_ptr<Ego::Font> _debugFont;
-	int _renderSemaphore;
+    std::shared_ptr<Ego::Font> _debugFont;
+    int _renderSemaphore;
 };
 

@@ -35,29 +35,16 @@
 
 //Globals
 pro_import_t import_data;
-ProfileSystem _profileSystem;
 
 static const std::shared_ptr<ObjectProfile> NULL_PROFILE = nullptr;
 
 
 ProfileSystem::ProfileSystem() :
-    _initialized(false),
     _bookIcons(),
     _profilesLoaded(),
     _moduleProfilesLoaded(),
     _loadPlayerList()
 {
-    //ctor
-}
-
-bool ProfileSystem::initialize()
-{
-    if (_initialized)
-    {
-        log_warning("%s:%d: profile system already initialized - ignoring\n", __FILE__, __LINE__);
-        return true;
-    }
-
     // Initialize the particle and enchant profile system.
     PipStack.initialize();
     EveStack.initialize();
@@ -74,18 +61,11 @@ bool ProfileSystem::initialize()
     // something that is used in the game that is somewhat related to the profile stuff
     init_slot_idsz();
 
-    // let the code know that everything is initialized
-    _initialized = true;
-
-    return true;
 }
 
-void ProfileSystem::uninitialize()
+
+ProfileSystem::~ProfileSystem()
 {
-    if (!_initialized)
-    {
-        log_warning("%s:%d: profile system not initialized - ignoring\n", __FILE__, __LINE__);
-    }
     // Reset all profiles.
     reset();
 
@@ -101,8 +81,6 @@ void ProfileSystem::uninitialize()
 
     // Clear the book icons.
     _bookIcons.clear();
-
-    _initialized = false;
 }
 
 void ProfileSystem::reset()
@@ -112,6 +90,9 @@ void ProfileSystem::reset()
 
     // Release the allocated data in all profiles (sounds, textures, etc.).
     _profilesLoaded.clear();
+
+    // Release list of loadable characters.
+    _loadPlayerList.clear();
 
     // Reset particle, enchant and models.
     PipStack.reset();

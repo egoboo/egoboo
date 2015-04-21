@@ -185,7 +185,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     has_enchant = false;
     if ( ppip->spawnenchant )
     {
-        has_enchant = LOADED_EVE( _profileSystem.pro_get_ieve(pprt->profile_ref) );
+        has_enchant = LOADED_EVE(ProfileSystem::get().pro_get_ieve(pprt->profile_ref));
     }
 
     // any possible damage?

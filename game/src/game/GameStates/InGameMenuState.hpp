@@ -31,17 +31,23 @@ class PlayingState;
 
 class InGameMenuState : public GameState
 {
+
 public:
-	InGameMenuState(PlayingState *playingState);
 
-	void update() override;
+    InGameMenuState(PlayingState *playingState);
 
-	void beginState() override;
+    void update() override;
+
+    void beginState() override;
 
 protected:
-	void drawContainer() override;
+
+    void drawContainer() override;
 
 private:
-	std::forward_list<std::shared_ptr<Button>> _slidyButtons;
-	PlayingState *_playingState;
+
+    std::forward_list<std::shared_ptr<Button>> _slidyButtons;
+
+    PlayingState *_playingState;
+
 };

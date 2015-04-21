@@ -36,8 +36,8 @@ const uint8_t ModuleProfile::RESPAWN_ANYTIME;
 static const size_t SUMMARYLINES = 8;
 
 ModuleProfile::ModuleProfile() :
-	_loaded(false),
-	_name("*UNKNOWN*"),
+    _loaded(false),
+    _name("*UNKNOWN*"),
     _rank(0),
     _reference(),
     _importAmount(1),
@@ -45,12 +45,12 @@ ModuleProfile::ModuleProfile() :
     _minPlayers(0),
     _maxPlayers(0),
     _respawnValid(false),
-	_summary(),
+    _summary(),
     _unlockQuest(),
     _moduleType(FILTER_SIDE_QUEST),
     _beaten(false),
-	_icon(),
-	_vfsPath(_name),
+    _icon(),
+    _vfsPath(_name),
     _folderName(_name)
 {
     //ctor

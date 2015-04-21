@@ -31,20 +31,20 @@ class LoadPlayerElement;
 class SelectCharacterState : public GameState
 {
 public:
-	/**
-	* @brief
-	*	Constructor for the SelectCharacterState
-	* @param selectedCharacter
-	*	Reference to the current selected character by the current selecting player. This can be nullptr if the current selected player
-	*   has not picked a Character yet. This reference is modified by this GameState to determine which Character is actually picked by
-	*   the current player. Note that it is *not* const, which means it is mutable by intention.
-	**/
-	SelectCharacterState(std::shared_ptr<LoadPlayerElement> &selectedCharacter);
+    /**
+     * @brief
+     *  Constructor for the SelectCharacterState
+     * @param selectedCharacter
+     *  Reference to the current selected character by the current selecting player. This can be nullptr if the current selected player
+     *   has not picked a Character yet. This reference is modified by this GameState to determine which Character is actually picked by
+     *   the current player. Note that it is *not* const, which means it is mutable by intention.
+     */
+    SelectCharacterState(std::shared_ptr<LoadPlayerElement> &selectedCharacter);
 
-	void update() override;
+    void update() override;
 
-	void beginState() override;
+    void beginState() override;
 
 protected:
-	void drawContainer() override;
+    void drawContainer() override;
 };

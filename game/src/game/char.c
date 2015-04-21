@@ -900,7 +900,7 @@ void reset_character_alpha( const CHR_REF character )
 
             ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
-            if ( _profileSystem.isValidProfileID( ipro ) )
+            if (ProfileSystem::get().isValidProfileID(ipro))
             {
                 enc_apply_set(ienc_now, eve_t::SETALPHABLEND, ipro);
                 enc_apply_set(ienc_now, eve_t::SETLIGHTBLEND, ipro);
@@ -2633,7 +2633,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
 
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(profileRef);
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(profileRef);
     if (!profile) return;
 
     origin = pchr->ai.owner;
@@ -2673,7 +2673,7 @@ Object * chr_config_do_init( Object * pchr )
     spawn_ptr = &( pchr->spawn_data );
 
     // get a pointer to the character profile
-    std::shared_ptr<ObjectProfile> ppro = _profileSystem.getProfile( spawn_ptr->profile );
+    std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(spawn_ptr->profile);
     if ( NULL == ppro )
     {
         log_debug( "chr_config_do_init() - cannot initialize character.\n" );
@@ -2867,7 +2867,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     // fix a "bad" name
     if ( NULL == name ) name = "";
 
-    if ( !_profileSystem.isValidProfileID( profile ) )
+    if (!ProfileSystem::get().isValidProfileID(profile))
     {
         if ( profile > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
@@ -2875,7 +2875,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
         }
         return INVALID_CHR_REF;
     }
-    std::shared_ptr<ObjectProfile> ppro = _profileSystem.getProfile( profile );
+    std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(profile);
 
     // count all the requests for this character type
     ppro->requestCount++;
@@ -2932,7 +2932,7 @@ void respawn_character( const CHR_REF character )
         return;
     }
 
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
     old_attached_prt_count = number_of_attached_particles( character );
 
@@ -3020,7 +3020,7 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 
     ppro = chr_get_ppro( character );
 
-    pmad = _profileSystem.pro_get_pmad( pchr->profile_ref );
+    pmad = ProfileSystem::get().pro_get_pmad(pchr->profile_ref);
     if ( NULL == pmad )
     {
         // make sure that the instance has a valid imad
@@ -3116,7 +3116,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Change the skin
-    std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( pchr->profile_ref );
+    std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
     loc_skin = chr_change_skin( character, loc_skin );
 
     const SkinInfo &skinInfo = profile->getSkinInfo(loc_skin);
@@ -3147,9 +3147,9 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
 
         ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
-        if ( _profileSystem.isValidProfileID( ipro ) )
+        if (ProfileSystem::get().isValidProfileID(ipro))
         {
-            EVE_REF ieve = _profileSystem.pro_get_ieve( ipro );
+            EVE_REF ieve = ProfileSystem::get().pro_get_ieve(ipro);
 
             enc_apply_set(ienc_now, eve_t::SETSLASHMODIFIER, ipro);
             enc_apply_set(ienc_now, eve_t::SETCRUSHMODIFIER, ipro);
@@ -3189,9 +3189,9 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
 
     MAD_REF imad_old, imad_new;
 
-    if ( !_profileSystem.isValidProfileID( profile ) ) return;
+    if (!ProfileSystem::get().isValidProfileID(profile)) return;
 
-    imad_new = _profileSystem.getProfile( profile )->getModelRef();
+    imad_new = ProfileSystem::get().getProfile(profile)->getModelRef();
     if ( !LOADED_MAD( imad_new ) ) return;
 
     imad_old = chr_get_imad( ichr );
@@ -3288,17 +3288,17 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
     int old_attached_prt_count, new_attached_prt_count;
 
-    if ( !_profileSystem.isValidProfileID( profile_new ) || !_gameObjects.exists( ichr ) ) return;
+    if (!ProfileSystem::get().isValidProfileID(profile_new) || !_gameObjects.exists(ichr)) return;
     pchr = _gameObjects.get( ichr );
 
     old_attached_prt_count = number_of_attached_particles( ichr );
 
-    std::shared_ptr<ObjectProfile> newProfile = _profileSystem.getProfile( profile_new );
+    std::shared_ptr<ObjectProfile> newProfile = ProfileSystem::get().getProfile(profile_new);
     if(!newProfile) {
         return;
     }
 
-    pmad_new = _profileSystem.pro_get_pmad( profile_new );
+    pmad_new = ProfileSystem::get().pro_get_pmad(profile_new);
 
     // Drop left weapon
     const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
@@ -5252,7 +5252,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                     {
                         float loc_bumpdampen;
    
-                        loc_bumpdampen = _profileSystem.getProfile(pchr->profile_ref)->getBumpDampen();
+                        loc_bumpdampen = ProfileSystem::get().getProfile(pchr->profile_ref)->getBumpDampen();
 
                         v_perp.x = v_perp.y = 0.0f;
                         if ( 0.0f != nrm2 )
@@ -5358,7 +5358,7 @@ bool chr_handle_madfx( Object * pchr )
     //Do footfall sound effect
     if (egoboo_config_t::get().sound_footfallEffects_enable.getValue() && HAS_SOME_BITS(framefx, MADFX_FOOTFALL))
     {
-        AudioSystem::get().playSound(pchr->getPosition(), _profileSystem.getProfile(pchr->profile_ref)->getFootFallSound());
+        AudioSystem::get().playSound(pchr->getPosition(), ProfileSystem::get().getProfile(pchr->profile_ref)->getFootFallSound());
     }
 
     return true;
@@ -6088,7 +6088,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
     if ( !_gameObjects.exists( ichr ) ) return buffer;
     pchr = _gameObjects.get( ichr );
 
-    if ( !_profileSystem.isValidProfileID( pchr->profile_ref ) )
+    if (!ProfileSystem::get().isValidProfileID(pchr->profile_ref))
     {
         char * sztmp;
 
@@ -6105,7 +6105,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
     }
     else
     {
-        std::shared_ptr<ObjectProfile> ppro = _profileSystem.getProfile( pchr->profile_ref );
+        std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(pchr->profile_ref);
 
         // copy the character's data.txt path
         strncpy( buffer, ppro->getFilePath().c_str(), SDL_arraysize( buffer ) );
@@ -6147,7 +6147,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
         oct_bb_t::ctor( &pchr->slot_cv[cnt] );
     }
 
-    std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( pchr->profile_ref );
+    std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
     pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if ( NULL == pmad ) return rv_error;
@@ -6379,7 +6379,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     }
     else
     {
-        return _profileSystem.getSpellBookIcon(itemProfile->getSpellEffectType());
+        return ProfileSystem::get().getSpellBookIcon(itemProfile->getSpellEffectType());
     }
 }
 
@@ -6426,7 +6426,7 @@ Object * chr_update_hide( Object * pchr )
     if ( nullptr == ( pchr ) ) return pchr;
 
     pchr->is_hidden = false;
-    int8_t hideState = _profileSystem.getProfile(pchr->profile_ref)->getHideState();
+    int8_t hideState = ProfileSystem::get().getProfile(pchr->profile_ref)->getHideState();
     if ( hideState != NOHIDE && hideState == pchr->ai.state )
     {
         pchr->is_hidden = true;
@@ -7198,7 +7198,7 @@ bool chr_can_see_dark( const Object * pchr, const Object * pobj )
     // Scenery, spells and quest objects can always see through darkness
     // Checking pchr->invictus is not enough, since that could be temporary
     // and not indicate the appropriate objects
-    if( _profileSystem.getProfile(pchr->profile_ref)->isInvincible() ) {
+    if (ProfileSystem::get().getProfile(pchr->profile_ref)->isInvincible()) {
         return true;
     }
 
@@ -7251,7 +7251,7 @@ int chr_get_price( const CHR_REF ichr )
         iskin = pchr->skin;
     }
 
-    std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile(slotNumber);
+    std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(slotNumber);
     if(!profile) {
         return 0;
     }
@@ -7758,7 +7758,7 @@ bool chr_heal_mad( Object * pchr )
     if ( LOADED_MAD( pinst->imad ) ) return true;
 
     // get whatever mad index the profile says to use
-    imad_tmp = _profileSystem.getProfile( pchr->profile_ref )->getModelRef();
+    imad_tmp = ProfileSystem::get().getProfile(pchr->profile_ref)->getModelRef();
 
     // set the mad index to whatever the profile says, even if it is wrong,
     // since we know that our current one is invalid
@@ -8003,7 +8003,7 @@ PRO_REF chr_get_ipro( const CHR_REF ichr )
     if ( !_gameObjects.exists( ichr ) ) return INVALID_PRO_REF;
     pchr = _gameObjects.get( ichr );
 
-    if ( !_profileSystem.isValidProfileID( pchr->profile_ref ) ) return INVALID_PRO_REF;
+    if (!ProfileSystem::get().isValidProfileID(pchr->profile_ref)) return INVALID_PRO_REF;
 
     return pchr->profile_ref;
 }
@@ -8045,12 +8045,12 @@ ObjectProfile * chr_get_ppro( const CHR_REF ichr )
     Object * pchr = _gameObjects.get( ichr );
 
     //This function should -never- return nullptr
-    if(!_profileSystem.isValidProfileID(pchr->profile_ref)) {
+    if (!ProfileSystem::get().isValidProfileID(pchr->profile_ref)) {
         //throw error
         return nullptr;
     }
 
-    return _profileSystem.getProfile(pchr->profile_ref).get();
+    return ProfileSystem::get().getProfile(pchr->profile_ref).get();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8138,7 +8138,7 @@ bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 
     // not vulnerable if there is no specific weakness
     if ( IDSZ_NONE == vulnie ) return false;
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(test_profile);
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(test_profile);
     if (nullptr == profile) return false;
 
     // check vs. every IDSZ that could have something to do with attacking

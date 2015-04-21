@@ -1019,7 +1019,7 @@ void draw_chr_grips( Object * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
+    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
     pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if ( NULL == pmad ) return;
@@ -2150,7 +2150,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     // clear the instance
     chr_instance_ctor( pinst );
 
-    const std::shared_ptr<ObjectProfile> &pobj = _profileSystem.getProfile( profile );
+    const std::shared_ptr<ObjectProfile> &pobj = ProfileSystem::get().getProfile(profile);
     if(!pobj) {
         return gfx_fail;
     }
