@@ -6180,18 +6180,19 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
 {
     static const int sub_textures = 8;
     size_t cnt = tx_lst_cnt;
-    if (!src_tx)
+    if (!src_tx || !src_tx->surface)
     {
         // the source image doesn't exist, so punt
-        goto gfx_decimate_one_mesh_texture_error;
+        for (; cnt < tx_lst_cnt + sub_textures*sub_textures; ++cnt)
+        {
+            oglx_texture_t::release(&(tx_lst[cnt]));
+        }
+        
+        return cnt;
     }
 
     // make an alias for the texture's SDL_Surface
     SDL_Surface *src_img = src_tx->surface;
-    if (!src_img)
-    {
-        goto gfx_decimate_one_mesh_texture_error;
-    }
 
     // grab parameters from the mesh
     int src_img_w = src_img->w;
@@ -6243,17 +6244,6 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
             // count the number of textures we're using
             cnt++;
         }
-    }
-
-    return cnt;
-
-gfx_decimate_one_mesh_texture_error:
-
-    // One source texture does not exist. Stop at the texture which does not exist
-    // and blank out the remaining destination textures
-    for (; cnt < tx_lst_cnt + sub_textures*sub_textures; ++cnt)
-    {
-        oglx_texture_t::release(&(tx_lst[tx_lst_cnt]));
     }
 
     return cnt;

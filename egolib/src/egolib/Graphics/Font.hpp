@@ -30,7 +30,7 @@ struct oglx_texture_t;
 
 namespace Ego
 {
-    class Font final
+    class Font final : public Ego::Core::NonCopyable
     {
     public:
         Font(const std::string &fileName, int pointSize);

@@ -57,7 +57,7 @@ protected:
 
     // Befriend with singleton to grant access to ProfileSystem::ProfileSystem and ProfileSystem::~ProfileSystem.
     using TheSingleton = Ego::Core::Singleton < ProfileSystem > ;
-    friend class TheSingleton;
+    friend TheSingleton;
 
     ProfileSystem();
 

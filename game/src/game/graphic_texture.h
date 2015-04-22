@@ -82,7 +82,7 @@ struct TextureManager : public Ego::Core::Singleton <TextureManager>
 protected:
     // Befriend with the singleton to grant access to TextureManager::~TextureManager.
     using TheSingleton = Ego::Core::Singleton<TextureManager>;
-    friend class TheSingleton;
+    friend TheSingleton;
 
     /**
      * @brief

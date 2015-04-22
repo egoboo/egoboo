@@ -162,10 +162,10 @@ class Renderer : public Ego::Core::Singleton<Renderer,RendererFactory>
 protected:
     // Befriend with the singleton to grant access to Renderer::~Renderer.
     using TheSingleton = Ego::Core::Singleton<Renderer, RendererFactory>;
-    friend class TheSingleton;
+    friend TheSingleton;
     // Befriend with the factory to grant access to Renderer::Renderer.
     using TheFactory = RendererFactory;
-    friend class RendererFactory;
+    friend RendererFactory;
 
     /**
      * @brief

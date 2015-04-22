@@ -40,7 +40,7 @@ int sys_fs_init(const char *root_path)
     if (rootBundle == nil) rootBundle = [NSBundle mainBundle];
     if (rootBundle == nil)
     {
-        fprintf(stderr, "neither root_path nor [NSBundle mainBundle] gave a valid NSBundle!");
+        NSLog(@"neither root_path nor [NSBundle mainBundle] gave a valid NSBundle!");
         return 1;
     }
     
