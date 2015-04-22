@@ -271,7 +271,7 @@ int lua_console_print( lua_State * L )
         {
             return SDL_FALSE;
         }
-        if ( i > 1 ) egolib_console_t::print(ego_con, "    ", stdout);
+        if ( i > 1 ) egolib_console_t::print(ego_con, "    ");
         egolib_console_t::print(ego_con, "%s", s);
         lua_pop( L, 1 );  /* pop result */
     }

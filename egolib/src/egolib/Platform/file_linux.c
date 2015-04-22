@@ -55,7 +55,7 @@ extern int sys_fs_init(const char *root_dir);
 // Paths that the game will deal with
 static char _binaryPath[PATH_MAX]   = EMPTY_CSTR;
 static char _dataPath[PATH_MAX]     = EMPTY_CSTR;
-static char _userdataPath[PATH_MAX] = EMPTY_CSTR;
+static char _userPath[PATH_MAX] = EMPTY_CSTR;
 static char _configPath[PATH_MAX]   = EMPTY_CSTR;
 
 struct s_linux_find_context
@@ -98,11 +98,11 @@ int sys_fs_init(const char *root_dir)
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout
-    printf("game directories are:\n"
-           "\tbinarys: %s\n"
-           "\tdata: %s\n"
-           "\tuser: %s\n"
-           "\tconfiguration: %s\n",
+    printf("Game directories are:\n"
+           "\tBinaries: %s\n"
+           "\tData: %s\n"
+           "\tUser: %s\n"
+           "\tConfiguration: %s\n",
            _binaryPath, _dataPath, _userPath, _configPath);
 
     if (!fs_fileIsDirectory(_userPath))
@@ -179,19 +179,19 @@ bool fs_copyFile(const char *source, const char *dest)
 
     // Open source file descriptor.
     FILE *sourcefd = fopen(source, "rb");
-    if (!sourcef)
+    if (!sourcefd)
     {
         return false;
     }
     // Open target file descriptor.
-    FILE *targetfd = fopen(target, "wb");
+    FILE *targetfd = fopen(dest, "wb");
     if (!targetfd)
     {
         fclose(sourcefd);
         return false;
     }
     // Read Bytes from the target source file and write them into the target file.
-    while ((bytes_read = fread(buf, 1, sizeof(buf), sourcef)))
+    while ((bytes_read = fread(buf, 1, sizeof(buf), sourcefd)))
     {
         fwrite(buf, 1, bytes_read, targetfd);
     }
@@ -204,13 +204,12 @@ bool fs_copyFile(const char *source, const char *dest)
 const char *fs_findFirstFile(const char *directory, const char *extension, fs_find_context_t *fs_search)
 {
     char pattern[PATH_MAX] = EMPTY_CSTR;
-    char *last_slash;
 
     if (INVALID_CSTR(directory) || NULL == fs_search)
     {
         return NULL;
     }
-    linux_find_context *pcnt = EGOBOO_NEW(linux_find_context_t);
+    linux_find_context_t *pcnt = EGOBOO_NEW(linux_find_context_t);
     fs_search->type = linux_find;
     fs_search->ptr.l = pcnt;
 
