@@ -22,63 +22,65 @@
 
 namespace Ego
 {
-    namespace Script
+namespace Script
+{
+
+using namespace std;
+
+/**
+ * @brief
+ *  An exception for generic lexical errors.
+ * @author
+ *  Michael Heilmann
+ */
+class LexicalError : public AbstractLexicalError
+{
+
+private:
+
+    /**
+     * @brief
+     *  A message describing the error.
+     */
+    string _message;
+
+public:
+
+    /**
+     * @brief
+     *  Construct this exception.
+     * @param file
+     *  the C++ source file name associated with this error
+     * @param line
+     *  the line within the C++ source file associated with this error
+     * @param location
+     *  the location associated with this error
+     *  the load name of the file associated with this error
+     * @param message
+     *  a message describing the error
+     */
+    LexicalError(const char *file, int line, const Location& location, const string& message) :
+        AbstractLexicalError(file, line, location), _message(message)
+    {}
+
+    /**
+     * @brief
+     *  Overloaded cast to std::string operator.
+     * @return
+     *  the result of the cast
+     */
+    operator string() const override
     {
-        using namespace std;
-
-        /**
-         * @brief
-         *  An exception for generic lexical errors.
-         * @author
-         *  Michael Heilmann
-         */
-        class LexicalError : public AbstractLexicalError
-        {
-
-        private:
-
-            /**
-             * @brief
-             *  A message describing the error.
-             */
-            string _message;
-
-        public:
-
-            /**
-             * @brief
-             *  Construct this exception.
-             * @param file
-             *  the C++ source file name associated with this error
-             * @param line
-             *  the line within the C++ source file associated with this error
-             * @param location
-             *  the location associated with this error
-             *  the load name of the file associated with this error
-             * @param message
-             *  a message describing the error
-             */
-            LexicalError(const char *file, int line, const Location& location, const string& message) :
-                AbstractLexicalError(file, line, location), _message(message)
-            {}
-
-            /**
-             * @brief
-             *  Overloaded cast to std::string operator.
-             * @return
-             *  the result of the cast
-             */
-            operator string() const override
-            {
-                ostringstream o;
-                writeLocation(o);
-                o << " - "
-                    << "lexical error: "
-                    << _message;
-                ;
-                return o.str();
-            }
-
-        };
+        ostringstream o;
+        writeLocation(o);
+        o << " - "
+            << "lexical error: "
+            << _message;
+        ;
+        return o.str();
     }
-}
+
+};
+
+} // namespace Script
+} // namespace Ego

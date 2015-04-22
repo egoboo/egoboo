@@ -23,52 +23,52 @@
 
 namespace Ego
 {
-    namespace Script
+namespace Script
+{
+using namespace std;
+
+/**
+ * @brief
+ *  An exception to indicate a missing delimiter lexical error.
+ * @author
+ *  Michael Heilmann
+ */
+class MissingDelimiterError : public AbstractLexicalError
+{
+
+private:
+
+    /**
+     * @brief
+     *  The expected delimiter.
+     */
+    char _delimiter;
+
+public:
+
+    /**
+     * @brief
+     *  Construct a missing delimiter error.
+     * @param file, line, location
+     *  see documentation of Ego::Script::LexicalError(const char *,int,const Ego::Script::Location&)
+     * @param delimiter
+     *  the expected delimiter
+     */
+    MissingDelimiterError(const char *file, int line, const Location& location, char delimiter) :
+        AbstractLexicalError(file, line, location), _delimiter(delimiter)
+    {}
+
+    operator string() const override
     {
-        using namespace std;
-
-        /**
-         * @brief
-         *  An exception to indicate a missing delimiter lexical error.
-         * @author
-         *  Michael Heilmann
-         */
-        class MissingDelimiterError : public AbstractLexicalError
-        {
-
-        private:
-
-            /**
-             * @brief
-             *  The expected delimiter.
-             */
-            char _delimiter;
-
-        public:
-
-            /**
-             * @brief
-             *  Construct a missing delimiter error.
-             * @param file, line, location
-             *  see documentation of Ego::Script::LexicalError(const char *,int,const Ego::Script::Location&)
-             * @param delimiter
-             *  the expected delimiter
-             */
-            MissingDelimiterError(const char *file, int line, const Location& location, char delimiter) :
-                AbstractLexicalError(file, line, location), _delimiter(delimiter)
-            {}
-
-            operator string() const override
-            {
-                std::ostringstream o;
-                writeLocation(o);
-                o << " - "
-                    << "missing delimiter `" << _delimiter << "`"
-                    ;
-                return o.str();
-            }
-
-        };
-
+        std::ostringstream o;
+        writeLocation(o);
+        o << " - "
+            << "missing delimiter `" << _delimiter << "`"
+            ;
+        return o.str();
     }
-}
+
+};
+
+} // namespace Script
+} // namespace Ego

@@ -175,5 +175,6 @@ public:
     }
 
 };
+
 } // namespace Script
 } // namespace Ego

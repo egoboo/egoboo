@@ -169,6 +169,7 @@ public:
         // As the string is was not empty, the argument string must represent a valid qualified name if this point is reached.
     }
 };
+
 } // namespace Script
 } // namespace Ego
 

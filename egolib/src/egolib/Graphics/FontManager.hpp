@@ -43,4 +43,5 @@ private:
     FontManager() = delete;
     ~FontManager() = delete;
 };
-}
+
+} // namespace Ego

@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Colour3.h
-/// @brief Colours in RGB colour space.
+/// @file   egolib/Math/Colour3.h
+/// @brief  Colours in RGB colour space.
+/// @author Michael Heilmann
 
 #pragma once
 

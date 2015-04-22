@@ -17,7 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Colour4f.cpp
-/// @brief Colours in RGBA colour space.
+/// @file   egolib/Math/Colour4f.cpp
+/// @brief  Colours in RGBA colour space.
+/// @author Michael Heilmann
 
 #include "egolib/Math/Colour4f.hpp"

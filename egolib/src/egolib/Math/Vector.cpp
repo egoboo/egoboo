@@ -17,8 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Vector.cpp
-/// @brief 2-,3- and 4-dimensional vectors.
+/// @file   egolib/Math/Vector.cpp
+/// @brief  2-,3- and 4-dimensional vectors.
+/// @author Michael Heilmann et al.
+
 #include "egolib/Math/Vector.hpp"
 #include "egolib/log.h"
 #include "egolib/_math.h"
@@ -31,17 +33,17 @@ const fvec4_t fvec4_t::zero(0.0f, 0.0f, 0.0f, 0.0f);
 
 fvec2_t operator-(const fvec2_t& v)
 {
-	return fvec2_t(-v.x, -v.y);
+    return fvec2_t(-v.x, -v.y);
 }
 
 fvec3_t operator-(const fvec3_t& v)
 {
-	return fvec3_t(-v.x, -v.y, -v.z);
+    return fvec3_t(-v.x, -v.y, -v.z);
 }
 
 fvec4_t operator-(const fvec4_t& v)
 {
-	return fvec4_t(-v.x, -v.y, -v.z, -v.w);
+    return fvec4_t(-v.x, -v.y, -v.z, -v.w);
 }
 
 #ifdef _DEBUG
@@ -108,52 +110,52 @@ namespace Ego
 //--------------------------------------------------------------------------------------------
 void fvec3_ctor(fvec3_t& v)
 {
-	v[kX] = v[kY] = v[kZ] = 0.0f;
+    v[kX] = v[kY] = v[kZ] = 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------
 void fvec3_dtor(fvec3_t& v)
 {
-	v[kX] = v[kY] = v[kZ] = 0.0f;
+    v[kX] = v[kY] = v[kZ] = 0.0f;
 }
 //--------------------------------------------------------------------------------------------
 float fvec3_decompose(const fvec3_t& A, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp)
 {
-	/// @author BB
-	/// @details the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
+    /// @author BB
+    /// @details the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
 
-	float dot;
+    float dot;
 
-	// if this is true, there is no reason to run this function
-	dot = A.dot(vnrm);
+    // if this is true, there is no reason to run this function
+    dot = A.dot(vnrm);
 
-	if (0.0f == dot)
-	{
-		{
-			vpara[kX] = 0.0f;
-			vpara[kY] = 0.0f;
-			vpara[kZ] = 0.0f;
+    if (0.0f == dot)
+    {
+        {
+            vpara[kX] = 0.0f;
+            vpara[kY] = 0.0f;
+            vpara[kZ] = 0.0f;
 
-			vperp[kX] = A[kX];
-			vperp[kY] = A[kY];
-			vperp[kZ] = A[kZ];
-		}
-	}
-	else
-	{
-		{
-			vpara[kX] = dot * vnrm[kX];
-			vpara[kY] = dot * vnrm[kY];
-			vpara[kZ] = dot * vnrm[kZ];
+            vperp[kX] = A[kX];
+            vperp[kY] = A[kY];
+            vperp[kZ] = A[kZ];
+        }
+    }
+    else
+    {
+        {
+            vpara[kX] = dot * vnrm[kX];
+            vpara[kY] = dot * vnrm[kY];
+            vpara[kZ] = dot * vnrm[kZ];
 
-			vperp[kX] = A[kX] - vpara[kX];
-			vperp[kY] = A[kY] - vpara[kY];
-			vperp[kZ] = A[kZ] - vpara[kZ];
+            vperp[kX] = A[kX] - vpara[kX];
+            vperp[kY] = A[kY] - vpara[kY];
+            vperp[kZ] = A[kZ] - vpara[kZ];
 
-		}
-	}
+        }
+    }
 
-	return dot;
+    return dot;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -170,26 +172,26 @@ float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v)
 //--------------------------------------------------------------------------------------------
 bool fvec4_self_clear(fvec4_base_t v)
 {
-	if (nullptr == v)
-	{
-		return false;
-	}
-	v[kX] = v[kY] = v[kZ] = 0.0f;
-	v[kW] = 1.0f;
+    if (nullptr == v)
+    {
+        return false;
+    }
+    v[kX] = v[kY] = v[kZ] = 0.0f;
+    v[kW] = 1.0f;
 
-	return true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
 bool fvec4_self_scale(fvec4_base_t v, const float s)
 {
-	if (nullptr == v)
-	{
-		return false;
-	}
-	v[kX] *= s;
-	v[kY] *= s;
-	v[kZ] *= s;
-	v[kW] *= s;
-	return true;
+    if (nullptr == v)
+    {
+        return false;
+    }
+    v[kX] *= s;
+    v[kY] *= s;
+    v[kZ] *= s;
+    v[kW] *= s;
+    return true;
 }

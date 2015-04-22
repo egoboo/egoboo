@@ -23,62 +23,63 @@
 
 namespace Ego
 {
-    namespace Script
+namespace Script
+{
+
+/**
+ * @brief
+ *  An exception for generic syntactical errors.
+ * @author
+ *  Michael Heilmann
+ */
+class SyntacticalError : public AbstractSyntacticalError
+{
+
+protected:
+
+    /**
+     * @brief
+     *  A message describing the errror.
+     */
+    string _message;
+
+public:
+
+    /**
+     * @brief
+     *  Construct this exception.
+     * @param file
+     *  the C++ source file name associated with this error
+     * @param line
+     *  the line within the C++ source file associated with this error
+     * @param location
+     *  the location associated with this error
+     *  the load name of the file associated with this error
+     * @param message
+     *  a message describing the error
+     */
+    SyntacticalError(const char *file, int line, const Location& location, const std::string& message) :
+        AbstractSyntacticalError(file, line, location), _message(message)
+    {}
+
+    /**
+     * @brief
+     *  Overloaded cast to std::string operator.
+     * @return
+     *  the result of the cast
+     */
+    operator string() const override
     {
-        /**
-         * @brief
-         *  An exception for generic syntactical errors.
-         * @author
-         *  Michael Heilmann
-         */
-        class SyntacticalError : public AbstractSyntacticalError
-        {
-
-        protected:
-
-            /**
-             * @brief
-             *  A message describing the errror.
-             */
-            string _message;
-
-        public:
-
-            /**
-             * @brief
-             *  Construct this exception.
-             * @param file
-             *  the C++ source file name associated with this error
-             * @param line
-             *  the line within the C++ source file associated with this error
-             * @param location
-             *  the location associated with this error
-             *  the load name of the file associated with this error
-             * @param message
-             *  a message describing the error
-             */
-            SyntacticalError(const char *file, int line, const Location& location, const std::string& message) :
-                AbstractSyntacticalError(file, line, location), _message(message)
-            {}
-
-            /**
-             * @brief
-             *  Overloaded cast to std::string operator.
-             * @return
-             *  the result of the cast
-             */
-            operator string() const override
-            {
-                ostringstream o;
-                writeLocation(o);
-                o << " - "
-                  << "syntactical error: "
-                  << _message;
-                  ;
-                return o.str();
-            }
-
-        };
-
+        ostringstream o;
+        writeLocation(o);
+        o << " - "
+            << "syntactical error: "
+            << _message;
+            ;
+        return o.str();
     }
-}
+
+};
+
+} // namespace Script
+} // namespace Ego

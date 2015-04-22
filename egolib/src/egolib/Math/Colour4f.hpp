@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Colour4f.h
-/// @brief Colours in RGBA colour space.
+/// @file   egolib/Math/Colour4f.h
+/// @brief  Colours in RGBA colour space.
+/// @author Michael Heilmann
 
 #pragma once
 

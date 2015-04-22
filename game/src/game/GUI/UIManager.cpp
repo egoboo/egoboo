@@ -19,22 +19,21 @@
 
 /// @file game/GUI/UIManager.cpp
 /// @details The UIManager contains utilities for the GUI system and stores various shared resources
-///		     and properties for GUIComponents.
+///             and properties for GUIComponents.
 /// @author Johan Jansen
 
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
-#include "game/graphic_texture.h"
 
 UIManager::UIManager() :
-	_defaultFont(nullptr),
+    _defaultFont(nullptr),
     _floatingTextFont(nullptr),
     _debugFont(nullptr),
-	_renderSemaphore(0)
+    _renderSemaphore(0)
 {
     Ego::FontManager::initialize();
-	_defaultFont = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
+    _defaultFont = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
     _floatingTextFont = Ego::FontManager::loadFont("mp_data/FrostysWinterland.ttf", 24);
     _debugFont = Ego::FontManager::loadFont("mp_data/DejaVuSansMono.ttf", 10);
 }
@@ -50,20 +49,20 @@ UIManager::~UIManager()
 
 void UIManager::beginRenderUI()
 {
-	//Handle recusive loops that trigger beginRenderUI
-	_renderSemaphore++;
-	if(_renderSemaphore > 1) {
-		return;
-	}
+    //Handle recusive loops that trigger beginRenderUI
+    _renderSemaphore++;
+    if(_renderSemaphore > 1) {
+        return;
+    }
 
-	// do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
+    // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
-	Ego::Renderer::get().setDepthTestEnabled(false);
+    Ego::Renderer::get().setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
-    oglx_end_culling();                                     				   // GL_ENABLE_BIT
+    oglx_end_culling();                                                        // GL_ENABLE_BIT
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                     // GL_ENABLE_BIT
 
@@ -84,8 +83,8 @@ void UIManager::beginRenderUI()
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	fmat_4x4_t projection = fmat_4x4_t::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
-	Ego::Renderer::get().loadMatrix(projection);
+    fmat_4x4_t projection = fmat_4x4_t::ortho(0.0f, getScreenWidth(), getScreenHeight(), 0.0f, -1.0f, +1.0f);
+    Ego::Renderer::get().loadMatrix(projection);
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
@@ -94,13 +93,13 @@ void UIManager::beginRenderUI()
 
 void UIManager::endRenderUI()
 {
-	//Handle recusive loops that trigger beginRenderUI
-	_renderSemaphore--;
-	if(_renderSemaphore > 0) {
-		return;
-	}
+    //Handle recusive loops that trigger beginRenderUI
+    _renderSemaphore--;
+    if(_renderSemaphore > 0) {
+        return;
+    }
 
-	// Restore the GL_PROJECTION matrix
+    // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPopMatrix )();
 
@@ -115,12 +114,12 @@ void UIManager::endRenderUI()
 
 int UIManager::getScreenWidth() const
 {
-	return SDL_GetVideoInfo()->current_w;
+    return SDL_GetVideoInfo()->current_w;
 }
 
 int UIManager::getScreenHeight() const
 {
-	return SDL_GetVideoInfo()->current_h;
+    return SDL_GetVideoInfo()->current_h;
 }
 
 void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint)

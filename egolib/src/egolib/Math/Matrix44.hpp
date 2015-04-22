@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file    egolib/Math/Matrix44.hpp
-/// @brief 4x4 matrices.
+/// @file   egolib/Math/Matrix44.hpp
+/// @brief  4x4 matrices.
+/// @author Michael Heilmann et al.
 #pragma once
 
 #include "egolib/_math.h"

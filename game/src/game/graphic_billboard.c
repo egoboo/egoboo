@@ -362,7 +362,7 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
     // do not display for objects that are mounted or being held
     if (IS_ATTACHED_CHR_RAW(pbb->ichr)) return false;
 
-	oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(pbb->tex_ref);
+    oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(pbb->tex_ref);
 
     oglx_texture_t::bind(ptex);
 
@@ -375,8 +375,8 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
     // scale the camera vectors
-	fvec3_t vec_rgt = cam_rgt * (w * scale * pbb->size);
-	fvec3_t vec_up  = cam_up  * (h * scale * pbb->size);
+    fvec3_t vec_rgt = cam_rgt * (w * scale * pbb->size);
+    fvec3_t vec_up  = cam_up  * (h * scale * pbb->size);
 
     GLvertex vtlist[4];
     // bottom left

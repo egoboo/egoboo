@@ -23,65 +23,66 @@
 
 namespace Ego
 {
-    namespace Script
+namespace Script
+{
+
+    using namespace std;
+
+/**
+ * @brief
+ *  An abstract lexical error exception.
+ * @author
+ *  Michael Heilmann
+ */
+class AbstractLexicalError : public Exception
+{
+
+private:
+
+    /**
+     * @brief
+     *  The location associated with this error.
+     */
+    Location _location;
+
+protected:
+
+    ostringstream& writeLocation(ostringstream& o) const
     {
-        using namespace std;
-        
-        /**
-         * @brief
-         *  An abstract lexical error exception.
-         * @author
-         *  Michael Heilmann
-         */
-        class AbstractLexicalError : public Exception
-        {
-
-        private:
-
-            /**
-            * @brief
-            *  The location associated with this error.
-            */
-            Location _location;
-
-        protected:
-
-            ostringstream& writeLocation(ostringstream& o) const
-            {
-                o << _location.getLoadName() << ": " << _location.getLineNumber()
-                  << " (raised in file " << getFile() << ", line " << getLine() << ")";
-                return o;
-            }
-
-            /**
-             * @brief
-             *  Construct this exception.
-             * @param file
-             *  the C++ source file name associated with this error
-             * @param line
-             *  the line within the C++ source file associated with this error
-             * @param location
-             *  the location associated with this error
-             *  the load name of the file associated with this error
-             */
-            AbstractLexicalError(const char *file, int line, const Location& location) :
-                Ego::Exception(file, line), _location(location)
-            {}
-
-        public:
-
-            /**
-             * @brief
-             *  Get the location associated with this error.
-             * @return
-             *  the location associated with this error
-             */
-            const Location& getLocation() const
-            {
-                return _location;
-            }
-
-        };
-
+        o << _location.getLoadName() << ": " << _location.getLineNumber()
+          << " (raised in file " << getFile() << ", line " << getLine() << ")";
+        return o;
     }
-}
+
+    /**
+     * @brief
+     *  Construct this exception.
+     * @param file
+     *  the C++ source file name associated with this error
+     * @param line
+     *  the line within the C++ source file associated with this error
+     * @param location
+     *  the location associated with this error
+     *  the load name of the file associated with this error
+     */
+    AbstractLexicalError(const char *file, int line, const Location& location) :
+        Ego::Exception(file, line), _location(location)
+    {}
+
+public:
+
+    /**
+     * @brief
+     *  Get the location associated with this error.
+     * @return
+     *  the location associated with this error
+     */
+    const Location& getLocation() const
+    {
+        return _location;
+    }
+
+};
+
+} // namespace Script
+} // namespace Ego

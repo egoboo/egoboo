@@ -17,7 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Colour3f.cpp
-/// @brief Colours in RGB colour space.
+/// @file   egolib/Math/Colour3f.cpp
+/// @brief  Colours in RGB colour space.
+/// @author Michael Heilmann
 
 #include "egolib/Math/Colour3f.hpp"

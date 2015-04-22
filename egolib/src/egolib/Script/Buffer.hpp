@@ -28,9 +28,9 @@ namespace Script
 
 /**
  * @brief
- *	A dynamically resizing buffer for bytes.
+ *  A dynamically resizing buffer for bytes.
  * @author
- *	Michael Heilmann
+ *  Michael Heilmann
  */
 class Buffer : public Ego::Core::NonCopyable
 {
@@ -133,10 +133,6 @@ public:
      */
     void append(char byte);
 
-
-    // Disable copying class.
-    Buffer(const Buffer&) = delete;
-    Buffer& operator=(const Buffer&) = delete;
 };
 
 } // namespace Script
