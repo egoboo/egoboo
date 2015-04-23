@@ -33,7 +33,6 @@
 #include "game/player.h"
 #include "game/script.h"
 #include "game/graphic_billboard.h"
-#include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/input.h"

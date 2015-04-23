@@ -31,28 +31,307 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    extern const Uint32 sdl_a_mask;        ///< the mask to pick out alpha data from SDL's current pixel format
-    extern const Uint32 sdl_b_mask;        ///< the mask to pick out blue  data from SDL's current pixel format
-    extern const Uint32 sdl_g_mask;        ///< the mask to pick out green data from SDL's current pixel format
-    extern const Uint32 sdl_r_mask;        ///< the mask to pick out red   data from SDL's current pixel format
+namespace Ego
+{
+    enum class PixelFormat
+    {
+        R8G8B8,
+        R8G8B8A8,
+#if 0
+        B8G8R8A8,
+        A8R8G8B8,
+        A8B8G8R8,
+#endif
+    };
+}
 
-    extern const Uint8 sdl_a_shift;        ///< bits to shift the alpha data of SDL's current pixel format
-    extern const Uint8 sdl_b_shift;        ///< bits to shift the blue  data of SDL's current pixel format
-    extern const Uint8 sdl_g_shift;        ///< bits to shift the green data of SDL's current pixel format
-    extern const Uint8 sdl_r_shift;        ///< bits to shift the red   data of SDL's current pixel format
+/**
+ * @brief
+ *  A very simple pixel descriptor suitable to describe the pixel formats
+ *  R8G8B8(A8),B8G8R8(A8) (A8)R8G8B8 and (A8)B8G8R8. The pixel format used
+ *  by Egoboo to upload textures is R8G8B8A. A specialization of this template
+ *  for Ego::PixelFormat::R8G8B8A is provided.
+ * @todo
+ *  Provide specializations for the other formats.
+ * @author
+ *  Michael Heilmann
+ */
+template <Ego::PixelFormat _PixelFormat>
+struct PixelDescriptor;
+
+template <>
+struct PixelDescriptor <Ego::PixelFormat::R8G8B8A8>
+{
+    /**
+     * @brief
+     *  Get the used Bits per pixel.
+     * @return
+     *  the used Bits per pixel
+     */
+    static uint8_t getBitsPerPixel()
+    {
+        return 32;
+    }
+
+    /**
+     * @brief
+     *  Get the shift of the alpha Bits.
+     * @return
+     *  the shift of the alpha Bits
+     */
+    static uint32_t a_shift()
+    {
+        return
+    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            24;
+    #else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            0;
+    #endif
+    }
+
+    /**
+     * @brief
+     *  The shift of the blue Bits.
+     * @return
+     *  the shift of the blue Bits
+     */
+    static uint32_t b_shift()
+    {
+        return
+    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            16;
+    #else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            8;
+    #endif
+    }
+        
+    /**
+     * @brief
+     *  The shift of the green Bits.
+     * @return
+     *  the shift of the green Bits
+     */
+    static uint32_t g_shift()
+    {
+        return
+    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            8;
+    #else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            16;
+    #endif
+    }
+        
+    /**
+     * @brief
+     *  The shift of the red Bits.
+     * @return
+     *  the shift of the red Bits
+     */
+    static uint32_t r_shift()
+    {
+        return
+    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            0;
+    #else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            24;
+    #endif
+    }
+
+    /**
+     * @brief
+     *  The mask for the alpha Bits.
+     * @return
+     *  the mask of the alpha Bits
+     */
+    static uint32_t a_mask()
+    {
+        return ((uint32_t)0xff) << a_shift();
+    }
+
+    /**
+     * @brief
+     *  The mask for the blue Bits.
+     * @return
+     *  the mask of the blue Bits
+     */
+    static uint32_t b_mask()
+    {
+        return ((uint32_t)0xff) << b_shift();
+    }
+
+    /**
+     * @brief
+     *  The mask for the green Bits.
+     * @return
+     *  the mask of the green Bits
+     */
+    static uint32_t g_mask()
+    {
+        return ((uint32_t)0xff) << g_shift();
+    }
+
+    /**
+     * @brief
+     *  The mask for the red Bits.
+     * @return
+     *  the mask of the red Bits
+     */
+    static uint32_t r_mask()
+    {
+        return ((uint32_t)0xff) << r_shift();
+
+    }
+
+};
+
+template <>
+struct PixelDescriptor <Ego::PixelFormat::R8G8B8>
+{
+    /**
+     * @brief
+     *  Get the used Bits per pixel.
+     * @return
+     *  the used Bits per pixel
+     */
+    static uint8_t bpp()
+    {
+        return 24;
+    }
+
+    /**
+     * @brief
+     *  Get the shift of the alpha Bits.
+     * @return
+     *  the shift of the alpha Bits
+     */
+    static uint32_t a_shift()
+    {
+        return
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            24;
+#else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            0;
+#endif
+    }
+
+    /**
+     * @brief
+     *  The shift of the blue Bits.
+     * @return
+     *  the shift of the blue Bits
+     */
+    static uint32_t b_shift()
+    {
+        return
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            16;
+#else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            8;
+#endif
+    }
+
+    /**
+     * @brief
+     *  The shift of the green Bits.
+     * @return
+     *  the shift of the green Bits
+     */
+    static uint32_t g_shift()
+    {
+        return
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            8;
+#else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            16;
+#endif
+    }
+
+    /**
+     * @brief
+     *  The shift of the red Bits.
+     * @return
+     *  the shift of the red Bits
+     */
+    static uint32_t r_shift()
+    {
+        return
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+            0;
+#else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            24;
+#endif
+    }
+
+    /**
+     * @brief
+     *  The mask for the alpha Bits.
+     * @return
+     *  the mask of the alpha Bits
+     */
+    static uint32_t a_mask()
+    {
+        return ((uint32_t)0x00) << a_shift();
+    }
+
+    /**
+     * @brief
+     *  The mask for the blue Bits.
+     * @return
+     *  the mask of the blue Bits
+     */
+    static uint32_t b_mask()
+    {
+        return ((uint32_t)0xff) << b_shift();
+    }
+
+    /**
+     * @brief
+     *  The mask for the green Bits.
+     * @return
+     *  the mask of the green Bits
+     */
+    static uint32_t g_mask()
+    {
+        return ((uint32_t)0xff) << g_shift();
+    }
+
+    /**
+     * @brief
+     *  The mask for the red Bits.
+     * @return
+     *  the mask of the red Bits
+     */
+    static uint32_t r_mask()
+    {
+        return ((uint32_t)0xff) << r_shift();
+
+    }
+
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// find the minimum value of 2^n that is larger than input
-    int powerOfTwo( int input );
+/**
+ * @brief
+ *  Convert an arbitrary surface into a surface suited for OpenGL.
+ * @param surface
+ *  the surface
+ * @return
+ *  the surface suited for OpenGL
+ * @throw std::runtime_error
+ *  if conversion fails
+ * @throw std::invalid_argument
+ *  if @a surface is @a nullptr
+ */
+SDL_Surface *SDL_GL_convert_surface_2(SDL_Surface *surface);
 
 /// Convert a SDL_Surface to an OpenGL texture directly.
 /// Uses the SDL and OpenGL graphics options to upload the texture in the correct mode
-    GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap_s, GLint wrap_t );
+GLuint SDL_GL_convert_surface(GLenum binding, SDL_Surface *surface, GLint wrap_s, GLint wrap_t);
 
 /// Convert a SDL surface into an OpenGL texture
-    SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint texture, GLfloat *texCoords );
+SDL_bool SDL_GL_uploadSurface(SDL_Surface *surface, GLuint texture, GLfloat *texCoords);
 
 /// Set the OpenGL screen mode using SDL
-    SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new, SDL_bool has_valid_mode );
+SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t *v_old, SDLX_video_parameters_t *v_new, oglx_video_parameters_t *gl_new, SDL_bool has_valid_mode);

@@ -26,7 +26,6 @@
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
-#include "game/graphic_texture.h"
 #include "game/game.h"
 #include "game/collision.h"
 #include "game/Entities/_Include.hpp"

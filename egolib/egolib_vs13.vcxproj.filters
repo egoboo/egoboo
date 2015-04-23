@@ -396,6 +396,9 @@
     <ClCompile Include="src\egolib\Image\ImageManager.cpp">
       <Filter>Source Files\Image</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\TextureManager.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -802,6 +805,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\TextureType.hpp">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\TextureManager.hpp">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

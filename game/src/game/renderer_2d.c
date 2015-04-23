@@ -23,7 +23,6 @@
 
 #include "game/egoboo.h"
 #include "game/renderer_2d.h"
-#include "game/graphic_texture.h"
 
 //--------------------------------------------------------------------------------------------
 // EXTERNAL VARIABLES
@@ -618,7 +617,13 @@ bool dump_screenshot()
         SDL_Surface *temp;
 
         // create a SDL surface
-        temp = SDL_CreateRGBSurface( SDL_SWSURFACE, sdl_scr.x, sdl_scr.y, 24, sdl_r_mask, sdl_g_mask, sdl_b_mask, 0 );
+        using pixelDescriptor = PixelDescriptor<Ego::PixelFormat::R8G8B8>;
+        temp = SDL_CreateRGBSurface(SDL_SWSURFACE, sdl_scr.x, sdl_scr.y,
+                                    pixelDescriptor::bpp(),
+                                    pixelDescriptor::r_mask(),
+                                    pixelDescriptor::g_mask(),
+                                    pixelDescriptor::b_mask(),
+                                    pixelDescriptor::a_mask());
 
         if ( NULL == temp )
         {

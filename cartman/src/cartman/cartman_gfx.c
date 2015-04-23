@@ -314,7 +314,7 @@ void make_planmap( cartman_mpd_t * pmesh )
             if ( NULL != tx_tile )
             {
                 SDL_Rect dst = {static_cast<Sint16>(putx), static_cast<Sint16>(puty), TINYXY, TINYXY};
-                cartman_BlitSurface( tx_tile->surface, NULL, bmphitemap, &dst );
+                cartman_BlitSurface(tx_tile->source, nullptr, bmphitemap, &dst);
             }
             putx += TINYXY;
         }
@@ -610,8 +610,8 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
     min_s = dst;
     min_t = dst;
 
-    max_s = -dst + ( float ) oglx_texture_t::getImageWidth( tx_tile )  / ( float ) oglx_texture_t::getTextureWidth( tx_tile );
-    max_t = -dst + ( float ) oglx_texture_t::getImageHeight( tx_tile )  / ( float ) oglx_texture_t::getTextureHeight( tx_tile );
+    max_s = -dst + (float)oglx_texture_t::getSourceWidth(tx_tile) / (float)oglx_texture_t::getWidth(tx_tile);
+    max_t = -dst + (float)oglx_texture_t::getSourceHeight(tx_tile) / (float)oglx_texture_t::getHeight(tx_tile);
 
     // set the texture coordinates
     loc_vrt[0].s = min_s;
@@ -711,8 +711,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     {
         x1 = x;
         y1 = y;
-        w1 = tx_water.imgW * scale;
-        h1 = tx_water.imgH * scale;
+        w1 = oglx_texture_t::getSourceWidth(&tx_water) * scale;
+        h1 = oglx_texture_t::getSourceHeight(&tx_water) * scale;
 
         ogl_draw_sprite_2d( &tx_water, x1, y1, w1, h1 );
     }
@@ -722,8 +722,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     {
         x1 = x;
         y1 = y;
-        w1 = tx_ref.imgW * scale;
-        h1 = tx_ref.imgH * scale;
+        w1 = oglx_texture_t::getSourceWidth(&tx_ref) * scale;
+        h1 = oglx_texture_t::getSourceHeight(&tx_ref) * scale;
 
         ogl_draw_sprite_2d( &tx_ref, x1, y1, w1, h1 );
     }
@@ -734,8 +734,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         x1 = x + foff_0;
         y1 = y;
 
-        w1 = tx_drawref.imgW * scale;
-        h1 = tx_drawref.imgH * scale;
+        w1 = oglx_texture_t::getSourceWidth(&tx_drawref) * scale;
+        h1 = oglx_texture_t::getSourceHeight(&tx_drawref) * scale;
 
         ogl_draw_sprite_2d( &tx_drawref, x1, y1, w1, h1 );
     }
@@ -746,8 +746,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         x1 = x;
         y1 = y + foff_0;
 
-        w1 = tx_anim.imgW * scale;
-        h1 = tx_anim.imgH * scale;
+        w1 = oglx_texture_t::getSourceWidth(&tx_anim) * scale;
+        h1 = oglx_texture_t::getSourceHeight(&tx_anim) * scale;
 
         ogl_draw_sprite_2d( &tx_anim, x1, y1, w1, h1 );
     }
@@ -761,8 +761,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1;
         float y2 = y1;
 
-        w1 = tx_wall.imgW * scale;
-        h1 = tx_wall.imgH * scale;
+        w1 = oglx_texture_t::getSourceWidth(&tx_wall) * scale;
+        h1 = oglx_texture_t::getSourceHeight(&tx_wall) * scale;
 
         ogl_draw_sprite_2d( &tx_wall, x2, y2, w1, h1 );
     }
@@ -772,8 +772,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1 + foff_1;
         float y2 = y1;
 
-        w1 = tx_impass.imgW * scale;
-        h1 = tx_impass.imgH * scale;
+        w1 = oglx_texture_t::getSourceWidth(&tx_impass) * scale;
+        h1 = oglx_texture_t::getSourceHeight(&tx_impass) * scale;
 
         ogl_draw_sprite_2d( &tx_impass, x2, y2, w1, h1 );
     }
@@ -783,8 +783,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1;
         float y2 = y1 + foff_1;
 
-        w1 = tx_damage.imgW * scale;
-        h1 = tx_damage.imgH * scale;
+        w1 = oglx_texture_t::getSourceWidth(&tx_damage) * scale;
+        h1 = oglx_texture_t::getSourceHeight(&tx_damage) * scale;
 
         ogl_draw_sprite_2d( &tx_damage, x2, y2, w1, h1 );
     }
@@ -794,8 +794,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1 + foff_1;
         float y2 = y1 + foff_1;
 
-        w1 = tx_slippy.imgW * scale;
-        h1 = tx_slippy.imgH * scale;
+        w1 = oglx_texture_t::getSourceWidth(&tx_slippy) * scale;
+        h1 = oglx_texture_t::getSourceHeight(&tx_slippy) * scale;
 
         ogl_draw_sprite_2d( &tx_slippy, x2, y2, w1, h1 );
     }
@@ -817,15 +817,15 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
     {
         if ( width == 0 || height == 0 )
         {
-            w = oglx_texture_t::getTextureWidth( img );
-            h = oglx_texture_t::getTextureHeight( img );
+            w = oglx_texture_t::getWidth( img );
+            h = oglx_texture_t::getHeight( img );
         }
 
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + ( float ) oglx_texture_t::getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
-        max_t = -dst + ( float ) oglx_texture_t::getImageHeight( img )  / ( float ) oglx_texture_t::getTextureHeight( img );
+        max_s = -dst + (float)oglx_texture_t::getSourceWidth(img) / (float)oglx_texture_t::getWidth(img);
+        max_t = -dst + (float)oglx_texture_t::getSourceHeight(img) / (float)oglx_texture_t::getHeight(img);
     }
     else
     {
@@ -867,15 +867,15 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
     {
         if ( width == 0 || height == 0 )
         {
-            w = oglx_texture_t::getTextureWidth( img );
-            h = oglx_texture_t::getTextureHeight( img );
+            w = oglx_texture_t::getWidth( img );
+            h = oglx_texture_t::getHeight( img );
         }
 
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + ( float ) oglx_texture_t::getImageWidth( img )  / ( float ) oglx_texture_t::getTextureWidth( img );
-        max_t = -dst + ( float ) oglx_texture_t::getImageHeight( img )  / ( float ) oglx_texture_t::getTextureHeight( img );
+        max_s = -dst + (float)oglx_texture_t::getSourceWidth(img) / (float)oglx_texture_t::getWidth(img);
+        max_t = -dst + (float)oglx_texture_t::getSourceHeight(img) / (float)oglx_texture_t::getHeight(img);
     }
     else
     {

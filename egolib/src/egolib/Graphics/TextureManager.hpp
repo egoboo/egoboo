@@ -17,11 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file game/graphic_texture.h
+/// @file  egolib/Graphics/TextureManager.hpp
+/// @brief the texture manager.
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "egolib/typedef.h"
+#include "egolib/Extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -122,19 +124,19 @@ public:
 
     /**
      * @brief
-     *	Acquire a texture reference.
+     *  Acquire a texture reference.
      * @param ref
      *  if not equal to #INVALID_TX_REF, this texture reference is acquired
      * @return
-     *	the texture reference on success, #INVALID_TX_REF on failure
+     *  the texture reference on success, #INVALID_TX_REF on failure
      */
     TX_REF acquire(const TX_REF ref);
 
     /**
      * @brief
-     *	Relinquish texture reference.
+     *  Relinquish texture reference.
      * @param ref
-     *	the texture reference
+     *  the texture reference
      */
     bool relinquish(const TX_REF ref);
 

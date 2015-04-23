@@ -255,6 +255,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\TextureManager.cpp" />
     <ClCompile Include="src\egolib\Image\ImageLoader.cpp" />
     <ClCompile Include="src\egolib\Image\ImageLoader_SDL.cpp" />
     <ClCompile Include="src\egolib\Image\ImageLoader_SDL_image.cpp" />

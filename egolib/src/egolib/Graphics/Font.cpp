@@ -167,10 +167,10 @@ namespace Ego
         
         if (updateTexture) drawTextToTexture(cache->tex, text);
         
-        float w = cache->tex->imgW;
-        float h = cache->tex->imgH;
-        float u = w / cache->tex->base.width;
-        float v = h / cache->tex->base.height;
+        float w = oglx_texture_t::getSourceWidth(cache->tex);
+        float h = oglx_texture_t::getSourceHeight(cache->tex);
+        float u = w / oglx_texture_t::getWidth(cache->tex);
+        float v = h / oglx_texture_t::getHeight(cache->tex);
         
         Ego::Renderer::get().setColour(colour);
         oglx_texture_t::bind(cache->tex);

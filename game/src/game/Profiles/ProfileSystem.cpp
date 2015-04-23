@@ -31,7 +31,6 @@
 #include "game/char.h"
 #include "game/game.h"
 #include "game/script_compile.h"
-#include "game/graphic_texture.h"
 
 //Globals
 pro_import_t import_data;

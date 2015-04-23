@@ -27,53 +27,7 @@
 #include "egolib/Renderer/TextureFilter.hpp"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/ogl_texture.h"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// create the mask
-// this will work if both endian systems think they have "RGBA" graphics
-// if you need a different pixel format (ARGB or BGRA or whatever) this section
-// will have to be changed to reflect that
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-
-const Uint8 sdl_a_shift = 24;
-const Uint8 sdl_b_shift = 16;
-const Uint8 sdl_g_shift =  8;
-const Uint8 sdl_r_shift =  0;
-
-const Uint32 sdl_a_mask = ( Uint32 )( 0xFF << 24 );
-const Uint32 sdl_b_mask = ( Uint32 )( 0xFF << 16 );
-const Uint32 sdl_g_mask = ( Uint32 )( 0xFF <<  8 );
-const Uint32 sdl_r_mask = ( Uint32 )( 0xFF <<  0 );
-
-#else
-
-const Uint8 sdl_a_shift = 0;
-const Uint8 sdl_b_shift = 8;
-const Uint8 sdl_g_shift = 16;
-const Uint8 sdl_r_shift = 24;
-
-const Uint32 sdl_a_mask = ( Uint32 )( 0xFF <<  0 );
-const Uint32 sdl_b_mask = ( Uint32 )( 0xFF <<  8 );
-const Uint32 sdl_g_mask = ( Uint32 )( 0xFF << 16 );
-const Uint32 sdl_r_mask = ( Uint32 )( 0xFF << 24 );
-
-#endif
-
-//--------------------------------------------------------------------------------------------
-// -   Global function stolen from Jonathan Fisher
-// - who stole it from gl_font.c test program from SDL_ttf ;)
-//--------------------------------------------------------------------------------------------
-int powerOfTwo( int input )
-{
-    int value = 1;
-
-    while ( value < input )
-    {
-        value <<= 1;
-    }
-    return value;
-}
+#include "egolib/Math/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 // - Global function stolen from Jonathan Fisher
@@ -91,8 +45,8 @@ SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texC
     if ( NULL == texCoords ) texCoords = local_texCoords;
 
     // Use the surface width & height expanded to the next powers of two
-    tx_w = powerOfTwo( surface->w );
-    tx_h = powerOfTwo( surface->h );
+    tx_w = Ego::Math::powerOfTwo( surface->w );
+    tx_h = Ego::Math::powerOfTwo( surface->h );
 
     texCoords[0] = 0.0f;
     texCoords[1] = 0.0f;
@@ -254,6 +208,90 @@ SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX
     return retval;
 }
 
+SDL_Surface *SDL_GL_convert_surface_2(SDL_Surface *surface)
+{
+    if (!surface)
+    {
+        throw std::invalid_argument("nullptr == surface");
+    }
+
+    // Aliases old surface.
+    SDL_Surface *oldSurface = surface;
+
+    // Alias old width and old height.
+    int oldWidth = surface->w,
+        oldHeight = surface->h;
+
+    // Compute new width and new height.
+    int newWidth = Ego::Math::powerOfTwo(oldWidth);
+    int newHeight = Ego::Math::powerOfTwo(oldHeight);
+
+    // Compute new pixel format (R8G8B8A8).
+    SDL_PixelFormat newFormat = *(SDL_GetVideoSurface()->format);
+
+    using PixelDescriptor = PixelDescriptor<Ego::PixelFormat::R8G8B8A8>;
+    newFormat.Amask = PixelDescriptor::a_mask();
+    newFormat.Ashift = PixelDescriptor::a_shift();
+    newFormat.Aloss = 0;
+
+    newFormat.Bmask = PixelDescriptor::b_mask();
+    newFormat.Bshift = PixelDescriptor::b_shift();
+    newFormat.Bloss = 0;
+
+    newFormat.Gmask = PixelDescriptor::g_mask();
+    newFormat.Gshift = PixelDescriptor::g_shift();
+    newFormat.Gloss = 0;
+
+    newFormat.Rmask = PixelDescriptor::r_mask();
+    newFormat.Rshift = PixelDescriptor::r_shift();
+    newFormat.Rloss = 0;
+
+    newFormat.BitsPerPixel = 32;
+    newFormat.BytesPerPixel = 4;
+
+    // Convert to new format.
+    SDL_Surface *tmp = SDL_ConvertSurface(oldSurface, &newFormat, SDL_SWSURFACE);
+    if (!tmp)
+    {
+        throw std::runtime_error("unable to convert surface");
+    }
+    oldSurface = tmp;
+
+    // If the alpha mask is non-zero (which is the case here), then SDL_ConvertSurface
+    // behaves "as if" the addition flag @a SDL_SRCALPHA was supplied. That is, if
+    // the surface is blitted onto another surface, then alpha blending is performed:
+    // This is not desired by us as we want to set each pixel in the target surface to
+    // the value of the corresponding pixel in the source surface i.e. we do not want
+    // alpha blending to be done: We turn of alpha blending by a calling
+    // <tt>SetAlpha(oldSurface, 0, SDL_ALPHA_OPAQUE)</tt>.
+    SDL_SetAlpha(oldSurface, 0, SDL_ALPHA_OPAQUE);
+    // We do not want colour-keying to be performed either: Wether it is activated or not,
+    // turn it off by the call <tt>SDL_SetColorKey(oldSurface, 0, 0)</tt>.
+    SDL_SetColorKey(oldSurface, 0, 0);
+    // For more information, see <a>http://sdl.beuc.net/sdl.wiki/SDL_CreateRGBSurface</a>.
+
+    // Convert to new width and new height each a power of 2 as (old) OpenGL versions required it (we'r conservative).
+    if (newWidth != oldWidth || newHeight != oldHeight)
+    {
+        SDL_Surface *tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight,
+                                                newFormat.BitsPerPixel,
+                                                newFormat.Rmask,
+                                                newFormat.Gmask,
+                                                newFormat.Bmask,
+                                                newFormat.Amask);
+        if (!tmp)
+        {
+            SDL_FreeSurface(oldSurface);
+            throw std::runtime_error("unable to convert surface");
+        }
+        SDL_BlitSurface(oldSurface, &(oldSurface->clip_rect), tmp, nullptr);
+        /** @todo Handle errors of SDL_BitSurface. */
+        oldSurface = tmp;
+    }
+
+    // Return the result.
+    return oldSurface;
+}
 //--------------------------------------------------------------------------------------------
 GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap_s, GLint wrap_t )
 {
@@ -282,8 +320,8 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     target = (( 1 == local_surface->h ) && ( local_surface->w > 1 ) ) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
 
     /* Determine the correct power of two greater than or equal to the original local_surface's size */
-    tx_h = powerOfTwo( local_surface->h );
-    tx_w = powerOfTwo( local_surface->w );
+    tx_h = Ego::Math::powerOfTwo( local_surface->h );
+    tx_w = Ego::Math::powerOfTwo( local_surface->w );
 
     screen  = SDL_GetVideoSurface();
     memcpy( &tmpformat, screen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
@@ -291,50 +329,27 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     //if( ogl_caps.alpha_bits > 0 )
     {
         // convert the local_surface to a 32-bit pixel format
-        tmpformat.Amask  = sdl_a_mask;
-        tmpformat.Ashift = sdl_a_shift;
-        tmpformat.Aloss  = 0;
+        using pixelDescriptor = PixelDescriptor < Ego::PixelFormat::R8G8B8A8 > ;
+        tmpformat.Amask = pixelDescriptor::a_mask();
+        tmpformat.Ashift = pixelDescriptor::a_shift();
+        tmpformat.Aloss = 0;
 
-        tmpformat.Bmask  = sdl_b_mask;
-        tmpformat.Bshift = sdl_a_shift;
-        tmpformat.Bloss  = 0;
+        tmpformat.Bmask = pixelDescriptor::b_mask();
+        tmpformat.Bshift = pixelDescriptor::b_shift();
+        tmpformat.Bloss = 0;
 
-        tmpformat.Gmask  = sdl_g_mask;
-        tmpformat.Gshift = sdl_g_shift;
-        tmpformat.Gloss  = 0;
+        tmpformat.Gmask = pixelDescriptor::g_mask();
+        tmpformat.Gshift = pixelDescriptor::g_shift();
+        tmpformat.Gloss = 0;
 
-        tmpformat.Rmask  = sdl_r_mask;
-        tmpformat.Rshift = sdl_r_shift;
+        tmpformat.Rmask = pixelDescriptor::r_mask();
+        tmpformat.Rshift = pixelDescriptor::r_shift();
         tmpformat.Rloss = 0;
 
         // make the pixel size match the screen format
         tmpformat.BitsPerPixel  = 32;
         tmpformat.BytesPerPixel = 4;
     }
-    //else
-    //{
-    //    // convert the local_surface to a 32-bit pixel format without alpha
-    //    tmpformat.Amask  = 0;
-    //    tmpformat.Ashift = sdl_a_shift;
-    //    tmpformat.Aloss  = 8;
-
-    //    tmpformat.Bmask  = sdl_b_mask;
-    //    tmpformat.Bshift = sdl_a_shift;
-    //    tmpformat.Bloss  = 0;
-
-    //    tmpformat.Gmask  = sdl_g_mask;
-    //    tmpformat.Gshift = sdl_g_shift;
-    //    tmpformat.Gloss  = 0;
-
-    //    tmpformat.Rmask  = sdl_r_mask;
-    //    tmpformat.Rshift = sdl_r_shift;
-    //    tmpformat.Rloss = 0;
-
-    //    // make the pixel size match the screen format
-    //    tmpformat.BitsPerPixel  = 32;
-    //    tmpformat.BytesPerPixel = 4;
-    //}
-
     {
         SDL_Surface * tmp;
         Uint32 convert_flags;

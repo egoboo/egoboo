@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file game/texture.c
-/// @brief Implementation of code for controlling object texturing
-/// @details
+/// @file  egolib/Graphics/TextureManager.cpp
+/// @brief the texture manager.
 
 #include "egolib/_math.h"
-#include "game/graphic_texture.h"
+#include "egolib/fileutil.h"
+#include "egolib/Graphics/TextureManager.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ TextureManager::TextureManager()
                 oglx_texture_t::destroy(_lst[--ref]);
                 _lst[ref] = nullptr;
             }
-            throw std::bad_alloc();
+            throw ex;
         }
         _lst[ref] = texture;
     }
@@ -96,7 +96,7 @@ void TextureManager::reload_all()
 
         if (oglx_texture_Valid(texture))
         {
-            oglx_texture_t::convert(texture, texture->surface, INVALID_KEY);
+            oglx_texture_t::convert(texture, texture->source, INVALID_KEY);
         }
     }
 }

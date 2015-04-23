@@ -28,7 +28,6 @@
 #include "game/link.h"
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
-#include "game/graphic_texture.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/input.h"
