@@ -460,7 +460,7 @@ public:
     static void uninitialize() {
         InstanceType *t = _instance.load();
         if (t) { // 1st check.
-            std::lock_guard<mutex> lock(_mutex); // 2nd check.
+            std::lock_guard<std::mutex> lock(_mutex); // 2nd check.
             t = _instance.load();
             if (t) {
                 delete t;
@@ -574,7 +574,7 @@ public:
     {
         InstanceType *t = _instance.load();
         if (!t) { // 1st check.
-            std::lock_guard<mutex> lock(_mutex);
+            std::lock_guard<std::mutex> lock(_mutex);
             t = _instance.load();
             if (!t) { // 2nd check.
                 t = new InstanceType();
@@ -592,7 +592,7 @@ public:
     static void uninitialize() {
         InstanceType *t = _instance.load();
         if (t) { // 1st check.
-            std::lock_guard<mutex> lock(_mutex); // 2nd check.
+            std::lock_guard<std::mutex> lock(_mutex); // 2nd check.
             t = _instance.load();
             if (t) {
                 delete t;
@@ -671,7 +671,7 @@ public:
     {
         InstanceType *t = _instance.load();
         if (!t) { // 1st check.
-            std::lock_guard<mutex> lock(_mutex);
+            std::lock_guard<std::mutex> lock(_mutex);
             t = _instance.load();
             if (!t) { // 2nd check.
                 t = FactoryType()();
@@ -689,7 +689,7 @@ public:
     static void uninitialize() {
         InstanceType *t = _instance.load();
         if (t) { // 1st check.
-            std::lock_guard<mutex> lock(_mutex); // 2nd check.
+            std::lock_guard<std::mutex> lock(_mutex); // 2nd check.
             t = _instance.load();
             if (t) {
                 delete t;
