@@ -45,7 +45,7 @@ class ObjectHandler : public Ego::Core::NonCopyable
 {
 public:
 
-	class ObjectIterator : public Ego::Core::NonCopyable
+	class ObjectIterator
 	{
 	public:
 
@@ -75,7 +75,14 @@ public:
 			_handler.unlock();
 		}
 
-	    //Disable copying class
+        // Copy constructor
+        ObjectIterator(const ObjectIterator &other) :
+            _handler(other._handler)
+        {
+            _handler.lock();
+        }
+        
+	    // Disable copy assignment operator
 	    ObjectIterator& operator=(const ObjectIterator&) = delete;
     
 	private:

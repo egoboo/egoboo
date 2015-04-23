@@ -146,7 +146,7 @@ public:
 protected:
     // Befriend with the singleton to grant access to AudioSystem::~AudioSystem.
     using TheSingleton = Ego::Core::Singleton<AudioSystem>;
-    friend class TheSingleton;
+    friend TheSingleton;
 
     AudioSystem();
     virtual ~AudioSystem();
