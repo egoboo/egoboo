@@ -38,6 +38,15 @@ public:
 	ScrollableList();
 
 	void draw() override;
+    
+    /**
+     * @brief
+     *  Force this to update the scroll bars and child components.
+     * @note
+     *  This should be unnecessary when children notify their parent
+     *  on size change and when they are added or removed.
+     */
+    void forceUpdate();
 
     /**
     * Ensure that this class inherits defaults for these methods from ComponentContainer and not GUIComponent

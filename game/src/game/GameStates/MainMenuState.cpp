@@ -22,6 +22,7 @@
 /// @author Johan Jansen
 
 #include "game/GameStates/MainMenuState.hpp"
+#include "game/GameStates/DebugModuleLoadingState.hpp"
 #include "game/GameStates/SelectModuleState.hpp"
 #include "game/GameStates/SelectPlayersState.hpp"
 #include "game/GameStates/OptionsScreen.hpp"
@@ -119,7 +120,20 @@ MainMenuState::MainMenuState() :
 	addComponent(newGameButton);
 	_slidyButtons.push_front(newGameButton);
 
-	yOffset -= newGameButton->getHeight() + 10;
+    yOffset -= newGameButton->getHeight() + 10;
+    
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue())
+    {
+        std::shared_ptr<Button> debugButton = std::make_shared<Button>("Debug", SDLK_UNKNOWN);
+        debugButton->setPosition(20, yOffset);
+        debugButton->setSize(200, 30);
+        debugButton->setOnClickFunction(
+        []{
+            _gameEngine->pushGameState(std::make_shared<DebugModuleLoadingState>());
+        });
+        addComponent(debugButton);
+        _slidyButtons.push_front(debugButton);
+    }
 
 	//Add version label and copyright text
 	std::shared_ptr<Label> welcomeLabel = std::make_shared<Label>(
