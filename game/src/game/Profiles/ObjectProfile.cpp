@@ -24,7 +24,6 @@
 
 #define GAME_PROFILES_PRIVATE 1
 #include "game/Profiles/ObjectProfile.hpp"
-#include "game/graphic_texture.h"
 #include "game/game.h"
 #include "game/Entities/_Include.hpp"
 #include "game/mad.h"       //for loading md2

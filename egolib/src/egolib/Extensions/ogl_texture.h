@@ -44,50 +44,115 @@
 //--------------------------------------------------------------------------------------------
 
 #define INVALID_KEY ((Uint32)(~0))
-#define VALID_BINDING(BIND) ((0 != (BIND)) && (INVALID_GL_ID != (BIND)))
-#define ERROR_IMAGE_BINDING(BIND) (ErrorImage_get_binding() == (BIND))
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
     /// An encapsulation of the OpenGL texture state.
-    struct gl_texture_t
-    {
-        GLenum  target;
-        GLuint  binding;              /*< The OpenGL texture number */
-
-        GLfloat width;
-        GLfloat height;
-
-        GLint   wrap_s;
-        GLint   wrap_t;
-
-    };
-
     struct oglx_texture_t
     {
-        GLboolean base_valid;
-        gl_texture_t base;
+        
+        /**
+         * @brief
+         *  The texture type.
+         */
+        GLenum  _type;
+        
+        /**
+         * @brief
+         *  The texture address mode along the s-axis.
+         */
+        GLint   _wrapS;
+        
+        /**
+         * @brief
+         *  The texture address mode along the t-axis.
+         */
+        GLint   _wrapT;
 
-        GLuint valid;          ///< whether or not the texture has been initialized
         char name[256];        ///< the name of the original file
-        int imgW, imgH;        ///< the height & width of the texture data
 
-        SDL_Surface *surface;  ///< the original texture data
-        SDL_bool has_alpha;    ///< the alpha for the texture
+    protected:
+
+        /**
+         * @brief
+         *  The OpenGL texture ID.
+         * @remark
+         *  At any point, a texture has a valid OpenGL texture ID assigned, <em>unless</em> resources were lost.
+         */
+        GLuint  _id;
+
+        /**
+         * @brief
+         *  The width, in pixels, of the source of this texture.
+         * @remark
+         *  This value might differ for technical reasons from the width of the texture.
+         */
+        int _sourceWidth;
+
+        /**
+         * @brief
+         *  The height, in pixels, of the source of this texture.
+         * @remark
+         *  This value might differ for technical reasons from the height of the texture.
+         */
+        int _sourceHeight;
+
+        /**
+         * @brief
+         *  The width, in pixels, of the the texture.
+         */
+        int _width;
+
+        /**
+         * @brief
+         *  The height, in pixels, of the texture.
+         */
+        int _height;
+
+        /**
+         * @brief
+         *  @a true if this texture has an alpha component, @a false otherwise.
+         */
+        bool _hasAlpha;
 
     public:
+
+        /**
+         * @brief
+         *  A pointer to the source of the texture if available, a null pointer otherwise.
+         */
+        SDL_Surface *source;
+
+    public:
+        /**
+         * @brief
+         *  Construct this texture.
+         * @post
+         *  This texture is bound to the backing error texture.
+         */
         static oglx_texture_t *ctor(oglx_texture_t *self);
+        /**
+         * @brief
+         *  Destruct this texture.
+         */
         static void dtor(oglx_texture_t *self);
         
     public:
+        /**
+         * @brief
+         *  Create a texture.
+         * @post
+         *  The texture is bound to the backing error texture.
+         */
         static oglx_texture_t *create();
         static void destroy(oglx_texture_t *self);
 
     public:
-        static GLuint convert(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
-        static GLuint load(oglx_texture_t *self, const char *filename, Uint32 key);
         static GLuint load(oglx_texture_t *self, const char *name, SDL_Surface *surface, Uint32 key);
+        static GLuint load(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
+        static GLuint load(oglx_texture_t *self, const char *filename, Uint32 key);
+
         /**
          * @brief
          *	Delete backing image, delete OpenGL ID, assign OpenGL ID of the error texture, assign no backing image.
@@ -101,16 +166,81 @@
         static GLuint getTextureID(const oglx_texture_t *self);
         
     public:
-        static GLsizei getTextureWidth(const oglx_texture_t *self);
-        static GLsizei getTextureHeight(const oglx_texture_t *self);
-        static GLsizei getImageHeight(const oglx_texture_t *self);
-        static GLsizei getImageWidth(const oglx_texture_t *self);
+
+        /**
+         * @brief
+         *  Get the width, in pixels, of this texture.
+         * @param self
+         *  this texture
+         * @return
+         *  the width, in pixels of this texture
+         */
+        static GLsizei getWidth(const oglx_texture_t *self);
+
+        /**
+         * @brief
+         *  Get the height, in pixels, of this texture.
+         * @param self
+         *  this texture
+         * @return
+         *  the height, in pixels of this texture
+         */
+        static GLsizei getHeight(const oglx_texture_t *self);
+
+        /**
+         * @brief
+         *  Get the width, in pixels, of the source of this texture.
+         * @param self
+         *  this texture
+         * @return
+         *  the width, in pixels, of the source of this texture
+         * @remark
+         *  This value might differ for technical reasons from the width of the texture.
+         */
+        static GLsizei getSourceWidth(const oglx_texture_t *self);
+
+        /**
+         * @brief
+         *  Get the height, in pixels, of the source of this texture.
+         * @param self
+         *  this texture
+         * @return
+         *  the height, in pixels, of the source of this texture
+         * @remark
+         *  This value might differ for technical reasons from the height of the texture.
+         */
+        static GLsizei getSourceHeight(const oglx_texture_t *self);
+
+        /**
+         * @brief
+         *  Get if this texture has an alpha component.
+         * @param self
+         *  this texture
+         * @return
+         *  @a true if this texture has an alpha component,
+         *  @a false otherwise
+         */
+        static bool hasAlpha(const oglx_texture_t *self);
+
         static GLboolean getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect);
     };
 
-    void oglx_texture_setAlpha(oglx_texture_t *self, GLfloat alpha);
-    GLfloat oglx_texture_getAlpha(const oglx_texture_t *self);
-    GLboolean oglx_texture_Valid(oglx_texture_t *ptex);
-    GLuint oglx_bind_to_tex_params(GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t);
-    void ErrorImage_bind(GLenum target, GLuint id);
-    GLuint ErrorImage_get_binding();
+    void oglx_bind_to_tex_params(GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t);
+
+    /**
+     * @brief
+     *  Initialize the error textures.
+     * @todo
+     *  Move into texture manager.
+     */
+    void initializeErrorTextures();
+    /**
+     * @brief
+     *  Uninitialize the error textures.
+     * @todo
+     *  Move into texture manager.
+     */
+    void uninitializeErrorTextures();
+    GLuint get2DErrorTextureID();
+    GLuint get1DErrorTextureID();
+    bool isErrorTextureID(GLuint id);

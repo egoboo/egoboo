@@ -25,7 +25,7 @@
 #error(do not include directly, include `game/Profiles/_Include.hpp` instead)
 #endif
 
-#include "game/graphic_texture.h"
+#include "game/egoboo_typedef.h"
 #include "egolib/IDSZ_map.h"
 
 enum ModuleFilter : uint8_t

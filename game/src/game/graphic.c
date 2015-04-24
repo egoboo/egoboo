@@ -29,7 +29,6 @@
 #include "game/graphic_mad.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_billboard.h"
-#include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/network_server.h"
@@ -1702,10 +1701,10 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y, bool mini_map)
     {
         oglx_texture_t * ptex = TextureManager::get().get_valid_ptr((TX_REF)TX_BLIP);
 
-        tx_rect.xmin = (float)bliprect[color]._left / (float)oglx_texture_t::getTextureWidth(ptex);
-        tx_rect.xmax = (float)bliprect[color]._right / (float)oglx_texture_t::getTextureWidth(ptex);
-        tx_rect.ymin = (float)bliprect[color]._top / (float)oglx_texture_t::getTextureHeight(ptex);
-        tx_rect.ymax = (float)bliprect[color]._bottom / (float)oglx_texture_t::getTextureHeight(ptex);
+        tx_rect.xmin = (float)bliprect[color]._left / (float)oglx_texture_t::getWidth(ptex);
+        tx_rect.xmax = (float)bliprect[color]._right / (float)oglx_texture_t::getWidth(ptex);
+        tx_rect.ymin = (float)bliprect[color]._top / (float)oglx_texture_t::getHeight(ptex);
+        tx_rect.ymax = (float)bliprect[color]._bottom / (float)oglx_texture_t::getHeight(ptex);
 
         width = sizeFactor * (bliprect[color]._right - bliprect[color]._left);
         height = sizeFactor * (bliprect[color]._bottom - bliprect[color]._top);
@@ -1736,9 +1735,10 @@ float draw_icon_texture(oglx_texture_t * ptex, float x, float y, Uint8 sparkle_c
     else
     {
         tx_rect.xmin = 0.0f;
-        tx_rect.xmax = (float)ptex->imgW / (float)ptex->base.width;
+        tx_rect.xmax = (float)oglx_texture_t::getSourceWidth(ptex) / (float)oglx_texture_t::getWidth(ptex);
         tx_rect.ymin = 0.0f;
-        tx_rect.ymax = (float)ptex->imgW / (float)ptex->base.width;
+        /// @todo Is this a bug? Tis only works if the images are rectangular.
+        tx_rect.ymax = (float)oglx_texture_t::getSourceWidth(ptex) / (float)oglx_texture_t::getWidth(ptex);
     }
 
     width = ICON_SIZE;
@@ -1821,9 +1821,9 @@ void draw_map_texture(float x, float y)
     sc_rect.ymax = y + MAPSIZE;
 
     tx_rect.xmin = 0;
-    tx_rect.xmax = (float)ptex->imgW / (float)ptex->base.width;
+    tx_rect.xmax = (float)oglx_texture_t::getSourceWidth(ptex) / (float)oglx_texture_t::getWidth(ptex);
     tx_rect.ymin = 0;
-    tx_rect.ymax = (float)ptex->imgH / (float)ptex->base.height;
+    tx_rect.ymax = (float)oglx_texture_t::getSourceHeight(ptex) / (float)oglx_texture_t::getHeight(ptex);
 
     draw_quad_2d(ptex, sc_rect, tx_rect, false);
 }
@@ -1937,9 +1937,9 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
     img_width = 112.0f;
     if (NULL != tx_ptr)
     {
-        tx_width = tx_ptr->base.width;
-        tx_height = tx_ptr->base.height;
-        img_width = tx_ptr->imgW;
+        tx_width = oglx_texture_t::getWidth(tx_ptr);
+        tx_height = oglx_texture_t::getHeight(tx_ptr);
+        img_width = oglx_texture_t::getSourceWidth(tx_ptr);
     }
 
     // calculate the bar parameters
@@ -6180,7 +6180,7 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
 {
     static const int sub_textures = 8;
     size_t cnt = tx_lst_cnt;
-    if (!src_tx || !src_tx->surface)
+    if (!src_tx || !src_tx->source)
     {
         // the source image doesn't exist, so punt
         for (; cnt < tx_lst_cnt + sub_textures*sub_textures; ++cnt)
@@ -6192,7 +6192,7 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
     }
 
     // make an alias for the texture's SDL_Surface
-    SDL_Surface *src_img = src_tx->surface;
+    SDL_Surface *src_img = src_tx->source;
 
     // grab parameters from the mesh
     int src_img_w = src_img->w;
@@ -6239,7 +6239,7 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
             int blit_rv = SDL_BlitSurface(src_img, &src_img_rect, dst_img, nullptr);
 
             // upload the SDL_Surface into OpenGL
-            oglx_texture_t::convert(dst_tx, dst_img, INVALID_KEY);
+            oglx_texture_t::load(dst_tx, dst_img, INVALID_KEY);
 
             // count the number of textures we're using
             cnt++;
@@ -6286,18 +6286,24 @@ void TextureAtlasManager::reload_all()
 
     for (size_t cnt = 0; cnt < sml_cnt; ++cnt)
     {
-        if (oglx_texture_Valid(&(sml[cnt])))
-        {
-            oglx_texture_t::convert(&(sml[cnt]), sml[cnt].surface, INVALID_KEY);
-        }
+        /// @todo MH: Until proper reference counting is employed,
+        ///           we must "steal" the source from the texture,
+        ///           otherwise the texture will destroy the source.
+        /// @todo MH: Add error handling.
+        SDL_Surface *source = sml[cnt].source;
+        sml[cnt].source = nullptr;
+        oglx_texture_t::load(&(sml[cnt]), source, INVALID_KEY);
     }
 
     for (size_t cnt = 0; cnt < big_cnt; ++cnt)
     {
-        if (oglx_texture_Valid(&(big[cnt])))
-        {
-            oglx_texture_t::convert(&(big[cnt]), big[cnt].surface, INVALID_KEY);
-        }
+        /// @todo MH: Until proper reference counting is employed,
+        ///           we must "steal" the source from the texture,
+        ///           otherwise the texture will destroy the source.
+        /// @todo MH: Add error handling.
+        SDL_Surface *source = big[cnt].source;
+        big[cnt].source = nullptr;
+        oglx_texture_t::load(&(big[cnt]), source, INVALID_KEY);
     }
 }
 

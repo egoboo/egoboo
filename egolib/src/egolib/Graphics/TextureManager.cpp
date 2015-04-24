@@ -30,6 +30,7 @@
 TextureManager::TextureManager()
     : _lst(), _free()
 {
+    initializeErrorTextures();
     // Fill the _free set with all texture references
     // from TX_SPECIAL_LAST (inclusive) to TEXTURES_MAX (exclusive).
     for (TX_REF ref = TX_SPECIAL_LAST; ref < TEXTURES_MAX; ++ref)
@@ -66,6 +67,7 @@ TextureManager::~TextureManager()
         free(_lst[ref]);
         _lst[ref] = nullptr;
     }
+    uninitializeErrorTextures();
 }
 
 void TextureManager::freeAll()
@@ -93,11 +95,13 @@ void TextureManager::reload_all()
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
     {
         oglx_texture_t *texture = _lst[ref];
-
-        if (oglx_texture_Valid(texture))
-        {
-            oglx_texture_t::convert(texture, texture->source, INVALID_KEY);
-        }
+        /// @todo MH: Until proper reference counting is employed,
+        ///           we must "steal" the source from the texture,
+        ///           otherwise the texture will destroy the source.
+        /// @todo MH: Add error handling.
+        SDL_Surface *source = texture->source;
+        texture->source = nullptr;
+        oglx_texture_t::load(texture, source, INVALID_KEY);
     }
 }
 
@@ -178,9 +182,5 @@ TX_REF TextureManager::load(const char *filename, const TX_REF ref, Uint32 key)
 oglx_texture_t *TextureManager::get_valid_ptr(const TX_REF ref)
 {
     oglx_texture_t *texture = LAMBDA(ref >= TEXTURES_MAX, nullptr, _lst[ref]);
-    if (!oglx_texture_Valid(texture))
-    {
-        return nullptr;
-    }
     return texture;
 }

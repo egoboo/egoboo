@@ -136,7 +136,7 @@ namespace Ego
             return;
         }
         
-        oglx_texture_t::convert(tex, textSurface, INVALID_KEY);
+        oglx_texture_t::load(tex, textSurface, INVALID_KEY);
         std::string name = "Font text '" + text + "'";
         strncpy(tex->name, name.c_str(), SDL_arraysize(tex->name));
         tex->name[SDL_arraysize(tex->name) - 1] = '\0';

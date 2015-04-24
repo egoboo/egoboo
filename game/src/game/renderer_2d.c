@@ -381,15 +381,15 @@ void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_fre
         texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
         texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
 
-        if ( NULL == tex || INVALID_GL_ID == tex->base.binding )
+        if (!tex)
         {
             GL_DEBUG( glDisable )( GL_TEXTURE_1D );                           // GL_ENABLE_BIT
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );                           // GL_ENABLE_BIT
         }
         else
         {
-            GL_DEBUG( glEnable )( tex->base.target );                        // GL_ENABLE_BIT
-            oglx_texture_t::bind( tex );
+            GL_DEBUG(glEnable)(tex->_type);                        // GL_ENABLE_BIT
+            oglx_texture_t::bind(tex);
         }
 
 		Ego::Renderer::get().setColour(tint);

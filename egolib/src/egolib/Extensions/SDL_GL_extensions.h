@@ -324,14 +324,7 @@ struct PixelDescriptor <Ego::PixelFormat::R8G8B8>
  * @throw std::invalid_argument
  *  if @a surface is @a nullptr
  */
-SDL_Surface *SDL_GL_convert_surface_2(SDL_Surface *surface);
-
-/// Convert a SDL_Surface to an OpenGL texture directly.
-/// Uses the SDL and OpenGL graphics options to upload the texture in the correct mode
-GLuint SDL_GL_convert_surface(GLenum binding, SDL_Surface *surface, GLint wrap_s, GLint wrap_t);
-
-/// Convert a SDL surface into an OpenGL texture
-SDL_bool SDL_GL_uploadSurface(SDL_Surface *surface, GLuint texture, GLfloat *texCoords);
+SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface);
 
 /// Set the OpenGL screen mode using SDL
 SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t *v_old, SDLX_video_parameters_t *v_new, oglx_video_parameters_t *gl_new, SDL_bool has_valid_mode);

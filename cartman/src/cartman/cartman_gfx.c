@@ -1284,7 +1284,7 @@ void get_small_tiles( SDL_Surface* bmpload )
             SDL_FillRect( image, NULL, MAKE_BGR( image, 0, 0, 0 ) );
             SDL_SoftStretch( bmpload, &src1, image, NULL );
 
-            oglx_texture_t::convert( tx_smalltile + numsmalltile, image, INVALID_KEY );
+            oglx_texture_t::load( tx_smalltile + numsmalltile, image, INVALID_KEY );
 
             numsmalltile++;
         }
@@ -1331,7 +1331,7 @@ void get_big_tiles( SDL_Surface* bmpload )
 
             SDL_SoftStretch( bmpload, &src1, image, NULL );
 
-            oglx_texture_t::convert( tx_bigtile + numbigtile, image, INVALID_KEY );
+            oglx_texture_t::load( tx_bigtile + numbigtile, image, INVALID_KEY );
 
             numbigtile++;
         }

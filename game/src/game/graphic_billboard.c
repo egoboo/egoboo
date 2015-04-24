@@ -23,7 +23,6 @@
 
 #include "egolib/_math.h"
 #include "game/graphic_billboard.h"
-#include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/Graphics/Camera.hpp"
@@ -366,11 +365,11 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
 
     oglx_texture_t::bind(ptex);
 
-	float w = oglx_texture_t::getImageWidth(ptex);
-    float h = oglx_texture_t::getImageHeight(ptex);
+    float w = oglx_texture_t::getSourceWidth(ptex);
+    float h = oglx_texture_t::getSourceHeight(ptex);
 
-    float x1 = w  / (float)oglx_texture_t::getTextureWidth(ptex);
-    float y1 = h  / (float)oglx_texture_t::getTextureHeight(ptex);
+    float x1 = w  / (float)oglx_texture_t::getWidth(ptex);
+    float y1 = h  / (float)oglx_texture_t::getHeight(ptex);
 
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 

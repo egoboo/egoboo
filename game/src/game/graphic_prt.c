@@ -23,7 +23,6 @@
 
 #include "egolib/bbox.h"
 #include "game/graphic_prt.h"
-#include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/game.h"
@@ -75,15 +74,19 @@ int prt_get_texture_style( const TX_REF itex )
 void prt_set_texture_params( const TX_REF itex )
 {
     int index = prt_get_texture_style( itex );
-    if (index < 0) return;
-
+    if (index < 0)
+    {
+        return;
+    }
     oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(itex);
-    if (NULL == ptex) return;
-
-    ptex_w[index] = ptex->imgW;
-    ptex_h[index] = ptex->imgH;
-    ptex_wscale[index] = ( float )ptex->imgW / ( float )ptex->base.width;
-    ptex_hscale[index] = ( float )ptex->imgH / ( float )ptex->base.height;
+    if (!ptex)
+    {
+        return;
+    }
+    ptex_w[index] = oglx_texture_t::getSourceWidth(ptex);
+    ptex_h[index] = oglx_texture_t::getSourceHeight(ptex);
+    ptex_wscale[index] = (float)oglx_texture_t::getSourceWidth(ptex) / (float)oglx_texture_t::getWidth(ptex);
+    ptex_hscale[index] = (float)oglx_texture_t::getSourceHeight(ptex) / (float)oglx_texture_t::getHeight(ptex);
 }
 
 //--------------------------------------------------------------------------------------------

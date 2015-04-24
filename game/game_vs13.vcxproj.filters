@@ -116,9 +116,6 @@
     <ClCompile Include="src\game\graphic_prt.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\graphic_texture.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\input.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -350,9 +347,6 @@
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\graphic_prt.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\graphic_texture.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\input.h">

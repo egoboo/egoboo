@@ -23,7 +23,6 @@
 
 #include "game/mad.h"
 #include "game/graphic.h"
-#include "game/graphic_texture.h"
 #include "game/script_compile.h"
 #include "game/Graphics/MD2Model.hpp"
 #include "game/Entities/_Include.hpp"

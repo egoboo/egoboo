@@ -14,8 +14,8 @@ public:
 
     void setImage(const std::string &filePath);
 
-    inline int getTextureWidth() const {return _image.imgW;}
-    inline int getTextureHeight() const {return _image.imgH;}
+    inline int getTextureWidth() const { return oglx_texture_t::getSourceWidth(&_image); }
+    inline int getTextureHeight() const { return oglx_texture_t::getSourceHeight(&_image); }
 
 private:
     oglx_texture_t _image;

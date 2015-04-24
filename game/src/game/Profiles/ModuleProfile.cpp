@@ -53,12 +53,15 @@ ModuleProfile::ModuleProfile() :
     _vfsPath(_name),
     _folderName(_name)
 {
-    //ctor
+    if (!oglx_texture_t::ctor(&_icon))
+    {
+        throw std::runtime_error("unable to construct icon texture");
+    }
 }
 
 ModuleProfile::~ModuleProfile()
 {
-	oglx_texture_t::release(&_icon);
+    oglx_texture_t::dtor(&_icon);
 }
 
 bool ModuleProfile::isModuleUnlocked() const

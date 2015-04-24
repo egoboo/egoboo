@@ -23,7 +23,6 @@
 
 #include "egolib/bbox.h"
 #include "game/graphic_mad.h"
-#include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/mad.h"
@@ -2501,22 +2500,20 @@ matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
 {
-    oglx_texture_t * ptex;
-
-    if ( NULL == pinst )
+    if (!pinst)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
         return gfx_error;
     }
 
     // grab the texture
-	ptex = TextureManager::get().get_valid_ptr(itex);
+    oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(itex);
 
     // get the transparency info from the texture
     pinst->skin_has_transparency = false;
-    if ( NULL != ptex )
+    if (ptex)
     {
-        pinst->skin_has_transparency = ( SDL_FALSE != ptex->has_alpha );
+        pinst->skin_has_transparency = oglx_texture_t::hasAlpha(ptex);
     }
 
     // set the texture index

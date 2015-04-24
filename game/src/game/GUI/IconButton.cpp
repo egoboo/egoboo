@@ -22,7 +22,6 @@
 /// @author Johan Jansen
 
 #include "game/GUI/IconButton.hpp"
-#include "game/graphic_texture.h"
 
 IconButton::IconButton(const std::string &buttonText, TX_REF icon, int hotkey) : Button(buttonText, hotkey),
 	_icon(icon)

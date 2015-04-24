@@ -3,18 +3,25 @@
 Image::Image() :
     _image()
 {
-    //default ctor
+    if (!oglx_texture_t::ctor(&_image))
+    {
+        throw std::runtime_error("unable to construct image texture");
+    }
 }
 
 Image::Image(const std::string &filePath) : 
     _image()
 {
+    if (!oglx_texture_t::ctor(&_image))
+    {
+        throw std::runtime_error("unable to construct image texture");
+    }
     ego_texture_load_vfs(&_image, filePath.c_str(), TRANSCOLOR);
 }
 
 Image::~Image()
 {
-    oglx_texture_t::release(&_image);
+    oglx_texture_t::dtor(&_image);
 }
 
 void Image::draw()

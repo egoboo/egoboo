@@ -26,7 +26,6 @@
 #include "game/mesh.h"
 #include "game/mesh_functions.h"
 #include "game/graphic.h"
-#include "game/graphic_texture.h"
 #include "game/egoboo.h"
 
 #if 0
