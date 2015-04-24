@@ -305,6 +305,9 @@
     <ClCompile Include="src\game\script_scanner.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GameStates\DebugModuleLoadingState.cpp">
+      <Filter>Game Sources\GameStates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -543,6 +546,9 @@
     </ClInclude>
     <ClInclude Include="src\game\script_scanner.hpp">
       <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GameStates\DebugModuleLoadingState.hpp">
+      <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -380,6 +380,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\GameStates\DebugModuleLoadingState.cpp" />
     <ClCompile Include="src\game\GUI\ScrollableList.cpp" />
     <ClCompile Include="src\game\script_parser.cpp" />
     <ClCompile Include="src\game\script_scanner.cpp" />
@@ -456,6 +457,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\GameStates\DebugModuleLoadingState.hpp" />
     <ClInclude Include="src\game\GUI\ScrollableList.hpp" />
     <ClInclude Include="src\game\script_parser.hpp" />
     <ClInclude Include="src\game\script_scanner.hpp" />
