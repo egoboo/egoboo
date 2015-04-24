@@ -55,6 +55,8 @@ VideoOptionsScreen::VideoOptionsScreen() :
     {
     	yOffset = addResolutionButton(sdl_scr.video_mode_list[i]->w, sdl_scr.video_mode_list[i]->h, yOffset);
     }
+    
+    _resolutionList->forceUpdate();
 
 	//Back button
 	yOffset = SCREEN_HEIGHT-80;
@@ -124,5 +126,5 @@ int VideoOptionsScreen::addResolutionButton(int width, int height, int yOffset)
 	}
 
 	//return position of next resolution button
-	return yOffset + resolutionButton->getHeight() + 5;
+    return yOffset + resolutionButton->getHeight() + ScrollableList::COMPONENT_LINE_SPACING;
 }

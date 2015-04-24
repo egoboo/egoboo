@@ -212,6 +212,7 @@
 		CD94B4A51A8B3F1500BECFC9 /* IdLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD94B4A31A8B3F1500BECFC9 /* IdLib.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
 		CDB3DC981A659EF30098D3B9 /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC961A659ED40098D3B9 /* mem.c */; };
+		CDB563391AA27820007978A9 /* DebugModuleLoadingState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB563371AA27820007978A9 /* DebugModuleLoadingState.cpp */; };
 		CDBD89411A6C02AF00250CE2 /* MD2Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */; };
 		CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */; };
 		CDBDE3EC1A43A3EF008E5FD1 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3A81A43A2CC008E5FD1 /* lapi.c */; };
@@ -906,6 +907,8 @@
 		CDB103CD1A91C89B0077CD45 /* EgoTest_VSCppUnitTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_VSCppUnitTest.hpp; sourceTree = "<group>"; };
 		CDB103CE1A91C9690077CD45 /* EgoTest_doxygen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_doxygen.hpp; sourceTree = "<group>"; };
 		CDB3DC961A659ED40098D3B9 /* mem.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mem.c; sourceTree = "<group>"; };
+		CDB563371AA27820007978A9 /* DebugModuleLoadingState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugModuleLoadingState.cpp; sourceTree = "<group>"; };
+		CDB563381AA27820007978A9 /* DebugModuleLoadingState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DebugModuleLoadingState.hpp; sourceTree = "<group>"; };
 		CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MD2Model.cpp; sourceTree = "<group>"; };
 		CDBD89401A6C02AF00250CE2 /* MD2Model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MD2Model.hpp; sourceTree = "<group>"; };
 		CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfileSystem.cpp; sourceTree = "<group>"; };
@@ -1832,6 +1835,8 @@
 		CD792BF81A881FE20086270E /* GameStates */ = {
 			isa = PBXGroup;
 			children = (
+				CDB563371AA27820007978A9 /* DebugModuleLoadingState.cpp */,
+				CDB563381AA27820007978A9 /* DebugModuleLoadingState.hpp */,
 				CD792BF91A881FE20086270E /* GameState.cpp */,
 				CD792BFA1A881FE20086270E /* GameState.hpp */,
 				CD792BFB1A881FE20086270E /* InGameMenuState.cpp */,
@@ -2541,6 +2546,7 @@
 				CD39B45B1A37506100B377BE /* char.c in Sources */,
 				CDF3163A1A8F5B80009E6F33 /* ParticleHandler.cpp in Sources */,
 				CD792C201A881FE20086270E /* InGameMenuState.cpp in Sources */,
+				CDB563391AA27820007978A9 /* DebugModuleLoadingState.cpp in Sources */,
 				CDF316371A8F5B80009E6F33 /* Enchant.cpp in Sources */,
 				CD6E5FAA1AD053AE00DBA937 /* ScrollableList.cpp in Sources */,
 				CD792C261A881FE20086270E /* SelectModuleState.cpp in Sources */,

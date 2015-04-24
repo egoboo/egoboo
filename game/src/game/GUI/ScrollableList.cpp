@@ -39,7 +39,7 @@ void ScrollableList::setScrollPosition(int position)
 	//Shift position of all components in container
 	int yOffset = 0;
 	for(int i = 0; i < _componentList.size(); ++i) {
-		if(i < _currentIndex || yOffset >= getHeight()) {
+		if(i < _currentIndex || yOffset + _componentList[i]->getHeight() >= getHeight()) {
 			_componentList[i]->setVisible(false);
 			continue;
 		}
@@ -53,7 +53,7 @@ void ScrollableList::setScrollPosition(int position)
 void ScrollableList::updateScrollButtons()
 {
 	_upButton->setPosition(getX() + getWidth() - _upButton->getWidth(), getY());
-	_downButton->setPosition(getX() + getWidth() - _downButton->getWidth(), getY()+getHeight());
+	_downButton->setPosition(getX() + getWidth() - _downButton->getWidth(), getY()+getHeight() - _downButton->getHeight());
 }
 
 void ScrollableList::setWidth(const int width)
@@ -91,12 +91,10 @@ void ScrollableList::draw()
 	drawContainer();
 
 	//Now draw all components inside it
-	int y = 0;
     _componentListMutex.lock();
-    for(size_t i = _currentIndex; i < _componentList.size() && y < getHeight(); ++i) {
+    for(size_t i = _currentIndex; i < _componentList.size(); ++i) {
         if(!_componentList[i]->isVisible()) continue;  //Ignore hidden/destroyed components
         _componentList[i]->draw();
-        y += _componentList[i]->getHeight();
     }
     _componentListMutex.unlock();
 
@@ -134,4 +132,9 @@ bool ScrollableList::notifyMouseClicked(const int button, const int x, const int
     if(_downButton->notifyMouseClicked(button, x, y)) return true;
     if(_upButton->notifyMouseClicked(button, x, y)) return true;
 	return ComponentContainer::notifyMouseClicked(button, x, y);
+}
+
+void ScrollableList::forceUpdate()
+{
+    setScrollPosition(_currentIndex);
 }
