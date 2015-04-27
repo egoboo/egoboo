@@ -1,4 +1,0 @@
-Author: Chainsaw
-Date: May 26th 2008
-Notes: A better version of my old katana.
-Edited from a Quake 2 player model whose name I've forgotten.

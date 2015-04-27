@@ -1,3 +1,0 @@
-:'a_Visa_Credit_Card'
-:STOP
-

@@ -1,2 +1,0 @@
-original "wooden crate" Veiavx
-new uv-mapping and textureing Ben Birdsey

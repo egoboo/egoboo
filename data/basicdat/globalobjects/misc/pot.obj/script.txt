@@ -1,6 +1,0 @@
-// Empty
-IfBumped
-  SetTargetToWhoeverBumped
-  IfTargetCanOpenStuff
-    DropItems
-End

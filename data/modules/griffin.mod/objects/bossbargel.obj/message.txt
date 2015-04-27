@@ -1,8 +1,0 @@
-Message 0: %n_was_slain_by_%t!
-Message 1: I_will_kill_you!
-Message 2: %n_quaffed_a_potion!
-Message 3: %n_looks_better...
-Message 4: %n's_mask_fell_off!
-Message 5: With_Bargel_dead_the_prisoner_rebellion_quickly_dies_away.
-Message 6: You_now_just_have_to_show_Bargel's_diary_to_the_Guard_Captain
-Message 7: and_claim_your_hard_earned_reward!

@@ -1,3 +1,0 @@
-// Nothing but a rock
-DoNothing
-End

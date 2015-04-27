@@ -1,3 +1,0 @@
-Message 0: %t_found_%n_(%a).
-Message 1: %n_was_smashed!
-Message 2: %n_went_out_of_charges...

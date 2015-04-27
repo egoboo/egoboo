@@ -1,7 +1,0 @@
-// When Spawned
-IfSpawned
-  tmpargument = rand & 63 + 64
-  SetFlyHeight
-
-// All Done
-End

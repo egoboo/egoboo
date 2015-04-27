@@ -1,6 +1,0 @@
-:a_Wand_o
-:STOP
-
-:f_Orb_Storm
-:STOP
-

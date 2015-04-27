@@ -1,8 +1,0 @@
-// ZZ> This function controls the burning of the fire holder
-
-IfSpawned
-  ReaffirmCharacter
-
-// All done
-End
-
