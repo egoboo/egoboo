@@ -175,7 +175,7 @@ struct ai_state_t
     CHR_REF        attacklast;      ///< Last character it was attacked by
     CHR_REF        hitlast;         ///< Last character it hit
     FACING_T       directionlast;   ///< Direction of last attack/healing
-    Uint16         damagetypelast;  ///< Last damage type
+    DamageType     damagetypelast;  ///< Last damage type
     CHR_REF        lastitemused;    ///< The last item the character used
     CHR_REF        target_old;      ///< Target in the previous update
 

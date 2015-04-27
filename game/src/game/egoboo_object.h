@@ -41,7 +41,7 @@ namespace Ego {
 		 * @brief
 		 *	The next free entity GUID.
 		 */
-		static Uint32 nextGUID;
+		static Ego::GUID nextGUID;
 
 	};
 };
@@ -83,7 +83,7 @@ namespace Ego
 		STRING             _name;      ///< what is its "_name"
 		size_t             index;      ///< what is the index position in the object list?
 		Entity::State      state;      ///< what state is it in?
-		Uint32             guid;       ///< a globally unique identifier
+		Ego::GUID          guid;       ///< a globally unique identifier
 
 		// "process" control control
     protected:
@@ -101,7 +101,7 @@ namespace Ego
 		size_t         update_count;   ///< How many updates have been made to this object?
 		size_t         frame_count;    ///< How many frames have been rendered?
 
-		unsigned       update_guid;    ///< a value that lets you know if an object bookmark is in synch with the object list
+		Ego::GUID      update_guid;       ///< a value that lets you know if an object bookmark is in synch with the object list
 
 		/// The BSP leaf for this object.
 		/// Moved to here so that is is not destroyed in the destructor of the inherited object.
@@ -568,7 +568,7 @@ struct _StateMachine
 
         if (!self)
         {
-            parent->update_guid = INVALID_UPDATE_GUID;
+            parent->update_guid = EGO_GUID_INVALID;
         }
         else if (Ego::Entity::State::Active == parent->state)
         {

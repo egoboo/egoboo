@@ -261,11 +261,11 @@ struct apos_t
     }
 
 
-    static apos_t *self_clear(apos_t *self)
+    static apos_t *reset(apos_t *self)
     {
         if (!self)
         {
-            return nullptr;
+            throw std::invalid_argument("nullptr == self");
         }
         self->mins = fvec3_t::zero;
         self->maxs = fvec3_t::zero;
@@ -303,10 +303,13 @@ struct phys_data_t
     float          bumpdampen;                    ///< "Mass" = weight / bumpdampen
     Uint32         weight;                        ///< Weight
     float          dampen;                        ///< Bounciness
+
+    static void reset(phys_data_t *self);
+    static phys_data_t *ctor(phys_data_t *self);
 };
 
 phys_data_t *phys_data_clear(phys_data_t *self);
-phys_data_t *phys_data_ctor(phys_data_t *self);
+
 
 phys_data_t *phys_data_sum_aplat(phys_data_t *self, const fvec3_t& v);
 phys_data_t *phys_data_sum_acoll(phys_data_t *self, const fvec3_t& v);

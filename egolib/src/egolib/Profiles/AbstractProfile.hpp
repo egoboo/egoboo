@@ -25,9 +25,10 @@
 #endif
 
 #include "egolib/typedef.h"
+#include "egolib/Logic/Damage.hpp"
 
 /// @brief The base class of EnchantProfile, ObjectProfile and ParticleProfiles.
-class AbstractProfile
+class AbstractProfile : public Ego::Core::NonCopyable
 {
 
 public:
@@ -60,9 +61,6 @@ public:
         _spawnCount = 0;
     }
 
-    //Disable copying class
-    AbstractProfile(const AbstractProfile& copy) = delete;
-    AbstractProfile& operator=(const AbstractProfile&) = delete;
 };
 
 /// Enchants as well as particles can spawn other particles.

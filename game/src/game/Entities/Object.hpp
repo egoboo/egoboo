@@ -31,6 +31,7 @@
 #include "game/script.h"
 #include "game/Profiles/_Include.hpp"
 #include "game/graphic_mad.h"
+#include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"
 #include "egolib/IDSZ_map.h"
 
@@ -138,7 +139,7 @@ struct chr_spawn_data_t
 };
 
 /// The definition of the character object.
-class Object : public Ego::Core::NonCopyable
+class Object : public PhysicsData, public Ego::Core::NonCopyable
 {
 public:
     static const size_t MAXNUMINPACK = 6; ///< Max number of items to carry in pack
@@ -219,22 +220,22 @@ public:
     /**
     * @return Get current X, Y, Z position of this Object
     **/
-    inline const fvec3_t& getPosition() const {return _position;}
+    inline const fvec3_t& getPosition() const { return pos; }
 
     /**
     * @return Get current X position of this Object
     **/
-    inline float getPosX() const {return _position.x;}
+    inline float getPosX() const { return pos.x; }
 
     /**
     * @return Get current Y position of this Object
     **/
-    inline float getPosY() const {return _position.y;}
+    inline float getPosY() const { return pos.y; }
 
     /**
     * @return Get current Z position of this Object
     **/
-    inline float getPosZ() const {return _position.z;}
+    inline float getPosZ() const { return pos.z; }
 
     /**
     * @brief Set current X, Y, Z position of this Object
@@ -268,20 +269,20 @@ public:
     /**
     * @brief Sets the transparency for this Object
     * @param light Transparency level between 0 (fully transparent) and 255 (fully opaque)
-    **/
+    */
     void setLight(const int light);
 
     /**
-    * @brief Checks if this Object is able to mount (ride) another Object
-    * @param mount Which Object we are trying to mount
-    * @return true if we are able to mount the specified Object
-    **/
-	bool canMount(const std::shared_ptr<Object> mount) const;
+     * @brief Checks if this Object is able to mount (ride) another Object
+     * @param mount Which Object we are trying to mount
+     * @return true if we are able to mount the specified Object
+     */
+    bool canMount(const std::shared_ptr<Object> mount) const;
 
-	/**
-	* @return true if this Object is mountable by other Objects
-	**/
-	bool isMount() const {return getProfile()->isMount();}
+    /**
+     * @return true if this Object is mountable by other Objects
+     */
+    bool isMount() const {return getProfile()->isMount();}
 
     /**
     * @brief
@@ -485,14 +486,10 @@ public:
     bool         platform;                      ///< Can it be stood on
     bool         canuseplatforms;               ///< Can use platforms?
     int            holdingweight;                 ///< For weighted buttons
-    float          targetplatform_level;          ///< What is the height of the target platform?
-    CHR_REF        targetplatform_ref;            ///< Am I trying to attach to a platform?
-    CHR_REF        onwhichplatform_ref;           ///< Am I on a platform?
-    uint32_t         onwhichplatform_update;        ///< When was the last platform attachment made?
 
     // combat stuff
-    uint8_t          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
-    uint8_t          reaffirm_damagetype;           ///< For relighting torches
+    DamageType          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
+    DamageType          reaffirm_damagetype;           ///< For relighting torches
     std::array<uint8_t, DAMAGE_COUNT> damage_modifier; ///< Damage inversion
     std::array<float, DAMAGE_COUNT> damage_resistance; ///< Damage Resistances
     uint8_t          defense;                       ///< Base defense rating
@@ -581,17 +578,10 @@ public:
 
     uint8_t        stoppedby;                     ///< Collision mask
 
-    // character location data
-    fvec3_t        pos_stt;                       ///< Starting position
-    fvec3_t        vel;                           ///< Character's velocity
     orientation_t  ori;                           ///< Character's orientation
-
-    fvec3_t        pos_old;                       ///< Character's last position
-    fvec3_t        vel_old;                       ///< Character's last velocity
     orientation_t  ori_old;                       ///< Character's last orientation
 
-    TileIndex      onwhichgrid;                   ///< Where the char is
-    BlockIndex     onwhichblock;                  ///< The character's collision block
+
     CHR_REF        bumplist_next;                 ///< Next character on fanblock
 
     // movement properties
@@ -607,16 +597,11 @@ public:
     uint8_t          flyheight;                     ///< Height to stabilize at
 
     // data for doing the physics in bump_all_objects()
-    phys_data_t       phys;
+
     chr_environment_t enviro;
 
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     CHR_REF           dismount_object;               ///< the object that you were dismounting from
-
-    bool         safe_valid;                    ///< is the last "safe" position valid?
-    fvec3_t        safe_pos;                      ///< the last "safe" position
-    uint32_t         safe_time;                     ///< the last "safe" time
-    uint32_t         safe_grid;                     ///< the last "safe" grid
 
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
@@ -624,8 +609,6 @@ private:
     bool _terminateRequested;                           ///< True if this character no longer exists in the game and should be destructed
     CHR_REF _characterID;                               ///< Our unique CHR_REF id
     const std::shared_ptr<ObjectProfile> &_profile;     ///< Our Profile
-
-    fvec3_t _position;                                  ///< Character's position
 
     friend class ObjectHandler;
 };

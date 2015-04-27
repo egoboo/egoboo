@@ -2818,7 +2818,7 @@ Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->damagetarget_damagetype = pstate->argument % DAMAGE_COUNT;
+    pchr->damagetarget_damagetype = static_cast<DamageType>(pstate->argument % DAMAGE_COUNT);
 
     SCRIPT_FUNCTION_END();
 }
@@ -7198,7 +7198,10 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
             if ( chr_get_skill( pattacker, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
             {
                 //Finally we require it to be physical damage!
-                if ( DAMAGE_IS_PHYSICAL( pself->damagetypelast ) ) returncode = true;
+                if (DamageType_isPhysical(pself->damagetypelast))
+                {
+                    returncode = true;
+                }
             }
         }
     }

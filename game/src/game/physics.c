@@ -33,7 +33,7 @@ Physics::Environment Physics::g_environment;
 const float PLATFORM_STICKINESS =  0.01f;
 
 
-static int breadcrumb_guid = 0;
+static Ego::GUID breadcrumb_guid = 0;
 
 static egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct_vec_v2_t& ovel1, const oct_bb_t& src2, const oct_vec_v2_t& ovel2, int test_platform, float *tmin, float *tmax);
 static egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, const oct_vec_v2_t& ovel1, const oct_bb_t& src2, const oct_vec_v2_t& ovel2, int test_platform, float *tmin, float *tmax);
@@ -1394,8 +1394,8 @@ phys_data_t *phys_data_clear(phys_data_t *self)
         return nullptr;
     }
 
-    apos_t::self_clear(&(self->aplat));
-    apos_t::self_clear(&(self->acoll));
+    apos_t::reset(&(self->aplat));
+    apos_t::reset(&(self->acoll));
     self->avel = fvec3_t::zero;
     /// @todo Seems like dynamic and loaded data are mixed here;
     /// We may not blank bumpdampen, weight or dampen for now.
@@ -1407,13 +1407,26 @@ phys_data_t *phys_data_clear(phys_data_t *self)
     return self;
 }
 
-phys_data_t *phys_data_ctor(phys_data_t *self)
+void phys_data_t::reset(phys_data_t *self)
 {
     if (!self)
     {
-        return nullptr;
+        throw std::invalid_argument("nullptr == self");
     }
-    
+    apos_t::reset(&(self->aplat));
+    apos_t::reset(&(self->acoll));
+    self->avel = fvec3_t::zero;
+    self->bumpdampen = 1.0f;
+    self->weight = 1.0f;
+    self->dampen = 0.5f;
+}
+
+phys_data_t *phys_data_t::ctor(phys_data_t *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
     apos_t::ctor(&(self->aplat));
     apos_t::ctor(&(self->acoll));
     self->avel = fvec3_t::zero;

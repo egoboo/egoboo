@@ -476,7 +476,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
                 {
                     case eve_t::SETDAMAGETYPE:
                         penc->_set[value_idx]._oldValue  = ptarget->damagetarget_damagetype;
-                        ptarget->damagetarget_damagetype = peve->_set[value_idx].value;
+                        ptarget->damagetarget_damagetype = static_cast<DamageType>(static_cast<std::underlying_type<DamageType>::type>(peve->_set[value_idx].value));
                         break;
 
                     case eve_t::SETNUMBEROFJUMPS:
@@ -1301,7 +1301,7 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
     switch ( value_idx )
     {
         case eve_t::SETDAMAGETYPE:
-            ptarget->damagetarget_damagetype = penc->_set[value_idx]._oldValue;
+            ptarget->damagetarget_damagetype = static_cast<DamageType>(static_cast<std::underlying_type<DamageType>::type>(penc->_set[value_idx]._oldValue));
             break;
 
         case eve_t::SETNUMBEROFJUMPS:

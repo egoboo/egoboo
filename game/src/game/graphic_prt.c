@@ -714,7 +714,8 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 
     pinst->type = pprt->type;
 
-    pinst->image_ref = UFP8_TO_UINT( pprt->image_stt + pprt->image_off );
+    pinst->image_ref = (pprt->_image._start / EGO_ANIMATION_MULTIPLIER + pprt->_image._offset / EGO_ANIMATION_MULTIPLIER);
+
 
     // set the position
     prt_t::get_pos(pprt, pinst->pos);

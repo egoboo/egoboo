@@ -550,6 +550,9 @@
     <ClInclude Include="src\game\GameStates\DebugModuleLoadingState.hpp">
       <Filter>Game Header Files\GameStates</Filter>
     </ClInclude>
+    <ClInclude Include="src\game\Entities\Common.hpp">
+      <Filter>Game Header Files\Entities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\egoboo.ico">

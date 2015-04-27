@@ -88,6 +88,9 @@
     <Filter Include="Header Files\VFS">
       <UniqueIdentifier>{b4fed5b6-d183-4e21-8375-da563983852e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Logic">
+      <UniqueIdentifier>{33384dbb-7660-463b-b7ee-971916301412}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -808,6 +811,18 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Graphics\TextureManager.hpp">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\Damage.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\Gender.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\Animation2D.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\StaticEnumDescriptor.hpp">
+      <Filter>Header Files\Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2944,9 +2944,7 @@ void respawn_character( const CHR_REF character )
     pchr->life = pchr->life_max;
     pchr->mana = pchr->mana_max;
     pchr->setPosition(pchr->pos_stt);
-    pchr->vel.x = 0;
-    pchr->vel.y = 0;
-    pchr->vel.z = 0;
+    pchr->vel = fvec3_t::zero;
     pchr->team = pchr->team_base;
     pchr->canbecrushed = false;
     pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
@@ -4749,9 +4747,7 @@ void move_one_character_do_z_motion( Object * pchr )
         gperp.y = 0       - gpara.y;
         gperp.z = Physics::g_environment.gravity - gpara.z;
 
-        pchr->vel.x += gpara.x * ( 1.0f - loc_zlerp ) + gperp.x * loc_zlerp;
-        pchr->vel.y += gpara.y * ( 1.0f - loc_zlerp ) + gperp.y * loc_zlerp;
-        pchr->vel.z += gpara.z * ( 1.0f - loc_zlerp ) + gperp.z * loc_zlerp;
+        pchr->vel += gpara * ( 1.0f - loc_zlerp ) + gperp * loc_zlerp;
     }
     else
     {
@@ -5544,7 +5540,7 @@ float set_character_animation_rate( Object * pchr )
     if ( 0 != pchr->flyheight )
     {
         // for flying objects, the speed is the actual speed
-        speed = std::abs( pchr->vel.x ) + std::abs( pchr->vel.y ) + std::abs( pchr->vel.z );
+        speed = pchr->vel.length_abs();
     }
     else
     {

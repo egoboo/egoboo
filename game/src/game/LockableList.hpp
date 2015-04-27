@@ -11,7 +11,7 @@ template <typename TYPE, typename REFTYPE, REFTYPE INVALIDREF, size_t COUNT, bsp
 struct _LockableList : public Ego::Core::NonCopyable
 {
     _LockableList() :
-        update_guid(INVALID_UPDATE_GUID),
+        update_guid(EGO_GUID_INVALID),
         usedCount(0),
         freeCount(0),
         termination_count(0),
@@ -37,7 +37,7 @@ struct _LockableList : public Ego::Core::NonCopyable
     }
 
 protected:
-    unsigned update_guid;
+    Ego::GUID update_guid;
     int usedCount;
     int freeCount;
 
@@ -78,7 +78,7 @@ public:
         return false;
     }
 
-    unsigned getUpdateGUID() const
+    Ego::GUID getUpdateGUID() const
     {
         return update_guid;
     }

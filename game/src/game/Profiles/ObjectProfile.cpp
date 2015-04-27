@@ -595,6 +595,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
         for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
         {
+            _skinInfo[cnt].damageModifier[damagetype] = 0;
             switch (Ego::toupper(ctxt.readPrintable()))
             {
                 case 'T': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGEINVERT;   break;

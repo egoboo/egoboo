@@ -1230,9 +1230,7 @@ void update_pits()
                     else
                     {
                         // Stop movement
-                        pchr->vel.z = 0;
-                        pchr->vel.x = 0;
-                        pchr->vel.y = 0;
+                        pchr->vel = fvec3_t::zero;
 
                         // Play sound effect
                         if ( VALID_PLA( pchr->is_which_player ) )

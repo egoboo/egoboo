@@ -2102,9 +2102,7 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
     }
 
     // reject the reflection request if the particle is moving in the wrong direction
-    vdiff[kX] = pchr->vel.x - pprt->vel.x;
-    vdiff[kY] = pchr->vel.y - pprt->vel.y;
-    vdiff[kZ] = pchr->vel.z - pprt->vel.z;
+    vdiff = pchr->vel - pprt->vel;
     dot       = vdiff.dot(nrm);
 
     // we really never should have the condition that dot > 0, unless the particle is "fast"
@@ -2793,11 +2791,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
             {
                 // Deflect the incoming ray off the normal
                 pdata->vimpulse -= pdata->vdiff_para * 2.0f;
-#if 0
-                pdata->vimpulse.x -= 2.0f * pdata->vdiff_para.x;
-                pdata->vimpulse.y -= 2.0f * pdata->vdiff_para.y;
-                pdata->vimpulse.z -= 2.0f * pdata->vdiff_para.z;
-#endif
+
                 // the ricochet is not guided
                 pdata->ppip->homing     = false;
             }
@@ -2805,11 +2799,6 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
             {
                 // Reflect it back in the direction it came
                 pdata->vimpulse -= pdata->vdiff * 2.0f;
-#if 0
-                pdata->vimpulse.x -= 2.0f * pdata->vdiff.x;
-                pdata->vimpulse.y -= 2.0f * pdata->vdiff.y;
-                pdata->vimpulse.z -= 2.0f * pdata->vdiff.z;
-#endif
 
                 // Change the owner of the missile
                 pdata->pprt->team       = pdata->pchr->team;
@@ -3199,7 +3188,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             }
 
             // Damage the character
-            pdata->actual_damage = pdata->pchr->damage(direction, loc_damage, static_cast<DamageType>(pdata->pprt->damagetype), 
+            pdata->actual_damage = pdata->pchr->damage(direction, loc_damage, pdata->pprt->damagetype, 
                 pdata->pprt->team, _gameObjects[pdata->pprt->owner_ref], pdata->ppip->damfx, false);
         }
     }
@@ -3245,17 +3234,13 @@ bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
         if ( 0.0f == pdata->block_factor )
         {
             // the simple case (particle comes to a stop)
-            pdata->vimpulse.x -= pdata->pprt->vel.x;
-            pdata->vimpulse.y -= pdata->pprt->vel.y;
-            pdata->vimpulse.z -= pdata->pprt->vel.z;
+            pdata->vimpulse -= pdata->pprt->vel;
         }
         else if ( 0.0f != pdata->dot )
         {
             float sgn = SGN( pdata->dot );
 
-            pdata->vimpulse.x += -sgn * ( 1.0f + pdata->block_factor ) * pdata->vdiff_perp.x;
-            pdata->vimpulse.y += -sgn * ( 1.0f + pdata->block_factor ) * pdata->vdiff_perp.y;
-            pdata->vimpulse.z += -sgn * ( 1.0f + pdata->block_factor ) * pdata->vdiff_perp.z;
+            pdata->vimpulse += pdata->vdiff_perp * (-sgn * (1.0f + pdata->block_factor));
         }
     }
 

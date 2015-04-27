@@ -28,6 +28,8 @@
 #include "egolib/Script/Traits.hpp"
 #include "egolib/log.h"
 #include "egolib/file_common.h"
+#include "egolib/Logic/Damage.hpp"
+#include "egolib/Logic/Gender.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

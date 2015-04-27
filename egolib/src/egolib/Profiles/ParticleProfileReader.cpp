@@ -57,10 +57,12 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     else if ('S' == Ego::toupper(cTmp))  profile->type = SPRITE_SOLID;
     else if ('T' == Ego::toupper(cTmp))  profile->type = SPRITE_ALPHA;
 
-    profile->image_base = vfs_get_next_int(ctxt);
-    profile->numframes = vfs_get_next_int(ctxt);
+    profile->image_stt = vfs_get_next_int(ctxt);
+    profile->image_max = vfs_get_next_int(ctxt);
     profile->image_add.base = vfs_get_next_int(ctxt);
     profile->image_add.rand = vfs_get_next_int(ctxt);
+    profile->image_add.base /= EGO_ANIMATION_FRAMERATE_SCALING;
+    profile->image_add.rand /= EGO_ANIMATION_FRAMERATE_SCALING;
     profile->rotate_pair.base = vfs_get_next_int(ctxt);
     profile->rotate_pair.rand = vfs_get_next_int(ctxt);
     profile->rotate_add = vfs_get_next_int(ctxt);
@@ -70,9 +72,9 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->facingadd = vfs_get_next_int(ctxt);
 
     // override the base rotation
-    if (profile->image_base < 256 && prt_u != prt_direction[profile->image_base])
+    if (profile->image_stt < EGO_ANIMATION_MULTIPLIER && prt_u != prt_direction[profile->image_stt])
     {
-        profile->rotate_pair.base = prt_direction[profile->image_base];
+        profile->rotate_pair.base = prt_direction[profile->image_stt];
     }
 
     // Ending conditions

@@ -31,6 +31,8 @@
 #include "game/physics.h"
 #include "egolib/_math.h"
 #include "egolib/bbox.h"
+#include "game/Entities/Common.hpp"
+#include "egolib/Graphics/Animation2D.hpp"
 #include "game/char.h"
 
 // Forward declarations.
@@ -70,6 +72,30 @@ struct prt_environment_t
     // misc states
     bool   inwater;
     fvec3_t  acc;
+
+    static void reset(prt_environment_t *self)
+    {
+        // floor stuff
+        self->twist = 0;
+        self->floor_level = 0.0f;
+        self->level = 0.0f;
+        self->zlerp = 0.0f;
+
+        self->adj_level = 0.0f;
+        self->adj_floor = 0.0f;
+
+        // friction stuff
+        self->is_slipping = false;
+        self->is_slippy = self->is_watery = false;
+        self->air_friction = self->ice_friction = 0.0f;
+        self->fluid_friction_hrz = self->fluid_friction_vrt = 0.0f;
+        self->friction_hrz = 0.0f;
+        self->traction = 0.0f;
+
+        // misc states
+        self->inwater = false;
+        self->acc = fvec3_t::zero;
+    }
 };
 
 //--------------------------------------------------------------------------------------------
@@ -88,10 +114,24 @@ struct prt_spawn_data_t
     PRT_REF  prt_origin;
     int      multispawn;
     CHR_REF  oldtarget;
+
+    static void reset(prt_spawn_data_t *self)
+    {
+        self->pos = fvec3_t::zero;
+        self->facing = 0;
+        self->iprofile = INVALID_PRO_REF;
+        self->ipip = INVALID_PIP_REF;
+
+        self->chr_attach = INVALID_CHR_REF;
+        self->vrt_offset = 0;
+        self->team = 0; /// @todo Should be INVALID_TEAM_REF.
+        
+        self->chr_origin = INVALID_CHR_REF;
+        self->prt_origin = INVALID_PRT_REF;
+        self->multispawn = 0;
+        self->oldtarget  = INVALID_CHR_REF;
+    }
 };
-
-
-
 
 /**
  * @brief
@@ -99,7 +139,7 @@ struct prt_spawn_data_t
  * @extends
  *  Ego::Entity
  */
-struct prt_t : public _StateMachine<prt_t,ParticleHandler>
+struct prt_t : public PhysicsData, _StateMachine<prt_t,ParticleHandler>
 {
     bool is_ghost;                   ///< the particle has been killed, but is hanging around a while...
 
@@ -110,32 +150,47 @@ struct prt_t : public _StateMachine<prt_t,ParticleHandler>
     PRO_REF profile_ref;                       ///< the profile related to the spawned particle
 
     // links
-    CHR_REF attachedto_ref;                    ///< For torch flame
-    CHR_REF owner_ref;                         ///< The character that is attacking
-    CHR_REF target_ref;                        ///< Who it's chasing
+    /**
+     * @brief
+     *  The object the particle is attached to.
+     *  Example: A fire particle is attached to a torch.
+     */
+    CHR_REF attachedto_ref;
+    /**
+     * @brief
+     *  The object owning this particle.
+     *  Example: A fire particle is owned by a torch.
+     */
+    CHR_REF owner_ref;
+    /**
+     * @brief
+     *  The object targeted by this particle.
+     *  Example: Target-seeking arrows/bolts or similar particles.
+     */
+    CHR_REF target_ref;
+    /**
+     * @brief
+     *  The original parent particle if any.
+     *  The particle which has spawned this particle if any, INVALID_PRT_REF otherwise.
+     */
     PRT_REF parent_ref;                        ///< Did a another particle spawn this one?
-    Uint32  parent_guid;                       ///< Just in case, the parent particle was despawned and a differnt particle now has the parent_ref
+    /**
+     * @brief
+     *  The new parent particle (if the original parent was despawned).
+     */
+    Ego::GUID parent_guid; 
+
 
     Uint16   attachedto_vrt_off;               ///< It's vertex offset
     Uint8    type;                             ///< Transparency mode, 0-2
     FACING_T facing;                           ///< Direction of the part
     TEAM_REF team;                             ///< Team
 
-    fvec3_t pos_stt;                  ///< Starting/initial position.
-    fvec3_t vel_stt;                  ///< Starting/initial velocity.
-    fvec3_t pos, pos_old;             ///< Current position, old position.
-    fvec3_t vel, vel_old;             ///< Current velocity, old velocity;
+    fvec3_t vel_stt;        ///< Starting/initial velocity.
+
     fvec3_t offset;                            ///< The initial offset when spawning the particle
 
-    Uint32  onwhichgrid;                       ///< Where the part is
-    Uint32  onwhichblock;                      ///< The particle's collision block
     bool  is_hidden;                           ///< Is the particle related to a hidden character?
-
-    // platforms
-    float   targetplatform_level;              ///< What is the height of the target platform?
-    CHR_REF targetplatform_ref;                ///< Am I trying to attach to a platform?
-    CHR_REF onwhichplatform_ref;               ///< Is the particle on a platform?
-    Uint32  onwhichplatform_update;            ///< When was the last platform attachment made?
 
     FACING_T          rotate;                  ///< Rotation direction
     Sint16            rotate_add;              ///< Rotation rate
@@ -144,21 +199,57 @@ struct prt_t : public _StateMachine<prt_t,ParticleHandler>
     UFP8_T            size;                    ///< Size of particle (8.8 fixed point)
     SFP8_T            size_add;                ///< Change in size (8.8 fixed point)
 
-    // which image
-    UFP8_T            image_stt;               ///< Start of image loop (8.8 fixed point)
-    UFP8_T            image_off;               ///< Which image (8.8 fixed point)
-    UFP8_T            image_add;               ///< Image offset animation rate (8.8 fixed point)
-    UFP8_T            image_max;               ///< Maximum image offset (8.8 fixed point)
+    /// The state of a 2D animation used for rendering the particle.
+    AnimationLoop _image;
 
-    // lifetime stuff
-    bool is_eternal;                    ///< Does the particle ever time-out?
-    size_t lifetime_total;              ///< Total particle lifetime in updates
-    size_t lifetime_remaining;          ///< How many updates does the particle have left?
-    size_t frames_total;                ///< Total number of particle frames
-    size_t frames_remaining;            ///< How many frames does the particle have left?
-    int               contspawn_timer;  ///< Time until spawn
+    /** @name lifetime */
+    /**@{*/
+    
+    /**
+     * @brief
+     *  Does the particle ever time-out?
+     */
+    bool is_eternal;
 
-    // bunping
+    /**
+     * @brief
+     *  The total lifetime in updates.
+     * @todo
+     *  Use a count-down timer.
+     */
+    size_t lifetime_total;
+    /**
+     * @brief
+     *  The remaining lifetime in updates.
+     * @todo
+     *  Use a count-down timer.
+     */
+    size_t lifetime_remaining;
+
+    /**
+     * @brief
+     *  The total number of frames.
+     * @todo
+     *  Use a count-down timer.
+     */
+    size_t frames_total;
+    /**
+     * @brief
+     *  The remaining number of frames.
+     * @todo
+     *  Use a count-down timer.
+     */
+    size_t frames_remaining;
+
+    /**
+     * @brief
+     *  The updates until spawn.
+     */
+    int contspawn_timer;
+
+    /**@}*/
+
+    // bumping
     Uint32            bump_size_stt;           ///< the starting size of the particle (8.8 fixed point)
     bumper_t          bump_real;               ///< Actual size of the particle
     bumper_t          bump_padded;             ///< The size of the particle with the additional bumpers added in
@@ -166,7 +257,7 @@ struct prt_t : public _StateMachine<prt_t,ParticleHandler>
     oct_bb_t          prt_max_cv;              ///< Collision volume for chr-prt interactions
 
     // damage
-    Uint8             damagetype;              ///< Damage type
+    DamageType        damagetype;              ///< Damage type
     IPair             damage;                  ///< For strength
     UFP8_T            lifedrain;               ///< (8.8 fixed point)
     UFP8_T            manadrain;               ///< (8.8 fixed point)
@@ -189,12 +280,6 @@ struct prt_t : public _StateMachine<prt_t,ParticleHandler>
     dynalight_info_t  dynalight;               ///< Dynamic lighting...
     prt_instance_t    inst;                    ///< Everything needed for rendering
     prt_environment_t enviro;                  ///< the particle's environment
-    phys_data_t       phys;                    ///< the particle's physics data
-
-    bool              safe_valid;              ///< is the last "safe" position valid?
-    fvec3_t           safe_pos;                ///< the last "safe" position
-    Uint32            safe_time;               ///< the last "safe" time
-    Uint32            safe_grid;               ///< the last "safe" grid
 
     prt_t();
     ~prt_t();

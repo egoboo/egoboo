@@ -29,7 +29,7 @@
 namespace Ego
 {
 	Uint32 Ego::Entities::spawnDepth = 0;
-	Uint32 Ego::Entities::nextGUID = 0;
+	Ego::GUID Ego::Entities::nextGUID = 0;
 };
 
 

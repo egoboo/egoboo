@@ -84,23 +84,9 @@ prt_t *prt_t::config_do_ctor()
     // save the base object data, do not construct it with this function.
     Ego::Entity *parent = POBJ_GET_PBASE(this);
 
-    Ego::Entity parentState;
-    memcpy(&parentState, parent, sizeof(Ego::Entity));
-
-    BLANK_STRUCT_PTR(this);
-
-    // restore the base object data
-    memcpy(parent, &parentState, sizeof(Ego::Entity));
-
-    // reset the base counters
-    parent->update_count = 0;
-    parent->frame_count = 0;
-
-    // "no lifetime" = "eternal"
-    this->lifetime_total = (size_t)(~0);
-    this->lifetime_remaining = this->lifetime_total;
-    this->frames_total = (size_t)(~0);
-    this->frames_remaining = this->frames_total;
+    this->is_ghost = false;
+    
+    prt_spawn_data_t::reset(&this->spawn_data);
 
     this->pip_ref = INVALID_PIP_REF;
     this->profile_ref = INVALID_PRO_REF;
@@ -109,19 +95,82 @@ prt_t *prt_t::config_do_ctor()
     this->owner_ref = INVALID_CHR_REF;
     this->target_ref = INVALID_CHR_REF;
     this->parent_ref = INVALID_PRT_REF;
-    this->parent_guid = 0xFFFFFFFF;
+    this->parent_guid = EGO_GUID_INVALID;
 
-    this->onwhichplatform_ref = INVALID_CHR_REF;
-    this->onwhichplatform_update = 0;
-    this->targetplatform_ref = INVALID_CHR_REF;
+    this->attachedto_vrt_off = 0;
+    this->type = 0;
+    this->facing = 0;
+    this->team = 0;
+
+
+    this->_image.reset();
+
+    this->vel_stt = fvec3_t::zero;
+
+    PhysicsData::reset(this);
+
+    this->offset = fvec3_t::zero;
+
+    this->is_hidden = false;
+
+    this->rotate = 0;
+    this->rotate_add = 0;
+
+    this->size_stt = 0;
+    this->size = 0;
+    this->size_add = 0;
+
+    // "no lifetime" = "eternal"
+    this->is_eternal = false;
+    this->lifetime_total = (size_t)(~0);
+    this->lifetime_remaining = this->lifetime_total;
+    this->frames_total = (size_t)(~0);
+    this->frames_remaining = this->frames_total;
+    //
+    this->contspawn_timer = 0;
+
+    // bumping
+    this->bump_size_stt = 0;           ///< the starting size of the particle (8.8 fixed point)
+    bumper_t::reset(&this->bump_real);
+    bumper_t::reset(&this->bump_padded);
+    this->prt_min_cv.mins = this->prt_min_cv.maxs = oct_vec_v2_t();
+    this->prt_min_cv.empty = false;
+    this->prt_max_cv.mins = this->prt_max_cv.maxs = oct_vec_v2_t();
+    this->prt_max_cv.empty = false;
+
+    // damage
+    this->damagetype = DamageType::DAMAGE_SLASH;
+    this->damage.base = 0;
+    this->damage.rand = 0;
+    this->lifedrain = 0;
+    this->manadrain = 0;
+
+    // bump effects
+    this->is_bumpspawn = false;
+
+    // motion effects
+    this->buoyancy = 0.0f;
+    this->air_resistance = 0.0f;
+    this->is_homing = false;
+    this->no_gravity = false;
+
+    // some data that needs to be copied from the particle profile
+    this->endspawn_amount = 0;         ///< The number of particles to be spawned at the end
+    this->endspawn_facingadd = 0;      ///< The angular spacing for the end spawn
+    this->endspawn_lpip = 0;           ///< The actual local pip that will be spawned at the end
+    this->endspawn_characterstate = 0; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
+
+    this->dynalight.reset();
+    prt_instance_t::reset(&this->inst);
+    prt_environment_t::reset(&this->enviro);
 
     // initialize the bsp node for this particle
     POBJ_GET_PLEAF(this)->ctor(this, BSP_LEAF_PRT, GET_REF_PPRT(this));
 
-    // initialize the physics
-    phys_data_ctor(&(this->phys));
-
-    this->obj_base.state = Ego::Entity::State::Initializing;
+    // reset the base counters
+    parent->update_count = 0;
+    parent->frame_count = 0;
+    parent->state = Ego::Entity::State::Initializing;
 
     return this;
 }
@@ -150,10 +199,8 @@ void prt_play_sound(const PRT_REF particle, Sint8 sound)
     /// @author ZZ
     /// @details This function plays a sound effect for a particle
 
-    prt_t * pprt;
-
     if (!DEFINED_PRT(particle)) return;
-    pprt = ParticleHandler::get().get_ptr(particle);
+    prt_t *pprt = ParticleHandler::get().get_ptr(particle);
 
     if (ProfileSystem::get().isValidProfileID(pprt->profile_ref))
     {
@@ -170,18 +217,13 @@ void prt_play_sound(const PRT_REF particle, Sint8 sound)
 PRT_REF end_one_particle_now(const PRT_REF particle)
 {
     // this turns the particle into a ghost
-
-    PRT_REF retval;
-
     if (!ALLOCATED_PRT(particle)) return INVALID_PRT_REF;
-
-    retval = particle;
     if (ParticleHandler::get().request_terminate(particle))
     {
-        retval = INVALID_PRT_REF;
+        return INVALID_PRT_REF;
     }
 
-    return retval;
+    return particle;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -256,7 +298,7 @@ prt_t *prt_t::config_do_init()
             REF_TO_INT(pdata->ipip), REF_TO_INT(pdata->chr_origin), _gameObjects.exists(pdata->chr_origin) ? _gameObjects.get(pdata->chr_origin)->Name : "INVALID",
             REF_TO_INT(pdata->iprofile), ProfileSystem::get().isValidProfileID(pdata->iprofile) ? ProfileSystem::get().getProfile(pdata->iprofile)->getFilePath().c_str() : "INVALID");
 
-        return NULL;
+        return nullptr;
     }
     ppip = PipStack.get_ptr(pdata->ipip);
 
@@ -284,7 +326,7 @@ prt_t *prt_t::config_do_init()
     pprt->team = pdata->team;
     pprt->owner_ref = loc_chr_origin;
     pprt->parent_ref = pdata->prt_origin;
-    pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? ParticleHandler::get().get_ptr(pdata->prt_origin)->obj_base.guid : ((Uint32)(~0));
+    pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? ParticleHandler::get().get_ptr(pdata->prt_origin)->obj_base.guid : EGO_GUID_INVALID;
     pprt->damagetype = ppip->damageType;
     pprt->lifedrain = ppip->lifeDrain;
     pprt->manadrain = ppip->manaDrain;
@@ -427,9 +469,9 @@ prt_t *prt_t::config_do_init()
     pprt->size_stt = ppip->size_base;
     pprt->size_add = ppip->size_add;
 
-    pprt->image_stt = UINT_TO_UFP8(ppip->image_base);
-    pprt->image_add = generate_irand_pair(ppip->image_add);
-    pprt->image_max = UINT_TO_UFP8(ppip->numframes);
+    pprt->_image._start = (ppip->image_stt)*EGO_ANIMATION_MULTIPLIER;
+    pprt->_image._add = generate_irand_pair(ppip->image_add);
+    pprt->_image._count = (ppip->image_max)*EGO_ANIMATION_MULTIPLIER;
 
     // a particle can EITHER end_lastframe or end_time.
     // if it ends after the last frame, end_time tells you the number of cycles through
@@ -438,14 +480,14 @@ prt_t *prt_t::config_do_init()
     prt_anim_infinite = false;
     if (ppip->end_lastframe)
     {
-        if (0 == pprt->image_add)
+        if (0 == pprt->_image._add)
         {
             prt_anim_frames_updates = INFINITE_UPDATES;
             prt_anim_infinite = true;
         }
         else
         {
-            prt_anim_frames_updates = CEIL((float)pprt->image_max / (float)pprt->image_add) - 1;
+            prt_anim_frames_updates = pprt->_image.getUpdateCount();
 
             if (ppip->end_time > 0)
             {
@@ -1112,9 +1154,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * 
     }
 
     // apply the fluid friction
-    loc_pprt->vel.x += fluid_acc.x;
-    loc_pprt->vel.y += fluid_acc.y;
-    loc_pprt->vel.z += fluid_acc.z;
+    loc_pprt->vel += fluid_acc;
 
     return pbdl_prt;
 }
@@ -1158,18 +1198,14 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
 
         temp_friction_xy = PLATFORM_STICKINESS;
 
-        floor_acc.x = pplat->vel.x - pplat->vel_old.x;
-        floor_acc.y = pplat->vel.y - pplat->vel_old.y;
-        floor_acc.z = pplat->vel.z - pplat->vel_old.z;
+        floor_acc = pplat->vel - pplat->vel_old;
 
         chr_getMatUp(pplat, vup);
     }
     else
     {
         temp_friction_xy = 0.5f;
-        floor_acc.x = -loc_pprt->vel.x;
-        floor_acc.y = -loc_pprt->vel.y;
-        floor_acc.z = -loc_pprt->vel.z;
+        floor_acc = -loc_pprt->vel;
 
         if (TWIST_FLAT == penviro->twist)
         {
@@ -1284,37 +1320,29 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt
     vdither.z = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
     // take away any dithering along the direction of motion of the particle
-    vlen = loc_pprt->vel.dot(loc_pprt->vel);
+    vlen = loc_pprt->vel.length_2();
     if (vlen > 0.0f)
     {
         float vdot = vdither.dot(loc_pprt->vel) / vlen;
 
-        vdither.x -= vdot * vdiff.x / vlen;
-        vdither.y -= vdot * vdiff.y / vlen;
-        vdither.z -= vdot * vdiff.z / vlen;
+        vdither -= vdiff * (vdot/vlen);
     }
 
     // add in the dithering
-    vdiff.x += vdither.x;
-    vdiff.y += vdither.y;
-    vdiff.z += vdither.z;
+    vdiff += vdither;
 
     // Make sure that vdiff doesn't ever get too small.
     // That just makes the particle slooooowww down when it approaches the target.
     // Do a real kludge here. this should be a lot faster than a square root, but ...
-    vlen = std::abs(vdiff.x) + std::abs(vdiff.y) + std::abs(vdiff.z);
+    vlen = vdiff.length_abs();
     if (vlen > FLT_EPSILON)
     {
         float factor = min_length / vlen;
 
-        vdiff.x *= factor;
-        vdiff.y *= factor;
-        vdiff.z *= factor;
+        vdiff *= factor;
     }
 
-    loc_pprt->vel.x = (loc_pprt->vel.x + vdiff.x * loc_ppip->homingaccel) * loc_ppip->homingfriction;
-    loc_pprt->vel.y = (loc_pprt->vel.y + vdiff.y * loc_ppip->homingaccel) * loc_ppip->homingfriction;
-    loc_pprt->vel.z = (loc_pprt->vel.z + vdiff.z * loc_ppip->homingaccel) * loc_ppip->homingfriction;
+    loc_pprt->vel = (loc_pprt->vel + vdiff * loc_ppip->homingaccel) * loc_ppip->homingfriction;
 
     return pbdl_prt;
 }
@@ -1413,18 +1441,14 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
         gperp.y = 0 - gpara.y;
         gperp.z = Physics::g_environment.gravity - gpara.z;
 
-        z_motion_acc.x += gpara.x * (1.0f - loc_zlerp) + gperp.x * loc_zlerp;
-        z_motion_acc.y += gpara.y * (1.0f - loc_zlerp) + gperp.y * loc_zlerp;
-        z_motion_acc.z += gpara.z * (1.0f - loc_zlerp) + gperp.z * loc_zlerp;
+        z_motion_acc += gpara * (1.0f - loc_zlerp) + gperp * loc_zlerp;
     }
     else
     {
         z_motion_acc.z += loc_zlerp * Physics::g_environment.gravity;
     }
 
-    loc_pprt->vel.x += z_motion_acc.x;
-    loc_pprt->vel.y += z_motion_acc.y;
-    loc_pprt->vel.z += z_motion_acc.z;
+    loc_pprt->vel += z_motion_acc;
 
     return pbdl_prt;
 }
@@ -1483,7 +1507,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
     if (touch_a_floor && loc_ppip->end_ground)
     {
         end_one_particle_in_game(pbdl_prt->prt_ref);
-        return NULL;
+        return nullptr;
     }
 
     // interaction with the mesh walls
@@ -1520,7 +1544,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
     if (hit_a_wall && (loc_ppip->end_wall || loc_ppip->end_bump))
     {
         end_one_particle_in_game(pbdl_prt->prt_ref);
-        return NULL;
+        return nullptr;
     }
 
     prt_t::set_pos(loc_pprt, tmp_pos);
@@ -1600,21 +1624,14 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
         }
         else
         {
-            vel_perp.x = floor_nrm.x * vel_dot;
-            vel_perp.y = floor_nrm.y * vel_dot;
-            vel_perp.z = floor_nrm.z * vel_dot;
-
-            vel_para.x = loc_pprt->vel.x - vel_perp.x;
-            vel_para.y = loc_pprt->vel.y - vel_perp.y;
-            vel_para.z = loc_pprt->vel.z - vel_perp.z;
+            vel_perp = floor_nrm * vel_dot;
+            vel_para = loc_pprt->vel - vel_perp;
         }
 
         if (loc_pprt->vel.z < -STOPBOUNCINGPART)
         {
             // the particle will bounce
-            nrm_total.x += floor_nrm.x;
-            nrm_total.y += floor_nrm.y;
-            nrm_total.z += floor_nrm.z;
+            nrm_total += floor_nrm;
 
             // take reflection in the floor into account when computing the new level
             tmp_pos.z = loc_level + (loc_level - ftmp) * loc_ppip->dampen + 0.1f;
@@ -1690,7 +1707,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     if (touch_a_wall && loc_ppip->end_wall)
     {
         end_one_particle_in_game(pbdl_prt->prt_ref);
-        return NULL;
+        return nullptr;
     }
 
     // do the reflections off the walls and floors
@@ -1707,23 +1724,15 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
 
             vdot = nrm_total.dot(loc_pprt->vel);
 
-            vperp.x = nrm_total.x * vdot;
-            vperp.y = nrm_total.y * vdot;
-            vperp.z = nrm_total.z * vdot;
+            vperp = nrm_total * vdot;
 
-            vpara.x = loc_pprt->vel.x - vperp.x;
-            vpara.y = loc_pprt->vel.y - vperp.y;
-            vpara.z = loc_pprt->vel.z - vperp.z;
+            vpara = loc_pprt->vel - vperp;
 
             // we can use the impulse to determine how much velocity to kill in the parallel direction
-            //imp.x = vperp.x * (1.0f + loc_ppip->dampen);
-            //imp.y = vperp.y * (1.0f + loc_ppip->dampen);
-            //imp.z = vperp.z * (1.0f + loc_ppip->dampen);
+            // imp = vperp * (1.0f + loc_ppip->dampen);
 
             // do the reflection
-            vperp.x *= -loc_ppip->dampen;
-            vperp.y *= -loc_ppip->dampen;
-            vperp.z *= -loc_ppip->dampen;
+            vperp *= -loc_ppip->dampen;
 
             // fake the friction, for now
             if (0.0f != nrm_total.y || 0.0f != nrm_total.z)
@@ -1742,9 +1751,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
             }
 
             // add the components back together
-            loc_pprt->vel.x = vpara.x + vperp.x;
-            loc_pprt->vel.y = vpara.y + vperp.y;
-            loc_pprt->vel.z = vpara.z + vperp.z;
+            loc_pprt->vel = vpara + vperp;
         }
 
         if (nrm_total.z != 0.0f && loc_pprt->vel.z < STOPBOUNCINGPART)
@@ -2222,8 +2229,7 @@ bool prt_t::set_pos(prt_t *pprt, const fvec3_t& pos)
     bool retval = false;
     if (!ALLOCATED_PPRT(pprt)) return retval;
     retval = true;
-    /// @todo Use overloaded != operator.
-    if ((pos[kX] != pprt->pos.v[kX]) || (pos[kY] != pprt->pos.v[kY]) || (pos[kZ] != pprt->pos.v[kZ]))
+    if (pos != pprt->pos)
     {
         pprt->pos = pos;
         retval = prt_t::update_pos(pprt);
@@ -2603,38 +2609,33 @@ prt_bundle_t * prt_bundle_t::update_do_water(prt_bundle_t * pbdl_prt)
 prt_bundle_t * prt_bundle_t::update_animation(prt_bundle_t * pbdl_prt)
 {
     /// animate the particle
-
-    prt_t             * loc_pprt;
-    pip_t             * loc_ppip;
-    bool              image_overflow;
-    Uint16              image_overflow_amount;
-
     if (NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr) return NULL;
-    loc_pprt = pbdl_prt->prt_ptr;
-    loc_ppip = pbdl_prt->pip_ptr;
+    prt_t *loc_pprt = pbdl_prt->prt_ptr;
+    pip_t *loc_ppip = pbdl_prt->pip_ptr;
 
-    image_overflow = false;
-    image_overflow_amount = 0;
-    if (loc_pprt->image_off >= loc_pprt->image_max)
+    bool image_overflow = false;
+    long image_overflow_amount = 0;
+    if (loc_pprt->_image._offset >= loc_pprt->_image._count)
     {
         // how did the image get here?
         image_overflow = true;
 
-        // cast the unsigned integers to a larger type to make sure there are no overflows
-        image_overflow_amount = ((signed)loc_pprt->image_off) + ((signed)loc_pprt->image_add) - ((signed)loc_pprt->image_max);
+        // cast the integers to larger type to make sure there are no overflows
+        image_overflow_amount = (long)loc_pprt->_image._offset + (long)loc_pprt->_image._add - (long)loc_pprt->_image._count;
     }
     else
     {
         // the image is in the correct range
-        if ((loc_pprt->image_max - loc_pprt->image_off) > loc_pprt->image_add)
+        if ((loc_pprt->_image._count - loc_pprt->_image._offset) > loc_pprt->_image._add)
         {
             // the image will not overflow this update
-            loc_pprt->image_off = loc_pprt->image_off + loc_pprt->image_add;
+            loc_pprt->_image._offset = loc_pprt->_image._offset + loc_pprt->_image._add;
         }
         else
         {
             image_overflow = true;
-            image_overflow_amount = ((signed)loc_pprt->image_off) + ((signed)loc_pprt->image_add) - ((signed)loc_pprt->image_max);
+            // cast the integers to larger type to make sure there are no overflows
+            image_overflow_amount = (long)loc_pprt->_image._offset + (long)loc_pprt->_image._add - (long)loc_pprt->_image._count;
         }
     }
 
@@ -2644,13 +2645,13 @@ prt_bundle_t * prt_bundle_t::update_animation(prt_bundle_t * pbdl_prt)
         if (loc_ppip->end_lastframe /*&& loc_ppip->end_time > 0*/) //ZF> I don't think the second statement is needed
         {
             // freeze it at the last frame
-            loc_pprt->image_off = std::max(0, (signed)loc_pprt->image_max - 1);
+            loc_pprt->_image._offset = std::max(0, loc_pprt->_image._count - 1);
         }
         else
         {
             // the animation is looped. set the value to image_overflow_amount
             // so that we get the exact number of image updates called for
-            loc_pprt->image_off = image_overflow_amount;
+            loc_pprt->_image._offset = image_overflow_amount;
         }
     }
 
@@ -2845,7 +2846,7 @@ prt_bundle_t * prt_bundle_t::update_ghost(prt_bundle_t * pbdl_prt)
     if (!prt_visible || base_ptr->frame_count > 0)
     {
         prt_t::request_terminate(pbdl_prt->prt_ptr);
-        return NULL;
+        return nullptr;
     }
 
     // clear out the attachment if the character doesn't exist at all
@@ -3127,7 +3128,7 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
         {
             // make sure that a non valid parent_ref is marked as non-valid
             pprt->parent_ref = INVALID_PRT_REF;
-            pprt->parent_guid = 0xFFFFFFFF;
+            pprt->parent_guid = EGO_GUID_INVALID;
         }
         else
         {
@@ -3148,7 +3149,7 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
                 // the parent particle doesn't exist anymore
                 // fix the reference
                 pprt->parent_ref = INVALID_PRT_REF;
-                pprt->parent_guid = 0xFFFFFFFF;
+                pprt->parent_guid = EGO_GUID_INVALID;
             }
         }
     }

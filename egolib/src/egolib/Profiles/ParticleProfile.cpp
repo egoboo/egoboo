@@ -47,7 +47,7 @@ dynalight_info_t::dynalight_info_t() :
 {
 }
 
-void dynalight_info_t::init() 
+void dynalight_info_t::reset() 
 {
     mode = 0;
     on = 0;
@@ -137,8 +137,8 @@ pip_t::pip_t() :
     // Visual aspects.
     dynalight(),
     type(e_sprite_mode::SPRITE_SOLID),
-    numframes(0),
-    image_base(0),
+    image_max(0),
+    image_stt(0),
     image_add(),
     rotate_pair(),
     rotate_add(0),
@@ -219,8 +219,8 @@ pip_t *pip_t::init()
 
     // Visual aspects.
     type = e_sprite_mode::SPRITE_SOLID;
-    numframes = 0;
-    image_base = 0;
+    image_max = 0;
+    image_stt = 0;
     image_add.init();
     rotate_pair.init();
     rotate_add = 0;
@@ -229,7 +229,7 @@ pip_t *pip_t::init()
     facingadd = 0;
     orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
     type = SPRITE_SOLID;
-    dynalight.init();
+    dynalight.reset();
 
     return this;
 }

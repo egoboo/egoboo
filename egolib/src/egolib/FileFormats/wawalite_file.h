@@ -23,6 +23,7 @@
 #pragma once
 
 #include "egolib/_math.h"
+#include "egolib/Logic/Damage.hpp"
 #include "egolib/Math/Vector.hpp"
 
 struct ReadContext;
@@ -295,7 +296,7 @@ struct wawalite_data_t;
     struct wawalite_damagetile_t
     {
         uint32_t amount; ///< The amount of damage dealt.
-        int damagetype;  ///< The type of damage dealt.
+        DamageType damagetype;  ///< The type of damage dealt.
 
         int part_gpip;
         uint32_t partand;

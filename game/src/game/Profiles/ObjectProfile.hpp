@@ -106,8 +106,6 @@ enum IDSZTypes : uint8_t
     IDSZ_COUNT                                   ///< ID strings per character
 };
 
-#define DAMAGE_IS_PHYSICAL( TYPE )  (TYPE < DAMAGE_HOLY)    //Damage types slash, crush or poke are physical
-
 /// A list of the possible special experience types
 enum XPType : uint8_t
 {

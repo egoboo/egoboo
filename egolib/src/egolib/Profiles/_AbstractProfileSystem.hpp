@@ -35,7 +35,7 @@ protected:
 
     size_t _size;
 
-    unsigned _updateGUID;
+    Ego::GUID _updateGUID;
 
     TYPE *_elements[CAPACITY];
 
@@ -59,13 +59,13 @@ protected:
 public:
     _AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
         _size(0),
-        _updateGUID(INVALID_UPDATE_GUID),
+        _updateGUID(EGO_GUID_INVALID),
         _elements(),
         _profileTypeName(profileTypeName), 
         _debugPathName(debugPathName)
     {}
 
-    unsigned getUpdateGUID() const
+    Ego::GUID getUpdateGUID() const
     {
         return _updateGUID;
     }

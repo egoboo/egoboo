@@ -92,6 +92,44 @@ struct prt_instance_t
     fvec3_t ref_up;
     fvec3_t ref_right;
     fvec3_t ref_pos;
+
+    static void reset(prt_instance_t *self)
+    {
+        self->valid = false;
+
+        // graphical optimizations
+        self->indolist = false;
+
+        // basic info
+        self->type = 0;
+        self->texture_ref = INVALID_TX_REF;
+        self->image_ref = 0;
+        self->alpha = 0.0f;
+
+        // position info
+        self->pos = fvec3_t::zero;
+        self->size = 0.0f;
+        self->scale = 0.0f;
+
+        // billboard info
+        self->orientation = prt_ori_t::ORIENTATION_B;
+        self->up = fvec3_t::zero;
+        self->right = fvec3_t::zero;
+        self->nrm = fvec3_t::zero;
+
+        // lighting info
+        self->famb = 0.0f;
+        self->fdir = 0.0f;
+
+        self->fintens = 0.0f;
+        self->falpha = 0.0f;
+
+        // pre-compute some values for the reflected particle posisions
+        self->ref_valid = false;
+        self->ref_up = fvec3_t::zero;
+        self->ref_right = fvec3_t::zero;
+        self->ref_pos = fvec3_t::zero;
+    }
 };
 
 //--------------------------------------------------------------------------------------------

@@ -110,8 +110,7 @@ struct dynalight_info_t
 
     dynalight_info_t();
 
-    /// @todo Rename to "reset".
-    void init();
+    void reset();
 };
 
 /// The definition of a particle profile
@@ -172,9 +171,11 @@ struct pip_t : public AbstractProfile
         bool _wisdom;       ///< Add wisdom as damage bonus.
     } damageBoni;   
     bool spawnenchant;                ///< Spawn enchant?
+    ///@{ @todo The semantics of those variables are not clear.
     bool onlydamagefriendly;          ///< Only friends?
     bool friendlyfire;                ///< Friendly fire
     bool hateonly;                    ///< Only hit hategroup
+    ///@}
     bool cause_roll;                  ///< @todo Not implemented!!
     bool cause_pancake;               ///< @todo Not implemented!!
 
@@ -200,9 +201,23 @@ struct pip_t : public AbstractProfile
     // Visual properties.
     dynalight_info_t dynalight; ///< Dynamic lighting info
     e_sprite_mode type;         ///< Transparency mode
-    Uint8 numframes;            ///< Number of frames
-    Uint8 image_base;           ///< Starting image
-    IPair image_add;            ///< Frame rate
+
+    /**
+     * @brief
+     *  The number of frames.
+     */
+    Uint8 image_max;            ///< Number of frames
+    /**
+     * @brief
+     *  The index of the starting frame.
+     */
+    Uint8 image_stt;
+    /**
+     * @brief
+     *  The frame rate ("base" + "range" form).
+     */
+    IPair image_add;
+
     IPair rotate_pair;          ///< Rotation
     Sint16 rotate_add;          ///< Rotation rate
     Uint16 size_base;           ///< Size

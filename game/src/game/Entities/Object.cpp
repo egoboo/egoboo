@@ -86,12 +86,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     platform(false),
     canuseplatforms(false),
     holdingweight(0),
-    targetplatform_level(0.0f),
-    targetplatform_ref(INVALID_CHR_REF),
-    onwhichplatform_ref(INVALID_CHR_REF),
-    onwhichplatform_update(0),
-    damagetarget_damagetype(0),
-    reaffirm_damagetype(0),
+    damagetarget_damagetype(DamageType::DAMAGE_SLASH),
+    reaffirm_damagetype(DamageType::DAMAGE_SLASH),
     damage_modifier(),
     damage_resistance(),
     defense(0),
@@ -154,15 +150,9 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     slot_cv(),
 
     stoppedby(0),
-    pos_stt(0, 0, 0),
-    vel(0, 0, 0),
 
     ori(),
-    pos_old(0, 0, 0), 
-    vel_old(0, 0, 0),
     ori_old(),
-    onwhichgrid(),
-    onwhichblock(),
     bumplist_next(INVALID_CHR_REF),
 
     waterwalk(false),
@@ -175,20 +165,14 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     maxaccel_reset(0.0f),
 
     flyheight(0),
-    phys(),
     enviro(),
     dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     dismount_object(INVALID_CHR_REF),
-    safe_valid(false),
-    safe_pos(0, 0, 0),
-    safe_time(0),
-    safe_grid(0),
     crumbs(),
 
     _terminateRequested(false),
     _characterID(id),
-    _profile(ProfileSystem::get().getProfile(profile)),
-    _position(0.0f, 0.0f, 0.0f)
+    _profile(ProfileSystem::get().getProfile(profile))
 {
     // Construct the BSP node for this entity.
     bsp_leaf.ctor(&bsp_leaf, BSP_LEAF_CHR, _characterID);
@@ -215,9 +199,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     // intialize the ai_state
     ai_state_ctor( &ai );
-
-    // initialize the physics
-    phys_data_ctor( &phys );
 }
 
 Object::~Object()
@@ -327,12 +308,12 @@ bool Object::setPosition(const fvec3_t& position)
     EGO_DEBUG_VALIDATE(position);
 
     //Has our position changed?
-    if(position != _position)
+    if(position != pos)
     {
-        _position = position;
+        pos = position;
 
-        onwhichgrid   = ego_mesh_t::get_grid(PMesh, PointWorld(_position.x, _position.y));
-        onwhichblock  = ego_mesh_t::get_block(PMesh, PointWorld(_position.x, _position.y));
+        onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(pos.x, pos.y));
+        onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(pos.x, pos.y));
 
         // update whether the current character position is safe
         chr_update_safe( this, false );
@@ -349,9 +330,7 @@ bool Object::setPosition(const fvec3_t& position)
 
 void Object::movePosition(const float x, const float y, const float z)
 {
-    _position.x += x;
-    _position.y += y;
-    _position.z += z;
+    pos += fvec3_t(x, y, z);
 }
 
 void Object::setAlpha(const int alpha)
@@ -566,7 +545,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 // Spawn blud particles
                 if ( _profile->getBludType() )
                 {
-                    if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DAMAGE_IS_PHYSICAL( damagetype ) ) )
+                    if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
                         spawnOneParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                             INVALID_CHR_REF, GRIP_LAST, team, _characterID);

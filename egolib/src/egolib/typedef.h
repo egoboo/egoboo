@@ -87,6 +87,9 @@
         rv_success = true
     };
 
+#define EGO_ANIMATION_FRAMERATE_SCALING 1
+#define EGO_ANIMATION_MULTIPLIER 256
+
 //--------------------------------------------------------------------------------------------
 // 24.8 fixed point types
 
@@ -421,6 +424,19 @@ typedef Uint16 REF_T;
  */
 #define REF_TO_INT(ref) ((REF_T)(ref))
 
+namespace Ego
+{
+    /**
+     * @brief
+     *  A "globally unique" (lol) identifier.
+     */
+    typedef uint32_t GUID;
+    /**
+     * @brief
+     *  An invalid globally unique identifier.
+     */
+    #define EGO_GUID_INVALID (~((uint32_t)0))
+}
 
 
 	//--------------------------------------------------------------------------------------------
@@ -430,15 +446,13 @@ typedef Uint16 REF_T;
 template <typename TYPE,size_t COUNT>
 struct _List
 {
-	unsigned update_guid;
+	Ego::GUID update_guid;
 	int used_count;
 	int free_count;
 	size_t used_ref[COUNT];
 	size_t free_ref[COUNT];
 	TYPE lst[COUNT];
 };
-
-#define INVALID_UPDATE_GUID ((unsigned)(~((unsigned)0)))
 
 #define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
 	typedef _List<TYPE,COUNT> s_c_list__##TYPE__##NAME;
@@ -453,10 +467,10 @@ struct _List
 
 #define INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \
     DEFINE_LIST_TYPE(TYPE, NAME, COUNT);           \
-    static s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
+    static s_c_list__##TYPE__##NAME NAME = {EGO_GUID_INVALID, 0, 0}
 
 #define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
-    ACCESS s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
+    ACCESS s_c_list__##TYPE__##NAME NAME = {EGO_GUID_INVALID, 0, 0}
 
 #ifndef IMPLEMENT_LIST
 #define IMPLEMENT_LIST(TYPE, NAME, COUNT)         \
@@ -480,13 +494,13 @@ template <typename ElementType,size_t Capacity>
 struct Stack
 {
 	
-	unsigned update_guid;
+	Ego::GUID update_guid;
 	
 	int count; ///< @todo Rename to size. @todo Should be of type @a size_t.
 	
 	ElementType lst[Capacity];
 	
-	Stack() : update_guid(INVALID_UPDATE_GUID), count(0)
+	Stack() : update_guid(EGO_GUID_INVALID), count(0)
 	{
 	}
 
@@ -557,32 +571,6 @@ struct StaticArray
 // some common data types and enums in egoboo
 
 typedef uint16_t SKIN_T;
-
-/// The possible damage types
-enum DamageType : uint8_t
-{
-    DAMAGE_SLASH = 0,
-    DAMAGE_CRUSH,
-    DAMAGE_POKE,
-    DAMAGE_HOLY,                             ///< (Most invert Holy damage )
-    DAMAGE_EVIL,
-    DAMAGE_FIRE,
-    DAMAGE_ICE,
-    DAMAGE_ZAP,
-    DAMAGE_COUNT,
-
-    DAMAGE_NONE      = 255
-};
-
-/// What gender a character can be spawned with
-enum CharacterGender : uint8_t
-{
-    GENDER_FEMALE = 0,
-    GENDER_MALE,
-    GENDER_OTHER,
-    GENDER_RANDOM,
-    GENDER_COUNT
-};
 
 /**
  * @brief

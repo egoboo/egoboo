@@ -443,6 +443,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Logic\StaticEnumDescriptor.hpp" />
+    <ClInclude Include="src\egolib\Graphics\Animation2D.hpp" />
+    <ClInclude Include="src\egolib\Logic\Damage.hpp" />
+    <ClInclude Include="src\egolib\Logic\Gender.hpp" />
     <ClInclude Include="src\egolib\Graphics\TextureManager.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureType.hpp" />
     <ClInclude Include="src\egolib\Image\ImageLoader.hpp" />
