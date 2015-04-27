@@ -84,7 +84,7 @@ struct PixelDescriptor <Ego::PixelFormat::R8G8B8A8>
         return
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
             24;
-    #else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             0;
     #endif
     }
@@ -100,7 +100,7 @@ struct PixelDescriptor <Ego::PixelFormat::R8G8B8A8>
         return
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
             16;
-    #else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             8;
     #endif
     }
@@ -116,7 +116,7 @@ struct PixelDescriptor <Ego::PixelFormat::R8G8B8A8>
         return
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
             8;
-    #else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             16;
     #endif
     }
@@ -207,11 +207,11 @@ struct PixelDescriptor <Ego::PixelFormat::R8G8B8>
     static uint32_t a_shift()
     {
         return
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
             24;
-#else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             0;
-#endif
+    #endif
     }
 
     /**
@@ -223,11 +223,11 @@ struct PixelDescriptor <Ego::PixelFormat::R8G8B8>
     static uint32_t b_shift()
     {
         return
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
             16;
-#else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             8;
-#endif
+    #endif
     }
 
     /**
@@ -239,11 +239,11 @@ struct PixelDescriptor <Ego::PixelFormat::R8G8B8>
     static uint32_t g_shift()
     {
         return
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
             8;
-#else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             16;
-#endif
+    #endif
     }
 
     /**
@@ -255,11 +255,11 @@ struct PixelDescriptor <Ego::PixelFormat::R8G8B8>
     static uint32_t r_shift()
     {
         return
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+    #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
             0;
-#else if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+    #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             24;
-#endif
+    #endif
     }
 
     /**
