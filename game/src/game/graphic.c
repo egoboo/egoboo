@@ -1455,73 +1455,14 @@ void gfx_system_load_assets()
 {
     /// @author ZF
     /// @details This function loads all the graphics based on the game settings
-
-    GLenum quality;
-
-    // Check if the computer graphic driver supports anisotropic filtering
-
-    if (!g_ogl_caps.anisotropic_supported)
-    {
-        if (g_ogl_textureParameters.textureFiltering >= Ego::TextureFilter::ANISOTROPIC)
-        {
-            g_ogl_textureParameters.textureFiltering = Ego::TextureFilter::TRILINEAR_2;
-            log_warning("Your graphics driver does not support anisotropic filtering.\n");
-        }
-    }
-
-    // @todo Renderer::get().setPerspectiveCorrectionEnabled(gfx.perspective)
     // Enable prespective correction?
-    if (gfx.perspective) quality = GL_NICEST;
-    else quality = GL_FASTEST;
-    GL_DEBUG(glHint)(GL_PERSPECTIVE_CORRECTION_HINT, quality);
-
-    /// @todo Renderer::get().setDitherEnabled(gfx.dither)
+    Ego::Renderer::get().setPerspectiveCorrectionEnabled(gfx.perspective);
     // Enable dithering?
-    if (gfx.dither)
-    {
-        GL_DEBUG(glHint)(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-        GL_DEBUG(glEnable)(GL_DITHER);
-    }
-    else
-    {
-        GL_DEBUG(glHint)(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
-        GL_DEBUG(glDisable)(GL_DITHER);                          // ENABLE_BIT
-    }
-
-    // Enable Gouraud shading? (Important!)
-    GL_DEBUG(glShadeModel)(gfx.shading);         // GL_LIGHTING_BIT
-
-    // Enable antialiasing?
-    if (gfx.antialiasing)
-    {
-        GL_DEBUG(glEnable)(GL_MULTISAMPLE_ARB);
-
-        GL_DEBUG(glEnable)(GL_LINE_SMOOTH);
-        GL_DEBUG(glHint)(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-        GL_DEBUG(glEnable)(GL_POINT_SMOOTH);
-        GL_DEBUG(glHint)(GL_POINT_SMOOTH_HINT, GL_NICEST);
-
-        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH);
-        GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
-
-        // PLEASE do not turn this on unless you use
-        // @code
-        // Ego::Renderer::get().setBlendingEnabled(true);
-        // GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        // @endcode
-        // before every single draw command.
-        //
-        // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
-        // GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    }
-    else
-    {
-        GL_DEBUG(glDisable)(GL_MULTISAMPLE_ARB);
-        GL_DEBUG(glDisable)(GL_POINT_SMOOTH);
-        GL_DEBUG(glDisable)(GL_LINE_SMOOTH);
-        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH);
-    }
+    Ego::Renderer::get().setDitheringEnabled(gfx.dither);
+    // Enable Gouraud shading?
+    Ego::Renderer::get().setGouraudShadingEnabled(gfx.shading);
+    // Enable antialiasing (via multisamples)?
+    Ego::Renderer::get().setMultisamplesEnabled(gfx.antialiasing);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1840,7 +1781,6 @@ float draw_one_xp_bar(float x, float y, Uint8 ticks)
 
     ticks = std::min(ticks, (Uint8)NUMTICK);
 
-    gfx_enable_texturing();               // Enable texture mapping
     Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
     //---- Draw the tab (always colored)
@@ -2775,8 +2715,6 @@ void draw_inventory()
 //--------------------------------------------------------------------------------------------
 void draw_mouse_cursor()
 {
-    int     x, y;
-
     if (!mous.on)
     {
         SDL_ShowCursor(SDL_DISABLE);
@@ -2790,35 +2728,33 @@ void draw_mouse_cursor()
     // Invalid texture?
     if (nullptr == pcursor)
     {
-        //Show default cursor
+        // Show the system mouse cursor.
         SDL_ShowCursor(SDL_ENABLE);
     }
     else
     {
-        oglx_frect_t tx_tmp, sc_tmp;
-
-        x = std::abs(mous.x);
-        y = std::abs(mous.y);
-
-        if (oglx_texture_t::getSize(pcursor, tx_tmp, sc_tmp))
-        {
-            ego_frect_t tx_rect, sc_rect;
-
-            tx_rect.xmin = tx_tmp[0];
-            tx_rect.ymin = tx_tmp[1];
-            tx_rect.xmax = tx_tmp[2];
-            tx_rect.ymax = tx_tmp[3];
-
-            sc_rect.xmin = x + sc_tmp[0];
-            sc_rect.ymin = y + sc_tmp[1];
-            sc_rect.xmax = x + sc_tmp[2];
-            sc_rect.ymax = y + sc_tmp[3];
-
-            // Hide the SDL mouse
-            SDL_ShowCursor(SDL_DISABLE);
-
-            draw_quad_2d(pcursor, sc_rect, tx_rect, true);
-        }
+        ego_frect_t sc_rect;
+        ego_frect_t tx_rect;
+        int x = std::abs(mous.x);
+        int y = std::abs(mous.y);
+        // Compute the texture coordinate rectangle (in texture coordinates).
+        tx_rect.xmin = 0.0f;
+        tx_rect.ymin = 0.0f;
+        auto textureWidth = oglx_texture_t::getWidth(pcursor);
+        auto textureHeight = oglx_texture_t::getHeight(pcursor);
+        tx_rect.xmax = (0 == textureWidth) ? 1.0f :
+                       (float)oglx_texture_t::getSourceWidth(pcursor) / (float)textureWidth;
+        tx_rect.ymax = (0 == textureHeight) ? 1.0f :
+                       (float)oglx_texture_t::getSourceHeight(pcursor) / (float)textureHeight;
+        // Compute the target coordinate rectangle (in pixels).
+        sc_rect.xmin = x;
+        sc_rect.ymin = y;
+        sc_rect.xmax = x + oglx_texture_t::getSourceWidth(pcursor);
+        sc_rect.ymax = y + oglx_texture_t::getSourceHeight(pcursor);
+        // Hide the system mouse cursor.
+        SDL_ShowCursor(SDL_DISABLE);
+        // Draw the cursor.
+        draw_quad_2d(pcursor, sc_rect, tx_rect, true);
     }
     gfx_end_2d();
 }
@@ -3376,7 +3312,7 @@ gfx_rv render_scene_mesh_ndr(const renderlist_t * prlist)
         }
     }
     ATTRIB_POP(__FUNCTION__);
-
+    Ego::OpenGL::Utilities::isError();
     return retval;
 }
 
@@ -3411,13 +3347,13 @@ gfx_rv render_scene_mesh_drf_back(const renderlist_t * prlist)
         Ego::Renderer::get().setBlendingEnabled(true);
         // use the alpha channel to modulate the transparency
         GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);    // GL_COLOR_BUFFER_BIT
-
+        Ego::OpenGL::Utilities::isError();
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
         Ego::Renderer::get().setAlphaTestEnabled(true);
         // speed-up drawing of surfaces with alpha == 0.0f sections
         GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
-
+        Ego::OpenGL::Utilities::isError();
         // reduce texture hashing by loading up each texture only once
         if (gfx_error == render_fans_by_list(prlist->mesh, &(prlist->drf)))
         {
@@ -3467,9 +3403,10 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
 
     // assume the best
     retval = gfx_success;
-
+    Ego::OpenGL::Utilities::isError();
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT);
     {
+        Ego::OpenGL::Utilities::isError();
         // don't write into the depth buffer (disable glDepthMask for transparent objects)
         // turn off the depth mask by default. Can cause glitches if used improperly.
         Ego::Renderer::get().setDepthWriteEnabled(false);
@@ -3477,7 +3414,7 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
         // do not draw hidden surfaces
         Ego::Renderer::get().setDepthTestEnabled(true);
         // surfaces must be closer to the camera to be drawn
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL);     // GL_DEPTH_BUFFER_BIT
+        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         for (cnt = ((int)pdolist->size) - 1; cnt >= 0; cnt--)
         {
@@ -3493,7 +3430,7 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
                 Ego::Renderer::get().setBlendingEnabled(true);
                 // use the alpha channel to modulate the transparency
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
-
+                Ego::OpenGL::Utilities::isError();
                 ichr = pdolist->lst[cnt].ichr;
                 TileIndex itile = _gameObjects.get(ichr)->onwhichgrid;
 
@@ -3519,7 +3456,7 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
                 Ego::Renderer::get().setBlendingEnabled(true);
                 // set the default particle blending
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);     // GL_COLOR_BUFFER_BIT
-
+                Ego::OpenGL::Utilities::isError();
                 iprt = pdolist->lst[cnt].iprt;
                 TileIndex itile = ParticleHandler::get().get_ptr(iprt)->onwhichgrid;
 
@@ -3715,10 +3652,10 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
 
     // assume the best
     retval = gfx_success;
-
+    //--------------------------------
     // advance the animation of all animated tiles
     animate_all_tiles(prlist->mesh);
-
+    Ego::OpenGL::Utilities::isError();
     PROFILE_BEGIN(render_scene_mesh_ndr);
     {
         // draw all tiles that do not reflect characters
@@ -3728,11 +3665,12 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
         }
     }
     PROFILE_END(render_scene_mesh_ndr);
-
+    Ego::OpenGL::Utilities::isError();
     //--------------------------------
     // draw the reflective tiles and any reflected objects
     if (gfx.refon)
     {
+        Ego::OpenGL::Utilities::isError();
         PROFILE_BEGIN(render_scene_mesh_drf_back);
         {
             // blank out the background behind reflective tiles
@@ -3743,7 +3681,9 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
             }
         }
         PROFILE_END(render_scene_mesh_drf_back);
+        Ego::OpenGL::Utilities::isError();
 
+        Ego::OpenGL::Utilities::isError();
         PROFILE_BEGIN(render_scene_mesh_ref);
         {
             // Render all reflected objects
@@ -3753,7 +3693,9 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
             }
         }
         PROFILE_END(render_scene_mesh_ref);
+        Ego::OpenGL::Utilities::isError();
 
+        Ego::OpenGL::Utilities::isError();
         PROFILE_BEGIN(render_scene_mesh_ref_chr);
         {
             // Render the shadow floors
@@ -3763,9 +3705,11 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
             }
         }
         PROFILE_END(render_scene_mesh_ref_chr);
+        Ego::OpenGL::Utilities::isError();
     }
     else
     {
+        Ego::OpenGL::Utilities::isError();
         PROFILE_BEGIN(render_scene_mesh_drf_solid);
         {
             // Render the shadow floors as normal solid floors
@@ -3775,6 +3719,7 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
             }
         }
         PROFILE_END(render_scene_mesh_drf_solid);
+        Ego::OpenGL::Utilities::isError();
     }
 
 #if defined(RENDER_HMAP) && defined(_DEBUG)
@@ -3795,11 +3740,13 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
 
     PROFILE_BEGIN(render_scene_mesh_render_shadows);
     {
+        Ego::OpenGL::Utilities::isError();
         // Render the shadows
         if (gfx_error == render_scene_mesh_render_shadows(pdolist))
         {
             retval = gfx_error;
         }
+        Ego::OpenGL::Utilities::isError();
     }
     PROFILE_END(render_scene_mesh_render_shadows);
 
@@ -4474,16 +4421,9 @@ bool oglx_texture_parameters_download_gfx(oglx_texture_parameters_t * ptex, egob
 
     if (NULL == ptex || NULL == pcfg) return false;
 
-    if (g_ogl_caps.maxAnisotropy <= 1.0f)
-    {
-        ptex->anisotropyLevel = 0.0f;
-        ptex->textureFiltering = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::TRILINEAR_2);
-    }
-    else
-    {
-        ptex->textureFiltering = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::_COUNT);
-        ptex->anisotropyLevel = g_ogl_caps.maxAnisotropy * std::max(0, (int)ptex->textureFiltering - (int)Ego::TextureFilter::TRILINEAR_2);
-    }
+    ptex->anisotropy_enable = g_ogl_caps.anisotropic_supported;
+    ptex->anisotropy_level = g_ogl_caps.maxAnisotropy;
+    ptex->textureFiltering = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::TRILINEAR_2);
 
     return true;
 }

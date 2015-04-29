@@ -283,166 +283,186 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad_tex(std::shared_ptr<Camera> camera, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits)
 {
     /// @author ZZ
     /// @details This function draws a model
 
-    GLint matrix_mode[1];
-    Uint16 vertex;
-    float  uoffset, voffset;
+    GLint matrix_mode;
 
-    Object          * pchr;
-    mad_t          * pmad;
-    std::shared_ptr<MD2Model> pmd2;
-    chr_instance_t * pinst;
-    oglx_texture_t   * ptex;
-
-    if ( NULL == pcam )
+    if (!camera)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == camera");
         return gfx_fail;
     }
 
-    if ( !_gameObjects.exists( character ) )
+    if (!_gameObjects.exists(character))
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, character, "invalid character");
         return gfx_error;
     }
-    pchr  = _gameObjects.get( character );
-    pinst = &( pchr->inst );
+    Object *pchr = _gameObjects.get(character);
+    chr_instance_t *pinst = &(pchr->inst);
 
-    if ( !LOADED_MAD( pinst->imad ) )
+    if (!LOADED_MAD(pinst->imad))
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad");
         return gfx_error;
     }
-    pmad = MadStack.get_ptr( pinst->imad );
+    mad_t *pmad = MadStack.get_ptr(pinst->imad);
 
-    if ( nullptr == pmad->md2_ptr )
+    if (!pmad->md2_ptr)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL md2" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL md2");
         return gfx_error;
     }
-    pmd2 = pmad->md2_ptr;
+    std::shared_ptr<MD2Model> pmd2 = pmad->md2_ptr;
 
     // To make life easier
-	ptex = TextureManager::get().get_valid_ptr(pinst->texture);
+    oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(pinst->texture);
 
-    uoffset = pinst->uoffset * INV_FFFF;
-    voffset = pinst->voffset * INV_FFFF;
+    float uoffset = pinst->uoffset * INV_FFFF;
+    float voffset = pinst->voffset * INV_FFFF;
+
+    float base_amb = 0.0f;
+    if (0 == (bits & CHR_LIGHT))
+    {
+        // Convert the "light" parameter to self-lighting for
+        // every object that is not being rendered using CHR_LIGHT.
+        base_amb = (255 == pinst->light) ? 0 : (pinst->light * INV_FF);
+    }
+
+    // Get the maximum number of vertices per command.
+    size_t vertexBufferCapacity = 0;
+    for (const MD2_GLCommand& glcommand : pmd2->getGLCommands())
+    {
+        vertexBufferCapacity = std::max(vertexBufferCapacity, glcommand.data.size());
+    }
+    // Allocate a vertex buffer.
+    struct Vertex
+    {
+        float px, py, pz;
+        float nx, ny, nz;
+        float r, g, b, a;
+        float s, t;
+    };
+    auto vertexBuffer = std::make_unique<Vertex[]>(vertexBufferCapacity);
 
     // save the matrix mode
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+    glGetIntegerv(GL_MATRIX_MODE, &matrix_mode);
+    Ego::OpenGL::Utilities::isError();
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-
-    if ( 0 != ( bits & CHR_REFLECT ) )
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    Ego::OpenGL::Utilities::isError();
+    if (0 != (bits & CHR_REFLECT))
     {
-		Ego::Renderer::get().multiplyMatrix(pinst->ref.matrix);
+        Ego::Renderer::get().multiplyMatrix(pinst->ref.matrix);
     }
     else
     {
-		Ego::Renderer::get().multiplyMatrix(pinst->matrix);
+        Ego::Renderer::get().multiplyMatrix(pinst->matrix);
     }
 
-    // Choose texture and matrix
-    oglx_texture_t::bind( ptex );
+    // Choose texture.
+    oglx_texture_t::bind(ptex);
 
-    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
+    glPushAttrib(GL_CURRENT_BIT);
     {
-        float             base_amb;
-
-        // set the basic tint. if the object is marked with CHR_LIGHT
-        // the color will not be set again inside the loop
-        Ego::Renderer::get().setColour(Ego::Math::Colour4f(tint[0],tint[1],tint[2],tint[3]));
-
-        base_amb = 0.0f;
-        if ( 0 == ( bits & CHR_LIGHT ) )
-        {
-            // convert the "light" parameter to self-lighting for
-            // every object that is not being rendered using CHR_LIGHT
-            base_amb   = ( 255 == pinst->light ) ? 0 : ( pinst->light * INV_FF );
-        }
-
         // Render each command
-        for(const MD2_GLCommand& glcommand : pmd2->getGLCommands())
+        for (const MD2_GLCommand& glcommand : pmd2->getGLCommands())
         {
-            GL_DEBUG( glBegin )( glcommand.glMode );
+            // Pre-render this command.
+            size_t vertexBufferSize = 0;
+            for (const id_glcmd_packed_t &cmd : glcommand.data)
             {
-                for(const id_glcmd_packed_t &cmd : glcommand.data)
+                Uint16 vertexIndex = cmd.index;
+                if (vertexIndex >= pinst->vrt_count)
                 {
-                    GLXvector2f tex;
-                    GLvertex * pvrt;
+                    continue;
+                }
+                auto& v = vertexBuffer[vertexBufferSize++];
+                GLvertex *pvrt = &(pinst->vrt_lst[vertexIndex]);
+                v.px = pvrt->pos[XX];
+                v.py = pvrt->pos[YY];
+                v.pz = pvrt->pos[ZZ];
+                v.nx = pvrt->nrm[XX];
+                v.ny = pvrt->nrm[YY];
+                v.nz = pvrt->nrm[ZZ];
 
-                    vertex = cmd.index;
-                    if ( vertex >= pinst->vrt_count ) continue;
+                // Determine the texture coordinates.
+                v.s = cmd.s + uoffset;
+                v.t = cmd.t + voffset;
 
-                    pvrt = pinst->vrt_lst + vertex;
+                // Perform lighting.
+                if (HAS_NO_BITS(bits, CHR_LIGHT))
+                {
+                    // The directional lighting.
+                    float fcol = pvrt->color_dir * INV_FF;
 
-                    // determine the texture coordinates
-                    tex[0] = cmd.s + uoffset;
-                    tex[1] = cmd.t + voffset;
+                    v.r = fcol;
+                    v.g = fcol;
+                    v.b = fcol;
+                    v.a = 1.0f;
 
-                    // no per-vertex lighting for CHR_LIGHT objects
-                    if ( HAS_NO_BITS( bits, CHR_LIGHT ) )
+                    // Ambient lighting.
+                    if (HAS_NO_BITS(bits, CHR_PHONG))
                     {
-                        GLXvector4f col;
+                        // Convert the "light" parameter to self-lighting for
+                        // every object that is not being rendered using CHR_LIGHT.
 
-                        float fcol;
+                        float acol = base_amb + pinst->color_amb * INV_FF;
 
-                        // the directional lighting
-                        fcol   = pvrt->color_dir * INV_FF;
-
-                        col[RR] = fcol;
-                        col[GG] = fcol;
-                        col[BB] = fcol;
-                        col[AA] = 1.0f;
-
-                        // ambient lighting
-                        if ( HAS_NO_BITS( bits, CHR_PHONG ) )
-                        {
-                            // convert the "light" parameter to self-lighting for
-                            // every object that is not being rendered using CHR_LIGHT
-
-                            float acol = base_amb + pinst->color_amb * INV_FF;
-
-                            col[0] += acol;
-                            col[1] += acol;
-                            col[2] += acol;
-                        }
-
-                        // clip the colors
-                        col[0] = CLIP( col[0], 0.0f, 1.0f );
-                        col[1] = CLIP( col[1], 0.0f, 1.0f );
-                        col[2] = CLIP( col[2], 0.0f, 1.0f );
-
-                        // tint the object
-                        col[0] *= tint[RR];
-                        col[1] *= tint[GG];
-                        col[2] *= tint[BB];
-
-                        Ego::Renderer::get().setColour(Ego::Math::Colour4f(col[0], col[1], col[2], col[3]));
+                        v.r += acol;
+                        v.g += acol;
+                        v.b += acol;
                     }
 
-                    GL_DEBUG( glNormal3fv )( pvrt->nrm );
-                    GL_DEBUG( glTexCoord2fv )( tex );
-                    GL_DEBUG( glVertex3fv )( pvrt->pos );
+                    // clip the colors
+                    v.r = Ego::Math::constrain(v.r, 0.0f, 1.0f);
+                    v.g = Ego::Math::constrain(v.g, 0.0f, 1.0f);
+                    v.b = Ego::Math::constrain(v.b, 0.0f, 1.0f);
+
+                    // tint the object
+                    v.r *= tint[RR];
+                    v.g *= tint[GG];
+                    v.b *= tint[BB];
+                }
+                else
+                {
+                    // Set the basic tint.
+                    v.r = tint[RR];
+                    v.g = tint[GG];
+                    v.b = tint[BB];
+                    v.a = tint[AA];
                 }
             }
-            GL_DEBUG_END();
+            // Render this command.
+            glBegin(glcommand.glMode);
+            {
+                for (size_t vertexIndex = 0; vertexIndex < vertexBufferSize; ++vertexIndex)
+                {
+                    const auto& v = vertexBuffer[vertexIndex];
+                    glColor4f(v.r, v.g, v.b, v.a);
+                    glNormal3f(v.nx, v.ny, v.nz);
+                    glTexCoord2f(v.s, v.t);
+                    glVertex3f(v.px, v.py, v.pz);
+                }
+            }
+            glEnd();
         }
     }
-    ATTRIB_POP( __FUNCTION__ );
+    glPopAttrib();
 
     // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
+    glMatrixMode(GL_MODELVIEW);
+    Ego::OpenGL::Utilities::isError();
+    glPopMatrix();
+    Ego::OpenGL::Utilities::isError();
     // restore the matrix mode
-    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
+    glMatrixMode(matrix_mode);
+    Ego::OpenGL::Utilities::isError();
 
     return gfx_success;
 }
@@ -577,12 +597,12 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
         // cull backward facing polygons
         // use couter-clockwise orientation to determine backfaces
         oglx_begin_culling( GL_BACK, MAD_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
-
+        Ego::OpenGL::Utilities::isError();
         if ( pinst->ref.alpha != 255 && pinst->ref.light == 255 )
         {
             Ego::Renderer::get().setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_ALPHA, GL_ONE_MINUS_SRC_ALPHA );                        // GL_COLOR_BUFFER_BIT
-
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );                        // GL_COLOR_BUFFER_BIT
+            Ego::OpenGL::Utilities::isError();
             chr_instance_get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
@@ -597,7 +617,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
         {
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                        // GL_COLOR_BUFFER_BIT
-
+            Ego::OpenGL::Utilities::isError();
             chr_instance_get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
@@ -606,19 +626,21 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
             {
                 retval = gfx_error;
             }
+            Ego::OpenGL::Utilities::isError();
         }
 
         if ( gfx.phongon && pinst->sheen > 0 )
         {
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
-
+            Ego::OpenGL::Utilities::isError();
             chr_instance_get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
             if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
+            Ego::OpenGL::Utilities::isError();
         }
     }
     ATTRIB_POP( __FUNCTION__ );
@@ -805,7 +827,7 @@ void draw_chr_bbox(Object *pchr)
     // Draw the object bounding box as a part of the graphics debug mode F7.
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_F7))
     {
-        GL_DEBUG(glDisable)(GL_TEXTURE_2D);
+        oglx_texture_t::bind(nullptr);
         {
             if (drawLeftSlot)
             {
@@ -829,7 +851,6 @@ void draw_chr_bbox(Object *pchr)
                 render_oct_bb(&bb, true, true);
             }
         }
-        GL_DEBUG(glEnable)(GL_TEXTURE_2D);
     }
 
     //// The grips and vertrices of all objects.
@@ -857,7 +878,6 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
     mad_t * pmad;
 
     int vmin, vmax, cnt;
-    GLboolean texture_1d_enabled, texture_2d_enabled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -870,13 +890,9 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
     if ( vmin < 0 || ( size_t )vmin > pchr->inst.vrt_count ) return;
     if ( vmax < 0 || ( size_t )vmax > pchr->inst.vrt_count ) return;
 
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
@@ -900,24 +916,17 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
 
     // restore the matrix mode
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
-
-    if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
 void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
 {
     GLint matrix_mode[1];
-    GLboolean texture_1d_enabled, texture_2d_enabled;
 
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
@@ -935,9 +944,6 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     // restore the matrix mode
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
-
-    if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1014,7 +1020,6 @@ void draw_chr_grips( Object * pchr )
     mad_t * pmad;
 
     GLint matrix_mode[1];
-    GLboolean texture_1d_enabled, texture_2d_enabled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -1023,13 +1028,9 @@ void draw_chr_grips( Object * pchr )
     pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if ( NULL == pmad ) return;
 
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
@@ -1055,9 +1056,6 @@ void draw_chr_grips( Object * pchr )
 
     // restore the matrix mode
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
-
-    if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------

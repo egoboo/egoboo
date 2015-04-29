@@ -358,6 +358,42 @@ public:
      */
     virtual void multiplyMatrix(const fmat_4x4_t& matrix) = 0;
 
+    /**
+    * @brief
+    *  Enable/disable perspective correction.
+    * @param enable
+    *  @a true enables perspective correction,
+    *  @a false disables it
+    */
+    virtual void setPerspectiveCorrectionEnabled(bool enabled)  = 0;
+
+    /**
+     * @brief
+     *  Enable/disable dithering.
+     * @param enable
+     *  @a true enables dithering,
+     *  @a false disables it
+     */
+    virtual void setDitheringEnabled(bool enabled)  = 0;
+
+    /**
+     * @brief
+     *  Enable/disable multisamples.
+     * @param enable
+     *  @a true enables multisamples,
+     *  @a false disables it
+     */
+    virtual void setMultisamplesEnabled(bool enabled) = 0;
+
+    /**
+     * @brief
+     *  Enable/disable Gouraud shading.
+     * @param enable
+     *  @a true enables Gouraud shading,
+     *  @a false disables it
+     */
+    virtual void setGouraudShadingEnabled(bool enabled) = 0;
+
 };
 
 } // namespace Ego

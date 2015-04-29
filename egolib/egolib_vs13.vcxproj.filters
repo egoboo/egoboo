@@ -402,6 +402,9 @@
     <ClCompile Include="src\egolib\Graphics\TextureManager.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\PixelFormat.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -823,6 +826,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Logic\StaticEnumDescriptor.hpp">
       <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\PixelFormat.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\VertexFormat.hpp">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

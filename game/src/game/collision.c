@@ -3069,12 +3069,12 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 		UFP8_T drain = std::min(life, pdata->pprt->lifedrain);
 
 		// Remove the drain from the character that was hit ...
-		pdata->pchr->life = Math::constrain(pdata->pchr->life - drain, static_cast<UFP8_T>(0), pdata->pchr->life_max);
+		pdata->pchr->life = Ego::Math::constrain(pdata->pchr->life - drain, static_cast<UFP8_T>(0), pdata->pchr->life_max);
 
 		// ... and add it to the "caster".
 		if ( NULL != powner )
 		{
-			powner->life = Math::constrain(powner->life + drain, static_cast<UFP8_T>(0), powner->life_max);
+			powner->life = Ego::Math::constrain(powner->life + drain, static_cast<UFP8_T>(0), powner->life_max);
 		}
     }
 
@@ -3088,12 +3088,12 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 		UFP8_T drain = std::min(mana, pdata->pprt->manadrain);
 
         // Remove the drain from the character that was hit ...
-        pdata->pchr->mana = Math::constrain(pdata->pchr->mana - drain, static_cast<UFP8_T>(0), pdata->pchr->mana_max);
+        pdata->pchr->mana = Ego::Math::constrain(pdata->pchr->mana - drain, static_cast<UFP8_T>(0), pdata->pchr->mana_max);
 
         // add it to the "caster"
         if ( NULL != powner )
         {
-            powner->mana = Math::constrain(powner->mana + drain, static_cast<UFP8_T>(0), powner->mana_max);
+            powner->mana = Ego::Math::constrain(powner->mana + drain, static_cast<UFP8_T>(0), powner->mana_max);
         }
     }
 

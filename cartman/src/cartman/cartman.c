@@ -2064,8 +2064,8 @@ int SDL_main( int argcnt, char* argtext[] )
     cartman_init_SDL_base();
     gfx_system_begin();
 
-    // Begin the console.
-    egolib_console_handler_t::begin();
+    // Initialize the console.
+    egolib_console_handler_t::initialize();
 
     // Load the module
     if (!load_module(modulename, &mesh))
@@ -2094,6 +2094,8 @@ int SDL_main( int argcnt, char* argtext[] )
         timclock = SDL_GetTicks() >> 3;
     }
     Cartman::GUI::uninitialize();
+    egolib_console_handler_t::uninitialize();
+    gfx_system_end();
     Cartman::Input::uninitialize();
     exit(EXIT_SUCCESS);                      // End
 }

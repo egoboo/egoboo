@@ -70,8 +70,8 @@ public:
 
 private:
 
-	GLint beginCameraMode(const std::shared_ptr<Camera> &camera);
-	void endCameraMode( GLint mode );
+	void beginCameraMode(const std::shared_ptr<Camera> &camera);
+	void endCameraMode();
 
 	/**
 	 * @brief Determines the size of each camera depending on number of cameras and screen resolution.

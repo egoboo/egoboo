@@ -145,13 +145,13 @@ egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<Camera>, i
         }
 
         // set up everything for this camera
-        GLint mode = beginCameraMode(camera);
+        beginCameraMode(camera);
 
         // render the world for this camera
         renderFunction( camera, camera->getRenderList(), camera->getDoList() );
 
         // undo the camera setup
-        endCameraMode(mode);
+        endCameraMode();
 
         //Set last update frame
         camera->setLastFrame(game_frame_all);
@@ -201,35 +201,18 @@ std::shared_ptr<Camera> CameraSystem::getCameraByChrID(const CHR_REF target) con
     return _mainCamera;
 }
 
-void CameraSystem::endCameraMode( GLint mode )
+void CameraSystem::endCameraMode()
 {
-    // return the old modelview mode
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-
-    // return the old projection mode
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-
     // make the viewport the entire screen
     Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
     // turn off the scissor mode
     Ego::Renderer::get().setScissorTestEnabled(false);
-
-    // return the matrix mode to whatever it was before
-    glMatrixMode( mode );
 }
 
 
-GLint CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
+void CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
 {
-    /// how much bigger is mProjection_big than mProjection?
-    GLint mode;
-
-    // grab the initial matrix mode
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, &mode );
-
     auto& renderer = Ego::Renderer::get();
     // scissor the output to the this area
     renderer.setScissorTestEnabled(true);
@@ -237,8 +220,6 @@ GLint CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
 
     // set the viewport
     renderer.setViewportRectangle(camera->getScreen().xmin, sdl_scr.y - camera->getScreen().ymax, camera->getScreen().xmax - camera->getScreen().xmin, camera->getScreen().ymax - camera->getScreen().ymin);
-
-    return mode;
 }
 
 void CameraSystem::autoFormatTargets()

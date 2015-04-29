@@ -327,6 +327,31 @@ struct Encoder
 
 /**
  * @brief
+ *  Specialization for float and double.
+ * @todo
+ *  Should be mor terse and more efficient.
+ */
+template <typename SourceType>
+struct Encoder<SourceType, typename enable_if<is_floating_point<SourceType>::value>::type>
+{
+    bool operator()(const SourceType& source, string& target)
+    {
+        static_assert(is_floating_point<SourceType>::value,
+                      "SourceType must be an floating point type");
+        try
+        {
+            target = std::to_string(source);
+        }
+        catch (...)
+        {
+            return false;
+        }
+        return true;
+    }
+};
+
+/**
+ * @brief
  *  Specialization for signed integral types without the @a bool type.
  * @todo
  *  Should be mor terse and more efficient.

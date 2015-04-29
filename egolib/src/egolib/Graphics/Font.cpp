@@ -122,24 +122,27 @@ namespace Ego
     
     void Font::drawTextToTexture(oglx_texture_t *tex, const std::string &text, const Ego::Math::Colour3f &colour) const
     {
-        if (_ttfFont == nullptr) return;
-        
+        if (!tex)
+        {
+            throw std::invalid_argument("nullptr == tex");
+        }
+        if (!_ttfFont)
+        {
+            throw std::logic_error("TTF font not created");
+        }
         SDL_Color sdlColor;
         sdlColor.r = static_cast<Uint8>(colour.getRed() * 255);
         sdlColor.g = static_cast<Uint8>(colour.getGreen() * 255);
         sdlColor.b = static_cast<Uint8>(colour.getBlue() * 255);
         
         SDL_Surface *textSurface = TTF_RenderUTF8_Blended(_ttfFont, text.c_str(), sdlColor);
-        if (textSurface == nullptr)
+        if (!textSurface)
         {
             log_warning("Got a null surface from SDL_TTF: %s", TTF_GetError());
             return;
         }
-        
-        oglx_texture_t::load(tex, textSurface, INVALID_KEY);
         std::string name = "Font text '" + text + "'";
-        strncpy(tex->name, name.c_str(), SDL_arraysize(tex->name));
-        tex->name[SDL_arraysize(tex->name) - 1] = '\0';
+        oglx_texture_t::load(tex, name, textSurface, INVALID_KEY);
     }
     
     void Font::drawText(const std::string &text, int x, int y, const Ego::Math::Colour4f &colour)
@@ -165,16 +168,21 @@ namespace Ego
             _stringCache.erase(cache->text);
         }
         
-        if (updateTexture) drawTextToTexture(cache->tex, text);
-        
+        if (updateTexture)
+        {
+            drawTextToTexture(cache->tex, text);
+        }
+
         float w = oglx_texture_t::getSourceWidth(cache->tex);
         float h = oglx_texture_t::getSourceHeight(cache->tex);
         float u = w / oglx_texture_t::getWidth(cache->tex);
         float v = h / oglx_texture_t::getHeight(cache->tex);
         
-        Ego::Renderer::get().setColour(colour);
+        auto& renderer = Ego::Renderer::get();
+        renderer.setColour(colour);
+        renderer.setBlendingEnabled(true);
         oglx_texture_t::bind(cache->tex);
-        
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         GL_DEBUG(glBegin)(GL_QUADS);
         {
             GL_DEBUG(glTexCoord2f)(0, 0);

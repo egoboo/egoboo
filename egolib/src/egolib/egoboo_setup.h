@@ -206,12 +206,14 @@ public:
     virtual bool decodeValue(const string& source) = 0;
 };
 
-#if 0
 template <class ValueType>
 class NumericVariable : public Variable<ValueType>
 {
+    // (u)intx_t, x in [8,16,32,64] & float & double
+    static_assert(!is_same<ValueType, bool>::value && is_arithmetic<ValueType>::value, "ValueType must not be an arithmetic non-bool type");
+
 private:
-    static_assert(!is_numeric<ValueType>::value, "ValueType must not be an numeric type");
+
     /**
      * @brief
      *  The minimum value (inclusive).
@@ -255,21 +257,21 @@ public:
 
     virtual bool encodeValue(string& target) const override
     {
-        return Ego::Script::Encoder<ValueType>()(getValue(),target);
+        return Ego::Script::Encoder<ValueType>()(this->getValue(), target);
     }
 
     virtual bool decodeValue(const string& source) override
     {
         ValueType temporary;
-        if (!Ego::Script::Decoder<ValueType>()(source,temporary))
+        if (!Ego::Script::Decoder<ValueType>()(source, temporary))
         {
             return false;
         }
-        setValue(t);
+        this->setValue(temporary);
         return true;
     }
+
 };
-#endif
 
 /**
  * @brief
@@ -280,7 +282,7 @@ public:
 template <class ValueType>
 class StandardVariable : public Variable<ValueType>
 {
-    static_assert(!is_enum<ValueType>::value,"ValueType must not be an enumeration type");
+    static_assert(!is_enum<ValueType>::value, "ValueType must not be an enumeration type");
 
 public:
 
@@ -318,6 +320,7 @@ public:
         this->setValue(temporary);
         return true;
     }
+
 };
 
 /**
@@ -520,6 +523,8 @@ public:
             graphic_fog_enable,
             graphic_gouraudShading_enable,
             graphic_antialiasing,
+            graphic_anisotropy_enable,
+            graphic_anisotropy_levels,
             graphic_textureFiltering,
             graphic_simultaneousDynamicLights_max,
             graphic_framesPerSecond_max,
@@ -722,7 +727,23 @@ public:
      *  In general SSAA/FSAA is expensive and is replaced by by "multisample antialiasing (MSAA)".
      */
     StandardVariable<uint8_t> graphic_antialiasing;
-    
+
+    /**
+     * @brief
+     *  Enable anisotropy.
+     * @remark
+     *  Default is @a false.
+     */
+    StandardVariable<bool> graphic_anisotropy_enable;
+
+    /**
+     * @brief
+     *  The anisotropy levels.
+     * @remark
+     *  Default is @a 1 within the range of <tt>[1,16]</tt>
+     */
+    NumericVariable<float> graphic_anisotropy_levels;
+
     /**
      * @brief
      *  The texture filter applied.

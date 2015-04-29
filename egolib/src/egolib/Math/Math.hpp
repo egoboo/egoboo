@@ -23,6 +23,8 @@
 /// @author Michael Heilmann
 #pragma once
 
+namespace Ego
+{
 namespace Math
 {
     /**
@@ -55,7 +57,8 @@ namespace Math
     {
         return value * value;
     }
-}
+} // namespace Math
+} // namespace Ego
 
 namespace Ego
 {

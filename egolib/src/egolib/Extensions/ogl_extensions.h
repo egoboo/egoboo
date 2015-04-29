@@ -29,22 +29,66 @@
 
 #include "egolib/file_common.h"
 #include "egolib/egoboo_setup.h"
+#include "egolib/Renderer/TextureAddressMode.hpp"
+#include "egolib/Renderer/TextureType.hpp"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if 0
-    struct oglx_caps_t;
-    struct oglx_video_parameters_t;
-    struct oglx_culling_data_t;
-#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // wrapper for uploading texture information
 
-void oglx_bind( GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat aniso );
-void oglx_upload_1d( GLboolean use_alpha, GLsizei w, const GLvoid * data );
-void oglx_upload_2d( GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data );
-void oglx_upload_2d_mipmap( GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data );
+namespace Ego
+{
+namespace OpenGL
+{
+
+struct Utilities
+{
+    /**
+     * @brief
+     *  Clear the OpenGL error flag.
+     */
+    static void clearError();
+
+    /**
+     * @brief
+     *  If the OpenGL error flag is set, log a description of the error as a warning, and clear the error flag.
+     * @param raise
+     *  if @a true, an std::runtime_error is raised if the OpenGL error flag wa set
+     * @return
+     *  @a true if the OpenGL error flag was set, @a false otherwise
+     */
+    static bool isError();
+
+    static void upload_1d(bool useAlpha, GLsizei w, const GLvoid * data);
+    static void upload_2d(bool useAlpha, GLsizei w, GLsizei h, const void *data);
+    static void upload_2d_mipmap(bool useAlpha, GLsizei w, GLsizei h, const void *data);
+
+    /**
+     * @brief
+     *  Translate an internal texture adress mode into an OpenGL texture address mode.
+     * @param textureAddressMode
+     *  the internal texture address mode
+     * @return
+     *  the OpenGL texture address mode.
+     *  internal                                | OpenGL
+     *  --------------------------------------- | -------------
+     *  Ego::TextureAddressMode::Clamp          | @a GL_CLAMP
+     *  Ego::TextureAddressMode::Cleamp         | @a GL_CLAMP
+     *  Ego::TextureAddressMode::ClampToBorder  | @a GL_CLAMP_TO_BORDER
+     *  Ego::TextureAddressMode::ClampToEdge    | @a GL_CLAMP_TO_EDGE
+     *  Ego::TextureAddressMode::Repeat         | @a GL_REPEAT
+     *  Ego::TextureAddressMode::RepeatMirrored | @a GL_MIRRORED_REPEAT
+     */
+    static GLint toOpenGL(Ego::TextureAddressMode textureAddressMode);
+
+    static void bind(GLuint id, Ego::TextureType type, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT);
+};
+
+} // namespace OpenGL
+} // namespace Ego
+
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,8 +147,10 @@ struct oglx_caps_t
     GLint max_list_nesting;              ///< Maximum display-list call nesting
     GLint max_eval_order;                ///< Maximum evaluator polynomial order
 
+    /// Is anisotropy supported?
     GLboolean anisotropic_supported;
-    GLfloat   maxAnisotropy;                     ///< Max anisotropic filterings (Between 1.00 and 16.00)
+    /// The maximum anisotropic filterings between @a 1 and @a 16.
+    GLfloat   maxAnisotropy;
     GLfloat   log2Anisotropy;                    ///< Max levels of anisotropy
 
     static void report(oglx_caps_t *self);
@@ -125,7 +171,8 @@ struct oglx_video_parameters_t
     GLenum perspective;             ///< current correction hint
     GLboolean dither;               ///< current dithering flag
     GLenum shading;                 ///< current shading type
-    GLfloat userAnisotropy;         ///< current value of the anisotropic filtering
+    GLboolean anisotropy_enable;
+    GLfloat anisotropy_levels;         ///< current value of the anisotropic filtering
 
     static void defaults(oglx_video_parameters_t *self);
     static void download(oglx_video_parameters_t *self, egoboo_config_t *cfg);
@@ -137,7 +184,8 @@ struct oglx_video_parameters_t
 struct oglx_texture_parameters_t
 {
     Ego::TextureFilter textureFiltering;
-    float anisotropyLevel;
+    bool anisotropy_enable;
+    float anisotropy_level;
     static void defaults(oglx_texture_parameters_t* self);
 };
 

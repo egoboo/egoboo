@@ -84,8 +84,6 @@ void gfx_begin_2d();
 void gfx_end_2d();
 void gfx_begin_text();
 void gfx_end_text();
-void gfx_enable_texturing();
-void gfx_disable_texturing();
 void gfx_reshape_viewport( int w, int h );
 
 // bitmap font functions

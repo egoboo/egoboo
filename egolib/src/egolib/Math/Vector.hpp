@@ -644,12 +644,16 @@ struct fvec3_t
     }
 
     /**
-    * @brief
-    *     Get XY euclidian distance between two vectors
-    **/
+     * @brief
+     *  Get Euclidian distance along the xy-axes between this vector and another vectors.
+     * @param other
+     *  the other vector
+     * @return
+     *  the Euclidian distance along the xy-axes between this vector and the other vector
+     */
     float xy_distance(const fvec3_t &other) const
     {
-        return std::sqrt( Math::sq(x-other.x) + Math::sq(y-other.y) );
+        return std::sqrt(Ego::Math::sq(x-other.x) + Ego::Math::sq(y-other.y));
     }
 
     /**

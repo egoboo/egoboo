@@ -90,7 +90,7 @@ void ModuleSelector::drawContainer()
     const GLXvector4f backDrop = { 0.66f, 0.0f, 0.0f, 0.6f };
 
     //Draw backdrop
-    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
     
     GL_DEBUG( glColor4fv )( backDrop );
     GL_DEBUG( glBegin )( GL_QUADS );
@@ -101,8 +101,6 @@ void ModuleSelector::drawContainer()
         GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
     }
     GL_DEBUG_END();
-
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     // Module description
     if(_selectedModule != nullptr)
@@ -181,7 +179,7 @@ void ModuleSelector::ModuleButton::draw()
     }
 
     // Draw backdrop
-    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
     
     // Determine button color
     if(!isEnabled())
@@ -206,8 +204,6 @@ void ModuleSelector::ModuleButton::draw()
     }
     GL_DEBUG_END();
 
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-
     //Draw module title image
     _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon(), getX() + 5, getY() + 5, getWidth()-10, getHeight()-10);
 }
@@ -222,7 +218,7 @@ bool ModuleSelector::notifyMouseScrolled(const int amount)
     {
         return false;
     }
-    _startIndex = Math::constrain<int>(_startIndex + amount, 0, _modules.size() - 3);
+    _startIndex = Ego::Math::constrain<int>(_startIndex + amount, 0, _modules.size() - 3);
     AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
     _nextModuleButton->setEnabled(_startIndex < _modules.size() - 3);
     _previousModuleButton->setEnabled(_startIndex > 0);

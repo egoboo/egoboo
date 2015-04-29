@@ -21,6 +21,8 @@
 /// @brief  An enumeration of texture types.
 /// @author Michael Heilmann
 
+#pragma once
+
 namespace Ego
 {
 

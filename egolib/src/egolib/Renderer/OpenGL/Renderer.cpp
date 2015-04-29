@@ -24,6 +24,7 @@
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
+#include "egolib/Extensions/ogl_extensions.h"
 
 // The following code ensures that for each OpenGL function variable static PF...PROC gl... = NULL; is declared/defined.
 #define GLPROC(variable,type,name) \
@@ -68,11 +69,13 @@ AccumulationBuffer::~AccumulationBuffer()
 {}
 void AccumulationBuffer::clear()
 {
-    GL_DEBUG(glClear)(GL_ACCUM_BUFFER_BIT);
+    glClear(GL_ACCUM_BUFFER_BIT);
+    Utilities::isError();
 }
 void AccumulationBuffer::setClearValue(const Colour4f& value)
 {
-    GL_DEBUG(glClearAccum)(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
+    glClearAccum(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
+    Utilities::isError();
 }
 
 ColourBuffer::ColourBuffer() :
@@ -82,11 +85,13 @@ ColourBuffer::~ColourBuffer()
 {}
 void ColourBuffer::clear()
 {
-    GL_DEBUG(glClear)(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
+    Utilities::isError();
 }
 void ColourBuffer::setClearValue(const Colour4f& value)
 {
-    GL_DEBUG(glClearColor)(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
+    glClearColor(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
+    Utilities::isError();
 }
 
 DepthBuffer::DepthBuffer() :
@@ -96,11 +101,13 @@ DepthBuffer::~DepthBuffer()
 {}
 void DepthBuffer::clear()
 {
-    GL_DEBUG(glClear)(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    Utilities::isError();
 }
 void DepthBuffer::setClearValue(const float& value)
 {
-    GL_DEBUG(glClearDepth)(value);
+    glClearDepth(value);
+    Utilities::isError();
 }
 
 /**
@@ -189,30 +196,33 @@ void Renderer::setAlphaTestEnabled(bool enabled)
 {
     if (enabled)
     {
-        GL_DEBUG(glEnable)(GL_ALPHA_TEST);
+        glEnable(GL_ALPHA_TEST);
     }
     else
     {
-        GL_DEBUG(glDisable)(GL_ALPHA_TEST);
+        glDisable(GL_ALPHA_TEST);
     }
+    Utilities::isError();
 }
 
 void Renderer::setBlendingEnabled(bool enabled)
 {
     if (enabled)
     {
-        GL_DEBUG(glEnable)(GL_BLEND);
+        glEnable(GL_BLEND);
     }
     else
     {
-        GL_DEBUG(glDisable)(GL_BLEND);
+        glDisable(GL_BLEND);
     }
+    Utilities::isError();
 }
 
 void Renderer::setColour(const Colour4f& colour)
 {
-    GL_DEBUG(glColor4f)(colour.getRed(), colour.getGreen(),
-                       colour.getBlue(), colour.getAlpha());
+    glColor4f(colour.getRed(), colour.getGreen(),
+              colour.getBlue(), colour.getAlpha());
+    Utilities::isError();
 }
 
 void Renderer::setCullingMode(CullingMode mode)
@@ -220,22 +230,22 @@ void Renderer::setCullingMode(CullingMode mode)
     switch (mode)
     {
     case CullingMode::None:
-        GL_DEBUG(glDisable)(GL_CULL_FACE);
+        glDisable(GL_CULL_FACE);
         break;
     case CullingMode::Front:
-        GL_DEBUG(glEnable)(GL_CULL_FACE);
-        GL_DEBUG(glCullFace)(GL_FRONT);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
         break;
     case CullingMode::Back:
-        GL_DEBUG(glEnable)(GL_CULL_FACE);
-        GL_DEBUG(glCullFace)(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
         break;
     case CullingMode::BackAndFront:
-        GL_DEBUG(glEnable)(GL_CULL_FACE);
-        GL_DEBUG(glCullFace)(GL_FRONT_AND_BACK);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT_AND_BACK);
         break;
     };
-
+    Utilities::isError();
 }
 
 void Renderer::setDepthFunction(CompareFunction function)
@@ -243,47 +253,50 @@ void Renderer::setDepthFunction(CompareFunction function)
     switch (function)
     {
     case CompareFunction::AlwaysFail:
-        GL_DEBUG(glDepthFunc)(GL_NEVER);
+        glDepthFunc(GL_NEVER);
         break;
     case CompareFunction::AlwaysPass:
-        GL_DEBUG(glDepthFunc)(GL_ALWAYS);
+        glDepthFunc(GL_ALWAYS);
         break;
     case CompareFunction::Less:
-        GL_DEBUG(glDepthFunc)(GL_LESS);
+        glDepthFunc(GL_LESS);
         break;
     case CompareFunction::LessOrEqual:
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL);
+        glDepthFunc(GL_LEQUAL);
         break;
     case CompareFunction::Equal:
-        GL_DEBUG(glDepthFunc)(GL_EQUAL);
+        glDepthFunc(GL_EQUAL);
         break;
     case CompareFunction::NotEqual:
-        GL_DEBUG(glDepthFunc)(GL_NOTEQUAL);
+        glDepthFunc(GL_NOTEQUAL);
         break;
     case CompareFunction::GreaterOrEqual:
-        GL_DEBUG(glDepthFunc)(GL_GEQUAL);
+        glDepthFunc(GL_GEQUAL);
         break;
     case CompareFunction::Greater:
-        GL_DEBUG(glDepthFunc)(GL_GREATER);
+        glDepthFunc(GL_GREATER);
         break;
     };
+    Utilities::isError();
 }
 
 void Renderer::setDepthTestEnabled(bool enabled)
 {
     if (enabled)
     {
-        GL_DEBUG(glEnable)(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
     }
     else
     {
-        GL_DEBUG(glDisable)(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
     }
+    Utilities::isError();
 }
 
 void Renderer::setDepthWriteEnabled(bool enabled)
 {
-    GL_DEBUG(glDepthMask)(enabled ? GL_TRUE : GL_FALSE);
+    glDepthMask(enabled ? GL_TRUE : GL_FALSE);
+    Utilities::isError();
 }
 
 void Renderer::setScissorRectangle(float left, float bottom, float width, float height)
@@ -296,43 +309,48 @@ void Renderer::setScissorRectangle(float left, float bottom, float width, float 
     {
         throw std::invalid_argument("height < 0");
     }
-    GL_DEBUG(glScissor)(left, bottom, width, height);
+    glScissor(left, bottom, width, height);
+    Utilities::isError();
 }
 
 void Renderer::setScissorTestEnabled(bool enabled)
 {
     if (enabled)
     {
-        GL_DEBUG(glEnable)(GL_SCISSOR_TEST);
+        glEnable(GL_SCISSOR_TEST);
     }
     else
     {
-        GL_DEBUG(glDisable)(GL_SCISSOR_TEST);
+        glDisable(GL_SCISSOR_TEST);
     }
+    Utilities::isError();
 }
 
 void Renderer::setStencilMaskBack(uint32_t mask)
 {
     static_assert(sizeof(GLint) >= sizeof(uint32_t), "GLint is smaller than uint32_t");
-    GL_DEBUG(glStencilMaskSeparate)(GL_BACK, mask);
+    glStencilMaskSeparate(GL_BACK, mask);
+    Utilities::isError();
 }
 
 void Renderer::setStencilMaskFront(uint32_t mask)
 {
     static_assert(sizeof(GLint) >= sizeof(uint32_t), "GLint is smaller than uint32_t");
-    GL_DEBUG(glStencilMaskSeparate)(GL_FRONT, mask);
+    glStencilMaskSeparate(GL_FRONT, mask);
+    Utilities::isError();
 }
 
 void Renderer::setStencilTestEnabled(bool enabled)
 {
     if (enabled)
     {
-        GL_DEBUG(glEnable)(GL_STENCIL_TEST);
+        glEnable(GL_STENCIL_TEST);
     }
     else
     {
-        GL_DEBUG(glDisable)(GL_STENCIL_TEST);
+        glDisable(GL_STENCIL_TEST);
     }
+    Utilities::isError();
 }
 
 void Renderer::setViewportRectangle(float left, float bottom, float width, float height)
@@ -345,7 +363,8 @@ void Renderer::setViewportRectangle(float left, float bottom, float width, float
     {
         throw std::invalid_argument("height < 0");
     }
-    GL_DEBUG(glViewport)(left, bottom, width, height);
+    glViewport(left, bottom, width, height);
+    Utilities::isError();
 }
 
 void Renderer::setWindingMode(WindingMode mode)
@@ -353,12 +372,13 @@ void Renderer::setWindingMode(WindingMode mode)
     switch (mode)
     {
     case WindingMode::Clockwise:
-        GL_DEBUG(glFrontFace)(GL_CW);
+        glFrontFace(GL_CW);
         break;
     case WindingMode::AntiClockwise:
-        GL_DEBUG(glFrontFace)(GL_CCW);
+        glFrontFace(GL_CCW);
         break;
     }
+    Utilities::isError();
 }
 
 void Renderer::loadMatrix(const fmat_4x4_t& matrix)
@@ -373,7 +393,8 @@ void Renderer::loadMatrix(const fmat_4x4_t& matrix)
             t[i * 4 + j] = matrix.v[i * 4 + j];
         }
     }
-    GL_DEBUG(glLoadMatrixf)(t);
+    glLoadMatrixf(t);
+    Utilities::isError();
 }
 
 void Renderer::multiplyMatrix(const fmat_4x4_t& matrix)
@@ -388,7 +409,76 @@ void Renderer::multiplyMatrix(const fmat_4x4_t& matrix)
             t[i * 4 + j] = matrix.v[i * 4 + j];
         }
     }
-    GL_DEBUG(glMultMatrixf)(t);
+    glMultMatrixf(t);
+    Utilities::isError();
+}
+
+void Renderer::setPerspectiveCorrectionEnabled(bool enabled)
+{
+    if (enabled)
+    {
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    }
+    else
+    {
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+    }
+    Utilities::isError();
+}
+
+void Renderer::setDitheringEnabled(bool enabled)
+{
+    if (enabled)
+    {
+        glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+        glEnable(GL_DITHER);
+    }
+    else
+    {
+        glHint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
+        glDisable(GL_DITHER);
+    }
+    Utilities::isError();
+}
+
+void Renderer::setMultisamplesEnabled(bool enabled)
+{
+    if (enabled)
+    {
+        glEnable(GL_MULTISAMPLE_ARB);
+        Ego::OpenGL::Utilities::isError();
+
+        // If GL_MULTISAMPLE_ARB is enabled and if SAMPLE_BUFFERS_ARB is one,
+        // then the following settings are ignored - we choose to assign values to them.
+        glEnable(GL_LINE_SMOOTH);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+        glEnable(GL_POINT_SMOOTH);
+        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+
+        glDisable(GL_POLYGON_SMOOTH);
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+    }
+    else
+    {
+        glHint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
+        glDisable(GL_DITHER);
+    }
+    Utilities::isError();
+}
+
+
+void Renderer::setGouraudShadingEnabled(bool enabled)
+{
+    if (enabled)
+    {
+        glShadeModel(GL_SMOOTH);
+    }
+    else
+    {
+        glShadeModel(GL_FLAT);
+    }
+    Utilities::isError();
 }
 
 } // namespace OpenGL

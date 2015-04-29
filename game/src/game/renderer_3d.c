@@ -111,15 +111,9 @@ void line_list_draw_all(std::shared_ptr<Camera> camera)
 
     int cnt, ticks;
 
-    GLboolean texture_1d_enabled, texture_2d_enabled;
-
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
 
     gfx_begin_3d(camera);
     {
@@ -139,9 +133,6 @@ void line_list_draw_all(std::shared_ptr<Camera> camera)
             oglx_end_culling();   // GL_ENABLE_BIT
 
             Ego::Renderer::get().setBlendingEnabled(false);
-
-            // we do not want texture mapped lines
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
 
             ticks = SDL_GetTicks();
 
@@ -167,17 +158,6 @@ void line_list_draw_all(std::shared_ptr<Camera> camera)
         ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
-
-    // fix the texture enabling
-    if ( texture_1d_enabled )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-    }
-    else if ( texture_2d_enabled )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -228,15 +208,9 @@ void point_list_draw_all(std::shared_ptr<Camera> camera)
 
     int cnt, ticks;
 
-    GLboolean texture_1d_enabled, texture_2d_enabled;
-
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
 
     gfx_begin_3d(camera);
     {
@@ -256,9 +230,6 @@ void point_list_draw_all(std::shared_ptr<Camera> camera)
             oglx_end_culling();   // GL_ENABLE_BIT
 
             Ego::Renderer::get().setBlendingEnabled(false);
-
-            // we do not want texture mapped points
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
 
             ticks = SDL_GetTicks();
 
@@ -283,16 +254,6 @@ void point_list_draw_all(std::shared_ptr<Camera> camera)
         ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
-
-    // fix the texture enabling
-    if ( texture_1d_enabled )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-    }
-    else if ( texture_2d_enabled )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-    }
 }
 
 //--------------------------------------------------------------------------------------------

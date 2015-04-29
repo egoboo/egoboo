@@ -57,7 +57,7 @@ void InternalDebugWindow::draw()
 	const GLXvector4f TITLE_BAR_COLOUR = {0.20f, 0.20f, 0.66f, 0.60f};
 
     // Draw the backdrop
-    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
     GL_DEBUG( glColor4fv )( BACKDROP_COLOUR );
 
     GL_DEBUG( glBegin )( GL_QUADS );
@@ -69,8 +69,6 @@ void InternalDebugWindow::draw()
     }
     GL_DEBUG_END();
 
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-
     //Rendering variables
     int textWidth, textHeight;
     int xOffset = getX() + 5;
@@ -78,7 +76,6 @@ void InternalDebugWindow::draw()
     _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
 
     //Draw title bar
-    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
     GL_DEBUG( glColor4fv )( BACKDROP_COLOUR );
     GL_DEBUG( glBegin )( GL_QUADS );
     {
@@ -88,7 +85,6 @@ void InternalDebugWindow::draw()
         GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
     }
     GL_DEBUG_END();
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     //Draw window title first
     _gameEngine->getUIManager()->getDefaultFont()->drawText(_title, xOffset, yOffset);

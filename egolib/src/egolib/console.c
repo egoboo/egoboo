@@ -87,7 +87,7 @@ public:
     std::shared_ptr<Ego::Font> _font;
 };
 
-void egolib_console_handler_t::begin()
+void egolib_console_handler_t::initialize()
 {
     /// @author BB
     /// @details initialize the console. This must happen after the screen has been defines,
@@ -95,9 +95,6 @@ void egolib_console_handler_t::begin()
     ///     have no area...
 
     SDL_Rect blah;
-
-    // autimatically shut down
-    atexit(egolib_console_handler_t::end);
 
     blah.x = 0;
     blah.y = 0;
@@ -114,7 +111,7 @@ void egolib_console_handler_t::begin()
 #endif
 }
 
-void egolib_console_handler_t::end()
+void egolib_console_handler_t::uninitialize()
 {
     /// @author BB
     /// @details de-initialize the top console
@@ -339,8 +336,6 @@ void egolib_console_handler_t::draw_begin()
     // draw draw front and back faces of polygons
     oglx_end_culling();                                         // GL_ENABLE_BIT
 
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                         // GL_ENABLE_BIT
-
     Ego::Renderer::get().setBlendingEnabled(true);
     GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
@@ -379,111 +374,107 @@ void egolib_console_handler_t::draw_end()
 
 bool egolib_console_t::draw(egolib_console_t *self)
 {
-    char   buffer[EGOBOO_CONSOLE_WRITE_LEN] = EMPTY_CSTR;
-    size_t console_line_count;
-    size_t console_line_offsets[1024];
-    size_t console_line_lengths[1024];
-    char * pstr;
+    SDL_Surface *surf = SDL_GetVideoSurface();
 
-    SDL_Rect * pwin;
-    SDL_Surface * surf = SDL_GetVideoSurface();
-
-    if ( NULL == surf || NULL == self || !self->on ) return false;
-
-    pwin = &(self->rect);
-
-    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-
-    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-    GL_DEBUG( glLineWidth )( 5 );
-    GL_DEBUG( glBegin )( GL_LINE_LOOP );
+    if (!surf || !self || !self->on)
     {
-        GL_DEBUG( glVertex2i )( pwin->x,           pwin->y );
-        GL_DEBUG( glVertex2i )( pwin->x + pwin->w, pwin->y );
-        GL_DEBUG( glVertex2i )( pwin->x + pwin->w, pwin->y + pwin->h );
-        GL_DEBUG( glVertex2i )( pwin->x,           pwin->y + pwin->h );
+        return false;
+    }
+
+    SDL_Rect *pwin = &(self->rect);
+
+    oglx_texture_t::bind(nullptr);
+
+    auto& renderer = Ego::Renderer::get();
+    auto white = Ego::Math::Colour4f::white();
+    auto black = Ego::Math::Colour4f::black();
+
+    renderer.setColour(white);
+    GL_DEBUG(glLineWidth)(5);
+    GL_DEBUG(glBegin)(GL_LINE_LOOP);
+    {
+        GL_DEBUG(glVertex2i)(pwin->x, pwin->y);
+        GL_DEBUG(glVertex2i)(pwin->x + pwin->w, pwin->y);
+        GL_DEBUG(glVertex2i)(pwin->x + pwin->w, pwin->y + pwin->h);
+        GL_DEBUG(glVertex2i)(pwin->x, pwin->y + pwin->h);
     }
     GL_DEBUG_END();
 
-    GL_DEBUG( glLineWidth )( 1 );
+    GL_DEBUG(glLineWidth)(1);
 
-    GL_DEBUG( glColor4f )( 0, 0, 0, 1 );
-    GL_DEBUG( glBegin )( GL_POLYGON );
+    renderer.setColour(black);
+    GL_DEBUG(glBegin)(GL_POLYGON);
     {
-        GL_DEBUG( glVertex2i )( pwin->x,           pwin->y );
-        GL_DEBUG( glVertex2i )( pwin->x + pwin->w, pwin->y );
-        GL_DEBUG( glVertex2i )( pwin->x + pwin->w, pwin->y + pwin->h );
-        GL_DEBUG( glVertex2i )( pwin->x,           pwin->y + pwin->h );
+        GL_DEBUG(glVertex2i)(pwin->x, pwin->y);
+        GL_DEBUG(glVertex2i)(pwin->x + pwin->w, pwin->y);
+        GL_DEBUG(glVertex2i)(pwin->x + pwin->w, pwin->y + pwin->h);
+        GL_DEBUG(glVertex2i)(pwin->x,           pwin->y + pwin->h);
     }
     GL_DEBUG_END();
 
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-
-    Ego::Renderer::get().setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f));
     ATTRIB_PUSH( __FUNCTION__, GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
-        int text_w, text_h, height;
-        Ego::Math::Colour4f con_color = Ego::Math::Colour4f::white();
-
-        // make the texture a "null" texture
-        GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, ( GLuint )( ~0 ) );
+        int textWidth, textHeight, height;
 
         // clip the viewport
-		Ego::Renderer::get().setScissorTestEnabled(true);
-        Ego::Renderer::get().setScissorRectangle(pwin->x, surf->h - ( pwin->y + pwin->h ), pwin->w, pwin->h);
+        renderer.setScissorTestEnabled(true);
+        renderer.setScissorRectangle(pwin->x, surf->h - (pwin->y + pwin->h), pwin->w, pwin->h);
 
         height = pwin->h;
+
+        char buffer[EGOBOO_CONSOLE_WRITE_LEN];
 
         // draw the current command line
         buffer[0] = EGOBOO_CONSOLE_PROMPT;
         buffer[1] = ' ';
         buffer[2] = CSTR_END;
 
-        strncat( buffer, self->buffer, 1022 );
+        strncat(buffer, self->buffer, 1022);
         buffer[1022] = CSTR_END;
 
-        self->pfont->_font->getTextSize(buffer, &text_w, &text_h);
-        height -= text_h;
-        self->pfont->_font->drawText(buffer, pwin->x, height - text_h, con_color);
+        self->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
+        height -= textHeight;
+        self->pfont->_font->drawText(buffer, pwin->x, height - textHeight, white);
 
-        if ( CSTR_END != self->output_buffer[0] )
+        if (CSTR_END != self->output_buffer[0])
         {
-            int i;
-
             // grab the line offsets
-            console_line_count = 0;
-            pstr = self->output_buffer;
-            while ( NULL != pstr )
+            size_t console_line_count = 0;
+            size_t console_line_offsets[1024];
+            size_t console_line_lengths[1024];
+            char *pstr = self->output_buffer;
+            while (pstr)
             {
-                size_t len;
-
-                len = strcspn( pstr, "\n" );
+                size_t len = strcspn(pstr, "\n");
 
                 console_line_offsets[console_line_count] = pstr - self->output_buffer;
                 console_line_lengths[console_line_count] = len;
 
-                if ( 0 == len ) break;
+                if (0 == len)
+                {
+                    break;
+                }
 
                 pstr += len + 1;
                 console_line_count++;
             }
 
             // draw the last output line and work backwards
-            for ( i = (( int )console_line_count ) - 1; i >= 0 && height > 0 ; i-- )
+            for (size_t i = console_line_count; i >= 1 && height > 0; --i)
             {
-                size_t len = std::min( (size_t)1023, console_line_lengths[i] );
+                size_t j = i - 1;
+                size_t len = std::min((size_t)1023, console_line_lengths[j]);
 
-                strncpy( buffer, self->output_buffer + console_line_offsets[i], len );
+                strncpy(buffer, self->output_buffer + console_line_offsets[j], len);
                 buffer[len] = CSTR_END;
-                
-                self->pfont->_font->getTextSize(buffer, &text_w, &text_h);
-                height -= text_h;
-                self->pfont->_font->drawText(buffer, pwin->x, height - text_h, con_color);
+
+                self->pfont->_font->getTextSize(buffer, &textWidth, &textHeight);
+                height -= textHeight;
+                self->pfont->_font->drawText(buffer, pwin->x, height - textHeight, white);
             }
         }
-
-    };
-    ATTRIB_POP( __FUNCTION__ );
+    }
+    ATTRIB_POP(__FUNCTION__);
 
     return true;
 }

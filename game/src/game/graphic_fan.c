@@ -196,8 +196,8 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     GL_DEBUG( glPopClientAttrib )();
 
 #if defined(DEBUG_MESH_NORMALS) && defined(_DEBUG)
-    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-	Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
+    oglx_texture_t::bind(nullptr);
+    Ego::Renderer::getSingleton()->setColour(Ego::Colour4f::WHITE);
     entry = ptile->vrtstart;
     for ( cnt = 0; cnt < 4; cnt++, entry++ )
     {
@@ -212,7 +212,6 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
         }
         GL_DEBUG_END();
     }
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 #endif
 
     return gfx_success;

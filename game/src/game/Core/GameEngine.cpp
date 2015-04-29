@@ -263,7 +263,7 @@ bool GameEngine::initialize()
     StatusList.on = egoboo_config_t::get().hud_displayStatusBars.getValue();
 
     // Message display.
-    DisplayMsg_count = Math::constrain(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(),
+    DisplayMsg_count = Ego::Math::constrain(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(),
         (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
     DisplayMsg_on = egoboo_config_t::get().hud_simultaneousMessages_max.getValue() > 0;
 
@@ -346,8 +346,8 @@ bool GameEngine::initialize()
     // initialize the random treasure system
     init_random_treasure_tables_vfs("mp_data/randomtreasure.txt");
 
-    // initialize the console
-    egolib_console_handler_t::begin();
+    // Initialize the console.
+    egolib_console_handler_t::initialize();
 
     // Initialize the profile system.
     ProfileSystem::initialize();
@@ -411,6 +411,9 @@ void GameEngine::uninitialize()
 
     // Uninitialize the profile system.
     ProfileSystem::uninitialize();
+
+    // Uninitialize the console.
+    egolib_console_handler_t::uninitialize();
 
     // Uninitialize the audio system.
     AudioSystem::uninitialize();

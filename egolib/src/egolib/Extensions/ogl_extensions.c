@@ -174,56 +174,218 @@ void oglx_Get_Screen_Info(oglx_caps_t *self)
 
 //--------------------------------------------------------------------------------------------
 
-void oglx_bind( GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat anisotropy )
+namespace Ego
 {
-    GL_DEBUG(glBindTexture )( target, id );
-    GL_DEBUG(glTexParameteri )( target, GL_TEXTURE_WRAP_S, wrap_s );
-    GL_DEBUG(glTexParameteri )( target, GL_TEXTURE_WRAP_T, wrap_t );
+namespace OpenGL
+{
 
-    GL_DEBUG(glTexParameteri )( target, GL_TEXTURE_MAG_FILTER, mag_f );
-    GL_DEBUG(glTexParameteri )( target, GL_TEXTURE_MIN_FILTER, min_f );
-
-    if (GL_TEXTURE_2D == target && g_ogl_caps.anisotropic_supported && anisotropy > 1.0f )
+GLint Utilities::toOpenGL(Ego::TextureAddressMode textureAddressMode)
+{
+    switch (textureAddressMode)
     {
-        GL_DEBUG( glTexParameterf )( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy );
+        case Ego::TextureAddressMode::Clamp:
+            return GL_CLAMP;
+        case Ego::TextureAddressMode::ClampToBorder:
+            return GL_CLAMP_TO_BORDER;
+        case Ego::TextureAddressMode::ClampToEdge:
+            return GL_CLAMP_TO_EDGE;
+        case Ego::TextureAddressMode::Repeat:
+            return GL_REPEAT;
+        case Ego::TextureAddressMode::RepeatMirrored:
+            return GL_MIRRORED_REPEAT;
+        default:
+            throw std::runtime_error("unreachable code reached");
     }
 }
 
-void oglx_upload_1d( GLboolean use_alpha, GLsizei w, const GLvoid * data )
+void Utilities::clearError()
 {
-    if ( use_alpha )
+    while (GL_NO_ERROR != glGetError())
     {
-        GL_DEBUG( glTexImage1D )( GL_TEXTURE_1D, 0, GL_RGBA, w, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+        /* Nothing to do. */
+    }
+}
+
+bool Utilities::isError()
+{
+    GLenum error = glGetError();
+    if (GL_NO_ERROR != error)
+    {
+        switch (error)
+        {
+            case GL_INVALID_ENUM:
+                log_warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_ENUM");
+                break;
+            case GL_INVALID_VALUE:
+                log_warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_VALUE");
+                break;
+            case GL_INVALID_OPERATION:
+                log_warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_OPERATION");
+                break;
+        #if defined(GL_INVALID_FRAMEBUFFER_OPERATION)
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                log_warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_INVALID_FRAMEBUFFER_OPERATION");
+                break;
+        #endif
+            case GL_OUT_OF_MEMORY:
+                log_warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_OUT_OF_MEMORY");
+                break;
+            case GL_STACK_UNDERFLOW:
+                log_warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_STACK_UNDERFLOW");
+                break;
+            case GL_STACK_OVERFLOW:
+                log_warning("%s:%d: %s\n", __FILE__, __LINE__, "GL_STACK_OVERFLOW");
+                break;
+        };
+        clearError();
+        return true;
+    }
+    return false;
+}
+
+void Utilities::upload_1d(bool useAlpha, GLsizei w, const void *data)
+{
+    if (useAlpha)
+    {
+        GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, GL_RGBA, w, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
     else
     {
-        GL_DEBUG( glTexImage1D )( GL_TEXTURE_1D, 0, GL_RGB, w, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data );
+        GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, GL_RGB, w, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
     }
 }
 
-void oglx_upload_2d( GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data )
+void Utilities::upload_2d(bool useAlpha, GLsizei w, GLsizei h, const void *data)
 {
-    if ( use_alpha )
+    if (useAlpha)
     {
-        GL_DEBUG( glTexImage2D )( GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+        GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
     else
     {
-        GL_DEBUG( glTexImage2D )( GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data );
+        GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
     }
 }
 
-void oglx_upload_2d_mipmap( GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data )
+void Utilities::upload_2d_mipmap(bool useAlpha, GLsizei w, GLsizei h, const void *data)
 {
-    if ( use_alpha )
+    if (useAlpha)
     {
-        GL_DEBUG( gluBuild2DMipmaps )( GL_TEXTURE_2D, 4, w, h, GL_RGBA, GL_UNSIGNED_BYTE, data );
+        GL_DEBUG(gluBuild2DMipmaps)(GL_TEXTURE_2D, 4, w, h, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
     else
     {
-        GL_DEBUG( gluBuild2DMipmaps )( GL_TEXTURE_2D, GL_RGB, w, h, GL_BGR_EXT, GL_UNSIGNED_BYTE, data );
+        GL_DEBUG(gluBuild2DMipmaps)(GL_TEXTURE_2D, GL_RGB, w, h, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
     }
 }
+
+void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT)
+{
+    auto textureFiltering = g_ogl_textureParameters.textureFiltering;
+    auto anisotropy_enable = g_ogl_textureParameters.anisotropy_enable;
+    auto anisotropy_level = g_ogl_textureParameters.anisotropy_level;
+    Ego::OpenGL::Utilities::clearError();
+    GLenum target_gl;
+    switch (target)
+    {
+        case Ego::TextureType::_2D:
+            glEnable(GL_TEXTURE_2D);
+            glDisable(GL_TEXTURE_1D);
+            target_gl = GL_TEXTURE_2D;
+            break;
+        case Ego::TextureType::_1D:
+            glEnable(GL_TEXTURE_1D);
+            glDisable(GL_TEXTURE_2D);
+            target_gl = GL_TEXTURE_1D;
+            break;
+        default:
+            throw std::runtime_error("unreachable code reached");
+    }
+    if (Ego::OpenGL::Utilities::isError())
+    {
+        return;
+    }
+    glBindTexture(target_gl, id);
+    if (Ego::OpenGL::Utilities::isError())
+    {
+        return;
+    }
+
+    glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, toOpenGL(textureAddressModeS));
+    glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, toOpenGL(textureAddressModeT));
+
+
+    if (Ego::OpenGL::Utilities::isError())
+    {
+        return;
+    }
+
+
+    GLint minFilter_gl, magFilter_gl;
+    switch (textureFiltering)
+    {
+        // Unfiltered
+        case Ego::TextureFilter::UNFILTERED:
+            minFilter_gl = GL_NEAREST;
+            magFilter_gl = GL_LINEAR;
+            break;
+
+        // Linear filtered
+        case Ego::TextureFilter::LINEAR:
+            minFilter_gl = GL_LINEAR;
+            magFilter_gl = GL_LINEAR;
+            break;
+
+        // Bilinear interpolation
+        case Ego::TextureFilter::MIPMAP:
+            minFilter_gl = GL_NEAREST_MIPMAP_NEAREST;
+            magFilter_gl = GL_LINEAR;
+            break;
+
+        // Bilinear interpolation
+        case Ego::TextureFilter::BILINEAR:
+            minFilter_gl = GL_LINEAR_MIPMAP_NEAREST;
+            magFilter_gl = GL_LINEAR;
+            break;
+
+        // Trilinear filtered (quality 1)
+        case Ego::TextureFilter::TRILINEAR_1:
+            minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
+            magFilter_gl = GL_LINEAR;
+            break;
+
+        // Trilinear filtered (quality 2)
+        case Ego::TextureFilter::TRILINEAR_2:
+            minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
+            magFilter_gl = GL_LINEAR;
+            break;
+
+        default:
+            throw std::runtime_error("unreachable code reached");
+    };
+
+    glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
+    glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
+
+    if (Ego::OpenGL::Utilities::isError())
+    {
+        return;
+    }
+
+
+    if (GL_TEXTURE_2D == target_gl && g_ogl_caps.anisotropic_supported && anisotropy_enable && anisotropy_level >= 1.0f)
+    {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy_level);
+    }
+
+    if (Ego::OpenGL::Utilities::isError())
+    {
+        return;
+    }
+}
+
+} // namespace OpenGL
+} // namespace Ego
 
 //--------------------------------------------------------------------------------------------
 
@@ -239,7 +401,8 @@ void oglx_video_parameters_t::defaults(oglx_video_parameters_t *self)
     self->perspective = GL_FASTEST;
     self->dither = GL_FALSE;
     self->shading = GL_SMOOTH;
-    self->userAnisotropy = 0.0f;
+    self->anisotropy_enable = GL_FALSE;
+    self->anisotropy_levels = 1.0f;
 }
 
 void oglx_video_parameters_t::download(oglx_video_parameters_t *self, egoboo_config_t *cfg)
@@ -256,12 +419,13 @@ void oglx_video_parameters_t::download(oglx_video_parameters_t *self, egoboo_con
     self->antialiasing = cfg->graphic_antialiasing.getValue() ? GL_TRUE : GL_FALSE;
     self->perspective = cfg->graphic_perspectiveCorrection_enable.getValue() ? GL_NICEST : GL_FASTEST;
     self->shading = cfg->graphic_gouraudShading_enable.getValue() ? GL_SMOOTH : GL_FLAT;
-    self->userAnisotropy = 0.0f;/*cfg->graphic_anisotropyLevel.getValue();*/
+    self->anisotropy_enable = cfg->graphic_anisotropy_enable.getValue() ? GL_TRUE : GL_FALSE;
+    self->anisotropy_levels = cfg->graphic_anisotropy_levels.getValue();
 }
 
 //--------------------------------------------------------------------------------------------
 
-oglx_texture_parameters_t g_ogl_textureParameters = { Ego::TextureFilter::UNFILTERED, 0 };
+oglx_texture_parameters_t g_ogl_textureParameters = { Ego::TextureFilter::UNFILTERED, false, 1.0f };
 
 void oglx_texture_parameters_t::defaults(oglx_texture_parameters_t* self)
 {
@@ -270,7 +434,8 @@ void oglx_texture_parameters_t::defaults(oglx_texture_parameters_t* self)
         throw std::invalid_argument("nullptr == self");
     }
     self->textureFiltering = Ego::TextureFilter::UNFILTERED;
-    self->anisotropyLevel = 0.0f;
+    self->anisotropy_enable = false;
+    self->anisotropy_level = 1.0f;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -281,9 +446,10 @@ void oglx_begin_culling( GLenum face, GLenum mode )
     // The glEnable() seems implied - DDOI
 
     // cull backward facing polygons
-    GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
-    GL_DEBUG( glCullFace )( face );       // GL_POLYGON_BIT
-    GL_DEBUG( glFrontFace )( mode );      // GL_POLYGON_BIT
+    glEnable(GL_CULL_FACE);  // GL_ENABLE_BIT
+    glCullFace(face);        // GL_POLYGON_BIT
+    glFrontFace(mode);       // GL_POLYGON_BIT
+    Ego::OpenGL::Utilities::isError();
 }
 
 //--------------------------------------------------------------------------------------------

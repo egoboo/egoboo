@@ -35,7 +35,7 @@ void IconButton::draw()
     updateSlidyButtonEffect();
 
     // Draw the button
-    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
 
     //Determine button color
     if(!isEnabled())
@@ -59,8 +59,6 @@ void IconButton::draw()
         GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
     }
     GL_DEBUG_END();
-
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
  	//Draw icon
  	int iconSize = getHeight()-4;

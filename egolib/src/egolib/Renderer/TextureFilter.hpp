@@ -48,8 +48,6 @@ enum class TextureFilter
 
     TRILINEAR_2,
 
-    ANISOTROPIC,
-
     _COUNT, ///< @todo Remove this.
 };
 

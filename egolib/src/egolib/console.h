@@ -133,8 +133,6 @@ protected:
     static void draw_end();
 public:
     static void draw_all();
-    static void begin();
-    static void end();
     static bool push_front(egolib_console_t *console);
     /**
      * @brief
@@ -155,9 +153,11 @@ public:
     */
     static SDL_Event *handle_event(SDL_Event *event);
 
+    static void initialize();
+    static void uninitialize();
 };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern egolib_console_t * egolib_console_top;
+extern egolib_console_t *egolib_console_top;

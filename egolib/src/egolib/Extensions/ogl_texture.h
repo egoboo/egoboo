@@ -31,6 +31,8 @@
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Renderer/TextureFilter.hpp"
+#include "egolib/Renderer/TextureAddressMode.hpp"
+#include "egolib/Renderer/TextureType.hpp"
 
 #include "egolib/typedef.h"
 
@@ -56,19 +58,19 @@
          * @brief
          *  The texture type.
          */
-        GLenum  _type;
+        Ego::TextureType _type;
         
         /**
          * @brief
          *  The texture address mode along the s-axis.
          */
-        GLint   _wrapS;
+        Ego::TextureAddressMode _textureAddressModeS;
         
         /**
          * @brief
          *  The texture address mode along the t-axis.
          */
-        GLint   _wrapT;
+        Ego::TextureAddressMode _textureAddressModeT;
 
         char name[256];        ///< the name of the original file
 
@@ -149,15 +151,15 @@
         static void destroy(oglx_texture_t *self);
 
     public:
-        static GLuint load(oglx_texture_t *self, const char *name, SDL_Surface *surface, Uint32 key);
-        static GLuint load(oglx_texture_t *self, SDL_Surface *image, Uint32 key);
-        static GLuint load(oglx_texture_t *self, const char *filename, Uint32 key);
+        static GLuint load(oglx_texture_t *self, const std::string& name, SDL_Surface *surface, Uint32 key = INVALID_KEY);
+        static GLuint load(oglx_texture_t *self, SDL_Surface *image, Uint32 key = INVALID_KEY);
+        static GLuint load(oglx_texture_t *self, const std::string& filename, Uint32 key = INVALID_KEY);
 
         /**
          * @brief
-         *	Delete backing image, delete OpenGL ID, assign OpenGL ID of the error texture, assign no backing image.
+         *  Delete backing image, delete OpenGL ID, assign OpenGL ID of the error texture, assign no backing image.
          * @param self
-         *	this texture
+         *  this texture
          */
         static void release(oglx_texture_t *self);
         static void bind(oglx_texture_t *self);
@@ -169,13 +171,29 @@
 
         /**
          * @brief
+         *  Get the texture address mode of this texture along the s-axis.
+         * @return
+         *  the texture address mode of this texture along the s-axis.
+         */
+        static Ego::TextureAddressMode getTextureAddressModeS(oglx_texture_t *self);
+
+        /**
+         * @brief
+         *  Get the texture address mode of this texture along the t-axis.
+         * @return
+         *  the texture address mode of this texture along the t-axis.
+         */
+        static Ego::TextureAddressMode getTextureAddressModeT(oglx_texture_t *self);
+
+        /**
+         * @brief
          *  Get the width, in pixels, of this texture.
          * @param self
          *  this texture
          * @return
          *  the width, in pixels of this texture
          */
-        static GLsizei getWidth(const oglx_texture_t *self);
+        static int getWidth(const oglx_texture_t *self);
 
         /**
          * @brief
@@ -185,7 +203,7 @@
          * @return
          *  the height, in pixels of this texture
          */
-        static GLsizei getHeight(const oglx_texture_t *self);
+        static int getHeight(const oglx_texture_t *self);
 
         /**
          * @brief
@@ -197,7 +215,7 @@
          * @remark
          *  This value might differ for technical reasons from the width of the texture.
          */
-        static GLsizei getSourceWidth(const oglx_texture_t *self);
+        static int getSourceWidth(const oglx_texture_t *self);
 
         /**
          * @brief
@@ -209,7 +227,7 @@
          * @remark
          *  This value might differ for technical reasons from the height of the texture.
          */
-        static GLsizei getSourceHeight(const oglx_texture_t *self);
+        static int getSourceHeight(const oglx_texture_t *self);
 
         /**
          * @brief
@@ -224,8 +242,6 @@
 
         static GLboolean getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect);
     };
-
-    void oglx_bind_to_tex_params(GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t);
 
     /**
      * @brief

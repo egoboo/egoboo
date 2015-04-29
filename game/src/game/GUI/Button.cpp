@@ -41,8 +41,8 @@ void Button::draw()
     updateSlidyButtonEffect();
 
     // Draw the button
-    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-    
+    oglx_texture_t::bind(nullptr);
+
     // convert the virtual coordinates to screen coordinates
     //ui_virtual_to_screen( vx, vy, &x1, &y1 );
     //ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
@@ -69,8 +69,6 @@ void Button::draw()
         GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
     }
     GL_DEBUG_END();
-
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     //Draw centered text in button
     if(!_buttonText.empty())

@@ -320,8 +320,6 @@ void gfx_begin_text()
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG( glPushAttrib )( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
 
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-
     // do not display the completely transparent portion
     Ego::Renderer::get().setAlphaTestEnabled(true);
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                         // GL_COLOR_BUFFER_BIT
@@ -346,24 +344,6 @@ void gfx_end_text()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_enable_texturing()
-{
-    if ( !GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_disable_texturing()
-{
-    if ( GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
-    {
-        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void gfx_reshape_viewport(int w, int h)
 {
     Ego::Renderer::get().setViewportRectangle(0, 0, w, h);
@@ -376,21 +356,7 @@ void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_fre
 {
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
     {
-        GLboolean texture_1d_enabled, texture_2d_enabled;
-
-        texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-        texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-        if (!tex)
-        {
-            GL_DEBUG( glDisable )( GL_TEXTURE_1D );                           // GL_ENABLE_BIT
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );                           // GL_ENABLE_BIT
-        }
-        else
-        {
-            GL_DEBUG(glEnable)(tex->_type);                        // GL_ENABLE_BIT
-            oglx_texture_t::bind(tex);
-        }
+        oglx_texture_t::bind(tex);
 
 		Ego::Renderer::get().setColour(tint);
 
@@ -416,16 +382,6 @@ void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_fre
 			GL_DEBUG(glTexCoord2f)(tx_rect.xmin, tx_rect.ymin); GL_DEBUG(glVertex2f)(scr_rect.xmin, scr_rect.ymin);
         }
         GL_DEBUG_END();
-
-        // fix the texture enabling
-        if ( texture_1d_enabled )
-        {
-            GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-        }
-        else if ( texture_2d_enabled )
-        {
-            GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-        }
     }
     ATTRIB_POP( __FUNCTION__ );
 }
@@ -617,13 +573,13 @@ bool dump_screenshot()
         SDL_Surface *temp;
 
         // create a SDL surface
-        using pixelDescriptor = PixelDescriptor<Ego::PixelFormat::R8G8B8>;
+        const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
         temp = SDL_CreateRGBSurface(SDL_SWSURFACE, sdl_scr.x, sdl_scr.y,
-                                    pixelDescriptor::bpp(),
-                                    pixelDescriptor::r_mask(),
-                                    pixelDescriptor::g_mask(),
-                                    pixelDescriptor::b_mask(),
-                                    pixelDescriptor::a_mask());
+                                    pixelFormatDescriptor.bitsPerPixel(),
+                                    pixelFormatDescriptor.r_mask(),
+                                    pixelFormatDescriptor.g_mask(),
+                                    pixelFormatDescriptor.b_mask(),
+                                    pixelFormatDescriptor.a_mask());
 
         if ( NULL == temp )
         {

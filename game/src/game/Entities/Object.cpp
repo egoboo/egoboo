@@ -335,13 +335,13 @@ void Object::movePosition(const float x, const float y, const float z)
 
 void Object::setAlpha(const int alpha)
 {
-    inst.alpha = Math::constrain(alpha, 0, 0xFF);
+    inst.alpha = Ego::Math::constrain(alpha, 0, 0xFF);
     chr_instance_update_ref(&inst, enviro.grid_level, false);
 }
 
 void Object::setLight(const int light)
 {
-    inst.light = Math::constrain(light, 0, 0xFF);
+    inst.light = Ego::Math::constrain(light, 0, 0xFF);
 
     //This prevents players from becoming completely invisible
     if (VALID_PLA(is_which_player))  
@@ -354,7 +354,7 @@ void Object::setLight(const int light)
 
 void Object::setSheen(const int sheen)
 {
-    inst.sheen = Math::constrain(sheen, 0, 0xFF);
+    inst.sheen = Ego::Math::constrain(sheen, 0, 0xFF);
     chr_instance_update_ref(&inst, enviro.grid_level, false);
 }
 
@@ -843,7 +843,7 @@ void Object::update()
                     // suppress ripples if we are far below the surface
                     ripple_suppression = WATER_LEVEL - (getPosZ() + chr_min_cv.maxs[OCT_Z]);
                     ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
-                    ripple_suppression = Math::constrain(ripple_suppression, 0, 4);
+                    ripple_suppression = Ego::Math::constrain(ripple_suppression, 0, 4);
 
                     // make more ripples if we are moving
                     ripple_suppression -= (( int )vel.x != 0 ) | (( int )vel.y != 0 );

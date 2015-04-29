@@ -74,7 +74,7 @@ bool IMG_test_alpha(SDL_Surface *surface)
     }
 
     // grab the info for scanning the surface
-    //bit_mask = pformat->Rmask | pformat->Gmask | pformat->Bmask | pformat->Amask;
+    Uint32 bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
     int bytesPerPixel = format->BytesPerPixel;
     int width = surface->w;
     int height = surface->h;
@@ -86,14 +86,8 @@ bool IMG_test_alpha(SDL_Surface *surface)
         const char *char_ptr = row_ptr;
         for (int x = 0; x < width; ++x)
         {
-            Uint32 pixel = 0;
-            for (int i = 0; i < bytesPerPixel; ++i)
-            {
-                if (pixel) pixel <<= 8;
-                pixel |= *((uint8_t *)char_ptr);
-                char_ptr++;
-            }
-
+            Uint32 *ui32_ptr = (Uint32 *)char_ptr;
+            Uint32 pixel = (*ui32_ptr) & bitMask;
             Uint8 r, g, b, a;
             SDL_GetRGBA(pixel, format, &r, &g, &b, &a);
 
@@ -101,6 +95,7 @@ bool IMG_test_alpha(SDL_Surface *surface)
             {
                 return true;
             }
+            char_ptr += bytesPerPixel;
         }
         row_ptr += pitch;
     }
@@ -124,9 +119,12 @@ bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
         return IMG_test_alpha(surface);
     }
 
-    // if the surface is tagged as having an alpha value,
-    // it is partially transparent
-    if (0xff != format->alpha) return true;
+    // If the overall alpha marks the surface as not fully opaque,
+    // it is partially transparent and hence requires alpha blending.
+    if (0xff != format->alpha)
+    {
+        return true;
+    }
 
     // grab the info for scanning the surface
     Uint32 bitMask = format->Rmask | format->Gmask | format->Bmask | format->Amask;
@@ -142,7 +140,7 @@ bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
         for (int ix = 0; ix < w; ix++)
         {
             Uint32 *ui32_ptr = (Uint32 *)char_ptr;
-            Uint32 pixel = (*ui32_ptr)&bitMask;
+            Uint32 pixel = (*ui32_ptr) & bitMask;
 
             if (pixel == key)
             {
@@ -370,11 +368,11 @@ oglx_texture_t *oglx_texture_t::ctor(oglx_texture_t *self)
     }
 
     // The texture is the 2D error texture.
-    self->_type = GL_TEXTURE_2D;
+    self->_type = Ego::TextureType::_2D;
     self->_id = _errorTexture2D->_id;
     // The texture coordinates of this texture are repeated along the s and t axes.
-    self->_wrapS = GL_REPEAT;
-    self->_wrapT = GL_REPEAT;
+    self->_textureAddressModeS = Ego::TextureAddressMode::Repeat;
+    self->_textureAddressModeT = Ego::TextureAddressMode::Repeat;
     // The size (width and height) of this texture is the size of the error image.
     self->_width = _errorTexture2D->getWidth();
     self->_height = _errorTexture2D->getHeight();
@@ -426,7 +424,7 @@ void oglx_texture_t::destroy(oglx_texture_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint oglx_texture_t::load(oglx_texture_t *self, const char *name, SDL_Surface *source, Uint32 key)
+GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& name, SDL_Surface *source, Uint32 key)
 {
     if (!self)
     {
@@ -464,50 +462,50 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *name, SDL_Surface 
         return INVALID_GL_ID;
     }
     // Generate a new OpenGL texture ID.
+    Ego::OpenGL::Utilities::clearError();
     GLuint id;
     while (GL_NO_ERROR != glGetError())
     {
         /* Nothing to do. */
     }
     glGenTextures(1, &id);
-    if (GL_NO_ERROR != glGetError())
+    if (Ego::OpenGL::Utilities::isError())
     {
-        SDL_FreeSurface(new_source);
         return INVALID_GL_ID;
     }
     // Use default texture address mode.
-    GLint wrapS = GL_REPEAT;
-    GLint wrapT = GL_REPEAT;
+    auto textureAddressModeS = Ego::TextureAddressMode::Repeat;
+    auto textureAddressModeT = Ego::TextureAddressMode::Repeat;
     // Determine the texture type.
-    GLenum type = ((1 == source->h) && (source->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
+    auto type = ((1 == source->h) && (source->w > 1)) ? Ego::TextureType::_1D : Ego::TextureType::_2D;
     // Test if the image requires alpha blending.
     bool hasAlpha = IMG_test_alpha_key(new_source, key);
     /* Set texture address mode and texture filtering. */
-    oglx_bind_to_tex_params(id, type, wrapS, wrapT);
+    Ego::OpenGL::Utilities::bind(id, type, textureAddressModeS, textureAddressModeT);
     /* Upload the texture data. */
-    if (type == GL_TEXTURE_2D)
+    if (type == Ego::TextureType::_2D)
     {
         if (g_ogl_textureParameters.textureFiltering >= Ego::TextureFilter::MIPMAP)
         {
-            oglx_upload_2d_mipmap(hasAlpha, new_source->w, new_source->h, new_source->pixels);
+            Ego::OpenGL::Utilities::upload_2d_mipmap(true, new_source->w, new_source->h, new_source->pixels);
         }
         else
         {
-            oglx_upload_2d(hasAlpha, new_source->w, new_source->h, new_source->pixels);
+            Ego::OpenGL::Utilities::upload_2d(true, new_source->w, new_source->h, new_source->pixels);
         }
     }
-    else if (type == GL_TEXTURE_1D)
+    else if (type == Ego::TextureType::_1D)
     {
-        oglx_upload_1d(hasAlpha, new_source->w, new_source->pixels);
+        Ego::OpenGL::Utilities::upload_1d(true, new_source->w, new_source->pixels);
     }
     else
     {
-        EGOBOO_ASSERT(0);
+        EGOBOO_ASSERT(0); /// @todo This code is in fact unreachable. Raise a std::runtime_error.
     }
 
     // Store the appropriate data.
-    self->_wrapS = wrapS;
-    self->_wrapT = wrapT;
+    self->_textureAddressModeS = textureAddressModeS;
+    self->_textureAddressModeT = textureAddressModeT;
     self->_type = type;
     self->_id = id;
     self->_width = new_source->w;
@@ -516,7 +514,8 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *name, SDL_Surface 
     self->_sourceWidth = source->w;
     self->_sourceHeight = source->h;
     self->_hasAlpha = hasAlpha;
-    strncpy(self->name, name, SDL_arraysize(self->name));
+    strncpy(self->name, name.c_str(), SDL_arraysize(self->name));
+    self->name[SDL_arraysize(self->name) - 1] = '\0';
 
     SDL_FreeSurface(new_source);
 
@@ -525,12 +524,12 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *name, SDL_Surface 
 
 GLuint oglx_texture_t::load(oglx_texture_t *self, SDL_Surface *source, Uint32 key)
 {
-    char name[256];
-    snprintf(name, SDL_arraysize(name), "<source %p>", source);
-    return oglx_texture_t::load(self, name, source, key);
+    std::ostringstream stream;
+    stream << "<source " << (void *)source << ">";
+    return oglx_texture_t::load(self, stream.str().c_str(), source, key);
 }
 
-GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 key)
+GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& filename, Uint32 key)
 {
     if (!self)
     {
@@ -538,8 +537,26 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const char *filename, Uint32 k
     }
     // Release OpenGL/SDL resources and assign the error texture.
     oglx_texture_t::release(self);
-    SDL_Surface *image = IMG_Load_RW(vfs_openRWopsRead(filename), 1);
+    SDL_Surface *image = IMG_Load_RW(vfs_openRWopsRead(filename.c_str()), 1);
     return load(self, filename, image, key);
+}
+
+Ego::TextureAddressMode oglx_texture_t::getTextureAddressModeS(oglx_texture_t *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+    return self->_textureAddressModeS;
+}
+
+Ego::TextureAddressMode oglx_texture_t::getTextureAddressModeT(oglx_texture_t *self)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+    return self->_textureAddressModeT;
 }
 
 GLuint  oglx_texture_t::getTextureID(const oglx_texture_t *self)
@@ -551,7 +568,7 @@ GLuint  oglx_texture_t::getTextureID(const oglx_texture_t *self)
     return self->_id;
 }
 
-GLsizei  oglx_texture_t::getSourceHeight(const oglx_texture_t *self)
+int  oglx_texture_t::getSourceHeight(const oglx_texture_t *self)
 {
     if (!self)
     {
@@ -560,7 +577,7 @@ GLsizei  oglx_texture_t::getSourceHeight(const oglx_texture_t *self)
     return self->_sourceHeight;
 }
 
-GLsizei  oglx_texture_t::getSourceWidth(const oglx_texture_t *self)
+int  oglx_texture_t::getSourceWidth(const oglx_texture_t *self)
 {
     if (!self)
     {
@@ -569,7 +586,7 @@ GLsizei  oglx_texture_t::getSourceWidth(const oglx_texture_t *self)
     return self->_sourceWidth;
 }
 
-GLsizei  oglx_texture_t::getWidth(const oglx_texture_t *self)
+int  oglx_texture_t::getWidth(const oglx_texture_t *self)
 {
     if (!self)
     {
@@ -578,7 +595,7 @@ GLsizei  oglx_texture_t::getWidth(const oglx_texture_t *self)
     return self->_width;
 }
 
-GLsizei  oglx_texture_t::getHeight(const oglx_texture_t *self)
+int  oglx_texture_t::getHeight(const oglx_texture_t *self)
 {
     if (!self)
     {
@@ -596,7 +613,6 @@ bool oglx_texture_t::hasAlpha(const oglx_texture_t *self)
     return self->_hasAlpha;
 }
 
-//--------------------------------------------------------------------------------------------
 GLboolean oglx_texture_t::getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect)
 {
     if (!self)
@@ -650,7 +666,9 @@ void  oglx_texture_t::release(oglx_texture_t *self)
     }
 
     // Delete the OpenGL texture and assign the error texture.
-    GL_DEBUG(glDeleteTextures)(1, &(self->_id));
+    glDeleteTextures(1, &(self->_id));
+    Ego::OpenGL::Utilities::isError();
+
     // Delete the source if it exist.
     if (self->source)
     {
@@ -659,11 +677,11 @@ void  oglx_texture_t::release(oglx_texture_t *self)
     }
 
     // The texture is the 2D error texture.
-    self->_type = GL_TEXTURE_2D;
+    self->_type = Ego::TextureType::_2D;
     self->_id = _errorTexture2D->_id;
     // The texture coordinates of this texture are repeated along the s and t axes.
-    self->_wrapS = GL_REPEAT;
-    self->_wrapT = GL_REPEAT;
+    self->_textureAddressModeS = Ego::TextureAddressMode::Repeat;
+    self->_textureAddressModeT = Ego::TextureAddressMode::Repeat;
     // The size (width and height) of this texture is the size of the error image.
     self->_width = _errorTexture2D->getWidth();
     self->_height = _errorTexture2D->getHeight();
@@ -677,86 +695,20 @@ void  oglx_texture_t::release(oglx_texture_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-void oglx_texture_t::bind( oglx_texture_t *texture )
+void oglx_texture_t::bind(oglx_texture_t *texture)
 {
     /// @author BB
     /// @details a oglx_texture_t wrapper for oglx_bind_to_tex_params() function
 
-    // Assume error texture.
-    GLenum type = GL_TEXTURE_2D;
-    GLuint wrapS = GL_REPEAT;
-    GLuint wrapT = GL_REPEAT;
-    GLuint id = _errorTexture2D->_id;
-
-    // If a texture is provided, to not use the error texture.
-    if (texture)
+    if (!texture)
     {
-        // grab the info from the texture
-        type = texture->_type;
-        wrapS  = texture->_wrapS;
-        wrapT  = texture->_wrapT;
-        id = texture->_id;
-    }
-
-    // Upload the texture.
-    oglx_bind_to_tex_params(id, type, wrapS, wrapT);
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void oglx_bind_to_tex_params(GLuint binding, GLenum target, GLint wrapS, GLint wrapT)
-{
-    // handle default parameters
-    if (wrapS < 0) wrapS = GL_REPEAT;
-    if (wrapT < 0) wrapT = GL_REPEAT;
-
-    auto textureFiltering = g_ogl_textureParameters.textureFiltering;
-    auto anisotropyLevel = g_ogl_textureParameters.anisotropyLevel;
-
-    if (!GL_DEBUG(glIsEnabled)(target))
-    {
-        GL_DEBUG(glEnable)(target);
-    };
-
-    if (textureFiltering >= Ego::TextureFilter::ANISOTROPIC)
-    {
-        // Anisotropic filtered!
-        oglx_bind(target, binding, wrapS, wrapT, GL_LINEAR, GL_LINEAR, anisotropyLevel);
+        glDisable(GL_TEXTURE_1D);
+        glDisable(GL_TEXTURE_2D);
     }
     else
     {
-        switch (textureFiltering)
-        {
-            // Unfiltered
-            case Ego::TextureFilter::UNFILTERED:
-                oglx_bind(target, binding, wrapS, wrapT, GL_NEAREST, GL_LINEAR, 0);
-                break;
-
-                // Linear filtered
-            case Ego::TextureFilter::LINEAR:
-                oglx_bind(target, binding, wrapS, wrapT, GL_LINEAR, GL_LINEAR, 0);
-                break;
-
-                // Bilinear interpolation
-            case Ego::TextureFilter::MIPMAP:
-                oglx_bind(target, binding, wrapS, wrapT, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR, 0);
-                break;
-
-                // Bilinear interpolation
-            case Ego::TextureFilter::BILINEAR:
-                oglx_bind(target, binding, wrapS, wrapT, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, 0);
-                break;
-
-                // Trilinear filtered (quality 1)
-            case Ego::TextureFilter::TRILINEAR_1:
-                oglx_bind(target, binding, wrapS, wrapT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR, 0);
-                break;
-
-                // Trilinear filtered (quality 2)
-            case Ego::TextureFilter::TRILINEAR_2:
-                oglx_bind(target, binding, wrapS, wrapT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, 0);
-                break;
-        };
+        Ego::OpenGL::Utilities::bind(texture->_id, texture->_type, texture->_textureAddressModeS, texture->_textureAddressModeT);
     }
+    Ego::OpenGL::Utilities::isError();
 }
+

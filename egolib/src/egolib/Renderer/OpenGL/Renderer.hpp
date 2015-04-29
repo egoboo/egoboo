@@ -190,6 +190,18 @@ public:
     /** @copydoc Ego::Renderer::multMatrix */
     virtual void multiplyMatrix(const fmat_4x4_t& matrix) override;
 
+    /** @copydoc Ego::Renderer::setPerspectiveCorrectionEnabled */
+    virtual void setPerspectiveCorrectionEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setDitheringEnabled  */
+    virtual void setDitheringEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setMultisamplesEnabled */
+    virtual void setMultisamplesEnabled(bool enabled) override;
+
+    /** @copydoc Ego::Renderer::setGouraudShadingEnabled */
+    virtual void setGouraudShadingEnabled(bool enabled) override;
+
 }; // class Renderer
 
 } // namespace OpenGL

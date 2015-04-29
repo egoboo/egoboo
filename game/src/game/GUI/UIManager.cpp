@@ -64,8 +64,6 @@ void UIManager::beginRenderUI()
     // draw draw front and back faces of polygons
     oglx_end_culling();                                                        // GL_ENABLE_BIT
 
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                     // GL_ENABLE_BIT
-
     // use normal alpha blending
     Ego::Renderer::get().setBlendingEnabled(true);
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );           // GL_COLOR_BUFFER_BIT

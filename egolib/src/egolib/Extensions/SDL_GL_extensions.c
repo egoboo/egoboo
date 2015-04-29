@@ -28,6 +28,7 @@
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/ogl_texture.h"
 #include "egolib/Math/_Include.hpp"
+#include "egolib/Graphics/PixelFormat.hpp"
 
 //--------------------------------------------------------------------------------------------
 SDL_bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
@@ -93,16 +94,13 @@ SDL_bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
         GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH);
     }
 
-    // anisotropic filtering
-    if (v->userAnisotropy > 1.0f)
+    // Disable anisotropic filtering if it is not supported.
+    v->anisotropy_enable &= g_ogl_caps.anisotropic_supported;
+    // However, always bound the values to valid ranges.
+    v->anisotropy_levels = Ego::Math::constrain(v->anisotropy_levels, 1.0f, g_ogl_caps.maxAnisotropy);
+    if (v->anisotropy_enable && v->anisotropy_levels > 1.0f)
     {
-        // limit the userAnisotropy top be in a valid range
-        if (v->userAnisotropy > g_ogl_caps.maxAnisotropy)
-        {
-            v->userAnisotropy = g_ogl_caps.maxAnisotropy;
-        }
-
-        GL_DEBUG(glTexParameterf)(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy);
+        GL_DEBUG(glTexParameterf)(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->anisotropy_levels);
     };
 
     // fill mode
@@ -199,25 +197,25 @@ SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface)
     // Compute new pixel format (R8G8B8A8).
     SDL_PixelFormat newFormat = *(SDL_GetVideoSurface()->format);
 
-    using PixelDescriptor = PixelDescriptor<Ego::PixelFormat::R8G8B8A8>;
-    newFormat.Amask = PixelDescriptor::a_mask();
-    newFormat.Ashift = PixelDescriptor::a_shift();
+    const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+    newFormat.Amask = pixelFormatDescriptor.a_mask();
+    newFormat.Ashift = pixelFormatDescriptor.a_shift();
     newFormat.Aloss = 0;
 
-    newFormat.Bmask = PixelDescriptor::b_mask();
-    newFormat.Bshift = PixelDescriptor::b_shift();
+    newFormat.Bmask = pixelFormatDescriptor.b_mask();
+    newFormat.Bshift = pixelFormatDescriptor.b_shift();
     newFormat.Bloss = 0;
 
-    newFormat.Gmask = PixelDescriptor::g_mask();
-    newFormat.Gshift = PixelDescriptor::g_shift();
+    newFormat.Gmask = pixelFormatDescriptor.g_mask();
+    newFormat.Gshift = pixelFormatDescriptor.g_shift();
     newFormat.Gloss = 0;
 
-    newFormat.Rmask = PixelDescriptor::r_mask();
-    newFormat.Rshift = PixelDescriptor::r_shift();
+    newFormat.Rmask = pixelFormatDescriptor.r_mask();
+    newFormat.Rshift = pixelFormatDescriptor.r_shift();
     newFormat.Rloss = 0;
 
-    newFormat.BitsPerPixel = 32;
-    newFormat.BytesPerPixel = 4;
+    newFormat.BitsPerPixel = pixelFormatDescriptor.bitsPerPixel();
+    newFormat.BytesPerPixel = pixelFormatDescriptor.bitsPerPixel() / sizeof(char);
 
     // Convert to new format.
     SDL_Surface *tmp = SDL_ConvertSurface(oldSurface, &newFormat, SDL_SWSURFACE);

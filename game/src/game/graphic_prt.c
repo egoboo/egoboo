@@ -566,7 +566,6 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
     Uint32 vrt;
 
     GLint matrix_mode[1];
-    GLboolean texture_1d_enabled, texture_2d_enabled;
 
     if ( NULL == pinst || NULL == pmad ) return;
 
@@ -574,13 +573,9 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 
     if ( vrt < 0 || vrt >= pinst->vrt_count ) return;
 
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    oglx_texture_t::bind(nullptr);
 
     GL_DEBUG( glPointSize )( 5 );
 
@@ -603,9 +598,6 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 
     // restore the matrix mode
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
-
-    if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1148,13 +1140,12 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         // shift the source bounding boxes to be centered on the given positions
         oct_bb_translate( &exp_bb, loc_pprt->pos, &loc_bb );
 
-        GL_DEBUG(glDisable)(GL_TEXTURE_2D);
+        oglx_texture_t::bind(nullptr);
         {
-			Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
+            Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
             render_oct_bb(&loc_bb, true, true);
         }
-        GL_DEBUG(glEnable)(GL_TEXTURE_2D);
     }
 }
 

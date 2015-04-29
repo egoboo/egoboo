@@ -1585,7 +1585,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
         // calculate the distance
         grabData.horizontalDistance = pchr_c->getPosition().xy_distance(slot_pos);
-        grabData.verticalDistance = std::sqrt(Math::sq( pchr_a->getPosZ() - pchr_c->getPosZ()));
+        grabData.verticalDistance = std::sqrt(Ego::Math::sq( pchr_a->getPosZ() - pchr_c->getPosZ()));
  
         //Figure out if the character is looking towards the object
         grabData.isFacingObject = pchr_a->isFacingLocation(pchr_c->getPosX(), pchr_c->getPosY());

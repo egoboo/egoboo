@@ -61,6 +61,8 @@ egoboo_config_t::egoboo_config_t() :
     graphic_fog_enable(false, "graphic.fog.enable", "enable/disable fog"),
     graphic_gouraudShading_enable(true, "graphic.gouraudShading.enable", "enable/disable Gouraud shading"),
     graphic_antialiasing(2, "graphic.antialiasing", "set antialiasing level 0 (off), 1 (2x), 2 (4x), 3 (8x), 4 (16x)"),
+    graphic_anisotropy_enable(false, "graphic.anisotropy.enable", "enable anisotropic texture filtering"),
+    graphic_anisotropy_levels(1.0f, "graphic.anisotropy.levels", "anisotropy levels", 1.0f, 16.0f),
     graphic_textureFiltering(Ego::TextureFilter::TRILINEAR_2, "graphic.textureFiltering", "texture filter used for texture filtering",
     {
         { "unfiltered",  Ego::TextureFilter::UNFILTERED  },
@@ -69,7 +71,6 @@ egoboo_config_t::egoboo_config_t() :
         { "bilinear",    Ego::TextureFilter::BILINEAR    },
         { "trilinear 1", Ego::TextureFilter::TRILINEAR_1 },
         { "trilinear 2", Ego::TextureFilter::TRILINEAR_2 },
-        { "anisotropic", Ego::TextureFilter::ANISOTROPIC },
     }),
     graphic_simultaneousDynamicLights_max(32, "graphic.simultaneousDynamicLights.max", "inclusive upper bound of simultaneous dynamic lights"),
     graphic_framesPerSecond_max(30, "graphic.framesPerSecond.max", "inclusive upper bound of frames per second"),
@@ -149,6 +150,8 @@ egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
     graphic_fog_enable = other.graphic_fog_enable;
     graphic_gouraudShading_enable = other.graphic_gouraudShading_enable;
     graphic_antialiasing = other.graphic_antialiasing;
+    graphic_anisotropy_enable = other.graphic_anisotropy_enable;
+    graphic_anisotropy_levels = other.graphic_anisotropy_levels;
     graphic_textureFiltering = other.graphic_textureFiltering;
     graphic_simultaneousDynamicLights_max = other.graphic_simultaneousDynamicLights_max;
     graphic_framesPerSecond_max = other.graphic_framesPerSecond_max;

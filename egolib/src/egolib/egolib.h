@@ -64,7 +64,10 @@
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Graphics/Font.hpp"
 #include "egolib/Graphics/TextureManager.hpp"
+#include "egolib/Graphics/PixelFormat.hpp"
+
 #include "egolib/Renderer/Renderer.hpp"
+
 #include "egolib/Profiles/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
