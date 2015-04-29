@@ -294,186 +294,6 @@ public:
 
     template<PixelFormat _PixelFormat>
     static const PixelFormatDescriptor& get();
-    
-    template <>
-    static const PixelFormatDescriptor& get<PixelFormat::B8G8R8>()
-    {
-        static const uint32_t r_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            16;
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            0;
-        #endif
-        static const uint32_t g_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            8;
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            8;
-        #endif
-        static const uint32_t b_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            0;
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            16;
-        #endif
-        static const uint32_t a_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            0;
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            0;
-        #endif
-        static const uint32_t r_mask =
-            ((uint32_t)0xff) << r_shift;
-        static const uint32_t g_mask =
-            ((uint32_t)0xff) << g_shift;
-        static const uint32_t b_mask =
-            ((uint32_t)0xff) << b_shift;
-        static const uint32_t a_mask =
-            ((uint32_t)0xff) << a_shift;
-        static const PixelFormatDescriptor INSTANCE
-            (
-            PixelFormat::R8G8B8A8,
-            32,
-            r_shift, g_shift, b_shift, a_shift,
-            r_mask, g_mask, b_mask, a_mask
-            );
-        return INSTANCE;
-    }
-    
-    template <>
-    static const PixelFormatDescriptor& get<PixelFormat::B8G8R8A8>()
-    {
-        static const uint32_t r_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            16; // B8 G8 R8 A8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            8;  // in big endian: A8 R8 G8 B8
-        #endif
-        static const uint32_t g_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            8;  // B8 G8 R8 A8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            16; // in big endian: A8 R8 G8 B8
-        #endif
-        static const uint32_t b_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            0;  // B8 G8 R8 A8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            24; // in big endian: A8 R8 G8 B8
-        #endif
-        static const uint32_t a_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            24; // B8 G8 R8 A8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            0;  // in big endian: A8 R8 G8 B8
-        #endif
-        static const uint32_t r_mask =
-            ((uint32_t)0xff) << r_shift;
-        static const uint32_t g_mask =
-            ((uint32_t)0xff) << g_shift;
-        static const uint32_t b_mask =
-            ((uint32_t)0xff) << b_shift;
-        static const uint32_t a_mask =
-            ((uint32_t)0xff) << a_shift;
-        static const PixelFormatDescriptor INSTANCE
-            (
-                PixelFormat::B8G8R8A8,
-                32,
-                r_shift, g_shift, b_shift, a_shift,
-                r_mask, g_mask, b_mask, a_mask
-            );
-        return INSTANCE;
-    }
-
-    template <>
-    static const PixelFormatDescriptor& get<PixelFormat::R8G8B8>()
-    {
-        static const uint32_t r_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            0;  // R8 G8 B8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            16; // in big endian: B8 G8 R8
-        #endif
-        static const uint32_t g_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            8;  // R8 G8 B8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            8;  // B8 G8 R8
-        #endif
-        static const uint32_t b_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            16; // R8 G8 B8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            0;  // B8 G8 R8
-        #endif
-        static const uint32_t a_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            0; // no alpha
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            0; // no alpha
-        #endif
-        static const uint32_t r_mask =
-            ((uint32_t)0xff) << r_shift;
-        static const uint32_t g_mask =
-            ((uint32_t)0xff) << g_shift;
-        static const uint32_t b_mask =
-            ((uint32_t)0xff) << b_shift;
-        static const uint32_t a_mask =
-            ((uint32_t)0x00) << a_shift;
-        static const PixelFormatDescriptor INSTANCE
-            (
-                PixelFormat::R8G8B8,
-                24,
-                r_shift, g_shift, b_shift, a_shift,
-                r_mask, g_mask, b_mask, a_mask
-            );
-        return INSTANCE;
-    }
-
-    template <>
-    static const PixelFormatDescriptor& get<PixelFormat::R8G8B8A8>()
-    {
-        static const uint32_t r_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            0;  // R8 G8 B8 A8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            24; // in big endian: A8 B8 G8 R8
-        #endif
-        static const uint32_t g_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            8;  // R8 G8 B8 A8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            16; // in big endian: A8 B8 G8 R8
-        #endif
-        static const uint32_t b_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            16; // R8 G8 B8 A8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            8;  // in big endian: A8 B8 G8 R8
-        #endif
-        static const uint32_t a_shift =
-        #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            24; // R8 G8 B8 A8
-        #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            0;  // in big endian: A8 B8 G8 R8
-        #endif
-        static const uint32_t r_mask =
-            ((uint32_t)0xff) << r_shift;
-        static const uint32_t g_mask =
-            ((uint32_t)0xff) << g_shift;
-        static const uint32_t b_mask =
-            ((uint32_t)0xff) << b_shift;
-        static const uint32_t a_mask =
-            ((uint32_t)0xff) << a_shift;
-        static const PixelFormatDescriptor INSTANCE
-            (
-                PixelFormat::R8G8B8A8,
-                32,
-                r_shift, g_shift, b_shift, a_shift,
-                r_mask, g_mask, b_mask, a_mask
-            );
-        return INSTANCE;
-    }
 
     /**
      * @brief
@@ -483,32 +303,20 @@ public:
      * @return
      *  the pixel descriptor for the pixel format
      */
-    static const PixelFormatDescriptor& getDescriptor(PixelFormat pixelFormat)
-    {
-        switch (pixelFormat)
-        {
-            case PixelFormat::B8G8R8:
-            {
-                return get<PixelFormat::B8G8R8>();
-            }
-            break;
-            case PixelFormat::B8G8R8A8:
-            {
-                return get<PixelFormat::B8G8R8A8>();
-            }
-            break;
-            case PixelFormat::R8G8B8:
-            {
-                return get<PixelFormat::R8G8B8>();
-            }
-            break;
-            case PixelFormat::R8G8B8A8:
-            {
-                return get<PixelFormat::R8G8B8A8>();
-            }
-            break;
-        };
-    }
+    static const PixelFormatDescriptor& getDescriptor(PixelFormat pixelFormat);
+
 };
+
+template <>
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8>();
+
+template <>
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8A8>();
+
+template <>
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8>();
+
+template <>
+const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>();
 
 } // namespace Ego

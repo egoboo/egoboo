@@ -249,9 +249,9 @@ public:
         else if (defaultValue > max) throw std::invalid_argument("defaultValue > max");
     }
 
-    const NumericVariable<ValueType>& operator=(const NumericVariable& other)
+    const NumericVariable& operator=(const NumericVariable& other)
     {
-        setValue(other.getValue());
+        this->setValue(other.getValue());
         return *this;
     }
 
