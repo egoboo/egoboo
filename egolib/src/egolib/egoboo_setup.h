@@ -242,7 +242,7 @@ public:
      */
     NumericVariable(const ValueType& defaultValue, const string& name, const string& description,
                     const ValueType& min, const ValueType& max) :
-        Variable(defaultValue, name, description), _min(min), _max(max)
+        Variable<ValueType>(defaultValue, name, description), _min(min), _max(max)
     {
         if (min > max) throw std::invalid_argument("min > max");
         else if (defaultValue < min) throw std::invalid_argument("defaultValue < min");
