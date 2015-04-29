@@ -255,6 +255,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Graphics\VertexBuffer.cpp" />
+    <ClCompile Include="src\egolib\Graphics\VertexFormat.cpp" />
     <ClCompile Include="src\egolib\Graphics\PixelFormat.cpp" />
     <ClCompile Include="src\egolib\Graphics\TextureManager.cpp" />
     <ClCompile Include="src\egolib\Image\ImageLoader.cpp" />
@@ -444,6 +446,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Graphics\VertexBuffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\PixelFormat.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexFormat.hpp" />
     <ClInclude Include="src\egolib\Logic\StaticEnumDescriptor.hpp" />

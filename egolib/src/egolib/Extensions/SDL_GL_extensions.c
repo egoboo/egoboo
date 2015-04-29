@@ -198,24 +198,24 @@ SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface)
     SDL_PixelFormat newFormat = *(SDL_GetVideoSurface()->format);
 
     const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-    newFormat.Amask = pixelFormatDescriptor.a_mask();
-    newFormat.Ashift = pixelFormatDescriptor.a_shift();
+    newFormat.Amask = pixelFormatDescriptor.getAlphaMask();
+    newFormat.Ashift = pixelFormatDescriptor.getAlphaShift();
     newFormat.Aloss = 0;
 
-    newFormat.Bmask = pixelFormatDescriptor.b_mask();
-    newFormat.Bshift = pixelFormatDescriptor.b_shift();
+    newFormat.Bmask = pixelFormatDescriptor.getBlueMask();
+    newFormat.Bshift = pixelFormatDescriptor.getBlueShift();
     newFormat.Bloss = 0;
 
-    newFormat.Gmask = pixelFormatDescriptor.g_mask();
-    newFormat.Gshift = pixelFormatDescriptor.g_shift();
+    newFormat.Gmask = pixelFormatDescriptor.getGreenMask();
+    newFormat.Gshift = pixelFormatDescriptor.getGreenShift();
     newFormat.Gloss = 0;
 
-    newFormat.Rmask = pixelFormatDescriptor.r_mask();
-    newFormat.Rshift = pixelFormatDescriptor.r_shift();
+    newFormat.Rmask = pixelFormatDescriptor.getRedMask();
+    newFormat.Rshift = pixelFormatDescriptor.getRedShift();
     newFormat.Rloss = 0;
 
-    newFormat.BitsPerPixel = pixelFormatDescriptor.bitsPerPixel();
-    newFormat.BytesPerPixel = pixelFormatDescriptor.bitsPerPixel() / sizeof(char);
+    newFormat.BitsPerPixel = pixelFormatDescriptor.getBitsPerPixel();
+    newFormat.BytesPerPixel = pixelFormatDescriptor.getBitsPerPixel() / sizeof(char);
 
     // Convert to new format.
     SDL_Surface *tmp = SDL_ConvertSurface(oldSurface, &newFormat, SDL_SWSURFACE);

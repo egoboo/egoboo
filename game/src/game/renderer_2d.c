@@ -575,11 +575,11 @@ bool dump_screenshot()
         // create a SDL surface
         const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
         temp = SDL_CreateRGBSurface(SDL_SWSURFACE, sdl_scr.x, sdl_scr.y,
-                                    pixelFormatDescriptor.bitsPerPixel(),
-                                    pixelFormatDescriptor.r_mask(),
-                                    pixelFormatDescriptor.g_mask(),
-                                    pixelFormatDescriptor.b_mask(),
-                                    pixelFormatDescriptor.a_mask());
+                                    pixelFormatDescriptor.getBitsPerPixel(),
+                                    pixelFormatDescriptor.getRedMask(),
+                                    pixelFormatDescriptor.getGreenMask(),
+                                    pixelFormatDescriptor.getBlueMask(),
+                                    pixelFormatDescriptor.getAlphaMask());
 
         if ( NULL == temp )
         {
