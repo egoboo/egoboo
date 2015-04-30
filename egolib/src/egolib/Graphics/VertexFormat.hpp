@@ -38,6 +38,11 @@ enum class VertexFormat
 {
     /**
      * @brief
+     *  Two floats for the position component.
+     */
+    P2F,
+    /**
+     * @brief
      *  Three floats for the position component.
      */
     P3F,
@@ -47,6 +52,12 @@ enum class VertexFormat
      *  four floats for colour component.
      */
     P3FC4F,
+    /**
+     * @brief
+     *  Three floats for the position component and
+     *  two floats for the texture component.
+     */
+    P3FT2F,
     /**
      * @brief
      *  Three floats for the position component,
@@ -220,7 +231,13 @@ public:
 };
 
 template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P2F>();
+
+template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3F>();
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FT2F>();
 
 template <>
 const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4F>();

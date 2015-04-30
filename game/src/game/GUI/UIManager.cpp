@@ -36,7 +36,7 @@ UIManager::UIManager() :
     _defaultFont = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
     _floatingTextFont = Ego::FontManager::loadFont("mp_data/FrostysWinterland.ttf", 24);
     _debugFont = Ego::FontManager::loadFont("mp_data/DejaVuSansMono.ttf", 10);
-    const auto& vertexFormat = Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3F>();
+    const auto& vertexFormat = Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>();
     _vertexBuffer = std::make_shared<Ego::VertexBuffer>(4, vertexFormat);
 }
 

@@ -4254,10 +4254,11 @@ gfx_rv render_world_overlay(std::shared_ptr<Camera> pcam, const TX_REF texture)
             // make sure that the texture is as smooth as possible
             GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);          // GL_HINT_BIT
 
-            // flat shading
-            GL_DEBUG(glShadeModel)(GL_FLAT);                             // GL_LIGHTING_BIT
-
             auto& renderer = Ego::Renderer::get();
+
+            // flat shading
+            renderer.setGouraudShadingEnabled(false);                     // GL_LIGHTING_BIT
+
             // Do not write into the depth buffer.
             renderer.setDepthWriteEnabled(false);
 

@@ -483,10 +483,48 @@ void Renderer::setGouraudShadingEnabled(bool enabled)
 
 void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length)
 {
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
     const char *vertices = static_cast<char *>(vertexBuffer.lock());
     const auto& vertexFormatDescriptor = vertexBuffer.getVertexFormatDescriptor();
     switch (vertexFormatDescriptor.getVertexFormat())
     {
+        case VertexFormat::P2F:
+        {
+            // Enable the required client-side capabilities.
+            glEnableClientState(GL_VERTEX_ARRAY);
+            // Set the pointers.
+            size_t offset = 0;
+            glVertexPointer(2, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
+                            vertices + offset);
+        }
+        break;
+        case VertexFormat::P3F:
+        {
+            // Enable the required client-side capabilities.
+            glEnableClientState(GL_VERTEX_ARRAY);
+            // Set the pointers.
+            size_t offset = 0;
+            glVertexPointer(3, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
+                            vertices + offset);
+        }
+        break;
+        case VertexFormat::P3FT2F:
+        {
+            // Enable the required client-side capabilities.
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            // Set the pointers.
+            size_t offset = 0;
+            glVertexPointer(3, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
+                            vertices + offset);
+            offset += vertexFormatDescriptor.getPositionSize();
+            glTexCoordPointer(2, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
+                              vertices + offset);
+        }
+        break;
         case VertexFormat::P3FC4F:
         {
             // Enable the required client-side capabilities.
@@ -499,9 +537,6 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
             offset += vertexFormatDescriptor.getPositionSize();
             glColorPointer(4, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
                            vertices + offset);
-            // Disable the enabled client-side capabilities again.
-            glDisableClientState(GL_COLOR_ARRAY);
-            glDisableClientState(GL_VERTEX_ARRAY);
         }
         break;
         case VertexFormat::P3FC4FN3F:
@@ -520,10 +555,6 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
             offset += vertexFormatDescriptor.getColorSize();
             glNormalPointer(GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
                             vertices + offset);
-            // Disable the enabled client-side capabilities again.
-            glDisableClientState(GL_NORMAL_ARRAY);
-            glDisableClientState(GL_COLOR_ARRAY);
-            glDisableClientState(GL_VERTEX_ARRAY);
         }
         break;
         case VertexFormat::P3FC4FT2F:
@@ -542,10 +573,6 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
             offset += vertexFormatDescriptor.getColorSize();
             glTexCoordPointer(2, GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
                               vertices + offset);
-            // Disable the enabled client-side capabilities again. 
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glDisableClientState(GL_COLOR_ARRAY);
-            glDisableClientState(GL_VERTEX_ARRAY);
         }
         break;
         case VertexFormat::P3FC4FT2FN3F:
@@ -568,18 +595,22 @@ void Renderer::render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, s
             offset += vertexFormatDescriptor.getTextureSize();
             glNormalPointer(GL_FLOAT, vertexFormatDescriptor.getVertexSize(),
                             vertices + offset);
-            // Disable the enabled client-side capabilities again. 
-            glDisableClientState(GL_NORMAL_ARRAY);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glDisableClientState(GL_COLOR_ARRAY);
-            glDisableClientState(GL_VERTEX_ARRAY);
         }
         break;
+        default:
+            throw std::invalid_argument("unreachable code reached");
     };
     const GLenum primitiveType_gl = Utilities::toOpenGL(primitiveType);
-    const GLint first_gl = 0;
-    const GLsizei count_gl = vertexBuffer.getNumberOfVertices();
-    glDrawArrays(primitiveType_gl, first_gl, count_gl);
+    if (index + length > vertexBuffer.getNumberOfVertices())
+    {
+        throw std::invalid_argument("out of bounds");
+    }
+    // Disable the enabled client-side capabilities again. 
+    glDrawArrays(primitiveType_gl, index, length);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
 }
 
 } // namespace OpenGL

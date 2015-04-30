@@ -62,15 +62,18 @@ void Button::draw()
     {
         renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
-
-    GL_DEBUG( glBegin )( GL_QUADS );
+    struct Vertex
     {
-        GL_DEBUG( glVertex2f )( getX(), getY() );
-        GL_DEBUG( glVertex2f )( getX(), getY()+getHeight() );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY()+getHeight() );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
-    }
-    GL_DEBUG_END();
+        float x, y;
+    };
+    auto vb = _gameEngine->getUIManager()->_vertexBuffer;
+    Vertex *v = static_cast<Vertex *>(vb->lock());
+    v->x = getX(); v->y = getY(); v++;
+    v->x = getX(); v->y = getY() + getHeight(); v++;
+    v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
+    v->x = getX() + getWidth(); v->y = getY();
+    vb->unlock();
+    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw centered text in button
     if(!_buttonText.empty())

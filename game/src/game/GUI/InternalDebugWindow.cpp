@@ -58,18 +58,24 @@ void InternalDebugWindow::draw()
     
     auto &renderer = Ego::Renderer::get();
 
+    struct Vertex
+    {
+        float x, y;
+    };
+    auto vb = _gameEngine->getUIManager()->_vertexBuffer;
+    Vertex *v;
+
     // Draw the backdrop
     oglx_texture_t::bind(nullptr);
     renderer.setColour(BACKDROP_COLOUR);
 
-    GL_DEBUG( glBegin )( GL_QUADS );
-    {
-        GL_DEBUG( glVertex2f )( getX(), getY() );
-        GL_DEBUG( glVertex2f )( getX(), getY()+getHeight() );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY()+getHeight() );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
-    }
-    GL_DEBUG_END();
+    v = static_cast<Vertex *>(vb->lock());
+    v->x = getX(); v->y = getY(); v++;
+    v->x = getX(); v->y = getY() + getHeight(); v++;
+    v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
+    v->x = getX() + getWidth(); v->y = getY();
+    vb->unlock();
+    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     //Rendering variables
     int textWidth, textHeight;
@@ -79,14 +85,14 @@ void InternalDebugWindow::draw()
 
     //Draw title bar
     renderer.setColour(BACKDROP_COLOUR);
-    GL_DEBUG( glBegin )( GL_QUADS );
-    {
-        GL_DEBUG( glVertex2f )( getX(), getY() );
-        GL_DEBUG( glVertex2f )( getX(), getY()+textHeight );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY()+textHeight );
-        GL_DEBUG( glVertex2f )( getX()+getWidth(), getY() );
-    }
-    GL_DEBUG_END();
+
+    v = static_cast<Vertex *>(vb->lock());
+    v->x = getX(); v->y = getY(); v++;
+    v->x = getX(); v->y = getY() + textHeight; v++;
+    v->x = getX() + getWidth(); v->y = getY() + textHeight; v++;
+    v->x = getX() + getWidth(); v->y = getY();
+    vb->unlock();
+    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
 
     //Draw window title first
     _gameEngine->getUIManager()->getDefaultFont()->drawText(_title, xOffset, yOffset);

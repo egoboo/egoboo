@@ -317,9 +317,6 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 {
     /// @author ZZ
     /// @details This function draws a water itile
-
-    GLvertex v[4];
-
     int    cnt, tnc;
     size_t badvertex;
     Uint16 type, commands, vertices;
@@ -407,6 +404,15 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
     // draw draw front and back faces of polygons
     oglx_end_culling();                        // GL_ENABLE_BIT
 
+    struct Vertex
+    {
+        float x, y, z;
+        float r, g, b, a;
+        float s, t;
+    };
+    auto vb = std::make_shared<Ego::VertexBuffer>(4, Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P3FC4FT2F>());
+    Vertex *v = static_cast<Vertex *>(vb->lock());
+
     // Original points
     badvertex = ptile->vrtstart;
     {
@@ -418,58 +424,59 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 
         for ( cnt = 0; cnt < 4; cnt++ )
         {
-            float dlight;
-            int jx, jy;
+            Vertex *v0 = v + cnt;
 
             tnc = imap[cnt];
 
-            jx = ix + ix_off[cnt];
-            jy = iy + iy_off[cnt];
+            int jx = ix + ix_off[cnt];
+            int jy = iy + iy_off[cnt];
 
-            v[cnt].pos[XX] = jx * GRID_FSIZE;
-            v[cnt].pos[YY] = jy * GRID_FSIZE;
-            v[cnt].pos[ZZ] = water.layer_z_add[layer][frame][tnc] + water.layer[layer].z;
+            v0->x = jx * GRID_FSIZE;
+            v0->y = jy * GRID_FSIZE;
+            v0->z = water.layer_z_add[layer][frame][tnc] + water.layer[layer].z;
 
-            v[cnt].tex[SS] = fx_off[cnt] + offu;
-            v[cnt].tex[TT] = fy_off[cnt] + offv;
+            v0->s = fx_off[cnt] + offu;
+            v0->t = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
             TileIndex jtile = ego_mesh_t::get_tile_int(pmesh, PointGrid(jx, jy));
-            if ( grid_light_one_corner( pmesh, jtile, v[cnt].pos[ZZ], nrm, &dlight ) )
+            float dlight;
+            if ( grid_light_one_corner( pmesh, jtile, v0->z, nrm, &dlight ) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
-                v[cnt].col[RR] = dlight * INV_FF + alight;
-                v[cnt].col[GG] = dlight * INV_FF + alight;
-                v[cnt].col[BB] = dlight * INV_FF + alight;
-                v[cnt].col[AA] = 1.0f;
+                v0->r = dlight * INV_FF + alight;
+                v0->g = dlight * INV_FF + alight;
+                v0->b = dlight * INV_FF + alight;
 
-                v[cnt].col[RR] = CLIP( v[cnt].col[RR], 0.0f, 1.0f );
-                v[cnt].col[GG] = CLIP( v[cnt].col[GG], 0.0f, 1.0f );
-                v[cnt].col[BB] = CLIP( v[cnt].col[BB], 0.0f, 1.0f );
+                v0->r = CLIP(v0->r, 0.0f, 1.0f);
+                v0->g = CLIP(v0->g, 0.0f, 1.0f);
+                v0->b = CLIP(v0->b, 0.0f, 1.0f);
             }
             else
             {
-                v[cnt].col[RR] = v[cnt].col[GG] = v[cnt].col[BB] = 0.0f;
+                v0->r = v0->g = v0->b = 0.0f;
             }
 
             // the application of alpha to the tile depends on the blending mode
             if ( water.light )
             {
                 // blend using light
-                v[cnt].col[RR] *= falpha;
-                v[cnt].col[GG] *= falpha;
-                v[cnt].col[BB] *= falpha;
-                v[cnt].col[AA]  = 1.0f;
+                v0->r *= falpha;
+                v0->g *= falpha;
+                v0->b *= falpha;
+                v0->a = 1.0f;
             }
             else
             {
                 // blend using alpha
-                v[cnt].col[AA] = falpha;
+                v0->a = falpha;
             }
 
             badvertex++;
         }
     }
+
+    vb->unlock();
 
     // tell the mesh texture code that someone else is controlling the texture
     mesh_texture_invalidate();
@@ -487,7 +494,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // only use the depth mask if the tile is NOT transparent
-        GL_DEBUG( glDepthMask )( use_depth_mask );                              // GL_DEPTH_BUFFER_BIT
+        renderer.setDepthWriteEnabled(use_depth_mask);          // GL_DEPTH_BUFFER_BIT
 
         // cull backward facing polygons
         // use clockwise orientation to determine backfaces
@@ -505,19 +512,8 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         }
 
         // per-vertex coloring
-        GL_DEBUG( glShadeModel )( GL_SMOOTH );                // GL_LIGHTING_BIT
-
-        // Render each command
-        GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
-        {
-            for ( cnt = 0; cnt < 4; cnt++ )
-            {
-                GL_DEBUG( glColor4fv )( v[cnt].col );         // GL_CURRENT_BIT
-                GL_DEBUG( glTexCoord2fv )( v[cnt].tex );
-                GL_DEBUG( glVertex3fv )( v[cnt].pos );
-            }
-        }
-        GL_DEBUG_END();
+        Ego::Renderer::get().setGouraudShadingEnabled(true);
+        Ego::Renderer::get().render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
     }
     ATTRIB_POP( __FUNCTION__ );
 

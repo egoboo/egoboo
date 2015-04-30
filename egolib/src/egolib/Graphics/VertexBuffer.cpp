@@ -30,12 +30,13 @@ namespace Ego
 VertexBuffer::VertexBuffer(size_t numberOfVertices,
                            const VertexFormatDescriptor& vertexFormatDescriptor) :
     _numberOfVertices(numberOfVertices), _vertexFormatDescriptor(vertexFormatDescriptor),
-    _vertices(new char[vertexFormatDescriptor.getVertexSize()])
+    _vertices(new char[vertexFormatDescriptor.getVertexSize()*numberOfVertices])
 {}
 
 VertexBuffer::~VertexBuffer()
 {
     delete[] _vertices;
+    _vertices = nullptr;
 }
 
 size_t VertexBuffer::getNumberOfVertices() const
