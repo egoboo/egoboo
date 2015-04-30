@@ -53,12 +53,14 @@ void InternalDebugWindow::addWatchVariable(const std::string &variableName, std:
 
 void InternalDebugWindow::draw()
 {
-	const GLXvector4f BACKDROP_COLOUR = {0.66f, 0.00f, 0.00f, 0.60f};
-	const GLXvector4f TITLE_BAR_COLOUR = {0.20f, 0.20f, 0.66f, 0.60f};
+    const Ego::Math::Colour4f BACKDROP_COLOUR = {0.66f, 0.00f, 0.00f, 0.60f};
+    const Ego::Math::Colour4f TITLE_BAR_COLOUR = {0.20f, 0.20f, 0.66f, 0.60f};
+    
+    auto &renderer = Ego::Renderer::get();
 
     // Draw the backdrop
     oglx_texture_t::bind(nullptr);
-    GL_DEBUG( glColor4fv )( BACKDROP_COLOUR );
+    renderer.setColour(BACKDROP_COLOUR);
 
     GL_DEBUG( glBegin )( GL_QUADS );
     {
@@ -76,7 +78,7 @@ void InternalDebugWindow::draw()
     _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
 
     //Draw title bar
-    GL_DEBUG( glColor4fv )( BACKDROP_COLOUR );
+    renderer.setColour(BACKDROP_COLOUR);
     GL_DEBUG( glBegin )( GL_QUADS );
     {
         GL_DEBUG( glVertex2f )( getX(), getY() );

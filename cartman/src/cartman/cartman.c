@@ -731,7 +731,7 @@ void load_all_windows( cartman_mpd_t * pmesh )
     for (auto window : _window_lst)
     {
         window->on = false;
-        oglx_texture_t::release(&(window->tex));
+        oglx_texture_t::ctor(&(window->tex));
     }
 
     load_window( _window_lst[0], 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );
@@ -1992,9 +1992,6 @@ void main_end( void )
 {
     // Ending statistics
     show_info();
-
-    // end the graphics system
-    gfx_system_end();
 
     // end the graphics system
     setup_clear_base_vfs_paths();
