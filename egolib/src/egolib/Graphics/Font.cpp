@@ -142,7 +142,7 @@ namespace Ego
             return;
         }
         std::string name = "Font text '" + text + "'";
-        oglx_texture_t::load(tex, name, textSurface, INVALID_KEY);
+        oglx_texture_t::load(tex, name, textSurface);
     }
     
     void Font::drawText(const std::string &text, int x, int y, const Ego::Math::Colour4f &colour)

@@ -202,6 +202,9 @@ public:
     /** @copydoc Ego::Renderer::setGouraudShadingEnabled */
     virtual void setGouraudShadingEnabled(bool enabled) override;
 
+    /** @copydoc Ego::Renderer::render */
+    virtual void render(VertexBuffer& vertexBuffer, PrimitiveType primitiveType, size_t index, size_t length) override;
+
 }; // class Renderer
 
 } // namespace OpenGL

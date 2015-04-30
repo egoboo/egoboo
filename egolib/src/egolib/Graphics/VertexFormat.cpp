@@ -22,3 +22,117 @@
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/VertexFormat.hpp"
+
+namespace Ego
+{
+
+const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFormat)
+{
+    switch (vertexFormat)
+    {
+        case VertexFormat::P3F:
+        {
+            return get<VertexFormat::P3F>();
+        }
+        break;
+        case VertexFormat::P3FC4F:
+        {
+            return get<VertexFormat::P3FC4F>();
+        }
+        break;
+        case VertexFormat::P3FC4FN3F:
+        {
+            return get<VertexFormat::P3FC4FN3F>();
+        }
+        break;
+        case VertexFormat::P3FC4FT2F:
+        {
+            return get<VertexFormat::P3FC4FT2F>();
+        }
+        break;
+        case VertexFormat::P3FC4FT2FN3F:
+        {
+            return get<VertexFormat::P3FC4FT2FN3F>();
+        }
+        break;
+    };
+}
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3F>()
+{
+    static const VertexFormatDescriptor INSTANCE
+        (
+        VertexFormat::P3F,
+        sizeof(float) * 3,
+        sizeof(float) * 3, // position
+        0 ,                // colour
+        0,                 // texture
+        0                  // normal
+        );
+    return INSTANCE;
+}
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4F>()
+{
+    static const VertexFormatDescriptor INSTANCE
+        (
+            VertexFormat::P3FC4F,
+            sizeof(float) * 3 + sizeof(float) * 4,
+            sizeof(float) * 3, // position
+            sizeof(float) * 4, // colour
+            0,                 // texture
+            0                  // normal
+        );
+    return INSTANCE;
+}
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FN3F>()
+{
+    static const VertexFormatDescriptor INSTANCE
+        (
+            VertexFormat::P3FC4FN3F,
+            sizeof(float) * 3 + sizeof(float) * 4 + sizeof(float) * 3,
+            sizeof(float) * 3, // position
+            sizeof(float) * 4, // colour
+            0,                 // texture
+            sizeof(float) * 3  // normal
+        );
+    return INSTANCE;
+}
+
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2F>()
+{
+    static const VertexFormatDescriptor INSTANCE
+        (
+            VertexFormat::P3FC4FT2F,
+            sizeof(float) * 3 + sizeof(float) * 4 + sizeof(float) * 2,
+            sizeof(float) * 3, // position
+            sizeof(float) * 4, // colour
+            sizeof(float) * 2, // texture
+            0                  // normal
+        );
+    return INSTANCE;
+}
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2FN3F>()
+{
+    static const VertexFormatDescriptor INSTANCE
+        (
+            VertexFormat::P3FC4FT2FN3F,
+            sizeof(float) * 3 + sizeof(float) * 4 + sizeof(float) * 2 + sizeof(float) * 3,
+            sizeof(float) * 3, // position
+            sizeof(float) * 4, // colour
+            sizeof(float) * 2, // texture
+            sizeof(float) * 3  // normal
+        );
+    return INSTANCE;
+}
+
+
+} // namespace Ego

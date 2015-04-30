@@ -446,6 +446,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Renderer\PrimitiveType.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexBuffer.hpp" />
     <ClInclude Include="src\egolib\Graphics\PixelFormat.hpp" />
     <ClInclude Include="src\egolib\Graphics\VertexFormat.hpp" />

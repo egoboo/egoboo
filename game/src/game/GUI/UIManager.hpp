@@ -27,12 +27,18 @@
 
 namespace Ego { class Font; }
 
-class UIManager
+class UIManager : public Ego::Core::NonCopyable
 {
 public:
     UIManager();
 
     ~UIManager();
+
+    /**
+     * @brief
+     *  A vertex buffer to render components.
+     */
+    std::shared_ptr<Ego::VertexBuffer> _vertexBuffer;
 
     /**
      * @return
@@ -82,15 +88,9 @@ public:
      */
     void drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
-
-    //Disable copying class
-    UIManager(const UIManager& copy) = delete;
-    UIManager& operator=(const UIManager&) = delete;
-
 private:
     std::shared_ptr<Ego::Font> _defaultFont;
     std::shared_ptr<Ego::Font> _floatingTextFont;
     std::shared_ptr<Ego::Font> _debugFont;
     int _renderSemaphore;
 };
-

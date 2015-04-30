@@ -1207,52 +1207,52 @@ void cartman_end_ortho_camera()
 //--------------------------------------------------------------------------------------------
 void load_img()
 {
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_point, "editor/point.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_point, "editor/point.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_pointon, "editor/pointon.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_pointon, "editor/pointon.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_ref, "editor/ref.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_ref, "editor/ref.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_drawref, "editor/drawref.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_drawref, "editor/drawref.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_anim, "editor/anim.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_anim, "editor/anim.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_water, "editor/water.png", INVALID_KEY ) )
+    if (INVALID_GL_ID == oglx_texture_t::load( &tx_water, "editor/water.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_wall, "editor/slit.png", INVALID_KEY ) )
+    if (INVALID_GL_ID == oglx_texture_t::load( &tx_wall, "editor/slit.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_impass, "editor/impass.png", INVALID_KEY ) )
+    if (INVALID_GL_ID == oglx_texture_t::load( &tx_impass, "editor/impass.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_damage, "editor/damage.png", INVALID_KEY ) )
+    if (INVALID_GL_ID == oglx_texture_t::load( &tx_damage, "editor/damage.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_slippy, "editor/slippy.png", INVALID_KEY ) )
+    if (INVALID_GL_ID == oglx_texture_t::load( &tx_slippy, "editor/slippy.png"))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
     }
@@ -1284,7 +1284,7 @@ void get_small_tiles( SDL_Surface* bmpload )
             SDL_FillRect( image, NULL, MAKE_BGR( image, 0, 0, 0 ) );
             SDL_SoftStretch( bmpload, &src1, image, NULL );
 
-            oglx_texture_t::load( tx_smalltile + numsmalltile, image, INVALID_KEY );
+            oglx_texture_t::load(tx_smalltile + numsmalltile, image);
 
             numsmalltile++;
         }
@@ -1331,7 +1331,7 @@ void get_big_tiles( SDL_Surface* bmpload )
 
             SDL_SoftStretch( bmpload, &src1, image, NULL );
 
-            oglx_texture_t::load( tx_bigtile + numbigtile, image, INVALID_KEY );
+            oglx_texture_t::load(tx_bigtile + numbigtile, image);
 
             numbigtile++;
         }

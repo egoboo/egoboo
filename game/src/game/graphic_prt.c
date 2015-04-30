@@ -394,7 +394,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[BB] = intens;
                 particle_color[AA] = 1.0f;
 
-                pinst->texture_ref = TX_PARTICLE_LIGHT;
+                pinst->texture_ref = TX_PARTICLE_TRANS;
                 oglx_texture_t::bind(TextureManager::get().get_valid_ptr(pinst->texture_ref));
 
                 draw_particle = intens > 0.0f;

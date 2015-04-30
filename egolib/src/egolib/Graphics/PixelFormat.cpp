@@ -26,7 +26,7 @@
 namespace Ego
 {
 
-const PixelFormatDescriptor& PixelFormatDescriptor::getDescriptor(PixelFormat pixelFormat)
+const PixelFormatDescriptor& PixelFormatDescriptor::get(PixelFormat pixelFormat)
 {
     switch (pixelFormat)
     {

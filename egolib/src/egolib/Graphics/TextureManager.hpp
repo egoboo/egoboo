@@ -51,13 +51,13 @@ enum e_global_tx_type
     TX_PHONG,
     /* "mp_data/bars", INVALID_KEY vs. TRANSCOLOR */
     TX_BARS,
-    /* "mp_data/blip", INVALID_KEY */
+    /* "mp_data/blip" */
     TX_BLIP,
-    /* "mp_data/plan", INVALID_KEY */
+    /* "mp_data/plan" */
     TX_MAP,
     /* "mp_data/xpbar", TRANSCOLOR*/
     TX_XP_BAR,
-    /* "mp_data/nullicon", INVALID_KEY */
+    /* "mp_data/nullicon" */
     TX_ICON_NULL,           //Empty icon
     TX_FONT_BMP,            //Font bitmap
     TX_ICON_KEYB,           //Keyboard
@@ -151,7 +151,7 @@ public:
      */
     void release_all();
 
-    TX_REF load(const char *filename, const TX_REF ref, Uint32 key);
+    TX_REF load(const char *filename, const TX_REF ref, Uint32 key = INVALID_KEY);
     oglx_texture_t *get_valid_ptr(const TX_REF ref);
 
 };

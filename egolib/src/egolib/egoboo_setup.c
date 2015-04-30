@@ -63,14 +63,23 @@ egoboo_config_t::egoboo_config_t() :
     graphic_antialiasing(2, "graphic.antialiasing", "set antialiasing level 0 (off), 1 (2x), 2 (4x), 3 (8x), 4 (16x)"),
     graphic_anisotropy_enable(false, "graphic.anisotropy.enable", "enable anisotropic texture filtering"),
     graphic_anisotropy_levels(1.0f, "graphic.anisotropy.levels", "anisotropy levels", 1.0f, 16.0f),
-    graphic_textureFiltering(Ego::TextureFilter::TRILINEAR_2, "graphic.textureFiltering", "texture filter used for texture filtering",
+    graphic_textureFilter_minFilter(Ego::TextureFilter::Linear, "graphic.textureFilter.minFilter", "texture filter used for minification",
     {
-        { "unfiltered",  Ego::TextureFilter::UNFILTERED  },
-        { "linear",      Ego::TextureFilter::LINEAR      },
-        { "mipmap",      Ego::TextureFilter::MIPMAP      },
-        { "bilinear",    Ego::TextureFilter::BILINEAR    },
-        { "trilinear 1", Ego::TextureFilter::TRILINEAR_1 },
-        { "trilinear 2", Ego::TextureFilter::TRILINEAR_2 },
+        { "none", Ego::TextureFilter::None },
+        { "nearest", Ego::TextureFilter::Nearest },
+        { "linear", Ego::TextureFilter::Linear },
+    }),
+    graphic_textureFilter_magFilter(Ego::TextureFilter::Linear, "graphic.textureFilter.magFilter", "texture filter used for magnification",
+    {
+        { "none", Ego::TextureFilter::None },
+        { "nearest", Ego::TextureFilter::Nearest },
+        { "linear", Ego::TextureFilter::Linear },
+    }),
+    graphic_textureFilter_mipMapFilter(Ego::TextureFilter::Linear, "graphic.textureFilter.mipMapFilter", "filter used for mip map selection",
+    {
+        { "none", Ego::TextureFilter::None },
+        { "nearest", Ego::TextureFilter::Nearest },
+        { "linear", Ego::TextureFilter::Linear }
     }),
     graphic_simultaneousDynamicLights_max(32, "graphic.simultaneousDynamicLights.max", "inclusive upper bound of simultaneous dynamic lights"),
     graphic_framesPerSecond_max(30, "graphic.framesPerSecond.max", "inclusive upper bound of frames per second"),
@@ -152,7 +161,9 @@ egoboo_config_t& egoboo_config_t::operator=(const egoboo_config_t& other)
     graphic_antialiasing = other.graphic_antialiasing;
     graphic_anisotropy_enable = other.graphic_anisotropy_enable;
     graphic_anisotropy_levels = other.graphic_anisotropy_levels;
-    graphic_textureFiltering = other.graphic_textureFiltering;
+    graphic_textureFilter_minFilter = other.graphic_textureFilter_minFilter;
+    graphic_textureFilter_magFilter = other.graphic_textureFilter_magFilter;
+    graphic_textureFilter_mipMapFilter = other.graphic_textureFilter_mipMapFilter;
     graphic_simultaneousDynamicLights_max = other.graphic_simultaneousDynamicLights_max;
     graphic_framesPerSecond_max = other.graphic_framesPerSecond_max;
     graphic_simultaneousParticles_max = other.graphic_simultaneousParticles_max;

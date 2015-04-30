@@ -42,10 +42,18 @@ extern int   ptex_h[2];
 extern float ptex_wscale[2];
 extern float ptex_hscale[2];
 
-#define CALCULATE_PRT_U0(IDX,CNT)  (((.05f+((CNT)&15))/16.0f)*ptex_wscale[IDX])
-#define CALCULATE_PRT_U1(IDX,CNT)  (((.95f+((CNT)&15))/16.0f)*ptex_wscale[IDX])
-#define CALCULATE_PRT_V0(IDX,CNT)  (((.05f+((CNT)>>4))/16.0f) * ((float)ptex_w[IDX]/(float)ptex_h[IDX])*ptex_hscale[IDX])
-#define CALCULATE_PRT_V1(IDX,CNT)  (((.95f+((CNT)>>4))/16.0f) * ((float)ptex_w[IDX]/(float)ptex_h[IDX])*ptex_hscale[IDX])
+inline float CALCULATE_PRT_U0(int IDX, int CNT)  {
+    return (((.05f + ((CNT)& 15)) / 16.0f)*ptex_wscale[IDX]);
+}
+inline float CALCULATE_PRT_U1(int IDX, int CNT)  {
+    return (((.95f + ((CNT)& 15)) / 16.0f)*ptex_wscale[IDX]);
+}
+inline float CALCULATE_PRT_V0(int IDX, int CNT)  {
+    return (((.05f + ((CNT) >> 4)) / 16.0f) * ((float)ptex_w[IDX] / (float)ptex_h[IDX])*ptex_hscale[IDX]);
+}
+inline float CALCULATE_PRT_V1(int IDX, int CNT) {
+    return (((.95f + ((CNT) >> 4)) / 16.0f) * ((float)ptex_w[IDX] / (float)ptex_h[IDX])*ptex_hscale[IDX]);
+}
 
 int prt_get_texture_style( const TX_REF itex );
 void prt_set_texture_params( const TX_REF itex );

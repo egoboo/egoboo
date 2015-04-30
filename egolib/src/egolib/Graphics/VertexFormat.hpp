@@ -38,14 +38,37 @@ enum class VertexFormat
 {
     /**
      * @brief
-     *  Three floats for the position component and four floats for colour component.
+     *  Three floats for the position component.
+     */
+    P3F,
+    /**
+     * @brief
+     *  Three floats for the position component and
+     *  four floats for colour component.
      */
     P3FC4F,
     /**
      * @brief
-     *  Three floats for the position component, four floats for the colour component, and two floats for the texture component.
+     *  Three floats for the position component,
+     *  four floats for the colour component, and
+     *  three floats for the normal component.
+     */
+    P3FC4FN3F,
+    /**
+     * @brief
+     *  Three floats for the position component,
+     *  four floats for the colour component, and
+     *  two floats for the texture component.
      */
     P3FC4FT2F,
+    /**
+     * @brief
+     *  Three floats for the position component,
+     *  four floats for the colour component,
+     *  two floats for the texture component, and
+     *  three floats for the normal component.
+     */
+     P3FC4FT2FN3F,
 };
 
 /**
@@ -71,6 +94,30 @@ private:
      *  The size, in Bytes, of a vertex.
      */
     size_t _vertexSize;
+
+    /**
+     * @brief
+     *  The size, in Bytes, of the position component.
+     */
+    size_t _positionSize;
+
+    /**
+     * @brief
+     *  The size, in Bytes, of the colour component
+     */
+    size_t _colourSize;
+
+    /**
+     * @brief
+     *  The size, in Bytes, of the normal component.
+     */
+    size_t _normalSize;
+
+    /**
+     * @brief
+     *  The size, in Bytes, of the texture component.
+     */
+    size_t _textureSize;
     
     /**
      * @brief
@@ -79,13 +126,61 @@ private:
      *  the vertex format
      * @param vertexSize
      *  the size, in Bytes, of a vertex
+     * @param positionSize, colourSize, textureSize, normalSize
+     *  the sizes, in Bytes, of the position, colour, texture, and normal components
      */
-    VertexFormatDescriptor(VertexFormat vertexFormat, size_t vertexSize) :
-        _vertexFormat(vertexFormat), _vertexSize(vertexSize)
+    VertexFormatDescriptor(VertexFormat vertexFormat, size_t vertexSize, size_t positionSize, size_t colourSize,
+                           size_t textureSize, size_t normalSize) :
+        _vertexFormat(vertexFormat), _vertexSize(vertexSize),
+        _positionSize(positionSize), _colourSize(colourSize), _textureSize(textureSize), _normalSize(normalSize)
     {}
     
     
 public:
+
+    /**
+     * @brief
+     *  Get the size, in Bytes, of the position component.
+     * @return
+     *  the size, in Bytes, of the position component.
+     */
+    size_t getPositionSize() const
+    {
+        return _positionSize;
+    }
+
+    /**
+     * @brief
+     *  Get the size, in Bytes, of the colour component.
+     * @return
+     *  the size, in Bytes, of the colour component
+     */
+    size_t getColorSize() const
+    {
+        return _colourSize;
+    }
+
+    /**
+     * @brief
+     *  Get the size, in Bytes, of the normal component.
+     * @return
+     *  the size, in Bytes, of the normal component
+     */
+    size_t getNormalSize() const
+    {
+        return _normalSize;
+    }
+
+    /**
+     * @brief
+     *  Get the size, in Bytes, of the texture component.
+     * @return
+     *  the size, in Bytes, of the texture component
+     */
+    size_t getTextureSize() const
+    {
+        return _textureSize;
+    }
     
     /**
      * @brief
@@ -109,6 +204,34 @@ public:
         return _vertexFormat;
     }
 
+    template <VertexFormat _VertexFormat>
+    static const VertexFormatDescriptor& get();
+
+    /**
+     * @brief
+     *  Get the vertex format descriptor for a vertex format.
+     * @param vertexFormat
+     *  the vertex format
+     * @return
+     *  the vertex format descriptor for the vertex format
+     */
+    static const VertexFormatDescriptor& get(VertexFormat vertexFormat);
+
 };
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3F>();
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4F>();
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FN3F>();
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2F>();
+
+template <>
+const VertexFormatDescriptor& VertexFormatDescriptor::get<VertexFormat::P3FC4FT2FN3F>();
 
 } // namespace Ego

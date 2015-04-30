@@ -198,6 +198,29 @@ GLint Utilities::toOpenGL(Ego::TextureAddressMode textureAddressMode)
     }
 }
 
+GLenum Utilities::toOpenGL(Ego::PrimitiveType primitiveType)
+{
+    switch (primitiveType)
+    {
+        case Ego::PrimitiveType::Points:
+            return GL_POINTS;
+        case Ego::PrimitiveType::Lines:
+            return GL_LINES;
+        case Ego::PrimitiveType::Triangles:
+            return GL_TRIANGLES;
+        case Ego::PrimitiveType::TriangleFan:
+            return GL_TRIANGLE_FAN;
+        case Ego::PrimitiveType::TriangleStrip:
+            return GL_TRIANGLE_STRIP;
+        case Ego::PrimitiveType::Quadriliterals:
+            return GL_QUADS;
+        case Ego::PrimitiveType::QuadriliteralStrip:
+            return GL_QUAD_STRIP;
+        default:
+            throw std::runtime_error("unreachable code reached");
+    }
+}
+
 void Utilities::clearError()
 {
     while (GL_NO_ERROR != glGetError())
@@ -281,7 +304,6 @@ void Utilities::upload_2d_mipmap(bool useAlpha, GLsizei w, GLsizei h, const void
 
 void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT)
 {
-    auto textureFiltering = g_ogl_textureParameters.textureFiltering;
     auto anisotropy_enable = g_ogl_textureParameters.anisotropy_enable;
     auto anisotropy_level = g_ogl_textureParameters.anisotropy_level;
     Ego::OpenGL::Utilities::clearError();
@@ -320,46 +342,54 @@ void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode
         return;
     }
 
-
     GLint minFilter_gl, magFilter_gl;
-    switch (textureFiltering)
+    switch (g_ogl_textureParameters.textureFilter.minFilter)
     {
-        // Unfiltered
-        case Ego::TextureFilter::UNFILTERED:
-            minFilter_gl = GL_NEAREST;
+        // In OpenGL for the minification filter, "none" and "nearest" coincide.
+        case Ego::TextureFilter::None:
+        case Ego::TextureFilter::Nearest:
+            switch (g_ogl_textureParameters.textureFilter.mipMapFilter)
+            {
+                case Ego::TextureFilter::None:
+                    minFilter_gl = GL_NEAREST;
+                    break;
+                case Ego::TextureFilter::Nearest:
+                    minFilter_gl = GL_NEAREST_MIPMAP_NEAREST;
+                    break;
+                case Ego::TextureFilter::Linear:
+                    minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
+                    break;
+            }
+            break;
+        case Ego::TextureFilter::Linear:
+            switch (g_ogl_textureParameters.textureFilter.mipMapFilter)
+            {
+                case Ego::TextureFilter::None:
+                    minFilter_gl = GL_LINEAR;
+                    break;
+                case Ego::TextureFilter::Nearest:
+                    minFilter_gl = GL_LINEAR_MIPMAP_NEAREST;
+                    break;
+                case Ego::TextureFilter::Linear:
+                    minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
+                    break;
+                default:
+                    throw std::runtime_error("unreachable code reached");
+            }
+            break;
+        default:
+            throw std::runtime_error("unreachable code reached");
+    };
+    switch (g_ogl_textureParameters.textureFilter.magFilter)
+    {
+        // In OpenGL for the magnification filter, "none" and "nearest" coincide.
+        case Ego::TextureFilter::None:
+        case Ego::TextureFilter::Nearest:
+            magFilter_gl = GL_NEAREST;
+            break;
+        case Ego::TextureFilter::Linear:
             magFilter_gl = GL_LINEAR;
             break;
-
-        // Linear filtered
-        case Ego::TextureFilter::LINEAR:
-            minFilter_gl = GL_LINEAR;
-            magFilter_gl = GL_LINEAR;
-            break;
-
-        // Bilinear interpolation
-        case Ego::TextureFilter::MIPMAP:
-            minFilter_gl = GL_NEAREST_MIPMAP_NEAREST;
-            magFilter_gl = GL_LINEAR;
-            break;
-
-        // Bilinear interpolation
-        case Ego::TextureFilter::BILINEAR:
-            minFilter_gl = GL_LINEAR_MIPMAP_NEAREST;
-            magFilter_gl = GL_LINEAR;
-            break;
-
-        // Trilinear filtered (quality 1)
-        case Ego::TextureFilter::TRILINEAR_1:
-            minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
-            magFilter_gl = GL_LINEAR;
-            break;
-
-        // Trilinear filtered (quality 2)
-        case Ego::TextureFilter::TRILINEAR_2:
-            minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
-            magFilter_gl = GL_LINEAR;
-            break;
-
         default:
             throw std::runtime_error("unreachable code reached");
     };
@@ -425,7 +455,11 @@ void oglx_video_parameters_t::download(oglx_video_parameters_t *self, egoboo_con
 
 //--------------------------------------------------------------------------------------------
 
-oglx_texture_parameters_t g_ogl_textureParameters = { Ego::TextureFilter::UNFILTERED, false, 1.0f };
+oglx_texture_parameters_t g_ogl_textureParameters =
+{
+    Ego::TextureFilter::None, Ego::TextureFilter::None, Ego::TextureFilter::None,
+    false, 1.0f
+};
 
 void oglx_texture_parameters_t::defaults(oglx_texture_parameters_t* self)
 {
@@ -433,7 +467,9 @@ void oglx_texture_parameters_t::defaults(oglx_texture_parameters_t* self)
     {
         throw std::invalid_argument("nullptr == self");
     }
-    self->textureFiltering = Ego::TextureFilter::UNFILTERED;
+    self->textureFilter.minFilter = Ego::TextureFilter::None;
+    self->textureFilter.magFilter = Ego::TextureFilter::None;
+    self->textureFilter.mipMapFilter = Ego::TextureFilter::None;
     self->anisotropy_enable = false;
     self->anisotropy_level = 1.0f;
 }

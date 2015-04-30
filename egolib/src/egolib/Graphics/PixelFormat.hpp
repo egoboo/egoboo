@@ -297,13 +297,13 @@ public:
 
     /**
      * @brief
-     *  Get the pixel descriptor for a pixel format.
+     *  Get the pixel format descriptor for a pixel format.
      * @param pixelFormat
      *  the pixel format
      * @return
-     *  the pixel descriptor for the pixel format
+     *  the pixel format descriptor for the pixel format
      */
-    static const PixelFormatDescriptor& getDescriptor(PixelFormat pixelFormat);
+    static const PixelFormatDescriptor& get(PixelFormat pixelFormat);
 
 };
 

@@ -101,7 +101,7 @@ void TextureManager::reload_all()
         /// @todo MH: Add error handling.
         SDL_Surface *source = texture->source;
         texture->source = nullptr;
-        oglx_texture_t::load(texture, source, INVALID_KEY);
+        oglx_texture_t::load(texture, source);
     }
 }
 

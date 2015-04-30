@@ -26,7 +26,9 @@ namespace Ego
 
 /**
  * @brief
- *	Comparison functions used for the depth/stencil buffer operations and others.
+ *  Comparison functions used for the depth/stencil buffer operations and others.
+ * @author
+ *  Michael Heilmann
  */
 enum class CompareFunction
 {
@@ -60,4 +62,3 @@ enum class CompareFunction
 };
 
 } // namespace Ego
-

@@ -842,6 +842,9 @@
     <ClInclude Include="src\egolib\Graphics\VertexBuffer.hpp">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\PrimitiveType.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

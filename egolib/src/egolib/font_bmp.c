@@ -81,7 +81,7 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
 
     if (!tx_font) return;
 
-    if ( INVALID_GL_ID == ego_texture_load_vfs( tx_font, szBitmap, TRANSCOLOR ) )
+    if (INVALID_GL_ID == ego_texture_load_vfs( tx_font, szBitmap))
     {
         log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
     }

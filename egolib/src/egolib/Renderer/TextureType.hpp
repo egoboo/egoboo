@@ -29,6 +29,8 @@ namespace Ego
 /**
  * @brief
  *  An enumeration of texture types.
+ * @author
+ *  Michael Heilmann
  */
 enum class TextureType
 {

@@ -65,6 +65,7 @@
 #include "egolib/Graphics/Font.hpp"
 #include "egolib/Graphics/TextureManager.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
+#include "egolib/Graphics/VertexBuffer.hpp"
 
 #include "egolib/Renderer/Renderer.hpp"
 

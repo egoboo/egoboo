@@ -1526,16 +1526,16 @@ void gfx_system_load_basic_textures()
     font_bmp_load_vfs(TextureManager::get().get_valid_ptr(static_cast<TX_REF>(TX_FONT_BMP)), "mp_data/font_new_shadow", "mp_data/font.txt");
 
     // Cursor
-    TextureManager::get().load("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR), TRANSCOLOR);
+    TextureManager::get().load("mp_data/cursor", static_cast<TX_REF>(TX_CURSOR));
 
     // Skull
-    TextureManager::get().load("mp_data/skull", static_cast<TX_REF>(TX_SKULL), INVALID_KEY);
+    TextureManager::get().load("mp_data/skull", static_cast<TX_REF>(TX_SKULL));
 
     // Particle sprites
     TextureManager::get().load("mp_data/particle_trans", (TX_REF)TX_PARTICLE_TRANS, TRANSCOLOR);
     prt_set_texture_params((TX_REF)TX_PARTICLE_TRANS);
 
-    TextureManager::get().load("mp_data/particle_light", (TX_REF)TX_PARTICLE_LIGHT, INVALID_KEY);
+    TextureManager::get().load("mp_data/particle_light", (TX_REF)TX_PARTICLE_LIGHT);
     prt_set_texture_params((TX_REF)TX_PARTICLE_LIGHT);
 
     // Module background tiles
@@ -1552,10 +1552,10 @@ void gfx_system_load_basic_textures()
     TextureManager::get().load("mp_data/phong", (TX_REF)TX_PHONG, TRANSCOLOR);
 
     //Input icons
-    TextureManager::get().load("mp_data/keybicon", static_cast<TX_REF>(TX_ICON_KEYB), INVALID_KEY);
-    TextureManager::get().load("mp_data/mousicon", static_cast<TX_REF>(TX_ICON_MOUS), INVALID_KEY);
-    TextureManager::get().load("mp_data/joyaicon", static_cast<TX_REF>(TX_ICON_JOYA), INVALID_KEY);
-    TextureManager::get().load("mp_data/joybicon", static_cast<TX_REF>(TX_ICON_JOYB), INVALID_KEY);
+    TextureManager::get().load("mp_data/keybicon", static_cast<TX_REF>(TX_ICON_KEYB));
+    TextureManager::get().load("mp_data/mousicon", static_cast<TX_REF>(TX_ICON_MOUS));
+    TextureManager::get().load("mp_data/joyaicon", static_cast<TX_REF>(TX_ICON_JOYA));
+    TextureManager::get().load("mp_data/joybicon", static_cast<TX_REF>(TX_ICON_JOYB));
 
     TextureAtlasManager::decimate_all_mesh_textures();
 
@@ -4423,7 +4423,9 @@ bool oglx_texture_parameters_download_gfx(oglx_texture_parameters_t * ptex, egob
 
     ptex->anisotropy_enable = g_ogl_caps.anisotropic_supported;
     ptex->anisotropy_level = g_ogl_caps.maxAnisotropy;
-    ptex->textureFiltering = std::min<Ego::TextureFilter>(pcfg->graphic_textureFiltering.getValue(), Ego::TextureFilter::TRILINEAR_2);
+    ptex->textureFilter.minFilter = pcfg->graphic_textureFilter_minFilter.getValue();
+    ptex->textureFilter.magFilter = pcfg->graphic_textureFilter_magFilter.getValue();
+    ptex->textureFilter.mipMapFilter = pcfg->graphic_textureFilter_mipMapFilter.getValue();
 
     return true;
 }
@@ -4693,7 +4695,7 @@ gfx_rv gfx_load_bars()
     gfx_rv retval = gfx_success;
 
     pname = "mp_data/bars";
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_BARS, TRANSCOLOR);
+    load_rv = TextureManager::get().load(pname, (TX_REF)TX_BARS);
     if (!VALID_TX_RANGE(load_rv))
     {
         log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname);
@@ -4701,7 +4703,7 @@ gfx_rv gfx_load_bars()
     }
 
     pname = "mp_data/xpbar";
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_XP_BAR, TRANSCOLOR);
+    load_rv = TextureManager::get().load(pname, (TX_REF)TX_XP_BAR);
     if (!VALID_TX_RANGE(load_rv))
     {
         log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname);
@@ -4727,7 +4729,7 @@ gfx_rv gfx_load_map()
     blip_count = 0;
 
     // Load the images
-    load_rv = TextureManager::get().load(szMap, (TX_REF)TX_MAP, INVALID_KEY);
+    load_rv = TextureManager::get().load(szMap, (TX_REF)TX_MAP);
     if (!VALID_TX_RANGE(load_rv))
     {
         log_debug("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap);
@@ -4753,7 +4755,7 @@ gfx_rv gfx_load_blips()
     TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_BLIP, INVALID_KEY);
+    load_rv = TextureManager::get().load(pname, (TX_REF)TX_BLIP);
     if (!VALID_TX_RANGE(load_rv))
     {
         log_warning("%s - Blip bitmap not loaded! (\"%s\")\n", __FUNCTION__, pname);
@@ -4770,7 +4772,7 @@ gfx_rv gfx_load_icons()
     TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_ICON_NULL, INVALID_KEY);
+    load_rv = TextureManager::get().load(pname, (TX_REF)TX_ICON_NULL);
     if (!VALID_TX_RANGE(load_rv))
     {
         log_warning("%s - cannot load \"empty hand\" icon! (\"%s\")\n", __FUNCTION__, pname);
@@ -6179,7 +6181,7 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
             int blit_rv = SDL_BlitSurface(src_img, &src_img_rect, dst_img, nullptr);
 
             // upload the SDL_Surface into OpenGL
-            oglx_texture_t::load(dst_tx, dst_img, INVALID_KEY);
+            oglx_texture_t::load(dst_tx, dst_img);
 
             // count the number of textures we're using
             cnt++;
@@ -6232,7 +6234,7 @@ void TextureAtlasManager::reload_all()
         /// @todo MH: Add error handling.
         SDL_Surface *source = sml[cnt].source;
         sml[cnt].source = nullptr;
-        oglx_texture_t::load(&(sml[cnt]), source, INVALID_KEY);
+        oglx_texture_t::load(&(sml[cnt]), source);
     }
 
     for (size_t cnt = 0; cnt < big_cnt; ++cnt)
@@ -6243,7 +6245,7 @@ void TextureAtlasManager::reload_all()
         /// @todo MH: Add error handling.
         SDL_Surface *source = big[cnt].source;
         big[cnt].source = nullptr;
-        oglx_texture_t::load(&(big[cnt]), source, INVALID_KEY);
+        oglx_texture_t::load(&(big[cnt]), source);
     }
 }
 

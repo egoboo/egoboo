@@ -26,7 +26,9 @@ namespace Ego
 
 /**
  * @brief
- *  Culling modes.
+ *  An enumeration of culling modes.
+ * @author
+ *  Michael Heilmann
  */
 enum class CullingMode
 {

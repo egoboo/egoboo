@@ -485,7 +485,7 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& name, SDL_S
     /* Upload the texture data. */
     if (type == Ego::TextureType::_2D)
     {
-        if (g_ogl_textureParameters.textureFiltering >= Ego::TextureFilter::MIPMAP)
+        if (g_ogl_textureParameters.textureFilter.mipMapFilter > Ego::TextureFilter::None)
         {
             Ego::OpenGL::Utilities::upload_2d_mipmap(true, new_source->w, new_source->h, new_source->pixels);
         }
@@ -611,47 +611,6 @@ bool oglx_texture_t::hasAlpha(const oglx_texture_t *self)
         throw std::invalid_argument("nullptr == self");
     }
     return self->_hasAlpha;
-}
-
-GLboolean oglx_texture_t::getSize(const oglx_texture_t *self, oglx_frect_t tx_rect, oglx_frect_t img_rect)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    GLboolean retval = GL_FALSE;
-
-    {
-        if (NULL != tx_rect)
-        {
-            // calculate the texture rectangle
-            tx_rect[0] = 0.0f;
-            tx_rect[1] = 0.0f;
-            tx_rect[2] = (0 == self->_width) ? 1.0f : (GLfloat)self->_sourceWidth / (GLfloat)self->_width;
-            tx_rect[3] = (0 == self->_height) ? 1.0f : (GLfloat)self->_sourceHeight / (GLfloat)self->_height;
-
-            // clamp the values
-            if (tx_rect[2] > 1.0f) tx_rect[2] = 1.0f;
-            if (tx_rect[2] < 0.0f) tx_rect[2] = 0.0f;
-
-            if (tx_rect[3] > 1.0f) tx_rect[3] = 1.0f;
-            if (tx_rect[3] < 0.0f) tx_rect[3] = 0.0f;
-
-            retval = GL_TRUE;
-        }
-
-        if (NULL != img_rect)
-        {
-            img_rect[0] = 0.0f;
-            img_rect[1] = 0.0f;
-            img_rect[2] = (GLfloat)self->_sourceWidth;
-            img_rect[3] = (GLfloat)self->_sourceHeight;
-
-            retval = GL_TRUE;
-        }
-    }
-
-    return retval;
 }
 
 void  oglx_texture_t::release(oglx_texture_t *self)

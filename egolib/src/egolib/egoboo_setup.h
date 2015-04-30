@@ -525,7 +525,9 @@ public:
             graphic_antialiasing,
             graphic_anisotropy_enable,
             graphic_anisotropy_levels,
-            graphic_textureFiltering,
+            graphic_textureFilter_minFilter,
+            graphic_textureFilter_magFilter,
+            graphic_textureFilter_mipMapFilter,
             graphic_simultaneousDynamicLights_max,
             graphic_framesPerSecond_max,
             graphic_simultaneousParticles_max,
@@ -746,12 +748,26 @@ public:
 
     /**
      * @brief
-     *  The texture filter applied.
+     *  The texture filter used for minification.
      * @remark
-     *  Default value is Ego::TextureFilter::TRILINEAR_2.
+     *  Default value is Ego::TextureFilter::Linear.
      */
-    EnumVariable<Ego::TextureFilter> graphic_textureFiltering;
-    
+    EnumVariable<Ego::TextureFilter> graphic_textureFilter_minFilter;
+    /**
+     * @brief
+     *  The texture filter used for magnification.
+     * @remark
+     *  Default value is Ego::TextureFilter::Linear.
+     */
+    EnumVariable<Ego::TextureFilter> graphic_textureFilter_magFilter;
+    /**
+     * @brief
+     *  The filter applied used for mip map selection.
+     * @remark
+     *  Default value is Ego::TextureFilter::Linear.
+     */
+    EnumVariable<Ego::TextureFilter> graphic_textureFilter_mipMapFilter;
+
     /**
      * @brief
      *  Inclusive upper bound of number of simultaneous dynamic lights.

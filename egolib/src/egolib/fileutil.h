@@ -30,19 +30,10 @@
 #include "egolib/file_common.h"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/Logic/Gender.hpp"
+#include "egolib/Extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-/// @todo What the heck is this doing here? Remove!
-#define TRANSCOLOR 0
-/// @todo What the heck is this doing here? Remove!
-struct oglx_texture_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
 
 #include "egolib/Script/EnumDescriptor.hpp"
 #include "egolib/Script/Location.hpp"
@@ -490,7 +481,7 @@ int read_skin_vfs(const char *filename);
  *  succeeds (i.e. the image was successfully loaded into the texture) or all
  *  combinations failed.
  */
-Uint32 ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key);
+Uint32 ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key = INVALID_KEY);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 // Stuff to encapsulte in a WriterContext.

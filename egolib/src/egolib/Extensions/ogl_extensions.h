@@ -31,6 +31,7 @@
 #include "egolib/egoboo_setup.h"
 #include "egolib/Renderer/TextureAddressMode.hpp"
 #include "egolib/Renderer/TextureType.hpp"
+#include "egolib/Renderer/PrimitiveType.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -80,6 +81,22 @@ struct Utilities
      *  Ego::TextureAddressMode::RepeatMirrored | @a GL_MIRRORED_REPEAT
      */
     static GLint toOpenGL(Ego::TextureAddressMode textureAddressMode);
+    /**
+     * @brief
+     *  Translate an internal primitive type into an OpenGL primitive type.
+     * @param primitive type
+     *  the internal primitive type
+     * @return
+     *  the OpenGL texture address mode.
+     *  internal                                | OpenGL
+     *  --------------------------------------- | -------------
+     *  Ego::PrimitiveType::Triangles           | @a GL_TRIANGLES
+     *  Ego::PrimitiveType::Quadriliterals      | @a GL_QUADS
+     *  Ego::PrimitiveType::TriangleFan         | @a GL_TRIANGLE_FAN
+     *  Ego::PrimitiveType::TriangleStrip       | @a GL_TRIANGLE_STRIP
+     *  Ego::PrimitiveType::QuadriliteralStrip  | @a GL_QUAD_STRIP
+     */
+    static GLenum toOpenGL(Ego::PrimitiveType primitiveType);
 
     static void bind(GLuint id, Ego::TextureType type, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT);
 };
@@ -183,7 +200,12 @@ struct oglx_video_parameters_t
 
 struct oglx_texture_parameters_t
 {
-    Ego::TextureFilter textureFiltering;
+    struct
+    {
+        Ego::TextureFilter minFilter;
+        Ego::TextureFilter magFilter;
+        Ego::TextureFilter mipMapFilter;
+    } textureFilter;
     bool anisotropy_enable;
     float anisotropy_level;
     static void defaults(oglx_texture_parameters_t* self);

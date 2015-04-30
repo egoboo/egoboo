@@ -207,7 +207,7 @@ std::shared_ptr<ModuleProfile> ModuleProfile::loadFromFile(const std::string &fo
 
     /// @note just because we can't load the title image DOES NOT mean that we ignore the module
     // load title image
-    ego_texture_load_vfs(&result->_icon, (folderPath + "/gamedat/title").c_str(), INVALID_KEY );
+    ego_texture_load_vfs(&result->_icon, (folderPath + "/gamedat/title").c_str());
 
     /// @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
     // If that changes, this line must be changed as well.
