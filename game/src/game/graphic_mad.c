@@ -346,7 +346,7 @@ gfx_rv render_one_mad_tex(std::shared_ptr<Camera> camera, const CHR_REF characte
         float r, g, b, a;
         float s, t;
     };
-    auto vertexBuffer = std::make_unique<Vertex[]>(vertexBufferCapacity);
+    auto vertexBuffer = std::unique_ptr<Vertex[]>(new Vertex[vertexBufferCapacity]);
 
     // save the matrix mode
     glGetIntegerv(GL_MATRIX_MODE, &matrix_mode);
