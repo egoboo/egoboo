@@ -32,9 +32,9 @@ class Button : public GUIComponent
         bool _mouseOver;
         std::string _buttonText;
 
-        static const GLXvector4f DEFAULT_BUTTON_COLOUR;
-        static const GLXvector4f HOVER_BUTTON_COLOUR;
-        static const GLXvector4f DISABLED_BUTTON_COLOUR;
+        static const Ego::Math::Colour4f DEFAULT_BUTTON_COLOUR;
+        static const Ego::Math::Colour4f HOVER_BUTTON_COLOUR;
+        static const Ego::Math::Colour4f DISABLED_BUTTON_COLOUR;
 
     private:
         std::function<void()> _onClickFunction;

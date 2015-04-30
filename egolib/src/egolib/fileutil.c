@@ -350,7 +350,7 @@ bool read_to_delimiter_list_vfs(ReadContext& ctxt, std::string& buffer, const ch
 {
     if (!delimiters)
     {
-        std::invalid_argument("nullptr == delimiters");
+        throw std::invalid_argument("nullptr == delimiters");
     }
     if (ctxt.is(ReadContext::Traits::startOfInput()))
     {

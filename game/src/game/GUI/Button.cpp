@@ -1,8 +1,8 @@
 #include "game/GUI/Button.hpp"
 
-const GLXvector4f Button::DEFAULT_BUTTON_COLOUR  = {0.66f, 0.00f, 0.00f, 0.60f};
-const GLXvector4f Button::HOVER_BUTTON_COLOUR    = {0.54f, 0.00f, 0.00f, 1.00f};
-const GLXvector4f Button::DISABLED_BUTTON_COLOUR = {0.25f, 0.25f, 0.25f, 0.60f};
+const Ego::Math::Colour4f Button::DEFAULT_BUTTON_COLOUR  = {0.66f, 0.00f, 0.00f, 0.60f};
+const Ego::Math::Colour4f Button::HOVER_BUTTON_COLOUR    = {0.54f, 0.00f, 0.00f, 1.00f};
+const Ego::Math::Colour4f Button::DISABLED_BUTTON_COLOUR = {0.25f, 0.25f, 0.25f, 0.60f};
 
 Button::Button(int hotkey) :
     _mouseOver(false),
@@ -39,6 +39,8 @@ void Button::draw()
 {
     //Update slidy button effect
     updateSlidyButtonEffect();
+    
+    auto &renderer = Ego::Renderer::get();
 
     // Draw the button
     oglx_texture_t::bind(nullptr);
@@ -50,15 +52,15 @@ void Button::draw()
     //Determine button color
     if(!isEnabled())
     {
-        GL_DEBUG( glColor4fv )( DISABLED_BUTTON_COLOUR );
+        renderer.setColour(DISABLED_BUTTON_COLOUR);
     }
     else if(_mouseOver)
     {
-        GL_DEBUG( glColor4fv )( HOVER_BUTTON_COLOUR );
+        renderer.setColour(HOVER_BUTTON_COLOUR);
     }
     else
     {
-        GL_DEBUG( glColor4fv )( DEFAULT_BUTTON_COLOUR );
+        renderer.setColour(DEFAULT_BUTTON_COLOUR);
     }
 
     GL_DEBUG( glBegin )( GL_QUADS );

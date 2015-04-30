@@ -87,12 +87,14 @@ ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>>
 
 void ModuleSelector::drawContainer()
 {
-    const GLXvector4f backDrop = { 0.66f, 0.0f, 0.0f, 0.6f };
+    const Ego::Math::Colour4f backDrop = { 0.66f, 0.0f, 0.0f, 0.6f };
+    
+    auto &renderer = Ego::Renderer::get();
 
     //Draw backdrop
     oglx_texture_t::bind(nullptr);
     
-    GL_DEBUG( glColor4fv )( backDrop );
+    renderer.setColour(backDrop);
     GL_DEBUG( glBegin )( GL_QUADS );
     {
         GL_DEBUG( glVertex2f )( getX(), getY() );
@@ -177,6 +179,8 @@ void ModuleSelector::ModuleButton::draw()
     if (_moduleSelector->_startIndex + _offset >= _moduleSelector->_modules.size()) {
         return;
     }
+    
+    auto &renderer = Ego::Renderer::get();
 
     // Draw backdrop
     oglx_texture_t::bind(nullptr);
@@ -184,15 +188,15 @@ void ModuleSelector::ModuleButton::draw()
     // Determine button color
     if(!isEnabled())
     {
-        GL_DEBUG( glColor4fv )( DISABLED_BUTTON_COLOUR );
+        renderer.setColour( DISABLED_BUTTON_COLOUR );
     }
     else if(_mouseOver)
     {
-        GL_DEBUG( glColor4fv )( HOVER_BUTTON_COLOUR );
+        renderer.setColour( HOVER_BUTTON_COLOUR );
     }
     else
     {
-        GL_DEBUG( glColor4fv )( DEFAULT_BUTTON_COLOUR );
+        renderer.setColour( DEFAULT_BUTTON_COLOUR );
     }
 
     GL_DEBUG( glBegin )( GL_QUADS );

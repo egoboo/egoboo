@@ -107,6 +107,7 @@ void gfx_system_begin()
     gfx_system_init_SDL_graphics();
     ImageManager::initialize();
     Ego::Renderer::initialize();
+    TextureManager::initialize();
     gfx_init_ogl();
 
     theSurface = SDL_GetVideoSurface();
@@ -120,6 +121,7 @@ void gfx_system_end()
 {
     gfx_font_ptr.reset();
     Ego::FontManager::uninitialize();
+    TextureManager::uninitialize();
     Ego::Renderer::uninitialize();
     ImageManager::uninitialize();
 }
