@@ -6170,16 +6170,30 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
             oglx_texture_t::release(dst_tx);
 
             // create a blank destination SDL_Surface
-            SDL_Surface *dst_img = gfx_create_SDL_Surface(src_img_rect.w, src_img_rect.h);
+            const auto& pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+            SDL_Surface *dst_img = SDL_CreateRGBSurface(SDL_SWSURFACE, src_img_rect.w, src_img_rect.h,
+                                                        pfd.getBitsPerPixel(),
+                                                        pfd.getRedMask(),
+                                                        pfd.getGreenMask(),
+                                                        pfd.getBlueMask(),
+                                                        pfd.getAlphaMask());
             if (!dst_img)
             {
                 cnt++;
                 continue;
             }
-            SDL_FillRect(dst_img, nullptr, SDL_MapRGBA(dst_img->format, 0xFF, 0, 0, 0xFF));
 
+            // If the alpha mask is non-zero (which is the case here), then SDL_CreateRGBSurface
+            // behaves "as if" the addition flag @a SDL_SRCALPHA was supplied. That is, if
+            // the surface is blitted onto another surface, then alpha blending is performed:
+            // This is not desired by us as we want to set each pixel in the target surface to
+            // the value of the corresponding pixel in the source surface i.e. we do not want
+            // alpha blending to be done: We turn of alpha blending by a calling
+            // <tt>SetAlpha(oldSurface, 0, SDL_ALPHA_OPAQUE)</tt>.
+            SDL_SetAlpha(src_img, 0, SDL_ALPHA_OPAQUE);
             // blit the source region into the destination bitmap
             int blit_rv = SDL_BlitSurface(src_img, &src_img_rect, dst_img, nullptr);
+            // For more information, see <a>http://sdl.beuc.net/sdl.wiki/SDL_CreateRGBSurface</a>.
 
             // upload the SDL_Surface into OpenGL
             oglx_texture_t::load(dst_tx, dst_img);
