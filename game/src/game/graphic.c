@@ -3597,7 +3597,7 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist)
     Ego::Renderer::get().setDepthWriteEnabled(false);
 
     // do not draw hidden surfaces
-    Ego::Renderer::get().setScissorTestEnabled(true);
+    Ego::Renderer::get().setDepthTestEnabled(true);
     Ego::Renderer::get().setBlendingEnabled(true);
     GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
