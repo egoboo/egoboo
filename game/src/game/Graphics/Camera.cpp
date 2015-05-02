@@ -121,7 +121,7 @@ Camera::Camera(const CameraOptions &options) :
 
     // Connect the renderlist to the mesh.
     renderlist_t *rlst_ptr = rmgr_ptr->get_ptr(_renderList);
-	renderlist_t::setMesh(rlst_ptr, PMesh);
+    rlst_ptr->setMesh(PMesh);
 
     // Lock a dolist for this camera.
     _doList = dmgr_ptr->get_free_idx();

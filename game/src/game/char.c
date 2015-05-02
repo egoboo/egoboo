@@ -1459,7 +1459,7 @@ bool drop_all_items( const CHR_REF character )
 
         // fix the attachments
         pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pitem->dismount_object        = GET_INDEX_PCHR( pchr );
+        pitem->dismount_object        = GET_INDEX_PCHR(pchr);
         pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
         pitem->onwhichplatform_update = pchr->onwhichplatform_update;
 

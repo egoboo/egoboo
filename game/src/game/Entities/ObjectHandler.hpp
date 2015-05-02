@@ -33,10 +33,11 @@ class Object;
 
 //ZF> Some macros from C Egoboo (TODO: remove these macros)
 #define VALID_CHR_RANGE( ICHR )    ( static_cast<CHR_REF>(ICHR) < OBJECTS_MAX && ICHR != INVALID_CHR_REF )
-#define GET_INDEX_PCHR( PCHR )     ((nullptr == (PCHR)) ? INVALID_CHR_REF : PCHR->getCharacterID())
+CHR_REF GET_INDEX_PCHR(const Object *pobj);
+CHR_REF GET_INDEX_PCHR(const std::shared_ptr<Object> pobj);
+bool INGAME_PCHR(const Object *pobj);
 #define ACTIVE_PCHR( PCHR )        ( nullptr != (PCHR) && !PCHR->isTerminated() )
 #define TERMINATED_PCHR( PCHR )    ( nullptr != (PCHR) && PCHR->isTerminated() )
-#define INGAME_PCHR(PCHR)          ( nullptr != (PCHR) && !PCHR->isTerminated() )
 
 /**
 * @brief A completely recursive loop safe container for accessing instances of in-game objects

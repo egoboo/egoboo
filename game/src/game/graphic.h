@@ -194,46 +194,42 @@ struct renderlist_lst_t
 /// Which tiles are to be drawn, arranged by MAPFX_* bits
 struct renderlist_t
 {
-    ego_mesh_t *mesh;
-    size_t index;
-    renderlist_lst_t  all;     ///< List of which to render, total
-    renderlist_lst_t  ref;     ///< ..., is reflected in the floor
-    renderlist_lst_t  sha;     ///< ..., is not reflected in the floor
-    renderlist_lst_t  drf;     ///< ..., draws character reflections
-    renderlist_lst_t  ndr;     ///< ..., draws no character reflections
-    renderlist_lst_t  wat;     ///< ..., draws a water tile
+    ego_mesh_t *_mesh;
+    size_t _name;
+    renderlist_lst_t _all;     ///< List of which to render, total
+    renderlist_lst_t _ref;     ///< ..., is reflected in the floor
+    renderlist_lst_t _sha;     ///< ..., is not reflected in the floor
+    renderlist_lst_t _drf;     ///< ..., draws character reflections
+    renderlist_lst_t _ndr;     ///< ..., draws no character reflections
+    renderlist_lst_t _wat;     ///< ..., draws a water tile
 
-#if XX == 1
-    renderlist_t() :
-        mesh(nullptr), index(std::numeric_limits<size_t>::max()),
-        all(), ref(), sha(), drf(), ndr(), wat()
-    {}
+    renderlist_t();
+#if 0
     virtual ~renderlist_t() :
     {}
 #endif
-
-    static renderlist_t *init(renderlist_t *self, size_t index);
+    renderlist_t *init(size_t name);
     /// @brief Clear a render list
-    static gfx_rv reset(renderlist_t *self);
+    gfx_rv reset();
     /// @brief Insert a tile into this render list.
     /// @param index the tile index
     /// @param camera the camera
-    static gfx_rv insert(renderlist_t *self, const TileIndex& index, const std::shared_ptr<Camera>& camera);
+    gfx_rv insert(const TileIndex& index, const std::shared_ptr<Camera>& camera);
     /// @brief Get mesh this render list is attached to.
     /// @return the mesh or @a nullptr
     /// @post If the render list is attached to a mesh, that mesh is returned.
     ///       Otherwise a null pointer is returned.
-    static ego_mesh_t *getMesh(const renderlist_t *self);
+    ego_mesh_t *getMesh() const;
     /// @brief Set mesh this render list is attached to.
     /// @param mesh the mesh or @a nullptr
     /// @post If @a mesh is not a null pointer, then this render list is attached to that mesh.
     ///       Otherwise it is detached.
-    static gfx_rv setMesh(renderlist_t *self, ego_mesh_t *mesh);
+    void setMesh(ego_mesh_t *mesh);
     /// @brief Insert tiles into this render list.
     /// @param leaves a list of tile BSP leaves
     /// @param camera the camera
     /// @remark A tile
-    static gfx_rv add(renderlist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *leaves, const std::shared_ptr<Camera>& camera);
+    gfx_rv add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, const std::shared_ptr<Camera>& camera);
 };
 
 
@@ -284,26 +280,65 @@ struct dolist_t
         static element_t *init(element_t *self);
         static int cmp(const void *left, const void *right);
     };
-
-    size_t index;            /**< A "name" for the dolist. */
-    size_t size;             /**< The size of the do list:
-                                  How many character and particle entities are in the do list. */
-    element_t lst[CAPACITY]; /**< List of which objects to draw. */
+protected:
+    /**
+     * @brief
+     *  The name of the dolist; everything above dolist_mgr_t::capacity is considered as an "invalid name".
+     */
+    size_t _name;
+    /**
+     * @brief
+     *  The size of the dolist i.e. the number of character and particle entities in the dolist.
+     */
+    size_t _size;
+    /**
+     * @brief
+     *  An array of dolist elements.
+     *  The first @a _size entries of this array have meaningful values.
+     */
+    element_t _lst[CAPACITY];
+public:
     dolist_t();
 #if XX == 1
     virtual ~dolist_t()
     {}
 #endif
-    static dolist_t *init(dolist_t *self, const size_t index = 0);
-    static gfx_rv reset(dolist_t *self, const size_t index);
-    static gfx_rv sort(dolist_t *self, std::shared_ptr<Camera> camera, const bool reflect);
-    static gfx_rv test_chr(dolist_t *self, const Object *pchr);
-    static gfx_rv add_chr_raw(dolist_t *self, Object *pchr);
-    static gfx_rv test_prt(dolist_t *self, const prt_t *pprt);
-    static gfx_rv add_prt_raw(dolist_t *self, prt_t *pprt);
+    dolist_t *init(size_t name);
+    const element_t& get(size_t index) const
+    {
+        if (index >= _size)
+        {
+            throw std::out_of_range("index out of range");
+        }
+        return _lst[index];
+    }
+    element_t& get(size_t index)
+    {
+        if (index >= _size)
+        {
+            throw std::out_of_range("index out of range");
+        }
+        return _lst[index];
+    }
+    size_t getName() const
+    {
+        return _name;
+    }
+    size_t getSize() const
+    {
+        return _size;
+    }
+    gfx_rv reset(size_t name);
+    gfx_rv sort(std::shared_ptr<Camera> camera, const bool reflect);
+protected:
+    gfx_rv test_obj(const Object& obj);
+    gfx_rv add_obj_raw(Object& obj);
+    gfx_rv test_prt(const prt_t& prt);
+    gfx_rv add_prt_raw(prt_t& prt);
+public:
     /// @brief Insert character or particle entities into this dolist.
     /// @param leaves
-    static gfx_rv add_colst(dolist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *collisions);
+    gfx_rv add_colst(const Ego::DynamicArray<BSP_leaf_t *> *collisions);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -390,7 +425,7 @@ struct list_ary_t
         for (size_t cnt = 0; cnt < Capacity; ++cnt)
         {
             free_lst[cnt] = cnt;
-            Type::init(&(lst[cnt]), cnt);
+            lst[cnt].init(cnt);
         }
         free_count = Capacity;
     }
@@ -401,63 +436,35 @@ struct list_ary_t
         for (size_t cnt = 0; cnt < Capacity; ++cnt)
         {
             free_lst[cnt] = -1;
-            Type::init(&(lst[cnt]), cnt);
+            lst[cnt].init(cnt);
         }
     }
 };
 
-struct dolist_ary_t : public list_ary_t<dolist_t,MAX_CAMERAS>
-{
-    dolist_ary_t() :
-        list_ary_t()
-    {}
-    virtual ~dolist_ary_t()
-    {}
-};
-
-struct renderlist_ary_t : public list_ary_t<renderlist_t, MAX_CAMERAS>
-{
-    renderlist_ary_t() :
-        list_ary_t()
-    {}
-    virtual ~renderlist_ary_t()
-    {}
-};
-
-struct dolist_mgr_t
+struct dolist_mgr_t : public list_ary_t<dolist_t, MAX_CAMERAS>
 {
 private:
     static dolist_mgr_t *_singleton;
 private:
-    dolist_ary_t ary;
     dolist_mgr_t();
     virtual ~dolist_mgr_t();
 public:
     static void initialize();
     static void uninitialize();
     static dolist_mgr_t& get();
-public:
-    int get_free_idx();
-    gfx_rv free_one(size_t index);
-    dolist_t *get_ptr(size_t index);
 };
 
-struct renderlist_mgr_t
+struct renderlist_mgr_t : public list_ary_t<renderlist_t, MAX_CAMERAS>
 {
 private:
     static renderlist_mgr_t *_singleton;
 private:
-    renderlist_ary_t ary;
     renderlist_mgr_t();
     virtual ~renderlist_mgr_t();
 public:
     static void initialize();
     static void uninitialize();
     static renderlist_mgr_t& get();
-public:
-    int get_free_idx();
-    gfx_rv free_one(size_t index);
-    renderlist_t *get_ptr(size_t index);
 };
 
 //--------------------------------------------------------------------------------------------
