@@ -411,6 +411,9 @@
     <ClCompile Include="src\egolib\Graphics\VertexFormat.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Core\System.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -844,6 +847,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\PrimitiveType.hpp">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\System.hpp">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
