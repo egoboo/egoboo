@@ -271,25 +271,6 @@ static void   gfx_init_bar_data();
 static void   gfx_init_blip_data();
 static void   gfx_init_map_data();
 
-static SDL_Surface *gfx_create_SDL_Surface(int w, int h);
-
-//--------------------------------------------------------------------------------------------
-// Utility functions
-//--------------------------------------------------------------------------------------------
-SDL_Surface *gfx_create_SDL_Surface(int width, int height)
-{
-    SDL_PixelFormat pixelFormat;
-    if (nullptr == sdl_scr.pscreen)
-    {
-        return nullptr;
-    }
-    // Same format as the screen extended by an alpha channel.
-    memcpy(&pixelFormat, sdl_scr.pscreen->format, sizeof(SDL_PixelFormat));
-    SDLX_ExpandFormat(&pixelFormat);
-
-    return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, pixelFormat.BitsPerPixel, pixelFormat.Rmask, pixelFormat.Gmask, pixelFormat.Bmask, pixelFormat.Amask);
-}
-
 //--------------------------------------------------------------------------------------------
 // renderlist_ary implementation
 //--------------------------------------------------------------------------------------------

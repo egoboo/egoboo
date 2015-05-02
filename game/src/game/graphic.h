@@ -482,10 +482,6 @@ struct gfx_config_t
     size_t dynalist_max;     ///< Max number of dynamic lights to draw
     bool exploremode;       ///< fog of war mode for mesh display
     bool usefaredge;        ///< Far edge maps? (Outdoor)
-
-    // virtual window parameters
-    float vw, vh;
-    float vdw, vdh;
 };
 
 bool gfx_config_init(gfx_config_t * pgfx);
