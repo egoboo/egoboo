@@ -61,6 +61,15 @@ public:
     SyntacticalError(const char *file, int line, const Location& location, const std::string& message) :
         AbstractSyntacticalError(file, line, location), _message(message)
     {}
+    SyntacticalError(const SyntacticalError& other) :
+        AbstractSyntacticalError(other), _message(other._message)
+    {}
+    SyntacticalError& operator=(const SyntacticalError& other)
+    {
+        AbstractSyntacticalError::operator=(other);
+        _message = other._message;
+        return *this;
+    }
 
     /**
      * @brief
@@ -73,9 +82,8 @@ public:
         ostringstream o;
         writeLocation(o);
         o << " - "
-            << "syntactical error: "
-            << _message;
-            ;
+          << "syntactical error: "
+          << _message;
         return o.str();
     }
 

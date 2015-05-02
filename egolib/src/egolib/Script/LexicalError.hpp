@@ -62,6 +62,15 @@ public:
     LexicalError(const char *file, int line, const Location& location, const string& message) :
         AbstractLexicalError(file, line, location), _message(message)
     {}
+    LexicalError(const LexicalError& other) :
+        AbstractLexicalError(other), _message(other._message)
+    {}
+    LexicalError& operator=(const LexicalError& other)
+    {
+        AbstractLexicalError::operator=(other);
+        _message = other._message;
+        return *this;
+    }
 
     /**
      * @brief

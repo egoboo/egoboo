@@ -25,9 +25,8 @@
 
 namespace Ego
 {
-
-// Forward declaration.
-class Window;
+namespace Core
+{
 
 /**
  * @brief
@@ -35,7 +34,7 @@ class Window;
  * @author
  *  Michael Heilmann
  */
-class TimerService : public Ego::Core::NonCopyable
+class TimerService : public NonCopyable
 {
 protected:
     friend class System;
@@ -59,7 +58,7 @@ public:
  * @author
  *  Michael Heilmann
  */
-class EventService : public Ego::Core::NonCopyable
+class EventService : public NonCopyable
 {
 protected:
     friend class System;
@@ -67,7 +66,7 @@ protected:
     virtual ~EventService();
 };
 
-class System : public Ego::Core::NonCopyable
+class System : public NonCopyable
 {
 
 private:
@@ -100,7 +99,7 @@ public:
 
     /**
      * @brief
-     *  The version of the engine.
+     *  The version of the Egoboo Engine.
      */
     static const std::string VERSION;
 
@@ -146,4 +145,5 @@ public:
     }
 };
 
+} // namespace Core
 } // namespace Ego

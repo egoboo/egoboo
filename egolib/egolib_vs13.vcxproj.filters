@@ -632,9 +632,6 @@
     <ClInclude Include="src\egolib\Script\Location.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Exception.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Script\Buffer.hpp">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
@@ -849,6 +846,12 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Core\System.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\Exception.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Core\EnvironmentError.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>

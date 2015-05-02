@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "egolib/Exception.hpp"
+#include "egolib/Core/Exception.hpp"
 #include "egolib/Script/Location.hpp"
 
 namespace Ego
@@ -34,7 +34,7 @@ using namespace std;
  * @author
  *  Michael Heilmann
  */
-class AbstractSyntacticalError : public Exception
+class AbstractSyntacticalError : public Core::Exception
 {
 
 private:
@@ -50,7 +50,7 @@ protected:
     ostringstream& writeLocation(ostringstream& o) const
     {
         o << _location.getLoadName() << ": " << _location.getLineNumber()
-            << " (raised in file " << getFile() << ", line " << getLine() << ")";
+          << " (raised in file " << getFile() << ", line " << getLine() << ")";
         return o;
     }
 
@@ -68,7 +68,7 @@ protected:
      *  an additional error message to be appended to the standard error information
      */
     AbstractSyntacticalError(const char *file, int line, const Location& location) :
-        Ego::Exception(file, line), _location(location)
+        Core::Exception(file, line), _location(location)
     {}
 
 public:

@@ -1368,8 +1368,6 @@ void gfx_system_init_SDL_graphics()
 {
     if (_sdl_initialized_graphics) return;
 
-    cartman_init_SDL_base();
-
     log_info("Intializing SDL Video ... ");
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
     {

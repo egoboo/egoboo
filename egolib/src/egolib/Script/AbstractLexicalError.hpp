@@ -18,7 +18,7 @@
 //********************************************************************************************
 #pragma once
 
-#include "egolib/Exception.hpp"
+#include "egolib/Core/Exception.hpp"
 #include "egolib/Script/Location.hpp"
 
 namespace Ego
@@ -26,7 +26,7 @@ namespace Ego
 namespace Script
 {
 
-    using namespace std;
+using namespace std;
 
 /**
  * @brief
@@ -34,7 +34,7 @@ namespace Script
  * @author
  *  Michael Heilmann
  */
-class AbstractLexicalError : public Exception
+class AbstractLexicalError : public Ego::Core::Exception
 {
 
 private:
@@ -54,6 +54,13 @@ protected:
         return o;
     }
 
+    AbstractLexicalError& operator=(const AbstractLexicalError& other)
+    {
+        Core::Exception::operator=(other);
+        _location = other._location;
+        return *this;
+    }
+
     /**
      * @brief
      *  Construct this exception.
@@ -63,10 +70,9 @@ protected:
      *  the line within the C++ source file associated with this error
      * @param location
      *  the location associated with this error
-     *  the load name of the file associated with this error
      */
     AbstractLexicalError(const char *file, int line, const Location& location) :
-        Ego::Exception(file, line), _location(location)
+        Core::Exception(file, line), _location(location)
     {}
 
 public:

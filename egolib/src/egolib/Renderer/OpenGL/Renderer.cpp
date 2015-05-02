@@ -165,7 +165,7 @@ std::vector<std::string> getExtensions()
 }
 
 Renderer::Renderer() :
-    _extensions(make_unordered_set(getExtensions())),
+    _extensions(Core::make_unordered_set(getExtensions())),
     _vendor(getVendor()),
     _name(getName())
 {

@@ -26,6 +26,8 @@
 
 namespace Ego
 {
+namespace Core
+{
 
 using namespace std;
 
@@ -51,5 +53,5 @@ unordered_set<Key, Hash, Pred, Alloc> make_unordered_set(const vector<Key>& v)
     }
     return s;
 }
-
+} // namespace Core
 } // namespace Ego

@@ -18,9 +18,12 @@
 //********************************************************************************************
 
 #include "egolib/Core/System.hpp"
+#include "egolib/Core/EnvironmentError.hpp"
 #include "egolib/system.h"
 
 namespace Ego
+{
+namespace Core
 {
 
 TimerService::TimerService()
@@ -28,11 +31,10 @@ TimerService::TimerService()
     log_info("Intializing SDL timer services ... ");
     if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0)
     {
-        std::ostringstream message;
-        message << "SDL error: `" << SDL_GetError() << "`";
         log_message(" failure!\n");
-        log_warning("%s\n", message.str().c_str());
-        throw std::runtime_error(message.str());
+        EnvironmentError error(__FILE__, __LINE__, "SDL timer", SDL_GetError());
+        log_error("%s\n", ((std::string)error).c_str());
+        throw error;
     }
     else
     {
@@ -56,23 +58,23 @@ EventService::EventService()
     log_info("Intializing SDL event threading services ... ");
     if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) < 0)
     {
-        std::ostringstream message;
-        message << "SDL error: `" << SDL_GetError() << "`";
         log_message(" failure!\n");
-        log_warning("%s\n", message.str().c_str());
-        throw std::runtime_error(message.str());
+        EnvironmentError error(__FILE__, __LINE__, "SDL events", SDL_GetError());
+        log_error("%s\n", ((std::string)error).c_str());
+        throw error;
     }
     else
     {
         log_message(" success!\n");
     }
 }
+
 EventService::~EventService()
 {
     SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);
 }
 
-const std::string System::VERSION = "2.9.0";
+const std::string System::VERSION = "0.1.9";
 
 System *System::_singleton = nullptr;
 
@@ -94,7 +96,7 @@ System::System(const char *binaryPath, const char *egobooPath)
     // Initialize system-dependent elements.
     sys_initialize();
     // Start initializing the various subsystems.
-    log_message("Starting Egoboo %s\n", VERSION.c_str());
+    log_message("Starting Egoboo Engine %s\n", VERSION.c_str());
     log_info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
     // Load "setup.txt".
     setup_begin();
@@ -102,15 +104,6 @@ System::System(const char *binaryPath, const char *egobooPath)
     setup_download(&egoboo_config_t::get());
     // Initialize SDL.
     log_message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
-    if (0 > SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTTHREAD))
-    {
-        log_message(" failure!\n");
-        log_error("Unable to initialize SDL: %s\n", SDL_GetError());
-    }
-    else
-    {
-        log_message(" success!\n");
-    }
     try
     {
         _timerService = new TimerService();
@@ -147,11 +140,11 @@ System::~System()
     _eventService = nullptr;
     delete _timerService;
     _timerService = nullptr;
-    SDL_Quit();
     setup_end();
     /*sys_uninitialize();*/
-    log_message("Exiting Egoboo %s. See you next time\n", Ego::System::VERSION.c_str());
+    log_message("Exiting Egoboo Engine %s.\n", VERSION.c_str());
     log_uninitialize();
+    setup_clear_base_vfs_paths();
     /*vfs_uninitialize();*/
 }
 
@@ -183,4 +176,5 @@ void System::uninitialize()
     _singleton = nullptr;
 }
 
+} // namespace Core
 } // namespace Ego

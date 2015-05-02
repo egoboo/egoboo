@@ -710,7 +710,7 @@ static const aicode_t AICODES[] =
     { 'O', 7, "%" },
 };
 
-static bool load_ai_codes_vfs(const char* loadname);
+static bool load_ai_codes_vfs();
 
 parser_state_t *parser_state_t::ctor(parser_state_t *self)
 {
@@ -724,7 +724,7 @@ parser_state_t *parser_state_t::ctor(parser_state_t *self)
     // Construct the token.
     token_t::ctor(&(self->token));
 
-    load_ai_codes_vfs("mp_data/aicodes.txt");
+    load_ai_codes_vfs();
     debug_script_file = vfs_openWrite("/debug/script_debug.txt");
 
     // just to be explicit
@@ -2085,7 +2085,7 @@ void parse_jumps( script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-bool load_ai_codes_vfs(const char *loadname)
+bool load_ai_codes_vfs()
 {
     /// @author ZZ
     /// @details This function loads all of the function and variable names

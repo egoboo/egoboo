@@ -25,6 +25,8 @@
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
+#include "egolib/Core/System.hpp"
+#include "egolib/Core/EnvironmentError.hpp"
 #include "egolib/Math/_Include.hpp"
 #include "egolib/bsp.h"
 #include "egolib/bbox.h"

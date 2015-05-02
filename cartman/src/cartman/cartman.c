@@ -126,7 +126,6 @@ static int ambi = 22;
 static int ambicut = 1;
 static int direct = 16;
 
-static bool _sdl_atexit_registered = false;
 static bool _ttf_atexit_registered = false;
 
 //--------------------------------------------------------------------------------------------
@@ -2006,10 +2005,6 @@ int SDL_main( int argcnt, char* argtext[] )
     // register the function to be called to deinitialize the program
     atexit( main_end );
 
-    // Construct the input system.
-    Cartman::Input::initialize();
-    cart_mouse_data_ctor(&mdata); /// @todo What is this crap?
-
     // Initial text for the console.
     show_info();
 
@@ -2037,28 +2032,12 @@ int SDL_main( int argcnt, char* argtext[] )
         sprintf( modulename, "%s.mod", argtext[2] );
     }
 
-    // initialize the virtual file system
-    vfs_init(argtext[0], egoboo_path);
-	/*
-	// Uncomment to display the search paths.
-	vfs_listSearchPaths();
-	*/
-    setup_init_base_vfs_paths();
+    Ego::Core::System::initialize(argtext[0], egoboo_path);
 
-    // Register the logging code.
-    log_initialize("/debug/log.txt", LOG_INFO);
+    // Construct the input system.
+    Cartman::Input::initialize();
+    cart_mouse_data_ctor(&mdata); /// @todo What is this crap?
 
-    if (!setup_begin())
-    {
-        log_error( "Cannot load the setup file \"%s\".\n", fname );
-    }
-    setup_download(&egoboo_config_t::get());
-	/*
-	// Uncomment to display the search paths.
-	vfs_listSearchPaths();
-	*/
-    // initialize the SDL elements
-    cartman_init_SDL_base();
     gfx_system_begin();
 
     // Initialize the console.
@@ -2094,55 +2073,8 @@ int SDL_main( int argcnt, char* argtext[] )
     egolib_console_handler_t::uninitialize();
     gfx_system_end();
     Cartman::Input::uninitialize();
-    exit(EXIT_SUCCESS);                      // End
-}
-
-//--------------------------------------------------------------------------------------------
-static bool _sdl_initialized_base = false;
-void cartman_init_SDL_base()
-{
-    if ( _sdl_initialized_base ) return;
-
-    log_info( "Initializing SDL version %d.%d.%d... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
-    if ( SDL_Init( 0 ) < 0 )
-    {
-        log_message( "Failure!\n" );
-        log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
-    }
-    else
-    {
-        log_message( "Success!\n" );
-    }
-
-    if ( !_sdl_atexit_registered )
-    {
-        atexit( SDL_Quit );
-        _sdl_atexit_registered = false;
-    }
-
-    log_info( "Intializing SDL Timing Services... " );
-    if ( SDL_InitSubSystem( SDL_INIT_TIMER ) < 0 )
-    {
-        log_message( "Failed!\n" );
-        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
-    }
-    else
-    {
-        log_message( "Success!\n" );
-    }
-
-    log_info( "Intializing SDL Event Threading... " );
-    if ( SDL_InitSubSystem( SDL_INIT_EVENTTHREAD ) < 0 )
-    {
-        log_message( "Failed!\n" );
-        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
-    }
-    else
-    {
-        log_message( "Success!\n" );
-    }
-
-    _sdl_initialized_base = true;
+    Ego::Core::System::uninitialize();
+    return EXIT_SUCCESS;
 }
 
 //--------------------------------------------------------------------------------------------

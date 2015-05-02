@@ -241,20 +241,6 @@ void GameEngine::renderPreloadText(const std::string &text)
 
 bool GameEngine::initialize()
 {
-    // Initialize logging next, so that we can use it everywhere.
-    log_initialize("/debug/log.txt", LOG_DEBUG);
-
-    // start initializing the various subsystems
-    log_message("Starting Egoboo %s\n", GAME_VERSION.c_str());
-    log_info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
-
-    //Initialize OS specific stuff
-    sys_initialize();
-
-    // Load "setup.txt".
-    setup_begin();
-    // Download "setup.txt" into the Egoboo configuration.
-    setup_download(&egoboo_config_t::get());
     /* ********************************************************************************** */
     // >>> This must be done as the crappy old systems do not "pull" their configuration.
     //      More recent systems like video or audio system pull their configuraiton data
@@ -282,18 +268,6 @@ bool GameEngine::initialize()
 
     // <<<
     /* ********************************************************************************** */
-
-    //Initialize SDL
-    log_message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
-    if (0 > SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTTHREAD))
-    {
-        log_message(" failure!\n");
-        log_error("Unable to initialize SDL: %s\n", SDL_GetError() );
-    }
-    else
-    {
-        log_message(" success!\n");
-    }
 
     // do basic system initialization
     input_system_init();
@@ -387,9 +361,6 @@ void GameEngine::uninitialize()
     // synchronize the config values with the various game subsystems
     config_synch(&egoboo_config_t::get(), true, true);
 
-    // quit the setup system, making sure that the setup file is written
-    setup_end();
-
     // delete all the graphics allocated by SDL and OpenGL
     gfx_system_delete_all_graphics();
 
@@ -424,12 +395,8 @@ void GameEngine::uninitialize()
     // Uninitialize the image manager.
     ImageManager::uninitialize();
 
-    // Shutdown SDL last.
-    SDL_Quit();
-
     // Shut down the log services.
     log_message("Exiting Egoboo %s. See you next time\n", GAME_VERSION.c_str());
-    log_uninitialize();
 }
 
 void GameEngine::setGameState(std::shared_ptr<GameState> gameState)
@@ -574,29 +541,35 @@ int SDL_main(int argc, char **argv)
 {
     try
     {
+        Ego::Core::System::initialize(argv[0],nullptr);
         try
         {
-            // initialize the virtual filesystem first
-            vfs_init(argv[0], nullptr);
-            setup_init_base_vfs_paths();
-
             _gameEngine = std::unique_ptr<GameEngine>(new GameEngine());
 
             _gameEngine->start();
         }
-        catch (Ego::Exception& ex)
+        catch (...)
         {
-            std::cerr << "unhandled exception: " << std::endl
-                      << (std::string)ex << std::endl;
-            return EXIT_FAILURE;
+            Ego::Core::System::uninitialize();
+            std::rethrow_exception(std::current_exception());
         }
     }
-    catch (std::exception& ex)
+    catch (const Ego::Core::Exception& ex)
+    {
+        std::cerr << "unhandled exception: " << std::endl
+                  << (std::string)ex << std::endl;
+        return EXIT_FAILURE;
+    }
+    catch (const std::exception& ex)
     {
         std::cerr << "unhandled exception: " << std::endl
                   << ex.what() << std::endl;
         return EXIT_FAILURE;
     }
-
+    catch (...)
+    {
+        std::cerr << "unhandled exception" << std::endl;
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 }

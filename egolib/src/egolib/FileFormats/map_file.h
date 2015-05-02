@@ -21,7 +21,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
-#include "egolib/Exception.hpp"
+#include "egolib/Core/Exception.hpp"
 #include "egolib/Math/Vector.hpp"
 
 //--------------------------------------------------------------------------------------------
