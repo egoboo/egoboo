@@ -464,7 +464,7 @@ public:
 // encapsulation of all graphics options
 struct gfx_config_t
 {
-    GLuint shading;
+    bool gouraudShading_enable;
     bool refon;
     bool antialiasing;
     bool dither;

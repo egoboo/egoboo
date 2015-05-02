@@ -1460,7 +1460,7 @@ void gfx_system_load_assets()
     // Enable dithering?
     Ego::Renderer::get().setDitheringEnabled(gfx.dither);
     // Enable Gouraud shading?
-    Ego::Renderer::get().setGouraudShadingEnabled(gfx.shading);
+    Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable);
     // Enable antialiasing (via multisamples)?
     Ego::Renderer::get().setMultisamplesEnabled(gfx.antialiasing);
 }
@@ -4103,7 +4103,7 @@ gfx_rv render_world_background(std::shared_ptr<Camera> pcam, const TX_REF textur
     ATTRIB_PUSH(__FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
     {
         // flat shading
-        GL_DEBUG(glShadeModel)(GL_FLAT);      // GL_LIGHTING_BIT
+        Ego::Renderer::get().setGouraudShadingEnabled(false);
 
         // Do not write into the depth buffer.
         Ego::Renderer::get().setDepthWriteEnabled(false);
@@ -4362,7 +4362,7 @@ bool gfx_config_download_from_egoboo_config(gfx_config_t * pgfx, egoboo_config_t
     pgfx->shaon = pcfg->graphic_shadows_enable.getValue();
     pgfx->shasprite = !pcfg->graphic_shadows_highQuality_enable.getValue(); // Sprite shadows are low quality shadows.
 
-    pgfx->shading = pcfg->graphic_gouraudShading_enable.getValue() ? GL_SMOOTH : GL_FLAT;
+    pgfx->gouraudShading_enable = pcfg->graphic_gouraudShading_enable.getValue();
     pgfx->dither = pcfg->graphic_dithering_enable.getValue();
     pgfx->perspective = pcfg->graphic_perspectiveCorrection_enable.getValue();
     pgfx->phongon = pcfg->graphic_specularHighlights_enable.getValue();
@@ -4387,7 +4387,7 @@ bool gfx_config_init(gfx_config_t *pgfx)
         return false;
     }
 
-    pgfx->shading = GL_SMOOTH;
+    pgfx->gouraudShading_enable = true;
     pgfx->refon = true;
 #if 0
     pgfx->reffadeor        = 0;
@@ -5407,7 +5407,7 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
     light_bound.ymax = 0;
 
     // make bounding boxes for each dynamic light
-    if (GL_FLAT != gfx.shading)
+    if (gfx.gouraudShading_enable)
     {
         for (cnt = 0; cnt < pdylist->size; cnt++)
         {
@@ -5611,7 +5611,7 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
                 }
             }
         }
-        else if (GL_FLAT == gfx.shading)
+        else if (!gfx.gouraudShading_enable)
         {
             // evaluate the intensity at the camera
         }

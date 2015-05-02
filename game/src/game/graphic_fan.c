@@ -155,7 +155,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     GL_DEBUG( glPushClientAttrib )( GL_CLIENT_VERTEX_ARRAY_BIT | GL_LIGHTING_BIT );
     {
         // per-vertex coloring
-        GL_DEBUG( glShadeModel )( gfx.shading );  // GL_LIGHTING_BIT
+        Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable); // GL_LIGHTING_BIT
 
         /// @note claforte@> Put this in an initialization function.
         GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
@@ -164,7 +164,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
         GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
         GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem->tlst + ptile->vrtstart );
 
-        if ( GL_FLAT != gfx.shading )
+        if (gfx.gouraudShading_enable)
         {
             GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
             GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem->clst + ptile->vrtstart );

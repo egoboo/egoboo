@@ -4674,7 +4674,7 @@ bool water_instance_make( water_instance_t * pinst, const wawalite_water_t * pda
 
         /// @note claforte@> Probably need to replace this with a
         ///           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
-        if ( GL_FLAT == gfx.shading )
+        if (!gfx.gouraudShading_enable)
             pinst->spek[cnt] = 0;
         else
             pinst->spek[cnt] = spek;
