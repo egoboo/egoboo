@@ -107,10 +107,10 @@ bool config_download( egoboo_config_t *cfg)
     AudioSystem::get().reconfigure(*cfg);
 
     // Rendering options.
-    gfx_config_download_from_egoboo_config(&gfx, cfg);
+    gfx_config_t::download(&gfx, cfg);
 
     // Texture options.
-    oglx_texture_parameters_download_gfx(&g_ogl_textureParameters, cfg);
+    oglx_texture_parameters_t::download(&g_ogl_textureParameters, cfg);
 
     return true;
 }

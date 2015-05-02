@@ -209,6 +209,7 @@ struct oglx_texture_parameters_t
     bool anisotropy_enable;
     float anisotropy_level;
     static void defaults(oglx_texture_parameters_t* self);
+    static void download(oglx_texture_parameters_t *self, egoboo_config_t *cfg);
 };
 
 extern oglx_texture_parameters_t g_ogl_textureParameters;

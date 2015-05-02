@@ -474,6 +474,25 @@ void oglx_texture_parameters_t::defaults(oglx_texture_parameters_t* self)
     self->anisotropy_level = 1.0f;
 }
 
+void oglx_texture_parameters_t::download(oglx_texture_parameters_t *self, egoboo_config_t *cfg)
+{
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+    if (!cfg)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
+
+    self->anisotropy_enable = cfg->graphic_anisotropy_enable.getValue()
+                            & (g_ogl_caps.anisotropic_supported == GL_TRUE ? true : false);
+    self->anisotropy_level = std::min(cfg->graphic_anisotropy_levels.getValue(), g_ogl_caps.maxAnisotropy);
+    self->textureFilter.minFilter = cfg->graphic_textureFilter_minFilter.getValue();
+    self->textureFilter.magFilter = cfg->graphic_textureFilter_magFilter.getValue();
+    self->textureFilter.mipMapFilter = cfg->graphic_textureFilter_mipMapFilter.getValue();
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void oglx_begin_culling( GLenum face, GLenum mode )

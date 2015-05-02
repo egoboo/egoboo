@@ -275,10 +275,10 @@ bool GameEngine::initialize()
     _cameraSystem.getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
 
     // renderer options
-    gfx_config_download_from_egoboo_config(&gfx, &egoboo_config_t::get());
+    gfx_config_t::download(&gfx, &egoboo_config_t::get());
 
     // texture options
-    oglx_texture_parameters_download_gfx(&g_ogl_textureParameters, &egoboo_config_t::get());
+    oglx_texture_parameters_t::download(&g_ogl_textureParameters, &egoboo_config_t::get());
 
     // <<<
     /* ********************************************************************************** */

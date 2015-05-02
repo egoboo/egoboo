@@ -3572,8 +3572,10 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist)
         return gfx_error;
     }
 
-    if (!gfx.shaon) return gfx_success;
-
+    if (!gfx.shadows_enable)
+    {
+        return gfx_success;
+    }
     // don't write into the depth buffer (disable glDepthMask for transparent objects)
     Ego::Renderer::get().setDepthWriteEnabled(false);
 
@@ -3585,9 +3587,9 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist)
     // keep track of the number of shadows actually rendered
     tnc = 0;
 
-    if (gfx.shasprite)
+    if (gfx.shadows_highQuality_enable)
     {
-        // Bad shadows
+        // Bad shadows.
         for (cnt = 0; cnt < pdolist->size; cnt++)
         {
             CHR_REF ichr = pdolist->lst[cnt].ichr;
@@ -3601,7 +3603,7 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist)
     }
     else
     {
-        // Good shadows for me
+        // Good shadows.
         for (cnt = 0; cnt < pdolist->size; cnt++)
         {
             CHR_REF ichr = pdolist->lst[cnt].ichr;
@@ -4328,88 +4330,61 @@ gfx_rv render_water(renderlist_t * prlist)
 //--------------------------------------------------------------------------------------------
 // gfx_config_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
-bool gfx_config_download_from_egoboo_config(gfx_config_t * pgfx, egoboo_config_t * pcfg)
+void gfx_config_t::download(gfx_config_t *self, egoboo_config_t *cfg)
 {
-    // call gfx_config_init(), even if the config data is invalid
-    if (!gfx_config_init(pgfx)) return false;
+    // Load GFX configuration values, even if no Egoboo configuration is provided.
+    init(self);
 
-    // if there is no config data, do not proceed
-    if (NULL == pcfg) return false;
-
-    pgfx->antialiasing = pcfg->graphic_antialiasing.getValue() > 0;
-
-    pgfx->refon = pcfg->graphic_reflections_enable.getValue();
-
-    pgfx->shaon = pcfg->graphic_shadows_enable.getValue();
-    pgfx->shasprite = !pcfg->graphic_shadows_highQuality_enable.getValue(); // Sprite shadows are low quality shadows.
-
-    pgfx->gouraudShading_enable = pcfg->graphic_gouraudShading_enable.getValue();
-    pgfx->dither = pcfg->graphic_dithering_enable.getValue();
-    pgfx->perspective = pcfg->graphic_perspectiveCorrection_enable.getValue();
-    pgfx->phongon = pcfg->graphic_specularHighlights_enable.getValue();
-
-    pgfx->draw_background = pcfg->graphic_background_enable.getValue() && water.background_req;
-    pgfx->draw_overlay = pcfg->graphic_overlay_enable.getValue() && water.overlay_req;
-
-    pgfx->dynalist_max = CLIP(pcfg->graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
-
-    pgfx->draw_water_0 = !pgfx->draw_overlay && (water.layer_count > 0);
-    pgfx->clearson = !pgfx->draw_background;
-    pgfx->draw_water_1 = !pgfx->draw_background && (water.layer_count > 1);
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool gfx_config_init(gfx_config_t *pgfx)
-{
-    if (!pgfx)
+    if (!cfg)
     {
-        return false;
+        throw std::invalid_argument("nullptr == cfg");
     }
 
-    pgfx->gouraudShading_enable = true;
-    pgfx->refon = true;
-#if 0
-    pgfx->reffadeor        = 0;
-#endif
-    pgfx->antialiasing = false;
-    pgfx->dither = false;
-    pgfx->perspective = false;
-    pgfx->phongon = true;
-    pgfx->shaon = true;
-    pgfx->shasprite = true;
+    self->antialiasing = cfg->graphic_antialiasing.getValue() > 0;
 
-    pgfx->clearson = true;   // Do we clear every time?
-    pgfx->draw_background = false;   // Do we draw the background image?
-    pgfx->draw_overlay = false;   // Draw overlay?
-    pgfx->draw_water_0 = true;   // Do we draw water layer 1 (TX_WATER_LOW)
-    pgfx->draw_water_1 = true;   // Do we draw water layer 2 (TX_WATER_TOP)
+    self->refon = cfg->graphic_reflections_enable.getValue();
 
-    pgfx->dynalist_max = 8;
+    self->shadows_enable = cfg->graphic_shadows_enable.getValue();
+    self->shadows_highQuality_enable = !cfg->graphic_shadows_highQuality_enable.getValue();
 
-    //gfx_calc_rotmesh();
+    self->gouraudShading_enable = cfg->graphic_gouraudShading_enable.getValue();
+    self->dither = cfg->graphic_dithering_enable.getValue();
+    self->perspective = cfg->graphic_perspectiveCorrection_enable.getValue();
+    self->phongon = cfg->graphic_specularHighlights_enable.getValue();
 
-    return true;
+    self->draw_background = cfg->graphic_background_enable.getValue() && water.background_req;
+    self->draw_overlay = cfg->graphic_overlay_enable.getValue() && water.overlay_req;
+
+    self->dynalist_max = CLIP(cfg->graphic_simultaneousDynamicLights_max.getValue(), (uint16_t)0, (uint16_t)TOTAL_MAX_DYNA);
+
+    self->draw_water_0 = !self->draw_overlay && (water.layer_count > 0);
+    self->clearson = !self->draw_background;
+    self->draw_water_1 = !self->draw_background && (water.layer_count > 1);
 }
 
-//--------------------------------------------------------------------------------------------
-// oglx_texture_parameters_t FUNCTIONS
-//--------------------------------------------------------------------------------------------
-bool oglx_texture_parameters_download_gfx(oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg)
+void gfx_config_t::init(gfx_config_t *self)
 {
-    /// @author BB
-    /// @details synch the texture parameters with the video mode
+    if (!self)
+    {
+        throw std::invalid_argument("nullptr == self");
+    }
 
-    if (NULL == ptex || NULL == pcfg) return false;
+    self->gouraudShading_enable = true;
+    self->refon = true;
+    self->antialiasing = false;
+    self->dither = false;
+    self->perspective = false;
+    self->phongon = true;
+    self->shadows_enable = true;
+    self->shadows_highQuality_enable = true;
 
-    ptex->anisotropy_enable = g_ogl_caps.anisotropic_supported;
-    ptex->anisotropy_level = g_ogl_caps.maxAnisotropy;
-    ptex->textureFilter.minFilter = pcfg->graphic_textureFilter_minFilter.getValue();
-    ptex->textureFilter.magFilter = pcfg->graphic_textureFilter_magFilter.getValue();
-    ptex->textureFilter.mipMapFilter = pcfg->graphic_textureFilter_mipMapFilter.getValue();
+    self->clearson = true;
+    self->draw_background = false;
+    self->draw_overlay = false;
+    self->draw_water_0 = true;
+    self->draw_water_1 = true;
 
-    return true;
+    self->dynalist_max = 8;
 }
 
 //--------------------------------------------------------------------------------------------

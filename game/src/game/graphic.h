@@ -470,8 +470,8 @@ struct gfx_config_t
     bool dither;
     bool perspective;
     bool phongon;
-    bool shaon;
-    bool shasprite;
+    bool shadows_enable;
+    bool shadows_highQuality_enable;
 
     bool clearson;          ///< Do we clear every time?
     bool draw_background;   ///< Do we draw the background image?
@@ -482,12 +482,12 @@ struct gfx_config_t
     size_t dynalist_max;     ///< Max number of dynamic lights to draw
     bool exploremode;       ///< fog of war mode for mesh display
     bool usefaredge;        ///< Far edge maps? (Outdoor)
+
+    static void init(gfx_config_t *self);
+    static void download(gfx_config_t *self, egoboo_config_t *cfg);
 };
 
-bool gfx_config_init(gfx_config_t * pgfx);
-bool gfx_config_download_from_egoboo_config(gfx_config_t * pgfx, egoboo_config_t * pcfg);
 
-bool oglx_texture_parameters_download_gfx(oglx_texture_parameters_t *ptex, egoboo_config_t *pcfg);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
