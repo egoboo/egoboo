@@ -222,6 +222,14 @@ MD2_NORMALS = ((-0.525731, 0.000000, 0.850651),
 				(-0.587785,-0.425325,-0.688191),
 				(-0.688191,-0.587785,-0.425325))
 
+# An MD2 frame given by its name and its (pre-transformed) vertices.
+class MD2Frame:
+	# @param name the name of the frame (a string)
+	# @param verts the vertices of the frame (a list)
+	def __init__(self, name, verts):
+		self.verts = verts
+		self.name =  name
+
 class MD2:
 	def __init__(self, options):
 		self.options = options
@@ -262,7 +270,7 @@ class MD2:
 		print('.', end='')
 
 		# Verts
-		mesh.vertices.foreach_set("co", unpack_list(self.frames[0]))
+		mesh.vertices.foreach_set("co", unpack_list(self.frames[0].verts))
 		mesh.transform(Matrix.Rotation(-pi / 2, 4, 'Z'))
 		print('.', end='')
 
@@ -292,17 +300,17 @@ class MD2:
 			for i, frame in enumerate(self.frames):
 				progressStatus = i / self.numFrames * 100
 				#bpy.context.scene.frame_set(i + 1)
-				obj.shape_key_add(from_mix=False)
-				mesh.vertices.foreach_set("co", unpack_list(frame))
+				obj.shape_key_add(name=frame.name, from_mix=False)
+				mesh.vertices.foreach_set("co", unpack_list(frame.verts))
 				mesh.transform(Matrix.Rotation(-pi / 2, 4, 'Z'))
 				mesh.shape_keys.key_blocks[i].value = 1.0
-				mesh.shape_keys.key_blocks[i].keyframe_insert("value", frame=i + 1)
+				mesh.shape_keys.key_blocks[i].keyframe_insert("value", frame = i + 1)
 				if i < len(self.frames) - 1:
 					mesh.shape_keys.key_blocks[i].value = 0.0
-					mesh.shape_keys.key_blocks[i].keyframe_insert("value", frame=i + 2)
+					mesh.shape_keys.key_blocks[i].keyframe_insert("value", frame = i + 2)
 				if i > 0:
 					mesh.shape_keys.key_blocks[i].value = 0.0
-					mesh.shape_keys.key_blocks[i].keyframe_insert("value", frame=i)
+					mesh.shape_keys.key_blocks[i].keyframe_insert("value", frame = i)
 				print("Animating - progress: %3i%%\r" % int(progressStatus), end='')
 			print("Animating - progress: 100%.")
 		print("Model imported")
@@ -529,12 +537,13 @@ class MD2:
 			for i in range(self.numFrames):
 				buff = inFile.read(struct.calcsize("<6f16s"))
 				data = struct.unpack("<6f16s", buff)
+				name = Util.asciiz(data[6].decode("utf-8", "replace"))
 				verts = []
 				for j in range(self.numVerts):
 					buff = inFile.read(struct.calcsize("<4B"))
 					vert = struct.unpack("<4B", buff)
 					verts.append((data[0] * vert[0] + data[3], data[1] * vert[1] + data[4], data[2] * vert[2] + data[5]))
-				self.frames.append(verts)
+				self.frames.append(MD2Frame(name,verts))
 			print('.', end='')
 		finally:
 			inFile.close()
