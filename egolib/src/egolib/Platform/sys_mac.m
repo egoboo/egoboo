@@ -45,35 +45,36 @@ double sys_getTime()
 }
 
 //--------------------------------------------------------------------------------------------
-void sys_popup(const char * popup_title, const char * warning, const char * format, va_list args)
+void sys_popup(const char *popup_title, const char *warning, const char *format, va_list args)
 {
     /// @author PF5
     /// @details Show error message to Mac users instead of just closing for no reason
     
-    //NSStringify the strings
-    NSString *warningString = [[NSString alloc] initWithUTF8String:warning];
-    NSString *formatString = [[NSString alloc] initWithUTF8String:format];
-    NSString *title = [[NSString alloc] initWithUTF8String:popup_title];
-    
-    //Ready the message
-    NSString *formattedString = [[NSString alloc] initWithFormat:formatString arguments:args];
-    NSString *message = [warningString stringByAppendingString:formattedString];
-    
-    // Setup the alert
-    NSAlert * alert = [[NSAlert alloc] init];
-    [alert setAlertStyle:NSInformationalAlertStyle];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:title];
-    [alert setInformativeText:message];
-    
-    // Run the alert
-    [alert runModal];
-    
-    // Cleanup
-    [alert release];
-    [warningString release];
-    [formatString release];
-    [formattedString release];
-    [title release];
-    
+    @autoreleasepool {
+        //NSStringify the strings
+        NSString *warningString = [[NSString alloc] initWithUTF8String:warning];
+        NSString *formatString = [[NSString alloc] initWithUTF8String:format];
+        NSString *title = [[NSString alloc] initWithUTF8String:popup_title];
+        
+        //Ready the message
+        NSString *formattedString = [[NSString alloc] initWithFormat:formatString arguments:args];
+        NSString *message = [warningString stringByAppendingString:formattedString];
+        
+        // Setup the alert
+        NSAlert * alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSInformationalAlertStyle];
+        [alert addButtonWithTitle:@"OK"];
+        [alert setMessageText:title];
+        [alert setInformativeText:message];
+        
+        // Run the alert
+        [alert runModal];
+        
+        // Cleanup
+        [alert release];
+        [warningString release];
+        [formatString release];
+        [formattedString release];
+        [title release];
+    }
 }
