@@ -359,7 +359,7 @@ struct Pool
      * @brief
      *  The type of the pool elements.
      */
-    typedef typename _Type Type;
+    typedef _Type Type;
     /**
      * @brief
      *  The capacity of the pool.
