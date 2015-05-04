@@ -90,7 +90,7 @@ struct dynalist_t
 };
 
 static gfx_rv dynalist_init(dynalist_t *self);
-static gfx_rv do_grid_lighting(renderlist_t *self, dynalist_t *dynalist, std::shared_ptr<Camera> camera);
+static gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam);
 
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
 
@@ -204,39 +204,40 @@ static Ego::DynamicArray<BSP_leaf_t *> _dolist_colst = DYNAMIC_ARY_INIT_VALS;
 
 static void _flip_pages();
 
-static gfx_rv light_fans(renderlist_t * prlist);
+static gfx_rv light_fans(renderlist_t& rl);
 
-static gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam);
-static gfx_rv render_scene_mesh_ndr(const renderlist_t * prlist);
-static gfx_rv render_scene_mesh_drf_back(const renderlist_t * prlist);
-static gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist);
-static gfx_rv render_scene_mesh_ref_chr(const renderlist_t * prlist);
-static gfx_rv render_scene_mesh_drf_solid(const renderlist_t * prlist);
-static gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist);
-static gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist);
-static gfx_rv render_scene_solid(std::shared_ptr<Camera> pcam, dolist_t * pdolist);
-static gfx_rv render_scene_trans(std::shared_ptr<Camera> pcam, dolist_t * pdolist);
-static gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index);
+static gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dol, dynalist_t& dyl, Camera& cam);
+static gfx_rv render_scene_mesh_ndr(const renderlist_t& rl);
+static gfx_rv render_scene_mesh_drf_back(const renderlist_t& rl);
+static gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t& dl);
+static gfx_rv render_scene_mesh_ref_chr(const renderlist_t& rl);
+static gfx_rv render_scene_mesh_drf_solid(const renderlist_t& rl);
+static gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl);
+static gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl);
+static gfx_rv render_scene_solid(Camera& cam, dolist_t& dl);
+static gfx_rv render_scene_trans(Camera& cam, dolist_t& dl);
+static gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl);
+static gfx_rv render_scene(Camera& cam, std::shared_ptr<renderlist_t> prl, std::shared_ptr<dolist_t> pdl);
 static gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rlst);
 static void   render_shadow(const CHR_REF character);
 static void   render_bad_shadow(const CHR_REF character);
-static gfx_rv render_water(renderlist_t * prlist);
+static gfx_rv render_water(renderlist_t& rl);
 static void   render_shadow_sprite(float intensity, GLvertex v[]);
-static gfx_rv render_world_background(std::shared_ptr<Camera> pcam, const TX_REF texture);
-static gfx_rv render_world_overlay(std::shared_ptr<Camera> pcam, const TX_REF texture);
+static gfx_rv render_world_background(Camera& cam, const TX_REF texture);
+static gfx_rv render_world_overlay(Camera& cam, const TX_REF texture);
 
 
 /**
  * @brief
- *	Find characters that need to be drawn and put them in the list.
+ *  Find characters that need to be drawn and put them in the list.
  * @param dolist
- *	the list to add characters to
+ *  the list to add characters to
  * @param camera
  *	the camera
  */
-static gfx_rv gfx_make_dolist(dolist_t *dolist, std::shared_ptr<Camera> camera);
-static gfx_rv gfx_make_renderlist(renderlist_t * prlist, std::shared_ptr<Camera> pcam);
-static gfx_rv gfx_make_dynalist(dynalist_t * pdylist, std::shared_ptr<Camera> pcam);
+static gfx_rv gfx_make_dolist(dolist_t& dl, Camera& camera);
+static gfx_rv gfx_make_renderlist(renderlist_t& rl, Camera& camera);
+static gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& camera);
 
 static float draw_one_xp_bar(float x, float y, Uint8 ticks);
 static float draw_character_xp_bar(const CHR_REF character, float x, float y);
@@ -257,11 +258,11 @@ static gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile);
 
 static gfx_rv update_one_chr_instance(Object * pchr);
 static gfx_rv gfx_update_all_chr_instance();
-static gfx_rv gfx_update_flashing(dolist_t * pdolist);
+static gfx_rv gfx_update_flashing(dolist_t& dl);
 
 static gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold);
-static gfx_rv light_fans_update_lcache(renderlist_t * prlist);
-static gfx_rv light_fans_update_clst(renderlist_t * prlist);
+static gfx_rv light_fans_update_lcache(renderlist_t& rl);
+static gfx_rv light_fans_update_clst(renderlist_t& rl);
 static bool sum_global_lighting(lighting_vector_t lighting);
 static float calc_light_rotation(int rotation, int normal);
 static float calc_light_global(int rotation, int normal, float lx, float ly, float lz);
@@ -312,17 +313,11 @@ gfx_rv renderlist_lst_t::push(renderlist_lst_t *self, const TileIndex& index, fl
 //--------------------------------------------------------------------------------------------
 
 renderlist_t::renderlist_t() :
-    _mesh(nullptr), _name(std::numeric_limits<size_t>::max()),
-    _all(), _ref(), _sha(), _drf(), _ndr(), _wat()
+    _mesh(nullptr), _all(), _ref(), _sha(), _drf(), _ndr(), _wat()
 {}
 
-renderlist_t *renderlist_t::init(size_t name)
+renderlist_t *renderlist_t::init()
 {
-    if (name >= renderlist_mgr_t::getCapacity())
-    {
-        throw std::invalid_argument("invalid renderlist name");
-    }
-
     // Initialize the render list lists.
     renderlist_lst_t::reset(&_all);
     renderlist_lst_t::reset(&_ref);
@@ -332,12 +327,10 @@ renderlist_t *renderlist_t::init(size_t name)
     renderlist_lst_t::reset(&_wat);
 
     _mesh = nullptr;
-    _name = name;
 
     return this;
 }
 
-//--------------------------------------------------------------------------------------------
 gfx_rv renderlist_t::reset()
 {
     if (!_mesh)
@@ -361,13 +354,13 @@ gfx_rv renderlist_t::reset()
 
     // Re-initialize the renderlist.
     auto *mesh = _mesh;
-    init(_name);
+    init();
     setMesh(mesh);
 
     return gfx_success;
 }
 
-gfx_rv renderlist_t::insert(const TileIndex& index, const std::shared_ptr<Camera> &camera)
+gfx_rv renderlist_t::insert(const TileIndex& index, const Camera &cam)
 {
     if (!_mesh)
     {
@@ -395,8 +388,8 @@ gfx_rv renderlist_t::insert(const TileIndex& index, const std::shared_ptr<Camera
 
     int ix = index.getI() % pmesh->info.tiles_x;
     int iy = index.getI() / pmesh->info.tiles_x;
-    float dx = (ix + TILE_FSIZE * 0.5f) - camera->getCenter().x;
-    float dy = (iy + TILE_FSIZE * 0.5f) - camera->getCenter().y;
+    float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter().x;
+    float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter().y;
     float distance = dx * dx + dy * dy;
 
     // Put each tile in basic list
@@ -439,7 +432,7 @@ void renderlist_t::setMesh(ego_mesh_t *mesh)
     _mesh = mesh;
 }
 
-gfx_rv renderlist_t::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, const std::shared_ptr<Camera> &camera)
+gfx_rv renderlist_t::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera)
 {
     size_t colst_cp, colst_sz;
     ego_mesh_t *pmesh = NULL;
@@ -516,14 +509,11 @@ gfx_rv renderlist_t::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, const st
 }
 
 //--------------------------------------------------------------------------------------------
-// renderlist array implementation
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // renderlist manager implementation
 //--------------------------------------------------------------------------------------------
 
 renderlist_mgr_t::renderlist_mgr_t() :
-    list_ary_t<renderlist_t, MAX_CAMERAS>()
+    Pool<renderlist_t, MAX_CAMERAS>()
 {}
 
 renderlist_mgr_t::~renderlist_mgr_t()
@@ -561,34 +551,21 @@ renderlist_mgr_t& renderlist_mgr_t::get()
 // dolist implementation
 //--------------------------------------------------------------------------------------------
 dolist_t::dolist_t() :
-    _name(std::numeric_limits<size_t>::max()), _size(0), _lst()
+    _size(0), _lst()
 {}
 
-dolist_t *dolist_t::init(size_t name)
+dolist_t *dolist_t::init()
 {
-    if (name == dolist_mgr_t::getCapacity())
-    {
-        throw std::invalid_argument("invalid dolist name");
-    }
     for (size_t i = 0; i < dolist_t::CAPACITY; ++i)
     {
         dolist_t::element_t::init(&(_lst[i]));
     }
     _size = 0;
-    _name = name;
-
     return this;
 }
 
-gfx_rv dolist_t::reset(size_t name)
+gfx_rv dolist_t::reset()
 {
-    if (name >= dolist_mgr_t::getCapacity())
-    {
-        throw std::invalid_argument("invalid dolist name");
-    }
-
-    _name = name;
-
     // If there is nothing in the dolist, we are done.
     if (0 == _size)
     {
@@ -790,7 +767,7 @@ gfx_rv dolist_t::add_colst(const Ego::DynamicArray<BSP_leaf_t *> *leaves)
     return gfx_success;
 }
 
-gfx_rv dolist_t::sort(std::shared_ptr<Camera> pcam, const bool do_reflect)
+gfx_rv dolist_t::sort(Camera& cam, const bool do_reflect)
 {
     /// @author ZZ
     /// @details This function orders the dolist based on distance from camera,
@@ -800,13 +777,9 @@ gfx_rv dolist_t::sort(std::shared_ptr<Camera> pcam, const bool do_reflect)
     {
         throw std::logic_error("invalid dolist size");
     }
-    if (!pcam)
-    {
-        throw std::invalid_argument("nullptr == pcam");
-    }
 
     fvec3_t vcam;
-    mat_getCamForward(pcam->getView(), vcam);
+    mat_getCamForward(cam.getView(), vcam);
 
     // Figure the distance of each.
     size_t count = 0;
@@ -829,7 +802,7 @@ gfx_rv dolist_t::sort(std::shared_ptr<Camera> pcam, const bool do_reflect)
                 mat_getTranslate(_gameObjects.get(iobj)->inst.matrix, pos_tmp);
             }
 
-            vtmp = pos_tmp - pcam->getPosition();
+            vtmp = pos_tmp - cam.getPosition();
         }
         else if (INVALID_CHR_REF == _lst[i].ichr && VALID_PRT_RANGE(_lst[i].iprt))
         {
@@ -837,11 +810,11 @@ gfx_rv dolist_t::sort(std::shared_ptr<Camera> pcam, const bool do_reflect)
 
             if (do_reflect)
             {
-                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.pos - pcam->getPosition();
+                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.pos - cam.getPosition();
             }
             else
             {
-                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.ref_pos - pcam->getPosition();
+                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.ref_pos - cam.getPosition();
             }
         }
         else
@@ -870,15 +843,11 @@ gfx_rv dolist_t::sort(std::shared_ptr<Camera> pcam, const bool do_reflect)
 }
 
 //--------------------------------------------------------------------------------------------
-// dolist array implementation
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
 // dolist manager implementation
 //--------------------------------------------------------------------------------------------
 
 dolist_mgr_t::dolist_mgr_t() :
-    list_ary_t<dolist_t, MAX_CAMERAS>()
+    Pool<dolist_t, MAX_CAMERAS>()
 {}
 
 dolist_mgr_t::~dolist_mgr_t()
@@ -920,6 +889,7 @@ void GFX::initialize()
     // Initialize SDL and initialize OpenGL.
     GFX::initializeSDLGraphics(); ///< @todo Error handling.
     GFX::initializeOpenGL();      ///< @todo Error handling.
+    Ego::FontManager::initialize();
 
     // Initialize the dolist manager.
     dolist_mgr_t::initialize(); ///< @todo Error handling.
@@ -1009,9 +979,6 @@ void GFX::uninitialize()
     // Uninitialize the texture atlas manager.
     TextureAtlasManager::uninitialize();
 
-    // Release all textures.
-    TextureManager::get().release_all();
-
     // Uninitialize the renderlist manager.
     renderlist_mgr_t::uninitialize();
 
@@ -1023,6 +990,9 @@ void GFX::uninitialize()
     // deallocate the specailized "collistion lists"
     _dolist_colst.dtor();
     _renderlist_colst.dtor();
+
+    Ego::FontManager::uninitialize();
+    TextureManager::get().release_all(); ///< @todo Remove this.
 
     GFX::uninitializeOpenGL();
     GFX::uninitializeSDLGraphics();
@@ -1210,39 +1180,44 @@ void GFX::initializeSDLGraphics()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_render_world(std::shared_ptr<Camera> cam, const int render_list_index, const int dolist_index)
+void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<renderlist_t> renderList, std::shared_ptr<dolist_t> doList)
 {
     gfx_error_state_t * err_tmp;
 
     gfx_error_clear();
 
-    gfx_begin_3d(cam);
+    if (!camera)
+    {
+        throw std::invalid_argument("nullptr == camera");
+    }
+
+    gfx_begin_3d(*camera);
     {
         if (gfx.draw_background)
         {
             // Render the background TX_WATER_LOW for waterlow.bmp.
-            render_world_background(cam, (TX_REF)TX_WATER_LOW);
+            render_world_background(*camera, (TX_REF)TX_WATER_LOW);
         }
 
-        render_scene(cam, render_list_index, dolist_index);
+        render_scene(*camera, renderList, doList);
 
         if (gfx.draw_overlay)
         {
             // Render overlay (aka foreground) TX_WATER_TOP is watertop.bmp.
-            render_world_overlay(cam, (TX_REF)TX_WATER_TOP);
+            render_world_overlay(*camera, (TX_REF)TX_WATER_TOP);
         }
 
-        if (cam->getMotionBlur() > 0)
+        if (camera->getMotionBlur() > 0)
         {
-            if (cam->getMotionBlurOld() < 0.001f)
+            if (camera->getMotionBlurOld() < 0.001f)
             {
                 GL_DEBUG(glAccum)(GL_LOAD, 1);
             }
             // Do motion blur.
             if (true /*currentState != playingState*/) //ZF> TODO: disable motion blur in in-game menu
             {
-                GL_DEBUG(glAccum)(GL_MULT, cam->getMotionBlur());
-                GL_DEBUG(glAccum)(GL_ACCUM, 1.0f - cam->getMotionBlur());
+                GL_DEBUG(glAccum)(GL_MULT, camera->getMotionBlur());
+                GL_DEBUG(glAccum)(GL_ACCUM, 1.0f - camera->getMotionBlur());
             }
             GL_DEBUG(glAccum)(GL_RETURN, 1.0f);
         }
@@ -1250,7 +1225,7 @@ void gfx_system_render_world(std::shared_ptr<Camera> cam, const int render_list_
     gfx_end_3d();
 
     // Render the billboards
-    billboard_system_render_all(cam);
+    billboard_system_render_all(camera);
 
     err_tmp = gfx_error_pop();
     if (err_tmp)
@@ -2954,17 +2929,6 @@ struct by_list_t
     }
 };
 
-#if 0
-by_list_t * by_list_qsort( by_list_t * lst )
-{
-    if ( NULL == lst ) return lst;
-
-
-
-    return lst;
-}
-#endif
-
 //--------------------------------------------------------------------------------------------
 gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rlst)
 {
@@ -3040,7 +3004,7 @@ gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rl
 //--------------------------------------------------------------------------------------------
 // render_scene FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam)
+gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dl, dynalist_t& dyl, Camera& cam)
 {
     // assume the best;
     gfx_rv retval = gfx_success;
@@ -3048,14 +3012,14 @@ gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t *
     PROFILE_BEGIN(gfx_make_renderlist);
     {
         // Which tiles can be displayed
-        if (gfx_error == gfx_make_renderlist(prlist, pcam))
+        if (gfx_error == gfx_make_renderlist(rl, cam))
         {
             retval = gfx_error;
         }
     }
     PROFILE_END(gfx_make_renderlist);
 
-    ego_mesh_t *pmesh = prlist->getMesh();
+    ego_mesh_t *pmesh = rl.getMesh();
     if (!pmesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pmesh");
@@ -3065,7 +3029,7 @@ gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t *
     PROFILE_BEGIN(gfx_make_dolist);
     {
         // determine which objects are visible
-        if (gfx_error == gfx_make_dolist(pdolist, pcam))
+        if (gfx_error == gfx_make_dolist(dl, cam))
         {
             retval = gfx_error;
         }
@@ -3079,7 +3043,7 @@ gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t *
     PROFILE_BEGIN(do_grid_lighting);
     {
         // figure out the terrain lighting
-        if (gfx_error == do_grid_lighting(prlist, pdylist, pcam))
+        if (gfx_error == do_grid_lighting(rl, dyl, cam))
         {
             retval = gfx_error;
         }
@@ -3089,7 +3053,7 @@ gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t *
     PROFILE_BEGIN(light_fans);
     {
         // apply the lighting to the characters and particles
-        if (gfx_error == light_fans(prlist))
+        if (gfx_error == light_fans(rl))
         {
             retval = gfx_error;
         }
@@ -3109,7 +3073,7 @@ gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t *
     PROFILE_BEGIN(update_all_prt_instance);
     {
         // make sure the particles are ready to draw
-        if (gfx_error == update_all_prt_instance(pcam))
+        if (gfx_error == update_all_prt_instance(cam))
         {
             retval = gfx_error;
         }
@@ -3117,7 +3081,7 @@ gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t *
     PROFILE_END(update_all_prt_instance);
 
     // do the flashing for kursed objects
-    if (gfx_error == gfx_update_flashing(pdolist))
+    if (gfx_error == gfx_update_flashing(dl))
     {
         retval = gfx_error;
     }
@@ -3133,18 +3097,12 @@ gfx_rv render_scene_init(renderlist_t * prlist, dolist_t * pdolist, dynalist_t *
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ndr(const renderlist_t * prlist)
+gfx_rv render_scene_mesh_ndr(const renderlist_t& rl)
 {
     /// @author BB
     /// @details draw all tiles that do not reflect characters
 
     gfx_rv retval;
-
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
 
     // assume the best
     retval = gfx_success;
@@ -3172,7 +3130,7 @@ gfx_rv render_scene_mesh_ndr(const renderlist_t * prlist)
         GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(prlist->_mesh, &(prlist->_ndr)))
+        if (gfx_error == render_fans_by_list(rl._mesh, &(rl._ndr)))
         {
             retval = gfx_error;
         }
@@ -3183,19 +3141,13 @@ gfx_rv render_scene_mesh_ndr(const renderlist_t * prlist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_back(const renderlist_t * prlist)
+gfx_rv render_scene_mesh_drf_back(const renderlist_t& rl)
 {
     /// @author BB
     /// @details draw the reflective tiles, but turn off the depth buffer
     ///               this blanks out any background that might've been drawn
 
     gfx_rv retval;
-
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
 
     // assume the best
     retval = gfx_success;
@@ -3221,7 +3173,7 @@ gfx_rv render_scene_mesh_drf_back(const renderlist_t * prlist)
         GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
         Ego::OpenGL::Utilities::isError();
         // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(prlist->_mesh, &(prlist->_drf)))
+        if (gfx_error == render_fans_by_list(rl._mesh, &(rl._drf)))
         {
             retval = gfx_error;
         }
@@ -3232,7 +3184,7 @@ gfx_rv render_scene_mesh_drf_back(const renderlist_t * prlist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist)
+gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t& dl)
 {
     /// @author BB
     /// @details Render all reflected objects
@@ -3242,25 +3194,13 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
 
     ego_mesh_t * pmesh;
 
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
-
-    if (NULL == pdolist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist");
-        return gfx_error;
-    }
-
-    if (pdolist->getSize() >= dolist_t::CAPACITY)
+    if (dl.getSize() >= dolist_t::CAPACITY)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
         return gfx_error;
     }
 
-    pmesh = prlist->getMesh();
+    pmesh = rl.getMesh();
     if (NULL == pmesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
@@ -3272,20 +3212,20 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
     Ego::OpenGL::Utilities::isError();
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT);
     {
-        Ego::OpenGL::Utilities::isError();
+        auto& renderer = Ego::Renderer::get();
         // don't write into the depth buffer (disable glDepthMask for transparent objects)
         // turn off the depth mask by default. Can cause glitches if used improperly.
-        Ego::Renderer::get().setDepthWriteEnabled(false);
+        renderer.setDepthWriteEnabled(false);
 
         // do not draw hidden surfaces
-        Ego::Renderer::get().setDepthTestEnabled(true);
+        renderer.setDepthTestEnabled(true);
         // surfaces must be closer to the camera to be drawn
-        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
-        for (size_t j = pdolist->getSize(); j > 0; --j)
+        for (size_t j = dl.getSize(); j > 0; --j)
         {
             size_t i = j - 1;
-            if (INVALID_PRT_REF == pdolist->get(i).iprt && INVALID_CHR_REF != pdolist->get(i).ichr)
+            if (INVALID_PRT_REF == dl.get(i).iprt && INVALID_CHR_REF != dl.get(i).ichr)
             {
                 CHR_REF ichr;
 
@@ -3298,20 +3238,20 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
                 // use the alpha channel to modulate the transparency
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
                 Ego::OpenGL::Utilities::isError();
-                ichr = pdolist->get(i).ichr;
+                ichr = dl.get(i).ichr;
                 TileIndex itile = _gameObjects.get(ichr)->onwhichgrid;
 
                 if (ego_mesh_grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
                 {
                     Ego::Renderer::get().setColour(Ego::Colour4f::white());
 
-                    if (gfx_error == render_one_mad_ref(pcam, ichr))
+                    if (gfx_error == render_one_mad_ref(cam, ichr))
                     {
                         retval = gfx_error;
                     }
                 }
             }
-            else if (INVALID_CHR_REF == pdolist->get(i).ichr && INVALID_PRT_REF != pdolist->get(i).iprt)
+            else if (INVALID_CHR_REF == dl.get(i).ichr && INVALID_PRT_REF != dl.get(i).iprt)
             {
                 // draw draw front and back faces of polygons
                 oglx_end_culling();                     // GL_ENABLE_BIT
@@ -3322,7 +3262,7 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
                 // set the default particle blending
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);     // GL_COLOR_BUFFER_BIT
                 Ego::OpenGL::Utilities::isError();
-                PRT_REF iprt = pdolist->get(i).iprt;
+                PRT_REF iprt = dl.get(i).iprt;
                 TileIndex itile = ParticleHandler::get().get_ptr(iprt)->onwhichgrid;
 
                 if (ego_mesh_grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
@@ -3343,7 +3283,7 @@ gfx_rv render_scene_mesh_ref(std::shared_ptr<Camera> pcam, const renderlist_t * 
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref_chr(const renderlist_t * prlist)
+gfx_rv render_scene_mesh_ref_chr(const renderlist_t& rl)
 {
     /// @brief   BB@> Render the shadow floors ( let everything show through )
     /// @author BB
@@ -3351,12 +3291,6 @@ gfx_rv render_scene_mesh_ref_chr(const renderlist_t * prlist)
     ///               this assumes that the floor is not partially transparent...
 
     gfx_rv retval;
-
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
 
     // assume the best
     retval = gfx_success;
@@ -3378,7 +3312,7 @@ gfx_rv render_scene_mesh_ref_chr(const renderlist_t * prlist)
         renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(prlist->_mesh, &(prlist->_drf)))
+        if (gfx_error == render_fans_by_list(rl._mesh, &(rl._drf)))
         {
             retval = gfx_error;
         }
@@ -3389,17 +3323,11 @@ gfx_rv render_scene_mesh_ref_chr(const renderlist_t * prlist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_solid(const renderlist_t * prlist)
+gfx_rv render_scene_mesh_drf_solid(const renderlist_t& rl)
 {
     /// @brief BB@> Render the shadow floors as normal solid floors
 
     gfx_rv retval;
-
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
 
     // assume the best
     retval = gfx_success;
@@ -3426,7 +3354,7 @@ gfx_rv render_scene_mesh_drf_solid(const renderlist_t * prlist)
         GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);          // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(prlist->_mesh, &(prlist->_drf)))
+        if (gfx_error == render_fans_by_list(rl._mesh, &(rl._drf)))
         {
             retval = gfx_error;
         }
@@ -3437,21 +3365,12 @@ gfx_rv render_scene_mesh_drf_solid(const renderlist_t * prlist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist)
+gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl)
 {
     /// @author BB
     /// @details Render the shadows
 
-    size_t cnt;
-    int    tnc;
-
-    if (NULL == pdolist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist");
-        return gfx_error;
-    }
-
-    if (pdolist->getSize() >= dolist_t::CAPACITY)
+    if (dl.getSize() >= dolist_t::CAPACITY)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
         return gfx_error;
@@ -3470,14 +3389,14 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist)
     GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
     // keep track of the number of shadows actually rendered
-    tnc = 0;
+    size_t tnc = 0;
 
     if (gfx.shadows_highQuality_enable)
     {
         // Bad shadows.
-        for (size_t i = 0; i < pdolist->getSize(); ++i)
+        for (size_t i = 0; i < dl.getSize(); ++i)
         {
-            CHR_REF ichr = pdolist->get(i).ichr;
+            CHR_REF ichr = dl.get(i).ichr;
             if (!VALID_CHR_RANGE(ichr)) continue;
 
             if (0 == _gameObjects.get(ichr)->shadow_size) continue;
@@ -3489,9 +3408,9 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist)
     else
     {
         // Good shadows.
-        for (size_t i = 0; i < pdolist->getSize(); ++i)
+        for (size_t i = 0; i < dl.getSize(); ++i)
         {
-            CHR_REF ichr = pdolist->get(i).ichr;
+            CHR_REF ichr = dl.get(i).ichr;
             if (!VALID_CHR_RANGE(ichr)) continue;
 
             if (0 == _gameObjects.get(ichr)->shadow_size) continue;
@@ -3505,29 +3424,23 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t * pdolist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist)
+gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl)
 {
     /// @author BB
     /// @details draw the mesh and any reflected objects
 
     gfx_rv retval;
 
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
-
     // assume the best
     retval = gfx_success;
     //--------------------------------
     // advance the animation of all animated tiles
-    animate_all_tiles(prlist->_mesh);
+    animate_all_tiles(rl._mesh);
     Ego::OpenGL::Utilities::isError();
     PROFILE_BEGIN(render_scene_mesh_ndr);
     {
         // draw all tiles that do not reflect characters
-        if (gfx_error == render_scene_mesh_ndr(prlist))
+        if (gfx_error == render_scene_mesh_ndr(rl))
         {
             retval = gfx_error;
         }
@@ -3543,7 +3456,7 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
         {
             // blank out the background behind reflective tiles
 
-            if (gfx_error == render_scene_mesh_drf_back(prlist))
+            if (gfx_error == render_scene_mesh_drf_back(rl))
             {
                 retval = gfx_error;
             }
@@ -3555,7 +3468,7 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
         PROFILE_BEGIN(render_scene_mesh_ref);
         {
             // Render all reflected objects
-            if (gfx_error == render_scene_mesh_ref(pcam, prlist, pdolist))
+            if (gfx_error == render_scene_mesh_ref(cam, rl, dl))
             {
                 retval = gfx_error;
             }
@@ -3567,7 +3480,7 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
         PROFILE_BEGIN(render_scene_mesh_ref_chr);
         {
             // Render the shadow floors
-            if (gfx_error == render_scene_mesh_ref_chr(prlist))
+            if (gfx_error == render_scene_mesh_ref_chr(rl))
             {
                 retval = gfx_error;
             }
@@ -3581,7 +3494,7 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
         PROFILE_BEGIN(render_scene_mesh_drf_solid);
         {
             // Render the shadow floors as normal solid floors
-            if (gfx_error == render_scene_mesh_drf_solid(prlist))
+            if (gfx_error == render_scene_mesh_drf_solid(rl))
             {
                 retval = gfx_error;
             }
@@ -3596,9 +3509,9 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
     mesh_texture_invalidate();
 
     // render the heighmap
-    for ( cnt = 0; cnt < prlist->all.count; cnt++ )
+    for ( cnt = 0; cnt < rl._all.count; cnt++ )
     {
-        render_hmap_fan( pmesh, prlist->all[cnt] );
+        render_hmap_fan( pmesh, rl._all[cnt] );
     }
 
     // let the mesh texture code know that someone else is in control now
@@ -3610,7 +3523,7 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
     {
         Ego::OpenGL::Utilities::isError();
         // Render the shadows
-        if (gfx_error == render_scene_mesh_render_shadows(pdolist))
+        if (gfx_error == render_scene_mesh_render_shadows(dl))
         {
             retval = gfx_error;
         }
@@ -3622,17 +3535,10 @@ gfx_rv render_scene_mesh(std::shared_ptr<Camera> pcam, const renderlist_t * prli
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_solid(std::shared_ptr<Camera> pcam, dolist_t * pdolist)
+gfx_rv render_scene_solid(Camera& cam, dolist_t& dl)
 {
     /// @detaile BB@> Render all solid objects
-
-    if (!pdolist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist");
-        return gfx_error;
-    }
-
-    if (pdolist->getSize() >= dolist_t::CAPACITY)
+    if (dl.getSize() >= dolist_t::CAPACITY)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
         return gfx_error;
@@ -3644,7 +3550,7 @@ gfx_rv render_scene_solid(std::shared_ptr<Camera> pcam, dolist_t * pdolist)
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT)
     {
         // scan for solid objects
-        for (size_t i = 0, n = pdolist->getSize(); i < n; ++i)
+        for (size_t i = 0, n = dl.getSize(); i < n; ++i)
         {
             auto& renderer = Ego::Renderer::get();
             // solid objects draw into the depth buffer for hidden surface removal
@@ -3657,19 +3563,19 @@ gfx_rv render_scene_solid(std::shared_ptr<Camera> pcam, dolist_t * pdolist)
             renderer.setAlphaTestEnabled(true);
             GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);             // GL_COLOR_BUFFER_BIT
 
-            if (INVALID_PRT_REF == pdolist->get(i).iprt && VALID_CHR_RANGE(pdolist->get(i).ichr))
+            if (INVALID_PRT_REF == dl.get(i).iprt && VALID_CHR_RANGE(dl.get(i).ichr))
             {
-                if (gfx_error == render_one_mad_solid(pcam, pdolist->get(i).ichr))
+                if (gfx_error == render_one_mad_solid(cam, dl.get(i).ichr))
                 {
                     retval = gfx_error;
                 }
             }
-            else if (INVALID_CHR_REF == pdolist->get(i).ichr && VALID_PRT_RANGE(pdolist->get(i).iprt))
+            else if (INVALID_CHR_REF == dl.get(i).ichr && VALID_PRT_RANGE(dl.get(i).iprt))
             {
                 // draw draw front and back faces of polygons
                 oglx_end_culling();              // GL_ENABLE_BIT
 
-                if (gfx_error == render_one_prt_solid(pdolist->get(i).iprt))
+                if (gfx_error == render_one_prt_solid(dl.get(i).iprt))
                 {
                     retval = gfx_error;
                 }
@@ -3682,18 +3588,12 @@ gfx_rv render_scene_solid(std::shared_ptr<Camera> pcam, dolist_t * pdolist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_trans(std::shared_ptr<Camera> pcam, dolist_t *pdolist)
+gfx_rv render_scene_trans(Camera& cam, dolist_t& dl)
 {
     /// @author BB
     /// @details draw transparent objects
 
-    if (!pdolist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist");
-        return gfx_error;
-    }
-
-    if (pdolist->getSize() >= dolist_t::CAPACITY)
+    if (dl.getSize() >= dolist_t::CAPACITY)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
         return gfx_error;
@@ -3704,31 +3604,32 @@ gfx_rv render_scene_trans(std::shared_ptr<Camera> pcam, dolist_t *pdolist)
 
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT)
     {
+        auto& renderer = Ego::Renderer::get();
         //---- set the the transparency parameters
 
         // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        Ego::Renderer::get().setDepthWriteEnabled(false);
+        renderer.setDepthWriteEnabled(false);
 
         // do not draw hidden surfaces
-        Ego::Renderer::get().setDepthTestEnabled(true);
-        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // Now render all transparent and light objects
-        for (size_t i = pdolist->getSize(); i > 0; --i)
+        for (size_t i = dl.getSize(); i > 0; --i)
         {
             size_t j = i - 1;
             // A character.
-            if (INVALID_PRT_REF == pdolist->get(j).iprt && INVALID_CHR_REF != pdolist->get(j).ichr)
+            if (INVALID_PRT_REF == dl.get(j).iprt && INVALID_CHR_REF != dl.get(j).ichr)
             {
-                if (gfx_error == render_one_mad_trans(pcam, pdolist->get(j).ichr))
+                if (gfx_error == render_one_mad_trans(cam, dl.get(j).ichr))
                 {
                     retval = gfx_error;
                 }
             }
             // A particle.
-            else if (INVALID_CHR_REF == pdolist->get(j).ichr && INVALID_PRT_REF != pdolist->get(j).iprt)
+            else if (INVALID_CHR_REF == dl.get(j).ichr && INVALID_PRT_REF != dl.get(j).iprt)
             {
-                if (gfx_error == render_one_prt_trans(pdolist->get(j).iprt))
+                if (gfx_error == render_one_prt_trans(dl.get(j).iprt))
                 {
                     retval = gfx_error;
                 }
@@ -3741,36 +3642,14 @@ gfx_rv render_scene_trans(std::shared_ptr<Camera> pcam, dolist_t *pdolist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index)
+gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl)
 {
-    /// @author ZZ
-    /// @details This function draws 3D objects
-    if (!pcam)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera");
-        return gfx_error;
-    }
-
-    renderlist_t *prlist = renderlist_mgr_t::get().get_ptr(render_list_index);
-    if (!prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock a renderlist");
-        return gfx_error;
-    }
-
-    dolist_t *pdlist = dolist_mgr_t::get().get_ptr(dolist_index);
-    if (!prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock a dolist");
-        return gfx_error;
-    }
-
     // assume the best
     gfx_rv retval = gfx_success;
 
     PROFILE_BEGIN(render_scene_init);
     {
-        if (gfx_error == render_scene_init(prlist, pdlist, &_dynalist, pcam))
+        if (gfx_error == render_scene_init(rl, dl, _dynalist, cam))
         {
             retval = gfx_error;
         }
@@ -3783,7 +3662,7 @@ gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, c
         {
             // sort the dolist for reflected objects
             // reflected characters and objects are drawn in this pass
-            if (gfx_error == pdlist->sort(pcam, true))
+            if (gfx_error == dl.sort(cam, true))
             {
                 retval = gfx_error;
             }
@@ -3791,7 +3670,7 @@ gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, c
         PROFILE_END(render_scene_mesh_dolist_sort);
 
         // do the render pass for the mesh
-        if (gfx_error == render_scene_mesh(pcam, prlist, pdlist))
+        if (gfx_error == render_scene_mesh(cam, rl, dl))
         {
             retval = gfx_error;
         }
@@ -3809,13 +3688,13 @@ gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, c
     PROFILE_BEGIN(render_scene_solid);
     {
         // sort the dolist for non-reflected objects
-        if (gfx_error == pdlist->sort(pcam, false))
+        if (gfx_error == dl.sort(cam, false))
         {
             retval = gfx_error;
         }
 
         // do the render pass for solid objects
-        if (gfx_error == render_scene_solid(pcam, pdlist))
+        if (gfx_error == render_scene_solid(cam, dl))
         {
             retval = gfx_error;
         }
@@ -3825,7 +3704,7 @@ gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, c
     PROFILE_BEGIN(render_scene_water);
     {
         // draw the water
-        if (gfx_error == render_water(prlist))
+        if (gfx_error == render_water(rl))
         {
             retval = gfx_error;
         }
@@ -3835,7 +3714,7 @@ gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, c
     PROFILE_BEGIN(render_scene_trans);
     {
         // do the render pass for transparent objects
-        if (gfx_error == render_scene_trans(pcam, pdlist))
+        if (gfx_error == render_scene_trans(cam, dl))
         {
             retval = gfx_error;
         }
@@ -3848,8 +3727,8 @@ gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, c
 
 #if defined(DRAW_LISTS)
     // draw some debugging lines
-    line_list_draw_all(pcam);
-    point_list_draw_all(pcam);
+    line_list_draw_all(cam);
+    point_list_draw_all(cam);
 #endif
 
 #if defined(DRAW_PRT_BBOX)
@@ -3866,9 +3745,26 @@ gfx_rv render_scene(std::shared_ptr<Camera> pcam, const int render_list_index, c
 
     return retval;
 }
+gfx_rv render_scene(Camera& cam, std::shared_ptr<renderlist_t> prl, std::shared_ptr<dolist_t> pdl)
+{
+    /// @author ZZ
+    /// @details This function draws 3D objects
+    if (!prl)
+    {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock a renderlist");
+        return gfx_error;
+    }
+
+    if (!pdl)
+    {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock a dolist");
+        return gfx_error;
+    }
+    return render_scene(cam, *prl, *pdl);
+}
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_world_background(std::shared_ptr<Camera> pcam, const TX_REF texture)
+gfx_rv render_world_background(Camera& cam, const TX_REF texture)
 {
     /// @author ZZ
     /// @details This function draws the large background
@@ -3885,12 +3781,6 @@ gfx_rv render_world_background(std::shared_ptr<Camera> pcam, const TX_REF textur
     oglx_texture_t   * ptex;
     water_instance_layer_t * ilayer;
 
-    if (NULL == pcam)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera");
-        return gfx_error;
-    }
-
     pinfo = &(PMesh->info);
     pgmem = &(PMesh->gmem);
 
@@ -3906,46 +3796,46 @@ gfx_rv render_world_background(std::shared_ptr<Camera> pcam, const TX_REF textur
 
     // determine the constants for the x-coordinate
     xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist.x) / GRID_FSIZE;
-    Cx_0 = xmag * (1.0f + pcam->getPosition().z       * ilayer->dist.x);
-    Cx_1 = -xmag * (1.0f + (pcam->getPosition().z - z0) * ilayer->dist.x);
+    Cx_0 = xmag * (1.0f + cam.getPosition().z       * ilayer->dist.x);
+    Cx_1 = -xmag * (1.0f + (cam.getPosition().z - z0) * ilayer->dist.x);
 
     // determine the constants for the y-coordinate
     ymag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist.y) / GRID_FSIZE;
-    Cy_0 = ymag * (1.0f + pcam->getPosition().z       * ilayer->dist.y);
-    Cy_1 = -ymag * (1.0f + (pcam->getPosition().z - z0) * ilayer->dist.y);
+    Cy_0 = ymag * (1.0f + cam.getPosition().z       * ilayer->dist.y);
+    Cy_1 = -ymag * (1.0f + (cam.getPosition().z - z0) * ilayer->dist.y);
 
     // Figure out the coordinates of its corners
     Qx = -pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[0].pos[XX] = Qx;
     vtlist[0].pos[YY] = Qy;
-    vtlist[0].pos[ZZ] = pcam->getPosition().z - z0;
-    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->getPosition().x + ilayer->tx.x;
-    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->getPosition().y + ilayer->tx.y;
+    vtlist[0].pos[ZZ] = cam.getPosition().z - z0;
+    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx.x;
+    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx.y;
 
     Qx = 2 * pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[1].pos[XX] = Qx;
     vtlist[1].pos[YY] = Qy;
-    vtlist[1].pos[ZZ] = pcam->getPosition().z - z0;
-    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->getPosition().x + ilayer->tx.x;
-    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->getPosition().y + ilayer->tx.y;
+    vtlist[1].pos[ZZ] = cam.getPosition().z - z0;
+    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx.x;
+    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx.y;
 
     Qx = 2 * pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[2].pos[XX] = Qx;
     vtlist[2].pos[YY] = Qy;
-    vtlist[2].pos[ZZ] = pcam->getPosition().z - z0;
-    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->getPosition().x + ilayer->tx.x;
-    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->getPosition().y + ilayer->tx.y;
+    vtlist[2].pos[ZZ] = cam.getPosition().z - z0;
+    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx.x;
+    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx.y;
 
     Qx = -pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[3].pos[XX] = Qx;
     vtlist[3].pos[YY] = Qy;
-    vtlist[3].pos[ZZ] = pcam->getPosition().z - z0;
-    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->getPosition().x + ilayer->tx.x;
-    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->getPosition().y + ilayer->tx.y;
+    vtlist[3].pos[ZZ] = cam.getPosition().z - z0;
+    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx.x;
+    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx.y;
 
     light = water.light ? 1.0f : 0.0f;
     alpha = ilayer->alpha * INV_FF;
@@ -3971,16 +3861,17 @@ gfx_rv render_world_background(std::shared_ptr<Camera> pcam, const TX_REF textur
 
     ATTRIB_PUSH(__FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
     {
+        auto& renderer = Ego::Renderer::get();
         // flat shading
-        Ego::Renderer::get().setGouraudShadingEnabled(false);
+        renderer.setGouraudShadingEnabled(false);
 
         // Do not write into the depth buffer.
-        Ego::Renderer::get().setDepthWriteEnabled(false);
+        renderer.setDepthWriteEnabled(false);
 
         // Essentially disable the depth test without calling
-        // Ego::Renderer::get().setDepthTestEnabled(false).
-        Ego::Renderer::get().setDepthTestEnabled(true);
-        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::AlwaysPass);
+        // renderer.setDepthTestEnabled(false).
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
 
         // draw draw front and back faces of polygons
         oglx_end_culling();    // GL_ENABLE_BIT
@@ -3989,15 +3880,15 @@ gfx_rv render_world_background(std::shared_ptr<Camera> pcam, const TX_REF textur
         {
             ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
             {
-                Ego::Renderer::get().setColour(Ego::Math::Colour4f(intens, intens, intens, alpha));
+                renderer.setColour(Ego::Math::Colour4f(intens, intens, intens, alpha));
 
                 if (alpha >= 1.0f)
                 {
-                    Ego::Renderer::get().setBlendingEnabled(false);
+                    renderer.setBlendingEnabled(false);
                 }
                 else
                 {
-                    Ego::Renderer::get().setBlendingEnabled(true);
+                    renderer.setBlendingEnabled(true);
                     GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
                 }
 
@@ -4041,7 +3932,7 @@ gfx_rv render_world_background(std::shared_ptr<Camera> pcam, const TX_REF textur
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_world_overlay(std::shared_ptr<Camera> pcam, const TX_REF texture)
+gfx_rv render_world_overlay(Camera& cam, const TX_REF texture)
 {
     /// @author ZZ
     /// @details This function draws the large foreground
@@ -4054,18 +3945,12 @@ gfx_rv render_world_overlay(std::shared_ptr<Camera> pcam, const TX_REF texture)
 
     water_instance_layer_t * ilayer = water.layer + 1;
 
-    if (NULL == pcam)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera");
-        return gfx_error;
-    }
-
     vforw_wind.x = ilayer->tx_add.x;
     vforw_wind.y = ilayer->tx_add.y;
     vforw_wind.z = 0;
     vforw_wind.normalize();
 
-    mat_getCamForward(pcam->getView(), vforw_cam);
+    mat_getCamForward(cam.getView(), vforw_cam);
     vforw_cam.normalize();
 
     // make the texture begin to disappear if you are not looking straight down
@@ -4165,17 +4050,11 @@ gfx_rv render_world_overlay(std::shared_ptr<Camera> pcam, const TX_REF texture)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water(renderlist_t * prlist)
+gfx_rv render_water(renderlist_t& rl)
 {
     /// @author ZZ
     /// @details This function draws all of the water fans
     gfx_rv retval;
-
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
 
     // assume the best
     retval = gfx_success;
@@ -4186,9 +4065,9 @@ gfx_rv render_water(renderlist_t * prlist)
     // Bottom layer first
     if (gfx.draw_water_1)
     {
-        for (size_t cnt = 0; cnt < prlist->_wat.size; cnt++)
+        for (size_t cnt = 0; cnt < rl._wat.size; cnt++)
         {
-            if (gfx_error == render_water_fan(prlist->_mesh, prlist->_wat.lst[cnt].index, 1))
+            if (gfx_error == render_water_fan(rl._mesh, rl._wat.lst[cnt].index, 1))
             {
                 retval = gfx_error;
             }
@@ -4198,9 +4077,9 @@ gfx_rv render_water(renderlist_t * prlist)
     // Top layer second
     if (gfx.draw_water_0)
     {
-        for (size_t cnt = 0; cnt < prlist->_wat.size; cnt++)
+        for (size_t cnt = 0; cnt < rl._wat.size; cnt++)
         {
-            if (gfx_error == render_water_fan(prlist->_mesh, prlist->_wat.lst[cnt].index, 0))
+            if (gfx_error == render_water_fan(rl._mesh, rl._wat.lst[cnt].index, 0))
             {
                 retval = gfx_error;
             }
@@ -4737,7 +4616,7 @@ gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, i
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_update_lcache(renderlist_t * prlist)
+gfx_rv light_fans_update_lcache(renderlist_t& rl)
 {
     const int frame_skip = 1 << 2;
 #if defined(CLIP_ALL_LIGHT_FANS)
@@ -4755,15 +4634,7 @@ gfx_rv light_fans_update_lcache(renderlist_t * prlist)
     /// which means that the threshold could be set as low as 1/64 = 0.015625.
     const float delta_threshold = 0.05f;
 
-    ego_mesh_t      * pmesh;
-
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
-
-    pmesh = prlist->getMesh();
+    ego_mesh_t *pmesh = rl.getMesh();
     if (NULL == pmesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
@@ -4784,7 +4655,7 @@ gfx_rv light_fans_update_lcache(renderlist_t * prlist)
 #endif
 
     // cache the grid lighting
-    for (entry = 0; entry < prlist->_all.size; entry++)
+    for (entry = 0; entry < rl._all.size; entry++)
     {
         bool reflective;
         int fan;
@@ -4793,7 +4664,7 @@ gfx_rv light_fans_update_lcache(renderlist_t * prlist)
         ego_grid_info_t * pgrid;
 
         // which tile?
-        fan = prlist->_all.lst[entry].index;
+        fan = rl._all.lst[entry].index;
 
         // grab a pointer to the tile
         ptile = ego_mesh_t::get_ptile(pmesh, fan);
@@ -4829,7 +4700,7 @@ gfx_rv light_fans_update_lcache(renderlist_t * prlist)
         reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_DRAWREF));
 
         // light the corners of this tile
-        delta = ego_mesh_light_corners(prlist->_mesh, ptile, reflective, local_mesh_lighting_keep);
+        delta = ego_mesh_light_corners(rl._mesh, ptile, reflective, local_mesh_lighting_keep);
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to
@@ -4845,7 +4716,7 @@ gfx_rv light_fans_update_lcache(renderlist_t * prlist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_update_clst(renderlist_t * prlist)
+gfx_rv light_fans_update_clst(renderlist_t& rl)
 {
     /// @author BB
     /// @details update the tile's color list, if needed
@@ -4860,13 +4731,7 @@ gfx_rv light_fans_update_clst(renderlist_t * prlist)
     tile_mem_t        * ptmem = NULL;
     tile_definition_t * pdef = NULL;
 
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
-
-    pmesh = prlist->getMesh();
+    pmesh = rl.getMesh();
     if (NULL == pmesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
@@ -4880,9 +4745,9 @@ gfx_rv light_fans_update_clst(renderlist_t * prlist)
     retval = gfx_success;
 
     // use the grid to light the tiles
-    for (size_t entry = 0; entry < prlist->_all.size; entry++)
+    for (size_t entry = 0; entry < rl._all.size; entry++)
     {
-        TileIndex fan = prlist->_all.lst[entry].index;
+        TileIndex fan = rl._all.lst[entry].index;
         if (TileIndex::Invalid == fan) continue;
 
         // valid tile?
@@ -4953,14 +4818,14 @@ gfx_rv light_fans_update_clst(renderlist_t * prlist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans(renderlist_t * prlist)
+gfx_rv light_fans(renderlist_t& rl)
 {
-    if (gfx_error == light_fans_update_lcache(prlist))
+    if (gfx_error == light_fans_update_lcache(rl))
     {
         return gfx_error;
     }
 
-    if (gfx_error == light_fans_update_clst(prlist))
+    if (gfx_error == light_fans_update_clst(rl))
     {
         return gfx_error;
     }
@@ -5054,7 +4919,7 @@ gfx_rv dynalist_init(dynalist_t * pdylist)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dynalist(dynalist_t * pdylist, std::shared_ptr<Camera> pcam)
+gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
 {
     /// @author ZZ
     /// @details This function figures out which particles are visible, and it sets up dynamic
@@ -5069,25 +4934,18 @@ gfx_rv gfx_make_dynalist(dynalist_t * pdylist, std::shared_ptr<Camera> pcam)
     float         distance_max = 0.0f;
     dynalight_data_t * plight_max = NULL;
 
-    // make sure we have a dynalist
-    if (NULL == pdylist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL dynalist");
-        return gfx_error;
-    }
-
     // HACK: if dynalist is ahead of the game by 30 frames or more, reset and force an update
-    if ((Uint32)(pdylist->frame + 30) >= game_frame_all)
-        pdylist->frame = -1;
+    if ((Uint32)(dyl.frame + 30) >= game_frame_all)
+        dyl.frame = -1;
 
     // do not update the dynalist more than once a frame
-    if (pdylist->frame >= 0 && (Uint32)pdylist->frame >= game_frame_all)
+    if (dyl.frame >= 0 && (Uint32)dyl.frame >= game_frame_all)
     {
         return gfx_success;
     }
 
     // Don't really make a list, just set to visible or not
-    dynalist_init(pdylist);
+    dynalist_init(&dyl);
 
     PRT_BEGIN_LOOP_DISPLAY(iprt, prt_bdl)
     {
@@ -5100,13 +4958,13 @@ gfx_rv gfx_make_dynalist(dynalist_t * pdylist, std::shared_ptr<Camera> pcam)
         plight = NULL;
 
         // find the distance to the camera
-        vdist = prt_t::get_pos_v_const(prt_bdl.prt_ptr) - pcam->getTrackPosition();
+        vdist = prt_t::get_pos_v_const(prt_bdl.prt_ptr) - cam.getTrackPosition();
         distance = vdist.length_2();
 
         // insert the dynalight
-        if (pdylist->size < gfx.dynalist_max &&  pdylist->size < TOTAL_MAX_DYNA)
+        if (dyl.size < gfx.dynalist_max && dyl.size < TOTAL_MAX_DYNA)
         {
-            if (0 == pdylist->size)
+            if (0 == dyl.size)
             {
                 distance_max = distance;
             }
@@ -5116,8 +4974,8 @@ gfx_rv gfx_make_dynalist(dynalist_t * pdylist, std::shared_ptr<Camera> pcam)
             }
 
             // grab a new light from the list
-            plight = pdylist->lst + pdylist->size;
-            pdylist->size++;
+            plight = dyl.lst + dyl.size;
+            dyl.size++;
 
             if (distance_max == distance)
             {
@@ -5129,13 +4987,13 @@ gfx_rv gfx_make_dynalist(dynalist_t * pdylist, std::shared_ptr<Camera> pcam)
             plight = plight_max;
 
             // find the new maximum distance
-            distance_max = pdylist->lst[0].distance;
-            plight_max = pdylist->lst + 0;
+            distance_max = dyl.lst[0].distance;
+            plight_max = dyl.lst + 0;
             for (tnc = 1; tnc < gfx.dynalist_max; tnc++)
             {
-                if (pdylist->lst[tnc].distance > distance_max)
+                if (dyl.lst[tnc].distance > distance_max)
                 {
-                    plight_max = pdylist->lst + tnc;
+                    plight_max = dyl.lst + tnc;
                     distance_max = plight->distance;
                 }
             }
@@ -5152,13 +5010,13 @@ gfx_rv gfx_make_dynalist(dynalist_t * pdylist, std::shared_ptr<Camera> pcam)
     PRT_END_LOOP();
 
     // the list is updated, so update the frame count
-    pdylist->frame = game_frame_all;
+    dyl.frame = game_frame_all;
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam)
+gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
 {
     /// @author ZZ
     /// @details Do all tile lighting, dynamic and global
@@ -5185,19 +5043,7 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
 
     dynalight_data_t fake_dynalight;
 
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
-
-    if (NULL == pcam)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera");
-        return gfx_error;
-    }
-
-    pmesh = prlist->getMesh();
+    pmesh = rl.getMesh();
     if (NULL == pmesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
@@ -5213,9 +5059,9 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
     mesh_bound.xmax = 0;
     mesh_bound.ymin = pgmem->edge_y;
     mesh_bound.ymax = 0;
-    for (size_t entry = 0; entry < prlist->_all.size; entry++)
+    for (size_t entry = 0; entry < rl._all.size; entry++)
     {
-        TileIndex fan = prlist->_all.lst[entry].index;
+        TileIndex fan = rl._all.lst[entry].index;
         if (fan.getI() >= pinfo->tiles_count) continue;
 
         poct = &(tile_mem_t::get(ptmem, fan)->oct);
@@ -5234,7 +5080,7 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
     reg_count = 0;
 
     // refresh the dynamic light list
-    gfx_make_dynalist(pdylist, pcam);
+    gfx_make_dynalist(dyl, cam);
 
     // assume no dynamic lighting
     needs_dynalight = false;
@@ -5251,12 +5097,12 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
     // make bounding boxes for each dynamic light
     if (gfx.gouraudShading_enable)
     {
-        for (cnt = 0; cnt < pdylist->size; cnt++)
+        for (cnt = 0; cnt < dyl.size; cnt++)
         {
             float radius;
             ego_frect_t ftmp;
 
-            dynalight_data_t * pdyna = pdylist->lst + cnt;
+            dynalight_data_t * pdyna = dyl.lst + cnt;
 
             if (pdyna->falloff <= 0.0f || 0.0f == pdyna->level) continue;
 
@@ -5297,23 +5143,21 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
         dynalight_data_t * pdyna;
 
         // evaluate all the lights at the camera position
-        for (cnt = 0; cnt < pdylist->size; cnt++)
+        for (cnt = 0; cnt < dyl.size; cnt++)
         {
-            pdyna = pdylist->lst + cnt;
+            pdyna = dyl.lst + cnt;
 
             // evaluate the intensity at the camera
-            diff.x = pdyna->pos.x - pcam->getCenter().x;
-            diff.y = pdyna->pos.y - pcam->getCenter().y;
-            diff.z = pdyna->pos.z - pcam->getCenter().z - 90.0f;   // evaluated at the "head height" of a character
+            diff.x = pdyna->pos.x - cam.getCenter().x;
+            diff.y = pdyna->pos.y - cam.getCenter().y;
+            diff.z = pdyna->pos.z - cam.getCenter().z - 90.0f;   // evaluated at the "head height" of a character
 
             dyna_weight = std::abs(dyna_lighting_intensity(pdyna, diff));
 
             fake_dynalight.distance += dyna_weight * pdyna->distance;
             fake_dynalight.falloff += dyna_weight * pdyna->falloff;
             fake_dynalight.level += dyna_weight * pdyna->level;
-            fake_dynalight.pos.x += dyna_weight * (pdyna->pos.x - pcam->getCenter().x);
-            fake_dynalight.pos.y += dyna_weight * (pdyna->pos.y - pcam->getCenter().y);
-            fake_dynalight.pos.z += dyna_weight * (pdyna->pos.z - pcam->getCenter().z);
+            fake_dynalight.pos += (pdyna->pos - cam.getCenter()) * dyna_weight;
 
             dyna_weight_sum += dyna_weight;
         }
@@ -5327,9 +5171,7 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
             fake_dynalight.distance /= dyna_weight_sum;
             fake_dynalight.falloff /= dyna_weight_sum;
             fake_dynalight.level /= dyna_weight_sum;
-            fake_dynalight.pos.x = fake_dynalight.pos.x / dyna_weight_sum + pcam->getCenter().x;
-            fake_dynalight.pos.y = fake_dynalight.pos.y / dyna_weight_sum + pcam->getCenter().y;
-            fake_dynalight.pos.z = fake_dynalight.pos.z / dyna_weight_sum + pcam->getCenter().z;
+            fake_dynalight.pos = (fake_dynalight.pos * (1.0/dyna_weight_sum)) + cam.getCenter();
 
             radius = std::sqrt(fake_dynalight.falloff * 765.0f * 0.5f);
 
@@ -5359,14 +5201,14 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
     local_keep = POW(dynalight_keep, 4);
 
     // Add to base light level in normal mode
-    for (size_t entry = 0; entry < prlist->_all.size; entry++)
+    for (size_t entry = 0; entry < rl._all.size; entry++)
     {
         bool resist_lighting_calculation = true;
 
         int                dynalight_count = 0;
 
         // grab each grid box in the "frustum"
-        TileIndex fan = prlist->_all.lst[entry].index;
+        TileIndex fan = rl._all.lst[entry].index;
 
         // a valid tile?
         ego_grid_info_t  *pgrid = ego_mesh_t::get_pgrid(pmesh, fan);
@@ -5439,7 +5281,7 @@ gfx_rv do_grid_lighting(renderlist_t * prlist, dynalist_t * pdylist, std::shared
                         }
                         else
                         {
-                            pdyna = pdylist->lst + tnc;
+                            pdyna = dyl.lst + tnc;
                         }
 
                         nrm.x = pdyna->pos.x - x0;
@@ -5505,24 +5347,10 @@ gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_renderlist(renderlist_t * prlist, std::shared_ptr<Camera> pcam)
+gfx_rv gfx_make_renderlist(renderlist_t& rl, Camera& cam)
 {
     gfx_rv      retval;
     bool      local_allocation;
-
-    // Make sure there is a renderlist
-    if (NULL == prlist)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer");
-        return gfx_error;
-    }
-
-    // make sure that we have a valid camera
-    if (nullptr == pcam)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera");
-        return gfx_error;
-    }
 
     // because the main loop of the program will always flip the
     // page before rendering the 1st frame of the actual game,
@@ -5533,7 +5361,7 @@ gfx_rv gfx_make_renderlist(renderlist_t * prlist, std::shared_ptr<Camera> pcam)
     }
 
     // reset the renderlist
-    if (gfx_error == prlist->reset())
+    if (gfx_error == rl.reset())
     {
         return gfx_error;
     }
@@ -5556,10 +5384,10 @@ gfx_rv gfx_make_renderlist(renderlist_t * prlist, std::shared_ptr<Camera> pcam)
 
     // get the tiles in the center of the view
     _renderlist_colst.clear();
-    getMeshBSP()->collide(pcam->getFrustum(), _renderlist_colst);
+    getMeshBSP()->collide(cam.getFrustum(), _renderlist_colst);
 
     // transfer valid _renderlist_colst entries to the dolist
-    if (gfx_error == prlist->add(&_renderlist_colst, pcam))
+    if (gfx_error == rl.add(&_renderlist_colst, cam))
     {
         retval = gfx_error;
         goto gfx_make_renderlist_exit;
@@ -5577,7 +5405,7 @@ gfx_make_renderlist_exit:
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dolist(dolist_t *dl, std::shared_ptr<Camera> cam)
+gfx_rv gfx_make_dolist(dolist_t& dl, Camera& cam)
 {
     gfx_rv retval;
     bool local_allocation;
@@ -5585,19 +5413,14 @@ gfx_rv gfx_make_dolist(dolist_t *dl, std::shared_ptr<Camera> cam)
     // assume the best
     retval = gfx_success;
 
-    if (!dl)
-    {
-        throw std::invalid_argument("nullptr == dl");
-    }
-
-    if (dl->getSize() >= dolist_t::CAPACITY)
+    if (dl.getSize() >= dolist_t::CAPACITY)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
         return gfx_error;
     }
 
-    // Remove everyone from the dolist
-    dl->reset(dl->getName());
+    // Remove everyone from the dolist.
+    dl.reset();
 
     // has the colst been allocated?
     local_allocation = false;
@@ -5614,10 +5437,10 @@ gfx_rv gfx_make_dolist(dolist_t *dl, std::shared_ptr<Camera> cam)
 
     // collide the characters with the frustum
     _dolist_colst.clear();
-    getChrBSP()->collide(cam->getFrustum(), chr_BSP_is_visible, _dolist_colst);
+    getChrBSP()->collide(cam.getFrustum(), chr_BSP_is_visible, _dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == dl->add_colst(&_dolist_colst))
+    if (gfx_error == dl.add_colst(&_dolist_colst))
     {
         retval = gfx_error;
         goto gfx_make_dolist_exit;
@@ -5625,10 +5448,10 @@ gfx_rv gfx_make_dolist(dolist_t *dl, std::shared_ptr<Camera> cam)
 
     // collide the particles with the frustum
     _dolist_colst.clear();
-    getPrtBSP()->collide(cam->getFrustum(), prt_BSP_is_visible, _dolist_colst);
+    getPrtBSP()->collide(cam.getFrustum(), prt_BSP_is_visible, _dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == dl->add_colst(&_dolist_colst))
+    if (gfx_error == dl.add_colst(&_dolist_colst))
     {
         retval = gfx_error;
         goto gfx_make_dolist_exit;
@@ -5696,27 +5519,22 @@ float calc_light_global(int rotation, int normal, float lx, float ly, float lz)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_update_flashing(dolist_t *dl)
+gfx_rv gfx_update_flashing(dolist_t& dl)
 {
     gfx_rv retval;
 
-    if (!dl)
-    {
-        throw std::invalid_argument("nullptr == dl");
-    }
-
-    if (dl->getSize() >= dolist_t::CAPACITY)
+    if (dl.getSize() >= dolist_t::CAPACITY)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
         return gfx_error;
     }
 
     retval = gfx_success;
-    for (size_t i = 0, n = dl->getSize(); i < n; ++i)
+    for (size_t i = 0, n = dl.getSize(); i < n; ++i)
     {
         float tmp_seekurse_level;
 
-        CHR_REF ichr = dl->get(i).ichr;
+        CHR_REF ichr = dl.get(i).ichr;
 
         Object *pchr = _gameObjects.get(ichr);
         if (nullptr == (pchr)) continue;

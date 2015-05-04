@@ -32,7 +32,7 @@ UIManager::UIManager() :
     _debugFont(nullptr),
     _renderSemaphore(0)
 {
-    Ego::FontManager::initialize();
+
     _defaultFont = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
     _floatingTextFont = Ego::FontManager::loadFont("mp_data/FrostysWinterland.ttf", 24);
     _debugFont = Ego::FontManager::loadFont("mp_data/DejaVuSansMono.ttf", 10);
@@ -47,7 +47,6 @@ UIManager::~UIManager()
     _defaultFont.reset();
     _floatingTextFont.reset();
     _debugFont.reset();
-    Ego::FontManager::uninitialize();
 }
 
 void UIManager::beginRenderUI()

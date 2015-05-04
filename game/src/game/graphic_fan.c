@@ -37,29 +37,25 @@ static bool animate_tile( ego_mesh_t * pmesh, Uint32 itile );
 //--------------------------------------------------------------------------------------------
 void animate_all_tiles( ego_mesh_t * pmesh )
 {
-    Uint32 cnt, itile;
-    Uint32 tile_count, anim_count;
-    bool small_tile_update, big_tile_update;
+    if (!pmesh) return;
 
-    if ( NULL == pmesh ) return;
+    bool small_tile_update = (animtile[0].frame_add_old != animtile[0].frame_add);
+    bool big_tile_update = (animtile[1].frame_add_old != animtile[1].frame_add);
 
-    small_tile_update = ( animtile[0].frame_add_old != animtile[0].frame_add );
-    big_tile_update   = ( animtile[1].frame_add_old != animtile[1].frame_add );
+    // If there are no updates, do nothing.
+    if (!small_tile_update && !big_tile_update) return;
 
-    // if there are no updates, do nothing
-    if ( !small_tile_update && !big_tile_update ) return;
+    size_t tile_count = pmesh->tmem.tile_count;
+    size_t anim_count = pmesh->fxlists.anm.idx;
 
-    tile_count = pmesh->tmem.tile_count;
-    anim_count = pmesh->fxlists.anm.idx;
-
-    // scan through all the animated tiles
-    for ( cnt = 0; cnt < anim_count; cnt++ )
+    // Scan through all the animated tiles.
+    for (size_t i = 0; i < anim_count; ++i)
     {
-        // get the offset
-        itile = pmesh->fxlists.anm.lst[cnt];
-        if ( itile >= tile_count ) continue;
+        // Get the offset
+        Uint32 itile = pmesh->fxlists.anm.lst[i];
+        if (itile >= tile_count) continue;
 
-        animate_tile( pmesh, itile );
+        animate_tile(pmesh, itile);
     }
 }
 
@@ -486,7 +482,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {
-        GLboolean use_depth_mask = ( !water.light && ( 1.0f == falpha ) ) ? GL_TRUE : GL_FALSE;
+        bool use_depth_mask = ( !water.light && ( 1.0f == falpha ) );
 
         auto& renderer = Ego::Renderer::get();
         // do not draw hidden surfaces
@@ -512,8 +508,8 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         }
 
         // per-vertex coloring
-        Ego::Renderer::get().setGouraudShadingEnabled(true);
-        Ego::Renderer::get().render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
+        renderer.setGouraudShadingEnabled(true);
+        renderer.render(*vb, Ego::PrimitiveType::TriangleFan, 0, 4);
     }
     ATTRIB_POP( __FUNCTION__ );
 

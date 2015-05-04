@@ -26,6 +26,8 @@
 
 //Forward declarations
 struct ego_mesh_t;
+struct dolist_t;
+struct renderlist_t;
 
 /// The mode that the camera uses to determine where it is moving.
 enum class CameraMovementMode : uint8_t
@@ -104,7 +106,7 @@ public:
      * @brief
      *  Initialization that has to be after object construction.
      */
-    void initialize(int renderList, int doList);
+    void initialize(std::shared_ptr<renderlist_t> renderList, std::shared_ptr<dolist_t> doList);
 
     // various getters
 	inline const fmat_4x4_t& getProjection() const { return _mProjection; }
@@ -140,8 +142,8 @@ public:
     inline int getSwing() const { return _swing; }
 
     inline int getLastFrame() const {return _lastFrame;}
-    inline int getRenderList() const {return _renderList;}
-    inline int getDoList() const {return _doList;}
+    inline std::shared_ptr<renderlist_t> getRenderList() const {return _renderList;}
+    inline std::shared_ptr<dolist_t> getDoList() const {return _doList;}
 
     inline const std::forward_list<CHR_REF>& getTrackList() const {return _trackList;}
 
@@ -312,6 +314,6 @@ private:
     ego_frect_t                _screen;
 
     int _lastFrame;         ///< Number of last update frame.
-    int _renderList;        ///< Renderlist reference (-1 for none).
-    int _doList;            ///< Dolist reference (-1 for none).
+    std::shared_ptr<renderlist_t> _renderList;    ///< Renderlist pointer or null pointer.
+    std::shared_ptr<dolist_t> _doList;            ///< Dolist pointer or null pointer.
 };

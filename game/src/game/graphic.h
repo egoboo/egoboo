@@ -195,7 +195,6 @@ struct renderlist_lst_t
 struct renderlist_t
 {
     ego_mesh_t *_mesh;
-    size_t _name;
     renderlist_lst_t _all;     ///< List of which to render, total
     renderlist_lst_t _ref;     ///< ..., is reflected in the floor
     renderlist_lst_t _sha;     ///< ..., is not reflected in the floor
@@ -208,13 +207,13 @@ struct renderlist_t
     virtual ~renderlist_t() :
     {}
 #endif
-    renderlist_t *init(size_t name);
+    renderlist_t *init();
     /// @brief Clear a render list
     gfx_rv reset();
     /// @brief Insert a tile into this render list.
     /// @param index the tile index
     /// @param camera the camera
-    gfx_rv insert(const TileIndex& index, const std::shared_ptr<Camera>& camera);
+    gfx_rv insert(const TileIndex& index, const Camera& camera);
     /// @brief Get mesh this render list is attached to.
     /// @return the mesh or @a nullptr
     /// @post If the render list is attached to a mesh, that mesh is returned.
@@ -229,18 +228,16 @@ struct renderlist_t
     /// @param leaves a list of tile BSP leaves
     /// @param camera the camera
     /// @remark A tile
-    gfx_rv add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, const std::shared_ptr<Camera>& camera);
+    gfx_rv add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera);
 };
-
-
 
 //--------------------------------------------------------------------------------------------
 
 /**
  * @brief
- *    List of character and particle entities to be draw by a renderer.
+ *  List of character and particle entities to be draw by a renderer.
  *
- *    Entities in a do list are sorted based on their position from the camera before drawing.
+ *  Entities in a do list are sorted based on their position from the camera before drawing.
  */
 struct dolist_t
 {
@@ -281,11 +278,7 @@ struct dolist_t
         static int cmp(const void *left, const void *right);
     };
 protected:
-    /**
-     * @brief
-     *  The name of the dolist; everything above dolist_mgr_t::capacity is considered as an "invalid name".
-     */
-    size_t _name;
+
     /**
      * @brief
      *  The size of the dolist i.e. the number of character and particle entities in the dolist.
@@ -303,7 +296,7 @@ public:
     virtual ~dolist_t()
     {}
 #endif
-    dolist_t *init(size_t name);
+    dolist_t *init();
     const element_t& get(size_t index) const
     {
         if (index >= _size)
@@ -320,16 +313,12 @@ public:
         }
         return _lst[index];
     }
-    size_t getName() const
-    {
-        return _name;
-    }
     size_t getSize() const
     {
         return _size;
     }
-    gfx_rv reset(size_t name);
-    gfx_rv sort(std::shared_ptr<Camera> camera, const bool reflect);
+    gfx_rv reset();
+    gfx_rv sort(Camera& camera, const bool reflect);
 protected:
     gfx_rv test_obj(const Object& obj);
     gfx_rv add_obj_raw(Object& obj);
@@ -343,105 +332,167 @@ public:
 
 //--------------------------------------------------------------------------------------------
 
-template <typename Type, size_t Capacity>
-struct list_ary_t
+using namespace std;
+
+/**
+ * @brief
+ *  A pool is a small, fixed set of objects. The set of objects is created with the pool and destroy with the pool.
+ *  That is, a pool is suited for storng a small fixed set of objects, which are expensive to create and destroy.
+ *  <br/>
+ *  Users can acquire elements from the pool.
+ *  If a user is in possession of an element,
+ *      the element can not be acquired by another user
+ *          until the user in posession of the element relinquishes the element to the pool.
+ * @param _Type
+ *  the type of the elements in this pool.
+ *  Must be default-constructible.
+ * @param _Capacity
+ *  the capacity of the pool.
+ *  Must be greater than @a 0.
+ * @author
+ *  Michael Heilmann
+ */
+template <typename _Type, size_t _Capacity>
+struct Pool
 {
+    /**
+     * @brief
+     *  The type of the pool elements.
+     */
+    typedef typename _Type Type;
+    /**
+     * @brief
+     *  The capacity of the pool.
+     */
+    static const size_t Capacity;
+
+private:
+
+#if defined(_DEBUG)
+    bool isFree(size_t index) const
+    {
+        for (size_t i = 0; i < free_count; ++i)
+        {
+            if (index == free_lst[i])
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+#endif
+    /**
+     * @brief
+     *  A special value indicating in the free list that an index is used.
+     * @invariant
+     *  Always greater or equal to @a Capacity.
+     */
+    static const size_t InvalidIndex;
     size_t free_count;
-    int free_lst[Capacity];
-    Type lst[Capacity];
-    static size_t getCapacity()
+    size_t free_lst[_Capacity];
+    Type _elements[_Capacity];
+protected:
+    void free(size_t index)
+    {
+        EGO2_ASSERT(index < getCapacity()); // Index is not valid.
+        EGO2_ASSERT(!isFree(index)); // Index already free.
+        EGO2_ASSERT(free_count < getCapacity()); // Free list is full.
+
+        // Add the the index to the free list and increment the number of free indices.
+        free_lst[free_count] = index;
+        free_count++;
+    }
+
+public:
+
+    /**
+     * @brief
+     *  Get the pool size.
+     * @return
+     *  the pool size
+     */
+    size_t getSize() const
+    {
+        return getCapacity() - free_count;
+    }
+
+    /**
+     * @brief
+     *  Get the pool capacity.
+     * @return
+     *  the pool capacity
+     */
+    size_t getCapacity() const
     {
         return Capacity;
     }
-    int get_free_idx()
+
+    /**
+     * @brief
+     *  Acquire a pool element.
+     * @return
+     *  the shared pointer to the pool element on success, a shared null pointer on failure
+     */
+    shared_ptr<Type> acquire()
     {
-        // If no free lists are available ...
+        // If no free elements are available ...
         if (free_count <= 0)
         {
-            // ... return -1.
-            return -1;
+            // ... return the null pointer.
+            return nullptr;
         }
 
-        // Reduce the number of free lists by 1.
+        // Reduce the number of free elements by 1.
         free_count--;
 
         // Get the index into the array of lists.
         size_t index = free_count;
 
-        // Mark the list as used.
-        free_lst[index] = -1;
-        
-        // Return the index.
-        return index;
+        // Mark the element as used.
+        free_lst[index] = InvalidIndex;
+
+        // Create and return a shared pointer with a custom deallocator for the element.
+        return shared_ptr<Type>(&(_elements[index]), [index, this](Type *dummy) { free(index); });
     }
 
-    gfx_rv free_one(size_t index)
-    {
-        // If the index is not valid ...
-        if (index >= getCapacity())
-        {
-            // ... return an error.
-            return gfx_error;
-        }
-
-        // If the index is already free ...
-        for (size_t cnt = 0; cnt < free_count; ++cnt)
-        {
-            if (index == free_lst[cnt])
-            {
-                // ... return a failure.
-                return gfx_fail;
-            }
-        }
-
-        // If the free list is not full ...
-        if (free_count < getCapacity())
-        {
-            // ... add the index to the free list and ...
-            free_lst[free_count] = index;
-            free_count++;
-            // ... return success.
-            return gfx_success;
-        }
-        // Otherwise: Return failure.
-        return gfx_fail;
-    }
-
-    Type *get_ptr(size_t index)
-    {
-        // If the index is not valid ...
-        if (index >= getCapacity())
-        {
-            // ... return nullptr.
-            return nullptr;
-        }
-        // Otherwise: Return a pointer to the list.
-        return &(lst[index]);
-    }
-
-    list_ary_t() :
+    /**
+     * @brief
+     *  Construct this pool.
+     */
+    Pool() :
         free_lst()
     {
-        for (size_t cnt = 0; cnt < Capacity; ++cnt)
+        for (size_t i = 0; i < Capacity; ++i)
         {
-            free_lst[cnt] = cnt;
-            lst[cnt].init(cnt);
+            free_lst[i] = i;
+            _elements[i].init();
         }
         free_count = Capacity;
     }
 
-    virtual ~list_ary_t()
+    /**
+     * @brief
+     *  Destruct this pool.
+     */
+    virtual ~Pool()
     {
-        free_count = 0;
-        for (size_t cnt = 0; cnt < Capacity; ++cnt)
+        for (size_t i = 0; i < Capacity; ++i)
         {
-            free_lst[cnt] = -1;
-            lst[cnt].init(cnt);
+            free_lst[i] = i;
+            _elements[i].init();
         }
+        free_count = Capacity;
     }
 };
 
-struct dolist_mgr_t : public list_ary_t<dolist_t, MAX_CAMERAS>
+template <typename _Type, size_t _Capacity>
+const size_t Pool<_Type, _Capacity>::Capacity = _Capacity;
+
+template <typename _Type, size_t _Capacity>
+const size_t Pool<_Type, _Capacity>::InvalidIndex = std::numeric_limits<size_t>::max();
+
+/// @todo Use Ego::Core::System/Ego::Core::Singleton
+struct dolist_mgr_t : public Pool<dolist_t, MAX_CAMERAS>, public Ego::Core::NonCopyable
 {
 private:
     static dolist_mgr_t *_singleton;
@@ -454,7 +505,8 @@ public:
     static dolist_mgr_t& get();
 };
 
-struct renderlist_mgr_t : public list_ary_t<renderlist_t, MAX_CAMERAS>
+/// @todo Use Ego::Core::System/Ego::Core::Singleton
+struct renderlist_mgr_t : public Pool<renderlist_t, MAX_CAMERAS>
 {
 private:
     static renderlist_mgr_t *_singleton;
@@ -624,7 +676,7 @@ renderlist_mgr_t *gfx_system_get_renderlist_mgr();
 dolist_mgr_t *gfx_system_get_dolist_mgr();
 
 // the render engine callback
-void gfx_system_render_world(const std::shared_ptr<Camera> cam, const int render_list_index, const int dolist_index);
+void gfx_system_render_world(const std::shared_ptr<Camera> camera, std::shared_ptr<renderlist_t> renderList, std::shared_ptr<dolist_t> doList);
 
 void gfx_request_clear_screen();
 void gfx_do_clear_screen();

@@ -57,8 +57,8 @@ static void draw_chr_attached_grip( Object * pchr );
 static void draw_chr_bbox( Object * pchr );
 
 // these functions are only called by render_one_mad()
-static gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
-static gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+static gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+static gfx_rv render_one_mad_tex( Camera& cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 
 // private chr_instance_t methods
 static gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
@@ -81,7 +81,7 @@ static matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @author ZZ
     /// @details This function draws an environment mapped model
@@ -94,12 +94,6 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
     std::shared_ptr<MD2Model> pmd2;
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
-
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
-        return gfx_fail;
-    }
 
     if ( !_gameObjects.exists( character ) )
     {
@@ -139,7 +133,7 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
         ptex = TextureManager::get().get_valid_ptr( pinst->texture );
     }
 
-    uoffset = pinst->uoffset - pcam->getTurnZOne();
+    uoffset = pinst->uoffset - cam.getTurnZOne();
     voffset = pinst->voffset;
 
     // save the matrix mode
@@ -283,18 +277,12 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_tex(std::shared_ptr<Camera> camera, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits)
+gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits)
 {
     /// @author ZZ
     /// @details This function draws a model
 
     GLint matrix_mode;
-
-    if (!camera)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == camera");
-        return gfx_fail;
-    }
 
     if (!_gameObjects.exists(character))
     {
@@ -504,19 +492,13 @@ gfx_rv render_one_mad_tex(std::shared_ptr<Camera> camera, const CHR_REF characte
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( std::shared_ptr<Camera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad( Camera& cam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @author ZZ
     /// @details This function picks the actual function to use
 
     Object * pchr;
     gfx_rv retval;
-
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
-        return gfx_fail;
-    }
 
     if ( !_gameObjects.exists( character ) )
     {
@@ -529,11 +511,11 @@ gfx_rv render_one_mad( std::shared_ptr<Camera> pcam, const CHR_REF character, GL
 
     if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
-        retval = render_one_mad_enviro( pcam, character, tint, bits );
+        retval = render_one_mad_enviro( cam, character, tint, bits );
     }
     else
     {
-        retval = render_one_mad_tex( pcam, character, tint, bits );
+        retval = render_one_mad_tex( cam, character, tint, bits );
     }
 
 #if defined(DRAW_CHR_BBOX)
@@ -555,7 +537,7 @@ gfx_rv render_one_mad( std::shared_ptr<Camera> pcam, const CHR_REF character, GL
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
+gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
 {
     /// @author ZZ
     /// @details This function draws characters reflected in the floor
@@ -564,12 +546,6 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
     chr_instance_t * pinst;
     GLXvector4f tint;
     gfx_rv retval;
-
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
-        return gfx_fail;
-    }
 
     if ( !_gameObjects.exists( ichr ) )
     {
@@ -607,7 +583,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_ALPHA | CHR_REFLECT ) )
+            if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_ALPHA | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -622,7 +598,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_LIGHT | CHR_REFLECT ) )
+            if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_LIGHT | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -636,7 +612,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
             Ego::OpenGL::Utilities::isError();
             chr_instance_get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
-            if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
+            if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -649,7 +625,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
+gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
 {
     /// @author ZZ
     /// @details This function dispatches the rendering of transparent characters
@@ -659,12 +635,6 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
     chr_instance_t * pinst;
     GLXvector4f tint;
     bool rendered;
-
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
-        return gfx_fail;
-    }
 
     if ( !_gameObjects.exists( ichr ) )
     {
@@ -699,7 +669,7 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_ALPHA );
 
-            if ( render_one_mad( pcam, ichr, tint, CHR_ALPHA ) )
+            if ( render_one_mad( cam, ichr, tint, CHR_ALPHA ) )
             {
                 rendered = true;
             }
@@ -717,7 +687,7 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_LIGHT );
 
-            if ( render_one_mad( pcam, ichr, tint, CHR_LIGHT ) )
+            if ( render_one_mad( cam, ichr, tint, CHR_LIGHT ) )
             {
                 rendered = true;
             }
@@ -730,7 +700,7 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_PHONG );
 
-            if ( render_one_mad( pcam, ichr, tint, CHR_PHONG ) )
+            if ( render_one_mad( cam, ichr, tint, CHR_PHONG ) )
             {
                 rendered = true;
             }
@@ -742,17 +712,11 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
+gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
 {
     Object * pchr;
     chr_instance_t * pinst;
     gfx_rv retval = gfx_error;
-
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
-        return gfx_fail;
-    }
 
     if ( !_gameObjects.exists( ichr ) )
     {
@@ -802,7 +766,7 @@ gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_SOLID );
 
-            if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_SOLID ) )
+            if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_SOLID ) )
             {
                 retval = gfx_error;
             }

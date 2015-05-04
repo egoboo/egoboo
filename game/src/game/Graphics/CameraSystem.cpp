@@ -121,7 +121,7 @@ void CameraSystem::resetAllTargets( const ego_mesh_t * pmesh )
     }
 }
 
-egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<Camera>, int, int)> renderFunction )
+egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<Camera>, std::shared_ptr<renderlist_t>, std::shared_ptr<dolist_t>)> renderFunction )
 {
     if ( NULL == renderFunction ) {
         return rv_error;

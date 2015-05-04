@@ -73,7 +73,7 @@ void line_list_init();
 /// @return the index of a free line if any, #LINE_COUNT otherwise
 size_t line_list_get_free();
 bool line_list_add(const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration);
-void line_list_draw_all(std::shared_ptr<Camera> camera);
+void line_list_draw_all(Camera& camera);
 
 //--------------------------------------------------------------------------------------------
 // some points to be drawn in the display
@@ -91,12 +91,12 @@ void point_list_init();
 /// @return the index of a free point if any, #POINT_COUNT otherwise
 size_t point_list_get_free();
 bool point_list_add(const float x, const float y, const float z, const int duration);
-void point_list_draw_all(std::shared_ptr<Camera> camera);
+void point_list_draw_all(Camera& camera);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void gfx_begin_3d(std::shared_ptr<Camera> camera);
+void gfx_begin_3d(Camera& camera);
 void gfx_end_3d();
 
 bool render_oct_bb(oct_bb_t *bv, bool drawSquare, bool drawDiamond, const Ego::Math::Colour4f& squareColour = Ego::Math::Colour4f(1, 0.5, 1, 1), const Ego::Math::Colour4f& diamondColour = Ego::Math::Colour4f(0.5, 1, 1, 1));

@@ -36,16 +36,16 @@ static point_data_t point_list[POINT_COUNT];
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------
-void gfx_begin_3d(std::shared_ptr<Camera> camera)
+void gfx_begin_3d(Camera& camera)
 {
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(camera->getProjection());
+	Ego::Renderer::get().loadMatrix(camera.getProjection());
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer::get().loadMatrix(camera->getView());
+	Ego::Renderer::get().loadMatrix(camera.getView());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ bool line_list_add( const float src_x, const float src_y, const float src_z, con
     return true;
 }
 
-void line_list_draw_all(std::shared_ptr<Camera> camera)
+void line_list_draw_all(Camera& camera)
 {
     /// @author BB
     /// @details draw some lines for debugging purposes
@@ -119,20 +119,21 @@ void line_list_draw_all(std::shared_ptr<Camera> camera)
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
+            auto& renderer = Ego::Renderer::get();
             // flat shading
-            GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT
+            renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
 
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+            renderer.setDepthWriteEnabled(false); // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-            Ego::Renderer::get().setDepthTestEnabled(true);
-            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
+            renderer.setDepthTestEnabled(true);
+            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();   // GL_ENABLE_BIT
 
-            Ego::Renderer::get().setBlendingEnabled(false);
+            renderer.setBlendingEnabled(false);
 
             ticks = SDL_GetTicks();
 
@@ -201,7 +202,7 @@ bool point_list_add(const float x, const float y, const float z, const int durat
     return true;
 }
 
-void point_list_draw_all(std::shared_ptr<Camera> camera)
+void point_list_draw_all(Camera& camera)
 {
     /// @author BB
     /// @details draw some points for debugging purposes
@@ -216,20 +217,21 @@ void point_list_draw_all(std::shared_ptr<Camera> camera)
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
+            auto& renderer = Ego::Renderer::get();
             // flat shading
-            GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT
+            renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
 
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+            renderer.setDepthWriteEnabled(false); // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-            Ego::Renderer::get().setDepthTestEnabled(true);
-            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
+            renderer.setDepthTestEnabled(true);
+            renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
             // draw draw front and back faces of polygons
             oglx_end_culling();   // GL_ENABLE_BIT
 
-            Ego::Renderer::get().setBlendingEnabled(false);
+            renderer.setBlendingEnabled(false);
 
             ticks = SDL_GetTicks();
 

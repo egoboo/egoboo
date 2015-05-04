@@ -62,13 +62,13 @@ protected:
      * @remark
      *  Intentionally protected.
      */
-    Exception(const char *file, int line) :
+    Exception(const char *file, int line) throw() :
         _file((char *)(file)), _line(line)
     {}
-    Exception(const Exception& other) :
+    Exception(const Exception& other) throw() :
         _file(other._file), _line(other._line)
     {}
-    Exception& operator=(const Exception& other)
+    Exception& operator=(const Exception& other) throw()
     {
         _file = other._file;
         _line = other._line;
@@ -92,7 +92,7 @@ public:
      * @return
      *  the C++ source file associated with this exception
      */
-    const char *getFile() const
+    const char *getFile() const throw()
     {
         return _file;
     }
@@ -103,7 +103,7 @@ public:
      * @return
      *  the line within the C++ source file associated with this exception
      */
-    int getLine() const
+    int getLine() const throw()
     {
         return _line;
     }
@@ -132,9 +132,9 @@ private:
      * @brief
      *  A string describing the assertion e.g. <tt>nullptr != ptr</tt>.
      */
-    const char *_assertion;
+    string _assertion;
 
-protected:
+public:
 
     /**
      * @brief
@@ -146,7 +146,7 @@ protected:
      * @param assertion
      *   a description of the assertion
      */
-    AssertionFailed(const char *file, int line, const char *assertion) :
+    AssertionFailed(const char *file, int line, const string& assertion) :
         Exception(file, line), _assertion(assertion)
     {}
     AssertionFailed(const AssertionFailed& other) :
@@ -167,7 +167,7 @@ public:
      * @return
      *  a description of the assertion
      */
-    const char *getAssertion() const
+    const string& getAssertion() const
     {
         return _assertion;
     }
@@ -185,8 +185,15 @@ public:
 } // namespace Core
 } // namespace Ego
 
-#define EGOBOO_ASSERT_2(assertion) \
+// Raise an assertion.
+#if defined(_DEBUG)
+#define EGO2_ASSERT(assertion, ...) \
     if(!(assertion)) \
     { \
-        throw Ego::Exception(__FILE__,__LINE__," assertion " #assertion "` failed"); \
+        throw Ego::Core::AssertionFailed(__FILE__, __LINE__, #assertion); \
     }
+#else
+#define EGO2_ASSERT(assertion) /* Empty statement. */;
+#endif
+
+

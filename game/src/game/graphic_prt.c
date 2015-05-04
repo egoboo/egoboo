@@ -100,13 +100,13 @@ void prt_set_texture_params(const TX_REF itex)
 Uint32 instance_update = (Uint32)~0;
 
 //--------------------------------------------------------------------------------------------
-static gfx_rv prt_instance_update(std::shared_ptr<Camera> pcam, const PRT_REF particle, Uint8 trans, bool do_lighting);
+static gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float size, bool do_reflect);
 static int  cmp_prt_registry_entity(const void *vlhs, const void *vrhs);
 static void draw_one_attachment_point(chr_instance_t *pinst, mad_t *pmad, int vrt_offset);
 static void prt_draw_attached_point(prt_bundle_t *pbdl_prt);
 static void render_prt_bbox(prt_bundle_t *pbdl_prt);
-static gfx_rv prt_instance_update_vertices(std::shared_ptr<Camera> camera, prt_instance_t * pinst, prt_t * pprt);
+static gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t * pinst, prt_t * pprt);
 static fmat_4x4_t prt_instance_make_matrix(prt_instance_t *pinst);
 static gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, prt_t *pprt, Uint8 trans, bool do_lighting);
 
@@ -572,14 +572,8 @@ void prt_draw_attached_point(prt_bundle_t *pbdl_prt)
     draw_one_attachment_point(&(pholder->inst), pholder_mad, loc_pprt->attachedto_vrt_off);
 }
 
-gfx_rv update_all_prt_instance(std::shared_ptr<Camera> camera)
+gfx_rv update_all_prt_instance(Camera& camera)
 {
-    if (!camera)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == camera");
-        return gfx_error;
-    }
-
     // only one update per frame
     if (instance_update == update_wld) return gfx_success;
     instance_update = update_wld;
@@ -613,7 +607,7 @@ gfx_rv update_all_prt_instance(std::shared_ptr<Camera> camera)
     return retval;
 }
 
-gfx_rv prt_instance_update_vertices(std::shared_ptr<Camera> camera, prt_instance_t *pinst, prt_t *pprt)
+gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t *pprt)
 {
     if (!pinst)
     {
@@ -622,12 +616,6 @@ gfx_rv prt_instance_update_vertices(std::shared_ptr<Camera> camera, prt_instance
     }
     pinst->valid = false;
     pinst->ref_valid = false;
-
-    if (!camera)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == cameras");
-        return gfx_error;
-    }
 
     if (!DISPLAY_PPRT(pprt))
     {
@@ -656,10 +644,10 @@ gfx_rv prt_instance_update_vertices(std::shared_ptr<Camera> camera, prt_instance
     pinst->ref_pos.z = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
-    fvec3_t vfwd = pinst->pos - camera->getPosition();
+    fvec3_t vfwd = pinst->pos - camera.getPosition();
     vfwd.normalize();
 
-    fvec3_t vfwd_ref = pinst->ref_pos - camera->getPosition();
+    fvec3_t vfwd_ref = pinst->ref_pos - camera.getPosition();
     vfwd_ref.normalize();
 
     // Set the up and right vectors.
@@ -683,7 +671,7 @@ gfx_rv prt_instance_update_vertices(std::shared_ptr<Camera> camera, prt_instance
     else if (ORIENTATION_B == pinst->orientation)
     {
         // Use the camera up vector.
-        vup = camera->getVUP();
+        vup = camera.getVUP();
         vup.normalize();
 
         // Get the correct "right" vector.
@@ -702,7 +690,7 @@ gfx_rv prt_instance_update_vertices(std::shared_ptr<Camera> camera, prt_instance
         // is turned by 45 degrees to the camera (instead of 90 degrees which is invisible)
 
         // Use the camera up vector.
-        fvec3_t vup_cam = camera->getVUP();
+        fvec3_t vup_cam = camera.getVUP();
 
         // Use the global up vector.
         vup = fvec3_t(0, 0, 1);
@@ -769,11 +757,11 @@ gfx_rv prt_instance_update_vertices(std::shared_ptr<Camera> camera, prt_instance
             // Use the camera directions?
             switch (pinst->orientation)
             {
-                case ORIENTATION_X: vup = camera->getVFW(); break;
-                case ORIENTATION_Y: vup = camera->getVRT(); break;
+                case ORIENTATION_X: vup = camera.getVFW(); break;
+                case ORIENTATION_Y: vup = camera.getVRT(); break;
 
                 default:
-                case ORIENTATION_Z: vup = camera->getVUP(); break;
+                case ORIENTATION_Z: vup = camera.getVUP(); break;
             }
         }
 
@@ -790,7 +778,7 @@ gfx_rv prt_instance_update_vertices(std::shared_ptr<Camera> camera, prt_instance
     else
     {
         // Use the camera up vector.
-        vup = camera->getVUP();
+        vup = camera.getVUP();
         vup.normalize();
 
         // Get the correct "right" vector.
@@ -980,7 +968,7 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, prt_t *pprt, Uint8 tr
     return gfx_success;
 }
 
-gfx_rv prt_instance_update(std::shared_ptr<Camera> camera, const PRT_REF particle, Uint8 trans, bool do_lighting)
+gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting)
 {
     if (!DISPLAY_PRT(particle))
     {

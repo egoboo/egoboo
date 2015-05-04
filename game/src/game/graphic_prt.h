@@ -129,5 +129,5 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt);
 gfx_rv render_one_prt_ref(const PRT_REF iprt);
 void render_all_prt_bbox();
 void render_all_prt_attachment();
-gfx_rv update_all_prt_instance(std::shared_ptr<Camera> pcam);
+gfx_rv update_all_prt_instance(Camera& cam);
 

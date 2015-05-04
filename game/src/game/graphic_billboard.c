@@ -428,31 +428,32 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
 
 gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera)
 {
-    if (nullptr == camera)
+    if (!camera)
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
         return gfx_error;
     }
 
-    gfx_begin_3d(camera);
+    gfx_begin_3d(*camera);
     {
         ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
         {
+            auto& renderer = Ego::Renderer::get();
             // Do not write into the depth buffer.
-            Ego::Renderer::get().setDepthWriteEnabled(false);
+            renderer.setDepthWriteEnabled(false);
 
             // Essentially disable the depth test without calling
             // Ego::Renderer::get().setDepthTestEnabled(false).
-			Ego::Renderer::get().setDepthTestEnabled(true);
-            Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::AlwaysPass);
+            renderer.setDepthTestEnabled(true);
+            renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
 
             // flat shading
-            GL_DEBUG( glShadeModel )( GL_FLAT );                                  // GL_LIGHTING_BIT
+            renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
 
             // draw draw front and back faces of polygons
             oglx_end_culling();                                // GL_ENABLE_BIT
 
-            Ego::Renderer::get().setBlendingEnabled(true);
+            renderer.setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
             Ego::Renderer::get().setAlphaTestEnabled(true);

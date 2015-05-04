@@ -87,8 +87,8 @@ Camera::Camera(const CameraOptions &options) :
     _trackList(),
     _screen(),
     _lastFrame(-1),
-    _renderList(-1),
-    _doList(-1)
+    _renderList(nullptr),
+    _doList(nullptr)
 {
     // Derived values.
 	_trackPos = _center;
@@ -117,14 +117,12 @@ Camera::Camera(const CameraOptions &options) :
     }
 
     // Lock a renderlist for this camera.
-    _renderList = rmgr_ptr->get_free_idx();
-
+    _renderList = rmgr_ptr->acquire();
     // Connect the renderlist to the mesh.
-    renderlist_t *rlst_ptr = rmgr_ptr->get_ptr(_renderList);
-    rlst_ptr->setMesh(PMesh);
+    _renderList->setMesh(PMesh);
 
     // Lock a dolist for this camera.
-    _doList = dmgr_ptr->get_free_idx();
+    _doList = dmgr_ptr->acquire();
 
     // Assume that the camera is fullscreen.
     setScreen(0, 0, sdl_scr.x, sdl_scr.y);
@@ -133,20 +131,10 @@ Camera::Camera(const CameraOptions &options) :
 Camera::~Camera()
 {
     // Free any locked renderlist.
-    renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr();
-    if (-1 != _renderList)
-    {
-        rmgr_ptr->free_one(_renderList);
-        _renderList = -1;
-    }
+    _renderList = nullptr;
 
     // Free any locked dolist.
-    dolist_mgr_t *dmgr_ptr = gfx_system_get_dolist_mgr();
-    if (-1 != _doList)
-    {
-        dmgr_ptr->free_one(_doList);
-        _doList = -1;
-    }
+    _doList = nullptr;
 }
 
 float Camera::multiplyFOV(const float old_fov_deg, const float factor)
@@ -826,7 +814,7 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
     updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
 }
 
-void Camera::initialize(int renderList, int doList)
+void Camera::initialize(std::shared_ptr<renderlist_t> renderList, std::shared_ptr<dolist_t> doList)
 {
     // Make the default viewport fullscreen.
     _screen.xmin = 0.0f;
