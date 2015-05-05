@@ -658,7 +658,7 @@ fvec3_t chr_get_mesh_diff(Object *chr, float center_pressure)
 {
     if (!chr)
     {
-        return fvec3_t::zero;
+        return fvec3_t::zero();
     }
     return chr_get_mesh_diff(chr, chr->getPosition(), center_pressure);
 }
@@ -666,12 +666,12 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
 {
     if (!chr)
     {
-        return fvec3_t::zero;
+        return fvec3_t::zero();
     }
 
     if (CHR_INFINITE_WEIGHT == chr->phys.weight)
     {
-        return fvec3_t::zero;
+        return fvec3_t::zero();
     }
 
     // Calculate the radius based on whether the character is on camera.
@@ -2944,7 +2944,7 @@ void respawn_character( const CHR_REF character )
     pchr->life = pchr->life_max;
     pchr->mana = pchr->mana_max;
     pchr->setPosition(pchr->pos_stt);
-    pchr->vel = fvec3_t::zero;
+    pchr->vel = fvec3_t::zero();
     pchr->team = pchr->team_base;
     pchr->canbecrushed = false;
     pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
@@ -4060,7 +4060,7 @@ void move_one_character_get_environment( Object * pchr )
     // add in something for the "ground speed"
     if ( NULL == pplatform )
     {
-		penviro->floor_speed = fvec3_t::zero;
+		penviro->floor_speed = fvec3_t::zero();
     }
     else
     {
@@ -4085,7 +4085,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     if ( 0 != pchr->flyheight ) return;
 
     // assume the best
-	floor_acc = fvec3_t::zero;
+	floor_acc = fvec3_t::zero();
     temp_friction_xy = 1.0f;
     vup.x = 0.0f; vup.y = 0.0f; vup.z = 1.0f;
 
@@ -5068,10 +5068,10 @@ bool move_one_character_integrate_motion( Object * pchr )
             {
                 bool         found_nrm  = false;
                 bool         found_safe = false;
-                fvec3_t      safe_pos   = fvec3_t::zero;
+                fvec3_t      safe_pos   = fvec3_t::zero();
 
                 bool         found_diff = false;
-                fvec2_t      diff       = fvec2_t::zero;
+                fvec2_t      diff       = fvec2_t::zero();
 
                 breadcrumb_t * bc         = NULL;
 
@@ -5190,8 +5190,8 @@ bool move_one_character_integrate_motion( Object * pchr )
                     fvec3_t save_pos;
                     float nrm2;
 
-                    fvec2_t v_perp = fvec2_t::zero;
-                    fvec2_t diff_perp = fvec2_t::zero;
+                    fvec2_t v_perp = fvec2_t::zero();
+                    fvec2_t diff_perp = fvec2_t::zero();
 
 					nrm2 = nrm.dot(nrm);
 
@@ -5206,7 +5206,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                     }
 
                     // find the part of the diff that is parallel to the normal
-                    diff_perp = fvec2_t::zero;
+                    diff_perp = fvec2_t::zero();
                     if ( nrm2 > 0.0f )
                     {
                         diff_perp = nrm * (dot / nrm2);
@@ -5248,7 +5248,7 @@ bool move_one_character_integrate_motion( Object * pchr )
    
                         loc_bumpdampen = ProfileSystem::get().getProfile(pchr->profile_ref)->getBumpDampen();
 
-                        v_perp = fvec2_t::zero;
+                        v_perp = fvec2_t::zero();
                         if ( 0.0f != nrm2 )
                         {
                             v_perp = nrm * (dot / nrm2);

@@ -1916,7 +1916,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 //--------------------------------------------------------------------------------------------
 bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    fvec3_t vdiff = fvec3_t::zero;
+    fvec3_t vdiff = fvec3_t::zero();
 
     oct_vec_v2_t apos, bpos;
 
@@ -2376,7 +2376,7 @@ bool do_chr_chr_collision( CoNode_t * d )
         if ( depth_min <= 0.0f || collision )
         {
             need_displacement = false;
-			pdiff_a = fvec3_t::zero;
+			pdiff_a = fvec3_t::zero();
         }
         else
         {
@@ -3620,14 +3620,14 @@ chr_prt_collision_data_t * chr_prt_collision_data_t::init( chr_prt_collision_dat
     //---- collision modifications
     ptr->mana_paid = false;
     ptr->max_damage = ptr->actual_damage = 0;
-	ptr->vdiff = fvec3_t::zero;
-	ptr->vdiff_para = fvec3_t::zero;
-	ptr->vdiff_perp = fvec3_t::zero;
+	ptr->vdiff = fvec3_t::zero();
+	ptr->vdiff_para = fvec3_t::zero();
+	ptr->vdiff_perp = fvec3_t::zero();
     ptr->block_factor = 0.0f;
 
     //---- collision reaction
-	ptr->vimpulse = fvec3_t::zero;
-	ptr->pimpulse = fvec3_t::zero;
+	ptr->vimpulse = fvec3_t::zero();
+	ptr->pimpulse = fvec3_t::zero();
     ptr->terminate_particle = false;
     ptr->prt_bumps_chr = false;
     ptr->prt_damages_chr = false;

@@ -285,7 +285,7 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
     int cnt, ivrt, idx;
 
     float   vweight = 0.0f;
-    fvec3_t vsum    = fvec3_t::zero;
+    fvec3_t vsum    = fvec3_t::zero();
 
     Cartman::mpd_vertex_t * pvrt;
 

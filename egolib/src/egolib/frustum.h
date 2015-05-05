@@ -29,8 +29,12 @@
 
 #pragma push_macro("far")
 #undef far
+#pragma push_macro("FAR")
+#undef FAR
 #pragma push_macro("near")
 #undef near
+#pragma push_macro("NEAR")
+#undef NEAR
 
 /**
  * @brief
@@ -46,7 +50,9 @@ struct egolib_frustum_t
         BOTTOM,
         TOP,
         BACK,  ///< the back/far plane
+        FAR = BACK,
         FRONT, ///< the front/near plane
+        NEAR = FRONT,
         COUNT,
 
         // some aliases
@@ -216,5 +222,7 @@ protected:
 
 };
 
+#pragma pop_macro("NEAR")
 #pragma pop_macro("near")
+#pragma pop_macro("FAR")
 #pragma pop_macro("far")

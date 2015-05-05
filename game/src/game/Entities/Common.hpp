@@ -184,7 +184,7 @@ struct PhysicsData
         phys_data_t::reset(&self->phys);
 
         self->safe_valid = false;
-        self->safe_pos = fvec3_t::zero;
+        self->safe_pos = fvec3_t::zero();
         self->safe_time = 0;
         self->safe_grid = TileIndex::Invalid;
 
@@ -196,12 +196,12 @@ struct PhysicsData
         self->onwhichplatform_ref = INVALID_CHR_REF;
         self->onwhichplatform_update = 0;
 
-        self->pos = fvec3_t::zero;
-        self->pos_old = fvec3_t::zero;
+        self->pos = fvec3_t::zero();
+        self->pos_old = fvec3_t::zero();
 
-        self->vel = fvec3_t::zero;
-        self->vel_old = fvec3_t::zero;
+        self->vel = fvec3_t::zero();
+        self->vel_old = fvec3_t::zero();
 
-        self->pos_stt = fvec3_t::zero;
+        self->pos_stt = fvec3_t::zero();
     }
 };

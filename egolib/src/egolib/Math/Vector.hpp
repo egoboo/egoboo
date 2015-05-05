@@ -33,6 +33,41 @@ namespace Ego
 {
 namespace Math
 {
+    template <size_t I, typename Type, size_t Size>
+    void unpack(typename Type(&dst)[Size]) {}
+
+    template <size_t I, typename  Type, size_t Size, typename Arg>
+    void _unpack(typename Type(&dst)[Size], Arg&& arg) {
+        dst[I] = arg;
+    }
+
+    template <size_t I, typename Type, size_t Size, typename Arg, class ... Args>
+    void _unpack(typename Type(&dst)[Size], Arg&& arg, Args&& ... args) {
+        dst[I] = arg;
+        _unpack<I + 1, Type>(dst, args ...);
+    }
+
+    /**
+     * @brief
+     *  You can use "unpack" for storing non-type parameter packs in arrays.
+     * @invariant
+     *  The number of arguments must be exactly the length of the array.
+     * @invariant
+     *  The argument types must be the array type.
+     * @remark
+     *  Example usage:
+     *  @code
+     *  float a[3]; unpack(a,0.5,0.1)
+     *  @endcode
+     * @author
+     *  Michael Heilmann
+     */
+    template <typename Type, size_t Size, typename ... Args>
+    void unpack(typename Type(&dst)[Size], Args&& ...args) {
+        static_assert(Size == sizeof ... (args), "wrong number of arguments");
+        _unpack<0, Type, Size>(dst, args ...);
+    }
+
     /**
      * @brief
      *  Vectors with compile-time dimensionality.
@@ -48,12 +83,325 @@ namespace Math
      *  The efficiency of this template depends on the optimization
      *  capabilities of your compiler  (in particular, loop unrolling).
      */
-    template <typename ScalarType,size_t Dimensionality>
-    struct AbstractVector
+
+template <typename _ScalarType, size_t _Dimensionality> using EnableAbstractVector =
+    typename std::enable_if<
+    std::is_floating_point<_ScalarType>::value && (_Dimensionality > 0)
+    >::type;
+
+template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
+struct AbstractVector;
+
+    template <typename _ScalarType, size_t _Dimensionality>
+    struct AbstractVector<_ScalarType, _Dimensionality, EnableAbstractVector<_ScalarType, _Dimensionality>>
     {
-        static_assert(std::is_floating_point<ScalarType>::value, "ScalarType must be a floating point type");
-        static_assert(std::integral_constant<size_t, Dimensionality>::value > 0, "Dimensionality must be positive");
+    public:
+        /**
+         * @brief
+         *  @a ScalarType is the type of the underlaying scalars.
+         */
+        typedef _ScalarType ScalarType;
+        /**
+         * @brief
+         *  @a MyType is the type of the vector..
+         */
+        typedef AbstractVector<_ScalarType, _Dimensionality> MyType;
+        /**
+         * @brief
+         *  The dimensionality of this vector.
+         */
+        static const size_t Dimensionality;
+    private:
+        /// @invariant the scalar type must be a floating point type.
+        static_assert(std::is_floating_point<_ScalarType>::value, "_ScalarType must be a floating point type");
+        /// @invariant the dimensionality be a positive integral constant
+        static_assert(std::integral_constant<size_t, _Dimensionality>::value > 0, "_Dimensionality must be a positive integral constant");
+        /**
+         * @brief
+         *  The elements of this vector.
+         */
+        _ScalarType _elements[_Dimensionality];
+
+    public:
+
+
+        /// @todo Only enable this
+        /// a) if the parameter pack is of length N=_Dimensionality -1 and
+        /// b) if all N parameters are convertible to _ScalarType.
+        template<typename ... ArgTypes/*,typename = std::enable_if<true>*/>
+        AbstractVector(_ScalarType v, ArgTypes&& ... args) {
+            static_assert(_Dimensionality - 1 == sizeof ... (args), "wrong number of arguments");
+            unpack<float, _Dimensionality>(_elements, std::forward<_ScalarType>(v), args ...);
+        }
+
+        AbstractVector() :
+            _elements()
+        {}
+
+        AbstractVector(const MyType& other) {
+            for (size_t i = 0; i < Dimensionality; ++i) {
+                _elements[i] = other._elements[i];
+            }
+        }
+
+        /**
+        * @brief
+        *    Compute the dot product of this vector and another vector.
+        * @param other
+        *    the other vector
+        * @return
+        *    the dot product <tt>(*this) * other</tt> of this vector and the other vector
+        */
+        ScalarType dot(const MyType& other) const {
+            ScalarType t = _elements[0] * _elements[0];
+            for (size_t i = 1; i < Dimensionality; ++i) {
+                t += _elements[i] * _elements[i];
+            }
+            return t;
+        }
+
+        /**
+        * @brief
+        *    Multiply this vector by a scalar.
+        * @param scalar
+        *    the scalar
+        * @post
+        *    The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
+        */
+        void multiply(ScalarType scalar) {
+            for (size_t i = 0; i < Dimensionality; ++i) {
+                _elements[i] *= scalar;
+            }
+        }
+
+        /**
+        * @brief
+        *    Normalize this vector to the specified length.
+        * @param length
+        *    the length
+        * @post
+        *    If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
+        *    and is assigned <tt>length * (*this) / |(*this)|</tt> otherwise.
+        */
+        void normalize(ScalarType length) {
+            ScalarType l = this->length();
+            if (l > 0.0f) {
+                multiply(length / l);
+            }
+        }
+
+        /**
+        * @brief
+        *    Normalize this vector.
+        * @return
+        *    the old length of this vector
+        * @post
+        *    If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
+        *    and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
+        */
+        ScalarType normalize() {
+            ScalarType l = length();
+            if (l > 0.0f) {
+                multiply(1.0f / l);
+            }
+            return l;
+        }
+
+        /**
+        * @brief
+        *    Get if this vector equals another vectors.
+        * @param other
+        *    the other vector
+        * @return
+        *    @a true if this vector equals the other vector
+        */
+        bool equals(const MyType& other) const {
+            for (size_t i = 0; i < Dimensionality; ++i) {
+                if (_elements[i] != other._elements[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+        * @brief
+        *  Get the squared length of this vector
+        *  (using the Euclidian metric).
+        * @return
+        *    the squared length of this vector
+        */
+        ScalarType length_2() const {
+            ScalarType t = _elements[0] * _elements[0];
+            for (size_t i = 1; i < Dimensionality; ++i) {
+                t += _elements[i] * _elements[i];
+            }
+            return t;
+        }
+
+        /**
+        * @brief
+        *  Get the length of this vector
+        *  (using the Euclidian metric).
+        * @return
+        *  the length of this vector
+        */
+        ScalarType length() const {
+            return std::sqrt(length_2());
+        }
+
+        /**
+        * @brief
+        *  Get the length of this vector
+        *  (using the Manhattan metric).
+        * @return
+        *  the length of this vector
+        */
+        ScalarType length_abs() const
+        {
+            ScalarType t = std::abs(_elements[0]);
+            for (size_t i = 1; i < Dimensionality; ++i)
+            {
+                t += std::abs(_elements[i]);
+            }
+            return t;
+        }
+
+        /**
+        * @brief
+        *  Get the length of this vector
+        *  (using the Maximum metric).
+        * @return
+        *  the length of this vector
+        */
+        ScalarType length_max() const
+        {
+            return *std::max_element(_elements, _elements + Dimensionality);
+        }
+
+        const MyType& operator=(const MyType& other)
+        {
+            for (size_t i = 0; i < Dimensionality; ++i)
+            {
+                _elements[i] = other._elements[i];
+            }
+            return *this;
+        }
+
+    public:
+
+        MyType operator+(const MyType& other) const
+        {
+            MyType t(*this);
+            t += other;
+            return t;
+        }
+
+        MyType& operator+=(const MyType& other)
+        {
+            for (size_t i = 0; i < Dimensionality; ++i)
+            {
+                _elements[i] += other._elements[i];
+            }
+            return *this;
+        }
+
+        MyType operator-(const MyType& other) const
+        {
+            MyType t(*this);
+            t -= other;
+            return t;
+        }
+
+        MyType& operator-=(const MyType& other)
+        {
+            for (size_t i = 0; i < Dimensionality; ++i)
+            {
+                _elements[i] -= other._elements[i];
+            }
+            return *this;
+        }
+
+        MyType operator*(const ScalarType other) const
+        {
+            MyType t(*this);
+            t *= other;
+            return t;
+        }
+
+        MyType& operator*=(ScalarType scalar)
+        {
+            multiply(scalar);
+            return *this;
+        }
+
+    public:
+
+        ScalarType& operator[](size_t const& index)
+        {
+        #ifdef _DEBUG
+            EGOBOO_ASSERT(index < Dimensionality);
+        #endif
+            return _elements[index];
+        }
+
+        const ScalarType& operator[](size_t const& index) const
+        {
+        #ifdef _DEBUG
+            EGOBOO_ASSERT(index < Dimensionality);
+        #endif
+            return _elements[index];
+        }
+
+        MyType operator-() const
+        {
+            return (*this) * -1;
+        }
+
+
+    public:
+
+        /**
+        * @brief
+        *  Get if this vector is a unit vector.
+        * @return
+        *  @a true if this vector is a unit vector, @a false otherwise
+        */
+        bool isUnit() const
+        {
+            ScalarType t = length_2();
+            return 0.99 < t && t < 1.01;
+        }
+
+    public:
+
+        /**
+        * @brief
+        *  Get the zero vector.
+        * @return
+        *  the zero vector
+        */
+        static const MyType& zero();
+
     };
+
+    /**
+    * @brief
+    *  Get the zero vector.
+    * @return
+    *  the zero vector
+    */
+    template <typename _ScalarType, size_t _Dimensionality>
+    const AbstractVector<_ScalarType, _Dimensionality>&
+        AbstractVector< _ScalarType, _Dimensionality, EnableAbstractVector<_ScalarType, _Dimensionality>>::zero() {
+        static const auto ZERO = AbstractVector<_ScalarType, _Dimensionality, EnableAbstractVector<_ScalarType, _Dimensionality>>();
+            return ZERO;
+        }
+
+    template <typename _ScalarType, size_t _Dimensionality>
+    const size_t AbstractVector<_ScalarType, _Dimensionality, EnableAbstractVector<_ScalarType, _Dimensionality>>::Dimensionality
+        = _Dimensionality;
+
 }
 }
 
@@ -69,239 +417,7 @@ typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector 
 typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
 
 /// A 2-vector type that allows more than one form of access.
-struct fvec2_t
-{
-
-    union
-    {
-        fvec2_base_t v;
-        struct { float x, y; };
-        struct { float s, t; };
-    };
-
-    const static fvec2_t zero;
-
-    fvec2_t() :
-        x(), y()
-    {
-    }
-
-    fvec2_t(const fvec2_t& other) : x(other.x), y(other.y)
-    {
-    }
-
-    fvec2_t(float x, float y)
-    {
-        this->x = x;
-        this->y = y;
-    }
-
-    /**
-     * @brief
-     *    Compute the dot product of this vector and another vector.
-     * @param other
-     *    the other vector
-     * @return
-     *    the dot product <tt>(*this) * other</tt> of this vector and the other vector
-     */
-    float dot(const fvec2_t& other) const
-    {
-        return v[kX] * other.v[kX]
-             + v[kY] * other.v[kY]
-             ;
-    }
-
-    /**
-     * @brief
-     *    Multiply this vector by a scalar.
-     * @param scalar
-     *    the scalar
-     * @post
-     *    The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
-     */
-    void multiply(float scalar)
-    {
-        v[kX] *= scalar;
-        v[kY] *= scalar;
-    }
-
-    /**
-    * @brief
-    *    Normalize this vector to the specified length.
-    * @param length
-    *    the length
-    * @post
-    *    If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
-    *    and is assigned <tt>length * (*this) / |(*this)|</tt> otherwise.
-    */
-    void normalize(float length)
-    {
-        float l = this->length();
-        if (l > 0.0f)
-        {
-            multiply(length / l);
-        }
-    }
-
-    /**
-     * @brief
-     *    Normalize this vector.
-     * @return
-     *    the old length of this vector
-     * @post
-     *    If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
-     *    and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
-     */
-    float normalize()
-    {
-        float l = length();
-        if (l > 0.0f)
-        {
-            multiply(1.0f / l);
-        }
-        return l;
-    }
-
-    /**
-     * @brief
-     *    Get if this vector equals another vectors.
-     * @param other
-     *    the other vector
-     * @return
-     *    @a true if this vector equals the other vector
-     */
-    bool equals(const fvec2_t& other) const
-    {
-        return x == other.x
-            && y == other.y;
-    }
-
-    /**
-     * @brief
-     *  Get the squared length of this vector
-     *  (using the Euclidian metric).
-     * @return
-     *    the squared length of this vector
-     */
-    float length_2() const
-    {
-        return v[kX] * v[kX]
-             + v[kY] * v[kY]
-             ;
-    }
-
-    /**
-     * @brief
-     *  Get the length of this vector
-     *  (using the Euclidian metric).
-     * @return
-     *  the length of this vector
-     */
-    float length() const
-    {
-        return std::sqrt(length_2());
-    }
-
-    /**
-     * @brief
-     *  Get the length of this vector
-     *  (using the Manhattan metric).
-     * @return
-     *  the length of this vector
-     */
-    float length_abs() const
-    {
-        return std::abs(v[kX])
-             + std::abs(v[kY]);
-    }
-
-    /**
-     * @brief
-     *  Get the length of this vector
-     *  (using the Maximum metric).
-     * @return
-     *  the length of this vector
-     */
-    float length_max() const
-    {
-        return std::max({std::abs(v[kX]),std::abs(v[kY])});
-    }
-
-    const fvec2_t& operator=(const fvec2_t& other)
-    {
-        x = other.x;
-        y = other.y;
-        return *this;
-    }
-
-    fvec2_t operator+(const fvec2_t& other) const
-    {
-        return fvec2_t(x + other.x, y + other.y);
-    }
-
-    fvec2_t& operator+=(const fvec2_t& other)
-    {
-        x += other.x;
-        y += other.y;
-        return *this;
-    }
-
-    fvec2_t operator-(const fvec2_t& other) const
-    {
-        return fvec2_t(x - other.x, y - other.y);
-    }
-
-    fvec2_t& operator-=(const fvec2_t& other)
-    {
-        x -= other.x;
-        y -= other.y;
-        return *this;
-    }
-
-    fvec2_t operator*(const float other) const
-    {
-        return fvec2_t(other * v[kX], other * v[kY]);
-    }
-
-    fvec2_t& operator*=(float scalar)
-    {
-        multiply(scalar);
-        return *this;
-    }
-
-    float& operator[](size_t const& index)
-    {
-#ifdef _DEBUG
-        EGOBOO_ASSERT(index < 2);
-#endif
-        return v[index];
-    }
-
-    const float &operator[](size_t const& index) const
-    {
-#ifdef _DEBUG
-        EGOBOO_ASSERT(index < 2);
-#endif
-        return v[index];
-    }
-
-    /**
-     * @brief
-     *  Get if this vector is a unit vector.
-     * @return
-     *  @a true if this vector is a unit vector, @a false otherwise
-     */
-    bool isUnit() const
-    {
-        float t = length_2();
-        return 0.99f < t && t < 1.01f;
-    }
-
-
-};
-
-fvec2_t operator-(const fvec2_t& v);
-
+typedef Ego::Math::AbstractVector<float, 2> fvec2_t;
 
 #ifdef _DEBUG
 namespace Ego
@@ -325,7 +441,11 @@ struct fvec3_t
         struct { float r, g, b; };
     };
 
-    const static fvec3_t zero;
+    static const fvec3_t& zero()
+    {
+        static const fvec3_t ZERO = fvec3_t(0.0f, 0.0f, 0.0f);
+        return ZERO;
+    }
 
     fvec3_t() :
         x(), y(), z()

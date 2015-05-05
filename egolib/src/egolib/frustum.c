@@ -26,8 +26,13 @@
 
 #pragma push_macro("far")
 #undef far
+#pragma push_macro("FAR")
+#undef FAR
 #pragma push_macro("near")
 #undef near
+#pragma push_macro("NEAR")
+#undef NEAR
+
 
 egolib_frustum_t::egolib_frustum_t()
 {
@@ -418,5 +423,7 @@ bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) co
 	return retval;
 }
 
+#pragma pop_macro("NEAR")
 #pragma pop_macro("near")
+#pragma pop_macro("FAR")
 #pragma pop_macro("far")

@@ -45,7 +45,7 @@ sphere_t& sphere_t::operator=(const sphere_t& other)
 }
 
 sphere_t::sphere_t() :
-	origin(fvec3_t::zero),
+	origin(fvec3_t::zero()),
 	radius(0.0f)
 {
 }
@@ -94,7 +94,7 @@ bool sphere_t::intersects(const sphere_t& other) const
 
 bool sphere_self_clear(sphere_t& self)
 {
-	self.origin = fvec3_t::zero;
+	self.origin = fvec3_t::zero();
 	self.radius = 0.0f;
 	return true;
 }
@@ -102,5 +102,5 @@ bool sphere_self_clear(sphere_t& self)
 bool sphere_self_is_clear(const sphere_t& self)
 {
 	return 0.0f == self.radius
-		&& fvec3_t::zero == self.origin;
+		&& fvec3_t::zero() == self.origin;
 }

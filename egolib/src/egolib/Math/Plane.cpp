@@ -25,19 +25,17 @@
 plane_t::plane_t() :
 	_n(0.0f, 0.0f, 1.0f),
 	_d(0.0f)
-{
-	//ctor
-}
+{}
 
 plane_t::plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c) : plane_t()
 {
 	fvec3_t u = b - a;
-	if (u == fvec3_t::zero)
+	if (u == fvec3_t::zero())
 	{
 		throw std::domain_error("b = a");
 	}
 	fvec3_t v = c - a;
-	if (u == fvec3_t::zero)
+	if (u == fvec3_t::zero())
 	{
 		throw std::domain_error("c = a");
 	}

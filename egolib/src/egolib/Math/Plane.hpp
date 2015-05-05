@@ -194,6 +194,28 @@ public:
 	 */
 	float distance(const fvec3_t& point) const;
 
+    /**
+     * @brief
+     *  Get the plane normal of this plane.
+     * @return
+     *  the plane normal of this plane
+     */
+    const fvec3_t getNormal() const
+    {
+        return _n;
+    }
+
+    /**
+     * @brief
+     *  Get the distance of this plane from the origin.
+     * @return
+     *  the distance of this plane from the origin
+     */
+    float getDistance() const
+    {
+        return _d;
+    }
+
 
 private:
 	/**

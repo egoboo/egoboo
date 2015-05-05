@@ -99,15 +99,15 @@ struct prt_instance_t
         self->alpha = 0.0f;
 
         // position info
-        self->pos = fvec3_t::zero;
+        self->pos = fvec3_t::zero();
         self->size = 0.0f;
         self->scale = 0.0f;
 
         // billboard info
         self->orientation = prt_ori_t::ORIENTATION_B;
-        self->up = fvec3_t::zero;
-        self->right = fvec3_t::zero;
-        self->nrm = fvec3_t::zero;
+        self->up = fvec3_t::zero();
+        self->right = fvec3_t::zero();
+        self->nrm = fvec3_t::zero();
 
         // lighting info
         self->famb = 0.0f;
@@ -118,9 +118,9 @@ struct prt_instance_t
 
         // pre-compute some values for the reflected particle posisions
         self->ref_valid = false;
-        self->ref_up = fvec3_t::zero;
-        self->ref_right = fvec3_t::zero;
-        self->ref_pos = fvec3_t::zero;
+        self->ref_up = fvec3_t::zero();
+        self->ref_right = fvec3_t::zero();
+        self->ref_pos = fvec3_t::zero();
     }
 };
 

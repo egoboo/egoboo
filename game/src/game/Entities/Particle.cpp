@@ -105,11 +105,11 @@ prt_t *prt_t::config_do_ctor()
 
     this->_image.reset();
 
-    this->vel_stt = fvec3_t::zero;
+    this->vel_stt = fvec3_t::zero();
 
     PhysicsData::reset(this);
 
-    this->offset = fvec3_t::zero;
+    this->offset = fvec3_t::zero();
 
     this->is_hidden = false;
 
@@ -1106,7 +1106,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * 
     if (SPRITE_LIGHT == loc_pprt->type) return pbdl_prt;
 
     // assume no acceleration
-    fluid_acc = fvec3_t::zero;
+    fluid_acc = fvec3_t::zero();
 
     // get the speed relative to the fluid
     if (loc_pprt->enviro.inwater)
@@ -1391,7 +1391,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
 
     loc_zlerp = CLIP(penviro->zlerp, 0.0f, 1.0f);
 
-    z_motion_acc = fvec3_t::zero;
+    z_motion_acc = fvec3_t::zero();
 
     // in higher gravity environments, buoyancy is larger
     tmp_buoyancy = loc_pprt->buoyancy * std::abs(Physics::g_environment.gravity);
@@ -1620,7 +1620,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
         vel_dot = floor_nrm.dot(loc_pprt->vel);
         if (0.0f == vel_dot)
         {
-            vel_perp = fvec3_t::zero;
+            vel_perp = fvec3_t::zero();
             vel_para = loc_pprt->vel;
         }
         else
@@ -2330,7 +2330,7 @@ bool prt_t::get_pos(const prt_t *self, fvec3_t& position)
 
 const fvec3_t& prt_t::get_pos_v_const(const prt_t *pprt)
 {
-    if (!ALLOCATED_PPRT(pprt)) return fvec3_t::zero;
+    if (!ALLOCATED_PPRT(pprt)) return fvec3_t::zero();
     return pprt->pos;
 }
 

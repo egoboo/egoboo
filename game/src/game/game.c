@@ -1230,7 +1230,7 @@ void update_pits()
                     else
                     {
                         // Stop movement
-                        pchr->vel = fvec3_t::zero;
+                        pchr->vel = fvec3_t::zero();
 
                         // Play sound effect
                         if ( VALID_PLA( pchr->is_which_player ) )
@@ -1366,8 +1366,8 @@ void set_one_player_latch( const PLA_REF ipla )
 
     // Clear the player's latch buffers
     sum.clear();
-    joy_new = fvec2_t::zero;
-    joy_pos = fvec2_t::zero;
+    joy_new = fvec2_t::zero();
+    joy_pos = fvec2_t::zero();
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera
@@ -3758,10 +3758,10 @@ bool wawalite_finalize(wawalite_data_t *data)
     }
 
     int windspeed_count = 0;
-    Physics::g_environment.windspeed = fvec3_t::zero;
+    Physics::g_environment.windspeed = fvec3_t::zero();
 
     int waterspeed_count = 0;
-    Physics::g_environment.waterspeed = fvec3_t::zero;
+    Physics::g_environment.waterspeed = fvec3_t::zero();
 
     wawalite_water_layer_t *ilayer = wawalite_data.water.layer + 0;
     if (wawalite_data.water.background_req)

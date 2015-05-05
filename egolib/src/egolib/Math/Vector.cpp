@@ -25,16 +25,7 @@
 #include "egolib/log.h"
 #include "egolib/_math.h"
 
-const fvec2_t fvec2_t::zero(0.0f, 0.0f);
-
-const fvec3_t fvec3_t::zero(0.0f, 0.0f, 0.0f);
-
 const fvec4_t fvec4_t::zero(0.0f, 0.0f, 0.0f, 0.0f);
-
-fvec2_t operator-(const fvec2_t& v)
-{
-    return fvec2_t(-v.x, -v.y);
-}
 
 fvec3_t operator-(const fvec3_t& v)
 {

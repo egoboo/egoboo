@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------
 float light_a = 0.0f,
       light_d = 0.0f;
-fvec3_t light_nrm = fvec3_t::zero;
+fvec3_t light_nrm = fvec3_t::zero();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -619,7 +619,7 @@ dynalight_data_t * dynalight_data__init( dynalight_data_t * ptr )
     ptr->distance = 1000.0f;
     ptr->falloff = 255.0f;
     ptr->level = 0.0f;
-	ptr->pos = fvec3_t::zero;
+	ptr->pos = fvec3_t::zero();
 
     return ptr;
 }

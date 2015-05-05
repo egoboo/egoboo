@@ -250,7 +250,7 @@ bool two_plane_intersection(fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_base
     if (dst_dir.normalize() < 0.0f)
     {
         retval = false;
-		dst_pos = fvec3_t::zero;
+        dst_pos = fvec3_t::zero();
     }
     else
     {

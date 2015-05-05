@@ -237,7 +237,7 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
     if (tmin_aa <= 0.0f || tmin_aa >= 1e6) return false;
 
     // Next do the diagonal axes.
-	fvec3_t nrm_diag = fvec3_t::zero;
+	fvec3_t nrm_diag = fvec3_t::zero();
 
     if (0.0f != odepth[OCT_XY]) nrm_diag.x = 1.0f / (odepth[OCT_XY] * Ego::Math::invSqrtTwo<float>());
     if (0.0f != odepth[OCT_YX]) nrm_diag.y = 1.0f / (odepth[OCT_YX] * Ego::Math::invSqrtTwo<float>());
@@ -1396,7 +1396,7 @@ phys_data_t *phys_data_clear(phys_data_t *self)
 
     apos_t::reset(&(self->aplat));
     apos_t::reset(&(self->acoll));
-    self->avel = fvec3_t::zero;
+    self->avel = fvec3_t::zero();
     /// @todo Seems like dynamic and loaded data are mixed here;
     /// We may not blank bumpdampen, weight or dampen for now.
 #if 0
@@ -1415,7 +1415,7 @@ void phys_data_t::reset(phys_data_t *self)
     }
     apos_t::reset(&(self->aplat));
     apos_t::reset(&(self->acoll));
-    self->avel = fvec3_t::zero;
+    self->avel = fvec3_t::zero();
     self->bumpdampen = 1.0f;
     self->weight = 1.0f;
     self->dampen = 0.5f;
@@ -1429,7 +1429,7 @@ phys_data_t *phys_data_t::ctor(phys_data_t *self)
     }
     apos_t::ctor(&(self->aplat));
     apos_t::ctor(&(self->acoll));
-    self->avel = fvec3_t::zero;
+    self->avel = fvec3_t::zero();
     self->bumpdampen = 1.0f;
     self->weight = 1.0f;
     self->dampen = 0.5f;
@@ -1513,7 +1513,7 @@ bool apos_t::evaluate(const apos_t *self, fvec3_t& dst)
 {
     if (!self)
     {
-		dst = fvec3_t::zero;
+		dst = fvec3_t::zero();
 		return true;
     }
 

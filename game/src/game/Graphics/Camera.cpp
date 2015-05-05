@@ -376,7 +376,7 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
 
 	        sum_wt    = 0.0f;
 	        sum_level = 0.0f;
-			sum_pos = fvec3_t::zero;
+			sum_pos = fvec3_t::zero();
 
 	        for(CHR_REF ichr : _trackList)
 	        {
@@ -434,7 +434,7 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
 	            // Use the characer's "activity" to average the position the camera is viewing.
 	            float sum_wt    = 0.0f;
 	            float sum_level = 0.0f;
-				fvec3_t sum_pos = fvec3_t::zero;
+				fvec3_t sum_pos = fvec3_t::zero();
 
 	            for (int cnt = 0; cnt < local_chr_count; ++cnt)
 	            {

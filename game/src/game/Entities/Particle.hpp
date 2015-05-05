@@ -94,7 +94,7 @@ struct prt_environment_t
 
         // misc states
         self->inwater = false;
-        self->acc = fvec3_t::zero;
+        self->acc = fvec3_t::zero();
     }
 };
 
@@ -117,7 +117,7 @@ struct prt_spawn_data_t
 
     static void reset(prt_spawn_data_t *self)
     {
-        self->pos = fvec3_t::zero;
+        self->pos = fvec3_t::zero();
         self->facing = 0;
         self->iprofile = INVALID_PRO_REF;
         self->ipip = INVALID_PIP_REF;

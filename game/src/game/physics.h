@@ -255,9 +255,9 @@ struct apos_t
         {
             throw std::invalid_argument("nullptr == self");
         }
-        self->mins = fvec3_t::zero;
-        self->maxs = fvec3_t::zero;
-        self->sum  = fvec3_t::zero;
+        self->mins = fvec3_t::zero();
+        self->maxs = fvec3_t::zero();
+        self->sum  = fvec3_t::zero();
     }
 
 
@@ -267,9 +267,9 @@ struct apos_t
         {
             throw std::invalid_argument("nullptr == self");
         }
-        self->mins = fvec3_t::zero;
-        self->maxs = fvec3_t::zero;
-        self->sum  = fvec3_t::zero;
+        self->mins = fvec3_t::zero();
+        self->maxs = fvec3_t::zero();
+        self->sum  = fvec3_t::zero();
     
         return self;
     }
@@ -362,7 +362,7 @@ struct breadcrumb_t
     void reset()
     {
         valid = false;
-        pos = fvec3_t::zero;
+        pos = fvec3_t::zero();
         grid = 0;
         radius = 0.0f;
         bits = 0;
