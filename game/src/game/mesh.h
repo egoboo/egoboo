@@ -735,7 +735,7 @@ bool ego_mesh_interpolate_vertex(tile_mem_t *mem, ego_tile_info_t *tile, float p
 bool grid_light_one_corner(const ego_mesh_t *mesh, const TileIndex& fan, float height, float nrm[], float *plight);
 
 /// @todo @a pos and @a radius should be passed as a sphere.
-BIT_FIELD ego_mesh_hit_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, float nrm[], float *pressure, mesh_wall_data_t * private_data);
+BIT_FIELD ego_mesh_hit_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, fvec2_t& nrm, float *pressure, mesh_wall_data_t * private_data);
 /// @todo @a pos and @a radius should be passed as a sphere.
 BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *mesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, mesh_wall_data_t *private_data);
 

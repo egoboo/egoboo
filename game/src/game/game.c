@@ -1395,13 +1395,13 @@ void set_one_player_latch( const PLA_REF ipla )
                     scale /= mous.sense;
                 }
 
-                joy_pos.x = mous.x * scale;
-                joy_pos.y = mous.y * scale;
+                joy_pos[XX] = mous.x * scale;
+                joy_pos[YY] = mous.y * scale;
 
                 //if ( fast_camera_turn && !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
 
-                joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-                joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+                joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
+                joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
             }
         }
     }
@@ -1412,15 +1412,15 @@ void set_one_player_latch( const PLA_REF ipla )
 
         if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
         {
-            if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) )   joy_pos.x++;
-            if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )    joy_pos.x--;
-            if ( input_device_control_active( pdevice,  CONTROL_DOWN ) )    joy_pos.y++;
-            if ( input_device_control_active( pdevice,  CONTROL_UP ) )      joy_pos.y--;
+            if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) )   joy_pos[XX]++;
+            if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )    joy_pos[XX]--;
+            if ( input_device_control_active( pdevice,  CONTROL_DOWN ) )    joy_pos[YY]++;
+            if ( input_device_control_active( pdevice,  CONTROL_UP ) )      joy_pos[YY]--;
 
-            if ( fast_camera_turn )  joy_pos.x = 0;
+            if ( fast_camera_turn )  joy_pos[XX] = 0;
 
-            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+            joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
+            joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
         }
     }
     else if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
@@ -1433,21 +1433,20 @@ void set_one_player_latch( const PLA_REF ipla )
 
         if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
         {
-            joy_pos.x = joystick->x;
-            joy_pos.y = joystick->y;
+            joy_pos[XX] = joystick->x;
+            joy_pos[YY] = joystick->y;
 
-            dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
+            dist = joy_pos.length_2();
             if ( dist > 1.0f )
             {
                 scale = 1.0f / std::sqrt( dist );
-                joy_pos.x *= scale;
-                joy_pos.y *= scale;
+                joy_pos *= scale;
             }
 
-            if ( fast_camera_turn && !input_device_control_active( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
+            if ( fast_camera_turn && !input_device_control_active( pdevice, CONTROL_CAMERA ) )  joy_pos[XX] = 0;
 
-            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+            joy_new[XX] = ( joy_pos[XX] * fcos + joy_pos[YY] * fsin );
+            joy_new[YY] = ( -joy_pos[XX] * fsin + joy_pos[YY] * fcos );
         }
     }
 
@@ -1458,8 +1457,8 @@ void set_one_player_latch( const PLA_REF ipla )
     }
 
     // Update movement (if any)
-    sum.x += joy_new.x;
-    sum.y += joy_new.y;
+    sum.x += joy_new[XX];
+    sum.y += joy_new[YY];
 
     // Read control buttons
     if ( !ppla->draw_inventory )
@@ -1492,15 +1491,15 @@ void set_one_player_latch( const PLA_REF ipla )
         //dirty hack here... mouse seems to be inverted in inventory mode?
         if ( pdevice->device_type == INPUT_DEVICE_MOUSE )
         {
-            joy_pos.x = - joy_pos.x;
-            joy_pos.y = - joy_pos.y;
+            joy_pos[XX] = - joy_pos[XX];
+            joy_pos[YY] = - joy_pos[YY];
         }
 
         //handle inventory movement
-        if ( joy_pos.x < 0 )       new_selected--;
-        else if ( joy_pos.x > 0 )  new_selected++;
-        if ( joy_pos.y < 0 )       new_selected -= MAXINVENTORY / 2;
-        else if ( joy_pos.y > 0 )  new_selected += MAXINVENTORY / 2;
+        if ( joy_pos[XX] < 0 )       new_selected--;
+        else if ( joy_pos[XX] > 0 )  new_selected++;
+        if ( joy_pos[YY] < 0 )       new_selected -= MAXINVENTORY / 2;
+        else if ( joy_pos[YY] > 0 )  new_selected += MAXINVENTORY / 2;
 
         //clip to a valid value
         if ( ppla->inventory_slot != new_selected )
@@ -3775,16 +3774,16 @@ bool wawalite_finalize(wawalite_data_t *data)
 
         windspeed_count++;
 
-        Physics::g_environment.windspeed.x += -ilayer->tx_add.x * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.x) / cam_height;
-        Physics::g_environment.windspeed.y += -ilayer->tx_add.y * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.y) / cam_height;
+        Physics::g_environment.windspeed.x += -ilayer->tx_add[SS] * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
+        Physics::g_environment.windspeed.y += -ilayer->tx_add[TT] * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
         Physics::g_environment.windspeed.z += -0;
     }
     else
     {
         waterspeed_count++;
 
-        Physics::g_environment.waterspeed.x += -ilayer->tx_add.x * GRID_FSIZE;
-        Physics::g_environment.waterspeed.y += -ilayer->tx_add.y * GRID_FSIZE;
+        Physics::g_environment.waterspeed.x += -ilayer->tx_add[SS] * GRID_FSIZE;
+        Physics::g_environment.waterspeed.y += -ilayer->tx_add[TT] * GRID_FSIZE;
         Physics::g_environment.waterspeed.z += -0;
     }
 
@@ -3793,16 +3792,16 @@ bool wawalite_finalize(wawalite_data_t *data)
     {
         windspeed_count++;
 
-        Physics::g_environment.windspeed.x += -600 * ilayer->tx_add.x * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
-        Physics::g_environment.windspeed.y += -600 * ilayer->tx_add.y * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        Physics::g_environment.windspeed.x += -600 * ilayer->tx_add[SS] * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        Physics::g_environment.windspeed.y += -600 * ilayer->tx_add[TT] * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
         Physics::g_environment.windspeed.z += -0;
     }
     else
     {
         waterspeed_count++;
 
-        Physics::g_environment.waterspeed.x += -ilayer->tx_add.x * GRID_FSIZE;
-        Physics::g_environment.waterspeed.y += -ilayer->tx_add.y * GRID_FSIZE;
+        Physics::g_environment.waterspeed.x += -ilayer->tx_add[SS] * GRID_FSIZE;
+        Physics::g_environment.waterspeed.y += -ilayer->tx_add[TT] * GRID_FSIZE;
         Physics::g_environment.waterspeed.z += -0;
     }
 
@@ -4642,8 +4641,8 @@ bool water_instance_make( water_instance_t * pinst, const wawalite_water_t * pda
 
     for ( layer = 0; layer < pdata->layer_count; layer++ )
     {
-        pinst->layer[layer].tx.x = 0;
-        pinst->layer[layer].tx.y = 0;
+        pinst->layer[layer].tx[SS] = 0;
+        pinst->layer[layer].tx[TT] = 0;
 
         for ( frame = 0; frame < MAXWATERFRAME; frame++ )
         {
@@ -4684,33 +4683,33 @@ bool water_instance_make( water_instance_t * pinst, const wawalite_water_t * pda
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_water_data( water_instance_t * pinst, const wawalite_water_t * pdata )
+bool upload_water_data(water_instance_t *self, const wawalite_water_t *source)
 {
     //int layer;
 
-    if ( NULL == pinst ) return false;
+    if (NULL == self) return false;
 
-    BLANK_STRUCT_PTR( pinst )
+    BLANK_STRUCT_PTR(self);
 
-    if ( NULL != pdata )
+    if (NULL != source)
     {
         // upload the data
 
-        pinst->surface_level    = pdata->surface_level;
-        pinst->douse_level      = pdata->douse_level;
+        self->surface_level = source->surface_level;
+        self->douse_level = source->douse_level;
 
-        pinst->is_water         = pdata->is_water;
-        pinst->overlay_req      = pdata->overlay_req;
-        pinst->background_req   = pdata->background_req;
+        self->is_water = source->is_water;
+        self->overlay_req = source->overlay_req;
+        self->background_req = source->background_req;
 
-        pinst->light            = pdata->light;
+        self->light = source->light;
 
-        pinst->foregroundrepeat = pdata->foregroundrepeat;
-        pinst->backgroundrepeat = pdata->backgroundrepeat;
+        self->foregroundrepeat = source->foregroundrepeat;
+        self->backgroundrepeat = source->backgroundrepeat;
 
         // upload the layer data
-        pinst->layer_count   = pdata->layer_count;
-        upload_water_layer_data( pinst->layer, pdata->layer, pdata->layer_count );
+        self->layer_count = source->layer_count;
+        upload_water_layer_data(self->layer, source->layer, source->layer_count);
     }
 
     // fix the light in case of self-lit textures
@@ -4722,17 +4721,17 @@ bool upload_water_data( water_instance_t * pinst, const wawalite_water_t * pdata
     //    }
     //}
 
-    water_instance_make( pinst, pdata );
+    water_instance_make(self, source);
 
     // Allow slow machines to ignore the fancy stuff
-    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && pinst->layer_count > 1)
+    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && self->layer_count > 1)
     {
-        int iTmp = pdata->layer[0].light_add;
-        iTmp = ( pdata->layer[1].light_add * iTmp * INV_FF ) + iTmp;
+        int iTmp = source->layer[0].light_add;
+        iTmp = (source->layer[1].light_add * iTmp * INV_FF) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
-        pinst->layer_count        = 1;
-        pinst->layer[0].light_add = iTmp * INV_FF;
+        self->layer_count        = 1;
+        self->layer[0].light_add = iTmp * INV_FF;
     }
 
     return true;
@@ -4752,13 +4751,13 @@ egolib_rv water_instance_move( water_instance_t * pwater )
     {
         water_instance_layer_t * player = pwater->layer + layer;
 
-        player->tx.x += player->tx_add.x;
-        player->tx.y += player->tx_add.y;
+        player->tx[SS] += player->tx_add[SS];
+        player->tx[TT] += player->tx_add[TT];
 
-        if ( player->tx.x >  1.0f )  player->tx.x -= 1.0f;
-        if ( player->tx.y >  1.0f )  player->tx.y -= 1.0f;
-        if ( player->tx.x < -1.0f )  player->tx.x += 1.0f;
-        if ( player->tx.y < -1.0f )  player->tx.y += 1.0f;
+        if ( player->tx[SS] >  1.0f )  player->tx[SS] -= 1.0f;
+        if ( player->tx[TT] >  1.0f )  player->tx[TT] -= 1.0f;
+        if ( player->tx[SS] < -1.0f )  player->tx[SS] += 1.0f;
+        if ( player->tx[TT] < -1.0f )  player->tx[TT] += 1.0f;
 
         player->frame = ( player->frame + player->frame_add ) & WATERFRAMEAND;
     }

@@ -291,33 +291,29 @@ void Camera::updateCenter()
         if (diff_rt < -track_size_x)
         {
             // Scroll left
-            scroll.x += vrt.x * (diff_rt + track_size_x);
-            scroll.y += vrt.y * (diff_rt + track_size_x);
+            scroll += vrt * (diff_rt + track_size_x);
         }
         if (diff_rt > track_size_x)
         {
             // Scroll right.
-            scroll.x += vrt.x * (diff_rt - track_size_x);
-            scroll.y += vrt.y * (diff_rt - track_size_x);
+            scroll += vrt * (diff_rt - track_size_x);
         }
 
         if (diff_up > track_size_y)
         {
             // Scroll down.
-            scroll.x += vup.x * (diff_up - track_size_y);
-            scroll.y += vup.y * (diff_up - track_size_y);
+            scroll += vup * (diff_up - track_size_y);
         }
 
         if (diff_up < -track_size_y)
         {
             // Scroll up.
-            scroll.x += vup.x * (diff_up + track_size_y);
-            scroll.y += vup.y * (diff_up + track_size_y);
+            scroll += vup * (diff_up + track_size_y);
         }
 
         // Scroll.
-        _center.x += scroll.x;
-        _center.y += scroll.y;
+        _center[XX] += scroll[XX];
+        _center[YY] += scroll[YY];
     }
 
     // _center.z always approaches _trackPos.z

@@ -24,9 +24,7 @@
 #pragma once
 
 #include "egolib/platform.h"
-
-struct fvec2_t;
-struct fvec3_t;
+#include "egolib/Math/Vector.hpp"
 
 namespace Ego
 {

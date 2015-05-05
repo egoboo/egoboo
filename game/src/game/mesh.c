@@ -1773,17 +1773,14 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
             // Find the maximal pressure gradient == the minimal distance to move.
             if ( 0.0f != dpressure )
             {
-                float   weight;
-                fvec2_t tmp;
                 float   dist = pressure_ary[4] / dpressure;
 
-                tmp.x = dist * fx;
-                tmp.y = dist * fy;
+                fvec2_t tmp(dist * fx, dist * fy);
 
-                weight = 1.0f / dist;
+                float weight = 1.0f / dist;
 
-                diff.x += tmp.y * weight;
-                diff.y += tmp.x * weight;
+                diff[XX] += tmp[YY] * weight;
+                diff[YY] += tmp[XX] * weight;
                 sum_diff += std::abs(weight);
             }
         }
@@ -1809,7 +1806,7 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * pdata )
+BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const float radius, const BIT_FIELD bits, fvec2_t& nrm, float * pressure, mesh_wall_data_t * pdata )
 {
     /// @author BB
     /// @details an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
@@ -1820,10 +1817,9 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const
     bool invalid;
 
     float  loc_pressure;
-    fvec3_base_t loc_nrm;
 
     bool needs_pressure = ( NULL != pressure );
-    bool needs_nrm      = ( NULL != nrm );
+    bool needs_nrm = true;
 
     mesh_wall_data_t loc_data;
 
@@ -1831,7 +1827,6 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const
     if ( NULL == pressure ) pressure = &loc_pressure;
     *pressure = 0.0f;
 
-    if ( NULL == nrm ) nrm = loc_nrm;
     nrm[kX] = nrm[kY] = 0.0f;
 
     // if pdata is not NULL, someone has already run a version of mesh_test_wall

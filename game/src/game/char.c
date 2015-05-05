@@ -696,7 +696,7 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD chr_hit_wall(Object *chr, float nrm[], float *pressure, mesh_wall_data_t *data)
+BIT_FIELD chr_hit_wall(Object *chr, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
 /// @brief This function returns nonzero if the character hit a wall that the
 ///        character is not allowed to cross.
 {
@@ -707,7 +707,7 @@ BIT_FIELD chr_hit_wall(Object *chr, float nrm[], float *pressure, mesh_wall_data
     return chr_hit_wall(chr, chr->getPosition(), nrm, pressure, data);
 }
 
-BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, float nrm[], float * pressure, mesh_wall_data_t *data)
+BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, fvec2_t& nrm, float * pressure, mesh_wall_data_t *data)
 /// @brief This function returns nonzero if the character hit a wall that the
 ///        character is not allowed to cross.
 {
@@ -4765,7 +4765,8 @@ bool chr_update_safe_raw( Object * pchr )
 
     if ( nullptr == ( pchr ) ) return false;
 
-    hit_a_wall = chr_hit_wall( pchr, NULL, &pressure, NULL );
+    fvec2_t nrm;
+    hit_a_wall = chr_hit_wall( pchr, nrm, &pressure, NULL );
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pchr->safe_valid = true;
@@ -4838,7 +4839,8 @@ bool chr_get_safe(Object * pchr)
 
     if ( !found && pchr->safe_valid )
     {
-        if ( !chr_hit_wall( pchr, NULL, NULL, NULL ) )
+        fvec2_t nrm;
+        if ( !chr_hit_wall( pchr, nrm, NULL, NULL ) )
         {
             found = true;
         }
@@ -5059,7 +5061,7 @@ bool move_one_character_integrate_motion( Object * pchr )
             float   pressure;
             bool diff_function_called = false;
 
-            chr_hit_wall( pchr, tmp_pos, nrm.v, &pressure, &wdata );
+            chr_hit_wall( pchr, tmp_pos, nrm, &pressure, &wdata );
 
             // how is the character hitting the wall?
             if ( 0.0f != pressure )
@@ -5074,7 +5076,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                 breadcrumb_t * bc         = NULL;
 
                 // try to get the correct "outward" pressure from nrm
-				if (!found_nrm && std::abs(nrm.x) + std::abs(nrm.y) > 0.0f)
+				if (!found_nrm && nrm.length_abs() > 0.0f)
                 {
                     found_nrm = true;
                 }
@@ -5087,8 +5089,8 @@ bool move_one_character_integrate_motion( Object * pchr )
                         safe_pos   = pchr->safe_pos;
                     }
 
-                    diff.x = pchr->safe_pos.x - pchr->getPosX();
-                    diff.y = pchr->safe_pos.y - pchr->getPosY();
+                    diff[XX] = pchr->safe_pos.x - pchr->getPosX();
+                    diff[YY] = pchr->safe_pos.y - pchr->getPosY();
 
 					if (diff.length_abs() > 0.0f)
                     {
@@ -5109,8 +5111,8 @@ bool move_one_character_integrate_motion( Object * pchr )
                             safe_pos   = pchr->safe_pos;
                         }
 
-                        diff.x = bc->pos.x - pchr->getPosX();
-                        diff.y = bc->pos.y - pchr->getPosY();
+                        diff[XX] = bc->pos.x - pchr->getPosX();
+                        diff[YY] = bc->pos.y - pchr->getPosY();
 
                         if (diff.length_abs() > 0.0f )
                         {
@@ -5127,8 +5129,8 @@ bool move_one_character_integrate_motion( Object * pchr )
                     tmp_diff = chr_get_mesh_diff(pchr, tmp_pos, pressure);
                     diff_function_called = true;
 
-                    nrm.x = tmp_diff.x;
-                    nrm.y = tmp_diff.y;
+                    nrm[XX] = tmp_diff.x;
+                    nrm[YY] = tmp_diff.y;
 
                     if (nrm.length_abs() > 0.0f)
                     {
@@ -5139,17 +5141,16 @@ bool move_one_character_integrate_motion( Object * pchr )
                 if ( !found_diff )
                 {
                     // try to get the diff from the character velocity
-                    diff.x = pchr->vel.x;
-                    diff.y = pchr->vel.y;
+                    diff[XX] = pchr->vel[XX];
+                    diff[YY] = pchr->vel[YY];
 
                     // make sure that the diff is in the same direction as the velocity
                     if ( diff.dot(nrm) < 0.0f )
                     {
-                        diff.x *= -1.0f;
-                        diff.y *= -1.0f;
+                        diff = -diff;
                     }
 
-					if (std::abs(diff.x) + std::abs(diff.y) > 0.0f)
+					if (diff.length_abs() > 0.0f)
                     {
                         found_diff = true;
                     }
@@ -5200,17 +5201,15 @@ bool move_one_character_integrate_motion( Object * pchr )
 					dot = diff.dot(nrm);
                     if ( dot < 0.0f )
                     {
-                        diff.x *= -1.0f;
-                        diff.y *= -1.0f;
+                        diff = -diff;
                         dot    *= -1.0f;
                     }
 
                     // find the part of the diff that is parallel to the normal
-                    diff_perp.x = diff_perp.y = 0.0f;
+                    diff_perp = fvec2_t::zero;
                     if ( nrm2 > 0.0f )
                     {
-                        diff_perp.x = nrm.x * dot / nrm2;
-                        diff_perp.y = nrm.y * dot / nrm2;
+                        diff_perp = nrm * (dot / nrm2);
                     }
 
                     // normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
@@ -5249,15 +5248,14 @@ bool move_one_character_integrate_motion( Object * pchr )
    
                         loc_bumpdampen = ProfileSystem::get().getProfile(pchr->profile_ref)->getBumpDampen();
 
-                        v_perp.x = v_perp.y = 0.0f;
+                        v_perp = fvec2_t::zero;
                         if ( 0.0f != nrm2 )
                         {
-                            v_perp.x = nrm.x * dot / nrm2;
-                            v_perp.y = nrm.y * dot / nrm2;
+                            v_perp = nrm * (dot / nrm2);
                         }
 
-                        pchr->vel.x += - ( 1.0f + loc_bumpdampen ) * v_perp.x * pressure;
-                        pchr->vel.y += - ( 1.0f + loc_bumpdampen ) * v_perp.y * pressure;
+                        pchr->vel[XX] += - ( 1.0f + loc_bumpdampen ) * v_perp[XX] * pressure;
+                        pchr->vel[YY] += - ( 1.0f + loc_bumpdampen ) * v_perp[YY] * pressure;
                     }
                 }
             }
@@ -6021,7 +6019,10 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     else
     {
         // copy the tint over
-        memmove( pbb->tint, tint, sizeof( GLXvector4f ) );
+        pbb->tint[RR] = tint.getRed();
+        pbb->tint[GG] = tint.getGreen();
+        pbb->tint[BB] = tint.getBlue();
+        pbb->tint[AA] = tint.getAlpha();
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_randomize_pos ) )
         {

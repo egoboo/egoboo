@@ -578,7 +578,8 @@ prt_t *prt_t::config_do_init()
     }
 
     // is the spawn location safe?
-    if (0 == prt_t::hit_wall(pprt, tmp_pos, NULL, NULL, NULL))
+    fvec2_t nrm;
+    if (0 == prt_t::hit_wall(pprt, tmp_pos, nrm, NULL, NULL))
     {
         pprt->safe_pos = tmp_pos;
         pprt->safe_valid = true;
@@ -822,7 +823,7 @@ PRT_REF spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF ip
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD prt_t::hit_wall(prt_t *prt, float nrm[], float *pressure, mesh_wall_data_t *data)
+BIT_FIELD prt_t::hit_wall(prt_t *prt, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
 /// @brief This function returns nonzero if the particle hit a wall that the
 ///        particle is not allowed to cross.
 {
@@ -841,7 +842,7 @@ BIT_FIELD prt_t::hit_wall(prt_t *prt, float nrm[], float *pressure, mesh_wall_da
     }
     return prt_t::hit_wall(prt, pos, nrm, pressure, data);
 }
-BIT_FIELD prt_t::hit_wall(prt_t *prt, const fvec3_t& pos, float nrm[], float *pressure, mesh_wall_data_t *data)
+BIT_FIELD prt_t::hit_wall(prt_t *prt, const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
 /// @brief This function returns nonzero if the particle hit a wall that the
 ///        particle is not allowed to cross.
 {
@@ -1524,7 +1525,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
             float   pressure;
 
             // how is the character hitting the wall?
-            hit_bits = prt_t::hit_wall(loc_pprt, tmp_pos, nrm.v, &pressure, &wdata);
+            hit_bits = prt_t::hit_wall(loc_pprt, tmp_pos, nrm, &pressure, &wdata);
 
             if (0 != hit_bits)
             {
@@ -1684,12 +1685,12 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
             float   pressure;
 
             // how is the character hitting the wall?
-            if (EMPTY_BIT_FIELD != prt_t::hit_wall(loc_pprt, tmp_pos, nrm.v, &pressure, &wdata))
+            if (EMPTY_BIT_FIELD != prt_t::hit_wall(loc_pprt, tmp_pos, nrm, &pressure, &wdata))
             {
                 touch_a_wall = true;
 
-                nrm_total.x += nrm.x;
-                nrm_total.y += nrm.y;
+                nrm_total.x += nrm[XX];
+                nrm_total.y += nrm[YY];
 
                 hit_a_wall = (fvec2_t(loc_pprt->vel[kX], loc_pprt->vel[kY]).dot(nrm) < 0.0f);
             }
@@ -2148,8 +2149,8 @@ bool prt_t::update_safe_raw(prt_t * pprt)
     float  pressure;
 
     if (!ALLOCATED_PPRT(pprt)) return false;
-
-    hit_a_wall = prt_t::hit_wall(pprt, NULL, &pressure, NULL);
+    fvec2_t nrm;
+    hit_a_wall = prt_t::hit_wall(pprt, nrm, &pressure, NULL);
     if ((0 == hit_a_wall) && (0.0f == pressure))
     {
         pprt->safe_valid = true;

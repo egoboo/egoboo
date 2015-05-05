@@ -3791,18 +3791,18 @@ gfx_rv render_world_background(Camera& cam, const TX_REF texture)
     z0 = 1500;
 
     // clip the waterlayer uv offset
-    ilayer->tx.x = ilayer->tx.x - (float)FLOOR(ilayer->tx.x);
-    ilayer->tx.y = ilayer->tx.y - (float)FLOOR(ilayer->tx.y);
+    ilayer->tx[XX] = ilayer->tx[XX] - (float)FLOOR(ilayer->tx[XX]);
+    ilayer->tx[YY] = ilayer->tx[YY] - (float)FLOOR(ilayer->tx[YY]);
 
     // determine the constants for the x-coordinate
-    xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist.x) / GRID_FSIZE;
-    Cx_0 = xmag * (1.0f + cam.getPosition().z       * ilayer->dist.x);
-    Cx_1 = -xmag * (1.0f + (cam.getPosition().z - z0) * ilayer->dist.x);
+    xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[XX]) / GRID_FSIZE;
+    Cx_0 = xmag * (1.0f + cam.getPosition().z       * ilayer->dist[XX]);
+    Cx_1 = -xmag * (1.0f + (cam.getPosition().z - z0) * ilayer->dist[XX]);
 
     // determine the constants for the y-coordinate
-    ymag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist.y) / GRID_FSIZE;
-    Cy_0 = ymag * (1.0f + cam.getPosition().z       * ilayer->dist.y);
-    Cy_1 = -ymag * (1.0f + (cam.getPosition().z - z0) * ilayer->dist.y);
+    ymag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[YY]) / GRID_FSIZE;
+    Cy_0 = ymag * (1.0f + cam.getPosition().z       * ilayer->dist[YY]);
+    Cy_1 = -ymag * (1.0f + (cam.getPosition().z - z0) * ilayer->dist[YY]);
 
     // Figure out the coordinates of its corners
     Qx = -pgmem->edge_x;
@@ -3810,32 +3810,32 @@ gfx_rv render_world_background(Camera& cam, const TX_REF texture)
     vtlist[0].pos[XX] = Qx;
     vtlist[0].pos[YY] = Qy;
     vtlist[0].pos[ZZ] = cam.getPosition().z - z0;
-    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx.x;
-    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx.y;
+    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx[XX];
+    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx[YY];
 
     Qx = 2 * pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[1].pos[XX] = Qx;
     vtlist[1].pos[YY] = Qy;
     vtlist[1].pos[ZZ] = cam.getPosition().z - z0;
-    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx.x;
-    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx.y;
+    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx[XX];
+    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx[YY];
 
     Qx = 2 * pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[2].pos[XX] = Qx;
     vtlist[2].pos[YY] = Qy;
     vtlist[2].pos[ZZ] = cam.getPosition().z - z0;
-    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx.x;
-    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx.y;
+    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx[XX];
+    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx[YY];
 
     Qx = -pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[3].pos[XX] = Qx;
     vtlist[3].pos[YY] = Qy;
     vtlist[3].pos[ZZ] = cam.getPosition().z - z0;
-    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx.x;
-    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx.y;
+    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx[XX];
+    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx[YY];
 
     light = water.light ? 1.0f : 0.0f;
     alpha = ilayer->alpha * INV_FF;
@@ -3945,9 +3945,9 @@ gfx_rv render_world_overlay(Camera& cam, const TX_REF texture)
 
     water_instance_layer_t * ilayer = water.layer + 1;
 
-    vforw_wind.x = ilayer->tx_add.x;
-    vforw_wind.y = ilayer->tx_add.y;
-    vforw_wind.z = 0;
+    vforw_wind[XX] = ilayer->tx_add[XX];
+    vforw_wind[YY] = ilayer->tx_add[YY];
+    vforw_wind[ZZ] = 0;
     vforw_wind.normalize();
 
     mat_getCamForward(cam.getView(), vforw_cam);
@@ -3980,26 +3980,26 @@ gfx_rv render_world_overlay(Camera& cam, const TX_REF texture)
         vtlist[0].pos[XX] = x + cossize;
         vtlist[0].pos[YY] = y - sinsize;
         vtlist[0].pos[ZZ] = z;
-        vtlist[0].tex[SS] = ilayer->tx.x;
-        vtlist[0].tex[TT] = ilayer->tx.y;
+        vtlist[0].tex[SS] = ilayer->tx[XX];
+        vtlist[0].tex[TT] = ilayer->tx[YY];
 
         vtlist[1].pos[XX] = x + sinsize;
         vtlist[1].pos[YY] = y + cossize;
         vtlist[1].pos[ZZ] = z;
-        vtlist[1].tex[SS] = ilayer->tx.x + loc_foregroundrepeat;
-        vtlist[1].tex[TT] = ilayer->tx.y;
+        vtlist[1].tex[SS] = ilayer->tx[XX] + loc_foregroundrepeat;
+        vtlist[1].tex[TT] = ilayer->tx[YY];
 
         vtlist[2].pos[XX] = x - cossize;
         vtlist[2].pos[YY] = y + sinsize;
         vtlist[2].pos[ZZ] = z;
-        vtlist[2].tex[SS] = ilayer->tx.x + loc_foregroundrepeat;
-        vtlist[2].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
+        vtlist[2].tex[SS] = ilayer->tx[SS] + loc_foregroundrepeat;
+        vtlist[2].tex[TT] = ilayer->tx[TT] + loc_foregroundrepeat;
 
         vtlist[3].pos[XX] = x - sinsize;
         vtlist[3].pos[YY] = y - cossize;
         vtlist[3].pos[ZZ] = z;
-        vtlist[3].tex[SS] = ilayer->tx.x;
-        vtlist[3].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
+        vtlist[3].tex[SS] = ilayer->tx[SS];
+        vtlist[3].tex[TT] = ilayer->tx[TT] + loc_foregroundrepeat;
 
         ptex = TextureManager::get().get_valid_ptr(texture);
 
@@ -4274,8 +4274,8 @@ bool grid_lighting_interpolate(const ego_mesh_t * pmesh, lighting_cache_t * dst,
     tpos = pos * (1.0f / GRID_FSIZE);
 
     // grab this tile's coordinates
-    ix = FLOOR(tpos.x);
-    iy = FLOOR(tpos.y);
+    ix = FLOOR(tpos[XX]);
+    iy = FLOOR(tpos[YY]);
 
     // find the tile id for the surrounding tiles
     fan[0] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
@@ -4298,8 +4298,8 @@ bool grid_lighting_interpolate(const ego_mesh_t * pmesh, lighting_cache_t * dst,
     }
 
     // grab the coordinates relative to the parent tile
-    u = tpos.x - ix;
-    v = tpos.y - iy;
+    u = tpos[XX] - ix;
+    v = tpos[YY] - iy;
 
     return lighting_cache_interpolate(dst, cache_list, u, v);
 }

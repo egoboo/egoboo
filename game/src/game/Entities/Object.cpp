@@ -771,7 +771,8 @@ bool Object::teleport(const float x, const float y, const float z, const FACING_
     fvec3_t newPosition = fvec3_t(x, y, z);
 
     //Cannot teleport inside a wall
-    if ( !chr_hit_wall(this, newPosition, NULL, NULL, NULL) )
+    fvec2_t nrm;
+    if ( !chr_hit_wall(this, newPosition, nrm, NULL, NULL) )
     {
         // Yeah!  It worked!
 

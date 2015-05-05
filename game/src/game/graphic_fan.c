@@ -363,8 +363,8 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         return gfx_error;
     }
 
-    offu  = water.layer[layer].tx.x;                   // Texture offsets
-    offv  = water.layer[layer].tx.y;
+    offu  = water.layer[layer].tx[XX];                   // Texture offsets
+    offv  = water.layer[layer].tx[YY];
     frame = water.layer[layer].frame;                  // Frame
 
     texture  = layer + TX_WATER_TOP;                   // Water starts at texture TX_WATER_TOP

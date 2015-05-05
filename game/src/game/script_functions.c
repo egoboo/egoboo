@@ -552,16 +552,16 @@ Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    loc_pos.x = pstate->x;
-    loc_pos.y = pstate->y;
+    loc_pos[XX] = pstate->x;
+    loc_pos[YY] = pstate->y;
 
     returncode = Compass( loc_pos, pstate->turn, pstate->distance );
 
     // update the position
     if ( returncode )
     {
-        pstate->x = loc_pos.x;
-        pstate->y = loc_pos.y;
+        pstate->x = loc_pos[XX];
+        pstate->y = loc_pos[YY];
     }
 
     SCRIPT_FUNCTION_END();

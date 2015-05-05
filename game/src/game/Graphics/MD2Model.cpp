@@ -180,8 +180,8 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
         tc.s = ENDIAN_TO_SYS_INT16( tc.s );
         tc.t = ENDIAN_TO_SYS_INT16( tc.t );
 
-        texCoord.tex.s = tc.s / static_cast<float>(md2Header.skinwidth);
-        texCoord.tex.t = tc.t / static_cast<float>(md2Header.skinheight);
+        texCoord.tex[SS] = tc.s / static_cast<float>(md2Header.skinwidth);
+        texCoord.tex[TT] = tc.t / static_cast<float>(md2Header.skinheight);
     }
 
     // Load triangles from the file.  I use the same memory layout as the file
