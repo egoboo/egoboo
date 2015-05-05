@@ -813,7 +813,7 @@
 		CD6E5FAC1AD0545E00DBA937 /* Rectangle2.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Rectangle2.hpp; sourceTree = "<group>"; };
 		CD6E5FAD1AD0550A00DBA937 /* EgoTest_Handwritten.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EgoTest_Handwritten.cpp; sourceTree = "<group>"; };
 		CD6E5FAE1AD0550A00DBA937 /* EgoTest_Handwritten.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_Handwritten.hpp; sourceTree = "<group>"; };
-		CD78A75F1A934C8D00778820 /* Exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Exception.hpp; sourceTree = "<group>"; };
+		CD7725511AF8C7DE007FB2E4 /* Action.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Action.hpp; sourceTree = "<group>"; };
 		CD78A7611A934C8D00778820 /* Buffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Buffer.hpp; sourceTree = "<group>"; };
 		CD78A7631A934C8D00778820 /* Location.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Location.hpp; sourceTree = "<group>"; };
 		CD792BF61A881FE20086270E /* GameEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameEngine.cpp; sourceTree = "<group>"; };
@@ -856,6 +856,8 @@
 		CD792C1D1A881FE20086270E /* ModuleSelector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ModuleSelector.hpp; sourceTree = "<group>"; };
 		CD792C311A88204E0086270E /* ModuleProfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModuleProfile.cpp; sourceTree = "<group>"; };
 		CD792C321A88204E0086270E /* ModuleProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ModuleProfile.hpp; sourceTree = "<group>"; };
+		CD7CD6901AF7052600D94A9A /* EnvironmentError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EnvironmentError.hpp; sourceTree = "<group>"; };
+		CD7CD6911AF7052600D94A9A /* Exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Exception.hpp; sourceTree = "<group>"; };
 		CD80C4D91AB1F06600D915FF /* CollectionUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CollectionUtilities.hpp; sourceTree = "<group>"; };
 		CD80C4DB1AB1F06600D915FF /* StringUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StringUtilities.hpp; sourceTree = "<group>"; };
 		CD80C4DC1AB2089B00D915FF /* FP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FP.cpp; sourceTree = "<group>"; };
@@ -1477,6 +1479,7 @@
 		CD10953F1AEEDFEB00937B35 /* Logic */ = {
 			isa = PBXGroup;
 			children = (
+				CD7725511AF8C7DE007FB2E4 /* Action.hpp */,
 				CD1095401AEEDFEB00937B35 /* Damage.hpp */,
 				CD1095411AEEDFEB00937B35 /* Gender.hpp */,
 				CD1095421AEEDFEB00937B35 /* StaticEnumDescriptor.hpp */,
@@ -1592,7 +1595,6 @@
 				CD39B30E1A374B6000B377BE /* egolib.h */,
 				CD39B3101A374B6000B377BE /* endian.c */,
 				CD39B3111A374B6000B377BE /* endian.h */,
-				CD78A75F1A934C8D00778820 /* Exception.hpp */,
 				CD39B31F1A374B6000B377BE /* file_common.c */,
 				CD39B3201A374B6000B377BE /* file_common.h */,
 				CD39B3531A374B6000B377BE /* fileutil.c */,
@@ -1936,6 +1938,8 @@
 			isa = PBXGroup;
 			children = (
 				CD80C4D91AB1F06600D915FF /* CollectionUtilities.hpp */,
+				CD7CD6901AF7052600D94A9A /* EnvironmentError.hpp */,
+				CD7CD6911AF7052600D94A9A /* Exception.hpp */,
 				CD80C4DB1AB1F06600D915FF /* StringUtilities.hpp */,
 				CD2336AB1AF55CB000E35ED1 /* System.cpp */,
 				CD2336AC1AF55CB000E35ED1 /* System.hpp */,
