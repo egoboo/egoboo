@@ -630,8 +630,8 @@ void finalize_all_objects()
 //--------------------------------------------------------------------------------------------
 void blah_billboard()
 {
-    const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
-    const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
+    const auto color_blu = Ego::Math::Colour4f::parse(0x7F, 0x7F, 0xFF, 0xFF);
+    const auto default_tint = Ego::Math::Colour4f::white();
 
     bool needs_new;
     Uint32 current_time;

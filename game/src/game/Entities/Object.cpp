@@ -504,8 +504,8 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         {
             //Dark green text
             const float lifetime = 3;
-            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-            GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
+            const auto text_color = Ego::Math::Colour4f::parse(0xff, 0xff, 0xff, 0xff);
+            const auto tint = Ego::Math::Colour4f(0, 0.5, 0, 1);
 
             spawn_defense_ping(this, attacker ? attacker->getCharacterID() : INVALID_CHR_REF);
             chr_make_text_billboard(_characterID, "Immune!", text_color, tint, lifetime, bb_opt_all);
@@ -625,35 +625,14 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     STRING text_buffer = EMPTY_CSTR;
 
                     // "white" text
-                    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+                    const auto text_color = Ego::Math::Colour4f::parse(0xff, 0xff, 0xff, 0xff);
 
-                    // friendly fire damage = "purple"
-                    GLXvector4f tint_friend = { 0.88f, 0.75f, 1.00f, 1.00f };
+                    // friendly damage = "purple"
+                    // @todo MH: The colour here is approximately "mauve" and it is already associated with "holy" damage.
+                    const auto tint_friend = Ego::Math::Colour4f(0.88, 0.75, 1, 1);
 
                     // enemy damage color depends on damage type
-                    float r, g, b;
-                    switch(damagetype)
-                    {
-                        //Blue
-                        case DAMAGE_ZAP: r = 1.00f; g = 1.0f; b = 0.00f; break;
-
-                        //Red
-                        case DAMAGE_FIRE: r = 1.00f; g = 0.00f; b = 0.00f; break;
-
-                        //Green
-                        case DAMAGE_EVIL: r = 0.00f; g = 1.0f; b = 0.00f; break;
-
-                        //Purple
-                        case DAMAGE_HOLY: r = 0.88f; g = 0.75f; b = 1.00f; break;
-
-                        //Blue
-                        case DAMAGE_ICE: r = 0.00f; g = 1.0f; b = 1.00f; break;
-
-                        //White
-                        default: r = 1.00f; g = 1.0f; b = 1.00f; break;
-                    }
-
-                    GLXvector4f tint_enemy  = { r, g, b, 1.00f };
+                    const auto tint_enemy = Ego::Math::Colour4f(DamageType_getColour(damagetype), 1);
 
                     // write the string into the buffer
                     snprintf( text_buffer, SDL_arraysize( text_buffer ), "%.1f", static_cast<float>(actual_damage) / 256.0f );
@@ -682,10 +661,9 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             STRING text_buffer = EMPTY_CSTR;
 
             // "white" text
-            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-
+            const auto text_color = Ego::Math::Colour4f::white();
             // heal == yellow, right ;)
-            GLXvector4f tint = { 1.00f, 1.00f, 0.75f, 1.00f };
+            const auto tint = Ego::Math::Colour4f(1, 1, 0.75, 1);
 
             // write the string into the buffer
             snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );

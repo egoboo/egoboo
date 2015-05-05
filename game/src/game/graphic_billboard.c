@@ -123,9 +123,9 @@ bool billboard_data_t::update(billboard_data_t *self)
     return true;
 }
 
-bool billboard_data_t::printf_ttf(billboard_data_t *self, const std::shared_ptr<Ego::Font> &font, SDL_Color color, const char * format, ...)
+bool billboard_data_t::printf_ttf(billboard_data_t *self, const std::shared_ptr<Ego::Font> &font, const Ego::Math::Colour4f& color, const char * format, ...)
 {
-    Ego::Math::Colour3f fontColour = Ego::Math::Colour3f::parse(color.r, color.g, color.b);
+    Ego::Math::Colour3f fontColour = Ego::Math::Colour3f(color.getRed(), color.getGreen(), color.getBlue());
 
     if (!self || !self->valid)
     {

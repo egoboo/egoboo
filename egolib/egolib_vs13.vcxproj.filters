@@ -854,6 +854,9 @@
     <ClInclude Include="src\egolib\Core\EnvironmentError.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Logic\Action.hpp">
+      <Filter>Header Files\Logic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

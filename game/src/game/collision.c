@@ -28,6 +28,7 @@
 #include "game/graphic_billboard.h"
 #include "game/char.h"
 #include "game/physics.h"
+#include "egolib/Logic/Action.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/Profiles/_Include.hpp"
 
@@ -2769,8 +2770,8 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
     {
         // Initialize for the billboard
         const float lifetime = 3;
-        SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-        GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
+        const auto text_color = Ego::Math::Colour4f::white();
+        const auto tint = Ego::Math::Colour4f(getBlockActionColour(),1);
 
         // magically deflect the particle or make a ricochet if the character is invictus
         int treatment;

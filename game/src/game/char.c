@@ -1493,10 +1493,10 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     /// @author ZZ
     /// @details This function makes the character pick up an item if there's one around
 
-    const SDL_Color color_red = {0xFF, 0x7F, 0x7F, 0xFF};
-    const SDL_Color color_grn = {0x7F, 0xFF, 0x7F, 0xFF};
-    const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
-    const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
+    const auto color_red = Ego::Math::Colour4f::parse(0xFF, 0x7F, 0x7F, 0xFF);
+    const auto color_grn = Ego::Math::Colour4f::parse(0x7F, 0xFF, 0x7F, 0xFF);
+    const auto color_blu = Ego::Math::Colour4f::parse(0x7F, 0x7F, 0xFF, 0xFF);
+    const auto default_tint = Ego::Math::Colour4f::white();
 
     const float MAX_DIST_INFO = 3.0f * GRID_FSIZE;
 
@@ -5990,7 +5990,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits )
+billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
     Object            * pchr;
     billboard_data_t * pbb;

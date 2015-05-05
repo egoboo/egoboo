@@ -447,6 +447,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Logic\Action.hpp" />
     <ClInclude Include="src\egolib\Core\EnvironmentError.hpp" />
     <ClInclude Include="src\egolib\Core\Exception.hpp" />
     <ClInclude Include="src\egolib\Core\System.hpp" />

@@ -8064,34 +8064,35 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function draws one of those billboards above the character
 
-    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+    const auto text_color = Ego::Math::Colour4f::parse(0xFF, 0xFF, 0xFF, 0xFF);
     GLfloat *do_tint;
 
     //List of avalible colours
-    GLXvector4f tint_red  = { 1.00f, 0.25f, 0.25f, 1.00f };
-    GLXvector4f tint_purple = { 0.88f, 0.75f, 1.00f, 1.00f };
-    GLXvector4f tint_white = { 1.00f, 1.00f, 1.00f, 1.00f };
-    GLXvector4f tint_yellow = { 1.00f, 1.00f, 0.75f, 1.00f };
-    GLXvector4f tint_green = { 0.25f, 1.00f, 0.25f, 1.00f };
-    GLXvector4f tint_blue = { 0.25f, 0.25f, 1.00f, 1.00f };
+    const auto tint_red  = Ego::Math::Colour4f{ 1.00f, 0.25f, 0.25f, 1.00f };
+    const auto tint_purple = Ego::Math::Colour4f{ 0.88f, 0.75f, 1.00f, 1.00f };
+    const auto tint_white = Ego::Math::Colour4f{ 1.00f, 1.00f, 1.00f, 1.00f };
+    const auto tint_yellow = Ego::Math::Colour4f{ 1.00f, 1.00f, 0.75f, 1.00f };
+    const auto tint_green = Ego::Math::Colour4f{ 0.25f, 1.00f, 0.25f, 1.00f };
+    const auto tint_blue = Ego::Math::Colour4f{ 0.25f, 0.25f, 1.00f, 1.00f };
 
     SCRIPT_FUNCTION_BEGIN();
 
     if ( !ppro->isValidMessageID(pstate->argument) ) return false;
 
+    auto* tint = &tint_white;
     //Figure out which color to use
     switch ( pstate->turn )
     {
         default:
-        case COLOR_WHITE:   do_tint = tint_white;   break;
-        case COLOR_RED:     do_tint = tint_red;     break;
-        case COLOR_PURPLE:  do_tint = tint_purple;  break;
-        case COLOR_YELLOW:  do_tint = tint_yellow;  break;
-        case COLOR_GREEN:   do_tint = tint_green;   break;
-        case COLOR_BLUE:    do_tint = tint_blue;    break;
+        case COLOR_WHITE:   tint = &tint_white;   break;
+        case COLOR_RED:     tint = &tint_red;     break;
+        case COLOR_PURPLE:  tint = &tint_purple;  break;
+        case COLOR_YELLOW:  tint = &tint_yellow;  break;
+        case COLOR_GREEN:   tint = &tint_green;   break;
+        case COLOR_BLUE:    tint = &tint_blue;    break;
     }
 
-    returncode = NULL != chr_make_text_billboard( pself->index, ppro->getMessage(pstate->argument).c_str(), text_color, do_tint, pstate->distance, bb_opt_fade );
+    returncode = NULL != chr_make_text_billboard(pself->index, ppro->getMessage(pstate->argument).c_str(), text_color, *tint, pstate->distance, bb_opt_fade);
 
     SCRIPT_FUNCTION_END();
 }

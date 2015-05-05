@@ -74,7 +74,7 @@ struct billboard_data_t
     static billboard_data_t *init(billboard_data_t *self);
     static bool free(billboard_data_t *self);
     static bool update(billboard_data_t *self);
-    static bool printf_ttf(billboard_data_t *self, const std::shared_ptr<Ego::Font>& font, SDL_Color color, const char * format, ...) GCC_PRINTF_FUNC(4);
+    static bool printf_ttf(billboard_data_t *self, const std::shared_ptr<Ego::Font>& font, const Ego::Math::Colour4f& color, const char * format, ...) GCC_PRINTF_FUNC(4);
 
 };
 
