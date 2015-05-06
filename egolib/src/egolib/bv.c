@@ -31,8 +31,7 @@ bool bv_self_clear(bv_t *self)
 
 	aabb_self_clear(&(self->aabb));
 
-	self->sphere.radius = 0.0f;
-	self->sphere.origin = fvec3_t::zero();
+    self->sphere = sphere_t();
 
 	return true;
 }
@@ -62,7 +61,7 @@ bool bv_is_clear(const bv_t * pdst)
 
 	if (!retval)
 	{
-		retval = (pdst->sphere.radius <= 0.0f);
+		retval = (pdst->sphere.getRadius() <= 0.0f);
 	}
 
 	return retval;
@@ -73,11 +72,11 @@ bool bv_self_union(bv_t * pdst, const bv_t * psrc)
 {
 	if (NULL == pdst) return false;
 	if (NULL == psrc) return true;
-	if (pdst->sphere.radius < 0.0f)
+	if (pdst->sphere.getRadius() < 0.0f)
 	{
 		bv_validate(pdst);
 	}
-	if (psrc->sphere.radius < 0.0f)
+	if (psrc->sphere.getRadius() < 0.0f)
 	{
 		return true;
 	}
@@ -102,26 +101,10 @@ bool bv_t::overlaps(const bv_t *x, const bv_t *y)
 //--------------------------------------------------------------------------------------------
 bool bv_validate(bv_t * rhs)
 {
-	int cnt;
-	float radius_2;
-	fvec3_t vtmp;
-
 	if (NULL == rhs) return false;
 
-	for (cnt = 0; cnt < 3; cnt++)
-	{
-		rhs->sphere.origin.v[cnt] = 0.5f * (rhs->aabb.mins[cnt] + rhs->aabb.maxs[cnt]);
-	}
-
-	radius_2 = (rhs->aabb.mins - rhs->sphere.origin).length_2();
-	if (0.0f == radius_2)
-	{
-		rhs->sphere.radius = 0.0f;
-	}
-	else
-	{
-		rhs->sphere.radius = std::sqrt(radius_2);
-	}
+    rhs->sphere.setCenter(rhs->aabb.getCenter());
+    rhs->sphere.setRadius((rhs->aabb.mins - rhs->sphere.getCenter()).length());
 
 	return true;
 }
@@ -130,17 +113,6 @@ bool bv_validate(bv_t * rhs)
 bool bv_test(const bv_t * rhs)
 {
 	bool retval;
-
 	if (NULL == rhs) return false;
-
-	if (rhs->sphere.radius < 0.0f)
-	{
-		retval = false;
-	}
-	else
-	{
-		retval = true;
-	}
-
 	return retval;
 }

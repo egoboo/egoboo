@@ -29,49 +29,6 @@
 #include "egolib/Math/Sphere.h"
 #include "egolib/frustum.h"
 
-//--------------------------------------------------------------------------------------------
-// plane base
-//--------------------------------------------------------------------------------------------
-bool plane_base_normalize( plane_base_t * plane )
-{
-    // the vector < (*plane)[kX], (*plane)[kY], (*plane)[kZ] > is the normal to the plane.
-    // Convert it to a unit normal vector, which makes (*plane)[kW] the distance to the origin.
-    float magnitude2;
-
-    if ( NULL == plane ) return false;
-
-    magnitude2 = plane_get_normal(*plane).length();
-
-    if ( 0.0f == magnitude2 )
-    {
-        fvec4_self_clear(( *plane ) );
-    }
-    else
-    {
-        float magniude = std::sqrt( magnitude2 );
-
-        fvec4_self_scale(( *plane ), 1.0f / magniude );
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-// point functions
-//--------------------------------------------------------------------------------------------
-float plane_point_distance(const plane_base_t plane, const fvec3_t& pos)
-{
-    // calculate the perpendicular from the point to the plane.
-    // assumes a normalized plane.
-    // negative numbers indicate that the point in in the "negative half-space" of the plane
-
-    if ( NULL == plane) return 0.0f;
-
-	/// @todo Use plane_t::get_normal(). Use point3_t::tovec3().
-    return fvec3_t(plane[0],plane[1],plane[2]).dot(pos) + plane[kW];
-}
-
-//--------------------------------------------------------------------------------------------
 geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2 )
 {
     int cnt;
@@ -114,7 +71,7 @@ geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
     const size_t dimensions = 3;
 
     // Assume RHS is inside LHS.
-	geometry_rv retval = geometry_inside;
+    geometry_rv retval = geometry_inside;
     bool not_inside = false;
 
     // Scan all the coordinates.
@@ -143,10 +100,7 @@ geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-// plane functions
-//--------------------------------------------------------------------------------------------
-geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs )
+geometry_rv plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
 {
     int   j;
     float dist, tmp;
@@ -155,18 +109,18 @@ geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_t& 
 
     // find the point-plane distance for the most-positive points of the aabb
     dist = 0.0f;
-    for ( j = 0; j < 3; j++ )
+    for (j = 0; j < 3; j++)
     {
-        tmp = ( plane[j] > 0.0f ) ? maxs[j] : mins[j];
-        dist += tmp * plane[j];
+        tmp = (plane.getNormal()[j] > 0.0f) ? maxs[j] : mins[j];
+        dist += tmp * plane.getNormal()[j];
     }
-    dist += plane[3];
+    dist += plane.getDistance();
 
-    if ( dist > 0.0f )
+    if (dist > 0.0f)
     {
         retval = geometry_inside;
     }
-    else if ( dist < 0.0f )
+    else if (dist < 0.0f)
     {
         retval = geometry_outside;
     }
@@ -178,8 +132,7 @@ geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_t& 
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs)
+geometry_rv plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
 {
     int   j;
     float dist, tmp;
@@ -188,18 +141,18 @@ geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_t& m
 
     // find the point-plane distance for the most-negative points of the aabb
     dist = 0.0f;
-    for ( j = 0; j < 3; j++ )
+    for (j = 0; j < 3; j++)
     {
-        tmp = ( plane[j] > 0.0f ) ? mins[j] : maxs[j];
-        dist += tmp * plane[j];
+        tmp = (plane.getNormal()[j] > 0.0f) ? mins[j] : maxs[j];
+        dist += tmp * plane.getNormal()[j];
     }
-    dist += plane[3];
+    dist += plane.getDistance();
 
-    if ( dist > 0.0f )
+    if (dist > 0.0f)
     {
         retval = geometry_inside;
     }
-    else if ( dist < 0.0f )
+    else if (dist < 0.0f)
     {
         retval = geometry_outside;
     }
@@ -211,8 +164,7 @@ geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_t& m
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-geometry_rv plane_intersects_aabb(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs)
+geometry_rv plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
 {
     geometry_rv retval = geometry_inside;
 
@@ -233,73 +185,66 @@ plane_intersects_aabb_done:
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-fvec3_t plane_get_normal(const plane_base_t self)
+bool two_plane_intersection(fvec3_t& p, fvec3_t& d, const plane_t& p0, const plane_t& p1)
 {
-	return fvec3_t(self[kX],self[kY],self[kZ]);
-}
-bool two_plane_intersection(fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_base_t p0, const plane_base_t p1)
-{
-    bool retval = false;
-
-    if ( NULL == p0 || NULL == p1 ) return false;
-
-    // the direction of the intersection is given by the cross product of the normals
-    dst_dir = plane_get_normal(p0).cross(plane_get_normal(p1));
-
-    if (dst_dir.normalize() < 0.0f)
+    // Compute \f$\vec{d} = \hat{n}_0 \times \hat{n}_1\f$
+    auto n0 = p0.getNormal(), n1 = p1.getNormal();
+    d = n0.cross(n1);
+    // If \f$\vec{v}\f$ is the zero vector, then the planes do not intersect.
+    if (0 == d.normalize()) {
+        return false;
+    }
+    if (0.0f != d[kZ])
     {
-        retval = false;
-        dst_pos = fvec3_t::zero();
+        p[kX] = (n0[kY] * n1[kW] - n0[kW] * n1[kY]) / d[kZ];
+        p[kY] = (n0[kW] * n1[kX] - n0[kX] * n1[kW]) / d[kZ];
+        p[kZ] = 0.0f;
     }
     else
     {
-        dst_pos[kX] = ( p0[kY] * p1[kW] - p0[kW] * p1[kY] ) / dst_dir[kZ];
-        dst_pos[kY] = ( p0[kW] * p1[kX] - p0[kX] * p1[kW] ) / dst_dir[kZ];
-        dst_pos[kZ] = 0.0f;
-
-        retval = true;
+        throw std::runtime_error("not yet supported");
     }
-
-    return retval;
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool three_plane_intersection( fvec3_t& dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 )
+bool three_plane_intersection(fvec3_t& dst_pos, const plane_t& p0, const plane_t& p1, const plane_t& p2)
 {
-    float det;
-    float tmp;
-
-    if ( NULL == p0 || NULL == p1 || NULL == p2 ) return false;
-
+    fvec3_t n0 = p0.getNormal(),
+            n1 = p1.getNormal(),
+            n2 = p2.getNormal();
+    float d0 = p0.getDistance(),
+          d1 = p1.getDistance(),
+          d2 = p2.getDistance();
     // the determinant of the matrix
-    det =
-        p0[kX] * ( p1[kY] * p2[kZ] - p1[kZ] * p2[kY] ) -
-        p0[kY] * ( p1[kX] * p2[kZ] - p2[kX] * p1[kZ] ) +
-        p0[kZ] * ( p1[kX] * p2[kY] - p2[kX] * p1[kY] );
+    float det =
+        n0[kX] * (n1[kY] * n2[kZ] - n1[kZ] * n2[kY]) -
+        n0[kY] * (n1[kX] * n2[kZ] - n2[kX] * n1[kZ]) +
+        n0[kZ] * (n1[kX] * n2[kY] - n2[kX] * n1[kY]);
 
     // check for system that is too close to being degenerate
-    if ( std::abs( det ) < 1e-6 ) return false;
+    if (std::abs(det) < 1e-6) return false;
+
+    float tmp;
 
     // the x component
     tmp =
-        p0[kW] * ( p1[kZ] * p2[kY] - p1[kY] * p2[kZ] ) +
-        p1[kW] * ( p0[kY] * p2[kZ] - p0[kZ] * p2[kY] ) +
-        p2[kW] * ( p0[kZ] * p1[kY] - p0[kY] * p1[kZ] );
+        d0 * (n1[kZ] * n2[kY] - n1[kY] * n2[kZ]) +
+        d1 * (n0[kY] * n2[kZ] - n0[kZ] * n2[kY]) +
+        d2 * (n0[kZ] * n1[kY] - n0[kY] * n1[kZ]);
     dst_pos[kX] = tmp / det;
 
     // the y component
     tmp =
-        p0[kW] * ( p1[kX] * p2[kZ] - p1[kZ] * p2[kX] ) +
-        p1[kW] * ( p0[kZ] * p2[kX] - p0[kX] * p2[kZ] ) +
-        p2[kW] * ( p0[kX] * p1[kZ] - p0[kZ] * p1[kX] );
+        d0 * (n1[kX] * n2[kZ] - n1[kZ] * n2[kX]) +
+        d1 * (n0[kZ] * n2[kX] - n0[kX] * n2[kZ]) +
+        d2 * (n0[kX] * n1[kZ] - n0[kZ] * n1[kX]);
     dst_pos[kY] = tmp / det;
 
     // the z component
     tmp =
-        p0[kW] * ( p1[kY] * p2[kX] - p1[kX] * p2[kY] ) +
-        p1[kW] * ( p0[kX] * p2[kY] - p0[kY] * p2[kX] ) +
-        p2[kW] * ( p0[kY] * p1[kX] - p0[kX] * p1[kY] );
+        d0 * (n1[kY] * n2[kX] - n1[kX] * n2[kY]) +
+        d1 * (n0[kX] * n2[kY] - n0[kY] * n2[kX]) +
+        d2 * (n0[kY] * n1[kX] - n0[kX] * n1[kY]);
     dst_pos[kZ] = tmp / det;
 
     return true;
@@ -310,35 +255,32 @@ bool three_plane_intersection( fvec3_t& dst_pos, const plane_base_t p0, const pl
 // sphere functions
 //--------------------------------------------------------------------------------------------
 
-geometry_rv sphere_intersects_sphere(const sphere_t *lhs, const sphere_t *rhs)
+geometry_rv sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs)
 {
     geometry_rv retval = geometry_error;
-    fvec3_t vdiff;
-    float   dist2;
 
-    // get the separating axis
-    vdiff = lhs->origin - rhs->origin;
+    // Get the separating axis
+    fvec3_t vdiff = lhs.getCenter() - rhs.getCenter();
 
-    // get the distance squared
-    dist2 = vdiff.length_2();
+    // Get the distance squared.
+    float dist2 = vdiff.length_2();
 
-    if ( rhs->radius < lhs->radius )
+    if (rhs.getRadius() < lhs.getRadius())
     {
-        if ( dist2 < lhs->radius * lhs->radius )
+        if (dist2 < lhs.getRadius() * lhs.getRadius())
         {
             retval = geometry_inside;
         }
     }
 
-    if ( geometry_inside != retval )
+    if (geometry_inside != retval)
     {
-        // get the sum of the radii
-        float fRadiiSum = lhs->radius + rhs->radius;
+        // Get the sum of the radii.
+        float fRadiiSum = lhs.getRadius() + rhs.getRadius();
 
-        // if the distance between the centers is less than the sum
-        // of the radii, then we have an intersection
-        // we calculate lhs using the squared lengths for speed
-        if ( dist2 < fRadiiSum * fRadiiSum )
+        // If the distance between the centers is less than the sum of the radii,
+        // then we have an intersection we calculate lhs using the squared lengths for speed.
+        if (dist2 < fRadiiSum * fRadiiSum)
         {
             retval = geometry_intersect;
         }
@@ -471,15 +413,16 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
         return geometry_error;
     }
 
+    /// @todo The sphere invariants do not allow for this situation.
     // uninitialized/inverted spheres give no useful information
-    if ( S->radius < 0.0f )
+    if ( S->getRadius() < 0.0f )
     {
         return geometry_error;
     }
 
     // this is the distance that the origin of the cone must be moved to
     // produce a new cone with an offset equal to the radius of the sphere
-    offset_length = S->radius * K->inv_sin;
+    offset_length = S->getRadius() * K->inv_sin;
 	offset_vec = K->axis * offset_length;
 
     // assume the worst
@@ -497,7 +440,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
         K_new.origin = K->origin + offset_vec;
 
         // If the center of the sphere is inside this cone, it must be competely inside the original cone
-        switch ( cone_intersects_point( &K_new, S->origin ) )
+        switch ( cone_intersects_point( &K_new, S->getCenter() ) )
         {
             case geometry_error:
                 retval = geometry_error;
@@ -529,7 +472,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
         // If the center of the sphere is inside this cone, it must be intersecting the original cone.
         // Since it failed test with the foreward cone, it must be merely intersecting the cone.
-        switch ( cone_intersects_point( &K_new, S->origin ) )
+        switch ( cone_intersects_point( &K_new, S->getCenter() ) )
         {
             case geometry_error:
                 retval = geometry_error;

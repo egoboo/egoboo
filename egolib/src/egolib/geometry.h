@@ -37,16 +37,13 @@ struct sphere_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    enum e_geometry_rv
+    enum geometry_rv
     {
         geometry_error,
         geometry_outside,
         geometry_intersect,
         geometry_inside
     };
-
-// this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_geometry_rv geometry_rv;
 
 //--------------------------------------------------------------------------------------------
 // a datatype for points
@@ -74,8 +71,8 @@ geometry_rv point_intersects_aabb(const point_base_t pos, const fvec3_t& corner1
 
 geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs);
 
-geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
-geometry_rv plane_intersects_aabb_max(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
+geometry_rv plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
+geometry_rv plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
 
 /**
  * @brief
@@ -89,17 +86,17 @@ geometry_rv plane_intersects_aabb_max(const plane_base_t plane, const fvec3_t& m
  * @todo
  *	Rename <tt>plane</tt> to <tt>lhs</tt> and <tt>aabb</tt> to <tt>rhs</tt>.
  */
-geometry_rv plane_intersects_aabb(const plane_base_t plane, const fvec3_t& mins, const fvec3_t& maxs);
+geometry_rv plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
 
 /**
  * @brief
- *	Get if two spheres intersect.
+ *  Get if two spheres intersect.
  * @param lhs
- *	a sphere
+ *  a sphere
  * @param rhs
- *	the other sphere
+ *  the other sphere
  */
-geometry_rv sphere_intersects_sphere(const sphere_t *lhs, const sphere_t *rhs);
+geometry_rv sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs);
 
 /**
  * @brief
@@ -123,39 +120,14 @@ geometry_rv cone_intersects_point(const cone_t * lhs, const fvec3_t& rhs);
  */
 geometry_rv cone_intersects_sphere(const cone_t * lhs, const sphere_t * rhs);
 
-
-//--------------------------------------------------------------------------------------------
-// misc routines
-//--------------------------------------------------------------------------------------------
+/**
+ * @brief
+ *  Find the parametric line where two planes intersect.
+ */
+bool two_plane_intersection(fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_t& p0, const plane_t& p1);
 
 /**
  * @brief
- *	Get the plane normal vector of this plane.
- * @param self
- *	this plane
- * @return
- *	the normal vector of this plane
- * @remark
- *	The normal vector of a plane is a unit vector.
+ *  Find the point where 3 planes intersect.
  */
-fvec3_t plane_get_normal(const plane_base_t self);
-
-/**
- * @brief
- *  Get the signed distance of a point to a plane.
- * @param plane
- *  the plane
- * @param point
- *  the point
- * @todo
- *  @a plane should be of type <tt>const plane_t&</tt>.
- * @todo
- *  Document return value.
- */
-float plane_point_distance( const plane_base_t plane, const fvec3_t& point);
-
-/// find the parametric line where two planes intersect
-bool two_plane_intersection( fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_base_t p0, const plane_base_t p1 );
-
-/// find the point where 3 planes intersect
-bool three_plane_intersection( fvec3_t& dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 );
+bool three_plane_intersection(fvec3_t& dst_pos, const plane_t& p0, const plane_t& p1, const plane_t& p2);

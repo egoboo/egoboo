@@ -23,39 +23,62 @@
 #include "egolib/Math/Plane.hpp"
 
 plane_t::plane_t() :
-	_n(0.0f, 0.0f, 1.0f),
-	_d(0.0f)
+    _n(0.0f, 0.0f, 1.0f),
+    _d(0.0f)
 {}
+
+/**
+* @brief
+*  Create a plane from a plane equation \f$a + b + c + d = 0\f$.
+* @param a, b, c, d
+*  the plane equation
+* @remark
+*  Given a plane equation \f$a + b + c + d = 0\f$, the normal-distance form
+*  \f$(\hat{n}',d')\f$ is defined as \f$\hat{n}' = \frac{\vec{n}}{|\vec{n}'|}\f$
+*  and \f$d' = \frac{d}{|\vec{n}'|}\f$ where \f$\vec{n}' = (a,b,c)\f$.
+*/
+plane_t::plane_t(float a, float b, float c, float d) :
+    _n(a, b, c), _d(d)
+{
+    float l = _n.length();
+    if (0.0f == l)
+    {
+        throw std::domain_error("normal vector is zero vector");
+    }
+    float il = 1.0f / l;
+    _n *= il;
+    _d *= il;
+}
 
 plane_t::plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c) : plane_t()
 {
-	fvec3_t u = b - a;
-	if (u == fvec3_t::zero())
-	{
-		throw std::domain_error("b = a");
-	}
-	fvec3_t v = c - a;
-	if (u == fvec3_t::zero())
-	{
-		throw std::domain_error("c = a");
-	}
-	_n = u.cross(v);
-	if (0.0f == _n.normalize())
-	{
-		/* u x v = 0 is only possible for u,v != 0 if u = v and thus b = c. */
-		throw std::domain_error("b = c");
-	}
-	_d = -_n.dot(a);
+    fvec3_t u = b - a;
+    if (u == fvec3_t::zero())
+    {
+        throw std::domain_error("b = a");
+    }
+    fvec3_t v = c - a;
+    if (u == fvec3_t::zero())
+    {
+        throw std::domain_error("c = a");
+    }
+    _n = u.cross(v);
+    if (0.0f == _n.normalize())
+    {
+        /* u x v = 0 is only possible for u,v != 0 if u = v and thus b = c. */
+        throw std::domain_error("b = c");
+    }
+    _d = -_n.dot(a);
 }
 
 plane_t::plane_t(const fvec3_t& p, const fvec3_t& n) :
-	_n(n), _d(0.0f)
+    _n(n), _d(0.0f)
 {
-	if (_n.normalize() == 0.0f)
-	{
-		throw std::domain_error("normal vector is zero vector");
-	}
-	_d = -_n.dot(p);
+    if (_n.normalize() == 0.0f)
+    {
+        throw std::domain_error("normal vector is zero vector");
+    }
+    _d = -_n.dot(p);
 }
 
 plane_t::plane_t(const fvec3_t& t, const float d) :
@@ -68,12 +91,12 @@ plane_t::plane_t(const fvec3_t& t, const float d) :
 }
 
 plane_t::plane_t(const plane_t& other) :
-	_n(other._n),
-	_d(other._d)
+    _n(other._n),
+    _d(other._d)
 {
 }
 
 float plane_t::distance(const fvec3_t& point) const
 {
-	return _n.dot(point) + _d;
+    return _n.dot(point) + _d;
 }

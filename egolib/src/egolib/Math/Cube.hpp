@@ -26,82 +26,90 @@
 
 struct cube_t
 {
-	/**
-	 * @brief
-	 *	The center of the cube.
-	 */
-	fvec3_t center;
-	/**
-	 * @brief
-	 *	The size of the cube.
-	 */
-	float size;
-	/**
-	 * @brief
-	 *	Get the center of this cube.
-	 * @return
-	 *	the center of this cube
-	 */
-	const fvec3_t& getCenter() const
-	{
-		return center;
-	}
-	/**
-	 * @brief
-	 *	Get the size of this cube.
-	 * @return
-	 *	the size of this cube
-	 */
-	const float& getSize() const
-	{
-		return size;
-	}
-	/**
-	 * @brief
-	 *	Assign this cube the values of another cube.
-	 * @param other
-	 *	the other cube
-	 * @post
-	 *	This cube was assigned the values of the other cube.
-	 */
-	void assign(const cube_t& other)
-	{
-		center = other.center;
-		size = other.size;
-	}
-	/**
-	 * @brief
-	 *	Get the minimum of this cube.
-	 * @return
-	 *	the minimum of this cube
-	 */
-	fvec3_t getMin() const
-	{
-		return fvec3_t(center.x - size, center.y - size, center.z - size);
-	}
-	/**
-	 * @brief
-	 *	Get the maximum of this cube.
-	 * @return
-	 *	the maximum of this cube
-	 */
-	fvec3_t getMax() const
-	{
-		return fvec3_t(center.x + size, center.y + size, center.z + size);
-	}
-	/**
-	 * @brief
-	 *	Assign this cube the values of another cube.
-	 * @param other
-	 *	the other cube
-	 * @return
-	 *	this cube
-	 * @post
-	 *	This cube was assigned the values of the other cube.
-	 */
-	cube_t& operator=(const cube_t& other)
-	{
-		assign(other);
-		return *this;
-	}
+    /**
+     * @brief
+     *  The center of the cube.
+     */
+    fvec3_t center;
+    /**
+     * @brief
+     *  The size of the cube.
+     * @invariant
+     *  Greater than or equal to @a 0.
+     */
+    float size;
+
+    /**
+     * @brief
+     *  Get the center of this cube.
+     * @return
+     *  the center of this cube
+     */
+    const fvec3_t& getCenter() const
+    {
+        return center;
+    }
+
+    /**
+     * @brief
+     *  Get the size of this cube.
+     * @return
+     *  the size of this cube
+    */
+    const float& getSize() const
+    {
+        return size;
+    }
+
+    /**
+     * @brief
+     *  Assign this cube the values of another cube.
+     * @param other
+     *  the other cube
+     * @post
+     *  This cube was assigned the values of the other cube.
+     */
+    void assign(const cube_t& other)
+    {
+        center = other.center;
+        size = other.size;
+    }
+
+    /**
+     * @brief
+     *  Get the minimum of this cube.
+     * @return
+     *  the minimum of this cube
+     */
+    fvec3_t getMin() const
+    {
+        return fvec3_t(center.x - size, center.y - size, center.z - size);
+    }
+
+    /**
+     * @brief
+     *  Get the maximum of this cube.
+     * @return
+     *  the maximum of this cube
+     */
+    fvec3_t getMax() const
+    {
+        return fvec3_t(center.x + size, center.y + size, center.z + size);
+    }
+
+    /**
+     * @brief
+     *  Assign this cube the values of another cube.
+     * @param other
+     *  the other cube
+     * @return
+     *  this cube
+     * @post
+     *  This cube was assigned the values of the other cube.
+     */
+    cube_t& operator=(const cube_t& other)
+    {
+        assign(other);
+        return *this;
+    }
 };

@@ -64,7 +64,7 @@ struct bv_t
 	 */
 	bv_t *ctor()
 	{
-		sphere.ctor();
+		sphere = sphere_t();
 		aabb.ctor();
 		return this;
 	}
@@ -75,7 +75,7 @@ struct bv_t
 	void dtor()
 	{
 		aabb.dtor();
-		sphere.dtor();
+        sphere = sphere_t();
 	}
 	/**
 	 * @brief

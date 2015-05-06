@@ -22,85 +22,107 @@
 
 #include "egolib/Math/Sphere.h"
 
+sphere_t::sphere_t() :
+    _center(fvec3_t::zero()),
+    _radius(0.0f)
+{}
+
+sphere_t::sphere_t(const fvec3_t& center, float radius) :
+    _center(center),
+    _radius(radius)
+{
+    if (_radius < 0.0f)
+    {
+        throw std::domain_error("sphere radius is negative");
+    }
+}
+
+sphere_t::sphere_t(const sphere_t& other) :
+    _center(other._center),
+    _radius(other._radius)
+{}
+
 const fvec3_t& sphere_t::getCenter() const
 {
-	return origin;
+    return _center;
+}
+
+void sphere_t::setCenter(const fvec3_t& center)
+{
+    _center = center;
 }
 
 float sphere_t::getRadius() const
 {
-	return radius;
+    return _radius;
+}
+
+void sphere_t::setRadius(float radius)
+{
+    if (radius < 0.0f)
+    {
+        throw std::domain_error("sphere radius is negative");
+    }
+    _radius = radius;
 }
 
 void sphere_t::assign(const sphere_t& other)
 {
-	radius = other.radius;
-	origin = other.origin;
+    _radius = other._radius;
+    _center = other._center;
 }
 
 sphere_t& sphere_t::operator=(const sphere_t& other)
 {
-	assign(other);
-	return *this;
+    assign(other);
+    return *this;
 }
-
-sphere_t::sphere_t() :
-	origin(fvec3_t::zero()),
-	radius(0.0f)
-{
-}
-
-sphere_t::sphere_t(const sphere_t& other) :
-	origin(other.origin),
-	radius(other.radius)
-{
-}
-
 
 bool sphere_t::intersects(const fvec3_t& other) const
 {
-	// Get the squared distance between the point and the center of the sphere.
-	float distance_2 = (origin - other).length_2();
-	// Get the squared radius of the sphere.
-	float radius_2 = radius * radius;
-	// If the squared distance beween the point and the center of the sphere
-	// is smaller than or equal to the squared radius of the sphere ...
-	if (distance_2 <= radius_2)
-	{
-		// ... the sphere and the point intersect.
-		return true;
-	}
-	// Otherwise they don't intersect.
-	return false;
+    // Get the squared distance between the point and the center of the sphere.
+    float distance_2 = (_center - other).length_2();
+    // Get the squared radius of the sphere.
+    float radius_2 = _radius * _radius;
+    // If the squared distance beween the point and the center of the sphere
+    // is smaller than or equal to the squared radius of the sphere ...
+    if (distance_2 <= radius_2)
+    {
+        // ... the sphere and the point intersect.
+        return true;
+    }
+    // Otherwise they don't intersect.
+    return false;
 }
 
 bool sphere_t::intersects(const sphere_t& other) const
 {
-	// Get the squared distance between the centers of the two spheres.
-	float distance_2 = (origin - other.origin).length_2();
-	// Get the squared sum of the radiis of the two spheres.
-	float sumOfRadii = radius + other.radius;
-	float sumOfRadii_2 = sumOfRadii * sumOfRadii;
-	// If the squared distance beween the centers of the spheres
-	// is smaller than or equal to the squared sum of the radii of the spheres ...
-	if (distance_2 <= sumOfRadii_2)
-	{
-		// ... the spheres intersect.
-		return true;
-	}
-	// Otherwise they don't intersect.
-	return false;
+    // Get the squared distance between the centers of the two spheres.
+    float distance_2 = (_center - other._center).length_2();
+    // Get the squared sum of the radiis of the two spheres.
+    float sumOfRadii = _radius + other._radius;
+    float sumOfRadii_2 = sumOfRadii * sumOfRadii;
+    // If the squared distance beween the centers of the spheres
+    // is smaller than or equal to the squared sum of the radii of the spheres ...
+    if (distance_2 <= sumOfRadii_2)
+    {
+        // ... the spheres intersect.
+        return true;
+    }
+    // Otherwise they don't intersect.
+    return false;
 }
 
+#if 0
 bool sphere_self_clear(sphere_t& self)
 {
-	self.origin = fvec3_t::zero();
-	self.radius = 0.0f;
-	return true;
+    self = sphere_t();
+    return true;
 }
 
 bool sphere_self_is_clear(const sphere_t& self)
 {
-	return 0.0f == self.radius
-		&& fvec3_t::zero() == self.origin;
+    return 0.0f == self._radius
+        && fvec3_t::zero() == self._origin;
 }
+#endif

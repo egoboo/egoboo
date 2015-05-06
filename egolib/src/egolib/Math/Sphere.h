@@ -25,163 +25,216 @@
 #include "egolib/Math/Vector.hpp"
 
 /**
-* @brief
-*	A sphere.
-*	The terms the/a "sphere_t object" and the/a "sphere" are synonyms.
-*/
+ * @brief
+ *  A sphere.
+ *  The terms the/a "sphere_t object" and the/a "sphere" are synonyms.
+ */
 struct sphere_t
 {
-	/**
-	 * @brief
-	 *	The center of the sphere.
-	 * @todo
-	 *	Rename to @a center.
-	 */
-	fvec3_t origin;
-	/**
-	 * @brief
-	 *	The radius of the sphere.
-	 * @invariant
-	 *	Greater than or equal to @a 0.
-	 */
-	float radius;
 
-	/**
-	 * @brief
-	 *	Get the center of this sphere.
-	 * @return
-	 *	the center of this sphere
-	 */
-	const fvec3_t& getCenter() const;
+private:
 
-	/**
-	 * @brief
-	 *	Get the radius of this  sphere.
-	 * @return
-	 *	the radius of this sphere
-	 */
-	float getRadius() const;
+    /**
+     * @brief
+     *  The center of the sphere.
+     */
+    fvec3_t _center;
 
-	/**
-	 * @brief
-	 *	Construct this sphere assigning it the default values of a sphere.
-	 * @return
-	 *	a pointer to this sphere on success, @a nullptr on failure
-	 * @post
-	 *	This sphere was assigned the default values of a sphere.
-	 * @remark
-	 *	The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
-	 */
-	sphere_t *ctor()
-	{
-		radius = 0.0f;
-		fvec3_ctor(origin);
-		return this;
-	}
+    /**
+     * @brief
+     *  The radius of the sphere.
+     * @invariant
+     *  Greater than or equal to @a 0.
+     */
+    float _radius;
 
-	/**
-	 * @brief
-	 *	Destruct this sphere.
-	 */
-	sphere_t *dtor()
-	{
-		fvec3_dtor(origin);
-		radius = 0.0f;
-		return this;
-	}
+public:
 
-	/**
-	 * @brief
-	 *	Assign this sphere values of another sphere.
-	 * @param other
-	 *	the other sphere
-	 * @post
-	 * 	This sphere was assigned the values of the sphere.
-	 */
-	void assign(const sphere_t& other);
+    /**
+     * @brief
+     *  Construct this sphere assigning it the default values of a sphere.
+     * @post
+     *  This sphere was assigned the default values of a sphere.
+     * @remark
+     *  The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
+     */
+    sphere_t();
 
-	/**
-	 * @brief
-	 *	Assign this sphere the values of another sphere.
-	 * @param other
-	 *	the other sphere
-	 * @return
-	 *	this sphere
-	 * @post
-	 *	This sphere was assigned the values of the other sphere.
-	 */
-	sphere_t& operator=(const sphere_t& other);
+    /**
+     * @brief
+     *  Construct this sphere assigning it the specified values.
+     * @param center
+     *  the center of the sphere
+     * @param radius
+     *  the radius of the sphere
+     * @throw std::domain_error
+     *  if the radius is negative
+     * @pre
+     *  The radius is not negative
+     * @post
+     *  The sphere was assigned the specified values.
+     */
+    sphere_t(const fvec3_t& center, float radius);
 
-	/**
-	 * @brief
-	 *	Construct this sphere assigning it the default values of a sphere.
-	 * @post
-	 *	This sphere was assigned the default values of a sphere.
-	 * @remark
-	 *	The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
-	 */
-	sphere_t();
+    /**
+     * @brief
+     *  Construct this sphere assigning it the values of another sphere.
+     * @post
+     *  This sphere was assigned the default values of another sphere.
+     */
+    sphere_t(const sphere_t& other);
 
-	/**
-	 * @brief
-	 *	Construct this sphere assigning it the values of another sphere.
-	 * @post
-	 *	This sphere was assigned the default values of another sphere.
-	 */
-	sphere_t(const sphere_t& other);
+public:
 
-	/**
-	 * @brief
-	 *	Get if this sphere intersects with a point.
-	 * @param other
-	 *	the point
-	 * @return
-	 *	@a true if this sphere intersects with the point,
-	 *	@a false otherwise
-	 * @remark
-	 *	A sphere \f$(c,r)\f$ with the center $c$ and the radius $r$
-	 *	and a point \f$p\f$ intersect if \f$|p - c| \leq r\f$ holds.
-	 *	That condition is equivalent to the condition \f$|p - c|^2
-	 *	\leq r^2\f$ but the latter is more efficient to test (two
-	 *	multiplications vs. one square root).
-	 */
-	bool intersects(const fvec3_t& point) const;
+    /**
+     * @brief
+     *  Get the center of this sphere.
+     * @return
+     *  the center of this sphere
+     */
+    const fvec3_t& getCenter() const;
 
-	/**
-	 * @brief
-	 *	Get if this sphere intersects with another sphere.
-	 * @param other
-	 *	the other sphere
-	 * @return
-	 *	@a true if this sphere intersects with the other sphere,
-	 *	@a false otherwise
-	 * @remark
-	 *	Two spheres \f$(c_0,r_0)\f$ and \f$(c_1,r_1)\f$ with the
-	 *	centers \f$c_0\f$ and \f$c_1\f$ and the radii \f$r_0\f$
-	 *	and \f$r_1\f$ intersect if \f$|c_1 - c_0| \leq r_0 + r_1\f$
-	 *	holds. That condition is equivalent to the condition
-	 *	\f$|c_1 - c_0|^2 \leq (r_0 + r_1)^2\f$ but the latter
-	 *	is more efficient to test (two multiplications vs. one
-	 *	square root).
-	 */
-	bool intersects(const sphere_t& other) const;
+    /**
+     * @brief
+     *  Set the center of this sphere.
+     * @param center
+     *  the center
+     * @post
+     *  The sphere was assigned the center
+     */
+    void setCenter(const fvec3_t& center);
+
+    /**
+     * @brief
+     *  Get the radius of this  sphere.
+     * @return
+     *  the radius of this sphere
+     */
+    float getRadius() const;
+
+    /**
+     * @brief
+     *  Set the radius of this sphere.
+     * @param radius
+     *  the radius
+     * @pre
+     *  The radius must be greater than or equal to @a 0.
+     * @throw std::domain_error
+     *  if the radius is smaller than @a 0
+     * @post
+     *  If an exception is raised, the sphere's radius was not modified.
+     *  Otherwise, the sphere was assigned the radius.
+     */
+    void setRadius(float radius);
+
+#if 0
+    /**
+     * @brief
+     *  Construct this sphere assigning it the default values of a sphere.
+     * @return
+     *  a pointer to this sphere on success, @a nullptr on failure
+     * @post
+     *  This sphere was assigned the default values of a sphere.
+     * @remark
+     *  The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
+     */
+    sphere_t *ctor()
+    {
+        radius = 0.0f;
+        fvec3_ctor(origin);
+        return this;
+    }
+#endif
+#if 0
+    /**
+     * @brief
+     *  Destruct this sphere.
+     */
+    sphere_t *dtor()
+    {
+        fvec3_dtor(origin);
+        radius = 0.0f;
+        return this;
+    }
+#endif
+
+    /**
+     * @brief
+     *  Assign this sphere values of another sphere.
+     * @param other
+     *  the other sphere
+     * @post
+     *  This sphere was assigned the values of the sphere.
+     */
+    void assign(const sphere_t& other);
+
+    /**
+     * @brief
+     *  Assign this sphere the values of another sphere.
+     * @param other
+     *  the other sphere
+     * @return
+     *  this sphere
+     * @post
+     *  This sphere was assigned the values of the other sphere.
+     */
+    sphere_t& operator=(const sphere_t& other);
+
+
+    /**
+     * @brief
+     *  Get if this sphere intersects with a point.
+     * @param other
+     *  the point
+     * @return
+     *  @a true if this sphere intersects with the point,
+     *  @a false otherwise
+     * @remark
+     *  A sphere \f$(c,r)\f$ with the center $c$ and the radius $r$
+     *  and a point \f$p\f$ intersect if \f$|p - c| \leq r\f$ holds.
+     *  That condition is equivalent to the condition \f$|p - c|^2
+     *  \leq r^2\f$ but the latter is more efficient to test (two
+     *  multiplications vs. one square root).
+     */
+    bool intersects(const fvec3_t& point) const;
+
+    /**
+     * @brief
+     *  Get if this sphere intersects with another sphere.
+     * @param other
+     *  the other sphere
+     * @return
+     *  @a true if this sphere intersects with the other sphere,
+     *  @a false otherwise
+     * @remark
+     *  Two spheres \f$(c_0,r_0)\f$ and \f$(c_1,r_1)\f$ with the
+     *  centers \f$c_0\f$ and \f$c_1\f$ and the radii \f$r_0\f$
+     *  and \f$r_1\f$ intersect if \f$|c_1 - c_0| \leq r_0 + r_1\f$
+     *  holds. That condition is equivalent to the condition
+     *  \f$|c_1 - c_0|^2 \leq (r_0 + r_1)^2\f$ but the latter
+     *  is more efficient to test (two multiplications vs. one
+     *  square root).
+     */
+    bool intersects(const sphere_t& other) const;
 
 };
 
+#if 0
 /**
  * @brief
- *	Assign this sphere the default values of a sphere.
+ *  Assign this sphere the default values of a sphere.
  * @param self
- *	this sphere
+ *  this sphere
  */
 bool sphere_self_clear(sphere_t& self);
 
 /**
  * @brief
- *	Get if a sphere is "clear" i.e. has its default values assigned.
+ *  Get if a sphere is "clear" i.e. has its default values assigned.
  * @param self
- *	a pointer to the sphere
+ *  a pointer to the sphere
  * @return
- *	@a true if the sphere is "clear", @a false otherwise
+ *  @a true if the sphere is "clear", @a false otherwise
  */
 bool sphere_is_clear(const sphere_t *self);
+#endif
