@@ -110,7 +110,13 @@ public:
 
     // various getters
 	inline const fmat_4x4_t& getProjection() const { return _mProjection; }
-    inline const egolib_frustum_t& getFrustum() const { return _frustum; }
+    inline const egolib_frustum_t& getFrustum() const {
+        if (_frustumInvalid) {
+            _frustum.calculate(_mProjection, _mView);
+            _frustumInvalid = false;
+        }
+        return _frustum;
+    }
 	inline const fmat_4x4_t& getView() const { return _mView; }
     inline const orientation_t& getOrientation() const { return _ori; }
     inline CameraTurnMode getTurnMode() const { return _turnMode; }
@@ -257,13 +263,15 @@ private:
 
     // The projection matrices.
     fmat_4x4_t _mProjection;        ///< Normal projection matrix (derived/cached from other attributes).
-    fmat_4x4_t _mProjectionBig;     ///< Big    projection matrix (derived/cached from other attributes).
-    fmat_4x4_t _mProjectionSmall;   ///< Small  projection matrix (derived/cached from other attributes).
 
     // The view frustum.
-    egolib_frustum_t _frustum;
-    egolib_frustum_t _frustumBig;
-    egolib_frustum_t _frustumSmall;
+    mutable egolib_frustum_t _frustum;
+    /**
+     * @brief
+     *  If either the projection or the view matrix changed, the frustum is marked as invalid,
+     *  and - if it is requested - needs to be recomputed.
+     */
+    mutable bool _frustumInvalid;
 
     // How movement is calculated.
     CameraMovementMode  _moveMode;   ///< The camera movement mode.

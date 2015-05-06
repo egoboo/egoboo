@@ -42,13 +42,8 @@ Camera::Camera(const CameraOptions &options) :
 	_options(options),
 	_mView(),
 	_mProjection(),
-	_mProjectionBig(),
-	_mProjectionSmall(),
-
+    _frustumInvalid(true),
 	_frustum(),
-	_frustumBig(),
-	_frustumSmall(),
-
 	_moveMode(CameraMovementMode::Player),
 
 	_turnMode(_options.turnMode),
@@ -154,16 +149,10 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
     float fov_deg_big   = multiplyFOV( DEFAULT_FOV, fov_mag );
     float fov_deg_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
     
-	fmat_4x4_t identity = fmat_4x4_t::identity();
-    
-	_mProjection = fmat_4x4_t::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
-	_mProjectionBig = fmat_4x4_t::perspective(fov_deg_big, aspect_ratio, frustum_near, frustum_far);
-	_mProjectionSmall = fmat_4x4_t::perspective(fov_deg_small, aspect_ratio, frustum_near, frustum_far);
-    
-    // Recalculate the frustum, too.
-    _frustum.calculate(_mProjection, _mView);
-    _frustumBig.calculate(_mProjectionBig, _mView);
-    _frustumSmall.calculate(_mProjectionSmall, _mView);
+    _mProjection = fmat_4x4_t::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
+
+    // Invalidate the frustum.
+    _frustumInvalid = true;
 }
 
 void Camera::resetView()
@@ -177,11 +166,8 @@ void Camera::resetView()
         mat_glRotate(tmp2, tmp1, roll_deg, fvec3_t(0, 0, 1));
         mat_gluLookAt(_mView, tmp2, _pos, _center, fvec3_t(0.0f, 0.0f, 1.0f));
     }
-
-    // The view matrix was updated, so update the frustum.
-    _frustum.calculate(_mProjection, _mView);
-    _frustumBig.calculate(_mProjectionBig, _mView);
-    _frustumSmall.calculate(_mProjectionSmall, _mView);	
+    // Invalidate the frustum.
+    _frustumInvalid = true;
 }
 
 void Camera::updatePosition()
