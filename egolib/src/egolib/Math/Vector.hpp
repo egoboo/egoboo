@@ -35,15 +35,15 @@ namespace Ego
 namespace Math
 {
     template <size_t I, typename Type, size_t Size>
-    void unpack(typename Type(&dst)[Size]) {}
+    void unpack(Type(&dst)[Size]) {}
 
     template <size_t I, typename  Type, size_t Size, typename Arg>
-    void _unpack(typename Type(&dst)[Size], Arg&& arg) {
+    void _unpack(Type(&dst)[Size], Arg&& arg) {
         dst[I] = arg;
     }
 
     template <size_t I, typename Type, size_t Size, typename Arg, class ... Args>
-    void _unpack(typename Type(&dst)[Size], Arg&& arg, Args&& ... args) {
+    void _unpack(Type(&dst)[Size], Arg&& arg, Args&& ... args) {
         dst[I] = arg;
         _unpack<I + 1, Type>(dst, args ...);
     }
@@ -64,7 +64,7 @@ namespace Math
      *  Michael Heilmann
      */
     template <typename Type, size_t Size, typename ... Args>
-    void unpack(typename Type(&dst)[Size], Args&& ...args) {
+    void unpack(Type(&dst)[Size], Args&& ...args) {
         static_assert(Size == sizeof ... (args), "wrong number of arguments");
         _unpack<0, Type, Size>(dst, args ...);
     }
