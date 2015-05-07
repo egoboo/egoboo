@@ -127,37 +127,6 @@ public:
      */
     void setRadius(float radius);
 
-#if 0
-    /**
-     * @brief
-     *  Construct this sphere assigning it the default values of a sphere.
-     * @return
-     *  a pointer to this sphere on success, @a nullptr on failure
-     * @post
-     *  This sphere was assigned the default values of a sphere.
-     * @remark
-     *  The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
-     */
-    sphere_t *ctor()
-    {
-        radius = 0.0f;
-        fvec3_ctor(origin);
-        return this;
-    }
-#endif
-#if 0
-    /**
-     * @brief
-     *  Destruct this sphere.
-     */
-    sphere_t *dtor()
-    {
-        fvec3_dtor(origin);
-        radius = 0.0f;
-        return this;
-    }
-#endif
-
     /**
      * @brief
      *  Assign this sphere values of another sphere.
@@ -218,23 +187,3 @@ public:
     bool intersects(const sphere_t& other) const;
 
 };
-
-#if 0
-/**
- * @brief
- *  Assign this sphere the default values of a sphere.
- * @param self
- *  this sphere
- */
-bool sphere_self_clear(sphere_t& self);
-
-/**
- * @brief
- *  Get if a sphere is "clear" i.e. has its default values assigned.
- * @param self
- *  a pointer to the sphere
- * @return
- *  @a true if the sphere is "clear", @a false otherwise
- */
-bool sphere_is_clear(const sphere_t *self);
-#endif

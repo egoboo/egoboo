@@ -1988,7 +1988,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                dist = fvec3_dist_abs(prt_t::get_pos_v_const(pprt), pchr->getPosition());
+                dist = (prt_t::get_pos_v_const(pprt) - pchr->getPosition()).length_abs();
 
                 // clear the occupied list
                 z = pprt->pos.z - pchr->getPosition().z;

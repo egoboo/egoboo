@@ -728,9 +728,6 @@
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\StaticVector.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Matrix44.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -856,6 +853,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Logic\Action.hpp">
       <Filter>Header Files\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\TemplateUtilities.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

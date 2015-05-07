@@ -114,5 +114,5 @@ bool bv_test(const bv_t * rhs)
 {
 	bool retval;
 	if (NULL == rhs) return false;
-	return retval;
+	return true;
 }

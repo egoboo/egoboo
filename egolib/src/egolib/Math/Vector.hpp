@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "egolib/Math/TemplateUtilities.hpp"
 #include "egolib/typedef.h"
 #include "egolib/log.h"
 #include "egolib/Float.hpp"
@@ -68,322 +69,337 @@ namespace Math
         _unpack<0, Type, Size>(dst, args ...);
     }
 
-    /**
-     * @brief
-     *  Vectors with compile-time dimensionality.
-     * @param ScalarType
-     *  the scalar type
-     * @param Dimensionality
-     *  the dimensionality of the vector
-     * @pre
-     *  the scalar type must be a floating point type
-     * @pre
-     *  The dimensionality must be a positive integral constant
-     * @details
-     *  The efficiency of this template depends on the optimization
-     *  capabilities of your compiler  (in particular, loop unrolling).
-     */
+/**
+ * @brief
+ *  @a std::true_type is @a _ScalarType and @a _Dimensionality fulfil the requirements for an abstract vector,
+ *  @a std::false_type otherwise.
+ * @detail
+ *  The requirements are: @a _ScalarType must be a floating point type and @a Dimensionality must be greater than @a 0.
+ * @remark
+ *  MH: The following simplification should be possible:
+ *  @code
+ *  template <typename _ScalarType, size_t _Dimensionality>
+ *  using AbstractVectorEnable =
+ *      typename std::conditional<
+ *              (std::is_floating_point<_ScalarType>::value && Ego::Core::greater_than<_Dimensionality, 0>::value),
+ *              std::true_type,
+ *              std::false_type
+ *          >::type
+ *  @endcode
+ */
+template <typename _ScalarType, size_t _Dimensionality>
+struct AbstractVectorEnable
+    : public std::conditional<
+    (std::is_floating_point<_ScalarType>::value && Ego::Core::GreaterThan<_Dimensionality, 0>::value),
+    std::true_type,
+    std::false_type
+    >::type
+{};
 
-template <typename _ScalarType, size_t _Dimensionality> using EnableAbstractVector =
-    typename std::enable_if<
-    std::is_floating_point<_ScalarType>::value && (_Dimensionality > 0)
-    >::type;
+template <typename _ScalarType, size_t _Dimensionality, typename ... ArgTypes>
+struct AbstractVectorConstructorEnable
+    : public std::conditional<
+    (Ego::Core::EqualTo<sizeof...(ArgTypes), _Dimensionality - 1>::value),
+    std::true_type,
+    std::false_type
+    >::type
+{};
+
+/// The following macro simplifies <tt>std::enable_if&lt;...&gt;</tt> expressions.
+#define ABSTRACT_VECTOR_ENABLE \
+    AbstractVectorEnable<_ScalarType, _Dimensionality>::value
+
+/// The following macro simplifies <tt>std::enable_if&lt;...&gt;</tt> expressions.
+#define ABSTRACT_VECTOR_CONSTRUCTOR_ENABLE \
+    AbstractVectorConstructorEnable<_ScalarType, _Dimensionality, ArgTypes ...>::value
 
 template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
 struct AbstractVector;
 
-    template <typename _ScalarType, size_t _Dimensionality>
-    struct AbstractVector<_ScalarType, _Dimensionality, EnableAbstractVector<_ScalarType, _Dimensionality>>
+template <typename _ScalarType, size_t _Dimensionality>
+struct AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<ABSTRACT_VECTOR_ENABLE>::type>
+{
+
+public:
+
+    /**
+     * @brief
+     *  @a ScalarType is the type of the underlaying scalars.
+     */
+    typedef _ScalarType ScalarType;
+    /**
+     * @brief
+     *  @a MyType is the type of the vector..
+     */
+    typedef AbstractVector<_ScalarType, _Dimensionality> MyType;
+    /**
+     * @brief
+     *  The dimensionality of this vector.
+     */
+    static const size_t Dimensionality;
+
+private:
+    /// @invariant the scalar type must be a floating point type.
+    static_assert(std::is_floating_point<_ScalarType>::value, "_ScalarType must be a floating point type");
+    /// @invariant the dimensionality be a positive integral constant
+    static_assert(std::integral_constant<size_t, _Dimensionality>::value > 0, "_Dimensionality must be a positive integral constant");
+    /**
+     * @brief
+     *  The elements of this vector.
+     */
+    _ScalarType _elements[_Dimensionality];
+
+public:
+
+    /// @todo Only enable this
+    /// a) if the parameter pack is of length N=_Dimensionality -1 and
+    /// b) if all N parameters are convertible to _ScalarType.
+    template<typename ... ArgTypes, typename = typename std::enable_if<ABSTRACT_VECTOR_CONSTRUCTOR_ENABLE>::type>
+    AbstractVector(_ScalarType v, ArgTypes&& ... args) {
+        static_assert(_Dimensionality - 1 == sizeof ... (args), "wrong number of arguments");
+        unpack<float, _Dimensionality>(_elements, std::forward<_ScalarType>(v), args ...);
+    }
+
+    AbstractVector() :
+        _elements()
+    {}
+
+    AbstractVector(const MyType& other) {
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            _elements[i] = other._elements[i];
+        }
+    }
+
+    /**
+     * @brief
+     *  Compute the dot product of this vector and another vector.
+     * @param other
+     *  the other vector
+     * @return
+     *  the dot product <tt>(*this) * other</tt> of this vector and the other vector
+     */
+    ScalarType dot(const MyType& other) const {
+        ScalarType t = _elements[0] * _elements[0];
+        for (size_t i = 1; i < Dimensionality; ++i) {
+            t += _elements[i] * _elements[i];
+        }
+        return t;
+    }
+
+    /**
+     * @brief
+     *  Multiply this vector by a scalar.
+     * @param scalar
+     *  the scalar
+     * @post
+     *  The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
+     */
+    void multiply(ScalarType scalar) {
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            _elements[i] *= scalar;
+        }
+    }
+
+    /**
+     * @brief
+     *  Normalize this vector to the specified length.
+     * @param length
+     *  the length
+     * @post
+     *  If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
+     *  and is assigned <tt>length * (*this) / |(*this)|</tt> otherwise.
+     */
+    void normalize(ScalarType length) {
+        ScalarType l = this->length();
+        if (l > 0.0f) {
+            multiply(length / l);
+        }
+    }
+
+    /**
+     * @brief
+     *  Normalize this vector.
+     * @return
+     *  the old length of this vector
+     * @post
+     *  If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
+     *  and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
+     */
+    ScalarType normalize() {
+        ScalarType l = length();
+        if (l > 0.0f) {
+            multiply(1.0f / l);
+        }
+        return l;
+    }
+
+    /**
+     * @brief
+     *  Get if this vector equals another vectors.
+     * @param other
+     *  the other vector
+     * @return
+     *  @a true if this vector equals the other vector
+     */
+    bool equals(const MyType& other) const {
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            if (_elements[i] != other._elements[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @brief
+     *  Get the squared length of this vector
+     *  (using the Euclidian metric).
+     * @return
+     *  the squared length of this vector
+     */
+    ScalarType length_2() const {
+        ScalarType t = _elements[0] * _elements[0];
+        for (size_t i = 1; i < Dimensionality; ++i) {
+            t += _elements[i] * _elements[i];
+        }
+        return t;
+    }
+
+    /**
+     * @brief
+     *  Get the length of this vector
+     *  (using the Euclidian metric).
+     * @return
+     *  the length of this vector
+     */
+    ScalarType length() const {
+        return std::sqrt(length_2());
+    }
+
+    /**
+     * @brief
+     *  Get the length of this vector
+     *  (using the Manhattan metric).
+     * @return
+     *  the length of this vector
+     */
+    ScalarType length_abs() const
     {
-    public:
-        /**
-         * @brief
-         *  @a ScalarType is the type of the underlaying scalars.
-         */
-        typedef _ScalarType ScalarType;
-        /**
-         * @brief
-         *  @a MyType is the type of the vector..
-         */
-        typedef AbstractVector<_ScalarType, _Dimensionality> MyType;
-        /**
-         * @brief
-         *  The dimensionality of this vector.
-         */
-        static const size_t Dimensionality;
-    private:
-        /// @invariant the scalar type must be a floating point type.
-        static_assert(std::is_floating_point<_ScalarType>::value, "_ScalarType must be a floating point type");
-        /// @invariant the dimensionality be a positive integral constant
-        static_assert(std::integral_constant<size_t, _Dimensionality>::value > 0, "_Dimensionality must be a positive integral constant");
-        /**
-         * @brief
-         *  The elements of this vector.
-         */
-        _ScalarType _elements[_Dimensionality];
-
-    public:
-
-
-        /// @todo Only enable this
-        /// a) if the parameter pack is of length N=_Dimensionality -1 and
-        /// b) if all N parameters are convertible to _ScalarType.
-        template<typename ... ArgTypes/*,typename = std::enable_if<true>*/>
-        AbstractVector(_ScalarType v, ArgTypes&& ... args) {
-            static_assert(_Dimensionality - 1 == sizeof ... (args), "wrong number of arguments");
-            unpack<float, _Dimensionality>(_elements, std::forward<_ScalarType>(v), args ...);
-        }
-
-        AbstractVector() :
-            _elements()
-        {}
-
-        AbstractVector(const MyType& other) {
-            for (size_t i = 0; i < Dimensionality; ++i) {
-                _elements[i] = other._elements[i];
-            }
-        }
-
-        /**
-        * @brief
-        *    Compute the dot product of this vector and another vector.
-        * @param other
-        *    the other vector
-        * @return
-        *    the dot product <tt>(*this) * other</tt> of this vector and the other vector
-        */
-        ScalarType dot(const MyType& other) const {
-            ScalarType t = _elements[0] * _elements[0];
-            for (size_t i = 1; i < Dimensionality; ++i) {
-                t += _elements[i] * _elements[i];
-            }
-            return t;
-        }
-
-        /**
-        * @brief
-        *    Multiply this vector by a scalar.
-        * @param scalar
-        *    the scalar
-        * @post
-        *    The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
-        */
-        void multiply(ScalarType scalar) {
-            for (size_t i = 0; i < Dimensionality; ++i) {
-                _elements[i] *= scalar;
-            }
-        }
-
-        /**
-        * @brief
-        *    Normalize this vector to the specified length.
-        * @param length
-        *    the length
-        * @post
-        *    If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
-        *    and is assigned <tt>length * (*this) / |(*this)|</tt> otherwise.
-        */
-        void normalize(ScalarType length) {
-            ScalarType l = this->length();
-            if (l > 0.0f) {
-                multiply(length / l);
-            }
-        }
-
-        /**
-        * @brief
-        *    Normalize this vector.
-        * @return
-        *    the old length of this vector
-        * @post
-        *    If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
-        *    and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
-        */
-        ScalarType normalize() {
-            ScalarType l = length();
-            if (l > 0.0f) {
-                multiply(1.0f / l);
-            }
-            return l;
-        }
-
-        /**
-        * @brief
-        *    Get if this vector equals another vectors.
-        * @param other
-        *    the other vector
-        * @return
-        *    @a true if this vector equals the other vector
-        */
-        bool equals(const MyType& other) const {
-            for (size_t i = 0; i < Dimensionality; ++i) {
-                if (_elements[i] != other._elements[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /**
-        * @brief
-        *  Get the squared length of this vector
-        *  (using the Euclidian metric).
-        * @return
-        *    the squared length of this vector
-        */
-        ScalarType length_2() const {
-            ScalarType t = _elements[0] * _elements[0];
-            for (size_t i = 1; i < Dimensionality; ++i) {
-                t += _elements[i] * _elements[i];
-            }
-            return t;
-        }
-
-        /**
-        * @brief
-        *  Get the length of this vector
-        *  (using the Euclidian metric).
-        * @return
-        *  the length of this vector
-        */
-        ScalarType length() const {
-            return std::sqrt(length_2());
-        }
-
-        /**
-        * @brief
-        *  Get the length of this vector
-        *  (using the Manhattan metric).
-        * @return
-        *  the length of this vector
-        */
-        ScalarType length_abs() const
+        ScalarType t = std::abs(_elements[0]);
+        for (size_t i = 1; i < Dimensionality; ++i)
         {
-            ScalarType t = std::abs(_elements[0]);
-            for (size_t i = 1; i < Dimensionality; ++i)
-            {
-                t += std::abs(_elements[i]);
-            }
-            return t;
+            t += std::abs(_elements[i]);
         }
+        return t;
+    }
 
-        /**
-        * @brief
-        *  Get the length of this vector
-        *  (using the Maximum metric).
-        * @return
-        *  the length of this vector
-        */
-        ScalarType length_max() const
+    /**
+     * @brief
+     *  Get the length of this vector
+     *  (using the Maximum metric).
+     * @return
+     *  the length of this vector
+     */
+    ScalarType length_max() const
+    {
+        return *std::max_element(_elements, _elements + Dimensionality);
+    }
+
+    const MyType& operator=(const MyType& other)
+    {
+        for (size_t i = 0; i < Dimensionality; ++i)
         {
-            return *std::max_element(_elements, _elements + Dimensionality);
+            _elements[i] = other._elements[i];
         }
+        return *this;
+    }
 
-        const MyType& operator=(const MyType& other)
+public:
+
+    MyType operator+(const MyType& other) const
+    {
+        MyType t(*this);
+        t += other;
+        return t;
+    }
+
+    MyType& operator+=(const MyType& other)
+    {
+        for (size_t i = 0; i < Dimensionality; ++i)
         {
-            for (size_t i = 0; i < Dimensionality; ++i)
-            {
-                _elements[i] = other._elements[i];
-            }
-            return *this;
+            _elements[i] += other._elements[i];
         }
+        return *this;
+    }
 
-    public:
+    MyType operator-(const MyType& other) const
+    {
+        MyType t(*this);
+        t -= other;
+        return t;
+    }
 
-        MyType operator+(const MyType& other) const
+    MyType& operator-=(const MyType& other)
+    {
+        for (size_t i = 0; i < Dimensionality; ++i)
         {
-            MyType t(*this);
-            t += other;
-            return t;
+            _elements[i] -= other._elements[i];
         }
+        return *this;
+    }
 
-        MyType& operator+=(const MyType& other)
-        {
-            for (size_t i = 0; i < Dimensionality; ++i)
-            {
-                _elements[i] += other._elements[i];
-            }
-            return *this;
-        }
+    MyType operator*(const ScalarType other) const
+    {
+        MyType t(*this);
+        t *= other;
+        return t;
+    }
 
-        MyType operator-(const MyType& other) const
-        {
-            MyType t(*this);
-            t -= other;
-            return t;
-        }
+    MyType& operator*=(ScalarType scalar)
+    {
+        multiply(scalar);
+        return *this;
+    }
 
-        MyType& operator-=(const MyType& other)
-        {
-            for (size_t i = 0; i < Dimensionality; ++i)
-            {
-                _elements[i] -= other._elements[i];
-            }
-            return *this;
-        }
+public:
 
-        MyType operator*(const ScalarType other) const
-        {
-            MyType t(*this);
-            t *= other;
-            return t;
-        }
+    ScalarType& operator[](size_t const& index)
+    {
+    #ifdef _DEBUG
+        EGOBOO_ASSERT(index < Dimensionality);
+    #endif
+        return _elements[index];
+    }
 
-        MyType& operator*=(ScalarType scalar)
-        {
-            multiply(scalar);
-            return *this;
-        }
+    const ScalarType& operator[](size_t const& index) const
+    {
+    #ifdef _DEBUG
+        EGOBOO_ASSERT(index < Dimensionality);
+    #endif
+        return _elements[index];
+    }
 
-    public:
-
-        ScalarType& operator[](size_t const& index)
-        {
-        #ifdef _DEBUG
-            EGOBOO_ASSERT(index < Dimensionality);
-        #endif
-            return _elements[index];
-        }
-
-        const ScalarType& operator[](size_t const& index) const
-        {
-        #ifdef _DEBUG
-            EGOBOO_ASSERT(index < Dimensionality);
-        #endif
-            return _elements[index];
-        }
-
-        MyType operator-() const
-        {
-            return (*this) * -1;
-        }
+    MyType operator-() const
+    {
+        return (*this) * -1;
+    }
 
 
-    public:
+public:
 
-        /**
-        * @brief
-        *  Get if this vector is a unit vector.
-        * @return
-        *  @a true if this vector is a unit vector, @a false otherwise
-        */
-        bool isUnit() const
-        {
-            ScalarType t = length_2();
-            return 0.99 < t && t < 1.01;
-        }
+    /**
+    * @brief
+    *  Get if this vector is a unit vector.
+    * @return
+    *  @a true if this vector is a unit vector, @a false otherwise
+    */
+    bool isUnit() const
+    {
+        ScalarType t = length_2();
+        return 0.99 < t && t < 1.01;
+    }
 
-    public:
-
-        /**
-        * @brief
-        *  Get the zero vector.
-        * @return
-        *  the zero vector
-        */
-        static const MyType& zero();
-
-    };
+public:
 
     /**
     * @brief
@@ -391,19 +407,29 @@ struct AbstractVector;
     * @return
     *  the zero vector
     */
-    template <typename _ScalarType, size_t _Dimensionality>
-    const AbstractVector<_ScalarType, _Dimensionality>&
-        AbstractVector< _ScalarType, _Dimensionality, EnableAbstractVector<_ScalarType, _Dimensionality>>::zero() {
-        static const auto ZERO = AbstractVector<_ScalarType, _Dimensionality, EnableAbstractVector<_ScalarType, _Dimensionality>>();
-            return ZERO;
-        }
+    static const MyType& zero();
 
-    template <typename _ScalarType, size_t _Dimensionality>
-    const size_t AbstractVector<_ScalarType, _Dimensionality, EnableAbstractVector<_ScalarType, _Dimensionality>>::Dimensionality
-        = _Dimensionality;
+};
 
-}
-}
+/**
+ * @brief
+ *  Get the zero vector.
+ * @return
+ *  the zero vector
+ */
+template <typename _ScalarType, size_t _Dimensionality>
+const AbstractVector<_ScalarType, _Dimensionality>&
+    AbstractVector< _ScalarType, _Dimensionality, typename std::enable_if<ABSTRACT_VECTOR_ENABLE>::type>::zero() {
+    static const auto ZERO = AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<ABSTRACT_VECTOR_ENABLE>::type>();
+        return ZERO;
+    }
+
+template <typename _ScalarType, size_t _Dimensionality>
+const size_t AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<ABSTRACT_VECTOR_ENABLE>::type>::Dimensionality
+    = _Dimensionality;
+
+} // namespace Math
+} // namespace Ego
 
 /**
  * @brief
@@ -1122,45 +1148,4 @@ namespace Ego
 }
 #endif
 
-/**
-* @brief
-*    Construct a vector.
-* @param v
-*    the vector
-* @post
-*    the vector represents the null vector
-*/
-void fvec3_ctor(fvec3_t& v);
-
-/**
-* @brief
-*    Destruct a vector.
-* @param v
-*    the vector
-*/
-void fvec3_dtor(fvec3_t& v);
-
-/**
- * @brief
- *    Get the distance between to points
- *    (using the taxicab metric).
- * @param x,y
- *    the points
- * @return
- *    the distance between the points
- */
-float fvec3_dist_abs(const fvec3_t& u, const fvec3_t& v);
-
-/**
- * @brief
- *    Get the squared distance between two points.
- *    (using the Euclidian metric).
- * @param u,v
- *    the vectors
- * @return
- *    the squared distance between the vectors
- */
-float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v);
 float fvec3_decompose(const fvec3_t& src, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp);
-bool fvec4_self_clear(fvec4_base_t v);
-bool fvec4_self_scale(fvec4_base_t A, const float B);

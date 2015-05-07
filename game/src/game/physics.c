@@ -556,7 +556,7 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const fvec3_t& pos1, const
 
     int failure_count = 0;
     bool failure[OCT_COUNT];
-    if (fvec3_dist_abs(vel1, vel2) < 1.0e-6)
+    if ((vel1-vel2).length_abs() < 1.0e-6)
     {
         // No relative motion, so avoid the loop to save time.
         failure_count = OCT_COUNT;

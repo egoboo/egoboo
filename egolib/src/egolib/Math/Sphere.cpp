@@ -112,17 +112,3 @@ bool sphere_t::intersects(const sphere_t& other) const
     // Otherwise they don't intersect.
     return false;
 }
-
-#if 0
-bool sphere_self_clear(sphere_t& self)
-{
-    self = sphere_t();
-    return true;
-}
-
-bool sphere_self_is_clear(const sphere_t& self)
-{
-    return 0.0f == self._radius
-        && fvec3_t::zero() == self._origin;
-}
-#endif

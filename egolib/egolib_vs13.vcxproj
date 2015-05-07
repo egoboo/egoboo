@@ -447,6 +447,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\TemplateUtilities.hpp" />
     <ClInclude Include="src\egolib\Logic\Action.hpp" />
     <ClInclude Include="src\egolib\Core\EnvironmentError.hpp" />
     <ClInclude Include="src\egolib\Core\Exception.hpp" />
@@ -507,7 +508,6 @@
     <ClInclude Include="src\egolib\math\LERP.hpp" />
     <ClInclude Include="src\egolib\Math\Math.hpp" />
     <ClInclude Include="src\egolib\Math\Matrix44.hpp" />
-    <ClInclude Include="src\egolib\Math\StaticVector.hpp" />
     <ClInclude Include="src\egolib\Core\CollectionUtilities.hpp" />
     <ClInclude Include="src\egolib\Core\StringUtilities.hpp" />
     <ClInclude Include="src\egolib\Renderer\TextureAddressMode.hpp" />

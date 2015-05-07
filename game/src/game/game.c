@@ -913,7 +913,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
             // Only proceed if we are facing the target
             if ( angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
             {
-                float dist2 = fvec3_dist_2(pchr->getPosition(), pos);
+                float dist2 = (pchr->getPosition() - pos).length_2();
 
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {

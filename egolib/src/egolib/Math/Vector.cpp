@@ -98,18 +98,6 @@ namespace Ego
 }
 #endif
 
-//--------------------------------------------------------------------------------------------
-void fvec3_ctor(fvec3_t& v)
-{
-    v[kX] = v[kY] = v[kZ] = 0.0f;
-}
-
-//--------------------------------------------------------------------------------------------
-void fvec3_dtor(fvec3_t& v)
-{
-    v[kX] = v[kY] = v[kZ] = 0.0f;
-}
-//--------------------------------------------------------------------------------------------
 float fvec3_decompose(const fvec3_t& A, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp)
 {
     /// @author BB
@@ -147,42 +135,4 @@ float fvec3_decompose(const fvec3_t& A, const fvec3_t& vnrm, fvec3_t& vpara, fve
     }
 
     return dot;
-}
-
-//--------------------------------------------------------------------------------------------
-float fvec3_dist_abs(const fvec3_t& u, const fvec3_t& v)
-{
-    return (u - v).length_abs();
-}
-
-//--------------------------------------------------------------------------------------------
-float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v)
-{
-    return (u - v).length_2();
-}
-//--------------------------------------------------------------------------------------------
-bool fvec4_self_clear(fvec4_base_t v)
-{
-    if (nullptr == v)
-    {
-        return false;
-    }
-    v[kX] = v[kY] = v[kZ] = 0.0f;
-    v[kW] = 1.0f;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool fvec4_self_scale(fvec4_base_t v, const float s)
-{
-    if (nullptr == v)
-    {
-        return false;
-    }
-    v[kX] *= s;
-    v[kY] *= s;
-    v[kZ] *= s;
-    v[kW] *= s;
-    return true;
 }
