@@ -434,7 +434,17 @@ public:
     ScalarType length_max() const {
         return *std::max_element(_elements, _elements + Dimensionality);
     }
-    
+
+public:
+
+    bool operator==(const MyType& other) const {
+        return equals(other);
+    }
+
+    bool operator!=(const MyType& other) const {
+        return !equals(other);
+    }
+
 public:
 
     const MyType& operator=(const MyType& other) {
