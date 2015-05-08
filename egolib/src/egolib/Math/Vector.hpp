@@ -179,9 +179,9 @@ public:
      *  the dot product <tt>(*this) * other</tt> of this vector and the other vector
      */
     ScalarType dot(const MyType& other) const {
-        ScalarType t = _elements[0] * _elements[0];
+        ScalarType t = _elements[0] * other._elements[0];
         for (size_t i = 1; i < Dimensionality; ++i) {
-            t += _elements[i] * _elements[i];
+            t += _elements[i] * other._elements[i];
         }
         return t;
     }
