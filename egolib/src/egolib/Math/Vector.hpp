@@ -34,40 +34,45 @@ namespace Ego
 {
 namespace Math
 {
-    template <size_t I, typename Type, size_t Size>
-    void unpack(Type(&dst)[Size]) {}
 
-    template <size_t I, typename  Type, size_t Size, typename Arg>
-    void _unpack(Type(&dst)[Size], Arg&& arg) {
-        dst[I] = arg;
-    }
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-    template <size_t I, typename Type, size_t Size, typename Arg, class ... Args>
-    void _unpack(Type(&dst)[Size], Arg&& arg, Args&& ... args) {
-        dst[I] = arg;
-        _unpack<I + 1, Type>(dst, args ...);
-    }
+template <size_t I, typename Type, size_t Size>
+void unpack(Type(&dst)[Size]);
 
-    /**
-     * @brief
-     *  You can use "unpack" for storing non-type parameter packs in arrays.
-     * @invariant
-     *  The number of arguments must be exactly the length of the array.
-     * @invariant
-     *  The argument types must be the array type.
-     * @remark
-     *  Example usage:
-     *  @code
-     *  float a[3]; unpack(a,0.5,0.1)
-     *  @endcode
-     * @author
-     *  Michael Heilmann
-     */
-    template <typename Type, size_t Size, typename ... Args>
-    void unpack(Type(&dst)[Size], Args&& ...args) {
-        static_assert(Size == sizeof ... (args), "wrong number of arguments");
-        _unpack<0, Type, Size>(dst, args ...);
-    }
+template <size_t I, typename  Type, size_t Size, typename Arg>
+void _unpack(Type(&dst)[Size], Arg&& arg) {
+    dst[I] = arg;
+}
+
+template <size_t I, typename Type, size_t Size, typename Arg, class ... Args>
+void _unpack(Type(&dst)[Size], Arg&& arg, Args&& ... args) {
+    dst[I] = arg;
+    _unpack<I + 1, Type>(dst, args ...);
+}
+
+/**
+ * @brief
+ *  You can use "unpack" for storing non-type parameter packs in arrays.
+ * @invariant
+ *  The number of arguments must be exactly the length of the array.
+ * @invariant
+ *  The argument types must be the array type.
+ * @remark
+ *  Example usage:
+ *  @code
+ *  float a[3]; unpack(a,0.5,0.1)
+ *  @endcode
+ * @author
+ *  Michael Heilmann
+ */
+template <typename Type, size_t Size, typename ... Args>
+void unpack(Type(&dst)[Size], Args&& ...args) {
+    static_assert(Size == sizeof ... (args), "wrong number of arguments");
+    _unpack<0, Type, Size>(dst, args ...);
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /**
  * @brief
@@ -112,6 +117,8 @@ struct AbstractVectorConstructorEnable
 /// The following macro simplifies <tt>std::enable_if&lt;...&gt;</tt> expressions.
 #define ABSTRACT_VECTOR_CONSTRUCTOR_ENABLE \
     AbstractVectorConstructorEnable<_ScalarType, _Dimensionality, ArgTypes ...>::value
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
 struct AbstractVector;
@@ -169,6 +176,8 @@ public:
             _elements[i] = other._elements[i];
         }
     }
+    
+public:
 
     /**
      * @brief
@@ -185,10 +194,25 @@ public:
         }
         return t;
     }
+    
+public:
+
+    /** 
+     * @brief
+     *  Assign another vector to this vector.
+     * @param other
+     *  the other vector
+     */
+    void assign(const MyType& other) {
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            _elements[i] = other._elements[i];
+        }
+    }
 
     /**
      * @brief
-     *  Multiply this vector by a scalar.
+     *  Multiply this vector by a scalar,
+     *  assign the result to this vector.
      * @param scalar
      *  the scalar
      * @post
@@ -197,6 +221,36 @@ public:
     void multiply(ScalarType scalar) {
         for (size_t i = 0; i < Dimensionality; ++i) {
             _elements[i] *= scalar;
+        }
+    }
+    
+    /**
+     * @brief
+     *  Add another vector to this vector,
+     *  assign the result to this vector.
+     * @param other
+     *  the other vector
+     * @post
+     *  The sum <tt>(*this) + other</tt> was assigned to <tt>*this</tt>.
+     */
+    void add(const MyType& other) {
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            _elements[i] += other._elements[i];
+        }
+    }
+
+    /**
+     * @brief
+     *  Subtract another vector from this vector,
+     *  assign the result to this vector.
+     * @param other
+     *  the other vector
+     * @post
+     *  The difference <tt>(*this) - other</tt> was assigned to <tt>*this</tt>.
+     */
+    void sub(const MyType& other) {
+        for (size_t i = 0; i < Dimensionality; ++i) {
+            _elements[i] -= other._elements[i];
         }
     }
 
@@ -250,6 +304,85 @@ public:
         return true;
     }
 
+private:
+
+    /** @internal */
+    template <size_t ... Index>
+    MyType abs(Ego::Core::index_sequence<Index ...>) const {
+        return MyType(std::abs(_elements[Index]) ...);
+    }
+
+public:
+
+    /**
+     * @brief
+     *  Get the component-wise absolute of this vector.
+     * @return
+     *  the component-wise absolute of this vector
+     * @remark
+     *  The component-wise absolute of a vector \f$v\in\mathbb{R}^n,n>0\f$ is defined as
+     *  \f[
+     *  abs(\vec{v}) = (abs(v_1),\ldots,abs(v_n))
+     *  \f]
+     */
+    MyType abs() const {
+        return abs(Ego::Core::make_index_sequence < _Dimensionality > {});
+    }
+
+private:
+
+    /** @internal */
+    template <size_t ... Index>
+    MyType min(Ego::Core::index_sequence<Index ...>, const MyType& other) const {
+        return MyType(std::min(_elements[Index],other._elements[Index]) ...);
+    }
+
+public:
+    /**
+     * @brief
+     *    Get the component-wise minimum of this vector and another vector.
+     * @param other
+     *    the other vector
+     * @return
+     *    the component-wise minimum
+     * @remark
+     *    For two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^n,n>0\f$ the component-wise minimum is defined as
+     *    \f[
+     *    min\left(\vec{u},\vec{v}\right)=left(min(u_1,v_1),\ldots,min(u_n,v_n)\right)
+     *    \f]
+     */
+    MyType min(const MyType& other) const {
+        return min(Ego::Core::make_index_sequence<_Dimensionality>{}, other);
+    }
+
+private:
+
+    /** @internal */
+    template <size_t ... Index>
+    MyType max(Ego::Core::index_sequence<Index ...>, const MyType& other) const {
+        return MyType(std::max(_elements[Index],other._elements[Index]) ...);
+    }
+
+public:
+    /**
+     * @brief
+     *    Get the component-wise maximum of this vector and another vector.
+     * @param other
+     *    the other vector
+     * @return
+     *    the component-wise maximum
+     * @remark
+     *    For two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^n,n>0\f$ the component-wise maximum is defined as
+     *    \f[
+     *    max\left(\vec{u},\vec{v}\right)=left(max(u_1,v_1),\ldots,max(u_n,v_n)\right)
+     *    \f]
+     */
+    MyType max(const MyType& other) const {
+        return max(Ego::Core::make_index_sequence<_Dimensionality>{},other);
+    }
+
+public:
+
     /**
      * @brief
      *  Get the squared length of this vector
@@ -283,11 +416,9 @@ public:
      * @return
      *  the length of this vector
      */
-    ScalarType length_abs() const
-    {
+    ScalarType length_abs() const {
         ScalarType t = std::abs(_elements[0]);
-        for (size_t i = 1; i < Dimensionality; ++i)
-        {
+        for (size_t i = 1; i < Dimensionality; ++i) {
             t += std::abs(_elements[i]);
         }
         return t;
@@ -300,87 +431,72 @@ public:
      * @return
      *  the length of this vector
      */
-    ScalarType length_max() const
-    {
+    ScalarType length_max() const {
         return *std::max_element(_elements, _elements + Dimensionality);
     }
+    
+public:
 
-    const MyType& operator=(const MyType& other)
-    {
-        for (size_t i = 0; i < Dimensionality; ++i)
-        {
-            _elements[i] = other._elements[i];
-        }
+    const MyType& operator=(const MyType& other) {
+        assign(other);
         return *this;
     }
 
 public:
 
-    MyType operator+(const MyType& other) const
-    {
-        MyType t(*this);
-        t += other;
-        return t;
-    }
-
-    MyType& operator+=(const MyType& other)
-    {
-        for (size_t i = 0; i < Dimensionality; ++i)
-        {
-            _elements[i] += other._elements[i];
-        }
+    MyType& operator+=(const MyType& other) {
+        add(other);
         return *this;
     }
 
-    MyType operator-(const MyType& other) const
-    {
-        MyType t(*this);
-        t -= other;
-        return t;
-    }
-
-    MyType& operator-=(const MyType& other)
-    {
-        for (size_t i = 0; i < Dimensionality; ++i)
-        {
-            _elements[i] -= other._elements[i];
-        }
+    MyType& operator-=(const MyType& other) {
+        sub(other);
         return *this;
     }
 
-    MyType operator*(const ScalarType other) const
-    {
-        MyType t(*this);
-        t *= other;
-        return t;
-    }
-
-    MyType& operator*=(ScalarType scalar)
-    {
+    MyType& operator*=(ScalarType scalar) {
         multiply(scalar);
         return *this;
     }
 
 public:
 
-    ScalarType& operator[](size_t const& index)
-    {
+    MyType operator+(const MyType& other) const {
+        MyType t(*this);
+        t += other;
+        return t;
+    }
+    
+    MyType operator-(const MyType& other) const {
+        MyType t(*this);
+        t -= other;
+        return t;
+    }
+    
+    MyType operator*(const ScalarType other) const {
+        MyType t(*this);
+        t *= other;
+        return t;
+    }
+
+
+public:
+
+    ScalarType& operator[](size_t const& index) {
     #ifdef _DEBUG
         EGOBOO_ASSERT(index < Dimensionality);
     #endif
         return _elements[index];
     }
 
-    const ScalarType& operator[](size_t const& index) const
-    {
+    const ScalarType& operator[](size_t const& index) const {
     #ifdef _DEBUG
         EGOBOO_ASSERT(index < Dimensionality);
     #endif
         return _elements[index];
     }
 
-    MyType operator-() const
-    {
+    MyType operator-() const {
         return (*this) * -1;
     }
 
@@ -388,25 +504,37 @@ public:
 public:
 
     /**
-    * @brief
-    *  Get if this vector is a unit vector.
-    * @return
-    *  @a true if this vector is a unit vector, @a false otherwise
-    */
-    bool isUnit() const
-    {
+     * @brief
+     *  Get if this vector is a unit vector.
+     * @return
+     *  @a true if this vector is a unit vector, @a false otherwise
+     */
+    bool isUnit() const {
         ScalarType t = length_2();
         return 0.99 < t && t < 1.01;
     }
 
+    /**
+     * @brief
+     *  Get if this vector is a zero vector.
+     * @return
+     *  @a true if this vector is a zero vector, @a false otherwise
+     */
+    bool isZero() const
+    {
+        ScalarType t = length();
+        return t < 0.01f;
+    }
+
+
 public:
 
     /**
-    * @brief
-    *  Get the zero vector.
-    * @return
-    *  the zero vector
-    */
+     * @brief
+     *  Get the zero vector.
+     * @return
+     *  the zero vector
+     */
     static const MyType& zero();
 
 };
@@ -437,11 +565,6 @@ const size_t AbstractVector<_ScalarType, _Dimensionality, typename std::enable_i
  */
 enum { kX = 0, kY, kZ, kW };
 
-
-typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector type
-typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
-typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
-
 /// A 2-vector type that allows more than one form of access.
 typedef Ego::Math::AbstractVector<float, 2> fvec2_t;
 
@@ -456,6 +579,8 @@ namespace Ego
 }
 #endif
 
+typedef float fvec3_base_t[3]; ///< the basic floating point 3-vector type
+
 /// A 3-vector type that allows more than one form of access.
 struct fvec3_t
 {
@@ -464,7 +589,6 @@ struct fvec3_t
     {
         fvec3_base_t v;
         struct { float x, y, z; };
-        struct { float r, g, b; };
     };
 
     static const fvec3_t& zero()
