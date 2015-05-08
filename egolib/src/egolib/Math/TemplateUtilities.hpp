@@ -4,7 +4,6 @@
 
 namespace Ego
 {
-
 namespace Core
 {
 
@@ -81,6 +80,7 @@ struct LowerThanOrEqualTo
  *  @endcode
  */
 
+
 /**
  * @brief
  *  The type of a sequence of indices.
@@ -107,13 +107,8 @@ template<size_t ...S>
 struct make_index_sequence<0, S...> : public index_sequence<S ...>
 {};
 
+
 /**@}*/
 
 } // namespace Core
-
-namespace Math
-{
-
-} // namespace Math
-
 } // namespace Ego

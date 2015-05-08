@@ -110,21 +110,13 @@ struct AbstractVectorConstructorEnable
     >::type
 {};
 
-/// The following macro simplifies <tt>std::enable_if&lt;...&gt;</tt> expressions.
-#define ABSTRACT_VECTOR_ENABLE \
-    AbstractVectorEnable<_ScalarType, _Dimensionality>::value
-
-/// The following macro simplifies <tt>std::enable_if&lt;...&gt;</tt> expressions.
-#define ABSTRACT_VECTOR_CONSTRUCTOR_ENABLE \
-    AbstractVectorConstructorEnable<_ScalarType, _Dimensionality, ArgTypes ...>::value
-
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
 struct AbstractVector;
 
 template <typename _ScalarType, size_t _Dimensionality>
-struct AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<ABSTRACT_VECTOR_ENABLE>::type>
+struct AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type>
 {
 
 public:
@@ -161,7 +153,7 @@ public:
     /// @todo Only enable this
     /// a) if the parameter pack is of length N=_Dimensionality -1 and
     /// b) if all N parameters are convertible to _ScalarType.
-    template<typename ... ArgTypes, typename = typename std::enable_if<ABSTRACT_VECTOR_CONSTRUCTOR_ENABLE>::type>
+    template<typename ... ArgTypes, typename = typename std::enable_if<AbstractVectorConstructorEnable<_ScalarType, _Dimensionality, ArgTypes ...>::value>::type>
     AbstractVector(_ScalarType v, ArgTypes&& ... args) {
         static_assert(_Dimensionality - 1 == sizeof ... (args), "wrong number of arguments");
         unpack<float, _Dimensionality>(_elements, std::forward<_ScalarType>(v), args ...);
@@ -483,7 +475,7 @@ public:
         return t;
     }
     
-    MyType operator*(const ScalarType other) const {
+    MyType operator*(ScalarType other) const {
         MyType t(*this);
         t *= other;
         return t;
@@ -530,8 +522,7 @@ public:
      * @return
      *  @a true if this vector is a zero vector, @a false otherwise
      */
-    bool isZero() const
-    {
+    bool isZero() const {
         ScalarType t = length();
         return t < 0.01f;
     }
@@ -547,6 +538,118 @@ public:
      */
     static const MyType& zero();
 
+public:
+
+    /**
+     * @brief
+     *  Compute the cross product of this vector and another vector.
+     * @param other
+     *  the other vector
+     * @return
+     *  the cross product <tt>(*this) x other</tt> of this vector and the other vector
+     * @remark
+     *  For any two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^3\f$ the cross product is defined as
+     *  \f[
+     *  \vec{u} \times \vec{v} =
+     *  \left[\begin{matrix}
+     *  u_y v_z - u_z v_y\\
+     *  u_z v_x - u_x v_z\\
+     *  u_x v_y - u_y v_x
+     *  \end{matrix}\right]
+     *  \f]
+     * @remark
+     *  The cross product is distributive of vector addition i.e.
+     *  \f[
+     *  \vec{u} \times \left(\vec{v} + \vec{w}\right) = \vec{u} \times \vec{v} + \vec{u} \times \vec{w}
+     *  \f]
+     *  holds for any three vector \f$\vec{u},\vec{v},\vec{w}\in\mathbb{R}^3\f$.
+     *  This follows from
+     *  \f[
+     *  &\vec{u} \times (\vec{v} + \vec{w})\\
+     * =&\left[\begin{matrix}
+     *   u_y (v_z + w_z) - u_z (v_y + w_y)\\
+     *   u_z (v_x + w_x) - u_x (v_z + w_z)\\
+     *   u_x (v_y + w_y) - u_y (v_x + w_x)
+     *   \end{matrix}\right]\\
+     * =&\left[\begin{matrix}
+     *   (u_y v_z - u_z v_y) + (u_y w_z - u_z w_y)\\
+     *   (u_z v_x - u_x v_z) + (u_z w_x - u_x w_z)\\
+     *   (u_x v_y - u_y v_x) + (u_x w_y - u_y w_x)
+     *   \end{matrix}\right]\\
+     * =&\left[\begin{matrix}
+     *   u_y v_z - u_z v_y\\
+     *   u_z v_x - u_x v_z\\
+     *   u_x v_y - u_y v_x
+     *   \end{matrix}\right]
+     *  +
+     *   \left[\begin{matrix}
+     *   u_y w_z - u_z w_y\\
+     *   u_z w_x - u_x w_z\\
+     *   u_x w_y - u_y w_x
+     *   \end{matrix}\right]\\
+     * =&\vec{u} \times \vec{v} + \vec{u} \times \vec{w}
+     *  \f]
+     * @remark
+     *  The cross product is compatible with scalar multiplication i.e.
+     *  \f[
+     *  \left(s\vec{u}\right) \times \vec{v} = \vec{u} \times \left(s\vec{v}\right) = s \left(\vec{u} \times \vec{v}\right)
+     *  \f]
+     *  holds for any two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^3\f$ and any scalar \f$s\in\mathbb{R}\f$.
+     *  This follows from
+     *  \f[
+     *  \left(s\vec{u}\right) \times \vec{v}
+     * =\left[\begin{matrix}
+     *  (s u_y) v_z - (s u_z) v_y\\
+     *  (s u_z) v_x - (s u_x) v_z\\
+     *  (s u_x) v_y - (s u_y) v_x
+     *  \end{matrix}\right]
+     * =\left[\begin{matrix}
+     *  u_y (s v_z) - u_z (s v_y)\\
+     *  u_z (s v_x) - u_x (s v_z)\\
+     *  u_x (s v_y) - u_y (s v_x)
+     *  \end{matrix}\right]
+     *  =\vec{u} \times (s \vec{v})
+     *  \f]
+     *  and
+     *  \f[
+     *  \left(s\vec{u}\right) \times \vec{v}
+     * =\left[\begin{matrix}
+     *  (s u_y) v_z - (s u_z) v_y\\
+     *  (s u_z) v_x - (s u_x) v_z\\
+     *  (s u_x) v_y - (s u_y) v_x
+     *  \end{matrix}\right]
+     * =s \left[\begin{matrix}
+     *  u_y v_z - u_z v_y\\
+     *  u_z v_x - u_x v_z\\
+     *  u_x v_y - u_y v_x
+     *  \end{matrix}\right]
+     * = s (\vec{u} \times \vec{v})
+     * @remark
+     *  \f[
+     *  \vec{v} \times \vec{v} = \vec{0}
+     *  \f]
+     *  holds by
+     *  \f[
+     *  \vec{v} \times \vec{v} =
+     *  \left[\begin{matrix}
+     *  v_y v_z - v_z v_y\\
+     *  v_z v_x - v_x v_z\\
+     *  v_x v_y - v_y v_x
+     *  \end{matrix}\right]
+     *  = \vec{0}
+     *  \f]
+     */
+    template<size_t _Dummy = _Dimensionality>
+    typename std::enable_if<_Dummy == 3 && _Dimensionality == 3, AbstractVector<_ScalarType, _Dimensionality>>::type
+    cross(const MyType& other) const {
+        return
+            MyType
+            (
+                _elements[kY] * other._elements[kZ] - _elements[kZ] * other._elements[kY],
+                _elements[kZ] * other._elements[kX] - _elements[kX] * other._elements[kZ],
+                _elements[kX] * other._elements[kY] - _elements[kY] * other._elements[kX]
+            );
+    }
 };
 
 /**
@@ -557,13 +660,13 @@ public:
  */
 template <typename _ScalarType, size_t _Dimensionality>
 const AbstractVector<_ScalarType, _Dimensionality>&
-    AbstractVector< _ScalarType, _Dimensionality, typename std::enable_if<ABSTRACT_VECTOR_ENABLE>::type>::zero() {
-    static const auto ZERO = AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<ABSTRACT_VECTOR_ENABLE>::type>();
+AbstractVector< _ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type>::zero() {
+    static const auto ZERO = AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type>();
         return ZERO;
     }
 
 template <typename _ScalarType, size_t _Dimensionality>
-const size_t AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<ABSTRACT_VECTOR_ENABLE>::type>::Dimensionality
+const size_t AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type>::Dimensionality
     = _Dimensionality;
 
 } // namespace Math
