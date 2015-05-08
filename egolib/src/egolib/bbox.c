@@ -527,16 +527,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
         val_x = 0.5f * ( pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_YX] );
         val_y = ftmp;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
@@ -549,16 +549,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
             val_x = pbmp->mins[OCT_X];
         }
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
         val_x = pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_Y];
@@ -567,16 +567,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
             val_x = pbmp->maxs[OCT_X];
         }
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
@@ -587,16 +587,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
         val_x = 0.5f * ( pbmp->mins[OCT_XY] - pbmp->mins[OCT_YX] );
         val_y = ftmp;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
@@ -609,16 +609,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
             val_x = pbmp->mins[OCT_X];
         }
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
         val_x = pbmp->mins[OCT_Y] - pbmp->mins[OCT_YX];
@@ -626,16 +626,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
         {
             val_x = pbmp->maxs[OCT_X];
         }
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
@@ -646,16 +646,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
         val_y = 0.5f * ( pbmp->maxs[OCT_XY] + pbmp->mins[OCT_YX] );
         val_x = ftmp;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
@@ -668,16 +668,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
             val_y = pbmp->mins[OCT_Y];
         }
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
         val_y = pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_X];
@@ -685,16 +685,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
         {
             val_y = pbmp->maxs[OCT_Y];
         }
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
@@ -705,16 +705,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
         val_y = 0.5f * ( pbmp->mins[OCT_XY] + pbmp->maxs[OCT_YX] );
         val_x = ftmp;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
@@ -727,16 +727,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
             val_y = pbmp->mins[OCT_Y];
         }
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
         val_y = pbmp->maxs[OCT_YX] + pbmp->mins[OCT_X];
@@ -745,16 +745,16 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
             val_y = pbmp->maxs[OCT_Y];
         }
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
+        pos[vcount][kX] = val_x;
+        pos[vcount][kY] = val_y;
+        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+        pos[vcount][kW] = 0.0f;
         vcount++;
     }
 

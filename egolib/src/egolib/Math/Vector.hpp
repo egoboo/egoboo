@@ -884,6 +884,11 @@ struct fvec3_t
         return *this;
     }
 
+    fvec3_t operator-() const
+    {
+        return fvec3_t(-x, -y, -z);
+    }
+
     bool operator==(const fvec3_t& other) const
     {
         return equals(other);
@@ -936,8 +941,6 @@ struct fvec3_t
 
 };
 
-fvec3_t operator-(const fvec3_t& v);
-
 #ifdef _DEBUG
 namespace Ego
 {
@@ -950,192 +953,7 @@ namespace Ego
 #endif
 
 /// A 4-vector type that allows more than one form of access.
-struct fvec4_t
-{
-
-    union
-    {
-        fvec4_base_t v;
-        struct { float x, y, z, w; };
-        struct { float r, g, b, a; };
-    };
-    
-    const static fvec4_t zero;
-    
-    fvec4_t() : x(), y(), z(), w()
-    {
-    }
-
-    fvec4_t(float x, float y, float z, float w)
-    {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-        this->w = w;
-    }
-
-    fvec4_t(const fvec4_t& other) :
-        x(other.x), y(other.y), z(other.z), w(other.w)
-    {
-    }
-
-    const fvec4_t& operator=(const fvec4_t& other)
-    {
-        for (size_t i = 0; i < 4; ++i)
-        {
-            v[i] = other.v[i];
-        }
-        return *this;
-    }
-
-    float& operator[](size_t const& index)
-    {
-#ifdef _DEBUG
-        EGOBOO_ASSERT(index < 4);
-#endif
-        return v[index];
-    }
-
-    const float &operator[](size_t const& index) const
-    {
-#ifdef _DEBUG
-        EGOBOO_ASSERT(index < 4);
-#endif
-        return v[index];
-    }
-
-    /**
-     * @brief
-     *    Multiply this vector by a scalar.
-     * @param scalar
-     *    the scalar
-     * @post
-     *    The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
-     */
-    void multiply(float scalar)
-    {
-        for (size_t i = 0; i < 4; ++i)
-        {
-            v[i] *= scalar;
-        }
-    }
-
-    /**
-     * @brief
-     *    Normalize this vector.
-     * @return
-     *    the old length of this vector
-     * @post
-     *    If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
-     *    and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
-     */
-    float normalize()
-    {
-        float l = length();
-        if (l > 0.0f)
-        {
-            multiply(1.0f / l);
-        }
-        return l;
-    }
-
-    /**
-     * @brief
-     *    Get if this vector equals another vectors.
-     * @param other
-     *    the other vector
-     * @return
-     *    @a true if this vector equals the other vector
-     */
-    bool equals(const fvec4_t& other) const
-    {
-        for (size_t i = 0; i < 4; ++i)
-        {
-            if (v[i] != other.v[i])
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    /**
-     * @brief
-     *  Get the squared length of this vector
-     *  (using the Euclidian metric).
-     * @return
-     *  the squared length of this vector
-     */
-    float length_2() const
-    {
-        float length = v[0] * v[0];
-        for (size_t i = 1; i < 4; ++i)
-        {
-            length += v[i] * v[i];
-        }
-        return length;
-    }
-
-    /**
-     * @brief
-     *    Get the length of this vector
-     *    (using the Euclidian metric).
-     * @return
-     *    the length of this vector
-     */
-    float length() const
-    {
-        return std::sqrt(length_2());
-    }
-
-    /**
-     * @brief
-     *  Get the length of this vector
-     *  (using the Manhattan metric).
-     * @return
-     *  the length of this vector
-     */
-    float length_abs() const
-    {
-        float length = std::abs(v[0]);
-        for (size_t i = 1; i < 4; ++i)
-        {
-            length += std::abs(v[i]);
-        }
-        return length;
-    }
-
-    /**
-     * @brief
-     *  Get the length of this vector
-     *  (using the Maximum metric).
-     * @return
-     *  the length of this vector
-     */
-    float length_max() const
-    {
-        float length = std::abs(v[0]);
-        for (size_t i = 1; i < 4; ++i)
-        {
-            length = std::max(length, std::abs(v[i]));
-        }
-        return length;
-    }
-
-    /**
-     * @brief
-     *  Get if this vector is a unit vector.
-     * @return
-     *  @a true if this vector is a unit vector, @a false otherwise
-     */
-    bool isUnit() const
-    {
-        float t = length_2();
-        return 0.99f < t && t < 1.01f;
-    }
-
-};
-
-fvec4_t operator-(const fvec4_t& v);
+typedef Ego::Math::AbstractVector<float, 4> fvec4_t;
 
 #ifdef _DEBUG
 namespace Ego

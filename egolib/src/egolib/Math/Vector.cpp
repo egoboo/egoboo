@@ -25,17 +25,6 @@
 #include "egolib/log.h"
 #include "egolib/_math.h"
 
-const fvec4_t fvec4_t::zero(0.0f, 0.0f, 0.0f, 0.0f);
-
-fvec3_t operator-(const fvec3_t& v)
-{
-    return fvec3_t(-v.x, -v.y, -v.z);
-}
-
-fvec4_t operator-(const fvec4_t& v)
-{
-    return fvec4_t(-v.x, -v.y, -v.z, -v.w);
-}
 
 #ifdef _DEBUG
 namespace Ego

@@ -143,41 +143,41 @@ float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t DST, const
 }
 
 //--------------------------------------------------------------------------------------------
-float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t up, const float scale)
+float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_t& ori, const fvec4_t& wid, const fvec4_t& frw, const fvec4_t& up, const float scale)
 {
     fvec3_t vWid, vFor, vUp;
 
     if (NULL == DST) return NULL;
 
-    vWid.x = wid[kX] - ori[kX];
-    vWid.y = wid[kY] - ori[kY];
-    vWid.z = wid[kZ] - ori[kZ];
+    vWid[kX] = wid[kX] - ori[kX];
+    vWid[kY] = wid[kY] - ori[kY];
+    vWid[kZ] = wid[kZ] - ori[kZ];
 
-    vUp.x = up[kX] - ori[kX];
-    vUp.y = up[kY] - ori[kY];
-    vUp.z = up[kZ] - ori[kZ];
+    vUp[kX] = up[kX] - ori[kX];
+    vUp[kY] = up[kY] - ori[kY];
+    vUp[kZ] = up[kZ] - ori[kZ];
 
-    vFor.x = frw[kX] - ori[kX];
-    vFor.y = frw[kY] - ori[kY];
-    vFor.z = frw[kZ] - ori[kZ];
+    vFor[kX] = frw[kX] - ori[kX];
+    vFor[kY] = frw[kY] - ori[kY];
+    vFor[kZ] = frw[kZ] - ori[kZ];
 
     vWid.normalize();
     vUp.normalize();
     vFor.normalize();
 
-    DST[MAT_IDX(0, 0)] = -scale * vWid.x;  // HUK
-    DST[MAT_IDX(0, 1)] = -scale * vWid.y;  // HUK
-    DST[MAT_IDX(0, 2)] = -scale * vWid.z;  // HUK
+    DST[MAT_IDX(0, 0)] = -scale * vWid[kX];  // HUK
+    DST[MAT_IDX(0, 1)] = -scale * vWid[kY];  // HUK
+    DST[MAT_IDX(0, 2)] = -scale * vWid[kZ];  // HUK
     DST[MAT_IDX(0, 3)] = 0.0f;
 
-    DST[MAT_IDX(1, 0)] = scale * vFor.x;
-    DST[MAT_IDX(1, 1)] = scale * vFor.y;
-    DST[MAT_IDX(1, 2)] = scale * vFor.z;
+    DST[MAT_IDX(1, 0)] = scale * vFor[kX];
+    DST[MAT_IDX(1, 1)] = scale * vFor[kY];
+    DST[MAT_IDX(1, 2)] = scale * vFor[kZ];
     DST[MAT_IDX(1, 3)] = 0.0f;
 
-    DST[MAT_IDX(2, 0)] = scale * vUp.x;
-    DST[MAT_IDX(2, 1)] = scale * vUp.y;
-    DST[MAT_IDX(2, 2)] = scale * vUp.z;
+    DST[MAT_IDX(2, 0)] = scale * vUp[kX];
+    DST[MAT_IDX(2, 1)] = scale * vUp[kY];
+    DST[MAT_IDX(2, 2)] = scale * vUp[kZ];
     DST[MAT_IDX(2, 3)] = 0.0f;
 
     DST[MAT_IDX(3, 0)] = ori[kX];

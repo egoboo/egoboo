@@ -140,16 +140,18 @@ struct fmat_4x4_t
      *  Move this into fvec4_t.
      * @todo
      *  Add an implementation for fvec2_t and fvec3_t returning fmat_2x2_t and fmat_3x3_t.
+     * @todo
+     *  Update documentation for the fvec4_t case.
      */
     static fmat_4x4_t tensor(const fvec4_t& v, const fvec4_t& w)
     {
         return
             fmat_4x4_t
             (
-                v.x * w.x, v.x * w.y, v.x * w.z, v.x * w.w,
-                v.y * w.x, v.y * w.y, v.y * w.z, v.y * w.w,
-                v.z * w.x, v.z * w.y, v.z * w.z, v.z * w.w,
-                v.w * w.w, v.w * w.y, v.w * w.z, v.w * w.w            
+                v[kX] * w[kX], v[kX] * w[kY], v[kX] * w[kZ], v[kX] * w[kW],
+                v[kY] * w[kX], v[kY] * w[kY], v[kY] * w[kZ], v[kY] * w[kW],
+                v[kZ] * w[kX], v[kZ] * w[kY], v[kZ] * w[kZ], v[kZ] * w[kW],
+                v[kW] * w[kX], v[kW] * w[kY], v[kW] * w[kZ], v[kW] * w[kW]
             );
     }
 public:
@@ -1020,10 +1022,10 @@ public:
 	 */
 	void transform(const fvec4_t& source, fvec4_t& target) const
 	{
-		target.x = (*this)(0, 0) * source.x + (*this)(0, 1) * source.y + (*this)(0, 2) * source.z + (*this)(0, 3) * source.w;
-		target.y = (*this)(1, 0) * source.x + (*this)(1, 1) * source.y + (*this)(1, 2) * source.z + (*this)(1, 3) * source.w;
-		target.z = (*this)(2, 0) * source.x + (*this)(2, 1) * source.y + (*this)(2, 2) * source.z + (*this)(2, 3) * source.w;
-		target.w = (*this)(3, 0) * source.x + (*this)(3, 1) * source.y + (*this)(3, 2) * source.z + (*this)(3, 3) * source.w;
+        target[kX] = (*this)(0, 0) * source[kX] + (*this)(0, 1) * source[kY] + (*this)(0, 2) * source[kZ] + (*this)(0, 3) * source[kW];
+        target[kY] = (*this)(1, 0) * source[kX] + (*this)(1, 1) * source[kY] + (*this)(1, 2) * source[kZ] + (*this)(1, 3) * source[kW];
+        target[kZ] = (*this)(2, 0) * source[kX] + (*this)(2, 1) * source[kY] + (*this)(2, 2) * source[kZ] + (*this)(2, 3) * source[kW];
+        target[kW] = (*this)(3, 0) * source[kX] + (*this)(3, 1) * source[kY] + (*this)(3, 2) * source[kZ] + (*this)(3, 3) * source[kW];
 	}
 
 	/**
@@ -1055,7 +1057,7 @@ public:
 float *mat_Zero(fmat_4x4_base_t DST);
 float *mat_Multiply(fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2);
 
-float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t upx, const float scale);
+float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_t& ori, const fvec4_t& wid, const fvec4_t& frw, const fvec4_t& upx, const float scale);
 /// @param from viewer position
 /// @param at look at position
 /// @param world's up, usually 0,0,1

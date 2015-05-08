@@ -541,17 +541,17 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
             chr_instance_update_vertices( &( pchr->inst ), vertex, vertex, false );
 
             // Calculate vertex_offset point locations with linear interpolation and other silly things
-            point[0].x = pchr->inst.vrt_lst[vertex].pos[XX];
-            point[0].y = pchr->inst.vrt_lst[vertex].pos[YY];
-            point[0].z = pchr->inst.vrt_lst[vertex].pos[ZZ];
-            point[0].w = 1.0f;
+            point[0][kX] = pchr->inst.vrt_lst[vertex].pos[XX];
+            point[0][kY] = pchr->inst.vrt_lst[vertex].pos[YY];
+            point[0][kZ] = pchr->inst.vrt_lst[vertex].pos[ZZ];
+            point[0][kW] = 1.0f;
         }
         else
         {
-            point[0].x =
-                point[0].y =
-                    point[0].z = 0.0f;
-            point[0].w = 1.0f;
+            point[0][kX] =
+                point[0][kY] =
+                    point[0][kZ] = 0.0f;
+            point[0][kW] = 1.0f;
         }
 
         // Do the transform
@@ -6616,10 +6616,10 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t
     if ( 0 == point_count )
     {
         // punt! attach to origin
-        dst_point[0].x = pholder->getPosX();
-        dst_point[0].y = pholder->getPosY();
-        dst_point[0].z = pholder->getPosZ();
-        dst_point[0].w = 1;
+        dst_point[0][kX] = pholder->getPosX();
+        dst_point[0][kY] = pholder->getPosY();
+        dst_point[0][kZ] = pholder->getPosZ();
+        dst_point[0][kW] = 1;
 
         point_count = 1;
     }
@@ -6635,10 +6635,10 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t
 
             if ( 0xFFFF == vertex ) continue;
 
-            dst_point[point_count].x = pholder->inst.vrt_lst[vertex].pos[XX];
-            dst_point[point_count].y = pholder->inst.vrt_lst[vertex].pos[YY];
-            dst_point[point_count].z = pholder->inst.vrt_lst[vertex].pos[ZZ];
-            dst_point[point_count].w = 1.0f;
+            dst_point[point_count][kX] = pholder->inst.vrt_lst[vertex].pos[XX];
+            dst_point[point_count][kY] = pholder->inst.vrt_lst[vertex].pos[YY];
+            dst_point[point_count][kZ] = pholder->inst.vrt_lst[vertex].pos[ZZ];
+            dst_point[point_count][kW] = 1.0f;
         }
     }
 
@@ -6700,7 +6700,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        mat_FourPoints( pweap->inst.matrix.v, nupoint[0].v, nupoint[1].v, nupoint[2].v, nupoint[3].v, mc_tmp->self_scale.z );
+        mat_FourPoints( pweap->inst.matrix.v, nupoint[0], nupoint[1], nupoint[2], nupoint[3], mc_tmp->self_scale.z );
 
         // update the weapon position
         pweap->setPosition(fvec3_t(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
@@ -7904,14 +7904,14 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
             if ( grip_count < 2 )
             {
-                fvec4_self_clear( grip_points[2].v );
-                grip_points[2].y = 1.0f;
+                grip_points[2] = fvec4_t::zero();
+                grip_points[2][kY] = 1.0f;
             }
 
             if ( grip_count < 3 )
             {
-                fvec4_self_clear( grip_points[3].v );
-                grip_points[3].z = 1.0f;
+                grip_points[3] = fvec4_t::zero();
+                grip_points[3][kZ] = 1.0f;
             }
         }
         else if ( 0 == grip_count )
@@ -7920,12 +7920,12 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
             for ( cnt = 0; cnt < 4; cnt++ )
             {
-                fvec4_self_clear( grip_points[cnt].v );
+                grip_points[cnt] = fvec4_t::zero();
             }
 
-            grip_points[1].x = 1.0f;
-            grip_points[2].y = 1.0f;
-            grip_points[3].z = 1.0f;
+            grip_points[1][kX] = 1.0f;
+            grip_points[2][kY] = 1.0f;
+            grip_points[3][kZ] = 1.0f;
         }
 
         // fix the 4th component depending on the whether we shift the origin of the cv
@@ -7933,7 +7933,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
         {
             for ( cnt = 0; cnt < grip_count; cnt++ )
             {
-                grip_points[cnt].w = 0.0f;
+                grip_points[cnt][kW] = 0.0f;
             }
         }
     }

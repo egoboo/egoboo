@@ -139,15 +139,17 @@ void line_list_draw_all(Camera& camera)
 
             for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
             {
-                if ( line_list[cnt].time < 0 ) continue;
+                auto& line = line_list[cnt];
+                if ( line.time < 0 ) continue;
 
-                if ( line_list[cnt].time < ticks )
+                if ( line.time < ticks )
                 {
-                    line_list[cnt].time = -1;
+                    line.time = -1;
                     continue;
                 }
 
-                GL_DEBUG( glColor4fv )( line_list[cnt].color.v );       // GL_CURRENT_BIT
+                const auto colour = Ego::Math::Colour4f(line.color[XX], line.color[YY], line.color[ZZ], line.color[WW]);
+                Ego::Renderer::get().setColour(colour); // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_LINES );
                 {
                     GL_DEBUG( glVertex3fv )( line_list[cnt].src.v );
@@ -237,15 +239,16 @@ void point_list_draw_all(Camera& camera)
 
             for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
             {
-                if ( point_list[cnt].time < 0 ) continue;
+                auto& point = point_list[cnt];
+                if ( point.time < 0 ) continue;
 
-                if ( point_list[cnt].time < ticks )
+                if ( point.time < ticks )
                 {
-                    point_list[cnt].time = -1;
+                    point.time = -1;
                     continue;
                 }
-
-                GL_DEBUG( glColor4fv )( point_list[cnt].color.v );       // GL_CURRENT_BIT
+                const auto colour = Ego::Math::Colour4f(point.color[XX], point.color[YY], point.color[ZZ], point.color[WW]);
+                Ego::Renderer::get().setColour(colour); // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_POINTS );
                 {
                     GL_DEBUG( glVertex3fv )( point_list[cnt].src.v );
