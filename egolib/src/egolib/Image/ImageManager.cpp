@@ -98,10 +98,10 @@ ImageManager::ImageManager() :
     }
     catch (std::exception& ex)
     {
-        log_warning(" failure");
+        log_warning(" failure\n");
         throw ex;
     }
-    log_info(" success");
+    log_info(" success\n");
 }
 
 ImageManager::~ImageManager()
