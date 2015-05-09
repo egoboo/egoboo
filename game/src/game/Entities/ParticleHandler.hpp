@@ -136,6 +136,34 @@ public:
             _displayLimit = displayLimit;
         }
     }
+
+    /**
+     * @brief
+     *  Spawn a particle.
+     * @param position
+     *  the position of the particle
+     * @param facing
+     *  the facing of the particle
+     * @return
+     *  the index of the particle on success, INVALID_PRT_REF on failure
+     */
+    PRT_REF spawn_one_particle(const fvec3_t& position, FACING_T facing, const PRO_REF iprofile, int pip_index,
+                               const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                               const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget);
+
+    /**
+     * @brief
+     *  Spawn a particle.
+     * @remark
+     *  This function is slightly different than spawn_one_particle because it takes a PIP_REF rather than a pip_index
+     * @return the PRT_REF of the spawned particle or INVALID_PRT_REF on failure
+     */
+    PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const PIP_REF ipip,
+                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                             const CHR_REF chr_origin, const PRT_REF prt_origin = INVALID_PRT_REF,
+                             const int multispawn = 0, const CHR_REF oldtarget = INVALID_CHR_REF);
+
+    PRT_REF spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, int pip_index, int multispawn);
 };
 
 //--------------------------------------------------------------------------------------------

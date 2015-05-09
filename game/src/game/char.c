@@ -1915,7 +1915,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                PRT_REF iparticle = spawnOneParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
+                PRT_REF iparticle = ParticleHandler::get().spawnOneParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
 
                 if ( DEFINED_PRT( iparticle ) )
                 {
@@ -2042,7 +2042,7 @@ void drop_money( const CHR_REF character, int money )
 
             for ( tnc = 0; tnc < count; tnc++ )
             {
-                spawn_one_particle_global( loc_pos, ATK_FRONT, pips[cnt], tnc );
+                ParticleHandler::get().spawn_one_particle_global( loc_pos, ATK_FRONT, pips[cnt], tnc );
             }
         }
     }
@@ -2610,7 +2610,7 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
     /// @details Spawn a defend particle
     if ( 0 != pchr->damage_timer ) return;
 
-    spawn_one_particle_global( pchr->getPosition(), pchr->ori.facing_z, PIP_DEFEND, 0 );
+    ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), pchr->ori.facing_z, PIP_DEFEND, 0 );
 
     pchr->damage_timer    = DEFENDTIME;
     SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
@@ -2639,7 +2639,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
     {
-        spawnOneParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
+        ParticleHandler::get().spawnOneParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
                             INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt);
 
         facing_z += profile->getParticlePoofFacingAdd();
@@ -2809,7 +2809,7 @@ Object * chr_config_do_init( Object * pchr )
     // Particle attachments
     for ( tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
-        spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
+        ParticleHandler::get().spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc);
     }
 

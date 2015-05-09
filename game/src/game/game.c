@@ -1162,7 +1162,7 @@ void do_damage_tiles()
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
-                spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
+                ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
             }
         }
     }
@@ -1290,7 +1290,7 @@ void do_weather_spawn_particles()
                     Object * pchr = _gameObjects.get( ichr );
 
                     // Yes, so spawn over that character
-                    PRT_REF particle = spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
+                    PRT_REF particle = ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
                     if ( DEFINED_PRT( particle ) )
                     {
                         prt_t * pprt = ParticleHandler::get().get_ptr( particle );
@@ -2708,7 +2708,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
+        particle = ParticleHandler::get().spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
         if ( DEFINED_PRT( particle ) )
         {
             prt_t * pprt = ParticleHandler::get().get_ptr( particle );

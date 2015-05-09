@@ -383,3 +383,88 @@ void ParticleHandler::reset_all()
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 }
+
+PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const PIP_REF ipip,
+                                          const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                                          const CHR_REF chr_origin, const PRT_REF prt_origin, const int multispawn, const CHR_REF oldtarget)
+{
+    if (!LOADED_PIP(ipip))
+    {
+        log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+                  REF_TO_INT(ipip), REF_TO_INT(chr_origin), _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
+                  REF_TO_INT(iprofile), ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getFilePath().c_str() : "INVALID");
+
+        return INVALID_PRT_REF;
+    }
+    pip_t *ppip = PipStack.get_ptr(ipip);
+
+    // count all the requests for this particle type
+    ppip->_spawnRequestCount++;
+
+    PRT_REF iprt = ParticleHandler::get().allocate(ppip->force);
+    if (!DEFINED_PRT(iprt))
+    {
+        log_debug("spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+                  chr_origin, _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
+                  ipip, LOADED_PIP(ipip) ? PipStack.get_ptr(ipip)->_name : "INVALID",
+                  iprofile, ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getFilePath().c_str() : "INVALID");
+
+        return INVALID_PRT_REF;
+    }
+    prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
+
+    POBJ_BEGIN_SPAWN(pprt);
+
+    pprt->spawn_data.pos = pos;
+
+    pprt->spawn_data.facing = facing;
+    pprt->spawn_data.iprofile = iprofile;
+    pprt->spawn_data.ipip = ipip;
+
+    pprt->spawn_data.chr_attach = chr_attach;
+    pprt->spawn_data.vrt_offset = vrt_offset;
+    pprt->spawn_data.team = team;
+
+    pprt->spawn_data.chr_origin = chr_origin;
+    pprt->spawn_data.prt_origin = prt_origin;
+    pprt->spawn_data.multispawn = multispawn;
+    pprt->spawn_data.oldtarget = oldtarget;
+
+    // actually force the character to spawn
+    pprt = prt_t::config_activate(pprt, 100);
+
+    // count all the successful spawns of this particle
+    if (NULL != pprt)
+    {
+        POBJ_END_SPAWN(pprt);
+        ppip->_spawnCount++;
+    }
+
+    return iprt;
+}
+
+PRT_REF ParticleHandler::spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+                                            const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                                            const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget)
+{
+    PIP_REF ipip = INVALID_PIP_REF;
+
+    if (!ProfileSystem::get().isValidProfileID(iprofile))
+    {
+        // check for a global pip
+        ipip = ((pip_index < 0) || (pip_index > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index);
+    }
+    else
+    {
+        //Local character pip
+        ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index);
+    }
+    return spawnOneParticle(pos, facing, iprofile, ipip, chr_attach, vrt_offset, team, chr_origin, prt_origin,
+                            multispawn, oldtarget);
+}
+
+PRT_REF ParticleHandler::spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, int pip_index, int multispawn)
+{
+    return spawn_one_particle(pos, facing, INVALID_PRO_REF, pip_index, INVALID_CHR_REF, GRIP_LAST,
+                              (TEAM_REF)TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF);
+}

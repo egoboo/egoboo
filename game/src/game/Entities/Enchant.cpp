@@ -1014,7 +1014,7 @@ enc_t *enc_t::config_do_active()
         facing = ptarget->ori.facing_z;
         for ( tnc = 0; tnc < peve->contspawn._amount; tnc++ )
         {
-            spawn_one_particle( ptarget->getPosition(), facing, penc->profile_ref, peve->contspawn._lpip,
+            ParticleHandler::get().spawn_one_particle( ptarget->getPosition(), facing, penc->profile_ref, peve->contspawn._lpip,
                                 INVALID_CHR_REF, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
 
             facing += peve->contspawn._facingAdd;
