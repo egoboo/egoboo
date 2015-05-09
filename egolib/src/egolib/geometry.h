@@ -28,7 +28,6 @@
 #include "egolib/Math/Plane.hpp" /// @todo Remove this.
 
 // Forward declaration.
-struct fvec3_t;
 struct aabb_t;
 struct cone_t;
 struct plane_t;
@@ -49,6 +48,7 @@ struct sphere_t;
 // a datatype for points
 //--------------------------------------------------------------------------------------------
 
+    typedef float fvec3_base_t[3];
     typedef fvec3_base_t point_base_t;
 
 //--------------------------------------------------------------------------------------------

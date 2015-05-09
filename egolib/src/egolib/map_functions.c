@@ -29,41 +29,32 @@
 //--------------------------------------------------------------------------------------------
 // Generic functions
 //--------------------------------------------------------------------------------------------
-bool twist_to_normal( Uint8 twist, float v[], float slide )
+bool twist_to_normal( Uint8 twist, fvec3_t& v, float slide )
 {
-    int ix, iy;
-    float dx, dy;
-    float nx, ny, nz, nz2;
-    float diff_xy;
+    float diff_xy = 128.0f / slide;
 
-    if ( NULL == v ) return false;
-
-    diff_xy = 128.0f / slide;
-
-    ix = ( twist >> 0 ) & 0x0f;
-    iy = ( twist >> 4 ) & 0x0f;
+    int ix = ( twist >> 0 ) & 0x0f;
+    int iy = ( twist >> 4 ) & 0x0f;
     ix -= 7;
     iy -= 7;
 
-    dx = -ix / ( float )CARTMAN_FIXNUM * ( float )CARTMAN_SLOPE;
-    dy = iy / ( float )CARTMAN_FIXNUM * ( float )CARTMAN_SLOPE;
+    float dx = -ix / ( float )CARTMAN_FIXNUM * ( float )CARTMAN_SLOPE;
+    float dy = iy / ( float )CARTMAN_FIXNUM * ( float )CARTMAN_SLOPE;
 
     // determine the square of the z normal
-    nz2 =  diff_xy * diff_xy / ( dx * dx + dy * dy + diff_xy * diff_xy );
+    float nz2 =  diff_xy * diff_xy / ( dx * dx + dy * dy + diff_xy * diff_xy );
 
     // determine the z normal
-    nz = 0.0f;
+    float nz = 0.0f;
     if ( nz2 > 0.0f )
     {
         nz = std::sqrt( nz2 );
     }
 
-    nx = - dx * nz / diff_xy;
-    ny = - dy * nz / diff_xy;
+    float nx = - dx * nz / diff_xy;
+    float ny = - dy * nz / diff_xy;
 
-    v[0] = nx;
-    v[1] = ny;
-    v[2] = nz;
+    v = fvec3_t(nx, ny, nz);
 
     return true;
 }

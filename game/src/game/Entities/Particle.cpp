@@ -351,10 +351,10 @@ prt_t *prt_t::config_do_init()
     loc_facing = loc_facing + ppip->facing_pair.base;
 
     // Targeting...
-    vel.z = 0;
+    vel[kZ] = 0;
 
-    pprt->offset.z = generate_irand_pair(ppip->spacing_vrt_pair) - (ppip->spacing_vrt_pair.rand / 2);
-    tmp_pos.z += pprt->offset.z;
+    pprt->offset[kZ] = generate_irand_pair(ppip->spacing_vrt_pair) - (ppip->spacing_vrt_pair.rand / 2);
+    tmp_pos[kZ] += pprt->offset[kZ];
     velocity = generate_irand_pair(ppip->vel_hrz_pair);
     pprt->target_ref = pdata->oldtarget;
     if (ppip->newtargetonspawn)
@@ -393,22 +393,22 @@ prt_t *prt_t::config_do_init()
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if (velocity > 0)
                     {
-                        vel.x = _gameObjects.get(pprt->target_ref)->getPosX() - pdata->pos.x;
-                        vel.y = _gameObjects.get(pprt->target_ref)->getPosY() - pdata->pos.y;
-                        tvel = std::sqrt(vel.x * vel.x + vel.y * vel.y) / velocity;  // This is the number of steps...
+                        vel[kX] = _gameObjects.get(pprt->target_ref)->getPosX() - pdata->pos[kX];
+                        vel[kY] = _gameObjects.get(pprt->target_ref)->getPosY() - pdata->pos[kY];
+                        tvel = std::sqrt(vel[kX] * vel[kX] + vel[kY] * vel[kY]) / velocity;  // This is the number of steps...
                         if (tvel > 0.0f)
                         {
-                            // This is the vel.z alteration
-                            vel.z = (_gameObjects.get(pprt->target_ref)->getPosZ() + (_gameObjects.get(pprt->target_ref)->bump.height * 0.5f) - tmp_pos.z) / tvel;
+                            // This is the vel[kZ] alteration
+                            vel[kZ] = (_gameObjects.get(pprt->target_ref)->getPosZ() + (_gameObjects.get(pprt->target_ref)->bump.height * 0.5f) - tmp_pos[kZ]) / tvel;
                         }
                     }
                 }
                 else
                 {
-                    vel.z = 0.5f * ppip->zaimspd;
+                    vel[kZ] = 0.5f * ppip->zaimspd;
                 }
 
-                vel.z = CLIP(vel.z, -0.5f * ppip->zaimspd, ppip->zaimspd);
+                vel[kZ] = CLIP(vel[kZ], -0.5f * ppip->zaimspd, ppip->zaimspd);
             }
         }
 
@@ -422,8 +422,8 @@ prt_t *prt_t::config_do_init()
         // Start on top of target
         if (_gameObjects.exists(pprt->target_ref) && ppip->startontarget)
         {
-            tmp_pos.x = _gameObjects.get(pprt->target_ref)->getPosX();
-            tmp_pos.y = _gameObjects.get(pprt->target_ref)->getPosY();
+            tmp_pos[kX] = _gameObjects.get(pprt->target_ref)->getPosX();
+            tmp_pos[kY] = _gameObjects.get(pprt->target_ref)->getPosY();
         }
     }
     else
@@ -439,23 +439,23 @@ prt_t *prt_t::config_do_init()
 
     // Location data from arguments
     newrand = generate_irand_pair(ppip->spacing_hrz_pair);
-    pprt->offset.x = -turntocos[turn] * newrand;
-    pprt->offset.y = -turntosin[turn] * newrand;
+    pprt->offset[kX] = -turntocos[turn] * newrand;
+    pprt->offset[kY] = -turntosin[turn] * newrand;
 
-    tmp_pos.x += pprt->offset.x;
-    tmp_pos.y += pprt->offset.y;
+    tmp_pos[kX] += pprt->offset[kX];
+    tmp_pos[kY] += pprt->offset[kY];
 
-    tmp_pos.x = CLIP(tmp_pos.x, 0.0f, PMesh->gmem.edge_x - 2.0f);
-    tmp_pos.y = CLIP(tmp_pos.y, 0.0f, PMesh->gmem.edge_y - 2.0f);
+    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, PMesh->gmem.edge_x - 2.0f);
+    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, PMesh->gmem.edge_y - 2.0f);
 
     prt_t::set_pos(pprt, tmp_pos);
     pprt->pos_old = tmp_pos;
     pprt->pos_stt = tmp_pos;
 
     // Velocity data
-    vel.x = -turntocos[turn] * velocity;
-    vel.y = -turntosin[turn] * velocity;
-    vel.z += generate_irand_pair(ppip->vel_vrt_pair) - (ppip->vel_vrt_pair.rand / 2);
+    vel[kX] = -turntocos[turn] * velocity;
+    vel[kY] = -turntosin[turn] * velocity;
+    vel[kZ] += generate_irand_pair(ppip->vel_vrt_pair) - (ppip->vel_vrt_pair.rand / 2);
     pprt->vel = pprt->vel_old = pprt->vel_stt = vel;
 
     // Template values
@@ -945,7 +945,7 @@ void prt_t::set_level(prt_t * pprt, const float level)
 
     pprt->enviro.level = level;
 
-    loc_height = prt_t::get_scale(pprt) * std::max(FP8_TO_FLOAT(pprt->size), pprt->offset.z * 0.5f);
+    loc_height = prt_t::get_scale(pprt) * std::max(FP8_TO_FLOAT(pprt->size), pprt->offset[kZ] * 0.5f);
 
     pprt->enviro.adj_level = pprt->enviro.level;
     pprt->enviro.adj_floor = pprt->enviro.floor_level;
@@ -954,7 +954,7 @@ void prt_t::set_level(prt_t * pprt, const float level)
     pprt->enviro.adj_floor += loc_height;
 
     // set the zlerp after we have done everything to the particle's level we care to
-    pprt->enviro.zlerp = (pprt->pos.z - pprt->enviro.adj_level) / PLATTOLERANCE;
+    pprt->enviro.zlerp = (pprt->pos[kZ] - pprt->enviro.adj_level) / PLATTOLERANCE;
     pprt->enviro.zlerp = CLIP(pprt->enviro.zlerp, 0.0f, 1.0f);
 }
 
@@ -978,7 +978,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
     penviro = &(loc_pprt->enviro);
 
     //---- character "floor" level
-    penviro->floor_level = ego_mesh_t::get_level(PMesh, PointWorld(loc_pprt->pos.x, loc_pprt->pos.y));
+    penviro->floor_level = ego_mesh_t::get_level(PMesh, PointWorld(loc_pprt->pos[kX], loc_pprt->pos[kY]));
     penviro->level = penviro->floor_level;
 
     //---- The actual level of the characer.
@@ -1028,7 +1028,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
         chr_getMatUp(_gameObjects.get(loc_pprt->onwhichplatform_ref), platform_up);
         platform_up.normalize();
 
-        penviro->traction = std::abs(platform_up.z) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
+        penviro->traction = std::abs(platform_up[kZ]) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
 
         if (penviro->is_slippy)
         {
@@ -1037,7 +1037,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
     }
     else if (ego_mesh_grid_is_valid(PMesh, loc_pprt->onwhichgrid))
     {
-        penviro->traction = std::abs(map_twist_nrm[penviro->twist].z) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
+        penviro->traction = std::abs(map_twist_nrm[penviro->twist][kZ]) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
 
         if (penviro->is_slippy)
         {
@@ -1142,15 +1142,15 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * 
 
         if (loc_pprt->enviro.inwater)
         {
-            fluid_acc.x *= 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
-            fluid_acc.y *= 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
-            fluid_acc.z *= 1.0f - loc_penviro->fluid_friction_vrt * loc_pprt->air_resistance;
+            fluid_acc[kX] *= 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
+            fluid_acc[kY] *= 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
+            fluid_acc[kZ] *= 1.0f - loc_penviro->fluid_friction_vrt * loc_pprt->air_resistance;
         }
         else
         {
-            fluid_acc.x *= 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
-            fluid_acc.y *= 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
-            fluid_acc.z *= 1.0f - loc_penviro->fluid_friction_vrt * loc_pprt->air_resistance;
+            fluid_acc[kX] *= 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
+            fluid_acc[kY] *= 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
+            fluid_acc[kZ] *= 1.0f - loc_penviro->fluid_friction_vrt * loc_pprt->air_resistance;
         }
     }
 
@@ -1191,7 +1191,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
     if (SPRITE_SOLID != loc_pprt->type)  return pbdl_prt;
 
     // figure out the acceleration due to the current "floor"
-    floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
+    floor_acc[kX] = floor_acc[kY] = floor_acc[kZ] = 0.0f;
     temp_friction_xy = 1.0f;
     if (_gameObjects.exists(loc_pprt->onwhichplatform_ref))
     {
@@ -1210,8 +1210,8 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
 
         if (TWIST_FLAT == penviro->twist)
         {
-            vup.x = vup.y = 0.0f;
-            vup.z = 1.0f;
+            vup[kX] = vup[kY] = 0.0f;
+            vup[kZ] = 1.0f;
         }
         else
         {
@@ -1220,34 +1220,34 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
     }
 
     // the first guess about the floor friction
-    fric_floor.x = floor_acc.x * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
-    fric_floor.y = floor_acc.y * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
-    fric_floor.z = floor_acc.z * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
+    fric_floor[kX] = floor_acc[kX] * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
+    fric_floor[kY] = floor_acc[kY] * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
+    fric_floor[kZ] = floor_acc[kZ] * (1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction;
 
     // the total "friction" due to the floor
-    fric.x = fric_floor.x + penviro->acc.x;
-    fric.y = fric_floor.y + penviro->acc.y;
-    fric.z = fric_floor.z + penviro->acc.z;
+    fric[kX] = fric_floor[kX] + penviro->acc[kX];
+    fric[kY] = fric_floor[kY] + penviro->acc[kY];
+    fric[kZ] = fric_floor[kZ] + penviro->acc[kZ];
 
     //---- limit the friction to whatever is horizontal to the mesh
-    if (std::abs(vup.z) > 0.9999f)
+    if (std::abs(vup[kZ]) > 0.9999f)
     {
-        floor_acc.z = 0.0f;
-        fric.z = 0.0f;
+        floor_acc[kZ] = 0.0f;
+        fric[kZ] = 0.0f;
     }
     else
     {
         float ftmp;
 
         ftmp = floor_acc.dot(vup);
-        floor_acc.x -= ftmp * vup.x;
-        floor_acc.y -= ftmp * vup.y;
-        floor_acc.z -= ftmp * vup.z;
+        floor_acc[kX] -= ftmp * vup[kX];
+        floor_acc[kY] -= ftmp * vup[kY];
+        floor_acc[kZ] -= ftmp * vup[kZ];
 
         ftmp = fric.dot(vup);
-        fric.x -= ftmp * vup.x;
-        fric.y -= ftmp * vup.y;
-        fric.z -= ftmp * vup.z;
+        fric[kX] -= ftmp * vup[kX];
+        fric[kY] -= ftmp * vup[kY];
+        fric[kZ] -= ftmp * vup[kZ];
     }
 
     // test to see if the player has any more friction left?
@@ -1260,9 +1260,9 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
 
         fric_floor = floor_acc * ((1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction);
         float ftmp = fric_floor.dot(vup);
-        fric_floor.x -= ftmp * vup.x;
-        fric_floor.y -= ftmp * vup.y;
-        fric_floor.z -= ftmp * vup.z;
+        fric_floor[kX] -= ftmp * vup[kX];
+        fric_floor[kY] -= ftmp * vup[kY];
+        fric_floor[kZ] -= ftmp * vup[kZ];
     }
 
     // Apply the floor friction
@@ -1304,7 +1304,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt
     ptarget = _gameObjects.get(loc_pprt->target_ref);
 
     vdiff = ptarget->getPosition() - prt_t::get_pos_v_const(loc_pprt);
-    vdiff.z += ptarget->bump.height * 0.5f;
+    vdiff[kZ] += ptarget->bump.height * 0.5f;
 
     min_length = 2 * 5 * 256 * (_gameObjects.get(loc_pprt->owner_ref)->wisdom / (float)PERFECTBIG);
 
@@ -1312,13 +1312,13 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt
     uncertainty = 256.0f * (1.0f - _gameObjects.get(loc_pprt->owner_ref)->intelligence / (float)PERFECTBIG);
 
     ival = Random::next(std::numeric_limits<uint16_t>::max());
-    vdither.x = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
+    vdither[kX] = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
     ival = Random::next(std::numeric_limits<uint16_t>::max());
-    vdither.y = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
+    vdither[kY] = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
     ival = Random::next(std::numeric_limits<uint16_t>::max());
-    vdither.z = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
+    vdither[kZ] = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
 
     // take away any dithering along the direction of motion of the particle
     vlen = loc_pprt->vel.length_2();
@@ -1354,7 +1354,7 @@ prt_bundle_t * prt_bundle_t::updateParticleSimpleGravity(prt_bundle_t * pbdl_prt
     //Only do gravity for solid particles
     if (!pbdl_prt->prt_ptr->no_gravity && pbdl_prt->prt_ptr->type == SPRITE_SOLID && !pbdl_prt->prt_ptr->is_homing  && !_gameObjects.exists(pbdl_prt->prt_ptr->attachedto_ref))
     {
-        pbdl_prt->prt_ptr->vel.z += Physics::g_environment.gravity 
+        pbdl_prt->prt_ptr->vel[kZ] += Physics::g_environment.gravity 
                                   * Physics::g_environment.airfriction;
     }
     return pbdl_prt;
@@ -1426,7 +1426,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
     }
 
     // do the buoyancy calculation
-    z_motion_acc.z += loc_buoyancy;
+    z_motion_acc[kZ] += loc_buoyancy;
 
     // do gravity
     if (penviro->is_slippy && (TWIST_FLAT != penviro->twist) && loc_zlerp < 1.0f)
@@ -1438,15 +1438,15 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
 
         gpara = map_twist_vel[penviro->twist];
 
-        gperp.x = 0 - gpara.x;
-        gperp.y = 0 - gpara.y;
-        gperp.z = Physics::g_environment.gravity - gpara.z;
+        gperp[kX] = 0 - gpara[kX];
+        gperp[kY] = 0 - gpara[kY];
+        gperp[kZ] = Physics::g_environment.gravity - gpara[kZ];
 
         z_motion_acc += gpara * (1.0f - loc_zlerp) + gperp * loc_zlerp;
     }
     else
     {
-        z_motion_acc.z += loc_zlerp * Physics::g_environment.gravity;
+        z_motion_acc[kZ] += loc_zlerp * Physics::g_environment.gravity;
     }
 
     loc_pprt->vel += z_motion_acc;
@@ -1488,12 +1488,12 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
 
     touch_a_floor = false;
     hit_a_wall = false;
-    nrm_total.x = nrm_total.y = nrm_total.z = 0;
+    nrm_total[kX] = nrm_total[kY] = nrm_total[kZ] = 0;
 
     loc_level = penviro->adj_level;
 
     // Move the particle
-    if (tmp_pos.z < loc_level)
+    if (tmp_pos[kZ] < loc_level)
     {
         touch_a_floor = true;
     }
@@ -1514,7 +1514,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
     // interaction with the mesh walls
     hit_a_wall = false;
     needs_test = false;
-    if (std::abs(loc_pprt->vel.x) + std::abs(loc_pprt->vel.y) > 0.0f)
+    if (std::abs(loc_pprt->vel[kX]) + std::abs(loc_pprt->vel[kY]) > 0.0f)
     {
         mesh_wall_data_t wdata;
 
@@ -1593,15 +1593,15 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     hit_a_wall = false;
     touch_a_floor = false;
     touch_a_wall = false;
-    nrm_total.x = nrm_total.y = nrm_total.z = 0.0f;
+    nrm_total[kX] = nrm_total[kY] = nrm_total[kZ] = 0.0f;
 
     loc_level = penviro->adj_level;
 
     // Move the particle
-    ftmp = tmp_pos.z;
-    tmp_pos.z += loc_pprt->vel.z;
-    LOG_NAN(tmp_pos.z);
-    if (tmp_pos.z < loc_level)
+    ftmp = tmp_pos[kZ];
+    tmp_pos[kZ] += loc_pprt->vel[kZ];
+    LOG_NAN(tmp_pos[kZ]);
+    if (tmp_pos[kZ] < loc_level)
     {
         fvec3_t floor_nrm = fvec3_t(0.0f, 0.0f, 1.0f);
         float vel_dot;
@@ -1629,27 +1629,27 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
             vel_para = loc_pprt->vel - vel_perp;
         }
 
-        if (loc_pprt->vel.z < -STOPBOUNCINGPART)
+        if (loc_pprt->vel[kZ] < -STOPBOUNCINGPART)
         {
             // the particle will bounce
             nrm_total += floor_nrm;
 
             // take reflection in the floor into account when computing the new level
-            tmp_pos.z = loc_level + (loc_level - ftmp) * loc_ppip->dampen + 0.1f;
+            tmp_pos[kZ] = loc_level + (loc_level - ftmp) * loc_ppip->dampen + 0.1f;
 
-            loc_pprt->vel.z = -loc_pprt->vel.z;
+            loc_pprt->vel[kZ] = -loc_pprt->vel[kZ];
 
             hit_a_floor = true;
         }
         else if (vel_dot > 0.0f)
         {
             // the particle is not bouncing, it is just at the wrong height
-            tmp_pos.z = loc_level + 0.1f;
+            tmp_pos[kZ] = loc_level + 0.1f;
         }
         else
         {
             // the particle is in the "stop bouncing zone"
-            tmp_pos.z = loc_level + 0.1f;
+            tmp_pos[kZ] = loc_level + 0.1f;
             //loc_pprt->vel = vel_para;
         }
     }
@@ -1671,12 +1671,12 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     // interaction with the mesh walls
     hit_a_wall = false;
     needs_test = false;
-    if (std::abs(loc_pprt->vel.x) + std::abs(loc_pprt->vel.y) > 0.0f)
+    if (std::abs(loc_pprt->vel[kX]) + std::abs(loc_pprt->vel[kY]) > 0.0f)
     {
         mesh_wall_data_t wdata;
 
-        tmp_pos.x += loc_pprt->vel.x;
-        tmp_pos.y += loc_pprt->vel.y;
+        tmp_pos[kX] += loc_pprt->vel[kX];
+        tmp_pos[kY] += loc_pprt->vel[kY];
 
         //Hitting a wall?
         if (EMPTY_BIT_FIELD != prt_t::test_wall(loc_pprt, tmp_pos, &wdata))
@@ -1689,8 +1689,8 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
             {
                 touch_a_wall = true;
 
-                nrm_total.x += nrm[XX];
-                nrm_total.y += nrm[YY];
+                nrm_total[kX] += nrm[XX];
+                nrm_total[kY] += nrm[YY];
 
                 hit_a_wall = (fvec2_t(loc_pprt->vel[kX], loc_pprt->vel[kY]).dot(nrm) < 0.0f);
             }
@@ -1715,8 +1715,8 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     if (hit_a_wall || hit_a_floor)
     {
 
-        if ((hit_a_wall && (loc_pprt->vel.x * nrm_total.x + loc_pprt->vel.y * nrm_total.y) < 0.0f) ||
-            (hit_a_floor && (loc_pprt->vel.z * nrm_total.z) < 0.0f))
+        if ((hit_a_wall && (loc_pprt->vel[kX] * nrm_total[kX] + loc_pprt->vel[kY] * nrm_total[kY]) < 0.0f) ||
+            (hit_a_floor && (loc_pprt->vel[kZ] * nrm_total[kZ]) < 0.0f))
         {
             float vdot;
             fvec3_t   vpara, vperp;
@@ -1736,30 +1736,30 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
             vperp *= -loc_ppip->dampen;
 
             // fake the friction, for now
-            if (0.0f != nrm_total.y || 0.0f != nrm_total.z)
+            if (0.0f != nrm_total[kY] || 0.0f != nrm_total[kZ])
             {
-                vpara.x *= loc_ppip->dampen;
+                vpara[kX] *= loc_ppip->dampen;
             }
 
-            if (0.0f != nrm_total.x || 0.0f != nrm_total.z)
+            if (0.0f != nrm_total[kX] || 0.0f != nrm_total[kZ])
             {
-                vpara.y *= loc_ppip->dampen;
+                vpara[kY] *= loc_ppip->dampen;
             }
 
-            if (0.0f != nrm_total.x || 0.0f != nrm_total.y)
+            if (0.0f != nrm_total[kX] || 0.0f != nrm_total[kY])
             {
-                vpara.z *= loc_ppip->dampen;
+                vpara[kZ] *= loc_ppip->dampen;
             }
 
             // add the components back together
             loc_pprt->vel = vpara + vperp;
         }
 
-        if (nrm_total.z != 0.0f && loc_pprt->vel.z < STOPBOUNCINGPART)
+        if (nrm_total[kZ] != 0.0f && loc_pprt->vel[kZ] < STOPBOUNCINGPART)
         {
             // this is the very last bounce
-            loc_pprt->vel.z = 0.0f;
-            tmp_pos.z = loc_level + 0.0001f;
+            loc_pprt->vel[kZ] = 0.0f;
+            tmp_pos[kZ] = loc_level + 0.0001f;
         }
 
         if (hit_a_wall)
@@ -1769,12 +1769,12 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
             // fix the facing
             facing_to_vec(loc_pprt->facing, &fx, &fy);
 
-            if (0.0f != nrm_total.x)
+            if (0.0f != nrm_total[kX])
             {
                 fx *= -1;
             }
 
-            if (0.0f != nrm_total.y)
+            if (0.0f != nrm_total[kY])
             {
                 fy *= -1;
             }
@@ -1784,22 +1784,22 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     }
 
     //Don't fall in pits...
-    if (loc_pprt->is_homing) tmp_pos.z = std::max(tmp_pos.z, 0.0f);
+    if (loc_pprt->is_homing) tmp_pos[kZ] = std::max(tmp_pos[kZ], 0.0f);
 
     //Rotate particle to the direction we are moving
     if (loc_ppip->rotatetoface)
     {
-        if (std::abs(loc_pprt->vel.x) + std::abs(loc_pprt->vel.y) > FLT_EPSILON)
+        if (std::abs(loc_pprt->vel[kX]) + std::abs(loc_pprt->vel[kY]) > FLT_EPSILON)
         {
             // use velocity to find the angle
-            loc_pprt->facing = vec_to_facing(loc_pprt->vel.x, loc_pprt->vel.y);
+            loc_pprt->facing = vec_to_facing(loc_pprt->vel[kX], loc_pprt->vel[kY]);
         }
         else if (_gameObjects.exists(loc_pprt->target_ref))
         {
             Object * ptarget = _gameObjects.get(loc_pprt->target_ref);
 
             // face your target
-            loc_pprt->facing = vec_to_facing(ptarget->getPosX() - tmp_pos.x, ptarget->getPosY() - tmp_pos.y);
+            loc_pprt->facing = vec_to_facing(ptarget->getPosX() - tmp_pos[kX], ptarget->getPosY() - tmp_pos[kY]);
         }
     }
 
@@ -1925,7 +1925,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     bs_count = 0;
 
     // Only damage if hitting from proper direction
-    direction = vec_to_facing(pprt->vel.x, pprt->vel.y);
+    direction = vec_to_facing(pprt->vel[kX], pprt->vel[kY]);
     direction = ATK_BEHIND + (pchr->ori.facing_z - direction);
 
     // Check that direction
@@ -1991,7 +1991,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 dist = (prt_t::get_pos_v_const(pprt) - pchr->getPosition()).length_abs();
 
                 // clear the occupied list
-                z = pprt->pos.z - pchr->getPosition().z;
+                z = pprt->pos[kZ] - pchr->getPosition()[kZ];
                 facing = pprt->facing - pchr->ori.facing_z;
                 turn = TO_TURN(facing);
                 fsin = turntosin[turn];
@@ -2091,7 +2091,7 @@ bool prt_is_over_water(const PRT_REF ref)
     if (!ALLOCATED_PRT(ref)) return false;
 
     prt_t *prt = ParticleHandler::get().get_ptr(ref);
-    TileIndex fan = ego_mesh_t::get_grid(PMesh, PointWorld(prt->pos.x, prt->pos.y));
+    TileIndex fan = ego_mesh_t::get_grid(PMesh, PointWorld(prt->pos[kX], prt->pos[kY]));
     if (ego_mesh_grid_is_valid(PMesh, fan))
     {
         if (0 != ego_mesh_t::test_fx(PMesh, fan, MAPFX_WATER))  return true;
@@ -2156,7 +2156,7 @@ bool prt_t::update_safe_raw(prt_t * pprt)
         pprt->safe_valid = true;
         prt_t::get_pos(pprt, pprt->safe_pos);
         pprt->safe_time = update_wld;
-        pprt->safe_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos.x, pprt->pos.y)).getI();
+        pprt->safe_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos[kX], pprt->pos[kY])).getI();
 
         retval = true;
     }
@@ -2177,12 +2177,12 @@ bool prt_t::update_safe(prt_t * pprt, bool force)
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos.x, pprt->pos.y));
+        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos[kX], pprt->pos[kY]));
 
         if (TileIndex::Invalid == new_grid)
         {
-            if (std::abs(pprt->pos.x - pprt->safe_pos.x) > GRID_FSIZE ||
-                std::abs(pprt->pos.y - pprt->safe_pos.y) > GRID_FSIZE)
+            if (std::abs(pprt->pos[kX] - pprt->safe_pos[kX]) > GRID_FSIZE ||
+                std::abs(pprt->pos[kY] - pprt->safe_pos[kY]) > GRID_FSIZE)
             {
                 needs_update = true;
             }
@@ -2205,8 +2205,8 @@ bool prt_t::update_pos(prt_t *self)
 {
     if (!ALLOCATED_PPRT(self)) return false;
 
-    self->onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos.x, self->pos.y)).getI();
-    self->onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(self->pos.x, self->pos.y)).getI();
+    self->onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos[kX], self->pos[kY])).getI();
+    self->onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(self->pos[kX], self->pos[kY])).getI();
 
     // update whether the current character position is safe
     prt_t::update_safe(self, false);
@@ -2437,8 +2437,8 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
     if (loc_ppip->allowpush && 0 == loc_ppip->vel_hrz_pair.base)
     {
         // Make character limp
-        character->vel.x *= 0.5f;
-        character->vel.y *= 0.5f;
+        character->vel[kX] *= 0.5f;
+        character->vel[kY] *= 0.5f;
     }
 
     //---- do the damage
@@ -2500,9 +2500,9 @@ int prt_bundle_t::do_contspawn(prt_bundle_t * pbdl_prt)
             ///            many, many, many issues with all particles around the game.
             //if( !_gameObjects.exists( loc_pprt->attachedto_ref ) )
             /*{
-            PrtList.lst[prt_child].vel.x += loc_pprt->vel.x;
-            PrtList.lst[prt_child].vel.y += loc_pprt->vel.y;
-            PrtList.lst[prt_child].vel.z += loc_pprt->vel.z;
+            PrtList.lst[prt_child].vel[kX] += loc_pprt->vel[kX];
+            PrtList.lst[prt_child].vel[kY] += loc_pprt->vel[kY];
+            PrtList.lst[prt_child].vel[kZ] += loc_pprt->vel[kZ];
             }*/
 
             //Keep count of how many were actually spawned
@@ -2530,7 +2530,7 @@ prt_bundle_t * prt_bundle_t::update_do_water(prt_bundle_t * pbdl_prt)
     loc_ppip = pbdl_prt->pip_ptr;
     penviro = &(loc_pprt->enviro);
 
-    inwater = (pbdl_prt->prt_ptr->pos.z < water.surface_level) && (0 != ego_mesh_t::test_fx(PMesh, pbdl_prt->prt_ptr->onwhichgrid, MAPFX_WATER));
+    inwater = (pbdl_prt->prt_ptr->pos[kZ] < water.surface_level) && (0 != ego_mesh_t::test_fx(PMesh, pbdl_prt->prt_ptr->onwhichgrid, MAPFX_WATER));
 
     if (inwater && water.is_water && pbdl_prt->pip_ptr->end_water)
     {
@@ -2551,7 +2551,7 @@ prt_bundle_t * prt_bundle_t::update_do_water(prt_bundle_t * pbdl_prt)
     {
         bool  spawn_valid = false;
         int     global_pip_index = -1;
-        fvec3_t vtmp = fvec3_t(pbdl_prt->prt_ptr->pos.x, pbdl_prt->prt_ptr->pos.y, water.surface_level);
+        fvec3_t vtmp = fvec3_t(pbdl_prt->prt_ptr->pos[kX], pbdl_prt->prt_ptr->pos[kY], water.surface_level);
 
         if (INVALID_CHR_REF == pbdl_prt->prt_ptr->owner_ref && (PIP_SPLASH == pbdl_prt->prt_ptr->pip_ref || PIP_RIPPLE == pbdl_prt->prt_ptr->pip_ref))
         {
@@ -2577,7 +2577,7 @@ prt_bundle_t * prt_bundle_t::update_do_water(prt_bundle_t * pbdl_prt)
                 if (SPRITE_SOLID == pbdl_prt->prt_ptr->type && !_gameObjects.exists(pbdl_prt->prt_ptr->attachedto_ref))
                 {
                     // only spawn ripples if you are touching the water surface!
-                    if (pbdl_prt->prt_ptr->pos.z + pbdl_prt->prt_ptr->bump_real.height > water.surface_level && pbdl_prt->prt_ptr->pos.z - pbdl_prt->prt_ptr->bump_real.height < water.surface_level)
+                    if (pbdl_prt->prt_ptr->pos[kZ] + pbdl_prt->prt_ptr->bump_real.height > water.surface_level && pbdl_prt->prt_ptr->pos[kZ] - pbdl_prt->prt_ptr->bump_real.height < water.surface_level)
                     {
                         int ripand = ~((~RIPPLEAND) << 1);
                         if (0 == ((update_wld + pbdl_prt->prt_ptr->obj_base.guid) & ripand))

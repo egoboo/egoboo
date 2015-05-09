@@ -597,9 +597,9 @@ bool ego_mesh_convert( ego_mesh_t * pmesh_dst, map_t * pmesh_src )
         const map_vertex_t& pvrt_src = pmem_src->vertices[cnt];
 
         // copy all info from map_mem_t
-        ( *ppos_dst )[XX] = pvrt_src.pos.x;
-        ( *ppos_dst )[YY] = pvrt_src.pos.y;
-        ( *ppos_dst )[ZZ] = pvrt_src.pos.z;
+        ( *ppos_dst )[XX] = pvrt_src.pos[kX];
+        ( *ppos_dst )[YY] = pvrt_src.pos[kY];
+        ( *ppos_dst )[ZZ] = pvrt_src.pos[kZ];
 
         // default color
         ( *pcol_dst )[RR] = ( *pcol_dst )[GG] = ( *pcol_dst )[BB] = 0.0f;
@@ -879,7 +879,7 @@ void ego_mesh_make_twist()
     float   gdot;
     fvec3_t grav = fvec3_t::zero();
 
-    grav.z = Physics::g_environment.gravity;
+    grav[kZ] = Physics::g_environment.gravity;
 
     for ( cnt = 0; cnt < 256; cnt++ )
     {
@@ -887,30 +887,26 @@ void ego_mesh_make_twist()
         fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
         fvec3_t   nrm;
 
-        twist_to_normal( cnt, nrm.v, 1.0f );
+        twist_to_normal( cnt, nrm, 1.0f );
 
         map_twist_nrm[cnt] = nrm;
 
-        map_twist_facing_x[cnt] = ( FACING_T )( - vec_to_facing( nrm.z, nrm.y ) );
-        map_twist_facing_y[cnt] = vec_to_facing( nrm.z, nrm.x );
+        map_twist_facing_x[cnt] = ( FACING_T )( - vec_to_facing( nrm[kZ], nrm[kY] ) );
+        map_twist_facing_y[cnt] = vec_to_facing( nrm[kZ], nrm[kX] );
 
         // this is about 5 degrees off of vertical
         map_twist_flat[cnt] = false;
-        if ( nrm.z > 0.9945f )
+        if ( nrm[kZ] > 0.9945f )
         {
             map_twist_flat[cnt] = true;
         }
 
         // projection of the gravity parallel to the surface
-        gdot = grav.z * nrm.z;
+        gdot = grav[kZ] * nrm[kZ];
 
-        gperp.x = gdot * nrm.x;
-        gperp.y = gdot * nrm.y;
-        gperp.z = gdot * nrm.z;
+        gperp = nrm * gdot;
 
-        gpara.x = grav.x - gperp.x;
-        gpara.y = grav.y - gperp.y;
-        gpara.z = grav.z - gperp.z;
+        gpara = grav - gperp;
 
         map_twist_vel[cnt] = gpara;
     }
@@ -1022,9 +1018,9 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
     {
         Uint8 twist = grid_mem_t::get(pgmem,fan0)->twist;
 
-        ptmem->nlst[fan0.getI()][XX] = map_twist_nrm[twist].x;
-        ptmem->nlst[fan0.getI()][YY] = map_twist_nrm[twist].y;
-        ptmem->nlst[fan0.getI()][ZZ] = map_twist_nrm[twist].z;
+        ptmem->nlst[fan0.getI()][XX] = map_twist_nrm[twist][kX];
+        ptmem->nlst[fan0.getI()][YY] = map_twist_nrm[twist][kY];
+        ptmem->nlst[fan0.getI()][ZZ] = map_twist_nrm[twist][kZ];
     }
 
     // find an "average" normal of each corner of the tile
@@ -1039,9 +1035,9 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
             TileIndex fan0 = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix, iy));
             if ( !ego_mesh_grid_is_valid( pmesh, fan0 ) ) continue;
 
-            nrm_lst[0].x = ptmem->nlst[fan0.getI()][XX];
-            nrm_lst[0].y = ptmem->nlst[fan0.getI()][YY];
-            nrm_lst[0].z = ptmem->nlst[fan0.getI()][ZZ];
+            nrm_lst[0][kX] = ptmem->nlst[fan0.getI()][XX];
+            nrm_lst[0][kY] = ptmem->nlst[fan0.getI()][YY];
+            nrm_lst[0][kZ] = ptmem->nlst[fan0.getI()][ZZ];
 
             // for each corner of this tile
             for ( i = 0; i < 4; i++ )
@@ -1075,22 +1071,18 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
 
                     if ( ego_mesh_grid_is_valid( pmesh, fan1 ) )
                     {
-                        nrm_lst[j].x = ptmem->nlst[fan1.getI()][XX];
-                        nrm_lst[j].y = ptmem->nlst[fan1.getI()][YY];
-                        nrm_lst[j].z = ptmem->nlst[fan1.getI()][ZZ];
+                        nrm_lst[j][kX] = ptmem->nlst[fan1.getI()][XX];
+                        nrm_lst[j][kY] = ptmem->nlst[fan1.getI()][YY];
+                        nrm_lst[j][kZ] = ptmem->nlst[fan1.getI()][ZZ];
 
-                        if ( nrm_lst[j].z < 0 )
+                        if ( nrm_lst[j][kZ] < 0 )
                         {
-                            nrm_lst[j].x *= -1.0f;
-                            nrm_lst[j].y *= -1.0f;
-                            nrm_lst[j].z *= -1.0f;
+                            nrm_lst[j] = -nrm_lst[j];
                         }
                     }
                     else
                     {
-                        nrm_lst[j].x = 0;
-                        nrm_lst[j].y = 0;
-                        nrm_lst[j].z = 1;
+                        nrm_lst[j] = fvec3_t(0, 0, 1);
                     }
                 }
 
@@ -1132,17 +1124,17 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
                 {
                     if ( weight_lst[j] > 0.0f )
                     {
-                        vec_sum.x += nrm_lst[j].x * weight_lst[j];
-                        vec_sum.y += nrm_lst[j].y * weight_lst[j];
-                        vec_sum.z += nrm_lst[j].z * weight_lst[j];
+                        vec_sum[kX] += nrm_lst[j][kX] * weight_lst[j];
+                        vec_sum[kY] += nrm_lst[j][kY] * weight_lst[j];
+                        vec_sum[kZ] += nrm_lst[j][kZ] * weight_lst[j];
                     }
                 }
 
 				vec_sum.normalize();
 
-                tile_mem_t::get(ptmem,fan0)->ncache[i][XX] = vec_sum.x;
-                tile_mem_t::get(ptmem,fan0)->ncache[i][YY] = vec_sum.y;
-                tile_mem_t::get(ptmem,fan0)->ncache[i][ZZ] = vec_sum.z;
+                tile_mem_t::get(ptmem,fan0)->ncache[i][XX] = vec_sum[kX];
+                tile_mem_t::get(ptmem,fan0)->ncache[i][YY] = vec_sum[kY];
+                tile_mem_t::get(ptmem,fan0)->ncache[i][ZZ] = vec_sum[kZ];
             }
         }
     }
@@ -1760,7 +1752,7 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
     }
 
     // Determine the "minimum number of tiles to move" to get into a clear area.
-    diff.x = diff.y = 0.0f;
+    diff[kX] = diff[kY] = 0.0f;
     sum_diff = 0.0f;
     for ( cnt = 0, fy = -0.5f; fy <= 0.5f; fy += 0.5f )
     {
@@ -1789,17 +1781,17 @@ fvec3_t ego_mesh_t::get_diff(const ego_mesh_t *mesh, const fvec3_t& pos, float r
     // unnecessary if the following normalization is kept in
     //if( sum_diff > 0.0f )
     //{
-    //    diff.x /= sum_diff;
-    //    diff.y /= sum_diff;
+    //    diff[kX] /= sum_diff;
+    //    diff[kY] /= sum_diff;
     //}
 
     // Limit the maximum displacement to less than one tile.
-    if (std::abs(diff.x) + std::abs(diff.y) > 0.0f)
+    if (std::abs(diff[kX]) + std::abs(diff[kY]) > 0.0f)
     {
-        float fmax = std::max(std::abs(diff.x), std::abs(diff.y));
+        float fmax = std::max(std::abs(diff[kX]), std::abs(diff[kY]));
 
-        diff.x /= fmax;
-        diff.y /= fmax;
+        diff[kX] /= fmax;
+        diff[kY] /= fmax;
     }
 
     return diff;
@@ -1827,7 +1819,7 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const
     if ( NULL == pressure ) pressure = &loc_pressure;
     *pressure = 0.0f;
 
-    nrm[kX] = nrm[kY] = 0.0f;
+    nrm = fvec2_t::zero();
 
     // if pdata is not NULL, someone has already run a version of mesh_test_wall
     if ( NULL == pdata )
@@ -1914,7 +1906,7 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const
     if ( 0 == pass )
     {
         // if there is no impact at all, there is no normal and no pressure
-        nrm[kX] = nrm[kY] = 0.0f;
+        nrm = fvec2_t::zero();
         *pressure = 0.0f;
     }
     else
@@ -1937,11 +1929,7 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const
             }
             else
             {
-                float dist = std::sqrt( nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] );
-
-                //*pressure = dist;
-                nrm[kX] /= dist;
-                nrm[kY] /= dist;
+                nrm.normalize();
             }
         }
 

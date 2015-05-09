@@ -497,10 +497,10 @@ public:
         return
             fmat_4x4_t
             (
-            s.x, s.y, s.z, 0.0f,
-            u.x, u.y, u.z, 0.0f,
-            -f.x, -f.y, -f.z, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
+             s[kX],  s[kY],  s[kZ], 0.0f,
+             u[kX],  u[kY],  u[kZ], 0.0f,
+            -f[kX], -f[kY], -f[kZ], 0.0f,
+              0.0f,   0.0f,   0.0f, 1.0f
             )
             *
             fmat_4x4_t::translation(-eye);
@@ -619,9 +619,9 @@ public:
         return
             fmat_4x4_t
             (
-                1, 0, 0, t.x,
-                0, 1, 0, t.y,
-                0, 0, 1, t.z,
+                1, 0, 0, t[kX],
+                0, 1, 0, t[kY],
+                0, 0, 1, t[kZ],
                 0, 0, 0,   1
             );
 	}
@@ -980,10 +980,10 @@ public:
         return
             fmat_4x4_t
             (
-                s.x,   0,   0, 0,
-                  0, s.y,   0, 0,
-                  0,   0, s.z, 0,
-                  0,   0,   0, 1
+                s[kX],     0,     0, 0,
+                    0, s[kY],     0, 0,
+                    0,     0, s[kZ], 0,
+                    0,     0,     0, 1
             );
 	}
 
@@ -1079,8 +1079,8 @@ bool mat_getTranslate(const fmat_4x4_t& mat, fvec3_t& translate);
 
 fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat);
 
-float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z);
-float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z);
+float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t mat, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate);
+float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t mat, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate);
 
 
 /**

@@ -379,30 +379,35 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
 
     GLvertex vtlist[4];
     // bottom left
-    vtlist[0].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( -vec_rgt.x - 0 * vec_up.x );
-    vtlist[0].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( -vec_rgt.y - 0 * vec_up.y );
-    vtlist[0].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( -vec_rgt.z - 0 * vec_up.z );
+    fvec3_t tmp;
+    tmp = pbb->pos + (-vec_rgt - vec_up * 0);
+    vtlist[0].pos[XX] = pbb->offset[XX] + tmp[kX];
+    vtlist[0].pos[YY] = pbb->offset[YY] + tmp[kY];
+    vtlist[0].pos[ZZ] = pbb->offset[ZZ] + tmp[kZ];
     vtlist[0].tex[SS] = x1;
     vtlist[0].tex[TT] = y1;
 
     // top left
-    vtlist[1].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( -vec_rgt.x + 2 * vec_up.x );
-    vtlist[1].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( -vec_rgt.y + 2 * vec_up.y );
-    vtlist[1].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( -vec_rgt.z + 2 * vec_up.z );
+    tmp = pbb->pos + (-vec_rgt + vec_up * 2);
+    vtlist[1].pos[XX] = pbb->offset[XX] + tmp[kX];
+    vtlist[1].pos[YY] = pbb->offset[YY] + tmp[kY];
+    vtlist[1].pos[ZZ] = pbb->offset[ZZ] + tmp[kZ];
     vtlist[1].tex[SS] = x1;
     vtlist[1].tex[TT] = 0;
 
     // top right
-    vtlist[2].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( vec_rgt.x + 2 * vec_up.x );
-    vtlist[2].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( vec_rgt.y + 2 * vec_up.y );
-    vtlist[2].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( vec_rgt.z + 2 * vec_up.z );
+    tmp = pbb->pos + (vec_rgt + vec_up * 2);
+    vtlist[2].pos[XX] = pbb->offset[XX] + tmp[kX];
+    vtlist[2].pos[YY] = pbb->offset[YY] + tmp[kY];
+    vtlist[2].pos[ZZ] = pbb->offset[ZZ] + tmp[kZ];
     vtlist[2].tex[SS] = 0;
     vtlist[2].tex[TT] = 0;
 
     // bottom right
-    vtlist[3].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( vec_rgt.x - 0 * vec_up.x );
-    vtlist[3].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( vec_rgt.y - 0 * vec_up.y );
-    vtlist[3].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( vec_rgt.z - 0 * vec_up.z );
+    tmp = pbb->pos + (vec_rgt - vec_up * 0);
+    vtlist[3].pos[XX] = pbb->offset[XX] + tmp[kX];
+    vtlist[3].pos[YY] = pbb->offset[YY] + tmp[kY];
+    vtlist[3].pos[ZZ] = pbb->offset[ZZ] + tmp[kZ];
     vtlist[3].tex[SS] = 0;
     vtlist[3].tex[TT] = y1;
 

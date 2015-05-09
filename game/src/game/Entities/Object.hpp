@@ -225,17 +225,17 @@ public:
     /**
     * @return Get current X position of this Object
     **/
-    inline float getPosX() const { return pos.x; }
+    inline float getPosX() const { return pos[kX]; }
 
     /**
     * @return Get current Y position of this Object
     **/
-    inline float getPosY() const { return pos.y; }
+    inline float getPosY() const { return pos[kY]; }
 
     /**
     * @return Get current Z position of this Object
     **/
-    inline float getPosZ() const { return pos.z; }
+    inline float getPosZ() const { return pos[kZ]; }
 
     /**
     * @brief Set current X, Y, Z position of this Object
@@ -357,7 +357,7 @@ public:
     * @result
     *   Success returns true, failure returns false;
     **/
-    bool teleport(const float x, const float y, const float z, const FACING_T facing_z);
+    bool teleport(const fvec3_t& position, const FACING_T facing_z);
 
     /**
     * @brief

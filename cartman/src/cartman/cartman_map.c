@@ -901,9 +901,9 @@ cartman_mpd_t * cartman_mpd_convert(cartman_mpd_t *dst, map_t *src)
             const map_vertex_t& pvrt_src = mem_src->vertices[ivrt_src];
             pvrt_dst = &(dst->vrt2[ivrt_dst]);
 
-            pvrt_dst->x = pvrt_src.pos.x;
-            pvrt_dst->y = pvrt_src.pos.y;
-            pvrt_dst->z = pvrt_src.pos.z;
+            pvrt_dst->x = pvrt_src.pos[kX];
+            pvrt_dst->y = pvrt_src.pos[kY];
+            pvrt_dst->z = pvrt_src.pos[kZ];
             pvrt_dst->a = std::max(pvrt_src.a, (Uint8)(VERTEXUNUSED+1));  // force a != VERTEXUNUSED
         };
     }
@@ -1023,10 +1023,10 @@ map_t *cartman_mpd_revert(map_t *dst, cartman_mpd_t *src)
             // grab the destination vertex
             map_vertex_t& pvrt_dst = pmem_dst->vertices[ivrt_dst];
 
-            pvrt_dst.pos.x = pvrt_src->x;
-            pvrt_dst.pos.y = pvrt_src->y;
-            pvrt_dst.pos.z = pvrt_src->z;
-            pvrt_dst.a     = pvrt_src->a;
+            pvrt_dst.pos[kX] = pvrt_src->x;
+            pvrt_dst.pos[kY] = pvrt_src->y;
+            pvrt_dst.pos[kZ] = pvrt_src->z;
+            pvrt_dst.a       = pvrt_src->a;
         }
     }
 

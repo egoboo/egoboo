@@ -87,10 +87,7 @@ Camera::Camera(const CameraOptions &options) :
 {
     // Derived values.
 	_trackPos = _center;
-	_pos = _center;
-    _pos.x += _zoom * std::sin(_turnZRad);
-    _pos.y += _zoom * std::cos(_turnZRad);
-    _pos.z += CAM_ZADD_MAX;
+    _pos = _center + fvec3_t(_zoom * std::sin(_turnZRad), _zoom * std::cos(_turnZRad), CAM_ZADD_MAX);
 
     _turnZOne   = RAD_TO_ONE( _turnZRad );
     _ori.facing_z = ONE_TO_TURN( _turnZOne ) ;
@@ -179,7 +176,7 @@ void Camera::updatePosition()
 #if 0
     if ( 0 != _turnTime )
     {
-        _turnZRad = std::atan2(_center.y - pos.y, _center.x - pos.x);  // xgg
+        _turnZRad = std::atan2(_center[kY] - pos[kY], _center[kX] - pos[kX]);  // xgg
         _turnZOne = RAD_TO_ONE(_turnZRad );
         _ori.facing_z = ONE_TO_TURN(_turnZOne);
     }
@@ -187,10 +184,7 @@ void Camera::updatePosition()
 
     // Update the camera position.
     TURN_T turnsin = TO_TURN(_ori.facing_z);
-    fvec3_t pos_new;
-    pos_new.x = _center.x + _zoom * turntosin[turnsin];
-    pos_new.y = _center.y + _zoom * turntocos[turnsin];
-    pos_new.z = _center.z + _zGoto;
+    fvec3_t pos_new = _center + fvec3_t(_zoom * turntosin[turnsin], _zoom * turntocos[turnsin], _zGoto);
 
     // Make the camera motion smooth.
     _pos = _pos * 0.9f + pos_new * 0.1f; /// @todo Use Ego::Math::lerp.
@@ -242,8 +236,8 @@ void Camera::updateCenter()
     // Center on target for doing rotation ...
     if ( 0 != _turnTime )
     {
-        _center.x = _center.x * 0.9f + _trackPos.x * 0.1f;
-        _center.y = _center.y * 0.9f + _trackPos.y * 0.1f;
+        _center[kX] = _center[kX] * 0.9f + _trackPos[kX] * 0.1f;
+        _center[kY] = _center[kY] * 0.9f + _trackPos[kY] * 0.1f;
     }
     else
     {
@@ -303,7 +297,7 @@ void Camera::updateCenter()
     }
 
     // _center.z always approaches _trackPos.z
-    _center.z = _center.z * 0.9f + _trackPos.z * 0.1f; /// @todo Use Ego::Math::lerp
+    _center[kZ] = _center[kZ] * 0.9f + _trackPos[kZ] * 0.1f; /// @todo Use Ego::Math::lerp
 }
 
 void Camera::updateTrack(const ego_mesh_t *pmesh)
@@ -318,26 +312,26 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
     case CameraMovementMode::Free:
 	        if (SDL_KEYDOWN(keyb, SDLK_KP8))
 	        {
-	            _trackPos.x -= _mView.CNV(0, 1) * 50;
-	            _trackPos.y -= _mView.CNV(1, 1) * 50;
+	            _trackPos[kX] -= _mView.CNV(0, 1) * 50;
+	            _trackPos[kY] -= _mView.CNV(1, 1) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP2))
 	        {
-	            _trackPos.x += _mView.CNV(0, 1) * 50;
-	            _trackPos.y += _mView.CNV(1, 1) * 50;
+	            _trackPos[kX] += _mView.CNV(0, 1) * 50;
+	            _trackPos[kY] += _mView.CNV(1, 1) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP4))
 	        {
-	            _trackPos.x += _mView.CNV( 0, 0 ) * 50;
-	            _trackPos.y += _mView.CNV( 1, 0 ) * 50;
+	            _trackPos[kX] += _mView.CNV( 0, 0 ) * 50;
+	            _trackPos[kY] += _mView.CNV( 1, 0 ) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP6))
 	        {
-	            _trackPos.x -= _mView.CNV(0, 0) * 10;
-	            _trackPos.y -= _mView.CNV(1, 0) * 10;
+	            _trackPos[kX] -= _mView.CNV(0, 0) * 10;
+	            _trackPos[kY] -= _mView.CNV(1, 0) * 10;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP7))
@@ -350,7 +344,7 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
 	            _turnZAdd -= DEFAULT_TURN_KEY;
 	        }
 
-	        _trackPos.z = 128 + ego_mesh_t::get_level(pmesh, PointWorld(_trackPos.x, _trackPos.y));
+	        _trackPos[kZ] = 128 + ego_mesh_t::get_level(pmesh, PointWorld(_trackPos[kX], _trackPos[kY]));
 
        break;
 
@@ -665,16 +659,16 @@ void Camera::reset(const ego_mesh_t *pmesh)
     _roll = 0.0f;
 
     // Derived values.
-    _center.x     = pmesh->gmem.edge_x * 0.5f;
-    _center.y     = pmesh->gmem.edge_y * 0.5f;
-    _center.z     = 0.0f;
+    _center[kX]     = pmesh->gmem.edge_x * 0.5f;
+    _center[kY]     = pmesh->gmem.edge_y * 0.5f;
+    _center[kZ]     = 0.0f;
 
 	_trackPos = _center;
 	_pos = _center;
 
-    _pos.x += _zoom * std::sin(_turnZRad);
-    _pos.y += _zoom * std::cos(_turnZRad);
-    _pos.z += CAM_ZADD_MAX;
+    _pos[kX] += _zoom * std::sin(_turnZRad);
+    _pos[kY] += _zoom * std::cos(_turnZRad);
+    _pos[kZ] += CAM_ZADD_MAX;
 
     _turnZOne = RAD_TO_ONE(_turnZRad);
     _ori.facing_z = ONE_TO_TURN(_turnZOne) ;
@@ -707,8 +701,8 @@ void Camera::resetTarget(const ego_mesh_t *pmesh)
     update(pmesh);
 
     // Fix the center position.
-    _center.x = _trackPos.x;
-    _center.y = _trackPos.y;
+    _center[kX] = _trackPos[kX];
+    _center[kY] = _trackPos[kY];
 
     // Restore the modes.
     _turnMode = turnModeSave;
@@ -756,7 +750,7 @@ void Camera::updateEffects()
         _motionBlur = std::min( 0.95f, 0.5f + 0.03f * std::max( local_stats.daze_level, local_stats.grog_level ));
 
     //Apply camera swinging
-    //mat_Multiply( _mView.v, mat_Translate( tmp1.v, pos.x, -pos.y, pos.z ), _mViewSave.v );  // xgg
+    //mat_Multiply( _mView.v, mat_Translate( tmp1.v, pos[kX], -pos[kY], pos[kZ] ), _mViewSave.v );  // xgg
     if ( local_swingamp > 0.001f )
     {
         _roll = turntosin[_swing] * local_swingamp;

@@ -274,7 +274,7 @@ int get_fan_vertex_by_coord( const cartman_mpd_t * pmesh, const cartman_mpd_tile
 }
 
 //--------------------------------------------------------------------------------------------
-bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, fvec3_base_t vec, int ext_verts[] )
+bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, fvec3_t& vec, int ext_verts[] )
 {
     // set the coordinates of the given vertex to the interpolated position along the edge of the fan
 
@@ -442,10 +442,7 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
             if ( NULL != pvrt && VERTEXUNUSED != pvrt->a )
             {
                 float weight = expf( - SQR( gx - grid_ix ) - SQR( gy - grid_iy ) );
-
-                vsum.x += pvrt->x * weight;
-                vsum.y += pvrt->y * weight;
-                vsum.z += pvrt->z * weight;
+                vsum += fvec3_t(pvrt->x, pvrt->y, pvrt->z) * weight;
                 vweight += weight;
             }
         }
@@ -456,10 +453,7 @@ bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int gr
         }
         else
         {
-            vec[kX] = vsum.x / vweight;
-            vec[kY] = vsum.y / vweight;
-            vec[kZ] = vsum.z / vweight;
-
+            vec = vsum * (1.0f / vweight);
             retval = true;
         }
     }
@@ -486,11 +480,11 @@ int select_lst_add_fan_vertex( select_lst_t * plst, int mapx, int mapy, int grid
         if ( NULL != pvrt )
         {
 			fvec3_t vtmp;
-            if ( interpolate_coord( plst->pmesh, pfan, grid_ix, grid_iy, vtmp.v, vert_lst ) )
+            if ( interpolate_coord( plst->pmesh, pfan, grid_ix, grid_iy, vtmp, vert_lst ) )
             {
-                pvrt->x = vtmp.x;
-                pvrt->y = vtmp.y;
-                pvrt->z = vtmp.z;
+                pvrt->x = vtmp[kX];
+                pvrt->y = vtmp[kY];
+                pvrt->z = vtmp[kZ];
             }
         }
     }

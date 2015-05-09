@@ -1092,7 +1092,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         leftItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            leftItem->vel.z    = DISMOUNTZVEL;
+            leftItem->vel[kZ]    = DISMOUNTZVEL;
             leftItem->jump_timer = JUMPDELAY;
             leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
@@ -1104,7 +1104,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         rightItem->detatchFromHolder(true, true);
         if ( pchr->isMount() )
         {
-            rightItem->vel.z    = DISMOUNTZVEL;
+            rightItem->vel[kZ]    = DISMOUNTZVEL;
             rightItem->jump_timer = JUMPDELAY;
             rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
@@ -1894,13 +1894,10 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     /// direction, and tmpdistance gives the new character's initial velocity
 
     CHR_REF ichr;
-    fvec3_t   pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pos.x = pstate->x;
-    pos.y = pstate->y;
-    pos.z = 0;
+    fvec3_t pos = fvec3_t(pstate->x, pstate->y, 0);
 
     ichr = spawn_one_character(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
     returncode = _gameObjects.exists( ichr );
@@ -1928,8 +1925,8 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
             pself->child = ichr;
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
-            pchild->vel.x += turntocos[ turn ] * pstate->distance;
-            pchild->vel.y += turntosin[ turn ] * pstate->distance;
+            pchild->vel[kX] += turntocos[ turn ] * pstate->distance;
+            pchild->vel[kY] += turntosin[ turn ] * pstate->distance;
 
             pchild->iskursed = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
@@ -2150,7 +2147,7 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pchr->pos_old.z > PITNOSOUND )
+    if ( pchr->pos_old[kZ] > PITNOSOUND )
     {
         AudioSystem::get().playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
     }
@@ -2197,18 +2194,18 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         prt_t::get_pos(pprt, tmp_pos);
 
         // Correct X, Y, Z spacing
-        tmp_pos.z += PipStack.get_ptr(pprt->pip_ref)->spacing_vrt_pair.base;
+        tmp_pos[kZ] += PipStack.get_ptr(pprt->pip_ref)->spacing_vrt_pair.base;
 
         // Don't spawn in walls
-        tmp_pos.x += pstate->x;
+        tmp_pos[kX] += pstate->x;
         if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
         {
-            tmp_pos.x = pprt->pos.x;
+            tmp_pos[kX] = pprt->pos[kX];
 
-            tmp_pos.y += pstate->y;
+            tmp_pos[kY] += pstate->y;
             if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
             {
-                tmp_pos.y = pprt->pos.y;
+                tmp_pos[kY] = pprt->pos[kY];
             }
         }
 
@@ -2889,7 +2886,7 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
         return false;
     }
 
-    returncode = target->teleport(pstate->x, pstate->y, pstate->distance, pstate->turn);
+    returncode = target->teleport(fvec3_t(pstate->x, pstate->y, pstate->distance), pstate->turn);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3613,7 +3610,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
     min_distance = -1;
     for(std::shared_ptr<Camera> camera : _cameraSystem.getCameraList())
     {
-        iTmp = std::fabs( pchr->pos_old.x - camera->getTrackPosition().x ) + std::fabs( pchr->pos_old.y - camera->getTrackPosition().y );
+        iTmp = std::fabs( pchr->pos_old[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->pos_old[kY] - camera->getTrackPosition()[kY] );
 
         if ( -1 == min_distance || iTmp < min_distance )
         {
@@ -3959,9 +3956,9 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel.x = 0;
-    pself_target->vel.y = 0;
-    if ( pself_target->vel.z > 0 ) pself_target->vel.z = Physics::g_environment.gravity;
+    pself_target->vel[kX] = 0;
+    pself_target->vel[kY] = 0;
+    if ( pself_target->vel[kZ] > 0 ) pself_target->vel[kZ] = Physics::g_environment.gravity;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4073,11 +4070,14 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     {
-        fvec3_t   vtmp;
+        fvec3_t vtmp =
+            fvec3_t
+            (
+            pstate->x,
+            pstate->y,
+            pstate->distance
+            );
 
-        vtmp.x = pstate->x;
-        vtmp.y = pstate->y;
-        vtmp.z = pstate->distance;
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
 
@@ -4099,8 +4099,8 @@ Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel.x += pstate->x;
-    pself_target->vel.y += pstate->y;
+    pself_target->vel[kX] += pstate->x;
+    pself_target->vel[kY] += pstate->y;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4749,7 +4749,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = pchr->teleport(pstate->x, pstate->y, pchr->getPosZ(), pchr->ori.facing_z);
+    returncode = pchr->teleport(fvec3_t(pstate->x, pstate->y, pchr->getPosZ()), pchr->ori.facing_z);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5460,16 +5460,11 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function spawns a character of the same type at a specific location, failing if x,y,z is invalid
 
-    fvec3_t   pos;
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    pos.x = pstate->x;
-    pos.y = pstate->y;
-    pos.z = pstate->distance;
+    fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
+    CHR_REF ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
     returncode = _gameObjects.exists( ichr );
 
     if ( !returncode )
@@ -5517,10 +5512,13 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fvec3_t   pos;
-    pos.x = pstate->x;
-    pos.y = pstate->y;
-    pos.z = pstate->distance;
+    fvec3_t pos =
+        fvec3_t
+        (
+        pstate->x,
+        pstate->y,
+        pstate->distance
+        );
 
     CHR_REF ichr = spawn_one_character(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
     const std::shared_ptr<Object> &pchild = _gameObjects[ichr];
@@ -5611,11 +5609,13 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     {
-        fvec3_t vtmp;
-
-        vtmp.x = pstate->x;
-        vtmp.y = pstate->y;
-        vtmp.z = pstate->distance;
+        fvec3_t vtmp =
+            fvec3_t
+            (
+            pstate->x,
+            pstate->y,
+            pstate->distance
+            );
 
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
@@ -6352,7 +6352,7 @@ Uint8 scr_AccelerateUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->vel.z += pstate->argument / 100.0f;
+    pchr->vel[kZ] += pstate->argument / 100.0f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6788,11 +6788,13 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     }
 
     {
-        fvec3_t vtmp;
-
-        vtmp.x = pstate->x;
-        vtmp.y = pstate->y;
-        vtmp.z = pstate->distance;
+        fvec3_t vtmp =
+            fvec3_t
+            (
+            pstate->x,
+            pstate->y,
+            pstate->distance
+            );
 
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
@@ -7421,9 +7423,9 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
     if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->gmem.edge_x - EDGE && pstate->y < PMesh->gmem.edge_y - EDGE )
     {
         pits.teleport = true;
-        pits.teleport_pos.x = pstate->x;
-        pits.teleport_pos.y = pstate->y;
-        pits.teleport_pos.z = pstate->distance;
+        pits.teleport_pos[kX] = pstate->x;
+        pits.teleport_pos[kY] = pstate->y;
+        pits.teleport_pos[kZ] = pstate->distance;
     }
     else
     {
@@ -7462,20 +7464,15 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     /// grip specified is full or already in use.
     /// DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
     /// AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE.
-
-    fvec3_t pos;
-    CHR_REF ichr;
     Object * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pos.x = pstate->x;
-    pos.y = pstate->y;
-    pos.z = pstate->distance;
+    fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
-    ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
+    CHR_REF ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
     returncode = _gameObjects.exists( ichr );
 
     if ( !returncode )
@@ -7962,7 +7959,7 @@ Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->vel.z += pstate->argument / 100.0f;
+    pself_target->vel[kZ] += pstate->argument / 100.0f;
 
     SCRIPT_FUNCTION_END();
 }

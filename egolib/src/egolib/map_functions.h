@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
+#include "egolib/Math/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@
 // generic functions
 //--------------------------------------------------------------------------------------------
 
-    bool twist_to_normal(Uint8 twist, float v[], float slide);
+    bool twist_to_normal(Uint8 twist, fvec3_t& v, float slide);
     map_t *map_generate_tile_twist_data(map_t *map);
     map_t *map_generate_fan_type_data(map_t *map);
     map_t *map_generate_vertex_data(map_t *map);

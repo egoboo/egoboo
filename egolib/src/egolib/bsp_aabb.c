@@ -286,16 +286,10 @@ bool BSP_aabb_t::overlaps(const aabb_t& other) const
 	size_t min_dim = std::min(_dim,(size_t)3);
 	if (0 == min_dim) return false;
 
-	// The optimizer is supposed to do this stuff all by itself, but isn't.
-	const float *other_mins = other.mins.v;
-	const float *other_maxs = other.maxs.v;
-	const float *this_mins = min();
-	const float *this_maxs = max();
-
-	for (size_t i = 0; i < min_dim; i++, other_mins++, other_maxs++, this_mins++, this_maxs++)
+	for (size_t i = 0; i < min_dim; i++)
 	{
-		if ((*other_maxs) < (*this_mins)) return false;
-		if ((*other_mins) > (*this_maxs)) return false;
+		if ((other.maxs[i]) < (min()[i])) return false;
+		if ((other.mins[i]) > (max()[i])) return false;
 	}
 
 	return true;
@@ -308,16 +302,11 @@ bool BSP_aabb_t::contains(const aabb_t& other) const
 	size_t min_dim = std::min(_dim,(size_t)3);
 	if (0 == min_dim) return false;
 
-	// The optimizer is supposed to do this stuff all by itself, but isn't.
-	const float *other_mins = other.mins.v;
-	const float *other_maxs = other.maxs.v;
-	const float *this_mins = min();
-	const float *this_maxs = max();
 
-	for (size_t i = 0; i < min_dim; i++, other_mins++, other_maxs++, this_mins++, this_maxs++)
+	for (size_t i = 0; i < min_dim; i++)
 	{
-		if ((*other_maxs) > (*this_maxs)) return false;
-		if ((*other_mins) < (*this_mins)) return false;
+		if (other.maxs[i] > max()[i]) return false;
+		if (other.mins[i] < min()[i]) return false;
 	}
 
 	return true;

@@ -56,13 +56,13 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
         {
             oct_vec_v2_t opos;
 
-            vertex.pos.x *= scaleX;
-            vertex.pos.y *= scaleY;
-            vertex.pos.z *= scaleZ;
+            vertex.pos[kX] *= scaleX;
+            vertex.pos[kY] *= scaleY;
+            vertex.pos[kZ] *= scaleZ;
 
-            std::copysign(vertex.nrm.x, scaleX);
-            std::copysign(vertex.nrm.y, scaleY);
-            std::copysign(vertex.nrm.z, scaleZ);
+            std::copysign(vertex.nrm[kX], scaleX);
+            std::copysign(vertex.nrm[kY], scaleY);
+            std::copysign(vertex.nrm[kZ], scaleZ);
 
 			vertex.nrm.normalize();
 
@@ -234,9 +234,9 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             vfs_read(&frame_vert, sizeof( id_md2_vertex_t ), 1, f);
 
             // grab the vertex position
-            vertex.pos.x = frame_vert.v[0] * frame_header.scale[0] + frame_header.translate[0];
-            vertex.pos.y = frame_vert.v[1] * frame_header.scale[1] + frame_header.translate[1];
-            vertex.pos.z = frame_vert.v[2] * frame_header.scale[2] + frame_header.translate[2];
+            vertex.pos[kX] = frame_vert.v[0] * frame_header.scale[0] + frame_header.translate[0];
+            vertex.pos[kY] = frame_vert.v[1] * frame_header.scale[1] + frame_header.translate[1];
+            vertex.pos[kZ] = frame_vert.v[2] * frame_header.scale[2] + frame_header.translate[2];
 
             // grab the normal index
             vertex.normal = frame_vert.normalIndex;
@@ -245,9 +245,9 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             }
 
             // expand the normal index into an actual normal
-            vertex.nrm.x = MD2_NORMALS[frame_vert.normalIndex][0];
-            vertex.nrm.y = MD2_NORMALS[frame_vert.normalIndex][1];
-            vertex.nrm.z = MD2_NORMALS[frame_vert.normalIndex][2];
+            vertex.nrm[kX] = MD2_NORMALS[frame_vert.normalIndex][0];
+            vertex.nrm[kY] = MD2_NORMALS[frame_vert.normalIndex][1];
+            vertex.nrm[kZ] = MD2_NORMALS[frame_vert.normalIndex][2];
 
             // Calculate the bounding box for this frame
             ovec.ctor(vertex.pos);

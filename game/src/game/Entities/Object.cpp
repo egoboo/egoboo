@@ -312,8 +312,8 @@ bool Object::setPosition(const fvec3_t& position)
     {
         pos = position;
 
-        onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(pos.x, pos.y));
-        onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(pos.x, pos.y));
+        onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(pos[kX], pos[kY]));
+        onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(pos[kX], pos[kY]));
 
         // update whether the current character position is safe
         chr_update_safe( this, false );
@@ -740,13 +740,13 @@ bool Object::isAttacking() const
     return inst.action_which >= ACTION_UA && inst.action_which <= ACTION_FD;
 }
 
-bool Object::teleport(const float x, const float y, const float z, const FACING_T facing_z)
+bool Object::teleport(const fvec3_t& position, const FACING_T facing_z)
 {
     //Cannot teleport outside the level
-    if ( x < 0.0f || x > PMesh->gmem.edge_x ) return false;
-    if ( y < 0.0f || y > PMesh->gmem.edge_y ) return false;
+    if ( position[kX] < 0.0f || position[kX] > PMesh->gmem.edge_x ) return false;
+    if ( position[kY] < 0.0f || position[kY] > PMesh->gmem.edge_y ) return false;
 
-    fvec3_t newPosition = fvec3_t(x, y, z);
+    fvec3_t newPosition = position;
 
     //Cannot teleport inside a wall
     fvec2_t nrm;
@@ -793,13 +793,7 @@ void Object::update()
         if ( !enviro.inwater )
         {
             // Splash
-            fvec3_t vtmp;
-
-            vtmp.x = getPosX();
-            vtmp.y = getPosY();
-            vtmp.z = WATER_LEVEL + RAISE;
-
-            spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
+            spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, PIP_SPLASH, 0);
 
             if ( water.is_water )
             {
@@ -825,7 +819,7 @@ void Object::update()
                     ripple_suppression = Ego::Math::constrain(ripple_suppression, 0, 4);
 
                     // make more ripples if we are moving
-                    ripple_suppression -= (( int )vel.x != 0 ) | (( int )vel.y != 0 );
+                    ripple_suppression -= (( int )vel[kX] != 0 ) | (( int )vel[kY] != 0 );
 
                     int ripand;
                     if ( ripple_suppression > 0 )
@@ -839,13 +833,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getCharacterID()) & ripand ))
                     {
-                        fvec3_t vtmp;
-
-                        vtmp.x = getPosX();
-                        vtmp.y = getPosY();
-                        vtmp.z = WATER_LEVEL;
-
-                        spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
+                        spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, PIP_RIPPLE, 0);
                     }    
                 }
             }
@@ -1112,7 +1100,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if (EMPTY_BIT_FIELD != Objectest_wall(this, NULL))
     {
         fvec3_t pos_tmp = pholder->getPosition();
-        pos_tmp.z = getPosZ();
+        pos_tmp[kZ] = getPosZ();
 
         setPosition(pos_tmp);
 
@@ -1131,16 +1119,16 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     if ( inshop )
     {
         // Drop straight down to avoid theft
-        vel.x = 0;
-        vel.y = 0;
+        vel[kX] = 0;
+        vel[kY] = 0;
     }
     else
     {
-        vel.x = pholder->vel.x;
-        vel.y = pholder->vel.y;
+        vel[kX] = pholder->vel[kX];
+        vel[kY] = pholder->vel[kY];
     }
 
-    vel.z = DROPZVEL;
+    vel[kZ] = DROPZVEL;
 
     // Turn looping off
     chr_instance_set_action_loop( &( inst ), false );

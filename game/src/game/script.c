@@ -1192,27 +1192,27 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARTARGETSPEEDX:
                 varname = "TARGETSPEEDX";
-                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel.x);
+                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel[kX]);
                 break;
 
             case VARTARGETSPEEDY:
                 varname = "TARGETSPEEDY";
-                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel.y);
+                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel[kY]);
                 break;
 
             case VARTARGETSPEEDZ:
                 varname = "TARGETSPEEDZ";
-                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel.z);
+                iTmp = ( NULL == ptarget ) ? 0 : std::abs(ptarget->vel[kZ]);
                 break;
 
             case VARSELFSPAWNX:
                 varname = "SELFSPAWNX";
-                iTmp = pchr->pos_stt.x;
+                iTmp = pchr->pos_stt[kX];
                 break;
 
             case VARSELFSPAWNY:
                 varname = "SELFSPAWNY";
-                iTmp = pchr->pos_stt.y;
+                iTmp = pchr->pos_stt[kY];
                 break;
 
             case VARSELFSTATE:
@@ -1400,8 +1400,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-                iTmp = std::abs( pchr->pos_stt.x - pchr->getPosX() )
-                     + std::abs( pchr->pos_stt.y - pchr->getPosY() );
+                iTmp = std::abs( pchr->pos_stt[kX] - pchr->getPosX() )
+                     + std::abs( pchr->pos_stt[kY] - pchr->getPosY() );
                 break;
 
             case VARTARGETMAXLIFE:

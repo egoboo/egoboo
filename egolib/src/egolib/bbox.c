@@ -234,70 +234,70 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 
     // square points
     cnt = 0;
-    pd[cnt].pos.x = pov->oct.maxs[OCT_X];
-    pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
+    pd[cnt].pos[kX] = pov->oct.maxs[OCT_X];
+    pd[cnt].pos[kY] = pov->oct.maxs[OCT_Y];
 
     cnt++;
-    pd[cnt].pos.x = pov->oct.maxs[OCT_X];
-    pd[cnt].pos.y = pov->oct.mins[OCT_Y];
+    pd[cnt].pos[kX] = pov->oct.maxs[OCT_X];
+    pd[cnt].pos[kY] = pov->oct.mins[OCT_Y];
 
     cnt++;
-    pd[cnt].pos.x = pov->oct.mins[OCT_X];
-    pd[cnt].pos.y = pov->oct.mins[OCT_Y];
+    pd[cnt].pos[kX] = pov->oct.mins[OCT_X];
+    pd[cnt].pos[kY] = pov->oct.mins[OCT_Y];
 
     cnt++;
-    pd[cnt].pos.x = pov->oct.mins[OCT_X];
-    pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
+    pd[cnt].pos[kX] = pov->oct.mins[OCT_X];
+    pd[cnt].pos[kY] = pov->oct.maxs[OCT_Y];
 
     // diamond points
     cnt++;
-    pd[cnt].pos.x = ( pov->oct.maxs[OCT_XY] - pov->oct.mins[OCT_YX] ) * 0.5f;
-    pd[cnt].pos.y = ( pov->oct.maxs[OCT_XY] + pov->oct.mins[OCT_YX] ) * 0.5f;
+    pd[cnt].pos[kX] = ( pov->oct.maxs[OCT_XY] - pov->oct.mins[OCT_YX] ) * 0.5f;
+    pd[cnt].pos[kY] = ( pov->oct.maxs[OCT_XY] + pov->oct.mins[OCT_YX] ) * 0.5f;
 
     cnt++;
-    pd[cnt].pos.x = ( pov->oct.mins[OCT_XY] - pov->oct.mins[OCT_YX] ) * 0.5f;
-    pd[cnt].pos.y = ( pov->oct.mins[OCT_XY] + pov->oct.mins[OCT_YX] ) * 0.5f;
+    pd[cnt].pos[kX] = ( pov->oct.mins[OCT_XY] - pov->oct.mins[OCT_YX] ) * 0.5f;
+    pd[cnt].pos[kY] = ( pov->oct.mins[OCT_XY] + pov->oct.mins[OCT_YX] ) * 0.5f;
 
     cnt++;
-    pd[cnt].pos.x = ( pov->oct.mins[OCT_XY] - pov->oct.maxs[OCT_YX] ) * 0.5f;
-    pd[cnt].pos.y = ( pov->oct.mins[OCT_XY] + pov->oct.maxs[OCT_YX] ) * 0.5f;
+    pd[cnt].pos[kX] = ( pov->oct.mins[OCT_XY] - pov->oct.maxs[OCT_YX] ) * 0.5f;
+    pd[cnt].pos[kY] = ( pov->oct.mins[OCT_XY] + pov->oct.maxs[OCT_YX] ) * 0.5f;
 
     cnt++;
-    pd[cnt].pos.x = ( pov->oct.maxs[OCT_XY] - pov->oct.maxs[OCT_YX] ) * 0.5f;
-    pd[cnt].pos.y = ( pov->oct.maxs[OCT_XY] + pov->oct.maxs[OCT_YX] ) * 0.5f;
+    pd[cnt].pos[kX] = ( pov->oct.maxs[OCT_XY] - pov->oct.maxs[OCT_YX] ) * 0.5f;
+    pd[cnt].pos[kY] = ( pov->oct.maxs[OCT_XY] + pov->oct.maxs[OCT_YX] ) * 0.5f;
 
     // intersection points
     cnt++;
-    pd[cnt].pos.x = pov->oct.maxs[OCT_X];
-    pd[cnt].pos.y = pov->oct.maxs[OCT_X] + pov->oct.mins[OCT_YX];
+    pd[cnt].pos[kX] = pov->oct.maxs[OCT_X];
+    pd[cnt].pos[kY] = pov->oct.maxs[OCT_X] + pov->oct.mins[OCT_YX];
 
     cnt++;
-    pd[cnt].pos.x = pov->oct.mins[OCT_Y] - pov->oct.mins[OCT_YX];
-    pd[cnt].pos.y = pov->oct.mins[OCT_Y];
+    pd[cnt].pos[kX] = pov->oct.mins[OCT_Y] - pov->oct.mins[OCT_YX];
+    pd[cnt].pos[kY] = pov->oct.mins[OCT_Y];
 
     cnt++;
-    pd[cnt].pos.x = -pov->oct.mins[OCT_Y] + pov->oct.mins[OCT_XY];
-    pd[cnt].pos.y = pov->oct.mins[OCT_Y];
+    pd[cnt].pos[kX] = -pov->oct.mins[OCT_Y] + pov->oct.mins[OCT_XY];
+    pd[cnt].pos[kY] = pov->oct.mins[OCT_Y];
 
     cnt++;
-    pd[cnt].pos.x = pov->oct.mins[OCT_X];
-    pd[cnt].pos.y = -pov->oct.mins[OCT_X] + pov->oct.mins[OCT_XY];
+    pd[cnt].pos[kX] = pov->oct.mins[OCT_X];
+    pd[cnt].pos[kY] = -pov->oct.mins[OCT_X] + pov->oct.mins[OCT_XY];
 
     cnt++;
-    pd[cnt].pos.x = pov->oct.mins[OCT_X];
-    pd[cnt].pos.y = pov->oct.mins[OCT_X] + pov->oct.maxs[OCT_YX];
+    pd[cnt].pos[kX] = pov->oct.mins[OCT_X];
+    pd[cnt].pos[kY] = pov->oct.mins[OCT_X] + pov->oct.maxs[OCT_YX];
 
     cnt++;
-    pd[cnt].pos.x = pov->oct.maxs[OCT_Y] - pov->oct.maxs[OCT_YX];
-    pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
+    pd[cnt].pos[kX] = pov->oct.maxs[OCT_Y] - pov->oct.maxs[OCT_YX];
+    pd[cnt].pos[kY] = pov->oct.maxs[OCT_Y];
 
     cnt++;
-    pd[cnt].pos.x = -pov->oct.maxs[OCT_Y] + pov->oct.maxs[OCT_XY];
-    pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
+    pd[cnt].pos[kX] = -pov->oct.maxs[OCT_Y] + pov->oct.maxs[OCT_XY];
+    pd[cnt].pos[kY] = pov->oct.maxs[OCT_Y];
 
     cnt++;
-    pd[cnt].pos.x = pov->oct.maxs[OCT_X];
-    pd[cnt].pos.y = -pov->oct.maxs[OCT_X] + pov->oct.maxs[OCT_XY];
+    pd[cnt].pos[kX] = pov->oct.maxs[OCT_X];
+    pd[cnt].pos[kY] = -pov->oct.maxs[OCT_X] + pov->oct.maxs[OCT_XY];
 
     // which points are outside both volumes
     center = fvec3_t::zero();
@@ -309,19 +309,19 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
         pd[cnt].inside = false;
 
         // check the box
-        if ( pd[cnt].pos.x < pov->oct.mins[OCT_X] || pd[cnt].pos.x > pov->oct.maxs[OCT_X] ) continue;
-        if ( pd[cnt].pos.y < pov->oct.mins[OCT_Y] || pd[cnt].pos.y > pov->oct.maxs[OCT_Y] ) continue;
+        if ( pd[cnt].pos[kX] < pov->oct.mins[OCT_X] || pd[cnt].pos[kX] > pov->oct.maxs[OCT_X] ) continue;
+        if ( pd[cnt].pos[kY] < pov->oct.mins[OCT_Y] || pd[cnt].pos[kY] > pov->oct.maxs[OCT_Y] ) continue;
 
         // check the diamond
-        ftmp = pd[cnt].pos.x + pd[cnt].pos.y;
+        ftmp = pd[cnt].pos[kX] + pd[cnt].pos[kY];
         if ( ftmp < pov->oct.mins[OCT_XY] || ftmp > pov->oct.maxs[OCT_XY] ) continue;
 
-        ftmp = -pd[cnt].pos.x + pd[cnt].pos.y;
+        ftmp = -pd[cnt].pos[kX] + pd[cnt].pos[kY];
         if ( ftmp < pov->oct.mins[OCT_YX] || ftmp > pov->oct.maxs[OCT_YX] ) continue;
 
         // found a point
-        center.x += pd[cnt].pos.x;
-        center.y += pd[cnt].pos.y;
+        center[kX] += pd[cnt].pos[kX];
+        center[kY] += pd[cnt].pos[kY];
         count++;
         pd[cnt].inside = true;
     };
@@ -329,9 +329,9 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     if ( count < 3 ) return false;
 
     // find the centroid
-    center.x *= 1.0f / ( float )count;
-    center.y *= 1.0f / ( float )count;
-    center.z *= 1.0f / ( float )count;
+    center[kX] *= 1.0f / ( float )count;
+    center[kY] *= 1.0f / ( float )count;
+    center[kZ] *= 1.0f / ( float )count;
 
     // move the valid points to the beginning of the list
     for ( cnt = 0, tnc = 0; cnt < 16 && tnc < count; cnt++ )
@@ -345,7 +345,7 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
         }
 
         // record the Cartesian rotation angle relative to center
-        pd[tnc].rads = ATAN2( pd[cnt].pos.y - center.y, pd[cnt].pos.x - center.x );
+        pd[tnc].rads = ATAN2( pd[cnt].pos[kY] - center[kY], pd[cnt].pos[kX] - center[kX] );
         tnc++;
     }
 
@@ -370,31 +370,31 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
             pov->oct.join(opd);
 
             // determine the area for this element
-            diff1.x = pd[cnt].pos.x - center.x;
-            diff1.y = pd[cnt].pos.y - center.y;
+            diff1[kX] = pd[cnt].pos[kX] - center[kX];
+            diff1[kY] = pd[cnt].pos[kY] - center[kY];
 
-            diff2.x = pd[tnc].pos.x - pd[cnt].pos.x;
-            diff2.y = pd[tnc].pos.y - pd[cnt].pos.y;
+            diff2[kX] = pd[tnc].pos[kX] - pd[cnt].pos[kX];
+            diff2[kY] = pd[tnc].pos[kY] - pd[cnt].pos[kY];
 
-            darea = diff1.x * diff2.y - diff1.y * diff2.x;
+            darea = diff1[kX] * diff2[kY] - diff1[kY] * diff2[kX];
 
             // estimate the centroid
             area += darea;
-            centroid.x += ( pd[cnt].pos.x + pd[tnc].pos.x + center.x ) / 3.0f * darea;
-            centroid.y += ( pd[cnt].pos.y + pd[tnc].pos.y + center.y ) / 3.0f * darea;
+            centroid[kX] += ( pd[cnt].pos[kX] + pd[tnc].pos[kX] + center[kX] ) / 3.0f * darea;
+            centroid[kY] += ( pd[cnt].pos[kY] + pd[tnc].pos[kY] + center[kY] ) / 3.0f * darea;
         }
 
-        diff1.x = pd[cnt].pos.x - center.x;
-        diff1.y = pd[cnt].pos.y - center.y;
+        diff1[kX] = pd[cnt].pos[kX] - center[kX];
+        diff1[kY] = pd[cnt].pos[kY] - center[kY];
 
-        diff2.x = pd[1].pos.x - pd[cnt].pos.x;
-        diff2.y = pd[1].pos.y - pd[cnt].pos.y;
+        diff2[kX] = pd[1].pos[kX] - pd[cnt].pos[kX];
+        diff2[kY] = pd[1].pos[kY] - pd[cnt].pos[kY];
 
-        darea = diff1.x * diff2.y - diff1.y * diff2.x;
+        darea = diff1[kX] * diff2[kY] - diff1[kY] * diff2[kX];
 
         area += darea;
-        centroid.x += ( pd[cnt].pos.x + pd[1].pos.x + center.x ) / 3.0f  * darea;
-        centroid.y += ( pd[cnt].pos.y + pd[1].pos.y + center.y ) / 3.0f  * darea;
+        centroid[kX] += ( pd[cnt].pos[kX] + pd[1].pos[kX] + center[kX] ) / 3.0f  * darea;
+        centroid[kY] += ( pd[cnt].pos[kY] + pd[1].pos[kY] + center[kY] ) / 3.0f  * darea;
     }
 
     // is the volume valid?
@@ -415,9 +415,9 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     // determine the volume center
     if ( NULL != pcenter && std::abs( area ) > 0.0f )
     {
-        ( *pcenter ).x = centroid.x / area;
-        ( *pcenter ).y = centroid.y / area;
-        ( *pcenter ).z = ( pov->oct.maxs[OCT_Z] + pov->oct.mins[OCT_Z] ) * 0.5f;
+        ( *pcenter )[kX] = centroid[kX] / area;
+        ( *pcenter )[kY] = centroid[kY] / area;
+        ( *pcenter )[kZ] = ( pov->oct.maxs[OCT_Z] + pov->oct.mins[OCT_Z] ) * 0.5f;
     }
 
     // determine the volume

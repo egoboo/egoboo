@@ -1387,8 +1387,8 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     platform_a = /* pprt_b->canuseplatforms && */ pchr_a->platform;
     if ( !platform_a ) return false;
 
-    odepth[OCT_Z]  = std::min( pprt_b->prt_max_cv.maxs[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->getPosZ() ) -
-                     std::max( pprt_b->prt_max_cv.mins[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->getPosZ() );
+    odepth[OCT_Z]  = std::min( pprt_b->prt_max_cv.maxs[OCT_Z] + pprt_b->pos[kZ], pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->getPosZ() ) -
+                     std::max( pprt_b->prt_max_cv.mins[OCT_Z] + pprt_b->pos[kZ], pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->getPosZ() );
 
 	collide_z = TO_C_BOOL(odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE);
 
@@ -1398,21 +1398,21 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     odepth[OCT_X] = odepth[OCT_Y] = odepth[OCT_XY] = odepth[OCT_YX] = 0.0f;
 
     // determine how the characters can be attached
-    odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pprt_b->pos.z + pprt_b->prt_max_cv.mins[OCT_Z] );
+    odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pprt_b->pos[kZ] + pprt_b->prt_max_cv.mins[OCT_Z] );
 
     // size of b doesn't matter
 
-	odepth[OCT_X] = std::min((pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->getPosX()) - pprt_b->pos.x,
-                              pprt_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->getPosX() ) );
+	odepth[OCT_X] = std::min((pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->getPosX()) - pprt_b->pos[kX],
+                              pprt_b->pos[kX] - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->getPosX() ) );
 
-    odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->getPosY() ) -  pprt_b->pos.y,
-                                pprt_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->getPosY() ) );
+    odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->getPosY() ) -  pprt_b->pos[kY],
+                                pprt_b->pos[kY] - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->getPosY() ) );
 
-    odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
-                              ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
+    odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( pprt_b->pos[kX] + pprt_b->pos[kY] ),
+                              ( pprt_b->pos[kX] + pprt_b->pos[kY] ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
-    odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
-                              ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
+    odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pprt_b->pos[kX] + pprt_b->pos[kY] ),
+                              ( -pprt_b->pos[kX] + pprt_b->pos[kY] ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
     collide_x  = TO_C_BOOL( odepth[OCT_X]  > 0.0f );
     collide_y  = TO_C_BOOL( odepth[OCT_Y]  > 0.0f );
@@ -1716,60 +1716,60 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
 
         // limit the size of the displacement
-        max_apos.x = CLIP( max_apos.x, -GRID_FSIZE, GRID_FSIZE );
-        max_apos.y = CLIP( max_apos.y, -GRID_FSIZE, GRID_FSIZE );
-        max_apos.z = CLIP( max_apos.z, -GRID_FSIZE, GRID_FSIZE );
+        max_apos[kX] = CLIP( max_apos[kX], -GRID_FSIZE, GRID_FSIZE );
+        max_apos[kY] = CLIP( max_apos[kY], -GRID_FSIZE, GRID_FSIZE );
+        max_apos[kZ] = CLIP( max_apos[kZ], -GRID_FSIZE, GRID_FSIZE );
 
         // do the "integration" on the position
-        if (std::abs(max_apos.x) > 0.0f)
+        if (std::abs(max_apos[kX]) > 0.0f)
         {
-            tmpx = tmp_pos.x;
-            tmp_pos.x += max_apos.x;
+            tmpx = tmp_pos[kX];
+            tmp_pos[kX] += max_apos[kX];
             if ( EMPTY_BIT_FIELD != Objectest_wall( pchr.get(), tmp_pos, NULL ) )
             {
                 // restore the old values
-                tmp_pos.x = tmpx;
+                tmp_pos[kX] = tmpx;
             }
             else
             {
-                //pchr->vel.x += pchr->phys.apos_coll.x * bump_str;
+                //pchr->vel[kX] += pchr->phys.apos_coll[kX] * bump_str;
                 position_updated = true;
             }
         }
 
-        if (std::abs(max_apos.y) > 0.0f)
+        if (std::abs(max_apos[kY]) > 0.0f)
         {
-            tmpy = tmp_pos.y;
-            tmp_pos.y += max_apos.y;
+            tmpy = tmp_pos[kY];
+            tmp_pos[kY] += max_apos[kY];
             if ( EMPTY_BIT_FIELD != Objectest_wall( pchr.get(), tmp_pos, NULL ) )
             {
                 // restore the old values
-                tmp_pos.y = tmpy;
+                tmp_pos[kY] = tmpy;
             }
             else
             {
-                //pchr->vel.y += pchr->phys.apos_coll.y * bump_str;
+                //pchr->vel[kY] += pchr->phys.apos_coll[kY] * bump_str;
                 position_updated = true;
             }
         }
 
-        if (std::abs(max_apos.z) > 0.0f)
+        if (std::abs(max_apos[kZ]) > 0.0f)
         {
-            tmpz = tmp_pos.z;
-            tmp_pos.z += max_apos.z;
-            if ( tmp_pos.z < pchr->enviro.floor_level )
+            tmpz = tmp_pos[kZ];
+            tmp_pos[kZ] += max_apos[kZ];
+            if ( tmp_pos[kZ] < pchr->enviro.floor_level )
             {
                 // restore the old values
-                tmp_pos.z = pchr->enviro.floor_level;
-                if ( pchr->vel.z < 0 )
+                tmp_pos[kZ] = pchr->enviro.floor_level;
+                if ( pchr->vel[kZ] < 0 )
                 {
-                    pchr->vel.z += -( 1.0f + pchr->getProfile()->getBounciness() ) * pchr->vel.z;
+                    pchr->vel[kZ] += -( 1.0f + pchr->getProfile()->getBounciness() ) * pchr->vel[kZ];
                 }
                 position_updated = true;
             }
             else
             {
-                //pchr->vel.z += pchr->phys.apos_coll.z * bump_str;
+                //pchr->vel[kZ] += pchr->phys.apos_coll[kZ] * bump_str;
                 position_updated = true;
             }
         }
@@ -1818,68 +1818,68 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             apos_t::evaluate(&apos_tmp, max_apos);
         }
 
-        max_apos.x = CLIP( max_apos.x, -GRID_FSIZE, GRID_FSIZE );
-        max_apos.y = CLIP( max_apos.y, -GRID_FSIZE, GRID_FSIZE );
-        max_apos.z = CLIP( max_apos.z, -GRID_FSIZE, GRID_FSIZE );
+        max_apos[kX] = CLIP( max_apos[kX], -GRID_FSIZE, GRID_FSIZE );
+        max_apos[kY] = CLIP( max_apos[kY], -GRID_FSIZE, GRID_FSIZE );
+        max_apos[kZ] = CLIP( max_apos[kZ], -GRID_FSIZE, GRID_FSIZE );
 
         // do the "integration" on the position
-        if (std::abs(max_apos.x) > 0.0f)
+        if (std::abs(max_apos[kX]) > 0.0f)
         {
-            tmpx = tmp_pos.x;
-            tmp_pos.x += max_apos.x;
+            tmpx = tmp_pos[kX];
+            tmp_pos[kX] += max_apos[kX];
             if ( EMPTY_BIT_FIELD != prt_t::test_wall( bdl.prt_ptr, tmp_pos, NULL ) )
             {
                 // restore the old values
-                tmp_pos.x = tmpx;
+                tmp_pos[kX] = tmpx;
             }
             else
             {
-                //bdl.prt_ptr->vel.x += bdl.prt_ptr->phys.apos_coll.x * bump_str;
+                //bdl.prt_ptr->vel[kX] += bdl.prt_ptr->phys.apos_coll[kX] * bump_str;
                 position_updated = true;
             }
         }
 
-        if (std::abs(max_apos.y) > 0.0f)
+        if (std::abs(max_apos[kY]) > 0.0f)
         {
-            tmpy = tmp_pos.y;
-            tmp_pos.y += max_apos.y;
+            tmpy = tmp_pos[kY];
+            tmp_pos[kY] += max_apos[kY];
             if ( EMPTY_BIT_FIELD != prt_t::test_wall( bdl.prt_ptr, tmp_pos, NULL ) )
             {
                 // restore the old values
-                tmp_pos.y = tmpy;
+                tmp_pos[kY] = tmpy;
             }
             else
             {
-                //bdl.prt_ptr->vel.y += bdl.prt_ptr->phys.apos_coll.y * bump_str;
+                //bdl.prt_ptr->vel[kY] += bdl.prt_ptr->phys.apos_coll[kY] * bump_str;
                 position_updated = true;
             }
         }
 
-        if (std::abs(max_apos.z) > 0.0f)
+        if (std::abs(max_apos[kZ]) > 0.0f)
         {
-            tmpz = tmp_pos.z;
-            tmp_pos.z += max_apos.z;
-            if ( tmp_pos.z < bdl.prt_ptr->enviro.floor_level )
+            tmpz = tmp_pos[kZ];
+            tmp_pos[kZ] += max_apos[kZ];
+            if ( tmp_pos[kZ] < bdl.prt_ptr->enviro.floor_level )
             {
                 // restore the old values
-                tmp_pos.z = bdl.prt_ptr->enviro.floor_level;
-                if ( bdl.prt_ptr->vel.z < 0 )
+                tmp_pos[kZ] = bdl.prt_ptr->enviro.floor_level;
+                if ( bdl.prt_ptr->vel[kZ] < 0 )
                 {
                     if ( LOADED_PIP( bdl.prt_ptr->pip_ref ) )
                     {
                         pip_t * ppip = PipStack.get_ptr( bdl.prt_ptr->pip_ref );
-                        bdl.prt_ptr->vel.z += -( 1.0f + ppip->dampen ) * bdl.prt_ptr->vel.z;
+                        bdl.prt_ptr->vel[kZ] += -( 1.0f + ppip->dampen ) * bdl.prt_ptr->vel[kZ];
                     }
                     else
                     {
-                        bdl.prt_ptr->vel.z += -( 1.0f + 0.5f ) * bdl.prt_ptr->vel.z;
+                        bdl.prt_ptr->vel[kZ] += -( 1.0f + 0.5f ) * bdl.prt_ptr->vel[kZ];
                     }
                 }
                 position_updated = true;
             }
             else
             {
-                //bdl.prt_ptr->vel.z += bdl.prt_ptr->phys.apos_coll.z * bump_str;
+                //bdl.prt_ptr->vel[kZ] += bdl.prt_ptr->phys.apos_coll[kZ] * bump_str;
                 position_updated = true;
             }
         }
@@ -1888,7 +1888,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         if ( bdl.pip_ptr->rotatetoface )
         {
             // Turn to face new direction
-            bdl.prt_ptr->facing = vec_to_facing( bdl.prt_ptr->vel.x , bdl.prt_ptr->vel.y );
+            bdl.prt_ptr->facing = vec_to_facing( bdl.prt_ptr->vel[kX] , bdl.prt_ptr->vel[kY] );
         }
 
         if ( position_updated )
@@ -1968,9 +1968,9 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
             fvec3_t   pdiff;
 
             saddle_pos = saddle_cv.getMid();
-            pdiff.x = saddle_pos[OCT_X] - apos[OCT_X];
-            pdiff.y = saddle_pos[OCT_Y] - apos[OCT_Y];
-            pdiff.z = saddle_pos[OCT_Z] - apos[OCT_Z];
+            pdiff[kX] = saddle_pos[OCT_X] - apos[OCT_X];
+            pdiff[kY] = saddle_pos[OCT_Y] - apos[OCT_Y];
+            pdiff[kZ] = saddle_pos[OCT_Z] - apos[OCT_Z];
 
             if (pdiff.dot(vdiff) >= 0.0f)
             {
@@ -2005,9 +2005,9 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
             saddle_pos = saddle_cv.getMid();
 
             // vdiff is computed as b - a. keep the pdiff in the same sense
-            pdiff.x = bpos[OCT_X] - saddle_pos[OCT_X];
-            pdiff.y = bpos[OCT_Y] - saddle_pos[OCT_Y];
-            pdiff.z = bpos[OCT_Z] - saddle_pos[OCT_Z];
+            pdiff[kX] = bpos[OCT_X] - saddle_pos[OCT_X];
+            pdiff[kY] = bpos[OCT_Y] - saddle_pos[OCT_Y];
+            pdiff[kZ] = bpos[OCT_Z] - saddle_pos[OCT_Z];
 
             if (pdiff.dot(vdiff ) >= 0.0f)
             {
@@ -2045,7 +2045,7 @@ bool do_chr_platform_physics( Object * pitem, Object * pplat )
     // platform, there is no need to suck you to the level of the platform
     // this was one of the things preventing you from jumping from platforms
     // properly
-    vlerp_z = std::abs(pitem->vel.z - pplat->vel.z) / 5;
+    vlerp_z = std::abs(pitem->vel[kZ] - pplat->vel[kZ]) / 5;
     vlerp_z  = 1.0f - CLIP( vlerp_z, 0.0f, 1.0f );
 
     // determine the rotation rates
@@ -2055,13 +2055,13 @@ bool do_chr_platform_physics( Object * pitem, Object * pplat )
     if ( lerp_z == 1.0f )
     {
         phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f, kZ );
-        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f, kZ );
+        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel[kZ]  - pitem->vel[kZ] ) * 0.25f, kZ );
         pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
     }
     else
     {
         phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
-        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f * lerp_z * vlerp_z, kZ );
+        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel[kZ]  - pitem->vel[kZ] ) * 0.25f * lerp_z * vlerp_z, kZ );
         pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
     };
 
@@ -2074,24 +2074,23 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
     fvec3_t collision_size;
     float dot;
 
-    collision_size.x = std::max( pchr->chr_max_cv.maxs[OCT_X] - pchr->chr_max_cv.mins[OCT_X], 2.0f * pprt->bump_padded.size );
-    if ( 0.0f == collision_size.x ) return -1.0f;
+    collision_size[kX] = std::max( pchr->chr_max_cv.maxs[OCT_X] - pchr->chr_max_cv.mins[OCT_X], 2.0f * pprt->bump_padded.size );
+    if ( 0.0f == collision_size[kX] ) return -1.0f;
 
-    collision_size.y = std::max( pchr->chr_max_cv.maxs[OCT_Y] - pchr->chr_max_cv.mins[OCT_Y], 2.0f * pprt->bump_padded.size );
-    if ( 0.0f == collision_size.y ) return -1.0f;
+    collision_size[kY] = std::max( pchr->chr_max_cv.maxs[OCT_Y] - pchr->chr_max_cv.mins[OCT_Y], 2.0f * pprt->bump_padded.size );
+    if ( 0.0f == collision_size[kY] ) return -1.0f;
 
-    collision_size.z = std::max( pchr->chr_max_cv.maxs[OCT_Z] - pchr->chr_max_cv.mins[OCT_Z], 2.0f * pprt->bump_padded.height );
-    if ( 0.0f == collision_size.z ) return -1.0f;
+    collision_size[kZ] = std::max( pchr->chr_max_cv.maxs[OCT_Z] - pchr->chr_max_cv.mins[OCT_Z], 2.0f * pprt->bump_padded.height );
+    if ( 0.0f == collision_size[kZ] ) return -1.0f;
 
     // estimate the "normal" for the collision, using the center-of-mass difference
-    nrm[kX] = pprt->pos.x - pchr->getPosX();
-    nrm[kY] = pprt->pos.y - pchr->getPosY();
-    nrm[kZ] = pprt->pos.z - ( pchr->getPosZ() + 0.5f * ( pchr->chr_max_cv.maxs[OCT_Z] + pchr->chr_max_cv.mins[OCT_Z] ) );
+    nrm = pprt->pos - pchr->pos;
+    nrm[kZ] -= 0.5f * (pchr->chr_max_cv.maxs[OCT_Z] + pchr->chr_max_cv.mins[OCT_Z]);
 
     // scale the collision box
-    nrm[kX] /= collision_size.x;
-    nrm[kY] /= collision_size.y;
-    nrm[kZ] /= collision_size.z;
+    nrm[kX] /= collision_size[kX];
+    nrm[kY] /= collision_size[kY];
+    nrm[kZ] /= collision_size[kZ];
 
     // scale the normals so that the collision volume will act somewhat like a cylinder
     if ( pchr->platform )
@@ -2114,23 +2113,22 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
         // If the particle is "fast" relative to the object size, it can happen that the particle
         // can be more than halfway through the character before it is detected.
 
-        vtmp.x = vdiff[kX] / collision_size.x;
-        vtmp.y = vdiff[kY] / collision_size.y;
-        vtmp.z = vdiff[kZ] / collision_size.z;
+        vtmp[kX] = vdiff[kX] / collision_size[kX];
+        vtmp[kY] = vdiff[kY] / collision_size[kY];
+        vtmp[kZ] = vdiff[kZ] / collision_size[kZ];
 
         // If it is fast, re-evaluate the normal in a different way
-        if ( vtmp.x*vtmp.x + vtmp.y*vtmp.y + vtmp.z*vtmp.z > 0.5f*0.5f )
+        if ( vtmp.length_2() > 0.5f*0.5f )
         {
             // use the old position, which SHOULD be before the collision
             // to determine the normal
-            nrm[kX] = pprt->pos_old.x - pchr->pos_old.x;
-            nrm[kY] = pprt->pos_old.y - pchr->pos_old.y;
-            nrm[kZ] = pprt->pos_old.z - ( pchr->pos_old.z + 0.5f * ( pchr->chr_max_cv.maxs[OCT_Z] + pchr->chr_max_cv.mins[OCT_Z] ) );
+            nrm = pprt->pos_old - pchr->pos_old;
+            nrm[kZ] -= 0.5f * (pchr->chr_max_cv.maxs[OCT_Z] + pchr->chr_max_cv.mins[OCT_Z]);
 
             // scale the collision box
-            nrm[kX] /= collision_size.x;
-            nrm[kY] /= collision_size.y;
-            nrm[kZ] /= collision_size.z;
+            nrm[kX] /= collision_size[kX];
+            nrm[kY] /= collision_size[kY];
+            nrm[kZ] /= collision_size[kZ];
 
             // scale the z-normals so that the collision volume will act somewhat like a cylinder
             nrm[kZ] *= nrm[kZ] * nrm[kZ];
@@ -2501,7 +2499,7 @@ bool do_chr_chr_collision( CoNode_t * d )
         //    factor = CLIP( factor, 0.0f, 1.0f );
 
         //    pchr_a->phys.avel -=  vpara_a * factor * interaction_strength;
-        //    LOG_NAN( pchr_a->phys.avel.z );
+        //    LOG_NAN( pchr_a->phys.avel[kZ] );
         //}
 
         //if (vimp_b.length_abs() > 0.0f && vpara_b.length_abs() > 0.0f &&
@@ -2516,7 +2514,7 @@ bool do_chr_chr_collision( CoNode_t * d )
         //    factor = CLIP( factor, 0.0f, 1.0f );
 
         //    pchr_b->phys.avel -= vpara_b * factor * interaction_strength;
-        //    LOG_NAN( pchr_b->phys.avel.z );
+        //    LOG_NAN( pchr_b->phys.avel[kZ] );
         //}
     }
 
@@ -2553,8 +2551,7 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
     if ( SPRITE_SOLID == pdata->pprt->type && pdata->pchr->platform ) exponent += 2;
 
     // assume the simplest interaction normal
-    pdata->nrm.x = pdata->nrm.y = 0.0f;
-    pdata->nrm.z = 1.0f;
+    pdata->nrm = fvec3_t(0, 0, 1);
 
     // no valid interactions, yet
     handled = false;
@@ -2681,14 +2678,14 @@ bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
     // it is a valid platform. now figure out the physics
 
     // are they colliding for the first time?
-    z_collide     = TO_C_BOOL(( pdata->pprt->pos.z < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) && ( pdata->pprt->pos.z > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
-    was_z_collide = TO_C_BOOL(( pdata->pprt->pos.z - pdata->pprt->vel.z < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pchr->vel.z ) && ( pdata->pprt->pos.z - pdata->pprt->vel.z  > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
+    z_collide     = TO_C_BOOL(( pdata->pprt->pos[kZ] < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) && ( pdata->pprt->pos[kZ] > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
+    was_z_collide = TO_C_BOOL(( pdata->pprt->pos[kZ] - pdata->pprt->vel[kZ] < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pchr->vel[kZ] ) && ( pdata->pprt->pos[kZ] - pdata->pprt->vel[kZ]  > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
 
     if ( z_collide && !was_z_collide )
     {
         // Particle is falling onto the platform
-        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->getPosZ() - pdata->pprt->vel.z ) *( 1.0f + pdata->ppip->dampen ), kZ );
+        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos[kZ], kZ );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->getPosZ() - pdata->pprt->vel[kZ] ) *( 1.0f + pdata->ppip->dampen ), kZ );
 
         // This should prevent raindrops from stacking up on the top of trees and other
         // objects
@@ -2702,32 +2699,32 @@ bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
     else if ( z_collide && was_z_collide )
     {
         // colliding this time and last time. particle is *embedded* in the platform
-        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
+        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos[kZ], kZ );
 
-        if ( pdata->pprt->vel.z - pdata->pchr->vel.z < 0 )
+        if ( pdata->pprt->vel[kZ] - pdata->pchr->vel[kZ] < 0 )
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pchr->vel.z * pdata->ppip->dampen + PLATFORM_STICKINESS * pdata->pchr->vel.z - pdata->pprt->vel.z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pchr->vel[kZ] * pdata->ppip->dampen + PLATFORM_STICKINESS * pdata->pchr->vel[kZ] - pdata->pprt->vel[kZ], kZ );
         }
         else
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.z *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.z * PLATFORM_STICKINESS - pdata->pprt->vel.z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel[kZ] *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel[kZ] * PLATFORM_STICKINESS - pdata->pprt->vel[kZ], kZ );
         }
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.x *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.x * PLATFORM_STICKINESS - pdata->pprt->vel.x, kX );
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.y *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.y * PLATFORM_STICKINESS - pdata->pprt->vel.y, kY );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel[kX] *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel[kX] * PLATFORM_STICKINESS - pdata->pprt->vel[kX], kX );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel[kY] *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel[kY] * PLATFORM_STICKINESS - pdata->pprt->vel[kY], kY );
 
         plat_collision = true;
     }
     else
     {
         // not colliding this time or last time. particle is just near the platform
-        float lerp_z = ( pdata->pprt->pos.z - ( pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
+        float lerp_z = ( pdata->pprt->pos[kZ] - ( pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, +1.0f );
 
         if ( lerp_z > 0.0f )
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.x - pdata->pprt->vel.x ) * PLATFORM_STICKINESS * lerp_z, kX );
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.y - pdata->pprt->vel.y ) * PLATFORM_STICKINESS * lerp_z, kY );
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.z - pdata->pprt->vel.z ) * PLATFORM_STICKINESS * lerp_z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel[kX] - pdata->pprt->vel[kX] ) * PLATFORM_STICKINESS * lerp_z, kX );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel[kY] - pdata->pprt->vel[kY] ) * PLATFORM_STICKINESS * lerp_z, kY );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel[kZ] - pdata->pprt->vel[kZ] ) * PLATFORM_STICKINESS * lerp_z, kZ );
 
             plat_collision = true;
         }
@@ -2751,7 +2748,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
     if ( pdata->pchr->invictus ) return true;
 
     // find the "attack direction" of the particle
-    direction = vec_to_facing( pdata->pchr->getPosX() - pdata->pprt->pos.x, pdata->pchr->getPosY() - pdata->pprt->pos.y );
+    direction = vec_to_facing( pdata->pchr->getPosX() - pdata->pprt->pos[kX], pdata->pchr->getPosY() - pdata->pprt->pos[kY] );
     direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
@@ -2948,18 +2945,14 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
     // weapon (actually, the weapon's holder) to rebound.
     if ( _gameObjects.exists( pdata->pprt->attachedto_ref ) )
     {
-        Object * pholder;
-        Object * pattached;
-        CHR_REF iholder;
-
         // get the attached mass
-        pattached = _gameObjects.get( pdata->pprt->attachedto_ref );
+        Object *pattached = _gameObjects.get( pdata->pprt->attachedto_ref );
 
         // assume the worst
-        pholder = NULL;
+        Object *pholder = NULL;
 
         // who is holding the weapon?
-        iholder = chr_get_lowest_attachment( pdata->pprt->attachedto_ref, false );
+        CHR_REF iholder = chr_get_lowest_attachment(pdata->pprt->attachedto_ref, false);
         if ( _gameObjects.exists( iholder ) )
         {
             pholder = _gameObjects.get( iholder );
@@ -2974,31 +2967,28 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
         }
 
         {
-            fvec3_t tmp_impulse;
-
-            float holder_mass, total_mass;
-            float attached_mass = 0.0f;
-            float tmp_holder_recoil, tmp_prt_recoil, holder_recoil;
-
-            holder_mass = 0.0f;
+            float holder_mass = 0.0f;
             if (( NULL != pholder ) && ( iholder != pdata->pprt->attachedto_ref ) )
             {
                 get_chr_mass( pholder, &holder_mass );
             }
 
+            float attached_mass = 0.0f;
             get_chr_mass( pattached, &attached_mass );
 
-            total_mass = std::abs( holder_mass ) + std::abs( attached_mass );
+            float total_mass = std::abs( holder_mass ) + std::abs( attached_mass );
             if ( holder_mass < 0.0f ||  attached_mass < 0.0f )
             {
                 total_mass = -total_mass;
             }
 
+            float tmp_holder_recoil, tmp_prt_recoil;
             get_recoil_factors( total_mass, prt_mass, &tmp_holder_recoil, &tmp_prt_recoil );
 
             // get the actual holder recoil
-            holder_recoil = tmp_holder_recoil * attack_factor;
+            float holder_recoil = tmp_holder_recoil * attack_factor;
 
+            fvec3_t tmp_impulse;
             // in the SAME direction as the particle
 			tmp_impulse = pdata->vimpulse * holder_recoil;
             phys_data_sum_avel(&(pholder->phys), tmp_impulse);
@@ -3130,7 +3120,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             FACING_T direction;
             IPair loc_damage = pdata->pprt->damage;
 
-            direction = vec_to_facing( pdata->pprt->vel.x , pdata->pprt->vel.y );
+            direction = vec_to_facing( pdata->pprt->vel[kX] , pdata->pprt->vel[kY] );
             direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
             // These things only apply if the particle has an owner
@@ -3486,7 +3476,7 @@ bool do_chr_prt_collision( CoNode_t * d )
     if ( cn_data.int_max && !cn_data.int_min )
     {
         // do not re-normalize this vector
-        cn_data.nrm.z = 0.0f;
+        cn_data.nrm[kZ] = 0.0f;
     }
 
     // find the relative velocity
@@ -3615,7 +3605,7 @@ chr_prt_collision_data_t * chr_prt_collision_data_t::init( chr_prt_collision_dat
     ptr->is_pressure  = false;
     ptr->is_collision = false;
     ptr->dot = 0.0f;
-    ptr->nrm.x = ptr->nrm.y = 0.0f; ptr->nrm.z = 1.0f;
+    ptr->nrm = fvec3_t(0, 0, 1);
 
     //---- collision modifications
     ptr->mana_paid = false;

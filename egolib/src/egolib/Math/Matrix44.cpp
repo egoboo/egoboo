@@ -70,7 +70,7 @@ float *mat_Multiply(fmat_4x4_base_t dst, const fmat_4x4_base_t src1, const fmat_
     return dst;
 }
 //--------------------------------------------------------------------------------------------
-float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t DST, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z)
+float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t DST, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate)
 {
     float cx = turntocos[turn_x & TRIG_TABLE_MASK];
     float sx = turntosin[turn_x & TRIG_TABLE_MASK];
@@ -81,31 +81,31 @@ float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t DST, cons
 
     if (NULL == DST) return NULL;
 
-    DST[MAT_IDX(0, 0)] = scale_x * (cz * cy);
-    DST[MAT_IDX(0, 1)] = scale_x * (cz * sy * sx + sz * cx);
-    DST[MAT_IDX(0, 2)] = scale_x * (sz * sx - cz * sy * cx);
+    DST[MAT_IDX(0, 0)] = scale[kX] * (cz * cy);
+    DST[MAT_IDX(0, 1)] = scale[kX] * (cz * sy * sx + sz * cx);
+    DST[MAT_IDX(0, 2)] = scale[kX] * (sz * sx - cz * sy * cx);
     DST[MAT_IDX(0, 3)] = 0.0f;
 
-    DST[MAT_IDX(1, 0)] = scale_y * (-sz * cy);
-    DST[MAT_IDX(1, 1)] = scale_y * (-sz * sy * sx + cz * cx);
-    DST[MAT_IDX(1, 2)] = scale_y * (sz * sy * cx + cz * sx);
+    DST[MAT_IDX(1, 0)] = scale[kY] * (-sz * cy);
+    DST[MAT_IDX(1, 1)] = scale[kY] * (-sz * sy * sx + cz * cx);
+    DST[MAT_IDX(1, 2)] = scale[kY] * (sz * sy * cx + cz * sx);
     DST[MAT_IDX(1, 3)] = 0.0f;
 
-    DST[MAT_IDX(2, 0)] = scale_z * (sy);
-    DST[MAT_IDX(2, 1)] = scale_z * (-cy * sx);
-    DST[MAT_IDX(2, 2)] = scale_z * (cy * cx);
+    DST[MAT_IDX(2, 0)] = scale[kZ] * (sy);
+    DST[MAT_IDX(2, 1)] = scale[kZ] * (-cy * sx);
+    DST[MAT_IDX(2, 2)] = scale[kZ] * (cy * cx);
     DST[MAT_IDX(2, 3)] = 0.0f;
 
-    DST[MAT_IDX(3, 0)] = translate_x;
-    DST[MAT_IDX(3, 1)] = translate_y;
-    DST[MAT_IDX(3, 2)] = translate_z;
+    DST[MAT_IDX(3, 0)] = translate[kX];
+    DST[MAT_IDX(3, 1)] = translate[kY];
+    DST[MAT_IDX(3, 2)] = translate[kZ];
     DST[MAT_IDX(3, 3)] = 1.0f;
 
     return DST;
 }
 
 //--------------------------------------------------------------------------------------------
-float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t DST, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z)
+float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t DST, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate)
 {
     /// @author BB
     /// @details Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
@@ -119,24 +119,24 @@ float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t DST, const
 
     if (NULL == DST) return NULL;
 
-    DST[MAT_IDX(0, 0)] = scale_x * (cz * cy - sz * sy * sx);
-    DST[MAT_IDX(0, 1)] = scale_x * (sz * cy + cz * sy * sx);
-    DST[MAT_IDX(0, 2)] = scale_x * (-cx * sy);
+    DST[MAT_IDX(0, 0)] = scale[kX] * (cz * cy - sz * sy * sx);
+    DST[MAT_IDX(0, 1)] = scale[kX] * (sz * cy + cz * sy * sx);
+    DST[MAT_IDX(0, 2)] = scale[kX] * (-cx * sy);
     DST[MAT_IDX(0, 3)] = 0.0f;
 
-    DST[MAT_IDX(1, 0)] = scale_y * (-sz * cx);
-    DST[MAT_IDX(1, 1)] = scale_y * (cz * cx);
-    DST[MAT_IDX(1, 2)] = scale_y * (sx);
+    DST[MAT_IDX(1, 0)] = scale[kY] * (-sz * cx);
+    DST[MAT_IDX(1, 1)] = scale[kY] * (cz * cx);
+    DST[MAT_IDX(1, 2)] = scale[kY] * (sx);
     DST[MAT_IDX(1, 3)] = 0.0f;
 
-    DST[MAT_IDX(2, 0)] = scale_z * (cz * sy + sz * sx * cy);
-    DST[MAT_IDX(2, 1)] = scale_z * (sz * sy - cz * sx * cy);
-    DST[MAT_IDX(2, 2)] = scale_z * (cy * cx);
+    DST[MAT_IDX(2, 0)] = scale[kZ] * (cz * sy + sz * sx * cy);
+    DST[MAT_IDX(2, 1)] = scale[kZ] * (sz * sy - cz * sx * cy);
+    DST[MAT_IDX(2, 2)] = scale[kZ] * (cy * cx);
     DST[MAT_IDX(2, 3)] = 0.0f;
 
-    DST[MAT_IDX(3, 0)] = translate_x;
-    DST[MAT_IDX(3, 1)] = translate_y;
-    DST[MAT_IDX(3, 2)] = translate_z;
+    DST[MAT_IDX(3, 0)] = translate[kX];
+    DST[MAT_IDX(3, 1)] = translate[kY];
+    DST[MAT_IDX(3, 2)] = translate[kZ];
     DST[MAT_IDX(3, 3)] = 1.0f;
 
     return DST;
@@ -202,19 +202,19 @@ void mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_
     up.normalize();
 
     // 0th row.
-    DST(0, 0) = right.x;
-    DST(0, 1) = right.y;
-    DST(0, 2) = right.z;
+    DST(0, 0) = right[kX];
+    DST(0, 1) = right[kY];
+    DST(0, 2) = right[kZ];
 
     // 1st row.
-    DST(1, 0) = up.x;
-    DST(1, 1) = up.y;
-    DST(1, 2) = up.z;
+    DST(1, 0) = up[kX];
+    DST(1, 1) = up[kY];
+    DST(1, 2) = up[kZ];
 
     // 2nd row.
-    DST(2,0) = view_dir.x;
-    DST(2,1) = view_dir.y;
-    DST(2,2) = view_dir.z;
+    DST(2,0) = view_dir[kX];
+    DST(2,1) = view_dir[kY];
+    DST(2,2) = view_dir[kZ];
 
     // 3rd row.
     DST(3,0) = -right.dot(from);
@@ -308,13 +308,12 @@ bool mat_getCamForward(const fmat_4x4_t& mat, fvec3_t& forward)
 //--------------------------------------------------------------------------------------------
 fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat)
 {
-    fvec3_t pos;
-
-    pos.x = mat[MAT_IDX(3, 0)];
-    pos.y = mat[MAT_IDX(3, 1)];
-    pos.z = mat[MAT_IDX(3, 2)];
-
-    return pos;
+    return fvec3_t
+        (
+        mat[MAT_IDX(3, 0)],
+        mat[MAT_IDX(3, 1)],
+        mat[MAT_IDX(3, 2)]
+        );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -334,21 +333,21 @@ void mat_glRotate(fmat_4x4_t &dst, const fmat_4x4_t &src, const float angle, con
     axis_.normalize();
 
     // First row.
-    R(0, 0) = axis_.x * axis_.x * (1 - c) + c;
-    R(0, 1) = axis_.x * axis_.y * (1 - c) - axis_.z * s;
-    R(0, 2) = axis_.x * axis_.z * (1 - c) + axis_.y * s;
+    R(0, 0) = axis_[kX] * axis_[kX] * (1 - c) + c;
+    R(0, 1) = axis_[kX] * axis_[kY] * (1 - c) - axis_[kZ] * s;
+    R(0, 2) = axis_[kX] * axis_[kZ] * (1 - c) + axis_[kY] * s;
     R(0, 3) = 0.0f;
     
     // 2nd row.
-    R(1, 0) = axis_.y * axis_.x * (1 - c) + axis_.z * s;
-    R(1, 1) = axis_.y * axis_.y * (1 - c) + c;
-    R(1, 2) = axis_.y * axis_.z * (1 - c) - axis_.x * s;
+    R(1, 0) = axis_[kY] * axis_[kX] * (1 - c) + axis_[kZ] * s;
+    R(1, 1) = axis_[kY] * axis_[kY] * (1 - c) + c;
+    R(1, 2) = axis_[kY] * axis_[kZ] * (1 - c) - axis_[kX] * s;
     R(1, 3) = 0.0f;
     
     // 3rd row.
-    R(2, 0) = axis_.z * axis_.x * (1 - c) - axis_.y * s;
-    R(2, 1) = axis_.z * axis_.y * (1 - c) + axis_.x * s;
-    R(2, 2) = axis_.z * axis_.z * (1 - c) + c;
+    R(2, 0) = axis_[kZ] * axis_[kX] * (1 - c) - axis_[kY] * s;
+    R(2, 1) = axis_[kZ] * axis_[kY] * (1 - c) + axis_[kX] * s;
+    R(2, 2) = axis_[kZ] * axis_[kZ] * (1 - c) + c;
     R(2, 3) = 0.0f;
     
     R(3, 0) = 0;

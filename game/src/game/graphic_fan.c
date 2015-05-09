@@ -277,11 +277,11 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * pmesh, const Uint32 itile )
         v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * GRID_FSIZE;
         v[cnt].pos[ZZ] = ptmem->plst[badvertex][ZZ];
 
-        tmp = map_twist_nrm[twist].z;
+        tmp = map_twist_nrm[twist][kZ];
         tmp *= tmp;
 
-        v[cnt].col[RR] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist].x * map_twist_nrm[twist].x );
-        v[cnt].col[GG] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist].y * map_twist_nrm[twist].y );
+        v[cnt].col[RR] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist][kX] * map_twist_nrm[twist][kX] );
+        v[cnt].col[GG] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist][kY] * map_twist_nrm[twist][kY] );
         v[cnt].col[BB] = tmp;
         v[cnt].col[AA] = 1.0f;
 

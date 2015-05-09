@@ -152,8 +152,8 @@ void line_list_draw_all(Camera& camera)
                 Ego::Renderer::get().setColour(colour); // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_LINES );
                 {
-                    GL_DEBUG( glVertex3fv )( line_list[cnt].src.v );
-                    GL_DEBUG( glVertex3fv )( line_list[cnt].dst.v );
+                    GL_DEBUG(glVertex3f)( line.src[kX], line.src[kY], line.src[kZ] );
+                    GL_DEBUG(glVertex3f)( line.dst[kX], line.dst[kY], line.dst[kZ] );
                 }
                 GL_DEBUG_END();
             }
@@ -251,7 +251,7 @@ void point_list_draw_all(Camera& camera)
                 Ego::Renderer::get().setColour(colour); // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_POINTS );
                 {
-                    GL_DEBUG( glVertex3fv )( point_list[cnt].src.v );
+                    GL_DEBUG(glVertex3f)(point.src[kX], point.src[kY], point.src[kZ]);
                 }
                 GL_DEBUG_END();
             }
@@ -266,7 +266,6 @@ void point_list_draw_all(Camera& camera)
 //--------------------------------------------------------------------------------------------
 bool render_aabb(aabb_t *bv)
 {
-    GLXvector3f * pmin, * pmax;
     GLint matrix_mode[1];
 
     if (!bv) return false;
@@ -278,48 +277,48 @@ bool render_aabb(aabb_t *bv)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     {
-        pmin = &( bv->mins.v );
-        pmax = &( bv->maxs.v );
+        const auto& pmin = (bv->mins);
+        const auto& pmax = (bv->maxs);
 
         // !!!! there must be an optimized way of doing this !!!!
 
         GL_DEBUG( glBegin )( GL_QUADS );
         {
             // Front Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmin)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmin)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmax)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmax)[YY], (pmax)[ZZ]);
 
             // Back Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmin)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmax)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmax)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmin)[YY], (pmin)[ZZ]);
 
             // Top Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmax)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmax)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmax)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmax)[YY], (pmin)[ZZ]);
 
             // Bottom Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmin)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmin)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmin)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmin)[YY], (pmax)[ZZ]);
 
             // Right face
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmin)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmax)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmax)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmax)[XX], (pmin)[YY], (pmax)[ZZ]);
 
             // Left Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmin)[YY], (pmin)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmin)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmax)[YY], (pmax)[ZZ]);
+            GL_DEBUG( glVertex3f )((pmin)[XX], (pmax)[YY], (pmin)[ZZ]);
         }
         GL_DEBUG_END();
     }

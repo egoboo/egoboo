@@ -174,8 +174,8 @@ BSP::SubspaceIndex _find_child_index(const BSP_aabb_t *branchAABB, const aabb_t 
 	const float *branch_max_ary = branchAABB->max();
 
 	// Get aliases the the minimum and the maximum of the AABB of the leaf.
-	const float *leaf_min_ary = leafAABB->mins.v;
-	const float *leaf_max_ary = leafAABB->maxs.v;
+	const auto& leaf_min_ary = leafAABB->mins;
+	const auto& leaf_max_ary = leafAABB->maxs;
 
 	BSP::SubspaceIndex index = 0;
 	size_t d = std::min(branchAABB->getDim(), (size_t)3);

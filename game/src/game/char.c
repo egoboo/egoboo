@@ -392,34 +392,34 @@ void make_one_character_matrix( const CHR_REF ichr )
         {
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
                 pinst->matrix.v,
-                pchr->fat, pchr->fat, pchr->fat,
+                fvec3_t(pchr->fat, pchr->fat, pchr->fat),
                 TO_TURN( pchr->ori.facing_z ),
                 TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
                 TO_TURN( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET ),
-                pchr->getPosition().x, pchr->getPosition().y, pchr->getPosition().z );
+                pchr->getPosition());
         }
         else
         {
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
                 pinst->matrix.v,
-                pchr->fat, pchr->fat, pchr->fat,
+                fvec3_t(pchr->fat, pchr->fat, pchr->fat),
                 TO_TURN( pchr->ori.facing_z ),
                 TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
                 TO_TURN( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET ),
-                pchr->getPosition().x, pchr->getPosition().y, pchr->getPosition().z );
+                pchr->getPosition());
         }
 
         pinst->matrix_cache.valid        = true;
         pinst->matrix_cache.matrix_valid = true;
         pinst->matrix_cache.type_bits    = MAT_CHARACTER;
 
-        pinst->matrix_cache.self_scale.x = pchr->fat;
-        pinst->matrix_cache.self_scale.y = pchr->fat;
-        pinst->matrix_cache.self_scale.z = pchr->fat;
+        pinst->matrix_cache.self_scale[kX] = pchr->fat;
+        pinst->matrix_cache.self_scale[kY] = pchr->fat;
+        pinst->matrix_cache.self_scale[kZ] = pchr->fat;
 
-        pinst->matrix_cache.rotate.x = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-        pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
-        pinst->matrix_cache.rotate.z = pchr->ori.facing_z;
+        pinst->matrix_cache.rotate[kX] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate[kY] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate[kZ] = pchr->ori.facing_z;
 
         pinst->matrix_cache.pos = pchr->getPosition();
     }
@@ -523,9 +523,9 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
         {
             fvec3_t tmp_pos;
 
-            tmp_pos.x = pchr->inst.matrix.CNV( 3, 0 );
-            tmp_pos.y = pchr->inst.matrix.CNV( 3, 1 );
-            tmp_pos.z = pchr->inst.matrix.CNV( 3, 2 );
+            tmp_pos[kX] = pchr->inst.matrix.CNV( 3, 0 );
+            tmp_pos[kY] = pchr->inst.matrix.CNV( 3, 1 );
+            tmp_pos[kZ] = pchr->inst.matrix.CNV( 3, 2 );
 
             prt_t::set_pos(pprt, tmp_pos);
 
@@ -1393,9 +1393,9 @@ void drop_keys( const CHR_REF character )
         pkey->team                   = pkey->team_base;
 
         // fix the current velocity
-        pkey->vel.x                  += turntocos[ turn ] * DROPXYVEL;
-        pkey->vel.y                  += turntosin[ turn ] * DROPXYVEL;
-        pkey->vel.z                  += DROPZVEL;
+        pkey->vel[kX]                  += turntocos[ turn ] * DROPXYVEL;
+        pkey->vel[kY]                  += turntosin[ turn ] * DROPXYVEL;
+        pkey->vel[kZ]                  += DROPZVEL;
 
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
@@ -1470,9 +1470,9 @@ bool drop_all_items( const CHR_REF character )
 
         // fix the current velocity
         TURN_T turn                   = TO_TURN( direction );
-        pitem->vel.x                  += turntocos[ turn ] * DROPXYVEL;
-        pitem->vel.y                  += turntosin[ turn ] * DROPXYVEL;
-        pitem->vel.z                  += DROPZVEL;
+        pitem->vel[kX]                  += turntocos[ turn ] * DROPXYVEL;
+        pitem->vel[kY]                  += turntosin[ turn ] * DROPXYVEL;
+        pitem->vel[kZ]                  += DROPZVEL;
 
         // do some more complicated things
         SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
@@ -1531,9 +1531,9 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
     //Determine the position of the grip
     mids = pchr_a->slot_cv[slot].getMid();
-    slot_pos.x = mids[OCT_X];
-    slot_pos.y = mids[OCT_Y];
-    slot_pos.z = mids[OCT_Z];
+    slot_pos[kX] = mids[OCT_X];
+    slot_pos[kY] = mids[OCT_Y];
+    slot_pos[kZ] = mids[OCT_Z];
 	slot_pos += pchr_a->getPosition();
 
     // Go through all characters to find the best match
@@ -1584,7 +1584,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         grabData.too_invis = !chr_can_see_invis( pchr_a.get(), pchr_c.get() );
 
         // calculate the distance
-        grabData.horizontalDistance = pchr_c->getPosition().xy_distance(slot_pos);
+        grabData.horizontalDistance = (pchr_c->getPosition() - slot_pos).length();
         grabData.verticalDistance = std::sqrt(Ego::Math::sq( pchr_a->getPosZ() - pchr_c->getPosZ()));
  
         //Figure out if the character is looking towards the object
@@ -1716,7 +1716,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             else
             {
                 // Lift the item a little and quit...
-                grabData.object->vel.z = DROPZVEL;
+                grabData.object->vel[kZ] = DROPZVEL;
                 grabData.object->hitready = true;
                 SET_BIT( grabData.object->ai.alert, ALERTIF_DROPPED );
                 break;
@@ -1883,9 +1883,9 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             velocity = CLIP( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
-            pthrown->vel.x += turntocos[ turn ] * velocity;
-            pthrown->vel.y += turntosin[ turn ] * velocity;
-            pthrown->vel.z = DROPZVEL;
+            pthrown->vel[kX] += turntocos[ turn ] * velocity;
+            pthrown->vel[kY] += turntosin[ turn ] * velocity;
+            pthrown->vel[kZ] = DROPZVEL;
             if ( pweapon->ammo <= 1 )
             {
                 // Poof the item
@@ -1945,7 +1945,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         if ( NULL == pprt ) return;
 
                         // Correct Z spacing base, but nothing else...
-                        tmp_pos.z += prt_get_ppip( iparticle )->spacing_vrt_pair.base;
+                        tmp_pos[kZ] += prt_get_ppip( iparticle )->spacing_vrt_pair.base;
                     }
                     else
                     {
@@ -1955,12 +1955,12 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         // Don't spawn in walls
                         if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
                         {
-                            tmp_pos.x = pweapon->getPosX();
-                            tmp_pos.y = pweapon->getPosY();
+                            tmp_pos[kX] = pweapon->getPosX();
+                            tmp_pos[kY] = pweapon->getPosY();
                             if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
                             {
-                                tmp_pos.x = pchr->getPosX();
-                                tmp_pos.y = pchr->getPosY();
+                                tmp_pos[kX] = pchr->getPosX();
+                                tmp_pos[kY] = pchr->getPosY();
                             }
                         }
                     }
@@ -2019,7 +2019,7 @@ void drop_money( const CHR_REF character, int money )
         money = pchr->money;
     }
 
-    if ( money > 0 && loc_pos.z > -2 )
+    if ( money > 0 && loc_pos[kZ] > -2 )
     {
         int cnt, tnc;
         int count;
@@ -2028,7 +2028,7 @@ void drop_money( const CHR_REF character, int money )
         pchr->money = ( int )pchr->money - money;
 
         // make the particles emit from "waist high"
-        loc_pos.z += ( pchr->chr_min_cv.maxs[OCT_Z] + pchr->chr_min_cv.mins[OCT_Z] ) * 0.5f;
+        loc_pos[kZ] += ( pchr->chr_min_cv.maxs[OCT_Z] + pchr->chr_min_cv.mins[OCT_Z] ) * 0.5f;
 
         // Give the character a time-out from interacting with particles so it
         // doesn't just grab the money again
@@ -2851,7 +2851,7 @@ Object * chr_config_do_init( Object * pchr )
     if ( _gameObjects.exists( pchr->attachedto ) && CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
     {
         log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
-                     pchr->getPosX(), pchr->getPosY(), nrm.x, nrm.y );
+                     pchr->getPosX(), pchr->getPosY(), nrm[kX], nrm[kY] );
     }
 #endif
 
@@ -3306,7 +3306,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
         if ( pchr->isMount() )
         {
-            leftItem->vel.z    = DISMOUNTZVEL;
+            leftItem->vel[kZ]    = DISMOUNTZVEL;
             leftItem->jump_timer = JUMPDELAY;
             leftItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
@@ -3321,7 +3321,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
         if ( pchr->isMount() )
         {
-            rightItem->vel.z    = DISMOUNTZVEL;
+            rightItem->vel[kZ]    = DISMOUNTZVEL;
             rightItem->jump_timer = JUMPDELAY;
             rightItem->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
@@ -3964,7 +3964,7 @@ void move_one_character_get_environment( Object * pchr )
         chr_getMatUp(pplatform, platform_up);
 		platform_up.normalize();
 
-        penviro->traction = std::abs(platform_up.z) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
+        penviro->traction = std::abs(platform_up[kZ]) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
         if ( penviro->is_slippy )
         {
@@ -3973,7 +3973,7 @@ void move_one_character_get_environment( Object * pchr )
     }
     else if ( ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
-        penviro->traction = std::abs( map_twist_nrm[penviro->grid_twist].z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
+        penviro->traction = std::abs( map_twist_nrm[penviro->grid_twist][kZ] ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
         if ( penviro->is_slippy )
         {
@@ -4032,7 +4032,7 @@ void move_one_character_get_environment( Object * pchr )
         if (( _gameObjects.exists( pchr->attachedto ) || pchr->jumpready || pchr->jumpnumber > 0 ) && pchr->jump_timer > 0 ) pchr->jump_timer--;
 
         // Do ground hits
-        if ( penviro->grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
+        if ( penviro->grounded && pchr->vel[kZ] < -STOPBOUNCING && pchr->hitready )
         {
             SET_BIT( pchr->ai.alert, ALERTIF_HITGROUND );
             pchr->hitready = false;
@@ -4087,7 +4087,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     // assume the best
 	floor_acc = fvec3_t::zero();
     temp_friction_xy = 1.0f;
-    vup.x = 0.0f; vup.y = 0.0f; vup.z = 1.0f;
+    vup = fvec3_t(0.0f, 0.0f, 1.0f);
 
     const std::shared_ptr<Object> &platform = _gameObjects[pchr->onwhichplatform_ref];
 
@@ -4144,10 +4144,10 @@ void move_one_character_do_floor_friction( Object * pchr )
     fric = fric_floor + penviro->acc;
 
     // limit the friction to whatever is horizontal to the mesh
-    if (1.0f == std::abs(vup.z))
+    if (1.0f == std::abs(vup[kZ]))
     {
-        fric.z = 0.0f;
-        floor_acc.z = 0.0f;
+        fric[kZ] = 0.0f;
+        floor_acc[kZ] = 0.0f;
     }
     else
     {
@@ -4161,7 +4161,7 @@ void move_one_character_do_floor_friction( Object * pchr )
     }
 
     // test to see if the player has any more friction left?
-    penviro->is_slipping = ( std::abs( fric.x ) + std::abs( fric.y ) + std::abs( fric.z ) > penviro->friction_hrz );
+    penviro->is_slipping = ( fric.length_abs() > penviro->friction_hrz );
 
     if ( penviro->is_slipping )
     {
@@ -4176,9 +4176,9 @@ void move_one_character_do_floor_friction( Object * pchr )
 	pchr->vel += fric_floor;
 
     // Apply fluid friction from last time
-    pchr->vel.x += -pchr->vel.x * ( 1.0f - penviro->fluid_friction_hrz );
-    pchr->vel.y += -pchr->vel.y * ( 1.0f - penviro->fluid_friction_hrz );
-    pchr->vel.z += -pchr->vel.z * ( 1.0f - penviro->fluid_friction_vrt );
+    pchr->vel[kX] += -pchr->vel[kX] * ( 1.0f - penviro->fluid_friction_hrz );
+    pchr->vel[kY] += -pchr->vel[kY] * ( 1.0f - penviro->fluid_friction_hrz );
+    pchr->vel[kZ] += -pchr->vel[kZ] * ( 1.0f - penviro->fluid_friction_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4234,7 +4234,7 @@ void move_one_character_do_voluntary( Object * pchr )
         sneak_mode_active = input_device_control_active( ppla->pdevice, CONTROL_SNEAK );
     }
 
-    pchr->enviro.new_v.x = pchr->enviro.new_v.y = 0.0f;
+    pchr->enviro.new_v[kX] = pchr->enviro.new_v[kY] = 0.0f;
 	if (std::abs(dvx) + std::abs(dvy) > 0.05f)
     {
         float dv2 = dvx * dvx + dvy * dvy;
@@ -4246,8 +4246,8 @@ void move_one_character_do_voluntary( Object * pchr )
             // determine whether the character is sneaking
             sneak_mode_active = TO_C_BOOL( dv2 < 1.0f / 9.0f );
 
-            pchr->enviro.new_v.x = maxspeed * dvx / dv;
-            pchr->enviro.new_v.y = maxspeed * dvy / dv;
+            pchr->enviro.new_v[kX] = maxspeed * dvx / dv;
+            pchr->enviro.new_v[kY] = maxspeed * dvy / dv;
         }
         else
         {
@@ -4260,8 +4260,8 @@ void move_one_character_do_voluntary( Object * pchr )
 
             scale /= POW( dv2, 0.5f );
 
-            pchr->enviro.new_v.x = dvx * maxspeed * scale;
-            pchr->enviro.new_v.y = dvy * maxspeed * scale;
+            pchr->enviro.new_v[kX] = dvx * maxspeed * scale;
+            pchr->enviro.new_v[kY] = dvy * maxspeed * scale;
         }
     }
 
@@ -4283,13 +4283,13 @@ void move_one_character_do_voluntary( Object * pchr )
     {
         Object * pplat = _gameObjects.get( pchr->onwhichplatform_ref );
 
-        new_ax += ( pplat->vel.x + pchr->enviro.new_v.x - ( pchr->vel.x ) );
-        new_ay += ( pplat->vel.y + pchr->enviro.new_v.y - ( pchr->vel.y ) );
+        new_ax += ( pplat->vel[kX] + pchr->enviro.new_v[kX] - ( pchr->vel[kX] ) );
+        new_ay += ( pplat->vel[kY] + pchr->enviro.new_v[kY] - ( pchr->vel[kY] ) );
     }
     else
     {
-        new_ax += ( pchr->enviro.new_v.x - pchr->vel.x );
-        new_ay += ( pchr->enviro.new_v.y - pchr->vel.y );
+        new_ax += ( pchr->enviro.new_v[kX] - pchr->vel[kX] );
+        new_ay += ( pchr->enviro.new_v[kY] - pchr->vel[kY] );
     }
 
     new_ax *= pchr->enviro.traction;
@@ -4354,8 +4354,8 @@ void move_one_character_do_voluntary( Object * pchr )
     }
 
     //Update velocity
-    pchr->vel.x += new_ax;
-    pchr->vel.y += new_ay;
+    pchr->vel[kX] += new_ax;
+    pchr->vel[kY] += new_ay;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4609,14 +4609,14 @@ bool chr_do_latch_button( Object * pchr )
             pchr->jump_timer = JUMPDELAY;
             if ( 0 != pchr->flyheight )
             {
-                pchr->vel.z += DISMOUNTZVELFLY;
+                pchr->vel[kZ] += DISMOUNTZVELFLY;
             }
             else
             {
-                pchr->vel.z += DISMOUNTZVEL;
+                pchr->vel[kZ] += DISMOUNTZVEL;
             }
 
-            pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel.z);
+            pchr->setPosition(pchr->getPosX(), pchr->getPosY(), pchr->getPosZ() + pchr->vel[kZ]);
 
             if ( pchr->jumpnumberreset != JUMPINFINITE && 0 != pchr->jumpnumber )
                 pchr->jumpnumber--;
@@ -4636,12 +4636,12 @@ bool chr_do_latch_button( Object * pchr )
                 if ( pchr->enviro.inwater || pchr->enviro.is_slippy )
                 {
                     pchr->jump_timer = JUMPDELAY * 4;         //To prevent 'bunny jumping' in water
-                    pchr->vel.z += WATERJUMP;
+                    pchr->vel[kZ] += WATERJUMP;
                 }
                 else
                 {
                     pchr->jump_timer = JUMPDELAY;
-                    pchr->vel.z += pchr->jump_power * 1.5f;
+                    pchr->vel[kZ] += pchr->jump_power * 1.5f;
                 }
 
                 pchr->jumpready = false;
@@ -4726,7 +4726,7 @@ void move_one_character_do_z_motion( Object * pchr )
     //---- do z acceleration
     if ( 0 != pchr->flyheight )
     {
-        pchr->vel.z += ( pchr->enviro.fly_level + pchr->flyheight - pchr->getPosZ() ) * FLYDAMPEN;
+        pchr->vel[kZ] += ( pchr->enviro.fly_level + pchr->flyheight - pchr->getPosZ() ) * FLYDAMPEN;
     }
 
     else if (
@@ -4743,15 +4743,15 @@ void move_one_character_do_z_motion( Object * pchr )
 
         gpara = map_twist_vel[pchr->enviro.grid_twist];
 
-        gperp.x = 0       - gpara.x;
-        gperp.y = 0       - gpara.y;
-        gperp.z = Physics::g_environment.gravity - gpara.z;
+        gperp[kX] = 0       - gpara[kX];
+        gperp[kY] = 0       - gpara[kY];
+        gperp[kZ] = Physics::g_environment.gravity - gpara[kZ];
 
         pchr->vel += gpara * ( 1.0f - loc_zlerp ) + gperp * loc_zlerp;
     }
     else
     {
-        pchr->vel.z += pchr->enviro.zlerp * Physics::g_environment.gravity;
+        pchr->vel[kZ] += pchr->enviro.zlerp * Physics::g_environment.gravity;
     }
 }
 
@@ -4798,8 +4798,8 @@ bool chr_update_safe( Object * pchr, bool force )
 
         if (TileIndex::Invalid == new_grid )
         {
-            if ( std::abs( pchr->getPosX() - pchr->safe_pos.x ) > GRID_FSIZE ||
-                 std::abs( pchr->getPosY() - pchr->safe_pos.y ) > GRID_FSIZE )
+            if ( std::abs( pchr->getPosX() - pchr->safe_pos[kX] ) > GRID_FSIZE ||
+                 std::abs( pchr->getPosY() - pchr->safe_pos[kY] ) > GRID_FSIZE )
             {
                 needs_update = true;
             }
@@ -4912,8 +4912,8 @@ bool chr_update_breadcrumb( Object * object, bool force )
 
         if (TileIndex::Invalid == new_grid )
         {
-            if (std::abs(object->getPosX() - bc_ptr->pos.x) > GRID_FSIZE ||
-                std::abs(object->getPosY() - bc_ptr->pos.y) > GRID_FSIZE)
+            if (std::abs(object->getPosX() - bc_ptr->pos[kX]) > GRID_FSIZE ||
+                std::abs(object->getPosY() - bc_ptr->pos[kY]) > GRID_FSIZE)
             {
                 needs_update = true;
             }
@@ -4991,34 +4991,34 @@ bool move_one_character_integrate_motion( Object * pchr )
     bumpdampen = ( bumpdampen + 1.0f ) * 0.5f;
 
     // interaction with the mesh
-    //if ( std::abs( pchr->vel.z ) > 0.0f )
+    //if ( std::abs( pchr->vel[kZ] ) > 0.0f )
     {
         const float vert_offset = RAISE * 0.25f;
         float grid_level = pchr->enviro.grid_level + vert_offset + 5;
 
-        tmp_pos.z += pchr->vel.z;
-        LOG_NAN( tmp_pos.z );
-        if ( tmp_pos.z < grid_level )
+        tmp_pos[kZ] += pchr->vel[kZ];
+        LOG_NAN( tmp_pos[kZ] );
+        if ( tmp_pos[kZ] < grid_level )
         {
-            if ( std::abs( pchr->vel.z ) < STOPBOUNCING )
+            if ( std::abs( pchr->vel[kZ] ) < STOPBOUNCING )
             {
-                pchr->vel.z = 0.0f;
-                tmp_pos.z = grid_level;
+                pchr->vel[kZ] = 0.0f;
+                tmp_pos[kZ] = grid_level;
             }
             else
             {
-                if ( pchr->vel.z < 0.0f )
+                if ( pchr->vel[kZ] < 0.0f )
                 {
-                    float diff = grid_level - tmp_pos.z;
+                    float diff = grid_level - tmp_pos[kZ];
 
-                    pchr->vel.z *= -pchr->phys.bumpdampen;
+                    pchr->vel[kZ] *= -pchr->phys.bumpdampen;
                     diff        *= -pchr->phys.bumpdampen;
 
-                    tmp_pos.z = std::max( tmp_pos.z + diff, grid_level );
+                    tmp_pos[kZ] = std::max( tmp_pos[kZ] + diff, grid_level );
                 }
                 else
                 {
-                    tmp_pos.z = grid_level;
+                    tmp_pos[kZ] = grid_level;
                 }
             }
         }
@@ -5027,7 +5027,7 @@ bool move_one_character_integrate_motion( Object * pchr )
     // fixes to the z-position
     if ( 0.0f != pchr->flyheight )
     {
-        if ( tmp_pos.z < 0.0f ) tmp_pos.z = 0.0f;  // Don't fall in pits...
+        if ( tmp_pos[kZ] < 0.0f ) tmp_pos[kZ] = 0.0f;  // Don't fall in pits...
     }
 
     updated_2d = false;
@@ -5036,20 +5036,20 @@ bool move_one_character_integrate_motion( Object * pchr )
     // interaction with the grid flags
     updated_2d = false;
     needs_test = false;
-    //if (std::abs(pchr->vel.x) + std::abs(pchr->vel.y) > 0.0f)
+    //if (std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) > 0.0f)
     {
         mesh_wall_data_t wdata;
 
         float old_x, old_y, new_x, new_y;
 
-        old_x = tmp_pos.x; LOG_NAN( old_x );
-        old_y = tmp_pos.y; LOG_NAN( old_y );
+        old_x = tmp_pos[kX]; LOG_NAN( old_x );
+        old_y = tmp_pos[kY]; LOG_NAN( old_y );
 
-        new_x = old_x + pchr->vel.x; LOG_NAN( new_x );
-        new_y = old_y + pchr->vel.y; LOG_NAN( new_y );
+        new_x = old_x + pchr->vel[kX]; LOG_NAN( new_x );
+        new_y = old_y + pchr->vel[kY]; LOG_NAN( new_y );
 
-        tmp_pos.x = new_x;
-        tmp_pos.y = new_y;
+        tmp_pos[kX] = new_x;
+        tmp_pos[kY] = new_y;
 
         if ( EMPTY_BIT_FIELD == Objectest_wall( pchr, tmp_pos, &wdata ) )
         {
@@ -5089,8 +5089,8 @@ bool move_one_character_integrate_motion( Object * pchr )
                         safe_pos   = pchr->safe_pos;
                     }
 
-                    diff[XX] = pchr->safe_pos.x - pchr->getPosX();
-                    diff[YY] = pchr->safe_pos.y - pchr->getPosY();
+                    diff[XX] = pchr->safe_pos[kX] - pchr->getPosX();
+                    diff[YY] = pchr->safe_pos[kY] - pchr->getPosY();
 
 					if (diff.length_abs() > 0.0f)
                     {
@@ -5111,8 +5111,8 @@ bool move_one_character_integrate_motion( Object * pchr )
                             safe_pos   = pchr->safe_pos;
                         }
 
-                        diff[XX] = bc->pos.x - pchr->getPosX();
-                        diff[YY] = bc->pos.y - pchr->getPosY();
+                        diff[XX] = bc->pos[kX] - pchr->getPosX();
+                        diff[YY] = bc->pos[kY] - pchr->getPosY();
 
                         if (diff.length_abs() > 0.0f )
                         {
@@ -5129,8 +5129,8 @@ bool move_one_character_integrate_motion( Object * pchr )
                     tmp_diff = chr_get_mesh_diff(pchr, tmp_pos, pressure);
                     diff_function_called = true;
 
-                    nrm[XX] = tmp_diff.x;
-                    nrm[YY] = tmp_diff.y;
+                    nrm[XX] = tmp_diff[kX];
+                    nrm[YY] = tmp_diff[kY];
 
                     if (nrm.length_abs() > 0.0f)
                     {
@@ -5233,7 +5233,7 @@ bool move_one_character_integrate_motion( Object * pchr )
                     if ( pressure_new < pressure_old )
                     {
                         // !!success!!
-                        needs_test = ( tmp_pos.x != save_pos.x ) || ( tmp_pos.y != save_pos.y );
+                        needs_test = ( tmp_pos[kX] != save_pos[kX] ) || ( tmp_pos[kY] != save_pos[kY] );
                     }
                     else
                     {
@@ -5543,7 +5543,7 @@ float set_character_animation_rate( Object * pchr )
     else
     {
         // For non-flying objects, we use the intended speed.
-		// new_v.x, new_v.y is the speed before any latches are applied.
+		// new_v[kX], new_v[kY] is the speed before any latches are applied.
         speed = fvec2_t(pchr->enviro.new_v[kX], pchr->enviro.new_v[kY]).length_abs();
         if ( pchr->enviro.is_slipping )
         {
@@ -6520,7 +6520,7 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
     mc_tmp->valid     = false;
     mc_tmp->type_bits = MAT_UNKNOWN;
 
-    mc_tmp->self_scale.x = mc_tmp->self_scale.y = mc_tmp->self_scale.z = pchr->fat;
+    mc_tmp->self_scale[kX] = mc_tmp->self_scale[kY] = mc_tmp->self_scale[kZ] = pchr->fat;
 
     // handle the overlay first of all
     if ( !handled && pchr->is_overlay && ichr != pchr->ai.target && _gameObjects.exists( pchr->ai.target ) )
@@ -6577,13 +6577,13 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->valid   = true;
             SET_BIT( mc_tmp->type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
-            mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-            mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
-            mc_tmp->rotate.z = ptarget->ori.facing_z;
+            mc_tmp->rotate[kX] = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+            mc_tmp->rotate[kY] = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+            mc_tmp->rotate[kZ] = ptarget->ori.facing_z;
 
             mc_tmp->pos = ptarget->getPosition();
 
-            mc_tmp->grip_scale.x = mc_tmp->grip_scale.y = mc_tmp->grip_scale.z = ptarget->fat;
+            mc_tmp->grip_scale[kX] = mc_tmp->grip_scale[kY] = mc_tmp->grip_scale[kZ] = ptarget->fat;
         }
     }
 
@@ -6700,7 +6700,7 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        mat_FourPoints( pweap->inst.matrix.v, nupoint[0], nupoint[1], nupoint[2], nupoint[3], mc_tmp->self_scale.z );
+        mat_FourPoints( pweap->inst.matrix.v, nupoint[0], nupoint[1], nupoint[2], nupoint[3], mc_tmp->self_scale[kZ] );
 
         // update the weapon position
         pweap->setPosition(fvec3_t(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
@@ -6751,17 +6751,17 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mc_tmp )
     {
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
             pchr->inst.matrix.v,
-            mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
-            TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
-            mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
+            mc_tmp->self_scale,
+            TO_TURN( mc_tmp->rotate[kZ] ), TO_TURN( mc_tmp->rotate[kX] ), TO_TURN( mc_tmp->rotate[kY] ),
+            mc_tmp->pos);
     }
     else
     {
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
             pchr->inst.matrix.v,
-            mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
-            TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
-            mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
+            mc_tmp->self_scale,
+            TO_TURN( mc_tmp->rotate[kZ] ), TO_TURN( mc_tmp->rotate[kX] ), TO_TURN( mc_tmp->rotate[kY] ),
+            mc_tmp->pos);
     }
 
     memcpy( &( pchr->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
@@ -6803,15 +6803,15 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
                 mcache->valid     = true;
                 mcache->type_bits = MAT_CHARACTER;
 
-                mcache->self_scale.x =
-                    mcache->self_scale.y =
-                        mcache->self_scale.z = pchr->fat;
+                mcache->self_scale[kX] =
+                    mcache->self_scale[kY] =
+                        mcache->self_scale[kZ] = pchr->fat;
 
                 mcache->grip_scale = mcache->self_scale;
 
-                mcache->rotate.x = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
-                mcache->rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
-                mcache->rotate.z = pchr->ori.facing_z;
+                mcache->rotate[kX] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+                mcache->rotate[kY] = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
+                mcache->rotate[kZ] = pchr->ori.facing_z;
 
                 mcache->pos =pchr->getPosition();
 
@@ -6901,7 +6901,7 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
         // handle differences in the scale of our mount
         for ( cnt = 0; cnt < 3; cnt ++ )
         {
-            ftmp = plhs->grip_scale.v[cnt] - prhs->grip_scale.v[cnt];
+            ftmp = plhs->grip_scale[cnt] - prhs->grip_scale[cnt];
             if ( 0.0f != ftmp ) { itmp = SGN( ftmp ); goto cmp_matrix_cache_end; }
         }
     }
@@ -6912,14 +6912,14 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
         // handle differences in the "Euler" rotation angles in 16-bit form
         for ( cnt = 0; cnt < 3; cnt++ )
         {
-            ftmp = plhs->rotate.v[cnt] - prhs->rotate.v[cnt];
+            ftmp = plhs->rotate[cnt] - prhs->rotate[cnt];
             if ( 0.0f != ftmp ) { itmp = SGN( ftmp ); goto cmp_matrix_cache_end; }
         }
 
         // handle differences in the translate vector
         for ( cnt = 0; cnt < 3; cnt++ )
         {
-            ftmp = plhs->pos.v[cnt] - prhs->pos.v[cnt];
+            ftmp = plhs->pos[cnt] - prhs->pos[cnt];
             if ( 0.0f != ftmp ) { itmp = SGN( ftmp ); goto cmp_matrix_cache_end; }
         }
     }
@@ -6930,7 +6930,7 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
         // handle differences in our own scale
         for ( cnt = 0; cnt < 3; cnt ++ )
         {
-            ftmp = plhs->self_scale.v[cnt] - prhs->self_scale.v[cnt];
+            ftmp = plhs->self_scale[cnt] - prhs->self_scale[cnt];
             if ( 0.0f != ftmp ) { itmp = SGN( ftmp ); goto cmp_matrix_cache_end; }
         }
     }

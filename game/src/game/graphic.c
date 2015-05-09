@@ -388,8 +388,8 @@ gfx_rv renderlist_t::insert(const TileIndex& index, const Camera &cam)
 
     int ix = index.getI() % pmesh->info.tiles_x;
     int iy = index.getI() / pmesh->info.tiles_x;
-    float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter().x;
-    float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter().y;
+    float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter()[kX];
+    float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter()[kY];
     float distance = dx * dx + dy * dy;
 
     // Put each tile in basic list
@@ -2123,7 +2123,7 @@ void draw_map()
         //        camera_t * pcam = camera_list_iterator_get_camera(it);
         //        if( NULL == pcam ) continue;
 
-        //        draw_blip( 0.75f, COLOR_PURPLE, pcam->getPosition().x, pcam->getPosition().y, true );
+        //        draw_blip( 0.75f, COLOR_PURPLE, pcam->getPosition()[kX], pcam->getPosition()[kY], true );
         //    }
         //    it = camera_list_iterator_end(it);
         //}
@@ -2257,7 +2257,7 @@ float draw_debug(float y)
 
         // Debug information
         y = draw_string_raw(0, y, "!!!DEBUG MODE-5!!!");
-        y = draw_string_raw(0, y, "~~CAM %f %f %f", _cameraSystem.getMainCamera()->getPosition().x, _cameraSystem.getMainCamera()->getPosition().y, _cameraSystem.getMainCamera()->getPosition().z);
+        y = draw_string_raw(0, y, "~~CAM %f %f %f", _cameraSystem.getMainCamera()->getPosition()[kX], _cameraSystem.getMainCamera()->getPosition()[kY], _cameraSystem.getMainCamera()->getPosition()[kZ]);
         ipla = (PLA_REF)0;
         if (VALID_PLA(ipla))
         {
@@ -2313,7 +2313,7 @@ float draw_debug(float y)
         y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 1), camera->getView().CNV(1, 1), camera->getView().CNV(2, 1), camera->getView().CNV(3, 1));
         y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 2), camera->getView().CNV(1, 2), camera->getView().CNV(2, 2), camera->getView().CNV(3, 2));
         y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 3), camera->getView().CNV(1, 3), camera->getView().CNV(2, 3), camera->getView().CNV(3, 3));
-        y = draw_string_raw(0, y, "CAM center <%f, %f>", camera->getCenter().x, camera->getCenter().y);
+        y = draw_string_raw(0, y, "CAM center <%f, %f>", camera->getCenter()[kX], camera->getCenter()[kY]);
         y = draw_string_raw(0, y, "CAM turn %d %d", camera->getTurnMode(), camera->getTurnTime());
     }
 
@@ -3796,46 +3796,46 @@ gfx_rv render_world_background(Camera& cam, const TX_REF texture)
 
     // determine the constants for the x-coordinate
     xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[XX]) / GRID_FSIZE;
-    Cx_0 = xmag * (1.0f + cam.getPosition().z       * ilayer->dist[XX]);
-    Cx_1 = -xmag * (1.0f + (cam.getPosition().z - z0) * ilayer->dist[XX]);
+    Cx_0 = xmag * (1.0f + cam.getPosition()[kZ]       * ilayer->dist[XX]);
+    Cx_1 = -xmag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->dist[XX]);
 
     // determine the constants for the y-coordinate
     ymag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[YY]) / GRID_FSIZE;
-    Cy_0 = ymag * (1.0f + cam.getPosition().z       * ilayer->dist[YY]);
-    Cy_1 = -ymag * (1.0f + (cam.getPosition().z - z0) * ilayer->dist[YY]);
+    Cy_0 = ymag * (1.0f + cam.getPosition()[kZ]       * ilayer->dist[YY]);
+    Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->dist[YY]);
 
     // Figure out the coordinates of its corners
     Qx = -pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[0].pos[XX] = Qx;
     vtlist[0].pos[YY] = Qy;
-    vtlist[0].pos[ZZ] = cam.getPosition().z - z0;
-    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx[XX];
-    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx[YY];
+    vtlist[0].pos[ZZ] = cam.getPosition()[kZ] - z0;
+    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
+    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
 
     Qx = 2 * pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[1].pos[XX] = Qx;
     vtlist[1].pos[YY] = Qy;
-    vtlist[1].pos[ZZ] = cam.getPosition().z - z0;
-    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx[XX];
-    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx[YY];
+    vtlist[1].pos[ZZ] = cam.getPosition()[kZ] - z0;
+    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
+    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
 
     Qx = 2 * pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[2].pos[XX] = Qx;
     vtlist[2].pos[YY] = Qy;
-    vtlist[2].pos[ZZ] = cam.getPosition().z - z0;
-    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx[XX];
-    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx[YY];
+    vtlist[2].pos[ZZ] = cam.getPosition()[kZ] - z0;
+    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
+    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
 
     Qx = -pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[3].pos[XX] = Qx;
     vtlist[3].pos[YY] = Qy;
-    vtlist[3].pos[ZZ] = cam.getPosition().z - z0;
-    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition().x + ilayer->tx[XX];
-    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition().y + ilayer->tx[YY];
+    vtlist[3].pos[ZZ] = cam.getPosition()[kZ] - z0;
+    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
+    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
 
     light = water.light ? 1.0f : 0.0f;
     alpha = ilayer->alpha * INV_FF;
@@ -5109,10 +5109,10 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
             radius = std::sqrt(pdyna->falloff * 765.0f * 0.5f);
 
             // find the intersection with the frustum boundary
-            ftmp.xmin = std::max(pdyna->pos.x - radius, mesh_bound.xmin);
-            ftmp.xmax = std::min(pdyna->pos.x + radius, mesh_bound.xmax);
-            ftmp.ymin = std::max(pdyna->pos.y - radius, mesh_bound.ymin);
-            ftmp.ymax = std::min(pdyna->pos.y + radius, mesh_bound.ymax);
+            ftmp.xmin = std::max(pdyna->pos[kX] - radius, mesh_bound.xmin);
+            ftmp.xmax = std::min(pdyna->pos[kX] + radius, mesh_bound.xmax);
+            ftmp.ymin = std::max(pdyna->pos[kY] - radius, mesh_bound.ymin);
+            ftmp.ymax = std::min(pdyna->pos[kY] + radius, mesh_bound.ymax);
 
             // check to see if it intersects the "frustum"
             if (ftmp.xmin >= ftmp.xmax || ftmp.ymin >= ftmp.ymax) continue;
@@ -5148,9 +5148,9 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
             pdyna = dyl.lst + cnt;
 
             // evaluate the intensity at the camera
-            diff.x = pdyna->pos.x - cam.getCenter().x;
-            diff.y = pdyna->pos.y - cam.getCenter().y;
-            diff.z = pdyna->pos.z - cam.getCenter().z - 90.0f;   // evaluated at the "head height" of a character
+            diff[kX] = pdyna->pos[kX] - cam.getCenter()[kX];
+            diff[kY] = pdyna->pos[kY] - cam.getCenter()[kY];
+            diff[kZ] = pdyna->pos[kZ] - cam.getCenter()[kZ] - 90.0f;   // evaluated at the "head height" of a character
 
             dyna_weight = std::abs(dyna_lighting_intensity(pdyna, diff));
 
@@ -5176,10 +5176,10 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
             radius = std::sqrt(fake_dynalight.falloff * 765.0f * 0.5f);
 
             // find the intersection with the frustum boundary
-            ftmp.xmin = std::max(fake_dynalight.pos.x - radius, mesh_bound.xmin);
-            ftmp.xmax = std::min(fake_dynalight.pos.x + radius, mesh_bound.xmax);
-            ftmp.ymin = std::max(fake_dynalight.pos.y - radius, mesh_bound.ymin);
-            ftmp.ymax = std::min(fake_dynalight.pos.y + radius, mesh_bound.ymax);
+            ftmp.xmin = std::max(fake_dynalight.pos[kX] - radius, mesh_bound.xmin);
+            ftmp.xmax = std::min(fake_dynalight.pos[kX] + radius, mesh_bound.xmax);
+            ftmp.ymin = std::max(fake_dynalight.pos[kY] - radius, mesh_bound.ymin);
+            ftmp.ymax = std::min(fake_dynalight.pos[kY] + radius, mesh_bound.ymax);
 
             // make a fake light bound
             light_bound = ftmp;
@@ -5284,12 +5284,12 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
                             pdyna = dyl.lst + tnc;
                         }
 
-                        nrm.x = pdyna->pos.x - x0;
-                        nrm.y = pdyna->pos.y - y0;
-                        nrm.z = pdyna->pos.z - ptmem->bbox.mins[ZZ];
+                        nrm[kX] = pdyna->pos[kX] - x0;
+                        nrm[kY] = pdyna->pos[kY] - y0;
+                        nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.mins[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.low.lighting, nrm);
 
-                        nrm.z = pdyna->pos.z - ptmem->bbox.maxs[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.maxs[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.hgh.lighting, nrm);
                     }
                 }
@@ -5478,18 +5478,18 @@ float calc_light_rotation(int rotation, int normal)
     fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
 
-    nrm.x = MD2Model::getMD2Normal(normal, 0);
-    nrm.y = MD2Model::getMD2Normal(normal, 1);
-    nrm.z = MD2Model::getMD2Normal(normal, 2);
+    nrm[kX] = MD2Model::getMD2Normal(normal, 0);
+    nrm[kY] = MD2Model::getMD2Normal(normal, 1);
+    nrm[kZ] = MD2Model::getMD2Normal(normal, 2);
 
     sinrot = sinlut[rotation];
     cosrot = coslut[rotation];
 
-    nrm2.x = cosrot * nrm.x + sinrot * nrm.y;
-    nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
-    nrm2.z = nrm.z;
+    nrm2[kX] = cosrot * nrm[kX] + sinrot * nrm[kY];
+    nrm2[kY] = cosrot * nrm[kY] - sinrot * nrm[kX];
+    nrm2[kZ] = nrm[kZ];
 
-    return (nrm2.x < 0) ? 0 : (nrm2.x * nrm2.x);
+    return (nrm2[kX] < 0) ? 0 : (nrm2[kX] * nrm2[kX]);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5501,18 +5501,18 @@ float calc_light_global(int rotation, int normal, float lx, float ly, float lz)
     fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
 
-    nrm.x = MD2Model::getMD2Normal(normal, 0);
-    nrm.y = MD2Model::getMD2Normal(normal, 1);
-    nrm.z = MD2Model::getMD2Normal(normal, 2);
+    nrm[kX] = MD2Model::getMD2Normal(normal, 0);
+    nrm[kY] = MD2Model::getMD2Normal(normal, 1);
+    nrm[kZ] = MD2Model::getMD2Normal(normal, 2);
 
     sinrot = sinlut[rotation];
     cosrot = coslut[rotation];
 
-    nrm2.x = cosrot * nrm.x + sinrot * nrm.y;
-    nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
-    nrm2.z = nrm.z;
+    nrm2[kX] = cosrot * nrm[kX] + sinrot * nrm[kY];
+    nrm2[kY] = cosrot * nrm[kY] - sinrot * nrm[kX];
+    nrm2[kZ] = nrm[kZ];
 
-    fTmp = nrm2.x * lx + nrm2.y * ly + nrm2.z * lz;
+    fTmp = nrm2[kX] * lx + nrm2[kY] * ly + nrm2[kZ] * lz;
     if (fTmp < 0) fTmp = 0;
 
     return fTmp * fTmp;

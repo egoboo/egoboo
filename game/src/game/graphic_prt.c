@@ -300,7 +300,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
 
     // Fill in the rest of the data. (make it match the case for characters)
     startalpha = 255;
-    startalpha -= 2.0f * (pprt->enviro.floor_level - pinst->ref_pos.z);
+    startalpha -= 2.0f * (pprt->enviro.floor_level - pinst->ref_pos[kZ]);
     startalpha *= 0.5f;
     startalpha = CLIP(startalpha, 0, 255);
 
@@ -444,26 +444,26 @@ void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float si
 
     for (i = 0; i < 4; i++)
     {
-        v[i].x = prt_pos.x;
-        v[i].y = prt_pos.y;
-        v[i].z = prt_pos.z;
+        v[i].x = prt_pos[kX];
+        v[i].y = prt_pos[kY];
+        v[i].z = prt_pos[kZ];
     }
 
-    v[0].x += (-prt_right.x - prt_up.x) * size;
-    v[0].y += (-prt_right.y - prt_up.y) * size;
-    v[0].z += (-prt_right.z - prt_up.z) * size;
+    v[0].x += (-prt_right[kX] - prt_up[kX]) * size;
+    v[0].y += (-prt_right[kY] - prt_up[kY]) * size;
+    v[0].z += (-prt_right[kZ] - prt_up[kZ]) * size;
 
-    v[1].x += (prt_right.x - prt_up.x) * size;
-    v[1].y += (prt_right.y - prt_up.y) * size;
-    v[1].z += (prt_right.z - prt_up.z) * size;
+    v[1].x += (prt_right[kX] - prt_up[kX]) * size;
+    v[1].y += (prt_right[kY] - prt_up[kY]) * size;
+    v[1].z += (prt_right[kZ] - prt_up[kZ]) * size;
 
-    v[2].x += (prt_right.x + prt_up.x) * size;
-    v[2].y += (prt_right.y + prt_up.y) * size;
-    v[2].z += (prt_right.z + prt_up.z) * size;
+    v[2].x += (prt_right[kX] + prt_up[kX]) * size;
+    v[2].y += (prt_right[kY] + prt_up[kY]) * size;
+    v[2].z += (prt_right[kZ] + prt_up[kZ]) * size;
 
-    v[3].x += (-prt_right.x + prt_up.x) * size;
-    v[3].y += (-prt_right.y + prt_up.y) * size;
-    v[3].z += (-prt_right.z + prt_up.z) * size;
+    v[3].x += (-prt_right[kX] + prt_up[kX]) * size;
+    v[3].y += (-prt_right[kY] + prt_up[kY]) * size;
+    v[3].z += (-prt_right[kZ] + prt_up[kZ]) * size;
 
     v[0].s = CALCULATE_PRT_U1(index, pinst->image_ref);
     v[0].t = CALCULATE_PRT_V1(index, pinst->image_ref);
@@ -641,7 +641,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
 
     // Calculate the billboard vectors for the reflections.
     prt_t::get_pos(pprt, pinst->ref_pos);
-    pinst->ref_pos.z = 2 * pprt->enviro.floor_level - pinst->pos.z;
+    pinst->ref_pos[kZ] = 2 * pprt->enviro.floor_level - pinst->pos[kZ];
 
     // get the vector from the camera to the particle
     fvec3_t vfwd = pinst->pos - camera.getPosition();
@@ -697,8 +697,8 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
 
         // Adjust the vector so that the particle doesn't disappear if
         // you are viewing it from from the top or the bottom.
-        float weight = 1.0f - std::abs(vup_cam.z);
-        if (vup_cam.z < 0) weight *= -1;
+        float weight = 1.0f - std::abs(vup_cam[kZ]);
+        if (vup_cam[kZ] < 0) weight *= -1;
 
         vup += vup_cam * weight;
         vup.normalize();
@@ -896,17 +896,17 @@ fmat_4x4_t prt_instance_make_matrix(prt_instance_t *pinst)
 {
     fmat_4x4_t mat = fmat_4x4_t::identity();
 
-    mat.CNV(0, 1) = -pinst->up.x;
-    mat.CNV(1, 1) = -pinst->up.y;
-    mat.CNV(2, 1) = -pinst->up.z;
+    mat.CNV(0, 1) = -pinst->up[kX];
+    mat.CNV(1, 1) = -pinst->up[kY];
+    mat.CNV(2, 1) = -pinst->up[kZ];
 
-    mat.CNV(0, 0) = pinst->right.x;
-    mat.CNV(1, 0) = pinst->right.y;
-    mat.CNV(2, 0) = pinst->right.z;
+    mat.CNV(0, 0) = pinst->right[kX];
+    mat.CNV(1, 0) = pinst->right[kY];
+    mat.CNV(2, 0) = pinst->right[kZ];
 
-    mat.CNV(0, 2) = pinst->nrm.x;
-    mat.CNV(1, 2) = pinst->nrm.y;
-    mat.CNV(2, 2) = pinst->nrm.z;
+    mat.CNV(0, 2) = pinst->nrm[kX];
+    mat.CNV(1, 2) = pinst->nrm[kY];
+    mat.CNV(2, 2) = pinst->nrm[kZ];
 
     return mat;
 }
@@ -938,7 +938,7 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, prt_t *pprt, Uint8 tr
 
     // determine the normal dependent amount of light
     float amb, dir;
-    lighting_evaluate_cache(&loc_light, pinst->nrm, pinst->pos.z, PMesh->tmem.bbox, &amb, &dir);
+    lighting_evaluate_cache(&loc_light, pinst->nrm, pinst->pos[kZ], PMesh->tmem.bbox, &amb, &dir);
 
     // LIGHT-blended sprites automatically glow. ALPHA-blended and SOLID
     // sprites need to convert the light channel into additional alpha

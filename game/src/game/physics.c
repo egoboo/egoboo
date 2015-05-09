@@ -197,9 +197,9 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
 
     fvec3_t nrm_aa;
 
-    if (0.0f != odepth[OCT_X]) nrm_aa.x = 1.0f / odepth[OCT_X];
-    if (0.0f != odepth[OCT_Y]) nrm_aa.y = 1.0f / odepth[OCT_Y];
-    if (0.0f != odepth[OCT_Z]) nrm_aa.z = 1.0f / odepth[OCT_Z];
+    if (0.0f != odepth[OCT_X]) nrm_aa[kX] = 1.0f / odepth[OCT_X];
+    if (0.0f != odepth[OCT_Y]) nrm_aa[kY] = 1.0f / odepth[OCT_Y];
+    if (0.0f != odepth[OCT_Z]) nrm_aa[kZ] = 1.0f / odepth[OCT_Z];
 
     if ( 1.0f == exponent )
     {
@@ -213,23 +213,23 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
     // find a minimum distance
     float tmin_aa = 1e6;
 
-    if (nrm_aa.x != 0.0f)
+    if (nrm_aa[kX] != 0.0f)
     {
-        float ftmp = odepth[OCT_X] / nrm_aa.x;
+        float ftmp = odepth[OCT_X] / nrm_aa[kX];
         ftmp = std::max(0.0f, ftmp);
         tmin_aa = std::min(tmin_aa, ftmp);
     }
 
-    if (nrm_aa.y != 0.0f)
+    if (nrm_aa[kY] != 0.0f)
     {
-        float ftmp = odepth[OCT_Y] / nrm_aa.y;
+        float ftmp = odepth[OCT_Y] / nrm_aa[kY];
         ftmp = std::max(0.0f, ftmp);
         tmin_aa = std::min(tmin_aa, ftmp);
     }
 
-    if (nrm_aa.z != 0.0f)
+    if (nrm_aa[kZ] != 0.0f)
     {
-        float ftmp = odepth[OCT_Z] / nrm_aa.z;
+        float ftmp = odepth[OCT_Z] / nrm_aa[kZ];
         ftmp = std::max(0.0f, ftmp);
         tmin_aa = std::min(tmin_aa, ftmp);
     }
@@ -239,9 +239,9 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
     // Next do the diagonal axes.
 	fvec3_t nrm_diag = fvec3_t::zero();
 
-    if (0.0f != odepth[OCT_XY]) nrm_diag.x = 1.0f / (odepth[OCT_XY] * Ego::Math::invSqrtTwo<float>());
-    if (0.0f != odepth[OCT_YX]) nrm_diag.y = 1.0f / (odepth[OCT_YX] * Ego::Math::invSqrtTwo<float>());
-    if (0.0f != odepth[OCT_Z ]) nrm_diag.z = 1.0f / odepth[OCT_Z];
+    if (0.0f != odepth[OCT_XY]) nrm_diag[kX] = 1.0f / (odepth[OCT_XY] * Ego::Math::invSqrtTwo<float>());
+    if (0.0f != odepth[OCT_YX]) nrm_diag[kY] = 1.0f / (odepth[OCT_YX] * Ego::Math::invSqrtTwo<float>());
+    if (0.0f != odepth[OCT_Z ]) nrm_diag[kZ] = 1.0f / odepth[OCT_Z];
 
     if (1.0f == exponent)
     {
@@ -255,23 +255,23 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
     // find a minimum distance
     float tmin_diag = 1e6;
 
-    if (nrm_diag.x != 0.0f)
+    if (nrm_diag[kX] != 0.0f)
     {
-        float ftmp = Ego::Math::invSqrtTwo<float>() * odepth[OCT_XY] / nrm_diag.x;
+        float ftmp = Ego::Math::invSqrtTwo<float>() * odepth[OCT_XY] / nrm_diag[kX];
         ftmp = std::max(0.0f, ftmp);
         tmin_diag = std::min(tmin_diag, ftmp);
     }
 
-    if (nrm_diag.y != 0.0f)
+    if (nrm_diag[kY] != 0.0f)
     {
-        float ftmp = Ego::Math::invSqrtTwo<float>() * odepth[OCT_YX] / nrm_diag.y;
+        float ftmp = Ego::Math::invSqrtTwo<float>() * odepth[OCT_YX] / nrm_diag[kY];
         ftmp = std::max(0.0f, ftmp);
         tmin_diag = std::min(tmin_diag, ftmp);
     }
 
-    if (nrm_diag.z != 0.0f)
+    if (nrm_diag[kZ] != 0.0f)
     {
-        float ftmp = odepth[OCT_Z] / nrm_diag.z;
+        float ftmp = odepth[OCT_Z] / nrm_diag[kZ];
         ftmp = std::max(0.0f, ftmp);
         tmin_diag = std::min(tmin_diag, ftmp);
     }
@@ -289,9 +289,9 @@ bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3
         tmin = tmin_diag;
 
         // !!!! rotate the diagonal axes onto the axis aligned ones !!!!!
-        nrm[kX] = (nrm_diag.x - nrm_diag.y) * Ego::Math::invSqrtTwo<float>();
-        nrm[kY] = (nrm_diag.x + nrm_diag.y) * Ego::Math::invSqrtTwo<float>();
-        nrm[kZ] = nrm_diag.z;
+        nrm[kX] = (nrm_diag[kX] - nrm_diag[kY]) * Ego::Math::invSqrtTwo<float>();
+        nrm[kY] = (nrm_diag[kX] + nrm_diag[kY]) * Ego::Math::invSqrtTwo<float>();
+        nrm[kZ] = nrm_diag[kZ];
     }
 
     // normalize this normal
@@ -1033,9 +1033,9 @@ bool phys_expand_prt_bb(prt_t *pprt, float tmin, float tmax, oct_bb_t& dst)
  */
 static fvec3_t snap(const fvec3_t& p)
 {
-    return fvec3_t((FLOOR(p.x / GRID_FSIZE) + 0.5f) * GRID_FSIZE,
-                   (FLOOR(p.y / GRID_FSIZE) + 0.5f) * GRID_FSIZE,
-                   p.z);
+    return fvec3_t((FLOOR(p[kX] / GRID_FSIZE) + 0.5f) * GRID_FSIZE,
+                   (FLOOR(p[kY] / GRID_FSIZE) + 0.5f) * GRID_FSIZE,
+                   p[kZ]);
 }
 
 breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, Object *chr)
@@ -1054,7 +1054,7 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, Object *chr)
     self->bits   = chr->stoppedby;
     self->radius = chr->bump_1.size;
     self->pos = snap(chr->getPosition());
-    self->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos.x, self->pos.y)).getI();
+    self->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos[kX], self->pos[kY])).getI();
     self->valid  = (0 == ego_mesh_test_wall(PMesh, self->pos, self->radius, self->bits, nullptr));
 
     self->id = breadcrumb_guid++;
@@ -1089,7 +1089,7 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, prt_t *particle)
 
     fvec3_t pos = prt_t::get_pos_v_const(particle);
     self->pos = snap(prt_t::get_pos_v_const(particle));
-    self->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos.x, self->pos.y)).getI();
+    self->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos[kX], self->pos[kY])).getI();
     self->valid  = ( 0 == ego_mesh_test_wall( PMesh, self->pos, self->radius, self->bits, nullptr));
 
     self->id = breadcrumb_guid++;
@@ -1476,7 +1476,7 @@ bool apos_t::self_union(apos_t *self, const fvec3_t& other)
         }
 
         // Find the sum of the displacement.
-        self->sum.v[i] += other[i];
+        self->sum[i] += other[i];
     }
 
     return true;
@@ -1595,7 +1595,7 @@ phys_data_t *phys_data_sum_avel_index(phys_data_t *self, const float val, const 
 
     LOG_NAN(val);
 
-    self->avel.v[index] += val;
+    self->avel[index] += val;
 
     return self;
 }

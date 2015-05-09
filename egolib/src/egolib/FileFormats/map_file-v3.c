@@ -42,7 +42,7 @@ bool map_read_v3(vfs_FILE *file, map_t *map)
     {
         float ieee32_tmp;
         vfs_read_float(file, &ieee32_tmp);
-        vertex.pos.x = ieee32_tmp;
+        vertex.pos[kX] = ieee32_tmp;
     }
 
     // Load the y-coordinate of each vertex.
@@ -50,7 +50,7 @@ bool map_read_v3(vfs_FILE *file, map_t *map)
     {
         float ieee32_tmp;
         vfs_read_float(file, &ieee32_tmp);
-        vertex.pos.y = ieee32_tmp;
+        vertex.pos[kY] = ieee32_tmp;
     }
 
     // Load the z-coordinate of each vertex.
@@ -59,7 +59,7 @@ bool map_read_v3(vfs_FILE *file, map_t *map)
         float ieee32_tmp;
         vfs_read_float(file, &ieee32_tmp);
         // Cartman scales the z-axis based off of a 4 bit fixed precision number.
-        vertex.pos.z = ieee32_tmp / 16.0f;
+        vertex.pos[kZ] = ieee32_tmp / 16.0f;
     }
 
     return true;
@@ -79,20 +79,20 @@ bool map_write_v3(vfs_FILE *file, const map_t *map)
     // Write the x-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
-        vfs_write_float(file, vertex.pos.x);
+        vfs_write_float(file, vertex.pos[kX]);
     }
 
     // Write the y-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
-        vfs_write_float(file, vertex.pos.y);
+        vfs_write_float(file, vertex.pos[kY]);
     }
 
     // Write the y-coordinate of each vertex.
     for (const auto& vertex : mem.vertices)
     {
         // Cartman scales the z-axis based off of a 4 bit fixed precision number.
-        vfs_write_float(file, vertex.pos.z * 16.0f);
+        vfs_write_float(file, vertex.pos[kZ] * 16.0f);
     }
 
     return true;

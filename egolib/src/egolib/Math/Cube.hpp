@@ -83,7 +83,7 @@ struct cube_t
      */
     fvec3_t getMin() const
     {
-        return fvec3_t(center.x - size, center.y - size, center.z - size);
+        return fvec3_t(center[kX] - size, center[kY] - size, center[kZ] - size);
     }
 
     /**
@@ -94,7 +94,7 @@ struct cube_t
      */
     fvec3_t getMax() const
     {
-        return fvec3_t(center.x + size, center.y + size, center.z + size);
+        return fvec3_t(center[kX] + size, center[kY] + size, center[kZ] + size);
     }
 
     /**

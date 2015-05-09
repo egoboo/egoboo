@@ -1095,9 +1095,9 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
             if ( !psrc->invictus )
             {
                 // set the line-of-sight source
-                los_info.x1 = ptst->getPosition().x;
-                los_info.y1 = ptst->getPosition().y;
-                los_info.z1 = ptst->getPosition().z + std::max( 1.0f, ptst->bump.height );
+                los_info.x1 = ptst->getPosition()[kX];
+                los_info.y1 = ptst->getPosition()[kY];
+                los_info.z1 = ptst->getPosition()[kZ] + std::max( 1.0f, ptst->bump.height );
 
                 if ( line_of_sight_blocked( &los_info ) ) continue;
             }
@@ -1187,7 +1187,7 @@ void update_pits()
             // Kill any particles that fell in a pit, if they die in water...
             PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
             {
-                if ( prt_bdl.prt_ptr->pos.z < PITDEPTH && prt_bdl.pip_ptr->end_water )
+                if ( prt_bdl.prt_ptr->pos[kZ] < PITDEPTH && prt_bdl.pip_ptr->end_water )
                 {
                     end_one_particle_now( prt_bdl.prt_ref );
                 }
@@ -1206,8 +1206,8 @@ void update_pits()
                 {
                     // Got one!
                     kill_character( pchr->getCharacterID(), INVALID_CHR_REF, false );
-                    pchr->vel.x = 0;
-                    pchr->vel.y = 0;
+                    pchr->vel[kX] = 0;
+                    pchr->vel[kY] = 0;
 
                     /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
                     // Play sound effect
@@ -1220,7 +1220,7 @@ void update_pits()
                     bool teleported;
 
                     // Teleport them back to a "safe" spot
-                    teleported = pchr->teleport(pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pchr->ori.facing_z);
+                    teleported = pchr->teleport(pits.teleport_pos, pchr->ori.facing_z);
 
                     if ( !teleported )
                     {
@@ -1308,11 +1308,11 @@ void do_weather_spawn_particles()
                         else
                         {
                             // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                            if ( pprt->pos.x < EDGE || pprt->pos.x > PMesh->gmem.edge_x - EDGE )
+                            if ( pprt->pos[kX] < EDGE || pprt->pos[kX] > PMesh->gmem.edge_x - EDGE )
                             {
                                 destroy_particle = true;
                             }
-                            else if ( pprt->pos.y < EDGE || pprt->pos.y > PMesh->gmem.edge_y - EDGE )
+                            else if ( pprt->pos[kY] < EDGE || pprt->pos[kY] > PMesh->gmem.edge_y - EDGE )
                             {
                                 destroy_particle = true;
                             }
@@ -3773,18 +3773,15 @@ bool wawalite_finalize(wawalite_data_t *data)
         const float default_bg_repeat = 4.0f;
 
         windspeed_count++;
-
-        Physics::g_environment.windspeed.x += -ilayer->tx_add[SS] * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
-        Physics::g_environment.windspeed.y += -ilayer->tx_add[TT] * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
-        Physics::g_environment.windspeed.z += -0;
+        Physics::g_environment.windspeed[kX] += -ilayer->tx_add[SS] * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[XX]) / cam_height;
+        Physics::g_environment.windspeed[kY] += -ilayer->tx_add[TT] * GRID_FSIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist[YY]) / cam_height;
+        Physics::g_environment.windspeed[kZ] += -0;
     }
     else
     {
         waterspeed_count++;
-
-        Physics::g_environment.waterspeed.x += -ilayer->tx_add[SS] * GRID_FSIZE;
-        Physics::g_environment.waterspeed.y += -ilayer->tx_add[TT] * GRID_FSIZE;
-        Physics::g_environment.waterspeed.z += -0;
+        fvec3_t tmp(-ilayer->tx_add[SS] * GRID_FSIZE, -ilayer->tx_add[TT] * GRID_FSIZE, 0.0f);
+        Physics::g_environment.waterspeed += tmp;
     }
 
     ilayer = wawalite_data.water.layer + 1;
@@ -3792,31 +3789,27 @@ bool wawalite_finalize(wawalite_data_t *data)
     {
         windspeed_count++;
 
-        Physics::g_environment.windspeed.x += -600 * ilayer->tx_add[SS] * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
-        Physics::g_environment.windspeed.y += -600 * ilayer->tx_add[TT] * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
-        Physics::g_environment.windspeed.z += -0;
+        Physics::g_environment.windspeed[kX] += -600 * ilayer->tx_add[SS] * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        Physics::g_environment.windspeed[kY] += -600 * ilayer->tx_add[TT] * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        Physics::g_environment.windspeed[kZ] += -0;
     }
     else
     {
         waterspeed_count++;
 
-        Physics::g_environment.waterspeed.x += -ilayer->tx_add[SS] * GRID_FSIZE;
-        Physics::g_environment.waterspeed.y += -ilayer->tx_add[TT] * GRID_FSIZE;
-        Physics::g_environment.waterspeed.z += -0;
+        Physics::g_environment.waterspeed[kX] += -ilayer->tx_add[SS] * GRID_FSIZE;
+        Physics::g_environment.waterspeed[kY] += -ilayer->tx_add[TT] * GRID_FSIZE;
+        Physics::g_environment.waterspeed[kZ] += -0;
     }
 
     if ( waterspeed_count > 1 )
     {
-        Physics::g_environment.waterspeed.x /= (float)waterspeed_count;
-        Physics::g_environment.waterspeed.y /= (float)waterspeed_count;
-        Physics::g_environment.waterspeed.z /= (float)waterspeed_count;
+        Physics::g_environment.waterspeed *= 1.0f/(float)waterspeed_count;
     }
 
     if ( windspeed_count > 1 )
     {
-        Physics::g_environment.windspeed.x /= (float)windspeed_count;
-        Physics::g_environment.windspeed.y /= (float)windspeed_count;
-        Physics::g_environment.windspeed.z /= (float)windspeed_count;
+        Physics::g_environment.windspeed *= 1.0f/(float)windspeed_count;
     }
 
     return true;
@@ -4327,7 +4320,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     chr_getMatUp(pplat, platform_up);
 	platform_up.normalize();
 
-    pchr->enviro.traction = std::abs( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
+    pchr->enviro.traction = std::abs( platform_up[kZ] ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance

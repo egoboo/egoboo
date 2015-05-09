@@ -142,9 +142,9 @@ Again:
 
         info->slot = ctxt.readInt();
 
-        info->pos.x = ctxt.readReal() * GRID_FSIZE;
-        info->pos.y = ctxt.readReal() * GRID_FSIZE;
-        info->pos.z = ctxt.readReal() * GRID_FSIZE;
+        info->pos[kX] = ctxt.readReal() * GRID_FSIZE;
+        info->pos[kY] = ctxt.readReal() * GRID_FSIZE;
+        info->pos[kZ] = ctxt.readReal() * GRID_FSIZE;
 
         info->facing = FACE_NORTH;
         info->attach = ATTACH_NONE;

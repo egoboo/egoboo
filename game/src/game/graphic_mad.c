@@ -937,22 +937,22 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
         {
             for ( cnt = 1; cnt < GRIP_VERTS; cnt++ )
             {
-                src.x = pinst->vrt_lst[vmin].pos[XX];
-                src.y = pinst->vrt_lst[vmin].pos[YY];
-                src.z = pinst->vrt_lst[vmin].pos[ZZ];
+                src[kX] = pinst->vrt_lst[vmin].pos[XX];
+                src[kY] = pinst->vrt_lst[vmin].pos[YY];
+                src[kZ] = pinst->vrt_lst[vmin].pos[ZZ];
 
-                diff.x = pinst->vrt_lst[vmin+cnt].pos[XX] - src.x;
-                diff.y = pinst->vrt_lst[vmin+cnt].pos[YY] - src.y;
-                diff.z = pinst->vrt_lst[vmin+cnt].pos[ZZ] - src.z;
+                diff[kX] = pinst->vrt_lst[vmin+cnt].pos[XX] - src[kX];
+                diff[kY] = pinst->vrt_lst[vmin+cnt].pos[YY] - src[kY];
+                diff[kZ] = pinst->vrt_lst[vmin+cnt].pos[ZZ] - src[kZ];
 
-                dst.x = src.x + 3 * diff.x;
-                dst.y = src.y + 3 * diff.y;
-                dst.z = src.z + 3 * diff.z;
+                dst[kX] = src[kX] + 3 * diff[kX];
+                dst[kY] = src[kY] + 3 * diff[kY];
+                dst[kZ] = src[kZ] + 3 * diff[kZ];
 
                 GL_DEBUG( glColor4fv )( col_ary[cnt-1] );
 
-                GL_DEBUG( glVertex3fv )( src.v );
-                GL_DEBUG( glVertex3fv )( dst.v );
+                GL_DEBUG( glVertex3f )( src[kX], src[kY], src[kZ] );
+                GL_DEBUG( glVertex3f )( dst[kX], dst[kY], dst[kZ] );
             }
         }
         GL_DEBUG_END();
@@ -1276,14 +1276,14 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], const std::vecto
             const MD2_Vertex &srcLast = lst_ary[i];
             const MD2_Vertex &srcNext = nxt_ary[i];
 
-            dst->pos[XX] = srcLast.pos.x + ( srcNext.pos.x - srcLast.pos.x ) * flip;
-            dst->pos[YY] = srcLast.pos.y + ( srcNext.pos.y - srcLast.pos.y ) * flip;
-            dst->pos[ZZ] = srcLast.pos.z + ( srcNext.pos.z - srcLast.pos.z ) * flip;
+            dst->pos[XX] = srcLast.pos[kX] + ( srcNext.pos[kX] - srcLast.pos[kX] ) * flip;
+            dst->pos[YY] = srcLast.pos[kY] + ( srcNext.pos[kY] - srcLast.pos[kY] ) * flip;
+            dst->pos[ZZ] = srcLast.pos[kZ] + ( srcNext.pos[kZ] - srcLast.pos[kZ] ) * flip;
             dst->pos[WW] = 1.0f;
 
-            dst->nrm[XX] = srcLast.nrm.x + ( srcNext.nrm.x - srcLast.nrm.x ) * flip;
-            dst->nrm[YY] = srcLast.nrm.y + ( srcNext.nrm.y - srcLast.nrm.y ) * flip;
-            dst->nrm[ZZ] = srcLast.nrm.z + ( srcNext.nrm.z - srcLast.nrm.z ) * flip;
+            dst->nrm[XX] = srcLast.nrm[kX] + ( srcNext.nrm[kX] - srcLast.nrm[kX] ) * flip;
+            dst->nrm[YY] = srcLast.nrm[kY] + ( srcNext.nrm[kY] - srcLast.nrm[kY] ) * flip;
+            dst->nrm[ZZ] = srcLast.nrm[kZ] + ( srcNext.nrm[kZ] - srcLast.nrm[kZ] ) * flip;
 
             vrta_lst = srcLast.normal;
             vrta_nxt = srcNext.normal;
@@ -2452,9 +2452,9 @@ matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
         mcache->grip_verts[cnt] = 0xFFFF;
     }
 
-    mcache->rotate.x = 0;
-    mcache->rotate.y = 0;
-    mcache->rotate.z = 0;
+    mcache->rotate[kX] = 0;
+    mcache->rotate[kY] = 0;
+    mcache->rotate[kZ] = 0;
 
     return mcache;
 }
