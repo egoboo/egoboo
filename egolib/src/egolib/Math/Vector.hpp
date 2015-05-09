@@ -30,6 +30,14 @@
 #include "egolib/Debug.hpp"
 #include "egolib/Math/Math.hpp"
 
+/**
+ * @brief
+ *    Enumerated indices for the elements of vectors.
+ */
+enum {
+    kX = 0, kY, kZ, kW
+};
+
 namespace Ego
 {
 namespace Math
@@ -91,6 +99,8 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
  *              std::false_type
  *          >::type
  *  @endcode
+ * @author
+ *  Michael Heilmann
  */
 template <typename _ScalarType, size_t _Dimensionality>
 struct AbstractVectorEnable
@@ -112,12 +122,24 @@ struct AbstractVectorConstructorEnable
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+/**
+ * @brief
+ *  A vector template generalizing dimensionality as well as the scalar type.
+ * @param _ScalarType
+ *  the type of a scalar value as well as the type of the vector's elements
+ * @param _Dimensionality
+ *  the dimensionality of the vector/the number of vector elements.
+ * @remark
+ *  A compile-time error is raised if the scalar type is not a floating point type
+ *  or the dimensionality is smaller than @a 1.
+ * @author
+ *  Michael Heilmann
+ */
 template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
 struct AbstractVector;
 
 template <typename _ScalarType, size_t _Dimensionality>
-struct AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type>
-{
+struct AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type> {
 
 public:
 
@@ -138,10 +160,13 @@ public:
     static const size_t Dimensionality;
 
 private:
+    
     /// @invariant the scalar type must be a floating point type.
     static_assert(std::is_floating_point<_ScalarType>::value, "_ScalarType must be a floating point type");
+    
     /// @invariant the dimensionality be a positive integral constant
     static_assert(std::integral_constant<size_t, _Dimensionality>::value > 0, "_Dimensionality must be a positive integral constant");
+    
     /**
      * @brief
      *  The elements of this vector.
@@ -160,8 +185,7 @@ public:
     }
 
     AbstractVector() :
-        _elements()
-    {}
+        _elements() {}
 
     AbstractVector(const MyType& other) {
         for (size_t i = 0; i < Dimensionality; ++i) {
@@ -671,12 +695,6 @@ const size_t AbstractVector<_ScalarType, _Dimensionality, typename std::enable_i
 
 } // namespace Math
 } // namespace Ego
-
-/**
- * @brief
- *    Enumerated indices for the elements of vectors.
- */
-enum { kX = 0, kY, kZ, kW };
 
 /// A 2-vector type that allows more than one form of access.
 typedef Ego::Math::AbstractVector<float, 2> fvec2_t;
