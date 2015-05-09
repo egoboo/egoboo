@@ -99,7 +99,13 @@ AudioSystem::AudioSystem() :
             Mix_VolumeMusic(_audioConfig.musicVolume);
             Mix_AllocateChannels(_audioConfig.maxsoundchannel);
 
-            log_message(" ... success!\n");
+            //Check if we can load OGG Vorbis music (this is non-fatal, game runs fine without music)
+            if (!Mix_Init(MIX_INIT_OGG)) {
+                log_warning(" failed! (%s)\n", Mix_GetError());
+            }
+            else {
+                log_message(" ... success!\n");
+            }
         }
     }
 }
