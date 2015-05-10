@@ -24,12 +24,14 @@
 #include "egolib/Image/ImageLoader_SDL.hpp"
 #include "egolib/Image/ImageLoader_SDL_image.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
+#include "egolib/Core/EnvironmentError.hpp"
 
 ImageManager *ImageManager::_singleton = nullptr;
 
-ImageManager::ImageManager()
+ImageManager::ImageManager() :
+    _loaders(),
+    _withSDL_image(egoboo_config_t::get().debug_sdlImage_enable.getValue())
 {
-    _withSDL_image = egoboo_config_t::get().debug_sdlImage_enable.getValue();
     if (_withSDL_image)
     {
         log_info("initializing SDL_image imaging version %d.%d.%d ...", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
@@ -40,8 +42,10 @@ ImageManager::ImageManager()
 #endif
         if ((IMG_Init(flags) & flags) != flags)
         {
-            log_warning(" ... failure\n");
+            Ego::Core::EnvironmentError error(__FILE__, __LINE__, "ImageManager", std::string("Failed to initialize SDL_Image subsystem (") + SDL_GetError() + ")");
             _withSDL_image = false;
+            log_warning(" %s\n", ((std::string)error).c_str());
+            throw error;
         }
         else
         {
@@ -95,10 +99,10 @@ ImageManager::ImageManager()
     }
     catch (std::exception& ex)
     {
-        log_warning(" failure");
+        log_warning(" failure\n");
         throw ex;
     }
-    log_info(" success");
+    log_info(" success\n");
 }
 
 ImageManager::~ImageManager()
