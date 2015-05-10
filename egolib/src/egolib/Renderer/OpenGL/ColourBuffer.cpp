@@ -21,7 +21,7 @@
 /// @brief  Colour buffer facade for OpenGL 2.1
 /// @author Michael Heilmann
 
-#include "egolib/Renderer/OpenGL/Colourbuffer.hpp"
+#include "egolib/Renderer/OpenGL/ColourBuffer.hpp"
 
 namespace Ego
 {
