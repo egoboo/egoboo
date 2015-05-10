@@ -180,9 +180,6 @@
     <ClCompile Include="src\egolib\extensions\ogl_include.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\extensions\ogl_texture.c">
-      <Filter>Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\extensions\SDL_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
@@ -414,6 +411,24 @@
     <ClCompile Include="src\egolib\Core\System.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\AccumulationBuffer.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\ColourBuffer.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\TextureUnit.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\DepthBuffer.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\Texture.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\Texture.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -522,9 +537,6 @@
       <Filter>Extensions</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\extensions\ogl_include.h">
-      <Filter>Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\extensions\ogl_texture.h">
       <Filter>Extensions</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\extensions\SDL_extensions.h">
@@ -856,6 +868,24 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\TemplateUtilities.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\AccumulationBuffer.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\ColourBuffer.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\TextureUnit.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\DepthBuffer.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\Texture.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\Texture.hpp">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

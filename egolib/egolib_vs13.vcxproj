@@ -172,6 +172,7 @@
       <MinimalRebuild>true</MinimalRebuild>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <UseFullPaths>true</UseFullPaths>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -232,6 +233,7 @@
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <UseFullPaths>true</UseFullPaths>
     </ClCompile>
     <Lib />
   </ItemDefinitionGroup>
@@ -255,6 +257,30 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\AccumulationBuffer.cpp" />
+    <ClCompile Include="src\egolib\Renderer\OpenGL\ColourBuffer.cpp" />
+    <ClCompile Include="src\egolib\Renderer\OpenGL\DepthBuffer.cpp" />
+    <ClCompile Include="src\egolib\Renderer\OpenGL\Texture.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\Texture.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\Texture.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\OpenGL\Texture.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\OpenGL\Texture.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\Texture.asm</AssemblerListingLocation>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\OpenGL\Texture.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\Texture.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\OpenGL\Texture.o</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\TextureUnit.cpp" />
+    <ClCompile Include="src\egolib\Renderer\Texture.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\Texture.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\Texture.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\Texture.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\Texture.o</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\Texture.asm</AssemblerListingLocation>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\Texture.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\Texture.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\Texture.o</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="src\egolib\Core\System.cpp" />
     <ClCompile Include="src\egolib\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="src\egolib\Graphics\VertexFormat.cpp" />
@@ -402,7 +428,6 @@
     <ClCompile Include="src\egolib\extensions\ogl_debug.c" />
     <ClCompile Include="src\egolib\extensions\ogl_extensions.c" />
     <ClCompile Include="src\egolib\extensions\ogl_include.c" />
-    <ClCompile Include="src\egolib\extensions\ogl_texture.c" />
     <ClCompile Include="src\egolib\extensions\SDL_extensions.c" />
     <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c" />
     <ClCompile Include="src\egolib\fileutil.c" />
@@ -447,6 +472,12 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\AccumulationBuffer.hpp" />
+    <ClInclude Include="src\egolib\Renderer\OpenGL\ColourBuffer.hpp" />
+    <ClInclude Include="src\egolib\Renderer\OpenGL\DepthBuffer.hpp" />
+    <ClInclude Include="src\egolib\Renderer\OpenGL\Texture.hpp" />
+    <ClInclude Include="src\egolib\Renderer\OpenGL\TextureUnit.hpp" />
+    <ClInclude Include="src\egolib\Renderer\Texture.hpp" />
     <ClInclude Include="src\egolib\Math\TemplateUtilities.hpp" />
     <ClInclude Include="src\egolib\Logic\Action.hpp" />
     <ClInclude Include="src\egolib\Core\EnvironmentError.hpp" />
@@ -563,7 +594,6 @@
     <ClInclude Include="src\egolib\extensions\ogl_debug.h" />
     <ClInclude Include="src\egolib\extensions\ogl_extensions.h" />
     <ClInclude Include="src\egolib\extensions\ogl_include.h" />
-    <ClInclude Include="src\egolib\extensions\ogl_texture.h" />
     <ClInclude Include="src\egolib\extensions\SDL_extensions.h" />
     <ClInclude Include="src\egolib\extensions\SDL_GL_extensions.h" />
     <ClInclude Include="src\egolib\fileutil.h" />
