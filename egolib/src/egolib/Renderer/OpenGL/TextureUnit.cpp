@@ -17,33 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.cpp
-/// @brief  Common interface of all renderers
+/// @file   egolib/Renderer/OpenGL/TextureUnit.cpp
+/// @brief  Texture unit facade for OpenGL 2.1
 /// @author Michael Heilmann
 
-#include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Renderer/OpenGL/Renderer.hpp"
+#include "egolib/Renderer/OpenGL/TextureUnit.hpp"
 
 namespace Ego
 {
-
-AccumulationBuffer::AccumulationBuffer()
-{}
-
-AccumulationBuffer::~AccumulationBuffer()
-{}
-
-ColourBuffer::ColourBuffer()
-{}
-
-ColourBuffer::~ColourBuffer()
-{}
-
-DepthBuffer::DepthBuffer()
-{}
-
-DepthBuffer::~DepthBuffer()
-{}
+namespace OpenGL
+{
 
 TextureUnit::TextureUnit()
 {}
@@ -51,15 +34,21 @@ TextureUnit::TextureUnit()
 TextureUnit::~TextureUnit()
 {}
 
-Renderer *RendererFactory::operator()()
+void TextureUnit::setActivated(oglx_texture_t *texture)
 {
-    return new OpenGL::Renderer();
+#if 0
+    if (!texture)
+    {
+        glDisable(GL_TEXTURE_1D);
+        glDisable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        Ego::OpenGL::Utilities::bind(texture->_id, texture->_type, texture->_textureAddressModeS, texture->_textureAddressModeT);
+    }
+    Ego::OpenGL::Utilities::isError();
+#endif
 }
 
-Renderer::Renderer()
-{}
-
-Renderer::~Renderer()
-{}
-
+} // namespace OpenGL
 } // namespace Ego

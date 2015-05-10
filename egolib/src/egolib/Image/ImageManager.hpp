@@ -21,6 +21,7 @@
 
 #include "egolib/platform.h"
 #include "egolib/vfs.h"
+#include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Image/ImageLoader.hpp"
 
 /**
@@ -216,5 +217,30 @@ public:
      *  if the image manager singleton is not initialized.
      */
     static ImageManager& get();
+
+    /**
+     * @brief
+     *  Get a cute default software(!) surface.
+     * @return
+     *  a pointer to the surface on success, a null pointer on failure
+     * @remark
+     *  The default image is a checkerboard texture consisting of
+     *  8 x 8 checkers each of a width and height of 16 x 16 pixels.
+     *  The x,y-the checker is black if z = x + y * 8 is odd and
+     *  is white otherwise.
+     */
+    std::shared_ptr<SDL_Surface> getDefaultImage();
+
+    /**
+     * @brief
+     *  Create a software(!) surface of the specified width, height and pixel format.
+     * @param width, height
+     *  the width and the height
+     * @param pixelFormatDescriptor
+     *  the pixel format descriptor of the pixel format
+     * @return
+     *  a pointer to the surface on success, a null pointer on failure
+     */
+    std::shared_ptr<SDL_Surface> createImage(size_t width, size_t height, const Ego::PixelFormatDescriptor& pixelFormatDescriptor);
 
 };

@@ -53,7 +53,7 @@ struct Cartman_Window
 {
     Uint8             on;       // Draw it?
 
-    oglx_texture_t    tex;      // Window images
+    oglx_texture_t    *tex;      // Window images
 
     // Window position
     int               x;

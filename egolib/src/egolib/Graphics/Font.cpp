@@ -26,7 +26,6 @@
 
 #include "egolib/Core/StringUtilities.hpp"
 #include "egolib/Graphics/FontManager.hpp"
-#include "egolib/Extensions/ogl_texture.h"
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/log.h"
 #include "egolib/vfs.h"
@@ -46,19 +45,21 @@ namespace Ego
         std::string text;
         
         StringCacheData() :
-        lastUseInTicks(0),
-        tex(new oglx_texture_t())
+            lastUseInTicks(0),
+            tex(new oglx_texture_t())
         {
-            oglx_texture_t *tmp = oglx_texture_t::ctor(tex);
-            EGOBOO_ASSERT(tex == tmp);
+            if (!tex)
+            {
+                throw std::runtime_error("unable to create texture");
+            }
         }
         
         ~StringCacheData()
         {
             if (tex != nullptr)
             {
-                oglx_texture_t::dtor(tex);
                 delete tex;
+                tex = nullptr;
             }
         }
     };
@@ -141,8 +142,9 @@ namespace Ego
             log_warning("Got a null surface from SDL_TTF: %s", TTF_GetError());
             return;
         }
+        std::shared_ptr<SDL_Surface> surface = std::shared_ptr<SDL_Surface>(textSurface, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
         std::string name = "Font text '" + text + "'";
-        oglx_texture_t::load(tex, name, textSurface);
+        tex->load(name, surface);
     }
     
     void Font::drawText(const std::string &text, int x, int y, const Ego::Math::Colour4f &colour)
@@ -173,10 +175,10 @@ namespace Ego
             drawTextToTexture(cache->tex, text);
         }
 
-        float w = oglx_texture_t::getSourceWidth(cache->tex);
-        float h = oglx_texture_t::getSourceHeight(cache->tex);
-        float u = w / oglx_texture_t::getWidth(cache->tex);
-        float v = h / oglx_texture_t::getHeight(cache->tex);
+        float w = cache->tex->getSourceWidth();
+        float h = cache->tex->getSourceHeight();
+        float u = w / cache->tex->getWidth();
+        float v = h / cache->tex->getHeight();
         
         auto& renderer = Ego::Renderer::get();
         renderer.setColour(colour);

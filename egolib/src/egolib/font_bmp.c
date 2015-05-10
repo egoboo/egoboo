@@ -28,8 +28,6 @@
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 
-#include "egolib/Extensions/ogl_texture.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int       fontoffset;                 // Line up fonts from top of screen
@@ -81,14 +79,14 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
 
     if (!tx_font) return;
 
-    if (INVALID_GL_ID == ego_texture_load_vfs( tx_font, szBitmap))
+    if (INVALID_GL_ID == ego_texture_load_vfs(tx_font, szBitmap))
     {
         log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
-    int xsize = oglx_texture_t::getSourceWidth(tx_font);
-    int ysize = oglx_texture_t::getSourceHeight(tx_font);
+    int xsize = tx_font->getSourceWidth();
+    int ysize = tx_font->getSourceHeight();
     if ( 0 == xsize || 0 == ysize )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );

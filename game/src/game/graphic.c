@@ -1483,10 +1483,10 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y, bool mini_map)
     {
         oglx_texture_t * ptex = TextureManager::get().get_valid_ptr((TX_REF)TX_BLIP);
 
-        tx_rect.xmin = (float)bliprect[color]._left / (float)oglx_texture_t::getWidth(ptex);
-        tx_rect.xmax = (float)bliprect[color]._right / (float)oglx_texture_t::getWidth(ptex);
-        tx_rect.ymin = (float)bliprect[color]._top / (float)oglx_texture_t::getHeight(ptex);
-        tx_rect.ymax = (float)bliprect[color]._bottom / (float)oglx_texture_t::getHeight(ptex);
+        tx_rect.xmin = (float)bliprect[color]._left / (float)ptex->getWidth();
+        tx_rect.xmax = (float)bliprect[color]._right / (float)ptex->getWidth();
+        tx_rect.ymin = (float)bliprect[color]._top / (float)ptex->getHeight();
+        tx_rect.ymax = (float)bliprect[color]._bottom / (float)ptex->getHeight();
 
         width = sizeFactor * (bliprect[color]._right - bliprect[color]._left);
         height = sizeFactor * (bliprect[color]._bottom - bliprect[color]._top);
@@ -1517,10 +1517,10 @@ float draw_icon_texture(oglx_texture_t * ptex, float x, float y, Uint8 sparkle_c
     else
     {
         tx_rect.xmin = 0.0f;
-        tx_rect.xmax = (float)oglx_texture_t::getSourceWidth(ptex) / (float)oglx_texture_t::getWidth(ptex);
+        tx_rect.xmax = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
         tx_rect.ymin = 0.0f;
         /// @todo Is this a bug? Tis only works if the images are rectangular.
-        tx_rect.ymax = (float)oglx_texture_t::getSourceWidth(ptex) / (float)oglx_texture_t::getWidth(ptex);
+        tx_rect.ymax = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
     }
 
     width = ICON_SIZE;
@@ -1603,9 +1603,9 @@ void draw_map_texture(float x, float y)
     sc_rect.ymax = y + MAPSIZE;
 
     tx_rect.xmin = 0;
-    tx_rect.xmax = (float)oglx_texture_t::getSourceWidth(ptex) / (float)oglx_texture_t::getWidth(ptex);
+    tx_rect.xmax = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
     tx_rect.ymin = 0;
-    tx_rect.ymax = (float)oglx_texture_t::getSourceHeight(ptex) / (float)oglx_texture_t::getHeight(ptex);
+    tx_rect.ymax = (float)ptex->getSourceHeight() / (float)ptex->getHeight();
 
     draw_quad_2d(ptex, sc_rect, tx_rect, false);
 }
@@ -1718,9 +1718,9 @@ float draw_one_bar(Uint8 bartype, float x_stt, float y_stt, int ticks, int maxti
     img_width = 112.0f;
     if (NULL != tx_ptr)
     {
-        tx_width = oglx_texture_t::getWidth(tx_ptr);
-        tx_height = oglx_texture_t::getHeight(tx_ptr);
-        img_width = oglx_texture_t::getSourceWidth(tx_ptr);
+        tx_width = tx_ptr->getWidth();
+        tx_height = tx_ptr->getHeight();
+        img_width = tx_ptr->getSourceWidth();
     }
 
     // calculate the bar parameters
@@ -2581,17 +2581,17 @@ void draw_mouse_cursor()
         // Compute the texture coordinate rectangle (in texture coordinates).
         tx_rect.xmin = 0.0f;
         tx_rect.ymin = 0.0f;
-        auto textureWidth = oglx_texture_t::getWidth(pcursor);
-        auto textureHeight = oglx_texture_t::getHeight(pcursor);
+        auto textureWidth = pcursor->getWidth();
+        auto textureHeight = pcursor->getHeight();
         tx_rect.xmax = (0 == textureWidth) ? 1.0f :
-                       (float)oglx_texture_t::getSourceWidth(pcursor) / (float)textureWidth;
+                       (float)pcursor->getSourceWidth() / (float)textureWidth;
         tx_rect.ymax = (0 == textureHeight) ? 1.0f :
-                       (float)oglx_texture_t::getSourceHeight(pcursor) / (float)textureHeight;
+                       (float)pcursor->getSourceHeight() / (float)textureHeight;
         // Compute the target coordinate rectangle (in pixels).
         sc_rect.xmin = x;
         sc_rect.ymin = y;
-        sc_rect.xmax = x + oglx_texture_t::getSourceWidth(pcursor);
-        sc_rect.ymax = y + oglx_texture_t::getSourceHeight(pcursor);
+        sc_rect.xmax = x + pcursor->getSourceWidth();
+        sc_rect.ymax = y + pcursor->getSourceHeight();
         // Hide the system mouse cursor.
         SDL_ShowCursor(SDL_DISABLE);
         // Draw the cursor.
@@ -5611,8 +5611,8 @@ gfx_rv gfx_update_all_chr_instance()
 // Tiled texture "optimizations"
 //--------------------------------------------------------------------------------------------
 
-oglx_texture_t TextureAtlasManager::sml[MESH_IMG_COUNT];
-oglx_texture_t TextureAtlasManager::big[MESH_IMG_COUNT];
+oglx_texture_t *TextureAtlasManager::sml[MESH_IMG_COUNT];
+oglx_texture_t *TextureAtlasManager::big[MESH_IMG_COUNT];
 
 int TextureAtlasManager::big_cnt = 0;
 int TextureAtlasManager::sml_cnt = 0;
@@ -5682,27 +5682,7 @@ void TextureAtlasManager::initialize()
     {
         for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
         {
-            if (!oglx_texture_t::ctor(&(sml[i])))
-            {
-                while (i > 0)
-                {
-                    --i;
-                    oglx_texture_t::dtor(&(big[i]));
-                    oglx_texture_t::dtor(&(sml[i]));
-                }
-                throw std::runtime_error("unable to initialize texture atlas manager");
-            }
-            if (!oglx_texture_t::ctor(&(big[i])))
-            {
-                oglx_texture_t::dtor(&(sml[i]));
-                while (i > 0)
-                {
-                    --i;
-                    oglx_texture_t::dtor(&(big[i]));
-                    oglx_texture_t::dtor(&(sml[i]));
-                }
-                throw std::runtime_error("unable to initialize texture atlas manager");
-            }
+            sml[i] = nullptr;
         }
         sml_cnt = 0;
         big_cnt = 0;
@@ -5723,10 +5703,15 @@ void TextureAtlasManager::uninitialize()
 #else
     if (initialized)
     {
-        for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
+        for (size_t i = 0; i < sml_cnt; ++i)
         {
-            oglx_texture_t::dtor(&(sml[i]));
-            oglx_texture_t::dtor(&(big[i]));
+            delete sml[i];
+            sml[i] = nullptr;
+        }
+        for (size_t i = 0; i < big_cnt; ++i)
+        {
+            delete big[i];
+            big[i] = nullptr;
         }
         sml_cnt = 0;
         big_cnt = 0;
@@ -5738,10 +5723,15 @@ void TextureAtlasManager::uninitialize()
 
 void TextureAtlasManager::reinitialize()
 {
-    for (size_t i = 0; i < MESH_IMG_COUNT; ++i)
+    for (size_t i = 0; i < sml_cnt; ++i)
     {
-        oglx_texture_t::release(&(sml[i]));
-        oglx_texture_t::release(&(big[i]));
+        delete sml[i];
+        sml[i] = nullptr;
+    }
+    for (size_t i = 0; i < big_cnt; ++i)
+    {
+        delete big[i];
+        big[i] = nullptr;
     }
     sml_cnt = 0;
     big_cnt = 0;
@@ -5757,7 +5747,7 @@ oglx_texture_t *TextureAtlasManager::get_sml(int which)
     {
         return nullptr;
     }
-    return &(sml[which]);
+    return sml[which];
 }
 
 oglx_texture_t *TextureAtlasManager::get_big(int which)
@@ -5770,26 +5760,20 @@ oglx_texture_t *TextureAtlasManager::get_big(int which)
     {
         return nullptr;
     }
-    return &(big[which]);
+    return big[which];
 }
 
-int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *tx_lst, size_t tx_lst_cnt, int minification)
+int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification)
 {
     static const int sub_textures = 8;
     size_t cnt = tx_lst_cnt;
-    if (!src_tx || !src_tx->source)
-    {
-        // the source image doesn't exist, so punt
-        for (; cnt < tx_lst_cnt + sub_textures*sub_textures; ++cnt)
-        {
-            oglx_texture_t::release(&(tx_lst[cnt]));
-        }
-        
+    if (!src_tx || !src_tx->_source)
+    {   
         return cnt;
     }
 
     // make an alias for the texture's SDL_Surface
-    SDL_Surface *src_img = src_tx->source;
+    auto src_img = src_tx->_source;
 
     // grab parameters from the mesh
     int src_img_w = src_img->w;
@@ -5818,21 +5802,14 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
             src_img_rect.x = std::floor(fx);
 
             // grab the destination texture
-            oglx_texture_t *dst_tx = tx_lst + cnt;
-
-            // prepare the destination texture
-            oglx_texture_t::release(dst_tx);
+            oglx_texture_t *dst_tx = new oglx_texture_t();
 
             // create a blank destination SDL_Surface
             const auto& pfd = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
-            SDL_Surface *dst_img = SDL_CreateRGBSurface(SDL_SWSURFACE, src_img_rect.w, src_img_rect.h,
-                                                        pfd.getBitsPerPixel(),
-                                                        pfd.getRedMask(),
-                                                        pfd.getGreenMask(),
-                                                        pfd.getBlueMask(),
-                                                        pfd.getAlphaMask());
+            auto dst_img = ImageManager::get().createImage(src_img_rect.w, src_img_rect.h, pfd);
             if (!dst_img)
             {
+                delete dst_tx;
                 cnt++;
                 continue;
             }
@@ -5844,13 +5821,15 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
             // the value of the corresponding pixel in the source surface i.e. we do not want
             // alpha blending to be done: We turn of alpha blending by a calling
             // <tt>SetAlpha(oldSurface, 0, SDL_ALPHA_OPAQUE)</tt>.
-            SDL_SetAlpha(src_img, 0, SDL_ALPHA_OPAQUE);
+            SDL_SetAlpha(src_img.get(), 0, SDL_ALPHA_OPAQUE);
             // blit the source region into the destination bitmap
-            int blit_rv = SDL_BlitSurface(src_img, &src_img_rect, dst_img, nullptr);
+            int blit_rv = SDL_BlitSurface(src_img.get(), &src_img_rect, dst_img.get(), nullptr);
             // For more information, see <a>http://sdl.beuc.net/sdl.wiki/SDL_CreateRGBSurface</a>.
 
             // upload the SDL_Surface into OpenGL
-            oglx_texture_t::load(dst_tx, dst_img);
+            dst_tx->load(dst_img);
+
+            tx_lst[cnt] = dst_tx;
 
             // count the number of textures we're using
             cnt++;
@@ -5897,24 +5876,12 @@ void TextureAtlasManager::reload_all()
 
     for (size_t cnt = 0; cnt < sml_cnt; ++cnt)
     {
-        /// @todo MH: Until proper reference counting is employed,
-        ///           we must "steal" the source from the texture,
-        ///           otherwise the texture will destroy the source.
-        /// @todo MH: Add error handling.
-        SDL_Surface *source = sml[cnt].source;
-        sml[cnt].source = nullptr;
-        oglx_texture_t::load(&(sml[cnt]), source);
+        sml[cnt]->load(sml[cnt]->_source);
     }
 
     for (size_t cnt = 0; cnt < big_cnt; ++cnt)
     {
-        /// @todo MH: Until proper reference counting is employed,
-        ///           we must "steal" the source from the texture,
-        ///           otherwise the texture will destroy the source.
-        /// @todo MH: Add error handling.
-        SDL_Surface *source = big[cnt].source;
-        big[cnt].source = nullptr;
-        oglx_texture_t::load(&(big[cnt]), source);
+        big[cnt]->load(big[cnt]->_source);
     }
 }
 

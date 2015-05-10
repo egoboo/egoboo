@@ -30,7 +30,7 @@
 #include "egolib/file_common.h"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/Logic/Gender.hpp"
-#include "egolib/Extensions/ogl_texture.h"
+#include "egolib/Renderer/Renderer.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

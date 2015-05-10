@@ -62,53 +62,6 @@ namespace Ego
 {
 namespace OpenGL
 {
-AccumulationBuffer::AccumulationBuffer() :
-    Ego::AccumulationBuffer()
-{}
-AccumulationBuffer::~AccumulationBuffer()
-{}
-void AccumulationBuffer::clear()
-{
-    glClear(GL_ACCUM_BUFFER_BIT);
-    Utilities::isError();
-}
-void AccumulationBuffer::setClearValue(const Colour4f& value)
-{
-    glClearAccum(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
-    Utilities::isError();
-}
-
-ColourBuffer::ColourBuffer() :
-    Ego::ColourBuffer()
-{}
-ColourBuffer::~ColourBuffer()
-{}
-void ColourBuffer::clear()
-{
-    glClear(GL_COLOR_BUFFER_BIT);
-    Utilities::isError();
-}
-void ColourBuffer::setClearValue(const Colour4f& value)
-{
-    glClearColor(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
-    Utilities::isError();
-}
-
-DepthBuffer::DepthBuffer() :
-    Ego::DepthBuffer()
-{}
-DepthBuffer::~DepthBuffer()
-{}
-void DepthBuffer::clear()
-{
-    glClear(GL_DEPTH_BUFFER_BIT);
-    Utilities::isError();
-}
-void DepthBuffer::setClearValue(const float& value)
-{
-    glClearDepth(value);
-    Utilities::isError();
-}
 
 /**
  * @brief

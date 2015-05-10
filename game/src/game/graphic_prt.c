@@ -89,10 +89,10 @@ void prt_set_texture_params(const TX_REF itex)
     {
         return;
     }
-    ptex_w[index] = oglx_texture_t::getSourceWidth(ptex);
-    ptex_h[index] = oglx_texture_t::getSourceHeight(ptex);
-    ptex_wscale[index] = (float)oglx_texture_t::getSourceWidth(ptex) / (float)oglx_texture_t::getWidth(ptex);
-    ptex_hscale[index] = (float)oglx_texture_t::getSourceHeight(ptex) / (float)oglx_texture_t::getHeight(ptex);
+    ptex_w[index] = ptex->getSourceWidth();
+    ptex_h[index] = ptex->getSourceHeight();
+    ptex_wscale[index] = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
+    ptex_hscale[index] = (float)ptex->getSourceHeight() / (float)ptex->getHeight();
 }
 
 //--------------------------------------------------------------------------------------------

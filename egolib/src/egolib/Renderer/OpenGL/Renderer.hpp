@@ -20,14 +20,19 @@
 /// @file   egolib/Renderer/OpenGL/Renderer.hpp
 /// @brief  OpenGL 2.1 based renderer
 /// @author Michael Heilmann
+
 #pragma once
 
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/typedef.h"
+#include "egolib/Renderer/OpenGL/AccumulationBuffer.hpp"
+#include "egolib/Renderer/OpenGL/ColourBuffer.hpp"
+#include "egolib/Renderer/OpenGL/DepthBuffer.hpp"
+#include "egolib/Renderer/OpenGL/TextureUnit.hpp"
+#include "egolib/Renderer/OpenGL/Texture.hpp"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/ogl_texture.h"
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 #include "egolib/_math.h"
@@ -50,42 +55,6 @@ namespace OpenGL
 
 using namespace Math;
 
-class AccumulationBuffer : public Ego::AccumulationBuffer
-{
-public:
-    AccumulationBuffer();
-    virtual ~AccumulationBuffer();
-public:
-    /** @copydoc Ego::Buffer<Colour4f>::clear */
-    virtual void clear() override;
-    /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
-    virtual void setClearValue(const Colour4f& value) override;
-};
-
-class ColourBuffer : public Ego::ColourBuffer
-{
-public:
-    ColourBuffer();
-    virtual ~ColourBuffer();
-public:
-    /** @copydoc Ego::Buffer<Colour4f>::clear */
-    virtual void clear() override;
-    /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
-    virtual void setClearValue(const Colour4f& value) override;
-};
-
-class DepthBuffer : public Ego::DepthBuffer
-{
-public:
-    DepthBuffer();
-    virtual ~DepthBuffer();
-public:
-    /** @copydoc Ego::Buffer<float>::clear */
-    virtual void clear() override;
-    /** @copydoc Ego::Buffer<float>::setClearValue */
-    virtual void setClearValue(const float& value) override;
-};
-
 class Renderer : public Ego::Renderer
 {
 protected:
@@ -96,7 +65,7 @@ protected:
     AccumulationBuffer _accumulationBuffer;
     /**
      * @brief
-     *  The colour buffe facade.
+     *  The colour buffer facade.
      */
     ColourBuffer _colourBuffer;
     /**
@@ -104,6 +73,11 @@ protected:
      *  The depth buffer facade.
      */
     DepthBuffer _depthBuffer;
+    /**
+     * @brief
+     *  The texture unit facade
+     */
+    TextureUnit _textureUnit;
     /**
      * @brief
      *  The list of OpenGL extensions supported by this OpenGL implementation.

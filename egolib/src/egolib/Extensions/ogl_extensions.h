@@ -31,6 +31,7 @@
 #include "egolib/egoboo_setup.h"
 #include "egolib/Renderer/TextureAddressMode.hpp"
 #include "egolib/Renderer/TextureType.hpp"
+#include "egolib/Graphics/PixelFormat.hpp"
 #include "egolib/Renderer/PrimitiveType.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -60,9 +61,9 @@ struct Utilities
      */
     static bool isError();
 
-    static void upload_1d(bool useAlpha, GLsizei w, const GLvoid * data);
-    static void upload_2d(bool useAlpha, GLsizei w, GLsizei h, const void *data);
-    static void upload_2d_mipmap(bool useAlpha, GLsizei w, GLsizei h, const void *data);
+    static void upload_1d(const Ego::PixelFormatDescriptor& pfd, GLsizei w, const GLvoid * data);
+    static void upload_2d(const Ego::PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
+    static void upload_2d_mipmap(const Ego::PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data);
 
     /**
      * @brief
@@ -97,6 +98,9 @@ struct Utilities
      *  Ego::PrimitiveType::QuadriliteralStrip  | @a GL_QUAD_STRIP
      */
     static GLenum toOpenGL(Ego::PrimitiveType primitiveType);
+
+    static void toOpenGL(const Ego::PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl);
+
 
     static void bind(GLuint id, Ego::TextureType type, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT);
 };

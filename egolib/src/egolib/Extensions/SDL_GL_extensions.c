@@ -25,10 +25,29 @@
 
 #include "egolib/Extensions/SDL_GL_extensions.h"
 #include "egolib/Renderer/TextureFilter.hpp"
+#include "egolib/Renderer/Texture.hpp"
 #include "egolib/Extensions/ogl_debug.h"
-#include "egolib/Extensions/ogl_texture.h"
 #include "egolib/Math/_Include.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
+
+SDL_Surface *SDL_GL_createSurface(int w, int h)
+{
+    SDL_Surface *primarySurface = SDL_GetVideoSurface();
+    if (!primarySurface)
+    {
+        return nullptr;
+    }
+
+    // Expand the screen format to support alpha:
+    // a) Copy the format of the main surface.
+    SDL_PixelFormat format;
+    memcpy(&format, primarySurface->format, sizeof(SDL_PixelFormat));
+    // b) Expand the format.
+    SDLX_ExpandFormat(&format);
+
+    return SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, format.BitsPerPixel,
+                                format.Rmask, format.Gmask, format.Bmask, format.Amask);
+}
 
 //--------------------------------------------------------------------------------------------
 SDL_bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
@@ -176,7 +195,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     return retval;
 }
 
-SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface)
+std::shared_ptr<SDL_Surface> SDL_GL_convert_surface(std::shared_ptr<SDL_Surface> surface)
 {
     if (!surface)
     {
@@ -184,7 +203,7 @@ SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface)
     }
 
     // Aliases old surface.
-    SDL_Surface *oldSurface = surface;
+    std::shared_ptr<SDL_Surface> oldSurface = surface;
 
     // Alias old width and old height.
     int oldWidth = surface->w,
@@ -218,12 +237,12 @@ SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface)
     newFormat.BytesPerPixel = pixelFormatDescriptor.getBitsPerPixel() / sizeof(char);
 
     // Convert to new format.
-    SDL_Surface *tmp = SDL_ConvertSurface(oldSurface, &newFormat, SDL_SWSURFACE);
+    SDL_Surface *tmp = SDL_ConvertSurface(oldSurface.get(), &newFormat, SDL_SWSURFACE);
     if (!tmp)
     {
         throw std::runtime_error("unable to convert surface");
     }
-    oldSurface = tmp;
+    oldSurface.reset(tmp);
 
     // If the alpha mask is non-zero (which is the case here), then SDL_ConvertSurface
     // behaves "as if" the addition flag @a SDL_SRCALPHA was supplied. That is, if
@@ -232,10 +251,10 @@ SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface)
     // the value of the corresponding pixel in the source surface i.e. we do not want
     // alpha blending to be done: We turn of alpha blending by a calling
     // <tt>SetAlpha(oldSurface, 0, SDL_ALPHA_OPAQUE)</tt>.
-    SDL_SetAlpha(oldSurface, 0, SDL_ALPHA_OPAQUE);
+    SDL_SetAlpha(oldSurface.get(), 0, SDL_ALPHA_OPAQUE);
     // We do not want colour-keying to be performed either: Wether it is activated or not,
     // turn it off by the call <tt>SDL_SetColorKey(oldSurface, 0, 0)</tt>.
-    SDL_SetColorKey(oldSurface, 0, 0);
+    SDL_SetColorKey(oldSurface.get(), 0, 0);
     // For more information, see <a>http://sdl.beuc.net/sdl.wiki/SDL_CreateRGBSurface</a>.
 
     // Convert to new width and new height each a power of 2 as (old) OpenGL versions required it (we'r conservative).
@@ -249,12 +268,11 @@ SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface)
                                                 newFormat.Amask);
         if (!tmp)
         {
-            SDL_FreeSurface(oldSurface);
             throw std::runtime_error("unable to convert surface");
         }
-        SDL_BlitSurface(oldSurface, &(oldSurface->clip_rect), tmp, nullptr);
+        SDL_BlitSurface(oldSurface.get(), &(oldSurface->clip_rect), tmp, nullptr);
         /** @todo Handle errors of SDL_BitSurface. */
-        oldSurface = tmp;
+        oldSurface.reset(tmp);
     }
 
     // Return the result.

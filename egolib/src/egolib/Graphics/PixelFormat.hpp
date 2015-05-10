@@ -40,43 +40,90 @@ enum class PixelFormat
 
     /**
      * @brief
-     *  8 Bits for the blue component,
-     *  8 Bits for the green component, and
-     *  8 Bits for the red component
-     *  in this Byte order on little endian.
-     *  In big endian, the order of the Bytes of the red, green, and blue components is reversed.
+     *  A pixel consisting of
+     *      3 Bytes x0, x1, and x2
+     *  at consecutive addresses in memory such that
+     *      x0
+     *  is at the lowest address and
+     *      x2
+     *  is at the highest address.
+     *  The value of x0 denotes the value of the blue component,
+     *  x1 the value of the green component,
+     *  and x2 the value of the red component
+     *  such that components r, g, b, and a, of the corresponding colour in normalized, real-valued RGBA space are computed by
+     *  r = x[2] / 255, g = x[1] / 255, b = x[0] / 255, and a = 1.
      */
     B8G8R8,
 
     /**
      * @brief
-     *  8 Bits for the blue component,
-     *  8 Bits for the green component,
-     *  8 Bits for the red component, and
-     *  8 Bits for the alpha component
-     *  in this Byte order on little endian.
-     *  In big endian, the order of the Bytes of the red, green, and blue components is reversed.
+     *  A pixel consisting of
+     *      4 Bytes x0, x1, x2, and x3
+     *  at consecutive addresses in memory such that
+     *      x0
+     *  is at the lowest address and
+     *      x3
+     *  is at the highest address.
+     *  x0 denotes the value of the blue component,
+     *  x1 the value of the green component,
+     *  x2 the value of the red component,
+     *  and x3 the value of the alpha component
+     *  such that components r, g, b, and a, of the corresponding colour in normalized, real-valued RGBA space are computed by
+     *  r = x[2] / 255, g = x[1] / 255, b = x[0] / 255, and a = x[3] / 255.
      */
     B8G8R8A8,
 
     /**
      * @brief
-     *  8 Bits for the red component,
-     *  8 Bits for the green component, and
-     *  8 Bits for the blue component
-     *  in this Byte order on little endian.
-     *  In big endian, the order of the Bytes of the red, green, and blue components is reversed.
+     *  A pixel consisting of
+     *      3 Bytes x0, x1, and x2
+     *  at consecutive addresses in memory such that
+     *      x0
+     *  is at the lowest address and
+     *      x2
+     *  is at the highest address.
+     *  x0 denotes the value of the red component,
+     *  x1 the value of the green component,
+     *  and x2 the value of the blue component
+     *  such that components r, g, b, and a, of the corresponding colour in normalized, real-valued RGBA space are computed by
+     *  r = x[0] / 255, g = x[1] / 255, b = x[2] / 255, and a = 1.
      */
     R8G8B8,
 
     /**
      * @brief
-     *  8 Bits for the red component,
-     *  8 Bits for the green component,
-     *  8 Bits for the blue component, and
-     *  8 Bits for the alpha component
-     *  in this Byte order on little endian.
-     *  In big endian, the order of the Bytes of the red, green, blue, and alpha components is reversed.
+     *  A pixel consisting of
+     *      4 Bytes x0, x1, x2, and x3
+     *  at consecutive addresses in memory such that
+     *      x0
+     *  is at the lowest address and
+     *      x3
+     *  is at the highest address.
+     *  x0 denotes the value of the red component,
+     *  x1 the value of the green component,
+     *  and x2 the value of the blue component
+     *  such that components r, g, b, and a, of the corresponding colour in normalized, real-valued RGBA space are computed by
+     *  r = x[0] / 255, g = x[1] / 255, b = x[2] / 255, and a = x[3] / 255.
+     * @remark
+     *  This means, regardless of the Endianess of the system,
+     *  provided a pointer <tt>char *p</tt> to the address of
+     *  the pixel, then p[0] is the Byte of the red component,
+     *  p[1] is the Byte of the green component, p[2] is the
+     *  Bte of the blue component and p[3] is the Byte of the
+     *  alpha component of this pixel format.
+     *  <br/>
+     *  To achieve this
+     *  the bitmask for the red component is 0xff << 0,
+     *  the bitmask for the green component is 0xff << 8,
+     *  the bitmask for the blue component is 0xff << 16, and
+     *  the bitmask for the alpha component is 0xff << 24
+     *  on little-endian systems.
+     *  <br/>
+     *  On big-endian systems however,
+     *  the bitmask for the red component is 0xff << 24,
+     *  the bitmask for the green component is 0xff << 16
+     *  the bitmask for the blue component is 0xff << 8, and
+     *  the bitmask for the alpha component is 0xff << 0.
      */
     R8G8B8A8,
 
@@ -287,7 +334,7 @@ public:
      * @return
      *  the pixel format
      */
-    PixelFormat pixelFormat() const
+    PixelFormat getPixelFormat() const
     {
         return _pixelFormat;
     }

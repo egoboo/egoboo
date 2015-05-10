@@ -31,7 +31,7 @@
 Cartman_GUI_Cursor::Cartman_GUI_Cursor() :
     _surface(nullptr)
 {
-    _surface = cartman_CreateSurface(8, 8);
+    _surface = SDL_GL_createSurface(8, 8);
     if (!_surface)
     {
         throw std::bad_alloc();
@@ -155,7 +155,7 @@ void load_window(std::shared_ptr<Cartman_Window> pwin, int id, const char *loadn
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &( pwin->tex ), loadname ) )
+    if (INVALID_GL_ID == pwin->tex->load(loadname, gfx_loadImage(loadname)))
     {
         log_warning( "Cannot load \"%s\".\n", loadname );
     }

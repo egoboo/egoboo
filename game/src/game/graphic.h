@@ -726,11 +726,11 @@ protected:
 #endif
 
     // the "small" textures
-    static oglx_texture_t sml[MESH_IMG_COUNT];
+    static oglx_texture_t *sml[MESH_IMG_COUNT];
     static int sml_cnt;
 
     // the "large" textures
-    static oglx_texture_t big[MESH_IMG_COUNT];
+    static oglx_texture_t *big[MESH_IMG_COUNT];
     static int big_cnt;
 
 #if TEXTUREATLASMANAGER_VERSION > 3
@@ -739,7 +739,7 @@ protected:
 #endif
 
     // decimate one tiled texture of a mesh
-    static int decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *tx_lst, size_t tx_lst_cnt, int minification);
+    static int decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *(&tx_lst)[MESH_IMG_COUNT], size_t tx_lst_cnt, int minification);
 
 public:
     static oglx_texture_t *get_sml(int which);

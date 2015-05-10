@@ -266,40 +266,55 @@ bool Utilities::isError()
     return false;
 }
 
-void Utilities::upload_1d(bool useAlpha, GLsizei w, const void *data)
-{
-    if (useAlpha)
+void Utilities::toOpenGL(const Ego::PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl) {
+    switch (pfd.getPixelFormat())
     {
-        GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, GL_RGBA, w, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    }
-    else
-    {
-        GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, GL_RGB, w, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
-    }
+        case Ego::PixelFormat::R8G8B8:
+            internalFormat_gl = GL_RGB;
+            format_gl = GL_RGB;
+            type_gl = GL_UNSIGNED_BYTE;
+            break;
+        case Ego::PixelFormat::R8G8B8A8:
+            internalFormat_gl = GL_RGBA;
+            format_gl = GL_RGBA;
+            type_gl = GL_UNSIGNED_BYTE;
+            break;
+        case Ego::PixelFormat::B8G8R8:
+            internalFormat_gl = GL_BGR;
+            format_gl = GL_BGR;
+            type_gl = GL_UNSIGNED_BYTE;
+            break;
+        case Ego::PixelFormat::B8G8R8A8:
+            internalFormat_gl = GL_BGRA;
+            format_gl = GL_BGRA;
+            type_gl = GL_UNSIGNED_BYTE;
+            break;
+        default:
+            throw std::runtime_error("not supported");
+    };
 }
 
-void Utilities::upload_2d(bool useAlpha, GLsizei w, GLsizei h, const void *data)
+void Utilities::upload_1d(const Ego::PixelFormatDescriptor& pfd, GLsizei w, const void *data)
 {
-    if (useAlpha)
-    {
-        GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    }
-    else
-    {
-        GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
-    }
+    GLenum internalFormat_gl, format_gl, type_gl;
+    toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, internalFormat_gl, w, 0, format_gl, type_gl, data);
 }
 
-void Utilities::upload_2d_mipmap(bool useAlpha, GLsizei w, GLsizei h, const void *data)
+void Utilities::upload_2d(const Ego::PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
 {
-    if (useAlpha)
-    {
-        GL_DEBUG(gluBuild2DMipmaps)(GL_TEXTURE_2D, 4, w, h, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    }
-    else
-    {
-        GL_DEBUG(gluBuild2DMipmaps)(GL_TEXTURE_2D, GL_RGB, w, h, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
-    }
+    GLenum internalFormat_gl, format_gl, type_gl;
+    toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
+}
+
+void Utilities::upload_2d_mipmap(const Ego::PixelFormatDescriptor& pfd, GLsizei w, GLsizei h, const void *data)
+{
+    GLenum internalFormat_gl, format_gl, type_gl;
+    toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
+    //GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
+    // Disable this for now, it is old, borked and caused troubles here.
+    GL_DEBUG(gluBuild2DMipmaps)(GL_TEXTURE_2D, internalFormat_gl, w, h, format_gl, type_gl, data);
 }
 
 void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT)

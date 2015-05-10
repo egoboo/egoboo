@@ -18,22 +18,83 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/Extensions/ogl_texture.c
-/// @ingroup _ogl_extensions_
-/// @brief Implements OpenGL texture loading using SDL_image
-/// @details Basic loading and managing OpenGL textures.
-///   Uses SDL_image to load .tif, .png, .bmp, .dib, .xpm, and other formats into OpenGL texures
+/// @file   egolib/Renderer/Renderer.hpp
+/// @brief  Common interface of all textures.
+/// @author Michael Heilmann
 
-#include "egolib/Extensions/ogl_texture.h"
+#include "egolib/Renderer/Texture.hpp"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 #include "egolib/Math/_Include.hpp"
-#include "egolib/Graphics/TextureManager.hpp"
 
 #include "egolib/egoboo_setup.h"
 #include "egolib/strutil.h"
+#include "egolib/Image/ImageManager.hpp"
 #include "egolib/Image/Image.hpp"
 #include "egolib/vfs.h"
+
+namespace Ego
+{
+
+Texture::Texture(const std::string& name,
+                 TextureType type, TextureAddressMode addressModeS, TextureAddressMode addressModeT,
+                 int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
+                 bool hasAlpha) :
+    _name(name),
+    _type(type), _addressModeS(addressModeS), _addressModeT(addressModeT),
+    _width(width), _height(height), _sourceWidth(sourceWidth), _sourceHeight(sourceHeight), _source(source),
+    _hasAlpha(hasAlpha)
+{}
+
+Texture::~Texture()
+{}
+
+TextureAddressMode Texture::getAddressModeS() const
+{
+    return _addressModeS;
+}
+
+Ego::TextureAddressMode Texture::getAddressModeT() const
+{
+    return _addressModeT;
+}
+
+int Texture::getSourceHeight() const
+{
+    return _sourceHeight;
+}
+
+int Texture::getSourceWidth() const
+{
+    return _sourceWidth;
+}
+
+int Texture::getWidth() const
+{
+    return _width;
+}
+
+int Texture::getHeight() const
+{
+    return _height;
+}
+
+bool Texture::hasAlpha() const
+{
+    return _hasAlpha;
+}
+
+void Texture::setName(const std::string& name)
+{
+    _name = name;
+}
+
+const std::string& Texture::getName() const
+{
+    return _name;
+}
+
+} // namespace Ego
 
 bool IMG_test_alpha(SDL_Surface *surface)
 {
@@ -168,49 +229,9 @@ bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct CErrorImage
-{
-private:
-    const static size_t width = 2;
-    const static size_t height = 2;
-    GLubyte _bytes[height][width][4];
-public:
-    size_t getWidth() const throw()
-        { return width; }
-    
-    size_t getHeight() const throw()
-        { return height; }
-    
-    const GLubyte *getBytes() const throw()
-        { return &(_bytes[0][0][0]); }
-public:
-    CErrorImage() throw()
-    {
-        for (size_t i = 0; i < height; i++)
-        {
-            for (size_t j = 0; j < width; j++)
-            {
-                if (0 == ((i & 0x1) ^ (j & 0x1)))
-                {
-                    _bytes[i][j][0] = (GLubyte)255;
-                    _bytes[i][j][1] = (GLubyte)0;
-                    _bytes[i][j][2] = (GLubyte)0;
-                }
-                else
-                {
-                    _bytes[i][j][0] = (GLubyte)0;
-                    _bytes[i][j][1] = (GLubyte)255;
-                    _bytes[i][j][2] = (GLubyte)255;
-                }
-
-                _bytes[i][j][3] = (GLubyte)255;
-            }
-        }
-    }
-};
-
 struct CErrorTexture
 {
+    std::shared_ptr<SDL_Surface> _image;
     /// The OpenGL texture target of this error texture.
     GLenum _target;
     /// The OpenGL ID of this error texture.
@@ -222,22 +243,23 @@ struct CErrorTexture
     }
     int getSourceWidth()
     {
-        return 2;
+        return _image->w;
     }
     int getSourceHeight()
     {
-        return 2;
+        return _image->h;
     }
     int getWidth()
     {
-        return 2;
+        return getSourceWidth();
     }
     int getHeight()
     {
-        return 2;
+        return getSourceHeight();
     }
     // Construct this error texture.
-    CErrorTexture(const char *name, GLenum target)
+    CErrorTexture(const char *name, GLenum target) :
+        _image(ImageManager::get().getDefaultImage())
     {
         _name = strdup(name);
         if (!_name)
@@ -282,15 +304,14 @@ struct CErrorTexture
             glDeleteTextures(1, &_id);
             throw std::runtime_error("unable to set error texture parameters");
         }
-        CErrorImage errorImage;
         // Create the image.
         if (target == GL_TEXTURE_1D)
         {
-            glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, errorImage.getWidth(), 0, GL_RGBA, GL_UNSIGNED_BYTE, errorImage.getBytes());
+            glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, _image->w, 0, GL_RGBA, GL_UNSIGNED_BYTE, _image->pixels);
         }
         else
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, errorImage.getWidth(), errorImage.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, errorImage.getBytes());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _image->w, _image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, _image->pixels);
         }
 
         glPopClientAttrib();
@@ -340,8 +361,6 @@ void uninitializeErrorTextures()
     _errorTexture1D = nullptr;
 }
 
-//--------------------------------------------------------------------------------------------
-
 GLuint get1DErrorTextureID()
 {
     return _errorTexture1D->_id;
@@ -358,81 +377,42 @@ bool isErrorTextureID(GLuint id)
         || id == _errorTexture2D->_id;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-oglx_texture_t *oglx_texture_t::ctor(oglx_texture_t *self)
+oglx_texture_t::oglx_texture_t() :
+    Ego::Texture
+        (
+            // The name of the texture is the error texture's.
+            _errorTexture2D->getName(),
+            // The texture is the 2D error texture.
+            Ego::TextureType::_2D,
+            // The texture coordinates of this texture are repeated along the s and t axes.
+            Ego::TextureAddressMode::Repeat, Ego::TextureAddressMode::Repeat,
+            // The size (width and height) of this texture is the size of the error image.
+            _errorTexture2D->getWidth(), _errorTexture2D->getHeight(),
+            // The size (width and height) the source of this texture is the size of the error image as well.
+            _errorTexture2D->getSourceWidth(), _errorTexture2D->getSourceHeight(),
+            // The error texture has no source.
+            nullptr,
+            // (The error texture has no alpha component).
+            false
+        ),
+    // The OpenGL texture ID is the error texture's.
+    _id(_errorTexture2D->_id)
+{}
+
+oglx_texture_t::~oglx_texture_t()
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-
-    // The texture is the 2D error texture.
-    self->_type = Ego::TextureType::_2D;
-    self->_id = _errorTexture2D->_id;
-    // The texture coordinates of this texture are repeated along the s and t axes.
-    self->_textureAddressModeS = Ego::TextureAddressMode::Repeat;
-    self->_textureAddressModeT = Ego::TextureAddressMode::Repeat;
-    // The size (width and height) of this texture is the size of the error image.
-    self->_width = _errorTexture2D->getWidth();
-    self->_height = _errorTexture2D->getHeight();
-    // The size (width and height) the source of this texture is the size of the error image as well.
-    self->_sourceWidth = _errorTexture2D->getSourceWidth();
-    self->_sourceHeight = _errorTexture2D->getSourceHeight();
-    // The texture has the empty string as its name and the source is not available.
-    strncpy(self->name, _errorTexture2D->getName(), SDL_arraysize(self->name));
-    // The error texture has no source.
-    self->source = nullptr;
-    // (The error texture has no alpha component).
-    self->_hasAlpha = false;
-
-    return self;
+    release();
 }
 
-void oglx_texture_t::dtor(oglx_texture_t *self)
+GLuint  oglx_texture_t::getTextureID() const
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    release(self);
+    return _id;
 }
 
-oglx_texture_t *oglx_texture_t::create()
+GLuint oglx_texture_t::load(const std::string& name, std::shared_ptr<SDL_Surface> source, Uint32 key)
 {
-    oglx_texture_t *self = static_cast<oglx_texture_t *>(malloc(sizeof(oglx_texture_t)));
-    if (!self)
-    {
-        throw std::bad_alloc();
-    }
-    if (!oglx_texture_t::ctor(self))
-    {
-        free(self);
-        throw std::bad_alloc();
-    }
-    return self;
-}
-
-void oglx_texture_t::destroy(oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    oglx_texture_t::dtor(self);
-    free(self);
-}
-
-//--------------------------------------------------------------------------------------------
-GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& name, SDL_Surface *source, Uint32 key)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-
     // Bind this texture to the backing error texture.
-    oglx_texture_t::release(self);
+    release();
 
     // If no source is provided, keep this texture bound to the backing error texture.
     if (!source)
@@ -444,11 +424,11 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& name, SDL_S
     /* Set the color key, if valid. */
     if (nullptr != source->format && nullptr != source->format->palette && INVALID_KEY != key)
     {
-        SDL_SetColorKey(source, SDL_SRCCOLORKEY, key);
+        SDL_SetColorKey(source.get(), SDL_SRCCOLORKEY, key);
     }
 
     // Convert the source into a format suited for OpenGL.
-    SDL_Surface *new_source;
+    std::shared_ptr<SDL_Surface> new_source;
     try
     {
         new_source = SDL_GL_convert_surface(source);
@@ -479,7 +459,7 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& name, SDL_S
     // Determine the texture type.
     auto type = ((1 == source->h) && (source->w > 1)) ? Ego::TextureType::_1D : Ego::TextureType::_2D;
     // Test if the image requires alpha blending.
-    bool hasAlpha = IMG_test_alpha_key(new_source, key);
+    bool hasAlpha = IMG_test_alpha_key(new_source.get(), key);
     /* Set texture address mode and texture filtering. */
     Ego::OpenGL::Utilities::bind(id, type, textureAddressModeS, textureAddressModeT);
     /* Upload the texture data. */
@@ -487,16 +467,16 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& name, SDL_S
     {
         if (g_ogl_textureParameters.textureFilter.mipMapFilter > Ego::TextureFilter::None)
         {
-            Ego::OpenGL::Utilities::upload_2d_mipmap(true, new_source->w, new_source->h, new_source->pixels);
+            Ego::OpenGL::Utilities::upload_2d_mipmap(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->h, new_source->pixels);
         }
         else
         {
-            Ego::OpenGL::Utilities::upload_2d(true, new_source->w, new_source->h, new_source->pixels);
+            Ego::OpenGL::Utilities::upload_2d(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->h, new_source->pixels);
         }
     }
     else if (type == Ego::TextureType::_1D)
     {
-        Ego::OpenGL::Utilities::upload_1d(true, new_source->w, new_source->pixels);
+        Ego::OpenGL::Utilities::upload_1d(Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(), new_source->w, new_source->pixels);
     }
     else
     {
@@ -504,156 +484,63 @@ GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& name, SDL_S
     }
 
     // Store the appropriate data.
-    self->_textureAddressModeS = textureAddressModeS;
-    self->_textureAddressModeT = textureAddressModeT;
-    self->_type = type;
-    self->_id = id;
-    self->_width = new_source->w;
-    self->_height = new_source->h;
-    self->source = source;
-    self->_sourceWidth = source->w;
-    self->_sourceHeight = source->h;
-    self->_hasAlpha = hasAlpha;
-    strncpy(self->name, name.c_str(), SDL_arraysize(self->name));
-    self->name[SDL_arraysize(self->name) - 1] = '\0';
+    _addressModeS = textureAddressModeS;
+    _addressModeT = textureAddressModeT;
+    _type = type;
+    _id = id;
+    _width = new_source->w;
+    _height = new_source->h;
+    _source = source;
+    _sourceWidth = source->w;
+    _sourceHeight = source->h;
+    _hasAlpha = hasAlpha;
+    _name = name;
 
-    SDL_FreeSurface(new_source);
-
-    return self->_id;
+    return _id;
 }
 
-GLuint oglx_texture_t::load(oglx_texture_t *self, SDL_Surface *source, Uint32 key)
+GLuint oglx_texture_t::load(std::shared_ptr<SDL_Surface> source, Uint32 key)
 {
     std::ostringstream stream;
-    stream << "<source " << (void *)source << ">";
-    return oglx_texture_t::load(self, stream.str().c_str(), source, key);
+    stream << "<source " << (void *)source.get() << ">";
+    return load(stream.str().c_str(), source, key);
 }
 
-GLuint oglx_texture_t::load(oglx_texture_t *self, const std::string& filename, Uint32 key)
+void  oglx_texture_t::release()
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    // Release OpenGL/SDL resources and assign the error texture.
-    oglx_texture_t::release(self);
-    SDL_Surface *image = IMG_Load_RW(vfs_openRWopsRead(filename.c_str()), 1);
-    return load(self, filename, image, key);
-}
-
-Ego::TextureAddressMode oglx_texture_t::getTextureAddressModeS(oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    return self->_textureAddressModeS;
-}
-
-Ego::TextureAddressMode oglx_texture_t::getTextureAddressModeT(oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    return self->_textureAddressModeT;
-}
-
-GLuint  oglx_texture_t::getTextureID(const oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    return self->_id;
-}
-
-int  oglx_texture_t::getSourceHeight(const oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    return self->_sourceHeight;
-}
-
-int  oglx_texture_t::getSourceWidth(const oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    return self->_sourceWidth;
-}
-
-int  oglx_texture_t::getWidth(const oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    return self->_width;
-}
-
-int  oglx_texture_t::getHeight(const oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    return self->_height;
-}
-
-bool oglx_texture_t::hasAlpha(const oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    return self->_hasAlpha;
-}
-
-void  oglx_texture_t::release(oglx_texture_t *self)
-{
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    if (isErrorTextureID(self->_id))
+    if (isErrorTextureID(_id))
     {
         return;
     }
 
     // Delete the OpenGL texture and assign the error texture.
-    glDeleteTextures(1, &(self->_id));
+    glDeleteTextures(1, &(_id));
     Ego::OpenGL::Utilities::isError();
 
     // Delete the source if it exist.
-    if (self->source)
+    if (_source)
     {
-        SDL_FreeSurface(self->source);
-        self->source = nullptr;
+        _source = nullptr;
     }
 
     // The texture is the 2D error texture.
-    self->_type = Ego::TextureType::_2D;
-    self->_id = _errorTexture2D->_id;
+    _type = Ego::TextureType::_2D;
+    _id = _errorTexture2D->_id;
     // The texture coordinates of this texture are repeated along the s and t axes.
-    self->_textureAddressModeS = Ego::TextureAddressMode::Repeat;
-    self->_textureAddressModeT = Ego::TextureAddressMode::Repeat;
+    _addressModeS = Ego::TextureAddressMode::Repeat;
+    _addressModeT = Ego::TextureAddressMode::Repeat;
     // The size (width and height) of this texture is the size of the error image.
-    self->_width = _errorTexture2D->getWidth();
-    self->_height = _errorTexture2D->getHeight();
+    _width = _errorTexture2D->getWidth();
+    _height = _errorTexture2D->getHeight();
     // The size (width and height) the source of this texture is the size of the error image as well.
-    self->_sourceWidth = _errorTexture2D->getSourceWidth();
-    self->_sourceHeight = _errorTexture2D->getSourceHeight();
+    _sourceWidth = _errorTexture2D->getSourceWidth();
+    _sourceHeight = _errorTexture2D->getSourceHeight();
     // The texture has the empty string as its name and the source is not available.
-    strcpy(self->name, _errorTexture2D->getName());
+    _name = _errorTexture2D->getName();
     // (The error texture has no alpha component).
-    self->_hasAlpha = false;
+    _hasAlpha = false;
 }
 
-//--------------------------------------------------------------------------------------------
 void oglx_texture_t::bind(oglx_texture_t *texture)
 {
     /// @author BB
@@ -666,8 +553,7 @@ void oglx_texture_t::bind(oglx_texture_t *texture)
     }
     else
     {
-        Ego::OpenGL::Utilities::bind(texture->_id, texture->_type, texture->_textureAddressModeS, texture->_textureAddressModeT);
+        Ego::OpenGL::Utilities::bind(texture->_id, texture->_type, texture->_addressModeS, texture->_addressModeT);
     }
     Ego::OpenGL::Utilities::isError();
 }
-

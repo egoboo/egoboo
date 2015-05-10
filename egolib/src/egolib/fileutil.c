@@ -28,7 +28,6 @@
 #include "egolib/platform.h"
 #include "egolib/egoboo_setup.h"
 #include "egolib/Image/ImageManager.hpp"
-#include "egolib/Extensions/ogl_texture.h"
 #include "egolib/_math.h"
 // includes for egoboo constants
 #include "game/mad.h"                    // for ACTION_* constants
@@ -1601,7 +1600,7 @@ bool vfs_get_next_bool(ReadContext& ctxt)
 Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key)
 {
     // Get rid of any old data.
-    oglx_texture_t::release(texture);
+    texture->release();
 
     // Load the image.
     GLuint retval = INVALID_GL_ID;
@@ -1609,7 +1608,7 @@ Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint
     // Try all different formats.
     for (const auto& loader : ImageManager::get())
     {
-        oglx_texture_t::release(texture);
+        texture->release();
         // Build the full file name.
         std::string fullFilename = filename + loader.getExtension();
         // Open the file.
@@ -1619,7 +1618,7 @@ Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint
             continue;
         }
         // Stream the surface.
-        SDL_Surface *surface = nullptr;
+        std::shared_ptr<SDL_Surface> surface = nullptr;
         try
         {
             surface = loader.load(file);
@@ -1635,7 +1634,7 @@ Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint
             continue;
         }
         // Create the texture from the surface.
-        retval = oglx_texture_t::load(texture, fullFilename.c_str(), surface, key);
+        retval = texture->load(fullFilename.c_str(), surface, key);
         if (INVALID_GL_ID != retval)
         {
             break;

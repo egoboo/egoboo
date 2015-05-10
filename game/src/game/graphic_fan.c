@@ -373,8 +373,8 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 
 	ptex = TextureManager::get().get_valid_ptr(texture);
 
-    x1 = ( float ) oglx_texture_t::getWidth( ptex ) / ( float ) oglx_texture_t::getSourceWidth( ptex );
-    y1 = ( float ) oglx_texture_t::getHeight( ptex ) / ( float ) oglx_texture_t::getSourceHeight( ptex );
+    x1 = (float)ptex->getWidth() / (float)ptex->getSourceWidth();
+    y1 = (float)ptex->getHeight() / (float)ptex->getSourceHeight();
 
     for ( cnt = 0; cnt < 4; cnt ++ )
     {

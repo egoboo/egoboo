@@ -94,21 +94,21 @@ extern camera_t cam;
 extern SDL_Surface * theSurface;
 extern SDL_Surface * bmphitemap;        // Heightmap image
 
-extern oglx_texture_t     tx_point;      // Vertex image
-extern oglx_texture_t     tx_pointon;    // Vertex image ( select_vertsed )
-extern oglx_texture_t     tx_ref;        // Meshfx images
-extern oglx_texture_t     tx_drawref;    //
-extern oglx_texture_t     tx_anim;       //
-extern oglx_texture_t     tx_water;      //
-extern oglx_texture_t     tx_wall;       //
-extern oglx_texture_t     tx_impass;     //
-extern oglx_texture_t     tx_damage;     //
-extern oglx_texture_t     tx_slippy;     //
+extern oglx_texture_t     *tx_point;      // Vertex image
+extern oglx_texture_t     *tx_pointon;    // Vertex image ( select_vertsed )
+extern oglx_texture_t     *tx_ref;        // Meshfx images
+extern oglx_texture_t     *tx_drawref;    //
+extern oglx_texture_t     *tx_anim;       //
+extern oglx_texture_t     *tx_water;      //
+extern oglx_texture_t     *tx_wall;       //
+extern oglx_texture_t     *tx_impass;     //
+extern oglx_texture_t     *tx_damage;     //
+extern oglx_texture_t     *tx_slippy;     //
 
-extern oglx_texture_t     tx_smalltile[MAXTILE]; // Tiles
-extern oglx_texture_t     tx_bigtile[MAXTILE];   //
-extern oglx_texture_t     tx_tinysmalltile[MAXTILE]; // Plan tiles
-extern oglx_texture_t     tx_tinybigtile[MAXTILE];   //
+extern oglx_texture_t     *tx_smalltile[MAXTILE]; // Tiles
+extern oglx_texture_t     *tx_bigtile[MAXTILE];   //
+extern oglx_texture_t     *tx_tinysmalltile[MAXTILE]; // Plan tiles
+extern oglx_texture_t     *tx_tinybigtile[MAXTILE];   //
 
 extern int     numsmalltile;   //
 extern int     numbigtile;     //
@@ -167,7 +167,6 @@ void ogl_endFrame();
 // SDL routines
 void draw_sprite( SDL_Surface * dst, SDL_Surface * sprite, int x, int y );
 int cartman_BlitScreen( SDL_Surface * bmp, SDL_Rect * prect );
-SDL_Surface * cartman_CreateSurface( int w, int h );
 int cartman_BlitSurface( SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect );
 SDL_Surface * cartman_LoadIMG( const char * szName );
 
@@ -184,6 +183,20 @@ void get_tiles(SDL_Surface* bmpload);
 // misc
 oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy );
 oglx_texture_t * tile_at( cartman_mpd_t * pmesh, int fan );
+
+/**
+ * @todo
+ *  This is by-passing the image loader, remove.
+ */
+inline std::shared_ptr<SDL_Surface> gfx_loadImage(const std::string& pathname)
+{
+    SDL_Surface *image = IMG_Load_RW(vfs_openRWopsRead(pathname.c_str()), 1);
+    if (!image)
+    {
+        return nullptr;
+    }
+    throw std::shared_ptr<SDL_Surface>(image, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+}
 
 // initialization
 void gfx_system_begin();

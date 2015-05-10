@@ -127,8 +127,8 @@ void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, fl
     ego_frect_t source;
     source.xmin = 0.0f;
     source.ymin = 0.0f;
-    source.xmax = ( float ) oglx_texture_t::getSourceWidth( &img )  / ( float ) oglx_texture_t::getWidth( &img );
-    source.ymax = ( float ) oglx_texture_t::getSourceHeight( &img ) / ( float ) oglx_texture_t::getHeight( &img );
+    source.xmax = ( float ) img.getSourceWidth()  / ( float ) img.getWidth();
+    source.ymax = ( float ) img.getSourceHeight() / ( float ) img.getHeight();
 
     ego_frect_t destination;
     destination.xmin  = x;

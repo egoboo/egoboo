@@ -17,49 +17,35 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.cpp
-/// @brief  Common interface of all renderers
+/// @file   egolib/Renderer/OpenGL/DepthBuffer.cpp
+/// @brief  Depth buffer facade for OpenGL 2.1
 /// @author Michael Heilmann
 
-#include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Renderer/OpenGL/Renderer.hpp"
+#include "egolib/Renderer/OpenGL/DepthBuffer.hpp"
 
 namespace Ego
 {
+namespace OpenGL
+{
 
-AccumulationBuffer::AccumulationBuffer()
-{}
-
-AccumulationBuffer::~AccumulationBuffer()
-{}
-
-ColourBuffer::ColourBuffer()
-{}
-
-ColourBuffer::~ColourBuffer()
-{}
-
-DepthBuffer::DepthBuffer()
+DepthBuffer::DepthBuffer() :
+    Ego::DepthBuffer()
 {}
 
 DepthBuffer::~DepthBuffer()
 {}
 
-TextureUnit::TextureUnit()
-{}
-
-TextureUnit::~TextureUnit()
-{}
-
-Renderer *RendererFactory::operator()()
+void DepthBuffer::clear()
 {
-    return new OpenGL::Renderer();
+    glClear(GL_DEPTH_BUFFER_BIT);
+    Utilities::isError();
 }
 
-Renderer::Renderer()
-{}
+void DepthBuffer::setClearValue(const float& value)
+{
+    glClearDepth(value);
+    Utilities::isError();
+}
 
-Renderer::~Renderer()
-{}
-
+} // namespace OpenGL
 } // namespace Ego

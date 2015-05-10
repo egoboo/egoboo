@@ -54,7 +54,7 @@ public:
 
     ModuleFilter getModuleType() const;
 
-    inline oglx_texture_t& getIcon() {
+    inline oglx_texture_t *getIcon() {
         return _icon;
     }
 
@@ -134,7 +134,7 @@ private:
     ModuleFilter    _moduleType;            ///< Main quest, town, sidequest or whatever
     bool            _beaten;                ///< The module has been marked with the [BEAT] eapansion
 
-    oglx_texture_t _icon;                   ///< the index of the module's tile image
+    oglx_texture_t *_icon;                  ///< the index of the module's tile image
     std::string _vfsPath;                   ///< the virtual pathname of the module ("mp_module/advent.mod")
     std::string _folderName;                ///< Folder name of module ("advent.mod")
 

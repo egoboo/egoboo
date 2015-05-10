@@ -103,27 +103,27 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::B8G8R8A8>()
 {
     static const uint32_t redShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        16; // B8 G8 R8 A8
+        16;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        8;  // in big endian: A8 R8 G8 B8
+        8;
     #endif
     static const uint32_t greenShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        8;  // B8 G8 R8 A8
+        8;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        16; // in big endian: A8 R8 G8 B8
+        16;
     #endif
     static const uint32_t blueShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        0;  // B8 G8 R8 A8
+        0;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        24; // in big endian: A8 R8 G8 B8
+        24;
     #endif
     static const uint32_t alphaShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        24; // B8 G8 R8 A8
+        24;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        0;  // in big endian: A8 R8 G8 B8
+        0;
     #endif
     static const uint32_t redMask =
         ((uint32_t)0xff) << redShift;
@@ -148,21 +148,21 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8>()
 {
     static const uint32_t redShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        0;  // R8 G8 B8
+        0;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        16; // in big endian: B8 G8 R8
+        16;
     #endif
     static const uint32_t greenShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        8;  // R8 G8 B8
+        8;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        8;  // B8 G8 R8
+        8;
     #endif
     static const uint32_t blueShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        16; // R8 G8 B8
+        16;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        0;  // B8 G8 R8
+        0;
     #endif
     static const uint32_t alphaShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
@@ -193,27 +193,27 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get<PixelFormat::R8G8B8A8>()
 {
     static const uint32_t redShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        0;  // R8 G8 B8 A8
+        0;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        24; // in big endian: A8 B8 G8 R8
+        24;
     #endif
     static const uint32_t greenShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        8;  // R8 G8 B8 A8
+        8;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        16; // in big endian: A8 B8 G8 R8
+        16;
     #endif
     static const uint32_t blueShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        16; // R8 G8 B8 A8
+        16;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        8;  // in big endian: A8 B8 G8 R8
+        8;
     #endif
     static const uint32_t alphaShift =
     #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        24; // R8 G8 B8 A8
+        24;
     #elif (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        0;  // in big endian: A8 B8 G8 R8
+        0;
     #endif
     static const uint32_t redMask =
         ((uint32_t)0xff) << redShift;

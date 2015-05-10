@@ -17,49 +17,35 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.cpp
-/// @brief  Common interface of all renderers
+/// @file   egolib/Renderer/OpenGL/AccumulationBuffer.cpp
+/// @brief  Accumulation buffer facade for OpenGL 2.1
 /// @author Michael Heilmann
 
-#include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Renderer/OpenGL/Renderer.hpp"
+#include "egolib/Renderer/OpenGL/AccumulationBuffer.hpp"
 
 namespace Ego
 {
+namespace OpenGL
+{
 
-AccumulationBuffer::AccumulationBuffer()
+AccumulationBuffer::AccumulationBuffer() :
+    Ego::AccumulationBuffer()
 {}
 
 AccumulationBuffer::~AccumulationBuffer()
 {}
 
-ColourBuffer::ColourBuffer()
-{}
-
-ColourBuffer::~ColourBuffer()
-{}
-
-DepthBuffer::DepthBuffer()
-{}
-
-DepthBuffer::~DepthBuffer()
-{}
-
-TextureUnit::TextureUnit()
-{}
-
-TextureUnit::~TextureUnit()
-{}
-
-Renderer *RendererFactory::operator()()
+void AccumulationBuffer::clear()
 {
-    return new OpenGL::Renderer();
+    glClear(GL_ACCUM_BUFFER_BIT);
+    Utilities::isError();
 }
 
-Renderer::Renderer()
-{}
+void AccumulationBuffer::setClearValue(const Colour4f& value)
+{
+    glClearAccum(value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha());
+    Utilities::isError();
+}
 
-Renderer::~Renderer()
-{}
-
+} // namespace OpenGL
 } // namespace Ego

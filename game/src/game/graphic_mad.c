@@ -2475,7 +2475,7 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
     pinst->skin_has_transparency = false;
     if (ptex)
     {
-        pinst->skin_has_transparency = oglx_texture_t::hasAlpha(ptex);
+        pinst->skin_has_transparency = ptex->hasAlpha();
     }
 
     // set the texture index

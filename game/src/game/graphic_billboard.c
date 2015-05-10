@@ -134,7 +134,7 @@ bool billboard_data_t::printf_ttf(billboard_data_t *self, const std::shared_ptr<
 
     // release any existing texture in case there is an error
     oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(self->tex_ref);
-    oglx_texture_t::release(ptex);
+    ptex->release();
 
     va_list args;
     char buffer[256];
@@ -144,7 +144,7 @@ bool billboard_data_t::printf_ttf(billboard_data_t *self, const std::shared_ptr<
     
     font->drawTextToTexture(ptex, buffer, fontColour);
 
-    strncpy(ptex->name, "billboard text", SDL_arraysize(ptex->name));
+    ptex->setName("billboard text");
 
     return true;
 }
@@ -365,11 +365,11 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
 
     oglx_texture_t::bind(ptex);
 
-    float w = oglx_texture_t::getSourceWidth(ptex);
-    float h = oglx_texture_t::getSourceHeight(ptex);
+    float w = ptex->getSourceWidth();
+    float h = ptex->getSourceHeight();
 
-    float x1 = w  / (float)oglx_texture_t::getWidth(ptex);
-    float y1 = h  / (float)oglx_texture_t::getHeight(ptex);
+    float x1 = w / (float)ptex->getWidth();
+    float y1 = h / (float)ptex->getHeight();
 
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 

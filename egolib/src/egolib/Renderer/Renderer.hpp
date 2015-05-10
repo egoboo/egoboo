@@ -20,6 +20,7 @@
 /// @file   egolib/Renderer/Renderer.hpp
 /// @brief  Common interface of all renderers.
 /// @author Michael Heilmann
+
 #pragma once
 
 #include "egolib/_math.h"
@@ -30,10 +31,10 @@
 #include "egolib/Renderer/WindingMode.hpp"
 #include "egolib/Renderer/PrimitiveType.hpp"
 #include "egolib/Graphics/VertexBuffer.hpp"
+#include "egolib/Renderer/Texture.hpp"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Extensions/ogl_include.h"
-#include "egolib/Extensions/ogl_texture.h"
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/Extensions/SDL_GL_extensions.h"
 
@@ -50,7 +51,9 @@ using namespace Math;
 template <typename DataType>
 class Buffer : public Ego::Core::NonCopyable
 {
+
 protected:
+
     /**
      * @brief
      *  Construct this buffer (facade).
@@ -59,6 +62,7 @@ protected:
      */
     Buffer()
     {}
+
     /**
      * @brief
      *  Destruct this buffer (facade).
@@ -67,12 +71,15 @@ protected:
      */
     virtual ~Buffer()
     {}
+
 public:
+
     /**
      * @brief
      *  Clear this buffer using its clear value.
      */
     virtual void clear() = 0;
+
     /**
      * @brief
      *  Set the clear value of this buffer.
@@ -80,6 +87,7 @@ public:
      *  the clear value of this buffer
      */
     virtual void setClearValue(const DataType& value) = 0;
+
 #if 0
     /**
      * @brief
@@ -89,11 +97,18 @@ public:
      */
     virtual const DataType& getClearValue() const = 0;
 #endif
+
 };
 
+/**
+ * @brief
+ *  A facade for an accumulation buffer.
+ */
 class AccumulationBuffer : public Ego::Buffer<Colour4f>
 {
+
 protected:
+
     /**
      * @brief
      *  Construct this accumulation buffer (facade).
@@ -101,6 +116,7 @@ protected:
      *  Intentionally protected.
      */
     AccumulationBuffer();
+
     /**
      * @brief
      *  Destruct this accumulation buffer (facade).
@@ -108,11 +124,18 @@ protected:
      *  Intentionally protected.
      */
     virtual ~AccumulationBuffer();
+
 };
 
+/**
+ * @brief
+ *  A facade for a colour buffer.
+ */
 class ColourBuffer : public Ego::Buffer<Colour4f>
 {
+
 protected:
+
     /**
      * @brief
      *  Construct this colour buffer (facade).
@@ -120,6 +143,7 @@ protected:
      *  Intentionally protected.
      */
     ColourBuffer();
+
     /**
      * @brief
      *  Destruct this colour buffer (facade).
@@ -127,11 +151,18 @@ protected:
      *  Intentionally protected.
      */
     virtual ~ColourBuffer();
+
 };
 
+/**
+ * @brief
+ *  A facade for an depth buffer.
+ */
 class DepthBuffer : public Ego::Buffer<float>
 {
+
 protected:
+
     /**
      * @brief
      *  Construct this depth buffer (facade).
@@ -139,6 +170,7 @@ protected:
      *  Intentionally protected.
      */
     DepthBuffer();
+
     /**
      * @brief
      *  Destruct this depth buffer (facade).
@@ -146,6 +178,53 @@ protected:
      *  Intentionally protected.
      */
     virtual ~DepthBuffer();
+
+};
+
+/**
+ * @brief
+ *  A facade for a texture unit.
+ */
+class TextureUnit
+{
+
+protected:
+
+    /**
+     * @brief
+     *  Construct this texture unit (facade).
+     * @remark
+     *  Intentionally protected.
+     */
+    TextureUnit();
+    
+    /**
+     * @brief
+     *  Destruct this texture unit (facade).
+     * @remark
+     *  Intentionally protected.
+     */
+    virtual ~TextureUnit();
+
+public:
+
+    /**
+     * @brief
+     *  Activate/deactivate  a texture unit.
+     * @param texture
+     *  a pointer to a texture or a null pointer
+     * @post
+     *  If a pointer to a texture was passed,
+     *  the texture unit was activated using that texture.
+     *  If a null pointer was passed,
+     *  the texture unit was deactivated.
+     * @todo
+     *  As there is still no proper reference counting,
+     *  the caller has to make sure that a texture object is valid until
+     *  the texture unit is deactivated.
+     */
+    virtual void setActivated(oglx_texture_t *texture) = 0;
+
 };
 
 class Renderer;

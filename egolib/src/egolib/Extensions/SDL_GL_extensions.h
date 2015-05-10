@@ -28,6 +28,9 @@
 #include "egolib/Extensions/ogl_extensions.h"
 #include "egolib/Extensions/SDL_extensions.h"
 
+/// MH: This is one of the functions from Cartman. I don't bother documenting it before it is removed.
+SDL_Surface *SDL_GL_createSurface(int w, int h);
+
 /**
  * @brief
  *  Convert an arbitrary surface into a surface suited for OpenGL.
@@ -40,7 +43,7 @@
  * @throw std::invalid_argument
  *  if @a surface is @a nullptr
  */
-SDL_Surface *SDL_GL_convert_surface(SDL_Surface *surface);
+std::shared_ptr<SDL_Surface> SDL_GL_convert_surface(std::shared_ptr<SDL_Surface> surface);
 
 /// Set the OpenGL screen mode using SDL
 SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t *v_old, SDLX_video_parameters_t *v_new, oglx_video_parameters_t *gl_new, SDL_bool has_valid_mode);

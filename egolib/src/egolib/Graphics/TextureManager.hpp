@@ -23,7 +23,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#include "egolib/Extensions/ogl_texture.h"
+#include "egolib/Renderer/Renderer.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -68,21 +68,21 @@ oglx_video_parameters_t ogl_vparam;
 SDL_Surface * theSurface = NULL;
 SDL_Surface * bmphitemap = NULL;        // Heightmap image
 
-oglx_texture_t     tx_point;      // Vertex image
-oglx_texture_t     tx_pointon;    // Vertex image ( select_vertsed )
-oglx_texture_t     tx_ref;        // Meshfx images
-oglx_texture_t     tx_drawref;    //
-oglx_texture_t     tx_anim;       //
-oglx_texture_t     tx_water;      //
-oglx_texture_t     tx_wall;       //
-oglx_texture_t     tx_impass;     //
-oglx_texture_t     tx_damage;     //
-oglx_texture_t     tx_slippy;     //
+oglx_texture_t     *tx_point;      // Vertex image
+oglx_texture_t     *tx_pointon;    // Vertex image ( select_vertsed )
+oglx_texture_t     *tx_ref;        // Meshfx images
+oglx_texture_t     *tx_drawref;    //
+oglx_texture_t     *tx_anim;       //
+oglx_texture_t     *tx_water;      //
+oglx_texture_t     *tx_wall;       //
+oglx_texture_t     *tx_impass;     //
+oglx_texture_t     *tx_damage;     //
+oglx_texture_t     *tx_slippy;     //
 
-oglx_texture_t     tx_smalltile[MAXTILE]; // Tiles
-oglx_texture_t     tx_bigtile[MAXTILE];   //
-oglx_texture_t     tx_tinysmalltile[MAXTILE]; // Plan tiles
-oglx_texture_t     tx_tinybigtile[MAXTILE];   //
+oglx_texture_t     *tx_smalltile[MAXTILE]; // Tiles
+oglx_texture_t     *tx_bigtile[MAXTILE];   //
+oglx_texture_t     *tx_tinysmalltile[MAXTILE]; // Plan tiles
+oglx_texture_t     *tx_tinybigtile[MAXTILE];   //
 
 int     numsmalltile = 0;   //
 int     numbigtile = 0;     //
@@ -195,11 +195,11 @@ oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     if ( fantype >= tile_dict.offset )
     {
-        return tx_bigtile + tx_bits;
+        return tx_bigtile[tx_bits];
     }
     else
     {
-        return tx_smalltile + tx_bits;
+        return tx_smalltile[tx_bits];
     }
 }
 
@@ -250,11 +250,11 @@ oglx_texture_t *tile_at( cartman_mpd_t * pmesh, int fan )
 
     if ( type >= tile_dict.offset )
     {
-        return tx_bigtile + img;
+        return tx_bigtile[img];
     }
     else
     {
-        return tx_smalltile + img;
+        return tx_smalltile[img];
     }
 }
 
@@ -265,7 +265,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
 
     if ( bmphitemap ) SDL_FreeSurface( bmphitemap );
 
-    bmphitemap = cartman_CreateSurface( pmesh->info.tiles_x << 2, pmesh->info.tiles_y << 2 );
+    bmphitemap = SDL_GL_createSurface( pmesh->info.tiles_x << 2, pmesh->info.tiles_y << 2 );
     if ( NULL == bmphitemap ) return;
 
     for (int pixy = 0, y = 16; pixy < ( pmesh->info.tiles_y << 2 ); pixy++, y += 32 )
@@ -293,13 +293,13 @@ void make_planmap( cartman_mpd_t * pmesh )
     int x, y, putx, puty;
     //SDL_Surface* bmptemp;
 
-    //bmptemp = cartman_CreateSurface(64, 64);
+    //bmptemp = SDL_GL_createSurface(64, 64);
     //if(NULL != bmptemp)  return;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
     if ( NULL == bmphitemap ) SDL_FreeSurface( bmphitemap );
-    bmphitemap = cartman_CreateSurface( pmesh->info.tiles_x * TINYXY, pmesh->info.tiles_y * TINYXY );
+    bmphitemap = SDL_GL_createSurface( pmesh->info.tiles_x * TINYXY, pmesh->info.tiles_y * TINYXY );
     if ( NULL == bmphitemap ) return;
 
     SDL_FillRect( bmphitemap, NULL, MAKE_BGR( bmphitemap, 0, 0, 0 ) );
@@ -316,7 +316,7 @@ void make_planmap( cartman_mpd_t * pmesh )
             if ( NULL != tx_tile )
             {
                 SDL_Rect dst = {static_cast<Sint16>(putx), static_cast<Sint16>(puty), TINYXY, TINYXY};
-                cartman_BlitSurface(tx_tile->source, nullptr, bmphitemap, &dst);
+                cartman_BlitSurface(tx_tile->_source.get(), nullptr, bmphitemap, &dst);
             }
             putx += TINYXY;
         }
@@ -422,11 +422,11 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
             select_rv = select_lst_find( plst, vert );
             if ( select_rv < 0 )
             {
-                tx_tmp = &tx_point;
+                tx_tmp = tx_point;
             }
             else
             {
-                tx_tmp = &tx_pointon;
+                tx_tmp = tx_pointon;
             }
 
             vpos[kX] = pmesh->vrt2[vert].x;
@@ -523,11 +523,11 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
         select_rv = select_lst_find( plst, vert );
         if ( select_rv < 0 )
         {
-            tx_tmp = &tx_point;
+            tx_tmp = tx_point;
         }
         else
         {
-            tx_tmp = &tx_pointon;
+            tx_tmp = tx_pointon;
         }
 
         vpos[kX] = pmesh->vrt2[vert].x;
@@ -612,8 +612,8 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
     min_s = dst;
     min_t = dst;
 
-    max_s = -dst + (float)oglx_texture_t::getSourceWidth(tx_tile) / (float)oglx_texture_t::getWidth(tx_tile);
-    max_t = -dst + (float)oglx_texture_t::getSourceHeight(tx_tile) / (float)oglx_texture_t::getHeight(tx_tile);
+    max_s = -dst + (float)tx_tile->getSourceHeight() / (float)tx_tile->getWidth();
+    max_t = -dst + (float)tx_tile->getSourceHeight() / (float)tx_tile->getHeight();
 
     // set the texture coordinates
     loc_vrt[0].s = min_s;
@@ -713,10 +713,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     {
         x1 = x;
         y1 = y;
-        w1 = oglx_texture_t::getSourceWidth(&tx_water) * scale;
-        h1 = oglx_texture_t::getSourceHeight(&tx_water) * scale;
+        w1 = tx_water->getSourceWidth() * scale;
+        h1 = tx_water->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( &tx_water, x1, y1, w1, h1 );
+        ogl_draw_sprite_2d( tx_water, x1, y1, w1, h1 );
     }
 
     // "reflectable tile" is upper left
@@ -724,10 +724,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     {
         x1 = x;
         y1 = y;
-        w1 = oglx_texture_t::getSourceWidth(&tx_ref) * scale;
-        h1 = oglx_texture_t::getSourceHeight(&tx_ref) * scale;
+        w1 = tx_ref->getSourceWidth() * scale;
+        h1 = tx_ref->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( &tx_ref, x1, y1, w1, h1 );
+        ogl_draw_sprite_2d( tx_ref, x1, y1, w1, h1 );
     }
 
     // "reflects characters" is upper right
@@ -736,10 +736,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         x1 = x + foff_0;
         y1 = y;
 
-        w1 = oglx_texture_t::getSourceWidth(&tx_drawref) * scale;
-        h1 = oglx_texture_t::getSourceHeight(&tx_drawref) * scale;
+        w1 = tx_drawref->getSourceWidth() * scale;
+        h1 = tx_drawref->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( &tx_drawref, x1, y1, w1, h1 );
+        ogl_draw_sprite_2d( tx_drawref, x1, y1, w1, h1 );
     }
 
     // "animated tile" is lower left
@@ -748,10 +748,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         x1 = x;
         y1 = y + foff_0;
 
-        w1 = oglx_texture_t::getSourceWidth(&tx_anim) * scale;
-        h1 = oglx_texture_t::getSourceHeight(&tx_anim) * scale;
+        w1 = tx_anim->getSourceWidth() * scale;
+        h1 = tx_anim->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( &tx_anim, x1, y1, w1, h1 );
+        ogl_draw_sprite_2d( tx_anim, x1, y1, w1, h1 );
     }
 
     // the following are all in the lower left quad
@@ -763,10 +763,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1;
         float y2 = y1;
 
-        w1 = oglx_texture_t::getSourceWidth(&tx_wall) * scale;
-        h1 = oglx_texture_t::getSourceHeight(&tx_wall) * scale;
+        w1 = tx_wall->getSourceWidth() * scale;
+        h1 = tx_wall->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( &tx_wall, x2, y2, w1, h1 );
+        ogl_draw_sprite_2d( tx_wall, x2, y2, w1, h1 );
     }
 
     if ( HAS_BITS( fx, MAPFX_IMPASS ) )
@@ -774,10 +774,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1 + foff_1;
         float y2 = y1;
 
-        w1 = oglx_texture_t::getSourceWidth(&tx_impass) * scale;
-        h1 = oglx_texture_t::getSourceHeight(&tx_impass) * scale;
+        w1 = tx_impass->getSourceWidth() * scale;
+        h1 = tx_impass->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( &tx_impass, x2, y2, w1, h1 );
+        ogl_draw_sprite_2d( tx_impass, x2, y2, w1, h1 );
     }
 
     if ( HAS_BITS( fx, MAPFX_DAMAGE ) )
@@ -785,10 +785,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1;
         float y2 = y1 + foff_1;
 
-        w1 = oglx_texture_t::getSourceWidth(&tx_damage) * scale;
-        h1 = oglx_texture_t::getSourceHeight(&tx_damage) * scale;
+        w1 = tx_damage->getSourceWidth() * scale;
+        h1 = tx_damage->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( &tx_damage, x2, y2, w1, h1 );
+        ogl_draw_sprite_2d( tx_damage, x2, y2, w1, h1 );
     }
 
     if ( HAS_BITS( fx, MAPFX_SLIPPY ) )
@@ -796,10 +796,10 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         float x2 = x1 + foff_1;
         float y2 = y1 + foff_1;
 
-        w1 = oglx_texture_t::getSourceWidth(&tx_slippy) * scale;
-        h1 = oglx_texture_t::getSourceHeight(&tx_slippy) * scale;
+        w1 = tx_slippy->getSourceWidth() * scale;
+        h1 = tx_slippy->getSourceHeight() * scale;
 
-        ogl_draw_sprite_2d( &tx_slippy, x2, y2, w1, h1 );
+        ogl_draw_sprite_2d( tx_slippy, x2, y2, w1, h1 );
     }
 
 }
@@ -819,15 +819,15 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
     {
         if ( width == 0 || height == 0 )
         {
-            w = oglx_texture_t::getWidth( img );
-            h = oglx_texture_t::getHeight( img );
+            w = img->getWidth();
+            h = img->getHeight();
         }
 
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + (float)oglx_texture_t::getSourceWidth(img) / (float)oglx_texture_t::getWidth(img);
-        max_t = -dst + (float)oglx_texture_t::getSourceHeight(img) / (float)oglx_texture_t::getHeight(img);
+        max_s = -dst + (float)img->getSourceWidth() / (float)img->getWidth();
+        max_t = -dst + (float)img->getSourceHeight() / (float)img->getHeight();
     }
     else
     {
@@ -869,15 +869,15 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
     {
         if ( width == 0 || height == 0 )
         {
-            w = oglx_texture_t::getWidth( img );
-            h = oglx_texture_t::getHeight( img );
+            w = img->getWidth();
+            h = img->getHeight();
         }
 
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + (float)oglx_texture_t::getSourceWidth(img) / (float)oglx_texture_t::getWidth(img);
-        max_t = -dst + (float)oglx_texture_t::getSourceHeight(img) / (float)oglx_texture_t::getHeight(img);
+        max_s = -dst + (float)img->getSourceWidth() / (float)img->getWidth();
+        max_t = -dst + (float)img->getSourceHeight() / (float)img->getHeight();
     }
     else
     {
@@ -1209,52 +1209,52 @@ void cartman_end_ortho_camera()
 //--------------------------------------------------------------------------------------------
 void load_img()
 {
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_point, "editor/point.png"))
+    if (INVALID_GL_ID == tx_point->load("editor/point.png", gfx_loadImage("editor/point.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_pointon, "editor/pointon.png"))
+    if (INVALID_GL_ID == tx_pointon->load("editor/pointon.png", gfx_loadImage("editor/pointon.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_ref, "editor/ref.png"))
+    if (INVALID_GL_ID == tx_ref->load("editor/ref.png", gfx_loadImage("editor/ref.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_drawref, "editor/drawref.png"))
+    if (INVALID_GL_ID == tx_drawref->load("editor/drawref.png", gfx_loadImage("editor/drawref.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_t::load( &tx_anim, "editor/anim.png"))
+    if (INVALID_GL_ID == tx_anim->load("editor/anim.png", gfx_loadImage("editor/anim.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
 
-    if (INVALID_GL_ID == oglx_texture_t::load( &tx_water, "editor/water.png"))
+    if (INVALID_GL_ID == tx_water->load("editor/water.png", gfx_loadImage("editor/water.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
 
-    if (INVALID_GL_ID == oglx_texture_t::load( &tx_wall, "editor/slit.png"))
+    if (INVALID_GL_ID == tx_wall->load("editor/slit.png", gfx_loadImage("editor/slit.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
 
-    if (INVALID_GL_ID == oglx_texture_t::load( &tx_impass, "editor/impass.png"))
+    if (INVALID_GL_ID == tx_impass->load("editor/impass.png", gfx_loadImage("editor/impass.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
 
-    if (INVALID_GL_ID == oglx_texture_t::load( &tx_damage, "editor/damage.png"))
+    if (INVALID_GL_ID == tx_damage->load("editor/damage.png", gfx_loadImage("editor/damage.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
 
-    if (INVALID_GL_ID == oglx_texture_t::load( &tx_slippy, "editor/slippy.png"))
+    if (INVALID_GL_ID == tx_slippy->load("editor/slippy.png", gfx_loadImage("editor/slippy.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
     }
@@ -1280,13 +1280,18 @@ void get_small_tiles( SDL_Surface* bmpload )
         {
             SDL_Rect src1 = { static_cast<Sint16>(x), static_cast<Sint16>(y), static_cast<Uint16>( step_x - 1 ), static_cast<Uint16>( step_y - 1 ) };
 
-            oglx_texture_t::ctor( tx_smalltile + numsmalltile );
+            tx_smalltile[numsmalltile] = new oglx_texture_t();
 
-            image = cartman_CreateSurface( SMALLXY, SMALLXY );
-            SDL_FillRect( image, NULL, MAKE_BGR( image, 0, 0, 0 ) );
-            SDL_SoftStretch( bmpload, &src1, image, NULL );
+            image = SDL_GL_createSurface( SMALLXY, SMALLXY );
+            if (!image)
+            {
+                throw std::runtime_error("unable to create surface");
+            }
+            auto image_ptr = shared_ptr<SDL_Surface>(image, [](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+            SDL_FillRect( image_ptr.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
+            SDL_SoftStretch( bmpload, &src1, image_ptr.get(), NULL );
 
-            oglx_texture_t::load(tx_smalltile + numsmalltile, image);
+            tx_smalltile[numsmalltile]->load(image_ptr);
 
             numsmalltile++;
         }
@@ -1326,14 +1331,19 @@ void get_big_tiles( SDL_Surface* bmpload )
             src1.w = wid;
             src1.h = hgt;
 
-            oglx_texture_t::ctor( tx_bigtile + numbigtile );
+            tx_bigtile[numbigtile] = new oglx_texture_t();
 
-            image = cartman_CreateSurface( SMALLXY, SMALLXY );
-            SDL_FillRect( image, NULL, MAKE_BGR( image, 0, 0, 0 ) );
+            image = SDL_GL_createSurface( SMALLXY, SMALLXY );
+            if (!image)
+            {
+                throw std::runtime_error("unable to create surface");
+            }
+            auto image_ptr = std::shared_ptr<SDL_Surface>(image, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+            SDL_FillRect( image_ptr.get(), NULL, MAKE_BGR( image, 0, 0, 0 ) );
 
-            SDL_SoftStretch( bmpload, &src1, image, NULL );
+            SDL_SoftStretch( bmpload, &src1, image_ptr.get(), NULL );
 
-            oglx_texture_t::load(tx_bigtile + numbigtile, image);
+            tx_bigtile[numbigtile]->load(image_ptr);
 
             numbigtile++;
         }
@@ -1345,21 +1355,6 @@ void get_tiles( SDL_Surface* bmpload )
 {
     get_small_tiles( bmpload );
     get_big_tiles( bmpload );
-}
-
-//--------------------------------------------------------------------------------------------
-SDL_Surface *cartman_CreateSurface(int w, int h)
-{
-    if ( NULL == theSurface ) return NULL;
-
-    // Expand the screen format to support alpha.
-    // a) Copy the format of the main surface.
-    SDL_PixelFormat format;
-    memcpy(&format, theSurface->format, sizeof(SDL_PixelFormat));
-    // b) Expand the format.
-    SDLX_ExpandFormat(&format);
-
-    return SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, format.BitsPerPixel, format.Rmask, format.Gmask, format.Bmask, format.Amask);
 }
 
 //--------------------------------------------------------------------------------------------

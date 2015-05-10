@@ -40,6 +40,6 @@ protected:
 
     ImageLoader_SDL(const string& extension);
 
-    virtual SDL_Surface *load(vfs_FILE *file) const override;
+    virtual std::shared_ptr<SDL_Surface> load(vfs_FILE *file) const override;
 
 };

@@ -23,6 +23,7 @@
 #include "egolib/log.h"
 #include "egolib/Image/ImageLoader_SDL.hpp"
 #include "egolib/Image/ImageLoader_SDL_image.hpp"
+#include "egolib/Graphics/PixelFormat.hpp"
 
 ImageManager *ImageManager::_singleton = nullptr;
 
@@ -132,4 +133,56 @@ ImageManager& ImageManager::get()
         throw std::logic_error("image manager not initialized");
     }
     return *_singleton;
+}
+
+
+std::shared_ptr<SDL_Surface> ImageManager::getDefaultImage()
+{
+    /// Create a surface of 8 x 8 blocks each of 16 x 16 pixels.
+    const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+    auto surface = createImage(8 * 16, 8 * 16, pixelFormatDescriptor);
+    if (!surface)
+    {
+        throw std::runtime_error("unable to create error image");
+    }
+    // Iterate over the blocks from left to right and from top to bottom.
+    // Alternating between black and white.
+    for (size_t z = 0, y = 0; y < 8; ++y)
+    {
+        for (size_t x = 0; x < 8; ++x)
+        {
+            SDL_Rect rect;
+            rect.x = x * 16;
+            rect.y = y * 16;
+            rect.w = 16;
+            rect.h = 16;
+            Uint32 color;
+            if (z % 2 != 0)
+            {
+                color = SDL_MapRGBA(surface->format, 0, 0, 0, 255);      // black
+            }
+            else
+            {
+                color = SDL_MapRGBA(surface->format, 255, 255, 255, 255); // white
+            }
+            SDL_FillRect(surface.get(), &rect, color);
+            z++;
+        }
+    }
+    return surface;
+}
+
+std::shared_ptr<SDL_Surface> ImageManager::createImage(size_t width, size_t height, const Ego::PixelFormatDescriptor& pixelFormatDescriptor)
+{
+    SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
+                                                pixelFormatDescriptor.getBitsPerPixel(),
+                                                pixelFormatDescriptor.getRedMask(),
+                                                pixelFormatDescriptor.getGreenMask(),
+                                                pixelFormatDescriptor.getBlueMask(),
+                                                pixelFormatDescriptor.getAlphaMask());
+    if (!surface)
+    {
+        return nullptr;
+    }
+    return std::shared_ptr<SDL_Surface>(surface, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
 }

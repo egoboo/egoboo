@@ -262,7 +262,7 @@ void draw_cursor_in_window(std::shared_ptr<Cartman_Window> pwin)
         int x = pwin->x + ( Input::get()._mouse.x - _window_lst[mdata.win_id]->x );
         int y = pwin->y + ( Input::get()._mouse.y - _window_lst[mdata.win_id]->y );
 
-        ogl_draw_sprite_2d( &tx_pointon, x - size / 2, y - size / 2, size, size );
+        ogl_draw_sprite_2d( tx_pointon, x - size / 2, y - size / 2, size, size );
     }
 
 }
@@ -730,7 +730,7 @@ void load_all_windows( cartman_mpd_t * pmesh )
     for (auto window : _window_lst)
     {
         window->on = false;
-        oglx_texture_t::ctor(&(window->tex));
+        window->tex = new oglx_texture_t();
     }
 
     load_window( _window_lst[0], 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );
@@ -744,7 +744,7 @@ void draw_window_background(std::shared_ptr<Cartman_Window> pwin)
 {
     if (!pwin || !pwin->on ) return;
 
-    ogl_draw_sprite_2d( &( pwin->tex ), pwin->x, pwin->y, pwin->surfacex, pwin->surfacey );
+    ogl_draw_sprite_2d(pwin->tex, pwin->x, pwin->y, pwin->surfacex, pwin->surfacey );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1893,11 +1893,11 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
         {
             if ( mdata.type >= tile_dict.offset )
             {
-                ogl_draw_sprite_2d( tx_bigtile + tile, x, 0, SMALLXY, SMALLXY );
+                ogl_draw_sprite_2d( tx_bigtile[tile], x, 0, SMALLXY, SMALLXY );
             }
             else
             {
-                ogl_draw_sprite_2d( tx_smalltile + tile, x, 0, SMALLXY, SMALLXY );
+                ogl_draw_sprite_2d( tx_smalltile[tile], x, 0, SMALLXY, SMALLXY );
             }
             x += SMALLXY;
             tile += add;

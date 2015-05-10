@@ -209,7 +209,7 @@ void ModuleSelector::ModuleButton::draw()
     GL_DEBUG_END();
 
     //Draw module title image
-    _gameEngine->getUIManager()->drawImage(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon(), getX() + 5, getY() + 5, getWidth()-10, getHeight()-10);
+    _gameEngine->getUIManager()->drawImage(*(_moduleSelector->_modules[_moduleSelector->_startIndex + _offset]->getIcon()), getX() + 5, getY() + 5, getWidth()-10, getHeight()-10);
 }
 
 bool ModuleSelector::notifyMouseScrolled(const int amount)

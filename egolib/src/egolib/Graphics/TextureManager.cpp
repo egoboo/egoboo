@@ -44,13 +44,13 @@ TextureManager::TextureManager()
         oglx_texture_t *texture = nullptr;
         try
         {
-            texture = oglx_texture_t::create();
+            texture = new oglx_texture_t();
         }
         catch (std::exception& ex)
         {
             while (ref > 0)
             {
-                oglx_texture_t::destroy(_lst[--ref]);
+                delete _lst[--ref];
                 _lst[ref] = nullptr;
             }
             throw ex;
@@ -63,8 +63,7 @@ TextureManager::~TextureManager()
 {
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
     {
-        oglx_texture_t::dtor(_lst[ref]);
-        free(_lst[ref]);
+        delete _lst[ref];
         _lst[ref] = nullptr;
     }
     uninitializeErrorTextures();
@@ -84,7 +83,7 @@ void TextureManager::release_all()
 {
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
     {
-        oglx_texture_t::release(_lst[ref]);
+        _lst[ref]->release();
     }
 
     freeAll();
@@ -95,13 +94,7 @@ void TextureManager::reload_all()
     for (TX_REF ref = 0; ref < TEXTURES_MAX; ++ref)
     {
         oglx_texture_t *texture = _lst[ref];
-        /// @todo MH: Until proper reference counting is employed,
-        ///           we must "steal" the source from the texture,
-        ///           otherwise the texture will destroy the source.
-        /// @todo MH: Add error handling.
-        SDL_Surface *source = texture->source;
-        texture->source = nullptr;
-        oglx_texture_t::load(texture, source);
+        texture->load(texture->_source);
     }
 }
 
@@ -109,7 +102,7 @@ TX_REF TextureManager::acquire(const TX_REF ref)
 {
     if (ref >= 0 && ref < TX_SPECIAL_LAST)
     {
-        oglx_texture_t::release(_lst[ref]);
+        _lst[ref]->release();
         return ref;
     }
     else if (!VALID_TX_RANGE(ref))
@@ -126,7 +119,7 @@ TX_REF TextureManager::acquire(const TX_REF ref)
     else
     {
         // Release the texture under the specified reference.
-        oglx_texture_t::release(_lst[ref]);
+        _lst[ref]->release();
         // Remove this reference from the free set.
         _free.erase(_free.find(ref));
         return ref;
@@ -139,7 +132,7 @@ bool TextureManager::relinquish(const TX_REF ref)
     if (ref < 0 || ref >= TEXTURES_MAX) return false;
 
     // Release the texture.
-    oglx_texture_t::release(_lst[ref]);
+    _lst[ref]->release();
 
     // Do not put anything below TX_SPECIAL_LAST back onto the free stack.
     if (ref >= TX_SPECIAL_LAST)

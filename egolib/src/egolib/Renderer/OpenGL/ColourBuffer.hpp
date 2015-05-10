@@ -17,49 +17,46 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.cpp
-/// @brief  Common interface of all renderers
+/// @file   egolib/Renderer/OpenGL/ColourBuffer.hpp
+/// @brief  Colour buffer facade for OpenGL 2.1 
 /// @author Michael Heilmann
+#pragma once
 
 #include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Renderer/OpenGL/Renderer.hpp"
 
 namespace Ego
 {
-
-AccumulationBuffer::AccumulationBuffer()
-{}
-
-AccumulationBuffer::~AccumulationBuffer()
-{}
-
-ColourBuffer::ColourBuffer()
-{}
-
-ColourBuffer::~ColourBuffer()
-{}
-
-DepthBuffer::DepthBuffer()
-{}
-
-DepthBuffer::~DepthBuffer()
-{}
-
-TextureUnit::TextureUnit()
-{}
-
-TextureUnit::~TextureUnit()
-{}
-
-Renderer *RendererFactory::operator()()
+namespace OpenGL
 {
-    return new OpenGL::Renderer();
-}
 
-Renderer::Renderer()
-{}
+using namespace Math;
 
-Renderer::~Renderer()
-{}
+class ColourBuffer : public Ego::ColourBuffer
+{
 
+public:
+
+    /**
+     * @brief
+     *  Construct this colour buffer facade.
+     */
+    ColourBuffer();
+
+    /**
+     * @brief
+     *  Destruct this colour buffer facade.
+     */
+    virtual ~ColourBuffer();
+
+public:
+
+    /** @copydoc Ego::Buffer<Colour4f>::clear */
+    virtual void clear() override;
+
+    /** @copydoc Ego::Buffer<Colour4f>::setClearValue */
+    virtual void setClearValue(const Colour4f& value) override;
+
+};
+
+} // namespace OpenGL
 } // namespace Ego

@@ -17,49 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file   egolib/Renderer/Renderer.cpp
-/// @brief  Common interface of all renderers
+/// @file   egolib/Renderer/OpenGL/Texture.hpp
+/// @brief  An encapsulation of an OpenGL texture object
 /// @author Michael Heilmann
 
-#include "egolib/Renderer/Renderer.hpp"
-#include "egolib/Renderer/OpenGL/Renderer.hpp"
+#pragma once
 
-namespace Ego
-{
-
-AccumulationBuffer::AccumulationBuffer()
-{}
-
-AccumulationBuffer::~AccumulationBuffer()
-{}
-
-ColourBuffer::ColourBuffer()
-{}
-
-ColourBuffer::~ColourBuffer()
-{}
-
-DepthBuffer::DepthBuffer()
-{}
-
-DepthBuffer::~DepthBuffer()
-{}
-
-TextureUnit::TextureUnit()
-{}
-
-TextureUnit::~TextureUnit()
-{}
-
-Renderer *RendererFactory::operator()()
-{
-    return new OpenGL::Renderer();
-}
-
-Renderer::Renderer()
-{}
-
-Renderer::~Renderer()
-{}
-
-} // namespace Ego
+#include "egolib/Renderer/Texture.hpp"

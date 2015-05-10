@@ -76,6 +76,6 @@ public:
      * @remark
      *  The file is not closed by this function.
      */
-    virtual SDL_Surface *load(vfs_FILE *file) const = 0;
+    virtual std::shared_ptr<SDL_Surface> load(vfs_FILE *file) const = 0;
 
 };
