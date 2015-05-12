@@ -14,7 +14,7 @@
     </Link>
     <ClCompile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ExternalDependenciesDir)\SDL-1.2.15\include;$(ExternalDependenciesDir)\SDL_image-1.2.12;$(ExternalDependenciesDir)\SDL_ttf-2.0.11;$(ExternalDependenciesDir)\SDL_mixer-1.2.12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ExternalDependenciesDir)\SDL2-2.0.3\include;$(ExternalDependenciesDir)\SDL2_image-2.0.0;$(ExternalDependenciesDir)\SDL2_ttf-2.0.11;$(ExternalDependenciesDir)\SDL2_mixer-2.0.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <link>
       <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL2\SDL2\$(Configuration)\$(Platform);$(SolutionDir)\product\SDL2\SDL2main\$(Configuration)\$(Platform);$(SolutionDir)\product\SDL2\SDL2_image\$(Configuration)\$(Platform);$(SolutionDir)\product\SDL2\SDL2_ttf\$(Configuration)\$(Platform);$(SolutionDir)\product\SDL2\SDL2_mixer\$(Configuration)\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
