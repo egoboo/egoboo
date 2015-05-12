@@ -150,7 +150,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
 
     GL_DEBUG( glPushClientAttrib )( GL_CLIENT_VERTEX_ARRAY_BIT | GL_LIGHTING_BIT );
     {
-        // per-vertex coloring
+        // Per-vertex coloring.
         Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable); // GL_LIGHTING_BIT
 
         /// @note claforte@> Put this in an initialization function.

@@ -50,19 +50,37 @@ protected:
      * @brief
      *  The texture type.
      */
-    Ego::TextureType _type;
+    TextureType _type;
+
+    /**
+     * @brief
+     *  The minification texture filter for this texture.
+     */
+    TextureFilter _minFilter;
+    
+    /**
+     * @brief
+     *  The magnification texture filter for this texture.
+     */
+    TextureFilter _magFilter;
+    
+    /**
+     * @brief
+     *  The mipmap texture filter for this texture.
+     */
+    TextureFilter _mipMapFilter;
 
     /**
      * @brief
      *  The texture address mode along the s-axis.
      */
-    Ego::TextureAddressMode _addressModeS;
+    TextureAddressMode _addressModeS;
 
     /**
      * @brief
      *  The texture address mode along the t-axis.
      */
-    Ego::TextureAddressMode _addressModeT;
+    TextureAddressMode _addressModeT;
 
     /**
      * @brief
@@ -139,11 +157,51 @@ public:
 
     /**
      * @brief
+     *  Get the minification filter of this texture.
+     * @return
+     *  the minification filter of this texture.
+     */
+    TextureFilter getMinFilter() const;
+
+    /**
+     * @brief
+     *  Set the minification filter of this texture.
+     * @param minFilter
+     *  the minification filter
+     */
+    void setMinFilter(TextureFilter minFilter);
+
+    /**
+     * @brief
+     *  Get the magnification filter of this texture.
+     * @return
+     *  the magnification filter
+     */
+    TextureFilter getMagFilter() const;
+
+    /**
+     * @brief
+     *  Set the magnification filter of this texture.
+     * @param magFilter
+     *  the magnification filter
+     */
+    void setMagFilter(TextureFilter magFilter);
+
+    /**
+     * @brief
      *  Get the texture address mode of this texture along the s-axis.
      * @return
      *  the texture address mode of this texture along the s-axis.
      */
-    Ego::TextureAddressMode getAddressModeS() const;
+    TextureAddressMode getAddressModeS() const;
+
+    /**
+     * @brief
+     *  Set the texture address mode of this texture along the s-axis.
+     * @param addressMode
+     *  the texture address mode of this texture along the s-axis
+     */
+    void setAddressModeS(TextureAddressMode addressModeS);
 
     /**
      * @brief
@@ -151,7 +209,15 @@ public:
      * @return
      *  the texture address mode of this texture along the t-axis.
      */
-    Ego::TextureAddressMode getAddressModeT() const;
+    TextureAddressMode getAddressModeT() const;
+
+    /**
+     * @brief
+     *  Set the texture address mode of this texture along the t-axis.
+     * @param addressMode
+     *  the texture address mode of this texture along the t-axis
+     */
+    void setAddressModeT(TextureAddressMode addressModeT);
 
     /**
      * @brief

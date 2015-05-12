@@ -99,6 +99,8 @@ struct Utilities
      */
     static GLenum toOpenGL(Ego::PrimitiveType primitiveType);
 
+    static void toOpenGL(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl);
+
     static void toOpenGL(const Ego::PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl);
 
 

@@ -362,20 +362,17 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
     if (IS_ATTACHED_CHR_RAW(pbb->ichr)) return false;
 
     oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(pbb->tex_ref);
-
     oglx_texture_t::bind(ptex);
 
-    float w = ptex->getSourceWidth();
-    float h = ptex->getSourceHeight();
 
-    float x1 = w / (float)ptex->getWidth();
-    float y1 = h / (float)ptex->getHeight();
+    float s = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
+    float t = (float)ptex->getSourceHeight() / (float)ptex->getHeight();
 
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
     // scale the camera vectors
-    fvec3_t vec_rgt = cam_rgt * (w * scale * pbb->size);
-    fvec3_t vec_up  = cam_up  * (h * scale * pbb->size);
+    fvec3_t vec_rgt = cam_rgt * (ptex->getSourceWidth() * scale * pbb->size);
+    fvec3_t vec_up = cam_up  * (ptex->getSourceHeight() * scale * pbb->size);
 
     GLvertex vtlist[4];
     // bottom left
@@ -384,15 +381,15 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
     vtlist[0].pos[XX] = pbb->offset[XX] + tmp[kX];
     vtlist[0].pos[YY] = pbb->offset[YY] + tmp[kY];
     vtlist[0].pos[ZZ] = pbb->offset[ZZ] + tmp[kZ];
-    vtlist[0].tex[SS] = x1;
-    vtlist[0].tex[TT] = y1;
+    vtlist[0].tex[SS] = s;
+    vtlist[0].tex[TT] = t;
 
     // top left
     tmp = pbb->pos + (-vec_rgt + vec_up * 2);
     vtlist[1].pos[XX] = pbb->offset[XX] + tmp[kX];
     vtlist[1].pos[YY] = pbb->offset[YY] + tmp[kY];
     vtlist[1].pos[ZZ] = pbb->offset[ZZ] + tmp[kZ];
-    vtlist[1].tex[SS] = x1;
+    vtlist[1].tex[SS] = s;
     vtlist[1].tex[TT] = 0;
 
     // top right
@@ -409,15 +406,15 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
     vtlist[3].pos[YY] = pbb->offset[YY] + tmp[kY];
     vtlist[3].pos[ZZ] = pbb->offset[ZZ] + tmp[kZ];
     vtlist[3].tex[SS] = 0;
-    vtlist[3].tex[TT] = y1;
+    vtlist[3].tex[TT] = t;
 
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     {
+        auto& renderer = Ego::Renderer::get();
+        renderer.setColour(Ego::Math::Colour4f(pbb->tint[RR], pbb->tint[GG], pbb->tint[BB], pbb->tint[AA]));
+
         // Go on and draw it
         GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG( glColor4fv )( pbb->tint );
-
             for (size_t i = 0; i < 4; ++i)
             {
                 GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
@@ -426,7 +423,6 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
         }
         GL_DEBUG_END();
     }
-    ATTRIB_POP( __FUNCTION__ );
 
     return true;
 }
@@ -444,27 +440,25 @@ gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera)
         ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
         {
             auto& renderer = Ego::Renderer::get();
-            // Do not write into the depth buffer.
+            // Do not write an incoming fragments depth value into the depth buffer.
             renderer.setDepthWriteEnabled(false);
 
-            // Essentially disable the depth test without calling
-            // Ego::Renderer::get().setDepthTestEnabled(false).
-            renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
+            // Do not compare incoming fragments depth value with the depth buffer.
+            renderer.setDepthTestEnabled(false);
 
             // flat shading
             renderer.setGouraudShadingEnabled(false); // GL_LIGHTING_BIT
 
-            // draw draw front and back faces of polygons
-            oglx_end_culling();                                // GL_ENABLE_BIT
-
+            // Draw only front-facing polygons.
+            renderer.setCullingMode(Ego::CullingMode::Back);
+            //GL_DEBUG(glEnable)(GL_CULL_FACE);  // GL_ENABLE_BIT 
+            //glDisable(GL_LIGHTING);
             renderer.setBlendingEnabled(true);
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // GL_COLOR_BUFFER_BIT
 
+            // This drops 100% transparent fragments i.e. in order to pass, alpha has to be greater than 0.
             Ego::Renderer::get().setAlphaTestEnabled(true);
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                          // GL_COLOR_BUFFER_BIT
-
-			Ego::Renderer::get().setColour(Ego::Colour4f::white());
+            GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);                          // GL_COLOR_BUFFER_BIT
 
             for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
             {

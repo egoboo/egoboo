@@ -145,6 +145,8 @@ namespace Ego
         std::shared_ptr<SDL_Surface> surface = std::shared_ptr<SDL_Surface>(textSurface, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
         std::string name = "Font text '" + text + "'";
         tex->load(name, surface);
+        tex->setAddressModeS(Ego::TextureAddressMode::Clamp);
+        tex->setAddressModeT(Ego::TextureAddressMode::Clamp);
     }
     
     void Font::drawText(const std::string &text, int x, int y, const Ego::Math::Colour4f &colour)

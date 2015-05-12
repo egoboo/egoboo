@@ -28,6 +28,7 @@
 #include "egolib/Renderer/Texture.hpp"
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/Math/_Include.hpp"
+#include "egolib/Image/ImageManager.hpp"
 #include "egolib/Graphics/PixelFormat.hpp"
 
 SDL_Surface *SDL_GL_createSurface(int w, int h)
@@ -195,28 +196,82 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     return retval;
 }
 
-std::shared_ptr<SDL_Surface> SDL_GL_convert_surface(std::shared_ptr<SDL_Surface> surface)
+Uint32 SDL_GL_getpixel(SDL_Surface *surface, int x, int y)
+{
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to retrieve */
+    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+    switch (bpp) {
+        case 1:
+            return *p;
+            break;
+
+        case 2:
+            return *(Uint16 *)p;
+            break;
+
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+                return p[0] << 16 | p[1] << 8 | p[2];
+            else
+                return p[0] | p[1] << 8 | p[2] << 16;
+            break;
+
+        case 4:
+            return *(Uint32 *)p;
+            break;
+
+        default:
+            throw std::runtime_error("unreachable code reached"); /* shouldn't happen, but avoids warnings */
+    }
+}
+
+void SDL_GL_putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
+{
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to set */
+    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+    switch (bpp) {
+        case 1:
+            *p = pixel;
+            break;
+
+        case 2:
+            *(Uint16 *)p = pixel;
+            break;
+
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+                p[0] = (pixel >> 16) & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = pixel & 0xff;
+            }
+            else {
+                p[0] = pixel & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = (pixel >> 16) & 0xff;
+            }
+            break;
+
+        case 4:
+            *(Uint32 *)p = pixel;
+            break;
+        default:
+            throw std::runtime_error("unreachable code reached"); /* shouldn't happen, but avoids warnings */
+    }
+}
+
+
+std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface, const Ego::PixelFormatDescriptor& pixelFormatDescriptor)
 {
     if (!surface)
     {
         throw std::invalid_argument("nullptr == surface");
     }
-
-    // Aliases old surface.
-    std::shared_ptr<SDL_Surface> oldSurface = surface;
-
-    // Alias old width and old height.
-    int oldWidth = surface->w,
-        oldHeight = surface->h;
-
-    // Compute new width and new height.
-    int newWidth = Ego::Math::powerOfTwo(oldWidth);
-    int newHeight = Ego::Math::powerOfTwo(oldHeight);
-
-    // Compute new pixel format (R8G8B8A8).
     SDL_PixelFormat newFormat = *(SDL_GetVideoSurface()->format);
 
-    const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
     newFormat.Amask = pixelFormatDescriptor.getAlphaMask();
     newFormat.Ashift = pixelFormatDescriptor.getAlphaShift();
     newFormat.Aloss = 0;
@@ -236,45 +291,111 @@ std::shared_ptr<SDL_Surface> SDL_GL_convert_surface(std::shared_ptr<SDL_Surface>
     newFormat.BitsPerPixel = pixelFormatDescriptor.getBitsPerPixel();
     newFormat.BytesPerPixel = pixelFormatDescriptor.getBitsPerPixel() / sizeof(char);
 
-    // Convert to new format.
-    SDL_Surface *tmp = SDL_ConvertSurface(oldSurface.get(), &newFormat, SDL_SWSURFACE);
-    if (!tmp)
+    SDL_Surface *newSurface = SDL_ConvertSurface(surface.get(), &newFormat, SDL_SWSURFACE);
+    if (!newSurface)
     {
         throw std::runtime_error("unable to convert surface");
     }
-    oldSurface.reset(tmp);
 
-    // If the alpha mask is non-zero (which is the case here), then SDL_ConvertSurface
-    // behaves "as if" the addition flag @a SDL_SRCALPHA was supplied. That is, if
-    // the surface is blitted onto another surface, then alpha blending is performed:
-    // This is not desired by us as we want to set each pixel in the target surface to
-    // the value of the corresponding pixel in the source surface i.e. we do not want
-    // alpha blending to be done: We turn of alpha blending by a calling
-    // <tt>SetAlpha(oldSurface, 0, SDL_ALPHA_OPAQUE)</tt>.
-    SDL_SetAlpha(oldSurface.get(), 0, SDL_ALPHA_OPAQUE);
-    // We do not want colour-keying to be performed either: Wether it is activated or not,
-    // turn it off by the call <tt>SDL_SetColorKey(oldSurface, 0, 0)</tt>.
-    SDL_SetColorKey(oldSurface.get(), 0, 0);
-    // For more information, see <a>http://sdl.beuc.net/sdl.wiki/SDL_CreateRGBSurface</a>.
+    return std::shared_ptr<SDL_Surface>(newSurface, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+}
 
-    // Convert to new width and new height each a power of 2 as (old) OpenGL versions required it (we'r conservative).
-    if (newWidth != oldWidth || newHeight != oldHeight)
+Ego::PixelFormatDescriptor SDL_GL_fromSDL(const SDL_PixelFormat& source)
+{
+    if (source.palette)
     {
-        SDL_Surface *tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, newWidth, newHeight,
-                                                newFormat.BitsPerPixel,
-                                                newFormat.Rmask,
-                                                newFormat.Gmask,
-                                                newFormat.Bmask,
-                                                newFormat.Amask);
-        if (!tmp)
+        throw std::runtime_error("pixel format not supported");
+    }
+    const Ego::PixelFormatDescriptor pfds [] =
+        { Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>(),
+          Ego::PixelFormatDescriptor::get<Ego::PixelFormat::B8G8R8A8>(),
+          Ego::PixelFormatDescriptor::get<Ego::PixelFormat::B8G8R8>(),
+          Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>() };
+    for (size_t i = 0; i < 4; ++i)
+    {
+        if (source.BytesPerPixel == pfds[i].getBitsPerPixel()/8 &&
+            source.Amask == pfds[i].getAlphaMask() &&
+            source.Rmask == pfds[i].getRedMask() &&
+            source.Gmask == pfds[i].getGreenMask() &&
+            source.Bmask == pfds[i].getBlueMask() &&
+            source.Ashift == pfds[i].getAlphaShift() &&
+            source.Rshift == pfds[i].getRedShift() &&
+            source.Gshift == pfds[i].getGreenShift() &&
+            source.Bshift == pfds[i].getBlueShift() &&
+            source.BitsPerPixel == pfds[i].getBitsPerPixel())
         {
-            throw std::runtime_error("unable to convert surface");
+            return pfds[i];
         }
-        SDL_BlitSurface(oldSurface.get(), &(oldSurface->clip_rect), tmp, nullptr);
-        /** @todo Handle errors of SDL_BitSurface. */
-        oldSurface.reset(tmp);
+    }
+    throw std::runtime_error("pixel format not supported");
+}
+
+std::shared_ptr<SDL_Surface> SDL_GL_pad(std::shared_ptr<SDL_Surface> surface, size_t left, size_t right, size_t top, size_t bottom)
+{
+    if (!surface || surface->w < 0 || surface->h < 0)
+    {
+        throw std::invalid_argument("nullptr == surface || surface->w < 0 || surface->h < 0");
+    }
+    if (left == 0 && right == 0 && top == 0 && bottom == 0)
+    {
+        return surface;
+    }
+    // Alias old width and old height.
+    size_t oldWidth  = surface->w,
+           oldHeight = surface->h;
+
+    // Compute new width and new height.
+    size_t newWidth = oldWidth + left + right,
+           newHeight = oldHeight + top + bottom;
+
+    // Create a new surface.
+    const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+    auto temporary = ImageManager::get().createImage(newWidth, newHeight, pixelFormatDescriptor);
+
+    // Fill the surface with transparent black.
+    SDL_FillRect(temporary.get(), nullptr, SDL_MapRGBA(temporary->format, 0, 0, 0, 0));
+    for (size_t y = 0; y < oldHeight; ++y)
+    {
+        for (size_t x = 0; x < oldWidth; ++x)
+        {
+            uint32_t p = SDL_GL_getpixel(surface.get(), x, y);
+            uint8_t r, g, b, a;
+            SDL_GetRGBA(p, surface->format, &r, &g, &b, &a);
+            uint32_t q = SDL_MapRGBA(temporary->format, r, g, b, a);
+            SDL_GL_putpixel(temporary.get(), left + x, top + y, q);
+        }
     }
 
-    // Return the result.
-    return oldSurface;
+    // Return the temporary surface.
+    return temporary;
+}
+
+std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface)
+{
+    const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8A8>();
+    // (1) Perform pixel format conversion.
+    surface = SDL_GL_convert(surface, pixelFormatDescriptor);
+    if (!surface)
+    {
+        throw std::runtime_error("unable to apply transformation: pixel format conversion");
+    }
+
+    // (2) Perform padding to power of two if necessary.
+
+    // Alias old width and old height.
+    int oldWidth = surface->w,
+        oldHeight = surface->h;
+
+    // Compute new width and new height.
+    int newWidth = Ego::Math::powerOfTwo(oldWidth),
+        newHeight = Ego::Math::powerOfTwo(oldHeight);
+
+    // Only if the new dimension differ from the old dimensions, perform the scaling.
+    if (newWidth != oldWidth || newHeight != oldHeight)
+    {
+        surface = SDL_GL_pad(surface, 0, newWidth - oldWidth, 0, newHeight - oldHeight);
+    }
+
+    // (3) Return the result.
+    return surface;
 }

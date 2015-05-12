@@ -54,7 +54,7 @@ enum class TextureAddressMode
      * @brief
      *  A value \f$t\f$ is clamped to \f$\left[\frac{1}{2n},1-\frac{1}{2n}\right]\f$
      *  i.e. is set to \f$\frac{1}{2n}\f$ if \f$t < \frac{1}{2n}\f$ and to
-     *  \f$1-\frac{1}{2n}\f$ if \f$t > 1 - \frac{1}{2n}\f$. \f$n\f4 is the size of the
+     *  \f$1-\frac{1}{2n}\f$ if \f$t > 1 - \frac{1}{2n}\f$. \f$n\f$ is the size of the
      *  texture in the direction of the clamping.
      */
     ClampToEdge,

@@ -266,6 +266,61 @@ bool Utilities::isError()
     return false;
 }
 
+void Utilities::toOpenGL(TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter, GLint& minFilter_gl, GLint& magFilter_gl)
+{
+    switch (minFilter)
+    {
+        // In OpenGL for the minification filter, "none" and "nearest" coincide.
+        case Ego::TextureFilter::None:
+        case Ego::TextureFilter::Nearest:
+            switch (mipMapFilter)
+            {
+                case Ego::TextureFilter::None:
+                    minFilter_gl = GL_NEAREST;
+                    break;
+                case Ego::TextureFilter::Nearest:
+                    minFilter_gl = GL_NEAREST_MIPMAP_NEAREST;
+                    break;
+                case Ego::TextureFilter::Linear:
+                    minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
+                    break;
+            }
+            break;
+        case Ego::TextureFilter::Linear:
+            switch (mipMapFilter)
+            {
+                case Ego::TextureFilter::None:
+                    minFilter_gl = GL_LINEAR;
+                    break;
+                case Ego::TextureFilter::Nearest:
+                    minFilter_gl = GL_LINEAR_MIPMAP_NEAREST;
+                    break;
+                case Ego::TextureFilter::Linear:
+                    minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
+                    break;
+                default:
+                    throw std::runtime_error("unreachable code reached");
+            }
+            break;
+        default:
+            throw std::runtime_error("unreachable code reached");
+    };
+    switch (magFilter)
+    {
+        // In OpenGL for the magnification filter, "none" and "nearest" coincide.
+        case Ego::TextureFilter::None:
+        case Ego::TextureFilter::Nearest:
+            magFilter_gl = GL_NEAREST;
+            break;
+        case Ego::TextureFilter::Linear:
+            magFilter_gl = GL_LINEAR;
+            break;
+        default:
+            throw std::runtime_error("unreachable code reached");
+    };
+}
+
+
 void Utilities::toOpenGL(const Ego::PixelFormatDescriptor& pfd, GLenum& internalFormat_gl, GLenum& format_gl, GLenum& type_gl) {
     switch (pfd.getPixelFormat())
     {
@@ -358,60 +413,10 @@ void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode
     }
 
     GLint minFilter_gl, magFilter_gl;
-    switch (g_ogl_textureParameters.textureFilter.minFilter)
-    {
-        // In OpenGL for the minification filter, "none" and "nearest" coincide.
-        case Ego::TextureFilter::None:
-        case Ego::TextureFilter::Nearest:
-            switch (g_ogl_textureParameters.textureFilter.mipMapFilter)
-            {
-                case Ego::TextureFilter::None:
-                    minFilter_gl = GL_NEAREST;
-                    break;
-                case Ego::TextureFilter::Nearest:
-                    minFilter_gl = GL_NEAREST_MIPMAP_NEAREST;
-                    break;
-                case Ego::TextureFilter::Linear:
-                    minFilter_gl = GL_NEAREST_MIPMAP_LINEAR;
-                    break;
-            }
-            break;
-        case Ego::TextureFilter::Linear:
-            switch (g_ogl_textureParameters.textureFilter.mipMapFilter)
-            {
-                case Ego::TextureFilter::None:
-                    minFilter_gl = GL_LINEAR;
-                    break;
-                case Ego::TextureFilter::Nearest:
-                    minFilter_gl = GL_LINEAR_MIPMAP_NEAREST;
-                    break;
-                case Ego::TextureFilter::Linear:
-                    minFilter_gl = GL_LINEAR_MIPMAP_LINEAR;
-                    break;
-                default:
-                    throw std::runtime_error("unreachable code reached");
-            }
-            break;
-        default:
-            throw std::runtime_error("unreachable code reached");
-    };
-    switch (g_ogl_textureParameters.textureFilter.magFilter)
-    {
-        // In OpenGL for the magnification filter, "none" and "nearest" coincide.
-        case Ego::TextureFilter::None:
-        case Ego::TextureFilter::Nearest:
-            magFilter_gl = GL_NEAREST;
-            break;
-        case Ego::TextureFilter::Linear:
-            magFilter_gl = GL_LINEAR;
-            break;
-        default:
-            throw std::runtime_error("unreachable code reached");
-    };
+    toOpenGL(g_ogl_textureParameters.textureFilter.minFilter, g_ogl_textureParameters.textureFilter.magFilter, g_ogl_textureParameters.textureFilter.mipMapFilter, minFilter_gl, magFilter_gl);
 
     glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
     glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
-
     if (Ego::OpenGL::Utilities::isError())
     {
         return;

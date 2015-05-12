@@ -41,22 +41,53 @@ Texture::Texture(const std::string& name,
                  int width, int height, int sourceWidth, int sourceHeight, std::shared_ptr<SDL_Surface> source,
                  bool hasAlpha) :
     _name(name),
-    _type(type), _addressModeS(addressModeS), _addressModeT(addressModeT),
+    _type(type), _addressModeS(addressModeS),  _addressModeT(addressModeT),
     _width(width), _height(height), _sourceWidth(sourceWidth), _sourceHeight(sourceHeight), _source(source),
+    _minFilter(g_ogl_textureParameters.textureFilter.minFilter), _magFilter(g_ogl_textureParameters.textureFilter.magFilter), _mipMapFilter(g_ogl_textureParameters.textureFilter.mipMapFilter),
     _hasAlpha(hasAlpha)
 {}
 
 Texture::~Texture()
 {}
 
+TextureFilter Texture::getMinFilter() const
+{
+    return _minFilter;
+}
+
+void Texture::setMinFilter(TextureFilter minFilter)
+{
+    _minFilter = minFilter;
+}
+
+TextureFilter Texture::getMagFilter() const
+{
+    return _magFilter;
+}
+
+void Texture::setMagFilter(TextureFilter magFilter)
+{
+    _magFilter = magFilter;
+}
+
 TextureAddressMode Texture::getAddressModeS() const
 {
     return _addressModeS;
 }
 
-Ego::TextureAddressMode Texture::getAddressModeT() const
+void Texture::setAddressModeS(TextureAddressMode addressModeS)
+{
+    _addressModeS = addressModeS;
+}
+
+TextureAddressMode Texture::getAddressModeT() const
 {
     return _addressModeT;
+}
+
+void Texture::setAddressModeT(TextureAddressMode addressModeT)
+{
+    _addressModeT = addressModeT;
 }
 
 int Texture::getSourceHeight() const
@@ -420,18 +451,11 @@ GLuint oglx_texture_t::load(const std::string& name, std::shared_ptr<SDL_Surface
         return INVALID_GL_ID;
     }
 
-    /// @todo MH: *sigh* ... just ... do ... not ... do ... that.
-    /* Set the color key, if valid. */
-    if (nullptr != source->format && nullptr != source->format->palette && INVALID_KEY != key)
-    {
-        SDL_SetColorKey(source.get(), SDL_SRCCOLORKEY, key);
-    }
-
     // Convert the source into a format suited for OpenGL.
     std::shared_ptr<SDL_Surface> new_source;
     try
     {
-        new_source = SDL_GL_convert_surface(source);
+        new_source = SDL_GL_convert(source);
     }
     catch (...)
     {
@@ -553,7 +577,63 @@ void oglx_texture_t::bind(oglx_texture_t *texture)
     }
     else
     {
-        Ego::OpenGL::Utilities::bind(texture->_id, texture->_type, texture->_addressModeS, texture->_addressModeT);
+        auto anisotropy_enable = g_ogl_textureParameters.anisotropy_enable;
+        auto anisotropy_level = g_ogl_textureParameters.anisotropy_level;
+        Ego::OpenGL::Utilities::clearError();
+        GLenum target_gl;
+        switch (texture->_type)
+        {
+            case Ego::TextureType::_2D:
+                glEnable(GL_TEXTURE_2D);
+                glDisable(GL_TEXTURE_1D);
+                target_gl = GL_TEXTURE_2D;
+                break;
+            case Ego::TextureType::_1D:
+                glEnable(GL_TEXTURE_1D);
+                glDisable(GL_TEXTURE_2D);
+                target_gl = GL_TEXTURE_1D;
+                break;
+            default:
+                throw std::runtime_error("unreachable code reached");
+        }
+        if (Ego::OpenGL::Utilities::isError())
+        {
+            return;
+        }
+        glBindTexture(target_gl, texture->_id);
+        if (Ego::OpenGL::Utilities::isError())
+        {
+            return;
+        }
+
+        glTexParameteri(target_gl, GL_TEXTURE_WRAP_S, Ego::OpenGL::Utilities::toOpenGL(texture->_addressModeS));
+        glTexParameteri(target_gl, GL_TEXTURE_WRAP_T, Ego::OpenGL::Utilities::toOpenGL(texture->_addressModeT));
+
+
+        if (Ego::OpenGL::Utilities::isError())
+        {
+            return;
+        }
+
+        GLint minFilter_gl, magFilter_gl;
+        Ego::OpenGL::Utilities::toOpenGL(texture->_minFilter, texture->_magFilter, texture->_mipMapFilter, minFilter_gl, magFilter_gl);
+        glTexParameteri(target_gl, GL_TEXTURE_MIN_FILTER, minFilter_gl);
+        glTexParameteri(target_gl, GL_TEXTURE_MAG_FILTER, magFilter_gl);
+        if (Ego::OpenGL::Utilities::isError())
+        {
+            return;
+        }
+
+
+        if (GL_TEXTURE_2D == target_gl && g_ogl_caps.anisotropic_supported && anisotropy_enable && anisotropy_level >= 1.0f)
+        {
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy_level);
+        }
+
+        if (Ego::OpenGL::Utilities::isError())
+        {
+            return;
+        }
     }
     Ego::OpenGL::Utilities::isError();
 }

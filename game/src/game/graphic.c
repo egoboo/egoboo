@@ -1380,14 +1380,14 @@ void gfx_system_load_basic_textures()
     prt_set_texture_params((TX_REF)TX_PARTICLE_LIGHT);
 
     // Module background tiles
-    TextureManager::get().load("mp_data/tile0", (TX_REF)TX_TILE_0, TRANSCOLOR);
-    TextureManager::get().load("mp_data/tile1", (TX_REF)TX_TILE_1, TRANSCOLOR);
-    TextureManager::get().load("mp_data/tile2", (TX_REF)TX_TILE_2, TRANSCOLOR);
-    TextureManager::get().load("mp_data/tile3", (TX_REF)TX_TILE_3, TRANSCOLOR);
+    TextureManager::get().load("mp_data/tile0", (TX_REF)TX_TILE_0);
+    TextureManager::get().load("mp_data/tile1", (TX_REF)TX_TILE_1);
+    TextureManager::get().load("mp_data/tile2", (TX_REF)TX_TILE_2);
+    TextureManager::get().load("mp_data/tile3", (TX_REF)TX_TILE_3);
 
     // Water textures
-    TextureManager::get().load("mp_data/watertop", (TX_REF)TX_WATER_TOP, TRANSCOLOR);
-    TextureManager::get().load("mp_data/waterlow", (TX_REF)TX_WATER_LOW, TRANSCOLOR);
+    TextureManager::get().load("mp_data/watertop", (TX_REF)TX_WATER_TOP);
+    TextureManager::get().load("mp_data/waterlow", (TX_REF)TX_WATER_LOW);
 
     // The phong map
     TextureManager::get().load("mp_data/phong", (TX_REF)TX_PHONG, TRANSCOLOR);
@@ -5813,18 +5813,20 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
                 cnt++;
                 continue;
             }
-
-            // If the alpha mask is non-zero (which is the case here), then SDL_CreateRGBSurface
-            // behaves "as if" the addition flag @a SDL_SRCALPHA was supplied. That is, if
-            // the surface is blitted onto another surface, then alpha blending is performed:
-            // This is not desired by us as we want to set each pixel in the target surface to
-            // the value of the corresponding pixel in the source surface i.e. we do not want
-            // alpha blending to be done: We turn of alpha blending by a calling
-            // <tt>SetAlpha(oldSurface, 0, SDL_ALPHA_OPAQUE)</tt>.
-            SDL_SetAlpha(src_img.get(), 0, SDL_ALPHA_OPAQUE);
-            // blit the source region into the destination bitmap
-            int blit_rv = SDL_BlitSurface(src_img.get(), &src_img_rect, dst_img.get(), nullptr);
-            // For more information, see <a>http://sdl.beuc.net/sdl.wiki/SDL_CreateRGBSurface</a>.
+            // Fill the destination surface with opaque white (redundant, but keept it until SDL 2 migration).
+            SDL_FillRect(dst_img.get(), nullptr, SDL_MapRGBA(dst_img.get()->format, 0, 255, 255, 255));
+            // Copy the pixels.
+            for (size_t y = 0; y < src_img_rect.h; ++y)
+            {
+                for (size_t x = 0; x < src_img_rect.w; ++x)
+                {
+                    uint32_t p = SDL_GL_getpixel(src_img.get(), src_img_rect.x + x, src_img_rect.y + y);
+                    uint8_t r, g, b, a;
+                    SDL_GetRGBA(p, src_img->format, &r, &g, &b, &a);
+                    uint32_t q = SDL_MapRGBA(dst_img->format, r, g, b, a);
+                    SDL_GL_putpixel(dst_img.get(), x, y, q);
+                }
+            }
 
             // upload the SDL_Surface into OpenGL
             dst_tx->load(dst_img);
