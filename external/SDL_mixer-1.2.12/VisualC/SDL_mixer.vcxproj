@@ -72,25 +72,25 @@
     <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\product\SDL1\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\intermediate\SDL1\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\product\SDL1\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\intermediate\SDL1\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\product\SDL1\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\intermediate\SDL1\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\product\SDL1\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\intermediate\SDL1\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -131,7 +131,7 @@
       <OutputFile>.\Debug/SDL_mixer.bsc</OutputFile>
     </Bscmake>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)\product\native_midi\$(Configuration)\$(Platform)\;$(SolutionDir)\product\timidity\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL1\native_midi\$(Configuration)\$(Platform)\;$(SolutionDir)\product\SDL1\timidity\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>timidity.lib;native_midi.lib</AdditionalDependencies>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
@@ -175,7 +175,7 @@
     </Bscmake>
     <Lib>
       <AdditionalDependencies>timidity.lib;native_midi.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\product\native_midi\$(Configuration)\$(Platform)\;$(SolutionDir)\product\timidity\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL1\native_midi\$(Configuration)\$(Platform)\;$(SolutionDir)\product\SDL1\timidity\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -228,7 +228,7 @@
     </Bscmake>
     <Lib>
       <AdditionalDependencies>timidity.lib;native_midi.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\product\native_midi\$(Configuration)\$(Platform)\;$(SolutionDir)\product\timidity\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL1\native_midi\$(Configuration)\$(Platform)\;$(SolutionDir)\product\SDL1\timidity\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
@@ -283,7 +283,7 @@
     </Bscmake>
     <Lib>
       <AdditionalDependencies>timidity.lib;native_midi.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\product\native_midi\$(Configuration)\$(Platform)\;$(SolutionDir)\product\timidity\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\SDL1\native_midi\$(Configuration)\$(Platform)\;$(SolutionDir)\product\SDL1\timidity\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
