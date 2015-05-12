@@ -215,6 +215,12 @@
 		CD94B4A11A8B3EEC00BECFC9 /* libIdLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD94B49E1A8B3E6000BECFC9 /* libIdLib.a */; };
 		CD94B4A51A8B3F1500BECFC9 /* IdLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD94B4A31A8B3F1500BECFC9 /* IdLib.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
+		CDB23F271B012258000635D4 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F241B012258000635D4 /* Texture.cpp */; };
+		CDB23F321B01226D000635D4 /* AccumulationBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F281B01226C000635D4 /* AccumulationBuffer.cpp */; };
+		CDB23F331B01226D000635D4 /* ColourBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F2A1B01226C000635D4 /* ColourBuffer.cpp */; };
+		CDB23F341B01226D000635D4 /* DepthBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F2C1B01226C000635D4 /* DepthBuffer.cpp */; };
+		CDB23F351B01226D000635D4 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F2E1B01226C000635D4 /* Texture.cpp */; };
+		CDB23F361B01226D000635D4 /* TextureUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F301B01226C000635D4 /* TextureUnit.cpp */; };
 		CDB3DC981A659EF30098D3B9 /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC961A659ED40098D3B9 /* mem.c */; };
 		CDB563391AA27820007978A9 /* DebugModuleLoadingState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB563371AA27820007978A9 /* DebugModuleLoadingState.cpp */; };
 		CDBD89411A6C02AF00250CE2 /* MD2Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */; };
@@ -265,7 +271,6 @@
 		CDCA1FAE1A3F57D000002E76 /* ogl_debug.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3131A374B6000B377BE /* ogl_debug.c */; };
 		CDCA1FAF1A3F57D000002E76 /* ogl_extensions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3151A374B6000B377BE /* ogl_extensions.c */; };
 		CDCA1FB01A3F57D000002E76 /* ogl_include.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3171A374B6000B377BE /* ogl_include.c */; };
-		CDCA1FB11A3F57D000002E76 /* ogl_texture.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3191A374B6000B377BE /* ogl_texture.c */; };
 		CDCA1FB21A3F57D000002E76 /* SDL_extensions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B31B1A374B6000B377BE /* SDL_extensions.c */; };
 		CDCA1FB31A3F57D000002E76 /* SDL_GL_extensions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B31D1A374B6000B377BE /* SDL_GL_extensions.c */; };
 		CDCA1FB41A3F57D000002E76 /* file_common.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B31F1A374B6000B377BE /* file_common.c */; };
@@ -587,8 +592,6 @@
 		CD39B3161A374B6000B377BE /* ogl_extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ogl_extensions.h; sourceTree = "<group>"; };
 		CD39B3171A374B6000B377BE /* ogl_include.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = ogl_include.c; sourceTree = "<group>"; };
 		CD39B3181A374B6000B377BE /* ogl_include.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ogl_include.h; sourceTree = "<group>"; };
-		CD39B3191A374B6000B377BE /* ogl_texture.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = ogl_texture.c; sourceTree = "<group>"; };
-		CD39B31A1A374B6000B377BE /* ogl_texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ogl_texture.h; sourceTree = "<group>"; };
 		CD39B31B1A374B6000B377BE /* SDL_extensions.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = SDL_extensions.c; sourceTree = "<group>"; };
 		CD39B31C1A374B6000B377BE /* SDL_extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_extensions.h; sourceTree = "<group>"; };
 		CD39B31D1A374B6000B377BE /* SDL_GL_extensions.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = SDL_GL_extensions.c; sourceTree = "<group>"; };
@@ -925,6 +928,20 @@
 		CDB103CC1A91C7280077CD45 /* EgoTest_XCTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_XCTest.hpp; sourceTree = "<group>"; };
 		CDB103CD1A91C89B0077CD45 /* EgoTest_VSCppUnitTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_VSCppUnitTest.hpp; sourceTree = "<group>"; };
 		CDB103CE1A91C9690077CD45 /* EgoTest_doxygen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_doxygen.hpp; sourceTree = "<group>"; };
+		CDB23F231B012258000635D4 /* PrimitiveType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PrimitiveType.hpp; sourceTree = "<group>"; };
+		CDB23F241B012258000635D4 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
+		CDB23F251B012258000635D4 /* Texture.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Texture.hpp; sourceTree = "<group>"; };
+		CDB23F261B012258000635D4 /* TextureType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TextureType.hpp; sourceTree = "<group>"; };
+		CDB23F281B01226C000635D4 /* AccumulationBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccumulationBuffer.cpp; sourceTree = "<group>"; };
+		CDB23F291B01226C000635D4 /* AccumulationBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AccumulationBuffer.hpp; sourceTree = "<group>"; };
+		CDB23F2A1B01226C000635D4 /* ColourBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColourBuffer.cpp; sourceTree = "<group>"; };
+		CDB23F2B1B01226C000635D4 /* ColourBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ColourBuffer.hpp; sourceTree = "<group>"; };
+		CDB23F2C1B01226C000635D4 /* DepthBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DepthBuffer.cpp; sourceTree = "<group>"; };
+		CDB23F2D1B01226C000635D4 /* DepthBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DepthBuffer.hpp; sourceTree = "<group>"; };
+		CDB23F2E1B01226C000635D4 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
+		CDB23F2F1B01226C000635D4 /* Texture.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Texture.hpp; sourceTree = "<group>"; };
+		CDB23F301B01226C000635D4 /* TextureUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureUnit.cpp; sourceTree = "<group>"; };
+		CDB23F311B01226D000635D4 /* TextureUnit.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TextureUnit.hpp; sourceTree = "<group>"; };
 		CDB3DC961A659ED40098D3B9 /* mem.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mem.c; sourceTree = "<group>"; };
 		CDB563371AA27820007978A9 /* DebugModuleLoadingState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugModuleLoadingState.cpp; sourceTree = "<group>"; };
 		CDB563381AA27820007978A9 /* DebugModuleLoadingState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DebugModuleLoadingState.hpp; sourceTree = "<group>"; };
@@ -1457,10 +1474,14 @@
 				CD50B11B1ABF008700F3ABAF /* CompareFunction.hpp */,
 				CD44E45E1A895D9B00D345DF /* ComparisonFunction.hpp */,
 				CD50B11C1ABF008700F3ABAF /* CullingMode.hpp */,
+				CDB23F231B012258000635D4 /* PrimitiveType.hpp */,
 				CD0FE1581A7B09AD00F3392B /* Renderer.cpp */,
 				CD0FE1591A7B09AD00F3392B /* Renderer.hpp */,
+				CDB23F241B012258000635D4 /* Texture.cpp */,
+				CDB23F251B012258000635D4 /* Texture.hpp */,
 				CD50B11D1ABF008700F3ABAF /* TextureAddressMode.hpp */,
 				CD0CB08B1A84AAF800D78E80 /* TextureFilter.hpp */,
+				CDB23F261B012258000635D4 /* TextureType.hpp */,
 				CD50B11E1ABF008700F3ABAF /* WindingMode.hpp */,
 			);
 			path = Renderer;
@@ -1469,9 +1490,19 @@
 		CD0FE1551A7B09AD00F3392B /* OpenGL */ = {
 			isa = PBXGroup;
 			children = (
+				CDB23F281B01226C000635D4 /* AccumulationBuffer.cpp */,
+				CDB23F291B01226C000635D4 /* AccumulationBuffer.hpp */,
+				CDB23F2A1B01226C000635D4 /* ColourBuffer.cpp */,
+				CDB23F2B1B01226C000635D4 /* ColourBuffer.hpp */,
+				CDB23F2C1B01226C000635D4 /* DepthBuffer.cpp */,
+				CDB23F2D1B01226C000635D4 /* DepthBuffer.hpp */,
 				CD50B11A1ABEFA7900F3ABAF /* OpenGL.inl */,
 				CD0FE1561A7B09AD00F3392B /* Renderer.cpp */,
 				CD0FE1571A7B09AD00F3392B /* Renderer.hpp */,
+				CDB23F2E1B01226C000635D4 /* Texture.cpp */,
+				CDB23F2F1B01226C000635D4 /* Texture.hpp */,
+				CDB23F301B01226C000635D4 /* TextureUnit.cpp */,
+				CDB23F311B01226D000635D4 /* TextureUnit.hpp */,
 			);
 			path = OpenGL;
 			sourceTree = "<group>";
@@ -1657,8 +1688,6 @@
 				CD39B3161A374B6000B377BE /* ogl_extensions.h */,
 				CD39B3171A374B6000B377BE /* ogl_include.c */,
 				CD39B3181A374B6000B377BE /* ogl_include.h */,
-				CD39B3191A374B6000B377BE /* ogl_texture.c */,
-				CD39B31A1A374B6000B377BE /* ogl_texture.h */,
 				CD39B31B1A374B6000B377BE /* SDL_extensions.c */,
 				CD39B31C1A374B6000B377BE /* SDL_extensions.h */,
 				CD39B31D1A374B6000B377BE /* SDL_GL_extensions.c */,
@@ -2780,6 +2809,7 @@
 				CD4803B51A944228006DB980 /* EnchantProfileSystem.cpp in Sources */,
 				CDE4EC611A7167CD00A4BC62 /* Plane.cpp in Sources */,
 				CD4803A81A94419B006DB980 /* Errors.cpp in Sources */,
+				CDB23F321B01226D000635D4 /* AccumulationBuffer.cpp in Sources */,
 				CD6491871ADF618E00A3B264 /* ImageLoader_SDL.cpp in Sources */,
 				CDCA1FDE1A3F57D000002E76 /* strutil.c in Sources */,
 				CDCA1FBE1A3F57D000002E76 /* map_file-v2.c in Sources */,
@@ -2800,10 +2830,12 @@
 				CDCA1FC61A3F57D000002E76 /* quest_file.c in Sources */,
 				CD4803A71A94419B006DB980 /* Buffer.cpp in Sources */,
 				CDCA1FE11A3F57D000002E76 /* timer.c in Sources */,
+				CDB23F331B01226D000635D4 /* ColourBuffer.cpp in Sources */,
 				CDCA1FD81A3F57D000002E76 /* network.c in Sources */,
 				CDCA1FAE1A3F57D000002E76 /* ogl_debug.c in Sources */,
 				CDCA1FAB1A3F57D000002E76 /* console.c in Sources */,
 				CD44E45B1A8959CF00D345DF /* Branch.cpp in Sources */,
+				CDB23F351B01226D000635D4 /* Texture.cpp in Sources */,
 				CDCA1FB91A3F57D000002E76 /* controls_file-v3.c in Sources */,
 				CDCA1FD51A3F57D000002E76 /* log.c in Sources */,
 				CDCA1FE21A3F57D000002E76 /* typedef.c in Sources */,
@@ -2826,11 +2858,14 @@
 				CD9059341A69A67C00DC425D /* Random.cpp in Sources */,
 				CD1329891A90130300D1B221 /* EnchantProfileWriter.cpp in Sources */,
 				CDCA1FD61A3F57D000002E76 /* map_functions.c in Sources */,
+				CDB23F361B01226D000635D4 /* TextureUnit.cpp in Sources */,
 				CDCA1FBF1A3F57D000002E76 /* map_file-v3.c in Sources */,
 				CDCA1FD31A3F57D000002E76 /* IDSZ_map.c in Sources */,
 				CDCA1FA71A3F57D000002E76 /* _math.c in Sources */,
 				CD6491881ADF618E00A3B264 /* ImageLoader.cpp in Sources */,
 				CDD931A31A428D970004A8B2 /* cube.c in Sources */,
+				CDB23F341B01226D000635D4 /* DepthBuffer.cpp in Sources */,
+				CDB23F271B012258000635D4 /* Texture.cpp in Sources */,
 				CD1329881A90130300D1B221 /* EnchantProfileReader.cpp in Sources */,
 				CDCA1FD91A3F57D000002E76 /* file_mac.m in Sources */,
 				CDCA1FB31A3F57D000002E76 /* SDL_GL_extensions.c in Sources */,
@@ -2843,7 +2878,6 @@
 				CDCA1FBC1A3F57D000002E76 /* id_md2.c in Sources */,
 				CD12E6361AC6FDFD00ECD765 /* Image.cpp in Sources */,
 				CDCA1FCB1A3F57D000002E76 /* treasure_table_file.c in Sources */,
-				CDCA1FB11A3F57D000002E76 /* ogl_texture.c in Sources */,
 				CD41E60C1AF1A52B00B8DBA8 /* PixelFormat.cpp in Sources */,
 				CD6491861ADF618E00A3B264 /* ImageLoader_SDL_image.cpp in Sources */,
 				CD10953E1AEEDFA900937B35 /* TextureManager.cpp in Sources */,
