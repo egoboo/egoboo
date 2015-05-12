@@ -467,9 +467,9 @@ float AudioSystem::getSoundDistance(const fvec3_t soundPosition)
     fvec3_t cameraPosition =
         fvec3_t
         (
-        _cameraSystem.getMainCamera()->getCenter()[kX],
-        _cameraSystem.getMainCamera()->getCenter()[kY],
-        _cameraSystem.getMainCamera()->getPosition()[kZ]
+        CameraSystem::get()->getMainCamera()->getCenter()[kX],
+        CameraSystem::get()->getMainCamera()->getCenter()[kY],
+        CameraSystem::get()->getMainCamera()->getPosition()[kZ]
         );
 
     //Calculate distance between camera and sound origin
@@ -478,8 +478,8 @@ float AudioSystem::getSoundDistance(const fvec3_t soundPosition)
 
 void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fvec3_t soundPosition)
 {
-    const float cameraX = _cameraSystem.getMainCamera()->getCenter()[kX];
-    const float cameraY = _cameraSystem.getMainCamera()->getCenter()[kY];
+    const float cameraX = CameraSystem::get()->getMainCamera()->getCenter()[kX];
+    const float cameraY = CameraSystem::get()->getMainCamera()->getCenter()[kY];
 
     //Scale distance (0 is very close 255 is very far away)
     distance *= 255.0f / MAX_DISTANCE;
@@ -488,7 +488,7 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fv
     float angle = std::atan2(cameraY - soundPosition[kY], cameraX - soundPosition[kX]);
 
     //Adjust for camera rotation
-    angle += _cameraSystem.getMainCamera()->getTurnZOne() * Ego::Math::twoPi<float>();
+    angle += CameraSystem::get()->getMainCamera()->getTurnZOne() * Ego::Math::twoPi<float>();
 
     //limited global sound volume
     Mix_Volume(channel, (128 * _audioConfig.soundVolume) / 100);
@@ -544,7 +544,7 @@ int AudioSystem::playSound(const fvec3_t& snd_pos, const SoundID soundID)
     }
 
     // Don't play sounds until the camera has been properly initialized.
-    if (!_cameraSystem.isInitialized())
+    if (!CameraSystem::get())
     {
         return INVALID_SOUND_CHANNEL;
     }

@@ -1263,7 +1263,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             case VARSWINGTURN:
                 varname = "SWINGTURN";
                 {
-                    std::shared_ptr<Camera> camera = _cameraSystem.getCameraByChrID(pself->index);
+                    std::shared_ptr<Camera> camera = CameraSystem::get()->getCameraByChrID(pself->index);
 
                     iTmp = 0;
                     if ( camera )

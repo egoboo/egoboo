@@ -36,7 +36,8 @@
 #include "game/Module/Module.hpp"
 #include "game/char.h"
 
-PlayingState::PlayingState()
+PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
+    _cameraSystem(cameraSystem)
 {
     //For debug only
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
@@ -65,8 +66,8 @@ PlayingState::~PlayingState()
         ProfileSystem::get().loadAllSavedCharacters("mp_players");
     }
 
-    // Stop any module sounds that are playing.
-    AudioSystem::get().fadeAllSounds();
+    //Stop music
+    AudioSystem::get().fadeAllSounds();  
 }
 
 void PlayingState::update()

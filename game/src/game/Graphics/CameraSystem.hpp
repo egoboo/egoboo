@@ -32,22 +32,14 @@ CONSTEXPR size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
 class CameraSystem
 {
 public:	
-	CameraSystem();
+	CameraSystem(const size_t numberOfCameras);
+
+	~CameraSystem();
 
 	/**
 	 * @return true if the camera system has been initialized and can be used
 	 */
 	bool isInitialized();
-
-	/**
-	 * @brief initializes the camera system, must be called before using
-	 */
-	void begin(const size_t numberOfCameras);
-
-	/**
-	 * @brief frees any resources locked by the camera ssytem
-	 */
-	void end();
 
 	void resetAll( const ego_mesh_t * pmesh );
 	void updateAll( const ego_mesh_t * pmesh );
@@ -64,9 +56,21 @@ public:
     /**
      * @brief write access to global camera options
      */
-    CameraOptions& getCameraOptions();
+    static CameraOptions& getCameraOptions();
 
 	inline std::shared_ptr<Camera> getMainCamera() const {return _mainCamera;}
+
+	/**
+	* @brief
+	*	Singleton accessor for CameraSystem
+	**/
+	static std::shared_ptr<CameraSystem> get() {return _singleton.lock();}
+
+	/**
+	* @brief
+	*	Request singleton access or create it if needed
+	**/
+	static std::shared_ptr<CameraSystem> request(size_t numberOfCameras);
 
 private:
 
@@ -86,9 +90,9 @@ private:
 
 private:
 	bool _initialized;
-	CameraOptions _cameraOptions;
 	std::vector<std::shared_ptr<Camera>> _cameraList;
 	std::shared_ptr<Camera> _mainCamera;
-};
 
-extern CameraSystem _cameraSystem;
+	static std::weak_ptr<CameraSystem> _singleton;
+	static CameraOptions _cameraOptions;
+};
