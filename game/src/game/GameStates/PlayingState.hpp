@@ -25,10 +25,13 @@
 
 #include "game/GameStates/GameState.hpp"
 
+//Forward declarations
+class CameraSystem;
+
 class PlayingState : public GameState
 {
 public:
-    PlayingState();
+    PlayingState(std::shared_ptr<CameraSystem> cameraSystem);
 
     ~PlayingState();
 
@@ -40,4 +43,7 @@ public:
 
 protected:
     void drawContainer() override;
+
+private:
+	std::shared_ptr<CameraSystem> _cameraSystem;
 };

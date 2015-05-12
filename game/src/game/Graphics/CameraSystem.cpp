@@ -29,30 +29,18 @@
 
 #include "game/Entities/_Include.hpp"
 
-CameraSystem::CameraSystem() :
+//Define static variables
+std::weak_ptr<CameraSystem> CameraSystem::_singleton;
+CameraOptions CameraSystem::_cameraOptions;
+
+CameraSystem::CameraSystem(const size_t numberOfCameras) :
 	_initialized(false),
-    _cameraOptions(),
 	_cameraList(),
     _mainCamera(nullptr)
 {
-	//ctor
-}
-
-bool CameraSystem::isInitialized()
-{
-	return _initialized;
-}
-
-void CameraSystem::begin(const size_t numberOfCameras)
-{
-	//Already initialized?
-    if ( _initialized ) {
-    	return;
-    }
-
     //Create cameras
     for(size_t i = 0; i < CLIP<size_t>(numberOfCameras, 1, MAX_CAMERAS); ++i) {
-    	_cameraList.push_back( std::make_shared<Camera>(_cameraOptions) );
+        _cameraList.push_back( std::make_shared<Camera>(_cameraOptions) );
     }
 
     //If there are no valid players then make free movement camera
@@ -73,13 +61,21 @@ void CameraSystem::begin(const size_t numberOfCameras)
 
     // spread the targets out over all the cameras
     autoSetTargets();
+
+    // make sure the cameras are centered on something or there will be a graphics error
+    resetAllTargets(PMesh);
 }
 
-void CameraSystem::end()
+CameraSystem::~CameraSystem()
 {
-	_cameraList.clear();
-	_initialized = false;
+    _cameraList.clear();
+    _initialized = false;
     _mainCamera = nullptr;
+}
+
+bool CameraSystem::isInitialized()
+{
+	return _initialized;
 }
 
 void CameraSystem::resetAll(const ego_mesh_t * pmesh)
@@ -376,4 +372,16 @@ CameraOptions& CameraSystem::getCameraOptions()
     return _cameraOptions;
 }
 
-CameraSystem _cameraSystem;
+std::shared_ptr<CameraSystem> CameraSystem::request(size_t numberOfCameras) 
+{
+    //Check if it is already allocated
+    std::shared_ptr<CameraSystem> allocatedSystem = _singleton.lock();
+    if(allocatedSystem && allocatedSystem->_cameraList.size() >= numberOfCameras) {
+        return _singleton.lock();
+    }
+
+    //Allocate new one
+    allocatedSystem = std::make_shared<CameraSystem>(numberOfCameras);
+    _singleton = allocatedSystem;
+    return allocatedSystem;
+}

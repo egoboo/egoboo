@@ -220,7 +220,6 @@ private:
 extern std::unique_ptr<GameEngine> _gameEngine;
 
 //TODO: remove these globals
-extern CameraSystem _cameraSystem;
 extern std::unique_ptr<GameModule> _currentModule;
 extern ObjectHandler _gameObjects;
 extern ego_mesh_t *PMesh;

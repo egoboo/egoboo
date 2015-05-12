@@ -824,7 +824,7 @@ int update_game()
     //---- end the code for updating in-game objects
 
     // put the camera movement inside here
-    _cameraSystem.updateAll(PMesh);
+    CameraSystem::get()->updateAll(PMesh);
 
     // Timers
     clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
@@ -1358,7 +1358,7 @@ void set_one_player_latch( const PLA_REF ipla )
     if ( !input_device_is_enabled( pdevice ) ) return;
 
     // find the camera that is pointing at this character
-    std::shared_ptr<Camera> pcam = _cameraSystem.getCameraByChrID(ppla->index);
+    std::shared_ptr<Camera> pcam = CameraSystem::get()->getCameraByChrID(ppla->index);
     if ( nullptr == pcam ) return;
 
     // fast camera turn if it is enabled and there is only 1 local player
@@ -2738,10 +2738,7 @@ void game_quit_module()
 
     // get rid of the game/module data
     game_release_module_data();
-#if 0
-    // turn off networking
-    egonet_instance_t::get()->close_session();
-#endif
+
     // reset the "ui" mouse state
     input_cursor_reset();
 
@@ -2788,7 +2785,6 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // initialize the game objects
     initialize_all_objects();
     input_cursor_reset();
-    _cameraSystem.resetAll(PMesh);
     update_all_character_matrices();
     attach_all_particles();
 
@@ -2797,10 +2793,6 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     {
         log_madused_vfs("/debug/slotused.txt");
     }
-
-    // initialize the network
-    //net_begin();
-    //net_sayHello();
 
     // initialize the timers as the very last thing
     timeron = false;
@@ -2850,10 +2842,7 @@ void game_release_module_data()
 
     // deallocate any dynamically allocated scripting memory
     scripting_system_end();
-#if 0
-    // clean up any remaining models that might have dynamic data
-    MadStack_reset();
-#endif
+
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
     ProfileSystem::get().reset();
@@ -2866,9 +2855,6 @@ void game_release_module_data()
     mesh_BSP_system_end();
     obj_BSP_system_end();
     CollisionSystem::get()->reset();
-
-    // free the cameras
-    _cameraSystem.end();
     
     // restore the original statically allocated ego_mesh_t header
     PMesh = _mesh + 0;
@@ -3679,9 +3665,9 @@ bool upload_camera_data( const wawalite_camera_t * pdata )
 {
     if ( NULL == pdata ) return false;
 
-    _cameraSystem.getCameraOptions().swing     = pdata->swing;
-    _cameraSystem.getCameraOptions().swingRate = pdata->swing_rate;
-    _cameraSystem.getCameraOptions().swingAmp  = pdata->swing_amp;
+    CameraSystem::get()->getCameraOptions().swing     = pdata->swing;
+    CameraSystem::get()->getCameraOptions().swingRate = pdata->swing_rate;
+    CameraSystem::get()->getCameraOptions().swingAmp  = pdata->swing_amp;
 
     return true;
 }
@@ -4824,7 +4810,7 @@ bool status_list_update_cameras( status_list_t * plst )
     for ( size_t cnt = 0; cnt < plst->count; cnt++ )
     {
         status_list_element_t * pelem = StatusList.lst + cnt;
-        pelem->camera_index = _cameraSystem.getCameraIndexByID(pelem->who);
+        pelem->camera_index = CameraSystem::get()->getCameraIndexByID(pelem->who);
     }
 
     return true;

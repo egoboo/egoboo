@@ -145,6 +145,7 @@ public:
      *	Reload all textures from their surfaces.
      */
     void reload_all();
+
     /**
      * @brief
      *	Release all textures.

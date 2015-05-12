@@ -101,7 +101,7 @@ bool config_download( egoboo_config_t *cfg)
     ParticleHandler::get().setDisplayLimit(cfg->graphic_simultaneousParticles_max.getValue());
 
     // Camera options.
-    _cameraSystem.getCameraOptions().turnMode = cfg->camera_control.getValue();
+    CameraSystem::getCameraOptions().turnMode = cfg->camera_control.getValue();
 
     // Sound options.
     AudioSystem::get().reconfigure(*cfg);
@@ -119,7 +119,7 @@ bool config_upload(egoboo_config_t *cfg)
 {
     if (!cfg) return false;
 
-    cfg->camera_control.setValue(_cameraSystem.getCameraOptions().turnMode);
+    cfg->camera_control.setValue(CameraSystem::getCameraOptions().turnMode);
 
     // Particle limit.
     cfg->graphic_simultaneousParticles_max.setValue(ParticleHandler::get().getDisplayLimit());
