@@ -237,6 +237,9 @@
       <Project>{051aaf6c-2640-40f8-992d-23e3a0f5def1}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\utilities\convertpaletted\src\filters.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

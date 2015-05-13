@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include <deque>
 #include <SDL.h>
@@ -10,6 +11,60 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #endif
+
+/**********************************************************************************************************/
+
+struct FileSystem
+{
+    static std::string getDirectorySeparator()
+    {
+#if defined(_WIN32)
+        return "\\";
+#else
+        return "//";
+#endif
+    }
+    /**
+     * @brief
+     *  Get the current working directory of this process.
+     * @return
+     *  the current working directory of this process
+     * @throw std::runtime_error
+     *  if the current working directory can not be obtained
+     * @throw std::bad_alloc
+     *  if an out of memory situation occurred
+     */
+    static std::string getWorkingDirectory()
+    {
+        auto length = GetCurrentDirectory(0, NULL);
+        if (!length)
+        {
+            throw std::runtime_error("unable to obtain working directory");
+        }
+        auto buffer = std::make_unique<char[]>(length + 1);
+        length = GetCurrentDirectory(length + 1, buffer.get());
+        if (!length)
+        {
+            throw std::runtime_error("unable to obtain working directory");
+        }
+        return std::string(buffer.get());
+    }
+    static std::string sanitize(const std::string& pathName)
+    {
+        char buffer[MAX_PATH+1];
+        auto result = GetFullPathName(pathName.c_str(),
+                                      MAX_PATH+1,
+                                      buffer,
+                                      NULL);
+        if (!result)
+        {
+            throw std::runtime_error("unable to sanitize path name");
+        }
+        return std::string(buffer);
+    }
+};
+
+/**********************************************************************************************************/
 
 enum class PathStat {
     FILE,
@@ -31,32 +86,23 @@ struct bitmap_filter : public std::unary_function<std::string, bool> {
     }
 };
 
-#include <regex>
-
-/// Filter: accept if string ends with "^.*(tris(0|1|2|3|4))||(tile)(0|1|2|3|4))\.bmp$"
-struct the_filter : public std::unary_function<std::string, bool> {
-    std::regex _regex;
-    the_filter() :
-        _regex("^.*(tris(0|1|2|3|4))|(tile(0|1|2|3))\.bmp$")
-    {}
-    bool operator()(const std::string &s) const {
-        return std::regex_match(s, _regex);
-    }
-};
+#include "filters.hpp"
 
 int SDL_main(int argc, char **argv) {
     SDL_Init(0);
     IMG_Init(IMG_INIT_PNG);
     std::deque<std::string> queue;
+    RegexFilter filter("^.*((tris(0|1|2|3|4))|(tile(0|1|2|3)))\.bmp$");
+    /// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
     for (int i = 1; i < argc; i++) {
-        queue.emplace_back(argv[i]);
+        queue.emplace_back(FileSystem::sanitize(argv[i]));
     }
     while (!queue.empty()) {
         std::string path = queue[0];
         queue.pop_front();
         switch (stat(path)) {
             case PathStat::FILE:
-                if (the_filter()(path)) {
+                if (filter(path)) {
                     convert(path);
                 }
                 break;
@@ -80,9 +126,16 @@ PathStat stat(const std::string &pathName) {
     if (0xFFFFFFFF == attributes) {
         std::cerr << pathName << ": " << "GetFileAttributes failed" << std::endl;
         return PathStat::FAILURE;
-    } else if (attributes & FILE_ATTRIBUTE_DIRECTORY) {
+    }
+    DWORD rejectedMask = (FILE_ATTRIBUTE_TEMPORARY | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_OFFLINE | FILE_ATTRIBUTE_REPARSE_POINT | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_VIRTUAL);
+    if (attributes & rejectedMask) {
+        return PathStat::OTHER;
+    }
+    else if (attributes & FILE_ATTRIBUTE_DIRECTORY) {
         return PathStat::DIRECTORY;
-    } else if (attributes & FILE_ATTRIBUTE_NORMAL) {
+    }
+    // It is not rejected and it is not a directory.
+    if (attributes == FILE_ATTRIBUTE_NORMAL || attributes & FILE_ATTRIBUTE_ARCHIVE) {
         return PathStat::FILE;
     } else {
         return PathStat::OTHER;
@@ -105,13 +158,20 @@ PathStat stat(const std::string &pathName) {
 #if defined(_WIN32)
 void recurDir(const std::string &pathName, std::deque<std::string> &queue) {
     WIN32_FIND_DATA ffd;
-    HANDLE hFind = FindFirstFile(pathName.c_str(), &ffd);
+    HANDLE hFind = FindFirstFile((pathName + "\\*").c_str(), &ffd);
     if (INVALID_HANDLE_VALUE == hFind) {
         std::cerr << pathName << ": " << "FindFirstFile failed" << std::endl;
         return;
     }
     do {
-        std::string path = pathName + "/" + ffd.cFileName;
+        if (ffd.cFileName[0] == '.')
+        {
+            if ((ffd.cFileName[1] == '.' && ffd.cFileName[2] == '\0') || ffd.cFileName[1] == '\0')
+            {
+                continue;
+            }
+        }
+        std::string path = pathName + "\\" + ffd.cFileName;
         queue.push_back(path);
     } while (FindNextFile(hFind, &ffd) != 0);
     FindClose(hFind);
@@ -141,7 +201,7 @@ void recurDir(const std::string &pathName, std::deque<std::string> &queue) {
 #endif
 
 /// Perform a dry-run, just print the files which would have been converted.
-static bool g_dryrun = true;
+static bool g_dryrun = false;
 
 
 
