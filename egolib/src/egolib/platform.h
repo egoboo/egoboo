@@ -247,7 +247,7 @@ extern "C"
     #define EGO_NOEXCEPT noexcept
 #endif
 
-#include "idlib/IdLib.hpp"
+#include "IdLib/IdLib.hpp"
 
 //------------
 // Turn off warnings that we don't care about.
