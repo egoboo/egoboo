@@ -214,10 +214,7 @@ void LoadingState::loadModuleData()
 
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
     // and camera_system_begin() will not set up thte correct view
-    _cameraSystem.begin(local_stats.player_count);
-
-    // make sure the cameras are centered on something or there will be a graphics error
-    _cameraSystem.resetAllTargets(PMesh);
+    std::shared_ptr<CameraSystem> cameraSystem = CameraSystem::request(local_stats.player_count);
 
     obj_BSP_system_begin(getMeshBSP()); 
 
@@ -239,10 +236,10 @@ void LoadingState::loadModuleData()
     startButton->setSize(400, 30);
     startButton->setPosition(GFX_WIDTH/2 - startButton->getWidth()/2, GFX_HEIGHT-50);
     startButton->setOnClickFunction(
-        []{
+        [cameraSystem]{
             //Hush gong
             AudioSystem::get().fadeAllSounds();
-            _gameEngine->setGameState(std::make_shared<PlayingState>());
+            _gameEngine->setGameState(std::make_shared<PlayingState>(cameraSystem));
         });
     addComponent(startButton);
 }

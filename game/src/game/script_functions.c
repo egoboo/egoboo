@@ -3608,7 +3608,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 
     // iterate over all cameras and find the minimum distance
     min_distance = -1;
-    for(std::shared_ptr<Camera> camera : _cameraSystem.getCameraList())
+    for(std::shared_ptr<Camera> camera : CameraSystem::get()->getCameraList())
     {
         iTmp = std::fabs( pchr->pos_old[kX] - camera->getTrackPosition()[kX] ) + std::fabs( pchr->pos_old[kY] - camera->getTrackPosition()[kY] );
 

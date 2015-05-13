@@ -297,10 +297,7 @@ void DebugModuleLoadingState::loadModuleData()
 
         // set up the cameras *after* game_begin_module() or the player devices will not be initialized
         // and camera_system_begin() will not set up thte correct view
-        _cameraSystem.begin(local_stats.player_count);
-
-        // make sure the cameras are centered on something or there will be a graphics error
-        _cameraSystem.resetAllTargets(PMesh);
+        CameraSystem::request(local_stats.player_count);
 
         obj_BSP_system_begin(getMeshBSP()); 
 

@@ -1255,7 +1255,7 @@ void gfx_system_main()
     /// @author ZZ
     /// @details This function does all the drawing stuff
 
-    _cameraSystem.renderAll(gfx_system_render_world);
+    CameraSystem::get()->renderAll(gfx_system_render_world);
 
     draw_hud();
 
@@ -2010,7 +2010,7 @@ void draw_all_status()
     status_list_update_cameras(&StatusList);
 
     // get the camera list
-    const std::vector<std::shared_ptr<Camera>> &cameraList = _cameraSystem.getCameraList();
+    const std::vector<std::shared_ptr<Camera>> &cameraList = CameraSystem::get()->getCameraList();
 
     for (size_t i = 0; i < cameraList.size(); ++i)
     {
@@ -2257,7 +2257,7 @@ float draw_debug(float y)
 
         // Debug information
         y = draw_string_raw(0, y, "!!!DEBUG MODE-5!!!");
-        y = draw_string_raw(0, y, "~~CAM %f %f %f", _cameraSystem.getMainCamera()->getPosition()[kX], _cameraSystem.getMainCamera()->getPosition()[kY], _cameraSystem.getMainCamera()->getPosition()[kZ]);
+        y = draw_string_raw(0, y, "~~CAM %f %f %f", CameraSystem::get()->getMainCamera()->getPosition()[kX], CameraSystem::get()->getMainCamera()->getPosition()[kY], CameraSystem::get()->getMainCamera()->getPosition()[kZ]);
         ipla = (PLA_REF)0;
         if (VALID_PLA(ipla))
         {
@@ -2305,7 +2305,7 @@ float draw_debug(float y)
 
     if (SDL_KEYDOWN(keyb, SDLK_F7))
     {
-        std::shared_ptr<Camera> camera = _cameraSystem.getMainCamera();
+        std::shared_ptr<Camera> camera = CameraSystem::get()->getMainCamera();
 
         // White debug mode
         y = draw_string_raw(0, y, "!!!DEBUG MODE-7!!!");
