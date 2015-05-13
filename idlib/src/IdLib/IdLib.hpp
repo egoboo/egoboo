@@ -26,3 +26,62 @@
  *           IdLib is used by Egolib and subsequently Cartman and Egoboo.
  * @author   Michael Heilmann
  */
+
+/**
+ * @brief
+ *  printf format specifier for size_t.
+ * @remark
+ *  This is necessary because of Redmon Retards' (aka Microsoft) Visual C++.
+ */
+#if defined(_MSC_VER)
+    #define PRIuZ "Iu"
+#else
+    #define PRIuZ "zu"
+#endif
+
+/**
+ * @brief
+ *  printf format specifier for ssize_t.
+ * @remark
+ *  This is necessary because of Redmon Retards' (aka Microsoft) Visual C++.
+ */
+#if defined(_MSC_VER)
+    #define PRIdZ "Id"
+#else
+    #define PRIdZ "zd"
+#endif
+
+/**
+ * @brief
+ *  A macro alias for <tt>constexpr</tt>.
+ * @remark
+ *  This is necessary because of Redmon Retards' (aka Microsoft) Visual C++.
+ */
+#if defined(_MSC_VER)
+    #define CONSTEXPR const
+#else
+    #define CONSTEXPR constexpr
+#endif
+
+/**
+ * @brief
+ *  A macro alias for Linux-flavored functions for MSVC.
+ * @remark
+ *  This is necessary because of Redmon Retards' (aka Microsoft) Visual C++ / Windows.
+ */
+#if defined(_MSC_VER)
+    #define snprintf _snprintf
+    #define stricmp _stricmp
+    #define strlwr _strlwr
+    #define strupr _strupr
+
+    // This isn't needed anymore since MSCV 2013 and causes errors.
+    #if !(_MSC_VER >= 1800)
+        #define isnan _isnan
+    #endif
+
+    // This isn't needed anymore since MSVC 2008 and causes errors.
+    #if (_MSC_VER < 1500)
+        #define vsnprintf _vsnprintf
+    #endif
+#endif

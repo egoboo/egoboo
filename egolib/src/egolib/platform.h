@@ -240,12 +240,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // Compiler-specific definitions
 
-// MSVC does not support constexpr yet.
-#if defined(_MSC_VER)
-	#define CONSTEXPR const
-#else
-    #define CONSTEXPR constexpr
-#endif
 // MSVC does not support noexcept yet.
 #if defined(_MSC_VER)
     #define EGO_NOEXCEPT throw()
@@ -253,18 +247,7 @@ extern "C"
     #define EGO_NOEXCEPT noexcept
 #endif
 
-// MSCV does not support usual format specifier for size_t (what does it actually support?).
-#if defined(_MSC_VER)
-    //// printf format specifier for size_t.
-    #define PRIuZ "Iu"
-    /// printf format specifier for ssize_t.
-    #define PRIdZ "Id"
-#else
-    /// printf format specifier for size_t.
-    #define PRIuZ "zu"
-    /// printf format specifier for ssize_t.
-    #define PRIdZ "zd"
-#endif
+#include "idlib/IdLib.hpp"
 
 //------------
 // Turn off warnings that we don't care about.
@@ -279,26 +262,6 @@ extern "C"
 
     #if !defined(_DEBUG)
         #pragma warning(disable : 4554) ///< possibly operator precendence error
-    #endif
-#endif
-
-// Fix the naming of some linux-flavored functions for MSVC.
-#if defined(_MSC_VER)
-
-    #define snprintf _snprintf
-    #define stricmp  _stricmp
-
-    // This isn't needed anymore since MSCV 2013 and causes errors.
-    #if !(_MSC_VER >= 1800)
-        #define isnan _isnan
-    #endif
-
-    #define strlwr   _strlwr
-    #define strupr   _strupr
-
-    /// This isn't needed anymore since MSVC 2008 and causes errors
-    #if (_MSC_VER < 1500)
-        #define vsnprintf _vsnprintf
     #endif
 #endif
 
