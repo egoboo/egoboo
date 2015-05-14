@@ -7,9 +7,11 @@
 #include <SDL_image.h>
 #if defined(_WIN32)
 #include <Windows.h>
+#define REGEX_DIRSEP "[/\\\\]"
 #else
 #include <dirent.h>
 #include <sys/stat.h>
+#define REGEX_DIRSEP "/"
 #endif
 
 /**********************************************************************************************************/
@@ -21,7 +23,7 @@ struct FileSystem
 #if defined(_WIN32)
         return "\\";
 #else
-        return "//";
+        return "/";
 #endif
     }
     /**
@@ -36,6 +38,7 @@ struct FileSystem
      */
     static std::string getWorkingDirectory()
     {
+#if _WIN32
         auto length = GetCurrentDirectory(0, NULL);
         if (!length)
         {
@@ -48,9 +51,14 @@ struct FileSystem
             throw std::runtime_error("unable to obtain working directory");
         }
         return std::string(buffer.get());
+#else
+        // not really needed
+        return ".";
+#endif
     }
     static std::string sanitize(const std::string& pathName)
     {
+#ifdef _WIN32
         char buffer[MAX_PATH+1];
         auto result = GetFullPathName(pathName.c_str(),
                                       MAX_PATH+1,
@@ -61,6 +69,10 @@ struct FileSystem
             throw std::runtime_error("unable to sanitize path name");
         }
         return std::string(buffer);
+#else
+        // not really needed
+        return pathName;
+#endif
     }
 };
 
@@ -89,10 +101,15 @@ struct bitmap_filter : public std::unary_function<std::string, bool> {
 #include "filters.hpp"
 
 int SDL_main(int argc, char **argv) {
+    if (argc == 1) {
+        std::cerr << argv[0] << ": no arguments" << std::endl;
+        return 1;
+    }
+    
     SDL_Init(0);
     IMG_Init(IMG_INIT_PNG);
     std::deque<std::string> queue;
-    RegexFilter filter("^.*((tris(0|1|2|3|4))|(tile(0|1|2|3)))\.bmp$");
+    RegexFilter filter("^(?:.*" REGEX_DIRSEP ")?(?:tris|tile)[0-9]+\\.bmp$");
     /// @todo Do *not* assume the path is relative. Ensure that it is absolute by a system function.
     for (int i = 1; i < argc; i++) {
         queue.emplace_back(FileSystem::sanitize(argv[i]));
@@ -187,14 +204,6 @@ void recurDir(const std::string &pathName, std::deque<std::string> &queue) {
         if (aFile->d_name[0] == '.') continue;
         std::string path = pathName + "/" + aFile->d_name;
         queue.push_back(path);
-        /*switch (stat(path)) {
-            case PathStat::FILE:
-                convert(path);
-                break;
-            case PathStat::DIRECTORY:
-                recurDir(path);
-                break;
-        }*/
     }
     closedir(dir);
 }

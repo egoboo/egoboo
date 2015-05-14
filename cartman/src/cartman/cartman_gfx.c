@@ -1209,51 +1209,61 @@ void cartman_end_ortho_camera()
 //--------------------------------------------------------------------------------------------
 void load_img()
 {
+    tx_point = new oglx_texture_t;
     if (INVALID_GL_ID == tx_point->load("editor/point.png", gfx_loadImage("editor/point.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
-
+    
+    tx_pointon = new oglx_texture_t;
     if (INVALID_GL_ID == tx_pointon->load("editor/pointon.png", gfx_loadImage("editor/pointon.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
-
+    
+    tx_ref = new oglx_texture_t;
     if (INVALID_GL_ID == tx_ref->load("editor/ref.png", gfx_loadImage("editor/ref.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
-
+    
+    tx_drawref = new oglx_texture_t;
     if (INVALID_GL_ID == tx_drawref->load("editor/drawref.png", gfx_loadImage("editor/drawref.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
-
+    
+    tx_anim = new oglx_texture_t;
     if (INVALID_GL_ID == tx_anim->load("editor/anim.png", gfx_loadImage("editor/anim.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
-
+    
+    tx_water = new oglx_texture_t;
     if (INVALID_GL_ID == tx_water->load("editor/water.png", gfx_loadImage("editor/water.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
-
+    
+    tx_wall = new oglx_texture_t;
     if (INVALID_GL_ID == tx_wall->load("editor/slit.png", gfx_loadImage("editor/slit.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
-
+    
+    tx_impass = new oglx_texture_t;
     if (INVALID_GL_ID == tx_impass->load("editor/impass.png", gfx_loadImage("editor/impass.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
-
+    
+    tx_damage = new oglx_texture_t;
     if (INVALID_GL_ID == tx_damage->load("editor/damage.png", gfx_loadImage("editor/damage.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
-
+    
+    tx_slippy = new oglx_texture_t;
     if (INVALID_GL_ID == tx_slippy->load("editor/slippy.png", gfx_loadImage("editor/slippy.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
