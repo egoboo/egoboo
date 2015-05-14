@@ -288,10 +288,10 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t,ParticleHandler>
     prt_t();
     ~prt_t();
 
-    /// @brief Set all particle parameters to safe values.
-    /// @details The C equivalent of a parameterless constructor.
-    static bool request_terminate(prt_t *self);
-    static void set_level(prt_t *self, const float level);
+    /// @details Tell the game to get rid of this object and treat it as if it was already dead.
+    /// @note This will force the game to (eventually) call end_one_particle_in_game() on this particle
+    void requestTerminate();
+    void set_level(const float level);
     /// @brief Return nonzero if the particle hit a wall that the particle is not allowed to cross.
     BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
     /// @brief Returns nonzero if the particle hit a wall that the particle is not allowed to cross.
@@ -303,12 +303,12 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t,ParticleHandler>
     bool set_size(int size);
     /// @brief Get the scale factor between the "graphical size" of the particle and the actual display size.
     float get_scale() const;
-    static const fvec3_t& get_pos_v_const(const prt_t *self);
 
     bool setPosition(const fvec3_t& position);
-    static bool get_pos(const prt_t *self, fvec3_t& position);
+protected:
     static bool update_safe(prt_t *self, bool force);
     static bool update_safe_raw(prt_t *self);
+public:
     /**
      * @brief
      *  Get the profile index of this particle.
@@ -449,9 +449,9 @@ void cleanup_all_particles();
 void bump_all_particles_update_counters();
 
 /// @brief Mark particle as ghost.
-PRT_REF end_one_particle_now(const PRT_REF particle);
+void end_one_particle_now(const PRT_REF particle);
 /// @brief End a particle and mark it as a ghost.
-PRT_REF end_one_particle_in_game(const PRT_REF particle);
+void end_one_particle_in_game(const PRT_REF particle);
 bool prt_is_over_water(const PRT_REF particle);
 void prt_play_sound(const PRT_REF particle, Sint8 sound);
 CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);

@@ -4390,7 +4390,7 @@ bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    prt_t::set_level( pprt, std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv.maxs[OCT_Z] ) );
+    pprt->set_level( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv.maxs[OCT_Z] ) );
 
     return true;
 }

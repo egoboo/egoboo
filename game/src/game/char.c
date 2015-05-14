@@ -569,7 +569,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
 
 place_particle_at_vertex_fail:
 
-    prt_t::request_terminate( pprt );
+    pprt->requestTerminate();
 
     return NULL;
 }
@@ -1921,8 +1921,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 {
                     prt_t * pprt = ParticleHandler::get().get_ptr( iparticle );
 
-                    fvec3_t tmp_pos;
-                    prt_t::get_pos(pprt, tmp_pos);
+                    fvec3_t tmp_pos = pprt->getPosition();
 
                     if ( weaponProfile->spawnsAttackParticle() )
                     {

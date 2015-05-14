@@ -217,20 +217,14 @@ void prt_play_sound(const PRT_REF particle, Sint8 sound)
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF end_one_particle_now(const PRT_REF particle)
+void end_one_particle_now(const PRT_REF iprt)
 {
-    // this turns the particle into a ghost
-    if (!ALLOCATED_PRT(particle)) return INVALID_PRT_REF;
-    if (ParticleHandler::get().request_terminate(particle))
-    {
-        return INVALID_PRT_REF;
-    }
-
-    return particle;
+    prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
+    pprt->requestTerminate();
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF end_one_particle_in_game(const PRT_REF particle)
+void end_one_particle_in_game(const PRT_REF particle)
 {
     // does the particle have valid data?
     if (DEFINED_PRT(particle))
@@ -243,7 +237,7 @@ PRT_REF end_one_particle_in_game(const PRT_REF particle)
 
         if (SPAWNNOCHARACTER != pprt->endspawn_characterstate)
         {
-            CHR_REF child = spawn_one_character(prt_t::get_pos_v_const(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF);
+            CHR_REF child = spawn_one_character(pprt->getPosition(), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF);
             if (_gameObjects.exists(child))
             {
                 Object *pchild = _gameObjects.get(child);
@@ -688,12 +682,7 @@ BIT_FIELD prt_t::hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
     {
         return EMPTY_BIT_FIELD;
     }
-    fvec3_t pos;
-    if (!prt_t::get_pos(this, pos))
-    {
-        return EMPTY_BIT_FIELD;
-    }
-    return hit_wall(pos, nrm, pressure, data);
+    return hit_wall(this->getPosition(), nrm, pressure, data);
 }
 
 BIT_FIELD prt_t::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
@@ -731,12 +720,7 @@ BIT_FIELD prt_t::test_wall(mesh_wall_data_t *data)
     {
         return EMPTY_BIT_FIELD;
     }
-    fvec3_t pos;
-    if (!prt_t::get_pos(this, pos))
-    {
-        return EMPTY_BIT_FIELD;
-    }
-    return test_wall(pos, data);
+    return test_wall(this->getPosition(), data);
 }
 
 BIT_FIELD prt_t::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
@@ -785,25 +769,25 @@ void update_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_t::set_level(prt_t * pprt, const float level)
+void prt_t::set_level(const float level)
 {
     float loc_height;
 
-    if (!DISPLAY_PPRT(pprt)) return;
+    if (!DISPLAY_PPRT(this)) return;
 
-    pprt->enviro.level = level;
+    this->enviro.level = level;
 
-    loc_height = pprt->get_scale() * std::max(FP8_TO_FLOAT(pprt->size), pprt->offset[kZ] * 0.5f);
+    loc_height = this->get_scale() * std::max(FP8_TO_FLOAT(this->size), this->offset[kZ] * 0.5f);
 
-    pprt->enviro.adj_level = pprt->enviro.level;
-    pprt->enviro.adj_floor = pprt->enviro.floor_level;
+    this->enviro.adj_level = this->enviro.level;
+    this->enviro.adj_floor = this->enviro.floor_level;
 
-    pprt->enviro.adj_level += loc_height;
-    pprt->enviro.adj_floor += loc_height;
+    this->enviro.adj_level += loc_height;
+    this->enviro.adj_floor += loc_height;
 
     // set the zlerp after we have done everything to the particle's level we care to
-    pprt->enviro.zlerp = (pprt->pos[kZ] - pprt->enviro.adj_level) / PLATTOLERANCE;
-    pprt->enviro.zlerp = CLIP(pprt->enviro.zlerp, 0.0f, 1.0f);
+    this->enviro.zlerp = (this->pos[kZ] - this->enviro.adj_level) / PLATTOLERANCE;
+    this->enviro.zlerp = CLIP(this->enviro.zlerp, 0.0f, 1.0f);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -834,7 +818,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
     {
         loc_level = std::max(penviro->floor_level, _gameObjects.get(loc_pprt->onwhichplatform_ref)->getPosZ() + _gameObjects.get(loc_pprt->onwhichplatform_ref)->chr_min_cv.maxs[OCT_Z]);
     }
-    prt_t::set_level(loc_pprt, loc_level);
+    loc_pprt->set_level(loc_level);
 
     //---- the "twist" of the floor
     penviro->twist = TWIST_FLAT;
@@ -1119,7 +1103,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt
     // grab a pointer to the target
     Object *ptarget = _gameObjects.get(loc_pprt->target_ref);
 
-    vdiff = ptarget->getPosition() - prt_t::get_pos_v_const(loc_pprt);
+    vdiff = ptarget->getPosition() - loc_pprt->getPosition();
     vdiff[kZ] += ptarget->bump.height * 0.5f;
 
     min_length = 2 * 5 * 256 * (_gameObjects.get(loc_pprt->owner_ref)->wisdom / (float)PERFECTBIG);
@@ -1284,7 +1268,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
     if (!DISPLAY_PPRT(loc_pprt)) return pbdl_prt;
 
     // capture the particle position
-    prt_t::get_pos(loc_pprt, tmp_pos);
+    tmp_pos = loc_pprt->getPosition();
 
     // only deal with attached particles
     if (INVALID_CHR_REF == loc_pprt->attachedto_ref) return pbdl_prt;
@@ -1378,7 +1362,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     if (!DISPLAY_PPRT(loc_pprt)) return pbdl_prt;
 
     // capture the position
-    prt_t::get_pos(loc_pprt, tmp_pos);
+    tmp_pos = loc_pprt->getPosition();
 
     // no point in doing this if the particle thinks it's attached
     if (INVALID_CHR_REF != loc_pprt->attachedto_ref)
@@ -1626,11 +1610,11 @@ bool prt_bundle_t::move_one_particle(prt_bundle_t * pbdl_prt)
     // determine the actual velocity for attached particles
     if (_gameObjects.exists(loc_pprt->attachedto_ref))
     {
-        loc_pprt->vel = prt_t::get_pos_v_const(loc_pprt) - loc_pprt->pos_old;
+        loc_pprt->vel = loc_pprt->getPosition() - loc_pprt->pos_old;
     }
 
     // Particle's old location
-    prt_t::get_pos(loc_pprt, loc_pprt->pos_old);
+    loc_pprt->pos_old = loc_pprt->getPosition();
     loc_pprt->vel_old = loc_pprt->vel;
 
     // what is the local environment like?
@@ -1777,7 +1761,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                dist = (prt_t::get_pos_v_const(pprt) - pchr->getPosition()).length_abs();
+                dist = (pprt->getPosition() - pchr->getPosition()).length_abs();
 
                 // clear the occupied list
                 z = pprt->pos[kZ] - pchr->getPosition()[kZ];
@@ -1891,40 +1875,26 @@ bool prt_is_over_water(const PRT_REF ref)
 
 
 //--------------------------------------------------------------------------------------------
-bool prt_t::request_terminate(prt_t * pprt)
+void prt_t::requestTerminate()
 {
-    /// @author BB
-    /// @details Tell the game to get rid of this object and treat it
-    ///               as if it was already dead
-    ///
-    /// @note PrtList_request_terminate() will force the game to
-    ///       (eventually) call end_one_particle_in_game() on this particle
-
-    bool  is_visible;
-
-    if (NULL == pprt || !ALLOCATED_PPRT(pprt) || TERMINATED_PPRT(pprt))
+    if (!ALLOCATED_PPRT(this) || TERMINATED_PPRT(this))
     {
-        return false;
+        return;
     }
 
-    is_visible =
-        pprt->size > 0 &&
-        !pprt->is_hidden &&
-        pprt->inst.alpha > 0.0f;
+    bool is_visible = this->size > 0 && !this->is_hidden && this->inst.alpha > 0.0f;
 
-    if (is_visible && 0 == pprt->obj_base.frame_count)
+    if (is_visible && 0 == this->obj_base.frame_count)
     {
         // turn the particle into a ghost
-        pprt->is_ghost = true;
+        this->is_ghost = true;
     }
     else
     {
         // the particle has already been seen or is not visible, so just
         // terminate it, as normal
-        POBJ_REQUEST_TERMINATE(pprt);
+        POBJ_REQUEST_TERMINATE(this);
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1942,7 +1912,7 @@ bool prt_t::update_safe_raw(prt_t * pprt)
     if ((0 == hit_a_wall) && (0.0f == pressure))
     {
         pprt->safe_valid = true;
-        prt_t::get_pos(pprt, pprt->safe_pos);
+        pprt->safe_pos = pprt->getPosition();
         pprt->safe_time = update_wld;
         pprt->safe_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos[kX], pprt->pos[kY])).getI();
 
@@ -2101,19 +2071,6 @@ bool prt_t::set_size(int size)
     return true;
 }
 
-bool prt_t::get_pos(const prt_t *self, fvec3_t& position)
-{
-    if (!ALLOCATED_PPRT(self)) return false;
-    position = self->pos;
-    return true;
-}
-
-const fvec3_t& prt_t::get_pos_v_const(const prt_t *pprt)
-{
-    if (!ALLOCATED_PPRT(pprt)) return fvec3_t::zero();
-    return pprt->pos;
-}
-
 //--------------------------------------------------------------------------------------------
 
 prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
@@ -2242,7 +2199,7 @@ int prt_bundle_t::do_contspawn()
     FACING_T facing = loc_pprt->facing;
     for (Uint8 tnc = 0; tnc < loc_ppip->contspawn._amount; tnc++)
     {
-        PRT_REF prt_child = ParticleHandler::get().spawn_one_particle(prt_t::get_pos_v_const(loc_pprt), facing, loc_pprt->profile_ref, loc_ppip->contspawn._lpip,
+        PRT_REF prt_child = ParticleHandler::get().spawn_one_particle(loc_pprt->getPosition(), facing, loc_pprt->profile_ref, loc_ppip->contspawn._lpip,
                                                                       INVALID_CHR_REF, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, this->prt_ref, tnc, loc_pprt->target_ref);
 
         if (DEFINED_PRT(prt_child))
@@ -2568,7 +2525,7 @@ prt_bundle_t *prt_bundle_t::update_ghost()
     // are we done?
     if (!prt_visible || base_ptr->frame_count > 0)
     {
-        prt_t::request_terminate(this->prt_ptr);
+        loc_pprt->requestTerminate();
         return nullptr;
     }
 

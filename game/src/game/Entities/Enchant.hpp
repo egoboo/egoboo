@@ -114,7 +114,7 @@ struct enc_t : public _StateMachine < enc_t, EnchantHandler >
 
 
 
-    static bool request_terminate(enc_t *self);
+    void requestTerminate();
 
     static bool free(enc_t *self);
 

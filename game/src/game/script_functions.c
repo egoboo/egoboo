@@ -2191,7 +2191,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
         pprt->attachedto_ref = INVALID_CHR_REF;
 
-        prt_t::get_pos(pprt, tmp_pos);
+        tmp_pos = pprt->getPosition();
 
         // Correct X, Y, Z spacing
         tmp_pos[kZ] += PipStack.get_ptr(pprt->pip_ref)->spacing_vrt_pair.base;

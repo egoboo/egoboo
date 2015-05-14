@@ -1087,8 +1087,8 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, prt_t *particle)
     self->bits = bits;
     self->radius = particle->bump_real.size;
 
-    fvec3_t pos = prt_t::get_pos_v_const(particle);
-    self->pos = snap(prt_t::get_pos_v_const(particle));
+    fvec3_t pos = particle->getPosition();
+    self->pos = snap(pos);
     self->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos[kX], self->pos[kY])).getI();
     self->valid  = ( 0 == ego_mesh_test_wall( PMesh, self->pos, self->radius, self->bits, nullptr));
 

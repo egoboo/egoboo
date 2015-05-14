@@ -636,11 +636,11 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
 
 
     // Set the position.
-    prt_t::get_pos(pprt, pinst->pos);
+    pinst->pos = pprt->getPosition();
     pinst->orientation = ppip->orientation;
 
     // Calculate the billboard vectors for the reflections.
-    prt_t::get_pos(pprt, pinst->ref_pos);
+    pinst->ref_pos = pprt->getPosition();
     pinst->ref_pos[kZ] = 2 * pprt->enviro.floor_level - pinst->pos[kZ];
 
     // get the vector from the camera to the particle

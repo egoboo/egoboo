@@ -981,41 +981,37 @@ enc_t *enc_t::config_do_init()
 
 enc_t *enc_t::config_do_active()
 {
-    enc_t *penc = this;
     /// @author ZZ
     /// @details This function allows enchantments to update, spawn particles,
     ///  do drains, stat boosts and despawn.
 
-    ENC_REF  ienc;
+
     CHR_REF  owner, target;
     EVE_REF  eve;
-    eve_t * peve;
     Object * ptarget;
 
-    if ( NULL == penc ) return penc;
-    ienc = GET_REF_PENC( penc );
+    ENC_REF ienc = GET_REF_PENC(this);
 
     // the following functions should not be done the first time through the update loop
-    if ( 0 == clock_wld ) return penc;
+    if (0 == clock_wld) return this;
 
-    peve = enc_get_peve( ienc );
-    if ( NULL == peve ) return penc;
+    eve_t *peve = enc_get_peve( ienc );
+    if (NULL == peve) return this;
 
     // check to see whether the enchant needs to spawn some particles
-    if ( penc->spawn_timer > 0 ) penc->spawn_timer--;
+    if (this->spawn_timer > 0) this->spawn_timer--;
 
-    if ( 0 == penc->spawn_timer && peve->contspawn._amount <= 0 )
+    if (0 == this->spawn_timer && peve->contspawn._amount <= 0)
     {
-        int      tnc;
-        FACING_T facing;
-        penc->spawn_timer = peve->contspawn._delay;
-        ptarget = _gameObjects.get( penc->target_ref );
+        this->spawn_timer = peve->contspawn._delay;
+        ptarget = _gameObjects.get(this->target_ref);
 
-        facing = ptarget->ori.facing_z;
-        for ( tnc = 0; tnc < peve->contspawn._amount; tnc++ )
+        FACING_T facing = ptarget->ori.facing_z;
+        for (Uint8 i = 0; i < peve->contspawn._amount; ++i)
         {
-            ParticleHandler::get().spawn_one_particle( ptarget->getPosition(), facing, penc->profile_ref, peve->contspawn._lpip,
-                                INVALID_CHR_REF, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
+            ParticleHandler::get().spawn_one_particle(ptarget->getPosition(), facing, this->profile_ref, peve->contspawn._lpip,
+                                                      INVALID_CHR_REF, GRIP_LAST, chr_get_iteam(this->owner_ref), this->owner_ref,
+                                                      INVALID_PRT_REF, i, INVALID_CHR_REF);
 
             facing += peve->contspawn._facingAdd;
         }
@@ -1024,18 +1020,18 @@ enc_t *enc_t::config_do_active()
     // Do enchant drains and regeneration
     if ( clock_enc_stat >= ONESECOND )
     {
-        if ( 0 == penc->lifetime )
+        if (0 == this->lifetime)
         {
-            EnchantHandler::get().request_terminate( ienc );
+            requestTerminate();
         }
         else
         {
             // Do enchant timer
-            if ( penc->lifetime > 0 ) penc->lifetime--;
+            if (this->lifetime > 0) this->lifetime--;
 
             // To make life easier
             owner  = enc_get_iowner( ienc );
-            target = penc->target_ref;
+            target = this->target_ref;
             eve    = enc_get_ieve( ienc );
             Object *powner = _gameObjects.get(owner);
 
@@ -1044,9 +1040,9 @@ enc_t *enc_t::config_do_active()
             {
 
                 // Change life
-                if ( 0 != penc->owner_life )
+                if (0 != this->owner_life)
                 {
-                    powner->life += penc->owner_life;
+                    powner->life += this->owner_life;
                     if ( powner->life <= 0 )
                     {
                         kill_character( owner, target, false );
@@ -1058,19 +1054,19 @@ enc_t *enc_t::config_do_active()
                 }
 
                 // Change mana
-                if ( 0 != penc->owner_mana )
+                if (0 != this->owner_mana)
                 {
-                    bool mana_paid = cost_mana( owner, -penc->owner_mana, target );
+                    bool mana_paid = cost_mana(owner, -this->owner_mana, target);
                     if ( EveStack.get_ptr(eve)->endIfCannotPay && !mana_paid )
                     {
-                        EnchantHandler::get().request_terminate( ienc );
+                        requestTerminate();
                     }
                 }
 
             }
             else if ( !EveStack.get_ptr(eve)->_owner._stay )
             {
-                EnchantHandler::get().request_terminate( ienc );
+                requestTerminate();
             }
 
             // the enchant could have been inactivated by the stuff above
@@ -1081,9 +1077,9 @@ enc_t *enc_t::config_do_active()
                 {
 
                     // Change life
-                    if ( 0 != penc->target_life )
+                    if (0 != this->target_life)
                     {
-                        powner->life += penc->target_life;
+                        powner->life += this->target_life;
                         if ( powner->life <= 0 )
                         {
                             kill_character( target, owner, false );
@@ -1095,25 +1091,25 @@ enc_t *enc_t::config_do_active()
                     }
 
                     // Change mana
-                    if ( 0 != penc->target_mana )
+                    if (0 != this->target_mana)
                     {
-                        bool mana_paid = cost_mana( target, -penc->target_mana, owner );
+                        bool mana_paid = cost_mana(target, -this->target_mana, owner);
                         if ( EveStack.get_ptr(eve)->endIfCannotPay && !mana_paid )
                         {
-                            EnchantHandler::get().request_terminate( ienc );
+                            requestTerminate();
                         }
                     }
 
                 }
                 else if ( !EveStack.get_ptr(eve)->_target._stay )
                 {
-                    EnchantHandler::get().request_terminate( ienc );
+                    requestTerminate();
                 }
             }
         }
     }
 
-    return penc;
+    return this;
 }
 
 enc_t *enc_t::config_do_deinit()
@@ -1725,13 +1721,14 @@ void bump_all_enchants_update_counters()
 }
 
 //--------------------------------------------------------------------------------------------
-bool enc_t::request_terminate( enc_t * penc )
+void enc_t::requestTerminate()
 {
-    if ( NULL == penc || !ALLOCATED_PENC( penc ) || TERMINATED_PENC( penc ) ) return false;
+    if (!ALLOCATED_PENC(this) || TERMINATED_PENC(this))
+    {
+        return;
+    }
 
-    POBJ_REQUEST_TERMINATE( penc );
-
-    return true;
+    POBJ_REQUEST_TERMINATE(this);
 }
 
 //--------------------------------------------------------------------------------------------

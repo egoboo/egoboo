@@ -3189,7 +3189,6 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
     /// @author BB
     /// @details Render all reflected objects
 
-    int cnt;
     gfx_rv retval;
 
     ego_mesh_t * pmesh;
@@ -4958,7 +4957,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
         plight = NULL;
 
         // find the distance to the camera
-        vdist = prt_t::get_pos_v_const(prt_bdl.prt_ptr) - cam.getTrackPosition();
+        vdist = prt_bdl.prt_ptr->getPosition() - cam.getTrackPosition();
         distance = vdist.length_2();
 
         // insert the dynalight
@@ -5002,7 +5001,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
         if (NULL != plight)
         {
             plight->distance = distance;
-            prt_t::get_pos(prt_bdl.prt_ptr, plight->pos);
+            plight->pos = prt_bdl.prt_ptr->getPosition();
             plight->level = pprt_dyna->level;
             plight->falloff = pprt_dyna->falloff;
         }

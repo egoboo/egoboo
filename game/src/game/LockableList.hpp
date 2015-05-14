@@ -163,14 +163,6 @@ public:
         }
     }
 
-    bool request_terminate(const REFTYPE ref)
-    {
-        TYPE *obj = get_ptr(ref);
-        EGOBOO_ASSERT(nullptr != obj);
-        return TYPE::request_terminate(obj);
-    }
-
-
 protected:
     // List of references to TYPEs which requested termination
     // while the particle list was locked.
