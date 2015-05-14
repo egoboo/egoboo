@@ -236,6 +236,9 @@
     <ClCompile Include="src\IdLib\IdLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\IdLib\NonCopyable.hpp" />
+    <ClInclude Include="src\IdLib\Platform.hpp" />
+    <ClInclude Include="src\IdLib\Target.hpp" />
     <ClInclude Include="src\IdLib\IdLib.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

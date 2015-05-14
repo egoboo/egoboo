@@ -236,6 +236,12 @@
     <ProjectReference Include="..\..\external\SDL2_image-2.0.0\VisualC\SDL_image_VS2013.vcxproj">
       <Project>{051aaf6c-2640-40f8-992d-23e3a0f5def1}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\external\SDL2_mixer-2.0.0\VisualC\SDL_mixer_VS2013.vcxproj">
+      <Project>{4fc99ae8-ec78-41fd-9293-78faa5eaabb5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf_VS2013.vcxproj">
+      <Project>{d114a863-1bdc-4979-a61e-cb6b7ca5f1bb}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\utilities\convertpaletted\src\filters.hpp" />

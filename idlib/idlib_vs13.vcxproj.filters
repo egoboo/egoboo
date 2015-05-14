@@ -23,5 +23,14 @@
     <ClInclude Include="src\IdLib\IdLib.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\IdLib\Platform.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IdLib\Target.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IdLib\NonCopyable.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
