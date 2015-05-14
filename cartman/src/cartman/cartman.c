@@ -469,9 +469,6 @@ void Views::render_tile_window(std::shared_ptr<Cartman_Window> pwin, float zoom_
         }
         cartman_end_ortho_camera();
 
-        // force OpenGL to execute these commands
-        glFlush();
-
         //for (cnt = 0; cnt < numlight; cnt++)
         //{
         //    draw_light(cnt, pwin);
@@ -602,9 +599,6 @@ void Views::render_vertex_window(std::shared_ptr<Cartman_Window> pwin, float zoo
             }
         }
         cartman_end_ortho_camera();
-
-        // force OpenGL to execute these commands
-        glFlush();
     }
     glPopAttrib();
 }
@@ -668,9 +662,6 @@ void Views::render_side_window(std::shared_ptr<Cartman_Window> pwin, float zoom_
             }
         }
         cartman_end_ortho_camera();
-
-        // force OpenGL to execute these commands
-        glFlush();
     }
     glPopAttrib();
 }

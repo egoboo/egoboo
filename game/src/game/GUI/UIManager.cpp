@@ -88,7 +88,7 @@ void UIManager::beginRenderUI()
 
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glLoadIdentity )();
+    Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
 }
 
 void UIManager::endRenderUI()
@@ -105,7 +105,7 @@ void UIManager::endRenderUI()
 
     // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glLoadIdentity )();
+    Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
 
     // Re-enable any states disabled by gui_beginFrame
     // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function

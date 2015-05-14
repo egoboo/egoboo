@@ -1043,10 +1043,8 @@ int GFX::initializeOpenGL()
     GL_DEBUG(glPolygonMode)(GL_FRONT, GL_FILL);
     GL_DEBUG(glPolygonMode)(GL_BACK, GL_FILL);
 
-    // ?Need this for color + lighting?
-    GL_DEBUG(glEnable)(GL_COLOR_MATERIAL);  // Need this for color + lighting
-
     // set up environment mapping
+    /// @todo: this isn't used anywhere
     GL_DEBUG(glTexGeni)(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);  // Set The Texture Generation Mode For S To Sphere Mapping (NEW)
     GL_DEBUG(glTexGeni)(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 

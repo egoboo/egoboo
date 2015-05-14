@@ -273,8 +273,6 @@ void gfx_begin_2d()
     // Set up an orthogonal projection
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	/* @todo Remove glLoadIdentity and glOrtho. Use fmat_4x4_t API to build an ortho projection matrix,
-	         use Egoboo_Renderer_OpenGL_loadMatrix to load the matrix. */
 	fmat_4x4_t projection = fmat_4x4_t::ortho(0.0, sdl_scr.x, sdl_scr.y, 0.0, -1.0f, +1.0f);
 	Ego::Renderer::get().loadMatrix(projection);
 
