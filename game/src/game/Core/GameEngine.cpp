@@ -286,7 +286,7 @@ bool GameEngine::initialize()
     //Tell them we are loading the game (This is earliest point we can render text to screen)
     renderPreloadText("Initializing game...");
     
-#ifdef __MACOSX__
+#ifdef ID_OSX
     // Run the Cocoa event loop a few times so the window appears
     for (int i = 0; i < 4; i++) SDL_PumpEvents();
 #endif

@@ -796,6 +796,9 @@
 		CD50B11D1ABF008700F3ABAF /* TextureAddressMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureAddressMode.hpp; sourceTree = "<group>"; };
 		CD50B11E1ABF008700F3ABAF /* WindingMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WindingMode.hpp; sourceTree = "<group>"; };
 		CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = CompileTest.cpp; sourceTree = "<group>"; };
+		CD57FB021B0524A1004A3437 /* NonCopyable.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NonCopyable.hpp; sourceTree = "<group>"; };
+		CD57FB031B0524A1004A3437 /* Platform.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Platform.hpp; sourceTree = "<group>"; };
+		CD57FB041B0524A1004A3437 /* Target.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Target.hpp; sourceTree = "<group>"; };
 		CD5B0CAB1A6204EC00F076F9 /* AStar.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AStar.c; sourceTree = "<group>"; };
 		CD5B0CAC1A6204EC00F076F9 /* AStar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AStar.h; sourceTree = "<group>"; };
 		CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = WaypointList.c; sourceTree = "<group>"; };
@@ -2139,6 +2142,9 @@
 			children = (
 				CD94B4A31A8B3F1500BECFC9 /* IdLib.cpp */,
 				CD94B4A41A8B3F1500BECFC9 /* IdLib.hpp */,
+				CD57FB021B0524A1004A3437 /* NonCopyable.hpp */,
+				CD57FB031B0524A1004A3437 /* Platform.hpp */,
+				CD57FB041B0524A1004A3437 /* Target.hpp */,
 			);
 			name = idlib;
 			path = ../idlib/src/IdLib;

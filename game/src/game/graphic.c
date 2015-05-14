@@ -1091,7 +1091,7 @@ void GFX::initializeSDLGraphics()
         log_message(" success!\n");
     }
 
-#if !defined(__APPLE__)
+#if !defined(ID_OSX)
     {
         // Setup the cute windows manager icon, don't do this on Mac.
         const std::string fileName = "icon.bmp";
