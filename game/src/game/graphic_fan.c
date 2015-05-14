@@ -116,7 +116,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     /// @details This function draws a mesh itile
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
-    int    cnt, tnc, entry, vertex;
+    int    cnt, entry;
     Uint16 commands, vertices;
 
     tile_definition_t * pdef;
@@ -147,8 +147,8 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
 
     // bind the correct texture
     mesh_texture_bind( ptile );
-
-    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_VERTEX_ARRAY_BIT | GL_LIGHTING_BIT );
+    
+    GL_DEBUG(glPushClientAttrib)(GL_CLIENT_VERTEX_ARRAY_BIT);
     {
         // Per-vertex coloring.
         Ego::Renderer::get().setGouraudShadingEnabled(gfx.gouraudShading_enable); // GL_LIGHTING_BIT
@@ -178,18 +178,13 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
         entry = 0;
         for ( cnt = 0; cnt < commands; cnt++ )
         {
-            GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
-            {
-                for ( tnc = 0; tnc < pdef->command_entries[cnt]; tnc++, entry++ )
-                {
-                    vertex = pdef->command_verts[entry];
-                    GL_DEBUG( glArrayElement )( vertex );
-                }
-            }
-            GL_DEBUG_END();
+            uint8_t numEntries = pdef->command_entries[cnt];
+            
+            GL_DEBUG(glDrawElements)(GL_TRIANGLE_FAN, numEntries, GL_UNSIGNED_SHORT, pdef->command_verts + entry);
+            entry += numEntries;
         }
     }
-    GL_DEBUG( glPopClientAttrib )();
+    GL_DEBUG(glPopClientAttrib)();
 
 #if defined(DEBUG_MESH_NORMALS) && defined(_DEBUG)
     oglx_texture_t::bind(nullptr);

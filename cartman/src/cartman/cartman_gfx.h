@@ -195,7 +195,7 @@ inline std::shared_ptr<SDL_Surface> gfx_loadImage(const std::string& pathname)
     {
         return nullptr;
     }
-    throw std::shared_ptr<SDL_Surface>(image, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
+    return std::shared_ptr<SDL_Surface>(image, [ ](SDL_Surface *surface) { SDL_FreeSurface(surface); });
 }
 
 // initialization

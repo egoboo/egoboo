@@ -7746,7 +7746,7 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-#if defined(__APPLE__)
+#if defined(ID_OSX)
     returncode = true;
 #else
     returncode = false;

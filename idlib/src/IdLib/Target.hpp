@@ -228,7 +228,7 @@
     #error target platform not detected
 #endif
 
-#if !defined(ID_WINDOWS) && (defined(ID_LINUX) || defined(EGOX_OSX) || defined(ID_IOS) || defined(ID_IOSSIMULATOR))
+#if !defined(ID_WINDOWS) && (defined(ID_LINUX) || defined(ID_OSX) || defined(ID_IOS) || defined(ID_IOSSIMULATOR))
     // We have an UNIX-style OS.
     #define ID_UNIX 1 
     // See <a>http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/unistd.h.html</a>.

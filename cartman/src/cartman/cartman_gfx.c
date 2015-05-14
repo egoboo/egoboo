@@ -401,7 +401,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
     }
     glPopAttrib();
 
-    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+    Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
     for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
     {
         int point_size;
@@ -511,7 +511,7 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
     size = 7;
     point_size = 4.0f * POINT_SIZE( size ) / zoom_hrz;
 
-    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+    Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
     for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
     {
@@ -683,8 +683,6 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool 
     // Draw A Quad
     glBegin( GL_QUADS );
     {
-        // initialize the color. remove any transparency!
-        glColor4f( 1.0f,  1.0f,  1.0f, 1.0f );
 
         for ( cnt = 0; cnt < 4; cnt++ )
         {
@@ -891,7 +889,7 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
     // Draw the image
     oglx_texture_t::bind( img );
 
-    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+    Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
 
     bboard[0][kX] = pos[kX] - w / 2 * vright[kX] + h / 2 * vup[kX];
     bboard[0][kY] = pos[kY] - w / 2 * vright[kY] + h / 2 * vup[kY];
@@ -994,7 +992,7 @@ void ogl_endFrame()
     glPopMatrix();
 
     glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    Ego::Renderer::get().loadMatrix(fmat_4x4_t::identity());
 
     // Re-enable any states disabled by gui_beginFrame
     glPopAttrib();
@@ -1134,17 +1132,20 @@ void cartman_begin_ortho_camera_hrz(std::shared_ptr<Cartman_Window> pwin, camera
         left *= aspect;
         right *= aspect;
     }
+    
+    fmat_4x4_t matrix;
+    auto &renderer = Ego::Renderer::get();
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    glLoadIdentity();
-    glOrtho( left, right, bottom, top, front, back );
+    matrix = fmat_4x4_t::ortho(left, right, bottom, top, front, back);
+    renderer.loadMatrix(matrix);
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    glLoadIdentity();
-    glScalef( -1.0f, 1.0f, 1.0f );
-    gluLookAt( pcam->x, pcam->y, back, pcam->x, pcam->y, front, 0.0f, -1.0f, 0.0f );
+    matrix = fmat_4x4_t::scaling({-1.0f, 1.0f, 1.0f});
+    matrix = matrix * fmat_4x4_t::lookAt({pcam->x, pcam->y, back}, {pcam->x, pcam->y, front}, {0.0f, -1.0f, 0.0f});
+    renderer.loadMatrix(matrix);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1181,17 +1182,19 @@ void cartman_begin_ortho_camera_vrt(std::shared_ptr<Cartman_Window> pwin, camera
         left *= aspect;
         right *= aspect;
     }
+    
+    fmat_4x4_t matrix;
+    auto &renderer = Ego::Renderer::get();
 
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    glLoadIdentity();
-    glOrtho( left, right, bottom, top, front, back );
+    matrix = fmat_4x4_t::ortho(left, right, bottom, top, front, back);
+    renderer.loadMatrix(matrix);
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    glLoadIdentity();
-    glScalef( 1.0f, 1.0f, 1.0f );
-    gluLookAt( pcam->x, pcam->y, pcam->z, pcam->x, pcam->y + back, pcam->z, 0.0f, 0.0f, 1.0f );
+    matrix = fmat_4x4_t::lookAt({pcam->x, pcam->y, pcam->z}, {pcam->x, pcam->y + back, pcam->z}, {0.0f, 0.0f, 1.0f});
+    renderer.loadMatrix(matrix);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1209,51 +1212,61 @@ void cartman_end_ortho_camera()
 //--------------------------------------------------------------------------------------------
 void load_img()
 {
+    tx_point = new oglx_texture_t;
     if (INVALID_GL_ID == tx_point->load("editor/point.png", gfx_loadImage("editor/point.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
-
+    
+    tx_pointon = new oglx_texture_t;
     if (INVALID_GL_ID == tx_pointon->load("editor/pointon.png", gfx_loadImage("editor/pointon.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
-
+    
+    tx_ref = new oglx_texture_t;
     if (INVALID_GL_ID == tx_ref->load("editor/ref.png", gfx_loadImage("editor/ref.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
-
+    
+    tx_drawref = new oglx_texture_t;
     if (INVALID_GL_ID == tx_drawref->load("editor/drawref.png", gfx_loadImage("editor/drawref.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
-
+    
+    tx_anim = new oglx_texture_t;
     if (INVALID_GL_ID == tx_anim->load("editor/anim.png", gfx_loadImage("editor/anim.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
-
+    
+    tx_water = new oglx_texture_t;
     if (INVALID_GL_ID == tx_water->load("editor/water.png", gfx_loadImage("editor/water.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
-
+    
+    tx_wall = new oglx_texture_t;
     if (INVALID_GL_ID == tx_wall->load("editor/slit.png", gfx_loadImage("editor/slit.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
-
+    
+    tx_impass = new oglx_texture_t;
     if (INVALID_GL_ID == tx_impass->load("editor/impass.png", gfx_loadImage("editor/impass.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
-
+    
+    tx_damage = new oglx_texture_t;
     if (INVALID_GL_ID == tx_damage->load("editor/damage.png", gfx_loadImage("editor/damage.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
-
+    
+    tx_slippy = new oglx_texture_t;
     if (INVALID_GL_ID == tx_slippy->load("editor/slippy.png", gfx_loadImage("editor/slippy.png")))
     {
         log_warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
@@ -1374,7 +1387,7 @@ void gfx_system_init_SDL_graphics()
         log_message(" success!\n");
     }
 
-#if !defined(__APPLE__)
+#if !defined(ID_OSX)
     {
         // Setup the cute windows manager icon, don't do this on Mac.
         const std::string fileName = "icon.bmp";
@@ -1475,10 +1488,8 @@ int gfx_init_ogl()
     GL_DEBUG( glPolygonMode )( GL_FRONT, GL_FILL );
     GL_DEBUG( glPolygonMode )( GL_BACK,  GL_FILL );
 
-    // ?Need this for color + lighting?
-    GL_DEBUG( glEnable )( GL_COLOR_MATERIAL );  // Need this for color + lighting
-
     // set up environment mapping
+    /// @todo: this isn't used anywhere
     GL_DEBUG( glTexGeni )( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For S To Sphere Mapping (NEW)
     GL_DEBUG( glTexGeni )( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
