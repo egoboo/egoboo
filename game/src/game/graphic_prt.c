@@ -882,7 +882,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
     }
 
     // Set some particle dependent properties.
-    pinst->scale = prt_t::get_scale(pprt);
+    pinst->scale = pprt->get_scale();
     pinst->size = FP8_TO_FLOAT(pprt->size) * pinst->scale;
 
     // This instance is now completely valid.

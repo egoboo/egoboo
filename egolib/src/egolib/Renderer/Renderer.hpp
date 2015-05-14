@@ -49,7 +49,7 @@ using namespace Math;
  *  A facade for internal buffers like the accumulation buffer, the colour buffer or the depth buffer.
  */
 template <typename DataType>
-class Buffer : public Ego::Core::NonCopyable
+class Buffer : public Id::NonCopyable
 {
 
 protected:

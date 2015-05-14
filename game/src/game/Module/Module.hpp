@@ -30,7 +30,7 @@ class Passage;
 
 
 /// The module data that the game needs.
-class GameModule : public Ego::Core::NonCopyable
+class GameModule : public Id::NonCopyable
 {
 public:
     /**

@@ -78,7 +78,7 @@ CONSTEXPR float CAM_ZOOM_FACTOR = 0.5f;
  *  - "center" the position the camera is focused on
  *  - "position" the position the camera is located at
  */
-class Camera : public Ego::Core::NonCopyable
+class Camera : public Id::NonCopyable
 {
 public:
     Camera(const CameraOptions &options);

@@ -38,7 +38,7 @@
 
 namespace Ego
 {
-    struct Font::StringCacheData : Ego::Core::NonCopyable
+    struct Font::StringCacheData : Id::NonCopyable
     {
         Uint32 lastUseInTicks;
         oglx_texture_t *tex;

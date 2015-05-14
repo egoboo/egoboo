@@ -27,7 +27,7 @@
 
 namespace Ego { class Font; }
 
-class UIManager : public Ego::Core::NonCopyable
+class UIManager : public Id::NonCopyable
 {
 public:
     UIManager();

@@ -1128,8 +1128,8 @@ void do_damage_tiles()
         if ( _gameObjects.exists( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
-        if ( !ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
-        if ( 0 == ego_mesh_t::test_fx( PMesh, pchr->onwhichgrid, MAPFX_DAMAGE ) ) continue;
+        if ( !ego_mesh_t::grid_is_valid( PMesh, pchr->getTile() ) ) continue;
+        if ( 0 == ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_DAMAGE ) ) continue;
 
         // are we low enough?
         if ( pchr->getPosZ() > pchr->enviro.floor_level + DAMAGERAISE ) continue;
@@ -1301,7 +1301,7 @@ void do_weather_spawn_particles()
                         {
                             destroy_particle = true;
                         }
-                        else if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, NULL ) )
+                        else if ( EMPTY_BIT_FIELD != pprt->test_wall( nullptr ) )
                         {
                             destroy_particle = true;
                         }
@@ -2000,7 +2000,7 @@ void tilt_characters_to_terrain()
 
         if ( object->stickybutt )
         {
-            twist = ego_mesh_get_twist( PMesh, object->onwhichgrid );
+            twist = ego_mesh_get_twist( PMesh, object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
             object->ori.map_twist_facing_x = map_twist_facing_x[twist];
         }
@@ -4378,7 +4378,7 @@ bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
     if ( !ACTIVE_PPRT( pprt ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    pprt_pip = prt_get_ppip( GET_REF_PPRT( pprt ) );
+    pprt_pip = pprt->get_ppip();
     if ( NULL == pprt_pip ) return false;
 
     // check if they can be connected
@@ -4407,7 +4407,7 @@ bool detach_particle_from_platform( prt_t * pprt )
     if ( !DEFINED_PPRT( pprt ) ) return false;
 
     // grab all of the particle info
-    prt_bundle_t::set( &bdl_prt, pprt );
+    bdl_prt.set(pprt);
 
     // check if they can be connected
     if ( _gameObjects.exists( pprt->onwhichplatform_ref ) ) return false;

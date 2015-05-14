@@ -5,7 +5,7 @@
 //Forward declarations
 class GUIComponent;
 
-class ComponentContainer : public InputListener, Ego::Core::NonCopyable
+class ComponentContainer : public InputListener, Id::NonCopyable
 {
 public:
     ComponentContainer();

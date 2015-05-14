@@ -139,7 +139,7 @@ struct chr_spawn_data_t
 };
 
 /// The definition of the character object.
-class Object : public PhysicsData, public Ego::Core::NonCopyable
+class Object : public PhysicsData, public Id::NonCopyable
 {
 public:
     static const size_t MAXNUMINPACK = 6; ///< Max number of items to carry in pack
@@ -216,26 +216,6 @@ public:
     *   true if it is on emerged in water (fully or partially)
     **/
     bool isInWater(bool anyLiquid) const;
-
-    /**
-    * @return Get current X, Y, Z position of this Object
-    **/
-    inline const fvec3_t& getPosition() const { return pos; }
-
-    /**
-    * @return Get current X position of this Object
-    **/
-    inline float getPosX() const { return pos[kX]; }
-
-    /**
-    * @return Get current Y position of this Object
-    **/
-    inline float getPosY() const { return pos[kY]; }
-
-    /**
-    * @return Get current Z position of this Object
-    **/
-    inline float getPosZ() const { return pos[kZ]; }
 
     /**
     * @brief Set current X, Y, Z position of this Object
@@ -319,7 +299,7 @@ public:
     *   if this is true, then we allow damaging this object even though it is normally immune to damage.
     **/
     int damage(const FACING_T direction, const IPair  damage, const DamageType damagetype, const TEAM_REF team,
-            const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus);
+               const std::shared_ptr<Object> &attacker, const BIT_FIELD effects, const bool ignore_invictus);
 
     /**
      * @brief
@@ -505,7 +485,7 @@ public:
     bool         is_hidden;
     bool         alive;                         ///< Is it alive?
     bool         waskilled;                     ///< Fix for network
-    PLA_REF        is_which_player;               ///< true = player
+    PLA_REF      is_which_player;               ///< true = player
     bool         islocalplayer;                 ///< true = local player
     bool         invictus;                      ///< Totally invincible?
     bool         iskursed;                      ///< Can't be dropped?

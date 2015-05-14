@@ -1112,7 +1112,7 @@ void GFX::initializeSDLGraphics()
     auto title = std::string("Egoboo ") + GameEngine::GAME_VERSION;
     SDL_WM_SetCaption(title.c_str(), "Egoboo");
 
-#if defined(__unix__)
+#if defined(ID_LINUX)
 
     // GLX doesn't differentiate between 24 and 32 bpp,
     // asking for 32 bpp will cause SDL_SetVideoMode to fail with:
@@ -2646,7 +2646,7 @@ void render_shadow(const CHR_REF character)
     if (pchr->is_hidden || 0 == pchr->shadow_size) return;
 
     // no shadow if off the mesh
-    ptile = ego_mesh_t::get_ptile(PMesh, pchr->onwhichgrid);
+    ptile = ego_mesh_t::get_ptile(PMesh, pchr->getTile());
     if (NULL == ptile) return;
 
     // no shadow if invalid tile image
@@ -2660,7 +2660,7 @@ void render_shadow(const CHR_REF character)
     if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
     // much reduced shadow if on a reflective tile
-    if (0 != ego_mesh_t::test_fx(PMesh, pchr->onwhichgrid, MAPFX_DRAWREF))
+    if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_DRAWREF))
     {
         alpha *= 0.1f;
     }
@@ -2788,7 +2788,7 @@ void render_bad_shadow(const CHR_REF character)
         return;
     }
     // No shadow if off the mesh.
-    ego_tile_info_t *ptile = ego_mesh_t::get_ptile(PMesh, pchr->onwhichgrid);
+    ego_tile_info_t *ptile = ego_mesh_t::get_ptile(PMesh, pchr->getTile());
     if (!ptile)
     {
         return;
@@ -2807,7 +2807,7 @@ void render_bad_shadow(const CHR_REF character)
     if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
     // much reduced shadow if on a reflective tile
-    if (0 != ego_mesh_t::test_fx(PMesh, pchr->onwhichgrid, MAPFX_DRAWREF))
+    if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_DRAWREF))
     {
         alpha *= 0.1f;
     }
@@ -3239,9 +3239,9 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
                 Ego::OpenGL::Utilities::isError();
                 ichr = dl.get(i).ichr;
-                TileIndex itile = _gameObjects.get(ichr)->onwhichgrid;
+                TileIndex itile = _gameObjects.get(ichr)->getTile();
 
-                if (ego_mesh_grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
+                if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
                 {
                     Ego::Renderer::get().setColour(Ego::Colour4f::white());
 
@@ -3263,9 +3263,9 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);     // GL_COLOR_BUFFER_BIT
                 Ego::OpenGL::Utilities::isError();
                 PRT_REF iprt = dl.get(i).iprt;
-                TileIndex itile = ParticleHandler::get().get_ptr(iprt)->onwhichgrid;
+                TileIndex itile = ParticleHandler::get().get_ptr(iprt)->getTile();
 
-                if (ego_mesh_grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
+                if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
                 {
                     Ego::Renderer::get().setColour(Ego::Colour4f::white());
 
@@ -5588,7 +5588,7 @@ gfx_rv gfx_update_all_chr_instance()
             continue;
         }
 
-        if (!ego_mesh_grid_is_valid(PMesh, pchr->onwhichgrid)) continue;
+        if (!ego_mesh_t::grid_is_valid(PMesh, pchr->getTile())) continue;
 
         tmp_rv = update_one_chr_instance(pchr.get());
 

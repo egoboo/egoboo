@@ -1394,7 +1394,7 @@ void gfx_system_init_SDL_graphics()
     // Set the window name
     SDL_WM_SetCaption(NAME " " VERSION_STR, NAME);
 
-#if defined(__unix__)
+#if defined(ID_LINUX)
 
     // GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
     // will cause SDL_SetVideoMode to fail with:

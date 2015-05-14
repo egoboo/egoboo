@@ -80,8 +80,8 @@ static void setConsoleColor(ConsoleColor color)
     }
 #endif
 
-    // unix implementation to set console colour
-#if defined(__unix__)
+    // Linux implementation to set console colour
+#if defined(ID_LINUX)
     switch(color)
     {
         case CONSOLE_TEXT_RED:

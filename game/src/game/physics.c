@@ -1072,7 +1072,7 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, prt_t *particle)
     {
         throw std::invalid_argument("nullptr == particle");
     }
-    pip_t *profile = prt_get_ppip(GET_REF_PPRT(particle));
+    pip_t *profile = particle->get_ppip();
     if (!profile)
     {
         throw std::invalid_argument("nullptr == prpfile");

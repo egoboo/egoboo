@@ -142,7 +142,7 @@ void SDLX_sdl_gl_attrib_t::report(SDLX_sdl_gl_attrib_t *self)
     }
     log_message("\nSDL_GL_Attribtes\n");
 
-#if !defined(__unix__)
+#if !defined(ID_LINUX)
     // Under Unix we cannot specify these, we just get whatever format
     // the framebuffer has, specifying depths > the framebuffer one
     // will cause SDL_SetVideoMode to fail with: "Unable to set video mode: Couldn't find matching GLX visual"
@@ -163,7 +163,7 @@ void SDLX_sdl_gl_attrib_t::report(SDLX_sdl_gl_attrib_t *self)
     log_message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", self->accum[3]);
     log_message("\tSDL_GL_STEREO             == %d\n", self->stereo);
 
-#if !defined(__unix__)
+#if !defined(ID_LINUX)
     log_message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", self->multi_buffers);
     log_message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", self->multi_samples);
     log_message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", self->accelerated_visual);
@@ -351,7 +351,7 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
     {
         SDLX_sdl_gl_attrib_t * patt = &( v->gl_att );
 
-#if !defined(__unix__)
+#if !defined(ID_LINUX)
         // Under Unix we cannot specify these, we just get whatever format
         // the framebuffer has, specifying depths > the framebuffer one
         // will cause SDL_SetVideoMode to fail with: "Unable to set video mode: Couldn't find matching GLX visual"
@@ -371,7 +371,7 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
         SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,     patt->accum[3] );
         SDL_GL_SetAttribute( SDL_GL_STEREO,               patt->stereo );
 
-#if defined(__unix__)
+#if defined(ID_LINUX)
 
         // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
         if ( patt->swap_control )
@@ -480,7 +480,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
             }
         }
 
-#if !defined(__unix__)
+#if !defined(ID_LINUX)
         {
             int actual_multi_buffers = 0;                      // ignored in linux
 
@@ -543,7 +543,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
             }
         }
 
-#if !defined(__unix__)
+#if !defined(ID_LINUX)
         // grab the actual status of the multi_buffers and multi_samples
         v->gl_att.multi_buffers = 0;
         v->gl_att.multi_samples = 0;

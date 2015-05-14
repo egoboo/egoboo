@@ -29,7 +29,7 @@
 
 namespace Ego
 {
-class FontManager final : public Ego::Core::NonCopyable
+class FontManager final : public Id::NonCopyable
 {
 public:
     static void initialize();

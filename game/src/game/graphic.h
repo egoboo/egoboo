@@ -492,7 +492,7 @@ template <typename _Type, size_t _Capacity>
 const size_t Pool<_Type, _Capacity>::InvalidIndex = std::numeric_limits<size_t>::max();
 
 /// @todo Use Ego::Core::System/Ego::Core::Singleton
-struct dolist_mgr_t : public Pool<dolist_t, MAX_CAMERAS>, public Ego::Core::NonCopyable
+struct dolist_mgr_t : public Pool<dolist_t, MAX_CAMERAS>, public Id::NonCopyable
 {
 private:
     static dolist_mgr_t *_singleton;

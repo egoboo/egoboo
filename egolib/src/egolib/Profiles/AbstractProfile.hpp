@@ -28,7 +28,7 @@
 #include "egolib/Logic/Damage.hpp"
 
 /// @brief The base class of EnchantProfile, ObjectProfile and ParticleProfiles.
-class AbstractProfile : public Ego::Core::NonCopyable
+class AbstractProfile : public Id::NonCopyable
 {
 
 public:

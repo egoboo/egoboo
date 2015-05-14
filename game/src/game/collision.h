@@ -90,7 +90,7 @@ struct CoHashList_t : public hash_list_t
 
 // A temporary magazine allocator supporting the operations "acquire" and "refill".
 template <typename Type,size_t Capacity>
-struct Magazine
+struct Magazine : public Id::NonCopyable
 {
 public:
 
@@ -141,16 +141,12 @@ public:
         }
     }
 
-    //Disable copying class
-    Magazine(const Magazine& copy) = delete;
-    Magazine& operator=(const Magazine&) = delete;
-
 private:
     size_t _size;
     std::array<Type*, Capacity> _elements;
 };
 
-struct CollisionSystem : public Ego::Core::NonCopyable
+struct CollisionSystem : public Id::NonCopyable
 {
 public:
     typedef Magazine < hash_node_t, COLLISION_HASH_NODES > HashNodeAry;

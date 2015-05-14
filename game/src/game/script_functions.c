@@ -1965,7 +1965,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_mesh_set_texture( PMesh, pchr->onwhichgrid, pstate->argument );
+    returncode = ego_mesh_set_texture( PMesh, pchr->getTile(), pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2185,7 +2185,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     if ( returncode )
     {
         fvec3_t tmp_pos;
-        prt_t * pprt = ParticleHandler::get().get_ptr( iprt );
+        prt_t *pprt = ParticleHandler::get().get_ptr( iprt );
 
         // attach the particle
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
@@ -2198,18 +2198,18 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
         // Don't spawn in walls
         tmp_pos[kX] += pstate->x;
-        if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
+        if (EMPTY_BIT_FIELD != pprt->test_wall(tmp_pos, nullptr))
         {
             tmp_pos[kX] = pprt->pos[kX];
 
             tmp_pos[kY] += pstate->y;
-            if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
+            if (EMPTY_BIT_FIELD != pprt->test_wall(tmp_pos, nullptr))
             {
                 tmp_pos[kY] = pprt->pos[kY];
             }
         }
 
-        prt_t::set_pos(pprt, tmp_pos);
+        pprt->setPosition(tmp_pos);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4588,7 +4588,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     if ( returncode )
     {
-        returncode = prt_t::set_size( ParticleHandler::get().get_ptr( iprt ), pstate->turn );
+        returncode = ParticleHandler::get().get_ptr(iprt)->set_size(pstate->turn);
     }
 
     SCRIPT_FUNCTION_END();
@@ -7107,7 +7107,7 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-#if defined(__unix__)
+#if defined(ID_LINUX)
     returncode = true;
 #else
     returncode = false;

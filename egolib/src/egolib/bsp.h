@@ -122,7 +122,7 @@ protected:
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-class BSP_leaf_list_t : public BSP::Collider, BSP::LeafHolder, Ego::Core::NonCopyable
+class BSP_leaf_list_t : public BSP::Collider, BSP::LeafHolder, Id::NonCopyable
 {
 protected:
 

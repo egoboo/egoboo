@@ -1827,7 +1827,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpx = tmp_pos[kX];
             tmp_pos[kX] += max_apos[kX];
-            if ( EMPTY_BIT_FIELD != prt_t::test_wall( bdl.prt_ptr, tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != bdl.prt_ptr->test_wall( tmp_pos, NULL ) )
             {
                 // restore the old values
                 tmp_pos[kX] = tmpx;
@@ -1843,7 +1843,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpy = tmp_pos[kY];
             tmp_pos[kY] += max_apos[kY];
-            if ( EMPTY_BIT_FIELD != prt_t::test_wall( bdl.prt_ptr, tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != bdl.prt_ptr->test_wall( tmp_pos, NULL ) )
             {
                 // restore the old values
                 tmp_pos[kY] = tmpy;
@@ -1893,7 +1893,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         if ( position_updated )
         {
-            prt_t::set_pos( bdl.prt_ptr, tmp_pos );
+            bdl.prt_ptr->setPosition(tmp_pos);
         }
     }
     PRT_END_LOOP();

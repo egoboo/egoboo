@@ -642,6 +642,8 @@ struct ego_mesh_t
     ///         #INVALID_TILE otherwise
     static TileIndex get_tile_int(const ego_mesh_t *self, const PointGrid& point);
 
+    static bool grid_is_valid(const ego_mesh_t *self, const TileIndex& id);
+
     /**
      * @brief
      *  Get the tile information for at a tile index in a mesh.
@@ -681,7 +683,7 @@ float ego_mesh_get_max_vertex_1(const ego_mesh_t *self, const PointGrid& point, 
 
 bool ego_mesh_clear_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
 bool ego_mesh_add_fx(ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
-bool ego_mesh_grid_is_valid(const ego_mesh_t *self, const TileIndex& id);
+
 bool ego_mesh_tile_has_bits(const ego_mesh_t *, const PointGrid& point, const BIT_FIELD bits);
 
 Uint8 ego_mesh_get_twist(ego_mesh_t *self, const TileIndex& index);

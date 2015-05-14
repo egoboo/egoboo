@@ -23,89 +23,15 @@
 
 #pragma once
 
-#if defined(__cplusplus)
-#include <cstdlib>
-#else
-#include <stdlib.h>
+#include "IdLib/IdLib.hpp"
+
+#if defined(ID_IOS) || defined(ID_IOSSIMULATOR)
+    #error iOS or iOS simulator are not yet supported
 #endif
 
-#if defined(__cplusplus)
-#include <cstddef>
-#else
-#include <stddef.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cctype>
-#else
-#include <ctype.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cstdarg>
-#else
-#include <stdarg.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cstdio>
-#else
-#include <stdio.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cassert>
-#else
-#include <assert.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cmath>
-#else
-#include <math.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cfloat>
-#else
-#include <float.h>
-#endif
-
-#if defined(__cplusplus)
-#include <ctime>
-#else
-#include <time.h>
-#endif
-
-#if defined(__cplusplus)
-#include <memory>
-#else
-#include <memory.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cstring>
-#else
-#include <string.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cstdbool>
-#else
-#include <stdbool.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cerrno>
-#else
-#include <errno.h>
-#endif
-
-#if defined(__cplusplus)
-#include <cstdint>
-#else
-#include <stdint.h>
-#endif
+/// Define __EGO_CURRENT_FILE__, __EGO_CURRENT_LINE__ and __EGO_CURRENT_FUNCTION__.
+/// Those constants will either be properly defined or not at all.
+#include "egolib/Platform/CurrentFunction.inline"
 
 //--------------------------------------------------------------------------------------------
 // SDL.
@@ -115,37 +41,6 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 
-//--------------------------------------------------------------------------------------------
-// Exclusive C++ headers from here on (in alphabetic order).
-#include <array>
-#include <algorithm>
-#include <atomic>
-#include <bitset>
-#include <exception>
-#include <forward_list>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <locale>
-#include <list>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <new>
-#include <random>
-#include <stdexcept>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <thread>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-/// Define __EGO_CURRENT_FILE__, __EGO_CURRENT_LINE__ and __EGO_CURRENT_FUNCTION__.
-/// Those constants will either be properly defined or not at all.
-#include "egolib/Platform/CurrentFunction.inline"
 
 #if defined(__cplusplus)
 extern "C"
@@ -155,27 +50,22 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // OSX definitions
 
-#if defined(__APPLE__) || defined(macintosh)
-
-    // Trap non-OSX Mac builds.
-    #if !defined(__MACH__)
-        #error Only OS X builds are supported
-    #endif
-
+#if defined(ID_OSX)
     /// Make this function work cross-platform.
     #define stricmp strcasecmp
-
 #endif
+
+#if defined(ID_LINUX)
+    /// Make this function work cross-platform.
+    /// @todo Detect POSIX version if this function is available at all.
+    #define stricmp strcasecmp
+#endif
+
 
 //--------------------------------------------------------------------------------------------
 // windows definitions
 
-#if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) || defined(__WIN64__) || defined(WIN64) || defined(_WIN64) || defined(__WIN64)
-    // Map all of these possibilities to WIN32.
-    #if !defined(WIN32)
-        #define WIN32
-    #endif
-
+#if defined(ID_WINDOWS)
     /// Speeds up compile times a bit.  We don't need everything in windows.h.
     /// @todo MH: Nice, except of that system headers like windows.h should not
     ///       be included in general code at all.
@@ -194,24 +84,6 @@ extern "C"
 #endif
 
 //--------------------------------------------------------------------------------------------
-// *nix definitions
-
-#if defined(__unix__) || defined(__unix) || defined(_unix) || defined(unix)
-
-    /// Map all of these possibilities __unix__.
-    #if !defined(__unix__)
-        #define __unix__
-    #endif
-
-    #include <unistd.h>
-
-    /// Make this function work cross-platform.
-    #define stricmp strcasecmp
-
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 // os-dependent pathname conventions
 
@@ -228,7 +100,7 @@ extern "C"
 #define NET_SLASH_CHR C_SLASH_CHR
 #define NET_SLASH_STR C_SLASH_STR
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(ID_WINDOWS)
     #define SLASH_STR WIN32_SLASH_STR
     #define SLASH_CHR WIN32_SLASH_CHR
 #else
@@ -237,7 +109,7 @@ extern "C"
 #endif
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
 // Compiler-specific definitions
 
 // MSVC does not support noexcept yet.
@@ -247,11 +119,10 @@ extern "C"
     #define EGO_NOEXCEPT noexcept
 #endif
 
-#include "IdLib/IdLib.hpp"
-
-//------------
+//--------------------------------------------------------------------------------------------
 // Turn off warnings that we don't care about.
 /// @todo MH: This should be reviewed.
+
 #if defined(_MSC_VER)
     #pragma warning(disable : 4090) ///< '=' : different 'const' qualifiers (totally unimportant in C)
     #pragma warning(disable : 4200) ///< zero-sized array in struct/union (used in the md2 loader)
@@ -265,7 +136,8 @@ extern "C"
     #endif
 #endif
 
-//------------
+//--------------------------------------------------------------------------------------------
+
 #if !defined(SET_PACKED)
     // Set the packing of a data structure at declaration time.
     #if !defined(USE_PACKING)
@@ -282,52 +154,12 @@ extern "C"
 #endif
     
 //--------------------------------------------------------------------------------------------
-// Format attributes for GCC/Clang
-#if defined(__GNUC__)
-    #define GCC_PRINTF_FUNC(fmtargnum) __attribute__ (( format( __printf__, fmtargnum, fmtargnum+1 ) ))
-    #define GCC_SCANF_FUNC(fmtargnum) __attribute__ (( format( __scanf__, fmtargnum, fmtargnum+1 ) ))
-#else
-    #define GCC_PRINTF_FUNC(fmtargnum)
-    #define GCC_SCANF_FUNC(fmtargnum)
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 #if defined(__cplusplus)
 }
 #endif
 
-namespace Ego
-{
-namespace Core
-{
-/**
- * @brief
- *  Inherit from this class to make the inheriting class and its descendant class non-copyable.
- *  Example usage
- *  @code
- *  class Foo : Bar, NonCopyable
- *  { ... }
- *  @endcode
- * @see http://en.cppreference.com/w/cpp/language/as_operator
- * @see http://en.cppreference.com/w/cpp/language/copy_constructor
- * @author
- *  Michael Heilmann
- */
-class NonCopyable
-{
-
-protected:
-    NonCopyable() { }
-    ~NonCopyable() { }
-private:
-    NonCopyable(const NonCopyable&) = delete;
-    const NonCopyable& operator=(const NonCopyable&) = delete;
-};
-
-} // namespace Core
-} // namespace Ego
+//--------------------------------------------------------------------------------------------
 
 namespace Ego
 {
@@ -471,7 +303,7 @@ class Singleton;
 template <typename InstanceType>
 class Singleton<InstanceType>
 #if defined(EGO_CORE_SINGLETON_NONCOPYABLE) && 1 == EGO_CORE_SINGLETON_NONCOPYABLE
-    : NonCopyable
+    : Id::NonCopyable
 #endif
 {
 
@@ -569,7 +401,7 @@ public:
 template <typename InstanceType, typename FactoryType>
 class Singleton<InstanceType, FactoryType>
 #if defined(EGO_CORE_SINGLETON_NONCOPYABLE) && 1 == EGO_CORE_SINGLETON_NONCOPYABLE
-    : NonCopyable
+    : Id::NonCopyable
 #endif
 {
 

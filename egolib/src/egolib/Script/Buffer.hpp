@@ -32,7 +32,7 @@ namespace Script
  * @author
  *  Michael Heilmann
  */
-class Buffer : public Ego::Core::NonCopyable
+class Buffer : public Id::NonCopyable
 {
 
 private:

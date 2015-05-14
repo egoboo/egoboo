@@ -128,8 +128,16 @@ struct PhysicsData
     Uint32 safe_time;              ///< The last "safe" time.
     TileIndex safe_grid;           ///< the last "safe" grid. @todo Should be of type @a TileIndex.
 
-    TileIndex onwhichgrid;         ///< The tile position.
-    BlockIndex onwhichblock;       ///< The block position.
+    /**
+     * @brief
+     *  The tile this object is on or TileIndex::Invalid if none.
+     */
+    TileIndex _tile;
+    /**
+     * @brief
+     *  The block this object is on or BlockIndex::Invalid if none.
+     */
+    BlockIndex _block;
 
     float targetplatform_level;    ///< What is the height of the target platform?
     CHR_REF targetplatform_ref;    ///< Am I trying to attach to a platform?
@@ -167,7 +175,7 @@ struct PhysicsData
     PhysicsData() :
         phys(),
         safe_valid(false), safe_pos(), safe_time(0), safe_grid(TileIndex::Invalid),
-        onwhichgrid(TileIndex::Invalid), onwhichblock(BlockIndex::Invalid),
+        _tile(TileIndex::Invalid), _block(BlockIndex::Invalid),
         targetplatform_level(0.0f),
         targetplatform_ref(INVALID_CHR_REF),
         onwhichplatform_ref(INVALID_CHR_REF),
@@ -188,8 +196,8 @@ struct PhysicsData
         self->safe_time = 0;
         self->safe_grid = TileIndex::Invalid;
 
-        self->onwhichgrid = TileIndex::Invalid;
-        self->onwhichblock = BlockIndex::Invalid;
+        self->_tile = TileIndex::Invalid;
+        self->_block = BlockIndex::Invalid;
 
         self->targetplatform_level = 0.0f;
         self->targetplatform_ref = INVALID_CHR_REF;
@@ -204,4 +212,52 @@ struct PhysicsData
 
         self->pos_stt = fvec3_t::zero();
     }
+
+    /**
+     * @brief Get the tile this object is currently on.
+     * @return the tile index of the tile this object is on.
+     * If the object is currently on no tile, TileIndex::Invalid is returned.
+     */
+    inline const TileIndex& getTile() const {
+        return _tile;
+    }
+
+    /**
+     * @brief Get the block this object is currently on.
+     * @return the block index of the block this object is on.
+     * If the object is currently on no block, BlockIndex::Invalid is returned.
+     */
+    inline const BlockIndex& getBlock() const {
+        return _block;
+    }
+
+    /**
+     * @return the current position of this object
+     */
+    inline const fvec3_t& getPosition() const {
+        return pos;
+    }
+
+    /**
+     * @return the position of this object along the x-axis
+     */
+    inline float getPosX() const {
+        return pos[kX];
+    }
+
+    /**
+     * @return the position of this object along the y-axis
+     */
+    inline float getPosY() const {
+        return pos[kY];
+    }
+
+    /**
+     * @return the position of this object along the z-axis
+     */
+    inline float getPosZ() const {
+        return pos[kZ];
+    }
+
+
 };

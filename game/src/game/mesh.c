@@ -448,7 +448,7 @@ bool ego_mesh_set_texture(ego_mesh_t *self, const TileIndex& index, Uint16 image
 {
     Uint16 tile_value, tile_upper, tile_lower;
 
-    if (!ego_mesh_grid_is_valid(self, index)) return false;
+    if (!ego_mesh_t::grid_is_valid(self, index)) return false;
     ego_tile_info_t *pointer = tile_mem_t::get(&(self->tmem),index);
 
     // Get the upper and lower bits for this tile image.
@@ -482,7 +482,7 @@ bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& index)
     pgmem = &(self->gmem);
     pinfo = &(self->info);
 
-    if (!ego_mesh_grid_is_valid(self,index)) return false;
+    if (!ego_mesh_t::grid_is_valid(self,index)) return false;
     ptile = tile_mem_t::get(ptmem,index);
 
     image = TILE_GET_LOWER_BITS( ptile->img );
@@ -1039,7 +1039,7 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
             int i, j, k;
 
             TileIndex fan0 = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix, iy));
-            if ( !ego_mesh_grid_is_valid( pmesh, fan0 ) ) continue;
+            if ( !ego_mesh_t::grid_is_valid( pmesh, fan0 ) ) continue;
 
             nrm_lst[0][kX] = ptmem->nlst[fan0.getI()][XX];
             nrm_lst[0][kY] = ptmem->nlst[fan0.getI()][YY];
@@ -1075,7 +1075,7 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
 
                     TileIndex fan1 = ego_mesh_t::get_tile_int( pmesh, PointGrid(jx, jy));
 
-                    if ( ego_mesh_grid_is_valid( pmesh, fan1 ) )
+                    if ( ego_mesh_t::grid_is_valid( pmesh, fan1 ) )
                     {
                         nrm_lst[j][kX] = ptmem->nlst[fan1.getI()][XX];
                         nrm_lst[j][kY] = ptmem->nlst[fan1.getI()][YY];
@@ -1674,7 +1674,7 @@ float ego_mesh_t::get_pressure( const ego_mesh_t * pmesh, const fvec3_t& pos, fl
             if ( tile_valid )
             {
                 TileIndex itile = ego_mesh_t::get_tile_int( pmesh, PointGrid(ix, iy));
-                tile_valid = ego_mesh_grid_is_valid( pmesh, itile );
+                tile_valid = ego_mesh_t::grid_is_valid( pmesh, itile );
                 if ( !tile_valid )
                 {
                     is_blocked = true;
@@ -1887,7 +1887,7 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const fvec3_t& pos, const
             if ( !invalid )
             {
                 TileIndex itile = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
-                if ( ego_mesh_grid_is_valid( pmesh, itile ) )
+                if ( ego_mesh_t::grid_is_valid( pmesh, itile ) )
                 {
                     BIT_FIELD mpdfx   = ego_grid_info_t::get_all_fx( pdata->glist + itile.getI() );
                     bool is_blocked = HAS_SOME_BITS( mpdfx, bits );
@@ -2624,7 +2624,7 @@ bool ego_mesh_tile_has_bits( const ego_mesh_t * pmesh, const PointGrid& point, c
     TileIndex tileRef = ego_mesh_t::get_tile_int(pmesh, point);
 
     // Everything outside the map bounds is wall and impassable.
-    if (!ego_mesh_grid_is_valid(pmesh, tileRef))
+    if (!ego_mesh_t::grid_is_valid(pmesh, tileRef))
     {
         return HAS_SOME_BITS((MAPFX_IMPASS | MAPFX_WALL), bits);
     }
@@ -2643,7 +2643,7 @@ Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test )
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_grid_is_valid(const ego_mesh_t *self, const TileIndex& index)
+bool ego_mesh_t::grid_is_valid(const ego_mesh_t *self, const TileIndex& index)
 {
     if (!self)
     {
@@ -2662,7 +2662,7 @@ bool ego_mesh_grid_is_valid(const ego_mesh_t *self, const TileIndex& index)
 float ego_mesh_t::get_level(const ego_mesh_t *self, const PointWorld& point)
 {
     TileIndex tile = ego_mesh_t::get_grid(self, point);
-    if (!ego_mesh_grid_is_valid(self, tile)) return 0;
+    if (!ego_mesh_t::grid_is_valid(self, tile)) return 0;
 
     PointGrid gridPoint(static_cast<int>(point.getX()) & GRID_MASK,
                         static_cast<int>(point.getY()) & GRID_MASK);

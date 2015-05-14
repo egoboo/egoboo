@@ -289,12 +289,12 @@ bool Object::isOverWater(bool anyLiquid) const
 	}
 
 	//Check if we are on a valid tile
-    if (!ego_mesh_grid_is_valid(PMesh, onwhichgrid))
+    if (!ego_mesh_t::grid_is_valid(PMesh, getTile()))
     {
     	return false;
     }
 
-    return 0 != ego_mesh_t::test_fx(PMesh, onwhichgrid, MAPFX_WATER);
+    return 0 != ego_mesh_t::test_fx(PMesh, getTile(), MAPFX_WATER);
 }
 
 bool Object::isInWater(bool anyLiquid) const
@@ -312,13 +312,13 @@ bool Object::setPosition(const fvec3_t& position)
     {
         pos = position;
 
-        onwhichgrid = ego_mesh_t::get_grid(PMesh, PointWorld(pos[kX], pos[kY]));
-        onwhichblock = ego_mesh_t::get_block(PMesh, PointWorld(pos[kX], pos[kY]));
+        _tile = ego_mesh_t::get_grid(PMesh, PointWorld(pos[kX], pos[kY]));
+        _block = ego_mesh_t::get_block(PMesh, PointWorld(pos[kX], pos[kY]));
 
-        // update whether the current character position is safe
+        // Update whether the current object position is safe.
         chr_update_safe( this, false );
 
-        // update the breadcrumb list
+        // Update the breadcrumb list.
         chr_update_breadcrumb( this, false );
 
         return true;
@@ -326,7 +326,6 @@ bool Object::setPosition(const fvec3_t& position)
 
     return false;
 }
-
 
 void Object::movePosition(const float x, const float y, const float z)
 {

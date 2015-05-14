@@ -34,7 +34,7 @@ namespace Core
  * @author
  *  Michael Heilmann
  */
-class TimerService : public NonCopyable
+class TimerService : public Id::NonCopyable
 {
 protected:
     friend class System;
@@ -58,7 +58,7 @@ public:
  * @author
  *  Michael Heilmann
  */
-class EventService : public NonCopyable
+class EventService : public Id::NonCopyable
 {
 protected:
     friend class System;
@@ -66,7 +66,7 @@ protected:
     virtual ~EventService();
 };
 
-class System : public NonCopyable
+class System : public Id::NonCopyable
 {
 
 private:

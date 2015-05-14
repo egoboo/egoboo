@@ -147,7 +147,11 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t,ParticleHandler>
 
     // profiles
     PIP_REF pip_ref;                           ///< The particle profile
-    PRO_REF profile_ref;                       ///< the profile related to the spawned particle
+    /**
+     * @brief
+     *  The profile related to the spawned particle.
+     */
+    PRO_REF profile_ref;
 
     // links
     /**
@@ -288,22 +292,37 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t,ParticleHandler>
     /// @details The C equivalent of a parameterless constructor.
     static bool request_terminate(prt_t *self);
     static void set_level(prt_t *self, const float level);
-    static BIT_FIELD hit_wall(prt_t *self, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
-    static BIT_FIELD hit_wall(prt_t *self, const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
-    static BIT_FIELD test_wall(prt_t *self, mesh_wall_data_t *data);
-    static BIT_FIELD test_wall(prt_t *self, const fvec3_t& pos, mesh_wall_data_t *data);
-    static bool set_size(prt_t *self, int size);
+    /// @brief Return nonzero if the particle hit a wall that the particle is not allowed to cross.
+    BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
+    /// @brief Returns nonzero if the particle hit a wall that the particle is not allowed to cross.
+    BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
+    /// @brief Returns nonzero if the particle hit a wall that the particle is not allowed to cross.
+    BIT_FIELD test_wall(mesh_wall_data_t *data);
+    /// @brief Return nonzero if the particle hit a wall that the particle is not allowed to cross.
+    BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data);
+    bool set_size(int size);
     /// @brief Get the scale factor between the "graphical size" of the particle and the actual display size.
-    static float get_scale(prt_t *self);
+    float get_scale() const;
     static const fvec3_t& get_pos_v_const(const prt_t *self);
 
-    static bool set_pos(prt_t *self, const fvec3_t& position);
+    bool setPosition(const fvec3_t& position);
     static bool get_pos(const prt_t *self, fvec3_t& position);
-    static bool update_pos(prt_t *self);
     static bool update_safe(prt_t *self, bool force);
     static bool update_safe_raw(prt_t *self);
-    static PIP_REF get_ipip(const prt_t *self);
-    static pip_t *get_ppip(const prt_t *self);
+    /**
+     * @brief
+     *  Get the profile index of this particle.
+     * @return
+     *  the profile index of this particle or INVALID_PIP_REF
+     */
+    PIP_REF get_ipip() const;
+    /**
+     * @brief
+     *  Get a pointer to the profile of this particle.
+     * @return
+     *  a pointer to the profile of this particle or a null pointer
+     */
+    pip_t *get_ppip() const;
 
     static bool free(prt_t * pprt);
 
@@ -325,18 +344,24 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t,ParticleHandler>
  */
 struct prt_bundle_t
 {
-    PRT_REF   prt_ref;
-    prt_t   * prt_ptr;
+    PRT_REF prt_ref;
+    prt_t *prt_ptr;
 
-    PIP_REF   pip_ref;
-    pip_t   * pip_ptr;
+    PIP_REF pip_ref;
+    pip_t *pip_ptr;
 
-    static prt_bundle_t *ctor(prt_bundle_t *self);
+    void ctor();
     static prt_bundle_t *validate(prt_bundle_t *self);
-    static prt_bundle_t *set(prt_bundle_t *self, prt_t *prt);
+    prt_bundle_t *set(prt_t *prt);
     static prt_bundle_t *do_bump_damage(prt_bundle_t *self);
-    static prt_bundle_t *update(prt_bundle_t *self);
-    static int do_contspawn(prt_bundle_t *self);
+    prt_bundle_t *update();
+    /**
+     * @brief
+     *  Spawn new particles if continually spawning
+     * @return
+     *  the number of new particles spawned
+     */
+    int do_contspawn();
     static bool move_one_particle(prt_bundle_t *self);
 private:
     static prt_bundle_t *updateParticleSimpleGravity(prt_bundle_t * pbdl_prt);
@@ -349,12 +374,62 @@ private:
 public:
     static prt_bundle_t *move_one_particle_get_environment(prt_bundle_t *self);
 private:
-    static prt_bundle_t *update_animation(prt_bundle_t *self);
-    static prt_bundle_t *update_dynalight(prt_bundle_t *self);
-    static prt_bundle_t *update_timers(prt_bundle_t *self);
-    static prt_bundle_t *update_ingame(prt_bundle_t *self);
-    static prt_bundle_t *update_ghost(prt_bundle_t *self);
-    static prt_bundle_t *update_do_water(prt_bundle_t *self);
+    /**
+     * @brief
+     *  Update the animation of this particle.
+     * @return
+     *  a pointer to this particle bundle if
+     *  - the bundle holds a particle and
+     *  - this particle was not ended by this function,
+     *  a null pointer otherwise
+     */
+    prt_bundle_t *update_animation();
+    /**
+     * @brief
+     *  Handle the particle ?.
+     * @return
+     *  a pointer to this particle bundle if
+     *  - the bundle holds a particle and
+     *  - this particle was not ended by this function,
+     *  a null pointer otherwise
+     * @remark
+     *  This can not end the particle at least for now.
+     * @todo
+     *  Figure out what this crap is doing.
+     */
+    prt_bundle_t *update_dynalight();
+    /**
+     * @brief
+     *  Update the lifetime timers of this particle.
+     * @return
+     *  a pointer to this particle bundle if the bundle holds a particle, a null pointer otherwise
+     */
+    prt_bundle_t *update_timers();
+    /// @details update everything about a particle that does not depend on collisions
+    ///               or interactions with characters
+    prt_bundle_t *update_ingame();
+    /**
+     * @brief
+     *  Handle the case where the particle is a ghost.
+     * @return
+     *  a pointer to this particle bundle if
+     *  - the bundle holds a particle and
+     *  - this particle was not ended by this function,
+     *  a null pointer otherwise
+     * @remark
+     *  A particle is a "ghost" if it is still displayed, but is no longer in game.
+     */
+    prt_bundle_t *update_ghost();
+    /**
+     * @brief
+     *  Handle the particle interaction with water
+     * @return
+     *  a pointer to this particle bundle if
+     *  - the bundle holds a particle and
+     *  - this particle was not ended by this function,
+     *  a null pointer otherwise
+     */
+    prt_bundle_t *update_do_water();
 };
 
 //--------------------------------------------------------------------------------------------

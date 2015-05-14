@@ -8,7 +8,7 @@
 //Forward declarations
 class ComponentContainer;
 
-class GUIComponent : public InputListener, public std::enable_shared_from_this<GUIComponent>, public Ego::Core::NonCopyable
+class GUIComponent : public InputListener, public std::enable_shared_from_this<GUIComponent>, public Id::NonCopyable
 {
     public:
         GUIComponent();

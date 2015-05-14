@@ -527,7 +527,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
             tmp_pos[kY] = pchr->inst.matrix.CNV( 3, 1 );
             tmp_pos[kZ] = pchr->inst.matrix.CNV( 3, 2 );
 
-            prt_t::set_pos(pprt, tmp_pos);
+            pprt->setPosition(tmp_pos);
 
             return pprt;
         }
@@ -557,12 +557,12 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
         // Do the transform
         pchr->inst.matrix.transform(point, nupoint, 1);
 
-        prt_t::set_pos(pprt, fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
+        pprt->setPosition(fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
     }
     else
     {
         // No matrix, so just wing it...
-        prt_t::set_pos(pprt, pchr->getPosition());
+        pprt->setPosition(pchr->getPosition());
     }
 
     return pprt;
@@ -636,7 +636,7 @@ float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->onwhichgrid);
+        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->getTile());
 
         if (nullptr != tile && tile->inrenderlist)
         {
@@ -678,7 +678,7 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->onwhichgrid);
+        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->getTile());
 
         if (nullptr != tile && tile->inrenderlist)
         {
@@ -724,7 +724,7 @@ BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, fvec2_t& nrm, float * pr
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->onwhichgrid);
+        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->getTile());
 
         if (nullptr != tile && tile->inrenderlist)
         {
@@ -769,7 +769,7 @@ BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t *data
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->onwhichgrid);
+        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->getTile());
         if (nullptr != tile && tile->inrenderlist)
         {
             radius = chr->bump_1.size;
@@ -1953,11 +1953,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         pprt->attachedto_ref = INVALID_CHR_REF;
 
                         // Don't spawn in walls
-                        if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
+                        if ( EMPTY_BIT_FIELD != pprt->test_wall( tmp_pos, NULL))
                         {
                             tmp_pos[kX] = pweapon->getPosX();
                             tmp_pos[kY] = pweapon->getPosY();
-                            if ( EMPTY_BIT_FIELD != prt_t::test_wall( pprt, tmp_pos, NULL ) )
+                            if ( EMPTY_BIT_FIELD != pprt->test_wall( tmp_pos, NULL ) )
                             {
                                 tmp_pos[kX] = pchr->getPosX();
                                 tmp_pos[kY] = pchr->getPosY();
@@ -1974,7 +1974,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     // Initial particles get an enchantment bonus
                     pprt->damage.base += pweapon->damage_boost;
 
-                    prt_t::set_pos(pprt, tmp_pos);
+                    pprt->setPosition(tmp_pos);
                 }
                 else
                 {
@@ -3923,7 +3923,7 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
-    if ( 0 != ego_mesh_t::test_fx( PMesh, pchr->onwhichgrid, MAPFX_WATER ) )
+    if ( 0 != ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_WATER ) )
     {
         penviro->fly_level = std::max( penviro->level, water.surface_level );
     }
@@ -3940,11 +3940,11 @@ void move_one_character_get_environment( Object * pchr )
     penviro->grounded = (( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
-    penviro->grid_twist = ego_mesh_get_twist( PMesh, pchr->onwhichgrid );
+    penviro->grid_twist = ego_mesh_get_twist( PMesh, pchr->getTile() );
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water.is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && ( 0 != ego_mesh_t::test_fx( PMesh, pchr->onwhichgrid, MAPFX_SLIPPY ) );
+    penviro->is_slippy = !penviro->is_watery && ( 0 != ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_SLIPPY ) );
 
     //---- traction
     penviro->traction = 1.0f;
@@ -3971,7 +3971,7 @@ void move_one_character_get_environment( Object * pchr )
             penviro->traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
-    else if ( ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+    else if ( ego_mesh_t::grid_is_valid( PMesh, pchr->getTile() ) )
     {
         penviro->traction = std::abs( map_twist_nrm[penviro->grid_twist][kZ] ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -4008,7 +4008,7 @@ void move_one_character_get_environment( Object * pchr )
     {
         // Make the characters slide
         float temp_friction_xy = Physics::g_environment.noslipfriction;
-        if ( ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) && penviro->is_slippy )
+        if ( ego_mesh_t::grid_is_valid( PMesh, pchr->getTile() ) && penviro->is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = Physics::g_environment.slippyfriction;
