@@ -198,11 +198,11 @@ pip_t *pip_t::init()
     grogTime = 0;
 
     // What/how to spawn continuously.
-    contspawn.init();
+    contspawn.reset();
     // What/how to spawn at the end.
-    endspawn.init();
+    endspawn.reset();
     // What/how to spawn when bumped.
-    bumpspawn.init();
+    bumpspawn.reset();
     
     // Spawning.
     force = false;

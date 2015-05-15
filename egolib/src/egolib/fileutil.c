@@ -579,6 +579,10 @@ void vfs_put_range_raw( vfs_FILE* filewrite, FRange val )
     }
 }
 
+void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, const LocalParticleProfileRef& ref) {
+    vfs_put_int(filewrite, text, ref.get());
+}
+
 //--------------------------------------------------------------------------------------------
 void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val )
 {
@@ -648,13 +652,14 @@ void vfs_put_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value )
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, const LocalParticleProfileRef& ref)
 {
-    /// @author ZZ
-    /// @details This function mimics vfs_printf in spitting out
-    ///    damage/stat pairs
+    vfs_printf(filewrite, "%s: [%s] %d\n", text, undo_idsz(idsz), ref.get());
+}
 
-    vfs_printf( filewrite, "%s: [%s] %d\n", text, undo_idsz( idsz ), value );
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, int value)
+{
+    vfs_printf(filewrite, "%s: [%s] %d\n", text, undo_idsz(idsz), value);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1262,6 +1267,11 @@ SFP8_T vfs_get_next_sfp8(ReadContext& ctxt)
     return vfs_get_sfp8(ctxt);
 }
 
+LocalParticleProfileRef vfs_get_next_local_particle_profile_ref(ReadContext& ctxt) {
+    ctxt.skipToColon(false);
+    return vfs_get_local_particle_profile_ref(ctxt);
+}
+
 //--------------------------------------------------------------------------------------------
 void vfs_read_string(ReadContext& ctxt, char *str, size_t max)
 {
@@ -1415,6 +1425,10 @@ IDSZ vfs_get_next_idsz(ReadContext& ctxt)
 }
 
 //--------------------------------------------------------------------------------------------
+
+LocalParticleProfileRef vfs_get_local_particle_profile_ref(ReadContext& ctxt) {
+    return LocalParticleProfileRef(ctxt.readInt());
+}
 
 DamageType vfs_get_damage_type(ReadContext& ctxt)
 {
@@ -1587,14 +1601,13 @@ bool ReadContext::readBool()
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_get_next_bool(ReadContext& ctxt)
-{
+
+bool vfs_get_next_bool(ReadContext& ctxt) {
     ctxt.skipToColon(false);
     ctxt.skipWhiteSpaces();
     return ctxt.readBool();
 }
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key)

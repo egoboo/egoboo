@@ -28,5 +28,10 @@
 
 extern _AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader> PipStack;
 
-#define VALID_PIP_RANGE(ref) (PipStack.isValidRange(ref))
-#define LOADED_PIP(ref) (PipStack.isLoaded(ref))
+inline bool VALID_PIP_RANGE(PIP_REF ref) {
+    return PipStack.isValidRange(ref);
+}
+
+inline bool LOADED_PIP(PIP_REF ref) {
+    return PipStack.isLoaded(ref);
+}

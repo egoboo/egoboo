@@ -28,5 +28,10 @@
 
 extern _AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX, EnchantProfileReader> EveStack;
 
-#define VALID_EVE_RANGE(ref) (EveStack.isValidRange(ref))
-#define LOADED_EVE(ref) (EveStack.isLoaded(ref))
+inline bool VALID_EVE_RANGE(EVE_REF ref) {
+    return EveStack.isValidRange(ref);
+}
+
+inline bool LOADED_EVE(EVE_REF ref) {
+    return EveStack.isLoaded(ref);
+}

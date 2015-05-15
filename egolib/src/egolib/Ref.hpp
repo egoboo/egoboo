@@ -61,11 +61,10 @@ public:
     // Constructs.
 
     Ref() EGO_NOEXCEPT :
-		_ref(INVALID)
-	{
-	}
+        _ref(INVALID)
+    {}
 
-    explicit Ref(const TYPE ref) EGO_NOEXCEPT :
+    explicit Ref(const TYPE ref) :
         _ref(ref)
     {
         if (ref < MIN || ref > MAX)
@@ -76,20 +75,19 @@ public:
 
     Ref(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) EGO_NOEXCEPT :
         _ref(other._ref)
-    {
-    }
+    {}
 
 
     // Logical operator overloads.
-		
-	bool operator!() const EGO_NOEXCEPT
-	{
-		return _ref == INVALID;
-	}
+
+    bool operator!() const EGO_NOEXCEPT
+    {
+        return _ref == INVALID;
+    }
 
 
-	// Relational operator overloads.
-	
+    // Relational operator overloads.
+
     bool operator>=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) const EGO_NOEXCEPT
     {
         return _ref >= other._ref;
@@ -119,9 +117,9 @@ public:
     {
         return _ref != other._ref;
     }
-	
 
-	// Assignment operator overloads.
+
+    // Assignment operator overloads.
 
     Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const Ref<TYPE, MIN, MAX, INVALID, KIND>& other) EGO_NOEXCEPT
     {
@@ -129,6 +127,8 @@ public:
         return *this;
     }
 
+#define REF_WITH_IMPLICITASSIGNMENT 1
+#if defined(REF_WITH_IMPLICITASSIGNMENT) && 1 == REF_WITH_IMPLICITASSIGNMENT
     Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const unsigned int& other)
     {
         if (other < MIN || other > MAX)
@@ -159,22 +159,22 @@ public:
         return *this;
     }
 
-	Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const long& other)
-	{
-		if (other < MIN || other > MAX)
-		{
-			throw std::domain_error("out of range");
-		}
-		_ref = other;
+    Ref<TYPE, MIN, MAX, INVALID, KIND>& operator=(const long& other)
+    {
+        if (other < MIN || other > MAX)
+        {
+            throw std::domain_error("out of range");
+        }
+        _ref = other;
         return *this;
-	}
-
+    }
+#endif
 
     // Cast operator overloads.
     explicit operator bool() const EGO_NOEXCEPT
-	{
-		return INVALID != _ref;
-	}
+    {
+        return INVALID != _ref;
+    }
 
     // Accessors.
 
@@ -237,7 +237,7 @@ public:
         --_ref;
         return *this;
     }
-	
+
 };
 
 template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
@@ -248,3 +248,15 @@ const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Min
 
 template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
 const Ref<TYPE, MIN, MAX, INVALID, KIND> Ref<TYPE, MIN, MAX, INVALID, KIND>::Max(MAX);
+
+namespace std
+{
+    template <typename TYPE, TYPE MIN, TYPE MAX, TYPE INVALID, RefKind KIND>
+    struct hash<Ref<TYPE, MIN, MAX, INVALID, KIND>>
+    {
+        size_t operator()(const Ref<TYPE, MIN, MAX, INVALID, KIND>& ref) const
+        {
+            return hash<TYPE>()(ref.get());
+        }
+    };
+}

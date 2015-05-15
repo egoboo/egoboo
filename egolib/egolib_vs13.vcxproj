@@ -276,6 +276,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Profiles\LocalParticleProfileRef.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\AccumulationBuffer.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\ColourBuffer.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\DepthBuffer.cpp" />
@@ -491,6 +492,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Profiles\LocalParticleProfileRef.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\AccumulationBuffer.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\ColourBuffer.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\DepthBuffer.hpp" />

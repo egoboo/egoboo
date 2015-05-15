@@ -2681,7 +2681,8 @@ int prt_do_end_spawn(const PRT_REF iprt)
             // so, set the profile reference to INVALID_PRO_REF, so that the
             // value of pprt->endspawn_lpip will be used directly
             PRT_REF spawned_prt = ParticleHandler::get().spawn_one_particle(pprt->pos_old, facing, pprt->profile_ref, pprt->endspawn_lpip,
-                INVALID_CHR_REF, GRIP_LAST, pprt->team, prt_get_iowner(iprt, 0), iprt, tnc, pprt->target_ref);
+                                                                            INVALID_CHR_REF, GRIP_LAST, pprt->team, prt_get_iowner(iprt, 0),
+                                                                            iprt, tnc, pprt->target_ref);
 
             if (DEFINED_PRT(spawned_prt))
             {

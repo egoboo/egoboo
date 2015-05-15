@@ -26,6 +26,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/Logic/Damage.hpp"
+#include "egolib/Profiles/LocalParticleProfileRef.hpp"
 
 /// @brief The base class of EnchantProfile, ObjectProfile and ParticleProfiles.
 class AbstractProfile : public Id::NonCopyable
@@ -73,8 +74,8 @@ struct SpawnDescriptor
     SpawnDescriptor() :
         _amount(0), _facingAdd(0), _lpip(-1)
     {}
-    /// @todo Rename to reset.
-    void init()
+    
+    void reset()
     {
         _amount = 0;
         _facingAdd = 0;

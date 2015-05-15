@@ -72,7 +72,7 @@ eve_t *eve_t::init()
     {
         this->_add[i].init();
     }
-    contspawn.init();
+    contspawn.reset();
     _owner.init();
     _target.init();
     this->seeKurses = false;

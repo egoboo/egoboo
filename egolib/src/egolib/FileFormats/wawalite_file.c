@@ -305,7 +305,7 @@ wawalite_data_t *wawalite_data_read(const char *filename, wawalite_data_t *profi
         // Read extra stuff for damage tile particles...
         if (ctxt.skipToColon(true))
         {
-            profile->damagetile.part_gpip = ctxt.readInt();
+            profile->damagetile.part_gpip = vfs_get_local_particle_profile_ref(ctxt);
             profile->damagetile.partand = vfs_get_next_int(ctxt);
             profile->damagetile.sound_index = vfs_get_next_int(ctxt);
         }

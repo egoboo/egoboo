@@ -429,6 +429,9 @@
     <ClCompile Include="src\egolib\Renderer\Texture.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\LocalParticleProfileRef.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -886,6 +889,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\Texture.hpp">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\LocalParticleProfileRef.hpp">
+      <Filter>Header Files\Profiles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

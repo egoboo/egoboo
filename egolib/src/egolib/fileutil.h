@@ -30,6 +30,7 @@
 #include "egolib/file_common.h"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/Logic/Gender.hpp"
+#include "egolib/Profiles/LocalParticleProfileRef.hpp"
 #include "egolib/Renderer/Renderer.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -381,12 +382,14 @@ unsigned int vfs_get_next_nat(ReadContext& ctxt);
 float vfs_get_next_float(ReadContext& ctxt);
 UFP8_T vfs_get_next_ufp8(ReadContext& ctxt);
 SFP8_T vfs_get_next_sfp8(ReadContext& ctxt);
+LocalParticleProfileRef vfs_get_next_local_particle_profile_ref(ReadContext& ctxt);
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
 int    vfs_get_version(ReadContext& ctxt);
+LocalParticleProfileRef vfs_get_local_particle_profile_ref(ReadContext& ctxt);
 DamageType vfs_get_damage_type(ReadContext& ctxt);
 DamageModifier vfs_get_damage_modifier(ReadContext& ctxt);
 float  vfs_get_damage_resist(ReadContext& ctxt);
@@ -498,9 +501,9 @@ void vfs_put_range(vfs_FILE* filewrite, const char* text, FRange value);
 void vfs_put_pair(vfs_FILE* filewrite, const char* text, IPair value);
 void vfs_put_string_under(vfs_FILE* filewrite, const char* text, const char* usename);
 void vfs_put_idsz(vfs_FILE* filewrite, const char* text, IDSZ idsz);
-void vfs_put_expansion(vfs_FILE* filewrite, const char* text, IDSZ idsz, int value);
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, int value);
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, const LocalParticleProfileRef& ref);
 void vfs_put_expansion_float(vfs_FILE* filewrite, const char* text, IDSZ idsz, float value);
 void vfs_put_expansion_string(vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * value);
 void vfs_put_range_raw(vfs_FILE* filewrite, FRange val);
-
-
+void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, const LocalParticleProfileRef& ref);
