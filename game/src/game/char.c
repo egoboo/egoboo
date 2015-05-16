@@ -72,8 +72,7 @@ struct grab_data_t
         object(nullptr),
         horizontalDistance(0.0f),
         verticalDistance(0.0f),
-        too_dark(false),
-        too_invis(false),
+        visible(true),
         isFacingObject(false)
     {
         //ctor
@@ -82,8 +81,7 @@ struct grab_data_t
     std::shared_ptr<Object> object;
     float horizontalDistance;
     float verticalDistance;
-    bool too_dark;
-    bool too_invis;
+    bool visible;
     bool isFacingObject;
 };
 
@@ -1557,8 +1555,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         }
 
         // is the object visible
-        grabData.too_dark  = !chr_can_see_dark( pchr_a.get(), pchr_c.get() );
-        grabData.too_invis = !chr_can_see_invis( pchr_a.get(), pchr_c.get() );
+        grabData.visible = pchr_a->canSeeObject(pchr_c);
 
         // calculate the distance
         grabData.horizontalDistance = (pchr_c->getPosition() - slot_pos).length();
@@ -1573,7 +1570,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         // visibility affects the max grab distance.
         // if it is not visible then we have to be touching it.
         float maxHorizontalGrabDistance = MAX_DIST_GRAB;
-        if ( grabData.too_dark || grabData.too_invis )
+        if ( !grabData.visible )
         {
             maxHorizontalGrabDistance *= 0.5f;
         }
@@ -1612,7 +1609,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         // count the number of objects that are within the max range
         // a difference between the *_total_count and the *_count
         // indicates that some objects were not detectable
-        if ( !grabData.too_invis )
+        if ( grabData.visible )
         {
             if (canGrab)
             {
@@ -1670,7 +1667,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     {
         for(const grab_data_t &grabData : grabList)
         {
-            if (grabData.too_dark || grabData.too_invis) {
+            if (!grabData.visible) {
                 continue;
             } 
 
@@ -1712,7 +1709,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             for(const grab_data_t &grabData : grabList)
             {
                 ichr_b = grabData.object->getCharacterID();
-                if ( grabData.too_dark || grabData.too_invis )
+                if (!grabData.visible)
                 {
                     // (5 secs and blue)
                     chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, bb_opt_fade );
@@ -1728,7 +1725,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             for(const grab_data_t &grabData : ungrabList)
             {
                 ichr_b = grabData.object->getCharacterID();
-                if ( grabData.too_dark || grabData.too_invis )
+                if (!grabData.visible)
                 {
                     // (5 secs and blue)
                     chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, bb_opt_fade );
@@ -1760,7 +1757,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             for(const grab_data_t &grabData : ungrabList)
             {
                 // only do visible objects
-                if ( grabData.too_dark || grabData.too_invis ) continue;
+                if (!grabData.visible) continue;
 
                 // only bump the closest character that is in front of the character
                 // (ignore vertical displacement)
@@ -7127,57 +7124,6 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
     }
 
     return item;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_can_see_invis( const Object * pchr, const Object * pobj )
-{
-    /// @author BB
-    /// @details can ichr see iobj?
-
-    int     alpha;
-
-    if ( NULL == pchr || NULL == pobj ) return false;
-
-    /// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
-    if ( pchr->invictus ) return true;
-
-    alpha = pobj->inst.alpha;
-    if ( 0 != pchr->see_invisible_level )
-    {
-        alpha = get_alpha( alpha, exp( 0.32f * ( float )pchr->see_invisible_level ) );
-    }
-    alpha = CLIP( alpha, 0, 255 );
-
-    return alpha >= INVISIBLE;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_can_see_dark( const Object * pchr, const Object * pobj )
-{
-    /// @author BB
-    /// @details can ichr see iobj?
-    int     light, self_light, enviro_light;
-
-    if ( NULL == pchr || NULL == pobj ) return false;
-
-    enviro_light = ( pobj->inst.alpha * pobj->inst.max_light ) * INV_FF;
-    self_light   = ( pobj->inst.light == 255 ) ? 0 : pobj->inst.light;
-    light        = std::max( enviro_light, self_light );
-
-    if ( 0 != pchr->darkvision_level )
-    {
-        light *= exp( 0.32f * ( float )pchr->darkvision_level );
-    }
-
-    // Scenery, spells and quest objects can always see through darkness
-    // Checking pchr->invictus is not enough, since that could be temporary
-    // and not indicate the appropriate objects
-    if (ProfileSystem::get().getProfile(pchr->profile_ref)->isInvincible()) {
-        return true;
-    }
-
-    return light >= INVISIBLE;
 }
 
 //--------------------------------------------------------------------------------------------
