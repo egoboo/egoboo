@@ -2302,7 +2302,7 @@ const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst)
     mad_t * pmad = MadStack.get_ptr( pinst->imad );
     if ( pinst->frame_nxt > pmad->md2_ptr->getFrames().size() )
     {
-        log_error( "chr_instnce_get_frame_nxt() - invalid frame %d/%lu\n", pinst->frame_nxt, pmad->md2_ptr->getFrames().size() );
+        log_error( "chr_instnce_get_frame_nxt() - invalid frame %d/%" PRIuZ "\n", pinst->frame_nxt, pmad->md2_ptr->getFrames().size() );
     }
 
     return pmad->md2_ptr->getFrames()[pinst->frame_nxt];
@@ -2314,7 +2314,7 @@ const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst)
     mad_t * pmad = MadStack.get_ptr( pinst->imad );
     if ( pinst->frame_lst > pmad->md2_ptr->getFrames().size() )
     {
-        log_error( "chr_instnce_get_frame_lst() - invalid frame %d/%lu\n", pinst->frame_lst, pmad->md2_ptr->getFrames().size() );
+        log_error( "chr_instnce_get_frame_lst() - invalid frame %d/%" PRIuZ "\n", pinst->frame_lst, pmad->md2_ptr->getFrames().size() );
     }
 
     return pmad->md2_ptr->getFrames()[pinst->frame_lst];

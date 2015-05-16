@@ -1225,3 +1225,37 @@ const std::shared_ptr<Object>& Object::getRightHandItem() const
     return _gameObjects[holdingwhich[SLOT_RIGHT]];
 }
 
+bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
+{
+    /// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
+    // Scenery, spells and quest objects can always see through darkness
+    // Checking pchr->invictus is not enough, since that could be temporary
+    // and not indicate the appropriate objects
+    if (getProfile()->isInvincible()) {
+        return true;
+    }
+
+    //Too Dark?
+    int enviro_light = ( target->inst.alpha * target->inst.max_light ) * INV_FF;
+    int self_light   = ( target->inst.light == 255 ) ? 0 : target->inst.light;
+    int light        = std::max(enviro_light, self_light);
+    if (0 != darkvision_level) {
+        light *= expf(0.32f * static_cast<float>(darkvision_level));
+    }
+    if(light >= INVISIBLE) {
+        return false;
+    }
+
+    //Too invisible?
+    int alpha = target->inst.alpha;
+    if ( 0 != see_invisible_level )
+    {
+        alpha = get_alpha(alpha, expf(0.32f * static_cast<float>(see_invisible_level)));
+    }
+    alpha = Ego::Math::constrain(alpha, 0, 255);
+    if(alpha >= INVISIBLE) {
+        return false;
+    }
+
+    return true;
+}

@@ -38,7 +38,7 @@ namespace Ego
  * @author
  *  Michael Heilmann
  */
-class VertexBuffer
+class VertexBuffer : Id::NonCopyable
 {
 
 protected:
@@ -109,6 +109,9 @@ public:
      */
     void unlock();
 
+    // Disable copy assignment operator
+    //VertexBuffer& operator=(const VertexBuffer&) = delete;
+    //VertexBuffer(const VertexBuffer &copy) = delete;
 };
 
 } // namespace Ego

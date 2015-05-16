@@ -197,8 +197,6 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size );
 
 Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
-bool    chr_can_see_dark( const Object * pchr, const Object * pobj );
-bool    chr_can_see_invis( const Object * pchr, const Object * pobj );
 int       chr_get_price( const CHR_REF ichr );
 
 bool     chr_heal_mad( Object * pchr );
@@ -402,7 +400,6 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 // character state machine functions
 Object * chr_config_do_init( Object * pchr );
 
-bool  chr_can_see_object( const Object * pchr, const Object * pobj );
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
 void drop_money( const CHR_REF character, int money );

@@ -142,8 +142,12 @@ private:
      */
     VertexFormatDescriptor(VertexFormat vertexFormat, size_t vertexSize, size_t positionSize, size_t colourSize,
                            size_t textureSize, size_t normalSize) :
-        _vertexFormat(vertexFormat), _vertexSize(vertexSize),
-        _positionSize(positionSize), _colourSize(colourSize), _textureSize(textureSize), _normalSize(normalSize)
+        _vertexFormat(vertexFormat), 
+        _vertexSize(vertexSize),
+        _positionSize(positionSize), 
+        _colourSize(colourSize), 
+        _normalSize(normalSize),
+        _textureSize(textureSize)
     {}
     
     

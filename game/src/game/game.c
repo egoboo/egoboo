@@ -405,7 +405,7 @@ void log_madused_vfs( const char *savename )
             {
                 if (!ProfileSystem::get().isValidProfileID(i))
                 {
-                    vfs_printf( hFileWrite, "%3lu  %32s.\n", i, "Slot reserved for import players" );
+                    vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i, "Slot reserved for import players" );
                 }
             }
             lastSlotNumber = profile->getSlotNumber();
@@ -936,16 +936,17 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
 
     bool is_hated, hates_me;
     bool is_friend, is_prey, is_predator, is_mutual;
-    Object * ptst;
 
     // Skip non-existing objects
     if ( !ACTIVE_PCHR( psrc ) ) return false;
 
-    if ( !_gameObjects.exists( iObjectest ) ) return false;
-    ptst = _gameObjects.get( iObjectest );
+    const std::shared_ptr<Object> &ptst = _gameObjects[iObjectest];
+    if(!ptst) {
+        return false;
+    }
 
     // Skip hidden characters
-    if ( ptst->is_hidden ) return false;
+    if ( ptst->isHidden() ) return false;
 
     // Players only?
     if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return false;
@@ -954,19 +955,19 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     if ( IS_ATTACHED_CHR( iObjectest ) ) return false;
 
     // Allow to target ourselves?
-    if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
+    if ( psrc == ptst.get() && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return false;
 
     // Don't target our holder if we are an item and being held
-    if ( psrc->isitem && psrc->attachedto == GET_INDEX_PCHR( ptst ) ) return false;
+    if ( psrc->isitem && psrc->attachedto == ptst->getCharacterID() ) return false;
 
     // Allow to target dead stuff?
-    if ( ptst->alive == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return false;
+    if ( ptst->isAlive() == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return false;
 
     // Don't target invisible stuff, unless we can actually see them
-    if ( !chr_can_see_object( psrc, ptst ) ) return false;
+    if ( !psrc->canSeeObject(ptst) ) return false;
 
     //Need specific skill? ([NONE] always passes)
-    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return false;
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst.get(), idsz ) ) return false;
 
     // Require player to have specific quest?
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
@@ -981,14 +982,14 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
         if ( quest_level < 0 ) return false;
     }
 
-    is_hated = team_hates_team( psrc->team, ptst->team );
+    is_hated = team_hates_team( psrc->team, ptst->getTeam() );
     hates_me = team_hates_team( ptst->team, psrc->team );
 
     // Target neutral items? (still target evil items, could be pets)
-    if (( ptst->isitem || ptst->invictus ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return false;
+    if (( ptst->isItem() || ptst->isInvincible() ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return false;
 
     // Only target those of proper team. Skip this part if it's a item
-    if ( !ptst->isitem )
+    if ( !ptst->isItem() )
     {
         if (( HAS_NO_BITS( targeting_bits, TARGET_ENEMIES ) && is_hated ) ) return false;
         if (( HAS_NO_BITS( targeting_bits, TARGET_FRIENDS ) && !is_hated ) ) return false;
@@ -3997,13 +3998,11 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 
     bool can_steal;
 
-    Object * pthief, * pitem;
-
     if ( !_gameObjects.exists( iitem ) ) return false;
-    pitem = _gameObjects.get( iitem );
+    std::shared_ptr<Object> pitem = _gameObjects[iitem];
 
     if ( !_gameObjects.exists( ithief ) ) return false;
-    pthief = _gameObjects.get( ithief );
+    std::shared_ptr<Object> pthief = _gameObjects[ithief];
 
     can_steal = true;
     if ( pitem->isitem )
@@ -4020,7 +4019,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
             detection = generate_irand_pair( tmp_rand );
 
             can_steal = true;
-            if ( chr_can_see_object( powner, pthief ) || detection <= 5 || ( detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 ) ) > 50 )
+            if ( powner->canSeeObject(pthief) || detection <= 5 || ( detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 ) ) > 50 )
             {
                 ai_add_order( &( powner->ai ), Passage::SHOP_STOLEN, Passage::SHOP_THEFT );
                 powner->ai.target = ithief;
@@ -4037,11 +4036,11 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 {
     bool can_grab;
     bool is_invis, can_steal;
-    Object * pchr, * pitem, *pkeeper;
+    Object * pitem, *pkeeper;
     CHR_REF shop_keeper;
 
     if ( !_gameObjects.exists( ichr ) ) return false;
-    pchr = _gameObjects.get( ichr );
+    const std::shared_ptr<Object> &pchr = _gameObjects[ichr];
 
     if ( !_gameObjects.exists( iitem ) ) return false;
     pitem = _gameObjects.get( iitem );
@@ -4056,10 +4055,10 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     {
 
         // check for a stealthy pickup
-        is_invis  = !chr_can_see_object( pkeeper, pchr );
+        is_invis  = !pkeeper->canSeeObject(pchr);
 
         // pets are automatically stealthy
-        can_steal = is_invis || pchr->isitem;
+        can_steal = is_invis || pchr->isItem();
 
         if ( can_steal )
         {
