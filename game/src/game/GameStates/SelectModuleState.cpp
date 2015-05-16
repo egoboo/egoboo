@@ -29,7 +29,6 @@
 #include "game/GUI/Image.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/ModuleSelector.hpp"
-#include "game/Profiles/_Include.hpp"
 
 SelectModuleState::SelectModuleState() : SelectModuleState( std::list<std::string>() )
 {

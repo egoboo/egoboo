@@ -17,16 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file game/Profiles/ModuleProfile.hpp
+/// @file egolib/Profiles/ModuleProfile.hpp
 /// @author Johan Jansen
 
 #pragma once
-#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
-#error(do not include directly, include `game/Profiles/_Include.hpp` instead)
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo_typedef.h"
+#include "egolib/typedef.h"
 #include "egolib/IDSZ_map.h"
+#include "egolib/Renderer/Texture.hpp"
 
 enum ModuleFilter : uint8_t
 {

@@ -23,19 +23,18 @@
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Core/GameEngine.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Profiles/_Include.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"
 #include "game/mesh_functions.h"
-#include "game/mad.h"
+#include "egolib/Graphics/mad.h"
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
 #include "game/mesh.h"
 #include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Profiles/_Include.hpp"
 
 
 //--------------------------------------------------------------------------------------------

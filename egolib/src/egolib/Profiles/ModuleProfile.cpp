@@ -17,12 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file game/Profiles/ModuleProfile.cpp
+/// @file egolib/Profiles/ModuleProfile.cpp
 /// @author Johan Jansen
 
-#define GAME_PROFILES_PRIVATE 1
-#include "game/Profiles/ModuleProfile.hpp"
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/ModuleProfile.hpp"
 
+#include "egolib/Core/StringUtilities.hpp"
 #include "egolib/FileFormats/quest_file.h"
 
 #include "egolib/log.h"

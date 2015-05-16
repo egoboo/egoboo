@@ -30,7 +30,7 @@
 #include "egolib/Image/ImageManager.hpp"
 #include "egolib/_math.h"
 // includes for egoboo constants
-#include "game/mad.h"                    // for ACTION_* constants
+#include "egolib/Graphics/mad.h"                    // for ACTION_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

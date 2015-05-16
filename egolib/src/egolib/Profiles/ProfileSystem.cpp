@@ -17,15 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file  game/Profiles/ProfileSystem.cpp
+/// @file  egolib/Profiles/ProfileSystem.cpp
 /// @brief Implementation of functions for controlling and accessing object profiles
 /// @details
 /// @author Johan Jansen
 
-#define GAME_PROFILES_PRIVATE 1
-#include "game/Profiles/ProfileSystem.hpp"
-#include "game/Profiles/ObjectProfile.hpp"
-#include "game/Profiles/ModuleProfile.hpp"
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/ProfileSystem.hpp"
+#include "egolib/Profiles/ObjectProfile.hpp"
+#include "egolib/Profiles/ModuleProfile.hpp"
 #include "game/GameStates/LoadPlayerElement.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/char.h"

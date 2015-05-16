@@ -423,16 +423,10 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\gui\Label.cpp" />
     <ClCompile Include="src\game\gui\ModuleSelector.cpp" />
     <ClCompile Include="src\game\gui\UIManager.cpp" />
-    <ClCompile Include="src\game\profiles\ModuleProfile.cpp" />
     <ClCompile Include="src\game\module\Module.cpp" />
-    <ClCompile Include="src\game\graphics\MD2Model.cpp" />
-    <ClCompile Include="src\game\profiles\ObjectProfile.cpp" />
-    <ClCompile Include="src\game\profiles\ProfileSystem.cpp" />
     <ClCompile Include="src\game\graphics\Camera.cpp" />
     <ClCompile Include="src\game\graphics\CameraSystem.cpp" />
     <ClCompile Include="src\game\module\Passage.cpp" />
-    <ClCompile Include="src\game\ai\AStar.c" />
-    <ClCompile Include="src\game\ai\WaypointList.c" />
     <ClCompile Include="src\game\bsp.c" />
     <ClCompile Include="src\game\char.c" />
     <ClCompile Include="src\game\collision.c" />
@@ -448,7 +442,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\input.c" />
     <ClCompile Include="src\game\lighting.c" />
     <ClCompile Include="src\game\link.c" />
-    <ClCompile Include="src\game\mad.c" />
     <ClCompile Include="src\game\mesh.c" />
     <ClCompile Include="src\game\mesh_BSP.c" />
     <ClCompile Include="src\game\mesh_functions.c" />
@@ -460,7 +453,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\player.c" />
     <ClCompile Include="src\game\renderer_2d.c" />
     <ClCompile Include="src\game\renderer_3d.c" />
-    <ClCompile Include="src\game\script.c" />
     <ClCompile Include="src\game\script_compile.c" />
     <ClCompile Include="src\game\script_functions.c" />
     <ClCompile Include="src\game\script_implementation.c" />
@@ -476,7 +468,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\gui\InternalDebugWindow.hpp" />
     <ClInclude Include="src\game\entities\Enchant.hpp" />
     <ClInclude Include="src\game\entities\_Include.hpp" />
-    <ClInclude Include="src\game\profiles\_Include.hpp" />
     <ClInclude Include="src\game\entities\EnchantHandler.hpp" />
     <ClInclude Include="src\game\entities\Object.hpp" />
     <ClInclude Include="src\game\entities\ObjectHandler.hpp" />
@@ -503,16 +494,10 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\gui\Label.hpp" />
     <ClInclude Include="src\game\gui\ModuleSelector.hpp" />
     <ClInclude Include="src\game\gui\UIManager.hpp" />
-    <ClInclude Include="src\game\profiles\ModuleProfile.hpp" />
     <ClInclude Include="src\game\module\Module.hpp" />
-    <ClInclude Include="src\game\graphics\MD2Model.hpp" />
-    <ClInclude Include="src\game\profiles\ObjectProfile.hpp" />
-    <ClInclude Include="src\game\profiles\ProfileSystem.hpp" />
     <ClInclude Include="src\game\graphics\Camera.hpp" />
     <ClInclude Include="src\game\graphics\CameraSystem.hpp" />
     <ClInclude Include="src\game\module\Passage.hpp" />
-    <ClInclude Include="src\game\ai\AStar.h" />
-    <ClInclude Include="src\game\ai\WaypointList.h" />
     <ClInclude Include="src\game\bsp.h" />
     <ClInclude Include="src\game\char.h" />
     <ClInclude Include="src\game\collision.h" />
@@ -543,7 +528,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\player.h" />
     <ClInclude Include="src\game\renderer_2d.h" />
     <ClInclude Include="src\game\renderer_3d.h" />
-    <ClInclude Include="src\game\script.h" />
     <ClInclude Include="src\game\script_compile.h" />
     <ClInclude Include="src\game\script_functions.h" />
     <ClInclude Include="src\game\script_implementation.h" />

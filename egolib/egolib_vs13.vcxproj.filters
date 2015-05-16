@@ -91,6 +91,12 @@
     <Filter Include="Header Files\Logic">
       <UniqueIdentifier>{33384dbb-7660-463b-b7ee-971916301412}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AI">
+      <UniqueIdentifier>{f7893a8e-b41a-4510-9869-7e08f14f7025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI">
+      <UniqueIdentifier>{906be362-c68f-41ae-8e26-41a8577c5c9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -425,6 +431,30 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Profiles\LocalParticleProfileRef.cpp">
       <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\ProfileSystem.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\ObjectProfile.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Profiles\ModuleProfile.cpp">
+      <Filter>Source Files\Profiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Script\script.c">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\MD2Model.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Graphics\mad.c">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\AI\AStar.c">
+      <Filter>Source Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\AI\WaypointList.c">
+      <Filter>Source Files\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -877,6 +907,30 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Profiles\LocalParticleProfileRef.hpp">
       <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\ModuleProfile.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\ObjectProfile.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Profiles\ProfileSystem.hpp">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Script\script.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\mad.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Graphics\MD2Model.hpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\AI\AStar.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\AI\WaypointList.h">
+      <Filter>Header Files\AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

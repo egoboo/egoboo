@@ -26,12 +26,10 @@
 #include "game/egoboo_typedef.h"
 #include "game/graphic.h"
 #include "game/graphic_mad.h"
-#include "game/script.h"
+#include "egolib/Script/script.h"
+#include "egolib/Graphics/MD2Model.hpp"
 #include "game/physics.h"
 #include "game/egoboo.h"
-
-#include "game/Graphics/MD2Model.hpp"
-#include "game/Profiles/_Include.hpp"
 #include "game/Entities/_Include.hpp"
 
 //--------------------------------------------------------------------------------------------

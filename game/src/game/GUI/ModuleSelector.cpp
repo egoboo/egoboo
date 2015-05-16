@@ -23,7 +23,6 @@
 
 #include "game/GUI/ModuleSelector.hpp"
 #include "game/GUI/Button.hpp"
-#include "game/Profiles/_Include.hpp"
 
 ModuleSelector::ModuleSelector(const std::vector<std::shared_ptr<ModuleProfile>> &modules) :
     _startIndex(0),

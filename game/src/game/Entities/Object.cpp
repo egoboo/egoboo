@@ -25,11 +25,10 @@
 #include "game/Entities/Object.hpp"
 #include "game/Module/Module.hpp"
 #include "game/Entities/ObjectHandler.hpp"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/EnchantHandler.hpp"
-#include "game/Profiles/_Include.hpp"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/char.h" //ZF> TODO: remove

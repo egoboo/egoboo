@@ -23,8 +23,7 @@
 
 #include "game/script_scanner.hpp"
 #include "game/egoboo_typedef.h"
-#include "game/script.h"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Script/script.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

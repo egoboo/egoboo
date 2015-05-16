@@ -17,16 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file  game/Profiles/ObjectProfile.cpp
+/// @file  egolib/Profiles/ObjectProfile.cpp
 /// @brief ObjectProfile handling
 /// @details
 /// @author Johan Jansen
 
-#define GAME_PROFILES_PRIVATE 1
-#include "game/Profiles/ObjectProfile.hpp"
+#define EGOLIB_PROFILES_PRIVATE 1
+#include "egolib/Profiles/ObjectProfile.hpp"
 #include "game/game.h"
 #include "game/Entities/_Include.hpp"
-#include "game/mad.h"       //for loading md2
+#include "egolib/Graphics/mad.h"       //for loading md2
 #include "egolib/Audio/AudioSystem.hpp"
 #include "egolib/FileFormats/template.h"
 #include "egolib/Math/Random.hpp"

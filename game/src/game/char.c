@@ -29,9 +29,9 @@
 #include "game/Module/Module.hpp"
 #include "game/GUI/UIManager.hpp"
 
-#include "game/mad.h"
+#include "egolib/Graphics/mad.h"
 #include "game/player.h"
-#include "game/script.h"
+#include "egolib/Script/script.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
@@ -41,7 +41,7 @@
 #include "game/obj_BSP.h"
 #include "game/egoboo.h"
 #include "game/Module/Passage.hpp"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Profiles/_Include.hpp"
 #include "game/Module/Module.hpp"
 
 #include "game/Entities/ObjectHandler.hpp"

@@ -25,14 +25,13 @@
 #include "game/graphic_mad.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "game/mad.h"
+#include "egolib/Graphics/mad.h"
 #include "game/game.h"
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/Profiles/_Include.hpp"
 #include "game/char.h"
-#include "game/Graphics/MD2Model.hpp"
+#include "egolib/Graphics/MD2Model.hpp"
 
 #include "game/Graphics/CameraSystem.hpp"
 

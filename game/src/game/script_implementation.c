@@ -27,11 +27,10 @@
 
 #include "game/script_implementation.h"
 #include "game/game.h"
-#include "game/AI/AStar.h"
+#include "egolib/AI/AStar.h"
 #include "game/renderer_2d.h"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
-#include "game/Profiles/_Include.hpp"
 #include "game/char.h"
 #include "game/Module/Module.hpp"
 #include "game/Module/Passage.hpp"

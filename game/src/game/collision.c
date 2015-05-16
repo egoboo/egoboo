@@ -30,7 +30,7 @@
 #include "game/physics.h"
 #include "egolib/Logic/Action.hpp"
 #include "game/Entities/_Include.hpp"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Profiles/_Include.hpp"
 
 CollisionSystem *CollisionSystem::_singleton = nullptr;
 

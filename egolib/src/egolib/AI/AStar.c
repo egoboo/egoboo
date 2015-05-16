@@ -17,14 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file game/AI/AStar.c
+/// @file egolib/AI/AStar.c
 /// @brief
 /// @details
 
-#include "game/AI/AStar.h"
+#include "egolib/AI/AStar.h"
 
 #include "game/renderer_3d.h" //for point debugging
-#include "game/script.h"  //for waypoint list control
+#include "egolib/Script/script.h"  //for waypoint list control
 
 #include "game/mesh.h"
 

@@ -24,18 +24,17 @@
 #include "game/Entities/Enchant.hpp"
 
 #include "egolib/Audio/AudioSystem.hpp"
+#include "egolib/Graphics/mad.h"
+#include "egolib/Profiles/_Include.hpp"
+
 #include "game/game.h"
-#include "game/script_functions.h"
+#include "game/script_implementation.h"
 #include "game/egoboo.h"
-
 #include "game/char.h"
-#include "game/mad.h"
-
-#include "game/Profiles/_Include.hpp"
-
 #include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
+#include "game/script_functions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

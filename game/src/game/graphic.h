@@ -24,7 +24,7 @@
 #include "game/egoboo_typedef.h"
 
 #include "game/mesh.h"
-#include "game/mad.h"
+#include "egolib/Graphics/mad.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
 #include "egolib/DynamicArray.hpp"

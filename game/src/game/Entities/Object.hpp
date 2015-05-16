@@ -28,8 +28,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/physics.h"
-#include "game/script.h"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Script/script.h"
 #include "game/graphic_mad.h"
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"

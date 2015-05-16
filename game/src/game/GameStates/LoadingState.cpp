@@ -24,7 +24,6 @@
 
 #include "game/GameStates/LoadingState.hpp"
 #include "game/GameStates/PlayingState.hpp"
-#include "game/Profiles/_Include.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/graphic.h"
 #include "game/GUI/Button.hpp"

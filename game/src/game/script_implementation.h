@@ -23,7 +23,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
-#include "game/AI/WaypointList.h"
+#include "egolib/AI/WaypointList.h"
 
 /// @defgroup _bitwise_functions_ Bitwise Scripting Functions
 /// @details These functions may be necessary to export the bitwise functions for handling alerts to

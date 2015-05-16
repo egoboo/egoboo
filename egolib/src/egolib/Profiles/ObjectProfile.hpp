@@ -17,23 +17,24 @@
 //*
 //********************************************************************************************
 
-/// @file game/Profiles/ObjectProfile.hpp
+/// @file egolib/Profiles/ObjectProfile.hpp
 /// @author Johan Jansen
 
 #pragma once
-#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
-#error(do not include directly, include `game/Profiles/_Include.hpp` instead)
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
 #endif
 
-#include "game/script.h"     //for script_info_t
-#include "game/mad.h"
+#include "egolib/Script/script.h"
+#include "egolib/Graphics/mad.h"
 #include "egolib/Profiles/_Include.hpp"
-#include "game/egoboo_typedef.h"
+#include "egolib/Logic/Gender.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //Forward declarations
 typedef int SoundID;
+class Object;
 
 
 //--------------------------------------------------------------------------------------------

@@ -23,7 +23,6 @@
 
 #include "game/GameStates/DebugModuleLoadingState.hpp"
 #include "game/GameStates/PlayingState.hpp"
-#include "game/Profiles/_Include.hpp"
 #include "game/GameStates/LoadPlayerElement.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "egolib/egoboo_setup.h"

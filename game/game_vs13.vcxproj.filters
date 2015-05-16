@@ -21,12 +21,6 @@
     <Filter Include="Game Header Files\Graphics">
       <UniqueIdentifier>{7af9834c-1fa2-416f-8bce-52ab1a6b566a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game Sources\AI">
-      <UniqueIdentifier>{181e006f-51cd-4162-90a8-8cb0c89cd51f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game Header Files\AI">
-      <UniqueIdentifier>{7be3487a-b5a6-4722-8fca-4c2d47ebbb4e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Header Files\Audio">
       <UniqueIdentifier>{77452109-c555-43f5-83ea-a0791849bbd8}</UniqueIdentifier>
     </Filter>
@@ -38,12 +32,6 @@
     </Filter>
     <Filter Include="Game Header Files\Module">
       <UniqueIdentifier>{1accc5db-f411-4529-9de2-32673d2f5e0b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game Header Files\Profile">
-      <UniqueIdentifier>{3440c846-e122-4fea-99e5-9d94f9339c2e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game Sources\Profile">
-      <UniqueIdentifier>{e50c923b-71df-411d-a997-f995da596bca}</UniqueIdentifier>
     </Filter>
     <Filter Include="Game Header Files\Core">
       <UniqueIdentifier>{a19b3252-84ca-43ba-b1c8-b262bec61f9f}</UniqueIdentifier>
@@ -125,9 +113,6 @@
     <ClCompile Include="src\game\link.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\mad.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\mesh.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -161,9 +146,6 @@
     <ClCompile Include="src\game\renderer_3d.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\script.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\script_compile.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -182,17 +164,8 @@
     <ClCompile Include="src\game\graphics\CameraSystem.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\ai\AStar.c">
-      <Filter>Game Sources\AI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\ai\WaypointList.c">
-      <Filter>Game Sources\AI</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\module\Passage.cpp">
       <Filter>Game Sources\Module</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\graphics\MD2Model.cpp">
-      <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\game\module\Module.cpp">
       <Filter>Game Sources\Module</Filter>
@@ -257,9 +230,6 @@
     <ClCompile Include="src\game\gui\Button.cpp">
       <Filter>Game Sources\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\profiles\ModuleProfile.cpp">
-      <Filter>Game Sources\Profile</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\entities\Enchant.cpp">
       <Filter>Game Sources\Entities</Filter>
     </ClCompile>
@@ -277,12 +247,6 @@
     </ClCompile>
     <ClCompile Include="src\game\entities\Object.cpp">
       <Filter>Game Sources\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\profiles\ObjectProfile.cpp">
-      <Filter>Game Sources\Profile</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\profiles\ProfileSystem.cpp">
-      <Filter>Game Sources\Profile</Filter>
     </ClCompile>
     <ClCompile Include="src\game\gui\InternalDebugWindow.cpp">
       <Filter>Game Sources\GUI</Filter>
@@ -397,9 +361,6 @@
     <ClInclude Include="src\game\renderer_3d.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\script.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\script_compile.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -418,20 +379,8 @@
     <ClInclude Include="src\game\graphics\CameraSystem.hpp">
       <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\ai\AStar.h">
-      <Filter>Game Header Files\AI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\ai\WaypointList.h">
-      <Filter>Game Header Files\AI</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\module\Passage.hpp">
       <Filter>Game Header Files\Module</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\ProfileSystem.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\graphics\MD2Model.hpp">
-      <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\game\module\Module.hpp">
       <Filter>Game Header Files\Module</Filter>
@@ -496,9 +445,6 @@
     <ClInclude Include="src\game\gui\UIManager.hpp">
       <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\profiles\ModuleProfile.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\LockableList.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -522,12 +468,6 @@
     </ClInclude>
     <ClInclude Include="src\game\entities\Object.hpp">
       <Filter>Game Header Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\_Include.hpp">
-      <Filter>Game Header Files\Profile</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\profiles\ObjectProfile.hpp">
-      <Filter>Game Header Files\Profile</Filter>
     </ClInclude>
     <ClInclude Include="src\game\gui\InternalDebugWindow.hpp">
       <Filter>Game Header Files\GUI</Filter>

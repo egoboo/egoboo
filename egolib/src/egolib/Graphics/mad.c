@@ -17,15 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file  game/mad.c
+/// @file  egolib/Graphics/mad.c
 /// @brief The files for handling Egoboo's internal model definitions.
 /// @details
 
-#include "game/mad.h"
-#include "game/graphic.h"
-#include "game/script_compile.h"
-#include "game/Graphics/MD2Model.hpp"
-#include "game/Entities/_Include.hpp"
+#include "egolib/Graphics/mad.h"
+#include "egolib/Graphics/MD2Model.hpp"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/Core/StringUtilities.hpp"
+#include "egolib/Core/StringUtilities.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

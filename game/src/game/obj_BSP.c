@@ -25,7 +25,6 @@
 
 #include "game/mesh_BSP.h"
 #include "egolib/bsp.h"
-#include "game/Profiles/_Include.hpp"
 #include "game/Entities/_Include.hpp"
 
 obj_BSP_t::Parameters::Parameters(size_t dim, const mesh_BSP_t *meshBSP)

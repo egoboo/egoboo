@@ -25,7 +25,7 @@
 #pragma once
 
 #include "game/GameStates/GameState.hpp"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Profiles/_Include.hpp"
 
 //Forward declarations
 class Image;

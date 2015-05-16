@@ -22,7 +22,7 @@
 #include "egolib/egolib.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/GameStates/MainMenuState.hpp"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Profiles/_Include.hpp"
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"

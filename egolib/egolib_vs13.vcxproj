@@ -276,6 +276,14 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\AI\AStar.c" />
+    <ClCompile Include="src\egolib\AI\WaypointList.c" />
+    <ClCompile Include="src\egolib\Graphics\mad.c" />
+    <ClCompile Include="src\egolib\Graphics\MD2Model.cpp" />
+    <ClCompile Include="src\egolib\Profiles\ModuleProfile.cpp" />
+    <ClCompile Include="src\egolib\Profiles\ObjectProfile.cpp" />
+    <ClCompile Include="src\egolib\Profiles\ProfileSystem.cpp" />
+    <ClCompile Include="src\egolib\Script\script.c" />
     <ClCompile Include="src\egolib\Profiles\LocalParticleProfileRef.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\AccumulationBuffer.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\ColourBuffer.cpp" />
@@ -490,6 +498,14 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\AI\AStar.h" />
+    <ClInclude Include="src\egolib\AI\WaypointList.h" />
+    <ClInclude Include="src\egolib\Graphics\mad.h" />
+    <ClInclude Include="src\egolib\Graphics\MD2Model.hpp" />
+    <ClInclude Include="src\egolib\Profiles\ModuleProfile.hpp" />
+    <ClInclude Include="src\egolib\Profiles\ObjectProfile.hpp" />
+    <ClInclude Include="src\egolib\Profiles\ProfileSystem.hpp" />
+    <ClInclude Include="src\egolib\Script\script.h" />
     <ClInclude Include="src\egolib\Profiles\LocalParticleProfileRef.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\AccumulationBuffer.hpp" />
     <ClInclude Include="src\egolib\Renderer\OpenGL\ColourBuffer.hpp" />

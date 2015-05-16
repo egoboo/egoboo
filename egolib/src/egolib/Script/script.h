@@ -17,12 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file game/script.h
+/// @file egolib/Script/script.h
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
-#include "game/script_implementation.h"
+#include "egolib/typedef.h"
+#include "egolib/Logic/Damage.hpp"
+#include "egolib/clock.h"
+#include "egolib/AI/WaypointList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

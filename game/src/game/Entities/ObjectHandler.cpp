@@ -20,7 +20,7 @@
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/char.h"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Profiles/_Include.hpp"
 
 CHR_REF GET_INDEX_PCHR(const Object *pobj)
 {

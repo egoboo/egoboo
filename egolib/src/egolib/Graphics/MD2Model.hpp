@@ -16,13 +16,13 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file game/Graphics/MD2Model.hpp
+/// @file egolib/Graphics/MD2Model.hpp
 /// @author Johan Jansen
 /// @brief Logic for loading and parsing MD2 object model files
 #pragma once
 
-#include "game/physics.h"
-#include "game/egoboo_typedef.h"
+#include "egolib/FileFormats/id_md2.h"
+#include "egolib/bbox.h"
 
 static CONSTEXPR size_t EGO_NORMAL_COUNT = MD2_MAX_NORMALS + 1;
 

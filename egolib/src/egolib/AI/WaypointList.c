@@ -17,10 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file game/AI/WaypointList.c
+/// @file egolib/AI/WaypointList.c
 /// @brief implementation of waypoint lists
 
-#include "game/AI/WaypointList.h"
+#include "egolib/AI/WaypointList.h"
+#include "egolib/Math/_Include.hpp"
 
 bool waypoint_list_peek(waypoint_list_t *plst, waypoint_t wp)
 {

@@ -22,7 +22,7 @@
 /// @author Johan Jansen
 
 #include "game/GameStates/LoadPlayerElement.hpp"
-#include "game/Profiles/_Include.hpp"
+#include "egolib/Profiles/_Include.hpp"
 
 LoadPlayerElement::LoadPlayerElement(std::shared_ptr<ObjectProfile> profile) :
     _name("*NONE*"),

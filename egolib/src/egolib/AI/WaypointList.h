@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file game/AI/WaypointList.h
+/// @file egolib/AI/WaypointList.h
 /// @brief implementation of waypoint lists
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "egolib/typedef.h"
 
 /// The maximum number of waypoints in a waypoint list.
 #define MAXWAY 8

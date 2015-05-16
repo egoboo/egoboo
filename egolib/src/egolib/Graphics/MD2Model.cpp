@@ -16,11 +16,11 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file game/Graphics/MD2Model.cpp
+/// @file egolib/Graphics/MD2Model.cpp
 /// @author Johan Jansen
 /// @brief Logic for loading and parsing MD2 object model files
 
-#include "game/Graphics/MD2Model.hpp"
+#include "egolib/Graphics/MD2Model.hpp"
 #include "egolib/_math.h"
 #include "egolib/bbox.h"
 

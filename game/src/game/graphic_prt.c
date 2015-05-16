@@ -30,7 +30,6 @@
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/char.h"
-#include "game/Profiles/_Include.hpp"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Entities/_Include.hpp"
 

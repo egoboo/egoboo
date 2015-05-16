@@ -30,7 +30,6 @@
 #include "game/mesh.h"
 #include "game/char.h"
 #include "game/Entities/_Include.hpp"
-#include "game/Profiles/_Include.hpp"
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),

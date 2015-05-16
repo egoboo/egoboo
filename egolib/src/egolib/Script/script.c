@@ -17,18 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file  game/script.c
+/// @file  egolib/Script/script.c
 /// @brief Implements the game's scripting language.
 /// @details
 
-#include "game/script.h"
+#include "egolib/Script/script.h"
 #include "game/script_compile.h"
+#include "game/script_implementation.h"
 #include "game/script_functions.h"
-#include "game/mad.h"
+#include "egolib/Graphics/mad.h"
+#include "egolib/AI/AStar.h"
 #include "game/game.h"
 #include "game/network.h"
 #include "game/player.h"
-#include "game/Profiles/_Include.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/char.h"
 #include "game/Core/GameEngine.hpp"

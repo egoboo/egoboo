@@ -16,19 +16,21 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-/// @file game/Profiles/ProfileSystem.hpp
+/// @file egolib/Profiles/ProfileSystem.hpp
 /// @author Johan Jansen
 
 #pragma once
-#if !defined(GAME_PROFILES_PRIVATE) || GAME_PROFILES_PRIVATE != 1
-#error(do not include directly, include `game/Profiles/_Include.hpp` instead)
+#if !defined(EGOLIB_PROFILES_PRIVATE) || EGOLIB_PROFILES_PRIVATE != 1
+#error(do not include directly, include `egolib/Profiles/_Include.hpp` instead)
 #endif
 
-#include "game/egoboo_typedef.h"
+#include "egolib/typedef.h"
 
 //Forward declarations
 class ObjectProfile;
 class ModuleProfile;
+struct pip_t;
+struct eve_t;
 class LoadPlayerElement;
 struct mad_t;
 
