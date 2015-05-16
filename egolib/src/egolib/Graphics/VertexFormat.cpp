@@ -68,7 +68,7 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFor
         break;
         default:
         {
-            throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__, "Unhandled switch case");
+            throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
         }
     };
 }
