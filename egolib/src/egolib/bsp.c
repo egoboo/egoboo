@@ -20,7 +20,7 @@
 /// @file egolib/bsp.c
 /// @brief
 /// @details
-#include <stdio.h>
+
 #include "egolib/bsp.h"
 
 #include "egolib/log.h"
