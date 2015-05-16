@@ -65,6 +65,10 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFor
             return get<VertexFormat::P3FC4FT2FN3F>();
         }
         break;
+        default:
+        {
+            throw Ego::Core::Exception(__FILE__, __LINE__, "Unhandled switch case");
+        }
     };
 }
 
