@@ -1225,3 +1225,10 @@ const std::shared_ptr<Object>& Object::getRightHandItem() const
     return _gameObjects[holdingwhich[SLOT_RIGHT]];
 }
 
+bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
+{
+    bool tooDark  = !chr_can_see_dark( this, target.get() );
+    bool tooInvisible = !chr_can_see_invis( this, target.get() );
+
+    return !tooDark && !tooInvisible;
+}

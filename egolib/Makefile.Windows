@@ -35,7 +35,8 @@ INCLUDES := -I./src -I../game/src -I../idlib/src
 INCLUDES += -I../../enet-1.3.12/include
 INCLUDES += -I../../physfs-2.0.3/
 
-CPP_FLAGS  := $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -O0 -D_CONSOLE -Wall -Wno-sign-compare -Wno-format
+CPP_FLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_CONSOLE -Wall -Wno-sign-compare -Wno-format -Wno-reorder
+#-Weffc++
 
 #Debug options
 CPP_FLAGS += -ggdb -fdiagnostics-color=always -pg

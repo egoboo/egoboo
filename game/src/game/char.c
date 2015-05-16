@@ -7181,25 +7181,6 @@ bool chr_can_see_dark( const Object * pchr, const Object * pobj )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_can_see_object( const Object * pchr, const Object * pobj )
-{
-    /// @author BB
-    /// @details can ichr see iobj?
-
-    bool too_dark, too_invis;
-
-    if ( !INGAME_PCHR( pchr ) || !INGAME_PCHR( pobj ) )
-    {
-        return false;
-    }
-
-    too_dark  = !chr_can_see_dark( pchr, pobj );
-    too_invis = !chr_can_see_invis( pchr, pobj );
-
-    return !too_dark && !too_invis;
-}
-
-//--------------------------------------------------------------------------------------------
 int chr_get_price( const CHR_REF ichr )
 {
     /// @author BB
