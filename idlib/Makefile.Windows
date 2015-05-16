@@ -1,23 +1,14 @@
 # Do not run this file. Run the Makefile in the parent directory, instead
 
-EGOLIB_TARGET := libegoboo.a
+IDLIB_TARGET := libid.a
 
 #---------------------
 # the source files
-SOURCES := $(wildcard ./src/egolib/*.c)  $(wildcard ./src/egolib/*/*.c) $(wildcard ./src/egolib/*/*/*.c)
-SOURCES += $(wildcard ./src/egolib/*.cpp) $(wildcard ./src/egolib/*/*.cpp) $(wildcard ./src/egolib/*/*/*.cpp)
-
-#Exclude these files
-SOURCES := $(filter-out ./src/egolib/bsp_leaf.c, $(SOURCES))
-SOURCES := $(filter-out ./src/egolib/platform/sys_linux.c, $(SOURCES))
-SOURCES := $(filter-out ./src/egolib/platform/file_linux.c, $(SOURCES))
-SOURCES := $(filter-out ./src/egolib/Lua/lua_console.c, $(SOURCES))
-
+SOURCES := $(wildcard ./src/IdLib/*.cpp)
 
 #-------------------
 # object output
-OBJECTS := $(SOURCES:.c=.o)
-OBJECTS += $(SOURCES:.cpp=.o)
+OBJECTS := $(SOURCES:.cpp=.o)
 
 #---------------------
 # the SDL configuration
@@ -30,7 +21,7 @@ SDLCONF_C := $(shell ${SDL_CONF} --cflags)
 
 CC	:= g++
 
-INCLUDES := -I./src -I../game/src -I../idlib/src
+INCLUDES := -I./src -I../game/src -I../egolib/src
 
 INCLUDES += -I../../enet-1.3.12/include
 INCLUDES += -I../../physfs-2.0.3/
@@ -50,7 +41,7 @@ CPP_FLAGS += -ggdb -fdiagnostics-color=always -pg
 
 .PHONY: all clean
 
-all: $(EGOLIB_TARGET)
+all: $(IDLIB_TARGET)
 
 # Generic rule
 %.o: %.c
@@ -58,8 +49,8 @@ all: $(EGOLIB_TARGET)
 %.o: %.cpp
 	$(CC) $(CPP_FLAGS) -c $< -o $@
 
-$(EGOLIB_TARGET): $(OBJECTS)
-	ar rcsv $(EGOLIB_TARGET) $(OBJECTS)
+$(IDLIB_TARGET): $(OBJECTS)
+	ar rcsv $(IDLIB_TARGET) $(OBJECTS)
 
 clean:
-	rm -f $(EGOLIB_TARGET) ./src/egolib/*.o ./src/egolib/*/*.o ./src/egolib/*/*/*.o
+	rm -f $(IDLIB_TARGET) ./src/IdLib/*.o
