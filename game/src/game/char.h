@@ -335,7 +335,6 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 // character state machine functions
 Object * chr_config_do_init( Object * pchr );
 
-bool  chr_can_see_object( const Object * pchr, const Object * pobj );
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
 void drop_money( const CHR_REF character, int money );

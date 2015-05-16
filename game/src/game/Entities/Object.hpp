@@ -331,6 +331,8 @@ public:
 
     bool isNameKnown() const {return nameknown;}
 
+    bool isInvincible() const {return invictus;}
+
     /**
     * @brief
     *   Tries to teleport this Object to the specified location if it is valid
@@ -378,6 +380,12 @@ public:
     *   Any Object held in the RIGHT grip of this Object (or nullptr if no item is held)
     **/
     const std::shared_ptr<Object>& getRightHandItem() const;
+
+    /**
+    * @return
+    *   true if this Object has line of sight and can see the specified Object
+    **/
+    bool canSeeObject(const std::shared_ptr<Object> &target) const;
 
 private:
 
