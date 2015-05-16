@@ -20,6 +20,7 @@
 #include "egolib/Core/System.hpp"
 #include "egolib/Core/EnvironmentError.hpp"
 #include "egolib/system.h"
+#include "egolib/egoboo_setup.h"
 
 namespace Ego
 {

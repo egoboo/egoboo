@@ -20,8 +20,6 @@
 #pragma once
 
 #include "egolib/platform.h"
-#include "egolib/Extensions/ogl_extensions.h"
-#include "egolib/Extensions/SDL_extensions.h"
 
 namespace Ego
 {

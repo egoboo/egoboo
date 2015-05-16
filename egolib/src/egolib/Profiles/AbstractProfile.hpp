@@ -92,10 +92,10 @@ struct ContinuousSpawnDescriptor : public SpawnDescriptor
         _delay(0)
     {
     }
-    /// @todo Rename to init.
-    void init()
+
+    void reset()
     {
-        this->SpawnDescriptor::init();
+        this->SpawnDescriptor::reset();
         _delay = 0;
     }
 };

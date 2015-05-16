@@ -60,19 +60,19 @@ namespace Ego
 		enum State
 		{
             /// The entity is in its invalid state i.e. its memory is not initialized.
-			Invalid = ego_state_invalid,
+			Invalid = 0,
             /// The entity is being constructed.
-			Constructing = ego_state_begin,
+			Constructing,
             /// The entity is being initialized/re-initialized.
-			Initializing = ego_state_entering,
+			Initializing,
             /// The entity is active.
             /// The successor to this state is the "deinitializing" state.
-			Active = ego_state_running,
+			Active,
             /// The "deinitializing" state: The entity is being de-initialized.
             /// Successor to this state is the "destructing" state.
-            DeInitializing = ego_state_leaving,
+            DeInitializing,
             /// The entity is being destructed.
-			Destructing = ego_state_finish,
+			Destructing,
 
 			/// The entity was destructed is awaiting "deletion".
 			Waiting,

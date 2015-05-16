@@ -147,12 +147,6 @@
     <ClCompile Include="src\egolib\network.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\network_file.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\process.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\scancode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -455,19 +449,10 @@
     <ClInclude Include="src\egolib\strutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\state_machine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\scancode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\process.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\platform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\network_file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\network.h">

@@ -1991,7 +1991,6 @@ void main_end( void )
 int SDL_main( int argcnt, char* argtext[] )
 {
     char modulename[100];
-    STRING fname;
 
     // register the function to be called to deinitialize the program
     atexit( main_end );
