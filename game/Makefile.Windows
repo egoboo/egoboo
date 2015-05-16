@@ -36,7 +36,7 @@ SDLCONF_C := $(shell sdl-config --cflags)
 
 #---------------------
 # the compiler options
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D__USE_MINGW_ANSI_STDIO=1 -Wall -fno-builtin -Wfatal-errors -Werror -static-libstdc++ -pg
+CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -Wall -fno-builtin -Wfatal-errors -Werror -static-libstdc++ -pg
 #-Wextra -Weffc++
 
 #hush some warnings we dont care about

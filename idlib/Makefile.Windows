@@ -26,7 +26,7 @@ INCLUDES := -I./src -I../game/src -I../egolib/src
 INCLUDES += -I../../enet-1.3.12/include
 INCLUDES += -I../../physfs-2.0.3/
 
-CPP_FLAGS  := $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -O0 -D_CONSOLE -D__USE_MINGW_ANSI_STDIO=1 -Wall -Werror -Wfatal-errors
+CPP_FLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -O0 -D_CONSOLE -Wall -Werror -Wfatal-errors
 
 #Disable specific warnings
 CPP_FLAGS += -Wno-sign-compare -Wno-reorder
