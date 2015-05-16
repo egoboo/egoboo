@@ -70,8 +70,7 @@ Uint8     mesh_tx_size   = 0xFF;
 
 static void warnNumberOfVertices(const char *file, int line, size_t numberOfVertices)
 {
-    log_warning("%s:%d: mesh has too many vertices - %" PRIuZ " requested, but maximum is %" PRIuZ "\n", \
-        file, line, numberOfVertices, MAP_VERTICES_MAX);
+    log_warning("%s:%d: mesh has too many vertices - %" PRIuZ " requested, but maximum is %d\n", file, line, numberOfVertices, MAP_VERTICES_MAX);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -870,7 +869,7 @@ void ego_mesh_make_vrtstart( ego_mesh_t * pmesh )
 
     if ( vert != pinfo->vertcount )
     {
-        log_warning( "ego_mesh_make_vrtstart() - unexpected number of vertices %d of %d\n", vert, pinfo->vertcount );
+        log_warning( "ego_mesh_make_vrtstart() - unexpected number of vertices %" PRIuZ " of %" PRIuZ "\n", vert, pinfo->vertcount );
     }
 }
 

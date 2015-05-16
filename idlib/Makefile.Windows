@@ -18,23 +18,20 @@ SDLCONF_C := $(shell ${SDL_CONF} --cflags)
 
 #---------------------
 # the compiler options
-
-CC	:= g++
-
 INCLUDES := -I./src -I../game/src -I../egolib/src
 
 INCLUDES += -I../../enet-1.3.12/include
 INCLUDES += -I../../physfs-2.0.3/
 
-CPP_FLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -O0 -D_CONSOLE -Wall -Werror -Wfatal-errors
+CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -O0 -D_CONSOLE -Wall -Werror -Wfatal-errors
 
 #Disable specific warnings
-CPP_FLAGS += -Wno-sign-compare -Wno-reorder
+CXXFLAGS += -Wno-sign-compare -Wno-reorder
 
 #Debug options
-CPP_FLAGS += -ggdb -fdiagnostics-color=always -pg
-#CPP_FLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
-#CPP_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
+CXXFLAGS += -ggdb -fdiagnostics-color=always -pg
+#CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
+#CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 
 #Release
 #-D_NDEBUG 
@@ -48,9 +45,9 @@ all: $(IDLIB_TARGET)
 
 # Generic rule
 %.o: %.c
-	$(CC) $(CPP_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 %.o: %.cpp
-	$(CC) $(CPP_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(IDLIB_TARGET): $(OBJECTS)
 	ar rcsv $(IDLIB_TARGET) $(OBJECTS)

@@ -32,13 +32,13 @@ obj_BSP_t::Parameters::Parameters(size_t dim, const mesh_BSP_t *meshBSP)
 {
 	if (dim < ALLOWED_DIM_MIN)
 	{
-		log_error("%s:%d: specified dimensionality %zu is smaller than allowed minimum dimensionality %zu\n", \
+		log_error("%s:%d: specified dimensionality %" PRIuZ " is smaller than allowed minimum dimensionality %" PRIuZ "\n", \
 			      __FILE__, __LINE__, dim, obj_BSP_t::Parameters::ALLOWED_DIM_MIN);
 		throw std::domain_error("dimensionality out of range");
 	}
 	else if (dim > ALLOWED_DIM_MAX)
 	{
-		log_error("%s:%d: specified dimensionality %zu is greater than allowed maximum dimensionality %zu\n", \
+		log_error("%s:%d: specified dimensionality %" PRIuZ " is greater than allowed maximum dimensionality %" PRIuZ "\n", \
 			      __FILE__, __LINE__, dim, BSP_tree_t::Parameters::ALLOWED_DIM_MAX);
 		throw std::domain_error("dimensionality out of range");
 	}

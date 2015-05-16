@@ -405,7 +405,7 @@ void log_madused_vfs( const char *savename )
             {
                 if (!ProfileSystem::get().isValidProfileID(i))
                 {
-                    vfs_printf( hFileWrite, "%3lu  %32s.\n", i, "Slot reserved for import players" );
+                    vfs_printf( hFileWrite, "%3" PRIuZ " %32s.\n", i, "Slot reserved for import players" );
                 }
             }
             lastSlotNumber = profile->getSlotNumber();
