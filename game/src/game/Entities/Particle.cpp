@@ -157,7 +157,7 @@ prt_t *prt_t::config_do_ctor()
     // some data that needs to be copied from the particle profile
     this->endspawn_amount = 0;         ///< The number of particles to be spawned at the end
     this->endspawn_facingadd = 0;      ///< The angular spacing for the end spawn
-    this->endspawn_lpip = 0;           ///< The actual local pip that will be spawned at the end
+    this->endspawn_lpip = LocalParticleProfileRef::Invalid; ///< The actual local pip that will be spawned at the end
     this->endspawn_characterstate = 0; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
     this->dynalight.reset();
@@ -1818,7 +1818,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                         }
 
                         bs_part = ParticleHandler::get().spawn_one_particle(pchr->getPosition(), pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn._lpip,
-                            character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
+                                                                            character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character);
 
                         if (DEFINED_PRT(bs_part))
                         {
@@ -1835,8 +1835,8 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 //    {
                 //        int irand = Random::next(std::numeric_limits<uint16_t>::max());
 
-                //        bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
-                //                            character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );
+                //        bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip.get(),
+                //                                      character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );
 
                 //        if( DEFINED_PRT(bs_part) )
                 //        {
@@ -2186,7 +2186,7 @@ int prt_bundle_t::do_contspawn()
     prt_t *loc_pprt = this->prt_ptr;
     pip_t *loc_ppip = this->pip_ptr;
 
-    if (loc_ppip->contspawn._amount <= 0 || -1 == loc_ppip->contspawn._lpip)
+    if (loc_ppip->contspawn._amount <= 0 || LocalParticleProfileRef::Invalid == loc_ppip->contspawn._lpip)
     {
         return spawn_count;
     }
@@ -2256,7 +2256,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
     else if (inwater)
     {
         bool  spawn_valid = false;
-        int     global_pip_index = -1;
+        LocalParticleProfileRef global_pip_index;
         fvec3_t vtmp = fvec3_t(this->prt_ptr->pos[kX], this->prt_ptr->pos[kY], water.surface_level);
 
         if (INVALID_CHR_REF == this->prt_ptr->owner_ref && (PIP_SPLASH == this->prt_ptr->pip_ref || PIP_RIPPLE == this->prt_ptr->pip_ref))
@@ -2270,11 +2270,11 @@ prt_bundle_t *prt_bundle_t::update_do_water()
             {
                 if (SPRITE_SOLID == this->prt_ptr->type)
                 {
-                    global_pip_index = PIP_SPLASH;
+                    global_pip_index = LocalParticleProfileRef(PIP_SPLASH);
                 }
                 else
                 {
-                    global_pip_index = PIP_RIPPLE;
+                    global_pip_index = LocalParticleProfileRef(PIP_RIPPLE);
                 }
                 spawn_valid = true;
             }
@@ -2290,7 +2290,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
                         {
 
                             spawn_valid = true;
-                            global_pip_index = PIP_RIPPLE;
+                            global_pip_index = LocalParticleProfileRef(PIP_RIPPLE);
                         }
                     }
                 }
@@ -2672,7 +2672,7 @@ int prt_do_end_spawn(const PRT_REF iprt)
     prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
     // Spawn new particles if time for old one is up
-    if (pprt->endspawn_amount > 0 && ProfileSystem::get().isValidProfileID(pprt->profile_ref) && pprt->endspawn_lpip > -1)
+    if (pprt->endspawn_amount > 0 && ProfileSystem::get().isValidProfileID(pprt->profile_ref) && LocalParticleProfileRef::Invalid != pprt->endspawn_lpip)
     {
         FACING_T facing = pprt->facing;
         for (Uint8 tnc = 0; tnc < pprt->endspawn_amount; tnc++)

@@ -749,7 +749,7 @@ bool Object::teleport(const fvec3_t& position, const FACING_T facing_z)
 
     //Cannot teleport inside a wall
     fvec2_t nrm;
-    if ( !chr_hit_wall(this, newPosition, nrm, NULL, NULL) )
+    if ( !Object_hit_wall(this, newPosition, nrm, NULL, NULL) )
     {
         // Yeah!  It worked!
 
@@ -792,7 +792,7 @@ void Object::update()
         if ( !enviro.inwater )
         {
             // Splash
-            ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, PIP_SPLASH, 0);
+            ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( water.is_water )
             {
@@ -832,7 +832,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getCharacterID()) & ripand ))
                     {
-                        ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, PIP_RIPPLE, 0);
+                        ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }
@@ -937,7 +937,7 @@ void Object::updateResize()
         {
             bump.size += bump_increase;
 
-            if ( EMPTY_BIT_FIELD != Objectest_wall(this, NULL ) )
+            if ( EMPTY_BIT_FIELD != Object_test_wall(this, NULL ) )
             {
                 willgetcaught = true;
             }
@@ -1096,7 +1096,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Make sure it's not dropped in a wall...
-    if (EMPTY_BIT_FIELD != Objectest_wall(this, NULL))
+    if (EMPTY_BIT_FIELD != Object_test_wall(this, NULL))
     {
         fvec3_t pos_tmp = pholder->getPosition();
         pos_tmp[kZ] = getPosZ();

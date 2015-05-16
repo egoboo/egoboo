@@ -68,18 +68,21 @@ public:
 /// This structure describes aspects of this spawning process.
 struct SpawnDescriptor
 {
-    Uint8 _amount;     ///< Spawn amount
-    Uint16 _facingAdd; ///< Spawn in circle
-    int _lpip;         ///< Spawn type ( local )
+    Uint8 _amount;                 ///< Spawn amount
+    
+    Uint16 _facingAdd;             ///< Spawn in circle
+    
+    LocalParticleProfileRef _lpip; ///< Spawn type ( local )
+    
     SpawnDescriptor() :
-        _amount(0), _facingAdd(0), _lpip(-1)
+        _amount(0), _facingAdd(0), _lpip()
     {}
     
     void reset()
     {
         _amount = 0;
         _facingAdd = 0;
-        _lpip = -1;
+        _lpip = LocalParticleProfileRef::Invalid;
     }
 };
 

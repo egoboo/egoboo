@@ -443,7 +443,7 @@ PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, c
     return iprt;
 }
 
-PRT_REF ParticleHandler::spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+PRT_REF ParticleHandler::spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget)
 {
@@ -452,18 +452,18 @@ PRT_REF ParticleHandler::spawn_one_particle(const fvec3_t& pos, FACING_T facing,
     if (!ProfileSystem::get().isValidProfileID(iprofile))
     {
         // check for a global pip
-        ipip = ((pip_index < 0) || (pip_index > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index);
+        ipip = ((pip_index.get() < 0) || (pip_index.get() > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index.get());
     }
     else
     {
         //Local character pip
-        ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index);
+        ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index.get());
     }
     return spawnOneParticle(pos, facing, iprofile, ipip, chr_attach, vrt_offset, team, chr_origin, prt_origin,
                             multispawn, oldtarget);
 }
 
-PRT_REF ParticleHandler::spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, int pip_index, int multispawn)
+PRT_REF ParticleHandler::spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, const LocalParticleProfileRef& pip_index, int multispawn)
 {
     return spawn_one_particle(pos, facing, INVALID_PRO_REF, pip_index, INVALID_CHR_REF, GRIP_LAST,
                               (TEAM_REF)TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF);

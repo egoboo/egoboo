@@ -179,7 +179,9 @@ bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const cha
         vfs_put_expansion(filewrite, "", MAKE_IDSZ('A', 'M', 'O', 'U'), profile->contspawn._amount);
     }
 
-    if (profile->contspawn._lpip > 0)
+    /// @warning The original test was profile->contspawn._lpip > 0 but this is an error.
+    /// Question is which parts of this program rely on this error again.
+    if (LocalParticleProfileRef::Invalid != profile->contspawn._lpip)
     {
         vfs_put_expansion(filewrite, "", MAKE_IDSZ('T', 'Y', 'P', 'E'), profile->contspawn._lpip);
     }

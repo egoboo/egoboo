@@ -696,26 +696,23 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD chr_hit_wall(Object *chr, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
-/// @brief This function returns nonzero if the character hit a wall that the
-///        character is not allowed to cross.
-{
-    if (!chr)
-    {
-        return 0;
-    }
-    return chr_hit_wall(chr, chr->getPosition(), nrm, pressure, data);
-}
 
-BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, fvec2_t& nrm, float * pressure, mesh_wall_data_t *data)
-/// @brief This function returns nonzero if the character hit a wall that the
-///        character is not allowed to cross.
+BIT_FIELD Object_hit_wall(Object *obj, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
 {
-    if (!chr)
+    if (!obj)
     {
         return EMPTY_BIT_FIELD;
     }
-    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
+    return Object_hit_wall(obj, obj->getPosition(), nrm, pressure, data);
+}
+
+BIT_FIELD Object_hit_wall(Object *obj, const fvec3_t& pos, fvec2_t& nrm, float * pressure, mesh_wall_data_t *data)
+{
+    if (!obj)
+    {
+        return EMPTY_BIT_FIELD;
+    }
+    if (CHR_INFINITE_WEIGHT == obj->phys.weight)
     {
         return EMPTY_BIT_FIELD;
     }
@@ -724,43 +721,40 @@ BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, fvec2_t& nrm, float * pr
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->getTile());
+        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, obj->getTile());
 
         if (nullptr != tile && tile->inrenderlist)
         {
-            radius = chr->bump_1.size;
+            radius = obj->bump_1.size;
         }
     }
 
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    BIT_FIELD result = ego_mesh_hit_wall( PMesh, pos, radius, chr->stoppedby, nrm, pressure, data);
+    BIT_FIELD result = ego_mesh_hit_wall(PMesh, pos, radius, obj->stoppedby, nrm, pressure, data);
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests  += mesh_pressure_tests;
 
     return result;
 }
 
-BIT_FIELD Objectest_wall(Object *chr, mesh_wall_data_t *data)
-/// @brief This function returns nonzero if the character hit a wall that the
-///        character is not allowed to cross
+BIT_FIELD Object_test_wall(Object *obj, mesh_wall_data_t *data)
 {
-    if (!ACTIVE_PCHR(chr))
+    if (!ACTIVE_PCHR(obj))
     {
         return EMPTY_BIT_FIELD;
     }
-    return Objectest_wall(chr, chr->getPosition(), data);
+    return Object_test_wall(obj, obj->getPosition(), data);
 }
-BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t *data)
-/// @brief This function returns nonzero if the character hit a wall that the
-///        character is not allowed to cross.
+
+BIT_FIELD Object_test_wall(Object *obj, const fvec3_t& pos, mesh_wall_data_t *data)
 {
-    if (!ACTIVE_PCHR(chr))
+    if (!ACTIVE_PCHR(obj))
     {
         return EMPTY_BIT_FIELD;
     }
-    if (CHR_INFINITE_WEIGHT == chr->phys.weight)
+    if (CHR_INFINITE_WEIGHT == obj->phys.weight)
     {
         return EMPTY_BIT_FIELD;
     }
@@ -769,10 +763,10 @@ BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t *data
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->getTile());
+        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, obj->getTile());
         if (nullptr != tile && tile->inrenderlist)
         {
-            radius = chr->bump_1.size;
+            radius = obj->bump_1.size;
         }
     }
 
@@ -780,7 +774,7 @@ BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t *data
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    BIT_FIELD result = ego_mesh_test_wall(PMesh, pos, radius, chr->stoppedby, data);
+    BIT_FIELD result = ego_mesh_test_wall(PMesh, pos, radius, obj->stoppedby, data);
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
 
@@ -1041,11 +1035,8 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
 }
 
 //--------------------------------------------------------------------------------------------
-bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse )
+bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse )
 {
-    /// @author ZF
-    /// @details This adds a new item into the specified inventory slot. Fails if there already is an item there.
-    ///               If the specified inventory slot is MAXINVENTORY, it will find the first free inventory slot.
     Object *pchr, *pitem;
     int newammo;
 
@@ -1169,14 +1160,8 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse )
+bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse )
 {
-    /// @author ZF
-    /// @details This function swaps items between the specified inventory slot and the specified grip
-    ///               If MAXINVENTORY is specified by inventory_slot, the function will swap with the first item found
-    ///               in the inventory
-
     CHR_REF item, inventory_item;
     Object *pchr;
     bool success = false;
@@ -1210,14 +1195,14 @@ bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t
     //remove existing item
     if ( _gameObjects.exists( inventory_item ) )
     {
-        inventory_rv = inventory_remove_item( ichr, inventory_slot, ignorekurse );
+        inventory_rv = Inventory::remove_item( ichr, inventory_slot, ignorekurse );
         if ( inventory_rv ) success = true;
     }
 
     //put in the new item
     if ( _gameObjects.exists( item ) )
     {
-        inventory_rv = inventory_add_item( ichr, item, inventory_slot, ignorekurse );
+        inventory_rv = Inventory::add_item( ichr, item, inventory_slot, ignorekurse );
         if ( inventory_rv ) success = true;
     }
 
@@ -1236,12 +1221,8 @@ bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t
 }
 
 //--------------------------------------------------------------------------------------------
-bool inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse )
+bool Inventory::remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse )
 {
-    /// @author ZF
-    /// @details This function removes the item specified in the inventory slot from the
-    ///               character's inventory. Note that you still have to handle it falling out
-
     CHR_REF item;
     Object *pitem;
     Object *pholder;
@@ -1333,10 +1314,6 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void drop_keys( const CHR_REF character )
 {
-    /// @author ZZ
-    /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
-    ///    inventory ( Not hands ).
-
     Object  * pchr;
 
     FACING_T direction;
@@ -1378,7 +1355,7 @@ void drop_keys( const CHR_REF character )
         turn      = TO_TURN( direction );
 
         //remove it from inventory
-        inventory_remove_item( character, cnt, true );
+        Inventory::remove_item( character, cnt, true );
 
         // fix the attachments
         pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
@@ -1452,7 +1429,7 @@ bool drop_all_items( const CHR_REF character )
         }
 
         //remove it from inventory
-        inventory_remove_item( character, cnt, true );
+        Inventory::remove_item( character, cnt, true );
 
         // detach the item
         pitem->detatchFromHolder(true, true);
@@ -2041,7 +2018,7 @@ void drop_money( const CHR_REF character, int money )
 
             for ( tnc = 0; tnc < count; tnc++ )
             {
-                ParticleHandler::get().spawn_one_particle_global( loc_pos, ATK_FRONT, pips[cnt], tnc );
+                ParticleHandler::get().spawn_one_particle_global( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
             }
         }
     }
@@ -2609,7 +2586,7 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
     /// @details Spawn a defend particle
     if ( 0 != pchr->damage_timer ) return;
 
-    ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), pchr->ori.facing_z, PIP_DEFEND, 0 );
+    ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
 
     pchr->damage_timer    = DEFENDTIME;
     SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
@@ -4661,12 +4638,12 @@ bool chr_do_latch_button( Object * pchr )
     if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = PACKDELAY;
-        inventory_swap_item( ichr, MAXINVENTORY, SLOT_LEFT, false );
+        Inventory::swap_item( ichr, MAXINVENTORY, SLOT_LEFT, false );
     }
     if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = PACKDELAY;
-        inventory_swap_item( ichr, MAXINVENTORY, SLOT_RIGHT, false );
+        Inventory::swap_item( ichr, MAXINVENTORY, SLOT_RIGHT, false );
     }
 
     if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
@@ -4765,7 +4742,7 @@ bool chr_update_safe_raw( Object * pchr )
     if ( nullptr == ( pchr ) ) return false;
 
     fvec2_t nrm;
-    hit_a_wall = chr_hit_wall( pchr, nrm, &pressure, NULL );
+    hit_a_wall = Object_hit_wall( pchr, nrm, &pressure, NULL );
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pchr->safe_valid = true;
@@ -4839,7 +4816,7 @@ bool chr_get_safe(Object * pchr)
     if ( !found && pchr->safe_valid )
     {
         fvec2_t nrm;
-        if ( !chr_hit_wall( pchr, nrm, NULL, NULL ) )
+        if ( !Object_hit_wall( pchr, nrm, NULL, NULL ) )
         {
             found = true;
         }
@@ -5050,7 +5027,7 @@ bool move_one_character_integrate_motion( Object * pchr )
         tmp_pos[kX] = new_x;
         tmp_pos[kY] = new_y;
 
-        if ( EMPTY_BIT_FIELD == Objectest_wall( pchr, tmp_pos, &wdata ) )
+        if ( EMPTY_BIT_FIELD == Object_test_wall( pchr, tmp_pos, &wdata ) )
         {
             updated_2d = true;
         }
@@ -5060,7 +5037,7 @@ bool move_one_character_integrate_motion( Object * pchr )
             float   pressure;
             bool diff_function_called = false;
 
-            chr_hit_wall( pchr, tmp_pos, nrm, &pressure, &wdata );
+            Object_hit_wall( pchr, tmp_pos, nrm, &pressure, &wdata );
 
             // how is the character hitting the wall?
             if ( 0.0f != pressure )
@@ -7042,26 +7019,20 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
+CHR_REF Inventory::findItem(const Object *pobj, IDSZ idsz, bool equippedOnly)
 {
-    /// @author BB
-    /// @details check the pack a matching item
-
-    bool matches_equipped;
-    CHR_REF result;
-    Object * pchr;
-
-    if ( !_gameObjects.exists( ichr ) ) return INVALID_CHR_REF;
-    pchr = _gameObjects.get( ichr );
-
-    result = INVALID_CHR_REF;
-
-    PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
+    if (!pobj || pobj->isTerminated())
     {
-        matches_equipped = ( !equipped || pitem->isequipped );
+        return INVALID_CHR_REF;
+    }
 
-        if ( chr_is_type_idsz( item, idsz ) && matches_equipped )
+    CHR_REF result = INVALID_CHR_REF;
+
+    PACK_BEGIN_LOOP(pobj->inventory, pitem, item)
+    {
+        bool matches_equipped = (!equippedOnly || pitem->isequipped);
+
+        if (chr_is_type_idsz(item, idsz) && matches_equipped)
         {
             result = item;
             break;
@@ -7070,6 +7041,15 @@ CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
     PACK_END_LOOP();
 
     return result;
+}
+
+CHR_REF Inventory::findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly)
+{
+    if (!_gameObjects.exists(iobj))
+    {
+        return INVALID_CHR_REF;
+    }
+    return Inventory::findItem(_gameObjects.get(iobj), idsz, equippedOnly);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7142,7 +7122,7 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
 
     if ( !found )
     {
-        item = chr_has_inventory_idsz( ichr, idsz, equipped );
+        item = Inventory::findItem( ichr, idsz, equipped );
         found = _gameObjects.exists( item );
     }
 

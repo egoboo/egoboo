@@ -122,17 +122,17 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->contspawn._delay = vfs_get_next_int(ctxt);
     profile->contspawn._amount = vfs_get_next_int(ctxt);
     profile->contspawn._facingAdd = vfs_get_next_int(ctxt);
-    profile->contspawn._lpip = vfs_get_next_int(ctxt);
+    profile->contspawn._lpip = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // End spawning of other particles
     profile->endspawn._amount = vfs_get_next_int(ctxt);
     profile->endspawn._facingAdd = vfs_get_next_int(ctxt);
-    profile->endspawn._lpip = vfs_get_next_int(ctxt);
+    profile->endspawn._lpip = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // Bump spawning of attached particles
     profile->bumpspawn._amount = vfs_get_next_int(ctxt);
     profile->bumpspawn._facingAdd = 0; // @to add.
-    profile->bumpspawn._lpip = vfs_get_next_int(ctxt);
+    profile->bumpspawn._lpip = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // Random stuff  !!!BAD!!! Not complete
     profile->dazeTime = vfs_get_next_nat(ctxt);

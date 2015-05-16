@@ -196,7 +196,7 @@ struct damagetile_instance_t
     IPair   amount;                    ///< Amount of damage
     int     damagetype;
 
-    int    part_gpip;
+    LocalParticleProfileRef part_gpip;
     Uint32 partand;
     int    sound_index;
 
@@ -211,9 +211,9 @@ bool upload_damagetile_data( damagetile_instance_t * dst, const struct s_wawalit
 /// The data descibing the weather state
 struct weather_instance_t
 {
-    int     timer_reset;        ///< How long between each spawn?
-    bool  over_water;         ///< Only spawn over water?
-    int     part_gpip;           ///< Which particle to spawn?
+    int timer_reset;                    ///< How long between each spawn?
+    bool  over_water;                   ///< Only spawn over water?
+    LocalParticleProfileRef part_gpip;  ///< Which particle to spawn?
 
     PLA_REF iplayer;
     int     time;                ///< 0 is no weather

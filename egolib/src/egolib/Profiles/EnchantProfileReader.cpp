@@ -178,7 +178,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
         idsz = ctxt.readIDSZ();
 
         if (idsz == MAKE_IDSZ('A', 'M', 'O', 'U')) profile->contspawn._amount = ctxt.readInt();
-        else if (idsz == MAKE_IDSZ('T', 'Y', 'P', 'E')) profile->contspawn._lpip = ctxt.readInt();
+        else if (idsz == MAKE_IDSZ('T', 'Y', 'P', 'E')) profile->contspawn._lpip = vfs_get_local_particle_profile_ref(ctxt);
         else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E')) profile->contspawn._delay = ctxt.readInt();
         else if (idsz == MAKE_IDSZ('F', 'A', 'C', 'E')) profile->contspawn._facingAdd = ctxt.readInt();
         else if (idsz == MAKE_IDSZ('S', 'E', 'N', 'D')) profile->endsound_index = ctxt.readInt();

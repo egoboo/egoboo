@@ -1160,7 +1160,7 @@ void do_damage_tiles()
 
             pchr->damage_timer = DAMAGETILETIME;
 
-            if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
+            if (( actual_damage > 0 ) && (LocalParticleProfileRef::Invalid != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
                 ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
             }
@@ -1261,7 +1261,7 @@ void do_weather_spawn_particles()
     int    cnt;
     bool foundone;
 
-    if ( weather.time > 0 && weather.part_gpip != -1 )
+    if ( weather.time > 0 && LocalParticleProfileRef::Invalid != weather.part_gpip)
     {
         weather.time--;
         if ( 0 == weather.time )
@@ -1515,7 +1515,7 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
             {
                 //put it away and swap with any existing item
-                inventory_swap_item( ppla->index, ppla->inventory_slot, SLOT_LEFT, false );
+                Inventory::swap_item( ppla->index, ppla->inventory_slot, SLOT_LEFT, false );
 
                 // Make it take a little time
                 chr_play_action( pchr, ACTION_MG, false );
@@ -1526,7 +1526,7 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
             {
                 // put it away and swap with any existing item
-                inventory_swap_item( ppla->index, ppla->inventory_slot, SLOT_RIGHT, false );
+                Inventory::swap_item( ppla->index, ppla->inventory_slot, SLOT_RIGHT, false );
 
                 // Make it take a little time
                 chr_play_action( pchr, ACTION_MG, false );
@@ -2139,7 +2139,7 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        inventory_add_item( pinfo->parent, pchr->getCharacterID(), MAXINVENTORY, true );
+        Inventory::add_item( pinfo->parent, pchr->getCharacterID(), MAXINVENTORY, true );
 
         //If the character got merged into a stack, then it will be marked as terminated
         if(pchr->isTerminated()) {
@@ -3720,7 +3720,7 @@ bool wawalite_finalize(wawalite_data_t *data)
     // No weather?
     if (!strcmp(data->weather.weather_name, "NONE"))
     {
-        data->weather.part_gpip = -1;
+        data->weather.part_gpip = LocalParticleProfileRef::Invalid;
     }
     else
     {
@@ -3738,7 +3738,7 @@ bool wawalite_finalize(wawalite_data_t *data)
         if (!success)
         {
             log_warning("%s:%d: failed to load weather type from wawalite.txt: %s - (%s)\n", __FILE__,__LINE__, weather_name.c_str(), prt_file.c_str());
-            data->weather.part_gpip = -1;
+            data->weather.part_gpip = LocalParticleProfileRef::Invalid;
             strncpy(data->weather.weather_name, "NONE", SDL_arraysize(data->weather.weather_name));
         }
     }

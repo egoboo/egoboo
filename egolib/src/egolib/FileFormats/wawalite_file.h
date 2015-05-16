@@ -25,6 +25,7 @@
 #include "egolib/_math.h"
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Profiles/LocalParticleProfileRef.hpp"
 
 struct ReadContext;
 struct wawalite_data_t;
@@ -298,7 +299,7 @@ struct wawalite_data_t;
         uint32_t amount; ///< The amount of damage dealt.
         DamageType damagetype;  ///< The type of damage dealt.
 
-        int part_gpip;
+        LocalParticleProfileRef part_gpip;
         uint32_t partand;
         int sound_index;
 
@@ -317,7 +318,7 @@ struct wawalite_data_t;
         wawalite_damagetile_t() :
             amount(256),
             damagetype(DAMAGE_FIRE),
-            part_gpip(-1),
+            part_gpip(),
             partand(255),
             sound_index(-1)
         {
@@ -356,7 +357,7 @@ struct wawalite_data_t;
     {
         bool over_water;
         int timer_reset;
-        int part_gpip; ///< Which particle to spawn?
+        LocalParticleProfileRef part_gpip; ///< Which particle to spawn?
         STRING weather_name;
 
         /**

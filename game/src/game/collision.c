@@ -1725,7 +1725,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpx = tmp_pos[kX];
             tmp_pos[kX] += max_apos[kX];
-            if ( EMPTY_BIT_FIELD != Objectest_wall( pchr.get(), tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != Object_test_wall( pchr.get(), tmp_pos, NULL ) )
             {
                 // restore the old values
                 tmp_pos[kX] = tmpx;
@@ -1741,7 +1741,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpy = tmp_pos[kY];
             tmp_pos[kY] += max_apos[kY];
-            if ( EMPTY_BIT_FIELD != Objectest_wall( pchr.get(), tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != Object_test_wall( pchr.get(), tmp_pos, NULL ) )
             {
                 // restore the old values
                 tmp_pos[kY] = tmpy;

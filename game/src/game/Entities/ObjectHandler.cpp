@@ -79,7 +79,7 @@ bool ObjectHandler::remove(const CHR_REF ichr)
 bool ObjectHandler::exists(const CHR_REF character) const
 {
     if(character == INVALID_CHR_REF || character >= _internalCharacterList.size()) 
-	{
+    {
         return false;
     }
 

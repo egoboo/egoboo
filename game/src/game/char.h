@@ -299,10 +299,14 @@ fvec3_t chr_get_mesh_diff(Object *chr, float center_pressure);
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
 float chr_get_mesh_pressure(Object *chr);
 float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
-BIT_FIELD chr_hit_wall(Object *chr, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
-BIT_FIELD chr_hit_wall(Object *chr, const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
-BIT_FIELD Objectest_wall(Object *chr, mesh_wall_data_t *data);
-BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t * data);
+/// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
+BIT_FIELD Object_hit_wall(Object *obj, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
+/// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
+BIT_FIELD Object_hit_wall(Object *obj, const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
+/// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
+BIT_FIELD Object_test_wall(Object *obj, mesh_wall_data_t *data);
+/// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
+BIT_FIELD Object_test_wall(Object *obj, const fvec3_t& pos, mesh_wall_data_t * data);
 
 /**
  * @brief
@@ -313,10 +317,73 @@ BIT_FIELD Objectest_wall(Object *chr, const fvec3_t& pos, mesh_wall_data_t * dat
 CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
 void    respawn_character( const CHR_REF character );
 
-// inventory functions
-bool inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse );
-bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse );
-bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse );
+struct Inventory
+{
+    /*
+     * @brief
+     *  Remove an item from an inventory slot.
+     * @details
+     *  Note that you still have to handle it falling out.
+     */
+    static bool remove_item(const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse);
+    /**
+     * @brief
+     *  Add an item to an inventory slot.
+     * @details
+     *  This fails if there already is an item there.
+     *  If the specified inventory slot is MAXINVENTORY,
+     *  it will find the first free inventory slot.
+     */
+    static bool add_item(const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse);
+    /**
+     * @brief
+     *  Swap item between inventory slot and grip slot.
+     * @remark
+     *  This swaps an item between the specified inventory slot and the specified grip
+     *  If the specified inventory slot is MAXINVENTORY,
+     *  the function will swap with the first item found in the inventory.
+     */
+    static bool swap_item(const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse);
+
+    /**
+     * @brief
+     *  Find an item in the pack.
+     * @param pobj
+     *  the object
+     * @param idsz, equippedOnly
+     *  the search criteria
+     * @return
+     *  the character reference of the first item in the pack matching the search criterion,
+     *  #INVALID_CHR_REF if no item in the pack matches the search criterion
+     * @remark
+     *  This function searches the characters pack for an item matching the search criterion.
+     *  An item matches the search criterion if it has the specified IDSZ. If @a equipped is
+     *  @a true, then in addition the item must be equipped in order to match the search
+     *  criterion.
+     */
+    static CHR_REF findItem(const Object *pobj, IDSZ idsz, bool equippedOnly);
+    /**
+     * @brief
+     *  Find an item in the pack.
+     * @param iobj
+     *  the object
+     * @param idsz, equippedOnly
+     *  the search criteria
+     * @return
+     *  the character reference of the first item in the pack matching the search criterion,
+     *  #INVALID_CHR_REF if no item in the pack matches the search criterion
+     * @remark
+     *  This function searches the characters pack for an item matching the search criterion.
+     *  An item matches the search criterion if it has the specified IDSZ. If @a equipped is
+     *  @a true, then in addition the item must be equipped in order to match the search
+     *  criterion.
+     */
+    static CHR_REF findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly);
+};
+
+/// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
+///    inventory ( Not hands ).
+void  drop_keys(const CHR_REF character);
 
 // save character functions
 bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
@@ -324,7 +391,7 @@ bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF chara
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
-CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
+
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
 CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 
@@ -361,7 +428,7 @@ void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
-void  drop_keys( const CHR_REF character );
+
 bool  drop_all_items( const CHR_REF character );
 bool  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool people );
 

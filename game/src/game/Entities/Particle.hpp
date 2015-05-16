@@ -278,7 +278,7 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t,ParticleHandler>
     // some data that needs to be copied from the particle profile
     Uint8             endspawn_amount;         ///< The number of particles to be spawned at the end
     Uint16            endspawn_facingadd;      ///< The angular spacing for the end spawn
-    int               endspawn_lpip;           ///< The actual local pip that will be spawned at the end
+    LocalParticleProfileRef  endspawn_lpip;    ///< The actual local pip that will be spawned at the end
     int               endspawn_characterstate; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
     dynalight_info_t  dynalight;               ///< Dynamic lighting...

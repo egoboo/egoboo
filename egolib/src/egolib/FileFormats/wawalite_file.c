@@ -183,7 +183,7 @@ wawalite_weather_t *wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t 
     *profile = wawalite_weather_t::getDefaults();
 
     // weather data
-    profile->part_gpip = PIP_WEATHER;
+    profile->part_gpip = LocalParticleProfileRef(PIP_WEATHER);
     if (enclosing->version >= WAWALITE_FILE_VERSION)
     {
         STRING line;
@@ -193,7 +193,7 @@ wawalite_weather_t *wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t 
         strncpy(profile->weather_name, strupr(line), SDL_arraysize(profile->weather_name));
 
         // convert the text in the calling function
-        profile->part_gpip = -1;
+        profile->part_gpip = LocalParticleProfileRef::Invalid;
     }
 
     profile->over_water = vfs_get_next_bool(ctxt);
@@ -517,7 +517,7 @@ bool wawalite_data_write(const char *filename,const wawalite_data_t *profile)
     if (profile->fog.found)
     {
         vfs_printf(filewrite, "\n\n// Damage tile expansion...  Must have fog first...\n");
-        vfs_put_int(filewrite, "Weather particle to spawn ( 4 or 5, 6 is splash )  :", profile->damagetile.part_gpip);
+        vfs_put_local_particle_profile_ref(filewrite, "Weather particle to spawn ( 4 or 5, 6 is splash )  :", profile->damagetile.part_gpip);
         vfs_put_int(filewrite, "Particle timing AND ( 1, 3, 7, 15, etc. )          :", profile->damagetile.partand);
         vfs_put_int(filewrite, "Damage sound ( 0 to 4 )                            :", profile->damagetile.sound_index);
     }

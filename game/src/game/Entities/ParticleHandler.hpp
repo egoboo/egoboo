@@ -147,7 +147,7 @@ public:
      * @return
      *  the index of the particle on success, INVALID_PRT_REF on failure
      */
-    PRT_REF spawn_one_particle(const fvec3_t& position, FACING_T facing, const PRO_REF iprofile, int pip_index,
+    PRT_REF spawn_one_particle(const fvec3_t& position, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                                const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget);
 
@@ -163,7 +163,7 @@ public:
                              const CHR_REF chr_origin, const PRT_REF prt_origin = INVALID_PRT_REF,
                              const int multispawn = 0, const CHR_REF oldtarget = INVALID_CHR_REF);
 
-    PRT_REF spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, int pip_index, int multispawn);
+    PRT_REF spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, const LocalParticleProfileRef& pip_index, int multispawn);
 };
 
 //--------------------------------------------------------------------------------------------
