@@ -48,7 +48,6 @@ static mad_t * mad_rip_actions( mad_t * pmad );
 
 static mad_t * mad_finalize( mad_t * pmad );
 static mad_t * mad_heal_actions( mad_t * pmad, const char * loadname );
-static mad_t * mad_make_equally_lit( mad_t * pmad );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -378,7 +377,6 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
     BIT_FIELD fx = 0;
     char name_action[16], name_fx[16];
     int name_count;
-    int fields;
     int cnt;
 
     static int token_count = -1;
@@ -433,7 +431,7 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
     if ( paction < paction_end ) *paction = CSTR_END;
 
     name_fx[0] = CSTR_END;
-    fields = sscanf( ptmp, "%d %15s", &name_count, name_fx );
+    sscanf( ptmp, "%d %15s", &name_count, name_fx ); //ZF> NOTE: return value not used
     name_action[15] = CSTR_END;
     name_fx[15] = CSTR_END;
 
@@ -609,19 +607,6 @@ mad_t * mad_make_framelip( mad_t * pmad, int action )
         // limit the framelip to the valid range
         pmad->md2_ptr->getFrames()[frame].framelip = std::min(framelip, FRAMELIP_COUNT - 1);
     }
-
-    return pmad;
-}
-
-//--------------------------------------------------------------------------------------------
-mad_t * mad_make_equally_lit( mad_t * pmad )
-{
-    /// @author ZZ
-    /// @details This function makes ultra low poly models look better
-
-    if ( NULL == pmad || pmad->md2_ptr == nullptr ) return pmad;
-
-    pmad->md2_ptr->makeEquallyLit();
 
     return pmad;
 }

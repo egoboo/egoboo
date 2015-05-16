@@ -1798,17 +1798,15 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
 {
-    Object * pchr;
-
+    const std::shared_ptr<Object> &pchr = _gameObjects[index];
     pself = ai_state_ctor( pself );
 
-    if ( NULL == pself || !_gameObjects.exists( index ) ) return;
-    pchr = _gameObjects.get( index );
+    if ( NULL == pself || !pchr ) return;
 
     pself->index      = index;
     pself->alert      = ALERTIF_SPAWNED;
-    pself->state      = ProfileSystem::get().getProfile(iobj)->getStateOverride();
-    pself->content    = ProfileSystem::get().getProfile(iobj)->getContentOverride();
+    pself->state      = pchr->getProfile()->getStateOverride();
+    pself->content    = pchr->getProfile()->getContentOverride();
     pself->passage    = 0;
     pself->target     = index;
     pself->owner      = index;

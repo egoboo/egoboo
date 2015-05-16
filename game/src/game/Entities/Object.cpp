@@ -31,6 +31,7 @@
 #include "game/Entities/EnchantHandler.hpp"
 #include "game/game.h"
 #include "game/player.h"
+#include "game/renderer_2d.h"
 #include "game/char.h" //ZF> TODO: remove
 
 
@@ -596,7 +597,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 int rank;
 
 
-                tmpstr = describe_wounds( pchr->life_max, pchr->life );
+                tmpstr = describe_wounds( life_max, life );
 
                 tmpstr = describe_value( actual_damage, UINT_TO_UFP8( 10 ), &rank );
                 if ( rank < 4 )
@@ -880,7 +881,7 @@ void Object::update()
     if ( clock_chr_stat >= ONESECOND )
     {
         // check for a level up
-        do_level_up( getCharacterID() );
+        giveLevelUp();
 
         // do the mana and life regen for "living" characters
         if (isAlive())
@@ -1228,7 +1229,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
 {
     /// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
     // Scenery, spells and quest objects can always see through darkness
-    // Checking pchr->invictus is not enough, since that could be temporary
+    // Checking invictus is not enough, since that could be temporary
     // and not indicate the appropriate objects
     if (getProfile()->isInvincible()) {
         return true;
@@ -1290,4 +1291,85 @@ void Object::recalculateCollisionSize()
     bump.height   = bump_save.height   * fat;
 
     chr_update_collision_size(this, true);
+}
+
+void Object::giveLevelUp()
+{
+    int number;
+
+    // Do level ups and stat changes
+    uint8_t curlevel = experiencelevel + 1;
+    if ( curlevel < MAXLEVEL )
+    {
+        uint32_t xpcurrent = experience;
+        uint32_t xpneeded  = getProfile()->getXPNeededForLevel(curlevel);
+
+        if ( xpcurrent >= xpneeded )
+        {
+            // do the level up
+            experiencelevel++;
+            SET_BIT(ai.alert, ALERTIF_LEVELUP);
+
+            // The character is ready to advance...
+            if ( VALID_PLA(is_which_player) )
+            {
+                DisplayMsg_printf("%s gained a level!!!", getName().c_str());
+                AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
+            }
+
+            // Size
+            fat_goto += getProfile()->getSizeGainPerLevel() * 0.25f;  // Limit this?
+            fat_goto_time += SIZETIME;
+
+            // Strength
+            number = generate_irand_range( getProfile()->getStrengthGainPerLevel() );
+            number += strength;
+            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
+            strength = number;
+
+            // Wisdom
+            number = generate_irand_range( getProfile()->getWisdomGainPerLevel() );
+            number += wisdom;
+            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
+            wisdom = number;
+
+            // Intelligence
+            number = generate_irand_range( getProfile()->getIntelligenceGainPerLevel() );
+            number += intelligence;
+            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
+            intelligence = number;
+
+            // Dexterity
+            number = generate_irand_range( getProfile()->getDexterityGainPerLevel() );
+            number += dexterity;
+            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
+            dexterity = number;
+
+            // Life
+            number = generate_irand_range( getProfile()->getLifeGainPerLevel() );
+            number += life_max;
+            if ( number > PERFECTBIG ) number = PERFECTBIG;
+            life += ( number - life_max );
+            life_max = number;
+
+            // Mana
+            number = generate_irand_range( getProfile()->getManaGainPerLevel() );
+            number += mana_max;
+            if ( number > PERFECTBIG ) number = PERFECTBIG;
+            mana += ( number - mana_max );
+            mana_max = number;
+
+            // Mana Return
+            number = generate_irand_range( getProfile()->getManaRegenerationGainPerLevel() );
+            number += mana_return;
+            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
+            mana_return = number;
+
+            // Mana Flow
+            number = generate_irand_range( getProfile()->getManaFlowGainPerLevel() );
+            number += mana_flow;
+            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
+            mana_flow = number;
+        }
+    }
 }

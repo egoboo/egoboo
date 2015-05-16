@@ -405,7 +405,6 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
 void free_inventory_in_game( const CHR_REF character );
-void do_level_up( const CHR_REF character );
 bool setup_xp_table( const CHR_REF character );
 
 int     change_armor( const CHR_REF character, const SKIN_T skin );

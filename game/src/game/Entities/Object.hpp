@@ -415,6 +415,12 @@ public:
     /// @details Convert the base size values to the size values that are used in the game
     void recalculateCollisionSize();
 
+    /**
+    * @brief
+    *   Gives this object 1 experience level, increasing it's stats and giving it new/improved abilities
+    **/
+    void giveLevelUp();
+
 private:
 
     /**

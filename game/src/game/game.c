@@ -2167,7 +2167,7 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
         if ( pchr->experiencelevel < pinfo->level )
         {
             pchr->experience = pchr->getProfile()->getXPNeededForLevel(pinfo->level);
-            do_level_up( pchr->getCharacterID() );
+            pchr->giveLevelUp();
         }
     }
 
