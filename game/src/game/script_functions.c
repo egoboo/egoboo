@@ -877,7 +877,7 @@ Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_height( pchr, pstate->argument );
+    pchr->setBumpHeight(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3327,7 +3327,7 @@ Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_width( pchr, pstate->argument );
+    pchr->setBumpWidth(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }

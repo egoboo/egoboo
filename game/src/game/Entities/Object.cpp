@@ -957,7 +957,7 @@ void Object::updateResize()
             }
 
             // Make it that big...
-            chr_set_fat(this, newsize);
+            setFat(newsize);
 
             if ( CAP_INFINITE_WEIGHT == getProfile()->getWeight() )
             {
@@ -1257,4 +1257,37 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     }
 
     return true;
+}
+
+void Object::setFat(const float fat)
+{
+    this->fat = fat;
+    recalculateCollisionSize();
+}
+
+void Object::setBumpHeight(const float height)
+{
+    bump_save.height = std::max(height, 0.0f);
+    recalculateCollisionSize();
+}
+
+void Object::setBumpWidth(const float width)
+{
+    float ratio = std::abs(width / bump_stt.size);
+
+    shadow_size_stt *= ratio;
+    bump_stt.size *= ratio;
+    bump_stt.size_big *= ratio;
+
+    recalculateCollisionSize();
+}
+
+void Object::recalculateCollisionSize()
+{
+    shadow_size   = shadow_size_save   * fat;
+    bump.size     = bump_save.size     * fat;
+    bump.size_big = bump_save.size_big * fat;
+    bump.height   = bump_save.height   * fat;
+
+    chr_update_collision_size(this, true);
 }

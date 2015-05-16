@@ -225,12 +225,6 @@ void chr_set_redshift( Object * pchr, const int rs );
 void chr_set_grnshift( Object * pchr, const int gs );
 void chr_set_blushift( Object * pchr, const int bs );
 
-void chr_set_fat(Object *chr, const float fat);
-void chr_set_height(Object *chr, const float height);
-void chr_set_width(Object *chr, const float width);
-void chr_set_size(Object *chr, const float size);
-void chr_set_shadow(Object *chr, const float width);
-
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatUp(Object *self, fvec3_t& up);
 
@@ -467,9 +461,6 @@ ai_state_t     *chr_get_pai( const CHR_REF ichr );
 chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
 
 IDSZ chr_get_idsz( const CHR_REF ichr, int type );
-
-void chr_update_size( Object * pchr );
-
 
 bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );

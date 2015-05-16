@@ -2932,7 +2932,7 @@ void respawn_character( const CHR_REF character )
     {
         float old_fat = pchr->fat;
         chr_init_size(pchr, profile);
-        chr_set_fat( pchr, old_fat );
+        pchr->setFat(old_fat);
     }
 
     pchr->platform        = profile->isPlatform();
@@ -3407,20 +3407,20 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         // make the model's size congruent
         if ( 0.0f != new_fat && new_fat != old_fat )
         {
-            chr_set_fat( pchr, new_fat );
+            pchr->setFat(new_fat);
             pchr->fat_goto      = old_fat;
             pchr->fat_goto_time = SIZETIME;
         }
         else
         {
-            chr_set_fat( pchr, old_fat );
+            pchr->setFat(old_fat);
             pchr->fat_goto      = old_fat;
             pchr->fat_goto_time = 0;
         }
     }
 
     //Physics
-    pchr->phys.bumpdampen     = newProfile->getBumpDampen();
+    pchr->phys.bumpdampen = newProfile->getBumpDampen();
 
     if ( CAP_INFINITE_WEIGHT == newProfile->getWeight() )
     {
@@ -7221,82 +7221,6 @@ void chr_set_blushift( Object * pchr, const int bs )
 }
 
 //--------------------------------------------------------------------------------------------
-/// @brief Set the fat value of a character.
-/// @param chr the character
-/// @param fat the new fat value
-/// @remark The fat value influences the character size.
-void chr_set_fat(Object *chr, const float fat)
-{
-	if (nullptr == (chr)) return;
-	chr->fat = fat;
-	chr_update_size(chr);
-}
-
-//--------------------------------------------------------------------------------------------
-/// @brief Set the (base) height of a character.
-/// @param chr the character
-/// @param height the new height
-/// @remark The (base) height influences the character size.
-void chr_set_height(Object *chr, const float height)
-{
-	if (nullptr == (chr)) return;
-	chr->bump_save.height = std::max(height, 0.0f);
-	chr_update_size(chr);
-}
-
-//--------------------------------------------------------------------------------------------
-/// @brief Set the (base) width of a character.
-/// @param chr the character
-/// @param width the new width
-/// @remark Also modifies the shadow size.
-void chr_set_width(Object *chr, const float width)
-{
-	if (nullptr == (chr)) return;
-
-	float ratio = std::abs(width / chr->bump_stt.size);
-
-	chr->shadow_size_stt *= ratio;
-	chr->bump_stt.size *= ratio;
-	chr->bump_stt.size_big *= ratio;
-
-	chr_update_size(chr);
-}
-
-//--------------------------------------------------------------------------------------------
-/// @brief Set the scale of a character such that it matches the given size.
-/// @param chr the character
-/// @param size the size
-void chr_set_size(Object *chr, const float size)
-{
-	if (nullptr == (chr)) return;
-
-	float ratio = size / chr->bump.size;
-
-	chr->shadow_size_save *= ratio;
-	chr->bump_save.size *= ratio;
-	chr->bump_save.size_big *= ratio;
-	chr->bump_save.height *= ratio;
-
-	chr_update_size(chr);
-}
-
-//--------------------------------------------------------------------------------------------
-/// @brief Update the (base) shadow size of a character.
-/// @param chr the character
-/// @param size the base shadow size
-void chr_set_shadow(Object *chr, const float size)
-{
-	/// @author BB
-	/// @details update the base shadow size
-
-	if (nullptr == (chr)) return;
-
-	chr->shadow_size_save = size;
-
-	chr_update_size(chr);
-}
-
-//--------------------------------------------------------------------------------------------
 bool chr_getMatUp(Object *pchr, fvec3_t& up)
 {
 	bool rv;
@@ -8051,23 +7975,6 @@ bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void chr_update_size( Object * pchr )
-{
-    /// @author BB
-    /// @details Convert the base size values to the size values that are used in the game
-
-    if ( nullptr == ( pchr ) ) return;
-
-    pchr->shadow_size   = pchr->shadow_size_save   * pchr->fat;
-    pchr->bump.size     = pchr->bump_save.size     * pchr->fat;
-    pchr->bump.size_big = pchr->bump_save.size_big * pchr->fat;
-    pchr->bump.height   = pchr->bump_save.height   * pchr->fat;
-
-    chr_update_collision_size( pchr, true );
-}
-
-//--------------------------------------------------------------------------------------------
 static void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &profile)
 {
     /// @author BB
@@ -8087,5 +7994,5 @@ static void chr_init_size( Object * pchr, const std::shared_ptr<ObjectProfile> &
     pchr->bump_save.size_big = pchr->bump_stt.size_big;
     pchr->bump_save.height   = pchr->bump_stt.height;
 
-    chr_update_size( pchr );
+    pchr->recalculateCollisionSize();
 }

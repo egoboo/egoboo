@@ -386,6 +386,35 @@ public:
     **/
     bool canSeeObject(const std::shared_ptr<Object> &target) const;
 
+    /**
+    * @brief Set the fat value of a character.
+    * @param chr the character
+    * @param fat the new fat value
+    * @remark The fat value influences the character size.
+    **/
+    void setFat(const float fat);
+
+    /**
+    * @brief Set the (base) height of a character.
+    * @param chr the character
+    * @param height the new height
+    * @remark The (base) height influences the character size.
+    **/
+    void setBumpHeight(const float height);
+
+    /**
+    * @brief Set the (base) width of a character.
+    * @param chr the character
+    * @param width the new width
+    * @remark Also modifies the shadow size.
+    **/
+    void setBumpWidth(const float width);
+
+    //TODO: should be private
+    /// @author BB
+    /// @details Convert the base size values to the size values that are used in the game
+    void recalculateCollisionSize();
+
 private:
 
     /**
