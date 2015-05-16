@@ -1082,7 +1082,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
         return false;
     }
 
-    const ObjectProfile *profile = chr_get_ppro(GET_INDEX_PCHR(character));
+    const std::shared_ptr<ObjectProfile> &profile = character->getProfile();
 
     // Real general data
     template_put_int( fileTemp, fileWrite, -1 );     // -1 signals a flexible load thing

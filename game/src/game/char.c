@@ -424,35 +424,6 @@ void make_one_character_matrix( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if 0
-void chr_log_script_time( const CHR_REF ichr )
-{
-    // log the amount of script time that this object used up
-
-    Object * pchr;
-    vfs_FILE * ftmp;
-
-    if ( !_gameObjects.exists( ichr ) ) return;
-    pchr = _gameObjects.get( ichr );
-
-    if ( pchr->ai._clkcount <= 0 ) return;
-
-    ObjectProfile *profile = chr_get_ppro(ichr);
-    if ( nullptr == profile ) return;
-
-    ftmp = vfs_openAppendB("/debug/script_timing.txt");
-    if ( NULL != ftmp )
-    {
-        vfs_printf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n",
-                 update_wld, REF_TO_INT( ichr ), pchr->Name, profile->getClassName().c_str(),
-                 pchr->ai._clktime, pchr->ai._clkcount );
-        vfs_close( ftmp );
-    }
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 void free_inventory_in_game( const CHR_REF character )
 {
     /// @author ZZ
@@ -812,11 +783,7 @@ void reset_character_accel( const CHR_REF character )
     // Set the starting value
     pchr->maxaccel_reset = 0;
 
-    ObjectProfile *profile = chr_get_ppro(character);
-    if ( nullptr != profile )
-    {
-        pchr->maxaccel = pchr->maxaccel_reset = profile->getSkinInfo(pchr->skin).maxAccel;
-    }
+    pchr->maxaccel = pchr->maxaccel_reset = pchr->getProfile()->getSkinInfo(pchr->skin).maxAccel;
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -930,9 +897,6 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         return rv_fail;
     }
 
-    ObjectProfile *mountProfile = chr_get_ppro(imount);
-    if ( nullptr == mountProfile ) return rv_error;
-
     // do not deal with packed items at this time
     // this would have to be changed to allow for pickpocketing
     if ( _gameObjects.exists( prider->inwhich_inventory ) || _gameObjects.exists( pmount->inwhich_inventory ) ) return rv_fail;
@@ -945,7 +909,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
     slot_t slot = grip_offset_to_slot( grip_off );
 
     // Make sure the the slot is valid
-    if ( !mountProfile->isSlotValid(slot) ) return rv_fail;
+    if ( !pmount->getProfile()->isSlotValid(slot) ) return rv_fail;
 
     // This is a small fix that allows special grabbable mounts not to be mountable while
     // held by another character (such as the magic carpet for example)
@@ -1042,7 +1006,6 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     if ( !_gameObjects.exists( ichr ) || !_gameObjects.exists( item ) ) return false;
     pchr = _gameObjects.get( ichr );
     pitem = _gameObjects.get( item );
-    ObjectProfile *itemProfile = chr_get_ppro(item);
 
     //try get the first free slot found?
     if ( inventory_slot >= MAXINVENTORY )
@@ -1078,7 +1041,7 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     }
 
     //too big item?
-    if ( itemProfile->isBigItem() )
+    if ( pitem->getProfile()->isBigItem() )
     {
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
         if ( pchr->islocalplayer ) DisplayMsg_printf("%s is too big to be put away...", pitem->getName().c_str());
@@ -1091,20 +1054,19 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     {
         // We found a similar, stackable item in the pack
         Object  * pstack      = _gameObjects.get( stack );
-        ObjectProfile *stackProfile = chr_get_ppro(stack);
 
         // reveal the name of the item or the stack
-        if ( pitem->nameknown || pstack->nameknown )
+        if ( pitem->nameknown || pstack->getProfile()->isNameKnown() )
         {
             pitem->nameknown  = true;
             pstack->nameknown = true;
         }
 
         // reveal the usage of the item or the stack
-        if ( itemProfile->isUsageKnown() || stackProfile->isUsageKnown() )
+        if ( pitem->getProfile()->isUsageKnown() || pstack->getProfile()->isUsageKnown() )
         {
-            itemProfile->makeUsageKnown();
-            stackProfile->makeUsageKnown();
+            pitem->getProfile()->makeUsageKnown();
+            pstack->getProfile()->makeUsageKnown();
         }
 
         // add the item ammo to the stack
@@ -1147,7 +1109,7 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
         pchr->inventory[inventory_slot] = item;
 
         // fix the flags
-        if ( itemProfile->isEquipment() )
+        if ( pitem->getProfile()->isEquipment() )
         {
             SET_BIT( pitem->ai.alert, ALERTIF_PUTAWAY );  // same as ALERTIF_ATLASTWAYPOINT;
         }
@@ -1276,7 +1238,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 
     PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pstack, istack_new )
     {
-        ObjectProfile *stackProfile = chr_get_ppro( istack_new );
+        const std::shared_ptr<ObjectProfile> &stackProfile = _gameObjects[istack_new]->getProfile();
 
         found = stackProfile->isStackable();
 
@@ -2056,8 +2018,7 @@ void do_level_up( const CHR_REF character )
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
 
-    ObjectProfile * profile = chr_get_ppro( character );
-    if ( nullptr == profile ) return;
+    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
 
     // Do level ups and stat changes
     curlevel = pchr->experiencelevel + 1;
@@ -2150,9 +2111,6 @@ void give_experience( const CHR_REF character, int amount, XPType xptype, bool o
     if ( !_gameObjects.exists( character ) ) return;
     pchr = _gameObjects.get( character );
 
-    ObjectProfile* profile = chr_get_ppro( character );
-    if ( nullptr == profile ) return;
-
     //No xp to give
     if ( 0 == amount ) return;
 
@@ -2165,7 +2123,7 @@ void give_experience( const CHR_REF character, int amount, XPType xptype, bool o
         newamount = amount;
         if ( xptype < XP_COUNT )
         {
-            newamount = amount * profile->getExperienceRate(xptype);
+            newamount = amount * pchr->getProfile()->getExperienceRate(xptype);
         }
 
         // Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
@@ -2988,15 +2946,13 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
     pchr  = _gameObjects.get( character );
     pinst = &( pchr->inst );
 
-    ppro = chr_get_ppro( character );
-
     pmad = ProfileSystem::get().pro_get_pmad(pchr->profile_ref);
     if ( NULL == pmad )
     {
         // make sure that the instance has a valid imad
-        if ( NULL != ppro && !LOADED_MAD( pinst->imad ) )
+        if ( !LOADED_MAD( pinst->imad ) )
         {
-            if ( chr_instance_set_mad( pinst, ppro->getModelRef() ) )
+            if ( chr_instance_set_mad( pinst, pchr->getProfile()->getModelRef() ) )
             {
                 chr_update_collision_size( pchr, true );
             }
@@ -3023,19 +2979,8 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
             loc_skin %= SKINS_PEROBJECT_MAX;
         }
 
-        // assume we cannot find a texture
-        new_texture = TX_WATER_TOP;
-
-        if ( NULL == ppro )
-        {
-            // should never happen
-            /* do nothing */
-        }
-        else
-        {
-            // the normal thing to happen
-            new_texture = ppro->getSkin(loc_skin);
-        }
+        // the normal thing to happen
+        new_texture = pchr->getProfile()->getSkin(loc_skin);
 
         pchr->skin = skin;
     }
@@ -4834,7 +4779,7 @@ bool chr_get_safe(Object * pchr)
     // maybe there is one last fallback after this? we could check the character's current position?
     if ( !found )
     {
-        log_debug( "Uh oh! We could not find a valid non-wall position for %s!\n", chr_get_ppro( pchr->ai.index )->getClassName().c_str() );
+        log_debug( "Uh oh! We could not find a valid non-wall position for %s!\n", _gameObjects[pchr->ai.index]->getProfile()->getClassName().c_str() );
     }
 
     return found;
@@ -5827,15 +5772,13 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
     // if the effect is shield piercing, ignore shielding
     if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return false;
 
-    const ObjectProfile *profile = chr_get_ppro( character );
-
     // if the character's frame is invictus, then check the angles
     if ( HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
     {
         //I Frame
-        direction -= profile->getInvictusFrameFacing();
-        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(profile->getInvictusFrameAngle()) );
-        right      = profile->getInvictusFrameAngle();
+        direction -= pchr->getProfile()->getInvictusFrameFacing();
+        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(pchr->getProfile()->getInvictusFrameAngle()) );
+        right      = pchr->getProfile()->getInvictusFrameAngle();
 
         // If using shield, use the shield invictus instead
         if ( ACTION_IS_TYPE( pchr->inst.action_which, P ) )
@@ -5843,34 +5786,26 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
             bool parry_left = ( pchr->inst.action_which < ACTION_PC );
 
             // Using a shield?
-            if ( parry_left )
+            if ( parry_left && pchr->getLeftHandItem() )
             {
                 // Check left hand
-                const ObjectProfile *shieldProfile = chr_get_ppro(pchr->holdingwhich[SLOT_LEFT]);
-                if (shieldProfile)
-                {
-                    left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(shieldProfile->getInvictusFrameAngle()) );
-                    right = shieldProfile->getInvictusFrameAngle();
-                }
+                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(pchr->getLeftHandItem()->getProfile()->getInvictusFrameAngle()) );
+                right = pchr->getLeftHandItem()->getProfile()->getInvictusFrameAngle();
             }
-            else
+            else if(pchr->getRightHandItem())
             {
                 // Check right hand
-                const ObjectProfile *shieldProfile = chr_get_ppro(pchr->holdingwhich[SLOT_LEFT]);
-                if (shieldProfile)
-                {
-                    left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(shieldProfile->getInvictusFrameAngle()) );
-                    right = shieldProfile->getInvictusFrameAngle();
-                }
+                left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(pchr->getRightHandItem()->getProfile()->getInvictusFrameAngle()) );
+                right = pchr->getRightHandItem()->getProfile()->getInvictusFrameAngle();
             }
         }
     }
     else
     {
         // N Frame
-        direction -= profile->getNormalFrameFacing();
-        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(profile->getNormalFrameAngle()) );
-        right      = profile->getNormalFrameAngle();
+        direction -= pchr->getProfile()->getNormalFrameFacing();
+        left       = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(pchr->getProfile()->getNormalFrameAngle()) );
+        right      = pchr->getProfile()->getNormalFrameAngle();
     }
 
     // Check that direction
@@ -7860,26 +7795,6 @@ TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-ObjectProfile * chr_get_ppro( const CHR_REF ichr )
-{
-    //This function should -never- return nullptr
-    if(!_gameObjects.exists(ichr)) {
-        //throw error
-        return nullptr;
-    }
-
-    Object * pchr = _gameObjects.get( ichr );
-
-    //This function should -never- return nullptr
-    if (!ProfileSystem::get().isValidProfileID(pchr->profile_ref)) {
-        //throw error
-        return nullptr;
-    }
-
-    return ProfileSystem::get().getProfile(pchr->profile_ref).get();
-}
-
-//--------------------------------------------------------------------------------------------
 team_t * chr_get_pteam( const CHR_REF ichr )
 {
     Object * pchr;
@@ -7927,7 +7842,7 @@ chr_instance_t * chr_get_pinstance( const CHR_REF ichr )
 IDSZ chr_get_idsz( const CHR_REF ichr, int type )
 {
     if ( !_gameObjects.exists( ichr ) ) return IDSZ_NONE;
-    return chr_get_ppro(ichr)->getIDSZ(type);
+    return _gameObjects[ichr]->getProfile()->getIDSZ(type);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7937,7 +7852,7 @@ bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
     /// @details a wrapper for cap_has_idsz
 
     if ( !_gameObjects.exists( ichr ) ) return IDSZ_NONE;
-    return chr_get_ppro(ichr)->hasIDSZ(idsz);
+    return _gameObjects[ichr]->getProfile()->hasIDSZ(idsz);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7948,7 +7863,7 @@ bool chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
     ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
 
     if ( !_gameObjects.exists( item ) ) return IDSZ_NONE;
-    return chr_get_ppro(item)->hasTypeIDSZ(test_idsz);
+    return _gameObjects[item]->getProfile()->hasTypeIDSZ(test_idsz);
 }
 
 //--------------------------------------------------------------------------------------------

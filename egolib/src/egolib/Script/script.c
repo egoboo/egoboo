@@ -134,7 +134,7 @@ void scr_run_chr_script( const CHR_REF character )
     if ( !_gameObjects.exists( character ) )  return;
     pchr  = _gameObjects.get( character );
     pself = &( pchr->ai );
-    pscript = &( chr_get_ppro( character )->getAIScript() );
+    pscript = &pchr->getProfile()->getAIScript();
 
     // has the time for this character to die come and gone?
     if ( pself->poof_time >= 0 && pself->poof_time <= ( Sint32 )update_wld ) return;
@@ -1616,7 +1616,7 @@ void set_alerts( const CHR_REF character )
             // if the object can be alerted to last waypoint, do it
             // this test needs to be done because the ALERTIF_ATLASTWAYPOINT
             // doubles for "at last waypoint" and "not put away"
-            if ( !chr_get_ppro(character)->isEquipment() )
+            if ( !pchr->getProfile()->isEquipment() )
             {
                 SET_BIT( pai->alert, ALERTIF_ATLASTWAYPOINT );
             }

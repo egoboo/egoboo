@@ -453,8 +453,6 @@ PRO_REF  chr_get_ipro( const CHR_REF ichr );
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 
-ObjectProfile *chr_get_ppro( const CHR_REF ichr );
-
 team_t         *chr_get_pteam( const CHR_REF ichr );
 team_t         *chr_get_pteam_base( const CHR_REF ichr );
 ai_state_t     *chr_get_pai( const CHR_REF ichr );
