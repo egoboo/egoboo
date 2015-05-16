@@ -85,7 +85,7 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
         return false;
     }
     spawn_file_info_reinit(info);
-Again:
+
     // Until we hit something else than newlines, whitespaces or comments.
     while (true)
     {
