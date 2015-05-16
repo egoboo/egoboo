@@ -23,6 +23,7 @@
 
 #include "game/game.h"
 
+#include "game/Inventory.hpp"
 #include "egolib/Graphics/mad.h"
 #include "game/player.h"
 #include "game/link.h"
