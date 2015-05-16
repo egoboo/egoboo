@@ -61,7 +61,6 @@ extern "C"
     #define stricmp strcasecmp
 #endif
 
-
 //--------------------------------------------------------------------------------------------
 // windows definitions
 

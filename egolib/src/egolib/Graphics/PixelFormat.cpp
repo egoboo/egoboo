@@ -22,6 +22,7 @@
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/PixelFormat.hpp"
+#include "egolib/Core/UnhandledSwitchCaseException.hpp"
 
 namespace Ego
 {
@@ -50,6 +51,10 @@ const PixelFormatDescriptor& PixelFormatDescriptor::get(PixelFormat pixelFormat)
             return get<PixelFormat::R8G8B8A8>();
         }
         break;
+        default:
+        {
+            throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        }        
     };
 }
 

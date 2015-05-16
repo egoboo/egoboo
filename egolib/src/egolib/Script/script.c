@@ -209,9 +209,7 @@ void scr_run_chr_script( const CHR_REF character )
     // Reset the target if it can't be seen
     if ( pself->target != pself->index )
     {
-        Object * ptarget = _gameObjects.get( pself->target );
-
-        if ( !chr_can_see_object( pchr, ptarget ) )
+        if (!pchr->canSeeObject(_gameObjects[pself->target]))
         {
             pself->target = pself->index;
         }

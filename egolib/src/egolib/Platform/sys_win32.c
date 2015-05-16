@@ -46,7 +46,7 @@ void sys_initialize( void )
     win32_secondsPerTick = 1.0f / frequency.QuadPart;
 
     f = frequency.QuadPart;
-    log_info( "Frequency is %ld hz\n", f );
+    log_info( "Frequency is %I64d hz\n", f );
 }
 
 //--------------------------------------------------------------------------------------------

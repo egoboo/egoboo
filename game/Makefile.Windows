@@ -25,7 +25,7 @@ BIN = ../data/egoboo.exe
 
 #---------------------
 #Includes
-INCLUDES := -Isrc -I../egolib/src
+INCLUDES := -Isrc -I../egolib/src -I../idlib/src
 INCLUDES += -I../../enet-1.3.12/include
 INCLUDES += -I../../physfs-2.0.3/
 
@@ -36,14 +36,14 @@ SDLCONF_C := $(shell sdl-config --cflags)
 
 #---------------------
 # the compiler options
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -Wall -fno-builtin -Wfatal-errors -static-libstdc++ -pg
+CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -Wall -fno-builtin -Wfatal-errors -Werror -static-libstdc++
 #-Wextra -Weffc++
 
 #hush some warnings we dont care about
-CXXFLAGS += -Wno-format -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function -Wno-unused-variable
+CXXFLAGS += -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function -Wno-unused-variable -Wno-reorder
 
 #debug options
-CXXFLAGS += -ggdb -fdiagnostics-color=always
+CXXFLAGS += -ggdb -fdiagnostics-color=always -pg
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 
@@ -52,6 +52,7 @@ CXXFLAGS += -ggdb -fdiagnostics-color=always
 
 LINKER_LIBS := -lmingw32 -mconsole -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -lSHFolder -lAdvapi32
 LINKER_LIBS += -L../egolib/ -legoboo
+LINKER_LIBS += -L../idlib/ -lid
 LINKER_LIBS += -L/usr/local/lib -lSDLmain -lSDL -lSDL_mixer -lSDL_ttf -lSDL_image
 LINKER_LIBS += -lphysfs
 LINKER_LIBS += -lenet -lwsock32 -lws2_32

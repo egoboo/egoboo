@@ -92,7 +92,7 @@ static bool computeBasicDataPath()
     // (1) Check for data in the working directory
     char workingDirectory[MAX_PATH] = EMPTY_CSTR;
     GetCurrentDirectory(MAX_PATH, workingDirectory);
-    snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", workingDirectory, MAX_PATH);
+    snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", workingDirectory);
     DWORD attrib = GetFileAttributes(temporary);
     if (HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, attrib))
     {
@@ -101,7 +101,7 @@ static bool computeBasicDataPath()
     }
     // IF (1) failed
     // THEN check for data in the binary directory
-    snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", _binaryPath, MAX_PATH);
+    snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", _binaryPath);
     attrib = GetFileAttributes(temporary);
     if (HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, attrib))
     {

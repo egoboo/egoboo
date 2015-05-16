@@ -1,14 +1,18 @@
-.PHONY: egolib egoboo clean
+.PHONY: idlib egolib egoboo clean
 	
-all: egolib egoboo
+all: idlib egolib egoboo
 
 egolib:
 	${MAKE} -C ./egolib -f Makefile.Windows
 
-egoboo: egolib
+idlib:
+	${MAKE} -C ./idlib -f Makefile.Windows
+
+egoboo: idlib egolib
 	${MAKE} -C ./game -f Makefile.Windows
 	
 clean:
 	${MAKE} -C ./egolib -f Makefile.Windows clean
 	${MAKE} -C ./game -f Makefile.Windows clean
+	${MAKE} -C ./idlib -f Makefile.Windows clean
 	

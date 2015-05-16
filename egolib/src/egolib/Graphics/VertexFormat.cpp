@@ -22,6 +22,7 @@
 /// @author Michael Heilmann
 
 #include "egolib/Graphics/VertexFormat.hpp"
+#include "egolib/Core/UnhandledSwitchCaseException.hpp"
 
 namespace Ego
 {
@@ -65,6 +66,10 @@ const VertexFormatDescriptor& VertexFormatDescriptor::get(VertexFormat vertexFor
             return get<VertexFormat::P3FC4FT2FN3F>();
         }
         break;
+        default:
+        {
+            throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
+        }
     };
 }
 
