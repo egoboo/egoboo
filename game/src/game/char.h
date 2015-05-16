@@ -197,8 +197,6 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size );
 
 Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
-bool    chr_can_see_dark( const Object * pchr, const Object * pobj );
-bool    chr_can_see_invis( const Object * pchr, const Object * pobj );
 int       chr_get_price( const CHR_REF ichr );
 
 bool     chr_heal_mad( Object * pchr );
