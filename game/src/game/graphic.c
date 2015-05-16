@@ -2296,7 +2296,7 @@ float draw_debug(float y)
 #if 0
         y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
 #endif
-        y = draw_string_raw(0, y, "~~DAMAGEPART %d", damagetile.part_gpip);
+        y = draw_string_raw(0, y, "~~DAMAGEPART %d", damagetile.part_gpip.get());
 
         // y = draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
