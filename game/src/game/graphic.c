@@ -2287,7 +2287,7 @@ float draw_debug(float y)
         // More debug information
         y = draw_string_raw(0, y, "!!!DEBUG MODE-6!!!");
         y = draw_string_raw(0, y, "~~FREEPRT %d", ParticleHandler::get().getFreeCount());
-        y = draw_string_raw(0, y, "~~FREECHR %d", OBJECTS_MAX - _gameObjects.getObjectCount());
+        y = draw_string_raw(0, y, "~~FREECHR %" PRIuZ, OBJECTS_MAX - _gameObjects.getObjectCount());
 #if 0
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
 #endif

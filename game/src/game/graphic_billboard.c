@@ -255,7 +255,7 @@ BBOARD_REF BillboardList_get_free_ref(Uint32 lifetime_secs)
 
     if (loops > 0)
     {
-        log_warning("%s:%d: there is something wrong with the free stack. %d loops.\n", __FILE__, __LINE__, loops);
+        log_warning("%s:%d: there is something wrong with the free stack. %" PRIuZ " loops.\n", __FILE__, __LINE__, loops);
     }
 
     if (VALID_BILLBOARD_RANGE(ibb))

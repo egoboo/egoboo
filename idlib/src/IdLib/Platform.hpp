@@ -175,10 +175,10 @@
 * @remark
 *  This is necessary because of Redmon Retards' (aka Microsoft's) Visual C++.
 */
-#if defined(_MSC_VER) || defined(__MINGW) || defined(__MINGW32__)
+#if defined(_MSC_VER)
     #define PRIuZ "Iu"
 #else
-    #define PRIuZ "zx"
+    #define PRIuZ "zu"
 #endif
 
 /**
