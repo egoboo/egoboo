@@ -25,9 +25,8 @@ class NonCopyable
 protected:
     NonCopyable() { }
     ~NonCopyable() { }
-private:
     NonCopyable(const NonCopyable&) = delete;
-    const NonCopyable& operator=(const NonCopyable&) = delete;
+    NonCopyable& operator=(const NonCopyable&) = delete;
 };
 
 } // namespace Id
