@@ -112,7 +112,5 @@ bool bv_validate(bv_t * rhs)
 //--------------------------------------------------------------------------------------------
 bool bv_test(const bv_t * rhs)
 {
-	bool retval;
-	if (NULL == rhs) return false;
-	return true;
+	return NULL != rhs;
 }

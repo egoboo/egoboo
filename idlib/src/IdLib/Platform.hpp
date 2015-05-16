@@ -178,7 +178,7 @@
 #if defined(_MSC_VER)
     #define PRIuZ "Iu"
 #else
-    #define PRIuZ "zu"
+    #define PRIuZ "zx"
 #endif
 
 /**
