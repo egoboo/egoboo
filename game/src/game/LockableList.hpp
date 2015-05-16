@@ -585,7 +585,7 @@ protected:
 
         if (loops > 0)
         {
-            log_warning("%s - there is something wrong with the free stack. %lu loops.\n", __FUNCTION__, loops);
+            log_warning("%s - there is something wrong with the free stack. %" PRIuZ " loops.\n", __FUNCTION__, loops);
         }
 
         return ref;
