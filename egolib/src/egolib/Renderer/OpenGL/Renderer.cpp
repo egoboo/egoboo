@@ -23,6 +23,7 @@
 
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
 #include "egolib/Core/StringUtilities.hpp"
+#include "egolib/Core/UnhandledSwitchCaseException.hpp"
 #include "egolib/Core/CollectionUtilities.hpp"
 #include "egolib/Extensions/ogl_extensions.h"
 
@@ -197,6 +198,8 @@ void Renderer::setCullingMode(CullingMode mode)
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT_AND_BACK);
         break;
+    default:
+        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -229,6 +232,8 @@ void Renderer::setDepthFunction(CompareFunction function)
     case CompareFunction::Greater:
         glDepthFunc(GL_GREATER);
         break;
+    default:
+        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     };
     Utilities::isError();
 }
@@ -330,6 +335,8 @@ void Renderer::setWindingMode(WindingMode mode)
     case WindingMode::AntiClockwise:
         glFrontFace(GL_CCW);
         break;
+    default:
+        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
     Utilities::isError();
 }
