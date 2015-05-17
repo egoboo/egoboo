@@ -37,6 +37,7 @@
 #include "game/renderer_2d.h"
 #include "game/script_implementation.h"
 #include "game/char.h"
+#include "game/Inventory.hpp"
 #include "game/Entities/_Include.hpp"
 #include "game/mesh.h"
 #include "game/Core/GameEngine.hpp"
@@ -877,7 +878,7 @@ Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_height( pchr, pstate->argument );
+    pchr->setBumpHeight(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3327,7 +3328,7 @@ Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_width( pchr, pstate->argument );
+    pchr->setBumpWidth(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3752,12 +3753,10 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check right hand
-        ichr = pchr->holdingwhich[SLOT_RIGHT];
-        if ( _gameObjects.exists( ichr ) )
+        const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
+        if (rightItem)
         {
-            ObjectProfile *item = chr_get_ppro(ichr);
-
-            if ( !item->isRangedWeapon() && item->getWeaponAction() != ACTION_PA )
+            if ( !rightItem->getProfile()->isRangedWeapon() && rightItem->getProfile()->getWeaponAction() != ACTION_PA )
             {
                 if ( 0 == pstate->argument || ( update_wld & 1 ) )
                 {
@@ -3771,12 +3770,10 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check left hand
-        ichr = pchr->holdingwhich[SLOT_LEFT];
-        if ( _gameObjects.exists( ichr ) )
+        const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
+        if (leftItem)
         {
-            ObjectProfile *item = chr_get_ppro(ichr);
-
-            if ( !item->isRangedWeapon() && item->getWeaponAction() != ACTION_PA )
+            if ( !leftItem->getProfile()->isRangedWeapon() && leftItem->getProfile()->getWeaponAction() != ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = true;
@@ -3795,8 +3792,6 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     /// @details This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it. The button will need to be held down.
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
@@ -3805,12 +3800,10 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check right hand
-        ichr = pchr->holdingwhich[SLOT_RIGHT];
-        if ( _gameObjects.exists( ichr ) )
+        const std::shared_ptr<Object> &rightItem = pchr->getRightHandItem();
+        if ( rightItem )
         {
-            const ObjectProfile *item = chr_get_ppro(ichr);
-
-            if ( item->getWeaponAction() == ACTION_PA )
+            if ( rightItem->getProfile()->getWeaponAction() == ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_RIGHT;
                 returncode = true;
@@ -3821,12 +3814,10 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check left hand
-        ichr = pchr->holdingwhich[SLOT_LEFT];
-        if ( _gameObjects.exists( ichr ) )
-        {            
-            const ObjectProfile *item = chr_get_ppro(ichr);
-
-            if ( item->getWeaponAction() == ACTION_PA )
+        const std::shared_ptr<Object> &leftItem = pchr->getLeftHandItem();
+        if ( leftItem )
+        {     
+            if ( leftItem->getProfile()->getWeaponAction() == ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = true;
@@ -6926,10 +6917,8 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    const ObjectProfile *targetProfile = chr_get_ppro( pself->target );
-
     returncode = false;
-    if ( targetProfile->canBeGrogged() )
+    if ( pself_target->getProfile()->canBeGrogged() )
     {
         int timer_val = pself_target->grog_timer + pstate->argument;
         pself_target->grog_timer = std::max( 0, timer_val );
@@ -6952,11 +6941,9 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    const ObjectProfile *targetProfile = chr_get_ppro(pself->target);
-
     // Characters who manage to daze themselves are to ignore their daze immunity
     returncode = false;
-    if ( targetProfile->canBeDazed() || pself->index == pself->target )
+    if ( pself_target->getProfile()->canBeDazed() || pself->index == pself->target )
     {
         int timer_val = pself_target->daze_timer + pstate->argument;
         pself_target->daze_timer = std::max( 0, timer_val );
@@ -7150,9 +7137,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 
     if ( !_gameObjects.exists( pself->target ) ) return false;
 
-    const ObjectProfile *targetProfile = chr_get_ppro( pself->target );
-
-    returncode = targetProfile->isRangedWeapon() || chr_has_idsz(pself->target, MAKE_IDSZ('X', 'W', 'E', 'P'));
+    returncode = _gameObjects[pself->target]->getProfile()->isRangedWeapon() || chr_has_idsz(pself->target, MAKE_IDSZ('X', 'W', 'E', 'P'));
 
     SCRIPT_FUNCTION_END();
 }

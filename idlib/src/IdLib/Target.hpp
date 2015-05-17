@@ -192,6 +192,10 @@
     #elif defined (__MINGW32__)
         #define ID_MINGW32 (1)
     #endif
+
+     #if defined(ID_MINGW64) || defined(ID_MINGW32)
+        #define ID_MINGW (1)
+     #endif
 #endif
 
 #if defined(__APPLE__) && defined (__MACH__)

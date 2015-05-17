@@ -23,6 +23,7 @@
 
 #include "game/game.h"
 
+#include "game/Inventory.hpp"
 #include "egolib/Graphics/mad.h"
 #include "game/player.h"
 #include "game/link.h"
@@ -187,8 +188,6 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
 {
     /// @author ZZ
     /// @details This function exports a character
-    ObjectProfile * pobj;
-
     STRING fromdir;
     STRING todir;
     STRING fromfile;
@@ -199,10 +198,12 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     // Don't export enchants
     disenchant_character( character );
 
-    pobj = chr_get_ppro( character );
-    if ( NULL == pobj ) return rv_error;
+    const std::shared_ptr<Object> &object = _gameObjects[character];
+    if(!object) {
+        return rv_error;
+    }
 
-    if ( !PMod->isExportValid() || ( pobj->isItem() && !pobj->canCarryToNextModule() ) )
+    if ( !PMod->isExportValid() || ( object->getProfile()->isItem() && !object->getProfile()->canCarryToNextModule() ) )
     {
         return rv_fail;
     }
@@ -244,10 +245,10 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // modules/advent.mod/objects/advent.obj
-    snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->getFilePath().c_str() );
+    snprintf( fromdir, SDL_arraysize( fromdir ), "%s", object->getProfile()->getFilePath().c_str() );
 
     // Build the DATA.TXT file
-    if(!ObjectProfile::exportCharacterToFile(std::string(todir) + "/data.txt", _gameObjects.get(character))) {
+    if(!ObjectProfile::exportCharacterToFile(std::string(todir) + "/data.txt", object.get())) {
         log_warning( "export_one_character() - unable to save data.txt \"%s/data.txt\"\n", todir );
         return rv_error;
     }
@@ -1008,9 +1009,8 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     }
     else
     {
-        ObjectProfile *profile = chr_get_ppro(iObjectest);
-        bool match_idsz = ( idsz == profile->getIDSZ(IDSZ_PARENT) ) ||
-                            ( idsz == profile->getIDSZ(IDSZ_TYPE) );
+        bool match_idsz = ( idsz == ptst->getProfile()->getIDSZ(IDSZ_PARENT) ) ||
+                            ( idsz == ptst->getProfile()->getIDSZ(IDSZ_TYPE) );
 
         if ( match_idsz )
         {
@@ -1925,7 +1925,7 @@ void show_full_status( int statindex )
     DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
-    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - chr_get_ppro(character)->getSkinInfo(skinlevel).defence,
+    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pchr->getProfile()->getSkinInfo(skinlevel).defence,
                        pchr->damage_resistance[DAMAGE_SLASH]*100,
                        pchr->damage_resistance[DAMAGE_CRUSH]*100,
                        pchr->damage_resistance[DAMAGE_POKE ]*100 );
@@ -2167,8 +2167,8 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
     {
         if ( pchr->experiencelevel < pinfo->level )
         {
-            pchr->experience = chr_get_ppro(pchr->getCharacterID())->getXPNeededForLevel(pinfo->level);
-            do_level_up( pchr->getCharacterID() );
+            pchr->experience = pchr->getProfile()->getXPNeededForLevel(pinfo->level);
+            pchr->giveLevelUp();
         }
     }
 
@@ -3162,9 +3162,9 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pchr )
                         {
-                            strncpy(cppToCBuffer, chr_get_ppro(ichr)->getClassName().c_str(), 256);
+                            strncpy(cppToCBuffer, pchr->getProfile()->getClassName().c_str(), 256);
                             ebuffer     = cppToCBuffer;
-                            ebuffer_end = ebuffer + chr_get_ppro(ichr)->getClassName().length();
+                            ebuffer_end = ebuffer + pchr->getProfile()->getClassName().length();
                         }
                     }
                     break;
@@ -3196,9 +3196,9 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != ptarget )
                         {
-                            strncpy(cppToCBuffer, chr_get_ppro(pai->target)->getClassName().c_str(), 256);
+                            strncpy(cppToCBuffer, ptarget->getProfile()->getClassName().c_str(), 256);
                             ebuffer     = cppToCBuffer;
-                            ebuffer_end = ebuffer + chr_get_ppro(pai->target)->getClassName().length();
+                            ebuffer_end = ebuffer + ptarget->getProfile()->getClassName().length();
                         }
                     }
                     break;
@@ -3216,9 +3216,9 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != ptarget )
                         {
-                            strncpy(cppToCBuffer, chr_get_ppro(pai->target)->getSkinInfo((*src)-'0').name.c_str(), 256);
+                            strncpy(cppToCBuffer, ptarget->getProfile()->getSkinInfo((*src)-'0').name.c_str(), 256);
                             ebuffer = cppToCBuffer;
-                            ebuffer_end = ebuffer + chr_get_ppro(pai->target)->getSkinInfo((*src)-'0').name.length();
+                            ebuffer_end = ebuffer + ptarget->getProfile()->getSkinInfo((*src)-'0').name.length();
                         }
                     }
                     break;

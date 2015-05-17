@@ -48,3 +48,7 @@ The -j is optional but can dramatically increase compile speed by utilizing para
 If everything compiles as it should, then the binary (egoboo.exe) should be located in
 ".../egoboo/game/data". Remember that you need all the SDL DLL's you compiled earlier
 in the same folder as the binary executable.
+
+== Git Magic
+Use the following command:
+git log --graph --oneline --all --decorate

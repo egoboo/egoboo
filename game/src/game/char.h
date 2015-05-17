@@ -225,12 +225,6 @@ void chr_set_redshift( Object * pchr, const int rs );
 void chr_set_grnshift( Object * pchr, const int gs );
 void chr_set_blushift( Object * pchr, const int bs );
 
-void chr_set_fat(Object *chr, const float fat);
-void chr_set_height(Object *chr, const float height);
-void chr_set_width(Object *chr, const float width);
-void chr_set_size(Object *chr, const float size);
-void chr_set_shadow(Object *chr, const float width);
-
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatUp(Object *self, fvec3_t& up);
 
@@ -313,70 +307,6 @@ BIT_FIELD Object_test_wall(Object *obj, const fvec3_t& pos, mesh_wall_data_t * d
 CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
 void    respawn_character( const CHR_REF character );
 
-struct Inventory
-{
-    /*
-     * @brief
-     *  Remove an item from an inventory slot.
-     * @details
-     *  Note that you still have to handle it falling out.
-     */
-    static bool remove_item(const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse);
-    /**
-     * @brief
-     *  Add an item to an inventory slot.
-     * @details
-     *  This fails if there already is an item there.
-     *  If the specified inventory slot is MAXINVENTORY,
-     *  it will find the first free inventory slot.
-     */
-    static bool add_item(const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse);
-    /**
-     * @brief
-     *  Swap item between inventory slot and grip slot.
-     * @remark
-     *  This swaps an item between the specified inventory slot and the specified grip
-     *  If the specified inventory slot is MAXINVENTORY,
-     *  the function will swap with the first item found in the inventory.
-     */
-    static bool swap_item(const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse);
-
-    /**
-     * @brief
-     *  Find an item in the pack.
-     * @param pobj
-     *  the object
-     * @param idsz, equippedOnly
-     *  the search criteria
-     * @return
-     *  the character reference of the first item in the pack matching the search criterion,
-     *  #INVALID_CHR_REF if no item in the pack matches the search criterion
-     * @remark
-     *  This function searches the characters pack for an item matching the search criterion.
-     *  An item matches the search criterion if it has the specified IDSZ. If @a equipped is
-     *  @a true, then in addition the item must be equipped in order to match the search
-     *  criterion.
-     */
-    static CHR_REF findItem(const Object *pobj, IDSZ idsz, bool equippedOnly);
-    /**
-     * @brief
-     *  Find an item in the pack.
-     * @param iobj
-     *  the object
-     * @param idsz, equippedOnly
-     *  the search criteria
-     * @return
-     *  the character reference of the first item in the pack matching the search criterion,
-     *  #INVALID_CHR_REF if no item in the pack matches the search criterion
-     * @remark
-     *  This function searches the characters pack for an item matching the search criterion.
-     *  An item matches the search criterion if it has the specified IDSZ. If @a equipped is
-     *  @a true, then in addition the item must be equipped in order to match the search
-     *  criterion.
-     */
-    static CHR_REF findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly);
-};
-
 /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
 ///    inventory ( Not hands ).
 void  drop_keys(const CHR_REF character);
@@ -411,7 +341,6 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
 void free_inventory_in_game( const CHR_REF character );
-void do_level_up( const CHR_REF character );
 bool setup_xp_table( const CHR_REF character );
 
 int     change_armor( const CHR_REF character, const SKIN_T skin );
@@ -459,17 +388,12 @@ PRO_REF  chr_get_ipro( const CHR_REF ichr );
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 
-ObjectProfile *chr_get_ppro( const CHR_REF ichr );
-
 team_t         *chr_get_pteam( const CHR_REF ichr );
 team_t         *chr_get_pteam_base( const CHR_REF ichr );
 ai_state_t     *chr_get_pai( const CHR_REF ichr );
 chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
 
 IDSZ chr_get_idsz( const CHR_REF ichr, int type );
-
-void chr_update_size( Object * pchr );
-
 
 bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );

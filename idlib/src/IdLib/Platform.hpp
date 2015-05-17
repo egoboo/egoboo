@@ -175,7 +175,7 @@
 * @remark
 *  This is necessary because of Redmon Retards' (aka Microsoft's) Visual C++.
 */
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(ID_MINGW)
     #define PRIuZ "Iu"
 #else
     #define PRIuZ "zu"
@@ -188,7 +188,7 @@
  * @remark
  *  This is necessary because of Redmon Retards' (aka Microsoft's) Visual C++.
  */
-#if defined(_MSC_VER) || defined(__MINGW) || defined(__MINGW32__)
+#if defined(_MSC_VER) || defined(ID_MINGW)
     #define PRIdZ "Id"
 #else
     #define PRIdZ "zd"

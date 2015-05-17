@@ -1897,7 +1897,7 @@ void draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_amm
     {
         if (0 != pitem->ammomax && pitem->ammoknown)
         {
-            if ((!chr_get_ppro(item)->isStackable()) || pitem->ammo > 1)
+            if ((!pitem->getProfile()->isStackable()) || pitem->ammo > 1)
             {
                 // Show amount of ammo left
                 draw_string_raw(x, y - 8, "%2d", pitem->ammo);
@@ -2519,7 +2519,7 @@ void draw_inventory()
             CHR_REF item = pchr->inventory[i];
 
             //calculate the sum of the weight of all items in inventory
-            if (_gameObjects.exists(item)) weight_sum += chr_get_ppro(item)->getWeight();
+            if (_gameObjects.exists(item)) weight_sum += _gameObjects[item]->getProfile()->getWeight();
 
             //draw icon
             draw_one_character_icon(item, x, y, true, (item_count == ppla->inventory_slot) ? COLOR_WHITE : NOSPARKLE);

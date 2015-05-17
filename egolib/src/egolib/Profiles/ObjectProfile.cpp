@@ -268,12 +268,12 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     _iconsLoaded.clear();
 
     // Load the skins and icons
-    for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
+    for (int cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
         STRING newloadname;
 
         // do the texture
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%zu", folderPath.c_str(), cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%d", folderPath.c_str(), cnt );
 
 		TX_REF skin = TextureManager::get().load(newloadname, INVALID_TX_REF, TRANSCOLOR);
         if ( VALID_TX_RANGE( skin ) )
@@ -282,7 +282,7 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
         }
 
         // do the icon
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%zu", folderPath.c_str(), cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", folderPath.c_str(), cnt );
 
 		TX_REF icon = TextureManager::get().load(newloadname, INVALID_TX_REF);
         if ( VALID_TX_RANGE( icon ) )
@@ -1082,7 +1082,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
         return false;
     }
 
-    const ObjectProfile *profile = chr_get_ppro(GET_INDEX_PCHR(character));
+    const std::shared_ptr<ObjectProfile> &profile = character->getProfile();
 
     // Real general data
     template_put_int( fileTemp, fileWrite, -1 );     // -1 signals a flexible load thing
