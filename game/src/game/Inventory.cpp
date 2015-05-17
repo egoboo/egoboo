@@ -1,5 +1,5 @@
 #include "game/Inventory.hpp"
-#include "game/entities/_include.hpp"
+#include "game/entities/_Include.hpp"
 
 #include "game/game.h"
 #include "game/renderer_2d.h"

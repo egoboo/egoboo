@@ -1242,7 +1242,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
     if (0 != darkvision_level) {
         light *= expf(0.32f * static_cast<float>(darkvision_level));
     }
-    if(light >= INVISIBLE) {
+    if(light < INVISIBLE) {
         return false;
     }
 
@@ -1253,7 +1253,7 @@ bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
         alpha = get_alpha(alpha, expf(0.32f * static_cast<float>(see_invisible_level)));
     }
     alpha = Ego::Math::constrain(alpha, 0, 255);
-    if(alpha >= INVISIBLE) {
+    if(alpha < INVISIBLE) {
         return false;
     }
 
