@@ -141,6 +141,12 @@
     #include <stdint.h>
 #endif
 
+#if defined(__cplusplus)
+    #include <cinttypes>
+#else
+    #include <inttypes.h>
+#endif
+
 // C++ exxclusive headers from here on (in alphabetic order).
 #include <array>
 #include <algorithm>
