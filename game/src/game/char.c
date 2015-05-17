@@ -1595,50 +1595,6 @@ void call_for_help( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void give_experience( const CHR_REF character, int amount, XPType xptype, bool override_invictus )
-{
-    /// @author ZZ
-    /// @details This function gives a character experience
-
-    float newamount;
-
-    Object * pchr;
-
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
-
-    //No xp to give
-    if ( 0 == amount ) return;
-
-    if ( !pchr->invictus || override_invictus )
-    {
-        float intadd = ( FP8_TO_FLOAT( pchr->intelligence ) - 10.0f ) / 200.0f;
-        float wisadd = ( FP8_TO_FLOAT( pchr->wisdom )       - 10.0f ) / 400.0f;
-
-        // Figure out how much experience to give
-        newamount = amount;
-        if ( xptype < XP_COUNT )
-        {
-            newamount = amount * pchr->getProfile()->getExperienceRate(xptype);
-        }
-
-        // Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
-        newamount *= 1.00f + intadd + wisadd;
-
-        // Apply XP bonus/penality depending on game difficulty
-        if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
-        {
-            newamount *= 1.20f; // 20% extra on hard
-        }
-        else if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Normal)
-        {
-            newamount *= 1.10f; // 10% extra on normal
-        }
-        pchr->experience += newamount;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
 {
     /// @author ZZ
@@ -1648,7 +1604,7 @@ void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
     {
         if ( chr->team == team )
         {
-            give_experience( chr->getCharacterID(), amount, ( XPType )xptype, false );
+            chr->giveExperience(amount, xptype, false);
         }
     }
 }

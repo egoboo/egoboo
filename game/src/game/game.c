@@ -1659,7 +1659,7 @@ void check_stats()
 
             //Give 10% of XP needed for next level
             xpgain = 0.1f * ( profile->getXPNeededForLevel( std::min( pchr->experiencelevel+1, MAXLEVEL) ) - profile->getXPNeededForLevel(pchr->experiencelevel));
-            give_experience( pchr->ai.index, xpgain, XP_DIRECT, true );
+            pchr->giveExperience(xpgain, XP_DIRECT, true);
             stat_check_delay = 1;
         }
     }

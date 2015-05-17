@@ -436,6 +436,20 @@ public:
     /// @details This function fixes a character's max acceleration
     void resetAcceleration();
 
+    /**
+    * @brief
+    *   Awards some experience points to this object, potentionally allowing it to reach another
+    *   character level. This function handles additional experience gain modifiers such as
+    *   XP bonus, roleplay or game difficulity.
+    * @param xptype
+    *   What kind of experience to give. Different classes gain experience differently depending
+    *   on the kind of xp.
+    * @param overrideInvincibility
+    *   Invincible objects usually gain no experience (scenery objects such as a rock for example).
+    *   Set this parameter to true to override this and give the experience anyways.
+    **/
+    void giveExperience(const int amount, const XPType xptype, const bool overrideInvincibility);
+
 private:
 
     /**

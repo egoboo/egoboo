@@ -2904,7 +2904,12 @@ Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_experience( pself->target, pstate->argument, static_cast<XPType>(pstate->distance), false );
+    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    if(!target) {
+        return false;
+    }
+
+    target->giveExperience(pstate->argument, static_cast<XPType>(pstate->distance), false);
 
     SCRIPT_FUNCTION_END();
 }

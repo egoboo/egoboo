@@ -1425,11 +1425,11 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
             if ( chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_PARENT ) ||
                  chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_TYPE ) )
             {
-                give_experience( actualKiller->getCharacterID(), experience, XP_KILLHATED, false );
+                actualKiller->giveExperience(experience, XP_KILLHATED, false);
             }
 
             // Nope, award direct kill experience instead
-            else give_experience( actualKiller->getCharacterID(), experience, XP_KILLENEMY, false );
+            else actualKiller->giveExperience(experience, XP_KILLENEMY, false);
         }
     }
 
@@ -1444,7 +1444,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         // All allies get team experience, but only if they also hate the dead guy's team
         if (listener != actualKiller && !team_hates_team(listener->getTeam(), actualKiller->getTeam()) && team_hates_team(listener->getTeam(), getTeam()) )
         {
-            give_experience( listener->getCharacterID(), experience, XP_TEAMKILL, false );
+            listener->giveExperience(experience, XP_TEAMKILL, false);
         }
 
         // Check if we were a leader
@@ -1571,4 +1571,36 @@ void Object::resetAcceleration()
         ienc_count++;
     }
     if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
+}
+
+void Object::giveExperience(const int amount, const XPType xptype, const bool overrideInvincibility)
+{
+    //No xp to give
+    if (0 == amount) return;
+
+    if (!isInvincible() || overrideInvincibility)
+    {
+        // Figure out how much experience to give
+        float newamount = amount;
+        if ( xptype < XP_COUNT )
+        {
+            newamount = amount * getProfile()->getExperienceRate(xptype);
+        }
+
+        // Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
+        float intadd = ( FP8_TO_FLOAT(intelligence ) - 10.0f ) / 200.0f;
+        float wisadd = ( FP8_TO_FLOAT(wisdom )       - 10.0f ) / 400.0f;
+        newamount *= 1.00f + intadd + wisadd;
+
+        // Apply XP bonus/penality depending on game difficulty
+        if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
+        {
+            newamount *= 1.20f; // 20% extra on hard
+        }
+        else if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Normal)
+        {
+            newamount *= 1.10f; // 10% extra on normal
+        }
+        experience += newamount;
+    }
 }
