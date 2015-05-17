@@ -582,14 +582,6 @@ void free_all_chraracters()
 }
 
 //--------------------------------------------------------------------------------------------
-float chr_get_mesh_pressure(Object *chr)
-{
-    if (!chr)
-    {
-        return 0.0f;
-    }
-    return chr_get_mesh_pressure(chr, chr->getPosition());
-}
 float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
 {
     if (!chr)
@@ -624,14 +616,6 @@ float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
 }
 
 //--------------------------------------------------------------------------------------------
-fvec3_t chr_get_mesh_diff(Object *chr, float center_pressure)
-{
-    if (!chr)
-    {
-        return fvec3_t::zero();
-    }
-    return chr_get_mesh_diff(chr, chr->getPosition(), center_pressure);
-}
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure)
 {
     if (!chr)
@@ -802,74 +786,6 @@ void reset_character_accel( const CHR_REF character )
         ienc_count++;
     }
     if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
-}
-
-//--------------------------------------------------------------------------------------------
-void reset_character_alpha( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function fixes an item's transparency
-
-    CHR_REF mount;
-    Object * pchr, * pmount;
-
-    // Make sure the character is valid
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
-
-    // Make sure the character is mounted
-    mount = _gameObjects.get(character)->attachedto;
-    if ( !_gameObjects.exists( mount ) ) return;
-    pmount = _gameObjects.get( mount );
-
-    if ( pchr->isitem && pmount->transferblend )
-    {
-        ENC_REF ienc_now, ienc_nxt;
-        size_t  ienc_count;
-
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
-        // Okay, reset transparency
-        ienc_now = pchr->firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            enc_remove_set(ienc_now, eve_t::SETALPHABLEND);
-            enc_remove_set(ienc_now, eve_t::SETLIGHTBLEND);
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-        pchr->setAlpha(pchr->getProfile()->getAlpha());
-        pchr->setLight(pchr->getProfile()->getLight());
-
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
-        ienc_now = pchr->firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            PRO_REF ipro = enc_get_ipro( ienc_now );
-
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            if (ProfileSystem::get().isValidProfileID(ipro))
-            {
-                enc_apply_set(ienc_now, eve_t::SETALPHABLEND, ipro);
-                enc_apply_set(ienc_now, eve_t::SETLIGHTBLEND, ipro);
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-    }
 }
 
 //--------------------------------------------------------------------------------------------

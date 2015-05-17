@@ -242,7 +242,6 @@ int chr_get_skill( Object * pchr, IDSZ whichskill );
 
 bool update_chr_darkvision( const CHR_REF character );
 
-void reset_character_alpha( const CHR_REF character );
 void reset_character_accel( const CHR_REF character );
 
 // this function is needed because the "hidden" state of an ai is determined by
@@ -285,9 +284,7 @@ void keep_weapons_with_holders();
 void make_one_character_matrix( const CHR_REF cnt );
 void move_one_character_get_environment( Object * pchr );
 
-fvec3_t chr_get_mesh_diff(Object *chr, float center_pressure);
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
-float chr_get_mesh_pressure(Object *chr);
 float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
 /// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
 BIT_FIELD Object_hit_wall(Object *obj, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);

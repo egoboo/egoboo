@@ -1473,3 +1473,59 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
     scr_run_chr_script( getCharacterID() );
 }
+
+void Object::resetAlpha()
+{
+    // Make sure the character is mounted
+    const std::shared_ptr<Object> &mount = _gameObjects[attachedto];
+    if(!mount) {
+        return;
+    }
+
+    if (isItem() && mount->transferblend)
+    {
+        // cleanup the enchant list
+        cleanup_character_enchants(this);
+
+        // Okay, reset transparency
+        ENC_REF ienc_now = firstenchant;
+        ENC_REF ienc_nxt;
+        size_t ienc_count = 0;
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
+        {
+            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+
+            enc_remove_set(ienc_now, eve_t::SETALPHABLEND);
+            enc_remove_set(ienc_now, eve_t::SETLIGHTBLEND);
+
+            ienc_now = ienc_nxt;
+            ienc_count++;
+        }
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+
+        setAlpha(getProfile()->getAlpha());
+        setLight(getProfile()->getLight());
+
+        // cleanup the enchant list
+        cleanup_character_enchants(this);
+
+        ienc_now = firstenchant;
+        ienc_count = 0;
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
+        {
+            PRO_REF ipro = enc_get_ipro( ienc_now );
+
+            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+
+            if (ProfileSystem::get().isValidProfileID(ipro))
+            {
+                enc_apply_set(ienc_now, eve_t::SETALPHABLEND, ipro);
+                enc_apply_set(ienc_now, eve_t::SETLIGHTBLEND, ipro);
+            }
+
+            ienc_now = ienc_nxt;
+            ienc_count++;
+        }
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    }
+}

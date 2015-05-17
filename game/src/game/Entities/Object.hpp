@@ -428,6 +428,10 @@ public:
     **/
     void kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvincibility);
 
+    /// @author ZZ
+    /// @details This function fixes an item's transparency
+    void resetAlpha();
+
 private:
 
     /**

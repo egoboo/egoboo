@@ -292,8 +292,12 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // Now fix dem weapons
     if ( NULL != target_ptr )
     {
-        reset_character_alpha( target_ptr->holdingwhich[SLOT_LEFT] );
-        reset_character_alpha( target_ptr->holdingwhich[SLOT_RIGHT] );
+        if(target_ptr->getLeftHandItem()) {
+            target_ptr->getLeftHandItem()->resetAlpha();
+        }
+        if(target_ptr->getRightHandItem()) {
+            target_ptr->getRightHandItem()->resetAlpha();
+        }
     }
 
     // unlink this enchant from its parent
