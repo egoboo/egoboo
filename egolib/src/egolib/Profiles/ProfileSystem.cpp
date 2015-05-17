@@ -56,10 +56,6 @@ ProfileSystem::ProfileSystem() :
 
     // necessary for loading up the copy.txt file
     load_action_names_vfs("mp_data/actions.txt");
-
-    // something that is used in the game that is somewhat related to the profile stuff
-    init_slot_idsz();
-
 }
 
 

@@ -452,6 +452,11 @@ public:
     **/
     void giveExperience(const int amount, const XPType xptype, const bool overrideInvincibility);
 
+
+    /// @author BB
+    /// @details determine the correct price for an item
+    int getPrice() const;
+
 private:
 
     /**

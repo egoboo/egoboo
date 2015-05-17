@@ -3890,7 +3890,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 
             inshop = true;
 
-            price = chr_get_price( iitem );
+            price = pitem->getPrice();
 
             // Are they are trying to sell junk or quest items?
             if ( 0 == price )
@@ -3941,7 +3941,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
             Object * powner = _gameObjects.get( iowner );
 
             in_shop = true;
-            price   = chr_get_price( iitem );
+            price   = pitem->getPrice();
 
             if ( ppicker->money >= price )
             {

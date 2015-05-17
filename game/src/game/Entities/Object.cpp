@@ -1604,3 +1604,50 @@ void Object::giveExperience(const int amount, const XPType xptype, const bool ov
         experience += newamount;
     }
 }
+
+int Object::getPrice() const
+{
+    /// @author BB
+    /// @details determine the correct price for an item
+
+    uint16_t  iskin;
+    float   price;
+
+    // Make sure spell books are priced according to their spell and not the book itself
+    PRO_REF slotNumber = INVALID_PRO_REF;
+    if (profile_ref == SPELLBOOK)
+    {
+        slotNumber = basemodel_ref;
+        iskin = 0;
+    }
+    else
+    {
+        slotNumber  = profile_ref;
+        iskin = skin;
+    }
+
+    std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(slotNumber);
+    if(!profile) {
+        return 0;
+    }
+
+    price = profile->getSkinInfo(iskin).cost;
+
+    // Items spawned in shops are more valuable
+    if ( !isshopitem ) price *= 0.5f;
+
+    // base the cost on the number of items/charges
+    if ( profile->isStackable() )
+    {
+        price *= ammo;
+    }
+    else if ( profile->isRangedWeapon() && ammo <ammomax )
+    {
+        if ( 0 != ammomax )
+        {
+            price *= static_cast<float>(ammo) / static_cast<float>(ammomax);
+        }
+    }
+    
+    return static_cast<int>(price);
+}
