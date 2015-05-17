@@ -272,6 +272,9 @@
     <ClCompile Include="src\game\GameStates\DebugModuleLoadingState.cpp">
       <Filter>Game Sources\GameStates</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Inventory.cpp">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -492,6 +495,9 @@
     </ClInclude>
     <ClInclude Include="src\game\Entities\Common.hpp">
       <Filter>Game Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Inventory.hpp">
+      <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
