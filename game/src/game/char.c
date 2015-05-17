@@ -6359,59 +6359,6 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_get_price( const CHR_REF ichr )
-{
-    /// @author BB
-    /// @details determine the correct price for an item
-
-    Uint16  iskin;
-    float   price;
-
-    Object * pchr;
-
-    if ( !_gameObjects.exists( ichr ) ) return 0;
-    pchr = _gameObjects.get( ichr );
-
-    // Make sure spell books are priced according to their spell and not the book itself
-    PRO_REF slotNumber = INVALID_PRO_REF;
-    if ( pchr->profile_ref == SPELLBOOK )
-    {
-        slotNumber = pchr->basemodel_ref;
-        iskin = 0;
-    }
-    else
-    {
-        slotNumber  = pchr->profile_ref;
-        iskin = pchr->skin;
-    }
-
-    std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(slotNumber);
-    if(!profile) {
-        return 0;
-    }
-
-    price = profile->getSkinInfo(iskin).cost;
-
-    // Items spawned in shops are more valuable
-    if ( !pchr->isshopitem ) price *= 0.5f;
-
-    // base the cost on the number of items/charges
-    if ( profile->isStackable() )
-    {
-        price *= pchr->ammo;
-    }
-    else if ( profile->isRangedWeapon() && pchr->ammo < pchr->ammomax )
-    {
-        if ( 0 != pchr->ammomax )
-        {
-            price *= ( float ) pchr->ammo / ( float ) pchr->ammomax;
-        }
-    }
-
-    return ( int )price;
-}
-
-//--------------------------------------------------------------------------------------------
 void chr_set_floor_level( Object * pchr, const float level )
 {
     if ( nullptr == ( pchr ) ) return;

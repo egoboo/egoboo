@@ -195,7 +195,6 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size );
 
 Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
-int       chr_get_price( const CHR_REF ichr );
 
 bool     chr_heal_mad( Object * pchr );
 MAD_REF  chr_get_imad( const CHR_REF ichr );
