@@ -37,6 +37,7 @@
 
 //Declare class static constants
 const size_t Object::MAXNUMINPACK;
+const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
 
 Object::Object(const PRO_REF profile, const CHR_REF id) : 
@@ -567,9 +568,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 //Did we survive?
                 if (life <= 0)
                 {
-                    CHR_REF attacker_ref = INVALID_CHR_REF;
-                    if (attacker) attacker_ref = attacker->getCharacterID();
-                    kill_character( _characterID, attacker_ref, ignore_invictus );
+                    this->kill(attacker, ignore_invictus);
                 }
                 else
                 {
@@ -1371,5 +1370,237 @@ void Object::giveLevelUp()
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             mana_flow = number;
         }
+    }
+}
+
+void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvincibility)
+{
+    //No need to continue is there?
+    if (!isAlive() || (isInvincible() && !ignoreInvincibility)) return;
+
+    //Fix who is actually the killer if needed
+    std::shared_ptr<Object> actualKiller = originalKiller;
+    if (actualKiller)
+    {
+        //If we are a held item, try to figure out who the actual killer is
+        if ( _gameObjects.exists( actualKiller->attachedto ) && !_gameObjects.get(actualKiller->attachedto)->isMount() )
+        {
+            actualKiller = _gameObjects[actualKiller->attachedto];
+        }
+
+        //If the killer is a mount, try to award the kill to the rider
+        else if (actualKiller->isMount() && actualKiller->getLeftHandItem())
+        {
+            actualKiller = actualKiller->getLeftHandItem();
+        }
+    }
+
+    alive = false;
+    waskilled = true;
+
+    life            = -1;
+    platform        = true;
+    canuseplatforms = true;
+    phys.bumpdampen = phys.bumpdampen * 0.5f;
+
+    // Play the death animation
+    int action = Random::next((int)ACTION_KA, ACTION_KA + 3);
+    chr_play_action(this, action, false);
+    chr_instance_set_action_keep(&inst, true);
+
+    // Give kill experience
+    uint16_t experience = getProfile()->getExperienceValue() + (this->experience * getProfile()->getExperienceExchangeRate());
+
+    // distribute experience to the attacker
+    if (actualKiller)
+    {
+        // Set target
+        ai.target = actualKiller->getCharacterID();
+        if ( actualKiller->getTeam() == TEAM_DAMAGE || actualKiller->getTeam() == TEAM_NULL )  ai.target = getCharacterID();
+
+        // Award experience for kill?
+        if ( team_hates_team(actualKiller->getTeam(), getTeam()) )
+        {
+            //Check for special hatred
+            if ( chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_PARENT ) ||
+                 chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_TYPE ) )
+            {
+                actualKiller->giveExperience(experience, XP_KILLHATED, false);
+            }
+
+            // Nope, award direct kill experience instead
+            else actualKiller->giveExperience(experience, XP_KILLENEMY, false);
+        }
+    }
+
+    //Set various alerts to let others know it has died
+    //and distribute experience to whoever needs it
+    SET_BIT(ai.alert, ALERTIF_KILLED);
+
+    for(const std::shared_ptr<Object> &listener : _gameObjects.iterator())
+    {
+        if (!listener->isAlive()) continue;
+
+        // All allies get team experience, but only if they also hate the dead guy's team
+        if (listener != actualKiller && !team_hates_team(listener->getTeam(), actualKiller->getTeam()) && team_hates_team(listener->getTeam(), getTeam()) )
+        {
+            listener->giveExperience(experience, XP_TEAMKILL, false);
+        }
+
+        // Check if we were a leader
+        if ( TeamStack.lst[getTeam()].leader == getCharacterID() && listener->getTeam() == getTeam() )
+        {
+            // All folks on the leaders team get the alert
+            SET_BIT( listener->ai.alert, ALERTIF_LEADERKILLED );
+        }
+
+        // Let the other characters know it died
+        if ( listener->ai.target == getCharacterID() )
+        {
+            SET_BIT( listener->ai.alert, ALERTIF_TARGETKILLED );
+        }
+    }
+
+    // Detach the character from the game
+    cleanup_one_character(this);
+
+    // If it's a player, let it die properly before enabling respawn
+    if ( VALID_PLA(is_which_player) )  {
+        local_stats.revivetimer = ONESECOND; // 1 second
+    }
+
+    // Let it's AI script run one last time
+    ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
+    scr_run_chr_script( getCharacterID() );
+}
+
+void Object::resetAlpha()
+{
+    // Make sure the character is mounted
+    const std::shared_ptr<Object> &mount = _gameObjects[attachedto];
+    if(!mount) {
+        return;
+    }
+
+    if (isItem() && mount->transferblend)
+    {
+        // cleanup the enchant list
+        cleanup_character_enchants(this);
+
+        // Okay, reset transparency
+        ENC_REF ienc_now = firstenchant;
+        ENC_REF ienc_nxt;
+        size_t ienc_count = 0;
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
+        {
+            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+
+            enc_remove_set(ienc_now, eve_t::SETALPHABLEND);
+            enc_remove_set(ienc_now, eve_t::SETLIGHTBLEND);
+
+            ienc_now = ienc_nxt;
+            ienc_count++;
+        }
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+
+        setAlpha(getProfile()->getAlpha());
+        setLight(getProfile()->getLight());
+
+        // cleanup the enchant list
+        cleanup_character_enchants(this);
+
+        ienc_now = firstenchant;
+        ienc_count = 0;
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
+        {
+            PRO_REF ipro = enc_get_ipro( ienc_now );
+
+            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+
+            if (ProfileSystem::get().isValidProfileID(ipro))
+            {
+                enc_apply_set(ienc_now, eve_t::SETALPHABLEND, ipro);
+                enc_apply_set(ienc_now, eve_t::SETLIGHTBLEND, ipro);
+            }
+
+            ienc_now = ienc_nxt;
+            ienc_count++;
+        }
+        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    }
+}
+
+void Object::resetAcceleration()
+{
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
+
+    // cleanup the enchant list
+    cleanup_character_enchants(this);
+
+    // Okay, remove all acceleration enchants
+    ienc_now = firstenchant;
+    ienc_count = 0;
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
+    {
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+
+        enc_remove_add(ienc_now, eve_t::ADDACCEL);
+
+        ienc_now = ienc_nxt;
+        ienc_count++;
+    }
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+
+    // Set the starting value
+    maxaccel = maxaccel_reset = getProfile()->getSkinInfo(skin).maxAccel;
+
+    // cleanup the enchant list
+    cleanup_character_enchants(this);
+
+    // Put the acceleration enchants back on
+    ienc_now = firstenchant;
+    ienc_count = 0;
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
+    {
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+
+        enc_apply_add(ienc_now, eve_t::ADDACCEL, enc_get_ieve(ienc_now));
+
+        ienc_now = ienc_nxt;
+        ienc_count++;
+    }
+    if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
+}
+
+void Object::giveExperience(const int amount, const XPType xptype, const bool overrideInvincibility)
+{
+    //No xp to give
+    if (0 == amount) return;
+
+    if (!isInvincible() || overrideInvincibility)
+    {
+        // Figure out how much experience to give
+        float newamount = amount;
+        if ( xptype < XP_COUNT )
+        {
+            newamount = amount * getProfile()->getExperienceRate(xptype);
+        }
+
+        // Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
+        float intadd = ( FP8_TO_FLOAT(intelligence ) - 10.0f ) / 200.0f;
+        float wisadd = ( FP8_TO_FLOAT(wisdom )       - 10.0f ) / 400.0f;
+        newamount *= 1.00f + intadd + wisadd;
+
+        // Apply XP bonus/penality depending on game difficulty
+        if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
+        {
+            newamount *= 1.20f; // 20% extra on hard
+        }
+        else if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Normal)
+        {
+            newamount *= 1.10f; // 10% extra on normal
+        }
+        experience += newamount;
     }
 }

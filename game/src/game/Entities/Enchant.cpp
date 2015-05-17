@@ -292,8 +292,12 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // Now fix dem weapons
     if ( NULL != target_ptr )
     {
-        reset_character_alpha( target_ptr->holdingwhich[SLOT_LEFT] );
-        reset_character_alpha( target_ptr->holdingwhich[SLOT_RIGHT] );
+        if(target_ptr->getLeftHandItem()) {
+            target_ptr->getLeftHandItem()->resetAlpha();
+        }
+        if(target_ptr->getRightHandItem()) {
+            target_ptr->getRightHandItem()->resetAlpha();
+        }
     }
 
     // unlink this enchant from its parent
@@ -307,7 +311,7 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             switch_team( overlay_ref, overlay_ptr->team_base );
         }
 
-        kill_character( overlay_ref, INVALID_CHR_REF, true );
+        _gameObjects[overlay_ref]->kill(Object::INVALID_OBJECT, true);
     }
 
     // nothing above this demends on having a valid enchant profile
@@ -370,7 +374,7 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             switch_team( target_ref, target_ptr->team_base );
         }
 
-        kill_character( target_ref, INVALID_CHR_REF, true );
+        target_ptr->kill(Object::INVALID_OBJECT, true);
     }
 
     return true;
@@ -1044,7 +1048,7 @@ enc_t *enc_t::config_do_active()
                     powner->life += this->owner_life;
                     if ( powner->life <= 0 )
                     {
-                        kill_character( owner, target, false );
+                        powner->kill(_gameObjects[target], false);
                     }
                     if ( powner->life > powner->life_max )
                     {
@@ -1081,7 +1085,7 @@ enc_t *enc_t::config_do_active()
                         powner->life += this->target_life;
                         if ( powner->life <= 0 )
                         {
-                            kill_character( target, owner, false );
+                            ptarget->kill(_gameObjects[owner], false);
                         }
                         if ( powner->life > powner->life_max )
                         {

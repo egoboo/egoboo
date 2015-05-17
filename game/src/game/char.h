@@ -242,9 +242,6 @@ int chr_get_skill( Object * pchr, IDSZ whichskill );
 
 bool update_chr_darkvision( const CHR_REF character );
 
-void reset_character_alpha( const CHR_REF character );
-void reset_character_accel( const CHR_REF character );
-
 // this function is needed because the "hidden" state of an ai is determined by
 // whether  ai.state == cap.hidestate
 Object * chr_set_ai_state( Object * pchr, int state );
@@ -285,9 +282,7 @@ void keep_weapons_with_holders();
 void make_one_character_matrix( const CHR_REF cnt );
 void move_one_character_get_environment( Object * pchr );
 
-fvec3_t chr_get_mesh_diff(Object *chr, float center_pressure);
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
-float chr_get_mesh_pressure(Object *chr);
 float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
 /// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
 BIT_FIELD Object_hit_wall(Object *obj, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
@@ -332,9 +327,7 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
 void drop_money( const CHR_REF character, int money );
 void call_for_help( const CHR_REF character );
-void give_experience( const CHR_REF character, int amount, XPType xptype, bool override_invictus );
 void give_team_experience( const TEAM_REF team, int amount, XPType xptype );
-void kill_character( const CHR_REF character, const CHR_REF killer, bool ignore_invictus );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
 void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 

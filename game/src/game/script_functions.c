@@ -979,7 +979,7 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reset_character_accel( pself->index );
+    pchr->resetAcceleration();
 
     SCRIPT_FUNCTION_END();
 }
@@ -994,7 +994,7 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reset_character_accel( pself->index );
+    pchr->resetAcceleration();
 
     pchr->maxaccel      = pchr->maxaccel_reset * 0.66f;
     pchr->movement_bits = CHR_MOVEMENT_BITS_WALK;
@@ -1012,7 +1012,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reset_character_accel( pself->index );
+    pchr->resetAcceleration();
 
     pchr->maxaccel      = pchr->maxaccel_reset * 0.33f;
     pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
@@ -2904,7 +2904,12 @@ Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_experience( pself->target, pstate->argument, static_cast<XPType>(pstate->distance), false );
+    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    if(!target) {
+        return false;
+    }
+
+    target->giveExperience(pstate->argument, static_cast<XPType>(pstate->distance), false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3247,7 +3252,10 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->attachedto;
     }
 
-    kill_character( pself->target, ichr, false );
+    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    if(target) {
+        target->kill(_gameObjects[ichr], false);
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -4523,7 +4531,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reset_character_accel( pself->index );
+    pchr->resetAcceleration();
 
     fvalue = pstate->argument / 100.0f;
     fvalue = std::max( 0.0f, fvalue );

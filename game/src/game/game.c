@@ -1206,7 +1206,7 @@ void update_pits()
                 if ( pits.kill && pchr->getPosZ() < PITDEPTH )
                 {
                     // Got one!
-                    kill_character( pchr->getCharacterID(), INVALID_CHR_REF, false );
+                    pchr->kill(Object::INVALID_OBJECT, false);
                     pchr->vel[kX] = 0;
                     pchr->vel[kY] = 0;
 
@@ -1226,7 +1226,7 @@ void update_pits()
                     if ( !teleported )
                     {
                         // Kill it instead
-                        kill_character( pchr->getCharacterID(), INVALID_CHR_REF, false );
+                        pchr->kill(Object::INVALID_OBJECT, false);
                     }
                     else
                     {
@@ -1659,7 +1659,7 @@ void check_stats()
 
             //Give 10% of XP needed for next level
             xpgain = 0.1f * ( profile->getXPNeededForLevel( std::min( pchr->experiencelevel+1, MAXLEVEL) ) - profile->getXPNeededForLevel(pchr->experiencelevel));
-            give_experience( pchr->ai.index, xpgain, XP_DIRECT, true );
+            pchr->giveExperience(xpgain, XP_DIRECT, true);
             stat_check_delay = 1;
         }
     }
