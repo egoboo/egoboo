@@ -31,6 +31,7 @@
 #include "game/physics.h"
 #include "game/egoboo.h"
 #include "game/Entities/_Include.hpp"
+#include "CharacterMatrix.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -190,12 +191,8 @@ struct team_t
 
 //--------------------------------------------------------------------------------------------
 
-bool    chr_matrix_valid( const Object * pchr );
-egolib_rv chr_update_matrix( Object * pchr, bool update_size );
-
 Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
-int       chr_get_price( const CHR_REF ichr );
 
 bool     chr_heal_mad( Object * pchr );
 MAD_REF  chr_get_imad( const CHR_REF ichr );
@@ -353,7 +350,6 @@ bool  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool people
 // generic helper functions
 
 bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects );
-void init_slot_idsz();
 
 grip_offset_t slot_to_grip_offset( slot_t slot );
 slot_t        grip_offset_to_slot( grip_offset_t grip );
@@ -377,7 +373,6 @@ bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
 
 //--------------------------------------------------------------------------------------------
 // Object accessor functions
-PRO_REF  chr_get_ipro( const CHR_REF ichr );
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 

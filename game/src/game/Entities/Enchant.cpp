@@ -896,7 +896,7 @@ enc_t *enc_t::config_do_init()
     else
     {
         penc->spawner_ref = pdata->spawner_ref;
-        penc->spawnermodel_ref = chr_get_ipro( pdata->spawner_ref );
+        penc->spawnermodel_ref = _gameObjects[pdata->spawner_ref]->profile_ref;
 
         _gameObjects.get(penc->spawner_ref)->undoenchant = ienc;
     }
@@ -907,7 +907,6 @@ enc_t *enc_t::config_do_init()
     if ( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT && ptarget )
     {
         lifetime -= std::max( 1.0f, CEIL(( ptarget->damage_resistance[peve->required_damagetype] ) * peve->lifetime ) );
-        printf( "Damage resistance reduced duration from %i to %3.0f\n", peve->lifetime, lifetime );
     }
     penc->lifetime       = lifetime;
 
@@ -1164,7 +1163,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     else
     {
         // The enchantment type is given by the spawner
-        loc_profile = chr_get_ipro( spawner );
+        loc_profile = _gameObjects[spawner]->profile_ref;
 
         if (!ProfileSystem::get().isValidProfileID(loc_profile))
         {
