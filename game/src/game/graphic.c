@@ -2309,7 +2309,7 @@ float draw_debug(float y)
         y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 2), camera->getView().CNV(1, 2), camera->getView().CNV(2, 2), camera->getView().CNV(3, 2));
         y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 3), camera->getView().CNV(1, 3), camera->getView().CNV(2, 3), camera->getView().CNV(3, 3));
         y = draw_string_raw(0, y, "CAM center <%f, %f>", camera->getCenter()[kX], camera->getCenter()[kY]);
-        y = draw_string_raw(0, y, "CAM turn %d %d", camera->getTurnMode(), camera->getTurnTime());
+        y = draw_string_raw(0, y, "CAM turn %" PRIu8 " %d", camera->getTurnMode(), camera->getTurnTime());
     }
 
     return y;
