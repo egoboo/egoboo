@@ -223,9 +223,12 @@ public:
     inline int getSlotNumber() const {return _slotNumber;}
 
     /**
-    * Gets the particle profile loaded into the specified index number
-    **/
-    PIP_REF getParticleProfile(int index) const;
+     * @brief
+     *  Get the particle profile loaded for the specified local particle profile reference.
+     * @return
+     *  the particle profile if it exists, #INVALID_PIP_REF otherwise
+     */
+    PIP_REF getParticleProfile(const LocalParticleProfileRef& lppref) const;
 
     /**
     * Write access getter
@@ -607,7 +610,7 @@ private:
     script_info_t _aiScript;                    ///< the AI script for this profile
 
     //Particles
-    std::unordered_map<int, PIP_REF> _particleProfiles;
+    std::unordered_map<LocalParticleProfileRef, PIP_REF> _particleProfiles;
 
     // the profile skins
     std::unordered_map<size_t, TX_REF> _texturesLoaded;
@@ -756,7 +759,7 @@ private:
     bool         _needSkillIDToUse;              ///< Check IDSZ first?
     uint8_t      _weaponAction;                  ///< Animation needed to swing
     bool         _spawnsAttackParticle;          ///< Do we have attack particles?
-    int          _attackParticle;         ///< What kind of attack particles?
+    LocalParticleProfileRef _attackParticle;     ///< What kind of attack particles?
     bool         _attackFast;                    ///< Ignores the default reload time?
 
     float        _strengthBonus;                      ///< Strength     damage factor
@@ -765,17 +768,17 @@ private:
     float        _dexterityBonus;                      ///< dexterity    damage factor
 
     // special particle effects
-    uint8_t      _attachedParticleAmount;              ///< Number of sticky particles
-    DamageType   _attachedParticleReaffirmDamageType; ///< Re-attach sticky particles? Relight that torch...
-    int          _attachedParticle;                ///< Which kind of sticky particle
+    uint8_t _attachedParticleAmount;                  ///< Number of sticky particles
+    DamageType _attachedParticleReaffirmDamageType;   ///< Re-attach sticky particles? Relight that torch...
+    LocalParticleProfileRef _attachedParticle;        ///< Which kind of sticky particle
 
-    uint8_t      _goPoofParticleAmount;           ///< Amount of poof particles
-    int16_t      _goPoofParticleFacingAdd;        ///< Angular spread of poof particles
-    int          _goPoofParticle;          ///< Which poof particle
+    uint8_t _goPoofParticleAmount;           ///< Amount of poof particles
+    int16_t _goPoofParticleFacingAdd;        ///< Angular spread of poof particles
+    LocalParticleProfileRef _goPoofParticle; ///< Which poof particle
 
     //Blood
-    uint8_t      _bludValid;                      ///< Has blud? ( yuck )
-    int          _bludParticle;                   ///< What kind of blud?
+    uint8_t _bludValid;                      ///< Has blud? ( yuck )
+    LocalParticleProfileRef _bludParticle;   ///< What kind of blud?
 
     // skill system
     std::unordered_map<IDSZ, int> _skills;        ///< Set of skills this character posesses

@@ -457,7 +457,7 @@ PRT_REF ParticleHandler::spawn_one_particle(const fvec3_t& pos, FACING_T facing,
     else
     {
         //Local character pip
-        ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index.get());
+        ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index);
     }
     return spawnOneParticle(pos, facing, iprofile, ipip, chr_attach, vrt_offset, team, chr_origin, prt_origin,
                             multispawn, oldtarget);

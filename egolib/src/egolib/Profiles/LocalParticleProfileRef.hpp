@@ -74,3 +74,18 @@ public:
     }
 
 };
+
+namespace std {
+    template <>
+    struct hash<LocalParticleProfileRef> {
+        size_t operator()(const LocalParticleProfileRef& lppref) const {
+            return hash<int>()(lppref.get());
+        }
+    };
+    template <>
+    struct equal_to<LocalParticleProfileRef> {
+        bool operator()(const LocalParticleProfileRef& lhs, const LocalParticleProfileRef& rhs) const {
+            return lhs == rhs;
+        }
+    };
+} // namespace std

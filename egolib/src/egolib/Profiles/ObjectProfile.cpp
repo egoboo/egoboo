@@ -410,13 +410,13 @@ TX_REF ObjectProfile::getIcon(size_t index)
     return _iconsLoaded[index];
 }
 
-PIP_REF ObjectProfile::getParticleProfile(int index) const
+PIP_REF ObjectProfile::getParticleProfile(const LocalParticleProfileRef& lppref) const
 {
-    if(index <= -1) {
+    if (lppref.get() <= -1) {
         return INVALID_PIP_REF;
     } 
 
-    const auto &result = _particleProfiles.find(index);
+    const auto &result = _particleProfiles.find(lppref);
 
     //Not found in map?
     if(result == _particleProfiles.end()) {
@@ -660,7 +660,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // Particle attachments
     _attachedParticleAmount = vfs_get_next_int(ctxt);
     _attachedParticleReaffirmDamageType = vfs_get_next_damage_type(ctxt);
-    _attachedParticle = vfs_get_next_int(ctxt);
+    _attachedParticle = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // Character hands
     _slotsValid[SLOT_LEFT] = vfs_get_next_bool(ctxt);
@@ -668,12 +668,12 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     // Attack order ( weapon )
     _spawnsAttackParticle = vfs_get_next_bool(ctxt);
-    _attackParticle = vfs_get_next_int(ctxt);
+    _attackParticle = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // GoPoof
     _goPoofParticleAmount = vfs_get_next_int(ctxt);
     _goPoofParticleFacingAdd = vfs_get_next_int(ctxt);
-    _goPoofParticle = vfs_get_next_int(ctxt);
+    _goPoofParticle = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // Blud
     switch (Ego::toupper(vfs_get_next_printable(ctxt)))
@@ -682,7 +682,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
         case 'U': _bludValid = ULTRABLUDY;  break;
         default:  _bludValid = false;       break;
     }
-    _bludParticle = vfs_get_next_int(ctxt);
+    _bludParticle = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // Stuff I forgot
     _waterWalking = vfs_get_next_bool(ctxt);
@@ -998,9 +998,9 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
         profile->loadAllMessages(folderPath + "/message.txt");
 
         // Load the particles for this profile (optional)
-        for (size_t cnt = 0; cnt < 30; cnt++ ) //TODO: find better way of listing files
+        for (LocalParticleProfileRef cnt(0); cnt.get() < 30; ++cnt) //TODO: find better way of listing files
         {
-            const std::string particleName = folderPath + "/part" + std::to_string(cnt) + ".txt";
+            const std::string particleName = folderPath + "/part" + std::to_string(cnt.get()) + ".txt";
             PIP_REF particleProfile = PipStack.load_one(particleName.c_str(), INVALID_PIP_REF);
 
             // Make sure it's referenced properly
@@ -1269,7 +1269,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     // Particle attachments
     template_put_int( fileTemp, fileWrite, profile->_attachedParticleAmount );
     template_put_damage_type(fileTemp, fileWrite, character->reaffirm_damagetype);
-    template_put_int( fileTemp, fileWrite, profile->_attachedParticle );
+    template_put_local_particle_profile_ref( fileTemp, fileWrite, profile->_attachedParticle );
 
     // Character hands
     template_put_bool( fileTemp, fileWrite, profile->_slotsValid[SLOT_LEFT] );
@@ -1277,16 +1277,16 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
     // Particle spawning on attack
     template_put_bool( fileTemp, fileWrite, 0 != profile->_spawnsAttackParticle );
-    template_put_int( fileTemp, fileWrite, profile->_attackParticle );
+    template_put_local_particle_profile_ref( fileTemp, fileWrite, profile->_attackParticle );
 
     // Particle spawning for GoPoof
     template_put_int( fileTemp, fileWrite, profile->_goPoofParticleAmount );
     template_put_int( fileTemp, fileWrite, profile->_goPoofParticleFacingAdd );
-    template_put_int( fileTemp, fileWrite, profile->_goPoofParticle );
+    template_put_local_particle_profile_ref(fileTemp, fileWrite, profile->_goPoofParticle);
 
     // Particle spawning for blud
     template_put_bool( fileTemp, fileWrite, 0 != profile->_bludValid );
-    template_put_int( fileTemp, fileWrite, profile->_bludParticle );
+    template_put_local_particle_profile_ref( fileTemp, fileWrite, profile->_bludParticle );
 
     // Extra stuff
     template_put_bool( fileTemp, fileWrite, TO_C_BOOL( character->waterwalk ) ); //Note: overriden by chr

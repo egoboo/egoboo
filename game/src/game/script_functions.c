@@ -7163,12 +7163,10 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details roceeds if the AI Target has any particle with the [IDAM] or [WDAM] expansion
 
-    int iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    for ( iTmp = 0; iTmp < MAX_PIP_PER_PROFILE; iTmp++ )
+    for (LocalParticleProfileRef iTmp(0); iTmp.get() < MAX_PIP_PER_PROFILE; ++iTmp)
     {
         pip_t * ppip = ProfileSystem::get().pro_get_ppip(pchr->profile_ref, iTmp);
         if ( NULL == ppip ) continue;

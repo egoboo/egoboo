@@ -169,14 +169,12 @@ eve_t * ProfileSystem::pro_get_peve(const PRO_REF iobj)
     return EveStack.get_ptr(_profilesLoaded[iobj]->getEnchantRef());
 }
 
-pip_t * ProfileSystem::pro_get_ppip(const PRO_REF iobj, int pip_index)
+pip_t *ProfileSystem::pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref)
 {
-    PIP_REF global_pip, local_pip;
-
     if (!isValidProfileID(iobj))
     {
         // check for a global pip
-        global_pip = ((pip_index < 0) || (pip_index > MAX_PIP)) ? MAX_PIP : (PIP_REF)pip_index;
+        PIP_REF global_pip = ((lppref.get() < 0) || (lppref.get() > MAX_PIP)) ? MAX_PIP : (PIP_REF)lppref.get();
         if (LOADED_PIP(global_pip))
         {
             return PipStack.get_ptr(global_pip);
@@ -188,10 +186,10 @@ pip_t * ProfileSystem::pro_get_ppip(const PRO_REF iobj, int pip_index)
     }
 
     // find the local pip if it exists
-    local_pip = INVALID_PIP_REF;
-    if (pip_index < MAX_PIP_PER_PROFILE)
+    PIP_REF local_pip = INVALID_PIP_REF;
+    if (lppref.get() < MAX_PIP_PER_PROFILE)
     {
-        local_pip = _profilesLoaded[iobj]->getParticleProfile(pip_index);
+        local_pip = _profilesLoaded[iobj]->getParticleProfile(lppref);
     }
 
     return LOADED_PIP(local_pip) ? PipStack.get_ptr(local_pip) : nullptr;

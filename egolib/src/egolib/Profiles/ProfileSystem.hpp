@@ -25,6 +25,7 @@
 #endif
 
 #include "egolib/typedef.h"
+#include "egolib/Profiles/LocalParticleProfileRef.hpp"
 
 //Forward declarations
 class ObjectProfile;
@@ -77,7 +78,7 @@ public:
     EVE_REF pro_get_ieve(const PRO_REF iobj);
     mad_t * pro_get_pmad(const PRO_REF iobj);
     eve_t * pro_get_peve(const PRO_REF iobj);
-    pip_t * pro_get_ppip(const PRO_REF iobj, int pip_index);
+    pip_t *pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref);
 
     /**
      * @brief
