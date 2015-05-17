@@ -3247,7 +3247,10 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->attachedto;
     }
 
-    kill_character( pself->target, ichr, false );
+    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    if(target) {
+        target->kill(_gameObjects[ichr], false);
+    }
 
     SCRIPT_FUNCTION_END();
 }

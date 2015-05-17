@@ -126,7 +126,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
 
                     if(!object->isPlayer() && object->isAlive())
                     {
-                        kill_character(object->getCharacterID(), INVALID_CHR_REF, false);
+                        object->kill(Object::INVALID_OBJECT, false);
                     }
                 }
                 return true;

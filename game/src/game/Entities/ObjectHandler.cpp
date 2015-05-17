@@ -35,8 +35,6 @@ bool INGAME_PCHR(const Object *pobj)
     return (nullptr != pobj) && !pobj->isTerminated();
 }
 
-const static std::shared_ptr<Object> NULL_OBJ = nullptr;
-
 ObjectHandler::ObjectHandler() :
 	_internalCharacterList(),
     _iteratorList(),
@@ -176,7 +174,7 @@ const std::shared_ptr<Object>& ObjectHandler::operator[] (const CHR_REF index)
 {
     if(index == INVALID_CHR_REF || index >= _internalCharacterList.size())
     {
-        return NULL_OBJ;
+        return Object::INVALID_OBJECT;
     }
 
     return _internalCharacterList[index];

@@ -141,7 +141,8 @@ struct chr_spawn_data_t
 class Object : public PhysicsData, public Id::NonCopyable
 {
 public:
-    static const size_t MAXNUMINPACK = 6; ///< Max number of items to carry in pack
+    static const size_t MAXNUMINPACK = 6;                           ///< Max number of items to carry in pack
+    static const std::shared_ptr<Object> INVALID_OBJECT;            ///< Invalid object reference
 
 public:
     /**
@@ -420,6 +421,12 @@ public:
     *   Gives this object 1 experience level, increasing it's stats and giving it new/improved abilities
     **/
     void giveLevelUp();
+
+    /**
+    * @author BB
+    * @details Handle a character death. Set various states, disconnect it from the world, etc.
+    **/
+    void kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvincibility);
 
 private:
 

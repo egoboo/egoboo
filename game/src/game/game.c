@@ -1206,7 +1206,7 @@ void update_pits()
                 if ( pits.kill && pchr->getPosZ() < PITDEPTH )
                 {
                     // Got one!
-                    kill_character( pchr->getCharacterID(), INVALID_CHR_REF, false );
+                    pchr->kill(Object::INVALID_OBJECT, false);
                     pchr->vel[kX] = 0;
                     pchr->vel[kY] = 0;
 
@@ -1226,7 +1226,7 @@ void update_pits()
                     if ( !teleported )
                     {
                         // Kill it instead
-                        kill_character( pchr->getCharacterID(), INVALID_CHR_REF, false );
+                        pchr->kill(Object::INVALID_OBJECT, false);
                     }
                     else
                     {
