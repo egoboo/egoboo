@@ -666,7 +666,6 @@ public:
 private:
     bool _terminateRequested;                           ///< True if this character no longer exists in the game and should be destructed
     CHR_REF _characterID;                               ///< Our unique CHR_REF id
-    const std::shared_ptr<ObjectProfile> &_profile;     ///< Our Profile
     std::shared_ptr<ObjectProfile> _profile;     ///< Our Profile
 
     friend class ObjectHandler;
