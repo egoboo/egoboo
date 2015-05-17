@@ -57,10 +57,6 @@ typedef struct s_chr_anim_data chr_anim_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static IDSZ    inventory_idsz[INVEN_COUNT];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 Stack<team_t, TEAM_MAX> TeamStack;
 int chr_stoppedby_tests = 0;
 int chr_pressure_tests = 0;
@@ -5093,15 +5089,6 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void init_slot_idsz()
-{
-    inventory_idsz[INVEN_PACK]  = IDSZ_NONE;
-    inventory_idsz[INVEN_NECK]  = MAKE_IDSZ( 'N', 'E', 'C', 'K' );
-    inventory_idsz[INVEN_WRIS]  = MAKE_IDSZ( 'W', 'R', 'I', 'S' );
-    inventory_idsz[INVEN_FOOT]  = MAKE_IDSZ( 'F', 'O', 'O', 'T' );
 }
 
 //--------------------------------------------------------------------------------------------
