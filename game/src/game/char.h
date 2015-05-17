@@ -31,6 +31,7 @@
 #include "game/physics.h"
 #include "game/egoboo.h"
 #include "game/Entities/_Include.hpp"
+#include "CharacterMatrix.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -189,9 +190,6 @@ struct team_t
 };
 
 //--------------------------------------------------------------------------------------------
-
-bool    chr_matrix_valid( const Object * pchr );
-egolib_rv chr_update_matrix( Object * pchr, bool update_size );
 
 Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
