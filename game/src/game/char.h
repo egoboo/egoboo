@@ -242,8 +242,6 @@ int chr_get_skill( Object * pchr, IDSZ whichskill );
 
 bool update_chr_darkvision( const CHR_REF character );
 
-void reset_character_accel( const CHR_REF character );
-
 // this function is needed because the "hidden" state of an ai is determined by
 // whether  ai.state == cap.hidestate
 Object * chr_set_ai_state( Object * pchr, int state );

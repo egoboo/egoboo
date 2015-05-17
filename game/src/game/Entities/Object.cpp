@@ -1529,3 +1529,46 @@ void Object::resetAlpha()
         if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 }
+
+void Object::resetAcceleration()
+{
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
+
+    // cleanup the enchant list
+    cleanup_character_enchants(this);
+
+    // Okay, remove all acceleration enchants
+    ienc_now = firstenchant;
+    ienc_count = 0;
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
+    {
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+
+        enc_remove_add(ienc_now, eve_t::ADDACCEL);
+
+        ienc_now = ienc_nxt;
+        ienc_count++;
+    }
+    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+
+    // Set the starting value
+    maxaccel = maxaccel_reset = getProfile()->getSkinInfo(skin).maxAccel;
+
+    // cleanup the enchant list
+    cleanup_character_enchants(this);
+
+    // Put the acceleration enchants back on
+    ienc_now = firstenchant;
+    ienc_count = 0;
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
+    {
+        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+
+        enc_apply_add(ienc_now, eve_t::ADDACCEL, enc_get_ieve(ienc_now));
+
+        ienc_now = ienc_nxt;
+        ienc_count++;
+    }
+    if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
+}

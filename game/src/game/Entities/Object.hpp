@@ -432,6 +432,10 @@ public:
     /// @details This function fixes an item's transparency
     void resetAlpha();
 
+    /// @author ZZ
+    /// @details This function fixes a character's max acceleration
+    void resetAcceleration();
+
 private:
 
     /**

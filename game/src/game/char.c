@@ -736,59 +736,6 @@ BIT_FIELD Object_test_wall(Object *obj, const fvec3_t& pos, mesh_wall_data_t *da
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_character_accel( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function fixes a character's max acceleration
-
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-    Object * pchr;
-
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
-
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // Okay, remove all acceleration enchants
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_remove_add(ienc_now, eve_t::ADDACCEL);
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-    // Set the starting value
-    pchr->maxaccel_reset = 0;
-
-    pchr->maxaccel = pchr->maxaccel_reset = pchr->getProfile()->getSkinInfo(pchr->skin).maxAccel;
-
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // Put the acceleration enchants back on
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_apply_add(ienc_now, eve_t::ADDACCEL, enc_get_ieve(ienc_now));
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
-}
-
-//--------------------------------------------------------------------------------------------
 egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
 {
     /// @author ZZ

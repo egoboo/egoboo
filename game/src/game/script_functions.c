@@ -979,7 +979,7 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reset_character_accel( pself->index );
+    pchr->resetAcceleration();
 
     SCRIPT_FUNCTION_END();
 }
@@ -994,7 +994,7 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reset_character_accel( pself->index );
+    pchr->resetAcceleration();
 
     pchr->maxaccel      = pchr->maxaccel_reset * 0.66f;
     pchr->movement_bits = CHR_MOVEMENT_BITS_WALK;
@@ -1012,7 +1012,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reset_character_accel( pself->index );
+    pchr->resetAcceleration();
 
     pchr->maxaccel      = pchr->maxaccel_reset * 0.33f;
     pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
@@ -4526,7 +4526,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    reset_character_accel( pself->index );
+    pchr->resetAcceleration();
 
     fvalue = pstate->argument / 100.0f;
     fvalue = std::max( 0.0f, fvalue );
