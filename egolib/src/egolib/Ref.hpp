@@ -186,6 +186,7 @@ public:
 
     // Post- and pre-increment operator overloads.
 
+    // Post-increment.
     Ref<TYPE, MIN, MAX, INVALID, KIND> operator++(int)
     {
         if (_ref == MAX)
@@ -194,8 +195,9 @@ public:
             msg << __FILE__ << ":" << __LINE__ << ": " << "reference overflow";
             std::overflow_error(msg.str());
         }
-        _ref++;
-        return *this;
+        TYPE old = _ref;
+        ++_ref;
+        return Ref<TYPE, MIN, MAX, INVALID, KIND>(old);
     }
 
     Ref<TYPE, MIN, MAX, INVALID, KIND>& operator++()
@@ -213,6 +215,7 @@ public:
 
     // Post- and pre-decrement operator overloads.
 
+    // Post-decrement.
     Ref<TYPE, MIN, MAX, INVALID, KIND> operator--(int)
     {
         if (0 == _ref)
@@ -221,9 +224,9 @@ public:
             msg << __FILE__ << ":" << __LINE__ << ": " << "reference underflow";
             std::underflow_error(msg.str());
         }
-        size_t ref = _ref;
-        _ref--;
-        return Ref<TYPE, MIN, MAX, INVALID, KIND>(ref);
+        TYPE old = _ref;
+        --ref;
+        return Ref<TYPE, MIN, MAX, INVALID, KIND>(old);
     }
 
     Ref<TYPE, MIN, MAX, INVALID, KIND>& operator--()
