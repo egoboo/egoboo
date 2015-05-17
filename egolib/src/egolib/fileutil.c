@@ -579,8 +579,9 @@ void vfs_put_range_raw( vfs_FILE* filewrite, FRange val )
     }
 }
 
-void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, const LocalParticleProfileRef& ref) {
-    vfs_put_int(filewrite, text, ref.get());
+void vfs_put_local_particle_profile_ref(vfs_FILE *filewrite, const char *text, const LocalParticleProfileRef& lppref)
+{
+    vfs_put_int(filewrite, text, lppref.get());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -652,9 +653,9 @@ void vfs_put_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, const LocalParticleProfileRef& ref)
+void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, const LocalParticleProfileRef& lppref)
 {
-    vfs_printf(filewrite, "%s: [%s] %d\n", text, undo_idsz(idsz), ref.get());
+    vfs_printf(filewrite, "%s: [%s] %d\n", text, undo_idsz(idsz), lppref.get());
 }
 
 void vfs_put_expansion(vfs_FILE *filewrite, const char *text, IDSZ idsz, int value)

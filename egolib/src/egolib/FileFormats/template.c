@@ -282,6 +282,15 @@ void template_put_damage_type( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 da
 }
 
 //--------------------------------------------------------------------------------------------
+void template_put_local_particle_profile_ref(vfs_FILE* filetemp, vfs_FILE* filewrite, const LocalParticleProfileRef& lppref)
+{
+    if (template_copy_to_marker(filetemp, filewrite, "#%"))
+    {
+        vfs_printf(filewrite, "%d", lppref.get());
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
