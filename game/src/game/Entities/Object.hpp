@@ -165,7 +165,9 @@ public:
     * @brief Gets a shared_ptr to the current ObjectProfile associated with this character.
     *        The ObjectProfile can change for polymorphing objects.
     **/
-    inline const std::shared_ptr<ObjectProfile>& getProfile() const {return _profile;}
+    std::shared_ptr<ObjectProfile> getProfile() const {
+        return ProfileSystem::get().getProfile(profile_ref);
+    }
 
     /**
     * @return the unique CHR_REF associated with this character
@@ -660,6 +662,7 @@ private:
     bool _terminateRequested;                           ///< True if this character no longer exists in the game and should be destructed
     CHR_REF _characterID;                               ///< Our unique CHR_REF id
     const std::shared_ptr<ObjectProfile> &_profile;     ///< Our Profile
+    std::shared_ptr<ObjectProfile> _profile;     ///< Our Profile
 
     friend class ObjectHandler;
 };
