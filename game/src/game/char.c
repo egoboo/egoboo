@@ -6055,20 +6055,6 @@ bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-PRO_REF chr_get_ipro( const CHR_REF ichr )
-{
-    Object * pchr;
-
-    if ( !_gameObjects.exists( ichr ) ) return INVALID_PRO_REF;
-    pchr = _gameObjects.get( ichr );
-
-    if (!ProfileSystem::get().isValidProfileID(pchr->profile_ref)) return INVALID_PRO_REF;
-
-    return pchr->profile_ref;
-}
-
-//--------------------------------------------------------------------------------------------
 TEAM_REF chr_get_iteam( const CHR_REF ichr )
 {
 
