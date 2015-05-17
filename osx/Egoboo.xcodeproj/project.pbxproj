@@ -216,6 +216,7 @@
 		CD80C4E21AB2089B00D915FF /* LERP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4DE1AB2089B00D915FF /* LERP.cpp */; };
 		CD80C4E71AB2092400D915FF /* OptionsButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4E51AB2092400D915FF /* OptionsButton.cpp */; };
 		CD9059341A69A67C00DC425D /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD9059321A69A67C00DC425D /* Random.cpp */; };
+		CD9145BD1B095309008EABB3 /* CharacterMatrix.c in Sources */ = {isa = PBXBuildFile; fileRef = CD9145BB1B095309008EABB3 /* CharacterMatrix.c */; };
 		CD94B4A11A8B3EEC00BECFC9 /* libIdLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD94B49E1A8B3E6000BECFC9 /* libIdLib.a */; };
 		CD94B4A51A8B3F1500BECFC9 /* IdLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD94B4A31A8B3F1500BECFC9 /* IdLib.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
@@ -920,6 +921,8 @@
 		CD867B791A76EE3400B28D92 /* libphysfs.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libphysfs.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD9059321A69A67C00DC425D /* Random.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Random.cpp; sourceTree = "<group>"; };
 		CD9059331A69A67C00DC425D /* Random.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Random.hpp; sourceTree = "<group>"; };
+		CD9145BB1B095309008EABB3 /* CharacterMatrix.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = CharacterMatrix.c; sourceTree = "<group>"; };
+		CD9145BC1B095309008EABB3 /* CharacterMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CharacterMatrix.h; sourceTree = "<group>"; };
 		CD94B49E1A8B3E6000BECFC9 /* libIdLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD94B4A31A8B3F1500BECFC9 /* IdLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IdLib.cpp; sourceTree = "<group>"; };
 		CD94B4A41A8B3F1500BECFC9 /* IdLib.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IdLib.hpp; sourceTree = "<group>"; };
@@ -1281,6 +1284,8 @@
 				CD44DD7F1A476046005E6DF0 /* bsp.h */,
 				CD39B3E61A37506100B377BE /* char.c */,
 				CD39B3E71A37506100B377BE /* char.h */,
+				CD9145BB1B095309008EABB3 /* CharacterMatrix.c */,
+				CD9145BC1B095309008EABB3 /* CharacterMatrix.h */,
 				CD39B3EC1A37506100B377BE /* collision.c */,
 				CD39B3ED1A37506100B377BE /* collision.h */,
 				CD39B3EE1A37506100B377BE /* egoboo_config.h */,
@@ -2624,6 +2629,7 @@
 				CD792C221A881FE20086270E /* LoadPlayerElement.cpp in Sources */,
 				CD39B4601A37506100B377BE /* egoboo_object.c in Sources */,
 				CD39B46D1A37506100B377BE /* graphic_prt.c in Sources */,
+				CD9145BD1B095309008EABB3 /* CharacterMatrix.c in Sources */,
 				CD39B4B01A3762A500B377BE /* SDLMain.m in Sources */,
 				CD39B4701A37506100B377BE /* input.c in Sources */,
 				CD39B4811A37506100B377BE /* network_server.c in Sources */,
