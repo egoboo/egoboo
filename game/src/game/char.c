@@ -582,14 +582,6 @@ void free_all_chraracters()
 }
 
 //--------------------------------------------------------------------------------------------
-float chr_get_mesh_pressure(Object *chr)
-{
-    if (!chr)
-    {
-        return 0.0f;
-    }
-    return chr_get_mesh_pressure(chr, chr->getPosition());
-}
 float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
 {
     if (!chr)
@@ -624,14 +616,6 @@ float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
 }
 
 //--------------------------------------------------------------------------------------------
-fvec3_t chr_get_mesh_diff(Object *chr, float center_pressure)
-{
-    if (!chr)
-    {
-        return fvec3_t::zero();
-    }
-    return chr_get_mesh_diff(chr, chr->getPosition(), center_pressure);
-}
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure)
 {
     if (!chr)
@@ -749,127 +733,6 @@ BIT_FIELD Object_test_wall(Object *obj, const fvec3_t& pos, mesh_wall_data_t *da
     chr_pressure_tests += mesh_pressure_tests;
 
     return result;
-}
-
-//--------------------------------------------------------------------------------------------
-void reset_character_accel( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function fixes a character's max acceleration
-
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
-    Object * pchr;
-
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
-
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // Okay, remove all acceleration enchants
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_remove_add(ienc_now, eve_t::ADDACCEL);
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-    // Set the starting value
-    pchr->maxaccel_reset = 0;
-
-    pchr->maxaccel = pchr->maxaccel_reset = pchr->getProfile()->getSkinInfo(pchr->skin).maxAccel;
-
-    // cleanup the enchant list
-    cleanup_character_enchants( pchr );
-
-    // Put the acceleration enchants back on
-    ienc_now = pchr->firstenchant;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-        enc_apply_add(ienc_now, eve_t::ADDACCEL, enc_get_ieve(ienc_now));
-
-        ienc_now = ienc_nxt;
-        ienc_count++;
-    }
-    if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
-}
-
-//--------------------------------------------------------------------------------------------
-void reset_character_alpha( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function fixes an item's transparency
-
-    CHR_REF mount;
-    Object * pchr, * pmount;
-
-    // Make sure the character is valid
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
-
-    // Make sure the character is mounted
-    mount = _gameObjects.get(character)->attachedto;
-    if ( !_gameObjects.exists( mount ) ) return;
-    pmount = _gameObjects.get( mount );
-
-    if ( pchr->isitem && pmount->transferblend )
-    {
-        ENC_REF ienc_now, ienc_nxt;
-        size_t  ienc_count;
-
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
-        // Okay, reset transparency
-        ienc_now = pchr->firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            enc_remove_set(ienc_now, eve_t::SETALPHABLEND);
-            enc_remove_set(ienc_now, eve_t::SETLIGHTBLEND);
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-        pchr->setAlpha(pchr->getProfile()->getAlpha());
-        pchr->setLight(pchr->getProfile()->getLight());
-
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
-        ienc_now = pchr->firstenchant;
-        ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-        {
-            PRO_REF ipro = enc_get_ipro( ienc_now );
-
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
-
-            if (ProfileSystem::get().isValidProfileID(ipro))
-            {
-                enc_apply_set(ienc_now, eve_t::SETALPHABLEND, ipro);
-                enc_apply_set(ienc_now, eve_t::SETLIGHTBLEND, ipro);
-            }
-
-            ienc_now = ienc_nxt;
-            ienc_count++;
-        }
-        if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1732,50 +1595,6 @@ void call_for_help( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void give_experience( const CHR_REF character, int amount, XPType xptype, bool override_invictus )
-{
-    /// @author ZZ
-    /// @details This function gives a character experience
-
-    float newamount;
-
-    Object * pchr;
-
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
-
-    //No xp to give
-    if ( 0 == amount ) return;
-
-    if ( !pchr->invictus || override_invictus )
-    {
-        float intadd = ( FP8_TO_FLOAT( pchr->intelligence ) - 10.0f ) / 200.0f;
-        float wisadd = ( FP8_TO_FLOAT( pchr->wisdom )       - 10.0f ) / 400.0f;
-
-        // Figure out how much experience to give
-        newamount = amount;
-        if ( xptype < XP_COUNT )
-        {
-            newamount = amount * pchr->getProfile()->getExperienceRate(xptype);
-        }
-
-        // Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
-        newamount *= 1.00f + intadd + wisadd;
-
-        // Apply XP bonus/penality depending on game difficulty
-        if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
-        {
-            newamount *= 1.20f; // 20% extra on hard
-        }
-        else if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Normal)
-        {
-            newamount *= 1.10f; // 10% extra on normal
-        }
-        pchr->experience += newamount;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
 {
     /// @author ZZ
@@ -1785,7 +1604,7 @@ void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
     {
         if ( chr->team == team )
         {
-            give_experience( chr->getCharacterID(), amount, ( XPType )xptype, false );
+            chr->giveExperience(amount, xptype, false);
         }
     }
 }
@@ -2046,125 +1865,6 @@ void cleanup_one_character( Object * pchr )
 
     // Stop all sound loops for this object
     AudioSystem::get().stopObjectLoopingSounds(ichr);
-}
-
-//--------------------------------------------------------------------------------------------
-void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ignore_invictus )
-{
-    /// @author BB
-    /// @details Handle a character death. Set various states, disconnect it from the world, etc.
-
-    Object * pchr;
-    int action;
-    Uint16 experience;
-    TEAM_REF killer_team;
-    CHR_REF actual_killer;
-
-    if ( !_gameObjects.exists( ichr ) ) return;
-    pchr = _gameObjects.get( ichr );
-
-    //No need to continue is there?
-    if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return;
-
-    const std::shared_ptr<ObjectProfile>& profile = pchr->getProfile();
-
-    //Fix who is actually the killer if needed
-    actual_killer = original_killer;
-    if ( _gameObjects.exists( actual_killer ) )
-    {
-        Object *pkiller = _gameObjects.get( actual_killer );
-
-        //If we are a held item, try to figure out who the actual killer is
-        if ( _gameObjects.exists( pkiller->attachedto ) && !_gameObjects.get(pkiller->attachedto)->isMount() )
-        {
-            actual_killer = pkiller->attachedto;
-        }
-
-        //If the killer is a mount, try to award the kill to the rider
-        else if ( pkiller->isMount() && pkiller->holdingwhich[SLOT_LEFT] )
-        {
-            actual_killer = pkiller->holdingwhich[SLOT_LEFT];
-        }
-    }
-
-    killer_team = chr_get_iteam( actual_killer );
-
-    pchr->alive = false;
-    pchr->waskilled = true;
-
-    pchr->life            = -1;
-    pchr->platform        = true;
-    pchr->canuseplatforms = true;
-    pchr->phys.bumpdampen = pchr->phys.bumpdampen * 0.5f;
-
-    // Play the death animation
-    action = Random::next((int)ACTION_KA, ACTION_KA + 3);
-    chr_play_action( pchr, action, false );
-    chr_instance_set_action_keep( &( pchr->inst ), true );
-
-    // Give kill experience
-    experience = profile->getExperienceValue() + ( pchr->experience * profile->getExperienceExchangeRate() );
-
-    // distribute experience to the attacker
-    if ( _gameObjects.exists( actual_killer ) )
-    {
-        // Set target
-        pchr->ai.target = actual_killer;
-        if ( killer_team == TEAM_DAMAGE || killer_team == TEAM_NULL )  pchr->ai.target = ichr;
-
-        // Award experience for kill?
-        if ( team_hates_team( killer_team, pchr->team ) )
-        {
-            //Check for special hatred
-            if ( chr_get_idsz( actual_killer, IDSZ_HATE ) == chr_get_idsz( ichr, IDSZ_PARENT ) ||
-                 chr_get_idsz( actual_killer, IDSZ_HATE ) == chr_get_idsz( ichr, IDSZ_TYPE ) )
-            {
-                give_experience( actual_killer, experience, XP_KILLHATED, false );
-            }
-
-            // Nope, award direct kill experience instead
-            else give_experience( actual_killer, experience, XP_KILLENEMY, false );
-        }
-    }
-
-    //Set various alerts to let others know it has died
-    //and distribute experience to whoever needs it
-    SET_BIT( pchr->ai.alert, ALERTIF_KILLED );
-
-    for(const std::shared_ptr<Object> &listener : _gameObjects.iterator())
-    {
-        if ( !listener->alive ) continue;
-
-        // All allies get team experience, but only if they also hate the dead guy's team
-        if ( listener->getCharacterID() != actual_killer && !team_hates_team( listener->team, killer_team ) && team_hates_team( listener->team, pchr->team ) )
-        {
-            give_experience( listener->getCharacterID(), experience, XP_TEAMKILL, false );
-        }
-
-        // Check if it was a leader
-        if ( TeamStack.lst[pchr->team].leader == ichr && listener->getTeam() == pchr->team )
-        {
-            // All folks on the leaders team get the alert
-            SET_BIT( listener->ai.alert, ALERTIF_LEADERKILLED );
-        }
-
-        // Let the other characters know it died
-        if ( listener->ai.target == ichr )
-        {
-            SET_BIT( listener->ai.alert, ALERTIF_TARGETKILLED );
-        }
-    }
-
-    // Detach the character from the game
-    cleanup_one_character( pchr );
-
-    // If it's a player, let it die properly before enabling respawn
-    if ( VALID_PLA( pchr->is_which_player ) ) 
-        local_stats.revivetimer = ONESECOND; // 1 second
-
-    // Let it's AI script run one last time
-    pchr->ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
-    scr_run_chr_script( ichr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3087,10 +2787,8 @@ bool cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
     int mana_final;
     bool mana_paid;
 
-    Object * pchr;
-
-    if ( !_gameObjects.exists( character ) ) return false;
-    pchr = _gameObjects.get( character );
+    const std::shared_ptr<Object> &pchr = _gameObjects[character];
+    const std::shared_ptr<Object> &pkiller = _gameObjects[killer];
 
     mana_paid  = false;
     mana_final = pchr->mana - amount;
@@ -3107,7 +2805,7 @@ bool cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 
             if (pchr->life <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
             {
-                kill_character( character, !_gameObjects.exists( killer ) ? character : killer, false );
+                pchr->kill(pkiller != nullptr ? pkiller : pchr, false);
             }
 
             mana_paid = true;
@@ -3129,7 +2827,7 @@ bool cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
         if ( pchr->canchannel && mana_surplus > 0 )
         {
             // use some factor, divide by 2
-            pchr->heal(_gameObjects[killer], mana_surplus / 2, true);
+            pchr->heal(pkiller, mana_surplus / 2, true);
         }
 
         mana_paid = true;

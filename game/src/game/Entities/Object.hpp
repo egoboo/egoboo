@@ -141,7 +141,8 @@ struct chr_spawn_data_t
 class Object : public PhysicsData, public Id::NonCopyable
 {
 public:
-    static const size_t MAXNUMINPACK = 6; ///< Max number of items to carry in pack
+    static const size_t MAXNUMINPACK = 6;                           ///< Max number of items to carry in pack
+    static const std::shared_ptr<Object> INVALID_OBJECT;            ///< Invalid object reference
 
 public:
     /**
@@ -420,6 +421,34 @@ public:
     *   Gives this object 1 experience level, increasing it's stats and giving it new/improved abilities
     **/
     void giveLevelUp();
+
+    /**
+    * @author BB
+    * @details Handle a character death. Set various states, disconnect it from the world, etc.
+    **/
+    void kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvincibility);
+
+    /// @author ZZ
+    /// @details This function fixes an item's transparency
+    void resetAlpha();
+
+    /// @author ZZ
+    /// @details This function fixes a character's max acceleration
+    void resetAcceleration();
+
+    /**
+    * @brief
+    *   Awards some experience points to this object, potentionally allowing it to reach another
+    *   character level. This function handles additional experience gain modifiers such as
+    *   XP bonus, roleplay or game difficulity.
+    * @param xptype
+    *   What kind of experience to give. Different classes gain experience differently depending
+    *   on the kind of xp.
+    * @param overrideInvincibility
+    *   Invincible objects usually gain no experience (scenery objects such as a rock for example).
+    *   Set this parameter to true to override this and give the experience anyways.
+    **/
+    void giveExperience(const int amount, const XPType xptype, const bool overrideInvincibility);
 
 private:
 
