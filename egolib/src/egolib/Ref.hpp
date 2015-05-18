@@ -225,7 +225,7 @@ public:
             std::underflow_error(msg.str());
         }
         TYPE old = _ref;
-        --ref;
+        --_ref;
         return Ref<TYPE, MIN, MAX, INVALID, KIND>(old);
     }
 
