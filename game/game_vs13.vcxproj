@@ -389,6 +389,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\CharacterMatrix.c" />
     <ClCompile Include="src\game\Inventory.cpp" />
     <ClCompile Include="src\game\GameStates\DebugModuleLoadingState.cpp" />
     <ClCompile Include="src\game\GUI\ScrollableList.cpp" />
@@ -459,6 +460,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\CharacterMatrix.h" />
     <ClInclude Include="src\game\Inventory.hpp" />
     <ClInclude Include="src\game\Entities\Common.hpp" />
     <ClInclude Include="src\game\GameStates\DebugModuleLoadingState.hpp" />

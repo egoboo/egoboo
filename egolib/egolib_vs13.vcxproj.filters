@@ -456,9 +456,6 @@
     <ClCompile Include="src\egolib\AI\WaypointList.c">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\CharacterMatrix.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -934,9 +931,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\AI\WaypointList.h">
       <Filter>Header Files\AI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\CharacterMatrix.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

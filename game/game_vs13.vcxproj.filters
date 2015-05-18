@@ -275,6 +275,9 @@
     <ClCompile Include="src\game\Inventory.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\CharacterMatrix.c">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -497,6 +500,9 @@
       <Filter>Game Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="src\game\Inventory.hpp">
+      <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\CharacterMatrix.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>
