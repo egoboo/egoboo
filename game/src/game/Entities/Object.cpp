@@ -1442,7 +1442,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         if (!listener->isAlive()) continue;
 
         // All allies get team experience, but only if they also hate the dead guy's team
-        if (listener != actualKiller && !team_hates_team(listener->getTeam(), actualKiller->getTeam()) && team_hates_team(listener->getTeam(), getTeam()) )
+        if (actualKiller && listener != actualKiller && !team_hates_team(listener->getTeam(), actualKiller->getTeam()) && team_hates_team(listener->getTeam(), getTeam()) )
         {
             listener->giveExperience(experience, XP_TEAMKILL, false);
         }

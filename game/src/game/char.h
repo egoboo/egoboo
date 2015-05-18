@@ -31,7 +31,7 @@
 #include "game/physics.h"
 #include "game/egoboo.h"
 #include "game/Entities/_Include.hpp"
-#include "CharacterMatrix.h"
+#include "game/CharacterMatrix.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs
