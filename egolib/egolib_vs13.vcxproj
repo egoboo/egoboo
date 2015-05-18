@@ -276,6 +276,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\CharacterMatrix.c" />
     <ClCompile Include="src\egolib\AI\AStar.c" />
     <ClCompile Include="src\egolib\AI\WaypointList.c" />
     <ClCompile Include="src\egolib\Graphics\mad.c" />
@@ -498,6 +499,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\CharacterMatrix.h" />
     <ClInclude Include="src\egolib\AI\AStar.h" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
     <ClInclude Include="src\egolib\Graphics\mad.h" />
