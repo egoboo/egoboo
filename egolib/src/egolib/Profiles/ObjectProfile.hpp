@@ -211,8 +211,11 @@ public:
     /**
     *@return the folder path where this profile was loaded
     **/
-    inline const std::string& getFilePath() const {return _fileName;} //TODO remove this duplicate below
-    inline const std::string& getFolderPath() const {return _fileName;}
+    inline const std::string& getPathname() const {
+        return _pathname;
+    }
+    inline const std::string& getFilePath() const {return _pathname;} //TODO remove this duplicate below
+    inline const std::string& getFolderPath() const {return _pathname;}
 
     inline MAD_REF getModelRef() const {return _imad;}
     inline EVE_REF getEnchantRef() const {return _ieve;}
@@ -564,8 +567,8 @@ public:
     static bool exportCharacterToFile(const std::string &filePath, const Object *character);
 
     //ZF> TODO: these should not be public
-    size_t requestCount;                       ///< the number of attempted spawns
-    size_t spawnCount;                         ///< the number of successful spawns
+    size_t _spawnRequestCount;                       ///< the number of attempted spawns
+    size_t _spawnCount;                         ///< the number of successful spawns
 
 private:
 
@@ -597,7 +600,7 @@ private:
     void setupXPTable();
 
 private:
-    std::string _fileName;                      ///< Usually the source filename
+    std::string _pathname;                      ///< Usually the source filename
 
     // the sub-profiles
     MAD_REF _imad;                             ///< the md2 model for this profile

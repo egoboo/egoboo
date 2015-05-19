@@ -34,9 +34,9 @@
 static const SkinInfo INVALID_SKIN = SkinInfo();
 
 ObjectProfile::ObjectProfile() :
-    requestCount(0),
-    spawnCount(0),
-    _fileName("*NONE*"),
+    _spawnRequestCount(0),
+    _spawnCount(0),
+    _pathname("*NONE*"),
     _imad(INVALID_MAD_REF),
     _ieve(INVALID_EVE_REF),
     _slotNumber(-1),
@@ -295,14 +295,14 @@ void ObjectProfile::loadTextures(const std::string &folderPath)
     if ( _texturesLoaded.empty() )
     {
         _texturesLoaded[0] = TX_WATER_TOP;
-        log_warning( "Object is missing a skin (%s)!\n", _fileName.c_str() );
+        log_warning("Object is missing a skin (%s)!\n", getPathname().c_str());
     }
 
     // If we didn't get a icon, set it to the NULL icon
     if ( _iconsLoaded.empty())
     {
         _iconsLoaded[0] = TX_ICON_NULL;
-        log_debug( "Object is missing an icon (%s)!\n", _fileName.c_str() );
+        log_debug("Object is missing an icon (%s)!\n", getPathname().c_str());
     }
 }
 
@@ -974,7 +974,7 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     std::shared_ptr<ObjectProfile> profile = std::make_shared<ObjectProfile>();
 
     //Set some data
-    profile->_fileName = folderPath;
+    profile->_pathname = folderPath;
     profile->_slotNumber = slotNumber;
 
     //Don't load 3d model, enchant, messages, sounds or particle effects for lightweight profiles

@@ -2114,7 +2114,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(profile);
 
     // count all the requests for this character type
-    ppro->requestCount++;
+    ppro->_spawnRequestCount++;
 
     // allocate a new character
     std::shared_ptr<Object> pchr = _gameObjects.insert(profile, override);
@@ -2139,7 +2139,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     chr_start_anim( pchr.get(), ACTION_DA, true, true );
 
     // count all the successful spawns of this character
-    ppro->spawnCount++;
+    ppro->_spawnCount++;
 
 #if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
     {

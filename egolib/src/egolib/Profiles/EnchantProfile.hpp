@@ -142,8 +142,7 @@ struct eve_t : public AbstractProfile
             _stay(stay), _manaDrain(manaDrain), _lifeDrain(lifeDrain)
         {}
 
-        /// @todo Rename to reset.
-        void init()
+        void reset()
         {
             _stay = false;
             _manaDrain = 0;

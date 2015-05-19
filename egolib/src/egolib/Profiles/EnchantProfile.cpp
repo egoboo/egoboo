@@ -73,8 +73,8 @@ void eve_t::reset()
         this->_add[i].init();
     }
     contspawn.reset();
-    _owner.init();
-    _target.init();
+    _owner.reset();
+    _target.reset();
     this->seeKurses = false;
     this->darkvision = false;
 
