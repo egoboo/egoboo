@@ -223,10 +223,10 @@ struct eve_t : public AbstractProfile
     virtual ~eve_t();
 
     /**
-    * @brief
-    *  Initialize an enchant profile with safe default values.
-    * @return
-    *  a pointer to the profile on success, @a nullptr on failure
-    */
-    eve_t *init();
+     * @brief
+     *  Initialize an enchant profile with safe default values.
+     * @return
+     *  a pointer to the profile on success, @a nullptr on failure
+     */
+    void reset() override;
 };

@@ -39,10 +39,10 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
         return false;
     }
 
-    profile->init();
+    profile->reset();
 
     // set up the EGO_PROFILE_STUFF
-    strncpy(profile->_name, loadName, SDL_arraysize(profile->_name));
+    profile->_name = loadName;
     profile->_loaded = true;
 
     // read the 1 line comment at the top of the file

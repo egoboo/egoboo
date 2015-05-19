@@ -60,9 +60,9 @@ eve_t::~eve_t()
     //dtor
 }
 
-eve_t *eve_t::init()
+void eve_t::reset()
 {
-    this->AbstractProfile::init();
+    this->AbstractProfile::reset();
 
     for (size_t i = 0; i < MAX_ENCHANT_SET; ++i)
     {
@@ -96,6 +96,4 @@ eve_t *eve_t::init()
     lifetime = 0;
     endIfCannotPay = false;
     removedByIDSZ = IDSZ_NONE;
-
-    return this;
 }

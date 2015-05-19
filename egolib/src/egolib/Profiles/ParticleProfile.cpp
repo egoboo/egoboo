@@ -155,9 +155,9 @@ pip_t::~pip_t()
 {
 }
 
-pip_t *pip_t::init()
+void pip_t::reset()
 {
-    this->AbstractProfile::init();
+    this->AbstractProfile::reset();
 
     // Metadata.
     strcpy(comment, "");
@@ -230,6 +230,4 @@ pip_t *pip_t::init()
     orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
     type = SPRITE_SOLID;
     dynalight.reset();
-
-    return this;
 }

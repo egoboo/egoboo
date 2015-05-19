@@ -25,8 +25,15 @@
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
 
-/// Temporary abstract profile system for unifying particle- and
-/// enchant-profiles systems before merging both into ProfileSystem.
+/**
+ * @brief
+ *  The base class of all profile system - in particular but not restricted to
+ *  enchant, object and particle profile systems.
+ * @author
+ *  Michael Heilmann
+ * @todo
+ *  Move this class and all other profile-related things into some appropriate namespace.
+ */
 template <typename TYPE,typename REFTYPE,REFTYPE INVALIDREF,size_t CAPACITY,typename READER>
 struct AbstractProfileSystem : public Id::NonCopyable
 {
@@ -136,7 +143,7 @@ public:
         }
         for (ref = 0; ref < CAPACITY; ++ref)
         {
-            this->get_ptr(ref)->init();
+            this->get_ptr(ref)->reset();
         }
         // Reset the stack "pointer".
         _size = 0;
@@ -148,7 +155,7 @@ public:
         TYPE *profile = this->get_ptr(ref);
         if (profile->_loaded)
         {
-            profile->init();
+            profile->reset();
 #if 1
             if (_size == 0) throw std::underflow_error(_profileTypeName + " stack underflow");
             _size--;

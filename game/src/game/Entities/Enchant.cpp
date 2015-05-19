@@ -859,7 +859,7 @@ enc_t *enc_t::config_do_init()
     peve = EveStack.get_ptr( pdata->eve_ref );
 
     // turn the enchant on here. you can't fail to spawn after this point.
-    POBJ_ACTIVATE( penc, peve->_name );
+    POBJ_ACTIVATE(penc, peve->_name.c_str());
 
     // does the target exist?
     if ( !_gameObjects.exists( pdata->target_ref ) )

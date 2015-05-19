@@ -28,40 +28,85 @@
 #include "egolib/Logic/Damage.hpp"
 #include "egolib/Profiles/LocalParticleProfileRef.hpp"
 
-/// @brief The base class of EnchantProfile, ObjectProfile and ParticleProfiles.
+/**
+ * @brief
+ *  The base class of EnchantProfile, ObjectProfile and ParticleProfiles.
+ */
 class AbstractProfile : public Id::NonCopyable
 {
 
 public:
 
-    bool _loaded;              ///< Was the data read in?
-    STRING _name;              ///< Usually the source filename.
-    size_t _spawnRequestCount; ///< The number of attempted spawns.
-    size_t _spawnCount;        ///< The number of successful spawns.
+    /**
+     * @brief
+     *  Was the data read in?
+     */
+    bool _loaded;
+    /**
+     * @brief
+     *  The name of the profile, usually the source pathname.
+     */
+    std::string _name;
+    /**
+     * @brief
+     *  The number of attempted spawns.
+     */
+    size_t _spawnRequestCount;
+    /**
+     * @brief
+     *  The number of successful spawns.
+     */
+    size_t _spawnCount;
     
 protected:
 
+    /**
+     * @brief
+     *  Construct this abstract profile.
+     * @remark
+     *  Intentionally protected.
+     */
     AbstractProfile() :
-        _loaded(false), _spawnRequestCount(0), _spawnCount(0)
+        _loaded(false), _name("*NONE*"), _spawnRequestCount(0), _spawnCount(0)
     {
-        _name[0] = '\0';
+        /* Intentionally empty. */
     }
 
+    /**
+     * @brief
+     *  Destruct this abstract profile.
+     * @remark
+     *  Intentionally protected.
+     */
     virtual ~AbstractProfile()
     {
+        /* Intentionally empty. */
     }
 
-public:
-
-    /// @todo Rename to reset.
-    void init()
-    {
+    /**
+    * @brief
+    *  Reset this abstract profile to its initial state.
+    * @remark
+    *  Intentionally protected.
+    */
+    virtual void reset() {
         _loaded = false;
-        _name[0] = '\0';
+        _name = "*NONE*";
         _spawnRequestCount = 0;
         _spawnCount = 0;
     }
 
+public:
+
+    /**
+     * @brief
+     *  Get the name of this profile.
+     * @return
+     *  the name of this profile.
+     */
+    inline const std::string& getName() const {
+        return _name;
+    }
 };
 
 /// Enchants as well as particles can spawn other particles.

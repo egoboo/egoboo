@@ -35,7 +35,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
 
     if (!profile) return nullptr;
 
-    profile->init();
+    profile->reset();
 
     ReadContext ctxt(loadName);
     if (!ctxt.ensureOpen())
@@ -190,7 +190,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('D', 'A', 'R', 'K')) profile->darkvision = ctxt.readInt();
     }
 
-    strncpy(profile->_name, loadName, SDL_arraysize(profile->_name));
+    profile->_name = loadName;
     profile->_loaded = true;
 
     // Limit the endsound_index.

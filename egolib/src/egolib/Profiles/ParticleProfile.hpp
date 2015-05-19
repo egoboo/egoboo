@@ -237,7 +237,7 @@ struct pip_t : public AbstractProfile
      */
     virtual ~pip_t();
 
-    pip_t *init();
+    void reset() override;
 };
 
 /// @todo Remove globals.

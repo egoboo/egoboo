@@ -293,7 +293,7 @@ prt_t *prt_t::config_do_init()
     pip_t *ppip = PipStack.get_ptr(pdata->ipip);
 
     // let the object be activated
-    POBJ_ACTIVATE(pprt, ppip->_name);
+    POBJ_ACTIVATE(pprt, ppip->_name.c_str());
 
     // make some local copies of the spawn data
     loc_facing = pdata->facing;
