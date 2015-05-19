@@ -210,7 +210,7 @@ void scr_run_chr_script( const CHR_REF character )
     if ( pself->target != pself->index )
     {
         const std::shared_ptr<Object> &target = _gameObjects[pself->target];
-        if (!pchr->canSeeObject(target))
+        if (target && !pchr->canSeeObject(target))
         {
             pself->target = pself->index;
         }
