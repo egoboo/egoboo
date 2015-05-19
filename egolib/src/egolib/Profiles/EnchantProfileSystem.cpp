@@ -21,4 +21,4 @@
 #include "egolib/Profiles/EnchantProfileSystem.hpp"
 #include "egolib/Audio/AudioSystem.hpp"
 
-_AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX, EnchantProfileReader> EveStack("enchant", "/debug/enchant_profile_usage.txt");
+AbstractProfileSystem<eve_t, EVE_REF, INVALID_EVE_REF, ENCHANTPROFILES_MAX, EnchantProfileReader> EveStack("enchant", "/debug/enchant_profile_usage.txt");

@@ -28,14 +28,12 @@
 /// Temporary abstract profile system for unifying particle- and
 /// enchant-profiles systems before merging both into ProfileSystem.
 template <typename TYPE,typename REFTYPE,REFTYPE INVALIDREF,size_t CAPACITY,typename READER>
-struct _AbstractProfileSystem : public Id::NonCopyable
+struct AbstractProfileSystem : public Id::NonCopyable
 {
 
 protected:
 
     size_t _size;
-
-    Ego::GUID _updateGUID;
 
     TYPE *_elements[CAPACITY];
 
@@ -57,17 +55,18 @@ protected:
 
 
 public:
-    _AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
+    AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
         _size(0),
-        _updateGUID(EGO_GUID_INVALID),
         _elements(),
         _profileTypeName(profileTypeName), 
         _debugPathName(debugPathName)
-    {}
-
-    Ego::GUID getUpdateGUID() const
     {
-        return _updateGUID;
+        /* Intentionally empty. */
+    }
+
+    virtual ~AbstractProfileSystem()
+    {
+        /* Intentionally empty. */
     }
 
     /**

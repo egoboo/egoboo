@@ -26,7 +26,7 @@
 #include "egolib/Profiles/ParticleProfile.hpp"
 #include "egolib/Profiles/ParticleProfileReader.hpp"
 
-extern _AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader> PipStack;
+extern AbstractProfileSystem<pip_t, PIP_REF, INVALID_PIP_REF, MAX_PIP, ParticleProfileReader> PipStack;
 
 inline bool VALID_PIP_RANGE(PIP_REF ref) {
     return PipStack.isValidRange(ref);
