@@ -29,6 +29,7 @@
 #include "game/GUI/IconButton.hpp"
 #include "game/GUI/Image.hpp"
 #include "game/GUI/Label.hpp"
+#include "game/GUI/ScrollableList.hpp"
 
 SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &selectedCharacter)
 {
@@ -79,14 +80,15 @@ SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &s
 	playersLabel->setPosition(20, 20);
 	addComponent(playersLabel);
 
-	yOffset = playersLabel->getY() + playersLabel->getHeight() + 20;
+	std::shared_ptr<ScrollableList> scrollableList = std::make_shared<ScrollableList>();
+	scrollableList->setSize(300, _gameEngine->getUIManager()->getScreenHeight() - playersLabel->getY() - 150);
+	scrollableList->setPosition(playersLabel->getX() + 20, playersLabel->getY() + playersLabel->getHeight() + 20);
 
 	//Make a button for each loadable character
     for (const std::shared_ptr<LoadPlayerElement> &character : ProfileSystem::get().getSavedPlayers())
 	{
 		std::shared_ptr<Button> characterButton = std::make_shared<IconButton>(character->getName(), character->getIcon());
 		characterButton->setSize(200, 40);
-		characterButton->setPosition(playersLabel->getX(), yOffset);
 
 		//Check if this already has been selected by another player
 		if(character->isSelected() && character != selectedCharacter) {
@@ -110,9 +112,11 @@ SelectCharacterState::SelectCharacterState(std::shared_ptr<LoadPlayerElement> &s
 				});
 		}
 
-		addComponent(characterButton);
-		yOffset += characterButton->getHeight() + 20;
+		scrollableList->addComponent(characterButton);
 	}
+	
+	scrollableList->forceUpdate();
+	addComponent(scrollableList);
 }
 
 void SelectCharacterState::update()
