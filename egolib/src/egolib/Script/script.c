@@ -209,7 +209,8 @@ void scr_run_chr_script( const CHR_REF character )
     // Reset the target if it can't be seen
     if ( pself->target != pself->index )
     {
-        if (!pchr->canSeeObject(_gameObjects[pself->target]))
+        const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+        if (target && !pchr->canSeeObject(target))
         {
             pself->target = pself->index;
         }

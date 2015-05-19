@@ -3998,11 +3998,15 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 
     bool can_steal;
 
-    if ( !_gameObjects.exists( iitem ) ) return false;
     std::shared_ptr<Object> pitem = _gameObjects[iitem];
+    if(!pitem) {
+        return false;
+    }
 
-    if ( !_gameObjects.exists( ithief ) ) return false;
     std::shared_ptr<Object> pthief = _gameObjects[ithief];
+    if(!pthief) {
+      return false;  
+    }
 
     can_steal = true;
     if ( pitem->isitem )
@@ -4036,14 +4040,18 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 {
     bool can_grab;
     bool is_invis, can_steal;
-    Object * pitem, *pkeeper;
+    Object *pkeeper;
     CHR_REF shop_keeper;
 
-    if ( !_gameObjects.exists( ichr ) ) return false;
     const std::shared_ptr<Object> &pchr = _gameObjects[ichr];
+    if(!pchr) {
+        return false;
+    }
 
-    if ( !_gameObjects.exists( iitem ) ) return false;
-    pitem = _gameObjects.get( iitem );
+    Object *pitem = _gameObjects.get( iitem );
+    if(!pitem) {
+        return false;
+    }
 
     // assume that there is no shop so that the character can grab anything
     can_grab = true;
@@ -4053,7 +4061,6 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     pkeeper = _gameObjects.get( shop_keeper );
     if ( INGAME_PCHR( pkeeper ) )
     {
-
         // check for a stealthy pickup
         is_invis  = !pkeeper->canSeeObject(pchr);
 
