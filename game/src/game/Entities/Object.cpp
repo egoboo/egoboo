@@ -1226,11 +1226,6 @@ const std::shared_ptr<Object>& Object::getRightHandItem() const
 
 bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
 {
-    //Always return false for nullptr
-    if(!target) {
-        return false;
-    }
-
     /// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
     // Scenery, spells and quest objects can always see through darkness
     // Checking invictus is not enough, since that could be temporary
