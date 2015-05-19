@@ -3719,13 +3719,14 @@ bool wawalite_finalize(wawalite_data_t *data)
     if (!data) return false;
 
     // No weather?
-    if (!strcmp(data->weather.weather_name, "NONE"))
+    if (data->weather.weather_name == "*NONE*")
     {
         data->weather.part_gpip = LocalParticleProfileRef::Invalid;
     }
     else
     {
         std::string weather_name = data->weather.weather_name;
+        Ego::tolower(weather_name);
 
         // Compute load paths.
         std::string prt_file = "mp_data/weather_" + weather_name + ".txt";
@@ -3740,7 +3741,7 @@ bool wawalite_finalize(wawalite_data_t *data)
         {
             log_warning("%s:%d: failed to load weather type from wawalite.txt: %s - (%s)\n", __FILE__,__LINE__, weather_name.c_str(), prt_file.c_str());
             data->weather.part_gpip = LocalParticleProfileRef::Invalid;
-            strncpy(data->weather.weather_name, "NONE", SDL_arraysize(data->weather.weather_name));
+            data->weather.weather_name = "*NONE*";
         }
     }
 

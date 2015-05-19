@@ -23,6 +23,7 @@
 
 #include "egolib/FileFormats/wawalite_file.h"
 #include "egolib/Profiles/_Include.hpp"
+#include "egolib/Core/StringUtilities.hpp"
 #include "egolib/log.h"
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
@@ -190,7 +191,8 @@ wawalite_weather_t *wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t 
 
         //Parse the weather type line
         vfs_get_next_string_lit(ctxt, line, SDL_arraysize(line));
-        strncpy(profile->weather_name, strupr(line), SDL_arraysize(profile->weather_name));
+        profile->weather_name = line;
+        Ego::toupper(profile->weather_name);
 
         // convert the text in the calling function
         profile->part_gpip = LocalParticleProfileRef::Invalid;
@@ -258,7 +260,7 @@ wawalite_fog_t *wawalite_fog_t::read(ReadContext &ctxt, wawalite_data_t *enclosi
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t *wawalite_data_read(const char *filename, wawalite_data_t *profile)
+wawalite_data_t *wawalite_data_read(const std::string& filename, wawalite_data_t *profile)
 {
     /**
      * @brief
@@ -477,52 +479,55 @@ bool wawalite_fog_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosing
 }
 
 //--------------------------------------------------------------------------------------------
-bool wawalite_data_write(const char *filename,const wawalite_data_t *profile)
+bool wawalite_data_write(const std::string& filename,const wawalite_data_t *profile)
 {
     if (!profile)
     {
         throw std::invalid_argument("nullptr == profile");
     }
-    vfs_FILE *filewrite = vfs_openWrite(filename);
-    if ( NULL == filewrite )
+    auto filewrite = std::shared_ptr<vfs_FILE>(vfs_openWrite(filename.c_str()),
+                                               [](vfs_FILE *file) {
+                                                   if (file) {
+                                                       vfs_close(file);
+                                                   }
+                                               });
+    if (!filewrite)
     {
         log_warning("%s:%d: unable to write file `%s`\n", __FILE__, __LINE__, filename);
         return false;
     }
 
     // Add file verison number
-    vfs_put_version( filewrite, WAWALITE_FILE_VERSION );
+    vfs_put_version( filewrite.get(), WAWALITE_FILE_VERSION );
 
     // file header
-    vfs_printf( filewrite, "// This file tells the game how to model lighting and water...\n" );
-    vfs_printf( filewrite, "// Please fill in all of the data even if you only use one layer of\n" );
-    vfs_printf( filewrite, "// water. 2 is the maximum number of layers.\n" );
-    vfs_printf( filewrite, "// This file also gives information regarding damage tiles and\n" );
-    vfs_printf( filewrite, "// friction for the module.\n" );
-    vfs_printf( filewrite, "\n\n" );
+    vfs_printf(filewrite.get(), "// This file tells the game how to model lighting and water...\n");
+    vfs_printf(filewrite.get(), "// Please fill in all of the data even if you only use one layer of\n");
+    vfs_printf(filewrite.get(), "// water. 2 is the maximum number of layers.\n");
+    vfs_printf(filewrite.get(), "// This file also gives information regarding damage tiles and\n");
+    vfs_printf(filewrite.get(), "// friction for the module.\n");
+    vfs_printf(filewrite.get(), "\n\n");
 
     // random map
-    vfs_put_int(filewrite, "Random map ( TRUE or FALSE ) ( doesn't work )           :", profile->seed);
+    vfs_put_int(filewrite.get(), "Random map ( TRUE or FALSE ) ( doesn't work )           :", profile->seed);
 
-    wawalite_water_t::write(filewrite, profile, &(profile->water));
-    wawalite_light_t::write(filewrite, profile, &(profile->light));
-    wawalite_physics_t::write(filewrite, profile, &(profile->phys));
-    wawalite_animtile_t::write(filewrite, profile, &(profile->animtile));
-    wawalite_damagetile_t::write(filewrite, profile, &(profile->damagetile));
-    wawalite_weather_t::write(filewrite, profile, &(profile->weather));
-    wawalite_graphics_t::write(filewrite, profile, &(profile->graphics));
-    wawalite_camera_t::write(filewrite, profile, &(profile->camera));
-    wawalite_fog_t::write(filewrite, profile, &(profile->fog));
+    wawalite_water_t::write(filewrite.get(), profile, &(profile->water));
+    wawalite_light_t::write(filewrite.get(), profile, &(profile->light));
+    wawalite_physics_t::write(filewrite.get(), profile, &(profile->phys));
+    wawalite_animtile_t::write(filewrite.get(), profile, &(profile->animtile));
+    wawalite_damagetile_t::write(filewrite.get(), profile, &(profile->damagetile));
+    wawalite_weather_t::write(filewrite.get(), profile, &(profile->weather));
+    wawalite_graphics_t::write(filewrite.get(), profile, &(profile->graphics));
+    wawalite_camera_t::write(filewrite.get(), profile, &(profile->camera));
+    wawalite_fog_t::write(filewrite.get(), profile, &(profile->fog));
 
     if (profile->fog.found)
     {
-        vfs_printf(filewrite, "\n\n// Damage tile expansion...  Must have fog first...\n");
-        vfs_put_local_particle_profile_ref(filewrite, "Weather particle to spawn ( 4 or 5, 6 is splash )  :", profile->damagetile.part_gpip);
-        vfs_put_int(filewrite, "Particle timing AND ( 1, 3, 7, 15, etc. )          :", profile->damagetile.partand);
-        vfs_put_int(filewrite, "Damage sound ( 0 to 4 )                            :", profile->damagetile.sound_index);
+        vfs_printf(filewrite.get(), "\n\n// Damage tile expansion...  Must have fog first...\n");
+        vfs_put_local_particle_profile_ref(filewrite.get(), "Weather particle to spawn ( 4 or 5, 6 is splash )  :", profile->damagetile.part_gpip);
+        vfs_put_int(filewrite.get(), "Particle timing AND ( 1, 3, 7, 15, etc. )          :", profile->damagetile.partand);
+        vfs_put_int(filewrite.get(), "Damage sound ( 0 to 4 )                            :", profile->damagetile.sound_index);
     }
-
-    vfs_close(filewrite);
 
     return true;
 }

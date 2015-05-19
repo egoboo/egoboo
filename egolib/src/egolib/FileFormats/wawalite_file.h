@@ -358,7 +358,7 @@ struct wawalite_data_t;
         bool over_water;
         int timer_reset;
         LocalParticleProfileRef part_gpip; ///< Which particle to spawn?
-        STRING weather_name;
+        std::string weather_name;
 
         /**
          * @brief
@@ -376,17 +376,17 @@ struct wawalite_data_t;
         wawalite_weather_t() :
             over_water(false),
             timer_reset(10),
-            part_gpip(-1)
+            part_gpip(),
+            weather_name("*NONE*")
         {
-			weather_name[0] = '\0';
         }
 
         wawalite_weather_t(const wawalite_weather_t& other) :
             over_water(other.over_water),
             timer_reset(other.timer_reset),
-            part_gpip(other.part_gpip)
+            part_gpip(other.part_gpip),
+            weather_name(other.weather_name)
         {
-            strcpy(weather_name, other.weather_name);
         }
 
         wawalite_weather_t& operator=(const wawalite_weather_t& other)
@@ -394,7 +394,7 @@ struct wawalite_data_t;
             over_water = other.over_water;
             timer_reset = other.timer_reset;
             part_gpip = other.part_gpip;
-            strcpy(weather_name, other.weather_name);
+            weather_name = other.weather_name;
             return *this;
         }
 
@@ -735,7 +735,7 @@ struct wawalite_data_t;
      * @param self
      *  the environmental data
      */
-    bool wawalite_data_write(const char *filename,const wawalite_data_t *profile);
+    bool wawalite_data_write(const std::string& filename,const wawalite_data_t *profile);
     /**
      * @brief
      *  Read environmental data from current module.
@@ -744,5 +744,5 @@ struct wawalite_data_t;
      * @param self
      *  the environmental data
      */
-    wawalite_data_t *wawalite_data_read(const char *filename, wawalite_data_t *profile);
+    wawalite_data_t *wawalite_data_read(const std::string& filename, wawalite_data_t *profile);
     wawalite_data_t *wawalite_limit(wawalite_data_t *self);
