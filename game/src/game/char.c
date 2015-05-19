@@ -1270,13 +1270,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
             std::sort(ungrabList.begin(), ungrabList.end(), 
                 [](const grab_data_t &a, const grab_data_t &b)
                 { 
-                    float distance = a.horizontalDistance - b.horizontalDistance;
-
-                    if(distance <= FLT_EPSILON) {
-                        distance += a.verticalDistance - b.verticalDistance;
+                    //If objects are basically on top of each other, then sort by vertical distance
+                    if(std::abs(a.horizontalDistance - b.horizontalDistance) <= FLT_EPSILON) {
+                        return a.verticalDistance < b.verticalDistance;
                     }
 
-                    return distance;
+                    return a.horizontalDistance < b.horizontalDistance;
                 });
 
             for(const grab_data_t &grabData : ungrabList)
