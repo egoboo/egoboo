@@ -179,16 +179,14 @@ prt_t::~prt_t()
 {
 }
 
-prt_t *prt_t::config_do_dtor()
+void prt_t::config_do_dtor()
 {
     // destruct/free any allocated data
     prt_t::free(this);
 
     // Destroy the base object.
     // Sets the state to ego_object_terminated automatically.
-    POBJ_TERMINATE(this);
-
-    return this;
+    this->obj_base.terminate();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -293,7 +291,11 @@ prt_t *prt_t::config_do_init()
     pip_t *ppip = PipStack.get_ptr(pdata->ipip);
 
     // let the object be activated
-    POBJ_ACTIVATE(pprt, ppip->_name.c_str());
+    if ((pprt)->obj_base.isAllocated() && !(pprt)->obj_base.kill_me && Ego::Entity::State::Invalid != (pprt)->obj_base.state)
+    {
+        strncpy((pprt)->obj_base._name, ppip->_name.c_str(), SDL_arraysize((pprt)->obj_base._name));
+        (pprt)->obj_base.state = Ego::Entity::State::Active;
+    }
 
     // make some local copies of the spawn data
     loc_facing = pdata->facing;
@@ -659,15 +661,11 @@ prt_t *prt_t::config_do_active()
 }
 
 //--------------------------------------------------------------------------------------------
-prt_t * prt_t::config_do_deinit()
+void prt_t::config_do_deinit()
 {
-    prt_t *self = this;
-
     // Go to next state.
-    self->obj_base.state = Ego::Entity::State::Destructing;
-    self->obj_base.on = false;
-
-    return self;
+    this->obj_base.state = Ego::Entity::State::Destructing;
+    this->obj_base.on = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1709,7 +1707,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
         // Spawn new enchantments
         if (ppip->spawnenchant)
         {
-            spawn_one_enchant(pprt->owner_ref, character, INVALID_CHR_REF, INVALID_ENC_REF, pprt->profile_ref);
+            EnchantHandler::get().spawn_one_enchant(pprt->owner_ref, character, INVALID_CHR_REF, INVALID_ENC_REF, pprt->profile_ref);
         }
 
         // Spawn particles - this has been modded to maximize the visual effect

@@ -98,16 +98,14 @@ enc_t *enc_t::config_do_ctor()
 enc_t::~enc_t()
 {
 }
-enc_t *enc_t::config_do_dtor()
+void enc_t::config_do_dtor()
 {
     // Destroy the object.
     enc_t::free(this);
 
     // Destroy the parent object.
     // Sets the state to Ego::Entity::State::Terminated automatically.
-    POBJ_TERMINATE(this);
-
-    return this;
+    this->obj_base.terminate();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -859,7 +857,11 @@ enc_t *enc_t::config_do_init()
     peve = EveStack.get_ptr( pdata->eve_ref );
 
     // turn the enchant on here. you can't fail to spawn after this point.
-    POBJ_ACTIVATE(penc, peve->_name.c_str());
+    if ((penc)->obj_base.isAllocated() && !(penc)->obj_base.kill_me && Ego::Entity::State::Invalid != (penc)->obj_base.state)
+    {
+        strncpy((penc)->obj_base._name, peve->_name.c_str(), SDL_arraysize((penc)->obj_base._name));
+        (penc)->obj_base.state = Ego::Entity::State::Active;
+    }
 
     // does the target exist?
     if ( !_gameObjects.exists( pdata->target_ref ) )
@@ -1114,167 +1116,12 @@ enc_t *enc_t::config_do_active()
     return this;
 }
 
-enc_t *enc_t::config_do_deinit()
+void enc_t::config_do_deinit()
 {
-    enc_t *self = this;
-
     // Go to next state.
-    self->obj_base.state = Ego::Entity::State::Destructing;
-    self->obj_base.on = false;
-
-    return self;
+    this->obj_base.state = Ego::Entity::State::Destructing;
+    this->obj_base.on = false;
 }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional )
-{
-    /// @author ZZ
-    /// @details This function enchants a target, returning the enchantment index or INVALID_ENC_REF
-    ///    if failed
-
-    ENC_REF enc_ref;
-    EVE_REF eve_ref;
-
-    eve_t * peve;
-    enc_t * penc;
-    Object * ptarget;
-
-    PRO_REF loc_profile;
-    CHR_REF loc_target;
-
-    // Target must both be alive and on and valid
-    loc_target = target;
-    if ( !_gameObjects.exists( loc_target ) )
-    {
-        log_warning( "spawn_one_enchant() - failed because the target does not exist.\n" );
-        return INVALID_ENC_REF;
-    }
-    ptarget = _gameObjects.get( loc_target );
-
-    // you should be able to enchant dead stuff to raise the dead...
-    // if( !ptarget->alive ) return INVALID_ENC_REF;
-
-    if (ProfileSystem::get().isValidProfileID(modeloptional))
-    {
-        // The enchantment type is given explicitly
-        loc_profile = modeloptional;
-    }
-    else
-    {
-        // The enchantment type is given by the spawner
-        loc_profile = _gameObjects[spawner]->profile_ref;
-
-        if (!ProfileSystem::get().isValidProfileID(loc_profile))
-        {
-            log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", _gameObjects.get(spawner)->Name, REF_TO_INT( spawner ) );
-            return INVALID_ENC_REF;
-        }
-    }
-
-    eve_ref = ProfileSystem::get().pro_get_ieve(loc_profile);
-    if ( !LOADED_EVE( eve_ref ) )
-    {
-        log_warning("spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", ProfileSystem::get().getProfile(loc_profile)->getFilePath().c_str(), REF_TO_INT(loc_profile));
-
-        return INVALID_ENC_REF;
-    }
-    peve = EveStack.get_ptr( eve_ref );
-
-    // count all the requests for this enchantment type
-    peve->_spawnRequestCount++;
-
-    // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
-    if ( !peve->_owner._stay && ( !_gameObjects.exists( owner ) || !_gameObjects.get(owner)->alive ) )
-    {
-        log_warning( "spawn_one_enchant() - failed because the required enchant owner cannot be found.\n" );
-        return INVALID_ENC_REF;
-    }
-
-    // do retargeting, if necessary
-    // Should it choose an inhand item?
-    if ( peve->retarget )
-    {
-        // Left, right, or both are valid
-        if ( _gameObjects.exists( ptarget->holdingwhich[SLOT_LEFT] ) )
-        {
-            // Only right hand is valid
-            loc_target = ptarget->holdingwhich[SLOT_RIGHT];
-        }
-        else if ( _gameObjects.exists( ptarget->holdingwhich[SLOT_LEFT] ) )
-        {
-            // Pick left hand
-            loc_target = ptarget->holdingwhich[SLOT_LEFT];
-        }
-        else
-        {
-            // No weapons to pick, should it pick itself???
-            loc_target = INVALID_CHR_REF;
-        }
-    }
-
-    // make sure the loc_target is alive
-    if ( nullptr == ( ptarget ) || !ptarget->alive )
-    {
-        log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
-        return INVALID_ENC_REF;
-    }
-    ptarget = _gameObjects.get( loc_target );
-
-    // Check peve->required_damagetype, 90% damage resistance is enough to resist the enchant
-    if ( peve->required_damagetype < DAMAGE_COUNT )
-    {
-        if ( ptarget->damage_resistance[peve->required_damagetype] >= 0.90f ||
-             HAS_SOME_BITS( ptarget->damage_modifier[peve->required_damagetype], DAMAGEINVICTUS ) )
-        {
-            log_debug( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
-            return INVALID_ENC_REF;
-        }
-    }
-
-    // Check peve->require_damagetarget_damagetype
-    if ( peve->require_damagetarget_damagetype < DAMAGE_COUNT )
-    {
-        if ( ptarget->damagetarget_damagetype != peve->require_damagetarget_damagetype )
-        {
-            log_warning( "spawn_one_enchant() - failed because the target not have the right damagetarget_damagetype.\n" );
-            return INVALID_ENC_REF;
-        }
-    }
-
-    // Find an enchant index to use
-    enc_ref = EnchantHandler::get().allocate( enc_override );
-
-    if ( !ALLOCATED_ENC( enc_ref ) )
-    {
-        log_warning( "spawn_one_enchant() - could not allocate an enchant.\n" );
-        return INVALID_ENC_REF;
-    }
-    penc = EnchantHandler::get().get_ptr( enc_ref );
-
-    POBJ_BEGIN_SPAWN( penc );
-
-    penc->spawn_data.owner_ref   = owner;
-    penc->spawn_data.target_ref  = loc_target;
-    penc->spawn_data.spawner_ref = spawner;
-    penc->spawn_data.profile_ref = loc_profile;
-    penc->spawn_data.eve_ref     = eve_ref;
-
-    // actually force the character to spawn
-    penc = enc_t::config_activate( penc, 100 );
-
-    // log all the successful spawns
-    if ( NULL != penc )
-    {
-        POBJ_END_SPAWN( penc );
-        peve->_spawnCount++;
-    }
-
-    return enc_ref;
-}
-
-//--------------------------------------------------------------------------------------------
-
 
 //--------------------------------------------------------------------------------------------
 void enc_remove_set( const ENC_REF ienc, int value_idx )

@@ -329,13 +329,13 @@ public:
     // particle state machine function
     prt_t *config_do_ctor();
     // particle state machine function
-    prt_t *config_do_dtor();
-    // particle state machine function
     prt_t *config_do_init();
     // particle state machine function
     prt_t *config_do_active();
     // particle state machine function
-    prt_t *config_do_deinit();
+    void config_do_deinit();
+    // particle state machine function
+    void config_do_dtor();
 };
 
 /**

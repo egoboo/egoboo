@@ -72,6 +72,7 @@ public:
     static EnchantHandler& get();
     ENC_REF allocate(const ENC_REF override);
     void update_used();
+    static ENC_REF spawn_one_enchant(const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional);
 };
 
 //--------------------------------------------------------------------------------------------

@@ -160,19 +160,6 @@ namespace Ego
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// "Allocate" entity and enter state "constructing".
-/// @todo Make this a function.
-#define POBJ_ALLOCATE( PDATA, INDEX ) if (PDATA) { (PDATA)->obj_base.allocate(INDEX); }
-
-/// Turn on an entity.
-/// @todo Make this a function.
-#define POBJ_ACTIVATE( PDATA, NAME ) \
-    if( NULL != PDATA && (PDATA)->obj_base.isAllocated() && !(PDATA)->obj_base.kill_me && Ego::Entity::State::Invalid != (PDATA)->obj_base.state ) \
-	    { \
-        strncpy( (PDATA)->obj_base._name, NAME, SDL_arraysize((PDATA)->obj_base._name) ); \
-        (PDATA)->obj_base.state  = Ego::Entity::State::Active; \
-	    }
-
 /// Begin turning off an entity.
 /// @todo Make this a function.
 #define POBJ_REQUEST_TERMINATE( PDATA ) \
@@ -184,20 +171,6 @@ namespace Ego
 		        } \
         (PDATA)->obj_base.on = false; \
 	    }
-
-/// Completely turn off an entity and mark it as no longer allocated.
-/// @todo Make this a function.
-#define POBJ_TERMINATE( PDATA ) if (PDATA) { (PDATA)->obj_base.terminate(); }
-
-#define POBJ_BEGIN_SPAWN( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.isAllocated()) \
-    {\
-        if( !(PDATA)->obj_base.spawning )\
-        {\
-            (PDATA)->obj_base.spawning = true;\
-            Ego::Entities::spawnDepth++;\
-        }\
-    }\
 
 #define POBJ_END_SPAWN( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.isAllocated()) \
@@ -318,28 +291,26 @@ struct _StateMachine
         return self->config_do_active();
     }
 
-    static TYPE *config_deinit(TYPE *self)
+    static void config_deinit(TYPE& self)
     {
-        if (!self) return nullptr;
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        Ego::Entity *parent = POBJ_GET_PBASE(&self);
 
-        if (!STATE_DEINITIALIZING_PBASE(parent)) return self;
+        if (!STATE_DEINITIALIZING_PBASE(parent)) return;
 
-        POBJ_END_SPAWN(self);
+        POBJ_END_SPAWN(&self);
 
-        return self->config_do_deinit();
+        self.config_do_deinit();
     }
 
-    static TYPE *config_dtor(TYPE *self)
+    static void config_dtor(TYPE& self)
     {
-        if (!self) return nullptr;
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        Ego::Entity *parent = POBJ_GET_PBASE(&self);
 
-        if (!STATE_DESTRUCTING_PBASE(parent)) return self;
+        if (!STATE_DESTRUCTING_PBASE(parent));
 
-        POBJ_END_SPAWN(self);
+        POBJ_END_SPAWN(&self);
 
-        return self->config_do_dtor();
+        self.config_do_dtor();
     }
 
     static TYPE *config_initialize(TYPE *self, size_t max_iterations)
@@ -553,11 +524,11 @@ struct _StateMachine
             break;
 
         case Ego::Entity::State::DeInitializing:
-            self = TYPE::config_deinit(self);
+            TYPE::config_deinit(*self);
             break;
 
         case Ego::Entity::State::Destructing:
-            self = TYPE::config_dtor(self);
+            TYPE::config_dtor(*self);
             break;
 
         case Ego::Entity::State::Waiting:

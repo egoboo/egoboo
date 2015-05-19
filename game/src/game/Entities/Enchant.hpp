@@ -121,17 +121,15 @@ struct enc_t : public _StateMachine < enc_t, EnchantHandler >
     // enchant state machine function
     enc_t *config_do_ctor();
     // enchant state machine function
-    enc_t *config_do_dtor();
-    // enchant state machine function
     enc_t *config_do_init();
     // enchant state machine function
-    enc_t *config_do_deinit();
-    // enchant state machine function
     enc_t *config_do_active();
-
+    // enchant state machine function
+    void config_do_deinit();
+    // enchant state machine function
+    void config_do_dtor();
 };
 
-ENC_REF spawn_one_enchant(const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional);
 
 void update_all_enchants();
 void cleanup_all_enchants();

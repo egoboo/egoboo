@@ -413,7 +413,14 @@ PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, c
     }
     prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
-    POBJ_BEGIN_SPAWN(pprt);
+    if ((pprt)->obj_base.isAllocated())
+    {
+        if (!(pprt)->obj_base.spawning)
+        {
+            (pprt)->obj_base.spawning = true;
+            Ego::Entities::spawnDepth++;
+        }
+    }
 
     pprt->spawn_data.pos = pos;
 

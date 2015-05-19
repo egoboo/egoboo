@@ -2849,7 +2849,7 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = spawn_one_enchant( pself->owner, pself->target, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
+    iTmp = EnchantHandler::get().spawn_one_enchant( pself->owner, pself->target, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
     returncode = DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
@@ -2868,7 +2868,7 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = spawn_one_enchant( pself->owner, pself->child, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
+    iTmp = EnchantHandler::get().spawn_one_enchant( pself->owner, pself->child, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
     returncode = DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
