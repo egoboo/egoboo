@@ -63,7 +63,7 @@ inline void toupper(basic_string<CharType>& str, const locale& lc = locale())
 {
     // Capture lc by reference, capture nothing else.
     auto f = [&lc](const CharType chr) -> CharType { return Ego::toupper(chr, lc); };
-    return for_each(str.begin(), str.end(), f);
+    transform(str.begin(), str.end(), str.begin(), f);
 }
 
 /**
@@ -99,7 +99,7 @@ inline void tolower(basic_string<CharType>& str, const locale& lc = locale())
 {
     // Capture lc by reference, capture nothing else.
     auto f = [&lc] (const CharType chr) -> CharType { return Ego::tolower(chr, lc); };
-    for_each(str.begin(), str.end(), f);
+    transform(str.begin(), str.end(), str.begin(), f);
 }
 
 /**
@@ -242,6 +242,23 @@ vector< basic_string<CharType> > split(const basic_string<CharType>& str, const 
         v.emplace_back(str, start, str.length() - start);
     }
     return v; // Return value optimization/move semantics hopefully kick-in here.
+}
+
+/**
+ * @brief
+ *  Get if a string is a suffix of another string.
+ * @param string
+ *  the string
+ * @param suf
+ *  the suffix
+ * @return
+ *  @a true if the string ends with the suffix,
+ *  @a false otherwise
+ */
+template <typename CharType>
+bool isSuffix(const basic_string<CharType>& string, const basic_string<CharType>& suffix) {
+    if (suffix.size() > string.size()) return false;
+    return std::equal(suffix.rbegin(), suffix.rend(), string.rbegin());
 }
 
 } // namespace Ego
