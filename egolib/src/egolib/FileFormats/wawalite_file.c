@@ -193,9 +193,6 @@ wawalite_weather_t *wawalite_weather_t::read(ReadContext& ctxt, wawalite_data_t 
         vfs_get_next_string_lit(ctxt, line, SDL_arraysize(line));
         profile->weather_name = line;
         Ego::toupper(profile->weather_name);
-
-        // convert the text in the calling function
-        profile->part_gpip = LocalParticleProfileRef::Invalid;
     }
 
     profile->over_water = vfs_get_next_bool(ctxt);
