@@ -112,7 +112,7 @@ DebugModuleLoadingState::DebugModuleLoadingState() :
     _toLoad()
 {
     const auto &playerList = ProfileSystem::get().getSavedPlayers();
-    if (!playerList.empty()) _playersToLoad.emplace_back(playerList[0]->getProfile()->getFolderPath());
+    if (!playerList.empty()) _playersToLoad.emplace_back(playerList[0]->getProfile()->getPathname());
     
     const int SCREEN_WIDTH = _gameEngine->getUIManager()->getScreenWidth();
     const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();

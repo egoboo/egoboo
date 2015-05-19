@@ -1722,11 +1722,8 @@ size_t parse_token(parser_state_t *self, token_t *ptok, ObjectProfile *ppro, scr
         }
         else if ( '#' == str[0] )
         {
-            // an object reference
-            STRING obj_name;
-
             //remove the reference symbol to figure out the actual folder name we are looking for
-            strncpy( obj_name, str + 1, SDL_arraysize( obj_name ) );
+            std:string obj_name = str + 1;
 
             // Invalid profile as default
             ptok->iValue = INVALID_PRO_REF;
@@ -1739,7 +1736,7 @@ size_t parse_token(parser_state_t *self, token_t *ptok, ObjectProfile *ppro, scr
 
 
                 //is this the object we are looking for?
-                if ( 0 == strcmp( obj_name, strrchr( profile->getFilePath().c_str(), '/' ) + 1 ) )
+                if (Ego::isSuffix(profile->getPathname(), obj_name))
                 {
                     ptok->iValue = profile->getSlotNumber();
                     break;
@@ -1749,8 +1746,7 @@ size_t parse_token(parser_state_t *self, token_t *ptok, ObjectProfile *ppro, scr
             // Do we need to load the object?
             if (!ProfileSystem::get().isValidProfileID((PRO_REF)ptok->iValue))
             {
-                STRING loadname;
-                snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
+                std::string loadname = "mp_objects/" + obj_name;
 
                 //find first free slot number
                 for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++ )

@@ -214,8 +214,6 @@ public:
     inline const std::string& getPathname() const {
         return _pathname;
     }
-    inline const std::string& getFilePath() const {return _pathname;} //TODO remove this duplicate below
-    inline const std::string& getFolderPath() const {return _pathname;}
 
     inline MAD_REF getModelRef() const {return _imad;}
     inline EVE_REF getEnchantRef() const {return _ieve;}

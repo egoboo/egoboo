@@ -234,7 +234,7 @@ bool chr_getMatForward(Object *self, fvec3_t& forward);
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatTranslate(Object *self, fvec3_t& translate);
 
-const char * chr_get_dir_name( const CHR_REF ichr );
+std::string chr_get_dir_name( const CHR_REF ichr );
 int chr_get_skill( Object * pchr, IDSZ whichskill );
 
 bool update_chr_darkvision( const CHR_REF character );

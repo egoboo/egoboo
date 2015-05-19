@@ -228,7 +228,7 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
         }
         else if (required && overrideslots)
         {
-            log_error("ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT(iobj), _profilesLoaded[iobj]->getFilePath().c_str(), pathName.c_str());
+            log_error("ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT(iobj), _profilesLoaded[iobj]->getPathname().c_str(), pathName.c_str());
         }
         else
         {

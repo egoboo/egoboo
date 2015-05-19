@@ -273,7 +273,7 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     eve_ref = ProfileSystem::get().pro_get_ieve(loc_profile);
     if (!LOADED_EVE(eve_ref))
     {
-        log_warning("spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", ProfileSystem::get().getProfile(loc_profile)->getFilePath().c_str(), REF_TO_INT(loc_profile));
+        log_warning("spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", ProfileSystem::get().getProfile(loc_profile)->getPathname().c_str(), REF_TO_INT(loc_profile));
 
         return INVALID_ENC_REF;
     }

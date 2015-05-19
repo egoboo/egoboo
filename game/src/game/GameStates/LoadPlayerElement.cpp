@@ -33,11 +33,11 @@ LoadPlayerElement::LoadPlayerElement(std::shared_ptr<ObjectProfile> profile) :
     _isSelected(false)
 {
     // load the quest info from "quest.txt" so we can determine the valid modules
-    quest_log_download_vfs(_questLog, SDL_arraysize(_questLog), profile->getFolderPath().c_str());
+    quest_log_download_vfs(_questLog, SDL_arraysize(_questLog), profile->getPathname().c_str());
 
     // load the chop data from "naming.txt" to generate the character name (kinda silly how it's done currently)
     RandomName randomName;
-    randomName.loadFromFile(profile->getFolderPath() + "/naming.txt");
+    randomName.loadFromFile(profile->getPathname() + "/naming.txt");
     
     // generate the name from the chop
     _name = randomName.generateRandomName();

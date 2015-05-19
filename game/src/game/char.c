@@ -5211,40 +5211,18 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 }
 
 //--------------------------------------------------------------------------------------------
-const char * chr_get_dir_name( const CHR_REF ichr )
+std::string chr_get_dir_name( const CHR_REF ichr )
 {
-    static STRING buffer = EMPTY_CSTR;
-    Object * pchr;
-
-    strncpy( buffer, "/debug", SDL_arraysize( buffer ) );
-
-    if ( !_gameObjects.exists( ichr ) ) return buffer;
-    pchr = _gameObjects.get( ichr );
-
-    if (!ProfileSystem::get().isValidProfileID(pchr->profile_ref))
-    {
-        char * sztmp;
-
-        EGOBOO_ASSERT( false );
-
-        // copy the character's data.txt path
-        strncpy( buffer, "*INVALID*", SDL_arraysize( buffer ) );
-
-        // the name should be "...some path.../data.txt"
-        // grab the path
-
-        sztmp = strstr( buffer, "/\\" );
-        if ( NULL != sztmp ) *sztmp = CSTR_END;
+    if (!_gameObjects.exists(ichr)) {
+        return "*INVALID*";
     }
-    else
-    {
+    Object *pchr = _gameObjects.get( ichr );
+    if (!ProfileSystem::get().isValidProfileID(pchr->profile_ref)) {
+        return "*INVALID*";
+    } else {
         std::shared_ptr<ObjectProfile> ppro = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-        // copy the character's data.txt path
-        strncpy( buffer, ppro->getFilePath().c_str(), SDL_arraysize( buffer ) );
+        return ppro->getPathname();
     }
-
-    return buffer;
 }
 
 //--------------------------------------------------------------------------------------------

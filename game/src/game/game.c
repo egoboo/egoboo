@@ -245,7 +245,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // modules/advent.mod/objects/advent.obj
-    snprintf( fromdir, SDL_arraysize( fromdir ), "%s", object->getProfile()->getFilePath().c_str() );
+    snprintf(fromdir, SDL_arraysize(fromdir), "%s", object->getProfile()->getPathname().c_str());
 
     // Build the DATA.TXT file
     if(!ObjectProfile::exportCharacterToFile(std::string(todir) + "/data.txt", object.get())) {
@@ -2080,7 +2080,7 @@ void game_load_profile_ai()
         if(profile == nullptr) continue;
 
         // Load the AI script for this iobj
-        std::string filePath = profile->getFilePath() + "/script.txt";
+        std::string filePath = profile->getPathname() + "/script.txt";
 
         load_ai_script_vfs( ps, filePath.c_str(), profile.get(), &profile->getAIScript() );
     }
@@ -2928,10 +2928,10 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
     pchr->is_which_player = player;
 
     // download the quest info
-    quest_log_download_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), chr_get_dir_name( character ) );
+    quest_log_download_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), chr_get_dir_name( character ).c_str() );
 
     //---- skeleton for using a ConfigFile to save quests
-    // ppla->quest_file = quest_file_open( chr_get_dir_name(character) );
+    // ppla->quest_file = quest_file_open( chr_get_dir_name(character).c_str() );
 
     ppla->index              = character;
     ppla->valid              = true;

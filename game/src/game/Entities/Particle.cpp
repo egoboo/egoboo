@@ -284,7 +284,7 @@ prt_t *prt_t::config_do_init()
     {
         log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
             REF_TO_INT(pdata->ipip), REF_TO_INT(pdata->chr_origin), _gameObjects.exists(pdata->chr_origin) ? _gameObjects.get(pdata->chr_origin)->Name : "INVALID",
-            REF_TO_INT(pdata->iprofile), ProfileSystem::get().isValidProfileID(pdata->iprofile) ? ProfileSystem::get().getProfile(pdata->iprofile)->getFilePath().c_str() : "INVALID");
+            REF_TO_INT(pdata->iprofile), ProfileSystem::get().isValidProfileID(pdata->iprofile) ? ProfileSystem::get().getProfile(pdata->iprofile)->getPathname().c_str() : "INVALID");
 
         return nullptr;
     }

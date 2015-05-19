@@ -62,7 +62,7 @@ _continueButton(std::make_shared<Button>("Select Module", SDLK_RETURN))
         std::list<std::string> selectedPlayersResult;
         for (const std::shared_ptr<LoadPlayerElement> &player : _selectedPlayers) {
             if (player != nullptr) {
-                selectedPlayersResult.push_back(player->getProfile()->getFolderPath());
+                selectedPlayersResult.push_back(player->getProfile()->getPathname());
             }
         }
 
