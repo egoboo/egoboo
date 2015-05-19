@@ -235,7 +235,7 @@ public:
                     {
                         TYPE *profile = this->get_ptr(ref);
                         vfs_printf(file, "index == %d\tname == \"%s\"\tspawn count == %" PRIuZ "\tspawn request count == %" PRIuZ "\n",
-                                   REF_TO_INT(ref), profile->_name, profile->_spawnCount, profile->_spawnRequestCount);
+                                   REF_TO_INT(ref), profile->_name.c_str(), profile->_spawnCount, profile->_spawnRequestCount);
                     }
                 }
                 vfs_close(file);
