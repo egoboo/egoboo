@@ -224,7 +224,7 @@ public:
 
         if (numLoaded > 0 && maxSpawnRequestCount > 0)
         {
-            vfs_FILE *file = vfs_openWriteB(_debugPathName.c_str());
+            vfs_FILE *file = vfs_openWrite(_debugPathName);
             if (nullptr != file)
             {
                 vfs_printf(file, "List of used %s profiles\n\n", _profileTypeName.c_str());

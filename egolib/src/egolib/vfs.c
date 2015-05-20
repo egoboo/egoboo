@@ -264,24 +264,36 @@ const char *vfs_getVersion()
     return buffer;
 }
 
+#include "egolib/VFS/Pathname.hpp"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-vfs_FILE *vfs_openReadB(const char *filename)
+
+bool validate(const std::string& source, std::string& target) {
+    try {
+        target = Ego::VFS::Pathname(source).toString();
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+vfs_FILE *vfs_openRead(const std::string& pathname)
 {
     BAIL_IF_NOT_INIT();
 
-    if (INVALID_CSTR(filename))
-    {
-        return NULL;
+    std::string temporary;
+    if (!validate(pathname,temporary)) {
+        return nullptr;
     }
 
-    PHYSFS_File *ftmp = PHYSFS_openRead(filename);
+    PHYSFS_File *ftmp = PHYSFS_openRead(temporary.c_str());
     if (!ftmp)
     {
     #if defined(_DEBUG) && defined(_VFS_DEBUG)
-        log_warning("unable to open file `%s` for reading - reason: %s\n",filename, PHYSFS_getLastError());
+        log_warning("unable to open file `%s` for reading - reason: %s\n", pathname.c_str(), PHYSFS_getLastError());
     #endif
-        return NULL;
+        return nullptr;
     }
 
     vfs_FILE *vfs_file = EGOBOO_NEW(vfs_FILE);
@@ -298,32 +310,27 @@ vfs_FILE *vfs_openReadB(const char *filename)
     return vfs_file;
 }
 
-vfs_FILE *vfs_openWriteB(const char *filename)
+vfs_FILE *vfs_openWrite(const std::string& pathname)
 {
     BAIL_IF_NOT_INIT();
 
-    if (INVALID_CSTR(filename))
-    {
-        return NULL;
+    std::string temporary;
+    if (!validate(pathname, temporary)) {
+        return nullptr;
     }
 
-    // Make a local copy of the filename
-    // and make sure that PHYSFS gets the local_filename with the slashes it wants.
-    VFS_PATH temporary;
-    strncpy(temporary, vfs_convert_fname(filename), SDL_arraysize(temporary));
-
     // Make sure that the output directory exists.
-    if (!_vfs_ensure_write_directory(temporary, false))
+    if (!_vfs_ensure_write_directory(temporary.c_str(), false))
     {
         return NULL;
     }
 
     // Open the PhysFS file.
-    PHYSFS_File *ftmp = PHYSFS_openWrite(temporary);
+    PHYSFS_File *ftmp = PHYSFS_openWrite(temporary.c_str());
     if (!ftmp)
     {
     #if defined(_DEBUG) && defined(_VFS_DEBUG)
-        log_warning("unable to open file `%s` for writing - reason: %s\n", filename, PHYSFS_getLastError());
+        log_warning("unable to open file `%s` for writing - reason: %s\n", pathname.c_str(), PHYSFS_getLastError());
     #endif
         return NULL;
     }
@@ -333,7 +340,7 @@ vfs_FILE *vfs_openWriteB(const char *filename)
     if (!vfs_file)
     {
         PHYSFS_close(ftmp);
-        return NULL;
+        return nullptr;
     }
     vfs_file->flags = VFS_FILE_FLAG_WRITING;
     vfs_file->type  = VFS_FILE_TYPE_PHYSFS;
@@ -342,20 +349,20 @@ vfs_FILE *vfs_openWriteB(const char *filename)
     return vfs_file;
 }
 
-vfs_FILE *vfs_openAppendB(const char * filename)
+vfs_FILE *vfs_openAppend(const std::string& pathname)
 {
     BAIL_IF_NOT_INIT();
 
-    if (INVALID_CSTR(filename))
-    {
-        return NULL;
+    std::string temporary;
+    if (!validate(pathname, temporary)) {
+        return nullptr;
     }
 
-    PHYSFS_File *ftmp = PHYSFS_openAppend(filename);
+    PHYSFS_File *ftmp = PHYSFS_openAppend(temporary.c_str());
     if (!ftmp)
     {
     #if defined(_DEBUG) && defined(_VFS_DEBUG)
-        log_warning("unable to open file `%s` for appending - reason: %s\n", filename, PHYSFS_getLastError());
+        log_warning("unable to open file `%s` for appending - reason: %s\n", pathname.c_str(), PHYSFS_getLastError());
     #endif
         return NULL;
     }
@@ -694,12 +701,6 @@ const char * vfs_resolveWriteFilename( const char * src_filename )
 }
 
 //--------------------------------------------------------------------------------------------
-vfs_FILE * vfs_openRead( const char * filename )
-{
-    return vfs_openReadB(filename);
-}
-
-//--------------------------------------------------------------------------------------------
 int _vfs_ensure_write_directory( const char * filename, bool is_directory )
 {
     /// @author BB
@@ -749,12 +750,6 @@ int _vfs_ensure_write_directory( const char * filename, bool is_directory )
 }
 
 //--------------------------------------------------------------------------------------------
-vfs_FILE * vfs_openWrite( const char * filename )
-{
-    return vfs_openWriteB(filename);
-}
-
-//--------------------------------------------------------------------------------------------
 #if 0
 bool _vfs_ensure_destination_file(const char * filename)
 {
@@ -781,12 +776,6 @@ bool _vfs_ensure_destination_file(const char * filename)
     return vfs_copyFile(filename, filename);
 }
 #endif
-
-//--------------------------------------------------------------------------------------------
-vfs_FILE * vfs_openAppend( const char * filename )
-{
-    return vfs_openAppendB(filename);
-}
 
 int vfs_isReading(vfs_FILE *file)
 {
@@ -1008,44 +997,54 @@ long vfs_fileLength( vfs_FILE * pfile )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int vfs_mkdir( const char *dirName )
-{
-    int retval;
-
+bool vfs_mkdir(const std::string& pathname) {
     BAIL_IF_NOT_INIT();
 
-    retval = PHYSFS_mkdir( vfs_convert_fname( dirName ) );
-
-    if ( !retval )
-    {
-        log_debug( "vfs_copyDirectory() - Could not create new folder folder \"%s\". (%s)\n", dirName, vfs_getError() );
+    std::string temporary;
+    if (!validate(pathname, temporary)) {
+        return false;
     }
 
-    return retval;
+    if (!PHYSFS_mkdir(temporary.c_str())) {
+        log_debug("PHYSF_mkdir(%s) failed: %s\n", pathname.c_str(), vfs_getError());
+        return false;
+    }
+
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_delete_file( const char *filename )
+bool vfs_delete_file(const std::string& pathname)
 {
     BAIL_IF_NOT_INIT();
 
-    return PHYSFS_delete( vfs_convert_fname( filename ) );
+    std::string temporary;
+    if (!validate(pathname, temporary)) {
+        return false;
+    }
+
+    if (!PHYSFS_delete(temporary.c_str())) {
+        log_debug("PHYSF_delete(%s) failed: %s\n", pathname.c_str(), vfs_getError());
+        return false;
+    }
+    return true;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_exists( const char *fname )
-{
+bool vfs_exists(const std::string& pathname) {
     BAIL_IF_NOT_INIT();
-
-    return PHYSFS_exists( vfs_convert_fname( fname ) );
+    std::string temporary;
+    if (!validate(pathname, temporary)) {
+        return false;
+    }
+    return (0 != PHYSFS_exists(temporary.c_str()));
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_isDirectory( const char *fname )
-{
+bool vfs_isDirectory(const std::string& pathname) {
     BAIL_IF_NOT_INIT();
-
-    return PHYSFS_isDirectory( vfs_convert_fname( fname ) );
+    std::string temporary;
+    if (!validate(pathname, temporary)) {
+        return false;
+    }
+    return 0 != PHYSFS_isDirectory(temporary.c_str());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2369,20 +2368,29 @@ _vfs_copyFile_end:
 */
 
 //--------------------------------------------------------------------------------------------
-int vfs_copyFile( const char *source, const char *dest )
+int vfs_copyFile( const std::string& source, const std::string& target)
 {
-    vfs_FILE * src = vfs_openReadB(source);
-    vfs_FILE * dst = vfs_openWriteB(dest);
-    EGOBOO_ASSERT(src != NULL && dst != NULL);
-    char buffer[1024];
-    while (!vfs_eof(src))
-    {
-        size_t read = vfs_read(buffer, 1, sizeof(buffer), src);
-        // @todo this doesn't account for write not writing everything
-        vfs_write(buffer, 1, read, dst);
+    vfs_FILE *sourceFile = vfs_openRead(source),
+             *targetFile = vfs_openWrite(target);
+    if (!sourceFile || !targetFile) {
+        if (sourceFile) {
+            vfs_close(sourceFile);
+        }
+        if (targetFile) {
+            vfs_close(targetFile);
+        }
+        return false;
     }
-    vfs_close(src);
-    vfs_close(dst);
+    EGOBOO_ASSERT(sourceFile != NULL && targetFile != NULL);
+    char buffer[1024];
+    while (!vfs_eof(sourceFile))
+    {
+        size_t read = vfs_read(buffer, 1, sizeof(buffer), sourceFile);
+        // @todo this doesn't account for write not writing everything
+        vfs_write(buffer, 1, read, targetFile);
+    }
+    vfs_close(sourceFile);
+    vfs_close(targetFile);
     return VFS_TRUE;
 #if 0
     // buffer the directory delete through PHYSFS, so that we so not access functions that
@@ -3130,14 +3138,15 @@ void vfs_set_base_search_paths( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool vfs_readEntireFile(const char *filename, char **data, size_t *length)
-{
-    if (nullptr == data || nullptr == length) return false;
-    
-    vfs_FILE *pfile = vfs_openReadB(filename);
-    if (nullptr == pfile) return false;
-    
-    long fileLen = vfs_fileLength(pfile);
+bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length) {
+    if (!data || !length) {
+        return false;
+    }
+    vfs_FILE *file = vfs_openRead(pathname);
+    if (!file) {
+        return false;
+    }
+    long fileLen = vfs_fileLength(file);
     
     if (fileLen == -1)
     {
@@ -3147,26 +3156,26 @@ bool vfs_readEntireFile(const char *filename, char **data, size_t *length)
         char *buffer = (char *) malloc(bufferSize);
         if (nullptr == buffer)
         {
-            vfs_close(pfile);
+            vfs_close(file);
             return false;
         }
-        while (!vfs_eof(pfile))
+        while (!vfs_eof(file))
         {
-            size_t read = vfs_read(buffer + pos, 1, bufferSize - pos, pfile);
+            size_t read = vfs_read(buffer + pos, 1, bufferSize - pos, file);
             pos += read;
-            if (vfs_error(pfile))
+            if (vfs_error(file))
             {
                 free(buffer);
-                vfs_close(pfile);
+                vfs_close(file);
                 return false;
             }
-            if (vfs_eof(pfile)) break;
+            if (vfs_eof(file)) break;
             if (0 == read) continue;
             char *newBuffer = (char *)realloc(buffer, pos + 1024);
             if (nullptr == newBuffer)
             {
                 free(buffer);
-                vfs_close(pfile);
+                vfs_close(file);
                 return false;
             }
             buffer = newBuffer;
@@ -3180,38 +3189,41 @@ bool vfs_readEntireFile(const char *filename, char **data, size_t *length)
         char *buffer = (char *) malloc(fileLen);
         if (nullptr == buffer)
         {
-            vfs_close(pfile);
+            vfs_close(file);
             return false;
         }
         while (pos < fileLen)
         {
-            size_t read = vfs_read(buffer + pos, 1, fileLen - pos, pfile);
+            size_t read = vfs_read(buffer + pos, 1, fileLen - pos, file);
             pos += read;
-            if (vfs_error(pfile))
+            if (vfs_error(file))
             {
                 free(buffer);
-                vfs_close(pfile);
+                vfs_close(file);
                 return false;
             }
-            if (vfs_eof(pfile)) break;
+            if (vfs_eof(file)) break;
         }
         *data = buffer;
         *length = pos;
     }
     
-    vfs_close(pfile);
+    vfs_close(file);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool vfs_writeEntireFile(const char *filename, const char *data, const size_t length)
+bool vfs_writeEntireFile(const std::string& pathname, const char *data, const size_t length)
 {
-    if (nullptr == data) return false;
-    vfs_FILE *pfile = vfs_openWriteB(filename);
-    if (nullptr == pfile) return false;
+    if (!data) {
+        return false;
+    }
+    vfs_FILE *pfile = vfs_openWrite(pathname);
+    if (nullptr == pfile) {
+        return false;
+    }
     size_t pos = 0;
-    while (pos < length)
-    {
+    while (pos < length) {
         size_t written = vfs_write(data + pos, 1, length - pos, pfile);
         pos += written;
         if (vfs_error(pfile))
@@ -3303,57 +3315,50 @@ static SDL_RWops *vfs_rwops_create(vfs_FILE *file, bool ownership)
 SDL_RWops *vfs_openRWops(vfs_FILE *file, bool ownership)
 {
     SDL_RWops *rwops = vfs_rwops_create(file, ownership);
-    if (!rwops)
-    {
-        return NULL;
+    if (!rwops) {
+        return nullptr;
     }
     return rwops;
 }
 
-SDL_RWops *vfs_openRWopsRead(const char *filename)
+SDL_RWops *vfs_openRWopsRead(const std::string& pathname)
 {
-    vfs_FILE *file = vfs_openRead(filename);
-    if (!file)
-    {
-        return NULL;
+    vfs_FILE *file = vfs_openRead(pathname);
+    if (!file) {
+        return nullptr;
     }
     SDL_RWops *rwops = vfs_rwops_create(file, true);
-    if (!rwops)
-    {
+    if (!rwops) {
         vfs_close(file);
-        return NULL;
+        return nullptr;
     }
     return rwops;
 }
 
-SDL_RWops * vfs_openRWopsWrite(const char *filename)
+SDL_RWops *vfs_openRWopsWrite(const std::string& pathname)
 {
-    vfs_FILE *file = vfs_openWrite(filename);
-    if (!file)
-    {
-        return NULL;
+    vfs_FILE *file = vfs_openWrite(pathname);
+    if (!file) {
+        return nullptr;
     }
     SDL_RWops *rwops = vfs_rwops_create(file, true);
-    if (!rwops)
-    {
+    if (!rwops) {
         vfs_close(file);
-        return NULL;
+        return nullptr;
     }
     return rwops;
 }
 
-SDL_RWops *vfs_openRWopsAppend(const char *filename)
+SDL_RWops *vfs_openRWopsAppend(const std::string& pathname)
 {
-    vfs_FILE *file = vfs_openAppend(filename);
-    if (!file)
-    {
-        return NULL;
+    vfs_FILE *file = vfs_openAppend(pathname);
+    if (!file) {
+        return nullptr;
     }
     SDL_RWops *rwops = vfs_rwops_create(file, true);
-    if (!rwops)
-    {
+    if (!rwops) {
         vfs_close(file);
-        return NULL;
+        return nullptr;
     }
     return rwops;
 }

@@ -1062,12 +1062,12 @@ bool ObjectProfile::isSlotValid(slot_t slot) const
 
 bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Object *character)
 {
-    if (nullptr == (character)) {
+    if (nullptr == character) {
         return false;
     }
 
     // Open the file
-    vfs_FILE *fileWrite = vfs_openWrite( filePath.c_str() );
+    vfs_FILE *fileWrite = vfs_openWrite(filePath);
     if (!fileWrite) {
         return false;  
     } 

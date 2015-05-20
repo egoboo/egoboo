@@ -56,6 +56,7 @@
 #include "egolib/typedef.h"
 #include "egolib/DynamicArray.hpp"
 #include "egolib/vfs.h"
+#include "egolib/VFS/Pathname.hpp"
 #include "egolib/Math/Vector.hpp"
 
 //--------------------------------------------------------------------------------------------

@@ -526,7 +526,7 @@ GLuint oglx_texture_t::load(const std::string& name, std::shared_ptr<SDL_Surface
 GLuint oglx_texture_t::load(std::shared_ptr<SDL_Surface> source, Uint32 key)
 {
     std::ostringstream stream;
-    stream << "<source " << (void *)source.get() << ">";
+    stream << "<source " << static_cast<void *>(source.get()) << ">";
     return load(stream.str().c_str(), source, key);
 }
 

@@ -104,7 +104,7 @@ bool RandomName::exportName(const std::string &name, const std::string &filePath
     }
 
     //Open file for writing
-    vfs_FILE* fileWrite = vfs_openWrite(filePath.c_str());
+    vfs_FILE* fileWrite = vfs_openWrite(filePath);
     if(!fileWrite) {
         return false;
     }

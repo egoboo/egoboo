@@ -482,7 +482,7 @@ bool wawalite_data_write(const std::string& filename,const wawalite_data_t *prof
     {
         throw std::invalid_argument("nullptr == profile");
     }
-    auto filewrite = std::shared_ptr<vfs_FILE>(vfs_openWrite(filename.c_str()),
+    auto filewrite = std::shared_ptr<vfs_FILE>(vfs_openWrite(filename),
                                                [](vfs_FILE *file) {
                                                    if (file) {
                                                        vfs_close(file);

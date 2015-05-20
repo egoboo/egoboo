@@ -74,7 +74,7 @@ public:
         _file(nullptr),
         _current(Traits::startOfInput())
     {
-        _file = vfs_openReadB(fileName.c_str());
+        _file = vfs_openRead(fileName);
     }
 
     /**

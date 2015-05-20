@@ -167,7 +167,7 @@ void log_initialize(const char *logname, LogLevel logLevel)
 
     if (nullptr == logFile)
     {
-        logFile = vfs_openWriteB(logname);
+        logFile = vfs_openWrite(logname);
         if (!logFile)
         {
             _logLevel = LOG_WARNING;

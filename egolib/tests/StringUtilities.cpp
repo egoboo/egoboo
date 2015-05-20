@@ -51,4 +51,24 @@ EgoTest_Test(split)
     v.clear();
 }
 
+EgoTest_Test(toupper)
+{
+    std::string x("x");
+    Ego::toupper(x);
+    EgoTest_Assert(x == "X");
+    // Identity.
+    Ego::toupper(x);
+    EgoTest_Assert(x == "X");
+}
+
+EgoTest_Test(tolower)
+{
+    std::string x("X");
+    Ego::tolower(x);
+    EgoTest_Assert(x == "x");
+    // Identity.
+    Ego::tolower(x);
+    EgoTest_Assert(x == "x");
+}
+
 EgoTest_EndTestCase()

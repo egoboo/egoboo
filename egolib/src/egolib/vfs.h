@@ -155,44 +155,32 @@ int vfs_init(const char *argv0, const char *root_dir);
 /**
  * @brief
  *  Open a file for reading in binary mode, using PhysFS.
- * @param filename
- *  the filename
+ * @param pathname
+ *  the pathname of the file
  * @return
  *  a pointer to the file on success, a null pointer on failure
  */
-vfs_FILE *vfs_openReadB(const char *filename);
+vfs_FILE *vfs_openRead(const std::string& pathname);
 
 /**
  * @brief
  *  Open a file for writing in binary mode, using PhysFS.
- * @param filename
- *  the filename
+ * @param pathname
+ *  the pathname of the file
  * @return
  *  a pointer to the file on success, a null pointer on failure
  */
-vfs_FILE *vfs_openWriteB(const char *filename);
+vfs_FILE *vfs_openWrite(const std::string& pathname);
 
 /**
  * @brief
  *  Open a file for appending in binary mode, using PhysFS.
- * @param filename
- *  the filename
+ * @param pathname
+ *  the pathname of the file
  * @return
  *  a pointer to the file on success, a null pointer on failure
  */
-vfs_FILE *vfs_openAppendB(const char *filename);
-
-/**@}*/
-
-/**@{*/
-/**
- * These functions open in "text mode" this means that they are reading using
- *  the C stdio routines. However, w use PhysFS to resolve the actual filename.
- */
-
-vfs_FILE *vfs_openRead(const char *filename);
-vfs_FILE *vfs_openWrite(const char *filename);
-vfs_FILE *vfs_openAppend(const char *filename);
+vfs_FILE *vfs_openAppend(const std::string& pathname);
 
 /**@}*/
 
@@ -230,11 +218,14 @@ int vfs_error(vfs_FILE *file);
 long vfs_tell(vfs_FILE *file);
 int vfs_seek(vfs_FILE *file , long offset);
 
-int vfs_mkdir(const char *pathname);
-int vfs_delete_file(const char *pathname);
-
-int vfs_exists(const char *pathname);
-int vfs_isDirectory(const char *pathname);
+/** @return @a true on success, @a false on failure */
+bool vfs_mkdir(const std::string& pathname);
+/** @return @a true on success, @a false on failure */
+bool vfs_delete_file(const std::string& pathname);
+/** @return @a true if the path refers to an existing file, @a false otherwise */
+bool vfs_exists(const std::string& pathname);
+/** @return @a true if the pathname refers to an existing directory file, @a false otherwise */
+bool vfs_isDirectory(const std::string& pathname);
 
 // binary reading and writing
 size_t vfs_read(void *buffer, size_t size, size_t count, vfs_FILE *file);
@@ -315,7 +306,7 @@ char *vfs_gets(char *s, int, vfs_FILE *file);
 
 void         vfs_empty_temp_directories();
 
-int          vfs_copyFile(const char *source, const char *dest);
+int          vfs_copyFile(const std::string& source, const std::string& dest);
 int          vfs_copyDirectory(const char *sourceDir, const char *destDir);
 
 int    vfs_removeDirectoryAndContents(const char * dirname, int recursive);
@@ -337,8 +328,8 @@ const char *vfs_mount_info_strip_path(const char * some_path);
 
 void vfs_listSearchPaths();
     
-bool vfs_readEntireFile(const char *filename, char **data, size_t *length);
-bool vfs_writeEntireFile(const char *filename, const char *data, const size_t length);
+bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length);
+bool vfs_writeEntireFile(const std::string& pathname, const char *data, const size_t length);
 
 // Wrap vfs into SDL_RWops
 struct SDL_RWops;
@@ -360,29 +351,29 @@ SDL_RWops *vfs_openRWops(vfs_FILE *file, bool ownership);
 /**
  * @brief
  *  Create SDL RW ops for the given filename.
- * @param filename
- *  the filename
+ * @param pathname
+ *  the pathname
  * @return
  *  the SDL RW ops on success, a null pointer on failure
  */
-SDL_RWops *vfs_openRWopsRead(const char *filename);
+SDL_RWops *vfs_openRWopsRead(const std::string& pathname);
 
 /**
  * @brief
  *  Create SDL RW ops for the given filename.
- * @param filename
- *  the filename
+ * @param pathname
+ *  the pathname
  * @return
  *  the SDL RW ops on success, a null pointer on failure
  */
-SDL_RWops *vfs_openRWopsWrite(const char *filename);
+SDL_RWops *vfs_openRWopsWrite(const std::string& pathname);
 
 /**
  * @brief
  *  Create SDL RW ops for the given filename.
- * @param filename
- *  the filename
+ * @param pathname
+ *  the pathname
  * @return
  *  the SDL RW ops on success, a null pointer on failure
  */
-SDL_RWops *vfs_openRWopsAppend(const char *filename);
+SDL_RWops *vfs_openRWopsAppend(const std::string& pathname);

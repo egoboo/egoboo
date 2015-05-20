@@ -291,15 +291,13 @@ bool ModuleProfile::moduleAddIDSZ(const char *szModName, IDSZ idsz, size_t buffe
     // Only add if there isn't one already
     if ( !moduleHasIDSZ( szModName, idsz, 0, NULL ) )
     {
-        STRING src_file, dst_file;
-
         // make sure that the file exists in the user data directory since we are WRITING to it
-        snprintf( src_file, SDL_arraysize( src_file ), "mp_modules/%s/gamedat/menu.txt", szModName );
-        snprintf( dst_file, SDL_arraysize( dst_file ), "/modules/%s/gamedat/menu.txt", szModName );
+        std::string src_file = std::string("mp_modules/") + szModName + "/gamedat/menu.txt";
+        std::string dst_file = std::string("/modules/") + szModName + "/gamedat/menu.txt";
         vfs_copyFile( src_file, dst_file );
 
         // Try to open the file in append mode
-        filewrite = vfs_openAppend( dst_file );
+        filewrite = vfs_openAppend(dst_file);
         if ( NULL != filewrite )
         {
             // output the expansion IDSZ

@@ -114,7 +114,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     id_md2_header_t md2Header;
 
     // Open up the file, and make sure it's a MD2 model
-    vfs_FILE *f = vfs_openReadB(fileName.c_str());
+    vfs_FILE *f = vfs_openRead(fileName);
     if(!f)
     {
         log_warning("MD2Model::loadFromFile() - could not open model (%s)\n", fileName.c_str());

@@ -1626,7 +1626,7 @@ Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint
         // Build the full file name.
         std::string fullFilename = filename + loader.getExtension();
         // Open the file.
-        vfs_FILE *file = vfs_openReadB(fullFilename.c_str());
+        vfs_FILE *file = vfs_openRead(fullFilename);
         if (!file)
         {
             continue;

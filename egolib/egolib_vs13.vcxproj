@@ -134,7 +134,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <SDLCheck>false</SDLCheck>
       <StringPooling>false</StringPooling>
-      <SmallerTypeCheck>true</SmallerTypeCheck>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
@@ -267,7 +267,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <StringPooling>false</StringPooling>
-      <SmallerTypeCheck>true</SmallerTypeCheck>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -276,6 +276,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\VFS\Pathname.cpp" />
     <ClCompile Include="src\egolib\AI\AStar.c" />
     <ClCompile Include="src\egolib\AI\WaypointList.c" />
     <ClCompile Include="src\egolib\Graphics\mad.c" />
@@ -498,6 +499,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
     <ClInclude Include="src\egolib\AI\AStar.h" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
     <ClInclude Include="src\egolib\Graphics\mad.h" />

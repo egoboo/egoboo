@@ -291,7 +291,7 @@ bool map_t::load(const char *name)
         return false;
     }
 
-    vfs_FILE *file = vfs_openReadB(name);
+    vfs_FILE *file = vfs_openRead(name);
     if (!file)
     {
         log_warning("%s:%d: cannot find \"%s\"!!\n", __FILE__, __LINE__, name);
@@ -370,7 +370,7 @@ bool map_t::save(const char *name) const
         return false;
     }
 
-    vfs_FILE *file = vfs_openWriteB(name);
+    vfs_FILE *file = vfs_openWrite(name);
     if (!file)
     {
         return false;
