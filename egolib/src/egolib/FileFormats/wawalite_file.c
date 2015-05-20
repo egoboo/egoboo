@@ -273,7 +273,7 @@ wawalite_data_t *wawalite_data_read(const std::string& filename, wawalite_data_t
     ReadContext ctxt(filename);
     if (!ctxt.ensureOpen())
     {
-        log_warning("unable to read water and weather file `%s`\n", filename);
+        log_warning("unable to read water and weather file `%s`\n", filename.c_str());
         return nullptr;
     }
 
@@ -425,7 +425,7 @@ bool wawalite_weather_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclo
     if (NULL == filewrite || NULL == profile) return false;
 
     // weather data
-    vfs_printf(filewrite,   "Weather particle effect ( NONE, LAVA, RAIN or SNOW ): %s", profile->weather_name);
+    vfs_printf(filewrite,   "Weather particle effect ( NONE, LAVA, RAIN or SNOW ): %s", profile->weather_name.c_str());
     vfs_put_bool(filewrite, "Weather particles only over water ( TRUE or FALSE ) :", profile->over_water);
     vfs_put_int(filewrite,  "Weather particle spawn rate ( 0 to 100, 0 is none ) :", profile->timer_reset);
 
@@ -490,7 +490,7 @@ bool wawalite_data_write(const std::string& filename,const wawalite_data_t *prof
                                                });
     if (!filewrite)
     {
-        log_warning("%s:%d: unable to write file `%s`\n", __FILE__, __LINE__, filename);
+        log_warning("%s:%d: unable to write file `%s`\n", __FILE__, __LINE__, filename.c_str());
         return false;
     }
 
