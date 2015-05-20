@@ -1723,7 +1723,7 @@ size_t parse_token(parser_state_t *self, token_t *ptok, ObjectProfile *ppro, scr
         else if ( '#' == str[0] )
         {
             //remove the reference symbol to figure out the actual folder name we are looking for
-            std:string obj_name = str + 1;
+            std::string obj_name = str + 1;
 
             // Invalid profile as default
             ptok->iValue = INVALID_PRO_REF;
