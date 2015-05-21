@@ -345,7 +345,7 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
         }
 
         // record the Cartesian rotation angle relative to center
-        pd[tnc].rads = ATAN2( pd[cnt].pos[kY] - center[kY], pd[cnt].pos[kX] - center[kX] );
+        pd[tnc].rads = std::atan2( pd[cnt].pos[kY] - center[kY], pd[cnt].pos[kX] - center[kX] );
         tnc++;
     }
 

@@ -208,9 +208,10 @@ void prt_play_sound(const prt_t& prt, Sint8 sound)
 }
 void prt_play_sound(const PRT_REF particle, Sint8 sound)
 {
-    if (ParticleHandler::get().isValidRef(particle));
-    prt_t *pprt = ParticleHandler::get().get_ptr(particle);
-    return prt_play_sound(*pprt,sound);
+    if (ParticleHandler::get().isValidRef(particle)) {
+        prt_t *pprt = ParticleHandler::get().get_ptr(particle);
+        return prt_play_sound(*pprt, sound);
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -529,7 +530,7 @@ prt_t *prt_t::config_do_init()
         // to keep the number of updates stable, the frames could lag.
         // sooo... we just rescale the prt_life_frames_updates so that it will work with the
         // updates and cross our fingers
-        pprt->lifetime_total = CEIL((float)prt_life_frames_updates * (float)GameEngine::GAME_TARGET_UPS / (float)GameEngine::GAME_TARGET_FPS);
+        pprt->lifetime_total = std::ceil((float)prt_life_frames_updates * (float)GameEngine::GAME_TARGET_UPS / (float)GameEngine::GAME_TARGET_FPS);
     }
     // make the particle exists for AT LEAST one update
     pprt->lifetime_total = std::max((size_t)1, pprt->lifetime_total);
@@ -918,7 +919,6 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * 
     prt_t *loc_pprt = pbdl_prt->prt_ptr;
     pip_t *loc_ppip = pbdl_prt->pip_ptr;
     prt_environment_t *loc_penviro = &(loc_pprt->enviro);
-    phys_data_t *loc_pphys = &(loc_pprt->phys);
 
     // if the particle is a homing-type particle, ignore friction
     if (loc_ppip->homing) return pbdl_prt;
@@ -948,7 +948,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * 
 
         if (loc_pprt->enviro.inwater)
         {
-            float water_friction = POW(loc_buoyancy_friction, 2.0f);
+            float water_friction = std::pow(loc_buoyancy_friction, 2.0f);
 
             fluid_acc *= 1.0f - water_friction;
         }
@@ -998,7 +998,6 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
 
     if (NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr) return NULL;
     prt_t *loc_pprt = pbdl_prt->prt_ptr;
-    pip_t *loc_ppip = pbdl_prt->pip_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is homing in on something, ignore friction
@@ -1084,9 +1083,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt
 
     if (NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr) return NULL;
     prt_t *loc_pprt = pbdl_prt->prt_ptr;
-    PRT_REF loc_iprt = pbdl_prt->prt_ref;
     pip_t *loc_ppip = pbdl_prt->pip_ptr;
-    prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // is the particle a homing type?
     if (!loc_ppip->homing) return pbdl_prt;
@@ -1169,8 +1166,6 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
 
     if (NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr) return NULL;
     prt_t *loc_pprt = pbdl_prt->prt_ptr;
-    PRT_REF loc_iprt = pbdl_prt->prt_ref;
-    pip_t *loc_ppip = pbdl_prt->pip_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     /// @note ZF@> We really can't do gravity for Light! A lot of magical effects and attacks in the game depend on being able
@@ -2228,9 +2223,6 @@ int prt_bundle_t::do_contspawn()
 prt_bundle_t *prt_bundle_t::update_do_water()
 {
     if (NULL == this->prt_ptr) return NULL;
-    prt_t *loc_pprt = this->prt_ptr;
-    pip_t *loc_ppip = this->pip_ptr;
-    prt_environment_t *penviro = &(loc_pprt->enviro);
 
     bool inwater = (this->prt_ptr->pos[kZ] < water.surface_level)
                 && (0 != ego_mesh_t::test_fx(PMesh, this->prt_ptr->getTile(), MAPFX_WATER));
@@ -2562,10 +2554,6 @@ prt_bundle_t * prt_bundle_t::update()
 {
     if (NULL == this->prt_ptr) return NULL;
     prt_t *loc_pprt = this->prt_ptr;
-    pip_t *loc_ppip = this->pip_ptr;
-    prt_environment_t *penviro = &(loc_pprt->enviro);
-    Ego::Entity *loc_pbase = POBJ_GET_PBASE(loc_pprt);
-
     // do the next step in the particle configuration
     if (!prt_t::run_config(loc_pprt)) {
         this->ctor();

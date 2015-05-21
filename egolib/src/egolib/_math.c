@@ -41,8 +41,8 @@ void make_turntosin( void )
 
     for ( cnt = 0; cnt < TRIG_TABLE_SIZE; cnt++ )
     {
-        turntosin[cnt] = SIN( cnt * ftmp );
-        turntocos[cnt] = COS( cnt * ftmp );
+        turntosin[cnt] = std::sin( cnt * ftmp );
+        turntocos[cnt] = std::cos( cnt * ftmp );
     }
 }
 
@@ -71,7 +71,7 @@ void make_turntosin( void )
 
 FACING_T vec_to_facing( const float dx, const float dy )
 {
-    return (FACING_T)(RAD_TO_FACING(ATAN2(dy, dx) + Ego::Math::pi<float>()));
+    return (FACING_T)(RAD_TO_FACING(std::atan2(dy, dx) + Ego::Math::pi<float>()));
 }
 
 //--------------------------------------------------------------------------------------------

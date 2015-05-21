@@ -141,11 +141,6 @@ float Camera::multiplyFOV(const float old_fov_deg, const float factor)
 
 void Camera::updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near, const float frustum_far)
 {
-    const float fov_mag = Ego::Math::sqrtTwo<float>();
-
-    float fov_deg_big   = multiplyFOV( DEFAULT_FOV, fov_mag );
-    float fov_deg_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
-    
     _mProjection = fmat_4x4_t::perspective(fov_deg, aspect_ratio, frustum_near, frustum_far);
 
     // Invalidate the frustum.

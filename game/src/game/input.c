@@ -403,41 +403,6 @@ bool input_handle_SDL_Event( SDL_Event * pevt )
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-void input_read_all_devices()
-{
-    /// @author ZZ
-    /// @details This function gets all the current player input states
-
-    SDL_Event evt;
-
-    if ( EMPTY_BIT_FIELD == SDL_WasInit( SDL_INIT_EVERYTHING ) ) return;
-
-    // Run through SDL's event loop to get info in the way that we want
-    // it for the Gui code
-    while ( SDL_PollEvent( &evt ) )
-    {
-        if ( cfg.dev_mode )
-        {
-            if ( NULL == egolib_console_handle_events( &evt ) )
-            {
-                continue;
-            }
-        }
-
-        ui_handle_SDL_Event( &evt );
-
-        input_handle_SDL_Event( &evt );
-    }
-
-    // Get immediate mode state for the rest of the game
-    input_read_keyboard();
-    input_read_mouse();
-    input_read_joysticks();
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void input_cursor_reset()
 {

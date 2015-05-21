@@ -187,11 +187,11 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
     //is there any point of these calculations?
     if ( EMPTY_BIT_FIELD == plos->stopped_by ) return false;
 
-    ix_stt = FLOOR( plos->x0 / GRID_FSIZE );
-    ix_end = FLOOR( plos->x1 / GRID_FSIZE );
+    ix_stt = std::floor( plos->x0 / GRID_FSIZE ); /// @todo We have a projection function for that.
+    ix_end = std::floor( plos->x1 / GRID_FSIZE );
 
-    iy_stt = FLOOR( plos->y0 / GRID_FSIZE );
-    iy_end = FLOOR( plos->y1 / GRID_FSIZE );
+    iy_stt = std::floor( plos->y0 / GRID_FSIZE ); /// @todo We have a projection function for that.
+    iy_end = std::floor( plos->y1 / GRID_FSIZE );
 
     Dx = plos->x1 - plos->x0;
     Dy = plos->y1 - plos->y0;

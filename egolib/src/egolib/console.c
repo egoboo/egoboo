@@ -55,17 +55,6 @@ static void *_egolib_console_top = nullptr;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if 0
-static egolib_console_t *egolib_console_ctor(egolib_console_t *self, SDL_Rect con_rect, egolib_console_callback_t callback, void *data);
-static egolib_console_t *egolib_console_dtor(egolib_console_t *self);
-static SDL_bool egolib_console_run(egolib_console_t *self);
-static void egolib_console_write(egolib_console_t *self, const char *format, va_list args);
-static const char * egolib_console_get_saved(egolib_console_t *self);
-static void egolib_console_add_saved(egolib_console_t *self, char *str);
-static void egolib_console_add_output(egolib_console_t *self, char *szNew);
-static SDL_bool egolib_console_draw(egolib_console_t *self);
-#endif
-
 /**
  * @brief
  *  This class is to wrap the font's std::shared_ptr for use in calloc and friends

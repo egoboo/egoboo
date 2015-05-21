@@ -42,7 +42,7 @@ mesh_BSP_t::Parameters::Parameters(const ego_mesh_t *mesh)
 	// Determine the number of bifurcations necessary to get cells the size of the "blocks".
 	int grids_x = mesh->gmem.grids_x;
 	int grids_y = mesh->gmem.grids_y;
-	_maxDepth = CEIL(std::log(0.5f * std::max(grids_x, grids_y)) / std::log(2.0f));
+	_maxDepth = std::ceil(std::log(0.5f * std::max(grids_x, grids_y)) / std::log(2.0f));
 }
 //--------------------------------------------------------------------------------------------
 mesh_BSP_t::mesh_BSP_t(const Parameters& parameters) :

@@ -382,14 +382,14 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
     // flip the coordinates around based on the "mode" of the tile
     if ( HAS_NO_BITS( ix, 1 ) )
     {
-        SWAP( int, imap[0], imap[3] );
-        SWAP( int, imap[1], imap[2] );
+        std::swap(imap[0], imap[3]);
+        std::swap(imap[1], imap[2]);
     }
 
     if ( HAS_NO_BITS( iy, 1 ) )
     {
-        SWAP( int, imap[0], imap[1] );
-        SWAP( int, imap[2], imap[3] );
+        std::swap(imap[0], imap[1]);
+        std::swap(imap[2], imap[3]);
     }
 
     // draw draw front and back faces of polygons

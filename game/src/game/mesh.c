@@ -28,12 +28,6 @@
 #include "game/graphic.h"
 #include "game/egoboo.h"
 
-#if 0
-const TileIndex Index<Uint32,IndexSystem::Tile,UINT32_MAX>::Invalid;
-const BlockIndex BlockIndex::Invalid;
-const GridIndex GridIndex::Invalid();
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // mesh initialization - not accessible by scripts
@@ -1003,9 +997,6 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
     ///               a wall) the normals should not be smoothed.
 
     int ix, iy;
-#if 0
-    Uint32 fan0, fan1;
-#endif
     tile_mem_t * ptmem;
     grid_mem_t * pgmem;
 
@@ -1528,10 +1519,10 @@ BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *pmesh, const fvec3_t& pos, const 
     // find an integer bound.
     // we need to know about out of range values below clamp these to valid values
 	ego_irect_t bound;
-    bound.xmin = FLOOR( pdata->fx_min / GRID_FSIZE );
-    bound.xmax = FLOOR( pdata->fx_max / GRID_FSIZE );
-    bound.ymin = FLOOR( pdata->fy_min / GRID_FSIZE );
-    bound.ymax = FLOOR( pdata->fy_max / GRID_FSIZE );
+    bound.xmin = std::floor( pdata->fx_min / GRID_FSIZE );
+    bound.xmax = std::floor( pdata->fx_max / GRID_FSIZE );
+    bound.ymin = std::floor( pdata->fy_min / GRID_FSIZE );
+    bound.ymax = std::floor( pdata->fy_max / GRID_FSIZE );
 
     // limit the test values to be in-bounds
     pdata->fx_min = std::max( pdata->fx_min, 0.0f );
@@ -1633,11 +1624,11 @@ float ego_mesh_t::get_pressure( const ego_mesh_t * pmesh, const fvec3_t& pos, fl
 
     obj_area = ( fx_max - fx_min ) * ( fy_max - fy_min );
 
-    ix_min = FLOOR( fx_min / GRID_FSIZE );
-    ix_max = FLOOR( fx_max / GRID_FSIZE );
+    ix_min = std::floor( fx_min / GRID_FSIZE );
+    ix_max = std::floor( fx_max / GRID_FSIZE );
 
-    iy_min = FLOOR( fy_min / GRID_FSIZE );
-    iy_max = FLOOR( fy_max / GRID_FSIZE );
+    iy_min = std::floor( fy_min / GRID_FSIZE );
+    iy_max = std::floor( fy_max / GRID_FSIZE );
 
     for ( iy = iy_min; iy <= iy_max; iy++ )
     {

@@ -1203,7 +1203,7 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bo
     if ( psave->vmin > maxvert || psave->vmax > maxvert ) return gfx_success;
 
     // make sure that the min and max vertices are in the correct order
-    if ( vmax < vmin ) SWAP( int, vmax, vmin );
+    if ( vmax < vmin ) std::swap(vmax, vmin);
 
     // test to see if we have already calculated this data
     *verts_match = ( vmin >= psave->vmin ) && ( vmax <= psave->vmax );
@@ -1351,7 +1351,7 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
     if ( vmax < 0 ) vmax = maxvert;
 
     // are they in the right order?
-    if ( vmax < vmin ) SWAP( int, vmax, vmin );
+    if ( vmax < vmin ) std::swap(vmax, vmin);
 
     // make sure that the vertices are within the max range
     vmin = CLIP( vmin, 0, maxvert );
@@ -2349,7 +2349,7 @@ gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip )
 
     // update the lips
     pinst->flip += dflip;
-    pinst->ilip  = (( int )FLOOR( pinst->flip * 4 ) ) % 4;
+    pinst->ilip  = (( int )std::floor( pinst->flip * 4 ) ) % 4;
 
     vlst_cache_test( &( pinst->save ), pinst );
 

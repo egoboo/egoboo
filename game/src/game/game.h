@@ -146,29 +146,6 @@ enum e_time
 };
 
 //--------------------------------------------------------------------------------------------
-
-#if 0
-/// a process that controls a single game
-struct game_process_t
-{
-    process_t base;
-
-    double frameDuration;
-    bool mod_paused, pause_key_ready;
-    bool was_active;
-
-    int    menu_depth;
-    bool escape_requested, escape_latch;
-
-    egolib_timer_t fps_timer;
-    egolib_timer_t ups_timer;
-};
-
-game_process_t * game_process_init( game_process_t * gproc );
-int              game_process_run( game_process_t * gproc, double frameDuration );
-#endif
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// The actual state of the animated tiles in-game

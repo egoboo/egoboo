@@ -68,14 +68,10 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
     size_t   mapx, mapy;
     size_t   tile_x, tile_y, itile;
     int      step_x, step_y;
-#if 0
-    tile_info_t * tlst = NULL;
-#endif
+
     // does the mesh exist?
     if ( NULL == pmesh ) return pmesh;
-#if 0
-    tlst = pmesh->_mem.tile_list;
-#endif
+
     // are there tiles?
     if (pmesh->_mem.tiles.empty()) return pmesh;
 
@@ -234,9 +230,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
     // does the mesh exist?
     if ( NULL == pmesh ) return pmesh;
-#if 0
-    tile_info_t *tlst = pmesh->_mem.tile_list;
-#endif
+
     // are there tiles?
     if (pmesh->_mem.tiles.empty()) return pmesh;
 

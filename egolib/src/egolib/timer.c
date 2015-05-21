@@ -76,7 +76,7 @@ bool egolib_timer__reset( egolib_timer_t * ptimer, int ticks, float rate )
     // update the timers
     ptimer->ticks_lst  = ptimer->ticks_now;
     ptimer->ticks_now  = ticks;
-    ptimer->ticks_next = ticks + CEIL( TICKS_PER_SEC / rate );
+    ptimer->ticks_next = ticks + std::ceil( TICKS_PER_SEC / rate );
 
     // determine the elapsed time
     ptimer->ticks_diff = ptimer->ticks_now - ptimer->ticks_lst;

@@ -125,53 +125,8 @@ extern "C"
 #    define SQR(A) ((A)*(A))
 #endif
 
-#if !defined(LOG)
-#    define LOG(A) ((float)log((float)(A)))
-#endif
-
-#if !defined(SIN)
-#    define SIN(A) ((float)sin((float)(A)))
-#endif
-
-#if !defined(COS)
-#    define COS(A) ((float)cos((float)(A)))
-#endif
-
-#if !defined(ACOS)
-#    define ACOS(A) ((float)acos((float)(A)))
-#endif
-
-#if !defined(TAN)
-#    define TAN(A) ((float)tan((float)(A)))
-#endif
-
-#if !defined(ATAN)
-#    define ATAN(A) ((float)atan((float)(A)))
-#endif
-
-#if !defined(POW)
-#    define POW(A, B) ((float)pow((float)(A), (float)(B)))
-#endif
-
-#if !defined(ATAN2)
-#    define ATAN2(A, B) ((float)atan2((float)(A), (float)(B)))
-#endif
-
-#if !defined(SWAP)
-#    define SWAP(TYPE, A, B) { TYPE temp; memmove( &temp, &(A), sizeof(TYPE) ); memmove( &(A), &(B), sizeof(TYPE) ); memmove( &(B), &temp, sizeof(TYPE) ); }
-#endif
-
-#if !defined(CEIL)
-#    define CEIL(VAL) ( (float)ceil((float)VAL) )
-#endif
-
-#if !defined(FLOOR)
-#    define FLOOR(VAL) ( (float)floor((float)VAL) )
-#endif
-
 #define MAT_IDX(I,J) (4*(I)+(J))
 #define CNV(I,J)     v[MAT_IDX(I,J)]
-#define CopyMatrix( pMatrixDest, pMatrixSource ) memmove( pMatrixDest, pMatrixSource, sizeof( *pMatrixDest ) )
 
 //--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
@@ -192,28 +147,6 @@ extern "C"
 
 #define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF )
 #define FLOAT_TO_FFFF( V1 )  ( (int)((V1) * 0xFFFF) )
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// vector definitions
-
-
-#if 0
-    typedef double dvec2_base_t[2];          ///< the basic double precision 2-vector type
-    typedef double dvec3_base_t[3];          ///< the basic double precision 3-vector type
-    typedef double dvec4_base_t[4];          ///< the basic double precision 4-vector type
-#endif
-#if 0
-	// turn off a really useless warning
-	#if defined(_MSC_VER)
-		#pragma warning(disable : 4201)
-	#endif
-	// turn it back on
-	#if defined(_MSC_VER)
-		#pragma warning(default : 4201)
-	#endif
-#endif
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

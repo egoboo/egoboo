@@ -142,9 +142,9 @@ bool phys_warp_normal(const float exponent, fvec3_t& nrm)
     float length_hrz_2 = fvec2_t(nrm[kX],nrm[kY]).length_2();
     float length_vrt_2 = nrm.length_2() - length_hrz_2;
 
-    nrm[kX] = nrm[kX] * POW( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
-    nrm[kY] = nrm[kY] * POW( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
-    nrm[kZ] = nrm[kZ] * POW( length_vrt_2, 0.5f * ( exponent - 1.0f ) );
+    nrm[kX] = nrm[kX] * std::pow( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
+    nrm[kY] = nrm[kY] * std::pow( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
+    nrm[kZ] = nrm[kZ] * std::pow( length_vrt_2, 0.5f * ( exponent - 1.0f ) );
 
     // normalize the normal
 	nrm.normalize();
@@ -312,10 +312,6 @@ bool phys_estimate_collision_normal(const oct_bb_t& obb_a, const oct_bb_t& obb_b
 {
     // estimate the normal for collision volumes that are partially overlapping
 
-#if 0
-    // is everything valid?
-    if (NULL == obb_a || NULL == obb_b) return false;
-#endif
     // Do we need to use the more expensive algorithm?
     bool use_pressure = false;
     if (oct_bb_t::contains(&obb_a, &obb_b))
@@ -349,12 +345,7 @@ bool phys_estimate_pressure_normal(const oct_bb_t& obb_a, const oct_bb_t& obb_b,
 {
     // use a more robust algorithm to get the normal no matter how the 2 volumes are
     // related
-#if 0
-    float loc_tmin;
-    // handle "optional" parameters
-    if ( NULL == depth ) depth = &loc_tmin;
-    if ( NULL == obb_a || NULL == obb_b ) return false;
-#endif
+
     // calculate the direction of the nearest way out for each octagonal axis
     if (!phys_get_pressure_depth(obb_a, obb_b, odepth))
     {
@@ -384,10 +375,6 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
     {
         throw std::invalid_argument("index >= OCT_COUNT");
     }
-#if 0
-    if (!tmin || !tmax) return rv_error;
-    if (index < 0 || index >= OCT_COUNT) return rv_error;
-#endif
 
     float vdiff = ovel2[index] - ovel1[index];
     if ( 0.0f == vdiff ) return rv_fail;
@@ -860,13 +847,7 @@ bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1,
     // Do the objects interact at the very beginning of the update?
     if (test_interaction_2(src1_orig, pos2, src2_orig, pos2, test_platform))
     {
-#if 0
-        if (NULL != pdst )
-#endif
-        {
-            oct_bb_intersection(&src1_orig, &src2_orig, &dst);
-        }
-
+        oct_bb_intersection(&src1_orig, &src2_orig, &dst);
         return true;
     }
 
@@ -938,13 +919,6 @@ bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1,
 //--------------------------------------------------------------------------------------------
 bool phys_expand_oct_bb(const oct_bb_t& src, const fvec3_t& vel, const float tmin, const float tmax, oct_bb_t& dst)
 {
-#if 0
-    if (!psrc || !pdst)
-    {
-        return false;
-    }
-#endif
-
     if (0.0f == vel.length_abs())
     {
         dst = src;
@@ -1033,8 +1007,8 @@ bool phys_expand_prt_bb(prt_t *pprt, float tmin, float tmax, oct_bb_t& dst)
  */
 static fvec3_t snap(const fvec3_t& p)
 {
-    return fvec3_t((FLOOR(p[kX] / GRID_FSIZE) + 0.5f) * GRID_FSIZE,
-                   (FLOOR(p[kY] / GRID_FSIZE) + 0.5f) * GRID_FSIZE,
+    return fvec3_t((std::floor(p[kX] / GRID_FSIZE) + 0.5f) * GRID_FSIZE,
+                   (std::floor(p[kY] / GRID_FSIZE) + 0.5f) * GRID_FSIZE,
                    p[kZ]);
 }
 
@@ -1651,9 +1625,6 @@ bool test_interaction_1(const oct_bb_t& cv_a, const fvec3_t& pos_a, bumper_t bum
 //--------------------------------------------------------------------------------------------
 bool test_interaction_close_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_b, const fvec3_t& pos_b, int test_platform)
 {
-#if 0
-    if (!cv_a || !cv_b) return false;
-#endif
     // Translate the vector positions to octagonal vector positions.
     oct_vec_v2_t oa(pos_a), ob(pos_b);
 
@@ -1677,13 +1648,6 @@ bool test_interaction_close_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const 
 //--------------------------------------------------------------------------------------------
 bool test_interaction_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_b, const fvec3_t& pos_b, int test_platform)
 {
-#if 0
-    if (!cv_a || !cv_b)
-    {
-        return false;
-    }
-#endif
-
     // Convert the vector positions to octagonal vector positions.
     oct_vec_v2_t oa(pos_a), ob(pos_b);
 
@@ -1706,23 +1670,6 @@ bool test_interaction_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if 0
-bool get_depth_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth )
-{
-    oct_bb_t cv_a, cv_b;
-
-    // convert the bumpers to the correct format
-    cv_a.assign(bump_a);
-    cv_b.assign(bump_b);
-
-    // shift the bumpers
-    cv_a.translate( pos_a );
-    cv_b.translate( pos_b );
-
-    return get_depth_close_2( &cv_a, &cv_b, break_out, depth );
-}
-#endif
-//--------------------------------------------------------------------------------------------
 bool get_depth_0(bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth)
 {
     oct_bb_t cv_a, cv_b;
@@ -1735,21 +1682,6 @@ bool get_depth_0(bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const f
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-bool get_depth_close_1(const oct_bb_t& cv_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth)
-{
-    oct_bb_t cv_b;
-
-    // convert the bumper to the correct format
-    cv_b.assign(bump_b);
-
-    // shift the bumper
-    cv_b.translate(pos_b);
-
-    return get_depth_close_2(cv_a, cv_b, break_out, depth);
-}
-#endif
-//--------------------------------------------------------------------------------------------
 bool get_depth_1(const oct_bb_t& cv_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth)
 {
     oct_bb_t cv_b;
@@ -1761,52 +1693,8 @@ bool get_depth_1(const oct_bb_t& cv_a, const fvec3_t& pos_a, bumper_t bump_b, co
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-bool get_depth_close_2(const oct_bb_t& cv_a, const oct_bb_t& cv_b, bool break_out, oct_vec_v2_t& depth)
-{
-    // calculate the depth
-    bool valid = true;
-    for (size_t i = 0; i < OCT_Z; ++i)
-    {
-        // get positions from the bounding volumes
-        float opos_a = (cv_a.mins[i] + cv_a->maxs[i]) * 0.5f;
-        float opos_b = (cv_b.mins[i] + cv_b->maxs[i]) * 0.5f;
-
-        // measue the depth
-        float ftmp1 = std::min(cv_b.maxs[i] - opos_a, opos_a - cv_b.mins[i]);
-        float ftmp2 = std::min(cv_a.maxs[i] - opos_b, opos_b - cv_a.mins[i]);
-        depth[i] = std::max( ftmp1, ftmp2 );
-
-        if ( depth[i] <= 0.0f )
-        {
-            valid = false;
-            if ( break_out ) return false;
-        }
-    }
-
-    // treat the z coordinate the same as always
-    depth[OCT_Z]  = std::min( cv_b->maxs[OCT_Z], cv_a->maxs[OCT_Z] ) -
-                    std::max( cv_b->mins[OCT_Z], cv_a->mins[OCT_Z] );
-
-    if ( depth[OCT_Z] <= 0.0f )
-    {
-        valid = false;
-        if ( break_out ) return false;
-    }
-
-    // scale the diagonal components so that they are actually distances
-    depth[OCT_XY] *= Ego::Math::invSqrtTwo<float>();
-    depth[OCT_YX] *= Ego::Math::invSqrtTwo<float>();
-
-    return valid;
-}
-#endif
-//--------------------------------------------------------------------------------------------
 bool get_depth_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_b, const fvec3_t& pos_b, bool break_out, oct_vec_v2_t& depth)
 {
-#if 0
-    if (!cv_a || !cv_b) return false;
-#endif
     // Translate the vector positions to octagonal vector positions.
     oct_vec_v2_t oa(pos_a), ob(pos_b);
 

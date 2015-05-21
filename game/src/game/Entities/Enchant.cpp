@@ -908,7 +908,7 @@ enc_t *enc_t::config_do_init()
     lifetime             = peve->lifetime;
     if ( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT && ptarget )
     {
-        lifetime -= std::max( 1.0f, CEIL(( ptarget->damage_resistance[peve->required_damagetype] ) * peve->lifetime ) );
+        lifetime -= std::max( 1.0f, std::ceil(( ptarget->damage_resistance[peve->required_damagetype] ) * peve->lifetime ) );
     }
     penc->lifetime       = lifetime;
 

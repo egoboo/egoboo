@@ -503,8 +503,8 @@ protected:
  */
 inline void worldToMap(float worldx, float worldy, int& mapx, int& mapy)
 {
-    mapx = FLOOR(worldx / TILE_FSIZE);
-    mapy = FLOOR(worldy / TILE_FSIZE);
+    mapx = std::floor(worldx / TILE_FSIZE);
+    mapy = std::floor(worldy / TILE_FSIZE);
 }
 
 /**

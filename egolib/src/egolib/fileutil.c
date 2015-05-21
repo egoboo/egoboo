@@ -557,7 +557,7 @@ void vfs_put_range_raw( vfs_FILE* filewrite, FRange val )
 {
     if ( val.from == val.to )
     {
-        if ( val.from == FLOOR( val.from ) )
+        if ( val.from == std::floor( val.from ) )
         {
             vfs_printf( filewrite, "%d", ( int )val.from );
         }
@@ -568,7 +568,7 @@ void vfs_put_range_raw( vfs_FILE* filewrite, FRange val )
     }
     else
     {
-        if ( val.from != FLOOR( val.from ) || val.to != FLOOR( val.to ) )
+        if ( val.from != std::floor( val.from ) || val.to != std::floor( val.to ) )
         {
             vfs_printf( filewrite, "%4.2f-%4.2f", val.from, val.to );
         }

@@ -75,7 +75,7 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
     }
 
     fantype_count    = vfs_get_next_int(ctxt);
-    fantype_offset   = 2 * POW( 2.0f, FLOOR( LOG( fantype_count ) / LOG( 2.0f ) ) );
+    fantype_offset   = 2 * std::pow( 2.0f, std::floor( std::log( fantype_count ) / std::log( 2.0f ) ) );
     definition_count = 2 * fantype_offset;
 
     if ( definition_count > MAP_FAN_TYPE_MAX )

@@ -353,7 +353,7 @@ void make_one_character_matrix( const CHR_REF ichr )
             pchr->setPosition(ptarget->getPosition());
 
             // copy the matrix
-            CopyMatrix( &( pinst->matrix ), &( ptarget->inst.matrix ) );
+            pinst->matrix = ptarget->inst.matrix;
 
             // copy the matrix data
             pinst->matrix_cache = ptarget->inst.matrix_cache;
@@ -3369,7 +3369,7 @@ void move_one_character_do_voluntary( Object * pchr )
     // Switch x and y for grog
     if ( pchr->grog_timer > 0 )
     {
-        SWAP( float, dvx, dvy );
+        std::swap(dvx, dvy);
     }
 
     // this is the maximum speed that a character could go under the v2.22 system
@@ -3397,7 +3397,7 @@ void move_one_character_do_voluntary( Object * pchr )
 
         if ( VALID_PLA( pchr->is_which_player ) )
         {
-            float dv = POW( dv2, 0.25f );
+            float dv = std::pow( dv2, 0.25f );
 
             // determine whether the character is sneaking
             sneak_mode_active = TO_C_BOOL( dv2 < 1.0f / 9.0f );
@@ -3411,10 +3411,10 @@ void move_one_character_do_voluntary( Object * pchr )
 
             if ( dv2 < 1.0f )
             {
-                scale = POW( dv2, 0.25f );
+                scale = std::pow( dv2, 0.25f );
             }
 
-            scale /= POW( dv2, 0.5f );
+            scale /= std::pow( dv2, 0.5f );
 
             pchr->enviro.new_v[kX] = dvx * maxspeed * scale;
             pchr->enviro.new_v[kY] = dvy * maxspeed * scale;

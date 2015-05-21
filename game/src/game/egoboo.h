@@ -71,9 +71,7 @@ EXTERN Uint32 outofsync EQ(0);
 //HUD
 EXTERN bool timeron EQ(false);  ///< Game timer displayed?
 EXTERN Uint32 timervalue EQ(0); ///< Timer time ( 50ths of a second )
-#if 0
-EXTERN bool fpson EQ(true);     ///< Show FPS?
-#endif
+
 /// EWWWW. GLOBALS ARE EVIL.
 
 #define INVISIBLE           20                      ///< The character can't be detected

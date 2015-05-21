@@ -1428,7 +1428,7 @@ void gfx_system_make_enviro()
     {
         float x = MD2Model::getMD2Normal(i, 0);
         float y = MD2Model::getMD2Normal(i, 1);
-        indextoenvirox[i] = ATAN2(y, x) * Ego::Math::invTwoPi<float>();
+        indextoenvirox[i] = std::atan2(y, x) * Ego::Math::invTwoPi<float>();
     }
 
     for (size_t i = 0; i < 256; ++i)
@@ -3785,8 +3785,8 @@ gfx_rv render_world_background(Camera& cam, const TX_REF texture)
     z0 = 1500;
 
     // clip the waterlayer uv offset
-    ilayer->tx[XX] = ilayer->tx[XX] - (float)FLOOR(ilayer->tx[XX]);
-    ilayer->tx[YY] = ilayer->tx[YY] - (float)FLOOR(ilayer->tx[YY]);
+    ilayer->tx[XX] = ilayer->tx[XX] - (float)std::floor(ilayer->tx[XX]);
+    ilayer->tx[YY] = ilayer->tx[YY] - (float)std::floor(ilayer->tx[YY]);
 
     // determine the constants for the x-coordinate
     xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[XX]) / GRID_FSIZE;
@@ -4210,8 +4210,8 @@ float grid_lighting_test(ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, 
         return 0.0f;
     }
 
-    ix = FLOOR(pos[XX] / GRID_FSIZE);
-    iy = FLOOR(pos[YY] / GRID_FSIZE);
+    ix = std::floor(pos[XX] / GRID_FSIZE);
+    iy = std::floor(pos[YY] / GRID_FSIZE);
 
     TileIndex fan[4];
     fan[0] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
@@ -4268,8 +4268,8 @@ bool grid_lighting_interpolate(const ego_mesh_t * pmesh, lighting_cache_t * dst,
     tpos = pos * (1.0f / GRID_FSIZE);
 
     // grab this tile's coordinates
-    ix = FLOOR(tpos[XX]);
-    iy = FLOOR(tpos[YY]);
+    ix = std::floor(tpos[XX]);
+    iy = std::floor(tpos[YY]);
 
     // find the tile id for the surrounding tiles
     fan[0] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
@@ -4645,7 +4645,7 @@ gfx_rv light_fans_update_lcache(renderlist_t& rl)
     local_mesh_lighting_keep = 0.9f;
 #else
     // update only every 4 frames
-    local_mesh_lighting_keep = POW(0.9f, frame_skip);
+    local_mesh_lighting_keep = std::pow(0.9f, frame_skip);
 #endif
 
     // cache the grid lighting
@@ -5192,7 +5192,7 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
     sum_global_lighting(global_lighting);
 
     // make the grids update their lighting every 4 frames
-    local_keep = POW(dynalight_keep, 4);
+    local_keep = std::pow(dynalight_keep, 4);
 
     // Add to base light level in normal mode
     for (size_t entry = 0; entry < rl._all.size; entry++)

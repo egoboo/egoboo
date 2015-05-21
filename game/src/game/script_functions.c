@@ -3751,8 +3751,6 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     /// @details This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
@@ -8076,7 +8074,6 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
     /// @details This function draws one of those billboards above the character
 
     const auto text_color = Ego::Math::Colour4f::parse(0xFF, 0xFF, 0xFF, 0xFF);
-    GLfloat *do_tint;
 
     //List of avalible colours
     const auto tint_red  = Ego::Math::Colour4f{ 1.00f, 0.25f, 0.25f, 1.00f };

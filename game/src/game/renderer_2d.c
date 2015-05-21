@@ -71,7 +71,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
             if ( '~' == cTmp )
             {
                 // Use squiggle for tab
-                x = ( FLOOR(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
+                x = ( std::floor(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
             }
             else if ( C_LINEFEED_CHAR == cTmp )
             {
@@ -486,7 +486,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
             if ( '~' == cTmp )
             {
                 // Use squiggle for tab
-                x = ( FLOOR(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
+                x = ( std::floor(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
             }
             else if ( C_LINEFEED_CHAR == cTmp )
             {

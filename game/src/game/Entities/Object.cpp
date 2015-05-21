@@ -250,7 +250,7 @@ Object::~Object()
         {
             for (cnt++; cnt < StatusList.count; cnt++)
             {
-                SWAP( status_list_element_t, StatusList.lst[cnt-1], StatusList.lst[cnt] );
+                std::swap(StatusList.lst[cnt-1], StatusList.lst[cnt]);
             }
             StatusList.count--;
         }

@@ -2392,48 +2392,6 @@ int vfs_copyFile( const std::string& source, const std::string& target)
     vfs_close(sourceFile);
     vfs_close(targetFile);
     return VFS_TRUE;
-#if 0
-    // buffer the directory delete through PHYSFS, so that we so not access functions that
-    // we have no right to! :)
-
-    VFS_PATH     sz_src = EMPTY_CSTR, sz_dst = EMPTY_CSTR;
-    const char * real_dst, * real_src;
-
-    BAIL_IF_NOT_INIT();
-
-    if ( INVALID_CSTR( source ) || INVALID_CSTR( dest ) )
-    {
-        return VFS_FALSE;
-    }
-
-    if ( !_vfs_ensure_write_directory( dest, false ) )
-    {
-        return VFS_FALSE;
-    }
-
-    strncpy( sz_src, vfs_resolveReadFilename( source ), SDL_arraysize( sz_src ) );
-    real_src = sz_src;
-
-    strncpy( sz_dst, vfs_resolveWriteFilename( dest ), SDL_arraysize( sz_dst ) );
-    real_dst = sz_dst;
-
-    if ( INVALID_CSTR( sz_src ) || INVALID_CSTR( sz_dst ) )
-    {
-        return VFS_FALSE;
-    }
-
-    // if they are the same files, do nothing
-    if ( 0 == strcmp( sz_src, sz_dst ) )
-    {
-        return VFS_FALSE;
-    }
-
-    // !assume! that we are not dealing with archives, and just use the
-    // fs_* copy command
-    if ( !fs_copyFile( real_src, real_dst ) ) return VFS_FALSE;
-
-    return VFS_TRUE;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------

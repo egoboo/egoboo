@@ -163,24 +163,24 @@ namespace Ego
 /// Begin turning off an entity.
 /// @todo Make this a function.
 #define POBJ_REQUEST_TERMINATE( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.isAllocated() && Ego::Entity::State::Invalid != (PDATA)->obj_base.state ) \
-	    { \
+    if( NULL != (PDATA) && (PDATA)->obj_base.isAllocated() && Ego::Entity::State::Invalid != (PDATA)->obj_base.state ) \
+    { \
         if( Ego::Entity::State::Terminated != (PDATA)->obj_base.state ) \
-		        { \
+        { \
             (PDATA)->obj_base.kill_me = true; \
-		        } \
+        } \
         (PDATA)->obj_base.on = false; \
-	    }
+    }
 
 #define POBJ_END_SPAWN( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.isAllocated()) \
+    if( NULL != (PDATA) && (PDATA)->obj_base.isAllocated()) \
     {\
         if( (PDATA)->obj_base.spawning )\
         {\
             (PDATA)->obj_base.spawning = false;\
             Ego::Entities::spawnDepth--;\
         }\
-    }\
+    }
 
 /// Is the object flagged as requesting termination?
 #define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->isAllocated() ) && (Ego::Entity::State::Invalid != (PBASE)->state) )

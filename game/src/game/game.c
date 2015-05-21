@@ -55,10 +55,6 @@
 
 static ego_mesh_t         _mesh[2];
 
-#if 0
-static game_process_t    _gproc;
-#endif
-
 static egolib_throttle_t     game_throttle = EGOLIB_THROTTLE_INIT;
 
 PROFILE_DECLARE( gfx_loop );
@@ -104,10 +100,6 @@ Uint32          update_wld       = 0;
 Uint32          true_update      = 0;
 Uint32          true_frame       = 0;
 int             update_lag       = 0;
-
-#if 0
-static MOD_REF _currentModuleID = INVALID_MOD_REF;
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1590,8 +1582,8 @@ void set_local_latches()
             ptlatch->button = ppla->local_latch.b.to_ulong();
 
             // reduce the resolution of the motion to match the network packets
-            ptlatch->x = FLOOR( ppla->local_latch.x * SHORTLATCH ) / SHORTLATCH;
-            ptlatch->y = FLOOR( ppla->local_latch.y * SHORTLATCH ) / SHORTLATCH;
+            ptlatch->x = std::floor( ppla->local_latch.x * SHORTLATCH ) / SHORTLATCH;
+            ptlatch->y = std::floor( ppla->local_latch.y * SHORTLATCH ) / SHORTLATCH;
 
             ptlatch->time = update_wld;
 
@@ -2994,38 +2986,6 @@ void let_all_characters_think()
         }
     }
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-bool game_begin_menu( menu_process_t * mproc, which_menu_t which )
-{
-    if ( NULL == mproc ) return false;
-
-    if ( !process_t::running(PROC_PBASE(mproc)))
-    {
-        GProc->menu_depth = mnu_get_menu_depth();
-    }
-
-    if ( mnu_begin_menu( which ) )
-    {
-        process_t::start(PROC_PBASE(mproc));
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-void game_end_menu( menu_process_t * mproc )
-{
-    mnu_end_menu();
-
-    if ( mnu_get_menu_depth() <= GProc->menu_depth )
-    {
-        process_t::resume( PROC_PBASE( MProc ) );
-        GProc->menu_depth = -1;
-    }
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 void free_all_objects()
@@ -4638,7 +4598,7 @@ bool water_instance_make( water_instance_t * pinst, const wawalite_water_t * pda
                 using namespace Ego::Math;
                 temp = (frame * twoPi<float>() / MAXWATERFRAME)
                      + (twoPi<float>() * point / WATERPOINTS) + (piOverTwo<float>() * layer / MAXWATERLAYER);
-                temp = SIN(temp);
+                temp = std::sin(temp);
                 pinst->layer_z_add[layer][frame][point] = temp * pdata->layer[layer].amp;
             }
         }
