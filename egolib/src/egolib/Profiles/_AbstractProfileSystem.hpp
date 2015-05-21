@@ -24,6 +24,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
+#include <fstream>
 
 /**
  * @brief
@@ -40,9 +41,7 @@ struct AbstractProfileSystem : public Id::NonCopyable
 
 protected:
 
-    size_t _size;
-
-    TYPE *_elements[CAPACITY];
+    std::unordered_map<REFTYPE, std::shared_ptr<TYPE>> _map;
 
     const std::string _profileTypeName;
 
@@ -62,104 +61,96 @@ protected:
 
 
 public:
+    /**
+    * @brief
+    *  Construct his abstract profile system.
+    * @param profileTypeName
+    *  the profile type name e.g. "enchant", "particle" or "object"
+    * @param debugPathName
+    *  the path name of a file into which debug information about this abstract profile system is dumped in
+    */
+
     AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
-        _size(0),
-        _elements(),
+        _map(),
         _profileTypeName(profileTypeName), 
-        _debugPathName(debugPathName)
-    {
+        _debugPathName(debugPathName) {
         /* Intentionally empty. */
     }
+    /**
+    * @brief
+    *  Destruct this abstract profile system.
+    * @remark
+    *  Intentionally protected.
+    */
 
-    virtual ~AbstractProfileSystem()
-    {
+    virtual ~AbstractProfileSystem() {
         /* Intentionally empty. */
     }
 
     /**
      * @brief
-     *	Get the size of this stack.
+     *  Get the size of this abstract profile system.
      * @return
-     *	the size of this stack
+     *  the size of this abstract profile system
+     * @remark
+     *  The size of an abstract profile system is the current number of profiles in that abstract profile system.
      */
-    inline size_t get_size() const
-    {
-        return _size;
+    inline size_t get_size() const {
+        return _map.size();
     }
 
     /**
      * @brief
-     *	Get the capacity of this stack.
+     *  Get the capacity of this abstract profile system.
      * @return
-     *	the capacity of this stack
+     *  the capacity of this abstract profile system
+     * @remark
+     *  The capacity of an abstract profile system is the maximum number of profiles in that abstract profile system.
      */
-    inline size_t get_capacity() const
-    {
+    inline size_t get_capacity() const {
         return CAPACITY;
     }
 
     /**
      * @brief
-     *	Get a pointer to the stack element at the specified index.
-     * @param index
-     *	the index
+     *  Get the profile for a profile reference.
+     * @param ref
+     *  the profile reference
      * @return
-     *	a pointer to the stack element if @a index is within bounds, @a false otherwise
-     * @todo
-     *	Raise an exception of @a index is greater than or equal to @a capacity.
+     *  a pointer to the profile for the profile reference of the profile reference is valid,
+     *  a null pointer otherwise
      */
-    TYPE *get_ptr(size_t index)
-    {
-        return (index >= CAPACITY) ? nullptr : _elements[index];
+    TYPE *get_ptr(REFTYPE ref) {
+        if (!isValidRange(ref)) {
+            return nullptr;
+        }
+        if (!_map[ref]) {
+            _map[ref] = std::make_shared<TYPE>();
+        }
+        return _map[ref].get();
     }
 
-    bool isValidRange(REFTYPE ref)
-    {
+    bool isValidRange(REFTYPE ref) {
         return ref < CAPACITY;
     }
 
-    bool isLoaded(REFTYPE ref)
-    {
-        return isValidRange(ref) && _elements[ref]->_loaded;
+    bool isLoaded(REFTYPE ref) {
+        if (_map[ref]) {
+            return _map[ref]->_loaded;
+        } else {
+            return false;
+        }
     }
 
-    void initialize()
-    {
-        REFTYPE ref = 0;
-        try
-        {
-            for (ref = 0; ref < CAPACITY; ++ref)
-            {
-                _elements[ref] = new TYPE();
-            }
-        } 
-        catch (std::exception& ex)
-        {
-            while (ref > 0)
-            {
-                delete _elements[--ref];
-                _elements[ref] = nullptr;
-            }
-        }
-        for (ref = 0; ref < CAPACITY; ++ref)
-        {
-            this->get_ptr(ref)->reset();
-        }
-        // Reset the stack "pointer".
-        _size = 0;
+    void initialize() {
     }
 
-    bool release_one(const REFTYPE ref)
-    {
-        if (!isValidRange(ref)) return false;
-        TYPE *profile = this->get_ptr(ref);
-        if (profile->_loaded)
-        {
-            profile->reset();
-#if 1
-            if (_size == 0) throw std::underflow_error(_profileTypeName + " stack underflow");
-            _size--;
-#endif
+    bool release_one(const REFTYPE ref) {
+        if (isValidRange(ref) && _map[ref] != nullptr) {
+            auto ptr = _map[ref];
+            if (ptr && ptr->_loaded) {
+                _map[ref]->reset();
+            }
         }
         return true;
     }
@@ -169,80 +160,172 @@ public:
     REFTYPE load_one(const char *loadName, const REFTYPE _override)
     {
         REFTYPE ref = INVALIDREF;
-        if (isValidRange(_override))
-        {
+        if (isValidRange(_override)) {
             release_one(_override);
             ref = _override;
-        }
-        else
-        {
+        } else {
             ref = get_free();
         }
 
-        if (!isValidRange(ref))
-        {
+        if (!isValidRange(ref)) {
             return INVALIDREF;
         }
         TYPE *profile = get_ptr(ref);
 
-        if (!READER::read(profile, loadName))
-        {
+        if (!READER::read(profile, loadName)) {
             return INVALIDREF;
         }
-#if 1
-        if (_size == CAPACITY) throw std::overflow_error(_profileTypeName + " stack overflow");
-        _size++;
-#endif
-
         return ref;
     }
 
     void unintialize()
     {
         reset();
-        for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
-        {
-            delete _elements[ref];
-            _elements[ref] = nullptr;
-        }
+        _map.clear();
     }
 
     void reset()
     {
-        size_t numLoaded = 0;
-        size_t maxSpawnRequestCount = 0;
-        for (REFTYPE ref = 0; ref < CAPACITY; ref++)
+        dump();
+        for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
         {
-            if (isLoaded(ref))
-            {
-                TYPE *profile = get_ptr(ref);
+            release_one(ref);
+        }
+    }
 
-                maxSpawnRequestCount = std::max(maxSpawnRequestCount, profile->_spawnRequestCount);
-                numLoaded++;
+    /**
+    * @brief
+    *  Statistics about an abstract profile system.
+    */
+    struct Stats {
+        /**
+        * @brief
+        *  The number of loaded profiles i.e.
+        *  \f{align*}{
+        *  \left|\left\{p | p \in Profiles \wedge p.loaded = true\right\}\right|
+        *  \f}
+        *  where \f$Profiles\f$ is the set of profiles.
+        */
+        size_t _loadedCount;
+        /**
+        * @brief
+        *  The maximum spawn count (of all profiles) i.e.
+        *  \f{align*}{
+        *  \begin{cases}
+        *  \max_{i=0}^n\left(p_i._spawnCount\right) & \text{if }n > 0\\
+        *  0                                        & \text{otherwise}
+        *  \end{cases}
+        *  \f}
+        *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
+        */
+        size_t _maxSpawnCount;
+        /**
+        * @brief
+        *  The spawn count sum (of all profiles) i.e.
+        *  \f{align*}{
+        *  \begin{cases}
+        *  \sum_{i=0}^n p_i._spawnCount & \text{if }n > 0\\
+        *  0                            & \text{otherwise}
+        *  \end{cases}
+        *  \f}
+        *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
+        */
+        size_t _sumSpawnCount;
+        /**
+        */
+        /**
+        * @brief
+        *  The maximum spawn request count (of all profiles) i.e.
+        *  \f{align*}{
+        *  \begin{cases}
+        *  \max_{i=0}^n\left(p_i._spawnRequestCount\right) & \text{if }n > 0\\
+        *  0                                               & \text{otherwise}
+        *  \end{cases}
+        *  \f}
+        *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
+        */
+        size_t _maxSpawnRequestCount;
+        /**
+        * @brief
+        *  The spawn request count sum (of all profiles) i.e.
+        *  \f{align*}{
+        *  \begin{cases}
+        *  \sum_{i=0}^n p_i._spawnRequestCount & \text{if }n > 0\\
+        *  0                                   & \text{otherwise}
+        *  \end{cases}
+        *  \f}
+        *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
+        */
+        size_t _sumSpawnRequestCount;
+    };
+
+    /**
+    * @brief
+    *  Get the statistics of this abstract profile system.
+    */
+    Stats getStats() {
+        Stats stats;
+        stats._loadedCount = 0;
+        stats._maxSpawnRequestCount = 0;
+        stats._sumSpawnRequestCount = 0;
+        stats._maxSpawnCount = 0;
+        stats._sumSpawnCount = 0;
+        for (const auto& pair : _map) {
+            const auto ptr = pair.second;
+            if (ptr->_loaded) {
+                stats._loadedCount++;
+                // spawn request count
+                stats._sumSpawnRequestCount += ptr->_spawnRequestCount;
+                stats._maxSpawnRequestCount = std::max(stats._maxSpawnRequestCount, ptr->_spawnRequestCount);
+                // spawn count
+                stats._sumSpawnCount += ptr->_spawnCount;
+                stats._maxSpawnCount = std::max(stats._maxSpawnCount, ptr->_spawnCount);
             }
         }
+        return stats;
+    }
 
-        if (numLoaded > 0 && maxSpawnRequestCount > 0)
-        {
-            vfs_FILE *file = vfs_openWrite(_debugPathName);
-            if (nullptr != file)
-            {
-                vfs_printf(file, "List of used %s profiles\n\n", _profileTypeName.c_str());
+    /**
+    * @brief
+    *  Dump information (including the statistics) of this profile into the debug file of this
+    *  abstract profile system.
+    */
+    void dump() {
+        std::ofstream os;
+        os.open(_debugPathName, std::ofstream::out | std::ofstream::app);
+        if (!os.is_open()) {
+            return;
+        }
+        dump(os);
+        os.close();
+    }
 
-                for (REFTYPE ref = 0; ref < CAPACITY; ref++)
-                {
-                    if (isLoaded(ref))
-                    {
-                        TYPE *profile = this->get_ptr(ref);
-                        vfs_printf(file, "index == %d\tname == \"%s\"\tspawn count == %" PRIuZ "\tspawn request count == %" PRIuZ "\n",
-                                   REF_TO_INT(ref), profile->_name.c_str(), profile->_spawnCount, profile->_spawnRequestCount);
-                    }
-                }
-                vfs_close(file);
-            }
-            for (REFTYPE ref = 0; ref < CAPACITY; ++ref)
+
+    /**
+    * @brief
+    *  Dump information (including the stastics) of this profile system into an output stream.
+    * @param os
+    *  the output stream
+    */
+    void dump(std::ostream& os) {
+        const auto stats = getStats();
+
+        os << _profileTypeName << " profile system" << std::endl;
+        os << " loaded count:                " << stats._loadedCount << std::endl;
+        os << " maximum spawn request count: " << stats._maxSpawnRequestCount << std::endl;
+        os << " summed spawn request count:  " << stats._sumSpawnRequestCount << std::endl;
+        os << " maximum spawn count:         " << stats._maxSpawnCount << std::endl;
+        os << " summed spawn count:          " << stats._sumSpawnCount << std::endl;
+        os << " list of loaded profiles:" << std::endl;
+        for (const auto& pair : _map) {
+            const auto ptr = pair.second;
+            if (ptr->_loaded)
             {
-                release_one(ref);
+                os << " reference: " << pair.first << ","
+                   << " name: " << "`" << ptr->_name << "`" << ","
+                   << " spawn request count: " << ptr->_spawnRequestCount << ","
+                   << " spawn count: " << ptr->_spawnCount
+                   << std::endl;
             }
         }
     }
