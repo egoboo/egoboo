@@ -176,37 +176,79 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     if (profile->homing)  profile->damfx = DAMFX_NONE;
 
     // Read expansions
-    while (ctxt.skipToColon(true))
+    while (!ctxt.is(ReadContext::Traits::endOfInput()))
     {
-        idsz = ctxt.readIDSZ();
+        if (ctxt.isWhiteSpace()) {
+            ctxt.skipWhiteSpaces();
+            continue;
+        } else if (ctxt.isNewLine()) {
+            ctxt.skipNewLines();
+            continue;
+        } else if (ctxt.is('/')) {
+            ctxt.readSingleLineComment(); /// @todo Add and use ReadContext::skipSingleLineComment().
+            continue;
+        } else  if (ctxt.is(':')) {
+            ctxt.next();
+            idsz = ctxt.readIDSZ();
 
-        if (idsz == MAKE_IDSZ('N', 'O', 'N', 'E'))       SET_BIT(profile->damfx, DAMFX_NONE);
-        else if (idsz == MAKE_IDSZ('T', 'U', 'R', 'N'))  SET_BIT(profile->damfx, DAMFX_TURN);
-        else if (idsz == MAKE_IDSZ('A', 'R', 'M', 'O'))  SET_BIT(profile->damfx, DAMFX_ARMO);
-        else if (idsz == MAKE_IDSZ('B', 'L', 'O', 'C'))  SET_BIT(profile->damfx, DAMFX_NBLOC);
-        else if (idsz == MAKE_IDSZ('A', 'R', 'R', 'O'))  SET_BIT(profile->damfx, DAMFX_ARRO);
-        else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E'))  SET_BIT(profile->damfx, DAMFX_TIME);
-        else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = ctxt.readReal();
-        else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = ctxt.readInt();
-        else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = ctxt.readInt();
-        else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != ctxt.readInt());
-        else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != ctxt.readInt());
-        else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = ctxt.readInt() / 1000.0f;
-        else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = ctxt.readInt() / 1000.0f;
-        else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->damageBoni._intelligence = (0 != ctxt.readInt());
-        else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  profile->damageBoni._wisdom = (0 != ctxt.readInt());
-        else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readInt());
-        else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
-        {
-            switch (Ego::toupper(ctxt.readPrintable()))
-            {
-            case 'X': profile->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
-            case 'Y': profile->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
-            case 'Z': profile->orientation = ORIENTATION_Z; break;  // put particle up along the world or body-fixed z-axis
-            case 'V': profile->orientation = ORIENTATION_V; break;  // vertical, like a candle
-            case 'H': profile->orientation = ORIENTATION_H; break;  // horizontal, like a plate
-            case 'B': profile->orientation = ORIENTATION_B; break;  // billboard
+            if (idsz == MAKE_IDSZ('N', 'O', 'N', 'E')) {
+                if (ctxt.readInt() != 0) {
+                    SET_BIT(profile->damfx, DAMFX_NONE);
+                }
             }
+            else if (idsz == MAKE_IDSZ('T', 'U', 'R', 'N')) {
+                if (ctxt.readInt() != 0) {
+                    SET_BIT(profile->damfx, DAMFX_TURN);
+                }
+            }
+            else if (idsz == MAKE_IDSZ('A', 'R', 'M', 'O')) {
+                if (ctxt.readInt() != 0) {
+                    SET_BIT(profile->damfx, DAMFX_ARMO);
+                }
+            }
+            else if (idsz == MAKE_IDSZ('B', 'L', 'O', 'C')) {
+                if (ctxt.readInt() != 0) {
+                    SET_BIT(profile->damfx, DAMFX_NBLOC);
+                }
+            }
+            else if (idsz == MAKE_IDSZ('A', 'R', 'R', 'O')) {
+                if (ctxt.readInt() != 0) {
+                    SET_BIT(profile->damfx, DAMFX_ARRO);
+                }
+            }
+            else if (idsz == MAKE_IDSZ('T', 'I', 'M', 'E')) {
+                if (ctxt.readInt() != 0) {
+                    SET_BIT(profile->damfx, DAMFX_TIME);
+                }
+            }
+            else if (idsz == MAKE_IDSZ('Z', 'S', 'P', 'D'))  profile->zaimspd = ctxt.readReal();
+            else if (idsz == MAKE_IDSZ('F', 'S', 'N', 'D'))  profile->end_sound_floor = ctxt.readInt();
+            else if (idsz == MAKE_IDSZ('W', 'S', 'N', 'D'))  profile->end_sound_wall = ctxt.readInt();
+            else if (idsz == MAKE_IDSZ('W', 'E', 'N', 'D'))  profile->end_wall = (0 != ctxt.readInt());
+            else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != ctxt.readInt());
+            else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = ctxt.readInt() / 1000.0f;
+            else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = ctxt.readInt() / 1000.0f;
+            else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->damageBoni._intelligence = (0 != ctxt.readInt());
+            else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  profile->damageBoni._wisdom = (0 != ctxt.readInt());
+            else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readInt());
+            else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
+            {
+                switch (Ego::toupper(ctxt.readPrintable()))
+                {
+                    case 'X': profile->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
+                    case 'Y': profile->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
+                    case 'Z': profile->orientation = ORIENTATION_Z; break;  // put particle up along the world or body-fixed z-axis
+                    case 'V': profile->orientation = ORIENTATION_V; break;  // vertical, like a candle
+                    case 'H': profile->orientation = ORIENTATION_H; break;  // horizontal, like a plate
+                    case 'B': profile->orientation = ORIENTATION_B; break;  // billboard
+                }
+                while (ctxt.isAlpha()) {
+                    ctxt.next();
+                }
+            }
+        } else {
+            throw Ego::Script::LexicalError(__FILE__, __LINE__, Ego::Script::Location(ctxt._loadName, ctxt._lineNumber),
+                                            "expected `:`, comment, whitespace, newline or end of input");
         }
     }
 

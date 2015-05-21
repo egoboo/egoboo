@@ -2657,14 +2657,11 @@ int prt_do_end_spawn(const PRT_REF iprt)
     prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
     // Spawn new particles if time for old one is up
-    if (pprt->endspawn_amount > 0 && ProfileSystem::get().isValidProfileID(pprt->profile_ref) && LocalParticleProfileRef::Invalid != pprt->endspawn_lpip)
+    if (pprt->endspawn_amount > 0 /*&& ProfileSystem::get().isValidProfileID(pprt->profile_ref)*/ && LocalParticleProfileRef::Invalid != pprt->endspawn_lpip)
     {
         FACING_T facing = pprt->facing;
         for (Uint8 tnc = 0; tnc < pprt->endspawn_amount; tnc++)
         {
-            // we have determined the absolute pip reference when the particle was spawned
-            // so, set the profile reference to INVALID_PRO_REF, so that the
-            // value of pprt->endspawn_lpip will be used directly
             PRT_REF spawned_prt = ParticleHandler::get().spawn_one_particle(pprt->pos_old, facing, pprt->profile_ref, pprt->endspawn_lpip,
                                                                             INVALID_CHR_REF, GRIP_LAST, pprt->team, prt_get_iowner(iprt, 0),
                                                                             iprt, tnc, pprt->target_ref);
