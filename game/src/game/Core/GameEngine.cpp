@@ -311,9 +311,6 @@ bool GameEngine::initialize()
     // to valid values
     config_synch(&egoboo_config_t::get(), false, false);
 
-    // read all the scantags
-    scantag_read_all_vfs("mp_data/scancode.txt");
-
     // load input
     input_settings_load_vfs("/controls.txt", -1);
 

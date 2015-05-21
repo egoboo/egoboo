@@ -42,7 +42,7 @@ bool input_settings_load_vfs_1(const char* szFilename)
     int i, cnt;
     INPUT_DEVICE idevice;
 
-    TAG_STRING currenttag = EMPTY_CSTR;
+    std::string currenttag;
 
     // clear out all existing control data
     for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
@@ -65,10 +65,11 @@ bool input_settings_load_vfs_1(const char* szFilename)
     input_device_t &pdevice = InputDevices.lst[idevice];
     for (size_t i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; ++i)
     {
-        vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
-        if (strlen(currenttag) > 0)
+        ctxt.skipToColon(false);
+        currenttag = ctxt.readToEndOfLine();
+        if (!currenttag.empty())
         {
-            scantag_parse_control( currenttag, pdevice.keyMap[i] );
+            scantag_parse_control( currenttag.c_str(), pdevice.keyMap[i] );
         }
     };
     pdevice.device_type = idevice;
@@ -79,10 +80,11 @@ bool input_settings_load_vfs_1(const char* szFilename)
     pdevice = InputDevices.lst[idevice];
     for ( i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
     {
-        vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
-        if (strlen(currenttag) > 0)
+        ctxt.skipToColon(false);
+        currenttag = ctxt.readToEndOfLine();
+        if (!currenttag.empty())
         {
-            scantag_parse_control( currenttag, pdevice.keyMap[i] );
+            scantag_parse_control( currenttag.c_str(), pdevice.keyMap[i] );
         }
     };
     pdevice.device_type = idevice;
@@ -95,10 +97,11 @@ bool input_settings_load_vfs_1(const char* szFilename)
         pdevice = InputDevices.lst[idevice];
         for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
         {
-            vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
-            if (strlen(currenttag) > 0)
+            ctxt.skipToColon(false);
+            currenttag = ctxt.readToEndOfLine();
+            if (!currenttag.empty())
             {
-                scantag_parse_control( currenttag, pdevice.keyMap[i] );
+                scantag_parse_control( currenttag.c_str(), pdevice.keyMap[i] );
             }
         };
         pdevice.device_type = idevice;

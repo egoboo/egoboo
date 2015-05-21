@@ -45,7 +45,7 @@ bool input_settings_load_vfs_3( const char* szFilename )
     /// @author ZZ
     /// @details This function reads the controls.txt file, version 3
 
-    TAG_STRING currenttag = EMPTY_CSTR;
+    std::string currenttag;
 
     // clear out all existing control data
     for ( size_t idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
@@ -70,14 +70,15 @@ bool input_settings_load_vfs_3( const char* szFilename )
         input_device_t &pdevice = InputDevices.lst[idevice];
 
         // figure out how we move
-        vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
-        if (strlen(currenttag) == 0)
+        ctxt.skipToColon(false);
+        currenttag = ctxt.readName();
+        if (currenttag.empty())
         {
             continue;
         }
 
         // get the input device type from the tag
-        type = translate_string_to_input_type( currenttag );
+        type = translate_string_to_input_type( currenttag.c_str() );
 
         // set the device type based on the control name
         pdevice.initialize(static_cast<e_input_device>(type));
@@ -91,11 +92,12 @@ bool input_settings_load_vfs_3( const char* szFilename )
         {
             // version 3 does not have this control
             if ( icontrol == CONTROL_RIGHT_PACK ) continue;
-
-            vfs_get_next_name(ctxt, currenttag, SDL_arraysize(currenttag));
-            if (strlen(currenttag) > 0)
+            
+            ctxt.skipToColon(false);
+            currenttag = ctxt.readToEndOfLine();
+            if (!currenttag.empty())
             {
-                scantag_parse_control( currenttag, pdevice.keyMap[iactual] );
+                scantag_parse_control( currenttag.c_str(), pdevice.keyMap[iactual] );
 
                 if ( pdevice.keyMap[iactual].loaded )
                 {

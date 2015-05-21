@@ -32,42 +32,25 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_scantag;
-    typedef struct s_scantag scantag_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// Key/Control input definitions
-#define MAXTAG              256                     ///< Number of tags in scancode.txt
-#define TAGSIZE              32                     ///< Size of each tag
-
-    typedef char TAG_STRING[TAGSIZE];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 /// A mapping between the state of an input device and an internal game latch
-    struct s_scantag
+    struct scantag_t
     {
-        TAG_STRING name;             ///< tag name
-        Uint32     value;            ///< tag value
+        const char *name;      ///< tag name
+        uint32_t value;        ///< tag value
     };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    void scantag_read_all_vfs( const char *szFilename );
-
     size_t scantag_get_count( void );
     int scantag_find_index( const char *string );
-    scantag_t  *scantag_get_tag( int index );
+    const scantag_t  *scantag_get_tag( int index );
 	bool scantag_get_value(int index, Uint32 * pvalue);
     const char *scantag_get_name( int index );
 
     const char *scantag_get_string( int device, const control_t &control, char * buffer, size_t buffer_size );
-    void scantag_parse_control( char * tag_string, control_t &control );
+    void scantag_parse_control( const char * tag_string, control_t &control );
 
     Uint32 scancode_get_kmod( Uint32 scancode );
 
-    scantag_t *scantag_find_bits( scantag_t * ptag_src, char device_char, Uint32 tag_bits );
-    scantag_t *scantag_find_value( scantag_t * ptag_src, char device_char, Uint32 tag_value );
+    const scantag_t *scantag_find_bits( const scantag_t * ptag_src, char device_char, Uint32 tag_bits );
+    const scantag_t *scantag_find_value( const scantag_t * ptag_src, char device_char, Uint32 tag_value );
