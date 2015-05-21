@@ -220,6 +220,7 @@
 		CD94B4A11A8B3EEC00BECFC9 /* libIdLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD94B49E1A8B3E6000BECFC9 /* libIdLib.a */; };
 		CD94B4A51A8B3F1500BECFC9 /* IdLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD94B4A31A8B3F1500BECFC9 /* IdLib.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
+		CDA1D0941B0DC08300A54415 /* Pathname.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDA1D0921B0DC08300A54415 /* Pathname.cpp */; };
 		CDB23F271B012258000635D4 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F241B012258000635D4 /* Texture.cpp */; };
 		CDB23F321B01226D000635D4 /* AccumulationBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F281B01226C000635D4 /* AccumulationBuffer.cpp */; };
 		CDB23F331B01226D000635D4 /* ColourBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB23F2A1B01226C000635D4 /* ColourBuffer.cpp */; };
@@ -930,6 +931,8 @@
 		CD97C15E1A629E1C00179A2C /* PhysicalConstants.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PhysicalConstants.hpp; sourceTree = "<group>"; };
 		CD97C1611A629E2500179A2C /* Passage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Passage.cpp; sourceTree = "<group>"; };
 		CD97C1621A629E2500179A2C /* Passage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Passage.hpp; sourceTree = "<group>"; };
+		CDA1D0921B0DC08300A54415 /* Pathname.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pathname.cpp; sourceTree = "<group>"; };
+		CDA1D0931B0DC08300A54415 /* Pathname.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Pathname.hpp; sourceTree = "<group>"; };
 		CDB103CB1A91C6F80077CD45 /* EgoTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest.hpp; sourceTree = "<group>"; };
 		CDB103CC1A91C7280077CD45 /* EgoTest_XCTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_XCTest.hpp; sourceTree = "<group>"; };
 		CDB103CD1A91C89B0077CD45 /* EgoTest_VSCppUnitTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_VSCppUnitTest.hpp; sourceTree = "<group>"; };
@@ -1616,6 +1619,7 @@
 				CD0FE1541A7B09AD00F3392B /* Renderer */,
 				CD44E4511A8959CF00D345DF /* Scene */,
 				CD78A7601A934C8D00778820 /* Script */,
+				CDA1D0911B0DC08300A54415 /* VFS */,
 				CD39B3011A374B6000B377BE /* _math.c */,
 				CD39B3021A374B6000B377BE /* _math.h */,
 				CDCA1F8F1A3F56AB00002E76 /* bbox.c */,
@@ -2170,6 +2174,15 @@
 				CD97C1621A629E2500179A2C /* Passage.hpp */,
 			);
 			path = Module;
+			sourceTree = "<group>";
+		};
+		CDA1D0911B0DC08300A54415 /* VFS */ = {
+			isa = PBXGroup;
+			children = (
+				CDA1D0921B0DC08300A54415 /* Pathname.cpp */,
+				CDA1D0931B0DC08300A54415 /* Pathname.hpp */,
+			);
+			path = VFS;
 			sourceTree = "<group>";
 		};
 		CDB103CA1A91C6F80077CD45 /* EgoTest */ = {
@@ -2776,6 +2789,7 @@
 				CD2F42B31B08086500905E42 /* MD2Model.cpp in Sources */,
 				CDCA1FBA1A3F57D000002E76 /* controls_file.c in Sources */,
 				CD13298D1A90130300D1B221 /* RandomName.cpp in Sources */,
+				CDA1D0941B0DC08300A54415 /* Pathname.cpp in Sources */,
 				CDE4EC601A7167CD00A4BC62 /* Cube.cpp in Sources */,
 				CDCA1FC01A3F57D000002E76 /* map_file-v4.c in Sources */,
 				CD5B0CB41A62054300F076F9 /* DynamicArray.cpp in Sources */,

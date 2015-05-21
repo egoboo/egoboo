@@ -338,7 +338,7 @@ bool Cartman::Keyboard::isModDown(Cartman::Keyboard *self, int mod)
 {
     if (!self->on || self->override) return false;
     if (!self->sdlbuffer) return false;
-    return 0 != (self->state & mod);
+    return 0 != (self->mod & mod);
 }
 
 bool Cartman::Keyboard::isDown(Cartman::Keyboard *self, int key, int mod)
