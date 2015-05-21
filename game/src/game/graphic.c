@@ -792,11 +792,11 @@ gfx_rv dolist_t::sort(Camera& cam, const bool do_reflect)
 
             if (do_reflect)
             {
-                mat_getTranslate(_gameObjects.get(iobj)->inst.ref.matrix, pos_tmp);
+                pos_tmp = mat_getTranslate(_gameObjects.get(iobj)->inst.ref.matrix);
             }
             else
             {
-                mat_getTranslate(_gameObjects.get(iobj)->inst.matrix, pos_tmp);
+                pos_tmp = mat_getTranslate(_gameObjects.get(iobj)->inst.matrix);
             }
 
             vtmp = pos_tmp - cam.getPosition();

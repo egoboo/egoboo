@@ -1054,9 +1054,6 @@ public:
 
 };
 
-float *mat_Zero(fmat_4x4_base_t DST);
-float *mat_Multiply(fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2);
-
 float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_t& ori, const fvec4_t& wid, const fvec4_t& frw, const fvec4_t& upx, const float scale);
 /// @param from viewer position
 /// @param at look at position
@@ -1068,16 +1065,111 @@ void mat_gluLookAt(fmat_4x4_t& dst, const fmat_4x4_t& src, const fvec3_t& eye, c
 void mat_glRotate(fmat_4x4_t &dst, const fmat_4x4_t& src, const float angle, const fvec3_t& axis);
 
 
-bool mat_getChrUp(const fmat_4x4_t& mat, fvec3_t& up);
-bool mat_getChrForward(const fmat_4x4_t& mat, fvec3_t& forward);
-bool mat_getChrRight(const fmat_4x4_t& mat, fvec3_t& right);
+/**
+ * @remark
+ *  The initial "up" vector of any Egoboo object is \f$d=(0,0,1)\f$.
+ *  Premultiplying this vector with a 3x3 matrix
+ *  \f{align*}{
+ *  \left[\begin{matrix}
+ *  m_{0,0} & m_{0,1} & m_{0,2} \\
+ *  m_{1,0} & m_{1,1} & m_{1,2} \\
+ *  m_{2,0} & m_{2,1} & m_{2,2} \\
+ *  \end{matrix}\right]
+ *  \cdot
+ *  \left[\begin{matrix}
+ *  d_0\\
+ *  d_1\\
+ *  d_2\\
+ *  \end{matrix}\right]
+ *  =
+ *  \left[\begin{matrix}
+ *  m_{0,0} d_0 + m_{0,1} d_1 + m_{0,2} d_2\\
+ *  m_{1,0} d_0 + m_{1,1} d_1 + m_{1,2} d_2\\
+ *  m_{2,0} d_0 + m_{2,1} d_1 + m_{2,2} d_2
+ *  \end{matrix}\right]
+ *  =
+ *  \left[\begin{matrix}
+ *  m_{0,2}\\
+ *  m_{1,2}\\
+ *  m_{2,2}
+ *  \end{matrix}\right]
+ *  This is odd, but remember that Egoboo was a 2D game.
+ */
+fvec3_t mat_getChrUp(const fmat_4x4_t& mat);
+
+/**
+ * @remark
+ *  The initial "forward" vector of an Egoboo object is \f$d=(-1,0,0)\f$.
+ *  Premultiplying this vector with a 3x3 matrix
+ *  \f{align*}{
+ *  \left[\begin{matrix}
+ *  m_{0,0} & m_{0,1} & m_{0,2}\\
+ *  m_{1,0} & m_{1,1} & m_{1,2}\\
+ *  m_{2,0} & m_{2,1} & m_{2,2}\\
+ *  \end{matrix}\right]
+ *  \cdot
+ *  \left[\begin{matrix}
+ *  d_0\\
+ *  d_1\\
+ *  d_2\\
+ *  \end{matrix}\right]
+ *  =
+ *  \left[\begin{matrix}
+ *  m_{0,0} d_0 + m_{0,1} d_1 + m_{0,2} d_2\\
+ *  m_{1,0} d_0 + m_{1,1} d_1 + m_{1,2} d_2\\
+ *  m_{2,0} d_0 + m_{2,1} d_1 + m_{2,2} d_2
+ *  \end{matrix}\right]
+ *  =
+ *  \left[\begin{matrix}
+ *  -m_{0,0}\\
+ *  -m_{1,0}\\
+ *  -m_{2,0}
+ *  \end{matrix}\right]
+ *  \f}
+ *  This is odd, but remember that Egoboo was a 2D game.
+ */
+fvec3_t mat_getChrForward(const fmat_4x4_t& mat);
+
+/**
+ * @remark
+ *  The initial "right" vector of an Egoboo object is \f$d=(0,1,0)\f$.
+ *  Premultiplying this vector with a 3x3 matrix
+ *  \f{align*}{
+ *  \left[\begin{matrix}
+ *  m_{0,0} & m_{0,1} & m_{0,2}\\
+ *  m_{1,0} & m_{1,1} & m_{1,2}\\
+ *  m_{2,0} & m_{2,1} & m_{2,2}\\
+ *  \end{matrix}\right]
+ *  \cdot
+ *  \left[\begin{matrix}
+ *  d_0\\
+ *  d_1\\
+ *  d_2\\
+ *  \end{matrix}\right]
+ *  =
+ *  \left[\begin{matrix}
+ *  m_{0,0} d_0 + m_{0,1} d_1 + m_{0,2} d_2\\
+ *  m_{1,0} d_0 + m_{1,1} d_1 + m_{1,2} d_2\\
+ *  m_{2,0} d_0 + m_{2,1} d_1 + m_{2,2} d_2
+ *  \end{matrix}\right]
+ *  =
+ *  \left[\begin{matrix}
+ *  m_{0,1}\\
+ *  m_{1,1}\\
+ *  m_{2,1}
+ *  \end{matrix}\right]
+ *  \f}
+ *  This is odd, but remember that Egoboo was a 2D game.
+ */
+fvec3_t mat_getChrRight(const fmat_4x4_t& mat);
+
+
 bool mat_getCamUp(const fmat_4x4_t& mat, fvec3_t& up);
 bool mat_getCamRight(const fmat_4x4_t& mat, fvec3_t& right);
 bool mat_getCamForward(const fmat_4x4_t& mat, fvec3_t& forward);
-bool mat_getTranslate(const fmat_4x4_t& mat, fvec3_t& translate);
 
 
-fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat);
+fvec3_t mat_getTranslate(const fmat_4x4_t& mat);
 
 float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t mat, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate);
 float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t mat, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate);

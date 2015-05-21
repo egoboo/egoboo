@@ -743,10 +743,10 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
 
             switch (pinst->orientation)
             {
-                case ORIENTATION_X: mat_getChrForward(cinst->matrix, vup); break;
-                case ORIENTATION_Y: mat_getChrRight(cinst->matrix, vup);   break;
+                case ORIENTATION_X: vup = mat_getChrForward(cinst->matrix); break;
+                case ORIENTATION_Y: vup = mat_getChrRight(cinst->matrix);   break;
                 default:
-                case ORIENTATION_Z: mat_getChrUp(cinst->matrix, vup);      break;
+                case ORIENTATION_Z: vup = mat_getChrUp(cinst->matrix);      break;
             }
 
             vup.normalize();

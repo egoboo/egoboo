@@ -24,52 +24,6 @@
 #include "egolib/Math/Matrix44.hpp"
 
 //--------------------------------------------------------------------------------------------
-float *mat_Zero(fmat_4x4_base_t DST)
-{
-    // initializes matrix to zero
-
-    if (NULL == DST) return NULL;
-
-    DST[MAT_IDX(0, 0)] = 0; DST[MAT_IDX(1, 0)] = 0; DST[MAT_IDX(2, 0)] = 0; DST[MAT_IDX(3, 0)] = 0;
-    DST[MAT_IDX(0, 1)] = 0; DST[MAT_IDX(1, 1)] = 0; DST[MAT_IDX(2, 1)] = 0; DST[MAT_IDX(3, 1)] = 0;
-    DST[MAT_IDX(0, 2)] = 0; DST[MAT_IDX(1, 2)] = 0; DST[MAT_IDX(2, 2)] = 0; DST[MAT_IDX(3, 2)] = 0;
-    DST[MAT_IDX(0, 3)] = 0; DST[MAT_IDX(1, 3)] = 0; DST[MAT_IDX(2, 3)] = 0; DST[MAT_IDX(3, 3)] = 0;
-
-    return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float *mat_Multiply(fmat_4x4_base_t dst, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2)
-{
-    if (NULL == mat_Zero(dst)) return NULL;
-
-#if fmat_4x4_layout == fmat_4x4_layout_RowMajor
-    /* \f$ C_{i,j} = \sum_{i=0}^4 A_{i,k} * B_{k,j}\f$ */
-    for (size_t i = 0; i < 4; ++i)
-    {
-        for (size_t j = 0; j < 4; ++j)
-        {
-            for (size_t k = 0; k < 4; ++k)
-            {
-                dst[MAT_IDX(i, j)] += src1[MAT_IDX(i, k)] * src2[MAT_IDX(k, j)];
-            }
-        }
-    }
-#else
-    for (size_t i = 0; i < 4; ++i)
-    {
-        for (size_t j = 0; j < 4; ++j)
-        {
-            for (size_t k = 0; k < 4; ++k)
-            {
-                dst[MAT_IDX(i, j)] += src1[MAT_IDX(k, j)] * src2[MAT_IDX(i, k)];
-            }
-        }
-    }
-#endif
-    return dst;
-}
-//--------------------------------------------------------------------------------------------
 float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t DST, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate)
 {
     float cx = turntocos[turn_x & TRIG_TABLE_MASK];
@@ -191,13 +145,11 @@ float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_t& ori, const fvec4_t& w
 //--------------------------------------------------------------------------------------------
 void mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_t& world_up,const float roll)
 {
-    fvec3_t up, right, view_dir, temp;
-
     DST = fmat_4x4_t::identity();
-    view_dir = at - from;
+    fvec3_t view_dir = at - from;
     view_dir.normalize();
-    right = world_up.cross(view_dir);
-    up = view_dir.cross(right);
+    fvec3_t right = world_up.cross(view_dir);
+    fvec3_t up = view_dir.cross(right);
     right.normalize();
     up.normalize();
 
@@ -223,53 +175,28 @@ void mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_
 
     if (roll != 0.0f)
     {
-        // mat_Multiply function shown above
-        fmat_4x4_t tmp1 = fmat_4x4_t::rotationZ(-roll), tmp2;
-        tmp2 = DST;
-        mat_Multiply(DST.v, tmp1.v, tmp2.v);
+        DST = fmat_4x4_t::rotationZ(-roll) * DST;
     }
 }
 //--------------------------------------------------------------------------------------------
-bool mat_getTranslate(const fmat_4x4_t& mat, fvec3_t& translate)
+fvec3_t mat_getTranslate(const fmat_4x4_t& mat)
 {
-    translate[kX] = mat.v[MAT_IDX(3, 0)];
-    translate[kY] = mat.v[MAT_IDX(3, 1)];
-    translate[kZ] = mat.v[MAT_IDX(3, 2)];
-
-    return true;
+    return fvec3_t(mat(0, 3), mat(1, 3), mat(2, 3));
+}
+//--------------------------------------------------------------------------------------------
+fvec3_t mat_getChrUp(const fmat_4x4_t& mat)
+{
+    return fvec3_t(mat(0, 2), mat(1, 2), mat(2, 2));
 }
 
-//--------------------------------------------------------------------------------------------
-bool mat_getChrUp(const fmat_4x4_t& mat, fvec3_t& up)
+fvec3_t mat_getChrForward(const fmat_4x4_t& mat)
 {
-    // for a character
-    up[kX] = mat.v[MAT_IDX(2, 0)]; // m(0,2)
-    up[kY] = mat.v[MAT_IDX(2, 1)]; // m(1,2)
-    up[kZ] = mat.v[MAT_IDX(2, 2)]; // m(2,2)
-
-    return true;
+    return fvec3_t(-mat(0, 0), -mat(1, 0), -mat(2, 0));
 }
 
-//--------------------------------------------------------------------------------------------
-bool mat_getChrForward(const fmat_4x4_t& mat, fvec3_t& forward)
+fvec3_t mat_getChrRight(const fmat_4x4_t& mat)
 {
-    // for a character
-    forward[kX] = -mat.v[MAT_IDX(0, 0)]; // -mat(0,0)
-    forward[kY] = -mat.v[MAT_IDX(0, 1)]; // -mat(1,0)
-    forward[kZ] = -mat.v[MAT_IDX(0, 2)]; // -mat(2,0)
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool mat_getChrRight(const fmat_4x4_t& mat, fvec3_t& right)
-{
-    // for a character's matrix
-    right[kX] = mat.v[MAT_IDX(1, 0)]; // mat(0,1)
-    right[kY] = mat.v[MAT_IDX(1, 1)]; // mat(1,1)
-    right[kZ] = mat.v[MAT_IDX(1, 2)]; // mat(2,1)
-
-    return true;
+    return fvec3_t(mat(0, 1), mat(1, 1), mat(2, 1));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -283,7 +210,6 @@ bool mat_getCamUp(const fmat_4x4_t& mat, fvec3_t& up)
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
 bool mat_getCamRight(const fmat_4x4_t& mat, fvec3_t& right)
 {
     // for the camera
@@ -294,7 +220,6 @@ bool mat_getCamRight(const fmat_4x4_t& mat, fvec3_t& right)
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
 bool mat_getCamForward(const fmat_4x4_t& mat, fvec3_t& forward)
 {
     // for the camera
@@ -303,17 +228,6 @@ bool mat_getCamForward(const fmat_4x4_t& mat, fvec3_t& forward)
     forward[kZ] = -mat.v[MAT_IDX(2, 2)];
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------
-fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat)
-{
-    return fvec3_t
-        (
-        mat[MAT_IDX(3, 0)],
-        mat[MAT_IDX(3, 1)],
-        mat[MAT_IDX(3, 2)]
-        );
 }
 
 //--------------------------------------------------------------------------------------------

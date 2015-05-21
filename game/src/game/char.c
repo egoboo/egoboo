@@ -255,7 +255,7 @@ void keep_weapons_with_holders()
             // Keep in hand weapons with iattached
             if ( chr_matrix_valid( pchr.get() ) )
             {
-                pchr->setPosition(mat_getTranslate_v(pchr->inst.matrix.v));
+                pchr->setPosition(mat_getTranslate(pchr->inst.matrix));
             }
             else
             {
@@ -764,7 +764,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
 
     chr_update_matrix( prider, true );
 
-    prider->setPosition(mat_getTranslate_v(prider->inst.matrix.v));
+    prider->setPosition(mat_getTranslate(prider->inst.matrix));
 
     prider->enviro.inwater  = false;
     prider->jump_timer = JUMPDELAY * 4;
@@ -3282,7 +3282,7 @@ void move_one_character_do_floor_friction( Object * pchr )
         fvec3_t vfront;
 
         // get the direction of motion
-        mat_getChrForward(pchr->inst.matrix, vfront);
+        vfront = mat_getChrForward(pchr->inst.matrix);
 		vfront.normalize();
 
         // decompose the acceleration into parallel and perpendicular components

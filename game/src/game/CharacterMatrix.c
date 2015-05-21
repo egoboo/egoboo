@@ -665,7 +665,8 @@ bool chr_getMatUp(Object *pchr, fvec3_t& up)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getChrUp(pchr->inst.matrix, up);
+        rv = true;
+        up = mat_getChrUp(pchr->inst.matrix);
 	}
 
 	if (!rv)
@@ -693,7 +694,8 @@ bool chr_getMatRight(Object *pchr, fvec3_t& right)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getChrRight(pchr->inst.matrix, right);
+        rv = true;
+        right = mat_getChrRight(pchr->inst.matrix);
 	}
 
 	if (!rv)
@@ -721,7 +723,8 @@ bool chr_getMatForward(Object *pchr, fvec3_t& forward)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getChrForward(pchr->inst.matrix, forward);
+        rv = true;
+        forward = mat_getChrForward(pchr->inst.matrix);
 	}
 
 	if (!rv)
@@ -749,7 +752,8 @@ bool chr_getMatTranslate(Object *pchr, fvec3_t& translate)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getTranslate(pchr->inst.matrix, translate);
+        rv = true;
+        translate = mat_getTranslate(pchr->inst.matrix);
 	}
 
 	if (!rv)

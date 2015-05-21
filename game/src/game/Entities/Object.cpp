@@ -1087,7 +1087,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     // Set the positions
     if ( chr_matrix_valid( this ) )
     {
-        setPosition(mat_getTranslate_v(inst.matrix.v));
+        setPosition(mat_getTranslate(inst.matrix));
     }
     else
     {
