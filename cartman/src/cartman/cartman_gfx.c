@@ -65,7 +65,6 @@ Uint16 animtileframeadd    = 0;
 SDLX_video_parameters_t sdl_vparam;
 oglx_video_parameters_t ogl_vparam;
 
-SDL_Surface * theSurface = NULL;
 SDL_Surface * bmphitemap = NULL;        // Heightmap image
 
 oglx_texture_t     *tx_point;      // Vertex image
@@ -109,8 +108,6 @@ void gfx_system_begin()
     Ego::Renderer::initialize();
     TextureManager::initialize();
     gfx_init_ogl();
-
-    theSurface = SDL_GetVideoSurface();
 
     Ego::FontManager::initialize();
     gfx_font_ptr = Ego::FontManager::loadFont("editor/pc8x8.fon", 12);
@@ -970,14 +967,14 @@ void ogl_beginFrame()
     Ego::Renderer::get().setBlendingEnabled(true);
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    Ego::Renderer::get().setViewportRectangle(0, 0, theSurface->w, theSurface->h);
+    Ego::Renderer::get().setViewportRectangle(0, 0, sdl_scr.x, sdl_scr.y);
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
-    fmat_4x4_t projection = fmat_4x4_t::ortho(0, theSurface->w, theSurface->h, 0, -1, 1);
+    fmat_4x4_t projection = fmat_4x4_t::ortho(0, sdl_scr.x, sdl_scr.y, 0, -1, 1);
     Ego::Renderer::get().loadMatrix(projection);
 
     glMatrixMode( GL_MODELVIEW );
@@ -1014,61 +1011,9 @@ void draw_sprite( SDL_Surface * dst, SDL_Surface * sprite, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-int cartman_BlitScreen( SDL_Surface * bmp, SDL_Rect * prect )
-{
-    return cartman_BlitSurface( bmp, NULL, theSurface, prect );
-}
-
-//--------------------------------------------------------------------------------------------
 int cartman_BlitSurface( SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect )
 {
-    // clip the source and destination rectangles
-
-    int retval = -1;
-    SDL_Rect rsrc, rdst;
-
-    if ( NULL == src || HAS_BITS(( size_t )src->map, 0x80000000 ) ) return 0;
-
-    if ( NULL == srcrect && NULL == dstrect )
-    {
-        retval = SDL_BlitSurface( src, NULL, dst, NULL );
-        if ( retval >= 0 )
-        {
-            SDL_UpdateRect( dst, 0, 0, 0, 0 );
-        }
-    }
-    else if ( NULL == srcrect )
-    {
-        SDL_RectIntersect( &( dst->clip_rect ), dstrect, &rdst );
-        retval = SDL_BlitSurface( src, NULL, dst, &rdst );
-        if ( retval >= 0 )
-        {
-            SDL_UpdateRect( dst, rdst.x, rdst.y, rdst.w, rdst.h );
-        }
-    }
-    else if ( NULL == dstrect )
-    {
-        SDL_RectIntersect( &( src->clip_rect ), srcrect, &rsrc );
-
-        retval = SDL_BlitSurface( src, &rsrc, dst, NULL );
-        if ( retval >= 0 )
-        {
-            SDL_UpdateRect( dst, 0, 0, 0, 0 );
-        }
-    }
-    else
-    {
-        SDL_RectIntersect( &( src->clip_rect ), srcrect, &rsrc );
-        SDL_RectIntersect( &( dst->clip_rect ), dstrect, &rdst );
-
-        retval = SDL_BlitSurface( src, &rsrc, dst, &rdst );
-        if ( retval >= 0 )
-        {
-            SDL_UpdateRect( dst, rdst.x, rdst.y, rdst.w, rdst.h );
-        }
-    }
-
-    return retval;
+    return SDL_BlitSurface( src, srcrect, dst, dstrect );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1082,13 +1027,8 @@ SDL_Surface *cartman_LoadIMG(const char *name)
         return nullptr;
     }
 
-    // Expand the screen format to support alpha.
-    SDL_PixelFormat expandedPixelFormat;
-    memcpy(&expandedPixelFormat, theSurface->format, sizeof(SDL_PixelFormat));   // make a copy of the format
-    SDLX_ExpandFormat(&expandedPixelFormat);
-
     // Convert the image to the same pixel format as the expanded screen format.
-    SDL_Surface *convertedImage = SDL_ConvertSurface(originalImage, &expandedPixelFormat, SDL_SWSURFACE);
+    SDL_Surface *convertedImage = SDL_ConvertSurfaceFormat(originalImage, SDL_PIXELFORMAT_RGBA8888, 0);
     SDL_FreeSurface(originalImage);
     if (!convertedImage)
     {
@@ -1387,48 +1327,12 @@ void gfx_system_init_SDL_graphics()
         log_message(" success!\n");
     }
 
-#if !defined(ID_OSX)
-    {
-        // Setup the cute windows manager icon, don't do this on Mac.
-        const std::string fileName = "icon.bmp";
-        auto pathName = "mp_data/" + fileName;
-        SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
-        if (!theSurface)
-        {
-            log_warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
-        }
-        else
-        {
-            SDL_WM_SetIcon(theSurface, nullptr);
-        }
-    }
-#endif
-
-    // Set the window name
-    SDL_WM_SetCaption(NAME " " VERSION_STR, NAME);
-
-#if defined(ID_LINUX)
-
-    // GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
-    // will cause SDL_SetVideoMode to fail with:
-    // "Unable to set video mode: Couldn't find matching GLX visual"
-    if (32 == egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue())
-        egoboo_config_t::get().graphic_colorBuffer_bitDepth.setValue(24);
-    if (32 == egoboo_config_t::get().graphic_depthBuffer_bitDepth.getValue())
-        egoboo_config_t::get().graphic_depthBuffer_bitDepth.setValue(24);
-
-#endif
-
     // The flags to pass to SDL_SetVideoMode.
     SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
 
     sdl_vparam.flags.opengl = SDL_TRUE;
-    sdl_vparam.flags.double_buf = SDL_TRUE;
+    sdl_vparam.gl_att.doublebuffer = true;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
-    sdl_vparam.gl_att.accum[0] = 8;
-    sdl_vparam.gl_att.accum[1] = 8;
-    sdl_vparam.gl_att.accum[2] = 8;
-    sdl_vparam.gl_att.accum[3] = 8;
 
     oglx_video_parameters_t::download(&ogl_vparam, &egoboo_config_t::get());
 
@@ -1445,6 +1349,28 @@ void gfx_system_init_SDL_graphics()
         GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.verticalResolution * (float)sdl_vparam.horizontalResolution;
         log_message("Success!\n");
     }
+    
+    SDL_Window *window = sdl_scr.window;
+    
+#if !defined(ID_OSX)
+    {
+        // Setup the cute windows manager icon, don't do this on Mac.
+        const std::string fileName = "icon.bmp";
+        auto pathName = "mp_data/" + fileName;
+        SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
+        if (!theSurface)
+        {
+            log_warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
+        }
+        else
+        {
+            SDL_SetWindowIcon(window, theSurface);
+        }
+    }
+#endif
+    
+    // Set the window name.
+    SDL_SetWindowTitle(window, NAME " " VERSION_STR);
 
     _sdl_initialized_graphics = SDL_TRUE;
 }

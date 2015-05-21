@@ -8,14 +8,13 @@ Building Egoboo on Linux requires a recent version of GCC (4.7.2 or later) and
 GNU Make (3.81 or later). Furthermore the runtime and development version of the
 following libraries need to be installed:
 
-	- SDL
-	- SDL_mixer
-	- SDL_image
-	- SDL_ttf
+	- SDL2
+	- SDL2_mixer
+	- SDL2_image
+	- SDL2_ttf
 	- OpenGL
 	- enet
 	- PhysFS 2.0 or later
-	- Lua 5.2 or later
 
 Install the runtime and development versions of those libraries from the
 package manager of your distribution.

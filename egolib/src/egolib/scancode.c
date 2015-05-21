@@ -21,6 +21,8 @@
 /// @brief
 /// @details
 
+#if 0
+
 #include "egolib/scancode.h"
 #include "egolib/strutil.h" /**< @todo Remove this include. */
 #include "egolib/Core/StringUtilities.hpp"
@@ -78,3 +80,5 @@ void scancode_begin()
     scancode_to_ascii_shift[SDLK_BACKSLASH]    = '|';
     scancode_to_ascii_shift[SDLK_SLASH]        = '?';
 }
+
+#endif

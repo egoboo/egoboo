@@ -124,9 +124,6 @@ struct oglx_caps_t
     const GLubyte * gl_renderer;
     const GLubyte * gl_extensions;
 
-    const GLubyte * glu_version;
-    const GLubyte * glu_extensions;
-
     // stack depths
     GLint max_modelview_stack_depth;     ///< Maximum modelview-matrix stack depth
     GLint max_projection_stack_depth;    ///< Maximum projection-matrix stack depth

@@ -559,10 +559,9 @@ bool dump_screenshot()
     strncpy( szResolvedFilename, szFilename, SDL_arraysize( szFilename ) );
 
     // if we are not using OpenGL, use SDL to dump the screen
-    if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
+    if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window), SDL_WINDOW_OPENGL))
     {
-        SDL_SaveBMP_RW( sdl_scr.pscreen, vfs_openRWopsWrite(szResolvedFilename), 1 );
-        return false;
+        return SDL_SaveBMP_RW(SDL_GetWindowSurface(sdl_scr.window), vfs_openRWopsWrite(szResolvedFilename), 1);
     }
 
     // we ARE using OpenGL
@@ -572,7 +571,7 @@ bool dump_screenshot()
 
         // create a SDL surface
         const auto& pixelFormatDescriptor = Ego::PixelFormatDescriptor::get<Ego::PixelFormat::R8G8B8>();
-        temp = SDL_CreateRGBSurface(SDL_SWSURFACE, sdl_scr.x, sdl_scr.y,
+        temp = SDL_CreateRGBSurface(0, sdl_scr.x, sdl_scr.y,
                                     pixelFormatDescriptor.getBitsPerPixel(),
                                     pixelFormatDescriptor.getRedMask(),
                                     pixelFormatDescriptor.getGreenMask(),
@@ -589,9 +588,7 @@ bool dump_screenshot()
         //Now lock the surface so that we can read it
         if ( -1 != SDL_LockSurface( temp ) )
         {
-            SDL_Rect rect;
-
-            memcpy( &rect, &( sdl_scr.pscreen->clip_rect ), sizeof( SDL_Rect ) );
+            SDL_Rect rect = {0, 0, 0, 0};
             if ( 0 == rect.w && 0 == rect.h )
             {
                 rect.w = sdl_scr.x;

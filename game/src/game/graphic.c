@@ -1086,44 +1086,11 @@ void GFX::initializeSDLGraphics()
         log_message(" success!\n");
     }
 
-#if !defined(ID_OSX)
-    {
-        // Setup the cute windows manager icon, don't do this on Mac.
-        const std::string fileName = "icon.bmp";
-        auto pathName = "mp_data/" + fileName;
-        SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
-        if (!theSurface)
-        {
-            log_warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
-        }
-        else
-        {
-            SDL_WM_SetIcon(theSurface, nullptr);
-        }
-    }
-#endif
-
-    // Set the window name.
-    auto title = std::string("Egoboo ") + GameEngine::GAME_VERSION;
-    SDL_WM_SetCaption(title.c_str(), "Egoboo");
-
-#if defined(ID_LINUX)
-
-    // GLX doesn't differentiate between 24 and 32 bpp,
-    // asking for 32 bpp will cause SDL_SetVideoMode to fail with:
-    // "Unable to set video mode: Couldn't find matching GLX visual"
-    if (32 == egoboo_config_t::get().graphic_colorBuffer_bitDepth.getValue())
-        egoboo_config_t::get().graphic_colorBuffer_bitDepth.setValue(24);
-    if (32 == egoboo_config_t::get().graphic_depthBuffer_bitDepth.getValue())
-        egoboo_config_t::get().graphic_depthBuffer_bitDepth.setValue(24);
-
-#endif
-
     // The flags to pass to SDL_SetVideoMode.
     SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
 
     sdl_vparam.flags.opengl = SDL_TRUE;
-    sdl_vparam.flags.double_buf = SDL_TRUE;
+    sdl_vparam.gl_att.doublebuffer = true;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
     sdl_vparam.gl_att.accum[0] = 8;
     sdl_vparam.gl_att.accum[1] = 8;
@@ -1170,6 +1137,29 @@ void GFX::initializeSDLGraphics()
         GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.verticalResolution * (float)sdl_vparam.horizontalResolution;
         log_message("Success!\n");
     }
+    
+    SDL_Window *window = sdl_scr.window;
+    
+#if !defined(ID_OSX)
+    {
+        // Setup the cute windows manager icon, don't do this on Mac.
+        const std::string fileName = "icon.bmp";
+        auto pathName = "mp_data/" + fileName;
+        SDL_Surface *theSurface = IMG_Load_RW(vfs_openRWopsRead(pathName.c_str()), 1);
+        if (!theSurface)
+        {
+            log_warning("unable to load icon `%s` - reason: %s\n", pathName.c_str(), SDL_GetError());
+        }
+        else
+        {
+            SDL_SetWindowIcon(window, theSurface);
+        }
+    }
+#endif
+    
+    // Set the window name.
+    auto title = std::string("Egoboo ") + GameEngine::GAME_VERSION;
+    SDL_SetWindowTitle(window, title.c_str());
 
     _sdl_initialized_graphics = SDL_TRUE;
 }
@@ -4558,7 +4548,7 @@ void _flip_pages()
     // draw the console on top of everything
     egolib_console_handler_t::draw_all();
 
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(sdl_scr.window);
 
 }
 

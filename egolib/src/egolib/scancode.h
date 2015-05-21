@@ -20,6 +20,7 @@
 /// @file  egolib/scancode.h
 /// @brief Translation of SDL scancodes to keys.
 
+#if 0
 #pragma once
 
 #include "egolib/platform.h"
@@ -34,3 +35,5 @@ extern int scancode_to_ascii_shift[SDLK_LAST];
  *  Initialize the scancode translation.
  */
 void scancode_begin();
+
+#endif

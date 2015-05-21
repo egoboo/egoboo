@@ -91,7 +91,6 @@ struct s_simple_vertex
 
 extern camera_t cam;
 
-extern SDL_Surface * theSurface;
 extern SDL_Surface * bmphitemap;        // Heightmap image
 
 extern oglx_texture_t     *tx_point;      // Vertex image

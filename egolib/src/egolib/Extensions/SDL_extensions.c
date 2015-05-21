@@ -26,27 +26,25 @@
 #include "egolib/Extensions/SDL_extensions.h"
 #include "egolib/log.h"
 
+// SDL 2.0.1 adds high DPI support
+#if !SDL_VERSION_ATLEAST(2, 0, 1)
+#define SDL_WINDOW_ALLOW_HIGHDPI 0
+#endif
+
+void SDLX_GetDrawableSize(SDL_Window *window, int *w, int *h)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 1)
+    if (SDL_GetWindowFlags(window) & SDL_WINDOW_OPENGL)
+        return SDL_GL_GetDrawableSize(window, w, h);
+#endif
+    SDL_GetWindowSize(window, w, h);
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 SDLX_screen_info_t sdl_scr;
-
-// create the color masks
-// this will work if both endian systems think they have "RGBA" graphics
-// if you need a different pixel format (ARGB or BGRA or whatever) this section
-// will have to be changed to reflect that
-
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-const Uint32 rmask = 0x000000ff;
-const Uint32 gmask = 0x0000ff00;
-const Uint32 bmask = 0x00ff0000;
-const Uint32 amask = 0xff000000;
-#else
-const Uint32 rmask = 0xff000000;
-const Uint32 gmask = 0x00ff0000;
-const Uint32 bmask = 0x0000ff00;
-const Uint32 amask = 0x000000ff;
-#endif
+SDL_Window *_window;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -62,14 +60,14 @@ void SDLX_screen_info_t::report(SDLX_screen_info_t *self)
         throw std::invalid_argument("nullptr == self");
     }
 
-    log_message("\nSDL using video driver - %s\n", self->szDriver);
+    log_message("\nSDL using video driver - %s\n", self->szDriver.c_str());
 
-    if (nullptr != self->video_mode_list)
+    if (!self->video_mode_list.empty())
     {
         log_message("\tAvailable full-screen video modes...\n");
-        for (size_t i = 0; nullptr != self->video_mode_list[i]; ++i)
+        for (const auto &mode : self->video_mode_list)
         {
-            log_message("    \tVideo Mode - %d x %d\n", self->video_mode_list[i]->w, self->video_mode_list[i]->h);
+            log_message("    \tVideo Mode - %d x %d, %d Hz\n", mode.w, mode.h, mode.refresh_rate);
         }
     }
 }
@@ -78,10 +76,7 @@ void SDLX_screen_info_t::report(SDLX_screen_info_t *self)
 SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
 {
     Uint32 init_flags = 0;
-    SDL_Surface * ps;
-    const SDL_VideoInfo * pvi;
-
-    BLANK_STRUCT_PTR( psi )
+    SDL_Window *window;
 
     init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
     if ( 0 == init_flags )
@@ -95,35 +90,32 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
         return SDL_FALSE;
     }
 
-    ps  = SDL_GetVideoSurface();
-    pvi = SDL_GetVideoInfo();
-
     // store the screen info for everyone to use
-    psi->pscreen = ps;
-    psi->d = ps->format->BitsPerPixel;
-    psi->x = ps->w;
-    psi->y = ps->h;
+    window = _window;
+    psi->window = window;
+    SDL_GetWindowSize(window, &(psi->x), &(psi->y));
+    SDLX_GetDrawableSize(window, &(psi->drawWidth), &(psi->drawHeight));
 
     // Grab all the available video modes
-    psi->video_mode_list = SDL_ListModes( ps->format, ps->flags | SDL_FULLSCREEN );
-
+    psi->video_mode_list.clear();
+    
+    int displayNum = SDL_GetWindowDisplayIndex(window);
+    int numDisplayModes = SDL_GetNumDisplayModes(displayNum);
+    
+    for (int i = 0; i < numDisplayModes; i++) {
+        SDL_DisplayMode mode;
+        SDL_GetDisplayMode(displayNum, i, &mode);
+        psi->video_mode_list.push_back(mode);
+    }
+    
     // log the video driver info
-    SDL_VideoDriverName( psi->szDriver, sizeof( psi->szDriver ) );
+    psi->szDriver = SDL_GetCurrentVideoDriver();
 
     // grab all SDL_GL_* attributes
     SDLX_read_sdl_gl_attrib( &( psi->gl_att ) );
 
     // translate the surface flags into the bitfield
-    SDLX_download_sdl_video_flags( ps->flags, &( psi->flags ) );
-
-    psi->hw_available = pvi->hw_available;
-    psi->wm_available = pvi->wm_available;
-    psi->blit_hw      = pvi->blit_hw;
-    psi->blit_hw_CC   = pvi->blit_hw_CC;
-    psi->blit_hw_A    = pvi->blit_hw_A;
-    psi->blit_sw      = pvi->blit_sw;
-    psi->blit_sw_CC   = pvi->blit_sw_CC;
-    psi->blit_sw_A    = pvi->blit_sw_A;
+    SDLX_download_sdl_video_flags( SDL_GetWindowFlags(window), &( psi->flags ) );
 
     if (make_report)
     {
@@ -142,18 +134,12 @@ void SDLX_sdl_gl_attrib_t::report(SDLX_sdl_gl_attrib_t *self)
     }
     log_message("\nSDL_GL_Attribtes\n");
 
-#if !defined(ID_LINUX)
-    // Under Unix we cannot specify these, we just get whatever format
-    // the framebuffer has, specifying depths > the framebuffer one
-    // will cause SDL_SetVideoMode to fail with: "Unable to set video mode: Couldn't find matching GLX visual"
-
     log_message("\tSDL_GL_RED_SIZE           == %d\n", self->color[0]);
     log_message("\tSDL_GL_GREEN_SIZE         == %d\n", self->color[1]);
     log_message("\tSDL_GL_BLUE_SIZE          == %d\n", self->color[2]);
     log_message("\tSDL_GL_ALPHA_SIZE         == %d\n", self->color[3]);
     log_message("\tSDL_GL_BUFFER_SIZE        == %d\n", self->buffer_size);
     log_message("\tSDL_GL_DEPTH_SIZE         == %d\n", self->depth_size);
-#endif
 
     log_message("\tSDL_GL_DOUBLEBUFFER       == %d\n", self->doublebuffer);
     log_message("\tSDL_GL_STENCIL_SIZE       == %d\n", self->stencil_size);
@@ -163,14 +149,13 @@ void SDLX_sdl_gl_attrib_t::report(SDLX_sdl_gl_attrib_t *self)
     log_message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", self->accum[3]);
     log_message("\tSDL_GL_STEREO             == %d\n", self->stereo);
 
-#if !defined(ID_LINUX)
     log_message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", self->multi_buffers);
     log_message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", self->multi_samples);
+#if !defined(ID_LINUX)
     log_message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", self->accelerated_visual);
-
-    // Fedora 7 doesn't support SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
-    log_message("\tSDL_GL_SWAP_CONTROL       == %d\n", self->swap_control);
 #endif
+
+    log_message("\tSDL_GL_SWAP_CONTROL       == %d\n", self->swap_control);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -182,33 +167,11 @@ void SDLX_sdl_video_flags_t::report(SDLX_sdl_video_flags_t *self)
     }
     log_message("\nSDL flags\n");
 
-    log_message("    %s\n", self->full_screen ? "fullscreen" : "windowed");
-    log_message("    %s\n", self->hw_surface ? "SDL hardware surface" : "SDL software surface");
-    log_message("    %s\n", self->double_buf ? "SDL double buffer" : "SDL single buffer");
+    log_message("\t%s\n", self->full_screen ? "fullscreen" : "windowed");
 
     if (self->opengl)
     {
         log_message("\tOpenGL support\n");
-    }
-
-    if (self->opengl_blit)
-    {
-        log_message("\tOpenGL-compatible blitting\n");
-    }
-
-    if (self->async_blit)
-    {
-        log_message("\tasynchronous blit\n");
-    }
-
-    if (self->any_format)
-    {
-        log_message("\tuse closest format\n");
-    }
-
-    if (self->hw_palette)
-    {
-        log_message("\texclusive palate access\n");
     }
 
     if (self->resizable)
@@ -216,9 +179,14 @@ void SDLX_sdl_video_flags_t::report(SDLX_sdl_video_flags_t *self)
         log_message("\tresizable window\n");
     }
 
-    if (self->no_frame)
+    if (self->borderless)
     {
-        log_message("\tno external frame\n");
+        log_message("\tborderless window\n");
+    }
+    
+    if (self->highdpi)
+    {
+        log_message("\thigh DPI (Apple 'Retina') support");
     }
 }
 
@@ -227,24 +195,12 @@ Uint32 SDLX_upload_sdl_video_flags( SDLX_sdl_video_flags_t flags )
 {
     Uint32 ret = 0;
 
-    ret |= flags.hw_surface  ? SDL_HWSURFACE  : 0;
-    ret |= flags.async_blit  ? SDL_ASYNCBLIT  : 0;
-    ret |= flags.any_format  ? SDL_ANYFORMAT  : 0;
-    ret |= flags.hw_palette  ? SDL_HWPALETTE  : 0;
-    ret |= flags.double_buf  ? SDL_DOUBLEBUF  : 0;
-    ret |= flags.full_screen ? SDL_FULLSCREEN : 0;
-    ret |= flags.opengl      ? SDL_OPENGL     : 0;
-    ret |= flags.opengl_blit ? SDL_OPENGLBLIT : 0;
-    ret |= flags.resizable   ? SDL_RESIZABLE  : 0;
-    ret |= flags.no_frame    ? SDL_NOFRAME    : 0;
-
-    // "read only"
-    ret |= flags.use_hwaccel     ? SDL_HWACCEL     : 0;
-    ret |= flags.has_srccolorkey ? SDL_SRCCOLORKEY : 0;
-    ret |= flags.use_rleaccelok  ? SDL_RLEACCELOK  : 0;
-    ret |= flags.use_rleaccel    ? SDL_RLEACCEL    : 0;
-    ret |= flags.use_srcalpha    ? SDL_SRCALPHA    : 0;
-    ret |= flags.is_prealloc     ? SDL_PREALLOC    : 0;
+    ret |= flags.full_screen ? SDL_WINDOW_FULLSCREEN    : 0;
+    ret |= flags.opengl      ? SDL_WINDOW_OPENGL        : 0;
+    ret |= flags.resizable   ? SDL_WINDOW_RESIZABLE     : 0;
+    ret |= flags.borderless  ? SDL_WINDOW_BORDERLESS    : 0;
+    ret |= flags.highdpi     ? SDL_WINDOW_ALLOW_HIGHDPI : 0;
+    if (flags.full_screen && flags.use_desktop_size) ret |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
     return ret;
 }
@@ -254,24 +210,12 @@ void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pfla
 {
     if ( NULL != pflags )
     {
-        pflags->hw_surface  = HAS_SOME_BITS( iflags, SDL_HWSURFACE );
-        pflags->async_blit  = HAS_SOME_BITS( iflags, SDL_ASYNCBLIT );
-        pflags->any_format  = HAS_SOME_BITS( iflags, SDL_ANYFORMAT );
-        pflags->hw_palette  = HAS_SOME_BITS( iflags, SDL_HWPALETTE );
-        pflags->double_buf  = HAS_SOME_BITS( iflags, SDL_DOUBLEBUF );
-        pflags->full_screen = HAS_SOME_BITS( iflags, SDL_FULLSCREEN );
-        pflags->opengl      = HAS_SOME_BITS( iflags, SDL_OPENGL );
-        pflags->opengl_blit = HAS_SOME_BITS( iflags, SDL_OPENGLBLIT );
-        pflags->resizable   = HAS_SOME_BITS( iflags, SDL_RESIZABLE );
-        pflags->no_frame    = HAS_SOME_BITS( iflags, SDL_NOFRAME );
-
-        // "read only"
-        pflags->use_hwaccel     = HAS_SOME_BITS( iflags, SDL_HWACCEL );
-        pflags->has_srccolorkey = HAS_SOME_BITS( iflags, SDL_SRCCOLORKEY );
-        pflags->use_rleaccelok  = HAS_SOME_BITS( iflags, SDL_RLEACCELOK );
-        pflags->use_rleaccel    = HAS_SOME_BITS( iflags, SDL_RLEACCEL );
-        pflags->use_srcalpha    = HAS_SOME_BITS( iflags, SDL_SRCALPHA );
-        pflags->is_prealloc     = HAS_SOME_BITS( iflags, SDL_PREALLOC );
+        pflags->full_screen = HAS_SOME_BITS(iflags, SDL_WINDOW_FULLSCREEN);
+        pflags->opengl      = HAS_SOME_BITS(iflags, SDL_WINDOW_OPENGL);
+        pflags->resizable   = HAS_SOME_BITS(iflags, SDL_WINDOW_RESIZABLE);
+        pflags->borderless  = HAS_SOME_BITS(iflags, SDL_WINDOW_BORDERLESS);
+        pflags->highdpi     = HAS_SOME_BITS(iflags, SDL_WINDOW_ALLOW_HIGHDPI);
+        if (pflags->full_screen) pflags->use_desktop_size = HAS_SOME_BITS(iflags, SDL_WINDOW_FULLSCREEN_DESKTOP);
     }
 }
 
@@ -314,29 +258,28 @@ void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE,        patt->accum + 2 );
     SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,       patt->accum + 3 );
     SDL_GL_GetAttribute( SDL_GL_STEREO,               &( patt->stereo ) );
+    
+    patt->swap_control = SDL_GL_GetSwapInterval();
 
-#if !defined(ID_LINUX)
     SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   &( patt->multi_buffers ) );
     SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES,   &( patt->multi_samples ) );
+#if !defined(ID_LINUX)
     SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL,   &( patt->accelerated_visual ) );
-    SDL_GL_GetAttribute( SDL_GL_SWAP_CONTROL,         &( patt->swap_control ) );
 #endif
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_synch_video_parameters( SDL_Surface * ret, SDLX_video_parameters_t * v )
+void SDLX_synch_video_parameters( SDL_Window * ret, SDLX_video_parameters_t * v )
 {
     /// @author BB
     /// @details synch values
 
     if ( NULL == ret || NULL == v ) return;
 
-    v->horizontalResolution  = ret->w;
-    v->verticalResolution = ret->h;
-    v->colorBufferDepth  = ret->format->BitsPerPixel;
+    SDL_GetWindowSize(ret, &(v->horizontalResolution), &(v->verticalResolution));
 
     // translate the surface flags into the bitfield
-    SDLX_download_sdl_video_flags( ret->flags, &( v->flags ) );
+    SDLX_download_sdl_video_flags( SDL_GetWindowFlags(ret), &( v->flags ) );
 
     // grab all SDL_GL_* attributes
     SDLX_read_sdl_gl_attrib( &( v->gl_att ) );
@@ -351,16 +294,11 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
     {
         SDLX_sdl_gl_attrib_t * patt = &( v->gl_att );
 
-#if !defined(ID_LINUX)
-        // Under Unix we cannot specify these, we just get whatever format
-        // the framebuffer has, specifying depths > the framebuffer one
-        // will cause SDL_SetVideoMode to fail with: "Unable to set video mode: Couldn't find matching GLX visual"
         SDL_GL_SetAttribute( SDL_GL_RED_SIZE,             patt->color[0] );
         SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE,           patt->color[1] );
         SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,            patt->color[2] );
         SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE,           patt->color[3] );
         SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE,          patt->buffer_size );
-#endif
 
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER,         patt->doublebuffer );
         SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE,           patt->depth_size );
@@ -371,21 +309,10 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
         SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,     patt->accum[3] );
         SDL_GL_SetAttribute( SDL_GL_STEREO,               patt->stereo );
 
-#if defined(ID_LINUX)
-
-        // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
-        if ( patt->swap_control )
-        {
-            SDL_putenv( "__GL_SYNC_TO_VBLANK=1" );
-        }
-
-#else
-
         SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   patt->multi_buffers );
         SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES,   patt->multi_samples );
+#if !defined(ID_LINUX)
         SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL,   patt->accelerated_visual );
-        SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL,         patt->swap_control );
-
 #endif
     }
 
@@ -393,13 +320,14 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_report )
+SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, SDL_bool make_report )
 {
     Uint32 flags;
-    int sdl_nearset_bpp = -1;
-    SDL_Surface * ret = NULL;
-
+    SDL_Window * ret = nullptr;
+    int windowPos = SDL_WINDOWPOS_CENTERED;
+    
     if ( NULL == v ) return ret;
+    if (_window) return nullptr;
 
     if ( !v->flags.opengl )
     {
@@ -407,16 +335,10 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         flags = SDLX_upload_sdl_video_flags( v->flags );
 
         // do our one-and-only video initialization
-        ret = NULL;
-        sdl_nearset_bpp = SDL_VideoModeOK(v->horizontalResolution, v->verticalResolution, v->colorBufferDepth, flags);
-        if ( 0 != sdl_nearset_bpp )
+        ret = SDL_CreateWindow("SDL App", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
+        if (!ret)
         {
-            ret = SDL_SetVideoMode(v->horizontalResolution, v->verticalResolution, sdl_nearset_bpp, flags);
-
-            if ( NULL == ret )
-            {
-                log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
-            }
+            log_message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
         }
     }
     else
@@ -458,7 +380,6 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         // synch some parameters between OpenGL and SDL
         v->colorBufferDepth    = buffer_size;
         v->gl_att.buffer_size  = buffer_size;
-        v->gl_att.doublebuffer = v->flags.double_buf ? SDL_TRUE : SDL_FALSE;
 
         // the GL_ATTRIB_* parameters must be set before opening the video mode
         SDLX_set_sdl_gl_attrib( v );
@@ -468,61 +389,45 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
         // try a softer video initialization
         // if it fails, then it tries to get the closest possible valid video mode
-        ret = NULL;
-        sdl_nearset_bpp = SDL_VideoModeOK(v->horizontalResolution, v->verticalResolution, buffer_size, flags);
-        if ( 0 != sdl_nearset_bpp )
-        {
-            ret = SDL_SetVideoMode(v->horizontalResolution, v->verticalResolution, sdl_nearset_bpp, flags);
-
-            if ( NULL == ret )
-            {
-                log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
+        ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
+        if ( nullptr == ret ) {
+            log_message("SDL WARN: Unable to create SDL window: %s\n", SDL_GetError());
+        } else {
+            SDL_GLContext context = SDL_GL_CreateContext(ret);
+            if (!context) {
+                log_message("SDL WARN: Unable to create GL context: %s\n", SDL_GetError());
+                SDL_DestroyWindow(ret);
+                ret = nullptr;
             }
         }
-
-#if !defined(ID_LINUX)
-        {
-            int actual_multi_buffers = 0;                      // ignored in linux
-
-            // attempt to see if our antialiasing setting is valid
-
-            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
-
-            if ( v->gl_att.multi_samples > 0 && 0 == actual_multi_buffers )
+        
+        if (!ret) {
+            // if we're using multisamples, try lowering it until we succeed
+            if ( v->gl_att.multi_samples > 0 )
             {
-                // could not create the multi-buffer with this pixel format
-                // i.e. cross-platform equivalent of the vectors wglChoosePixelFormatARB and
-                // wglGetPixelFormatAttribivARB could not be found
-                //
-                // This is the only feedback we have that the initialization failed
-                //
-                // we will try to reduce the amount of super sampling and try again
-
                 v->gl_att.multi_samples -= 1;
-                while ( v->gl_att.multi_samples > 1 && 0 == actual_multi_buffers )
+                while ( v->gl_att.multi_samples > 1 && !ret )
                 {
                     v->gl_att.multi_buffers = 1;
 
                     SDLX_set_sdl_gl_attrib( v );
-
-                    sdl_nearset_bpp = SDL_VideoModeOK(v->horizontalResolution, v->verticalResolution, buffer_size, flags);
-                    if ( 0 != sdl_nearset_bpp )
-                    {
-                        ret = SDL_SetVideoMode(v->horizontalResolution, v->verticalResolution, sdl_nearset_bpp, flags);
-                        if ( NULL == ret )
-                        {
-                            log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
+                    
+                    ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
+                    if ( nullptr == ret ) {
+                        log_message("SDL WARN: Unable to create SDL window (%d multisamples): %s\n", v->gl_att.multi_samples, SDL_GetError());
+                    } else {
+                        SDL_GLContext context = SDL_GL_CreateContext(ret);
+                        if (!context) {
+                            log_message("SDL WARN: Unable to create GL context (%d multisamples): %s\n", v->gl_att.multi_samples, SDL_GetError());
+                            SDL_DestroyWindow(ret);
+                            ret = nullptr;
                         }
                     }
-
-                    actual_multi_buffers = 0;
-                    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
 
                     v->gl_att.multi_samples -= 1;
                 }
             }
         }
-#endif
 
         if ( NULL == ret )
         {
@@ -532,26 +437,32 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
             SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 0 );
             SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 0 );
 
-            sdl_nearset_bpp = SDL_VideoModeOK( v->horizontalResolution, v->verticalResolution, buffer_size, flags );
-            if ( 0 != sdl_nearset_bpp )
-            {
-                ret = SDL_SetVideoMode( v->horizontalResolution, v->verticalResolution, sdl_nearset_bpp, flags );
-                if ( NULL == ret )
-                {
-                    log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
+            ret = SDL_CreateWindow("", windowPos, windowPos, v->horizontalResolution, v->verticalResolution, flags);
+            if ( nullptr == ret ) {
+                log_message("SDL WARN: Unable to create SDL window (no multisamples): %s\n", SDL_GetError());
+            } else {
+                SDL_GLContext context = SDL_GL_CreateContext(ret);
+                if (!context) {
+                    log_message("SDL WARN: Unable to create GL context (no multisamples): %s\n", SDL_GetError());
+                    SDL_DestroyWindow(ret);
+                    ret = nullptr;
                 }
             }
         }
 
-#if !defined(ID_LINUX)
+        if (ret) {
         // grab the actual status of the multi_buffers and multi_samples
-        v->gl_att.multi_buffers = 0;
-        v->gl_att.multi_samples = 0;
-        v->gl_att.accelerated_visual = SDL_FALSE;
-        SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &( v->gl_att.multi_buffers ) );
-        SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &( v->gl_att.multi_samples ) );
-        SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL, &( v->gl_att.accelerated_visual ) );
+            v->gl_att.multi_buffers = 0;
+            v->gl_att.multi_samples = 0;
+            v->gl_att.accelerated_visual = SDL_FALSE;
+            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &( v->gl_att.multi_buffers ) );
+            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &( v->gl_att.multi_samples ) );
+#if !defined(ID_LINUX)
+            SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL, &( v->gl_att.accelerated_visual ) );
 #endif
+            // Swap interval needs a current context
+            SDL_GL_SetSwapInterval(v->gl_att.swap_control);
+        }
     }
 
     // update the video parameters
@@ -560,6 +471,8 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         SDLX_Get_Screen_Info( &sdl_scr, make_report );
         SDLX_synch_video_parameters( ret, v );
     }
+    
+    _window = ret;
 
     return ret;
 }
@@ -574,7 +487,6 @@ void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t *self)
 
     BLANK_STRUCT_PTR(self);
 
-    self->double_buf  = 1;
     self->full_screen = 1;
     self->opengl      = 1;
 }
@@ -640,7 +552,7 @@ void SDLX_video_parameters_t::download(SDLX_video_parameters_t *self, egoboo_con
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
+void SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t * v )
 {
 
     if ( NULL == surface )
@@ -673,7 +585,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
 
     SDLX_video_parameters_t   param_old, param_new;
     SDLX_video_parameters_t * retval = NULL;
-    SDL_Surface             * surface;
+    SDL_Window              * surface;
 
     // initialize v_old and param_old
     if ( has_valid_mode )
@@ -692,6 +604,8 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     {
         v_old = NULL;
     }
+    
+    if (v_old) throw std::invalid_argument("v_old is not null! unsupported");
 
     // initialize v_new and param_new
     if ( NULL == v_new )
@@ -705,7 +619,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     }
 
     // assume any problem with setting the graphics mode is with the multisampling
-    surface = SDLX_RequestVideoMode( &param_new, make_report );
+    surface = SDLX_CreateWindow( &param_new, make_report );
 
     if ( make_report )
     {
@@ -724,7 +638,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     }
     else if ( NULL != v_old )
     {
-        surface = SDLX_RequestVideoMode( v_old, make_report );
+        surface = SDLX_CreateWindow( v_old, make_report );
 
         if ( NULL == surface )
         {
@@ -744,39 +658,4 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-SDL_bool SDLX_ExpandFormat( SDL_PixelFormat * pformat )
-{
-    // use the basic screen format to create a surface with proper alpha support
-
-    Uint8 i;
-
-    if ( NULL == pformat ) return SDL_FALSE;
-
-    if ( pformat->BitsPerPixel > 24 )
-    {
-        pformat->Amask = amask;
-        pformat->Bmask = bmask;
-        pformat->Gmask = gmask;
-        pformat->Rmask = rmask;
-
-        for ( i = 0; i < sdl_scr.d && HAS_NO_BITS( pformat->Amask, 1 << i ); i++ );
-
-        if ( HAS_NO_BITS( pformat->Amask, 1 << i ) )
-        {
-            // no alpha bits available
-            pformat->Ashift = 0;
-            pformat->Aloss  = 8;
-        }
-        else
-        {
-            // normal alpha channel
-            pformat->Ashift = i;
-            pformat->Aloss  = 0;
-        }
-    }
-
-    return SDL_TRUE;
 }

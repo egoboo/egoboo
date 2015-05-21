@@ -3196,7 +3196,13 @@ bool vfs_writeEntireFile(const std::string& pathname, const char *data, const si
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static int vfs_rwops_seek( SDL_RWops * context, int offset, int whence )
+static int64_t vfs_rwops_size(SDL_RWops *context)
+{
+    vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
+    return vfs_fileLength(pfile);
+}
+
+static int64_t vfs_rwops_seek( SDL_RWops * context, int64_t offset, int whence )
 {
     vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
     long pos = vfs_tell(pfile);
@@ -3216,22 +3222,22 @@ static int vfs_rwops_seek( SDL_RWops * context, int offset, int whence )
     return vfs_tell( pfile );
 }
 
-static int vfs_rwops_read(SDL_RWops *context, void *ptr, int size, int maxnum)
+static size_t vfs_rwops_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 {
     vfs_FILE *file = (vfs_FILE *)(context->hidden.unknown.data1);
     if (vfs_isReading(file) != 1)
     {
-        return -1;
+        return 0;
     }
     return vfs_read(ptr, size, maxnum, file);
 }
 
-static int vfs_rwops_write(SDL_RWops *context, const void *ptr, int size, int num)
+static size_t vfs_rwops_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
 {
     vfs_FILE *file = (vfs_FILE *)(context->hidden.unknown.data1);
     if (vfs_isWriting(file) != 1)
     {
-        return -1;
+        return 0;
     }
     return vfs_write(ptr, size, num, file);
 }
@@ -3262,6 +3268,7 @@ static SDL_RWops *vfs_rwops_create(vfs_FILE *file, bool ownership)
         return NULL;
     }
     rwops->type = ownership;
+    rwops->size = vfs_rwops_size;
     rwops->seek = vfs_rwops_seek;
     rwops->read = vfs_rwops_read;
     rwops->write = vfs_rwops_write;

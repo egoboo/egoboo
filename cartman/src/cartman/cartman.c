@@ -1761,19 +1761,19 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
 
     // brush size
-    if ( CART_KEYDOWN( SDLK_END ) || CART_KEYDOWN( SDLK_KP1 ) )
+    if ( CART_KEYDOWN( SDLK_END ) || CART_KEYDOWN( SDLK_KP_1 ) )
     {
         brushsize = 0;
     }
-    if ( CART_KEYDOWN( SDLK_PAGEDOWN ) || CART_KEYDOWN( SDLK_KP3 ) )
+    if ( CART_KEYDOWN( SDLK_PAGEDOWN ) || CART_KEYDOWN( SDLK_KP_3 ) )
     {
         brushsize = 1;
     }
-    if ( CART_KEYDOWN( SDLK_HOME ) || CART_KEYDOWN( SDLK_KP7 ) )
+    if ( CART_KEYDOWN( SDLK_HOME ) || CART_KEYDOWN( SDLK_KP_7 ) )
     {
         brushsize = 2;
     }
-    if ( CART_KEYDOWN( SDLK_PAGEUP ) || CART_KEYDOWN( SDLK_KP9 ) )
+    if ( CART_KEYDOWN( SDLK_PAGEUP ) || CART_KEYDOWN( SDLK_KP_9 ) )
     {
         brushsize = 3;
     }
@@ -1974,7 +1974,7 @@ void draw_main( cartman_mpd_t * pmesh )
     dunframe++;
     secframe++;
 
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(sdl_scr.window);
 }
 
 //--------------------------------------------------------------------------------------------

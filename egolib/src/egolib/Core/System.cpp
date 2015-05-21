@@ -56,8 +56,8 @@ uint32_t TimerService::getTicks()
 
 EventService::EventService()
 {
-    log_info("Intializing SDL event threading services ... ");
-    if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) < 0)
+    log_info("Intializing SDL event queue services ... ");
+    if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0)
     {
         log_message(" failure!\n");
         EnvironmentError error(__FILE__, __LINE__, "SDL events", SDL_GetError());
@@ -72,7 +72,7 @@ EventService::EventService()
 
 EventService::~EventService()
 {
-    SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);
+    SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
 const std::string System::VERSION = "0.1.9";

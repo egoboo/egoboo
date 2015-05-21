@@ -128,7 +128,7 @@ void SelectPlayersState::drawContainer()
 void SelectPlayersState::beginState()
 {
     // menu settings
-    SDL_WM_GrabInput(SDL_GRAB_OFF);
+    SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
 
     // Begin the main menu song again (in case we just returned from winning a module)
     AudioSystem::get().playMusic(AudioSystem::MENU_SONG);

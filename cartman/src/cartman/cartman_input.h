@@ -80,9 +80,9 @@ namespace Cartman
         int delay;
 
         bool needs_update;
-        Uint8 *sdlbuffer;
+        const Uint8 *sdlbuffer;
         Uint8 state;
-        SDLMod mod;
+        Uint16 mod;
         Keyboard();
         virtual ~Keyboard();
         static bool isKeyDown(Cartman::Keyboard *self, int key);
