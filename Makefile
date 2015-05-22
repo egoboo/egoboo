@@ -30,7 +30,7 @@ INSTALL_DIR       := data
 #---------------------
 # the SDL configuration
 
-SDL_CONF  := sdl-config
+SDL_CONF  := sdl2-config
 TMPFLAGS  := $(shell ${SDL_CONF} --cflags)
 SDLCONF_L := $(shell ${SDL_CONF} --libs)
 
@@ -62,7 +62,7 @@ endif
 CFLAGS   += $(TMPFLAGS)
 CXXFLAGS += $(TMPFLAGS)
 LDFLAGS  += $(LUA_LDFLAGS)
-LDFLAGS  += ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
+LDFLAGS  += ${SDLCONF_L} -lSDL2_ttf -lSDL2_mixer -lSDL2_image -lphysfs -lenet -lGL
 
 export PREFIX CFLAGS CXXFLAGS LDFLAGS IDLIB_TARGET EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET
 

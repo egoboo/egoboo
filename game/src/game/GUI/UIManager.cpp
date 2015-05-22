@@ -114,12 +114,12 @@ void UIManager::endRenderUI()
 
 int UIManager::getScreenWidth() const
 {
-    return SDL_GetVideoInfo()->current_w;
+    return sdl_scr.x;
 }
 
 int UIManager::getScreenHeight() const
 {
-    return SDL_GetVideoInfo()->current_h;
+    return sdl_scr.y;
 }
 
 void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint)

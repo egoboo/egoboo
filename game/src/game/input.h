@@ -101,7 +101,7 @@ struct keyboard_data_t
     bool  chat_done;                 ///< Input text from keyboard finished?
 
     int     state_size;
-    Uint8  *state_ptr;
+    const Uint8 *state_ptr;
 };
 
 #define KEYBOARD_INIT \
@@ -114,8 +114,10 @@ struct keyboard_data_t
     }
 
 keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr );
+bool keyboard_is_key_down(const keyboard_data_t &KEYB, int keycode);
 
-#define SDL_KEYDOWN(KEYB,k) ( !KEYB.chat_mode &&  (NULL != KEYB.state_ptr) &&  ((k) < KEYB.state_size) && ( 0 != KEYB.state_ptr[k] ) )
+
+#define SDL_KEYDOWN(KEYB,k) keyboard_is_key_down(KEYB, k)
 
 //--------------------------------------------------------------------------------------------
 // JOYSTICK

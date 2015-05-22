@@ -33,21 +33,15 @@
 
 SDL_Surface *SDL_GL_createSurface(int w, int h)
 {
-    SDL_Surface *primarySurface = SDL_GetVideoSurface();
-    if (!primarySurface)
-    {
-        return nullptr;
-    }
 
     // Expand the screen format to support alpha:
     // a) Copy the format of the main surface.
-    SDL_PixelFormat format;
-    memcpy(&format, primarySurface->format, sizeof(SDL_PixelFormat));
-    // b) Expand the format.
-    SDLX_ExpandFormat(&format);
+    SDL_PixelFormat *format = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
 
-    return SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, format.BitsPerPixel,
-                                format.Rmask, format.Gmask, format.Bmask, format.Amask);
+    SDL_Surface *ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, format->BitsPerPixel,
+                                            format->Rmask, format->Gmask, format->Bmask, format->Amask);
+    SDL_FreeFormat(format);
+    return ret;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -136,7 +130,7 @@ SDL_bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
 //--------------------------------------------------------------------------------------------
 void SDL_GL_report_mode(SDLX_video_parameters_t * retval)
 {
-    SDL_Surface * surface = (NULL == retval) ? NULL : retval->surface;
+    SDL_Window * surface = (NULL == retval) ? NULL : retval->surface;
 
     SDLX_report_mode(surface, retval);
 
@@ -270,28 +264,21 @@ std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface
     {
         throw std::invalid_argument("nullptr == surface");
     }
-    SDL_PixelFormat newFormat = *(SDL_GetVideoSurface()->format);
+    uint32_t Amask, Bmask, Gmask, Rmask;
+    int bpp;
 
-    newFormat.Amask = pixelFormatDescriptor.getAlphaMask();
-    newFormat.Ashift = pixelFormatDescriptor.getAlphaShift();
-    newFormat.Aloss = 0;
+    Amask = pixelFormatDescriptor.getAlphaMask();
+    Bmask = pixelFormatDescriptor.getBlueMask();
+    Gmask = pixelFormatDescriptor.getGreenMask();
+    Rmask = pixelFormatDescriptor.getRedMask();
+    bpp = pixelFormatDescriptor.getBitsPerPixel();
+    
+    uint32_t newFormat = SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask, Bmask, Amask);
+    if (newFormat == SDL_PIXELFORMAT_UNKNOWN) {
+        throw std::invalid_argument("pixelFormatDescriptor doesn't correspond with a SDL_PixelFormat");
+    }
 
-    newFormat.Bmask = pixelFormatDescriptor.getBlueMask();
-    newFormat.Bshift = pixelFormatDescriptor.getBlueShift();
-    newFormat.Bloss = 0;
-
-    newFormat.Gmask = pixelFormatDescriptor.getGreenMask();
-    newFormat.Gshift = pixelFormatDescriptor.getGreenShift();
-    newFormat.Gloss = 0;
-
-    newFormat.Rmask = pixelFormatDescriptor.getRedMask();
-    newFormat.Rshift = pixelFormatDescriptor.getRedShift();
-    newFormat.Rloss = 0;
-
-    newFormat.BitsPerPixel = pixelFormatDescriptor.getBitsPerPixel();
-    newFormat.BytesPerPixel = pixelFormatDescriptor.getBitsPerPixel() / sizeof(char);
-
-    SDL_Surface *newSurface = SDL_ConvertSurface(surface.get(), &newFormat, SDL_SWSURFACE);
+    SDL_Surface *newSurface = SDL_ConvertSurfaceFormat(surface.get(), newFormat, 0);
     if (!newSurface)
     {
         throw std::runtime_error("unable to convert surface");

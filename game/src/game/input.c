@@ -57,9 +57,6 @@ void input_system_init_keyboard()
     // set up the keyboard
     keyboard_data__init( &keyb );
 
-    // keyboard data
-    scancode_begin();
-
     // turn the keyboard on
     keyb.on         = true;
 }
@@ -135,11 +132,11 @@ void input_read_mouse()
 {
     int x, y, b;
 
-    //b = SDL_GetMouseState( &x, &y );
     b = SDL_GetRelativeMouseState( &x, &y );
 
     //Move mouse to the center of the screen since SDL does not detect motion outside the window
-    if (!egoboo_config_t::get().debug_developerMode_enable.getValue()) SDL_WarpMouse(GFX_WIDTH >> 1, GFX_HEIGHT >> 1);
+    if (!egoboo_config_t::get().debug_developerMode_enable.getValue())
+        SDL_WarpMouseInWindow(sdl_scr.window, GFX_WIDTH >> 1, GFX_HEIGHT >> 1);
 
     mous.x = -x; // mous.x and mous.y are the wrong type to use in above call
     mous.y = -y;
@@ -155,7 +152,7 @@ void input_read_mouse()
 //--------------------------------------------------------------------------------------------
 void input_read_keyboard()
 {
-    keyb.state_ptr = SDL_GetKeyState( &( keyb.state_size ) );
+    keyb.state_ptr = SDL_GetKeyboardState( &( keyb.state_size ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -214,192 +211,6 @@ void input_read_joysticks()
     {
         input_read_joystick( cnt );
     }
-}
-
-//--------------------------------------------------------------------------------------------
-bool input_handle_chat( SDL_Event * pevt )
-{
-    Uint32 kmod;
-    bool is_alt, is_shift;
-
-    if ( NULL == pevt || SDL_KEYDOWN != pevt->type ) return false;
-
-    kmod = SDL_GetModState();
-
-    is_alt   = HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
-    is_shift = HAS_SOME_BITS( kmod, KMOD_SHIFT );
-
-    if ( is_alt ) return false;
-
-    if ( SDLK_RETURN == pevt->key.keysym.sym || SDLK_KP_ENTER == pevt->key.keysym.sym )
-    {
-        net_chat.buffer[net_chat.buffer_count] = CSTR_END;
-        keyb.chat_mode = false;
-        keyb.chat_done = true;
-        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
-    }
-    else if ( SDLK_ESCAPE == pevt->key.keysym.sym )
-    {
-        // reset the keyboard buffer
-        keyb.chat_mode = false;
-        keyb.chat_done = false;
-        net_chat.buffer_count = 0;
-        net_chat.buffer[0] = CSTR_END;
-        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
-    }
-    else if ( SDLK_BACKSPACE == pevt->key.keysym.sym )
-    {
-        if ( net_chat.buffer_count > 0 )
-        {
-            net_chat.buffer_count--;
-        }
-        net_chat.buffer[net_chat.buffer_count] = CSTR_END;
-    }
-    else if ( net_chat.buffer_count < CHAT_BUFFER_SIZE )
-    {
-        if ( is_shift )
-        {
-            if (( unsigned )scancode_to_ascii_shift[pevt->key.keysym.sym] < 0xFF )
-            {
-                net_chat.buffer[net_chat.buffer_count++] = ( char )scancode_to_ascii_shift[pevt->key.keysym.sym];
-            }
-        }
-        else
-        {
-            if (( unsigned )scancode_to_ascii[pevt->key.keysym.sym] < 0xFF )
-            {
-                net_chat.buffer[net_chat.buffer_count++] = ( char )scancode_to_ascii[pevt->key.keysym.sym];
-            }
-        }
-        net_chat.buffer[net_chat.buffer_count] = CSTR_END;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool input_handle_SDL_KEYDOWN( SDL_Event * pevt )
-{
-    bool handled = false;
-
-    if ( NULL == pevt || SDL_KEYDOWN != pevt->type ) return false;
-
-    if ( keyb.chat_mode )
-    {
-        handled = input_handle_chat( pevt );
-    }
-
-    return handled;
-}
-
-//--------------------------------------------------------------------------------------------
-bool input_handle_SDL_Event( SDL_Event * pevt )
-{
-    bool handled = false;
-
-    if ( NULL == pevt ) return false;
-
-    handled = true;
-    switch ( pevt->type )
-    {
-        case SDL_ACTIVEEVENT:
-            // the application has gained or lost some form of focus
-            if ( SDL_APPACTIVE == pevt->active.type && 1 == pevt->active.gain )
-            {
-                // the application has recovered from being minimized
-                // the textures need to be reloaded into OpenGL memory
-
-                gfx_system_reload_all_textures();
-            }
-            else if ( SDL_APPMOUSEFOCUS == pevt->active.type )
-            {
-                if ( 1 == pevt->active.gain )
-                {
-                    // gained mouse focus
-                    mous.on = true;
-                }
-                else
-                {
-                    // lost mouse focus
-                    mous.on = false;
-                }
-            }
-            else if ( SDL_APPINPUTFOCUS == pevt->active.type )
-            {
-                if ( 1 == pevt->active.gain )
-                {
-                    // gained mouse focus
-                    keyb.on = true;
-                }
-                else
-                {
-                    // lost mouse focus
-                    keyb.on = false;
-                }
-            }
-            break;
-
-        case SDL_VIDEORESIZE:
-            if ( SDL_VIDEORESIZE == pevt->resize.type )
-            {
-                // The video has been resized.
-                // If the game is active, some camera info mught need to be recalculated
-                // and possibly the auto-formatting for the menu system and the ui system
-                // The ui will handle its own issues.
-
-                // grab all the new SDL screen info
-                SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
-            }
-            break;
-
-        case SDL_VIDEOEXPOSE:
-            // something has been done to the screen and it needs to be re-drawn.
-            // For instance, a window above the app window was moved. This has no
-            // effect on the game at the moment.
-            break;
-
-        case SDL_MOUSEBUTTONDOWN:
-            if ( pevt->button.button == SDL_BUTTON_WHEELUP )
-            {
-                input_cursor.z++;
-                input_cursor.wheel_event = true;
-            }
-            else if ( pevt->button.button == SDL_BUTTON_WHEELDOWN )
-            {
-                input_cursor.z--;
-                input_cursor.wheel_event = true;
-            }
-            else
-            {
-                input_cursor.pending_click = true;
-            }
-            break;
-
-        case SDL_MOUSEBUTTONUP:
-            input_cursor.pending_click = false;
-            break;
-
-        case SDL_MOUSEMOTION:
-            input_cursor.x = pevt->motion.x;
-            input_cursor.y = pevt->motion.y;
-            break;
-
-        case SDL_QUIT:
-            //Someone pressed the little X in the corner while running windowed mode
-            exit( 0 );
-            break;
-
-            // use this loop to grab any console-mode entry from the keyboard
-        case SDL_KEYDOWN:
-            input_handle_SDL_KEYDOWN( pevt );
-            break;
-
-        default:
-            handled = true;
-            break;
-    }
-
-    return handled;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -556,6 +367,11 @@ keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr )
     ptr->state_ptr  = NULL;
 
     return ptr;
+}
+
+bool keyboard_is_key_down(const keyboard_data_t &KEYB, int key) {
+    int k = SDL_GetScancodeFromKey(key);
+    return !KEYB.chat_mode && KEYB.state_ptr && k < KEYB.state_size && KEYB.state_ptr[k];
 }
 
 //--------------------------------------------------------------------------------------------

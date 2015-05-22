@@ -90,8 +90,6 @@ void egolib_console_handler_t::initialize()
     blah.w = sdl_scr.x;
     blah.h = sdl_scr.y * 0.25f;
 
-    scancode_begin();
-
 #if defined(USE_LUA_CONSOLE)
     _egolib_console_top = lua_console_create(nullptr, blah);
 #else
@@ -363,9 +361,9 @@ void egolib_console_handler_t::draw_end()
 
 bool egolib_console_t::draw(egolib_console_t *self)
 {
-    SDL_Surface *surf = SDL_GetVideoSurface();
+    int windowHeight = sdl_scr.y;
 
-    if (!surf || !self || !self->on)
+    if (!windowHeight || !self || !self->on)
     {
         return false;
     }
@@ -407,7 +405,7 @@ bool egolib_console_t::draw(egolib_console_t *self)
 
         // clip the viewport
         renderer.setScissorTestEnabled(true);
-        renderer.setScissorRectangle(pwin->x, surf->h - (pwin->y + pwin->h), pwin->w, pwin->h);
+        renderer.setScissorRectangle(pwin->x, windowHeight - (pwin->y + pwin->h), pwin->w, pwin->h);
 
         height = pwin->h;
 
@@ -498,11 +496,11 @@ void egolib_console_t::show(egolib_console_t *self)
     // Fix the keyrepeat.
     if (nullptr == egolib_console_top)
     {
-        SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_StopTextInput();
     }
     else
     {
-        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_StartTextInput();
     }
 }
 
@@ -517,11 +515,11 @@ void egolib_console_t::hide(egolib_console_t *self)
     // Fix the keyrepeat.
     if (nullptr == egolib_console_top)
     {
-        SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_StopTextInput();
     }
     else
     {
-        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_StartTextInput();
     }
 }
 
@@ -565,7 +563,7 @@ void egolib_console_t::add_saved(egolib_console_t *self, char *line)
 SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
 {
     egolib_console_t *console = egolib_console_top;
-
+    
     if (!event)
     {
         return nullptr;
@@ -574,71 +572,79 @@ SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
     {
         return event;
     }
-
+    
     // Only handle keyboard events.
-    if (SDL_KEYDOWN != event->type)
-    {
+    if (SDL_TEXTINPUT != event->type && SDL_TEXTEDITING != event->type && SDL_KEYDOWN != event->type)
         return event;
-    }
-
-    // Grab the virtual key code.
-    SDLKey vkey = event->key.keysym.sym;
-
-    // Get the key modifiers.
-    Uint32 kmod = SDL_GetModState();
-
-    // Is alt or shift down?
-    bool is_alt   = HAS_SOME_BITS(kmod, KMOD_ALT | KMOD_CTRL);
-    bool is_shift = HAS_SOME_BITS(kmod, KMOD_SHIFT);
-
-    // If the virtual key code for the backquote is pressed,
-    // toggle the console on the top of the console stack.
-    if (!is_alt && !is_shift && SDLK_BACKQUOTE == vkey)
+    
+    SDL_Scancode vkey = SDL_SCANCODE_UNKNOWN;
+    bool is_alt = false;
+    bool is_shift = false;
+    
+    if (SDL_KEYDOWN == event->type)
     {
-        if (!console->on)
+        // Grab the virtual scancode.
+        vkey = event->key.keysym.scancode;
+        
+        // Get the key modifiers.
+        SDL_Keymod kmod = SDL_GetModState();
+        
+        // Is alt or shift down?
+        is_alt   = HAS_SOME_BITS(kmod, KMOD_ALT | KMOD_CTRL);
+        is_shift = HAS_SOME_BITS(kmod, KMOD_SHIFT);
+        
+        // If the virtual key code for the backquote is pressed,
+        // toggle the console on the top of the console stack.
+        if (!is_alt && !is_shift && (SDL_SCANCODE_GRAVE == vkey || (console->on && SDL_SCANCODE_ESCAPE == vkey)))
         {
-            console->on = true;
-            console->buffer_carat = 0;
-            console->buffer[0] = CSTR_END;
-
-            SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_DELAY);
-            return nullptr;
+            if (!console->on)
+            {
+                console->on = true;
+                console->buffer_carat = 0;
+                console->buffer[0] = CSTR_END;
+                
+                SDL_StartTextInput();
+                return nullptr;
+            }
+            else
+            {
+                console->on = false;
+                console->buffer_carat = 0;
+                console->buffer[0] = CSTR_END;
+                
+                SDL_StopTextInput();
+                return nullptr;
+            }
         }
-        else
-        {
-            console->on = false;
-            console->buffer_carat = 0;
-            console->buffer[0] = CSTR_END;
-
-            SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
-            return nullptr;
-        }
-    };
-
+    }
+    
     // Only grab the keycodes if the console is on.
     if (!console->on)
     {
         return event;
     }
-
+    
     // Handle any console commands.
-    if (nullptr != event && !is_alt && !is_shift)
+    if (SDL_KEYDOWN == event->type && !is_alt && !is_shift)
     {
         // backspace: delete character before the carat.
-        if (SDLK_BACKSPACE == vkey)
+        if (SDL_SCANCODE_BACKSPACE == vkey)
         {
-            if (console->buffer_carat > 0)
+            while (console->buffer_carat > 0)
             {
                 console->buffer_carat--;
+                char a = console->buffer[console->buffer_carat];
+                if ((a & 0x80) == 0x00 || (a & 0xC0) == 0xC0)
+                    break;
             }
             console->buffer[console->buffer_carat] = CSTR_END;
-
+            
             event = nullptr;
         }
-        else if (SDLK_UP == vkey)
+        else if (SDL_SCANCODE_UP == vkey)
         {
             console->save_index--;
-
+            
             if (console->save_index < 0)
             {
                 // Behind the last saved line. Blank the line.
@@ -649,20 +655,20 @@ SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
             else
             {
                 console->save_index = CLIP(console->save_index, 0, console->save_count - 1);
-
+                
                 if (console->save_count > 0)
                 {
                     strncpy(console->buffer, egolib_console_t::get_saved(console), EGOBOO_CONSOLE_LENGTH - 1);
                     console->buffer_carat = strlen(console->buffer);
                 }
             }
-
+            
             event = nullptr;
         }
-        else if (SDLK_DOWN == vkey)
+        else if (SDL_SCANCODE_DOWN == vkey)
         {
             console->save_index++;
-
+            
             if (console->save_index >= console->save_count)
             {
                 // Before the first saved line. Blank the line.
@@ -673,76 +679,67 @@ SDL_Event *egolib_console_handler_t::handle_event(SDL_Event *event)
             else
             {
                 console->save_index = CLIP(console->save_index, 0, console->save_count - 1);
-
+                
                 if (console->save_count > 0)
                 {
                     strncpy(console->buffer, egolib_console_t::get_saved(console), EGOBOO_CONSOLE_LENGTH - 1);
                     console->buffer_carat = strlen(console->buffer);
                 }
             }
-
+            
             event = nullptr;
         }
-        else if (SDLK_LEFT == vkey)
+        else if (SDL_SCANCODE_LEFT == vkey)
         {
             console->buffer_carat--;
             console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1));
-
+            
             event = nullptr;
         }
-
-        else if (SDLK_RIGHT == vkey)
+        else if (SDL_SCANCODE_RIGHT == vkey)
         {
             console->buffer_carat++;
             console->buffer_carat = CLIP(console->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1));
-
+            
             event = nullptr;
         }
-        else if (SDLK_RETURN == vkey || SDLK_KP_ENTER == vkey)
+        else if (SDL_SCANCODE_RETURN == vkey || SDL_SCANCODE_KP_ENTER == vkey)
         {
             console->buffer[console->buffer_carat] = CSTR_END;
-
+            
             // Add this command line to the list of saved command line.
             egolib_console_t::add_saved(console, console->buffer);
-
+            
             // Add the command line to the output buffer.
             egolib_console_t::print(console, "%c %s\n", EGOBOO_CONSOLE_PROMPT, console->buffer);
-
+            
             // Actually execute the command line.
             egolib_console_t::run(console);
-
+            
             // Blank the command line.
             console->buffer_carat = 0;
             console->buffer[0] = CSTR_END;
-
+            
             event = nullptr;
         }
     }
-
+    
+    if (nullptr == event || SDL_KEYDOWN == event->type) return nullptr;
+    
+    bool addToLine = SDL_TEXTINPUT == event->type;
+    char *text = SDL_TEXTINPUT == event->type ? event->text.text : event->edit.text;
+    size_t textLength = strlen(text);
+    
     // handle normal keystrokes
-    if (nullptr != event && !is_alt && vkey < SDLK_NUMLOCK )
+    if (console->buffer_carat + textLength + 1 < EGOBOO_CONSOLE_LENGTH)
     {
-        if (console->buffer_carat < EGOBOO_CONSOLE_LENGTH)
-        {
-            if (is_shift)
-            {
-                if ((unsigned)scancode_to_ascii_shift[vkey] <= 0xFF)
-                {
-                    console->buffer[console->buffer_carat++] = (char)scancode_to_ascii_shift[vkey];
-                }
-            }
-            else
-            {
-                if ((unsigned)scancode_to_ascii[vkey] <= 0xFF)
-                {
-                    console->buffer[console->buffer_carat++] = (char)scancode_to_ascii[vkey];
-                }
-            }
-            console->buffer[console->buffer_carat] = CSTR_END;
-
-            event = nullptr;
-        }
+        strcat(console->buffer + console->buffer_carat, event->text.text);
+        console->buffer[console->buffer_carat + textLength] = CSTR_END;
+        if (addToLine)
+            console->buffer_carat += strlen(event->text.text);
+        
+        event = nullptr;
     }
-
+    
     return event;
 }

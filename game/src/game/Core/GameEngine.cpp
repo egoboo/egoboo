@@ -432,79 +432,63 @@ void GameEngine::pollEvents()
             // exit if the window is closed
             case SDL_QUIT:
                 shutdown();
-            return;
-
-            case SDL_ACTIVEEVENT:
-                switch(event.active.type)
-                {
-                    case SDL_APPACTIVE:
-                        if(1 == event.active.gain)
-                        {
-                            // the application has recovered from being minimized
-                            // the textures need to be reloaded into OpenGL memory
-                            gfx_system_reload_all_textures();
-                        }
-                    break;
-
-                    case SDL_APPMOUSEFOCUS:
-                        // gained or lost mouse focus
-                        mous.on = (1 == event.active.gain) ? true : false;
-                    break;
-
-                    case SDL_APPINPUTFOCUS:
-                        // gained or lost keyboard focus
-                        keyb.on = (1 == event.active.gain) ? true : false;
-                    break;
+                return;
+                
+            case SDL_WINDOWEVENT:
+                switch (event.window.event) {
+                    case SDL_WINDOWEVENT_SHOWN:
+                        /// @todo: this shouldn't be needed?
+                        gfx_system_reload_all_textures();
+                        break;
+                    case SDL_WINDOWEVENT_ENTER:
+                        mous.on = true;
+                        break;
+                    case SDL_WINDOWEVENT_LEAVE:
+                        mous.on = false;
+                        break;
+                    case SDL_WINDOWEVENT_FOCUS_GAINED:
+                        keyb.on = true;
+                        break;
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                        keyb.on = false;
+                        break;
+                    case SDL_WINDOWEVENT_RESIZED:
+                        // The video has been resized.
+                        // If the game is active, some camera info mught need to be recalculated
+                        // and possibly the auto-formatting for the menu system and the ui system
+                        
+                        // grab all the new SDL screen info
+                        SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
+                        break;
+                    case SDL_WINDOWEVENT_EXPOSED:
+                        // something has been done to the screen and it needs to be re-drawn.
+                        // For instance, a window above the app window was moved. This has no
+                        // effect on the game at the moment.
+                        break;
+                        
                 }
-            break;
-
-            case SDL_VIDEORESIZE:
-                if ( SDL_VIDEORESIZE == event.resize.type )
-                {
-                    // The video has been resized.
-                    // If the game is active, some camera info mught need to be recalculated
-                    // and possibly the auto-formatting for the menu system and the ui system
-
-                    // grab all the new SDL screen info
-                    SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
-                }
-            break;
-
-            case SDL_VIDEOEXPOSE:
-                // something has been done to the screen and it needs to be re-drawn.
-                // For instance, a window above the app window was moved. This has no
-                // effect on the game at the moment.
-            break;
-
+                break;
+                
+            case SDL_MOUSEWHEEL:
+                _currentGameState->notifyMouseScrolled(event.wheel.y);
+                input_cursor.z += event.wheel.y;
+                input_cursor.wheel_event = true;
+                break;
+                
             case SDL_MOUSEBUTTONDOWN:
-                if ( event.button.button == SDL_BUTTON_WHEELUP )
-                {
-                    _currentGameState->notifyMouseScrolled(1);
-                    input_cursor.z++;
-                    input_cursor.wheel_event = true;
-                }
-                else if ( event.button.button == SDL_BUTTON_WHEELDOWN )
-                {
-                    _currentGameState->notifyMouseScrolled(-1);
-                    input_cursor.z--;
-                    input_cursor.wheel_event = true;
-                }
-                else
-                {
-                    _currentGameState->notifyMouseClicked(event.button.button, event.button.x, event.button.y);
-                    input_cursor.pending_click = true;
-                }
-            break;         
-
+                _currentGameState->notifyMouseClicked(event.button.button, event.button.x, event.button.y);
+                input_cursor.pending_click = true;
+                break;
+                
             case SDL_MOUSEMOTION:
                 mous.x = event.motion.x;
                 mous.y = event.motion.y;
                 _currentGameState->notifyMouseMoved(event.motion.x, event.motion.y);
-            break;
-
+                break;
+                
             case SDL_KEYDOWN:
                 _currentGameState->notifyKeyDown(event.key.keysym.sym);
-            break;
+                break;
         }
     } // end of message processing
 }

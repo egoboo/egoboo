@@ -51,9 +51,9 @@ VideoOptionsScreen::VideoOptionsScreen() :
 
 	//Build list of available resolutions
 	int yOffset = 20;
-    for (int i = 0; nullptr != sdl_scr.video_mode_list[i]; ++i )
+    for (const auto &mode : sdl_scr.video_mode_list)
     {
-    	yOffset = addResolutionButton(sdl_scr.video_mode_list[i]->w, sdl_scr.video_mode_list[i]->h, yOffset);
+    	yOffset = addResolutionButton(mode.w, mode.h, yOffset);
     }
     
     _resolutionList->forceUpdate();
@@ -90,8 +90,8 @@ void VideoOptionsScreen::drawContainer()
 
 void VideoOptionsScreen::beginState()
 {
-	// menu settings
-    SDL_WM_GrabInput(SDL_GRAB_OFF);
+    // menu settings
+    SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
     _gameEngine->enableMouseCursor();
 }
 

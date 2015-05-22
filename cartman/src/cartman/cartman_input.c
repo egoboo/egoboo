@@ -86,7 +86,7 @@ bool check_keys( Uint32 resolution )
     }
     if (Cartman::Input::get()._keyboard.needs_update)
     {
-        Cartman::Input::get()._keyboard.sdlbuffer = SDL_GetKeyState(&(Cartman::Input::get()._keyboard.count));
+        Cartman::Input::get()._keyboard.sdlbuffer = SDL_GetKeyboardState(&(Cartman::Input::get()._keyboard.count));
         Cartman::Input::get()._keyboard.needs_update = false;
     }
 
@@ -113,26 +113,25 @@ void Cartman::Input::checkInput()
 
         switch (evt.type)
         {
-            case SDL_ACTIVEEVENT:
-
-                if (HAS_BITS( evt.active.state, SDL_APPMOUSEFOCUS))
-                {
-                    _mouse.on = ( 1 == evt.active.gain );
-                }
-
-                if ( HAS_BITS( evt.active.state, SDL_APPINPUTFOCUS ) )
-                {
-                    _keyboard.on = (1 == evt.active.gain);
-                    if (_keyboard.on) _keyboard.needs_update = true;
-                }
-
-                if (HAS_BITS(evt.active.state, SDL_APPACTIVE))
-                {
-                    if ( 1 != evt.active.gain )
-                    {
+            case SDL_WINDOWEVENT:
+                switch (evt.window.event) {
+                    case SDL_WINDOWEVENT_HIDDEN:
                         _mouse.on = false;
                         _keyboard.on = false;
-                    }
+                        break;
+                    case SDL_WINDOWEVENT_ENTER:
+                        _mouse.on = true;
+                        break;
+                    case SDL_WINDOWEVENT_LEAVE:
+                        _mouse.on = false;
+                        break;
+                    case SDL_WINDOWEVENT_FOCUS_GAINED:
+                        _keyboard.on = true;
+                        _keyboard.needs_update = true;
+                        break;
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                        _keyboard.on = false;
+                        break;
                 }
                 break;
 
@@ -329,9 +328,10 @@ Cartman::Keyboard::~Keyboard()
 
 bool Cartman::Keyboard::isKeyDown(Cartman::Keyboard *self,int key)
 {
-    if (!self->on || self->override || (key >= self->count)) return false;
+    SDL_Scancode actualKey = SDL_GetScancodeFromKey(key);
+    if (!self->on || self->override || (actualKey >= self->count)) return false;
     if (!self->sdlbuffer) return false;
-    return self->sdlbuffer[key];
+    return self->sdlbuffer[actualKey];
 }
 
 bool Cartman::Keyboard::isModDown(Cartman::Keyboard *self, int mod)

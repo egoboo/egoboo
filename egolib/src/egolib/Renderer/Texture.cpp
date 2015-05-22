@@ -213,7 +213,9 @@ bool IMG_test_alpha_key(SDL_Surface *surface, Uint32 key)
 
     // If the overall alpha marks the surface as not fully opaque,
     // it is partially transparent and hence requires alpha blending.
-    if (0xff != format->alpha)
+    uint8_t alpha;
+    SDL_GetSurfaceAlphaMod(surface, &alpha);
+    if (0xff != alpha)
     {
         return true;
     }

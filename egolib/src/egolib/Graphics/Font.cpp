@@ -135,6 +135,7 @@ namespace Ego
         sdlColor.r = static_cast<Uint8>(colour.getRed() * 255);
         sdlColor.g = static_cast<Uint8>(colour.getGreen() * 255);
         sdlColor.b = static_cast<Uint8>(colour.getBlue() * 255);
+        sdlColor.a = 255;
         
         SDL_Surface *textSurface = TTF_RenderUTF8_Blended(_ttfFont, text.c_str(), sdlColor);
         if (!textSurface)

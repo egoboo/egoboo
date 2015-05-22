@@ -35,24 +35,12 @@
 /// A structure holding some of SDL's video data
     struct SDLX_sdl_video_flags_t
     {
-        unsigned hw_surface: 1;       ///< SDL_HWSURFACE   - Surface is in video memory
-        unsigned async_blit: 1;       ///< SDL_ASYNCBLIT   - Use asynchronous blits if possible
-        unsigned any_format: 1;       ///< SDL_ANYFORMAT   - Allow any video depth/pixel-format
-        unsigned hw_palette: 1;       ///< SDL_HWPALETTE   - Surface has exclusive palette
-        unsigned double_buf: 1;       ///< SDL_DOUBLEBUF   - Set up double-buffered video mode
-        unsigned full_screen: 1;      ///< SDL_FULLSCREEN  - Surface is a full screen display
-        unsigned opengl: 1;           ///< SDL_OPENGL      - Create an OpenGL rendering context
-        unsigned opengl_blit: 1;      ///< SDL_OPENGLBLIT  - Create an OpenGL rendering context and use it for blitting
-        unsigned resizable: 1;        ///< SDL_RESIZABLE   - This video mode may be resized
-        unsigned no_frame: 1;         ///< SDL_NOFRAME     - No window caption or edge frame
-
-        // read-only data
-        unsigned use_hwaccel: 1;      ///< SDL_HWACCEL     - Surface blit uses hardware acceleration
-        unsigned has_srccolorkey: 1;  ///< SDL_SRCCOLORKEY - Surface use colorkey blitting
-        unsigned use_rleaccelok: 1;   ///< SDL_RLEACCELOK  - Private flag
-        unsigned use_rleaccel: 1;     ///< SDL_RLEACCEL    - Colorkey blitting is accelerated with RLE
-        unsigned use_srcalpha: 1;     ///< SDL_SRCALPHA    - Surface blit uses alpha blending
-        unsigned is_prealloc: 1;      ///< SDL_PREALLOC    - Surface uses preallocated memory
+        unsigned full_screen: 1;      ///< SDL_WINDOW_FULLSCREEN    - Window is a full screen display
+        unsigned opengl: 1;           ///< SDL_WINDOW_OPENGL        - Create an OpenGL rendering context
+        unsigned resizable: 1;        ///< SDL_WINDOW_RESIZABLE     - Window may be resized
+        unsigned borderless: 1;       ///< SDL_WINDOW_BORDERLESS    - No window caption or edge frame
+        unsigned use_desktop_size: 1; ///< SDL_WINDOW_FULLSCREEN_DESKTOP - Window uses desktop size in fullscreen, requires full_screen to be set
+        unsigned highdpi: 1;          ///< SDL_WINDOW_ALLOW_HIGHDPI - Supports High-DPI mode (Apple 'Retina')
 
         static void report(SDLX_sdl_video_flags_t *self);
         static void defaults(SDLX_sdl_video_flags_t *self);
@@ -87,32 +75,22 @@
 /// A representation of a SDL Screen state
     struct SDLX_screen_info_t
     {
-        // JF - Added so that the video mode might be determined outside of the graphics code
-        SDL_Surface *pscreen;
+        SDL_Window *window;
 
-        SDL_Rect **video_mode_list;
+        std::vector<SDL_DisplayMode> video_mode_list;
 
-        char szDriver[256];    ///< graphics driver name;
+        std::string szDriver;    ///< graphics driver name;
 
-        int d;                ///< Screen bit depth
-        int x;                ///< Screen X size
-        int y;                ///< Screen Y size
+        int x;                ///< Screen X size @todo rename to width
+        int y;                ///< Screen Y size @todo rename to height
+        int drawWidth;        ///< Framebuffer width (may be different with high DPI on)
+        int drawHeight;       ///< Framebuffer height (may be different with high DPI on)
 
         // SDL OpenGL attributes
         SDLX_sdl_gl_attrib_t gl_att;
 
         // bitfield for SDL video flags
         SDLX_sdl_video_flags_t flags;
-
-        // selected SDL bitfields
-        unsigned hw_available: 1;
-        unsigned wm_available: 1;
-        unsigned blit_hw: 1;
-        unsigned blit_hw_CC: 1;
-        unsigned blit_hw_A: 1;
-        unsigned blit_sw: 1;
-        unsigned blit_sw_CC: 1;
-        unsigned blit_sw_A: 1;
 
         static void report(SDLX_screen_info_t *self);
     };
@@ -130,7 +108,7 @@
         SDLX_sdl_video_flags_t flags;
         SDLX_sdl_gl_attrib_t gl_att;
 
-        SDL_Surface *surface;
+        SDL_Window *surface;
 
         static void report(SDLX_video_parameters_t *self);
         static void defaults(SDLX_video_parameters_t *self);
@@ -142,28 +120,19 @@
 
     extern SDLX_screen_info_t sdl_scr;
 
-    extern const Uint32 rmask;
-    extern const Uint32 gmask;
-    extern const Uint32 bmask;
-    extern const Uint32 amask;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// Grab the current SDL screen information
     SDL_bool      SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool display );
 
-/// Use a SDLX_video_parameters_t structure to request a SDL video mode
-    SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_report );
+/// Use a SDLX_video_parameters_t structure to create window
+    SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, SDL_bool make_report );
 
 /// Use a SDLX_video_parameters_t structure to try to set a SDL video mode directly
 /// on success, it returns a pointer to the actual data used to set the mode. On failure,
 /// it resets the mode to v_old (if possible), and returns a pointer to the restored parameters
     SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool has_valid_mode, SDL_bool make_report );
 
-/// Determine the minimum changes to the current pixel format to accomodate the requested format
-/// Mostly used to add an alpha channel to a SDL_Surface
-    SDL_bool SDLX_ExpandFormat( SDL_PixelFormat * pformat );
-
 /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
-    void   SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v );
+    void   SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t * v );

@@ -90,16 +90,16 @@ static const scantag_t scantag_lst[] = {
     {"KEY_Y", SDLK_y},
     {"KEY_Z", SDLK_z},
     {"KEY_DELETE", SDLK_DELETE},
-    {"KEY_PAD_0", SDLK_KP0},
-    {"KEY_PAD_1", SDLK_KP1},
-    {"KEY_PAD_2", SDLK_KP2},
-    {"KEY_PAD_3", SDLK_KP3},
-    {"KEY_PAD_4", SDLK_KP4},
-    {"KEY_PAD_5", SDLK_KP5},
-    {"KEY_PAD_6", SDLK_KP6},
-    {"KEY_PAD_7", SDLK_KP7},
-    {"KEY_PAD_8", SDLK_KP8},
-    {"KEY_PAD_9", SDLK_KP9},
+    {"KEY_PAD_0", SDLK_KP_0},
+    {"KEY_PAD_1", SDLK_KP_1},
+    {"KEY_PAD_2", SDLK_KP_2},
+    {"KEY_PAD_3", SDLK_KP_3},
+    {"KEY_PAD_4", SDLK_KP_4},
+    {"KEY_PAD_5", SDLK_KP_5},
+    {"KEY_PAD_6", SDLK_KP_6},
+    {"KEY_PAD_7", SDLK_KP_7},
+    {"KEY_PAD_8", SDLK_KP_8},
+    {"KEY_PAD_9", SDLK_KP_9},
     {"KEY_PAD_PERIOD", SDLK_KP_PERIOD},
     {"KEY_PAD_SLASH", SDLK_KP_DIVIDE},
     {"KEY_PAD_ASTERISK", SDLK_KP_MULTIPLY},
@@ -133,19 +133,19 @@ static const scantag_t scantag_lst[] = {
     {"KEY_F15", SDLK_F15},
     
     // key modifiers
-    {"KEY_NUM_LOCK", SDLK_NUMLOCK},
+    {"KEY_NUM_LOCK", SDLK_NUMLOCKCLEAR},
     {"KEY_CAPS_LOCK", SDLK_CAPSLOCK},
-    {"KEY_SCROLL_LOCK", SDLK_SCROLLOCK},
+    {"KEY_SCROLL_LOCK", SDLK_SCROLLLOCK},
     {"KEY_RIGHT_SHIFT", SDLK_RSHIFT},
     {"KEY_LEFT_SHIFT", SDLK_LSHIFT},
     {"KEY_RIGHT_CONTROL", SDLK_RCTRL},
     {"KEY_LEFT_CONTROL", SDLK_LCTRL},
     {"KEY_RIGHT_ALT", SDLK_RALT},
     {"KEY_LEFT_ALT", SDLK_LALT},
-    {"KEY_RIGHT_META", SDLK_RMETA},
-    {"KEY_LEFT_META", SDLK_LMETA},
-    {"KEY_RIGHT_SUPER", SDLK_LSUPER},
-    {"KEY_LEFT_SUPER", SDLK_RSUPER},
+    {"KEY_RIGHT_META", SDLK_RGUI},
+    {"KEY_LEFT_META", SDLK_LGUI},
+    {"KEY_RIGHT_SUPER", SDLK_LGUI},
+    {"KEY_LEFT_SUPER", SDLK_RGUI},
     
     // mouse button bits
     {"MOS_LEFT", 1},
@@ -204,32 +204,30 @@ static const size_t scantag_count = sizeof(scantag_lst) / sizeof(scantag_lst[0])
 //--------------------------------------------------------------------------------------------
 Uint32 scancode_get_kmod( Uint32 scancode )
 {
+    
     Uint32 kmod = 0;
-
+    
     switch ( scancode )
     {
-        case SDLK_NUMLOCK:  kmod = KMOD_NUM;    break;
+        case SDLK_NUMLOCKCLEAR:  kmod = KMOD_NUM;    break;
         case SDLK_CAPSLOCK: kmod = KMOD_CAPS;   break;
-        case SDLK_RSHIFT:   kmod = KMOD_LSHIFT; break;
-        case SDLK_LSHIFT:   kmod = KMOD_RSHIFT; break;
-        case SDLK_RCTRL:    kmod = KMOD_LCTRL;  break;
-        case SDLK_LCTRL:    kmod = KMOD_RCTRL;  break;
-        case SDLK_RALT:     kmod = KMOD_LALT;   break;
-        case SDLK_LALT:     kmod = KMOD_RALT;   break;
-        case SDLK_RMETA:    kmod = KMOD_LMETA;  break;
-        case SDLK_LMETA:    kmod = KMOD_RMETA;  break;
-
+        case SDLK_LSHIFT:   kmod = KMOD_LSHIFT; break;
+        case SDLK_RSHIFT:   kmod = KMOD_RSHIFT; break;
+        case SDLK_LCTRL:    kmod = KMOD_LCTRL;  break;
+        case SDLK_RCTRL:    kmod = KMOD_RCTRL;  break;
+        case SDLK_LALT:     kmod = KMOD_LALT;   break;
+        case SDLK_RALT:     kmod = KMOD_RALT;   break;
+        case SDLK_LGUI:     kmod = KMOD_LGUI;  break;
+        case SDLK_RGUI:     kmod = KMOD_RGUI;  break;
+        case SDLK_MODE:     kmod = KMOD_MODE;  break;
+            
             // unhandled cases
-        case SDLK_SCROLLOCK:
-        case SDLK_LSUPER:
-        case SDLK_RSUPER:
-        case SDLK_MODE:
-        case SDLK_COMPOSE:
+        case SDLK_SCROLLLOCK:
         default:
             kmod = 0;
             break;
     }
-
+    
     return kmod;
 }
 

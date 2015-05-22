@@ -75,7 +75,7 @@ void VictoryScreen::drawContainer()
 
 void VictoryScreen::beginState()
 {
-	// menu settings
-    SDL_WM_GrabInput( SDL_GRAB_OFF );
+    // menu settings
+    SDL_SetWindowGrab(sdl_scr.window, SDL_FALSE);
     _gameEngine->enableMouseCursor();
 }

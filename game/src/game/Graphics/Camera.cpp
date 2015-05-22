@@ -305,36 +305,36 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
     {
     // The camera is controlled by the keypad.
     case CameraMovementMode::Free:
-	        if (SDL_KEYDOWN(keyb, SDLK_KP8))
+	        if (SDL_KEYDOWN(keyb, SDLK_KP_8))
 	        {
 	            _trackPos[kX] -= _mView.CNV(0, 1) * 50;
 	            _trackPos[kY] -= _mView.CNV(1, 1) * 50;
 	        }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP2))
+	        if (SDL_KEYDOWN(keyb, SDLK_KP_2))
 	        {
 	            _trackPos[kX] += _mView.CNV(0, 1) * 50;
 	            _trackPos[kY] += _mView.CNV(1, 1) * 50;
 	        }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP4))
+	        if (SDL_KEYDOWN(keyb, SDLK_KP_4))
 	        {
 	            _trackPos[kX] += _mView.CNV( 0, 0 ) * 50;
 	            _trackPos[kY] += _mView.CNV( 1, 0 ) * 50;
 	        }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP6))
+	        if (SDL_KEYDOWN(keyb, SDLK_KP_6))
 	        {
 	            _trackPos[kX] -= _mView.CNV(0, 0) * 10;
 	            _trackPos[kY] -= _mView.CNV(1, 0) * 10;
 	        }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP7))
+	        if (SDL_KEYDOWN(keyb, SDLK_KP_7))
 	        {
 	            _turnZAdd += DEFAULT_TURN_KEY;
 	        }
 
-	        if (SDL_KEYDOWN(keyb, SDLK_KP9))
+	        if (SDL_KEYDOWN(keyb, SDLK_KP_9))
 	        {
 	            _turnZAdd -= DEFAULT_TURN_KEY;
 	        }

@@ -27,6 +27,8 @@
 #include "egolib/Extensions/ogl_debug.h"
 #include "egolib/log.h"
 
+#include "egolib/Graphics/PixelFormat.hpp"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 oglx_caps_t g_ogl_caps;
@@ -42,9 +44,7 @@ void oglx_caps_t::report(oglx_caps_t *self)
     log_message("\tgl_vendor     == %s\n", self->gl_vendor);
     log_message("\tgl_renderer   == %s\n", self->gl_renderer);
     log_message("\tgl_extensions == %s\n", self->gl_extensions);
-
-    log_message("\tglu_version    == %s\n", self->glu_version);
-    log_message("\tglu_extensions == %s\n\n", self->glu_extensions);
+    log_message("\n");
 
     log_message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", self->max_modelview_stack_depth);
     log_message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", self->max_projection_stack_depth);
@@ -114,9 +114,6 @@ void oglx_Get_Screen_Info(oglx_caps_t *self)
     self->gl_vendor = GL_DEBUG(glGetString)(GL_VENDOR);
     self->gl_renderer = GL_DEBUG(glGetString)(GL_RENDERER);
     self->gl_extensions = GL_DEBUG(glGetString)(GL_EXTENSIONS);
-
-    self->glu_version = GL_DEBUG(gluGetString)(GLU_VERSION);
-    self->glu_extensions = GL_DEBUG(gluGetString)(GLU_EXTENSIONS);
 
     GL_DEBUG(glGetIntegerv)(GL_MAX_MODELVIEW_STACK_DEPTH, &self->max_modelview_stack_depth);
     GL_DEBUG(glGetIntegerv)(GL_MAX_PROJECTION_STACK_DEPTH, &self->max_projection_stack_depth);
@@ -367,9 +364,40 @@ void Utilities::upload_2d_mipmap(const Ego::PixelFormatDescriptor& pfd, GLsizei 
 {
     GLenum internalFormat_gl, format_gl, type_gl;
     toOpenGL(pfd, internalFormat_gl, format_gl, type_gl);
-    //GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
-    // Disable this for now, it is old, borked and caused troubles here.
-    GL_DEBUG(gluBuild2DMipmaps)(GL_TEXTURE_2D, internalFormat_gl, w, h, format_gl, type_gl, data);
+    GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, internalFormat_gl, w, h, 0, format_gl, type_gl, data);
+    
+    if (w == 1 && h == 1) return;
+    
+    uint32_t rMask = pfd.getRedMask();
+    uint32_t gMask = pfd.getGreenMask();
+    uint32_t bMask = pfd.getBlueMask();
+    uint32_t aMask = pfd.getAlphaMask();
+    int bpp = pfd.getBitsPerPixel();
+    
+    SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)data, w, h, bpp, w * bpp / 8, rMask, gMask, bMask, aMask);
+    SDL_assert(surf != nullptr);
+    
+    GLsizei newW = w;
+    GLsizei newH = h;
+    GLint level = 0;
+    
+    do {
+        if (newW > 1) newW /= 2;
+        if (newH > 1) newH /= 2;
+        level++;
+        
+        SDL_Surface *newSurf = SDL_CreateRGBSurface(0, newW, newH, bpp, rMask, gMask, bMask, aMask);
+        SDL_assert(newSurf != nullptr);
+        
+        /// @todo this is 'low-quality' and not thread-safe
+        SDL_SoftStretch(surf, nullptr, newSurf, nullptr);
+        
+        GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, level, internalFormat_gl, newW, newH, 0, format_gl, type_gl, newSurf->pixels);
+        SDL_FreeSurface(newSurf);
+    } while (!(newW == 1 && newH == 1));
+    
+    SDL_FreeSurface(surf);
+
 }
 
 void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode textureAddressModeS, Ego::TextureAddressMode textureAddressModeT)
