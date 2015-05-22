@@ -1,3 +1,0 @@
-C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/ALL_BUILD.dir
-C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/ZERO_CHECK.dir
-C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/enet.dir
