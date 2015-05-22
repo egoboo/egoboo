@@ -52,39 +52,39 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\vs2013\libraries.props" />
-    <Import Project="$(SolutionDir)\vs2013\enet.props" />
-    <Import Project="$(SolutionDir)\vs2013\physfs.props" />
-    <Import Project="$(SolutionDir)\vs2013\opengl.props" />
-    <Import Project="$(SolutionDir)\vs2013\sdl.props" />
-    <Import Project="$(SolutionDir)\vs2013\lua.props" />
+    <Import Project="..\vs2013\libraries.props" />
+    <Import Project="..\vs2013\enet.props" />
+    <Import Project="..\vs2013\physfs.props" />
+    <Import Project="..\vs2013\opengl.props" />
+    <Import Project="..\vs2013\sdl2.props" />
+    <Import Project="..\vs2013\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\vs2013\libraries.props" />
-    <Import Project="$(SolutionDir)\vs2013\enet.props" />
-    <Import Project="$(SolutionDir)\vs2013\physfs.props" />
-    <Import Project="$(SolutionDir)\vs2013\opengl.props" />
-    <Import Project="$(SolutionDir)\vs2013\sdl.props" />
-    <Import Project="$(SolutionDir)\vs2013\lua.props" />
+    <Import Project="..\vs2013\libraries.props" />
+    <Import Project="..\vs2013\enet.props" />
+    <Import Project="..\vs2013\physfs.props" />
+    <Import Project="..\vs2013\opengl.props" />
+    <Import Project="..\vs2013\sdl2.props" />
+    <Import Project="..\vs2013\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\vs2013\libraries.props" />
-    <Import Project="$(SolutionDir)\vs2013\enet.props" />
-    <Import Project="$(SolutionDir)\vs2013\physfs.props" />
-    <Import Project="$(SolutionDir)\vs2013\opengl.props" />
-    <Import Project="$(SolutionDir)\vs2013\sdl.props" />
-    <Import Project="$(SolutionDir)\vs2013\lua.props" />
+    <Import Project="..\vs2013\libraries.props" />
+    <Import Project="..\vs2013\enet.props" />
+    <Import Project="..\vs2013\physfs.props" />
+    <Import Project="..\vs2013\opengl.props" />
+    <Import Project="..\vs2013\sdl2.props" />
+    <Import Project="..\vs2013\lua.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(SolutionDir)\vs2013\libraries.props" />
-    <Import Project="$(SolutionDir)\vs2013\enet.props" />
-    <Import Project="$(SolutionDir)\vs2013\physfs.props" />
-    <Import Project="$(SolutionDir)\vs2013\opengl.props" />
-    <Import Project="$(SolutionDir)\vs2013\sdl.props" />
-    <Import Project="$(SolutionDir)\vs2013\lua.props" />
+    <Import Project="..\vs2013\libraries.props" />
+    <Import Project="..\vs2013\enet.props" />
+    <Import Project="..\vs2013\physfs.props" />
+    <Import Project="..\vs2013\opengl.props" />
+    <Import Project="..\vs2013\sdl2.props" />
+    <Import Project="..\vs2013\lua.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -306,20 +306,20 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </Link>
     <ProjectReference />
     <PostBuildEvent>
-      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+      <Command>xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
 
-xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_image-2.0.0\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_image-2.0.0\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_image-2.0.0\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_image-2.0.0\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
 
-xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -372,20 +372,20 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </Link>
     <ProjectReference />
     <PostBuildEvent>
-      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+      <Command>xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_mixer-2.0.0\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
 
-xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_image-2.0.0\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_image-2.0.0\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_image-2.0.0\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_image-2.0.0\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
 
-xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
-xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
