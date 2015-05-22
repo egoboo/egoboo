@@ -708,6 +708,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\external\SDL2-2.0.3\VisualC\SDL\SDL_VS2013.vcxproj">
+      <Project>{336e1cf1-31f8-4af3-bdf3-f6d4d5221ae7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\SDL2_image-2.0.0\VisualC\SDL_image_VS2013.vcxproj">
+      <Project>{051aaf6c-2640-40f8-992d-23e3a0f5def1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\SDL2_mixer-2.0.0\VisualC\SDL_mixer_VS2013.vcxproj">
+      <Project>{4fc99ae8-ec78-41fd-9293-78faa5eaabb5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\SDL2_ttf-2.0.12\VisualC\SDL_ttf_VS2013.vcxproj">
+      <Project>{d114a863-1bdc-4979-a61e-cb6b7ca5f1bb}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\idlib\idlib_vs13.vcxproj">
       <Project>{f59e5a93-844c-4c7f-bffa-c0e59785b9a2}</Project>
     </ProjectReference>
