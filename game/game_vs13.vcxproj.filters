@@ -331,9 +331,6 @@
     <ClInclude Include="src\game\link.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\mad.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\mesh.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>

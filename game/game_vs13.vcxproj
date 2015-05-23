@@ -516,7 +516,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\input.h" />
     <ClInclude Include="src\game\lighting.h" />
     <ClInclude Include="src\game\link.h" />
-    <ClInclude Include="src\game\mad.h" />
     <ClInclude Include="src\game\mesh.h" />
     <ClInclude Include="src\game\mesh_BSP.h" />
     <ClInclude Include="src\game\mesh_functions.h" />
