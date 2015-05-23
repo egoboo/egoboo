@@ -351,6 +351,9 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ProjectReference Include="..\egolib\egolib_vs13.vcxproj">
       <Project>{0f32dd35-a264-4906-8fc9-2d0fe0613230}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\external\SDL2-2.0.3\VisualC\SDLmain\SDLmain_VS2013.vcxproj">
+      <Project>{dd761575-1f8d-4a59-aa3b-10c61629aa64}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\cartman\res\cartman_icon.ico" />
