@@ -26,89 +26,89 @@
 #include "egolib/bsp.h"
 
 namespace Ego {
-	/**
-	 * @brief
-	 *	Data related to the totality of entities.
-	 */
-	struct Entities
+    /**
+     * @brief
+     *    Data related to the totality of entities.
+     */
+    struct Entities
     {
-		/**
-		 * @brief
-		 *	The number of entities currently being spawned.
-		 */
-		static Uint32 spawnDepth;
-		/**
-		 * @brief
-		 *	The next free entity GUID.
-		 */
-		static Ego::GUID nextGUID;
+        /**
+         * @brief
+         *    The number of entities currently being spawned.
+         */
+        static Uint32 spawnDepth;
+        /**
+         * @brief
+         *    The next free entity GUID.
+         */
+        static Ego::GUID nextGUID;
 
-	};
+    };
 };
 
 namespace Ego
 {
-	/// Entities are mutable elements of the game. Any mutable element of the game
-	/// (including but not restricted to characters, particles and enchantments) are
-	/// entities. This class encapsulates fields and methods which are inherited by
-	/// every entity.
-	struct Entity
-	{
-		/// The possible states of an entity.
-		/// An entity is essentially a state machine in the same way that the "Egoboo process" is,
-		/// so they use analagous states.
-		enum State
-		{
+    /// Entities are mutable elements of the game. Any mutable element of the game
+    /// (including but not restricted to characters, particles and enchantments) are
+    /// entities. This class encapsulates fields and methods which are inherited by
+    /// every entity.
+    struct Entity
+    {
+        /// The possible states of an entity.
+        /// An entity is essentially a state machine in the same way that the "Egoboo process" is,
+        /// so they use analagous states.
+        enum State
+        {
             /// The entity is in its invalid state i.e. its memory is not initialized.
-			Invalid = 0,
+            Invalid = 0,
             /// The entity is being constructed.
-			Constructing,
+            Constructing,
             /// The entity is being initialized/re-initialized.
-			Initializing,
+            Initializing,
             /// The entity is active.
             /// The successor to this state is the "deinitializing" state.
-			Active,
+            Active,
             /// The "deinitializing" state: The entity is being de-initialized.
             /// Successor to this state is the "destructing" state.
             DeInitializing,
             /// The entity is being destructed.
-			Destructing,
+            Destructing,
 
-			/// The entity was destructed is awaiting "deletion".
-			Waiting,
+            /// The entity was destructed is awaiting "deletion".
+            Waiting,
             /// The entity was "deleted". It should be moved to the "free" list and shall have its state set to "invalid".
             Terminated,
-		};
-		// basic object definitions
-		STRING             _name;      ///< what is its "_name"
-		size_t             index;      ///< what is the index position in the object list?
-		Entity::State      state;      ///< what state is it in?
-		Ego::GUID          guid;       ///< a globally unique identifier
+        };
+        // basic object definitions
+        STRING             _name;      ///< what is its "_name"
+        size_t             index;      ///< what is the index position in the object list?
+        Entity::State      state;      ///< what state is it in?
+        Ego::GUID          guid;       ///< a globally unique identifier
 
-		// "process" control control
+        // "process" control control
     protected:
-		bool             allocated;    ///< Does it exist?
+        bool             allocated;    ///< Does it exist?
     public:
-		bool             on;           ///< Can it be accessed?
-		bool             turn_me_on;   ///< Has someone requested that the object be turned on?
-		bool             kill_me;      ///< Has someone requested that the object be destroyed?
-		bool             spawning;     ///< is the object in the midst of being created?
+        bool             on;           ///< Can it be accessed?
+        bool             turn_me_on;   ///< Has someone requested that the object be turned on?
+        bool             kill_me;      ///< Has someone requested that the object be destroyed?
+        bool             spawning;     ///< is the object in the midst of being created?
 
-		bool             in_free_list; ///< the object is currently in the free list
-		bool             in_used_list; ///< the object is currently in the used list
+        bool             in_free_list; ///< the object is currently in the free list
+        bool             in_used_list; ///< the object is currently in the used list
 
-		/// Things related to the updating of objects.
-		size_t         update_count;   ///< How many updates have been made to this object?
-		size_t         frame_count;    ///< How many frames have been rendered?
+        /// Things related to the updating of objects.
+        size_t         update_count;   ///< How many updates have been made to this object?
+        size_t         frame_count;    ///< How many frames have been rendered?
 
-		Ego::GUID      update_guid;       ///< a value that lets you know if an object bookmark is in synch with the object list
+        Ego::GUID      update_guid;       ///< a value that lets you know if an object bookmark is in synch with the object list
 
-		/// The BSP leaf for this object.
-		/// Moved to here so that is is not destroyed in the destructor of the inherited object.
-		BSP_leaf_t     bsp_leaf;
+        /// The BSP leaf for this object.
+        /// Moved to here so that is is not destroyed in the destructor of the inherited object.
+        BSP_leaf_t     bsp_leaf;
 
-		Ego::Entity *ctor(void *child_data, bsp_type_t child_type, size_t child_index);
-		Ego::Entity *dtor();
+        Ego::Entity *ctor(void *child_data, bsp_type_t child_type, size_t child_index);
+        Ego::Entity *dtor();
 
         /// @brief Is this entity is marked as "allocated"?
         /// @return @a true if this entity is marked as "allocated", @a false otherwise
@@ -154,7 +154,7 @@ namespace Ego
             on = false;
             state = State::Terminated;
         }
-	};
+    };
 };
 
 //--------------------------------------------------------------------------------------------

@@ -61,28 +61,28 @@ protected:
 
 
 public:
-    /**
-    * @brief
-    *  Construct his abstract profile system.
-    * @param profileTypeName
-    *  the profile type name e.g. "enchant", "particle" or "object"
-    * @param debugPathName
-    *  the path name of a file into which debug information about this abstract profile system is dumped in
-    */
 
+    /**
+     * @brief
+     *  Construct his abstract profile system.
+     * @param profileTypeName
+     *  the profile type name e.g. "enchant", "particle" or "object"
+     * @param debugPathName
+     *  the path name of a file into which debug information about this abstract profile system is dumped in
+     */
     AbstractProfileSystem(const std::string& profileTypeName,const std::string& debugPathName) :
         _map(),
         _profileTypeName(profileTypeName), 
         _debugPathName(debugPathName) {
         /* Intentionally empty. */
     }
-    /**
-    * @brief
-    *  Destruct this abstract profile system.
-    * @remark
-    *  Intentionally protected.
-    */
 
+    /**
+     * @brief
+     *  Destruct this abstract profile system.
+     * @remark
+     *  Intentionally protected.
+     */
     virtual ~AbstractProfileSystem() {
         /* Intentionally empty. */
     }
@@ -194,75 +194,75 @@ public:
     }
 
     /**
-    * @brief
-    *  Statistics about an abstract profile system.
-    */
+     * @brief
+     *  Statistics about an abstract profile system.
+     */
     struct Stats {
         /**
-        * @brief
-        *  The number of loaded profiles i.e.
-        *  \f{align*}{
-        *  \left|\left\{p | p \in Profiles \wedge p.loaded = true\right\}\right|
-        *  \f}
-        *  where \f$Profiles\f$ is the set of profiles.
-        */
+         * @brief
+         *  The number of loaded profiles i.e.
+         *  \f{align*}{
+         *  \left|\left\{p | p \in Profiles \wedge p.loaded = true\right\}\right|
+         *  \f}
+         *  where \f$Profiles\f$ is the set of profiles.
+         */
         size_t _loadedCount;
         /**
-        * @brief
-        *  The maximum spawn count (of all profiles) i.e.
-        *  \f{align*}{
-        *  \begin{cases}
-        *  \max_{i=0}^n\left(p_i._spawnCount\right) & \text{if }n > 0\\
-        *  0                                        & \text{otherwise}
-        *  \end{cases}
-        *  \f}
-        *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
-        */
+         * @brief
+         *  The maximum spawn count (of all profiles) i.e.
+         *  \f{align*}{
+         *  \begin{cases}
+         *  \max_{i=0}^n\left(p_i._spawnCount\right) & \text{if }n > 0\\
+         *  0                                        & \text{otherwise}
+         *  \end{cases}
+         *  \f}
+         *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
+         */
         size_t _maxSpawnCount;
         /**
-        * @brief
-        *  The spawn count sum (of all profiles) i.e.
-        *  \f{align*}{
-        *  \begin{cases}
-        *  \sum_{i=0}^n p_i._spawnCount & \text{if }n > 0\\
-        *  0                            & \text{otherwise}
-        *  \end{cases}
-        *  \f}
-        *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
-        */
+         * @brief
+         *  The spawn count sum (of all profiles) i.e.
+         *  \f{align*}{
+         *  \begin{cases}
+         *  \sum_{i=0}^n p_i._spawnCount & \text{if }n > 0\\
+         *  0                            & \text{otherwise}
+         *  \end{cases}
+         *  \f}
+         *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
+         */
         size_t _sumSpawnCount;
+
         /**
-        */
-        /**
-        * @brief
-        *  The maximum spawn request count (of all profiles) i.e.
-        *  \f{align*}{
-        *  \begin{cases}
-        *  \max_{i=0}^n\left(p_i._spawnRequestCount\right) & \text{if }n > 0\\
-        *  0                                               & \text{otherwise}
-        *  \end{cases}
-        *  \f}
-        *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
-        */
+         * @brief
+         *  The maximum spawn request count (of all profiles) i.e.
+         *  \f{align*}{
+         *  \begin{cases}
+         *  \max_{i=0}^n\left(p_i._spawnRequestCount\right) & \text{if }n > 0\\
+         *  0                                               & \text{otherwise}
+         *  \end{cases}
+         *  \f}
+         *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
+         */
         size_t _maxSpawnRequestCount;
+        
         /**
-        * @brief
-        *  The spawn request count sum (of all profiles) i.e.
-        *  \f{align*}{
-        *  \begin{cases}
-        *  \sum_{i=0}^n p_i._spawnRequestCount & \text{if }n > 0\\
-        *  0                                   & \text{otherwise}
-        *  \end{cases}
-        *  \f}
-        *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
-        */
+         * @brief
+         *  The spawn request count sum (of all profiles) i.e.
+         *  \f{align*}{
+         *  \begin{cases}
+         *  \sum_{i=0}^n p_i._spawnRequestCount & \text{if }n > 0\\
+         *  0                                   & \text{otherwise}
+         *  \end{cases}
+         *  \f}
+         *  where \f$n=|Profiles|\f$ is the magnitude of the set of profiles.
+         */
         size_t _sumSpawnRequestCount;
     };
 
     /**
-    * @brief
-    *  Get the statistics of this abstract profile system.
-    */
+     * @brief
+     *  Get the statistics of this abstract profile system.
+     */
     Stats getStats() {
         Stats stats;
         stats._loadedCount = 0;
@@ -286,10 +286,10 @@ public:
     }
 
     /**
-    * @brief
-    *  Dump information (including the statistics) of this profile into the debug file of this
-    *  abstract profile system.
-    */
+     * @brief
+     *  Dump information (including the statistics) of this profile into the debug file of this
+     *  abstract profile system.
+     */
     void dump() {
         std::ofstream os;
         os.open(_debugPathName, std::ofstream::out | std::ofstream::app);
@@ -302,11 +302,11 @@ public:
 
 
     /**
-    * @brief
-    *  Dump information (including the stastics) of this profile system into an output stream.
-    * @param os
-    *  the output stream
-    */
+     * @brief
+     *  Dump information (including the stastics) of this profile system into an output stream.
+     * @param os
+     *  the output stream
+     */
     void dump(std::ostream& os) {
         const auto stats = getStats();
 
