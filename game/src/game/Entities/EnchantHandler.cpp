@@ -219,7 +219,7 @@ ENC_REF EnchantHandler::allocate(const ENC_REF override)
     if (ALLOCATED_ENC(ref))
     {
         // construct the new structure
-        enc_t::config_construct(get_ptr(ref), 100 );
+        get_ptr(ref)->config_construct(100);
     }
 
     return ref;
@@ -366,10 +366,8 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     penc->spawn_data.eve_ref = eve_ref;
 
     // actually force the character to spawn
-    penc = enc_t::config_activate(penc, 100);
-
     // log all the successful spawns
-    if (NULL != penc)
+    if (penc->config_activate(100))
     {
         POBJ_END_SPAWN(penc);
         peve->_spawnCount++;

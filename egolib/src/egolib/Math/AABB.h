@@ -90,19 +90,7 @@ struct aabb_t
 	 * @remark
 	 *	The default values of a bounding box are the center of @a (0,0,0) and the size of @a 0 along all axes
 	 */
-	aabb_t *ctor()
-	{
-		for (size_t i = 0; i < 3; ++i)
-		{
-			mins[i] = maxs[i] = 0.0f;
-		}
-		return this;
-	}
-	/**
-	 * @brief
-	 *	Destruct this bounding box.
-	 */
-	void dtor()
+	void reset()
 	{
 		for (size_t i = 0; i < 3; ++i)
 		{

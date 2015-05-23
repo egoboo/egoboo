@@ -2034,7 +2034,7 @@ ego_tile_info_t *ego_tile_info_t::ctor(ego_tile_info_t *self, int index)
     self->request_clst_update = false;
     self->clst_frame = -1;
 
-    self->bsp_leaf.ctor(self, BSP_LEAF_TILE, index);
+    self->bsp_leaf.set(self, BSP_LEAF_TILE, index);
 
     return self;
 }

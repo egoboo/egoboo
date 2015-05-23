@@ -140,7 +140,7 @@ protected:
         // Request that the sub-objects destroy themselves.
         for (size_t i = 0; i < getCount(); ++i)
         {
-            TYPE::config_deconstruct(get_ptr(i), 100);
+            get_ptr(i)->config_deconstruct(100);
         }
         clear();
     }
@@ -363,11 +363,13 @@ public:
         {
             // Ensure that the entity reaches the "destructing" state.
             // @todo This is redundant.
-            obj = TYPE::config_deinitialize(obj, 100);
-            if (!obj) return false;
+            if (!obj->config_deinitialize(100)) {
+                return false;
+            }
             // Ensure that the entity reaches the "terminated" state.
-            obj = TYPE::config_deconstruct(obj, 100);
-            if (!obj) return false;
+            if (!obj->config_deconstruct(100)) {
+                return false;
+            }
 
             if (parentObj->in_used_list)
             {

@@ -37,14 +37,25 @@ namespace Ego
 //--------------------------------------------------------------------------------------------
 Ego::Entity *Ego::Entity::ctor(void *child_data, bsp_type_t child_type, size_t child_index)
 {
-    BLANK_STRUCT_PTR(this);
+    this->guid = 0;
+    this->allocated = false;
+    this->on = false;
+    this->turn_me_on = false;
+    this->kill_me = false;
+    this->spawning = false;
+    this->in_free_list = false;
+    this->in_used_list = false;
+    /// Things related to the updating of objects.
+    this->update_count = 0;
+    this->frame_count = 0;
+    this->update_guid = 0;
 
     this->_name[0] = CSTR_END;
     this->state = Ego::Entity::State::Invalid;
     this->index = child_index;
 
-    // Construct the BSP node for this entity.
-    this->bsp_leaf.ctor(child_data, child_type, child_index);
+    // Assign data to the BSP node.
+    this->bsp_leaf.set(child_data, child_type, child_index);
 
     return this;
 }
@@ -54,8 +65,18 @@ Ego::Entity *Ego::Entity::dtor()
 {
     this->_name[0] = CSTR_END;
     this->state = Ego::Entity::State::Invalid;
-    // Destruct the BSP node for this entity.
-    this->bsp_leaf.dtor();
-    BLANK_STRUCT_PTR(this);
+    // Assign data to the BSP node.
+    this->bsp_leaf.set(nullptr, BSP_LEAF_NONE, 0);
+    this->guid = 0;
+    this->allocated = false;
+    this->on = false;
+    this->turn_me_on = false;
+    this->kill_me = false;
+    this->spawning = false;
+    this->in_free_list = false;
+    this->in_used_list = false;
+    this->update_count = 0;
+    this->frame_count = 0;
+    this->update_guid = 0;
     return this;
 }

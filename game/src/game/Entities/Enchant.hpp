@@ -70,7 +70,7 @@ struct enc_spawn_data_t
  * @extends
  *  Ego::Entity
  */
-struct enc_t : public _StateMachine < enc_t, EnchantHandler >
+struct enc_t : public _StateMachine<enc_t, ENC_REF, EnchantHandler>
 {
     enc_spawn_data_t spawn_data;
 
@@ -119,15 +119,15 @@ struct enc_t : public _StateMachine < enc_t, EnchantHandler >
     static bool free(enc_t *self);
 
     // enchant state machine function
-    enc_t *config_do_ctor();
+    enc_t *config_do_ctor() override;
     // enchant state machine function
-    enc_t *config_do_init();
+    enc_t *config_do_init() override;
     // enchant state machine function
-    enc_t *config_do_active();
+    enc_t *config_do_active() override;
     // enchant state machine function
-    void config_do_deinit();
+    void config_do_deinit() override;
     // enchant state machine function
-    void config_do_dtor();
+    void config_do_dtor() override;
 };
 
 

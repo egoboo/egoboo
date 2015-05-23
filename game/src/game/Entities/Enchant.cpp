@@ -1402,7 +1402,9 @@ void update_all_enchants()
     // update all enchants
     for ( ienc = 0; ienc < ENCHANTS_MAX; ienc++ )
     {
-        enc_t::run_config( EnchantHandler::get().get_ptr( ienc ) );
+        enc_t *enc = EnchantHandler::get().get_ptr(ienc);
+        if (!enc) continue;
+        enc->run_config();
     }
 
     // fix the stat timer

@@ -211,25 +211,14 @@ BSP::SubspaceIndex _find_child_index(const BSP_aabb_t *branchAABB, const aabb_t 
 }
 
 //--------------------------------------------------------------------------------------------
-BSP_leaf_t *BSP_leaf_t::ctor(void *data, bsp_type_t type, size_t index)
+void BSP_leaf_t::set(void *data, bsp_type_t type, size_t index)
 {
 	this->next = nullptr;
 	this->inserted = false;
 	this->data_type = type;
 	this->index = index;
 	this->data = data;
-	this->bbox.ctor();
-	return this;
-}
-
-void BSP_leaf_t::dtor()
-{
-	this->bbox.dtor();
-	this->data = nullptr;
-	this->index = 0;
-	this->data_type = BSP_LEAF_NONE;
-	this->inserted = false;
-	this->next = nullptr;
+	this->bbox.reset();
 }
 
 bool BSP_leaf_t::remove_link(BSP_leaf_t *L)

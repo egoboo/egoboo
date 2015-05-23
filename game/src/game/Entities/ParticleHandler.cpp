@@ -288,7 +288,7 @@ PRT_REF ParticleHandler::allocate(const bool force)
     if (ALLOCATED_PRT(iprt))
     {
         // construct the new structure
-        prt_t::config_construct(get_ptr(iprt), 100);
+        get_ptr(iprt)->config_construct(100);
     }
 
     return iprt;
@@ -438,10 +438,8 @@ PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, c
     pprt->spawn_data.oldtarget = oldtarget;
 
     // actually force the character to spawn
-    pprt = prt_t::config_activate(pprt, 100);
-
     // count all the successful spawns of this particle
-    if (NULL != pprt)
+    if (pprt->config_activate(100))
     {
         POBJ_END_SPAWN(pprt);
         ppip->_spawnCount++;

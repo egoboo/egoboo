@@ -183,54 +183,104 @@ namespace Ego
     }
 
 /// Is the object flagged as requesting termination?
-#define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->isAllocated() ) && (Ego::Entity::State::Invalid != (PBASE)->state) )
+inline bool FLAG_ALLOCATED_PBASE(const Ego::Entity *PBASE) {
+    return PBASE->isAllocated() && (Ego::Entity::State::Invalid != PBASE->state);
+}
+
 /// Is the object allocated?
-#define ALLOCATED_PBASE( PBASE )       FLAG_ALLOCATED_PBASE(PBASE)
+inline bool ALLOCATED_PBASE(const Ego::Entity *PBASE) {
+    return FLAG_ALLOCATED_PBASE(PBASE);
+}
 
 /// Is the object flagged as requesting termination?
-#define FLAG_ON_PBASE( PBASE )  ( (PBASE)->on )
+inline bool FLAG_ON_PBASE(const Ego::Entity *PBASE) {
+    return PBASE->on;
+}
+
 /// Is the object on?
-#define ON_PBASE( PBASE )       ( FLAG_ON_PBASE(PBASE) && (Ego::Entity::State::Invalid != (PBASE)->state) )
+inline bool ON_PBASE(const Ego::Entity *PBASE) {
+    return FLAG_ON_PBASE(PBASE) && (Ego::Entity::State::Invalid != PBASE->state);
+}
 
 /// Is the object flagged as kill_me?
-#define FLAG_REQ_TERMINATION_PBASE( PBASE ) ( (PBASE)->kill_me )
+inline bool FLAG_REQ_TERMINATION_PBASE(const Ego::Entity *PBASE) {
+    return PBASE->kill_me;
+}
+
 /// Is the object kill_me?
-#define REQ_TERMINATION_PBASE( PBASE )      ( FLAG_REQ_TERMINATION_PBASE(PBASE) && (Ego::Entity::State::Invalid != (PBASE)->state)  )
+inline bool REQ_TERMINATION_PBASE(const Ego::Entity *PBASE) {
+    return FLAG_REQ_TERMINATION_PBASE(PBASE) && (Ego::Entity::State::Invalid != PBASE->state);
+}
 
 /// Has the object been created yet?
-#define STATE_CONSTRUCTING_PBASE( PBASE ) ( Ego::Entity::State::Constructing == (PBASE)->state )
+inline bool STATE_CONSTRUCTING_PBASE(const Ego::Entity *PBASE) {
+    return Ego::Entity::State::Constructing == PBASE->state;
+}
+
 /// Has the object been created yet?
-#define CONSTRUCTING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_CONSTRUCTING_PBASE(PBASE) )
+inline bool CONSTRUCTING_PBASE(const Ego::Entity *PBASE) {
+    return ALLOCATED_PBASE(PBASE) && STATE_CONSTRUCTING_PBASE(PBASE);
+}
 
 /// Is the object in the initializing state?
-#define STATE_INITIALIZING_PBASE( PBASE ) ( Ego::Entity::State::Initializing == (PBASE)->state )
+inline bool STATE_INITIALIZING_PBASE(const Ego::Entity *PBASE) {
+    return Ego::Entity::State::Initializing == PBASE->state;
+}
+
 /// Is the object being initialized right now?
-#define INITIALIZING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_INITIALIZING_PBASE(PBASE) )
+inline bool INITIALIZING_PBASE(const Ego::Entity *PBASE) {
+    return ALLOCATED_PBASE(PBASE) && STATE_INITIALIZING_PBASE(PBASE);
+}
 
 /// Is the object in the active state?
-#define STATE_ACTIVE_PBASE( PBASE ) ( Ego::Entity::State::Active == (PBASE)->state )
+inline bool STATE_ACTIVE_PBASE(const Ego::Entity *PBASE) {
+    return Ego::Entity::State::Active == PBASE->state;
+}
+
 /// Is the object active?
-#define ACTIVE_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_ACTIVE_PBASE(PBASE) )
+inline bool ACTIVE_PBASE(const Ego::Entity *PBASE) {
+    return ALLOCATED_PBASE(PBASE) && STATE_ACTIVE_PBASE(PBASE);
+}
 
 /// Is the object in the deinitializing state?
-#define STATE_DEINITIALIZING_PBASE( PBASE ) ( Ego::Entity::State::DeInitializing == (PBASE)->state )
+inline bool STATE_DEINITIALIZING_PBASE(const Ego::Entity *PBASE) {
+    return Ego::Entity::State::DeInitializing == PBASE->state;
+}
+
 /// Is the object being deinitialized right now?
-#define DEINITIALIZING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_DEINITIALIZING_PBASE(PBASE) )
+inline bool DEINITIALIZING_PBASE(const Ego::Entity *PBASE) {
+    return ALLOCATED_PBASE(PBASE) && STATE_DEINITIALIZING_PBASE(PBASE);
+}
 
 /// Is the object in the destructing state?
-#define STATE_DESTRUCTING_PBASE( PBASE ) ( Ego::Entity::State::Destructing == (PBASE)->state )
+inline bool STATE_DESTRUCTING_PBASE(const Ego::Entity *PBASE) {
+    return Ego::Entity::State::Destructing == PBASE->state;
+}
+
 /// Is the object being deinitialized right now?
-#define DESTRUCTING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_DESTRUCTING_PBASE(PBASE) )
+inline bool DESTRUCTING_PBASE(const Ego::Entity *PBASE) {
+    return ALLOCATED_PBASE(PBASE) && STATE_DESTRUCTING_PBASE(PBASE);
+}
 
 /// Is the object "waiting to die" state?
-#define STATE_WAITING_PBASE( PBASE ) ( Ego::Entity::State::Waiting == (PBASE)->state )
+inline bool STATE_WAITING_PBASE(const Ego::Entity *PBASE) {
+    return Ego::Entity::State::Waiting == PBASE->state;
+}
+
 /// Is the object "waiting to die"?
-#define WAITING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_WAITING_PBASE(PBASE) )
+inline bool WAITING_PBASE(const Ego::Entity *PBASE) {
+    return ALLOCATED_PBASE(PBASE) && STATE_WAITING_PBASE(PBASE);
+}
 
 /// Has the object in the terminated state?
-#define STATE_TERMINATED_PBASE( PBASE ) ( Ego::Entity::State::Terminated == (PBASE)->state )
+inline bool STATE_TERMINATED_PBASE(const Ego::Entity *PBASE) {
+    return Ego::Entity::State::Terminated == (PBASE)->state;
+}
+
 /// Has the object been marked as terminated?
-#define TERMINATED_PBASE( PBASE )       STATE_TERMINATED_PBASE(PBASE)
+inline bool TERMINATED_PBASE(const Ego::Entity *PBASE) {
+    return STATE_TERMINATED_PBASE(PBASE);
+}
 
 /// Grab a pointer to the Ego::Entity of an object that "inherits" this data
 #define POBJ_GET_PBASE( POBJ )   ( &((POBJ)->obj_base) )
@@ -250,7 +300,7 @@ namespace Ego
 //--------------------------------------------------------------------------------------------
 
 /// @todo Remove this.
-template <typename TYPE,typename LISTTYPE>
+template <typename TYPE,typename REFTYPE, typename LISTTYPE>
 struct _StateMachine
 {
     Ego::Entity obj_base; ///< The "inheritance" from Ego::Entity.
@@ -264,116 +314,122 @@ struct _StateMachine
     {
     }
 
-    static TYPE *config_ctor(TYPE *self)
-    {
-        if (!self) return nullptr;
+    // state machine function
+    virtual TYPE *config_do_ctor() = 0;
+    // state machine function
+    virtual TYPE *config_do_init() = 0;
+    // state machine function
+    virtual TYPE *config_do_active() = 0;
+    // state machine function
+    virtual void config_do_deinit() = 0;
+    // state machine function
+    virtual void config_do_dtor() = 0;
 
+    bool config_ctor()
+    {
         // Get a pointer to the parent.
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
 
         // If we aren't in the correct state, abort.
-        if (!STATE_CONSTRUCTING_PBASE(parent)) return self;
+        if (!STATE_CONSTRUCTING_PBASE(parent)) return true;
 
-        return self->config_do_ctor();
+        return nullptr != this->config_do_ctor();
     }
 
-    static TYPE *config_active(TYPE *self)
+    bool config_active()
     {
-        if (!self) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
+        if (!parent->isAllocated()) return false;
 
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
-        if (!parent->isAllocated()) return nullptr;
+        if (!STATE_ACTIVE_PBASE(parent)) return true;
 
-        if (!STATE_ACTIVE_PBASE(parent)) return self;
+        POBJ_END_SPAWN(this);
 
-        POBJ_END_SPAWN(self);
-
-        return self->config_do_active();
+        return nullptr != this->config_do_active();
     }
 
-    static void config_deinit(TYPE& self)
+    void config_deinit()
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(&self);
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
 
         if (!STATE_DEINITIALIZING_PBASE(parent)) return;
 
-        POBJ_END_SPAWN(&self);
+        POBJ_END_SPAWN(this);
 
-        self.config_do_deinit();
+        config_do_deinit();
     }
 
-    static void config_dtor(TYPE& self)
+    void config_dtor()
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(&self);
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
 
         if (!STATE_DESTRUCTING_PBASE(parent));
 
-        POBJ_END_SPAWN(&self);
+        POBJ_END_SPAWN(this);
 
-        self.config_do_dtor();
+        config_do_dtor();
     }
 
-    static TYPE *config_initialize(TYPE *self, size_t max_iterations)
+    bool config_initialize(size_t max_iterations)
     {
-        if (!self) return nullptr;
-
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
-        if (!parent->isAllocated()) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
+        if (!parent->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
         if (parent->state > Ego::Entity::State::Initializing)
         {
             // ... deconstruct it and start over.
-            TYPE *tmp = TYPE::config_deconstruct(self, max_iterations);
-            if (tmp != self) return nullptr;
+            if (!this->config_deconstruct(max_iterations)) {
+                return false;
+            }
         }
 
         size_t iterations = 0;
         while (parent->state <= Ego::Entity::State::Initializing && iterations < max_iterations)
         {
-            TYPE *tmp = TYPE::run_config(self);
-            if (tmp != self) return nullptr;
+            if (!this->run_config()) {
+                return false;
+            }
             iterations++;
         }
 
-        return self;
+        return true;
     }
 
-    static TYPE *config_construct(TYPE *self, size_t max_iterations)
+    bool config_construct(size_t max_iterations)
     {
-        if (!self) return nullptr;
-
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
-        if (!parent->isAllocated()) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
+        if (!parent->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
         if (parent->state > Ego::Entity::State::Constructing)
         {
             // ... destruct it and start over.
-            TYPE *tmp = TYPE::config_deconstruct(self, max_iterations);
-            if (tmp != self) return nullptr;
+            if (!this->config_deconstruct(max_iterations)) {
+                return false;
+            }
         }
 
         size_t iterations = 0;
         while (parent->state <= Ego::Entity::Constructing && iterations < max_iterations)
         {
-            TYPE *tmp = TYPE::run_config(self);
-            if (tmp != self) return nullptr;
+            if (!this->run_config()) {
+                return false;
+            }
             iterations++;
         }
 
-        return self;
+        return true;
     }
 
-    static TYPE *config_init(TYPE *self)
+    bool config_init()
     {
-        if (!self) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
+        if (!STATE_INITIALIZING_PBASE(parent)) return true;
 
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
-        if (!STATE_INITIALIZING_PBASE(parent)) return self;
-
-        self = self->config_do_init();
-        if (!self) return nullptr;
+        if (!this->config_do_init()) {
+            return false;
+        }
 
         if (0 == LISTTYPE::get().getLockCount())
         {
@@ -381,26 +437,24 @@ struct _StateMachine
         }
         else
         {
-            LISTTYPE::get().add_activation(self->obj_base.index);
+            LISTTYPE::get().add_activation(this->obj_base.index);
         }
 
         parent->state = Ego::Entity::State::Active;
 
-        return self;
+        return true;
     }
 
-    static TYPE *config_deinitialize(TYPE *self, size_t max_iterations)
+    bool config_deinitialize(size_t max_iterations)
     {
-        if (!self) return nullptr;
-
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
-        if (!parent->isAllocated()) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
+        if (!parent->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
         if (parent->state > Ego::Entity::State::DeInitializing)
         {
             // ... do nothing.
-            return self;
+            return true;
         }
         else if (parent->state < Ego::Entity::State::DeInitializing)
         {
@@ -410,57 +464,56 @@ struct _StateMachine
         size_t iterations = 0;
         while (parent->state <= Ego::Entity::State::DeInitializing && iterations < max_iterations)
         {
-            TYPE *tmp = TYPE::run_config(self);
-            if (tmp != self) return nullptr;
+            if (!this->run_config()) {
+                return false;
+            }
             iterations++;
         }
 
-        return self;
+        return true;
     }
 
-    static TYPE *config_activate(TYPE *self, size_t max_iterations)
+    bool config_activate(size_t max_iterations)
     {
-        if (!self) return nullptr;
-
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
-        if (!parent->isAllocated()) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
+        if (!parent->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
         if (parent->state > Ego::Entity::State::Active)
         {
             // ... deconstruct it and start over.
-            TYPE *tmp = TYPE::config_deconstruct(self, max_iterations);
-            if (tmp != self) return nullptr;
+            if (!this->config_deconstruct(max_iterations)) {
+                return false;
+            }
         }
 
         size_t iterations = 0;
         while (parent->state < Ego::Entity::State::Active && iterations < max_iterations)
         {
-            TYPE *tmp = TYPE::run_config(self);
-            if (tmp != self) return nullptr;
+            if (!this->run_config()) {
+                return false;
+            }
             iterations++;
         }
 
         if (parent->state == Ego::Entity::State::Active)
         {
-            LISTTYPE::get().push_used(self->obj_base.index);
+            LISTTYPE::get().push_used(this->obj_base.index);
         }
 
-        return self;
+        return true;
     }
 
-    static TYPE *config_deconstruct(TYPE *self, size_t max_iterations)
+    bool config_deconstruct(size_t max_iterations)
     {
-        if (!self) return nullptr;
-
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
-        if (!parent->isAllocated()) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
+        if (!parent->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
         if (parent->state > Ego::Entity::State::Destructing)
         {
             // ... do nothing.
-            return self;
+            return true;
         }
         else if (parent->state < Ego::Entity::State::DeInitializing)
         {
@@ -471,8 +524,9 @@ struct _StateMachine
         size_t iterations = 0;
         while (parent->state <= Ego::Entity::State::Destructing && iterations < max_iterations)
         {
-            TYPE *tmp = TYPE::run_config(self);
-            if (tmp != self) return nullptr;
+            if (!this->run_config()) {
+                return false;
+            }
             iterations++;
         }
         if (parent->state < Ego::Entity::Terminated)
@@ -483,15 +537,13 @@ struct _StateMachine
             }
             log_warning("%s:%d: entity is not destructed\n", __FILE__, __LINE__);
         }
-        return self;
+        return true;
     }
 
-    static TYPE *run_config(TYPE *self)
+    bool run_config()
     {
-        if (!self) return nullptr;
-
-        Ego::Entity *parent = POBJ_GET_PBASE(self);
-        if (!parent->isAllocated()) return nullptr;
+        Ego::Entity *parent = POBJ_GET_PBASE(this);
+        if (!parent->isAllocated()) return false;
 
         // Set the object to deinitialize if it is not "dangerous" and if was requested.
         if (parent->kill_me)
@@ -504,31 +556,32 @@ struct _StateMachine
             parent->kill_me = false;
         }
 
+        bool result = true;
         switch (parent->state)
         {
         default:
         case Ego::Entity::State::Invalid:
-            self = nullptr;
+            result = false;
             break;
 
         case Ego::Entity::State::Constructing:
-            self = TYPE::config_ctor(self);
+            result = this->config_ctor();
             break;
 
         case Ego::Entity::State::Initializing:
-            self = TYPE::config_init(self);
+            result = this->config_init();
             break;
 
         case Ego::Entity::State::Active:
-            self = TYPE::config_active(self);
+            result = this->config_active();
             break;
 
         case Ego::Entity::State::DeInitializing:
-            TYPE::config_deinit(*self);
+            this->config_deinit();
             break;
 
         case Ego::Entity::State::Destructing:
-            TYPE::config_dtor(*self);
+            this->config_dtor();
             break;
 
         case Ego::Entity::State::Waiting:
@@ -537,7 +590,7 @@ struct _StateMachine
             break;
         }
 
-        if (!self)
+        if (!result)
         {
             parent->update_guid = EGO_GUID_INVALID;
         }
@@ -546,7 +599,7 @@ struct _StateMachine
             parent->update_guid = LISTTYPE::get().getUpdateGUID();
         }
 
-        return self;
+        return result;
     }
 
 

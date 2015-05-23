@@ -139,7 +139,7 @@ struct prt_spawn_data_t
  * @extends
  *  Ego::Entity
  */
-struct prt_t : public PhysicsData, _StateMachine<prt_t,ParticleHandler>
+struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler>
 {
     bool is_ghost;                   ///< the particle has been killed, but is hanging around a while...
 
@@ -327,15 +327,15 @@ public:
     static bool free(prt_t * pprt);
 
     // particle state machine function
-    prt_t *config_do_ctor();
+    prt_t *config_do_ctor() override;
     // particle state machine function
-    prt_t *config_do_init();
+    prt_t *config_do_init() override;
     // particle state machine function
-    prt_t *config_do_active();
+    prt_t *config_do_active() override;
     // particle state machine function
-    void config_do_deinit();
+    void config_do_deinit() override;
     // particle state machine function
-    void config_do_dtor();
+    void config_do_dtor() override;
 };
 
 /**

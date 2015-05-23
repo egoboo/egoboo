@@ -164,7 +164,7 @@ prt_t *prt_t::config_do_ctor()
     prt_environment_t::reset(&this->enviro);
 
     // initialize the bsp node for this particle
-    POBJ_GET_PLEAF(this)->ctor(this, BSP_LEAF_PRT, GET_REF_PPRT(this));
+    POBJ_GET_PLEAF(this)->set(this, BSP_LEAF_PRT, GET_REF_PPRT(this));
 
     // reset the base counters
     parent->update_count = 0;
@@ -2552,10 +2552,10 @@ prt_bundle_t *prt_bundle_t::update_ghost()
 
 prt_bundle_t * prt_bundle_t::update()
 {
-    if (NULL == this->prt_ptr) return NULL;
     prt_t *loc_pprt = this->prt_ptr;
+    if (NULL == loc_pprt) return NULL;
     // do the next step in the particle configuration
-    if (!prt_t::run_config(loc_pprt)) {
+    if (!loc_pprt->run_config()) {
         this->ctor();
         return NULL;
     }

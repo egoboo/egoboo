@@ -103,8 +103,7 @@ public:
 		return inserted;
 	}
 
-	BSP_leaf_t *ctor(void *data, bsp_type_t type, size_t index);
-	void dtor();
+	void set(void *data, bsp_type_t type, size_t index);
 
 
 	bool assign(const BSP_leaf_t& other);

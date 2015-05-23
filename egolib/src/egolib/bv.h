@@ -62,21 +62,12 @@ struct bv_t
 	 * @remark
 	 *	The default values of a convex bounding volume are the default values of an axis-aligned bounding box and the smallest sphere enclosing that AABB.
 	 */
-	bv_t *ctor()
+	void reset()
 	{
 		sphere = sphere_t();
-		aabb.ctor();
-		return this;
+		aabb.reset();
 	}
-	/**
-	 * @brief
-	 *	Destruct this convex bounding volume.
-	 */
-	void dtor()
-	{
-		aabb.dtor();
-        sphere = sphere_t();
-	}
+
 	/**
 	 * @brief
 	 *	Assign this convex bounding volume the values of another convex bounding volume.
