@@ -176,7 +176,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _profile(ProfileSystem::get().getProfile(profile))
 {
     // Construct the BSP node for this entity.
-    bsp_leaf.set(&bsp_leaf, BSP_LEAF_CHR, _characterID);
+    bsp_leaf.set(this, BSP_LEAF_CHR, _characterID);
 
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
