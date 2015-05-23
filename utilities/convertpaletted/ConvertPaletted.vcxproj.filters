@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\utilities\convertpaletted\src\convertpaletted.cpp">
+    <ClCompile Include="src\convertpaletted.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\utilities\convertpaletted\src\filters.hpp">
+    <ClInclude Include="src\filters.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

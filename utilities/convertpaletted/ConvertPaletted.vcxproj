@@ -288,7 +288,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\utilities\convertpaletted\src\convertpaletted.cpp" />
+    <ClCompile Include="src\convertpaletted.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\SDL2-2.0.3\VisualC\SDLmain\SDLmain_VS2013.vcxproj">
@@ -308,7 +308,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\utilities\convertpaletted\src\filters.hpp" />
+    <ClInclude Include="src\filters.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
