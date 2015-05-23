@@ -1,0 +1,14 @@
+os: Visual Studio 2014 CTP4
+
+platform:
+    - win32
+    - x64
+configuration:
+    - Debug
+    - Release
+
+install:
+    git submodule update --init --recursive
+
+build:
+    project: egoboo_vs13.sln
