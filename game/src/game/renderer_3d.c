@@ -277,8 +277,8 @@ bool render_aabb(aabb_t *bv)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     {
-        const auto& pmin = (bv->mins);
-        const auto& pmax = (bv->maxs);
+        const auto& pmin = (bv->getMin());
+        const auto& pmax = (bv->getMax());
 
         // !!!! there must be an optimized way of doing this !!!!
 

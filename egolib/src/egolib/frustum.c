@@ -154,7 +154,7 @@ geometry_rv egolib_frustum_t::intersects_bv(const bv_t *bv,bool doEnds) const
 	{
 		return geometry_error;
 	}
-	return intersects_aabb(bv->aabb.mins, bv->aabb.maxs, doEnds);
+	return intersects_aabb(bv->getAABB().getMin(), bv->getAABB().getMax(), doEnds);
 }
 
 geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool doEnds) const
@@ -294,7 +294,7 @@ geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float
 
 geometry_rv egolib_frustum_t::intersects_aabb(const aabb_t& aabb, bool doEnds) const
 {
-    return intersects_aabb(aabb.mins, aabb.maxs, doEnds);
+    return intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
 }
 
 geometry_rv egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t& maxs, bool doEnds) const
@@ -350,9 +350,8 @@ bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) co
 		return false;
 	}
 	bool retval = false;
-	aabb_t aabb;
-    aabb.from(*oct);
-    geometry_rv frustum_rv = this->intersects_aabb(aabb.mins, aabb.maxs, doEnds);
+	aabb_t aabb = oct->toAABB();
+    geometry_rv frustum_rv = this->intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
     retval = (frustum_rv > geometry_outside);
 	return retval;
 }

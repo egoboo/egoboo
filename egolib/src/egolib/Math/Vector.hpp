@@ -84,15 +84,19 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
 
 /**
  * @brief
- *  @a std::true_type is @a _ScalarType and @a _Dimensionality fulfil the requirements for an abstract vector,
- *  @a std::false_type otherwise.
- * @detail
- *  The requirements are: @a _ScalarType must be a floating point type and @a Dimensionality must be greater than @a 0.
+ *  Derived @a std::true_type if @a _ScalarType and @a _Dimensionality fulfil the requirements for a vector,
+ *  and derived from @a std::false_type otherwise.
+ * @param _ScalarType
+ *  the type of a scalar value as well as the type of the vector's elements.
+ *  Must be a floating point type.
+ * @param _Dimensionality
+ *  the dimensionality of the vector/the number of vector elements.
+ *  Must be a positive integral value.
  * @remark
  *  MH: The following simplification should be possible:
  *  @code
  *  template <typename _ScalarType, size_t _Dimensionality>
- *  using AbstractVectorEnable =
+ *  using VectorEnable =
  *      typename std::conditional<
  *              (std::is_floating_point<_ScalarType>::value && Ego::Core::greater_than<_Dimensionality, 0>::value),
  *              std::true_type,
@@ -103,7 +107,7 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
  *  Michael Heilmann
  */
 template <typename _ScalarType, size_t _Dimensionality>
-struct AbstractVectorEnable
+struct VectorEnable
     : public std::conditional<
     (std::is_floating_point<_ScalarType>::value && Ego::Core::GreaterThan<_Dimensionality, 0>::value),
     std::true_type,
@@ -111,8 +115,37 @@ struct AbstractVectorEnable
     >::type
 {};
 
+/**
+ * @brief
+ *  Derived from @a std::true_type if @a _ScalarType, @a _Dimensionality and @a ArgTypes
+ *  fulfil the requirements for a constructor of a vector,
+ *  and derived from @a std::false_type otherwise.
+ * @param _ScalarType
+ *  the type of a scalar value as well as the type of the vector's elements.
+ *  Must be a floating point type.
+ * @param _Dimensionality
+ *  the dimensionality of the vector/the number of vector elements.
+ *  Must be a positive integral value. Furtermore, @a ArgTypes must
+ *  have <tt>_Dimensionality-1</tt> elements which are convertible
+ *  into values of type @a _ScalarType.
+ * @remark
+ *  MH: The following simplification should be possible:
+ *  @code
+ *  template <typename _ScalarType, size_t _Dimensionality>
+ *  using VectorEnable =
+ *      typename std::conditional<
+ *              (std::is_floating_point<_ScalarType>::value && Ego::Core::greater_than<_Dimensionality, 0>::value),
+ *              std::true_type,
+ *              std::false_type
+ *          >::type
+ *  @endcode
+ * @author
+ *  Michael Heilmann
+ * @todo
+ *  Fast-fail if the parameters are not convertiable into @a _ScalarType.
+ */
 template <typename _ScalarType, size_t _Dimensionality, typename ... ArgTypes>
-struct AbstractVectorConstructorEnable
+struct VectorConstructorEnable
     : public std::conditional<
     (Ego::Core::EqualTo<sizeof...(ArgTypes), _Dimensionality - 1>::value),
     std::true_type,
@@ -126,20 +159,23 @@ struct AbstractVectorConstructorEnable
  * @brief
  *  A vector template generalizing dimensionality as well as the scalar type.
  * @param _ScalarType
- *  the type of a scalar value as well as the type of the vector's elements
+ *  the type of a scalar value as well as the type of the vector's elements.
+ *  Must be a floating point type.
  * @param _Dimensionality
  *  the dimensionality of the vector/the number of vector elements.
+ *  Must be a positive integral value.
  * @remark
- *  A compile-time error is raised if the scalar type is not a floating point type
- *  or the dimensionality is smaller than @a 1.
+ *  A compile-time error is raised if
+ *  - the scalar type is not a floating point type or
+ *  - the dimensionality is not a positive integral value.
  * @author
  *  Michael Heilmann
  */
 template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
-struct AbstractVector;
+struct Vector;
 
 template <typename _ScalarType, size_t _Dimensionality>
-struct AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type> {
+struct Vector<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> {
 
 public:
 
@@ -150,9 +186,9 @@ public:
     typedef _ScalarType ScalarType;
     /**
      * @brief
-     *  @a MyType is the type of the vector..
+     *  @a MyType is the type of the vector.
      */
-    typedef AbstractVector<_ScalarType, _Dimensionality> MyType;
+    typedef Vector<_ScalarType, _Dimensionality> MyType;
     /**
      * @brief
      *  The dimensionality of this vector.
@@ -175,19 +211,17 @@ private:
 
 public:
 
-    /// @todo Only enable this
-    /// a) if the parameter pack is of length N=_Dimensionality -1 and
-    /// b) if all N parameters are convertible to _ScalarType.
-    template<typename ... ArgTypes, typename = typename std::enable_if<AbstractVectorConstructorEnable<_ScalarType, _Dimensionality, ArgTypes ...>::value>::type>
-    AbstractVector(_ScalarType v, ArgTypes&& ... args) {
+
+    template<typename ... ArgTypes, typename = typename std::enable_if<VectorConstructorEnable<_ScalarType, _Dimensionality, ArgTypes ...>::value>::type>
+    Vector(_ScalarType v, ArgTypes&& ... args) {
         static_assert(_Dimensionality - 1 == sizeof ... (args), "wrong number of arguments");
         unpack<float, _Dimensionality>(_elements, std::forward<_ScalarType>(v), args ...);
     }
 
-    AbstractVector() :
+    Vector() :
         _elements() {}
 
-    AbstractVector(const MyType& other) {
+    Vector(const MyType& other) {
         for (size_t i = 0; i < Dimensionality; ++i) {
             _elements[i] = other._elements[i];
         }
@@ -664,7 +698,7 @@ public:
      *  \f]
      */
     template<size_t _Dummy = _Dimensionality>
-    typename std::enable_if<_Dummy == 3 && _Dimensionality == 3, AbstractVector<_ScalarType, _Dimensionality>>::type
+    typename std::enable_if<_Dummy == 3 && _Dimensionality == 3, Vector<_ScalarType, _Dimensionality>>::type
     cross(const MyType& other) const {
         return
             MyType
@@ -683,58 +717,58 @@ public:
  *  the zero vector
  */
 template <typename _ScalarType, size_t _Dimensionality>
-const AbstractVector<_ScalarType, _Dimensionality>&
-AbstractVector< _ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type>::zero() {
-    static const auto ZERO = AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type>();
+const Vector<_ScalarType, _Dimensionality>&
+Vector< _ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>::zero() {
+    static const auto ZERO = Vector<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>();
         return ZERO;
     }
 
 template <typename _ScalarType, size_t _Dimensionality>
-const size_t AbstractVector<_ScalarType, _Dimensionality, typename std::enable_if<AbstractVectorEnable<_ScalarType, _Dimensionality>::value>::type>::Dimensionality
+const size_t Vector<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>::Dimensionality
     = _Dimensionality;
 
 } // namespace Math
 } // namespace Ego
 
 /// A 2-vector type that allows more than one form of access.
-typedef Ego::Math::AbstractVector<float, 2> fvec2_t;
+typedef Ego::Math::Vector<float, 2> fvec2_t;
 
 #ifdef _DEBUG
 namespace Ego
 {
-    namespace Debug
-    {
-        template <>
-        void validate<::fvec2_t>(const char *file, int line, const ::fvec2_t& object);
-    }
+namespace Debug
+{
+template <>
+void validate<::fvec2_t>(const char *file, int line, const ::fvec2_t& object);
+}
 }
 #endif
 
 /// A 3-vector type that allows more than one form of access.
-typedef Ego::Math::AbstractVector<float, 3> fvec3_t;
+typedef Ego::Math::Vector<float, 3> fvec3_t;
 
 #ifdef _DEBUG
 namespace Ego
 {
-    namespace Debug
-    {
-        template <>
-        void validate<::fvec3_t>(const char *file, int line, const ::fvec3_t& object);
-    }
+namespace Debug
+{
+template <>
+void validate<::fvec3_t>(const char *file, int line, const ::fvec3_t& object);
+}
 }
 #endif
 
 /// A 4-vector type that allows more than one form of access.
-typedef Ego::Math::AbstractVector<float, 4> fvec4_t;
+typedef Ego::Math::Vector<float, 4> fvec4_t;
 
 #ifdef _DEBUG
 namespace Ego
 {
-    namespace Debug
-    {
-        template <>
-        void validate<::fvec4_t>(const char *file, int line, const ::fvec4_t& object);
-    }
+namespace Debug
+{
+template <>
+void validate<::fvec4_t>(const char *file, int line, const ::fvec4_t& object);
+}
 }
 #endif
 

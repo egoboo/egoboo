@@ -5270,10 +5270,10 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
 
                         nrm[kX] = pdyna->pos[kX] - x0;
                         nrm[kY] = pdyna->pos[kY] - y0;
-                        nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.mins[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.getMin()[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.low.lighting, nrm);
 
-                        nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.maxs[ZZ];
+                        nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.getMax()[ZZ];
                         sum_dyna_lighting(pdyna, cache_new.hgh.lighting, nrm);
                     }
                 }

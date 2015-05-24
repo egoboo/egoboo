@@ -77,18 +77,18 @@ geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
     // Scan all the coordinates.
     for (size_t cnt = 0; cnt < dimensions; ++cnt)
     {
-        if (rhs.mins[cnt] > lhs.maxs[cnt])
+        if (rhs.getMin()[cnt] > lhs.getMax()[cnt])
         {
             return geometry_outside;
         }
-        else if (rhs.maxs[cnt] < lhs.mins[cnt])
+        else if (rhs.getMax()[cnt] < lhs.getMin()[cnt])
         {
             return geometry_outside;
         }
         else if (!not_inside)
         {
-            if (rhs.maxs[cnt] > lhs.maxs[cnt] ||
-                rhs.mins[cnt] < lhs.maxs[cnt])
+            if (rhs.getMax()[cnt] > lhs.getMax()[cnt] ||
+                rhs.getMin()[cnt] < lhs.getMax()[cnt])
             {
                 // one of the sides is hanging over the edge
                 retval = geometry_intersect;

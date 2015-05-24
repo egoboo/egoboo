@@ -25,10 +25,10 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/Math/AABB.hpp"
 #include "egolib/Math/Plane.hpp" /// @todo Remove this.
 
 // Forward declaration.
-struct aabb_t;
 struct cone_t;
 struct plane_t;
 struct sphere_t;

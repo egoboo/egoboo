@@ -173,8 +173,8 @@ BSP::SubspaceIndex _find_child_index(const BSP_aabb_t *branchAABB, const aabb_t 
 	const float *branch_max_ary = branchAABB->max();
 
 	// Get aliases the the minimum and the maximum of the AABB of the leaf.
-	const auto& leaf_min_ary = leafAABB->mins;
-	const auto& leaf_max_ary = leafAABB->maxs;
+	const auto& leaf_min_ary = leafAABB->getMin();
+	const auto& leaf_max_ary = leafAABB->getMax();
 
 	BSP::SubspaceIndex index = 0;
 	size_t d = std::min(branchAABB->getDim(), (size_t)3);
@@ -218,7 +218,7 @@ void BSP_leaf_t::set(void *data, bsp_type_t type, size_t index)
 	this->data_type = type;
 	this->index = index;
 	this->data = data;
-	this->bbox.reset();
+	this->bbox = bv_t();
 }
 
 bool BSP_leaf_t::remove_link(BSP_leaf_t *L)
@@ -239,7 +239,7 @@ bool BSP_leaf_t::remove_link(BSP_leaf_t *L)
 		retval = true;
 	}
 
-	bv_self_clear(&(L->bbox));
+    L->bbox = bv_t();
 
 	return retval;
 }
@@ -691,7 +691,7 @@ bool BSP_branch_t::insert_leaf_rec_1(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t 
 	else
 	{
 		// Determine which child the leaf needs to go under.
-		BSP::SubspaceIndex index = _find_child_index(&(bsp_bbox), &(leaf->bbox.aabb));
+		BSP::SubspaceIndex index = _find_child_index(&(bsp_bbox), &(leaf->bbox.getAABB()));
 
 		// Insert the leaf in the right place.
 		if (index == -2)
@@ -1036,7 +1036,7 @@ bool BSP_tree_t::insert_leaf(BSP_leaf_t *leaf)
 	if (!leaf) return false;
 
 	// If the leaf is NOT fully contained in the tree's bounding box ...
-	if (!bsp_bbox.contains(leaf->bbox.aabb) || BSP::Hacks::ForceInfinite)
+	if (!bsp_bbox.contains(leaf->bbox.getAABB()) || BSP::Hacks::ForceInfinite)
 	{
 		// ... put the leaf at the head of the infinite list.
 		inserted = infinite.push_front(*leaf);
@@ -1280,7 +1280,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry.
-			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->bbox.aabb);
+			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->bbox.getAABB());
 
 			// determine what action to take
 			if (geometry_test > geometry_outside)
@@ -1338,7 +1338,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test geometry.
-			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->bbox.aabb);
+			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->bbox.getAABB());
 
 			// Determine what action to take.
 			if (geometry_test > geometry_outside)

@@ -22,93 +22,132 @@
 
 #pragma once
 
-#include "egolib/Math/Sphere.h"
-#include "egolib/Math/AABB.h"
-
-// Forward declaration.
-struct oct_bb_t;
+#include "egolib/Math/_Include.hpp"
 
 /**
  * @brief
- *	A convex bounding volume consisting of a sphere enclosing a bounding box.
+ *  A convex bounding volume consisting of a sphere enclosing a bounding box.
+ * @todo
+ *  Recompute sphere on-demand.
  */
 struct bv_t
 {
-	bv_t() :
-		sphere(),
-		aabb()
-	{
-		//ctor
-	}
-
-	sphere_t sphere;
-	aabb_t aabb;
+private:
+    /**
+     * @brief
+     *  Update the sphere from the AABB.
+     */
+    void updateSphere() {
+        _sphere = Ego::Math::convexHull<aabb_t,sphere_t>(_aabb);
+    }
 
     /**
      * @brief
-     *  Assign the values of this bounding volume
-     *  such that it is the smallest bounding volume enclosing the given octagonal bounding box.
-     * @param other
-     *  the octagonal bounding box
+     *  The sphere.
      */
-    void from(const oct_bb_t& other);
-	/**
-	 * @brief
-	 *	Construct this convex bounding volume assigning the default values of a convex bounding volume.
-	 * @return
-	 *	a pointer to this convex bounding volume on success, @a nullptr on failure
-	 * @post
-	 *	This convex bounding volume was assigned the default values of a convex bounding volume.
-	 * @remark
-	 *	The default values of a convex bounding volume are the default values of an axis-aligned bounding box and the smallest sphere enclosing that AABB.
-	 */
-	void reset()
-	{
-		sphere = sphere_t();
-		aabb.reset();
-	}
+    sphere_t _sphere;
 
-	/**
-	 * @brief
-	 *	Assign this convex bounding volume the values of another convex bounding volume.
-	 * @param other
-	 *	the other convex bounding volume
-	 * @post
-	 *	This convex bounding volume box was assigned the values of the other convex bounding box.
-	 */
-	void assign(const bv_t& other)
-	{
-		aabb = other.aabb;
-		sphere = other.sphere;
-	}
-	/**
-	 * @brief
-	 *	Assign this convex bounding volume the values of another convex bounding volume.
-	 * @param other
-	 *	the other convex bounding volume
-	 * @return
-	 *	this convex bounding volume
-	 * @post
-	 *	This convex bounding volume box was assigned the values of the other convex bounding box.
-	 */
-	bv_t& operator=(const bv_t& other)
-	{
-		assign(other);
-		return *this;
-	}
+    /**
+     * @brief
+     *  The AABB.
+     */
+    aabb_t _aabb;
+public:
 
-    bool contains(const bv_t *x, const bv_t *y);
-    bool overlaps(const bv_t *x, const bv_t *y);
+
+    /**
+     * @brief
+     *  Get the sphere.
+     * @return
+     *  the sphere
+     */
+    const sphere_t& getSphere() const {
+        return _sphere;
+    }
+
+    /**
+     * @brief
+     *  Get the AABB.
+     * @return
+     *  the AABB
+     */
+    const aabb_t& getAABB() const {
+        return _aabb;
+    }
+
+    /**
+     * @brief
+     *  Construct this bounding volume with its default values.
+     * @remark
+     *  The default values of a bounding volume are the default sohere and the default AABB.
+     */
+    bv_t()
+      : _sphere(), _aabb() {
+        /* Intentionaly empty. */
+    }
+
+    /**
+     * @brief
+     *  Construct this bounding volume with a given AABB.
+     * @param aabb
+     *  the aabb
+     */
+    bv_t(const aabb_t& aabb)
+        : _sphere(Ego::Math::convexHull<aabb_t,sphere_t>(aabb)), _aabb(aabb) {
+        /* Intentionally empty. */
+    }
+
+    /**
+     * @brief
+     *  Construct this bounding volume with the values of another bounding volume.
+     * @param other
+     *  the other bounding volume
+     */
+    bv_t(const bv_t& other)
+        : _sphere(other._sphere), _aabb(other._aabb) {
+        /* Intentionally empty. */
+    }
+
+    /**
+     * @brief
+     *  Assign this convex bounding volume the values of another convex bounding volume.
+     * @param other
+     *  the other convex bounding volume
+     * @post
+     *  This convex bounding volume box was assigned the values of the other convex bounding box.
+     */
+    void assign(const bv_t& other) {
+        _aabb = other._aabb;
+        _sphere = other._sphere;
+    }
+
+    /**
+     * @brief
+     *  Assign this convex bounding volume the values of another convex bounding volume.
+     * @param other
+     *  the other convex bounding volume
+     * @return
+     *  this convex bounding volume
+     * @post
+     *  This convex bounding volume box was assigned the values of the other convex bounding box.
+     */
+    bv_t& operator=(const bv_t& other) {
+        assign(other);
+        return *this;
+    }
+
+
+    bool contains(const bv_t& other) const {
+        return _aabb.contains(other._aabb);
+    }
+
+    bool overlaps(const bv_t& other) const {
+        return _aabb.overlaps(other._aabb);
+    }
+
+    void join(const bv_t& other) {
+        _aabb.join(other._aabb);
+        updateSphere();
+    }
 
 };
-
-
-bool  bv_self_clear(bv_t *);
-bool  bv_is_clear(const bv_t * pdst);
-
-bool  bv_self_union(bv_t * pdst, const bv_t * psrc);
-
-
-
-bool  bv_validate(bv_t * rhs);
-bool  bv_test(const bv_t * rhs);

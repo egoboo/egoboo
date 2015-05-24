@@ -730,7 +730,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
         phys_expand_chr_bb(pchr_a.get(), 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
-        tmp_aabb.from(tmp_oct);
+        tmp_aabb = tmp_oct.toAABB();
 
         // find all collisions with other characters and particles
         CollisionSystem::get()->_coll_leaf_lst.clear();
@@ -875,7 +875,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
         phys_expand_prt_bb(bdl.prt_ptr, 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
-        tmp_aabb.from(tmp_oct);
+        tmp_aabb = tmp_oct.toAABB();
 
         // find all collisions with characters
         CollisionSystem::get()->_coll_leaf_lst.clear();

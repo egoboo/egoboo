@@ -536,7 +536,7 @@ float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_t& nrm,
     if ( NULL == light_dir ) light_dir = &loc_light_dir;
 
     // determine the weighting
-    hgh_wt = ( z - bbox.mins[kZ] ) / ( bbox.maxs[kZ] - bbox.mins[kZ] );
+    hgh_wt = ( z - bbox.getMin()[kZ] ) / ( bbox.getMax()[kZ] - bbox.getMin()[kZ] );
     hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f );
     low_wt = 1.0f - hgh_wt;
 

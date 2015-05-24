@@ -29,61 +29,46 @@
 #ifdef _DEBUG
 namespace Ego
 {
-    namespace Debug
-    {
-        template <>
-        void validate<::fvec2_t>(const char *file, int line, const ::fvec2_t& object)
-        {
-            for (size_t i = 0; i < 2; ++i)
-            {
-                if (float_bad(object[i]))
-                {
-                    log_error("%s:%d: invalid vector component of 2D vector\n", file, line);
-                }
-            }
-        }
-
-    }
-}
-#endif
-
-#ifdef _DEBUG
-namespace Ego
+namespace Debug
 {
-    namespace Debug
+
+template <>
+void validate<::fvec2_t>(const char *file, int line, const ::fvec2_t& object)
+{
+    for (size_t i = 0; i < 2; ++i)
     {
-        template <>
-        void validate<::fvec3_t>(const char *file, int line, const ::fvec3_t& object)
+        if (float_bad(object[i]))
         {
-            for (size_t i = 0; i < 3; ++i)
-            {
-                if (float_bad(object[i]))
-                {
-                    log_error("%s:%d: invalid vector component of 3D vector\n", file, line);
-                }
-            }
+            log_error("%s:%d: invalid vector component of 2D vector\n", file, line);
         }
     }
 }
-#endif
 
-#ifdef _DEBUG
-namespace Ego
+template <>
+void validate<::fvec3_t>(const char *file, int line, const ::fvec3_t& object)
 {
-    namespace Debug
+    for (size_t i = 0; i < 3; ++i)
     {
-        template <>
-        void validate<::fvec4_t>(const char *file, int line, const ::fvec4_t& object)
+        if (float_bad(object[i]))
         {
-            for (size_t i = 0; i < 4; ++i)
-            {
-                if (float_bad(object[i]))
-                {
-                    log_error("%s:%d: invalid vector component of 4D vector\n", file, line);
-                }
-            }
+            log_error("%s:%d: invalid vector component of 3D vector\n", file, line);
         }
     }
+}
+
+template <>
+void validate<::fvec4_t>(const char *file, int line, const ::fvec4_t& object)
+{
+    for (size_t i = 0; i < 4; ++i)
+    {
+        if (float_bad(object[i]))
+        {
+            log_error("%s:%d: invalid vector component of 4D vector\n", file, line);
+        }
+    }
+}
+
+}
 }
 #endif
 

@@ -288,8 +288,8 @@ bool BSP_aabb_t::overlaps(const aabb_t& other) const
 
 	for (size_t i = 0; i < min_dim; i++)
 	{
-		if ((other.maxs[i]) < (min()[i])) return false;
-		if ((other.mins[i]) > (max()[i])) return false;
+		if ((other.getMax()[i]) < (min()[i])) return false;
+		if ((other.getMin()[i]) > (max()[i])) return false;
 	}
 
 	return true;
@@ -305,8 +305,8 @@ bool BSP_aabb_t::contains(const aabb_t& other) const
 
 	for (size_t i = 0; i < min_dim; i++)
 	{
-		if (other.maxs[i] > max()[i]) return false;
-		if (other.mins[i] < min()[i]) return false;
+		if (other.getMax()[i] > max()[i]) return false;
+		if (other.getMin()[i] < min()[i]) return false;
 	}
 
 	return true;

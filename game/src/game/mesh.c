@@ -929,9 +929,8 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
     pgmem = &( pmesh->gmem );
     pinfo = &( pmesh->info );
 
-    ptmem->bbox.mins[XX] = ptmem->bbox.maxs[XX] = ptmem->plst[0][XX];
-    ptmem->bbox.mins[YY] = ptmem->bbox.maxs[YY] = ptmem->plst[0][YY];
-    ptmem->bbox.mins[ZZ] = ptmem->bbox.maxs[ZZ] = ptmem->plst[0][ZZ];
+    ptmem->bbox = aabb_t(fvec3_t(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]), 
+                         fvec3_t(ptmem->plst[0][XX], ptmem->plst[0][YY], ptmem->plst[0][ZZ]));
 
 	for (TileIndex cnt = 0; cnt.getI() < pmesh->info.tiles_count; cnt++)
 	{
@@ -975,13 +974,12 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
         }
 
         // extend the mesh bounding box
-        ptmem->bbox.mins[XX] = std::min( ptmem->bbox.mins[XX], poct->mins[XX] );
-        ptmem->bbox.mins[YY] = std::min( ptmem->bbox.mins[YY], poct->mins[YY] );
-        ptmem->bbox.mins[ZZ] = std::min( ptmem->bbox.mins[ZZ], poct->mins[ZZ] );
-
-        ptmem->bbox.maxs[XX] = std::max( ptmem->bbox.maxs[XX], poct->maxs[XX] );
-        ptmem->bbox.maxs[YY] = std::max( ptmem->bbox.maxs[YY], poct->maxs[YY] );
-        ptmem->bbox.maxs[ZZ] = std::max( ptmem->bbox.maxs[ZZ], poct->maxs[ZZ] );
+        ptmem->bbox = aabb_t(fvec3_t(std::min(ptmem->bbox.getMin()[XX], poct->mins[XX]),
+                                     std::min(ptmem->bbox.getMin()[YY], poct->mins[YY]),
+                                     std::min(ptmem->bbox.getMin()[ZZ], poct->mins[ZZ])),
+                             fvec3_t(std::max(ptmem->bbox.getMax()[XX], poct->maxs[XX]),
+                                     std::max(ptmem->bbox.getMax()[YY], poct->maxs[YY]),
+                                     std::max(ptmem->bbox.getMax()[ZZ], poct->maxs[ZZ])));
     }
 
     return true;
@@ -1213,7 +1211,7 @@ bool ego_mesh_t::test_one_corner( ego_mesh_t * pmesh, GLXvector3f pos, float * p
     *pdelta = grid_lighting_test( pmesh, pos, &low_delta, &hgh_delta );
 
     // determine the weighting
-    hgh_wt = ( pos[ZZ] - pmesh->tmem.bbox.mins[kZ] ) / ( pmesh->tmem.bbox.maxs[kZ] - pmesh->tmem.bbox.mins[kZ] );
+    hgh_wt = ( pos[ZZ] - pmesh->tmem.bbox.getMin()[kZ] ) / ( pmesh->tmem.bbox.getMax()[kZ] - pmesh->tmem.bbox.getMin()[kZ] );
     hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f );
     low_wt = 1.0f - hgh_wt;
 

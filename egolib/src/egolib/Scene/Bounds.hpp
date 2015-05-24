@@ -76,7 +76,7 @@ namespace BSP
 			if (_empty) {
 				_volume = volume;
 			} else {
-				bv_self_union(&_volume, &volume);
+                _volume.join(volume);
 			}
 			_empty = false;
 		}
@@ -93,7 +93,7 @@ namespace BSP
 		geometry_rv intersects(const aabb_t& aabb) const
 		{
 			if (_empty) return geometry_outside;
-			return aabb_intersects_aabb(_volume.aabb, aabb);
+			return aabb_intersects_aabb(_volume.getAABB(), aabb);
 		}
 	};
 

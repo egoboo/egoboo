@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include "egolib/Math/Vector.hpp"
-#include "egolib/platform.h"
+#include "egolib/Math/_Include.hpp"
+#include "egolib/bv.h"
 
 //--------------------------------------------------------------------------------------------
 
@@ -338,6 +338,33 @@
                 throw std::invalid_argument("an empty obb does not have a mid-point");
             }
             return (mins + maxs) * 0.5f;
+        }
+        
+        /**
+         * @brief
+         *  Get the smallest axis-aligned bounding box enclosing this octagonal bounding box.
+         * @return
+         *  the axis-aligned bounding box
+         */
+        aabb_t toAABB() const {
+            if (this->empty) {
+                throw std::logic_error("unable to convert an empty OBB into an AABB");
+            }
+            return aabb_t(fvec3_t(mins[OCT_X], mins[OCT_Y], mins[OCT_Z]),
+                          fvec3_t(maxs[OCT_X], maxs[OCT_Y], maxs[OCT_Z]));
+        }
+
+        /**
+         * @brief
+         *  Get the smallest bounding volume enclosing this octagonal bounding box.
+         * @return
+         *   the bounding volume
+         */
+        bv_t toBV() const {
+            if (this->empty) {
+                throw std::logic_error("unable to convert an empty OBB into a BV");
+            }
+            return bv_t(toAABB());
         }
 
         void assign(const bumper_t& other)

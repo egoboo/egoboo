@@ -22,7 +22,8 @@
 
 #pragma once
 
-#include "egolib/Math/AABB.h"
+#include "egolib/Math/_Include.hpp"
+#include "egolib/bbox.h"
 #include "egolib/DynamicArray.hpp"
 
 /**

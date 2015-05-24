@@ -20,7 +20,7 @@
 #pragma once
 
 #include "egolib/frustum.h"
-#include "egolib/Math/AABB.h"
+#include "egolib/Math/_Include.hpp"
 
 class BSP_leaf_t;
 
