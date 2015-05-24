@@ -25,7 +25,6 @@
 
 #include "egolib/Math/Vector.hpp"
 #include "egolib/Math/Sphere.h"
-#include "egolib/Math/VectorSpace.hpp"
 
 namespace Ego {
 namespace Math {
@@ -46,9 +45,8 @@ struct AABB;
  *  The terms "the/an axis-aligned bounding box (object)" and "the/an AABB (object)" are synonyms.
  */
 template <typename _ScalarType, size_t _Dimensionality>
-struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<Internal::ElementEnable<_ScalarType, _Dimensionality>::value>::type> 
-: public Internal::Element<_ScalarType, _Dimensionality> {
-#if 0
+struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> {
+
     /**
      * @brief
      *  The vector type.
@@ -66,7 +64,6 @@ struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<Internal::Elem
      *  The dimensionality.
      */
     static const size_t Dimensionality;
-#endif
 
     /**
      * @brief
@@ -250,11 +247,9 @@ public:
 
 };
 
-#if 0
 template <typename _ScalarType, size_t _Dimensionality>
-const size_t AABB<_ScalarType, _Dimensionality, typename std::enable_if<Ego::Math::VectorEnable<_ScalarType, _Dimensionality>::value>::type>::Dimensionality
+const size_t AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>::Dimensionality
 = _Dimensionality;
-#endif
 
 } // namespace Math
 } // namespace Ego

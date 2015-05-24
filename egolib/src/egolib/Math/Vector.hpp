@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "egolib/Math/TemplateUtilities.hpp"
-#include "egolib/typedef.h"
+#include "egolib/Math/Scalar.hpp"
+#include "egolib/Math/Dimensionality.hpp"
 #include "egolib/log.h"
 #include "egolib/Float.hpp"
 #include "egolib/Debug.hpp"
@@ -87,18 +87,16 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
  *  Derived @a std::true_type if @a _ScalarType and @a _Dimensionality fulfil the requirements for a vector,
  *  and derived from @a std::false_type otherwise.
  * @param _ScalarType
- *  the type of a scalar value as well as the type of the vector's elements.
- *  Must be a floating point type.
+ *  must fulfil the <em>scalar</em> concept
  * @param _Dimensionality
- *  the dimensionality of the vector/the number of vector elements.
- *  Must be a positive integral value.
+ *  must fulfil the <em>dimensionality</em> concept
  * @remark
  *  MH: The following simplification should be possible:
  *  @code
  *  template <typename _ScalarType, size_t _Dimensionality>
  *  using VectorEnable =
  *      typename std::conditional<
- *              (std::is_floating_point<_ScalarType>::value && Ego::Core::greater_than<_Dimensionality, 0>::value),
+ *              (IsScalar<_ScalarType>::value && IsDimensionality<_Dimensionality>::value),
  *              std::true_type,
  *              std::false_type
  *          >::type
@@ -108,8 +106,8 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
  */
 template <typename _ScalarType, size_t _Dimensionality>
 struct VectorEnable
-    : public std::conditional<
-    (std::is_floating_point<_ScalarType>::value && Ego::Core::GreaterThan<_Dimensionality, 0>::value),
+    : public std::conditional <
+    (IsScalar<_ScalarType>::value && IsDimensionality<_Dimensionality>::value),
     std::true_type,
     std::false_type
     >::type
@@ -121,28 +119,15 @@ struct VectorEnable
  *  fulfil the requirements for a constructor of a vector,
  *  and derived from @a std::false_type otherwise.
  * @param _ScalarType
- *  the type of a scalar value as well as the type of the vector's elements.
- *  Must be a floating point type.
+ *  must fulfil the <em>scalar</em> concept
  * @param _Dimensionality
- *  the dimensionality of the vector/the number of vector elements.
- *  Must be a positive integral value. Furtermore, @a ArgTypes must
- *  have <tt>_Dimensionality-1</tt> elements which are convertible
- *  into values of type @a _ScalarType.
- * @remark
- *  MH: The following simplification should be possible:
- *  @code
- *  template <typename _ScalarType, size_t _Dimensionality>
- *  using VectorEnable =
- *      typename std::conditional<
- *              (std::is_floating_point<_ScalarType>::value && Ego::Core::greater_than<_Dimensionality, 0>::value),
- *              std::true_type,
- *              std::false_type
- *          >::type
- *  @endcode
+ *  must fulfil the <em>dimensionality</em> concept
+ * @param _ArgTypes
+ *  @a ArgTypes must have <tt>_Dimensionality-1</tt> elements which are convertible into values of type @a _ScalarType
  * @author
  *  Michael Heilmann
  * @todo
- *  Fast-fail if the parameters are not convertiable into @a _ScalarType.
+ *  Fast-fail if the parameters are not convertible into @a _ScalarType.
  */
 template <typename _ScalarType, size_t _Dimensionality, typename ... ArgTypes>
 struct VectorConstructorEnable
@@ -734,42 +719,36 @@ const size_t Vector<_ScalarType, _Dimensionality, typename std::enable_if<Vector
 typedef Ego::Math::Vector<float, 2> fvec2_t;
 
 #ifdef _DEBUG
-namespace Ego
-{
-namespace Debug
-{
+namespace Ego {
+namespace Debug {
 template <>
 void validate<::fvec2_t>(const char *file, int line, const ::fvec2_t& object);
-}
-}
+} // namespace Debug
+} // namespace Ego
 #endif
 
 /// A 3-vector type that allows more than one form of access.
 typedef Ego::Math::Vector<float, 3> fvec3_t;
 
 #ifdef _DEBUG
-namespace Ego
-{
-namespace Debug
-{
+namespace Ego {
+namespace Debug {
 template <>
 void validate<::fvec3_t>(const char *file, int line, const ::fvec3_t& object);
-}
-}
+} // namespace Debug
+} // namespace Ego
 #endif
 
 /// A 4-vector type that allows more than one form of access.
 typedef Ego::Math::Vector<float, 4> fvec4_t;
 
 #ifdef _DEBUG
-namespace Ego
-{
-namespace Debug
-{
+namespace Ego {
+namespace Debug {
 template <>
 void validate<::fvec4_t>(const char *file, int line, const ::fvec4_t& object);
-}
-}
+} // namespace Debug
+} // namespace Ego
 #endif
 
 float fvec3_decompose(const fvec3_t& src, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp);
