@@ -363,7 +363,7 @@ struct _StateMachine
     {
         Ego::Entity *parent = POBJ_GET_PBASE(this);
 
-        if (!STATE_DESTRUCTING_PBASE(parent));
+        if (!STATE_DESTRUCTING_PBASE(parent)) return;
 
         POBJ_END_SPAWN(this);
 
