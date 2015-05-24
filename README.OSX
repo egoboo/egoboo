@@ -4,13 +4,7 @@ Step 1:
 
 You will need:
 - Mac OS X 10.7 (Lion) or later
-- Xcode 4.6 (only been tested on Xcode 6.1)
-- The following frameworks:
-  - SDL 2.0.3 (from http://libsdl.org/download-2.0.php ) (the compiled binary is incorrectly code-signed and will not work)
-  - SDL_image 2.0.0 (from http://libsdl.org/projects/SDL_image/ )
-  - SDL_mixer 2.0.0 (from http://libsdl.org/projects/SDL_mixer/ )
-  - SDL_ttf 2.0.12 (from http://libsdl.org/projects/SDL_ttf/ )
-  These should be copied into osx/frameworks in the Egoboo source directory.
+- Xcode 4.6 (only been tested with Xcode 6)
 
 Step 2:
 

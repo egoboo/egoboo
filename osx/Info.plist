@@ -22,8 +22,6 @@
 	<string>????</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.7.0</string>
-	<key>NSMainNibFile</key>
-	<string>SDLMain</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
