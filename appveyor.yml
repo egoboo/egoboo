@@ -19,4 +19,4 @@ test:
 
 notifications:
     - provider: Webhook
-        url: https://webhooks.gitter.im/e/4b232f176269cf9f24bd
+      url: https://webhooks.gitter.im/e/4b232f176269cf9f24bd
