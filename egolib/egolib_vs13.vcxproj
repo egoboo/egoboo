@@ -243,6 +243,9 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib />
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -274,6 +277,9 @@
       <OpenMPSupport>false</OpenMPSupport>
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\VFS\Pathname.cpp" />
@@ -499,6 +505,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\AABB.hpp" />
+    <ClInclude Include="src\egolib\Math\Convex.hpp" />
     <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
     <ClInclude Include="src\egolib\AI\AStar.h" />
     <ClInclude Include="src\egolib\AI\WaypointList.h" />
@@ -612,7 +620,6 @@
     <ClInclude Include="src\egolib\math\Colour3f.hpp" />
     <ClInclude Include="src\egolib\math\Colour4f.hpp" />
     <ClInclude Include="src\egolib\math\Vector.hpp" />
-    <ClInclude Include="src\egolib\math\AABB.h" />
     <ClInclude Include="src\egolib\math\Cube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.h" />
     <ClInclude Include="src\egolib\math\Plane.hpp" />

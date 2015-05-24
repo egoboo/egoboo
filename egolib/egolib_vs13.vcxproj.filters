@@ -590,9 +590,6 @@
     <ClInclude Include="src\egolib\math\Cube.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\math\AABB.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\math\Sphere.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -940,6 +937,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\VFS\Pathname.hpp">
       <Filter>Header Files\VFS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Convex.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\AABB.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
