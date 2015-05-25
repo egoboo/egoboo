@@ -102,7 +102,7 @@ struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_
      */
     AABB(const VectorType& min, const VectorType& max)
         : _min(min), _max(max) {
-        for (size_t i = 0; i < Dimensionality; ++i) {
+        for (size_t i = 0; i < dimensionality(); ++i) {
             if (min[i] > max[i]) {
                 throw std::logic_error("minimum along an axis is greater than the maximum along that axis");
             }
@@ -161,7 +161,7 @@ struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_
      *  The result of the join was assigned to this AABB.
      */
     void join(const MyType& other) {
-        for (size_t i = 0; i < Dimensionality; ++i) {
+        for (size_t i = 0; i < dimensionality(); ++i) {
             _min[i] = std::min(_min[i], other._min[i]);
             _max[i] = std::max(_max[i], other._max[i]);
         }
@@ -179,7 +179,7 @@ struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_
      *  This function is <em>not</em> commutative.
      */
     bool contains(const MyType& other) const {
-        for (size_t i = 0; i < Dimensionality; ++i) {
+        for (size_t i = 0; i < dimensionality(); ++i) {
             if (_max[i] > other._max[i]) return false;
             if (_min[i] < other._min[i]) return false;
         }
@@ -201,7 +201,7 @@ struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_
      *  for each axis k x.min[k] >= y.min[k] and x
      */
     bool overlaps(const MyType& other) const {
-        for (size_t i = 0; i < Dimensionality; ++i) {
+        for (size_t i = 0; i < dimensionality(); ++i) {
             // If the minimum of the LHS is greater than the maximum of the RHS along one axis,
             // then they can not overlap.
             if (_min[i] > other._max[i]) {

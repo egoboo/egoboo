@@ -156,7 +156,7 @@ private:
     const Type _constant;
 public:
     InfConSeqGen(const Type& constant) :
-        constant(constant) {
+        _constant(constant) {
         /* Intentionally empty. */
     }
     Type operator()() {

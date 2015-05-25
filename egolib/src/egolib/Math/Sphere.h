@@ -88,7 +88,7 @@ public:
      *  The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
      */
     Sphere()
-        : _center(fvec3_t::zero()), _radius(0) {
+        : _center(VectorType::zero()), _radius(0) {
         /* Intentionally empty. */
     }
 

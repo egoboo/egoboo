@@ -56,16 +56,14 @@ struct Entity<_ScalarType, _Dimensionality, typename std::enable_if<IsScalar<_Sc
     typedef Vector<_ScalarType, _Dimensionality> VectorType;
     /**
      * @brief
-     *  The dimensionality.
+     *  Get the dimensionality.
+     * @return
+     *  the dimensionality
      */
-    static const size_t Dimensionality;
+    static size_t dimensionality() {
+        return _Dimensionality;
+    }
 };
-
-template <typename _ScalarType, size_t _Dimensionality>
-const size_t Entity<
-    _ScalarType, _Dimensionality,
-    typename std::enable_if<IsScalar<_ScalarType>::value && IsDimensionality<_Dimensionality>::value>::type>::Dimensionality
-= _Dimensionality;
 
 } // namespace Math
 } // namespace Ego
