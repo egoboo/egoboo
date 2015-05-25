@@ -40,14 +40,3 @@ float float_fromBits(Uint32 x);
 bool float_infinite(float x);
 bool float_nan(float x);
 bool float_bad(float x);
-
-#ifdef _DEBUG
-namespace Ego
-{
-    namespace Debug
-    {
-        template <>
-        void validate<float>(const char *file, int line, const float& object);
-    }
-}
-#endif

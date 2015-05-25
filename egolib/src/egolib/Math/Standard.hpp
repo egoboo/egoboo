@@ -7,6 +7,15 @@
 #include "egolib/Math/Sphere.h"
 #include "egolib/Math/Vector.hpp"
 
+/**
+ * @brief
+ *  Enumerated indices for the elements of vectors.
+ */
+enum {
+    kX = 0, kY, kZ, kW
+};
+
+
 /// A 2D vector.
 typedef Ego::Math::Vector<float, 2> fvec2_t;
 

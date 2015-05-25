@@ -24,6 +24,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="tests\VectorMath.cpp" />
     <ClCompile Include="tests\Pathname.cpp" />
     <ClCompile Include="tests\MatrixMath.cpp" />
     <ClCompile Include="tests\StringUtilities.cpp" />

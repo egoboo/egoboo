@@ -470,6 +470,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\ScalarField.hpp" />
     <ClInclude Include="src\egolib\Math\Dimensionality.hpp" />
     <ClInclude Include="src\egolib\Math\Entity.hpp" />
     <ClInclude Include="src\egolib\Math\Scalar.hpp" />

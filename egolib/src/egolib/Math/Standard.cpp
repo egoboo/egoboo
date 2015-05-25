@@ -9,7 +9,7 @@ namespace Debug {
 
 template <>
 void validate<float>(const char *file, int line, const float& object) {
-    if (float_bad(object[i])) {
+    if (float_bad(object)) {
         log_error("%s:%d: invalid floating point value\n", file, line);
     }
 }
