@@ -23,14 +23,43 @@
 #pragma once
 
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Entity.hpp"
+
+namespace Ego {
+namespace Math {
 
 /**
  * @brief
  *  A sphere.
- *  The terms the/a "sphere_t object" and the/a "sphere" are synonyms.
+ * @remark
+ *  The terms the/a "sphere object" and the/a "sphere" are synonyms.
  */
-struct sphere_t
-{
+template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
+struct Sphere;
+
+template <typename _ScalarType, size_t _Dimensionality>
+struct Sphere<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>
+    : public Entity<_ScalarType, _Dimensionality> {
+
+public:
+
+    /**
+     * @brief
+     *  @a MyType is the type of this template/template specialization.
+     */
+    typedef Sphere<_ScalarType, _Dimensionality> MyType;
+
+    /**
+     * @brief
+     *  The scalar type.
+     */
+    typedef typename Entity<_ScalarType, _Dimensionality>::ScalarType ScalarType;
+
+    /**
+     * @brief
+     *  The vector type.
+     */
+    typedef typename Entity<_ScalarType, _Dimensionality>::VectorType VectorType;
 
 private:
 
@@ -38,7 +67,7 @@ private:
      * @brief
      *  The center of the sphere.
      */
-    fvec3_t _center;
+    VectorType _center;
 
     /**
      * @brief
@@ -46,7 +75,7 @@ private:
      * @invariant
      *  Greater than or equal to @a 0.
      */
-    float _radius;
+    ScalarType _radius;
 
 public:
 
@@ -54,35 +83,48 @@ public:
      * @brief
      *  Construct this sphere assigning it the default values of a sphere.
      * @post
-     *  This sphere was assigned the default values of a sphere.
+     *  This sphere was constructed with the default values of a sphere.
      * @remark
      *  The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
      */
-    sphere_t();
+    Sphere()
+        : _center(fvec3_t::zero()), _radius(0) {
+        /* Intentionally empty. */
+    }
+
+    /**
+    * @brief
+    *  Construct this sphere with specified values.
+    * @param center
+    *  the center of the sphere
+    * @param radius
+    *  the radius of the sphere
+    * @throw std::domain_error
+    *  if the radius is negative
+    * @pre
+    *  The radius is not negative.
+    * @post
+    *  The sphere was constructed with the specified values.
+    */
+    Sphere(const VectorType& center, const ScalarType& radius)
+        : _center(center), _radius(radius) {
+        if (_radius < 0) {
+            throw std::domain_error("sphere radius is negative");
+        }
+    }
 
     /**
      * @brief
-     *  Construct this sphere assigning it the specified values.
-     * @param center
-     *  the center of the sphere
-     * @param radius
-     *  the radius of the sphere
-     * @throw std::domain_error
-     *  if the radius is negative
-     * @pre
-     *  The radius is not negative
+     *  Construct this sphere with the values of another sphere.
+     * @param other
+     *  the other sphere
      * @post
-     *  The sphere was assigned the specified values.
+     *  This sphere was constructed with the values of the other sphere.
      */
-    sphere_t(const fvec3_t& center, float radius);
-
-    /**
-     * @brief
-     *  Construct this sphere assigning it the values of another sphere.
-     * @post
-     *  This sphere was assigned the default values of another sphere.
-     */
-    sphere_t(const sphere_t& other);
+    Sphere(const MyType& other)
+        : _center(other._center), _radius(other._radius) {
+        /* Intentionally empty. */
+    }
 
 public:
 
@@ -92,7 +134,9 @@ public:
      * @return
      *  the center of this sphere
      */
-    const fvec3_t& getCenter() const;
+    const VectorType& getCenter() const {
+        return _center;
+    }
 
     /**
      * @brief
@@ -100,9 +144,11 @@ public:
      * @param center
      *  the center
      * @post
-     *  The sphere was assigned the center
+     *  The sphere was assigned with the center.
      */
-    void setCenter(const fvec3_t& center);
+    void setCenter(const VectorType& center) {
+        _center = center;
+    }
 
     /**
      * @brief
@@ -110,7 +156,9 @@ public:
      * @return
      *  the radius of this sphere
      */
-    float getRadius() const;
+    const ScalarType& getRadius() const {
+        return _radius;
+    }
 
     /**
      * @brief
@@ -118,38 +166,33 @@ public:
      * @param radius
      *  the radius
      * @pre
-     *  The radius must be greater than or equal to @a 0.
+     *  The radius must be non-negative.
      * @throw std::domain_error
-     *  if the radius is smaller than @a 0
+     *  if the radius is negative
      * @post
      *  If an exception is raised, the sphere's radius was not modified.
-     *  Otherwise, the sphere was assigned the radius.
+     *  Otherwise, the sphere was assigned with the radius.
      */
-    void setRadius(float radius);
+    void setRadius(const ScalarType& radius) {
+        if (radius < 0) {
+            throw std::domain_error("sphere radius is negative");
+        }
+        _radius = radius;
+    }
 
     /**
      * @brief
-     *  Assign this sphere values of another sphere.
+     *  Assign this sphere with the values of another sphere.
      * @param other
      *  the other sphere
      * @post
-     *  This sphere was assigned the values of the sphere.
+     *  This sphere was assigned with the values of the other sphere.
      */
-    void assign(const sphere_t& other);
-
-    /**
-     * @brief
-     *  Assign this sphere the values of another sphere.
-     * @param other
-     *  the other sphere
-     * @return
-     *  this sphere
-     * @post
-     *  This sphere was assigned the values of the other sphere.
-     */
-    sphere_t& operator=(const sphere_t& other);
-
-
+    void assign(const MyType& other) {
+        _radius = other._radius;
+        _center = other._center;
+    }
+    
     /**
      * @brief
      *  Get if this sphere intersects with a point.
@@ -165,7 +208,20 @@ public:
      *  \leq r^2\f$ but the latter is more efficient to test (two
      *  multiplications vs. one square root).
      */
-    bool intersects(const fvec3_t& point) const;
+    bool intersects(const VectorType& other) const {
+        // Get the squared distance other the point and the center of the sphere.
+        float distance_2 = (_center - other).length_2();
+        // Get the squared radius of the sphere.
+        float radius_2 = _radius * _radius;
+        // If the squared distance beween the point and the center of the sphere
+        // is smaller than or equal to the squared radius of the sphere ...
+        if (distance_2 <= radius_2) {
+            // ... the sphere and the point intersect.
+            return true;
+        }
+        // Otherwise they don't intersect.
+        return false;
+    }
 
     /**
      * @brief
@@ -184,6 +240,23 @@ public:
      *  is more efficient to test (two multiplications vs. one
      *  square root).
      */
-    bool intersects(const sphere_t& other) const;
+    bool intersects(const MyType& other) const {
+        // Get the squared distance between the centers of the two spheres.
+        float distance_2 = (_center - other._center).length_2();
+        // Get the squared sum of the radiis of the two spheres.
+        float sumOfRadii = _radius + other._radius;
+        float sumOfRadii_2 = sumOfRadii * sumOfRadii;
+        // If the squared distance beween the centers of the spheres
+        // is smaller than or equal to the squared sum of the radii of the spheres ...
+        if (distance_2 <= sumOfRadii_2) {
+            // ... the spheres intersect.
+            return true;
+        }
+        // Otherwise they don't intersect.
+        return false;
+    }
 
 };
+
+} // namespace Math
+} // namespace Ego

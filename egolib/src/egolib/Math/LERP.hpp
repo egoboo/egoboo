@@ -25,6 +25,7 @@
 
 #include "egolib/platform.h"
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Standard.hpp" /// @todo Remove this.
 
 namespace Ego
 {

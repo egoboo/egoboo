@@ -24,46 +24,48 @@
 #pragma once
 
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Entity.hpp"
 #include "egolib/Math/Sphere.h"
 
 namespace Ego {
 namespace Math {
 
-template <typename _ScalarType, size_t _Dimensionality, typename Enabled = void>
-struct AABB;
-
 /**
  * @brief
  *  An axis-aligned bounding box ("AABB").
  * @param _ScalarType
- *  the scalar type.
- *  Must be a floating point type.
+ *  must fulfil the <em>scalar</em> concept
  * @param _Dimensionality
- *  the dimensionality.
- *  Must be a 
+ *  must fulfil the <em>dimensionality</em> concept
  * @remark
  *  The terms "the/an axis-aligned bounding box (object)" and "the/an AABB (object)" are synonyms.
+ * @author
+ *  Michael Heilmann
  */
-template <typename _ScalarType, size_t _Dimensionality>
-struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> {
+template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
+struct AABB;
 
+template <typename _ScalarType, size_t _Dimensionality>
+struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> 
+    : public Entity<_ScalarType, _Dimensionality> {
+
+    /**
+     * @brief
+     *  @a MyType is the type of this template/template specialization.
+     */
+    typedef AABB<_ScalarType, _Dimensionality> MyType;
+    
+    /**
+     * @brief
+     *  The scalar type.
+     */
+    typedef typename Entity<_ScalarType, _Dimensionality>::ScalarType ScalarType;
+    
     /**
      * @brief
      *  The vector type.
      */
-    typedef Ego::Math::Vector<_ScalarType, _Dimensionality> VectorType;
-
-    /**
-     * @brief
-     *  @a MyType is the type of the AABB.
-     */
-    typedef AABB<_ScalarType, _Dimensionality> MyType;
-
-    /**
-     * @brief
-     *  The dimensionality.
-     */
-    static const size_t Dimensionality;
+    typedef typename Entity<_ScalarType, _Dimensionality>::VectorType VectorType;
 
     /**
      * @brief
@@ -81,7 +83,7 @@ struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_
      * @brief
      *  Construct this AABB with its default values.
      * @remark
-     *  The default values of a bounding box are the center of @a (0,0,0) and the size of @a 0 along all axes.
+     *  The default values of an AABB are the center of @a (0,0,0) and the size of @a 0 along all axes.
      */
     AABB()
         : _min(), _max() {
@@ -247,22 +249,5 @@ public:
 
 };
 
-template <typename _ScalarType, size_t _Dimensionality>
-const size_t AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>::Dimensionality
-= _Dimensionality;
-
 } // namespace Math
 } // namespace Ego
-
-typedef Ego::Math::AABB<float, 3> aabb_t;
-
-#ifdef _DEBUG
-namespace Ego
-{
-namespace Debug
-{
-template <>
-void validate<::aabb_t>(const char *file, int line, const ::aabb_t& object);
-}
-}
-#endif

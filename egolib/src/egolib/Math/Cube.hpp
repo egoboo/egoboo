@@ -23,21 +23,104 @@
 #pragma once
 
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Entity.hpp"
 
-struct cube_t
-{
+namespace Ego {
+namespace Math {
+
+template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
+struct Cube;
+
+template <typename _ScalarType, size_t _Dimensionality>
+struct Cube < _ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> 
+    : public Entity<_ScalarType, _Dimensionality> {
+
+public:
+
+    /**
+     * @brief
+     *  @a MyType is the type of this template/template specialization.
+     */
+    typedef Cube<_ScalarType, _Dimensionality> MyType;
+
+    /**
+     * @brief
+     *  The scalar type.
+     */
+    typedef typename Entity<_ScalarType, _Dimensionality>::ScalarType ScalarType;
+
+    /**
+     * @brief
+     *  The vector type.
+     */
+    typedef typename Entity<_ScalarType, _Dimensionality>::VectorType VectorType;
+
+private:
+
     /**
      * @brief
      *  The center of the cube.
      */
-    fvec3_t center;
+    VectorType _center;
+    
     /**
      * @brief
      *  The size of the cube.
      * @invariant
      *  Greater than or equal to @a 0.
      */
-    float size;
+    ScalarType _size;
+
+public:
+
+    /**
+     * @brief
+     *  Construct this cube with the default values of a cube.
+     * @post
+     *  This cube was constructed with the default values of a cube.
+     * @remark
+     *  The default values of a cube are the center of @a (0,0,0) and the size of @a 0.
+     */
+    Cube()
+        : _center(), _size() {
+        /* Intentionally empty. */
+    }
+
+    /**
+     * @brief
+     *  Construct this cube with the specified values.
+     * @param center
+     *  the center of the cube
+     * @param size
+     *  the size of the cube
+     * @throw std::domain_error
+     *  if the size is negative
+     * @pre
+     *  The size is not negative.
+     * @post
+     *  The cube was constructed with the specified values.
+     */
+    Cube(const VectorType& center, const ScalarType& size)
+        : _center(center), _size(size) {
+        if (_radius < 0) {
+            throw std::domain_error("cube size is negative");
+        }
+    }
+
+    /**
+     * @brief
+     *  Construct this cube with the values of another cube.
+     * @param other
+     *  the other cube
+     * @post
+     *  The cube was constructed with the values of the other cube.
+     */
+    Cube(const MyType& other)
+        : _center(other._center), _size(other._size) {
+        /* Intentionally empty. */
+    }
+
+public:
 
     /**
      * @brief
@@ -45,9 +128,8 @@ struct cube_t
      * @return
      *  the center of this cube
      */
-    const fvec3_t& getCenter() const
-    {
-        return center;
+    const VectorType getCenter() const {
+        return _center;
     }
 
     /**
@@ -55,35 +137,19 @@ struct cube_t
      *  Get the size of this cube.
      * @return
      *  the size of this cube
+     */
+    const ScalarType& getSize() const {
+        return _size;
+    }
+
+    /**
+    * @brief
+    *  Get the minimum of this cube.
+    * @return
+    *  the minimum of this cube
     */
-    const float& getSize() const
-    {
-        return size;
-    }
-
-    /**
-     * @brief
-     *  Assign this cube the values of another cube.
-     * @param other
-     *  the other cube
-     * @post
-     *  This cube was assigned the values of the other cube.
-     */
-    void assign(const cube_t& other)
-    {
-        center = other.center;
-        size = other.size;
-    }
-
-    /**
-     * @brief
-     *  Get the minimum of this cube.
-     * @return
-     *  the minimum of this cube
-     */
-    fvec3_t getMin() const
-    {
-        return fvec3_t(center[kX] - size, center[kY] - size, center[kZ] - size);
+    VectorType getMin() const {
+        return _center - VectorType(InfConSeqGen(_size));
     }
 
     /**
@@ -92,14 +158,28 @@ struct cube_t
      * @return
      *  the maximum of this cube
      */
-    fvec3_t getMax() const
-    {
-        return fvec3_t(center[kX] + size, center[kY] + size, center[kZ] + size);
+    VectorType getMax() const {
+        return _center + VectorType(InfConSeqGen(_size));
     }
 
     /**
      * @brief
-     *  Assign this cube the values of another cube.
+     *  Assign this cube with the values of another cube.
+     * @param other
+     *  the other cube
+     * @post
+     *  This cube was assigned with the values of the other cube.
+     */
+    void assign(const MyType& other) {
+        _center = other._center;
+        _size = other._size;
+    }
+
+public:
+
+    /**
+     * @brief
+     *  Assign this cube with the values of another cube.
      * @param other
      *  the other cube
      * @return
@@ -107,9 +187,12 @@ struct cube_t
      * @post
      *  This cube was assigned the values of the other cube.
      */
-    cube_t& operator=(const cube_t& other)
-    {
+    MyType& operator=(const MyType& other) {
         assign(other);
         return *this;
     }
+
 };
+
+} // namespace Math
+} // namespace Ego

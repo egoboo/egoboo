@@ -23,29 +23,79 @@
 #pragma once
 
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Standard.hpp" /// @todo Remove this.
+#include "egolib/Math/Entity.hpp"
+
+namespace Ego {
+namespace Math {
 
 /**
  * @brief
- *    A plane in the normal-distance form defined as
- *    \f[
- *    \hat{n} \cdot P + d = 0
- *    \f]
- *    where \f$\hat{n}\f$ is the unit plane normal and \f$d\f$ is the distance of the plane from the origin.
- *    Any point \f$P\f$ for which the above equation is fulfilled is on the plane.
+ *  A plane in the normal-distance form defined as
+ *  \f[
+ *  \hat{n} \cdot P + d = 0
+ *  \f]
+ *  where \f$\hat{n}\f$ is the unit plane normal and \f$d\f$ is the distance of the plane from the origin.
+ *  Any point \f$P\f$ for which the above equation is fulfilled is on the plane.
  * @author
  *  Michael Heilmann
  */
-struct plane_t
-{
+template <typename _ScalarType, typename _Enabled = void>
+struct Plane3;
+
+template <typename _ScalarType>
+struct Plane3<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type> :
+    public Entity<_ScalarType, 3> {
+
 public:
 
     /**
      * @brief
-     *  Default constructor.
-     * @remark
-     *  The default plane has the plane normal @a (0,0,1) and a distance from the origin of @a 0.
+     *  @a MyType is the type of this template/template specialization.
      */
-    plane_t();
+    typedef Plane3<_ScalarType> MyType;
+
+    /**
+     * @brief
+     *  The scalar type.
+     */
+    typedef typename Entity<_ScalarType, 3>::ScalarType ScalarType;
+
+    /**
+     * @brief
+     *  The vector type.
+     */
+    typedef typename Entity<_ScalarType, 3>::VectorType VectorType;
+
+private:
+
+    /**
+     * @brief
+     *  The plane normal.
+     * @invariant
+     *  The plane normal is a unit vector.
+     */
+    VectorType _n;
+    
+    /**
+     * @brief
+     *  The distance of the plane from the origin.
+     */
+    ScalarType _d;
+
+public:
+
+    /**
+    * @brief
+    *  Default constructor.
+    * @remark
+    *  The default plane has the plane normal @a (0,0,1) and a distance from the origin of @a 0.
+    */
+    Plane3() :
+        _n(0, 0, 1), _d(0)
+    {
+        /* Intentionally empty. */
+    }
 
     /**
      * @brief
@@ -57,12 +107,21 @@ public:
      *  \f$(\hat{n}',d')\f$ is defined as \f$\hat{n}' = \frac{\vec{n}}{|\vec{n}'|}\f$
      *  and \f$d' = \frac{d}{|\vec{n}'|}\f$ where \f$\vec{n}' = (a,b,c)\f$.
      */
-    plane_t(float a, float b, float c, float d);
+    Plane3(const ScalarType& a, const ScalarType& b, const ScalarType& c, const ScalarType& d)
+        : _n(a, b, c), _d(d) {
+        auto l = _n.length();
+        if (0.0f == l) {
+            throw std::domain_error("normal vector is zero vector");
+        }
+        auto il = 1.0f / l;
+        _n *= il;
+        _d *= il;
+    }
 
     /**
      * @brief
-     *  Create a plane from three non-collinear points.
-     * @param a,b,c
+     *  Construct a plane with three non-collinear points.
+     * @param a, b, c
      *  the point
      * @throw std::domain_error
      *  if the points are collinear
@@ -90,7 +149,7 @@ public:
      *  =&(\frac{1}{|n|}n) \cdot (p - a)        \;\;\\
      *  =&\frac{1}{|n|}(n \cdot (p - a))       \;\;\text{Compatibility of the dot product w. scalar multiplication}\\
      *  =&n \cdot (p - a)                       \;\;\\
-     *  =&(u \times v) \cdot (p - a)            \;\;\text{Def. of } n  
+     *  =&(u \times v) \cdot (p - a)            \;\;\text{Def. of } n
      *  \f}
      *  Let \f$p = b\f$ then
      *  \f{align*}{
@@ -107,11 +166,26 @@ public:
      *  as \f$u \times v\f$ is orthogonal to both \f$u\f$ and \f$v\f$.
      *  This shows that \f$b\f$ and \f$c\f$ are on the plane.
      */
-    plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c);
+    Plane3(const VectorType& a, const VectorType& b, const VectorType& c) {
+        auto u = b - a;
+        if (u == VectorType::zero()) {
+            throw std::domain_error("b = a");
+        }
+        auto v = c - a;
+        if (u == VectorType::zero()) {
+            throw std::domain_error("c = a");
+        }
+        _n = u.cross(v);
+        if (0.0f == _n.normalize()) {
+            /* u x v = 0 is only possible for u,v != 0 if u = v and thus b = c. */
+            throw std::domain_error("b = c");
+        }
+        _d = -_n.dot(a);
+    }
 
     /**
      * @brief
-     *  Create a plane from a point and a normal.
+     *  Construct a plane with a point and a normal.
      * @param p
      *  the point
      * @param n
@@ -119,7 +193,7 @@ public:
      * @throw std::domain_error
      *  if the normal vector is the zero vector
      * @remark
-     *  The plane normal is normalized if necessary. 
+     *  The plane normal is normalized if necessary.
      * @remark
      *  Let \f$v\f$ be the point and \f$n\f$ the normal, then the plane equation is given by
      *  \f{align*}{
@@ -133,35 +207,74 @@ public:
      *  =&0
      *  \f}
      */
-    plane_t(const fvec3_t& p, const fvec3_t& n);
+    Plane3(const VectorType& p, const VectorType& n)
+        : _n(n), _d(0.0f) {
+        if (_n.normalize() == 0.0f) {
+            throw std::domain_error("normal vector is zero vector");
+        }
+        _d = -_n.dot(p);
+    }
+
+    /**
+    * @brief
+    *  Construct a plane from a translation axis and a distance from the origin.
+    * @param t
+    *  the translation axis
+    * @param d
+    *  the distance from the origin
+    * @post
+    *  Given an axis \f$\vec{t}\f$ and a distance from the origin \f$d\f$
+    *  the plane equation is given by
+    *  \f{align*}{
+    *  \hat{n} \cdot p + d = 0, \hat{n}=\frac{\vec{t}}{|\vec{t}|}
+    *  \f}
+    * @throw std::domain_error
+    *    if the translation axis is the zero vector
+    */
+    Plane3(const VectorType& t, const ScalarType& d)
+        : _n(t), _d(d) {
+        if (_n.normalize() == 0.0f) {
+            throw std::domain_error("axis vector is zero vector");
+        }
+    }
+
 
     /**
      * @brief
-     *  Construct a plane from a translation axis and a distance from the origin.
-     * @param t
-     *  the translation axis
-     * @param d
-     *  the distance from the origin
-     * @post
-     *  Given an axis \f$\vec{t}\f$ and a distance from the origin \f$d\f$
-     *  the plane equation is given by
-     *  \f{align*}{
-     *  \hat{n} \cdot p + d = 0, \hat{n}=\frac{\vec{t}}{|\vec{t}|}
-     *  \f}
-     * @throw std::domain_error
-     *    if the translation axis is the zero vector
-     */
-    plane_t(const fvec3_t& t, const float d);
-
-    /**
-     * @brief
-     *  Create a plane from another plane (copy constructor).
+     *  Copy-construct a plane from another plane.
      * @param other
      *  the other plane
      * @post
-     *  This plane was assigned the values the other plane.
+     *  This plane was constructed with the values of the other plane.
      */
-    plane_t(const plane_t& other);
+    Plane3(const MyType& other)
+        : _n(other._n), _d(other._d) {
+        /* Intentionally empty. */
+    }
+
+public:
+
+    /**
+     * @brief
+     *  Get the plane normal of this plane.
+     * @return
+     *  the plane normal of this plane
+     */
+    const VectorType& getNormal() const {
+        return _n;
+    }
+
+    /**
+     * @brief
+     *  Get the distance of this plane from the origin.
+     * @return
+     *  the distance of this plane from the origin
+     */
+    const ScalarType& getDistance() const {
+        return _d;
+    }
+
+public:
 
     /**
      * @brief
@@ -176,7 +289,7 @@ public:
      *  Let \f$\hat{n} \cdot P + d = 0\f$ be a plane and \f$v\f$ be some point.
      *  We claim that \f$d'=\hat{n} \cdot v + d\f$ is the signed distance of the
      *  point \f$v\f$ from the plane.
-     *  
+     *
      *  To show this, assume \f$v\f$ is not in the plane. Then there
      *  exists a single point \f$u\f$ on the plane which is closest to
      *  \f$v\f$ such that \f$v\f$ can be expressed by translating \f$u\f$
@@ -197,42 +310,11 @@ public:
      *  = &d'
      *  \f}
      */
-    float distance(const fvec3_t& point) const;
-
-    /**
-     * @brief
-     *  Get the plane normal of this plane.
-     * @return
-     *  the plane normal of this plane
-     */
-    const fvec3_t getNormal() const
-    {
-        return _n;
+    ScalarType distance(const VectorType& point) const {
+        return _n.dot(point) + _d;
     }
 
-    /**
-     * @brief
-     *  Get the distance of this plane from the origin.
-     * @return
-     *  the distance of this plane from the origin
-     */
-    float getDistance() const
-    {
-        return _d;
-    }
-
-
-private:
-    /**
-     * @brief
-     *  The plane normal.
-     * @invariant
-     *  The plane normal is a unit vector.
-     */
-    fvec3_t _n;
-    /**
-     * @brief
-     *  The distance of the plane from the origin.
-     */
-    float _d;
 };
+
+} // namespace Math
+} // namespace Ego

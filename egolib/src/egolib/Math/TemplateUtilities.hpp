@@ -91,7 +91,7 @@ struct index_sequence { };
 /**
  * To demonstrate how the index sequence is generated (x <: y means "x extends y"),
  * @code
- * make_index_sequence<5> <:
+ * make_index_sequence<5>
  * <: make_index_sequence<4,4>
  * <: make_index_sequence<3,3,4>
  * <: make_index_sequence<2,2,3,4>

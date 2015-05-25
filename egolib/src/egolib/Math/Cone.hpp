@@ -20,42 +20,70 @@
 /// @file  egolib/Math/Cone.hpp
 /// @brief Cones.
 
+#pragma once
+
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Entity.hpp"
+
+namespace Ego {
+namespace Math {
+
+template <typename _ScalarType, typename _Enabled = void>
+struct Cone3;
 
 /**
  * @brief
  *  A cone given by its origin, an axis and its opening angle.
  */
-struct cone_t
-{
-    fvec3_t origin;
-    fvec3_t axis;
+template <typename _ScalarType>
+struct Cone3<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type> :
+    public Entity<_ScalarType, 3> {
+    /**
+     * @brief
+     *  @a MyType is the type of this template/template specialization.
+     */
+    typedef Cone3<_ScalarType> MyType;
+
+    /**
+    * @brief
+    *  The scalar type.
+    */
+    typedef typename Entity<_ScalarType, 3>::ScalarType ScalarType;
+
+    /**
+    * @brief
+    *  The vector type.
+    */
+    typedef typename Entity<_ScalarType, 3>::VectorType VectorType;
+
+    VectorType origin;
+    VectorType axis;
 
     // use these values to pre-calculate trig functions based off of the opening angle
-    float   inv_sin;
-    float   sin_2;
-    float   cos_2;
+    ScalarType inv_sin;
+    ScalarType sin_2;
+    ScalarType cos_2;
 
-    cone_t() :
+    /// @todo Zero axis is not allowed.
+    Cone3() :
         origin(0, 0, 0),
         axis(0, 0, 0),
         inv_sin(0.0f),
         sin_2(0.0f),
         cos_2(0.0f)
     {
-        //ctor
+        /* Intentionally empty. */
     }
 
     /**
      * @brief
-     *	Assign this cone the values of another cone.
+     *  Assign this cone the values of another cone.
      * @param other
-     *	the other cone
+     *  the other cone
      * @post
-     *	This cone was assigned the values of the other cone.
+     *  This cone was assigned the values of the other cone.
      */
-    void assign(const cone_t& other)
-    {
+    void assign(const MyType& other) {
         origin = other.origin;
         axis = other.axis;
         inv_sin = other.inv_sin;
@@ -65,16 +93,15 @@ struct cone_t
 
     /**
      * @brief
-     *	Assign this cone the values of another cone.
+     *  Assign this cone the values of another cone.
      * @param other
-     *	the other cone
+     *  the other cone
      * @return
-     *	this cone
+     *  this cone
      * @post
-     *	This cone was assigned the values of the other cone.
+     *  This cone was assigned the values of the other cone.
      */
-    cone_t& operator=(const cone_t& other)
-    {
+    MyType& operator=(const MyType& other) {
         assign(other);
         return *this;
     }
@@ -85,8 +112,7 @@ struct cone_t
      * @return
      *  the origin of this cone
      */
-    const fvec3_t& getOrigin() const
-    {
+    const VectorType& getOrigin() const {
         return origin;
     }
 
@@ -96,8 +122,7 @@ struct cone_t
      * @return
      *  the axis of this cone
      */
-    const fvec3_t& getAxis() const
-    {
+    const VectorType& getAxis() const {
         return axis;
     }
 
@@ -107,9 +132,11 @@ struct cone_t
      * @param t
      *  the translation vector
      */
-    void translate(const fvec3_t& t)
-    {
+    void translate(const VectorType& t) {
         origin += t;
     }
 
 };
+
+} // namespace Math
+} // namespace Ego
