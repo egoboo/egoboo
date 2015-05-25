@@ -219,9 +219,6 @@
     <ClCompile Include="src\egolib\math\Random.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\math\Cube.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\math\Colour4f.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
@@ -230,15 +227,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\Plane.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\Sphere.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\AABB.cpp">
-      <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\Renderer\OpenGL\Renderer.cpp">
       <Filter>Source Files\Renderer\OpenGL</Filter>
@@ -357,12 +345,6 @@
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\Math\Vector.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\Math\Cone.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\Math\Matrix44.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
@@ -461,6 +443,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\VFS\Pathname.cpp">
       <Filter>Source Files\VFS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Math\Standard.cpp">
+      <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -942,6 +927,18 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\AABB.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Scalar.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Dimensionality.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Entity.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Standard.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>

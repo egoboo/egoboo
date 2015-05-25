@@ -282,6 +282,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\Math\Standard.cpp" />
     <ClCompile Include="src\egolib\VFS\Pathname.cpp" />
     <ClCompile Include="src\egolib\AI\AStar.c" />
     <ClCompile Include="src\egolib\AI\WaypointList.c" />
@@ -352,9 +353,7 @@
     <ClCompile Include="src\egolib\FileFormats\template.c" />
     <ClCompile Include="src\egolib\FileFormats\treasure_table_file.c" />
     <ClCompile Include="src\egolib\FileFormats\wawalite_file.c" />
-    <ClCompile Include="src\egolib\Math\Cone.cpp" />
     <ClCompile Include="src\egolib\math\LERP.cpp" />
-    <ClCompile Include="src\egolib\Math\Vector.cpp" />
     <ClCompile Include="src\egolib\Profiles\EnchantProfileSystem.cpp" />
     <ClCompile Include="src\egolib\Profiles\ParticleProfileSystem.cpp" />
     <ClCompile Include="src\egolib\IDSZ.cpp" />
@@ -373,7 +372,6 @@
     <ClCompile Include="src\egolib\Scene\Branch.cpp" />
     <ClCompile Include="src\egolib\Scene\LeafList.cpp" />
     <ClCompile Include="src\egolib\Scene\Tree.cpp" />
-    <ClCompile Include="src\egolib\math\Sphere.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\Renderer.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\Renderer.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\Renderer.o</ObjectFileName>
@@ -409,36 +407,6 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Renderer\Renderer.o</ObjectFileName>
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\Renderer.asm</AssemblerListingLocation>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Renderer\Renderer.o</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\AABB.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\AABB.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\AABB.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\AABB.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\AABB.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\AABB.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\AABB.asm</AssemblerListingLocation>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\AABB.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\AABB.o</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\Cube.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\Cube.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\Cube.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\Cube.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\Cube.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\Cube.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\Cube.asm</AssemblerListingLocation>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Cube.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Cube.o</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\Plane.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\Plane.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\Plane.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Math\Plane.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\Plane.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Math\Plane.o</ObjectFileName>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\Plane.asm</AssemblerListingLocation>
-      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Plane.asm</AssemblerListingLocation>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)Math\Plane.o</ObjectFileName>
     </ClCompile>
     <ClCompile Include="src\egolib\math\Random.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)Math\Random.o</ObjectFileName>
@@ -505,6 +473,10 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Dimensionality.hpp" />
+    <ClInclude Include="src\egolib\Math\Entity.hpp" />
+    <ClInclude Include="src\egolib\Math\Scalar.hpp" />
+    <ClInclude Include="src\egolib\Math\Standard.hpp" />
     <ClInclude Include="src\egolib\Math\AABB.hpp" />
     <ClInclude Include="src\egolib\Math\Convex.hpp" />
     <ClInclude Include="src\egolib\VFS\Pathname.hpp" />
