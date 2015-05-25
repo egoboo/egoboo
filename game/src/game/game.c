@@ -789,7 +789,7 @@ int update_game()
 
     //---- begin the code for updating misc. game stuff
     {
-        BillboardList_update_all();
+        g_billboardList.update_all();
         animate_tiles();
         water_instance_move( &water );
         AudioSystem::get().updateLoopingSounds();

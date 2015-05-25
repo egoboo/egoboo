@@ -54,27 +54,61 @@ enum e_bb_opt
 /// Any graphics that can be composited onto a SDL_surface can be used
 struct billboard_data_t
 {
-    bool    valid;        ///< has the billboard data been initialized?
+    using Colour3f = Ego::Math::Colour3f;
+    using Colour4f = Ego::Math::Colour4f;
+    bool _valid;        ///< has the billboard data been initialized?
 
-    Uint32    time;         ///< the time when the billboard will expire
-    TX_REF    tex_ref;      ///< our texture index
-    fvec3_t   pos;          ///< the position of the bottom-missle of the box
+    /**
+     * @brief
+     *  The point in time after which the billboard is expired.
+     */
+    Uint32 _endTime;
+    /**
+     * @brief
+     *  The texture reference.
+     */
+    TX_REF _tex_ref;
+    fvec3_t _position;          ///< the position of the bottom-missle of the box
 
-    CHR_REF   ichr;         ///< the character we are attached to
+    CHR_REF   _obj_ref;         ///< the character we are attached to
 
-    GLXvector4f tint;       ///< a color to modulate the billboard's r,g,b, and a channels
-    GLXvector4f tint_add;   ///< the change in tint per update
+    /**
+     * @brief
+     *  The colour of the billboard.
+     */
+    Colour4f _tint;
+    /**
+     * @brief
+     *  Additive over-time colour modifier.
+     * @remark
+     *  Each time the billboard is updated, <tt>_tint += _tint_add</tt> is computed.
+     */
+    fvec4_t _tint_add;
 
-    GLXvector4f offset;     ///< an offset to the billboard's position in world coordinates
-    GLXvector4f offset_add; ///< a "velocity vector" for the offest to make the billboard fly away
+    /**
+     * @brief
+     *  An offset to the billboard's position.
+     * @remark
+     *  The offset is given in world cordinates.
+     */
+    fvec3_t _offset;
+    /**
+     * @brief
+     *  Additive over-time offset modifier.
+     * @remark
+     *  Each time the billboard is updated, <tt>_offset += _offset_add</tt> is computed.
+     */
+    fvec3_t _offset_add;
 
-    float       size;
-    float       size_add;
+    float _size;
+    float _size_add;
 
-    static billboard_data_t *init(billboard_data_t *self);
-    static bool free(billboard_data_t *self);
-    static bool update(billboard_data_t *self);
-    static bool printf_ttf(billboard_data_t *self, const std::shared_ptr<Ego::Font>& font, const Ego::Math::Colour4f& color, const char * format, ...) GCC_PRINTF_FUNC(4);
+    billboard_data_t();
+    billboard_data_t *init(bool valid, Uint32 endTime, TX_REF tex_ref);
+    billboard_data_t *init();
+    bool free();
+    bool update();
+    bool printf_ttf(const std::shared_ptr<Ego::Font>& font, const Ego::Math::Colour4f& color, const char * format, ...) GCC_PRINTF_FUNC(4);
 
 };
 
@@ -83,7 +117,42 @@ struct billboard_data_t
 // BillboardList
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LIST_EXTERN(billboard_data_t, BillboardList, BILLBOARDS_MAX);
+struct BillboardList
+{
+private:
+    Ego::GUID update_guid;
+    int used_count;
+    int free_count;
+    size_t used_ref[BILLBOARDS_MAX];
+    size_t free_ref[BILLBOARDS_MAX];
+    billboard_data_t lst[BILLBOARDS_MAX];
+public:
+    void init_all();
+    void update_all();
+    void free_all();
+
+    void clear_data();
+
+    billboard_data_t *get_ptr(const size_t index)   {
+        return LAMBDA(index >= BILLBOARDS_MAX, nullptr, &(lst[index]));
+    }
+    bool free_one(BBOARD_REF ref);
+    /**
+     * @brief
+     *  Acquire a fresh billboard.
+     * @param lifetime_secs
+     *  the lifetime of the billboard, in seconds
+     * @return
+     *  the billboard reference on success, #INVALID_BBOARD_REF on failure.
+     *  #INVALID_BBOARD_REF is also returned if there are no free billboards available or
+     *  if no free texture reference could be acquired for the billboard. In particular,
+     *  #INVALID_BBOARD_REF is also returned, if @a lifetime_secs is @a 0, as the billboard
+     *  is already expired.
+     */
+    BBOARD_REF get_free_ref(Uint32 lifetime_secs);
+};
+
+extern BillboardList g_billboardList;
 
 inline bool VALID_BILLBOARD_RANGE(BBOARD_REF ref)
 {
@@ -94,14 +163,11 @@ inline bool VALID_BILLBOARD_RANGE(BBOARD_REF ref)
 inline bool VALID_BILLBOARD(BBOARD_REF ref)
 {
     return VALID_BILLBOARD_RANGE(ref)
-        && BillboardList.lst[ref].valid;
+        && g_billboardList.get_ptr(ref)->_valid;
 }
 
-void BillboardList_init_all();
-void BillboardList_update_all();
-void BillboardList_free_all();
-BBOARD_REF BillboardList_get_free_ref(Uint32 lifetime_secs);
-bool BillboardList_free_one(BBOARD_REF ref);
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

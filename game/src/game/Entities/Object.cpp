@@ -273,7 +273,7 @@ Object::~Object()
     /// Free all allocated memory
 
     // deallocate
-    BillboardList_free_one(ibillboard);
+    g_billboardList.free_one(ibillboard);
 
     chr_instance_dtor( &inst );
     ai_state_dtor( &ai );

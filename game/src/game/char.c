@@ -5091,7 +5091,7 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
 }
 
 //--------------------------------------------------------------------------------------------
-BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
+BBOARD_REF chr_add_billboard( const CHR_REF obj_ref, Uint32 lifetime_secs )
 {
     /// @author BB
     /// @details Attach a basic billboard to a character. You set the billboard texture
@@ -5101,108 +5101,94 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
     ///    must be called with a valid character, so be careful if you call this function from within
     ///    spawn_one_character()
 
-    Object * pchr;
+    if ( !_gameObjects.exists( obj_ref ) ) return INVALID_BBOARD_REF;
+    Object *obj_ptr = _gameObjects.get(obj_ref);
 
-    if ( !_gameObjects.exists( ichr ) ) return INVALID_BBOARD_REF;
-    pchr = _gameObjects.get( ichr );
-
-    if ( INVALID_BBOARD_REF != pchr->ibillboard )
+    if (INVALID_BBOARD_REF != obj_ptr->ibillboard)
     {
-        BillboardList_free_one( REF_TO_INT( pchr->ibillboard ) );
-        pchr->ibillboard = INVALID_BBOARD_REF;
+        g_billboardList.free_one(obj_ptr->ibillboard);
+        obj_ptr->ibillboard = INVALID_BBOARD_REF;
     }
 
-    pchr->ibillboard = BillboardList_get_free_ref( lifetime_secs );
+    obj_ptr->ibillboard = g_billboardList.get_free_ref(lifetime_secs);
 
     // attachr the billboard to the character
-    if ( INVALID_BBOARD_REF != pchr->ibillboard )
+    if (INVALID_BBOARD_REF != obj_ptr->ibillboard)
     {
-        billboard_data_t * pbb = BillboardList_get_ptr( pchr->ibillboard );
+        billboard_data_t * pbb = g_billboardList.get_ptr(obj_ptr->ibillboard);
 
-        pbb->ichr = ichr;
-        pbb->pos = pchr->getPosition();
+        pbb->_obj_ref = obj_ref;
+        pbb->_position = obj_ptr->getPosition();
     }
 
-    return pchr->ibillboard;
+    return obj_ptr->ibillboard;
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
+billboard_data_t *chr_make_text_billboard( const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
-    Object            * pchr;
-    billboard_data_t * pbb;
-    int                rv;
-
-    BBOARD_REF ibb = INVALID_BBOARD_REF;
-
     if ( !_gameObjects.exists( ichr ) ) return NULL;
-    pchr = _gameObjects.get( ichr );
+    Object *obj_ptr = _gameObjects.get( ichr );
 
     // create a new billboard or override the old billboard
-    ibb = chr_add_billboard( ichr, lifetime_secs );
+    BBOARD_REF ibb = chr_add_billboard( ichr, lifetime_secs );
     if ( INVALID_BBOARD_REF == ibb ) return NULL;
 
-    pbb = BillboardList_get_ptr( pchr->ibillboard );
+    billboard_data_t *pbb = g_billboardList.get_ptr(obj_ptr->ibillboard);
     if ( NULL == pbb ) return pbb;
 
-    rv = billboard_data_t::printf_ttf( pbb, _gameEngine->getUIManager()->getFloatingTextFont(), text_color, "%s", txt );
+    int rv = pbb->printf_ttf( _gameEngine->getUIManager()->getFloatingTextFont(), text_color, "%s", txt );
 
     if ( rv < 0 )
     {
-        pchr->ibillboard = INVALID_BBOARD_REF;
-        BillboardList_free_one( REF_TO_INT( ibb ) );
+        obj_ptr->ibillboard = INVALID_BBOARD_REF;
+        g_billboardList.free_one(ibb);
         pbb = NULL;
     }
     else
     {
         // copy the tint over
-        pbb->tint[RR] = tint.getRed();
-        pbb->tint[GG] = tint.getGreen();
-        pbb->tint[BB] = tint.getBlue();
-        pbb->tint[AA] = tint.getAlpha();
+        pbb->_tint = tint;
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_randomize_pos ) )
         {
             // make a random offset from the character
-            pbb->offset[XX] = (Random::nextFloat() * 2 - 1) * GRID_FSIZE / 5.0f;
-            pbb->offset[YY] = (Random::nextFloat() * 2 - 1) * GRID_FSIZE / 5.0f;
-            pbb->offset[ZZ] = (Random::nextFloat() * 2 - 1) * GRID_FSIZE / 5.0f;
+            pbb->_offset = fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
+                         * (GRID_FSIZE / 5.0f);
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_randomize_vel ) )
         {
             // make the text fly away in a random direction
-            pbb->offset_add[XX] += (Random::nextFloat() * 2 - 1) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
-            pbb->offset_add[YY] += (Random::nextFloat() * 2 - 1) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
-            pbb->offset_add[ZZ] += (Random::nextFloat() * 2 - 1) * 2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            pbb->_offset_add += fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
+                              * (2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS);
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_fade ) )
         {
             // make the billboard fade to transparency
-            pbb->tint_add[AA] = -1.0f / (lifetime_secs * GameEngine::GAME_TARGET_UPS);
+            pbb->_tint_add[AA] = -1.0f / (lifetime_secs * GameEngine::GAME_TARGET_UPS);
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_burn ) )
         {
             float minval, maxval;
 
-			minval = std::min({ pbb->tint[RR], pbb->tint[GG], pbb->tint[BB] });
-			maxval = std::max({ pbb->tint[RR], pbb->tint[GG], pbb->tint[BB] });
+            minval = std::min({ pbb->_tint.getRed(), pbb->_tint.getGreen(), pbb->_tint.getBlue() });
+            maxval = std::max({ pbb->_tint.getRed(), pbb->_tint.getGreen(), pbb->_tint.getBlue() });
 
-            if ( pbb->tint[RR] != maxval )
-            {
-                pbb->tint_add[RR] = -pbb->tint[RR] / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            if (pbb->_tint.getRed() != maxval) {
+                pbb->_tint_add[RR] = -pbb->_tint.getRed() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
             }
 
-            if ( pbb->tint[GG] != maxval )
+            if (pbb->_tint.getGreen() != maxval)
             {
-                pbb->tint_add[GG] = -pbb->tint[GG] / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+                pbb->_tint_add[GG] = -pbb->_tint.getGreen() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
             }
 
-            if ( pbb->tint[BB] != maxval )
+            if ( pbb->_tint.getBlue() != maxval )
             {
-                pbb->tint_add[BB] = -pbb->tint[BB] / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+                pbb->_tint_add[BB] = -pbb->_tint.getBlue() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
             }
         }
     }

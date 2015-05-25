@@ -1329,7 +1329,7 @@ void gfx_system_release_all_graphics()
     gfx_init_bar_data();
     gfx_init_blip_data();
     gfx_init_map_data();
-    BillboardList_free_all();
+    g_billboardList.free_all();
     TextureManager::get().release_all();
 }
 
@@ -1339,7 +1339,7 @@ void gfx_system_delete_all_graphics()
     gfx_init_bar_data();
     gfx_init_blip_data();
     gfx_init_map_data();
-    BillboardList_free_all();
+    g_billboardList.free_all();
 }
 
 //--------------------------------------------------------------------------------------------
