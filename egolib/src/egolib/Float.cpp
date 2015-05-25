@@ -57,20 +57,3 @@ bool float_bad(float x)
 
 	return (IEEE32_EXPONENT == (u & IEEE32_EXPONENT)) ? true : false;
 }
-
-#ifdef _DEBUG
-namespace Ego
-{
-    namespace Debug
-    {
-        template <>
-        void validate<float>(const char *file, int line, const float& object)
-        {
-            if (float_bad(object))
-            {
-                log_error("%s:%d: invalid scalar\n", file, line);
-            }
-        }
-    }
-}
-#endif
