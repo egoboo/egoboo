@@ -102,7 +102,7 @@ public:
      */
     Cube(const VectorType& center, const ScalarType& size)
         : _center(center), _size(size) {
-        if (_radius < 0) {
+        if (_size < 0) {
             throw std::domain_error("cube size is negative");
         }
     }
@@ -149,7 +149,7 @@ public:
     *  the minimum of this cube
     */
     VectorType getMin() const {
-        return _center - VectorType(InfConSeqGen(_size));
+        return _center - VectorType(InfConSeqGen<ScalarType>(_size));
     }
 
     /**
@@ -159,7 +159,7 @@ public:
      *  the maximum of this cube
      */
     VectorType getMax() const {
-        return _center + VectorType(InfConSeqGen(_size));
+        return _center + VectorType(InfConSeqGen<ScalarType>(_size));
     }
 
     /**
