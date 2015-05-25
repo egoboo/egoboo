@@ -47,7 +47,6 @@
 #include "egolib/map_functions.h"
 #include "egolib/network.h"
 #include "egolib/platform.h"
-#include "egolib/scancode.h"
 #include "egolib/egoboo_setup.h"
 #include "egolib/strutil.h"
 #include "egolib/system.h"

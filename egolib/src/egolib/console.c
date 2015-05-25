@@ -24,7 +24,6 @@
 #include "egolib/console.h"
 
 #include "egolib/file_common.h"
-#include "egolib/scancode.h"
 #include "egolib/strutil.h"
 #include "egolib/vfs.h"
 

@@ -156,9 +156,6 @@
     <ClCompile Include="src\egolib\network.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\scancode.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\strutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,12 +200,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\platform\sys_linux.c">
       <Filter>Platforms</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\bv.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\DynamicArray.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\mem.c">
       <Filter>Source Files</Filter>
@@ -461,16 +452,10 @@
     <ClInclude Include="src\egolib\throttle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\threads.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\strutil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\scancode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\platform.h">
