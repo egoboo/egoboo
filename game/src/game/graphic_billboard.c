@@ -45,18 +45,18 @@ billboard_data_t::billboard_data_t()
     : _valid(false), _endTime(0),
       _position(), _offset(), _offset_add(),
       _size(1), _size_add(0),
-      _tex_ref(INVALID_TX_REF), _obj_ref(INVALID_CHR_REF),
+      _texture(nullptr), _obj_ref(INVALID_CHR_REF),
       _tint(Colour3f::white(), 1.0f), _tint_add(0.0f, 0.0f, 0.0f, 0.0f) {
     /* Intentionally empty. */
 }
 
-billboard_data_t *billboard_data_t::init(bool valid, Uint32 endTime, TX_REF tex_ref)
+billboard_data_t *billboard_data_t::init(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
 {
     _valid = valid; _endTime = endTime;
     _position = fvec3_t::zero();
     _offset = fvec3_t::zero(); _offset_add = fvec3_t::zero();
 
-    _tex_ref = tex_ref;
+    _texture = texture;
     _obj_ref = INVALID_CHR_REF;
 
     _tint = Colour4f(Colour3f::white(),1.0f);
@@ -69,7 +69,7 @@ billboard_data_t *billboard_data_t::init(bool valid, Uint32 endTime, TX_REF tex_
 
 billboard_data_t *billboard_data_t::init()
 {
-    return init(false, 0, INVALID_TX_REF);
+    return init(false, 0, nullptr);
 }
 
 bool billboard_data_t::free() {
@@ -78,8 +78,10 @@ bool billboard_data_t::free() {
     }
 
     // Relinquish the texture.
+    _texture = nullptr;
+#if 0
     TextureManager::get().relinquish(_tex_ref);
-
+#endif
     init();
 
     return true;
@@ -131,8 +133,7 @@ bool billboard_data_t::printf_ttf(const std::shared_ptr<Ego::Font> &font, const 
     Ego::Math::Colour3f fontColour = Ego::Math::Colour3f(color.getRed(), color.getGreen(), color.getBlue());
 
     // release any existing texture in case there is an error
-    oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(_tex_ref);
-    ptex->release();
+    _texture->release();
 
     va_list args;
     char buffer[256];
@@ -140,9 +141,9 @@ bool billboard_data_t::printf_ttf(const std::shared_ptr<Ego::Font> &font, const 
     vsnprintf(buffer, SDL_arraysize(buffer), format, args);
     va_end(args);
     
-    font->drawTextToTexture(ptex, buffer, fontColour);
+    font->drawTextToTexture(_texture.get(), buffer, fontColour);
 
-    ptex->setName("billboard text");
+    _texture->setName("billboard text");
 
     return true;
 }
@@ -173,7 +174,7 @@ void BillboardList::update_all()
         if (!pbb->_valid) continue;
 
         bool is_invalid = false;
-        if ((ticks >= pbb->_endTime) || (nullptr == TextureManager::get().get_valid_ptr(pbb->_tex_ref)))
+        if ((ticks >= pbb->_endTime) || (nullptr == pbb->_texture))
         {
             is_invalid = true;
         }
@@ -226,9 +227,10 @@ BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs)
     }
 
 
-    TX_REF itex = TextureManager::get().acquire(INVALID_TX_REF);
-    if (!VALID_TX_RANGE(itex))
-    {
+    std::shared_ptr<oglx_texture_t> tex;
+    try {
+        tex = std::make_shared<oglx_texture_t>();
+    } catch (...) {
         return INVALID_BBOARD_REF;
     }
 
@@ -259,13 +261,13 @@ BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs)
     {
         billboard_data_t *pbb = get_ptr(ibb);
 
-        pbb->init(true, SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, itex);
+        pbb->init(true, SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, tex);
     }
     else
     {
         // the billboard allocation returned an ivaild value
         // deallocate the texture
-        TextureManager::get().relinquish(itex);
+        tex = nullptr;
 
         ibb = INVALID_BBOARD_REF;
     }
@@ -354,7 +356,7 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
     // do not display for objects that are mounted or being held
     if (IS_ATTACHED_CHR_RAW(pbb->_obj_ref)) return false;
 
-    oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(pbb->_tex_ref);
+    auto ptex = pbb->_texture.get();
     oglx_texture_t::bind(ptex);
 
 

@@ -67,7 +67,7 @@ struct billboard_data_t
      * @brief
      *  The texture reference.
      */
-    TX_REF _tex_ref;
+    std::shared_ptr<oglx_texture_t> _texture;
     fvec3_t _position;          ///< the position of the bottom-missle of the box
 
     CHR_REF   _obj_ref;         ///< the character we are attached to
@@ -104,7 +104,7 @@ struct billboard_data_t
     float _size_add;
 
     billboard_data_t();
-    billboard_data_t *init(bool valid, Uint32 endTime, TX_REF tex_ref);
+    billboard_data_t *init(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture);
     billboard_data_t *init();
     bool free();
     bool update();
