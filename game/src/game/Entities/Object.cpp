@@ -778,7 +778,7 @@ void Object::update()
     chr_update_hide(this);
 
     //Don't do items that are in inventory
-    if ( _gameObjects.exists( inwhich_inventory ) ) {
+    if (isInsideInventory()) {
         return;
     }
 
@@ -1656,6 +1656,17 @@ bool Object::isBeingHeld() const
 {
     //Check if holder exists and not marked for removal
     const std::shared_ptr<Object> &holder = _gameObjects[attachedto];
+    if(!holder || holder->isTerminated()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool Object::isInsideInventory() const
+{
+    //Check if inventory exists and not marked for removal
+    const std::shared_ptr<Object> &holder = _gameObjects[inwhich_inventory];
     if(!holder || holder->isTerminated()) {
         return false;
     }

@@ -210,6 +210,14 @@ public:
     bool isBeingHeld() const;
 
     /**
+    * @brief
+    *   This function returns true if this Object is inside another Objects inventory
+    * @return
+    *   true if inside another existing Object's inventory
+    **/
+    bool isInsideInventory() const;
+
+    /**
     * @return
     *   true if this Object has been terminated and will be removed from the game.
     *   If this value is true, then this Object is effectively no longer a part of
