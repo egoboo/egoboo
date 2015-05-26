@@ -373,7 +373,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     }
 
     //We must be alive and not an item to become a rider
-    if(!alive || isitem || _gameObjects.exists(attachedto))
+    if(!alive || isitem || isBeingHeld())
     {
         return false;
     }
@@ -698,7 +698,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         if ( attacker->attachedto == ai.index ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
-        if ( _gameObjects.exists( attacker->attachedto ) && !_gameObjects.get(attacker->attachedto)->isMount() )
+        if ( attacker->isBeingHeld() && !_gameObjects.get(attacker->attachedto)->isMount() )
         {
             actual_attacker = attacker->attachedto;
         }
@@ -778,7 +778,7 @@ void Object::update()
     chr_update_hide(this);
 
     //Don't do items that are in inventory
-    if ( _gameObjects.exists( inwhich_inventory ) ) {
+    if (isInsideInventory()) {
         return;
     }
 
@@ -805,7 +805,7 @@ void Object::update()
             // Ripples
             if(getPosZ() < WATER_LEVEL && isAlive())
             {
-                if ( !_gameObjects.exists(attachedto) && getProfile()->causesRipples() 
+                if ( !isBeingHeld() && getProfile()->causesRipples() 
                     && getPosZ() + chr_min_cv.maxs[OCT_Z] + RIPPLETOLERANCE > WATER_LEVEL 
                     && getPosZ() + chr_min_cv.mins[OCT_Z] < WATER_LEVEL)
                 {
@@ -1383,7 +1383,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     if (actualKiller)
     {
         //If we are a held item, try to figure out who the actual killer is
-        if ( _gameObjects.exists( actualKiller->attachedto ) && !_gameObjects.get(actualKiller->attachedto)->isMount() )
+        if ( actualKiller->isBeingHeld() && !_gameObjects.get(actualKiller->attachedto)->isMount() )
         {
             actualKiller = _gameObjects[actualKiller->attachedto];
         }
@@ -1650,4 +1650,26 @@ int Object::getPrice() const
     }
     
     return static_cast<int>(price);
+}
+
+bool Object::isBeingHeld() const
+{
+    //Check if holder exists and not marked for removal
+    const std::shared_ptr<Object> &holder = _gameObjects[attachedto];
+    if(!holder || holder->isTerminated()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool Object::isInsideInventory() const
+{
+    //Check if inventory exists and not marked for removal
+    const std::shared_ptr<Object> &holder = _gameObjects[inwhich_inventory];
+    if(!holder || holder->isTerminated()) {
+        return false;
+    }
+
+    return true;
 }

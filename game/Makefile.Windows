@@ -26,17 +26,11 @@ BIN = ../data/egoboo.exe
 #---------------------
 #Includes
 INCLUDES := -Isrc -I../egolib/src -I../idlib/src
-INCLUDES += -I../../enet-1.3.12/include
-INCLUDES += -I../../physfs-2.0.3/
-
-#---------------------
-# the SDL configuration
-SDLCONF_C := $(shell sdl-config --cflags)
-#SDLCONF_L := $(shell sdl-config --static-libs)
+INCLUDES += -I../external/physfs-2.0.3/
 
 #---------------------
 # the compiler options
-CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -Wall -fno-builtin -Wfatal-errors -Werror -static-libstdc++
+CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) -I../external/mingw/include/SDL2 -Dmain=SDL_main -std=c++11 -O0 -Wall -fno-builtin -Wfatal-errors -Werror -static-libstdc++
 #-Wextra -Weffc++
 
 #hush some warnings we dont care about
@@ -50,15 +44,13 @@ CXXFLAGS += -ggdb -fdiagnostics-color=always -pg
 #Release
 #-D_NDEBUG 
 
-LINKER_LIBS := -lmingw32 -mconsole -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -lSHFolder -lAdvapi32
+#LINKER_LIBS := -lmingw32 -mconsole -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -lSHFolder -lAdvapi32
+LINKER_LIBS := -lmingw32 -mconsole
 LINKER_LIBS += -L../egolib/ -legoboo
 LINKER_LIBS += -L../idlib/ -lid
-LINKER_LIBS += -L/usr/local/lib -lSDLmain -lSDL -lSDL_mixer -lSDL_ttf -lSDL_image
+LINKER_LIBS += -L../external/mingw/lib -Wl,-Bstatic -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_image -Wl,-Bdynamic -lSDL2_ttf -Wl,--no-undefined -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc
 LINKER_LIBS += -lphysfs
-LINKER_LIBS += -lenet -lwsock32 -lws2_32
-LINKER_LIBS += -lopengl32 -lglu32 -lShlwapi -lwinmm 
-#-static
-
+LINKER_LIBS += -lopengl32 -lShlwapi
 
 #------------------------------------
 # definitions of the target projects
