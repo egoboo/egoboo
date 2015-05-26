@@ -16,3 +16,11 @@ clean:
 	${MAKE} -C ./game -f Makefile.Windows clean
 	${MAKE} -C ./idlib -f Makefile.Windows clean
 	
+configure:
+	git submodule init
+	git submodule update
+#	./external/SDL2_mixer-2.0.0/configure
+#	${MAKE} -C ./external/SDL2_mixer-2.0.0 install
+#	./external/SDL2-2.0.3/configure --prefix=/mingw --disable-threads
+#	${MAKE} -C ./external/SDL2-2.0.3 install
+	cp ./external/mingw/bin/*.dll ./data
