@@ -793,9 +793,9 @@ public:
         return
             MyType
             (
-                _elements[kY] * other._elements[kZ] - _elements[kZ] * other._elements[kY],
-                _elements[kZ] * other._elements[kX] - _elements[kX] * other._elements[kZ],
-                _elements[kX] * other._elements[kY] - _elements[kY] * other._elements[kX]
+                _elements[1] * other._elements[2] - _elements[2] * other._elements[1],
+                _elements[2] * other._elements[0] - _elements[0] * other._elements[2],
+                _elements[0] * other._elements[1] - _elements[1] * other._elements[0]
             );
     }
 };
@@ -811,8 +811,8 @@ public:
 template <typename _ScalarType, size_t _Dimensionality>
 const Vector<_ScalarType, _Dimensionality>&
 Vector< _ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>::zero() {
-    typedef typename Vector < _ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type > MyType;
-    typedef typename Generator < MyType::MyScalarType, ConstantEngine < MyType::MyScalarType > > MyGenerator;
+    typedef Vector < _ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type > MyType;
+    typedef Generator < MyType::MyScalarType, ConstantEngine < MyType::MyScalarType > > MyGenerator;
     static MyGenerator generator(ScalarField<MyType::MyScalarType>::additiveNeutral());
     static const auto ZERO = MyType(generator);
     return ZERO;

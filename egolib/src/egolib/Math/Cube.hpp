@@ -149,7 +149,8 @@ public:
     *  the minimum of this cube
     */
     VectorType getMin() const {
-        return _center - VectorType(InfConSeqGen<ScalarType>(_size));
+        typedef Generator < ScalarType, ConstantEngine < ScalarType > > MyGenerator;
+        return _center - VectorType(MyGenerator(_size));
     }
 
     /**
@@ -159,7 +160,8 @@ public:
      *  the maximum of this cube
      */
     VectorType getMax() const {
-        return _center + VectorType(InfConSeqGen<ScalarType>(_size));
+        typedef Generator < ScalarType, ConstantEngine < ScalarType > > MyGenerator;
+        return _center + VectorType(MyGenerator(_size));
     }
 
     /**
