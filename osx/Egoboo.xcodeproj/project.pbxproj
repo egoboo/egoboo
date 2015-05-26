@@ -54,6 +54,8 @@
 		CD1D57F91A8A9F0600C5B298 /* Float.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F71A8A9E9300C5B298 /* Float.cpp */; };
 		CD1D57FA1A8A9F0D00C5B298 /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F51A8A9E9300C5B298 /* Debug.cpp */; };
 		CD1F4D6C1B1396240028C45E /* Standard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D691B1394E10028C45E /* Standard.cpp */; };
+		CD1F4D7A1B13F04C0028C45E /* Pathname.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D781B13F04C0028C45E /* Pathname.cpp */; };
+		CD1F4D7B1B13F04C0028C45E /* VectorMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D791B13F04C0028C45E /* VectorMath.cpp */; };
 		CD2336AD1AF55CB000E35ED1 /* System.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2336AB1AF55CB000E35ED1 /* System.cpp */; };
 		CD2C60FD1ACAF9E0003CF3D6 /* MatrixMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */; };
 		CD2C60FE1ACAF9E0003CF3D6 /* StringUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */; };
@@ -608,6 +610,9 @@
 		CD1F4D681B1394E10028C45E /* Entity.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Entity.hpp; sourceTree = "<group>"; };
 		CD1F4D691B1394E10028C45E /* Standard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Standard.cpp; sourceTree = "<group>"; };
 		CD1F4D6A1B1394E10028C45E /* Standard.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Standard.hpp; sourceTree = "<group>"; };
+		CD1F4D771B13ECF60028C45E /* ScalarField.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ScalarField.hpp; sourceTree = "<group>"; };
+		CD1F4D781B13F04C0028C45E /* Pathname.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Pathname.cpp; sourceTree = "<group>"; };
+		CD1F4D791B13F04C0028C45E /* VectorMath.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = VectorMath.cpp; sourceTree = "<group>"; };
 		CD2336AB1AF55CB000E35ED1 /* System.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = System.cpp; sourceTree = "<group>"; };
 		CD2336AC1AF55CB000E35ED1 /* System.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = System.hpp; sourceTree = "<group>"; };
 		CD2A94201A8C273E000D7319 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1750,6 +1755,8 @@
 		CD39CD0F1AA537440005E3EA /* egolib */ = {
 			isa = PBXGroup;
 			children = (
+				CD1F4D781B13F04C0028C45E /* Pathname.cpp */,
+				CD1F4D791B13F04C0028C45E /* VectorMath.cpp */,
 				CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */,
 				CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */,
 				CD048BF41AB7515400E1E52D /* MathConstantTest.cpp */,
@@ -2141,6 +2148,7 @@
 				CD9059331A69A67C00DC425D /* Random.hpp */,
 				CD6E5FAC1AD0545E00DBA937 /* Rectangle2.hpp */,
 				CDDB1AE51B126772009BE567 /* Scalar.hpp */,
+				CD1F4D771B13ECF60028C45E /* ScalarField.hpp */,
 				CDE4EC5E1A7167CD00A4BC62 /* Sphere.h */,
 				CD1F4D691B1394E10028C45E /* Standard.cpp */,
 				CD1F4D6A1B1394E10028C45E /* Standard.hpp */,
@@ -2747,7 +2755,9 @@
 			files = (
 				CD2C60FD1ACAF9E0003CF3D6 /* MatrixMath.cpp in Sources */,
 				CD54B3351AAEE9C800C1F15D /* CompileTest.cpp in Sources */,
+				CD1F4D7A1B13F04C0028C45E /* Pathname.cpp in Sources */,
 				CD048BF51AB7515400E1E52D /* MathConstantTest.cpp in Sources */,
+				CD1F4D7B1B13F04C0028C45E /* VectorMath.cpp in Sources */,
 				CD2C60FE1ACAF9E0003CF3D6 /* StringUtilities.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
