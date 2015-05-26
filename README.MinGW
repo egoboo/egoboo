@@ -23,13 +23,15 @@ Just run the following command in your Egoboo folder:
 
 make -f Makefile.Windows configure
 
-This might take a while to complete. It will compile and install the following dependencies:
+It will link and copy the following dependencies:
 - SDL 2
 - SDL_mixer 2
 - SDL_image 2
 - SDL_ttf 2
-- enet
 - PhysFS
+
+This assumes you are running a computer that is not 10 years old and runs a 64-bit OS.
+(if not, you will have to setup build system yourself)
 
 == Compiling Egoboo
 After all dependencies have been installed, you can finally compile the game itself!
@@ -40,8 +42,9 @@ make -f Makefile.Windows -j
 
 The -j is optional but can dramatically increase compile speed by utilizing parallelism.
 If everything compiles as it should, then the binary (egoboo.exe) should be located in
-".../egoboo/game/data". Remember that you need all the SDL DLL's you compiled earlier
-in the same folder as the binary executable.
+".../egoboo/game/data". Remember that you need all the SDL DLL's in the same folder as 
+the binary executable (executing "make -f Makefile.Windows configure" should have copied 
+any required DLL files for you).
 
 == Git Magic
 Use the following command:
