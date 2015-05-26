@@ -54,19 +54,27 @@ namespace EgoTest
 #define EgoTest_FUNCTION __func__
 #endif
 
-#define EgoTest_DeclareTestCase(TESTCASENAME)
+#define EgoTest_TestCase(TESTCASENAME) \
+struct TESTCASENAME : ::EgoTest::TestCase
 
-#define EgoTest_EndDeclaration()
+#define EgoTest_Test(TESTNAME) \
+void TESTNAME()
 
-#define EgoTest_BeginTestCase(TESTCASENAME) struct TESTCASENAME : EgoTest::TestCase {
+#define EgoTest_SetUpTest() \
+void setUp()
 
-#define EgoTest_EndTestCase() };
+#define EgoTest_TearDownTest() \
+void tearDown()
 
-#define EgoTest_Test(TESTNAME) void TESTNAME()
+#define EgoTest_SetUpTestCase() \
+void setUpClass()
+
+#define EgoTest_TearDownTestCase() \
+void tearDownClass()
 
 #define EgoTest_Assert(EXPRESSION) \
 try { \
-    EgoTest::doAssert(EXPRESSION, "\"" #EXPRESSION "\" was false", EgoTest_FUNCTION, __FILE__, __LINE__); \
+    ::EgoTest::doAssert(EXPRESSION, "\"" #EXPRESSION "\" was false", EgoTest_FUNCTION, __FILE__, __LINE__); \
 } catch (...) { \
-    EgoTest::doAssert(false, "uncaught exception", EgoTest_FUNCTION, __FILE__, __LINE__); \
+    ::EgoTest::doAssert(false, "uncaught exception", EgoTest_FUNCTION, __FILE__, __LINE__); \
 }

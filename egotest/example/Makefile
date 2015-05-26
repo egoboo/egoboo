@@ -10,7 +10,7 @@ EGOTEST_DIR := ..
 
 TEST_SOURCES := $(wildcard tests/*.cpp)
 
-TEST_CXXFLAGS := $(CXXFLAGS) -Itests -Isrc
+TEST_CXXFLAGS := $(CXXFLAGS) -Isrc
 
 TEST_LDFLAGS := $(LIB_NAME) $(LDFLAGS)
 

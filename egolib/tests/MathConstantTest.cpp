@@ -44,10 +44,7 @@ double tolerance<double>()
     return 1.0e-14;
 }
 
-EgoTest_DeclareTestCase(MathConstants)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(MathConstants)
+EgoTest_TestCase(MathConstants) {
 
 EgoTest_Test(piFlt)
 {
@@ -184,4 +181,4 @@ EgoTest_Test(invSqrtTwoDbl)
     EgoTest_Assert(std::max(x,y) - std::min(x,y) <= tolerance<double>());
 }
 
-EgoTest_EndTestCase()
+};

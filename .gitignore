@@ -24,3 +24,6 @@ xcuserdata
 
 # Doxygen.
 /doc/doxygen
+
+# Generated test files
+gen

@@ -17,4 +17,7 @@
 //*
 //********************************************************************************************
 
+#include "EgoTest/EgoTest.hpp"
 #include "egolib/egolib.h"
+
+EgoTest_TestCase(Pathname) {};
