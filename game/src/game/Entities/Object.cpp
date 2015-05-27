@@ -131,7 +131,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     shadow_size_stt(0.0f),
     shadow_size(0),
     shadow_size_save(0),
-    ibillboard(INVALID_BBOARD_REF),
     is_overlay(false),
     skin(0),
     profile_ref(profile),
@@ -269,11 +268,6 @@ Object::~Object()
 
     // remove any attached particles
     disaffirm_attached_particles( getCharacterID() );    
-
-    /// Free all allocated memory
-
-    // deallocate
-    g_billboardList.free_one(ibillboard);
 
     chr_instance_dtor( &inst );
     ai_state_dtor( &ai );

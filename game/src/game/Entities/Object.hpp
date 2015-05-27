@@ -617,7 +617,6 @@ public:
     float          shadow_size_stt;  ///< Initial shadow size
     uint32_t         shadow_size;      ///< Size of shadow
     uint32_t         shadow_size_save; ///< Without size modifiers
-    BBOARD_REF     ibillboard;       ///< The attached billboard
 
     // model info
     bool         is_overlay;                    ///< Is this an overlay? Track aitarget...

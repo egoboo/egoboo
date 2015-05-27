@@ -621,52 +621,6 @@ void finalize_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void blah_billboard()
-{
-    const auto color_blu = Ego::Math::Colour4f::parse(0x7F, 0x7F, 0xFF, 0xFF);
-    const auto default_tint = Ego::Math::Colour4f::white();
-
-    bool needs_new;
-    Uint32 current_time;
-
-    current_time = SDL_GetTicks();
-
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
-    {
-        if(!_gameObjects.exists(object->attachedto)) {
-            continue;
-        } 
-
-        needs_new = false;
-
-        if ( !VALID_BILLBOARD_RANGE( object->ibillboard ) )
-        {
-            needs_new = true;
-        }
-        //else
-        //{
-        //    pbb = BillboardList_get_ptr(object->ibillboard);
-        //    if( NULL == pbb )
-        //    {
-        //        needs_new = true;
-        //    }
-        //    else if ( current_time >= pbb->time )
-        //    {
-        //        needs_new = true;
-        //    }
-
-        //    BillboardList_free_one( object->ibillboard );
-        //    object->ibillboard = BILLBOARD_COUNT;
-        //}
-
-        if ( needs_new )
-        {
-            chr_make_text_billboard( object->getCharacterID(), object->getName(false, false, false).c_str(), color_blu, default_tint, 50, bb_opt_fade );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 int update_game()
 {
     /// @author ZZ
@@ -789,7 +743,7 @@ int update_game()
 
     //---- begin the code for updating misc. game stuff
     {
-        g_billboardList.update_all();
+        BillboardSystem::get()._billboardList.update();
         animate_tiles();
         water_instance_move( &water );
         AudioSystem::get().updateLoopingSounds();
@@ -803,7 +757,6 @@ int update_game()
     {
         let_all_characters_think();           // sets the non-player latches
         net_unbuffer_player_latches();            // sets the player latches
-        //blah_billboard();
     }
     //---- end the code object I/O
 

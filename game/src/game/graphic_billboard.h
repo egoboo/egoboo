@@ -108,11 +108,10 @@ struct billboard_data_t
     float _size_add;
 
     billboard_data_t();
-    billboard_data_t *init(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture);
-    billboard_data_t *init();
-    bool free();
+    void set(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture);
+    void reset();
+    void free();
     bool update();
-    bool printf_ttf(const std::shared_ptr<Ego::Font>& font, const Ego::Math::Colour4f& color, const char * format, ...) GCC_PRINTF_FUNC(4);
 
 };
 
@@ -121,24 +120,39 @@ struct billboard_data_t
 // BillboardList
 //--------------------------------------------------------------------------------------------
 
+bool VALID_BILLBOARD_RANGE(BBOARD_REF ref);
+
+bool VALID_BILLBOARD(BBOARD_REF ref);
+
 struct BillboardList
 {
 private:
     Ego::GUID update_guid;
     int used_count;
     int free_count;
-    size_t used_ref[BILLBOARDS_MAX];
-    size_t free_ref[BILLBOARDS_MAX];
+    BBOARD_REF used_ref[BILLBOARDS_MAX];
+    BBOARD_REF free_ref[BILLBOARDS_MAX];
     billboard_data_t lst[BILLBOARDS_MAX];
-public:
-    void init_all();
-    void update_all();
-    void free_all();
-
     void clear_data();
+public:
+    BillboardList();
+    void update();
+    void reset();
 
-    billboard_data_t *get_ptr(const size_t index)   {
-        return LAMBDA(index >= BILLBOARDS_MAX, nullptr, &(lst[index]));
+    bool hasBillboard(const Object& object) {
+        for (BBOARD_REF i(0); i; ++i) {
+            billboard_data_t *bb_ptr = &(lst[i]);
+            if (bb_ptr->_valid) {
+                if (bb_ptr->_obj_wptr.lock().get() == &object) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    billboard_data_t *get_ptr(const BBOARD_REF ref)   {
+        return LAMBDA(!VALID_BILLBOARD_RANGE(ref), nullptr, &(lst[ref]));
     }
     bool free_one(BBOARD_REF ref);
     /**
@@ -153,32 +167,27 @@ public:
      *  #INVALID_BBOARD_REF is also returned, if @a lifetime_secs is @a 0, as the billboard
      *  is already expired.
      */
-    BBOARD_REF get_free_ref(Uint32 lifetime_secs);
+    BBOARD_REF get_free_ref(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD opt_bits);
 };
 
-extern BillboardList g_billboardList;
-
-inline bool VALID_BILLBOARD_RANGE(BBOARD_REF ref)
-{
-    return (ref >= 0)
-        && (ref < BILLBOARDS_MAX);
-}
-
-inline bool VALID_BILLBOARD(BBOARD_REF ref)
-{
-    return VALID_BILLBOARD_RANGE(ref)
-        && g_billboardList.get_ptr(ref)->_valid;
-}
-
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool billboard_system_begin();
-bool billboard_system_end();
-bool billboard_system_init();
-
-bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt);
-gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera);
+struct BillboardSystem {
+protected:
+    static BillboardSystem *singleton;
+    BillboardSystem();
+    virtual ~BillboardSystem();
+    bool render_one(billboard_data_t *pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt);
+public:
+    static void initialize();
+    static void uninitialize();
+    static BillboardSystem& get();
+public:
+    void reset();
+public:
+    void render_all(Camera& camera);
+    BillboardList _billboardList;
+    std::shared_ptr<Ego::VertexBuffer> _vertexBuffer;
+};

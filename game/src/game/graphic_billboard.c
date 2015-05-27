@@ -29,13 +29,17 @@
 #include "game/char.h"
 #include "game/Entities/_Include.hpp"
 #include "game/game.h"
+#include "game/Core/GameEngine.hpp"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+bool VALID_BILLBOARD_RANGE(BBOARD_REF ref) {
+    return (ref >= 0)
+        && (ref < BILLBOARDS_MAX);
+}
 
-BillboardList g_billboardList;
-
-static bool _billboard_system_started = false;
+bool VALID_BILLBOARD(BBOARD_REF ref) {
+    return VALID_BILLBOARD_RANGE(ref)
+        && BillboardSystem::get()._billboardList.get_ptr(ref)->_valid;
+}
 
 //--------------------------------------------------------------------------------------------
 // billboard_data_t IMPLEMENTATION
@@ -50,7 +54,7 @@ billboard_data_t::billboard_data_t()
     /* Intentionally empty. */
 }
 
-billboard_data_t *billboard_data_t::init(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
+void billboard_data_t::set(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
 {
     _valid = valid; _endTime = endTime;
     _position = fvec3_t::zero();
@@ -63,26 +67,21 @@ billboard_data_t *billboard_data_t::init(bool valid, Uint32 endTime, std::shared
     _tint_add = fvec4_t(0.0f, 0.0f, 0.0f, 0.0f);
 
     _size = 1.0f; _size_add = 0.0f;
-
-    return this;
 }
 
-billboard_data_t *billboard_data_t::init()
-{
-    return init(false, 0, nullptr);
+void billboard_data_t::reset() {
+    set(false, 0, nullptr);
 }
 
-bool billboard_data_t::free() {
+void billboard_data_t::free() {
     if (!_valid) {
-        return false;
+        return;
     }
 
     // Relinquish the texture.
     _texture = nullptr;
 
-    init();
-
-    return true;
+    reset();
 }
 
 bool billboard_data_t::update() {
@@ -120,46 +119,24 @@ bool billboard_data_t::update() {
     return true;
 }
 
-bool billboard_data_t::printf_ttf(const std::shared_ptr<Ego::Font> &font, const Ego::Math::Colour4f& color, const char * format, ...)
-{
-    if (!_valid) {
-        return false;
-    }
-
-    Ego::Math::Colour3f fontColour = Ego::Math::Colour3f(color.getRed(), color.getGreen(), color.getBlue());
-
-    // release any existing texture in case there is an error
-    _texture->release();
-
-    va_list args;
-    char buffer[256];
-    va_start(args, format);
-    vsnprintf(buffer, SDL_arraysize(buffer), format, args);
-    va_end(args);
-    
-    font->drawTextToTexture(_texture.get(), buffer, fontColour);
-
-    _texture->setName("billboard text");
-
-    return true;
-}
-
 //--------------------------------------------------------------------------------------------
 // BillboardList IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
+BillboardList::BillboardList() :
+    lst() {
+    clear_data();
+}
 
-void BillboardList::init_all()
-{
-    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
-    {
-        get_ptr(ref)->init();
+void BillboardList::reset() {
+    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref) {
+        get_ptr(ref)->reset();
     }
 
     clear_data();
 }
 
-void BillboardList::update_all()
+void BillboardList::update()
 {
     Uint32 ticks = SDL_GetTicks();
 
@@ -180,12 +157,6 @@ void BillboardList::update_all()
         }
 
         if (isInvalid) {
-            // The billboard has expired:
-            // Unlink it from the character and ..
-            if (obj_ref) {
-                obj_ref->ibillboard = INVALID_BBOARD_REF;
-            }
-
             // ... and deallocate it.
             free_one(ref);
         }
@@ -196,33 +167,9 @@ void BillboardList::update_all()
     }
 }
 
-void BillboardList::free_all()
+BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD opt_bits)
 {
-    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
-    {
-        if (!lst[ref]._valid) continue;
-
-        get_ptr(ref)->update();
-    }
-}
-
-BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs)
-{
-    if (free_count <= 0)
-    {
-        return INVALID_BBOARD_REF;
-    }
-
-    if (0 == lifetime_secs)
-    {
-        return INVALID_BBOARD_REF;
-    }
-
-
-    std::shared_ptr<oglx_texture_t> tex;
-    try {
-        tex = std::make_shared<oglx_texture_t>();
-    } catch (...) {
+    if (free_count <= 0 || 0 == lifetime_secs) {
         return INVALID_BBOARD_REF;
     }
 
@@ -234,7 +181,7 @@ BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs)
         free_count--;
         update_guid++;
 
-        ibb = free_ref[g_billboardList.free_count];
+        ibb = free_ref[free_count];
 
         if (VALID_BILLBOARD_RANGE(ibb))
         {
@@ -249,19 +196,54 @@ BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs)
         log_warning("%s:%d: there is something wrong with the free stack. %" PRIuZ " loops.\n", __FILE__, __LINE__, loops);
     }
 
-    if (VALID_BILLBOARD_RANGE(ibb))
-    {
-        billboard_data_t *pbb = get_ptr(ibb);
-
-        pbb->init(true, SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, tex);
+    if (!VALID_BILLBOARD_RANGE(ibb)) {
+        return INVALID_BBOARD_REF;
     }
-    else
-    {
-        // the billboard allocation returned an ivaild value
-        // deallocate the texture
-        tex = nullptr;
 
-        ibb = INVALID_BBOARD_REF;
+    billboard_data_t *pbb = get_ptr(ibb);
+
+    pbb->set(true, SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, texture);
+    pbb->_tint = tint;
+    if (HAS_SOME_BITS(opt_bits, bb_opt_randomize_pos))
+    {
+        // make a random offset from the character
+        pbb->_offset = fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
+            * (GRID_FSIZE / 5.0f);
+    }
+
+    if (HAS_SOME_BITS(opt_bits, bb_opt_randomize_vel))
+    {
+        // make the text fly away in a random direction
+        pbb->_offset_add += fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
+            * (2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS);
+    }
+
+    if (HAS_SOME_BITS(opt_bits, bb_opt_fade))
+    {
+        // make the billboard fade to transparency
+        pbb->_tint_add[AA] = -1.0f / (lifetime_secs * GameEngine::GAME_TARGET_UPS);
+    }
+
+    if (HAS_SOME_BITS(opt_bits, bb_opt_burn))
+    {
+        float minval, maxval;
+
+        minval = std::min({ pbb->_tint.getRed(), pbb->_tint.getGreen(), pbb->_tint.getBlue() });
+        maxval = std::max({ pbb->_tint.getRed(), pbb->_tint.getGreen(), pbb->_tint.getBlue() });
+
+        if (pbb->_tint.getRed() != maxval) {
+            pbb->_tint_add[RR] = -pbb->_tint.getRed() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+        }
+
+        if (pbb->_tint.getGreen() != maxval)
+        {
+            pbb->_tint_add[GG] = -pbb->_tint.getGreen() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+        }
+
+        if (pbb->_tint.getBlue() != maxval)
+        {
+            pbb->_tint_add[BB] = -pbb->_tint.getBlue() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+        }
     }
 
     return ibb;
@@ -311,35 +293,41 @@ void BillboardList::clear_data()
 
 //--------------------------------------------------------------------------------------------
 
-bool billboard_system_begin()
-{
-    if (!_billboard_system_started)
-    {
-        g_billboardList.init_all();
-        _billboard_system_started = true;
+BillboardSystem *BillboardSystem::singleton = nullptr;
+
+BillboardSystem::BillboardSystem() :
+    _billboardList() {
+}
+
+BillboardSystem::~BillboardSystem() {
+    _billboardList.reset();
+}
+
+void BillboardSystem::initialize() {
+    if (!singleton) {
+        singleton = new BillboardSystem();
     }
-    return _billboard_system_started;
 }
 
-bool billboard_system_end()
-{
-    if (_billboard_system_started)
-    {
-        g_billboardList.free_all();
-        _billboard_system_started = false;
+void BillboardSystem::uninitialize() {
+    if (singleton) {
+        delete singleton;
+        singleton = nullptr;
     }
-    return !_billboard_system_started;
 }
 
-bool billboard_system_init()
-{
-    billboard_system_end();
-    billboard_system_begin();
-
-    return true;
+void BillboardSystem::reset() {
+    _billboardList.reset();
 }
 
-bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt)
+BillboardSystem& BillboardSystem::get() {
+    if (!singleton) {
+        throw std::logic_error("billboard system is not initialized");
+    }
+    return *singleton;
+}
+
+bool BillboardSystem::render_one(billboard_data_t *pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt)
 {
     if (NULL == pbb || !pbb->_valid) return false;
 
@@ -415,15 +403,9 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
     return true;
 }
 
-gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera)
+void BillboardSystem::render_all(Camera& camera)
 {
-    if (!camera)
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
-        return gfx_error;
-    }
-
-    gfx_begin_3d(*camera);
+    gfx_begin_3d(camera);
     {
         ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
         {
@@ -450,17 +432,15 @@ gfx_rv billboard_system_render_all(std::shared_ptr<Camera> camera)
 
             for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
             {
-                billboard_data_t *pbb = g_billboardList.get_ptr(ref);
+                billboard_data_t *pbb = _billboardList.get_ptr(ref);
                 if (!pbb || !pbb->_valid ) continue;
 
-                billboard_system_render_one(pbb, 0.75f, camera->getVUP(), camera->getVRT());
+                render_one(pbb, 0.75f, camera.getVUP(), camera.getVRT());
             }
         }
         ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
-
-    return gfx_success;
 }
 
 

@@ -252,7 +252,7 @@ void DebugModuleLoadingState::loadModuleData()
         game_quit_module();
 
         singleThreadRedrawHack("Calculating some math...");
-        g_billboardList.init_all();
+        BillboardSystem::get().reset();
 
         //initialize math objects
         make_turntosin();

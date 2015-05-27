@@ -901,7 +901,7 @@ void GFX::initialize()
     _dynalist.size = 0;
 
     // begin the billboard system
-    billboard_system_begin();
+    BillboardSystem::initialize();
 
 
 
@@ -971,7 +971,7 @@ void GFX::uninitialize()
     PROFILE_FREE(render_scene_mesh_render_shadows);
 
     // End the billboard system.
-    billboard_system_end();
+    BillboardSystem::uninitialize();
 
     // Uninitialize the texture atlas manager.
     TextureAtlasManager::uninitialize();
@@ -1210,7 +1210,7 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<ren
     gfx_end_3d();
 
     // Render the billboards
-    billboard_system_render_all(camera);
+    BillboardSystem::get().render_all(*camera);
 
     err_tmp = gfx_error_pop();
     if (err_tmp)
@@ -1298,9 +1298,9 @@ void gfx_system_init_all_graphics()
     gfx_init_blip_data();
     gfx_init_map_data();
     font_bmp_init();
-
-    billboard_system_init();
-
+#if 0
+    BillboardSystem::reset();
+#endif
     PROFILE_RESET(render_scene_init);
     PROFILE_RESET(render_scene_mesh);
     PROFILE_RESET(render_scene_solid);
@@ -1329,7 +1329,7 @@ void gfx_system_release_all_graphics()
     gfx_init_bar_data();
     gfx_init_blip_data();
     gfx_init_map_data();
-    g_billboardList.free_all();
+    BillboardSystem::get().reset();
     TextureManager::get().release_all();
 }
 
@@ -1339,7 +1339,7 @@ void gfx_system_delete_all_graphics()
     gfx_init_bar_data();
     gfx_init_blip_data();
     gfx_init_map_data();
-    g_billboardList.free_all();
+    BillboardSystem::get().reset();
 }
 
 //--------------------------------------------------------------------------------------------
