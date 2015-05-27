@@ -5091,7 +5091,7 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
 }
 
 //--------------------------------------------------------------------------------------------
-BBOARD_REF chr_add_billboard( const CHR_REF obj_ref, Uint32 lifetime_secs )
+BBOARD_REF chr_add_billboard(const CHR_REF obj_ref, Uint32 lifetime_secs)
 {
     /// @author BB
     /// @details Attach a basic billboard to a character. You set the billboard texture
@@ -5101,8 +5101,10 @@ BBOARD_REF chr_add_billboard( const CHR_REF obj_ref, Uint32 lifetime_secs )
     ///    must be called with a valid character, so be careful if you call this function from within
     ///    spawn_one_character()
 
-    if ( !_gameObjects.exists( obj_ref ) ) return INVALID_BBOARD_REF;
-    Object *obj_ptr = _gameObjects.get(obj_ref);
+    if (!_gameObjects.exists(obj_ref)) {
+        return INVALID_BBOARD_REF;
+    }
+    auto obj_ptr = _gameObjects[obj_ref];
 
     if (INVALID_BBOARD_REF != obj_ptr->ibillboard)
     {
@@ -5115,9 +5117,9 @@ BBOARD_REF chr_add_billboard( const CHR_REF obj_ref, Uint32 lifetime_secs )
     // attachr the billboard to the character
     if (INVALID_BBOARD_REF != obj_ptr->ibillboard)
     {
-        billboard_data_t * pbb = g_billboardList.get_ptr(obj_ptr->ibillboard);
+        billboard_data_t *pbb = g_billboardList.get_ptr(obj_ptr->ibillboard);
 
-        pbb->_obj_ref = obj_ref;
+        pbb->_obj_wptr = std::weak_ptr<Object>(obj_ptr);
         pbb->_position = obj_ptr->getPosition();
     }
 
@@ -5127,8 +5129,10 @@ BBOARD_REF chr_add_billboard( const CHR_REF obj_ref, Uint32 lifetime_secs )
 //--------------------------------------------------------------------------------------------
 billboard_data_t *chr_make_text_billboard( const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
-    if ( !_gameObjects.exists( ichr ) ) return NULL;
-    Object *obj_ptr = _gameObjects.get( ichr );
+    if (!_gameObjects.exists(ichr)) {
+        return nullptr;
+    }
+    auto obj_ptr = _gameObjects[ichr];
 
     // create a new billboard or override the old billboard
     BBOARD_REF ibb = chr_add_billboard( ichr, lifetime_secs );

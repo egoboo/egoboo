@@ -45,7 +45,7 @@ billboard_data_t::billboard_data_t()
     : _valid(false), _endTime(0),
       _position(), _offset(), _offset_add(),
       _size(1), _size_add(0),
-      _texture(nullptr), _obj_ref(INVALID_CHR_REF),
+      _texture(nullptr), _obj_wptr(),
       _tint(Colour3f::white(), 1.0f), _tint_add(0.0f, 0.0f, 0.0f, 0.0f) {
     /* Intentionally empty. */
 }
@@ -57,7 +57,7 @@ billboard_data_t *billboard_data_t::init(bool valid, Uint32 endTime, std::shared
     _offset = fvec3_t::zero(); _offset_add = fvec3_t::zero();
 
     _texture = texture;
-    _obj_ref = INVALID_CHR_REF;
+    _obj_wptr.reset();
 
     _tint = Colour4f(Colour3f::white(),1.0f);
     _tint_add = fvec4_t(0.0f, 0.0f, 0.0f, 0.0f);
@@ -79,9 +79,7 @@ bool billboard_data_t::free() {
 
     // Relinquish the texture.
     _texture = nullptr;
-#if 0
-    TextureManager::get().relinquish(_tex_ref);
-#endif
+
     init();
 
     return true;
@@ -92,15 +90,14 @@ bool billboard_data_t::update() {
         return false;
     }
 
-    if (!_gameObjects.exists(_obj_ref)) {
+    auto obj_ptr = _obj_wptr.lock();
+    if (!obj_ptr || obj_ptr->isTerminated()) {
         return false;
     }
-    
-    Object *obj_ptr = _gameObjects.get(_obj_ref);
 
     // Determine where the new position should be.
     fvec3_t vup, pos_new;
-    chr_getMatUp(obj_ptr, vup);
+    chr_getMatUp(obj_ptr.get(), vup);
 
     _size += _size_add;
 
@@ -116,8 +113,7 @@ bool billboard_data_t::update() {
     _offset[kZ] += _offset_add[kZ];
 
     // Automatically kill a billboard that is no longer useful.
-    if (_tint.getAlpha() == 0.0f || _size <= 0.0f)
-    {
+    if (_tint.getAlpha() == 0.0f || _size <= 0.0f) {
         free();
     }
 
@@ -173,25 +169,21 @@ void BillboardList::update_all()
 
         if (!pbb->_valid) continue;
 
-        bool is_invalid = false;
+        bool isInvalid = false;
         if ((ticks >= pbb->_endTime) || (nullptr == pbb->_texture))
         {
-            is_invalid = true;
+            isInvalid = true;
+        }
+        auto obj_ref = pbb->_obj_wptr.lock();
+        if (!obj_ref || obj_ref->isTerminated() || obj_ref->isBeingHeld() || obj_ref->isInsideInventory()) {
+            isInvalid = true;
         }
 
-        if (!_gameObjects.exists(pbb->_obj_ref) || _gameObjects.exists(_gameObjects.get(pbb->_obj_ref)->attachedto))
-        {
-            is_invalid = true;
-        }
-
-        if (is_invalid)
-        {
+        if (isInvalid) {
             // The billboard has expired:
-
             // Unlink it from the character and ..
-            if (_gameObjects.exists(pbb->_obj_ref))
-            {
-                _gameObjects.get(pbb->_obj_ref)->ibillboard = INVALID_BBOARD_REF;
+            if (obj_ref) {
+                obj_ref->ibillboard = INVALID_BBOARD_REF;
             }
 
             // ... and deallocate it.
@@ -351,10 +343,11 @@ bool billboard_system_render_one(billboard_data_t *pbb, float scale, const fvec3
 {
     if (NULL == pbb || !pbb->_valid) return false;
 
-    if (!_gameObjects.exists(pbb->_obj_ref)) return false;
-
-    // do not display for objects that are mounted or being held
-    if (IS_ATTACHED_CHR_RAW(pbb->_obj_ref)) return false;
+    auto obj_ptr = pbb->_obj_wptr.lock();
+    // Do not display billboards for objects that are being held of are inside an inventory.
+    if (!obj_ptr || obj_ptr->isTerminated() || obj_ptr->isBeingHeld() || obj_ptr->isInsideInventory()) {
+        return false;
+    }
 
     auto ptex = pbb->_texture.get();
     oglx_texture_t::bind(ptex);

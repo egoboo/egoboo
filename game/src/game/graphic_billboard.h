@@ -70,7 +70,11 @@ struct billboard_data_t
     std::shared_ptr<oglx_texture_t> _texture;
     fvec3_t _position;          ///< the position of the bottom-missle of the box
 
-    CHR_REF   _obj_ref;         ///< the character we are attached to
+    /**
+     * @brief
+     *  The object this billboard is attached to.
+     */
+    std::weak_ptr<Object> _obj_wptr;
 
     /**
      * @brief
