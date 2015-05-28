@@ -21,41 +21,53 @@
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
 #include "game/graphic.h"
-
-//--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
 
 // Forward declarations.
 class Camera;
 namespace Ego { class Font; }
 
-//--------------------------------------------------------------------------------------------
-// constants
-//--------------------------------------------------------------------------------------------
-
-enum e_bb_opt
+/**
+ * @brief
+ *  Supposed to be a generic billboard.
+ *  Currently, it merely taxes a texture a allows for some flags for position, blending and motion.
+ */
+struct Billboard
 {
-    bb_opt_none          = EMPTY_BIT_FIELD,
-    bb_opt_randomize_pos = ( 1 << 0 ),      // Randomize the position of the bb to witin 1 grid
-    bb_opt_randomize_vel = ( 1 << 1 ),      // Randomize the velocity of the bb. Enough to move it by 2 tiles within its lifetime.
-    bb_opt_fade          = ( 1 << 2 ),      // Make the billboard fade out
-    bb_opt_burn          = ( 1 << 3 ),      // Make the tint fully saturate over time.
-    bb_opt_all           = FULL_BIT_FIELD   // All of the above
-};
+    enum Flags
+    {
+        None = EMPTY_BIT_FIELD,
+        /**
+         * @brief
+         *  Randomize the position of the billboard within one grid along all axes.
+         */
+        RandomPosition = (1 << 0),
+        /**
+         * @brief
+         *  Randomize the velocity of the billboard along all axes.
+         *  Enough to move it by two tiles within its lifetime.
+         */
+        RandomVelocity = (1 << 1),
+        /**
+         * @brief
+         *  Make the billboard fade out over time.
+         */
+        Fade = (1 << 2),
+        /**
+         * @brief
+         *  Make the tint fully satured over time.
+         */
+        Burn = (1 << 3),
+        /**
+         * @brief
+         *  All of the above.
+         */
+        All = FULL_BIT_FIELD,
+    };
 
-//--------------------------------------------------------------------------------------------
-// billboard_data_t
-//--------------------------------------------------------------------------------------------
-
-/// Description of a generic bilboarded object.
-/// Any graphics that can be composited onto a SDL_surface can be used
-struct billboard_data_t
-{
     using Colour3f = Ego::Math::Colour3f;
     using Colour4f = Ego::Math::Colour4f;
+
     bool _valid;        ///< has the billboard data been initialized?
 
     /**
@@ -107,7 +119,7 @@ struct billboard_data_t
     float _size;
     float _size_add;
 
-    billboard_data_t();
+    Billboard();
     void set(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture);
     void reset();
     void free();
@@ -132,7 +144,7 @@ private:
     int free_count;
     BBOARD_REF used_ref[BILLBOARDS_MAX];
     BBOARD_REF free_ref[BILLBOARDS_MAX];
-    billboard_data_t lst[BILLBOARDS_MAX];
+    Billboard lst[BILLBOARDS_MAX];
     void clear_data();
 public:
     BillboardList();
@@ -141,7 +153,7 @@ public:
 
     bool hasBillboard(const Object& object) {
         for (BBOARD_REF i(0); i; ++i) {
-            billboard_data_t *bb_ptr = &(lst[i]);
+            Billboard *bb_ptr = &(lst[i]);
             if (bb_ptr->_valid) {
                 if (bb_ptr->_obj_wptr.lock().get() == &object) {
                     return true;
@@ -151,7 +163,7 @@ public:
         return false;
     }
 
-    billboard_data_t *get_ptr(const BBOARD_REF ref)   {
+    Billboard *get_ptr(const BBOARD_REF ref)   {
         return LAMBDA(!VALID_BILLBOARD_RANGE(ref), nullptr, &(lst[ref]));
     }
     bool free_one(BBOARD_REF ref);
@@ -170,16 +182,12 @@ public:
     BBOARD_REF get_free_ref(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD opt_bits);
 };
 
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 struct BillboardSystem {
 protected:
     static BillboardSystem *singleton;
     BillboardSystem();
     virtual ~BillboardSystem();
-    bool render_one(billboard_data_t *pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt);
+    bool render_one(Billboard& bb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt);
 public:
     static void initialize();
     static void uninitialize();

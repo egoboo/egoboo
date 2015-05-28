@@ -502,7 +502,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             const auto tint = Ego::Math::Colour4f(0, 0.5, 0, 1);
 
             spawn_defense_ping(this, attacker ? attacker->getCharacterID() : INVALID_CHR_REF);
-            chr_make_text_billboard(_characterID, "Immune!", text_color, tint, lifetime, bb_opt_all);
+            chr_make_text_billboard(_characterID, "Immune!", text_color, tint, lifetime, Billboard::Flags::All);
         }
     }
 
@@ -629,7 +629,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     // write the string into the buffer
                     snprintf( text_buffer, SDL_arraysize( text_buffer ), "%.1f", static_cast<float>(actual_damage) / 256.0f );
 
-                    chr_make_text_billboard(_characterID, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, bb_opt_all );
+                    chr_make_text_billboard(_characterID, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All );
                 }
             }
         }
@@ -660,7 +660,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             // write the string into the buffer
             snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
 
-            chr_make_text_billboard(_characterID, text_buffer, text_color, tint, lifetime, bb_opt_all );
+            chr_make_text_billboard(_characterID, text_buffer, text_color, tint, lifetime, Billboard::Flags::All );
         }
     }
 

@@ -40,7 +40,7 @@
 struct mad_t;
 struct eve_t;
 struct s_pip;
-struct billboard_data_t;
+struct Billboard;
 struct mesh_wall_data_t;
 
 struct prt_t;
@@ -358,7 +358,7 @@ const char * describe_value( float value, float maxval, int * rank_ptr );
 const char* describe_damage( float value, float maxval, int * rank_ptr );
 const char* describe_wounds( float max, float current );
 
-billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits );
+Billboard * chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 
 
 //--------------------------------------------------------------------------------------------

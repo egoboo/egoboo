@@ -8100,7 +8100,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
         case COLOR_BLUE:    tint = &tint_blue;    break;
     }
 
-    returncode = NULL != chr_make_text_billboard(pself->index, ppro->getMessage(pstate->argument).c_str(), text_color, *tint, pstate->distance, bb_opt_fade);
+    returncode = NULL != chr_make_text_billboard(pself->index, ppro->getMessage(pstate->argument).c_str(), text_color, *tint, pstate->distance, Billboard::Flags::Fade);
 
     SCRIPT_FUNCTION_END();
 }

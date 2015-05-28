@@ -41,11 +41,9 @@ bool VALID_BILLBOARD(BBOARD_REF ref) {
         && BillboardSystem::get()._billboardList.get_ptr(ref)->_valid;
 }
 
-//--------------------------------------------------------------------------------------------
-// billboard_data_t IMPLEMENTATION
-//--------------------------------------------------------------------------------------------
 
-billboard_data_t::billboard_data_t()
+
+Billboard::Billboard()
     : _valid(false), _endTime(0),
       _position(), _offset(), _offset_add(),
       _size(1), _size_add(0),
@@ -54,7 +52,7 @@ billboard_data_t::billboard_data_t()
     /* Intentionally empty. */
 }
 
-void billboard_data_t::set(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
+void Billboard::set(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
 {
     _valid = valid; _endTime = endTime;
     _position = fvec3_t::zero();
@@ -69,11 +67,11 @@ void billboard_data_t::set(bool valid, Uint32 endTime, std::shared_ptr<oglx_text
     _size = 1.0f; _size_add = 0.0f;
 }
 
-void billboard_data_t::reset() {
+void Billboard::reset() {
     set(false, 0, nullptr);
 }
 
-void billboard_data_t::free() {
+void Billboard::free() {
     if (!_valid) {
         return;
     }
@@ -84,7 +82,7 @@ void billboard_data_t::free() {
     reset();
 }
 
-bool billboard_data_t::update() {
+bool Billboard::update() {
     if (!_valid) {
         return false;
     }
@@ -142,7 +140,7 @@ void BillboardList::update()
 
     for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
     {
-        billboard_data_t *pbb = get_ptr(ref);
+        Billboard *pbb = get_ptr(ref);
 
         if (!pbb->_valid) continue;
 
@@ -169,7 +167,7 @@ void BillboardList::update()
 
 BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD opt_bits)
 {
-    if (free_count <= 0 || 0 == lifetime_secs) {
+    if (free_count <= 0 || 0 == lifetime_secs || !texture) {
         return INVALID_BBOARD_REF;
     }
 
@@ -200,31 +198,31 @@ BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs, std::shared_ptr<ogl
         return INVALID_BBOARD_REF;
     }
 
-    billboard_data_t *pbb = get_ptr(ibb);
+    Billboard *pbb = get_ptr(ibb);
 
     pbb->set(true, SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, texture);
     pbb->_tint = tint;
-    if (HAS_SOME_BITS(opt_bits, bb_opt_randomize_pos))
+    if (HAS_SOME_BITS(opt_bits, Billboard::Flags::RandomPosition))
     {
         // make a random offset from the character
         pbb->_offset = fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
             * (GRID_FSIZE / 5.0f);
     }
 
-    if (HAS_SOME_BITS(opt_bits, bb_opt_randomize_vel))
+    if (HAS_SOME_BITS(opt_bits, Billboard::Flags::RandomVelocity))
     {
         // make the text fly away in a random direction
         pbb->_offset_add += fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
             * (2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS);
     }
 
-    if (HAS_SOME_BITS(opt_bits, bb_opt_fade))
+    if (HAS_SOME_BITS(opt_bits, Billboard::Flags::Fade))
     {
         // make the billboard fade to transparency
         pbb->_tint_add[AA] = -1.0f / (lifetime_secs * GameEngine::GAME_TARGET_UPS);
     }
 
-    if (HAS_SOME_BITS(opt_bits, bb_opt_burn))
+    if (HAS_SOME_BITS(opt_bits, Billboard::Flags::Burn))
     {
         float minval, maxval;
 
@@ -252,7 +250,7 @@ BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs, std::shared_ptr<ogl
 bool BillboardList::free_one(BBOARD_REF ref)
 {
     if (!VALID_BILLBOARD_RANGE(ref)) return false;
-    billboard_data_t *pbb = get_ptr(ref);
+    Billboard *pbb = get_ptr(ref);
     pbb->free();
 
 #if defined(_DEBUG)
@@ -327,17 +325,17 @@ BillboardSystem& BillboardSystem::get() {
     return *singleton;
 }
 
-bool BillboardSystem::render_one(billboard_data_t *pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt)
+bool BillboardSystem::render_one(Billboard& bb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt)
 {
-    if (NULL == pbb || !pbb->_valid) return false;
+    if (!bb._valid) return false;
 
-    auto obj_ptr = pbb->_obj_wptr.lock();
+    auto obj_ptr = bb._obj_wptr.lock();
     // Do not display billboards for objects that are being held of are inside an inventory.
     if (!obj_ptr || obj_ptr->isTerminated() || obj_ptr->isBeingHeld() || obj_ptr->isInsideInventory()) {
         return false;
     }
 
-    auto ptex = pbb->_texture.get();
+    auto ptex = bb._texture.get();
     oglx_texture_t::bind(ptex);
 
 
@@ -347,46 +345,46 @@ bool BillboardSystem::render_one(billboard_data_t *pbb, float scale, const fvec3
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
     // scale the camera vectors
-    fvec3_t vec_rgt = cam_rgt * (ptex->getSourceWidth() * scale * pbb->_size);
-    fvec3_t vec_up = cam_up  * (ptex->getSourceHeight() * scale * pbb->_size);
+    fvec3_t vec_rgt = cam_rgt * (ptex->getSourceWidth() * scale * bb._size);
+    fvec3_t vec_up = cam_up  * (ptex->getSourceHeight() * scale * bb._size);
 
     GLvertex vtlist[4];
     // bottom left
     fvec3_t tmp;
-    tmp = pbb->_position + (-vec_rgt - vec_up * 0);
-    vtlist[0].pos[XX] = pbb->_offset[kX] + tmp[kX];
-    vtlist[0].pos[YY] = pbb->_offset[kY] + tmp[kY];
-    vtlist[0].pos[ZZ] = pbb->_offset[kZ] + tmp[kZ];
+    tmp = bb._position + (-vec_rgt - vec_up * 0);
+    vtlist[0].pos[XX] = bb._offset[kX] + tmp[kX];
+    vtlist[0].pos[YY] = bb._offset[kY] + tmp[kY];
+    vtlist[0].pos[ZZ] = bb._offset[kZ] + tmp[kZ];
     vtlist[0].tex[SS] = s;
     vtlist[0].tex[TT] = t;
 
     // top left
-    tmp = pbb->_position + (-vec_rgt + vec_up * 2);
-    vtlist[1].pos[XX] = pbb->_offset[kX] + tmp[kX];
-    vtlist[1].pos[YY] = pbb->_offset[kY] + tmp[kY];
-    vtlist[1].pos[ZZ] = pbb->_offset[kZ] + tmp[kZ];
+    tmp = bb._position + (-vec_rgt + vec_up * 2);
+    vtlist[1].pos[XX] = bb._offset[kX] + tmp[kX];
+    vtlist[1].pos[YY] = bb._offset[kY] + tmp[kY];
+    vtlist[1].pos[ZZ] = bb._offset[kZ] + tmp[kZ];
     vtlist[1].tex[SS] = s;
     vtlist[1].tex[TT] = 0;
 
     // top right
-    tmp = pbb->_position + (vec_rgt + vec_up * 2);
-    vtlist[2].pos[XX] = pbb->_offset[kX] + tmp[kX];
-    vtlist[2].pos[YY] = pbb->_offset[kY] + tmp[kY];
-    vtlist[2].pos[ZZ] = pbb->_offset[kZ] + tmp[kZ];
+    tmp = bb._position + (vec_rgt + vec_up * 2);
+    vtlist[2].pos[XX] = bb._offset[kX] + tmp[kX];
+    vtlist[2].pos[YY] = bb._offset[kY] + tmp[kY];
+    vtlist[2].pos[ZZ] = bb._offset[kZ] + tmp[kZ];
     vtlist[2].tex[SS] = 0;
     vtlist[2].tex[TT] = 0;
 
     // bottom right
-    tmp = pbb->_position + (vec_rgt - vec_up * 0);
-    vtlist[3].pos[XX] = pbb->_offset[kX] + tmp[kX];
-    vtlist[3].pos[YY] = pbb->_offset[kY] + tmp[kY];
-    vtlist[3].pos[ZZ] = pbb->_offset[kZ] + tmp[kZ];
+    tmp = bb._position + (vec_rgt - vec_up * 0);
+    vtlist[3].pos[XX] = bb._offset[kX] + tmp[kX];
+    vtlist[3].pos[YY] = bb._offset[kY] + tmp[kY];
+    vtlist[3].pos[ZZ] = bb._offset[kZ] + tmp[kZ];
     vtlist[3].tex[SS] = 0;
     vtlist[3].tex[TT] = t;
 
     {
         auto& renderer = Ego::Renderer::get();
-        renderer.setColour(pbb->_tint);
+        renderer.setColour(bb._tint);
 
         // Go on and draw it
         GL_DEBUG( glBegin )( GL_QUADS );
@@ -432,10 +430,10 @@ void BillboardSystem::render_all(Camera& camera)
 
             for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
             {
-                billboard_data_t *pbb = _billboardList.get_ptr(ref);
+                Billboard *pbb = _billboardList.get_ptr(ref);
                 if (!pbb || !pbb->_valid ) continue;
 
-                render_one(pbb, 0.75f, camera.getVUP(), camera.getVRT());
+                render_one(*pbb, 0.75f, camera.getVUP(), camera.getVRT());
             }
         }
         ATTRIB_POP( __FUNCTION__ );

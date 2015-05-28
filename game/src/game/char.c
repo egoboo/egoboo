@@ -1181,7 +1181,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         // NOTE: this is not corerect since it could alert a player to an invisible object
 
         // 5 seconds and blue
-        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 3, bb_opt_fade );
+        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 3, Billboard::Flags::Fade );
 
         retval = true;
     }
@@ -1235,12 +1235,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 if (!grabData.visible)
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, Billboard::Flags::Fade );
                 }
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 3, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_grn, default_tint, 3, Billboard::Flags::Fade );
                 }
             }
 
@@ -1251,12 +1251,12 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 if (!grabData.visible)
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 3, Billboard::Flags::Fade );
                 }
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 3, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, grabData.object->getName(true, false, true).c_str(), color_red, default_tint, 3, Billboard::Flags::Fade );
                 }
             }
         }
@@ -5090,7 +5090,7 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
 
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t *chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
+Billboard *chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
     if (!_gameObjects.exists(ichr)) {
         return nullptr;
@@ -5112,7 +5112,7 @@ billboard_data_t *chr_make_text_billboard( const CHR_REF ichr, const char *txt, 
     if (INVALID_BBOARD_REF == ref) {
         return nullptr;
     }
-    billboard_data_t *pbb = BillboardSystem::get()._billboardList.get_ptr(ref);
+    Billboard *pbb = BillboardSystem::get()._billboardList.get_ptr(ref);
     pbb->_obj_wptr = std::weak_ptr<Object>(obj_ptr);
     pbb->_position = obj_ptr->getPosition();
 
