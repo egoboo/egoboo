@@ -422,8 +422,6 @@ ego_mesh_t *set_PMesh( ego_mesh_t * pmpd );
 
 float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
 
-bool game_choose_module( MOD_REF imod );
-
 int    game_do_menu( struct menu_process_t * mproc );
 
 void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );

@@ -46,15 +46,6 @@
 #define MAX_LOCAL_PLAYERS    4
 #define MAX_PLAYER           MAX_LOCAL_PLAYERS      ///< ZF> used to be 8, but caused some memset issues if MAX_PLAYER > MAX_LOCAL_PLAYERS
 
-
-/**
- * @brief
- *  The maximum number of modules.
- * @ingroup
- *  compile-time
- */
-#define MODULES_MAX UINT16_MAX
-
 /**
  * @brief
  *  The maximum number of object profiles.
@@ -170,14 +161,6 @@
  *  compile-time
  */
 #define MAX_MAD 256
-
-/**
- * @brief
- *  Maximum number of billboards.
- * @ingroup
- *  compile-time
- */
-#define BILLBOARDS_MAX (2 * OBJECTS_MAX)
 
 // Some macro switches
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style

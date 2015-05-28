@@ -31,64 +31,21 @@
 #include "game/game.h"
 #include "game/Core/GameEngine.hpp"
 
-bool VALID_BILLBOARD_RANGE(BBOARD_REF ref) {
-    return (ref >= 0)
-        && (ref < BILLBOARDS_MAX);
-}
-
-bool VALID_BILLBOARD(BBOARD_REF ref) {
-    return VALID_BILLBOARD_RANGE(ref)
-        && BillboardSystem::get()._billboardList.get_ptr(ref)->_valid;
-}
-
-
-
-Billboard::Billboard()
-    : _valid(false), _endTime(0),
+Billboard::Billboard(Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
+    : _endTime(endTime),
       _position(), _offset(), _offset_add(),
       _size(1), _size_add(0),
-      _texture(nullptr), _obj_wptr(),
+      _texture(texture), _obj_wptr(),
       _tint(Colour3f::white(), 1.0f), _tint_add(0.0f, 0.0f, 0.0f, 0.0f) {
     /* Intentionally empty. */
 }
 
-void Billboard::set(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture)
-{
-    _valid = valid; _endTime = endTime;
-    _position = fvec3_t::zero();
-    _offset = fvec3_t::zero(); _offset_add = fvec3_t::zero();
-
-    _texture = texture;
-    _obj_wptr.reset();
-
-    _tint = Colour4f(Colour3f::white(),1.0f);
-    _tint_add = fvec4_t(0.0f, 0.0f, 0.0f, 0.0f);
-
-    _size = 1.0f; _size_add = 0.0f;
-}
-
-void Billboard::reset() {
-    set(false, 0, nullptr);
-}
-
-void Billboard::free() {
-    if (!_valid) {
-        return;
-    }
-
-    // Relinquish the texture.
-    _texture = nullptr;
-
-    reset();
-}
-
-bool Billboard::update() {
-    if (!_valid) {
+bool Billboard::update(Uint32 ticks) {
+    if ((ticks >= _endTime) || (nullptr == _texture)) {
         return false;
     }
-
     auto obj_ptr = _obj_wptr.lock();
-    if (!obj_ptr || obj_ptr->isTerminated()) {
+    if (!obj_ptr || obj_ptr->isTerminated() || obj_ptr->isBeingHeld() || obj_ptr->isInsideInventory()) {
         return false;
     }
 
@@ -111,7 +68,7 @@ bool Billboard::update() {
 
     // Automatically kill a billboard that is no longer useful.
     if (_tint.getAlpha() == 0.0f || _size <= 0.0f) {
-        free();
+        return false;
     }
 
     return true;
@@ -122,171 +79,79 @@ bool Billboard::update() {
 //--------------------------------------------------------------------------------------------
 
 BillboardList::BillboardList() :
-    lst() {
-    clear_data();
+    _used() {
 }
 
 void BillboardList::reset() {
-    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref) {
-        get_ptr(ref)->reset();
-    }
+    update(std::numeric_limits<Uint32>::max());
+}
 
-    clear_data();
+void BillboardList::update(Uint32 ticks)
+{
+    auto i = _used.begin(),
+        e = _used.end();
+
+    while (i != e) {
+        if (!(*i)->update(ticks)) {
+            i = _used.erase(i);
+        }
+        else {
+            i++;
+        }
+    }
 }
 
 void BillboardList::update()
 {
-    Uint32 ticks = SDL_GetTicks();
-
-    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
-    {
-        Billboard *pbb = get_ptr(ref);
-
-        if (!pbb->_valid) continue;
-
-        bool isInvalid = false;
-        if ((ticks >= pbb->_endTime) || (nullptr == pbb->_texture))
-        {
-            isInvalid = true;
-        }
-        auto obj_ref = pbb->_obj_wptr.lock();
-        if (!obj_ref || obj_ref->isTerminated() || obj_ref->isBeingHeld() || obj_ref->isInsideInventory()) {
-            isInvalid = true;
-        }
-
-        if (isInvalid) {
-            // ... and deallocate it.
-            free_one(ref);
-        }
-        else
-        {
-            get_ptr(ref)->update();
-        }
-    }
+    update(SDL_GetTicks());
 }
 
-BBOARD_REF BillboardList::get_free_ref(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD opt_bits)
-{
-    if (free_count <= 0 || 0 == lifetime_secs || !texture) {
-        return INVALID_BBOARD_REF;
-    }
-
-    BBOARD_REF ibb = INVALID_BBOARD_REF;
-    size_t loops = 0;
-    while (free_count > 0)
-    {
-        // grab the top index
-        free_count--;
-        update_guid++;
-
-        ibb = free_ref[free_count];
-
-        if (VALID_BILLBOARD_RANGE(ibb))
-        {
-            break;
-        }
-
-        loops++;
-    }
-
-    if (loops > 0)
-    {
-        log_warning("%s:%d: there is something wrong with the free stack. %" PRIuZ " loops.\n", __FILE__, __LINE__, loops);
-    }
-
-    if (!VALID_BILLBOARD_RANGE(ibb)) {
-        return INVALID_BBOARD_REF;
-    }
-
-    Billboard *pbb = get_ptr(ibb);
-
-    pbb->set(true, SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, texture);
-    pbb->_tint = tint;
-    if (HAS_SOME_BITS(opt_bits, Billboard::Flags::RandomPosition))
+std::shared_ptr<Billboard> BillboardList::makeBillboard(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options) {
+    auto billboard = std::make_shared<Billboard>(SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC, texture);
+    billboard->_tint = tint;
+    if (HAS_SOME_BITS(options, Billboard::Flags::RandomPosition))
     {
         // make a random offset from the character
-        pbb->_offset = fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
+        billboard->_offset = fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
             * (GRID_FSIZE / 5.0f);
     }
 
-    if (HAS_SOME_BITS(opt_bits, Billboard::Flags::RandomVelocity))
+    if (HAS_SOME_BITS(options, Billboard::Flags::RandomVelocity))
     {
         // make the text fly away in a random direction
-        pbb->_offset_add += fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
+        billboard->_offset_add += fvec3_t(Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1, Random::nextFloat() * 2 - 1)
             * (2.0f * GRID_FSIZE / lifetime_secs / GameEngine::GAME_TARGET_UPS);
     }
 
-    if (HAS_SOME_BITS(opt_bits, Billboard::Flags::Fade))
+    if (HAS_SOME_BITS(options, Billboard::Flags::Fade))
     {
         // make the billboard fade to transparency
-        pbb->_tint_add[AA] = -1.0f / (lifetime_secs * GameEngine::GAME_TARGET_UPS);
+        billboard->_tint_add[AA] = -1.0f / (lifetime_secs * GameEngine::GAME_TARGET_UPS);
     }
 
-    if (HAS_SOME_BITS(opt_bits, Billboard::Flags::Burn))
+    if (HAS_SOME_BITS(options, Billboard::Flags::Burn))
     {
         float minval, maxval;
 
-        minval = std::min({ pbb->_tint.getRed(), pbb->_tint.getGreen(), pbb->_tint.getBlue() });
-        maxval = std::max({ pbb->_tint.getRed(), pbb->_tint.getGreen(), pbb->_tint.getBlue() });
+        minval = std::min({ billboard->_tint.getRed(), billboard->_tint.getGreen(), billboard->_tint.getBlue() });
+        maxval = std::max({ billboard->_tint.getRed(), billboard->_tint.getGreen(), billboard->_tint.getBlue() });
 
-        if (pbb->_tint.getRed() != maxval) {
-            pbb->_tint_add[RR] = -pbb->_tint.getRed() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+        if (billboard->_tint.getRed() != maxval) {
+            billboard->_tint_add[RR] = -billboard->_tint.getRed() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
 
-        if (pbb->_tint.getGreen() != maxval)
+        if (billboard->_tint.getGreen() != maxval)
         {
-            pbb->_tint_add[GG] = -pbb->_tint.getGreen() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            billboard->_tint_add[GG] = -billboard->_tint.getGreen() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
 
-        if (pbb->_tint.getBlue() != maxval)
+        if (billboard->_tint.getBlue() != maxval)
         {
-            pbb->_tint_add[BB] = -pbb->_tint.getBlue() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
+            billboard->_tint_add[BB] = -billboard->_tint.getBlue() / lifetime_secs / GameEngine::GAME_TARGET_UPS;
         }
     }
-
-    return ibb;
-}
-
-bool BillboardList::free_one(BBOARD_REF ref)
-{
-    if (!VALID_BILLBOARD_RANGE(ref)) return false;
-    Billboard *pbb = get_ptr(ref);
-    pbb->free();
-
-#if defined(_DEBUG)
-    {
-        // Determine whether this billboard is already in the list of free billboards.
-        // If this is the case, then this is an error.
-        for (BBOARD_REF i = 0; i < free_count; ++i)
-        {
-            if (ref == free_ref[i]) return false;
-        }
-    }
-#endif
-
-    if (free_count >= BILLBOARDS_MAX)
-    {
-        return false;
-    }
-
-    free_ref[free_count] = ref;
-    free_count++;
-    update_guid++;
-
-    return true;
-}
-
-void BillboardList::clear_data()
-{
-    /// @author BB
-    /// @details reset the free billboard list.
-
-    for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
-    {
-        free_ref[ref] = REF_TO_INT(ref);
-    }
-
-    free_count = BILLBOARDS_MAX;
+    _used.push_back(billboard);
+    return billboard;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -327,8 +192,6 @@ BillboardSystem& BillboardSystem::get() {
 
 bool BillboardSystem::render_one(Billboard& bb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt)
 {
-    if (!bb._valid) return false;
-
     auto obj_ptr = bb._obj_wptr.lock();
     // Do not display billboards for objects that are being held of are inside an inventory.
     if (!obj_ptr || obj_ptr->isTerminated() || obj_ptr->isBeingHeld() || obj_ptr->isInsideInventory()) {
@@ -428,12 +291,8 @@ void BillboardSystem::render_all(Camera& camera)
             Ego::Renderer::get().setAlphaTestEnabled(true);
             GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);                          // GL_COLOR_BUFFER_BIT
 
-            for (BBOARD_REF ref = 0; ref < BILLBOARDS_MAX; ++ref)
-            {
-                Billboard *pbb = _billboardList.get_ptr(ref);
-                if (!pbb || !pbb->_valid ) continue;
-
-                render_one(*pbb, 0.75f, camera.getVUP(), camera.getVRT());
+            for (auto bb : _billboardList._used) {
+                render_one(*bb, 0.75f, camera.getVUP(), camera.getVRT());
             }
         }
         ATTRIB_POP( __FUNCTION__ );

@@ -68,8 +68,6 @@ struct Billboard
     using Colour3f = Ego::Math::Colour3f;
     using Colour4f = Ego::Math::Colour4f;
 
-    bool _valid;        ///< has the billboard data been initialized?
-
     /**
      * @brief
      *  The point in time after which the billboard is expired.
@@ -119,67 +117,56 @@ struct Billboard
     float _size;
     float _size_add;
 
-    Billboard();
-    void set(bool valid, Uint32 endTime, std::shared_ptr<oglx_texture_t> texture);
-    void reset();
-    void free();
-    bool update();
+    Billboard(Uint32 endTime, std::shared_ptr<oglx_texture_t> texture);
+    bool update(Uint32 ticks);
 
 };
 
 
-//--------------------------------------------------------------------------------------------
-// BillboardList
-//--------------------------------------------------------------------------------------------
-
-bool VALID_BILLBOARD_RANGE(BBOARD_REF ref);
-
-bool VALID_BILLBOARD(BBOARD_REF ref);
-
 struct BillboardList
 {
+public:
+
+    // List of used billboards.
+    std::list<std::shared_ptr<Billboard>> _used;
 private:
-    Ego::GUID update_guid;
-    int used_count;
-    int free_count;
-    BBOARD_REF used_ref[BILLBOARDS_MAX];
-    BBOARD_REF free_ref[BILLBOARDS_MAX];
-    Billboard lst[BILLBOARDS_MAX];
-    void clear_data();
+    void update(Uint32 ticks);
 public:
     BillboardList();
     void update();
     void reset();
 
     bool hasBillboard(const Object& object) {
-        for (BBOARD_REF i(0); i; ++i) {
-            Billboard *bb_ptr = &(lst[i]);
-            if (bb_ptr->_valid) {
-                if (bb_ptr->_obj_wptr.lock().get() == &object) {
-                    return true;
-                }
+        for (const auto& bb : _used) {
+            if (bb->_obj_wptr.lock().get() == &object) {
+                return true;
             }
         }
         return false;
     }
 
-    Billboard *get_ptr(const BBOARD_REF ref)   {
-        return LAMBDA(!VALID_BILLBOARD_RANGE(ref), nullptr, &(lst[ref]));
-    }
-    bool free_one(BBOARD_REF ref);
     /**
      * @brief
-     *  Acquire a fresh billboard.
+     *  Create a billboard.
      * @param lifetime_secs
      *  the lifetime of the billboard, in seconds
+     * @param texture
+     *  a shared pointer to the billboard texture.
+     *  Must not be a null pointer.
+     * @param tint
+     *  the tint
+     * @param options
+     *  the options
      * @return
-     *  the billboard reference on success, #INVALID_BBOARD_REF on failure.
-     *  #INVALID_BBOARD_REF is also returned if there are no free billboards available or
-     *  if no free texture reference could be acquired for the billboard. In particular,
-     *  #INVALID_BBOARD_REF is also returned, if @a lifetime_secs is @a 0, as the billboard
-     *  is already expired.
+     *  the billboard
+     * @throw std::invalid_argument
+     *  if @a texture is a null pointer
+     * @remark
+     *  The billboard is kept around as long as a reference to the billboard exists,
+     *  however, it might exprire during that time.
      */
-    BBOARD_REF get_free_ref(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD opt_bits);
+    std::shared_ptr<Billboard> makeBillboard(Uint32 lifetime_secs, std::shared_ptr<oglx_texture_t> texture, const Ego::Math::Colour4f& tint, const BIT_FIELD options);
+
 };
 
 struct BillboardSystem {

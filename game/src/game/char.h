@@ -358,7 +358,7 @@ const char * describe_value( float value, float maxval, int * rank_ptr );
 const char* describe_damage( float value, float maxval, int * rank_ptr );
 const char* describe_wounds( float max, float current );
 
-Billboard * chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
+std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const char * txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits);
 
 
 //--------------------------------------------------------------------------------------------

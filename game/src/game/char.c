@@ -5090,7 +5090,7 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
 
 
 //--------------------------------------------------------------------------------------------
-Billboard *chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
+std::shared_ptr<Billboard> chr_make_text_billboard( const CHR_REF ichr, const char *txt, const Ego::Math::Colour4f& text_color, const Ego::Math::Colour4f& tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
     if (!_gameObjects.exists(ichr)) {
         return nullptr;
@@ -5108,15 +5108,15 @@ Billboard *chr_make_text_billboard( const CHR_REF ichr, const char *txt, const E
     tex->setName("billboard text");
 
     // Create a new billboard.
-    BBOARD_REF ref = BillboardSystem::get()._billboardList.get_free_ref(lifetime_secs, tex, tint, opt_bits);
-    if (INVALID_BBOARD_REF == ref) {
+    auto billboard = BillboardSystem::get()._billboardList.makeBillboard(lifetime_secs, tex, tint, opt_bits);
+    if (!billboard) {
         return nullptr;
     }
-    Billboard *pbb = BillboardSystem::get()._billboardList.get_ptr(ref);
-    pbb->_obj_wptr = std::weak_ptr<Object>(obj_ptr);
-    pbb->_position = obj_ptr->getPosition();
 
-    return pbb;
+    billboard->_obj_wptr = std::weak_ptr<Object>(obj_ptr);
+    billboard->_position = obj_ptr->getPosition();
+
+    return billboard;
 }
 
 //--------------------------------------------------------------------------------------------
