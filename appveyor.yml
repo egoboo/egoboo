@@ -13,9 +13,11 @@ install:
 build:
     project: egoboo_vs13.sln
 
-test:
-    assemblies:
-        - product\egolib-tests\$(configuration)\$(platform)\egolib-tests.dll
+test_script:
+    - ps: |
+        $platform = $env:platform
+        if ($platform -eq "Win32") { $platform = "x86" }
+        vstest.console /Logger:Appveyor /Platform:$platform /inIsolation "product\egolib-tests\$env:configuration\$env:platform\egolib-tests.dll"
 
 notifications:
     - provider: Webhook
