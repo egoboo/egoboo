@@ -369,7 +369,7 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     // log all the successful spawns
     if (penc->config_activate(100))
     {
-        POBJ_END_SPAWN(penc);
+		penc->POBJ_END_SPAWN();
         peve->_spawnCount++;
     }
 

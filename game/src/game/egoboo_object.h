@@ -261,29 +261,6 @@ namespace Ego
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// Begin turning off an entity.
-/// @todo Make this a function.
-#define POBJ_REQUEST_TERMINATE( PDATA ) \
-    if( NULL != (PDATA) && (PDATA)->obj_base.isAllocated() && Ego::Entity::State::Invalid != (PDATA)->obj_base.state ) \
-    { \
-        if( Ego::Entity::State::Terminated != (PDATA)->obj_base.state ) \
-        { \
-            (PDATA)->obj_base.kill_me = true; \
-        } \
-        (PDATA)->obj_base.on = false; \
-    }
-
-#define POBJ_END_SPAWN( PDATA ) \
-    if( NULL != (PDATA) && (PDATA)->obj_base.isAllocated()) \
-    {\
-        if( (PDATA)->obj_base.spawning )\
-        {\
-            (PDATA)->obj_base.spawning = false;\
-            Ego::Entities::spawnDepth--;\
-        }\
-    }
-
-
 /// Grab a pointer to the Ego::Entity of an object that "inherits" this data
 #define POBJ_GET_PBASE( POBJ )   ( &((POBJ)->obj_base) )
 
@@ -347,7 +324,7 @@ struct _StateMachine
 
         if (!parent->STATE_ACTIVE_PBASE()) return true;
 
-        POBJ_END_SPAWN(this);
+		this->POBJ_END_SPAWN();
 
         return nullptr != this->config_do_active();
     }
@@ -358,7 +335,7 @@ struct _StateMachine
 
         if (!parent->STATE_DEINITIALIZING_PBASE()) return;
 
-        POBJ_END_SPAWN(this);
+		this->POBJ_END_SPAWN();
 
         config_do_deinit();
     }
@@ -369,7 +346,7 @@ struct _StateMachine
 
 		if (!parent->STATE_DESTRUCTING_PBASE()) return;
 
-        POBJ_END_SPAWN(this);
+		this->POBJ_END_SPAWN();
 
         config_do_dtor();
     }
@@ -605,5 +582,24 @@ struct _StateMachine
 
         return result;
     }
+
+	/// Begin turning off an entity.
+	void POBJ_REQUEST_TERMINATE() {
+		if (obj_base.isAllocated() && Ego::Entity::State::Invalid != obj_base.state) {
+			if (Ego::Entity::State::Terminated != obj_base.state) {
+				obj_base.kill_me = true;
+			}
+			obj_base.on = false;
+		}
+	}
+
+	void POBJ_END_SPAWN() {
+		if (obj_base.isAllocated()) {
+			if (obj_base.spawning) {
+				obj_base.spawning = false;
+				Ego::Entities::spawnDepth--;
+			}
+		}
+	}
 
 };

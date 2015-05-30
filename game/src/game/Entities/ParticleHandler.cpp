@@ -441,7 +441,7 @@ PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, c
     // count all the successful spawns of this particle
     if (pprt->config_activate(100))
     {
-        POBJ_END_SPAWN(pprt);
+		pprt->POBJ_END_SPAWN();
         ppip->_spawnCount++;
     }
 

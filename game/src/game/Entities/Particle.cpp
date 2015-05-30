@@ -1928,7 +1928,7 @@ void prt_t::requestTerminate()
     {
         // the particle has already been seen or is not visible, so just
         // terminate it, as normal
-        POBJ_REQUEST_TERMINATE(this);
+		this->POBJ_REQUEST_TERMINATE();
     }
 }
 

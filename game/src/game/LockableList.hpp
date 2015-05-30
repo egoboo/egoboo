@@ -249,7 +249,7 @@ public:
         }
 
         // Mark the object as "waiting to be terminated".
-        POBJ_REQUEST_TERMINATE(get_ptr(ref));
+		get_ptr(ref)->POBJ_REQUEST_TERMINATE();
 
         return retval;
     }

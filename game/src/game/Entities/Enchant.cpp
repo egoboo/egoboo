@@ -1608,7 +1608,7 @@ void enc_t::requestTerminate()
         return;
     }
 
-    POBJ_REQUEST_TERMINATE(this);
+	this->POBJ_REQUEST_TERMINATE();
 }
 
 //--------------------------------------------------------------------------------------------
