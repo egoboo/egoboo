@@ -1133,9 +1133,9 @@ void update_pits()
             // Kill any particles that fell in a pit, if they die in water...
             PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
             {
-                if ( prt_bdl.prt_ptr->pos[kZ] < PITDEPTH && prt_bdl.pip_ptr->end_water )
+                if ( prt_bdl._prt_ptr->pos[kZ] < PITDEPTH && prt_bdl._pip_ptr->end_water )
                 {
-                    end_one_particle_now( prt_bdl.prt_ref );
+                    end_one_particle_now( prt_bdl._prt_ref );
                 }
             }
             PRT_END_LOOP();
@@ -2595,9 +2595,9 @@ void disaffirm_attached_particles( const CHR_REF character )
 
     PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
     {
-        if ( prt_bdl.prt_ptr->attachedto_ref == character )
+        if ( prt_bdl._prt_ptr->attachedto_ref == character )
         {
-            end_one_particle_in_game( prt_bdl.prt_ref );
+            end_one_particle_in_game( prt_bdl._prt_ref );
         }
     }
     PRT_END_LOOP();
@@ -2619,7 +2619,7 @@ int number_of_attached_particles( const CHR_REF character )
 
     PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
     {
-        if ( prt_bdl.prt_ptr->attachedto_ref == character )
+        if ( prt_bdl._prt_ptr->attachedto_ref == character )
         {
             cnt++;
         }
@@ -2812,11 +2812,11 @@ bool attach_one_particle( prt_bundle_t * pbdl_prt )
     prt_t * pprt;
     Object * pchr;
 
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
-    pprt = pbdl_prt->prt_ptr;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr ) return false;
+    pprt = pbdl_prt->_prt_ptr;
 
-    if ( !_gameObjects.exists( pbdl_prt->prt_ptr->attachedto_ref ) ) return false;
-    pchr = _gameObjects.get( pbdl_prt->prt_ptr->attachedto_ref );
+    if ( !_gameObjects.exists( pbdl_prt->_prt_ptr->attachedto_ref ) ) return false;
+    pchr = _gameObjects.get( pbdl_prt->_prt_ptr->attachedto_ref );
 
     pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
     if ( NULL == pprt ) return false;
@@ -2825,7 +2825,7 @@ bool attach_one_particle( prt_bundle_t * pbdl_prt )
     if ( ACTIVE_PPRT( pprt ) )
     {
         // Correct facing so swords knock characters in the right direction...
-        if ( NULL != pbdl_prt->pip_ptr && HAS_SOME_BITS( pbdl_prt->pip_ptr->damfx, DAMFX_TURN ) )
+        if ( NULL != pbdl_prt->_pip_ptr && HAS_SOME_BITS( pbdl_prt->_pip_ptr->damfx, DAMFX_TURN ) )
         {
             pprt->facing = pchr->ori.facing_z;
         }

@@ -167,8 +167,8 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 
 	oct_bb_t tmp_oct;
 
-	if (NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr) return false;
-	loc_pprt = pbdl_prt->prt_ptr;
+	if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return false;
+	loc_pprt = pbdl_prt->_prt_ptr;
 
 	// is the particle in-game?
 	if (!INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
@@ -308,9 +308,9 @@ bool prt_BSP_fill()
 	PRT_BEGIN_LOOP_ACTIVE(iprt, prt_bdl)
 	{
 		// reset a couple of things here
-		prt_bdl.prt_ptr->onwhichplatform_ref = INVALID_CHR_REF;
-		prt_bdl.prt_ptr->targetplatform_ref = INVALID_CHR_REF;
-		prt_bdl.prt_ptr->targetplatform_level = -1e32;
+		prt_bdl._prt_ptr->onwhichplatform_ref = INVALID_CHR_REF;
+		prt_bdl._prt_ptr->targetplatform_ref = INVALID_CHR_REF;
+		prt_bdl._prt_ptr->targetplatform_level = -1e32;
 
 		// try to insert the particle
 		prt_BSP_insert(&prt_bdl);

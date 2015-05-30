@@ -4933,7 +4933,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
 
     PRT_BEGIN_LOOP_DISPLAY(iprt, prt_bdl)
     {
-        dynalight_info_t * pprt_dyna = &(prt_bdl.prt_ptr->dynalight);
+        dynalight_info_t * pprt_dyna = &(prt_bdl._prt_ptr->dynalight);
 
         // is the light on?
         if (!pprt_dyna->on || 0.0f == pprt_dyna->level) continue;
@@ -4942,7 +4942,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
         plight = NULL;
 
         // find the distance to the camera
-        vdist = prt_bdl.prt_ptr->getPosition() - cam.getTrackPosition();
+        vdist = prt_bdl._prt_ptr->getPosition() - cam.getTrackPosition();
         distance = vdist.length_2();
 
         // insert the dynalight
@@ -4986,7 +4986,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
         if (NULL != plight)
         {
             plight->distance = distance;
-            plight->pos = prt_bdl.prt_ptr->getPosition();
+            plight->pos = prt_bdl._prt_ptr->getPosition();
             plight->level = pprt_dyna->level;
             plight->falloff = pprt_dyna->falloff;
         }

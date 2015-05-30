@@ -344,11 +344,11 @@ public:
  */
 struct prt_bundle_t
 {
-    PRT_REF prt_ref;
-    prt_t *prt_ptr;
+    PRT_REF _prt_ref;
+    prt_t *_prt_ptr;
 
-    PIP_REF pip_ref;
-    pip_t *pip_ptr;
+    PIP_REF _pip_ref;
+    pip_t *_pip_ptr;
 
     void ctor();
     static prt_bundle_t *validate(prt_bundle_t *self);

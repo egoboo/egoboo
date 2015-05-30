@@ -856,23 +856,23 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
         oct_bb_t   tmp_oct;
         bool     can_reaffirm, needs_bump;
 
-        pleaf = POBJ_GET_PLEAF( bdl.prt_ptr );
+        pleaf = POBJ_GET_PLEAF( bdl._prt_ptr );
         if ( NULL == pleaf ) continue;
 
         // if the particle is in the BSP, then it has already had it's chance to collide
         if (pleaf->isInList()) continue;
 
         // does the particle potentially reaffirm a character?
-        can_reaffirm = TO_C_BOOL(( bdl.prt_ptr->damagetype < DAMAGE_COUNT ) && ( 0 != reaffirmation_list[bdl.prt_ptr->damagetype] ) );
+        can_reaffirm = TO_C_BOOL(( bdl._prt_ptr->damagetype < DAMAGE_COUNT ) && ( 0 != reaffirmation_list[bdl._prt_ptr->damagetype] ) );
 
         // does the particle end_bump or end_ground?
-        needs_bump = TO_C_BOOL( bdl.pip_ptr->end_bump || bdl.pip_ptr->end_ground );
+        needs_bump = TO_C_BOOL( bdl._pip_ptr->end_bump || bdl._pip_ptr->end_ground );
 
         if ( !can_reaffirm && !needs_bump ) continue;
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
-        phys_expand_prt_bb(bdl.prt_ptr, 0.0f, 1.0f, tmp_oct);
+        phys_expand_prt_bb(bdl._prt_ptr, 0.0f, 1.0f, tmp_oct);
 
         // convert the oct_bb_t to a correct BSP_aabb_t
         tmp_aabb = tmp_oct.toAABB();
@@ -913,20 +913,20 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     if ( loc_reaffirms )
                     {
                         // does this interaction support affirmation?
-                        if ( bdl.prt_ptr->damagetype != pchr_a->reaffirm_damagetype )
+                        if ( bdl._prt_ptr->damagetype != pchr_a->reaffirm_damagetype )
                         {
                             loc_reaffirms = false;
                         }
 
                         // if it is already attached to this character, no more reaffirmation
-                        if ( bdl.prt_ptr->attachedto_ref == ichr_a )
+                        if ( bdl._prt_ptr->attachedto_ref == ichr_a )
                         {
                             loc_reaffirms = false;
                         }
                     }
 
                     // you can't be bumped by items that you are attached to
-                    if ( loc_needs_bump && bdl.prt_ptr->attachedto_ref == ichr_a )
+                    if ( loc_needs_bump && bdl._prt_ptr->attachedto_ref == ichr_a )
                     {
                         loc_needs_bump = false;
                     }
@@ -935,9 +935,9 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     if ( loc_needs_bump )
                     {
                         // the valid bump interactions
-                        bool end_money  = TO_C_BOOL(( bdl.pip_ptr->bump_money > 0 ) && pchr_a->cangrabmoney );
-                        bool end_bump   = TO_C_BOOL(( bdl.pip_ptr->end_bump ) && ( 0 != pchr_a->bump_stt.size ) );
-                        bool end_ground = TO_C_BOOL(( bdl.pip_ptr->end_ground ) && (( 0 != pchr_a->bump_stt.size ) || pchr_a->platform ) );
+                        bool end_money  = TO_C_BOOL(( bdl._pip_ptr->bump_money > 0 ) && pchr_a->cangrabmoney );
+                        bool end_bump   = TO_C_BOOL(( bdl._pip_ptr->end_bump ) && ( 0 != pchr_a->bump_stt.size ) );
+                        bool end_ground = TO_C_BOOL(( bdl._pip_ptr->end_ground ) && (( 0 != pchr_a->bump_stt.size ) || pchr_a->platform ) );
 
                         if ( !end_money && !end_bump && !end_ground )
                         {
@@ -949,7 +949,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     interaction_valid = false;
                     if ( loc_reaffirms || loc_needs_bump )
                     {
-                        if ( detect_chr_prt_interaction_valid( ichr_a, bdl.prt_ref ) )
+                        if ( detect_chr_prt_interaction_valid( ichr_a, bdl._prt_ref ) )
                         {
                             interaction_valid = true;
                         }
@@ -967,14 +967,14 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
                         // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
                         test_platform = EMPTY_BIT_FIELD;
-                        if ( pchr_a->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+                        if ( pchr_a->platform && ( SPRITE_SOLID == bdl._prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
                         // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(pchr_a->chr_min_cv, pchr_a->getPosition(), pchr_a->vel, bdl.prt_ptr->prt_max_cv, bdl.prt_ptr->getPosition(), bdl.prt_ptr->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
+                        if (phys_intersect_oct_bb(pchr_a->chr_min_cv, pchr_a->getPosition(), pchr_a->vel, bdl._prt_ptr->prt_max_cv, bdl._prt_ptr->getPosition(), bdl._prt_ptr->vel, test_platform, tmp_codata.cv, &(tmp_codata.tmin), &(tmp_codata.tmax)))
                         {
 
                             tmp_codata.chra = ichr_a;
-                            tmp_codata.prtb = bdl.prt_ref;
+                            tmp_codata.prtb = bdl._prt_ref;
 
                             do_insert = true;
                         }
@@ -1469,9 +1469,9 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     PRT_BEGIN_LOOP_DISPLAY( iprt, bdl_prt )
     {
-        if ( INVALID_CHR_REF != bdl_prt.prt_ptr->onwhichplatform_ref && bdl_prt.prt_ptr->onwhichplatform_update < update_wld )
+        if ( INVALID_CHR_REF != bdl_prt._prt_ptr->onwhichplatform_ref && bdl_prt._prt_ptr->onwhichplatform_update < update_wld )
         {
-            detach_particle_from_platform( bdl_prt.prt_ptr );
+            detach_particle_from_platform( bdl_prt._prt_ptr );
         }
     }
     PRT_END_LOOP();
@@ -1515,7 +1515,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
     PRT_BEGIN_LOOP_ACTIVE( tnc, prt_bdl )
     {
-        phys_data_clear( &( prt_bdl.prt_ptr->phys ) );
+        phys_data_clear( &( prt_bdl._prt_ptr->phys ) );
     }
     PRT_END_LOOP();
 
@@ -1648,16 +1648,16 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         bool position_updated = false;
         fvec3_t max_apos;
 
-        fvec3_t tmp_pos = bdl.prt_ptr->getPosition();
+        fvec3_t tmp_pos = bdl._prt_ptr->getPosition();
 
         bump_str = 1.0f;
-        if ( _gameObjects.exists( bdl.prt_ptr->attachedto_ref ) )
+        if ( _gameObjects.exists( bdl._prt_ptr->attachedto_ref ) )
         {
             bump_str = 0.0f;
         }
 
         // do the "integration" of the accumulated accelerations
-		bdl.prt_ptr->vel += bdl.prt_ptr->phys.avel;
+		bdl._prt_ptr->vel += bdl._prt_ptr->phys.avel;
 
         position_updated = false;
 
@@ -1667,10 +1667,10 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             apos_t  apos_tmp;
 
             // copy 1/2 of the data over
-            apos_tmp = bdl.prt_ptr->phys.aplat;
+            apos_tmp = bdl._prt_ptr->phys.aplat;
 
             // get the resultant apos_t
-            apos_t::self_union( &apos_tmp, &( bdl.prt_ptr->phys.acoll ) );
+            apos_t::self_union( &apos_tmp, &( bdl._prt_ptr->phys.acoll ) );
 
             // turn this into a vector
             apos_t::evaluate(&apos_tmp, max_apos);
@@ -1685,7 +1685,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpx = tmp_pos[kX];
             tmp_pos[kX] += max_apos[kX];
-            if ( EMPTY_BIT_FIELD != bdl.prt_ptr->test_wall( tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != bdl._prt_ptr->test_wall( tmp_pos, NULL ) )
             {
                 // restore the old values
                 tmp_pos[kX] = tmpx;
@@ -1701,7 +1701,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpy = tmp_pos[kY];
             tmp_pos[kY] += max_apos[kY];
-            if ( EMPTY_BIT_FIELD != bdl.prt_ptr->test_wall( tmp_pos, NULL ) )
+            if ( EMPTY_BIT_FIELD != bdl._prt_ptr->test_wall( tmp_pos, NULL ) )
             {
                 // restore the old values
                 tmp_pos[kY] = tmpy;
@@ -1717,20 +1717,20 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpz = tmp_pos[kZ];
             tmp_pos[kZ] += max_apos[kZ];
-            if ( tmp_pos[kZ] < bdl.prt_ptr->enviro.floor_level )
+            if ( tmp_pos[kZ] < bdl._prt_ptr->enviro.floor_level )
             {
                 // restore the old values
-                tmp_pos[kZ] = bdl.prt_ptr->enviro.floor_level;
-                if ( bdl.prt_ptr->vel[kZ] < 0 )
+                tmp_pos[kZ] = bdl._prt_ptr->enviro.floor_level;
+                if ( bdl._prt_ptr->vel[kZ] < 0 )
                 {
-                    if ( LOADED_PIP( bdl.prt_ptr->pip_ref ) )
+                    if ( LOADED_PIP( bdl._prt_ptr->pip_ref ) )
                     {
-                        pip_t * ppip = PipStack.get_ptr( bdl.prt_ptr->pip_ref );
-                        bdl.prt_ptr->vel[kZ] += -( 1.0f + ppip->dampen ) * bdl.prt_ptr->vel[kZ];
+                        pip_t * ppip = PipStack.get_ptr( bdl._prt_ptr->pip_ref );
+                        bdl._prt_ptr->vel[kZ] += -( 1.0f + ppip->dampen ) * bdl._prt_ptr->vel[kZ];
                     }
                     else
                     {
-                        bdl.prt_ptr->vel[kZ] += -( 1.0f + 0.5f ) * bdl.prt_ptr->vel[kZ];
+                        bdl._prt_ptr->vel[kZ] += -( 1.0f + 0.5f ) * bdl._prt_ptr->vel[kZ];
                     }
                 }
                 position_updated = true;
@@ -1743,15 +1743,15 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
 
         // Change the direction of the particle
-        if ( bdl.pip_ptr->rotatetoface )
+        if ( bdl._pip_ptr->rotatetoface )
         {
             // Turn to face new direction
-            bdl.prt_ptr->facing = vec_to_facing( bdl.prt_ptr->vel[kX] , bdl.prt_ptr->vel[kY] );
+            bdl._prt_ptr->facing = vec_to_facing( bdl._prt_ptr->vel[kX] , bdl._prt_ptr->vel[kY] );
         }
 
         if ( position_updated )
         {
-            bdl.prt_ptr->setPosition(tmp_pos);
+            bdl._prt_ptr->setPosition(tmp_pos);
         }
     }
     PRT_END_LOOP();
@@ -1764,7 +1764,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
     PRT_BEGIN_LOOP_ACTIVE( tnc, prt_bdl )
     {
-        phys_data_clear( &( prt_bdl.prt_ptr->phys ) );
+        phys_data_clear( &( prt_bdl._prt_ptr->phys ) );
     }
     PRT_END_LOOP();
 

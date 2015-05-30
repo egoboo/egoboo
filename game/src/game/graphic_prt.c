@@ -547,7 +547,7 @@ void prt_draw_attached_point(prt_bundle_t *pbdl_prt)
         return;
     }
 
-    prt_t *loc_pprt = pbdl_prt->prt_ptr;
+    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
     if (!loc_pprt)
     {
         return;
@@ -582,12 +582,12 @@ gfx_rv update_all_prt_instance(Camera& camera)
 
     PRT_BEGIN_LOOP_DISPLAY(iprt, prt_bdl)
     {
-        prt_instance_t *pinst = &(prt_bdl.prt_ptr->inst);
+        prt_instance_t *pinst = &(prt_bdl._prt_ptr->inst);
 
         // only do frame counting for particles that are fully activated!
-        prt_bdl.prt_ptr->obj_base.frame_count++;
+        prt_bdl._prt_ptr->obj_base.frame_count++;
 
-        if (!prt_bdl.prt_ptr->inst.indolist)
+        if (!prt_bdl._prt_ptr->inst.indolist)
         {
             pinst->valid = false;
             pinst->ref_valid = false;
@@ -1001,7 +1001,7 @@ void render_prt_bbox(prt_bundle_t *pbdl_prt)
     {
         return;
     }
-    prt_t *loc_pprt = pbdl_prt->prt_ptr;
+    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
     if (!loc_pprt)
     {
         return;
@@ -1011,7 +1011,7 @@ void render_prt_bbox(prt_bundle_t *pbdl_prt)
         return;
     }
     
-    pip_t *loc_ppip = pbdl_prt->pip_ptr;
+    pip_t *loc_ppip = pbdl_prt->_pip_ptr;
 
     // only draw bullets
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
