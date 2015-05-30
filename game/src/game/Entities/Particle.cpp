@@ -73,9 +73,93 @@ bool prt_t::free(prt_t * pprt)
 }
 
 //--------------------------------------------------------------------------------------------
-prt_t::prt_t()
-{
+prt_t::prt_t(PRT_REF ref) :
+	_StateMachine<prt_t, PRT_REF, ParticleHandler>(BSP_LEAF_PRT, ref) {
 }
+
+void prt_t::reset() {
+	this->_StateMachine<prt_t, PRT_REF, ParticleHandler>::reset();
+	this->is_ghost = false;
+
+	prt_spawn_data_t::reset(&this->spawn_data);
+
+	this->pip_ref = INVALID_PIP_REF;
+	this->profile_ref = INVALID_PRO_REF;
+
+	this->attachedto_ref = INVALID_CHR_REF;
+	this->owner_ref = INVALID_CHR_REF;
+	this->target_ref = INVALID_CHR_REF;
+	this->parent_ref = INVALID_PRT_REF;
+	this->parent_guid = EGO_GUID_INVALID;
+
+	this->attachedto_vrt_off = 0;
+	this->type = 0;
+	this->facing = 0;
+	this->team = 0;
+
+
+	this->_image.reset();
+
+	this->vel_stt = fvec3_t::zero();
+
+	PhysicsData::reset(this);
+
+	this->offset = fvec3_t::zero();
+
+	this->is_hidden = false;
+
+	this->rotate = 0;
+	this->rotate_add = 0;
+
+	this->size_stt = 0;
+	this->size = 0;
+	this->size_add = 0;
+
+	// "no lifetime" = "eternal"
+	this->is_eternal = false;
+	this->lifetime_total = (size_t)(~0);
+	this->lifetime_remaining = this->lifetime_total;
+	this->frames_total = (size_t)(~0);
+	this->frames_remaining = this->frames_total;
+	//
+	this->contspawn_timer = 0;
+
+	// bumping
+	this->bump_size_stt = 0;           ///< the starting size of the particle (8.8 fixed point)
+	bumper_t::reset(&this->bump_real);
+	bumper_t::reset(&this->bump_padded);
+	this->prt_min_cv.mins = this->prt_min_cv.maxs = oct_vec_v2_t();
+	this->prt_min_cv.empty = false;
+	this->prt_max_cv.mins = this->prt_max_cv.maxs = oct_vec_v2_t();
+	this->prt_max_cv.empty = false;
+
+	// damage
+	this->damagetype = DamageType::DAMAGE_SLASH;
+	this->damage.base = 0;
+	this->damage.rand = 0;
+	this->lifedrain = 0;
+	this->manadrain = 0;
+
+	// bump effects
+	this->is_bumpspawn = false;
+
+	// motion effects
+	this->buoyancy = 0.0f;
+	this->air_resistance = 0.0f;
+	this->is_homing = false;
+	this->no_gravity = false;
+
+	// some data that needs to be copied from the particle profile
+	this->endspawn_amount = 0;         ///< The number of particles to be spawned at the end
+	this->endspawn_facingadd = 0;      ///< The angular spacing for the end spawn
+	this->endspawn_lpip = LocalParticleProfileRef::Invalid; ///< The actual local pip that will be spawned at the end
+	this->endspawn_characterstate = 0; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
+
+	this->dynalight.reset();
+	prt_instance_t::reset(&this->inst);
+	prt_environment_t::reset(&this->enviro);
+}
+
 /// @brief Set all particle parameters to safe values.
 /// @details The C equivalent of a parameterless constructor.
 prt_t *prt_t::config_do_ctor()
@@ -163,9 +247,6 @@ prt_t *prt_t::config_do_ctor()
     prt_instance_t::reset(&this->inst);
     prt_environment_t::reset(&this->enviro);
 
-    // initialize the bsp node for this particle
-    POBJ_GET_PLEAF(this)->set(this, BSP_LEAF_PRT, GET_REF_PPRT(this));
-
     // reset the base counters
     parent->update_count = 0;
     parent->frame_count = 0;
@@ -175,12 +256,10 @@ prt_t *prt_t::config_do_ctor()
 }
 
 //--------------------------------------------------------------------------------------------
-prt_t::~prt_t()
-{
+prt_t::~prt_t() {
 }
 
-void prt_t::config_do_dtor()
-{
+void prt_t::config_do_dtor() {
     // destruct/free any allocated data
     prt_t::free(this);
 

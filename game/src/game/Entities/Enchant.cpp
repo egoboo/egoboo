@@ -51,9 +51,38 @@ bool enc_t::free(enc_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t::enc_t()
-{
+enc_t::enc_t(ENC_REF ref)
+	: _StateMachine<enc_t, ENC_REF, EnchantHandler>(BSP_LEAF_ENC, ref) {
 }
+void enc_t::reset() {
+	this->_StateMachine<enc_t, ENC_REF, EnchantHandler>::reset();
+	enc_spawn_data_t::reset(&spawn_data);
+	lifetime = 0;
+	spawn_timer = 0;
+
+	owner_mana = 0;
+	owner_life = 0;
+	target_mana = 0;
+	target_life = 0;
+
+	for (size_t i = 0; i < eve_t::MAX_ENCHANT_SET; ++i)
+	{
+		_set[i]._modified = false; _set[i]._oldValue = 0.0f;
+		_add[i]._modified = false; _add[i]._oldValue = 0.0f;
+	}
+
+	this->profile_ref = INVALID_PRO_REF;
+	this->eve_ref = INVALID_EVE_REF;
+
+	this->target_ref = INVALID_CHR_REF;
+	this->owner_ref = INVALID_CHR_REF;
+	this->spawner_ref = INVALID_CHR_REF;
+	this->spawnermodel_ref = INVALID_PRO_REF;
+	this->overlay_ref = INVALID_CHR_REF;
+
+	this->nextenchant_ref = INVALID_ENC_REF;
+}
+
 enc_t *enc_t::config_do_ctor()
 {
     // grab the base object

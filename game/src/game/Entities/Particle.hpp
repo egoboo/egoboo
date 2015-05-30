@@ -285,8 +285,9 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler
     prt_instance_t    inst;                    ///< Everything needed for rendering
     prt_environment_t enviro;                  ///< the particle's environment
 
-    prt_t();
+    prt_t(PRT_REF ref);
     ~prt_t();
+	void reset();
 
     /// @details Tell the game to get rid of this object and treat it as if it was already dead.
     /// @note This will force the game to (eventually) call end_one_particle_in_game() on this particle

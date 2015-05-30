@@ -23,19 +23,25 @@
 
 #include "game/egoboo_object.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 namespace Ego
 {
-	Uint32 Ego::Entities::spawnDepth = 0;
-	Ego::GUID Ego::Entities::nextGUID = 0;
-};
 
+Uint32 Entities::spawnDepth = 0;
+GUID Entities::nextGUID = 0;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-Ego::Entity *Ego::Entity::ctor(void *child_data, bsp_type_t child_type, size_t child_index)
+Entity::Entity(void *child_data, bsp_type_t child_type, size_t child_index)
+	: guid(0), allocated(false), on(false), turn_me_on(false), kill_me(false),
+	  spawning(false), in_free_list(false), in_used_list(false),
+	  // Things related to the updating of objects.
+	  update_count(0), frame_count(0), update_guid(0),
+	  state(State::Invalid),
+	  index(child_index) {
+	_name[0] = CSTR_END;
+	// Assign data to the BSP node.
+	bsp_leaf.set(child_data, child_type, child_index);
+}
+
+void Entity::reset()
 {
     this->guid = 0;
     this->allocated = false;
@@ -51,20 +57,13 @@ Ego::Entity *Ego::Entity::ctor(void *child_data, bsp_type_t child_type, size_t c
     this->update_guid = 0;
 
     this->_name[0] = CSTR_END;
-    this->state = Ego::Entity::State::Invalid;
-    this->index = child_index;
-
-    // Assign data to the BSP node.
-    this->bsp_leaf.set(child_data, child_type, child_index);
-
-    return this;
+    this->state = State::Invalid;
 }
 
-//--------------------------------------------------------------------------------------------
-Ego::Entity *Ego::Entity::dtor()
+Entity *Entity::dtor()
 {
     this->_name[0] = CSTR_END;
-    this->state = Ego::Entity::State::Invalid;
+    this->state = State::Invalid;
     // Assign data to the BSP node.
     this->bsp_leaf.set(nullptr, BSP_LEAF_NONE, 0);
     this->guid = 0;
@@ -80,3 +79,5 @@ Ego::Entity *Ego::Entity::dtor()
     this->update_guid = 0;
     return this;
 }
+
+} // namespace Ego

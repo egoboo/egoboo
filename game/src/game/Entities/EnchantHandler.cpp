@@ -183,8 +183,8 @@ ENC_REF EnchantHandler::allocate(const ENC_REF override)
                 free_ref[override_index] = ref;
 
                 // fix the in_free_list values
-                lst[ref].obj_base.in_free_list = true;
-                lst[override].obj_base.in_free_list = false;
+                get_ptr(ref)->obj_base.in_free_list = true;
+                get_ptr(override)->obj_base.in_free_list = false;
 
                 ref = override;
             }

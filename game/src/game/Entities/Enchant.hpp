@@ -109,9 +109,9 @@ struct enc_t : public _StateMachine<enc_t, ENC_REF, EnchantHandler>
     /// & the unmodified property values.
     Modification _add[eve_t::MAX_ENCHANT_ADD];
 
-    enc_t();
+    enc_t(ENC_REF ref);
     ~enc_t();
-
+	void reset();
 
 
     void requestTerminate();

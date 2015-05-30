@@ -80,10 +80,10 @@ namespace Ego
             Terminated,
         };
         // basic object definitions
-        STRING             _name;      ///< what is its "_name"
-        size_t             index;      ///< what is the index position in the object list?
-        Entity::State      state;      ///< what state is it in?
-        Ego::GUID          guid;       ///< a globally unique identifier
+        STRING     _name;      ///< what is its "_name"
+        size_t     index;      ///< what is the index position in the object list?
+        State      state;      ///< what state is it in?
+        GUID       guid;       ///< a globally unique identifier
 
         // "process" control control
     protected:
@@ -101,14 +101,15 @@ namespace Ego
         size_t         update_count;   ///< How many updates have been made to this object?
         size_t         frame_count;    ///< How many frames have been rendered?
 
-        Ego::GUID      update_guid;       ///< a value that lets you know if an object bookmark is in synch with the object list
+        GUID      update_guid;       ///< a value that lets you know if an object bookmark is in synch with the object list
 
         /// The BSP leaf for this object.
         /// Moved to here so that is is not destroyed in the destructor of the inherited object.
         BSP_leaf_t     bsp_leaf;
 
-        Ego::Entity *ctor(void *child_data, bsp_type_t child_type, size_t child_index);
-        Ego::Entity *dtor();
+		Entity(void *child_data, bsp_type_t child_type, size_t child_index);
+        void reset();
+        Entity *dtor();
 
         /// @brief Is this entity is marked as "allocated"?
         /// @return @a true if this entity is marked as "allocated", @a false otherwise
@@ -140,7 +141,7 @@ namespace Ego
             spawning = false;
             index = INDEX;
             state = State::Constructing;
-            guid = Ego::Entities::nextGUID++;
+            guid = Entities::nextGUID++;
         }
         // Move to state "terminated" and mark as "not allocated".
         void terminate()
@@ -255,7 +256,7 @@ namespace Ego
         }
 
     };
-};
+} // namespace Ego
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -306,14 +307,16 @@ struct _StateMachine
 {
     Ego::Entity obj_base; ///< The "inheritance" from Ego::Entity.
 
-    _StateMachine() :
-        obj_base()
-    {
+	_StateMachine(bsp_type_t child_type, size_t child_index) :
+        obj_base(this, child_type, child_index) {
     }
 
-    virtual ~_StateMachine()
-    {
+    virtual ~_StateMachine() {
     }
+
+	void reset() {
+		obj_base.reset();
+	}
 
     // state machine function
     virtual TYPE *config_do_ctor() = 0;
@@ -602,6 +605,5 @@ struct _StateMachine
 
         return result;
     }
-
 
 };
