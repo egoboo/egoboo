@@ -362,17 +362,35 @@ struct prt_bundle_t
      *  the number of new particles spawned
      */
     int do_contspawn();
-    static bool move_one_particle(prt_bundle_t *self);
+	/// @brief
+	/// The master method to compute a particle's motion.
+    bool move_one_particle();
 private:
-    static prt_bundle_t *updateParticleSimpleGravity(prt_bundle_t * pbdl_prt);
-    static prt_bundle_t *move_one_particle_integrate_motion(prt_bundle_t *self);
-    static prt_bundle_t *move_one_particle_integrate_motion_attached(prt_bundle_t *self);
-    static prt_bundle_t *move_one_particle_do_z_motion(prt_bundle_t *self);
-    static prt_bundle_t *move_one_particle_do_homing(prt_bundle_t *self);
-    static prt_bundle_t *move_one_particle_do_floor_friction(prt_bundle_t *self);
-    static prt_bundle_t *move_one_particle_do_fluid_friction(prt_bundle_t *self);
+	/// @brief
+	///	A helper method to compute the next valid position of this particle.
+	/// Collisions with the mesh are included in this step.
+    prt_bundle_t *move_one_particle_integrate_motion();
+	/// @brief
+	///	A helper method to compute the next valid position of this particle.
+	/// Collisions with the mesh are included in this step.
+    prt_bundle_t *move_one_particle_integrate_motion_attached();
+	/// @brief
+	/// A helper method to compute gravitational acceleration and buoyancy of this particle.
+	prt_bundle_t *updateParticleSimpleGravity();
+    prt_bundle_t *move_one_particle_do_z_motion();
+    prt_bundle_t *move_one_particle_do_homing();
+	/// @brief
+	/// Helper method to compute the friction of this particle with the floor.
+    prt_bundle_t *move_one_particle_do_floor_friction();
+	/// @brief
+	///	Helper method to compute the friction of this particle with the water.
+    prt_bundle_t *move_one_particle_do_fluid_friction();
 public:
-    static prt_bundle_t *move_one_particle_get_environment(prt_bundle_t *self);
+	/// @brief
+	/// Helper method to get all of the information about the particle's environment
+	/// (like friction, etc.) that will be necessary for the other move_one_particle_*()
+	/// functions to work
+    prt_bundle_t *move_one_particle_get_environment();
 private:
     /**
      * @brief

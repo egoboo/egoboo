@@ -4339,7 +4339,7 @@ bool detach_particle_from_platform( prt_t * pprt )
     pprt->targetplatform_level   = -1e32;
 
     // get the correct particle environment
-    prt_bundle_t::move_one_particle_get_environment( &bdl_prt );
+	bdl_prt.move_one_particle_get_environment();
 
     return true;
 }

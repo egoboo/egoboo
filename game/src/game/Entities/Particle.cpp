@@ -790,18 +790,12 @@ void prt_t::set_level(const float level)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
 {
-    /// @author BB
-    /// @details A helper function that gets all of the information about the particle's
-    ///               environment (like friction, etc.) that will be necessary for the other
-    ///               move_one_particle_*() functions to work
-
-    
     float loc_level = 0.0f;
 
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return NULL;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
+    if (NULL == this->_prt_ptr) return NULL;
+    prt_t *loc_pprt = this->_prt_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     //---- character "floor" level
@@ -899,32 +893,23 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment(prt_bundle_t * pbd
         penviro->friction_hrz = penviro->zlerp * 1.0f + (1.0f - penviro->zlerp) * temp_friction_xy;
     }
 
-    return pbdl_prt;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
 {
-    /// @author BB
-    /// @details A helper function that computes particle friction with the floor
-    ///
-    /// @note this is pretty much ripped from the character version of this function and may
-    ///       contain some features that are not necessary for any particles that are actually in game.
-    ///       For instance, the only particles that is under their own control are the homing particles
-    ///       but they do not have friction with the mesh, but that case is still treated in the code below.
-
     fvec3_t fluid_acc;
 
-    if (NULL == pbdl_prt) return NULL;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
-    pip_t *loc_ppip = pbdl_prt->_pip_ptr;
+    prt_t *loc_pprt = this->_prt_ptr;
+	pip_t *loc_ppip = this->_pip_ptr;
     prt_environment_t *loc_penviro = &(loc_pprt->enviro);
 
     // if the particle is a homing-type particle, ignore friction
-    if (loc_ppip->homing) return pbdl_prt;
+	if (loc_ppip->homing) return this;
 
     // Light isn't affected by fluid velocity
-    if (SPRITE_LIGHT == loc_pprt->type) return pbdl_prt;
+	if (SPRITE_LIGHT == loc_pprt->type) return this;
 
     // assume no acceleration
     fluid_acc = fvec3_t::zero();
@@ -978,33 +963,25 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_fluid_friction(prt_bundle_t * 
     // apply the fluid friction
     loc_pprt->vel += fluid_acc;
 
-    return pbdl_prt;
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
 {
-    /// @author BB
-    /// @details A helper function that computes particle friction with the floor
-    ///
-    /// @note this is pretty much ripped from the character version of this function and may
-    ///       contain some features that are not necessary for any particles that are actually in game.
-    ///       For instance, the only particles that is under their own control are the homing particles
-    ///       but they do not have friction with the mesh, but that case is still treated in the code below.
-
     float temp_friction_xy;
     fvec3_t   vup, fric, fric_floor;
     fvec3_t   floor_acc;
 
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return NULL;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
+    if (NULL == this->_prt_ptr) return NULL;
+    prt_t *loc_pprt = this->_prt_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is homing in on something, ignore friction
-    if (loc_pprt->is_homing) return pbdl_prt;
+    if (loc_pprt->is_homing) return this;
 
     // limit floor friction effects to solid objects
-    if (SPRITE_SOLID != loc_pprt->type)  return pbdl_prt;
+    if (SPRITE_SOLID != loc_pprt->type)  return this;
 
     // figure out the acceleration due to the current "floor"
     floor_acc[kX] = floor_acc[kY] = floor_acc[kZ] = 0.0f;
@@ -1071,28 +1048,28 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_floor_friction(prt_bundle_t * 
     // Apply the floor friction
     loc_pprt->vel += fric_floor*0.25f;
 
-    return pbdl_prt;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 {
     int       ival;
     float     vlen, min_length, uncertainty;
     fvec3_t   vdiff, vdither;
 
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return NULL;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
-    pip_t *loc_ppip = pbdl_prt->_pip_ptr;
+    if (NULL == this->_prt_ptr) return NULL;
+	prt_t *loc_pprt = this->_prt_ptr;
+	pip_t *loc_ppip = this->_pip_ptr;
 
     // is the particle a homing type?
-    if (!loc_ppip->homing) return pbdl_prt;
+	if (!loc_ppip->homing) return this;
 
     // the particle update function is supposed to turn homing off if the particle looses its target
-    if (!loc_pprt->is_homing) return pbdl_prt;
+	if (!loc_pprt->is_homing) return this;
 
     // the loc_pprt->is_homing variable is supposed to track the following, but it could have lost synch by this point
-    if (_gameObjects.exists(loc_pprt->attachedto_ref) || !_gameObjects.exists(loc_pprt->target_ref)) return pbdl_prt;
+	if (_gameObjects.exists(loc_pprt->attachedto_ref) || !_gameObjects.exists(loc_pprt->target_ref)) return this;
 
     // grab a pointer to the target
     Object *ptarget = _gameObjects.get(loc_pprt->target_ref);
@@ -1139,33 +1116,30 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_homing(prt_bundle_t * pbdl_prt
 
     loc_pprt->vel = (loc_pprt->vel + vdiff * loc_ppip->homingaccel) * loc_ppip->homingfriction;
 
-    return pbdl_prt;
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_t::updateParticleSimpleGravity(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::updateParticleSimpleGravity()
 {
     //Only do gravity for solid particles
-    if (!pbdl_prt->_prt_ptr->no_gravity && pbdl_prt->_prt_ptr->type == SPRITE_SOLID && !pbdl_prt->_prt_ptr->is_homing  && !_gameObjects.exists(pbdl_prt->_prt_ptr->attachedto_ref))
+    if (!this->_prt_ptr->no_gravity && this->_prt_ptr->type == SPRITE_SOLID && !this->_prt_ptr->is_homing  && !_gameObjects.exists(this->_prt_ptr->attachedto_ref))
     {
-        pbdl_prt->_prt_ptr->vel[kZ] += Physics::g_environment.gravity 
+        this->_prt_ptr->vel[kZ] += Physics::g_environment.gravity 
                                   * Physics::g_environment.airfriction;
     }
-    return pbdl_prt;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
 {
-    /// @author BB
-    /// @details A helper function that does gravitational acceleration and buoyancy
-
     float loc_zlerp, tmp_buoyancy, loc_buoyancy;
 
     fvec3_t z_motion_acc;
 
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return NULL;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
+    if (NULL == this->_prt_ptr) return NULL;
+    prt_t *loc_pprt = this->_prt_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     /// @note ZF@> We really can't do gravity for Light! A lot of magical effects and attacks in the game depend on being able
@@ -1173,7 +1147,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
     /// @note BB@> however, the fireball particle is light, and without gravity it will never bounce on the
     ///            ground as it is supposed to
     /// @note ZF@> I will try to fix this by adding a new  no_gravity expansion for particles
-    if (loc_pprt->no_gravity || /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || _gameObjects.exists(loc_pprt->attachedto_ref)) return pbdl_prt;
+    if (loc_pprt->no_gravity || /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || _gameObjects.exists(loc_pprt->attachedto_ref)) return this;
 
     loc_zlerp = CLIP(penviro->zlerp, 0.0f, 1.0f);
 
@@ -1235,35 +1209,31 @@ prt_bundle_t * prt_bundle_t::move_one_particle_do_z_motion(prt_bundle_t * pbdl_p
 
     loc_pprt->vel += z_motion_acc;
 
-    return pbdl_prt;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
 {
-    /// @author BB
-    /// @details A helper function that figures out the next valid position of the particle.
-    ///               Collisions with the mesh are included in this step.
-
     float loc_level;
     bool touch_a_floor, hit_a_wall, needs_test;
     fvec3_t nrm_total;
     fvec3_t tmp_pos;
 
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return NULL;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
-    PRT_REF loc_iprt = pbdl_prt->_prt_ref;
-    pip_t *loc_ppip = pbdl_prt->_pip_ptr;
+    if (NULL == this->_prt_ptr) return NULL;
+    prt_t *loc_pprt = this->_prt_ptr;
+    PRT_REF loc_iprt = this->_prt_ref;
+    pip_t *loc_ppip = this->_pip_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is not still in "display mode" there is no point in going on
-    if (!DISPLAY_PPRT(loc_pprt)) return pbdl_prt;
+    if (!DISPLAY_PPRT(loc_pprt)) return this;
 
     // capture the particle position
     tmp_pos = loc_pprt->getPosition();
 
     // only deal with attached particles
-    if (INVALID_CHR_REF == loc_pprt->attachedto_ref) return pbdl_prt;
+    if (INVALID_CHR_REF == loc_pprt->attachedto_ref) return this;
 
     touch_a_floor = false;
     hit_a_wall = false;
@@ -1286,7 +1256,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
     // handle the collision
     if (touch_a_floor && loc_ppip->end_ground)
     {
-        end_one_particle_in_game(pbdl_prt->_prt_ref);
+        end_one_particle_in_game(this->_prt_ref);
         return nullptr;
     }
 
@@ -1322,36 +1292,32 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion_attached(prt_bun
     // handle the collision
     if (hit_a_wall && (loc_ppip->end_wall || loc_ppip->end_bump))
     {
-        end_one_particle_in_game(pbdl_prt->_prt_ref);
+        end_one_particle_in_game(this->_prt_ref);
         return nullptr;
     }
 
     loc_pprt->setPosition(tmp_pos);
 
-    return pbdl_prt;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 {
-    /// @author BB
-    /// @details A helper function that figures out the next valid position of the particle.
-    ///               Collisions with the mesh are included in this step.
-
     float ftmp, loc_level;
     bool hit_a_floor, hit_a_wall, needs_test;
     bool touch_a_floor, touch_a_wall;
     fvec3_t nrm_total;
     fvec3_t tmp_pos;
 
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return NULL;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
-    PRT_REF loc_iprt = pbdl_prt->_prt_ref;
-    pip_t *loc_ppip = pbdl_prt->_pip_ptr;
+    if (NULL == this->_prt_ptr) return NULL;
+    prt_t *loc_pprt = this->_prt_ptr;
+    PRT_REF loc_iprt = this->_prt_ref;
+    pip_t *loc_ppip = this->_pip_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is not still in "display mode" there is no point in going on
-    if (!DISPLAY_PPRT(loc_pprt)) return pbdl_prt;
+    if (!DISPLAY_PPRT(loc_pprt)) return this;
 
     // capture the position
     tmp_pos = loc_pprt->getPosition();
@@ -1359,7 +1325,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     // no point in doing this if the particle thinks it's attached
     if (INVALID_CHR_REF != loc_pprt->attachedto_ref)
     {
-        return move_one_particle_integrate_motion_attached(pbdl_prt);
+        return this->move_one_particle_integrate_motion_attached();
     }
 
     hit_a_floor = false;
@@ -1437,7 +1403,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     // handle the collision
     if (touch_a_floor && loc_ppip->end_ground)
     {
-        end_one_particle_in_game(pbdl_prt->_prt_ref);
+        end_one_particle_in_game(this->_prt_ref);
         return NULL;
     }
 
@@ -1480,7 +1446,7 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
     // handle the collision
     if (touch_a_wall && loc_ppip->end_wall)
     {
-        end_one_particle_in_game(pbdl_prt->_prt_ref);
+        end_one_particle_in_game(this->_prt_ref);
         return nullptr;
     }
 
@@ -1578,17 +1544,14 @@ prt_bundle_t * prt_bundle_t::move_one_particle_integrate_motion(prt_bundle_t * p
 
     loc_pprt->setPosition(tmp_pos);
 
-    return pbdl_prt;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_bundle_t::move_one_particle(prt_bundle_t * pbdl_prt)
+bool prt_bundle_t::move_one_particle()
 {
-    /// @author BB
-    /// @details The master function for controlling a particle's motion
-
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return false;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
+    if (NULL == this->_prt_ptr) return false;
+	prt_t *loc_pprt = this->_prt_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     if (!DISPLAY_PPRT(loc_pprt)) return false;
@@ -1610,28 +1573,29 @@ bool prt_bundle_t::move_one_particle(prt_bundle_t * pbdl_prt)
     loc_pprt->vel_old = loc_pprt->vel;
 
     // what is the local environment like?
-    pbdl_prt = move_one_particle_get_environment(pbdl_prt);
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return false;
+	if (!this->move_one_particle_get_environment()) return false;
+	if (!this->_prt_ptr) return false;
 
     //ZF> Disabled, this doesn't really work yet
     // wind, current, and other fluid friction effects
-    //pbdl_prt = move_one_particle_do_fluid_friction( pbdl_prt );
-    //if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
+    //if (!this->move_one_particle_do_fluid_friction()) return false;
+    //if (!this->prt_ptr) return false;
 
     // do friction with the floor before voluntary motion
-    pbdl_prt = move_one_particle_do_floor_friction(pbdl_prt);
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return false;
+	if (!this->move_one_particle_do_floor_friction()) return false;
+    if (!this->_prt_ptr) return false;
 
-    pbdl_prt = move_one_particle_do_homing(pbdl_prt);
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return false;
+	if (!this->move_one_particle_do_homing()) return false;
+    if (!this->_prt_ptr) return false;
 
     //ZF> Dirty hack using VERY simple gravity calculation
-    updateParticleSimpleGravity(pbdl_prt);
-    //pbdl_prt = move_one_particle_do_z_motion( pbdl_prt );
-    //if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
+	//MH> Unify this.
+	if (!this->updateParticleSimpleGravity()) return false;
+    //if (!this->move_one_particle_do_z_motion()) return false;
+    if (!this->_prt_ptr) return false;
 
-    pbdl_prt = move_one_particle_integrate_motion(pbdl_prt);
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return false;
+	if (!this->move_one_particle_integrate_motion()) return false;
+    if (!this->_prt_ptr) return false;
 
     return true;
 }
@@ -1651,7 +1615,7 @@ void move_all_particles()
         prt_bdl._prt_ptr->enviro.air_friction = Physics::g_environment.airfriction;
         prt_bdl._prt_ptr->enviro.ice_friction = Physics::g_environment.icefriction;
 
-        prt_bundle_t::move_one_particle(&prt_bdl);
+        prt_bdl.move_one_particle();
     }
     PRT_END_LOOP();
 }
