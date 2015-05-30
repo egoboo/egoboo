@@ -47,7 +47,7 @@ struct AABB;
 
 template <typename _ScalarType, size_t _Dimensionality>
 struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> 
-    : public Entity<_ScalarType, _Dimensionality> {
+    : public Internal::Entity<_ScalarType, _Dimensionality> {
 
     /**
      * @brief
@@ -59,13 +59,13 @@ struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_
      * @brief
      *  The scalar type.
      */
-    typedef typename Entity<_ScalarType, _Dimensionality>::ScalarType ScalarType;
+    typedef typename Internal::Entity<_ScalarType, _Dimensionality>::ScalarType ScalarType;
     
     /**
      * @brief
      *  The vector type.
      */
-    typedef typename Entity<_ScalarType, _Dimensionality>::VectorType VectorType;
+	typedef typename Internal::Entity<_ScalarType, _Dimensionality>::VectorType VectorType;
 
     /**
      * @brief

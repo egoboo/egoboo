@@ -28,6 +28,7 @@
 
 namespace Ego {
 namespace Math {
+namespace Internal {
 
 /**
  * @brief
@@ -65,5 +66,6 @@ struct Entity<_ScalarType, _Dimensionality, typename std::enable_if<IsScalar<_Sc
     }
 };
 
+} // namespace Internal
 } // namespace Math
 } // namespace Ego

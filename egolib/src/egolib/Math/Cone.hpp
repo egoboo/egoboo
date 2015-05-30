@@ -37,7 +37,7 @@ struct Cone3;
  */
 template <typename _ScalarType>
 struct Cone3<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type> :
-    public Entity<_ScalarType, 3> {
+	public Internal::Entity<_ScalarType, 3> {
     /**
      * @brief
      *  @a MyType is the type of this template/template specialization.
@@ -48,13 +48,13 @@ struct Cone3<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>:
     * @brief
     *  The scalar type.
     */
-    typedef typename Entity<_ScalarType, 3>::ScalarType ScalarType;
+	typedef typename Internal::Entity<_ScalarType, 3>::ScalarType ScalarType;
 
     /**
     * @brief
     *  The vector type.
     */
-    typedef typename Entity<_ScalarType, 3>::VectorType VectorType;
+	typedef typename Internal::Entity<_ScalarType, 3>::VectorType VectorType;
 
     VectorType origin;
     VectorType axis;

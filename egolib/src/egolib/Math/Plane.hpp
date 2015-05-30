@@ -45,7 +45,7 @@ struct Plane3;
 
 template <typename _ScalarType>
 struct Plane3<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type> :
-    public Entity<_ScalarType, 3> {
+	public Internal::Entity<_ScalarType, 3> {
 
 public:
 
@@ -59,13 +59,13 @@ public:
      * @brief
      *  The scalar type.
      */
-    typedef typename Entity<_ScalarType, 3>::ScalarType ScalarType;
+	typedef typename Internal::Entity<_ScalarType, 3>::ScalarType ScalarType;
 
     /**
      * @brief
      *  The vector type.
      */
-    typedef typename Entity<_ScalarType, 3>::VectorType VectorType;
+	typedef typename Internal::Entity<_ScalarType, 3>::VectorType VectorType;
 
 private:
 
