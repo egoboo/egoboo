@@ -292,14 +292,14 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler
     /// @note This will force the game to (eventually) call end_one_particle_in_game() on this particle
     void requestTerminate();
     void set_level(const float level);
-    /// @brief Return nonzero if the particle hit a wall that the particle is not allowed to cross.
-    BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
-    /// @brief Returns nonzero if the particle hit a wall that the particle is not allowed to cross.
-    BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
-    /// @brief Returns nonzero if the particle hit a wall that the particle is not allowed to cross.
-    BIT_FIELD test_wall(mesh_wall_data_t *data);
-    /// @brief Return nonzero if the particle hit a wall that the particle is not allowed to cross.
-    BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data);
+    /** @override */
+    BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+    /** @override */
+    BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+    /** @override */
+    BIT_FIELD test_wall(mesh_wall_data_t *data) override;
+    /** @override */
+    BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
     bool set_size(int size);
     /// @brief Get the scale factor between the "graphical size" of the particle and the actual display size.
     float get_scale() const;

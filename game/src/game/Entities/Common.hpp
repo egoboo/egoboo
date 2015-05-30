@@ -259,5 +259,13 @@ struct PhysicsData
         return pos[kZ];
     }
 
+	/// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
+	virtual BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) = 0;
+	/// @brief Returns nonzero if the entity hit a wall that the entity is not allowed to cross.
+	virtual BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) = 0;
+	/// @brief Returns nonzero if the entity hit a wall that the entity is not allowed to cross.
+	virtual BIT_FIELD test_wall(mesh_wall_data_t *data) = 0;
+	/// @brief Return nonzero if the entity hit a wall that the entity is not allowed to cross.
+	virtual BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) = 0;
 
 };

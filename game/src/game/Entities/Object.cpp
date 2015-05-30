@@ -742,7 +742,7 @@ bool Object::teleport(const fvec3_t& position, const FACING_T facing_z)
 
     //Cannot teleport inside a wall
     fvec2_t nrm;
-    if ( !Object_hit_wall(this, newPosition, nrm, NULL, NULL) )
+    if ( !hit_wall(newPosition, nrm, NULL, NULL) )
     {
         // Yeah!  It worked!
 
@@ -930,7 +930,7 @@ void Object::updateResize()
         {
             bump.size += bump_increase;
 
-            if ( EMPTY_BIT_FIELD != Object_test_wall(this, NULL ) )
+            if ( EMPTY_BIT_FIELD != test_wall( NULL ) )
             {
                 willgetcaught = true;
             }
@@ -1089,7 +1089,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     }
 
     // Make sure it's not dropped in a wall...
-    if (EMPTY_BIT_FIELD != Object_test_wall(this, NULL))
+    if (EMPTY_BIT_FIELD != test_wall(NULL))
     {
         fvec3_t pos_tmp = pholder->getPosition();
         pos_tmp[kZ] = getPosZ();
@@ -1666,4 +1666,78 @@ bool Object::isInsideInventory() const
     }
 
     return true;
+}
+
+BIT_FIELD Object::hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
+{
+	return hit_wall(getPosition(), nrm, pressure, data);
+}
+
+BIT_FIELD Object::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float * pressure, mesh_wall_data_t *data)
+{
+	if (CHR_INFINITE_WEIGHT == phys.weight)
+	{
+		return EMPTY_BIT_FIELD;
+	}
+
+	// Calculate the radius based on whether the character is on camera.
+	float radius = 0.0f;
+	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
+	{
+		ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, getTile());
+
+		if (nullptr != tile && tile->inrenderlist)
+		{
+			radius = bump_1.size;
+		}
+	}
+
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
+	BIT_FIELD result = ego_mesh_hit_wall(PMesh, pos, radius, stoppedby, nrm, pressure, data);
+	chr_stoppedby_tests += mesh_mpdfx_tests;
+	chr_pressure_tests += mesh_pressure_tests;
+
+	return result;
+}
+
+BIT_FIELD Object::test_wall(mesh_wall_data_t *data)
+{
+	if (isTerminated()) {
+		return EMPTY_BIT_FIELD;
+	}
+	return test_wall(getPosition(), data);
+}
+
+BIT_FIELD Object::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
+{
+	if (isTerminated()) {
+		return EMPTY_BIT_FIELD;
+	}
+	if (CHR_INFINITE_WEIGHT == phys.weight)
+	{
+		return EMPTY_BIT_FIELD;
+	}
+
+	// Calculate the radius based on whether the character is on camera.
+	float radius = 0.0f;
+	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
+	{
+		ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, getTile());
+		if (nullptr != tile && tile->inrenderlist)
+		{
+			radius = bump_1.size;
+		}
+	}
+
+	// Do the wall test.
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
+	BIT_FIELD result = ego_mesh_test_wall(PMesh, pos, radius, stoppedby, data);
+	chr_stoppedby_tests += mesh_mpdfx_tests;
+	chr_pressure_tests += mesh_pressure_tests;
+
+	return result;
 }

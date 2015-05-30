@@ -281,14 +281,7 @@ void move_one_character_get_environment( Object * pchr );
 
 fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure);
 float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos);
-/// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
-BIT_FIELD Object_hit_wall(Object *obj, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
-/// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
-BIT_FIELD Object_hit_wall(Object *obj, const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data);
-/// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
-BIT_FIELD Object_test_wall(Object *obj, mesh_wall_data_t *data);
-/// @brief Return nonzero if the object hit a wall that the object is not allowed to cross.
-BIT_FIELD Object_test_wall(Object *obj, const fvec3_t& pos, mesh_wall_data_t * data);
+
 
 /**
  * @brief

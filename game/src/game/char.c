@@ -622,92 +622,6 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
 }
 
 //--------------------------------------------------------------------------------------------
-
-BIT_FIELD Object_hit_wall(Object *obj, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data)
-{
-    if (!obj)
-    {
-        return EMPTY_BIT_FIELD;
-    }
-    return Object_hit_wall(obj, obj->getPosition(), nrm, pressure, data);
-}
-
-BIT_FIELD Object_hit_wall(Object *obj, const fvec3_t& pos, fvec2_t& nrm, float * pressure, mesh_wall_data_t *data)
-{
-    if (!obj)
-    {
-        return EMPTY_BIT_FIELD;
-    }
-    if (CHR_INFINITE_WEIGHT == obj->phys.weight)
-    {
-        return EMPTY_BIT_FIELD;
-    }
-
-    // Calculate the radius based on whether the character is on camera.
-    float radius = 0.0f;
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
-    {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, obj->getTile());
-
-        if (nullptr != tile && tile->inrenderlist)
-        {
-            radius = obj->bump_1.size;
-        }
-    }
-
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    BIT_FIELD result = ego_mesh_hit_wall(PMesh, pos, radius, obj->stoppedby, nrm, pressure, data);
-    chr_stoppedby_tests += mesh_mpdfx_tests;
-    chr_pressure_tests  += mesh_pressure_tests;
-
-    return result;
-}
-
-BIT_FIELD Object_test_wall(Object *obj, mesh_wall_data_t *data)
-{
-    if (!ACTIVE_PCHR(obj))
-    {
-        return EMPTY_BIT_FIELD;
-    }
-    return Object_test_wall(obj, obj->getPosition(), data);
-}
-
-BIT_FIELD Object_test_wall(Object *obj, const fvec3_t& pos, mesh_wall_data_t *data)
-{
-    if (!ACTIVE_PCHR(obj))
-    {
-        return EMPTY_BIT_FIELD;
-    }
-    if (CHR_INFINITE_WEIGHT == obj->phys.weight)
-    {
-        return EMPTY_BIT_FIELD;
-    }
-
-    // Calculate the radius based on whether the character is on camera.
-    float radius = 0.0f;
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
-    {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, obj->getTile());
-        if (nullptr != tile && tile->inrenderlist)
-        {
-            radius = obj->bump_1.size;
-        }
-    }
-
-    // Do the wall test.
-    mesh_mpdfx_tests = 0;
-    mesh_bound_tests = 0;
-    mesh_pressure_tests = 0;
-    BIT_FIELD result = ego_mesh_test_wall(PMesh, pos, radius, obj->stoppedby, data);
-    chr_stoppedby_tests += mesh_mpdfx_tests;
-    chr_pressure_tests += mesh_pressure_tests;
-
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------
 egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
 {
     /// @author ZZ
@@ -3920,7 +3834,7 @@ bool chr_update_safe_raw( Object * pchr )
     if ( nullptr == ( pchr ) ) return false;
 
     fvec2_t nrm;
-    hit_a_wall = Object_hit_wall( pchr, nrm, &pressure, NULL );
+    hit_a_wall = pchr->hit_wall( nrm, &pressure, NULL );
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pchr->safe_valid = true;
@@ -3994,7 +3908,7 @@ bool chr_get_safe(Object * pchr)
     if ( !found && pchr->safe_valid )
     {
         fvec2_t nrm;
-        if ( !Object_hit_wall( pchr, nrm, NULL, NULL ) )
+        if ( !pchr->hit_wall( nrm, NULL, NULL ) )
         {
             found = true;
         }
@@ -4205,7 +4119,7 @@ bool move_one_character_integrate_motion( Object * pchr )
         tmp_pos[kX] = new_x;
         tmp_pos[kY] = new_y;
 
-        if ( EMPTY_BIT_FIELD == Object_test_wall( pchr, tmp_pos, &wdata ) )
+        if ( EMPTY_BIT_FIELD == pchr->test_wall( tmp_pos, &wdata ) )
         {
             updated_2d = true;
         }
@@ -4215,7 +4129,7 @@ bool move_one_character_integrate_motion( Object * pchr )
             float   pressure;
             bool diff_function_called = false;
 
-            Object_hit_wall( pchr, tmp_pos, nrm, &pressure, &wdata );
+            pchr->hit_wall( tmp_pos, nrm, &pressure, &wdata );
 
             // how is the character hitting the wall?
             if ( 0.0f != pressure )

@@ -473,6 +473,15 @@ public:
     /// @details determine the correct price for an item
     int getPrice() const;
 
+	/** @override */
+	BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+	/** @override */
+	BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+	/** @override */
+	BIT_FIELD test_wall(mesh_wall_data_t *data) override;
+	/** @override */
+	BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
+
 private:
 
     /**
