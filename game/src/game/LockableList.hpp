@@ -607,8 +607,8 @@ public:
      */
     bool INGAME_BASE_RAW(const TYPE *ptr)
     {
-        return ACTIVE_PBASE(POBJ_GET_PBASE(ptr))
-            && ON_PBASE(POBJ_GET_PBASE(ptr));
+        return POBJ_GET_PBASE(ptr)->ACTIVE_PBASE()
+            && POBJ_GET_PBASE(ptr)->ON_PBASE();
     }
 
     /**
@@ -621,8 +621,8 @@ public:
      */
     bool DEFINED_BASE_RAW(const TYPE *ptr)
     {
-        return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr))
-            && !TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+		return POBJ_GET_PBASE(ptr)->ALLOCATED_PBASE()
+			&& !POBJ_GET_PBASE(ptr)->TERMINATED_PBASE();
     }
 
     /**
@@ -635,7 +635,7 @@ public:
      */
     bool ALLOCATED_BASE_RAW(const TYPE *ptr)
     {
-        return ALLOCATED_PBASE(POBJ_GET_PBASE(ptr));
+        return POBJ_GET_PBASE(ptr)->ALLOCATED_PBASE();
     }
 
     /**
@@ -648,7 +648,7 @@ public:
      */
     bool ACTIVE_BASE_RAW(const TYPE *ptr)
     {
-        return ACTIVE_PBASE(POBJ_GET_PBASE(ptr));
+        return POBJ_GET_PBASE(ptr)->ACTIVE_PBASE();
     }
 
     /**
@@ -661,7 +661,7 @@ public:
      */
     bool WAITING_BASE_RAW(const TYPE *ptr)
     {
-        return WAITING_PBASE(POBJ_GET_PBASE(ptr));
+        return POBJ_GET_PBASE(ptr)->WAITING_PBASE();
     }
 
     /**
@@ -674,7 +674,7 @@ public:
      */
     bool TERMINATED_BASE_RAW(const TYPE *ptr)
     {
-        return TERMINATED_PBASE(POBJ_GET_PBASE(ptr));
+		return POBJ_GET_PBASE(ptr)->TERMINATED_PBASE();
     }
 
 public:

@@ -154,6 +154,106 @@ namespace Ego
             on = false;
             state = State::Terminated;
         }
+        /// Is the object flagged as requesting termination?
+        inline bool FLAG_ALLOCATED_PBASE() const {
+            return isAllocated() && (State::Invalid != state);
+        }
+
+        /// Is the object allocated?
+        inline bool ALLOCATED_PBASE() const {
+            return FLAG_ALLOCATED_PBASE();
+        }
+
+        /// Is the object flagged as requesting termination?
+        inline bool FLAG_ON_PBASE() const {
+            return on;
+        }
+
+        /// Is the object on?
+        inline bool ON_PBASE() const {
+            return FLAG_ON_PBASE() && (State::Invalid != state);
+        }
+
+        /// Is the object flagged as kill_me?
+        inline bool FLAG_REQ_TERMINATION_PBASE() const {
+            return kill_me;
+        }
+
+        /// Is the object kill_me?
+        inline bool REQ_TERMINATION_PBASE() const {
+            return FLAG_REQ_TERMINATION_PBASE() && (State::Invalid != state);
+        }
+
+        /// Has the object been created yet?
+        inline bool STATE_CONSTRUCTING_PBASE() const {
+            return State::Constructing == state;
+        }
+
+        /// Has the object been created yet?
+        inline bool CONSTRUCTING_PBASE() const {
+            return ALLOCATED_PBASE() && STATE_CONSTRUCTING_PBASE();
+        }
+
+        /// Is the object in the initializing state?
+        inline bool STATE_INITIALIZING_PBASE() const {
+            return State::Initializing == state;
+        }
+
+        /// Is the object being initialized right now?
+        inline bool INITIALIZING_PBASE() const {
+            return ALLOCATED_PBASE() && STATE_INITIALIZING_PBASE();
+        }
+
+        /// Is the object in the active state?
+        inline bool STATE_ACTIVE_PBASE() const {
+            return State::Active == state;
+        }
+
+        /// Is the object active?
+        inline bool ACTIVE_PBASE() const {
+            return ALLOCATED_PBASE() && STATE_ACTIVE_PBASE();
+        }
+
+        /// Is the object in the deinitializing state?
+        inline bool STATE_DEINITIALIZING_PBASE() const {
+            return State::DeInitializing == state;
+        }
+
+        /// Is the object being deinitialized right now?
+        inline bool DEINITIALIZING_PBASE() const {
+            return ALLOCATED_PBASE() && STATE_DEINITIALIZING_PBASE();
+        }
+
+        /// Is the object in the destructing state?
+        inline bool STATE_DESTRUCTING_PBASE() const {
+            return State::Destructing == state;
+        }
+
+        /// Is the object being deinitialized right now?
+        inline bool DESTRUCTING_PBASE() const {
+            return ALLOCATED_PBASE() && STATE_DESTRUCTING_PBASE();
+        }
+
+        /// Is the object "waiting to die" state?
+        inline bool STATE_WAITING_PBASE() const {
+            return State::Waiting == state;
+        }
+
+        /// Is the object "waiting to die"?
+        inline bool WAITING_PBASE() const {
+            return ALLOCATED_PBASE() && STATE_WAITING_PBASE();
+        }
+
+        /// Has the object in the terminated state?
+        inline bool STATE_TERMINATED_PBASE() const {
+            return State::Terminated == state;
+        }
+
+        /// Has the object been marked as terminated?
+        inline bool TERMINATED_PBASE() const {
+            return STATE_TERMINATED_PBASE();
+        }
+
     };
 };
 
@@ -182,105 +282,6 @@ namespace Ego
         }\
     }
 
-/// Is the object flagged as requesting termination?
-inline bool FLAG_ALLOCATED_PBASE(const Ego::Entity *PBASE) {
-    return PBASE->isAllocated() && (Ego::Entity::State::Invalid != PBASE->state);
-}
-
-/// Is the object allocated?
-inline bool ALLOCATED_PBASE(const Ego::Entity *PBASE) {
-    return FLAG_ALLOCATED_PBASE(PBASE);
-}
-
-/// Is the object flagged as requesting termination?
-inline bool FLAG_ON_PBASE(const Ego::Entity *PBASE) {
-    return PBASE->on;
-}
-
-/// Is the object on?
-inline bool ON_PBASE(const Ego::Entity *PBASE) {
-    return FLAG_ON_PBASE(PBASE) && (Ego::Entity::State::Invalid != PBASE->state);
-}
-
-/// Is the object flagged as kill_me?
-inline bool FLAG_REQ_TERMINATION_PBASE(const Ego::Entity *PBASE) {
-    return PBASE->kill_me;
-}
-
-/// Is the object kill_me?
-inline bool REQ_TERMINATION_PBASE(const Ego::Entity *PBASE) {
-    return FLAG_REQ_TERMINATION_PBASE(PBASE) && (Ego::Entity::State::Invalid != PBASE->state);
-}
-
-/// Has the object been created yet?
-inline bool STATE_CONSTRUCTING_PBASE(const Ego::Entity *PBASE) {
-    return Ego::Entity::State::Constructing == PBASE->state;
-}
-
-/// Has the object been created yet?
-inline bool CONSTRUCTING_PBASE(const Ego::Entity *PBASE) {
-    return ALLOCATED_PBASE(PBASE) && STATE_CONSTRUCTING_PBASE(PBASE);
-}
-
-/// Is the object in the initializing state?
-inline bool STATE_INITIALIZING_PBASE(const Ego::Entity *PBASE) {
-    return Ego::Entity::State::Initializing == PBASE->state;
-}
-
-/// Is the object being initialized right now?
-inline bool INITIALIZING_PBASE(const Ego::Entity *PBASE) {
-    return ALLOCATED_PBASE(PBASE) && STATE_INITIALIZING_PBASE(PBASE);
-}
-
-/// Is the object in the active state?
-inline bool STATE_ACTIVE_PBASE(const Ego::Entity *PBASE) {
-    return Ego::Entity::State::Active == PBASE->state;
-}
-
-/// Is the object active?
-inline bool ACTIVE_PBASE(const Ego::Entity *PBASE) {
-    return ALLOCATED_PBASE(PBASE) && STATE_ACTIVE_PBASE(PBASE);
-}
-
-/// Is the object in the deinitializing state?
-inline bool STATE_DEINITIALIZING_PBASE(const Ego::Entity *PBASE) {
-    return Ego::Entity::State::DeInitializing == PBASE->state;
-}
-
-/// Is the object being deinitialized right now?
-inline bool DEINITIALIZING_PBASE(const Ego::Entity *PBASE) {
-    return ALLOCATED_PBASE(PBASE) && STATE_DEINITIALIZING_PBASE(PBASE);
-}
-
-/// Is the object in the destructing state?
-inline bool STATE_DESTRUCTING_PBASE(const Ego::Entity *PBASE) {
-    return Ego::Entity::State::Destructing == PBASE->state;
-}
-
-/// Is the object being deinitialized right now?
-inline bool DESTRUCTING_PBASE(const Ego::Entity *PBASE) {
-    return ALLOCATED_PBASE(PBASE) && STATE_DESTRUCTING_PBASE(PBASE);
-}
-
-/// Is the object "waiting to die" state?
-inline bool STATE_WAITING_PBASE(const Ego::Entity *PBASE) {
-    return Ego::Entity::State::Waiting == PBASE->state;
-}
-
-/// Is the object "waiting to die"?
-inline bool WAITING_PBASE(const Ego::Entity *PBASE) {
-    return ALLOCATED_PBASE(PBASE) && STATE_WAITING_PBASE(PBASE);
-}
-
-/// Has the object in the terminated state?
-inline bool STATE_TERMINATED_PBASE(const Ego::Entity *PBASE) {
-    return Ego::Entity::State::Terminated == (PBASE)->state;
-}
-
-/// Has the object been marked as terminated?
-inline bool TERMINATED_PBASE(const Ego::Entity *PBASE) {
-    return STATE_TERMINATED_PBASE(PBASE);
-}
 
 /// Grab a pointer to the Ego::Entity of an object that "inherits" this data
 #define POBJ_GET_PBASE( POBJ )   ( &((POBJ)->obj_base) )
@@ -291,7 +292,7 @@ inline bool TERMINATED_PBASE(const Ego::Entity *PBASE) {
 #define OBJ_GET_LEAF( POBJ )   ( (OBJ).obj_base.bsp_leaf )
 
 /// Grab the index value of object that "inherits" from Ego::Entity
-#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  LAMBDA( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ), FAIL_VALUE, (POBJ)->obj_base.index )
+#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  LAMBDA(!POBJ_GET_PBASE(POBJ)->ALLOCATED_PBASE(), FAIL_VALUE, (POBJ)->obj_base.index)
 #define GET_REF_POBJ( POBJ, FAIL_VALUE )    ((REF_T)GET_INDEX_POBJ( POBJ, FAIL_VALUE ))
 
 /// Grab the state of object that "inherits" from Ego::Entity
@@ -331,7 +332,7 @@ struct _StateMachine
         Ego::Entity *parent = POBJ_GET_PBASE(this);
 
         // If we aren't in the correct state, abort.
-        if (!STATE_CONSTRUCTING_PBASE(parent)) return true;
+        if (!parent->STATE_CONSTRUCTING_PBASE()) return true;
 
         return nullptr != this->config_do_ctor();
     }
@@ -341,7 +342,7 @@ struct _StateMachine
         Ego::Entity *parent = POBJ_GET_PBASE(this);
         if (!parent->isAllocated()) return false;
 
-        if (!STATE_ACTIVE_PBASE(parent)) return true;
+        if (!parent->STATE_ACTIVE_PBASE()) return true;
 
         POBJ_END_SPAWN(this);
 
@@ -352,7 +353,7 @@ struct _StateMachine
     {
         Ego::Entity *parent = POBJ_GET_PBASE(this);
 
-        if (!STATE_DEINITIALIZING_PBASE(parent)) return;
+        if (!parent->STATE_DEINITIALIZING_PBASE()) return;
 
         POBJ_END_SPAWN(this);
 
@@ -363,7 +364,7 @@ struct _StateMachine
     {
         Ego::Entity *parent = POBJ_GET_PBASE(this);
 
-        if (!STATE_DESTRUCTING_PBASE(parent)) return;
+		if (!parent->STATE_DESTRUCTING_PBASE()) return;
 
         POBJ_END_SPAWN(this);
 
@@ -425,7 +426,7 @@ struct _StateMachine
     bool config_init()
     {
         Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!STATE_INITIALIZING_PBASE(parent)) return true;
+        if (!parent->STATE_INITIALIZING_PBASE()) return true;
 
         if (!this->config_do_init()) {
             return false;

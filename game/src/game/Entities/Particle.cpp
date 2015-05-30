@@ -2656,15 +2656,15 @@ void cleanup_all_particles()
         prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
         Ego::Entity *base_ptr = POBJ_GET_PBASE(pprt);
-        if (!FLAG_ALLOCATED_PBASE(base_ptr)) continue;
+		if (!base_ptr->FLAG_ALLOCATED_PBASE()) continue;
 
-        if (TERMINATED_PBASE(base_ptr))
+		if (base_ptr->TERMINATED_PBASE())
         {
             // now that the object is in the "killed" state,
             // actually put it back into the free store
             ParticleHandler::get().free_one(GET_REF_PPRT(pprt));
         }
-        else if (STATE_WAITING_PBASE(base_ptr))
+		else if (base_ptr->STATE_WAITING_PBASE())
         {
             // do everything to end the particle in-game (spawn secondary particles,
             // play end sound, etc.) amd mark it with kill_me
@@ -2678,7 +2678,7 @@ void bump_all_particles_update_counters()
     for (PRT_REF cnt = 0; cnt < ParticleHandler::get().getCount(); cnt++)
     {
         Ego::Entity *entity = POBJ_GET_PBASE(ParticleHandler::get().get_ptr(cnt));
-        if (!ACTIVE_PBASE(entity)) continue;
+        if (!entity->ACTIVE_PBASE()) continue;
         entity->update_count++;
     }
 }

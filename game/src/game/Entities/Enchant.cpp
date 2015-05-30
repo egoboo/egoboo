@@ -1525,7 +1525,7 @@ void cleanup_all_enchants()
         peve = EveStack.get_ptr( penc->eve_ref );
 
         do_remove = false;
-        if ( WAITING_PBASE( POBJ_GET_PBASE( penc ) ) )
+        if ( POBJ_GET_PBASE( penc )->WAITING_PBASE() )
         {
             // the enchant has been marked for removal
             do_remove = true;
@@ -1565,7 +1565,7 @@ void bump_all_enchants_update_counters()
     for (ENC_REF ref = 0; ref < ENCHANTS_MAX; ++ref)
     {
         Ego::Entity *entity = POBJ_GET_PBASE( EnchantHandler::get().get_ptr(ref));
-        if (!ACTIVE_PBASE(entity)) continue;
+        if (!entity->ACTIVE_PBASE()) continue;
 
         entity->update_count++;
     }
