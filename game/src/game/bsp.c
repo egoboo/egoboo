@@ -174,7 +174,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	if (!INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
 
 	// heal the leaf if necessary
-	pleaf = POBJ_GET_PLEAF(loc_pprt);
+	pleaf = loc_pprt->POBJ_GET_PLEAF();
 	if (loc_pprt != (prt_t *)(pleaf->data))
 	{
 		// some kind of error. re-initialize the data.
@@ -225,7 +225,7 @@ bool prt_BSP_removeAllLeaves()
 	// Unlink all used particle nodes.
 	for (PRT_REF ref = 0; ref < ParticleHandler::get().getCount(); ref++)
 	{
-		BSP_leaf_t::remove_link(POBJ_GET_PLEAF(ParticleHandler::get().get_ptr(ref)));
+		BSP_leaf_t::remove_link(ParticleHandler::get().get_ptr(ref)->POBJ_GET_PLEAF());
 	}
 
 	return true;

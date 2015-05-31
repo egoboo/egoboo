@@ -61,7 +61,7 @@ bool TERMINATED_ENC(const ENC_REF ref)
 
 ENC_REF GET_REF_PENC(const enc_t *ptr)
 {
-    return LAMBDA(nullptr == ptr, INVALID_ENC_REF, GET_INDEX_POBJ(ptr, INVALID_ENC_REF));
+	return LAMBDA(!ptr, INVALID_ENC_REF, ptr->GET_REF_POBJ(INVALID_ENC_REF));
 }
 
 //--------------------------------------------------------------------------------------------

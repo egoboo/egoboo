@@ -852,12 +852,13 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
     PRT_BEGIN_LOOP_ACTIVE( iprt, bdl )
     {
-        BSP_leaf_t * pleaf;
         oct_bb_t   tmp_oct;
         bool     can_reaffirm, needs_bump;
 
-        pleaf = POBJ_GET_PLEAF( bdl._prt_ptr );
-        if ( NULL == pleaf ) continue;
+		if (!bdl._prt_ptr) continue;
+
+        BSP_leaf_t *pleaf = bdl._prt_ptr->POBJ_GET_PLEAF();
+        if (!pleaf) continue;
 
         // if the particle is in the BSP, then it has already had it's chance to collide
         if (pleaf->isInList()) continue;

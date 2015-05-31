@@ -264,17 +264,7 @@ namespace Ego
 /// Grab a pointer to the Ego::Entity of an object that "inherits" this data
 #define POBJ_GET_PBASE( POBJ )   ( &((POBJ)->obj_base) )
 
-/// Grab a pointer to the BSP_leaf_t of an object that "inherits" this data
-#define POBJ_GET_PLEAF( POBJ )   LAMBDA( NULL == (POBJ), NULL, &((POBJ)->obj_base.bsp_leaf) )
-/// Grab a pointer to the BSP_leaf_t of an object that "inherits" this data
-#define OBJ_GET_LEAF( POBJ )   ( (OBJ).obj_base.bsp_leaf )
 
-/// Grab the index value of object that "inherits" from Ego::Entity
-#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  LAMBDA(!POBJ_GET_PBASE(POBJ)->ALLOCATED_PBASE(), FAIL_VALUE, (POBJ)->obj_base.index)
-#define GET_REF_POBJ( POBJ, FAIL_VALUE )    ((REF_T)GET_INDEX_POBJ( POBJ, FAIL_VALUE ))
-
-/// Grab the state of object that "inherits" from Ego::Entity
-#define GET_STATE_POBJ( POBJ )  LAMBDA( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ), ego_object_invalid, (POBJ)->obj_base.index )
 
 //--------------------------------------------------------------------------------------------
 
@@ -290,6 +280,15 @@ struct _StateMachine
 
     virtual ~_StateMachine() {
     }
+
+	/// Grab a pointer to the BSP_leaf_t of an object that "inherits" this data
+	BSP_leaf_t *POBJ_GET_PLEAF() {
+		return &(obj_base.bsp_leaf);
+	}
+
+	const BSP_leaf_t *POBJ_GET_PLEAF() const {
+		return &(obj_base.bsp_leaf);
+	}
 
 	void reset() {
 		obj_base.reset();
@@ -600,6 +599,13 @@ struct _StateMachine
 				Ego::Entities::spawnDepth--;
 			}
 		}
+	}
+
+	size_t GET_INDEX_POBJ(size_t FAIL_VALUE) const {
+		return LAMBDA(!obj_base.ALLOCATED_PBASE(), FAIL_VALUE, obj_base.index);
+	}
+	REFTYPE GET_REF_POBJ(REFTYPE FAIL_VALUE) const {
+		return (REFTYPE)GET_INDEX_POBJ(FAIL_VALUE);
 	}
 
 };

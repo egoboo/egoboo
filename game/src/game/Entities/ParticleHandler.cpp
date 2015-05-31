@@ -59,7 +59,7 @@ bool TERMINATED_PRT(const PRT_REF ref)
 
 PRT_REF GET_REF_PPRT(const prt_t *ptr)
 {
-    return LAMBDA(nullptr == ptr, INVALID_PRT_REF, GET_INDEX_POBJ(ptr, INVALID_PRT_REF));
+	return LAMBDA(!ptr, INVALID_PRT_REF, ptr->GET_REF_POBJ(INVALID_PRT_REF));
 }
 
 //--------------------------------------------------------------------------------------------

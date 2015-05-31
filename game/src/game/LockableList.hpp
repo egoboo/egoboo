@@ -759,7 +759,7 @@ public:
     bool VALID_PTR(const TYPE *ptr)
     {
         return (nullptr != ptr)
-            && isValidRef(GET_REF_POBJ(ptr, INVALIDREF));
+            && isValidRef(ptr->GET_REF_POBJ(INVALIDREF));
     }
 
     bool DEFINED(const TYPE *ptr)
