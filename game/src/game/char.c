@@ -57,7 +57,6 @@ typedef struct s_chr_anim_data chr_anim_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Stack<team_t, TEAM_MAX> TeamStack;
 int chr_stoppedby_tests = 0;
 int chr_pressure_tests = 0;
 
@@ -1458,43 +1457,6 @@ void drop_money( const CHR_REF character, int money )
 }
 
 //--------------------------------------------------------------------------------------------
-void call_for_help( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function issues a call for help to all allies
-
-    TEAM_REF team;
-
-    if ( !_gameObjects.exists( character ) ) return;
-
-    team = chr_get_iteam( character );
-    TeamStack.lst[team].sissy = character;
-
-    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
-    {
-        if ( chr->getCharacterID() != character && !team_hates_team( chr->team, team ) )
-        {
-            SET_BIT( chr->ai.alert, ALERTIF_CALLEDFORHELP );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
-{
-    /// @author ZZ
-    /// @details This function gives every character on a team experience
-
-    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
-    {
-        if ( chr->team == team )
-        {
-            chr->giveExperience(amount, xptype, false);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 bool export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character )
 {
     /// @author ZZ
@@ -1681,14 +1643,14 @@ void cleanup_one_character( Object * pchr )
 
     // Remove it from the team
     pchr->team = pchr->team_base;
-    if ( TeamStack.lst[pchr->team].morale > 0 ) {
-        TeamStack.lst[pchr->team].morale--;
+    if ( TeamStack[pchr->team].morale > 0 ) {
+        TeamStack[pchr->team].morale--;
     }
 
-    if ( TeamStack.lst[pchr->team].leader == ichr )
+    if ( TeamStack[pchr->team].getLeader().get() == pchr )
     {
         // The team now has no leader if the character is the leader
-        TeamStack.lst[pchr->team].leader = TEAM_NOLEADER;
+        TeamStack[pchr->team].setLeader(Object::INVALID_OBJECT);
     }
 
     // Clear all shop passages that it owned..
@@ -1864,17 +1826,17 @@ Object * chr_config_do_init( Object * pchr )
     }
 
     // AI stuff
-    ai_state_spawn( &( pchr->ai ), ichr, pchr->profile_ref, TeamStack.lst[loc_team].morale );
+    ai_state_spawn( &( pchr->ai ), ichr, pchr->profile_ref, TeamStack[loc_team].morale );
 
     // Team stuff
     pchr->team     = loc_team;
     pchr->team_base = loc_team;
-    if ( !pchr->invictus )  TeamStack.lst[loc_team].morale++;
+    if ( !pchr->invictus )  TeamStack[loc_team].morale++;
 
     // Firstborn becomes the leader
-    if ( TeamStack.lst[loc_team].leader == TEAM_NOLEADER )
+    if ( !TeamStack[loc_team].getLeader() )
     {
-        TeamStack.lst[loc_team].leader = ichr;
+        TeamStack[loc_team].setLeader(_gameObjects[ichr]);
     }
 
     // Heal the spawn_ptr->skin, if needed
@@ -2070,10 +2032,10 @@ void respawn_character( const CHR_REF character )
 
     int old_attached_prt_count, new_attached_prt_count;
 
-    Object * pchr;
-
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
+    const std::shared_ptr<Object> &pchr = _gameObjects[character];
+    if(!pchr) {
+        return;
+    }
 
     //already alive?
     if(pchr->alive) {
@@ -2098,16 +2060,16 @@ void respawn_character( const CHR_REF character )
     pchr->canbecrushed = false;
     pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     pchr->ori.map_twist_facing_x = MAP_TURN_OFFSET;
-    if ( TEAM_NOLEADER == TeamStack.lst[pchr->team].leader )  TeamStack.lst[pchr->team].leader = character;
-    if ( !pchr->invictus )  TeamStack.lst[pchr->team_base].morale++;
+    if ( !TeamStack[pchr->team].getLeader() )  TeamStack[pchr->team].setLeader(pchr);
+    if ( !pchr->invictus )  TeamStack[pchr->team_base].morale++;
 
     // start the character out in the "dance" animation
-    chr_start_anim( pchr, ACTION_DA, true, true );
+    chr_start_anim( pchr.get(), ACTION_DA, true, true );
 
     // reset all of the bump size information
     {
         float old_fat = pchr->fat;
-        chr_init_size(pchr, profile);
+        chr_init_size(pchr.get(), profile);
         pchr->setFat(old_fat);
     }
 
@@ -2136,10 +2098,10 @@ void respawn_character( const CHR_REF character )
 
     // re-initialize the instance
     chr_instance_spawn( &( pchr->inst ), pchr->profile_ref, pchr->skin );
-    chr_update_matrix( pchr, true );
+    chr_update_matrix( pchr.get(), true );
 
     // determine whether the object is hidden
-    chr_update_hide( pchr );
+    chr_update_hide( pchr.get() );
 
     if ( !pchr->is_hidden )
     {
@@ -2678,12 +2640,12 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
         // remove the character from the old team
         if ( can_have_team )
         {
-            if ( TeamStack.lst[team_old].morale > 0 ) TeamStack.lst[team_old].morale--;
+            if ( TeamStack[team_old].morale > 0 ) TeamStack[team_old].morale--;
         }
 
-        if ( character == TeamStack.lst[team_old].leader )
+        if ( pchr == TeamStack[team_old].getLeader().get() )
         {
-            TeamStack.lst[team_old].leader = TEAM_NOLEADER;
+            TeamStack[team_old].setLeader(Object::INVALID_OBJECT);
         }
     }
 
@@ -2705,13 +2667,13 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
         // add the character to the new team
         if ( can_have_team )
         {
-            TeamStack.lst[loc_team_new].morale++;
+            TeamStack[loc_team_new].morale++;
         }
 
         // we are the new leader if there isn't one already
-        if ( can_have_team && !_gameObjects.exists( TeamStack.lst[loc_team_new].leader ) )
+        if ( can_have_team && !TeamStack[loc_team_new].getLeader() )
         {
-            TeamStack.lst[loc_team_new].leader = character;
+            TeamStack[loc_team_new].setLeader(_gameObjects[character]);
         }
     }
 }
@@ -5318,39 +5280,6 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_teams()
-{
-    /// @author ZZ
-    /// @details This function makes everyone hate everyone else
-
-    TEAM_REF teama, teamb;
-
-    for ( teama = 0; teama < TEAM_MAX; teama++ )
-    {
-        // Make the team hate everyone
-        for ( teamb = 0; teamb < TEAM_MAX; teamb++ )
-        {
-            TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = true;
-        }
-
-        // Make the team like itself
-        TeamStack.lst[teama].hatesteam[REF_TO_INT( teama )] = false;
-
-        // Set defaults
-        TeamStack.lst[teama].leader = TEAM_NOLEADER;
-        TeamStack.lst[teama].sissy = 0;
-        TeamStack.lst[teama].morale = 0;
-    }
-
-    // Keep the null team neutral
-    for ( teama = 0; teama < TEAM_MAX; teama++ )
-    {
-        TeamStack.lst[teama].hatesteam[TEAM_NULL] = false;
-        TeamStack.lst[( TEAM_REF )TEAM_NULL].hatesteam[REF_TO_INT( teama )] = false;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 Object * chr_update_hide( Object * pchr )
 {
     /// @author BB
@@ -5818,43 +5747,7 @@ Object * chr_set_ai_state( Object * pchr, int state )
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION (previously inline functions)
 //--------------------------------------------------------------------------------------------
-CHR_REF team_get_ileader( const TEAM_REF iteam )
-{
-    CHR_REF ichr;
 
-    if ( iteam >= TEAM_MAX ) return INVALID_CHR_REF;
-
-    ichr = TeamStack.lst[iteam].leader;
-    if ( !_gameObjects.exists( ichr ) ) return INVALID_CHR_REF;
-
-    return ichr;
-}
-
-//--------------------------------------------------------------------------------------------
-Object  * team_get_pleader( const TEAM_REF iteam )
-{
-    CHR_REF ichr;
-
-    if ( iteam >= TEAM_MAX ) return NULL;
-
-    ichr = TeamStack.lst[iteam].leader;
-    if ( !_gameObjects.exists( ichr ) ) return NULL;
-
-    return _gameObjects.get( ichr );
-}
-
-//--------------------------------------------------------------------------------------------
-bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
-{
-    /// @author BB
-    /// @details a wrapper function for access to the hatesteam data
-
-    if ( ipredator_team >= TEAM_MAX || iprey_team >= TEAM_MAX ) return false;
-
-    return TeamStack.lst[ipredator_team].hatesteam[ REF_TO_INT( iprey_team )];
-}
-
-//--------------------------------------------------------------------------------------------
 TEAM_REF chr_get_iteam( const CHR_REF ichr )
 {
 
@@ -5880,25 +5773,25 @@ TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-team_t * chr_get_pteam( const CHR_REF ichr )
+Team * chr_get_pteam( const CHR_REF ichr )
 {
     Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
 
-    return TeamStack.get_ptr( pchr->team );
+    return &TeamStack[pchr->team];
 }
 
 //--------------------------------------------------------------------------------------------
-team_t * chr_get_pteam_base( const CHR_REF ichr )
+Team * chr_get_pteam_base( const CHR_REF ichr )
 {
     Object * pchr;
 
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
 
-    return TeamStack.get_ptr( pchr->team_base );
+    return &TeamStack[pchr->team_base];
 }
 
 //--------------------------------------------------------------------------------------------

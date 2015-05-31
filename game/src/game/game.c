@@ -547,7 +547,7 @@ void activate_alliance_file_vfs()
                                                 "empty string literal");
         }
         teamb = (buffer[0] - 'A') % TEAM_MAX;
-        TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = false;
+        TeamStack[teama].hatesteam[REF_TO_INT( teamb )] = false;
     }
 }
 

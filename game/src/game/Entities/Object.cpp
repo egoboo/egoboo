@@ -256,14 +256,14 @@ Object::~Object()
     }
 
     // Handle the team
-    if ( isAlive() && !getProfile()->isInvincible() && TeamStack.lst[team_base].morale > 0 )
+    if ( isAlive() && !getProfile()->isInvincible() && TeamStack[team_base].morale > 0 )
     {
-        TeamStack.lst[team_base].morale--;
+        TeamStack[team_base].morale--;
     }
 
-    if ( TeamStack.lst[team].leader == getCharacterID() )
+    if ( TeamStack[team].getLeader().get() == this )
     {
-        TeamStack.lst[team].leader = TEAM_NOLEADER;
+        TeamStack[team].setLeader(INVALID_OBJECT);
     }
 
     // remove any attached particles
@@ -1442,7 +1442,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         }
 
         // Check if we were a leader
-        if ( TeamStack.lst[getTeam()].leader == getCharacterID() && listener->getTeam() == getTeam() )
+        if ( TeamStack[getTeam()].getLeader().get() == this && listener->getTeam() == getTeam() )
         {
             // All folks on the leaders team get the alert
             SET_BIT( listener->ai.alert, ALERTIF_LEADERKILLED );
@@ -1740,4 +1740,18 @@ BIT_FIELD Object::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
 	chr_pressure_tests += mesh_pressure_tests;
 
 	return result;
+}
+
+void Object::callForHelp()
+{
+    const TEAM_REF team = getTeam();
+    TeamStack[team].sissy = _characterID;
+
+    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
+    {
+        if ( chr->getCharacterID() != _characterID && !team_hates_team( chr->getTeam(), team ) )
+        {
+            SET_BIT( chr->ai.alert, ALERTIF_CALLEDFORHELP );
+        }
+    }
 }

@@ -166,15 +166,15 @@ void net_unbuffer_player_latches()
         if (!PlaStack.lst[ipla].valid) continue;
 
         CHR_REF character = PlaStack.lst[ipla].index;
-        if ( !_gameObjects.exists( character ) ) continue;
-        Object *pchr = _gameObjects.get( character );
+        const std::shared_ptr<Object> &pchr = _gameObjects[character];
+        if(!pchr) continue;
 
         if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && pchr->latch.b[LATCHBUTTON_RESPAWN] && PMod->isRespawnValid())
         {
             if ( !pchr->alive && 0 == local_stats.revivetimer )
             {
                 respawn_character( character );
-                TeamStack.lst[pchr->team].leader = character;
+                TeamStack[pchr->team].setLeader(pchr);
                 SET_BIT( pchr->ai.alert, ALERTIF_CLEANEDUP );
 
                 // cost some experience for doing this...  never lose a level

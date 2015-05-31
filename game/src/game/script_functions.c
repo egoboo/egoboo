@@ -783,7 +783,7 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
 
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        CHR_REF isissy = TeamStack.lst[pchr->team].sissy;
+        CHR_REF isissy = TeamStack[pchr->team].sissy;
 
         if ( _gameObjects.exists( isissy ) )
         {
@@ -1364,7 +1364,7 @@ Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    call_for_help( pself->index );
+    pchr->callForHelp();
 
     SCRIPT_FUNCTION_END();
 }
@@ -1685,11 +1685,11 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
 
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        CHR_REF ileader = TeamStack.lst[pchr->team].leader;
+        const std::shared_ptr<Object> &leader = TeamStack[pchr->team].getLeader();
 
-        if ( TEAM_NOLEADER != ileader && _gameObjects.exists( ileader ) )
+        if ( leader )
         {
-            CHR_REF itarget = _gameObjects.get(ileader)->ai.target;
+            CHR_REF itarget = leader->ai.target;
 
             if ( _gameObjects.exists( itarget ) )
             {
@@ -1736,7 +1736,7 @@ Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    TeamStack.lst[pchr->team].leader = pself->index;
+    TeamStack[pchr->team].setLeader(_gameObjects[pself->index]);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1837,7 +1837,7 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER );
+    returncode = ( TeamStack[pchr->team].getLeader() != nullptr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1869,11 +1869,10 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        CHR_REF ileader = TeamStack.lst[pchr->team].leader;
-
-        if ( TEAM_NOLEADER != ileader && _gameObjects.exists( ileader ) )
+        const std::shared_ptr<Object> &leader = TeamStack[pchr->team].getLeader();
+        if ( leader )
         {
-            SET_TARGET_0( ileader );
+            SET_TARGET_0( leader->getCharacterID() );
             returncode = true;
         }
     }

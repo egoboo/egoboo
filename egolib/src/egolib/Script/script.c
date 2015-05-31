@@ -976,7 +976,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSELFMORALE:
                 varname = "SELFMORALE";
-                iTmp = TeamStack.lst[pchr->team_base].morale;
+                iTmp = TeamStack[pchr->team_base].morale;
                 break;
 
             case VARSELFLIFE:
@@ -1013,29 +1013,32 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 break;
 
             case VARLEADERX:
+            {
                 varname = "LEADERX";
                 iTmp = pchr->getPosX();
-                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->getPosX();
-
+                std::shared_ptr<Object> leader = TeamStack[pchr->team].getLeader();
+                if ( leader )
+                    iTmp = leader->getPosX();
                 break;
+            }
 
             case VARLEADERY:
+            {
                 varname = "LEADERY";
                 iTmp = pchr->getPosY();
-                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->getPosY();
+                std::shared_ptr<Object> leader = TeamStack[pchr->team].getLeader();
+                if ( leader )
+                    iTmp = leader->getPosY();
 
-                break;
+                break; 
+            }
 
             case VARLEADERDISTANCE:
                 {
-                    Object * pleader;
                     varname = "LEADERDISTANCE";
 
-                    pleader = team_get_pleader( pchr->team );
-
-                    if ( NULL == pleader )
+                    std::shared_ptr<Object> pleader = TeamStack[pchr->team].getLeader();
+                    if ( !pleader )
                     {
                         iTmp = 0x7FFFFFFF;
                     }
@@ -1050,8 +1053,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             case VARLEADERTURN:
                 varname = "LEADERTURN";
                 iTmp = pchr->ori.facing_z;
-                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->ori.facing_z;
+                if ( TeamStack[pchr->team].getLeader() )
+                    iTmp = TeamStack[pchr->team].getLeader()->ori.facing_z;
 
                 break;
 
