@@ -483,9 +483,6 @@ public:
 	/** @override */
 	BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
 
-    /// @details This function issues a call for help to all allies
-    void callForHelp();
-    
 private:
 
     /**

@@ -1740,17 +1740,3 @@ BIT_FIELD Object::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
 
 	return result;
 }
-
-void Object::callForHelp()
-{
-    const TEAM_REF team = getTeam();
-    TeamStack[team].sissy = _characterID;
-
-    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
-    {
-        if ( chr->getCharacterID() != _characterID && !team_hates_team( chr->getTeam(), team ) )
-        {
-            SET_BIT( chr->ai.alert, ALERTIF_CALLEDFORHELP );
-        }
-    }
-}
