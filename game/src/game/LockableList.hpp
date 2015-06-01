@@ -11,7 +11,7 @@ template <typename TYPE, typename REFTYPE, REFTYPE INVALIDREF, size_t COUNT, bsp
 struct _LockableList : public Id::NonCopyable
 {
     _LockableList() :
-        update_guid(EGO_GUID_INVALID),
+        _update_guid(EGO_GUID_INVALID),
         usedCount(0),
         freeCount(0),
         termination_count(0),
@@ -39,7 +39,7 @@ struct _LockableList : public Id::NonCopyable
     }
 
 protected:
-    Ego::GUID update_guid;
+    Ego::GUID _update_guid;
     int usedCount;
     int freeCount;
 
@@ -70,7 +70,7 @@ public:
             used_ref[usedCount] = ref;
 
             usedCount++;
-            update_guid++;
+            _update_guid++;
 
             lst[ref]->obj_base.in_used_list = true;
 
@@ -82,7 +82,7 @@ public:
 
     Ego::GUID getUpdateGUID() const
     {
-        return update_guid;
+        return _update_guid;
     }
 
     //--------------------------------------------------------------------------------------------
@@ -432,7 +432,7 @@ protected:
 
         // Shorten the list.
         freeCount--;
-        update_guid++;
+        _update_guid++;
 
         // Fast removal by swapping the deleted element with the last element.
         if (freeCount > 0)
@@ -464,7 +464,7 @@ protected:
             free_ref[freeCount] = ref;
 
             freeCount++;
-            update_guid++;
+            _update_guid++;
 
             lst[ref]->obj_base.in_free_list = true;
 
@@ -542,7 +542,7 @@ protected:
 
         // Shorten the list.
         usedCount--;
-        update_guid++;
+        _update_guid++;
 
         // Fast removal by swapping with the last element in the list.
         if (usedCount > 0)
@@ -567,7 +567,7 @@ protected:
         while (freeCount > 0)
         {
             freeCount--;
-            update_guid++;
+            _update_guid++;
 
             ref = free_ref[freeCount];
 
@@ -594,7 +594,7 @@ protected:
 protected:
     int lockCount;
 
-public:
+private:
     
     /**
      * @brief
@@ -606,8 +606,7 @@ public:
      */
     bool INGAME_BASE_RAW(const TYPE *ptr)
     {
-        return POBJ_GET_PBASE(ptr)->ACTIVE_PBASE()
-            && POBJ_GET_PBASE(ptr)->ON_PBASE();
+		return POBJ_GET_PBASE(ptr)->INGAME_BASE_RAW();
     }
 
     /**
@@ -620,8 +619,7 @@ public:
      */
     bool DEFINED_BASE_RAW(const TYPE *ptr)
     {
-		return POBJ_GET_PBASE(ptr)->ALLOCATED_PBASE()
-			&& !POBJ_GET_PBASE(ptr)->TERMINATED_PBASE();
+		return POBJ_GET_PBASE(ptr)->DEFINED_BASE_RAW();
     }
 
     /**

@@ -398,7 +398,7 @@ prt_t *prt_t::config_do_init()
     pprt->team = pdata->team;
     pprt->owner_ref = loc_chr_origin;
     pprt->parent_ref = pdata->prt_origin;
-    pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? ParticleHandler::get().get_ptr(pdata->prt_origin)->obj_base.guid : EGO_GUID_INVALID;
+    pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? ParticleHandler::get().get_ptr(pdata->prt_origin)->obj_base.getGUID() : EGO_GUID_INVALID;
     pprt->damagetype = ppip->damageType;
     pprt->lifedrain = ppip->lifeDrain;
     pprt->manadrain = ppip->manaDrain;
@@ -2119,7 +2119,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
     int max_damage = std::abs(loc_pprt->damage.base) + std::abs(loc_pprt->damage.rand);
 
     // wait until the right time
-    Uint32 update_count = update_wld + loc_pprt->obj_base.guid;
+    Uint32 update_count = update_wld + loc_pprt->obj_base.getGUID();
     if (0 != (update_count & 31)) return pbdl_prt;
 
     // we must be attached to something
@@ -2318,7 +2318,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
                     if (this->_prt_ptr->pos[kZ] + this->_prt_ptr->bump_real.height > water.surface_level && this->_prt_ptr->pos[kZ] - this->_prt_ptr->bump_real.height < water.surface_level)
                     {
                         int ripand = ~((~RIPPLEAND) << 1);
-                        if (0 == ((update_wld + this->_prt_ptr->obj_base.guid) & ripand))
+                        if (0 == ((update_wld + this->_prt_ptr->obj_base.getGUID()) & ripand))
                         {
 
                             spawn_valid = true;
@@ -2823,7 +2823,7 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
             // not the parent. Depending on how scrambled the list gets, there could actually
             // be looping structures. I have actually seen this, so don't laugh :)
 
-            if (ParticleHandler::get().get_ptr(pprt->parent_ref)->obj_base.guid == pprt->parent_guid)
+            if (ParticleHandler::get().get_ptr(pprt->parent_ref)->obj_base.getGUID() == pprt->parent_guid)
             {
                 if (iprt != pprt->parent_ref)
                 {

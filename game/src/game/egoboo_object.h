@@ -81,27 +81,29 @@ namespace Ego
         };
         // basic object definitions
         STRING     _name;      ///< what is its "_name"
-        size_t     index;      ///< what is the index position in the object list?
         State      state;      ///< what state is it in?
-        GUID       guid;       ///< a globally unique identifier
-
-        // "process" control control
-    protected:
-        bool             allocated;    ///< Does it exist?
+ 
+		// "process" control control
+    private:
+		size_t _index;      ///< what is the index position in the object list?
+		GUID _guid;         ///< a globally unique identifier
+		bool _allocated;    ///< Does it exist?
+		GUID _update_guid;  ///< a value that lets you know if an object bookmark is in synch with the object list
     public:
+
         bool             on;           ///< Can it be accessed?
         bool             turn_me_on;   ///< Has someone requested that the object be turned on?
         bool             kill_me;      ///< Has someone requested that the object be destroyed?
         bool             spawning;     ///< is the object in the midst of being created?
 
-        bool             in_free_list; ///< the object is currently in the free list
-        bool             in_used_list; ///< the object is currently in the used list
+        bool in_free_list; ///< the object is currently in the free list
+        bool in_used_list; ///< the object is currently in the used list
 
         /// Things related to the updating of objects.
         size_t         update_count;   ///< How many updates have been made to this object?
         size_t         frame_count;    ///< How many frames have been rendered?
 
-        GUID      update_guid;       ///< a value that lets you know if an object bookmark is in synch with the object list
+
 
         /// The BSP leaf for this object.
         /// Moved to here so that is is not destroyed in the destructor of the inherited object.
@@ -111,16 +113,34 @@ namespace Ego
         void reset();
         Entity *dtor();
 
+		GUID getGUID() const {
+			return _guid;
+		}
+
+		size_t getIndex() const {
+			return _index;
+		}
+
+		void setGUID(GUID guid) {
+			_guid = guid;
+		}
+
+		GUID getUpdateGUID() const {
+			return _update_guid;
+		}
+
+		void setUpdateGUID(GUID update_guid) {
+			_update_guid = update_guid;
+		}
+
         /// @brief Is this entity is marked as "allocated"?
         /// @return @a true if this entity is marked as "allocated", @a false otherwise
-        bool isAllocated() const
-        {
-            return allocated;
+        bool isAllocated() const {
+            return _allocated;
         }
         /// @brief Mark this entity as "allocated".
-        void setAllocated()
-        {
-            allocated = true;
+        void setAllocated(bool allocated) {
+            _allocated = allocated;
         }
         /// @brief Allocate and enter state "constructing".
         /// @pre State must be "invalid" or "terminated".
@@ -130,18 +150,18 @@ namespace Ego
             {
                 log_warning("%s:%d: entity state is neither `invalid` nor `terminated`\n",__FILE__,__LINE__);
             }
-            if (allocated)
+            if (_allocated)
             {
                 log_warning("%s:%d: trying allocate an already allocated entity\n", __FILE__, __LINE__);
             }
-            allocated = true;
+            _allocated = true;
             on = false;
             turn_me_on = false;
             kill_me = false;
             spawning = false;
-            index = INDEX;
+            _index = INDEX;
             state = State::Constructing;
-            guid = Entities::nextGUID++;
+            _guid = Entities::nextGUID++;
         }
         // Move to state "terminated" and mark as "not allocated".
         void terminate()
@@ -151,7 +171,7 @@ namespace Ego
                 log_warning("%s:%d: entity is not allocated\n",__FILE__,__LINE__);
                 return;
             }
-            allocated = false;
+            _allocated = false;
             on = false;
             state = State::Terminated;
         }
@@ -254,6 +274,35 @@ namespace Ego
         inline bool TERMINATED_PBASE() const {
             return STATE_TERMINATED_PBASE();
         }
+
+		/**
+		* @brief
+		*  Get if an object is in-game.
+		* @param ptr
+		*  the object
+		* @return
+		*  @a true if the object is in-game, @a false otherwise
+		*/
+		bool INGAME_BASE_RAW() const
+		{
+			return ACTIVE_PBASE()
+				&& ON_PBASE();
+		}
+
+		/**
+		* @brief
+		*  Get if an object is defined.
+		* @param ptr
+		*  the object
+		* @return
+		*  @a true if the object is defined, @a false otherwise
+		*/
+		bool DEFINED_BASE_RAW() const
+		{
+			return ALLOCATED_PBASE()
+				&& !TERMINATED_PBASE();
+		}
+
 
     };
 } // namespace Ego
@@ -417,7 +466,7 @@ struct _StateMachine
         }
         else
         {
-            LISTTYPE::get().add_activation(this->obj_base.index);
+            LISTTYPE::get().add_activation(this->obj_base.getIndex());
         }
 
         parent->state = Ego::Entity::State::Active;
@@ -478,7 +527,7 @@ struct _StateMachine
 
         if (parent->state == Ego::Entity::State::Active)
         {
-            LISTTYPE::get().push_used(this->obj_base.index);
+            LISTTYPE::get().push_used(this->obj_base.getIndex());
         }
 
         return true;
@@ -572,11 +621,11 @@ struct _StateMachine
 
         if (!result)
         {
-            parent->update_guid = EGO_GUID_INVALID;
+            parent->setUpdateGUID(EGO_GUID_INVALID);
         }
         else if (Ego::Entity::State::Active == parent->state)
         {
-            parent->update_guid = LISTTYPE::get().getUpdateGUID();
+            parent->setUpdateGUID(LISTTYPE::get().getUpdateGUID());
         }
 
         return result;
@@ -602,7 +651,7 @@ struct _StateMachine
 	}
 
 	size_t GET_INDEX_POBJ(size_t FAIL_VALUE) const {
-		return LAMBDA(!obj_base.ALLOCATED_PBASE(), FAIL_VALUE, obj_base.index);
+		return LAMBDA(!obj_base.ALLOCATED_PBASE(), FAIL_VALUE, obj_base.getIndex());
 	}
 	REFTYPE GET_REF_POBJ(REFTYPE FAIL_VALUE) const {
 		return (REFTYPE)GET_INDEX_POBJ(FAIL_VALUE);

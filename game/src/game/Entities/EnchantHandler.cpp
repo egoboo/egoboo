@@ -131,7 +131,7 @@ void EnchantHandler::update_used()
     {
         if (!isValidRef(ref)) continue;
         enc_t *x = get_ptr(ref);
-        if (!ALLOCATED_BASE_RAW(x)) continue;
+        if (!POBJ_GET_PBASE(x)->ALLOCATED_PBASE()) continue;
 
         if (INGAME_PENC(x))
         {
@@ -140,7 +140,7 @@ void EnchantHandler::update_used()
                 push_used(ref);
             }
         }
-        else if (!DEFINED_BASE_RAW(x)) // We can use DEFINED_BASE_RAW as the reference is valid.
+		else if (!POBJ_GET_PBASE(x)->DEFINED_BASE_RAW()) // We can use DEFINED_BASE_RAW as the reference is valid.
         {
             if (!x->obj_base.in_free_list)
             {

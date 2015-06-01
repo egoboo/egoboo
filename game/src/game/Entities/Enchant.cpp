@@ -1018,11 +1018,6 @@ enc_t *enc_t::config_do_active()
     /// @details This function allows enchantments to update, spawn particles,
     ///  do drains, stat boosts and despawn.
 
-
-    CHR_REF  owner, target;
-    EVE_REF  eve;
-    Object * ptarget;
-
     ENC_REF ienc = GET_REF_PENC(this);
 
     // the following functions should not be done the first time through the update loop
@@ -1037,7 +1032,7 @@ enc_t *enc_t::config_do_active()
     if (0 == this->spawn_timer && peve->contspawn._amount <= 0)
     {
         this->spawn_timer = peve->contspawn._delay;
-        ptarget = _gameObjects.get(this->target_ref);
+        Object *ptarget = _gameObjects.get(this->target_ref);
 
         FACING_T facing = ptarget->ori.facing_z;
         for (Uint8 i = 0; i < peve->contspawn._amount; ++i)
@@ -1063,9 +1058,9 @@ enc_t *enc_t::config_do_active()
             if (this->lifetime > 0) this->lifetime--;
 
             // To make life easier
-            owner  = enc_get_iowner( ienc );
-            target = this->target_ref;
-            eve    = enc_get_ieve( ienc );
+            CHR_REF owner  = enc_get_iowner( ienc );
+            CHR_REF target = this->target_ref;
+			EVE_REF eve    = enc_get_ieve( ienc );
             Object *powner = _gameObjects.get(owner);
 
             // Do drains
@@ -1108,7 +1103,7 @@ enc_t *enc_t::config_do_active()
             {
                 if ( powner && powner->alive )
                 {
-
+					Object *ptarget = _gameObjects.get(this->target_ref);
                     // Change life
                     if (0 != this->target_life)
                     {
