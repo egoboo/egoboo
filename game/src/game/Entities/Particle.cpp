@@ -371,9 +371,9 @@ prt_t *prt_t::config_do_init()
     pip_t *ppip = PipStack.get_ptr(pdata->ipip);
 
     // let the object be activated
-    if ((pprt)->obj_base.isAllocated() && !(pprt)->obj_base.kill_me && Ego::Entity::State::Invalid != (pprt)->obj_base.state)
+    if (pprt->obj_base.isAllocated() && !pprt->obj_base.kill_me && Ego::Entity::State::Invalid != pprt->obj_base.state)
     {
-        strncpy((pprt)->obj_base._name, ppip->_name.c_str(), SDL_arraysize((pprt)->obj_base._name));
+		pprt->obj_base._name = ppip->_name;
         (pprt)->obj_base.state = Ego::Entity::State::Active;
     }
 

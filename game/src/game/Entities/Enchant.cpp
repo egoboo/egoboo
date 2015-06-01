@@ -886,10 +886,10 @@ enc_t *enc_t::config_do_init()
     peve = EveStack.get_ptr( pdata->eve_ref );
 
     // turn the enchant on here. you can't fail to spawn after this point.
-    if ((penc)->obj_base.isAllocated() && !(penc)->obj_base.kill_me && Ego::Entity::State::Invalid != (penc)->obj_base.state)
+    if (penc->obj_base.isAllocated() && !penc->obj_base.kill_me && Ego::Entity::State::Invalid != penc->obj_base.state)
     {
-        strncpy((penc)->obj_base._name, peve->_name.c_str(), SDL_arraysize((penc)->obj_base._name));
-        (penc)->obj_base.state = Ego::Entity::State::Active;
+		penc->obj_base._name = peve->_name;
+        penc->obj_base.state = Ego::Entity::State::Active;
     }
 
     // does the target exist?

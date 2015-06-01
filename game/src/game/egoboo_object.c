@@ -35,9 +35,8 @@ Entity::Entity(void *child_data, bsp_type_t child_type, size_t child_index)
 	  spawning(false), in_free_list(false), in_used_list(false),
 	  // Things related to the updating of objects.
 	  update_count(0), frame_count(0), _update_guid(0), /// @todo should be EGO_GUID_INVALID
-	  state(State::Invalid),
+	  state(State::Invalid), _name(),
 	  _index(child_index) {
-	_name[0] = CSTR_END;
 	// Assign data to the BSP node.
 	bsp_leaf.set(child_data, child_type, child_index);
 }
@@ -57,13 +56,13 @@ void Entity::reset()
     this->frame_count = 0;
     this->_update_guid = 0; /// @todo Should be EGO_GUID_INVALID
 
-    this->_name[0] = CSTR_END;
+	this->_name = std::string();
     this->state = State::Invalid;
 }
 
 Entity *Entity::dtor()
 {
-    this->_name[0] = CSTR_END;
+    this->_name = std::string();
     this->state = State::Invalid;
     // Assign data to the BSP node.
     this->bsp_leaf.set(nullptr, BSP_LEAF_NONE, 0);

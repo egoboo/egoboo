@@ -80,8 +80,8 @@ namespace Ego
             Terminated,
         };
         // basic object definitions
-        STRING     _name;      ///< what is its "_name"
-        State      state;      ///< what state is it in?
+        std::string _name;      ///< what is its "_name"
+        State       state;      ///< what state is it in?
  
 		// "process" control control
     private:
