@@ -27,7 +27,7 @@
 // Forward declarations.
 class ModuleProfile;
 class Passage;
-
+class Team;
 
 /// The module data that the game needs.
 class GameModule : public Id::NonCopyable
@@ -142,8 +142,15 @@ public:
 
     const std::list<std::string>& getImportPlayers() const {return _playerList;}
 
+    /**
+    * @brief
+    *   Get list of all teams in this Module. Teams determine who like each other and who don't
+    **/
+    std::vector<Team>& getTeamList() {return _teamList;}
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
+    std::vector<Team> _teamList;
     std::list<std::string> _playerList;     ///< List of all import players
 
     std::string  _name;                       ///< Module load names

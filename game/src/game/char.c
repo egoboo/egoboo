@@ -1643,14 +1643,12 @@ void cleanup_one_character( Object * pchr )
 
     // Remove it from the team
     pchr->team = pchr->team_base;
-    if ( TeamStack[pchr->team].morale > 0 ) {
-        TeamStack[pchr->team].morale--;
-    }
+    PMod->getTeamList()[pchr->team].decreaseMorale();
 
-    if ( TeamStack[pchr->team].getLeader().get() == pchr )
+    if ( PMod->getTeamList()[pchr->team].getLeader().get() == pchr )
     {
         // The team now has no leader if the character is the leader
-        TeamStack[pchr->team].setLeader(Object::INVALID_OBJECT);
+        PMod->getTeamList()[pchr->team].setLeader(Object::INVALID_OBJECT);
     }
 
     // Clear all shop passages that it owned..
@@ -1800,7 +1798,7 @@ Object * chr_config_do_init( Object * pchr )
     // Make sure the spawn_ptr->team is valid
     loc_team = spawn_ptr->team;
     iteam = REF_TO_INT( loc_team );
-    iteam = CLIP( iteam, 0, (int)TEAM_MAX );
+    iteam = CLIP( iteam, 0, (int)Team::TEAM_MAX );
     loc_team = ( TEAM_REF )iteam;
 
     // IMPORTANT!!!
@@ -1826,17 +1824,17 @@ Object * chr_config_do_init( Object * pchr )
     }
 
     // AI stuff
-    ai_state_spawn( &( pchr->ai ), ichr, pchr->profile_ref, TeamStack[loc_team].morale );
+    ai_state_spawn( &( pchr->ai ), ichr, pchr->profile_ref, PMod->getTeamList()[loc_team].getMorale() );
 
     // Team stuff
     pchr->team     = loc_team;
     pchr->team_base = loc_team;
-    if ( !pchr->invictus )  TeamStack[loc_team].morale++;
+    if ( !pchr->isInvincible() )  PMod->getTeamList()[loc_team].increaseMorale();
 
     // Firstborn becomes the leader
-    if ( !TeamStack[loc_team].getLeader() )
+    if ( !PMod->getTeamList()[loc_team].getLeader() )
     {
-        TeamStack[loc_team].setLeader(_gameObjects[ichr]);
+        PMod->getTeamList()[loc_team].setLeader(_gameObjects[ichr]);
     }
 
     // Heal the spawn_ptr->skin, if needed
@@ -2060,8 +2058,8 @@ void respawn_character( const CHR_REF character )
     pchr->canbecrushed = false;
     pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     pchr->ori.map_twist_facing_x = MAP_TURN_OFFSET;
-    if ( !TeamStack[pchr->team].getLeader() )  TeamStack[pchr->team].setLeader(pchr);
-    if ( !pchr->invictus )  TeamStack[pchr->team_base].morale++;
+    if ( !PMod->getTeamList()[pchr->team].getLeader() )  PMod->getTeamList()[pchr->team].setLeader(pchr);
+    if ( !pchr->isInvincible() )  PMod->getTeamList()[pchr->team_base].increaseMorale();
 
     // start the character out in the "dance" animation
     chr_start_anim( pchr.get(), ACTION_DA, true, true );
@@ -2640,17 +2638,17 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
         // remove the character from the old team
         if ( can_have_team )
         {
-            if ( TeamStack[team_old].morale > 0 ) TeamStack[team_old].morale--;
+            PMod->getTeamList()[team_old].decreaseMorale();
         }
 
-        if ( pchr == TeamStack[team_old].getLeader().get() )
+        if ( pchr == PMod->getTeamList()[team_old].getLeader().get() )
         {
-            TeamStack[team_old].setLeader(Object::INVALID_OBJECT);
+            PMod->getTeamList()[team_old].setLeader(Object::INVALID_OBJECT);
         }
     }
 
     // make sure we have a valid value
-    loc_team_new = VALID_TEAM_RANGE( team_new ) ? team_new : TEAM_NULL;
+    loc_team_new = VALID_TEAM_RANGE( team_new ) ? team_new : Team::TEAM_NULL;
 
     // place the character onto its new team
     if ( VALID_TEAM_RANGE( loc_team_new ) )
@@ -2667,13 +2665,13 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
         // add the character to the new team
         if ( can_have_team )
         {
-            TeamStack[loc_team_new].morale++;
+            PMod->getTeamList()[loc_team_new].increaseMorale();
         }
 
         // we are the new leader if there isn't one already
-        if ( can_have_team && !TeamStack[loc_team_new].getLeader() )
+        if ( can_have_team && !PMod->getTeamList()[loc_team_new].getLeader() )
         {
-            TeamStack[loc_team_new].setLeader(_gameObjects[character]);
+            PMod->getTeamList()[loc_team_new].setLeader(_gameObjects[character]);
         }
     }
 }
@@ -2721,17 +2719,15 @@ void issue_clean( const CHR_REF character )
     /// @author ZZ
     /// @details This function issues a clean up order to all teammates
 
-    TEAM_REF team;
+    const std::shared_ptr<Object> &pchr = _gameObjects[character];
 
-    if ( !_gameObjects.exists( character ) ) return;
-
-    team = chr_get_iteam( character );
+    if ( !pchr ) return;
 
     for(const std::shared_ptr<Object> &listener : _gameObjects.iterator())
     {
-        if ( team != listener->getTeam() ) continue;
+        if ( pchr->getTeam() != listener->getTeam() ) continue;
 
-        if ( !listener->alive )
+        if ( !listener->isAlive() )
         {
             listener->ai.timer  = update_wld + 2;  // Don't let it think too much...
         }
@@ -5751,7 +5747,7 @@ Object * chr_set_ai_state( Object * pchr, int state )
 TEAM_REF chr_get_iteam( const CHR_REF ichr )
 {
 
-    if ( !_gameObjects.exists( ichr ) ) return static_cast<TEAM_REF>(TEAM_DAMAGE);
+    if ( !_gameObjects.exists( ichr ) ) return static_cast<TEAM_REF>(Team::TEAM_DAMAGE);
     Object * pchr = _gameObjects.get( ichr );
 
     return static_cast<TEAM_REF>(pchr->team);
@@ -5763,11 +5759,11 @@ TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
     Object * pchr;
     int iteam;
 
-    if ( !_gameObjects.exists( ichr ) ) return ( TEAM_REF )TEAM_MAX;
+    if ( !_gameObjects.exists( ichr ) ) return ( TEAM_REF )Team::TEAM_MAX;
     pchr = _gameObjects.get( ichr );
 
     iteam = REF_TO_INT( pchr->team_base );
-    iteam = CLIP( iteam, 0, (int)TEAM_MAX );
+    iteam = CLIP( iteam, 0, (int)Team::TEAM_MAX );
 
     return ( TEAM_REF )iteam;
 }
@@ -5780,7 +5776,7 @@ Team * chr_get_pteam( const CHR_REF ichr )
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
 
-    return &TeamStack[pchr->team];
+    return &PMod->getTeamList()[pchr->team];
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5791,7 +5787,7 @@ Team * chr_get_pteam_base( const CHR_REF ichr )
     if ( !_gameObjects.exists( ichr ) ) return NULL;
     pchr = _gameObjects.get( ichr );
 
-    return &TeamStack[pchr->team_base];
+    return &PMod->getTeamList()[pchr->team_base];
 }
 
 //--------------------------------------------------------------------------------------------

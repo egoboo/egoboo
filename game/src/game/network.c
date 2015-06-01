@@ -174,7 +174,7 @@ void net_unbuffer_player_latches()
             if ( !pchr->alive && 0 == local_stats.revivetimer )
             {
                 respawn_character( character );
-                TeamStack[pchr->team].setLeader(pchr);
+                PMod->getTeamList()[pchr->team].setLeader(pchr);
                 SET_BIT( pchr->ai.alert, ALERTIF_CLEANEDUP );
 
                 // cost some experience for doing this...  never lose a level

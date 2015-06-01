@@ -33,6 +33,7 @@
 #include "game/Entities/Common.hpp"
 #include "game/graphic_billboard.h"
 #include "egolib/IDSZ_map.h"
+#include "game/Module/Module.hpp"
 
 //Macros
 #define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<Object::MAXNUMINPACK;IT##_internal++) { CHR_REF IT; Object * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_gameObjects.exists (IT)) continue; PITEM = _gameObjects.get( IT );
@@ -177,7 +178,7 @@ public:
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
     **/
-    inline TEAM_REF getTeam() const {return team;}
+    inline Team& getTeam() const {return PMod->getTeamList()[team];}
 
     /**
     * @brief
@@ -484,7 +485,7 @@ public:
 
     /// @details This function issues a call for help to all allies
     void callForHelp();
-
+    
 private:
 
     /**

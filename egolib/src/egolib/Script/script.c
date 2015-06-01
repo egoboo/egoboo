@@ -34,6 +34,7 @@
 #include "game/char.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/Graphics/CameraSystem.hpp"
+#include "game/Module/Module.hpp"
 
 
 //--------------------------------------------------------------------------------------------
@@ -976,7 +977,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSELFMORALE:
                 varname = "SELFMORALE";
-                iTmp = TeamStack[pchr->team_base].morale;
+                iTmp = PMod->getTeamList()[pchr->team_base].getMorale();
                 break;
 
             case VARSELFLIFE:
@@ -1016,7 +1017,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             {
                 varname = "LEADERX";
                 iTmp = pchr->getPosX();
-                std::shared_ptr<Object> leader = TeamStack[pchr->team].getLeader();
+                std::shared_ptr<Object> leader = PMod->getTeamList()[pchr->team].getLeader();
                 if ( leader )
                     iTmp = leader->getPosX();
                 break;
@@ -1026,7 +1027,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             {
                 varname = "LEADERY";
                 iTmp = pchr->getPosY();
-                std::shared_ptr<Object> leader = TeamStack[pchr->team].getLeader();
+                std::shared_ptr<Object> leader = PMod->getTeamList()[pchr->team].getLeader();
                 if ( leader )
                     iTmp = leader->getPosY();
 
@@ -1037,7 +1038,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 {
                     varname = "LEADERDISTANCE";
 
-                    std::shared_ptr<Object> pleader = TeamStack[pchr->team].getLeader();
+                    std::shared_ptr<Object> pleader = PMod->getTeamList()[pchr->team].getLeader();
                     if ( !pleader )
                     {
                         iTmp = 0x7FFFFFFF;
@@ -1053,8 +1054,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             case VARLEADERTURN:
                 varname = "LEADERTURN";
                 iTmp = pchr->ori.facing_z;
-                if ( TeamStack[pchr->team].getLeader() )
-                    iTmp = TeamStack[pchr->team].getLeader()->ori.facing_z;
+                if ( PMod->getTeamList()[pchr->team].getLeader() )
+                    iTmp = PMod->getTeamList()[pchr->team].getLeader()->ori.facing_z;
 
                 break;
 
@@ -1646,11 +1647,13 @@ void issue_order( const CHR_REF character, Uint32 value )
     /// @details This function issues an value for help to all teammates
     int counter = 0;
 
+    const std::shared_ptr<Object> &pchr = _gameObjects[character];
+
     for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
     {
         if ( object->isTerminated() ) continue;
 
-        if ( object->getTeam() == chr_get_iteam( character ) )
+        if ( object->getTeam() == pchr->getTeam() )
         {
             ai_add_order( chr_get_pai(object->getCharacterID() ), value, counter );
             counter++;

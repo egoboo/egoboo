@@ -2035,7 +2035,7 @@ void draw_map()
         GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
         // If one of the players can sense enemies via ESP, draw them as blips on the map
-        if (TEAM_MAX != local_stats.sense_enemies_team)
+        if (Team::TEAM_MAX != local_stats.sense_enemies_team)
         {
             for (CHR_REF ichr = 0; ichr < OBJECTS_MAX && blip_count < MAXBLIP; ichr++)
             {

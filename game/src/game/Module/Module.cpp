@@ -23,6 +23,7 @@
 
 #include "game/Module/Module.hpp"
 #include "egolib/Math/Random.hpp"
+#include "egolib/Logic/Team.hpp"
 #include "game/Module/Passage.hpp"
 #include "game/game.h"
 #include "game/network.h"
@@ -34,6 +35,7 @@
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
     _playerList(),
+    _teamList(),
     _name(profile->getName()),
     _exportValid(profile->isExportAllowed()),
     _exportReset(profile->isExportAllowed()),
@@ -44,18 +46,16 @@ GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint
 {
     srand( _seed );
     Random::setSeed(_seed);
-#if 0
-    // very important or the input will not work
-    egonet_setServerEnabled(true);
-#endif
+
+    //Initialize all teams
+    for(int i = 0; i < Team::TEAM_MAX; ++i) {
+        _teamList.push_back(Team(i));
+    }
 }
 
 GameModule::~GameModule()
 {
-#if 0
-    // network stuff
-    egonet_setServerEnabled(false);
-#endif
+
 }
 
 void GameModule::loadAllPassages()

@@ -30,6 +30,7 @@
 #include "game/physics.h"
 #include "egolib/Logic/Action.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/Module/Module.hpp"
 #include "egolib/Profiles/_Include.hpp"
 
 CollisionSystem *CollisionSystem::_singleton = nullptr;
@@ -3154,7 +3155,7 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     valid_onlydamagehate = TO_C_BOOL( prt_hates_chr && PipStack.get_ptr(pdata->pprt->pip_ref)->hateonly );
 
     // allow neutral particles to attack anything
-	prt_attacks_chr = TO_C_BOOL(prt_hates_chr || ((TEAM_NULL != pdata->pchr->team) && (TEAM_NULL == pdata->pprt->team)));
+	prt_attacks_chr = TO_C_BOOL(prt_hates_chr || ((Team::TEAM_NULL != pdata->pchr->team) && (Team::TEAM_NULL == pdata->pprt->team)));
 
     // this is the onlydamagefriendly condition from the particle search code
     valid_onlydamagefriendly = TO_C_BOOL(( pdata->ppip->onlydamagefriendly && pdata->pprt->team == pdata->pchr->team ) ||

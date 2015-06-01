@@ -27,39 +27,120 @@
 #include "egolib/platform.h"
 #include "game/egoboo_typedef.h"
 
-enum TeamTypes : uint8_t
-{
-    TEAM_EVIL            = ( 'E' - 'A' ),        ///< Evil team
-    TEAM_GOOD            = ( 'G' - 'A' ),        ///< Good team
-    TEAM_NULL            = ( 'N' - 'A' ),        ///< Null or Neutral team
-    TEAM_ZIPPY           = ( 'Z' - 'A' ),        ///< Zippy Team?
-    TEAM_DAMAGE,                                 ///< For damage tiles
-    TEAM_MAX
-};
-
 /// The description of a single team
 class Team
 {
-    //TODO: make private
 public:
-    bool hatesteam[TEAM_MAX];    	 ///< Don't damage allies...
-    uint16_t morale;                 ///< Number of characters on team
-    CHR_REF  sissy;                  ///< Whoever called for help last
+    enum TeamTypes : uint8_t
+    {
+        TEAM_EVIL            = ( 'E' - 'A' ),        ///< Evil team
+        TEAM_GOOD            = ( 'G' - 'A' ),        ///< Good team
+        TEAM_NULL            = ( 'N' - 'A' ),        ///< Null or Neutral team
+        TEAM_ZIPPY           = ( 'Z' - 'A' ),        ///< Zippy Team?
+        TEAM_DAMAGE,                                 ///< For damage tiles
+        TEAM_MAX
+    };
 
-public:
+    Team(const uint8_t teamID);
+
+    /**
+    * @brief
+    *   Get the Object whos is the Leader of this team. If no Leader is specifically
+    *   set then the first Object joining this team is assigned as the leader.
+    *   If there is no leader or the leader has died, then this function will return
+    *   a nullptr.
+    **/
 	std::shared_ptr<Object> getLeader() const;
+
+    /**
+    * @brief
+    *   Change the leader of this team
+    * @param object
+    *   The Object who should become the leader. Use Object::INVALID_OBJECT for no 
+    *   leader.
+    **/
 	void setLeader(const std::shared_ptr<Object> &object);
 
-public:
-    std::weak_ptr<Object> _leader;	///< The leader of the team
+    /**
+    * @brief
+    *   Issues a call for help for the specified character. All friendly characters
+    *   in the game will be notified that this character has called for help.
+    * @param caller
+    *   The character who is calling for help
+    **/
+    void callForHelp(const std::shared_ptr<Object> &caller);
+
+    /**
+    * @brief
+    *   Get the pansy who last has called for help. Returns a nullptr if no one has
+    *   called or the caller has died.
+    **/
+    std::shared_ptr<Object> getSissy() const;
+
+    /**
+    * @brief
+    *   Check if this teams hates the other team (and can attack them without incurring 
+    *   friendly fire). Note that one team can hate the other without the other hating it
+    *   back. Nobody hates the neutral (Null) team and the netural team hates nobody.
+    * @param other
+    *   The other Team to check if this one hates
+    * @return
+    *   true if this team hates the specified team
+    **/
+    bool hatesTeam(const Team &other) const;
+
+    /**
+    * @brief
+    *   Makes this team friendly to another team (but not vice-versa)
+    * @param other
+    *   the team to make friends with
+    **/
+    void makeAlliance(const Team &other);
+
+    /**
+    * @brief 
+    *   This function gives every character on a team experience
+    * @param amount
+    *   The amount of experience points to award
+    * @param xptype
+    *   What kind of experience points to award
+    **/
+    void giveTeamExperience(const int amount, const XPType xptype) const;
+
+    /**
+    * @brief
+    *   Get number of living characters currently on this team
+    **/
+    uint16_t getMorale() const;
+
+    /**
+    * @brief
+    *   Increases team morale by 1
+    **/
+    void increaseMorale();
+
+    /**
+    * @brief
+    *   Decreases team morale by 1. Does nothing if morale is already at zero.
+    **/
+    void decreaseMorale();
+
+    /**
+    * Team reference comparators
+    **/
+    bool operator==(const Team &second) { return _teamID == second._teamID; }
+    bool operator!=(const Team &second) { return _teamID != second._teamID; }
+
+    inline TEAM_REF toRef() const {return _teamID;}
+
+private:
+    TEAM_REF _teamID;                       ///< Unique team ID
+    std::weak_ptr<Object> _leader;          ///< The leader of the team
+    std::weak_ptr<Object> _sissy;           ///< Whoever called for help last
+    std::array<bool, TEAM_MAX> _hatesTeam;  ///< Don't damage allies...
+    uint16_t _morale;                       ///< Number of characters on team
 };
 
+#define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < Team::TEAM_MAX) )
 
-extern std::array<Team, TEAM_MAX> TeamStack;
-
-#define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
-
-//Function prototypes
-void reset_teams();
-void give_team_experience( const TEAM_REF team, int amount, XPType xptype );
-bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team );
+#define team_hates_team(_TEAM_A_, _TEAM_B_) PMod->getTeamList()[_TEAM_A_].hatesTeam(PMod->getTeamList()[_TEAM_B_])

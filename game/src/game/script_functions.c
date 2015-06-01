@@ -783,11 +783,11 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
 
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        CHR_REF isissy = TeamStack[pchr->team].sissy;
+        std::shared_ptr<Object> sissy = pchr->getTeam().getSissy();
 
-        if ( _gameObjects.exists( isissy ) )
+        if ( sissy )
         {
-            SET_TARGET_0( isissy );
+            SET_TARGET_0( sissy->getCharacterID() );
         }
         else
         {
@@ -1364,7 +1364,7 @@ Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->callForHelp();
+    pchr->getTeam().callForHelp(_gameObjects[pself->index]);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1685,7 +1685,7 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
 
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        const std::shared_ptr<Object> &leader = TeamStack[pchr->team].getLeader();
+        const std::shared_ptr<Object> &leader = PMod->getTeamList()[pchr->team].getLeader();
 
         if ( leader )
         {
@@ -1736,7 +1736,7 @@ Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    TeamStack[pchr->team].setLeader(_gameObjects[pself->index]);
+    PMod->getTeamList()[pchr->team].setLeader(_gameObjects[pself->index]);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1837,7 +1837,7 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( TeamStack[pchr->team].getLeader() != nullptr );
+    returncode = ( PMod->getTeamList()[pchr->team].getLeader() != nullptr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1869,7 +1869,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        const std::shared_ptr<Object> &leader = TeamStack[pchr->team].getLeader();
+        const std::shared_ptr<Object> &leader = PMod->getTeamList()[pchr->team].getLeader();
         if ( leader )
         {
             SET_TARGET_0( leader->getCharacterID() );
@@ -2957,7 +2957,7 @@ Uint8 scr_add_TargetTeamExperience( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_BEGIN();
 
     if(pstate->distance < XP_COUNT && pstate->distance >= 0) {
-        give_team_experience(chr_get_iteam(pself->target), pstate->argument, static_cast<XPType>(pstate->distance) );
+        pchr->getTeam().giveTeamExperience(pstate->argument, static_cast<XPType>(pstate->distance));
     }
 
     SCRIPT_FUNCTION_END();
@@ -6694,7 +6694,7 @@ Uint8 scr_JoinEvilTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, ( TEAM_REF )TEAM_EVIL );
+    switch_team( pself->index, ( TEAM_REF )Team::TEAM_EVIL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6708,7 +6708,7 @@ Uint8 scr_JoinNullTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, ( TEAM_REF )TEAM_NULL );
+    switch_team( pself->index, ( TEAM_REF )Team::TEAM_NULL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6722,7 +6722,7 @@ Uint8 scr_JoinGoodTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, ( TEAM_REF )TEAM_GOOD );
+    switch_team( pself->index, ( TEAM_REF )Team::TEAM_GOOD );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6891,7 +6891,8 @@ Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
 
     if(pstate->distance < XP_COUNT)
     {
-        give_team_experience(static_cast<TEAM_REF>(TEAM_GOOD), pstate->argument, static_cast<XPType>(pstate->distance) );
+
+        PMod->getTeamList()[Team::TEAM_GOOD].giveTeamExperience(pstate->argument, static_cast<XPType>(pstate->distance) );
     }
 
 
@@ -7415,7 +7416,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        local_stats.sense_enemies_team = ( TEAM_REF )TEAM_MAX;
+        local_stats.sense_enemies_team = ( TEAM_REF )Team::TEAM_MAX;
         local_stats.sense_enemies_idsz = IDSZ_NONE;
     }
 
@@ -8041,7 +8042,7 @@ Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
     tmp_damage.base = pstate->argument;
     tmp_damage.rand = 1;
 
-    pchr->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pstate->distance), target->getTeam(), target, DAMFX_NBLOC, true);
+    pchr->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pstate->distance), target->getTeam().toRef(), target, DAMFX_NBLOC, true);
 
     SCRIPT_FUNCTION_END();
 }

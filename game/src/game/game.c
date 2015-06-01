@@ -538,7 +538,7 @@ void activate_alliance_file_vfs()
             throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
                                                 "empty string literal");
         }
-        teama = (buffer[0] - 'A') % TEAM_MAX;
+        teama = (buffer[0] - 'A') % Team::TEAM_MAX;
 
         vfs_read_string_lit(ctxt, buffer, 1024);
         if (strlen(buffer) < 1)
@@ -546,8 +546,8 @@ void activate_alliance_file_vfs()
             throw Ego::Script::SyntacticalError(__FILE__, __LINE__, Ego::Script::Location(ctxt.getLoadName(), ctxt.getLineNumber()),
                                                 "empty string literal");
         }
-        teamb = (buffer[0] - 'A') % TEAM_MAX;
-        TeamStack[teama].hatesteam[REF_TO_INT( teamb )] = false;
+        teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
+        PMod->getTeamList()[teama].makeAlliance(PMod->getTeamList()[teamb]);
     }
 }
 
@@ -849,8 +849,10 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
         // Don't retarget someone we already had or not supposed to target
         if ( pchr->getCharacterID() == oldtarget || pchr->getCharacterID() == donttarget ) continue;
 
-        target_friend = ppip->onlydamagefriendly && team == pchr->getTeam();
-        target_enemy  = !ppip->onlydamagefriendly && team_hates_team( team, pchr->getTeam() );
+        Team &particleTeam = PMod->getTeamList()[team];
+
+        target_friend = ppip->onlydamagefriendly && particleTeam == pchr->getTeam();
+        target_enemy  = !ppip->onlydamagefriendly && particleTeam.hatesTeam(pchr->getTeam() );
 
         if ( target_friend || target_enemy )
         {
@@ -928,8 +930,8 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
         if ( quest_level < 0 ) return false;
     }
 
-    is_hated = team_hates_team( psrc->team, ptst->getTeam() );
-    hates_me = team_hates_team( ptst->team, psrc->team );
+    is_hated = psrc->getTeam().hatesTeam(ptst->getTeam());
+    hates_me = ptst->getTeam().hatesTeam(psrc->getTeam());
 
     // Target neutral items? (still target evil items, could be pets)
     if (( ptst->isItem() || ptst->isInvincible() ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return false;
@@ -1102,7 +1104,7 @@ void do_damage_tiles()
         if ( 0 == pchr->damage_timer )
         {
             int actual_damage = pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), 
-                TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
+                Team::TEAM_DAMAGE, nullptr, DAMFX_NBLOC | DAMFX_ARMO, false);
 
             pchr->damage_timer = DAMAGETILETIME;
 
@@ -1189,7 +1191,7 @@ void update_pits()
                         }
 
                         // Do some damage (same as damage tile)
-                        pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), TEAM_DAMAGE, 
+                        pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), Team::TEAM_DAMAGE, 
                             _gameObjects[chr_get_pai(pchr->getCharacterID())->bumplast], DAMFX_NBLOC | DAMFX_ARMO, false);
                     }
                 }
@@ -2454,7 +2456,6 @@ void game_reset_module_data()
     log_info( "Resetting module data\n" );
 
     // unload a lot of data
-    reset_teams();
     ProfileSystem::get().reset();
     free_all_objects();
     DisplayMsg_reset();
@@ -2781,7 +2782,7 @@ void game_release_module_data()
 
     // Disable ESP
     local_stats.sense_enemies_idsz = IDSZ_NONE;
-    local_stats.sense_enemies_team = ( TEAM_REF ) TEAM_MAX;
+    local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
 
     // make sure that the object lists are cleared out
     free_all_objects();
@@ -3346,7 +3347,7 @@ void game_reset_players()
     local_stats.grog_level     = 0.0f;
     local_stats.daze_level     = 0.0f;
 
-    local_stats.sense_enemies_team = ( TEAM_REF ) TEAM_MAX;
+    local_stats.sense_enemies_team = ( TEAM_REF ) Team::TEAM_MAX;
     local_stats.sense_enemies_idsz = IDSZ_NONE;
 
     PlaStack_reset_all();

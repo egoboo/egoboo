@@ -25,65 +25,43 @@
 
 #include "Team.hpp"
 #include "game/Entities/_include.hpp"
+#include "game/Module/Module.hpp" //TODO: remove
 
-std::array<Team, TEAM_MAX> TeamStack;
-
-void reset_teams()
+Team::Team(const uint8_t teamID) :
+    _teamID(teamID),
+    _leader(),
+    _sissy(),
+    _hatesTeam{},
+    _morale(0)
 {
-    /// @author ZZ
-    /// @details This function makes everyone hate everyone else
 
-    TEAM_REF teama, teamb;
+    // Make the team hate everyone else
+    if(_teamID != TEAM_NULL) {
+        _hatesTeam.fill(true);
 
-    for ( teama = 0; teama < TEAM_MAX; teama++ )
-    {
-        // Make the team hate everyone
-        for ( teamb = 0; teamb < TEAM_MAX; teamb++ )
-        {
-            TeamStack[teama].hatesteam[REF_TO_INT( teamb )] = true;
-        }
+        //keep the null team neutral
+        _hatesTeam[TEAM_NULL] = false;
 
-        // Make the team like itself
-        TeamStack[teama].hatesteam[REF_TO_INT( teama )] = false;
-
-        // Set defaults
-        TeamStack[teama]._leader.reset();
-        TeamStack[teama].sissy = 0;
-        TeamStack[teama].morale = 0;
+        //Make the team like itself
+        _hatesTeam[_teamID] = false;
     }
 
-    // Keep the null team neutral
-    for ( teama = 0; teama < TEAM_MAX; teama++ )
-    {
-        TeamStack[teama].hatesteam[TEAM_NULL] = false;
-        TeamStack[( TEAM_REF )TEAM_NULL].hatesteam[REF_TO_INT( teama )] = false;
-    }
 }
 
-//--------------------------------------------------------------------------------------------
-void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
+void Team::giveTeamExperience(const int amount, const XPType xptype) const
 {
-    /// @author ZZ
-    /// @details This function gives every character on a team experience
-
     for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
     {
-        if ( chr->team == team )
+        if ( chr->getTeam()._teamID == _teamID )
         {
             chr->giveExperience(amount, xptype, false);
         }
     }
 }
 
-//--------------------------------------------------------------------------------------------
-bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
+bool Team::hatesTeam(const Team &other) const
 {
-    /// @author BB
-    /// @details a wrapper function for access to the hatesteam data
-
-    if ( ipredator_team >= TEAM_MAX || iprey_team >= TEAM_MAX ) return false;
-
-    return TeamStack[ipredator_team].hatesteam[ REF_TO_INT( iprey_team )];
+    return _hatesTeam[other._teamID];
 }
 
 std::shared_ptr<Object> Team::getLeader() const
@@ -94,4 +72,46 @@ std::shared_ptr<Object> Team::getLeader() const
 void Team::setLeader(const std::shared_ptr<Object> &object)
 {
 	_leader = object;
+}
+
+void Team::callForHelp(const std::shared_ptr<Object> &caller)
+{
+    _sissy = caller;
+
+    //Notify all other characters who are friendly that this character has called for help
+    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
+    {
+        if ( chr != caller && !chr->getTeam().hatesTeam(caller->getTeam()) )
+        {
+            SET_BIT( chr->ai.alert, ALERTIF_CALLEDFORHELP );
+        }
+    }
+}
+
+std::shared_ptr<Object> Team::getSissy() const
+{
+    return _sissy.lock();
+}
+
+void Team::makeAlliance(const Team &other)
+{
+    _hatesTeam[other._teamID] = false;
+}
+
+uint16_t Team::getMorale() const
+{
+    return _morale;
+}
+
+void Team::increaseMorale()
+{
+    _morale++;
+}
+
+void Team::decreaseMorale()
+{
+    if(_morale > 0)
+    {
+        _morale--;
+    }
 }

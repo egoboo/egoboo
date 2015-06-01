@@ -23,7 +23,6 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/Object.hpp"
-#include "game/Module/Module.hpp"
 #include "game/Entities/ObjectHandler.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"
@@ -68,8 +67,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     holdingwhich(),
     equipment(),
     inventory(),
-    team(TEAM_NULL),
-    team_base(TEAM_NULL),
+    team(Team::TEAM_NULL),
+    team_base(Team::TEAM_NULL),
     firstenchant(INVALID_ENC_REF),
     undoenchant(INVALID_ENC_REF), 
     fat_stt(0.0f),
@@ -256,14 +255,14 @@ Object::~Object()
     }
 
     // Handle the team
-    if ( isAlive() && !getProfile()->isInvincible() && TeamStack[team_base].morale > 0 )
+    if ( isAlive() && !getProfile()->isInvincible() )
     {
-        TeamStack[team_base].morale--;
+        PMod->getTeamList()[team_base].decreaseMorale();
     }
 
-    if ( TeamStack[team].getLeader().get() == this )
+    if ( PMod->getTeamList()[team].getLeader().get() == this )
     {
-        TeamStack[team].setLeader(INVALID_OBJECT);
+        PMod->getTeamList()[team].setLeader(INVALID_OBJECT);
     }
 
     // remove any attached particles
@@ -549,7 +548,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 // Set attack alert if it wasn't an accident
                 if ( base_damage > HURTDAMAGE )
                 {
-                    if ( team == TEAM_DAMAGE )
+                    if ( team == Team::TEAM_DAMAGE )
                     {
                         ai.attacklast = INVALID_CHR_REF;
                     }
@@ -641,7 +640,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         heal(attacker, -actual_damage, ignore_invictus);
 
         // Isssue an alert
-        if ( team == TEAM_DAMAGE )
+        if ( team == Team::TEAM_DAMAGE )
         {
             ai.attacklast = INVALID_CHR_REF;
         }
@@ -684,7 +683,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         actual_attacker = attacker->getCharacterID();
 
         //Dont alert if the attacker/healer was on the null team
-        if(attacker->getTeam() == TEAM_NULL) {
+        if(attacker->getTeam() == Team::TEAM_NULL) {
             return;
         }
     
@@ -1410,10 +1409,10 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     {
         // Set target
         ai.target = actualKiller->getCharacterID();
-        if ( actualKiller->getTeam() == TEAM_DAMAGE || actualKiller->getTeam() == TEAM_NULL )  ai.target = getCharacterID();
+        if ( actualKiller->getTeam() == Team::TEAM_DAMAGE || actualKiller->getTeam() == Team::TEAM_NULL )  ai.target = getCharacterID();
 
         // Award experience for kill?
-        if ( team_hates_team(actualKiller->getTeam(), getTeam()) )
+        if ( actualKiller->getTeam().hatesTeam(getTeam()) )
         {
             //Check for special hatred
             if ( chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_PARENT ) ||
@@ -1436,13 +1435,13 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
         if (!listener->isAlive()) continue;
 
         // All allies get team experience, but only if they also hate the dead guy's team
-        if (actualKiller && listener != actualKiller && !team_hates_team(listener->getTeam(), actualKiller->getTeam()) && team_hates_team(listener->getTeam(), getTeam()) )
+        if (actualKiller && listener != actualKiller && !listener->getTeam().hatesTeam(actualKiller->getTeam()) && listener->getTeam().hatesTeam(getTeam()) )
         {
             listener->giveExperience(experience, XP_TEAMKILL, false);
         }
 
         // Check if we were a leader
-        if ( TeamStack[getTeam()].getLeader().get() == this && listener->getTeam() == getTeam() )
+        if ( getTeam().getLeader().get() == this && listener->getTeam() == getTeam() )
         {
             // All folks on the leaders team get the alert
             SET_BIT( listener->ai.alert, ALERTIF_LEADERKILLED );
