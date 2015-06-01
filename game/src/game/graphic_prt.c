@@ -585,7 +585,7 @@ gfx_rv update_all_prt_instance(Camera& camera)
         prt_instance_t *pinst = &(prt_bdl._prt_ptr->inst);
 
         // only do frame counting for particles that are fully activated!
-        prt_bdl._prt_ptr->obj_base.frame_count++;
+        prt_bdl._prt_ptr->frame_count++;
 
         if (!prt_bdl._prt_ptr->inst.indolist)
         {

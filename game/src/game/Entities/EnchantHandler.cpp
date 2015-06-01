@@ -135,14 +135,14 @@ void EnchantHandler::update_used()
 
         if (INGAME_PENC(x))
         {
-            if (!x->obj_base.in_used_list )
+            if (!x->in_used_list )
             {
                 push_used(ref);
             }
         }
 		else if (!POBJ_GET_PBASE(x)->DEFINED_BASE_RAW()) // We can use DEFINED_BASE_RAW as the reference is valid.
         {
-            if (!x->obj_base.in_free_list)
+            if (!x->in_free_list)
             {
                 add_free_ref(ref);
             }
@@ -183,8 +183,8 @@ ENC_REF EnchantHandler::allocate(const ENC_REF override)
                 free_ref[override_index] = ref;
 
                 // fix the in_free_list values
-                get_ptr(ref)->obj_base.in_free_list = true;
-                get_ptr(override)->obj_base.in_free_list = false;
+                get_ptr(ref)->in_free_list = true;
+                get_ptr(override)->in_free_list = false;
 
                 ref = override;
             }
@@ -213,7 +213,7 @@ ENC_REF EnchantHandler::allocate(const ENC_REF override)
         }
 
         // Allocate the new object.
-        get_ptr(ref)->obj_base.allocate(REF_TO_INT(ref));
+        get_ptr(ref)->allocate(REF_TO_INT(ref));
     }
 
     if (ALLOCATED_ENC(ref))
@@ -350,11 +350,11 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     }
     penc = EnchantHandler::get().get_ptr(enc_ref);
 
-    if (NULL != penc && (penc)->obj_base.isAllocated())
+    if (NULL != penc && penc->isAllocated())
     {
-        if (!(penc)->obj_base.spawning)
+        if (!penc->spawning)
         {
-            (penc)->obj_base.spawning = true;
+            penc->spawning = true;
             Ego::Entities::spawnDepth++;
         }
     }

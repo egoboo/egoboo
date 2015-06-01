@@ -72,7 +72,7 @@ public:
             usedCount++;
             _update_guid++;
 
-            lst[ref]->obj_base.in_used_list = true;
+            lst[ref]->in_used_list = true;
 
             return true;
         }
@@ -157,8 +157,8 @@ public:
             used_ref[i] = INVALIDREF;
 
             // Let the entities know that they are not in a list.
-            lst[i]->obj_base.in_free_list = false;
-            lst[i]->obj_base.in_used_list = false;
+            lst[i]->in_free_list = false;
+            lst[i]->in_used_list = false;
         }
     }
 
@@ -226,7 +226,7 @@ public:
             retval = true;
         }
 
-        get_ptr(ref)->obj_base.turn_me_on = true;
+        get_ptr(ref)->turn_me_on = true;
 
         return retval;
     }
@@ -278,10 +278,10 @@ public:
             if (!ALLOCATED(ref)) continue;
             TYPE *x = get_ptr(ref);
 
-            if (!x->obj_base.turn_me_on) continue;
+            if (!x->turn_me_on) continue;
 
-            x->obj_base.on = true;
-            x->obj_base.turn_me_on = false;
+            x->on = true;
+            x->turn_me_on = false;
         }
         activation_count = 0;
 
@@ -309,7 +309,7 @@ protected:
                 removed = remove_free_idx(i);
             }
 
-            if (removed && !lst[ref]->obj_base.in_free_list)
+            if (removed && !lst[ref]->in_free_list)
             {
                 push_used(ref);
             }
@@ -331,7 +331,7 @@ protected:
                 removed = remove_used_idx(i);
             }
 
-            if (removed && !get_ptr(ref)->obj_base.in_free_list)
+            if (removed && !get_ptr(ref)->in_free_list)
             {
                 add_free_ref(ref);
             }
@@ -427,7 +427,7 @@ protected:
         if (isValidRef(ref))
         {
             // let the object know it is not in the list anymore
-            lst[ref]->obj_base.in_free_list = false;
+            lst[ref]->in_free_list = false;
         }
 
         // Shorten the list.
@@ -456,7 +456,7 @@ protected:
         }
     #endif
 
-        EGOBOO_ASSERT(!lst[ref]->obj_base.in_free_list);
+        EGOBOO_ASSERT(!lst[ref]->in_free_list);
 
         retval = false;
         if (freeCount < getCount())
@@ -466,7 +466,7 @@ protected:
             freeCount++;
             _update_guid++;
 
-            lst[ref]->obj_base.in_free_list = true;
+            lst[ref]->in_free_list = true;
 
             retval = true;
         }
@@ -491,7 +491,7 @@ protected:
         {
             if (ref == used_ref[i])
             {
-                EGOBOO_ASSERT(lst[ref]->obj_base.in_used_list);
+                EGOBOO_ASSERT(lst[ref]->in_used_list);
                 return i;
             }
         }
@@ -516,7 +516,7 @@ protected:
         {
             if (ref == free_ref[i])
             {
-                EGOBOO_ASSERT(lst[ref]->obj_base.in_free_list);
+                EGOBOO_ASSERT(lst[ref]->in_free_list);
                 return i;
             }
         }
@@ -537,7 +537,7 @@ protected:
         if (isValidRef(ref))
         {
             // Let the object know it is not in the list anymore.
-            lst[ref]->obj_base.in_used_list = false;
+            lst[ref]->in_used_list = false;
         }
 
         // Shorten the list.
@@ -577,7 +577,7 @@ protected:
             if (isValidRef(ref))
             {
                 // Let the object know it is not in the free list any more.
-                lst[ref]->obj_base.in_free_list = false;
+                lst[ref]->in_free_list = false;
                 break;
             }
 

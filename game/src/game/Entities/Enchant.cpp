@@ -134,7 +134,7 @@ void enc_t::config_do_dtor()
 
     // Destroy the parent object.
     // Sets the state to Ego::Entity::State::Terminated automatically.
-    this->obj_base.terminate();
+    this->terminate();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -886,10 +886,10 @@ enc_t *enc_t::config_do_init()
     peve = EveStack.get_ptr( pdata->eve_ref );
 
     // turn the enchant on here. you can't fail to spawn after this point.
-    if (penc->obj_base.isAllocated() && !penc->obj_base.kill_me && Ego::Entity::State::Invalid != penc->obj_base.state)
+    if (penc->isAllocated() && !penc->kill_me && Ego::Entity::State::Invalid != penc->state)
     {
-		penc->obj_base._name = peve->_name;
-        penc->obj_base.state = Ego::Entity::State::Active;
+		penc->_name = peve->_name;
+        penc->state = Ego::Entity::State::Active;
     }
 
     // does the target exist?
@@ -1143,8 +1143,8 @@ enc_t *enc_t::config_do_active()
 void enc_t::config_do_deinit()
 {
     // Go to next state.
-    this->obj_base.state = Ego::Entity::State::Destructing;
-    this->obj_base.on = false;
+    this->state = Ego::Entity::State::Destructing;
+    this->on = false;
 }
 
 //--------------------------------------------------------------------------------------------

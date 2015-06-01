@@ -3318,7 +3318,7 @@ bool do_chr_prt_collision( CoNode_t * d )
             if ( d->tmin > 0.0f ) cn_data.is_impact = true;
 
             // if, say, a melee attack particle is and already intersects its target
-            if ( 0 == cn_data.pprt->obj_base.update_count ) cn_data.is_impact = true;
+            if ( 0 == cn_data.pprt->update_count ) cn_data.is_impact = true;
         }
 
         if ( cn_data.is_collision )

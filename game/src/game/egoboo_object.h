@@ -311,7 +311,7 @@ namespace Ego
 //--------------------------------------------------------------------------------------------
 
 /// Grab a pointer to the Ego::Entity of an object that "inherits" this data
-#define POBJ_GET_PBASE( POBJ )   ( &((POBJ)->obj_base) )
+#define POBJ_GET_PBASE(POBJ) ((POBJ))
 
 
 
@@ -319,12 +319,10 @@ namespace Ego
 
 /// @todo Remove this.
 template <typename TYPE,typename REFTYPE, typename LISTTYPE>
-struct _StateMachine
+struct _StateMachine : public Ego::Entity
 {
-    Ego::Entity obj_base; ///< The "inheritance" from Ego::Entity.
-
 	_StateMachine(bsp_type_t child_type, size_t child_index) :
-        obj_base(this, child_type, child_index) {
+        Ego::Entity(this, child_type, child_index) {
     }
 
     virtual ~_StateMachine() {
@@ -332,15 +330,15 @@ struct _StateMachine
 
 	/// Grab a pointer to the BSP_leaf_t of an object that "inherits" this data
 	BSP_leaf_t *POBJ_GET_PLEAF() {
-		return &(obj_base.bsp_leaf);
+		return &(bsp_leaf);
 	}
 
 	const BSP_leaf_t *POBJ_GET_PLEAF() const {
-		return &(obj_base.bsp_leaf);
+		return &(bsp_leaf);
 	}
 
 	void reset() {
-		obj_base.reset();
+		this->Ego::Entity::reset();
 	}
 
     // state machine function
@@ -466,7 +464,7 @@ struct _StateMachine
         }
         else
         {
-            LISTTYPE::get().add_activation(this->obj_base.getIndex());
+            LISTTYPE::get().add_activation(this->getIndex());
         }
 
         parent->state = Ego::Entity::State::Active;
@@ -527,7 +525,7 @@ struct _StateMachine
 
         if (parent->state == Ego::Entity::State::Active)
         {
-            LISTTYPE::get().push_used(this->obj_base.getIndex());
+            LISTTYPE::get().push_used(this->getIndex());
         }
 
         return true;
@@ -633,25 +631,25 @@ struct _StateMachine
 
 	/// Begin turning off an entity.
 	void POBJ_REQUEST_TERMINATE() {
-		if (obj_base.isAllocated() && Ego::Entity::State::Invalid != obj_base.state) {
-			if (Ego::Entity::State::Terminated != obj_base.state) {
-				obj_base.kill_me = true;
+		if (isAllocated() && Ego::Entity::State::Invalid != state) {
+			if (Ego::Entity::State::Terminated != state) {
+				kill_me = true;
 			}
-			obj_base.on = false;
+			on = false;
 		}
 	}
 
 	void POBJ_END_SPAWN() {
-		if (obj_base.isAllocated()) {
-			if (obj_base.spawning) {
-				obj_base.spawning = false;
+		if (isAllocated()) {
+			if (spawning) {
+				spawning = false;
 				Ego::Entities::spawnDepth--;
 			}
 		}
 	}
 
 	size_t GET_INDEX_POBJ(size_t FAIL_VALUE) const {
-		return LAMBDA(!obj_base.ALLOCATED_PBASE(), FAIL_VALUE, obj_base.getIndex());
+		return LAMBDA(!ALLOCATED_PBASE(), FAIL_VALUE, getIndex());
 	}
 	REFTYPE GET_REF_POBJ(REFTYPE FAIL_VALUE) const {
 		return (REFTYPE)GET_INDEX_POBJ(FAIL_VALUE);

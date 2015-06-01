@@ -265,7 +265,7 @@ void prt_t::config_do_dtor() {
 
     // Destroy the base object.
     // Sets the state to ego_object_terminated automatically.
-    this->obj_base.terminate();
+    this->terminate();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -371,10 +371,10 @@ prt_t *prt_t::config_do_init()
     pip_t *ppip = PipStack.get_ptr(pdata->ipip);
 
     // let the object be activated
-    if (pprt->obj_base.isAllocated() && !pprt->obj_base.kill_me && Ego::Entity::State::Invalid != pprt->obj_base.state)
+    if (pprt->isAllocated() && !pprt->kill_me && Ego::Entity::State::Invalid != pprt->state)
     {
-		pprt->obj_base._name = ppip->_name;
-        (pprt)->obj_base.state = Ego::Entity::State::Active;
+		pprt->_name = ppip->_name;
+        pprt->state = Ego::Entity::State::Active;
     }
 
     // make some local copies of the spawn data
@@ -398,7 +398,7 @@ prt_t *prt_t::config_do_init()
     pprt->team = pdata->team;
     pprt->owner_ref = loc_chr_origin;
     pprt->parent_ref = pdata->prt_origin;
-    pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? ParticleHandler::get().get_ptr(pdata->prt_origin)->obj_base.getGUID() : EGO_GUID_INVALID;
+    pprt->parent_guid = ALLOCATED_PRT(pdata->prt_origin) ? ParticleHandler::get().get_ptr(pdata->prt_origin)->getGUID() : EGO_GUID_INVALID;
     pprt->damagetype = ppip->damageType;
     pprt->lifedrain = ppip->lifeDrain;
     pprt->manadrain = ppip->manaDrain;
@@ -744,8 +744,8 @@ prt_t *prt_t::config_do_active()
 void prt_t::config_do_deinit()
 {
     // Go to next state.
-    this->obj_base.state = Ego::Entity::State::Destructing;
-    this->obj_base.on = false;
+    this->state = Ego::Entity::State::Destructing;
+    this->on = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1919,7 +1919,7 @@ void prt_t::requestTerminate()
 
     bool is_visible = this->size > 0 && !this->is_hidden && this->inst.alpha > 0.0f;
 
-    if (is_visible && 0 == this->obj_base.frame_count)
+    if (is_visible && 0 == this->frame_count)
     {
         // turn the particle into a ghost
         this->is_ghost = true;
@@ -2119,7 +2119,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
     int max_damage = std::abs(loc_pprt->damage.base) + std::abs(loc_pprt->damage.rand);
 
     // wait until the right time
-    Uint32 update_count = update_wld + loc_pprt->obj_base.getGUID();
+    Uint32 update_count = update_wld + loc_pprt->getGUID();
     if (0 != (update_count & 31)) return pbdl_prt;
 
     // we must be attached to something
@@ -2318,7 +2318,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
                     if (this->_prt_ptr->pos[kZ] + this->_prt_ptr->bump_real.height > water.surface_level && this->_prt_ptr->pos[kZ] - this->_prt_ptr->bump_real.height < water.surface_level)
                     {
                         int ripand = ~((~RIPPLEAND) << 1);
-                        if (0 == ((update_wld + this->_prt_ptr->obj_base.getGUID()) & ripand))
+                        if (0 == ((update_wld + this->_prt_ptr->getGUID()) & ripand))
                         {
 
                             spawn_valid = true;
@@ -2823,7 +2823,7 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
             // not the parent. Depending on how scrambled the list gets, there could actually
             // be looping structures. I have actually seen this, so don't laugh :)
 
-            if (ParticleHandler::get().get_ptr(pprt->parent_ref)->obj_base.getGUID() == pprt->parent_guid)
+            if (ParticleHandler::get().get_ptr(pprt->parent_ref)->getGUID() == pprt->parent_guid)
             {
                 if (iprt != pprt->parent_ref)
                 {

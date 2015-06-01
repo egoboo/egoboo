@@ -143,14 +143,14 @@ void ParticleHandler::update_used()
 
         if (DISPLAY_PPRT(x))
         {
-            if (!x->obj_base.in_used_list)
+            if (!x->in_used_list)
             {
                 push_used(ref);
             }
         }
 		else if (!POBJ_GET_PBASE(x)->DEFINED_BASE_RAW()) // We can use DEFINED_BASE_RAW as the reference is valid.
         {
-            if (!x->obj_base.in_free_list)
+            if (!x->in_free_list)
             {
                 add_free_ref(ref);
             }
@@ -282,7 +282,7 @@ PRT_REF ParticleHandler::allocate(const bool force)
         }
 
         // Allocate the new one.
-        get_ptr(iprt)->obj_base.allocate(REF_TO_INT(iprt));
+        get_ptr(iprt)->allocate(REF_TO_INT(iprt));
     }
 
     if (ALLOCATED_PRT(iprt))
@@ -413,11 +413,11 @@ PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, c
     }
     prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
-    if ((pprt)->obj_base.isAllocated())
+    if (pprt->isAllocated())
     {
-        if (!(pprt)->obj_base.spawning)
+        if (!pprt->spawning)
         {
-            (pprt)->obj_base.spawning = true;
+            pprt->spawning = true;
             Ego::Entities::spawnDepth++;
         }
     }
