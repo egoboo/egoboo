@@ -94,12 +94,12 @@ gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f 
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
-    if ( !_gameObjects.exists( character ) )
+    if ( !_currentModule->getObjectHandler().exists( character ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
         return gfx_error;
     }
-    pchr  = _gameObjects.get( character );
+    pchr  = _currentModule->getObjectHandler().get( character );
     pinst = &( pchr->inst );
 
     if ( !LOADED_MAD( pinst->imad ) )
@@ -283,12 +283,12 @@ gfx_rv render_one_mad_tex(Camera& camera, const CHR_REF character, GLXvector4f t
 
     GLint matrix_mode;
 
-    if (!_gameObjects.exists(character))
+    if (!_currentModule->getObjectHandler().exists(character))
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, character, "invalid character");
         return gfx_error;
     }
-    Object *pchr = _gameObjects.get(character);
+    Object *pchr = _currentModule->getObjectHandler().get(character);
     chr_instance_t *pinst = &(pchr->inst);
 
     if (!LOADED_MAD(pinst->imad))
@@ -499,14 +499,14 @@ gfx_rv render_one_mad( Camera& cam, const CHR_REF character, GLXvector4f tint, c
     Object * pchr;
     gfx_rv retval;
 
-    if ( !_gameObjects.exists( character ) )
+    if ( !_currentModule->getObjectHandler().exists( character ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
         return gfx_error;
     }
-    pchr = _gameObjects.get( character );
+    pchr = _currentModule->getObjectHandler().get( character );
 
-    if ( pchr->is_hidden || _gameObjects.exists( pchr->inwhich_inventory ) ) return gfx_fail;
+    if ( pchr->is_hidden || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
@@ -546,12 +546,12 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
     GLXvector4f tint;
     gfx_rv retval;
 
-    if ( !_gameObjects.exists( ichr ) )
+    if ( !_currentModule->getObjectHandler().exists( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = _gameObjects.get( ichr );
+    pchr = _currentModule->getObjectHandler().get( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -635,12 +635,12 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
     GLXvector4f tint;
     bool rendered;
 
-    if ( !_gameObjects.exists( ichr ) )
+    if ( !_currentModule->getObjectHandler().exists( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = _gameObjects.get( ichr );
+    pchr = _currentModule->getObjectHandler().get( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -717,12 +717,12 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
     chr_instance_t * pinst;
     gfx_rv retval = gfx_error;
 
-    if ( !_gameObjects.exists( ichr ) )
+    if ( !_currentModule->getObjectHandler().exists( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = _gameObjects.get( ichr );
+    pchr = _currentModule->getObjectHandler().get( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -968,8 +968,8 @@ void draw_chr_attached_grip( Object * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    if ( !_gameObjects.exists( pchr->attachedto ) ) return;
-    pholder = _gameObjects.get( pchr->attachedto );
+    if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) ) return;
+    pholder = _currentModule->getObjectHandler().get( pchr->attachedto );
 
     pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
@@ -1810,7 +1810,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
         else if ( pinst->action_loop )
         {
             // Convert the action into a riding action if the character is mounted
-            if ( _gameObjects.exists( imount ) )
+            if ( _currentModule->getObjectHandler().exists( imount ) )
             {
                 chr_instance_start_anim( pinst, mount_action, true, true );
             }

@@ -35,7 +35,7 @@ VictoryScreen::VictoryScreen(PlayingState *playingState, const bool forceExit) :
 {
 	//Add the buttons
 	int yOffset = GFX_HEIGHT-80;
-	std::shared_ptr<Button> exitButton = std::make_shared<Button>(PMod->isExportValid() ? "Save and Exit" : "Exit Game", SDLK_SPACE);
+	std::shared_ptr<Button> exitButton = std::make_shared<Button>(_currentModule->isExportValid() ? "Save and Exit" : "Exit Game", SDLK_SPACE);
 	exitButton->setSize(200, 30);
 	exitButton->setPosition(20, yOffset);
 	exitButton->setOnClickFunction(

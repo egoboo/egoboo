@@ -36,7 +36,7 @@
 #include "game/Module/Module.hpp"
 
 //Macros
-#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<Object::MAXNUMINPACK;IT##_internal++) { CHR_REF IT; Object * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_gameObjects.exists (IT)) continue; PITEM = _gameObjects.get( IT );
+#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<Object::MAXNUMINPACK;IT##_internal++) { CHR_REF IT; Object * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_currentModule->getObjectHandler().exists (IT)) continue; PITEM = _currentModule->getObjectHandler().get( IT );
 #define PACK_END_LOOP() } }
 
 /// The possible methods for characters to determine what direction they are facing
@@ -178,7 +178,7 @@ public:
     /**
     * @return the current team this object is on. This can change in-game (mounts or pets for example)
     **/
-    inline Team& getTeam() const {return PMod->getTeamList()[team];}
+    inline Team& getTeam() const {return _currentModule->getTeamList()[team];}
 
     /**
     * @brief

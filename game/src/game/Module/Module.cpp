@@ -30,10 +30,10 @@
 #include "game/player.h"
 #include "game/mesh.h"
 #include "game/char.h"
-#include "game/Entities/_Include.hpp"
 
 GameModule::GameModule(const std::shared_ptr<ModuleProfile> &profile, const uint32_t seed) :
     _moduleProfile(profile),
+    _gameObjects(),
     _playerList(),
     _teamList(),
     _name(profile->getName()),
@@ -109,12 +109,12 @@ void GameModule::checkPassageMusic()
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
     {
         CHR_REF character = PlaStack.lst[ipla].index;
-        if (!_gameObjects.exists(character)) continue;
+        if (!_currentModule->getObjectHandler().exists(character)) continue;
 
         // Don't do items in hands or inventory.
         if (IS_ATTACHED_CHR(character)) continue;
 
-        Object *pchr = _gameObjects.get(character);
+        Object *pchr = _currentModule->getObjectHandler().get(character);
         if (!pchr->alive || !VALID_PLA(pchr->is_which_player)) continue;
 
         //Loop through every passage
@@ -220,4 +220,4 @@ uint8_t GameModule::getMinPlayers() const
 }
 
 /// @todo Remove this global.
-std::unique_ptr<GameModule> PMod = nullptr;
+std::unique_ptr<GameModule> _currentModule = nullptr;

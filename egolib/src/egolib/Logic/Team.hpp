@@ -143,4 +143,4 @@ private:
 
 #define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < Team::TEAM_MAX) )
 
-#define team_hates_team(_TEAM_A_, _TEAM_B_) PMod->getTeamList()[_TEAM_A_].hatesTeam(PMod->getTeamList()[_TEAM_B_])
+#define team_hates_team(_TEAM_A_, _TEAM_B_) _currentModule->getTeamList()[_TEAM_A_].hatesTeam(_currentModule->getTeamList()[_TEAM_B_])

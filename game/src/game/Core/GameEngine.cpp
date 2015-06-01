@@ -353,7 +353,7 @@ void GameEngine::uninitialize()
 
     _gameStateStack.clear();
     _currentGameState.reset();
-    PMod.release();
+    _currentModule.release();
 
     // synchronize the config values with the various game subsystems
     config_synch(&egoboo_config_t::get(), true, true);
@@ -374,7 +374,6 @@ void GameEngine::uninitialize()
     scripting_system_end();
 
     // Deallocate all dynamically allocated memory for characters, particles, enchants, and models.
-    _gameObjects.clear();
     model_system_end();
 
     // Uninitialize the profile system.

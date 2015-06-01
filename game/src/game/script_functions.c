@@ -58,8 +58,8 @@
 #define SCRIPT_FUNCTION_BEGIN() \
     Object * pchr; \
     Uint8 returncode = true; \
-    if( NULL == pstate || NULL == pself || !_gameObjects.exists(pself->index) ) return false; \
-    pchr = _gameObjects.get( pself->index ); \
+    if( NULL == pstate || NULL == pself || !_currentModule->getObjectHandler().exists(pself->index) ) return false; \
+    pchr = _currentModule->getObjectHandler().get( pself->index ); \
     const std::shared_ptr<ObjectProfile> &ppro = ProfileSystem::get().getProfile( pchr->profile_ref ); \
     if(!ppro) return false;
 
@@ -74,12 +74,12 @@
     return returncode;
 
 #define SET_TARGET_0(ITARGET)         pself->target = ITARGET;
-#define SET_TARGET_1(ITARGET,PTARGET) if( NULL != PTARGET ) { PTARGET = _gameObjects.get(ITARGET); }
+#define SET_TARGET_1(ITARGET,PTARGET) if( NULL != PTARGET ) { PTARGET = _currentModule->getObjectHandler().get(ITARGET); }
 #define SET_TARGET(ITARGET,PTARGET)   SET_TARGET_0( ITARGET ); SET_TARGET_1(ITARGET,PTARGET)
 
 #define SCRIPT_REQUIRE_TARGET(PTARGET) \
-    if( !_gameObjects.exists(pself->target) ) return false; \
-    PTARGET = _gameObjects.get( pself->target );
+    if( !_currentModule->getObjectHandler().exists(pself->target) ) return false; \
+    PTARGET = _currentModule->getObjectHandler().get( pself->target );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -644,7 +644,7 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = false;
-    if ( _gameObjects.exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( pself->target ) )
     {
         switch_team( pself->index, pself_target->team );
         returncode = true;
@@ -666,7 +666,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 
     ichr = chr_find_target( pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -695,7 +695,7 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
     returncode = false;
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET( ichr, pself_target );
         returncode = true;
@@ -721,7 +721,7 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
     returncode = false;
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET( ichr, pself_target );
         returncode = true;
@@ -739,7 +739,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pself->attacklast ) )
+    if ( _currentModule->getObjectHandler().exists( pself->attacklast ) )
     {
         SET_TARGET_0( pself->attacklast );
     }
@@ -760,7 +760,7 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pself->bumplast ) )
+    if ( _currentModule->getObjectHandler().exists( pself->bumplast ) )
     {
         SET_TARGET_0( pself->bumplast );
     }
@@ -812,7 +812,7 @@ Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pself->target_old ) )
+    if ( _currentModule->getObjectHandler().exists( pself->target_old ) )
     {
         SET_TARGET_0( pself->target_old );
     }
@@ -912,7 +912,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 
     item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, false );
 
-    returncode = _gameObjects.exists( item );
+    returncode = _currentModule->getObjectHandler().exists( item );
 
     SCRIPT_FUNCTION_END();
 }
@@ -932,7 +932,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 
     item = chr_holding_idsz( pself->target, pstate->argument );
 
-    returncode = _gameObjects.exists( item );
+    returncode = _currentModule->getObjectHandler().exists( item );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1125,9 +1125,9 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( _gameObjects.exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( pself->target ) )
     {
-        Object * pself_target = _gameObjects.get( pself->target );
+        Object * pself_target = _currentModule->getObjectHandler().get( pself->target );
 
         if ( pself_target->alive )
         {
@@ -1155,7 +1155,7 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
     
     returncode = false;
     if(passage) {
@@ -1177,7 +1177,7 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
 
     returncode = false;
     if(passage) {
@@ -1197,7 +1197,7 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
 
     returncode = false;
     if(passage) {
@@ -1250,15 +1250,15 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     item = chr_holding_idsz( pself->target, idsz );
 
     //need to search inventory as well?
-    if ( !_gameObjects.exists( item ) )
+    if ( !_currentModule->getObjectHandler().exists( item ) )
     {
         for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
         {
             item = ptarget->inventory[cnt];
 
             //only valid items
-            if ( !_gameObjects.exists( item ) ) continue;
-            pitem = _gameObjects.get( item );
+            if ( !_currentModule->getObjectHandler().exists( item ) ) continue;
+            pitem = _currentModule->getObjectHandler().get( item );
 
             //matching idsz?
             if ( chr_is_type_idsz( item, idsz ) ) break;
@@ -1269,9 +1269,9 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     }
 
     returncode = false;
-    if ( _gameObjects.exists( item ) )
+    if ( _currentModule->getObjectHandler().exists( item ) )
     {
-        pitem = _gameObjects.get( item );
+        pitem = _currentModule->getObjectHandler().get( item );
         returncode = true;
 
         // Cost one ammo
@@ -1283,7 +1283,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         // Poof the item
         else
         {
-            if ( _gameObjects.exists( pitem->inwhich_inventory ) && cnt < MAXINVENTORY )
+            if ( _currentModule->getObjectHandler().exists( pitem->inwhich_inventory ) && cnt < MAXINVENTORY )
             {
                 // Remove from the pack
                 Inventory::remove_item( pchr->ai.index, cnt, true );
@@ -1295,7 +1295,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
             }
 
             // get rid of the character, no matter what
-            _gameObjects.remove( item );
+            _currentModule->getObjectHandler().remove( item );
         }
     }
 
@@ -1364,7 +1364,7 @@ Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->getTeam().callForHelp(_gameObjects[pself->index]);
+    pchr->getTeam().callForHelp(_currentModule->getObjectHandler()[pself->index]);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1379,7 +1379,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( ModuleProfile::moduleAddIDSZ(PMod->getPath().c_str(), pstate->argument, 0, NULL) )
+    if ( ModuleProfile::moduleAddIDSZ(_currentModule->getPath().c_str(), pstate->argument, 0, NULL) )
     {
         // invalidate any module list so that we will reload them
         //module_list_valid = false;
@@ -1452,10 +1452,10 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     {
         CHR_REF iheld = pself_target->holdingwhich[SLOT_LEFT];
 
-        if ( _gameObjects.exists( iheld ) )
+        if ( _currentModule->getObjectHandler().exists( iheld ) )
         {
             // can the rider open the
-            returncode = _gameObjects.get(iheld)->openstuff;
+            returncode = _currentModule->getObjectHandler().get(iheld)->openstuff;
         }
     }
 
@@ -1508,7 +1508,7 @@ Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * ps
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         SET_TARGET_0( pchr->attachedto );
     }
@@ -1532,7 +1532,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
     if(!target) {
         return false;
     }
@@ -1541,7 +1541,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
     tmp_damage.rand = 1;
 
     target->damage(ATK_FRONT, tmp_damage, static_cast<DamageType>(pchr->damagetarget_damagetype), 
-        pchr->team, _gameObjects[pself->index], DAMFX_NBLOC, true);
+        pchr->team, _currentModule->getObjectHandler()[pself->index], DAMFX_NBLOC, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1685,13 +1685,13 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
 
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        const std::shared_ptr<Object> &leader = PMod->getTeamList()[pchr->team].getLeader();
+        const std::shared_ptr<Object> &leader = _currentModule->getTeamList()[pchr->team].getLeader();
 
         if ( leader )
         {
             CHR_REF itarget = leader->ai.target;
 
-            if ( _gameObjects.exists( itarget ) )
+            if ( _currentModule->getObjectHandler().exists( itarget ) )
             {
                 SET_TARGET_0( itarget );
             }
@@ -1736,7 +1736,7 @@ Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->getTeamList()[pchr->team].setLeader(_gameObjects[pself->index]);
+    _currentModule->getTeamList()[pchr->team].setLeader(_currentModule->getObjectHandler()[pself->index]);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1837,7 +1837,7 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( PMod->getTeamList()[pchr->team].getLeader() != nullptr );
+    returncode = ( _currentModule->getTeamList()[pchr->team].getLeader() != nullptr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1869,7 +1869,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
-        const std::shared_ptr<Object> &leader = PMod->getTeamList()[pchr->team].getLeader();
+        const std::shared_ptr<Object> &leader = _currentModule->getTeamList()[pchr->team].getLeader();
         if ( leader )
         {
             SET_TARGET_0( leader->getCharacterID() );
@@ -1899,23 +1899,23 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, 0);
 
     ichr = spawn_one_character(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
-    returncode = _gameObjects.exists( ichr );
+    returncode = _currentModule->getObjectHandler().exists( ichr );
 
     if ( !returncode )
     {
-        if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
+        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
         }
     }
     else
     {
-        Object * pchild = _gameObjects.get( ichr );
+        Object * pchild = _currentModule->getObjectHandler().get( ichr );
 
         // was the child spawned in a "safe" spot?
         if (!chr_get_safe( pchild))
         {
-            _gameObjects.remove( ichr );
+            _currentModule->getObjectHandler().remove( ichr );
             ichr = INVALID_CHR_REF;
         }
         else
@@ -2025,7 +2025,7 @@ Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         pchr->detatchFromHolder(true, true);
     }
@@ -2094,7 +2094,7 @@ Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _gameObjects.exists( pchr->attachedto );
+    returncode = _currentModule->getObjectHandler().exists( pchr->attachedto );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2167,13 +2167,13 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = pself->index;
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
 
     //If we are a mount, our rider is the owner of this particle
-    if ( pchr->isMount() && _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
+    if ( pchr->isMount() && _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
     {
         ichr = pchr->holdingwhich[SLOT_LEFT];
     }
@@ -2355,7 +2355,7 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
     {
         SET_TARGET_0( pchr->holdingwhich[SLOT_LEFT] );
     }
@@ -2498,15 +2498,15 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character scored a hit
-//    if ( !_gameObjects.exists( pchr->attachedto ) || _gameObjects.get(pchr->attachedto).ismount )
+//    if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) || _currentModule->getObjectHandler().get(pchr->attachedto).ismount )
 //    {
     returncode = HAS_SOME_BITS( pself->alert, ALERTIF_SCOREDAHIT );
 //    }
 
     // Proceed only if the holder scored a hit with the character
-    /*    else if ( _gameObjects.get(pchr->attachedto).ai.lastitemused == pself->index )
+    /*    else if ( _currentModule->getObjectHandler().get(pchr->attachedto).ai.lastitemused == pself->index )
         {
-            returncode = HAS_SOME_BITS( _gameObjects.get(pchr->attachedto).ai.alert, ALERTIF_SCOREDAHIT );
+            returncode = HAS_SOME_BITS( _currentModule->getObjectHandler().get(pchr->attachedto).ai.alert, ALERTIF_SCOREDAHIT );
         }
         else returncode = false;*/
 
@@ -2543,7 +2543,7 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 
     ichr = CLIP_TO_16BITS( pself->order_value >> 24 );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
 
@@ -2568,7 +2568,7 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pself->hitlast ) )
+    if ( _currentModule->getObjectHandler().exists( pself->hitlast ) )
     {
         SET_TARGET_0( pself->hitlast );
     }
@@ -2593,7 +2593,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
 
     ichr = chr_find_target( pchr, WIDE, IDSZ_NONE, TARGET_ENEMIES );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -2675,7 +2675,7 @@ Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _gameObjects.get(pself->index)->grog_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+    returncode = _currentModule->getObjectHandler().get(pself->index)->grog_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2690,7 +2690,7 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _gameObjects.get(pself->index)->daze_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+    returncode = _currentModule->getObjectHandler().get(pself->index)->daze_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2883,7 +2883,7 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
     if(!target) {
         return false;
     }
@@ -2903,7 +2903,7 @@ Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
     if(!target) {
         return false;
     }
@@ -2972,7 +2972,7 @@ Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( !_gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) && !_gameObjects.exists( pchr->holdingwhich[SLOT_RIGHT] ) );
+    returncode = ( !_currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) && !_currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3246,14 +3246,14 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
     ichr = pself->index;
 
     //Weapons don't kill people, people kill people...
-    if ( _gameObjects.exists( pchr->attachedto ) && !_gameObjects.get(pchr->attachedto)->isMount() )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && !_currentModule->getObjectHandler().get(pchr->attachedto)->isMount() )
     {
         ichr = pchr->attachedto;
     }
 
-    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
     if(target) {
-        target->kill(_gameObjects[ichr], false);
+        target->kill(_currentModule->getObjectHandler()[ichr], false);
     }
 
     SCRIPT_FUNCTION_END();
@@ -3693,7 +3693,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 
     item = chr_holding_idsz( pself->index, pstate->argument );
 
-    returncode = _gameObjects.exists( item );
+    returncode = _currentModule->getObjectHandler().exists( item );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3712,7 +3712,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     pstate->argument = 0;
 
     // Check right hand
-    const std::shared_ptr<Object> &rightHandItem = _gameObjects[pchr->holdingwhich[SLOT_RIGHT]];
+    const std::shared_ptr<Object> &rightHandItem = _currentModule->getObjectHandler()[pchr->holdingwhich[SLOT_RIGHT]];
 
     if (rightHandItem)
     {
@@ -3727,7 +3727,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode || Random::nextBool() )
     {
         // Check left hand
-        const std::shared_ptr<Object> &leftHandItem = _gameObjects[pchr->holdingwhich[SLOT_LEFT]];
+        const std::shared_ptr<Object> &leftHandItem = _currentModule->getObjectHandler()[pchr->holdingwhich[SLOT_LEFT]];
         if (leftHandItem)
         {
             if ( leftHandItem->getProfile()->isRangedWeapon() && (0 == leftHandItem->ammomax || (0 != leftHandItem->ammo)))
@@ -4038,7 +4038,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     //If we are a weapon, our holder is the owner of this particle
     ichr    = pself->index;
     iholder = chr_get_lowest_attachment( ichr, true );
-    if ( _gameObjects.exists( iholder ) )
+    if ( _currentModule->getObjectHandler().exists( iholder ) )
     {
         ichr = iholder;
     }
@@ -4065,7 +4065,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = pself->index;
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
@@ -4168,7 +4168,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 
     itarget = chr_get_lowest_attachment( pself->target, false );
 
-    if ( _gameObjects.exists( itarget ) )
+    if ( _currentModule->getObjectHandler().exists( itarget ) )
     {
         SET_TARGET_0( itarget );
     }
@@ -4280,7 +4280,7 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->heal(_gameObjects[pchr->getCharacterID()], pstate->argument, true);
+    pchr->heal(_currentModule->getObjectHandler()[pchr->getCharacterID()], pstate->argument, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4313,7 +4313,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 
     item = Inventory::findItem( pself->target, pstate->argument, true );
 
-    returncode = _gameObjects.exists( item );
+    returncode = _currentModule->getObjectHandler().exists( item );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4343,7 +4343,7 @@ Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pself->owner ) )
+    if ( _currentModule->getObjectHandler().exists( pself->owner ) )
     {
         SET_TARGET_0( pself->owner );
     }
@@ -4422,7 +4422,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     // Try to find one
     ichr = chr_find_target( pchr, WIDE, pstate->argument, pstate->distance );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
         returncode = true;
@@ -4484,11 +4484,11 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( _gameObjects.exists( pself->child ) )
+    if ( _currentModule->getObjectHandler().exists( pself->child ) )
     {
         int action;
 
-        Object * pchild = _gameObjects.get( pself->child );
+        Object * pchild = _currentModule->getObjectHandler().get( pself->child );
 
         action = mad_get_action_ref( pchild->inst.imad, pstate->argument );
 
@@ -4561,7 +4561,7 @@ Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 
     if ( VALID_CHR_RANGE( pself->child ) )
     {
-        chr_set_ai_state( _gameObjects.get( pself->child ), pstate->argument );
+        chr_set_ai_state( _currentModule->getObjectHandler().get( pself->child ), pstate->argument );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4581,7 +4581,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = pself->index;
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
@@ -4694,7 +4694,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = pself->index;
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
@@ -4737,7 +4737,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 
     ichr = chr_find_target( pchr, pstate->distance, IDSZ_NONE, TARGET_ENEMIES );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -4984,13 +4984,13 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
     if(!target) {
         return false;
     }
 
     returncode = false;
-    if ( target->heal(_gameObjects[pself->index], pstate->argument, false) )
+    if ( target->heal(_currentModule->getObjectHandler()[pself->index], pstate->argument, false) )
     {
         returncode = true;
         remove_all_enchants_with_idsz(pself->target, MAKE_IDSZ('H', 'E', 'A', 'L'));
@@ -5053,7 +5053,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
 
         sTmp = true;
@@ -5088,7 +5088,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = pself->index;
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
@@ -5233,7 +5233,7 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
     /// USAGE:  wizards casting spells
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         if ( pchr->inwhich_slot == SLOT_LEFT )
         {
@@ -5267,9 +5267,9 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
 
     ichr = pself_target->attachedto;
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
-        returncode = _gameObjects.get(ichr)->isMount();
+        returncode = _currentModule->getObjectHandler().get(ichr)->isMount();
     }
 
     SCRIPT_FUNCTION_END();
@@ -5379,7 +5379,7 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !_gameObjects.exists( pself->target ) )
+    if ( !_currentModule->getObjectHandler().exists( pself->target ) )
     {
         returncode = false;
     }
@@ -5403,14 +5403,14 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
 
     returncode = false;
     if(passage)
     {
         ichr = passage->whoIsBlockingPassage(pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE);
 
-        if ( _gameObjects.exists( ichr ) )
+        if ( _currentModule->getObjectHandler().exists( ichr ) )
         {
             SET_TARGET_0( ichr );
             returncode = true;
@@ -5478,23 +5478,23 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
     CHR_REF ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
-    returncode = _gameObjects.exists( ichr );
+    returncode = _currentModule->getObjectHandler().exists( ichr );
 
     if ( !returncode )
     {
-        if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
+        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
         }
     }
     else
     {
-        Object * pchild = _gameObjects.get( ichr );
+        Object * pchild = _currentModule->getObjectHandler().get( ichr );
 
         // was the child spawned in a "safe" spot?
         if (!chr_get_safe(pchild))
         {
-            _gameObjects.remove( ichr );
+            _currentModule->getObjectHandler().remove( ichr );
             ichr = INVALID_CHR_REF;
         }
         else
@@ -5534,11 +5534,11 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         );
 
     CHR_REF ichr = spawn_one_character(pos, static_cast<PRO_REF>(pstate->argument), pchr->team, 0, CLIP_TO_16BITS(pstate->turn), nullptr, INVALID_CHR_REF);
-    const std::shared_ptr<Object> &pchild = _gameObjects[ichr];
+    const std::shared_ptr<Object> &pchild = _currentModule->getObjectHandler()[ichr];
 
     if ( !pchild )
     {
-        if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
+        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ppro->getClassName().c_str(), pstate->argument );
         }
@@ -5616,7 +5616,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = pself->index;
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
@@ -5699,15 +5699,15 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
-        _gameObjects.get(ichr)->iskursed = false;
+        _currentModule->getObjectHandler().get(ichr)->iskursed = false;
     }
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
-        _gameObjects.get(ichr)->iskursed = false;
+        _currentModule->getObjectHandler().get(ichr)->iskursed = false;
     }
 
     PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
@@ -5784,10 +5784,10 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    if ( _gameObjects.exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( pself->target ) )
     {
         int action;
-        Object * pself_target = _gameObjects.get( pself->target );
+        Object * pself_target = _currentModule->getObjectHandler().get( pself->target );
 
         action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
 
@@ -5837,7 +5837,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     // Try to find one
     ichr = chr_find_target( pchr, NEAREST, pstate->argument, pstate->distance );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5862,7 +5862,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 
     ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ENEMIES );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5887,7 +5887,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 
     ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_FRIENDS );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5914,7 +5914,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 
     ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ITEMS | TARGET_FRIENDS | TARGET_ENEMIES );
 
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5937,7 +5937,7 @@ Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
     if(passage) {
         passage->flashColor(pstate->distance);
     }
@@ -5979,9 +5979,9 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
 
     returncode = false;
     ichr = pchr->attachedto;
-    if ( _gameObjects.exists( ichr ) )
+    if ( _currentModule->getObjectHandler().exists( ichr ) )
     {
-        returncode = ( _gameObjects.get(ichr)->holdingwhich[SLOT_LEFT] == pself->index );
+        returncode = ( _currentModule->getObjectHandler().get(ichr)->holdingwhich[SLOT_LEFT] == pself->index );
     }
 
     SCRIPT_FUNCTION_END();
@@ -6011,7 +6011,7 @@ Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _gameObjects.get(pself->child)->ammo = CLIP( pstate->argument, 0, 0xFFFF );
+    _currentModule->getObjectHandler().get(pself->child)->ammo = CLIP( pstate->argument, 0, 0xFFFF );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6064,11 +6064,11 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
 
     returncode = false;
     ichr = pself->target;
-    if ( _gameObjects.get(ichr)->ammomax != 0 )  _gameObjects.get(ichr)->ammoknown = true;
+    if ( _currentModule->getObjectHandler().get(ichr)->ammomax != 0 )  _currentModule->getObjectHandler().get(ichr)->ammoknown = true;
 
 
-    returncode = !_gameObjects.get(ichr)->nameknown;
-    _gameObjects.get(ichr)->nameknown = true;
+    returncode = !_currentModule->getObjectHandler().get(ichr)->nameknown;
+    _currentModule->getObjectHandler().get(ichr)->nameknown = true;
     ppro->makeUsageKnown();
 
     SCRIPT_FUNCTION_END();
@@ -6083,7 +6083,7 @@ Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->beatModule();
+    _currentModule->beatModule();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6112,7 +6112,7 @@ Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->setExportValid(false);
+    _currentModule->setExportValid(false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6126,7 +6126,7 @@ Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->setExportValid(true);
+    _currentModule->setExportValid(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6243,7 +6243,7 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
     if(passage) {
         passage->setMusic(Passage::NO_MUSIC);
     }
@@ -6308,7 +6308,7 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
     if(passage) {
         passage->setMusic(pstate->distance);
     }
@@ -6594,7 +6594,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     sTmp = 0;
     while(sTmp < OBJECTS_MAX)
     {
-    if(_gameObjects.exists(sTmp) && ChrList.lst[sTmp].alive && ChrList.lst[sTmp].Team == pchr->Team)
+    if(_currentModule->getObjectHandler().exists(sTmp) && ChrList.lst[sTmp].alive && ChrList.lst[sTmp].Team == pchr->Team)
     {
     distance = ABS(PCamera->track.x-ChrList.lst[sTmp].pos_old.x)+ABS(PCamera->track.y-ChrList.lst[sTmp].pos_old.y);
     if(distance < iTmp)  iTmp = distance;
@@ -6626,7 +6626,7 @@ Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
     if(passage) {
         passage->makeShop(pself->index);
         returncode = true;
@@ -6656,9 +6656,9 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !_gameObjects.exists( pself->target ) ) return false;
+    if ( !_currentModule->getObjectHandler().exists( pself->target ) ) return false;
 
-    pself_target = _gameObjects.get( pself->target );
+    pself_target = _currentModule->getObjectHandler().get( pself->target );
 
 
     iTmp = ppro->getSkinInfo(pstate->argument).cost;
@@ -6752,12 +6752,12 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
 
     returncode = false;
     if(passage) {
         CHR_REF ichr = passage->whoIsBlockingPassage(pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance);
-        if ( _gameObjects.exists( ichr ) )
+        if ( _currentModule->getObjectHandler().exists( ichr ) )
         {
             SET_TARGET_0( ichr );
             returncode = true;
@@ -6798,7 +6798,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = pself->index;
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         ichr = pchr->attachedto;
     }
@@ -6892,7 +6892,7 @@ Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
     if(pstate->distance < XP_COUNT)
     {
 
-        PMod->getTeamList()[Team::TEAM_GOOD].giveTeamExperience(pstate->argument, static_cast<XPType>(pstate->distance) );
+        _currentModule->getTeamList()[Team::TEAM_GOOD].giveTeamExperience(pstate->argument, static_cast<XPType>(pstate->distance) );
     }
 
 
@@ -6969,7 +6969,7 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->setRespawnValid(true);
+    _currentModule->setRespawnValid(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6983,7 +6983,7 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->setRespawnValid(false);
+    _currentModule->setRespawnValid(false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -7001,15 +7001,15 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 
     iattached = pchr->attachedto;
 
-    if ( _gameObjects.exists( iattached ) )
+    if ( _currentModule->getObjectHandler().exists( iattached ) )
     {
-        BIT_FIELD bits = _gameObjects.get(iattached)->ai.alert;
+        BIT_FIELD bits = _currentModule->getObjectHandler().get(iattached)->ai.alert;
 
         if ( HAS_SOME_BITS( bits, ALERTIF_BLOCKED ) )
         {
-            CHR_REF iattacked = _gameObjects.get(iattached)->ai.attacklast;
+            CHR_REF iattacked = _currentModule->getObjectHandler().get(iattached)->ai.attacklast;
 
-            if ( _gameObjects.exists( iattacked ) )
+            if ( _currentModule->getObjectHandler().exists( iattacked ) )
             {
                 SET_TARGET_0( iattacked );
             }
@@ -7082,7 +7082,7 @@ Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pself->lastitemused != pself->index && _gameObjects.exists( pself->lastitemused ) )
+    if ( pself->lastitemused != pself->index && _currentModule->getObjectHandler().exists( pself->lastitemused ) )
     {
         SET_TARGET_0( pself->lastitemused );
     }
@@ -7141,9 +7141,9 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !_gameObjects.exists( pself->target ) ) return false;
+    if ( !_currentModule->getObjectHandler().exists( pself->target ) ) return false;
 
-    returncode = _gameObjects[pself->target]->getProfile()->isRangedWeapon() || chr_has_idsz(pself->target, MAKE_IDSZ('X', 'W', 'E', 'P'));
+    returncode = _currentModule->getObjectHandler()[pself->target]->getProfile()->isRangedWeapon() || chr_has_idsz(pself->target, MAKE_IDSZ('X', 'W', 'E', 'P'));
 
     SCRIPT_FUNCTION_END();
 }
@@ -7202,7 +7202,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
     {
         //Who is the dirty backstabber?
-        Object * pattacker = _gameObjects.get( pself->attacklast );
+        Object * pattacker = _currentModule->getObjectHandler().get( pself->attacklast );
         if ( !ACTIVE_PCHR( pattacker ) ) return false;
 
         //Only if hit from behind
@@ -7290,7 +7290,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         if ( !ppla->valid ) continue;
 
         ichr = ppla->index;
-        if ( !_gameObjects.exists( ichr ) ) continue;
+        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
 
         if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )pstate->argument, QUEST_MAXVAL ) )
         {
@@ -7386,7 +7386,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         int quest_level;
         player_t * ppla = PlaStack.get_ptr( ipla );
 
-        if ( !ppla->valid || !_gameObjects.exists( ppla->index ) ) continue;
+        if ( !ppla->valid || !_currentModule->getObjectHandler().exists( ppla->index ) ) continue;
         player_count++;
 
         // Try to add it or replace it if this one is higher
@@ -7409,7 +7409,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( pself->target ) )
     {
         local_stats.sense_enemies_team = chr_get_iteam( pself->target );
         local_stats.sense_enemies_idsz = pstate->argument;
@@ -7485,18 +7485,18 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     fvec3_t pos = fvec3_t(pstate->x, pstate->y, pstate->distance);
 
     CHR_REF ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
-    returncode = _gameObjects.exists( ichr );
+    returncode = _currentModule->getObjectHandler().exists( ichr );
 
     if ( !returncode )
     {
-        if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
+        if ( ichr > _currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning("Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ProfileSystem::get().getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument);
         }
     }
     else
     {
-        Object * pchild = _gameObjects.get( ichr );
+        Object * pchild = _currentModule->getObjectHandler().get( ichr );
 
         Uint8 grip = CLIP( pstate->distance, (int)ATTACH_INVENTORY, (int)ATTACH_RIGHT );
 
@@ -7520,13 +7520,13 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //No more room!
             else
             {
-                _gameObjects.remove( ichr );
+                _currentModule->getObjectHandler().remove( ichr );
                 ichr = INVALID_CHR_REF;
             }
         }
         else if ( grip == ATTACH_LEFT || grip == ATTACH_RIGHT )
         {
-            if ( !_gameObjects.exists( pself_target->holdingwhich[grip] ) )
+            if ( !_currentModule->getObjectHandler().exists( pself_target->holdingwhich[grip] ) )
             {
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
@@ -7546,7 +7546,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //Grip is already used
             else
             {
-                _gameObjects.remove( ichr );
+                _currentModule->getObjectHandler().remove( ichr );
                 ichr = INVALID_CHR_REF;
             }
         }
@@ -7558,7 +7558,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // technically this should never occur since we are limiting the attachment points above
             if (!chr_get_safe(pchild))
             {
-                _gameObjects.remove( ichr );
+                _currentModule->getObjectHandler().remove( ichr );
                 ichr = INVALID_CHR_REF;
             }
         }
@@ -7576,7 +7576,7 @@ Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( _gameObjects.exists( pself->child ) )
+    if ( _currentModule->getObjectHandler().exists( pself->child ) )
     {
         SET_TARGET_0( pself->child );
     }
@@ -7784,7 +7784,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     STRING buffer;
     strncpy(buffer, ppro->getMessage(pstate->argument).c_str(), SDL_arraysize(buffer));
 
-    returncode = ModuleProfile::moduleHasIDSZ( PMod->getName().c_str(), pstate->distance, 0, buffer);
+    returncode = ModuleProfile::moduleHasIDSZ( _currentModule->getName().c_str(), pstate->distance, 0, buffer);
 
     SCRIPT_FUNCTION_END();
 }
@@ -7803,7 +7803,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !_gameObjects.exists( pself->target ) ) return false;
+    if ( !_currentModule->getObjectHandler().exists( pself->target ) ) return false;
 
     change_character( pself->index, pself_target->basemodel_ref, pself_target->skin, ENC_LEAVE_ALL );
 
@@ -7953,7 +7953,7 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    _gameObjects.get(pself->child)->ai.content = pstate->argument;
+    _currentModule->getObjectHandler().get(pself->child)->ai.content = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -8034,7 +8034,7 @@ Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
     if(!target) {
         return false;
     }
@@ -8115,12 +8115,12 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = _currentModule->getPassageByID(pstate->argument);
     returncode = false;
     if(passage) {
         CHR_REF ichr = passage->whoIsBlockingPassage(pself->index, pstate->turn, TARGET_SELF | pstate->distance, IDSZ_NONE );
 
-        if ( _gameObjects.exists( ichr ) )
+        if ( _currentModule->getObjectHandler().exists( ichr ) )
         {
             SET_TARGET_0( ichr );
             returncode = true;
@@ -8194,7 +8194,7 @@ Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * p
     best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), false, true );
 
     //Did we find anything good?
-    if ( _gameObjects.exists( best_target ) )
+    if ( _currentModule->getObjectHandler().exists( best_target ) )
     {
         pself->target = best_target;
         returncode = true;

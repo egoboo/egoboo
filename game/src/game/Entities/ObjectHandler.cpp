@@ -315,6 +315,3 @@ size_t ObjectHandler::getObjectCount() const
 {
     return _iteratorList.size() + _allocateList.size() - _deletedCharacters;
 }
-
-/// @todo Remove this global.
-ObjectHandler _gameObjects;

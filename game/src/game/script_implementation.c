@@ -503,7 +503,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     ego_tile_info_t * ptile = NULL;
     int loc_starttile;
 
-    const std::shared_ptr<Passage> &passage = PMod->getPassageByID(passageID);
+    const std::shared_ptr<Passage> &passage = _currentModule->getPassageByID(passageID);
 
     if ( !passage ) return false;
 
@@ -515,7 +515,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     endtile = CLIP( endtile, (Uint32)0, (Uint32)255 );
 
     useful = false;
-    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         float lerp_z;
 
@@ -619,7 +619,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     
     ego_tile_info_t * ptile = NULL;
 
-    const std::shared_ptr<Passage> &passage = PMod->getPassageByID(passageID);
+    const std::shared_ptr<Passage> &passage = _currentModule->getPassageByID(passageID);
     if ( !passage ) return false;
 
     // Do the first row
@@ -728,13 +728,13 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
     los.z0 = pchr->getPosZ();
     los.stopped_by = pchr->stoppedby;
 
-    for(const std::shared_ptr<Object> &pweapon : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pweapon : _currentModule->getObjectHandler().iterator())
     {
         float dist;
         fvec3_t diff;
 
         //only do items on the ground
-        if ( _gameObjects.exists( pweapon->attachedto ) || !pweapon->isitem ) continue;
+        if ( _currentModule->getObjectHandler().exists( pweapon->attachedto ) || !pweapon->isitem ) continue;
         const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
         // only target those with a the given IDSZ
@@ -773,7 +773,7 @@ CHR_REF FindWeapon( Object * pchr, float max_distance, IDSZ weap_idsz, bool find
 
     //Did we find anything?
     retval = INVALID_CHR_REF;
-    if ( _gameObjects.exists( best_target ) )
+    if ( _currentModule->getObjectHandler().exists( best_target ) )
     {
         retval = best_target;
     }

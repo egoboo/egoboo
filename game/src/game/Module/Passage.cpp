@@ -95,7 +95,7 @@ bool Passage::close()
         std::vector<std::shared_ptr<Object>> crushedCharacters;
 
         // Make sure it isn't blocked
-        for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+        for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
         {
             if(object->isTerminated()) {
                 continue;
@@ -159,14 +159,14 @@ bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
 CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const
 {
     // Skip if the one who is looking doesn't exist
-    if ( !_gameObjects.exists( isrc ) ) return INVALID_CHR_REF;
-    Object *psrc = _gameObjects.get( isrc );
+    if ( !_currentModule->getObjectHandler().exists( isrc ) ) return INVALID_CHR_REF;
+    Object *psrc = _currentModule->getObjectHandler().get( isrc );
 
     // Look at each character
     for ( CHR_REF character = 0; character < OBJECTS_MAX; character++ )
     {
-        if ( !_gameObjects.exists( character ) ) continue;
-        Object * pchr = _gameObjects.get( character );
+        if ( !_currentModule->getObjectHandler().exists( character ) ) continue;
+        Object * pchr = _currentModule->getObjectHandler().get( character );
 
         // dont do scenery objects unless we allow items
         if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
@@ -290,14 +290,14 @@ CHR_REF Passage::getShopOwner() const
 void Passage::makeShop(CHR_REF owner)
 {
     //Make sure owner is valid
-    if ( !_gameObjects.exists( owner ) || !_gameObjects.get(owner)->alive ) return;
+    if ( !_currentModule->getObjectHandler().exists( owner ) || !_currentModule->getObjectHandler().get(owner)->alive ) return;
 
     //Mark as shop
     _isShop = true;
     _shopOwner = owner;
 
     // flag every item in the shop as a shop item
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if (object->isTerminated()) continue;
 

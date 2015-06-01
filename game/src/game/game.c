@@ -190,18 +190,18 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     // Don't export enchants
     disenchant_character( character );
 
-    const std::shared_ptr<Object> &object = _gameObjects[character];
+    const std::shared_ptr<Object> &object = _currentModule->getObjectHandler()[character];
     if(!object) {
         return rv_error;
     }
 
-    if ( !PMod->isExportValid() || ( object->getProfile()->isItem() && !object->getProfile()->canCarryToNextModule() ) )
+    if ( !_currentModule->isExportValid() || ( object->getProfile()->isItem() && !object->getProfile()->canCarryToNextModule() ) )
     {
         return rv_fail;
     }
 
     // TWINK_BO.OBJ
-    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _gameObjects.get(owner)->Name ) );
+    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler().get(owner)->Name ) );
 
     // Is it a character or an item?
     if ( chr_obj_index < 0 )
@@ -296,7 +296,7 @@ egolib_rv export_all_players( bool require_local )
     CHR_REF character;
 
     // Stop if export isnt valid
-    if ( !PMod->isExportValid() ) return rv_fail;
+    if ( !_currentModule->isExportValid() ) return rv_fail;
 
     // assume the best
     retval = rv_success;
@@ -315,9 +315,9 @@ egolib_rv export_all_players( bool require_local )
         if ( require_local && !is_local ) continue;
 
         // Is it alive?
-        if ( !_gameObjects.exists( ppla->index ) ) continue;
+        if ( !_currentModule->getObjectHandler().exists( ppla->index ) ) continue;
         character = ppla->index;
-        pchr      = _gameObjects.get( character );
+        pchr      = _currentModule->getObjectHandler().get( character );
 
         // don't export dead characters
         if ( !pchr->alive ) continue;
@@ -331,7 +331,7 @@ egolib_rv export_all_players( bool require_local )
 
         // Export the left hand item
         item = pchr->holdingwhich[SLOT_LEFT];
-        if ( _gameObjects.exists( item ) )
+        if ( _currentModule->getObjectHandler().exists( item ) )
         {
             export_chr_rv = export_one_character( item, character, SLOT_LEFT, is_local );
             if ( rv_error == export_chr_rv )
@@ -342,7 +342,7 @@ egolib_rv export_all_players( bool require_local )
 
         // Export the right hand item
         item = pchr->holdingwhich[SLOT_RIGHT];
-        if ( _gameObjects.exists( item ) )
+        if ( _currentModule->getObjectHandler().exists( item ) )
         {
             export_chr_rv = export_one_character( item, character, SLOT_RIGHT, is_local );
             if ( rv_error == export_chr_rv )
@@ -421,8 +421,8 @@ void statlist_add( const CHR_REF character )
 
     if ( StatusList.count >= MAX_STATUS ) return;
 
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
+    pchr = _currentModule->getObjectHandler().get( character );
 
     if ( pchr->show_stats ) return;
 
@@ -494,8 +494,8 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
     egolib_rv retval;
     int action;
 
-    if ( !_gameObjects.exists( character ) ) return rv_error;
-    pchr = _gameObjects.get( character );
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return rv_error;
+    pchr = _currentModule->getObjectHandler().get( character );
 
     imad = chr_get_imad( character );
     if ( !LOADED_MAD( imad ) ) return rv_fail;
@@ -547,7 +547,7 @@ void activate_alliance_file_vfs()
                                                 "empty string literal");
         }
         teamb = (buffer[0] - 'A') % Team::TEAM_MAX;
-        PMod->getTeamList()[teama].makeAlliance(PMod->getTeamList()[teamb]);
+        _currentModule->getTeamList()[teama].makeAlliance(_currentModule->getTeamList()[teamb]);
     }
 }
 
@@ -639,11 +639,8 @@ int update_game()
     check_stats();
 
     //Passage music
-    PMod->checkPassageMusic();
-#if 0
-    // count the total number of players
-    net_count_players();
-#endif
+    _currentModule->checkPassageMusic();
+
     int numdead = 0;
     int numalive = 0;
     for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -655,13 +652,13 @@ int update_game()
 
         // fix bad players
         ichr = PlaStack.lst[ipla].index;
-        if ( !_gameObjects.exists( ichr ) )
+        if ( !_currentModule->getObjectHandler().exists( ichr ) )
         {
             PlaStack.lst[ipla].index = INVALID_CHR_REF;
             PlaStack.lst[ipla].valid = false;
             continue;
         }
-        pchr = _gameObjects.get( ichr );
+        pchr = _currentModule->getObjectHandler().get( ichr );
 
         // only interested in local players
         if ( NULL == PlaStack.lst[ipla].pdevice ) continue;
@@ -710,12 +707,12 @@ int update_game()
         if ( !PlaStack.lst[ipla].valid ) continue;
 
         ichr = PlaStack.lst[ipla].index;
-        if ( !_gameObjects.exists( ichr ) ) continue;
-        pchr = _gameObjects.get( ichr );
+        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
+        pchr = _currentModule->getObjectHandler().get( ichr );
 
         if ( !pchr->alive )
         {
-            if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && local_stats.allpladead && SDL_KEYDOWN(keyb, SDLK_SPACE) && PMod->isRespawnValid() && 0 == local_stats.revivetimer)
+            if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && local_stats.allpladead && SDL_KEYDOWN(keyb, SDLK_SPACE) && _currentModule->isRespawnValid() && 0 == local_stats.revivetimer)
             {
                 respawn_character( ichr );
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
@@ -829,14 +826,14 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
     if ( !LOADED_PIP( particletype ) ) return INVALID_CHR_REF;
     ppip = PipStack.get_ptr( particletype );
 
-    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         bool target_friend, target_enemy;
 
-        if ( !pchr->alive || pchr->isitem || _gameObjects.exists( pchr->inwhich_inventory ) ) continue;
+        if ( !pchr->alive || pchr->isitem || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // prefer targeting riders over the mount itself
-        if ( pchr->isMount() && ( _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) || _gameObjects.exists( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
+        if ( pchr->isMount() && ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) || _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
 
         // ignore invictus
         if ( pchr->invictus ) continue;
@@ -849,7 +846,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
         // Don't retarget someone we already had or not supposed to target
         if ( pchr->getCharacterID() == oldtarget || pchr->getCharacterID() == donttarget ) continue;
 
-        Team &particleTeam = PMod->getTeamList()[team];
+        Team &particleTeam = _currentModule->getTeamList()[team];
 
         target_friend = ppip->onlydamagefriendly && particleTeam == pchr->getTeam();
         target_enemy  = !ppip->onlydamagefriendly && particleTeam.hatesTeam(pchr->getTeam() );
@@ -888,7 +885,7 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     // Skip non-existing objects
     if ( !ACTIVE_PCHR( psrc ) ) return false;
 
-    const std::shared_ptr<Object> &ptst = _gameObjects[iObjectest];
+    const std::shared_ptr<Object> &ptst = _currentModule->getObjectHandler()[iObjectest];
     if(!ptst) {
         return false;
     }
@@ -997,7 +994,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
 
         for ( ipla = 0; ipla < MAX_PLAYER; ipla ++ )
         {
-            if ( !PlaStack.lst[ipla].valid || !_gameObjects.exists( PlaStack.lst[ipla].index ) ) continue;
+            if ( !PlaStack.lst[ipla].valid || !_currentModule->getObjectHandler().exists( PlaStack.lst[ipla].index ) ) continue;
 
             searchList.push_back(PlaStack.lst[ipla].index);
         }
@@ -1006,7 +1003,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     //Loop through every active object
     else
     {
-        for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+        for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
         {
             if(!object->isTerminated())
             {
@@ -1029,8 +1026,8 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
         fvec3_t   diff;
         Object * ptst;
 
-        if ( !_gameObjects.exists( iObjectest ) ) continue;
-        ptst = _gameObjects.get( iObjectest );
+        if ( !_currentModule->getObjectHandler().exists( iObjectest ) ) continue;
+        ptst = _currentModule->getObjectHandler().get( iObjectest );
 
         if ( !chr_check_target( psrc, iObjectest, idsz, targeting_bits ) ) continue;
 
@@ -1057,7 +1054,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     }
 
     // make sure the target is valid
-    if ( !_gameObjects.exists( best_target ) ) best_target = INVALID_CHR_REF;
+    if ( !_currentModule->getObjectHandler().exists( best_target ) ) best_target = INVALID_CHR_REF;
 
     return best_target;
 }
@@ -1067,13 +1064,13 @@ void do_damage_tiles()
 {
     // do the damage tile stuff
 
-    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         // if the object is not really in the game, do nothing
         if ( pchr->is_hidden || !pchr->alive ) continue;
 
         // if you are being held by something, you are protected
-        if ( _gameObjects.exists( pchr->inwhich_inventory ) ) continue;
+        if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
         if ( !ego_mesh_t::grid_is_valid( PMesh, pchr->getTile() ) ) continue;
@@ -1084,7 +1081,7 @@ void do_damage_tiles()
 
         // allow reaffirming damage to things like torches, even if they are being held,
         // but make the tolerance closer so that books won't burn so easily
-        if ( !_gameObjects.exists( pchr->attachedto ) || pchr->getPosZ() < pchr->enviro.floor_level + DAMAGERAISE )
+        if ( !_currentModule->getObjectHandler().exists( pchr->attachedto ) || pchr->getPosZ() < pchr->enviro.floor_level + DAMAGERAISE )
         {
             if ( pchr->reaffirm_damagetype == damagetile.damagetype )
             {
@@ -1096,7 +1093,7 @@ void do_damage_tiles()
         }
 
         // do not do direct damage to items that are being held
-        if ( _gameObjects.exists( pchr->attachedto ) ) continue;
+        if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) ) continue;
 
         // don't do direct damage to invulnerable objects
         if ( pchr->invictus ) continue;
@@ -1143,7 +1140,7 @@ void update_pits()
             PRT_END_LOOP();
 
             // Kill or teleport any characters that fell in a pit...
-            for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
+            for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
             {
                 // Is it a valid character?
                 if ( pchr->invictus || !pchr->alive ) continue;
@@ -1192,7 +1189,7 @@ void update_pits()
 
                         // Do some damage (same as damage tile)
                         pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), Team::TEAM_DAMAGE, 
-                            _gameObjects[chr_get_pai(pchr->getCharacterID())->bumplast], DAMFX_NBLOC | DAMFX_ARMO, false);
+                            _currentModule->getObjectHandler()[chr_get_pai(pchr->getCharacterID())->bumplast], DAMFX_NBLOC | DAMFX_ARMO, false);
                     }
                 }
             }
@@ -1233,9 +1230,9 @@ void do_weather_spawn_particles()
             {
                 // Yes, but is the character valid?
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
-                if ( _gameObjects.exists( ichr ) && !_gameObjects.exists( _gameObjects.get(ichr)->inwhich_inventory ) )
+                if ( _currentModule->getObjectHandler().exists( ichr ) && !_currentModule->getObjectHandler().exists( _currentModule->getObjectHandler().get(ichr)->inwhich_inventory ) )
                 {
-                    Object * pchr = _gameObjects.get( ichr );
+                    Object * pchr = _currentModule->getObjectHandler().get( ichr );
 
                     // Yes, so spawn over that character
                     PRT_REF particle = ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
@@ -1434,7 +1431,7 @@ void set_one_player_latch( const PLA_REF ipla )
     else if ( ppla->inventory_cooldown < update_wld )
     {
         int new_selected = ppla->inventory_slot;
-        Object *pchr = _gameObjects.get( ppla->index );
+        Object *pchr = _currentModule->getObjectHandler().get( ppla->index );
 
         //dirty hack here... mouse seems to be inverted in inventory mode?
         if ( pdevice->device_type == INPUT_DEVICE_MOUSE )
@@ -1506,8 +1503,8 @@ void set_local_latches()
 
     // Let the players respawn
     if (SDL_KEYDOWN(keyb, SDLK_SPACE)
-        && (local_stats.allpladead || PMod->canRespawnAnyTime())
-        && PMod->isRespawnValid()
+        && (local_stats.allpladead || _currentModule->canRespawnAnyTime())
+        && _currentModule->isRespawnValid()
         && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard
         && !keyb.chat_mode )
     {
@@ -1598,10 +1595,10 @@ void check_stats()
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( _gameObjects.exists( PlaStack.lst[docheat].index ) )
+        if ( _currentModule->getObjectHandler().exists( PlaStack.lst[docheat].index ) )
         {
             Uint32 xpgain;
-            Object * pchr = _gameObjects.get( PlaStack.lst[docheat].index );
+            Object * pchr = _currentModule->getObjectHandler().get( PlaStack.lst[docheat].index );
             const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
             //Give 10% of XP needed for next level
@@ -1621,7 +1618,7 @@ void check_stats()
         else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
-        const std::shared_ptr<Object> &player = _gameObjects[PlaStack.lst[docheat].index];
+        const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
 
         //Apply the cheat if valid
         if (player)
@@ -1699,9 +1696,9 @@ void show_stat( int statindex )
     {
         character = StatusList.lst[statindex].who;
 
-        if ( _gameObjects.exists( character ) )
+        if ( _currentModule->getObjectHandler().exists( character ) )
         {
-            Object * pchr = _gameObjects.get( character );
+            Object * pchr = _currentModule->getObjectHandler().get( character );
 
             const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
@@ -1769,9 +1766,9 @@ void show_armor( int statindex )
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
 
     ichr = StatusList.lst[statindex].who;
-    if ( !_gameObjects.exists( ichr ) ) return;
+    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return;
 
-    pchr = _gameObjects.get( ichr );
+    pchr = _currentModule->getObjectHandler().get( ichr );
     skinlevel = pchr->skin;
 
     const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
@@ -1861,8 +1858,8 @@ void show_full_status( int statindex )
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
     character = StatusList.lst[statindex].who;
 
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
+    pchr = _currentModule->getObjectHandler().get( character );
     SKIN_T skinlevel = pchr->skin;
 
     // clean up the enchant list
@@ -1903,8 +1900,8 @@ void show_magic_status( int statindex )
 
     character = StatusList.lst[statindex].who;
 
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
+    pchr = _currentModule->getObjectHandler().get( character );
 
     // clean up the enchant list
     cleanup_character_enchants( pchr );
@@ -1942,7 +1939,7 @@ void tilt_characters_to_terrain()
 
     Uint8 twist;
 
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if ( object->isTerminated() ) continue;
 
@@ -1963,11 +1960,11 @@ void tilt_characters_to_terrain()
 //--------------------------------------------------------------------------------------------
 void import_dir_profiles_vfs( const std::string &dirname )
 {
-    if ( nullptr == PMod || dirname.empty() ) return;
+    if ( nullptr == _currentModule || dirname.empty() ) return;
 
-    if ( !PMod->isImportValid() ) return;
+    if ( !_currentModule->isImportValid() ) return;
 
-    for (int cnt = 0; cnt < PMod->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
+    for (int cnt = 0; cnt < _currentModule->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
         std::ostringstream pathFormat;
         pathFormat << dirname << "/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
@@ -2073,8 +2070,8 @@ void game_load_global_profiles()
 bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //note: intentonally copy and not reference on pchr
 {
     Object *pparent = nullptr;
-    if ( _gameObjects.exists( pinfo->parent ) ) {
-        pparent = _gameObjects.get( pinfo->parent );
+    if ( _currentModule->getObjectHandler().exists( pinfo->parent ) ) {
+        pparent = _currentModule->getObjectHandler().get( pinfo->parent );
     }
 
     pchr->money = pchr->money + pinfo->money;
@@ -2120,20 +2117,20 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
     }
 
     // automatically identify and unkurse all player starting equipment? I think yes.
-    if ( !PMod->isImportValid() && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
+    if ( !_currentModule->isImportValid() && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
     {
         Object *pitem;
         pchr->nameknown = true;
 
         //Unkurse both inhand items
-        if ( _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
+        if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
         {
-            pitem = _gameObjects.get( pchr->holdingwhich[SLOT_LEFT] );
+            pitem = _currentModule->getObjectHandler().get( pchr->holdingwhich[SLOT_LEFT] );
             pitem->iskursed = false;
         }
-        if ( _gameObjects.exists( pchr->holdingwhich[SLOT_RIGHT] ) )
+        if ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) )
         {
-            pitem = _gameObjects.get( pchr->holdingwhich[SLOT_RIGHT] );
+            pitem = _currentModule->getObjectHandler().get( pchr->holdingwhich[SLOT_RIGHT] );
             pitem->iskursed = false;
         }
 
@@ -2219,7 +2216,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     // Spawn the character
     new_object = spawn_one_character(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);
     
-    const std::shared_ptr<Object> &pobject = _gameObjects[new_object];
+    const std::shared_ptr<Object> &pobject = _currentModule->getObjectHandler()[new_object];
     if (!pobject) return false;
 
     // determine the attachment
@@ -2241,7 +2238,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     if ( psp_info->stat )
     {
         // what we do depends on what kind of module we're loading
-        if ( 0 == PMod->getImportAmount() && PlaStack.count < PMod->getPlayerAmount() )
+        if ( 0 == _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() )
         {
             // a single player module
 
@@ -2249,13 +2246,13 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[local_stats.player_count] );
 
-            if ( PMod->getImportAmount() == 0 && player_added )
+            if ( _currentModule->getImportAmount() == 0 && player_added )
             {
                 // !!!! make sure the player is identified !!!!
                 pobject->nameknown = true;
             }
         }
-        else if ( PlaStack.count < PMod->getImportAmount() && PlaStack.count < PMod->getPlayerAmount() && PlaStack.count < ImportList.count )
+        else if ( PlaStack.count < _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() && PlaStack.count < ImportList.count )
         {
             // A multiplayer module
 
@@ -2415,7 +2412,7 @@ void activate_spawn_file_vfs()
             // If nothing is already in that slot, try to load it.
             if (!ProfileSystem::get().isValidProfileID(spawnInfo.slot))
             {
-                bool import_object = spawnInfo.slot > (PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER);
+                bool import_object = spawnInfo.slot > (_currentModule->getImportAmount() * MAX_IMPORT_PER_PLAYER);
 
                 if ( !activate_spawn_file_load_object( &spawnInfo ) )
                 {
@@ -2575,7 +2572,7 @@ bool game_load_module_data( const char *smallname )
     }
 
     //Load passage.txt
-    PMod->loadAllPassages();
+    _currentModule->loadAllPassages();
 
     // start the mesh_BSP_system
     if (!mesh_BSP_system_begin(pmesh_rv))
@@ -2603,10 +2600,10 @@ void disaffirm_attached_particles( const CHR_REF character )
     }
     PRT_END_LOOP();
 
-    if ( _gameObjects.exists( character ) )
+    if ( _currentModule->getObjectHandler().exists( character ) )
     {
         // Set the alert for disaffirmation ( wet torch )
-        SET_BIT( _gameObjects.get(character)->ai.alert, ALERTIF_DISAFFIRMED );
+        SET_BIT( _currentModule->getObjectHandler().get(character)->ai.alert, ALERTIF_DISAFFIRMED );
     }
 }
 
@@ -2641,8 +2638,8 @@ int reaffirm_attached_particles( const CHR_REF character )
     PRT_REF particle;
     Object * pchr;
 
-    if ( !_gameObjects.exists( character ) ) return 0;
-    pchr = _gameObjects.get( character );
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return 0;
+    pchr = _currentModule->getObjectHandler().get( character );
 
     const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
@@ -2681,7 +2678,7 @@ void game_quit_module()
     /// @details all of the de-initialization code after the module actually ends
 
     // stop the module
-    PMod.reset(nullptr);
+    _currentModule.reset(nullptr);
 
     // get rid of the game/module data
     game_release_module_data();
@@ -2712,14 +2709,14 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     reset_all_object_lists();
 
     // start the module
-    PMod = std::unique_ptr<GameModule>(new GameModule(module, time(NULL)));
+    _currentModule = std::unique_ptr<GameModule>(new GameModule(module, time(NULL)));
 
     // load all the in-game module data
     if ( !game_load_module_data( module->getPath().c_str() ) )
     {    
         // release any data that might have been allocated
         game_release_module_data();
-        PMod.reset(nullptr);
+        _currentModule.reset(nullptr);
         return false;
     };
 
@@ -2756,7 +2753,7 @@ bool game_finish_module()
     ///    and also copies them into the imports dir to prepare for the next module
 
     // save the players and their inventories to their original directory
-    if ( PMod->isExportValid() )
+    if ( _currentModule->isExportValid() )
     {
         // export the players
         export_all_players( false );
@@ -2816,8 +2813,8 @@ bool attach_one_particle( prt_bundle_t * pbdl_prt )
     if ( NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr ) return false;
     pprt = pbdl_prt->_prt_ptr;
 
-    if ( !_gameObjects.exists( pbdl_prt->_prt_ptr->attachedto_ref ) ) return false;
-    pchr = _gameObjects.get( pbdl_prt->_prt_ptr->attachedto_ref );
+    if ( !_currentModule->getObjectHandler().exists( pbdl_prt->_prt_ptr->attachedto_ref ) ) return false;
+    pchr = _currentModule->getObjectHandler().get( pbdl_prt->_prt_ptr->attachedto_ref );
 
     pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
     if ( NULL == pprt ) return false;
@@ -2867,8 +2864,8 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
     // re-construct the players
     pla_reinit( ppla );
 
-    if ( !_gameObjects.exists( character ) ) return false;
-    pchr = _gameObjects.get( character );
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return false;
+    pchr = _currentModule->getObjectHandler().get( character );
 
     // set the reference to the player
     pchr->is_which_player = player;
@@ -2909,7 +2906,7 @@ void let_all_characters_think()
 
     blip_count = 0;
 
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if(object->isTerminated()) {
             continue;
@@ -2922,7 +2919,7 @@ void let_all_characters_think()
         is_crushed   = HAS_SOME_BITS( object->ai.alert, ALERTIF_CRUSHED );
 
         // let the script run sometimes even if the item is in your backpack
-        can_think = !_gameObjects.exists( object->inwhich_inventory ) || object->getProfile()->isEquipment();
+        can_think = !_currentModule->getObjectHandler().exists( object->inwhich_inventory ) || object->getProfile()->isEquipment();
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
         if (( object->alive && can_think ) || is_crushed || is_cleanedup )
@@ -2956,7 +2953,6 @@ void free_all_objects()
 void reset_all_object_lists()
 {
     ParticleHandler::get().reinit();
-    _gameObjects.clear();
     EnchantHandler::get().reinit();
 }
 
@@ -3034,11 +3030,11 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     Object      * pchr, *ptarget, *powner;
     ai_state_t * pai;
 
-    pchr    = !_gameObjects.exists( ichr ) ? NULL : _gameObjects.get( ichr );
+    pchr    = !_currentModule->getObjectHandler().exists( ichr ) ? NULL : _currentModule->getObjectHandler().get( ichr );
     pai     = ( NULL == pchr )    ? NULL : &( pchr->ai );
 
-    ptarget = (( NULL == pai ) || !_gameObjects.exists( pai->target ) ) ? pchr : _gameObjects.get( pai->target );
-    powner  = (( NULL == pai ) || !_gameObjects.exists( pai->owner ) ) ? pchr : _gameObjects.get( pai->owner );
+    ptarget = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->target ) ) ? pchr : _currentModule->getObjectHandler().get( pai->target );
+    powner  = (( NULL == pai ) || !_currentModule->getObjectHandler().exists( pai->owner ) ) ? pchr : _currentModule->getObjectHandler().get( pai->owner );
 
     cnt = 0;
     while ( CSTR_END != *src && src < src_end && dst < dst_end )
@@ -3087,7 +3083,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pai )
                         {
-                            const std::shared_ptr<Object> &target = _gameObjects[pai->target];
+                            const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pai->target];
                             if(target)
                             {
                                 strncpy(szTmp, target->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
@@ -3098,7 +3094,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 
                 case 'o':  // Owner name
                     {
-                        const std::shared_ptr<Object> &owner = _gameObjects[pai->owner];
+                        const std::shared_ptr<Object> &owner = _currentModule->getObjectHandler()[pai->owner];
                         if(owner)
                         {
                             strncpy(szTmp, owner->getName(true, false, false).c_str(), SDL_arraysize(szTmp));
@@ -3786,22 +3782,22 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     Object * pdropper, * pitem;
     bool inshop;
 
-    if ( !_gameObjects.exists( iitem ) ) return false;
-    pitem = _gameObjects.get( iitem );
+    if ( !_currentModule->getObjectHandler().exists( iitem ) ) return false;
+    pitem = _currentModule->getObjectHandler().get( iitem );
 
-    if ( !_gameObjects.exists( idropper ) ) return false;
-    pdropper = _gameObjects.get( idropper );
+    if ( !_currentModule->getObjectHandler().exists( idropper ) ) return false;
+    pdropper = _currentModule->getObjectHandler().get( idropper );
 
     inshop = false;
     if ( pitem->isitem )
     {
         CHR_REF iowner;
 
-        iowner = PMod->getShopOwner(pitem->getPosX(), pitem->getPosY());
-        if ( _gameObjects.exists( iowner ) )
+        iowner = _currentModule->getShopOwner(pitem->getPosX(), pitem->getPosY());
+        if ( _currentModule->getObjectHandler().exists( iowner ) )
         {
             int price;
-            Object * powner = _gameObjects.get( iowner );
+            Object * powner = _currentModule->getObjectHandler().get( iowner );
 
             inshop = true;
 
@@ -3836,11 +3832,11 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
 
     Object * ppicker, * pitem;
 
-    if ( !_gameObjects.exists( iitem ) ) return false;
-    pitem = _gameObjects.get( iitem );
+    if ( !_currentModule->getObjectHandler().exists( iitem ) ) return false;
+    pitem = _currentModule->getObjectHandler().get( iitem );
 
-    if ( !_gameObjects.exists( ipicker ) ) return false;
-    ppicker = _gameObjects.get( ipicker );
+    if ( !_currentModule->getObjectHandler().exists( ipicker ) ) return false;
+    ppicker = _currentModule->getObjectHandler().get( ipicker );
 
     can_grab = true;
     can_pay  = true;
@@ -3850,10 +3846,10 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = PMod->getShopOwner( pitem->getPosX(), pitem->getPosY() );
-        if ( _gameObjects.exists( iowner ) )
+        iowner = _currentModule->getShopOwner( pitem->getPosX(), pitem->getPosY() );
+        if ( _currentModule->getObjectHandler().exists( iowner ) )
         {
-            Object * powner = _gameObjects.get( iowner );
+            Object * powner = _currentModule->getObjectHandler().get( iowner );
 
             in_shop = true;
             price   = pitem->getPrice();
@@ -3913,12 +3909,12 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 
     bool can_steal;
 
-    std::shared_ptr<Object> pitem = _gameObjects[iitem];
+    std::shared_ptr<Object> pitem = _currentModule->getObjectHandler()[iitem];
     if(!pitem) {
         return false;
     }
 
-    std::shared_ptr<Object> pthief = _gameObjects[ithief];
+    std::shared_ptr<Object> pthief = _currentModule->getObjectHandler()[ithief];
     if(!pthief) {
       return false;  
     }
@@ -3928,12 +3924,12 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = PMod->getShopOwner( pitem->getPosX(), pitem->getPosY() );
-        if ( _gameObjects.exists( iowner ) )
+        iowner = _currentModule->getShopOwner( pitem->getPosX(), pitem->getPosY() );
+        if ( _currentModule->getObjectHandler().exists( iowner ) )
         {
             IPair  tmp_rand(1, 100);
             int  detection;
-            Object * powner = _gameObjects.get( iowner );
+            Object * powner = _currentModule->getObjectHandler().get( iowner );
 
             detection = generate_irand_pair( tmp_rand );
 
@@ -3958,12 +3954,12 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     Object *pkeeper;
     CHR_REF shop_keeper;
 
-    const std::shared_ptr<Object> &pchr = _gameObjects[ichr];
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[ichr];
     if(!pchr) {
         return false;
     }
 
-    Object *pitem = _gameObjects.get( iitem );
+    Object *pitem = _currentModule->getObjectHandler().get( iitem );
     if(!pitem) {
         return false;
     }
@@ -3972,8 +3968,8 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     can_grab = true;
 
     // check if we are doing this inside a shop
-    shop_keeper = PMod->getShopOwner(pitem->getPosX(), pitem->getPosY());
-    pkeeper = _gameObjects.get( shop_keeper );
+    shop_keeper = _currentModule->getShopOwner(pitem->getPosX(), pitem->getPosY());
+    pkeeper = _currentModule->getObjectHandler().get( shop_keeper );
     if ( INGAME_PCHR( pkeeper ) )
     {
         // check for a stealthy pickup
@@ -4148,8 +4144,8 @@ void disenchant_character( const CHR_REF cnt )
     Object * pchr;
     size_t ienc_count;
 
-    if ( !_gameObjects.exists( cnt ) ) return;
-    pchr = _gameObjects.get( cnt );
+    if ( !_currentModule->getObjectHandler().exists( cnt ) ) return;
+    pchr = _currentModule->getObjectHandler().get( cnt );
 
     ienc_count = 0;
     while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < ENCHANTS_MAX ) )
@@ -4257,9 +4253,9 @@ bool detach_character_from_platform( Object * pchr )
     old_level        = pchr->enviro.level;
     old_platform_ptr = NULL;
     old_zlerp        = pchr->enviro.zlerp;
-    if ( _gameObjects.exists( old_platform_ref ) )
+    if ( _currentModule->getObjectHandler().exists( old_platform_ref ) )
     {
-        old_platform_ptr = _gameObjects.get( old_platform_ref );
+        old_platform_ptr = _currentModule->getObjectHandler().get( old_platform_ref );
     }
 
     // undo the attachment
@@ -4331,7 +4327,7 @@ bool detach_particle_from_platform( prt_t * pprt )
     bdl_prt.set(pprt);
 
     // check if they can be connected
-    if ( _gameObjects.exists( pprt->onwhichplatform_ref ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( pprt->onwhichplatform_ref ) ) return false;
 
     // undo the attachment
     pprt->onwhichplatform_ref    = INVALID_CHR_REF;
@@ -4468,8 +4464,8 @@ egolib_rv import_list_from_players( import_list_t * imp_lst )
         player_ptr = PlaStack.get_ptr( player_idx );
 
         ichr = player_ptr->index;
-        if ( !_gameObjects.exists( ichr ) ) continue;
-        pchr = _gameObjects.get( ichr );
+        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
+        pchr = _currentModule->getObjectHandler().get( ichr );
 
         is_local = ( NULL != player_ptr->pdevice );
 

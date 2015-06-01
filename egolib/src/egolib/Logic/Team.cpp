@@ -24,8 +24,8 @@
  */
 
 #include "Team.hpp"
-#include "game/Entities/_include.hpp"
-#include "game/Module/Module.hpp" //TODO: remove
+#include "game/Entities/_Include.hpp"
+#include "game/Module/Module.hpp"
 
 Team::Team(const uint8_t teamID) :
     _teamID(teamID),
@@ -50,7 +50,7 @@ Team::Team(const uint8_t teamID) :
 
 void Team::giveTeamExperience(const int amount, const XPType xptype) const
 {
-    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &chr : _currentModule->getObjectHandler().iterator())
     {
         if ( chr->getTeam()._teamID == _teamID )
         {
@@ -79,7 +79,7 @@ void Team::callForHelp(const std::shared_ptr<Object> &caller)
     _sissy = caller;
 
     //Notify all other characters who are friendly that this character has called for help
-    for(const std::shared_ptr<Object> &chr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &chr : _currentModule->getObjectHandler().iterator())
     {
         if ( chr != caller && !chr->getTeam().hatesTeam(caller->getTeam()) )
         {

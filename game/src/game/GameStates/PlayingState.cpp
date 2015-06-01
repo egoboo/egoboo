@@ -42,13 +42,13 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
     {
         std::shared_ptr<InternalDebugWindow> debugWindow = std::make_shared<InternalDebugWindow>("CurrentModule");
-        debugWindow->addWatchVariable("Passages", []{return std::to_string(PMod->getPassageCount());} );
-        debugWindow->addWatchVariable("ExportValid", []{return PMod->isExportValid() ? "true" : "false";} );
-        debugWindow->addWatchVariable("ModuleBeaten", []{return PMod->isBeaten() ? "true" : "false";} );
-        debugWindow->addWatchVariable("Players", []{return std::to_string(PMod->getPlayerAmount());} );
-        debugWindow->addWatchVariable("Imports", []{return std::to_string(PMod->getImportAmount());} );
-        debugWindow->addWatchVariable("Name", []{return PMod->getName();} );
-        debugWindow->addWatchVariable("Path", []{return PMod->getPath();} );
+        debugWindow->addWatchVariable("Passages", []{return std::to_string(_currentModule->getPassageCount());} );
+        debugWindow->addWatchVariable("ExportValid", []{return _currentModule->isExportValid() ? "true" : "false";} );
+        debugWindow->addWatchVariable("ModuleBeaten", []{return _currentModule->isBeaten() ? "true" : "false";} );
+        debugWindow->addWatchVariable("Players", []{return std::to_string(_currentModule->getPlayerAmount());} );
+        debugWindow->addWatchVariable("Imports", []{return std::to_string(_currentModule->getImportAmount());} );
+        debugWindow->addWatchVariable("Name", []{return _currentModule->getName();} );
+        debugWindow->addWatchVariable("Path", []{return _currentModule->getPath();} );
         addComponent(debugWindow);        
     }
 }
@@ -56,7 +56,7 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
 PlayingState::~PlayingState()
 {
     //Check for player exports
-    if ( PMod && PMod->isExportValid() )
+    if ( _currentModule && _currentModule->isExportValid() )
     {
         // export the players
         export_all_players(false);
@@ -104,7 +104,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
         case SDLK_ESCAPE:
 
             //If we have won show the Victory Screen
-            if(PMod->isBeaten()) {
+            if(_currentModule->isBeaten()) {
                 _gameEngine->pushGameState(std::make_shared<VictoryScreen>(this));
             }
 
@@ -118,7 +118,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
         case SDLK_F9:
             if (egoboo_config_t::get().debug_developerMode_enable.getValue())
             {
-                for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+                for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
                 {
                     if(object->isTerminated() || object->getProfile()->isInvincible()) {
                         continue;

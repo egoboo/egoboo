@@ -243,12 +243,12 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
 
     // Target must both be alive and on and valid
     loc_target = target;
-    if (!_gameObjects.exists(loc_target))
+    if (!_currentModule->getObjectHandler().exists(loc_target))
     {
         log_warning("spawn_one_enchant() - failed because the target does not exist.\n");
         return INVALID_ENC_REF;
     }
-    ptarget = _gameObjects.get(loc_target);
+    ptarget = _currentModule->getObjectHandler().get(loc_target);
 
     // you should be able to enchant dead stuff to raise the dead...
     // if( !ptarget->alive ) return INVALID_ENC_REF;
@@ -261,11 +261,11 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     else
     {
         // The enchantment type is given by the spawner
-        loc_profile = _gameObjects[spawner]->profile_ref;
+        loc_profile = _currentModule->getObjectHandler()[spawner]->profile_ref;
 
         if (!ProfileSystem::get().isValidProfileID(loc_profile))
         {
-            log_warning("spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", _gameObjects.get(spawner)->Name, REF_TO_INT(spawner));
+            log_warning("spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", _currentModule->getObjectHandler().get(spawner)->Name, REF_TO_INT(spawner));
             return INVALID_ENC_REF;
         }
     }
@@ -283,7 +283,7 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     peve->_spawnRequestCount++;
 
     // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
-    if (!peve->_owner._stay && (!_gameObjects.exists(owner) || !_gameObjects.get(owner)->alive))
+    if (!peve->_owner._stay && (!_currentModule->getObjectHandler().exists(owner) || !_currentModule->getObjectHandler().get(owner)->alive))
     {
         log_warning("spawn_one_enchant() - failed because the required enchant owner cannot be found.\n");
         return INVALID_ENC_REF;
@@ -294,12 +294,12 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     if (peve->retarget)
     {
         // Left, right, or both are valid
-        if (_gameObjects.exists(ptarget->holdingwhich[SLOT_LEFT]))
+        if (_currentModule->getObjectHandler().exists(ptarget->holdingwhich[SLOT_LEFT]))
         {
             // Only right hand is valid
             loc_target = ptarget->holdingwhich[SLOT_RIGHT];
         }
-        else if (_gameObjects.exists(ptarget->holdingwhich[SLOT_LEFT]))
+        else if (_currentModule->getObjectHandler().exists(ptarget->holdingwhich[SLOT_LEFT]))
         {
             // Pick left hand
             loc_target = ptarget->holdingwhich[SLOT_LEFT];
@@ -317,7 +317,7 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
         log_warning("spawn_one_enchant() - failed because the target is not alive.\n");
         return INVALID_ENC_REF;
     }
-    ptarget = _gameObjects.get(loc_target);
+    ptarget = _currentModule->getObjectHandler().get(loc_target);
 
     // Check peve->required_damagetype, 90% damage resistance is enough to resist the enchant
     if (peve->required_damagetype < DAMAGE_COUNT)

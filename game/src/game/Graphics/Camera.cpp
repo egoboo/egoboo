@@ -355,8 +355,8 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
 
 	        for(CHR_REF ichr : _trackList)
 	        {
-	            if (!_gameObjects.exists(ichr)) continue;
-	            Object *pchr = _gameObjects.get(ichr);
+	            if (!_currentModule->getObjectHandler().exists(ichr)) continue;
+	            Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
 	            if (!pchr->alive) continue;
 
@@ -385,8 +385,8 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
 	        local_chr_count = 0;
 	        for(CHR_REF ichr : _trackList)
 	        {
-	            if (!_gameObjects.exists(ichr)) continue;
-	            Object *pchr = _gameObjects.get(ichr);
+	            if (!_currentModule->getObjectHandler().exists(ichr)) continue;
+	            Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
 	            if (!pchr->alive) continue;
 
@@ -474,7 +474,7 @@ std::forward_list<CHR_REF> Camera::createTrackList()
     {
         // Add any valid player object.
         player_t *ppla = PlaStack_get_ptr(ipla);
-        if (!ppla->valid || !_gameObjects.exists(ppla->index))
+        if (!ppla->valid || !_currentModule->getObjectHandler().exists(ppla->index))
         {
             continue;
         }

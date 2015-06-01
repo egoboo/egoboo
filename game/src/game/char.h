@@ -224,8 +224,8 @@ void cleanup_one_character( Object * pchr );
 //--------------------------------------------------------------------------------------------
 // list definitions
 //--------------------------------------------------------------------------------------------
-#define IS_ATTACHED_CHR_RAW(ICHR) ( (_gameObjects.exists(_gameObjects.get(ICHR)->attachedto) || _gameObjects.exists(_gameObjects.get(ICHR)->inwhich_inventory)) )
-#define IS_ATTACHED_CHR(ICHR) LAMBDA( !_gameObjects.exists(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
+#define IS_ATTACHED_CHR_RAW(ICHR) ( (_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ICHR)->attachedto) || _currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ICHR)->inwhich_inventory)) )
+#define IS_ATTACHED_CHR(ICHR) LAMBDA( !_currentModule->getObjectHandler().exists(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;

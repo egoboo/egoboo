@@ -347,7 +347,7 @@ void CameraSystem::autoSetTargets()
 
             // get a pointer, if allowed
             if ( !VALID_CHR_RANGE( blah ) ) continue;
-            Object *pchr = _gameObjects.get( blah );
+            Object *pchr = _currentModule->getObjectHandler().get( blah );
 
             // ignore local players
             if ( pchr->islocalplayer ) continue;

@@ -521,7 +521,7 @@ bool get_prt_mass( prt_t * pprt, Object * pchr, float * wt )
     {
         *wt = -( float )CHR_INFINITE_WEIGHT;
     }
-    else if ( _gameObjects.exists( pprt->attachedto_ref ) )
+    else if ( _currentModule->getObjectHandler().exists( pprt->attachedto_ref ) )
     {
         if ( CHR_INFINITE_WEIGHT == pprt->phys.weight || 0.0f == pprt->phys.bumpdampen )
         {
@@ -627,12 +627,12 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
     if ( ichr_a == ichr_b ) return false;
 
     // Ignore invalid characters
-    if ( !_gameObjects.exists( ichr_a ) ) return false;
-    pchr_a = _gameObjects.get( ichr_a );
+    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
+    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
 
     // Ignore invalid characters
-    if ( !_gameObjects.exists( ichr_b ) ) return false;
-    pchr_b = _gameObjects.get( ichr_b );
+    if ( !_currentModule->getObjectHandler().exists( ichr_b ) ) return false;
+    pchr_b = _currentModule->getObjectHandler().get( ichr_b );
 
     // "non-interacting" objects interact with platforms
     if (( 0 == pchr_a->bump.size && !pchr_b->platform ) ||
@@ -659,7 +659,7 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 {
     prt_t * pprt_b;
 
-    const std::shared_ptr<Object> &pchr_a = _gameObjects[ichr_a];
+    const std::shared_ptr<Object> &pchr_a = _currentModule->getObjectHandler()[ichr_a];
 
     // Ignore invalid characters
     if ( !pchr_a ) return false;
@@ -705,12 +705,12 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
     //---- find the character/particle interactions
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
-    for(const std::shared_ptr<Object> &pchr_a : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr_a : _currentModule->getObjectHandler().iterator())
     {
         oct_bb_t   tmp_oct;
 
         // ignore in-accessible objects
-        if ( _gameObjects.exists( pchr_a->inwhich_inventory ) || pchr_a->is_hidden ) continue;
+        if ( _currentModule->getObjectHandler().exists( pchr_a->inwhich_inventory ) || pchr_a->is_hidden ) continue;
 
         // keep track of how many objects use reaffirmation, and what kinds of reaffirmation
         if ( pchr_a->reaffirm_damagetype < DAMAGE_COUNT )
@@ -761,7 +761,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     // do some logic on this to determine whether the collision is valid
                     if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), ichr_b ) )
                     {
-                        Object * pchr_b = _gameObjects.get( ichr_b );
+                        Object * pchr_b = _currentModule->getObjectHandler().get( ichr_b );
 
                         CoNode_t::ctor( &tmp_codata );
 
@@ -908,7 +908,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                     bool loc_needs_bump    = needs_bump;
                     bool interaction_valid = false;
 
-                    Object * pchr_a = _gameObjects.get( ichr_a );
+                    Object * pchr_a = _currentModule->getObjectHandler().get( ichr_a );
 
                     // can this particle affect the character through reaffirmation
                     if ( loc_reaffirms )
@@ -1064,15 +1064,15 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool chara_on_top;
 
     // make sure that A is valid
-    if ( !_gameObjects.exists( ichr_a ) ) return false;
-    pchr_a = _gameObjects.get( ichr_a );
+    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
+    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
 
     // make sure that B is valid
-    if ( !_gameObjects.exists( ichr_b ) ) return false;
-    pchr_b = _gameObjects.get( ichr_b );
+    if ( !_currentModule->getObjectHandler().exists( ichr_b ) ) return false;
+    pchr_b = _currentModule->getObjectHandler().get( ichr_b );
 
     // if you are mounted, only your mount is affected by platforms
-    if ( _gameObjects.exists( pchr_a->attachedto ) || _gameObjects.exists( pchr_b->attachedto ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( pchr_a->attachedto ) || _currentModule->getObjectHandler().exists( pchr_b->attachedto ) ) return false;
 
     // only check possible object-platform interactions
     platform_a = TO_C_BOOL( pchr_b->canuseplatforms && pchr_a->platform );
@@ -1238,15 +1238,15 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     bool collide_z  = false;
 
     // make sure that A is valid
-    if ( !_gameObjects.exists( ichr_a ) ) return false;
-    pchr_a = _gameObjects.get( ichr_a );
+    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
+    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
 
     // make sure that B is valid
     if ( !INGAME_PRT( iprt_b ) ) return false;
     pprt_b = ParticleHandler::get().get_ptr( iprt_b );
 
     // if you are mounted, only your mount is affected by platforms
-    if ( _gameObjects.exists( pchr_a->attachedto ) || _gameObjects.exists( pprt_b->attachedto_ref ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( pchr_a->attachedto ) || _currentModule->getObjectHandler().exists( pprt_b->attachedto_ref ) ) return false;
 
     // only check possible object-platform interactions
     platform_a = /* pprt_b->canuseplatforms && */ pchr_a->platform;
@@ -1419,36 +1419,36 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         if ( INVALID_CHR_REF != d->chra && INVALID_CHR_REF != d->chrb )
         {
-            if ( _gameObjects.exists( d->chra ) && _gameObjects.exists( d->chrb ) )
+            if ( _currentModule->getObjectHandler().exists( d->chra ) && _currentModule->getObjectHandler().exists( d->chrb ) )
             {
-                if ( _gameObjects.get(d->chra)->targetplatform_ref == d->chrb )
+                if ( _currentModule->getObjectHandler().get(d->chra)->targetplatform_ref == d->chrb )
                 {
-                    attach_Objecto_platform( _gameObjects.get( d->chra ), _gameObjects.get( d->chrb ) );
+                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d->chra ), _currentModule->getObjectHandler().get( d->chrb ) );
                 }
-                else if ( _gameObjects.get(d->chrb)->targetplatform_ref == d->chra )
+                else if ( _currentModule->getObjectHandler().get(d->chrb)->targetplatform_ref == d->chra )
                 {
-                    attach_Objecto_platform( _gameObjects.get( d->chrb ), _gameObjects.get( d->chra ) );
+                    attach_Objecto_platform( _currentModule->getObjectHandler().get( d->chrb ), _currentModule->getObjectHandler().get( d->chra ) );
                 }
 
             }
         }
         else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
         {
-            if ( _gameObjects.exists( d->chra ) && INGAME_PRT( d->prtb ) )
+            if ( _currentModule->getObjectHandler().exists( d->chra ) && INGAME_PRT( d->prtb ) )
             {
                 if ( ParticleHandler::get().get_ptr(d->prtb)->targetplatform_ref == d->chra )
                 {
-                    attach_prt_to_platform( ParticleHandler::get().get_ptr( d->prtb ), _gameObjects.get( d->chra ) );
+                    attach_prt_to_platform( ParticleHandler::get().get_ptr( d->prtb ), _currentModule->getObjectHandler().get( d->chra ) );
                 }
             }
         }
         else if ( INVALID_CHR_REF != d->chrb && INVALID_PRT_REF != d->prta )
         {
-            if ( _gameObjects.exists( d->chrb ) && INGAME_PRT( d->prta ) )
+            if ( _currentModule->getObjectHandler().exists( d->chrb ) && INGAME_PRT( d->prta ) )
             {
                 if ( ParticleHandler::get().get_ptr(d->prta)->targetplatform_ref == d->chrb )
                 {
-                    attach_prt_to_platform(ParticleHandler::get().get_ptr(d->prta), _gameObjects.get(d->chrb));
+                    attach_prt_to_platform(ParticleHandler::get().get_ptr(d->prta), _currentModule->getObjectHandler().get(d->chrb));
                 }
             }
         }
@@ -1458,9 +1458,9 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
     // attach_prt_to_platform() erases targetplatform_ref, so any character with
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
-        if ( object->onwhichplatform_update < update_wld && _gameObjects.exists(object->onwhichplatform_ref) )
+        if ( object->onwhichplatform_update < update_wld && _currentModule->getObjectHandler().exists(object->onwhichplatform_ref) )
         {
             detach_character_from_platform( object.get() );
         }
@@ -1509,7 +1509,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     ///               for the mounts and platforms found in the previous steps)
 
     // blank the accumulators
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         phys_data_clear( &( object->phys ) );
     }
@@ -1539,7 +1539,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     }
 
     // accumulate the accumulators
-    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         float tmpx, tmpy, tmpz;
         float bump_str;
@@ -1551,7 +1551,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         tmp_pos = pchr->getPosition();
 
         bump_str = 1.0f;
-        if ( _gameObjects.exists( pchr->attachedto ) )
+        if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
         {
             bump_str = 0.0f;
         }
@@ -1652,7 +1652,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         fvec3_t tmp_pos = bdl._prt_ptr->getPosition();
 
         bump_str = 1.0f;
-        if ( _gameObjects.exists( bdl._prt_ptr->attachedto_ref ) )
+        if ( _currentModule->getObjectHandler().exists( bdl._prt_ptr->attachedto_ref ) )
         {
             bump_str = 0.0f;
         }
@@ -1758,7 +1758,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     PRT_END_LOOP();
 
     // blank the accumulators
-    for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         phys_data_clear( &( pchr->phys ) );
     }
@@ -1783,13 +1783,13 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool handled = false;
 
     // make sure that A is valid
-    const std::shared_ptr<Object> &pchr_a = _gameObjects[ichr_a];
+    const std::shared_ptr<Object> &pchr_a = _currentModule->getObjectHandler()[ichr_a];
     if(!pchr_a) {
         return false;
     }
 
     // make sure that B is valid
-    const std::shared_ptr<Object> &pchr_b = _gameObjects[ichr_b];
+    const std::shared_ptr<Object> &pchr_b = _currentModule->getObjectHandler()[ichr_b];
     if(!pchr_b) {
         return false;
     }
@@ -1839,7 +1839,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
                 if ( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
                 {
-                    mounted = _gameObjects.exists( pchr_a->attachedto );
+                    mounted = _currentModule->getObjectHandler().exists( pchr_a->attachedto );
                 }
             }
         }
@@ -1876,7 +1876,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
                 if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
                 {
-                    mounted = _gameObjects.exists( pchr_b->attachedto );
+                    mounted = _currentModule->getObjectHandler().exists( pchr_b->attachedto );
                 }
             }
         }
@@ -2047,18 +2047,18 @@ bool do_chr_chr_collision( CoNode_t * d )
     ichr_b = d->chrb;
 
     // make sure that it is on
-    if ( !_gameObjects.exists( ichr_a ) ) return false;
-    pchr_a = _gameObjects.get( ichr_a );
+    if ( !_currentModule->getObjectHandler().exists( ichr_a ) ) return false;
+    pchr_a = _currentModule->getObjectHandler().get( ichr_a );
 
     // make sure that it is on
-    if ( !_gameObjects.exists( ichr_b ) ) return false;
-    pchr_b = _gameObjects.get( ichr_b );
+    if ( !_currentModule->getObjectHandler().exists( ichr_b ) ) return false;
+    pchr_b = _currentModule->getObjectHandler().get( ichr_b );
 
     // skip objects that are inside inventories
-    if ( _gameObjects.exists( pchr_a->inwhich_inventory ) || _gameObjects.exists( pchr_b->inwhich_inventory ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( pchr_a->inwhich_inventory ) || _currentModule->getObjectHandler().exists( pchr_b->inwhich_inventory ) ) return false;
 
     // skip all objects that are mounted or attached to something
-    if ( _gameObjects.exists( pchr_a->attachedto ) || _gameObjects.exists( pchr_b->attachedto ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( pchr_a->attachedto ) || _currentModule->getObjectHandler().exists( pchr_b->attachedto ) ) return false;
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
@@ -2520,7 +2520,7 @@ bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
     if ( !pdata->pchr->platform ) return false;
 
     // can the particle interact with it?
-    if ( _gameObjects.exists( pdata->pprt->attachedto_ref ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( pdata->pprt->attachedto_ref ) ) return false;
 
     // this is handled elsewhere
     if ( GET_INDEX_PCHR( pdata->pchr ) == pdata->pprt->onwhichplatform_ref ) return false;
@@ -2680,7 +2680,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
                 if ( !using_shield )
                 {
                     item = pdata->pchr->holdingwhich[SLOT_RIGHT];
-                    if ( _gameObjects.exists( item ) && pdata->pchr->ai.lastitemused == item )
+                    if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
                     {
                         using_shield = true;
                     }
@@ -2690,19 +2690,19 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
                 if ( !using_shield )
                 {
                     item = pdata->pchr->holdingwhich[SLOT_LEFT];
-                    if ( _gameObjects.exists( item ) && pdata->pchr->ai.lastitemused == item )
+                    if ( _currentModule->getObjectHandler().exists( item ) && pdata->pchr->ai.lastitemused == item )
                     {
                         using_shield = true;
                     }
                 }
 
                 // Now we have the block rating and know the enemy
-                if ( _gameObjects.exists( pdata->pprt->owner_ref ) && using_shield )
+                if ( _currentModule->getObjectHandler().exists( pdata->pprt->owner_ref ) && using_shield )
                 {
                     int   total_block_rating;
 
-                    Object *pshield   = _gameObjects.get( item );
-                    Object *pattacker = _gameObjects.get( pdata->pprt->owner_ref );
+                    Object *pshield   = _currentModule->getObjectHandler().get( item );
+                    Object *pattacker = _currentModule->getObjectHandler().get( pdata->pprt->owner_ref );
 
                     // use the character block skill plus the base block rating of the shield and adjust for strength
                     total_block_rating = chr_get_skill( pdata->pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
@@ -2802,26 +2802,26 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
 
     // if the particle is attached to a weapon, the particle can force the
     // weapon (actually, the weapon's holder) to rebound.
-    if ( _gameObjects.exists( pdata->pprt->attachedto_ref ) )
+    if ( _currentModule->getObjectHandler().exists( pdata->pprt->attachedto_ref ) )
     {
         // get the attached mass
-        Object *pattached = _gameObjects.get( pdata->pprt->attachedto_ref );
+        Object *pattached = _currentModule->getObjectHandler().get( pdata->pprt->attachedto_ref );
 
         // assume the worst
         Object *pholder = NULL;
 
         // who is holding the weapon?
         CHR_REF iholder = chr_get_lowest_attachment(pdata->pprt->attachedto_ref, false);
-        if ( _gameObjects.exists( iholder ) )
+        if ( _currentModule->getObjectHandler().exists( iholder ) )
         {
-            pholder = _gameObjects.get( iholder );
+            pholder = _currentModule->getObjectHandler().get( iholder );
         }
         else
         {
             iholder = chr_get_lowest_attachment( pdata->pprt->owner_ref, false );
-            if ( _gameObjects.exists( iholder ) )
+            if ( _currentModule->getObjectHandler().exists( iholder ) )
             {
-                pholder = _gameObjects.get( iholder );
+                pholder = _currentModule->getObjectHandler().get( iholder );
             }
         }
 
@@ -2884,9 +2884,9 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
     if ( NULL == pdata ) return false;
 
-    if ( _gameObjects.exists( pdata->pprt->owner_ref ) )
+    if ( _currentModule->getObjectHandler().exists( pdata->pprt->owner_ref ) )
     {
-        powner = _gameObjects.get( pdata->pprt->owner_ref );
+        powner = _currentModule->getObjectHandler().get( pdata->pprt->owner_ref );
     }
 
     // clean up the enchant list before doing anything
@@ -2965,7 +2965,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     if ( 0 != std::abs( pdata->pprt->damage.base ) + std::abs( pdata->pprt->damage.rand ) )
     {
 
-        prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || _gameObjects.exists( pdata->pprt->attachedto_ref ) );
+        prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || _currentModule->getObjectHandler().exists( pdata->pprt->attachedto_ref ) );
 
         if(powner != nullptr) {
             const std::shared_ptr<ObjectProfile> &ownerProfile = ProfileSystem::get().getProfile(powner->profile_ref);
@@ -3013,17 +3013,17 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
                 // Tell the weapons who the attacker hit last
                 item = powner->holdingwhich[SLOT_LEFT];
-                if ( _gameObjects.exists( item ) )
+                if ( _currentModule->getObjectHandler().exists( item ) )
                 {
-                    _gameObjects.get(item)->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
-                    if ( powner->ai.lastitemused == item ) SET_BIT( _gameObjects.get(item)->ai.alert, ALERTIF_SCOREDAHIT );
+                    _currentModule->getObjectHandler().get(item)->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
+                    if ( powner->ai.lastitemused == item ) SET_BIT( _currentModule->getObjectHandler().get(item)->ai.alert, ALERTIF_SCOREDAHIT );
                 }
 
                 item = powner->holdingwhich[SLOT_RIGHT];
-                if ( _gameObjects.exists( item ) )
+                if ( _currentModule->getObjectHandler().exists( item ) )
                 {
-                    _gameObjects.get(item)->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
-                    if ( powner->ai.lastitemused == item ) SET_BIT( _gameObjects.get(item)->ai.alert, ALERTIF_SCOREDAHIT );
+                    _currentModule->getObjectHandler().get(item)->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
+                    if ( powner->ai.lastitemused == item ) SET_BIT( _currentModule->getObjectHandler().get(item)->ai.alert, ALERTIF_SCOREDAHIT );
                 }
             }
 
@@ -3039,7 +3039,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
             // Damage the character
             pdata->actual_damage = pdata->pchr->damage(direction, loc_damage, pdata->pprt->damagetype, 
-                pdata->pprt->team, _gameObjects[pdata->pprt->owner_ref], pdata->ppip->damfx, false);
+                pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], pdata->ppip->damfx, false);
         }
     }
 
@@ -3135,13 +3135,13 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     {
         // no simple owner relationship. Check for something deeper.
         CHR_REF prt_owner = prt_get_iowner( GET_REF_PPRT( pdata->pprt ), 0 );
-        if ( _gameObjects.exists( prt_owner ) )
+        if ( _currentModule->getObjectHandler().exists( prt_owner ) )
         {
             CHR_REF chr_wielder = chr_get_lowest_attachment( GET_INDEX_PCHR( pdata->pchr ), true );
             CHR_REF prt_wielder = chr_get_lowest_attachment( prt_owner, true );
 
-            if ( !_gameObjects.exists( chr_wielder ) ) chr_wielder = GET_INDEX_PCHR( pdata->pchr );
-            if ( !_gameObjects.exists( prt_wielder ) ) prt_wielder = prt_owner;
+            if ( !_currentModule->getObjectHandler().exists( chr_wielder ) ) chr_wielder = GET_INDEX_PCHR( pdata->pchr );
+            if ( !_currentModule->getObjectHandler().exists( prt_wielder ) ) prt_wielder = prt_owner;
 
 			prt_belongs_to_chr = TO_C_BOOL(chr_wielder == prt_wielder);
         }
@@ -3188,9 +3188,9 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
             Object * pcollector = pdata->pchr;
 
             // Let mounts collect money for their riders
-            if ( pdata->pchr->isMount() && _gameObjects.exists( pdata->pchr->holdingwhich[SLOT_LEFT] ) )
+            if ( pdata->pchr->isMount() && _currentModule->getObjectHandler().exists( pdata->pchr->holdingwhich[SLOT_LEFT] ) )
             {
-                pcollector = _gameObjects.get( pdata->pchr->holdingwhich[SLOT_LEFT] );
+                pcollector = _currentModule->getObjectHandler().get( pdata->pchr->holdingwhich[SLOT_LEFT] );
 
                 // if the mount's rider can't get money, the mount gets to keep the money!
                 if ( !pcollector->cangrabmoney )
@@ -3230,9 +3230,9 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
     pdata->pprt = ParticleHandler::get().get_ptr( iprt );
 
     // make sure that it is on
-    if ( !_gameObjects.exists( ichr ) ) return false;
+    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
     pdata->ichr = ichr;
-    pdata->pchr = _gameObjects.get( ichr );
+    pdata->pchr = _currentModule->getObjectHandler().get( ichr );
 
     if ( !LOADED_PIP( pdata->pprt->pip_ref ) ) return false;
     pdata->ppip = PipStack.get_ptr( pdata->pprt->pip_ref );
@@ -3294,7 +3294,7 @@ bool do_chr_prt_collision( CoNode_t * d )
     if ( !cn_data.pchr->alive ) return false;
 
     // skip objects that are inside inventories
-    if ( _gameObjects.exists( cn_data.pchr->inwhich_inventory ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( cn_data.pchr->inwhich_inventory ) ) return false;
 
     // if the particle is attached to this character, ignore a "collision"
     if ( INVALID_CHR_REF != cn_data.pprt->attachedto_ref && cn_data.ichr == cn_data.pprt->attachedto_ref )
