@@ -243,7 +243,7 @@ void cleanup_all_characters();
 void bump_all_characters_update_counters();
 void free_all_chraracters();
 
-void keep_weapons_with_holders();
+void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr);
 
 void make_one_character_matrix( const CHR_REF cnt );
 void move_one_character_get_environment( Object * pchr );
