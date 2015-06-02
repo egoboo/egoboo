@@ -209,7 +209,11 @@ Object::~Object()
         cleanup_one_character(this);
 
         // free the character's inventory
-        free_inventory_in_game(getCharacterID());
+        PACK_BEGIN_LOOP(inventory, pitem, iitem)
+        {
+            pitem->requestTerminate();
+        }
+        PACK_END_LOOP();
 
         //If we are inside an inventory we need to remove us
         const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[inwhich_inventory];

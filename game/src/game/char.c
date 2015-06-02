@@ -396,33 +396,6 @@ void make_one_character_matrix( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-void free_inventory_in_game( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function frees every item in the character's inventory
-    ///
-    /// @note this should only be called by cleanup_all_characters()
-
-    int i;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-
-    PACK_BEGIN_LOOP( _currentModule->getObjectHandler().get(character)->inventory, pitem, iitem )
-    {
-        // actually get rid of the item
-        pitem->requestTerminate();
-
-    }
-    PACK_END_LOOP();
-
-    // set the inventory to the "empty" state
-    for ( i = 0; i < MAXINVENTORY; i++ )
-    {
-        _currentModule->getObjectHandler().get(character)->inventory[i] = INVALID_CHR_REF;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int vertex_offset )
 {
     /// @author ZZ
