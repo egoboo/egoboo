@@ -2729,7 +2729,7 @@ bool game_begin_module(const std::shared_ptr<ModuleProfile> &module)
     // initialize the game objects
     initialize_all_objects();
     input_cursor_reset();
-    update_all_character_matrices();
+    //update_all_character_matrices();
     attach_all_particles();
 
     // log debug info for every object loaded into the module

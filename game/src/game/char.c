@@ -236,89 +236,85 @@ bool chr_copy_enviro( Object * chr_psrc, Object * chr_pdst )
 }
 
 //--------------------------------------------------------------------------------------------
-void keep_weapons_with_holders()
+void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
 {
     /// @author ZZ
     /// @details This function keeps weapons near their holders
 
-    for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
+    CHR_REF iattached = pchr->attachedto;
+    if ( _currentModule->getObjectHandler().exists( iattached ) )
     {
-        CHR_REF iattached = pchr->attachedto;
+        Object * pattached = _currentModule->getObjectHandler().get( iattached );
 
-        if ( _currentModule->getObjectHandler().exists( iattached ) )
+        // Keep in hand weapons with iattached
+        if ( chr_matrix_valid( pchr.get() ) )
         {
-            Object * pattached = _currentModule->getObjectHandler().get( iattached );
-
-            // Keep in hand weapons with iattached
-            if ( chr_matrix_valid( pchr.get() ) )
-            {
-                pchr->setPosition(mat_getTranslate(pchr->inst.matrix));
-            }
-            else
-            {
-                //TODO: ZF> should this be the other way around?
-                pchr->setPosition(pattached->getPosition());
-            }
-
-            pchr->ori.facing_z = pattached->ori.facing_z;
-
-            // Copy this stuff ONLY if it's a weapon, not for mounts
-            if ( pattached->transferblend && pchr->isitem )
-            {
-
-                // Items become partially invisible in hands of players
-                if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.alpha )
-                {
-                    pchr->setAlpha(SEEINVISIBLE);
-                }
-                else
-                {
-                    // Only if not naturally transparent
-                    if ( 255 == pchr->getProfile()->getAlpha() )
-                    {
-                        pchr->setAlpha(pattached->inst.alpha);
-                    }
-                    else
-                    {
-                        pchr->setAlpha(pchr->getProfile()->getAlpha());
-                    }
-                }
-
-                // Do light too
-                if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.light )
-                {
-                    pchr->setLight(SEEINVISIBLE);
-                }
-                else
-                {
-                    // Only if not naturally transparent
-                    if ( 255 == pchr->getProfile()->getLight())
-                    {
-                        pchr->setLight(pattached->inst.light);
-                    }
-                    else
-                    {
-                        pchr->setLight(pchr->getProfile()->getLight());
-                    }
-                }
-            }
+            pchr->setPosition(mat_getTranslate(pchr->inst.matrix));
         }
         else
         {
-            pchr->attachedto = INVALID_CHR_REF;
+            //TODO: ZF> should this be the other way around?
+            pchr->setPosition(pattached->getPosition());
+        }
 
-            // Keep inventory with iattached
-            if ( !_currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
+        pchr->ori.facing_z = pattached->ori.facing_z;
+
+        // Copy this stuff ONLY if it's a weapon, not for mounts
+        if ( pattached->transferblend && pchr->isitem )
+        {
+
+            // Items become partially invisible in hands of players
+            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.alpha )
             {
-                PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
-                {
-                    pitem->setPosition(pchr->getPosition());
-
-                    // Copy olds to make SendMessageNear work
-                    pitem->pos_old = pchr->pos_old;
-                }
-                PACK_END_LOOP();
+                pchr->setAlpha(SEEINVISIBLE);
             }
+            else
+            {
+                // Only if not naturally transparent
+                if ( 255 == pchr->getProfile()->getAlpha() )
+                {
+                    pchr->setAlpha(pattached->inst.alpha);
+                }
+                else
+                {
+                    pchr->setAlpha(pchr->getProfile()->getAlpha());
+                }
+            }
+
+            // Do light too
+            if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.light )
+            {
+                pchr->setLight(SEEINVISIBLE);
+            }
+            else
+            {
+                // Only if not naturally transparent
+                if ( 255 == pchr->getProfile()->getLight())
+                {
+                    pchr->setLight(pattached->inst.light);
+                }
+                else
+                {
+                    pchr->setLight(pchr->getProfile()->getLight());
+                }
+            }
+        }
+    }
+    else
+    {
+        pchr->attachedto = INVALID_CHR_REF;
+
+        // Keep inventory with iattached
+        if ( !_currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
+        {
+            PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
+            {
+                pitem->setPosition(pchr->getPosition());
+
+                // Copy olds to make SendMessageNear work
+                pitem->pos_old = pchr->pos_old;
+            }
+            PACK_END_LOOP();
         }
     }
 }
@@ -4812,12 +4808,15 @@ void move_all_characters()
         object->enviro.ice_friction = Physics::g_environment.icefriction;
 
         move_one_character( object.get() );
+
+        chr_update_matrix( object.get(), true );
+        keep_weapons_with_holder(object);
     }
 
     // The following functions need to be called any time you actually change a charcter's position
-    keep_weapons_with_holders();
+    //keep_weapons_with_holders();
     attach_all_particles();
-    update_all_character_matrices();
+    //update_all_character_matrices();
 }
 
 //--------------------------------------------------------------------------------------------
