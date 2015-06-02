@@ -3649,7 +3649,10 @@ bool wawalite_finalize(wawalite_data_t *data)
         // Unknown weather parsed.
         if (!success)
         {
-            log_warning("%s:%d: failed to load weather type from wawalite.txt: %s - (%s)\n", __FILE__,__LINE__, weather_name.c_str(), prt_file.c_str());
+            if(weather_name != "none") 
+            {
+                log_warning("%s:%d: failed to load weather type from wawalite.txt: %s - (%s)\n", __FILE__,__LINE__, weather_name.c_str(), prt_file.c_str());
+            }
             data->weather.part_gpip = LocalParticleProfileRef::Invalid;
             data->weather.weather_name = "*NONE*";
         }
