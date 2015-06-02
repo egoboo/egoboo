@@ -2672,8 +2672,11 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
             }
 
             // Blocked!
-            spawn_defense_ping( pdata->pchr, pdata->pprt->owner_ref );
-            chr_make_text_billboard( GET_INDEX_PCHR( pdata->pchr ), "Blocked!", text_color, tint, lifetime, Billboard::Flags::All );
+            if(0 == pchr->damage_timer) 
+            {
+                spawn_defense_ping( pdata->pchr, pdata->pprt->owner_ref );
+                chr_make_text_billboard( GET_INDEX_PCHR( pdata->pchr ), "Blocked!", text_color, tint, lifetime, Billboard::Flags::All );                
+            }
 
             // If the attack was blocked by a shield, then check if the block caused a knockback
             if ( chr_is_invictus && ACTION_IS_TYPE( pdata->pchr->inst.action_which, P ) )
