@@ -493,7 +493,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
         //Tell that the character is simply immune to the damage
         //but don't do message and ping for mounts, it's just irritating
-        if ( !isMount() && 0 == pchr->damage_timer )
+        if ( !isMount() && 0 == damage_timer )
         {
             //Dark green text
             const float lifetime = 3;
