@@ -164,9 +164,6 @@ void prt_t::reset() {
 /// @details The C equivalent of a parameterless constructor.
 prt_t *prt_t::config_do_ctor()
 {
-    // save the base object data, do not construct it with this function.
-    Ego::Entity *parent = POBJ_GET_PBASE(this);
-
     this->is_ghost = false;
     
     prt_spawn_data_t::reset(&this->spawn_data);
@@ -248,9 +245,9 @@ prt_t *prt_t::config_do_ctor()
     prt_environment_t::reset(&this->enviro);
 
     // reset the base counters
-    parent->update_count = 0;
-    parent->frame_count = 0;
-    parent->state = Ego::Entity::State::Initializing;
+	this->update_count = 0;
+	this->frame_count = 0;
+	this->state = State::Initializing;
 
     return this;
 }
@@ -2481,7 +2478,6 @@ prt_bundle_t * prt_bundle_t::update_ingame()
     if (NULL == this->_prt_ptr) return NULL;
     prt_t *loc_pprt = this->_prt_ptr;
     pip_t *loc_ppip = this->_pip_ptr;
-    Ego::Entity *base_ptr = POBJ_GET_PBASE(loc_pprt);
 
     loc_pprt->is_hidden = false;
     // If the object to which the particle is attached to exists, ...
@@ -2529,10 +2525,10 @@ prt_bundle_t * prt_bundle_t::update_ingame()
     if (!prt_bundle_t::do_bump_damage(this)) return NULL;
     if (NULL == this->_prt_ptr) return NULL;
 
-    base_ptr->update_count++;
+	loc_pprt->update_count++;
 
     // If the particle is done updating, remove it from the game, but do not kill it
-    if (!loc_pprt->is_eternal && (base_ptr->update_count > 0 && 0 == loc_pprt->lifetime_remaining))
+	if (!loc_pprt->is_eternal && (loc_pprt->update_count > 0 && 0 == loc_pprt->lifetime_remaining))
     {
         end_one_particle_in_game(this->_prt_ref);
     }
@@ -2545,7 +2541,6 @@ prt_bundle_t *prt_bundle_t::update_ghost()
     if (NULL == this->_prt_ptr) return NULL;
     prt_t *loc_pprt = this->_prt_ptr;
     pip_t *loc_ppip = this->_pip_ptr;
-    Ego::Entity *base_ptr = POBJ_GET_PBASE(loc_pprt);
 
     // is this the right function?
     if (!loc_pprt->is_ghost)
@@ -2555,7 +2550,7 @@ prt_bundle_t *prt_bundle_t::update_ghost()
     bool prt_visible = (loc_pprt->size > 0) && (loc_pprt->inst.alpha > 0) && !loc_pprt->is_hidden;
 
     // are we done?
-    if (!prt_visible || base_ptr->frame_count > 0)
+	if (!prt_visible || loc_pprt->frame_count > 0)
     {
         loc_pprt->requestTerminate();
         return nullptr;
@@ -2587,7 +2582,7 @@ prt_bundle_t *prt_bundle_t::update_ghost()
 
     if (!loc_pprt->is_hidden)
     {
-        base_ptr->update_count++;
+		loc_pprt->update_count++;
     }
 
     return this;
@@ -2734,16 +2729,15 @@ void cleanup_all_particles()
     {
         prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
-        Ego::Entity *base_ptr = POBJ_GET_PBASE(pprt);
-		if (!base_ptr->FLAG_ALLOCATED_PBASE()) continue;
+		if (!pprt->FLAG_ALLOCATED_PBASE()) continue;
 
-		if (base_ptr->TERMINATED_PBASE())
+		if (pprt->TERMINATED_PBASE())
         {
             // now that the object is in the "killed" state,
             // actually put it back into the free store
             ParticleHandler::get().free_one(GET_REF_PPRT(pprt));
         }
-		else if (base_ptr->STATE_WAITING_PBASE())
+		else if (pprt->STATE_WAITING_PBASE())
         {
             // do everything to end the particle in-game (spawn secondary particles,
             // play end sound, etc.) amd mark it with kill_me
@@ -2756,9 +2750,9 @@ void bump_all_particles_update_counters()
 {
     for (PRT_REF cnt = 0; cnt < ParticleHandler::get().getCount(); cnt++)
     {
-        Ego::Entity *entity = POBJ_GET_PBASE(ParticleHandler::get().get_ptr(cnt));
-        if (!entity->ACTIVE_PBASE()) continue;
-        entity->update_count++;
+        prt_t *prt = ParticleHandler::get().get_ptr(cnt);
+		if (!prt->ACTIVE_PBASE()) continue;
+		prt->update_count++;
     }
 }
 

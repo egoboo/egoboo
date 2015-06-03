@@ -85,9 +85,6 @@ void enc_t::reset() {
 
 enc_t *enc_t::config_do_ctor()
 {
-    // grab the base object
-    Ego::Entity *parent = POBJ_GET_PBASE(this);
-
     enc_spawn_data_t::reset(&spawn_data);
     lifetime = 0;
     spawn_timer = 0;
@@ -115,10 +112,10 @@ enc_t *enc_t::config_do_ctor()
     this->nextenchant_ref = INVALID_ENC_REF;
 
     // reset the base counters
-    parent->update_count = 0;
-    parent->frame_count = 0;
+    this->update_count = 0;
+	this->frame_count = 0;
     // we are done constructing. move on to initializing.
-    parent->state = Ego::Entity::State::Initializing;
+	this->state = State::Initializing;
 
     return this;
 }
@@ -1549,7 +1546,7 @@ void cleanup_all_enchants()
         peve = EveStack.get_ptr( penc->eve_ref );
 
         do_remove = false;
-        if ( POBJ_GET_PBASE( penc )->WAITING_PBASE() )
+        if (penc->WAITING_PBASE())
         {
             // the enchant has been marked for removal
             do_remove = true;
@@ -1588,10 +1585,10 @@ void bump_all_enchants_update_counters()
 {
     for (ENC_REF ref = 0; ref < ENCHANTS_MAX; ++ref)
     {
-        Ego::Entity *entity = POBJ_GET_PBASE( EnchantHandler::get().get_ptr(ref));
-        if (!entity->ACTIVE_PBASE()) continue;
+        enc_t *enc = EnchantHandler::get().get_ptr(ref);
+		if (!enc->ACTIVE_PBASE()) continue;
 
-        entity->update_count++;
+		enc->update_count++;
     }
 }
 

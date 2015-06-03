@@ -139,7 +139,7 @@ void ParticleHandler::update_used()
     {
         if (!isValidRef(ref)) continue;
         prt_t *x = get_ptr(ref);
-		if (!POBJ_GET_PBASE(x)->ALLOCATED_PBASE()) continue;
+		if (!x->ALLOCATED_PBASE()) continue;
 
         if (DISPLAY_PPRT(x))
         {
@@ -148,7 +148,7 @@ void ParticleHandler::update_used()
                 push_used(ref);
             }
         }
-		else if (!POBJ_GET_PBASE(x)->DEFINED_BASE_RAW()) // We can use DEFINED_BASE_RAW as the reference is valid.
+		else if (!x->DEFINED_BASE_RAW()) // We can use DEFINED_BASE_RAW as the reference is valid.
         {
             if (!x->in_free_list)
             {

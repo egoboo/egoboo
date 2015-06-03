@@ -308,14 +308,6 @@ namespace Ego
 } // namespace Ego
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// Grab a pointer to the Ego::Entity of an object that "inherits" this data
-#define POBJ_GET_PBASE(POBJ) ((POBJ))
-
-
-
-//--------------------------------------------------------------------------------------------
 
 /// @todo Remove this.
 template <typename TYPE,typename REFTYPE, typename LISTTYPE>
@@ -354,21 +346,17 @@ struct _StateMachine : public Ego::Entity
 
     bool config_ctor()
     {
-        // Get a pointer to the parent.
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-
         // If we aren't in the correct state, abort.
-        if (!parent->STATE_CONSTRUCTING_PBASE()) return true;
+        if (!this->STATE_CONSTRUCTING_PBASE()) return true;
 
         return nullptr != this->config_do_ctor();
     }
 
     bool config_active()
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!parent->isAllocated()) return false;
+        if (!this->isAllocated()) return false;
 
-        if (!parent->STATE_ACTIVE_PBASE()) return true;
+        if (!this->STATE_ACTIVE_PBASE()) return true;
 
 		this->POBJ_END_SPAWN();
 
@@ -377,9 +365,7 @@ struct _StateMachine : public Ego::Entity
 
     void config_deinit()
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-
-        if (!parent->STATE_DEINITIALIZING_PBASE()) return;
+        if (!this->STATE_DEINITIALIZING_PBASE()) return;
 
 		this->POBJ_END_SPAWN();
 
@@ -388,9 +374,7 @@ struct _StateMachine : public Ego::Entity
 
     void config_dtor()
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-
-		if (!parent->STATE_DESTRUCTING_PBASE()) return;
+		if (!this->STATE_DESTRUCTING_PBASE()) return;
 
 		this->POBJ_END_SPAWN();
 
@@ -399,11 +383,10 @@ struct _StateMachine : public Ego::Entity
 
     bool config_initialize(size_t max_iterations)
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!parent->isAllocated()) return false;
+        if (!this->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
-        if (parent->state > Ego::Entity::State::Initializing)
+        if (this->state > State::Initializing)
         {
             // ... deconstruct it and start over.
             if (!this->config_deconstruct(max_iterations)) {
@@ -412,7 +395,7 @@ struct _StateMachine : public Ego::Entity
         }
 
         size_t iterations = 0;
-        while (parent->state <= Ego::Entity::State::Initializing && iterations < max_iterations)
+        while (this->state <= State::Initializing && iterations < max_iterations)
         {
             if (!this->run_config()) {
                 return false;
@@ -425,11 +408,10 @@ struct _StateMachine : public Ego::Entity
 
     bool config_construct(size_t max_iterations)
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!parent->isAllocated()) return false;
+        if (!this->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
-        if (parent->state > Ego::Entity::State::Constructing)
+        if (this->state > State::Constructing)
         {
             // ... destruct it and start over.
             if (!this->config_deconstruct(max_iterations)) {
@@ -438,7 +420,7 @@ struct _StateMachine : public Ego::Entity
         }
 
         size_t iterations = 0;
-        while (parent->state <= Ego::Entity::Constructing && iterations < max_iterations)
+        while (this->state <= State::Constructing && iterations < max_iterations)
         {
             if (!this->run_config()) {
                 return false;
@@ -451,8 +433,7 @@ struct _StateMachine : public Ego::Entity
 
     bool config_init()
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!parent->STATE_INITIALIZING_PBASE()) return true;
+        if (!this->STATE_INITIALIZING_PBASE()) return true;
 
         if (!this->config_do_init()) {
             return false;
@@ -460,36 +441,35 @@ struct _StateMachine : public Ego::Entity
 
         if (0 == LISTTYPE::get().getLockCount())
         {
-            parent->on = true;
+            this->on = true;
         }
         else
         {
             LISTTYPE::get().add_activation(this->getIndex());
         }
 
-        parent->state = Ego::Entity::State::Active;
+        this->state = State::Active;
 
         return true;
     }
 
     bool config_deinitialize(size_t max_iterations)
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!parent->isAllocated()) return false;
+        if (!this->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
-        if (parent->state > Ego::Entity::State::DeInitializing)
+        if (this->state > State::DeInitializing)
         {
             // ... do nothing.
             return true;
         }
-        else if (parent->state < Ego::Entity::State::DeInitializing)
+        else if (this->state < State::DeInitializing)
         {
-            parent->state = Ego::Entity::State::DeInitializing;
+            this->state = State::DeInitializing;
         }
 
         size_t iterations = 0;
-        while (parent->state <= Ego::Entity::State::DeInitializing && iterations < max_iterations)
+        while (this->state <= State::DeInitializing && iterations < max_iterations)
         {
             if (!this->run_config()) {
                 return false;
@@ -502,11 +482,10 @@ struct _StateMachine : public Ego::Entity
 
     bool config_activate(size_t max_iterations)
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!parent->isAllocated()) return false;
+        if (!this->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
-        if (parent->state > Ego::Entity::State::Active)
+        if (this->state > State::Active)
         {
             // ... deconstruct it and start over.
             if (!this->config_deconstruct(max_iterations)) {
@@ -515,7 +494,7 @@ struct _StateMachine : public Ego::Entity
         }
 
         size_t iterations = 0;
-        while (parent->state < Ego::Entity::State::Active && iterations < max_iterations)
+        while (this->state < State::Active && iterations < max_iterations)
         {
             if (!this->run_config()) {
                 return false;
@@ -523,7 +502,7 @@ struct _StateMachine : public Ego::Entity
             iterations++;
         }
 
-        if (parent->state == Ego::Entity::State::Active)
+        if (this->state == State::Active)
         {
             LISTTYPE::get().push_used(this->getIndex());
         }
@@ -533,32 +512,31 @@ struct _StateMachine : public Ego::Entity
 
     bool config_deconstruct(size_t max_iterations)
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!parent->isAllocated()) return false;
+        if (!this->isAllocated()) return false;
 
         // If the object is already beyond this stage ...
-        if (parent->state > Ego::Entity::State::Destructing)
+        if (this->state > State::Destructing)
         {
             // ... do nothing.
             return true;
         }
-        else if (parent->state < Ego::Entity::State::DeInitializing)
+        else if (this->state < State::DeInitializing)
         {
             // Make sure that you deinitialize before destructing.
-            parent->state = Ego::Entity::State::DeInitializing;
+            this->state = State::DeInitializing;
         }
 
         size_t iterations = 0;
-        while (parent->state <= Ego::Entity::State::Destructing && iterations < max_iterations)
+        while (this->state <= State::Destructing && iterations < max_iterations)
         {
             if (!this->run_config()) {
                 return false;
             }
             iterations++;
         }
-        if (parent->state < Ego::Entity::Terminated)
+        if (this->state < State::Terminated)
         {
-            if (parent->state < Ego::Entity::Destructing)
+            if (this->state < State::Destructing)
             {
                 log_warning("%s:%d: entity is not destructed\n", __FILE__, __LINE__);
             }
@@ -569,61 +547,60 @@ struct _StateMachine : public Ego::Entity
 
     bool run_config()
     {
-        Ego::Entity *parent = POBJ_GET_PBASE(this);
-        if (!parent->isAllocated()) return false;
+        if (!this->isAllocated()) return false;
 
         // Set the object to deinitialize if it is not "dangerous" and if was requested.
-        if (parent->kill_me)
+        if (this->kill_me)
         {
-            if (parent->state > Ego::Entity::State::Constructing && parent->state < Ego::Entity::State::DeInitializing)
+			if (this->state > State::Constructing && this->state < State::DeInitializing)
             {
-                parent->state = Ego::Entity::State::DeInitializing;
+				this->state = State::DeInitializing;
             }
 
-            parent->kill_me = false;
+			this->kill_me = false;
         }
 
         bool result = true;
-        switch (parent->state)
+		switch (this->state)
         {
         default:
-        case Ego::Entity::State::Invalid:
+        case State::Invalid:
             result = false;
             break;
 
-        case Ego::Entity::State::Constructing:
+        case State::Constructing:
             result = this->config_ctor();
             break;
 
-        case Ego::Entity::State::Initializing:
+        case State::Initializing:
             result = this->config_init();
             break;
 
-        case Ego::Entity::State::Active:
+        case State::Active:
             result = this->config_active();
             break;
 
-        case Ego::Entity::State::DeInitializing:
+        case State::DeInitializing:
             this->config_deinit();
             break;
 
-        case Ego::Entity::State::Destructing:
+        case State::Destructing:
             this->config_dtor();
             break;
 
-        case Ego::Entity::State::Waiting:
-        case Ego::Entity::State::Terminated:
+        case State::Waiting:
+        case State::Terminated:
             /* Do nothing. */
             break;
         }
 
         if (!result)
         {
-            parent->setUpdateGUID(EGO_GUID_INVALID);
+            this->setUpdateGUID(EGO_GUID_INVALID);
         }
-        else if (Ego::Entity::State::Active == parent->state)
+        else if (State::Active == this->state)
         {
-            parent->setUpdateGUID(LISTTYPE::get().getUpdateGUID());
+            this->setUpdateGUID(LISTTYPE::get().getUpdateGUID());
         }
 
         return result;
@@ -631,8 +608,8 @@ struct _StateMachine : public Ego::Entity
 
 	/// Begin turning off an entity.
 	void POBJ_REQUEST_TERMINATE() {
-		if (isAllocated() && Ego::Entity::State::Invalid != state) {
-			if (Ego::Entity::State::Terminated != state) {
+		if (isAllocated() && State::Invalid != state) {
+			if (State::Terminated != state) {
 				kill_me = true;
 			}
 			on = false;

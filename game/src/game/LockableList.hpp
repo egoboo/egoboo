@@ -63,7 +63,7 @@ public:
         }
 #endif
 
-        EGOBOO_ASSERT(!lst[ref]->obj_base.in_used_list);
+        EGOBOO_ASSERT(!lst[ref]->in_used_list);
 
         if (usedCount < getCount())
         {
@@ -115,7 +115,7 @@ public:
             x->config_do_dtor();
 
             // Destruct the entity.
-            POBJ_GET_PBASE(x)->dtor();
+            x->dtor();
         }
 
         // DeInitialize the list.
@@ -350,8 +350,6 @@ public:
         // then its reference is in the free list.
         if (!ALLOCATED(obj)) return false;
 
-        Ego::Entity *parentObj = POBJ_GET_PBASE(obj);
-
         // If we are inside an iteration, do not actually change the length of the list.
         // This would invalidate all iterators.
         if (getLockCount() > 0)
@@ -370,12 +368,12 @@ public:
                 return false;
             }
 
-            if (parentObj->in_used_list)
+            if (obj->in_used_list)
             {
                 remove_used_ref(ref);
             }
 
-            if (parentObj->in_free_list)
+            if (obj->in_free_list)
             {
                 return true;
             }
@@ -606,7 +604,7 @@ private:
      */
     bool INGAME_BASE_RAW(const TYPE *ptr)
     {
-		return POBJ_GET_PBASE(ptr)->INGAME_BASE_RAW();
+		return ptr->INGAME_BASE_RAW();
     }
 
     /**
@@ -619,7 +617,7 @@ private:
      */
     bool DEFINED_BASE_RAW(const TYPE *ptr)
     {
-		return POBJ_GET_PBASE(ptr)->DEFINED_BASE_RAW();
+		return ptr->DEFINED_BASE_RAW();
     }
 
     /**
@@ -632,7 +630,7 @@ private:
      */
     bool ALLOCATED_BASE_RAW(const TYPE *ptr)
     {
-        return POBJ_GET_PBASE(ptr)->ALLOCATED_PBASE();
+        return ptr->ALLOCATED_PBASE();
     }
 
     /**
@@ -645,7 +643,7 @@ private:
      */
     bool ACTIVE_BASE_RAW(const TYPE *ptr)
     {
-        return POBJ_GET_PBASE(ptr)->ACTIVE_PBASE();
+        return ptr->ACTIVE_PBASE();
     }
 
     /**
@@ -658,7 +656,7 @@ private:
      */
     bool WAITING_BASE_RAW(const TYPE *ptr)
     {
-        return POBJ_GET_PBASE(ptr)->WAITING_PBASE();
+        return ptr->WAITING_PBASE();
     }
 
     /**
@@ -671,7 +669,7 @@ private:
      */
     bool TERMINATED_BASE_RAW(const TYPE *ptr)
     {
-		return POBJ_GET_PBASE(ptr)->TERMINATED_PBASE();
+		return ptr->TERMINATED_PBASE();
     }
 
 public:
