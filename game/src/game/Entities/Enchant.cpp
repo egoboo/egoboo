@@ -35,6 +35,7 @@
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
 #include "game/script_functions.h"
+#include "game/Module/Module.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1029,7 +1030,7 @@ enc_t *enc_t::config_do_active()
     if (0 == this->spawn_timer && peve->contspawn._amount <= 0)
     {
         this->spawn_timer = peve->contspawn._delay;
-        ptarget = _currentModule->getObjectHandler().get(this->target_ref);
+        Object *ptarget = _currentModule->getObjectHandler().get(this->target_ref);
 
         FACING_T facing = ptarget->ori.facing_z;
         for (Uint8 i = 0; i < peve->contspawn._amount; ++i)
@@ -1055,9 +1056,9 @@ enc_t *enc_t::config_do_active()
             if (this->lifetime > 0) this->lifetime--;
 
             // To make life easier
-            owner  = enc_get_iowner( ienc );
-            target = this->target_ref;
-            eve    = enc_get_ieve( ienc );
+            CHR_REF owner  = enc_get_iowner( ienc );
+            CHR_REF target = this->target_ref;
+            ENC_REF eve    = enc_get_ieve( ienc );
             Object *powner = _currentModule->getObjectHandler().get(owner);
 
             // Do drains
@@ -1100,7 +1101,7 @@ enc_t *enc_t::config_do_active()
             {
                 if ( powner && powner->alive )
                 {
-					Object *ptarget = _gameObjects.get(this->target_ref);
+					Object *ptarget = _currentModule->getObjectHandler().get(this->target_ref);
                     // Change life
                     if (0 != this->target_life)
                     {
@@ -1437,72 +1438,56 @@ void update_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
+ENC_REF cleanup_enchant_list(const ENC_REF ienc, ENC_REF * enc_parent)
 {
-    /// @author BB
-    /// @details remove all the dead enchants from the enchant list
-    ///     and report back the first non-dead enchant in the list.
+	/// @author BB
+	/// @details remove all the dead enchants from the enchant list
+	///     and report back the first non-dead enchant in the list.
 
-    bool enc_used[ENCHANTS_MAX];
+	if (!VALID_ENC_RANGE(ienc)) {
+		return ENCHANTS_MAX;
+	}
 
-    ENC_REF first_valid_enchant;
+	// Set of already seen enchantments.
+	std::unordered_set<ENC_REF> used;
 
-    ENC_REF ienc_now, ienc_nxt;
-    size_t  ienc_count;
+	// scan the list of enchants
+	ENC_REF first_valid_enchant = ienc, ienc_now = ienc;
+	size_t ienc_count = 0;
+	while (VALID_ENC_RANGE(ienc_now) && (ienc_count < ENCHANTS_MAX))
+	{
+		// Have a look at the successor.
+		ENC_REF ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
-    if ( !VALID_ENC_RANGE( ienc ) ) return ENCHANTS_MAX;
+		// If the successor was alread seen ...
+		if (ienc_nxt != INVALID_ENC_REF && used.find(ienc_nxt) != used.end()) {
+			// ... remove it.
+			ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref = INVALID_ENC_REF;
 
-    // clear the list
-    BLANK_ARY( enc_used )
+		}
+		// Add this enchant to the used set.
+		used.insert(ienc_now);
+		// If the current enchant expired ...
+		if (!INGAME_ENC(ienc_now)) {
+			// ... replace it by its parent.
+			remove_enchant(ienc_now, enc_parent);
+		// Keep track of the first valid enchant.
+		}
+		else {
+			
+			if (INVALID_ENC_REF == first_valid_enchant)
+			{
+				first_valid_enchant = ienc_now;
+			}
+		}
 
-    // scan the list of enchants
-    ienc_nxt            = INVALID_ENC_REF;
-    first_valid_enchant = ienc_now = ienc;
-    ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < ENCHANTS_MAX ) )
-    {
-        ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
+		enc_parent = &(EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref);
+		ienc_now = ienc_nxt;
+		ienc_count++;
+	}
+	if (ienc_count >= ENCHANTS_MAX) log_error("%s - bad enchant loop\n", __FUNCTION__);
 
-        // coerce the list of enchants to a valid value
-        if ( !VALID_ENC_RANGE( ienc_nxt ) )
-        {
-            ienc_nxt = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref = INVALID_ENC_REF;
-        }
-
-        // fix any loops in the enchant list
-        if ( enc_used[ienc_nxt] )
-        {
-            EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref = INVALID_ENC_REF;
-            break;
-        }
-
-        //( !_currentModule->getObjectHandler().exists( EncList.lst[ienc_now].target_ref ) && !EveStack.lst[EncList.lst[ienc_now].eve_ref].stayiftargetdead )
-
-        // remove any expired enchants
-        if ( !INGAME_ENC( ienc_now ) )
-        {
-            remove_enchant( ienc_now, enc_parent );
-            enc_used[ienc_now] = true;
-        }
-        else
-        {
-            // store this enchant in the list of used enchants
-            enc_used[ienc_now] = true;
-
-            // keep track of the first valid enchant
-            if ( INVALID_ENC_REF == first_valid_enchant )
-            {
-                first_valid_enchant = ienc_now;
-            }
-        }
-
-        enc_parent = &(EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref );
-        ienc_now    = ienc_nxt;
-        ienc_count++;
-    }
-    if ( ienc_count >= ENCHANTS_MAX ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
-
-    return first_valid_enchant;
+	return first_valid_enchant;
 }
 
 //--------------------------------------------------------------------------------------------
