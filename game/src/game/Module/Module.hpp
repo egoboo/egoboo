@@ -165,8 +165,8 @@ public:
 
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
-    ObjectHandler _gameObjects;
     std::vector<Team> _teamList;
+    ObjectHandler _gameObjects;
     std::list<std::string> _playerList;     ///< List of all import players
 
     std::string  _name;                       ///< Module load names
