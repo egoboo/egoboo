@@ -2756,12 +2756,6 @@ void bump_all_particles_update_counters()
     }
 }
 
-PIP_REF prt_get_ipip(const PRT_REF ref)
-{
-    if (!ParticleHandler::get().isValidRef(ref)) return INVALID_PIP_REF;
-    return ParticleHandler::get().get_ptr(ref)->get_ipip();
-}
-
 pip_t *prt_get_ppip(const PRT_REF ref)
 {
     if (!ParticleHandler::get().isValidRef(ref)) return nullptr;

@@ -44,14 +44,6 @@ static bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool enc_t::free(enc_t *self)
-{
-    if (!ALLOCATED_PENC(self)) return false;
-    /* Nothing to do yet. */
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 enc_t::enc_t(ENC_REF ref)
 	: _StateMachine<enc_t, ENC_REF, EnchantHandler>(BSP_LEAF_ENC, ref) {
 }
@@ -125,11 +117,9 @@ enc_t *enc_t::config_do_ctor()
 enc_t::~enc_t()
 {
 }
+
 void enc_t::config_do_dtor()
 {
-    // Destroy the object.
-    enc_t::free(this);
-
     // Destroy the parent object.
     // Sets the state to Ego::Entity::State::Terminated automatically.
     this->terminate();

@@ -116,8 +116,6 @@ struct enc_t : public _StateMachine<enc_t, ENC_REF, EnchantHandler>
 
     void requestTerminate();
 
-    static bool free(enc_t *self);
-
     // enchant state machine function
     enc_t *config_do_ctor() override;
     // enchant state machine function

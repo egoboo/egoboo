@@ -475,5 +475,4 @@ bool prt_is_over_water(const PRT_REF particle);
 void prt_play_sound(const PRT_REF particle, Sint8 sound);
 CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
 
-PIP_REF prt_get_ipip(const PRT_REF ref); /**< @deprecated */
 pip_t *prt_get_ppip(const PRT_REF ref);  /**< @deprecated */
