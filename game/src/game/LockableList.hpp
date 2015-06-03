@@ -593,19 +593,6 @@ protected:
     int lockCount;
 
 private:
-    
-    /**
-     * @brief
-     *  Get if an object is in-game.
-     * @param ptr
-     *  the object
-     * @return
-     *  @a true if the object is in-game, @a false otherwise
-     */
-    bool INGAME_BASE_RAW(const TYPE *ptr)
-    {
-		return ptr->INGAME_BASE_RAW();
-    }
 
     /**
      * @brief
@@ -739,13 +726,13 @@ public:
     bool INGAME_BASE(const REFTYPE ref)
     {
         return isValidRef(ref)
-            && INGAME_BASE_RAW(get_ptr(ref));
+			&& get_ptr(ref)->INGAME_BASE_RAW();
     }
 
     bool INGAME_BASE(const TYPE *ptr)
     {
         return VALID_PTR(ptr)
-            && INGAME_BASE_RAW(ptr);
+			&& ptr->INGAME_BASE_RAW();
     }
 
 };
