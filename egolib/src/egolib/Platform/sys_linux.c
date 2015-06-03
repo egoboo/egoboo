@@ -34,9 +34,9 @@
 //Different methods of displaying messages in Linux
 enum dialog_t
 {
-    ZENITY = 0,
+    SDL2 = 0,
+    ZENITY,
     KDIALOG,
-    SDL2,
     XMESSAGE,
     DIALOG_PROGRAM_END,
     DIALOG_PROGRAM_BEGIN = ZENITY
