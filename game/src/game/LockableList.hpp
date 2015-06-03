@@ -620,20 +620,6 @@ private:
 		return ptr->DEFINED_BASE_RAW();
     }
 
-
-    /**
-     * @brief
-     *  Get if an object is terminated.
-     * @param ptr
-     *  the object
-     * @return
-     *  @a true if the object is terminated, @a false otherwise
-     */
-    bool TERMINATED_BASE_RAW(const TYPE *ptr)
-    {
-		return ptr->TERMINATED_PBASE();
-    }
-
 public:
     /**
      * @brief
@@ -702,7 +688,7 @@ public:
     bool TERMINATED(const REFTYPE ref)
     {
         return isValidRef(ref)
-            && TERMINATED_BASE_RAW(get_ptr(ref));
+			&& get_ptr(ref)->TERMINATED_PBASE();
     }
 
     /**
@@ -747,7 +733,7 @@ public:
     bool TERMINATED(const TYPE *ptr)
     {
         return VALID_PTR(ptr)
-            && TERMINATED_BASE_RAW(ptr);
+			&& ptr->TERMINATED_PBASE();
     }
 
     bool INGAME_BASE(const REFTYPE ref)
