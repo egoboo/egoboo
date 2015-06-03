@@ -18,7 +18,7 @@ test:
         - product\egolib-tests\$(configuration)\$(platform)\egolib-tests.dll
 
 notifications:
-    - provider: Webhook
-      url: https://webhooks.gitter.im/e/5dcaa000a0f83715202f
+    - provider: gitter.im
+      url: https://webhooks.gitter.im/e/7743b26cbf1767e7b3a3
       on_build_success: true
       on_build_failure: true
