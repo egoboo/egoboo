@@ -104,7 +104,7 @@ bool executeArgs(const std::vector<std::string> &args)
         _Exit(olderrno);
     }
     int status;
-    pid_t wait = waitpid(pid, &status, 0);
+    waitpid(pid, &status, 0);
     return WIFEXITED(status) && WEXITSTATUS(status) == 0;
 }
 
