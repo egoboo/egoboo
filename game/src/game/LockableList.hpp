@@ -648,19 +648,6 @@ private:
 
     /**
      * @brief
-     *  Get if an object is waiting.
-     * @param ptr
-     *  the object
-     * @return
-     *  @a true if the object is waiting, @a false otherwise
-     */
-    bool WAITING_BASE_RAW(const TYPE *ptr)
-    {
-        return ptr->WAITING_PBASE();
-    }
-
-    /**
-     * @brief
      *  Get if an object is terminated.
      * @param ptr
      *  the object
@@ -712,7 +699,7 @@ public:
     bool WAITING(const REFTYPE ref)
     {
         return isValidRef(ref)
-            && WAITING_BASE_RAW(get_ptr(ref));
+			&& get_ptr(ref)->WAITING_PBASE();
     }
 
     /**
@@ -779,7 +766,7 @@ public:
     bool WAITING(const TYPE *ptr)
     {
         return VALID_PTR(ptr)
-            && WAITING_BASE_RAW(ptr);
+			&& ptr->WAITING_PBASE();
     }
 
     bool TERMINATED(const TYPE *ptr)
