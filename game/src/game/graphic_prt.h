@@ -55,11 +55,11 @@ struct prt_instance_t
     bool         indolist;     ///< Has it been added yet?
 
     // basic info
-    Uint8    type;               ///< particle type
+    uint8_t  type;               ///< particle type
     TX_REF   texture_ref;        ///< which texture
-    Uint32   image_ref;          ///< which sub image within the texture?
+    uint32_t image_ref;          ///< which sub image within the texture?
     float    alpha;              ///< base alpha
-    Uint8    light;              ///< base self lighting
+    uint8_t  light;              ///< base self lighting
 
     // position info
     fvec3_t   pos;
@@ -85,6 +85,44 @@ struct prt_instance_t
     fvec3_t ref_right;
     fvec3_t ref_pos;
 
+    prt_instance_t() :
+        valid(false),
+        indolist(false),
+
+        // basic info
+        type(0),
+        texture_ref(INVALID_TX_REF),
+        image_ref(0),
+        alpha(0.0f),
+        light(0),
+
+        // position info
+        pos(fvec3_t::zero()),
+        size(0.0f),
+        scale(0.0f),
+
+        // billboard info
+        orientation(prt_ori_t::ORIENTATION_B),
+        up(fvec3_t::zero()),
+        right(fvec3_t::zero()),
+        nrm(fvec3_t::zero()),
+
+        // lighting info
+        famb(0.0f),
+        fdir(0.0f),
+
+        fintens(0.0f),
+        falpha(0.0f),
+
+        // pre-compute some values for the reflected particle posisions
+        ref_valid(false),
+        ref_up(fvec3_t::zero()),
+        ref_right(fvec3_t::zero()),
+        ref_pos(fvec3_t::zero())
+    {
+        //ctor   
+    }
+
     static void reset(prt_instance_t *self)
     {
         self->valid = false;
@@ -97,6 +135,7 @@ struct prt_instance_t
         self->texture_ref = INVALID_TX_REF;
         self->image_ref = 0;
         self->alpha = 0.0f;
+        self->light = 0;
 
         // position info
         self->pos = fvec3_t::zero();
