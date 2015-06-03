@@ -104,7 +104,7 @@ void MD2Model::makeEquallyLit()
 	{
 	    for(MD2_Vertex &vertex : frame.vertexList)
 	    {
-	        vertex.normal = EGO_NORMAL_COUNT;
+	        vertex.normal = EGO_NORMAL_COUNT-1;
 	    }
 	}
 }
