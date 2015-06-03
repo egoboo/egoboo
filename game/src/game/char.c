@@ -3758,7 +3758,7 @@ bool chr_update_safe_raw( Object * pchr )
     bool retval = false;
 
     BIT_FIELD hit_a_wall;
-    float pressure;
+    float pressure = 0.0f;
 
     if ( nullptr == ( pchr ) ) return false;
 
