@@ -620,18 +620,6 @@ private:
 		return ptr->DEFINED_BASE_RAW();
     }
 
-    /**
-     * @brief
-     *  Get if an object is allocated.
-     * @param ptr
-     *  the object
-     * @return
-     *  @a true if the object is allocated, @a false otherwise
-     */
-    bool ALLOCATED_BASE_RAW(const TYPE *ptr)
-    {
-        return ptr->ALLOCATED_PBASE();
-    }
 
     /**
      * @brief
@@ -700,7 +688,7 @@ public:
     bool ALLOCATED(const REFTYPE ref)
     {
         return isValidRef(ref)
-            && ALLOCATED_BASE_RAW(get_ptr(ref));
+			&& get_ptr(ref)->ALLOCATED_PBASE();
     }
 
     /**
@@ -741,7 +729,7 @@ public:
     bool ALLOCATED(const TYPE *ptr)
     {
         return VALID_PTR(ptr)
-            && ALLOCATED_BASE_RAW(ptr);
+			&& ptr->ALLOCATED_PBASE();
     }
 
     bool ACTIVE(const TYPE *ptr)
