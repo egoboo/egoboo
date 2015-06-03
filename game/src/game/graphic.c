@@ -5802,8 +5802,11 @@ int TextureAtlasManager::decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_
             // Copy the pixels.
             for (size_t y = 0; y < src_img_rect.h; ++y)
             {
+                if(src_img_rect.y + y >= src_img->h) break;
                 for (size_t x = 0; x < src_img_rect.w; ++x)
                 {
+                    if(src_img_rect.x + x >= src_img->w) break;
+
                     uint32_t p = SDL_GL_getpixel(src_img.get(), src_img_rect.x + x, src_img_rect.y + y);
                     uint8_t r, g, b, a;
                     SDL_GetRGBA(p, src_img->format, &r, &g, &b, &a);
