@@ -24,10 +24,19 @@
 
 #include "game/egoboo_typedef.h"
 
+//@todo This is an ugly hack to work around cyclic dependency and private header guards
+#ifndef GAME_ENTITIES_PRIVATE
+    #define GAME_ENTITIES_PRIVATE 1
+    #include "game/Entities/ObjectHandler.hpp"
+    #undef GAME_ENTITIES_PRIVATE
+#else
+    #include "game/Entities/ObjectHandler.hpp"
+#endif
+
 // Forward declarations.
 class ModuleProfile;
 class Passage;
-
+class Team;
 
 /// The module data that the game needs.
 class GameModule : public Id::NonCopyable
@@ -142,8 +151,22 @@ public:
 
     const std::list<std::string>& getImportPlayers() const {return _playerList;}
 
+    /**
+    * @brief
+    *   Get list of all teams in this Module. Teams determine who like each other and who don't
+    **/
+    std::vector<Team>& getTeamList() {return _teamList;}
+
+    /**
+    * @return
+    *   Get the ObjectHandler associated with this Module instance
+    **/
+    ObjectHandler& getObjectHandler() {return _gameObjects;}
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
+    ObjectHandler _gameObjects;
+    std::vector<Team> _teamList;
     std::list<std::string> _playerList;     ///< List of all import players
 
     std::string  _name;                       ///< Module load names
@@ -158,4 +181,4 @@ private:
 };
 
 /// @todo Remove this global.
-extern std::unique_ptr<GameModule> PMod;
+extern std::unique_ptr<GameModule> _currentModule;

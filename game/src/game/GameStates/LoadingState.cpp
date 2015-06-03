@@ -207,7 +207,7 @@ void LoadingState::loadModuleData()
         endState();
         return;
     }
-    PMod->setImportPlayers(_playersToLoad);
+    _currentModule->setImportPlayers(_playersToLoad);
 
     singleThreadRedrawHack("Almost done...");
 

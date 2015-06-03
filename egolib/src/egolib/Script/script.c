@@ -34,6 +34,7 @@
 #include "game/char.h"
 #include "game/Core/GameEngine.hpp"
 #include "game/Graphics/CameraSystem.hpp"
+#include "game/Module/Module.hpp"
 
 
 //--------------------------------------------------------------------------------------------
@@ -131,8 +132,8 @@ void scr_run_chr_script( const CHR_REF character )
     // make sure that this module is initialized
     scripting_system_begin();
 
-    if ( !_gameObjects.exists( character ) )  return;
-    pchr  = _gameObjects.get( character );
+    if ( !_currentModule->getObjectHandler().exists( character ) )  return;
+    pchr  = _currentModule->getObjectHandler().get( character );
     pself = &( pchr->ai );
     pscript = &pchr->getProfile()->getAIScript();
 
@@ -209,7 +210,7 @@ void scr_run_chr_script( const CHR_REF character )
     // Reset the target if it can't be seen
     if ( pself->target != pself->index )
     {
-        const std::shared_ptr<Object> &target = _gameObjects[pself->target];
+        const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
         if (target && !pchr->canSeeObject(target))
         {
             pself->target = pself->index;
@@ -256,11 +257,11 @@ void scr_run_chr_script( const CHR_REF character )
 
         ai_state_ensure_wp( pself );
 
-        if ( pchr->isMount() && _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
+        if ( pchr->isMount() && _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Mount
-            pchr->latch.x = _gameObjects.get(pchr->holdingwhich[SLOT_LEFT])->latch.x;
-            pchr->latch.y = _gameObjects.get(pchr->holdingwhich[SLOT_LEFT])->latch.y;
+            pchr->latch.x = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.x;
+            pchr->latch.y = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.y;
         }
         else if ( pself->wp_valid )
         {
@@ -889,17 +890,17 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
     Object * pchr = NULL, * ptarget = NULL, * powner = NULL;
 
-    if ( !_gameObjects.exists( pself->index ) ) return;
-    pchr = _gameObjects.get( pself->index );
+    if ( !_currentModule->getObjectHandler().exists( pself->index ) ) return;
+    pchr = _currentModule->getObjectHandler().get( pself->index );
 
-    if ( _gameObjects.exists( pself->target ) )
+    if ( _currentModule->getObjectHandler().exists( pself->target ) )
     {
-        ptarget = _gameObjects.get( pself->target );
+        ptarget = _currentModule->getObjectHandler().get( pself->target );
     }
 
-    if ( _gameObjects.exists( pself->owner ) )
+    if ( _currentModule->getObjectHandler().exists( pself->owner ) )
     {
-        powner = _gameObjects.get( pself->owner );
+        powner = _currentModule->getObjectHandler().get( pself->owner );
     }
 
     // get the operator
@@ -976,7 +977,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSELFMORALE:
                 varname = "SELFMORALE";
-                iTmp = TeamStack.lst[pchr->team_base].morale;
+                iTmp = _currentModule->getTeamList()[pchr->team_base].getMorale();
                 break;
 
             case VARSELFLIFE:
@@ -1013,29 +1014,32 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 break;
 
             case VARLEADERX:
+            {
                 varname = "LEADERX";
                 iTmp = pchr->getPosX();
-                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->getPosX();
-
+                std::shared_ptr<Object> leader = _currentModule->getTeamList()[pchr->team].getLeader();
+                if ( leader )
+                    iTmp = leader->getPosX();
                 break;
+            }
 
             case VARLEADERY:
+            {
                 varname = "LEADERY";
                 iTmp = pchr->getPosY();
-                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->getPosY();
+                std::shared_ptr<Object> leader = _currentModule->getTeamList()[pchr->team].getLeader();
+                if ( leader )
+                    iTmp = leader->getPosY();
 
-                break;
+                break; 
+            }
 
             case VARLEADERDISTANCE:
                 {
-                    Object * pleader;
                     varname = "LEADERDISTANCE";
 
-                    pleader = team_get_pleader( pchr->team );
-
-                    if ( NULL == pleader )
+                    std::shared_ptr<Object> pleader = _currentModule->getTeamList()[pchr->team].getLeader();
+                    if ( !pleader )
                     {
                         iTmp = 0x7FFFFFFF;
                     }
@@ -1050,8 +1054,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             case VARLEADERTURN:
                 varname = "LEADERTURN";
                 iTmp = pchr->ori.facing_z;
-                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->ori.facing_z;
+                if ( _currentModule->getTeamList()[pchr->team].getLeader() )
+                    iTmp = _currentModule->getTeamList()[pchr->team].getLeader()->ori.facing_z;
 
                 break;
 
@@ -1553,7 +1557,7 @@ bool ai_state_get_wp( ai_state_t * pself )
 {
     // try to load up the top waypoint
 
-    if ( NULL == pself || !_gameObjects.exists( pself->index ) ) return false;
+    if ( NULL == pself || !_currentModule->getObjectHandler().exists( pself->index ) ) return false;
 
     pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
 
@@ -1565,7 +1569,7 @@ bool ai_state_ensure_wp( ai_state_t * pself )
 {
     // is the current waypoint is not valid, try to load up the top waypoint
 
-    if ( NULL == pself || !_gameObjects.exists( pself->index ) ) return false;
+    if ( NULL == pself || !_currentModule->getObjectHandler().exists( pself->index ) ) return false;
 
     if ( pself->wp_valid ) return true;
 
@@ -1584,8 +1588,8 @@ void set_alerts( const CHR_REF character )
     bool at_waypoint;
 
     // invalid characters do not think
-    if ( !_gameObjects.exists( character ) ) return;
-    pchr = _gameObjects.get( character );
+    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
+    pchr = _currentModule->getObjectHandler().get( character );
     pai  = chr_get_pai( character );
 
     if ( waypoint_list_empty( &( pai->wp_lst ) ) ) return;
@@ -1595,7 +1599,7 @@ void set_alerts( const CHR_REF character )
     // waypoints around a track or something
 
     // mounts do not get alerts
-    // if ( _gameObjects.exists(pchr->attachedto) ) return;
+    // if ( _currentModule->getObjectHandler().exists(pchr->attachedto) ) return;
 
     // is the current waypoint is not valid, try to load up the top waypoint
     ai_state_ensure_wp( pai );
@@ -1643,11 +1647,13 @@ void issue_order( const CHR_REF character, Uint32 value )
     /// @details This function issues an value for help to all teammates
     int counter = 0;
 
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
+
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if ( object->isTerminated() ) continue;
 
-        if ( object->getTeam() == chr_get_iteam( character ) )
+        if ( object->getTeam() == pchr->getTeam() )
         {
             ai_add_order( chr_get_pai(object->getCharacterID() ), value, counter );
             counter++;
@@ -1662,7 +1668,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     /// @details This function issues an order to all characters with the a matching special IDSZ
     int counter = 0;
 
-    for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if ( object->isTerminated() ) continue;
 
@@ -1783,7 +1789,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 
     if ( NULL == pself ) return false;
 
-    if ( !_gameObjects.exists( ichr ) ) return false;
+    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
 
     // 5 bumps per second?
     if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + GameEngine::GAME_TARGET_UPS / 5 )
@@ -1799,7 +1805,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
 {
-    const std::shared_ptr<Object> &pchr = _gameObjects[index];
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[index];
     pself = ai_state_ctor( pself );
 
     if ( NULL == pself || !pchr ) return;

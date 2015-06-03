@@ -30,11 +30,11 @@ CHR_REF Inventory::findItem(const Object *pobj, IDSZ idsz, bool equippedOnly)
 
 CHR_REF Inventory::findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly)
 {
-    if (!_gameObjects.exists(iobj))
+    if (!_currentModule->getObjectHandler().exists(iobj))
     {
         return INVALID_CHR_REF;
     }
-    return Inventory::findItem(_gameObjects.get(iobj), idsz, equippedOnly);
+    return Inventory::findItem(_currentModule->getObjectHandler().get(iobj), idsz, equippedOnly);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -44,9 +44,9 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     int newammo;
 
     //valid character?
-    if ( !_gameObjects.exists( ichr ) || !_gameObjects.exists( item ) ) return false;
-    pchr = _gameObjects.get( ichr );
-    pitem = _gameObjects.get( item );
+    if ( !_currentModule->getObjectHandler().exists( ichr ) || !_currentModule->getObjectHandler().exists( item ) ) return false;
+    pchr = _currentModule->getObjectHandler().get( ichr );
+    pitem = _currentModule->getObjectHandler().get( item );
 
     //try get the first free slot found?
     if ( inventory_slot >= MAXINVENTORY )
@@ -54,7 +54,7 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
         int i;
         for ( i = 0; i < Object::MAXNUMINPACK; i++ )
         {
-            if ( !_gameObjects.exists( pchr->inventory[i] ) )
+            if ( !_currentModule->getObjectHandler().exists( pchr->inventory[i] ) )
             {
                 //found a free slot
                 inventory_slot = i;
@@ -67,10 +67,10 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     }
 
     //don't override existing items
-    if ( _gameObjects.exists( pchr->inventory[inventory_slot] ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( pchr->inventory[inventory_slot] ) ) return false;
 
     // don't allow sub-inventories
-    if ( _gameObjects.exists( pitem->inwhich_inventory ) ) return false;
+    if ( _currentModule->getObjectHandler().exists( pitem->inwhich_inventory ) ) return false;
 
     //kursed?
     if ( pitem->iskursed && !ignorekurse )
@@ -91,10 +91,10 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
 
     //put away inhand item
     CHR_REF stack = Inventory::hasStack( item, ichr );
-    if ( _gameObjects.exists( stack ) )
+    if ( _currentModule->getObjectHandler().exists( stack ) )
     {
         // We found a similar, stackable item in the pack
-        Object  * pstack      = _gameObjects.get( stack );
+        Object  * pstack      = _currentModule->getObjectHandler().get( stack );
 
         // reveal the name of the item or the stack
         if ( pitem->nameknown || pstack->getProfile()->isNameKnown() )
@@ -169,8 +169,8 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
     bool inventory_rv;
 
     //valid character?
-    if ( !_gameObjects.exists( ichr ) ) return false;
-    pchr = _gameObjects.get( ichr );
+    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
+    pchr = _currentModule->getObjectHandler().get( ichr );
 
     //try get the first used slot found?
     if ( inventory_slot >= MAXINVENTORY )
@@ -178,7 +178,7 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
         int i;
         for ( i = 0; i < Object::MAXNUMINPACK; i++ )
         {
-            if ( !_gameObjects.exists( pchr->inventory[i] ) )
+            if ( !_currentModule->getObjectHandler().exists( pchr->inventory[i] ) )
             {
                 //found a free slot
                 inventory_slot = i;
@@ -191,26 +191,26 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
     item           = pchr->holdingwhich[grip_off];
 
     // Make sure everything is hunkydori
-    if ( pchr->isitem || _gameObjects.exists( pchr->inwhich_inventory ) ) return false;
+    if ( pchr->isitem || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return false;
 
     //remove existing item
-    if ( _gameObjects.exists( inventory_item ) )
+    if ( _currentModule->getObjectHandler().exists( inventory_item ) )
     {
         inventory_rv = Inventory::remove_item( ichr, inventory_slot, ignorekurse );
         if ( inventory_rv ) success = true;
     }
 
     //put in the new item
-    if ( _gameObjects.exists( item ) )
+    if ( _currentModule->getObjectHandler().exists( item ) )
     {
         inventory_rv = Inventory::add_item( ichr, item, inventory_slot, ignorekurse );
         if ( inventory_rv ) success = true;
     }
 
     //now put the inventory item into the character's hand
-    if ( _gameObjects.exists( inventory_item ) && success )
+    if ( _currentModule->getObjectHandler().exists( inventory_item ) && success )
     {
-        Object *pitem = _gameObjects.get( inventory_item );
+        Object *pitem = _currentModule->getObjectHandler().get( inventory_item );
         attach_character_to_mount( inventory_item, ichr, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
 
         //fix flags
@@ -231,13 +231,13 @@ bool Inventory::remove_item( const CHR_REF ichr, const size_t inventory_slot, co
     if ( inventory_slot >= MAXINVENTORY )  return false;
 
     //valid char?
-    if ( !_gameObjects.exists( ichr ) ) return false;
-    pholder = _gameObjects.get( ichr );
+    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
+    pholder = _currentModule->getObjectHandler().get( ichr );
     item = pholder->inventory[inventory_slot];
 
     //valid item?
-    if ( !_gameObjects.exists( item ) ) return false;
-    pitem = _gameObjects.get( item );
+    if ( !_currentModule->getObjectHandler().exists( item ) ) return false;
+    pitem = _currentModule->getObjectHandler().get( item );
 
     //is it kursed?
     if ( pitem->iskursed && !ignorekurse )
@@ -260,7 +260,7 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
     bool found  = false;
     CHR_REF istack = INVALID_CHR_REF;
 
-    std::shared_ptr<Object> pitem = _gameObjects[item];
+    std::shared_ptr<Object> pitem = _currentModule->getObjectHandler()[item];
     if(!pitem) {
         return INVALID_CHR_REF;
     }
@@ -270,9 +270,9 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
         return INVALID_CHR_REF;
     }
 
-    PACK_BEGIN_LOOP( _gameObjects.get(character)->inventory, pstack, istack_new )
+    PACK_BEGIN_LOOP( _currentModule->getObjectHandler().get(character)->inventory, pstack, istack_new )
     {
-        const std::shared_ptr<ObjectProfile> &stackProfile = _gameObjects[istack_new]->getProfile();
+        const std::shared_ptr<ObjectProfile> &stackProfile = _currentModule->getObjectHandler()[istack_new]->getProfile();
 
         found = stackProfile->isStackable();
 

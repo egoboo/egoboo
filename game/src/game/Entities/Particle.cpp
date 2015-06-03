@@ -312,9 +312,9 @@ void end_one_particle_in_game(const PRT_REF particle)
         if (SPAWNNOCHARACTER != pprt->endspawn_characterstate)
         {
             CHR_REF child = spawn_one_character(pprt->getPosition(), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF);
-            if (_gameObjects.exists(child))
+            if (_currentModule->getObjectHandler().exists(child))
             {
-                Object *pchild = _gameObjects.get(child);
+                Object *pchild = _currentModule->getObjectHandler().get(child);
 
                 chr_set_ai_state(pchild, pprt->endspawn_characterstate);
                 pchild->ai.owner = pprt->owner_ref;
@@ -360,7 +360,7 @@ prt_t *prt_t::config_do_init()
     if (!LOADED_PIP(pdata->ipip))
     {
         log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-            REF_TO_INT(pdata->ipip), REF_TO_INT(pdata->chr_origin), _gameObjects.exists(pdata->chr_origin) ? _gameObjects.get(pdata->chr_origin)->Name : "INVALID",
+            REF_TO_INT(pdata->ipip), REF_TO_INT(pdata->chr_origin), _currentModule->getObjectHandler().exists(pdata->chr_origin) ? _currentModule->getObjectHandler().get(pdata->chr_origin)->Name : "INVALID",
             REF_TO_INT(pdata->iprofile), ProfileSystem::get().isValidProfileID(pdata->iprofile) ? ProfileSystem::get().getProfile(pdata->iprofile)->getPathname().c_str() : "INVALID");
 
         return nullptr;
@@ -385,7 +385,7 @@ prt_t *prt_t::config_do_init()
     // try to get an idea of who our owner is even if we are
     // given bogus info
     loc_chr_origin = pdata->chr_origin;
-    if (!_gameObjects.exists(pdata->chr_origin) && DEFINED_PRT(pdata->prt_origin))
+    if (!_currentModule->getObjectHandler().exists(pdata->chr_origin) && DEFINED_PRT(pdata->prt_origin))
     {
         loc_chr_origin = prt_get_iowner(pdata->prt_origin, 0);
     }
@@ -439,7 +439,7 @@ prt_t *prt_t::config_do_init()
 
             // Find a target
             pprt->target_ref = prt_find_target(pdata->pos, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget);
-            if (_gameObjects.exists(pprt->target_ref) && !ppip->homing)
+            if (_currentModule->getObjectHandler().exists(pprt->target_ref) && !ppip->homing)
             {
                 /// @note ZF@> ?What does this do?!
                 /// @note BB@> glouseangle is the angle found in prt_find_target()
@@ -448,27 +448,27 @@ prt_t *prt_t::config_do_init()
 
             // Correct loc_facing for dexterity...
             offsetfacing = 0;
-            if (_gameObjects.get(loc_chr_origin)->dexterity < PERFECT_AIM)
+            if (_currentModule->getObjectHandler().get(loc_chr_origin)->dexterity < PERFECT_AIM)
             {
                 // Correct loc_facing for randomness
                 offsetfacing = generate_irand_pair(ppip->facing_pair) - (ppip->facing_pair.base + ppip->facing_pair.rand / 2);
-                offsetfacing = (offsetfacing * (PERFECT_AIM - _gameObjects.get(loc_chr_origin)->dexterity)) / PERFECT_AIM;
+                offsetfacing = (offsetfacing * (PERFECT_AIM - _currentModule->getObjectHandler().get(loc_chr_origin)->dexterity)) / PERFECT_AIM;
             }
 
             if (0.0f != ppip->zaimspd)
             {
-                if (_gameObjects.exists(pprt->target_ref))
+                if (_currentModule->getObjectHandler().exists(pprt->target_ref))
                 {
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if (velocity > 0)
                     {
-                        vel[kX] = _gameObjects.get(pprt->target_ref)->getPosX() - pdata->pos[kX];
-                        vel[kY] = _gameObjects.get(pprt->target_ref)->getPosY() - pdata->pos[kY];
+                        vel[kX] = _currentModule->getObjectHandler().get(pprt->target_ref)->getPosX() - pdata->pos[kX];
+                        vel[kY] = _currentModule->getObjectHandler().get(pprt->target_ref)->getPosY() - pdata->pos[kY];
                         tvel = std::sqrt(vel[kX] * vel[kX] + vel[kY] * vel[kY]) / velocity;  // This is the number of steps...
                         if (tvel > 0.0f)
                         {
                             // This is the vel[kZ] alteration
-                            vel[kZ] = (_gameObjects.get(pprt->target_ref)->getPosZ() + (_gameObjects.get(pprt->target_ref)->bump.height * 0.5f) - tmp_pos[kZ]) / tvel;
+                            vel[kZ] = (_currentModule->getObjectHandler().get(pprt->target_ref)->getPosZ() + (_currentModule->getObjectHandler().get(pprt->target_ref)->bump.height * 0.5f) - tmp_pos[kZ]) / tvel;
                         }
                     }
                 }
@@ -482,17 +482,17 @@ prt_t *prt_t::config_do_init()
         }
 
         // Does it go away?
-        if (!_gameObjects.exists(pprt->target_ref) && ppip->needtarget)
+        if (!_currentModule->getObjectHandler().exists(pprt->target_ref) && ppip->needtarget)
         {
             end_one_particle_in_game(iprt);
             return NULL;
         }
 
         // Start on top of target
-        if (_gameObjects.exists(pprt->target_ref) && ppip->startontarget)
+        if (_currentModule->getObjectHandler().exists(pprt->target_ref) && ppip->startontarget)
         {
-            tmp_pos[kX] = _gameObjects.get(pprt->target_ref)->getPosX();
-            tmp_pos[kY] = _gameObjects.get(pprt->target_ref)->getPosY();
+            tmp_pos[kX] = _currentModule->getObjectHandler().get(pprt->target_ref)->getPosX();
+            tmp_pos[kY] = _currentModule->getObjectHandler().get(pprt->target_ref)->getPosY();
         }
     }
     else
@@ -626,7 +626,7 @@ prt_t *prt_t::config_do_init()
     if (0 != pprt->contspawn_timer)
     {
         pprt->contspawn_timer = 1;
-        if (_gameObjects.exists(pprt->attachedto_ref))
+        if (_currentModule->getObjectHandler().exists(pprt->attachedto_ref))
         {
             pprt->contspawn_timer++; // Because attachment takes an update before it happens
         }
@@ -656,7 +656,7 @@ prt_t *prt_t::config_do_init()
     }
 
     // get an initial value for the is_homing variable
-    pprt->is_homing = ppip->homing && !_gameObjects.exists(pprt->attachedto_ref);
+    pprt->is_homing = ppip->homing && !_currentModule->getObjectHandler().exists(pprt->attachedto_ref);
 
     //enable or disable gravity
     pprt->no_gravity = ppip->ignore_gravity;
@@ -710,7 +710,7 @@ prt_t *prt_t::config_do_init()
         "\n",
         iprt,
         update_wld, pprt->lifetime, game_frame_all, pprt->safe_time,
-        loc_chr_origin, _gameObjects.exists( loc_chr_origin ) ? _gameObjects.get(loc_chr_origin)->Name : "INVALID",
+        loc_chr_origin, _currentModule->getObjectHandler().exists( loc_chr_origin ) ? _currentModule->getObjectHandler().get(loc_chr_origin)->Name : "INVALID",
         pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
         pdata->iprofile, ProfileSystem::get().isValidProfileID(pdata->iprofile) ? ProList.lst[pdata->iprofile].name : "INVALID");
 #endif
@@ -882,19 +882,19 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
     //     last loop
     loc_level = penviro->floor_level;
-    if (_gameObjects.exists(loc_pprt->onwhichplatform_ref))
+    if (_currentModule->getObjectHandler().exists(loc_pprt->onwhichplatform_ref))
     {
-        loc_level = std::max(penviro->floor_level, _gameObjects.get(loc_pprt->onwhichplatform_ref)->getPosZ() + _gameObjects.get(loc_pprt->onwhichplatform_ref)->chr_min_cv.maxs[OCT_Z]);
+        loc_level = std::max(penviro->floor_level, _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref)->getPosZ() + _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref)->chr_min_cv.maxs[OCT_Z]);
     }
     loc_pprt->set_level(loc_level);
 
     //---- the "twist" of the floor
     penviro->twist = TWIST_FLAT;
     TileIndex itile = TileIndex::Invalid;
-    if (_gameObjects.exists(loc_pprt->onwhichplatform_ref))
+    if (_currentModule->getObjectHandler().exists(loc_pprt->onwhichplatform_ref))
     {
         // this only works for 1 level of attachment
-        itile = _gameObjects.get(loc_pprt->onwhichplatform_ref)->getTile();
+        itile = _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref)->getTile();
     }
     else
     {
@@ -914,7 +914,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
         // any traction factor here
         /* traction = ??; */
     }
-    else if (_gameObjects.exists(loc_pprt->onwhichplatform_ref))
+    else if (_currentModule->getObjectHandler().exists(loc_pprt->onwhichplatform_ref))
     {
         // in case the platform is tilted
         // unfortunately platforms are attached in the collision section
@@ -922,7 +922,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
 
         fvec3_t platform_up;
 
-        chr_getMatUp(_gameObjects.get(loc_pprt->onwhichplatform_ref), platform_up);
+        chr_getMatUp(_currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref), platform_up);
         platform_up.normalize();
 
         penviro->traction = std::abs(platform_up[kZ]) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
@@ -1062,9 +1062,9 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_floor_friction()
     // figure out the acceleration due to the current "floor"
     floor_acc[kX] = floor_acc[kY] = floor_acc[kZ] = 0.0f;
     temp_friction_xy = 1.0f;
-    if (_gameObjects.exists(loc_pprt->onwhichplatform_ref))
+    if (_currentModule->getObjectHandler().exists(loc_pprt->onwhichplatform_ref))
     {
-        Object * pplat = _gameObjects.get(loc_pprt->onwhichplatform_ref);
+        Object * pplat = _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref);
 
         temp_friction_xy = PLATFORM_STICKINESS;
 
@@ -1145,18 +1145,18 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 	if (!loc_pprt->is_homing) return this;
 
     // the loc_pprt->is_homing variable is supposed to track the following, but it could have lost synch by this point
-	if (_gameObjects.exists(loc_pprt->attachedto_ref) || !_gameObjects.exists(loc_pprt->target_ref)) return this;
+	if (_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref) || !_currentModule->getObjectHandler().exists(loc_pprt->target_ref)) return this;
 
     // grab a pointer to the target
-    Object *ptarget = _gameObjects.get(loc_pprt->target_ref);
+    Object *ptarget = _currentModule->getObjectHandler().get(loc_pprt->target_ref);
 
     vdiff = ptarget->getPosition() - loc_pprt->getPosition();
     vdiff[kZ] += ptarget->bump.height * 0.5f;
 
-    min_length = 2 * 5 * 256 * (_gameObjects.get(loc_pprt->owner_ref)->wisdom / (float)PERFECTBIG);
+    min_length = 2 * 5 * 256 * (_currentModule->getObjectHandler().get(loc_pprt->owner_ref)->wisdom / (float)PERFECTBIG);
 
     // make a little incertainty about the target
-    uncertainty = 256.0f * (1.0f - _gameObjects.get(loc_pprt->owner_ref)->intelligence / (float)PERFECTBIG);
+    uncertainty = 256.0f * (1.0f - _currentModule->getObjectHandler().get(loc_pprt->owner_ref)->intelligence / (float)PERFECTBIG);
 
     ival = Random::next(std::numeric_limits<uint16_t>::max());
     vdither[kX] = (((float)ival / 0x8000) - 1.0f)  * uncertainty;
@@ -1199,7 +1199,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 prt_bundle_t *prt_bundle_t::updateParticleSimpleGravity()
 {
     //Only do gravity for solid particles
-    if (!this->_prt_ptr->no_gravity && this->_prt_ptr->type == SPRITE_SOLID && !this->_prt_ptr->is_homing  && !_gameObjects.exists(this->_prt_ptr->attachedto_ref))
+    if (!this->_prt_ptr->no_gravity && this->_prt_ptr->type == SPRITE_SOLID && !this->_prt_ptr->is_homing  && !_currentModule->getObjectHandler().exists(this->_prt_ptr->attachedto_ref))
     {
         this->_prt_ptr->vel[kZ] += Physics::g_environment.gravity 
                                   * Physics::g_environment.airfriction;
@@ -1223,7 +1223,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_z_motion()
     /// @note BB@> however, the fireball particle is light, and without gravity it will never bounce on the
     ///            ground as it is supposed to
     /// @note ZF@> I will try to fix this by adding a new  no_gravity expansion for particles
-    if (loc_pprt->no_gravity || /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || _gameObjects.exists(loc_pprt->attachedto_ref)) return this;
+    if (loc_pprt->no_gravity || /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || _currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref)) return this;
 
     loc_zlerp = CLIP(penviro->zlerp, 0.0f, 1.0f);
 
@@ -1609,9 +1609,9 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
             // use velocity to find the angle
             loc_pprt->facing = vec_to_facing(loc_pprt->vel[kX], loc_pprt->vel[kY]);
         }
-        else if (_gameObjects.exists(loc_pprt->target_ref))
+        else if (_currentModule->getObjectHandler().exists(loc_pprt->target_ref))
         {
-            Object *ptarget = _gameObjects.get(loc_pprt->target_ref);
+            Object *ptarget = _currentModule->getObjectHandler().get(loc_pprt->target_ref);
 
             // face your target
             loc_pprt->facing = vec_to_facing(ptarget->getPosX() - tmp_pos[kX], ptarget->getPosY() - tmp_pos[kY]);
@@ -1639,7 +1639,7 @@ bool prt_bundle_t::move_one_particle()
     penviro->acc = loc_pprt->vel - loc_pprt->vel_old;
 
     // determine the actual velocity for attached particles
-    if (_gameObjects.exists(loc_pprt->attachedto_ref))
+    if (_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref))
     {
         loc_pprt->vel = loc_pprt->getPosition() - loc_pprt->pos_old;
     }
@@ -1719,8 +1719,8 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     if (0 == ppip->bumpspawn._amount && !ppip->spawnenchant) return 0;
     amount = ppip->bumpspawn._amount;
 
-    if (!_gameObjects.exists(character)) return 0;
-    Object *pchr = _gameObjects.get(character);
+    if (!_currentModule->getObjectHandler().exists(character)) return 0;
+    Object *pchr = _currentModule->getObjectHandler().get(character);
 
     mad_t *pmad = chr_get_pmad(character);
     if (NULL == pmad) return 0;
@@ -2120,10 +2120,10 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
     if (0 != (update_count & 31)) return pbdl_prt;
 
     // we must be attached to something
-    if (!_gameObjects.exists(loc_pprt->attachedto_ref)) return pbdl_prt;
+    if (!_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref)) return pbdl_prt;
 
     CHR_REF ichr = loc_pprt->attachedto_ref;
-    Object *loc_pchr = _gameObjects.get(loc_pprt->attachedto_ref);
+    Object *loc_pchr = _currentModule->getObjectHandler().get(loc_pprt->attachedto_ref);
 
     // find out who is holding the owner of this object
     CHR_REF iholder = chr_get_lowest_attachment(ichr, true);
@@ -2132,7 +2132,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
     // do nothing if you are attached to your owner
     if ((INVALID_CHR_REF != loc_pprt->owner_ref) && (iholder == loc_pprt->owner_ref || ichr == loc_pprt->owner_ref)) return pbdl_prt;
 
-    const std::shared_ptr<Object> &character = _gameObjects[ichr];
+    const std::shared_ptr<Object> &character = _currentModule->getObjectHandler()[ichr];
 
     //---- only do damage in certain cases:
 
@@ -2195,7 +2195,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
 
     //---- do the damage
     int actual_damage = character->damage(ATK_BEHIND, local_damage, static_cast<DamageType>(loc_pprt->damagetype), loc_pprt->team,
-        _gameObjects[loc_pprt->owner_ref], loc_ppip->damfx, false);
+        _currentModule->getObjectHandler()[loc_pprt->owner_ref], loc_ppip->damfx, false);
 
     // adjust any remaining particle damage
     if (loc_pprt->damage.base > 0)
@@ -2243,7 +2243,7 @@ int prt_bundle_t::do_contspawn()
             ///            since we already specified that the particle is not attached in the function call :P
             /// @note ZF@> I have again disabled this. Is this really needed? It wasn't implemented before and causes
             ///            many, many, many issues with all particles around the game.
-            //if( !_gameObjects.exists( loc_pprt->attachedto_ref ) )
+            //if( !_currentModule->getObjectHandler().exists( loc_pprt->attachedto_ref ) )
             /*{
             PrtList.lst[prt_child].vel[kX] += loc_pprt->vel[kX];
             PrtList.lst[prt_child].vel[kY] += loc_pprt->vel[kY];
@@ -2270,7 +2270,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
     if (inwater && water.is_water && this->_pip_ptr->end_water)
     {
         // Check for disaffirming character
-        if (_gameObjects.exists(this->_prt_ptr->attachedto_ref) && this->_prt_ptr->owner_ref == this->_prt_ptr->attachedto_ref)
+        if (_currentModule->getObjectHandler().exists(this->_prt_ptr->attachedto_ref) && this->_prt_ptr->owner_ref == this->_prt_ptr->attachedto_ref)
         {
             // Disaffirm the whole character
             disaffirm_attached_particles(this->_prt_ptr->attachedto_ref);
@@ -2309,7 +2309,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
             }
             else
             {
-                if (SPRITE_SOLID == this->_prt_ptr->type && !_gameObjects.exists(this->_prt_ptr->attachedto_ref))
+                if (SPRITE_SOLID == this->_prt_ptr->type && !_currentModule->getObjectHandler().exists(this->_prt_ptr->attachedto_ref))
                 {
                     // only spawn ripples if you are touching the water surface!
                     if (this->_prt_ptr->pos[kZ] + this->_prt_ptr->bump_real.height > water.surface_level && this->_prt_ptr->pos[kZ] - this->_prt_ptr->bump_real.height < water.surface_level)
@@ -2481,13 +2481,13 @@ prt_bundle_t * prt_bundle_t::update_ingame()
 
     loc_pprt->is_hidden = false;
     // If the object to which the particle is attached to exists, ...
-    if (_gameObjects.exists(loc_pprt->attachedto_ref))
+    if (_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref))
     {
         // ... the particle inherits the property of being hidden or not from that object.
-        loc_pprt->is_hidden = _gameObjects.get(loc_pprt->attachedto_ref)->is_hidden;
+        loc_pprt->is_hidden = _currentModule->getObjectHandler().get(loc_pprt->attachedto_ref)->is_hidden;
     }
     // Clear out the attachment if the character does not exist.
-    else if (!_gameObjects.exists(loc_pprt->attachedto_ref))
+    else if (!_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref))
     {
         loc_pprt->attachedto_ref = INVALID_CHR_REF;
     }
@@ -2498,8 +2498,8 @@ prt_bundle_t * prt_bundle_t::update_ingame()
     // Determine if a "homing" particle still has something to "home":
     // If its homing (according to its profile), is not attached to an object (yet),
     // and a target exists, then the particle will "home" that target.
-    loc_pprt->is_homing = loc_ppip->homing && !_gameObjects.exists(loc_pprt->attachedto_ref)
-                       && _gameObjects.exists(loc_pprt->target_ref);
+    loc_pprt->is_homing = loc_ppip->homing && !_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref)
+                       && _currentModule->getObjectHandler().exists(loc_pprt->target_ref);
 
     // Update the particle interaction with water.
     /// @todo This might end the particle, however, the test via the return value *sucks*.
@@ -2557,19 +2557,19 @@ prt_bundle_t *prt_bundle_t::update_ghost()
     }
 
     // clear out the attachment if the character doesn't exist at all
-    if (!_gameObjects.exists(loc_pprt->attachedto_ref))
+    if (!_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref))
     {
         loc_pprt->attachedto_ref = INVALID_CHR_REF;
     }
 
     // determine whether the pbdl_prt->prt_ref is hidden
     loc_pprt->is_hidden = false;
-    if (_gameObjects.exists(loc_pprt->attachedto_ref))
+    if (_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref))
     {
-        loc_pprt->is_hidden = _gameObjects.get(loc_pprt->attachedto_ref)->is_hidden;
+        loc_pprt->is_hidden = _currentModule->getObjectHandler().get(loc_pprt->attachedto_ref)->is_hidden;
     }
 
-    loc_pprt->is_homing = loc_ppip->homing && !_gameObjects.exists(loc_pprt->attachedto_ref) && _gameObjects.exists(loc_pprt->target_ref);
+    loc_pprt->is_homing = loc_ppip->homing && !_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref) && _currentModule->getObjectHandler().exists(loc_pprt->target_ref);
 
     // the following functions should not be done the first time through the update loop
     if (0 == update_wld) return this;
@@ -2795,7 +2795,7 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
     prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
 
     CHR_REF iowner = INVALID_CHR_REF;
-    if (_gameObjects.exists(pprt->owner_ref))
+    if (_currentModule->getObjectHandler().exists(pprt->owner_ref))
     {
         iowner = pprt->owner_ref;
     }

@@ -23,8 +23,6 @@
 
 #define GAME_ENTITIES_PRIVATE 1
 #include "game/Entities/Object.hpp"
-#include "game/Module/Module.hpp"
-#include "game/Entities/ObjectHandler.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "game/Entities/Object.hpp"
 #include "game/Entities/ObjectHandler.hpp"
@@ -68,8 +66,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     holdingwhich(),
     equipment(),
     inventory(),
-    team(TEAM_NULL),
-    team_base(TEAM_NULL),
+    team(Team::TEAM_NULL),
+    team_base(Team::TEAM_NULL),
     firstenchant(INVALID_ENC_REF),
     undoenchant(INVALID_ENC_REF), 
     fat_stt(0.0f),
@@ -206,68 +204,68 @@ Object::~Object()
     /// @author ZZ
     /// @details Make character safely deleteable
 
-    // Detach the character from the game
-    if(PMod) {
+    // Detach the character from the active game
+    if(_currentModule) {
         cleanup_one_character(this);
-    }
 
-    // free the character's inventory
-    free_inventory_in_game(getCharacterID());
+        // free the character's inventory
+        free_inventory_in_game(getCharacterID());
 
-    //If we are inside an inventory we need to remove us
-    const std::shared_ptr<Object> &inventoryHolder = _gameObjects[inwhich_inventory];
-    if(inventoryHolder) {
-        for (size_t i = 0; i < inventoryHolder->inventory.size(); i++)
-        {
-            if(inventoryHolder->inventory[i] == getCharacterID()) 
+        //If we are inside an inventory we need to remove us
+        const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[inwhich_inventory];
+        if(inventoryHolder) {
+            for (size_t i = 0; i < inventoryHolder->inventory.size(); i++)
             {
-                inventoryHolder->inventory[i] = INVALID_CHR_REF;
-                break;
-            }
-        }
-    }
-
-    // Remove from stat list
-    if (show_stats)
-    {
-        size_t  cnt;
-        bool stat_found;
-
-        show_stats = false;
-
-        stat_found = false;
-        for (cnt = 0; cnt < StatusList.count; cnt++)
-        {
-            if ( StatusList.lst[cnt].who == getCharacterID() )
-            {
-                stat_found = true;
-                break;
+                if(inventoryHolder->inventory[i] == getCharacterID()) 
+                {
+                    inventoryHolder->inventory[i] = INVALID_CHR_REF;
+                    break;
+                }
             }
         }
 
-        if ( stat_found )
+        // Remove from stat list
+        if (show_stats)
         {
-            for (cnt++; cnt < StatusList.count; cnt++)
+            size_t  cnt;
+            bool stat_found;
+
+            show_stats = false;
+
+            stat_found = false;
+            for (cnt = 0; cnt < StatusList.count; cnt++)
             {
-                std::swap(StatusList.lst[cnt-1], StatusList.lst[cnt]);
+                if ( StatusList.lst[cnt].who == getCharacterID() )
+                {
+                    stat_found = true;
+                    break;
+                }
             }
-            StatusList.count--;
+
+            if ( stat_found )
+            {
+                for (cnt++; cnt < StatusList.count; cnt++)
+                {
+                    std::swap(StatusList.lst[cnt-1], StatusList.lst[cnt]);
+                }
+                StatusList.count--;
+            }
         }
-    }
 
-    // Handle the team
-    if ( isAlive() && !getProfile()->isInvincible() && TeamStack.lst[team_base].morale > 0 )
-    {
-        TeamStack.lst[team_base].morale--;
-    }
+        // Handle the team
+        if ( isAlive() && !getProfile()->isInvincible() )
+        {
+            _currentModule->getTeamList()[team_base].decreaseMorale();
+        }
 
-    if ( TeamStack.lst[team].leader == getCharacterID() )
-    {
-        TeamStack.lst[team].leader = TEAM_NOLEADER;
-    }
+        if ( _currentModule->getTeamList()[team].getLeader().get() == this )
+        {
+            _currentModule->getTeamList()[team].setLeader(INVALID_OBJECT);
+        }
 
-    // remove any attached particles
-    disaffirm_attached_particles( getCharacterID() );    
+        // remove any attached particles
+        disaffirm_attached_particles( getCharacterID() );    
+    }
 
     chr_instance_dtor( &inst );
     ai_state_dtor( &ai );
@@ -379,7 +377,7 @@ bool Object::canMount(const std::shared_ptr<Object> mount) const
     }
 
     //Make sure they aren't mounted already
-    if(!mount->getProfile()->isSlotValid(SLOT_LEFT) || _gameObjects.exists(mount->holdingwhich[SLOT_LEFT]))
+    if(!mount->getProfile()->isSlotValid(SLOT_LEFT) || _currentModule->getObjectHandler().exists(mount->holdingwhich[SLOT_LEFT]))
     {
         return false;
     }
@@ -549,7 +547,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 // Set attack alert if it wasn't an accident
                 if ( base_damage > HURTDAMAGE )
                 {
-                    if ( team == TEAM_DAMAGE )
+                    if ( team == Team::TEAM_DAMAGE )
                     {
                         ai.attacklast = INVALID_CHR_REF;
                     }
@@ -641,7 +639,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         heal(attacker, -actual_damage, ignore_invictus);
 
         // Isssue an alert
-        if ( team == TEAM_DAMAGE )
+        if ( team == Team::TEAM_DAMAGE )
         {
             ai.attacklast = INVALID_CHR_REF;
         }
@@ -684,7 +682,7 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         actual_attacker = attacker->getCharacterID();
 
         //Dont alert if the attacker/healer was on the null team
-        if(attacker->getTeam() == TEAM_NULL) {
+        if(attacker->getTeam() == Team::TEAM_NULL) {
             return;
         }
     
@@ -692,13 +690,13 @@ void Object::updateLastAttacker(const std::shared_ptr<Object> &attacker, bool he
         if ( attacker->attachedto == ai.index ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
-        if ( attacker->isBeingHeld() && !_gameObjects.get(attacker->attachedto)->isMount() )
+        if ( attacker->isBeingHeld() && !_currentModule->getObjectHandler().get(attacker->attachedto)->isMount() )
         {
             actual_attacker = attacker->attachedto;
         }
 
         //If the attacker is a mount, try to blame the rider
-        else if ( attacker->isMount() && _gameObjects.exists( attacker->holdingwhich[SLOT_LEFT] ) )
+        else if ( attacker->isMount() && _currentModule->getObjectHandler().exists( attacker->holdingwhich[SLOT_LEFT] ) )
         {
             actual_attacker = attacker->holdingwhich[SLOT_LEFT];
         }
@@ -1023,7 +1021,7 @@ std::string Object::getName(bool prefixArticle, bool prefixDefinite, bool capita
 void Object::requestTerminate() 
 {
     //Mark object as terminated
-    _gameObjects.remove(getCharacterID());
+    _currentModule->getObjectHandler().remove(getCharacterID());
 }
 
 
@@ -1039,7 +1037,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 {
     // Make sure the character is actually held by something first
     CHR_REF holder = attachedto;
-    const std::shared_ptr<Object> &pholder = _gameObjects[holder];
+    const std::shared_ptr<Object> &pholder = _currentModule->getObjectHandler()[holder];
     if (!pholder) {
         return false;  
     } 
@@ -1210,12 +1208,12 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 
 const std::shared_ptr<Object>& Object::getLeftHandItem() const
 {
-    return _gameObjects[holdingwhich[SLOT_LEFT]];
+    return _currentModule->getObjectHandler()[holdingwhich[SLOT_LEFT]];
 }
 
 const std::shared_ptr<Object>& Object::getRightHandItem() const
 {
-    return _gameObjects[holdingwhich[SLOT_RIGHT]];
+    return _currentModule->getObjectHandler()[holdingwhich[SLOT_RIGHT]];
 }
 
 bool Object::canSeeObject(const std::shared_ptr<Object> &target) const
@@ -1377,9 +1375,9 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     if (actualKiller)
     {
         //If we are a held item, try to figure out who the actual killer is
-        if ( actualKiller->isBeingHeld() && !_gameObjects.get(actualKiller->attachedto)->isMount() )
+        if ( actualKiller->isBeingHeld() && !_currentModule->getObjectHandler().get(actualKiller->attachedto)->isMount() )
         {
-            actualKiller = _gameObjects[actualKiller->attachedto];
+            actualKiller = _currentModule->getObjectHandler()[actualKiller->attachedto];
         }
 
         //If the killer is a mount, try to award the kill to the rider
@@ -1410,10 +1408,10 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     {
         // Set target
         ai.target = actualKiller->getCharacterID();
-        if ( actualKiller->getTeam() == TEAM_DAMAGE || actualKiller->getTeam() == TEAM_NULL )  ai.target = getCharacterID();
+        if ( actualKiller->getTeam() == Team::TEAM_DAMAGE || actualKiller->getTeam() == Team::TEAM_NULL )  ai.target = getCharacterID();
 
         // Award experience for kill?
-        if ( team_hates_team(actualKiller->getTeam(), getTeam()) )
+        if ( actualKiller->getTeam().hatesTeam(getTeam()) )
         {
             //Check for special hatred
             if ( chr_get_idsz( actualKiller->getCharacterID(), IDSZ_HATE ) == chr_get_idsz( getCharacterID(), IDSZ_PARENT ) ||
@@ -1431,18 +1429,18 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     //and distribute experience to whoever needs it
     SET_BIT(ai.alert, ALERTIF_KILLED);
 
-    for(const std::shared_ptr<Object> &listener : _gameObjects.iterator())
+    for(const std::shared_ptr<Object> &listener : _currentModule->getObjectHandler().iterator())
     {
         if (!listener->isAlive()) continue;
 
         // All allies get team experience, but only if they also hate the dead guy's team
-        if (actualKiller && listener != actualKiller && !team_hates_team(listener->getTeam(), actualKiller->getTeam()) && team_hates_team(listener->getTeam(), getTeam()) )
+        if (actualKiller && listener != actualKiller && !listener->getTeam().hatesTeam(actualKiller->getTeam()) && listener->getTeam().hatesTeam(getTeam()) )
         {
             listener->giveExperience(experience, XP_TEAMKILL, false);
         }
 
         // Check if we were a leader
-        if ( TeamStack.lst[getTeam()].leader == getCharacterID() && listener->getTeam() == getTeam() )
+        if ( getTeam().getLeader().get() == this && listener->getTeam() == getTeam() )
         {
             // All folks on the leaders team get the alert
             SET_BIT( listener->ai.alert, ALERTIF_LEADERKILLED );
@@ -1471,7 +1469,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
 void Object::resetAlpha()
 {
     // Make sure the character is mounted
-    const std::shared_ptr<Object> &mount = _gameObjects[attachedto];
+    const std::shared_ptr<Object> &mount = _currentModule->getObjectHandler()[attachedto];
     if(!mount) {
         return;
     }
@@ -1649,7 +1647,7 @@ int Object::getPrice() const
 bool Object::isBeingHeld() const
 {
     //Check if holder exists and not marked for removal
-    const std::shared_ptr<Object> &holder = _gameObjects[attachedto];
+    const std::shared_ptr<Object> &holder = _currentModule->getObjectHandler()[attachedto];
     if(!holder || holder->isTerminated()) {
         return false;
     }
@@ -1660,7 +1658,7 @@ bool Object::isBeingHeld() const
 bool Object::isInsideInventory() const
 {
     //Check if inventory exists and not marked for removal
-    const std::shared_ptr<Object> &holder = _gameObjects[inwhich_inventory];
+    const std::shared_ptr<Object> &holder = _currentModule->getObjectHandler()[inwhich_inventory];
     if(!holder || holder->isTerminated()) {
         return false;
     }

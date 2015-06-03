@@ -72,8 +72,8 @@ int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
         grip_verts[i] = 0xFFFF;
     }
 
-    if ( !_gameObjects.exists( imount ) ) return 0;
-    pmount = _gameObjects.get( imount );
+    if ( !_currentModule->getObjectHandler().exists( imount ) ) return 0;
+    pmount = _currentModule->getObjectHandler().get( imount );
 
     pmount_mad = chr_get_pmad( imount );
     if ( NULL == pmount_mad ) return 0;
@@ -130,11 +130,11 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
     mc_tmp->self_scale[kX] = mc_tmp->self_scale[kY] = mc_tmp->self_scale[kZ] = pchr->fat;
 
     // handle the overlay first of all
-    if ( !handled && pchr->is_overlay && ichr != pchr->ai.target && _gameObjects.exists( pchr->ai.target ) )
+    if ( !handled && pchr->is_overlay && ichr != pchr->ai.target && _currentModule->getObjectHandler().exists( pchr->ai.target ) )
     {
         // this will pretty much fail the cmp_matrix_cache() every time...
 
-        Object * ptarget = _gameObjects.get( pchr->ai.target );
+        Object * ptarget = _currentModule->getObjectHandler().get( pchr->ai.target );
 
         // make sure we have the latst info from the target
         chr_update_matrix( ptarget, true );
@@ -154,9 +154,9 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
         itarget = GET_INDEX_PCHR( pchr );
 
         //---- update the MAT_WEAPON data
-        if ( _gameObjects.exists( pchr->attachedto ) )
+        if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
         {
-            Object * pmount = _gameObjects.get( pchr->attachedto );
+            Object * pmount = _currentModule->getObjectHandler().get( pchr->attachedto );
 
             // make sure we have the latst info from the target
             chr_update_matrix( pmount, true );
@@ -177,9 +177,9 @@ bool chr_get_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
         }
 
         //---- update the MAT_CHARACTER data
-        if ( _gameObjects.exists( itarget ) )
+        if ( _currentModule->getObjectHandler().exists( itarget ) )
         {
-            Object * ptarget = _gameObjects.get( itarget );
+            Object * ptarget = _currentModule->getObjectHandler().get( itarget );
 
             mc_tmp->valid   = true;
             SET_BIT( mc_tmp->type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
@@ -262,8 +262,8 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], f
     int       point_count;
     fvec4_t   src_point[GRIP_VERTS];
 
-    if ( !_gameObjects.exists( iholder ) ) return 0;
-    pholder = _gameObjects.get( iholder );
+    if ( !_currentModule->getObjectHandler().exists( iholder ) ) return 0;
+    pholder = _currentModule->getObjectHandler().get( iholder );
 
     // find the grip points in the character's "local" or "body-fixed" coordinates
     point_count = convert_grip_to_local_points( pholder, grip_verts, src_point );
@@ -294,8 +294,8 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
     if ( nullptr == ( pweap ) ) return false;
     pweap_mcache = &( pweap->inst.matrix_cache );
 
-    if ( !_gameObjects.exists( mc_tmp->grip_chr ) ) return false;
-    pholder = _gameObjects.get( mc_tmp->grip_chr );
+    if ( !_currentModule->getObjectHandler().exists( mc_tmp->grip_chr ) ) return false;
+    pholder = _currentModule->getObjectHandler().get( mc_tmp->grip_chr );
 
     // make sure that the matrix is invalid incase of an error
     pweap_mcache->matrix_valid = false;
@@ -392,7 +392,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 
     if ( 0 != ( MAT_WEAPON & mc_tmp->type_bits ) )
     {
-        if ( _gameObjects.exists( mc_tmp->grip_chr ) )
+        if ( _currentModule->getObjectHandler().exists( mc_tmp->grip_chr ) )
         {
             applied = apply_one_weapon_matrix( pchr, mc_tmp );
         }
@@ -591,11 +591,11 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
     pchr_mc = &( pchr->inst.matrix_cache );
 
     // recursively make sure that any mount matrices are updated
-    if ( _gameObjects.exists( pchr->attachedto ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
         egolib_rv attached_update = rv_error;
 
-        attached_update = chr_update_matrix( _gameObjects.get( pchr->attachedto ), true );
+        attached_update = chr_update_matrix( _currentModule->getObjectHandler().get( pchr->attachedto ), true );
 
         // if this fails, we should probably do something...
         if ( rv_error == attached_update )
@@ -618,10 +618,10 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
     needs_update = ( rv_success == retval );
 
     // Update the grip vertices no matter what (if they are used)
-    if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && _gameObjects.exists( mc_tmp.grip_chr ) )
+    if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && _currentModule->getObjectHandler().exists( mc_tmp.grip_chr ) )
     {
         egolib_rv grip_retval;
-        Object   * ptarget = _gameObjects.get( mc_tmp.grip_chr );
+        Object   * ptarget = _currentModule->getObjectHandler().get( mc_tmp.grip_chr );
 
         // has that character changes its animation?
         grip_retval = ( egolib_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts.data(), GRIP_VERTS );
@@ -900,8 +900,8 @@ bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off 
 
     needs_update = false;
 
-    if ( !_gameObjects.exists( iitem ) ) return false;
-    pitem = _gameObjects.get( iitem );
+    if ( !_currentModule->getObjectHandler().exists( iitem ) ) return false;
+    pitem = _currentModule->getObjectHandler().get( iitem );
     mcache = &( pitem->inst.matrix_cache );
 
     // is the item attached to this valid holder?

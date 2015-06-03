@@ -333,7 +333,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
     int channel = sound->getChannel();
 
     //skip dead stuff
-    if (!_gameObjects.exists(sound->getOwner())) {
+    if (!_currentModule->getObjectHandler().exists(sound->getOwner())) {
 
         //Stop loop if we just died
         if (channel != INVALID_SOUND_CHANNEL) {
@@ -344,7 +344,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
         return;
     }
 
-    const fvec3_t soundPosition = _gameObjects.get(sound->getOwner())->getPosition();
+    const fvec3_t soundPosition = _currentModule->getObjectHandler().get(sound->getOwner())->getPosition();
     const float distance = getSoundDistance(soundPosition);
 
     //Sound is close enough to be heard?
@@ -380,7 +380,7 @@ void AudioSystem::updateLoopingSounds()
 
 bool AudioSystem::stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soundID)
 {
-    if (!_gameObjects.exists(ichr)) return false;
+    if (!_currentModule->getObjectHandler().exists(ichr)) return false;
 
     std::forward_list<std::shared_ptr<LoopingSound>> removeLoops;
     for (const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
@@ -500,7 +500,7 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fv
 void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
 {
     //Avoid invalid characters
-    if (!_gameObjects.exists(owner)) {
+    if (!_currentModule->getObjectHandler().exists(owner)) {
         return;
     }
 

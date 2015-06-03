@@ -19,7 +19,7 @@
 
 /// @file game/char.h
 /// @note You will routinely include "char.h" only in headers (*.h) files where you need to declare an
-///       object of team_t or Object. In *.inl files or *.c/*.cpp files you will routinely include "char.inl", instead.
+///       Object.
 
 #pragma once
 
@@ -28,6 +28,7 @@
 #include "game/graphic_mad.h"
 #include "egolib/Script/script.h"
 #include "egolib/Graphics/MD2Model.hpp"
+#include "egolib/Logic/Team.hpp"
 #include "game/physics.h"
 #include "game/egoboo.h"
 #include "game/Entities/_Include.hpp"
@@ -47,8 +48,6 @@ struct prt_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
-//--------------------------------------------------------------------------------------------
-struct team_t;
 struct chr_environment_t;
 struct chr_spawn_data_t;
 
@@ -130,9 +129,6 @@ struct chr_spawn_data_t;
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
 
-// team constants
-#define TEAM_NOLEADER       0xFFFF                        ///< If the team has no leader...
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -168,26 +164,6 @@ enum e_chr_movement_bits
     CHR_MOVEMENT_BITS_RUN   = 1 << CHR_MOVEMENT_RUN
 };
 
-enum e_team_types
-{
-    TEAM_EVIL            = ( 'E' - 'A' ),        ///< Evil team
-    TEAM_GOOD            = ( 'G' - 'A' ),        ///< Good team
-    TEAM_NULL            = ( 'N' - 'A' ),        ///< Null or Neutral team
-    TEAM_ZIPPY           = ( 'Z' - 'A' ),        ///< Zippy Team?
-    TEAM_DAMAGE,                                 ///< For damage tiles
-    TEAM_MAX
-};
-
-//--------------------------------------------------------------------------------------------
-
-/// The description of a single team
-struct team_t
-{
-    bool hatesteam[TEAM_MAX];    ///< Don't damage allies...
-    Uint16   morale;                 ///< Number of characters on team
-    CHR_REF  leader;                 ///< The leader of the team
-    CHR_REF  sissy;                  ///< Whoever called for help last
-};
 
 //--------------------------------------------------------------------------------------------
 
@@ -248,14 +224,8 @@ void cleanup_one_character( Object * pchr );
 //--------------------------------------------------------------------------------------------
 // list definitions
 //--------------------------------------------------------------------------------------------
-
-extern Stack<team_t, TEAM_MAX> TeamStack;
-
-#define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
-
-
-#define IS_ATTACHED_CHR_RAW(ICHR) ( (_gameObjects.exists(_gameObjects.get(ICHR)->attachedto) || _gameObjects.exists(_gameObjects.get(ICHR)->inwhich_inventory)) )
-#define IS_ATTACHED_CHR(ICHR) LAMBDA( !_gameObjects.exists(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
+#define IS_ATTACHED_CHR_RAW(ICHR) ( (_currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ICHR)->attachedto) || _currentModule->getObjectHandler().exists(_currentModule->getObjectHandler().get(ICHR)->inwhich_inventory)) )
+#define IS_ATTACHED_CHR(ICHR) LAMBDA( !_currentModule->getObjectHandler().exists(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;
@@ -267,7 +237,6 @@ extern int chr_pressure_tests;
 
 void update_all_character_matrices();
 
-void reset_teams();
 void update_all_characters();
 void move_all_characters();
 void cleanup_all_characters();
@@ -316,8 +285,6 @@ Object * chr_config_do_init( Object * pchr );
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
 void drop_money( const CHR_REF character, int money );
-void call_for_help( const CHR_REF character );
-void give_team_experience( const TEAM_REF team, int amount, XPType xptype );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
 void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 
@@ -358,19 +325,13 @@ std::shared_ptr<Billboard> chr_make_text_billboard(const CHR_REF ichr, const cha
 // PREVIOUSLY INLINE FUNCTIONS
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// team_t accessor functions
-CHR_REF team_get_ileader( const TEAM_REF iteam );
-Object  *team_get_pleader( const TEAM_REF iteam );
 
-bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team );
-
-//--------------------------------------------------------------------------------------------
 // Object accessor functions
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 
-team_t         *chr_get_pteam( const CHR_REF ichr );
-team_t         *chr_get_pteam_base( const CHR_REF ichr );
+Team         *chr_get_pteam( const CHR_REF ichr );
+Team         *chr_get_pteam_base( const CHR_REF ichr );
 ai_state_t     *chr_get_pai( const CHR_REF ichr );
 chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
 

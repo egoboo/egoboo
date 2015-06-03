@@ -43,7 +43,7 @@ spawn_file_info_t::spawn_file_info_t() :
     level(0),
     skin(0),
     stat(false),
-    team(TEAM_NULL),
+    team(Team::TEAM_NULL),
     facing(FACE_NORTH),
     attach(ATTACH_NONE),
     parent(INVALID_CHR_REF)   
@@ -59,7 +59,7 @@ spawn_file_info_t *spawn_file_info_init(spawn_file_info_t *self)
     }
     BLANK_STRUCT_PTR(self);
     self->attach = ATTACH_NONE;
-    self->team = TEAM_NULL;
+    self->team = Team::TEAM_NULL;
     return self;
 }
 
@@ -182,7 +182,7 @@ bool spawn_file_read(ReadContext& ctxt, spawn_file_info_t *info)
         ctxt.readPrintable();   ///< BAD! Unused ghost value
 
         chr = ctxt.readPrintable();
-        info->team = (chr - 'A') % TEAM_MAX;
+        info->team = (chr - 'A') % Team::TEAM_MAX;
         
         return true;
     }

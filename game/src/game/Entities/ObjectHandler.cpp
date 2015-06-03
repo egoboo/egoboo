@@ -274,7 +274,7 @@ void ObjectHandler::maybeRunDeferred()
                             SET_BIT(ai->alert, ALERTIF_TARGETKILLED);
                         }
 
-                        if (chr_get_pteam(chr->getCharacterID())->leader == element->getCharacterID())
+                        if (chr_get_pteam(chr->getCharacterID())->getLeader() == element)
                         {
                             SET_BIT(ai->alert, ALERTIF_LEADERKILLED);
                         }
@@ -315,6 +315,3 @@ size_t ObjectHandler::getObjectCount() const
 {
     return _iteratorList.size() + _allocateList.size() - _deletedCharacters;
 }
-
-/// @todo Remove this global.
-ObjectHandler _gameObjects;

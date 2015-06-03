@@ -52,7 +52,7 @@ CHR_REF PlaStack_get_ichr(const PLA_REF iplayer)
     if (iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid) return INVALID_CHR_REF;
     player_t *player = PlaStack.get_ptr( iplayer );
 
-    if (!_gameObjects.exists(player->index)) return INVALID_CHR_REF;
+    if (!_currentModule->getObjectHandler().exists(player->index)) return INVALID_CHR_REF;
 
     return player->index;
 }
@@ -65,9 +65,9 @@ Object *PlaStack_get_pchr(const PLA_REF iplayer)
     if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return NULL;
     pplayer = PlaStack.get_ptr( iplayer );
 
-    if ( !_gameObjects.exists( pplayer->index ) ) return NULL;
+    if ( !_currentModule->getObjectHandler().exists( pplayer->index ) ) return NULL;
 
-    return _gameObjects.get( pplayer->index );
+    return _currentModule->getObjectHandler().get( pplayer->index );
 }
 
 //--------------------------------------------------------------------------------------------

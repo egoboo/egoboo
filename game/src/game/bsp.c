@@ -24,7 +24,6 @@
 #include "game/mesh.h"
 #include "game/game.h"
 #include "game/Entities/_Include.hpp"
-#include "game/Entities/ObjectHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 
@@ -207,7 +206,7 @@ bool chr_BSP_removeAllLeaves()
 	chr_BSP_root->count = 0;
 
 	// Unlink all used character nodes.
-	for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+	for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
 	{
 		BSP_leaf_t::remove_link(&object->bsp_leaf);
 	}
@@ -285,7 +284,7 @@ bool chr_BSP_fill()
 {
 	// insert the characters
 	chr_BSP_root->count = 0;
-	for(const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
+	for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
 	{
 		// reset a couple of things here
 		pchr->holdingweight = 0;

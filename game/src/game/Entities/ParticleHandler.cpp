@@ -391,7 +391,7 @@ PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, c
     if (!LOADED_PIP(ipip))
     {
         log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                  REF_TO_INT(ipip), REF_TO_INT(chr_origin), _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
+                  REF_TO_INT(ipip), REF_TO_INT(chr_origin), _currentModule->getObjectHandler().exists(chr_origin) ? _currentModule->getObjectHandler().get(chr_origin)->Name : "INVALID",
                   REF_TO_INT(iprofile), ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getPathname().c_str() : "INVALID");
 
         return INVALID_PRT_REF;
@@ -405,7 +405,7 @@ PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, c
     if (!DEFINED_PRT(iprt))
     {
         log_debug("spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-                  chr_origin, _gameObjects.exists(chr_origin) ? _gameObjects.get(chr_origin)->Name : "INVALID",
+                  chr_origin, _currentModule->getObjectHandler().exists(chr_origin) ? _currentModule->getObjectHandler().get(chr_origin)->Name : "INVALID",
                   ipip, LOADED_PIP(ipip) ? PipStack.get_ptr(ipip)->_name.c_str() : "INVALID",
                   iprofile, ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getPathname().c_str() : "INVALID");
 
@@ -471,5 +471,5 @@ PRT_REF ParticleHandler::spawn_one_particle(const fvec3_t& pos, FACING_T facing,
 PRT_REF ParticleHandler::spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, const LocalParticleProfileRef& pip_index, int multispawn)
 {
     return spawn_one_particle(pos, facing, INVALID_PRO_REF, pip_index, INVALID_CHR_REF, GRIP_LAST,
-                              (TEAM_REF)TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF);
+                              (TEAM_REF)Team::TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF);
 }

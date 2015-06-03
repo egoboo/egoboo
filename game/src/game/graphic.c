@@ -581,7 +581,7 @@ gfx_rv dolist_t::reset()
         }
         else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
         {
-            Object *pobj = _gameObjects.get(element->ichr);
+            Object *pobj = _currentModule->getObjectHandler().get(element->ichr);
             if (nullptr != pobj) pobj->inst.indolist = false;
         }
     }
@@ -617,7 +617,7 @@ gfx_rv dolist_t::add_obj_raw(Object& obj)
     }
 
     // Don't add if it's in another character's inventory.
-    if (_gameObjects.exists(obj.inwhich_inventory))
+    if (_currentModule->getObjectHandler().exists(obj.inwhich_inventory))
     {
         return gfx_fail;
     }
@@ -632,12 +632,12 @@ gfx_rv dolist_t::add_obj_raw(Object& obj)
 
     // Add any weapons it is holding.
     Object *holding;
-    holding = _gameObjects.get(obj.holdingwhich[SLOT_LEFT]);
+    holding = _currentModule->getObjectHandler().get(obj.holdingwhich[SLOT_LEFT]);
     if (holding && _size < CAPACITY)
     {
         add_obj_raw(*holding);
     }
-    holding = _gameObjects.get(obj.holdingwhich[SLOT_RIGHT]);
+    holding = _currentModule->getObjectHandler().get(obj.holdingwhich[SLOT_RIGHT]);
     if (holding && _size < CAPACITY)
     {
         add_obj_raw(*holding);
@@ -712,7 +712,7 @@ gfx_rv dolist_t::add_colst(const Ego::DynamicArray<BSP_leaf_t *> *leaves)
             {
                 continue;
             }
-            Object *pobj = _gameObjects.get(iobj);
+            Object *pobj = _currentModule->getObjectHandler().get(iobj);
             if (!pobj)
             {
                 continue;
@@ -792,11 +792,11 @@ gfx_rv dolist_t::sort(Camera& cam, const bool do_reflect)
 
             if (do_reflect)
             {
-                pos_tmp = mat_getTranslate(_gameObjects.get(iobj)->inst.ref.matrix);
+                pos_tmp = mat_getTranslate(_currentModule->getObjectHandler().get(iobj)->inst.ref.matrix);
             }
             else
             {
-                pos_tmp = mat_getTranslate(_gameObjects.get(iobj)->inst.matrix);
+                pos_tmp = mat_getTranslate(_currentModule->getObjectHandler().get(iobj)->inst.matrix);
             }
 
             vtmp = pos_tmp - cam.getPosition();
@@ -1873,7 +1873,7 @@ void draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_amm
 
     TX_REF icon_ref;
 
-    Object * pitem = !_gameObjects.exists(item) ? NULL : _gameObjects.get(item);
+    Object * pitem = !_currentModule->getObjectHandler().exists(item) ? NULL : _currentModule->getObjectHandler().get(item);
 
     // grab the icon reference
     icon_ref = chr_get_txtexture_icon_ref(item);
@@ -1901,8 +1901,8 @@ float draw_character_xp_bar(const CHR_REF character, float x, float y)
 {
     Object * pchr;
 
-    if (!_gameObjects.exists(character)) return y;
-    pchr = _gameObjects.get(character);
+    if (!_currentModule->getObjectHandler().exists(character)) return y;
+    pchr = _currentModule->getObjectHandler().get(character);
 
     //Draw the small XP progress bar
     if (pchr->experiencelevel < MAXLEVEL - 1)
@@ -1938,8 +1938,8 @@ float draw_status(const CHR_REF character, float x, float y)
 
     Object * pchr;
 
-    if (!_gameObjects.exists(character)) return y;
-    pchr = _gameObjects.get(character);
+    if (!_currentModule->getObjectHandler().exists(character)) return y;
+    pchr = _currentModule->getObjectHandler().get(character);
 
     life_pips = SFP8_TO_SINT(pchr->life);
     life_pips_max = SFP8_TO_SINT(pchr->life_max);
@@ -2035,12 +2035,12 @@ void draw_map()
         GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
         // If one of the players can sense enemies via ESP, draw them as blips on the map
-        if (TEAM_MAX != local_stats.sense_enemies_team)
+        if (Team::TEAM_MAX != local_stats.sense_enemies_team)
         {
             for (CHR_REF ichr = 0; ichr < OBJECTS_MAX && blip_count < MAXBLIP; ichr++)
             {
-                if (!_gameObjects.exists(ichr)) continue;
-                Object *pchr = _gameObjects.get(ichr);
+                if (!_currentModule->getObjectHandler().exists(ichr)) continue;
+                Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
                 const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
@@ -2089,9 +2089,9 @@ void draw_map()
                 if (NULL == PlaStack.lst[iplayer].pdevice) continue;
 
                 ichr = PlaStack.lst[iplayer].index;
-                if (_gameObjects.exists(ichr) && _gameObjects.get(ichr)->alive)
+                if (_currentModule->getObjectHandler().exists(ichr) && _currentModule->getObjectHandler().get(ichr)->alive)
                 {
-                    draw_blip(0.75f, COLOR_WHITE, _gameObjects.get(ichr)->getPosX(), _gameObjects.get(ichr)->getPosY(), true);
+                    draw_blip(0.75f, COLOR_WHITE, _currentModule->getObjectHandler().get(ichr)->getPosX(), _currentModule->getObjectHandler().get(ichr)->getPosY(), true);
                 }
             }
         }
@@ -2248,24 +2248,24 @@ float draw_debug(float y)
         {
             ichr = PlaStack.lst[ipla].index;
             y = draw_string_raw(0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-                _gameObjects.get(ichr)->damage_resistance[DAMAGE_SLASH],
-                _gameObjects.get(ichr)->damage_resistance[DAMAGE_CRUSH],
-                _gameObjects.get(ichr)->damage_resistance[DAMAGE_POKE],
-                _gameObjects.get(ichr)->damage_resistance[DAMAGE_HOLY],
-                _gameObjects.get(ichr)->damage_resistance[DAMAGE_EVIL],
-                _gameObjects.get(ichr)->damage_resistance[DAMAGE_FIRE],
-                _gameObjects.get(ichr)->damage_resistance[DAMAGE_ICE],
-                _gameObjects.get(ichr)->damage_resistance[DAMAGE_ZAP]);
+                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_SLASH],
+                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_CRUSH],
+                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_POKE],
+                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_HOLY],
+                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_EVIL],
+                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_FIRE],
+                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_ICE],
+                _currentModule->getObjectHandler().get(ichr)->damage_resistance[DAMAGE_ZAP]);
 
             ichr = PlaStack.lst[ipla].index;
-            y = draw_string_raw(0, y, "~~PLA0 %5.1f %5.1f", _gameObjects.get(ichr)->getPosX() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE);
+            y = draw_string_raw(0, y, "~~PLA0 %5.1f %5.1f", _currentModule->getObjectHandler().get(ichr)->getPosX() / GRID_FSIZE, _currentModule->getObjectHandler().get(ichr)->getPosY() / GRID_FSIZE);
         }
 
         ipla = (PLA_REF)1;
         if (VALID_PLA(ipla))
         {
             ichr = PlaStack.lst[ipla].index;
-            y = draw_string_raw(0, y, "~~PLA1 %5.1f %5.1f", _gameObjects.get(ichr)->getPosY() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE);
+            y = draw_string_raw(0, y, "~~PLA1 %5.1f %5.1f", _currentModule->getObjectHandler().get(ichr)->getPosY() / GRID_FSIZE, _currentModule->getObjectHandler().get(ichr)->getPosY() / GRID_FSIZE);
         }
     }
 
@@ -2274,12 +2274,12 @@ float draw_debug(float y)
         // More debug information
         y = draw_string_raw(0, y, "!!!DEBUG MODE-6!!!");
         y = draw_string_raw(0, y, "~~FREEPRT %d", ParticleHandler::get().getFreeCount());
-        y = draw_string_raw(0, y, "~~FREECHR %" PRIuZ, OBJECTS_MAX - _gameObjects.getObjectCount());
+        y = draw_string_raw(0, y, "~~FREECHR %" PRIuZ, OBJECTS_MAX - _currentModule->getObjectHandler().getObjectCount());
 #if 0
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
 #endif
-        y = draw_string_raw(0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE");
-        y = draw_string_raw(0, y, "~~PASS %d", PMod->getPassageCount());
+        y = draw_string_raw(0, y, _currentModule->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE");
+        y = draw_string_raw(0, y, "~~PASS %d", _currentModule->getPassageCount());
 #if 0
         y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
 #endif
@@ -2332,9 +2332,9 @@ float draw_game_status(float y)
     else if (g_serverState.player_count > 0 )
 #endif
     {
-        if (local_stats.allpladead || PMod->canRespawnAnyTime())
+        if (local_stats.allpladead || _currentModule->canRespawnAnyTime())
         {
-            if (PMod->isRespawnValid() && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard)
+            if (_currentModule->isRespawnValid() && egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard)
             {
                 y = draw_string_raw(0, y, "PRESS SPACE TO RESPAWN");
             }
@@ -2343,7 +2343,7 @@ float draw_game_status(float y)
                 y = draw_string_raw(0, y, "PRESS ESCAPE TO QUIT");
             }
         }
-        else if (PMod->isBeaten())
+        else if (_currentModule->isBeaten())
         {
             y = draw_string_raw(0, y, "VICTORY!  PRESS ESCAPE");
         }
@@ -2432,8 +2432,8 @@ void draw_inventory()
         ichr = ppla->index;
 
         //valid character?
-        if (!_gameObjects.exists(ichr)) continue;
-        pchr = _gameObjects.get(ichr);
+        if (!_currentModule->getObjectHandler().exists(ichr)) continue;
+        pchr = _currentModule->getObjectHandler().get(ichr);
 
         //don't draw inventories of network players
         if (!pchr->islocalplayer) continue;
@@ -2463,7 +2463,7 @@ void draw_inventory()
         ppla = PlaStack.get_ptr(ipla);
 
         ichr = ppla->index;
-        pchr = _gameObjects.get(ichr);
+        pchr = _currentModule->getObjectHandler().get(ichr);
 
         //handle inventories sliding into view
         ppla->inventory_lerp = std::min(ppla->inventory_lerp, width);
@@ -2509,7 +2509,7 @@ void draw_inventory()
             CHR_REF item = pchr->inventory[i];
 
             //calculate the sum of the weight of all items in inventory
-            if (_gameObjects.exists(item)) weight_sum += _gameObjects[item]->getProfile()->getWeight();
+            if (_currentModule->getObjectHandler().exists(item)) weight_sum += _currentModule->getObjectHandler()[item]->getProfile()->getWeight();
 
             //draw icon
             draw_one_character_icon(item, x, y, true, (item_count == ppla->inventory_slot) ? COLOR_WHITE : NOSPARKLE);
@@ -2625,7 +2625,7 @@ void render_shadow(const CHR_REF character)
     ego_tile_info_t * ptile;
 
     if (IS_ATTACHED_CHR(character)) return;
-    pchr = _gameObjects.get(character);
+    pchr = _currentModule->getObjectHandler().get(character);
 
     // if the character is hidden, not drawn at all, so no shadow
     if (pchr->is_hidden || 0 == pchr->shadow_size) return;
@@ -2764,7 +2764,7 @@ void render_bad_shadow(const CHR_REF character)
     {
         return;
     }
-    Object *pchr = _gameObjects.get(character);
+    Object *pchr = _currentModule->getObjectHandler().get(character);
 
     // If the object is hidden it is not drawn at all, so it has no shadow.
     // If the object's shadow size is qa 0, then it has no shadow.
@@ -3223,7 +3223,7 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
                 Ego::OpenGL::Utilities::isError();
                 ichr = dl.get(i).ichr;
-                TileIndex itile = _gameObjects.get(ichr)->getTile();
+                TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
 
                 if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
                 {
@@ -3383,7 +3383,7 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl)
             CHR_REF ichr = dl.get(i).ichr;
             if (!VALID_CHR_RANGE(ichr)) continue;
 
-            if (0 == _gameObjects.get(ichr)->shadow_size) continue;
+            if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
 
             render_bad_shadow(ichr);
             tnc++;
@@ -3397,7 +3397,7 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl)
             CHR_REF ichr = dl.get(i).ichr;
             if (!VALID_CHR_RANGE(ichr)) continue;
 
-            if (0 == _gameObjects.get(ichr)->shadow_size) continue;
+            if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
 
             render_shadow(ichr);
             tnc++;
@@ -5520,7 +5520,7 @@ gfx_rv gfx_update_flashing(dolist_t& dl)
 
         CHR_REF ichr = dl.get(i).ichr;
 
-        Object *pchr = _gameObjects.get(ichr);
+        Object *pchr = _currentModule->getObjectHandler().get(ichr);
         if (nullptr == (pchr)) continue;
 
         chr_instance_t *pinst = &(pchr->inst);
@@ -5565,7 +5565,7 @@ gfx_rv gfx_update_all_chr_instance()
     // assume the best
     retval = gfx_success;
 
-    for (const std::shared_ptr<Object> &pchr : _gameObjects.iterator())
+    for (const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         //Dont do terminated characters
         if (pchr->isTerminated()) {

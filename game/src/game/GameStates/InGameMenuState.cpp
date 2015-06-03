@@ -37,7 +37,7 @@ InGameMenuState::InGameMenuState(PlayingState *playingState) :
 {
     // Add the buttons
     int yOffset = GFX_HEIGHT-80;
-    std::shared_ptr<Button> exitButton = std::make_shared<Button>(PMod->isExportValid() ? "Save and Exit" : "Abort and Exit", SDLK_q);
+    std::shared_ptr<Button> exitButton = std::make_shared<Button>(_currentModule->isExportValid() ? "Save and Exit" : "Abort and Exit", SDLK_q);
     exitButton->setPosition(20, yOffset);
     exitButton->setSize(200, 30);
     exitButton->setOnClickFunction(
@@ -67,7 +67,7 @@ InGameMenuState::InGameMenuState(PlayingState *playingState) :
     restartModuleButton->setOnClickFunction(
     [this]{
         //Reload current module with current players
-        _gameEngine->setGameState(std::make_shared<LoadingState>(PMod->getModuleProfile(), PMod->getImportPlayers()));
+        _gameEngine->setGameState(std::make_shared<LoadingState>(_currentModule->getModuleProfile(), _currentModule->getImportPlayers()));
     });
     addComponent(restartModuleButton);
     _slidyButtons.push_front(restartModuleButton);

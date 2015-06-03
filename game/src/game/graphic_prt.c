@@ -557,11 +557,11 @@ void prt_draw_attached_point(prt_bundle_t *pbdl_prt)
         return;
     }
 
-    if (!_gameObjects.exists(loc_pprt->attachedto_ref))
+    if (!_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref))
     {
         return;
     }
-    Object *pholder = _gameObjects.get(loc_pprt->attachedto_ref);
+    Object *pholder = _currentModule->getObjectHandler().get(loc_pprt->attachedto_ref);
 
     mad_t *pholder_mad = chr_get_pmad(GET_INDEX_PCHR(pholder));
     if (!pholder_mad)
@@ -652,7 +652,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
     // Set the up and right vectors.
     fvec3_t vup = fvec3_t(0.0f, 0.0f, 1.0f), vright;
     fvec3_t vup_ref = fvec3_t(0.0f, 0.0f, 1.0f), vright_ref;
-    if (ppip->rotatetoface && !_gameObjects.exists(pprt->attachedto_ref) && (pprt->vel.length_abs() > 0))
+    if (ppip->rotatetoface && !_currentModule->getObjectHandler().exists(pprt->attachedto_ref) && (pprt->vel.length_abs() > 0))
     {
         // The particle points along its direction of travel.
 
@@ -731,11 +731,11 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
         vright_ref = vright;
         vup_ref = vup;
     }
-    else if (_gameObjects.exists(pprt->attachedto_ref))
+    else if (_currentModule->getObjectHandler().exists(pprt->attachedto_ref))
     {
         chr_instance_t *cinst = chr_get_pinstance(pprt->attachedto_ref);
 
-        if (chr_matrix_valid(_gameObjects.get(pprt->attachedto_ref)))
+        if (chr_matrix_valid(_currentModule->getObjectHandler().get(pprt->attachedto_ref)))
         {
             // Use the character matrix to orient the particle.
             // Assume that the particle "up" is in the z-direction in the object's

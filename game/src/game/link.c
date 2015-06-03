@@ -28,7 +28,6 @@
 #include "game/egoboo.h"
 #include "game/char.h"
 #include "game/Module/Module.hpp"
-#include "game/Entities/ObjectHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -180,7 +179,7 @@ bool link_pop_module()
             hero_spawn_data_t * phero = pentry->hero + i;
 
             pchr = NULL;
-            for(const std::shared_ptr<Object> &object : _gameObjects.iterator())
+            for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
             {
                 if(object->isTerminated()) {
                     continue;
@@ -240,8 +239,8 @@ bool link_push_module()
 
         // Is it alive?
         ichr = PlaStack.lst[ipla].index;
-        if ( !_gameObjects.exists( ichr ) ) continue;
-        pchr = _gameObjects.get( ichr );
+        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
+        pchr = _currentModule->getObjectHandler().get( ichr );
 
         if ( pentry->hero_count < LINK_HEROES_MAX )
         {

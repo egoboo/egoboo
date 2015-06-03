@@ -77,7 +77,7 @@ void net_unbuffer_player_latches()
             tmp_latch.y = tlatch_list[0].y;
             tmp_latch.b = tlatch_list[0].button;
 
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, Just one latch for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, _gameObjects.get(ppla->index)->Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, Just one latch for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, _currentModule->getObjectHandler().get(ppla->index)->Name );
         }
         else if ( latch_count > 1 )
         {
@@ -112,7 +112,7 @@ void net_unbuffer_player_latches()
                 tmp_latch.y /= ( float )weight_sum;
             }
 
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, %d, multiple latches for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, latch_count, _gameObjects.get(ppla->index)->Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, %d, multiple latches for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, latch_count, _currentModule->getObjectHandler().get(ppla->index)->Name );
         }
         else
         {
@@ -120,7 +120,7 @@ void net_unbuffer_player_latches()
             // do nothing. this lets the old value of the latch persist.
             // this might be a decent guess as to what to do if a packet was
             // dropped?
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, latch dead reckoning for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, _gameObjects.get(ppla->index)->Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, latch dead reckoning for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, _currentModule->getObjectHandler().get(ppla->index)->Name );
         }
 
         if ( latch_count >= ppla->tlatch_count )
@@ -154,8 +154,8 @@ void net_unbuffer_player_latches()
         player_t *ppla = PlaStack.get_ptr(ipla);
 
         CHR_REF character = PlaStack.lst[ipla].index;
-        if (!_gameObjects.exists(character)) continue;
-        Object *pchr = _gameObjects.get(character);
+        if (!_currentModule->getObjectHandler().exists(character)) continue;
+        Object *pchr = _currentModule->getObjectHandler().get(character);
 
         pchr->latch = ppla->net_latch;
     }
@@ -166,15 +166,15 @@ void net_unbuffer_player_latches()
         if (!PlaStack.lst[ipla].valid) continue;
 
         CHR_REF character = PlaStack.lst[ipla].index;
-        if ( !_gameObjects.exists( character ) ) continue;
-        Object *pchr = _gameObjects.get( character );
+        const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
+        if(!pchr) continue;
 
-        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && pchr->latch.b[LATCHBUTTON_RESPAWN] && PMod->isRespawnValid())
+        if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && pchr->latch.b[LATCHBUTTON_RESPAWN] && _currentModule->isRespawnValid())
         {
             if ( !pchr->alive && 0 == local_stats.revivetimer )
             {
                 respawn_character( character );
-                TeamStack.lst[pchr->team].leader = character;
+                _currentModule->getTeamList()[pchr->team].setLeader(pchr);
                 SET_BIT( pchr->ai.alert, ALERTIF_CLEANEDUP );
 
                 // cost some experience for doing this...  never lose a level
@@ -190,8 +190,8 @@ void net_unbuffer_player_latches()
 
 player_t *chr_get_ppla(const CHR_REF ichr)
 {
-    if (!_gameObjects.exists(ichr)) return nullptr;
-    PLA_REF iplayer = _gameObjects.get(ichr)->is_which_player;
+    if (!_currentModule->getObjectHandler().exists(ichr)) return nullptr;
+    PLA_REF iplayer = _currentModule->getObjectHandler().get(ichr)->is_which_player;
 
     if (!VALID_PLA(iplayer)) return nullptr;
 
