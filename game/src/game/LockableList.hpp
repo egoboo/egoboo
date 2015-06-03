@@ -635,19 +635,6 @@ private:
 
     /**
      * @brief
-     *  Get if an object is active.
-     * @param ptr
-     *  the object
-     * @return
-     *  @a true if the object is active, @a false otherwise
-     */
-    bool ACTIVE_BASE_RAW(const TYPE *ptr)
-    {
-        return ptr->ACTIVE_PBASE();
-    }
-
-    /**
-     * @brief
      *  Get if an object is terminated.
      * @param ptr
      *  the object
@@ -685,7 +672,7 @@ public:
     bool ACTIVE(const REFTYPE ref)
     {
         return isValidRef(ref)
-            && ACTIVE_BASE_RAW(get_ptr(ref));
+			&& get_ptr(ref)->ACTIVE_PBASE();
     }
 
     /**
@@ -760,7 +747,7 @@ public:
     bool ACTIVE(const TYPE *ptr)
     {
         return VALID_PTR(ptr)
-            && ACTIVE_BASE_RAW(ptr);
+			&& ptr->ACTIVE_PBASE();
     }
 
     bool WAITING(const TYPE *ptr)
