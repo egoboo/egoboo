@@ -100,6 +100,9 @@
     <Filter Include="Source Files\VFS">
       <UniqueIdentifier>{d997c602-b5ab-442c-bc0d-f29c3f20d3d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Logic">
+      <UniqueIdentifier>{6baee621-ef7f-4881-b127-687a42dfcaf4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\egolib\_math.c">
@@ -437,6 +440,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Math\Standard.cpp">
       <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Logic\Team.cpp">
+      <Filter>Source Files\Logic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -928,6 +934,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Math\ScalarField.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Logic\Team.hpp">
+      <Filter>Header Files\Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
