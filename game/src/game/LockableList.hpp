@@ -592,21 +592,6 @@ protected:
 protected:
     int lockCount;
 
-private:
-
-    /**
-     * @brief
-     *  Get if an object is defined.
-     * @param ptr
-     *  the object
-     * @return
-     *  @a true if the object is defined, @a false otherwise
-     */
-    bool DEFINED_BASE_RAW(const TYPE *ptr)
-    {
-		return ptr->DEFINED_BASE_RAW();
-    }
-
 public:
     /**
      * @brief
@@ -619,7 +604,7 @@ public:
     bool DEFINED(const REFTYPE ref)
     {
         return isValidRef(ref)
-            && DEFINED_BASE_RAW(get_ptr(ref));
+			&& get_ptr(ref)->DEFINED_BASE_RAW();
     }
 
     /**
@@ -696,7 +681,7 @@ public:
     bool DEFINED(const TYPE *ptr)
     {
         return VALID_PTR(ptr)
-            && DEFINED_BASE_RAW(ptr);
+			&& ptr->DEFINED_BASE_RAW();
     }
 
     bool ALLOCATED(const TYPE *ptr)
