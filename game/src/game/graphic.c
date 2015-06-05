@@ -470,10 +470,10 @@ gfx_rv renderlist_t::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& 
         if (!leaf) continue;
         if (!leaf->valid()) continue;
 
-        if (BSP_LEAF_TILE == leaf->data_type)
+        if (BSP_LEAF_TILE == leaf->_type)
         {
             // Get fan index.
-            TileIndex itile = leaf->index;
+            TileIndex itile = leaf->_index;
 
             // Get tile for tile index.
             ego_tile_info_t *ptile = ego_mesh_t::get_ptile(pmesh, itile);
@@ -702,10 +702,10 @@ gfx_rv dolist_t::add_colst(const Ego::DynamicArray<BSP_leaf_t *> *leaves)
         if (!pleaf) continue;
         if (!pleaf->valid()) continue;
 
-        if (BSP_LEAF_CHR == pleaf->data_type)
+        if (BSP_LEAF_CHR == pleaf->_type)
         {
             // Get the reference.
-            CHR_REF iobj = (CHR_REF)(pleaf->index);
+            CHR_REF iobj = (CHR_REF)(pleaf->_index);
 
             // Is this a valid object reference?
             if (!VALID_CHR_RANGE(iobj))
@@ -728,10 +728,10 @@ gfx_rv dolist_t::add_colst(const Ego::DynamicArray<BSP_leaf_t *> *leaves)
                 }
             }
         }
-        else if (BSP_LEAF_PRT == pleaf->data_type)
+        else if (BSP_LEAF_PRT == pleaf->_type)
         {
             // Get the reference.
-            PRT_REF iprt = (PRT_REF)(pleaf->index);
+            PRT_REF iprt = (PRT_REF)(pleaf->_index);
 
             // Is it a valid reference.
             if (!VALID_PRT_RANGE(iprt))

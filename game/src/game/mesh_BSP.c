@@ -126,16 +126,16 @@ static bool mesh_BSP_insert(mesh_BSP_t *self, ego_tile_info_t *ptile, int index)
     BSP_leaf_t *pleaf = &(ptile->bsp_leaf);
 
     // Make sure everything is kosher.
-    if (ptile != (ego_tile_info_t *)(pleaf->data))
+    if (ptile != (ego_tile_info_t *)(pleaf->_data))
     {
         // Some kind of error. Re-initialize the data.
-        pleaf->data      = ptile;
-        pleaf->index     = index;
-        pleaf->data_type = BSP_LEAF_TILE;
+        pleaf->_data      = ptile;
+        pleaf->_index     = index;
+        pleaf->_type = BSP_LEAF_TILE;
     };
 
     // Convert the octagonal bounding box to an AABB.
-    pleaf->bbox = ptile->oct.toBV();
+    pleaf->_bbox = ptile->oct.toBV();
 
     // Insert the leaf.
 	bool retval = self->insert_leaf(pleaf);
@@ -158,11 +158,11 @@ static bool mesh_BSP_insert(mesh_BSP_t *self, ego_tile_info_t *ptile, int index)
 bool mesh_BSP_can_collide(BSP_leaf_t *pleaf)
 {
     // Make sure we have a character leaf.
-    if (NULL == pleaf || NULL == pleaf->data || BSP_LEAF_TILE != pleaf->data_type)
+    if (NULL == pleaf || NULL == pleaf->_data || BSP_LEAF_TILE != pleaf->_type)
     {
         return false;
     }
-	ego_tile_info_t *ptile = (ego_tile_info_t *)(pleaf->data);
+	ego_tile_info_t *ptile = (ego_tile_info_t *)(pleaf->_data);
 
     if (TILE_IS_FANOFF(ptile)) return false;
 
@@ -178,11 +178,11 @@ bool mesh_BSP_can_collide(BSP_leaf_t *pleaf)
 bool mesh_BSP_is_visible(BSP_leaf_t *pleaf)
 {
     // Make sure we have a character leaf.
-    if (NULL == pleaf || NULL == pleaf->data || BSP_LEAF_TILE != pleaf->data_type)
+    if (NULL == pleaf || NULL == pleaf->_data || BSP_LEAF_TILE != pleaf->_type)
     {
         return false;
     }
-	ego_tile_info_t *ptile = (ego_tile_info_t *)(pleaf->data);
+	ego_tile_info_t *ptile = (ego_tile_info_t *)(pleaf->_data);
 
     if (TILE_IS_FANOFF(ptile)) return false;
 

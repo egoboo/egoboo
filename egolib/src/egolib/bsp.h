@@ -76,21 +76,21 @@ class BSP_leaf_t
 {
 public:
 	BSP_leaf_t() :
-		next(nullptr),
-		data_type(BSP_LEAF_NONE),
-		data(nullptr),
-		index(0),
-		bbox(),
-		inserted(false)
+		_next(nullptr),
+		_type(BSP_LEAF_NONE),
+		_data(nullptr),
+		_index(0),
+		_bbox(),
+		_inserted(false)
 	{
 		//ctor
 	}
 
-    BSP_leaf_t *next;
-    bsp_type_t data_type;
-    void *data;
-    size_t index;
-    bv_t bbox;
+    BSP_leaf_t *_next;
+    bsp_type_t _type;
+    void *_data;
+    size_t _index;
+    bv_t _bbox;
 
 	/**
 	 * @brief
@@ -100,7 +100,7 @@ public:
 	 */
 	bool isInList() const
 	{
-		return inserted;
+		return _inserted;
 	}
 
 	void set(void *data, bsp_type_t type, size_t index);
@@ -114,7 +114,7 @@ public:
 
 
 protected:
-	bool inserted;
+	bool _inserted;
 
 	friend class BSP_leaf_list_t;
 };

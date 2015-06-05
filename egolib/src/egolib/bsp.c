@@ -213,12 +213,12 @@ BSP::SubspaceIndex _find_child_index(const BSP_aabb_t *branchAABB, const aabb_t 
 //--------------------------------------------------------------------------------------------
 void BSP_leaf_t::set(void *data, bsp_type_t type, size_t index)
 {
-	this->next = nullptr;
-	this->inserted = false;
-	this->data_type = type;
-	this->index = index;
-	this->data = data;
-	this->bbox = bv_t();
+	this->_next = nullptr;
+	this->_inserted = false;
+	this->_type = type;
+	this->_index = index;
+	this->_data = data;
+	this->_bbox = bv_t();
 }
 
 bool BSP_leaf_t::remove_link(BSP_leaf_t *L)
@@ -227,19 +227,19 @@ bool BSP_leaf_t::remove_link(BSP_leaf_t *L)
 
 	bool retval = false;
 
-	if (L->inserted)
+	if (L->_inserted)
 	{
-		L->inserted = false;
+		L->_inserted = false;
 		retval = true;
 	}
 
-	if (NULL != L->next)
+	if (NULL != L->_next)
 	{
-		L->next = NULL;
+		L->_next = NULL;
 		retval = true;
 	}
 
-    L->bbox = bv_t();
+    L->_bbox = bv_t();
 
 	return retval;
 }
@@ -248,8 +248,8 @@ bool BSP_leaf_t::clear(BSP_leaf_t * L)
 {
 	if (!L) return false;
 
-	L->data_type = BSP_LEAF_NONE;
-	L->data = nullptr;
+	L->_type = BSP_LEAF_NONE;
+	L->_data = nullptr;
 
 	BSP_leaf_t::remove_link(L);
 
@@ -258,17 +258,17 @@ bool BSP_leaf_t::clear(BSP_leaf_t * L)
 
 bool BSP_leaf_t::assign(const BSP_leaf_t& other)
 {
-	this->next = other.next;
-	this->data_type = other.data_type;
-	this->data = other.data;
-	this->index = other.index;
-	this->bbox.assign(other.bbox);
+	this->_next = other._next;
+	this->_type = other._type;
+	this->_data = other._data;
+	this->_index = other._index;
+	this->_bbox.assign(other._bbox);
 	return true;
 }
 
 bool BSP_leaf_t::valid() const
 {
-	return data && data_type >= 0;
+	return _data && _type >= 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -662,11 +662,11 @@ bool BSP_branch_t::insert_branch_list_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, BS
 
 	if (0 == children.inserted)
 	{
-		children._bounds.set(leaf->bbox);
+		children._bounds.set(leaf->_bbox);
 	}
 	else
 	{
-		children._bounds.add(leaf->bbox);
+		children._bounds.add(leaf->_bbox);
 	}
 	children.inserted++;
 	return true;
@@ -691,7 +691,7 @@ bool BSP_branch_t::insert_leaf_rec_1(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t 
 	else
 	{
 		// Determine which child the leaf needs to go under.
-		BSP::SubspaceIndex index = _find_child_index(&(bsp_bbox), &(leaf->bbox.getAABB()));
+		BSP::SubspaceIndex index = _find_child_index(&(bsp_bbox), &(leaf->_bbox.getAABB()));
 
 		// Insert the leaf in the right place.
 		if (index == -2)
@@ -778,9 +778,9 @@ bool BSP_branch_t::insert_leaf_rec(BSP_tree_t *tree, BSP_leaf_t *leaf, size_t de
 				size_t cnt = 0;
 				for (tmp_leaf = unsorted_ptr->lst;
 					 nullptr != tmp_leaf && cnt < unsorted_ptr->getCount();
-					 tmp_leaf = tmp_leaf->next, cnt++)
+					 tmp_leaf = tmp_leaf->_next, cnt++)
 				{
-					unsorted_ptr->_bounds.add(tmp_leaf->bbox);
+					unsorted_ptr->_bounds.add(tmp_leaf->_bbox);
 				}
 			}
 		}
@@ -1036,7 +1036,7 @@ bool BSP_tree_t::insert_leaf(BSP_leaf_t *leaf)
 	if (!leaf) return false;
 
 	// If the leaf is NOT fully contained in the tree's bounding box ...
-	if (!bsp_bbox.contains(leaf->bbox.getAABB()) || BSP::Hacks::ForceInfinite)
+	if (!bsp_bbox.contains(leaf->_bbox.getAABB()) || BSP::Hacks::ForceInfinite)
 	{
 		// ... put the leaf at the head of the infinite list.
 		inserted = infinite.push_front(*leaf);
@@ -1057,7 +1057,7 @@ bool BSP_tree_t::insert_leaf(BSP_leaf_t *leaf)
 	}
 
 	// Make sure the bounding box matches the maximum extend of all leaves in the tree.
-	_bounds.add(leaf->bbox);
+	_bounds.add(leaf->_bbox);
 	return inserted;
 }
 
@@ -1142,9 +1142,9 @@ size_t BSP_leaf_list_t::removeAllLeaves()
 	while (nullptr != lst)
 	{
 		BSP_leaf_t *leaf = lst;
-		lst = leaf->next;
-		leaf->next = nullptr;
-		leaf->inserted = false;
+		lst = leaf->_next;
+		leaf->_next = nullptr;
+		leaf->_inserted = false;
 		count--;
 	}
 	_bounds.clear();
@@ -1156,9 +1156,9 @@ void BSP_leaf_list_t::clear()
 	while (nullptr != lst)
 	{
 		BSP_leaf_t *leaf = lst;
-		lst = leaf->next;
-		leaf->next = nullptr;
-		leaf->inserted = false;
+		lst = leaf->_next;
+		leaf->_next = nullptr;
+		leaf->_inserted = false;
 		count--;
 	}
 	_bounds.clear();
@@ -1173,11 +1173,11 @@ bool BSP_leaf_list_t::push_front(BSP_leaf_t& leaf)
 	}
 
 	// Insert the leaf.
-	leaf.next = lst; lst = &leaf;
+	leaf._next = lst; lst = &leaf;
 	count++;
-	leaf.inserted = true;
+	leaf._inserted = true;
 	// Add the leaf's bounding box to the bounds of this leaf list.
-	_bounds.add(leaf.bbox);
+	_bounds.add(leaf._bbox);
 	return true;
 }
 
@@ -1190,9 +1190,9 @@ BSP_leaf_t *BSP_leaf_list_t::pop_front()
 	else
 	{
 		BSP_leaf_t *leaf = lst;
-		lst = leaf->next;
-		leaf->next = nullptr;
-		leaf->inserted = false;
+		lst = leaf->_next;
+		leaf->_next = nullptr;
+		leaf->_inserted = false;
 		count--;
 		return leaf;
 	}
@@ -1204,7 +1204,7 @@ bool BSP_leaf_list_t::add_all(Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 
 	BSP_leaf_t *leaf;
 	size_t cnt;
-	for (cnt = 0, leaf = lst; nullptr != leaf && cnt < count; leaf = leaf->next, ++cnt)
+	for (cnt = 0, leaf = lst; nullptr != leaf && cnt < count; leaf = leaf->_next, ++cnt)
 	{
 		if (rv_success != collisions.push_back(leaf))
 		{
@@ -1225,7 +1225,7 @@ bool BSP_leaf_list_t::add_all(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t 
 {
 	size_t lost_leaves = 0;     // The number of lost leaves.
 	size_t rejected_leaves = 0; // The number of rejected leaves.
-	for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
+	for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->_next)
 	{
 		if ((*test)(leaf))
 		{
@@ -1272,7 +1272,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 		size_t lost_leaves = 0;  // The number of lost leaves.
 
 		// Iterate over the leaves in the leaf list.
-		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
+		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->_next)
 		{
 			// The leaf must be valid.
 			EGOBOO_ASSERT(leaf->valid());
@@ -1280,7 +1280,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry.
-			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->bbox.getAABB());
+			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->_bbox.getAABB());
 
 			// determine what action to take
 			if (geometry_test > geometry_outside)
@@ -1330,7 +1330,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 		size_t rejected_leaves = 0; // The number of rejected leaves;
 
 		// Iterate over the leaves in the leaf list.
-		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
+		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->_next)
 		{
 			// The leaf must be valid.
 			EGOBOO_ASSERT(leaf->valid());
@@ -1338,7 +1338,7 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test geometry.
-			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->bbox.getAABB());
+			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->_bbox.getAABB());
 
 			// Determine what action to take.
 			if (geometry_test > geometry_outside)
@@ -1394,7 +1394,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 		size_t lost_leaves = 0; // The number of lost leaves.
 
 		// Scan through every leaf.
-		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
+		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->_next)
 		{
 			// The leaf must be valid.
 			EGOBOO_ASSERT(leaf->valid());
@@ -1402,7 +1402,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry
-			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->bbox), true);
+			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->_bbox), true);
 
 			// Determine what action to take.
 			if (geometry_test > geometry_outside)
@@ -1451,7 +1451,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& te
 		size_t rejected_leaves = 0; // The number of rejected leaves.
 		size_t lost_leaves = 0; // The number of lost leaves.
 		// Scan through every leaf.
-		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->next)
+		for (BSP_leaf_t *leaf = lst; nullptr != leaf; leaf = leaf->_next)
 		{
 			// The leaf must be valid.
 			EGOBOO_ASSERT(leaf->valid());
@@ -1459,7 +1459,7 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& te
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry
-			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->bbox), true);
+			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->_bbox), true);
 
 			// Determine what action to take.
 			if (geometry_test > geometry_outside)

@@ -753,10 +753,10 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
                 do_insert = false;
 
-                if ( BSP_LEAF_CHR == pleaf->data_type )
+                if ( BSP_LEAF_CHR == pleaf->_type )
                 {
                     // collided with a character
-                    CHR_REF ichr_b = ( CHR_REF )( pleaf->index );
+                    CHR_REF ichr_b = ( CHR_REF )( pleaf->_index );
 
                     // do some logic on this to determine whether the collision is valid
                     if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), ichr_b ) )
@@ -809,10 +809,10 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
 
                 do_insert = false;
 
-                if ( BSP_LEAF_PRT == pleaf->data_type )
+                if ( BSP_LEAF_PRT == pleaf->_type )
                 {
                     // collided with a particle
-                    PRT_REF iprt_b = ( PRT_REF )( pleaf->index );
+                    PRT_REF iprt_b = ( PRT_REF )( pleaf->_index );
 
                     // do some logic on this to determine whether the collision is valid
                     if ( detect_chr_prt_interaction_valid( pchr_a->getCharacterID(), iprt_b ) )
@@ -898,11 +898,11 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                 pleaf = CollisionSystem::get()->_coll_leaf_lst.ary[j];
                 if ( NULL == pleaf ) continue;
 
-                ichr_a = ( CHR_REF )( pleaf->index );
+                ichr_a = ( CHR_REF )( pleaf->_index );
 
                 do_insert = false;
 
-                if ( BSP_LEAF_CHR == pleaf->data_type && VALID_CHR_RANGE( ichr_a ) )
+                if ( BSP_LEAF_CHR == pleaf->_type && VALID_CHR_RANGE( ichr_a ) )
                 {
                     // collided with a character
                     bool loc_reaffirms     = can_reaffirm;
@@ -982,7 +982,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
                         }
                     }
                 }
-                else if ( BSP_LEAF_PRT == pleaf->data_type )
+                else if ( BSP_LEAF_PRT == pleaf->_type )
                 {
                     // this should never happen
                 }

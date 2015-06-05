@@ -110,11 +110,11 @@ bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
     bool requires_chr_prt;
 
     // make sure we have a character leaf
-    if ( NULL == pchr_leaf || NULL == pchr_leaf->data || BSP_LEAF_CHR != pchr_leaf->data_type )
+    if ( NULL == pchr_leaf || NULL == pchr_leaf->_data || BSP_LEAF_CHR != pchr_leaf->_type )
     {
         return false;
     }
-    pchr = ( Object * )( pchr_leaf->data );
+    pchr = ( Object * )( pchr_leaf->_data );
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
@@ -167,11 +167,11 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     bool       has_bump;
 
     // make sure we have a character leaf
-    if (!pprt_leaf || !pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
+    if (!pprt_leaf || !pprt_leaf->_data || BSP_LEAF_PRT != pprt_leaf->_type )
     {
         return false;
     }
-    pprt = static_cast<prt_t *>(pprt_leaf->data);
+    pprt = static_cast<prt_t *>(pprt_leaf->_data);
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return false;
     std::shared_ptr<pip_t> ppip = PipStack.get_ptr( pprt->pip_ref );
@@ -219,11 +219,11 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
 bool chr_BSP_is_visible(BSP_leaf_t * pchr_leaf)
 {
     // make sure we have a character leaf
-    if (NULL == pchr_leaf || NULL == pchr_leaf->data || BSP_LEAF_CHR != pchr_leaf->data_type)
+    if (NULL == pchr_leaf || NULL == pchr_leaf->_data || BSP_LEAF_CHR != pchr_leaf->_type)
     {
         return false;
     }
-	Object *pchr = (Object *)(pchr_leaf->data);
+	Object *pchr = (Object *)(pchr_leaf->_data);
 
     if (!ACTIVE_PCHR(pchr)) return false;
 
@@ -245,11 +245,11 @@ bool chr_BSP_is_visible(BSP_leaf_t * pchr_leaf)
 bool prt_BSP_is_visible(BSP_leaf_t * pprt_leaf)
 {
     // make sure we have a character leaf
-    if (NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type)
+    if (NULL == pprt_leaf || NULL == pprt_leaf->_data || BSP_LEAF_PRT != pprt_leaf->_type)
     {
         return false;
     }
-	prt_t *pprt = (prt_t *)(pprt_leaf->data);
+	prt_t *pprt = (prt_t *)(pprt_leaf->_data);
 
     // is the particle in-game?
     if (!INGAME_PPRT_BASE(pprt) || pprt->is_hidden) return false;

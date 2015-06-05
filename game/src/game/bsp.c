@@ -174,12 +174,12 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 
 	// heal the leaf if necessary
 	pleaf = loc_pprt->POBJ_GET_PLEAF();
-	if (loc_pprt != (prt_t *)(pleaf->data))
+	if (loc_pprt != (prt_t *)(pleaf->_data))
 	{
 		// some kind of error. re-initialize the data.
-		pleaf->data = loc_pprt;
-		pleaf->index = GET_REF_PPRT(loc_pprt);
-		pleaf->data_type = BSP_LEAF_PRT;
+		pleaf->_data = loc_pprt;
+		pleaf->_index = GET_REF_PPRT(loc_pprt);
+		pleaf->_type = BSP_LEAF_PRT;
 	};
 
 	// use the object velocity to figure out where the volume that the object will occupy during this
@@ -187,7 +187,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	phys_expand_prt_bb(loc_pprt, 0.0f, 1.0f, tmp_oct);
 
 	// convert the bounding box
-    pleaf->bbox = tmp_oct.toBV();
+    pleaf->_bbox = tmp_oct.toBV();
 
 	retval = prt_BSP_root->insert_leaf(pleaf);
 	if (retval)
@@ -246,13 +246,13 @@ bool chr_BSP_insert(Object * pchr)
 
 	// heal the leaf if it needs it
 	pleaf = &pchr->bsp_leaf;
-	if (pchr != (Object *)(pleaf->data))
+	if (pchr != (Object *)(pleaf->_data))
 	{
 		// some kind of error. re-initialize the data.
-		pleaf->data = pchr;
-		pleaf->index = GET_INDEX_PCHR(pchr);
-		pleaf->data_type = BSP_LEAF_CHR;
-	};
+		pleaf->_data = pchr;
+		pleaf->_index = GET_INDEX_PCHR(pchr);
+		pleaf->_type = BSP_LEAF_CHR;
+	}
 
 	// do the insert
 	retval = false;
@@ -265,7 +265,7 @@ bool chr_BSP_insert(Object * pchr)
 		phys_expand_chr_bb(pchr, 0.0f, 1.0f, tmp_oct);
 
 		// convert the bounding box
-        pleaf->bbox = tmp_oct.toBV();
+        pleaf->_bbox = tmp_oct.toBV();
 
 		// insert the leaf
 		retval = chr_BSP_root->insert_leaf(pleaf);
