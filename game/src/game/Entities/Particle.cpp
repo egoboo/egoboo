@@ -717,11 +717,8 @@ prt_t *prt_t::config_do_init()
 
     if (INVALID_CHR_REF != pprt->attachedto_ref)
     {
-        prt_bundle_t prt_bdl;
-
-        prt_bdl.set(pprt);
-
-        attach_one_particle(&prt_bdl);
+        prt_bundle_t prt_bdl(pprt);
+		attach_one_particle(&prt_bdl);
     }
 
     // Sound effect
@@ -836,8 +833,7 @@ void update_all_particles()
     {
         if (!ALLOCATED_PRT(ref)) continue;
 
-        prt_bundle_t prt_bdl;
-        prt_bdl.set(ParticleHandler::get().get_ptr(ref));
+		prt_bundle_t prt_bdl(ParticleHandler::get().get_ptr(ref));
         prt_bdl.update();
     }
 }
@@ -2105,22 +2101,24 @@ bool prt_t::set_size(int size)
 
 //--------------------------------------------------------------------------------------------
 
-prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
+prt_bundle_t *prt_bundle_t::do_bump_damage()
 {
     // apply damage from  attatched bump particles (about once a second)
-    if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return NULL;
-    prt_t *loc_pprt = pbdl_prt->_prt_ptr;
-    std::shared_ptr<pip_t> loc_ppip = pbdl_prt->_pip_ptr;
+	if (!this->_prt_ptr) {
+		return this;
+	}
+    prt_t *loc_pprt = this->_prt_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     // this is often set to zero when the particle hits something
     int max_damage = std::abs(loc_pprt->damage.base) + std::abs(loc_pprt->damage.rand);
 
     // wait until the right time
     Uint32 update_count = update_wld + loc_pprt->getGUID();
-    if (0 != (update_count & 31)) return pbdl_prt;
+    if (0 != (update_count & 31)) return this;
 
     // we must be attached to something
-    if (!_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref)) return pbdl_prt;
+    if (!_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref)) return this;
 
     CHR_REF ichr = loc_pprt->attachedto_ref;
     Object *loc_pchr = _currentModule->getObjectHandler().get(loc_pprt->attachedto_ref);
@@ -2130,7 +2128,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
     if (INVALID_CHR_REF == iholder) iholder = ichr;
 
     // do nothing if you are attached to your owner
-    if ((INVALID_CHR_REF != loc_pprt->owner_ref) && (iholder == loc_pprt->owner_ref || ichr == loc_pprt->owner_ref)) return pbdl_prt;
+    if ((INVALID_CHR_REF != loc_pprt->owner_ref) && (iholder == loc_pprt->owner_ref || ichr == loc_pprt->owner_ref)) return this;
 
     const std::shared_ptr<Object> &character = _currentModule->getObjectHandler()[ichr];
 
@@ -2150,7 +2148,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
 
     if (!skewered_by_arrow && !has_vulnie && !is_immolated_by && !no_protection_from)
     {
-        return pbdl_prt;
+        return this;
     }
 
     IPair local_damage;
@@ -2207,7 +2205,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
         loc_pprt->damage.rand = std::abs(loc_ppip->damage.to - loc_ppip->damage.from) * loc_pprt->damage.base / loc_ppip->damage.from;
     }
 
-    return pbdl_prt;
+    return this;
 }
 
 int prt_bundle_t::do_contspawn()
@@ -2522,7 +2520,7 @@ prt_bundle_t * prt_bundle_t::update_ingame()
     do_contspawn();
     if (NULL == this->_prt_ptr) return NULL;
 
-    if (!prt_bundle_t::do_bump_damage(this)) return NULL;
+    if (!this->do_bump_damage()) return NULL;
     if (NULL == this->_prt_ptr) return NULL;
 
 	loc_pprt->update_count++;
@@ -2596,8 +2594,8 @@ prt_bundle_t * prt_bundle_t::update()
 	}
 	// do the next step in the particle configuration
     if (!loc_pprt->run_config()) {
-        this->ctor();
-        return nullptr;
+		*this = prt_bundle_t();
+		return nullptr;
     }
 
     // if the bundle is no longer valid, return
@@ -2616,63 +2614,22 @@ prt_bundle_t * prt_bundle_t::update()
     }
 }
 
-void prt_bundle_t::ctor()
-{
-    this->_prt_ref = INVALID_PRT_REF;
-    this->_prt_ptr = nullptr;
-
-    this->_pip_ref = INVALID_PIP_REF;
-    this->_pip_ptr = nullptr;
+prt_bundle_t::prt_bundle_t()
+	: _prt_ref(INVALID_PRT_REF), _prt_ptr(nullptr),
+	  _pip_ref(INVALID_PIP_REF), _pip_ptr(nullptr) {
 }
 
-prt_bundle_t *prt_bundle_t::validate(prt_bundle_t *self)
-{
-	if (!self) {
-		return nullptr;
+prt_bundle_t::prt_bundle_t(prt_t *prt)
+	: _prt_ref(INVALID_PRT_REF), _prt_ptr(nullptr),
+      _pip_ref(INVALID_PIP_REF), _pip_ptr(nullptr) {
+	if (!prt) {
+		throw std::invalid_argument("nullptr == prt");
 	}
+	_prt_ptr = prt;
+	_prt_ref = GET_REF_PPRT(_prt_ptr);
 
-    if (ALLOCATED_PRT(self->_prt_ref)) {
-        self->_prt_ptr = ParticleHandler::get().get_ptr(self->_prt_ref);
-    } else if (nullptr != self->_prt_ptr) {
-        self->_prt_ref = GET_REF_PPRT(self->_prt_ptr);
-    } else {
-        self->_prt_ref = INVALID_PRT_REF;
-        self->_prt_ptr = nullptr;
-    }
-
-    if (!LOADED_PIP(self->_pip_ref) && nullptr != self->_prt_ptr) {
-        self->_pip_ref = self->_prt_ptr->pip_ref;
-    }
-
-    if (LOADED_PIP(self->_pip_ref)) {
-        self->_pip_ptr = PipStack.get_ptr(self->_pip_ref);
-    } else {
-        self->_pip_ref = INVALID_PIP_REF;
-        self->_pip_ptr = nullptr;
-    }
-
-    return self;
-}
-
-prt_bundle_t *prt_bundle_t::set(prt_t *prt)
-{
-    // blank out old data
-    this->ctor();
-
-    if (!prt) {
-        return nullptr;
-    }
-
-    // set the particle pointer
-    this->_prt_ptr = prt;
-
-    // validate the particle data
-    if (!prt_bundle_t::validate(this))
-    {
-        return nullptr;
-    }
-
-    return this;
+	_pip_ref = _prt_ptr->pip_ref;
+	_pip_ptr = PipStack.get_ptr(_pip_ref);
 }
 
 //--------------------------------------------------------------------------------------------

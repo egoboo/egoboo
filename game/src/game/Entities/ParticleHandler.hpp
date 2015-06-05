@@ -45,10 +45,9 @@
         for(IT##_internal=0;IT##_internal<ParticleHandler::get().getUsedCount();IT##_internal++) \
         { \
             PRT_REF IT; \
-            prt_bundle_t PRT_BDL; \
             IT = (PRT_REF)ParticleHandler::get().used_ref[IT##_internal]; \
             if(!ACTIVE_PRT(IT)) continue; \
-            PRT_BDL.set(ParticleHandler::get().get_ptr( IT ));
+			prt_bundle_t PRT_BDL(ParticleHandler::get().get_ptr( IT ));
 
 #define PRT_BEGIN_LOOP_DISPLAY(IT, PRT_BDL) \
     { \
@@ -58,10 +57,9 @@
         for(IT##_internal=0;IT##_internal<ParticleHandler::get().getUsedCount();IT##_internal++) \
         { \
             PRT_REF IT; \
-            prt_bundle_t PRT_BDL; \
             IT = (PRT_REF)ParticleHandler::get().used_ref[IT##_internal]; \
             if(!DISPLAY_PRT(IT)) continue; \
-            PRT_BDL.set(ParticleHandler::get().get_ptr(IT));
+            prt_bundle_t PRT_BDL(ParticleHandler::get().get_ptr(IT));
 
 #define PRT_END_LOOP() \
         } \

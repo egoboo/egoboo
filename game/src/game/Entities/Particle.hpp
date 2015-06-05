@@ -351,10 +351,10 @@ struct prt_bundle_t
     PIP_REF _pip_ref;
     std::shared_ptr<pip_t> _pip_ptr;
 
-    void ctor();
-    static prt_bundle_t *validate(prt_bundle_t *self);
-    prt_bundle_t *set(prt_t *prt);
-    static prt_bundle_t *do_bump_damage(prt_bundle_t *self);
+	prt_bundle_t();
+	prt_bundle_t(prt_t *prt);
+
+	prt_bundle_t *do_bump_damage();
     prt_bundle_t *update();
     /**
      * @brief

@@ -4316,13 +4316,12 @@ bool detach_particle_from_platform( prt_t * pprt )
     /// @author BB
     /// @details attach a particle to a platform
 
-    prt_bundle_t bdl_prt;
 
     // verify that we do not have two dud pointers
     if ( !DEFINED_PPRT( pprt ) ) return false;
 
     // grab all of the particle info
-    bdl_prt.set(pprt);
+    prt_bundle_t bdl_prt(pprt);
 
     // check if they can be connected
     if ( _currentModule->getObjectHandler().exists( pprt->onwhichplatform_ref ) ) return false;
