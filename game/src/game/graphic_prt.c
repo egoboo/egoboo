@@ -627,7 +627,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, pprt->pip_ref, "invalid pip");
         return gfx_error;
     }
-    pip_t *ppip = PipStack.get_ptr(pprt->pip_ref);
+    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(pprt->pip_ref);
 
     pinst->type = pprt->type;
 
@@ -1011,7 +1011,7 @@ void render_prt_bbox(prt_bundle_t *pbdl_prt)
         return;
     }
     
-    pip_t *loc_ppip = pbdl_prt->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = pbdl_prt->_pip_ptr;
 
     // only draw bullets
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;

@@ -28,7 +28,7 @@
 #include "egolib/vfs.h"
 #include "egolib/_math.h"
 
-bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
+bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::string& pathname)
 {
     char cTmp;
     IDSZ idsz;
@@ -37,7 +37,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
 
     profile->reset();
 
-    ReadContext ctxt(loadName);
+    ReadContext ctxt(pathname);
     if (!ctxt.ensureOpen())
     {
         return nullptr;
@@ -190,7 +190,7 @@ bool EnchantProfileReader::read(eve_t *profile, const char *loadName)
         else if (idsz == MAKE_IDSZ('D', 'A', 'R', 'K')) profile->darkvision = ctxt.readInt();
     }
 
-    profile->_name = loadName;
+    profile->_name = pathname;
     profile->_loaded = true;
 
     // Limit the endsound_index.

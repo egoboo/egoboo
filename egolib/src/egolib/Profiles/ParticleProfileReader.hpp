@@ -28,20 +28,20 @@
 #include "egolib/Profiles/ParticleProfile.hpp"
 
 /**
-* @brief
-*  A reader for particle profiles.
-*/
+ * @brief
+ *  A reader for particle profiles.
+ */
 struct ParticleProfileReader
 {
     /**
-    * @brief
-    *  Read a particle profile.
-    * @param [out] profile
-    *  the particle profile in which the data to read is stored in
-    * @param loadName
-    *  the load name
-    * @return
-    *  @a true on success, @a false on failure
-    */
-    static bool read(pip_t *profile, const char *loadName);
+     * @brief
+     *  Read a particle profile.
+     * @param [out] profile
+     *  the particle profile in which the data to read is stored in
+     * @param pathname
+     *  the pathname of the file to read the data from
+     * @return
+     *  @a true on success, @a false on failure
+     */
+    static bool read(std::shared_ptr<pip_t> profile, const std::string& pathname);
 };

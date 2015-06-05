@@ -1684,7 +1684,7 @@ void cleanup_one_character( Object * pchr )
     }
     else
     {
-        eve_t * peve;
+        std::shared_ptr<eve_t> peve;
         ENC_REF ienc_now, ienc_nxt;
         size_t  ienc_count;
 
@@ -2828,7 +2828,7 @@ bool update_chr_darkvision( const CHR_REF character )
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
 
-    eve_t * peve;
+    std::shared_ptr<eve_t> peve;
     int life_regen = 0;
 
     Object * pchr;

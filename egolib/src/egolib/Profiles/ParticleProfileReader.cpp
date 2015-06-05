@@ -28,12 +28,12 @@
 #include "egolib/vfs.h"
 #include "egolib/_math.h"
 
-bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
+bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::string& pathname)
 {
     IDSZ idsz;
     char cTmp;
 
-    ReadContext ctxt(loadName);
+    ReadContext ctxt(pathname);
     if (!ctxt.ensureOpen())
     {
         return false;
@@ -42,7 +42,7 @@ bool ParticleProfileReader::read(pip_t *profile, const char *loadName)
     profile->reset();
 
     // set up the EGO_PROFILE_STUFF
-    profile->_name = loadName;
+    profile->_name = pathname;
     profile->_loaded = true;
 
     // read the 1 line comment at the top of the file

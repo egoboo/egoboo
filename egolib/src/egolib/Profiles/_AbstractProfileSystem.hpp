@@ -120,14 +120,14 @@ public:
      *  a pointer to the profile for the profile reference of the profile reference is valid,
      *  a null pointer otherwise
      */
-    TYPE *get_ptr(REFTYPE ref) {
+    std::shared_ptr<TYPE> get_ptr(REFTYPE ref) {
         if (!isValidRange(ref)) {
             return nullptr;
         }
         if (!_map[ref]) {
             _map[ref] = std::make_shared<TYPE>();
         }
-        return _map[ref].get();
+        return _map[ref];
     }
 
     bool isValidRange(REFTYPE ref) {
@@ -157,7 +157,7 @@ public:
 
     /// @brief Load an profile into the profile stack.
     /// @return a reference to the profile on sucess, INVALIDREF on failure
-    REFTYPE load_one(const char *loadName, const REFTYPE _override)
+    REFTYPE load_one(const std::string& pathname, const REFTYPE _override)
     {
         REFTYPE ref = INVALIDREF;
         if (isValidRange(_override)) {
@@ -170,9 +170,9 @@ public:
         if (!isValidRange(ref)) {
             return INVALIDREF;
         }
-        TYPE *profile = get_ptr(ref);
+        std::shared_ptr<TYPE> profile = get_ptr(ref);
 
-        if (!READER::read(profile, loadName)) {
+        if (!READER::read(profile, pathname)) {
             return INVALIDREF;
         }
         return ref;

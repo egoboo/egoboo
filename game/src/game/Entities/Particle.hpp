@@ -323,7 +323,7 @@ public:
      * @return
      *  a pointer to the profile of this particle or a null pointer
      */
-    pip_t *get_ppip() const;
+    std::shared_ptr<pip_t> get_ppip() const;
 
     static bool free(prt_t * pprt);
 
@@ -349,7 +349,7 @@ struct prt_bundle_t
     prt_t *_prt_ptr;
 
     PIP_REF _pip_ref;
-    pip_t *_pip_ptr;
+    std::shared_ptr<pip_t> _pip_ptr;
 
     void ctor();
     static prt_bundle_t *validate(prt_bundle_t *self);
@@ -475,4 +475,4 @@ bool prt_is_over_water(const PRT_REF particle);
 void prt_play_sound(const PRT_REF particle, Sint8 sound);
 CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
 
-pip_t *prt_get_ppip(const PRT_REF ref);  /**< @deprecated */
+std::shared_ptr<pip_t> prt_get_ppip(const PRT_REF ref);  /**< @deprecated */

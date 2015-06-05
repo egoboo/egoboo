@@ -304,7 +304,7 @@ void end_one_particle_in_game(const PRT_REF particle)
     if (DEFINED_PRT(particle))
     {
         prt_t *pprt = ParticleHandler::get().get_ptr(particle);
-        pip_t *ppip = pprt->get_ppip();
+        std::shared_ptr<pip_t> ppip = pprt->get_ppip();
 
         // The object is waiting to be killed, so do all of the end of life care for the particle.
         prt_do_end_spawn(particle);
@@ -365,7 +365,7 @@ prt_t *prt_t::config_do_init()
 
         return nullptr;
     }
-    pip_t *ppip = PipStack.get_ptr(pdata->ipip);
+    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(pdata->ipip);
 
     // let the object be activated
     if (pprt->isAllocated() && !pprt->kill_me && Ego::Entity::State::Invalid != pprt->state)
@@ -769,7 +769,7 @@ BIT_FIELD prt_t::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mes
     {
         return EMPTY_BIT_FIELD;
     }
-    pip_t *ppip = PipStack.get_ptr(this->pip_ref);
+    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(this->pip_ref);
 
     BIT_FIELD stoppedby = MAPFX_IMPASS;
     if (0 != ppip->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
@@ -807,7 +807,7 @@ BIT_FIELD prt_t::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
     {
         return EMPTY_BIT_FIELD;
     }
-    pip_t *pip = PipStack.get_ptr(this->pip_ref);
+    std::shared_ptr<pip_t> pip = PipStack.get_ptr(this->pip_ref);
 
     BIT_FIELD  stoppedby = MAPFX_IMPASS;
     if (0 != pip->bump_money) SET_BIT(stoppedby, MAPFX_WALL);
@@ -978,7 +978,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_fluid_friction()
     fvec3_t fluid_acc;
 
     prt_t *loc_pprt = this->_prt_ptr;
-	pip_t *loc_ppip = this->_pip_ptr;
+	std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
     prt_environment_t *loc_penviro = &(loc_pprt->enviro);
 
     // if the particle is a homing-type particle, ignore friction
@@ -1136,7 +1136,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 
     if (NULL == this->_prt_ptr) return NULL;
 	prt_t *loc_pprt = this->_prt_ptr;
-	pip_t *loc_ppip = this->_pip_ptr;
+	std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     // is the particle a homing type?
 	if (!loc_ppip->homing) return this;
@@ -1299,7 +1299,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
     if (NULL == this->_prt_ptr) return NULL;
     prt_t *loc_pprt = this->_prt_ptr;
     PRT_REF loc_iprt = this->_prt_ref;
-    pip_t *loc_ppip = this->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is not still in "display mode" there is no point in going on
@@ -1389,7 +1389,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     if (NULL == this->_prt_ptr) return NULL;
     prt_t *loc_pprt = this->_prt_ptr;
     PRT_REF loc_iprt = this->_prt_ref;
-    pip_t *loc_ppip = this->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     // if the particle is not still in "display mode" there is no point in going on
@@ -1713,7 +1713,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     prt_t *pprt = ParticleHandler::get().get_ptr(particle);
 
     if (!LOADED_PIP(pprt->pip_ref)) return 0;
-    pip_t *ppip = PipStack.get_ptr(pprt->pip_ref);
+    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(pprt->pip_ref);
 
     // no point in going on, is there?
     if (0 == ppip->bumpspawn._amount && !ppip->spawnenchant) return 0;
@@ -2026,7 +2026,7 @@ bool prt_t::setPosition(const fvec3_t& position)
     return false;
 }
 
-pip_t *prt_t::get_ppip() const
+std::shared_ptr<pip_t> prt_t::get_ppip() const
 {
     PIP_REF pipRef = get_ipip();
     if (pipRef == INVALID_PIP_REF) return nullptr;
@@ -2055,7 +2055,7 @@ bool prt_t::set_size(int size)
     if (!DEFINED_PPRT(this)) return false;
 
     if (!LOADED_PIP(this->pip_ref)) return false;
-    pip_t *ppip = PipStack.get_ptr(this->pip_ref);
+    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(this->pip_ref);
 
     // set the graphical size
     this->size = size;
@@ -2110,7 +2110,7 @@ prt_bundle_t * prt_bundle_t::do_bump_damage(prt_bundle_t * pbdl_prt)
     // apply damage from  attatched bump particles (about once a second)
     if (NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr) return NULL;
     prt_t *loc_pprt = pbdl_prt->_prt_ptr;
-    pip_t *loc_ppip = pbdl_prt->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = pbdl_prt->_pip_ptr;
 
     // this is often set to zero when the particle hits something
     int max_damage = std::abs(loc_pprt->damage.base) + std::abs(loc_pprt->damage.rand);
@@ -2216,7 +2216,7 @@ int prt_bundle_t::do_contspawn()
 
     if (NULL == this->_prt_ptr) return spawn_count;
     prt_t *loc_pprt = this->_prt_ptr;
-    pip_t *loc_ppip = this->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     if (loc_ppip->contspawn._amount <= 0 || LocalParticleProfileRef::Invalid == loc_ppip->contspawn._lpip)
     {
@@ -2347,7 +2347,7 @@ prt_bundle_t * prt_bundle_t::update_animation()
     /// animate the particle
     if (NULL == this->_prt_ptr) return NULL;
     prt_t *loc_pprt = this->_prt_ptr;
-    pip_t *loc_ppip = this->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     bool image_overflow = false;
     long image_overflow_amount = 0;
@@ -2429,7 +2429,7 @@ prt_bundle_t * prt_bundle_t::update_dynalight()
 {
     if (NULL == this->_prt_ptr) return NULL;
     prt_t *loc_pprt = this->_prt_ptr;
-    pip_t *loc_ppip = this->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     // Change dyna light values
     if (loc_pprt->dynalight.level > 0)
@@ -2477,7 +2477,7 @@ prt_bundle_t * prt_bundle_t::update_ingame()
 {
     if (NULL == this->_prt_ptr) return NULL;
     prt_t *loc_pprt = this->_prt_ptr;
-    pip_t *loc_ppip = this->_pip_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     loc_pprt->is_hidden = false;
     // If the object to which the particle is attached to exists, ...
@@ -2538,20 +2538,22 @@ prt_bundle_t * prt_bundle_t::update_ingame()
 
 prt_bundle_t *prt_bundle_t::update_ghost()
 {
-    if (NULL == this->_prt_ptr) return NULL;
-    prt_t *loc_pprt = this->_prt_ptr;
-    pip_t *loc_ppip = this->_pip_ptr;
+	if (!this->_prt_ptr) {
+		return nullptr;
+	}
+	prt_t *loc_pprt = this->_prt_ptr;
+    std::shared_ptr<pip_t> loc_ppip = this->_pip_ptr;
 
     // is this the right function?
-    if (!loc_pprt->is_ghost)
-        return this;
+	if (!loc_pprt->is_ghost) {
+		return this;
+	}
 
     // is the prt visible
     bool prt_visible = (loc_pprt->size > 0) && (loc_pprt->inst.alpha > 0) && !loc_pprt->is_hidden;
 
     // are we done?
-	if (!prt_visible || loc_pprt->frame_count > 0)
-    {
+	if (!prt_visible || loc_pprt->frame_count > 0) {
         loc_pprt->requestTerminate();
         return nullptr;
     }
@@ -2564,8 +2566,7 @@ prt_bundle_t *prt_bundle_t::update_ghost()
 
     // determine whether the pbdl_prt->prt_ref is hidden
     loc_pprt->is_hidden = false;
-    if (_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref))
-    {
+    if (_currentModule->getObjectHandler().exists(loc_pprt->attachedto_ref)) {
         loc_pprt->is_hidden = _currentModule->getObjectHandler().get(loc_pprt->attachedto_ref)->is_hidden;
     }
 
@@ -2574,14 +2575,13 @@ prt_bundle_t *prt_bundle_t::update_ghost()
     // the following functions should not be done the first time through the update loop
     if (0 == update_wld) return this;
 
-    if (!update_animation()) return NULL;
-    if (NULL == loc_pprt) return NULL;
+    if (!update_animation()) return nullptr;
+    if (!loc_pprt) return nullptr;
 
-    if (!update_dynalight()) return NULL;
-    if (NULL == loc_pprt) return NULL;
+	if (!update_dynalight()) return nullptr;
+	if (!loc_pprt) return nullptr;
 
-    if (!loc_pprt->is_hidden)
-    {
+    if (!loc_pprt->is_hidden) {
 		loc_pprt->update_count++;
     }
 
@@ -2591,11 +2591,13 @@ prt_bundle_t *prt_bundle_t::update_ghost()
 prt_bundle_t * prt_bundle_t::update()
 {
     prt_t *loc_pprt = this->_prt_ptr;
-    if (NULL == loc_pprt) return NULL;
-    // do the next step in the particle configuration
+	if (!loc_pprt) {
+		return nullptr;
+	}
+	// do the next step in the particle configuration
     if (!loc_pprt->run_config()) {
         this->ctor();
-        return NULL;
+        return nullptr;
     }
 
     // if the bundle is no longer valid, return
@@ -2605,13 +2607,10 @@ prt_bundle_t * prt_bundle_t::update()
     if (!ALLOCATED_PPRT(this->_prt_ptr)) return this;
 
     // handle different particle states differently
-    if (loc_pprt->is_ghost)
-    {
+    if (loc_pprt->is_ghost) {
         // the particle is not on
         return update_ghost();
-    }
-    else
-    {
+    } else {
         // the particle is on
         return update_ingame();
     }
@@ -2628,33 +2627,26 @@ void prt_bundle_t::ctor()
 
 prt_bundle_t *prt_bundle_t::validate(prt_bundle_t *self)
 {
-    if (!self) return nullptr;
+	if (!self) {
+		return nullptr;
+	}
 
-    if (ALLOCATED_PRT(self->_prt_ref))
-    {
+    if (ALLOCATED_PRT(self->_prt_ref)) {
         self->_prt_ptr = ParticleHandler::get().get_ptr(self->_prt_ref);
-    }
-    else if (nullptr != self->_prt_ptr)
-    {
+    } else if (nullptr != self->_prt_ptr) {
         self->_prt_ref = GET_REF_PPRT(self->_prt_ptr);
-    }
-    else
-    {
+    } else {
         self->_prt_ref = INVALID_PRT_REF;
         self->_prt_ptr = nullptr;
     }
 
-    if (!LOADED_PIP(self->_pip_ref) && nullptr != self->_prt_ptr)
-    {
+    if (!LOADED_PIP(self->_pip_ref) && nullptr != self->_prt_ptr) {
         self->_pip_ref = self->_prt_ptr->pip_ref;
     }
 
-    if (LOADED_PIP(self->_pip_ref))
-    {
+    if (LOADED_PIP(self->_pip_ref)) {
         self->_pip_ptr = PipStack.get_ptr(self->_pip_ref);
-    }
-    else
-    {
+    } else {
         self->_pip_ref = INVALID_PIP_REF;
         self->_pip_ptr = nullptr;
     }
@@ -2667,8 +2659,7 @@ prt_bundle_t *prt_bundle_t::set(prt_t *prt)
     // blank out old data
     this->ctor();
 
-    if (!prt)
-    {
+    if (!prt) {
         return nullptr;
     }
 
@@ -2756,7 +2747,7 @@ void bump_all_particles_update_counters()
     }
 }
 
-pip_t *prt_get_ppip(const PRT_REF ref)
+std::shared_ptr<pip_t> prt_get_ppip(const PRT_REF ref)
 {
     if (!ParticleHandler::get().isValidRef(ref)) return nullptr;
     return ParticleHandler::get().get_ptr(ref)->get_ppip();

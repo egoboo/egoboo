@@ -29,22 +29,22 @@
 #include "egolib/Profiles/EnchantProfile.hpp"
 
 /**
-* @brief
-*  A writer for enchant profiles.
-*/
+ * @brief
+ *  A writer for enchantment profiles.
+ */
 struct EnchantProfileWriter
 {
     /**
-    * @brief
-    *  Write an enchant profile.
-    * @param profile
-    *  the enchant profile from which the data to write is stored in
-    * @param saveName
-    *  the save name
-    * @param templateName
-    *  the template name
-    * @return
-    *  @a true on success, @a false on failure
-    */
-    static bool write(eve_t *profile, const char *loadName, const char *templateName);
+     * @brief
+     *  Write an enchantment profile.
+     * @param profile
+     *  the enchantment profile from which the data to write is stored in
+     * @param pathname
+     *  the pathname of the file to write the data to
+     * @param templateName
+     *  the template name
+     * @return
+     *  @a true on success, @a false on failure
+     */
+    static bool write(std::shared_ptr<eve_t> profile, const std::string& pathname, const char *templateName);
 };

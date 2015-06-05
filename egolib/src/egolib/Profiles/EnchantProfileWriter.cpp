@@ -26,13 +26,13 @@
 #include "egolib/vfs.h"
 #include "egolib/_math.h"
 
-bool EnchantProfileWriter::write(eve_t *profile, const char *loadName, const char *templateName)
+bool EnchantProfileWriter::write(std::shared_ptr<eve_t> profile, const std::string& pathname, const char *templateName)
 {
     vfs_FILE* filewrite, *filetemp;
 
-    if (!profile || !loadName) return false;
+    if (!profile) return false;
 
-    filewrite = vfs_openWrite(loadName);
+    filewrite = vfs_openWrite(pathname.c_str());
     if (!filewrite) return false;
 
     filetemp = nullptr;

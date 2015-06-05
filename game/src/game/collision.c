@@ -58,7 +58,7 @@ public:
 
     PRT_REF iprt;
     prt_t *pprt;
-    pip_t *ppip;
+    std::shared_ptr<pip_t> ppip;
 
     //---- collision parameters
 
@@ -1727,7 +1727,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
                 {
                     if ( LOADED_PIP( bdl._prt_ptr->pip_ref ) )
                     {
-                        pip_t * ppip = PipStack.get_ptr( bdl._prt_ptr->pip_ref );
+                        std::shared_ptr<pip_t> ppip = PipStack.get_ptr( bdl._prt_ptr->pip_ref );
                         bdl._prt_ptr->vel[kZ] += -( 1.0f + ppip->dampen ) * bdl._prt_ptr->vel[kZ];
                     }
                     else

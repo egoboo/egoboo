@@ -155,7 +155,6 @@ bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
 bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
 {
     prt_t * pprt;
-    pip_t * ppip;
 
     // Each one of these tests allows one MORE reason to include the particle, not one less.
     // Removed bump particles. We have another loop that can detect these, and there
@@ -175,7 +174,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     pprt = static_cast<prt_t *>(pprt_leaf->data);
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return false;
-    ppip = PipStack.get_ptr( pprt->pip_ref );
+    std::shared_ptr<pip_t> ppip = PipStack.get_ptr( pprt->pip_ref );
 
     // is the particle in-game?
     if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden || pprt->is_ghost ) return false;

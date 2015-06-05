@@ -28,20 +28,20 @@
 #include "egolib/Profiles/EnchantProfile.hpp"
 
 /**
-* @brief
-*  A reader for enchant profiles.
-*/
+ * @brief
+ *  A reader for enchantment profiles.
+ */
 struct EnchantProfileReader
 {
     /**
-    * @brief
-    *  Read an enchant profile.
-    * @param [out] profile
-    *  the enchant profile in which the data to read is stored in
-    * @param loadName
-    *  the load name
-    * @return
-    *  @a true on success, @a false on failure
-    */
-    static bool read(eve_t *profile, const char *loadName);
+     * @brief
+     *  Read an enchantment profile.
+     * @param [out] profile
+     *  the enchantment profile in which the data to read is stored in
+     * @param pathname
+     *  the pathname of the file to read the data from
+     * @return
+     *  @a true on success, @a false on failure
+     */
+    static bool read(std::shared_ptr<eve_t> profile, const std::string& pathname);
 };

@@ -156,7 +156,7 @@ mad_t * ProfileSystem::pro_get_pmad(const PRO_REF iobj)
     return MadStack.get_ptr(_profilesLoaded[iobj]->getModelRef());
 }
 
-eve_t * ProfileSystem::pro_get_peve(const PRO_REF iobj)
+std::shared_ptr<eve_t> ProfileSystem::pro_get_peve(const PRO_REF iobj)
 {
     if (!isValidProfileID(iobj)) return nullptr;
 
@@ -165,7 +165,7 @@ eve_t * ProfileSystem::pro_get_peve(const PRO_REF iobj)
     return EveStack.get_ptr(_profilesLoaded[iobj]->getEnchantRef());
 }
 
-pip_t *ProfileSystem::pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref)
+std::shared_ptr<pip_t> ProfileSystem::pro_get_ppip(const PRO_REF iobj, const LocalParticleProfileRef& lppref)
 {
     if (!isValidProfileID(iobj))
     {

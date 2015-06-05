@@ -234,7 +234,7 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     ENC_REF enc_ref;
     EVE_REF eve_ref;
 
-    eve_t * peve;
+
     enc_t * penc;
     Object * ptarget;
 
@@ -277,7 +277,7 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
 
         return INVALID_ENC_REF;
     }
-    peve = EveStack.get_ptr(eve_ref);
+	std::shared_ptr<eve_t> peve = EveStack.get_ptr(eve_ref);
 
     // count all the requests for this enchantment type
     peve->_spawnRequestCount++;

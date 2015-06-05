@@ -203,7 +203,6 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
 
-    eve_t * peve;
     bool retval = false;
     Object *pchr;
 
@@ -221,7 +220,7 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
     {
         ienc_nxt  = EnchantHandler::get().get_ptr(ienc_now)->nextenchant_ref;
 
-        peve = enc_get_peve( ienc_now );
+        std::shared_ptr<eve_t> peve = enc_get_peve( ienc_now );
         if ( NULL != peve && ( IDSZ_NONE == remove_idsz || remove_idsz == peve->removedByIDSZ ) )
         {
             remove_enchant( ienc_now, NULL );
@@ -245,14 +244,12 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     int iwave;
     int add_type, set_type;
 
-    enc_t * penc;
-    eve_t * peve;
-    CHR_REF target_ref, spawner_ref, overlay_ref;
+	CHR_REF target_ref, spawner_ref, overlay_ref;
     Object * target_ptr, *spawner_ptr, *overlay_ptr;
 
     if ( !ALLOCATED_ENC( ienc ) ) return false;
-    penc = EnchantHandler::get().get_ptr( ienc );
-    peve = enc_get_peve( ienc );
+    enc_t *penc = EnchantHandler::get().get_ptr( ienc );
+    std::shared_ptr<eve_t> peve = enc_get_peve( ienc );
 
     target_ref = INVALID_CHR_REF;
     target_ptr = NULL;
@@ -448,16 +445,14 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 
     ENC_REF conflict;
     CHR_REF character;
-    enc_t * penc;
-    eve_t * peve;
     Object * ptarget;
 
     if (value_idx < 0 || value_idx >= eve_t::MAX_ENCHANT_SET) return;
 
     if ( !DEFINED_ENC( ienc ) ) return;
-    penc = EnchantHandler::get().get_ptr( ienc );
+    enc_t *penc = EnchantHandler::get().get_ptr( ienc );
 
-    peve = ProfileSystem::get().pro_get_peve(profile);
+    std::shared_ptr<eve_t> peve = ProfileSystem::get().pro_get_peve(profile);
     if ( NULL == peve ) return;
 
     penc->_set[value_idx]._modified = false;
@@ -629,17 +624,15 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     int valuetoadd, newvalue;
     float fvaluetoadd, fnewvalue;
     CHR_REF character;
-    enc_t * penc;
-    eve_t * peve;
     Object * ptarget;
 
     if ( value_idx < 0 || value_idx >= eve_t::MAX_ENCHANT_ADD ) return;
 
     if ( !DEFINED_ENC( ienc ) ) return;
-    penc = EnchantHandler::get().get_ptr( ienc );
+    enc_t *penc = EnchantHandler::get().get_ptr( ienc );
 
     if ( ieve >= ENCHANTPROFILES_MAX || !EveStack.get_ptr(ieve)->_loaded ) return;
-    peve = EveStack.get_ptr( ieve );
+    std::shared_ptr<eve_t> peve = EveStack.get_ptr( ieve );
 
     if ( !peve->_add[value_idx].apply )
     {
@@ -843,22 +836,18 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 enc_t *enc_t::config_do_init()
 {
     enc_t *penc = this;
-
-    enc_spawn_data_t * pdata;
-    ENC_REF ienc;
     CHR_REF overlay;
     float lifetime;
 
-    eve_t * peve;
-    Object * ptarget;
+	Object * ptarget;
 
     int add_type, set_type;
 
     if ( NULL == penc ) return NULL;
-    ienc  = GET_REF_PENC( penc );
+    ENC_REF ienc  = GET_REF_PENC( penc );
 
     // get the profile data
-    pdata = &( penc->spawn_data );
+	enc_spawn_data_t *pdata = &(penc->spawn_data);
 
     // store the profile
     penc->profile_ref  = pdata->profile_ref;
@@ -871,7 +860,7 @@ enc_t *enc_t::config_do_init()
         return NULL;
     }
     penc->eve_ref = pdata->eve_ref;
-    peve = EveStack.get_ptr( pdata->eve_ref );
+    std::shared_ptr<eve_t> peve = EveStack.get_ptr( pdata->eve_ref );
 
     // turn the enchant on here. you can't fail to spawn after this point.
     if (penc->isAllocated() && !penc->kill_me && Ego::Entity::State::Invalid != penc->state)
@@ -1011,8 +1000,8 @@ enc_t *enc_t::config_do_active()
     // the following functions should not be done the first time through the update loop
     if (0 == clock_wld) return this;
 
-    eve_t *peve = enc_get_peve( ienc );
-    if (NULL == peve) return this;
+    std::shared_ptr<eve_t> peve = enc_get_peve( ienc );
+    if (!peve) return this;
 
     // check to see whether the enchant needs to spawn some particles
     if (this->spawn_timer > 0) this->spawn_timer--;
@@ -1490,8 +1479,7 @@ void cleanup_all_enchants()
     ENC_BEGIN_LOOP_ACTIVE( ienc, penc )
     {
         ENC_REF * enc_lst;
-        eve_t   * peve;
-        bool    do_remove;
+        bool do_remove;
         bool valid_owner, valid_target;
 
         // try to determine something about the parent
@@ -1518,7 +1506,7 @@ void cleanup_all_enchants()
             EGOBOO_ASSERT( false );
             continue;
         }
-        peve = EveStack.get_ptr( penc->eve_ref );
+		std::shared_ptr<eve_t> peve = EveStack.get_ptr(penc->eve_ref);
 
         do_remove = false;
         if (penc->WAITING_PBASE())
@@ -1614,7 +1602,7 @@ EVE_REF enc_get_ieve(const ENC_REF ienc)
 }
 
 //--------------------------------------------------------------------------------------------
-eve_t *enc_get_peve(const ENC_REF ienc)
+std::shared_ptr<eve_t> enc_get_peve(const ENC_REF ienc)
 {
     if (!DEFINED_ENC(ienc)) return nullptr;
     enc_t *penc = EnchantHandler::get().get_ptr(ienc);
@@ -1651,8 +1639,8 @@ ObjectProfile * enc_get_ppro( const ENC_REF ienc )
 //--------------------------------------------------------------------------------------------
 IDSZ enc_get_idszremove( const ENC_REF ienc )
 {
-    eve_t * peve = enc_get_peve( ienc );
-    if ( NULL == peve ) return IDSZ_NONE;
+    std::shared_ptr<eve_t> peve = enc_get_peve( ienc );
+    if (!peve) return IDSZ_NONE;
 
     return peve->removedByIDSZ;
 }

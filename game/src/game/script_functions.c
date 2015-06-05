@@ -6845,7 +6845,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 
     PIP_REF particleRef = ppro->getParticlePoofProfile();
     if ( INVALID_PRT_REF == particleRef ) return false;
-    pip_t * ppip = PipStack.get_ptr(particleRef);
+    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(particleRef);
 
     returncode = false;
     if ( NULL != ppip )
@@ -7174,8 +7174,8 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     for (LocalParticleProfileRef iTmp(0); iTmp.get() < MAX_PIP_PER_PROFILE; ++iTmp)
     {
-        pip_t * ppip = ProfileSystem::get().pro_get_ppip(pchr->profile_ref, iTmp);
-        if ( NULL == ppip ) continue;
+        std::shared_ptr<pip_t> ppip = ProfileSystem::get().pro_get_ppip(pchr->profile_ref, iTmp);
+        if (!ppip) continue;
 
         if ( ppip->damageBoni._intelligence || ppip->damageBoni._wisdom )
         {

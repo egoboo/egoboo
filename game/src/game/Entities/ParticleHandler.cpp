@@ -396,7 +396,7 @@ PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, c
 
         return INVALID_PRT_REF;
     }
-    pip_t *ppip = PipStack.get_ptr(ipip);
+    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(ipip);
 
     // count all the requests for this particle type
     ppip->_spawnRequestCount++;

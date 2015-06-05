@@ -156,7 +156,7 @@ CHR_REF enc_get_iowner(const ENC_REF ienc);
 Object *enc_get_powner(const ENC_REF ienc);
 
 EVE_REF enc_get_ieve(const ENC_REF ienc);
-eve_t *enc_get_peve(const ENC_REF ienc);
+std::shared_ptr<eve_t> enc_get_peve(const ENC_REF ienc);
 
 IDSZ enc_get_idszremove(const ENC_REF ienc);
 bool enc_is_removed(const ENC_REF ienc, const PRO_REF test_profile);

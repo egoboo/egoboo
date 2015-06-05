@@ -818,7 +818,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
 
     const float max_dist2 = WIDE * WIDE;
 
-    pip_t * ppip;
+    std::shared_ptr<pip_t> ppip;
 
     CHR_REF besttarget = INVALID_CHR_REF;
     float  longdist2 = max_dist2;
@@ -4289,13 +4289,11 @@ bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
     /// @author BB
     /// @details attach a particle to a platform
 
-    pip_t   * pprt_pip;
-
     // verify that we do not have two dud pointers
     if ( !ACTIVE_PPRT( pprt ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    pprt_pip = pprt->get_ppip();
+    std::shared_ptr<pip_t> pprt_pip = pprt->get_ppip();
     if ( NULL == pprt_pip ) return false;
 
     // check if they can be connected
