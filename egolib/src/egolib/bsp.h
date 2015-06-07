@@ -83,7 +83,17 @@ public:
 		_bbox(),
 		_inserted(false)
 	{
-		//ctor
+		// ctor
+	}
+
+	BSP_leaf_t(void *data, bsp_type_t type, size_t index) :
+		_next(nullptr),
+		_type(type),
+		_data(data),
+		_index(index),
+		_bbox(),
+		_inserted(false) {
+		// ctor
 	}
 
     BSP_leaf_t *_next;
@@ -103,10 +113,23 @@ public:
 		return _inserted;
 	}
 
-	void set(void *data, bsp_type_t type, size_t index);
+	void set(void *data, bsp_type_t type, size_t index) {
+		this->_next = nullptr;
+		this->_inserted = false;
+		this->_type = type;
+		this->_index = index;
+		this->_data = data;
+		this->_bbox = bv_t();
+	}
 
 
-	bool assign(const BSP_leaf_t& other);
+	void assign(const BSP_leaf_t& other) {
+		this->_next = other._next;
+		this->_type = other._type;
+		this->_data = other._data;
+		this->_index = other._index;
+		this->_bbox.assign(other._bbox);
+	}
 
 	static bool clear(BSP_leaf_t *self);
 	static bool remove_link(BSP_leaf_t *self);

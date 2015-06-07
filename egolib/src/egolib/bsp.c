@@ -210,17 +210,6 @@ BSP::SubspaceIndex _find_child_index(const BSP_aabb_t *branchAABB, const aabb_t 
 	return index;
 }
 
-//--------------------------------------------------------------------------------------------
-void BSP_leaf_t::set(void *data, bsp_type_t type, size_t index)
-{
-	this->_next = nullptr;
-	this->_inserted = false;
-	this->_type = type;
-	this->_index = index;
-	this->_data = data;
-	this->_bbox = bv_t();
-}
-
 bool BSP_leaf_t::remove_link(BSP_leaf_t *L)
 {
 	if (NULL == L) return false;
@@ -253,16 +242,6 @@ bool BSP_leaf_t::clear(BSP_leaf_t * L)
 
 	BSP_leaf_t::remove_link(L);
 
-	return true;
-}
-
-bool BSP_leaf_t::assign(const BSP_leaf_t& other)
-{
-	this->_next = other._next;
-	this->_type = other._type;
-	this->_data = other._data;
-	this->_index = other._index;
-	this->_bbox.assign(other._bbox);
 	return true;
 }
 

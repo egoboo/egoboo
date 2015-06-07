@@ -39,7 +39,7 @@ const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
 
 Object::Object(const PRO_REF profile, const CHR_REF id) : 
-    bsp_leaf(),
+    bsp_leaf(this, BSP_LEAF_CHR, id),
     spawn_data(),
     ai(),
     latch(),
@@ -172,9 +172,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _characterID(id),
     _profile(ProfileSystem::get().getProfile(profile))
 {
-    // Construct the BSP node for this entity.
-    bsp_leaf.set(this, BSP_LEAF_CHR, _characterID);
-
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
 

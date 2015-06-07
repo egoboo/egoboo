@@ -30,15 +30,14 @@ Uint32 Entities::spawnDepth = 0;
 GUID Entities::nextGUID = 0;
 
 Entity::Entity(void *child_data, bsp_type_t child_type, size_t child_index)
-	: _guid(0), /// @todo should be EGO_GUID_INVALID
+	: bsp_leaf(child_data, child_type, child_index),
+	  _guid(0), /// @todo should be EGO_GUID_INVALID
 	  _allocated(false), on(false), turn_me_on(false), kill_me(false),
 	  spawning(false), in_free_list(false), in_used_list(false),
 	  // Things related to the updating of objects.
 	  update_count(0), frame_count(0), _update_guid(0), /// @todo should be EGO_GUID_INVALID
 	  state(State::Invalid), _name(),
 	  _index(child_index) {
-	// Assign data to the BSP node.
-	bsp_leaf.set(child_data, child_type, child_index);
 }
 
 void Entity::reset()
