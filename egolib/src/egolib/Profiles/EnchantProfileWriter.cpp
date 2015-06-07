@@ -112,11 +112,11 @@ bool EnchantProfileWriter::write(std::shared_ptr<eve_t> profile, const std::stri
 
     template_put_bool(filetemp, filewrite, profile->_set[eve_t::SETICEMODIFIER].apply);
     template_put_damage_modifier(filetemp, filewrite, profile->_set[eve_t::SETICEMODIFIER].value);
-    template_put_float(filetemp, filewrite, profile->_set[eve_t::ADDICERESIST].value * 100.0f);
+    template_put_float(filetemp, filewrite, profile->_add[eve_t::ADDICERESIST].value * 100.0f);
 
     template_put_bool(filetemp, filewrite, profile->_set[eve_t::SETZAPMODIFIER].apply);
     template_put_damage_modifier(filetemp, filewrite, profile->_set[eve_t::SETZAPMODIFIER].value);
-    template_put_float(filetemp, filewrite, profile->_set[eve_t::ADDZAPRESIST].value * 100.0f);
+    template_put_float(filetemp, filewrite, profile->_add[eve_t::ADDZAPRESIST].value * 100.0f);
 
     template_put_bool(filetemp, filewrite, profile->_set[eve_t::SETFLASHINGAND].apply);
     template_put_int(filetemp, filewrite, profile->_set[eve_t::SETFLASHINGAND].value);
