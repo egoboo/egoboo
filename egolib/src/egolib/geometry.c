@@ -188,8 +188,10 @@ plane_intersects_aabb_done:
 bool two_plane_intersection(fvec3_t& p, fvec3_t& d, const plane_t& p0, const plane_t& p1)
 {
     // Compute \f$\vec{d} = \hat{n}_0 \times \hat{n}_1\f$
-    auto n0 = p0.getNormal(), n1 = p1.getNormal();
+    const fvec3_t &n0 = p0.getNormal();
+    const fvec3_t &n1 = p1.getNormal();
     d = n0.cross(n1);
+    
     // If \f$\vec{v}\f$ is the zero vector, then the planes do not intersect.
     if (0 == d.normalize()) {
         return false;
