@@ -31,7 +31,7 @@ CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) -I../external/mingw/include/
 CXXFLAGS += -Wno-sign-compare -Wno-reorder
 
 #Debug options
-CXXFLAGS += -ggdb -fdiagnostics-color=always -pg
+CXXFLAGS += -fdiagnostics-color=always
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 

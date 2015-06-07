@@ -30,14 +30,14 @@ INCLUDES += -I../external/physfs-2.0.3/
 
 #---------------------
 # the compiler options
-CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) -I../external/mingw/include/SDL2 -Dmain=SDL_main -std=c++11 -O0 -Wall -fno-builtin -Wfatal-errors -Werror -static-libstdc++
+CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) -I../external/mingw/include/SDL2 -Dmain=SDL_main -std=c++11 -O3 -Wall -fno-builtin -Wfatal-errors -Werror -static-libstdc++
 #-Wextra -Weffc++
 
 #hush some warnings we dont care about
 CXXFLAGS += -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function -Wno-unused-variable -Wno-reorder
 
 #debug options
-CXXFLAGS += -ggdb -fdiagnostics-color=always -pg
+CXXFLAGS += -fdiagnostics-color=always
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 
