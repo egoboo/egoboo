@@ -95,7 +95,7 @@ public:
 	 *  If a point is behind one of the frustum planes (i.e. its distance to the plane is
 	 *  negative), then the point is outside the frustum, otherwise it is inside the frustum.
 	 */
-	geometry_rv intersects_point(const fvec3_t& point, const bool doEnds) const;
+	Ego::Math::Relation intersects_point(const fvec3_t& point, const bool doEnds) const;
 
 	/**
 	 * @brief
@@ -115,7 +115,7 @@ public:
 	 * @remark
 	 *	If a the sphere is outside one plane farther than its radius, it is outside the frustum.
 	 */
-	geometry_rv intersects_sphere(const sphere_t& sphere, const bool doEnds) const;
+	Ego::Math::Relation intersects_sphere(const sphere_t& sphere, const bool doEnds) const;
 
     /**
      * @brief
@@ -137,7 +137,7 @@ public:
      * @todo
      *  Replace <tt>const fvec3_t& position</tt> and <tt>const float size</tt> by <tt>const cube_t& cube</tt>.
      */
-    geometry_rv intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const;
+	Ego::Math::Relation intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const;
 
     /**
      * @brief
@@ -153,8 +153,8 @@ public:
      *      <li>geometry_inside    - the AABB is completely inside the frustum</li>
      *	</ul>
      */
-     geometry_rv intersects_aabb(const fvec3_t& corner1, const fvec3_t& corner2, bool doEnds) const;
-     geometry_rv intersects_aabb(const aabb_t& aabb, bool doEnds) const;
+	Ego::Math::Relation intersects_aabb(const fvec3_t& corner1, const fvec3_t& corner2, bool doEnds) const;
+	Ego::Math::Relation intersects_aabb(const aabb_t& aabb, bool doEnds) const;
 
 	/**
 	 * @brief
@@ -167,7 +167,7 @@ public:
 	 *		<li>geometry_intersect - the BV and the frustum partially overlap</li>
 	 *		<li>geometry_inside    - the bounding volume is completely inside the frustum</li>
 	 */
-	geometry_rv intersects_bv(const bv_t *bv, bool doEnds) const;
+	Ego::Math::Relation intersects_bv(const bv_t *bv, bool doEnds) const;
 
 	/// @todo Should return geometry_rv.
 	bool intersects_oct(const oct_bb_t *oct, const bool doEnds) const;

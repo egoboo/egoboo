@@ -1230,23 +1230,23 @@ bool BSP_leaf_list_t::add_all(BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t 
 
 void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geometry = classify(aabb);
+	Ego::Math::Relation geometry = classify(aabb);
 
 	// If the AABB does not intersect the bounding box enclosing the leaves in this leaf list,
 	// there is nothing to do.
-	if (geometry <= geometry_outside)
+	if (geometry <= Ego::Math::Relation::outside)
 	{
 		return;
 	}
 	// The leaf list is completey contained in the AABB. Add every single leaf.
-	else if (geometry_inside == geometry)
+	else if (Ego::Math::Relation::inside == geometry)
 	{
 		add_all(collisions);
 		return;
 	}
 	// The leaf list intersects with but is not completey contained in the frustum.
 	// Test every single leaf.
-	else if (geometry_intersect == geometry)
+	else if (Ego::Math::Relation::intersect == geometry)
 	{
 		size_t lost_leaves = 0;  // The number of lost leaves.
 
@@ -1259,10 +1259,10 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry.
-			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->_bbox.getAABB());
+			Ego::Math::Relation geometry_test = aabb_intersects_aabb(aabb, leaf->_bbox.getAABB());
 
 			// determine what action to take
-			if (geometry_test > geometry_outside)
+			if (geometry_test > Ego::Math::Relation::outside)
 			{
 				if (rv_success != collisions.push_back(leaf))
 				{
@@ -1287,23 +1287,23 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *
 
 void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geometry = classify(aabb);
+	Ego::Math::Relation geometry = classify(aabb);
 
 	// If the AABB does not intersect the bounding box enclosing the leaves in this leaf list,
 	// there is nothing to do.
-	if (geometry <= geometry_outside)
+	if (geometry <= Ego::Math::Relation::outside)
 	{
 		return;
 	}
 	// The leaf list is completey contained in the AABB. Add every single leaf.
-	else if (geometry_inside == geometry)
+	else if (Ego::Math::Relation::inside == geometry)
 	{
 		add_all(test,collisions);
 		return;
 	}
 	// The leaf list intersects with but is not completey contained in the frustum.
 	// Test every single leaf.
-	else if (geometry_intersect == geometry)
+	else if (Ego::Math::Relation::intersect == geometry)
 	{
 		size_t lost_leaves = 0;  // The number of lost leaves.
 		size_t rejected_leaves = 0; // The number of rejected leaves;
@@ -1317,10 +1317,10 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test geometry.
-			geometry_rv geometry_test = aabb_intersects_aabb(aabb, leaf->_bbox.getAABB());
+			Ego::Math::Relation geometry_test = aabb_intersects_aabb(aabb, leaf->_bbox.getAABB());
 
 			// Determine what action to take.
-			if (geometry_test > geometry_outside)
+			if (geometry_test > Ego::Math::Relation::outside)
 			{
 				if ((*test)(leaf))
 				{
@@ -1352,23 +1352,23 @@ void BSP_leaf_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dyna
 
 void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geometry = classify(frustum);
+	Ego::Math::Relation geometry = classify(frustum);
 
 	// If the frustum does not intersect the bounding box enclosing the leaves in this leaf list,
 	// there is nothing to do.
-	if (geometry <= geometry_outside)
+	if (geometry <= Ego::Math::Relation::outside)
 	{
 		return;
 	}
 	// The leaf list is completey contained in the frustum. Add every single leaf.
-	else if (geometry_inside == geometry)
+	else if (Ego::Math::Relation::inside == geometry)
 	{
 		add_all(collisions);
 		return;
 	}
 	// The leaf list intersects with but is not completey contained in the frustum.
 	// Test every single leaf.
-	else if (geometry_intersect == geometry)
+	else if (Ego::Math::Relation::intersect == geometry)
 	{
 		size_t lost_leaves = 0; // The number of lost leaves.
 
@@ -1381,10 +1381,10 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry
-			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->_bbox), true);
+			Ego::Math::Relation geometry_test = frustum.intersects_bv(&(leaf->_bbox), true);
 
 			// Determine what action to take.
-			if (geometry_test > geometry_outside)
+			if (geometry_test > Ego::Math::Relation::outside)
 			{
 				if (rv_success != collisions.push_back(leaf))
 				{
@@ -1409,23 +1409,23 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray
 
 void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geometry = classify(frustum);
+	Ego::Math::Relation geometry = classify(frustum);
 
 	// If the frustum does not intersect the bounding box enclosing the leaves in this leaf list,
 	// there is nothing to do.
-	if (geometry <= geometry_outside)
+	if (geometry <= Ego::Math::Relation::outside)
 	{
 		return;
 	}
 	// The leaf list is completey contained in the frustum. Add every single leaf.
-	else if (geometry_inside == geometry)
+	else if (Ego::Math::Relation::inside == geometry)
 	{
 		add_all(test, collisions);
 		return;
 	}
 	// The leaf list intersects with the frustum but is not completey contained in the frustum.
 	// Test every single leaf.
-	else if (geometry_intersect == geometry)
+	else if (Ego::Math::Relation::intersect == geometry)
 	{
 		size_t rejected_leaves = 0; // The number of rejected leaves.
 		size_t lost_leaves = 0; // The number of lost leaves.
@@ -1438,10 +1438,10 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& te
 			EGOBOO_ASSERT(leaf->isInList());
 
 			// Test the geometry
-			geometry_rv geometry_test = frustum.intersects_bv(&(leaf->_bbox), true);
+			Ego::Math::Relation geometry_test = frustum.intersects_bv(&(leaf->_bbox), true);
 
 			// Determine what action to take.
-			if (geometry_test > geometry_outside)
+			if (geometry_test > Ego::Math::Relation::outside)
 			{
 				if ((*test)(leaf))
 				{
@@ -1471,18 +1471,18 @@ void BSP_leaf_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& te
 	}
 }
 
-geometry_rv BSP_leaf_list_t::classify(const aabb_t& aabb) const
+Ego::Math::Relation BSP_leaf_list_t::classify(const aabb_t& aabb) const
 {
 	if (0 == getCount())
 	{
-		return geometry_outside;
+		return Ego::Math::Relation::outside;
 	}
 	else if (1 == getCount())
 	{
 		// A speedup.
 		// If there is only one entry, then the frustum-aabb collision test is
 		// called twice for 2 bounding boxes of the same size.
-		return geometry_intersect;
+		return Ego::Math::Relation::intersect;
 	}
 	else
 	{
@@ -1490,18 +1490,18 @@ geometry_rv BSP_leaf_list_t::classify(const aabb_t& aabb) const
 	}
 }
 
-geometry_rv BSP_leaf_list_t::classify(const egolib_frustum_t& frustum) const
+Ego::Math::Relation BSP_leaf_list_t::classify(const egolib_frustum_t& frustum) const
 {
 	if (0 == getCount())
 	{
-		return geometry_outside;
+		return Ego::Math::Relation::outside;
 	}
 	else if (1 == getCount())
 	{
 		// A speedup.
 		// If there is only one entry, then the frustum-aabb collision test is
 		// called twice for 2 bounding boxes of the same size.
-		return geometry_intersect;
+		return Ego::Math::Relation::intersect;
 	}
 	else
 	{
@@ -1546,34 +1546,34 @@ size_t BSP_branch_list_t::removeAllLeaves()
 
 void BSP_branch_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geometry;
+	Ego::Math::Relation geometry;
 
 	if (0 == inserted)
 	{
-		geometry = geometry_outside;
+		geometry = Ego::Math::Relation::outside;
 	}
 	else if (1 == inserted)
 	{
 		// A speedup.
 		// If there is only one entry, then the AABB-AABB collision test is
 		// called twice for 2 equivalent AABBs.
-		geometry = geometry_intersect;
+		geometry = Ego::Math::Relation::intersect;
 	}
 	else
 	{
 		geometry = _bounds.intersects(aabb);
 	}
 
-	if (geometry <= geometry_outside)
+	if (geometry <= Ego::Math::Relation::outside)
 	{
 		// The branch list and the AABB do not overlap at all. Do nothing.
 		return;
 	}
-	if (geometry_inside == geometry)
+	if (Ego::Math::Relation::inside == geometry)
 	{
 		add_all_children(collisions);
 	}
-	else if (geometry_intersect == geometry)
+	else if (Ego::Math::Relation::intersect == geometry)
 	{
 		for (size_t i = 0, n = lst_size; i < n; ++i)
 		{
@@ -1591,35 +1591,35 @@ void BSP_branch_list_t::collide(const aabb_t& aabb, Ego::DynamicArray<BSP_leaf_t
 
 void BSP_branch_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geometry;
+	Ego::Math::Relation geometry;
 
 	if (0 == inserted)
 	{
-		geometry = geometry_outside;
+		geometry = Ego::Math::Relation::outside;
 	}
 	else if (1 == inserted)
 	{
 		// A speedup.
 		// If there is only one entry, then the AABB-AABB collision test is
 		// called twice for 2 equivalent AABBs.
-		geometry = geometry_intersect;
+		geometry = Ego::Math::Relation::intersect;
 	}
 	else
 	{
 		geometry = _bounds.intersects(aabb);
 	}
 
-	if (geometry <= geometry_outside)
+	if (geometry <= Ego::Math::Relation::outside)
 	{
 		// The branch list and the AABB do not overlap at all. Do nothing.
 		return;
 	}
 
-	if (geometry_inside == geometry)
+	if (Ego::Math::Relation::inside == geometry)
 	{
 		add_all_children(test,collisions);
 	}
-	else if (geometry_intersect == geometry)
+	else if (Ego::Math::Relation::intersect == geometry)
 	{
 		for (size_t i = 0, n = lst_size; i < n; ++i)
 		{
@@ -1637,35 +1637,35 @@ void BSP_branch_list_t::collide(const aabb_t& aabb, BSP::LeafTest& test, Ego::Dy
 
 void BSP_branch_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geometry;
+	Ego::Math::Relation geometry;
 
 	if (0 == inserted)
 	{
-		geometry = geometry_outside;
+		geometry = Ego::Math::Relation::outside;
 	}
 	else if (1 == inserted)
 	{
 		// A speedup.
 		// If there is only one entry, then the frustum-AABB collision test is
 		// called twice for 2 equivalent AABBs.
-		geometry = geometry_intersect;
+		geometry = Ego::Math::Relation::intersect;
 	}
 	else
 	{
 		geometry = _bounds.intersects(frustum);
 	}
 
-	if (geometry <= geometry_outside)
+	if (geometry <= Ego::Math::Relation::outside)
 	{
 		// The branch list and the frustum do not overlap at all. Do nothing.
 		return;
 	}
 
-	if (geometry_inside == geometry)
+	if (Ego::Math::Relation::inside == geometry)
 	{
 		add_all_children(collisions);
 	}
-	else if (geometry_intersect == geometry)
+	else if (Ego::Math::Relation::intersect == geometry)
 	{
 		for (size_t i = 0, n = lst_size; i < n; ++i)
 		{
@@ -1683,35 +1683,35 @@ void BSP_branch_list_t::collide(const egolib_frustum_t& frustum, Ego::DynamicArr
 
 void BSP_branch_list_t::collide(const egolib_frustum_t& frustum, BSP::LeafTest& test, Ego::DynamicArray<BSP_leaf_t *>& collisions) const
 {
-	geometry_rv geometry;
+	Ego::Math::Relation geometry;
 
 	if (0 == inserted)
 	{
-		geometry = geometry_outside;
+		geometry = Ego::Math::Relation::outside;
 	}
 	else if (1 == inserted)
 	{
 		// A speedup.
 		// If there is only one entry, then the frustum-AABB collision test is
 		// called twice for 2 equivalent AABBs.
-		geometry = geometry_intersect;
+		geometry = Ego::Math::Relation::intersect;
 	}
 	else
 	{
 		geometry = _bounds.intersects(frustum);
 	}
 
-	if (geometry <= geometry_outside)
+	if (geometry <= Ego::Math::Relation::outside)
 	{
 		// The branch list and the frustum do not overlap at all. Do nothing.
 		return;
 	}
 
-	if (geometry_inside == geometry)
+	if (Ego::Math::Relation::inside == geometry)
 	{
 		add_all_children(test, collisions);
 	}
-	else if (geometry_intersect == geometry)
+	else if (Ego::Math::Relation::intersect == geometry)
 	{
 		for (size_t i = 0, n = lst_size; i < n; ++i)
 		{

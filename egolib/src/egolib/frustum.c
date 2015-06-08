@@ -147,17 +147,17 @@ void egolib_frustum_t::calculate(const fmat_4x4_t& projection, const fmat_4x4_t&
     }
 }
 
-geometry_rv egolib_frustum_t::intersects_bv(const bv_t *bv,bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_bv(const bv_t *bv, bool doEnds) const
 {
 	// Validate arguments.
 	if (nullptr == bv)
 	{
-		return geometry_error;
+		return Ego::Math::Relation::error;
 	}
 	return intersects_aabb(bv->getAABB().getMin(), bv->getAABB().getMax(), doEnds);
 }
 
-geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_point(const fvec3_t& point, const bool doEnds) const
 {
 	// Handle optional parameters.
 	int i_stt, i_end;
@@ -185,10 +185,10 @@ geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool 
 		}
 	}
 
-	return inside ? geometry_inside : geometry_outside;
+	return inside ? Ego::Math::Relation::inside : Ego::Math::Relation::outside;
 }
 
-geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bool doEnds) const
 {
 	/// @todo The radius of a sphere shall preserve the invariant to be non-negative.
 	/// The test below would then reduce to radius == 0.0f. In that case, the simple
@@ -199,7 +199,7 @@ geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bo
 	}
 
 	// Assume the sphere is completely inside the frustum.
-	geometry_rv retval = geometry_inside;
+	Ego::Math::Relation retval = Ego::Math::Relation::inside;
 
 	// Handle optional parameters.
 	int i_stt, i_end;
@@ -222,23 +222,23 @@ geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bo
 		// If the sphere is completely behind the current plane, it is outside the frustum.
 		if (dist <= -sphere.getRadius())
 		{
-			retval = geometry_outside;
+			retval = Ego::Math::Relation::outside;
 			break;
 		}
 		// If it is not completely in front of the current plane, it intersects the frustum.
 		else if (dist < sphere.getRadius())
 		{
-			retval = geometry_intersect;
+			retval = Ego::Math::Relation::intersect;
 		}
 	}
 
 	return retval;
 }
 
-geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const
 {
 	// Assume the cube is inside the frustum.
-	geometry_rv retval = geometry_inside;
+	Ego::Math::Relation retval = Ego::Math::Relation::inside;
 
 	// Handle optional parameters.
 	int i_stt, i_end;
@@ -277,7 +277,7 @@ geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float
 		/// @todo This is wrong!
 		if (plane.distance(vmin) > 0.0f)
 		{
-			retval = geometry_outside;
+			retval = Ego::Math::Relation::outside;
 			break;
 		}
 
@@ -285,46 +285,46 @@ geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float
 		/// @todo This is wrong.
 		if (plane.distance(vmax) >= 0.0f)
 		{
-			retval = geometry_intersect;
+			retval = Ego::Math::Relation::intersect;
 		}
 	}
 
 	return retval;
 }
 
-geometry_rv egolib_frustum_t::intersects_aabb(const aabb_t& aabb, bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_aabb(const aabb_t& aabb, bool doEnds) const
 {
     return intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
 }
 
-geometry_rv egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t& maxs, bool doEnds) const
+Ego::Math::Relation egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t& maxs, bool doEnds) const
 {
     // Handle optional parameters.
     int i_stt = 0,
         i_end = doEnds ? Planes::END : Planes::SIDES_END;
 
     // Assume the AABB is inside the frustum.
-    geometry_rv retval = geometry_inside;
+	Ego::Math::Relation retval = Ego::Math::Relation::inside;
 
     // scan through the planes until something happens
     int i;
     for (i = i_stt; i <= i_end; i++)
     {
-        if (geometry_outside == plane_intersects_aabb_max(_planes2[i], mins, maxs))
+		if (Ego::Math::Relation::outside == plane_intersects_aabb_max(_planes2[i], mins, maxs))
         {
-            retval = geometry_outside;
+			retval = Ego::Math::Relation::outside;
             break;
         }
 
-        if (geometry_outside == plane_intersects_aabb_min(_planes2[i], mins, maxs))
+		if (Ego::Math::Relation::outside == plane_intersects_aabb_min(_planes2[i], mins, maxs))
         {
-            retval = geometry_intersect;
+			retval = Ego::Math::Relation::intersect;
             break;
         }
     }
 
     // Continue on if there is something to do.
-    if (geometry_intersect == retval)
+	if (Ego::Math::Relation::intersect == retval)
     {
         // If we are in geometry_intersect mode, we only need to check for
         // the geometry_outside condition.
@@ -332,9 +332,9 @@ geometry_rv egolib_frustum_t::intersects_aabb(const fvec3_t& mins, const fvec3_t
         // This eliminates a geometry_inside == retval test in every iteration of the loop
         for ( /* nothing */; i <= i_end; i++)
         {
-            if (geometry_outside == plane_intersects_aabb_max(_planes2[i], mins, maxs))
+			if (Ego::Math::Relation::outside == plane_intersects_aabb_max(_planes2[i], mins, maxs))
             {
-                retval = geometry_outside;
+				retval = Ego::Math::Relation::outside;
                 break;
             }
         }
@@ -351,8 +351,8 @@ bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) co
 	}
 	bool retval = false;
 	aabb_t aabb = oct->toAABB();
-    geometry_rv frustum_rv = this->intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
-    retval = (frustum_rv > geometry_outside);
+	Ego::Math::Relation frustum_rv = this->intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
+	retval = (frustum_rv > Ego::Math::Relation::outside);
 	return retval;
 }
 

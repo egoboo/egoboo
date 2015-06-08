@@ -263,7 +263,7 @@ public:
 	 * @todo
 	 *	Make protected.
 	 */
-	geometry_rv classify(const aabb_t& aabb) const;
+	Ego::Math::Relation classify(const aabb_t& aabb) const;
 	/**
 	 * @brief
 	 *	Classify this leaf list w.r.t. to its bounding volumen and a frustum.
@@ -274,7 +274,7 @@ public:
 	 * @todo
 	 *	Make protected.
 	 */
-	geometry_rv classify(const egolib_frustum_t& frustum) const;
+	Ego::Math::Relation classify(const egolib_frustum_t& frustum) const;
 };
 
 //--------------------------------------------------------------------------------------------

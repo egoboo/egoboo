@@ -85,14 +85,14 @@ namespace BSP
 			_volume = volume;
 			_empty = false;
 		}
-		geometry_rv intersects(const egolib_frustum_t& frustum) const
+		Ego::Math::Relation intersects(const egolib_frustum_t& frustum) const
 		{
-			if (_empty) return geometry_outside;
+			if (_empty) return Ego::Math::Relation::outside;
 			return frustum.intersects_bv(&_volume, true);
 		}
-		geometry_rv intersects(const aabb_t& aabb) const
+		Ego::Math::Relation intersects(const aabb_t& aabb) const
 		{
-			if (_empty) return geometry_outside;
+			if (_empty) return Ego::Math::Relation::outside;
 			return aabb_intersects_aabb(_volume.getAABB(), aabb);
 		}
 	};

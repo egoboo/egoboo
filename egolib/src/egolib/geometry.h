@@ -30,13 +30,16 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    enum geometry_rv
-    {
-        geometry_error,
-        geometry_outside,
-        geometry_intersect,
-        geometry_inside
-    };
+namespace Ego {
+namespace Math {
+enum class Relation {
+	error,
+	outside,
+	intersect,
+	inside
+};
+} // namespace Math
+} // namespace Ego
 
 //--------------------------------------------------------------------------------------------
 // a datatype for points
@@ -61,12 +64,12 @@
  * @todo
  *  Document return value.
  */
-geometry_rv point_intersects_aabb(const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2);
+Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2);
 
-geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs);
+Ego::Math::Relation aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs);
 
-geometry_rv plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
-geometry_rv plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
+Ego::Math::Relation plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
+Ego::Math::Relation plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
 
 /**
  * @brief
@@ -80,7 +83,7 @@ geometry_rv plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins,
  * @todo
  *	Rename <tt>plane</tt> to <tt>lhs</tt> and <tt>aabb</tt> to <tt>rhs</tt>.
  */
-geometry_rv plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
+Ego::Math::Relation plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs);
 
 /**
  * @brief
@@ -90,7 +93,7 @@ geometry_rv plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, con
  * @param rhs
  *  the other sphere
  */
-geometry_rv sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs);
+Ego::Math::Relation sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs);
 
 /**
  * @brief
@@ -100,7 +103,7 @@ geometry_rv sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs);
  * @param rhs
  *	a point
  */
-geometry_rv cone_intersects_point(const cone_t * lhs, const fvec3_t& rhs);
+Ego::Math::Relation cone_intersects_point(const cone_t * lhs, const fvec3_t& rhs);
 
 /**
  * @brief
@@ -112,7 +115,7 @@ geometry_rv cone_intersects_point(const cone_t * lhs, const fvec3_t& rhs);
  * @todo
  *  Document return value.
  */
-geometry_rv cone_intersects_sphere(const cone_t * lhs, const sphere_t * rhs);
+Ego::Math::Relation cone_intersects_sphere(const cone_t * lhs, const sphere_t * rhs);
 
 /**
  * @brief

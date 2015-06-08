@@ -29,13 +29,13 @@
 #include "egolib/Math/Sphere.h"
 #include "egolib/frustum.h"
 
-geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2 )
+Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2)
 {
     int cnt;
-    geometry_rv retval = geometry_inside;
+	Ego::Math::Relation retval = Ego::Math::Relation::inside;
 
     // assume inside
-    retval = geometry_inside;
+	retval = Ego::Math::Relation::inside;
 
     // scan the points
     for ( cnt = 0; cnt < 3; cnt++ )
@@ -45,7 +45,7 @@ geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_t& corner
         {
             if ( pos[cnt] < corner1[cnt] || pos[cnt] > corner2[cnt] )
             {
-                retval = geometry_outside;
+				retval = Ego::Math::Relation::outside;
                 break;
             }
         }
@@ -53,7 +53,7 @@ geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_t& corner
         {
             if ( pos[cnt] < corner2[cnt] || pos[cnt] > corner1[cnt] )
             {
-                retval = geometry_outside;
+				retval = Ego::Math::Relation::outside;
                 break;
             }
         }
@@ -66,12 +66,12 @@ geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_t& corner
 // aabb functions
 //--------------------------------------------------------------------------------------------
 
-geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
+Ego::Math::Relation aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
 {
     const size_t dimensions = 3;
 
     // Assume RHS is inside LHS.
-    geometry_rv retval = geometry_inside;
+	Ego::Math::Relation retval = Ego::Math::Relation::inside;
     bool not_inside = false;
 
     // Scan all the coordinates.
@@ -79,11 +79,11 @@ geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
     {
         if (rhs.getMin()[cnt] > lhs.getMax()[cnt])
         {
-            return geometry_outside;
+			return Ego::Math::Relation::outside;
         }
         else if (rhs.getMax()[cnt] < lhs.getMin()[cnt])
         {
-            return geometry_outside;
+			return Ego::Math::Relation::outside;
         }
         else if (!not_inside)
         {
@@ -91,7 +91,7 @@ geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
                 rhs.getMin()[cnt] < lhs.getMax()[cnt])
             {
                 // one of the sides is hanging over the edge
-                retval = geometry_intersect;
+				retval = Ego::Math::Relation::intersect;
                 not_inside = true;
             }
         }
@@ -100,12 +100,12 @@ geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
     return retval;
 }
 
-geometry_rv plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
+Ego::Math::Relation plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
 {
     int   j;
     float dist, tmp;
 
-    geometry_rv retval = geometry_error;
+	Ego::Math::Relation retval = Ego::Math::Relation::error;
 
     // find the point-plane distance for the most-positive points of the aabb
     dist = 0.0f;
@@ -118,26 +118,26 @@ geometry_rv plane_intersects_aabb_max(const plane_t& plane, const fvec3_t& mins,
 
     if (dist > 0.0f)
     {
-        retval = geometry_inside;
+		retval = Ego::Math::Relation::inside;
     }
     else if (dist < 0.0f)
     {
-        retval = geometry_outside;
+		retval = Ego::Math::Relation::outside;
     }
     else
     {
-        retval = geometry_intersect;
+		retval = Ego::Math::Relation::intersect;
     }
 
     return retval;
 }
 
-geometry_rv plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
+Ego::Math::Relation plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
 {
     int   j;
     float dist, tmp;
 
-    geometry_rv retval = geometry_error;
+	Ego::Math::Relation retval = Ego::Math::Relation::error;
 
     // find the point-plane distance for the most-negative points of the aabb
     dist = 0.0f;
@@ -150,33 +150,33 @@ geometry_rv plane_intersects_aabb_min(const plane_t& plane, const fvec3_t& mins,
 
     if (dist > 0.0f)
     {
-        retval = geometry_inside;
+		retval = Ego::Math::Relation::inside;
     }
     else if (dist < 0.0f)
     {
-        retval = geometry_outside;
+		retval = Ego::Math::Relation::outside;
     }
     else
     {
-        retval = geometry_intersect;
+		retval = Ego::Math::Relation::intersect;
     }
 
     return retval;
 }
 
-geometry_rv plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
+Ego::Math::Relation plane_intersects_aabb(const plane_t& plane, const fvec3_t& mins, const fvec3_t& maxs)
 {
-    geometry_rv retval = geometry_inside;
+	Ego::Math::Relation retval = Ego::Math::Relation::inside;
 
-    if ( geometry_outside == plane_intersects_aabb_max( plane, mins, maxs ) )
+	if (Ego::Math::Relation::outside == plane_intersects_aabb_max(plane, mins, maxs))
     {
-        retval = geometry_outside;
+		retval = Ego::Math::Relation::outside;
         goto plane_intersects_aabb_done;
     }
 
-    if ( geometry_outside == plane_intersects_aabb_min( plane, mins, maxs ) )
+	if (Ego::Math::Relation::outside == plane_intersects_aabb_min(plane, mins, maxs))
     {
-        retval = geometry_intersect;
+		retval = Ego::Math::Relation::intersect;
         goto plane_intersects_aabb_done;
     }
 
@@ -255,9 +255,9 @@ bool three_plane_intersection(fvec3_t& dst_pos, const plane_t& p0, const plane_t
 // sphere functions
 //--------------------------------------------------------------------------------------------
 
-geometry_rv sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs)
+Ego::Math::Relation sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs)
 {
-    geometry_rv retval = geometry_error;
+	Ego::Math::Relation retval = Ego::Math::Relation::error;
 
     // Get the separating axis
     fvec3_t vdiff = lhs.getCenter() - rhs.getCenter();
@@ -269,11 +269,11 @@ geometry_rv sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs)
     {
         if (dist2 < lhs.getRadius() * lhs.getRadius())
         {
-            retval = geometry_inside;
+			retval = Ego::Math::Relation::inside;
         }
     }
 
-    if (geometry_inside != retval)
+	if (Ego::Math::Relation::inside != retval)
     {
         // Get the sum of the radii.
         float fRadiiSum = lhs.getRadius() + rhs.getRadius();
@@ -282,11 +282,11 @@ geometry_rv sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs)
         // then we have an intersection we calculate lhs using the squared lengths for speed.
         if (dist2 < fRadiiSum * fRadiiSum)
         {
-            retval = geometry_intersect;
+			retval = Ego::Math::Relation::intersect;
         }
         else
         {
-            retval = geometry_outside;
+			retval = Ego::Math::Relation::outside;
         }
     }
 
@@ -297,12 +297,12 @@ geometry_rv sphere_intersects_sphere(const sphere_t& lhs, const sphere_t& rhs)
 // cone functions
 //--------------------------------------------------------------------------------------------
 
-geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
+Ego::Math::Relation cone_intersects_point(const cone_t *K, const fvec3_t& P)
 {
     /// @brief determine whether a point is inside a cone
-    geometry_rv retval = geometry_error;
+	Ego::Math::Relation retval = Ego::Math::Relation::error;
 
-    if (NULL == K) return geometry_error;
+	if (NULL == K) return Ego::Math::Relation::error;
 
     // move the cone origin to the origin of coordinates
     fvec3_t dist_vec = P - K->origin;
@@ -312,7 +312,7 @@ geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
 
     if ( para_dist < 0.0f )
     {
-        retval = geometry_outside;
+		retval = Ego::Math::Relation::outside;
     }
     else
     {
@@ -329,11 +329,11 @@ geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
 
         if ( perp_dist_2 < 0.0f || K->sin_2 < 0.0f )
         {
-            retval = geometry_error;
+			retval = Ego::Math::Relation::error;
         }
         else if ( 0.0f == perp_dist_2 && K->sin_2 > 0.0f )
         {
-            retval = geometry_inside;
+			retval = Ego::Math::Relation::inside;
         }
         else
         {
@@ -361,15 +361,15 @@ geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
             // is the point inside the cone?
             if ( test3 > 0.0f )
             {
-                retval = geometry_inside;
+				retval = Ego::Math::Relation::inside;
             }
             else if ( 0.0f == test3 )
             {
-                retval = geometry_intersect;
+				retval = Ego::Math::Relation::intersect;
             }
             else
             {
-                retval = geometry_outside;
+				retval = Ego::Math::Relation::outside;
             }
         }
     }
@@ -378,7 +378,7 @@ geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
+Ego::Math::Relation cone_intersects_sphere(const cone_t * K, const sphere_t * S)
 {
     /// @author BB
     ///
@@ -395,7 +395,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
     /// geometry_intersect - the aabb and the frustum partially overlap
     /// geometry_inside    - the aabb is completely inside the frustum
 
-    geometry_rv retval = geometry_error;
+	Ego::Math::Relation retval = Ego::Math::Relation::error;
     bool done;
 
     float offset_length;
@@ -404,20 +404,20 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
     // check to make sure the pointers are valid
     if ( NULL == K || NULL == S )
     {
-        return geometry_error;
+		return Ego::Math::Relation::error;
     }
 
     // cones with bad data are not useful
     if ( K->sin_2 <= 0.0f || K->sin_2 > 1.0f || K->cos_2 >= 1.0f )
     {
-        return geometry_error;
+		return Ego::Math::Relation::error;
     }
 
     /// @todo The sphere invariants do not allow for this situation.
     // uninitialized/inverted spheres give no useful information
     if ( S->getRadius() < 0.0f )
     {
-        return geometry_error;
+		return Ego::Math::Relation::error;
     }
 
     // this is the distance that the origin of the cone must be moved to
@@ -426,7 +426,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 	offset_vec = K->axis * offset_length;
 
     // assume the worst
-    retval = geometry_error;
+	retval = Ego::Math::Relation::error;
     done   = false;
 
     // being instide the forward cone means that the sphere is
@@ -442,20 +442,20 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
         // If the center of the sphere is inside this cone, it must be competely inside the original cone
         switch ( cone_intersects_point( &K_new, S->getCenter() ) )
         {
-            case geometry_error:
-                retval = geometry_error;
+			case Ego::Math::Relation::error:
+				retval = Ego::Math::Relation::error;
                 done = true;
                 break;
 
-            case geometry_outside: // the center of the sphere is outside the foreward cone
+			case Ego::Math::Relation::outside: // the center of the sphere is outside the foreward cone
                 /* do nothing */
                 break;
 
-            case geometry_intersect: // the origin of the cone is exactly on the foreward cone
-            case geometry_inside:    // the origin of the sphere is inside the foreward cone
+			case Ego::Math::Relation::intersect: // the origin of the cone is exactly on the foreward cone
+			case Ego::Math::Relation::inside:    // the origin of the sphere is inside the foreward cone
 
                 // the sphere is completely inside the original cone
-                retval = geometry_inside;
+				retval = Ego::Math::Relation::inside;
                 done = true;
                 break;
         }
@@ -474,25 +474,25 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
         // Since it failed test with the foreward cone, it must be merely intersecting the cone.
         switch ( cone_intersects_point( &K_new, S->getCenter() ) )
         {
-            case geometry_error:
-                retval = geometry_error;
+			case Ego::Math::Relation::error:
+				retval = Ego::Math::Relation::error;
                 done = true;
                 break;
 
-            case geometry_outside:
-                retval = geometry_outside;
+			case Ego::Math::Relation::outside:
+				retval = Ego::Math::Relation::outside;
                 done = true;
                 break;
 
-            case geometry_intersect:
-            case geometry_inside:
-                retval = geometry_intersect;
+			case Ego::Math::Relation::intersect:
+			case Ego::Math::Relation::inside:
+				retval = Ego::Math::Relation::intersect;
                 done = true;
                 break;
         }
     }
 
-    return !done ? geometry_error : retval;
+	return !done ? Ego::Math::Relation::error : retval;
 }
 
 //--------------------------------------------------------------------------------------------
