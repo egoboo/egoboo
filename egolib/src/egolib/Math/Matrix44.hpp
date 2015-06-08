@@ -1054,7 +1054,7 @@ public:
 
 };
 
-float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_t& ori, const fvec4_t& wid, const fvec4_t& frw, const fvec4_t& upx, const float scale);
+void mat_FourPoints(fmat_4x4_t& DST, const fvec3_t& ori, const fvec3_t& wid, const fvec3_t& frw, const fvec3_t& up, const float scale);
 
 /**
  * @remark

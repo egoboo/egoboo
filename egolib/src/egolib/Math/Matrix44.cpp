@@ -97,49 +97,35 @@ float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t DST, const
 }
 
 //--------------------------------------------------------------------------------------------
-float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_t& ori, const fvec4_t& wid, const fvec4_t& frw, const fvec4_t& up, const float scale)
+void mat_FourPoints(fmat_4x4_t& dst, const fvec3_t& ori, const fvec3_t& wid, const fvec3_t& frw, const fvec3_t& up, const float scale)
 {
-    fvec3_t vWid, vFor, vUp;
-
-    if (NULL == DST) return NULL;
-
-    vWid[kX] = wid[kX] - ori[kX];
-    vWid[kY] = wid[kY] - ori[kY];
-    vWid[kZ] = wid[kZ] - ori[kZ];
-
-    vUp[kX] = up[kX] - ori[kX];
-    vUp[kY] = up[kY] - ori[kY];
-    vUp[kZ] = up[kZ] - ori[kZ];
-
-    vFor[kX] = frw[kX] - ori[kX];
-    vFor[kY] = frw[kY] - ori[kY];
-    vFor[kZ] = frw[kZ] - ori[kZ];
+	fvec3_t vWid = wid - ori;
+	fvec3_t vUp = up - ori;
+	fvec3_t vFor = frw - ori;
 
     vWid.normalize();
     vUp.normalize();
     vFor.normalize();
 
-    DST[MAT_IDX(0, 0)] = -scale * vWid[kX];  // HUK
-    DST[MAT_IDX(0, 1)] = -scale * vWid[kY];  // HUK
-    DST[MAT_IDX(0, 2)] = -scale * vWid[kZ];  // HUK
-    DST[MAT_IDX(0, 3)] = 0.0f;
+	dst(0, 0) = -scale * vWid[kX];  // HUK
+	dst(1, 0) = -scale * vWid[kY];  // HUK
+	dst(2, 0) = -scale * vWid[kZ];  // HUK
+	dst(3, 0) = 0.0f;
 
-    DST[MAT_IDX(1, 0)] = scale * vFor[kX];
-    DST[MAT_IDX(1, 1)] = scale * vFor[kY];
-    DST[MAT_IDX(1, 2)] = scale * vFor[kZ];
-    DST[MAT_IDX(1, 3)] = 0.0f;
+	dst(0, 1) = scale * vFor[kX];
+	dst(1, 1) = scale * vFor[kY];
+	dst(2, 1) = scale * vFor[kZ];
+	dst(3, 1) = 0.0f;
 
-    DST[MAT_IDX(2, 0)] = scale * vUp[kX];
-    DST[MAT_IDX(2, 1)] = scale * vUp[kY];
-    DST[MAT_IDX(2, 2)] = scale * vUp[kZ];
-    DST[MAT_IDX(2, 3)] = 0.0f;
+	dst(0, 2) = scale * vUp[kX];
+	dst(1, 2) = scale * vUp[kY];
+	dst(2, 2) = scale * vUp[kZ];
+	dst(3, 2) = 0.0f;
 
-    DST[MAT_IDX(3, 0)] = ori[kX];
-    DST[MAT_IDX(3, 1)] = ori[kY];
-    DST[MAT_IDX(3, 2)] = ori[kZ];
-    DST[MAT_IDX(3, 3)] = 1.0f;
-
-    return DST;
+	dst(0, 3) = ori[kX];
+	dst(1, 3) = ori[kY];
+	dst(2, 3) = ori[kZ];
+	dst(3, 3) = 1.0f;
 }
 
 fvec3_t mat_getTranslate(const fmat_4x4_t& mat)
@@ -164,30 +150,27 @@ fvec3_t mat_getChrRight(const fmat_4x4_t& mat)
 
 bool mat_getCamUp(const fmat_4x4_t& mat, fvec3_t& up)
 {
-    // for the camera
-    up[kX] = mat.v[MAT_IDX(0, 1)]; // m(1,0)
-    up[kY] = mat.v[MAT_IDX(1, 1)]; // m(1,1)
-    up[kZ] = mat.v[MAT_IDX(2, 1)]; // m(1,2)
+    up[kX] = mat(1,0);
+    up[kY] = mat(1,1);
+    up[kZ] = mat(1,2);
 
     return true;
 }
 
 bool mat_getCamRight(const fmat_4x4_t& mat, fvec3_t& right)
 {
-    // for the camera
-    right[kX] = -mat.v[MAT_IDX(0, 0)]; // -m(0,0)
-    right[kY] = -mat.v[MAT_IDX(1, 0)]; // -m(0,1)
-    right[kZ] = -mat.v[MAT_IDX(2, 0)]; // -m(0,2)
+    right[kX] = -mat(0,0);
+    right[kY] = -mat(0,1);
+    right[kZ] = -mat(0,2);
 
     return true;
 }
 
 bool mat_getCamForward(const fmat_4x4_t& mat, fvec3_t& forward)
 {
-    // for the camera
-    forward[kX] = -mat.v[MAT_IDX(0, 2)];
-    forward[kY] = -mat.v[MAT_IDX(1, 2)];
-    forward[kZ] = -mat.v[MAT_IDX(2, 2)];
+    forward[kX] = -mat(2,0);
+    forward[kY] = -mat(2,1);
+    forward[kZ] = -mat(2,2);
 
     return true;
 }

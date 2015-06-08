@@ -258,12 +258,11 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], f
     /// @author ZZ
     /// @details a helper function for apply_one_weapon_matrix()
 
-    Object *   pholder;
     int       point_count;
     fvec4_t   src_point[GRIP_VERTS];
 
     if ( !_currentModule->getObjectHandler().exists( iholder ) ) return 0;
-    pholder = _currentModule->getObjectHandler().get( iholder );
+    Object *pholder = _currentModule->getObjectHandler().get( iholder );
 
     // find the grip points in the character's "local" or "body-fixed" coordinates
     point_count = convert_grip_to_local_points( pholder, grip_verts, src_point );
@@ -307,7 +306,10 @@ bool apply_one_weapon_matrix( Object * pweap, matrix_cache_t * mc_tmp )
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        mat_FourPoints( pweap->inst.matrix.v, nupoint[0], nupoint[1], nupoint[2], nupoint[3], mc_tmp->self_scale[kZ] );
+        mat_FourPoints( pweap->inst.matrix, fvec3_t(nupoint[0][kX], nupoint[0][kY], nupoint[0][kZ]),
+			                                fvec3_t(nupoint[1][kX], nupoint[1][kY], nupoint[1][kZ]),
+											fvec3_t(nupoint[2][kX], nupoint[2][kY], nupoint[2][kZ]),
+											fvec3_t(nupoint[3][kX], nupoint[3][kY], nupoint[3][kZ]), mc_tmp->self_scale[kZ]);
 
         // update the weapon position
         pweap->setPosition(fvec3_t(nupoint[3][kX],nupoint[3][kY],nupoint[3][kZ]));
