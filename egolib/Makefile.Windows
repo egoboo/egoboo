@@ -22,16 +22,14 @@ OBJECTS += $(SOURCES:.cpp=.o)
 #---------------------
 # the compiler options
 INCLUDES := -I./src -I../game/src -I../idlib/src
-INCLUDES += -I../external/physfs-2.1.1
 
-CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) -I../external/mingw/include/SDL2 -Dmain=SDL_main -std=c++11 -O0 -D_CONSOLE -Wall -Werror -Wfatal-errors -static-libstdc++
-#-Weffc++
+CXXFLAGS  := $(COMPILE_FLAGS) $(INCLUDES) $(COMPILE_OPTIMIZE) $(COMPILE_WARNINGS)
 
 #Disable specific warnings
 CXXFLAGS += -Wno-sign-compare -Wno-reorder
 
 #Debug options
-CXXFLAGS += -fdiagnostics-color=always
+CXXFLAGS += $(COMPILE_DEBUG_FLAGS)
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 

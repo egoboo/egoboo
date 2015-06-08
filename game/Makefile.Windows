@@ -26,18 +26,16 @@ BIN = ../data/egoboo.exe
 #---------------------
 #Includes
 INCLUDES := -Isrc -I../egolib/src -I../idlib/src
-INCLUDES += -I../external/physfs-2.0.3/
 
 #---------------------
 # the compiler options
-CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) -I../external/mingw/include/SDL2 -Dmain=SDL_main -std=c++11 -O3 -Wall -fno-builtin -Wfatal-errors -Werror -static-libstdc++
-#-Wextra -Weffc++
+CXXFLAGS  := $(COMPILE_FLAGS) $(INCLUDES) $(COMPILE_OPTIMIZE) $(COMPILE_WARNINGS) -fno-builtin -Dmain=SDL_main 
 
 #hush some warnings we dont care about
 CXXFLAGS += -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function -Wno-unused-variable -Wno-reorder
 
 #debug options
-CXXFLAGS += -fdiagnostics-color=always
+CXXFLAGS += $(COMPILE_DEBUG_FLAGS)
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 
