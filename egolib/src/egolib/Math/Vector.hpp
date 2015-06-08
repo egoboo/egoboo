@@ -23,53 +23,10 @@
 
 #pragma once
 
-#include "egolib/Math/Scalar.hpp"
-#include "egolib/Math/Dimensionality.hpp"
-#include "egolib/Math/ScalarField.hpp"
-#include "egolib/log.h"
-#include "egolib/Float.hpp"
-#include "egolib/Debug.hpp"
-#include "egolib/Math/Math.hpp"
+#include "egolib/Math/_Tuple.hpp"
 
 namespace Ego {
 namespace Math {
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-template <size_t I, typename Type, size_t Size>
-void unpack(Type(&dst)[Size]);
-
-template <size_t I, typename  Type, size_t Size, typename Arg>
-void _unpack(Type(&dst)[Size], Arg&& arg) {
-    dst[I] = arg;
-}
-
-template <size_t I, typename Type, size_t Size, typename Arg, class ... Args>
-void _unpack(Type(&dst)[Size], Arg&& arg, Args&& ... args) {
-    dst[I] = arg;
-    _unpack<I + 1, Type>(dst, args ...);
-}
-
-/**
- * @brief
- *  You can use "unpack" for storing non-type parameter packs in arrays.
- * @invariant
- *  The number of arguments must be exactly the length of the array.
- * @invariant
- *  The argument types must be the array type.
- * @remark
- *  Example usage:
- *  @code
- *  float a[3]; unpack(a,0.5,0.1)
- *  @endcode
- * @author
- *  Michael Heilmann
- */
-template <typename Type, size_t Size, typename ... Args>
-void unpack(Type(&dst)[Size], Args&& ...args) {
-    static_assert(Size == sizeof ... (args), "wrong number of arguments");
-    _unpack<0, Type, Size>(dst, args ...);
-}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -195,7 +152,8 @@ template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void
 struct Vector;
 
 template <typename _ScalarType, size_t _Dimensionality>
-struct Vector<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> {
+struct Vector<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> 
+	: public Tuple<_ScalarType, _Dimensionality> {
 
 public:
 
@@ -203,13 +161,13 @@ public:
      * @brief
      *  @a ScalarType is the type of the underlaying scalars.
      */
-    typedef _ScalarType MyScalarType;
+    typedef typename Tuple<_ScalarType, _Dimensionality>::MyScalarType MyScalarType;
 
     /**
      * @brief
      *  @a ScalarFieldType is the type of the underlaying scalar field.
      */
-    typedef ScalarField<MyScalarType> MyScalarField;
+    typedef typename Tuple<_ScalarType, _Dimensionality>::MyScalarFieldType MyScalarFieldType;
 
     /**
      * @brief
@@ -217,41 +175,37 @@ public:
      */
     typedef Vector<MyScalarType, _Dimensionality> MyType;
 
-    /**
-     * @brief
-     *  The dimensionality of this vector.
-     */
-    static const size_t Dimensionality;
-
 private:
     
     /// @invariant the scalar type must be a floating point type.
-    static_assert(std::is_floating_point<_ScalarType>::value, "_ScalarType must be a floating point type");
+    static_assert(IsScalar<_ScalarType>::value, "_ScalarType does not fulfil the scalar concept");
     
     /// @invariant the dimensionality be a positive integral constant
-    static_assert(std::integral_constant<size_t, _Dimensionality>::value > 0, "_Dimensionality must be a positive integral constant");
-    
-    /**
-     * @brief
-     *  The elements of this vector.
-     */
-    MyScalarType _elements[_Dimensionality];
+    static_assert(IsDimensionality<_Dimensionality>::value, "_Dimensionality does not fulfil the dimensionality concept");
 
 public:
 
 
+	/**
+	 * @brief
+	 *	Construct this tuple with the specified element values.
+	 * @param v, ... args
+	 *	the element values
+	 */
     template<typename ... ArgTypes, typename = typename std::enable_if<VectorConstructorEnable<_ScalarType, _Dimensionality, ArgTypes ...>::value>::type>
-    Vector(MyScalarType v, ArgTypes&& ... args) {
-        static_assert(_Dimensionality - 1 == sizeof ... (args), "wrong number of arguments");
-        unpack<float, _Dimensionality>(_elements, std::forward<_ScalarType>(v), args ...);
+    Vector(MyScalarType v, ArgTypes&& ... args) 
+		: Tuple<_ScalarType, _Dimensionality>(std::forward<_ScalarType>(v),args ...) {
+		/* Intentionally empty. */
     }
 
     /**
      * @brief
      *  Default-construct this vector.
      */
-    Vector() :
-        _elements() {}
+    Vector()
+		: Tuple<_ScalarType, _Dimensionality>() {
+		/* Intentionally empty. */
+	}
 
     /**
      * @brief
@@ -259,10 +213,9 @@ public:
      * @param other
      *  the other vector
      */
-    Vector(const MyType& other) {
-        for (size_t i = 0; i < Dimensionality; ++i) {
-            _elements[i] = other._elements[i];
-        }
+    Vector(const MyType& other)
+		: Tuple<_ScalarType, _Dimensionality>(other) {
+		/* Intentionally empty. */
     }
 
     /**
@@ -273,7 +226,7 @@ public:
      */
     template <typename _Engine>
     Vector(Generator<MyScalarType, _Engine>& generator) {
-        for (size_t i = 0; i < Dimensionality; ++i) {
+        for (size_t i = 0; i < dimensionality(); ++i) {
             _elements[i] = generator();
         }
     }
@@ -289,9 +242,9 @@ public:
      *  the dot product <tt>(*this) * other</tt> of this vector and the other vector
      */
     MyScalarType dot(const MyType& other) const {
-        MyScalarType t = MyScalarField::product(_elements[0], other._elements[0]);
-        for (size_t i = 1; i < Dimensionality; ++i) {
-            t = MyScalarField::sum(t, MyScalarField::product(_elements[i], other._elements[i]));
+        MyScalarType t = MyScalarFieldType::product(_elements[0], other._elements[0]);
+		for (size_t i = 1; i < dimensionality(); ++i) {
+            t = MyScalarFieldType::sum(t, MyScalarFieldType::product(_elements[i], other._elements[i]));
         }
         return t;
     }
@@ -305,7 +258,7 @@ public:
      *  the other vector
      */
     void assign(const MyType& other) {
-        for (size_t i = 0; i < Dimensionality; ++i) {
+        for (size_t i = 0; i < dimensionality(); ++i) {
             _elements[i] = other._elements[i];
         }
     }
@@ -320,8 +273,8 @@ public:
      *  The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
      */
     void multiply(MyScalarType scalar) {
-        for (size_t i = 0; i < Dimensionality; ++i) {
-            _elements[i] = MyScalarField::product(_elements[i], scalar);
+        for (size_t i = 0; i < dimensionality(); ++i) {
+            _elements[i] = MyScalarFieldType::product(_elements[i], scalar);
         }
     }
     
@@ -335,8 +288,8 @@ public:
      *  The sum <tt>(*this) + other</tt> was assigned to <tt>*this</tt>.
      */
     void add(const MyType& other) {
-        for (size_t i = 0; i < Dimensionality; ++i) {
-            _elements[i] = MyScalarField::sum(_elements[i], other._elements[i]);
+        for (size_t i = 0; i < dimensionality(); ++i) {
+            _elements[i] = MyScalarFieldType::sum(_elements[i], other._elements[i]);
         }
     }
 
@@ -350,8 +303,8 @@ public:
      *  The difference <tt>(*this) - other</tt> was assigned to <tt>*this</tt>.
      */
     void sub(const MyType& other) {
-        for (size_t i = 0; i < Dimensionality; ++i) {
-            _elements[i] = MyScalarField::difference(_elements[i], other._elements[i]);
+		for (size_t i = 0; i < dimensionality(); ++i) {
+            _elements[i] = MyScalarFieldType::difference(_elements[i], other._elements[i]);
         }
     }
 
@@ -367,7 +320,7 @@ public:
     void normalize(MyScalarType length) {
         MyScalarType l = this->length();
         if (MyScalarField::isPositive(l)) {
-            multiply(MyScalarField::quotient(length, l));
+            multiply(MyScalarFieldType::quotient(length, l));
         }
     }
 
@@ -382,8 +335,8 @@ public:
      */
     MyScalarType normalize() {
         MyScalarType l = length();
-        if (MyScalarField::isPositive(l)) {
-            multiply(MyScalarField::quotient(1.0, l));
+        if (MyScalarFieldType::isPositive(l)) {
+            multiply(MyScalarFieldType::quotient(1.0, l));
         }
         return l;
     }
@@ -397,8 +350,8 @@ public:
      *  @a true if this vector equals the other vector
      */
     bool equals(const MyType& other) const {
-        for (size_t i = 0; i < Dimensionality; ++i) {
-            if (MyScalarField::notEqualTo(_elements[i], other._elements[i])) {
+		for (size_t i = 0; i < dimensionality(); ++i) {
+            if (MyScalarFieldType::notEqualTo(_elements[i], other._elements[i])) {
                 return false;
             }
         }
@@ -416,8 +369,8 @@ public:
      *  @a true if this vector equals the other vector
      */
     bool equalsULP(const MyType& other, const size_t& ulp) const {
-        for (size_t i = 0; i < Dimensionality; ++i) {
-            if (MyScalarField::notEqualToULP(_elements[i], other._elements[i], ulp)) {
+		for (size_t i = 0; i < dimensionality(); ++i) {
+            if (MyScalarFieldType::notEqualToULP(_elements[i], other._elements[i], ulp)) {
                 return false;
             }
         }
@@ -436,8 +389,8 @@ public:
      *  @a true if this vector equals the other vector
      */
     bool equalsTolerance(const MyType& other, const MyScalarType& tolerance) const {
-        for (size_t i = 0; i < Dimensionality; ++i) {
-            if (MyScalarField::notEqualToTolerance(_elements[i], other._elements[i], tolerance)) {
+		for (size_t i = 0; i < dimensionality(); ++i) {
+            if (MyScalarFieldType::notEqualToTolerance(_elements[i], other._elements[i], tolerance)) {
                 return false;
             }
         }
@@ -480,16 +433,16 @@ private:
 public:
     /**
      * @brief
-     *    Get the component-wise minimum of this vector and another vector.
+     *	Get the component-wise minimum of this vector and another vector.
      * @param other
-     *    the other vector
+     *	the other vector
      * @return
-     *    the component-wise minimum
+     *	the component-wise minimum
      * @remark
-     *    For two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^n,n>0\f$ the component-wise minimum is defined as
-     *    \f[
-     *    min\left(\vec{u},\vec{v}\right)=left(min(u_1,v_1),\ldots,min(u_n,v_n)\right)
-     *    \f]
+     *	For two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^n,n>0\f$ the component-wise minimum is defined as
+     *	\f[
+     *	min\left(\vec{u},\vec{v}\right)=left(min(u_1,v_1),\ldots,min(u_n,v_n)\right)
+     *	\f]
      */
     MyType min(const MyType& other) const {
         return min(Ego::Core::make_index_sequence<_Dimensionality>{}, other);
@@ -506,16 +459,16 @@ private:
 public:
     /**
      * @brief
-     *    Get the component-wise maximum of this vector and another vector.
+     *	Get the component-wise maximum of this vector and another vector.
      * @param other
-     *    the other vector
+     *	the other vector
      * @return
-     *    the component-wise maximum
+     *	the component-wise maximum
      * @remark
-     *    For two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^n,n>0\f$ the component-wise maximum is defined as
-     *    \f[
-     *    max\left(\vec{u},\vec{v}\right)=left(max(u_1,v_1),\ldots,max(u_n,v_n)\right)
-     *    \f]
+     *	For two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^n,n>0\f$ the component-wise maximum is defined as
+     *  \f[
+     *  max\left(\vec{u},\vec{v}\right)=left(max(u_1,v_1),\ldots,max(u_n,v_n)\right)
+     *  \f]
      */
     MyType max(const MyType& other) const {
         return max(Ego::Core::make_index_sequence<_Dimensionality>{},other);
@@ -531,9 +484,9 @@ public:
      *  the squared length of this vector
      */
     MyScalarType length_2() const {
-        MyScalarType t = MyScalarField::product(_elements[0], _elements[0]);
-        for (size_t i = 1; i < Dimensionality; ++i) {
-            t = MyScalarField::sum(t, MyScalarField::product(_elements[i], _elements[i]));
+        MyScalarType t = MyScalarFieldType::product(_elements[0], _elements[0]);
+		for (size_t i = 1; i < dimensionality(); ++i) {
+            t = MyScalarFieldType::sum(t, MyScalarFieldType::product(_elements[i], _elements[i]));
         }
         return t;
     }
@@ -558,7 +511,7 @@ public:
      */
     MyScalarType length_abs() const {
         MyScalarType t = std::abs(_elements[0]);
-        for (size_t i = 1; i < Dimensionality; ++i) {
+		for (size_t i = 1; i < dimensionality(); ++i) {
             t += std::abs(_elements[i]);
         }
         return t;
@@ -572,7 +525,7 @@ public:
      *  the length of this vector
      */
     MyScalarType length_max() const {
-        return *std::max_element(_elements, _elements + Dimensionality);
+        return *std::max_element(_elements, _elements + dimensionality());
     }
 
 public:
@@ -633,17 +586,11 @@ public:
 public:
 
     MyScalarType& operator[](size_t const& index) {
-    #ifdef _DEBUG
-        EGOBOO_ASSERT(index < Dimensionality);
-    #endif
-        return _elements[index];
+		return at(index);
     }
 
     const MyScalarType& operator[](size_t const& index) const {
-    #ifdef _DEBUG
-        EGOBOO_ASSERT(index < Dimensionality);
-    #endif
-        return _elements[index];
+		return at(index);
     }
 
     MyType operator-() const {
@@ -684,7 +631,12 @@ public:
      * @return
      *  the zero vector
      */
-    static const MyType& zero();
+    static const MyType& zero() {
+		typedef Generator<MyType::MyScalarType, ConstantEngine<MyType::MyScalarType>> MyGenerator;
+		static MyGenerator generator(MyScalarFieldType::additiveNeutral());
+		static const auto ZERO = MyType(generator);
+		return ZERO;
+	}
 
 public:
 
@@ -799,28 +751,6 @@ public:
             );
     }
 };
-
-/**
- * @brief
- *  Get the zero vector.
- * @return
- *  the zero vector
- * @todo
- *  The zero vector should obtain its values from the scalar field additive neutral element.
- */
-template <typename _ScalarType, size_t _Dimensionality>
-const Vector<_ScalarType, _Dimensionality>&
-Vector< _ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>::zero() {
-    typedef Vector < _ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type > MyType;
-    typedef Generator < MyType::MyScalarType, ConstantEngine < MyType::MyScalarType > > MyGenerator;
-    static MyGenerator generator(ScalarField<MyType::MyScalarType>::additiveNeutral());
-    static const auto ZERO = MyType(generator);
-    return ZERO;
-}
-
-template <typename _ScalarType, size_t _Dimensionality>
-const size_t Vector<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>::Dimensionality
-    = _Dimensionality;
 
 } // namespace Math
 } // namespace Ego

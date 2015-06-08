@@ -938,6 +938,9 @@
     <ClInclude Include="src\egolib\Logic\Team.hpp">
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Math\_Tuple.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

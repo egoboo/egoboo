@@ -1181,4 +1181,4 @@ float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t mat, const 
  * @param a
  *	the matrix
  */
-void dump_matrix(const fmat_4x4_base_t a);
+void dump_matrix(const fmat_4x4_t& a);

@@ -471,6 +471,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\_Tuple.hpp" />
     <ClInclude Include="src\egolib\Logic\Team.hpp" />
     <ClInclude Include="src\egolib\Math\ScalarField.hpp" />
     <ClInclude Include="src\egolib\Math\Dimensionality.hpp" />

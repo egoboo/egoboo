@@ -45,16 +45,25 @@ struct Entity;
 
 template <typename _ScalarType, size_t _Dimensionality>
 struct Entity<_ScalarType, _Dimensionality, typename std::enable_if<IsScalar<_ScalarType>::value && IsDimensionality<_Dimensionality>::value>::type> {
-    /**
+
+	/**
      * @brief
      *  The scalar type.
      */
     typedef _ScalarType ScalarType;
+
+	/**
+	 * @brief
+	 *  The scalar field type.
+	 */
+	typedef ScalarField<_ScalarType> ScalarFieldType;
+
     /**
      * @brief
      *  The vector type.
      */
     typedef Vector<_ScalarType, _Dimensionality> VectorType;
+
     /**
      * @brief
      *  Get the dimensionality.

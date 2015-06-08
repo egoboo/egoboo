@@ -239,50 +239,20 @@ void mat_gluLookAt(fmat_4x4_t &dst, const fmat_4x4_t &src, const fvec3_t& eye, c
 
 void mat_glRotate(fmat_4x4_t &dst, const fmat_4x4_t &src, const float angle, const fvec3_t& axis)
 {
-    fmat_4x4_t R;
-    float s = std::sin(Ego::Math::degToRad(angle));
-    float c = std::cos(Ego::Math::degToRad(angle));
-    
-    fvec3_t axis_ = axis;
-    axis_.normalize();
-
-    // First row.
-    R(0, 0) = axis_[kX] * axis_[kX] * (1 - c) + c;
-    R(0, 1) = axis_[kX] * axis_[kY] * (1 - c) - axis_[kZ] * s;
-    R(0, 2) = axis_[kX] * axis_[kZ] * (1 - c) + axis_[kY] * s;
-    R(0, 3) = 0.0f;
-    
-    // 2nd row.
-    R(1, 0) = axis_[kY] * axis_[kX] * (1 - c) + axis_[kZ] * s;
-    R(1, 1) = axis_[kY] * axis_[kY] * (1 - c) + c;
-    R(1, 2) = axis_[kY] * axis_[kZ] * (1 - c) - axis_[kX] * s;
-    R(1, 3) = 0.0f;
-    
-    // 3rd row.
-    R(2, 0) = axis_[kZ] * axis_[kX] * (1 - c) - axis_[kY] * s;
-    R(2, 1) = axis_[kZ] * axis_[kY] * (1 - c) + axis_[kX] * s;
-    R(2, 2) = axis_[kZ] * axis_[kZ] * (1 - c) + c;
-    R(2, 3) = 0.0f;
-    
-    R(3, 0) = 0;
-    R(3, 1) = 0;
-    R(3, 2) = 0;
-    R(3, 3) = 1;
-    
-    dst = src * R;
+	fvec3_t axis2 = axis;
+	axis2.normalize(); 
+	dst = src * fmat_4x4_t::rotation(axis2, angle);
 }
 
-void dump_matrix(const fmat_4x4_base_t a)
+void dump_matrix(const fmat_4x4_t& a)
 {
-    if (NULL == a) return;
-
-    for (size_t j = 0; j < 4; j++)
+    for (size_t i = 0; i < 4; ++i)
     {
         printf("  ");
 
-        for (size_t i = 0; i < 4; i++)
+		for (size_t j = 0; j < 4; ++j)
         {
-            printf("%f ", a[MAT_IDX(i, j)]);
+            printf("%f ", a(i,j));
         }
         printf("\n");
     }

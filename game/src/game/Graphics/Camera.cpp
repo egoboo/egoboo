@@ -154,9 +154,9 @@ void Camera::resetView()
     // Check for stupidity.
     if (_pos != _center)
     {
-        fmat_4x4_t tmp1 = fmat_4x4_t::scaling(fvec3_t(-1, 1, 1)), tmp2;
-        mat_glRotate(tmp2, tmp1, roll_deg, fvec3_t(0, 0, 1));
-        mat_gluLookAt(_mView, tmp2, _pos, _center, fvec3_t(0.0f, 0.0f, 1.0f));
+        fmat_4x4_t tmp;
+		mat_glRotate(tmp, fmat_4x4_t::scaling(fvec3_t(-1, 1, 1)), roll_deg, fvec3_t(0, 0, 1));
+        mat_gluLookAt(_mView, tmp, _pos, _center, fvec3_t(0.0f, 0.0f, 1.0f));
     }
     // Invalidate the frustum.
     _frustumInvalid = true;
