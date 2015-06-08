@@ -23,8 +23,7 @@
 
 #include "egolib/Math/Matrix44.hpp"
 
-//--------------------------------------------------------------------------------------------
-float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t DST, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate)
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_t& DST, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate)
 {
     float cx = turntocos[turn_x & TRIG_TABLE_MASK];
     float sx = turntosin[turn_x & TRIG_TABLE_MASK];
@@ -33,35 +32,29 @@ float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t DST, cons
     float cz = turntocos[turn_z & TRIG_TABLE_MASK];
     float sz = turntosin[turn_z & TRIG_TABLE_MASK];
 
-    if (NULL == DST) return NULL;
+    DST(0,0) = scale[kX] * (cz * cy);
+    DST(1,0) = scale[kX] * (cz * sy * sx + sz * cx);
+    DST(2,0) = scale[kX] * (sz * sx - cz * sy * cx);
+    DST(3,0) = 0.0f;
 
-    DST[MAT_IDX(0, 0)] = scale[kX] * (cz * cy);
-    DST[MAT_IDX(0, 1)] = scale[kX] * (cz * sy * sx + sz * cx);
-    DST[MAT_IDX(0, 2)] = scale[kX] * (sz * sx - cz * sy * cx);
-    DST[MAT_IDX(0, 3)] = 0.0f;
+    DST(0,1) = scale[kY] * (-sz * cy);
+    DST(1,1) = scale[kY] * (-sz * sy * sx + cz * cx);
+    DST(2,1) = scale[kY] * (sz * sy * cx + cz * sx);
+    DST(3,1) = 0.0f;
 
-    DST[MAT_IDX(1, 0)] = scale[kY] * (-sz * cy);
-    DST[MAT_IDX(1, 1)] = scale[kY] * (-sz * sy * sx + cz * cx);
-    DST[MAT_IDX(1, 2)] = scale[kY] * (sz * sy * cx + cz * sx);
-    DST[MAT_IDX(1, 3)] = 0.0f;
+    DST(0,2) = scale[kZ] * (sy);
+    DST(1,2) = scale[kZ] * (-cy * sx);
+    DST(2,2) = scale[kZ] * (cy * cx);
+    DST(3,2) = 0.0f;
 
-    DST[MAT_IDX(2, 0)] = scale[kZ] * (sy);
-    DST[MAT_IDX(2, 1)] = scale[kZ] * (-cy * sx);
-    DST[MAT_IDX(2, 2)] = scale[kZ] * (cy * cx);
-    DST[MAT_IDX(2, 3)] = 0.0f;
-
-    DST[MAT_IDX(3, 0)] = translate[kX];
-    DST[MAT_IDX(3, 1)] = translate[kY];
-    DST[MAT_IDX(3, 2)] = translate[kZ];
-    DST[MAT_IDX(3, 3)] = 1.0f;
-
-    return DST;
+    DST(0,3) = translate[kX];
+    DST(1,3) = translate[kY];
+    DST(2,3) = translate[kZ];
+    DST(3,3) = 1.0f;
 }
 
-//--------------------------------------------------------------------------------------------
-float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t DST, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate)
+void mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_t& DST, const fvec3_t& scale, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const fvec3_t& translate)
 {
-    /// @author BB
     /// @details Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
 
     float cx = turntocos[turn_x & TRIG_TABLE_MASK];
@@ -71,32 +64,27 @@ float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t DST, const
     float cz = turntocos[turn_z & TRIG_TABLE_MASK];
     float sz = turntosin[turn_z & TRIG_TABLE_MASK];
 
-    if (NULL == DST) return NULL;
+    DST(0,0) = scale[kX] * (cz * cy - sz * sy * sx);
+    DST(1,0) = scale[kX] * (sz * cy + cz * sy * sx);
+    DST(2,0) = scale[kX] * (-cx * sy);
+    DST(3,0) = 0.0f;
 
-    DST[MAT_IDX(0, 0)] = scale[kX] * (cz * cy - sz * sy * sx);
-    DST[MAT_IDX(0, 1)] = scale[kX] * (sz * cy + cz * sy * sx);
-    DST[MAT_IDX(0, 2)] = scale[kX] * (-cx * sy);
-    DST[MAT_IDX(0, 3)] = 0.0f;
+    DST(0,1) = scale[kY] * (-sz * cx);
+    DST(1,1) = scale[kY] * (cz * cx);
+    DST(2,1) = scale[kY] * (sx);
+    DST(3,1) = 0.0f;
 
-    DST[MAT_IDX(1, 0)] = scale[kY] * (-sz * cx);
-    DST[MAT_IDX(1, 1)] = scale[kY] * (cz * cx);
-    DST[MAT_IDX(1, 2)] = scale[kY] * (sx);
-    DST[MAT_IDX(1, 3)] = 0.0f;
+    DST(0,2) = scale[kZ] * (cz * sy + sz * sx * cy);
+    DST(1,2) = scale[kZ] * (sz * sy - cz * sx * cy);
+    DST(2,2) = scale[kZ] * (cy * cx);
+    DST(3,2) = 0.0f;
 
-    DST[MAT_IDX(2, 0)] = scale[kZ] * (cz * sy + sz * sx * cy);
-    DST[MAT_IDX(2, 1)] = scale[kZ] * (sz * sy - cz * sx * cy);
-    DST[MAT_IDX(2, 2)] = scale[kZ] * (cy * cx);
-    DST[MAT_IDX(2, 3)] = 0.0f;
-
-    DST[MAT_IDX(3, 0)] = translate[kX];
-    DST[MAT_IDX(3, 1)] = translate[kY];
-    DST[MAT_IDX(3, 2)] = translate[kZ];
-    DST[MAT_IDX(3, 3)] = 1.0f;
-
-    return DST;
+    DST(0,3) = translate[kX];
+    DST(1,3) = translate[kY];
+    DST(2,3) = translate[kZ];
+    DST(3,3) = 1.0f;
 }
 
-//--------------------------------------------------------------------------------------------
 void mat_FourPoints(fmat_4x4_t& dst, const fvec3_t& ori, const fvec3_t& wid, const fvec3_t& frw, const fvec3_t& up, const float scale)
 {
 	fvec3_t vWid = wid - ori;

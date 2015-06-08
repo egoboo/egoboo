@@ -359,7 +359,7 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mc_tmp )
     if ( pchr->stickybutt )
     {
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
-            pchr->inst.matrix.v,
+            pchr->inst.matrix,
             mc_tmp->self_scale,
             TO_TURN( mc_tmp->rotate[kZ] ), TO_TURN( mc_tmp->rotate[kX] ), TO_TURN( mc_tmp->rotate[kY] ),
             mc_tmp->pos);
@@ -367,7 +367,7 @@ bool apply_one_character_matrix( Object * pchr, matrix_cache_t * mc_tmp )
     else
     {
         mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
-            pchr->inst.matrix.v,
+            pchr->inst.matrix,
             mc_tmp->self_scale,
             TO_TURN( mc_tmp->rotate[kZ] ), TO_TURN( mc_tmp->rotate[kX] ), TO_TURN( mc_tmp->rotate[kY] ),
             mc_tmp->pos);

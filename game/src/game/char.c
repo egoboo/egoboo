@@ -361,7 +361,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         if ( pchr->stickybutt )
         {
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
-                pinst->matrix.v,
+				pinst->matrix,
                 fvec3_t(pchr->fat, pchr->fat, pchr->fat),
                 TO_TURN( pchr->ori.facing_z ),
                 TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
@@ -371,7 +371,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         else
         {
             mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
-                pinst->matrix.v,
+                pinst->matrix,
                 fvec3_t(pchr->fat, pchr->fat, pchr->fat),
                 TO_TURN( pchr->ori.facing_z ),
                 TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
