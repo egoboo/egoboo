@@ -243,7 +243,7 @@ void cleanup_all_characters();
 void bump_all_characters_update_counters();
 void free_all_chraracters();
 
-void keep_weapons_with_holders();
+void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr);
 
 void make_one_character_matrix( const CHR_REF cnt );
 void move_one_character_get_environment( Object * pchr );
@@ -290,7 +290,6 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
-void free_inventory_in_game( const CHR_REF character );
 bool setup_xp_table( const CHR_REF character );
 
 int     change_armor( const CHR_REF character, const SKIN_T skin );

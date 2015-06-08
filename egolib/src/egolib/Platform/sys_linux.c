@@ -34,9 +34,9 @@
 //Different methods of displaying messages in Linux
 enum dialog_t
 {
-    ZENITY = 0,
+    SDL2 = 0,
+    ZENITY,
     KDIALOG,
-    SDL2,
     XMESSAGE,
     DIALOG_PROGRAM_END,
     DIALOG_PROGRAM_BEGIN = ZENITY
@@ -104,7 +104,7 @@ bool executeArgs(const std::vector<std::string> &args)
         _Exit(olderrno);
     }
     int status;
-    pid_t wait = waitpid(pid, &status, 0);
+    waitpid(pid, &status, 0);
     return WIFEXITED(status) && WEXITSTATUS(status) == 0;
 }
 

@@ -358,6 +358,7 @@ struct CErrorTexture
     // Destruct this error texture.
     ~CErrorTexture()
     {
+        free(_name);
         glDeleteTextures(1, &_id);
     }
 };

@@ -165,8 +165,9 @@ public:
 
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
-    ObjectHandler _gameObjects;
+    std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
     std::vector<Team> _teamList;
+    ObjectHandler _gameObjects;
     std::list<std::string> _playerList;     ///< List of all import players
 
     std::string  _name;                       ///< Module load names
@@ -176,8 +177,6 @@ private:
     bool _isRespawnValid;                      ///< Can players respawn with Spacebar?
     bool _isBeaten;                               ///< Have the players won?
     uint32_t  _seed;                          ///< The module seed
-
-    std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
 };
 
 /// @todo Remove this global.

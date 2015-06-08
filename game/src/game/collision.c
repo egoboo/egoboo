@@ -1364,10 +1364,18 @@ void bump_all_objects()
         bump_all_collisions(&CollisionSystem::get()->_coll_node_lst);
     }
 
+#if 0
     // The following functions need to be called any time you actually change a charcter's position
-    keep_weapons_with_holders();
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+    {
+        keep_weapons_with_holder(object);
+        chr_update_matrix(object.get(), true);
+    }
+
+    //keep_weapons_with_holders();
     attach_all_particles();
-    update_all_character_matrices();
+    //update_all_character_matrices();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2664,8 +2672,11 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
             }
 
             // Blocked!
-            spawn_defense_ping( pdata->pchr, pdata->pprt->owner_ref );
-            chr_make_text_billboard( GET_INDEX_PCHR( pdata->pchr ), "Blocked!", text_color, tint, lifetime, Billboard::Flags::All );
+            if(0 == pdata->pchr->damage_timer) 
+            {
+                spawn_defense_ping( pdata->pchr, pdata->pprt->owner_ref );
+                chr_make_text_billboard( GET_INDEX_PCHR( pdata->pchr ), "Blocked!", text_color, tint, lifetime, Billboard::Flags::All );                
+            }
 
             // If the attack was blocked by a shield, then check if the block caused a knockback
             if ( chr_is_invictus && ACTION_IS_TYPE( pdata->pchr->inst.action_which, P ) )

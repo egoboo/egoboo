@@ -89,6 +89,7 @@ int sys_fs_init(const char *root_dir)
     strncpy(_configPath, ".", SDL_arraysize(_configPath));
     strncpy(_binaryPath, ".", SDL_arraysize(_binaryPath));
     strncpy(_dataPath, ".", SDL_arraysize(_dataPath));
+    strncpy(_userPath, ".", SDL_arraysize(_userPath));
 #else
     // these are read-only directories
     strncpy(_configPath, "/etc/egoboo-2.x/", SDL_arraysize(_configPath));
