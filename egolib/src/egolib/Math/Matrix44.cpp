@@ -142,48 +142,11 @@ float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_t& ori, const fvec4_t& w
     return DST;
 }
 
-//--------------------------------------------------------------------------------------------
-void mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_t& world_up,const float roll)
-{
-    DST = fmat_4x4_t::identity();
-    fvec3_t view_dir = at - from;
-    view_dir.normalize();
-    fvec3_t right = world_up.cross(view_dir);
-    fvec3_t up = view_dir.cross(right);
-    right.normalize();
-    up.normalize();
-
-    // 0th row.
-    DST(0, 0) = right[kX];
-    DST(0, 1) = right[kY];
-    DST(0, 2) = right[kZ];
-
-    // 1st row.
-    DST(1, 0) = up[kX];
-    DST(1, 1) = up[kY];
-    DST(1, 2) = up[kZ];
-
-    // 2nd row.
-    DST(2,0) = view_dir[kX];
-    DST(2,1) = view_dir[kY];
-    DST(2,2) = view_dir[kZ];
-
-    // 3rd row.
-    DST(3,0) = -right.dot(from);
-    DST(3,1) = -up.dot(from);
-    DST(3,2) = -view_dir.dot(from);
-
-    if (roll != 0.0f)
-    {
-        DST = fmat_4x4_t::rotationZ(-roll) * DST;
-    }
-}
-//--------------------------------------------------------------------------------------------
 fvec3_t mat_getTranslate(const fmat_4x4_t& mat)
 {
     return fvec3_t(mat(0, 3), mat(1, 3), mat(2, 3));
 }
-//--------------------------------------------------------------------------------------------
+
 fvec3_t mat_getChrUp(const fmat_4x4_t& mat)
 {
     return fvec3_t(mat(0, 2), mat(1, 2), mat(2, 2));
@@ -199,7 +162,6 @@ fvec3_t mat_getChrRight(const fmat_4x4_t& mat)
     return fvec3_t(mat(0, 1), mat(1, 1), mat(2, 1));
 }
 
-//--------------------------------------------------------------------------------------------
 bool mat_getCamUp(const fmat_4x4_t& mat, fvec3_t& up)
 {
     // for the camera
@@ -228,20 +190,6 @@ bool mat_getCamForward(const fmat_4x4_t& mat, fvec3_t& forward)
     forward[kZ] = -mat.v[MAT_IDX(2, 2)];
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------
-
-void mat_gluLookAt(fmat_4x4_t &dst, const fmat_4x4_t &src, const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
-{
-    dst = src * fmat_4x4_t::lookAt(eye, center, up);
-}
-
-void mat_glRotate(fmat_4x4_t &dst, const fmat_4x4_t &src, const float angle, const fvec3_t& axis)
-{
-	fvec3_t axis2 = axis;
-	axis2.normalize(); 
-	dst = src * fmat_4x4_t::rotation(axis2, angle);
 }
 
 void dump_matrix(const fmat_4x4_t& a)

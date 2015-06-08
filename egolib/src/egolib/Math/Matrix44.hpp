@@ -1055,15 +1055,6 @@ public:
 };
 
 float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_t& ori, const fvec4_t& wid, const fvec4_t& frw, const fvec4_t& upx, const float scale);
-/// @param from viewer position
-/// @param at look at position
-/// @param world's up, usually 0,0,1
-/// @param roll clockwise roll around viewing direction in Radians
-void mat_View(fmat_4x4_t& self, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
-// gl matrix support
-void mat_gluLookAt(fmat_4x4_t& dst, const fmat_4x4_t& src, const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up);
-void mat_glRotate(fmat_4x4_t &dst, const fmat_4x4_t& src, const float angle, const fvec3_t& axis);
-
 
 /**
  * @remark
