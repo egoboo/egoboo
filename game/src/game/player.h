@@ -72,8 +72,16 @@ void           pla_reinit( player_t * ppla );
 
 extern Stack<player_t, MAX_PLAYER> PlaStack; ///< Stack for keeping track of players
 
-#define VALID_PLA_RANGE(IPLA) ( ((IPLA) >= 0) && ((IPLA) < MAX_PLAYER) )
-#define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaStack.count) && PlaStack.lst[IPLA].valid )
+inline bool VALID_PLA_RANGE(const PLA_REF player)
+{
+    return player < MAX_PLAYER;
+}
+
+inline bool VALID_PLA(const PLA_REF iplayer)
+{
+    return iplayer < MAX_PLAYER && (iplayer < PlaStack.count) && PlaStack.lst[iplayer].valid;
+}
+
 #define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaStack.count)|| !PlaStack.lst[IPLA].valid )
 
 void PlaStack_reset_all();

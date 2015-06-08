@@ -12,9 +12,14 @@ COMPILE_OPTIMIZE := -O0
 #Silence warnings we do not care about
 COMPILE_WARNINGS += -Wno-missing-field-initializers -Wno-unused-parameter
 
+#-D_DEBUG
 set_debug_flags:
-	$(eval COMPILE_DEBUG_FLAGS+=-ggdb -D_DEBUG)
+	$(eval COMPILE_DEBUG_FLAGS+=-ggdb)
 	$(eval COMPILE_OPTIMIZE:=-Og)
+
+set_release_flags:
+	$(eval COMPILE_DEBUG_FLAGS+=-DNDEBUG)
+	$(eval COMPILE_OPTIMIZE:=-O3)
 
 export COMPILE_FLAGS COMPILE_OPTIMIZE COMPILE_WARNINGS COMPILE_DEBUG_FLAGS
 

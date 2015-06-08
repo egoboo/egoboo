@@ -508,9 +508,9 @@ void draw_one_attachment_point(chr_instance_t *pinst, mad_t *pmad, int vrt_offse
     {
         return;
     }
-    Uint32 vrt = (int)pinst->vrt_count - (int)vrt_offset;
+    uint32_t vrt = (int)pinst->vrt_count - (int)vrt_offset;
 
-    if (vrt < 0 || vrt >= pinst->vrt_count) return;
+    if (vrt >= pinst->vrt_count) return;
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn

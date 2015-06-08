@@ -141,6 +141,9 @@ private:
     uint16_t _morale;                       ///< Number of characters on team
 };
 
-#define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < Team::TEAM_MAX) )
+inline bool VALID_TEAM_RANGE(const TEAM_REF team)
+{
+    return team < Team::TEAM_MAX;
+}
 
 #define team_hates_team(_TEAM_A_, _TEAM_B_) _currentModule->getTeamList()[_TEAM_A_].hatesTeam(_currentModule->getTeamList()[_TEAM_B_])

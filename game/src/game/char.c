@@ -905,7 +905,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
     // find the slot from the grip
     slot = grip_offset_to_slot( grip_off );
-    if ( slot < 0 || slot >= SLOT_COUNT ) return false;
+    if ( slot >= SLOT_COUNT ) return false;
 
     // Make sure the character doesn't have something already, and that it has hands
     if ( _currentModule->getObjectHandler().exists( pchr_a->holdingwhich[slot] ) || !pchr_a->getProfile()->isSlotValid(slot) )
@@ -2107,14 +2107,8 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
         pchr->skin = 0;
         pinst.texture = TX_WATER_TOP;
     } else {
-        // do the best we can to change the skin
-		SKIN_T loc_skin = skin;
         // all skin numbers are technically valid
-        if (loc_skin < 0) {
-            loc_skin = 0;
-        } else {
-            loc_skin %= SKINS_PEROBJECT_MAX;
-        }
+        loc_skin %= SKINS_PEROBJECT_MAX;
 
         // the normal thing to happen
         new_texture = pchr->getProfile()->getSkin(loc_skin);
@@ -2580,7 +2574,6 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
 {
     Object  * pchr;
     bool   can_have_team;
-    TEAM_REF loc_team_new;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return;
     pchr = _currentModule->getObjectHandler().get( character );
@@ -2607,7 +2600,7 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
     }
 
     // make sure we have a valid value
-    loc_team_new = VALID_TEAM_RANGE( team_new ) ? team_new : Team::TEAM_NULL;
+    TEAM_REF loc_team_new = VALID_TEAM_RANGE(team_new) ? team_new : static_cast<TEAM_REF>(Team::TEAM_NULL);
 
     // place the character onto its new team
     if ( VALID_TEAM_RANGE( loc_team_new ) )
@@ -3359,7 +3352,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
     imad = chr_get_imad( ichr );
 
-    if ( which_slot < 0 || which_slot >= SLOT_COUNT ) return false;
+    if (which_slot >= SLOT_COUNT) return false;
 
     // Which iweapon?
     iweapon = pchr->holdingwhich[which_slot];

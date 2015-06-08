@@ -1811,7 +1811,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 {
                     if (character != prt_bdl._prt_ptr->attachedto_ref) continue;
 
-                    if (prt_bdl._prt_ptr->attachedto_vrt_off >= 0 && prt_bdl._prt_ptr->attachedto_vrt_off < vertices)
+                    if (prt_bdl._prt_ptr->attachedto_vrt_off < vertices)
                     {
                         vertex_occupied[prt_bdl._prt_ptr->attachedto_vrt_off] = prt_bdl._prt_ref;
                     }

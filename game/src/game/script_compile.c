@@ -1484,10 +1484,7 @@ size_t surround_space( size_t position, char buffer[], size_t buffer_size, const
 {
     buffer_size = insert_space( position + 1, buffer, buffer_size, buffer_max );
 
-    if ( position >= 0 )
-    {
-        buffer_size = insert_space( position, buffer, buffer_size, buffer_max );
-    }
+    buffer_size = insert_space( position, buffer, buffer_size, buffer_max );
 
     return buffer_size;
 }

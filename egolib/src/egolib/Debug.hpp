@@ -42,9 +42,9 @@ namespace Ego
         void validate(const char *file, int line, const Type& object);
 #endif
 #ifdef _DEBUG
-    #define EGO_DEBUG_VALIDATE(object) Ego::Debug::validate(__FILE__,__LINE__,object)
+    #define EGO_DEBUG_VALIDATE(_object_) Ego::Debug::validate(__FILE__,__LINE__,_object_)
 #else
-    #define EGO_DEBUG_VALIDATE(object)
+    #define EGO_DEBUG_VALIDATE(_object_)
 #endif
     }
 }
