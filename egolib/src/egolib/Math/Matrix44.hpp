@@ -58,7 +58,7 @@ struct Matrix<_ElementType, _Rows, _Columns, typename std::enable_if<Internal::M
 	 * @brief
 	 *  @a MyType is the type of this template/template specialization.
 	 */
-	typedef typename Matrix<_ElementType, _Rows, _Columns> MyType;
+	typedef Matrix<_ElementType, _Rows, _Columns> MyType;
 
 	/**
 	 * @brief

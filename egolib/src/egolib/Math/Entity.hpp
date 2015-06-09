@@ -47,7 +47,7 @@ struct Entity {
 	* @brief
 	*	@a VectorSpaceType is the type of the vector space.
 	*/
-	typedef typename _VectorSpaceType VectorSpaceType;
+	typedef _VectorSpaceType VectorSpaceType;
 
 	/**
 	* @brief
@@ -65,7 +65,7 @@ struct Entity {
 	* @brief
 	*  @a MyType is the type of the vector.
 	*/
-	typedef typename Vector<_VectorSpaceType> VectorType;
+	typedef Vector<_VectorSpaceType> VectorType;
 
     /**
      * @brief
