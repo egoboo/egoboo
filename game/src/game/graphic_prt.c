@@ -895,17 +895,17 @@ fmat_4x4_t prt_instance_make_matrix(prt_instance_t *pinst)
 {
     fmat_4x4_t mat = fmat_4x4_t::identity();
 
-    mat.CNV(0, 1) = -pinst->up[kX];
-    mat.CNV(1, 1) = -pinst->up[kY];
-    mat.CNV(2, 1) = -pinst->up[kZ];
+    mat(1, 0) = -pinst->up[kX];
+    mat(1, 1) = -pinst->up[kY];
+    mat(1, 2) = -pinst->up[kZ];
 
-    mat.CNV(0, 0) = pinst->right[kX];
-    mat.CNV(1, 0) = pinst->right[kY];
-    mat.CNV(2, 0) = pinst->right[kZ];
+    mat(0, 0) = pinst->right[kX];
+    mat(0, 1) = pinst->right[kY];
+    mat(0, 2) = pinst->right[kZ];
 
-    mat.CNV(0, 2) = pinst->nrm[kX];
-    mat.CNV(1, 2) = pinst->nrm[kY];
-    mat.CNV(2, 2) = pinst->nrm[kZ];
+    mat(2, 0) = pinst->nrm[kX];
+    mat(2, 1) = pinst->nrm[kY];
+    mat(2, 2) = pinst->nrm[kZ];
 
     return mat;
 }

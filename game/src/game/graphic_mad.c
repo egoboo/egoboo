@@ -1083,7 +1083,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, Object * pchr, b
         GLvertex * pvert = pinst->vrt_lst + cnt;
 
         // a simple "height" measurement
-        float hgt = pvert->pos[ZZ] * pinst->matrix.CNV( 3, 3 ) + pinst->matrix.CNV( 3, 3 );
+        float hgt = pvert->pos[ZZ] * pinst->matrix( 3, 3 ) + pinst->matrix( 3, 3 );
 
         if ( pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f )
         {
@@ -2069,7 +2069,7 @@ gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool n
         float pos_z;
 
         // determine the reflection alpha
-        pos_z = grid_level - pinst->ref.matrix.CNV( 3, 2 );
+        pos_z = grid_level - pinst->ref.matrix( 2, 3 );
         if ( pos_z < 0.0f ) pos_z = 0.0f;
 
         startalpha -= 2.0f * pos_z;
@@ -2499,10 +2499,10 @@ bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float grid_le
     {
         pinst->ref.matrix = pinst->matrix;
 
-        pinst->ref.matrix.CNV( 0, 2 ) = -pinst->ref.matrix.CNV( 0, 2 );
-        pinst->ref.matrix.CNV( 1, 2 ) = -pinst->ref.matrix.CNV( 1, 2 );
-        pinst->ref.matrix.CNV( 2, 2 ) = -pinst->ref.matrix.CNV( 2, 2 );
-        pinst->ref.matrix.CNV( 3, 2 ) = 2 * grid_level - pinst->ref.matrix.CNV( 3, 2 );
+        pinst->ref.matrix( 2, 0 ) = -pinst->ref.matrix( 0, 2 );
+        pinst->ref.matrix( 2, 1 ) = -pinst->ref.matrix( 1, 2 );
+        pinst->ref.matrix( 2, 2 ) = -pinst->ref.matrix( 2, 2 );
+        pinst->ref.matrix( 2, 3 ) = 2 * grid_level - pinst->ref.matrix( 3, 2 );
 
         pinst->ref.matrix_valid = true;
 

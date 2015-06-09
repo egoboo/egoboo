@@ -464,9 +464,9 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
         {
             fvec3_t tmp_pos;
 
-            tmp_pos[kX] = pchr->inst.matrix.CNV( 3, 0 );
-            tmp_pos[kY] = pchr->inst.matrix.CNV( 3, 1 );
-            tmp_pos[kZ] = pchr->inst.matrix.CNV( 3, 2 );
+            tmp_pos[kX] = pchr->inst.matrix( 0, 3 );
+            tmp_pos[kY] = pchr->inst.matrix( 1, 3 );
+            tmp_pos[kZ] = pchr->inst.matrix( 2, 3 );
 
             pprt->setPosition(tmp_pos);
 

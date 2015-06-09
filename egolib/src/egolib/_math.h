@@ -125,9 +125,6 @@ extern "C"
 #    define SQR(A) ((A)*(A))
 #endif
 
-#define MAT_IDX(I,J) (4*(I)+(J))
-#define CNV(I,J)     v[MAT_IDX(I,J)]
-
 //--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
 

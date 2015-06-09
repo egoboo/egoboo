@@ -2294,10 +2294,10 @@ float draw_debug(float y)
 
         // White debug mode
         y = draw_string_raw(0, y, "!!!DEBUG MODE-7!!!");
-        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 0), camera->getView().CNV(1, 0), camera->getView().CNV(2, 0), camera->getView().CNV(3, 0));
-        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 1), camera->getView().CNV(1, 1), camera->getView().CNV(2, 1), camera->getView().CNV(3, 1));
-        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 2), camera->getView().CNV(1, 2), camera->getView().CNV(2, 2), camera->getView().CNV(3, 2));
-        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV(0, 3), camera->getView().CNV(1, 3), camera->getView().CNV(2, 3), camera->getView().CNV(3, 3));
+        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(0, 0), camera->getView()(0, 1), camera->getView()(0, 2), camera->getView()(0, 3));
+        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(1, 0), camera->getView()(1, 1), camera->getView()(1, 2), camera->getView()(1, 3));
+        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(2, 0), camera->getView()(2, 1), camera->getView()(2, 2), camera->getView()(2, 3));
+        y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(3, 0), camera->getView()(3, 1), camera->getView()(3, 2), camera->getView()(3, 3));
         y = draw_string_raw(0, y, "CAM center <%f, %f>", camera->getCenter()[kX], camera->getCenter()[kY]);
         y = draw_string_raw(0, y, "CAM turn %" PRIu8 " %d", camera->getTurnMode(), camera->getTurnTime());
     }
@@ -2654,7 +2654,7 @@ void render_shadow(const CHR_REF character)
     // Original points
     level = pchr->enviro.floor_level;
     level += SHADOWRAISE;
-    height = pchr->inst.matrix.CNV(3, 2) - level;
+    height = pchr->inst.matrix(2, 3) - level;
     if (height < 0) height = 0;
 
     size_umbra = 1.5f * (pchr->bump.size - height / 30.0f);
@@ -2677,8 +2677,8 @@ void render_shadow(const CHR_REF character)
         alpha_penumbra = CLIP(alpha_penumbra, 0.0f, 1.0f);
     }
 
-    x = pchr->inst.matrix.CNV(3, 0);
-    y = pchr->inst.matrix.CNV(3, 1);
+    x = pchr->inst.matrix(0, 3);
+    y = pchr->inst.matrix(1, 3);
 
     // Choose texture.
     itex = TX_PARTICLE_LIGHT;
@@ -2801,7 +2801,7 @@ void render_bad_shadow(const CHR_REF character)
     // Original points
     level = pchr->enviro.floor_level;
     level += SHADOWRAISE;
-    height = pchr->inst.matrix.CNV(3, 2) - level;
+    height = pchr->inst.matrix(2, 3) - level;
     height_factor = 1.0f - height / (pchr->shadow_size * 5.0f);
     if (height_factor <= 0.0f) return;
 
@@ -2809,8 +2809,8 @@ void render_bad_shadow(const CHR_REF character)
     alpha *= height_factor * 0.5f + 0.25f;
     if (alpha < INV_FF) return;
 
-    x = pchr->inst.matrix.CNV(3, 0); ///< @todo MH: This should be the x/y position of the model.
-    y = pchr->inst.matrix.CNV(3, 1); ///<           Use a more self-descriptive method to describe this.
+    x = pchr->inst.matrix(0, 3); ///< @todo MH: This should be the x/y position of the model.
+    y = pchr->inst.matrix(1, 3); ///<           Use a more self-descriptive method to describe this.
 
     size = pchr->shadow_size * height_factor;
 

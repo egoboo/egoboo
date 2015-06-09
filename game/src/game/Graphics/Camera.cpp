@@ -307,26 +307,26 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
     case CameraMovementMode::Free:
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_8))
 	        {
-	            _trackPos[kX] -= _mView.CNV(0, 1) * 50;
-	            _trackPos[kY] -= _mView.CNV(1, 1) * 50;
+	            _trackPos[kX] -= _mView(1, 0) * 50;
+	            _trackPos[kY] -= _mView(1, 1) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_2))
 	        {
-	            _trackPos[kX] += _mView.CNV(0, 1) * 50;
-	            _trackPos[kY] += _mView.CNV(1, 1) * 50;
+	            _trackPos[kX] += _mView(1, 0) * 50;
+	            _trackPos[kY] += _mView(1, 1) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_4))
 	        {
-	            _trackPos[kX] += _mView.CNV( 0, 0 ) * 50;
-	            _trackPos[kY] += _mView.CNV( 1, 0 ) * 50;
+	            _trackPos[kX] += _mView(0, 0) * 50;
+	            _trackPos[kY] += _mView(0, 1) * 50;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_6))
 	        {
-	            _trackPos[kX] -= _mView.CNV(0, 0) * 10;
-	            _trackPos[kY] -= _mView.CNV(1, 0) * 10;
+	            _trackPos[kX] -= _mView(0, 0) * 10;
+	            _trackPos[kY] -= _mView(0, 1) * 10;
 	        }
 
 	        if (SDL_KEYDOWN(keyb, SDLK_KP_7))
