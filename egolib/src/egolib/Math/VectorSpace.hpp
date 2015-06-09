@@ -59,7 +59,7 @@ struct VectorSpace<_ScalarFieldType, _Dimensionality,
 	 * @brief
 	 *	The scalar field type.
 	 */
-	typedef typename _ScalarFieldType ScalarFieldType;
+	typedef _ScalarFieldType ScalarFieldType;
 
 #if !defined(_MSC_VER)
 	/**
