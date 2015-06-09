@@ -34,12 +34,8 @@ namespace Math {
  * @remark
  *  The terms the/a "sphere object" and the/a "sphere" are synonyms.
  */
-template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
-struct Sphere;
-
-template <typename _ScalarType, size_t _Dimensionality>
-struct Sphere<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type>
-    : public Internal::Entity<_ScalarType, _Dimensionality> {
+template <typename _VectorSpaceType>
+struct Sphere : public Internal::Entity<_VectorSpaceType>, public Translatable<_VectorSpaceType> {
 
 public:
 
@@ -47,19 +43,19 @@ public:
      * @brief
      *  @a MyType is the type of this template/template specialization.
      */
-    typedef Sphere<_ScalarType, _Dimensionality> MyType;
+    typedef Sphere<_VectorSpaceType> MyType;
 
     /**
      * @brief
      *  The scalar type.
      */
-	typedef typename Internal::Entity<_ScalarType, _Dimensionality>::ScalarType ScalarType;
+	typedef typename Internal::Entity<_VectorSpaceType>::ScalarType ScalarType;
 
     /**
      * @brief
      *  The vector type.
      */
-	typedef typename Internal::Entity<_ScalarType, _Dimensionality>::VectorType VectorType;
+	typedef typename Internal::Entity<_VectorSpaceType>::VectorType VectorType;
 
 private:
 
@@ -255,6 +251,11 @@ public:
         // Otherwise they don't intersect.
         return false;
     }
+
+	/** @copydoc Ego::Math::translatable */
+	void translate(const VectorType& t) {
+		_center += t;
+	}
 
 };
 

@@ -27,6 +27,12 @@ struct ScalarField<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::v
      *  The scalar type.
      */
     typedef _ScalarType ScalarType;
+
+	/**
+	 * @invariant
+	 *  The scalar type must be a floating point type.
+	 */
+	static_assert(IsScalar<_ScalarType>::value, "_ScalarType must fulfil the scalar concept");
     
 public:
 

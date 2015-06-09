@@ -25,7 +25,7 @@ EgoTest_EndDeclaration()
 
 EgoTest_BeginTestCase(VectorMath)
 
-#define TOLERANCE fvec3_t::MyScalarType(0.0001)
+#define TOLERANCE fvec3_t::ScalarType(0.0001)
 
 EgoTest_Test(add)
 {

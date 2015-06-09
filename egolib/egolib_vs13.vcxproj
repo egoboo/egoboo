@@ -471,6 +471,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Math\Translatable.hpp" />
+    <ClInclude Include="src\egolib\Math\VectorSpace.hpp" />
     <ClInclude Include="src\egolib\Math\_Tuple.hpp" />
     <ClInclude Include="src\egolib\Logic\Team.hpp" />
     <ClInclude Include="src\egolib\Math\ScalarField.hpp" />
@@ -553,7 +555,7 @@
     <ClInclude Include="src\egolib\FileFormats\template.h" />
     <ClInclude Include="src\egolib\FileFormats\treasure_table_file.h" />
     <ClInclude Include="src\egolib\FileFormats\wawalite_file.h" />
-    <ClInclude Include="src\egolib\Math\Cone.hpp" />
+    <ClInclude Include="src\egolib\Math\Cone3.hpp" />
     <ClInclude Include="src\egolib\math\LERP.hpp" />
     <ClInclude Include="src\egolib\Math\Math.hpp" />
     <ClInclude Include="src\egolib\Math\Matrix44.hpp" />

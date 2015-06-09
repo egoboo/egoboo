@@ -743,9 +743,6 @@
     <ClInclude Include="src\egolib\Math\Math.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Math\Cone.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -939,6 +936,15 @@
       <Filter>Header Files\Logic</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Math\_Tuple.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\VectorSpace.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Translatable.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Math\Cone3.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>

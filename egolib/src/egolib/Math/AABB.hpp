@@ -24,6 +24,7 @@
 #pragma once
 
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Translatable.hpp"
 #include "egolib/Math/Entity.hpp"
 #include "egolib/Math/Sphere.h"
 
@@ -42,30 +43,26 @@ namespace Math {
  * @author
  *  Michael Heilmann
  */
-template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
-struct AABB;
-
-template <typename _ScalarType, size_t _Dimensionality>
-struct AABB<_ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> 
-    : public Internal::Entity<_ScalarType, _Dimensionality> {
+template <typename _VectorSpaceType>
+struct AABB : public Internal::Entity<_VectorSpaceType>, public Translatable<_VectorSpaceType> {
 
     /**
      * @brief
      *  @a MyType is the type of this template/template specialization.
      */
-    typedef AABB<_ScalarType, _Dimensionality> MyType;
+    typedef AABB<_VectorSpaceType> MyType;
     
     /**
      * @brief
      *  The scalar type.
      */
-    typedef typename Internal::Entity<_ScalarType, _Dimensionality>::ScalarType ScalarType;
+    typedef typename Internal::Entity<_VectorSpaceType>::ScalarType ScalarType;
     
     /**
      * @brief
      *  The vector type.
      */
-	typedef typename Internal::Entity<_ScalarType, _Dimensionality>::VectorType VectorType;
+	typedef typename Internal::Entity<_VectorSpaceType>::VectorType VectorType;
 
     /**
      * @brief
@@ -246,6 +243,12 @@ public:
         assign(other);
         return *this;
     }
+
+	/** @copydoc Ego::Math::translatable */
+	void translate(const VectorType& t) override {
+		_min += t;
+		_max += t;
+	}
 
 };
 

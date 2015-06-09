@@ -23,17 +23,14 @@
 #pragma once
 
 #include "egolib/Math/Vector.hpp"
+#include "egolib/Math/Translatable.hpp"
 #include "egolib/Math/Entity.hpp"
 
 namespace Ego {
 namespace Math {
 
-template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
-struct Cube;
-
-template <typename _ScalarType, size_t _Dimensionality>
-struct Cube < _ScalarType, _Dimensionality, typename std::enable_if<VectorEnable<_ScalarType, _Dimensionality>::value>::type> 
-    : public Internal::Entity<_ScalarType, _Dimensionality> {
+template <typename _VectorSpaceType>
+struct Cube : public Internal::Entity<_VectorSpaceType>, public Translatable<_VectorSpaceType> {
 
 public:
 
@@ -41,19 +38,19 @@ public:
      * @brief
      *  @a MyType is the type of this template/template specialization.
      */
-    typedef Cube<_ScalarType, _Dimensionality> MyType;
+    typedef Cube<_VectorSpaceType> MyType;
 
     /**
      * @brief
      *  The scalar type.
      */
-	typedef typename Internal::Entity<_ScalarType, _Dimensionality>::ScalarType ScalarType;
+	typedef typename Internal::Entity<_VectorSpaceType>::ScalarType ScalarType;
 
     /**
      * @brief
      *  The vector type.
      */
-	typedef typename Internal::Entity<_ScalarType, _Dimensionality>::VectorType VectorType;
+	typedef typename Internal::Entity<_VectorSpaceType>::VectorType VectorType;
 
 private:
 
@@ -193,6 +190,11 @@ public:
         assign(other);
         return *this;
     }
+
+	/** @copydoc Ego::Math::translatable */
+	void translate(const VectorType& t) override {
+		_center += t;
+	}
 
 };
 

@@ -40,29 +40,32 @@ namespace Internal {
  * @author
  *  Michael Heilmann
  */
-template <typename _ScalarType, size_t _Dimensionality, typename _Enable = void>
-struct Entity;
-
-template <typename _ScalarType, size_t _Dimensionality>
-struct Entity<_ScalarType, _Dimensionality, typename std::enable_if<IsScalar<_ScalarType>::value && IsDimensionality<_Dimensionality>::value>::type> {
+template <typename _VectorSpaceType>
+struct Entity {
 
 	/**
-     * @brief
-     *  The scalar type.
-     */
-    typedef _ScalarType ScalarType;
+	* @brief
+	*	@a VectorSpaceType is the type of the vector space.
+	*/
+	typedef typename _VectorSpaceType VectorSpaceType;
 
 	/**
-	 * @brief
-	 *  The scalar field type.
-	 */
-	typedef ScalarField<_ScalarType> ScalarFieldType;
+	* @brief
+	*  @a ScalarType is the type of the underlaying scalars.
+	*/
+	typedef typename VectorSpaceType::ScalarType ScalarType;
 
-    /**
-     * @brief
-     *  The vector type.
-     */
-    typedef Vector<_ScalarType, _Dimensionality> VectorType;
+	/**
+	* @brief
+	*  @a ScalarFieldType is the type of the underlaying scalar field.
+	*/
+	typedef typename VectorSpaceType::ScalarFieldType ScalarFieldType;
+
+	/**
+	* @brief
+	*  @a MyType is the type of the vector.
+	*/
+	typedef typename Vector<_VectorSpaceType> VectorType;
 
     /**
      * @brief
@@ -71,7 +74,7 @@ struct Entity<_ScalarType, _Dimensionality, typename std::enable_if<IsScalar<_Sc
      *  the dimensionality
      */
     static size_t dimensionality() {
-        return _Dimensionality;
+        return _VectorSpaceType::Dimensionality::value;
     }
 };
 

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/Math/Cone.hpp
+/// @file  egolib/Math/Cone3.hpp
 /// @brief Cones.
 
 #pragma once
@@ -28,16 +28,14 @@
 namespace Ego {
 namespace Math {
 
-template <typename _ScalarType, typename _Enabled = void>
-struct Cone3;
-
 /**
  * @brief
  *  A cone given by its origin, an axis and its opening angle.
+ * @todo
+ *	Re-implement this crap.
  */
 template <typename _ScalarType>
-struct Cone3<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type> :
-	public Internal::Entity<_ScalarType, 3> {
+struct Cone3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>,3>> {
     /**
      * @brief
      *  @a MyType is the type of this template/template specialization.
@@ -48,13 +46,13 @@ struct Cone3<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>:
     * @brief
     *  The scalar type.
     */
-	typedef typename Internal::Entity<_ScalarType, 3>::ScalarType ScalarType;
+	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>::ScalarType ScalarType;
 
     /**
     * @brief
     *  The vector type.
     */
-	typedef typename Internal::Entity<_ScalarType, 3>::VectorType VectorType;
+	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>::VectorType VectorType;
 
     VectorType origin;
     VectorType axis;

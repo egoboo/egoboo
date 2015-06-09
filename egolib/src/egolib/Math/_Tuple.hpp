@@ -23,9 +23,7 @@
 
 #pragma once
 
-#include "egolib/Math/Scalar.hpp"
-#include "egolib/Math/Dimensionality.hpp"
-#include "egolib/Math/ScalarField.hpp"
+#include "egolib/Math/VectorSpace.hpp"
 #include "egolib/log.h"
 #include "egolib/Float.hpp"
 #include "egolib/Debug.hpp"
@@ -35,60 +33,27 @@ namespace Ego {
 namespace Math {
 
 namespace Internal {
-/**
- * @brief
- *  Derived @a std::true_type if @a _ScalarType and @a _Dimensionality fulfil the requirements for a tuple,
- *  and derived from @a std::false_type otherwise.
- * @param _ScalarType
- *  must fulfil the <em>scalar</em> concept
- * @param _Dimensionality
- *  must fulfil the <em>dimensionality</em> concept
- * @remark
- *  MH: The following simplification should be possible:
- *  @code
- *  template <typename _ScalarType, size_t _Dimensionality>
- *  using VectorEnable =
- *      typename std::conditional<
- *              (IsScalar<_ScalarType>::value && IsDimensionality<_Dimensionality>::value),
- *              std::true_type,
- *              std::false_type
- *          >::type
- *  @endcode
- * @author
- *  Michael Heilmann
- */
-template <typename _ScalarType, size_t _Dimensionality>
-struct TupleEnable
-    : public std::conditional <
-    (IsScalar<_ScalarType>::value && IsDimensionality<_Dimensionality>::value),
-    std::true_type,
-    std::false_type
-    >::type
-{};
 
 /**
  * @brief
- *  Derived from @a std::true_type if @a _ScalarType, @a _Dimensionality and @a ArgTypes
- *  fulfil the requirements for a constructor of a tuple,
- *  and derived from @a std::false_type otherwise.
- * @param _ScalarType
- *  must fulfil the <em>scalar</em> concept
- * @param _Dimensionality
- *  must fulfil the <em>dimensionality</em> concept
+ *  Derived from @a std::true_type if @a _VectorSpaceType::Dimensionality and @a ArgTypes fulfil the requirements for a constructor of a tuple,
+ *	and derived from @a std::false_type otherwise.
+ * @param _VectorSpaceType
+ *  must fulfil the <em>vector space</em> concept
  * @param _ArgTypes
- *  @a ArgTypes must have <tt>_Dimensionality-1</tt> elements which are convertible into values of type @a _ScalarType
+ *  @a ArgTypes must have <tt>_VectorSpaceType::Dimensionality-1</tt> elements which are convertible into values of type @a _VectorSpaceType::ScalarType
  * @author
  *  Michael Heilmann
  * @todo
- *  Fast-fail if the parameters are not convertible into @a _ScalarType.
+ *  Fast-fail if the parameters are not convertible into @a _VectorSpaceType::ScalarType.
  */
-template <typename _ScalarType, size_t _Dimensionality, typename ... ArgTypes>
+template <typename _VectorSpaceType, typename ... ArgTypes>
 struct TupleConstructorEnable
     : public std::conditional<
-    (Ego::Core::EqualTo<sizeof...(ArgTypes), _Dimensionality - 1>::value),
-    std::true_type,
-    std::false_type
-    >::type
+      (Ego::Core::EqualTo<sizeof...(ArgTypes), _VectorSpaceType::Dimensionality::value - 1>::value),
+      std::true_type,
+      std::false_type
+      >::type
 {};
 
 template <size_t I, typename Type, size_t Size>
@@ -134,11 +99,8 @@ void unpack(Type(&dst)[Size], Args&& ...args) {
  * @author
  *	Michael Heilmann
  */
-template <typename _ScalarType, size_t _Dimensionality, typename _Enabled = void>
-struct Tuple;
-
-template <typename _ScalarType, size_t _Dimensionality>
-struct Tuple<_ScalarType, _Dimensionality, typename std::enable_if<Internal::TupleEnable<_ScalarType, _Dimensionality>::value>::type> {
+template <typename _VectorSpaceType>
+struct Tuple {
     
 public:
     
@@ -146,31 +108,35 @@ public:
      * @brief
      *  @a MyType is the type of this template/template specialization.
      */
-    typedef Tuple<_ScalarType, _Dimensionality> MyType;
+    typedef typename Tuple<_VectorSpaceType> MyType;
+
+	/**
+	 * @brief
+	 *	@a VectorSpaceType is the type of the vector space.
+	 */
+	typedef typename _VectorSpaceType VectorSpaceType;
+
+	/**
+	 * @brief
+	 *  @a ScalarFieldType is the type of the underlaying scalar field.
+	 */
+	typedef typename _VectorSpaceType::ScalarFieldType ScalarFieldType;
 
 	/**
 	 * @brief
 	 *  @a ScalarType is the type of the underlaying scalars.
 	 */
-	typedef _ScalarType MyScalarType;
+	typedef typename _VectorSpaceType::ScalarFieldType::ScalarType ScalarType;
 
-	/**
- 	 * @brief
-	 *  @a ScalarFieldType is the type of the underlaying scalar field.
-	 */
-	typedef ScalarField<MyScalarType> MyScalarFieldType;
+
     
-    /**
-     * @invariant
-     *  The scalar type must be a floating point type.
-     */
-    static_assert(IsScalar<_ScalarType>::value, "_ScalarType must fulfil the scalar concept");
+
     
     /**
      * @invariant
      *  The dimensionality be a positive integral constant.
      */
-    static_assert(IsDimensionality<_Dimensionality>::value, "_Dimensionality must fulfil the dimensionality concept");
+    static_assert(IsDimensionality<_VectorSpaceType::Dimensionality::value>::value, "VectorSpaceType::Dimensionality must fulfil the dimensionality concept");
 
 	/**
 	 * @brief
@@ -179,7 +145,7 @@ public:
 	 *	the dimensionality of this tuple
 	 */
 	static size_t dimensionality() {
-		return _Dimensionality;
+		return VectorSpaceType::Dimensionality::value;
 	}
     
 protected:
@@ -188,7 +154,7 @@ protected:
      * @brief
      *  The elements of this tuple.
      */
-    MyScalarType _elements[_Dimensionality];
+	ScalarType _elements[VectorSpaceType::Dimensionality::value];
 
 	/**
 	 * @brief
@@ -196,10 +162,10 @@ protected:
 	 * @param v, ... args
 	 *	the element values
 	 */
-	template<typename ... ArgTypes, typename = typename std::enable_if<VectorConstructorEnable<_ScalarType, _Dimensionality, ArgTypes ...>::value>::type>
-	Tuple(MyScalarType v, ArgTypes&& ... args) {
-		static_assert(_Dimensionality - 1 == sizeof ... (args), "wrong number of arguments");
-		Internal::unpack<float, _Dimensionality>(_elements, std::forward<_ScalarType>(v), args ...);
+	template<typename ... ArgTypes, typename = typename std::enable_if<Internal::TupleConstructorEnable<_VectorSpaceType, ArgTypes ...>::value>::type>
+	Tuple(ScalarType v, ArgTypes&& ... args) {
+		static_assert(_VectorSpaceType::Dimensionality::value - 1 == sizeof ... (args), "wrong number of arguments");
+		Internal::unpack<float, _VectorSpaceType::Dimensionality::value>(_elements, std::forward<ScalarType>(v), args ...);
 	}
 
 	/**
@@ -244,14 +210,14 @@ protected:
 	 * @pre
 	 *	The index is within bounds.
 	 */
-	MyScalarType& at(size_t const& index) {
+	ScalarType& at(size_t const& index) {
 	#ifdef _DEBUG
 		EGOBOO_ASSERT(index < dimensionality());
 	#endif
 		return _elements[index];
 	}
 
-	const MyScalarType& at(size_t const& index) const {
+	const ScalarType& at(size_t const& index) const {
 	#ifdef _DEBUG
 		EGOBOO_ASSERT(index < dimensionality());
 	#endif

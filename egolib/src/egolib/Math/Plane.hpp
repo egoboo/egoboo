@@ -40,12 +40,9 @@ namespace Math {
  * @author
  *  Michael Heilmann
  */
-template <typename _ScalarType, typename _Enabled = void>
-struct Plane3;
-
 template <typename _ScalarType>
-struct Plane3<_ScalarType, typename std::enable_if<IsScalar<_ScalarType>::value>::type> :
-	public Internal::Entity<_ScalarType, 3> {
+struct Plane3 : public Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>,
+	            public Translatable<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>> {
 
 public:
 
@@ -59,13 +56,13 @@ public:
      * @brief
      *  The scalar type.
      */
-	typedef typename Internal::Entity<_ScalarType, 3>::ScalarType ScalarType;
+	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>::ScalarType ScalarType;
 
     /**
      * @brief
      *  The vector type.
      */
-	typedef typename Internal::Entity<_ScalarType, 3>::VectorType VectorType;
+	typedef typename Internal::Entity<Ego::Math::VectorSpace<Ego::Math::ScalarField<_ScalarType>, 3>>::VectorType VectorType;
 
 private:
 
@@ -195,15 +192,15 @@ public:
      * @remark
      *  The plane normal is normalized if necessary.
      * @remark
-     *  Let \f$v\f$ be the point and \f$n\f$ the normal, then the plane equation is given by
+     *  Let \f$X\f$ be the point and \f$\vec{n}\f$ the unnormalized plane normal, then the plane equation is given by
      *  \f{align*}{
-     *  \hat{n} \cdot p + d = 0, \hat{n}=\frac{n}{|n|}, d = d = -(\hat{n} \cdot v)
+     *  \hat{n} \cdot P + d = 0, \hat{n}=\frac{\vec{n}}{|\vec{n}|}, d = -\left(\hat{n} \cdot X\right)
      *  \f}
-     *  \f$v\f$ is on the plane as
+     *  \f$X\f$ is on the plane as
      *  \f{align*}{
-     *   &\hat{n} \cdot v + d\\
-     *  =&\hat{n} \cdot v + -(\hat{n} \cdot v)\\
-     *  =&\hat{n} \cdot v - \hat{n} \cdot v\\
+     *   &\hat{n} \cdot X + d\\
+     *  =&\hat{n} \cdot X + -(\hat{n} \cdot X)\\
+     *  =&\hat{n} \cdot X - \hat{n} \cdot X\\
      *  =&0
      *  \f}
      */
@@ -313,6 +310,70 @@ public:
     ScalarType distance(const VectorType& point) const {
         return _n.dot(point) + _d;
     }
+
+	/**
+	 * @brief
+	 *	Get a point on this plane.
+	 * @return
+	 *	a point on this plane
+	 * @remark
+	 *	The point \f$X = (-d) \cdot \hat{n}\f$ is guaranteed to be on the plane.
+	 *	To see that, insert \f$X\f$ into the plane equation:
+	 *	\f{align*}{
+	 *	\hat{n} \cdot X + d = \hat{n} \cdot \left[(-d) \cdot \hat{n}\right] + d
+	 *	= (-d) \left(\hat{n} \cdot \hat{n}\right] + d
+	 *	\f}
+	 *	As \f$\hat{n}\f$ is a unit vector
+	 *	\f{align*}{
+	 *	  (-d) \left[\hat{n} \cdot \hat{n}\right] + d
+	 *	= -d + d
+	 *	= 0
+	 *	\f}
+	 */
+	VectorType getPoint() const {
+		return _n * (-_d);
+	}
+
+	/**
+	 * @remark
+	 *	The first (slow) method to compute the translation of a plane \f$\hat{n} \cdot P + d = 0\f$
+	 *	is to compute a point on the plane, translate the point, and compute from the new point and
+	 *	and the old plane normal the new plane:
+	 *	To translate a plane \f$\hat{n} \cdot P + d = 0\f$, compute a point on the plane
+	 *	\f$X\f$ (i.e. a point \f$\hat{n} \cdot X + d = 0\f$) by
+	 *	\f{align*}{
+	 *	X = (-d) \cdot \hat{n}
+	 *	\f}
+	 *	Translate the point \f$X\f$ by \f$\vec{t}\f$ into a new point \f$X'\f$:
+	 *	\f{align*}{
+	 *	X' = X + \vec{t}
+	 *	\f}
+	 *	and compute the new plane
+	 *	\f{align*}{
+	 *	\hat{n} \cdot P + d' = 0, d' = -\left(\hat{n} \cdot X'\right)
+	 *	\f}
+	 * @remark
+	 *	The above method is not the fastest method. Observing that the old and the new plane equation only
+	 *	differ by \f$d\f$ and \f$d'\f$, a faster method of translating a plane can be devised by computing
+	 *	\f$d'\f$ directly. Expanding \f$d'\f$ gives
+	 *	\f{align*}{
+	 *	d' =& -\left(\hat{n} \cdot X'\right)\\
+	 *     =& -\left[\hat{n} \cdot \left((-d) \cdot \hat{n} + \vec{t}\right)\right]\\
+	 *     =& -\left[(-d) \cdot \hat{n} \cdot \hat{n} + \hat{n} \cdot \vec{t}\right]\\
+	 *     =& -\left[-d + \hat{n} \cdot \vec{t}\right]\\
+	 *     =& d - \hat{n} \cdot \vec{t}
+	 *	\f}
+	 *	The new plane can then be computed by
+	 *	\f{align*}{
+	 *	\hat{n} \cdot P + d' = 0, d' = -d - \hat{n} \cdot \vec{t}
+	 *	\f}
+	 * @param t
+	 *	the translation vector
+	 * @copydoc Ego::Math::translatable
+	 */
+	void translate(const VectorType& t) override {
+		_d -= _n.dot(t);
+	}
 
 };
 

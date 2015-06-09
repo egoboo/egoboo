@@ -1,7 +1,7 @@
 #pragma once
 
 #include "egolib/Math/AABB.hpp"
-#include "egolib/Math/Cone.hpp"
+#include "egolib/Math/Cone3.hpp"
 #include "egolib/Math/Cube.hpp"
 #include "egolib/Math/Plane.hpp"
 #include "egolib/Math/Sphere.h"
@@ -17,25 +17,25 @@ enum {
 
 
 /// A 2D vector.
-typedef Ego::Math::Vector<float, 2> fvec2_t;
+typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 2>> fvec2_t;
 
 /// A 3D vector.
-typedef Ego::Math::Vector<float, 3> fvec3_t;
+typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 3>> fvec3_t;
 
 /// A 4D vector.
-typedef Ego::Math::Vector<float, 4> fvec4_t;
+typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 4>> fvec4_t;
 
 /// A 3D sphere.
-typedef Ego::Math::Sphere<float, 3> sphere_t;
+typedef Ego::Math::Sphere<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 3>> sphere_t;
 
 /// A 3D AABB.
-typedef Ego::Math::AABB<float, 3> aabb_t;
+typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 3>> aabb_t;
 
 /// A 3D cone.
 typedef Ego::Math::Cone3<float> cone_t;
 
 /// A 3D cube.
-typedef Ego::Math::Cube<float, 3> cube_t;
+typedef Ego::Math::Cube<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 3>> cube_t;
 
 /// A 3D plane.
 typedef Ego::Math::Plane3<float> plane_t;
