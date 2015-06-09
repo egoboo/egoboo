@@ -120,7 +120,7 @@ public:
 	 * @brief
 	 *	@a VectorSpaceType is the type of the vector space.
 	 */
-	typedef typename _VectorSpaceType VectorSpaceType;
+	typedef _VectorSpaceType VectorSpaceType;
 
     /**
      * @brief
@@ -138,7 +138,7 @@ public:
 	 * @brief
 	 *  @a MyType is the type of the vector.
 	 */
-	typedef typename Vector<_VectorSpaceType> MyType;
+	typedef Vector<_VectorSpaceType> MyType;
 
 public:
 
@@ -183,8 +183,8 @@ public:
      */
     template <typename _Engine>
     Vector(Generator<ScalarType, _Engine>& generator) {
-        for (size_t i = 0; i < dimensionality(); ++i) {
-            _elements[i] = generator();
+        for (size_t i = 0; i < this->dimensionality(); ++i) {
+            this->_elements[i] = generator();
         }
     }
 
@@ -199,9 +199,9 @@ public:
      *  the dot product <tt>(*this) * other</tt> of this vector and the other vector
      */
     ScalarType dot(const MyType& other) const {
-        ScalarType t = ScalarFieldType::product(_elements[0], other._elements[0]);
-		for (size_t i = 1; i < dimensionality(); ++i) {
-            t = ScalarFieldType::sum(t, ScalarFieldType::product(_elements[i], other._elements[i]));
+        ScalarType t = ScalarFieldType::product(this->_elements[0], other._elements[0]);
+		for (size_t i = 1; i < this->dimensionality(); ++i) {
+            t = ScalarFieldType::sum(t, ScalarFieldType::product(this->_elements[i], other._elements[i]));
         }
         return t;
     }
@@ -215,8 +215,8 @@ public:
      *  the other vector
      */
     void assign(const MyType& other) {
-        for (size_t i = 0; i < dimensionality(); ++i) {
-            _elements[i] = other._elements[i];
+        for (size_t i = 0; i < this->dimensionality(); ++i) {
+            this->_elements[i] = other._elements[i];
         }
     }
 
@@ -230,8 +230,8 @@ public:
      *  The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
      */
     void multiply(ScalarType scalar) {
-        for (size_t i = 0; i < dimensionality(); ++i) {
-            _elements[i] = ScalarFieldType::product(_elements[i], scalar);
+        for (size_t i = 0; i < this->dimensionality(); ++i) {
+            this->_elements[i] = ScalarFieldType::product(this->_elements[i], scalar);
         }
     }
     
@@ -245,8 +245,8 @@ public:
      *  The sum <tt>(*this) + other</tt> was assigned to <tt>*this</tt>.
      */
     void add(const MyType& other) {
-        for (size_t i = 0; i < dimensionality(); ++i) {
-            _elements[i] = ScalarFieldType::sum(_elements[i], other._elements[i]);
+        for (size_t i = 0; i < this->dimensionality(); ++i) {
+            this->_elements[i] = ScalarFieldType::sum(this->_elements[i], other._elements[i]);
         }
     }
 
@@ -260,8 +260,8 @@ public:
      *  The difference <tt>(*this) - other</tt> was assigned to <tt>*this</tt>.
      */
     void sub(const MyType& other) {
-		for (size_t i = 0; i < dimensionality(); ++i) {
-            _elements[i] = ScalarFieldType::difference(_elements[i], other._elements[i]);
+		for (size_t i = 0; i < this->dimensionality(); ++i) {
+            this->_elements[i] = ScalarFieldType::difference(this->_elements[i], other._elements[i]);
         }
     }
 
@@ -276,7 +276,7 @@ public:
      */
     void normalize(ScalarType length) {
         ScalarType l = this->length();
-        if (ScalarField::isPositive(l)) {
+        if (ScalarFieldType::isPositive(l)) {
             multiply(ScalarFieldType::quotient(length, l));
         }
     }
@@ -307,8 +307,8 @@ public:
      *  @a true if this vector equals the other vector
      */
     bool equals(const MyType& other) const {
-		for (size_t i = 0; i < dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualTo(_elements[i], other._elements[i])) {
+		for (size_t i = 0; i < this->dimensionality(); ++i) {
+            if (ScalarFieldType::notEqualTo(this->_elements[i], other._elements[i])) {
                 return false;
             }
         }
@@ -326,8 +326,8 @@ public:
      *  @a true if this vector equals the other vector
      */
     bool equalsULP(const MyType& other, const size_t& ulp) const {
-		for (size_t i = 0; i < dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualToULP(_elements[i], other._elements[i], ulp)) {
+		for (size_t i = 0; i < this->dimensionality(); ++i) {
+            if (ScalarFieldType::notEqualToULP(this->_elements[i], other._elements[i], ulp)) {
                 return false;
             }
         }
@@ -346,8 +346,8 @@ public:
      *  @a true if this vector equals the other vector
      */
     bool equalsTolerance(const MyType& other, const ScalarType& tolerance) const {
-		for (size_t i = 0; i < dimensionality(); ++i) {
-            if (ScalarFieldType::notEqualToTolerance(_elements[i], other._elements[i], tolerance)) {
+		for (size_t i = 0; i < this->dimensionality(); ++i) {
+            if (ScalarFieldType::notEqualToTolerance(this->_elements[i], other._elements[i], tolerance)) {
                 return false;
             }
         }
@@ -359,7 +359,7 @@ private:
     /** @internal */
     template <size_t ... Index>
     MyType abs(Ego::Core::index_sequence<Index ...>) const {
-        return MyType(std::abs(_elements[Index]) ...);
+        return MyType(std::abs(this->_elements[Index]) ...);
     }
 
 public:
@@ -376,7 +376,7 @@ public:
      *  \f]
      */
     MyType abs() const {
-        return abs(Ego::Core::make_index_sequence < _Dimensionality > {});
+        return abs(Ego::Core::make_index_sequence < VectorSpaceType::Dimensionality > {});
     }
 
 private:
@@ -384,7 +384,7 @@ private:
     /** @internal */
     template <size_t ... Index>
     MyType min(Ego::Core::index_sequence<Index ...>, const MyType& other) const {
-        return MyType(std::min(_elements[Index],other._elements[Index]) ...);
+        return MyType(std::min(this->_elements[Index],other._elements[Index]) ...);
     }
 
 public:
@@ -402,7 +402,7 @@ public:
      *	\f]
      */
     MyType min(const MyType& other) const {
-        return min(Ego::Core::make_index_sequence<_Dimensionality>{}, other);
+        return min(Ego::Core::make_index_sequence<VectorSpaceType::Dimensionality>{}, other);
     }
 
 private:
@@ -410,7 +410,7 @@ private:
     /** @internal */
     template <size_t ... Index>
     MyType max(Ego::Core::index_sequence<Index ...>, const MyType& other) const {
-        return MyType(std::max(_elements[Index],other._elements[Index]) ...);
+        return MyType(std::max(this->_elements[Index],other._elements[Index]) ...);
     }
 
 public:
@@ -428,7 +428,7 @@ public:
      *  \f]
      */
     MyType max(const MyType& other) const {
-        return max(Ego::Core::make_index_sequence<_Dimensionality>{},other);
+        return max(Ego::Core::make_index_sequence<VectorSpaceType::Dimensionality>{},other);
     }
 
 public:
@@ -441,9 +441,9 @@ public:
      *  the squared length of this vector
      */
     ScalarType length_2() const {
-        ScalarType t = ScalarFieldType::product(_elements[0], _elements[0]);
-		for (size_t i = 1; i < dimensionality(); ++i) {
-            t = ScalarFieldType::sum(t, ScalarFieldType::product(_elements[i], _elements[i]));
+        ScalarType t = ScalarFieldType::product(this->_elements[0], this->_elements[0]);
+		for (size_t i = 1; i < this->dimensionality(); ++i) {
+            t = ScalarFieldType::sum(t, ScalarFieldType::product(this->_elements[i], this->_elements[i]));
         }
         return t;
     }
@@ -467,9 +467,9 @@ public:
      *  the length of this vector
      */
     ScalarType length_abs() const {
-        ScalarType t = std::abs(_elements[0]);
-		for (size_t i = 1; i < dimensionality(); ++i) {
-            t += std::abs(_elements[i]);
+        ScalarType t = std::abs(this->_elements[0]);
+		for (size_t i = 1; i < this->dimensionality(); ++i) {
+            t += std::abs(this->_elements[i]);
         }
         return t;
     }
@@ -482,7 +482,7 @@ public:
      *  the length of this vector
      */
     ScalarType length_max() const {
-        return *std::max_element(_elements, _elements + dimensionality());
+        return *std::max_element(this->_elements, this->_elements + this->dimensionality());
     }
 
 public:
@@ -543,11 +543,11 @@ public:
 public:
 
 	ScalarType& operator[](size_t const& index) {
-		return at(index);
+		return this->at(index);
     }
 
     const ScalarType& operator[](size_t const& index) const {
-		return at(index);
+		return this->at(index);
     }
 
     MyType operator-() const {
@@ -702,9 +702,9 @@ public:
         return
             MyType
             (
-                _elements[1] * other._elements[2] - _elements[2] * other._elements[1],
-                _elements[2] * other._elements[0] - _elements[0] * other._elements[2],
-                _elements[0] * other._elements[1] - _elements[1] * other._elements[0]
+                this->_elements[1] * other._elements[2] - this->_elements[2] * other._elements[1],
+                this->_elements[2] * other._elements[0] - this->_elements[0] * other._elements[2],
+                this->_elements[0] * other._elements[1] - this->_elements[1] * other._elements[0]
             );
     }
 };

@@ -161,6 +161,7 @@
 		CD6491891ADF618E00A3B264 /* ImageManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD6491841ADF618E00A3B264 /* ImageManager.cpp */; };
 		CD6E59971B0D1F110069DE18 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD7335DC1AFA0CEA00ECC773 /* main.cpp */; };
 		CD6E5FAA1AD053AE00DBA937 /* ScrollableList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD6E5FA81AD053AE00DBA937 /* ScrollableList.cpp */; };
+		CD7116EA1B2790AA00B2A94F /* Team.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD7116E81B2790AA00B2A94F /* Team.cpp */; };
 		CD7335DE1AFA0CEA00ECC773 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD7335DC1AFA0CEA00ECC773 /* main.cpp */; };
 		CD792C1E1A881FE20086270E /* GameEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BF61A881FE20086270E /* GameEngine.cpp */; };
 		CD792C1F1A881FE20086270E /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792BF91A881FE20086270E /* GameState.cpp */; };
@@ -856,6 +857,12 @@
 		CD6E5FAC1AD0545E00DBA937 /* Rectangle2.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Rectangle2.hpp; sourceTree = "<group>"; };
 		CD6E5FAD1AD0550A00DBA937 /* EgoTest_Handwritten.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EgoTest_Handwritten.cpp; sourceTree = "<group>"; };
 		CD6E5FAE1AD0550A00DBA937 /* EgoTest_Handwritten.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EgoTest_Handwritten.hpp; sourceTree = "<group>"; };
+		CD7116E81B2790AA00B2A94F /* Team.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Team.cpp; sourceTree = "<group>"; };
+		CD7116E91B2790AA00B2A94F /* Team.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Team.hpp; sourceTree = "<group>"; };
+		CD7116EB1B2790BE00B2A94F /* _Tuple.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = _Tuple.hpp; sourceTree = "<group>"; };
+		CD7116EC1B2790BE00B2A94F /* Cone3.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Cone3.hpp; sourceTree = "<group>"; };
+		CD7116ED1B2790BE00B2A94F /* Translatable.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Translatable.hpp; sourceTree = "<group>"; };
+		CD7116EE1B2790BE00B2A94F /* VectorSpace.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VectorSpace.hpp; sourceTree = "<group>"; };
 		CD7335DC1AFA0CEA00ECC773 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../unix/main.cpp; sourceTree = "<group>"; };
 		CD7725511AF8C7DE007FB2E4 /* Action.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Action.hpp; sourceTree = "<group>"; };
 		CD78A7611A934C8D00778820 /* Buffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Buffer.hpp; sourceTree = "<group>"; };
@@ -1119,7 +1126,6 @@
 		CDE4EC5E1A7167CD00A4BC62 /* Sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sphere.h; sourceTree = "<group>"; };
 		CDE4EC631A71AEFC00A4BC62 /* Module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Module.cpp; sourceTree = "<group>"; };
 		CDE4EC641A71AEFC00A4BC62 /* Module.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Module.hpp; sourceTree = "<group>"; };
-		CDEA07981AB7564200A5C523 /* Cone.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Cone.hpp; sourceTree = "<group>"; };
 		CDEA07991AB7564200A5C523 /* Matrix44.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Matrix44.cpp; sourceTree = "<group>"; };
 		CDEA079A1AB7564200A5C523 /* Matrix44.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Matrix44.hpp; sourceTree = "<group>"; };
 		CDED15AB1A88393A00AFA2AD /* UIManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UIManager.cpp; sourceTree = "<group>"; };
@@ -1495,6 +1501,8 @@
 				CD1095401AEEDFEB00937B35 /* Damage.hpp */,
 				CD1095411AEEDFEB00937B35 /* Gender.hpp */,
 				CD1095421AEEDFEB00937B35 /* StaticEnumDescriptor.hpp */,
+				CD7116E81B2790AA00B2A94F /* Team.cpp */,
+				CD7116E91B2790AA00B2A94F /* Team.hpp */,
 			);
 			path = Logic;
 			sourceTree = "<group>";
@@ -2128,12 +2136,13 @@
 			isa = PBXGroup;
 			children = (
 				CD6E5FAB1AD0545E00DBA937 /* _Include.hpp */,
+				CD7116EB1B2790BE00B2A94F /* _Tuple.hpp */,
 				CDE4EC581A7167CD00A4BC62 /* AABB.hpp */,
 				CDC187141A7B08B4001E69ED /* Colour3f.cpp */,
 				CDC187151A7B08B4001E69ED /* Colour3f.hpp */,
 				CDC187161A7B08B4001E69ED /* Colour4f.cpp */,
 				CDC187171A7B08B4001E69ED /* Colour4f.hpp */,
-				CDEA07981AB7564200A5C523 /* Cone.hpp */,
+				CD7116EC1B2790BE00B2A94F /* Cone3.hpp */,
 				CDDB1AE31B126772009BE567 /* Convex.hpp */,
 				CDE4EC5A1A7167CD00A4BC62 /* Cube.hpp */,
 				CDDB1AE41B126772009BE567 /* Dimensionality.hpp */,
@@ -2153,7 +2162,9 @@
 				CD1F4D691B1394E10028C45E /* Standard.cpp */,
 				CD1F4D6A1B1394E10028C45E /* Standard.hpp */,
 				CDDB1AE61B126772009BE567 /* TemplateUtilities.hpp */,
+				CD7116ED1B2790BE00B2A94F /* Translatable.hpp */,
 				CDC187181A7B08B4001E69ED /* Vector.hpp */,
+				CD7116EE1B2790BE00B2A94F /* VectorSpace.hpp */,
 			);
 			path = Math;
 			sourceTree = "<group>";
@@ -2879,6 +2890,7 @@
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
 				CD113DBC1ABF31B20067B227 /* Font.cpp in Sources */,
 				CD80C4E21AB2089B00D915FF /* LERP.cpp in Sources */,
+				CD7116EA1B2790AA00B2A94F /* Team.cpp in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
 				CDB3DC981A659EF30098D3B9 /* mem.c in Sources */,
 				CDC1871C1A7B08BC001E69ED /* Colour4f.cpp in Sources */,

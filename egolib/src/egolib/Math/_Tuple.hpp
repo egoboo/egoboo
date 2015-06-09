@@ -108,13 +108,13 @@ public:
      * @brief
      *  @a MyType is the type of this template/template specialization.
      */
-    typedef typename Tuple<_VectorSpaceType> MyType;
+    typedef Tuple<_VectorSpaceType> MyType;
 
 	/**
 	 * @brief
 	 *	@a VectorSpaceType is the type of the vector space.
 	 */
-	typedef typename _VectorSpaceType VectorSpaceType;
+	typedef _VectorSpaceType VectorSpaceType;
 
 	/**
 	 * @brief
