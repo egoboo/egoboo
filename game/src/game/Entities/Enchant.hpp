@@ -50,17 +50,13 @@ struct enc_spawn_data_t
     PRO_REF profile_ref;
     EVE_REF eve_ref;
 
-    static void reset(enc_spawn_data_t *self)
+    void reset()
     {
-        if (!self)
-        {
-            throw std::runtime_error("nullptr == self");
-        }
-        self->owner_ref = INVALID_CHR_REF;
-        self->target_ref = INVALID_CHR_REF;
-        self->spawner_ref = INVALID_CHR_REF;
-        self->profile_ref = INVALID_PRO_REF;
-        self->eve_ref = INVALID_EVE_REF;
+        owner_ref = INVALID_CHR_REF;
+        target_ref = INVALID_CHR_REF;
+        spawner_ref = INVALID_CHR_REF;
+        profile_ref = INVALID_PRO_REF;
+        eve_ref = INVALID_EVE_REF;
     }
 };
 
@@ -117,7 +113,7 @@ struct enc_t : public _StateMachine<enc_t, ENC_REF, EnchantHandler>
     void requestTerminate();
 
     // enchant state machine function
-    enc_t *config_do_ctor() override;
+    void config_do_ctor() override;
     // enchant state machine function
     enc_t *config_do_init() override;
     // enchant state machine function

@@ -56,8 +56,7 @@ class ModuleProfile;
 // forward declaration of internal structs
 //--------------------------------------------------------------------------------------------
 
-struct s_water_layer_instance;
-typedef struct s_water_layer_instance water_instance_layer_t;
+struct water_instance_layer_t;
 
 
 
@@ -201,7 +200,7 @@ bool upload_weather_data( weather_instance_t * dst, const struct s_wawalite_weat
 //--------------------------------------------------------------------------------------------
 
 /// The data descibing the state of a water layer
-struct s_water_layer_instance
+struct water_instance_layer_t
 {
     Uint16    frame;        ///< Frame
     Uint32    frame_add;    ///< Speed

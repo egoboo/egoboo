@@ -73,28 +73,28 @@ struct prt_environment_t
     bool   inwater;
     fvec3_t  acc;
 
-    static void reset(prt_environment_t *self)
+    void reset()
     {
         // floor stuff
-        self->twist = 0;
-        self->floor_level = 0.0f;
-        self->level = 0.0f;
-        self->zlerp = 0.0f;
+        twist = 0;
+        floor_level = 0.0f;
+        level = 0.0f;
+        zlerp = 0.0f;
 
-        self->adj_level = 0.0f;
-        self->adj_floor = 0.0f;
+        adj_level = 0.0f;
+        adj_floor = 0.0f;
 
         // friction stuff
-        self->is_slipping = false;
-        self->is_slippy = self->is_watery = false;
-        self->air_friction = self->ice_friction = 0.0f;
-        self->fluid_friction_hrz = self->fluid_friction_vrt = 0.0f;
-        self->friction_hrz = 0.0f;
-        self->traction = 0.0f;
+        is_slipping = false;
+        is_slippy = is_watery = false;
+        air_friction = ice_friction = 0.0f;
+        fluid_friction_hrz = fluid_friction_vrt = 0.0f;
+        friction_hrz = 0.0f;
+        traction = 0.0f;
 
         // misc states
-        self->inwater = false;
-        self->acc = fvec3_t::zero();
+        inwater = false;
+        acc = fvec3_t::zero();
     }
 };
 
@@ -115,21 +115,21 @@ struct prt_spawn_data_t
     int      multispawn;
     CHR_REF  oldtarget;
 
-    static void reset(prt_spawn_data_t *self)
+    void reset()
     {
-        self->pos = fvec3_t::zero();
-        self->facing = 0;
-        self->iprofile = INVALID_PRO_REF;
-        self->ipip = INVALID_PIP_REF;
+        pos = fvec3_t::zero();
+        facing = 0;
+        iprofile = INVALID_PRO_REF;
+        ipip = INVALID_PIP_REF;
 
-        self->chr_attach = INVALID_CHR_REF;
-        self->vrt_offset = 0;
-        self->team = 0; /// @todo Should be INVALID_TEAM_REF.
+        chr_attach = INVALID_CHR_REF;
+        vrt_offset = 0;
+        team = 0; /// @todo Should be INVALID_TEAM_REF.
         
-        self->chr_origin = INVALID_CHR_REF;
-        self->prt_origin = INVALID_PRT_REF;
-        self->multispawn = 0;
-        self->oldtarget  = INVALID_CHR_REF;
+        chr_origin = INVALID_CHR_REF;
+        prt_origin = INVALID_PRT_REF;
+        multispawn = 0;
+        oldtarget  = INVALID_CHR_REF;
     }
 };
 
@@ -328,7 +328,7 @@ public:
     static bool free(prt_t * pprt);
 
     // particle state machine function
-    prt_t *config_do_ctor() override;
+    void config_do_ctor() override;
     // particle state machine function
     prt_t *config_do_init() override;
     // particle state machine function

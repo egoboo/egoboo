@@ -45,8 +45,7 @@ enum class Relation {
 // a datatype for points
 //--------------------------------------------------------------------------------------------
 
-    typedef float fvec3_base_t[3];
-    typedef fvec3_base_t point_base_t;
+typedef float point_base_t[3];
 
 //--------------------------------------------------------------------------------------------
 // intersection routines

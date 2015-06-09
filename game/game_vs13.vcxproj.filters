@@ -83,9 +83,6 @@
     <ClCompile Include="src\game\egoboo_object.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\egoboo_typedef.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\game.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -119,16 +116,7 @@
     <ClCompile Include="src\game\mesh_BSP.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\mesh_functions.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\network.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\network_client.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\network_server.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\obj_BSP.c">
@@ -337,16 +325,7 @@
     <ClInclude Include="src\game\mesh_BSP.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\mesh_functions.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\network.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\network_client.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\network_server.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\obj_BSP.h">

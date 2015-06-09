@@ -46,7 +46,7 @@ struct point_data_t;
 //--------------------------------------------------------------------------------------------
 
 /// OPENGL VERTEX
-struct s_GLvertex
+struct GLvertex
 {
     GLfloat pos[4];
     GLfloat nrm[3];

@@ -49,7 +49,7 @@ enc_t::enc_t(ENC_REF ref)
 }
 void enc_t::reset() {
 	this->_StateMachine<enc_t, ENC_REF, EnchantHandler>::reset();
-	enc_spawn_data_t::reset(&spawn_data);
+	spawn_data.reset();
 	lifetime = 0;
 	spawn_timer = 0;
 
@@ -76,9 +76,9 @@ void enc_t::reset() {
 	this->nextenchant_ref = INVALID_ENC_REF;
 }
 
-enc_t *enc_t::config_do_ctor()
+void enc_t::config_do_ctor()
 {
-    enc_spawn_data_t::reset(&spawn_data);
+    spawn_data.reset();
     lifetime = 0;
     spawn_timer = 0;
     
@@ -109,8 +109,6 @@ enc_t *enc_t::config_do_ctor()
 	this->frame_count = 0;
     // we are done constructing. move on to initializing.
 	this->state = State::Initializing;
-
-    return this;
 }
 
 //--------------------------------------------------------------------------------------------

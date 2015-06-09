@@ -23,8 +23,6 @@
 ///          Networked play doesn't really work at the moment.
 
 #include "game/network.h"
-#include "game/network_server.h"
-#include "game/network_client.h"
 #include "game/input.h"
 #include "game/game.h"
 #include "game/player.h"

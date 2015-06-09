@@ -123,43 +123,43 @@ struct prt_instance_t
         //ctor   
     }
 
-    static void reset(prt_instance_t *self)
+    void reset()
     {
-        self->valid = false;
+        valid = false;
 
         // graphical optimizations
-        self->indolist = false;
+        indolist = false;
 
         // basic info
-        self->type = 0;
-        self->texture_ref = INVALID_TX_REF;
-        self->image_ref = 0;
-        self->alpha = 0.0f;
-        self->light = 0;
+        type = 0;
+        texture_ref = INVALID_TX_REF;
+        image_ref = 0;
+        alpha = 0.0f;
+        light = 0;
 
         // position info
-        self->pos = fvec3_t::zero();
-        self->size = 0.0f;
-        self->scale = 0.0f;
+        pos = fvec3_t::zero();
+        size = 0.0f;
+        scale = 0.0f;
 
         // billboard info
-        self->orientation = prt_ori_t::ORIENTATION_B;
-        self->up = fvec3_t::zero();
-        self->right = fvec3_t::zero();
-        self->nrm = fvec3_t::zero();
+        orientation = prt_ori_t::ORIENTATION_B;
+        up = fvec3_t::zero();
+        right = fvec3_t::zero();
+        nrm = fvec3_t::zero();
 
         // lighting info
-        self->famb = 0.0f;
-        self->fdir = 0.0f;
+        famb = 0.0f;
+        fdir = 0.0f;
 
-        self->fintens = 0.0f;
-        self->falpha = 0.0f;
+        fintens = 0.0f;
+        falpha = 0.0f;
 
         // pre-compute some values for the reflected particle posisions
-        self->ref_valid = false;
-        self->ref_up = fvec3_t::zero();
-        self->ref_right = fvec3_t::zero();
-        self->ref_pos = fvec3_t::zero();
+        ref_valid = false;
+        ref_up = fvec3_t::zero();
+        ref_right = fvec3_t::zero();
+        ref_pos = fvec3_t::zero();
     }
 };
 

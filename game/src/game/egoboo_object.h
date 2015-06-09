@@ -334,7 +334,7 @@ struct _StateMachine : public Ego::Entity
 	}
 
     // state machine function
-    virtual TYPE *config_do_ctor() = 0;
+    virtual void config_do_ctor() = 0;
     // state machine function
     virtual TYPE *config_do_init() = 0;
     // state machine function
@@ -349,7 +349,8 @@ struct _StateMachine : public Ego::Entity
         // If we aren't in the correct state, abort.
         if (!this->STATE_CONSTRUCTING_PBASE()) return true;
 
-        return nullptr != this->config_do_ctor();
+        this->config_do_ctor();
+		return true;
     }
 
     bool config_active()

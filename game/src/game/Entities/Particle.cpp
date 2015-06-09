@@ -27,7 +27,6 @@
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"
-#include "game/mesh_functions.h"
 #include "egolib/Graphics/mad.h"
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
@@ -81,7 +80,7 @@ void prt_t::reset() {
 	this->_StateMachine<prt_t, PRT_REF, ParticleHandler>::reset();
 	this->is_ghost = false;
 
-	prt_spawn_data_t::reset(&this->spawn_data);
+	this->spawn_data.reset();
 
 	this->pip_ref = INVALID_PIP_REF;
 	this->profile_ref = INVALID_PRO_REF;
@@ -156,17 +155,15 @@ void prt_t::reset() {
 	this->endspawn_characterstate = 0; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
 	this->dynalight.reset();
-	prt_instance_t::reset(&this->inst);
-	prt_environment_t::reset(&this->enviro);
+	this->inst.reset();
+	this->enviro.reset();
 }
 
-/// @brief Set all particle parameters to safe values.
-/// @details The C equivalent of a parameterless constructor.
-prt_t *prt_t::config_do_ctor()
+void prt_t::config_do_ctor()
 {
     this->is_ghost = false;
     
-    prt_spawn_data_t::reset(&this->spawn_data);
+    this->spawn_data.reset();
 
     this->pip_ref = INVALID_PIP_REF;
     this->profile_ref = INVALID_PRO_REF;
@@ -241,15 +238,13 @@ prt_t *prt_t::config_do_ctor()
     this->endspawn_characterstate = 0; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
     this->dynalight.reset();
-    prt_instance_t::reset(&this->inst);
-    prt_environment_t::reset(&this->enviro);
+    this->inst.reset();
+    this->enviro.reset();
 
     // reset the base counters
 	this->update_count = 0;
 	this->frame_count = 0;
 	this->state = State::Initializing;
-
-    return this;
 }
 
 //--------------------------------------------------------------------------------------------

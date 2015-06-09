@@ -430,7 +430,6 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\collision.c" />
     <ClCompile Include="src\game\egoboo.c" />
     <ClCompile Include="src\game\egoboo_object.c" />
-    <ClCompile Include="src\game\egoboo_typedef.c" />
     <ClCompile Include="src\game\game.c" />
     <ClCompile Include="src\game\graphic.c" />
     <ClCompile Include="src\game\graphic_billboard.c" />
@@ -442,10 +441,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\link.c" />
     <ClCompile Include="src\game\mesh.c" />
     <ClCompile Include="src\game\mesh_BSP.c" />
-    <ClCompile Include="src\game\mesh_functions.c" />
     <ClCompile Include="src\game\network.c" />
-    <ClCompile Include="src\game\network_client.c" />
-    <ClCompile Include="src\game\network_server.c" />
     <ClCompile Include="src\game\obj_BSP.c" />
     <ClCompile Include="src\game\physics.c" />
     <ClCompile Include="src\game\player.c" />
@@ -518,10 +514,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClInclude Include="src\game\link.h" />
     <ClInclude Include="src\game\mesh.h" />
     <ClInclude Include="src\game\mesh_BSP.h" />
-    <ClInclude Include="src\game\mesh_functions.h" />
     <ClInclude Include="src\game\network.h" />
-    <ClInclude Include="src\game\network_client.h" />
-    <ClInclude Include="src\game\network_server.h" />
     <ClInclude Include="src\game\obj_BSP.h" />
     <ClInclude Include="src\game\physics.h" />
     <ClInclude Include="src\game\player.h" />

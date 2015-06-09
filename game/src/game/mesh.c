@@ -24,7 +24,6 @@
 #include "egolib/_math.h"
 #include "egolib/bbox.h"
 #include "game/mesh.h"
-#include "game/mesh_functions.h"
 #include "game/graphic.h"
 #include "game/egoboo.h"
 

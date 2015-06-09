@@ -38,9 +38,6 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
-struct mad_t;
-struct eve_t;
-struct s_pip;
 struct Billboard;
 struct mesh_wall_data_t;
 
