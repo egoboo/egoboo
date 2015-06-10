@@ -26,8 +26,4 @@
 // Functions in this section are implemented separately on each platform.
 
 void sys_initialize();  ///< Allow any setup necessary for platform specific code
-void sys_shutdown();    ///< Allow any necessary cleanup for platform specific code
 double sys_getTime();     ///< Return the current time, in seconds
-int sys_frameStep();
-
-void sys_popup(const char * popup_title, const char * warning, const char * format, va_list args);

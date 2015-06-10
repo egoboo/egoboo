@@ -57,20 +57,3 @@ double sys_getTime( void )
     QueryPerformanceCounter( &time );
     return time.QuadPart * win32_secondsPerTick;
 }
-
-//--------------------------------------------------------------------------------------------
-void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
-{
-    /// @author ZF
-    /// @details Windows users get a proper error message popup box
-
-    STRING message, buffer;
-
-    snprintf( message, SDL_arraysize( message ), warning );
-
-    vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
-    strcat( message, buffer );
-    strcat( message, "\n Press OK to exit." );
-
-    MessageBox( NULL, message, popup_title, MB_ICONSTOP | MB_SETFOREGROUND | MB_OK );
-}

@@ -266,8 +266,12 @@ void log_error(const char *format, ...)
     logv(LOG_ERROR, format, args);
 
     // Display an OS messagebox.
-    sys_popup("Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting.\n"
-              "This is the error report: \n", format, args2 );
+    char buffer[MAX_LOG_MESSAGE];
+    vsnprintf(buffer, MAX_LOG_MESSAGE - 1, format, args2);
+
+    char message[MAX_LOG_MESSAGE];
+    snprintf(message, MAX_LOG_MESSAGE - 1, "Egoboo has encountered a problem and is exiting.\nThis is the error report: \n%s", buffer);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Egoboo: Fatal Error", message, nullptr);
 
     va_end(args);
     va_end(args2);
