@@ -317,7 +317,7 @@ Fail:
         file = nullptr;
     }
 
-    return nullptr;
+    return false;
 }
 
 bool map_t::save(vfs_FILE& file) const

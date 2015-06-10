@@ -814,7 +814,7 @@ void Object::update()
                     int ripand;
                     if ( ripple_suppression > 0 )
                     {
-                        ripand = ~(( ~RIPPLEAND ) << ripple_suppression );
+                        ripand = ~(RIPPLEAND << ripple_suppression);
                     }
                     else
                     {

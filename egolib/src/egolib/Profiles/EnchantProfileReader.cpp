@@ -33,14 +33,14 @@ bool EnchantProfileReader::read(std::shared_ptr<eve_t> profile, const std::strin
     char cTmp;
     IDSZ idsz;
 
-    if (!profile) return nullptr;
+    if (!profile) return false;
 
     profile->reset();
 
     ReadContext ctxt(pathname);
     if (!ctxt.ensureOpen())
     {
-        return nullptr;
+        return false;
     }
 
     // true/false values
