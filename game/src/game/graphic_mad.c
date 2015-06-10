@@ -60,8 +60,6 @@ static gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF ichr, GLXvector4
 static gfx_rv render_one_mad_tex( Camera& cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 
 // private chr_instance_t methods
-static gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
-static gfx_rv chr_instance_free( chr_instance_t * pinst );
 static gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool force, bool vertices_match, bool frames_match );
 static gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool *verts_match, bool *frames_match );
 static gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
@@ -1875,40 +1873,41 @@ void chr_instance_clear_cache( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-chr_instance_t * chr_instance_dtor( chr_instance_t * pinst )
+chr_instance_t *chr_instance_t::dtor(chr_instance_t *pinst)
 {
-    if ( NULL == pinst ) return pinst;
+	if (!pinst) {
+		return nullptr;
+	}
 
-    chr_instance_free( pinst );
+    chr_instance_t::dealloc(pinst);
 
-    EGOBOO_ASSERT( NULL == pinst->vrt_lst );
+    EGOBOO_ASSERT(!pinst->vrt_lst);
 
-    BLANK_STRUCT_PTR( pinst )
+	BLANK_STRUCT_PTR(pinst);
 
     return pinst;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
+chr_instance_t *chr_instance_t::ctor(chr_instance_t *pinst)
 {
-    Uint32 cnt;
+	if (!pinst) {
+		return nullptr;
+	}
 
-    if ( NULL == pinst ) return pinst;
-
-    BLANK_STRUCT_PTR( pinst )
+	BLANK_STRUCT_PTR(pinst);
 
     // model parameters
     pinst->imad = INVALID_MAD_REF;
     pinst->vrt_count = 0;
 
     // set the initial cache parameters
-    chr_instance_clear_cache( pinst );
+    chr_instance_clear_cache(pinst);
 
     // Set up initial fade in lighting
     pinst->color_amb = 0;
-    for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
-    {
-        pinst->vrt_lst[cnt].color_dir = 0;
+    for (size_t i = 0; i < pinst->vrt_count; ++i) {
+        pinst->vrt_lst[i].color_dir = 0;
     }
 
     // clear out the matrix cache
@@ -1919,58 +1918,58 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
 	pinst->matrix = fmat_4x4_t::identity();
 
     // set the animation state
-    pinst->rate         = 1.0f;
-    pinst->action_next  = ACTION_DA;
+	pinst->rate = 1.0f;
+	pinst->action_next = ACTION_DA;
     pinst->action_ready = true;                     // argh! this must be set at the beginning, script's spawn animations do not work!
-    pinst->frame_lst    = 0;
-    pinst->frame_nxt    = 0;
+	pinst->frame_lst = 0;
+	pinst->frame_nxt = 0;
 
     // the vlst_cache parameters are not valid
     pinst->save.valid = false;
 
     // set the update frame to an invalid value
-    pinst->update_frame        = -1;
-    pinst->lighting_update_wld = -1;
-    pinst->lighting_frame_all  = -1;
+	pinst->update_frame = -1;
+	pinst->lighting_update_wld = -1;
+	pinst->lighting_frame_all = -1;
 
     return pinst;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_free( chr_instance_t * pinst )
+gfx_rv chr_instance_t::dealloc(chr_instance_t *pinst)
 {
-    if ( NULL == pinst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+	if (!pinst) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
         return gfx_error;
     }
 
-    EGOBOO_DELETE_ARY( pinst->vrt_lst );
+	EGOBOO_DELETE_ARY(pinst->vrt_lst);
     pinst->vrt_count = 0;
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
+gfx_rv chr_instance_t::alloc(chr_instance_t *pinst, size_t vlst_size)
 {
-    if ( NULL == pinst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+    if (!pinst) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
         return gfx_error;
     }
 
-    chr_instance_free( pinst );
+	chr_instance_t::dealloc(pinst);
 
-    if ( 0 == vlst_size ) return gfx_success;
+	if (0 == vlst_size) {
+		return gfx_success;
+	}
 
-    pinst->vrt_lst = EGOBOO_NEW_ARY( GLvertex, vlst_size );
-    if ( NULL != pinst->vrt_lst )
+	pinst->vrt_lst = EGOBOO_NEW_ARY(GLvertex, vlst_size);
+	if (pinst->vrt_lst)
     {
         pinst->vrt_count = vlst_size;
     }
 
-    return ( NULL != pinst->vrt_lst ) ? gfx_success : gfx_fail;
+	return pinst->vrt_lst ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2012,7 +2011,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     if ( pinst->vrt_count != vlst_size )
     {
         updated = true;
-        chr_instance_alloc( pinst, vlst_size );
+		chr_instance_t::alloc(pinst, vlst_size);
     }
 
     // set the frames to frame 0 of this object's data
@@ -2098,7 +2097,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     bluesave  = pinst->blushift;
 
     // clear the instance
-    chr_instance_ctor( pinst );
+    chr_instance_t::ctor( pinst );
 
     const std::shared_ptr<ObjectProfile> &pobj = ProfileSystem::get().getProfile(profile);
     if(!pobj) {

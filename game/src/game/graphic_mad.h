@@ -239,10 +239,14 @@ struct chr_instance_t
     // FACING_T       light_turn_z;    ///< Character's light rotation 0 to 0xFFFF
     // Uint8          lightlevel_amb;  ///< 0-255, terrain light
     // Uint8          lightlevel_dir;  ///< 0-255, terrain light
-};
 
-chr_instance_t * chr_instance_ctor( chr_instance_t * pinst );
-chr_instance_t * chr_instance_dtor( chr_instance_t * pinst );
+	static chr_instance_t *ctor(chr_instance_t *self);
+	static chr_instance_t *dtor(chr_instance_t *self);
+
+public: /* TOOD: Should be private. */
+	static gfx_rv alloc(chr_instance_t *self, size_t vlst_size);
+	static gfx_rv dealloc(chr_instance_t *self);
+};
 
 gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin );
 gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
