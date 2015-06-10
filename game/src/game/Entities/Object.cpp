@@ -1074,7 +1074,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     {
         // play the "killed" animation...
         chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
-        chr_instance_set_action_keep( &( inst ), true );
+        chr_instance_t::set_action_keep(&(inst), true);
     }
 
     // Set the positions
@@ -1122,7 +1122,7 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     vel[kZ] = DROPZVEL;
 
     // Turn looping off
-    chr_instance_set_action_loop( &( inst ), false );
+    chr_instance_t::set_action_loop(&(inst), false);
 
     // Reset the team if it is a mount
     if ( pholder->isMount() )
@@ -1193,13 +1193,13 @@ bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
     {
         // the object is dead. play the killed animation and make it freeze there
         chr_play_action( this, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
-        chr_instance_set_action_keep( &inst, true );
+        chr_instance_t::set_action_keep(&inst, true);
     }
     else
     {
         // play the jump animation, and un-keep it
         chr_play_action( this, ACTION_JA, true );
-        chr_instance_set_action_keep( &inst, false );
+        chr_instance_t::set_action_keep(&inst, false);
     }
 
     chr_update_matrix( this, true );
@@ -1399,7 +1399,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
     // Play the death animation
     int action = Random::next((int)ACTION_KA, ACTION_KA + 3);
     chr_play_action(this, action, false);
-    chr_instance_set_action_keep(&inst, true);
+    chr_instance_t::set_action_keep(&inst, true);
 
     // Give kill experience
     uint16_t experience = getProfile()->getExperienceValue() + (this->experience * getProfile()->getExperienceExchangeRate());

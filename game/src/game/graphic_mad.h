@@ -243,6 +243,11 @@ struct chr_instance_t
 	static chr_instance_t *ctor(chr_instance_t *self);
 	static chr_instance_t *dtor(chr_instance_t *self);
 
+	static gfx_rv set_action_keep(chr_instance_t *self, bool val);
+	static gfx_rv set_action_ready(chr_instance_t *self, bool val);
+	static gfx_rv set_action_loop(chr_instance_t *self, bool val);
+	static gfx_rv set_action_next(chr_instance_t *self, int val);
+
 public: /* TOOD: Should be private. */
 	static gfx_rv alloc(chr_instance_t *self, size_t vlst_size);
 	static gfx_rv dealloc(chr_instance_t *self);
@@ -270,10 +275,6 @@ BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
 
 gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override );
 
-gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool val );
-gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool val );
-gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool val );
-gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
 
 gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex );
 

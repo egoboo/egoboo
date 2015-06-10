@@ -2206,11 +2206,10 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool val )
+gfx_rv chr_instance_t::set_action_keep(chr_instance_t *pinst, bool val)
 {
-    if ( NULL == pinst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+    if (!pinst) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
         return gfx_error;
     }
 
@@ -2220,11 +2219,10 @@ gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool val )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool val )
+gfx_rv chr_instance_t::set_action_ready(chr_instance_t *pinst, bool val)
 {
-    if ( NULL == pinst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+    if (!pinst) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
         return gfx_error;
     }
 
@@ -2234,11 +2232,10 @@ gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool val )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool val )
+gfx_rv chr_instance_t::set_action_loop(chr_instance_t *pinst, bool val)
 {
-    if ( NULL == pinst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+	if (!pinst) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
         return gfx_error;
     }
 
@@ -2248,15 +2245,16 @@ gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool val )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val )
+gfx_rv chr_instance_t::set_action_next(chr_instance_t *pinst, int val)
 {
-    if ( NULL == pinst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+	if (!pinst) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
         return gfx_error;
     }
 
-    if ( val < 0 || val > ACTION_COUNT ) return gfx_fail;
+	if (val < 0 || val > ACTION_COUNT) {
+		return gfx_fail;
+	}
 
     pinst->action_next = val;
 

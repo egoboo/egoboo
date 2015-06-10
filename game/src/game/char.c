@@ -669,7 +669,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         }
 
         // set tehis action to loop
-        chr_instance_set_action_loop( &( prider->inst ), true );
+        chr_instance_t::set_action_loop(&(prider->inst), true);
     }
     else if ( prider->alive )
     {
@@ -683,7 +683,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         if ( prider->isitem )
         {
             // Item grab
-            chr_instance_set_action_keep( &( prider->inst ), true );
+            chr_instance_t::set_action_keep(&(prider->inst), true);
         }
     }
 
@@ -2474,9 +2474,9 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     chr_update_matrix( pchr, true );
 
     // Action stuff that must be down after chr_instance_spawn()
-    chr_instance_set_action_ready( &( pchr->inst ), false );
-    chr_instance_set_action_keep( &( pchr->inst ), false );
-    chr_instance_set_action_loop( &( pchr->inst ), false );
+    chr_instance_t::set_action_ready(&(pchr->inst), false);
+    chr_instance_t::set_action_keep(&(pchr->inst), false);
+    chr_instance_t::set_action_loop(&(pchr->inst), false);
     if ( pchr->alive )
     {
         chr_play_action( pchr, ACTION_DA, false );
@@ -2484,7 +2484,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     else
     {
         chr_play_action( pchr, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
-        chr_instance_set_action_keep( &( pchr->inst ), true );
+        chr_instance_t::set_action_keep(&(pchr->inst), true);
     }
 
     // Set the skin after changing the model in chr_instance_spawn()
@@ -4653,7 +4653,7 @@ float set_character_animation_rate( Object * pchr )
             }
 
             // "loop" the action
-            chr_instance_set_action_next( pinst, tmp_action );
+            chr_instance_t::set_action_next(pinst, tmp_action);
         }
     }
 
