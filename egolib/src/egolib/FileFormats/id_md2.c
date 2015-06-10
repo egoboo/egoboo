@@ -59,12 +59,16 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
         mdl = ( id_md2_model_t* )calloc( 1, sizeof( id_md2_model_t ) );
     }
 
-    if ( NULL == mdl ) return NULL;
+    if ( NULL == mdl ) {
+        fclose(fp);
+        return NULL;
+    }
 
     /* Read header */
     if(fread( &mdl->header, 1, sizeof( id_md2_header_t ), fp ) != sizeof(id_md2_header_t)) {
         fprintf(stderr, "Error: Unexpected EOF when reading header\n");
         fclose(fp);
+        free(mdl);
         return nullptr;
     }
 
@@ -74,7 +78,8 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
         /* Error! */
         fprintf( stderr, "Error: bad version or identifier\n" );
         fclose( fp );
-        return 0;
+        free(mdl);
+        return nullptr;
     }
 
     /* Memory allocations */
@@ -89,6 +94,7 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
     if(fread( mdl->skins, sizeof(id_md2_skin_t), mdl->header.num_skins, fp ) != sizeof(id_md2_skin_t)) {
         fprintf(stderr, "Error: skin data corrupted\n");
         fclose(fp);
+        free(mdl);
         return nullptr;
     }
 
@@ -96,6 +102,7 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
     if(fread( mdl->texcoords, sizeof(id_md2_texcoord_t), mdl->header.num_st, fp ) != sizeof(id_md2_texcoord_t)) {
         fprintf(stderr, "Error: texture coordinates corrupted\n");
         fclose(fp);
+        free(mdl);
         return nullptr;
     }
 
@@ -103,6 +110,7 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
     if(fread( mdl->triangles, sizeof(id_md2_triangle_t), mdl->header.num_tris, fp ) != sizeof(id_md2_triangle_t)) {
         fprintf(stderr, "Error: triangles corrupted\n");
         fclose(fp);
+        free(mdl);
         return nullptr;
     }
 
@@ -110,6 +118,7 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
     if(fread( mdl->glcmds, sizeof(int32_t), mdl->header.size_glcmds, fp ) != sizeof(int32_t)) {
         fprintf(stderr, "Error: GL commands corrupted\n");
         fclose(fp);
+        free(mdl);
         return nullptr;
     }
 
@@ -130,6 +139,7 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
         if(read != sizeof(float) + sizeof(float) +  sizeof(char) + sizeof(id_md2_vertex_t)) {
             fprintf(stderr, "Error: Frame data corrupted\n");
             fclose(fp);
+            free(mdl);
             return nullptr;            
         }
     }

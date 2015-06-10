@@ -144,10 +144,7 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
 /// one element of the data for partitioning character and particle positions
 struct bumplist_t
 {
-    size_t chrnum;                  // Number on the block
     CHR_REF chr;                    // For character collisions
-
-    size_t prtnum;                  // Number on the block
     CHR_REF prt;                    // For particle collisions
 };
 
