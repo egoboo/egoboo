@@ -1577,41 +1577,39 @@ gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[],
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool action_ready, bool override_action )
+gfx_rv chr_instance_t::set_action(chr_instance_t *pinst, int action, bool action_ready, bool override_action)
 {
-    int action_old;
-    mad_t * pmad;
-
     // did we get a bad pointer?
-    if ( NULL == pinst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+	if (!pinst) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pinst");
         return gfx_error;
     }
 
     // is the action in the valid range?
-    if ( action < 0 || action > ACTION_COUNT )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, action, "invalid action range" );
+	if (action < 0 || action > ACTION_COUNT) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, action, "invalid action range");
         return gfx_error;
     }
 
     // do we have a valid model?
-    if ( !LOADED_MAD( pinst->imad ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+	if (!LOADED_MAD(pinst->imad)) {
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad");
         return gfx_error;
     }
-    pmad = MadStack.get_ptr( pinst->imad );
+	mad_t *pmad = MadStack.get_ptr(pinst->imad);
 
     // is the chosen action valid?
-    if ( !pmad->action_valid[ action ] ) return gfx_fail;
+	if (!pmad->action_valid[action]) {
+		return gfx_fail;
+	}
 
     // are we going to check action_ready?
-    if ( !override_action && !pinst->action_ready ) return gfx_fail;
+	if (!override_action && !pinst->action_ready) {
+		return gfx_fail;
+	}
 
     // save the old action
-    action_old = pinst->action_which;
+	int action_old = pinst->action_which;
 
     // set up the action
     pinst->action_which = action;
@@ -1619,8 +1617,7 @@ gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool action_
     pinst->action_ready = action_ready;
 
     // invalidate the vertex list if the action has changed
-    if ( action_old != action )
-    {
+	if (action_old != action) {
         pinst->save.valid = false;
     }
 
@@ -1683,7 +1680,7 @@ gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, boo
         return gfx_error;
     }
 
-    retval = chr_instance_set_action( pinst, action, action_ready, override_action );
+    retval = chr_instance_t::set_action(pinst, action, action_ready, override_action);
     if ( gfx_success != retval ) return retval;
 
     retval = chr_instance_set_frame( pinst, frame );
@@ -1719,7 +1716,7 @@ gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_increment_action( chr_instance_t * pinst )
+gfx_rv chr_instance_t::increment_action( chr_instance_t * pinst )
 {
     /// @author BB
     /// @details This function starts the next action for a character
@@ -1815,7 +1812,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
             frame_nxt = pmad->action_end[pinst->action_which];
 
             // Go on to the next action. don't let just anything interrupt it?
-            chr_instance_increment_action( pinst );
+            chr_instance_t::increment_action(pinst);
 
             // chr_instance_increment_action() actually sets this value properly. just grab the new value.
             frame_nxt = pinst->frame_nxt;
@@ -1831,7 +1828,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool action_ready )
+gfx_rv chr_instance_t::play_action( chr_instance_t * pinst, int action, bool action_ready )
 {
     /// @author ZZ
     /// @details This function starts a generic action for a character
@@ -2125,7 +2122,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     chr_instance_set_mad( pinst, pobj->getModelRef() );
 
     // set the initial action, all actions override it
-    chr_instance_play_action( pinst, ACTION_DA, true );
+    chr_instance_t::play_action(pinst, ACTION_DA, true);
 
     // upload these parameters to the reflection cache, but don't compute the matrix
     chr_instance_update_ref( pinst, 0, false );

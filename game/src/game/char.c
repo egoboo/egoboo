@@ -5469,7 +5469,7 @@ egolib_rv chr_set_action( Object * pchr, int action, bool action_ready, bool ove
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_set_action( &( pchr->inst ), action, action_ready, override_action );
+	retval = (egolib_rv)chr_instance_t::set_action(&(pchr->inst), action, action_ready, override_action);
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -5526,7 +5526,7 @@ egolib_rv chr_increment_action( Object * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_increment_action( &( pchr->inst ) );
+	retval = (egolib_rv)chr_instance_t::increment_action(&(pchr->inst));
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -5614,7 +5614,7 @@ egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_play_action( &( pchr->inst ), action, action_ready );
+	retval = (egolib_rv)chr_instance_t::play_action(&(pchr->inst), action, action_ready);
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object

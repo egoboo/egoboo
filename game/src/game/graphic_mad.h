@@ -243,10 +243,13 @@ struct chr_instance_t
 	static chr_instance_t *ctor(chr_instance_t *self);
 	static chr_instance_t *dtor(chr_instance_t *self);
 
+	static gfx_rv increment_action(chr_instance_t *self);
+	static gfx_rv play_action(chr_instance_t *self, int action, bool actionready);
 	static gfx_rv set_action_keep(chr_instance_t *self, bool val);
 	static gfx_rv set_action_ready(chr_instance_t *self, bool val);
 	static gfx_rv set_action_loop(chr_instance_t *self, bool val);
 	static gfx_rv set_action_next(chr_instance_t *self, int val);
+	static gfx_rv set_action(chr_instance_t *pinst, int action, bool action_ready, bool override_action);
 
 public: /* TOOD: Should be private. */
 	static gfx_rv alloc(chr_instance_t *self, size_t vlst_size);
@@ -262,13 +265,10 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst );
 gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool force );
 gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count );
 
-gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool action_ready, bool override_action );
 gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_ready, bool override_action );
 gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool action_ready, bool override_action );
 
-gfx_rv chr_instance_increment_action( chr_instance_t * pinst );
 gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action );
-gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool actionready );
 
 gfx_rv    chr_instance_remove_interpolation( chr_instance_t * pinst );
 BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
