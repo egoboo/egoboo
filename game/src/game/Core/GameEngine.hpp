@@ -146,6 +146,14 @@ public:
         return _uiManager;
     }
 
+    /**
+    * @brief
+    *   Get high resolution timestamp of when the GameEngine was booted with the start() function
+    **/
+    inline const std::chrono::high_resolution_clock::time_point& getBootTime() const {
+        return _startupTimestamp;
+    }
+
 private:
     /**
     * @brief
@@ -193,6 +201,7 @@ private:
     void renderPreloadText(const std::string &text);
 
 private:
+    std::chrono::high_resolution_clock::time_point _startupTimestamp;
     bool _isInitialized;
     bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
     uint32_t _updateTimeout;		///< Timestamp when updateOneFrame() should be run again

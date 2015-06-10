@@ -22,8 +22,8 @@
 /// @details This implementation was adapted from Noel Lopis' article in Game Programming Gems 4.
 
 #include "egolib/clock.h"
-#include "egolib/system.h"
 #include "egolib/log.h"
+#include "game/Core/GameEngine.hpp"
 
 // this include must be the absolute last include
 #include "egolib/mem.h"
@@ -37,8 +37,8 @@ struct ClockState_t
     // Clock data
     char *name;
 
-    double sourceStartTime;  // The first value the clock receives from above function
-    double sourceLastTime;  // The last value the clock received from above function
+    std::chrono::high_resolution_clock::time_point sourceStartTime;  // The first value the clock receives from above function
+    std::chrono::high_resolution_clock::time_point sourceLastTime;  // The last value the clock received from above function
     double currentTime;   // The current time, not necessarily in sync w/ the source time
     double frameTime;   // The time this frame takes
     Uint32 frameNumber; // Which frame the clock is on
@@ -54,48 +54,21 @@ struct ClockState_t
 
 static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window_size);
 static void clk_dtor(ClockState_t *self);
-//static int clk_setFrameHistoryWindow(ClockState_t *self,size_t new_window_size);
 
 static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
 static double clk_getExactLastFrameDuration( ClockState_t * cs );
 static double clk_guessFrameDuration(const ClockState_t *self);
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static clock_source_ptr_t _clock_timeSource = NULL;
-
-static clock_source_ptr_t clock_getTimeSource( void )
-{
-    if ( NULL == _clock_timeSource )
-    {
-        clk_setTimeSource( sys_getTime );
-    }
-
-    return _clock_timeSource;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void clk_setTimeSource( clock_source_ptr_t tsrc )
-{
-    if ( NULL != tsrc )
-    {
-        _clock_timeSource = tsrc;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void clk_init( void )
 {
     log_info( "Initializing clock services...\n" );
-
-    clock_getTimeSource();
 }
 
 //--------------------------------------------------------------------------------------------
 void clk_shutdown( void )
 {
-    _clock_timeSource = NULL;
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -126,18 +99,15 @@ void clk_destroy(ClockState_t *self)
 static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window_size)
 {
 	EGOBOO_ASSERT(NULL != self && NULL != name && window_size > 0);
-    clock_source_ptr_t psrc;
     BLANK_STRUCT_PTR(self)
 
-    psrc = clock_getTimeSource();
-    self->sourceStartTime = psrc();
+    self->sourceStartTime = std::chrono::high_resolution_clock::now();
     self->sourceLastTime  = self->sourceStartTime;
 
     self->maximumFrameTime = 0.2;
 	self->name = strdup(name);
 	if (!self->name)
 	{
-		/* @todo Do we have to release psrc? */
 		return NULL;
 	}
 	self->frameHistoryHead = 0;
@@ -146,7 +116,7 @@ static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window
 	{
 		free(self->name);
 		self->name = NULL;
-		return NULL; /* @todo Do we have to release psrc? */
+		return NULL;
 	}
 	self->frameHistoryWindow = window_size;
     return self;
@@ -164,64 +134,12 @@ static void clk_dtor(ClockState_t *self)
 //--------------------------------------------------------------------------------------------
 ClockState_t *clk_renew(ClockState_t *self)
 {
-	clock_source_ptr_t psrc = clock_getTimeSource();
-	self->sourceStartTime = psrc();
+	self->sourceStartTime = std::chrono::high_resolution_clock::now();
 	self->sourceLastTime = self->sourceStartTime;
 	self->maximumFrameTime = 0.2;
 	self->frameHistoryHead = 0;
 	return self;
 }
-
-//--------------------------------------------------------------------------------------------
-/**
- * @brief
- *	Set the frame history window size.
- * @param self
- *	the clock
- * @param new_window_size
- *	the new frame history window size
- * @return
- *	@a 0 on success, a non-zero value on faiure
- * @pre
- *	new_window_size > 0
- * @post
- *	If this function fails, the state of the clock is not observably modified.
- */
- #if 0
-int clk_setFrameHistoryWindow(ClockState_t *self,size_t new_window_size)
-{
-	EGOBOO_ASSERT(NULL != self && new_window_size > 0);
-    double *history;
-    size_t old_window_size;
-
-    // Save the old size of the array
-    old_window_size = self->frameHistoryWindow;
-
-    // create the new array
-    history = EGOBOO_NEW_ARY(double, new_window_size);
-	if (!history)
-	{
-		return 1;
-	}
-	EGOBOO_ASSERT(NULL != history);
-	memset(history, 0, sizeof(double) * new_window_size);
-
-	EGOBOO_ASSERT(NULL != self->frameHistory);
-	size_t smaller; /* @todo Use std::min. */
-
-	// Copy over the older history. 
-	// Make sure that only the size of the smaller buffer is copied
-	smaller = (new_window_size < old_window_size) ? new_window_size : old_window_size;
-    memcpy(history, self->frameHistory, smaller);
-
-    EGOBOO_DELETE_ARY(self->frameHistory);
-
-    self->frameHistoryHead   = 0;
-    self->frameHistory       = history;
-    self->frameHistoryWindow = new_window_size;
-	return 0;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 
@@ -275,21 +193,10 @@ void clk_addToFrameHistory(ClockState_t *self,double frame_duration)
 //--------------------------------------------------------------------------------------------
 double clk_getExactLastFrameDuration( ClockState_t * cs )
 {
-    clock_source_ptr_t psrc;
-    double sourceTime;
-    double timeElapsed;
+    auto sourceTime = std::chrono::high_resolution_clock::now();
 
-    psrc = clock_getTimeSource();
-    if ( NULL != psrc )
-    {
-        sourceTime = psrc();
-    }
-    else
-    {
-        sourceTime = 0;
-    }
+    double timeElapsed = std::chrono::duration_cast<std::chrono::duration<double>>(sourceTime - cs->sourceLastTime).count();
 
-    timeElapsed = sourceTime - cs->sourceLastTime;
     // If more time elapsed than the maximum we allow, say that only the maximum occurred
     if ( timeElapsed > cs->maximumFrameTime )
     {

@@ -45,6 +45,7 @@ const uint32_t GameEngine::MAX_FRAMESKIP;
 const std::string GameEngine::GAME_VERSION = "2.9.0";
 
 GameEngine::GameEngine() :
+    _startupTimestamp(),
 	_isInitialized(false),
 	_terminateRequested(false),
 	_updateTimeout(0),
@@ -75,10 +76,11 @@ void GameEngine::shutdown()
 }
 
 void GameEngine::start()
-{
+{    
     initialize();
 
     //Initialize clock timeout	
+    _startupTimestamp = std::chrono::high_resolution_clock::now();
     _updateTimeout = SDL_GetTicks() + DELAY_PER_UPDATE_FRAME;
     _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
 

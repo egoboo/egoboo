@@ -27,7 +27,6 @@
 #include "egolib/strutil.h"
 #include "egolib/egoboo_setup.h"
 #include "egolib/platform.h"
-#include "egolib/system.h"
 #include "egolib/vfs.h"
 
 #ifdef __WINDOWS__
