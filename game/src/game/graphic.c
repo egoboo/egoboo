@@ -2873,7 +2873,7 @@ int by_element_cmp(const void *lhs, const void *rhs)
     {
         retval = 1;
     }
-    else if (NULL != loc_lhs && NULL == loc_rhs)
+    else if (NULL == loc_rhs)
     {
         retval = -1;
     }
@@ -2950,10 +2950,9 @@ gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rl
         }
         else
         {
-            int img = ~0;
             const ego_tile_info_t * ptile = tlst + rlst->lst[cnt].index;
 
-            img = TILE_GET_LOWER_BITS(ptile->img);
+            int img = TILE_GET_LOWER_BITS(ptile->img);
             if (ptile->type >= tile_dict.offset)
             {
                 img += MESH_IMG_COUNT;
@@ -3754,7 +3753,7 @@ gfx_rv render_world_background(Camera& cam, const TX_REF texture)
     GLvertex vtlist[4];
     int i;
     float z0, Qx, Qy;
-    float light = 1.0f, intens = 1.0f, alpha = 1.0f;
+    float intens = 1.0f;
 
     float xmag, Cx_0, Cx_1;
     float ymag, Cy_0, Cy_1;
@@ -3820,8 +3819,8 @@ gfx_rv render_world_background(Camera& cam, const TX_REF texture)
     vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
     vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
 
-    light = water.light ? 1.0f : 0.0f;
-    alpha = ilayer->alpha * INV_FF;
+    float light = water.light ? 1.0f : 0.0f;
+    float alpha = ilayer->alpha * INV_FF;
 
     if (gfx.usefaredge)
     {
@@ -4395,23 +4394,19 @@ gfx_rv gfx_load_bars()
     /// @author ZZ
     /// @details This function loads the status bar bitmap
 
-    const char * pname = "";
-    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
-    pname = "mp_data/bars";
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_BARS);
-    if (!VALID_TX_RANGE(load_rv))
+    const char *barFile = "mp_data/bars";
+    if (!VALID_TX_RANGE(TextureManager::get().load(barFile, (TX_REF)TX_BARS)))
     {
-        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname);
+        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, barFile);
         retval = gfx_fail;
     }
 
-    pname = "mp_data/xpbar";
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_XP_BAR);
-    if (!VALID_TX_RANGE(load_rv))
+    const char *xpBarFile = "mp_data/xpbar";
+    if (!VALID_TX_RANGE(TextureManager::get().load(xpBarFile, (TX_REF)TX_XP_BAR)))
     {
-        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname);
+        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, xpBarFile);
         retval = gfx_fail;
     }
 
@@ -4425,7 +4420,6 @@ gfx_rv gfx_load_map()
     /// @details This function loads the map bitmap
 
     const char* szMap = "mp_data/plan";
-    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
     // Turn it all off
@@ -4434,8 +4428,7 @@ gfx_rv gfx_load_map()
     blip_count = 0;
 
     // Load the images
-    load_rv = TextureManager::get().load(szMap, (TX_REF)TX_MAP);
-    if (!VALID_TX_RANGE(load_rv))
+    if (!VALID_TX_RANGE(TextureManager::get().load(szMap, (TX_REF)TX_MAP)))
     {
         log_debug("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap);
         retval = gfx_fail;
@@ -4457,11 +4450,9 @@ gfx_rv gfx_load_blips()
     /// @details This function loads the blip bitmaps
 
     const char * pname = "mp_data/blip";
-    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_BLIP);
-    if (!VALID_TX_RANGE(load_rv))
+    if (!VALID_TX_RANGE(TextureManager::get().load(pname, (TX_REF)TX_BLIP)))
     {
         log_warning("%s - Blip bitmap not loaded! (\"%s\")\n", __FUNCTION__, pname);
         retval = gfx_fail;
@@ -4474,11 +4465,9 @@ gfx_rv gfx_load_blips()
 gfx_rv gfx_load_icons()
 {
     const char * pname = "mp_data/nullicon";
-    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_ICON_NULL);
-    if (!VALID_TX_RANGE(load_rv))
+    if (!VALID_TX_RANGE(TextureManager::get().load(pname, (TX_REF)TX_ICON_NULL)))
     {
         log_warning("%s - cannot load \"empty hand\" icon! (\"%s\")\n", __FUNCTION__, pname);
         retval = gfx_fail;

@@ -915,14 +915,13 @@ bool chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const
     // Require player to have specific quest?
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
-        int quest_level = QUEST_NONE;
         player_t * ppla = PlaStack.get_ptr( ptst->is_which_player );
-
-        quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
 
         // find only active quests?
         // this makes it backward-compatible with zefz's version
-        if ( quest_level < 0 ) return false;
+        if ( quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz ) < 0 ) {
+            return false;
+        }
     }
 
     is_hated = psrc->getTeam().hatesTeam(ptst->getTeam());
@@ -2465,26 +2464,22 @@ egolib_rv game_load_global_assets()
     // load a bunch of assets that are used in the module
 
     egolib_rv retval = rv_success;
-    gfx_rv load_rv = gfx_success;
-
-    load_rv = gfx_load_blips();
-    switch ( load_rv )
+    
+    switch ( gfx_load_blips() )
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
         default: /*nothing*/ break;
     }
 
-    load_rv = gfx_load_bars();
-    switch ( load_rv )
+    switch ( gfx_load_bars() )
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
         default: /*nothing*/ break;
     }
 
-    load_rv = gfx_load_icons();
-    switch ( load_rv )
+    switch ( gfx_load_icons() )
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
@@ -3432,9 +3427,10 @@ bool upload_fog_data( fog_instance_t * pinst, const wawalite_fog_t * pdata )
         pinst->red    = pdata->red * 0xFF;
         pinst->grn    = pdata->grn * 0xFF;
         pinst->blu    = pdata->blu * 0xFF;
+
+        pinst->distance = ( pdata->top - pdata->bottom );
     }
 
-    pinst->distance = ( pdata->top - pdata->bottom );
     pinst->on       = ( pinst->distance < 1.0f ) && pinst->on;
 
     return true;

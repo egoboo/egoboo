@@ -722,7 +722,7 @@ gfx_rv prt_instance_update_vertices(Camera& camera, prt_instance_t *pinst, prt_t
 
         // Force "up" to be close to the camera forward, but horizontal.
         vup = vert.cross(vright);
-        vup_ref = vert.cross(vright_ref);
+        //vup_ref = vert.cross(vright_ref); //TODO: JJ> is this needed?
 
         // Normalize them.
         vright.normalize();

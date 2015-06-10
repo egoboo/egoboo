@@ -764,7 +764,7 @@ void drop_keys( const CHR_REF character )
 
         // fix the attachments
         pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pkey->dismount_object        = GET_INDEX_PCHR( pchr );
+        pkey->dismount_object        = pchr->getCharacterID();
         pkey->onwhichplatform_ref    = pchr->onwhichplatform_ref;
         pkey->onwhichplatform_update = pchr->onwhichplatform_update;
 
@@ -841,7 +841,7 @@ bool drop_all_items( const CHR_REF character )
 
         // fix the attachments
         pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-        pitem->dismount_object        = GET_INDEX_PCHR(pchr);
+        pitem->dismount_object        = pchr->getCharacterID();
         pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
         pitem->onwhichplatform_update = pchr->onwhichplatform_update;
 
@@ -3174,12 +3174,11 @@ void move_one_character_do_voluntary( Object * pchr )
 
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) ) return;
 
-    float dvx = 0.0f, dvy = 0.0f;
     float new_ax = 0.0f, new_ay = 0.0f;
 
     // Character latches for generalized movement
-    dvx = pchr->latch.x;
-    dvy = pchr->latch.y;
+    float dvx = pchr->latch.x;
+    float dvy = pchr->latch.y;
 
     // Reverse movements for daze
     if ( pchr->daze_timer > 0 )
@@ -4008,12 +4007,10 @@ bool move_one_character_integrate_motion( Object * pchr )
         if ( tmp_pos[kZ] < 0.0f ) tmp_pos[kZ] = 0.0f;  // Don't fall in pits...
     }
 
-    updated_2d = false;
-    needs_test = false;
-
     // interaction with the grid flags
     updated_2d = false;
     needs_test = false;
+
     //if (std::abs(pchr->vel[kX]) + std::abs(pchr->vel[kY]) > 0.0f)
     {
         mesh_wall_data_t wdata;
@@ -4879,11 +4876,7 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
 //--------------------------------------------------------------------------------------------
 grip_offset_t slot_to_grip_offset( slot_t slot )
 {
-    int retval = GRIP_ORIGIN;
-
-    retval = ( slot + 1 ) * GRIP_VERTS;
-
-    return ( grip_offset_t )retval;
+    return static_cast<grip_offset_t>((slot+1) * GRIP_VERTS);
 }
 
 //--------------------------------------------------------------------------------------------

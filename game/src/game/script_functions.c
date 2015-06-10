@@ -7356,10 +7356,9 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) && 0 != pstate->distance )
     {
-        int        quest_level = QUEST_NONE;
         player_t * ppla        = PlaStack.get_ptr( ipla );
 
-        quest_level = quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        int quest_level = quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
 
         returncode = QUEST_NONE != quest_level;
     }

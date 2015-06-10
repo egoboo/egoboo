@@ -350,7 +350,12 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     }
     penc = EnchantHandler::get().get_ptr(enc_ref);
 
-    if (NULL != penc && penc->isAllocated())
+    if(penc == nullptr) {
+        log_error("spawn_one_enchant() - nullptr de-reference");
+        return INVALID_ENC_REF;
+    }
+
+    if (penc->isAllocated())
     {
         if (!penc->spawning)
         {

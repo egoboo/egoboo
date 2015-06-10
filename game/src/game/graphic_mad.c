@@ -1678,9 +1678,6 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, mad_t *pmad, const 
         }
         else
         {
-            // make sure that the frame_nxt points to a valid frame in this action
-			frame_nxt = pmad->action_end[self.action_which];
-
             // Go on to the next action. don't let just anything interrupt it?
 			chr_instance_t::increment_action(self);
 
