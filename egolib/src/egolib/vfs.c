@@ -3112,7 +3112,7 @@ bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length
         size_t pos = 0;
         size_t bufferSize = 1024;
         char *buffer = (char *) malloc(bufferSize);
-        if (nullptr == buffer)
+        if (buffer == nullptr)
         {
             vfs_close(file);
             return false;
@@ -3130,7 +3130,7 @@ bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length
             if (vfs_eof(file)) break;
             if (0 == read) continue;
             char *newBuffer = (char *)realloc(buffer, pos + 1024);
-            if (nullptr == newBuffer)
+            if (newBuffer == nullptr)
             {
                 free(buffer);
                 vfs_close(file);
@@ -3145,7 +3145,7 @@ bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length
     {
         size_t pos = 0;
         char *buffer = (char *) malloc(fileLen);
-        if (nullptr == buffer)
+        if (buffer == nullptr)
         {
             vfs_close(file);
             return false;

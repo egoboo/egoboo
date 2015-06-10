@@ -1022,24 +1022,24 @@ bool fill_bumplists()
 		{
 			size_t free, used;
 			getChrBSP()->getStats(free, used);
-			std::ostringstream s;
-			s << __FILE__ << ":" << __LINE__ << ": "
+			std::ostringstream msg = "";
+			msg << __FILE__ << ":" << __LINE__ << ": "
 				<< "pruned: " << pruned << ", "
 			    << "free:   " << free << ", "
 				<< "used:   " << used << std::endl;
-			log_info("%s", s.str().c_str());
+			log_info("%s", msg.str().c_str());
 		}
         pruned = getPrtBSP()->prune();
 		/*if (pruned)*/
 		{
-			size_t free, used;
-			getPrtBSP()->getStats(free, used);
-			std::ostringstream s;
-			s << __FILE__ << ":" << __LINE__ << ": "
+			size_t numFree, used;
+			getPrtBSP()->getStats(numFree, used);
+			std::ostringstream msg = "";
+			msg << __FILE__ << ":" << __LINE__ << ": "
 				<< "pruned: " << pruned << ", "
-				<< "free:   " << free << ", "
+				<< "free:   " << numFree << ", "
 				<< "used:   " << used << std::endl;
-			log_info("%s", s.str().c_str());
+			log_info("%s", msg.str().c_str());
 		}
     }
 

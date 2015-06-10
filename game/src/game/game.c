@@ -1964,7 +1964,7 @@ void import_dir_profiles_vfs( const std::string &dirname )
 
     for (int cnt = 0; cnt < _currentModule->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
-        std::ostringstream pathFormat;
+        std::ostringstream pathFormat = "";
         pathFormat << dirname << "/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
 
         // Make sure the object exists...

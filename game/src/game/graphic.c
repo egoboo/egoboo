@@ -259,7 +259,7 @@ static gfx_rv gfx_update_flashing(dolist_t& dl);
 static gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold);
 static gfx_rv light_fans_update_lcache(renderlist_t& rl);
 static gfx_rv light_fans_update_clst(renderlist_t& rl);
-static bool sum_global_lighting(lighting_vector_t lighting);
+static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 static float calc_light_rotation(int rotation, int normal);
 static float calc_light_global(int rotation, int normal, float lx, float ly, float lz);
 
@@ -4857,7 +4857,7 @@ float get_ambient_level()
 }
 
 //--------------------------------------------------------------------------------------------
-bool sum_global_lighting(lighting_vector_t lighting)
+bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting)
 {
     /// @author BB
     /// @details do ambient lighting. if the module is inside, the ambient lighting
@@ -4866,8 +4866,6 @@ bool sum_global_lighting(lighting_vector_t lighting)
 
     int cnt;
     float glob_amb;
-
-    if (NULL == lighting) return false;
 
     glob_amb = get_ambient_level();
 
@@ -5012,7 +5010,7 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
     bool needs_dynalight;
     ego_mesh_t * pmesh;
 
-    lighting_vector_t global_lighting;
+    std::array<float, LIGHTING_VEC_SIZE> global_lighting = {0};
 
     size_t               reg_count = 0;
     dynalight_registry_t reg[TOTAL_MAX_DYNA];
