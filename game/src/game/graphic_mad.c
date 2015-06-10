@@ -68,16 +68,6 @@ static gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
 static void   chr_instance_clear_cache( chr_instance_t * pinst );
 static void chr_instance_interpolate_vertices_raw(GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
 
-// private vlst_cache_t methods
-static vlst_cache_t * vlst_cache_init( vlst_cache_t * );
-static gfx_rv         vlst_cache_test( vlst_cache_t *, chr_instance_t * );
-
-// private chr_reflection_cache_t methods
-static chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pcache );
-
-// private matrix_cache_t methods
-static matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
@@ -1679,7 +1669,7 @@ gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
     pinst->frame_lst = pinst->frame_nxt;
     pinst->frame_nxt = frame;
 
-    vlst_cache_test( &( pinst->save ), pinst );
+	vlst_cache_t::test(&(pinst->save), pinst);
 
     return gfx_success;
 }
@@ -1837,7 +1827,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
     pinst->frame_lst = frame_lst;
     pinst->frame_nxt = frame_nxt;
 
-    vlst_cache_test( &( pinst->save ), pinst );
+	vlst_cache_t::test(&(pinst->save), pinst);
 
     return gfx_success;
 }
@@ -1874,11 +1864,11 @@ void chr_instance_clear_cache( chr_instance_t * pinst )
     /// @details force chr_instance_update_vertices() recalculate the vertices the next time
     ///     the function is called
 
-    vlst_cache_init( &( pinst->save ) );
+	vlst_cache_t::init(&(pinst->save));
 
-    matrix_cache_init( &( pinst->matrix_cache ) );
+	matrix_cache_t::init(&(pinst->matrix_cache));
 
-    chr_reflection_cache_init( &( pinst->ref ) );
+	chr_reflection_cache_t::init(&(pinst->ref));
 
     pinst->lighting_update_wld = -1;
     pinst->lighting_frame_all  = -1;
@@ -1922,7 +1912,7 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
     }
 
     // clear out the matrix cache
-    matrix_cache_init( &( pinst->matrix_cache ) );
+	matrix_cache_t::init(&(pinst->matrix_cache));
 
     // the matrix should never be referenced if the cache is not valid,
     // but it never pays to have a 0 matrix...
@@ -2211,7 +2201,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
     pinst->flip       = ilip * 0.25f;
 
     // set the validity of the cache
-    vlst_cache_test( &( pinst->save ), pinst );
+	vlst_cache_t::test(&(pinst->save), pinst);
 
     return gfx_success;
 }
@@ -2289,7 +2279,7 @@ gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
         pinst->ilip      = 0;
         pinst->flip      = 0.0f;
 
-        vlst_cache_test( &( pinst->save ), pinst );
+		vlst_cache_t::test(&(pinst->save), pinst);
     }
 
     return gfx_success;
@@ -2331,7 +2321,7 @@ gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst )
     pinst->ilip += 1;
     pinst->flip = 0.25f * pinst->ilip;
 
-    vlst_cache_test( &( pinst->save ), pinst );
+	vlst_cache_t::test(&(pinst->save), pinst);
 
     return gfx_success;
 }
@@ -2351,7 +2341,7 @@ gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip )
     pinst->flip += dflip;
     pinst->ilip  = (( int )std::floor( pinst->flip * 4 ) ) % 4;
 
-    vlst_cache_test( &( pinst->save ), pinst );
+	vlst_cache_t::test(&(pinst->save), pinst);
 
     return gfx_success;
 }
@@ -2370,7 +2360,7 @@ float chr_instance_get_remaining_flip( chr_instance_t * pinst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pcache )
+chr_reflection_cache_t * chr_reflection_cache_t::init( chr_reflection_cache_t * pcache )
 {
     if ( NULL == pcache ) return pcache;
 
@@ -2384,7 +2374,7 @@ chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pca
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
+vlst_cache_t * vlst_cache_t::init( vlst_cache_t * pcache )
 {
     if ( NULL == pcache ) return NULL;
 
@@ -2397,7 +2387,7 @@ vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
+gfx_rv vlst_cache_t::test( vlst_cache_t * pcache, chr_instance_t * pinst )
 {
     if ( NULL == pcache )
     {
@@ -2433,7 +2423,7 @@ gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
+matrix_cache_t * matrix_cache_t::init( matrix_cache_t * mcache )
 {
     /// @author BB
     /// @details clear out the matrix cache data

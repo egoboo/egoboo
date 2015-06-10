@@ -99,6 +99,8 @@ struct matrix_cache_t
         //ctor
     }
 
+	static matrix_cache_t *init(matrix_cache_t * mcache);
+
     // is the cache data valid?
     bool valid;
 
@@ -144,6 +146,8 @@ struct chr_reflection_cache_t
     Uint8      blushift;
 
     Uint32     update_wld;
+
+	static chr_reflection_cache_t *init(chr_reflection_cache_t * pcache);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -161,6 +165,8 @@ struct vlst_cache_t
     int    vmin;              ///< the minimum clean vertex the last time the vertices were updated
     int    vmax;              ///< the maximum clean vertex the last time the vertices were updated
     Uint32 vert_wld;          ///< the update_wld the last time the vertices were updated
+	static vlst_cache_t *init(vlst_cache_t *self);
+	static gfx_rv test(vlst_cache_t *self, chr_instance_t *instance);
 };
 
 //--------------------------------------------------------------------------------------------
