@@ -1042,8 +1042,8 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
                 // the offset list needs to be shifted depending on what i is
                 j = ( 6 - i ) % 4;
 
-                if ( 1 == ix_off[3-j] ) dx = -1; else dx = 0;
-                if ( 1 == iy_off[3-j] ) dy = -1; else dy = 0;
+                if ( 1 == ix_off[4-j] ) dx = -1; else dx = 0;
+                if ( 1 == iy_off[4-j] ) dy = -1; else dy = 0;
 
                 for ( k = 0; k < 4; k++ )
                 {
