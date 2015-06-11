@@ -59,12 +59,6 @@ static void draw_chr_bbox( Object * pchr );
 static gfx_rv render_one_mad_enviro( Camera& cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 static gfx_rv render_one_mad_tex( Camera& cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 
-// private chr_instance_t methods
-static gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool force, bool vertices_match, bool frames_match );
-static gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool *verts_match, bool *frames_match );
-static gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
-static void   chr_instance_clear_cache( chr_instance_t * pinst );
-static void chr_instance_interpolate_vertices_raw(GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1137,7 +1131,7 @@ gfx_rv chr_instance_t::update_bbox( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool *verts_match, bool *frames_match )
+gfx_rv chr_instance_t::needs_update( chr_instance_t * pinst, int vmin, int vmax, bool *verts_match, bool *frames_match )
 {
     /// @author BB
     /// @details determine whether some specific vertices of an instance need to be updated
@@ -1205,7 +1199,7 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bo
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip )
+void chr_instance_t::interpolate_vertices_raw( GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip )
 {
     /// raw indicates no bounds checking, so be careful
 
@@ -1363,7 +1357,7 @@ gfx_rv chr_instance_t::update_vertices( chr_instance_t * pinst, int vmin, int vm
     else
     {
         // do we need to update?
-        retval = chr_instance_needs_update( pinst, vmin, vmax, &vertices_match, &frames_match );
+        retval = chr_instance_t::needs_update( pinst, vmin, vmax, &vertices_match, &frames_match );
         if ( gfx_error == retval ) return gfx_error;            // gfx_error == retval means some pointer or reference is messed up
         if ( gfx_fail  == retval ) return gfx_success;          // gfx_fail  == retval means we do not need to update this round
 
@@ -1408,21 +1402,21 @@ gfx_rv chr_instance_t::update_vertices( chr_instance_t * pinst, int vmin, int vm
     // interpolate the 1st dirty region
     if ( vdirty1_min >= 0 && vdirty1_max >= 0 )
     {
-        chr_instance_interpolate_vertices_raw( pinst->vrt_lst, lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip );
+        chr_instance_t::interpolate_vertices_raw( pinst->vrt_lst, lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip );
     }
 
     // interpolate the 2nd dirty region
     if ( vdirty2_min >= 0 && vdirty2_max >= 0 )
     {
-        chr_instance_interpolate_vertices_raw( pinst->vrt_lst, lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip );
+        chr_instance_t::interpolate_vertices_raw( pinst->vrt_lst, lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip );
     }
 
     // update the saved parameters
-    return chr_instance_update_vlst_cache( pinst, vmax, vmin, force, vertices_match, frames_match );
+    return chr_instance_t::update_vlst_cache( pinst, vmax, vmin, force, vertices_match, frames_match );
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool force, bool vertices_match, bool frames_match )
+gfx_rv chr_instance_t::update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool force, bool vertices_match, bool frames_match )
 {
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
@@ -1625,7 +1619,7 @@ gfx_rv chr_instance_t::set_action(chr_instance_t *pinst, int action, bool action
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
+gfx_rv chr_instance_t::set_frame( chr_instance_t * pinst, int frame )
 {
     mad_t * pmad;
 
@@ -1683,7 +1677,7 @@ gfx_rv chr_instance_t::set_anim( chr_instance_t * pinst, int action, int frame, 
     retval = chr_instance_t::set_action(pinst, action, action_ready, override_action);
     if ( gfx_success != retval ) return retval;
 
-    retval = chr_instance_set_frame( pinst, frame );
+    retval = chr_instance_t::set_frame( pinst, frame );
 
     return retval;
 }
@@ -1853,7 +1847,7 @@ gfx_rv chr_instance_t::play_action( chr_instance_t * pinst, int action, bool act
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_instance_clear_cache( chr_instance_t * pinst )
+void chr_instance_t::clear_cache( chr_instance_t * pinst )
 {
     /// @author BB
     /// @details force chr_instance_update_vertices() recalculate the vertices the next time
@@ -1899,7 +1893,7 @@ chr_instance_t *chr_instance_t::ctor(chr_instance_t *pinst)
     pinst->vrt_count = 0;
 
     // set the initial cache parameters
-    chr_instance_clear_cache(pinst);
+    chr_instance_t::clear_cache(pinst);
 
     // Set up initial fade in lighting
     pinst->color_amb = 0;
@@ -2025,7 +2019,7 @@ gfx_rv chr_instance_t::set_mad(chr_instance_t *pinst, const MAD_REF imad)
     if ( updated )
     {
         // update the vertex and lighting cache
-        chr_instance_clear_cache( pinst );
+        chr_instance_t::clear_cache( pinst );
         chr_instance_t::update_vertices( pinst, -1, -1, true );
     }
 

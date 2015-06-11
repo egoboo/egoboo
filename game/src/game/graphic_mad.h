@@ -280,9 +280,15 @@ struct chr_instance_t
 	static bool apply_reflection_matrix(chr_instance_t *self, float floor_level);
 
 
-public: /* TOOD: Should be private. */
+private:
 	static gfx_rv alloc(chr_instance_t *self, size_t vlst_size);
 	static gfx_rv dealloc(chr_instance_t *self);
+	
+	static gfx_rv update_vlst_cache(chr_instance_t *self, int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
+	static gfx_rv needs_update(chr_instance_t *self, int vmin, int vmax, bool *verts_match, bool *frames_match);
+	static gfx_rv set_frame(chr_instance_t *self, int frame);
+	static void clear_cache(chr_instance_t *self);
+	static void interpolate_vertices_raw(GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
 };
 
 
