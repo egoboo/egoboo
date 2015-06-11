@@ -205,7 +205,7 @@ void chr_set_enviro_grid_level( Object * pchr, const float level )
     {
         pchr->enviro.grid_level = level;
 
-        chr_instance_apply_reflection_matrix( &( pchr->inst ), level );
+        chr_instance_t::apply_reflection_matrix( &( pchr->inst ), level );
     }
 }
 
@@ -677,7 +677,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         /// the interpolation seems to fix it...
         chr_play_action( prider, ACTION_MM + slot, false );
 
-        chr_instance_remove_interpolation( &( prider->inst ) );
+        chr_instance_t::remove_interpolation( &( prider->inst ) );
 
         // set the action to keep for items
         if ( prider->isitem )
@@ -1919,7 +1919,7 @@ Object * chr_config_do_init( Object * pchr )
     //}
 
     // initalize the character instance
-    chr_instance_spawn( &( pchr->inst ), spawn_ptr->profile, spawn_ptr->skin );
+    chr_instance_t::spawn( &( pchr->inst ), spawn_ptr->profile, spawn_ptr->skin );
     chr_update_matrix( pchr, true );
 
     // determine whether the object is hidden
@@ -2066,7 +2066,7 @@ void respawn_character( const CHR_REF character )
     PACK_END_LOOP();
 
     // re-initialize the instance
-    chr_instance_spawn( &( pchr->inst ), pchr->profile_ref, pchr->skin );
+    chr_instance_t::spawn( &( pchr->inst ), pchr->profile_ref, pchr->skin );
     chr_update_matrix( pchr.get(), true );
 
     // determine whether the object is hidden
@@ -2470,7 +2470,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->anim_speed_run   = newProfile->getRunAnimationSpeed();
 
     // initialize the instance
-    chr_instance_spawn( &( pchr->inst ), profile_new, skin );
+    chr_instance_t::spawn( &( pchr->inst ), profile_new, skin );
     chr_update_matrix( pchr, true );
 
     // Action stuff that must be down after chr_instance_spawn()
@@ -4648,7 +4648,7 @@ float set_character_animation_rate( Object * pchr )
         {
             if ( pinst->action_which != tmp_action )
             {
-                const MD2_Frame &nextFrame  = chr_instnce_get_frame_nxt( &( pchr->inst ) );
+                const MD2_Frame &nextFrame  = chr_instance_t::get_frame_nxt( &( pchr->inst ) );
                 chr_set_anim( pchr, tmp_action, pmad->framelip_to_walkframe[lip][nextFrame.framelip], true, true );
             }
 
@@ -4679,7 +4679,7 @@ void move_one_character_do_animation( Object * pchr )
 
     flip_diff  = 0.25f * pinst->rate;
 
-    flip_next = chr_instance_get_remaining_flip( pinst );
+    flip_next = chr_instance_t::get_remaining_flip( pinst );
 
     while ( flip_next > 0.0f && flip_diff >= flip_next )
     {
@@ -4708,7 +4708,7 @@ void move_one_character_do_animation( Object * pchr )
             break;
         }
 
-        flip_next = chr_instance_get_remaining_flip( pinst );
+        flip_next = chr_instance_t::get_remaining_flip( pinst );
     }
 
     if ( flip_diff > 0.0f )
@@ -5439,7 +5439,7 @@ Uint32 chr_get_framefx( Object * pchr )
 {
     if ( nullptr == ( pchr ) ) return 0;
 
-    return chr_instance_get_framefx( &( pchr->inst ) );
+    return chr_instance_t::get_framefx( &( pchr->inst ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5588,7 +5588,7 @@ egolib_rv chr_increment_frame( Object * pchr )
         }
     }
 
-    retval = ( egolib_rv )chr_instance_increment_frame( &( pchr->inst ), pmad, imount, mount_action );
+    retval = ( egolib_rv )chr_instance_t::increment_frame( &( pchr->inst ), pmad, imount, mount_action );
     if ( rv_success != retval ) return retval;
 
     /// @note BB@> this did not work as expected...

@@ -5794,7 +5794,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         if ( rv_success == chr_start_anim( pself_target, action, false, true ) )
         {
             // remove the interpolation
-            chr_instance_remove_interpolation( &( pself_target->inst ) );
+            chr_instance_t::remove_interpolation( &( pself_target->inst ) );
 
             returncode = true;
         }

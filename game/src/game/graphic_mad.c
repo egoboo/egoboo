@@ -549,7 +549,7 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
 
     if ( !pinst->ref.matrix_valid )
     {
-        if ( !chr_instance_apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level ) )
+        if ( !chr_instance_t::apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level ) )
         {
             return gfx_error;
         }
@@ -566,7 +566,7 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );                        // GL_COLOR_BUFFER_BIT
             Ego::OpenGL::Utilities::isError();
-            chr_instance_get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
+            chr_instance_t::get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
@@ -581,7 +581,7 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                        // GL_COLOR_BUFFER_BIT
             Ego::OpenGL::Utilities::isError();
-            chr_instance_get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
+            chr_instance_t::get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
@@ -597,7 +597,7 @@ gfx_rv render_one_mad_ref( Camera& cam, const CHR_REF ichr )
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
             Ego::OpenGL::Utilities::isError();
-            chr_instance_get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
+            chr_instance_t::get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
             if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
             {
@@ -654,7 +654,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
-            chr_instance_get_tint( pinst, tint, CHR_ALPHA );
+            chr_instance_t::get_tint( pinst, tint, CHR_ALPHA );
 
             if ( render_one_mad( cam, ichr, tint, CHR_ALPHA ) )
             {
@@ -672,7 +672,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE);  // GL_COLOR_BUFFER_BIT
 
-            chr_instance_get_tint( pinst, tint, CHR_LIGHT );
+            chr_instance_t::get_tint( pinst, tint, CHR_LIGHT );
 
             if ( render_one_mad( cam, ichr, tint, CHR_LIGHT ) )
             {
@@ -685,7 +685,7 @@ gfx_rv render_one_mad_trans( Camera& cam, const CHR_REF ichr )
             Ego::Renderer::get().setBlendingEnabled(true);
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );    // GL_COLOR_BUFFER_BIT
 
-            chr_instance_get_tint( pinst, tint, CHR_PHONG );
+            chr_instance_t::get_tint( pinst, tint, CHR_PHONG );
 
             if ( render_one_mad( cam, ichr, tint, CHR_PHONG ) )
             {
@@ -751,7 +751,7 @@ gfx_rv render_one_mad_solid( Camera& cam, const CHR_REF ichr )
                 oglx_begin_culling( GL_BACK, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
             }
 
-            chr_instance_get_tint( pinst, tint, CHR_SOLID );
+            chr_instance_t::get_tint( pinst, tint, CHR_SOLID );
 
             if ( gfx_error == render_one_mad( cam, ichr, tint, CHR_SOLID ) )
             {
@@ -1117,8 +1117,8 @@ gfx_rv chr_instance_t::update_bbox( chr_instance_t * pinst )
     }
     pmad = MadStack.get_ptr( pinst->imad );
 
-    const MD2_Frame &lastFrame = chr_instnce_get_frame_lst(pinst);
-    const MD2_Frame &nextFrame = chr_instnce_get_frame_nxt(pinst);
+    const MD2_Frame &lastFrame = chr_instance_t::get_frame_lst(pinst);
+    const MD2_Frame &nextFrame = chr_instance_t::get_frame_nxt(pinst);
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
@@ -1754,7 +1754,7 @@ gfx_rv chr_instance_t::increment_action( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action )
+gfx_rv chr_instance_t::increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action )
 {
     /// @author BB
     /// @details all the code necessary to move on to the next frame of the animation
@@ -2046,7 +2046,7 @@ gfx_rv chr_instance_t::update_ref( chr_instance_t * pinst, float grid_level, boo
     if ( need_matrix )
     {
         // reflect the ordinary matrix
-        chr_instance_apply_reflection_matrix( pinst, grid_level );
+        chr_instance_t::apply_reflection_matrix( pinst, grid_level );
     }
 
     startalpha = 255;
@@ -2076,7 +2076,7 @@ gfx_rv chr_instance_t::update_ref( chr_instance_t * pinst, float grid_level, boo
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin )
+gfx_rv chr_instance_t::spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin )
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
@@ -2131,13 +2131,13 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
+BIT_FIELD chr_instance_t::get_framefx( chr_instance_t * pinst )
 {
-    return chr_instnce_get_frame_nxt(pinst).framefx;
+    return chr_instance_t::get_frame_nxt(pinst).framefx;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override )
+gfx_rv chr_instance_t::set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override )
 {
     MAD_REF imad;
     mad_t * pmad;
@@ -2259,7 +2259,7 @@ gfx_rv chr_instance_t::set_action_next(chr_instance_t *pinst, int val)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
+gfx_rv chr_instance_t::remove_interpolation(chr_instance_t * pinst)
 {
     if ( NULL == pinst )
     {
@@ -2280,7 +2280,7 @@ gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst)
+const MD2_Frame& chr_instance_t::get_frame_nxt(chr_instance_t * pinst)
 {
     mad_t * pmad = MadStack.get_ptr( pinst->imad );
     if ( pinst->frame_nxt > pmad->md2_ptr->getFrames().size() )
@@ -2292,7 +2292,7 @@ const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst)
 }
 
 //--------------------------------------------------------------------------------------------
-const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst)
+const MD2_Frame& chr_instance_t::get_frame_lst(chr_instance_t * pinst)
 {
     mad_t * pmad = MadStack.get_ptr( pinst->imad );
     if ( pinst->frame_lst > pmad->md2_ptr->getFrames().size() )
@@ -2341,7 +2341,7 @@ gfx_rv chr_instance_t::update_one_flip( chr_instance_t * pinst, float dflip )
 }
 
 //--------------------------------------------------------------------------------------------
-float chr_instance_get_remaining_flip( chr_instance_t * pinst )
+float chr_instance_t::get_remaining_flip( chr_instance_t * pinst )
 {
     float remaining = 0.0f;
 
@@ -2468,7 +2468,7 @@ gfx_rv chr_instance_t::set_texture( chr_instance_t * pinst, const TX_REF itex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
+bool chr_instance_t::apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
 {
     /// @author BB
     /// @details Generate the extra data needed to display a reflection for this character
@@ -2498,7 +2498,7 @@ bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float grid_le
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits )
+void chr_instance_t::get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits )
 {
     int i;
     float weight_sum;

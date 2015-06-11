@@ -265,31 +265,36 @@ struct chr_instance_t
 	static gfx_rv update_one_flip(chr_instance_t *self, float dflip);
 	static void update_lighting_base(chr_instance_t *self, Object *pchr, bool force);
 
+	static gfx_rv spawn(chr_instance_t *self, const PRO_REF profile, const int skin);
+
+	static gfx_rv increment_frame(chr_instance_t *self, mad_t *pmad, const CHR_REF imount, const int mount_action);
+	static gfx_rv remove_interpolation(chr_instance_t *self);
+	static gfx_rv set_frame_full(chr_instance_t *self, int frame_along, int ilip, const MAD_REF mad_override);
+
+	static const MD2_Frame& get_frame_nxt(chr_instance_t *self);
+	static const MD2_Frame& get_frame_lst(chr_instance_t *self);
+	static BIT_FIELD get_framefx(chr_instance_t *self);
+
+	static float get_remaining_flip(chr_instance_t *self);
+	static void get_tint(chr_instance_t *self, GLfloat *tint, const BIT_FIELD bits);
+	static bool apply_reflection_matrix(chr_instance_t *self, float floor_level);
+
+
 public: /* TOOD: Should be private. */
 	static gfx_rv alloc(chr_instance_t *self, size_t vlst_size);
 	static gfx_rv dealloc(chr_instance_t *self);
 };
 
-gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin );
 
 
 
 
-gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action );
-
-gfx_rv    chr_instance_remove_interpolation( chr_instance_t * pinst );
-BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
-
-gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override );
 
 
 
-const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst);
-const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst);
 
-float  chr_instance_get_remaining_flip( chr_instance_t * pinst );
-void   chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits );
-bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -435,7 +435,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 
     if ( applied )
     {
-        chr_instance_apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level );
+        chr_instance_t::apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level );
     }
 
     return applied;

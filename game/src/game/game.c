@@ -508,7 +508,7 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
         // the action is set. now set the frame info.
         // pass along the imad in case the pchr->inst is not using this same mad
         // (corrupted data?)
-        retval = ( egolib_rv )chr_instance_set_frame_full( &( pchr->inst ), frame_along, ilip, imad );
+        retval = ( egolib_rv )chr_instance_t::set_frame_full( &( pchr->inst ), frame_along, ilip, imad );
     }
 
     return retval;
