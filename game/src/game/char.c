@@ -448,7 +448,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
             vertex = (( int )pchr->inst.vrt_count ) - vertex_offset;
 
             // do the automatic update
-            chr_instance_update_vertices( &( pchr->inst ), vertex, vertex, false );
+            chr_instance_t::update_vertices( &( pchr->inst ), vertex, vertex, false );
 
             // Calculate vertex_offset point locations with linear interpolation and other silly things
             point[0][kX] = pchr->inst.vrt_lst[vertex].pos[XX];
@@ -1925,7 +1925,7 @@ Object * chr_config_do_init( Object * pchr )
     // determine whether the object is hidden
     chr_update_hide( pchr );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
+    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
@@ -2078,7 +2078,7 @@ void respawn_character( const CHR_REF character )
         new_attached_prt_count = number_of_attached_particles( character );
     }
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
+    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2101,7 +2101,7 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
         // make sure that the instance has a valid imad
         if ( !LOADED_MAD( pinst->imad ) )
         {
-            if ( chr_instance_set_mad( pinst, pchr->getProfile()->getModelRef() ) )
+            if ( chr_instance_t::set_mad( pinst, pchr->getProfile()->getModelRef() ) )
             {
                 chr_update_collision_size( pchr, true );
             }
@@ -2134,7 +2134,7 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
         pchr->skin = skin;
     }
 
-    chr_instance_set_texture( pinst, new_texture );
+    chr_instance_t::set_texture( pinst, new_texture );
 
     return pchr->skin;
 }
@@ -2523,7 +2523,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
     ai_state_set_changed( &( pchr->ai ) );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
+    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4685,7 +4685,7 @@ void move_one_character_do_animation( Object * pchr )
     {
         flip_diff -= flip_next;
 
-        chr_instance_update_one_lip( pinst );
+        chr_instance_t::update_one_lip( pinst );
 
         // handle frame FX for the new frame
         if ( 3 == pinst->ilip )
@@ -4715,7 +4715,7 @@ void move_one_character_do_animation( Object * pchr )
     {
         int ilip_old = pinst->ilip;
 
-        chr_instance_update_one_flip( pinst, flip_diff );
+        chr_instance_t::update_one_flip( pinst, flip_diff );
 
         if ( ilip_old != pinst->ilip )
         {
@@ -5029,7 +5029,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     }
 
     // make sure the bounding box is calculated properly
-    if ( gfx_error == chr_instance_update_bbox( &( pchr->inst ) ) )
+    if ( gfx_error == chr_instance_t::update_bbox( &( pchr->inst ) ) )
     {
         return rv_error;
     }
@@ -5363,7 +5363,7 @@ void chr_set_redshift( Object * pchr, const int rs )
 
     pchr->inst.redshift = CLIP( rs, 0, 9 );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
+    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5373,7 +5373,7 @@ void chr_set_grnshift( Object * pchr, const int gs )
 
     pchr->inst.grnshift = CLIP( gs, 0, 9 );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
+    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5383,7 +5383,7 @@ void chr_set_blushift( Object * pchr, const int bs )
 
     pchr->inst.blushift = CLIP( bs, 0, 9 );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
+    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5488,7 +5488,7 @@ egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool ove
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_start_anim( &( pchr->inst ), action, action_ready, override_action );
+    retval = ( egolib_rv )chr_instance_t::start_anim( &( pchr->inst ), action, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -5507,7 +5507,7 @@ egolib_rv chr_set_anim( Object * pchr, int action, int frame, bool action_ready,
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_set_anim( &( pchr->inst ), action, frame, action_ready, override_action );
+    retval = ( egolib_rv )chr_instance_t::set_anim( &( pchr->inst ), action, frame, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -5644,7 +5644,7 @@ bool chr_heal_mad( Object * pchr )
 
     // set the mad index to whatever the profile says, even if it is wrong,
     // since we know that our current one is invalid
-    chr_instance_set_mad( pinst, imad_tmp );
+    chr_instance_t::set_mad( pinst, imad_tmp );
 
     // if we healed the mad index, make sure to recalculate the collision size
     if ( LOADED_MAD( pinst->imad ) )

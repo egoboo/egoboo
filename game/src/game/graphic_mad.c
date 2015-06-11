@@ -1011,7 +1011,7 @@ void draw_chr_grips( Object * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void chr_instance_update_lighting_base( chr_instance_t * pinst, Object * pchr, bool force )
+void chr_instance_t::update_lighting_base( chr_instance_t * pinst, Object * pchr, bool force )
 {
     /// @author BB
     /// @details determine the basic per-vertex lighting
@@ -1099,7 +1099,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, Object * pchr, b
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
+gfx_rv chr_instance_t::update_bbox( chr_instance_t * pinst )
 {
     mad_t       *pmad;
 
@@ -1282,7 +1282,7 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], const std::vecto
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool force )
+gfx_rv chr_instance_t::update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool force )
 {
 	int maxvert;
     bool vertices_match, frames_match;
@@ -1305,7 +1305,7 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
     }
     psave = &( pinst->save );
 
-    if ( gfx_error == chr_instance_update_bbox( pinst ) )
+    if ( gfx_error == chr_instance_t::update_bbox( pinst ) )
     {
         return gfx_error;
     }
@@ -1539,7 +1539,7 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count )
+gfx_rv chr_instance_t::update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count )
 {
     int vmin, vmax;
     Uint32 cnt;
@@ -1571,7 +1571,7 @@ gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[],
     if ( 0 == count ) return gfx_fail;
 
     // force the vertices to update
-    retval = chr_instance_update_vertices( pinst, vmin, vmax, true );
+    retval = chr_instance_t::update_vertices( pinst, vmin, vmax, true );
 
     return retval;
 }
@@ -1670,7 +1670,7 @@ gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool action_ready, bool override_action )
+gfx_rv chr_instance_t::set_anim( chr_instance_t * pinst, int action, int frame, bool action_ready, bool override_action )
 {
     gfx_rv retval;
 
@@ -1689,7 +1689,7 @@ gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, boo
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_ready, bool override_action )
+gfx_rv chr_instance_t::start_anim( chr_instance_t * pinst, int action, bool action_ready, bool override_action )
 {
     mad_t * pmad;
 
@@ -1712,7 +1712,7 @@ gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_
     }
     pmad = MadStack.get_ptr( pinst->imad );
 
-    return chr_instance_set_anim( pinst, action, pmad->action_stt[action], action_ready, override_action );
+    return chr_instance_t::set_anim( pinst, action, pmad->action_stt[action], action_ready, override_action );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1748,7 +1748,7 @@ gfx_rv chr_instance_t::increment_action( chr_instance_t * pinst )
     // D == "dance" and "W" == walk
     action_ready = ACTION_IS_TYPE( action, D ) || ACTION_IS_TYPE( action, W );
 
-    retval = chr_instance_start_anim( pinst, action, action_ready, true );
+    retval = chr_instance_t::start_anim( pinst, action, action_ready, true );
 
     return retval;
 }
@@ -1797,7 +1797,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
             // Convert the action into a riding action if the character is mounted
             if ( _currentModule->getObjectHandler().exists( imount ) )
             {
-                chr_instance_start_anim( pinst, mount_action, true, true );
+                chr_instance_t::start_anim( pinst, mount_action, true, true );
             }
 
             // set the frame to the beginning of the action
@@ -1849,7 +1849,7 @@ gfx_rv chr_instance_t::play_action( chr_instance_t * pinst, int action, bool act
 
     action = mad_get_action_ref( pinst->imad, action );
 
-    return chr_instance_start_anim( pinst, action, action_ready, true );
+    return chr_instance_t::start_anim( pinst, action, action_ready, true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1970,7 +1970,7 @@ gfx_rv chr_instance_t::alloc(chr_instance_t *pinst, size_t vlst_size)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
+gfx_rv chr_instance_t::set_mad(chr_instance_t *pinst, const MAD_REF imad)
 {
     /// @author BB
     /// @details try to set the model used by the character instance.
@@ -2026,14 +2026,14 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     {
         // update the vertex and lighting cache
         chr_instance_clear_cache( pinst );
-        chr_instance_update_vertices( pinst, -1, -1, true );
+        chr_instance_t::update_vertices( pinst, -1, -1, true );
     }
 
     return updated ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool need_matrix )
+gfx_rv chr_instance_t::update_ref( chr_instance_t * pinst, float grid_level, bool need_matrix )
 {
     int startalpha;
 
@@ -2108,7 +2108,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     }
 
     // lighting parameters
-    chr_instance_set_texture( pinst, pobj->getSkin(loc_skin) );
+    chr_instance_t::set_texture( pinst, pobj->getSkin(loc_skin) );
     pinst->enviro    = pobj->isPhongMapped();
     pinst->alpha     = pobj->getAlpha();
     pinst->light     = pobj->getLight();
@@ -2119,13 +2119,13 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     pinst->dont_cull_backfaces = pobj->isDontCullBackfaces();
 
     // model parameters
-    chr_instance_set_mad( pinst, pobj->getModelRef() );
+    chr_instance_t::set_mad( pinst, pobj->getModelRef() );
 
     // set the initial action, all actions override it
     chr_instance_t::play_action(pinst, ACTION_DA, true);
 
     // upload these parameters to the reflection cache, but don't compute the matrix
-    chr_instance_update_ref( pinst, 0, false );
+    chr_instance_t::update_ref( pinst, 0, false );
 
     return gfx_success;
 }
@@ -2304,7 +2304,7 @@ const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst )
+gfx_rv chr_instance_t::update_one_lip( chr_instance_t * pinst )
 {
     if ( NULL == pinst )
     {
@@ -2321,7 +2321,7 @@ gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip )
+gfx_rv chr_instance_t::update_one_flip( chr_instance_t * pinst, float dflip )
 {
     if ( NULL == pinst )
     {
@@ -2443,7 +2443,7 @@ matrix_cache_t * matrix_cache_t::init( matrix_cache_t * mcache )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
+gfx_rv chr_instance_t::set_texture( chr_instance_t * pinst, const TX_REF itex )
 {
     if (!pinst)
     {
@@ -2491,7 +2491,7 @@ bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float grid_le
         pinst->ref.matrix_valid = true;
 
         // fix the reflection
-        chr_instance_update_ref( pinst, grid_level, false );
+        chr_instance_t::update_ref( pinst, grid_level, false );
     }
 
     return pinst->ref.matrix_valid;

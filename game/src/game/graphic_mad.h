@@ -251,22 +251,29 @@ struct chr_instance_t
 	static gfx_rv set_action_next(chr_instance_t *self, int val);
 	static gfx_rv set_action(chr_instance_t *pinst, int action, bool action_ready, bool override_action);
 
+	static gfx_rv start_anim(chr_instance_t *self, int action, bool action_ready, bool override_action);
+	static gfx_rv set_anim(chr_instance_t *self, int action, int frame, bool action_ready, bool override_action);
+
+	static gfx_rv set_texture(chr_instance_t *self, const TX_REF itex);
+	static gfx_rv set_mad(chr_instance_t *self, const MAD_REF imad);
+
+	static gfx_rv update_ref(chr_instance_t *self, float grid_level, bool need_matrix);
+	static gfx_rv update_bbox(chr_instance_t *self);
+	static gfx_rv update_vertices(chr_instance_t *self, int vmin, int vmax, bool force);
+	static gfx_rv update_grip_verts(chr_instance_t *self, Uint16 vrt_lst[], size_t vrt_count);
+	static gfx_rv update_one_lip(chr_instance_t *self);
+	static gfx_rv update_one_flip(chr_instance_t *self, float dflip);
+	static void update_lighting_base(chr_instance_t *self, Object *pchr, bool force);
+
 public: /* TOOD: Should be private. */
 	static gfx_rv alloc(chr_instance_t *self, size_t vlst_size);
 	static gfx_rv dealloc(chr_instance_t *self);
 };
 
 gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin );
-gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
 
-gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool need_matrix );
 
-gfx_rv chr_instance_update_bbox( chr_instance_t * pinst );
-gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool force );
-gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count );
 
-gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_ready, bool override_action );
-gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool action_ready, bool override_action );
 
 gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action );
 
@@ -276,15 +283,11 @@ BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
 gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override );
 
 
-gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex );
 
 const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst);
 const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst);
 
 float  chr_instance_get_remaining_flip( chr_instance_t * pinst );
-gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst );
-gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip );
-void   chr_instance_update_lighting_base( chr_instance_t * pinst, Object * pchr, bool force );
 void   chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits );
 bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 

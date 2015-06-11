@@ -5892,14 +5892,14 @@ gfx_rv update_one_chr_instance(Object *pchr)
     }
 
     // make sure that the vertices are interpolated
-    gfx_rv retval = chr_instance_update_vertices(pinst, -1, -1, true);
+    gfx_rv retval = chr_instance_t::update_vertices(pinst, -1, -1, true);
     if (gfx_error == retval)
     {
         return gfx_error;
     }
 
     // do the basic lighting
-    chr_instance_update_lighting_base(pinst, pchr, false);
+    chr_instance_t::update_lighting_base(pinst, pchr, false);
 
     // set the update_frame to the current frame
     pinst->update_frame = game_frame_all;

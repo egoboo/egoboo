@@ -329,7 +329,7 @@ void Object::movePosition(const float x, const float y, const float z)
 void Object::setAlpha(const int alpha)
 {
     inst.alpha = Ego::Math::constrain(alpha, 0, 0xFF);
-    chr_instance_update_ref(&inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(&inst, enviro.grid_level, false);
 }
 
 void Object::setLight(const int light)
@@ -342,13 +342,13 @@ void Object::setLight(const int light)
         inst.light = std::max<uint8_t>(128, inst.light);
     }
 
-    chr_instance_update_ref(&inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(&inst, enviro.grid_level, false);
 }
 
 void Object::setSheen(const int sheen)
 {
     inst.sheen = Ego::Math::constrain(sheen, 0, 0xFF);
-    chr_instance_update_ref(&inst, enviro.grid_level, false);
+    chr_instance_t::update_ref(&inst, enviro.grid_level, false);
 }
 
 bool Object::canMount(const std::shared_ptr<Object> mount) const

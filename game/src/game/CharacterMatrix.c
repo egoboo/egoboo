@@ -233,7 +233,7 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t
     else
     {
         // update the grip vertices
-        chr_instance_update_grip_verts( &( pholder->inst ), grip_verts, GRIP_VERTS );
+        chr_instance_t::update_grip_verts( &( pholder->inst ), grip_verts, GRIP_VERTS );
 
         // copy the vertices into dst_point[]
         for ( point_count = 0, cnt = 0; cnt < GRIP_VERTS; cnt++, point_count++ )
@@ -626,7 +626,7 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
         Object   * ptarget = _currentModule->getObjectHandler().get( mc_tmp.grip_chr );
 
         // has that character changes its animation?
-        grip_retval = ( egolib_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts.data(), GRIP_VERTS );
+        grip_retval = ( egolib_rv )chr_instance_t::update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts.data(), GRIP_VERTS );
 
         if ( rv_error   == grip_retval ) return rv_error;
         if ( rv_success == grip_retval ) needs_update = true;
@@ -808,7 +808,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
         int vert_stt = ( signed )( pmount_inst->vrt_count ) - ( signed )grip_offset;
         if ( vert_stt < 0 ) return false;
 
-        if ( gfx_error == chr_instance_update_vertices( pmount_inst, vert_stt, vert_stt + grip_offset, false ) )
+        if ( gfx_error == chr_instance_t::update_vertices( pmount_inst, vert_stt, vert_stt + grip_offset, false ) )
         {
             grip_count = 0;
             for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
