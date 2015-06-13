@@ -2104,12 +2104,8 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
         pchr->skin = 0;
         pinst.texture = TX_WATER_TOP;
     } else {
-        // all skin numbers are technically valid
-        loc_skin %= SKINS_PEROBJECT_MAX;
-
         // the normal thing to happen
-        new_texture = pchr->getProfile()->getSkin(loc_skin);
-
+        new_texture = pchr->getProfile()->getSkin(skin);
         pchr->skin = skin;
     }
 
