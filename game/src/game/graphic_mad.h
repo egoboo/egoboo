@@ -99,7 +99,7 @@ struct matrix_cache_t
         //ctor
     }
 
-	static matrix_cache_t *init(matrix_cache_t * mcache);
+	static matrix_cache_t *init(matrix_cache_t& self);
 
     // is the cache data valid?
     bool valid;
@@ -147,7 +147,7 @@ struct chr_reflection_cache_t
 
     Uint32     update_wld;
 
-	static chr_reflection_cache_t *init(chr_reflection_cache_t * pcache);
+	static chr_reflection_cache_t *init(chr_reflection_cache_t& self);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -165,8 +165,8 @@ struct vlst_cache_t
     int    vmin;              ///< the minimum clean vertex the last time the vertices were updated
     int    vmax;              ///< the maximum clean vertex the last time the vertices were updated
     Uint32 vert_wld;          ///< the update_wld the last time the vertices were updated
-	static vlst_cache_t *init(vlst_cache_t *self);
-	static gfx_rv test(vlst_cache_t *self, chr_instance_t *instance);
+	static vlst_cache_t *init(vlst_cache_t& self);
+	static gfx_rv test(vlst_cache_t& self, chr_instance_t *instance);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -240,58 +240,58 @@ struct chr_instance_t
     // Uint8          lightlevel_amb;  ///< 0-255, terrain light
     // Uint8          lightlevel_dir;  ///< 0-255, terrain light
 
-	static chr_instance_t *ctor(chr_instance_t *self);
-	static chr_instance_t *dtor(chr_instance_t *self);
+	static chr_instance_t *ctor(chr_instance_t& self);
+	static chr_instance_t *dtor(chr_instance_t& self);
 
-	static gfx_rv increment_action(chr_instance_t *self);
-	static gfx_rv play_action(chr_instance_t *self, int action, bool actionready);
-	static gfx_rv set_action_keep(chr_instance_t *self, bool val);
-	static gfx_rv set_action_ready(chr_instance_t *self, bool val);
-	static gfx_rv set_action_loop(chr_instance_t *self, bool val);
-	static gfx_rv set_action_next(chr_instance_t *self, int val);
-	static gfx_rv set_action(chr_instance_t *pinst, int action, bool action_ready, bool override_action);
+	static gfx_rv increment_action(chr_instance_t& self);
+	static gfx_rv play_action(chr_instance_t& self, int action, bool actionready);
+	static void set_action_keep(chr_instance_t& self, bool val);
+	static void set_action_ready(chr_instance_t& self, bool val);
+	static void set_action_loop(chr_instance_t& self, bool val);
+	static gfx_rv set_action_next(chr_instance_t& self, int val);
+	static gfx_rv set_action(chr_instance_t& self, int action, bool action_ready, bool override_action);
 
-	static gfx_rv start_anim(chr_instance_t *self, int action, bool action_ready, bool override_action);
-	static gfx_rv set_anim(chr_instance_t *self, int action, int frame, bool action_ready, bool override_action);
+	static gfx_rv start_anim(chr_instance_t& self, int action, bool action_ready, bool override_action);
+	static gfx_rv set_anim(chr_instance_t& self, int action, int frame, bool action_ready, bool override_action);
 
-	static gfx_rv set_texture(chr_instance_t *self, const TX_REF itex);
-	static gfx_rv set_mad(chr_instance_t *self, const MAD_REF imad);
+	static gfx_rv set_texture(chr_instance_t& self, const TX_REF itex);
+	static gfx_rv set_mad(chr_instance_t& self, const MAD_REF imad);
 
-	static gfx_rv update_ref(chr_instance_t *self, float grid_level, bool need_matrix);
-	static gfx_rv update_bbox(chr_instance_t *self);
-	static gfx_rv update_vertices(chr_instance_t *self, int vmin, int vmax, bool force);
-	static gfx_rv update_grip_verts(chr_instance_t *self, Uint16 vrt_lst[], size_t vrt_count);
-	static gfx_rv update_one_lip(chr_instance_t *self);
-	static gfx_rv update_one_flip(chr_instance_t *self, float dflip);
-	static void update_lighting_base(chr_instance_t *self, Object *pchr, bool force);
+	static void update_ref(chr_instance_t& self, float grid_level, bool need_matrix);
+	static gfx_rv update_bbox(chr_instance_t& self);
+	static gfx_rv update_vertices(chr_instance_t& self, int vmin, int vmax, bool force);
+	static gfx_rv update_grip_verts(chr_instance_t& self, Uint16 vrt_lst[], size_t vrt_count);
+	static void update_one_lip(chr_instance_t& self);
+	static gfx_rv update_one_flip(chr_instance_t& self, float dflip);
+	static void update_lighting_base(chr_instance_t& self, Object *pchr, bool force);
 
-	static gfx_rv spawn(chr_instance_t *self, const PRO_REF profile, const int skin);
+	static gfx_rv spawn(chr_instance_t& self, const PRO_REF profile, const int skin);
 
-	static gfx_rv increment_frame(chr_instance_t *self, mad_t *pmad, const CHR_REF imount, const int mount_action);
-	static gfx_rv remove_interpolation(chr_instance_t *self);
-	static gfx_rv set_frame_full(chr_instance_t *self, int frame_along, int ilip, const MAD_REF mad_override);
+	static gfx_rv increment_frame(chr_instance_t& self, mad_t *pmad, const CHR_REF imount, const int mount_action);
+	static void remove_interpolation(chr_instance_t& self);
+	static gfx_rv set_frame_full(chr_instance_t& self, int frame_along, int ilip, const MAD_REF mad_override);
 
-	static const MD2_Frame& get_frame_nxt(chr_instance_t *self);
-	static const MD2_Frame& get_frame_lst(chr_instance_t *self);
-	static BIT_FIELD get_framefx(chr_instance_t *self);
+	static const MD2_Frame& get_frame_nxt(chr_instance_t& self);
+	static const MD2_Frame& get_frame_lst(chr_instance_t& self);
+	static BIT_FIELD get_framefx(chr_instance_t& self);
 
-	static float get_remaining_flip(chr_instance_t *self);
-	static void get_tint(chr_instance_t *self, GLfloat *tint, const BIT_FIELD bits);
-	static bool apply_reflection_matrix(chr_instance_t *self, float floor_level);
+	static float get_remaining_flip(chr_instance_t& self);
+	static void get_tint(chr_instance_t& self, GLfloat *tint, const BIT_FIELD bits);
+	static bool apply_reflection_matrix(chr_instance_t& self, float floor_level);
 
 
 private:
-	static gfx_rv alloc(chr_instance_t *self, size_t vlst_size);
-	static gfx_rv dealloc(chr_instance_t *self);
+	static gfx_rv alloc(chr_instance_t& self, size_t vlst_size);
+	static void dealloc(chr_instance_t& self);
 	
-	static gfx_rv update_vlst_cache(chr_instance_t *self, int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
-	static gfx_rv needs_update(chr_instance_t *self, int vmin, int vmax, bool *verts_match, bool *frames_match);
-	static gfx_rv set_frame(chr_instance_t *self, int frame);
-	static void clear_cache(chr_instance_t *self);
+	static gfx_rv update_vlst_cache(chr_instance_t& self, int vmax, int vmin, bool force, bool vertices_match, bool frames_match);
+	static gfx_rv needs_update(chr_instance_t& self, int vmin, int vmax, bool *verts_match, bool *frames_match);
+	static gfx_rv set_frame(chr_instance_t& self, int frame);
+	static void clear_cache(chr_instance_t& self);
 	static void interpolate_vertices_raw(GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
 };
 
-
+void chr_instance_flash(chr_instance_t& self, Uint8 value);
 
 
 

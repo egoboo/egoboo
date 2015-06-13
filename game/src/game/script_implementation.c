@@ -786,13 +786,10 @@ bool FlashObject( Object * pchr, Uint8 value )
 {
     /// @author ZZ
     /// @details This function sets a character's lighting
-
-    gfx_rv flash_rv;
-
-    if ( nullptr == ( pchr ) ) return false;
-
-    flash_rv = chr_instance_flash( &( pchr->inst ), value );
-
-    return gfx_success == flash_rv;
+	if (!pchr) {
+		return false;
+	}
+	chr_instance_flash(pchr->inst, value);
+	return true;
 }
 

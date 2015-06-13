@@ -233,7 +233,7 @@ int convert_grip_to_local_points( Object * pholder, Uint16 grip_verts[], fvec4_t
     else
     {
         // update the grip vertices
-        chr_instance_t::update_grip_verts( &( pholder->inst ), grip_verts, GRIP_VERTS );
+        chr_instance_t::update_grip_verts(pholder->inst, grip_verts, GRIP_VERTS );
 
         // copy the vertices into dst_point[]
         for ( point_count = 0, cnt = 0; cnt < GRIP_VERTS; cnt++, point_count++ )
@@ -435,7 +435,7 @@ bool apply_matrix_cache( Object * pchr, matrix_cache_t * mc_tmp )
 
     if ( applied )
     {
-        chr_instance_t::apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level );
+        chr_instance_t::apply_reflection_matrix(pchr->inst, pchr->enviro.grid_level );
     }
 
     return applied;
@@ -626,7 +626,7 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
         Object   * ptarget = _currentModule->getObjectHandler().get( mc_tmp.grip_chr );
 
         // has that character changes its animation?
-        grip_retval = ( egolib_rv )chr_instance_t::update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts.data(), GRIP_VERTS );
+        grip_retval = ( egolib_rv )chr_instance_t::update_grip_verts(ptarget->inst, mc_tmp.grip_verts.data(), GRIP_VERTS);
 
         if ( rv_error   == grip_retval ) return rv_error;
         if ( rv_success == grip_retval ) needs_update = true;
@@ -777,7 +777,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     const float default_chr_radius = 22.0f;
 
     int              cnt;
-    chr_instance_t * pmount_inst;
+
     oct_bb_t         tmp_cv;
 
     int     grip_count;
@@ -786,10 +786,12 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     fvec4_t grip_nupoints[GRIP_VERTS];
     bumper_t bmp;
 
-    if ( nullptr == ( pmount ) ) return false;
+	if (!pmount) {
+		return false;
+	}
 
     // alias this variable for notation simplicity
-    pmount_inst = &( pmount->inst );
+	chr_instance_t& pmount_inst = pmount->inst;
 
     // tune the grip radius
     bmp.size     = default_chr_radius * pmount->fat * 0.75f;
@@ -805,10 +807,10 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     // get appropriate vertices for this model's grip
     {
         // do the automatic vertex update
-        int vert_stt = ( signed )( pmount_inst->vrt_count ) - ( signed )grip_offset;
+		int vert_stt = (signed)(pmount_inst.vrt_count) - (signed)grip_offset;
         if ( vert_stt < 0 ) return false;
 
-        if ( gfx_error == chr_instance_t::update_vertices( pmount_inst, vert_stt, vert_stt + grip_offset, false ) )
+		if (gfx_error == chr_instance_t::update_vertices(pmount_inst, vert_stt, vert_stt + grip_offset, false))
         {
             grip_count = 0;
             for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
@@ -819,7 +821,7 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
         else
         {
             // calculate the grip vertices
-            for ( grip_count = 0, cnt = 0; cnt < GRIP_VERTS && ( size_t )( vert_stt + cnt ) < pmount_inst->vrt_count; grip_count++, cnt++ )
+			for (grip_count = 0, cnt = 0; cnt < GRIP_VERTS && (size_t)(vert_stt + cnt) < pmount_inst.vrt_count; grip_count++, cnt++)
             {
                 grip_verts[cnt] = vert_stt + cnt;
             }
@@ -878,12 +880,12 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
 
     // transform the vertices to calculate the grip_vecs[]
     // we only need one vertex
-    pmount_inst->matrix.transform(grip_points, grip_nupoints, 1);
+	pmount_inst.matrix.transform(grip_points, grip_nupoints, 1);
 
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
     {
-        oct_bb_translate( &tmp_cv, fvec3_t(grip_nupoints[0][kX],grip_nupoints[0][kY],grip_nupoints[0][kZ]), grip_cv_ptr );
+		oct_bb_translate(&tmp_cv, fvec3_t(grip_nupoints[0][kX], grip_nupoints[0][kY], grip_nupoints[0][kZ]), grip_cv_ptr);
     }
 
     return true;

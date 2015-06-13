@@ -5520,19 +5520,16 @@ gfx_rv gfx_update_flashing(dolist_t& dl)
         CHR_REF ichr = dl.get(i).ichr;
 
         Object *pchr = _currentModule->getObjectHandler().get(ichr);
-        if (nullptr == (pchr)) continue;
+        if (!pchr) continue;
 
-        chr_instance_t *pinst = &(pchr->inst);
+        chr_instance_t& pinst = pchr->inst;
 
         // Do flashing
         if (DONTFLASH != pchr->flashand)
         {
             if (HAS_NO_BITS(game_frame_all, pchr->flashand))
             {
-                if (gfx_error == chr_instance_flash(pinst, 255))
-                {
-                    retval = gfx_error;
-                }
+				chr_instance_flash(pinst, 255);
             }
         }
 
@@ -5544,10 +5541,7 @@ gfx_rv gfx_update_flashing(dolist_t& dl)
         {
             if (HAS_NO_BITS(game_frame_all, SEEKURSEAND))
             {
-                if (gfx_error == chr_instance_flash(pinst, 255.0f *(1.0f - tmp_seekurse_level)))
-                {
-                    retval = gfx_error;
-                }
+				chr_instance_flash(pinst, 255.0f *(1.0f - tmp_seekurse_level));
             }
         }
     }
@@ -5883,10 +5877,10 @@ gfx_rv update_one_chr_instance(Object *pchr)
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR(pchr), "invalid character");
         return gfx_error;
     }
-    chr_instance_t *pinst = &(pchr->inst);
+    chr_instance_t& pinst = pchr->inst;
 
     // only update once per frame
-    if (pinst->update_frame >= 0 && (Uint32)pinst->update_frame >= game_frame_all)
+    if (pinst.update_frame >= 0 && (Uint32)pinst.update_frame >= game_frame_all)
     {
         return gfx_success;
     }
@@ -5902,33 +5896,7 @@ gfx_rv update_one_chr_instance(Object *pchr)
     chr_instance_t::update_lighting_base(pinst, pchr, false);
 
     // set the update_frame to the current frame
-    pinst->update_frame = game_frame_all;
+    pinst.update_frame = game_frame_all;
 
     return retval;
-}
-
-gfx_rv chr_instance_flash(chr_instance_t * pinst, Uint8 value)
-{
-    /// @author ZZ
-    /// @details This function sets a character's lighting
-
-    size_t     cnt;
-    float      flash_val = value * INV_FF;
-    GLvertex * pv;
-
-    if (NULL == pinst) return gfx_error;
-
-    // flash the ambient color
-    pinst->color_amb = flash_val;
-
-    // flash the directional lighting
-    pinst->color_amb = flash_val;
-    for (cnt = 0; cnt < pinst->vrt_count; cnt++)
-    {
-        pv = pinst->vrt_lst + cnt;
-
-        pv->color_dir = flash_val;
-    }
-
-    return gfx_success;
 }

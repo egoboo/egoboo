@@ -199,14 +199,14 @@ egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
 //--------------------------------------------------------------------------------------------
 void chr_set_enviro_grid_level( Object * pchr, const float level )
 {
-    if ( nullptr == ( pchr ) ) return;
+	if (!pchr) {
+		return;
+	}
+	if (level != pchr->enviro.grid_level) {
+		pchr->enviro.grid_level = level;
 
-    if ( level != pchr->enviro.grid_level )
-    {
-        pchr->enviro.grid_level = level;
-
-        chr_instance_t::apply_reflection_matrix( &( pchr->inst ), level );
-    }
+		chr_instance_t::apply_reflection_matrix(pchr->inst, level);
+	}
 }
 
 //--------------------------------------------------------------------------------------------
@@ -448,7 +448,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
             vertex = (( int )pchr->inst.vrt_count ) - vertex_offset;
 
             // do the automatic update
-            chr_instance_t::update_vertices( &( pchr->inst ), vertex, vertex, false );
+            chr_instance_t::update_vertices(pchr->inst, vertex, vertex, false );
 
             // Calculate vertex_offset point locations with linear interpolation and other silly things
             point[0][kX] = pchr->inst.vrt_lst[vertex].pos[XX];
@@ -669,7 +669,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         }
 
         // set tehis action to loop
-        chr_instance_t::set_action_loop(&(prider->inst), true);
+        chr_instance_t::set_action_loop(prider->inst, true);
     }
     else if ( prider->alive )
     {
@@ -677,13 +677,13 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         /// the interpolation seems to fix it...
         chr_play_action( prider, ACTION_MM + slot, false );
 
-        chr_instance_t::remove_interpolation( &( prider->inst ) );
+        chr_instance_t::remove_interpolation(prider->inst);
 
         // set the action to keep for items
         if ( prider->isitem )
         {
             // Item grab
-            chr_instance_t::set_action_keep(&(prider->inst), true);
+            chr_instance_t::set_action_keep(prider->inst, true);
         }
     }
 
@@ -1919,13 +1919,13 @@ Object * chr_config_do_init( Object * pchr )
     //}
 
     // initalize the character instance
-    chr_instance_t::spawn( &( pchr->inst ), spawn_ptr->profile, spawn_ptr->skin );
+    chr_instance_t::spawn(pchr->inst, spawn_ptr->profile, spawn_ptr->skin);
     chr_update_matrix( pchr, true );
 
     // determine whether the object is hidden
     chr_update_hide( pchr );
 
-    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
@@ -2066,7 +2066,7 @@ void respawn_character( const CHR_REF character )
     PACK_END_LOOP();
 
     // re-initialize the instance
-    chr_instance_t::spawn( &( pchr->inst ), pchr->profile_ref, pchr->skin );
+    chr_instance_t::spawn(pchr->inst, pchr->profile_ref, pchr->skin);
     chr_update_matrix( pchr.get(), true );
 
     // determine whether the object is hidden
@@ -2078,53 +2078,41 @@ void respawn_character( const CHR_REF character )
         new_attached_prt_count = number_of_attached_particles( character );
     }
 
-    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
 }
 
 //--------------------------------------------------------------------------------------------
 int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 {
-    Object * pchr;
-    ObjectProfile * ppro;
-    mad_t * pmad;
-    chr_instance_t * pinst;
-    TX_REF new_texture = ( TX_REF )TX_WATER_TOP;
-    SKIN_T loc_skin = skin;
+    TX_REF new_texture = (TX_REF)TX_WATER_TOP;
 
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return 0;
-    pchr  = _currentModule->getObjectHandler().get( character );
-    pinst = &( pchr->inst );
+	if (!_currentModule->getObjectHandler().exists(character)) {
+		return 0;
+	}
+	Object *pchr = _currentModule->getObjectHandler().get(character);
+	chr_instance_t& pinst = pchr->inst;
 
-    pmad = ProfileSystem::get().pro_get_pmad(pchr->profile_ref);
-    if ( NULL == pmad )
-    {
+	mad_t *pmad = ProfileSystem::get().pro_get_pmad(pchr->profile_ref);
+    if (!pmad) {
         // make sure that the instance has a valid imad
-        if ( !LOADED_MAD( pinst->imad ) )
-        {
-            if ( chr_instance_t::set_mad( pinst, pchr->getProfile()->getModelRef() ) )
-            {
-                chr_update_collision_size( pchr, true );
+        if (!LOADED_MAD(pinst.imad)) {
+            if (chr_instance_t::set_mad(pinst, pchr->getProfile()->getModelRef())) {
+                chr_update_collision_size(pchr, true);
             }
-            pmad = chr_get_pmad( character );
+            pmad = chr_get_pmad(character);
         }
     }
 
-    if ( NULL == pmad )
-    {
-        pchr->skin     = 0;
-        pinst->texture = TX_WATER_TOP;
-    }
-    else
-    {
+    if (!pmad) {
+        pchr->skin = 0;
+        pinst.texture = TX_WATER_TOP;
+    } else {
         // do the best we can to change the skin
-
+		SKIN_T loc_skin = skin;
         // all skin numbers are technically valid
-        if ( loc_skin < 0 )
-        {
+        if (loc_skin < 0) {
             loc_skin = 0;
-        }
-        else
-        {
+        } else {
             loc_skin %= SKINS_PEROBJECT_MAX;
         }
 
@@ -2134,7 +2122,7 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
         pchr->skin = skin;
     }
 
-    chr_instance_t::set_texture( pinst, new_texture );
+    chr_instance_t::set_texture(pinst, new_texture);
 
     return pchr->skin;
 }
@@ -2470,13 +2458,13 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->anim_speed_run   = newProfile->getRunAnimationSpeed();
 
     // initialize the instance
-    chr_instance_t::spawn( &( pchr->inst ), profile_new, skin );
+    chr_instance_t::spawn(pchr->inst, profile_new, skin);
     chr_update_matrix( pchr, true );
 
     // Action stuff that must be down after chr_instance_spawn()
-    chr_instance_t::set_action_ready(&(pchr->inst), false);
-    chr_instance_t::set_action_keep(&(pchr->inst), false);
-    chr_instance_t::set_action_loop(&(pchr->inst), false);
+    chr_instance_t::set_action_ready(pchr->inst, false);
+    chr_instance_t::set_action_keep(pchr->inst, false);
+    chr_instance_t::set_action_loop(pchr->inst, false);
     if ( pchr->alive )
     {
         chr_play_action( pchr, ACTION_DA, false );
@@ -2484,7 +2472,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     else
     {
         chr_play_action( pchr, Random::next((int)ACTION_KA, ACTION_KA + 3), false );
-        chr_instance_t::set_action_keep(&(pchr->inst), true);
+        chr_instance_t::set_action_keep(pchr->inst, true);
     }
 
     // Set the skin after changing the model in chr_instance_spawn()
@@ -2523,7 +2511,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
     ai_state_set_changed( &( pchr->ai ) );
 
-    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, true );
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4405,56 +4393,54 @@ float set_character_animation_rate( Object * pchr )
 
     chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
 
-    chr_instance_t * pinst;
     mad_t          * pmad;
-    CHR_REF          ichr;
 
     // set the character speed to zero
     speed = 0;
 
     if ( NULL == pchr ) return 1.0f;
-    pinst = &( pchr->inst );
-    ichr  = GET_INDEX_PCHR( pchr );
+	chr_instance_t& pinst = pchr->inst;
+	CHR_REF ichr = GET_INDEX_PCHR(pchr);
 
     // if the action is set to keep then do nothing
-    can_be_interrupted = !pinst->action_keep;
-    if ( !can_be_interrupted ) return pinst->rate = 1.0f;
+    can_be_interrupted = !pinst.action_keep;
+    if ( !can_be_interrupted ) return pinst.rate = 1.0f;
 
     // dont change the rate if it is an attack animation
-    if ( pchr->isAttacking() )  return pinst->rate;
+    if ( pchr->isAttacking() )  return pinst.rate;
 
     // if the character is mounted or sitting, base the rate off of the mounr
-    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && (( ACTION_MI == pinst->action_which ) || ( ACTION_MH == pinst->action_which ) ) )
+    if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) && (( ACTION_MI == pinst.action_which ) || ( ACTION_MH == pinst.action_which ) ) )
     {
         // just copy the rate from the mount
-        pinst->rate = _currentModule->getObjectHandler().get(pchr->attachedto)->inst.rate;
-        return pinst->rate;
+        pinst.rate = _currentModule->getObjectHandler().get(pchr->attachedto)->inst.rate;
+        return pinst.rate;
     }
 
     // if the animation is not a walking-type animation, ignore the variable animation rates
     // and the automatic determination of the walk animation
     // "dance" is walking with zero speed
-    is_walk_type = ACTION_IS_TYPE( pinst->action_which, D ) || ACTION_IS_TYPE( pinst->action_which, W );
-    if ( !is_walk_type ) return pinst->rate = 1.0f;
+    is_walk_type = ACTION_IS_TYPE( pinst.action_which, D ) || ACTION_IS_TYPE( pinst.action_which, W );
+    if ( !is_walk_type ) return pinst.rate = 1.0f;
 
     // if the action cannot be changed on the at this time, there's nothing to do.
     // keep the same animation rate
-    if ( !pinst->action_ready )
+    if ( !pinst.action_ready )
     {
-        if ( 0.0f == pinst->rate ) pinst->rate = 1.0f;
-        return pinst->rate;
+        if ( 0.0f == pinst.rate ) pinst.rate = 1.0f;
+        return pinst.rate;
     }
 
     // go back to a base animation rate, in case the next frame is not a
     // "variable speed frame"
-    pinst->rate = 1.0f;
+    pinst.rate = 1.0f;
 
     // for non-flying objects, you have to be touching the ground
-    if ( !pchr->enviro.grounded && 0 == pchr->flyheight ) return pinst->rate;
+    if ( !pchr->enviro.grounded && 0 == pchr->flyheight ) return pinst.rate;
 
     // get the model
     pmad = chr_get_pmad( ichr );
-    if ( NULL == pmad ) return pinst->rate;
+    if ( NULL == pmad ) return pinst.rate;
 
     //---- set up the anim_info structure
     anim_info[CHR_MOVEMENT_STOP ].speed = 0;
@@ -4528,7 +4514,7 @@ float set_character_animation_rate( Object * pchr )
     // nothing to be done
     if ( 0 == anim_count )
     {
-        return pinst->rate;
+        return pinst.rate;
     }
 
     // estimate our speed
@@ -4558,10 +4544,10 @@ float set_character_animation_rate( Object * pchr )
     {
         if ( 0.0f != anim_info[0].speed )
         {
-            pinst->rate = speed / anim_info[0].speed;
+            pinst.rate = speed / anim_info[0].speed;
         }
 
-        return pinst->rate;
+        return pinst.rate;
     }
 
     // search for the correct animation
@@ -4588,7 +4574,7 @@ float set_character_animation_rate( Object * pchr )
             lip    = anim_info[cnt].lip;
             if ( 0.0f != anim_info[cnt].speed )
             {
-                pinst->rate = speed / anim_info[cnt].speed;
+                pinst.rate = speed / anim_info[cnt].speed;
             }
             break;
         }
@@ -4600,14 +4586,14 @@ float set_character_animation_rate( Object * pchr )
         lip    = anim_info[cnt].lip;
         if ( 0.0f != anim_info[cnt].speed )
         {
-            pinst->rate = speed / anim_info[cnt].speed;
+            pinst.rate = speed / anim_info[cnt].speed;
         }
         found = true;
     }
 
     if ( !found )
     {
-        return pinst->rate;
+        return pinst.rate;
     }
 
     if ( ACTION_DA == action )
@@ -4625,16 +4611,16 @@ float set_character_animation_rate( Object * pchr )
 
             // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
             rand_val   = Random::next(std::numeric_limits<uint16_t>::max());
-            tmp_action = mad_get_action_ref( pinst->imad, ACTION_DB + ( rand_val % 3 ) );
+            tmp_action = mad_get_action_ref( pinst.imad, ACTION_DB + ( rand_val % 3 ) );
             chr_start_anim( pchr, tmp_action, true, true );
         }
         else
         {
             // if the current action is not ACTION_D* switch to ACTION_DA
-            if ( !ACTION_IS_TYPE( pinst->action_which, D ) )
+            if ( !ACTION_IS_TYPE( pinst.action_which, D ) )
             {
                 // get an appropriate version of the boredom action
-                int tmp_action = mad_get_action_ref( pinst->imad, ACTION_DA );
+                int tmp_action = mad_get_action_ref( pinst.imad, ACTION_DA );
 
                 // start the animation
                 chr_start_anim( pchr, tmp_action, true, true );
@@ -4643,12 +4629,12 @@ float set_character_animation_rate( Object * pchr )
     }
     else
     {
-        int tmp_action = mad_get_action_ref( pinst->imad, action );
+        int tmp_action = mad_get_action_ref( pinst.imad, action );
         if ( ACTION_COUNT != tmp_action )
         {
-            if ( pinst->action_which != tmp_action )
+            if ( pinst.action_which != tmp_action )
             {
-                const MD2_Frame &nextFrame  = chr_instance_t::get_frame_nxt( &( pchr->inst ) );
+                const MD2_Frame &nextFrame  = chr_instance_t::get_frame_nxt(pchr->inst);
                 chr_set_anim( pchr, tmp_action, pmad->framelip_to_walkframe[lip][nextFrame.framelip], true, true );
             }
 
@@ -4657,9 +4643,9 @@ float set_character_animation_rate( Object * pchr )
         }
     }
 
-    pinst->rate = CLIP( pinst->rate, 0.1f, 10.0f );
+    pinst.rate = CLIP( pinst.rate, 0.1f, 10.0f );
 
-    return pinst->rate;
+    return pinst.rate;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4670,16 +4656,13 @@ void move_one_character_do_animation( Object * pchr )
 
     float flip_diff, flip_next;
 
-    chr_instance_t * pinst;
-    CHR_REF          ichr;
-
     if ( NULL == pchr ) return;
-    ichr  = GET_INDEX_PCHR( pchr );
-    pinst = &( pchr->inst );
+    CHR_REF ichr  = GET_INDEX_PCHR( pchr );
+    chr_instance_t& pinst = pchr->inst;
 
-    flip_diff  = 0.25f * pinst->rate;
+	flip_diff  = 0.25f * pinst.rate;
 
-    flip_next = chr_instance_t::get_remaining_flip( pinst );
+    flip_next = chr_instance_t::get_remaining_flip(pinst);
 
     while ( flip_next > 0.0f && flip_diff >= flip_next )
     {
@@ -4688,12 +4671,12 @@ void move_one_character_do_animation( Object * pchr )
         chr_instance_t::update_one_lip( pinst );
 
         // handle frame FX for the new frame
-        if ( 3 == pinst->ilip )
+        if ( 3 == pinst.ilip )
         {
             chr_handle_madfx( pchr );
         }
 
-        if ( 4 == pinst->ilip )
+        if ( 4 == pinst.ilip )
         {
             if ( rv_success != chr_increment_frame( pchr ) )
             {
@@ -4701,10 +4684,10 @@ void move_one_character_do_animation( Object * pchr )
             }
         }
 
-        if ( pinst->ilip > 4 )
+        if ( pinst.ilip > 4 )
         {
             log_warning( "chr_increment_frame() - invalid ilip\n" );
-            pinst->ilip = 0;
+            pinst.ilip = 0;
             break;
         }
 
@@ -4713,19 +4696,19 @@ void move_one_character_do_animation( Object * pchr )
 
     if ( flip_diff > 0.0f )
     {
-        int ilip_old = pinst->ilip;
+        int ilip_old = pinst.ilip;
 
         chr_instance_t::update_one_flip( pinst, flip_diff );
 
-        if ( ilip_old != pinst->ilip )
+        if ( ilip_old != pinst.ilip )
         {
             // handle frame FX for the new frame
-            if ( 3 == pinst->ilip )
+            if ( 3 == pinst.ilip )
             {
                 chr_handle_madfx( pchr );
             }
 
-            if ( 4 == pinst->ilip )
+            if ( 4 == pinst.ilip )
             {
                 if ( rv_success != chr_increment_frame( pchr ) )
                 {
@@ -4733,10 +4716,10 @@ void move_one_character_do_animation( Object * pchr )
                 }
             }
 
-            if ( pinst->ilip > 4 )
+            if ( pinst.ilip > 4 )
             {
                 log_warning( "chr_increment_frame() - invalid ilip\n" );
-                pinst->ilip = 0;
+                pinst.ilip = 0;
             }
         }
     }
@@ -5029,10 +5012,9 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     }
 
     // make sure the bounding box is calculated properly
-    if ( gfx_error == chr_instance_t::update_bbox( &( pchr->inst ) ) )
-    {
-        return rv_error;
-    }
+	if (gfx_error == chr_instance_t::update_bbox(pchr->inst)) {
+		return rv_error;
+	}
 
     // convert the point cloud in the GLvertex array (pchr->inst.vrt_lst) to
     // a level 1 bounding box. Subtract off the position of the character
@@ -5363,7 +5345,7 @@ void chr_set_redshift( Object * pchr, const int rs )
 
     pchr->inst.redshift = CLIP( rs, 0, 9 );
 
-    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5373,7 +5355,7 @@ void chr_set_grnshift( Object * pchr, const int gs )
 
     pchr->inst.grnshift = CLIP( gs, 0, 9 );
 
-    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5383,7 +5365,7 @@ void chr_set_blushift( Object * pchr, const int bs )
 
     pchr->inst.blushift = CLIP( bs, 0, 9 );
 
-    chr_instance_t::update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
+    chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, false );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5435,11 +5417,12 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 chr_get_framefx( Object * pchr )
+Uint32 chr_get_framefx(Object *pchr)
 {
-    if ( nullptr == ( pchr ) ) return 0;
-
-    return chr_instance_t::get_framefx( &( pchr->inst ) );
+	if (!pchr) {
+		return 0;
+	}
+    return chr_instance_t::get_framefx(pchr->inst);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5469,7 +5452,7 @@ egolib_rv chr_set_action( Object * pchr, int action, bool action_ready, bool ove
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-	retval = (egolib_rv)chr_instance_t::set_action(&(pchr->inst), action, action_ready, override_action);
+	retval = (egolib_rv)chr_instance_t::set_action(pchr->inst, action, action_ready, override_action);
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -5488,7 +5471,7 @@ egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool ove
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_t::start_anim( &( pchr->inst ), action, action_ready, override_action );
+    retval = ( egolib_rv )chr_instance_t::start_anim(pchr->inst, action, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -5507,7 +5490,7 @@ egolib_rv chr_set_anim( Object * pchr, int action, int frame, bool action_ready,
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egolib_rv )chr_instance_t::set_anim( &( pchr->inst ), action, frame, action_ready, override_action );
+    retval = ( egolib_rv )chr_instance_t::set_anim(pchr->inst, action, frame, action_ready, override_action);
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -5526,7 +5509,7 @@ egolib_rv chr_increment_action( Object * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-	retval = (egolib_rv)chr_instance_t::increment_action(&(pchr->inst));
+	retval = (egolib_rv)chr_instance_t::increment_action(pchr->inst);
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -5588,7 +5571,7 @@ egolib_rv chr_increment_frame( Object * pchr )
         }
     }
 
-    retval = ( egolib_rv )chr_instance_t::increment_frame( &( pchr->inst ), pmad, imount, mount_action );
+    retval = ( egolib_rv )chr_instance_t::increment_frame(pchr->inst, pmad, imount, mount_action );
     if ( rv_success != retval ) return retval;
 
     /// @note BB@> this did not work as expected...
@@ -5610,18 +5593,19 @@ egolib_rv chr_increment_frame( Object * pchr )
 //--------------------------------------------------------------------------------------------
 egolib_rv chr_play_action( Object * pchr, int action, bool action_ready )
 {
-    egolib_rv retval;
+	if (!ACTIVE_PCHR(pchr)) {
+		return rv_error;
+	}
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
-
-	retval = (egolib_rv)chr_instance_t::play_action(&(pchr->inst), action, action_ready);
-    if ( rv_success != retval ) return retval;
+	egolib_rv retval = (egolib_rv)chr_instance_t::play_action(pchr->inst, action, action_ready);
+	if (rv_success != retval) {
+		return retval;
+	}
 
     // if the instance is invalid, invalidate everything that depends on this object
-    if ( !pchr->inst.save.valid )
-    {
-        chr_invalidate_child_instances( pchr );
-    }
+	if (!pchr->inst.save.valid) {
+		chr_invalidate_child_instances(pchr);
+	}
 
     return retval;
 }
@@ -5631,28 +5615,28 @@ bool chr_heal_mad( Object * pchr )
 {
     // try to repair a bad model if it exists
 
-    MAD_REF          imad_tmp = INVALID_MAD_REF;
-    chr_instance_t * pinst    = NULL;
+	if (!pchr) {
+		return false;
+	}
+	chr_instance_t& pinst = pchr->inst;
 
-    if ( nullptr == ( pchr ) ) return false;
-    pinst = &( pchr->inst );
-
-    if ( LOADED_MAD( pinst->imad ) ) return true;
+	if (LOADED_MAD(pinst.imad)) {
+		return true;
+	}
 
     // get whatever mad index the profile says to use
-    imad_tmp = ProfileSystem::get().getProfile(pchr->profile_ref)->getModelRef();
+	MAD_REF imad_tmp = ProfileSystem::get().getProfile(pchr->profile_ref)->getModelRef();
 
     // set the mad index to whatever the profile says, even if it is wrong,
     // since we know that our current one is invalid
-    chr_instance_t::set_mad( pinst, imad_tmp );
+    chr_instance_t::set_mad(pinst, imad_tmp);
 
     // if we healed the mad index, make sure to recalculate the collision size
-    if ( LOADED_MAD( pinst->imad ) )
-    {
-        chr_update_collision_size( pchr, true );
+    if (LOADED_MAD( pinst.imad)) {
+        chr_update_collision_size(pchr, true);
     }
 
-    return LOADED_MAD( pinst->imad );
+    return LOADED_MAD(pinst.imad);
 }
 
 //--------------------------------------------------------------------------------------------

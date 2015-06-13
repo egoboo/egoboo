@@ -700,7 +700,6 @@ float  get_ambient_level();
 
 void   draw_mouse_cursor();
 
-gfx_rv chr_instance_flash(chr_instance_t *inst, Uint8 value);
 
 //void gfx_calc_rotmesh();
 

@@ -1054,7 +1054,7 @@ Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_instance_t::set_action_keep(&(pchr->inst), true);
+    chr_instance_t::set_action_keep(pchr->inst, true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1615,7 +1615,7 @@ Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_instance_t::set_action_keep(&(pchr->inst), false);
+    chr_instance_t::set_action_keep(pchr->inst, false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5794,7 +5794,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         if ( rv_success == chr_start_anim( pself_target, action, false, true ) )
         {
             // remove the interpolation
-            chr_instance_t::remove_interpolation( &( pself_target->inst ) );
+            chr_instance_t::remove_interpolation(pself_target->inst);
 
             returncode = true;
         }
