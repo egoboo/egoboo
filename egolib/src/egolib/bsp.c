@@ -857,7 +857,7 @@ BSP_tree_t::~BSP_tree_t()
 	{
 		// ... prune the tree.
 		size_t pruned = prune();
-		std::stringstream msg = std::stringstream();
+		std::stringstream msg;
 		msg << __FILE__ << ":" << __LINE__ << ": pruned: " << pruned << ", remaining: " << _nused << std::endl;
 		log_info("%s", msg.str().c_str());
 	}
