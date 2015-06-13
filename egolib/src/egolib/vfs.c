@@ -49,7 +49,7 @@ typedef struct s_vfs_path_data vfs_path_data_t;
  *  If this is and @a _DEBUG are both defined,
  *  the VFS system runs in debug mode.
  */
-#define _VFS_DEBUG 1 
+#define _VFS_DEBUG 0
 
 //--------------------------------------------------------------------------------------------
 #define VFS_MAX_PATH 1024

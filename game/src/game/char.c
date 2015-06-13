@@ -105,8 +105,6 @@ static int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character );
-
 static egolib_rv chr_invalidate_child_instances( Object * pchr );
 
 static void chr_set_enviro_grid_level( Object * pchr, const float level );
@@ -116,7 +114,6 @@ static bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProf
 static bool chr_get_environment( Object * pchr );
 
 Object * chr_config_do_init( Object * pchr );
-static Object * chr_config_do_active( Object * pchr );
 static int chr_change_skin( const CHR_REF character, const SKIN_T skin );
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
 

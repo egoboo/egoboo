@@ -150,10 +150,6 @@ struct bumplist_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-static bool add_chr_chr_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, const CHR_REF ichr_b, Ego::DynamicArray<CoNode_t> *pcn_lst, CollisionSystem::HashNodeAry& hashNodeAry);
-static bool add_chr_prt_interaction(CoHashList_t *coHashList, const CHR_REF ichr_a, const PRT_REF iprt_b, Ego::DynamicArray<CoNode_t> * pcn_lst, CollisionSystem::HashNodeAry& hashNodeAry);
-
 static bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
@@ -169,16 +165,16 @@ static bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary );
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool do_chr_platform_physics( Object * pitem, Object * pplat );
-static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
+//static float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
 static bool do_chr_chr_collision( CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collision_data_t * pdata );
 
 static bool do_chr_prt_collision( CoNode_t * d );
 
-static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
+//static bool do_prt_platform_physics( chr_prt_collision_data_t * pdata );
 static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * pdata );
-static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
+//static bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1934,6 +1930,7 @@ bool do_chr_platform_physics( Object * pitem, Object * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff )
 {
     fvec3_t collision_size;
@@ -2015,8 +2012,10 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
 
     return dot;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pchr_b, const float exponent, oct_vec_v2_t& odepth, fvec3_t& nrm, float& depth)
 {
     oct_bb_t otmp_a, otmp_b;
@@ -2026,6 +2025,7 @@ bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pc
 
     return phys_estimate_pressure_normal(otmp_a, otmp_b, exponent, odepth, nrm, depth);
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool do_chr_chr_collision( CoNode_t * d )
@@ -2511,6 +2511,7 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
 {
     /// @author BB
@@ -2597,6 +2598,7 @@ bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
 
     return plat_collision;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )

@@ -260,8 +260,8 @@ static gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * p
 static gfx_rv light_fans_update_lcache(renderlist_t& rl);
 static gfx_rv light_fans_update_clst(renderlist_t& rl);
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
-static float calc_light_rotation(int rotation, int normal);
-static float calc_light_global(int rotation, int normal, float lx, float ly, float lz);
+//static float calc_light_rotation(int rotation, int normal);
+//static float calc_light_global(int rotation, int normal, float lx, float ly, float lz);
 
 //static void gfx_init_icon_data();
 static void   gfx_init_bar_data();
@@ -5440,7 +5440,7 @@ gfx_make_dolist_exit:
 
 //--------------------------------------------------------------------------------------------
 // UTILITY FUNCTIONS
-
+#if 0
 float calc_light_rotation(int rotation, int normal)
 {
     /// @author ZZ
@@ -5461,8 +5461,10 @@ float calc_light_rotation(int rotation, int normal)
 
     return (nrm2[kX] < 0) ? 0 : (nrm2[kX] * nrm2[kX]);
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 float calc_light_global(int rotation, int normal, float lx, float ly, float lz)
 {
     /// @author ZZ
@@ -5487,6 +5489,7 @@ float calc_light_global(int rotation, int normal, float lx, float ly, float lz)
 
     return fTmp * fTmp;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_update_flashing(dolist_t& dl)

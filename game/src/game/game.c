@@ -109,7 +109,6 @@ static void game_reset_timers();
 static void check_stats();
 static void tilt_characters_to_terrain();
 static void update_pits();
-static void game_update_ups();
 static void do_damage_tiles();
 static void set_local_latches();
 static void let_all_characters_think();
@@ -118,7 +117,6 @@ static void do_weather_spawn_particles();
 // module initialization / deinitialization - not accessible by scripts
 static bool game_load_module_data( const char *smallname );
 static void   game_release_module_data();
-static void   game_load_all_profiles( const char *modname );
 static void   game_load_profile_ai();
 
 static void   activate_spawn_file_vfs();

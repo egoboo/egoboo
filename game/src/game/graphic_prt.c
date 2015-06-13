@@ -101,7 +101,6 @@ Uint32 instance_update = (Uint32)~0;
 //--------------------------------------------------------------------------------------------
 static gfx_rv prt_instance_update(Camera& camera, const PRT_REF particle, Uint8 trans, bool do_lighting);
 static void calc_billboard_verts(Ego::VertexBuffer& vb, prt_instance_t *pinst, float size, bool do_reflect);
-static int  cmp_prt_registry_entity(const void *vlhs, const void *vrhs);
 static void draw_one_attachment_point(chr_instance_t *pinst, mad_t *pmad, int vrt_offset);
 static void prt_draw_attached_point(prt_bundle_t *pbdl_prt);
 static void render_prt_bbox(prt_bundle_t *pbdl_prt);
