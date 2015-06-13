@@ -58,7 +58,7 @@ namespace BSP
 	 */
 	void throwSubspaceIndexOutOfBounds(const char *file, int line, BSP::SubspaceIndex index, size_t listSize)
 	{
-		std::ostringstream msg = std::ostringstream();
+		std::ostringstream msg;
 		msg << file << ": " << line << ": "
 			<< "subspace index " << index << " out of bounds [" << 0 << "," << listSize << ")";
 		log_error("%s\n", msg.str().c_str());

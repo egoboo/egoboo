@@ -1018,7 +1018,7 @@ bool fill_bumplists()
 		{
 			size_t free, used;
 			getChrBSP()->getStats(free, used);
-			std::ostringstream msg = std::ostringstream();
+			std::ostringstream msg;
 			msg << __FILE__ << ":" << __LINE__ << ": "
 				<< "pruned: " << pruned << ", "
 			    << "free:   " << free << ", "
@@ -1030,7 +1030,7 @@ bool fill_bumplists()
 		{
 			size_t numFree, used;
 			getPrtBSP()->getStats(numFree, used);
-			std::ostringstream msg = std::ostringstream();
+			std::ostringstream msg;
 			msg << __FILE__ << ":" << __LINE__ << ": "
 				<< "pruned: " << pruned << ", "
 				<< "free:   " << numFree << ", "
