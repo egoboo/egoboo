@@ -611,8 +611,8 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
         return rv_error;
     }
 
-    if (other.empty) /// @todo Obviously the author does not know how set intersection works.
-    {
+	// @todo Obviously the author does not know how set intersection works.
+    if (other.empty) {
         return rv_fail;
     }
 
@@ -625,76 +625,40 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_join( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst )
+egolib_rv oct_bb_join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
 {
-    /// @author BB
-    /// @details find the union of two oct_bb_t
-
-    bool src1_null, src2_null;
-    int cnt;
-
-    if ( NULL == pdst ) return rv_error;
-
-    src1_null = ( NULL == psrc1 );
-    src2_null = ( NULL == psrc2 );
-
-    if ( src1_null && src2_null )
-    {
-        oct_bb_t::ctor( pdst );
-        return rv_fail;
-    }
-    else if ( src2_null )
-    {
-        return oct_bb_copy( pdst, psrc1 );
-    }
-    else if ( src1_null )
-    {
-        return oct_bb_copy( pdst, psrc2 );
+	// @todo Obviously the author does not know how set union works.
+	// no simple case, do the hard work
+    for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
+        dst.mins[i]  = std::min(src1.mins[i], src2.mins[i]);
+        dst.maxs[i]  = std::max(src1.maxs[i], src2.maxs[i]);
     }
 
-    // no simple case, do the hard work
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-    {
-        pdst->mins[cnt]  = std::min( psrc1->mins[cnt],  psrc2->mins[cnt] );
-        pdst->maxs[cnt]  = std::max( psrc1->maxs[cnt],  psrc2->maxs[cnt] );
-    }
-
-    return oct_bb_t::validate( pdst );
+    return oct_bb_t::validate(&dst);
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst )
+egolib_rv oct_bb_intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
 {
-    /// @author BB
-    /// @details find the intersection of two oct_bb_t
-
-    bool src1_empty, src2_empty;
-    int cnt;
-
-    if ( NULL == pdst ) return rv_error;
-
-    src1_empty = ( NULL == psrc1 || psrc1->empty );
-    src2_empty = ( NULL == psrc2 || psrc2->empty );
-
-    if ( src1_empty && src2_empty )
-    {
-        oct_bb_t::ctor( pdst );
+	/// @todo Obviously the author does not know how set intersection works.
+    if (src1.empty && src2.empty) {
+        oct_bb_t::ctor(&dst);
         return rv_fail;
     }
 
     // no simple case. do the hard work
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-    {
-        pdst->mins[cnt]  = std::max( psrc1->mins[cnt],  psrc2->mins[cnt] );
-        pdst->maxs[cnt]  = std::min( psrc1->maxs[cnt],  psrc2->maxs[cnt] );
+    for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
+        dst.mins[i]  = std::max(src1.mins[i], src2.mins[i]);
+        dst.maxs[i]  = std::min(src1.maxs[i], src2.maxs[i]);
     }
 
-    return oct_bb_t::validate( pdst );
+    return oct_bb_t::validate(&dst);
 }
 
 //--------------------------------------------------------------------------------------------
 egolib_rv oct_bb_t::join(const oct_vec_v2_t& v)
 {
+	// @todo Obviously the author does not know how set union works.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
         mins[i] = std::min(mins[i], v[i]);
@@ -705,6 +669,7 @@ egolib_rv oct_bb_t::join(const oct_vec_v2_t& v)
 
 egolib_rv oct_bb_t::join(const oct_bb_t& other)
 {
+	// @todo Obviously the author does not know how set union works.
     // No simple case, do the hard work.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
@@ -718,8 +683,8 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other)
 //--------------------------------------------------------------------------------------------
 egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 {
-    if (other.empty) /// @todo Obviously the author does not know how set intersection works.
-    {
+	/// @todo Obviously the author does not know how set intersection works.
+    if (other.empty) {
         return rv_fail;
     }
 

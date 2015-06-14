@@ -58,7 +58,7 @@ bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_ve
 
     // is there any overlap?
     oct_bb_t otmp;
-    if (rv_success != oct_bb_intersection(&bb_a, &bb_b, &otmp))
+    if (rv_success != oct_bb_intersection(bb_a, bb_b, otmp))
     {
         return false;
     }
@@ -611,7 +611,7 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const fvec3_t& pos1, const
         *tmax = 1.0f;
 
         // Determine the intersection of these two expanded volumes (for this frame).
-        oct_bb_intersection(&src1, &src2, &dst);
+        oct_bb_intersection(src1, src2, dst);
     }
     else
     {
@@ -633,7 +633,7 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const fvec3_t& pos1, const
         phys_expand_oct_bb(src2, vel2, tmp_min, tmp_max, exp2);
 
         // determine the intersection of these two expanded volumes (for this frame)
-        oct_bb_intersection(&exp1, &exp2, &dst);
+        oct_bb_intersection(exp1, exp2, dst);
     }
 
     if (0 != test_platform)
@@ -847,7 +847,7 @@ bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1,
     // Do the objects interact at the very beginning of the update?
     if (test_interaction_2(src1_orig, pos2, src2_orig, pos2, test_platform))
     {
-        oct_bb_intersection(&src1_orig, &src2_orig, &dst);
+        oct_bb_intersection(src1_orig, src2_orig, dst);
         return true;
     }
 
@@ -899,7 +899,7 @@ bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1,
 
     // determine the intersection of these two volumes
     oct_bb_t intersection;
-    oct_bb_intersection(&exp1, &exp2, &intersection);
+    oct_bb_intersection(exp1, exp2, intersection);
 
     // check to see if there is any possibility of interaction at all
     for (size_t i = 0; i < OCT_Z; ++i)
@@ -951,7 +951,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const fvec3_t& vel, const float tmi
     }
 
     // Determine bounding box for the range of times.
-    if (!oct_bb_join(&tmp_min, &tmp_max, &dst)) return false;
+    if (!oct_bb_join(tmp_min, tmp_max, dst)) return false;
 
     return true;
 }
