@@ -1827,7 +1827,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_translate( &pchr_b->slot_cv[SLOT_LEFT], pchr_b->getPosition(), &tmp_cv );
+        oct_bb_translate(pchr_b->slot_cv[SLOT_LEFT], pchr_b->getPosition(), tmp_cv);
         phys_expand_oct_bb(tmp_cv, pchr_b->vel, 0.0f, 1.0f, saddle_cv);
 
         if ( oct_bb_t::contains( &saddle_cv, apos ) )
@@ -1862,7 +1862,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_translate(&(pchr_a->slot_cv[SLOT_LEFT]), pchr_a->getPosition(), &tmp_cv );
+        oct_bb_translate(pchr_a->slot_cv[SLOT_LEFT], pchr_a->getPosition(), tmp_cv);
         phys_expand_oct_bb(tmp_cv, pchr_a->vel, 0.0f, 1.0f, saddle_cv);
 
         if ( oct_bb_t::contains( &saddle_cv, bpos ) )
@@ -2024,8 +2024,8 @@ bool do_chr_chr_collision_pressure_normal(const Object *pchr_a, const Object *pc
 {
     oct_bb_t otmp_a, otmp_b;
 
-    oct_bb_translate(&(pchr_a->chr_min_cv ), pchr_a->getPosition(), &otmp_a);
-    oct_bb_translate(&(pchr_b->chr_min_cv ), pchr_b->getPosition(), &otmp_b);
+    oct_bb_translate(pchr_a->chr_min_cv, pchr_a->getPosition(), otmp_a);
+    oct_bb_translate(pchr_b->chr_min_cv, pchr_b->getPosition(), otmp_b);
 
     return phys_estimate_pressure_normal(otmp_a, otmp_b, exponent, odepth, nrm, depth);
 }
@@ -2162,8 +2162,8 @@ bool do_chr_chr_collision( CoNode_t * d )
     }
 
     // shift the character bounding boxes to be centered on their positions
-    oct_bb_translate(&(pchr_a->chr_min_cv), pchr_a->getPosition(), &map_bb_a );
-    oct_bb_translate(&(pchr_b->chr_min_cv), pchr_b->getPosition(), &map_bb_b );
+    oct_bb_translate(pchr_a->chr_min_cv, pchr_a->getPosition(), map_bb_a);
+    oct_bb_translate(pchr_b->chr_min_cv, pchr_b->getPosition(), map_bb_b);
 
     // make the object more like a table if there is a platform-like interaction
     exponent = 1.0f;
@@ -2425,13 +2425,13 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collision_data_t * 
     handled = false;
 
     // shift the source bounding boxes to be centered on the given positions
-    oct_bb_translate(&(pdata->pchr->chr_min_cv), pdata->pchr->getPosition(), &cv_chr);
+    oct_bb_translate(pdata->pchr->chr_min_cv, pdata->pchr->getPosition(), cv_chr);
 
     // the smallest particle collision volume
-    oct_bb_translate(&(pdata->pprt->prt_min_cv), pdata->pprt->getPosition(), &cv_prt_min);
+    oct_bb_translate(pdata->pprt->prt_min_cv, pdata->pprt->getPosition(), cv_prt_min);
 
     // the largest particle collision volume (the hit-box)
-    oct_bb_translate(&(pdata->pprt->prt_max_cv), pdata->pprt->getPosition(), &cv_prt_max);
+    oct_bb_translate(pdata->pprt->prt_max_cv, pdata->pprt->getPosition(), cv_prt_max);
 
     if ( d->tmin <= 0.0f || std::abs( d->tmin ) > 1e6 || std::abs( d->tmax ) > 1e6 )
     {

@@ -4070,7 +4070,7 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    oct_bb_translate( &( pchr->chr_min_cv ), pchr->getPosition(), &bump );
+    oct_bb_translate(pchr->chr_min_cv, pchr->getPosition(), bump);
 
     // determine the size of this object in tiles
     ixmin = bump.mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );

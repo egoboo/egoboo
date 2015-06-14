@@ -770,21 +770,21 @@ void draw_chr_bbox(Object *pchr)
             if (drawLeftSlot)
             {
                 oct_bb_t bb;
-                oct_bb_translate(&(pchr->slot_cv[SLOT_LEFT]), pchr->getPosition(), &bb);
+                oct_bb_translate(pchr->slot_cv[SLOT_LEFT], pchr->getPosition(), bb);
                 Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
                 render_oct_bb(&bb, true, true);
             }
             if (drawRightSlot)
             {
                 oct_bb_t bb;
-                oct_bb_translate(&(pchr->slot_cv[SLOT_RIGHT]), pchr->getPosition(), &bb);
+                oct_bb_translate(pchr->slot_cv[SLOT_RIGHT], pchr->getPosition(), bb);
                 Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
                 render_oct_bb(&bb, true, true);
             }
             if (drawCharacter)
             {
                 oct_bb_t bb;
-                oct_bb_translate(&(pchr->chr_min_cv), pchr->getPosition(), &bb);
+                oct_bb_translate(pchr->chr_min_cv, pchr->getPosition(), bb);
                 Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());
                 render_oct_bb(&bb, true, true);
             }
@@ -1098,7 +1098,7 @@ gfx_rv chr_instance_t::update_bbox(chr_instance_t& self)
     } else if (self.flip == 1.0f) {
         self.bbox = nextFrame.bb;
     } else {
-        oct_bb_interpolate(&lastFrame.bb, &nextFrame.bb, &self.bbox, self.flip);
+        oct_bb_interpolate(lastFrame.bb, nextFrame.bb, self.bbox, self.flip);
     }
 
     return gfx_success;

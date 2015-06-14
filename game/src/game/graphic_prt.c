@@ -1028,7 +1028,7 @@ void render_prt_bbox(prt_bundle_t *pbdl_prt)
 
         // shift the source bounding boxes to be centered on the given positions
         oct_bb_t loc_bb;
-        oct_bb_translate( &exp_bb, loc_pprt->pos, &loc_bb );
+        oct_bb_translate(exp_bb, loc_pprt->pos, loc_bb);
 
         oglx_texture_t::bind(nullptr);
         Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());

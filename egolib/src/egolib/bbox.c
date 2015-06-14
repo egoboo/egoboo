@@ -900,42 +900,26 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip )
+egolib_rv oct_bb_interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip)
 {
-    int cnt;
-
-    bool src1_empty, src2_empty;
-    if ( NULL == pdst ) return rv_error;
-
-    src1_empty = ( NULL == psrc1 || psrc1->empty );
-    src2_empty = ( NULL == psrc2 || psrc2->empty );
-
-    if ( src1_empty && src2_empty )
-    {
-        oct_bb_t::ctor( pdst );
+	if (src1.empty && src2.empty) {
+        oct_bb_t::ctor(&dst);
         return rv_fail;
-    }
-    else if ( !src1_empty && 0.0f == flip )
-    {
-        return oct_bb_copy( pdst, psrc1 );
-    }
-    else if ( !src2_empty && 1.0f == flip )
-    {
-        return oct_bb_copy( pdst, psrc2 );
-    }
-    else if ( src1_empty || src2_empty )
-    {
-        oct_bb_t::ctor( pdst );
+    } else if (!src1.empty && 0.0f == flip) {
+        return oct_bb_copy(&dst, &src1);
+    } else if (!src2.empty && 1.0f == flip) {
+        return oct_bb_copy(&dst, &src2);
+    } else if (src1.empty || src2.empty) {
+        oct_bb_t::ctor(&dst);
         return rv_fail;
     }
 
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-    {
-        pdst->mins[cnt] = psrc1->mins[cnt] + ( psrc2->mins[cnt] - psrc1->mins[cnt] ) * flip;
-        pdst->maxs[cnt] = psrc1->maxs[cnt] + ( psrc2->maxs[cnt] - psrc1->maxs[cnt] ) * flip;
+    for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
+        dst.mins[i] = src1.mins[i] + (src2.mins[i] - src1.mins[i]) * flip;
+        dst.maxs[i] = src1.maxs[i] + (src2.maxs[i] - src1.maxs[i]) * flip;
     }
 
-    return oct_bb_t::validate( pdst );
+    return oct_bb_t::validate(&dst);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1324,44 +1308,16 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_translate(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst)
-{
-	if (!dst) return rv_error;
-
-	if (!src)
-	{
-		oct_bb_t::ctor(dst);
-	}
-	else
-	{
-        *dst = *src;
-    }
-
-    dst->translate(t);
-
-	return oct_bb_t::validate(dst);
+egolib_rv oct_bb_translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst) {
+    dst = src;
+    dst.translate(t);
+	return oct_bb_t::validate(&dst);
 }
 
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_translate(const oct_bb_t *src, const oct_vec_v2_t& t, oct_bb_t *dst)
-{
-    /// @author BB
-    /// @details shift the bounding box by the vector ovec
-
-    if (!dst) return rv_error;
-
-    if (!src)
-    {
-        oct_bb_t::ctor(dst);
-    }
-    else
-    {
-        *dst = *src;
-    }
-
-    dst->translate(oct_vec_v2_t(t));
-
-    return oct_bb_t::validate(dst);
+egolib_rv oct_bb_translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
+    dst = src;
+    dst.translate(oct_vec_v2_t(t));
+    return oct_bb_t::validate(&dst);
 }
 
 //--------------------------------------------------------------------------------------------
