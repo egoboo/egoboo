@@ -426,7 +426,7 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip)
+egolib_rv oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip)
 {
 	if (src1.empty && src2.empty) {
         oct_bb_t::ctor(&dst);
@@ -834,13 +834,13 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst) {
+egolib_rv oct_bb_t::translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(t);
 	return oct_bb_t::validate(&dst);
 }
 
-egolib_rv oct_bb_translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
+egolib_rv oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(oct_vec_v2_t(t));
     return oct_bb_t::validate(&dst);

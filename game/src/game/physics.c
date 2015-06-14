@@ -534,8 +534,8 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const fvec3_t& pos1, const
     oct_bb_t src1, src2;
 
     // shift the bounding boxes to their starting positions
-    oct_bb_translate(src1_orig, opos1, src1);
-    oct_bb_translate(src2_orig, opos2, src2);
+    oct_bb_t::translate(src1_orig, opos1, src1);
+    oct_bb_t::translate(src2_orig, opos2, src2);
 
     bool found = false;
     *tmin = +1.0e6;
@@ -857,8 +857,8 @@ bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1,
 
     oct_bb_t src1, src2;
 
-    oct_bb_translate(src1_orig, opos1, src1);
-    oct_bb_translate(src2_orig, opos2, src2);
+    oct_bb_t::translate(src1_orig, opos1, src1);
+    oct_bb_t::translate(src2_orig, opos2, src2);
 
     // Cycle through the coordinates to see when the two volumes might coincide.
     bool found = false;
@@ -935,7 +935,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const fvec3_t& vel, const float tmi
     {
         fvec3_t tmp_diff = vel * tmin;
         // Adjust the bounding box to take in the position at the next step.
-        if (!oct_bb_translate(src, tmp_diff, tmp_min)) return false;
+        if (!oct_bb_t::translate(src, tmp_diff, tmp_min)) return false;
     }
 
     // Determine the bounding volume at t == tmax.
@@ -947,7 +947,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const fvec3_t& vel, const float tmi
     {
         fvec3_t tmp_diff = vel * tmax;
         // Adjust the bounding box to take in the position at the next step.
-        if (!oct_bb_translate(src, tmp_diff, tmp_max)) return false;
+        if (!oct_bb_t::translate(src, tmp_diff, tmp_max)) return false;
     }
 
     // Determine bounding box for the range of times.
@@ -966,7 +966,7 @@ bool phys_expand_chr_bb(Object *pchr, float tmin, float tmax, oct_bb_t& dst)
 
     // add in the current position to the bounding volume
     oct_bb_t tmp_oct2;
-    oct_bb_translate(tmp_oct1, pchr->getPosition(), tmp_oct2);
+    oct_bb_t::translate(tmp_oct1, pchr->getPosition(), tmp_oct2);
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb(tmp_oct2, pchr->vel, tmin, tmax, dst);
@@ -986,7 +986,7 @@ bool phys_expand_prt_bb(prt_t *pprt, float tmin, float tmax, oct_bb_t& dst)
 
     // add in the current position to the bounding volume
     oct_bb_t tmp_oct2;
-    oct_bb_translate(tmp_oct1, pprt->pos, tmp_oct2);
+    oct_bb_t::translate(tmp_oct1, pprt->pos, tmp_oct2);
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb(tmp_oct2, pprt->vel, tmin, tmax, dst);

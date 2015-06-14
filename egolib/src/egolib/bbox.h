@@ -495,6 +495,20 @@
          */
         egolib_rv cut(const oct_bb_t& other, int index);
 
+		/**
+		 * @brief
+		 *	Translate this bounding box.
+		 * @param src
+		 *	the source bounding box
+		 * @param t
+		 *	the translation vector
+		 * @param dst
+		 *	the target bounding box
+		 */
+		static egolib_rv translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst);
+		static egolib_rv translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst);
+
+		static egolib_rv interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip);
     };
     
     void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v);
@@ -503,20 +517,6 @@
 
 
 
-    /**
-     * @brief
-     *	Translate this bounding box.
-     * @param src
-     *	the source bounding box
-     * @param t
-     *	the translation vector
-     * @param dst
-     *	the target bounding box
-     */
-    egolib_rv oct_bb_translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst);
-    egolib_rv oct_bb_translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst);
-
-    egolib_rv  oct_bb_interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip);
 
 
     egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb );
