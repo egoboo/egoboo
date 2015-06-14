@@ -67,7 +67,7 @@ public:
         return _importAmount == 0;
     }
 
-    const uint8_t getRank() const {
+    uint8_t getRank() const {
         return _rank;
     }
 

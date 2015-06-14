@@ -88,7 +88,7 @@
     };
 
 #define EGO_ANIMATION_FRAMERATE_SCALING 1
-#define EGO_ANIMATION_MULTIPLIER 256
+#define EGO_ANIMATION_MULTIPLIER 255
 
 //--------------------------------------------------------------------------------------------
 // 24.8 fixed point types
@@ -99,7 +99,15 @@
     /// fast version of V1 / 256
 #   define UFP8_TO_UINT(V1)   ( ((unsigned)(V1)) >> 8 )
     /// signed version of V1 / 256
-#   define SFP8_TO_SINT(V1)   LAMBDA( (V1) < 0, -((signed)UFP8_TO_UINT(-V1)), (signed)UFP8_TO_UINT(V1) )
+
+template<typename T>
+signed SFP8_TO_SINT(const T& val)
+{
+	if(std::is_signed<T>::value) {
+		return - static_cast<signed>(UFP8_TO_UINT(-val));
+	}
+	return static_cast<signed>(UFP8_TO_UINT(val));
+}
 
     /// fast version of V1 / 256
 #   define UINT_TO_UFP8(V1)   ( ((unsigned)(V1)) << 8 )

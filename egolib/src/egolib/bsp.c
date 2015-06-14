@@ -857,9 +857,9 @@ BSP_tree_t::~BSP_tree_t()
 	{
 		// ... prune the tree.
 		size_t pruned = prune();
-		std::stringstream s;
-		s << __FILE__ << ":" << __LINE__ << ": pruned: " << pruned << ", remaining: " << _nused << std::endl;
-		log_info("%s", s.str().c_str());
+		std::stringstream msg;
+		msg << __FILE__ << ":" << __LINE__ << ": pruned: " << pruned << ", remaining: " << _nused << std::endl;
+		log_info("%s", msg.str().c_str());
 	}
 
 	// Destroy all shells in the free list.

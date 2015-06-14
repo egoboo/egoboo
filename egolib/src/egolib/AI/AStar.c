@@ -348,7 +348,7 @@ bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst )
 #ifdef DEBUG_ASTAR
             // using >> for division only works if you know for certainty that the value
             // you are shifting is not intended to be neative
-            printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, way_x / GRID_ISIZE, way_y / GRID_ISIZE );
+            printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, static_cast<int>(way_x / GRID_ISIZE), static_cast<int>(way_y / GRID_ISIZE) );
             point_list_add( way_x, way_y, 200, 800 );
             line_list_add( last_waypoint->ix*GRID_FSIZE + ( GRID_ISIZE / 2 ), last_waypoint->iy*GRID_FSIZE + ( GRID_ISIZE / 2 ), 200, way_x, way_y, 200, 800 );
 #endif

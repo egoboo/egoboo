@@ -51,7 +51,7 @@ static const float flip_tolerance = 0.25f * 0.5f;
 static void draw_chr_verts( Object * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot );
 static void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot );
-static void draw_chr_grips( Object * pchr );
+//static void draw_chr_grips( Object * pchr );
 static void draw_chr_attached_grip( Object * pchr );
 static void draw_chr_bbox( Object * pchr );
 
@@ -791,9 +791,9 @@ void draw_chr_bbox(Object *pchr)
         }
     }
 
+#if _DEBUG
     //// The grips and vertrices of all objects.
-    /*
-    if (cfg.dev_mode && SDL_KEYDOWN(keyb, SDLK_F6))
+    if (SDL_KEYDOWN(keyb, SDLK_F6))
     {
         draw_chr_attached_grip( pchr );
 
@@ -801,9 +801,10 @@ void draw_chr_bbox(Object *pchr)
         GL_DEBUG(glPointSize(5));
         draw_chr_verts(pchr, 0, pchr->inst.vrt_count);
     }
-    */
+#endif
 }
 
+#if _DEBUG
 void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
 {
     /// @author BB
@@ -854,6 +855,7 @@ void draw_chr_verts( Object * pchr, int vrt_offset, int verts )
     // restore the matrix mode
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 }
+#endif
 
 void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
 {
@@ -948,6 +950,7 @@ void draw_chr_attached_grip( Object * pchr )
     draw_one_grip( &( pholder->inst ), pholder_mad, pchr->inwhich_slot );
 }
 
+#if 0
 void draw_chr_grips( Object * pchr )
 {
     mad_t * pmad;
@@ -990,6 +993,7 @@ void draw_chr_grips( Object * pchr )
     // restore the matrix mode
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 
@@ -1678,9 +1682,6 @@ gfx_rv chr_instance_t::increment_frame(chr_instance_t& self, mad_t *pmad, const 
         }
         else
         {
-            // make sure that the frame_nxt points to a valid frame in this action
-			frame_nxt = pmad->action_end[self.action_which];
-
             // Go on to the next action. don't let just anything interrupt it?
 			chr_instance_t::increment_action(self);
 

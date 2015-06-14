@@ -1,6 +1,27 @@
-.PHONY: idlib egolib egoboo clean
+.PHONY: idlib egolib egoboo clean set_debug_flags debug
 	
+debug: set_debug_flags all
+
 all: idlib egolib egoboo
+
+COMPILE_FLAGS := -D__USE_MINGW_ANSI_STDIO=1 -I../external/mingw/include/SDL2 -I../external/physfs-2.1.1 -std=c++11 -D_CONSOLE -static-libstdc++
+COMPILE_WARNINGS := -Wall -Wextra -Werror -Wfatal-errors
+COMPILE_DEBUG_FLAGS := -fdiagnostics-color=always
+COMPILE_OPTIMIZE := -O0
+
+#Silence warnings we do not care about
+COMPILE_WARNINGS += -Wno-missing-field-initializers -Wno-unused-parameter
+
+#-D_DEBUG
+set_debug_flags:
+	$(eval COMPILE_DEBUG_FLAGS+=-ggdb)
+	$(eval COMPILE_OPTIMIZE:=-Og)
+
+set_release_flags:
+	$(eval COMPILE_DEBUG_FLAGS+=-DNDEBUG)
+	$(eval COMPILE_OPTIMIZE:=-O3)
+
+export COMPILE_FLAGS COMPILE_OPTIMIZE COMPILE_WARNINGS COMPILE_DEBUG_FLAGS
 
 egolib:
 	${MAKE} -C ./egolib -f Makefile.Windows

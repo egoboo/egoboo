@@ -259,9 +259,9 @@ static gfx_rv gfx_update_flashing(dolist_t& dl);
 static gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold);
 static gfx_rv light_fans_update_lcache(renderlist_t& rl);
 static gfx_rv light_fans_update_clst(renderlist_t& rl);
-static bool sum_global_lighting(lighting_vector_t lighting);
-static float calc_light_rotation(int rotation, int normal);
-static float calc_light_global(int rotation, int normal, float lx, float ly, float lz);
+static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
+//static float calc_light_rotation(int rotation, int normal);
+//static float calc_light_global(int rotation, int normal, float lx, float ly, float lz);
 
 //static void gfx_init_icon_data();
 static void   gfx_init_bar_data();
@@ -2298,7 +2298,7 @@ float draw_debug(float y)
         y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(2, 0), camera->getView()(2, 1), camera->getView()(2, 2), camera->getView()(2, 3));
         y = draw_string_raw(0, y, "CAM <%f, %f, %f, %f>", camera->getView()(3, 0), camera->getView()(3, 1), camera->getView()(3, 2), camera->getView()(3, 3));
         y = draw_string_raw(0, y, "CAM center <%f, %f>", camera->getCenter()[kX], camera->getCenter()[kY]);
-        y = draw_string_raw(0, y, "CAM turn %" PRIu8 " %d", camera->getTurnMode(), camera->getTurnTime());
+        y = draw_string_raw(0, y, "CAM turn %d %d", static_cast<int>(camera->getTurnMode()), camera->getTurnTime());
     }
 
     return y;
@@ -2873,7 +2873,7 @@ int by_element_cmp(const void *lhs, const void *rhs)
     {
         retval = 1;
     }
-    else if (NULL != loc_lhs && NULL == loc_rhs)
+    else if (NULL == loc_rhs)
     {
         retval = -1;
     }
@@ -2950,10 +2950,9 @@ gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rl
         }
         else
         {
-            int img = ~0;
             const ego_tile_info_t * ptile = tlst + rlst->lst[cnt].index;
 
-            img = TILE_GET_LOWER_BITS(ptile->img);
+            int img = TILE_GET_LOWER_BITS(ptile->img);
             if (ptile->type >= tile_dict.offset)
             {
                 img += MESH_IMG_COUNT;
@@ -3754,7 +3753,7 @@ gfx_rv render_world_background(Camera& cam, const TX_REF texture)
     GLvertex vtlist[4];
     int i;
     float z0, Qx, Qy;
-    float light = 1.0f, intens = 1.0f, alpha = 1.0f;
+    float intens = 1.0f;
 
     float xmag, Cx_0, Cx_1;
     float ymag, Cy_0, Cy_1;
@@ -3820,8 +3819,8 @@ gfx_rv render_world_background(Camera& cam, const TX_REF texture)
     vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
     vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
 
-    light = water.light ? 1.0f : 0.0f;
-    alpha = ilayer->alpha * INV_FF;
+    float light = water.light ? 1.0f : 0.0f;
+    float alpha = ilayer->alpha * INV_FF;
 
     if (gfx.usefaredge)
     {
@@ -4395,23 +4394,19 @@ gfx_rv gfx_load_bars()
     /// @author ZZ
     /// @details This function loads the status bar bitmap
 
-    const char * pname = "";
-    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
-    pname = "mp_data/bars";
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_BARS);
-    if (!VALID_TX_RANGE(load_rv))
+    const char *barFile = "mp_data/bars";
+    if (!VALID_TX_RANGE(TextureManager::get().load(barFile, (TX_REF)TX_BARS)))
     {
-        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname);
+        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, barFile);
         retval = gfx_fail;
     }
 
-    pname = "mp_data/xpbar";
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_XP_BAR);
-    if (!VALID_TX_RANGE(load_rv))
+    const char *xpBarFile = "mp_data/xpbar";
+    if (!VALID_TX_RANGE(TextureManager::get().load(xpBarFile, (TX_REF)TX_XP_BAR)))
     {
-        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname);
+        log_warning("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, xpBarFile);
         retval = gfx_fail;
     }
 
@@ -4425,7 +4420,6 @@ gfx_rv gfx_load_map()
     /// @details This function loads the map bitmap
 
     const char* szMap = "mp_data/plan";
-    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
     // Turn it all off
@@ -4434,8 +4428,7 @@ gfx_rv gfx_load_map()
     blip_count = 0;
 
     // Load the images
-    load_rv = TextureManager::get().load(szMap, (TX_REF)TX_MAP);
-    if (!VALID_TX_RANGE(load_rv))
+    if (!VALID_TX_RANGE(TextureManager::get().load(szMap, (TX_REF)TX_MAP)))
     {
         log_debug("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap);
         retval = gfx_fail;
@@ -4457,11 +4450,9 @@ gfx_rv gfx_load_blips()
     /// @details This function loads the blip bitmaps
 
     const char * pname = "mp_data/blip";
-    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_BLIP);
-    if (!VALID_TX_RANGE(load_rv))
+    if (!VALID_TX_RANGE(TextureManager::get().load(pname, (TX_REF)TX_BLIP)))
     {
         log_warning("%s - Blip bitmap not loaded! (\"%s\")\n", __FUNCTION__, pname);
         retval = gfx_fail;
@@ -4474,11 +4465,9 @@ gfx_rv gfx_load_blips()
 gfx_rv gfx_load_icons()
 {
     const char * pname = "mp_data/nullicon";
-    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval = gfx_success;
 
-    load_rv = TextureManager::get().load(pname, (TX_REF)TX_ICON_NULL);
-    if (!VALID_TX_RANGE(load_rv))
+    if (!VALID_TX_RANGE(TextureManager::get().load(pname, (TX_REF)TX_ICON_NULL)))
     {
         log_warning("%s - cannot load \"empty hand\" icon! (\"%s\")\n", __FUNCTION__, pname);
         retval = gfx_fail;
@@ -4857,7 +4846,7 @@ float get_ambient_level()
 }
 
 //--------------------------------------------------------------------------------------------
-bool sum_global_lighting(lighting_vector_t lighting)
+bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting)
 {
     /// @author BB
     /// @details do ambient lighting. if the module is inside, the ambient lighting
@@ -4866,8 +4855,6 @@ bool sum_global_lighting(lighting_vector_t lighting)
 
     int cnt;
     float glob_amb;
-
-    if (NULL == lighting) return false;
 
     glob_amb = get_ambient_level();
 
@@ -5012,7 +4999,7 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
     bool needs_dynalight;
     ego_mesh_t * pmesh;
 
-    lighting_vector_t global_lighting;
+    std::array<float, LIGHTING_VEC_SIZE> global_lighting = {0};
 
     size_t               reg_count = 0;
     dynalight_registry_t reg[TOTAL_MAX_DYNA];
@@ -5453,7 +5440,7 @@ gfx_make_dolist_exit:
 
 //--------------------------------------------------------------------------------------------
 // UTILITY FUNCTIONS
-
+#if 0
 float calc_light_rotation(int rotation, int normal)
 {
     /// @author ZZ
@@ -5474,8 +5461,10 @@ float calc_light_rotation(int rotation, int normal)
 
     return (nrm2[kX] < 0) ? 0 : (nrm2[kX] * nrm2[kX]);
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 float calc_light_global(int rotation, int normal, float lx, float ly, float lz)
 {
     /// @author ZZ
@@ -5500,6 +5489,7 @@ float calc_light_global(int rotation, int normal, float lx, float ly, float lz)
 
     return fTmp * fTmp;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_update_flashing(dolist_t& dl)

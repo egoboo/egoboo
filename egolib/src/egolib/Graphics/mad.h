@@ -163,7 +163,11 @@ struct mad_t
     std::shared_ptr<MD2Model> md2_ptr;         ///< the pointer that will eventually be used
 };
 
-#define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_MAD) )
+inline bool VALID_MAD_RANGE(const MAD_REF mad)
+{
+    return mad < MAX_MAD;
+}
+
 #define LOADED_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadStack.lst[IMAD].loaded )
 
 #define LOADED_PMAD( PMAD )      ( (NULL != (PMAD)) && (PMAD)->loaded )

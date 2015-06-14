@@ -152,9 +152,7 @@ bool BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits )
 
 bool line_of_sight_blocked( line_of_sight_info_t * plos )
 {
-    bool mesh_hit = false, chr_hit = false;
-
-    mesh_hit = line_of_sight_with_mesh( plos );
+    bool mesh_hit = line_of_sight_with_mesh( plos );
 
     //if ( mesh_hit )
     //{
@@ -162,9 +160,9 @@ bool line_of_sight_blocked( line_of_sight_info_t * plos )
     //    plos->y1 = (plos->collide_y + 0.5f) * GRID_FSIZE;
     //}
 
-    //chr_hit = line_of_sight_with_characters( plos );
+    //bool chr_hit = line_of_sight_with_characters( plos );
 
-    return mesh_hit || chr_hit;
+    return mesh_hit /*|| chr_hit*/;
 }
 
 //--------------------------------------------------------------------------------------------

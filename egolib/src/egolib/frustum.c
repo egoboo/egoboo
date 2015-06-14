@@ -102,7 +102,7 @@ void egolib_frustum_t::calculatePlanes(const fmat_4x4_t& matrix, plane_t& left, 
 void egolib_frustum_t::calculate(const fmat_4x4_t& projection, const fmat_4x4_t& view)
 {
     fvec3_t pt1;
-    fvec3_t vlook, vfar;
+    fvec3_t vlook;
 
     // Compute the 6 frustum planes.
     {
@@ -349,11 +349,11 @@ bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) co
 	{
 		return false;
 	}
-	bool retval = false;
+
 	aabb_t aabb = oct->toAABB();
 	Ego::Math::Relation frustum_rv = this->intersects_aabb(aabb.getMin(), aabb.getMax(), doEnds);
-	retval = (frustum_rv > Ego::Math::Relation::outside);
-	return retval;
+
+	return frustum_rv > Ego::Math::Relation::outside;
 }
 
 #pragma pop_macro("NEAR")

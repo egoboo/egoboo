@@ -47,7 +47,7 @@ typedef struct s_link_stack_entry link_stack_entry_t;
 //--------------------------------------------------------------------------------------------
 
 static bool link_push_module();
-static bool link_test_module( const char * modname );
+//static bool link_test_module( const char * modname );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -302,12 +302,12 @@ bool link_load_parent( const char * modname, fvec3_t pos )
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool link_test_module( const char * modname )
 {
     if ( !VALID_CSTR( modname ) ) return false;
 
     //ZF> Not supported yet, needs porting
-/*
     bool retval = false;
 
     LoadPlayer_list_t tmp_loadplayer = LOADPLAYER_LIST_INIT;
@@ -322,6 +322,5 @@ bool link_test_module( const char * modname )
     LoadPlayer_list_init( &tmp_loadplayer );
 
     return retval;
-*/
-    return false;
 }
+#endif

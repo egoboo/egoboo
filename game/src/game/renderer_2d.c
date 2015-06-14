@@ -534,12 +534,11 @@ bool dump_screenshot()
     // returns true if successful, false otherwise
 
     int i;
-    bool savefound = false;
     bool saved     = false;
     STRING szFilename, szResolvedFilename;
 
     // find a valid file name
-    savefound = false;
+    bool savefound = false;
     i = 0;
     while ( !savefound && ( i < 100 ) )
     {

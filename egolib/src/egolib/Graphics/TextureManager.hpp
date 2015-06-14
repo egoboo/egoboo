@@ -76,7 +76,7 @@ enum e_global_tx_type
 
 inline bool VALID_TX_RANGE(const TX_REF ref)
 {
-    return ref >= 0 && ref < TEXTURES_MAX;
+    return ref < TEXTURES_MAX;
 }
 
 struct TextureManager : public Ego::Core::Singleton <TextureManager>

@@ -595,9 +595,7 @@ egolib_rv chr_update_matrix( Object * pchr, bool update_size )
     // recursively make sure that any mount matrices are updated
     if ( _currentModule->getObjectHandler().exists( pchr->attachedto ) )
     {
-        egolib_rv attached_update = rv_error;
-
-        attached_update = chr_update_matrix( _currentModule->getObjectHandler().get( pchr->attachedto ), true );
+        egolib_rv attached_update = chr_update_matrix( _currentModule->getObjectHandler().get( pchr->attachedto ), true );
 
         // if this fails, we should probably do something...
         if ( rv_error == attached_update )

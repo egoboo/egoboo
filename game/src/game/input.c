@@ -46,10 +46,6 @@ static void input_system_init_devices();
 
 static void input_read_joystick(int which);
 
-static bool input_handle_SDL_Event( SDL_Event * pevt );
-static bool input_handle_SDL_KEYDOWN( SDL_Event * pevt );
-static bool input_handle_chat( SDL_Event * pevt );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void input_system_init_keyboard()

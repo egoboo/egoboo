@@ -81,7 +81,14 @@ extern "C"
     };
 
 #   define TILE_DICTIONARY_INIT { false, 0, 0 }
-#   define TILE_DICT_PTR( DICT, IDX ) LAMBDA( !(DICT).loaded || ((IDX) < 0) || ((IDX) > (DICT).def_count), NULL, (DICT).def_lst + (IDX) )
+
+inline tile_definition_t* TILE_DICT_PTR(tile_dictionary_t& pdict, const uint8_t type)
+{
+    if(!pdict.loaded || type > pdict.def_count) {
+        return nullptr;
+    }
+    return pdict.def_lst + type;
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

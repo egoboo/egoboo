@@ -40,9 +40,9 @@ static egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& sr
 
 /// @brief A test to determine whether two "fast moving" objects are interacting within a frame.
 ///        Designed to determine whether a bullet particle will interact with character.
-static bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t& src2_orig, const fvec3_t& pos2, const fvec3_t& vel2, int test_platform, oct_bb_t& dst, float *tmin, float *tmax);
+//static bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t& src2_orig, const fvec3_t& pos2, const fvec3_t& vel2, int test_platform, oct_bb_t& dst, float *tmin, float *tmax);
 static bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3_t& nrm, float& depth);
-static float phys_get_depth(const oct_vec_v2_t& odepth, const fvec3_t& nrm);
+//static float phys_get_depth(const oct_vec_v2_t& odepth, const fvec3_t& nrm);
 static bool phys_warp_normal(const float exponent, fvec3_t& nrm);
 static bool phys_get_pressure_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_vec_v2_t& odepth);
 static bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_vec_v2_t& odepth);
@@ -152,6 +152,7 @@ bool phys_warp_normal(const float exponent, fvec3_t& nrm)
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 float phys_get_depth(const oct_vec_v2_t& podepth, const fvec3_t& nrm)
 {
     const float max_val = 1e6;
@@ -188,6 +189,7 @@ float phys_get_depth(const oct_vec_v2_t& podepth, const fvec3_t& nrm)
 
     return depth;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool phys_estimate_depth(const oct_vec_v2_t& odepth, const float exponent, fvec3_t& nrm, float& depth)
@@ -833,6 +835,7 @@ egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, con
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t& src2_orig, const fvec3_t& pos2, const fvec3_t& vel2, int test_platform, oct_bb_t& dst, float *tmin, float *tmax)
 {
     if (!tmin)
@@ -914,6 +917,7 @@ bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1,
     }
     return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
