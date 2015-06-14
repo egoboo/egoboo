@@ -518,83 +518,11 @@
 
     egolib_rv  oct_bb_interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip);
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// @details A convex poly representation of an object volume
-    struct OVolume_t
-    {
-        OVolume_t() :
-            lod(0),
-            needs_shape(false),
-            needs_position(false),
-            oct()
-        {
-            //ctor
-        }
-
-        int        lod;             ///< the level of detail (LOD) of this volume
-        bool   needs_shape;     ///< is the shape data valid?
-        bool   needs_position;  ///< Is the position data valid?
-
-        oct_bb_t   oct;
-    };
-
-    OVolume_t * OVolume__ctor( OVolume_t * );
-    OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 );
-    OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 );
-//bool    OVolume_draw( OVolume_t * cv, bool draw_square, bool draw_diamond );
-//bool    OVolume_shift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
-//bool    OVolume_unshift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
-
-    bool    OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume );
-
-//--------------------------------------------------------------------------------------------
-
-    struct OVolume_Tree_t { OVolume_t leaf[8]; };
-
-//--------------------------------------------------------------------------------------------
-
-/// @details A convex polygon representation of the collision of two objects
-    struct CVolume_t
-    {
-        CVolume_t() :
-            volume(0.0f),
-            center(0, 0, 0),
-            ov(),
-            tree(nullptr)
-        {
-            //ctor
-        }
-
-        float            volume;
-        fvec3_t          center;
-        OVolume_t        ov;
-        OVolume_Tree_t  *tree;
-    };
-
-    CVolume_t * CVolume__blank( CVolume_t * );
-    bool CVolume_ctor( CVolume_t * , const OVolume_t * pva, const OVolume_t * pvb );
-    bool CVolume_refine( CVolume_t * );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// type conversion routines
-
-//bool bumper_to_oct_bb_1( const bumper_t src, const fvec3_t vel, oct_bb_t * pdst );
 
     egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb );
 
     int    oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
     void   points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count );
-
-//--------------------------------------------------------------------------------------------
-//inline
-//--------------------------------------------------------------------------------------------
-
-
-
-
 
 
 egolib_rv oct_bb_copy(oct_bb_t *dst, const oct_bb_t *src);
