@@ -951,7 +951,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const fvec3_t& vel, const float tmi
     }
 
     // Determine bounding box for the range of times.
-    if (!oct_bb_union(&tmp_min, &tmp_max, &dst)) return false;
+    if (!oct_bb_join(&tmp_min, &tmp_max, &dst)) return false;
 
     return true;
 }

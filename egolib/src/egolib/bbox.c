@@ -559,38 +559,6 @@ void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index )
-{
-    if ( NULL == pobb ) return NULL;
-
-    if ( index >= 0 && index < OCT_COUNT )
-    {
-        pobb->mins[index] = pobb->maxs[index] = 0.0f;
-        pobb->empty = true;
-    }
-
-    return pobb;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
-{
-    if ( NULL == pdst ) return rv_error;
-
-    if ( NULL == psrc )
-    {
-        oct_bb_ctor_index( pdst, index );
-
-        return rv_success;
-    }
-
-    pdst->mins[index] = psrc->mins[index];
-    pdst->maxs[index] = psrc->maxs[index];
-
-    return oct_bb_validate_index( pdst, index );
-}
-
-//--------------------------------------------------------------------------------------------
 egolib_rv oct_bb_validate_index(oct_bb_t *self, int index)
 {
     if (!self)
@@ -618,74 +586,6 @@ bool oct_bb_empty_index( const oct_bb_t * pbb, int index )
     if ( index < 0 || index >= OCT_COUNT ) return true;
 
     return oct_bb_empty_index_raw( pbb, index );
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst, int index )
-{
-    /// @author BB
-    /// @details find the union of two oct_bb_t
-
-    bool src1_empty, src2_empty;
-
-    if ( NULL == pdst ) return rv_error;
-
-    if ( index < 0 || index >= OCT_COUNT ) return rv_error;
-
-    src1_empty = ( NULL == psrc1 );
-    src2_empty = ( NULL == psrc2 );
-
-    if ( src1_empty && src2_empty )
-    {
-        oct_bb_ctor_index( pdst, index );
-        return rv_fail;
-    }
-    else if ( src2_empty )
-    {
-        oct_bb_copy_index( pdst, psrc1, index );
-        return rv_success;
-    }
-    else if ( src1_empty )
-    {
-        oct_bb_copy_index( pdst, psrc2, index );
-        return rv_success;
-    }
-
-    // no simple case, do the hard work
-
-    pdst->mins[index]  = std::min( psrc1->mins[index],  psrc2->mins[index] );
-    pdst->maxs[index]  = std::max( psrc1->maxs[index],  psrc2->maxs[index] );
-
-    return oct_bb_validate_index( pdst, index );
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_intersection_index(const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index )
-{
-    /// @author BB
-    /// @details find the intersection of two oct_bb_t
-
-    bool src1_empty, src2_empty;
-
-    if ( NULL == pdst ) return rv_error;
-
-    if ( index < 0 || index >= OCT_COUNT ) return rv_error;
-
-    src1_empty = ( NULL == psrc1 || psrc1->empty );
-    src2_empty = ( NULL == psrc2 || psrc2->empty );
-
-    if ( src1_empty && src2_empty )
-    {
-        oct_bb_ctor_index( pdst, index );
-        return rv_success;
-    }
-
-    // no simple case. do the hard work
-
-    pdst->mins[index]  = std::max( psrc1->mins[index],  psrc2->mins[index] );
-    pdst->maxs[index]  = std::min( psrc1->maxs[index],  psrc2->maxs[index] );
-
-    return oct_bb_validate_index( pdst, index );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -725,7 +625,7 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst )
+egolib_rv oct_bb_join( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst )
 {
     /// @author BB
     /// @details find the union of two oct_bb_t

@@ -526,20 +526,16 @@
 
 
 egolib_rv oct_bb_copy(oct_bb_t *dst, const oct_bb_t *src);
-egolib_rv oct_bb_copy_index(oct_bb_t *dst, const oct_bb_t *src, int index);
 
 
 egolib_rv oct_bb_validate_index(oct_bb_t *self, int index);
 
 bool oct_bb_empty(const oct_bb_t *self);
 
-oct_bb_t *oct_bb_ctor_index(oct_bb_t *self, int index);
 
 
 bool oct_bb_empty_index_raw(const oct_bb_t *self, int index);
 bool oct_bb_empty_index(const oct_bb_t *self, int index);
-egolib_rv oct_bb_union_index(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst, int index);
-egolib_rv oct_bb_intersection_index( const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst, int index);
-egolib_rv oct_bb_union(const oct_bb_t *src1, const oct_bb_t  *src2, oct_bb_t *dst);
+egolib_rv oct_bb_join(const oct_bb_t *src1, const oct_bb_t  *src2, oct_bb_t *dst);
 egolib_rv oct_bb_intersection(const oct_bb_t *src1, const oct_bb_t *src2, oct_bb_t *dst);
 
