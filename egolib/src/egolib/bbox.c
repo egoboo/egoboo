@@ -26,7 +26,7 @@
 #include "egolib/Math/AABB.hpp"
 
 //--------------------------------------------------------------------------------------------
-int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
+int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count)
 {
     /// @author BB
     /// @details convert the corners of the level 1 bounding box to a point cloud
@@ -44,242 +44,242 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
 
     int vcount = 0;
 
-    if ( NULL == pbmp || NULL == pos || 0 == pos_count ) return 0;
+    if (!pos || 0 == pos_count ) return 0;
 
     //---- the points along the y_max edge
-    ftmp = 0.5f * ( pbmp->maxs[OCT_XY] + pbmp->maxs[OCT_YX] );  // the top point of the diamond
-    if ( ftmp <= pbmp->maxs[OCT_Y] )
+	ftmp = 0.5f * (self.maxs[OCT_XY] + self.maxs[OCT_YX]);  // the top point of the diamond
+	if (ftmp <= self.maxs[OCT_Y])
     {
-        val_x = 0.5f * ( pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_YX] );
+		val_x = 0.5f * (self.maxs[OCT_XY] - self.maxs[OCT_YX]);
         val_y = ftmp;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
     {
-        val_y = pbmp->maxs[OCT_Y];
+		val_y = self.maxs[OCT_Y];
 
-        val_x = pbmp->maxs[OCT_Y] - pbmp->maxs[OCT_YX];
-        if ( val_x < pbmp->mins[OCT_X] )
+		val_x = self.maxs[OCT_Y] - self.maxs[OCT_YX];
+		if (val_x < self.mins[OCT_X])
         {
-            val_x = pbmp->mins[OCT_X];
+			val_x = self.mins[OCT_X];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
-        val_x = pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_Y];
-        if ( val_x > pbmp->maxs[OCT_X] )
+		val_x = self.maxs[OCT_XY] - self.maxs[OCT_Y];
+		if (val_x > self.maxs[OCT_X])
         {
-            val_x = pbmp->maxs[OCT_X];
+			val_x = self.maxs[OCT_X];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
     //---- the points along the y_min edge
-    ftmp = 0.5f * ( pbmp->mins[OCT_XY] + pbmp->mins[OCT_YX] );  // the top point of the diamond
-    if ( ftmp >= pbmp->mins[OCT_Y] )
+	ftmp = 0.5f * (self.mins[OCT_XY] + self.mins[OCT_YX]);  // the top point of the diamond
+	if (ftmp >= self.mins[OCT_Y])
     {
-        val_x = 0.5f * ( pbmp->mins[OCT_XY] - pbmp->mins[OCT_YX] );
+		val_x = 0.5f * (self.mins[OCT_XY] - self.mins[OCT_YX]);
         val_y = ftmp;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
     {
-        val_y = pbmp->mins[OCT_Y];
+		val_y = self.mins[OCT_Y];
 
-        val_x = pbmp->mins[OCT_XY] - pbmp->mins[OCT_Y];
-        if ( val_x < pbmp->mins[OCT_X] )
+		val_x = self.mins[OCT_XY] - self.mins[OCT_Y];
+		if (val_x < self.mins[OCT_X])
         {
-            val_x = pbmp->mins[OCT_X];
+			val_x = self.mins[OCT_X];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
-        val_x = pbmp->mins[OCT_Y] - pbmp->mins[OCT_YX];
-        if ( val_x > pbmp->maxs[OCT_X] )
+		val_x = self.mins[OCT_Y] - self.mins[OCT_YX];
+		if (val_x > self.maxs[OCT_X])
         {
-            val_x = pbmp->maxs[OCT_X];
+			val_x = self.maxs[OCT_X];
         }
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
     //---- the points along the x_max edge
-    ftmp = 0.5f * ( pbmp->maxs[OCT_XY] - pbmp->mins[OCT_YX] );  // the top point of the diamond
-    if ( ftmp <= pbmp->maxs[OCT_X] )
+	ftmp = 0.5f * (self.maxs[OCT_XY] - self.mins[OCT_YX]);  // the top point of the diamond
+	if (ftmp <= self.maxs[OCT_X])
     {
-        val_y = 0.5f * ( pbmp->maxs[OCT_XY] + pbmp->mins[OCT_YX] );
+		val_y = 0.5f * (self.maxs[OCT_XY] + self.mins[OCT_YX]);
         val_x = ftmp;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
     {
-        val_x = pbmp->maxs[OCT_X];
+		val_x = self.maxs[OCT_X];
 
-        val_y = pbmp->maxs[OCT_X] + pbmp->mins[OCT_YX];
-        if ( val_y < pbmp->mins[OCT_Y] )
+		val_y = self.maxs[OCT_X] + self.mins[OCT_YX];
+		if (val_y < self.mins[OCT_Y])
         {
-            val_y = pbmp->mins[OCT_Y];
+			val_y = self.mins[OCT_Y];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
-        val_y = pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_X];
-        if ( val_y > pbmp->maxs[OCT_Y] )
+		val_y = self.maxs[OCT_XY] - self.maxs[OCT_X];
+		if (val_y > self.maxs[OCT_Y])
         {
-            val_y = pbmp->maxs[OCT_Y];
+			val_y = self.maxs[OCT_Y];
         }
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
     //---- the points along the x_min edge
-    ftmp = 0.5f * ( pbmp->mins[OCT_XY] - pbmp->maxs[OCT_YX] );  // the left point of the diamond
-    if ( ftmp >= pbmp->mins[OCT_X] )
+	ftmp = 0.5f * (self.mins[OCT_XY] - self.maxs[OCT_YX]);  // the left point of the diamond
+	if (ftmp >= self.mins[OCT_X])
     {
-        val_y = 0.5f * ( pbmp->mins[OCT_XY] + pbmp->maxs[OCT_YX] );
+		val_y = 0.5f * (self.mins[OCT_XY] + self.maxs[OCT_YX]);
         val_x = ftmp;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
     {
-        val_x = pbmp->mins[OCT_X];
+		val_x = self.mins[OCT_X];
 
-        val_y = pbmp->mins[OCT_XY] - pbmp->mins[OCT_X];
-        if ( val_y < pbmp->mins[OCT_Y] )
+		val_y = self.mins[OCT_XY] - self.mins[OCT_X];
+		if (val_y < self.mins[OCT_Y])
         {
-            val_y = pbmp->mins[OCT_Y];
+			val_y = self.mins[OCT_Y];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
-        val_y = pbmp->maxs[OCT_YX] + pbmp->mins[OCT_X];
-        if ( val_y > pbmp->maxs[OCT_Y] )
+		val_y = self.maxs[OCT_YX] + self.mins[OCT_X];
+		if (val_y > self.maxs[OCT_Y])
         {
-            val_y = pbmp->maxs[OCT_Y];
+			val_y = self.maxs[OCT_Y];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->maxs[OCT_Z];
+		pos[vcount][kZ] = self.maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-        pos[vcount][kZ] = pbmp->mins[OCT_Z];
+		pos[vcount][kZ] = self.mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
