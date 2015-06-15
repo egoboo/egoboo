@@ -428,9 +428,9 @@ egolib_rv oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_
         oct_bb_t::ctor(&dst);
         return rv_fail;
     } else if (!src1.empty && 0.0f == flip) {
-        return oct_bb_copy(&dst, &src1);
+        return oct_bb_copy(dst, src1);
     } else if (!src2.empty && 1.0f == flip) {
-        return oct_bb_copy(&dst, &src2);
+        return oct_bb_copy(dst, src2);
     } else if (src1.empty || src2.empty) {
         oct_bb_t::ctor(&dst);
         return rv_fail;
@@ -483,20 +483,12 @@ void oct_bb_t::dtor(oct_bb_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_copy(oct_bb_t *self, const oct_bb_t *other)
+egolib_rv oct_bb_copy(oct_bb_t& self, const oct_bb_t& other)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    if (!other)
-    {
-        throw std::invalid_argument("nullptr == other");
-    }
-    self->mins = other->mins;
-    self->maxs = other->maxs;
-    self->empty = other->empty;
-    oct_bb_t::validate(self);
+    self.mins = other.mins;
+    self.maxs = other.maxs;
+    self.empty = other.empty;
+    oct_bb_t::validate(&self);
 	return rv_success;
 }
 
@@ -525,11 +517,11 @@ bool oct_bb_t::empty_raw(const oct_bb_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_empty( const oct_bb_t * pbb )
+bool oct_bb_empty(const oct_bb_t& self)
 {
-    if ( NULL == pbb || pbb->empty ) return true;
+    if (self.empty ) return true;
 
-    return oct_bb_t::empty_raw( pbb );
+    return oct_bb_t::empty_raw(&self);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -544,33 +536,31 @@ void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_validate_index(oct_bb_t *self, int index)
+egolib_rv oct_bb_validate_index(oct_bb_t& self, int index)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
     if (oct_bb_empty_index(self, index))
     {
-        self->empty = true;
+        self.empty = true;
     }
     return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_empty_index_raw( const oct_bb_t * pbb, int index )
+bool oct_bb_empty_index_raw(const oct_bb_t& self, int index)
 {
-    return ( pbb->mins[index] >= pbb->maxs[index] );
+    return (self.mins[index] >= self.maxs[index] );
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_empty_index( const oct_bb_t * pbb, int index )
+bool oct_bb_empty_index(const oct_bb_t& self, int index)
 {
-    if ( NULL == pbb || pbb->empty ) return true;
-
-    if ( index < 0 || index >= OCT_COUNT ) return true;
-
-    return oct_bb_empty_index_raw( pbb, index );
+	if (self.empty) {
+		return true;
+	}
+	if (index < 0 || index >= OCT_COUNT) {
+		return true;
+	}
+    return oct_bb_empty_index_raw(self, index);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -585,7 +575,7 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other, int index)
     mins[index] = std::min(mins[index], other.mins[index]);
     maxs[index] = std::max(maxs[index], other.maxs[index] );
 
-    oct_bb_validate_index(this, index);
+    oct_bb_validate_index(*this, index);
 	return rv_success;
 }
 
@@ -606,7 +596,7 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
     mins[index]  = std::max(mins[index], other.mins[index]);
     maxs[index]  = std::min(maxs[index], other.maxs[index]);
 
-    oct_bb_validate_index(this, index);
+    oct_bb_validate_index(*this, index);
 	return rv_success;
 }
 
@@ -706,19 +696,15 @@ egolib_rv oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v)
+egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v)
 {
-    if (!self)
+    for (size_t i = 0; i < OCT_COUNT; ++i) 
     {
-        throw std::invalid_argument("nullptr == self");
-    }
-    for (size_t i = 0; i < OCT_COUNT; ++i)
-    {
-        self->mins[i] -= std::abs(v[i]);
-        self->maxs[i] += std::abs(v[i]);
+        self.mins[i] -= std::abs(v[i]);
+        self.maxs[i] += std::abs(v[i]);
     }
 
-    oct_bb_t::validate(self);
+    oct_bb_t::validate(&self);
 	return rv_success;
 }
 
@@ -742,24 +728,16 @@ bool oct_bb_t::contains(const oct_bb_t *self, const oct_vec_v2_t& point)
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_t::contains(const oct_bb_t *self, const oct_bb_t *other)
+bool oct_bb_t::contains(const oct_bb_t& self, const oct_bb_t& other)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    if (!other)
-    {
-        throw std::invalid_argument("nullptr == other");
-    }
     // If the right-hand side is empty ...
-    if (other->empty)
+    if (other.empty)
     {
         // ... it is always contained in the left-hand side.
         return true;
     }
     // If the left-hand side is empty ...
-    if (self->empty)
+    if (self.empty)
     {
         // ... it can not contain the right-hand side as the right hand-side is non-empty by the above.
         return false;
@@ -768,8 +746,8 @@ bool oct_bb_t::contains(const oct_bb_t *self, const oct_bb_t *other)
     // Perform normal tests.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        if (other->maxs[i] > self->maxs[i]) return false;
-        if (other->mins[i] < self->mins[i]) return false;
+        if (other.maxs[i] > self.maxs[i]) return false;
+        if (other.mins[i] < self.mins[i]) return false;
     }
     return true;
 }

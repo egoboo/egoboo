@@ -314,11 +314,11 @@ bool phys_estimate_collision_normal(const oct_bb_t& obb_a, const oct_bb_t& obb_b
 
     // Do we need to use the more expensive algorithm?
     bool use_pressure = false;
-    if (oct_bb_t::contains(&obb_a, &obb_b))
+    if (oct_bb_t::contains(obb_a, obb_b))
     {
         use_pressure = true;
     }
-    else if (oct_bb_t::contains(&obb_b, &obb_a))
+    else if (oct_bb_t::contains(obb_b, obb_a))
     {
         use_pressure = true;
     }

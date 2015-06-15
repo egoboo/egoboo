@@ -428,7 +428,7 @@
          * @return
          *  @a true if this bounding volume contains the other bounding volume, @a false otherwise
          */
-        static bool contains(const oct_bb_t *self, const oct_bb_t *other);
+        static bool contains(const oct_bb_t& self, const oct_bb_t& other);
         
 		static oct_bb_t *ctor(oct_bb_t *self);
 		static void dtor(oct_bb_t *self);
@@ -508,7 +508,7 @@
     };
     
     void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v);
-    egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v);
+    egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v);
 
 
 
@@ -521,17 +521,17 @@
     void   points_to_oct_bb(oct_bb_t& self, const fvec4_t pos[], const size_t pos_count);
 
 
-egolib_rv oct_bb_copy(oct_bb_t *dst, const oct_bb_t *src);
+egolib_rv oct_bb_copy(oct_bb_t& dst, const oct_bb_t& src);
 
 
-egolib_rv oct_bb_validate_index(oct_bb_t *self, int index);
+egolib_rv oct_bb_validate_index(oct_bb_t& self, int index);
 
-bool oct_bb_empty(const oct_bb_t *self);
+bool oct_bb_empty(const oct_bb_t& self);
 
 
 
-bool oct_bb_empty_index_raw(const oct_bb_t *self, int index);
-bool oct_bb_empty_index(const oct_bb_t *self, int index);
+bool oct_bb_empty_index_raw(const oct_bb_t& self, int index);
+bool oct_bb_empty_index(const oct_bb_t& self, int index);
 egolib_rv oct_bb_join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
 egolib_rv oct_bb_intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
 

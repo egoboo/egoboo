@@ -938,7 +938,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
 		oct_vec_v2_t ovec;
 
         ego_tile_info_t *ptile = tile_mem_t::get(ptmem, cnt);
-        oct_bb_t *poct = &(ptile->oct);
+        oct_bb_t& poct = ptile->oct;
 
 		type = ptile->type;
 		type &= 0x3F;
@@ -951,34 +951,34 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
 
 		// initialize the bounding box
 	    ovec = oct_vec_v2_t(fvec3_t(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
-        oct_bb_set_ovec( poct, ovec );
+        oct_bb_set_ovec( &poct, ovec );
         mesh_vrt++;
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
             ovec.ctor(fvec3_t(ptmem->plst[mesh_vrt][0],ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
-            poct->join(ovec);
+            poct.join(ovec);
         }
 
         // ensure that NO tile has zero volume.
         // if a tile is declared to have all the same height, it will accidentally be called "empty".
-        if (poct->empty || (std::abs(poct->maxs[OCT_X] - poct->mins[OCT_X]) +
-                            std::abs(poct->maxs[OCT_Y] - poct->mins[OCT_Y]) +
-                            std::abs(poct->maxs[OCT_Z] - poct->mins[OCT_Z])) < std::numeric_limits<float>::epsilon())
+        if (poct.empty || (std::abs(poct.maxs[OCT_X] - poct.mins[OCT_X]) +
+                           std::abs(poct.maxs[OCT_Y] - poct.mins[OCT_Y]) +
+                           std::abs(poct.maxs[OCT_Z] - poct.mins[OCT_Z])) < std::numeric_limits<float>::epsilon())
         {
             ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 0.1;
             ovec[OCT_XY] = ovec[OCT_YX] = Ego::Math::sqrtTwo<float>() * ovec[OCT_X];
-            oct_bb_self_grow( poct, ovec );
+            oct_bb_self_grow(poct, ovec);
         }
 
         // extend the mesh bounding box
-        ptmem->bbox = aabb_t(fvec3_t(std::min(ptmem->bbox.getMin()[XX], poct->mins[XX]),
-                                     std::min(ptmem->bbox.getMin()[YY], poct->mins[YY]),
-                                     std::min(ptmem->bbox.getMin()[ZZ], poct->mins[ZZ])),
-                             fvec3_t(std::max(ptmem->bbox.getMax()[XX], poct->maxs[XX]),
-                                     std::max(ptmem->bbox.getMax()[YY], poct->maxs[YY]),
-                                     std::max(ptmem->bbox.getMax()[ZZ], poct->maxs[ZZ])));
+        ptmem->bbox = aabb_t(fvec3_t(std::min(ptmem->bbox.getMin()[XX], poct.mins[XX]),
+                                     std::min(ptmem->bbox.getMin()[YY], poct.mins[YY]),
+                                     std::min(ptmem->bbox.getMin()[ZZ], poct.mins[ZZ])),
+                             fvec3_t(std::max(ptmem->bbox.getMax()[XX], poct.maxs[XX]),
+                                     std::max(ptmem->bbox.getMax()[YY], poct.maxs[YY]),
+                                     std::max(ptmem->bbox.getMax()[ZZ], poct.maxs[ZZ])));
     }
 
     return true;

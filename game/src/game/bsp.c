@@ -256,7 +256,7 @@ bool chr_BSP_insert(Object * pchr)
 
 	// do the insert
 	retval = false;
-	if (!oct_bb_empty(&(pchr->chr_max_cv)))
+	if (!oct_bb_empty(pchr->chr_max_cv))
 	{
 		oct_bb_t tmp_oct;
 

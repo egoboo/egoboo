@@ -141,7 +141,7 @@ bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
     // it must still be inserted if it might interact with a particle
     if ( !requires_chr_chr && !requires_chr_prt ) return false;
 
-    if ( oct_bb_empty( &( pchr->chr_max_cv ) ) ) return false;
+    if (oct_bb_empty(pchr->chr_max_cv)) return false;
 
     return true;
 }
