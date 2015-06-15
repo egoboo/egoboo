@@ -298,12 +298,8 @@ int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count)
  * @param numberOfPoints
  *  the number of points in the array
  */
-void points_to_oct_bb(oct_bb_t *self, const fvec4_t points[], const size_t numberOfPoints)
+void points_to_oct_bb(oct_bb_t& self, const fvec4_t points[], const size_t numberOfPoints)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
     if (!points)
     {
         throw std::invalid_argument("nullptr == points");
@@ -317,7 +313,7 @@ void points_to_oct_bb(oct_bb_t *self, const fvec4_t points[], const size_t numbe
     oct_vec_v2_t otmp(fvec3_t(points[0][kX], points[0][kY], points[0][kZ]));
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        self->mins[i] = self->maxs[i] = otmp[i];
+        self.mins[i] = self.maxs[i] = otmp[i];
     }
 
     // Join the octagonal bounding box (containing only the first point) with all other points.
@@ -327,12 +323,12 @@ void points_to_oct_bb(oct_bb_t *self, const fvec4_t points[], const size_t numbe
 
         for (size_t j = 0; j < OCT_COUNT; ++j)
         {
-            self->mins[j] = std::min(self->mins[j], otmp[j]);
-            self->maxs[j] = std::max(self->maxs[j], otmp[j]);
+            self.mins[j] = std::min(self.mins[j], otmp[j]);
+            self.maxs[j] = std::max(self.maxs[j], otmp[j]);
         }
     }
 
-    oct_bb_t::validate(self);
+    oct_bb_t::validate(&self);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -453,19 +449,6 @@ egolib_rv oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_
 //inline
 //--------------------------------------------------------------------------------------------
 
-bool oct_vec_ctor(oct_vec_t ovec, const fvec3_t& pos)
-{
-	if (NULL == ovec)
-	{
-		return false;
-	}
-	ovec[OCT_X] = pos[kX];
-	ovec[OCT_Y] = pos[kY];
-	ovec[OCT_Z] = pos[kZ];
-	ovec[OCT_XY] = pos[kX] + pos[kY];
-	ovec[OCT_YX] = -pos[kX] + pos[kY];
-	return true;
-}
 
 //--------------------------------------------------------------------------------------------
 bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const fvec3_t& fvec, oct_vec_v2_t& odst)

@@ -60,10 +60,6 @@
         OCT_X, OCT_Y, OCT_XY, OCT_YX, OCT_Z, OCT_COUNT
     };
 
-/// a "vector" that measures distances based on the axes of an octagonal bounding box
-    typedef float * oct_vec_base_t;
-    typedef float oct_vec_t[OCT_COUNT];
-
     struct oct_vec_v2_t
     {
 
@@ -522,7 +518,7 @@
     egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb );
 
     int    oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count);
-    void   points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count );
+    void   points_to_oct_bb(oct_bb_t& self, const fvec4_t pos[], const size_t pos_count);
 
 
 egolib_rv oct_bb_copy(oct_bb_t *dst, const oct_bb_t *src);

@@ -1056,7 +1056,7 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
     bool platform_a, platform_b;
 
-    oct_vec_t odepth;
+    oct_vec_v2_t odepth;
     bool collide_x  = false;
     bool collide_y  = false;
     bool collide_xy = false;
@@ -1100,9 +1100,6 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     collide_z  = TO_C_BOOL( odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE );
 
     if ( !collide_z ) return false;
-
-    // initialize the overlap depths
-    odepth[OCT_X] = odepth[OCT_Y] = odepth[OCT_XY] = odepth[OCT_YX] = 0.0f;
 
     // determine how the characters can be attached
     chara_on_top = true;
@@ -1231,7 +1228,7 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 
     bool platform_a;
 
-    oct_vec_t odepth;
+    oct_vec_v2_t odepth;
     bool collide_x  = false;
     bool collide_y  = false;
     bool collide_xy = false;
@@ -1259,9 +1256,6 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 	collide_z = TO_C_BOOL(odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE);
 
     if ( !collide_z ) return false;
-
-    // initialize the overlap depths
-    odepth[OCT_X] = odepth[OCT_Y] = odepth[OCT_XY] = odepth[OCT_YX] = 0.0f;
 
     // determine how the characters can be attached
     odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pprt_b->pos[kZ] + pprt_b->prt_max_cv.mins[OCT_Z] );

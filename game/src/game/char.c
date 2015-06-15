@@ -5027,7 +5027,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     pchr->inst.matrix.transform(src, dst, vcount);
 
     // convert the new point cloud into a level 1 bounding box
-    points_to_oct_bb( &bdst, dst, vcount );
+    points_to_oct_bb( bdst, dst, vcount );
 
     //---- set the bounding boxes
     pchr->chr_min_cv = bdst;
