@@ -445,7 +445,8 @@ egolib_rv oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_
         dst.maxs[i] = src1.maxs[i] + (src2.maxs[i] - src1.maxs[i]) * flip;
     }
 
-    return oct_bb_t::validate(&dst);
+    oct_bb_t::validate(&dst);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -512,7 +513,8 @@ egolib_rv oct_bb_copy(oct_bb_t *self, const oct_bb_t *other)
     self->mins = other->mins;
     self->maxs = other->maxs;
     self->empty = other->empty;
-    return oct_bb_t::validate(self);
+    oct_bb_t::validate(self);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -600,7 +602,8 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other, int index)
     mins[index] = std::min(mins[index], other.mins[index]);
     maxs[index] = std::max(maxs[index], other.maxs[index] );
 
-    return oct_bb_validate_index(this, index);
+    oct_bb_validate_index(this, index);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -620,7 +623,8 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
     mins[index]  = std::max(mins[index], other.mins[index]);
     maxs[index]  = std::min(maxs[index], other.maxs[index]);
 
-    return oct_bb_validate_index(this, index);
+    oct_bb_validate_index(this, index);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -634,7 +638,8 @@ egolib_rv oct_bb_join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
         dst.maxs[i]  = std::max(src1.maxs[i], src2.maxs[i]);
     }
 
-    return oct_bb_t::validate(&dst);
+    oct_bb_t::validate(&dst);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -652,7 +657,8 @@ egolib_rv oct_bb_intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb
         dst.maxs[i]  = std::min(src1.maxs[i], src2.maxs[i]);
     }
 
-    return oct_bb_t::validate(&dst);
+    oct_bb_t::validate(&dst);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -664,7 +670,8 @@ egolib_rv oct_bb_t::join(const oct_vec_v2_t& v)
         mins[i] = std::min(mins[i], v[i]);
         maxs[i] = std::max(maxs[i], v[i]);
     }
-    return oct_bb_t::validate(this);
+    oct_bb_t::validate(this);
+	return rv_success;
 }
 
 egolib_rv oct_bb_t::join(const oct_bb_t& other)
@@ -677,7 +684,8 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other)
         maxs[i] = std::max(maxs[i], other.maxs[i]);
     }
 
-    return oct_bb_t::validate(this);
+    oct_bb_t::validate(this);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -695,20 +703,23 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
         maxs[i] = std::min(maxs[i], other.maxs[i]);
     }
 
-    return oct_bb_t::validate(this);
+    oct_bb_t::validate(this);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
 egolib_rv oct_bb_t::translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(t);
-	return oct_bb_t::validate(&dst);
+	oct_bb_t::validate(&dst);
+	return rv_success;
 }
 
 egolib_rv oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(oct_vec_v2_t(t));
-    return oct_bb_t::validate(&dst);
+    oct_bb_t::validate(&dst);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -724,7 +735,8 @@ egolib_rv oct_bb_self_grow(oct_bb_t *self, const oct_vec_v2_t& v)
         self->maxs[i] += std::abs(v[i]);
     }
 
-    return oct_bb_t::validate(self);
+    oct_bb_t::validate(self);
+	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
