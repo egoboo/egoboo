@@ -46,7 +46,7 @@
 
 struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, public GUIComponent
 {
-    ModuleGUIContainer(const std::shared_ptr<ModuleProfile> profile) :
+    ModuleGUIContainer(const std::shared_ptr<ModuleProfile> &profile) :
         _profile(profile),
         _moduleName(std::make_shared<Button>(_profile->getFolderName())),
         _loadingText(std::make_shared<Label>("Not Loaded"))
@@ -60,7 +60,7 @@ struct DebugModuleLoadingState::ModuleGUIContainer : public ComponentContainer, 
         setSize(SCREEN_WIDTH - 50, 30);
     }
     
-    void setOnClick(const std::function<void()> onClick)
+    void setOnClick(const std::function<void()> &onClick)
     {
         _moduleName->setOnClickFunction(onClick);
     }

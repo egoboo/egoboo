@@ -17,13 +17,13 @@ INCLUDES := -I./src -I../game/src -I../egolib/src
 INCLUDES += -I../../enet-1.3.12/include
 INCLUDES += -I../../physfs-2.0.3/
 
-CXXFLAGS  := -D__USE_MINGW_ANSI_STDIO=1 $(INCLUDES) -I../external/mingw/include/SDL2 -Dmain=SDL_main -Weffc++ -std=c++11 -O3 -D_CONSOLE -Wall -Werror -Wfatal-errors
+CXXFLAGS  := $(COMPILE_FLAGS) $(INCLUDES) $(COMPILE_OPTIMIZE) $(COMPILE_WARNINGS)
 
 #Disable specific warnings
-CXXFLAGS += -Wno-sign-compare -Wno-reorder
+CXXFLAGS += -Wno-sign-compare -Wno-reorder -ggdb
 
 #Debug options
-CXXFLAGS += -fdiagnostics-color=always
+CXXFLAGS += $(COMPILE_DEBUG_FLAGS)
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 

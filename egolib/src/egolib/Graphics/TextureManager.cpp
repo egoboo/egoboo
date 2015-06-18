@@ -100,7 +100,7 @@ void TextureManager::reload_all()
 
 TX_REF TextureManager::acquire(const TX_REF ref)
 {
-    if (ref >= 0 && ref < TX_SPECIAL_LAST)
+    if (ref < TX_SPECIAL_LAST)
     {
         _lst[ref]->release();
         return ref;
@@ -129,7 +129,7 @@ TX_REF TextureManager::acquire(const TX_REF ref)
 //--------------------------------------------------------------------------------------------
 bool TextureManager::relinquish(const TX_REF ref)
 {
-    if (ref < 0 || ref >= TEXTURES_MAX) return false;
+    if (ref >= TEXTURES_MAX) return false;
 
     // Release the texture.
     _lst[ref]->release();

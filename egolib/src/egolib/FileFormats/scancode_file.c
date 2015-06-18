@@ -257,7 +257,9 @@ void scantag_parse_control( const char * tag_string, control_t &pcontrol )
         tag_index = scantag_find_index( tag_token );
         if ( tag_index < 0 || tag_index >= scantag_count )
         {
-            log_warning( "%s - unknown tag token, \"%s\".\n", __FUNCTION__, tag_token );
+            if(token != "N/A") {
+                log_warning( "%s - unknown tag token, \"%s\".\n", __FUNCTION__, tag_token );
+            }
             break;
         }
 

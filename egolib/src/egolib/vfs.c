@@ -49,7 +49,7 @@ typedef struct s_vfs_path_data vfs_path_data_t;
  *  If this is and @a _DEBUG are both defined,
  *  the VFS system runs in debug mode.
  */
-#define _VFS_DEBUG 1 
+#define _VFS_DEBUG 0
 
 //--------------------------------------------------------------------------------------------
 #define VFS_MAX_PATH 1024
@@ -3112,7 +3112,7 @@ bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length
         size_t pos = 0;
         size_t bufferSize = 1024;
         char *buffer = (char *) malloc(bufferSize);
-        if (nullptr == buffer)
+        if (buffer == nullptr)
         {
             vfs_close(file);
             return false;
@@ -3130,7 +3130,7 @@ bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length
             if (vfs_eof(file)) break;
             if (0 == read) continue;
             char *newBuffer = (char *)realloc(buffer, pos + 1024);
-            if (nullptr == newBuffer)
+            if (newBuffer == nullptr)
             {
                 free(buffer);
                 vfs_close(file);
@@ -3145,7 +3145,7 @@ bool vfs_readEntireFile(const std::string& pathname, char **data, size_t *length
     {
         size_t pos = 0;
         char *buffer = (char *) malloc(fileLen);
-        if (nullptr == buffer)
+        if (buffer == nullptr)
         {
             vfs_close(file);
             return false;

@@ -31,7 +31,7 @@ bool map_read_v2(vfs_FILE *file, map_t *map)
     // Validate arguments.
     if (!map || !file)
     {
-        return nullptr;
+        return false;
     }
 
     // Alias.

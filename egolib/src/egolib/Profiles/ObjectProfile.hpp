@@ -263,7 +263,7 @@ public:
     /**
     * @brief return true if this character is immune to all damage
     **/
-    inline const bool isInvincible() const {return _isInvincible;}
+    inline bool isInvincible() const {return _isInvincible;}
 
     /**
     * @return true if the specified grip slot is valid for this profile
@@ -313,7 +313,7 @@ public:
     inline bool isDontCullBackfaces() const {return _dontCullBackfaces;}
 
 
-    inline const float getSizeGainPerLevel() const {return _sizeGainPerLevel;}
+    inline float getSizeGainPerLevel() const {return _sizeGainPerLevel;}
 
     inline uint8_t getWeight() const {return _weight;}
 

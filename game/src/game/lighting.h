@@ -43,17 +43,15 @@ enum
     LIGHTING_VEC_SIZE
 };
 
-typedef float lighting_vector_t[LIGHTING_VEC_SIZE];
-
-void lighting_vector_evaluate( const lighting_vector_t lvec, const fvec3_t& nrm, float * direct, float * amb );
-void lighting_vector_sum( lighting_vector_t lvec, const fvec3_t& nrm, const float direct, const float ambient );
+void lighting_vector_evaluate( const std::array<float, LIGHTING_VEC_SIZE> &lvec, const fvec3_t& nrm, float * direct, float * amb );
+void lighting_vector_sum( std::array<float, LIGHTING_VEC_SIZE> &lvec, const fvec3_t& nrm, const float direct, const float ambient );
 
 //--------------------------------------------------------------------------------------------
 struct lighting_cache_base_t
 {
     float             max_light;  ///< max amplitude of direct light
     float             max_delta;  ///< max change in the light amplitude
-    lighting_vector_t lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
+    std::array<float, LIGHTING_VEC_SIZE> lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
 };
 
 lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * pdata );
@@ -103,7 +101,7 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
 
 float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_t& nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir );
 
-bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_t& nrm );
+bool sum_dyna_lighting( const dynalight_data_t * pdyna, std::array<float, LIGHTING_VEC_SIZE> &lighting, const fvec3_t& nrm );
 
 /// @author BB
 /// @details In the Aaron's lighting, the falloff function was

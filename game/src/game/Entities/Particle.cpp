@@ -1408,11 +1408,10 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         fvec3_t floor_nrm = fvec3_t(0.0f, 0.0f, 1.0f);
         float vel_dot;
         fvec3_t vel_perp, vel_para;
-        Uint8 tmp_twist = TWIST_FLAT;
 
         touch_a_floor = true;
 
-        tmp_twist = cartman_get_fan_twist(PMesh, loc_pprt->getTile());
+        uint8_t tmp_twist = cartman_get_fan_twist(PMesh, loc_pprt->getTile());
 
         if (TWIST_FLAT != tmp_twist)
         {
@@ -1807,7 +1806,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 {
                     if (character != prt_bdl._prt_ptr->attachedto_ref) continue;
 
-                    if (prt_bdl._prt_ptr->attachedto_vrt_off >= 0 && prt_bdl._prt_ptr->attachedto_vrt_off < vertices)
+                    if (prt_bdl._prt_ptr->attachedto_vrt_off < vertices)
                     {
                         vertex_occupied[prt_bdl._prt_ptr->attachedto_vrt_off] = prt_bdl._prt_ref;
                     }

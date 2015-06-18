@@ -146,7 +146,7 @@ bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict,
 
     pdict->loaded = true;
 
-    pdict = tile_dictionary_finalize( pdict );
+    tile_dictionary_finalize( pdict );
 
     return true;
 

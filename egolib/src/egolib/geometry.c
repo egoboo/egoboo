@@ -31,35 +31,28 @@
 
 Ego::Math::Relation point_intersects_aabb(const point_base_t pos, const fvec3_t& corner1, const fvec3_t& corner2)
 {
-    int cnt;
-	Ego::Math::Relation retval = Ego::Math::Relation::inside;
-
-    // assume inside
-	retval = Ego::Math::Relation::inside;
-
     // scan the points
-    for ( cnt = 0; cnt < 3; cnt++ )
+    for (size_t cnt = 0; cnt < 3; cnt++ )
     {
         // don't assume one corner's points are always smaller
         if ( corner1[cnt] <= corner2[cnt] )
         {
             if ( pos[cnt] < corner1[cnt] || pos[cnt] > corner2[cnt] )
             {
-				retval = Ego::Math::Relation::outside;
-                break;
+				return Ego::Math::Relation::outside;
             }
         }
         else
         {
             if ( pos[cnt] < corner2[cnt] || pos[cnt] > corner1[cnt] )
             {
-				retval = Ego::Math::Relation::outside;
-                break;
+				return Ego::Math::Relation::outside;
             }
         }
     }
 
-    return retval;
+    // assume inside
+    return Ego::Math::Relation::inside;
 }
 
 //--------------------------------------------------------------------------------------------

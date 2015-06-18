@@ -26,7 +26,7 @@ CHR_REF GET_INDEX_PCHR(const Object *pobj)
 {
     return (nullptr == pobj) ? INVALID_CHR_REF : pobj->getCharacterID();
 }
-CHR_REF GET_INDEX_PCHR(const std::shared_ptr<Object> pobj)
+CHR_REF GET_INDEX_PCHR(const std::shared_ptr<Object> &pobj)
 {
     return (nullptr == pobj) ? INVALID_CHR_REF : pobj->getCharacterID();
 }

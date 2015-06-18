@@ -59,10 +59,18 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
         mdl = ( id_md2_model_t* )calloc( 1, sizeof( id_md2_model_t ) );
     }
 
-    if ( NULL == mdl ) return NULL;
+    if ( NULL == mdl ) {
+        fclose(fp);
+        return NULL;
+    }
 
     /* Read header */
-    fread( &mdl->header, 1, sizeof( id_md2_header_t ), fp );
+    if(fread( &mdl->header, 1, sizeof( id_md2_header_t ), fp ) != sizeof(id_md2_header_t)) {
+        fprintf(stderr, "Error: Unexpected EOF when reading header\n");
+        fclose(fp);
+        free(mdl);
+        return nullptr;
+    }
 
     if (( mdl->header.ident != MD2_MAGIC_NUMBER ) ||
         ( mdl->header.version != MD2_VERSION ) )
@@ -70,7 +78,8 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
         /* Error! */
         fprintf( stderr, "Error: bad version or identifier\n" );
         fclose( fp );
-        return 0;
+        free(mdl);
+        return nullptr;
     }
 
     /* Memory allocations */
@@ -78,20 +87,40 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
     mdl->texcoords = ( id_md2_texcoord_t * ) calloc( mdl->header.num_st,      sizeof( id_md2_texcoord_t ) );
     mdl->triangles = ( id_md2_triangle_t * ) calloc( mdl->header.num_tris,    sizeof( id_md2_triangle_t ) );
     mdl->frames    = ( id_md2_frame_t    * ) calloc( mdl->header.num_frames,  sizeof( id_md2_frame_t ) );
-    mdl->glcmds    = ( int               * ) calloc( mdl->header.size_glcmds, sizeof( int ) );
+    mdl->glcmds    = ( int32_t           * ) calloc( mdl->header.size_glcmds, sizeof( int32_t ) );
 
     /* Read model data */
     fseek( fp, mdl->header.offset_skins, SEEK_SET );
-    fread( mdl->skins, sizeof( id_md2_skin_t ), mdl->header.num_skins, fp );
+    if(fread( mdl->skins, sizeof(id_md2_skin_t), mdl->header.num_skins, fp ) != sizeof(id_md2_skin_t)) {
+        fprintf(stderr, "Error: skin data corrupted\n");
+        fclose(fp);
+        free(mdl);
+        return nullptr;
+    }
 
     fseek( fp, mdl->header.offset_st, SEEK_SET );
-    fread( mdl->texcoords, sizeof( id_md2_texcoord_t ), mdl->header.num_st, fp );
+    if(fread( mdl->texcoords, sizeof(id_md2_texcoord_t), mdl->header.num_st, fp ) != sizeof(id_md2_texcoord_t)) {
+        fprintf(stderr, "Error: texture coordinates corrupted\n");
+        fclose(fp);
+        free(mdl);
+        return nullptr;
+    }
 
     fseek( fp, mdl->header.offset_tris, SEEK_SET );
-    fread( mdl->triangles, sizeof( id_md2_triangle_t ), mdl->header.num_tris, fp );
+    if(fread( mdl->triangles, sizeof(id_md2_triangle_t), mdl->header.num_tris, fp ) != sizeof(id_md2_triangle_t)) {
+        fprintf(stderr, "Error: triangles corrupted\n");
+        fclose(fp);
+        free(mdl);
+        return nullptr;
+    }
 
     fseek( fp, mdl->header.offset_glcmds, SEEK_SET );
-    fread( mdl->glcmds, sizeof( int ), mdl->header.size_glcmds, fp );
+    if(fread( mdl->glcmds, sizeof(int32_t), mdl->header.size_glcmds, fp ) != sizeof(int32_t)) {
+        fprintf(stderr, "Error: GL commands corrupted\n");
+        fclose(fp);
+        free(mdl);
+        return nullptr;
+    }
 
     /* Read frames */
     fseek( fp, mdl->header.offset_frames, SEEK_SET );
@@ -101,10 +130,18 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
         mdl->frames[i].verts = ( id_md2_vertex_t * )calloc( mdl->header.num_vertices, sizeof( id_md2_vertex_t ) );
 
         /* Read frame data */
-        fread( mdl->frames[i].scale, sizeof( float ), 3, fp );
-        fread( mdl->frames[i].translate, sizeof( float ), 3, fp );
-        fread( mdl->frames[i].name, sizeof( char ), 16, fp );
-        fread( mdl->frames[i].verts, sizeof( id_md2_vertex_t ), mdl->header.num_vertices, fp );
+        size_t read = 0;
+        read += fread( mdl->frames[i].scale, sizeof( float ), 3, fp );
+        read += fread( mdl->frames[i].translate, sizeof( float ), 3, fp );
+        read += fread( mdl->frames[i].name, sizeof( char ), 16, fp );
+        read += fread( mdl->frames[i].verts, sizeof( id_md2_vertex_t ), mdl->header.num_vertices, fp );
+
+        if(read != sizeof(float) + sizeof(float) +  sizeof(char) + sizeof(id_md2_vertex_t)) {
+            fprintf(stderr, "Error: Frame data corrupted\n");
+            fclose(fp);
+            free(mdl);
+            return nullptr;            
+        }
     }
 
     fclose( fp );

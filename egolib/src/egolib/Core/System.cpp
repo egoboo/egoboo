@@ -19,7 +19,6 @@
 
 #include "egolib/Core/System.hpp"
 #include "egolib/Core/EnvironmentError.hpp"
-#include "egolib/system.h"
 #include "egolib/egoboo_setup.h"
 
 namespace Ego
@@ -94,15 +93,17 @@ System::System(const char *binaryPath, const char *egobooPath)
     */
     // Initialize logging, so that we can use it everywhere.
     log_initialize("/debug/log.txt", LOG_DEBUG);
-    // Initialize system-dependent elements.
-    sys_initialize();
+
     // Start initializing the various subsystems.
     log_message("Starting Egoboo Engine %s\n", VERSION.c_str());
     log_info("PhysFS file system version %s has been initialized...\n", vfs_getVersion());
+
     // Load "setup.txt".
     setup_begin();
+
     // Download "setup.txt" into the Egoboo configuration.
     setup_download(&egoboo_config_t::get());
+
     // Initialize SDL.
     log_message("Initializing SDL version %d.%d.%d ... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
     try

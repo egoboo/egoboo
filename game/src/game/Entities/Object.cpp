@@ -32,7 +32,6 @@
 #include "game/renderer_2d.h"
 #include "game/char.h" //ZF> TODO: remove
 
-
 //Declare class static constants
 const size_t Object::MAXNUMINPACK;
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
@@ -815,7 +814,7 @@ void Object::update()
                     int ripand;
                     if ( ripple_suppression > 0 )
                     {
-                        ripand = ~(( ~RIPPLEAND ) << ripple_suppression );
+                        ripand = ~(RIPPLEAND << ripple_suppression);
                     }
                     else
                     {
