@@ -189,19 +189,10 @@
     <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\platform\file_win.c">
-      <Filter>Platforms</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\platform\sys_win32.c">
-      <Filter>Platforms</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\lua\lua_console.c">
       <Filter>Lua</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\platform\file_linux.c">
-      <Filter>Platforms</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\platform\sys_linux.c">
       <Filter>Platforms</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\mem.c">
@@ -443,6 +434,9 @@
     </ClCompile>
     <ClCompile Include="src\egolib\Logic\Team.cpp">
       <Filter>Source Files\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Platform\file_win.c">
+      <Filter>Platforms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -953,9 +947,6 @@
       <Filter>Platforms</Filter>
     </None>
     <None Include="src\egolib\platform\file_mac.m">
-      <Filter>Platforms</Filter>
-    </None>
-    <None Include="src\egolib\platform\sys_mac.m">
       <Filter>Platforms</Filter>
     </None>
     <None Include="src\egolib\FileFormats\id_normals.inl">
