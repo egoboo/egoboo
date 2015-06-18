@@ -25,7 +25,6 @@
 #include "egolib/_math.h"
 #include "egolib/Math/AABB.hpp"
 
-//--------------------------------------------------------------------------------------------
 int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count)
 {
     /// @author BB
@@ -47,239 +46,239 @@ int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count)
     if (!pos || 0 == pos_count ) return 0;
 
     //---- the points along the y_max edge
-	ftmp = 0.5f * (self.maxs[OCT_XY] + self.maxs[OCT_YX]);  // the top point of the diamond
-	if (ftmp <= self.maxs[OCT_Y])
+	ftmp = 0.5f * (self._maxs[OCT_XY] + self._maxs[OCT_YX]);  // the top point of the diamond
+	if (ftmp <= self._maxs[OCT_Y])
     {
-		val_x = 0.5f * (self.maxs[OCT_XY] - self.maxs[OCT_YX]);
+		val_x = 0.5f * (self._maxs[OCT_XY] - self._maxs[OCT_YX]);
         val_y = ftmp;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
     {
-		val_y = self.maxs[OCT_Y];
+		val_y = self._maxs[OCT_Y];
 
-		val_x = self.maxs[OCT_Y] - self.maxs[OCT_YX];
-		if (val_x < self.mins[OCT_X])
+		val_x = self._maxs[OCT_Y] - self._maxs[OCT_YX];
+		if (val_x < self._mins[OCT_X])
         {
-			val_x = self.mins[OCT_X];
+			val_x = self._mins[OCT_X];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
-		val_x = self.maxs[OCT_XY] - self.maxs[OCT_Y];
-		if (val_x > self.maxs[OCT_X])
+		val_x = self._maxs[OCT_XY] - self._maxs[OCT_Y];
+		if (val_x > self._maxs[OCT_X])
         {
-			val_x = self.maxs[OCT_X];
+			val_x = self._maxs[OCT_X];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
     //---- the points along the y_min edge
-	ftmp = 0.5f * (self.mins[OCT_XY] + self.mins[OCT_YX]);  // the top point of the diamond
-	if (ftmp >= self.mins[OCT_Y])
+	ftmp = 0.5f * (self._mins[OCT_XY] + self._mins[OCT_YX]);  // the top point of the diamond
+	if (ftmp >= self._mins[OCT_Y])
     {
-		val_x = 0.5f * (self.mins[OCT_XY] - self.mins[OCT_YX]);
+		val_x = 0.5f * (self._mins[OCT_XY] - self._mins[OCT_YX]);
         val_y = ftmp;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
     {
-		val_y = self.mins[OCT_Y];
+		val_y = self._mins[OCT_Y];
 
-		val_x = self.mins[OCT_XY] - self.mins[OCT_Y];
-		if (val_x < self.mins[OCT_X])
+		val_x = self._mins[OCT_XY] - self._mins[OCT_Y];
+		if (val_x < self._mins[OCT_X])
         {
-			val_x = self.mins[OCT_X];
+			val_x = self._mins[OCT_X];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
-		val_x = self.mins[OCT_Y] - self.mins[OCT_YX];
-		if (val_x > self.maxs[OCT_X])
+		val_x = self._mins[OCT_Y] - self._mins[OCT_YX];
+		if (val_x > self._maxs[OCT_X])
         {
-			val_x = self.maxs[OCT_X];
+			val_x = self._maxs[OCT_X];
         }
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
     //---- the points along the x_max edge
-	ftmp = 0.5f * (self.maxs[OCT_XY] - self.mins[OCT_YX]);  // the top point of the diamond
-	if (ftmp <= self.maxs[OCT_X])
+	ftmp = 0.5f * (self._maxs[OCT_XY] - self._mins[OCT_YX]);  // the top point of the diamond
+	if (ftmp <= self._maxs[OCT_X])
     {
-		val_y = 0.5f * (self.maxs[OCT_XY] + self.mins[OCT_YX]);
+		val_y = 0.5f * (self._maxs[OCT_XY] + self._mins[OCT_YX]);
         val_x = ftmp;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
     {
-		val_x = self.maxs[OCT_X];
+		val_x = self._maxs[OCT_X];
 
-		val_y = self.maxs[OCT_X] + self.mins[OCT_YX];
-		if (val_y < self.mins[OCT_Y])
+		val_y = self._maxs[OCT_X] + self._mins[OCT_YX];
+		if (val_y < self._mins[OCT_Y])
         {
-			val_y = self.mins[OCT_Y];
+			val_y = self._mins[OCT_Y];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
-		val_y = self.maxs[OCT_XY] - self.maxs[OCT_X];
-		if (val_y > self.maxs[OCT_Y])
+		val_y = self._maxs[OCT_XY] - self._maxs[OCT_X];
+		if (val_y > self._maxs[OCT_Y])
         {
-			val_y = self.maxs[OCT_Y];
+			val_y = self._maxs[OCT_Y];
         }
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
 
     //---- the points along the x_min edge
-	ftmp = 0.5f * (self.mins[OCT_XY] - self.maxs[OCT_YX]);  // the left point of the diamond
-	if (ftmp >= self.mins[OCT_X])
+	ftmp = 0.5f * (self._mins[OCT_XY] - self._maxs[OCT_YX]);  // the left point of the diamond
+	if (ftmp >= self._mins[OCT_X])
     {
-		val_y = 0.5f * (self.mins[OCT_XY] + self.maxs[OCT_YX]);
+		val_y = 0.5f * (self._mins[OCT_XY] + self._maxs[OCT_YX]);
         val_x = ftmp;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
     else
     {
-		val_x = self.mins[OCT_X];
+		val_x = self._mins[OCT_X];
 
-		val_y = self.mins[OCT_XY] - self.mins[OCT_X];
-		if (val_y < self.mins[OCT_Y])
+		val_y = self._mins[OCT_XY] - self._mins[OCT_X];
+		if (val_y < self._mins[OCT_Y])
         {
-			val_y = self.mins[OCT_Y];
+			val_y = self._mins[OCT_Y];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
-		val_y = self.maxs[OCT_YX] + self.mins[OCT_X];
-		if (val_y > self.maxs[OCT_Y])
+		val_y = self._maxs[OCT_YX] + self._mins[OCT_X];
+		if (val_y > self._maxs[OCT_Y])
         {
-			val_y = self.maxs[OCT_Y];
+			val_y = self._maxs[OCT_Y];
         }
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.maxs[OCT_Z];
+		pos[vcount][kZ] = self._maxs[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
 
         pos[vcount][kX] = val_x;
         pos[vcount][kY] = val_y;
-		pos[vcount][kZ] = self.mins[OCT_Z];
+		pos[vcount][kZ] = self._mins[OCT_Z];
         pos[vcount][kW] = 0.0f;
         vcount++;
     }
@@ -287,7 +286,6 @@ int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count)
     return vcount;
 }
 
-//--------------------------------------------------------------------------------------------
 /**
  * @brief
  *  Set the values of this octagonal bounding box such that it encloses the specified point cloud.
@@ -313,7 +311,7 @@ void points_to_oct_bb(oct_bb_t& self, const fvec4_t points[], const size_t numbe
     oct_vec_v2_t otmp(fvec3_t(points[0][kX], points[0][kY], points[0][kZ]));
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        self.mins[i] = self.maxs[i] = otmp[i];
+        self._mins[i] = self._maxs[i] = otmp[i];
     }
 
     // Join the octagonal bounding box (containing only the first point) with all other points.
@@ -323,32 +321,61 @@ void points_to_oct_bb(oct_bb_t& self, const fvec4_t points[], const size_t numbe
 
         for (size_t j = 0; j < OCT_COUNT; ++j)
         {
-            self.mins[j] = std::min(self.mins[j], otmp[j]);
-            self.maxs[j] = std::max(self.maxs[j], otmp[j]);
+            self._mins[j] = std::min(self._mins[j], otmp[j]);
+            self._maxs[j] = std::max(self._maxs[j], otmp[j]);
         }
     }
 
-    oct_bb_t::validate(&self);
+    oct_bb_t::validate(self);
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb )
+egolib_rv oct_bb_t::downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, oct_bb_t& pdst_bb)
+{
+	/// @author BB
+	/// @details convert a level 1 bumper to an "equivalent" level 0 bumper
+
+	float val1, val2, val3, val4;
+
+	if (&pdst_bb != &psrc_bb)
+	{
+		pdst_bb = psrc_bb;
+	}
+
+	if (0.0f == bump_stt.height)
+	{
+		pdst_bb._mins[OCT_Z] = pdst_bb._maxs[OCT_Z] = 0.0f;
+	}
+	else
+	{
+		// handle the vertical distortion the same as above
+		pdst_bb._maxs[OCT_Z] = std::max(bump_base.height, psrc_bb._maxs[OCT_Z]);
+	}
+
+	// 0.0f == bump_stt.size is supposed to be shorthand for "this object doesn't interact
+	// with anything", so we have to set all of the horizontal pdst_bb data to zero
+	if (0.0f == bump_stt.size)
+	{
+		pdst_bb._mins[OCT_X] = pdst_bb._maxs[OCT_X] = 0.0f;
+		pdst_bb._mins[OCT_Y] = pdst_bb._maxs[OCT_Y] = 0.0f;
+		pdst_bb._mins[OCT_XY] = pdst_bb._maxs[OCT_XY] = 0.0f;
+		pdst_bb._mins[OCT_YX] = pdst_bb._maxs[OCT_YX] = 0.0f;
+	}
+
+	oct_bb_t::validate(pdst_bb);
+
+	return rv_success;
+}
+
+egolib_rv oct_bb_t::downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, bumper_t& pdst_bump)
 {
     /// @author BB
     /// @details convert a level 1 bumper to an "equivalent" level 0 bumper
 
     float val1, val2, val3, val4;
 
-    // return if there is no source
-    if ( NULL == psrc_bb ) return rv_error;
-
-    //---- handle all of the pdst_bump data first
-    if ( NULL != pdst_bump )
-    {
         if ( 0.0f == bump_stt.height )
         {
-            pdst_bump->height = 0.0f;
+            pdst_bump.height = 0.0f;
         }
         else
         {
@@ -356,93 +383,56 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
             // to make object-particle interactions easier (i.e. it allows you to
             // hit a grub bug with your hands)
 
-            pdst_bump->height = std::max( bump_base.height, psrc_bb->maxs[OCT_Z] );
+            pdst_bump.height = std::max( bump_base.height, psrc_bb._maxs[OCT_Z] );
         }
 
         if ( 0.0f == bump_stt.size )
         {
-            pdst_bump->size = 0.0f;
+            pdst_bump.size = 0.0f;
         }
         else
         {
-            val1 = std::abs( psrc_bb->mins[OCT_X] );
-			val2 = std::abs(psrc_bb->maxs[OCT_Y]);
-			val3 = std::abs(psrc_bb->mins[OCT_Y]);
-			val4 = std::abs(psrc_bb->maxs[OCT_Y]);
-			pdst_bump->size = std::max({ val1, val2, val3, val4 });
+            val1 = std::abs(psrc_bb._mins[OCT_X]);
+			val2 = std::abs(psrc_bb._maxs[OCT_Y]);
+			val3 = std::abs(psrc_bb._mins[OCT_Y]);
+			val4 = std::abs(psrc_bb._maxs[OCT_Y]);
+			pdst_bump.size = std::max({ val1, val2, val3, val4 });
         }
 
         if ( 0.0f == bump_stt.size_big )
         {
-            pdst_bump->size_big = 0;
+            pdst_bump.size_big = 0;
         }
         else
         {
-			val1 = std::abs(psrc_bb->maxs[OCT_YX]);
-			val2 = std::abs(psrc_bb->mins[OCT_YX]);
-			val3 = std::abs(psrc_bb->maxs[OCT_XY]);
-			val4 = std::abs(psrc_bb->mins[OCT_XY]);
-            pdst_bump->size_big = std::max( std::max( val1, val2 ), std::max( val3, val4 ) );
-        }
-    }
-
-    //---- handle all of the pdst_bb data second
-    if ( NULL != pdst_bb )
-    {
-        // memcpy() can fail horribly if the domains overlap, so use memmove()
-        if ( pdst_bb != psrc_bb )
-        {
-            *pdst_bb = *psrc_bb;
+			val1 = std::abs(psrc_bb._maxs[OCT_YX]);
+			val2 = std::abs(psrc_bb._mins[OCT_YX]);
+			val3 = std::abs(psrc_bb._maxs[OCT_XY]);
+			val4 = std::abs(psrc_bb._mins[OCT_XY]);
+			pdst_bump.size_big = std::max({ val1, val2, val3, val4 });
         }
 
-        if ( 0.0f == bump_stt.height )
-        {
-            pdst_bb->mins[OCT_Z] = pdst_bb->maxs[OCT_Z] = 0.0f;
-        }
-        else
-        {
-            // handle the vertical distortion the same as above
-            pdst_bb->maxs[OCT_Z] = std::max( bump_base.height, psrc_bb->maxs[OCT_Z] );
-        }
-
-        // 0.0f == bump_stt.size is supposed to be shorthand for "this object doesn't interact
-        // with anything", so we have to set all of the horizontal pdst_bb data to zero
-        if ( 0.0f == bump_stt.size )
-        {
-            pdst_bb->mins[OCT_X ] = pdst_bb->maxs[OCT_X ] = 0.0f;
-            pdst_bb->mins[OCT_Y ] = pdst_bb->maxs[OCT_Y ] = 0.0f;
-            pdst_bb->mins[OCT_XY] = pdst_bb->maxs[OCT_XY] = 0.0f;
-            pdst_bb->mins[OCT_YX] = pdst_bb->maxs[OCT_YX] = 0.0f;
-        }
-
-        oct_bb_t::validate(pdst_bb);
-    }
-
-    return rv_success;
+		return rv_success;
 }
 
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip)
+void oct_bb_t::interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip)
 {
-	if (src1.empty && src2.empty) {
-        oct_bb_t::ctor(&dst);
-        return rv_fail;
-    } else if (!src1.empty && 0.0f == flip) {
-        return oct_bb_copy(dst, src1);
-    } else if (!src2.empty && 1.0f == flip) {
-        return oct_bb_copy(dst, src2);
-    } else if (src1.empty || src2.empty) {
-        oct_bb_t::ctor(&dst);
-        return rv_fail;
+	if (src1._empty && src2._empty) {
+        oct_bb_t::ctor(dst);
+    } else if (!src1._empty && 0.0f == flip) {
+        oct_bb_t::copy(dst, src1);
+    } else if (!src2._empty && 1.0f == flip) {
+        oct_bb_t::copy(dst, src2);
+    } else if (src1._empty || src2._empty) {
+        oct_bb_t::ctor(dst);
     }
 
     for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
-        dst.mins[i] = src1.mins[i] + (src2.mins[i] - src1.mins[i]) * flip;
-        dst.maxs[i] = src1.maxs[i] + (src2.maxs[i] - src1.maxs[i]) * flip;
+        dst._mins[i] = src1._mins[i] + (src2._mins[i] - src1._mins[i]) * flip;
+        dst._maxs[i] = src1._maxs[i] + (src2._maxs[i] - src1._maxs[i]) * flip;
     }
 
-    oct_bb_t::validate(&dst);
-	return rv_success;
+    oct_bb_t::validate(dst);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -464,51 +454,42 @@ bool oct_vec_add_fvec3(const oct_vec_v2_t& osrc, const fvec3_t& fvec, oct_vec_v2
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-oct_bb_t *oct_bb_t::ctor(oct_bb_t *self)
+void oct_bb_t::ctor(oct_bb_t& self)
 {
-    if (!self) return nullptr;
-
-    self->mins.setZero();
-    self->maxs.setZero();
-    self->empty = true;
-
-    return self;
+    self._mins.setZero();
+    self._maxs.setZero();
+    self._empty = true;
 }
 
-void oct_bb_t::dtor(oct_bb_t *self)
+void oct_bb_t::dtor(oct_bb_t& self)
 {
-	self->empty = true;
-    self->maxs.setZero();
-    self->mins.setZero();
+	self._empty = true;
+    self._maxs.setZero();
+    self._mins.setZero();
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_copy(oct_bb_t& self, const oct_bb_t& other)
+void oct_bb_t::copy(oct_bb_t& self, const oct_bb_t& other)
 {
-    self.mins = other.mins;
-    self.maxs = other.maxs;
-    self.empty = other.empty;
-    oct_bb_t::validate(&self);
-	return rv_success;
+    self._mins = other._mins;
+    self._maxs = other._maxs;
+    self._empty = other._empty;
+    oct_bb_t::validate(self);
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_t::validate(oct_bb_t *self)
+egolib_rv oct_bb_t::validate(oct_bb_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    self->empty = oct_bb_t::empty_raw(self);
+    self._empty = oct_bb_t::empty_raw(self);
     return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_t::empty_raw(const oct_bb_t *self)
+bool oct_bb_t::empty_raw(const oct_bb_t& self)
 {
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        if (self->mins[i] > self->maxs[i])
+        if (self._mins[i] > self._maxs[i])
         {
             return true;
         }
@@ -519,48 +500,37 @@ bool oct_bb_t::empty_raw(const oct_bb_t *self)
 //--------------------------------------------------------------------------------------------
 bool oct_bb_empty(const oct_bb_t& self)
 {
-    if (self.empty ) return true;
+    if (self._empty ) return true;
 
-    return oct_bb_t::empty_raw(&self);
-}
-
-//--------------------------------------------------------------------------------------------
-void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v)
-{
-    if (!self) throw std::invalid_argument("nullptr == self");
-    self->mins = v;
-    self->maxs = v;
-    // The octagonal bounding box is not empty.
-    self->empty = false;
+    return oct_bb_t::empty_raw(self);
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_validate_index(oct_bb_t& self, int index)
+void oct_bb_t::validate_index(oct_bb_t& self, int index)
 {
-    if (oct_bb_empty_index(self, index))
+    if (oct_bb_t::empty_index(self, index))
     {
-        self.empty = true;
+        self._empty = true;
     }
-    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_empty_index_raw(const oct_bb_t& self, int index)
+bool oct_bb_t::empty_index_raw(const oct_bb_t& self, int index)
 {
-    return (self.mins[index] >= self.maxs[index] );
+    return (self._mins[index] >= self._maxs[index] );
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_empty_index(const oct_bb_t& self, int index)
+bool oct_bb_t::empty_index(const oct_bb_t& self, int index)
 {
-	if (self.empty) {
+	if (self._empty) {
 		return true;
 	}
 	if (index < 0 || index >= OCT_COUNT) {
 		return true;
 	}
-    return oct_bb_empty_index_raw(self, index);
+    return oct_bb_t::empty_index_raw(self, index);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -572,10 +542,10 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other, int index)
     }
 
     // No simple cases, do the hard work.
-    mins[index] = std::min(mins[index], other.mins[index]);
-    maxs[index] = std::max(maxs[index], other.maxs[index] );
+    _mins[index] = std::min(_mins[index], other._mins[index]);
+    _maxs[index] = std::max(_maxs[index], other._maxs[index] );
 
-    oct_bb_validate_index(*this, index);
+    oct_bb_t::validate_index(*this, index);
 	return rv_success;
 }
 
@@ -588,49 +558,46 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other, int index)
     }
 
 	// @todo Obviously the author does not know how set intersection works.
-    if (other.empty) {
+    if (other._empty) {
         return rv_fail;
     }
 
     // No simple case. do the hard work.
-    mins[index]  = std::max(mins[index], other.mins[index]);
-    maxs[index]  = std::min(maxs[index], other.maxs[index]);
+    _mins[index]  = std::max(_mins[index], other._mins[index]);
+    _maxs[index]  = std::min(_maxs[index], other._maxs[index]);
 
-    oct_bb_validate_index(*this, index);
+    oct_bb_t::validate_index(*this, index);
 	return rv_success;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
+egolib_rv oct_bb_t::join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
 {
 	// @todo Obviously the author does not know how set union works.
 	// no simple case, do the hard work
     for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
-        dst.mins[i]  = std::min(src1.mins[i], src2.mins[i]);
-        dst.maxs[i]  = std::max(src1.maxs[i], src2.maxs[i]);
+        dst._mins[i]  = std::min(src1._mins[i], src2._mins[i]);
+        dst._maxs[i]  = std::max(src1._maxs[i], src2._maxs[i]);
     }
 
-    oct_bb_t::validate(&dst);
+    oct_bb_t::validate(dst);
 	return rv_success;
 }
 
-//--------------------------------------------------------------------------------------------
-egolib_rv oct_bb_intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
+egolib_rv oct_bb_t::intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst)
 {
 	/// @todo Obviously the author does not know how set intersection works.
-    if (src1.empty && src2.empty) {
-        oct_bb_t::ctor(&dst);
+    if (src1._empty && src2._empty) {
+        oct_bb_t::ctor(dst);
         return rv_fail;
     }
 
     // no simple case. do the hard work
     for (size_t i = 0; i < (size_t)OCT_COUNT; ++i) {
-        dst.mins[i]  = std::max(src1.mins[i], src2.mins[i]);
-        dst.maxs[i]  = std::min(src1.maxs[i], src2.maxs[i]);
+        dst._mins[i]  = std::max(src1._mins[i], src2._mins[i]);
+        dst._maxs[i]  = std::min(src1._maxs[i], src2._maxs[i]);
     }
 
-    oct_bb_t::validate(&dst);
+    oct_bb_t::validate(dst);
 	return rv_success;
 }
 
@@ -640,10 +607,10 @@ egolib_rv oct_bb_t::join(const oct_vec_v2_t& v)
 	// @todo Obviously the author does not know how set union works.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        mins[i] = std::min(mins[i], v[i]);
-        maxs[i] = std::max(maxs[i], v[i]);
+        _mins[i] = std::min(_mins[i], v[i]);
+        _maxs[i] = std::max(_maxs[i], v[i]);
     }
-    oct_bb_t::validate(this);
+    oct_bb_t::validate(*this);
 	return rv_success;
 }
 
@@ -653,11 +620,11 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other)
     // No simple case, do the hard work.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        mins[i] = std::min(mins[i], other.mins[i]);
-        maxs[i] = std::max(maxs[i], other.maxs[i]);
+        _mins[i] = std::min(_mins[i], other._mins[i]);
+        _maxs[i] = std::max(_maxs[i], other._maxs[i]);
     }
 
-    oct_bb_t::validate(this);
+    oct_bb_t::validate(*this);
 	return rv_success;
 }
 
@@ -665,18 +632,18 @@ egolib_rv oct_bb_t::join(const oct_bb_t& other)
 egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 {
 	/// @todo Obviously the author does not know how set intersection works.
-    if (other.empty) {
+    if (other._empty) {
         return rv_fail;
     }
 
     // No simple case, do the hard work.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        mins[i] = std::max(mins[i], other.mins[i]);
-        maxs[i] = std::min(maxs[i], other.maxs[i]);
+        _mins[i] = std::max(_mins[i], other._mins[i]);
+        _maxs[i] = std::min(_maxs[i], other._maxs[i]);
     }
 
-    oct_bb_t::validate(this);
+    oct_bb_t::validate(*this);
 	return rv_success;
 }
 
@@ -684,14 +651,14 @@ egolib_rv oct_bb_t::cut(const oct_bb_t& other)
 egolib_rv oct_bb_t::translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(t);
-	oct_bb_t::validate(&dst);
+	oct_bb_t::validate(dst);
 	return rv_success;
 }
 
 egolib_rv oct_bb_t::translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst) {
     dst = src;
     dst.translate(oct_vec_v2_t(t));
-    oct_bb_t::validate(&dst);
+    oct_bb_t::validate(dst);
 	return rv_success;
 }
 
@@ -700,29 +667,25 @@ egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v)
 {
     for (size_t i = 0; i < OCT_COUNT; ++i) 
     {
-        self.mins[i] -= std::abs(v[i]);
-        self.maxs[i] += std::abs(v[i]);
+        self._mins[i] -= std::abs(v[i]);
+        self._maxs[i] += std::abs(v[i]);
     }
 
-    oct_bb_t::validate(&self);
+    oct_bb_t::validate(self);
 	return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool oct_bb_t::contains(const oct_bb_t *self, const oct_vec_v2_t& point)
+bool oct_bb_t::contains(const oct_bb_t& self, const oct_vec_v2_t& point)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    if (self->empty)
-    {
+    if (self._empty)
+	{
         return false;
     }
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        if (point[i] < self->mins[i]) return false;
-        if (point[i] > self->maxs[i]) return false;
+        if (point[i] < self._mins[i]) return false;
+        if (point[i] > self._maxs[i]) return false;
     }
     return true;
 }
@@ -731,13 +694,13 @@ bool oct_bb_t::contains(const oct_bb_t *self, const oct_vec_v2_t& point)
 bool oct_bb_t::contains(const oct_bb_t& self, const oct_bb_t& other)
 {
     // If the right-hand side is empty ...
-    if (other.empty)
+    if (other._empty)
     {
         // ... it is always contained in the left-hand side.
         return true;
     }
     // If the left-hand side is empty ...
-    if (self.empty)
+    if (self._empty)
     {
         // ... it can not contain the right-hand side as the right hand-side is non-empty by the above.
         return false;
@@ -746,8 +709,8 @@ bool oct_bb_t::contains(const oct_bb_t& self, const oct_bb_t& other)
     // Perform normal tests.
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        if (other.maxs[i] > self.maxs[i]) return false;
-        if (other.mins[i] < self.mins[i]) return false;
+        if (other._maxs[i] > self._maxs[i]) return false;
+        if (other._mins[i] < self._mins[i]) return false;
     }
     return true;
 }

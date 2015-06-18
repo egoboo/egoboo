@@ -951,7 +951,7 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
 
 		// initialize the bounding box
 	    ovec = oct_vec_v2_t(fvec3_t(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
-        oct_bb_set_ovec( &poct, ovec );
+        poct = oct_bb_t(ovec);
         mesh_vrt++;
 
         // add the rest of the points into the bounding box
@@ -961,11 +961,15 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
             poct.join(ovec);
         }
 
+		/// @todo: This test is not up-2-date anymore.
+		///        If you join a bbox with an ovec, the box is never(!) empty.
+		///        However, it still might be desirable not to have boxes with
+		///        width, height and depth of one. Should be evaluated asap.
         // ensure that NO tile has zero volume.
         // if a tile is declared to have all the same height, it will accidentally be called "empty".
-        if (poct.empty || (std::abs(poct.maxs[OCT_X] - poct.mins[OCT_X]) +
-                           std::abs(poct.maxs[OCT_Y] - poct.mins[OCT_Y]) +
-                           std::abs(poct.maxs[OCT_Z] - poct.mins[OCT_Z])) < std::numeric_limits<float>::epsilon())
+        if (poct._empty || (std::abs(poct._maxs[OCT_X] - poct._mins[OCT_X]) +
+                            std::abs(poct._maxs[OCT_Y] - poct._mins[OCT_Y]) +
+                            std::abs(poct._maxs[OCT_Z] - poct._mins[OCT_Z])) < std::numeric_limits<float>::epsilon())
         {
             ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 0.1;
             ovec[OCT_XY] = ovec[OCT_YX] = Ego::Math::sqrtTwo<float>() * ovec[OCT_X];
@@ -973,12 +977,12 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
         }
 
         // extend the mesh bounding box
-        ptmem->bbox = aabb_t(fvec3_t(std::min(ptmem->bbox.getMin()[XX], poct.mins[XX]),
-                                     std::min(ptmem->bbox.getMin()[YY], poct.mins[YY]),
-                                     std::min(ptmem->bbox.getMin()[ZZ], poct.mins[ZZ])),
-                             fvec3_t(std::max(ptmem->bbox.getMax()[XX], poct.maxs[XX]),
-                                     std::max(ptmem->bbox.getMax()[YY], poct.maxs[YY]),
-                                     std::max(ptmem->bbox.getMax()[ZZ], poct.maxs[ZZ])));
+        ptmem->bbox = aabb_t(fvec3_t(std::min(ptmem->bbox.getMin()[XX], poct._mins[XX]),
+                                     std::min(ptmem->bbox.getMin()[YY], poct._mins[YY]),
+                                     std::min(ptmem->bbox.getMin()[ZZ], poct._mins[ZZ])),
+                             fvec3_t(std::max(ptmem->bbox.getMax()[XX], poct._maxs[XX]),
+                                     std::max(ptmem->bbox.getMax()[YY], poct._maxs[YY]),
+                                     std::max(ptmem->bbox.getMax()[ZZ], poct._maxs[ZZ])));
     }
 
     return true;
@@ -1418,8 +1422,8 @@ bool ego_mesh_interpolate_vertex( tile_mem_t * pmem, ego_tile_info_t * ptile, fl
     lc   = &( ptile->lcache );
 
     // determine a u,v coordinate for the vertex
-    u = ( pos[XX] - poct->mins[OCT_X] ) / ( poct->maxs[OCT_X] - poct->mins[OCT_X] );
-    v = ( pos[YY] - poct->mins[OCT_Y] ) / ( poct->maxs[OCT_Y] - poct->mins[OCT_Y] );
+    u = ( pos[XX] - poct->_mins[OCT_X] ) / ( poct->_maxs[OCT_X] - poct->_mins[OCT_X] );
+    v = ( pos[YY] - poct->_mins[OCT_Y] ) / ( poct->_maxs[OCT_Y] - poct->_mins[OCT_Y] );
 
     // average the cached data on the 4 corners of the mesh
     weight_sum = 0.0f;

@@ -145,26 +145,26 @@ void BSP_aabb_t::set(const oct_bb_t& other)
 	{
 	case 1:
 	{
-		min()[kX] = other.mins[OCT_X];
-		max()[kX] = other.maxs[OCT_X];
+		min()[kX] = other._mins[OCT_X];
+		max()[kX] = other._maxs[OCT_X];
 	}
 	case 2:
 	{
-		min()[kX] = other.mins[OCT_X];
-		min()[kY] = other.mins[OCT_Y];
+		min()[kX] = other._mins[OCT_X];
+		min()[kY] = other._mins[OCT_Y];
 
-		max()[kX] = other.maxs[OCT_X];
-		max()[kY] = other.maxs[OCT_Y];
+		max()[kX] = other._maxs[OCT_X];
+		max()[kY] = other._maxs[OCT_Y];
 	}
 	default:
 	{
-		min()[kX] = other.mins[OCT_X];
-		min()[kY] = other.mins[OCT_Y];
-		min()[kZ] = other.mins[OCT_Z];
+		min()[kX] = other._mins[OCT_X];
+		min()[kY] = other._mins[OCT_Y];
+		min()[kZ] = other._mins[OCT_Z];
 
-		max()[kX] = other.maxs[OCT_X];
-		max()[kY] = other.maxs[OCT_Y];
-		max()[kZ] = other.maxs[OCT_Z];
+		max()[kX] = other._maxs[OCT_X];
+		max()[kY] = other._maxs[OCT_Y];
+		max()[kZ] = other._maxs[OCT_Z];
 
 		// Blank any extended dimensions.
 		for (size_t i = 3, n = _dim; i < n; ++i)

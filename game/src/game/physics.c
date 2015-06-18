@@ -54,11 +54,11 @@ bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_ve
     odepth.setZero();
 
     // are the initial volumes any good?
-    if (bb_a.empty || bb_b.empty) return false;
+    if (bb_a._empty || bb_b._empty) return false;
 
     // is there any overlap?
     oct_bb_t otmp;
-    if (rv_success != oct_bb_intersection(bb_a, bb_b, otmp))
+    if (rv_success != oct_bb_t::intersection(bb_a, bb_b, otmp))
     {
         return false;
     }
@@ -72,7 +72,7 @@ bool phys_get_collision_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_ve
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
         float fdiff = opos_b[i] - opos_a[i];
-        float fdepth = otmp.maxs[i] - otmp.mins[i];
+        float fdepth = otmp._maxs[i] - otmp._mins[i];
 
         // if the measured depth is less than zero, or the difference in positions
         // is ambiguous, this algorithm fails
@@ -97,8 +97,8 @@ bool phys_get_pressure_depth(const oct_bb_t& bb_a, const oct_bb_t& bb_b, oct_vec
     // scan through the dimensions of the oct_bbs
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        float diff1 = bb_a.maxs[i] - bb_b.mins[i];
-        float diff2 = bb_b.maxs[i] - bb_a.mins[i];
+        float diff1 = bb_a._maxs[i] - bb_b._mins[i];
+        float diff2 = bb_b._maxs[i] - bb_a._mins[i];
 
         if (diff1 < 0.0f || diff2 < 0.0f)
         {
@@ -379,10 +379,10 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
     float vdiff = ovel2[index] - ovel1[index];
     if ( 0.0f == vdiff ) return rv_fail;
 
-    float src1_min = src1.mins[index];
-    float src1_max = src1.maxs[index];
-    float src2_min = src2.mins[index];
-    float src2_max = src2.maxs[index];
+    float src1_min = src1._mins[index];
+    float src1_max = src1._maxs[index];
+    float src2_min = src2._mins[index];
+    float src2_max = src2._maxs[index];
 
     if (OCT_Z != index)
     {
@@ -391,8 +391,8 @@ egolib_rv phys_intersect_oct_bb_index(int index, const oct_bb_t& src1, const oct
         bool close_test_2 = HAS_SOME_BITS(test_platform, PHYS_PLATFORM_OBJ2);
 
         // Only do a close test if the object's feet are above the platform.
-        close_test_1 = close_test_1 && (src1.mins[OCT_Z] > src2.maxs[OCT_Z]);
-        close_test_2 = close_test_2 && (src2.mins[OCT_Z] > src1.maxs[OCT_Z]);
+        close_test_1 = close_test_1 && (src1._mins[OCT_Z] > src2._maxs[OCT_Z]);
+        close_test_2 = close_test_2 && (src2._mins[OCT_Z] > src1._maxs[OCT_Z]);
 
         if (!close_test_1 && !close_test_2)
         {
@@ -611,7 +611,7 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const fvec3_t& pos1, const
         *tmax = 1.0f;
 
         // Determine the intersection of these two expanded volumes (for this frame).
-        oct_bb_intersection(src1, src2, dst);
+        oct_bb_t::intersection(src1, src2, dst);
     }
     else
     {
@@ -633,16 +633,16 @@ bool phys_intersect_oct_bb(const oct_bb_t& src1_orig, const fvec3_t& pos1, const
         phys_expand_oct_bb(src2, vel2, tmp_min, tmp_max, exp2);
 
         // determine the intersection of these two expanded volumes (for this frame)
-        oct_bb_intersection(exp1, exp2, dst);
+        oct_bb_t::intersection(exp1, exp2, dst);
     }
 
     if (0 != test_platform)
     {
-        dst.maxs[OCT_Z] += PLATTOLERANCE;
-        oct_bb_t::validate(&dst);
+        dst._maxs[OCT_Z] += PLATTOLERANCE;
+        oct_bb_t::validate(dst);
     }
 
-    if (dst.empty) return false;
+    if (dst._empty) return false;
 
     return true;
 }
@@ -671,13 +671,13 @@ egolib_rv phys_intersect_oct_bb_close_index(int index, const oct_bb_t& src1, con
     if (0.0f == vdiff) return rv_fail;
 
     /// @todo Use src1.getMin(index), src2.getMax(index) and src1.getMid(index).
-    float src1_min = src1.mins[index];
-    float src1_max = src1.maxs[index];
+    float src1_min = src1._mins[index];
+    float src1_max = src1._maxs[index];
     float opos1 = (src1_min + src1_max) * 0.5f;
 
     /// @todo Use src2.getMin(index), src2.getMax(index) and src2.getMid(index).
-    float src2_min = src2.mins[index];
-    float src2_max = src2.maxs[index];
+    float src2_min = src2._mins[index];
+    float src2_max = src2._maxs[index];
     float opos2 = (src2_min + src2_max) * 0.5f;
 
     if (OCT_Z != index)
@@ -847,7 +847,7 @@ bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1,
     // Do the objects interact at the very beginning of the update?
     if (test_interaction_2(src1_orig, pos2, src2_orig, pos2, test_platform))
     {
-        oct_bb_intersection(src1_orig, src2_orig, dst);
+        oct_bb_t::intersection(src1_orig, src2_orig, dst);
         return true;
     }
 
@@ -899,16 +899,16 @@ bool phys_intersect_oct_bb_close(const oct_bb_t& src1_orig, const fvec3_t& pos1,
 
     // determine the intersection of these two volumes
     oct_bb_t intersection;
-    oct_bb_intersection(exp1, exp2, intersection);
+    oct_bb_t::intersection(exp1, exp2, intersection);
 
     // check to see if there is any possibility of interaction at all
     for (size_t i = 0; i < OCT_Z; ++i)
     {
-        if (intersection.mins[i] > intersection.maxs[i]) return false;
+        if (intersection._mins[i] > intersection._maxs[i]) return false;
     }
 
     float tolerance = (0 == test_platform) ? 0.0f : PLATTOLERANCE;
-    if (intersection.mins[OCT_Z] > intersection.maxs[OCT_Z] + tolerance)
+    if (intersection._mins[OCT_Z] > intersection._maxs[OCT_Z] + tolerance)
     {
         return false;
     }
@@ -951,7 +951,7 @@ bool phys_expand_oct_bb(const oct_bb_t& src, const fvec3_t& vel, const float tmi
     }
 
     // Determine bounding box for the range of times.
-    if (!oct_bb_join(tmp_min, tmp_max, dst)) return false;
+    if (!oct_bb_t::join(tmp_min, tmp_max, dst)) return false;
 
     return true;
 }
@@ -1632,15 +1632,15 @@ bool test_interaction_close_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const 
     float depth;
     for (size_t i = 0; i < OCT_Z; ++i)
     {
-        float ftmp1 = std::min((ob[i] + cv_b.maxs[i]) - oa[i], oa[i] - (ob[i] + cv_b.mins[i]));
-        float ftmp2 = std::min((oa[i] + cv_a.maxs[i]) - ob[i], ob[i] - (oa[i] + cv_a.mins[i]));
+        float ftmp1 = std::min((ob[i] + cv_b._maxs[i]) - oa[i], oa[i] - (ob[i] + cv_b._mins[i]));
+        float ftmp2 = std::min((oa[i] + cv_a._maxs[i]) - ob[i], ob[i] - (oa[i] + cv_a._mins[i]));
         depth = std::max(ftmp1, ftmp2);
         if (depth <= 0.0f) return false;
     }
 
     // treat the z coordinate the same as always
-    depth = std::min(cv_b.maxs[OCT_Z] + ob[OCT_Z], cv_a.maxs[OCT_Z] + oa[OCT_Z]) -
-            std::max(cv_b.mins[OCT_Z] + ob[OCT_Z], cv_a.mins[OCT_Z] + oa[OCT_Z]);
+    depth = std::min(cv_b._maxs[OCT_Z] + ob[OCT_Z], cv_a._maxs[OCT_Z] + oa[OCT_Z]) -
+            std::max(cv_b._mins[OCT_Z] + ob[OCT_Z], cv_a._mins[OCT_Z] + oa[OCT_Z]);
 
     return TO_C_BOOL(test_platform ? (depth > -PLATTOLERANCE) : (depth > 0.0f));
 }
@@ -1655,15 +1655,15 @@ bool test_interaction_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb
     float depth;
     for (size_t i = 0; i < OCT_Z; ++i)
     {
-        depth  = std::min(cv_b.maxs[i] + ob[i], cv_a.maxs[i] + oa[i]) -
-                 std::max(cv_b.mins[i] + ob[i], cv_a.mins[i] + oa[i]);
+        depth  = std::min(cv_b._maxs[i] + ob[i], cv_a._maxs[i] + oa[i]) -
+                 std::max(cv_b._mins[i] + ob[i], cv_a._mins[i] + oa[i]);
 
         if (depth <= 0.0f) return false;
     }
 
     // treat the z coordinate the same as always
-    depth = std::min(cv_b.maxs[OCT_Z] + ob[OCT_Z], cv_a.maxs[OCT_Z] + oa[OCT_Z]) -
-            std::max(cv_b.mins[OCT_Z] + ob[OCT_Z], cv_a.mins[OCT_Z] + oa[OCT_Z]);
+    depth = std::min(cv_b._maxs[OCT_Z] + ob[OCT_Z], cv_a._maxs[OCT_Z] + oa[OCT_Z]) -
+            std::max(cv_b._mins[OCT_Z] + ob[OCT_Z], cv_a._mins[OCT_Z] + oa[OCT_Z]);
 
     return TO_C_BOOL((0 != test_platform) ? (depth > -PLATTOLERANCE) : (depth > 0.0f));
 }
@@ -1702,8 +1702,8 @@ bool get_depth_2(const oct_bb_t& cv_a, const fvec3_t& pos_a, const oct_bb_t& cv_
     bool valid = true;
     for (size_t i = 0; i < OCT_COUNT; ++i)
     {
-        depth[i] = std::min(cv_b.maxs[i] + ob[i], cv_a.maxs[i] + oa[i]) -
-                   std::max(cv_b.mins[i] + ob[i], cv_a.mins[i] + oa[i]);
+        depth[i] = std::min(cv_b._maxs[i] + ob[i], cv_a._maxs[i] + oa[i]) -
+                   std::max(cv_b._mins[i] + ob[i], cv_a._mins[i] + oa[i]);
 
         if (depth[i] <= 0.0f)
         {

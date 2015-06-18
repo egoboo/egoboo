@@ -308,7 +308,7 @@ CoNode_t *CoNode_t::ctor(CoNode_t *self)
 
     // The time.
     self->tmin = self->tmax = -1.0f;
-    oct_bb_t::ctor(&self->cv);
+    oct_bb_t::ctor(self->cv);
 
     return self;
 }
@@ -1094,8 +1094,8 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     //if ( mount_b && pchr_b->enviro.level < pchr_a->getPosZ() + pchr_a->bump.height + PLATTOLERANCE )
     //    return false;
 
-	odepth[OCT_Z] = std::min(pchr_b->chr_min_cv.maxs[OCT_Z] + pchr_b->getPosZ(), pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->getPosZ()) -
-                    std::max( pchr_b->chr_min_cv.mins[OCT_Z] + pchr_b->getPosZ(), pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->getPosZ() );
+	odepth[OCT_Z] = std::min(pchr_b->chr_min_cv._maxs[OCT_Z] + pchr_b->getPosZ(), pchr_a->chr_min_cv._maxs[OCT_Z] + pchr_a->getPosZ()) -
+                    std::max( pchr_b->chr_min_cv._mins[OCT_Z] + pchr_b->getPosZ(), pchr_a->chr_min_cv._mins[OCT_Z] + pchr_a->getPosZ() );
 
     collide_z  = TO_C_BOOL( odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE );
 
@@ -1108,11 +1108,11 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     {
         float depth_a, depth_b;
 
-        depth_a = ( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z] ) - ( pchr_a->getPosZ() + pchr_a->chr_min_cv.mins[OCT_Z] );
-        depth_b = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pchr_b->getPosZ() + pchr_b->chr_min_cv.mins[OCT_Z] );
+        depth_a = ( pchr_b->getPosZ() + pchr_b->chr_min_cv._maxs[OCT_Z] ) - ( pchr_a->getPosZ() + pchr_a->chr_min_cv._mins[OCT_Z] );
+        depth_b = ( pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] ) - ( pchr_b->getPosZ() + pchr_b->chr_min_cv._mins[OCT_Z] );
 
-        odepth[OCT_Z] = std::min( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z], pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) -
-                        std::max( pchr_b->getPosZ() + pchr_b->chr_min_cv.mins[OCT_Z], pchr_a->getPosZ() + pchr_a->chr_min_cv.mins[OCT_Z] );
+        odepth[OCT_Z] = std::min( pchr_b->getPosZ() + pchr_b->chr_min_cv._maxs[OCT_Z], pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] ) -
+                        std::max( pchr_b->getPosZ() + pchr_b->chr_min_cv._mins[OCT_Z], pchr_a->getPosZ() + pchr_a->chr_min_cv._mins[OCT_Z] );
 
 		chara_on_top = TO_C_BOOL(std::abs(odepth[OCT_Z] - depth_a) < std::abs(odepth[OCT_Z] - depth_b));
 
@@ -1120,71 +1120,71 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
         if ( chara_on_top )
         {
             // size of a doesn't matter
-            odepth[OCT_X]  = std::min(( pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->getPosX() ) - pchr_a->getPosX(),
-                                        pchr_a->getPosX() - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->getPosX() ) );
+            odepth[OCT_X]  = std::min(( pchr_b->chr_min_cv._maxs[OCT_X] + pchr_b->getPosX() ) - pchr_a->getPosX(),
+                                        pchr_a->getPosX() - ( pchr_b->chr_min_cv._mins[OCT_X] + pchr_b->getPosX() ) );
 
-            odepth[OCT_Y]  = std::min(( pchr_b->chr_min_cv.maxs[OCT_Y] + pchr_b->getPosY() ) -  pchr_a->getPosY(),
-                                        pchr_a->getPosY() - ( pchr_b->chr_min_cv.mins[OCT_Y] + pchr_b->getPosY() ) );
+            odepth[OCT_Y]  = std::min(( pchr_b->chr_min_cv._maxs[OCT_Y] + pchr_b->getPosY() ) -  pchr_a->getPosY(),
+                                        pchr_a->getPosY() - ( pchr_b->chr_min_cv._mins[OCT_Y] + pchr_b->getPosY() ) );
 
-            odepth[OCT_XY] = std::min(( pchr_b->chr_min_cv.maxs[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( pchr_a->getPosX() + pchr_a->getPosY() ),
-                                      ( pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) );
+            odepth[OCT_XY] = std::min(( pchr_b->chr_min_cv._maxs[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( pchr_a->getPosX() + pchr_a->getPosY() ),
+                                      ( pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv._mins[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) );
 
-            odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( -pchr_a->getPosX() + pchr_a->getPosY() ),
-                                      ( -pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) );
+            odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv._maxs[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( -pchr_a->getPosX() + pchr_a->getPosY() ),
+                                      ( -pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv._mins[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) );
         }
         else
         {
             // size of b doesn't matter
 
-            odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->getPosX() ) - pchr_b->getPosX(),
-                                        pchr_b->getPosX() - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->getPosX() ) );
+            odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv._maxs[OCT_X] + pchr_a->getPosX() ) - pchr_b->getPosX(),
+                                        pchr_b->getPosX() - ( pchr_a->chr_min_cv._mins[OCT_X] + pchr_a->getPosX() ) );
 
-            odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->getPosY() ) -  pchr_b->getPosY(),
-                                        pchr_b->getPosY() - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->getPosY() ) );
+            odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv._maxs[OCT_Y] + pchr_a->getPosY() ) -  pchr_b->getPosY(),
+                                        pchr_b->getPosY() - ( pchr_a->chr_min_cv._mins[OCT_Y] + pchr_a->getPosY() ) );
 
-            odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( pchr_b->getPosX() + pchr_b->getPosY() ),
-                                      ( pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
+            odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv._maxs[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( pchr_b->getPosX() + pchr_b->getPosY() ),
+                                      ( pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv._mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
-            odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pchr_b->getPosX() + pchr_b->getPosY() ),
-                                      ( -pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
+            odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv._maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pchr_b->getPosX() + pchr_b->getPosY() ),
+                                      ( -pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv._mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
         }
     }
     else if ( platform_a )
     {
         chara_on_top = false;
-        odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pchr_b->getPosZ() + pchr_b->chr_min_cv.mins[OCT_Z] );
+        odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] ) - ( pchr_b->getPosZ() + pchr_b->chr_min_cv._mins[OCT_Z] );
 
         // size of b doesn't matter
 
-        odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->getPosX() ) - pchr_b->getPosX(),
-                                    pchr_b->getPosX() - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->getPosX() ) );
+        odepth[OCT_X] = std::min((pchr_a->chr_min_cv._maxs[OCT_X] + pchr_a->getPosX() ) - pchr_b->getPosX(),
+                                  pchr_b->getPosX() - ( pchr_a->chr_min_cv._mins[OCT_X] + pchr_a->getPosX() ) );
 
-		odepth[OCT_Y] = std::min((pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->getPosY()) - pchr_b->getPosY(),
-                                  pchr_b->getPosY() - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->getPosY() ) );
+		odepth[OCT_Y] = std::min((pchr_a->chr_min_cv._maxs[OCT_Y] + pchr_a->getPosY()) - pchr_b->getPosY(),
+                                  pchr_b->getPosY() - ( pchr_a->chr_min_cv._mins[OCT_Y] + pchr_a->getPosY() ) );
 
-		odepth[OCT_XY] = std::min((pchr_a->chr_min_cv.maxs[OCT_XY] + (pchr_a->getPosX() + pchr_a->getPosY())) - (pchr_b->getPosX() + pchr_b->getPosY()),
-                                  ( pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
+		odepth[OCT_XY] = std::min((pchr_a->chr_min_cv._maxs[OCT_XY] + (pchr_a->getPosX() + pchr_a->getPosY())) - (pchr_b->getPosX() + pchr_b->getPosY()),
+                                  ( pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv._mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
-		odepth[OCT_YX] = std::min((pchr_a->chr_min_cv.maxs[OCT_YX] + (-pchr_a->getPosX() + pchr_a->getPosY())) - (-pchr_b->getPosX() + pchr_b->getPosY()),
-                                  ( -pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
+		odepth[OCT_YX] = std::min((pchr_a->chr_min_cv._maxs[OCT_YX] + (-pchr_a->getPosX() + pchr_a->getPosY())) - (-pchr_b->getPosX() + pchr_b->getPosY()),
+                                  ( -pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv._mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
     }
     else if ( platform_b )
     {
         chara_on_top = true;
-        odepth[OCT_Z] = ( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z] ) - ( pchr_a->getPosZ() + pchr_a->chr_min_cv.mins[OCT_Z] );
+        odepth[OCT_Z] = ( pchr_b->getPosZ() + pchr_b->chr_min_cv._maxs[OCT_Z] ) - ( pchr_a->getPosZ() + pchr_a->chr_min_cv._mins[OCT_Z] );
 
         // size of a doesn't matter
-		odepth[OCT_X] = std::min((pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->getPosX()) - pchr_a->getPosX(),
-                                  pchr_a->getPosX() - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->getPosX() ) );
+		odepth[OCT_X] = std::min((pchr_b->chr_min_cv._maxs[OCT_X] + pchr_b->getPosX()) - pchr_a->getPosX(),
+                                  pchr_a->getPosX() - ( pchr_b->chr_min_cv._mins[OCT_X] + pchr_b->getPosX() ) );
 
-		odepth[OCT_Y] = std::min(pchr_b->chr_min_cv.maxs[OCT_Y] + (pchr_b->getPosY() - pchr_a->getPosY()),
-                                 ( pchr_a->getPosY() - pchr_b->chr_min_cv.mins[OCT_Y] ) + pchr_b->getPosY() );
+		odepth[OCT_Y] = std::min(pchr_b->chr_min_cv._maxs[OCT_Y] + (pchr_b->getPosY() - pchr_a->getPosY()),
+                                 ( pchr_a->getPosY() - pchr_b->chr_min_cv._mins[OCT_Y] ) + pchr_b->getPosY() );
 
-		odepth[OCT_XY] = std::min((pchr_b->chr_min_cv.maxs[OCT_XY] + (pchr_b->getPosX() + pchr_b->getPosY())) - (pchr_a->getPosX() + pchr_a->getPosY()),
-                                  ( pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) );
+		odepth[OCT_XY] = std::min((pchr_b->chr_min_cv._maxs[OCT_XY] + (pchr_b->getPosX() + pchr_b->getPosY())) - (pchr_a->getPosX() + pchr_a->getPosY()),
+                                  ( pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv._mins[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) );
 
-        odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( -pchr_a->getPosX() + pchr_a->getPosY() ),
-                                  ( -pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) );
+        odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv._maxs[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( -pchr_a->getPosX() + pchr_a->getPosY() ),
+                                  ( -pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv._mins[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) );
 
     }
 
@@ -1199,19 +1199,19 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
         // check for the best possible attachment
         if ( chara_on_top )
         {
-            if ( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z] > pchr_a->targetplatform_level )
+            if ( pchr_b->getPosZ() + pchr_b->chr_min_cv._maxs[OCT_Z] > pchr_a->targetplatform_level )
             {
                 // set, but do not attach the platforms yet
-                pchr_a->targetplatform_level = pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z];
+                pchr_a->targetplatform_level = pchr_b->getPosZ() + pchr_b->chr_min_cv._maxs[OCT_Z];
                 pchr_a->targetplatform_ref   = ichr_b;
             }
         }
         else
         {
-            if ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] > pchr_b->targetplatform_level )
+            if ( pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] > pchr_b->targetplatform_level )
             {
                 // set, but do not attach the platforms yet
-                pchr_b->targetplatform_level = pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z];
+                pchr_b->targetplatform_level = pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z];
                 pchr_b->targetplatform_ref   = ichr_a;
             }
         }
@@ -1250,29 +1250,29 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     platform_a = /* pprt_b->canuseplatforms && */ pchr_a->platform;
     if ( !platform_a ) return false;
 
-    odepth[OCT_Z]  = std::min( pprt_b->prt_max_cv.maxs[OCT_Z] + pprt_b->pos[kZ], pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->getPosZ() ) -
-                     std::max( pprt_b->prt_max_cv.mins[OCT_Z] + pprt_b->pos[kZ], pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->getPosZ() );
+    odepth[OCT_Z]  = std::min( pprt_b->prt_max_cv._maxs[OCT_Z] + pprt_b->pos[kZ], pchr_a->chr_min_cv._maxs[OCT_Z] + pchr_a->getPosZ() ) -
+                     std::max( pprt_b->prt_max_cv._mins[OCT_Z] + pprt_b->pos[kZ], pchr_a->chr_min_cv._mins[OCT_Z] + pchr_a->getPosZ() );
 
 	collide_z = TO_C_BOOL(odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE);
 
     if ( !collide_z ) return false;
 
     // determine how the characters can be attached
-    odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pprt_b->pos[kZ] + pprt_b->prt_max_cv.mins[OCT_Z] );
+    odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] ) - ( pprt_b->pos[kZ] + pprt_b->prt_max_cv._mins[OCT_Z] );
 
     // size of b doesn't matter
 
-	odepth[OCT_X] = std::min((pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->getPosX()) - pprt_b->pos[kX],
-                              pprt_b->pos[kX] - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->getPosX() ) );
+	odepth[OCT_X] = std::min((pchr_a->chr_min_cv._maxs[OCT_X] + pchr_a->getPosX()) - pprt_b->pos[kX],
+                              pprt_b->pos[kX] - ( pchr_a->chr_min_cv._mins[OCT_X] + pchr_a->getPosX() ) );
 
-    odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->getPosY() ) -  pprt_b->pos[kY],
-                                pprt_b->pos[kY] - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->getPosY() ) );
+    odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv._maxs[OCT_Y] + pchr_a->getPosY() ) -  pprt_b->pos[kY],
+                                pprt_b->pos[kY] - ( pchr_a->chr_min_cv._mins[OCT_Y] + pchr_a->getPosY() ) );
 
-    odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( pprt_b->pos[kX] + pprt_b->pos[kY] ),
-                              ( pprt_b->pos[kX] + pprt_b->pos[kY] ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
+    odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv._maxs[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( pprt_b->pos[kX] + pprt_b->pos[kY] ),
+                              ( pprt_b->pos[kX] + pprt_b->pos[kY] ) - ( pchr_a->chr_min_cv._mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
-    odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pprt_b->pos[kX] + pprt_b->pos[kY] ),
-                              ( -pprt_b->pos[kX] + pprt_b->pos[kY] ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
+    odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv._maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pprt_b->pos[kX] + pprt_b->pos[kY] ),
+                              ( -pprt_b->pos[kX] + pprt_b->pos[kY] ) - ( pchr_a->chr_min_cv._mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
     collide_x  = TO_C_BOOL( odepth[OCT_X]  > 0.0f );
     collide_y  = TO_C_BOOL( odepth[OCT_Y]  > 0.0f );
@@ -1283,10 +1283,10 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     if ( collide_x && collide_y && collide_xy && collide_yx && collide_z )
     {
         // check for the best possible attachment
-        if ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] > pprt_b->targetplatform_level )
+        if ( pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] > pprt_b->targetplatform_level )
         {
             // set, but do not attach the platforms yet
-            pprt_b->targetplatform_level = pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z];
+            pprt_b->targetplatform_level = pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z];
             pprt_b->targetplatform_ref   = ichr_a;
         }
     }
@@ -1824,7 +1824,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         oct_bb_t::translate(pchr_b->slot_cv[SLOT_LEFT], pchr_b->getPosition(), tmp_cv);
         phys_expand_oct_bb(tmp_cv, pchr_b->vel, 0.0f, 1.0f, saddle_cv);
 
-        if ( oct_bb_t::contains( &saddle_cv, apos ) )
+        if (oct_bb_t::contains(saddle_cv, apos))
         {
             oct_vec_v2_t saddle_pos;
             fvec3_t   pdiff;
@@ -1859,7 +1859,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         oct_bb_t::translate(pchr_a->slot_cv[SLOT_LEFT], pchr_a->getPosition(), tmp_cv);
         phys_expand_oct_bb(tmp_cv, pchr_a->vel, 0.0f, 1.0f, saddle_cv);
 
-        if ( oct_bb_t::contains( &saddle_cv, bpos ) )
+        if (oct_bb_t::contains(saddle_cv, bpos))
         {
             oct_vec_v2_t saddle_pos;
             fvec3_t   pdiff;
@@ -1936,18 +1936,18 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
     fvec3_t collision_size;
     float dot;
 
-    collision_size[kX] = std::max( pchr->chr_max_cv.maxs[OCT_X] - pchr->chr_max_cv.mins[OCT_X], 2.0f * pprt->bump_padded.size );
+    collision_size[kX] = std::max( pchr->chr_max_cv._maxs[OCT_X] - pchr->chr_max_cv._mins[OCT_X], 2.0f * pprt->bump_padded.size );
     if ( 0.0f == collision_size[kX] ) return -1.0f;
 
-    collision_size[kY] = std::max( pchr->chr_max_cv.maxs[OCT_Y] - pchr->chr_max_cv.mins[OCT_Y], 2.0f * pprt->bump_padded.size );
+    collision_size[kY] = std::max( pchr->chr_max_cv._maxs[OCT_Y] - pchr->chr_max_cv._mins[OCT_Y], 2.0f * pprt->bump_padded.size );
     if ( 0.0f == collision_size[kY] ) return -1.0f;
 
-    collision_size[kZ] = std::max( pchr->chr_max_cv.maxs[OCT_Z] - pchr->chr_max_cv.mins[OCT_Z], 2.0f * pprt->bump_padded.height );
+    collision_size[kZ] = std::max( pchr->chr_max_cv._maxs[OCT_Z] - pchr->chr_max_cv._mins[OCT_Z], 2.0f * pprt->bump_padded.height );
     if ( 0.0f == collision_size[kZ] ) return -1.0f;
 
     // estimate the "normal" for the collision, using the center-of-mass difference
     nrm = pprt->pos - pchr->pos;
-    nrm[kZ] -= 0.5f * (pchr->chr_max_cv.maxs[OCT_Z] + pchr->chr_max_cv.mins[OCT_Z]);
+    nrm[kZ] -= 0.5f * (pchr->chr_max_cv._maxs[OCT_Z] + pchr->chr_max_cv._mins[OCT_Z]);
 
     // scale the collision box
     nrm[kX] /= collision_size[kX];
@@ -1985,7 +1985,7 @@ float estimate_chr_prt_normal( const Object * pchr, const prt_t * pprt, fvec3_t&
             // use the old position, which SHOULD be before the collision
             // to determine the normal
             nrm = pprt->pos_old - pchr->pos_old;
-            nrm[kZ] -= 0.5f * (pchr->chr_max_cv.maxs[OCT_Z] + pchr->chr_max_cv.mins[OCT_Z]);
+            nrm[kZ] -= 0.5f * (pchr->chr_max_cv._maxs[OCT_Z] + pchr->chr_max_cv._mins[OCT_Z]);
 
             // scale the collision box
             nrm[kX] /= collision_size[kX];
@@ -2127,7 +2127,7 @@ bool do_chr_chr_collision( CoNode_t * d )
     // that are overlapping with the platform you are actually on
     if ( pchr_b->canuseplatforms && pchr_a->platform && INVALID_CHR_REF != pchr_b->onwhichplatform_ref && ichr_a != pchr_b->onwhichplatform_ref )
     {
-        float lerp_z = ( pchr_b->getPosZ() - ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
+        float lerp_z = ( pchr_b->getPosZ() - ( pchr_a->getPosZ() + pchr_a->chr_min_cv._maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, 1.0f );
 
         if ( lerp_z >= 0.0f )
@@ -2142,7 +2142,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
     if ( pchr_a->canuseplatforms && pchr_b->platform && INVALID_CHR_REF != pchr_a->onwhichplatform_ref && ichr_b != pchr_a->onwhichplatform_ref )
     {
-        float lerp_z = ( pchr_a->getPosZ() - ( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
+        float lerp_z = ( pchr_a->getPosZ() - ( pchr_b->getPosZ() + pchr_b->chr_min_cv._maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, +1.0f );
 
         if ( lerp_z >= 0.0f )
@@ -2540,13 +2540,13 @@ bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
     // it is a valid platform. now figure out the physics
 
     // are they colliding for the first time?
-    z_collide     = TO_C_BOOL(( pdata->pprt->pos[kZ] < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) && ( pdata->pprt->pos[kZ] > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
-    was_z_collide = TO_C_BOOL(( pdata->pprt->pos[kZ] - pdata->pprt->vel[kZ] < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pchr->vel[kZ] ) && ( pdata->pprt->pos[kZ] - pdata->pprt->vel[kZ]  > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
+    z_collide     = TO_C_BOOL(( pdata->pprt->pos[kZ] < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] ) && ( pdata->pprt->pos[kZ] > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._mins[OCT_Z] ) );
+    was_z_collide = TO_C_BOOL(( pdata->pprt->pos[kZ] - pdata->pprt->vel[kZ] < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] - pdata->pchr->vel[kZ] ) && ( pdata->pprt->pos[kZ] - pdata->pprt->vel[kZ]  > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._mins[OCT_Z] ) );
 
     if ( z_collide && !was_z_collide )
     {
         // Particle is falling onto the platform
-        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos[kZ], kZ );
+        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] - pdata->pprt->pos[kZ], kZ );
         phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->getPosZ() - pdata->pprt->vel[kZ] ) *( 1.0f + pdata->ppip->dampen ), kZ );
 
         // This should prevent raindrops from stacking up on the top of trees and other
@@ -2561,7 +2561,7 @@ bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
     else if ( z_collide && was_z_collide )
     {
         // colliding this time and last time. particle is *embedded* in the platform
-        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos[kZ], kZ );
+        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] - pdata->pprt->pos[kZ], kZ );
 
         if ( pdata->pprt->vel[kZ] - pdata->pchr->vel[kZ] < 0 )
         {
@@ -2579,7 +2579,7 @@ bool do_prt_platform_physics( chr_prt_collision_data_t * pdata )
     else
     {
         // not colliding this time or last time. particle is just near the platform
-        float lerp_z = ( pdata->pprt->pos[kZ] - ( pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
+        float lerp_z = ( pdata->pprt->pos[kZ] - ( pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv._maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, +1.0f );
 
         if ( lerp_z > 0.0f )

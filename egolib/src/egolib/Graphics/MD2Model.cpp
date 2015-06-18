@@ -71,7 +71,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
             // Re-calculate the bounding box for this frame
             if (!boundingBoxFound)
             {
-                oct_bb_set_ovec(&frame.bb, opos);
+				frame.bb = oct_bb_t(opos);
                 boundingBoxFound = true;
             }
             else
@@ -79,14 +79,14 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
                 frame.bb.join(opos);
             }
         }
-
+#if 0
         // we don't really want objects that have extent in more than one
         // dimension to be called empty
-        if (frame.bb.empty)
+        if (frame.bb._empty)
         {
-            if ( std::abs(frame.bb.maxs[OCT_X] - frame.bb.mins[OCT_X] ) +
-                 std::abs(frame.bb.maxs[OCT_Y] - frame.bb.mins[OCT_Y] ) +
-                 std::abs(frame.bb.maxs[OCT_Z] - frame.bb.mins[OCT_Z] ) > 0.0f )
+            if ( std::abs(frame.bb._maxs[OCT_X] - frame.bb._mins[OCT_X] ) +
+                 std::abs(frame.bb._maxs[OCT_Y] - frame.bb._mins[OCT_Y] ) +
+                 std::abs(frame.bb._maxs[OCT_Z] - frame.bb._mins[OCT_Z] ) > 0.0f )
             {
                 oct_vec_v2_t ovec;
 
@@ -95,6 +95,7 @@ void MD2Model::scaleModel(const float scaleX, const float scaleY, const float sc
                 oct_bb_self_grow(frame.bb, ovec);
             }
         }
+#endif
     }
 }
 
@@ -253,7 +254,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             ovec.ctor(vertex.pos);
             if (!boundingBoxFound)
             {
-                oct_bb_set_ovec(&frame.bb, ovec);
+                frame.bb = oct_bb_t(ovec);
                 boundingBoxFound = true;
             }
             else

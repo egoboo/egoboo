@@ -801,8 +801,8 @@ bool chr_calc_grip_cv( Object * pmount, int grip_offset, oct_bb_t * grip_cv_ptr,
     tmp_cv.assign(bmp);
 
     // move the vertical bounding box down a little
-    tmp_cv.mins[OCT_Z] -= bmp.height * 0.25f;
-    tmp_cv.maxs[OCT_Z] -= bmp.height * 0.25f;
+    tmp_cv._mins[OCT_Z] -= bmp.height * 0.25f;
+    tmp_cv._maxs[OCT_Z] -= bmp.height * 0.25f;
 
     // get appropriate vertices for this model's grip
     {

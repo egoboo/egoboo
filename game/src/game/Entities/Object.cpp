@@ -799,13 +799,13 @@ void Object::update()
             if(getPosZ() < WATER_LEVEL && isAlive())
             {
                 if ( !isBeingHeld() && getProfile()->causesRipples() 
-                    && getPosZ() + chr_min_cv.maxs[OCT_Z] + RIPPLETOLERANCE > WATER_LEVEL 
-                    && getPosZ() + chr_min_cv.mins[OCT_Z] < WATER_LEVEL)
+                    && getPosZ() + chr_min_cv._maxs[OCT_Z] + RIPPLETOLERANCE > WATER_LEVEL 
+                    && getPosZ() + chr_min_cv._mins[OCT_Z] < WATER_LEVEL)
                 {
                     int ripple_suppression;
 
                     // suppress ripples if we are far below the surface
-                    ripple_suppression = WATER_LEVEL - (getPosZ() + chr_min_cv.maxs[OCT_Z]);
+                    ripple_suppression = WATER_LEVEL - (getPosZ() + chr_min_cv._maxs[OCT_Z]);
                     ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
                     ripple_suppression = Ego::Math::constrain(ripple_suppression, 0, 4);
 

@@ -270,84 +270,101 @@
     struct oct_bb_t
     {
     public:
-        bool empty;
+        bool _empty;
 
     public:
-        oct_vec_v2_t mins, maxs;
+        oct_vec_v2_t _mins, _maxs;
 
         bool isEmpty() const
         {
-            return empty;
+            return _empty;
         }
+
+	public:
 
         oct_bb_t() :
-            empty(true),
-            mins(),
-            maxs()
-        {
-            //ctor
+            _empty(true),
+            _mins(),
+            _maxs() {
         }
+
+		oct_bb_t(const oct_vec_v2_t& other) :
+			_empty(false),
+			_mins(other),
+			_maxs(other) {
+		}
 
         oct_bb_t(const oct_bb_t& other) :
-            empty(other.empty),
-            mins(other.mins), 
-            maxs(other.maxs)
-        {
-            //copy ctor
+            _empty(other._empty),
+            _mins(other._mins), 
+            _maxs(other._maxs) {
         }
 
-        void assign(const oct_bb_t& other)
-        {
-            mins = other.mins;
-            maxs = other.maxs;
-            empty = other.empty;
+		oct_bb_t(const bumper_t& other) {
+			_mins[OCT_X] = -other.size;
+			_maxs[OCT_X] = +other.size;
+
+			_mins[OCT_Y] = -other.size;
+			_maxs[OCT_Y] = +other.size;
+
+			_mins[OCT_XY] = -other.size_big;
+			_maxs[OCT_XY] = +other.size_big;
+
+			_mins[OCT_YX] = -other.size_big;
+			_maxs[OCT_YX] = +other.size_big;
+
+			_mins[OCT_Z] = -other.height;
+			_maxs[OCT_Z] = +other.height;
+
+			_empty = false;
+		}
+
+	public:
+
+        void assign(const oct_bb_t& other) {
+            _mins = other._mins;
+            _maxs = other._maxs;
+            _empty = other._empty;
         }
 
-        oct_bb_t& operator=(const oct_bb_t& other)
-        {
+        oct_bb_t& operator=(const oct_bb_t& other) {
             assign(other);
             return *this;
         }
 
-        const oct_vec_v2_t& getMin() const
-        {
-            if (empty)
-            {
+        const oct_vec_v2_t& getMin() const {
+            if (_empty) {
                 throw std::invalid_argument("an empty obb does not have a min-point");
             }
-            return mins;
+            return _mins;
         }
 
-        const oct_vec_v2_t& getMax() const
-        {
-            if (empty)
-            {
+        const oct_vec_v2_t& getMax() const {
+            if (_empty) {
                 throw std::invalid_argument("an empty obb does not have a max-point");
             }
-            return maxs;
+            return _maxs;
         }
 
-        oct_vec_v2_t getMid() const
-        {
-            if (empty)
-            {
+        oct_vec_v2_t getMid() const {
+            if (_empty) {
                 throw std::invalid_argument("an empty obb does not have a mid-point");
             }
-            return (mins + maxs) * 0.5f;
+            return (_mins + _maxs) * 0.5f;
         }
         
         /**
          * @brief
-         *  Get the smallest axis-aligned bounding box enclosing this octagonal bounding box.
+         *  Get the axis-aligned bounding box aspect of this octagonal bounding box.
          * @return
          *  the axis-aligned bounding box
          */
         aabb_t toAABB() const {
-            if (this->empty) {
+            if (_empty) {
                 throw std::logic_error("unable to convert an empty OBB into an AABB");
             }
-            return aabb_t(fvec3_t(mins[OCT_X], mins[OCT_Y], mins[OCT_Z]),
-                          fvec3_t(maxs[OCT_X], maxs[OCT_Y], maxs[OCT_Z]));
+            return aabb_t(fvec3_t(_mins[OCT_X], _mins[OCT_Y], _mins[OCT_Z]),
+                          fvec3_t(_maxs[OCT_X], _maxs[OCT_Y], _maxs[OCT_Z]));
         }
 
         /**
@@ -357,7 +374,7 @@
          *   the bounding volume
          */
         bv_t toBV() const {
-            if (this->empty) {
+            if (_empty) {
                 throw std::logic_error("unable to convert an empty OBB into a BV");
             }
             return bv_t(toAABB());
@@ -365,22 +382,22 @@
 
         void assign(const bumper_t& other)
         {
-            mins[OCT_X] = -other.size;
-            maxs[OCT_X] = +other.size;
+            _mins[OCT_X] = -other.size;
+            _maxs[OCT_X] = +other.size;
 
-            mins[OCT_Y] = -other.size;
-            maxs[OCT_Y] = +other.size;
+            _mins[OCT_Y] = -other.size;
+            _maxs[OCT_Y] = +other.size;
 
-            mins[OCT_XY] = -other.size_big;
-            maxs[OCT_XY] = +other.size_big;
+            _mins[OCT_XY] = -other.size_big;
+            _maxs[OCT_XY] = +other.size_big;
 
-            mins[OCT_YX] = -other.size_big;
-            maxs[OCT_YX] = +other.size_big;
+            _mins[OCT_YX] = -other.size_big;
+            _maxs[OCT_YX] = +other.size_big;
 
-            mins[OCT_Z] = -other.height;
-            maxs[OCT_Z] = +other.height;
+            _mins[OCT_Z] = -other.height;
+            _maxs[OCT_Z] = +other.height;
 
-            oct_bb_t::validate(this);
+			_empty = false;
         }
 
         /**
@@ -402,8 +419,8 @@
          */
         void translate(const oct_vec_v2_t& t)
         {
-            mins.add(t);
-            maxs.add(t);
+            _mins.add(t);
+            _maxs.add(t);
         }
 
         /**
@@ -416,7 +433,7 @@
          * @return
          *  @a true if this bounding volume contains the point, @a false otherwise
          */
-        static bool contains(const oct_bb_t *self, const oct_vec_v2_t& other);
+        static bool contains(const oct_bb_t& self, const oct_vec_v2_t& other);
         
         /**
          * @brief
@@ -430,10 +447,10 @@
          */
         static bool contains(const oct_bb_t& self, const oct_bb_t& other);
         
-		static oct_bb_t *ctor(oct_bb_t *self);
-		static void dtor(oct_bb_t *self);
-        static egolib_rv validate(oct_bb_t *self);
-        static bool empty_raw(const oct_bb_t *self);
+		static void ctor(oct_bb_t& self);
+		static void dtor(oct_bb_t& self);
+        static egolib_rv validate(oct_bb_t& self);
+        static bool empty_raw(const oct_bb_t& self);
 
         /**
          * @brief
@@ -504,34 +521,24 @@
 		static egolib_rv translate(const oct_bb_t& src, const fvec3_t& t, oct_bb_t& dst);
 		static egolib_rv translate(const oct_bb_t& src, const oct_vec_v2_t& t, oct_bb_t& dst);
 
-		static egolib_rv interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip);
+		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, oct_bb_t& pdst_bb);
+		static egolib_rv downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt, const bumper_t& bump_base, bumper_t& pdst_bump);
+
+		static egolib_rv join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
+		static egolib_rv intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
+
+		static void interpolate(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst, float flip);
+
+		static void validate_index(oct_bb_t& self, int index);
+		static bool empty_index_raw(const oct_bb_t& self, int index);
+		static bool empty_index(const oct_bb_t& self, int index);
+		static void copy(oct_bb_t& dst, const oct_bb_t& src);
+
     };
     
-    void oct_bb_set_ovec(oct_bb_t *self, const oct_vec_v2_t& v);
-    egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v);
-
-
-
-
-
-
-    egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb );
-
-    int    oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count);
-    void   points_to_oct_bb(oct_bb_t& self, const fvec4_t pos[], const size_t pos_count);
-
-
-egolib_rv oct_bb_copy(oct_bb_t& dst, const oct_bb_t& src);
-
-
-egolib_rv oct_bb_validate_index(oct_bb_t& self, int index);
-
+egolib_rv oct_bb_self_grow(oct_bb_t& self, const oct_vec_v2_t& v);
+int oct_bb_to_points(const oct_bb_t& self, fvec4_t pos[], size_t pos_count);
+void points_to_oct_bb(oct_bb_t& self, const fvec4_t pos[], const size_t pos_count);
 bool oct_bb_empty(const oct_bb_t& self);
 
-
-
-bool oct_bb_empty_index_raw(const oct_bb_t& self, int index);
-bool oct_bb_empty_index(const oct_bb_t& self, int index);
-egolib_rv oct_bb_join(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
-egolib_rv oct_bb_intersection(const oct_bb_t& src1, const oct_bb_t& src2, oct_bb_t& dst);
 

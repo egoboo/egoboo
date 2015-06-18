@@ -360,7 +360,7 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
 
 	            if (!pchr->alive) continue;
 
-                sum_pos += pchr->getPosition() + fvec3_t(0.0f, 0.0f, pchr->chr_min_cv.maxs[OCT_Z] * 0.9f);
+                sum_pos += pchr->getPosition() + fvec3_t(0.0f, 0.0f, pchr->chr_min_cv._maxs[OCT_Z] * 0.9f);
 	            sum_level += pchr->enviro.level;
 	            sum_wt += 1.0f;
 	        }

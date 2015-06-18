@@ -4003,7 +4003,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 //--------------------------------------------------------------------------------------------
 float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk )
 {
-    float zdone = ego_mesh_get_max_vertex_1( pmesh, point, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
+    float zdone = ego_mesh_get_max_vertex_1( pmesh, point, pbump->_mins[OCT_X], pbump->_mins[OCT_Y], pbump->_maxs[OCT_X], pbump->_maxs[OCT_Y] );
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
@@ -4033,8 +4033,8 @@ float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
 
     for ( corner = 0; corner < 4; corner++ )
     {
-        pos_x[corner] = pchr->getPosX() + (( 0 == ix_off[corner] ) ? pchr->chr_min_cv.mins[OCT_X] : pchr->chr_min_cv.maxs[OCT_X] );
-        pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv.mins[OCT_Y] : pchr->chr_min_cv.maxs[OCT_Y] );
+        pos_x[corner] = pchr->getPosX() + (( 0 == ix_off[corner] ) ? pchr->chr_min_cv._mins[OCT_X] : pchr->chr_min_cv._maxs[OCT_X] );
+        pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
     }
 
     zmax = get_mesh_level( pmesh, pos_x[0], pos_y[0], pchr->waterwalk );
@@ -4073,11 +4073,11 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
     oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bump);
 
     // determine the size of this object in tiles
-    ixmin = bump.mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
-    ixmax = bump.maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
+    ixmin = bump._mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
+    ixmax = bump._maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
 
-    iymin = bump.mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
-    iymax = bump.maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
+    iymin = bump._mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
+    iymax = bump._maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
@@ -4096,10 +4096,10 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
             float grid_x = ix * GRID_ISIZE;
 
             ftmp = grid_x + grid_y;
-            if ( ftmp < bump.mins[OCT_XY] || ftmp > bump.maxs[OCT_XY] ) continue;
+            if ( ftmp < bump._mins[OCT_XY] || ftmp > bump._maxs[OCT_XY] ) continue;
 
             ftmp = -grid_x + grid_y;
-            if ( ftmp < bump.mins[OCT_YX] || ftmp > bump.maxs[OCT_YX] ) continue;
+            if ( ftmp < bump._mins[OCT_YX] || ftmp > bump._maxs[OCT_YX] ) continue;
 
             TileIndex itile = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
             if (TileIndex::Invalid == itile ) continue;
@@ -4199,7 +4199,7 @@ bool attach_Objecto_platform( Object * pchr, Object * pplat )
     pchr->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    pchr->enviro.level     = std::max( pchr->enviro.floor_level, pplat->getPosZ() + pplat->chr_min_cv.maxs[OCT_Z] );
+    pchr->enviro.level     = std::max( pchr->enviro.floor_level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] );
     pchr->enviro.zlerp     = ( pchr->getPosZ() - pchr->enviro.level ) / PLATTOLERANCE;
     pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0.0f, 1.0f );
     pchr->enviro.grounded  = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
@@ -4306,7 +4306,7 @@ bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    pprt->set_level( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv.maxs[OCT_Z] ) );
+    pprt->set_level( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] ) );
 
     return true;
 }

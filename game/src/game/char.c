@@ -1407,7 +1407,7 @@ void drop_money( const CHR_REF character, int money )
         pchr->money = ( int )pchr->money - money;
 
         // make the particles emit from "waist high"
-        loc_pos[kZ] += ( pchr->chr_min_cv.maxs[OCT_Z] + pchr->chr_min_cv.mins[OCT_Z] ) * 0.5f;
+        loc_pos[kZ] += ( pchr->chr_min_cv._maxs[OCT_Z] + pchr->chr_min_cv._mins[OCT_Z] ) * 0.5f;
 
         // Give the character a time-out from interacting with particles so it
         // doesn't just grab the money again
@@ -2891,7 +2891,7 @@ void move_one_character_get_environment( Object * pchr )
     // The actual level of the floor underneath the character.
     if ( NULL != pplatform )
     {
-        penviro->floor_level = pplatform->getPosZ() + pplatform->chr_min_cv.maxs[OCT_Z];
+        penviro->floor_level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
     }
     else
     {
@@ -2904,7 +2904,7 @@ void move_one_character_get_environment( Object * pchr )
     penviro->level = penviro->floor_level;
     if ( NULL != pplatform )
     {
-        penviro->level = pplatform->getPosZ() + pplatform->chr_min_cv.maxs[OCT_Z];
+        penviro->level = pplatform->getPosZ() + pplatform->chr_min_cv._maxs[OCT_Z];
     }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
@@ -4989,11 +4989,11 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     if ( nullptr == ( pchr ) ) return rv_error;
 
     // re-initialize the collision volumes
-    oct_bb_t::ctor( &( pchr->chr_min_cv ) );
-    oct_bb_t::ctor( &( pchr->chr_max_cv ) );
+    oct_bb_t::ctor(pchr->chr_min_cv);
+    oct_bb_t::ctor(pchr->chr_max_cv);
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        oct_bb_t::ctor( &pchr->slot_cv[cnt] );
+        oct_bb_t::ctor(pchr->slot_cv[cnt]);
     }
 
     std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
@@ -5079,7 +5079,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     }
 
     // convert the level 1 bounding box to a level 0 bounding box
-    oct_bb_downgrade( &bdst, pchr->bump_stt, pchr->bump, &( pchr->bump_1 ), NULL );
+    oct_bb_t::downgrade(bdst, pchr->bump_stt, pchr->bump, pchr->bump_1);
 
     return rv_success;
 }

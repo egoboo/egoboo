@@ -369,52 +369,52 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
 
 			Ego::Renderer::get().setColour(diamondColour);
 
-            p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
-            p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
-            p2_x = 0.5f * ( bb->maxs[OCT_XY] - bb->mins[OCT_YX] );
-            p2_y = 0.5f * ( bb->maxs[OCT_XY] + bb->mins[OCT_YX] );
+            p1_x = 0.5f * ( bb->_maxs[OCT_XY] - bb->_maxs[OCT_YX] );
+            p1_y = 0.5f * ( bb->_maxs[OCT_XY] + bb->_maxs[OCT_YX] );
+            p2_x = 0.5f * ( bb->_maxs[OCT_XY] - bb->_mins[OCT_YX] );
+            p2_y = 0.5f * ( bb->_maxs[OCT_XY] + bb->_mins[OCT_YX] );
 
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->_maxs[OCT_Z] );
             GL_DEBUG_END();
 
-            p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->mins[OCT_YX] );
-            p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->mins[OCT_YX] );
-            p2_x = 0.5f * ( bb->mins[OCT_XY] - bb->mins[OCT_YX] );
-            p2_y = 0.5f * ( bb->mins[OCT_XY] + bb->mins[OCT_YX] );
+            p1_x = 0.5f * ( bb->_maxs[OCT_XY] - bb->_mins[OCT_YX] );
+            p1_y = 0.5f * ( bb->_maxs[OCT_XY] + bb->_mins[OCT_YX] );
+            p2_x = 0.5f * ( bb->_mins[OCT_XY] - bb->_mins[OCT_YX] );
+            p2_y = 0.5f * ( bb->_mins[OCT_XY] + bb->_mins[OCT_YX] );
 
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->_maxs[OCT_Z] );
             GL_DEBUG_END();
 
-            p1_x = 0.5f * ( bb->mins[OCT_XY] - bb->mins[OCT_YX] );
-            p1_y = 0.5f * ( bb->mins[OCT_XY] + bb->mins[OCT_YX] );
-            p2_x = 0.5f * ( bb->mins[OCT_XY] - bb->maxs[OCT_YX] );
-            p2_y = 0.5f * ( bb->mins[OCT_XY] + bb->maxs[OCT_YX] );
+            p1_x = 0.5f * ( bb->_mins[OCT_XY] - bb->_mins[OCT_YX] );
+            p1_y = 0.5f * ( bb->_mins[OCT_XY] + bb->_mins[OCT_YX] );
+            p2_x = 0.5f * ( bb->_mins[OCT_XY] - bb->_maxs[OCT_YX] );
+            p2_y = 0.5f * ( bb->_mins[OCT_XY] + bb->_maxs[OCT_YX] );
 
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->_maxs[OCT_Z] );
             GL_DEBUG_END();
 
-            p1_x = 0.5f * ( bb->mins[OCT_XY] - bb->maxs[OCT_YX] );
-            p1_y = 0.5f * ( bb->mins[OCT_XY] + bb->maxs[OCT_YX] );
-            p2_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
-            p2_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
+            p1_x = 0.5f * ( bb->_mins[OCT_XY] - bb->_maxs[OCT_YX] );
+            p1_y = 0.5f * ( bb->_mins[OCT_XY] + bb->_maxs[OCT_YX] );
+            p2_x = 0.5f * ( bb->_maxs[OCT_XY] - bb->_maxs[OCT_YX] );
+            p2_y = 0.5f * ( bb->_maxs[OCT_XY] + bb->_maxs[OCT_YX] );
 
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->_maxs[OCT_Z] );
             GL_DEBUG_END();
 
             retval = true;
@@ -428,50 +428,50 @@ bool render_oct_bb(oct_bb_t *bb, bool drawSquare, bool drawDiamond,const Ego::Ma
 
             // XZ FACE, min Y
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_mins[OCT_Y], bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_mins[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_mins[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_mins[OCT_Y], bb->_mins[OCT_Z] );
             GL_DEBUG_END();
 
             // YZ FACE, min X
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_mins[OCT_Y], bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_mins[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_maxs[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_maxs[OCT_Y], bb->_mins[OCT_Z] );
             GL_DEBUG_END();
 
             // XZ FACE, max Y
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_maxs[OCT_Y], bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_maxs[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_maxs[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_maxs[OCT_Y], bb->_mins[OCT_Z] );
             GL_DEBUG_END();
 
             // YZ FACE, max X
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_mins[OCT_Y], bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_mins[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_maxs[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_maxs[OCT_Y], bb->_mins[OCT_Z] );
             GL_DEBUG_END();
 
             // XY FACE, min Z
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_mins[OCT_Y], bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_maxs[OCT_Y], bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_maxs[OCT_Y], bb->_mins[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_mins[OCT_Y], bb->_mins[OCT_Z] );
             GL_DEBUG_END();
 
             // XY FACE, max Z
             GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_mins[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_mins[OCT_X], bb->_maxs[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_maxs[OCT_Y], bb->_maxs[OCT_Z] );
+            GL_DEBUG( glVertex3f )( bb->_maxs[OCT_X], bb->_mins[OCT_Y], bb->_maxs[OCT_Z] );
             GL_DEBUG_END();
 
             retval = true;

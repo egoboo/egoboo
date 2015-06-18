@@ -136,6 +136,16 @@ struct AABB : public Internal::Entity<_VectorSpaceType>, public Translatable<_Ve
         return (_min + _max) * 0.5f;
     }
 
+	/**
+	 * @brief
+	 *	Get the size.
+	 * @return
+	 *	the size
+	 */
+	VectorType getSize() const {
+		return _max - _min;
+	}
+
     /**
      * @brief
      *  Assign this bounding box the values of another bounding box.

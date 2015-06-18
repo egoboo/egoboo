@@ -127,10 +127,8 @@ void prt_t::reset() {
 	this->bump_size_stt = 0;           ///< the starting size of the particle (8.8 fixed point)
 	bumper_t::reset(&this->bump_real);
 	bumper_t::reset(&this->bump_padded);
-	this->prt_min_cv.mins = this->prt_min_cv.maxs = oct_vec_v2_t();
-	this->prt_min_cv.empty = false;
-	this->prt_max_cv.mins = this->prt_max_cv.maxs = oct_vec_v2_t();
-	this->prt_max_cv.empty = false;
+	this->prt_min_cv = oct_bb_t(oct_vec_v2_t());
+	this->prt_max_cv = oct_bb_t(oct_vec_v2_t());
 
 	// damage
 	this->damagetype = DamageType::DAMAGE_SLASH;
@@ -210,10 +208,8 @@ void prt_t::config_do_ctor()
     this->bump_size_stt = 0;           ///< the starting size of the particle (8.8 fixed point)
     bumper_t::reset(&this->bump_real);
     bumper_t::reset(&this->bump_padded);
-    this->prt_min_cv.mins = this->prt_min_cv.maxs = oct_vec_v2_t();
-    this->prt_min_cv.empty = false;
-    this->prt_max_cv.mins = this->prt_max_cv.maxs = oct_vec_v2_t();
-    this->prt_max_cv.empty = false;
+	this->prt_min_cv = oct_bb_t(oct_vec_v2_t());
+	this->prt_max_cv = oct_bb_t(oct_vec_v2_t());
 
     // damage
     this->damagetype = DamageType::DAMAGE_SLASH;
@@ -875,7 +871,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     loc_level = penviro->floor_level;
     if (_currentModule->getObjectHandler().exists(loc_pprt->onwhichplatform_ref))
     {
-        loc_level = std::max(penviro->floor_level, _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref)->getPosZ() + _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref)->chr_min_cv.maxs[OCT_Z]);
+        loc_level = std::max(penviro->floor_level, _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref)->getPosZ() + _currentModule->getObjectHandler().get(loc_pprt->onwhichplatform_ref)->chr_min_cv._maxs[OCT_Z]);
     }
     loc_pprt->set_level(loc_level);
 

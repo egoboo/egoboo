@@ -5049,10 +5049,10 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
 
         poct = &(tile_mem_t::get(ptmem, fan)->oct);
 
-        mesh_bound.xmin = std::min(mesh_bound.xmin, poct->mins[OCT_X]);
-        mesh_bound.xmax = std::max(mesh_bound.xmax, poct->maxs[OCT_X]);
-        mesh_bound.ymin = std::min(mesh_bound.ymin, poct->mins[OCT_Y]);
-        mesh_bound.ymax = std::max(mesh_bound.ymax, poct->maxs[OCT_Y]);
+        mesh_bound.xmin = std::min(mesh_bound.xmin, poct->_mins[OCT_X]);
+        mesh_bound.xmax = std::max(mesh_bound.xmax, poct->_maxs[OCT_X]);
+        mesh_bound.ymin = std::min(mesh_bound.ymin, poct->_mins[OCT_Y]);
+        mesh_bound.ymax = std::max(mesh_bound.ymax, poct->_maxs[OCT_Y]);
     }
 
     // is the visible mesh list empty?

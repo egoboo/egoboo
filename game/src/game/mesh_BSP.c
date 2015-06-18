@@ -67,14 +67,14 @@ mesh_BSP_t::mesh_BSP_t(const Parameters& parameters) :
 
     // Initialize the volume.
 	// @todo Error handling.
-	oct_bb_t::ctor(&volume);
+	oct_bb_t::ctor(volume);
 }
 
 //--------------------------------------------------------------------------------------------
 mesh_BSP_t::~mesh_BSP_t()
 {
     // Destruct the volume.
-	oct_bb_t::dtor(&volume);
+	oct_bb_t::dtor(volume);
 	// Set the count to zero.
 	count = 0;
 }
