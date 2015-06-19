@@ -32,8 +32,6 @@
 //--------------------------------------------------------------------------------------------
 
 
-static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window_size);
-static void clk_dtor(ClockState_t *self);
 
 static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
 static double clk_getExactLastFrameDuration( ClockState_t * cs );
@@ -60,7 +58,7 @@ ClockState_t *clk_create(const char *name,size_t size)
 	{
 		return NULL;
 	}
-	if (!clk_ctor(self,name,size))
+	if (!ClockState_t::ctor(self,name,size))
 	{
 		EGOBOO_DELETE(self);
 		return NULL;
@@ -71,12 +69,12 @@ ClockState_t *clk_create(const char *name,size_t size)
 //--------------------------------------------------------------------------------------------
 void clk_destroy(ClockState_t *self)
 {
-    clk_dtor(self);
+    ClockState_t::dtor(self);
     EGOBOO_DELETE(self);
 }
 
 //--------------------------------------------------------------------------------------------
-static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window_size)
+ClockState_t *ClockState_t::ctor(ClockState_t *self,const char * name,size_t window_size)
 {
 	EGOBOO_ASSERT(NULL != self && NULL != name && window_size > 0);
     BLANK_STRUCT_PTR(self)
@@ -103,7 +101,7 @@ static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window
 }
 
 //--------------------------------------------------------------------------------------------
-static void clk_dtor(ClockState_t *self)
+void ClockState_t::dtor(ClockState_t *self)
 {
 	EGOBOO_ASSERT(NULL != self);
     EGOBOO_DELETE_ARY(self->frameHistory);

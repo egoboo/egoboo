@@ -100,6 +100,9 @@ struct ClockState_t
 	size_t frameHistorySize;
 	size_t frameHistoryWindow;
 	size_t frameHistoryHead;
+
+	static ClockState_t *ctor(ClockState_t *self, const char * name, size_t window_size);
+	static void dtor(ClockState_t *self);
 };
 
 /**
