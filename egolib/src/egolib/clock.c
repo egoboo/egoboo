@@ -31,26 +31,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// The description of a single clock
-struct ClockState_t
-{
-    // Clock data
-    char *name;
-
-    std::chrono::high_resolution_clock::time_point sourceStartTime;  // The first value the clock receives from above function
-    std::chrono::high_resolution_clock::time_point sourceLastTime;  // The last value the clock received from above function
-    double currentTime;   // The current time, not necessarily in sync w/ the source time
-    double frameTime;   // The time this frame takes
-    Uint32 frameNumber; // Which frame the clock is on
-
-    double maximumFrameTime; // The maximum time delta the clock accepts (default .2 seconds)
-
-    // Circular buffer to hold frame histories
-    double *frameHistory;
-    size_t frameHistorySize;
-    size_t frameHistoryWindow;
-    size_t frameHistoryHead;
-};
 
 static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window_size);
 static void clk_dtor(ClockState_t *self);

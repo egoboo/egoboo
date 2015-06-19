@@ -81,6 +81,27 @@
 // struct ClockState_t
 //--------------------------------------------------------------------------------------------
 
+/// The description of a single clock
+struct ClockState_t
+{
+	// Clock data
+	char *name;
+
+	std::chrono::high_resolution_clock::time_point sourceStartTime;  // The first value the clock receives from above function
+	std::chrono::high_resolution_clock::time_point sourceLastTime;  // The last value the clock received from above function
+	double currentTime;   // The current time, not necessarily in sync w/ the source time
+	double frameTime;   // The time this frame takes
+	Uint32 frameNumber; // Which frame the clock is on
+
+	double maximumFrameTime; // The maximum time delta the clock accepts (default .2 seconds)
+
+	// Circular buffer to hold frame histories
+	double *frameHistory;
+	size_t frameHistorySize;
+	size_t frameHistoryWindow;
+	size_t frameHistoryHead;
+};
+
 /**
  * @brief
  *	Create a clock.
@@ -101,19 +122,55 @@ ClockState_t *clk_create(const char *name,size_t window_size);
 
 /**
  * @brief
- *	Destroy a clock.
- * @param cs
- *	a pointer to the clock
+ *	Destroy this clock.
+ * @param self
+ *	this clock
  */
 void clk_destroy(ClockState_t *self);
 
-ClockState_t * clk_renew( ClockState_t * cs );
+ClockState_t *clk_renew( ClockState_t *self);
 
-void     clk_frameStep( ClockState_t * cs );          ///< Update the clock.
-double   clk_getTime( ClockState_t * cs );            ///< Returns the current time.  The clock's time only updates when clk_frameStep() is called
-double   clk_getFrameDuration( ClockState_t * cs );   ///< Return the length of the current frame. (Sort of.)
-Uint32   clk_getFrameNumber( ClockState_t * cs );     ///< Return which frame we're on
-float    clk_getFrameRate( ClockState_t * cs );       ///< Return the current instantaneous FPS
+/**
+ * @brief
+ *	Update this clock.
+ * @param self
+ *	this clock
+ */
+void clk_frameStep(ClockState_t *self);
+/**
+ * @brief
+ *	Get the current time.
+ * @param self
+ *	this clock
+ * @return
+ *	the current time of this clock
+ * @remark
+ *	The current time of a clock only updates, when clk_frameStep() is called.
+ */
+double clk_getTime(ClockState_t *self);
+/**
+ * @brief
+ *	Get the length of the current frame of this clock.
+ * @param self
+ *	this clock
+ * @return
+ *	the length of the current frame of this clock
+ */
+double clk_getFrameDuration(ClockState_t *self);
+/**
+ * @brief
+ *	Return which frame we are on.
+ * @return
+ *	the frame which we are on
+ */
+Uint32 clk_getFrameNumber(ClockState_t *self);
+/**
+ * @brief
+ *	Return the current instantaneous frames per second.
+ * @retrun
+ *	the current instantaneous frames per second
+ */
+float clk_getFrameRate(ClockState_t *self);
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
