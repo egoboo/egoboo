@@ -561,17 +561,17 @@ const char * scantag_get_string( int device_type, const control_t &pcontrol, cha
             }
             else if ( 0 == tag_count )
             {
-                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr );
+                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr - 1 );
                 loc_buffer_ptr += tag_name_len;
 
                 tag_count++;
             }
             else
             {
-                strncat( loc_buffer_ptr, " + ", loc_buffer_end - loc_buffer_ptr );
+                strncat( loc_buffer_ptr, " + ", loc_buffer_end - loc_buffer_ptr - 1 );
                 loc_buffer_ptr += 3;
 
-                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr );
+                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr - 1 );
                 loc_buffer_ptr += tag_name_len;
 
                 tag_count++;
@@ -606,17 +606,17 @@ const char * scantag_get_string( int device_type, const control_t &pcontrol, cha
             }
             else if ( 0 == tag_count )
             {
-                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr );
+                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr - 1 );
                 loc_buffer_ptr += tag_name_len;
 
                 tag_count++;
             }
             else
             {
-                strncat( loc_buffer_ptr, " + ", loc_buffer_end - loc_buffer_ptr );
+                strncat( loc_buffer_ptr, " + ", loc_buffer_end - loc_buffer_ptr - 1 );
                 loc_buffer_ptr += 3;
 
-                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr );
+                strncat( loc_buffer_ptr, tag_name, loc_buffer_end - loc_buffer_ptr - 1 );
                 loc_buffer_ptr += tag_name_len;
 
                 tag_count++;
