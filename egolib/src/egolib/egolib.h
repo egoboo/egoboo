@@ -62,6 +62,7 @@
 
 #include "egolib/Time/LocalTime.hpp"
 #include "egolib/Time/SlidingWindow.hpp"
+#include "egolib/Time/Stopwatch.hpp"
 
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Graphics/Font.hpp"

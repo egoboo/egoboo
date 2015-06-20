@@ -950,6 +950,9 @@
     <ClInclude Include="src\egolib\Math\Cone3.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Time\Stopwatch.hpp">
+      <Filter>Header Files\Time</Filter>
+    </ClInclude>
     <ClInclude Include="src\egolib\Time\SlidingWindow.hpp">
       <Filter>Header Files\Time</Filter>
     </ClInclude>
