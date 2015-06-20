@@ -26,9 +26,6 @@
 
 #include "egolib/typedef.h"
 
-
-    struct ClockState_t;
-
 	typedef struct tm* EGO_TIME;
 
 #define PROFILE_KEEP  0.9F
@@ -166,5 +163,3 @@ float clk_getFrameRate(ClockState_t *self);
 
     EGO_TIME getCurrentTime( void );                          ///< Returns a structure containing current time and date
 
-    void clk_init( void );                                 ///< Init the clock module
-    void clk_shutdown( void );                             ///< Shut down the clock module

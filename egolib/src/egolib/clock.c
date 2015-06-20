@@ -33,16 +33,6 @@ static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
 static double clk_getExactLastFrameDuration( ClockState_t * cs );
 static double clk_guessFrameDuration(const ClockState_t *self);
 
-void clk_init( void )
-{
-    log_info( "Initializing clock services...\n" );
-}
-
-void clk_shutdown( void )
-{
-
-}
-
 ClockState_t *clk_create(const char *name,size_t size)
 {
     ClockState_t *self;
