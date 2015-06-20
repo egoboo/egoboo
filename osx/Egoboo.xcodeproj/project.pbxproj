@@ -71,7 +71,6 @@
 		CD39B45B1A37506100B377BE /* char.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3E61A37506100B377BE /* char.c */; };
 		CD39B45F1A37506100B377BE /* collision.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3EC1A37506100B377BE /* collision.c */; };
 		CD39B4601A37506100B377BE /* egoboo_object.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F01A37506100B377BE /* egoboo_object.c */; };
-		CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F31A37506100B377BE /* egoboo_typedef.c */; };
 		CD39B4621A37506100B377BE /* egoboo.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F51A37506100B377BE /* egoboo.c */; };
 		CD39B4681A37506100B377BE /* game.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3FF1A37506100B377BE /* game.c */; };
 		CD39B46A1A37506100B377BE /* graphic_billboard.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4031A37506100B377BE /* graphic_billboard.c */; };
@@ -83,10 +82,7 @@
 		CD39B4711A37506100B377BE /* lighting.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4111A37506100B377BE /* lighting.c */; };
 		CD39B4721A37506100B377BE /* link.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4131A37506100B377BE /* link.c */; };
 		CD39B47C1A37506100B377BE /* mesh_BSP.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4221A37506100B377BE /* mesh_BSP.c */; };
-		CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4241A37506100B377BE /* mesh_functions.c */; };
 		CD39B47E1A37506100B377BE /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4261A37506100B377BE /* mesh.c */; };
-		CD39B4801A37506100B377BE /* network_client.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4291A37506100B377BE /* network_client.c */; };
-		CD39B4811A37506100B377BE /* network_server.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B42B1A37506100B377BE /* network_server.c */; };
 		CD39B4821A37506100B377BE /* network.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B42D1A37506100B377BE /* network.c */; };
 		CD39B4831A37506100B377BE /* obj_BSP.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B42F1A37506100B377BE /* obj_BSP.c */; };
 		CD39B4881A37506100B377BE /* physics.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4371A37506100B377BE /* physics.c */; };
@@ -278,7 +274,6 @@
 		CDCA1FD81A3F57D000002E76 /* network.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B36F1A374B6000B377BE /* network.c */; };
 		CDCA1FD91A3F57D000002E76 /* file_mac.m in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3741A374B6000B377BE /* file_mac.m */; };
 		CDCA1FDA1A3F57D000002E76 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3771A374B6000B377BE /* NSFileManager+DirectoryLocations.m */; };
-		CDCA1FDB1A3F57D000002E76 /* sys_mac.m in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3791A374B6000B377BE /* sys_mac.m */; };
 		CDCA1FDE1A3F57D000002E76 /* strutil.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3811A374B6000B377BE /* strutil.c */; };
 		CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3861A374B6000B377BE /* throttle.c */; };
 		CDCA1FE11A3F57D000002E76 /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3881A374B6000B377BE /* timer.c */; };
@@ -709,11 +704,9 @@
 		CD39B3741A374B6000B377BE /* file_mac.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = file_mac.m; sourceTree = "<group>"; };
 		CD39B3761A374B6000B377BE /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
 		CD39B3771A374B6000B377BE /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
-		CD39B3791A374B6000B377BE /* sys_mac.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = sys_mac.m; sourceTree = "<group>"; };
 		CD39B37B1A374B6000B377BE /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
 		CD39B3811A374B6000B377BE /* strutil.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = strutil.c; sourceTree = "<group>"; };
 		CD39B3821A374B6000B377BE /* strutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strutil.h; sourceTree = "<group>"; };
-		CD39B3831A374B6000B377BE /* system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = system.h; sourceTree = "<group>"; };
 		CD39B3861A374B6000B377BE /* throttle.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = throttle.c; sourceTree = "<group>"; };
 		CD39B3871A374B6000B377BE /* throttle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = throttle.h; sourceTree = "<group>"; };
 		CD39B3881A374B6000B377BE /* timer.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = timer.c; sourceTree = "<group>"; };
@@ -731,7 +724,6 @@
 		CD39B3F01A37506100B377BE /* egoboo_object.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = egoboo_object.c; sourceTree = "<group>"; };
 		CD39B3F11A37506100B377BE /* egoboo_object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_object.h; sourceTree = "<group>"; };
 		CD39B3F21A37506100B377BE /* egoboo_typedef_cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_typedef_cpp.h; sourceTree = "<group>"; };
-		CD39B3F31A37506100B377BE /* egoboo_typedef.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = egoboo_typedef.c; sourceTree = "<group>"; };
 		CD39B3F41A37506100B377BE /* egoboo_typedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_typedef.h; sourceTree = "<group>"; };
 		CD39B3F51A37506100B377BE /* egoboo.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = egoboo.c; sourceTree = "<group>"; };
 		CD39B3F61A37506100B377BE /* egoboo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo.h; sourceTree = "<group>"; };
@@ -757,14 +749,8 @@
 		CD39B41C1A37506100B377BE /* mad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mad.h; sourceTree = "<group>"; };
 		CD39B4221A37506100B377BE /* mesh_BSP.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mesh_BSP.c; sourceTree = "<group>"; };
 		CD39B4231A37506100B377BE /* mesh_BSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh_BSP.h; sourceTree = "<group>"; };
-		CD39B4241A37506100B377BE /* mesh_functions.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mesh_functions.c; sourceTree = "<group>"; };
-		CD39B4251A37506100B377BE /* mesh_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh_functions.h; sourceTree = "<group>"; };
 		CD39B4261A37506100B377BE /* mesh.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mesh.c; sourceTree = "<group>"; };
 		CD39B4271A37506100B377BE /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh.h; sourceTree = "<group>"; };
-		CD39B4291A37506100B377BE /* network_client.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = network_client.c; sourceTree = "<group>"; };
-		CD39B42A1A37506100B377BE /* network_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = network_client.h; sourceTree = "<group>"; };
-		CD39B42B1A37506100B377BE /* network_server.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = network_server.c; sourceTree = "<group>"; };
-		CD39B42C1A37506100B377BE /* network_server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = network_server.h; sourceTree = "<group>"; };
 		CD39B42D1A37506100B377BE /* network.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = network.c; sourceTree = "<group>"; };
 		CD39B42E1A37506100B377BE /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = network.h; sourceTree = "<group>"; };
 		CD39B42F1A37506100B377BE /* obj_BSP.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = obj_BSP.c; sourceTree = "<group>"; };
@@ -1001,8 +987,6 @@
 		CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProfileSystem.hpp; sourceTree = "<group>"; };
 		CDBDE3A31A43726C008E5FD1 /* file_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_linux.c; sourceTree = "<group>"; };
 		CDBDE3A41A43726C008E5FD1 /* file_win.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_win.c; sourceTree = "<group>"; };
-		CDBDE3A51A43726C008E5FD1 /* sys_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = sys_linux.c; sourceTree = "<group>"; };
-		CDBDE3A61A43726C008E5FD1 /* sys_win32.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = sys_win32.c; sourceTree = "<group>"; };
 		CDBDE3A81A43A2CC008E5FD1 /* lapi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
 		CDBDE3A91A43A2CC008E5FD1 /* lapi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
 		CDBDE3AA1A43A2CC008E5FD1 /* lauxlib.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
@@ -1329,7 +1313,6 @@
 				CD39B3F01A37506100B377BE /* egoboo_object.c */,
 				CD39B3F11A37506100B377BE /* egoboo_object.h */,
 				CD39B3F21A37506100B377BE /* egoboo_typedef_cpp.h */,
-				CD39B3F31A37506100B377BE /* egoboo_typedef.c */,
 				CD39B3F41A37506100B377BE /* egoboo_typedef.h */,
 				CD39B3F51A37506100B377BE /* egoboo.c */,
 				CD39B3F61A37506100B377BE /* egoboo.h */,
@@ -1356,14 +1339,8 @@
 				CD12C5811A8C7BB700027122 /* LockableList.hpp */,
 				CD39B4221A37506100B377BE /* mesh_BSP.c */,
 				CD39B4231A37506100B377BE /* mesh_BSP.h */,
-				CD39B4241A37506100B377BE /* mesh_functions.c */,
-				CD39B4251A37506100B377BE /* mesh_functions.h */,
 				CD39B4261A37506100B377BE /* mesh.c */,
 				CD39B4271A37506100B377BE /* mesh.h */,
-				CD39B4291A37506100B377BE /* network_client.c */,
-				CD39B42A1A37506100B377BE /* network_client.h */,
-				CD39B42B1A37506100B377BE /* network_server.c */,
-				CD39B42C1A37506100B377BE /* network_server.h */,
 				CD39B42D1A37506100B377BE /* network.c */,
 				CD39B42E1A37506100B377BE /* network.h */,
 				CD39B42F1A37506100B377BE /* obj_BSP.c */,
@@ -1659,7 +1636,6 @@
 				CD1329861A90130300D1B221 /* Ref.hpp */,
 				CD39B3811A374B6000B377BE /* strutil.c */,
 				CD39B3821A374B6000B377BE /* strutil.h */,
-				CD39B3831A374B6000B377BE /* system.h */,
 				CD39B3861A374B6000B377BE /* throttle.c */,
 				CD39B3871A374B6000B377BE /* throttle.h */,
 				CD39B3881A374B6000B377BE /* timer.c */,
@@ -1753,9 +1729,6 @@
 				CDBDE3A31A43726C008E5FD1 /* file_linux.c */,
 				CD39B3741A374B6000B377BE /* file_mac.m */,
 				CDBDE3A41A43726C008E5FD1 /* file_win.c */,
-				CDBDE3A51A43726C008E5FD1 /* sys_linux.c */,
-				CD39B3791A374B6000B377BE /* sys_mac.m */,
-				CDBDE3A61A43726C008E5FD1 /* sys_win32.c */,
 			);
 			path = Platform;
 			sourceTree = "<group>";
@@ -2722,19 +2695,16 @@
 				CDF316371A8F5B80009E6F33 /* Enchant.cpp in Sources */,
 				CD6E5FAA1AD053AE00DBA937 /* ScrollableList.cpp in Sources */,
 				CD792C261A881FE20086270E /* SelectModuleState.cpp in Sources */,
-				CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */,
 				CD39B45F1A37506100B377BE /* collision.c in Sources */,
 				CDE4D69D1ADD9D3F00B6A3B3 /* script_scanner.cpp in Sources */,
 				CD4B64E61A7EE94C00A52646 /* Object.cpp in Sources */,
 				CD792C211A881FE20086270E /* LoadingState.cpp in Sources */,
 				CD39B47C1A37506100B377BE /* mesh_BSP.c in Sources */,
-				CD39B4801A37506100B377BE /* network_client.c in Sources */,
 				CD792C221A881FE20086270E /* LoadPlayerElement.cpp in Sources */,
 				CD39B4601A37506100B377BE /* egoboo_object.c in Sources */,
 				CD39B46D1A37506100B377BE /* graphic_prt.c in Sources */,
 				CD9145BD1B095309008EABB3 /* CharacterMatrix.c in Sources */,
 				CD39B4701A37506100B377BE /* input.c in Sources */,
-				CD39B4811A37506100B377BE /* network_server.c in Sources */,
 				CD792C271A881FE20086270E /* SelectPlayersState.cpp in Sources */,
 				CD44DD801A476046005E6DF0 /* bsp.c in Sources */,
 				CD2F42BC1B0819F000905E42 /* Inventory.cpp in Sources */,
@@ -2754,7 +2724,6 @@
 				CD4ABB041AAED52300A87097 /* OptionsScreen.cpp in Sources */,
 				CD39B4821A37506100B377BE /* network.c in Sources */,
 				CD792C251A881FE20086270E /* SelectCharacterState.cpp in Sources */,
-				CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */,
 				CD39B47E1A37506100B377BE /* mesh.c in Sources */,
 				CD4ABB051AAED52300A87097 /* VideoOptionsScreen.cpp in Sources */,
 			);
@@ -2942,7 +2911,6 @@
 				CD2F42B41B08086B00905E42 /* AStar.c in Sources */,
 				CDE4D6AE1ADD9D7600B6A3B3 /* TextInputFile.cpp in Sources */,
 				CDCA1FC81A3F57D000002E76 /* SDL_md2.c in Sources */,
-				CDCA1FDB1A3F57D000002E76 /* sys_mac.m in Sources */,
 				CDCA1FBD1A3F57D000002E76 /* map_file-v1.c in Sources */,
 				CDEA079D1AB7564200A5C523 /* Matrix44.cpp in Sources */,
 				CDCA1FAF1A3F57D000002E76 /* ogl_extensions.c in Sources */,

@@ -2326,72 +2326,16 @@ int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
 }
 
 //--------------------------------------------------------------------------------------------
-/*static bool _vfs_copyFile(const char *source, const char *dest)
-{
-    /// @author ZZ
-    /// @details This function copies a file on the local machine
-    PHYSFS_File *sourcef = NULL, *destf = NULL;
-    char         buf[4096] = EMPTY_CSTR;
-    int          bytes_read;
-	bool         retval = VFS_FALSE;
-
-    BAIL_IF_NOT_INIT();
-
-    sourcef = PHYSFS_openRead( source );
-    if ( !sourcef )
-    {
-        goto _vfs_copyFile_end;
-    }
-
-    destf = PHYSFS_openWrite( dest );
-    if ( !sourcef )
-    {
-        goto _vfs_copyFile_end;
-    }
-
-    retval = true;
-
-    bytes_read = 0;
-    while ( bytes_read > 0 )
-    {
-        bytes_read = PHYSFS_read( sourcef, buf, sizeof( char ), SDL_arraysize( buf ) );
-        PHYSFS_write( destf, buf, sizeof( char ), bytes_read );
-    }
-
-_vfs_copyFile_end:
-
-    if ( NULL != sourcef ) PHYSFS_close( sourcef );
-    if ( NULL != destf ) PHYSFS_close( destf );
-
-    return retval;
-}
-*/
-
-//--------------------------------------------------------------------------------------------
 int vfs_copyFile( const std::string& source, const std::string& target)
 {
-    vfs_FILE *sourceFile = vfs_openRead(source),
-             *targetFile = vfs_openWrite(target);
-    if (!sourceFile || !targetFile) {
-        if (sourceFile) {
-            vfs_close(sourceFile);
-        }
-        if (targetFile) {
-            vfs_close(targetFile);
-        }
-        return false;
+    char *dataPtr;
+    size_t length;
+    if (vfs_readEntireFile(source, &dataPtr, &length)) {
+        bool retval = vfs_writeEntireFile(target, dataPtr, length);
+        std::free(dataPtr);
+        return retval;
     }
-    EGOBOO_ASSERT(sourceFile != NULL && targetFile != NULL);
-    char buffer[1024];
-    while (!vfs_eof(sourceFile))
-    {
-        size_t read = vfs_read(buffer, 1, sizeof(buffer), sourceFile);
-        // @todo this doesn't account for write not writing everything
-        vfs_write(buffer, 1, read, targetFile);
-    }
-    vfs_close(sourceFile);
-    vfs_close(targetFile);
-    return VFS_TRUE;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------

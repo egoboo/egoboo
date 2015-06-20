@@ -103,7 +103,7 @@
 template<typename T>
 signed SFP8_TO_SINT(const T& val)
 {
-	if(std::is_signed<T>::value) {
+	if(std::is_signed<T>::value && val < 0) {
 		return - static_cast<signed>(UFP8_TO_UINT(-val));
 	}
 	return static_cast<signed>(UFP8_TO_UINT(val));

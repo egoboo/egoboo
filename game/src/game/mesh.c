@@ -290,7 +290,7 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile )
     if ( needs_bind )
     {
         oglx_texture_t::bind( tx_ptr );
-        if (tx_ptr->hasAlpha())
+        if (tx_ptr && tx_ptr->hasAlpha())
         {
             // MH: Enable alpha blending if the texture requires it.
             Ego::Renderer::get().setBlendingEnabled(true);
@@ -1046,8 +1046,8 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
                 // the offset list needs to be shifted depending on what i is
                 j = ( 6 - i ) % 4;
 
-                if ( 1 == ix_off[4-j] ) dx = -1; else dx = 0;
-                if ( 1 == iy_off[4-j] ) dy = -1; else dy = 0;
+                if ( 1 == ix_off[(4-j)%4] ) dx = -1; else dx = 0;
+                if ( 1 == iy_off[(4-j)%4] ) dy = -1; else dy = 0;
 
                 for ( k = 0; k < 4; k++ )
                 {

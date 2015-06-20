@@ -186,7 +186,7 @@ void egolib_console_t::print(egolib_console_t *self, const char *format, ...)
 
 void egolib_console_t::add_output(egolib_console_t *self, char *line)
 {
-    if (!self || line)
+    if (!self || !line)
     {
         return;
     }
