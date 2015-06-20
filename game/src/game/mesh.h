@@ -354,70 +354,10 @@ bool ego_grid_info_add_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 bool ego_grid_info_sub_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 bool ego_grid_info_set_pass_fx(ego_grid_info_t *self, const GRID_FX_BITS bits);
 
-#if 0
-template <typename Type>
-struct _Array2
-{
-    /// The size of the array.
-    size_t _size;
-    /// A pointer to the elements of the array.
-    Type *_elements;
-    _Array2(size_t size) :
-        _size(size),T
-    {
-    }
-};
-#endif
-
 ego_grid_info_t *ego_grid_info_ctor_ary(ego_grid_info_t *self, size_t size);
 ego_grid_info_t *ego_grid_info_dtor_ary(ego_grid_info_t *self, size_t size);
 ego_grid_info_t *ego_grid_info_create_ary(size_t size);
 ego_grid_info_t *ego_grid_info_destroy_ary(ego_grid_info_t *self, size_t size);
-
-#if 0
-template <typename Type>
-class Size
-{
-private:
-    /// The size in the x-direction.
-    Type _x;
-    /// the size in the y-direction.
-    Type _y;
-public:
-    /**
-     * @brief
-     *  Construct a size.
-     * @param x
-     *  the size in the x-direction
-     * @param y
-     *  the size in the y-direction
-     */
-    Size(const Type& x,const Type& y) :
-        _x(x), _y(y)
-    {}
-    /**
-     * @brief
-     *  Construct a size (copy-constructor).
-     * @param other
-     *  the source of the copy operation
-     */
-    Size(const Size<Type>& other) :
-        _x(other.x), _y(other._y)
-    {}
-    /// @brief Get the size along the x-axis.
-    /// @return the size along the x-axis
-    const Type& getX() const 
-    {
-        return _x;
-    }
-    /// @brief Get the size along the y-axis.
-    /// @return the size along the y-axis
-    const Type& getY() const
-    {
-        return _y;
-    }
-};
-#endif
 
 //--------------------------------------------------------------------------------------------
 struct grid_mem_t

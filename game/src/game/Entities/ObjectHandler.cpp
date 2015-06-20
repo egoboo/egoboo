@@ -267,7 +267,7 @@ void ObjectHandler::maybeRunDeferred()
                         if (nullptr == chr) continue;
                         //Don't do ourselves or terminated characters
                         if (chr->isTerminated() || chr == element) continue;
-                        ai_state_t *ai = chr_get_pai(chr->getCharacterID());
+						ai_state_t *ai = &(chr->ai);
 
                         if (ai->target == element->getCharacterID())
                         {

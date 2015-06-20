@@ -2251,9 +2251,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 {
     /// @author ZZ
     /// @details This function polymorphs a character, changing stats, dropping weapons
-#if 0
-    int tnc;
-#endif
     CHR_REF item;
     Object * pchr;
 
@@ -5725,17 +5722,6 @@ Team * chr_get_pteam_base( const CHR_REF ichr )
     pchr = _currentModule->getObjectHandler().get( ichr );
 
     return &_currentModule->getTeamList()[pchr->team_base];
-}
-
-//--------------------------------------------------------------------------------------------
-ai_state_t * chr_get_pai( const CHR_REF ichr )
-{
-    Object * pchr;
-
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return NULL;
-    pchr = _currentModule->getObjectHandler().get( ichr );
-
-    return &( pchr->ai );
 }
 
 //--------------------------------------------------------------------------------------------

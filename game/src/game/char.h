@@ -328,7 +328,6 @@ TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 
 Team         *chr_get_pteam( const CHR_REF ichr );
 Team         *chr_get_pteam_base( const CHR_REF ichr );
-ai_state_t     *chr_get_pai( const CHR_REF ichr );
 chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
 
 IDSZ chr_get_idsz( const CHR_REF ichr, int type );

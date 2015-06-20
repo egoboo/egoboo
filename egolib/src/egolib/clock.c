@@ -28,28 +28,21 @@
 // this include must be the absolute last include
 #include "egolib/mem.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
 
 static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
 static double clk_getExactLastFrameDuration( ClockState_t * cs );
 static double clk_guessFrameDuration(const ClockState_t *self);
 
-//--------------------------------------------------------------------------------------------
 void clk_init( void )
 {
     log_info( "Initializing clock services...\n" );
 }
 
-//--------------------------------------------------------------------------------------------
 void clk_shutdown( void )
 {
 
 }
 
-//--------------------------------------------------------------------------------------------
 ClockState_t *clk_create(const char *name,size_t size)
 {
     ClockState_t *self;
@@ -66,14 +59,12 @@ ClockState_t *clk_create(const char *name,size_t size)
 	return self;
 }
 
-//--------------------------------------------------------------------------------------------
 void clk_destroy(ClockState_t *self)
 {
     ClockState_t::dtor(self);
     EGOBOO_DELETE(self);
 }
 
-//--------------------------------------------------------------------------------------------
 ClockState_t *ClockState_t::ctor(ClockState_t *self,const char * name,size_t window_size)
 {
 	EGOBOO_ASSERT(NULL != self && NULL != name && window_size > 0);
@@ -100,7 +91,6 @@ ClockState_t *ClockState_t::ctor(ClockState_t *self,const char * name,size_t win
     return self;
 }
 
-//--------------------------------------------------------------------------------------------
 void ClockState_t::dtor(ClockState_t *self)
 {
 	EGOBOO_ASSERT(NULL != self);
@@ -109,7 +99,6 @@ void ClockState_t::dtor(ClockState_t *self)
 	BLANK_STRUCT_PTR(self);
 }
 
-//--------------------------------------------------------------------------------------------
 ClockState_t *clk_renew(ClockState_t *self)
 {
 	self->sourceStartTime = std::chrono::high_resolution_clock::now();
@@ -119,7 +108,6 @@ ClockState_t *clk_renew(ClockState_t *self)
 	return self;
 }
 
-//--------------------------------------------------------------------------------------------
 
 /**
 * @brief
@@ -150,7 +138,6 @@ double clk_guessFrameDuration(const ClockState_t *self)
     return time;
 }
 
-//--------------------------------------------------------------------------------------------
 void clk_addToFrameHistory(ClockState_t *self,double frame_duration)
 {
     self->frameHistory[self->frameHistoryHead] = frame_duration;
@@ -168,7 +155,6 @@ void clk_addToFrameHistory(ClockState_t *self,double frame_duration)
     }
 }
 
-//--------------------------------------------------------------------------------------------
 double clk_getExactLastFrameDuration( ClockState_t * cs )
 {
     auto sourceTime = std::chrono::high_resolution_clock::now();
@@ -185,7 +171,6 @@ double clk_getExactLastFrameDuration( ClockState_t * cs )
     return timeElapsed;
 }
 
-//--------------------------------------------------------------------------------------------
 void clk_frameStep( ClockState_t * cs )
 {
 	EGOBOO_ASSERT(NULL != cs);
@@ -201,31 +186,26 @@ void clk_frameStep( ClockState_t * cs )
     cs->frameNumber++;
 }
 
-//--------------------------------------------------------------------------------------------
 double clk_getTime( ClockState_t * cs )
 {
     return cs->currentTime;
 }
 
-//--------------------------------------------------------------------------------------------
 double clk_getFrameDuration( ClockState_t * cs )
 {
     return cs->frameTime;
 }
 
-//--------------------------------------------------------------------------------------------
 Uint32 clk_getFrameNumber( ClockState_t * cs )
 {
     return cs->frameNumber;
 }
 
-//--------------------------------------------------------------------------------------------
 float clk_getFrameRate( ClockState_t * cs )
 {
     return ( float )( 1.0F / cs->frameTime );
 }
 
-//--------------------------------------------------------------------------------------------
 EGO_TIME getCurrentTime( void )
 {
     time_t rawtime = time( NULL );

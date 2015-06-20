@@ -55,15 +55,6 @@ static ego_mesh_t         _mesh[2];
 
 static egolib_throttle_t     game_throttle = EGOLIB_THROTTLE_INIT;
 
-PROFILE_DECLARE( gfx_loop );
-PROFILE_DECLARE( game_single_update );
-
-PROFILE_DECLARE( talk_to_remotes );
-PROFILE_DECLARE( egonet_listen_for_packets );
-PROFILE_DECLARE( check_stats );
-PROFILE_DECLARE( set_local_latches );
-PROFILE_DECLARE( cl_talkToHost );
-
 //--------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------
@@ -1184,7 +1175,7 @@ void update_pits()
 
                         // Do some damage (same as damage tile)
                         pchr->damage(ATK_BEHIND, damagetile.amount, static_cast<DamageType>(damagetile.damagetype), Team::TEAM_DAMAGE, 
-                            _currentModule->getObjectHandler()[chr_get_pai(pchr->getCharacterID())->bumplast], DAMFX_NBLOC | DAMFX_ARMO, false);
+                            _currentModule->getObjectHandler()[pchr->ai.bumplast], DAMFX_NBLOC | DAMFX_ARMO, false);
                     }
                 }
             }
@@ -4496,20 +4487,20 @@ bool check_time( Uint32 check )
 
     switch ( check )
     {
-            //Halloween between 31th october and the 1st of november
         case SEASON_HALLOWEEN: return (( 10 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 31 ) ||
                                            ( 11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1 ) );
+		// Halloween between 31th october and the 1st of november
 
-            //Xmas from december 16th until newyear
         case SEASON_CHRISTMAS: return ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 );
+		// Xmas from december 16th until newyear
 
-            //From 0:00 to 6:00 (spooky time!)
         case TIME_NIGHT: return getCurrentTime()->tm_hour <= 6;
+		// From 0:00 to 6:00 (spooky time!)
 
-            //Its day whenever it's not night
+		// Its day whenever it's not night
         case TIME_DAY: return !check_time( TIME_NIGHT );
 
-            //Unhandled check
+		// Unhandled check
         default: log_warning( "Unhandled time enum in check_time()\n" ); return false;
     }
 }

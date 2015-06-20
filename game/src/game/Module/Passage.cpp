@@ -122,8 +122,8 @@ bool Passage::close()
         }
 
         // Crush any unfortunate characters
-        for(const std::shared_ptr<Object> &chraracter : crushedCharacters) {
-            SET_BIT( chr_get_pai( chraracter->getCharacterID() )->alert, ALERTIF_CRUSHED );
+        for(const std::shared_ptr<Object> &character : crushedCharacters) {
+            SET_BIT( character->ai.alert, ALERTIF_CRUSHED );
         }
     }
 

@@ -1582,9 +1582,7 @@ BIT_FIELD ego_mesh_test_wall(const ego_mesh_t *pmesh, const fvec3_t& pos, const 
 float ego_mesh_t::get_pressure( const ego_mesh_t * pmesh, const fvec3_t& pos, float radius, const BIT_FIELD bits )
 {
     const float tile_area = GRID_FSIZE * GRID_FSIZE;
-#if 0
-    Uint32 itile;
-#endif
+
     int   ix_min, ix_max, iy_min, iy_max;
     float fx_min, fx_max, fy_min, fy_max, obj_area;
     int ix, iy;

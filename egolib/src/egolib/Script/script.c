@@ -1583,16 +1583,16 @@ void set_alerts( const CHR_REF character )
     /// @author ZZ
     /// @details This function polls some alert conditions
 
-    Object      * pchr;
-    ai_state_t * pai;
-    bool at_waypoint;
-
     // invalid characters do not think
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
-    pai  = chr_get_pai( character );
+	if (!_currentModule->getObjectHandler().exists(character)) {
+		return;
+	}
+	Object *pchr = _currentModule->getObjectHandler().get(character);
+	ai_state_t *pai = &(pchr->ai);
 
-    if ( waypoint_list_empty( &( pai->wp_lst ) ) ) return;
+	if (waypoint_list_empty(&(pai->wp_lst))) {
+		return;
+	}
 
     // let's let mounts get alert updates...
     // imagine a mount, like a racecar, that needs to make sure that it follows X
@@ -1604,7 +1604,7 @@ void set_alerts( const CHR_REF character )
     // is the current waypoint is not valid, try to load up the top waypoint
     ai_state_ensure_wp( pai );
 
-    at_waypoint = false;
+    bool at_waypoint = false;
     if ( pai->wp_valid )
     {
         at_waypoint = (std::abs(pchr->getPosX() - pai->wp[kX]) < WAYTHRESH) &&
@@ -1655,7 +1655,7 @@ void issue_order( const CHR_REF character, Uint32 value )
 
         if ( object->getTeam() == pchr->getTeam() )
         {
-            ai_add_order( chr_get_pai(object->getCharacterID() ), value, counter );
+            ai_add_order( &(object->ai), value, counter );
             counter++;
         }
     }
@@ -1674,7 +1674,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
 
         if ( idsz == object->getProfile()->getIDSZ(IDSZ_SPECIAL) )
         {
-            ai_add_order( chr_get_pai(object->getCharacterID()), value, counter );
+            ai_add_order( &(object->ai), value, counter );
             counter++;
         }
     }
