@@ -104,8 +104,7 @@ public:
 	std::vector<std::shared_ptr<T>> find(const float x, const float y, const float distance) const
 	{
 		std::vector<std::shared_ptr<T>> result;
-		Math::AABB<float, 2> searchArea = Math::AABB<float, 2>(fvec2_t(x-distance, y-distance), 
-															   fvec2_t(x+distance, y+distance));
+		AABB_2D searchArea = AABB_2D(Vector2f(x-distance, y-distance), Vector2f(x+distance, y+distance));
 		find(searchArea, result);
 		return result;
 	}
@@ -119,7 +118,7 @@ public:
 	* @param result
 	*	Vector of all elements that fit within the search area
 	**/
-	void find(const Math::AABB<float, 2> &searchArea, std::vector<std::shared_ptr<T>> &result) const
+	void find(const AABB_2D &searchArea, std::vector<std::shared_ptr<T>> &result) const
 	{
 		//Search grid is not part of our bounds
 		if(!_bounds.overlaps(searchArea)) {
@@ -169,11 +168,11 @@ private:
 	**/
 	void subdivide()
 	{
-		float topLeftX = _bounds.getMin()[0];
-		float topLeftY = _bounds.getMin()[1];
+		float topLeftX = _bounds.getMin()[kX];
+		float topLeftY = _bounds.getMin()[kY];
 
-		float bottomRightX = _bounds.getMax()[0];
-		float bottomRightY = _bounds.getMax()[1];
+		float bottomRightX = _bounds.getMax()[kX];
+		float bottomRightY = _bounds.getMax()[kY];
 
 		float midX = (topLeftX + bottomRightX) * 0.5f;
 		float midY = (topLeftY + bottomRightY) * 0.5f;
@@ -190,7 +189,7 @@ private:
 	*	Private constructor with bounded limits
 	**/
 	QuadTree(const float minX, const float minY, const float maxX, const float maxY) :
-		_bounds(Math::Vector<float, 2>(minX, minY), Math::Vector<float, 2>(maxX, maxY)),
+		_bounds(Vector2f(minX, minY), Vector2f(maxX, maxY)),
 		_nodes(),
 		_northWest(nullptr),
 		_northEast(nullptr),
@@ -203,7 +202,7 @@ private:
 private:
 	static const size_t QUAD_TREE_NODE_CAPACITY = 4;	//< Maximum number of nodes in tree before subdivision
 
-	const Math::AABB<float, 2> _bounds;					//< 2D AABB
+	const AABB_2D _bounds;					//< 2D AABB
 
 	std::vector<std::weak_ptr<T>> _nodes;				//< List of nodes contained in this QuadTree
 

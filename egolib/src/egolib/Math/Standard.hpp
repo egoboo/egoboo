@@ -18,9 +18,11 @@ enum {
 
 /// A 2D vector.
 typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 2>> fvec2_t;
+typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 2>> Vector2f;
 
 /// A 3D vector.
 typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 3>> fvec3_t;
+typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 3>> Vector3f;
 
 /// A 4D vector.
 typedef Ego::Math::Vector<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 4>> fvec4_t;
@@ -30,6 +32,9 @@ typedef Ego::Math::Sphere<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 
 
 /// A 3D AABB.
 typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 3>> aabb_t;
+
+/// A 2D AABB.
+typedef Ego::Math::AABB<Ego::Math::VectorSpace<Ego::Math::ScalarField<float>, 2>> AABB_2D;
 
 /// A 3D cone.
 typedef Ego::Math::Cone3<float> cone_t;
