@@ -27,6 +27,7 @@
 #endif
 
 #include "game/egoboo_typedef.h"
+#include "egolib/Core/QuadTree.hpp"
 
 //Forward declarations
 class Object;
@@ -38,6 +39,7 @@ CHR_REF GET_INDEX_PCHR(const std::shared_ptr<Object> pobj);
 bool INGAME_PCHR(const Object *pobj);
 #define ACTIVE_PCHR( PCHR )        ( nullptr != (PCHR) && !PCHR->isTerminated() )
 #define TERMINATED_PCHR( PCHR )    ( nullptr != (PCHR) && PCHR->isTerminated() )
+
 
 /**
 * @brief A completely recursive loop safe container for accessing instances of in-game objects
@@ -152,6 +154,15 @@ public:
 	 */
 	Object* get(const CHR_REF index) const;
 
+	std::vector<std::shared_ptr<Object>> findObjects(const float x, const float y, const float distance) const;
+
+	/**
+	* @brief
+	* 	Clear and rebuild the quad tree for this update frame
+	*	This function is NOT thread-safe
+	**/
+	void updateQuadTree();
+
 private:
 
 	/**
@@ -178,8 +189,10 @@ private:
 	 */
 	void dumpAllocateList();
 #endif
-	
+
 private:
+	Ego::QuadTree<Object> _dynamicObjects;
+
     std::vector<std::shared_ptr<Object>> _internalCharacterList;        ///< Indexes in this character list match CHR_REF
 	std::vector<std::shared_ptr<Object>> _iteratorList;					///< For iterating, contains only valid objects (unsorted)
 	std::stack<CHR_REF> _unusedChrRefs;						                ///< Stack of unused CHR_REF

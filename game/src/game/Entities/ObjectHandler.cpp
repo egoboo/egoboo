@@ -315,3 +315,16 @@ size_t ObjectHandler::getObjectCount() const
 {
     return _iteratorList.size() + _allocateList.size() - _deletedCharacters;
 }
+
+void ObjectHandler::updateQuadTree()
+{
+    _dynamicObjects.clear();
+
+    for(const std::shared_ptr<Object> &object : _iteratorList) {
+        _dynamicObjects.insert(object);
+    }
+}
+
+std::vector<std::shared_ptr<Object>> ObjectHandler::findObjects(const float x, const float y, const float distance) const { 
+    return _dynamicObjects.find(x, y, distance);
+}

@@ -725,6 +725,9 @@ int update_game()
 
     set_local_latches();
 
+    //Rebuild the quadtree for fast object lookup
+    _currentModule->getObjectHandler().updateQuadTree();
+
     //---- begin the code for updating misc. game stuff
     {
         BillboardSystem::get()._billboardList.update();
@@ -964,39 +967,31 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
 
     line_of_sight_info_t los_info;
 
-    CHR_REF best_target = INVALID_CHR_REF;
-    float  best_dist2, max_dist2;
-
     if ( !ACTIVE_PCHR( psrc ) ) return INVALID_CHR_REF;
 
-    max_dist2 = max_dist * max_dist;
-
-    std::vector<CHR_REF> searchList;
+    std::vector<std::shared_ptr<Object>> searchList;
 
     //Only loop through the players
     if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
-        PLA_REF ipla;
-
-        for ( ipla = 0; ipla < MAX_PLAYER; ipla ++ )
+        for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
         {
-            if ( !PlaStack.lst[ipla].valid || !_currentModule->getObjectHandler().exists( PlaStack.lst[ipla].index ) ) continue;
+            if (!PlaStack.lst[ipla].valid) continue;
 
-            searchList.push_back(PlaStack.lst[ipla].index);
+            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[ipla].index];
+            if(player) {
+                searchList.push_back(player);
+            }
+
         }
     }
 
-    //Loop through every active object
+    //All objects within range
     else
     {
-        for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-        {
-            if(!object->isTerminated())
-            {
-                searchList.push_back(object->getCharacterID());
-            }
-        }
+        searchList = _currentModule->getObjectHandler().findObjects(psrc->getPosX(), psrc->getPosY(), max_dist);
     }
+
 
     // set the line-of-sight source
     los_info.x0         = psrc->getPosX();
@@ -1004,23 +999,16 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     los_info.z0         = psrc->getPosZ() + psrc->bump.height;
     los_info.stopped_by = psrc->stoppedby;
 
-    best_target = INVALID_CHR_REF;
-    best_dist2  = max_dist2;
-    for(CHR_REF iObjectest : searchList)
+    CHR_REF best_target = INVALID_CHR_REF;
+    float best_dist2  = max_dist * max_dist;
+    for(const std::shared_ptr<Object> &ptst : searchList)
     {
-        float  dist2;
-        fvec3_t   diff;
-        Object * ptst;
+        if ( !chr_check_target( psrc, ptst->getCharacterID(), idsz, targeting_bits ) ) continue;
 
-        if ( !_currentModule->getObjectHandler().exists( iObjectest ) ) continue;
-        ptst = _currentModule->getObjectHandler().get( iObjectest );
+        fvec3_t diff = psrc->getPosition() - ptst->getPosition();
+		float dist2 = diff.length_2();
 
-        if ( !chr_check_target( psrc, iObjectest, idsz, targeting_bits ) ) continue;
-
-        diff = psrc->getPosition() - ptst->getPosition();
-		dist2 = diff.length_2();
-
-        if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
+        if (( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
         {
             //Invictus chars do not need a line of sight
             if ( !psrc->invictus )
@@ -1034,7 +1022,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
             }
 
             //Set the new best target found
-            best_target = iObjectest;
+            best_target = ptst->getCharacterID();
             best_dist2  = dist2;
         }
     }

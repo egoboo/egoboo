@@ -483,6 +483,12 @@ public:
 	/** @override */
 	BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
 
+    inline Ego::Math::AABB<float, 2> getAABB2D() const
+    {
+        return Ego::Math::AABB<float, 2>(fvec2_t(chr_min_cv.mins[OCT_X], chr_min_cv.mins[OCT_Y]),
+                                         fvec2_t(chr_min_cv.maxs[OCT_X], chr_min_cv.maxs[OCT_Y]));
+    }
+
 private:
 
     /**
