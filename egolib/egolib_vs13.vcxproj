@@ -461,6 +461,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\Time\LocalTime.hpp" />
+    <ClInclude Include="src\egolib\Time\SlidingWindow.hpp" />
     <ClInclude Include="src\egolib\Math\Translatable.hpp" />
     <ClInclude Include="src\egolib\Math\VectorSpace.hpp" />
     <ClInclude Include="src\egolib\Math\_Tuple.hpp" />
