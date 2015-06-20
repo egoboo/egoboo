@@ -4484,18 +4484,18 @@ bool check_time( Uint32 check )
     /// @author ZF
     /// @details Returns true if and only if all time and date specifications determined by the e_time parameter is true. This
     ///    could indicate time of the day, a specific holiday season etc.
-
+	Ego::Time::LocalTime localTime;
     switch ( check )
     {
-        case SEASON_HALLOWEEN: return (( 10 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 31 ) ||
-                                           ( 11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1 ) );
 		// Halloween between 31th october and the 1st of november
+		case SEASON_HALLOWEEN: return (( 10 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 31 ) ||
+                                       ( 11 == localTime.getMonth() + 1 && localTime.getDayOfMonth() <= 1 ) );
 
-        case SEASON_CHRISTMAS: return ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 );
 		// Xmas from december 16th until newyear
+        case SEASON_CHRISTMAS: return ( 12 == localTime.getMonth() + 1 && localTime.getDayOfMonth() >= 16 );
 
-        case TIME_NIGHT: return getCurrentTime()->tm_hour <= 6;
 		// From 0:00 to 6:00 (spooky time!)
+        case TIME_NIGHT: return localTime.getHours() <= 6;
 
 		// Its day whenever it's not night
         case TIME_DAY: return !check_time( TIME_NIGHT );

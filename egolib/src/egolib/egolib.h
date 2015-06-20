@@ -60,6 +60,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#include "egolib/Time/LocalTime.hpp"
+
 #include "egolib/Graphics/FontManager.hpp"
 #include "egolib/Graphics/Font.hpp"
 #include "egolib/Graphics/TextureManager.hpp"

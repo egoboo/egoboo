@@ -26,7 +26,6 @@
 
 #include "egolib/typedef.h"
 
-	typedef struct tm* EGO_TIME;
 
 #define PROFILE_KEEP  0.9F
 #define PROFILE_NEW  (1.0F - PROFILE_KEEP)
@@ -160,6 +159,4 @@ Uint32 clk_getFrameNumber(ClockState_t *self);
  *	the current instantaneous frames per second
  */
 float clk_getFrameRate(ClockState_t *self);
-
-    EGO_TIME getCurrentTime( void );                          ///< Returns a structure containing current time and date
 

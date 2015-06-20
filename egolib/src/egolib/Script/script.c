@@ -1431,27 +1431,30 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARTIMEHOURS:
                 varname = "TIMEHOURS";
-                iTmp = getCurrentTime()->tm_hour;
+                iTmp = Ego::Time::LocalTime().getHours();
                 break;
 
             case VARTIMEMINUTES:
                 varname = "TIMEMINUTES";
-                iTmp = getCurrentTime()->tm_min;
+                iTmp = Ego::Time::LocalTime().getMinutes();
                 break;
 
             case VARTIMESECONDS:
                 varname = "TIMESECONDS";
-                iTmp = getCurrentTime()->tm_sec;
+                iTmp = Ego::Time::LocalTime().getSeconds();
                 break;
 
             case VARDATEMONTH:
                 varname = "DATEMONTH";
-                iTmp = getCurrentTime()->tm_mon + 1;
+                iTmp = Ego::Time::LocalTime().getMonth() + 1; /// @todo The addition of +1 should be removed and
+				                                              /// the whole Ego::Time::LocalTime class should be
+				                                              /// made available via EgoScript. However, EgoScript
+				                                              /// is not yet ready for that ... not yet.
                 break;
 
             case VARDATEDAY:
                 varname = "DATEDAY";
-                iTmp = getCurrentTime()->tm_mday;
+                iTmp = Ego::Time::LocalTime().getDayOfMonth();
                 break;
 
             default:
