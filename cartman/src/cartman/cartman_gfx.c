@@ -725,8 +725,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         ogl_draw_sprite_2d( tx_ref, x1, y1, w1, h1 );
     }
 
-    // "reflects characters" is upper right
-    if ( HAS_BITS( fx, MAPFX_DRAWREF ) )
+    // "reflects entities" is upper right
+    if ( HAS_BITS( fx, MAPFX_REFLECTIVE ) )
     {
         x1 = x + foff_0;
         y1 = y;

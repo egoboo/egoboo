@@ -27,16 +27,12 @@
 #include "egolib/Graphics/mad.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
+#include "game/Graphics/TileList.hpp"
+#include "game/Graphics/EntityList.hpp"
+#include "game/Graphics/Vertex.hpp"
 #include "egolib/DynamicArray.hpp"
 
-//--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
 
-// Forward declarations.
-class Object;
-struct egoboo_config_t;
-struct chr_instance_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,13 +48,6 @@ struct chr_instance_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// special return values
-enum gfx_rv
-{
-    gfx_error   = -1,
-    gfx_fail    = false,
-    gfx_success = true
-};
 
 #define GFX_ERROR_MAX 256
 
@@ -134,192 +123,9 @@ enum e_color
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-#define XX 0
-
-struct renderlist_lst_t
-{
-    struct element_t
-    {
-        Uint32 index;             ///< which tile
-        float distance;          ///< how far it is
-#if XX ==  1
-        element_t() :
-            index(), distance(-1.0f)
-        {}
-        element_t(const element_t& other) :
-            index(other.index), distance(other.distance)
-        {}
-        virtual ~element_t()
-        {}
-        element_t& operator=(const element_t& other)
-        {
-            index = other.index;
-            distance = other.distance;
-            return *this;
-        }
-#endif
-    };
-    /**
-    * @brief
-    *    The maximum capacity of a renderlist
-    *    i.e. the maximum number of tiles in a render list
-    *    i.e. the maximum number of tiles to draw.
-    */
-    static const size_t CAPACITY = 1024;
-    size_t size;              ///< how many in the list
-    element_t lst[CAPACITY];  ///< the list
-
-#if XX == 1
-    renderlist_lst_t() :
-        size(0), lst(),
-    {}
-    virtual ~renderlist_lst_t()
-    {}
-#endif
-
-    static gfx_rv reset(renderlist_lst_t *self);
-    static gfx_rv push(renderlist_lst_t *self, const TileIndex& index, float distance);
-};
-
-/// Which tiles are to be drawn, arranged by MAPFX_* bits
-struct renderlist_t
-{
-    ego_mesh_t *_mesh;
-    renderlist_lst_t _all;     ///< List of which to render, total
-    renderlist_lst_t _ref;     ///< ..., is reflected in the floor
-    renderlist_lst_t _sha;     ///< ..., is not reflected in the floor
-    renderlist_lst_t _drf;     ///< ..., draws character reflections
-    renderlist_lst_t _ndr;     ///< ..., draws no character reflections
-    renderlist_lst_t _wat;     ///< ..., draws a water tile
-
-    renderlist_t();
-#if 0
-    virtual ~renderlist_t() :
-    {}
-#endif
-    renderlist_t *init();
-    /// @brief Clear a render list
-    gfx_rv reset();
-    /// @brief Insert a tile into this render list.
-    /// @param index the tile index
-    /// @param camera the camera
-    gfx_rv insert(const TileIndex& index, const Camera& camera);
-    /// @brief Get mesh this render list is attached to.
-    /// @return the mesh or @a nullptr
-    /// @post If the render list is attached to a mesh, that mesh is returned.
-    ///       Otherwise a null pointer is returned.
-    ego_mesh_t *getMesh() const;
-    /// @brief Set mesh this render list is attached to.
-    /// @param mesh the mesh or @a nullptr
-    /// @post If @a mesh is not a null pointer, then this render list is attached to that mesh.
-    ///       Otherwise it is detached.
-    void setMesh(ego_mesh_t *mesh);
-    /// @brief Insert tiles into this render list.
-    /// @param leaves a list of tile BSP leaves
-    /// @param camera the camera
-    /// @remark A tile
-    gfx_rv add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera);
-};
-
 //--------------------------------------------------------------------------------------------
 
-/**
- * @brief
- *  List of character and particle entities to be draw by a renderer.
- *
- *  Entities in a do list are sorted based on their position from the camera before drawing.
- */
-struct dolist_t
-{
-    /**
-     * @brief
-     *    The (fixed) capacity of a do list.
-     */
-    static const size_t CAPACITY = OBJECTS_MAX + PARTICLES_MAX;
-    /**
-     * @brief
-     *    An eleemnt of a do list.
-     */
-    struct element_t
-    {
-        CHR_REF ichr;
-        PRT_REF iprt;
-        float dist;
-        
-        element_t() :
-            ichr(INVALID_CHR_REF), iprt(INVALID_PRT_REF), dist(0.0f)
-        {}
-#if XX == 1
-        element_t(const element_t& other) :
-            ichr(other.ichr), iprt(other.iprt), dist(other.dist)
-        {}
-        element_t& operator=(const element_t& other)
-        {
-            ichr = other.ichr;
-            iprt = other.iprt;
-            dist = other.dist;
-            return *this;
-        }
-        virtual ~element_t()
-        {}
-#endif
 
-        static element_t *init(element_t *self);
-        static int cmp(const void *left, const void *right);
-    };
-protected:
-
-    /**
-     * @brief
-     *  The size of the dolist i.e. the number of character and particle entities in the dolist.
-     */
-    size_t _size;
-    /**
-     * @brief
-     *  An array of dolist elements.
-     *  The first @a _size entries of this array have meaningful values.
-     */
-    element_t _lst[CAPACITY];
-public:
-    dolist_t();
-#if XX == 1
-    virtual ~dolist_t()
-    {}
-#endif
-    dolist_t *init();
-    const element_t& get(size_t index) const
-    {
-        if (index >= _size)
-        {
-            throw std::out_of_range("index out of range");
-        }
-        return _lst[index];
-    }
-    element_t& get(size_t index)
-    {
-        if (index >= _size)
-        {
-            throw std::out_of_range("index out of range");
-        }
-        return _lst[index];
-    }
-    size_t getSize() const
-    {
-        return _size;
-    }
-    gfx_rv reset();
-    gfx_rv sort(Camera& camera, const bool reflect);
-protected:
-    gfx_rv test_obj(const Object& obj);
-    gfx_rv add_obj_raw(Object& obj);
-    gfx_rv test_prt(const prt_t& prt);
-    gfx_rv add_prt_raw(prt_t& prt);
-public:
-    /// @brief Insert character or particle entities into this dolist.
-    /// @param leaves
-    gfx_rv add_colst(const Ego::DynamicArray<BSP_leaf_t *> *collisions);
-};
 
 //--------------------------------------------------------------------------------------------
 
@@ -483,7 +289,7 @@ template <typename _Type, size_t _Capacity>
 const size_t Pool<_Type, _Capacity>::InvalidIndex = std::numeric_limits<size_t>::max();
 
 /// @todo Use Ego::Core::System/Ego::Core::Singleton
-struct dolist_mgr_t : public Pool<dolist_t, MAX_CAMERAS>, public Id::NonCopyable
+struct dolist_mgr_t : public Pool<Ego::Graphics::EntityList, MAX_CAMERAS>, public Id::NonCopyable
 {
 private:
     static dolist_mgr_t *_singleton;
@@ -497,7 +303,7 @@ public:
 };
 
 /// @todo Use Ego::Core::System/Ego::Core::Singleton
-struct renderlist_mgr_t : public Pool<renderlist_t, MAX_CAMERAS>
+struct renderlist_mgr_t : public Pool<Ego::Graphics::TileList, MAX_CAMERAS>
 {
 private:
     static renderlist_mgr_t *_singleton;
@@ -667,7 +473,7 @@ renderlist_mgr_t *gfx_system_get_renderlist_mgr();
 dolist_mgr_t *gfx_system_get_dolist_mgr();
 
 // the render engine callback
-void gfx_system_render_world(const std::shared_ptr<Camera> camera, std::shared_ptr<renderlist_t> renderList, std::shared_ptr<dolist_t> doList);
+void gfx_system_render_world(const std::shared_ptr<Camera> camera, std::shared_ptr<Ego::Graphics::TileList> tl, std::shared_ptr<Ego::Graphics::EntityList> el);
 
 void gfx_request_clear_screen();
 void gfx_do_clear_screen();

@@ -45,7 +45,7 @@ public:
 	void updateAll( const ego_mesh_t * pmesh );
 	void resetAllTargets( const ego_mesh_t * pmesh );
 
-	egolib_rv renderAll(std::function<void(std::shared_ptr<Camera>, std::shared_ptr<renderlist_t>, std::shared_ptr<dolist_t>)> prend);
+	egolib_rv renderAll(std::function<void(std::shared_ptr<Camera>, std::shared_ptr<Ego::Graphics::TileList>, std::shared_ptr<Ego::Graphics::EntityList>)> renderFunction);
 
 	std::shared_ptr<Camera> getCameraByChrID(const CHR_REF target) const;
 

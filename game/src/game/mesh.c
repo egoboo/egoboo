@@ -1173,7 +1173,7 @@ bool grid_light_one_corner( const ego_mesh_t * pmesh, const TileIndex& fan, floa
     // get the grid lighting
     lighting = &( pgrid->cache );
 
-    reflective = ( 0 != ego_grid_info_t::test_all_fx( pgrid, MAPFX_DRAWREF ) );
+    reflective = ( 0 != ego_grid_info_t::test_all_fx( pgrid, MAPFX_REFLECTIVE ) );
 
     // evaluate the grid lighting at this node
     if ( reflective )
@@ -2514,7 +2514,7 @@ int mpdfx_lists_t::push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t valu
 
     }
 
-    if ( HAS_ALL_BITS( fx_bits, MAPFX_DRAWREF ) )
+    if ( HAS_ALL_BITS( fx_bits, MAPFX_REFLECTIVE ) )
     {
         if ( mpdfx_list_ary_t::push( &( plst->drf ), value ) )
         {

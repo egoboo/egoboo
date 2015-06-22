@@ -1537,10 +1537,10 @@ bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
         cart_mouse_data_toggle_fx( MAPFX_SHA );
         Input::get()._keyboard.delay = KEYDELAY;
     }
-    // Draw reflections
+    // Reflective
     if ( CART_KEYDOWN( SDLK_d ) )
     {
-        cart_mouse_data_toggle_fx( MAPFX_DRAWREF );
+        cart_mouse_data_toggle_fx( MAPFX_REFLECTIVE );
         Input::get()._keyboard.delay = KEYDELAY;
     }
     // Animated

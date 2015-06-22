@@ -24,5 +24,14 @@
 
 #include "egolib/egolib.h"
 
+/**
+ * @todo
+ *	Remove this.
+ */
+typedef egolib_rv gfx_rv;
+#define gfx_error rv_error
+#define gfx_fail rv_fail
+#define gfx_success rv_success
+
 #include "game/egoboo_config.h"
 

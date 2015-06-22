@@ -1,0 +1,267 @@
+#include "game/Graphics/TileList.hpp"
+#include "game/graphic.h"
+
+gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile)
+{
+	if (NULL == ptile)
+	{
+		return gfx_fail;
+	}
+
+	// Flag the tile as in the renderlist
+	ptile->inrenderlist = true;
+
+	// if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
+	if (ptile->inrenderlist_frame < 0)
+	{
+		ptile->request_lcache_update = true;
+		ptile->lcache_frame = -1;
+	}
+	else
+	{
+		Uint32 last_frame = (game_frame_all > 0) ? game_frame_all - 1 : 0;
+
+		if ((Uint32)ptile->inrenderlist_frame < last_frame)
+		{
+			ptile->request_lcache_update = true;
+		}
+	}
+
+	// make sure to cache the frame number of this update
+	ptile->inrenderlist_frame = game_frame_all;
+
+	return gfx_success;
+}
+
+namespace Ego {
+namespace Graphics {
+
+gfx_rv renderlist_lst_t::reset(renderlist_lst_t *self)
+{
+	if (nullptr == self)
+	{
+		return gfx_error;
+	}
+	self->size = 0;
+	self->lst[0].index = TileIndex::Invalid.getI(); /// @todo index should be of type TileIndex.
+
+	return gfx_success;
+}
+
+gfx_rv renderlist_lst_t::push(renderlist_lst_t *self, const TileIndex& index, float distance)
+{
+	if (!self)
+	{
+		return gfx_error;
+	}
+
+	if (self->size >= renderlist_lst_t::CAPACITY)
+	{
+		return gfx_fail;
+	}
+	self->lst[self->size].index = index.getI();
+	self->lst[self->size].distance = distance;
+
+	self->size++;
+
+	return gfx_success;
+}
+
+TileList::TileList() :
+	_mesh(nullptr), _all(), _ref(), _sha(), _reflective(), _nonReflective(), _water()
+{}
+
+TileList *TileList::init()
+{
+	// Initialize the render list lists.
+	renderlist_lst_t::reset(&_all);
+	renderlist_lst_t::reset(&_ref);
+	renderlist_lst_t::reset(&_sha);
+	renderlist_lst_t::reset(&_reflective);
+	renderlist_lst_t::reset(&_nonReflective);
+	renderlist_lst_t::reset(&_water);
+
+	_mesh = nullptr;
+
+	return this;
+}
+
+gfx_rv TileList::reset()
+{
+	if (!_mesh)
+	{
+		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
+		return gfx_error;
+	}
+
+	// Clear out the "in render list" flag for the old mesh.
+	ego_tile_info_t *tlist = tile_mem_t::get(&(_mesh->tmem), 0);
+
+	for (size_t i = 0; i < _all.size; ++i)
+	{
+		Uint32 fan = _all.lst[i].index;
+		if (fan < _mesh->info.tiles_count)
+		{
+			tlist[fan].inrenderlist = false;
+			tlist[fan].inrenderlist_frame = 0;
+		}
+	}
+
+	// Re-initialize the renderlist.
+	auto *mesh = _mesh;
+	init();
+	setMesh(mesh);
+
+	return gfx_success;
+}
+
+gfx_rv TileList::insert(const TileIndex& index, const Camera &cam)
+{
+	if (!_mesh)
+	{
+		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
+		return gfx_error;
+	}
+	ego_mesh_t *pmesh = _mesh;
+
+	// check for a valid tile
+	if (index >= pmesh->gmem.grid_count)
+	{
+		return gfx_fail;
+	}
+	ego_grid_info_t *pgrid = grid_mem_t::get(&(pmesh->gmem), index);
+	if (!pgrid)
+	{
+		return gfx_fail;
+	}
+
+	// we can only accept so many tiles
+	if (_all.size >= renderlist_lst_t::CAPACITY)
+	{
+		return gfx_fail;
+	}
+
+	int ix = index.getI() % pmesh->info.tiles_x;
+	int iy = index.getI() / pmesh->info.tiles_x;
+	float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter()[kX];
+	float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter()[kY];
+	float distance = dx * dx + dy * dy;
+
+	// Put each tile in basic list
+	renderlist_lst_t::push(&(_all), index, distance);
+
+	// Put each tile in one other list, for shadows and relections
+	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_SHA))
+	{
+		renderlist_lst_t::push(&(_sha), index, distance);
+	}
+	else
+	{
+		renderlist_lst_t::push(&(_ref), index, distance);
+	}
+
+	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE))
+	{
+		renderlist_lst_t::push(&(_reflective), index, distance);
+	}
+	else
+	{
+		renderlist_lst_t::push(&(_nonReflective), index, distance);
+	}
+
+	if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_WATER))
+	{
+		renderlist_lst_t::push(&(_water), index, distance);
+	}
+
+	return gfx_success;
+}
+
+ego_mesh_t *TileList::getMesh() const
+{
+	return _mesh;
+}
+
+void TileList::setMesh(ego_mesh_t *mesh)
+{
+	_mesh = mesh;
+}
+
+gfx_rv TileList::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera)
+{
+	size_t colst_cp, colst_sz;
+	ego_mesh_t *pmesh = NULL;
+	gfx_rv retval = gfx_error;
+
+	if (NULL == leaves)
+	{
+		return gfx_error;
+	}
+
+	colst_cp = leaves->capacity();
+	if (0 == colst_cp)
+	{
+		return gfx_error;
+	}
+
+	colst_sz = leaves->size();
+	if (0 == colst_sz)
+	{
+		return gfx_fail;
+	}
+
+	pmesh = getMesh();
+	if (NULL == pmesh)
+	{
+		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
+		return gfx_error;
+	}
+
+	// assume the best
+	retval = gfx_success;
+
+	// transfer valid pcolst entries to the renderlist
+	for (size_t j = 0; j < colst_sz; j++)
+	{
+		BSP_leaf_t *leaf = leaves->ary[j];
+
+		if (!leaf) continue;
+		if (!leaf->valid()) continue;
+
+		if (BSP_LEAF_TILE == leaf->_type)
+		{
+			// Get fan index.
+			TileIndex itile = leaf->_index;
+
+			// Get tile for tile index.
+			ego_tile_info_t *ptile = ego_mesh_t::get_ptile(pmesh, itile);
+			if (!ptile) continue;
+
+			// Get grid for tile index.
+			ego_grid_info_t *pgrid = ego_mesh_t::get_pgrid(pmesh, itile);
+			if (!pgrid) continue;
+
+			if (gfx_error == gfx_capture_mesh_tile(ptile))
+			{
+				retval = gfx_error;
+				break;
+			}
+
+			if (gfx_error == insert(itile, camera))
+			{
+				retval = gfx_error;
+				break;
+			}
+		}
+		else
+		{
+			// how did we get here?
+			log_warning("%s-%s-%d- found non-tile in the mpd BSP\n", __FILE__, __FUNCTION__, __LINE__);
+		}
+	}
+
+	return retval;
+}
+
+}
+}

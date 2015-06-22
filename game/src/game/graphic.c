@@ -50,18 +50,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-const size_t dolist_t::CAPACITY;
-
 #define SPARKLE_SIZE ICON_SIZE
 #define SPARKLE_AND  (SPARKLE_SIZE - 1)
 
 #define BLIPSIZE 6
-
-// camera frustum optimization
-//#define ROTMESH_TOPSIDE                  50
-//#define ROTMESH_BOTTOMSIDE               50
-//#define ROTMESH_UP                       30
-//#define ROTMESH_DOWN                     30
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -86,7 +78,7 @@ struct dynalist_t
 };
 
 static gfx_rv dynalist_init(dynalist_t *self);
-static gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam);
+static gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& cam);
 
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
 
@@ -200,24 +192,24 @@ static Ego::DynamicArray<BSP_leaf_t *> _dolist_colst = DYNAMIC_ARY_INIT_VALS;
 
 static void _flip_pages();
 
-static gfx_rv light_fans(renderlist_t& rl);
+static gfx_rv light_fans(Ego::Graphics::TileList& tl);
 
-static gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dol, dynalist_t& dyl, Camera& cam);
-static gfx_rv render_scene_mesh_ndr(const renderlist_t& rl);
-static gfx_rv render_scene_mesh_drf_back(const renderlist_t& rl);
-static gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t& dl);
-static gfx_rv render_scene_mesh_ref_chr(const renderlist_t& rl);
-static gfx_rv render_scene_mesh_drf_solid(const renderlist_t& rl);
-static gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl);
-static gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl);
-static gfx_rv render_scene_solid(Camera& cam, dolist_t& dl);
-static gfx_rv render_scene_trans(Camera& cam, dolist_t& dl);
-static gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl);
-static gfx_rv render_scene(Camera& cam, std::shared_ptr<renderlist_t> prl, std::shared_ptr<dolist_t> pdl);
-static gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rlst);
+static gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam);
+static gfx_rv render_scene_mesh_ndr(const Ego::Graphics::TileList& tl);
+static gfx_rv render_scene_mesh_drf_back(const Ego::Graphics::TileList& tl);
+static gfx_rv render_scene_mesh_ref(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
+static gfx_rv render_scene_mesh_ref_chr(const Ego::Graphics::TileList& tl);
+static gfx_rv render_scene_mesh_drf_solid(const Ego::Graphics::TileList& tl);
+static gfx_rv render_scene_mesh_render_shadows(const Ego::Graphics::EntityList& el);
+static gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
+static gfx_rv render_scene_solid(Camera& cam, Ego::Graphics::EntityList& el);
+static gfx_rv render_scene_trans(Camera& cam, Ego::Graphics::EntityList& el);
+static gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& dl);
+static gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, std::shared_ptr<Ego::Graphics::EntityList> pel);
+static gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const Ego::Graphics::renderlist_lst_t * rlst);
 static void   render_shadow(const CHR_REF character);
 static void   render_bad_shadow(const CHR_REF character);
-static gfx_rv render_water(renderlist_t& rl);
+static gfx_rv render_water(Ego::Graphics::TileList& tl);
 static void   render_shadow_sprite(float intensity, GLvertex v[]);
 static gfx_rv render_world_background(Camera& cam, const TX_REF texture);
 static gfx_rv render_world_overlay(Camera& cam, const TX_REF texture);
@@ -231,8 +223,8 @@ static gfx_rv render_world_overlay(Camera& cam, const TX_REF texture);
  * @param camera
  *	the camera
  */
-static gfx_rv gfx_make_dolist(dolist_t& dl, Camera& camera);
-static gfx_rv gfx_make_renderlist(renderlist_t& rl, Camera& camera);
+static gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& camera);
+static gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& camera);
 static gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& camera);
 
 static float draw_one_xp_bar(float x, float y, Uint8 ticks);
@@ -247,18 +239,13 @@ static float draw_game_status(float y);
 static void  draw_hud();
 static void  draw_inventory();
 
-static gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile);
-
-
-
-
 static gfx_rv update_one_chr_instance(Object * pchr);
 static gfx_rv gfx_update_all_chr_instance();
-static gfx_rv gfx_update_flashing(dolist_t& dl);
+static gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el);
 
 static gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold);
-static gfx_rv light_fans_update_lcache(renderlist_t& rl);
-static gfx_rv light_fans_update_clst(renderlist_t& rl);
+static gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl);
+static gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl);
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 //static float calc_light_rotation(int rotation, int normal);
 //static float calc_light_global(int rotation, int normal, float lx, float ly, float lz);
@@ -272,244 +259,13 @@ static void   gfx_init_map_data();
 // renderlist_ary implementation
 //--------------------------------------------------------------------------------------------
 
-gfx_rv renderlist_lst_t::reset(renderlist_lst_t *self)
-{
-    if (nullptr == self)
-    {
-        return gfx_error;
-    }
-    self->size = 0;
-    self->lst[0].index = TileIndex::Invalid.getI(); /// @todo index should be of type TileIndex.
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_lst_t::push(renderlist_lst_t *self, const TileIndex& index, float distance)
-{
-    if (!self)
-    {
-        return gfx_error;
-    }
-
-    if (self->size >= renderlist_lst_t::CAPACITY)
-    {
-        return gfx_fail;
-    }
-    self->lst[self->size].index = index.getI();
-    self->lst[self->size].distance = distance;
-
-    self->size++;
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-// renderlist implementation
-//--------------------------------------------------------------------------------------------
-
-renderlist_t::renderlist_t() :
-    _mesh(nullptr), _all(), _ref(), _sha(), _drf(), _ndr(), _wat()
-{}
-
-renderlist_t *renderlist_t::init()
-{
-    // Initialize the render list lists.
-    renderlist_lst_t::reset(&_all);
-    renderlist_lst_t::reset(&_ref);
-    renderlist_lst_t::reset(&_sha);
-    renderlist_lst_t::reset(&_drf);
-    renderlist_lst_t::reset(&_ndr);
-    renderlist_lst_t::reset(&_wat);
-
-    _mesh = nullptr;
-
-    return this;
-}
-
-gfx_rv renderlist_t::reset()
-{
-    if (!_mesh)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "renderlist not attached to a mesh");
-        return gfx_error;
-    }
-
-    // Clear out the "in render list" flag for the old mesh.
-    ego_tile_info_t *tlist = tile_mem_t::get(&(_mesh->tmem), 0);
-
-    for (size_t i = 0; i < _all.size; ++i)
-    {
-        Uint32 fan = _all.lst[i].index;
-        if (fan < _mesh->info.tiles_count)
-        {
-            tlist[fan].inrenderlist = false;
-            tlist[fan].inrenderlist_frame = 0;
-        }
-    }
-
-    // Re-initialize the renderlist.
-    auto *mesh = _mesh;
-    init();
-    setMesh(mesh);
-
-    return gfx_success;
-}
-
-gfx_rv renderlist_t::insert(const TileIndex& index, const Camera &cam)
-{
-    if (!_mesh)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "renderlist not connected to a mesh");
-        return gfx_error;
-    }
-    ego_mesh_t *pmesh = _mesh;
-
-    // check for a valid tile
-    if (index >= pmesh->gmem.grid_count)
-    {
-        return gfx_fail;
-    }
-    ego_grid_info_t *pgrid = grid_mem_t::get(&(pmesh->gmem), index);
-    if (!pgrid)
-    {
-        return gfx_fail;
-    }
-
-    // we can only accept so many tiles
-    if (_all.size >= renderlist_lst_t::CAPACITY)
-    {
-        return gfx_fail;
-    }
-
-    int ix = index.getI() % pmesh->info.tiles_x;
-    int iy = index.getI() / pmesh->info.tiles_x;
-    float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter()[kX];
-    float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter()[kY];
-    float distance = dx * dx + dy * dy;
-
-    // Put each tile in basic list
-    renderlist_lst_t::push(&(_all), index, distance);
-
-    // Put each tile in one other list, for shadows and relections
-    if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_SHA))
-    {
-        renderlist_lst_t::push(&(_sha), index, distance);
-    }
-    else
-    {
-        renderlist_lst_t::push(&(_ref), index, distance);
-    }
-
-    if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_DRAWREF))
-    {
-        renderlist_lst_t::push(&(_drf), index, distance);
-    }
-    else
-    {
-        renderlist_lst_t::push(&(_ndr), index, distance);
-    }
-
-    if (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_WATER))
-    {
-        renderlist_lst_t::push(&(_wat), index, distance);
-    }
-
-    return gfx_success;
-}
-
-ego_mesh_t *renderlist_t::getMesh() const
-{
-    return _mesh;
-}
-
-void renderlist_t::setMesh(ego_mesh_t *mesh)
-{
-    _mesh = mesh;
-}
-
-gfx_rv renderlist_t::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera)
-{
-    size_t colst_cp, colst_sz;
-    ego_mesh_t *pmesh = NULL;
-    gfx_rv retval = gfx_error;
-
-    if (NULL == leaves)
-    {
-        return gfx_error;
-    }
-
-    colst_cp = leaves->capacity();
-    if (0 == colst_cp)
-    {
-        return gfx_error;
-    }
-
-    colst_sz = leaves->size();
-    if (0 == colst_sz)
-    {
-        return gfx_fail;
-    }
-
-    pmesh = getMesh();
-    if (NULL == pmesh)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "render list is not attached to a mesh");
-        return gfx_error;
-    }
-
-    // assume the best
-    retval = gfx_success;
-
-    // transfer valid pcolst entries to the renderlist
-    for (size_t j = 0; j < colst_sz; j++)
-    {
-        BSP_leaf_t *leaf = leaves->ary[j];
-
-        if (!leaf) continue;
-        if (!leaf->valid()) continue;
-
-        if (BSP_LEAF_TILE == leaf->_type)
-        {
-            // Get fan index.
-            TileIndex itile = leaf->_index;
-
-            // Get tile for tile index.
-            ego_tile_info_t *ptile = ego_mesh_t::get_ptile(pmesh, itile);
-            if (!ptile) continue;
-
-            // Get grid for tile index.
-            ego_grid_info_t *pgrid = ego_mesh_t::get_pgrid(pmesh, itile);
-            if (!pgrid) continue;
-
-            if (gfx_error == gfx_capture_mesh_tile(ptile))
-            {
-                retval = gfx_error;
-                break;
-            }
-
-            if (gfx_error == insert(itile, camera))
-            {
-                retval = gfx_error;
-                break;
-            }
-        }
-        else
-        {
-            // how did we get here?
-            log_warning("%s-%s-%d- found non-tile in the mpd BSP\n", __FILE__, __FUNCTION__, __LINE__);
-        }
-    }
-
-    return retval;
-}
 
 //--------------------------------------------------------------------------------------------
 // renderlist manager implementation
 //--------------------------------------------------------------------------------------------
 
 renderlist_mgr_t::renderlist_mgr_t() :
-    Pool<renderlist_t, MAX_CAMERAS>()
+    Pool<Ego::Graphics::TileList, MAX_CAMERAS>()
 {}
 
 renderlist_mgr_t::~renderlist_mgr_t()
@@ -546,304 +302,14 @@ renderlist_mgr_t& renderlist_mgr_t::get()
 //--------------------------------------------------------------------------------------------
 // dolist implementation
 //--------------------------------------------------------------------------------------------
-dolist_t::dolist_t() :
-    _size(0), _lst()
-{}
 
-dolist_t *dolist_t::init()
-{
-    for (size_t i = 0; i < dolist_t::CAPACITY; ++i)
-    {
-        dolist_t::element_t::init(&(_lst[i]));
-    }
-    _size = 0;
-    return this;
-}
-
-gfx_rv dolist_t::reset()
-{
-    // If there is nothing in the dolist, we are done.
-    if (0 == _size)
-    {
-        return gfx_success;
-    }
-
-    for (size_t i = 0, n = _size; i < n; ++i)
-    {
-        dolist_t::element_t *element = &(_lst[i]);
-
-        // Tell all valid objects that they are removed from this dolist.
-        if (INVALID_CHR_REF == element->ichr && VALID_PRT_RANGE(element->iprt))
-        {
-            prt_t *pprt = ParticleHandler::get().get_ptr(element->iprt);
-            if (nullptr != pprt) pprt->inst.indolist = false;
-        }
-        else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
-        {
-            Object *pobj = _currentModule->getObjectHandler().get(element->ichr);
-            if (nullptr != pobj) pobj->inst.indolist = false;
-        }
-    }
-    _size = 0;
-    return gfx_success;
-}
-
-gfx_rv dolist_t::test_obj(const Object& obj)
-{
-    // The object is not a candidate if the dolist is full.
-    if (_size == dolist_t::CAPACITY)
-    {
-        return gfx_fail;
-    }
-    // The object is not a candidate if it is not in game.
-    if (!INGAME_PCHR(&obj))
-    {
-        return gfx_fail;
-    }
-
-    return gfx_success;
-}
-
-gfx_rv dolist_t::add_obj_raw(Object& obj)
-{
-    /// @author ZZ
-    /// @details This function puts a character in the list
-
-    // Don't add if it is hidden.
-    if (obj.is_hidden)
-    {
-        return gfx_fail;
-    }
-
-    // Don't add if it's in another character's inventory.
-    if (_currentModule->getObjectHandler().exists(obj.inwhich_inventory))
-    {
-        return gfx_fail;
-    }
-
-    // Add!
-    _lst[_size].ichr = GET_INDEX_PCHR(&obj);
-    _lst[_size].iprt = INVALID_PRT_REF;
-    _size++;
-
-    // Notify it that it is in a do list.
-    obj.inst.indolist = true;
-
-    // Add any weapons it is holding.
-    Object *holding;
-    holding = _currentModule->getObjectHandler().get(obj.holdingwhich[SLOT_LEFT]);
-    if (holding && _size < CAPACITY)
-    {
-        add_obj_raw(*holding);
-    }
-    holding = _currentModule->getObjectHandler().get(obj.holdingwhich[SLOT_RIGHT]);
-    if (holding && _size < CAPACITY)
-    {
-        add_obj_raw(*holding);
-    }
-    return gfx_success;
-}
-
-gfx_rv dolist_t::test_prt(const prt_t& prt)
-{
-    // The particle is not a candidate if the dolist is full.
-    if (_size == dolist_t::CAPACITY)
-    {
-        return gfx_fail;
-    }
-
-    // The particle is not a candidate if it is not displayed.
-    if (!DISPLAY_PPRT(&prt))
-    {
-        return gfx_fail;
-    }
-
-    // The particle isnot a candidate if it is explicitly or implicitly hidden.
-    if (prt.is_hidden || 0 == prt.size)
-    {
-        return gfx_fail;
-    }
-
-    return gfx_success;
-}
-
-gfx_rv dolist_t::add_prt_raw(prt_t& prt)
-{
-    /// @author ZZ
-    /// @details This function puts a character in the list
-
-    _lst[_size].ichr = INVALID_CHR_REF;
-    _lst[_size].iprt = GET_REF_PPRT(&prt);
-    _size++;
-
-    prt.inst.indolist = true;
-
-    return gfx_success;
-}
-
-gfx_rv dolist_t::add_colst(const Ego::DynamicArray<BSP_leaf_t *> *leaves)
-{
-    if (!leaves)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-
-    if (leaves->empty())
-    {
-        return gfx_fail;
-    }
-    size_t sizeLeaves = leaves->size();
-
-    for (size_t j = 0; j < sizeLeaves; j++)
-    {
-        BSP_leaf_t *pleaf = leaves->ary[j];
-
-        if (!pleaf) continue;
-        if (!pleaf->valid()) continue;
-
-        if (BSP_LEAF_CHR == pleaf->_type)
-        {
-            // Get the reference.
-            CHR_REF iobj = (CHR_REF)(pleaf->_index);
-
-            // Is this a valid object reference?
-            if (!VALID_CHR_RANGE(iobj))
-            {
-                continue;
-            }
-            Object *pobj = _currentModule->getObjectHandler().get(iobj);
-            if (!pobj)
-            {
-                continue;
-            }
-
-            // Do some more obvious tests before testing the frustum.
-            if (test_obj(*pobj))
-            {
-                // Add the object.
-                if (gfx_error == add_obj_raw(*pobj))
-                {
-                    return gfx_error;
-                }
-            }
-        }
-        else if (BSP_LEAF_PRT == pleaf->_type)
-        {
-            // Get the reference.
-            PRT_REF iprt = (PRT_REF)(pleaf->_index);
-
-            // Is it a valid reference.
-            if (!VALID_PRT_RANGE(iprt))
-            {
-                continue;
-            }
-            prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
-            if (!pprt)
-            {
-                continue;
-            }
-
-            // Do some more obvious tests before testing the frustum.
-            if (test_prt(*pprt))
-            {
-                // Add the particle.
-                if (gfx_error == add_prt_raw(*pprt))
-                {
-                    return gfx_error;
-                }
-            }
-        }
-        else
-        {
-            // how did we get here?
-            log_warning("%s-%s-%d- found unknown type in a dolist BSP\n", __FILE__, __FUNCTION__, __LINE__);
-        }
-    }
-
-    return gfx_success;
-}
-
-gfx_rv dolist_t::sort(Camera& cam, const bool do_reflect)
-{
-    /// @author ZZ
-    /// @details This function orders the dolist based on distance from camera,
-    ///    which is needed for reflections to properly clip themselves.
-    ///    Order from closest to farthest
-    if (_size >= dolist_t::CAPACITY)
-    {
-        throw std::logic_error("invalid dolist size");
-    }
-
-    fvec3_t vcam;
-    mat_getCamForward(cam.getView(), vcam);
-
-    // Figure the distance of each.
-    size_t count = 0;
-    for (size_t i = 0; i < _size; ++i)
-    {
-        fvec3_t vtmp;
-
-        if (INVALID_PRT_REF == _lst[i].iprt && VALID_CHR_RANGE(_lst[i].ichr))
-        {
-            fvec3_t pos_tmp;
-
-            CHR_REF iobj = _lst[i].ichr;
-
-            if (do_reflect)
-            {
-                pos_tmp = mat_getTranslate(_currentModule->getObjectHandler().get(iobj)->inst.ref.matrix);
-            }
-            else
-            {
-                pos_tmp = mat_getTranslate(_currentModule->getObjectHandler().get(iobj)->inst.matrix);
-            }
-
-            vtmp = pos_tmp - cam.getPosition();
-        }
-        else if (INVALID_CHR_REF == _lst[i].ichr && VALID_PRT_RANGE(_lst[i].iprt))
-        {
-            PRT_REF iprt = _lst[i].iprt;
-
-            if (do_reflect)
-            {
-                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.pos - cam.getPosition();
-            }
-            else
-            {
-                vtmp = ParticleHandler::get().get_ptr(iprt)->inst.ref_pos - cam.getPosition();
-            }
-        }
-        else
-        {
-            continue;
-        }
-
-        float dist = vtmp.dot(vcam);
-        if (dist > 0)
-        {
-            _lst[count].ichr = _lst[i].ichr;
-            _lst[count].iprt = _lst[i].iprt;
-            _lst[count].dist = dist;
-            count++;
-        }
-    }
-    _size = count;
-
-    // use qsort to sort the list in-place
-    if (_size > 1)
-    {
-        qsort(_lst, _size, sizeof(dolist_t::element_t), dolist_t::element_t::cmp);
-    }
-
-    return gfx_success;
-}
 
 //--------------------------------------------------------------------------------------------
 // dolist manager implementation
 //--------------------------------------------------------------------------------------------
 
 dolist_mgr_t::dolist_mgr_t() :
-    Pool<dolist_t, MAX_CAMERAS>()
+    Pool<Ego::Graphics::EntityList, MAX_CAMERAS>()
 {}
 
 dolist_mgr_t::~dolist_mgr_t()
@@ -932,14 +398,14 @@ void GFX::initialize()
     gfx_clear_loops = 0;
 
     // allocate the specailized "collision lists"
-    if (!_dolist_colst.ctor(dolist_t::CAPACITY))
+    if (!_dolist_colst.ctor(Ego::Graphics::EntityList::CAPACITY))
     {
-        log_error("%s-%s-%d - Could not allocate dolist collision list", __FILE__, __FUNCTION__, __LINE__);
+        log_error("%s-%s-%d - Could not allocate entity collision list", __FILE__, __FUNCTION__, __LINE__);
     }
 
-    if (!_renderlist_colst.ctor(renderlist_lst_t::CAPACITY))
+    if (!_renderlist_colst.ctor(Ego::Graphics::renderlist_lst_t::CAPACITY))
     {
-        log_error("%s-%s-%d - Could not allocate renderlist collision list", __FILE__, __FUNCTION__, __LINE__);
+        log_error("%s-%s-%d - Could not allocate tile collision list", __FILE__, __FUNCTION__, __LINE__);
     }
 
     egolib_timer__init(&gfx_update_timer);
@@ -1164,7 +630,7 @@ void GFX::initializeSDLGraphics()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<renderlist_t> renderList, std::shared_ptr<dolist_t> doList)
+void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList)
 {
     gfx_error_state_t * err_tmp;
 
@@ -1183,7 +649,7 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<ren
             render_world_background(*camera, (TX_REF)TX_WATER_LOW);
         }
 
-        render_scene(*camera, renderList, doList);
+        render_scene(*camera, tileList, entityList);
 
         if (gfx.draw_overlay)
         {
@@ -2644,7 +2110,7 @@ void render_shadow(const CHR_REF character)
     if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
     // much reduced shadow if on a reflective tile
-    if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_DRAWREF))
+    if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_REFLECTIVE))
     {
         alpha *= 0.1f;
     }
@@ -2791,7 +2257,7 @@ void render_bad_shadow(const CHR_REF character)
     if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
     // much reduced shadow if on a reflective tile
-    if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_DRAWREF))
+    if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_REFLECTIVE))
     {
         alpha *= 0.1f;
     }
@@ -2901,7 +2367,7 @@ int by_element_cmp(const void *lhs, const void *rhs)
 struct by_list_t
 {
     size_t       count;
-    by_element_t lst[renderlist_lst_t::CAPACITY];
+    by_element_t lst[Ego::Graphics::renderlist_lst_t::CAPACITY];
     static by_list_t *sort(by_list_t *self)
     {
         if (!self)
@@ -2914,7 +2380,7 @@ struct by_list_t
 };
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rlst)
+gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const Ego::Graphics::renderlist_lst_t * rlst)
 {
     if (NULL == pmesh) pmesh = PMesh;
     if (NULL == pmesh)
@@ -2967,9 +2433,9 @@ gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rl
     // restart the mesh texture code
     mesh_texture_invalidate();
 
-    for (Uint32 cnt = 0; cnt < rlst->size; cnt++)
+    for (size_t i = 0; i < rlst->size; ++i)
     {
-        Uint32 tmp_itile = lst_vals.lst[cnt].tile;
+        Uint32 tmp_itile = lst_vals.lst[i].tile;
 
         gfx_rv render_rv = render_fan(pmesh, tmp_itile);
         if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
@@ -2987,7 +2453,7 @@ gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const renderlist_lst_t * rl
 //--------------------------------------------------------------------------------------------
 // render_scene FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dl, dynalist_t& dyl, Camera& cam)
+gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam)
 {
     // assume the best;
     gfx_rv retval = gfx_success;
@@ -2995,24 +2461,24 @@ gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dl, dynalist_t& dyl, Camera
     PROFILE_BEGIN(gfx_make_renderlist);
     {
         // Which tiles can be displayed
-        if (gfx_error == gfx_make_renderlist(rl, cam))
+        if (gfx_error == gfx_make_tileList(tl, cam))
         {
             retval = gfx_error;
         }
     }
     PROFILE_END(gfx_make_renderlist);
 
-    ego_mesh_t *pmesh = rl.getMesh();
+    ego_mesh_t *pmesh = tl.getMesh();
     if (!pmesh)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pmesh");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "tile list is not attached to a mesh");
         return gfx_error;
     }
 
     PROFILE_BEGIN(gfx_make_dolist);
     {
         // determine which objects are visible
-        if (gfx_error == gfx_make_dolist(dl, cam))
+        if (gfx_error == gfx_make_entityList(el, cam))
         {
             retval = gfx_error;
         }
@@ -3026,7 +2492,7 @@ gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dl, dynalist_t& dyl, Camera
     PROFILE_BEGIN(do_grid_lighting);
     {
         // figure out the terrain lighting
-        if (gfx_error == do_grid_lighting(rl, dyl, cam))
+        if (gfx_error == do_grid_lighting(tl, dyl, cam))
         {
             retval = gfx_error;
         }
@@ -3036,7 +2502,7 @@ gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dl, dynalist_t& dyl, Camera
     PROFILE_BEGIN(light_fans);
     {
         // apply the lighting to the characters and particles
-        if (gfx_error == light_fans(rl))
+        if (gfx_error == light_fans(tl))
         {
             retval = gfx_error;
         }
@@ -3064,7 +2530,7 @@ gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dl, dynalist_t& dyl, Camera
     PROFILE_END(update_all_prt_instance);
 
     // do the flashing for kursed objects
-    if (gfx_error == gfx_update_flashing(dl))
+    if (gfx_error == gfx_update_flashing(el))
     {
         retval = gfx_error;
     }
@@ -3080,7 +2546,7 @@ gfx_rv render_scene_init(renderlist_t& rl, dolist_t& dl, dynalist_t& dyl, Camera
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ndr(const renderlist_t& rl)
+gfx_rv render_scene_mesh_ndr(const Ego::Graphics::TileList& tl)
 {
     /// @author BB
     /// @details draw all tiles that do not reflect characters
@@ -3113,7 +2579,7 @@ gfx_rv render_scene_mesh_ndr(const renderlist_t& rl)
         GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(rl._mesh, &(rl._ndr)))
+        if (gfx_error == render_fans_by_list(tl._mesh, &(tl._nonReflective)))
         {
             retval = gfx_error;
         }
@@ -3124,7 +2590,7 @@ gfx_rv render_scene_mesh_ndr(const renderlist_t& rl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_back(const renderlist_t& rl)
+gfx_rv render_scene_mesh_drf_back(const Ego::Graphics::TileList& tl)
 {
     /// @author BB
     /// @details draw the reflective tiles, but turn off the depth buffer
@@ -3137,26 +2603,27 @@ gfx_rv render_scene_mesh_drf_back(const renderlist_t& rl)
 
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     {
+		auto& renderer = Ego::Renderer::get();
         // DO NOT store the surface depth
-        Ego::Renderer::get().setDepthWriteEnabled(false);
+        renderer.setDepthWriteEnabled(false);
 
         // do not draw hidden surfaces
-        Ego::Renderer::get().setDepthTestEnabled(true);
-        Ego::Renderer::get().setDepthFunction(Ego::CompareFunction::LessOrEqual);
+        renderer.setDepthTestEnabled(true);
+        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // black out any backgound, but allow the background to show through any holes in the floor
-        Ego::Renderer::get().setBlendingEnabled(true);
+        renderer.setBlendingEnabled(true);
         // use the alpha channel to modulate the transparency
         GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);    // GL_COLOR_BUFFER_BIT
         Ego::OpenGL::Utilities::isError();
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
-        Ego::Renderer::get().setAlphaTestEnabled(true);
+        renderer.setAlphaTestEnabled(true);
         // speed-up drawing of surfaces with alpha == 0.0f sections
         GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
         Ego::OpenGL::Utilities::isError();
         // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(rl._mesh, &(rl._drf)))
+        if (gfx_error == render_fans_by_list(tl._mesh, &(tl._reflective)))
         {
             retval = gfx_error;
         }
@@ -3167,7 +2634,7 @@ gfx_rv render_scene_mesh_drf_back(const renderlist_t& rl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t& dl)
+gfx_rv render_scene_mesh_ref(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el)
 {
     /// @author BB
     /// @details Render all reflected objects
@@ -3176,16 +2643,16 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
 
     ego_mesh_t * pmesh;
 
-    if (dl.getSize() >= dolist_t::CAPACITY)
+    if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
         return gfx_error;
     }
 
-    pmesh = rl.getMesh();
+    pmesh = tl.getMesh();
     if (NULL == pmesh)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "tile list is not attached to a mesh");
         return gfx_error;
     }
 
@@ -3204,10 +2671,10 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
         // surfaces must be closer to the camera to be drawn
         renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
-        for (size_t j = dl.getSize(); j > 0; --j)
+        for (size_t j = el.getSize(); j > 0; --j)
         {
             size_t i = j - 1;
-            if (INVALID_PRT_REF == dl.get(i).iprt && INVALID_CHR_REF != dl.get(i).ichr)
+            if (INVALID_PRT_REF == el.get(i).iprt && INVALID_CHR_REF != el.get(i).ichr)
             {
                 CHR_REF ichr;
 
@@ -3220,10 +2687,10 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
                 // use the alpha channel to modulate the transparency
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
                 Ego::OpenGL::Utilities::isError();
-                ichr = dl.get(i).ichr;
+                ichr = el.get(i).ichr;
                 TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
 
-                if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
+                if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_REFLECTIVE)))
                 {
                     Ego::Renderer::get().setColour(Ego::Colour4f::white());
 
@@ -3233,7 +2700,7 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
                     }
                 }
             }
-            else if (INVALID_CHR_REF == dl.get(i).ichr && INVALID_PRT_REF != dl.get(i).iprt)
+            else if (INVALID_CHR_REF == el.get(i).ichr && INVALID_PRT_REF != el.get(i).iprt)
             {
                 // draw draw front and back faces of polygons
                 oglx_end_culling();                     // GL_ENABLE_BIT
@@ -3244,10 +2711,10 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
                 // set the default particle blending
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);     // GL_COLOR_BUFFER_BIT
                 Ego::OpenGL::Utilities::isError();
-                PRT_REF iprt = dl.get(i).iprt;
+                PRT_REF iprt = el.get(i).iprt;
                 TileIndex itile = ParticleHandler::get().get_ptr(iprt)->getTile();
 
-                if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_DRAWREF)))
+                if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_REFLECTIVE)))
                 {
                     Ego::Renderer::get().setColour(Ego::Colour4f::white());
 
@@ -3265,7 +2732,7 @@ gfx_rv render_scene_mesh_ref(Camera& cam, const renderlist_t& rl, const dolist_t
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref_chr(const renderlist_t& rl)
+gfx_rv render_scene_mesh_ref_chr(const Ego::Graphics::TileList& tl)
 {
     /// @brief   BB@> Render the shadow floors ( let everything show through )
     /// @author BB
@@ -3294,7 +2761,7 @@ gfx_rv render_scene_mesh_ref_chr(const renderlist_t& rl)
         renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(rl._mesh, &(rl._drf)))
+        if (gfx_error == render_fans_by_list(tl._mesh, &(tl._reflective)))
         {
             retval = gfx_error;
         }
@@ -3305,7 +2772,7 @@ gfx_rv render_scene_mesh_ref_chr(const renderlist_t& rl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_solid(const renderlist_t& rl)
+gfx_rv render_scene_mesh_drf_solid(const Ego::Graphics::TileList& tl)
 {
     /// @brief BB@> Render the shadow floors as normal solid floors
 
@@ -3336,7 +2803,7 @@ gfx_rv render_scene_mesh_drf_solid(const renderlist_t& rl)
         GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);          // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(rl._mesh, &(rl._drf)))
+        if (gfx_error == render_fans_by_list(tl._mesh, &(tl._reflective)))
         {
             retval = gfx_error;
         }
@@ -3347,14 +2814,14 @@ gfx_rv render_scene_mesh_drf_solid(const renderlist_t& rl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl)
+gfx_rv render_scene_mesh_render_shadows(const Ego::Graphics::EntityList& el)
 {
     /// @author BB
     /// @details Render the shadows
 
-    if (dl.getSize() >= dolist_t::CAPACITY)
+    if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
         return gfx_error;
     }
 
@@ -3376,9 +2843,9 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl)
     if (gfx.shadows_highQuality_enable)
     {
         // Bad shadows.
-        for (size_t i = 0; i < dl.getSize(); ++i)
+        for (size_t i = 0; i < el.getSize(); ++i)
         {
-            CHR_REF ichr = dl.get(i).ichr;
+            CHR_REF ichr = el.get(i).ichr;
             if (!VALID_CHR_RANGE(ichr)) continue;
 
             if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
@@ -3390,9 +2857,9 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl)
     else
     {
         // Good shadows.
-        for (size_t i = 0; i < dl.getSize(); ++i)
+        for (size_t i = 0; i < el.getSize(); ++i)
         {
-            CHR_REF ichr = dl.get(i).ichr;
+            CHR_REF ichr = el.get(i).ichr;
             if (!VALID_CHR_RANGE(ichr)) continue;
 
             if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
@@ -3406,7 +2873,7 @@ gfx_rv render_scene_mesh_render_shadows(const dolist_t& dl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl)
+gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el)
 {
     /// @author BB
     /// @details draw the mesh and any reflected objects
@@ -3417,12 +2884,12 @@ gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl
     retval = gfx_success;
     //--------------------------------
     // advance the animation of all animated tiles
-    animate_all_tiles(rl._mesh);
+    animate_all_tiles(tl._mesh);
     Ego::OpenGL::Utilities::isError();
     PROFILE_BEGIN(render_scene_mesh_ndr);
     {
         // draw all tiles that do not reflect characters
-        if (gfx_error == render_scene_mesh_ndr(rl))
+        if (gfx_error == render_scene_mesh_ndr(tl))
         {
             retval = gfx_error;
         }
@@ -3438,7 +2905,7 @@ gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl
         {
             // blank out the background behind reflective tiles
 
-            if (gfx_error == render_scene_mesh_drf_back(rl))
+            if (gfx_error == render_scene_mesh_drf_back(tl))
             {
                 retval = gfx_error;
             }
@@ -3450,7 +2917,7 @@ gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl
         PROFILE_BEGIN(render_scene_mesh_ref);
         {
             // Render all reflected objects
-            if (gfx_error == render_scene_mesh_ref(cam, rl, dl))
+            if (gfx_error == render_scene_mesh_ref(cam, tl, el))
             {
                 retval = gfx_error;
             }
@@ -3462,7 +2929,7 @@ gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl
         PROFILE_BEGIN(render_scene_mesh_ref_chr);
         {
             // Render the shadow floors
-            if (gfx_error == render_scene_mesh_ref_chr(rl))
+            if (gfx_error == render_scene_mesh_ref_chr(tl))
             {
                 retval = gfx_error;
             }
@@ -3476,7 +2943,7 @@ gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl
         PROFILE_BEGIN(render_scene_mesh_drf_solid);
         {
             // Render the shadow floors as normal solid floors
-            if (gfx_error == render_scene_mesh_drf_solid(rl))
+            if (gfx_error == render_scene_mesh_drf_solid(tl))
             {
                 retval = gfx_error;
             }
@@ -3505,7 +2972,7 @@ gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl
     {
         Ego::OpenGL::Utilities::isError();
         // Render the shadows
-        if (gfx_error == render_scene_mesh_render_shadows(dl))
+        if (gfx_error == render_scene_mesh_render_shadows(el))
         {
             retval = gfx_error;
         }
@@ -3517,12 +2984,12 @@ gfx_rv render_scene_mesh(Camera& cam, const renderlist_t& rl, const dolist_t& dl
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_solid(Camera& cam, dolist_t& dl)
+gfx_rv render_scene_solid(Camera& cam, Ego::Graphics::EntityList& el)
 {
     /// @detaile BB@> Render all solid objects
-    if (dl.getSize() >= dolist_t::CAPACITY)
+	if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
         return gfx_error;
     }
 
@@ -3532,7 +2999,7 @@ gfx_rv render_scene_solid(Camera& cam, dolist_t& dl)
     ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT)
     {
         // scan for solid objects
-        for (size_t i = 0, n = dl.getSize(); i < n; ++i)
+        for (size_t i = 0, n = el.getSize(); i < n; ++i)
         {
             auto& renderer = Ego::Renderer::get();
             // solid objects draw into the depth buffer for hidden surface removal
@@ -3545,19 +3012,19 @@ gfx_rv render_scene_solid(Camera& cam, dolist_t& dl)
             renderer.setAlphaTestEnabled(true);
             GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);             // GL_COLOR_BUFFER_BIT
 
-            if (INVALID_PRT_REF == dl.get(i).iprt && VALID_CHR_RANGE(dl.get(i).ichr))
+            if (INVALID_PRT_REF == el.get(i).iprt && VALID_CHR_RANGE(el.get(i).ichr))
             {
-                if (gfx_error == render_one_mad_solid(cam, dl.get(i).ichr))
+                if (gfx_error == render_one_mad_solid(cam, el.get(i).ichr))
                 {
                     retval = gfx_error;
                 }
             }
-            else if (INVALID_CHR_REF == dl.get(i).ichr && VALID_PRT_RANGE(dl.get(i).iprt))
+            else if (INVALID_CHR_REF == el.get(i).ichr && VALID_PRT_RANGE(el.get(i).iprt))
             {
                 // draw draw front and back faces of polygons
                 oglx_end_culling();              // GL_ENABLE_BIT
 
-                if (gfx_error == render_one_prt_solid(dl.get(i).iprt))
+                if (gfx_error == render_one_prt_solid(el.get(i).iprt))
                 {
                     retval = gfx_error;
                 }
@@ -3570,14 +3037,14 @@ gfx_rv render_scene_solid(Camera& cam, dolist_t& dl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_trans(Camera& cam, dolist_t& dl)
+gfx_rv render_scene_trans(Camera& cam, Ego::Graphics::EntityList& el)
 {
     /// @author BB
     /// @details draw transparent objects
 
-    if (dl.getSize() >= dolist_t::CAPACITY)
+    if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
         return gfx_error;
     }
 
@@ -3597,21 +3064,21 @@ gfx_rv render_scene_trans(Camera& cam, dolist_t& dl)
         renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
 
         // Now render all transparent and light objects
-        for (size_t i = dl.getSize(); i > 0; --i)
+        for (size_t i = el.getSize(); i > 0; --i)
         {
             size_t j = i - 1;
             // A character.
-            if (INVALID_PRT_REF == dl.get(j).iprt && INVALID_CHR_REF != dl.get(j).ichr)
+            if (INVALID_PRT_REF == el.get(j).iprt && INVALID_CHR_REF != el.get(j).ichr)
             {
-                if (gfx_error == render_one_mad_trans(cam, dl.get(j).ichr))
+                if (gfx_error == render_one_mad_trans(cam, el.get(j).ichr))
                 {
                     retval = gfx_error;
                 }
             }
             // A particle.
-            else if (INVALID_CHR_REF == dl.get(j).ichr && INVALID_PRT_REF != dl.get(j).iprt)
+            else if (INVALID_CHR_REF == el.get(j).ichr && INVALID_PRT_REF != el.get(j).iprt)
             {
-                if (gfx_error == render_one_prt_trans(dl.get(j).iprt))
+                if (gfx_error == render_one_prt_trans(el.get(j).iprt))
                 {
                     retval = gfx_error;
                 }
@@ -3624,14 +3091,14 @@ gfx_rv render_scene_trans(Camera& cam, dolist_t& dl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl)
+gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el)
 {
     // assume the best
     gfx_rv retval = gfx_success;
 
     PROFILE_BEGIN(render_scene_init);
     {
-        if (gfx_error == render_scene_init(rl, dl, _dynalist, cam))
+        if (gfx_error == render_scene_init(tl, el, _dynalist, cam))
         {
             retval = gfx_error;
         }
@@ -3642,9 +3109,8 @@ gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl)
     {
         PROFILE_BEGIN(render_scene_mesh_dolist_sort);
         {
-            // sort the dolist for reflected objects
-            // reflected characters and objects are drawn in this pass
-            if (gfx_error == dl.sort(cam, true))
+            // sort the entity list for rendering reflections of entities
+            if (gfx_error == el.sort(cam, true))
             {
                 retval = gfx_error;
             }
@@ -3652,7 +3118,7 @@ gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl)
         PROFILE_END(render_scene_mesh_dolist_sort);
 
         // do the render pass for the mesh
-        if (gfx_error == render_scene_mesh(cam, rl, dl))
+        if (gfx_error == render_scene_mesh(cam, tl, el))
         {
             retval = gfx_error;
         }
@@ -3667,16 +3133,20 @@ gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl)
     }
     PROFILE_END(render_scene_mesh);
 
+	PROFILE_BEGIN(render_scene_mesh_dolist_sort);
+	{
+		// sort the entity list for rendering entities
+		if (gfx_error == el.sort(cam, true))
+		{
+			retval = gfx_error;
+		}
+	}
+	PROFILE_END(render_scene_mesh_dolist_sort)
+
     PROFILE_BEGIN(render_scene_solid);
     {
-        // sort the dolist for non-reflected objects
-        if (gfx_error == dl.sort(cam, false))
-        {
-            retval = gfx_error;
-        }
-
-        // do the render pass for solid objects
-        if (gfx_error == render_scene_solid(cam, dl))
+        // do the render pass for solid entities
+        if (gfx_error == render_scene_solid(cam, el))
         {
             retval = gfx_error;
         }
@@ -3686,7 +3156,7 @@ gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl)
     PROFILE_BEGIN(render_scene_water);
     {
         // draw the water
-        if (gfx_error == render_water(rl))
+        if (gfx_error == render_water(tl))
         {
             retval = gfx_error;
         }
@@ -3695,8 +3165,8 @@ gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl)
 
     PROFILE_BEGIN(render_scene_trans);
     {
-        // do the render pass for transparent objects
-        if (gfx_error == render_scene_trans(cam, dl))
+        // do the render pass for transparent entities
+        if (gfx_error == render_scene_trans(cam, el))
         {
             retval = gfx_error;
         }
@@ -3727,22 +3197,22 @@ gfx_rv render_scene(Camera& cam, renderlist_t& rl, dolist_t& dl)
 
     return retval;
 }
-gfx_rv render_scene(Camera& cam, std::shared_ptr<renderlist_t> prl, std::shared_ptr<dolist_t> pdl)
+gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, std::shared_ptr<Ego::Graphics::EntityList> pel)
 {
     /// @author ZZ
     /// @details This function draws 3D objects
-    if (!prl)
+    if (!ptl)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock a renderlist");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == ptl");
         return gfx_error;
     }
 
-    if (!pdl)
+    if (!pel)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock a dolist");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pel");
         return gfx_error;
     }
-    return render_scene(cam, *prl, *pdl);
+    return render_scene(cam, *ptl, *pel);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4032,7 +3502,7 @@ gfx_rv render_world_overlay(Camera& cam, const TX_REF texture)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water(renderlist_t& rl)
+gfx_rv render_water(Ego::Graphics::TileList& tl)
 {
     /// @author ZZ
     /// @details This function draws all of the water fans
@@ -4047,9 +3517,9 @@ gfx_rv render_water(renderlist_t& rl)
     // Bottom layer first
     if (gfx.draw_water_1)
     {
-        for (size_t cnt = 0; cnt < rl._wat.size; cnt++)
+        for (size_t cnt = 0; cnt < tl._water.size; cnt++)
         {
-            if (gfx_error == render_water_fan(rl._mesh, rl._wat.lst[cnt].index, 1))
+            if (gfx_error == render_water_fan(tl._mesh, tl._water.lst[cnt].index, 1))
             {
                 retval = gfx_error;
             }
@@ -4059,9 +3529,9 @@ gfx_rv render_water(renderlist_t& rl)
     // Top layer second
     if (gfx.draw_water_0)
     {
-        for (size_t cnt = 0; cnt < rl._wat.size; cnt++)
+        for (size_t cnt = 0; cnt < tl._water.size; cnt++)
         {
-            if (gfx_error == render_water_fan(rl._mesh, rl._wat.lst[cnt].index, 0))
+            if (gfx_error == render_water_fan(tl._mesh, tl._water.lst[cnt].index, 0))
             {
                 retval = gfx_error;
             }
@@ -4284,50 +3754,6 @@ bool grid_lighting_interpolate(const ego_mesh_t * pmesh, lighting_cache_t * dst,
     v = tpos[YY] - iy;
 
     return lighting_cache_interpolate(dst, cache_list, u, v);
-}
-
-
-//--------------------------------------------------------------------------------------------
-// obj_registry_entity_t IMPLEMENTATION
-//--------------------------------------------------------------------------------------------
-
-dolist_t::element_t *dolist_t::element_t::init(dolist_t::element_t * ptr)
-{
-    if (NULL == ptr) return NULL;
-
-    BLANK_STRUCT_PTR(ptr)
-
-        ptr->ichr = INVALID_CHR_REF;
-    ptr->iprt = INVALID_PRT_REF;
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-int dolist_t::element_t::cmp(const void * pleft, const void * pright)
-{
-    dolist_t::element_t * dleft = (dolist_t::element_t *)pleft;
-    dolist_t::element_t * dright = (dolist_t::element_t *)pright;
-
-    int   rv;
-    float diff;
-
-    diff = dleft->dist - dright->dist;
-
-    if (diff < 0.0f)
-    {
-        rv = -1;
-    }
-    else if (diff > 0.0f)
-    {
-        rv = 1;
-    }
-    else
-    {
-        rv = 0;
-    }
-
-    return rv;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4588,7 +4014,7 @@ gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, i
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_update_lcache(renderlist_t& rl)
+gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
 {
     const int frame_skip = 1 << 2;
 #if defined(CLIP_ALL_LIGHT_FANS)
@@ -4606,7 +4032,7 @@ gfx_rv light_fans_update_lcache(renderlist_t& rl)
     /// which means that the threshold could be set as low as 1/64 = 0.015625.
     const float delta_threshold = 0.05f;
 
-    ego_mesh_t *pmesh = rl.getMesh();
+    ego_mesh_t *pmesh = tl.getMesh();
     if (NULL == pmesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
@@ -4627,19 +4053,17 @@ gfx_rv light_fans_update_lcache(renderlist_t& rl)
 #endif
 
     // cache the grid lighting
-    for (entry = 0; entry < rl._all.size; entry++)
+    for (entry = 0; entry < tl._all.size; entry++)
     {
         bool reflective;
-        int fan;
         float delta;
-        ego_tile_info_t * ptile;
         ego_grid_info_t * pgrid;
 
         // which tile?
-        fan = rl._all.lst[entry].index;
+        int fan = tl._all.lst[entry].index;
 
         // grab a pointer to the tile
-        ptile = ego_mesh_t::get_ptile(pmesh, fan);
+		ego_tile_info_t *ptile = ego_mesh_t::get_ptile(pmesh, fan);
         if (NULL == ptile) continue;
 
         // Test to see whether the lcache was already updated
@@ -4669,10 +4093,10 @@ gfx_rv light_fans_update_lcache(renderlist_t& rl)
 
         // is the tile reflective?
         pgrid = ego_mesh_t::get_pgrid(pmesh, fan);
-        reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_DRAWREF));
+        reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
-        delta = ego_mesh_light_corners(rl._mesh, ptile, reflective, local_mesh_lighting_keep);
+        delta = ego_mesh_light_corners(tl._mesh, ptile, reflective, local_mesh_lighting_keep);
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to
@@ -4688,7 +4112,7 @@ gfx_rv light_fans_update_lcache(renderlist_t& rl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_update_clst(renderlist_t& rl)
+gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
 {
     /// @author BB
     /// @details update the tile's color list, if needed
@@ -4703,7 +4127,7 @@ gfx_rv light_fans_update_clst(renderlist_t& rl)
     tile_mem_t        * ptmem = NULL;
     tile_definition_t * pdef = NULL;
 
-    pmesh = rl.getMesh();
+    pmesh = tl.getMesh();
     if (NULL == pmesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
@@ -4717,9 +4141,9 @@ gfx_rv light_fans_update_clst(renderlist_t& rl)
     retval = gfx_success;
 
     // use the grid to light the tiles
-    for (size_t entry = 0; entry < rl._all.size; entry++)
+    for (size_t entry = 0; entry < tl._all.size; entry++)
     {
-        TileIndex fan = rl._all.lst[entry].index;
+        TileIndex fan = tl._all.lst[entry].index;
         if (TileIndex::Invalid == fan) continue;
 
         // valid tile?
@@ -4790,14 +4214,14 @@ gfx_rv light_fans_update_clst(renderlist_t& rl)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans(renderlist_t& rl)
+gfx_rv light_fans(Ego::Graphics::TileList& tl)
 {
-    if (gfx_error == light_fans_update_lcache(rl))
+    if (gfx_error == light_fans_update_lcache(tl))
     {
         return gfx_error;
     }
 
-    if (gfx_error == light_fans_update_clst(rl))
+    if (gfx_error == light_fans_update_clst(tl))
     {
         return gfx_error;
     }
@@ -4986,7 +4410,7 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
+gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& cam)
 {
     /// @author ZZ
     /// @details Do all tile lighting, dynamic and global
@@ -4997,7 +4421,6 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
     int ix, iy;
     float x0, y0, local_keep;
     bool needs_dynalight;
-    ego_mesh_t * pmesh;
 
     std::array<float, LIGHTING_VEC_SIZE> global_lighting = {0};
 
@@ -5005,33 +4428,29 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
     dynalight_registry_t reg[TOTAL_MAX_DYNA];
 
     ego_frect_t mesh_bound, light_bound;
-
-    ego_mesh_info_t  * pinfo;
-    grid_mem_t      * pgmem;
-    tile_mem_t      * ptmem;
     oct_bb_t        * poct;
 
     dynalight_data_t fake_dynalight;
 
-    pmesh = rl.getMesh();
+	ego_mesh_t *pmesh = tl.getMesh();
     if (NULL == pmesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
         return gfx_error;
     }
 
-    pinfo = &(pmesh->info);
-    pgmem = &(pmesh->gmem);
-    ptmem = &(pmesh->tmem);
+	ego_mesh_info_t *pinfo = &(pmesh->info);
+	grid_mem_t *pgmem = &(pmesh->gmem);
+	tile_mem_t *ptmem = &(pmesh->tmem);
 
     // find a bounding box for the "frustum"
     mesh_bound.xmin = pgmem->edge_x;
     mesh_bound.xmax = 0;
     mesh_bound.ymin = pgmem->edge_y;
     mesh_bound.ymax = 0;
-    for (size_t entry = 0; entry < rl._all.size; entry++)
+    for (size_t entry = 0; entry < tl._all.size; entry++)
     {
-        TileIndex fan = rl._all.lst[entry].index;
+        TileIndex fan = tl._all.lst[entry].index;
         if (fan.getI() >= pinfo->tiles_count) continue;
 
         poct = &(tile_mem_t::get(ptmem, fan)->oct);
@@ -5171,14 +4590,14 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
     local_keep = std::pow(dynalight_keep, 4);
 
     // Add to base light level in normal mode
-    for (size_t entry = 0; entry < rl._all.size; entry++)
+    for (size_t entry = 0; entry < tl._all.size; entry++)
     {
         bool resist_lighting_calculation = true;
 
         int                dynalight_count = 0;
 
         // grab each grid box in the "frustum"
-        TileIndex fan = rl._all.lst[entry].index;
+        TileIndex fan = tl._all.lst[entry].index;
 
         // a valid tile?
         ego_grid_info_t  *pgrid = ego_mesh_t::get_pgrid(pmesh, fan);
@@ -5282,42 +4701,8 @@ gfx_rv do_grid_lighting(renderlist_t& rl, dynalist_t& dyl, Camera& cam)
 
     return gfx_success;
 }
-
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_capture_mesh_tile(ego_tile_info_t * ptile)
-{
-    if (NULL == ptile)
-    {
-        return gfx_fail;
-    }
-
-    // Flag the tile as in the renderlist
-    ptile->inrenderlist = true;
-
-    // if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
-    if (ptile->inrenderlist_frame < 0)
-    {
-        ptile->request_lcache_update = true;
-        ptile->lcache_frame = -1;
-    }
-    else
-    {
-        Uint32 last_frame = (game_frame_all > 0) ? game_frame_all - 1 : 0;
-
-        if ((Uint32)ptile->inrenderlist_frame < last_frame)
-        {
-            ptile->request_lcache_update = true;
-        }
-    }
-
-    // make sure to cache the frame number of this update
-    ptile->inrenderlist_frame = game_frame_all;
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_renderlist(renderlist_t& rl, Camera& cam)
+gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& cam)
 {
     gfx_rv      retval;
     bool      local_allocation;
@@ -5331,7 +4716,7 @@ gfx_rv gfx_make_renderlist(renderlist_t& rl, Camera& cam)
     }
 
     // reset the renderlist
-    if (gfx_error == rl.reset())
+    if (gfx_error == tl.reset())
     {
         return gfx_error;
     }
@@ -5342,7 +4727,7 @@ gfx_rv gfx_make_renderlist(renderlist_t& rl, Camera& cam)
     {
         // allocate a BSP leaf pointer array to return the detected nodes
         local_allocation = true;
-        if (NULL == _renderlist_colst.ctor(renderlist_lst_t::CAPACITY))
+        if (NULL == _renderlist_colst.ctor(Ego::Graphics::renderlist_lst_t::CAPACITY))
         {
             gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list");
             return gfx_error;
@@ -5357,7 +4742,7 @@ gfx_rv gfx_make_renderlist(renderlist_t& rl, Camera& cam)
     getMeshBSP()->collide(cam.getFrustum(), _renderlist_colst);
 
     // transfer valid _renderlist_colst entries to the dolist
-    if (gfx_error == rl.add(&_renderlist_colst, cam))
+    if (gfx_error == tl.add(&_renderlist_colst, cam))
     {
         retval = gfx_error;
         goto gfx_make_renderlist_exit;
@@ -5375,7 +4760,7 @@ gfx_make_renderlist_exit:
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dolist(dolist_t& dl, Camera& cam)
+gfx_rv gfx_make_entityList(Ego::Graphics::EntityList& el, Camera& cam)
 {
     gfx_rv retval;
     bool local_allocation;
@@ -5383,14 +4768,14 @@ gfx_rv gfx_make_dolist(dolist_t& dl, Camera& cam)
     // assume the best
     retval = gfx_success;
 
-    if (dl.getSize() >= dolist_t::CAPACITY)
+	if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
         return gfx_error;
     }
 
-    // Remove everyone from the dolist.
-    dl.reset();
+    // Remove all entities from the entity list.
+    el.reset();
 
     // has the colst been allocated?
     local_allocation = false;
@@ -5398,7 +4783,7 @@ gfx_rv gfx_make_dolist(dolist_t& dl, Camera& cam)
     {
         // allocate a BSP leaf pointer array to return the detected nodes
         local_allocation = true;
-        if (!_dolist_colst.ctor(dolist_t::CAPACITY))
+		if (!_dolist_colst.ctor(Ego::Graphics::EntityList::CAPACITY))
         {
             gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list");
             return gfx_error;
@@ -5410,10 +4795,10 @@ gfx_rv gfx_make_dolist(dolist_t& dl, Camera& cam)
     getChrBSP()->collide(cam.getFrustum(), chr_BSP_is_visible, _dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == dl.add_colst(&_dolist_colst))
+    if (gfx_error == el.add_colst(&_dolist_colst))
     {
         retval = gfx_error;
-        goto gfx_make_dolist_exit;
+        goto Exit;
     }
 
     // collide the particles with the frustum
@@ -5421,13 +4806,13 @@ gfx_rv gfx_make_dolist(dolist_t& dl, Camera& cam)
     getPrtBSP()->collide(cam.getFrustum(), prt_BSP_is_visible, _dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == dl.add_colst(&_dolist_colst))
+    if (gfx_error == el.add_colst(&_dolist_colst))
     {
         retval = gfx_error;
-        goto gfx_make_dolist_exit;
+        goto Exit;
     }
 
-gfx_make_dolist_exit:
+Exit:
 
     // if there was a local allocation, make sure to deallocate
     if (local_allocation)
@@ -5492,22 +4877,22 @@ float calc_light_global(int rotation, int normal, float lx, float ly, float lz)
 #endif
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_update_flashing(dolist_t& dl)
+gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el)
 {
     gfx_rv retval;
 
-    if (dl.getSize() >= dolist_t::CAPACITY)
+    if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
         return gfx_error;
     }
 
     retval = gfx_success;
-    for (size_t i = 0, n = dl.getSize(); i < n; ++i)
+    for (size_t i = 0, n = el.getSize(); i < n; ++i)
     {
         float tmp_seekurse_level;
 
-        CHR_REF ichr = dl.get(i).ichr;
+        CHR_REF ichr = el.get(i).ichr;
 
         Object *pchr = _currentModule->getObjectHandler().get(ichr);
         if (!pchr) continue;

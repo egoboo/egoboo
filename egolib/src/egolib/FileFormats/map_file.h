@@ -66,7 +66,7 @@ static_assert(MAP_TILE_MAX <= UINT32_MAX, "MAP_TILE_MAX may not exceed UINT32_MA
         ///< Egoboo v1.0: "0 This tile is drawn 2nd"
         ///< aicodes.txt : FXNOREFLECT
 
-        MAPFX_DRAWREF         = ( 1 << 1 ),  ///< the tile reflects characters
+        MAPFX_REFLECTIVE      = ( 1 << 1 ),  ///< the tile reflects entities
         ///< Egoboo v1.0: "1 Draw reflection of characters"
         ///< aicodes.txt : FXDRAWREFLECT
 

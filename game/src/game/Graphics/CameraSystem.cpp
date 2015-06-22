@@ -117,7 +117,7 @@ void CameraSystem::resetAllTargets( const ego_mesh_t * pmesh )
     }
 }
 
-egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<Camera>, std::shared_ptr<renderlist_t>, std::shared_ptr<dolist_t>)> renderFunction )
+egolib_rv CameraSystem::renderAll(std::function<void(std::shared_ptr<Camera>, std::shared_ptr<Ego::Graphics::TileList>, std::shared_ptr<Ego::Graphics::EntityList>)> renderFunction)
 {
     if ( NULL == renderFunction ) {
         return rv_error;
@@ -144,7 +144,7 @@ egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<Camera>, s
         beginCameraMode(camera);
 
         // render the world for this camera
-        renderFunction( camera, camera->getRenderList(), camera->getDoList() );
+        renderFunction(camera, camera->getTileList(), camera->getEntityList());
 
         // undo the camera setup
         endCameraMode();

@@ -266,6 +266,12 @@
     <ClCompile Include="src\game\CharacterMatrix.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Graphics\TileList.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Graphics\EntityList.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -480,6 +486,15 @@
     </ClInclude>
     <ClInclude Include="src\game\CharacterMatrix.h">
       <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\TileList.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\Vertex.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Graphics\EntityList.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

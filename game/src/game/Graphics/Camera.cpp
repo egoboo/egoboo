@@ -82,8 +82,8 @@ Camera::Camera(const CameraOptions &options) :
     _trackList(),
     _screen(),
     _lastFrame(-1),
-    _renderList(nullptr),
-    _doList(nullptr)
+    _tileList(nullptr),
+    _entityList(nullptr)
 {
     // Derived values.
 	_trackPos = _center;
@@ -108,13 +108,13 @@ Camera::Camera(const CameraOptions &options) :
         throw std::runtime_error("failed to get dolist manager");
     }
 
-    // Lock a renderlist for this camera.
-    _renderList = rmgr_ptr->acquire();
-    // Connect the renderlist to the mesh.
-    _renderList->setMesh(PMesh);
+    // Lock a tile list for this camera.
+    _tileList = rmgr_ptr->acquire();
+    // Connect the tile list to the mesh.
+    _tileList->setMesh(PMesh);
 
-    // Lock a dolist for this camera.
-    _doList = dmgr_ptr->acquire();
+    // Lock an entity list for this camera.
+    _entityList = dmgr_ptr->acquire();
 
     // Assume that the camera is fullscreen.
     setScreen(0, 0, sdl_scr.x, sdl_scr.y);
@@ -122,11 +122,11 @@ Camera::Camera(const CameraOptions &options) :
 
 Camera::~Camera()
 {
-    // Free any locked renderlist.
-    _renderList = nullptr;
+    // Free any locked tile list.
+    _tileList = nullptr;
 
-    // Free any locked dolist.
-    _doList = nullptr;
+    // Free any locked entity list.
+    _entityList = nullptr;
 }
 
 float Camera::multiplyFOV(const float old_fov_deg, const float factor)
@@ -785,7 +785,7 @@ void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
     updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
 }
 
-void Camera::initialize(std::shared_ptr<renderlist_t> renderList, std::shared_ptr<dolist_t> doList)
+void Camera::initialize(std::shared_ptr<Ego::Graphics::TileList> tileList, std::shared_ptr<Ego::Graphics::EntityList> entityList)
 {
     // Make the default viewport fullscreen.
     _screen.xmin = 0.0f;
@@ -793,8 +793,8 @@ void Camera::initialize(std::shared_ptr<renderlist_t> renderList, std::shared_pt
     _screen.ymin = 0.0f;
     _screen.ymax = sdl_scr.y;
 
-    _renderList = renderList;
-    _doList = doList;
+	_tileList = tileList;
+    _entityList = entityList;
 }
 
 void Camera::addTrackTarget(const CHR_REF target)
