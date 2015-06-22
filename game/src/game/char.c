@@ -4972,8 +4972,6 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
         oct_bb_t::ctor(pchr->slot_cv[cnt]);
     }
 
-    std::shared_ptr<ObjectProfile> profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
     pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if ( NULL == pmad ) return rv_error;
 
@@ -5012,7 +5010,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     bmin.assign(pchr->bump);
 
     // only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
-    if ( profile->getBumpOverrideSize() )
+    if ( pchr->getProfile()->getBumpOverrideSize() )
     {
         pchr->chr_min_cv.cut(bmin, OCT_X);
         pchr->chr_min_cv.cut(bmin, OCT_Y);
@@ -5022,7 +5020,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     }
 
     // only use pchr->bump.size_big if it was overridden in data.txt through the [MODL] expansion
-    if ( profile->getBumpOverrideSizeBig() )
+    if ( pchr->getProfile()->getBumpOverrideSizeBig() )
     {
         pchr->chr_min_cv.cut(bmin, OCT_XY);
         pchr->chr_min_cv.cut(bmin, OCT_YX);
@@ -5032,7 +5030,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     }
 
     // only use pchr->bump.height if it was overridden in data.txt through the [MODL] expansion
-    if ( profile->getBumpOverrideHeight() )
+    if ( pchr->getProfile()->getBumpOverrideHeight() )
     {
         pchr->chr_min_cv.cut(bmin, OCT_Z);
         pchr->chr_max_cv.join(bmin, OCT_Z );
@@ -5047,7 +5045,7 @@ egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix )
     // calculate collision volumes for various slots
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        if ( !profile->isSlotValid( static_cast<slot_t>(cnt) ) ) continue;
+        if ( !pchr->getProfile()->isSlotValid( static_cast<slot_t>(cnt) ) ) continue;
 
         chr_calc_grip_cv( pchr, GRIP_LEFT, &pchr->slot_cv[cnt], false );
 

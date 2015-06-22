@@ -43,7 +43,8 @@ ObjectHandler::ObjectHandler() :
 
     _semaphore(0),
     _deletedCharacters(0),
-    _totalCharactersSpawned(0)
+    _totalCharactersSpawned(0),
+    _dynamicObjects()
 {
 	_internalCharacterList.reserve(OBJECTS_MAX);
     _iteratorList.reserve(OBJECTS_MAX);
@@ -316,10 +317,12 @@ size_t ObjectHandler::getObjectCount() const
     return _iteratorList.size() + _allocateList.size() - _deletedCharacters;
 }
 
-void ObjectHandler::updateQuadTree()
+void ObjectHandler::updateQuadTree(float minX, float minY, float maxX, float maxY)
 {
-    _dynamicObjects.clear();
+    //Reset quad-tree
+    _dynamicObjects.clear(minX, minY, maxX, maxY);
 
+    //Rebuild quad-tree
     for(const std::shared_ptr<Object> &object : _iteratorList) {
         _dynamicObjects.insert(object);
     }

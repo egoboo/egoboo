@@ -152,8 +152,15 @@ public:
 	* @brief
 	*	Clears all elements from this QuadTree and all its children
 	**/
-	void clear()
+	void clear(const float minX, const float minY, const float maxX, const float maxY)
 	{
+		//Reset bounds
+		_bounds._min[kX] = minX;
+		_bounds._min[kY] = minY;
+		_bounds._max[kX] = maxX;
+		_bounds._max[kY] = maxY;
+
+		//Clear children and all elements
 		_nodes.clear();
 		_northWest.reset(nullptr);
 		_northEast.reset(nullptr);
@@ -202,7 +209,7 @@ private:
 private:
 	static const size_t QUAD_TREE_NODE_CAPACITY = 4;	//< Maximum number of nodes in tree before subdivision
 
-	const AABB_2D _bounds;					//< 2D AABB
+	AABB_2D _bounds;									//< 2D AABB
 
 	std::vector<std::weak_ptr<T>> _nodes;				//< List of nodes contained in this QuadTree
 

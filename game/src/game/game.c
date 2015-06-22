@@ -726,7 +726,7 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree();
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, PMesh->info.tiles_x*256.0f, PMesh->info.tiles_y*256.0f);
 
     //---- begin the code for updating misc. game stuff
     {

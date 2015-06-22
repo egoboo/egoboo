@@ -160,8 +160,10 @@ public:
 	* @brief
 	* 	Clear and rebuild the quad tree for this update frame
 	*	This function is NOT thread-safe
+	* @param minX, minY, maxX, maxY
+	*	Sets the bounds of this quad tree (size of the entire current level)
 	**/
-	void updateQuadTree();
+	void updateQuadTree(float minX, float minY, float maxX, float maxY);
 
 private:
 

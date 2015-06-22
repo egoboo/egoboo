@@ -485,8 +485,8 @@ public:
 
     inline AABB_2D getAABB2D() const
     {
-        return AABB_2D(Vector2f(chr_min_cv.getMin()[OCT_X], chr_min_cv.getMin()[OCT_Y]),
-                       Vector2f(chr_min_cv.getMax()[OCT_X], chr_min_cv.getMax()[OCT_Y]));
+        return AABB_2D(Vector2f(getPosX() + chr_min_cv.getMin()[OCT_X], getPosY() + chr_min_cv.getMin()[OCT_Y]),
+                       Vector2f(getPosX() + chr_min_cv.getMax()[OCT_X], getPosY() + chr_min_cv.getMax()[OCT_Y]));
     }
 
 private:
