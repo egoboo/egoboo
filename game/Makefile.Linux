@@ -1,0 +1,71 @@
+#---------------------
+# the source files
+C_FILES := ${wildcard ./src/game/*.c}
+C_FILES += ${wildcard ./src/game/*/*.c}
+
+CPP_FILES += ${wildcard ./src/game/*.cpp}
+CPP_FILES += ${wildcard ./src/game/*/*.cpp}
+
+CPP_FILES := $(filter-out ./src/game/PhysicalConstants.cpp, $(CPP_FILES))
+
+#---------------------
+# binary output
+C_OBJ := $(C_FILES:.c=.o)
+CXX_OBJ := $(CPP_FILES:.cpp=.o)
+
+OBJECTS :=  $(C_OBJ)
+OBJECTS +=  $(CXX_OBJ)
+
+#Binary file
+BIN = ../data/egoboo.elf
+
+#---------------------
+#Includes
+INCLUDES := -Isrc -I../egolib/src -I../idlib/src
+INCLUDES += $(shell sdl2-config --cflags)
+
+#---------------------
+# the compiler options
+CXXFLAGS  := $(INCLUDES) -x c++ -std=c++11 -Og -Wall -Wfatal-errors -Werror -D_NO_PREFIX -DSDL_main=main -D_DEBUG
+
+#hush some warnings we dont care about
+CXXFLAGS += -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-variable -Wno-reorder
+
+#debug options
+CXXFLAGS += -ggdb -fdiagnostics-color=always -pg
+CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
+CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return  -fsanitize=enum -fsanitize=shift
+CXXFLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero  -fsanitize=vptr
+#-fsanitize=bounds-strict -fsanitize-undefined-trap-on-error -fsanitize=float-cast-overflow -fsanitize=signed-integer-overflow
+
+#Release
+#-D_NDEBUG 
+
+LINKER_LIBS := $(shell sdl2-config --static-libs)
+LINKER_LIBS += -L../egolib/ -legoboo
+LINKER_LIBS += -L../idlib/ -lid
+LINKER_LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lphysfs -lGL
+LINKER_LIBS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
+LINKER_LIBS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift
+LINKER_LIBS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr
+LINKER_LIBS += -fdiagnostics-color=always -fsanitize-undefined-trap-on-error
+#-fsanitize=signed-integer-overflow -fsanitize=float-cast-overflow
+
+#------------------------------------
+# definitions of the target projects
+
+.PHONY: all clean
+
+all: $(BIN)
+
+# Generic rule
+%.o: %.c
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
+%.o: %.cpp
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
+
+$(BIN): $(OBJECTS)
+	$(CXX) -o $@ $^ $(LINKER_LIBS) 
+
+clean:
+	rm -f ./src/game/*.o ./src/game/*/*.o $(BIN)

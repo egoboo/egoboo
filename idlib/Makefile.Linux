@@ -1,0 +1,49 @@
+# Do not run this file. Run the Makefile in the parent directory, instead
+
+IDLIB_TARGET := libid.a
+
+#---------------------
+# the source files
+SOURCES := $(wildcard ./src/IdLib/*.cpp)
+
+#-------------------
+# object output
+OBJECTS := $(SOURCES:.cpp=.o)
+
+#---------------------
+# the compiler options
+INCLUDES := -I./src -I../game/src -I../egolib/src
+
+CXXFLAGS  := $(INCLUDES) $(shell sdl2-config --cflags) -Weffc++ -std=c++11 -Og -Wall -Werror -Wfatal-errors -D_DEBUG
+
+#Disable specific warnings
+CXXFLAGS += -Wno-sign-compare -Wno-reorder
+
+#Debug options
+CXXFLAGS += -ggdb -fdiagnostics-color=always -pg
+CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
+CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum -fsanitize=shift
+CXXFLAGS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=vptr -fsanitize-undefined-trap-on-error
+#-fsanitize=bounds-strict
+
+#Release
+#-D_NDEBUG 
+
+#------------------------------------
+# definitions of the target projects
+
+.PHONY: all clean
+
+all: $(IDLIB_TARGET)
+
+# Generic rule
+%.o: %.c
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(IDLIB_TARGET): $(OBJECTS)
+	ar rcsv $(IDLIB_TARGET) $(OBJECTS)
+
+clean:
+	rm -f $(IDLIB_TARGET) ./src/IdLib/*.o
