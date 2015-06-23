@@ -84,7 +84,7 @@ void scripting_system_end()
             for (size_t i = 0; i < SCRIPT_FUNCTIONS_COUNT; ++i) {
                 if (_script_function_calls[i] > 0) {
 					vfs_printf(target, "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
-						       i, script_function_names[i], _script_function_calls[i], _script_function_times[i]);
+						       static_cast<int>(i), script_function_names[i], _script_function_calls[i], _script_function_times[i]);
                 }
             }
             vfs_close(target);

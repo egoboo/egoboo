@@ -334,8 +334,6 @@ egolib_rv oct_bb_t::downgrade(const oct_bb_t& psrc_bb, const bumper_t& bump_stt,
 	/// @author BB
 	/// @details convert a level 1 bumper to an "equivalent" level 0 bumper
 
-	float val1, val2, val3, val4;
-
 	if (&pdst_bb != &psrc_bb)
 	{
 		pdst_bb = psrc_bb;
