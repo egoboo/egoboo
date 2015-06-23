@@ -28,170 +28,67 @@
 // this include must be the absolute last include
 #include "egolib/mem.h"
 
-
-static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
-static double clk_getExactLastFrameDuration( ClockState_t * cs );
-static double clk_guessFrameDuration(const ClockState_t *self);
-
-ClockState_t *clk_create(const char *name,size_t size)
+ClockState_t *ClockState_t::create(const std::string& name, size_t slidingWindowCapacity)
 {
     ClockState_t *self;
-    self = EGOBOO_NEW(ClockState_t);
-	if (!self)
-	{
-		return NULL;
-	}
-	if (!ClockState_t::ctor(self,name,size))
-	{
-		EGOBOO_DELETE(self);
-		return NULL;
+	try {
+		self = new ClockState_t(name, slidingWindowCapacity);
+	} catch (...) {
+		return nullptr;
 	}
 	return self;
 }
 
-void clk_destroy(ClockState_t *self)
+void ClockState_t::destroy(ClockState_t *self)
 {
-    ClockState_t::dtor(self);
-    EGOBOO_DELETE(self);
-}
-
-ClockState_t *ClockState_t::ctor(ClockState_t *self,const char * name,size_t window_size)
-{
-	EGOBOO_ASSERT(NULL != self && NULL != name && window_size > 0);
-    BLANK_STRUCT_PTR(self)
-
-    self->sourceStartTime = std::chrono::high_resolution_clock::now();
-    self->sourceLastTime  = self->sourceStartTime;
-
-    self->maximumFrameTime = 0.2;
-	self->name = strdup(name);
-	if (!self->name)
-	{
-		return NULL;
+	if (self) {
+		delete self;
 	}
-	self->frameHistoryHead = 0;
-	self->frameHistory = EGOBOO_NEW_ARY(double,window_size);
-	if (!self->frameHistory)
-	{
-		free(self->name);
-		self->name = NULL;
-		return NULL;
-	}
-	self->frameHistoryWindow = window_size;
-    return self;
 }
 
-void ClockState_t::dtor(ClockState_t *self)
-{
-	EGOBOO_ASSERT(NULL != self);
-    EGOBOO_DELETE_ARY(self->frameHistory);
-	free(self->name);
-	BLANK_STRUCT_PTR(self);
+ClockState_t::ClockState_t(const std::string& name, size_t slidingWindowCapacity)
+	: _name(name), _maxElapsedTime(0.2), _stopwatch(), _slidingWindow(slidingWindowCapacity) {
 }
 
-ClockState_t *clk_renew(ClockState_t *self)
-{
-	self->sourceStartTime = std::chrono::high_resolution_clock::now();
-	self->sourceLastTime = self->sourceStartTime;
-	self->maximumFrameTime = 0.2;
-	self->frameHistoryHead = 0;
-	return self;
+void ClockState_t::enter() {
+	_stopwatch.reset();
+	_stopwatch.start();
 }
 
+void ClockState_t::leave() {
+	// Stop the stopwatch.
+	_stopwatch.stop();
+	// Get the elapsed time.
+	double elapsedTime = std::min(_maxElapsedTime, _stopwatch.elapsed());
+	// Add the elapsed time to the sliding window.
+	_slidingWindow.add(elapsedTime);
+	// Reset the stopwatch.
+	_stopwatch.reset();
+}
 
-/**
-* @brief
-*	Guess the duration of a frame based on data recorded in the frame history window.
-* @param self
-*	the clock
-* @return
-*	the guessed duration of a frame.
-*/
-double clk_guessFrameDuration(const ClockState_t *self)
+void ClockState_t::reinit() {
+	_stopwatch.stop(); _stopwatch.reset(); /// @todo The stopwatch should also have a reinit method.
+	_slidingWindow.clear();
+}
+
+double ClockState_t::avg() const
 {
-	EGOBOO_ASSERT(NULL != self);
-    double time = 0;
-    if (1 == self->frameHistorySize)
-    {
-        time = self->frameHistory[0];
-    }
-    else
-    {
+	if (_slidingWindow.empty()) {
+		return 0;
+	} else {
         double totalTime = 0;
-        for (size_t c = 0; c < self->frameHistorySize; c++)
-        {
-            totalTime += self->frameHistory[c];
+        for (size_t i = 0; i < _slidingWindow.size(); ++i) {
+            totalTime += _slidingWindow.get(i);
         }
-        time = totalTime / self->frameHistorySize;
-    }
-
-    return time;
-}
-
-void clk_addToFrameHistory(ClockState_t *self,double frame_duration)
-{
-    self->frameHistory[self->frameHistoryHead] = frame_duration;
-
-    self->frameHistoryHead++;
-    if (self->frameHistoryHead >= self->frameHistoryWindow )
-    {
-        self->frameHistoryHead = 0;
-    }
-
-    self->frameHistorySize++;
-    if (self->frameHistorySize > self->frameHistoryWindow )
-    {
-        self->frameHistorySize = self->frameHistoryWindow;
+        return totalTime / _slidingWindow.size();
     }
 }
 
-double clk_getExactLastFrameDuration( ClockState_t * cs )
+double ClockState_t::lst() const
 {
-    auto sourceTime = std::chrono::high_resolution_clock::now();
-
-    double timeElapsed = std::chrono::duration_cast<std::chrono::duration<double>>(sourceTime - cs->sourceLastTime).count();
-
-    // If more time elapsed than the maximum we allow, say that only the maximum occurred
-    if ( timeElapsed > cs->maximumFrameTime )
-    {
-        timeElapsed = cs->maximumFrameTime;
-    }
-
-    cs->sourceLastTime = sourceTime;
-    return timeElapsed;
-}
-
-void clk_frameStep( ClockState_t * cs )
-{
-	EGOBOO_ASSERT(NULL != cs);
-    double lastFrame = clk_getExactLastFrameDuration( cs );
-    clk_addToFrameHistory( cs, lastFrame );
-
-    // This feels wrong to me; we're guessing at how long this
-    // frame is going to be and accepting that as our time value.
-    // I'll trust Mr. Lopis for now, but it may change.
-    cs->frameTime = clk_guessFrameDuration( cs );
-    cs->currentTime += cs->frameTime;
-
-    cs->frameNumber++;
-}
-
-double clk_getTime( ClockState_t * cs )
-{
-    return cs->currentTime;
-}
-
-double clk_getFrameDuration( ClockState_t * cs )
-{
-    return cs->frameTime;
-}
-
-Uint32 clk_getFrameNumber( ClockState_t * cs )
-{
-    return cs->frameNumber;
-}
-
-float clk_getFrameRate( ClockState_t * cs )
-{
-    return ( float )( 1.0F / cs->frameTime );
+	if (_slidingWindow.empty()) {
+		return 0;
+	} else {
+		return _slidingWindow.get(_slidingWindow.size()-1);
+	}
 }

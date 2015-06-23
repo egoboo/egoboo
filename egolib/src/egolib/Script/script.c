@@ -49,8 +49,11 @@ static void  scr_run_operand( script_state_t * pstate, ai_state_t * pself, scrip
 static bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript );
 static bool scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript );
 
-PROFILE_DECLARE( script_function )
-
+/// A counter to measure the time of an invocation of a script function.
+/// Its window size is 1 as the duration spend in the invocation is added to an histogram (see below).
+static std::shared_ptr<ClockState_t> g_scriptFunctionClock = nullptr;
+/// @todo Data points (avg. runtimes) sorted into categories (script functions): This is a histogram
+///       and can be implemented as such.
 static int    _script_function_calls[SCRIPT_FUNCTIONS_COUNT];
 static double _script_function_times[SCRIPT_FUNCTIONS_COUNT];
 
@@ -61,58 +64,32 @@ static bool _scripting_system_initialized = false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-static bool ai_state_free( ai_state_t * pself );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void scripting_system_begin()
 {
-    if ( !_scripting_system_initialized )
-    {
-        int cnt;
-
-        PROFILE_INIT( script_function );
-
-        for ( cnt = 0; cnt < SCRIPT_FUNCTIONS_COUNT; cnt++ )
-        {
-            _script_function_calls[cnt] = 0;
-            _script_function_times[cnt] = 0.0F;
-        }
-
-        _scripting_system_initialized = true;
-    }
+	if (!_scripting_system_initialized) {
+		g_scriptFunctionClock = std::make_shared<ClockState_t>("script function clock", 1);
+		for (size_t i = 0; i < SCRIPT_FUNCTIONS_COUNT; ++i) {
+			_script_function_calls[i] = 0;
+			_script_function_times[i] = 0.0F;
+		}
+		_scripting_system_initialized = true;
+	}
 }
 
-//--------------------------------------------------------------------------------------------
 void scripting_system_end()
 {
-    if ( _scripting_system_initialized )
-    {
-        PROFILE_FREE( script_function );
-
-#if (DEBUG_SCRIPT_LEVEL > 1 ) && defined(DEBUG_PROFILE) && defined(_DEBUG)
-        {
-            vfs_FILE * ftmp = vfs_openAppendB( "/debug/script_function_timing.txt" );
-
-            if ( NULL != ftmp )
-            {
-                int cnt;
-
-                for ( cnt = 0; cnt < SCRIPT_FUNCTIONS_COUNT; cnt++ )
-                {
-                    if ( _script_function_calls[cnt] > 0 )
-                    {
-                        vfs_printf( ftmp, "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
-                                 cnt, script_function_names[cnt], _script_function_calls[cnt], _script_function_times[cnt] );
-                    }
+    if (_scripting_system_initialized) {
+		vfs_FILE *target = vfs_openAppend("/debug/script_function_timing.txt");
+		if (nullptr != target) {
+            for (size_t i = 0; i < SCRIPT_FUNCTIONS_COUNT; ++i) {
+                if (_script_function_calls[i] > 0) {
+					vfs_printf(target, "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
+						       i, script_function_names[i], _script_function_calls[i], _script_function_times[i]);
                 }
-
-                vfs_close( ftmp );
             }
+            vfs_close(target);
         }
-#endif
-
+		g_scriptFunctionClock = nullptr;
         _scripting_system_initialized = false;
     }
 }
@@ -124,30 +101,28 @@ void scr_run_chr_script( const CHR_REF character )
     /// @author ZZ
     /// @details This function lets one character do AI stuff
 
-    script_state_t   my_state;
-    Object          * pchr;
-    ai_state_t     * pself;
-    script_info_t    * pscript;
-
-    // make sure that this module is initialized
+    // Make sure that this module is initialized.
     scripting_system_begin();
 
-    if ( !_currentModule->getObjectHandler().exists( character ) )  return;
-    pchr  = _currentModule->getObjectHandler().get( character );
-    pself = &( pchr->ai );
-    pscript = &pchr->getProfile()->getAIScript();
+	if (!_currentModule->getObjectHandler().exists(character))  {
+		return;
+	}
+	Object *pchr = _currentModule->getObjectHandler().get(character);
+	ai_state_t *pself = &(pchr->ai);
+	script_info_t *pscript = &pchr->getProfile()->getAIScript();
 
-    // has the time for this character to die come and gone?
-    if ( pself->poof_time >= 0 && pself->poof_time <= ( Sint32 )update_wld ) return;
+    // Has the time for this character to die come and gone?
+	if (pself->poof_time >= 0 && pself->poof_time <= (Sint32)update_wld) {
+		return;
+	}
 
-    // grab the "changed" value from the last time the script was run
-    if ( pself->changed )
-    {
-        SET_BIT( pself->alert, ALERTIF_CHANGED );
-        pself->changed = false;
-    }
+    // Grab the "changed" value from the last time the script was run.
+	if (pself->changed) {
+		SET_BIT(pself->alert, ALERTIF_CHANGED);
+		pself->changed = false;
+	}
 
-    PROFILE_BEGIN_STRUCT( pself );
+	ClockScope scope(*pself->_clock);
 
     // debug a certain script
     // debug_scripts = ( 385 == pself->index && 76 == pchr->profile_ref );
@@ -163,132 +138,114 @@ void scr_run_chr_script( const CHR_REF character )
         script_error_classname = ProfileSystem::get().getProfile(script_error_model)->getClassName().c_str();
     }
 
-    if (debug_scripts && debug_script_file)
-    {
-        vfs_FILE * scr_file = debug_script_file;
+	if (debug_scripts && debug_script_file) {
+		vfs_FILE * scr_file = debug_script_file;
 
-        vfs_printf( scr_file,  "\n\n--------\n%s\n", pscript->name );
-        vfs_printf( scr_file,  "%d - %s\n", REF_TO_INT( script_error_model ), script_error_classname );
+		vfs_printf(scr_file, "\n\n--------\n%s\n", pscript->name);
+		vfs_printf(scr_file, "%d - %s\n", REF_TO_INT(script_error_model), script_error_classname);
 
-        // who are we related to?
-        vfs_printf( scr_file,  "\tindex  == %d\n", REF_TO_INT( pself->index ) );
-        vfs_printf( scr_file,  "\ttarget == %d\n", REF_TO_INT( pself->target ) );
-        vfs_printf( scr_file,  "\towner  == %d\n", REF_TO_INT( pself->owner ) );
-        vfs_printf( scr_file,  "\tchild  == %d\n", REF_TO_INT( pself->child ) );
+		// who are we related to?
+		vfs_printf(scr_file, "\tindex  == %d\n", REF_TO_INT(pself->index));
+		vfs_printf(scr_file, "\ttarget == %d\n", REF_TO_INT(pself->target));
+		vfs_printf(scr_file, "\towner  == %d\n", REF_TO_INT(pself->owner));
+		vfs_printf(scr_file, "\tchild  == %d\n", REF_TO_INT(pself->child));
 
-        // some local storage
-        vfs_printf( scr_file,  "\talert     == %x\n", pself->alert );
-        vfs_printf( scr_file,  "\tstate     == %d\n", pself->state );
-        vfs_printf( scr_file,  "\tcontent   == %d\n", pself->content );
-        vfs_printf( scr_file,  "\ttimer     == %d\n", pself->timer );
-        vfs_printf( scr_file,  "\tupdate_wld == %d\n", update_wld );
+		// some local storage
+		vfs_printf(scr_file, "\talert     == %x\n", pself->alert);
+		vfs_printf(scr_file, "\tstate     == %d\n", pself->state);
+		vfs_printf(scr_file, "\tcontent   == %d\n", pself->content);
+		vfs_printf(scr_file, "\ttimer     == %d\n", pself->timer);
+		vfs_printf(scr_file, "\tupdate_wld == %d\n", update_wld);
 
-        // ai memory from the last event
-        vfs_printf( scr_file,  "\tbumplast       == %d\n", REF_TO_INT( pself->bumplast ) );
-        vfs_printf( scr_file,  "\tattacklast     == %d\n", REF_TO_INT( pself->attacklast ) );
-        vfs_printf( scr_file,  "\thitlast        == %d\n", REF_TO_INT( pself->hitlast ) );
-        vfs_printf( scr_file,  "\tdirectionlast  == %d\n", pself->directionlast );
-        vfs_printf( scr_file,  "\tdamagetypelast == %d\n", pself->damagetypelast );
-        vfs_printf( scr_file,  "\tlastitemused   == %d\n", REF_TO_INT( pself->lastitemused ) );
-        vfs_printf( scr_file,  "\ttarget_old     == %d\n", REF_TO_INT( pself->target_old ) );
+		// ai memory from the last event
+		vfs_printf(scr_file, "\tbumplast       == %d\n", REF_TO_INT(pself->bumplast));
+		vfs_printf(scr_file, "\tattacklast     == %d\n", REF_TO_INT(pself->attacklast));
+		vfs_printf(scr_file, "\thitlast        == %d\n", REF_TO_INT(pself->hitlast));
+		vfs_printf(scr_file, "\tdirectionlast  == %d\n", pself->directionlast);
+		vfs_printf(scr_file, "\tdamagetypelast == %d\n", pself->damagetypelast);
+		vfs_printf(scr_file, "\tlastitemused   == %d\n", REF_TO_INT(pself->lastitemused));
+		vfs_printf(scr_file, "\ttarget_old     == %d\n", REF_TO_INT(pself->target_old));
 
-        // message handling
-        vfs_printf( scr_file,  "\torder == %d\n", pself->order_value );
-        vfs_printf( scr_file,  "\tcounter == %d\n", pself->order_counter );
+		// message handling
+		vfs_printf(scr_file, "\torder == %d\n", pself->order_value);
+		vfs_printf(scr_file, "\tcounter == %d\n", pself->order_counter);
 
-        // waypoints
-        vfs_printf( scr_file,  "\twp_tail == %d\n", pself->wp_lst.tail );
-        vfs_printf( scr_file,  "\twp_head == %d\n\n", pself->wp_lst.head );
-    }
+		// waypoints
+		vfs_printf(scr_file, "\twp_tail == %d\n", pself->wp_lst.tail);
+		vfs_printf(scr_file, "\twp_head == %d\n\n", pself->wp_lst.head);
+	}
 
-    // Clear the button latches
-    if ( !VALID_PLA( pchr->is_which_player ) )
-    {
-        RESET_BIT_FIELD( pchr->latch.b );
-    }
+    // Clear the button latches.
+	if (!VALID_PLA(pchr->is_which_player)) {
+		RESET_BIT_FIELD(pchr->latch.b);
+	}
 
-    // Reset the target if it can't be seen
-    if ( pself->target != pself->index )
-    {
-        const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
-        if (target && !pchr->canSeeObject(target))
-        {
-            pself->target = pself->index;
-        }
-    }
+    // Reset the target if it can't be seen.
+	if (pself->target != pself->index) {
+		const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pself->target];
+		if (target && !pchr->canSeeObject(target)) {
+			pself->target = pself->index;
+		}
+	}
 
-    // reset the script state
-    script_state__init( &my_state );
+    // Reset the script state.
+	script_state_t my_state;
+    script_state__init(&my_state);
 
-    // reset the ai
+    // Reset the ai.
     pself->terminate = false;
     pscript->indent    = 0;
 
-    // Run the AI Script
+    // Run the AI Script.
     scr_set_pos( pscript, 0 );
-    while ( !pself->terminate && pscript->position < pscript->length )
-    {
-        // This is used by the Else function
-        // it only keeps track of functions
-        pscript->indent_last = pscript->indent;
-        pscript->indent = GET_DATA_BITS( pscript->data[pscript->position] );
+	while (!pself->terminate && pscript->position < pscript->length) {
+		// This is used by the Else function
+		// it only keeps track of functions.
+		pscript->indent_last = pscript->indent;
+		pscript->indent = GET_DATA_BITS(pscript->data[pscript->position]);
 
-        // Was it a function
-        if ( HAS_SOME_BITS( pscript->data[pscript->position], FUNCTION_BIT ) )
-        {
-            if ( !scr_run_function_call( &my_state, pself, pscript ) )
-            {
-                break;
-            }
-        }
-        else
-        {
-            if ( !scr_run_operation( &my_state, pself, pscript ) )
-            {
-                break;
-            }
-        }
-    }
+		// Was it a function.
+		if (HAS_SOME_BITS(pscript->data[pscript->position], FUNCTION_BIT)) {
+			if (!scr_run_function_call(&my_state, pself, pscript)) {
+				break;
+			}
+		} else {
+			if (!scr_run_operation(&my_state, pself, pscript)) {
+				break;
+			}
+		}
+	}
 
     // Set latches
-    if ( !VALID_PLA( pchr->is_which_player ) )
-    {
-        float latch2;
+	if (!VALID_PLA(pchr->is_which_player)) {
+		float latch2;
 
-        ai_state_ensure_wp( pself );
+		ai_state_ensure_wp(pself);
 
-        if ( pchr->isMount() && _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) )
-        {
-            // Mount
-            pchr->latch.x = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.x;
-            pchr->latch.y = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.y;
-        }
-        else if ( pself->wp_valid )
-        {
-            // Normal AI
-            pchr->latch.x = ( pself->wp[kX] - pchr->getPosX() ) / ( GRID_ISIZE << 1 );
-            pchr->latch.y = ( pself->wp[kY] - pchr->getPosY() ) / ( GRID_ISIZE << 1 );
-        }
-        else
-        {
-            // AI, but no valid waypoints
-            pchr->latch.x = 0;
-            pchr->latch.y = 0;
-        }
+		if (pchr->isMount() && _currentModule->getObjectHandler().exists(pchr->holdingwhich[SLOT_LEFT])) {
+			// Mount
+			pchr->latch.x = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.x;
+			pchr->latch.y = _currentModule->getObjectHandler().get(pchr->holdingwhich[SLOT_LEFT])->latch.y;
+		} else if (pself->wp_valid) {
+			// Normal AI
+			pchr->latch.x = (pself->wp[kX] - pchr->getPosX()) / (GRID_ISIZE << 1);
+			pchr->latch.y = (pself->wp[kY] - pchr->getPosY()) / (GRID_ISIZE << 1);
+		} else {
+			// AI, but no valid waypoints
+			pchr->latch.x = 0;
+			pchr->latch.y = 0;
+		}
 
-        latch2 = pchr->latch.x * pchr->latch.x + pchr->latch.y * pchr->latch.y;
-        if ( latch2 > 1.0f )
-        {
-            float scale = 1.0f / std::sqrt( latch2 );
-            pchr->latch.x *= scale;
-            pchr->latch.y *= scale;
-        }
-    }
+		latch2 = pchr->latch.x * pchr->latch.x + pchr->latch.y * pchr->latch.y;
+		if (latch2 > 1.0f) {
+			float scale = 1.0f / std::sqrt(latch2);
+			pchr->latch.x *= scale;
+			pchr->latch.y *= scale;
+		}
+	}
 
     // Clear alerts for next time around
     RESET_BIT_FIELD( pself->alert );
-
-    PROFILE_END2_STRUCT( pself );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -424,10 +381,9 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
     }
     else
     {
-        PROFILE_RESET( script_function );
-
-        PROFILE_BEGIN( script_function )
-        {
+		
+		{ 
+			ClockScope scope(*g_scriptFunctionClock);
             // Figure out which function to run
             switch ( valuecode )
             {
@@ -832,10 +788,9 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
             }
 
         }
-        PROFILE_END2( script_function );
 
         _script_function_calls[valuecode] += 1;
-        _script_function_times[valuecode] += clktime_script_function;
+        _script_function_times[valuecode] += g_scriptFunctionClock->lst();
     }
 
     return returncode;
@@ -1685,58 +1640,99 @@ void issue_special_order( Uint32 value, IDSZ idsz )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool ai_state_free( ai_state_t * pself )
-{
-    if ( NULL == pself ) return false;
+ai_state_t::ai_state_t() {
+	_clock = std::make_shared<ClockState_t>("", 8);
+	poof_time = -1;
+	changed = false;
+	terminate = false;
 
-    // free any allocated data
-    PROFILE_FREE_STRUCT( pself );
+	// who are we related to?
+	index = INVALID_CHR_REF;
+	target = INVALID_CHR_REF;
+	owner = INVALID_CHR_REF;
+	child = INVALID_CHR_REF;
 
-    return true;
+	// some local storage
+	alert = 0;
+	state = 0;
+	content = 0;
+	passage = 0;
+	timer = 0;
+	for (size_t i = 0; i < STOR_COUNT; ++i) {
+		x[i] = 0;
+		y[i] = 0;
+	}
+
+	// ai memory from the last event
+	bumplast = INVALID_CHR_REF;
+	bumplast_time = 0;
+
+	attacklast = INVALID_CHR_REF;
+	hitlast = INVALID_CHR_REF;
+	directionlast = 0;
+	damagetypelast = DamageType::DAMAGE_NONE;
+	lastitemused = INVALID_CHR_REF;
+	target_old = INVALID_CHR_REF;
+
+	// message handling
+	order_value = 0;
+	order_counter = 0;
+
+	// waypoints
+	wp_valid = false;
+	wp_lst.head = wp_lst.tail = 0;
+	astar_timer = 0;
+}
+
+ai_state_t::~ai_state_t() {
+	_clock = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------
-ai_state_t * ai_state_reconstruct( ai_state_t * pself )
+ai_state_t *ai_state_reset( ai_state_t * pself )
 {
-    if ( NULL == pself ) return pself;
+	pself->_clock->reinit();
 
-    // deallocate any existing data
-    ai_state_free( pself );
+	pself->poof_time = -1;
+	pself->changed = false;
+	pself->terminate = false;
 
-    // set everything to safe values
-    BLANK_STRUCT_PTR( pself )
+	// who are we related to?
+	pself->index = INVALID_CHR_REF;
+	pself->target = INVALID_CHR_REF;
+	pself->owner = INVALID_CHR_REF;
+	pself->child = INVALID_CHR_REF;
 
-    pself->index      = INVALID_CHR_REF;
-    pself->target     = INVALID_CHR_REF;
-    pself->owner      = INVALID_CHR_REF;
-    pself->child      = INVALID_CHR_REF;
-    pself->target_old = INVALID_CHR_REF;
-    pself->poof_time  = -1;
+	// some local storage
+	pself->alert = 0;         ///< Alerts for AI script
+	pself->state = 0;
+	pself->content = 0;
+	pself->passage = 0;
+	pself->timer = 0;
+	for (size_t i = 0; i < STOR_COUNT; ++i) {
+		pself->x[i] = 0;
+		pself->y[i] = 0;
+	}
 
-    pself->bumplast   = INVALID_CHR_REF;
-    pself->attacklast = INVALID_CHR_REF;
-    pself->hitlast    = INVALID_CHR_REF;
+	// ai memory from the last event
+	pself->bumplast = INVALID_CHR_REF;
+	pself->bumplast_time = 0;
 
-    return pself;
-}
+	pself->attacklast = INVALID_CHR_REF;
+	pself->hitlast = INVALID_CHR_REF;
+	pself->directionlast = 0;
+	pself->damagetypelast = DamageType::DAMAGE_NONE;
+	pself->lastitemused = INVALID_CHR_REF;
+	pself->target_old = INVALID_CHR_REF;
 
-//--------------------------------------------------------------------------------------------
-ai_state_t * ai_state_ctor( ai_state_t * pself )
-{
-    if ( NULL == ai_state_reconstruct( pself ) ) return NULL;
+	// message handling
+	pself->order_value = 0;
+	pself->order_counter = 0;
 
-    PROFILE_INIT_STRUCT( ai, pself );
-
-    return pself;
-}
-
-//--------------------------------------------------------------------------------------------
-ai_state_t * ai_state_dtor( ai_state_t * pself )
-{
-    if ( NULL == pself ) return pself;
-
-    // initialize the object
-    ai_state_reconstruct( pself );
+	// waypoints
+	pself->wp_valid = false;
+	pself->wp_lst.head = pself->wp_lst.tail = 0;
+	pself->astar_timer = 0;
 
     return pself;
 }
@@ -1809,7 +1805,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
 {
     const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[index];
-    pself = ai_state_ctor( pself );
+    pself = ai_state_reset( pself );
 
     if ( NULL == pself || !pchr ) return;
 

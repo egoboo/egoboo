@@ -386,6 +386,8 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\game\Graphics\EntityList.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPass.cpp" />
+    <ClCompile Include="src\game\Graphics\RenderPasses.cpp" />
     <ClCompile Include="src\game\Graphics\TileList.cpp" />
     <ClCompile Include="src\game\CharacterMatrix.c" />
     <ClCompile Include="src\game\Inventory.cpp" />
@@ -455,6 +457,8 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\Graphics\EntityList.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPass.hpp" />
+    <ClInclude Include="src\game\Graphics\RenderPasses.hpp" />
     <ClInclude Include="src\game\Graphics\TileList.hpp" />
     <ClInclude Include="src\game\Graphics\Vertex.hpp" />
     <ClInclude Include="src\game\CharacterMatrix.h" />

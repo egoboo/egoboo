@@ -83,50 +83,29 @@ static gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Cam
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
 
 //--------------------------------------------------------------------------------------------
+
+static gfx_rv light_fans(Ego::Graphics::TileList& tl);
+
+
 //--------------------------------------------------------------------------------------------
 
-PROFILE_DECLARE(render_scene_init);
-PROFILE_DECLARE(render_scene_mesh);
-PROFILE_DECLARE(render_scene_solid);
-PROFILE_DECLARE(render_scene_water);
-PROFILE_DECLARE(render_scene_trans);
+/// @todo All this crap can be implemented using a single clock with a window size of 1 and a histogram.
 
-PROFILE_DECLARE(gfx_make_renderlist);
-PROFILE_DECLARE(gfx_make_dolist);
-PROFILE_DECLARE(do_grid_lighting);
-PROFILE_DECLARE(light_fans);
-PROFILE_DECLARE(gfx_update_all_chr_instance);
-PROFILE_DECLARE(update_all_prt_instance);
+/// Profiling timer for sorting the dolist(s) for unreflected rendering.
+ClockState_t sortDoListUnreflected_timer("render.sortDoListUnreflected", 512);
+/// Profiling timer for sorting the dolist(s) for reflected rendering.
+ClockState_t sortDoListReflected_timer("render.sortDoListReflected", 512);
 
-PROFILE_DECLARE(render_scene_mesh_dolist_sort);
-PROFILE_DECLARE(render_scene_mesh_ndr);
-PROFILE_DECLARE(render_scene_mesh_drf_back);
-PROFILE_DECLARE(render_scene_mesh_ref);
-PROFILE_DECLARE(render_scene_mesh_ref_chr);
-PROFILE_DECLARE(render_scene_mesh_drf_solid);
-PROFILE_DECLARE(render_scene_mesh_render_shadows);
+ClockState_t render_scene_init_timer("render.scene.init",512);
+ClockState_t render_scene_mesh_timer("render.scene.mesh",512);
 
-float time_draw_scene = 0.0f;
-float time_render_scene_init = 0.0f;
-float time_render_scene_mesh = 0.0f;
-float time_render_scene_solid = 0.0f;
-float time_render_scene_water = 0.0f;
-float time_render_scene_trans = 0.0f;
+ClockState_t gfx_make_tileList_timer("gfx.make.tileList",512);
+ClockState_t gfx_make_entityList_timer("gfx.make.entityList", 512);
+ClockState_t do_grid_lighting_timer("do.grid.lighting", 512);
+ClockState_t light_fans_timer("light.fans", 512);
+ClockState_t gfx_update_all_chr_instance_timer("gfx.update.all.chr.instance", 512);
+ClockState_t update_all_prt_instance_timer("update.all.prt.instance", 512);
 
-float time_render_scene_init_renderlist_make = 0.0f;
-float time_render_scene_init_dolist_make = 0.0f;
-float time_render_scene_init_do_grid_dynalight = 0.0f;
-float time_render_scene_init_light_fans = 0.0f;
-float time_render_scene_init_update_all_chr_instance = 0.0f;
-float time_render_scene_init_update_all_prt_instance = 0.0f;
-
-float time_render_scene_mesh_dolist_sort = 0.0f;
-float time_render_scene_mesh_ndr = 0.0f;
-float time_render_scene_mesh_drf_back = 0.0f;
-float time_render_scene_mesh_ref = 0.0f;
-float time_render_scene_mesh_ref_chr = 0.0f;
-float time_render_scene_mesh_drf_solid = 0.0f;
-float time_render_scene_mesh_render_shadows = 0.0f;
 
 Uint32          game_frame_all = 0;             ///< The total number of frames drawn so far
 Uint32          menu_frame_all = 0;             ///< The total number of frames drawn so far
@@ -184,36 +163,48 @@ static dynalist_t _dynalist = DYNALIST_INIT;
 renderlist_mgr_t *renderlist_mgr_t::_singleton = nullptr;
 dolist_mgr_t *dolist_mgr_t::_singleton = nullptr;
 
+/// @todo Rename to _tileList_colst.
 static Ego::DynamicArray<BSP_leaf_t *> _renderlist_colst = DYNAMIC_ARY_INIT_VALS;
+/// @todo Rename to _entityList colst.
 static Ego::DynamicArray<BSP_leaf_t *> _dolist_colst = DYNAMIC_ARY_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+
+
+void reinitClocks() {
+	sortDoListUnreflected_timer.reinit();
+	sortDoListReflected_timer.reinit();
+
+	render_scene_init_timer.reinit();
+	render_scene_mesh_timer.reinit();
+
+	gfx_make_tileList_timer.reinit();
+	gfx_make_entityList_timer.reinit();
+	do_grid_lighting_timer.reinit();
+	light_fans_timer.reinit();
+	gfx_update_all_chr_instance_timer.reinit();
+	update_all_prt_instance_timer.reinit();
+
+	Ego::Graphics::RenderPasses::g_entityReflections._clock.reinit();
+	Ego::Graphics::RenderPasses::g_entityShadows._clock.reinit();
+	Ego::Graphics::RenderPasses::g_solidEntities._clock.reinit();
+	Ego::Graphics::RenderPasses::g_transparentEntities._clock.reinit();
+	Ego::Graphics::RenderPasses::g_water._clock.reinit();
+	Ego::Graphics::RenderPasses::g_reflective0._clock.reinit();
+	Ego::Graphics::RenderPasses::g_reflective1._clock.reinit();
+	Ego::Graphics::RenderPasses::g_nonReflective._clock.reinit();
+	Ego::Graphics::RenderPasses::g_foreground._clock.reinit();
+	Ego::Graphics::RenderPasses::g_background._clock.reinit();
+}
 
 static void _flip_pages();
 
-static gfx_rv light_fans(Ego::Graphics::TileList& tl);
+
 
 static gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam);
-static gfx_rv render_scene_mesh_ndr(const Ego::Graphics::TileList& tl);
-static gfx_rv render_scene_mesh_drf_back(const Ego::Graphics::TileList& tl);
-static gfx_rv render_scene_mesh_ref(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
-static gfx_rv render_scene_mesh_ref_chr(const Ego::Graphics::TileList& tl);
-static gfx_rv render_scene_mesh_drf_solid(const Ego::Graphics::TileList& tl);
-static gfx_rv render_scene_mesh_render_shadows(const Ego::Graphics::EntityList& el);
 static gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
-static gfx_rv render_scene_solid(Camera& cam, Ego::Graphics::EntityList& el);
-static gfx_rv render_scene_trans(Camera& cam, Ego::Graphics::EntityList& el);
-static gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& dl);
-static gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, std::shared_ptr<Ego::Graphics::EntityList> pel);
-static gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const Ego::Graphics::renderlist_lst_t * rlst);
-static void   render_shadow(const CHR_REF character);
-static void   render_bad_shadow(const CHR_REF character);
-static gfx_rv render_water(Ego::Graphics::TileList& tl);
-static void   render_shadow_sprite(float intensity, GLvertex v[]);
-static gfx_rv render_world_background(Camera& cam, const TX_REF texture);
-static gfx_rv render_world_overlay(Camera& cam, const TX_REF texture);
-
+static gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el);
+static gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> tl, std::shared_ptr<Ego::Graphics::EntityList> pel);
 
 /**
  * @brief
@@ -373,28 +364,7 @@ void GFX::initialize()
     // Initialize the texture atlas manager.
     TextureAtlasManager::initialize();
 
-    // initialize the profiling variables
-    PROFILE_INIT(render_scene_init);
-    PROFILE_INIT(render_scene_mesh);
-    PROFILE_INIT(render_scene_solid);
-    PROFILE_INIT(render_scene_water);
-    PROFILE_INIT(render_scene_trans);
-
-    PROFILE_INIT(gfx_make_renderlist);
-    PROFILE_INIT(gfx_make_dolist);
-    PROFILE_INIT(do_grid_lighting);
-    PROFILE_INIT(light_fans);
-    PROFILE_INIT(gfx_update_all_chr_instance);
-    PROFILE_INIT(update_all_prt_instance);
-
-    PROFILE_INIT(render_scene_mesh_dolist_sort);
-    PROFILE_INIT(render_scene_mesh_ndr);
-    PROFILE_INIT(render_scene_mesh_drf_back);
-    PROFILE_INIT(render_scene_mesh_ref);
-    PROFILE_INIT(render_scene_mesh_ref_chr);
-    PROFILE_INIT(render_scene_mesh_drf_solid);
-    PROFILE_INIT(render_scene_mesh_render_shadows);
-
+    // initialize the profiling variables.
     gfx_clear_loops = 0;
 
     // allocate the specailized "collision lists"
@@ -413,28 +383,6 @@ void GFX::initialize()
 
 void GFX::uninitialize()
 {
-    // Initialize the profiling variables.
-    PROFILE_FREE(render_scene_init);
-    PROFILE_FREE(render_scene_mesh);
-    PROFILE_FREE(render_scene_solid);
-    PROFILE_FREE(render_scene_water);
-    PROFILE_FREE(render_scene_trans);
-
-    PROFILE_FREE(gfx_make_renderlist);
-    PROFILE_FREE(gfx_make_dolist);
-    PROFILE_FREE(do_grid_lighting);
-    PROFILE_FREE(light_fans);
-    PROFILE_FREE(gfx_update_all_chr_instance);
-    PROFILE_FREE(update_all_prt_instance);
-
-    PROFILE_FREE(render_scene_mesh_dolist_sort);
-    PROFILE_FREE(render_scene_mesh_ndr);
-    PROFILE_FREE(render_scene_mesh_drf_back);
-    PROFILE_FREE(render_scene_mesh_ref);
-    PROFILE_FREE(render_scene_mesh_ref_chr);
-    PROFILE_FREE(render_scene_mesh_drf_solid);
-    PROFILE_FREE(render_scene_mesh_render_shadows);
-
     // End the billboard system.
     BillboardSystem::uninitialize();
 
@@ -447,7 +395,9 @@ void GFX::uninitialize()
     // Uninitialize the dolist manager.
     dolist_mgr_t::uninitialize();
 
+	// Uninitialize the profiling variables.
     gfx_clear_loops = 0;
+	reinitClocks(); // Important: clear out the sliding windows of the clocks.
 
     // deallocate the specailized "collistion lists"
     _dolist_colst.dtor();
@@ -643,19 +593,9 @@ void gfx_system_render_world(std::shared_ptr<Camera> camera, std::shared_ptr<Ego
 
     gfx_begin_3d(*camera);
     {
-        if (gfx.draw_background)
-        {
-            // Render the background TX_WATER_LOW for waterlow.bmp.
-            render_world_background(*camera, (TX_REF)TX_WATER_LOW);
-        }
-
+		Ego::Graphics::RenderPasses::g_background.run(*camera, *tileList, *entityList);
         render_scene(*camera, tileList, entityList);
-
-        if (gfx.draw_overlay)
-        {
-            // Render overlay (aka foreground) TX_WATER_TOP is watertop.bmp.
-            render_world_overlay(*camera, (TX_REF)TX_WATER_TOP);
-        }
+		Ego::Graphics::RenderPasses::g_foreground.run(*camera, *tileList, *entityList);
 
         if (camera->getMotionBlur() > 0)
         {
@@ -763,29 +703,8 @@ void gfx_system_init_all_graphics()
     gfx_init_blip_data();
     gfx_init_map_data();
     font_bmp_init();
-#if 0
-    BillboardSystem::reset();
-#endif
-    PROFILE_RESET(render_scene_init);
-    PROFILE_RESET(render_scene_mesh);
-    PROFILE_RESET(render_scene_solid);
-    PROFILE_RESET(render_scene_water);
-    PROFILE_RESET(render_scene_trans);
 
-    PROFILE_RESET(gfx_make_renderlist);
-    PROFILE_RESET(gfx_make_dolist);
-    PROFILE_RESET(do_grid_lighting);
-    PROFILE_RESET(light_fans);
-    PROFILE_RESET(gfx_update_all_chr_instance);
-    PROFILE_RESET(update_all_prt_instance);
-
-    PROFILE_RESET(render_scene_mesh_dolist_sort);
-    PROFILE_RESET(render_scene_mesh_ndr);
-    PROFILE_RESET(render_scene_mesh_drf_back);
-    PROFILE_RESET(render_scene_mesh_ref);
-    PROFILE_RESET(render_scene_mesh_ref_chr);
-    PROFILE_RESET(render_scene_mesh_drf_solid);
-    PROFILE_RESET(render_scene_mesh_render_shadows);
+	reinitClocks();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -850,26 +769,7 @@ void gfx_system_load_basic_textures()
 
     TextureAtlasManager::decimate_all_mesh_textures();
 
-    PROFILE_RESET(render_scene_init);
-    PROFILE_RESET(render_scene_mesh);
-    PROFILE_RESET(render_scene_solid);
-    PROFILE_RESET(render_scene_water);
-    PROFILE_RESET(render_scene_trans);
-
-    PROFILE_RESET(gfx_make_renderlist);
-    PROFILE_RESET(gfx_make_dolist);
-    PROFILE_RESET(do_grid_lighting);
-    PROFILE_RESET(light_fans);
-    PROFILE_RESET(gfx_update_all_chr_instance);
-    PROFILE_RESET(update_all_prt_instance);
-
-    PROFILE_RESET(render_scene_mesh_dolist_sort);
-    PROFILE_RESET(render_scene_mesh_ndr);
-    PROFILE_RESET(render_scene_mesh_drf_back);
-    PROFILE_RESET(render_scene_mesh_ref);
-    PROFILE_RESET(render_scene_mesh_ref_chr);
-    PROFILE_RESET(render_scene_mesh_drf_solid);
-    PROFILE_RESET(render_scene_mesh_render_shadows);
+	reinitClocks();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1603,51 +1503,10 @@ float draw_fps(float y)
     {
         y = draw_string_raw(0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", _gameEngine->getFPS(), _gameEngine->getUPS(), _gameEngine->getFrameSkip());
 
-        //Extra debug info
+        // Extra debug info
         if (egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
-
-#    if defined(DEBUG_BSP)
-            y = draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%lu", getChrBSP()->count, _characterList.size(), getPtrBSP()->count, maxparticles - PrtList_count_free() );
-            y = draw_string_raw( 0, y, "BSP infinite %lu", getChrBSP()->tree.infinite.count + getPtrBSP()->tree.infinite.count );
-            y = draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
-            //y = draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
-#    endif
-
-#if defined(DEBUG_RENDERLIST)
-            y = draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all.count, PMesh->info.tiles_count );
-#endif
-
-#if defined(_DEBUG)
-
-#    if defined(DEBUG_PROFILE_DISPLAY) && defined(_DEBUG)
-
-#        if defined(DEBUG_PROFILE_RENDER) && defined(_DEBUG)
-            y = draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
-            y = draw_string_raw( 0, y, "gfx:total %2.4f, render:total %2.4f", est_render_time, time_draw_scene );
-            y = draw_string_raw( 0, y, "render:init %2.4f,  render:mesh %2.4f", time_render_scene_init, time_render_scene_mesh );
-            y = draw_string_raw( 0, y, "render:solid %2.4f, render:water %2.4f", time_render_scene_solid, time_render_scene_water );
-            y = draw_string_raw( 0, y, "render:trans %2.4f", time_render_scene_trans );
-#        endif
-
-#        if defined(DEBUG_PROFILE_MESH) && defined(_DEBUG)
-            y = draw_string_raw( 0, y, "mesh:total %2.4f", time_render_scene_mesh );
-            y = draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
-            y = draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
-            y = draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
-            y = draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
-#        endif
-
-#        if defined(DEBUG_PROFILE_INIT) && defined(_DEBUG)
-            y = draw_string_raw( 0, y, "init:total %2.4f", time_render_scene_init );
-            y = draw_string_raw( 0, y, "init:gfx_make_renderlist %2.4f, init:gfx_make_dolist %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
-            y = draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
-            y = draw_string_raw( 0, y, "init:gfx_update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
-            y = draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
-#        endif
-
-#    endif
-#endif
+			/** @todo This should be made available through the GUI. Too much information just to print out things on screen. */
         }
     }
 
@@ -2053,271 +1912,6 @@ void draw_mouse_cursor()
 //--------------------------------------------------------------------------------------------
 // 3D RENDERER FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void render_shadow_sprite(float intensity, GLvertex v[])
-{
-    int i;
-
-    if (intensity*255.0f < 1.0f) return;
-
-    GL_DEBUG(glColor4f)(intensity, intensity, intensity, 1.0f);
-
-    GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-    {
-        for (i = 0; i < 4; i++)
-        {
-            GL_DEBUG(glTexCoord2fv)(v[i].tex);
-            GL_DEBUG(glVertex3fv)(v[i].pos);
-        }
-    }
-    GL_DEBUG_END();
-}
-
-//--------------------------------------------------------------------------------------------
-void render_shadow(const CHR_REF character)
-{
-    /// @author ZZ
-    /// @details This function draws a NIFTY shadow
-
-    GLvertex v[4];
-
-    TX_REF  itex;
-    int     itex_style;
-    float   x, y;
-    float   level;
-    float   height, size_umbra, size_penumbra;
-    float   alpha, alpha_umbra, alpha_penumbra;
-    Object * pchr;
-    ego_tile_info_t * ptile;
-
-    if (IS_ATTACHED_CHR(character)) return;
-    pchr = _currentModule->getObjectHandler().get(character);
-
-    // if the character is hidden, not drawn at all, so no shadow
-    if (pchr->is_hidden || 0 == pchr->shadow_size) return;
-
-    // no shadow if off the mesh
-    ptile = ego_mesh_t::get_ptile(PMesh, pchr->getTile());
-    if (NULL == ptile) return;
-
-    // no shadow if invalid tile image
-    if (TILE_IS_FANOFF(ptile)) return;
-
-    // no shadow if completely transparent
-    alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
-
-    /// @test ZF@> The previous test didn't work, but this one does
-    //if ( alpha * 255 < 1 ) return;
-    if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
-
-    // much reduced shadow if on a reflective tile
-    if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_REFLECTIVE))
-    {
-        alpha *= 0.1f;
-    }
-    if (alpha < INV_FF) return;
-
-    // Original points
-    level = pchr->enviro.floor_level;
-    level += SHADOWRAISE;
-    height = pchr->inst.matrix(2, 3) - level;
-    if (height < 0) height = 0;
-
-    size_umbra = 1.5f * (pchr->bump.size - height / 30.0f);
-    size_penumbra = 1.5f * (pchr->bump.size + height / 30.0f);
-
-    alpha *= 0.3f;
-    alpha_umbra = alpha_penumbra = alpha;
-    if (height > 0)
-    {
-        float factor_penumbra = (1.5f) * ((pchr->bump.size) / size_penumbra);
-        float factor_umbra = (1.5f) * ((pchr->bump.size) / size_umbra);
-
-        factor_umbra = std::max(1.0f, factor_umbra);
-        factor_penumbra = std::max(1.0f, factor_penumbra);
-
-        alpha_umbra *= 1.0f / factor_umbra / factor_umbra / 1.5f;
-        alpha_penumbra *= 1.0f / factor_penumbra / factor_penumbra / 1.5f;
-
-        alpha_umbra = CLIP(alpha_umbra, 0.0f, 1.0f);
-        alpha_penumbra = CLIP(alpha_penumbra, 0.0f, 1.0f);
-    }
-
-    x = pchr->inst.matrix(0, 3);
-    y = pchr->inst.matrix(1, 3);
-
-    // Choose texture.
-    itex = TX_PARTICLE_LIGHT;
-    oglx_texture_t::bind(TextureManager::get().get_valid_ptr(itex));
-
-    itex_style = prt_get_texture_style(itex);
-    if (itex_style < 0) itex_style = 0;
-
-    // GOOD SHADOW
-    v[0].tex[SS] = CALCULATE_PRT_U0(itex_style, 238);
-    v[0].tex[TT] = CALCULATE_PRT_V0(itex_style, 238);
-
-    v[1].tex[SS] = CALCULATE_PRT_U1(itex_style, 255);
-    v[1].tex[TT] = CALCULATE_PRT_V0(itex_style, 238);
-
-    v[2].tex[SS] = CALCULATE_PRT_U1(itex_style, 255);
-    v[2].tex[TT] = CALCULATE_PRT_V1(itex_style, 255);
-
-    v[3].tex[SS] = CALCULATE_PRT_U0(itex_style, 238);
-    v[3].tex[TT] = CALCULATE_PRT_V1(itex_style, 255);
-
-    if (size_penumbra > 0)
-    {
-        v[0].pos[XX] = x + size_penumbra;
-        v[0].pos[YY] = y - size_penumbra;
-        v[0].pos[ZZ] = level;
-
-        v[1].pos[XX] = x + size_penumbra;
-        v[1].pos[YY] = y + size_penumbra;
-        v[1].pos[ZZ] = level;
-
-        v[2].pos[XX] = x - size_penumbra;
-        v[2].pos[YY] = y + size_penumbra;
-        v[2].pos[ZZ] = level;
-
-        v[3].pos[XX] = x - size_penumbra;
-        v[3].pos[YY] = y - size_penumbra;
-        v[3].pos[ZZ] = level;
-
-        render_shadow_sprite(alpha_penumbra, v);
-    };
-
-    if (size_umbra > 0)
-    {
-        v[0].pos[XX] = x + size_umbra;
-        v[0].pos[YY] = y - size_umbra;
-        v[0].pos[ZZ] = level + 0.1f;
-
-        v[1].pos[XX] = x + size_umbra;
-        v[1].pos[YY] = y + size_umbra;
-        v[1].pos[ZZ] = level + 0.1f;
-
-        v[2].pos[XX] = x - size_umbra;
-        v[2].pos[YY] = y + size_umbra;
-        v[2].pos[ZZ] = level + 0.1f;
-
-        v[3].pos[XX] = x - size_umbra;
-        v[3].pos[YY] = y - size_umbra;
-        v[3].pos[ZZ] = level + 0.1f;
-
-        render_shadow_sprite(alpha_umbra, v);
-    };
-}
-
-//--------------------------------------------------------------------------------------------
-/// @brief
-/// This function draws a sprite shadow.
-/// @remark
-/// Uses a quad + a pre-fabbed texture.
-void render_bad_shadow(const CHR_REF character)
-{
-    /// @author ZZ
-    /// @details This function draws a sprite shadow
-
-    GLvertex v[4];
-
-    TX_REF  itex;
-    int     itex_style;
-    float   size, x, y;
-    float   level, height, height_factor, alpha;
-
-    if (IS_ATTACHED_CHR(character))
-    {
-        return;
-    }
-    Object *pchr = _currentModule->getObjectHandler().get(character);
-
-    // If the object is hidden it is not drawn at all, so it has no shadow.
-    // If the object's shadow size is qa 0, then it has no shadow.
-    if (pchr->is_hidden || 0 == pchr->shadow_size)
-    {
-        return;
-    }
-    // No shadow if off the mesh.
-    ego_tile_info_t *ptile = ego_mesh_t::get_ptile(PMesh, pchr->getTile());
-    if (!ptile)
-    {
-        return;
-    }
-    // No shadow if invalid tile.
-    if (TILE_IS_FANOFF(ptile))
-    {
-        return;
-    }
-
-    // No shadow if completely transparent or completely glowing.
-    alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
-
-    /// @test ZF@> previous test didn't work, but this one does
-    //if ( alpha * 255 < 1 ) return;
-    if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
-
-    // much reduced shadow if on a reflective tile
-    if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_REFLECTIVE))
-    {
-        alpha *= 0.1f;
-    }
-    if (alpha < INV_FF) return;
-
-    // Original points
-    level = pchr->enviro.floor_level;
-    level += SHADOWRAISE;
-    height = pchr->inst.matrix(2, 3) - level;
-    height_factor = 1.0f - height / (pchr->shadow_size * 5.0f);
-    if (height_factor <= 0.0f) return;
-
-    // how much transparency from height
-    alpha *= height_factor * 0.5f + 0.25f;
-    if (alpha < INV_FF) return;
-
-    x = pchr->inst.matrix(0, 3); ///< @todo MH: This should be the x/y position of the model.
-    y = pchr->inst.matrix(1, 3); ///<           Use a more self-descriptive method to describe this.
-
-    size = pchr->shadow_size * height_factor;
-
-    v[0].pos[XX] = (float)x + size;
-    v[0].pos[YY] = (float)y - size;
-    v[0].pos[ZZ] = (float)level;
-
-    v[1].pos[XX] = (float)x + size;
-    v[1].pos[YY] = (float)y + size;
-    v[1].pos[ZZ] = (float)level;
-
-    v[2].pos[XX] = (float)x - size;
-    v[2].pos[YY] = (float)y + size;
-    v[2].pos[ZZ] = (float)level;
-
-    v[3].pos[XX] = (float)x - size;
-    v[3].pos[YY] = (float)y - size;
-    v[3].pos[ZZ] = (float)level;
-
-    // Choose texture and matrix
-    itex = TX_PARTICLE_LIGHT;
-    oglx_texture_t::bind(TextureManager::get().get_valid_ptr(itex));
-
-    itex_style = prt_get_texture_style(itex);
-    if (itex_style < 0) itex_style = 0;
-
-    v[0].tex[SS] = CALCULATE_PRT_U0(itex_style, 236);
-    v[0].tex[TT] = CALCULATE_PRT_V0(itex_style, 236);
-
-    v[1].tex[SS] = CALCULATE_PRT_U1(itex_style, 253);
-    v[1].tex[TT] = CALCULATE_PRT_V0(itex_style, 236);
-
-    v[2].tex[SS] = CALCULATE_PRT_U1(itex_style, 253);
-    v[2].tex[TT] = CALCULATE_PRT_V1(itex_style, 253);
-
-    v[3].tex[SS] = CALCULATE_PRT_U0(itex_style, 236);
-    v[3].tex[TT] = CALCULATE_PRT_V1(itex_style, 253);
-
-    render_shadow_sprite(alpha, v);
-}
-
-//--------------------------------------------------------------------------------------------
 struct by_element_t
 {
     float  dist;
@@ -2458,15 +2052,14 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     // assume the best;
     gfx_rv retval = gfx_success;
 
-    PROFILE_BEGIN(gfx_make_renderlist);
     {
+		ClockScope scope(gfx_make_tileList_timer);
         // Which tiles can be displayed
         if (gfx_error == gfx_make_tileList(tl, cam))
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END(gfx_make_renderlist);
 
     ego_mesh_t *pmesh = tl.getMesh();
     if (!pmesh)
@@ -2475,59 +2068,53 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
         return gfx_error;
     }
 
-    PROFILE_BEGIN(gfx_make_dolist);
     {
+		ClockScope scope(gfx_make_entityList_timer);
         // determine which objects are visible
         if (gfx_error == gfx_make_entityList(el, cam))
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END(gfx_make_dolist);
 
-    // put off sorting the dolist until later
+    // put off sorting the entity list until later
     // because it has to be sorted differently for reflected and non-reflected objects
-    // dolist_sort( pcam, false );
 
-    PROFILE_BEGIN(do_grid_lighting);
     {
+		ClockScope scope(do_grid_lighting_timer);
         // figure out the terrain lighting
         if (gfx_error == do_grid_lighting(tl, dyl, cam))
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END(do_grid_lighting);
 
-    PROFILE_BEGIN(light_fans);
     {
+		ClockScope scope(light_fans_timer);
         // apply the lighting to the characters and particles
         if (gfx_error == light_fans(tl))
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END(light_fans);
 
-    PROFILE_BEGIN(gfx_update_all_chr_instance);
     {
+		ClockScope scope(gfx_update_all_chr_instance_timer);
         // make sure the characters are ready to draw
         if (gfx_error == gfx_update_all_chr_instance())
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END(gfx_update_all_chr_instance);
 
-    PROFILE_BEGIN(update_all_prt_instance);
     {
+		ClockScope scope(update_all_prt_instance_timer);
         // make sure the particles are ready to draw
         if (gfx_error == update_all_prt_instance(cam))
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END(update_all_prt_instance);
 
     // do the flashing for kursed objects
     if (gfx_error == gfx_update_flashing(el))
@@ -2535,348 +2122,14 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
         retval = gfx_error;
     }
 
-    time_render_scene_init_renderlist_make = PROFILE_QUERY(gfx_make_renderlist) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_init_dolist_make = PROFILE_QUERY(gfx_make_dolist) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_init_do_grid_dynalight = PROFILE_QUERY(do_grid_lighting) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_init_light_fans = PROFILE_QUERY(light_fans) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_init_update_all_chr_instance = PROFILE_QUERY(gfx_update_all_chr_instance) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_init_update_all_prt_instance = PROFILE_QUERY(update_all_prt_instance) * GameEngine::GAME_TARGET_FPS;
-
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ndr(const Ego::Graphics::TileList& tl)
-{
-    /// @author BB
-    /// @details draw all tiles that do not reflect characters
-
-    gfx_rv retval;
-
-    // assume the best
-    retval = gfx_success;
-
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    {
-        auto& renderer = Ego::Renderer::get();
-        // store the surface depth
-        renderer.setDepthWriteEnabled(true);
-
-        // do not draw hidden surfaces
-        renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
-
-        // no transparency
-        renderer.setBlendingEnabled(false);
-
-        // draw draw front and back faces of polygons
-        oglx_end_culling();      // GL_ENABLE_BIT
-
-        // do not display the completely transparent portion
-        // use alpha test to allow the thatched roof tiles to look like thatch
-        renderer.setAlphaTestEnabled(true);
-        // speed-up drawing of surfaces with alpha == 0.0f sections
-        GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
-
-        // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(tl._mesh, &(tl._nonReflective)))
-        {
-            retval = gfx_error;
-        }
-    }
-    ATTRIB_POP(__FUNCTION__);
-    Ego::OpenGL::Utilities::isError();
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_back(const Ego::Graphics::TileList& tl)
-{
-    /// @author BB
-    /// @details draw the reflective tiles, but turn off the depth buffer
-    ///               this blanks out any background that might've been drawn
-
-    gfx_rv retval;
-
-    // assume the best
-    retval = gfx_success;
-
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    {
-		auto& renderer = Ego::Renderer::get();
-        // DO NOT store the surface depth
-        renderer.setDepthWriteEnabled(false);
-
-        // do not draw hidden surfaces
-        renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
-
-        // black out any backgound, but allow the background to show through any holes in the floor
-        renderer.setBlendingEnabled(true);
-        // use the alpha channel to modulate the transparency
-        GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);    // GL_COLOR_BUFFER_BIT
-        Ego::OpenGL::Utilities::isError();
-        // do not display the completely transparent portion
-        // use alpha test to allow the thatched roof tiles to look like thatch
-        renderer.setAlphaTestEnabled(true);
-        // speed-up drawing of surfaces with alpha == 0.0f sections
-        GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
-        Ego::OpenGL::Utilities::isError();
-        // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(tl._mesh, &(tl._reflective)))
-        {
-            retval = gfx_error;
-        }
-    }
-    ATTRIB_POP(__FUNCTION__);
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el)
-{
-    /// @author BB
-    /// @details Render all reflected objects
-
-    gfx_rv retval;
-
-    ego_mesh_t * pmesh;
-
-    if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
-        return gfx_error;
-    }
-
-    pmesh = tl.getMesh();
-    if (NULL == pmesh)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "tile list is not attached to a mesh");
-        return gfx_error;
-    }
-
-    // assume the best
-    retval = gfx_success;
-    Ego::OpenGL::Utilities::isError();
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT);
-    {
-        auto& renderer = Ego::Renderer::get();
-        // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        // turn off the depth mask by default. Can cause glitches if used improperly.
-        renderer.setDepthWriteEnabled(false);
-
-        // do not draw hidden surfaces
-        renderer.setDepthTestEnabled(true);
-        // surfaces must be closer to the camera to be drawn
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
-
-        for (size_t j = el.getSize(); j > 0; --j)
-        {
-            size_t i = j - 1;
-            if (INVALID_PRT_REF == el.get(i).iprt && INVALID_CHR_REF != el.get(i).ichr)
-            {
-                CHR_REF ichr;
-
-                // cull backward facing polygons
-                // use couter-clockwise orientation to determine backfaces
-                oglx_begin_culling(GL_BACK, MAP_REF_CULL);            // GL_ENABLE_BIT | GL_POLYGON_BIT
-
-                // allow transparent objects
-                Ego::Renderer::get().setBlendingEnabled(true);
-                // use the alpha channel to modulate the transparency
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
-                Ego::OpenGL::Utilities::isError();
-                ichr = el.get(i).ichr;
-                TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
-
-                if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_REFLECTIVE)))
-                {
-                    Ego::Renderer::get().setColour(Ego::Colour4f::white());
-
-                    if (gfx_error == render_one_mad_ref(cam, ichr))
-                    {
-                        retval = gfx_error;
-                    }
-                }
-            }
-            else if (INVALID_CHR_REF == el.get(i).ichr && INVALID_PRT_REF != el.get(i).iprt)
-            {
-                // draw draw front and back faces of polygons
-                oglx_end_culling();                     // GL_ENABLE_BIT
-
-                // render_one_prt_ref() actually sets its own blend function, but just to be safe
-                // allow transparent objects
-                Ego::Renderer::get().setBlendingEnabled(true);
-                // set the default particle blending
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);     // GL_COLOR_BUFFER_BIT
-                Ego::OpenGL::Utilities::isError();
-                PRT_REF iprt = el.get(i).iprt;
-                TileIndex itile = ParticleHandler::get().get_ptr(iprt)->getTile();
-
-                if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_REFLECTIVE)))
-                {
-                    Ego::Renderer::get().setColour(Ego::Colour4f::white());
-
-                    if (gfx_error == render_one_prt_ref(iprt))
-                    {
-                        retval = gfx_error;
-                    }
-                }
-            }
-        }
-    }
-    ATTRIB_POP(__FUNCTION__);
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref_chr(const Ego::Graphics::TileList& tl)
-{
-    /// @brief   BB@> Render the shadow floors ( let everything show through )
-    /// @author BB
-    /// @details turn on the depth mask, so that no objects under the floor will show through
-    ///               this assumes that the floor is not partially transparent...
-
-    gfx_rv retval;
-
-    // assume the best
-    retval = gfx_success;
-
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    {
-        auto& renderer = Ego::Renderer::get();
-        // set the depth of these tiles
-        renderer.setDepthWriteEnabled(true);
-
-        renderer.setBlendingEnabled(true);
-        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE);      // GL_COLOR_BUFFER_BIT
-
-        // draw draw front and back faces of polygons
-        oglx_end_culling();                // GL_ENABLE_BIT
-
-        // do not draw hidden surfaces
-        renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
-
-        // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(tl._mesh, &(tl._reflective)))
-        {
-            retval = gfx_error;
-        }
-    }
-    ATTRIB_POP(__FUNCTION__);
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_solid(const Ego::Graphics::TileList& tl)
-{
-    /// @brief BB@> Render the shadow floors as normal solid floors
-
-    gfx_rv retval;
-
-    // assume the best
-    retval = gfx_success;
-
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    {
-        auto& renderer = Ego::Renderer::get();
-        // Disable blending.
-        renderer.setBlendingEnabled(false);
-
-        // draw draw front and back faces of polygons
-        oglx_end_culling();                // GL_ENABLE_BIT
-
-        // do not draw hidden surfaces
-        renderer.setDepthTestEnabled(true); // GL_ENABLE_BIT
-
-        // store the surface depth
-        renderer.setDepthWriteEnabled(true);
-
-        // do not display the completely transparent portion
-        // use alpha test to allow the thatched roof tiles to look like thatch
-        renderer.setAlphaTestEnabled(true);
-        // speed-up drawing of surfaces with alpha = 0.0f sections
-        GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);          // GL_COLOR_BUFFER_BIT
-
-        // reduce texture hashing by loading up each texture only once
-        if (gfx_error == render_fans_by_list(tl._mesh, &(tl._reflective)))
-        {
-            retval = gfx_error;
-        }
-    }
-    ATTRIB_POP(__FUNCTION__);
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_render_shadows(const Ego::Graphics::EntityList& el)
-{
-    /// @author BB
-    /// @details Render the shadows
-
-    if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
-        return gfx_error;
-    }
-
-    if (!gfx.shadows_enable)
-    {
-        return gfx_success;
-    }
-    // don't write into the depth buffer (disable glDepthMask for transparent objects)
-    Ego::Renderer::get().setDepthWriteEnabled(false);
-
-    // do not draw hidden surfaces
-    Ego::Renderer::get().setDepthTestEnabled(true);
-    Ego::Renderer::get().setBlendingEnabled(true);
-    GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-
-    // keep track of the number of shadows actually rendered
-    size_t tnc = 0;
-
-    if (gfx.shadows_highQuality_enable)
-    {
-        // Bad shadows.
-        for (size_t i = 0; i < el.getSize(); ++i)
-        {
-            CHR_REF ichr = el.get(i).ichr;
-            if (!VALID_CHR_RANGE(ichr)) continue;
-
-            if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
-
-            render_bad_shadow(ichr);
-            tnc++;
-        }
-    }
-    else
-    {
-        // Good shadows.
-        for (size_t i = 0; i < el.getSize(); ++i)
-        {
-            CHR_REF ichr = el.get(i).ichr;
-            if (!VALID_CHR_RANGE(ichr)) continue;
-
-            if (0 == _currentModule->getObjectHandler().get(ichr)->shadow_size) continue;
-
-            render_shadow(ichr);
-            tnc++;
-        }
-    }
-
-    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el)
 {
     /// @author BB
-    /// @details draw the mesh and any reflected objects
+    /// @details draw the mesh and reflections of entities
 
     gfx_rv retval;
 
@@ -2885,72 +2138,24 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     //--------------------------------
     // advance the animation of all animated tiles
     animate_all_tiles(tl._mesh);
-    Ego::OpenGL::Utilities::isError();
-    PROFILE_BEGIN(render_scene_mesh_ndr);
-    {
-        // draw all tiles that do not reflect characters
-        if (gfx_error == render_scene_mesh_ndr(tl))
-        {
-            retval = gfx_error;
-        }
-    }
-    PROFILE_END(render_scene_mesh_ndr);
-    Ego::OpenGL::Utilities::isError();
+
+	// Render non-reflective tiles.
+	Ego::Graphics::RenderPasses::g_nonReflective.run(cam, tl, el);
+
     //--------------------------------
-    // draw the reflective tiles and any reflected objects
+    // draw the reflective tiles and reflections of entities
     if (gfx.refon)
     {
-        Ego::OpenGL::Utilities::isError();
-        PROFILE_BEGIN(render_scene_mesh_drf_back);
-        {
-            // blank out the background behind reflective tiles
+		// Clear background behind reflective tiles.
+		Ego::Graphics::RenderPasses::g_reflective0.run(cam, tl, el);
 
-            if (gfx_error == render_scene_mesh_drf_back(tl))
-            {
-                retval = gfx_error;
-            }
-        }
-        PROFILE_END(render_scene_mesh_drf_back);
-        Ego::OpenGL::Utilities::isError();
-
-        Ego::OpenGL::Utilities::isError();
-        PROFILE_BEGIN(render_scene_mesh_ref);
-        {
-            // Render all reflected objects
-            if (gfx_error == render_scene_mesh_ref(cam, tl, el))
-            {
-                retval = gfx_error;
-            }
-        }
-        PROFILE_END(render_scene_mesh_ref);
-        Ego::OpenGL::Utilities::isError();
-
-        Ego::OpenGL::Utilities::isError();
-        PROFILE_BEGIN(render_scene_mesh_ref_chr);
-        {
-            // Render the shadow floors
-            if (gfx_error == render_scene_mesh_ref_chr(tl))
-            {
-                retval = gfx_error;
-            }
-        }
-        PROFILE_END(render_scene_mesh_ref_chr);
-        Ego::OpenGL::Utilities::isError();
+		// Render reflections of entities.
+		Ego::Graphics::RenderPasses::g_entityReflections.run(cam, tl, el);
     }
     else
     {
-        Ego::OpenGL::Utilities::isError();
-        PROFILE_BEGIN(render_scene_mesh_drf_solid);
-        {
-            // Render the shadow floors as normal solid floors
-            if (gfx_error == render_scene_mesh_drf_solid(tl))
-            {
-                retval = gfx_error;
-            }
-        }
-        PROFILE_END(render_scene_mesh_drf_solid);
-        Ego::OpenGL::Utilities::isError();
     }
+	Ego::Graphics::RenderPasses::g_reflective1.run(cam, tl, el);
 
 #if defined(RENDER_HMAP) && defined(_DEBUG)
 
@@ -2958,9 +2163,9 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     mesh_texture_invalidate();
 
     // render the heighmap
-    for ( cnt = 0; cnt < rl._all.count; cnt++ )
+    for (size_t i = 0; i < rl._all.count; ++i)
     {
-        render_hmap_fan( pmesh, rl._all[cnt] );
+        render_hmap_fan(pmesh, rl._all[i]);
     }
 
     // let the mesh texture code know that someone else is in control now
@@ -2968,211 +2173,53 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
 
 #endif
 
-    PROFILE_BEGIN(render_scene_mesh_render_shadows);
-    {
-        Ego::OpenGL::Utilities::isError();
-        // Render the shadows
-        if (gfx_error == render_scene_mesh_render_shadows(el))
-        {
-            retval = gfx_error;
-        }
-        Ego::OpenGL::Utilities::isError();
-    }
-    PROFILE_END(render_scene_mesh_render_shadows);
+    // Render the shadows of entities.
+	Ego::Graphics::RenderPasses::g_entityShadows.run(cam, tl, el);
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_solid(Camera& cam, Ego::Graphics::EntityList& el)
-{
-    /// @detaile BB@> Render all solid objects
-	if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
-        return gfx_error;
-    }
 
-    // assume the best
-    gfx_rv retval = gfx_success;
-
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT)
-    {
-        // scan for solid objects
-        for (size_t i = 0, n = el.getSize(); i < n; ++i)
-        {
-            auto& renderer = Ego::Renderer::get();
-            // solid objects draw into the depth buffer for hidden surface removal
-            renderer.setDepthWriteEnabled(true);
-
-            // do not draw hidden surfaces
-            renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::Less);
-
-            renderer.setAlphaTestEnabled(true);
-            GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);             // GL_COLOR_BUFFER_BIT
-
-            if (INVALID_PRT_REF == el.get(i).iprt && VALID_CHR_RANGE(el.get(i).ichr))
-            {
-                if (gfx_error == render_one_mad_solid(cam, el.get(i).ichr))
-                {
-                    retval = gfx_error;
-                }
-            }
-            else if (INVALID_CHR_REF == el.get(i).ichr && VALID_PRT_RANGE(el.get(i).iprt))
-            {
-                // draw draw front and back faces of polygons
-                oglx_end_culling();              // GL_ENABLE_BIT
-
-                if (gfx_error == render_one_prt_solid(el.get(i).iprt))
-                {
-                    retval = gfx_error;
-                }
-            }
-        }
-    }
-    ATTRIB_POP(__FUNCTION__);
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_scene_trans(Camera& cam, Ego::Graphics::EntityList& el)
-{
-    /// @author BB
-    /// @details draw transparent objects
-
-    if (el.getSize() >= Ego::Graphics::EntityList::CAPACITY)
-    {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid entity list size");
-        return gfx_error;
-    }
-
-    // assume the best
-    gfx_rv retval = gfx_success;
-
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT)
-    {
-        auto& renderer = Ego::Renderer::get();
-        //---- set the the transparency parameters
-
-        // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        renderer.setDepthWriteEnabled(false);
-
-        // do not draw hidden surfaces
-        renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::LessOrEqual);
-
-        // Now render all transparent and light objects
-        for (size_t i = el.getSize(); i > 0; --i)
-        {
-            size_t j = i - 1;
-            // A character.
-            if (INVALID_PRT_REF == el.get(j).iprt && INVALID_CHR_REF != el.get(j).ichr)
-            {
-                if (gfx_error == render_one_mad_trans(cam, el.get(j).ichr))
-                {
-                    retval = gfx_error;
-                }
-            }
-            // A particle.
-            else if (INVALID_CHR_REF == el.get(j).ichr && INVALID_PRT_REF != el.get(j).iprt)
-            {
-                if (gfx_error == render_one_prt_trans(el.get(j).iprt))
-                {
-                    retval = gfx_error;
-                }
-            }
-        }
-    }
-    ATTRIB_POP(__FUNCTION__);
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el)
 {
     // assume the best
     gfx_rv retval = gfx_success;
-
-    PROFILE_BEGIN(render_scene_init);
     {
+		ClockScope clockScope(render_scene_init_timer);
         if (gfx_error == render_scene_init(tl, el, _dynalist, cam))
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END(render_scene_init);
-
-    PROFILE_BEGIN(render_scene_mesh);
     {
-        PROFILE_BEGIN(render_scene_mesh_dolist_sort);
+		ClockScope clockScope(render_scene_mesh_timer);
         {
-            // sort the entity list for rendering reflections of entities
-            if (gfx_error == el.sort(cam, true))
-            {
-                retval = gfx_error;
-            }
+			// Sort dolist for reflected rendering.
+			ClockScope clockScope(sortDoListReflected_timer);
+			el.sort(cam, true);
         }
-        PROFILE_END(render_scene_mesh_dolist_sort);
-
-        // do the render pass for the mesh
+        // Render the mesh tiles and reflections of entities.
         if (gfx_error == render_scene_mesh(cam, tl, el))
         {
             retval = gfx_error;
         }
-
-        time_render_scene_mesh_dolist_sort = PROFILE_QUERY(render_scene_mesh_dolist_sort) * GameEngine::GAME_TARGET_FPS;
-        time_render_scene_mesh_ndr = PROFILE_QUERY(render_scene_mesh_ndr) * GameEngine::GAME_TARGET_FPS;
-        time_render_scene_mesh_drf_back = PROFILE_QUERY(render_scene_mesh_drf_back) * GameEngine::GAME_TARGET_FPS;
-        time_render_scene_mesh_ref = PROFILE_QUERY(render_scene_mesh_ref) * GameEngine::GAME_TARGET_FPS;
-        time_render_scene_mesh_ref_chr = PROFILE_QUERY(render_scene_mesh_ref_chr) * GameEngine::GAME_TARGET_FPS;
-        time_render_scene_mesh_drf_solid = PROFILE_QUERY(render_scene_mesh_drf_solid) * GameEngine::GAME_TARGET_FPS;
-        time_render_scene_mesh_render_shadows = PROFILE_QUERY(render_scene_mesh_render_shadows) * GameEngine::GAME_TARGET_FPS;
     }
-    PROFILE_END(render_scene_mesh);
-
-	PROFILE_BEGIN(render_scene_mesh_dolist_sort);
 	{
-		// sort the entity list for rendering entities
-		if (gfx_error == el.sort(cam, true))
+		// Sort dolist for unreflected rendering.
+		ClockScope scope(sortDoListUnreflected_timer);
+		if (gfx_error == el.sort(cam, false))
 		{
 			retval = gfx_error;
 		}
 	}
-	PROFILE_END(render_scene_mesh_dolist_sort)
 
-    PROFILE_BEGIN(render_scene_solid);
-    {
-        // do the render pass for solid entities
-        if (gfx_error == render_scene_solid(cam, el))
-        {
-            retval = gfx_error;
-        }
-    }
-    PROFILE_END(render_scene_solid);
-
-    PROFILE_BEGIN(render_scene_water);
-    {
-        // draw the water
-        if (gfx_error == render_water(tl))
-        {
-            retval = gfx_error;
-        }
-    }
-    PROFILE_END(render_scene_water);
-
-    PROFILE_BEGIN(render_scene_trans);
-    {
-        // do the render pass for transparent entities
-        if (gfx_error == render_scene_trans(cam, el))
-        {
-            retval = gfx_error;
-        }
-    }
-    PROFILE_END(render_scene_trans);
-
+    // Render solid entities.
+	Ego::Graphics::RenderPasses::g_solidEntities.run(cam, tl, el);
+	// Render water.
+	Ego::Graphics::RenderPasses::g_water.run(cam, tl, el);
+	// Render transparent entities.
+	Ego::Graphics::RenderPasses::g_transparentEntities.run(cam, tl, el);
 #if defined(_DEBUG)
     render_all_prt_attachment();
 #endif
@@ -3186,362 +2233,25 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
 #if defined(DRAW_PRT_BBOX)
     render_all_prt_bbox();
 #endif
-
-    time_render_scene_init = PROFILE_QUERY(render_scene_init) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_mesh = PROFILE_QUERY(render_scene_mesh) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_solid = PROFILE_QUERY(render_scene_solid) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_water = PROFILE_QUERY(render_scene_water) * GameEngine::GAME_TARGET_FPS;
-    time_render_scene_trans = PROFILE_QUERY(render_scene_trans) * GameEngine::GAME_TARGET_FPS;
-
-    time_draw_scene = time_render_scene_init + time_render_scene_mesh + time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
-
     return retval;
 }
+
 gfx_rv render_scene(Camera& cam, std::shared_ptr<Ego::Graphics::TileList> ptl, std::shared_ptr<Ego::Graphics::EntityList> pel)
 {
     /// @author ZZ
     /// @details This function draws 3D objects
     if (!ptl)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == ptl");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock a tile list");
         return gfx_error;
     }
 
     if (!pel)
     {
-        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == pel");
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "could lock an entity list");
         return gfx_error;
     }
     return render_scene(cam, *ptl, *pel);
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_world_background(Camera& cam, const TX_REF texture)
-{
-    /// @author ZZ
-    /// @details This function draws the large background
-    GLvertex vtlist[4];
-    int i;
-    float z0, Qx, Qy;
-    float intens = 1.0f;
-
-    float xmag, Cx_0, Cx_1;
-    float ymag, Cy_0, Cy_1;
-
-    ego_mesh_info_t * pinfo;
-    grid_mem_t     * pgmem;
-    oglx_texture_t   * ptex;
-    water_instance_layer_t * ilayer;
-
-    pinfo = &(PMesh->info);
-    pgmem = &(PMesh->gmem);
-
-    // which layer
-    ilayer = water.layer + 0;
-
-    // the "official" camera height
-    z0 = 1500;
-
-    // clip the waterlayer uv offset
-    ilayer->tx[XX] = ilayer->tx[XX] - (float)std::floor(ilayer->tx[XX]);
-    ilayer->tx[YY] = ilayer->tx[YY] - (float)std::floor(ilayer->tx[YY]);
-
-    // determine the constants for the x-coordinate
-    xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[XX]) / GRID_FSIZE;
-    Cx_0 = xmag * (1.0f + cam.getPosition()[kZ]       * ilayer->dist[XX]);
-    Cx_1 = -xmag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->dist[XX]);
-
-    // determine the constants for the y-coordinate
-    ymag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[YY]) / GRID_FSIZE;
-    Cy_0 = ymag * (1.0f + cam.getPosition()[kZ]       * ilayer->dist[YY]);
-    Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->dist[YY]);
-
-    // Figure out the coordinates of its corners
-    Qx = -pgmem->edge_x;
-    Qy = -pgmem->edge_y;
-    vtlist[0].pos[XX] = Qx;
-    vtlist[0].pos[YY] = Qy;
-    vtlist[0].pos[ZZ] = cam.getPosition()[kZ] - z0;
-    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
-    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
-
-    Qx = 2 * pgmem->edge_x;
-    Qy = -pgmem->edge_y;
-    vtlist[1].pos[XX] = Qx;
-    vtlist[1].pos[YY] = Qy;
-    vtlist[1].pos[ZZ] = cam.getPosition()[kZ] - z0;
-    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
-    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
-
-    Qx = 2 * pgmem->edge_x;
-    Qy = 2 * pgmem->edge_y;
-    vtlist[2].pos[XX] = Qx;
-    vtlist[2].pos[YY] = Qy;
-    vtlist[2].pos[ZZ] = cam.getPosition()[kZ] - z0;
-    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
-    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
-
-    Qx = -pgmem->edge_x;
-    Qy = 2 * pgmem->edge_y;
-    vtlist[3].pos[XX] = Qx;
-    vtlist[3].pos[YY] = Qy;
-    vtlist[3].pos[ZZ] = cam.getPosition()[kZ] - z0;
-    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
-    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
-
-    float light = water.light ? 1.0f : 0.0f;
-    float alpha = ilayer->alpha * INV_FF;
-
-    if (gfx.usefaredge)
-    {
-        float fcos;
-
-        intens = light_a * ilayer->light_add;
-
-        fcos = light_nrm[kZ];
-        if (fcos > 0.0f)
-        {
-            intens += fcos * fcos * light_d * ilayer->light_dir;
-        }
-
-        intens = CLIP(intens, 0.0f, 1.0f);
-    }
-
-    ptex = TextureManager::get().get_valid_ptr(texture);
-
-    oglx_texture_t::bind(ptex);
-
-    ATTRIB_PUSH(__FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
-    {
-        auto& renderer = Ego::Renderer::get();
-        // flat shading
-        renderer.setGouraudShadingEnabled(false);
-
-        // Do not write into the depth buffer.
-        renderer.setDepthWriteEnabled(false);
-
-        // Essentially disable the depth test without calling
-        // renderer.setDepthTestEnabled(false).
-        renderer.setDepthTestEnabled(true);
-        renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
-
-        // draw draw front and back faces of polygons
-        oglx_end_culling();    // GL_ENABLE_BIT
-
-        if (alpha > 0.0f)
-        {
-            ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
-            {
-                renderer.setColour(Ego::Math::Colour4f(intens, intens, intens, alpha));
-
-                if (alpha >= 1.0f)
-                {
-                    renderer.setBlendingEnabled(false);
-                }
-                else
-                {
-                    renderer.setBlendingEnabled(true);
-                    GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
-                }
-
-                GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-                {
-                    for (i = 0; i < 4; i++)
-                    {
-                        GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
-                        GL_DEBUG(glVertex3fv)(vtlist[i].pos);
-                    }
-                }
-                GL_DEBUG_END();
-            }
-            ATTRIB_POP(__FUNCTION__);
-        }
-
-        if (light > 0.0f)
-        {
-            ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
-            {
-                Ego::Renderer::get().setBlendingEnabled(false);
-
-                Ego::Renderer::get().setColour(Ego::Math::Colour4f(light, light, light, 1.0f));
-
-                GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-                {
-                    for (i = 0; i < 4; i++)
-                    {
-                        GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
-                        GL_DEBUG(glVertex3fv)(vtlist[i].pos);
-                    }
-                }
-                GL_DEBUG_END();
-            }
-            ATTRIB_POP(__FUNCTION__);
-        }
-    }
-    ATTRIB_POP(__FUNCTION__);
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_world_overlay(Camera& cam, const TX_REF texture)
-{
-    /// @author ZZ
-    /// @details This function draws the large foreground
-
-    float alpha, ftmp;
-    fvec3_t   vforw_wind, vforw_cam;
-    TURN_T default_turn;
-
-    oglx_texture_t           * ptex;
-
-    water_instance_layer_t * ilayer = water.layer + 1;
-
-    vforw_wind[XX] = ilayer->tx_add[XX];
-    vforw_wind[YY] = ilayer->tx_add[YY];
-    vforw_wind[ZZ] = 0;
-    vforw_wind.normalize();
-
-    mat_getCamForward(cam.getView(), vforw_cam);
-    vforw_cam.normalize();
-
-    // make the texture begin to disappear if you are not looking straight down
-    ftmp = vforw_wind.dot(vforw_cam);
-
-    alpha = (1.0f - ftmp * ftmp) * (ilayer->alpha * INV_FF);
-
-    if (alpha != 0.0f)
-    {
-        GLvertex vtlist[4];
-        int i;
-        float size;
-        float sinsize, cossize;
-        float x, y, z;
-        float loc_foregroundrepeat;
-
-        // Figure out the screen coordinates of its corners
-        x = sdl_scr.x << 6;
-        y = sdl_scr.y << 6;
-        z = 0;
-        size = x + y + 1;
-        default_turn = (3 * 2047) & TRIG_TABLE_MASK;
-        sinsize = turntosin[default_turn] * size;
-        cossize = turntocos[default_turn] * size;
-        loc_foregroundrepeat = water.foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
-
-        vtlist[0].pos[XX] = x + cossize;
-        vtlist[0].pos[YY] = y - sinsize;
-        vtlist[0].pos[ZZ] = z;
-        vtlist[0].tex[SS] = ilayer->tx[XX];
-        vtlist[0].tex[TT] = ilayer->tx[YY];
-
-        vtlist[1].pos[XX] = x + sinsize;
-        vtlist[1].pos[YY] = y + cossize;
-        vtlist[1].pos[ZZ] = z;
-        vtlist[1].tex[SS] = ilayer->tx[XX] + loc_foregroundrepeat;
-        vtlist[1].tex[TT] = ilayer->tx[YY];
-
-        vtlist[2].pos[XX] = x - cossize;
-        vtlist[2].pos[YY] = y + sinsize;
-        vtlist[2].pos[ZZ] = z;
-        vtlist[2].tex[SS] = ilayer->tx[SS] + loc_foregroundrepeat;
-        vtlist[2].tex[TT] = ilayer->tx[TT] + loc_foregroundrepeat;
-
-        vtlist[3].pos[XX] = x - sinsize;
-        vtlist[3].pos[YY] = y - cossize;
-        vtlist[3].pos[ZZ] = z;
-        vtlist[3].tex[SS] = ilayer->tx[SS];
-        vtlist[3].tex[TT] = ilayer->tx[TT] + loc_foregroundrepeat;
-
-        ptex = TextureManager::get().get_valid_ptr(texture);
-
-        ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT);
-        {
-            // make sure that the texture is as smooth as possible
-            GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);          // GL_HINT_BIT
-
-            auto& renderer = Ego::Renderer::get();
-
-            // flat shading
-            renderer.setGouraudShadingEnabled(false);                     // GL_LIGHTING_BIT
-
-            // Do not write into the depth buffer.
-            renderer.setDepthWriteEnabled(false);
-
-            // Essentially disable the depth test without calling
-            // Ego::Renderer::get().setDepthTestEnabled(false).
-            renderer.setDepthTestEnabled(true);
-            renderer.setDepthFunction(Ego::CompareFunction::AlwaysPass);
-
-            // draw draw front and back faces of polygons
-            oglx_end_culling();                           // GL_ENABLE_BIT
-
-            // do not display the completely transparent portion
-            renderer.setAlphaTestEnabled(true);
-            GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);                      // GL_COLOR_BUFFER_BIT
-
-            // make the texture a filter
-            renderer.setBlendingEnabled(true);
-            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);  // GL_COLOR_BUFFER_BIT
-
-            oglx_texture_t::bind(ptex);
-
-            renderer.setColour(Ego::Math::Colour4f(1.0f, 1.0f, 1.0f, 1.0f - std::abs(alpha)));
-            GL_DEBUG(glBegin)(GL_TRIANGLE_FAN);
-            for (i = 0; i < 4; i++)
-            {
-                GL_DEBUG(glTexCoord2fv)(vtlist[i].tex);
-                GL_DEBUG(glVertex3fv)(vtlist[i].pos);
-            }
-            GL_DEBUG_END();
-        }
-        ATTRIB_POP(__FUNCTION__);
-    }
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv render_water(Ego::Graphics::TileList& tl)
-{
-    /// @author ZZ
-    /// @details This function draws all of the water fans
-    gfx_rv retval;
-
-    // assume the best
-    retval = gfx_success;
-
-    // restart the mesh texture code
-    mesh_texture_invalidate();
-
-    // Bottom layer first
-    if (gfx.draw_water_1)
-    {
-        for (size_t cnt = 0; cnt < tl._water.size; cnt++)
-        {
-            if (gfx_error == render_water_fan(tl._mesh, tl._water.lst[cnt].index, 1))
-            {
-                retval = gfx_error;
-            }
-        }
-    }
-
-    // Top layer second
-    if (gfx.draw_water_0)
-    {
-        for (size_t cnt = 0; cnt < tl._water.size; cnt++)
-        {
-            if (gfx_error == render_water_fan(tl._mesh, tl._water.lst[cnt].index, 0))
-            {
-                retval = gfx_error;
-            }
-        }
-    }
-
-    // let the mesh texture code know that someone else is in control now
-    mesh_texture_invalidate();
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

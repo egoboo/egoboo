@@ -31,6 +31,7 @@
 #include "game/Graphics/EntityList.hpp"
 #include "game/Graphics/Vertex.hpp"
 #include "egolib/DynamicArray.hpp"
+#include "game/Graphics/RenderPasses.hpp"
 
 
 
@@ -48,6 +49,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#include "game/Graphics/TileList.hpp"
 
 #define GFX_ERROR_MAX 256
 
@@ -344,30 +346,9 @@ struct gfx_config_t
 };
 
 
-
+gfx_rv render_fans_by_list(const ego_mesh_t *pmesh, const Ego::Graphics::renderlist_lst_t *rlst);
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-extern float time_render_scene_init;
-extern float time_render_scene_mesh;
-extern float time_render_scene_solid;
-extern float time_render_scene_water;
-extern float time_render_scene_trans;
-
-extern float time_render_scene_init_renderlist_make;
-extern float time_render_scene_init_dolist_make;
-extern float time_render_scene_init_do_grid_dynalight;
-extern float time_render_scene_init_light_fans;
-extern float time_render_scene_init_update_all_chr_instance;
-extern float time_render_scene_init_update_all_prt_instance;
-
-extern float time_render_scene_mesh_dolist_sort;
-extern float time_render_scene_mesh_ndr;
-extern float time_render_scene_mesh_drf_back;
-extern float time_render_scene_mesh_ref;
-extern float time_render_scene_mesh_ref_chr;
-extern float time_render_scene_mesh_drf_solid;
-extern float time_render_scene_mesh_render_shadows;
 
 extern Uint32          game_frame_all;             ///< The total number of frames drawn so far
 extern Uint32          menu_frame_all;             ///< The total number of frames drawn so far

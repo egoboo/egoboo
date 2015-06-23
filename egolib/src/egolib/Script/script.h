@@ -192,12 +192,13 @@ struct ai_state_t
     Uint32          astar_timer;         ///< Throttle on astar pathfinding
 
     // performance monitoring
-    PROFILE_DECLARE_STRUCT;
+	std::shared_ptr<ClockState_t> _clock;
+
+	ai_state_t();
+	~ai_state_t();
 };
 
-ai_state_t *ai_state_ctor(ai_state_t * pself);
-ai_state_t *ai_state_dtor(ai_state_t * pself);
-ai_state_t *ai_state_reconstruct(ai_state_t * pself);
+ai_state_t *ai_state_reset(ai_state_t * pself);
 bool        ai_state_set_bumplast(ai_state_t * pself, const CHR_REF  ichr);
 bool        ai_state_get_wp(ai_state_t * pself);
 bool        ai_state_ensure_wp(ai_state_t * pself);

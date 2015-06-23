@@ -190,9 +190,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     // set the insance values to safe values
     chr_instance_t::ctor(inst);
-
-    // intialize the ai_state
-    ai_state_ctor( &ai );
 }
 
 Object::~Object()
@@ -268,7 +265,6 @@ Object::~Object()
     }
 
     chr_instance_t::dtor(inst);
-    ai_state_dtor( &ai );
 
     EGOBOO_ASSERT( nullptr == inst.vrt_lst );    
 }
