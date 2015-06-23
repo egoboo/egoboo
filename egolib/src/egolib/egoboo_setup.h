@@ -271,6 +271,9 @@ public:
         return true;
     }
 
+    ValueType getMaxValue() const { return _max; }
+
+    ValueType getMinValue() const { return _min; }
 };
 
 /**

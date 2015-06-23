@@ -773,7 +773,7 @@ void Water::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
 void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
 	ego_mesh_t *pmesh = tl.getMesh();
 	if (!pmesh) {
-		log_warning("%s:%d: tile list not attached to a mesh - skipping pass\n");
+		log_warning("%s:%d: tile list not attached to a mesh - skipping pass\n", __FILE__, __LINE__);
 		return;
 	}
 

@@ -41,7 +41,27 @@ protected:
 	void drawContainer() override;
 
 private:
-	int addResolutionButton(int width, int height, int yOffset);
+	/**
+	* @brief
+	*	Add a selectable resolution to the scrollable resolution list
+	**/
+	void addResolutionButton(int width, int height);
+
+	/**
+	* @brief
+	*	Add a new graphics options button.
+	* @param xPos
+	*	x position of button and label
+	* @param yPos
+	*	y position of button and label
+	* @param label
+	*	Descriptive string of what this option does (label)
+	* @param labelFuction
+	*	Function that generates description of current option state
+	* @param onClickFunction
+	*	Function that changes the current state of this option to a different one
+	**/
+	int addOptionsButton(int xPos, int yPos, const std::string &label, std::function<std::string()> labelFunction, std::function<void()> onClickFunction, bool enabled = true);
 
 private:
 	std::shared_ptr<ScrollableList> _resolutionList;
