@@ -61,7 +61,7 @@ private:
 	* @param onClickFunction
 	*	Function that changes the current state of this option to a different one
 	**/
-	int addOptionsButton(int xPos, int yPos, const std::string &label, std::function<std::string()> labelFunction, std::function<void()> onClickFunction);
+	int addOptionsButton(int xPos, int yPos, const std::string &label, std::function<std::string()> labelFunction, std::function<void()> onClickFunction, bool enabled = true);
 
 private:
 	std::shared_ptr<ScrollableList> _resolutionList;

@@ -36,8 +36,8 @@ VideoOptionsScreen::VideoOptionsScreen() :
 	const int SCREEN_HEIGHT = _gameEngine->getUIManager()->getScreenHeight();
 
 	// calculate the centered position of the background
-	background->setSize(background->getTextureWidth(), background->getTextureHeight());
-	background->setCenterPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+	background->setSize(background->getTextureWidth() * 0.75f, background->getTextureHeight() * 0.75f);
+	background->setPosition(SCREEN_WIDTH- background->getWidth(), SCREEN_HEIGHT - background->getHeight());
 	addComponent(background);
 
 	//Resolution
@@ -109,6 +109,82 @@ VideoOptionsScreen::VideoOptionsScreen() :
     	}
     );
 
+    //Texture Filtering
+    yPos += addOptionsButton(xPos, yPos, 
+    	"Texture Quality", 
+    	
+    	//String description of current state
+    	[]{ 
+    		if(egoboo_config_t::get().graphic_textureFilter_mipMapFilter.getValue() == Ego::TextureFilter::Linear) return "High";
+    		if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == Ego::TextureFilter::Linear) return "Medium";
+    		if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == Ego::TextureFilter::Nearest) return "Low";
+    		return "Unknown";
+    	},
+
+    	//Change option effect
+    	[]{
+    		//Medium (Trilinear filtering)
+    		if(egoboo_config_t::get().graphic_textureFilter_minFilter.getValue() == Ego::TextureFilter::Nearest) {
+    			egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(Ego::TextureFilter::Linear);
+    			egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(Ego::TextureFilter::Linear);
+    			egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(Ego::TextureFilter::None);
+    		}
+
+    		//High (Trilinear mipmap filtering)
+    		else if(egoboo_config_t::get().graphic_textureFilter_mipMapFilter.getValue() == Ego::TextureFilter::None) {
+    			egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(Ego::TextureFilter::Linear);
+    			egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(Ego::TextureFilter::Linear);
+    			egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(Ego::TextureFilter::Linear);
+    		}
+
+    		//Low - linear filtering filtering
+    		else {
+    			egoboo_config_t::get().graphic_textureFilter_minFilter.setValue(Ego::TextureFilter::Nearest);
+    			egoboo_config_t::get().graphic_textureFilter_magFilter.setValue(Ego::TextureFilter::Nearest);
+    			egoboo_config_t::get().graphic_textureFilter_mipMapFilter.setValue(Ego::TextureFilter::None);
+    		}
+    	}
+    );
+
+	//Anisotropic Filtering
+    yPos += addOptionsButton(xPos, yPos, 
+    	"Anisotropic Filtering", 
+    	
+    	//String description of current state
+    	[]{ 
+    		if(!egoboo_config_t::get().graphic_anisotropy_enable.getValue() || 
+    			egoboo_config_t::get().graphic_anisotropy_levels.getValue() <= 0) {
+    			return std::string("Disabled");
+    		}
+    		
+    		return std::string("x") + std::to_string(static_cast<int>(egoboo_config_t::get().graphic_anisotropy_levels.getValue()));
+    	},
+
+    	//Change option effect
+    	[]{
+			egoboo_config_t::get().graphic_anisotropy_levels.setValue( static_cast<int>(egoboo_config_t::get().graphic_anisotropy_levels.getValue() + 1) % static_cast<int>(g_ogl_caps.maxAnisotropy+1) );
+    		egoboo_config_t::get().graphic_anisotropy_enable.setValue(egoboo_config_t::get().graphic_anisotropy_levels.getValue() > 0);
+    	},
+
+    	//Only enable button if option is supported by graphics card
+    	g_ogl_caps.maxAnisotropy > 0
+    );
+
+    //Anti-Aliasing
+    yPos += addOptionsButton(xPos, yPos, 
+    	"Anti-Aliasing", 
+    	
+    	//String description of current state
+    	[]{ 
+    		return egoboo_config_t::get().graphic_antialiasing.getValue() ? "Enabled" : "Disabled";
+    	},
+
+    	//Change option effect
+    	[]{
+    		egoboo_config_t::get().graphic_antialiasing.setValue(!egoboo_config_t::get().graphic_antialiasing.getValue());
+    	}
+    );
+
 	//Back button
 	std::shared_ptr<Button> backButton = std::make_shared<Button>("Back", SDLK_ESCAPE);
 	backButton->setPosition(20, SCREEN_HEIGHT-80);
@@ -129,20 +205,21 @@ VideoOptionsScreen::VideoOptionsScreen() :
 	addComponent(welcomeLabel);
 }
 
-int VideoOptionsScreen::addOptionsButton(int xPos, int yPos, const std::string &label, std::function<std::string()> labelFunction, std::function<void()> onClickFunction)
+int VideoOptionsScreen::addOptionsButton(int xPos, int yPos, const std::string &label, std::function<std::string()> labelFunction, std::function<void()> onClickFunction, bool enabled)
 {
     std::shared_ptr<Label> optionLabel = std::make_shared<Label>(label + ": ");
     optionLabel->setPosition(xPos, yPos);
     addComponent(optionLabel);
 
     std::shared_ptr<Button> optionButton = std::make_shared<Button>(labelFunction());
-    optionButton->setSize(200, 30);
-    optionButton->setPosition(optionLabel->getX()+optionLabel->getWidth()+5, optionLabel->getY());
+    optionButton->setSize(150, 30);
+    optionButton->setPosition(xPos+250, optionLabel->getY());
     optionButton->setOnClickFunction(
     	[optionButton, onClickFunction, labelFunction]{
     		onClickFunction();
     		optionButton->setText(labelFunction());
     	});
+    optionButton->setEnabled(enabled);
     addComponent(optionButton);	
 
 	return optionButton->getHeight() + 5;
