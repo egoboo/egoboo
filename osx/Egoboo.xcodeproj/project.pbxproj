@@ -12,7 +12,6 @@
 		275CAA5A12ED5EB300CE4247 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 275CAA5912ED5EB300CE4247 /* IOKit.framework */; };
 		27D3913812EEA51D0093D60A /* skull.icns in Resources */ = {isa = PBXBuildFile; fileRef = 27D3913312EEA51D0093D60A /* skull.icns */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
-		CD048BF51AB7515400E1E52D /* MathConstantTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD048BF41AB7515400E1E52D /* MathConstantTest.cpp */; };
 		CD0FE12F1A7B091300F3392B /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11A1A7B091300F3392B /* basicdat */; };
 		CD0FE1301A7B091300F3392B /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11A1A7B091300F3392B /* basicdat */; };
 		CD0FE1331A7B091300F3392B /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11C1A7B091300F3392B /* BUGS.txt */; };
@@ -54,11 +53,7 @@
 		CD1D57F91A8A9F0600C5B298 /* Float.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F71A8A9E9300C5B298 /* Float.cpp */; };
 		CD1D57FA1A8A9F0D00C5B298 /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1D57F51A8A9E9300C5B298 /* Debug.cpp */; };
 		CD1F4D6C1B1396240028C45E /* Standard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D691B1394E10028C45E /* Standard.cpp */; };
-		CD1F4D7A1B13F04C0028C45E /* Pathname.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D781B13F04C0028C45E /* Pathname.cpp */; };
-		CD1F4D7B1B13F04C0028C45E /* VectorMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD1F4D791B13F04C0028C45E /* VectorMath.cpp */; };
 		CD2336AD1AF55CB000E35ED1 /* System.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2336AB1AF55CB000E35ED1 /* System.cpp */; };
-		CD2C60FD1ACAF9E0003CF3D6 /* MatrixMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */; };
-		CD2C60FE1ACAF9E0003CF3D6 /* StringUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */; };
 		CD2F42B21B07FF4E00905E42 /* LocalParticleProfileRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2F42B01B07FF4E00905E42 /* LocalParticleProfileRef.cpp */; };
 		CD2F42B31B08086500905E42 /* MD2Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */; };
 		CD2F42B41B08086B00905E42 /* AStar.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAB1A6204EC00F076F9 /* AStar.c */; };
@@ -149,7 +144,6 @@
 		CD4ABB041AAED52300A87097 /* OptionsScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4ABB001AAED52300A87097 /* OptionsScreen.cpp */; };
 		CD4ABB051AAED52300A87097 /* VideoOptionsScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4ABB021AAED52300A87097 /* VideoOptionsScreen.cpp */; };
 		CD4B64E61A7EE94C00A52646 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD4B64E41A7EE94C00A52646 /* Object.cpp */; };
-		CD54B3351AAEE9C800C1F15D /* CompileTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */; };
 		CD5E73AF1AA5421A005999BC /* libIdLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD94B49E1A8B3E6000BECFC9 /* libIdLib.a */; };
 		CD6491861ADF618E00A3B264 /* ImageLoader_SDL_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD64917E1ADF618E00A3B264 /* ImageLoader_SDL_image.cpp */; };
 		CD6491871ADF618E00A3B264 /* ImageLoader_SDL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD6491801ADF618E00A3B264 /* ImageLoader_SDL.cpp */; };
@@ -178,6 +172,12 @@
 		CD792C2E1A881FE20086270E /* InputListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C181A881FE20086270E /* InputListener.cpp */; };
 		CD792C2F1A881FE20086270E /* Label.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C1A1A881FE20086270E /* Label.cpp */; };
 		CD792C301A881FE20086270E /* ModuleSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD792C1C1A881FE20086270E /* ModuleSelector.cpp */; };
+		CD7CFA6B1B150C3B002339A8 /* CompileTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = CD7CFA661B150C3B002339A8 /* CompileTest.mm */; };
+		CD7CFA6C1B150C3B002339A8 /* MathConstantTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = CD7CFA671B150C3B002339A8 /* MathConstantTest.mm */; };
+		CD7CFA6D1B150C3B002339A8 /* MatrixMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = CD7CFA681B150C3B002339A8 /* MatrixMath.mm */; };
+		CD7CFA6E1B150C3B002339A8 /* StringUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = CD7CFA691B150C3B002339A8 /* StringUtilities.mm */; };
+		CD7CFA6F1B150C3B002339A8 /* VectorMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = CD7CFA6A1B150C3B002339A8 /* VectorMath.mm */; };
+		CD7CFA711B151AB9002339A8 /* Pathname.mm in Sources */ = {isa = PBXBuildFile; fileRef = CD7CFA701B151AB9002339A8 /* Pathname.mm */; };
 		CD80C4E21AB2089B00D915FF /* LERP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4DE1AB2089B00D915FF /* LERP.cpp */; };
 		CD80C4E71AB2092400D915FF /* OptionsButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD80C4E51AB2092400D915FF /* OptionsButton.cpp */; };
 		CD9059341A69A67C00DC425D /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD9059321A69A67C00DC425D /* Random.cpp */; };
@@ -549,7 +549,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Egoboo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Egoboo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		CD048BF41AB7515400E1E52D /* MathConstantTest.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = MathConstantTest.cpp; sourceTree = "<group>"; };
+		CD048BF41AB7515400E1E52D /* MathConstantTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MathConstantTest.cpp; sourceTree = "<group>"; };
 		CD0CB08B1A84AAF800D78E80 /* TextureFilter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureFilter.hpp; sourceTree = "<group>"; };
 		CD0FE11A1A7B091300F3392B /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
 		CD0FE11C1A7B091300F3392B /* BUGS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BUGS.txt; sourceTree = "<group>"; };
@@ -607,13 +607,13 @@
 		CD1F4D691B1394E10028C45E /* Standard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Standard.cpp; sourceTree = "<group>"; };
 		CD1F4D6A1B1394E10028C45E /* Standard.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Standard.hpp; sourceTree = "<group>"; };
 		CD1F4D771B13ECF60028C45E /* ScalarField.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ScalarField.hpp; sourceTree = "<group>"; };
-		CD1F4D781B13F04C0028C45E /* Pathname.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Pathname.cpp; sourceTree = "<group>"; };
-		CD1F4D791B13F04C0028C45E /* VectorMath.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = VectorMath.cpp; sourceTree = "<group>"; };
+		CD1F4D781B13F04C0028C45E /* Pathname.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pathname.cpp; sourceTree = "<group>"; };
+		CD1F4D791B13F04C0028C45E /* VectorMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VectorMath.cpp; sourceTree = "<group>"; };
 		CD2336AB1AF55CB000E35ED1 /* System.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = System.cpp; sourceTree = "<group>"; };
 		CD2336AC1AF55CB000E35ED1 /* System.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = System.hpp; sourceTree = "<group>"; };
 		CD2A94201A8C273E000D7319 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = MatrixMath.cpp; sourceTree = "<group>"; };
-		CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = StringUtilities.cpp; sourceTree = "<group>"; };
+		CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MatrixMath.cpp; sourceTree = "<group>"; };
+		CD2C60FC1ACAF9E0003CF3D6 /* StringUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtilities.cpp; sourceTree = "<group>"; };
 		CD2F42AF1B07FF0300905E42 /* UnhandledSwitchCaseException.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UnhandledSwitchCaseException.hpp; sourceTree = "<group>"; };
 		CD2F42B01B07FF4E00905E42 /* LocalParticleProfileRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalParticleProfileRef.cpp; sourceTree = "<group>"; };
 		CD2F42B11B07FF4E00905E42 /* LocalParticleProfileRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LocalParticleProfileRef.hpp; sourceTree = "<group>"; };
@@ -820,7 +820,7 @@
 		CD50B11C1ABF008700F3ABAF /* CullingMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CullingMode.hpp; sourceTree = "<group>"; };
 		CD50B11D1ABF008700F3ABAF /* TextureAddressMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureAddressMode.hpp; sourceTree = "<group>"; };
 		CD50B11E1ABF008700F3ABAF /* WindingMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WindingMode.hpp; sourceTree = "<group>"; };
-		CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = CompileTest.cpp; sourceTree = "<group>"; };
+		CD54B3341AAEE9C800C1F15D /* CompileTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompileTest.cpp; sourceTree = "<group>"; };
 		CD57FB021B0524A1004A3437 /* NonCopyable.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NonCopyable.hpp; sourceTree = "<group>"; };
 		CD57FB031B0524A1004A3437 /* Platform.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Platform.hpp; sourceTree = "<group>"; };
 		CD57FB041B0524A1004A3437 /* Target.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Target.hpp; sourceTree = "<group>"; };
@@ -895,6 +895,12 @@
 		CD792C321A88204E0086270E /* ModuleProfile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ModuleProfile.hpp; sourceTree = "<group>"; };
 		CD7CD6901AF7052600D94A9A /* EnvironmentError.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EnvironmentError.hpp; sourceTree = "<group>"; };
 		CD7CD6911AF7052600D94A9A /* Exception.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Exception.hpp; sourceTree = "<group>"; };
+		CD7CFA661B150C3B002339A8 /* CompileTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CompileTest.mm; sourceTree = "<group>"; };
+		CD7CFA671B150C3B002339A8 /* MathConstantTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MathConstantTest.mm; sourceTree = "<group>"; };
+		CD7CFA681B150C3B002339A8 /* MatrixMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MatrixMath.mm; sourceTree = "<group>"; };
+		CD7CFA691B150C3B002339A8 /* StringUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringUtilities.mm; sourceTree = "<group>"; };
+		CD7CFA6A1B150C3B002339A8 /* VectorMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorMath.mm; sourceTree = "<group>"; };
+		CD7CFA701B151AB9002339A8 /* Pathname.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Pathname.mm; sourceTree = "<group>"; };
 		CD80C4D91AB1F06600D915FF /* CollectionUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CollectionUtilities.hpp; sourceTree = "<group>"; };
 		CD80C4DB1AB1F06600D915FF /* StringUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StringUtilities.hpp; sourceTree = "<group>"; };
 		CD80C4DE1AB2089B00D915FF /* LERP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LERP.cpp; sourceTree = "<group>"; };
@@ -1736,6 +1742,7 @@
 		CD39CD0F1AA537440005E3EA /* egolib */ = {
 			isa = PBXGroup;
 			children = (
+				CD7CFA651B150C3B002339A8 /* generated */,
 				CD1F4D781B13F04C0028C45E /* Pathname.cpp */,
 				CD1F4D791B13F04C0028C45E /* VectorMath.cpp */,
 				CD2C60FB1ACAF9E0003CF3D6 /* MatrixMath.cpp */,
@@ -1965,6 +1972,20 @@
 				CDED15AC1A88393A00AFA2AD /* UIManager.hpp */,
 			);
 			path = GUI;
+			sourceTree = "<group>";
+		};
+		CD7CFA651B150C3B002339A8 /* generated */ = {
+			isa = PBXGroup;
+			children = (
+				CD7CFA661B150C3B002339A8 /* CompileTest.mm */,
+				CD7CFA671B150C3B002339A8 /* MathConstantTest.mm */,
+				CD7CFA681B150C3B002339A8 /* MatrixMath.mm */,
+				CD7CFA701B151AB9002339A8 /* Pathname.mm */,
+				CD7CFA691B150C3B002339A8 /* StringUtilities.mm */,
+				CD7CFA6A1B150C3B002339A8 /* VectorMath.mm */,
+			);
+			name = generated;
+			path = ../gen/tests;
 			sourceTree = "<group>";
 		};
 		CD80C4D81AB1F06600D915FF /* Core */ = {
@@ -2365,6 +2386,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CD39CD0E1AA536F20005E3EA /* Build configuration list for PBXNativeTarget "EgoLib Tests" */;
 			buildPhases = (
+				CD7CFA641B150B4A002339A8 /* ShellScript */,
 				CD39CCFF1AA536F20005E3EA /* Sources */,
 				CD39CD001AA536F20005E3EA /* Frameworks */,
 				CD39CD011AA536F20005E3EA /* Resources */,
@@ -2655,6 +2677,23 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		CD7CFA641B150B4A002339A8 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd $PROJECT_DIR/../egolib/\nexec perl ../egotest/generate_test_files.pl objc tests/*.cpp";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		8D11072C0486CEB800E47090 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -2733,12 +2772,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CD2C60FD1ACAF9E0003CF3D6 /* MatrixMath.cpp in Sources */,
-				CD54B3351AAEE9C800C1F15D /* CompileTest.cpp in Sources */,
-				CD1F4D7A1B13F04C0028C45E /* Pathname.cpp in Sources */,
-				CD048BF51AB7515400E1E52D /* MathConstantTest.cpp in Sources */,
-				CD1F4D7B1B13F04C0028C45E /* VectorMath.cpp in Sources */,
-				CD2C60FE1ACAF9E0003CF3D6 /* StringUtilities.cpp in Sources */,
+				CD7CFA6B1B150C3B002339A8 /* CompileTest.mm in Sources */,
+				CD7CFA6F1B150C3B002339A8 /* VectorMath.mm in Sources */,
+				CD7CFA6E1B150C3B002339A8 /* StringUtilities.mm in Sources */,
+				CD7CFA711B151AB9002339A8 /* Pathname.mm in Sources */,
+				CD7CFA6C1B150C3B002339A8 /* MathConstantTest.mm in Sources */,
+				CD7CFA6D1B150C3B002339A8 /* MatrixMath.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3136,7 +3175,7 @@
 				INFOPLIST_FILE = "egolib-tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../egotest/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src $(PROJECT_DIR)/../game/src";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../egotest/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src $(PROJECT_DIR)/../game/src $(PROJECT_DIR)/../egolib";
 			};
 			name = Debug;
 		};
@@ -3154,7 +3193,7 @@
 				INFOPLIST_FILE = "egolib-tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../egotest/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src $(PROJECT_DIR)/../game/src";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../egotest/src $(PROJECT_DIR)/../egolib/src $(PROJECT_DIR)/../idlib/src $(PROJECT_DIR)/../game/src $(PROJECT_DIR)/../egolib";
 			};
 			name = Release;
 		};

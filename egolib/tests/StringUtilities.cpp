@@ -20,10 +20,7 @@
 #include "EgoTest/EgoTest.hpp"
 #include "egolib/egolib.h"
 
-EgoTest_DeclareTestCase(StringUtilities)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(StringUtilities)
+EgoTest_TestCase(StringUtilities) {
 
 EgoTest_Test(split)
 {
@@ -71,4 +68,4 @@ EgoTest_Test(tolower)
     EgoTest_Assert(x == "x");
 }
 
-EgoTest_EndTestCase()
+};

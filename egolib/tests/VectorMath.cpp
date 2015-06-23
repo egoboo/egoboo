@@ -20,10 +20,7 @@
 #include "EgoTest/EgoTest.hpp"
 #include "egolib/egolib.h"
 
-EgoTest_DeclareTestCase(VectorMath)
-EgoTest_EndDeclaration()
-
-EgoTest_BeginTestCase(VectorMath)
+EgoTest_TestCase(VectorMath) {
 
 #define TOLERANCE fvec3_t::ScalarType(0.0001)
 
@@ -71,4 +68,4 @@ EgoTest_Test(muls)
     }
 }
 
-EgoTest_EndTestCase()
+};

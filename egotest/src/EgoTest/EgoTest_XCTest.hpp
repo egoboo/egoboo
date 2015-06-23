@@ -29,20 +29,39 @@
 
 #import <XCTest/XCTest.h>
 
-#define EgoTest_DeclareTestCase(TESTCASENAME) \
-@interface TESTCASENAME : XCTestCase
+namespace EgoTest
+{
+    class TestCase
+    {
+    protected:
+        TestCase() {}
+    public:
+        virtual ~TestCase() {}
+        virtual void setUp() {}
+        virtual void tearDown() {}
+        virtual void setUpClass() {}
+        virtual void tearDownClass() {}
+    };
+    extern XCTestCase *currentTestCase;
+}
 
-#define EgoTest_EndDeclaration() \
-@end
-
-#define EgoTest_BeginTestCase(TESTCASENAME) \
-@implementation TESTCASENAME
-
-#define EgoTest_EndTestCase() \
-@end
+#define EgoTest_TestCase(TESTCASENAME) \
+struct TESTCASENAME : ::EgoTest::TestCase
 
 #define EgoTest_Test(TESTNAME) \
-- (void)test_##TESTNAME
+void TESTNAME()
+
+#define EgoTest_SetUpTest() \
+void setUp()
+
+#define EgoTest_TearDownTest() \
+void tearDown()
+
+#define EgoTest_SetUpTestCase() \
+void setUpClass()
+
+#define EgoTest_TearDownTestCase() \
+void tearDownClass()
 
 #define EgoTest_Assert(EXPRESSION) \
-XCTAssert(EXPRESSION)
+do { XCTestCase *self = ::EgoTest::currentTestCase; XCTAssert(EXPRESSION); } while (0)
