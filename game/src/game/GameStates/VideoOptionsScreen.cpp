@@ -162,12 +162,22 @@ VideoOptionsScreen::VideoOptionsScreen() :
 
     	//Change option effect
     	[]{
-			egoboo_config_t::get().graphic_anisotropy_levels.setValue( static_cast<int>(egoboo_config_t::get().graphic_anisotropy_levels.getValue() + 1) % static_cast<int>(g_ogl_caps.maxAnisotropy+1) );
-    		egoboo_config_t::get().graphic_anisotropy_enable.setValue(egoboo_config_t::get().graphic_anisotropy_levels.getValue() > 0);
+    		if(!egoboo_config_t::get().graphic_anisotropy_enable.getValue()) {
+    			egoboo_config_t::get().graphic_anisotropy_enable.setValue(true);
+    			egoboo_config_t::get().graphic_anisotropy_levels.setValue(1.0f);
+    		}
+    		else {
+				egoboo_config_t::get().graphic_anisotropy_levels.setValue((static_cast<int>(egoboo_config_t::get().graphic_anisotropy_levels.getValue()) << 1));
+
+				if(egoboo_config_t::get().graphic_anisotropy_levels.getValue() > egoboo_config_t::get().graphic_anisotropy_levels.getMaxValue()) {
+					egoboo_config_t::get().graphic_anisotropy_levels.setValue(0.0f);
+	    			egoboo_config_t::get().graphic_anisotropy_enable.setValue(false);
+				}
+    		}    		
     	},
 
     	//Only enable button if option is supported by graphics card
-    	g_ogl_caps.maxAnisotropy > 0
+    	egoboo_config_t::get().graphic_anisotropy_levels.getMaxValue() > 0
     );
 
     //Anti-Aliasing
