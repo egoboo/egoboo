@@ -53,11 +53,8 @@
 
 static ego_mesh_t         _mesh[2];
 
-static egolib_throttle_t     game_throttle = EGOLIB_THROTTLE_INIT;
-
 //--------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
 bool  overrideslots      = false;
 
 // End text

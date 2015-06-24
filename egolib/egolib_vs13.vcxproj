@@ -453,7 +453,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\egolib\strutil.c" />
-    <ClCompile Include="src\egolib\throttle.c" />
     <ClCompile Include="src\egolib\timer.c" />
     <ClCompile Include="src\egolib\typedef.c" />
     <ClCompile Include="src\egolib\vfs.c" />
@@ -629,7 +628,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\strutil.h" />
     <ClInclude Include="src\egolib\system.h" />
-    <ClInclude Include="src\egolib\throttle.h" />
     <ClInclude Include="src\egolib\timer.h" />
     <ClInclude Include="src\egolib\typedef.h" />
     <ClInclude Include="src\egolib\vfs.h" />

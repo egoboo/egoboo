@@ -168,9 +168,6 @@
     <ClCompile Include="src\egolib\strutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\throttle.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\timer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -456,9 +453,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\throttle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\system.h">

@@ -156,8 +156,6 @@ static float dynalight_keep = 0.9f;
 
 egolib_timer_t gfx_update_timer;
 
-static egolib_throttle_t gfx_throttle = EGOLIB_THROTTLE_INIT;
-
 static dynalist_t _dynalist = DYNALIST_INIT;
 
 renderlist_mgr_t *renderlist_mgr_t::_singleton = nullptr;
