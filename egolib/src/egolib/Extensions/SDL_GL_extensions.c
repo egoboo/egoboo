@@ -45,12 +45,12 @@ SDL_Surface *SDL_GL_createSurface(int w, int h)
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
+bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
 {
     /// @author BB
     /// @details this function applies OpenGL settings. Must have a valid SDL_Surface to do any good.
 
-    if (NULL == v || !SDL_WasInit(SDL_INIT_VIDEO)) return SDL_FALSE;
+    if (NULL == v || !SDL_WasInit(SDL_INIT_VIDEO)) return false;
 
     oglx_Get_Screen_Info(&g_ogl_caps);
 
@@ -124,7 +124,7 @@ SDL_bool SDL_GL_set_gl_mode(oglx_video_parameters_t * v)
     /* Disable OpenGL lighting */
     GL_DEBUG(glDisable)(GL_LIGHTING);
 
-    return SDL_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void SDL_GL_report_mode(SDLX_video_parameters_t * retval)
 }
 
 //--------------------------------------------------------------------------------------------
-SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new, SDL_bool has_valid_mode)
+SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new, bool has_valid_mode)
 {
     /// @author BB
     /// @details let SDL_GL try to set a new video mode.
@@ -168,7 +168,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     }
 
     // use the sdl extensions to set the SDL video mode
-    retval = SDLX_set_mode(v_old, v_new, has_valid_mode, SDL_FALSE);
+    retval = SDLX_set_mode(v_old, v_new, has_valid_mode, false);
 
     if (NULL != retval)
     {

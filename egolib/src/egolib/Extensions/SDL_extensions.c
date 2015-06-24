@@ -73,7 +73,7 @@ void SDLX_screen_info_t::report(SDLX_screen_info_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
+bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, bool make_report )
 {
     Uint32 init_flags = 0;
     SDL_Window *window;
@@ -82,12 +82,12 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     if ( 0 == init_flags )
     {
         if ( make_report ) log_message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL\n");
-        return SDL_FALSE;
+        return false;
     }
     else if ( HAS_NO_BITS( init_flags, SDL_INIT_VIDEO ) )
     {
         if ( make_report ) log_message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL video driver\n");
-        return SDL_FALSE;
+        return false;
     }
 
     // store the screen info for everyone to use
@@ -121,7 +121,7 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     {
         SDLX_screen_info_t::report(psi);
     }
-    return SDL_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -286,9 +286,9 @@ void SDLX_synch_video_parameters( SDL_Window * ret, SDLX_video_parameters_t * v 
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
+bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
 {
-    if ( NULL == v ) return SDL_FALSE;
+    if ( NULL == v ) return false;
 
     if ( v->flags.opengl )
     {
@@ -316,11 +316,11 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
 #endif
     }
 
-    return SDL_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, SDL_bool make_report )
+SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
 {
     Uint32 flags;
     SDL_Window * ret = nullptr;
@@ -578,7 +578,7 @@ void SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t * v )
 }
 
 //--------------------------------------------------------------------------------------------
-SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool has_valid_mode, SDL_bool make_report )
+SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, bool has_valid_mode, bool make_report )
 {
     /// @author BB
     /// @details let SDL try to set a new video mode.

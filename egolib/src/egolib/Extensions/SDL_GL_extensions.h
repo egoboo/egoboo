@@ -84,4 +84,4 @@ Ego::PixelFormatDescriptor SDL_GL_fromSDL(const SDL_PixelFormat& source);
 std::shared_ptr<SDL_Surface> SDL_GL_convert(std::shared_ptr<SDL_Surface> surface);
 
 /// Set the OpenGL screen mode using SDL
-SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t *v_old, SDLX_video_parameters_t *v_new, oglx_video_parameters_t *gl_new, SDL_bool has_valid_mode);
+SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t *v_old, SDLX_video_parameters_t *v_new, oglx_video_parameters_t *gl_new, bool has_valid_mode);

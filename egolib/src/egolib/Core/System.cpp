@@ -74,6 +74,69 @@ EventService::~EventService()
     SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
+VideoService::VideoService()
+{
+	log_info("Intializing SDL Video ... ");
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
+	{
+		log_message(" failure!\n");
+		EnvironmentError error(__FILE__, __LINE__, "SDL Video", SDL_GetError());
+		log_error("%s\n", ((std::string)error).c_str());
+		throw error;
+	}
+	else
+	{
+		log_message(" success!\n");
+	}
+}
+
+VideoService::~VideoService()
+{
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+
+AudioService::AudioService()
+{
+	log_info("Intializing SDL Audio ... ");
+	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
+	{
+		log_message(" failure!\n");
+		EnvironmentError error(__FILE__, __LINE__, "SDL Audio", SDL_GetError());
+		log_error("%s\n", ((std::string)error).c_str());
+		throw error;
+	}
+	else
+	{
+		log_message(" success!\n");
+	}
+}
+
+AudioService::~AudioService()
+{
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+}
+
+InputService::InputService()
+{
+	log_info("Intializing SDL Joystick/GameController/Haptic ... ");
+	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
+	{
+		log_message(" failure!\n");
+		EnvironmentError error(__FILE__, __LINE__, "SDL Joystick/GameController/Haptic", SDL_GetError());
+		log_error("%s\n", ((std::string)error).c_str());
+		throw error;
+	}
+	else
+	{
+		log_message(" success!\n");
+	}
+}
+
+InputService::~InputService()
+{
+	SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
+}
+
 const std::string System::VERSION = "0.1.9";
 
 System *System::_singleton = nullptr;
@@ -134,10 +197,73 @@ System::System(const char *binaryPath, const char *egobooPath)
         /*vfs_uninitialize();*/
         std::rethrow_exception(std::current_exception());
     }
+	try
+	{
+		_videoService = new VideoService();
+	}
+	catch (...)
+	{
+		delete _eventService;
+		_eventService = nullptr;
+		delete _timerService;
+		_timerService = nullptr;
+		SDL_Quit();
+		setup_end();
+		/*sys_uninitialize();*/
+		log_uninitialize();
+		/*vfs_uninitialize();*/
+		std::rethrow_exception(std::current_exception());
+	}
+	try
+	{
+		_audioService = new AudioService();
+	}
+	catch (...)
+	{
+		delete _videoService;
+		_videoService = nullptr;
+		delete _eventService;
+		_eventService = nullptr;
+		delete _timerService;
+		_timerService = nullptr;
+		SDL_Quit();
+		setup_end();
+		/*sys_uninitialize();*/
+		log_uninitialize();
+		/*vfs_uninitialize();*/
+		std::rethrow_exception(std::current_exception());
+	}
+	try
+	{
+		_inputService = new InputService();
+	}
+	catch (...)
+	{
+		delete _audioService;
+		_audioService = nullptr;
+		delete _videoService;
+		_videoService = nullptr;
+		delete _eventService;
+		_eventService = nullptr;
+		delete _timerService;
+		_timerService = nullptr;
+		SDL_Quit();
+		setup_end();
+		/*sys_uninitialize();*/
+		log_uninitialize();
+		/*vfs_uninitialize();*/
+		std::rethrow_exception(std::current_exception());
+	}
 }
 
 System::~System()
 {
+	delete _inputService;
+	_inputService = nullptr;
+	delete _audioService;
+	_audioService = nullptr;
+	delete _videoService;
+	_videoService = nullptr;
     delete _eventService;
     _eventService = nullptr;
     delete _timerService;

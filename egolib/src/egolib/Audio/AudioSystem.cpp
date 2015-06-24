@@ -63,25 +63,6 @@ AudioSystem::AudioSystem() :
     // Set the configuration first.
     _audioConfig.download(egoboo_config_t::get());
 
-    // Initialize SDL Audio.
-    if (0 == SDL_WasInit(SDL_INIT_AUDIO))
-    {
-        log_info("intializing SDL audio ... ");
-        if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
-        {
-            log_message(" failure!\n");
-            log_warning("unable to initialize SDL audio: \"%s\"\n", SDL_GetError());
-
-            _audioConfig.enableMusic = false;
-            _audioConfig.enableSound = false;
-            throw std::runtime_error("unable to initialized audio system");
-        }
-        else
-        {
-            log_message(" success!\n");
-        }
-    }
-
     // Initialize SDL mixer.
     if (_audioConfig.enableMusic || _audioConfig.enableSound)
     {
@@ -91,7 +72,6 @@ AudioSystem::AudioSystem() :
         {
             log_message(" failure!\n");
             log_warning("unable to initialize audio: \"%s\"\n", Mix_GetError());
-            SDL_QuitSubSystem(SDL_INIT_AUDIO);
             throw std::runtime_error("unable to initialize audio system");
         }
         else
@@ -139,13 +119,9 @@ void AudioSystem::loadGlobalSounds()
 
 AudioSystem::~AudioSystem()
 {
-    if (0 != SDL_WasInit(SDL_INIT_AUDIO))
-    {
-        freeAllSounds();
-        freeAllMusic();
-
-        Mix_CloseAudio();
-    }
+	freeAllSounds();
+    freeAllMusic();
+	Mix_CloseAudio();
 }
 
 void AudioSystem::reconfigure(egoboo_config_t& cfg)

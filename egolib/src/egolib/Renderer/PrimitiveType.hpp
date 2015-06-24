@@ -29,8 +29,6 @@ namespace Ego
 /**
  * @brief
  *  An enumeration of primitive types.
- * @author
- *  Michael Heilmann
  */
 enum class PrimitiveType
 {

@@ -40,7 +40,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     lua_console_t    * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect );
-    SDL_bool           lua_console_destroy( lua_console_t ** pcon );
+    bool           lua_console_destroy( lua_console_t ** pcon );
 
     egolib_console_t * lua_console_get_base( lua_console_t * pcon );
 

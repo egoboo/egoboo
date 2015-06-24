@@ -105,17 +105,6 @@ void input_system_init()
 {
     /// @author BB
     /// @details initialize the inputs
-
-    log_info( "Intializing SDL Joystick... " );
-    if ( SDL_InitSubSystem( SDL_INIT_JOYSTICK ) < 0 )
-    {
-        log_message( "Failed!\n" );
-    }
-    else
-    {
-        log_message( "Success!\n" );
-    }
-
     input_system_init_keyboard();
     input_system_init_mouse();
     input_system_init_joysticks();

@@ -27,8 +27,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static SDL_bool SDL_md2_frame_free( SDL_md2_frame_t * pdata, size_t fcount );
-static SDL_bool SDL_md2_alloc( SDL_md2_model_t * mdl );
+static bool SDL_md2_frame_free( SDL_md2_frame_t * pdata, size_t fcount );
+static bool SDL_md2_alloc( SDL_md2_model_t * mdl );
 
 static float    read_float_RW( SDL_RWops * rw );
 static float  * read_SDL_vecf_RW( SDL_RWops * rw, float  vec[],  size_t count );
@@ -412,9 +412,9 @@ load_SDL_md2_model_RW_error:
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-SDL_bool SDL_md2_alloc( SDL_md2_model_t * mdl )
+bool SDL_md2_alloc( SDL_md2_model_t * mdl )
 {
-    if ( NULL == mdl ) return SDL_FALSE;
+    if ( NULL == mdl ) return false;
 
     // free any allocated memory
     SDL_md2_free( mdl );
@@ -435,20 +435,20 @@ SDL_bool SDL_md2_alloc( SDL_md2_model_t * mdl )
     mdl->glcmds = ( Sint32 * ) SDL_calloc( mdl->header.num_glcmds, sizeof( Sint32 ) );
     if ( NULL == mdl->glcmds ) goto SDL_md2_alloc_fail;
 
-    return  SDL_TRUE;
+    return  true;
 
 SDL_md2_alloc_fail:
 
     // unwind any memory allocations
     SDL_md2_free( mdl );
 
-    return SDL_FALSE;
+    return false;
 };
 
 //--------------------------------------------------------------------------------------------
-SDL_bool SDL_md2_frame_free( SDL_md2_frame_t * pdata, size_t fcount )
+bool SDL_md2_frame_free( SDL_md2_frame_t * pdata, size_t fcount )
 {
-    if ( NULL == pdata ) return SDL_FALSE;
+    if ( NULL == pdata ) return false;
 
     for ( size_t i = 0; i < fcount; ++i )
     {
@@ -461,7 +461,7 @@ SDL_bool SDL_md2_frame_free( SDL_md2_frame_t * pdata, size_t fcount )
         }
     }
 
-    return SDL_TRUE;
+    return true;
 }
 
 

@@ -124,15 +124,15 @@
 //--------------------------------------------------------------------------------------------
 
 /// Grab the current SDL screen information
-    SDL_bool      SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool display );
+    bool      SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, bool display );
 
 /// Use a SDLX_video_parameters_t structure to create window
-    SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, SDL_bool make_report );
+    SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report );
 
 /// Use a SDLX_video_parameters_t structure to try to set a SDL video mode directly
 /// on success, it returns a pointer to the actual data used to set the mode. On failure,
 /// it resets the mode to v_old (if possible), and returns a pointer to the restored parameters
-    SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool has_valid_mode, SDL_bool make_report );
+    SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, bool has_valid_mode, bool make_report );
 
 /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
     void   SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t * v );

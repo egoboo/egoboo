@@ -31,8 +31,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static SDL_bool  _sdl_initialized_graphics = SDL_FALSE;
-static GLboolean _ogl_initialized = GL_FALSE;
+static bool _sdl_initialized_graphics = false;
+static bool _ogl_initialized = false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1316,23 +1316,12 @@ void gfx_system_init_SDL_graphics()
 {
     if (_sdl_initialized_graphics) return;
 
-    log_info("Intializing SDL Video ... ");
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
-    {
-        log_message(" failure!\n");
-        log_warning("SDL error == \"%s\"\n", SDL_GetError());
-    }
-    else
-    {
-        log_message(" success!\n");
-    }
-
     // The flags to pass to SDL_SetVideoMode.
     SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
 
-    sdl_vparam.flags.opengl = SDL_TRUE;
+    sdl_vparam.flags.opengl = true;
     sdl_vparam.gl_att.doublebuffer = true;
-    sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
+    sdl_vparam.gl_att.accelerated_visual = true;
 
     oglx_video_parameters_t::download(&ogl_vparam, &egoboo_config_t::get());
 
@@ -1372,7 +1361,7 @@ void gfx_system_init_SDL_graphics()
     // Set the window name.
     SDL_SetWindowTitle(window, NAME " " VERSION_STR);
 
-    _sdl_initialized_graphics = SDL_TRUE;
+    _sdl_initialized_graphics = true;
 }
 
 //--------------------------------------------------------------------------------------------

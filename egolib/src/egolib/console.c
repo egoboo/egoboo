@@ -111,7 +111,7 @@ void egolib_console_handler_t::uninitialize()
     // without a callback, this console just dumps the input and generates no output
     {
         egolib_console_t *ptmp = (egolib_console_t *)_egolib_console_top;
-        egolib_console_destroy(&ptmp, SDL_TRUE);
+        egolib_console_destroy(&ptmp, true);
     }
 #endif
 
@@ -277,7 +277,7 @@ bool egolib_console_t::run(egolib_console_t *self)
 
     if (nullptr != self->run_func)
     {
-        retval = (SDL_TRUE == self->run_func(self, self->run_data)) ? true : false;
+		retval = self->run_func(self, self->run_data);
     }
 
     return retval;
@@ -300,15 +300,15 @@ egolib_console_t *egolib_console_t::dtor(egolib_console_t *self)
     return self;
 }
 
-SDL_bool egolib_console_destroy( egolib_console_t ** pcon, SDL_bool do_free )
+bool egolib_console_destroy( egolib_console_t ** pcon, bool do_free )
 {
-    if ( NULL == pcon ) return SDL_FALSE;
+    if ( NULL == pcon ) return false;
 
-    if ( NULL == egolib_console_t::dtor( *pcon ) ) return SDL_FALSE;
+    if ( NULL == egolib_console_t::dtor( *pcon ) ) return false;
 
     if ( do_free ) EGOBOO_DELETE( *pcon );
 
-    return SDL_TRUE;
+    return true;
 }
 
 void egolib_console_handler_t::draw_begin()

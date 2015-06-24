@@ -64,6 +64,48 @@ protected:
     virtual ~EventService();
 };
 
+/**
+ * @brief
+ *	A video service.
+ * @author
+ *	Michael Heilmann
+ */
+class VideoService : public Id::NonCopyable
+{
+protected:
+	friend class System;
+	VideoService();
+	virtual ~VideoService();
+};
+
+/**
+ * @brief
+ *	An audio service.
+ * @author
+ *	Michael Heilmann
+ */
+class AudioService : public Id::NonCopyable
+{
+protected:
+	friend class System;
+	AudioService();
+	virtual ~AudioService();
+};
+
+/**
+ * @brief
+ *	An input service.
+ * @author
+ *	Michael Heilmann
+ */
+class InputService : public Id::NonCopyable
+{
+protected:
+	friend class System;
+	InputService();
+	virtual ~InputService();
+};
+
 class System : public Id::NonCopyable
 {
 
@@ -132,6 +174,9 @@ public:
 private:
     TimerService *_timerService;
     EventService *_eventService;
+	VideoService *_videoService;
+	AudioService *_audioService;
+	InputService *_inputService;
 public:
     TimerService &getTimerService()
     {
@@ -141,6 +186,18 @@ public:
     {
         return *_eventService;
     }
+	VideoService& getVideoService()
+	{
+		return *_videoService;
+	}
+	AudioService& getAudioService()
+	{
+		return *_audioService;
+	}
+	InputService& getInputService()
+	{
+		return *_inputService;
+	}
 };
 
 } // namespace Core

@@ -66,7 +66,7 @@ static lua_State     * global_L = NULL;
 // this is the hook for connecting a Lua state to the Egoboo data
 int luaopen_ego( lua_State* L );
 
-static SDL_bool lua_console_run( egolib_console_t * pcon, void * data );
+static bool lua_console_run( egolib_console_t * pcon, void * data );
 
 static int lua_console_print( lua_State * L );
 static int lua_console_report( lua_console_t * pcon, int status );
@@ -133,7 +133,7 @@ lua_console_t * lua_console_ctor( lua_console_t * pcon, SDL_Rect Con_rect )
 //--------------------------------------------------------------------------------------------
 lua_console_t * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect )
 {
-    SDL_bool local_allocation = SDL_FALSE;
+    bool local_allocation = false;
 
     // make sure we have an instance of our lua environment
     initialize_lua();
@@ -141,7 +141,7 @@ lua_console_t * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect )
     // make sure that we have a valid pointer to a console
     if ( NULL == pcon )
     {
-        local_allocation = SDL_TRUE;
+        local_allocation = true;
         pcon = EGOBOO_NEW( lua_console_t );
     }
 
@@ -182,13 +182,13 @@ lua_console_t *lua_console_dtor(lua_console_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool lua_console_destroy(lua_console_t **pcon)
+bool lua_console_destroy(lua_console_t **pcon)
 {
-    if (nullptr == pcon) return SDL_FALSE;
-    if (nullptr == lua_console_dtor(*pcon)) return SDL_FALSE;
+    if (nullptr == pcon) return false;
+    if (nullptr == lua_console_dtor(*pcon)) return false;
     // do the free-ing here
     EGOBOO_DELETE(*pcon);
-    return SDL_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -221,15 +221,15 @@ int lua_console_report( lua_console_t * pcon, int status )
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool lua_console_run( egolib_console_t * ego_con, void * data )
+bool lua_console_run( egolib_console_t * ego_con, void * data )
 {
     int status;
 
-    if (nullptr == ego_con || nullptr == data) return SDL_FALSE;
+    if (nullptr == ego_con || nullptr == data) return false;
 
 	lua_console_t *lua_con = ( lua_console_t * )data;
 
-	if (nullptr == lua_con->L) return SDL_FALSE;
+	if (nullptr == lua_con->L) return false;
 	EGOBOO_ASSERT( nullptr != global_L );
 
     status = luaL_loadbuffer( lua_con->L, ego_con->buffer, strlen( ego_con->buffer ), "lua_console" );
@@ -245,7 +245,7 @@ SDL_bool lua_console_run( egolib_console_t * ego_con, void * data )
         lua_console_report( lua_con, status );
     };
 
-    return ( SDL_bool )( 0 == status );
+    return (0 == status);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -277,5 +277,5 @@ int lua_console_print( lua_State * L )
     }
     egolib_console_t::print(ego_con, "\n");
 
-    return SDL_TRUE;
+    return true;
 }

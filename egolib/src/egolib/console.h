@@ -32,14 +32,14 @@
 struct egolib_console_t;
 
 /// console callback used to implement specializations of the egolib_console
-typedef SDL_bool (*egolib_console_callback_t)(egolib_console_t *console, void *data);
+typedef bool (*egolib_console_callback_t)(egolib_console_t *console, void *data);
 
 //--------------------------------------------------------------------------------------------
 // struct s_egolib_console
 //--------------------------------------------------------------------------------------------
 
 egolib_console_t *egolib_console_create(egolib_console_t *pcon, SDL_Rect rect, egolib_console_callback_t callback, void *data);
-SDL_bool egolib_console_destroy(egolib_console_t **console, SDL_bool do_free);
+bool egolib_console_destroy(egolib_console_t **console, bool do_free);
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES

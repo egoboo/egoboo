@@ -137,8 +137,8 @@ static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
 static SDLX_video_parameters_t sdl_vparam;
 static oglx_video_parameters_t ogl_vparam;
 
-static SDL_bool _sdl_initialized_graphics = SDL_FALSE;
-static bool   _ogl_initialized = false;
+static bool _sdl_initialized_graphics = false;
+static bool _ogl_initialized = false;
 
 static float sinlut[MAXLIGHTROTATION];
 static float coslut[MAXLIGHTROTATION];
@@ -488,23 +488,10 @@ void GFX::initializeSDLGraphics()
         return;
     }
 
-    //ego_init_SDL_base();
-
-    log_info("Intializing SDL Video ... ");
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
-    {
-        log_message(" failure!\n");
-        log_warning("SDL error == \"%s\"\n", SDL_GetError());
-    }
-    else
-    {
-        log_message(" success!\n");
-    }
-
     // The flags to pass to SDL_SetVideoMode.
     SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
 
-    sdl_vparam.flags.opengl = SDL_TRUE;
+    sdl_vparam.flags.opengl = true;
     sdl_vparam.gl_att.doublebuffer = true;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
     sdl_vparam.gl_att.accum[0] = 8;
@@ -576,7 +563,7 @@ void GFX::initializeSDLGraphics()
     auto title = std::string("Egoboo ") + GameEngine::GAME_VERSION;
     SDL_SetWindowTitle(window, title.c_str());
 
-    _sdl_initialized_graphics = SDL_TRUE;
+    _sdl_initialized_graphics = true;
 }
 
 //--------------------------------------------------------------------------------------------

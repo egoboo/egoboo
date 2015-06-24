@@ -21,14 +21,14 @@
 /// @brief  Enumeration of culling modes.
 /// @author Michael Heilmann
 
+#pragma once
+
 namespace Ego
 {
 
 /**
  * @brief
  *  An enumeration of culling modes.
- * @author
- *  Michael Heilmann
  */
 enum class CullingMode
 {
@@ -60,4 +60,3 @@ enum class CullingMode
 };
 
 } // namespace Ego
-
