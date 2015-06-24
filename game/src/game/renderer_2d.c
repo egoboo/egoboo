@@ -542,7 +542,7 @@ bool dump_screenshot()
     i = 0;
     while ( !savefound && ( i < 100 ) )
     {
-        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.bmp", i );
+        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.png", i );
 
         // lame way of checking if the file already exists...
         savefound = !vfs_exists( szFilename );
@@ -560,7 +560,7 @@ bool dump_screenshot()
     // if we are not using OpenGL, use SDL to dump the screen
     if (HAS_NO_BITS(SDL_GetWindowFlags(sdl_scr.window), SDL_WINDOW_OPENGL))
     {
-        return SDL_SaveBMP_RW(SDL_GetWindowSurface(sdl_scr.window), vfs_openRWopsWrite(szResolvedFilename), 1);
+        return IMG_SavePNG_RW(SDL_GetWindowSurface(sdl_scr.window), vfs_openRWopsWrite(szResolvedFilename), 1);
     }
 
     // we ARE using OpenGL
@@ -627,7 +627,7 @@ bool dump_screenshot()
             SDL_UnlockSurface( temp );
 
             // Save the file as a .bmp
-            saved = ( -1 != SDL_SaveBMP_RW( temp, vfs_openRWopsWrite(szResolvedFilename), 1 ) );
+            saved = ( -1 != IMG_SavePNG_RW( temp, vfs_openRWopsWrite(szResolvedFilename), 1 ) );
         }
 
         // free the SDL surface
