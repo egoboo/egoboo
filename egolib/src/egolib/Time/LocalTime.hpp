@@ -29,37 +29,41 @@ namespace Ego {
 namespace Time {
 /**
  * @brief
- *  Reprenation of "local" (aka "calendar") time.
- *  Esentially wrapper around std::localtime avoid calls to std::localtime
- *  whenever possible and thread-safe w.r.t. its own calls to std::localtime.
- *  However, if other code uses std::localtime, tht thread-safety is not
- *  guaranteed anymore.
- * @remark
- *   Unlike using localtime() and friends, using this class is thread-safe if no one else calls localtime() and friends.
- * @see
- *    http://en.cppreference.com/w/cpp/chrono/c/tm
+ *	"local" (aka "calendar") time class . Essentially, this class
+ *	provides the same functionality as std::localtime/std::tm, but
+ *	is multi-threading safe.
  * @author
  *  Michael Heilmann
- * @todo
- *  Establish full thread-safety by not using std::localtime.
  */
 struct LocalTime {
+	typedef std::chrono::system_clock SystemClockType;
+	typedef std::chrono::system_clock::time_point SystemTimePoint;
+	typedef std::tm LocalTimeType;
 private:
-    std::tm _timeinfo;
+	LocalTimeType _localTime;
+	/// convert std::chrono::system_clock::time_point object (system clock time) into an std::tm object (local time).
+	static LocalTimeType convert(const SystemTimePoint& source);
+	/// Convert an std::time object (system clock time) into an std::tm time object (local time).
+	static LocalTimeType convert(const std::time_t& source);
 public:
     /**
      * @brief
-     *  Construct this local time object with the current local time.
+     *  Construct this local time object.
+	 * @param src
+	 *	a system clock time point
      */
-    LocalTime();
+	LocalTime(const SystemTimePoint& other = SystemClockType::now())
+		: _localTime(convert(other)) {
+	}
     /**
      * @brief
      *  Construct this local time object with the local time of another local time object.
      * @param other
      *  the other local time object
      */
-    LocalTime(const LocalTime& other);
-    /**
+	LocalTime(const LocalTime& other);
+    
+	/**
      * @brief
      *  Assign this local time object with the local time of another local time object.
      * @param other
@@ -68,6 +72,67 @@ public:
      *  this local time object
      */
     LocalTime& operator=(const LocalTime& other);
+
+	/**
+	 * @brief
+	 *	Get if this local time is equal to another local time.
+	 * @param other
+	 *	the other local time
+	 * @return
+	 *	@a true if this local time is equal to the other local time
+	 */
+	bool operator==(const LocalTime& other) const;
+
+	/**
+	 * @brief
+	 *	Get if this local time is not equal to another local time.
+	 * @param other
+	 *	the other local time
+	 * @return
+	 *	@a true if this local time is equal to the other local time
+	 */
+	bool operator!=(const LocalTime& other) const;
+
+	/**
+	 * @brief
+	 *	Get if this local time is smaller than another local time.
+	 * @param other
+	 *	the other local time
+	 * @return
+	 *	@a true if this local time is smaller than the other local time
+	 */
+	bool LocalTime::operator < (const LocalTime& other) const;
+
+	/**
+	 * @brief
+	 *	Get if this local time is greater than another local time.
+	 * @param other
+	 *	the other local time
+	 * @return
+	 *	@a true if this local time is greater than the other local time
+	 */
+	bool LocalTime::operator > (const LocalTime& other) const;
+
+	/**
+	 * @brief
+	 *	Get if this local time is smaller than or equal to another local time.
+	 * @param other
+	 *	the other local time
+	 * @return
+	 *	@a true if this local time is smaller than or equal to the other local time
+	*/
+	bool LocalTime::operator <= (const LocalTime& other) const;
+
+	/**
+	 * @brief
+	 *	Get if this local time is greater than than or equal to another local time.
+	 * @param other
+	 *	the other local time
+	 * @return
+	 *	@a true if this local time is greater than or equal to the other local time
+	 */
+	bool LocalTime::operator >= (const LocalTime& other) const;
+
     /**
      * @brief
      *  The day of the month,
@@ -76,7 +141,7 @@ public:
      *  the day of the month
      */
     int getDayOfMonth() const {
-        return _timeinfo.tm_mday;
+		return _localTime.tm_mday;
     }
     /**
      * @brief
@@ -86,7 +151,7 @@ public:
      *  days since Sunday
      */
     int getDayOfWeek() const {
-        return _timeinfo.tm_wday;
+		return _localTime.tm_wday;
     }
     /**
      * @brief
@@ -96,7 +161,7 @@ public:
      *  hours since midnight
      */
     int getHours() const {
-        return _timeinfo.tm_hour;
+		return _localTime.tm_hour;
     }
     /**
      * @brief
@@ -106,7 +171,7 @@ public:
      *  minutes after the hour
      */
     int getMinutes() const {
-        return _timeinfo.tm_min;
+		return _localTime.tm_min;
     }
     /**
      * @brief
@@ -117,7 +182,7 @@ public:
      *  seconds after the minue
      */
     int getSeconds() const {
-        return _timeinfo.tm_sec;
+		return _localTime.tm_sec;
     }
     /**
      * @brief
@@ -127,7 +192,7 @@ public:
      *  months since January
      */
     int getMonth() const {
-        return _timeinfo.tm_mon;
+		return _localTime.tm_mon;
     }
     /**
      * @brief
@@ -136,7 +201,7 @@ public:
      *  the years since 1900.
      */
     int getYear() const {
-        return _timeinfo.tm_year;
+		return _localTime.tm_year;
     }
     /**
      * @brief
@@ -146,8 +211,10 @@ public:
      *  days since January 1st
      */
     int getDayOfYear() const {
-        return _timeinfo.tm_yday;
+		return _localTime.tm_yday;
     }
+
 };
+
 } // Time
 } // Ego
