@@ -568,7 +568,15 @@ void move_all_objects()
 //--------------------------------------------------------------------------------------------
 void cleanup_all_objects()
 {
-    cleanup_all_characters();
+    // Do poofing
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+    {
+        bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
+        if ( !time_out || object->isTerminated() ) continue;
+
+        object->requestTerminate();
+    }
+
     cleanup_all_particles();
     cleanup_all_enchants();
 }

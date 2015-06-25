@@ -236,7 +236,6 @@ void update_all_character_matrices();
 
 void update_all_characters();
 void move_all_characters();
-void cleanup_all_characters();
 void bump_all_characters_update_counters();
 void free_all_chraracters();
 

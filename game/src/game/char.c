@@ -4711,19 +4711,6 @@ void move_all_characters()
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_characters()
-{
-    // Do poofing
-    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-    {
-        bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
-        if ( !time_out || object->isTerminated() ) continue;
-
-        object->requestTerminate();
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects )
 {
     FACING_T left, right;
