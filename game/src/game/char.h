@@ -33,6 +33,7 @@
 #include "game/egoboo.h"
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"
+#include "game/ObjectAnimation.hpp"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -167,21 +168,10 @@ enum e_chr_movement_bits
 Object *   chr_update_hide( Object * pchr );
 egolib_rv chr_update_collision_size( Object * pchr, bool update_matrix );
 
-bool     chr_heal_mad( Object * pchr );
-MAD_REF  chr_get_imad( const CHR_REF ichr );
-mad_t   *chr_get_pmad( const CHR_REF ichr );
 TX_REF   chr_get_txtexture_icon_ref( const CHR_REF item );
-
-Uint32 chr_get_framefx( Object * pchr );
 
 egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
 
-egolib_rv chr_set_action( Object * pchr, int action, bool action_ready, bool override_action );
-egolib_rv chr_start_anim( Object * pchr, int action, bool action_ready, bool override_action );
-egolib_rv chr_set_anim( Object * pchr, int action, int frame, bool action_ready, bool override_action );
-egolib_rv chr_increment_action( Object * pchr );
-egolib_rv chr_increment_frame( Object * pchr );
-egolib_rv chr_play_action( Object * pchr, int action, bool action_ready );
 bool chr_update_breadcrumb_raw( Object * pchr );
 bool chr_update_breadcrumb( Object * pchr, bool force );
 bool chr_update_safe_raw( Object * pchr );
@@ -194,18 +184,6 @@ void chr_set_floor_level( Object * pchr, const float level );
 void chr_set_redshift( Object * pchr, const int rs );
 void chr_set_grnshift( Object * pchr, const int gs );
 void chr_set_blushift( Object * pchr, const int bs );
-
-/// @details Make sure the value it calculated relative to a valid matrix.
-bool chr_getMatUp(Object *self, fvec3_t& up);
-
-/// @details Make sure the value it calculated relative to a valid matrix.
-bool chr_getMatRight(Object *self, fvec3_t& right);
-
-/// @details Make sure the value it calculated relative to a valid matrix.
-bool chr_getMatForward(Object *self, fvec3_t& forward);
-
-/// @details Make sure the value it calculated relative to a valid matrix.
-bool chr_getMatTranslate(Object *self, fvec3_t& translate);
 
 std::string chr_get_dir_name( const CHR_REF ichr );
 int chr_get_skill( Object * pchr, IDSZ whichskill );
@@ -231,9 +209,6 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
-
-void update_all_character_matrices();
-
 void update_all_characters();
 void move_all_characters();
 void bump_all_characters_update_counters();
@@ -286,12 +261,9 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker );
 
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
-bool setup_xp_table( const CHR_REF character );
-
 int     change_armor( const CHR_REF character, const SKIN_T skin );
 void    change_character( const CHR_REF cnt, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 void    change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich );
-bool  cost_mana( const CHR_REF character, int amount, const CHR_REF killer );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
 void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
