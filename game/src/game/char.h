@@ -33,7 +33,7 @@
 #include "game/egoboo.h"
 #include "game/Entities/_Include.hpp"
 #include "game/CharacterMatrix.h"
-#include "game/ObjectAnimation.hpp"
+#include "game/ObjectAnimation.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

@@ -846,7 +846,8 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     const auto color_blu = Ego::Math::Colour4f::parse(0x7F, 0x7F, 0xFF, 0xFF);
     const auto default_tint = Ego::Math::Colour4f::white();
 
-    const float MAX_DIST_INFO = 3.0f * GRID_FSIZE;
+    //Max search distance in quad tree relative to object position
+    const float MAX_SEARCH_DIST = 3.0f * GRID_FSIZE;
 
     //Max grab distance is 2/3rds of a tile
     const float MAX_DIST_GRAB = GRID_FSIZE * 0.66f;
@@ -885,7 +886,8 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 	slot_pos += pchr_a->getPosition();
 
     // Go through all characters to find the best match
-    for(const std::shared_ptr<Object> &pchr_c : _currentModule->getObjectHandler().iterator())
+    std::vector<std::shared_ptr<Object>> nearbyObjects = _currentModule->getObjectHandler().findObjects(slot_pos[kX], slot_pos[kY], MAX_SEARCH_DIST);
+    for(const std::shared_ptr<Object> &pchr_c : nearbyObjects)
     {
         grab_data_t grabData;
         bool canGrab = true;
@@ -938,7 +940,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         grabData.isFacingObject = pchr_a->isFacingLocation(pchr_c->getPosX(), pchr_c->getPosY());
 
         // Is it too far away to interact with?
-        if (grabData.horizontalDistance > MAX_DIST_INFO || grabData.verticalDistance > MAX_DIST_INFO) continue;
+        if (grabData.horizontalDistance > MAX_SEARCH_DIST || grabData.verticalDistance > MAX_SEARCH_DIST) continue;
 
         // visibility affects the max grab distance.
         // if it is not visible then we have to be touching it.
