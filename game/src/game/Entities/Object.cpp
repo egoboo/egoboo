@@ -1735,3 +1735,53 @@ BIT_FIELD Object::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
 
 	return result;
 }
+
+bool Object::costMana(int amount, const CHR_REF killer)
+{
+    const std::shared_ptr<Object> &pkiller = _currentModule->getObjectHandler()[killer];
+
+    bool manaPaid  = false;
+    int manaFinal = getMana() - amount;
+
+    if (manaFinal < 0)
+    {
+        int manaDebt = -manaFinal;
+
+        mana = 0;
+
+        if ( canchannel )
+        {
+            life -= manaDebt;
+
+            if (life <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
+            {
+                kill(pkiller != nullptr ? pkiller : _currentModule->getObjectHandler()[this->getCharacterID()], false);
+            }
+
+            manaPaid = true;
+        }
+    }
+    else
+    {
+        int mana_surplus = 0;
+
+        mana = manaFinal;
+
+        if ( manaFinal > getMaxMana() )
+        {
+            mana_surplus = manaFinal - getMaxMana();
+            mana = getMaxMana();
+        }
+
+        // allow surplus mana to go to health if you can channel?
+        if ( canchannel && mana_surplus > 0 )
+        {
+            // use some factor, divide by 2
+            heal(pkiller, mana_surplus / 2, true);
+        }
+
+        manaPaid = true;
+    }
+
+    return manaPaid;
+}

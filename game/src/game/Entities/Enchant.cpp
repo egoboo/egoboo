@@ -1059,7 +1059,7 @@ enc_t *enc_t::config_do_active()
                 // Change mana
                 if (0 != this->owner_mana)
                 {
-                    bool mana_paid = cost_mana(owner, -this->owner_mana, target);
+                    bool mana_paid = powner->costMana(-this->owner_mana, target);
                     if ( EveStack.get_ptr(eve)->endIfCannotPay && !mana_paid )
                     {
                         requestTerminate();
@@ -1096,7 +1096,7 @@ enc_t *enc_t::config_do_active()
                     // Change mana
                     if (0 != this->target_mana)
                     {
-                        bool mana_paid = cost_mana(target, -this->target_mana, owner);
+                        bool mana_paid = ptarget->costMana(-this->target_mana, owner);
                         if ( EveStack.get_ptr(eve)->endIfCannotPay && !mana_paid )
                         {
                             requestTerminate();

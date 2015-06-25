@@ -3307,7 +3307,13 @@ Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = cost_mana( pself->target, pstate->argument, pself->index );
+    const std::shared_ptr<Object> target = _currentModule->getObjectHandler()[pself->target];
+    if(target) {
+        returncode = target->costMana(pstate->argument, pself->index);
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }

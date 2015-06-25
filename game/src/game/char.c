@@ -111,8 +111,6 @@ static void chr_set_enviro_grid_level( Object * pchr, const float level );
 
 static bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
-static bool chr_get_environment( Object * pchr );
-
 Object * chr_config_do_init( Object * pchr );
 static int chr_change_skin( const CHR_REF character, const SKIN_T skin );
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
@@ -1723,15 +1721,6 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-bool chr_get_environment( Object * pchr )
-{
-    if ( NULL == pchr ) return false;
-
-    move_one_character_get_environment( pchr );
-
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1853,7 +1842,7 @@ Object * chr_config_do_init( Object * pchr )
     pchr->fat_goto_time = 0;
 
     // grab all of the environment information
-    chr_get_environment( pchr );
+    move_one_character_get_environment( pchr );
 
     pchr->setPosition(pos_tmp);
 
@@ -2496,67 +2485,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     ai_state_set_changed( &( pchr->ai ) );
 
     chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
-}
-
-//--------------------------------------------------------------------------------------------
-bool cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
-{
-    /// @author ZZ
-    /// @details This function takes mana from a character ( or gives mana ),
-    ///    and returns true if the character had enough to pay, or false
-    ///    otherwise. This can kill a character in hard mode.
-
-    int mana_final;
-    bool mana_paid;
-
-    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
-    const std::shared_ptr<Object> &pkiller = _currentModule->getObjectHandler()[killer];
-
-    mana_paid  = false;
-    mana_final = pchr->mana - amount;
-
-    if ( mana_final < 0 )
-    {
-        int mana_debt = -mana_final;
-
-        pchr->mana = 0;
-
-        if ( pchr->canchannel )
-        {
-            pchr->life -= mana_debt;
-
-            if (pchr->life <= 0 && egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)
-            {
-                pchr->kill(pkiller != nullptr ? pkiller : pchr, false);
-            }
-
-            mana_paid = true;
-        }
-    }
-    else
-    {
-        int mana_surplus = 0;
-
-        pchr->mana = mana_final;
-
-        if ( mana_final > pchr->mana_max )
-        {
-            mana_surplus = mana_final - pchr->mana_max;
-            pchr->mana   = pchr->mana_max;
-        }
-
-        // allow surplus mana to go to health if you can channel?
-        if ( pchr->canchannel && mana_surplus > 0 )
-        {
-            // use some factor, divide by 2
-            pchr->heal(pkiller, mana_surplus / 2, true);
-        }
-
-        mana_paid = true;
-
-    }
-
-    return mana_paid;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3460,7 +3388,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
             {
                 if(pchr->getProfile()->getUseManaCost() <= pchr->mana)
                 {
-                    cost_mana(pchr->getCharacterID(), pchr->getProfile()->getUseManaCost(), pchr->getCharacterID());
+                    pchr->costMana(pchr->getProfile()->getUseManaCost(), pchr->getCharacterID());
                 }
                 else
                 {
