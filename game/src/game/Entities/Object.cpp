@@ -1785,3 +1785,89 @@ bool Object::costMana(int amount, const CHR_REF killer)
 
     return manaPaid;
 }
+
+void Object::respawn()
+{
+    //already alive?
+    if(isAlive()) {
+        return;
+    }
+
+    const std::shared_ptr<ObjectProfile> &profile = getProfile();
+
+    int old_attached_prt_count = number_of_attached_particles( getCharacterID() );
+
+    spawn_poof( getCharacterID(), profile_ref );
+    disaffirm_attached_particles( getCharacterID() );
+
+    alive = true;
+    bore_timer = BORETIME;
+    careful_timer = CAREFULTIME;
+    life = life_max;
+    mana = getMaxMana();
+    setPosition(pos_stt);
+    vel = fvec3_t::zero();
+    team = team_base;
+    canbecrushed = false;
+    ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    ori.map_twist_facing_x = MAP_TURN_OFFSET;
+    if ( !getTeam().getLeader() )  getTeam().setLeader( _currentModule->getObjectHandler()[getCharacterID()] );
+    if ( !isInvincible() )         getTeam().increaseMorale();
+
+    // start the character out in the "dance" animation
+    chr_start_anim(this, ACTION_DA, true, true);
+
+    // reset all of the bump size information
+    {
+        fat_stt           = profile->getSize();
+        shadow_size_stt   = profile->getShadowSize();
+        bump_stt.size     = profile->getBumpSize();
+        bump_stt.size_big = profile->getBumpSizeBig();
+        bump_stt.height   = profile->getBumpHeight();
+
+        shadow_size_save   = shadow_size_stt;
+        bump_save.size     = bump_stt.size;
+        bump_save.size_big = bump_stt.size_big;
+        bump_save.height   = bump_stt.height;
+
+        recalculateCollisionSize();
+    }
+
+    platform        = profile->isPlatform();
+    canuseplatforms = profile->canUsePlatforms();
+    flyheight       = profile->getFlyHeight();
+    phys.bumpdampen = profile->getBumpDampen();
+
+    ai.alert = ALERTIF_CLEANEDUP;
+    ai.target = getCharacterID();
+    ai.timer  = 0;
+
+    grog_timer = 0;
+    daze_timer = 0;
+
+    // Let worn items come back
+    PACK_BEGIN_LOOP( inventory, pitem, item )
+    {
+        if ( _currentModule->getObjectHandler().get(item)->isequipped )
+        {
+            _currentModule->getObjectHandler().get(item)->isequipped = false;
+            SET_BIT( ai.alert, ALERTIF_PUTAWAY ); // same as ALERTIF_ATLASTWAYPOINT
+        }
+    }
+    PACK_END_LOOP();
+
+    // re-initialize the instance
+    chr_instance_t::spawn(inst, profile_ref, skin);
+    chr_update_matrix( this, true );
+
+    // determine whether the object is hidden
+    chr_update_hide( this );
+
+    if ( !isHidden() )
+    {
+        reaffirm_attached_particles( getCharacterID() );
+        int new_attached_prt_count = number_of_attached_particles( getCharacterID() );
+    }
+
+    chr_instance_t::update_ref(inst, enviro.grid_level, true );
+}

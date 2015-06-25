@@ -1949,7 +1949,7 @@ Uint8 scr_RespawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    respawn_character( pself->index );
+    pchr->respawn();
 
     SCRIPT_FUNCTION_END();
 }
@@ -5771,7 +5771,7 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
     save_pos = pself_target->getPosition();
-    respawn_character( pself->target );
+    pself_target->respawn();
     pself_target->setPosition(save_pos);
 
     SCRIPT_FUNCTION_END();

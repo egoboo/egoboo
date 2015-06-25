@@ -705,11 +705,11 @@ int update_game()
         if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
         pchr = _currentModule->getObjectHandler().get( ichr );
 
-        if ( !pchr->alive )
+        if ( !pchr->isAlive() )
         {
             if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && local_stats.allpladead && SDL_KEYDOWN(keyb, SDLK_SPACE) && _currentModule->isRespawnValid() && 0 == local_stats.revivetimer)
             {
-                respawn_character( ichr );
+                pchr->respawn();
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
 
                 if (egoboo_config_t::get().game_difficulty.getValue() > Ego::GameDifficulty::Easy)

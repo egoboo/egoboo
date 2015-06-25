@@ -188,6 +188,13 @@ public:
 
     /**
     * @brief
+    *   Respawns a Object, bringing it back to life and moving it to its initial position and state.
+    *   Does nothing if character is already alive.
+    **/
+    void respawn();
+
+    /**
+    * @brief
     *   This function updates stats and such for this Object (called once per update loop)
     **/
     void update();
