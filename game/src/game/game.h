@@ -349,24 +349,21 @@ struct pit_info_t
 
 //--------------------------------------------------------------------------------------------
 
-/// Status display info
-struct status_list_element_t
-{
-    int camera_index;
-    CHR_REF who;
-	status_list_element_t()
-		: camera_index(-1), who(INVALID_CHR_REF) {
-	}
-};
-
-//--------------------------------------------------------------------------------------------
-
 /// List of objects with status displays
 struct status_list_t
 {
+	/// Status display info
+	struct element_t
+	{
+		int camera_index;
+		CHR_REF who;
+		element_t()
+			: camera_index(-1), who(INVALID_CHR_REF) {
+		}
+	};
     bool on;
     size_t count;
-    status_list_element_t lst[MAX_STATUS];
+    element_t lst[MAX_STATUS];
 
 	status_list_t()
 		: on(false), count(0), lst() {

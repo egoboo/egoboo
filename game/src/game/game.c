@@ -419,7 +419,7 @@ void statlist_add( const CHR_REF character )
 void statlist_move_to_top( const CHR_REF character )
 {
     int cnt, oldloc;
-    status_list_element_t tmp;
+    status_list_t::element_t tmp;
 
     // Find where it is
     oldloc = g_statusList.count;
@@ -4607,7 +4607,7 @@ bool status_list_update_cameras(status_list_t& self)
 	}
 	for (size_t i = 0; i < self.count; ++i)
     {
-		status_list_element_t& element = self.lst[i];
+		status_list_t::element_t& element = self.lst[i];
         element.camera_index = CameraSystem::get()->getCameraIndexByID(element.who);
     }
 

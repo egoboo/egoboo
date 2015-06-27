@@ -1355,11 +1355,11 @@ void draw_all_status()
         int y = camera->getScreen().ymin;
         for (size_t tnc = 0; tnc < g_statusList.count; tnc++)
         {
-            status_list_element_t * pelem = g_statusList.lst + tnc;
+            status_list_t::element_t& elem = g_statusList.lst[tnc];
 
-            if (i == pelem->camera_index)
+            if (i == elem.camera_index)
             {
-                y = draw_status(pelem->who, camera->getScreen().xmax - BARX, y);
+                y = draw_status(elem.who, camera->getScreen().xmax - BARX, y);
             }
         }
     }
