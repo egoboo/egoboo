@@ -304,6 +304,16 @@ struct import_element_t
     size_t          local_player_num;   ///< Local player number (player 1, 2, 3 or 4)
     size_t          player;             ///< Which player is this?
     int             slot;               ///< which slot it it to be loaded into
+
+	import_element_t() {
+		srcDir[0] = '\0';
+		dstDir[0] = '\0';
+		name[0] = '\0';
+		local_player_num = 0;
+		// all non-zero, non-null values
+		player = INVALID_PLA_REF;
+		slot = -1;
+	}
 };
 
 void import_element_init(import_element_t& self);
@@ -314,9 +324,11 @@ struct import_list_t
 {
     size_t           count;              ///< Number of imports
     import_element_t lst[MAX_IMPORTS];
-};
 
-#define IMPORT_LIST_INIT {0}
+	import_list_t()
+		: count(0), lst() {
+	}
+};
 
 void import_list_init(import_list_t& self);
 egolib_rv import_list_from_players(import_list_t& self);
@@ -388,7 +400,7 @@ extern pit_info_t g_pits;
 extern bool    overrideslots;          ///< Override existing slots?
 extern FACING_T  glouseangle;            ///< global return value from prt_find_target() - actually still used
 
-extern import_list_t ImportList;
+extern import_list_t g_importList;
 
 // various clocks and timers
 extern Sint32          clock_wld;             ///< The sync clock

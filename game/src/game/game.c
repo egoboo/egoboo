@@ -76,7 +76,7 @@ weather_instance_t    weather;
 water_instance_t      water;
 fog_instance_t        fog;
 
-import_list_t ImportList  = IMPORT_LIST_INIT;
+import_list_t g_importList;
 
 Sint32          clock_wld        = 0;
 Uint32          clock_enc_stat   = 0;
@@ -2235,20 +2235,20 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 pobject->nameknown = true;
             }
         }
-        else if ( PlaStack.count < _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() && PlaStack.count < ImportList.count )
+        else if ( PlaStack.count < _currentModule->getImportAmount() && PlaStack.count < _currentModule->getPlayerAmount() && PlaStack.count < g_importList.count )
         {
             // A multiplayer module
 
             bool player_added;
 
             local_index = -1;
-            for ( size_t tnc = 0; tnc < ImportList.count; tnc++ )
+            for ( size_t tnc = 0; tnc < g_importList.count; tnc++ )
             {
                 if (pobject->profile_ref <= import_data.max_slot && ProfileSystem::get().isValidProfileID(pobject->profile_ref))
                 {
                     int islot = REF_TO_INT( pobject->profile_ref );
 
-                    if ( import_data.slot_lst[islot] == ImportList.lst[tnc].slot )
+                    if ( import_data.slot_lst[islot] == g_importList.lst[tnc].slot )
                     {
                         local_index = tnc;
                         break;
@@ -2260,7 +2260,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[ImportList.lst[local_index].local_player_num] );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, &InputDevices.lst[g_importList.lst[local_index].local_player_num] );
             }
             else
             {
@@ -2738,14 +2738,14 @@ bool game_finish_module()
         export_all_players( false );
 
         // update the import list
-        import_list_from_players(ImportList);
+        import_list_from_players(g_importList);
     }
 
     // erase the data in the import folder
     vfs_removeDirectoryAndContents( "import", VFS_TRUE );
 
     // copy the import data back into the import folder
-    game_copy_imports( &ImportList );
+    game_copy_imports( &g_importList );
 
     return true;
 }

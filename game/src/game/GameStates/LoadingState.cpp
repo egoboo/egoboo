@@ -123,17 +123,17 @@ void LoadingState::beginState()
 bool LoadingState::loadPlayers()
 {
     // blank out any existing data
-    import_list_init(ImportList);
+    import_list_init(g_importList);
 
     // loop through the selected players and store all the valid data in the list of imported players
     for(const std::string &loadPath : _playersToLoad)
     {
         // get a new import data pointer
-        import_element_t *import_ptr = ImportList.lst + ImportList.count;
-        ImportList.count++;
+        import_element_t *import_ptr = g_importList.lst + g_importList.count;
+        g_importList.count++;
 
         //figure out which player we are (1, 2, 3 or 4)
-        import_ptr->local_player_num = ImportList.count-1;
+        import_ptr->local_player_num = g_importList.count-1;
 
         // set the import info
         import_ptr->slot            = (import_ptr->local_player_num) * MAX_IMPORT_PER_PLAYER;
@@ -143,9 +143,9 @@ bool LoadingState::loadPlayers()
         import_ptr->dstDir[0] = CSTR_END;
     }
 
-    if(ImportList.count > 0) {
+    if(g_importList.count > 0) {
 
-        if(game_copy_imports(&ImportList) == rv_success) {
+        if(game_copy_imports(&g_importList) == rv_success) {
             return true;
         }
         else {
