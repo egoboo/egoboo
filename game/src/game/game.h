@@ -329,7 +329,7 @@ struct status_list_t
 
 #define STATUS_LIST_INIT { false /* on */, 0 /* count */, {STATUS_LIST_ELEMENT_INIT} /* lst */ }
 
-bool status_list_update_cameras( status_list_t * plst );
+bool status_list_update_cameras(status_list_t& self);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -4652,16 +4652,15 @@ float water_instance_layer_get_level(water_instance_layer_t& self)
 }
 
 //--------------------------------------------------------------------------------------------
-bool status_list_update_cameras( status_list_t * plst )
+bool status_list_update_cameras(status_list_t& self)
 {
-    if ( NULL == plst ) return false;
-
-    if ( !plst->on || 0 == plst->count ) return true;
-
-    for ( size_t cnt = 0; cnt < plst->count; cnt++ )
+	if (!self.on || 0 == self.count) {
+		return true;
+	}
+	for (size_t i = 0; i < self.count; ++i)
     {
-        status_list_element_t * pelem = StatusList.lst + cnt;
-        pelem->camera_index = CameraSystem::get()->getCameraIndexByID(pelem->who);
+		status_list_element_t& element = self.lst[i];
+        element.camera_index = CameraSystem::get()->getCameraIndexByID(element.who);
     }
 
     return true;

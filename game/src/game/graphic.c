@@ -1342,7 +1342,7 @@ void draw_all_status()
     if (!StatusList.on) return;
 
     // connect each status object with its camera
-    status_list_update_cameras(&StatusList);
+    status_list_update_cameras(StatusList);
 
     // get the camera list
     const std::vector<std::shared_ptr<Camera>> &cameraList = CameraSystem::get()->getCameraList();
