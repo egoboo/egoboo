@@ -193,7 +193,7 @@ struct weather_instance_t
     int     time;                ///< 0 is no weather
 };
 
-bool upload_weather_data( weather_instance_t * dst, const struct s_wawalite_weather * src );
+void upload_weather_data(weather_instance_t& self, const wawalite_weather_t& source);
 
 //--------------------------------------------------------------------------------------------
 

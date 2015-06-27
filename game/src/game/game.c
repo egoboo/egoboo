@@ -3374,27 +3374,20 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_weather_data( weather_instance_t * pinst, const wawalite_weather_t * pdata )
+void upload_weather_data(weather_instance_t& self, const wawalite_weather_t& source)
 {
-    if ( NULL == pinst ) return false;
-
-    BLANK_STRUCT_PTR( pinst )
+	BLANK_STRUCT_PTR(&self);
 
     // set a default value
-    pinst->timer_reset = 10;
+	self.timer_reset = 10;
 
-    if ( NULL != pdata )
-    {
-        // copy the data
-        pinst->timer_reset = pdata->timer_reset;
-        pinst->over_water  = pdata->over_water;
-        pinst->part_gpip   = pdata->part_gpip;
-    }
+    // copy the data
+	self.timer_reset = source.timer_reset;
+	self.over_water = source.over_water;
+	self.part_gpip = source.part_gpip;
 
     // set the new data
-    pinst->time = pinst->timer_reset;
-
-    return true;
+	self.time = self.timer_reset;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3567,7 +3560,7 @@ void upload_wawalite()
     upload_camera_data( &( pdata->camera ) );
     upload_fog_data( &fog, &( pdata->fog ) );
     upload_water_data(water, pdata->water);
-    upload_weather_data( &weather, &( pdata->weather ) );
+    upload_weather_data(weather, pdata->weather);
     upload_damagetile_data(damagetile, pdata->damagetile);
     upload_animtile_data( animtile, &( pdata->animtile ), SDL_arraysize( animtile ) );
 }
