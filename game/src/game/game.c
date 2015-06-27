@@ -4461,15 +4461,18 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
 {
     /// @author ZZ
     /// @details This function sets up water movements
-    for (int layer = 0; layer < data.layer_count; layer++ )
+
+	/// @todo wawalite_water_t.layer_count should be an unsigned type.
+	///       layer should be the same type. 
+    for (int layer = 0; layer < data.layer_count; ++layer)
     {
         self.layer[layer].tx[SS] = 0;
         self.layer[layer].tx[TT] = 0;
 
-        for (int frame = 0; frame < MAXWATERFRAME; frame++ )
+        for (size_t frame = 0; frame < (size_t)MAXWATERFRAME; ++frame)
         {
             // Do first mode
-            for (int point = 0; point < WATERPOINTS; point++ )
+            for (size_t point = 0; point < (size_t)WATERPOINTS; ++point)
             {
                 using namespace Ego::Math;
                 float temp = (frame * twoPi<float>() / MAXWATERFRAME)
@@ -4481,13 +4484,13 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
     }
 
     // Calculate specular highlights
-	for (int cnt = 0; cnt < 256; cnt++ )
+	for (size_t i = 0; i < 256; ++i)
     {
         Uint8 spek = 0;
-        if ( cnt > data.spek_start )
+        if (i > data.spek_start)
         {
-            float temp = cnt - data.spek_start;
-            temp = temp / ( 256 - data.spek_start );
+            float temp = i - data.spek_start;
+            temp = temp / (256 - data.spek_start);
             temp = temp * temp;
             spek = temp * data.spek_level;
         }
@@ -4495,9 +4498,9 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
         /// @note claforte@> Probably need to replace this with a
         ///           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
         if (!gfx.gouraudShading_enable)
-            self.spek[cnt] = 0;
+            self.spek[i] = 0;
         else
-            self.spek[cnt] = spek;
+            self.spek[i] = spek;
     }
 }
 
@@ -4538,27 +4541,24 @@ void upload_water_data(water_instance_t& self, const wawalite_water_t& source)
 //--------------------------------------------------------------------------------------------
 void water_instance_move(water_instance_t& water)
 {
-    /// @author ZZ
-    /// @details This function animates the water overlays
-
-    for (int layer = 0; layer < MAXWATERLAYER; layer++ )
+    for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i)
     {
-        water_instance_layer_t * player = water.layer + layer;
+        water_instance_layer_t& layer = water.layer[i];
 
-        player->tx[SS] += player->tx_add[SS];
-        player->tx[TT] += player->tx_add[TT];
+        layer.tx[SS] += layer.tx_add[SS];
+        layer.tx[TT] += layer.tx_add[TT];
 
-        if ( player->tx[SS] >  1.0f )  player->tx[SS] -= 1.0f;
-        if ( player->tx[TT] >  1.0f )  player->tx[TT] -= 1.0f;
-        if ( player->tx[SS] < -1.0f )  player->tx[SS] += 1.0f;
-        if ( player->tx[TT] < -1.0f )  player->tx[TT] += 1.0f;
+        if (layer.tx[SS] >  1.0f) layer.tx[SS] -= 1.0f;
+        if (layer.tx[TT] >  1.0f) layer.tx[TT] -= 1.0f;
+        if (layer.tx[SS] < -1.0f) layer.tx[SS] += 1.0f;
+        if (layer.tx[TT] < -1.0f) layer.tx[TT] += 1.0f;
 
-        player->frame = ( player->frame + player->frame_add ) & WATERFRAMEAND;
+        layer.frame = (layer.frame + layer.frame_add) & WATERFRAMEAND;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool water_instance_set_douse_level(water_instance_t & self, float level)
+void water_instance_set_douse_level(water_instance_t & self, float level)
 {
     // get the level difference
     float dlevel = level - self.douse_level;
@@ -4568,14 +4568,12 @@ bool water_instance_set_douse_level(water_instance_t & self, float level)
     self.douse_level += dlevel;
 
     // update the gfx height of the water
-    for (int ilayer = 0; ilayer < MAXWATERLAYER; ilayer++ )
+    for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i)
     {
-        self.layer[ilayer].z += dlevel;
+        self.layer[i].z += dlevel;
     }
 
-    ego_mesh_update_water_level( PMesh );
-
-    return true;
+    ego_mesh_update_water_level(PMesh);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4585,12 +4583,9 @@ float water_instance_get_water_level(water_instance_t& self)
 
     if (egoboo_config_t::get().graphic_twoLayerWater_enable.getValue())
     {
-        for (int cnt = 1; cnt < MAXWATERLAYER; cnt++ )
+        for (size_t i = 1; i < (size_t)MAXWATERLAYER; ++i)
         {
-            // do it this way so the macro does not evaluate water_instance_layer_get_level() twice
-            float tmpval = water_instance_layer_get_level(self.layer[cnt]);
-
-            level = std::max( level, tmpval );
+			level = std::max(level, water_instance_layer_get_level(self.layer[i]));
         }
     }
 

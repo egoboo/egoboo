@@ -203,8 +203,16 @@ struct water_instance_layer_t
     Uint16    frame;        ///< Frame
     Uint32    frame_add;    ///< Speed
 
-    float     z;            ///< Base height of this water layer
-    float     amp;          ///< Amplitude of waves
+	/**
+	 * @brief
+	 *	The base height of this water layer.
+	 */
+    float z;            ///< Base height of this water layer
+	/**
+	 * @brief
+	 *	The peak amplitude of the waves of this water layer.
+	 */
+    float amp;
 
     fvec2_t   dist;         ///< some indication of "how far away" the layer is if it is an overlay
 
@@ -218,6 +226,15 @@ struct water_instance_layer_t
     fvec2_t   tx_add;            ///< Texture movement
 };
 
+/**
+ * @brief
+ *	Get the level of this water layer.
+ * @return
+ *	the level of this water layer
+ * @remark
+ *	The level of a water layer is its base height plus the peak amplitude of its waves i.e.
+ *	<tt>z + amp</tt>.
+ */
 float water_instance_layer_get_level(water_instance_layer_t& self);
 
 //--------------------------------------------------------------------------------------------
@@ -243,10 +260,22 @@ struct water_instance_t
     float  layer_z_add[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
 };
 
+/**
+ * @brief
+ *	Get the level of this water instance.
+ * @return
+ *	the level of this water instance.
+ * @remark
+ *	The level of a water instance is the maximum of the levels of its layers.
+ */
 float water_instance_get_water_level(water_instance_t& self);
+/**
+ * @brief
+ *	Animate this water instance.
+ */
 void water_instance_move(water_instance_t& water);
 void water_instance_make(water_instance_t& self, const wawalite_water_t& data);
-bool water_instance_set_douse_level(water_instance_t& self, float level);
+void water_instance_set_douse_level(water_instance_t& self, float level);
 
 void upload_water_data(water_instance_t& self, const wawalite_water_t& data);
 
