@@ -220,7 +220,7 @@ struct water_instance_layer_t
     fvec2_t   tx_add;            ///< Texture movement
 };
 
-float water_instance_layer_get_level( water_instance_layer_t * ptr );
+float water_instance_layer_get_level(water_instance_layer_t& self);
 
 //--------------------------------------------------------------------------------------------
 
@@ -245,12 +245,12 @@ struct water_instance_t
     float  layer_z_add[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
 };
 
-float     water_instance_get_water_level( water_instance_t * pinst );
-egolib_rv water_instance_move( water_instance_t * pwater );
-bool    water_instance_make( water_instance_t * pinst, const wawalite_water_t * pdata );
-bool    water_instance_set_douse_level( water_instance_t * pinst, float level );
+float water_instance_get_water_level(water_instance_t& self);
+void water_instance_move(water_instance_t& water);
+void water_instance_make(water_instance_t& self, const wawalite_water_t& data);
+bool water_instance_set_douse_level(water_instance_t& self, float level);
 
-bool    upload_water_data( water_instance_t * dst, const wawalite_water_t * src );
+void upload_water_data(water_instance_t& self, const wawalite_water_t& data);
 
 //--------------------------------------------------------------------------------------------
 

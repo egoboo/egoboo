@@ -726,7 +726,7 @@ int update_game()
     {
         BillboardSystem::get()._billboardList.update();
         animate_tiles();
-        water_instance_move( &water );
+        water_instance_move(water);
         AudioSystem::get().updateLoopingSounds();
         do_damage_tiles();
         update_pits();
@@ -3576,7 +3576,7 @@ void upload_wawalite()
     upload_light_data( pdata );                         // this statement depends on data from upload_graphics_data()
     upload_camera_data( &( pdata->camera ) );
     upload_fog_data( &fog, &( pdata->fog ) );
-    upload_water_data( &water, &( pdata->water ) );
+    upload_water_data(water, pdata->water);
     upload_weather_data( &weather, &( pdata->weather ) );
     upload_damagetile_data( &damagetile, &( pdata->damagetile ) );
     upload_animtile_data( animtile, &( pdata->animtile ), SDL_arraysize( animtile ) );
@@ -4504,128 +4504,93 @@ bool check_time( Uint32 check )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool water_instance_make( water_instance_t * pinst, const wawalite_water_t * pdata )
+void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
 {
     /// @author ZZ
     /// @details This function sets up water movements
-
-    int layer, frame, point, cnt;
-    float temp;
-    Uint8 spek;
-
-    if ( NULL == pinst || NULL == pdata ) return false;
-
-    for ( layer = 0; layer < pdata->layer_count; layer++ )
+    for (int layer = 0; layer < data.layer_count; layer++ )
     {
-        pinst->layer[layer].tx[SS] = 0;
-        pinst->layer[layer].tx[TT] = 0;
+        self.layer[layer].tx[SS] = 0;
+        self.layer[layer].tx[TT] = 0;
 
-        for ( frame = 0; frame < MAXWATERFRAME; frame++ )
+        for (int frame = 0; frame < MAXWATERFRAME; frame++ )
         {
             // Do first mode
-            for ( point = 0; point < WATERPOINTS; point++ )
+            for (int point = 0; point < WATERPOINTS; point++ )
             {
                 using namespace Ego::Math;
-                temp = (frame * twoPi<float>() / MAXWATERFRAME)
-                     + (twoPi<float>() * point / WATERPOINTS) + (piOverTwo<float>() * layer / MAXWATERLAYER);
+                float temp = (frame * twoPi<float>() / MAXWATERFRAME)
+                           + (twoPi<float>() * point / WATERPOINTS) + (piOverTwo<float>() * layer / MAXWATERLAYER);
                 temp = std::sin(temp);
-                pinst->layer_z_add[layer][frame][point] = temp * pdata->layer[layer].amp;
+                self.layer_z_add[layer][frame][point] = temp * data.layer[layer].amp;
             }
         }
     }
 
     // Calculate specular highlights
-    spek = 0;
-    for ( cnt = 0; cnt < 256; cnt++ )
+	for (int cnt = 0; cnt < 256; cnt++ )
     {
-        spek = 0;
-        if ( cnt > pdata->spek_start )
+        Uint8 spek = 0;
+        if ( cnt > data.spek_start )
         {
-            temp = cnt - pdata->spek_start;
-            temp = temp / ( 256 - pdata->spek_start );
+            float temp = cnt - data.spek_start;
+            temp = temp / ( 256 - data.spek_start );
             temp = temp * temp;
-            spek = temp * pdata->spek_level;
+            spek = temp * data.spek_level;
         }
 
         /// @note claforte@> Probably need to replace this with a
         ///           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
         if (!gfx.gouraudShading_enable)
-            pinst->spek[cnt] = 0;
+            self.spek[cnt] = 0;
         else
-            pinst->spek[cnt] = spek;
+            self.spek[cnt] = spek;
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_water_data(water_instance_t *self, const wawalite_water_t *source)
+void upload_water_data(water_instance_t& self, const wawalite_water_t& source)
 {
-    //int layer;
+	// upload the data
+	self.surface_level = source.surface_level;
+    self.douse_level = source.douse_level;
 
-    if (NULL == self) return false;
+    self.is_water = source.is_water;
+    self.overlay_req = source.overlay_req;
+    self.background_req = source.background_req;
 
-    BLANK_STRUCT_PTR(self);
+    self.light = source.light;
 
-    if (NULL != source)
-    {
-        // upload the data
+    self.foregroundrepeat = source.foregroundrepeat;
+    self.backgroundrepeat = source.backgroundrepeat;
 
-        self->surface_level = source->surface_level;
-        self->douse_level = source->douse_level;
+    // upload the layer data
+    self.layer_count = source.layer_count;
+    upload_water_layer_data(self.layer, source.layer, source.layer_count);
 
-        self->is_water = source->is_water;
-        self->overlay_req = source->overlay_req;
-        self->background_req = source->background_req;
-
-        self->light = source->light;
-
-        self->foregroundrepeat = source->foregroundrepeat;
-        self->backgroundrepeat = source->backgroundrepeat;
-
-        // upload the layer data
-        self->layer_count = source->layer_count;
-        upload_water_layer_data(self->layer, source->layer, source->layer_count);
-    }
-
-    // fix the light in case of self-lit textures
-    //if ( pdata->light )
-    //{
-    //    for ( layer = 0; layer < pinst->layer_count; layer++ )
-    //    {
-    //        pinst->layer[layer].light_add = 1.0f;  // Some cards don't support light lights...
-    //    }
-    //}
-
-    water_instance_make(self, source);
+	water_instance_make(self, source);
 
     // Allow slow machines to ignore the fancy stuff
-    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && self->layer_count > 1)
+    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && self.layer_count > 1)
     {
-        int iTmp = source->layer[0].light_add;
-        iTmp = (source->layer[1].light_add * iTmp * INV_FF) + iTmp;
+        int iTmp = source.layer[0].light_add;
+        iTmp = (source.layer[1].light_add * iTmp * INV_FF) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
-        self->layer_count        = 1;
-        self->layer[0].light_add = iTmp * INV_FF;
+        self.layer_count        = 1;
+        self.layer[0].light_add = iTmp * INV_FF;
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv water_instance_move( water_instance_t * pwater )
+void water_instance_move(water_instance_t& water)
 {
     /// @author ZZ
     /// @details This function animates the water overlays
 
-    int layer;
-
-    if ( NULL == pwater ) return rv_error;
-
-    for ( layer = 0; layer < MAXWATERLAYER; layer++ )
+    for (int layer = 0; layer < MAXWATERLAYER; layer++ )
     {
-        water_instance_layer_t * player = pwater->layer + layer;
+        water_instance_layer_t * player = water.layer + layer;
 
         player->tx[SS] += player->tx_add[SS];
         player->tx[TT] += player->tx_add[TT];
@@ -4637,29 +4602,22 @@ egolib_rv water_instance_move( water_instance_t * pwater )
 
         player->frame = ( player->frame + player->frame_add ) & WATERFRAMEAND;
     }
-
-    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool water_instance_set_douse_level( water_instance_t * pinst, float level )
+bool water_instance_set_douse_level(water_instance_t & self, float level)
 {
-    int   ilayer;
-    float dlevel;
-
-    if ( NULL == pinst ) return false;
-
     // get the level difference
-    dlevel = level - pinst->douse_level;
+    float dlevel = level - self.douse_level;
 
     // update all special values
-    pinst->surface_level += dlevel;
-    pinst->douse_level += dlevel;
+    self.surface_level += dlevel;
+    self.douse_level += dlevel;
 
     // update the gfx height of the water
-    for ( ilayer = 0; ilayer < MAXWATERLAYER; ilayer++ )
+    for (int ilayer = 0; ilayer < MAXWATERLAYER; ilayer++ )
     {
-        pinst->layer[ilayer].z += dlevel;
+        self.layer[ilayer].z += dlevel;
     }
 
     ego_mesh_update_water_level( PMesh );
@@ -4668,18 +4626,16 @@ bool water_instance_set_douse_level( water_instance_t * pinst, float level )
 }
 
 //--------------------------------------------------------------------------------------------
-float water_instance_get_water_level( water_instance_t * ptr )
+float water_instance_get_water_level(water_instance_t& self)
 {
-    if ( NULL == ptr ) return 0.0f;
-
-    float level = water_instance_layer_get_level( ptr->layer + 0 );
+    float level = water_instance_layer_get_level(self.layer[0]);
 
     if (egoboo_config_t::get().graphic_twoLayerWater_enable.getValue())
     {
         for (int cnt = 1; cnt < MAXWATERLAYER; cnt++ )
         {
             // do it this way so the macro does not evaluate water_instance_layer_get_level() twice
-            float tmpval = water_instance_layer_get_level( ptr->layer + cnt );
+            float tmpval = water_instance_layer_get_level(self.layer[cnt]);
 
             level = std::max( level, tmpval );
         }
@@ -4690,11 +4646,9 @@ float water_instance_get_water_level( water_instance_t * ptr )
 
 //--------------------------------------------------------------------------------------------
 
-float water_instance_layer_get_level( water_instance_layer_t * ptr )
+float water_instance_layer_get_level(water_instance_layer_t& self)
 {
-    if ( NULL == ptr ) return 0.0f;
-
-    return ptr->z + ptr->amp;
+    return self.z + self.amp;
 }
 
 //--------------------------------------------------------------------------------------------
