@@ -3376,25 +3376,19 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 //--------------------------------------------------------------------------------------------
 void upload_weather_data(weather_instance_t& self, const wawalite_weather_t& source)
 {
-	BLANK_STRUCT_PTR(&self);
+	self.iplayer = 0;
 
-    // set a default value
-	self.timer_reset = 10;
-
-    // copy the data
 	self.timer_reset = source.timer_reset;
 	self.over_water = source.over_water;
 	self.part_gpip = source.part_gpip;
 
-    // set the new data
+    // Ensure an update.
 	self.time = self.timer_reset;
 }
 
 //--------------------------------------------------------------------------------------------
 void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source)
 {
-	BLANK_STRUCT_PTR(&self);
-
 	self.on = source.found && egoboo_config_t::get().graphic_fog_enable.getValue();
 	self.top = source.top;
 	self.bottom = source.bottom;
@@ -3411,8 +3405,6 @@ void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source)
 //--------------------------------------------------------------------------------------------
 void upload_damagetile_data(damagetile_instance_t& self, const wawalite_damagetile_t& source)
 {
-	BLANK_STRUCT_PTR(&self);
-
 	self.amount.base = source.amount;
 	self.amount.rand = 1;
 	self.damagetype = source.damagetype;
