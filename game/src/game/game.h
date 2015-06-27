@@ -262,7 +262,7 @@ struct fog_instance_t
     float   distance;
 };
 
-bool upload_fog_data( fog_instance_t * dst, const struct s_wawalite_fog * src );
+void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source);
 
 //--------------------------------------------------------------------------------------------
 // Imports

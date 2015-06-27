@@ -3391,28 +3391,21 @@ void upload_weather_data(weather_instance_t& self, const wawalite_weather_t& sou
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_fog_data( fog_instance_t * pinst, const wawalite_fog_t * pdata )
+void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source)
 {
-    if ( NULL == pinst ) return false;
+	BLANK_STRUCT_PTR(&self);
 
-    BLANK_STRUCT_PTR( pinst )
+	self.on = source.found && egoboo_config_t::get().graphic_fog_enable.getValue();
+	self.top = source.top;
+	self.bottom = source.bottom;
 
-    if ( NULL != pdata )
-    {
-        pinst->on     = pdata->found && pinst->on && egoboo_config_t::get().graphic_fog_enable.getValue();
-        pinst->top    = pdata->top;
-        pinst->bottom = pdata->bottom;
+	self.red = source.red * 0xFF;
+	self.grn = source.grn * 0xFF;
+	self.blu = source.blu * 0xFF;
 
-        pinst->red    = pdata->red * 0xFF;
-        pinst->grn    = pdata->grn * 0xFF;
-        pinst->blu    = pdata->blu * 0xFF;
+	self.distance = (source.top - source.bottom);
 
-        pinst->distance = ( pdata->top - pdata->bottom );
-    }
-
-    pinst->on       = ( pinst->distance < 1.0f ) && pinst->on;
-
-    return true;
+	self.on = (self.distance < 1.0f) && self.on;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3558,7 +3551,7 @@ void upload_wawalite()
     upload_graphics_data( &( pdata->graphics ) );
     upload_light_data( pdata );                         // this statement depends on data from upload_graphics_data()
     upload_camera_data( &( pdata->camera ) );
-    upload_fog_data( &fog, &( pdata->fog ) );
+    upload_fog_data(fog, pdata->fog);
     upload_water_data(water, pdata->water);
     upload_weather_data(weather, pdata->weather);
     upload_damagetile_data(damagetile, pdata->damagetile);
