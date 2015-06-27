@@ -3461,9 +3461,7 @@ bool upload_light_data(const wawalite_data_t *pdata)
     if ( NULL == pdata ) return false;
 
     // Upload the lighting data.
-    light_nrm[kX] = pdata->light.light_x;
-    light_nrm[kY] = pdata->light.light_y;
-    light_nrm[kZ] = pdata->light.light_z;
+    light_nrm = pdata->light.light_d;
     light_a = pdata->light.light_a;
 
     if (light_nrm.length() > 0.0f)

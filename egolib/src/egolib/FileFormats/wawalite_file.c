@@ -106,14 +106,9 @@ wawalite_light_t *wawalite_light_t::read(ReadContext& ctxt, wawalite_data_t *enc
     }
     *profile = wawalite_light_t::getDefaults();
 
-    profile->light_x = 1.00f;
-    profile->light_y = 1.00f;
-    profile->light_z = 0.50f;
-    profile->light_a = 0.20f;
-
-    profile->light_x = vfs_get_next_float(ctxt);
-    profile->light_y = vfs_get_next_float(ctxt);
-    profile->light_z = vfs_get_next_float(ctxt);
+    profile->light_d[kX] = vfs_get_next_float(ctxt);
+    profile->light_d[kY] = vfs_get_next_float(ctxt);
+    profile->light_d[kZ] = vfs_get_next_float(ctxt);
     profile->light_a = vfs_get_next_float(ctxt);
 
     return profile;
@@ -370,9 +365,9 @@ bool wawalite_light_t::write(vfs_FILE *filewrite, const wawalite_data_t *enclosi
     if (!filewrite || !profile) return false;
 
     // Read light data second
-    vfs_put_float(filewrite, "Light X direction ( 1.00 )        :", profile->light_x);
-    vfs_put_float(filewrite, "Light Y direction ( 1.00 )        :", profile->light_y);
-    vfs_put_float(filewrite, "Light Z direction ( 0.50 )        :", profile->light_z);
+    vfs_put_float(filewrite, "Light X direction ( 1.00 )        :", profile->light_d[kX]);
+    vfs_put_float(filewrite, "Light Y direction ( 1.00 )        :", profile->light_d[kY]);
+    vfs_put_float(filewrite, "Light Z direction ( 0.50 )        :", profile->light_d[kZ]);
     vfs_put_float(filewrite, "Ambient light ( 0.20 )            :", profile->light_a);
 
     return true;

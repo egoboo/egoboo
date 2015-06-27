@@ -571,18 +571,18 @@ struct wawalite_data_t;
     {
         /**
          * @brief
-         *  Directional light vector.
+         *  The light direction.
+		 * @default
+		 *	The default light direction is \f$(1, 1, 0.5)\f$.
          * @todo
          *  Egoboo does not allow for specifying a directional light colour.
-         * @todo
-         *  Should be fvec3_t.
-         * @todo
-         *  A direction *must* be provided, it may not be @a 0.
          */
-        float light_x, light_y, light_z; ///< @todo Should be fvec3_t.
+		fvec3_t light_d;
         /**
          * @brief
          *  Ambient light brightness.
+		 * @remark
+		 *	The default ambient light brightness is \f$0.2\f$.
          * @todo
          *  Egoboo does not allow for specifying an ambient light colour,
          *  only its alpha value; the effective ambient light color is given by
@@ -604,18 +604,14 @@ struct wawalite_data_t;
 
         /** @todo The defaults are not reasonable as the directional light direction is (0,0,0). */
         wawalite_light_t() :
-            light_x(0.0f),
-            light_y(0.0f),
-            light_z(0.0f),
-            light_a(0.0f)
+            light_d(1.0f, 1.0f, 0.5f),
+            light_a(0.2f)
         {
             // default ctor
         }
 
-        wawalite_light_t(const wawalite_light_t& other) :
-            light_x(other.light_x),
-            light_y(other.light_y),
-            light_z(other.light_z),
+		wawalite_light_t(const wawalite_light_t& other) :
+			light_d(other.light_d),
             light_a(other.light_a)
         {
             // copy ctor
@@ -623,9 +619,7 @@ struct wawalite_data_t;
 
         wawalite_light_t& operator=(const wawalite_light_t& other)
         {
-            light_x = other.light_x;
-            light_y = other.light_y;
-            light_z = other.light_z;
+            light_d = other.light_d;
             light_a = other.light_a;
             return *this;
         }
