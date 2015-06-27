@@ -3374,16 +3374,16 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
 }
 
 //--------------------------------------------------------------------------------------------
-void upload_weather_data(weather_instance_t& self, const wawalite_weather_t& source)
+void weather_instance_t::upload(const wawalite_weather_t& source)
 {
-	self.iplayer = 0;
+	this->iplayer = 0;
 
-	self.timer_reset = source.timer_reset;
-	self.over_water = source.over_water;
-	self.part_gpip = source.part_gpip;
+	this->timer_reset = source.timer_reset;
+	this->over_water = source.over_water;
+	this->part_gpip = source.part_gpip;
 
     // Ensure an update.
-	self.time = self.timer_reset;
+	this->time = this->timer_reset;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3403,15 +3403,15 @@ void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-void upload_damagetile_data(damagetile_instance_t& self, const wawalite_damagetile_t& source)
+void damagetile_instance_t::upload(const wawalite_damagetile_t& source)
 {
-	self.amount.base = source.amount;
-	self.amount.rand = 1;
-	self.damagetype = source.damagetype;
+	this->amount.base = source.amount;
+	this->amount.rand = 1;
+	this->damagetype = source.damagetype;
 
-	self.part_gpip = source.part_gpip;
-	self.partand = source.partand;
-	self.sound_index = CLIP(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
+	this->part_gpip = source.part_gpip;
+	this->partand = source.partand;
+	this->sound_index = CLIP(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3543,8 +3543,8 @@ void upload_wawalite()
     upload_camera_data( &( pdata->camera ) );
     upload_fog_data(fog, pdata->fog);
     upload_water_data(water, pdata->water);
-    upload_weather_data(weather, pdata->weather);
-    upload_damagetile_data(damagetile, pdata->damagetile);
+    weather.upload(pdata->weather);
+    damagetile.upload(pdata->damagetile);
     upload_animtile_data( animtile, &( pdata->animtile ), SDL_arraysize( animtile ) );
 }
 

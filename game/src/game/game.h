@@ -176,9 +176,8 @@ struct damagetile_instance_t
     Uint32 partand;
     int    sound_index;
 
+	void upload(const wawalite_damagetile_t& source);
 };
-
-void upload_damagetile_data(damagetile_instance_t& self, const wawalite_damagetile_t& source);
 
 //--------------------------------------------------------------------------------------------
 
@@ -191,9 +190,9 @@ struct weather_instance_t
 
     PLA_REF iplayer;
     int     time;                ///< 0 is no weather
-};
 
-void upload_weather_data(weather_instance_t& self, const wawalite_weather_t& source);
+	void upload(const wawalite_weather_t& source);
+};
 
 //--------------------------------------------------------------------------------------------
 
