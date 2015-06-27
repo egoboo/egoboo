@@ -279,7 +279,7 @@ struct import_element_t
     int             slot;               ///< which slot it it to be loaded into
 };
 
-bool import_element_init( import_element_t * );
+void import_element_init(import_element_t& self);
 
 //--------------------------------------------------------------------------------------------
 
@@ -291,8 +291,8 @@ struct import_list_t
 
 #define IMPORT_LIST_INIT {0}
 
-bool    import_list_init( import_list_t * imp_lst );
-egolib_rv import_list_from_players( import_list_t * imp_lst );
+void import_list_init(import_list_t& self);
+egolib_rv import_list_from_players(import_list_t& self);
 
 //--------------------------------------------------------------------------------------------
 

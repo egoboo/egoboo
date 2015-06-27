@@ -2738,7 +2738,7 @@ bool game_finish_module()
         export_all_players( false );
 
         // update the import list
-        import_list_from_players( &ImportList );
+        import_list_from_players(ImportList);
     }
 
     // erase the data in the import folder
@@ -4323,17 +4323,15 @@ bool detach_particle_from_platform( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool import_element_init( import_element_t * ptr )
+void import_element_init(import_element_t& self)
 {
-    if ( NULL == ptr ) return false;
-
-    BLANK_STRUCT_PTR( ptr )
-
+	self.srcDir[0] = '\0';
+	self.dstDir[0] = '\0';
+	self.name[0] = '\0';
+	self.local_player_num = 0;
     // all non-zero, non-null values
-    ptr->player = INVALID_PLA_REF;
-    ptr->slot   = -1;
-
-    return true;
+    self.player = INVALID_PLA_REF;
+    self.slot = -1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4403,76 +4401,57 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool import_list_init( import_list_t * imp_lst )
+void import_list_init(import_list_t& self)
 {
-    int cnt;
-
-    if ( NULL == imp_lst ) return false;
-
-    for ( cnt = 0; cnt < MAX_IMPORTS; cnt++ )
+    for (size_t i = 0; i < (size_t)MAX_IMPORTS; ++i)
     {
-        import_element_init( imp_lst->lst + cnt );
+        import_element_init(self.lst[i]);
     }
-    imp_lst->count = 0;
-
-    return true;
+    self.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv import_list_from_players( import_list_t * imp_lst )
+egolib_rv import_list_from_players(import_list_t& self)
 {
-    bool is_local;
-    PLA_REF player;
-
-    PLA_REF                 player_idx;
-    player_t              * player_ptr = NULL;
-
-    import_element_t      * import_ptr = NULL;
-
-    CHR_REF                 ichr;
-    Object                 * pchr;
-
-    if ( NULL == imp_lst ) return rv_error;
-
     // blank out the ImportList list
-    import_list_init( &ImportList );
+    import_list_init(self);
 
     // generate the ImportList list from the player info
-    for ( player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++ )
-    {
-        if ( !VALID_PLA( player_idx ) ) continue;
-        player_ptr = PlaStack.get_ptr( player_idx );
+	for (PLA_REF player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++)
+	{
+		if (!VALID_PLA(player_idx)) continue;
+		player_t *player_ptr = PlaStack.get_ptr(player_idx);
 
-        ichr = player_ptr->index;
-        if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
-        pchr = _currentModule->getObjectHandler().get( ichr );
+		CHR_REF ichr = player_ptr->index;
+		if (!_currentModule->getObjectHandler().exists(ichr)) continue;
+		Object *pchr = _currentModule->getObjectHandler().get(ichr);
 
-        is_local = ( NULL != player_ptr->pdevice );
+		bool is_local = (nullptr != player_ptr->pdevice);
 
-        // grab a pointer
-        import_ptr = imp_lst->lst + imp_lst->count;
-        imp_lst->count++;
+		// grab a pointer
+		import_element_t *import_ptr = self.lst + self.count;
+		self.count++;
 
-        import_ptr->player          = player_idx;
-        import_ptr->slot            = REF_TO_INT( player ) * MAX_IMPORT_PER_PLAYER;
-        import_ptr->srcDir[0]       = CSTR_END;
-        import_ptr->dstDir[0]       = CSTR_END;
-        strncpy( import_ptr->name, pchr->Name, SDL_arraysize( import_ptr->name ) );
+		import_ptr->player = player_idx;
+		import_ptr->slot = REF_TO_INT(player) * MAX_IMPORT_PER_PLAYER;
+		import_ptr->srcDir[0] = CSTR_END;
+		import_ptr->dstDir[0] = CSTR_END;
+		strncpy(import_ptr->name, pchr->Name, SDL_arraysize(import_ptr->name));
 
-        // only copy the "source" directory if the player is local
-        if ( is_local )
-        {
-            snprintf( import_ptr->srcDir, SDL_arraysize( import_ptr->srcDir ), "mp_players/%s", str_encode_path( pchr->Name ) );
-        }
-        else
-        {
-            snprintf( import_ptr->srcDir, SDL_arraysize( import_ptr->srcDir ), "mp_remote/%s", str_encode_path( pchr->Name ) );
-        }
+		// only copy the "source" directory if the player is local
+		if (is_local)
+		{
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->Name));
+		}
+		else
+		{
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->Name));
+		}
 
-        player++;
-    }
+		player++;
+	}
 
-    return ( imp_lst->count > 0 ) ? rv_success : rv_fail;
+	return (self.count > 0) ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------
