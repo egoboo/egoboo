@@ -2831,7 +2831,7 @@ Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = water_instance_set_douse_level( &water, pstate->argument / 10.0f );
+    returncode = water_instance_set_douse_level(water, pstate->argument / 10.0f);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5385,7 +5385,7 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ai_add_order( &( pself_target->ai ), pstate->argument, 0 );
+        returncode = ai_state_add_order(pself_target->ai, pstate->argument, 0);
     }
 
     SCRIPT_FUNCTION_END();

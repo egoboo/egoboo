@@ -32,6 +32,7 @@
 struct script_info_t;
 struct ai_state_t;
 struct script_state_t;
+class Object;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -198,13 +199,13 @@ struct ai_state_t
 	~ai_state_t();
 };
 
-ai_state_t *ai_state_reset(ai_state_t * pself);
-bool        ai_state_set_bumplast(ai_state_t * pself, const CHR_REF  ichr);
-bool        ai_state_get_wp(ai_state_t * pself);
-bool        ai_state_ensure_wp(ai_state_t * pself);
-bool        ai_add_order(ai_state_t * pai, Uint32 value, Uint16 counter);
-bool        ai_state_set_changed(ai_state_t * pai);
-void        ai_state_spawn(ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank);
+ai_state_t *ai_state_reset(ai_state_t *self);
+bool ai_state_set_bumplast(ai_state_t& self, const CHR_REF  ichr);
+bool ai_state_get_wp(ai_state_t *self);
+bool ai_state_ensure_wp(ai_state_t& self);
+bool ai_state_add_order(ai_state_t& self, Uint32 value, Uint16 counter);
+bool ai_state_set_changed(ai_state_t& self);
+void ai_state_spawn(ai_state_t *self, const CHR_REF index, const PRO_REF iobj, Uint16 rank);
 
 //--------------------------------------------------------------------------------------------
 // struct script_state_t
@@ -222,13 +223,14 @@ struct script_state_t
     int     operationsum;
 };
 
-script_state_t * script_state__init( script_state_t * );
+void script_state_init(script_state_t& self);
 
 //--------------------------------------------------------------------------------------------
 // FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-void  scr_run_chr_script( const CHR_REF character );
+void scr_run_chr_script(Object *pchr);
+void scr_run_chr_script(const CHR_REF character);
 
 void issue_order( const CHR_REF character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );

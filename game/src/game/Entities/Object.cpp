@@ -1459,7 +1459,7 @@ void Object::kill(const std::shared_ptr<Object> &originalKiller, bool ignoreInvi
 
     // Let it's AI script run one last time
     ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
-    scr_run_chr_script( getCharacterID() );
+    scr_run_chr_script(this);
 }
 
 void Object::resetAlpha()

@@ -1166,7 +1166,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
                 // (ignore vertical displacement)
                 if (grabData.isFacingObject && grabData.horizontalDistance < MAX_DIST_GRAB)
                 {
-                    ai_state_set_bumplast( &( grabData.object->ai ), ichr_a );
+                    ai_state_set_bumplast(grabData.object->ai, ichr_a);
                     break;
                 }
             }
@@ -2493,7 +2493,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
     new_attached_prt_count = number_of_attached_particles( ichr );
 
-    ai_state_set_changed( &( pchr->ai ) );
+    ai_state_set_changed(pchr->ai);
 
     chr_instance_t::update_ref(pchr->inst, pchr->enviro.grid_level, true );
 }
