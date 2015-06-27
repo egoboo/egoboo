@@ -517,7 +517,7 @@ void free_all_chraracters()
     local_stats.noplayers = true;
 
     // free_all_stats
-    StatusList.count = 0;
+    g_statusList.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------

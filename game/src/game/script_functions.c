@@ -6737,7 +6737,7 @@ Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pits.kill = true;
+    g_pits.kill = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7433,14 +7433,14 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 
     if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->gmem.edge_x - EDGE && pstate->y < PMesh->gmem.edge_y - EDGE )
     {
-        pits.teleport = true;
-        pits.teleport_pos[kX] = pstate->x;
-        pits.teleport_pos[kY] = pstate->y;
-        pits.teleport_pos[kZ] = pstate->distance;
+        g_pits.teleport = true;
+        g_pits.teleport_pos[kX] = pstate->x;
+        g_pits.teleport_pos[kY] = pstate->y;
+        g_pits.teleport_pos[kZ] = pstate->distance;
     }
     else
     {
-        pits.kill = true;          //make it kill instead
+        g_pits.kill = true;          //make it kill instead
     }
 
     SCRIPT_FUNCTION_END();

@@ -62,11 +62,11 @@ char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
 
 // Status displays
-status_list_t StatusList = STATUS_LIST_INIT;
+status_list_t g_statusList;
 
 ego_mesh_t         * PMesh   = _mesh + 0;
 
-pit_info_t pits = PIT_INFO_INIT;
+pit_info_t g_pits;
 
 FACING_T glouseangle = 0;                                        // actually still used
 
@@ -403,16 +403,16 @@ void statlist_add( const CHR_REF character )
 
     Object * pchr;
 
-    if ( StatusList.count >= MAX_STATUS ) return;
+    if ( g_statusList.count >= MAX_STATUS ) return;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return;
     pchr = _currentModule->getObjectHandler().get( character );
 
     if ( pchr->show_stats ) return;
 
-    StatusList.lst[StatusList.count].who = character;
+    g_statusList.lst[g_statusList.count].who = character;
     pchr->show_stats = true;
-    StatusList.count++;
+    g_statusList.count++;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -422,30 +422,30 @@ void statlist_move_to_top( const CHR_REF character )
     status_list_element_t tmp;
 
     // Find where it is
-    oldloc = StatusList.count;
+    oldloc = g_statusList.count;
 
-    for ( cnt = 0; cnt < StatusList.count; cnt++ )
+    for ( cnt = 0; cnt < g_statusList.count; cnt++ )
     {
-        if ( character == StatusList.lst[cnt].who )
+        if ( character == g_statusList.lst[cnt].who )
         {
-            memmove( &tmp, StatusList.lst + cnt, sizeof( status_list_element_t ) );
+			tmp = g_statusList.lst[cnt];
             oldloc = cnt;
             break;
         }
     }
 
     // Change position
-    if ( oldloc < StatusList.count )
+    if ( oldloc < g_statusList.count )
     {
         // Move all the lower ones up
         while ( oldloc > 0 )
         {
             oldloc--;
-            memmove( StatusList.lst + oldloc + 1, StatusList.lst + oldloc, sizeof( status_list_element_t ) );
+			g_statusList.lst[oldloc + 1] = g_statusList.lst[oldloc];
         }
 
         // Put the character in the top slot
-        memmove( StatusList.lst + 0, &tmp, sizeof( status_list_element_t ) );
+		g_statusList.lst[0] = tmp;
     }
 }
 
@@ -780,7 +780,7 @@ void game_reset_timers()
     outofsync = false;
 
     // reset the pits
-    pits.kill = pits.teleport = false;
+    g_pits.kill = g_pits.teleport = false;
     clock_pit = 0;
 
     // reset some counters
@@ -1102,7 +1102,7 @@ void update_pits()
     /// @author ZZ
     /// @details This function kills any character in a deep pit...
 
-    if ( pits.kill || pits.teleport )
+    if ( g_pits.kill || g_pits.teleport )
     {
         //Decrease the timer
         if ( clock_pit > 0 ) clock_pit--;
@@ -1130,7 +1130,7 @@ void update_pits()
                 if ( IS_ATTACHED_CHR( pchr->getCharacterID() ) ) continue;
 
                 // Do we kill it?
-                if ( pits.kill && pchr->getPosZ() < PITDEPTH )
+                if ( g_pits.kill && pchr->getPosZ() < PITDEPTH )
                 {
                     // Got one!
                     pchr->kill(Object::INVALID_OBJECT, false);
@@ -1143,12 +1143,12 @@ void update_pits()
                 }
 
                 // Do we teleport it?
-                if ( pits.teleport && pchr->getPosZ() < PITDEPTH * 4 )
+                if ( g_pits.teleport && pchr->getPosZ() < PITDEPTH * 4 )
                 {
                     bool teleported;
 
                     // Teleport them back to a "safe" spot
-                    teleported = pchr->teleport(pits.teleport_pos, pchr->ori.facing_z);
+                    teleported = pchr->teleport(g_pits.teleport_pos, pchr->ori.facing_z);
 
                     if ( !teleported )
                     {
@@ -1675,9 +1675,9 @@ void show_stat( int statindex )
     int     level;
     char    gender[8] = EMPTY_CSTR;
 
-    if ( statindex < StatusList.count )
+    if ( statindex < g_statusList.count )
     {
-        character = StatusList.lst[statindex].who;
+        character = g_statusList.lst[statindex].who;
 
         if ( _currentModule->getObjectHandler().exists( character ) )
         {
@@ -1746,9 +1746,9 @@ void show_armor( int statindex )
 
     Object * pchr;
 
-    if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
+    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
 
-    ichr = StatusList.lst[statindex].who;
+    ichr = g_statusList.lst[statindex].who;
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return;
 
     pchr = _currentModule->getObjectHandler().get( ichr );
@@ -1838,8 +1838,8 @@ void show_full_status( int statindex )
     int manaregen, liferegen;
     Object * pchr;
 
-    if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
-    character = StatusList.lst[statindex].who;
+    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
+    character = g_statusList.lst[statindex].who;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return;
     pchr = _currentModule->getObjectHandler().get( character );
@@ -1879,9 +1879,9 @@ void show_magic_status( int statindex )
     const char * missile_str;
     Object * pchr;
 
-    if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
+    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
 
-    character = StatusList.lst[statindex].who;
+    character = g_statusList.lst[statindex].who;
 
     if ( !_currentModule->getObjectHandler().exists( character ) ) return;
     pchr = _currentModule->getObjectHandler().get( character );

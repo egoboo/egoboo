@@ -230,9 +230,9 @@ Object::~Object()
             show_stats = false;
 
             stat_found = false;
-            for (cnt = 0; cnt < StatusList.count; cnt++)
+            for (cnt = 0; cnt < g_statusList.count; cnt++)
             {
-                if ( StatusList.lst[cnt].who == getCharacterID() )
+                if ( g_statusList.lst[cnt].who == getCharacterID() )
                 {
                     stat_found = true;
                     break;
@@ -241,11 +241,11 @@ Object::~Object()
 
             if ( stat_found )
             {
-                for (cnt++; cnt < StatusList.count; cnt++)
+                for (cnt++; cnt < g_statusList.count; cnt++)
                 {
-                    std::swap(StatusList.lst[cnt-1], StatusList.lst[cnt]);
+                    std::swap(g_statusList.lst[cnt-1], g_statusList.lst[cnt]);
                 }
-                StatusList.count--;
+                g_statusList.count--;
             }
         }
 

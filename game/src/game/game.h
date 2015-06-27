@@ -326,12 +326,14 @@ egolib_rv import_list_from_players(import_list_t& self);
 /// Pitty stuff
 struct pit_info_t
 {
-    bool     kill;          ///< Do they kill?
-    bool     teleport;      ///< Do they teleport?
-    fvec3_t  teleport_pos;
-};
+    bool kill;             ///< Do they kill?
+    bool teleport;         ///< Do they teleport?
+    fvec3_t teleport_pos;  ///< If they teleport, then where to?
 
-#define PIT_INFO_INIT { false /* kill */, false /* teleport */, fvec3_t::zero() /* teleport_pos */ }
+	pit_info_t()
+		: kill(false), teleport(false), teleport_pos() {
+	}
+};
 
 //--------------------------------------------------------------------------------------------
 
@@ -340,21 +342,24 @@ struct status_list_element_t
 {
     int camera_index;
     CHR_REF who;
+	status_list_element_t()
+		: camera_index(-1), who(INVALID_CHR_REF) {
+	}
 };
-
-#define STATUS_LIST_ELEMENT_INIT { -1 /* camera_ptr */, INVALID_CHR_REF /* who */ }
 
 //--------------------------------------------------------------------------------------------
 
 /// List of objects with status displays
 struct status_list_t
 {
-    bool                on;
-    size_t                count;
+    bool on;
+    size_t count;
     status_list_element_t lst[MAX_STATUS];
-};
 
-#define STATUS_LIST_INIT { false /* on */, 0 /* count */, {STATUS_LIST_ELEMENT_INIT} /* lst */ }
+	status_list_t()
+		: on(false), count(0), lst() {
+	}
+};
 
 bool status_list_update_cameras(status_list_t& self);
 
@@ -372,13 +377,13 @@ extern weather_instance_t weather;
 extern water_instance_t water;
 extern fog_instance_t fog;
 
-extern status_list_t StatusList;
+extern status_list_t g_statusList;
 
 // End text
 extern char   endtext[MAXENDTEXT];     ///< The end-module text
 extern size_t endtext_carat;
 
-extern pit_info_t pits;
+extern pit_info_t g_pits;
 
 extern bool    overrideslots;          ///< Override existing slots?
 extern FACING_T  glouseangle;            ///< global return value from prt_find_target() - actually still used

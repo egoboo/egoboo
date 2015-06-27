@@ -340,10 +340,10 @@ void CameraSystem::autoSetTargets()
     // should not happen unless I am messing with the camera code...
     if(cameraIndex < _cameraList.size()) 
     {
-        for ( size_t cnt = 0; cnt < StatusList.count && cameraIndex < _cameraList.size(); cnt++ )
+        for ( size_t cnt = 0; cnt < g_statusList.count && cameraIndex < _cameraList.size(); cnt++ )
         {
             // grab someone on the status list
-            CHR_REF blah = StatusList.lst[cnt].who;
+            CHR_REF blah = g_statusList.lst[cnt].who;
 
             // get a pointer, if allowed
             if ( !VALID_CHR_RANGE( blah ) ) continue;
