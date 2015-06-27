@@ -169,18 +169,16 @@ int update_game();
 /// The actual in-game state of the damage tiles
 struct damagetile_instance_t
 {
-    IPair   amount;                    ///< Amount of damage
-    int     damagetype;
+    IPair amount;                    ///< Amount of damage
+	DamageType damagetype;
 
     LocalParticleProfileRef part_gpip;
     Uint32 partand;
     int    sound_index;
 
-    //Sint16  sound_time;           // this is not used anywhere in the game
-    //Uint16  min_distance;           // this is not used anywhere in the game
 };
 
-bool upload_damagetile_data( damagetile_instance_t * dst, const struct s_wawalite_damagetile * src );
+void upload_damagetile_data(damagetile_instance_t& self, const wawalite_damagetile_t& source);
 
 //--------------------------------------------------------------------------------------------
 

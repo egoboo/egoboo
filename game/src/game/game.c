@@ -3423,27 +3423,17 @@ bool upload_fog_data( fog_instance_t * pinst, const wawalite_fog_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool upload_damagetile_data( damagetile_instance_t * pinst, const wawalite_damagetile_t * pdata )
+void upload_damagetile_data(damagetile_instance_t& self, const wawalite_damagetile_t& source)
 {
-    if ( NULL == pinst ) return false;
+	BLANK_STRUCT_PTR(&self);
 
-    BLANK_STRUCT_PTR( pinst )
+	self.amount.base = source.amount;
+	self.amount.rand = 1;
+	self.damagetype = source.damagetype;
 
-    //pinst->sound_time   = TILESOUNDTIME;
-    //pinst->min_distance = 9999;
-
-    if ( NULL != pdata )
-    {
-        pinst->amount.base  = pdata->amount;
-        pinst->amount.rand  = 1;
-        pinst->damagetype   = pdata->damagetype;
-
-        pinst->part_gpip    = pdata->part_gpip;
-        pinst->partand      = pdata->partand;
-        pinst->sound_index  = CLIP( pdata->sound_index, INVALID_SOUND_ID, MAX_WAVE );
-    }
-
-    return true;
+	self.part_gpip = source.part_gpip;
+	self.partand = source.partand;
+	self.sound_index = CLIP(source.sound_index, INVALID_SOUND_ID, MAX_WAVE);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3578,7 +3568,7 @@ void upload_wawalite()
     upload_fog_data( &fog, &( pdata->fog ) );
     upload_water_data(water, pdata->water);
     upload_weather_data( &weather, &( pdata->weather ) );
-    upload_damagetile_data( &damagetile, &( pdata->damagetile ) );
+    upload_damagetile_data(damagetile, pdata->damagetile);
     upload_animtile_data( animtile, &( pdata->animtile ), SDL_arraysize( animtile ) );
 }
 
