@@ -484,9 +484,6 @@ void free_all_chraracters()
     PlaStack.count = 0;
     local_stats.player_count = 0;
     local_stats.noplayers = true;
-
-    // free_all_stats
-    g_statusList.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3214,7 +3211,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     {
         // This character can't use this iweapon
         pweapon->reload_timer = ONESECOND;
-        if (pchr->show_stats || egoboo_config_t::get().debug_developerMode_enable.getValue())
+        if (pchr->getShowStatus() || egoboo_config_t::get().debug_developerMode_enable.getValue())
         {
             // Tell the player that they can't use this iweapon
             DisplayMsg_printf( "%s can't use this item...", pchr->getName(false, true, true).c_str());

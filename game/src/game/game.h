@@ -386,8 +386,6 @@ extern weather_instance_t weather;
 extern water_instance_t water;
 extern fog_instance_t fog;
 
-extern status_list_t g_statusList;
-
 // End text
 extern char   endtext[MAXENDTEXT];     ///< The end-module text
 extern size_t endtext_carat;
@@ -438,12 +436,6 @@ int     spawn_bump_particles( const CHR_REF character, const PRT_REF particle );
 prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int vertex_offset );
 void    disaffirm_attached_particles( const CHR_REF character );
 int     reaffirm_attached_particles( const CHR_REF character );
-
-/// Statlist
-void statlist_add( const CHR_REF character );
-/// @brief This function puts the character on top of the status list.
-void statlist_move_to_top( const CHR_REF character );
-void statlist_sort();
 
 /// Player
 void   set_one_player_latch( const PLA_REF player );

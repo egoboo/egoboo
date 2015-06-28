@@ -122,7 +122,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     transferblend(false),
     draw_icon(false),
     sparkle(NOSPARKLE),
-    show_stats(false),
     uoffvel(0),
     voffvel(0),
     shadow_size_stt(0.0f),
@@ -169,7 +168,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     _terminateRequested(false),
     _characterID(id),
-    _profile(ProfileSystem::get().getProfile(profile))
+    _profile(ProfileSystem::get().getProfile(profile)),
+    _showStatus(false)
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -218,34 +218,6 @@ Object::~Object()
                     inventoryHolder->inventory[i] = INVALID_CHR_REF;
                     break;
                 }
-            }
-        }
-
-        // Remove from stat list
-        if (show_stats)
-        {
-            size_t  cnt;
-            bool stat_found;
-
-            show_stats = false;
-
-            stat_found = false;
-            for (cnt = 0; cnt < g_statusList.count; cnt++)
-            {
-                if ( g_statusList.lst[cnt].who == getCharacterID() )
-                {
-                    stat_found = true;
-                    break;
-                }
-            }
-
-            if ( stat_found )
-            {
-                for (cnt++; cnt < g_statusList.count; cnt++)
-                {
-                    std::swap(g_statusList.lst[cnt-1], g_statusList.lst[cnt]);
-                }
-                g_statusList.count--;
             }
         }
 

@@ -63,9 +63,6 @@ bool  overrideslots      = false;
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
 
-// Status displays
-status_list_t g_statusList;
-
 ego_mesh_t         * PMesh   = _mesh + 0;
 
 pit_info_t g_pits;
@@ -394,77 +391,6 @@ void log_madused_vfs( const char *savename )
         }
 
         vfs_close( hFileWrite );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void statlist_add( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function adds a status display to the do list
-
-    Object * pchr;
-
-    if ( g_statusList.count >= MAX_STATUS ) return;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    if ( pchr->show_stats ) return;
-
-    g_statusList.lst[g_statusList.count].who = character;
-    pchr->show_stats = true;
-    g_statusList.count++;
-}
-
-//--------------------------------------------------------------------------------------------
-void statlist_move_to_top( const CHR_REF character )
-{
-    int cnt, oldloc;
-    status_list_t::element_t tmp;
-
-    // Find where it is
-    oldloc = g_statusList.count;
-
-    for ( cnt = 0; cnt < g_statusList.count; cnt++ )
-    {
-        if ( character == g_statusList.lst[cnt].who )
-        {
-			tmp = g_statusList.lst[cnt];
-            oldloc = cnt;
-            break;
-        }
-    }
-
-    // Change position
-    if ( oldloc < g_statusList.count )
-    {
-        // Move all the lower ones up
-        while ( oldloc > 0 )
-        {
-            oldloc--;
-			g_statusList.lst[oldloc + 1] = g_statusList.lst[oldloc];
-        }
-
-        // Put the character in the top slot
-		g_statusList.lst[0] = tmp;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void statlist_sort()
-{
-    /// @author ZZ
-    /// @details This function puts all of the local players on top of the StatusList
-
-    PLA_REF ipla;
-
-    for ( ipla = 0; ipla < PlaStack.count; ipla++ )
-    {
-        if ( PlaStack.lst[ipla].valid && PlaStack.lst[ipla].pdevice != NULL )
-        {
-            statlist_move_to_top( PlaStack.lst[ipla].index );
-        }
     }
 }
 
@@ -1673,61 +1599,56 @@ void show_stat( int statindex )
     int     level;
     char    gender[8] = EMPTY_CSTR;
 
-    if ( statindex < g_statusList.count )
+    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
+
+    if (pchr)
     {
-        character = g_statusList.lst[statindex].who;
+        const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
-        if ( _currentModule->getObjectHandler().exists( character ) )
+        // Name
+        DisplayMsg_printf( "=%s=", pchr->getName(true, false, true).c_str());
+
+        // Level and gender and class
+        gender[0] = 0;
+        if ( pchr->alive )
         {
-            Object * pchr = _currentModule->getObjectHandler().get( character );
+            int itmp;
+            const char * gender_str;
 
-            const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-            // Name
-            DisplayMsg_printf( "=%s=", pchr->getName(true, false, true).c_str());
-
-            // Level and gender and class
-            gender[0] = 0;
-            if ( pchr->alive )
+            gender_str = "";
+            switch ( pchr->gender )
             {
-                int itmp;
-                const char * gender_str;
+                case GENDER_MALE: gender_str = "male "; break;
+                case GENDER_FEMALE: gender_str = "female "; break;
+            }
 
-                gender_str = "";
-                switch ( pchr->gender )
-                {
-                    case GENDER_MALE: gender_str = "male "; break;
-                    case GENDER_FEMALE: gender_str = "female "; break;
-                }
-
-                level = 1 + pchr->experiencelevel;
-                itmp = level % 10;
-                if ( 1 == itmp )
-                {
-                    DisplayMsg_printf( "~%dst level %s%s", level, gender_str, profile->getClassName().c_str() );
-                }
-                else if ( 2 == itmp )
-                {
-                    DisplayMsg_printf( "~%dnd level %s%s", level, gender_str, profile->getClassName().c_str() );
-                }
-                else if ( 3 == itmp )
-                {
-                    DisplayMsg_printf( "~%drd level %s%s", level, gender_str, profile->getClassName().c_str() );
-                }
-                else
-                {
-                    DisplayMsg_printf( "~%dth level %s%s", level, gender_str, profile->getClassName().c_str() );
-                }
+            level = 1 + pchr->experiencelevel;
+            itmp = level % 10;
+            if ( 1 == itmp )
+            {
+                DisplayMsg_printf( "~%dst level %s%s", level, gender_str, profile->getClassName().c_str() );
+            }
+            else if ( 2 == itmp )
+            {
+                DisplayMsg_printf( "~%dnd level %s%s", level, gender_str, profile->getClassName().c_str() );
+            }
+            else if ( 3 == itmp )
+            {
+                DisplayMsg_printf( "~%drd level %s%s", level, gender_str, profile->getClassName().c_str() );
             }
             else
             {
-                DisplayMsg_printf( "~Dead %s", profile->getClassName().c_str() );
+                DisplayMsg_printf( "~%dth level %s%s", level, gender_str, profile->getClassName().c_str() );
             }
-
-            // Stats
-            DisplayMsg_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", SFP8_TO_SINT( pchr->strength ), SFP8_TO_SINT( pchr->wisdom ), 255 - pchr->defense );
-            DisplayMsg_printf( "~INT:~%2d~DEX:~%2d~EXP:~%u", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
         }
+        else
+        {
+            DisplayMsg_printf( "~Dead %s", profile->getClassName().c_str() );
+        }
+
+        // Stats
+        DisplayMsg_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", SFP8_TO_SINT( pchr->strength ), SFP8_TO_SINT( pchr->wisdom ), 255 - pchr->defense );
+        DisplayMsg_printf( "~INT:~%2d~DEX:~%2d~EXP:~%u", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
     }
 }
 
@@ -1742,17 +1663,11 @@ void show_armor( int statindex )
 
     SKIN_T  skinlevel;
 
-    Object * pchr;
+    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
 
-    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
-
-    ichr = g_statusList.lst[statindex].who;
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return;
-
-    pchr = _currentModule->getObjectHandler().get( ichr );
     skinlevel = pchr->skin;
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
+    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
     const SkinInfo &skinInfo = profile->getSkinInfo(skinlevel);
 
     // Armor Name
@@ -1834,17 +1749,16 @@ void show_full_status( int statindex )
 
     CHR_REF character;
     int manaregen, liferegen;
-    Object * pchr;
 
-    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
-    character = g_statusList.lst[statindex].who;
+    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
+    if(!pchr) {
+        return;
+    }
 
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
     SKIN_T skinlevel = pchr->skin;
 
     // clean up the enchant list
-    cleanup_character_enchants( pchr );
+    cleanup_character_enchants( pchr.get() );
 
     // Enchanted?
     DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
@@ -1862,7 +1776,7 @@ void show_full_status( int statindex )
                        pchr->damage_resistance[DAMAGE_ICE ]*100,
                        pchr->damage_resistance[DAMAGE_ZAP ]*100 );
 
-    get_chr_regeneration( pchr, &liferegen, &manaregen );
+    get_chr_regeneration( pchr.get(), &liferegen, &manaregen );
 
     DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT( manaregen ), FP8_TO_FLOAT( liferegen ) );
 }
@@ -1875,17 +1789,14 @@ void show_magic_status( int statindex )
 
     CHR_REF character;
     const char * missile_str;
-    Object * pchr;
 
-    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
-
-    character = g_statusList.lst[statindex].who;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
+    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
+    if(!pchr) {
+        return;
+    }
 
     // clean up the enchant list
-    cleanup_character_enchants( pchr );
+    cleanup_character_enchants( pchr.get() );
 
     // Enchanted?
     DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
@@ -2266,9 +2177,6 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 player_added = add_player( new_object, ( PLA_REF )PlaStack.count, NULL );
             }
         }
-
-        // Turn on the stat display
-        statlist_add( new_object );
     }
 
     return true;
@@ -2419,9 +2327,6 @@ void activate_spawn_file_vfs()
     }
 
     DisplayMsg_clear();
-
-    // Make sure local players are displayed first
-    statlist_sort();
 
     // Fix tilting trees problem
     tilt_characters_to_terrain();

@@ -31,6 +31,7 @@
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
+#include "game/player.h"
 
 //For cheats
 #include "game/Entities/_Include.hpp"
@@ -39,7 +40,8 @@
 
 PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     _cameraSystem(cameraSystem),
-    _miniMap(std::make_shared<MiniMap>())
+    _miniMap(std::make_shared<MiniMap>()),
+    _statusList()
 {
     //For debug only
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
@@ -59,6 +61,14 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     _miniMap->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
     _miniMap->setPosition(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight());
     addComponent(_miniMap);
+
+    //Show status display for all players
+    for (PLA_REF iplayer = 0; iplayer < MAX_PLAYER; iplayer++)
+    {
+        // Only valid players
+        if (!PlaStack.lst[iplayer].valid) continue;
+        addStatusMonitor(_currentModule->getObjectHandler()[PlaStack.lst[iplayer].index]);
+    }
 }
 
 PlayingState::~PlayingState()
@@ -77,9 +87,39 @@ PlayingState::~PlayingState()
     AudioSystem::get().fadeAllSounds();  
 }
 
+void PlayingState::updateStatusBarPosition()
+{
+    static uint32_t recalculateStatusBarPosition = 0;
+    if(SDL_GetTicks() > recalculateStatusBarPosition) 
+    {
+        //Apply throttle... no need to do every update frame
+        recalculateStatusBarPosition = SDL_GetTicks() + 200;
+
+        std::unordered_map<std::shared_ptr<Camera>, float> maxY;
+        for(const std::weak_ptr<CharacterStatus> &weakStatus : _statusList)
+        {
+            std::shared_ptr<CharacterStatus> status = weakStatus.lock();
+            if(status)
+            {
+                const std::shared_ptr<Camera> &camera = _cameraSystem->getCameraByChrID(status->getObject()->getCharacterID());
+
+                //Shift component down a bit if required
+                status->setPosition(status->getX(), maxY[camera] + 10.0f);
+
+                //Calculate bottom Y coordinate for this component
+                maxY[camera] = std::max<float>(maxY[camera], status->getY() + status->getHeight());
+            }
+        }
+
+    }
+}
+
 void PlayingState::update()
 {
     update_game();
+
+    //Calculate position of all status bars
+    updateStatusBarPosition();
 }
 
 void PlayingState::drawContainer()
@@ -95,14 +135,14 @@ void PlayingState::beginState()
     SDL_ShowCursor(egoboo_config_t::get().debug_hideMouse.getValue() ? SDL_DISABLE : SDL_ENABLE );
     SDL_SetWindowGrab(sdl_scr.window, egoboo_config_t::get().debug_grabMouse.getValue() ? SDL_TRUE : SDL_FALSE);
 
-    if(egoboo_config_t::get().debug_hideMouse.getValue())
-    {
-        _gameEngine->disableMouseCursor();
-    }
-    else
-    {
-        _gameEngine->enableMouseCursor();
-    }
+//    if(egoboo_config_t::get().debug_hideMouse.getValue())
+//    {
+//        _gameEngine->disableMouseCursor();
+//    }
+//    else
+//    {
+//        _gameEngine->enableMouseCursor();
+//    }
 }
 
 bool PlayingState::notifyKeyDown(const int keyCode)
@@ -152,6 +192,17 @@ const std::shared_ptr<MiniMap>& PlayingState::getMiniMap() const
 
 void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
 {
+    //Disabled by configuration?
+    if(!egoboo_config_t::get().hud_displayStatusBars.getValue()) {
+        return;
+    }
+
+    //Already added?
+    if(object->getShowStatus()) {
+        return;
+    }
+
+    //Get the camera that is following this object (defaults to main camera)
     const std::shared_ptr<Camera> &camera = CameraSystem::get()->getCameraByChrID(object->getCharacterID());
 
     std::shared_ptr<CharacterStatus> status = std::make_shared<CharacterStatus>(object);
@@ -159,5 +210,31 @@ void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
     status->setSize(BARX, BARY);
     status->setPosition(camera->getScreen().xmax - status->getWidth(), camera->getScreen().ymin);
 
-    //TODO
+    addComponent(status);
+    _statusList.push_back(status);
+
+    object->setShowStatus(true);
+}
+
+std::shared_ptr<Object> PlayingState::getStatusCharacter(size_t index)
+{
+    //First remove all expired elements
+    auto condition = 
+        [](const std::weak_ptr<CharacterStatus> &element)
+        {   
+            return element.expired();
+        };
+    _statusList.erase(std::remove_if(_statusList.begin(), _statusList.end(), condition), _statusList.end());
+
+
+    if(index > _statusList.size()) {
+        return nullptr;
+    }
+
+    std::shared_ptr<CharacterStatus> status = _statusList[index].lock();
+    if(!status) {
+        return nullptr;
+    }
+
+    return status->getObject();
 }

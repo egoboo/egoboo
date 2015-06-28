@@ -1223,96 +1223,6 @@ float draw_character_xp_bar(const CHR_REF character, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-float draw_status(const CHR_REF character, float x, float y)
-{
-    /// @author ZZ
-    /// @details This function shows a character's icon, status and inventory
-    ///    The x,y coordinates are the top left point of the image to draw
-    int life_pips, life_pips_max;
-    int mana_pips, mana_pips_max;
-
-    Object * pchr;
-
-    if (!_currentModule->getObjectHandler().exists(character)) return y;
-    pchr = _currentModule->getObjectHandler().get(character);
-
-    life_pips = SFP8_TO_SINT(pchr->life);
-    life_pips_max = SFP8_TO_SINT(pchr->life_max);
-    mana_pips = SFP8_TO_SINT(pchr->mana);
-    mana_pips_max = SFP8_TO_SINT(pchr->mana_max);
-
-    // draw the name
-    y = draw_string_raw(x + 8, y, "%s", pchr->getName(false, false, true).c_str());
-
-    // draw the character's money
-    y = draw_string_raw(x + 8, y, "$%4d", pchr->money) + 8;
-
-    // draw the character's main icon
-    draw_one_character_icon(character, x + 40, y, false, NOSPARKLE);
-
-    // draw the left hand item icon
-    draw_one_character_icon(pchr->holdingwhich[SLOT_LEFT], x + 8, y, true, NOSPARKLE);
-
-    // draw the right hand item icon
-    draw_one_character_icon(pchr->holdingwhich[SLOT_RIGHT], x + 72, y, true, NOSPARKLE);
-
-    // skip to the next row
-    y += 32;
-
-    //Draw the small XP progress bar
-    y = draw_character_xp_bar(character, x + 16, y);
-
-    // Draw the life_pips bar
-    if (pchr->alive)
-    {
-        y = draw_one_bar(pchr->life_color, x, y, life_pips, life_pips_max);
-    }
-    else
-    {
-        y = draw_one_bar(0, x, y, 0, life_pips_max);  // Draw a black bar
-    }
-
-    // Draw the mana_pips bar
-    if (mana_pips_max > 0)
-    {
-        y = draw_one_bar(pchr->mana_color, x, y, mana_pips, mana_pips_max);
-    }
-
-    return y;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-#if 0
-void draw_all_status()
-{
-    if (!g_statusList.on) return;
-
-    // connect each status object with its camera
-    for (size_t cnt = 0; cnt < StatusList.count; cnt++)
-    {
-        StatusList.lst[cnt].camera_index = CameraSystem::get()->getCameraIndexByID(StatusList.lst[cnt].who);
-    }
-
-    int i = 0;
-    for (const std::shared_ptr<Camera> &camera : CameraSystem::get()->getCameraList())
-    {
-        // draw all attached status
-        int y = camera->getScreen().ymin;
-        for (size_t tnc = 0; tnc < g_statusList.count; tnc++)
-        {
-            if (i == StatusList.lst[tnc].camera_index)
-            {
-                y = draw_status(StatusList.lst[tnc].who, camera->getScreen().xmax - BARX, y);
-            }
-        }
-        i++;
-    }
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 float draw_fps(float y)
 {
     // FPS text
@@ -1712,8 +1622,11 @@ void draw_mouse_cursor()
     {
         ego_frect_t sc_rect;
         ego_frect_t tx_rect;
-        int x = std::abs(mous.x);
-        int y = std::abs(mous.y);
+
+        //Get current mouse position
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+
         // Compute the texture coordinate rectangle (in texture coordinates).
         tx_rect.xmin = 0.0f;
         tx_rect.ymin = 0.0f;

@@ -240,5 +240,4 @@ extern std::unique_ptr<GameEngine> _gameEngine;
 //TODO: remove these globals
 extern std::unique_ptr<GameModule> _currentModule;
 extern ego_mesh_t *PMesh;
-extern status_list_t g_statusList;
 

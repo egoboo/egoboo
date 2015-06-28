@@ -4967,7 +4967,8 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     // Add a blip
     if ( pstate->argument >= 0 )
     {
-        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(pstate->x, pstate->y, static_cast<HUDColors>(pstate->argument % COLOR_MAX));
+        //_gameEngine->getActivePlayingState()->getMiniMap()->addBlip(pstate->x, pstate->y, static_cast<HUDColors>(pstate->argument % COLOR_MAX));
+        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(pstate->x, pstate->y, _currentModule->getObjectHandler()[pchr->getCharacterID()]);
     }
 
     SCRIPT_FUNCTION_END();
@@ -6525,10 +6526,7 @@ Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !pchr->show_stats )
-    {
-        statlist_add( pself->index );
-    }
+    _gameEngine->getActivePlayingState()->addStatusMonitor( _currentModule->getObjectHandler()[pself->index] );
 
     SCRIPT_FUNCTION_END();
 }

@@ -33,6 +33,8 @@ public:
 
     virtual void draw() override;
 
+    std::shared_ptr<Object> getObject() const { return _object.lock(); }
+
 private:
     std::weak_ptr<Object> _object;
 };
