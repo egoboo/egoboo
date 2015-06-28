@@ -23,6 +23,8 @@
 
 #include "game/game.h"
 
+#include "game/GUI/MiniMap.hpp"
+#include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
 #include "egolib/Graphics/mad.h"
 #include "game/player.h"
@@ -1560,10 +1562,10 @@ void check_stats()
         return;
 
     // Show map cheat
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_m) && SDL_KEYDOWN(keyb, SDLK_LSHIFT) && mapvalid)
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_m) && SDL_KEYDOWN(keyb, SDLK_LSHIFT))
     {
-        mapon = !mapon;
-        youarehereon = true;
+        _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
+        _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
         stat_check_delay = 150;
     }
 
@@ -2882,8 +2884,6 @@ void let_all_characters_think()
     if ( update_wld == last_update ) return;
     last_update = update_wld;
 
-    blip_count = 0;
-
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if(object->isTerminated()) {
@@ -2897,10 +2897,10 @@ void let_all_characters_think()
         is_crushed   = HAS_SOME_BITS( object->ai.alert, ALERTIF_CRUSHED );
 
         // let the script run sometimes even if the item is in your backpack
-        can_think = !_currentModule->getObjectHandler().exists( object->inwhich_inventory ) || object->getProfile()->isEquipment();
+        can_think = !object->isInsideInventory() || object->getProfile()->isEquipment();
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
-        if (( object->alive && can_think ) || is_crushed || is_cleanedup )
+        if (( object->isAlive() && can_think ) || is_crushed || is_cleanedup )
         {
             // Figure out alerts that weren't already set
             set_alerts( object->getCharacterID() );

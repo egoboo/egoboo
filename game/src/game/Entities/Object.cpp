@@ -1028,7 +1028,6 @@ void Object::requestTerminate()
     return (facing > 55535 || facing < 10000);
  }
 
-//--------------------------------------------------------------------------------------------
 bool Object::detatchFromHolder(const bool ignoreKurse, const bool doShop)
 {
     // Make sure the character is actually held by something first

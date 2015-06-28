@@ -22,6 +22,7 @@
 /// @details All sorts of stuff related to drawing the game
 
 #include "game/Core/GameEngine.hpp"
+#include "game/GUI/MiniMap.hpp"
 #include "egolib/egolib.h"
 #include "egolib/bsp.h"
 #include "game/graphic.h"
@@ -120,15 +121,6 @@ gfx_config_t     gfx;
 float            indextoenvirox[EGO_NORMAL_COUNT];
 float            lighttoenviroy[256];
 
-Uint8   mapon = false;
-Uint8   mapvalid = false;
-Uint8   youarehereon = false;
-
-size_t  blip_count = 0;
-float   blip_x[MAXBLIP];
-float   blip_y[MAXBLIP];
-Uint8   blip_c[MAXBLIP];
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -147,7 +139,6 @@ static float coslut[MAXLIGHTROTATION];
 static irect_t tabrect[NUMBAR];            // The tab rectangles
 static irect_t barrect[NUMBAR];            // The bar rectangles
 static irect_t bliprect[COLOR_MAX];        // The blip rectangles
-static irect_t maprect;                    // The map rectangle
 
 static bool  gfx_page_flip_requested = false;
 static bool  gfx_page_clear_requested = true;
@@ -199,8 +190,6 @@ void reinitClocks() {
 
 static void _flip_pages();
 
-
-
 static gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el, dynalist_t& dyl, Camera& cam);
 static gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const Ego::Graphics::EntityList& el);
 static gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::EntityList& el);
@@ -221,7 +210,6 @@ static gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& camera);
 static float draw_one_xp_bar(float x, float y, Uint8 ticks);
 static float draw_character_xp_bar(const CHR_REF character, float x, float y);
 static void  draw_all_status();
-static void  draw_map();
 static float draw_fps(float y);
 static float draw_help(float y);
 static float draw_debug(float y);
@@ -244,7 +232,6 @@ static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
 //static void gfx_init_icon_data();
 static void   gfx_init_bar_data();
 static void   gfx_init_blip_data();
-static void   gfx_init_map_data();
 
 //--------------------------------------------------------------------------------------------
 // renderlist_ary implementation
@@ -701,7 +688,6 @@ void gfx_system_init_all_graphics()
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
-    gfx_init_map_data();
     font_bmp_init();
 
 	reinitClocks();
@@ -712,7 +698,6 @@ void gfx_system_release_all_graphics()
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
-    gfx_init_map_data();
     BillboardSystem::get().reset();
     TextureManager::get().release_all();
 }
@@ -722,7 +707,6 @@ void gfx_system_delete_all_graphics()
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
-    gfx_init_map_data();
     BillboardSystem::get().reset();
 }
 
@@ -807,29 +791,16 @@ void gfx_system_reload_all_textures()
 //--------------------------------------------------------------------------------------------
 // 2D RENDERER FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void draw_blip(float sizeFactor, Uint8 color, float x, float y, bool mini_map)
+void draw_blip(float sizeFactor, Uint8 color, float x, float y)
 {
     /// @author ZZ
     /// @details This function draws a single blip
     ego_frect_t tx_rect, sc_rect;
 
     float width, height;
-    float loc_x, loc_y;
-
-    //Adjust the position values so that they fit inside the minimap
-    if (mini_map)
-    {
-        loc_x = x * MAPSIZE / PMesh->gmem.edge_x;
-        loc_y = (y * MAPSIZE / PMesh->gmem.edge_y) + sdl_scr.y - MAPSIZE;
-    }
-    else
-    {
-        loc_x = x;
-        loc_y = y;
-    }
 
     //Now draw it
-    if (loc_x > 0.0f && loc_y > 0.0f)
+    if (x > 0.0f && y > 0.0f)
     {
         oglx_texture_t * ptex = TextureManager::get().get_valid_ptr((TX_REF)TX_BLIP);
 
@@ -841,10 +812,10 @@ void draw_blip(float sizeFactor, Uint8 color, float x, float y, bool mini_map)
         width = sizeFactor * (bliprect[color]._right - bliprect[color]._left);
         height = sizeFactor * (bliprect[color]._bottom - bliprect[color]._top);
 
-        sc_rect.xmin = loc_x - (width / 2);
-        sc_rect.xmax = loc_x + (width / 2);
-        sc_rect.ymin = loc_y - (height / 2);
-        sc_rect.ymax = loc_y + (height / 2);
+        sc_rect.xmin = x - (width / 2);
+        sc_rect.xmax = x + (width / 2);
+        sc_rect.ymin = y - (height / 2);
+        sc_rect.ymax = y + (height / 2);
 
         draw_quad_2d(ptex, sc_rect, tx_rect, true);
     }
@@ -903,19 +874,19 @@ float draw_icon_texture(oglx_texture_t * ptex, float x, float y, Uint8 sparkle_c
 
         loc_blip_x = x + position * (width / SPARKLE_SIZE);
         loc_blip_y = y;
-        draw_blip(0.5f, sparkle_color, loc_blip_x, loc_blip_y, false);
+        draw_blip(0.5f, sparkle_color, loc_blip_x, loc_blip_y);
 
         loc_blip_x = x + width;
         loc_blip_y = y + position * (height / SPARKLE_SIZE);
-        draw_blip(0.5f, sparkle_color, loc_blip_x, loc_blip_y, false);
+        draw_blip(0.5f, sparkle_color, loc_blip_x, loc_blip_y);
 
         loc_blip_x = loc_blip_x - position  * (width / SPARKLE_SIZE);
         loc_blip_y = y + height;
-        draw_blip(0.5f, sparkle_color, loc_blip_x, loc_blip_y, false);
+        draw_blip(0.5f, sparkle_color, loc_blip_x, loc_blip_y);
 
         loc_blip_x = x;
         loc_blip_y = loc_blip_y - position * (height / SPARKLE_SIZE);
-        draw_blip(0.5f, sparkle_color, loc_blip_x, loc_blip_y, false);
+        draw_blip(0.5f, sparkle_color, loc_blip_x, loc_blip_y);
     }
 
     return y + height;
@@ -937,6 +908,7 @@ float draw_menu_icon(const TX_REF icontype, float x, float y, Uint8 sparkle_colo
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void draw_map_texture(float x, float y)
 {
     /// @author ZZ
@@ -959,6 +931,7 @@ void draw_map_texture(float x, float y)
 
     draw_quad_2d(ptex, sc_rect, tx_rect, false);
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 float draw_one_xp_bar(float x, float y, Uint8 ticks)
@@ -1381,107 +1354,6 @@ void draw_all_status()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_map()
-{
-    size_t cnt;
-
-    // Map display
-    if (!mapvalid || !mapon) return;
-
-    ATTRIB_PUSH(__FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
-    {
-        auto& renderer = Ego::Renderer::get();
-        renderer.setBlendingEnabled(true);
-        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
-
-        renderer.setColour(Ego::Colour4f::white());
-        draw_map_texture(0, sdl_scr.y - MAPSIZE);
-
-        GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
-
-        // If one of the players can sense enemies via ESP, draw them as blips on the map
-        if (Team::TEAM_MAX != local_stats.sense_enemies_team)
-        {
-            for (CHR_REF ichr = 0; ichr < OBJECTS_MAX && blip_count < MAXBLIP; ichr++)
-            {
-                if (!_currentModule->getObjectHandler().exists(ichr)) continue;
-                Object *pchr = _currentModule->getObjectHandler().get(ichr);
-
-                const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-                // Show only teams that will attack the player
-                if (team_hates_team(pchr->team, local_stats.sense_enemies_team))
-                {
-                    // Only if they match the required IDSZ ([NONE] always works)
-                    if (local_stats.sense_enemies_idsz == IDSZ_NONE ||
-                        local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_PARENT) ||
-                        local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_TYPE))
-                    {
-                        // Inside the map?
-                        if (pchr->getPosX() < PMesh->gmem.edge_x && pchr->getPosY() < PMesh->gmem.edge_y)
-                        {
-                            // Valid colors only
-                            blip_x[blip_count] = pchr->getPosX();
-                            blip_y[blip_count] = pchr->getPosY();
-                            blip_c[blip_count] = COLOR_RED; // Red blips
-                            blip_count++;
-                        }
-                    }
-                }
-            }
-        }
-
-        // draw all the blips
-        for (cnt = 0; cnt < blip_count; cnt++)
-        {
-            draw_blip(0.75f, blip_c[cnt], blip_x[cnt], blip_y[cnt], true);
-        }
-        blip_count = 0;
-
-        // Show local player position(s)
-        if (youarehereon && (update_wld & 8))
-        {
-            PLA_REF iplayer;
-
-            for (iplayer = 0; iplayer < MAX_PLAYER; iplayer++)
-            {
-                CHR_REF ichr;
-
-                // Only valid players
-                if (!PlaStack.lst[iplayer].valid) continue;
-
-                // Dont do networked players
-                if (NULL == PlaStack.lst[iplayer].pdevice) continue;
-
-                ichr = PlaStack.lst[iplayer].index;
-                if (_currentModule->getObjectHandler().exists(ichr) && _currentModule->getObjectHandler().get(ichr)->alive)
-                {
-                    draw_blip(0.75f, COLOR_WHITE, _currentModule->getObjectHandler().get(ichr)->getPosX(), _currentModule->getObjectHandler().get(ichr)->getPosY(), true);
-                }
-            }
-        }
-
-        // draw the camera(s)
-        //if ( update_wld & 2 )
-        //{
-        //    ext_camera_iterator_t * it;
-
-        //    for( it = camera_list_iterator_begin(); NULL != it; it = camera_list_iterator_next( it ) )
-        //    {
-        //        fvec3_t tmp_diff;
-
-        //        camera_t * pcam = camera_list_iterator_get_camera(it);
-        //        if( NULL == pcam ) continue;
-
-        //        draw_blip( 0.75f, COLOR_PURPLE, pcam->getPosition()[kX], pcam->getPosition()[kY], true );
-        //    }
-        //    it = camera_list_iterator_end(it);
-        //}
-    }
-    ATTRIB_POP(__FUNCTION__)
-}
-
-//--------------------------------------------------------------------------------------------
 float draw_fps(float y)
 {
     // FPS text
@@ -1692,8 +1564,6 @@ void draw_hud()
 
     gfx_begin_2d();
     {
-        draw_map();
-
         draw_inventory();
 
         draw_all_status();
@@ -2503,25 +2373,6 @@ void gfx_init_blip_data()
         bliprect[cnt]._top = 0;
         bliprect[cnt]._bottom = BLIPSIZE;
     }
-
-    youarehereon = false;
-    blip_count = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_init_map_data()
-{
-    /// @author ZZ
-    /// @details This function releases all the map images
-
-    // Set up the rectangles
-    maprect._left = 0;
-    maprect._right = MAPSIZE;
-    maprect._top = 0;
-    maprect._bottom = MAPSIZE;
-
-    mapvalid = false;
-    mapon = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2558,22 +2409,15 @@ gfx_rv gfx_load_map()
     const char* szMap = "mp_data/plan";
     gfx_rv retval = gfx_success;
 
-    // Turn it all off
-    mapon = false;
-    youarehereon = false;
-    blip_count = 0;
-
     // Load the images
     if (!VALID_TX_RANGE(TextureManager::get().load(szMap, (TX_REF)TX_MAP)))
     {
         log_debug("%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap);
         retval = gfx_fail;
-        mapvalid = false;
     }
     else
     {
         retval = gfx_success;
-        mapvalid = true;
     }
 
     return retval;

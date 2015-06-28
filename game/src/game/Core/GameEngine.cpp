@@ -22,6 +22,7 @@
 #include "egolib/egolib.h"
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/GameStates/MainMenuState.hpp"
+#include "game/GameStates/PlayingState.hpp"
 #include "egolib/Profiles/_Include.hpp"
 #include "game/GUI/UIManager.hpp"
 #include "game/graphic.h"
@@ -508,6 +509,12 @@ int GameEngine::getFrameSkip() const
 {
     return _frameSkip;
 }
+
+std::shared_ptr<PlayingState> GameEngine::getActivePlayingState() const
+{
+    return std::dynamic_pointer_cast<PlayingState>(_currentGameState);
+}
+
 
 /**
  * @brief

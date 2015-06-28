@@ -27,6 +27,8 @@
 
 #include "game/script_functions.h"
 #include "game/script_implementation.h"
+#include "game/GUI/MiniMap.hpp"
+#include "game/GameStates/PlayingState.hpp"
 #include "egolib/Graphics/mad.h"
 #include "game/link.h"
 #include "game/input.h"
@@ -4931,9 +4933,9 @@ Uint8 scr_ShowMap( script_state_t * pstate, ai_state_t * pself )
     /// Fails if map already visible
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( mapon )  returncode = false;
+    if(_gameEngine->getActivePlayingState()->getMiniMap()->isVisible()) returncode = false;
 
-    mapon = mapvalid;
+    _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4948,7 +4950,7 @@ Uint8 scr_ShowYouAreHere( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    youarehereon = mapvalid;
+    _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4963,18 +4965,9 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Add a blip
-    if ( blip_count < MAXBLIP )
+    if ( pstate->argument >= 0 )
     {
-        if ( pstate->x > 0 && pstate->x < PMesh->gmem.edge_x && pstate->y > 0 && pstate->y < PMesh->gmem.edge_y )
-        {
-            if ( pstate->argument >= 0 )
-            {
-                blip_x[blip_count] = pstate->x;
-                blip_y[blip_count] = pstate->y;
-                blip_c[blip_count] = pstate->argument % COLOR_MAX;
-                blip_count++;
-            }
-        }
+        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(pstate->x, pstate->y, pstate->argument);
     }
 
     SCRIPT_FUNCTION_END();

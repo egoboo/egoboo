@@ -1,4 +1,4 @@
-#include "ObjectAnimation.hpp"
+#include "ObjectAnimation.h"
 #include "CharacterMatrix.h"
 #include "game.h"
 

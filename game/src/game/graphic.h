@@ -42,7 +42,6 @@
 #define ICON_SIZE 32
 
 
-
 /// max number of blips on the minimap
 #define MAXBLIP        128                          ///<Max blips on the screen
 
@@ -355,24 +354,11 @@ extern Uint32          menu_frame_all;             ///< The total number of fram
 
 extern gfx_config_t gfx;
 
-extern Uint8           mapon;
-extern Uint8           mapvalid;
-extern Uint8           youarehereon;
-
-extern size_t          blip_count;
-extern float           blip_x[MAXBLIP];
-extern float           blip_y[MAXBLIP];
-extern Uint8           blip_c[MAXBLIP];
-
 extern int GFX_WIDTH;
 extern int GFX_HEIGHT;
 
-//extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
-//extern float           lighttable_local[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
-//extern float           lighttable_global[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
 extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///< Environment map
 extern float           lighttoenviroy[256];                                ///< Environment map
-//extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -469,7 +455,7 @@ void  draw_map_texture(float x, float y);
 float draw_one_bar(Uint8 bartype, float x, float y, int ticks, int maxticks);
 float draw_status(const CHR_REF character, float x, float y);
 void  draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_ammo, Uint8 sparkle_override);
-void  draw_blip(float sizeFactor, Uint8 color, float x, float y, bool mini_map);
+void  draw_blip(float sizeFactor, Uint8 color, float x, float y);
 
 //void   make_lightdirectionlookup();
 

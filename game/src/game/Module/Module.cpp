@@ -219,5 +219,10 @@ uint8_t GameModule::getMinPlayers() const
     return _moduleProfile->getMinPlayers();
 }
 
+bool GameModule::isInside(const float x, const float y) const
+{
+     return x > 0 && x < PMesh->gmem.edge_x && y > 0 && y < PMesh->gmem.edge_y;
+}
+
 /// @todo Remove this global.
 std::unique_ptr<GameModule> _currentModule = nullptr;

@@ -26,6 +26,7 @@
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/InternalDebugWindow.hpp"
+#include "game/GUI/MiniMap.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
@@ -36,7 +37,8 @@
 #include "game/char.h"
 
 PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
-    _cameraSystem(cameraSystem)
+    _cameraSystem(cameraSystem),
+    _miniMap(std::make_shared<MiniMap>())
 {
     //For debug only
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
@@ -51,6 +53,11 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
         debugWindow->addWatchVariable("Path", []{return _currentModule->getPath();} );
         addComponent(debugWindow);        
     }
+
+    //Add minimap to the list of GUI components to render
+    _miniMap->setSize(MAPSIZE, MAPSIZE);
+    _miniMap->setPosition(0, 0);
+    addComponent(_miniMap);
 }
 
 PlayingState::~PlayingState()
@@ -135,4 +142,9 @@ bool PlayingState::notifyKeyDown(const int keyCode)
     }
 
     return ComponentContainer::notifyKeyDown(keyCode);
+}
+
+const std::shared_ptr<MiniMap>& PlayingState::getMiniMap() const
+{
+    return _miniMap;
 }

@@ -17,37 +17,46 @@
 //*
 //********************************************************************************************
 
-/// @file game/GameStates/PlayingState.hpp
-/// @details Main state where the players are currently playing a module
+/// @file game/GUI/MiniMap.hpp
+/// @details GUI widget to render that tiny minimap in the corner
 /// @author Johan Jansen
 
 #pragma once
 
-#include "game/GameStates/GameState.hpp"
+#include "game/GUI/GUIComponent.hpp"
 
-//Forward declarations
-class CameraSystem;
-class MiniMap;
-
-class PlayingState : public GameState
+class MiniMap : public GUIComponent
 {
 public:
-    PlayingState(std::shared_ptr<CameraSystem> cameraSystem);
+    MiniMap();
 
-    ~PlayingState();
+    virtual void draw() override;
 
-    void update() override;
+    void setShowPlayerPosition(bool show);
 
-    void beginState() override;
-
-    bool notifyKeyDown(const int keyCode) override;
-
-    const std::shared_ptr<MiniMap>& getMiniMap() const;
-
-protected:
-    void drawContainer() override;
+    void addBlip(const float x, const float y, const uint8_t color);
 
 private:
-	std::shared_ptr<CameraSystem> _cameraSystem;
-    std::shared_ptr<MiniMap> _miniMap;
+
+    //Private blip class
+    class Blip
+    {
+    public:
+        Blip(const float setX, const float setY, const uint8_t setColor) :
+            x(setX),
+            y(setY),
+            color(setColor % COLOR_MAX)
+        {
+            //ctor
+        }
+
+        float x;
+        float y;
+        uint8_t color;
+    };
+
+private:
+    uint32_t _markerBlinkTimer;     //< Ticks until next minimap blink is shown
+    bool _showPlayerPosition;
+    std::vector<Blip> _blips;
 };
