@@ -298,6 +298,8 @@ std::string str_encode_path( const std::string& objectName)
 			return std::tolower(chr);
 		} else if (std::isspace(chr)) {
 			return '_';
+		} else {
+			return chr;
 		}};
 	transform(encodedName.begin(), encodedName.end(), encodedName.begin(), f);
 	return encodedName;
