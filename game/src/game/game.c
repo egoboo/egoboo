@@ -919,6 +919,12 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
         }
     }
 
+    //All objects in level
+    else if(max_dist == NEAREST)
+    {
+        searchList = _currentModule->getObjectHandler().getAllObjects();
+    }
+
     //All objects within range
     else
     {
