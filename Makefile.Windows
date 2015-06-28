@@ -1,6 +1,7 @@
 .PHONY: idlib egolib egoboo clean set_debug_flags debug
 	
 debug: set_debug_flags all
+release: set_release_flags all
 
 all: idlib egolib egoboo
 
@@ -14,7 +15,7 @@ COMPILE_WARNINGS += -Wno-missing-field-initializers -Wno-unused-parameter
 
 #-D_DEBUG
 set_debug_flags:
-	$(eval COMPILE_DEBUG_FLAGS+=-ggdb)
+	$(eval COMPILE_DEBUG_FLAGS+=-ggdb -pg)
 	$(eval COMPILE_OPTIMIZE:=-Og)
 
 set_release_flags:

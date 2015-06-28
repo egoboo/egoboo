@@ -31,6 +31,7 @@ class ObjectHandler;
 struct ego_mesh_t;
 struct status_list_t;
 class UIManager;
+class PlayingState;
 
 class GameEngine
 {
@@ -153,6 +154,14 @@ public:
     inline const std::chrono::high_resolution_clock::time_point& getBootTime() const {
         return _startupTimestamp;
     }
+
+    /**
+    * @brief
+    *   Gets the current GameState as a PlayingState instance
+    * @return
+    *   the current GameState if it is a PlayingState or nullptr otherwise
+    **/
+    std::shared_ptr<PlayingState> getActivePlayingState() const;
 
 private:
     /**

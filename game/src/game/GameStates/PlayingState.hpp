@@ -27,6 +27,8 @@
 
 //Forward declarations
 class CameraSystem;
+class MiniMap;
+class Object;
 
 class PlayingState : public GameState
 {
@@ -41,9 +43,14 @@ public:
 
     bool notifyKeyDown(const int keyCode) override;
 
+    const std::shared_ptr<MiniMap>& getMiniMap() const;
+
+    void addStatusMonitor(const std::shared_ptr<Object> &object);
+
 protected:
     void drawContainer() override;
 
 private:
 	std::shared_ptr<CameraSystem> _cameraSystem;
+    std::shared_ptr<MiniMap> _miniMap;
 };

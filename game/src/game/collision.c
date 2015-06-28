@@ -2639,7 +2639,10 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
         if ( prt_wants_deflection )
         {
             treatment = pdata->pchr->missiletreatment;
-            pdata->mana_paid = cost_mana( pdata->pchr->missilehandler, pdata->pchr->missilecost << 8, pdata->pprt->owner_ref );
+            const std::shared_ptr<Object> &missileHandler = _currentModule->getObjectHandler()[pdata->pchr->missilehandler];
+            if(missileHandler) {
+                pdata->mana_paid = missileHandler->costMana(pdata->pchr->missilecost << 8, pdata->pprt->owner_ref);
+            }
             prt_deflected = pdata->mana_paid;
         }
 

@@ -42,7 +42,6 @@
 #define ICON_SIZE 32
 
 
-
 /// max number of blips on the minimap
 #define MAXBLIP        128                          ///<Max blips on the screen
 
@@ -79,9 +78,6 @@ void                gfx_error_clear();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-#define MAPSIZE 96
-
 #define TABX                            32// 16      ///< Size of little name tag on the bar
 #define BARX                            112// 216         ///< Size of bar
 #define BARY                            16// 8
@@ -103,7 +99,7 @@ void                gfx_error_clear();
 #define SHADOWRAISE                       5
 
 /// The supported colors of bars and blips
-enum e_color
+enum HUDColors : uint8_t
 {
     COLOR_WHITE = 0,
     COLOR_RED,
@@ -355,24 +351,11 @@ extern Uint32          menu_frame_all;             ///< The total number of fram
 
 extern gfx_config_t gfx;
 
-extern Uint8           mapon;
-extern Uint8           mapvalid;
-extern Uint8           youarehereon;
-
-extern size_t          blip_count;
-extern float           blip_x[MAXBLIP];
-extern float           blip_y[MAXBLIP];
-extern Uint8           blip_c[MAXBLIP];
-
 extern int GFX_WIDTH;
 extern int GFX_HEIGHT;
 
-//extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
-//extern float           lighttable_local[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
-//extern float           lighttable_global[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
 extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///< Environment map
 extern float           lighttoenviroy[256];                                ///< Environment map
-//extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -465,13 +448,11 @@ void gfx_do_flip_pages();
 float draw_icon_texture(oglx_texture_t *ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size, bool useAlpha = false);
 float draw_menu_icon(const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
 float draw_game_icon(const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size);
-void  draw_map_texture(float x, float y);
 float draw_one_bar(Uint8 bartype, float x, float y, int ticks, int maxticks);
 float draw_status(const CHR_REF character, float x, float y);
 void  draw_one_character_icon(const CHR_REF item, float x, float y, bool draw_ammo, Uint8 sparkle_override);
-void  draw_blip(float sizeFactor, Uint8 color, float x, float y, bool mini_map);
-
-//void   make_lightdirectionlookup();
+void  draw_blip(float sizeFactor, Uint8 color, float x, float y);
+float draw_character_xp_bar(const CHR_REF character, float x, float y);
 
 bool grid_lighting_interpolate(const ego_mesh_t *pmesh, lighting_cache_t * dst, const fvec2_t& pos);
 float grid_lighting_test(ego_mesh_t *pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff);
@@ -487,8 +468,6 @@ float  get_ambient_level();
 
 void   draw_mouse_cursor();
 
-
-//void gfx_calc_rotmesh();
 
 #define TEXTUREATLASMANAGER_VERSION 1
 
