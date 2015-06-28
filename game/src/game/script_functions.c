@@ -4967,7 +4967,7 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     // Add a blip
     if ( pstate->argument >= 0 )
     {
-        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(pstate->x, pstate->y, pstate->argument);
+        _gameEngine->getActivePlayingState()->getMiniMap()->addBlip(pstate->x, pstate->y, static_cast<HUDColors>(pstate->argument % COLOR_MAX));
     }
 
     SCRIPT_FUNCTION_END();

@@ -112,7 +112,7 @@ void MiniMap::setShowPlayerPosition(bool show)
     _showPlayerPosition = show;
 }
 
-void MiniMap::addBlip(const float x, const float y, const uint8_t color)
+void MiniMap::addBlip(const float x, const float y, const HUDColors color)
 {
     if (!_currentModule->isInside(x, y)) {
         return;

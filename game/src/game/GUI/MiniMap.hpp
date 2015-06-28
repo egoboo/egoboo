@@ -34,7 +34,7 @@ public:
 
     void setShowPlayerPosition(bool show);
 
-    void addBlip(const float x, const float y, const uint8_t color);
+    void addBlip(const float x, const float y, const HUDColors color);
 
 private:
 
@@ -42,17 +42,17 @@ private:
     class Blip
     {
     public:
-        Blip(const float setX, const float setY, const uint8_t setColor) :
+        Blip(const float setX, const float setY, const HUDColors setColor) :
             x(setX),
             y(setY),
-            color(setColor % COLOR_MAX)
+            color(setColor)
         {
             //ctor
         }
 
         float x;
         float y;
-        uint8_t color;
+        HUDColors color;
     };
 
 private:

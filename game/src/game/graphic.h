@@ -102,7 +102,7 @@ void                gfx_error_clear();
 #define SHADOWRAISE                       5
 
 /// The supported colors of bars and blips
-enum e_color
+enum HUDColors : uint8_t
 {
     COLOR_WHITE = 0,
     COLOR_RED,

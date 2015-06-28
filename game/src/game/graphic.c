@@ -132,8 +132,8 @@ static oglx_video_parameters_t ogl_vparam;
 static SDL_bool _sdl_initialized_graphics = SDL_FALSE;
 static bool   _ogl_initialized = false;
 
-static float sinlut[MAXLIGHTROTATION];
-static float coslut[MAXLIGHTROTATION];
+//static float sinlut[MAXLIGHTROTATION];
+//static float coslut[MAXLIGHTROTATION];
 
 // Interface stuff
 static irect_t tabrect[NUMBAR];            // The tab rectangles
@@ -143,11 +143,9 @@ static irect_t bliprect[COLOR_MAX];        // The blip rectangles
 static bool  gfx_page_flip_requested = false;
 static bool  gfx_page_clear_requested = true;
 
-static float dynalight_keep = 0.9f;
+const static float DYNALIGHT_KEEP = 0.9f;
 
 egolib_timer_t gfx_update_timer;
-
-static egolib_throttle_t gfx_throttle = EGOLIB_THROTTLE_INIT;
 
 static dynalist_t _dynalist = DYNALIST_INIT;
 
@@ -3141,7 +3139,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     sum_global_lighting(global_lighting);
 
     // make the grids update their lighting every 4 frames
-    local_keep = std::pow(dynalight_keep, 4);
+    local_keep = std::pow(DYNALIGHT_KEEP, 4);
 
     // Add to base light level in normal mode
     for (size_t entry = 0; entry < tl._all.size; entry++)
