@@ -69,24 +69,24 @@ void Background::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	grid_mem_t     *pgmem = &(PMesh->gmem);
 
 	// which layer
-	water_instance_layer_t *ilayer = water.layer + 0;
+	water_instance_layer_t *ilayer = water._layer + 0;
 
 	// the "official" camera height
 	z0 = 1500;
 
 	// clip the waterlayer uv offset
-	ilayer->tx[XX] = ilayer->tx[XX] - (float)std::floor(ilayer->tx[XX]);
-	ilayer->tx[YY] = ilayer->tx[YY] - (float)std::floor(ilayer->tx[YY]);
+	ilayer->_tx[XX] = ilayer->_tx[XX] - (float)std::floor(ilayer->_tx[XX]);
+	ilayer->_tx[YY] = ilayer->_tx[YY] - (float)std::floor(ilayer->_tx[YY]);
 
 	// determine the constants for the x-coordinate
-	xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[XX]) / GRID_FSIZE;
-	Cx_0 = xmag * (1.0f + cam.getPosition()[kZ] * ilayer->dist[XX]);
-	Cx_1 = -xmag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->dist[XX]);
+	xmag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[XX]) / GRID_FSIZE;
+	Cx_0 = xmag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[XX]);
+	Cx_1 = -xmag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[XX]);
 
 	// determine the constants for the y-coordinate
-	ymag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist[YY]) / GRID_FSIZE;
-	Cy_0 = ymag * (1.0f + cam.getPosition()[kZ] * ilayer->dist[YY]);
-	Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->dist[YY]);
+	ymag = water._backgroundrepeat / 4 / (1.0f + z0 * ilayer->_dist[YY]) / GRID_FSIZE;
+	Cy_0 = ymag * (1.0f + cam.getPosition()[kZ] * ilayer->_dist[YY]);
+	Cy_1 = -ymag * (1.0f + (cam.getPosition()[kZ] - z0) * ilayer->_dist[YY]);
 
 	// Figure out the coordinates of its corners
 	Qx = -pgmem->edge_x;
@@ -94,46 +94,46 @@ void Background::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	vtlist[0].pos[XX] = Qx;
 	vtlist[0].pos[YY] = Qy;
 	vtlist[0].pos[ZZ] = cam.getPosition()[kZ] - z0;
-	vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
-	vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
+	vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
+	vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
 	Qx = 2 * pgmem->edge_x;
 	Qy = -pgmem->edge_y;
 	vtlist[1].pos[XX] = Qx;
 	vtlist[1].pos[YY] = Qy;
 	vtlist[1].pos[ZZ] = cam.getPosition()[kZ] - z0;
-	vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
-	vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
+	vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
+	vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
 	Qx = 2 * pgmem->edge_x;
 	Qy = 2 * pgmem->edge_y;
 	vtlist[2].pos[XX] = Qx;
 	vtlist[2].pos[YY] = Qy;
 	vtlist[2].pos[ZZ] = cam.getPosition()[kZ] - z0;
-	vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
-	vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
+	vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
+	vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
 	Qx = -pgmem->edge_x;
 	Qy = 2 * pgmem->edge_y;
 	vtlist[3].pos[XX] = Qx;
 	vtlist[3].pos[YY] = Qy;
 	vtlist[3].pos[ZZ] = cam.getPosition()[kZ] - z0;
-	vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->tx[XX];
-	vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->tx[YY];
+	vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * cam.getPosition()[kX] + ilayer->_tx[XX];
+	vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * cam.getPosition()[kY] + ilayer->_tx[YY];
 
-	float light = water.light ? 1.0f : 0.0f;
-	float alpha = ilayer->alpha * INV_FF;
+	float light = water._light ? 1.0f : 0.0f;
+	float alpha = ilayer->_alpha * INV_FF;
 
 	if (gfx.usefaredge)
 	{
 		float fcos;
 
-		intens = light_a * ilayer->light_add;
+		intens = light_a * ilayer->_light_add;
 
 		fcos = light_nrm[kZ];
 		if (fcos > 0.0f)
 		{
-			intens += fcos * fcos * light_d * ilayer->light_dir;
+			intens += fcos * fcos * light_d * ilayer->_light_dir;
 		}
 
 		intens = CLIP(intens, 0.0f, 1.0f);
@@ -223,10 +223,10 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	fvec3_t   vforw_wind, vforw_cam;
 	TURN_T default_turn;
 
-	water_instance_layer_t *ilayer = water.layer + 1;
+	water_instance_layer_t *ilayer = water._layer + 1;
 
-	vforw_wind[XX] = ilayer->tx_add[XX];
-	vforw_wind[YY] = ilayer->tx_add[YY];
+	vforw_wind[XX] = ilayer->_tx_add[XX];
+	vforw_wind[YY] = ilayer->_tx_add[YY];
 	vforw_wind[ZZ] = 0;
 	vforw_wind.normalize();
 
@@ -236,7 +236,7 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	// make the texture begin to disappear if you are not looking straight down
 	ftmp = vforw_wind.dot(vforw_cam);
 
-	alpha = (1.0f - ftmp * ftmp) * (ilayer->alpha * INV_FF);
+	alpha = (1.0f - ftmp * ftmp) * (ilayer->_alpha * INV_FF);
 
 	if (alpha != 0.0f)
 	{
@@ -255,31 +255,31 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 		default_turn = (3 * 2047) & TRIG_TABLE_MASK;
 		sinsize = turntosin[default_turn] * size;
 		cossize = turntocos[default_turn] * size;
-		loc_foregroundrepeat = water.foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
+		loc_foregroundrepeat = water._foregroundrepeat * std::min(x / sdl_scr.x, y / sdl_scr.x);
 
 		vtlist[0].pos[XX] = x + cossize;
 		vtlist[0].pos[YY] = y - sinsize;
 		vtlist[0].pos[ZZ] = z;
-		vtlist[0].tex[SS] = ilayer->tx[XX];
-		vtlist[0].tex[TT] = ilayer->tx[YY];
+		vtlist[0].tex[SS] = ilayer->_tx[XX];
+		vtlist[0].tex[TT] = ilayer->_tx[YY];
 
 		vtlist[1].pos[XX] = x + sinsize;
 		vtlist[1].pos[YY] = y + cossize;
 		vtlist[1].pos[ZZ] = z;
-		vtlist[1].tex[SS] = ilayer->tx[XX] + loc_foregroundrepeat;
-		vtlist[1].tex[TT] = ilayer->tx[YY];
+		vtlist[1].tex[SS] = ilayer->_tx[XX] + loc_foregroundrepeat;
+		vtlist[1].tex[TT] = ilayer->_tx[YY];
 
 		vtlist[2].pos[XX] = x - cossize;
 		vtlist[2].pos[YY] = y + sinsize;
 		vtlist[2].pos[ZZ] = z;
-		vtlist[2].tex[SS] = ilayer->tx[SS] + loc_foregroundrepeat;
-		vtlist[2].tex[TT] = ilayer->tx[TT] + loc_foregroundrepeat;
+		vtlist[2].tex[SS] = ilayer->_tx[SS] + loc_foregroundrepeat;
+		vtlist[2].tex[TT] = ilayer->_tx[TT] + loc_foregroundrepeat;
 
 		vtlist[3].pos[XX] = x - sinsize;
 		vtlist[3].pos[YY] = y - cossize;
 		vtlist[3].pos[ZZ] = z;
-		vtlist[3].tex[SS] = ilayer->tx[SS];
-		vtlist[3].tex[TT] = ilayer->tx[TT] + loc_foregroundrepeat;
+		vtlist[3].tex[SS] = ilayer->_tx[SS];
+		vtlist[3].tex[TT] = ilayer->_tx[TT] + loc_foregroundrepeat;
 
 		oglx_texture_t *ptex = TextureManager::get().get_valid_ptr(texture);
 

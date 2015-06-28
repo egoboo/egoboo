@@ -340,7 +340,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         return gfx_error;
     }
 
-    falpha = FF_TO_FLOAT( water.layer[layer].alpha );
+    falpha = FF_TO_FLOAT( water._layer[layer]._alpha );
     falpha = CLIP( falpha, 0.0f, 1.0f );
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
@@ -358,9 +358,9 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         return gfx_error;
     }
 
-    offu  = water.layer[layer].tx[XX];                   // Texture offsets
-    offv  = water.layer[layer].tx[YY];
-    frame = water.layer[layer].frame;                  // Frame
+    offu  = water._layer[layer]._tx[XX];               // Texture offsets
+    offv  = water._layer[layer]._tx[YY];
+    frame = water._layer[layer]._frame;                // Frame
 
     texture  = layer + TX_WATER_TOP;                   // Water starts at texture TX_WATER_TOP
     vertices = pdef->numvertices;            // Number of vertices
@@ -410,7 +410,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         GLXvector3f nrm = {0, 0, 1};
         float alight;
 
-        alight = get_ambient_level() + water.layer->light_add;
+        alight = get_ambient_level() + water._layer->_light_add;
         alight = CLIP( alight / 255.0f, 0.0f, 1.0f );
 
         for ( cnt = 0; cnt < 4; cnt++ )
@@ -424,7 +424,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 
             v0->x = jx * GRID_FSIZE;
             v0->y = jy * GRID_FSIZE;
-            v0->z = water.layer_z_add[layer][frame][tnc] + water.layer[layer].z;
+            v0->z = water._layer_z_add[layer][frame][tnc] + water._layer[layer]._z;
 
             v0->s = fx_off[cnt] + offu;
             v0->t = fy_off[cnt] + offv;
@@ -449,7 +449,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
             }
 
             // the application of alpha to the tile depends on the blending mode
-            if ( water.light )
+            if ( water._light )
             {
                 // blend using light
                 v0->r *= falpha;
@@ -477,7 +477,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {
-        bool use_depth_mask = ( !water.light && ( 1.0f == falpha ) );
+        bool use_depth_mask = ( !water._light && ( 1.0f == falpha ) );
 
         auto& renderer = Ego::Renderer::get();
         // do not draw hidden surfaces
@@ -493,7 +493,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 
         // set the blending mode
         renderer.setBlendingEnabled(true);
-        if (water.light)
+        if (water._light)
         {
             GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR);          // GL_COLOR_BUFFER_BIT
         }

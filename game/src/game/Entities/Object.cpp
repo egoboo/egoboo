@@ -272,7 +272,7 @@ Object::~Object()
 bool Object::isOverWater(bool anyLiquid) const
 {
 	//Make sure water in the current module is actually water (could be lava, acid, etc.)
-	if(!anyLiquid && !water.is_water)
+	if(!anyLiquid && !water._is_water)
     {
 		return false;
 	}
@@ -781,7 +781,7 @@ void Object::update()
             // Splash
             ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
-            if ( water.is_water )
+            if ( water._is_water )
             {
                 SET_BIT(ai.alert, ALERTIF_INWATER);
             }
@@ -824,7 +824,7 @@ void Object::update()
                 }
             }
 
-            if (water.is_water && HAS_NO_BITS(update_wld, 7))
+            if (water._is_water && HAS_NO_BITS(update_wld, 7))
             {
                 jumpready = true;
                 jumpnumber = 1;

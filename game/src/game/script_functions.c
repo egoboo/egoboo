@@ -3292,7 +3292,7 @@ Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = water.douse_level * 10;
+    pstate->argument = water._douse_level * 10;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5143,11 +5143,11 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fTmp = ( pstate->argument / 10.0f ) - fog.top;
-    fog.top += fTmp;
-    fog.distance += fTmp;
-    fog.on = egoboo_config_t::get().graphic_fog_enable.getValue();
-    if ( fog.distance < 1.0f )  fog.on = false;
+    fTmp = ( pstate->argument / 10.0f ) - fog._top;
+    fog._top += fTmp;
+    fog._distance += fTmp;
+    fog._on = egoboo_config_t::get().graphic_fog_enable.getValue();
+	if (fog._distance < 1.0f)  fog._on = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5162,7 +5162,7 @@ Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = fog.top * 10;
+    pstate->argument = fog._top * 10;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5178,9 +5178,9 @@ Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fog.red = CLIP( pstate->turn, 0, 0xFF );
-    fog.grn = CLIP( pstate->argument, 0, 0xFF );
-    fog.blu = CLIP( pstate->distance, 0, 0xFF );
+	fog._red = CLIP(pstate->turn, 0, 0xFF);
+	fog._grn = CLIP(pstate->argument, 0, 0xFF);
+	fog._blu = CLIP(pstate->distance, 0, 0xFF);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5198,11 +5198,11 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fTmp = ( pstate->argument / 10.0f ) - fog.bottom;
-    fog.bottom += fTmp;
-    fog.distance -= fTmp;
-    fog.on = egoboo_config_t::get().graphic_fog_enable.getValue();
-    if ( fog.distance < 1.0f )  fog.on = false;
+	fTmp = (pstate->argument / 10.0f) - fog._bottom;
+    fog._bottom += fTmp;
+    fog._distance -= fTmp;
+    fog._on = egoboo_config_t::get().graphic_fog_enable.getValue();
+	if (fog._distance < 1.0f)  fog._on = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5218,7 +5218,7 @@ Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = fog.bottom * 10;
+    pstate->argument = fog._bottom * 10;
 
     SCRIPT_FUNCTION_END();
 }

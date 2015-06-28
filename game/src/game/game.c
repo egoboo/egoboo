@@ -2956,13 +2956,13 @@ float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk )
 
     float zdone = ego_mesh_t::get_level(pmesh, PointWorld(x, y));
 
-    if ( waterwalk && water.surface_level > zdone && water.is_water )
+    if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
         TileIndex tile = ego_mesh_t::get_grid( pmesh, PointWorld(x, y));
 
         if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
         {
-            zdone = water.surface_level;
+            zdone = water._surface_level;
         }
     }
 
@@ -3344,7 +3344,7 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
     // set the frame
     for ( layer = 0; layer < layer_count; layer++ )
     {
-        inst[layer].frame = ( Uint16 )Random::next(WATERFRAMEAND);
+        inst[layer]._frame = ( Uint16 )Random::next(WATERFRAMEAND);
     }
 
     if ( NULL != data )
@@ -3354,19 +3354,19 @@ bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wate
             const wawalite_water_layer_t * pwawa  = data + layer;
             water_instance_layer_t       * player = inst + layer;
 
-            player->z         = pwawa->z;
-            player->amp       = pwawa->amp;
+            player->_z         = pwawa->z;
+            player->_amp       = pwawa->amp;
 
-            player->dist      = pwawa->dist;
+            player->_dist      = pwawa->dist;
 
-            player->light_dir = pwawa->light_dir / 63.0f;
-            player->light_add = pwawa->light_add / 63.0f;
+            player->_light_dir = pwawa->light_dir / 63.0f;
+            player->_light_add = pwawa->light_add / 63.0f;
 
-            player->tx_add    = pwawa->tx_add;
+            player->_tx_add    = pwawa->tx_add;
 
-            player->alpha     = pwawa->alpha;
+            player->_alpha     = pwawa->alpha;
 
-            player->frame_add = pwawa->frame_add;
+            player->_frame_add = pwawa->frame_add;
         }
     }
 
@@ -3389,17 +3389,17 @@ void weather_instance_t::upload(const wawalite_weather_t& source)
 //--------------------------------------------------------------------------------------------
 void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source)
 {
-	self.on = source.found && egoboo_config_t::get().graphic_fog_enable.getValue();
-	self.top = source.top;
-	self.bottom = source.bottom;
+	self._on = source.found && egoboo_config_t::get().graphic_fog_enable.getValue();
+	self._top = source.top;
+	self._bottom = source.bottom;
 
-	self.red = source.red * 0xFF;
-	self.grn = source.grn * 0xFF;
-	self.blu = source.blu * 0xFF;
+	self._red = source.red * 0xFF;
+	self._grn = source.grn * 0xFF;
+	self._blu = source.blu * 0xFF;
 
-	self.distance = (source.top - source.bottom);
+	self._distance = (source.top - source.bottom);
 
-	self.on = (self.distance < 1.0f) && self.on;
+	self._on = (self._distance < 1.0f) && self._on;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3953,13 +3953,13 @@ float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_
 {
     float zdone = ego_mesh_get_max_vertex_1( pmesh, point, pbump->_mins[OCT_X], pbump->_mins[OCT_Y], pbump->_maxs[OCT_X], pbump->_maxs[OCT_Y] );
 
-    if ( waterwalk && water.surface_level > zdone && water.is_water )
+    if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
         TileIndex tile = ego_mesh_t::get_tile_int( pmesh, point );
 
         if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
         {
-            zdone = water.surface_level;
+            zdone = water._surface_level;
         }
     }
 
@@ -4458,8 +4458,8 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
 	///       layer should be the same type. 
     for (int layer = 0; layer < data.layer_count; ++layer)
     {
-        self.layer[layer].tx[SS] = 0;
-        self.layer[layer].tx[TT] = 0;
+        self._layer[layer]._tx[SS] = 0;
+        self._layer[layer]._tx[TT] = 0;
 
         for (size_t frame = 0; frame < (size_t)MAXWATERFRAME; ++frame)
         {
@@ -4470,7 +4470,7 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
                 float temp = (frame * twoPi<float>() / MAXWATERFRAME)
                            + (twoPi<float>() * point / WATERPOINTS) + (piOverTwo<float>() * layer / MAXWATERLAYER);
                 temp = std::sin(temp);
-                self.layer_z_add[layer][frame][point] = temp * data.layer[layer].amp;
+                self._layer_z_add[layer][frame][point] = temp * data.layer[layer].amp;
             }
         }
     }
@@ -4490,9 +4490,9 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
         /// @note claforte@> Probably need to replace this with a
         ///           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
         if (!gfx.gouraudShading_enable)
-            self.spek[i] = 0;
+            self._spek[i] = 0;
         else
-            self.spek[i] = spek;
+            self._spek[i] = spek;
     }
 }
 
@@ -4500,33 +4500,33 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
 void upload_water_data(water_instance_t& self, const wawalite_water_t& source)
 {
 	// upload the data
-	self.surface_level = source.surface_level;
-    self.douse_level = source.douse_level;
+	self._surface_level = source.surface_level;
+    self._douse_level = source.douse_level;
 
-    self.is_water = source.is_water;
-    self.overlay_req = source.overlay_req;
-    self.background_req = source.background_req;
+    self._is_water = source.is_water;
+    self._overlay_req = source.overlay_req;
+    self._background_req = source.background_req;
 
-    self.light = source.light;
+    self._light = source.light;
 
-    self.foregroundrepeat = source.foregroundrepeat;
-    self.backgroundrepeat = source.backgroundrepeat;
+    self._foregroundrepeat = source.foregroundrepeat;
+    self._backgroundrepeat = source.backgroundrepeat;
 
     // upload the layer data
-    self.layer_count = source.layer_count;
-    upload_water_layer_data(self.layer, source.layer, source.layer_count);
+    self._layer_count = source.layer_count;
+    upload_water_layer_data(self._layer, source.layer, source.layer_count);
 
 	water_instance_make(self, source);
 
     // Allow slow machines to ignore the fancy stuff
-    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && self.layer_count > 1)
+    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && self._layer_count > 1)
     {
         int iTmp = source.layer[0].light_add;
         iTmp = (source.layer[1].light_add * iTmp * INV_FF) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
-        self.layer_count        = 1;
-        self.layer[0].light_add = iTmp * INV_FF;
+        self._layer_count        = 1;
+        self._layer[0]._light_add = iTmp * INV_FF;
     }
 }
 
@@ -4535,17 +4535,17 @@ void water_instance_move(water_instance_t& water)
 {
     for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i)
     {
-        water_instance_layer_t& layer = water.layer[i];
+        water_instance_layer_t& layer = water._layer[i];
 
-        layer.tx[SS] += layer.tx_add[SS];
-        layer.tx[TT] += layer.tx_add[TT];
+        layer._tx[SS] += layer._tx_add[SS];
+        layer._tx[TT] += layer._tx_add[TT];
 
-        if (layer.tx[SS] >  1.0f) layer.tx[SS] -= 1.0f;
-        if (layer.tx[TT] >  1.0f) layer.tx[TT] -= 1.0f;
-        if (layer.tx[SS] < -1.0f) layer.tx[SS] += 1.0f;
-        if (layer.tx[TT] < -1.0f) layer.tx[TT] += 1.0f;
+        if (layer._tx[SS] >  1.0f) layer._tx[SS] -= 1.0f;
+        if (layer._tx[TT] >  1.0f) layer._tx[TT] -= 1.0f;
+        if (layer._tx[SS] < -1.0f) layer._tx[SS] += 1.0f;
+        if (layer._tx[TT] < -1.0f) layer._tx[TT] += 1.0f;
 
-        layer.frame = (layer.frame + layer.frame_add) & WATERFRAMEAND;
+        layer._frame = (layer._frame + layer._frame_add) & WATERFRAMEAND;
     }
 }
 
@@ -4553,16 +4553,16 @@ void water_instance_move(water_instance_t& water)
 void water_instance_set_douse_level(water_instance_t & self, float level)
 {
     // get the level difference
-    float dlevel = level - self.douse_level;
+    float dlevel = level - self._douse_level;
 
     // update all special values
-    self.surface_level += dlevel;
-    self.douse_level += dlevel;
+    self._surface_level += dlevel;
+    self._douse_level += dlevel;
 
     // update the gfx height of the water
     for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i)
     {
-        self.layer[i].z += dlevel;
+        self._layer[i]._z += dlevel;
     }
 
     ego_mesh_update_water_level(PMesh);
@@ -4571,13 +4571,13 @@ void water_instance_set_douse_level(water_instance_t & self, float level)
 //--------------------------------------------------------------------------------------------
 float water_instance_get_water_level(water_instance_t& self)
 {
-    float level = water_instance_layer_get_level(self.layer[0]);
+    float level = water_instance_layer_get_level(self._layer[0]);
 
     if (egoboo_config_t::get().graphic_twoLayerWater_enable.getValue())
     {
         for (size_t i = 1; i < (size_t)MAXWATERLAYER; ++i)
         {
-			level = std::max(level, water_instance_layer_get_level(self.layer[i]));
+			level = std::max(level, water_instance_layer_get_level(self._layer[i]));
         }
     }
 
@@ -4588,7 +4588,7 @@ float water_instance_get_water_level(water_instance_t& self)
 
 float water_instance_layer_get_level(water_instance_layer_t& self)
 {
-    return self.z + self.amp;
+    return self._z + self._amp;
 }
 
 //--------------------------------------------------------------------------------------------

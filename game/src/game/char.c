@@ -2893,7 +2893,7 @@ void move_one_character_get_environment( Object * pchr )
     //---- The flying height of the character, the maximum of tile level, platform level and water level
     if ( 0 != ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_WATER ) )
     {
-        penviro->fly_level = std::max( penviro->level, water.surface_level );
+        penviro->fly_level = std::max( penviro->level, water._surface_level );
     }
 
     if ( penviro->fly_level < 0 )
@@ -2911,7 +2911,7 @@ void move_one_character_get_environment( Object * pchr )
     penviro->grid_twist = ego_mesh_get_twist( PMesh, pchr->getTile() );
 
     // the "watery-ness" of whatever water might be here
-    penviro->is_watery = water.is_water && penviro->inwater;
+    penviro->is_watery = water._is_water && penviro->inwater;
     penviro->is_slippy = !penviro->is_watery && ( 0 != ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_SLIPPY ) );
 
     //---- traction

@@ -199,30 +199,30 @@ struct weather_instance_t
 /// The data descibing the state of a water layer
 struct water_instance_layer_t
 {
-    Uint16    frame;        ///< Frame
-    Uint32    frame_add;    ///< Speed
+    Uint16 _frame;        ///< Frame
+    Uint32 _frame_add;    ///< Speed
 
 	/**
 	 * @brief
 	 *	The base height of this water layer.
 	 */
-    float z;            ///< Base height of this water layer
+    float _z;            ///< Base height of this water layer
 	/**
 	 * @brief
 	 *	The peak amplitude of the waves of this water layer.
 	 */
-    float amp;
+    float _amp;
 
-    fvec2_t   dist;         ///< some indication of "how far away" the layer is if it is an overlay
+    fvec2_t _dist;         ///< some indication of "how far away" the layer is if it is an overlay
 
-    fvec2_t   tx;           ///< Coordinates of texture
+    fvec2_t _tx;           ///< Coordinates of texture
 
-    float     light_dir;    ///< direct  reflectivity 0 - 1
-    float     light_add;    ///< ambient reflectivity 0 - 1
+    float _light_dir;    ///< direct  reflectivity 0 - 1
+    float _light_add;    ///< ambient reflectivity 0 - 1
 
-    Uint8     alpha;        ///< layer transparency
+    Uint8 _alpha;        ///< layer transparency
 
-    fvec2_t   tx_add;            ///< Texture movement
+    fvec2_t _tx_add;            ///< Texture movement
 };
 
 /**
@@ -241,22 +241,22 @@ float water_instance_layer_get_level(water_instance_layer_t& self);
 /// The data descibing the water state
 struct water_instance_t
 {
-    float  surface_level;          ///< Surface level for water striders
-    float  douse_level;            ///< Surface level for torches
-    bool is_water;               ///< Is it water?  ( Or lava... )
-    bool overlay_req;
-    bool background_req;
-    bool light;                  ///< Is it light ( default is alpha )
+    float _surface_level;          ///< Surface level for water striders
+    float _douse_level;            ///< Surface level for torches
+    bool _is_water;               ///< Is it water?  ( Or lava... )
+    bool _overlay_req;
+    bool _background_req;
+    bool _light;                  ///< Is it light ( default is alpha )
 
-    float  foregroundrepeat;
-    float  backgroundrepeat;
+    float _foregroundrepeat;
+    float _backgroundrepeat;
 
-    Uint32 spek[256];              ///< Specular highlights
+    Uint32 _spek[256];              ///< Specular highlights
 
-    int                    layer_count;
-    water_instance_layer_t layer[MAXWATERLAYER];
+    int _layer_count;
+    water_instance_layer_t _layer[MAXWATERLAYER];
 
-    float  layer_z_add[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
+    float  _layer_z_add[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
 };
 
 /**
@@ -284,10 +284,11 @@ void upload_water_data(water_instance_t& self, const wawalite_water_t& data);
 /// @warn Fog is currently not used
 struct fog_instance_t
 {
-    bool  on;            ///< Do ground fog?
-    float   top, bottom;
-    Uint8   red, grn, blu;
-    float   distance;
+    bool _on;            ///< Do ground fog?
+    float _top,
+		  _bottom;
+    Uint8 _red, _grn, _blu;
+    float _distance;
 };
 
 void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source);

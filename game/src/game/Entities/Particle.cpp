@@ -891,7 +891,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     penviro->twist = ego_mesh_get_twist(PMesh, itile);
 
     // the "watery-ness" of whatever water might be here
-    penviro->is_watery = water.is_water && penviro->inwater;
+    penviro->is_watery = water._is_water && penviro->inwater;
     penviro->is_slippy = !penviro->is_watery && (0 != ego_mesh_t::test_fx(PMesh, loc_pprt->getTile(), MAPFX_SLIPPY));
 
     //---- traction
@@ -2252,10 +2252,10 @@ prt_bundle_t *prt_bundle_t::update_do_water()
 {
     if (NULL == this->_prt_ptr) return NULL;
 
-    bool inwater = (this->_prt_ptr->pos[kZ] < water.surface_level)
+    bool inwater = (this->_prt_ptr->pos[kZ] < water._surface_level)
                 && (0 != ego_mesh_t::test_fx(PMesh, this->_prt_ptr->getTile(), MAPFX_WATER));
 
-    if (inwater && water.is_water && this->_pip_ptr->end_water)
+    if (inwater && water._is_water && this->_pip_ptr->end_water)
     {
         // Check for disaffirming character
         if (_currentModule->getObjectHandler().exists(this->_prt_ptr->attachedto_ref) && this->_prt_ptr->owner_ref == this->_prt_ptr->attachedto_ref)
@@ -2274,7 +2274,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
     {
         bool  spawn_valid = false;
         LocalParticleProfileRef global_pip_index;
-        fvec3_t vtmp = fvec3_t(this->_prt_ptr->pos[kX], this->_prt_ptr->pos[kY], water.surface_level);
+        fvec3_t vtmp = fvec3_t(this->_prt_ptr->pos[kX], this->_prt_ptr->pos[kY], water._surface_level);
 
         if (INVALID_CHR_REF == this->_prt_ptr->owner_ref && (PIP_SPLASH == this->_prt_ptr->pip_ref || PIP_RIPPLE == this->_prt_ptr->pip_ref))
         {
@@ -2300,7 +2300,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
                 if (SPRITE_SOLID == this->_prt_ptr->type && !_currentModule->getObjectHandler().exists(this->_prt_ptr->attachedto_ref))
                 {
                     // only spawn ripples if you are touching the water surface!
-                    if (this->_prt_ptr->pos[kZ] + this->_prt_ptr->bump_real.height > water.surface_level && this->_prt_ptr->pos[kZ] - this->_prt_ptr->bump_real.height < water.surface_level)
+                    if (this->_prt_ptr->pos[kZ] + this->_prt_ptr->bump_real.height > water._surface_level && this->_prt_ptr->pos[kZ] - this->_prt_ptr->bump_real.height < water._surface_level)
                     {
                         int ripand = ~((~RIPPLEAND) << 1);
                         if (0 == ((update_wld + this->_prt_ptr->getGUID()) & ripand))
