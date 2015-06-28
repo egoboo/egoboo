@@ -159,7 +159,7 @@ struct animtile_instance_t
     Uint32 frame_update_old;
 };
 
-bool upload_animtile_data( animtile_instance_t dst[], const struct s_wawalite_animtile * src, const size_t animtile_count );
+bool upload_animtile_data( animtile_instance_t dst[], const wawalite_animtile_t* src, const size_t animtile_count );
 
 
 int update_game();
@@ -272,11 +272,11 @@ float water_instance_get_water_level(water_instance_t& self);
  * @brief
  *	Animate this water instance.
  */
-void water_instance_move(water_instance_t& water);
-void water_instance_make(water_instance_t& self, const wawalite_water_t& data);
+void water_instance_move(water_instance_t& self);
+void water_instance_make(water_instance_t& self, const wawalite_water_t& source);
 void water_instance_set_douse_level(water_instance_t& self, float level);
 
-void upload_water_data(water_instance_t& self, const wawalite_water_t& data);
+void upload_water_data(water_instance_t& self, const wawalite_water_t& source);
 
 //--------------------------------------------------------------------------------------------
 

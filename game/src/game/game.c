@@ -4449,14 +4449,14 @@ bool check_time( Uint32 check )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
+void water_instance_make(water_instance_t& self, const wawalite_water_t& source)
 {
     /// @author ZZ
     /// @details This function sets up water movements
 
 	/// @todo wawalite_water_t.layer_count should be an unsigned type.
 	///       layer should be the same type. 
-    for (int layer = 0; layer < data.layer_count; ++layer)
+	for (int layer = 0; layer < source.layer_count; ++layer)
     {
         self._layer[layer]._tx[SS] = 0;
         self._layer[layer]._tx[TT] = 0;
@@ -4470,7 +4470,7 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
                 float temp = (frame * twoPi<float>() / MAXWATERFRAME)
                            + (twoPi<float>() * point / WATERPOINTS) + (piOverTwo<float>() * layer / MAXWATERLAYER);
                 temp = std::sin(temp);
-                self._layer_z_add[layer][frame][point] = temp * data.layer[layer].amp;
+				self._layer_z_add[layer][frame][point] = temp * source.layer[layer].amp;
             }
         }
     }
@@ -4479,12 +4479,12 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& data)
 	for (size_t i = 0; i < 256; ++i)
     {
         Uint8 spek = 0;
-        if (i > data.spek_start)
+		if (i > source.spek_start)
         {
-            float temp = i - data.spek_start;
-            temp = temp / (256 - data.spek_start);
+			float temp = i - source.spek_start;
+			temp = temp / (256 - source.spek_start);
             temp = temp * temp;
-            spek = temp * data.spek_level;
+			spek = temp * source.spek_level;
         }
 
         /// @note claforte@> Probably need to replace this with a
@@ -4531,11 +4531,11 @@ void upload_water_data(water_instance_t& self, const wawalite_water_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-void water_instance_move(water_instance_t& water)
+void water_instance_move(water_instance_t& self)
 {
     for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i)
     {
-        water_instance_layer_t& layer = water._layer[i];
+		water_instance_layer_t& layer = self._layer[i];
 
         layer._tx[SS] += layer._tx_add[SS];
         layer._tx[TT] += layer._tx_add[TT];
