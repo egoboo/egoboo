@@ -385,6 +385,9 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\ObjectAnimation.c" />
+    <ClCompile Include="src\game\GUI\CharacterStatus.cpp" />
+    <ClCompile Include="src\game\GUI\MiniMap.cpp" />
     <ClCompile Include="src\game\Graphics\EntityList.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPass.cpp" />
     <ClCompile Include="src\game\Graphics\RenderPasses.cpp" />
@@ -456,6 +459,9 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\ObjectAnimation.h" />
+    <ClInclude Include="src\game\GUI\CharacterStatus.hpp" />
+    <ClInclude Include="src\game\GUI\MiniMap.hpp" />
     <ClInclude Include="src\game\Graphics\EntityList.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPass.hpp" />
     <ClInclude Include="src\game\Graphics\RenderPasses.hpp" />

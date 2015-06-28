@@ -278,6 +278,15 @@
     <ClCompile Include="src\game\Graphics\EntityList.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\CharacterStatus.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GUI\MiniMap.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\ObjectAnimation.c">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -507,6 +516,15 @@
     </ClInclude>
     <ClInclude Include="src\game\Graphics\EntityList.hpp">
       <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\CharacterStatus.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\MiniMap.hpp">
+      <Filter>Game Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\ObjectAnimation.h">
+      <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
