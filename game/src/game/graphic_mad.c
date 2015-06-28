@@ -1285,7 +1285,8 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     // make sure we have valid data
     if (self.vrt_count != pmd2->getVertexCount())
     {
-        log_error( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
+        log_warning( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
+        return gfx_error;
     }
 
     // get the vertex list size from the chr_instance
@@ -1351,7 +1352,8 @@ gfx_rv chr_instance_t::update_vertices(chr_instance_t& self, int vmin, int vmax,
     const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
     if ( self.frame_nxt >= frameList.size() || self.frame_lst >= frameList.size() )
     {
-        log_error( "chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
+        log_warning( "chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
+        return gfx_error;
     }
 
     // grab the frame data from the correct model

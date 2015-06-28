@@ -31,6 +31,7 @@ class ObjectHandler;
 struct ego_mesh_t;
 struct status_list_t;
 class UIManager;
+class PlayingState;
 
 class GameEngine
 {
@@ -154,6 +155,14 @@ public:
         return _startupTimestamp;
     }
 
+    /**
+    * @brief
+    *   Gets the current GameState as a PlayingState instance
+    * @return
+    *   the current GameState if it is a PlayingState or nullptr otherwise
+    **/
+    std::shared_ptr<PlayingState> getActivePlayingState() const;
+
 private:
     /**
     * @brief
@@ -232,4 +241,3 @@ extern std::unique_ptr<GameEngine> _gameEngine;
 extern std::unique_ptr<GameModule> _currentModule;
 extern ego_mesh_t *PMesh;
 extern status_list_t StatusList;
-

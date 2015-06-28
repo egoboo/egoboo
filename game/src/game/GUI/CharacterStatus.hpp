@@ -17,17 +17,22 @@
 //*
 //********************************************************************************************
 
-/// @file game/CharacterMatrix.h
+/// @file game/GUI/CharacterStatus.hpp
+/// @author Johan Jansen
 
 #pragma once
 
-#include "game/egoboo_typedef.h"
+#include "game/GUI/GUIComponent.hpp"
 
-//Forward declarations
 class Object;
 
-//Function prototypes
-bool    chr_matrix_valid( const Object * pchr );
-egolib_rv chr_update_matrix( Object * pchr, bool update_size );
-bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, uint16_t vrt_off );
-bool chr_getMatUp(Object *pchr, fvec3_t& up);
+class CharacterStatus : public GUIComponent
+{
+public:
+    CharacterStatus(const std::shared_ptr<Object> &object);
+
+    virtual void draw() override;
+
+private:
+    std::weak_ptr<Object> _object;
+};

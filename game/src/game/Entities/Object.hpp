@@ -188,6 +188,13 @@ public:
 
     /**
     * @brief
+    *   Respawns a Object, bringing it back to life and moving it to its initial position and state.
+    *   Does nothing if character is already alive.
+    **/
+    void respawn();
+
+    /**
+    * @brief
     *   This function updates stats and such for this Object (called once per update loop)
     **/
     void update();
@@ -288,6 +295,12 @@ public:
     *   Mark this object as terminated, it will be removed from the game by the update.
     **/
     void requestTerminate();
+
+    /**
+    * @return
+    *   Get the amount of money this character has
+    **/
+    int16_t getMoney() const { return money; }
 
     /**
     * @brief 
@@ -483,6 +496,37 @@ public:
 	/** @override */
 	BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
 
+    inline AABB_2D getAABB2D() const
+    {
+        return AABB_2D(Vector2f(getPosX() + chr_min_cv.getMin()[OCT_X], getPosY() + chr_min_cv.getMin()[OCT_Y]),
+                       Vector2f(getPosX() + chr_min_cv.getMax()[OCT_X], getPosY() + chr_min_cv.getMax()[OCT_Y]));
+    }
+
+    /**
+    * @brief
+    *   This function takes mana from a character ( or gives mana ), and returns true if the character had enough to pay, or false
+    *   otherwise. This can kill a character in hard mode.
+    * @param amount
+    *   How much mana to take (positive value) of give (negative value)
+    * @param killer
+    *   If characters have channeling they can use life instead of mana. This can actually kill them (ghosts that drain mana for example)
+    * @return
+    *   true if all the requested mana was successfully consumed by the Object
+    **/
+    bool costMana(int amount, const CHR_REF killer);
+
+    /**
+    * @brief
+    *   Get current mana
+    **/
+    inline SFP8_T getMana() const { return mana; }
+
+    /**
+    * @brief
+    *   Get max allowed mana for this Object
+    **/
+    inline UFP8_T getMaxMana() const { return mana_max; }
+
 private:
 
     /**
@@ -604,7 +648,6 @@ public:
     bool         openstuff;                     ///< Can it open chests/doors?
     bool         stickybutt;                    ///< Rests on floor
     bool         isshopitem;                    ///< Spawned in a shop?
-    //bool         ismount;                       ///< Can you ride it?
     bool         canbecrushed;                  ///< Crush in a door?
     bool         canchannel;                    ///< Can it convert life to mana?
 

@@ -26,6 +26,8 @@
 #include "game/GameStates/VictoryScreen.hpp"
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/InternalDebugWindow.hpp"
+#include "game/GUI/MiniMap.hpp"
+#include "game/GUI/CharacterStatus.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
@@ -36,7 +38,8 @@
 #include "game/char.h"
 
 PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
-    _cameraSystem(cameraSystem)
+    _cameraSystem(cameraSystem),
+    _miniMap(std::make_shared<MiniMap>())
 {
     //For debug only
     if (egoboo_config_t::get().debug_developerMode_enable.getValue())
@@ -51,6 +54,11 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
         debugWindow->addWatchVariable("Path", []{return _currentModule->getPath();} );
         addComponent(debugWindow);        
     }
+
+    //Add minimap to the list of GUI components to render
+    _miniMap->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
+    _miniMap->setPosition(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight());
+    addComponent(_miniMap);
 }
 
 PlayingState::~PlayingState()
@@ -135,4 +143,21 @@ bool PlayingState::notifyKeyDown(const int keyCode)
     }
 
     return ComponentContainer::notifyKeyDown(keyCode);
+}
+
+const std::shared_ptr<MiniMap>& PlayingState::getMiniMap() const
+{
+    return _miniMap;
+}
+
+void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
+{
+    const std::shared_ptr<Camera> &camera = CameraSystem::get()->getCameraByChrID(object->getCharacterID());
+
+    std::shared_ptr<CharacterStatus> status = std::make_shared<CharacterStatus>(object);
+
+    status->setSize(BARX, BARY);
+    status->setPosition(camera->getScreen().xmax - status->getWidth(), camera->getScreen().ymin);
+
+    //TODO
 }

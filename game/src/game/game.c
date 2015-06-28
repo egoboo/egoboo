@@ -23,6 +23,8 @@
 
 #include "game/game.h"
 
+#include "game/GUI/MiniMap.hpp"
+#include "game/GameStates/PlayingState.hpp"
 #include "game/Inventory.hpp"
 #include "egolib/Graphics/mad.h"
 #include "game/player.h"
@@ -568,7 +570,15 @@ void move_all_objects()
 //--------------------------------------------------------------------------------------------
 void cleanup_all_objects()
 {
-    cleanup_all_characters();
+    // Do poofing
+    for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
+    {
+        bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
+        if ( !time_out || object->isTerminated() ) continue;
+
+        object->requestTerminate();
+    }
+
     cleanup_all_particles();
     cleanup_all_enchants();
 }
@@ -697,11 +707,11 @@ int update_game()
         if ( !_currentModule->getObjectHandler().exists( ichr ) ) continue;
         pchr = _currentModule->getObjectHandler().get( ichr );
 
-        if ( !pchr->alive )
+        if ( !pchr->isAlive() )
         {
             if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Hard && local_stats.allpladead && SDL_KEYDOWN(keyb, SDLK_SPACE) && _currentModule->isRespawnValid() && 0 == local_stats.revivetimer)
             {
-                respawn_character( ichr );
+                pchr->respawn();
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
 
                 if (egoboo_config_t::get().game_difficulty.getValue() > Ego::GameDifficulty::Easy)
@@ -724,6 +734,9 @@ int update_game()
     input_read_joysticks();
 
     set_local_latches();
+
+    //Rebuild the quadtree for fast object lookup
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, PMesh->info.tiles_x*256.0f, PMesh->info.tiles_y*256.0f);
 
     //---- begin the code for updating misc. game stuff
     {
@@ -964,39 +977,31 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
 
     line_of_sight_info_t los_info;
 
-    CHR_REF best_target = INVALID_CHR_REF;
-    float  best_dist2, max_dist2;
-
     if ( !ACTIVE_PCHR( psrc ) ) return INVALID_CHR_REF;
 
-    max_dist2 = max_dist * max_dist;
-
-    std::vector<CHR_REF> searchList;
+    std::vector<std::shared_ptr<Object>> searchList;
 
     //Only loop through the players
     if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
-        PLA_REF ipla;
-
-        for ( ipla = 0; ipla < MAX_PLAYER; ipla ++ )
+        for (PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++)
         {
-            if ( !PlaStack.lst[ipla].valid || !_currentModule->getObjectHandler().exists( PlaStack.lst[ipla].index ) ) continue;
+            if (!PlaStack.lst[ipla].valid) continue;
 
-            searchList.push_back(PlaStack.lst[ipla].index);
+            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[ipla].index];
+            if(player) {
+                searchList.push_back(player);
+            }
+
         }
     }
 
-    //Loop through every active object
+    //All objects within range
     else
     {
-        for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
-        {
-            if(!object->isTerminated())
-            {
-                searchList.push_back(object->getCharacterID());
-            }
-        }
+        searchList = _currentModule->getObjectHandler().findObjects(psrc->getPosX(), psrc->getPosY(), max_dist);
     }
+
 
     // set the line-of-sight source
     los_info.x0         = psrc->getPosX();
@@ -1004,23 +1009,16 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
     los_info.z0         = psrc->getPosZ() + psrc->bump.height;
     los_info.stopped_by = psrc->stoppedby;
 
-    best_target = INVALID_CHR_REF;
-    best_dist2  = max_dist2;
-    for(CHR_REF iObjectest : searchList)
+    CHR_REF best_target = INVALID_CHR_REF;
+    float best_dist2  = max_dist * max_dist;
+    for(const std::shared_ptr<Object> &ptst : searchList)
     {
-        float  dist2;
-        fvec3_t   diff;
-        Object * ptst;
+        if ( !chr_check_target( psrc, ptst->getCharacterID(), idsz, targeting_bits ) ) continue;
 
-        if ( !_currentModule->getObjectHandler().exists( iObjectest ) ) continue;
-        ptst = _currentModule->getObjectHandler().get( iObjectest );
+        fvec3_t diff = psrc->getPosition() - ptst->getPosition();
+		float dist2 = diff.length_2();
 
-        if ( !chr_check_target( psrc, iObjectest, idsz, targeting_bits ) ) continue;
-
-        diff = psrc->getPosition() - ptst->getPosition();
-		dist2 = diff.length_2();
-
-        if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
+        if (( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
         {
             //Invictus chars do not need a line of sight
             if ( !psrc->invictus )
@@ -1034,7 +1032,7 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
             }
 
             //Set the new best target found
-            best_target = iObjectest;
+            best_target = ptst->getCharacterID();
             best_dist2  = dist2;
         }
     }
@@ -1564,10 +1562,10 @@ void check_stats()
         return;
 
     // Show map cheat
-    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_m) && SDL_KEYDOWN(keyb, SDLK_LSHIFT) && mapvalid)
+    if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_m) && SDL_KEYDOWN(keyb, SDLK_LSHIFT))
     {
-        mapon = !mapon;
-        youarehereon = true;
+        _gameEngine->getActivePlayingState()->getMiniMap()->setVisible(true);
+        _gameEngine->getActivePlayingState()->getMiniMap()->setShowPlayerPosition(true);
         stat_check_delay = 150;
     }
 
@@ -2886,8 +2884,6 @@ void let_all_characters_think()
     if ( update_wld == last_update ) return;
     last_update = update_wld;
 
-    blip_count = 0;
-
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         if(object->isTerminated()) {
@@ -2901,10 +2897,10 @@ void let_all_characters_think()
         is_crushed   = HAS_SOME_BITS( object->ai.alert, ALERTIF_CRUSHED );
 
         // let the script run sometimes even if the item is in your backpack
-        can_think = !_currentModule->getObjectHandler().exists( object->inwhich_inventory ) || object->getProfile()->isEquipment();
+        can_think = !object->isInsideInventory() || object->getProfile()->isEquipment();
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
-        if (( object->alive && can_think ) || is_crushed || is_cleanedup )
+        if (( object->isAlive() && can_think ) || is_crushed || is_cleanedup )
         {
             // Figure out alerts that weren't already set
             set_alerts( object->getCharacterID() );
@@ -4698,20 +4694,4 @@ float water_instance_layer_get_level( water_instance_layer_t * ptr )
     if ( NULL == ptr ) return 0.0f;
 
     return ptr->z + ptr->amp;
-}
-
-//--------------------------------------------------------------------------------------------
-bool status_list_update_cameras( status_list_t * plst )
-{
-    if ( NULL == plst ) return false;
-
-    if ( !plst->on || 0 == plst->count ) return true;
-
-    for ( size_t cnt = 0; cnt < plst->count; cnt++ )
-    {
-        status_list_element_t * pelem = StatusList.lst + cnt;
-        pelem->camera_index = CameraSystem::get()->getCameraIndexByID(pelem->who);
-    }
-
-    return true;
 }

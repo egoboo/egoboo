@@ -163,6 +163,12 @@ public:
     **/
     ObjectHandler& getObjectHandler() {return _gameObjects;}
 
+    /**
+    * @return
+    *   true if the specified position is inside the level
+    **/
+    bool isInside(const float x, const float y) const;
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
