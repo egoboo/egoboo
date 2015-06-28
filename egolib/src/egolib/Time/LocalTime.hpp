@@ -101,7 +101,7 @@ public:
 	 * @return
 	 *	@a true if this local time is smaller than the other local time
 	 */
-	bool LocalTime::operator < (const LocalTime& other) const;
+	bool operator < (const LocalTime& other) const;
 
 	/**
 	 * @brief
@@ -111,7 +111,7 @@ public:
 	 * @return
 	 *	@a true if this local time is greater than the other local time
 	 */
-	bool LocalTime::operator > (const LocalTime& other) const;
+	bool operator > (const LocalTime& other) const;
 
 	/**
 	 * @brief
@@ -121,7 +121,7 @@ public:
 	 * @return
 	 *	@a true if this local time is smaller than or equal to the other local time
 	*/
-	bool LocalTime::operator <= (const LocalTime& other) const;
+	bool operator <= (const LocalTime& other) const;
 
 	/**
 	 * @brief
@@ -131,7 +131,7 @@ public:
 	 * @return
 	 *	@a true if this local time is greater than or equal to the other local time
 	 */
-	bool LocalTime::operator >= (const LocalTime& other) const;
+	bool operator >= (const LocalTime& other) const;
 
     /**
      * @brief
