@@ -180,6 +180,31 @@ bool PlayingState::notifyKeyDown(const int keyCode)
                 return true;
             }
         break;
+
+        //Enlarge minimap
+        case SDLK_m:
+        {
+            if(getMiniMap()->isVisible())
+            {
+                float resizeX;
+                float resizeY;
+
+                if(getMiniMap()->getWidth() > MiniMap::MAPSIZE) {
+                    getMiniMap()->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
+                }
+                else {
+                    float resizeX = _gameEngine->getUIManager()->getScreenWidth() / 2;
+                    float resizeY = _gameEngine->getUIManager()->getScreenHeight() / 2;
+                    getMiniMap()->setSize(resizeX, resizeY);
+                }
+
+                //Keep minimap inside the screen
+                float xPos = Ego::Math::constrain<float>(getMiniMap()->getX(), 0, _gameEngine->getUIManager()->getScreenWidth() - getMiniMap()->getWidth());
+                float yPos = Ego::Math::constrain<float>(getMiniMap()->getY(), 0, _gameEngine->getUIManager()->getScreenHeight() - getMiniMap()->getHeight());
+                getMiniMap()->setPosition(xPos, yPos);
+            }
+        }
+        return true;
     }
 
     return ComponentContainer::notifyKeyDown(keyCode);

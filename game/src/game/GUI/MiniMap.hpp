@@ -38,6 +38,8 @@ public:
 
     void addBlip(const float x, const float y, const HUDColors color);
 
+    void addBlip(const float x, const float y, const std::shared_ptr<Object> &object);
+
     bool notifyMouseMoved(const int x, const int y) override;
     bool notifyMouseClicked(const int InternalDebugWindow, const int x, const int y) override;
 
@@ -50,7 +52,17 @@ private:
         Blip(const float setX, const float setY, const HUDColors setColor) :
             x(setX),
             y(setY),
-            color(setColor)
+            color(setColor),
+            icon(INVALID_TX_REF)
+        {
+            //ctor
+        }
+
+        Blip(const float setX, const float setY, TX_REF setIcon) :
+            x(setX),
+            y(setY),
+            color(COLOR_WHITE),
+            icon(setIcon)
         {
             //ctor
         }
@@ -58,6 +70,7 @@ private:
         float x;
         float y;
         HUDColors color;
+        TX_REF icon;
     };
 
 private:
