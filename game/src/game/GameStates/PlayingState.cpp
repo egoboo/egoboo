@@ -27,6 +27,7 @@
 #include "game/Core/GameEngine.hpp"
 #include "game/GUI/InternalDebugWindow.hpp"
 #include "game/GUI/MiniMap.hpp"
+#include "game/GUI/CharacterStatus.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
@@ -147,4 +148,16 @@ bool PlayingState::notifyKeyDown(const int keyCode)
 const std::shared_ptr<MiniMap>& PlayingState::getMiniMap() const
 {
     return _miniMap;
+}
+
+void PlayingState::addStatusMonitor(const std::shared_ptr<Object> &object)
+{
+    const std::shared_ptr<Camera> &camera = CameraSystem::get()->getCameraByChrID(object->getCharacterID());
+
+    std::shared_ptr<CharacterStatus> status = std::make_shared<CharacterStatus>(object);
+
+    status->setSize(BARX, BARY);
+    status->setPosition(camera->getScreen().xmax - status->getWidth(), camera->getScreen().ymin);
+
+    //TODO
 }

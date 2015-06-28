@@ -206,7 +206,6 @@ static gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& camera);
 static gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& camera);
 
 static float draw_one_xp_bar(float x, float y, Uint8 ticks);
-static void  draw_all_status();
 static float draw_fps(float y);
 static float draw_help(float y);
 static float draw_debug(float y);
@@ -1237,6 +1236,7 @@ float draw_character_xp_bar(const CHR_REF character, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 float draw_status(const CHR_REF character, float x, float y)
 {
     /// @author ZZ
@@ -1294,38 +1294,36 @@ float draw_status(const CHR_REF character, float x, float y)
 
     return y;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void draw_all_status()
 {
     if (!StatusList.on) return;
 
     // connect each status object with its camera
-    for (size_t cnt = 0; cnt < plst->count; cnt++)
+    for (size_t cnt = 0; cnt < StatusList.count; cnt++)
     {
-        StatusList.lst[cnt]->camera_index = CameraSystem::get()->getCameraIndexByID(StatusList.lst[cnt]->who);
+        StatusList.lst[cnt].camera_index = CameraSystem::get()->getCameraIndexByID(StatusList.lst[cnt].who);
     }
 
-    // get the camera list
-    const std::vector<std::shared_ptr<Camera>> &cameraList = CameraSystem::get()->getCameraList();
-
-    for (size_t i = 0; i < cameraList.size(); ++i)
+    int i = 0;
+    for (const std::shared_ptr<Camera> &camera : CameraSystem::get()->getCameraList())
     {
-        const std::shared_ptr<Camera> &camera = cameraList[i];
-
         // draw all attached status
         int y = camera->getScreen().ymin;
         for (size_t tnc = 0; tnc < StatusList.count; tnc++)
         {
-            status_list_element_t * pelem = StatusList.lst + tnc;
-
-            if (i == pelem->camera_index)
+            if (i == StatusList.lst[tnc].camera_index)
             {
-                y = draw_status(pelem->who, camera->getScreen().xmax - BARX, y);
+                y = draw_status(StatusList.lst[tnc].who, camera->getScreen().xmax - BARX, y);
             }
         }
+        i++;
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 float draw_fps(float y)
@@ -1539,8 +1537,6 @@ void draw_hud()
     gfx_begin_2d();
     {
         draw_inventory();
-
-        draw_all_status();
 
         y = draw_fps(0);
         y = draw_help(y);
