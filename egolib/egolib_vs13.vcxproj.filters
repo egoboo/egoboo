@@ -953,6 +953,9 @@
     <ClInclude Include="src\egolib\Time\LocalTime.hpp">
       <Filter>Header Files\Time</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Core\QuadTree.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
