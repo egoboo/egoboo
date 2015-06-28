@@ -287,42 +287,20 @@ char * str_append_slash( char * str, size_t size )
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_encode_path( const char *szName )
+
+std::string str_encode_path( const std::string& objectName)
 {
-    /// @author ZF
-    /// @details This turns a szName name into a proper filepath for loading and saving files
-    ///   also turns all letter to lower case in case of case sensitive OS.
-
-    static STRING szPathname;
-
-    char * pname, * pname_end;
-    char * ppath, * ppath_end;
-    char letter;
-
-    pname     = ( char * )szName;
-    pname_end = pname + 255;
-
-    ppath     = szPathname;
-    ppath_end = szPathname + SDL_arraysize( szPathname ) - 5;
-    while ( CSTR_END != *pname && pname < pname_end && ppath < ppath_end )
-    {
-        letter = Ego::tolower(*pname);
-
-        if (Ego::isspace(letter) || !(Ego::isalpha(letter) || Ego::isdigit(letter)))
-        {
-            letter = '_';
-        }
-
-        *ppath = letter;
-
-        pname++;
-        ppath++;
-    }
-    *ppath = CSTR_END;
-
-    strncat( szPathname, ".obj", SDL_arraysize( szPathname ) - strlen( szPathname ) );
-
-    return szPathname;
+	std::string encodedName = objectName + ".obj";
+	// alphabetic uppercase -> alphabetic lowercase
+	// space -> underscore
+	auto f = [](const char chr) -> char {
+		if (std::isalpha(chr)) {
+			return std::tolower(chr);
+		} else if (std::isspace(chr)) {
+			return '_';
+		}};
+	transform(encodedName.begin(), encodedName.end(), encodedName.begin(), f);
+	return encodedName;
 }
 
 //--------------------------------------------------------------------------------------------

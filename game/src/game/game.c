@@ -185,7 +185,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // TWINK_BO.OBJ
-    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler().get(owner)->Name ) );
+    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( _currentModule->getObjectHandler().get(owner)->Name ).c_str() );
 
     // Is it a character or an item?
     if ( chr_obj_index < 0 )
@@ -4407,11 +4407,11 @@ egolib_rv import_list_from_players(import_list_t& self)
 		// only copy the "source" directory if the player is local
 		if (is_local)
 		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->Name));
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_players/%s", str_encode_path(pchr->Name).c_str());
 		}
 		else
 		{
-			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->Name));
+			snprintf(import_ptr->srcDir, SDL_arraysize(import_ptr->srcDir), "mp_remote/%s", str_encode_path(pchr->Name).c_str());
 		}
 
 		player++;

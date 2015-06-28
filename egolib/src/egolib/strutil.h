@@ -41,7 +41,19 @@
 
     char * str_decode( char *strout, size_t insize, const char * strin );
     char * str_encode( char *strout, size_t insize, const char * strin );
-    char * str_encode_path( const char *character );
+	/**
+	 * @brief
+	 *	Turn an entity name into a pathname for loading and saving files.
+	 * @param objectName
+	 *	the object name
+	 * @return
+	 *	the pathname
+	 * @remark
+	 *	Replaces space by underscore,
+	 *	replaces uppercase alphabetic character by the corresponding lowercase alphabetic character, and
+	 *	appends <tt>".obj"</tt> to the resulting string.  
+	 */
+    std::string str_encode_path(const std::string& objectName);
 
     char * str_clean_path( char * str, size_t size );
     char * str_convert_slash_net( char * str, size_t size );
