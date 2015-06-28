@@ -4695,19 +4695,3 @@ float water_instance_layer_get_level( water_instance_layer_t * ptr )
 
     return ptr->z + ptr->amp;
 }
-
-//--------------------------------------------------------------------------------------------
-bool status_list_update_cameras( status_list_t * plst )
-{
-    if ( NULL == plst ) return false;
-
-    if ( !plst->on || 0 == plst->count ) return true;
-
-    for ( size_t cnt = 0; cnt < plst->count; cnt++ )
-    {
-        status_list_element_t * pelem = StatusList.lst + cnt;
-        pelem->camera_index = CameraSystem::get()->getCameraIndexByID(pelem->who);
-    }
-
-    return true;
-}

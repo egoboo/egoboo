@@ -66,7 +66,7 @@ void CharacterStatus::draw()
     //Draw the small XP progress bar
     yOffset = draw_character_xp_bar(pchr->getCharacterID(), getX() + 16, yOffset);
 
-    // Draw the life_pips bar
+    // Draw the life bar
     if (pchr->isAlive())
     {
         yOffset = draw_one_bar(pchr->life_color, getX(), yOffset, life_pips, life_pips_max);
@@ -77,7 +77,7 @@ void CharacterStatus::draw()
         yOffset = draw_one_bar(0, getX(), yOffset, 0, life_pips_max);
     }
 
-    // Draw the mana_pips bar
+    // Draw the mana bar
     if (mana_pips_max > 0)
     {
         yOffset = draw_one_bar(pchr->mana_color, getX(), yOffset, mana_pips, mana_pips_max);

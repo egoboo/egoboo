@@ -28,6 +28,8 @@
 class MiniMap : public GUIComponent
 {
 public:
+    static const uint32_t MAPSIZE = 128;
+
     MiniMap();
 
     virtual void draw() override;
@@ -35,6 +37,9 @@ public:
     void setShowPlayerPosition(bool show);
 
     void addBlip(const float x, const float y, const HUDColors color);
+
+    bool notifyMouseMoved(const int x, const int y) override;
+    bool notifyMouseClicked(const int InternalDebugWindow, const int x, const int y) override;
 
 private:
 
@@ -59,4 +64,6 @@ private:
     uint32_t _markerBlinkTimer;     //< Ticks until next minimap blink is shown
     bool _showPlayerPosition;
     std::vector<Blip> _blips;
+    bool _mouseOver;
+    bool _isDragging;
 };

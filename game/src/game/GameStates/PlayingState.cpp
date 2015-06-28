@@ -55,8 +55,8 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
     }
 
     //Add minimap to the list of GUI components to render
-    _miniMap->setSize(MAPSIZE, MAPSIZE);
-    _miniMap->setPosition(0, 0);
+    _miniMap->setSize(MiniMap::MAPSIZE, MiniMap::MAPSIZE);
+    _miniMap->setPosition(0, _gameEngine->getUIManager()->getScreenHeight()-_miniMap->getHeight());
     addComponent(_miniMap);
 }
 

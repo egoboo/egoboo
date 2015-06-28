@@ -206,7 +206,6 @@ static gfx_rv gfx_make_tileList(Ego::Graphics::TileList& tl, Camera& camera);
 static gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& camera);
 
 static float draw_one_xp_bar(float x, float y, Uint8 ticks);
-static float draw_character_xp_bar(const CHR_REF character, float x, float y);
 static void  draw_all_status();
 static float draw_fps(float y);
 static float draw_help(float y);
@@ -906,32 +905,6 @@ float draw_menu_icon(const TX_REF icontype, float x, float y, Uint8 sparkle_colo
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-void draw_map_texture(float x, float y)
-{
-    /// @author ZZ
-    /// @details This function draws the map
-
-    ego_frect_t sc_rect, tx_rect;
-
-    oglx_texture_t * ptex = TextureManager::get().get_valid_ptr((TX_REF)TX_MAP);
-    if (NULL == ptex) return;
-
-    sc_rect.xmin = x;
-    sc_rect.xmax = x + MAPSIZE;
-    sc_rect.ymin = y;
-    sc_rect.ymax = y + MAPSIZE;
-
-    tx_rect.xmin = 0;
-    tx_rect.xmax = (float)ptex->getSourceWidth() / (float)ptex->getWidth();
-    tx_rect.ymin = 0;
-    tx_rect.ymax = (float)ptex->getSourceHeight() / (float)ptex->getHeight();
-
-    draw_quad_2d(ptex, sc_rect, tx_rect, false);
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 float draw_one_xp_bar(float x, float y, Uint8 ticks)
 {
     /// @author ZF
@@ -1328,7 +1301,10 @@ void draw_all_status()
     if (!StatusList.on) return;
 
     // connect each status object with its camera
-    status_list_update_cameras(&StatusList);
+    for (size_t cnt = 0; cnt < plst->count; cnt++)
+    {
+        StatusList.lst[cnt]->camera_index = CameraSystem::get()->getCameraIndexByID(StatusList.lst[cnt]->who);
+    }
 
     // get the camera list
     const std::vector<std::shared_ptr<Camera>> &cameraList = CameraSystem::get()->getCameraList();

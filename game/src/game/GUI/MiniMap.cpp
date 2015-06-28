@@ -33,9 +33,12 @@ static const uint32_t MINIMAP_BLINK_RATE = 500; //milliseconds between each mini
 MiniMap::MiniMap() :
     _markerBlinkTimer(0),
     _showPlayerPosition(false),
-    _blips()
+    _blips(),
+    _mouseOver(false),
+    _isDragging(false)
 {
-
+    //The minimap is by default not visible
+    setVisible(false);
 }
 
 void MiniMap::draw()
@@ -119,4 +122,32 @@ void MiniMap::addBlip(const float x, const float y, const HUDColors color)
     }
 
     _blips.push_back(Blip(x, y, color));
+}
+
+bool MiniMap::notifyMouseMoved(const int x, const int y)
+{
+    if(_isDragging) {
+        setPosition( std::min(x, _gameEngine->getUIManager()->getScreenWidth()-getWidth()), 
+                     std::min(y, _gameEngine->getUIManager()->getScreenHeight()-getHeight()) );
+    }
+    else {
+        _mouseOver = contains(x, y);
+    }
+
+    return false;
+}
+
+bool MiniMap::notifyMouseClicked(const int button, const int x, const int y)
+{
+    if(_mouseOver && button == SDL_BUTTON_LEFT)
+    {
+        _isDragging = !_isDragging;
+        return true;
+    }
+    else if(button == SDL_BUTTON_RIGHT) {
+        _isDragging = false;
+        return true;
+    }
+
+    return false;
 }

@@ -297,6 +297,12 @@ public:
     void requestTerminate();
 
     /**
+    * @return
+    *   Get the amount of money this character has
+    **/
+    int16_t getMoney() const { return money; }
+
+    /**
     * @brief 
     *   This function calculates and applies damage to a character.  It also
     *   sets alerts and begins actions.  Blocking and frame invincibility are done here too.  
