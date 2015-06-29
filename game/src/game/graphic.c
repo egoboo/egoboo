@@ -2131,7 +2131,7 @@ float grid_lighting_test(ego_mesh_t * mesh, GLXvector3f pos, float * low_diff, f
     {
         cache_list[cnt] = NULL;
 
-        pgrid = ego_mesh_t::get_pgrid(mesh, fan[cnt]);
+        pgrid = mesh->get_pgrid(fan[cnt]);
         if (NULL == pgrid)
         {
             cache_list[cnt] = NULL;
@@ -2187,7 +2187,7 @@ bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, 
 
     for (cnt = 0; cnt < 4; cnt++)
     {
-        pgrid = ego_mesh_t::get_pgrid(mesh, fan[cnt]);
+        pgrid = mesh->get_pgrid(fan[cnt]);
 
         if (NULL == pgrid)
         {
@@ -2487,7 +2487,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         int fan = tl._all.lst[entry].index;
 
         // grab a pointer to the tile
-		ego_tile_info_t *ptile = ego_mesh_t::get_ptile(mesh, fan);
+		ego_tile_info_t *ptile = mesh->get_ptile(fan);
         if (NULL == ptile) continue;
 
         // Test to see whether the lcache was already updated
@@ -2516,7 +2516,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         if (!ptile->request_lcache_update) continue;
 
         // is the tile reflective?
-        pgrid = ego_mesh_t::get_pgrid(mesh, fan);
+        pgrid = mesh->get_pgrid(fan);
         reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
@@ -2571,7 +2571,7 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
         if (TileIndex::Invalid == fan) continue;
 
         // valid tile?
-        ptile = ego_mesh_t::get_ptile(mesh, fan);
+        ptile = mesh->get_ptile(fan);
         if (NULL == ptile)
         {
             retval = gfx_fail;
@@ -3024,7 +3024,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         TileIndex fan = tl._all.lst[entry].index;
 
         // a valid tile?
-        ego_grid_info_t  *pgrid = ego_mesh_t::get_pgrid(mesh, fan);
+        ego_grid_info_t  *pgrid = mesh->get_pgrid(fan);
         if (!pgrid) continue;
 
         // do not update this more than once a frame

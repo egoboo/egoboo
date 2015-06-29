@@ -1648,7 +1648,7 @@ BIT_FIELD Object::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float * pressure, m
 	float radius = 0.0f;
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		ego_tile_info_t *tile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), getTile());
+		ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(getTile());
 
 		if (nullptr != tile && tile->inrenderlist)
 		{
@@ -1688,7 +1688,7 @@ BIT_FIELD Object::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
 	float radius = 0.0f;
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		ego_tile_info_t *tile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), getTile());
+		ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(getTile());
 		if (nullptr != tile && tile->inrenderlist)
 		{
 			radius = bump_1.size;

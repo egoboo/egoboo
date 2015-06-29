@@ -5325,7 +5325,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     TileIndex idx = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pstate->x, pstate->y));
 
-    ego_tile_info_t *ptr = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), idx);
+    ego_tile_info_t *ptr = _currentModule->getMeshPointer()->get_ptile(idx);
     if (ptr)
     {
         returncode = true;

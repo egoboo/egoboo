@@ -555,13 +555,19 @@ public:
     static bool make_texture(ego_mesh_t *self);
     static ego_mesh_t *finalize(ego_mesh_t *self);
     static bool test_one_corner(ego_mesh_t *self, GLXvector3f pos, float * pdelta);
-    static bool light_one_corner(const ego_mesh_t *self, ego_tile_info_t *ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
+    
+    bool light_one_corner(ego_tile_info_t *ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
 
-    /// @brief Get the precise height of the mesh at a given point (world coordinates).
-    /// @param point the point (world coordinates)
-    /// @return the precise height of the mesh at the given point if there is a height at that point,
-    ///         @a 0 otherwise
-    static float get_level(const ego_mesh_t *self, const PointWorld& point);
+    /**
+    * @brief 
+    *   Get the precise height of the mesh at a given point (world coordinates).
+    * @param point 
+    *   the point (world coordinates)
+    * @return 
+    *   the precise height of the mesh at the given point if there is a height at that point,
+    *   0 otherwise
+    **/
+    float getElevation(const PointWorld& point) const;
 
     /// @brief Get the block index of the block at a given point (world coordinates).
     /// @param point the point (world coordinates)
@@ -600,7 +606,8 @@ public:
      *  a pointer to the tile information of the tile at the index in this mesh
      *  if the tiles are allocated and the index is within bounds, @a nullptr otherwise.
      */
-    static ego_tile_info_t *get_ptile(const ego_mesh_t *self, const TileIndex& index);
+    ego_tile_info_t *get_ptile(const TileIndex& index) const;
+
     /**
      * @brief
      *  Get the grid information for at a tile index in a mesh.
@@ -612,7 +619,7 @@ public:
      *  a pointer to the grid information of the tile at the index in this mesh
      *  if the grids are allocated and the index is within bounds, @a nullptr otherwise.
      */
-    static ego_grid_info_t *get_pgrid(const ego_mesh_t *self, const TileIndex& index);
+    ego_grid_info_t* get_pgrid(const TileIndex& index) const;
 
 
     static Uint32 test_fx(const ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);

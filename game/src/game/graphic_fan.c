@@ -77,7 +77,7 @@ bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
     }
 
     // grab a pointer to the tile
-    ptile = ego_mesh_t::get_ptile( mesh, itile );
+    ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         return false;
@@ -124,7 +124,7 @@ gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
     const ego_tile_info_t * ptile;
 
     // grab a pointer to the tile
-    ptile = ego_mesh_t::get_ptile( mesh, itile );
+    ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
@@ -233,14 +233,14 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
 
     ptmem  = &( mesh->tmem );
 
-    ptile = ego_mesh_t::get_ptile( mesh, itile );
+    ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
         return gfx_error;
     }
 
-    pgrid = ego_mesh_t::get_pgrid( mesh, itile );
+    pgrid = mesh->get_pgrid(itile);
     if ( NULL == pgrid )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
@@ -333,7 +333,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
 
     pinfo = &( mesh->info );
 
-    ptile = ego_mesh_t::get_ptile( mesh, itile );
+    ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
@@ -432,7 +432,7 @@ gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint
             // get the lighting info from the grid
             TileIndex jtile = ego_mesh_t::get_tile_int(mesh, PointGrid(jx, jy));
             float dlight;
-            if ( grid_light_one_corner( mesh, jtile, v0->z, nrm, &dlight ) )
+            if ( grid_light_one_corner(mesh, jtile, v0->z, nrm, &dlight) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
                 v0->r = dlight * INV_FF + alight;

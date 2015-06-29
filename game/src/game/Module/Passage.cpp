@@ -226,7 +226,7 @@ void Passage::flashColor(uint8_t color)
         {
             TileIndex fan = ego_mesh_t::get_tile_int( _currentModule->getMeshPointer(), PointGrid(x, y));
 
-            ego_tile_info_t *ptile = ego_mesh_t::get_ptile( _currentModule->getMeshPointer(), fan );
+            ego_tile_info_t *ptile = _currentModule->getMeshPointer()->get_ptile(fan);
             if ( NULL == ptile ) continue;
 
             for (int cnt = 0; cnt < 4; cnt++ )

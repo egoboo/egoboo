@@ -213,7 +213,7 @@ flexible_destination:
 
                     //Dont walk into pits
                     //@todo: might need to check tile Z level here instead
-                    ptile = ego_mesh_t::get_ptile( PMesh, itile );
+                    ptile = PMesh->get_ptile(itile);
                     if ( NULL == ptile ) continue;
 
                     if ( TILE_IS_FANOFF( ptile ) )

@@ -519,7 +519,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 		return;
 	}
 	// No shadow if off the mesh.
-	ego_tile_info_t *ptile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), pchr->getTile());
+	ego_tile_info_t *ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
 	if (!ptile)
 	{
 		return;
@@ -615,7 +615,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (pchr->is_hidden || 0 == pchr->shadow_size) return;
 
 	// no shadow if off the mesh
-	ego_tile_info_t *ptile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), pchr->getTile());
+	ego_tile_info_t *ptile = _currentModule->getMeshPointer()->get_ptile(pchr->getTile());
 	if (NULL == ptile) return;
 
 	// no shadow if invalid tile image

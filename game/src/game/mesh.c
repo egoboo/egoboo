@@ -1084,14 +1084,14 @@ bool grid_light_one_corner( const ego_mesh_t * mesh, const TileIndex& fan, float
     ego_grid_info_t  * pgrid = NULL;
 
     // valid parameters?
-    if ( NULL == mesh || NULL == plight )
+    if ( NULL == plight || mesh == nullptr )
     {
         // not updated
         return false;
     }
 
     // valid grid?
-    pgrid = ego_mesh_t::get_pgrid( mesh, fan );
+    pgrid = mesh->get_pgrid(fan);
     if ( NULL == pgrid )
     {
         // not updated
@@ -1162,27 +1162,27 @@ bool ego_mesh_t::test_one_corner( ego_mesh_t * mesh, GLXvector3f pos, float * pd
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::light_one_corner( const ego_mesh_t * mesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight )
+bool ego_mesh_t::light_one_corner(ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight )
 {
     lighting_cache_t grid_light;
 
-    if ( NULL == mesh || NULL == ptile ) return false;
+    if ( NULL == ptile ) return false;
 
     // interpolate the lighting for the given corner of the mesh
-    grid_lighting_interpolate( mesh, &grid_light, fvec2_t(pos[kX],pos[kY]) );
+    grid_lighting_interpolate( this, &grid_light, fvec2_t(pos[kX],pos[kY]) );
 
     if ( reflective )
     {
         float light_dir, light_amb;
 
-        lighting_evaluate_cache( &grid_light, nrm, pos[ZZ], mesh->tmem.bbox, &light_amb, &light_dir );
+        lighting_evaluate_cache( &grid_light, nrm, pos[ZZ], tmem.bbox, &light_amb, &light_dir );
 
         // make ambient light only illuminate 1/2
         ( *plight ) = light_amb + 0.5f * light_dir;
     }
     else
     {
-        ( *plight ) = lighting_evaluate_cache( &grid_light, nrm, pos[ZZ], mesh->tmem.bbox, NULL, NULL );
+        ( *plight ) = lighting_evaluate_cache( &grid_light, nrm, pos[ZZ], tmem.bbox, NULL, NULL );
     }
 
     return true;
@@ -1296,7 +1296,7 @@ float ego_mesh_light_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, bool r
         ppos    = ptmem->plst + ptile->vrtstart + corner;
 
         light_new = 0.0f;
-        ego_mesh_t::light_one_corner( mesh, ptile, reflective, fvec3_t((*ppos)[0],(*ppos)[1],(*ppos)[2]),
+        mesh->light_one_corner( ptile, reflective, fvec3_t((*ppos)[0],(*ppos)[1],(*ppos)[2]),
 			                                                 fvec3_t((*pnrm)[0],(*pnrm)[1],(*pnrm)[2]), &light_new );
 
         if ( *plight != light_new )
@@ -2586,19 +2586,19 @@ bool ego_mesh_t::grid_is_valid(const ego_mesh_t *self, const TileIndex& index)
 }
 
 //--------------------------------------------------------------------------------------------
-float ego_mesh_t::get_level(const ego_mesh_t *self, const PointWorld& point)
+float ego_mesh_t::getElevation(const PointWorld& point) const
 {
-    TileIndex tile = ego_mesh_t::get_grid(self, point);
-    if (!ego_mesh_t::grid_is_valid(self, tile)) return 0;
+    TileIndex tile = ego_mesh_t::get_grid(this, point);
+    if (!ego_mesh_t::grid_is_valid(this, tile)) return 0;
 
     PointGrid gridPoint(static_cast<int>(point.getX()) & GRID_MASK,
                         static_cast<int>(point.getY()) & GRID_MASK);
 
     // Get the height of each fan corner.
-    float z0 = self->tmem.plst[tile_mem_t::get(&(self->tmem), tile)->vrtstart + 0][ZZ];
-    float z1 = self->tmem.plst[tile_mem_t::get(&(self->tmem), tile)->vrtstart + 1][ZZ];
-    float z2 = self->tmem.plst[tile_mem_t::get(&(self->tmem), tile)->vrtstart + 2][ZZ];
-    float z3 = self->tmem.plst[tile_mem_t::get(&(self->tmem), tile)->vrtstart + 3][ZZ];
+    float z0 = tmem.plst[tile_mem_t::get(&tmem, tile)->vrtstart + 0][ZZ];
+    float z1 = tmem.plst[tile_mem_t::get(&tmem, tile)->vrtstart + 1][ZZ];
+    float z2 = tmem.plst[tile_mem_t::get(&tmem, tile)->vrtstart + 2][ZZ];
+    float z3 = tmem.plst[tile_mem_t::get(&tmem, tile)->vrtstart + 3][ZZ];
 
     // Get the weighted height of each side.
     float zleft = (z0 * (GRID_FSIZE - gridPoint.getY()) + z3 * gridPoint.getY()) / GRID_FSIZE;
@@ -2749,28 +2749,28 @@ Uint32 ego_mesh_t::test_fx(const ego_mesh_t *self, const TileIndex& index, const
 }
 
 //--------------------------------------------------------------------------------------------
-ego_tile_info_t *ego_mesh_t::get_ptile(const ego_mesh_t *self, const TileIndex& index)
+ego_tile_info_t* ego_mesh_t::get_ptile(const TileIndex& index) const
 {
     // Validate mesh and tile index.
-    if (!self || index.getI() >= self->info.tiles_count)
+    if (index.getI() >= info.tiles_count)
     {
         return nullptr;
     }
 
     // Get the tile info.
-    return tile_mem_t::get(&(self->tmem), index);
+    return tile_mem_t::get(&tmem, index);
 }
 
-ego_grid_info_t *ego_mesh_t::get_pgrid(const ego_mesh_t *self, const TileIndex& index)
+ego_grid_info_t* ego_mesh_t::get_pgrid(const TileIndex& index) const
 {
     // Validate mesh and grid index.
-    if (!self || index.getI() >= self->info.tiles_count)
+    if (index.getI() >= info.tiles_count)
     {
         return nullptr;
     }
 
     // Get the grid info.
-    return grid_mem_t::get(&(self->gmem), index);
+    return grid_mem_t::get(&gmem, index);
 }
 
 //--------------------------------------------------------------------------------------------

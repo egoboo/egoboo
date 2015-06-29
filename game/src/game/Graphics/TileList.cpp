@@ -257,11 +257,11 @@ gfx_rv TileList::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& came
 			TileIndex itile = leaf->_index;
 
 			// Get tile for tile index.
-			ego_tile_info_t *ptile = ego_mesh_t::get_ptile(mesh, itile);
+			ego_tile_info_t *ptile = mesh->get_ptile(itile);
 			if (!ptile) continue;
 
 			// Get grid for tile index.
-			ego_grid_info_t *pgrid = ego_mesh_t::get_pgrid(mesh, itile);
+			ego_grid_info_t *pgrid = mesh->get_pgrid(itile);
 			if (!pgrid) continue;
 
 			if (gfx_error == gfx_capture_mesh_tile(ptile))

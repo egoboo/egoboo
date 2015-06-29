@@ -1491,23 +1491,23 @@ void check_stats()
     // XP CHEAT
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_x))
     {
-        PLA_REF docheat = ( PLA_REF )MAX_PLAYER;
+        PLA_REF docheat = INVALID_PLA_REF;
         if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  docheat = 0;
         else if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  docheat = 1;
         else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( _currentModule->getObjectHandler().exists( PlaStack.lst[docheat].index ) )
+        if ( docheat != INVALID_PLA_REF )
         {
-            Uint32 xpgain;
-            Object * pchr = _currentModule->getObjectHandler().get( PlaStack.lst[docheat].index );
-            const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-            //Give 10% of XP needed for next level
-            xpgain = 0.1f * ( profile->getXPNeededForLevel( std::min( pchr->experiencelevel+1, MAXLEVEL) ) - profile->getXPNeededForLevel(pchr->experiencelevel));
-            pchr->giveExperience(xpgain, XP_DIRECT, true);
-            stat_check_delay = 1;
+            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
+            if(player)
+            {
+                //Give 10% of XP needed for next level
+                uint32_t xpgain = 0.1f * ( player->getProfile()->getXPNeededForLevel( std::min( player->experiencelevel+1, MAXLEVEL) ) - player->getProfile()->getXPNeededForLevel(player->experiencelevel));
+                player->giveExperience(xpgain, XP_DIRECT, true);
+                stat_check_delay = 1;
+            }
         }
     }
 
@@ -1521,15 +1521,18 @@ void check_stats()
         else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
-        const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
-
         //Apply the cheat if valid
-        if (player)
-        {
-            //Heal 1 life
-            player->heal(player, 256, true);
-            stat_check_delay = 1;
+        if(docheat != INVALID_PLA_REF) {
+            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
+            if (player)
+            {
+                //Heal 1 life
+                player->heal(player, 256, true);
+                stat_check_delay = 1;
+            }
+
         }
+
     }
 
     // Display armor stats?
@@ -4455,7 +4458,7 @@ float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk )
     ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
     ///    level of the water.
 
-    float zdone = ego_mesh_t::get_level(mesh, PointWorld(x, y));
+    float zdone = mesh->getElevation(PointWorld(x, y));
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {

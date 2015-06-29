@@ -503,7 +503,7 @@ float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), chr->getTile());
+        ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(chr->getTile());
 
         if (nullptr != tile && tile->inrenderlist)
         {
@@ -537,7 +537,7 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), chr->getTile());
+        ego_tile_info_t *tile = _currentModule->getMeshPointer()->get_ptile(chr->getTile());
 
         if (nullptr != tile && tile->inrenderlist)
         {
