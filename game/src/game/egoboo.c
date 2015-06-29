@@ -91,8 +91,7 @@ bool config_download( egoboo_config_t *cfg)
     {
         return false;
     }
-    // Status display.
-    g_statusList.on = cfg->hud_displayStatusBars.getValue();
+
     // Message display.
     DisplayMsg_count = CLIP(cfg->hud_simultaneousMessages_max.getValue(), (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
     DisplayMsg_on = cfg->hud_simultaneousMessages_max.getValue() > 0;

@@ -17,26 +17,30 @@
 //*
 //********************************************************************************************
 
-/// @file game/GUI/InternalDebugWindow.hpp
-/// @details InternalDebugWindow
+/// @file game/GUI/InternalWindow.hpp
+/// @details InternalWindow
 /// @author Johan Jansen
 #pragma once
 
-#include <unordered_map>
-#include <typeinfo>
-#include <typeindex>
-#include "game/GUI/InternalWindow.hpp"
+#include "game/GUI/GUIComponent.hpp"
+#include "game/GUI/ComponentContainer.hpp"
 
-class InternalDebugWindow : public InternalWindow
+class InternalWindow : public GUIComponent, ComponentContainer
 {
     public:
-        InternalDebugWindow(const std::string &title);
+        InternalWindow(const std::string &title);
 
-        void addWatchVariable(const std::string &variableName, std::function<std::string()> lambda);
+        bool notifyMouseMoved(const int x, const int y) override;
+        bool notifyMouseClicked(const int button, const int x, const int y) override;
+
+        void draw() override;
 
     protected:
         void drawContainer() override;
 
     private:
-        std::unordered_map<std::string, std::function<std::string()>> _watchedVariables;
+        bool _mouseOver;
+        bool _mouseOverCloseButton;
+        bool _isDragging;
+        std::string _title;
 };

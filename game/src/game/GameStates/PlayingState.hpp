@@ -29,6 +29,7 @@
 class CameraSystem;
 class MiniMap;
 class Object;
+class CharacterStatus;
 
 class PlayingState : public GameState
 {
@@ -47,10 +48,16 @@ public:
 
     void addStatusMonitor(const std::shared_ptr<Object> &object);
 
+    std::shared_ptr<Object> getStatusCharacter(size_t index);
+
 protected:
     void drawContainer() override;
 
 private:
+    void updateStatusBarPosition();
+
+private:
 	std::shared_ptr<CameraSystem> _cameraSystem;
     std::shared_ptr<MiniMap> _miniMap;
+    std::vector<std::weak_ptr<CharacterStatus>> _statusList;
 };

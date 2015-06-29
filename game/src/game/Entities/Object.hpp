@@ -527,6 +527,14 @@ public:
     **/
     inline UFP8_T getMaxMana() const { return mana_max; }
 
+    /**
+    * @brief
+    *   True if this object is added to a statusbar monitor
+    **/
+    bool getShowStatus() const { return _showStatus; }
+    void setShowStatus(const bool val) { _showStatus = val; }
+
+
 private:
 
     /**
@@ -664,7 +672,6 @@ public:
     bool         transferblend;   ///< Give transparency to weapons?
     bool         draw_icon;       ///< Show the icon?
     uint8_t          sparkle;         ///< Sparkle color or 0 for off
-    bool         show_stats;      ///< Display stats?
     SFP8_T         uoffvel;         ///< Moving texture speed (8.8 fixed point)
     SFP8_T         voffvel;          ///< Moving texture speed (8.8 fixed point)
     float          shadow_size_stt;  ///< Initial shadow size
@@ -734,7 +741,8 @@ public:
 private:
     bool _terminateRequested;                           ///< True if this character no longer exists in the game and should be destructed
     CHR_REF _characterID;                               ///< Our unique CHR_REF id
-    std::shared_ptr<ObjectProfile> _profile;     ///< Our Profile
+    std::shared_ptr<ObjectProfile> _profile;            ///< Our Profile
+    bool _showStatus;                                   ///< Display stats?
 
     friend class ObjectHandler;
 };

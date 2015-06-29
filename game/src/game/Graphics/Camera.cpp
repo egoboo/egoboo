@@ -21,7 +21,7 @@
 #include "game/graphic.h"
 #include "game/player.h"
 
-#include "game/game.h" // TODO: remove only needed for PMesh
+#include "game/game.h" // TODO: remove only needed for mesh
 
 #include "game/char.h"
 #include "game/mesh.h"
@@ -111,7 +111,7 @@ Camera::Camera(const CameraOptions &options) :
     // Lock a tile list for this camera.
     _tileList = rmgr_ptr->acquire();
     // Connect the tile list to the mesh.
-    _tileList->setMesh(PMesh);
+    _tileList->setMesh(_currentModule->getMeshPointer());
 
     // Lock an entity list for this camera.
     _entityList = dmgr_ptr->acquire();
@@ -295,7 +295,7 @@ void Camera::updateCenter()
     _center[kZ] = _center[kZ] * 0.9f + _trackPos[kZ] * 0.1f; /// @todo Use Ego::Math::lerp
 }
 
-void Camera::updateTrack(const ego_mesh_t *pmesh)
+void Camera::updateTrack(const ego_mesh_t *mesh)
 {
     // The default camera motion is to do nothing.
     fvec3_t new_track = _trackPos;
@@ -339,7 +339,7 @@ void Camera::updateTrack(const ego_mesh_t *pmesh)
 	            _turnZAdd -= DEFAULT_TURN_KEY;
 	        }
 
-	        _trackPos[kZ] = 128 + ego_mesh_t::get_level(pmesh, PointWorld(_trackPos[kX], _trackPos[kY]));
+	        _trackPos[kZ] = 128 + mesh->getElevation(PointWorld(_trackPos[kX], _trackPos[kY]));
 
        break;
 
@@ -485,7 +485,7 @@ std::forward_list<CHR_REF> Camera::createTrackList()
 }
 */
 
-void Camera::update(const ego_mesh_t *pmesh)
+void Camera::update(const ego_mesh_t *mesh)
 {
     // Update the _turnTime counter.
     if (CameraTurnMode::None != _turnMode)
@@ -515,7 +515,7 @@ void Camera::update(const ego_mesh_t *pmesh)
     updateEffects();
 
     // Update the average position of the tracked characters.
-    updateTrack(pmesh);
+    updateTrack(mesh);
 
     // Move the camera center, if need be.
     updateCenter();
@@ -641,7 +641,7 @@ void Camera::readInput(input_device_t *pdevice)
     }
 }
 
-void Camera::reset(const ego_mesh_t *pmesh)
+void Camera::reset(const ego_mesh_t *mesh)
 {
     // Defaults.
     _trackLevel   = 0.0f;
@@ -654,8 +654,8 @@ void Camera::reset(const ego_mesh_t *pmesh)
     _roll = 0.0f;
 
     // Derived values.
-    _center[kX]     = pmesh->gmem.edge_x * 0.5f;
-    _center[kY]     = pmesh->gmem.edge_y * 0.5f;
+    _center[kX]     = mesh->gmem.edge_x * 0.5f;
+    _center[kY]     = mesh->gmem.edge_y * 0.5f;
     _center[kZ]     = 0.0f;
 
 	_trackPos = _center;
@@ -675,10 +675,10 @@ void Camera::reset(const ego_mesh_t *pmesh)
     _turnMode = _options.turnMode;
 
     // Make sure you are looking at the players.
-    resetTarget(pmesh);
+    resetTarget(mesh);
 }
 
-void Camera::resetTarget(const ego_mesh_t *pmesh)
+void Camera::resetTarget(const ego_mesh_t *mesh)
 {
     // Save some values.
     CameraTurnMode turnModeSave = _turnMode;
@@ -693,7 +693,7 @@ void Camera::resetTarget(const ego_mesh_t *pmesh)
 
     // If you use Camera::MoveMode::Reset,
     // Camera::update() automatically restores _moveMode to its default setting.
-    update(pmesh);
+    update(mesh);
 
     // Fix the center position.
     _center[kX] = _trackPos[kX];

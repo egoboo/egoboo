@@ -382,18 +382,12 @@ struct status_list_t
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// various global pointers
-extern ego_mesh_t *PMesh;
-
-
-// special terrain and wawalite-related data structs
+// special terrain and wawalite-related data structs (TODO: move into Module class)
 extern animtile_instance_t animtile[2];
 extern damagetile_instance_t damagetile;
 extern weather_instance_t weather;
 extern water_instance_t water;
 extern fog_instance_t fog;
-
-extern status_list_t g_statusList;
 
 // End text
 extern char   endtext[MAXENDTEXT];     ///< The end-module text
@@ -412,9 +406,6 @@ extern Uint32          clock_enc_stat;        ///< For character stat regenerati
 extern Uint32          clock_chr_stat;        ///< For enchant stat regeneration
 extern Uint32          clock_pit;             ///< For pit kills
 extern Uint32          update_wld;            ///< The number of times the game has been updated
-extern Uint32          true_update;
-extern Uint32          true_frame;
-extern int             update_lag;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -446,12 +437,6 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
 void    disaffirm_attached_particles( const CHR_REF character );
 int     reaffirm_attached_particles( const CHR_REF character );
 
-/// Statlist
-void statlist_add( const CHR_REF character );
-/// @brief This function puts the character on top of the status list.
-void statlist_move_to_top( const CHR_REF character );
-void statlist_sort();
-
 /// Player
 void   set_one_player_latch( const PLA_REF player );
 bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice );
@@ -465,10 +450,6 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing, const PIP_REF ipip, cons
 void  free_all_objects();
 
 /// Data
-ego_mesh_t *set_PMesh( ego_mesh_t * pmpd );
-
-float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
-
 int    game_do_menu( struct menu_process_t * mproc );
 
 void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
@@ -486,7 +467,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
 bool get_chr_regeneration( Object * pchr, int *pliferegen, int * pmanaregen );
 
-float get_chr_level( ego_mesh_t * pmesh, Object * pchr );
+float get_chr_level( ego_mesh_t * mesh, Object * pchr );
 
 void disenchant_character( const CHR_REF ichr );
 

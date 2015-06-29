@@ -23,19 +23,9 @@
 
 #include "game/GUI/InternalDebugWindow.hpp"
 
-InternalDebugWindow::InternalDebugWindow(const std::string &title) :
-	_mouseOver(false),
-	_mouseOverCloseButton(false),
-	_isDragging(false),
-	_title(title),
+InternalDebugWindow::InternalDebugWindow(const std::string &title) : InternalWindow(title),
 	_watchedVariables()
 {
-	//Set window size depending on title string
-    int textWidth, textHeight;
-    _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
-    textWidth = std::max(32, textWidth);
-    textHeight = std::max(8, textHeight);
-    setSize(std::max(getWidth(), 5 + static_cast<int>(textWidth*1.5f)), getY()+textHeight+5);
 }
 
 void InternalDebugWindow::addWatchVariable(const std::string &variableName, std::function<std::string()> lambda)
@@ -51,52 +41,15 @@ void InternalDebugWindow::addWatchVariable(const std::string &variableName, std:
     setSize(std::max(getWidth(), 5 + textWidth*2), getHeight()+textHeight+5);
 }
 
-void InternalDebugWindow::draw()
+void InternalDebugWindow::drawContainer()
 {
-    const Ego::Math::Colour4f BACKDROP_COLOUR = {0.66f, 0.00f, 0.00f, 0.60f};
-    const Ego::Math::Colour4f TITLE_BAR_COLOUR = {0.20f, 0.20f, 0.66f, 0.60f};
-    
-    auto &renderer = Ego::Renderer::get();
-
-    struct Vertex
-    {
-        float x, y;
-    };
-    auto vb = _gameEngine->getUIManager()->_vertexBuffer;
-    Vertex *v;
-
-    // Draw the backdrop
-    oglx_texture_t::bind(nullptr);
-    renderer.setColour(BACKDROP_COLOUR);
-
-    v = static_cast<Vertex *>(vb->lock());
-    v->x = getX(); v->y = getY(); v++;
-    v->x = getX(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY();
-    vb->unlock();
-    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
+    //Draw the window itself
+    InternalWindow::drawContainer();
 
     //Rendering variables
     int textWidth, textHeight;
     int xOffset = getX() + 5;
-    int yOffset = getY();
-    _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
-
-    //Draw title bar
-    renderer.setColour(BACKDROP_COLOUR);
-
-    v = static_cast<Vertex *>(vb->lock());
-    v->x = getX(); v->y = getY(); v++;
-    v->x = getX(); v->y = getY() + textHeight; v++;
-    v->x = getX() + getWidth(); v->y = getY() + textHeight; v++;
-    v->x = getX() + getWidth(); v->y = getY();
-    vb->unlock();
-    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
-
-    //Draw window title first
-    _gameEngine->getUIManager()->getDefaultFont()->drawText(_title, xOffset, yOffset);
-    yOffset += textHeight + 5;
+    int yOffset = getY() + 32;
 
     //Draw all monitored variables
     for(const auto &element : _watchedVariables)
@@ -106,52 +59,4 @@ void InternalDebugWindow::draw()
         _gameEngine->getUIManager()->getDebugFont()->getTextSize(element.first, &textWidth, &textHeight);
         yOffset += textHeight + 5;
     }
-
-    //Draw an X in top right corner
-    Ego::Math::Colour4f X_HOVER = Ego::Math::Colour4f::white();
-    Ego::Math::Colour4f X_DEFAULT(.56f, .56f, .56f, 1.0f);
-    _gameEngine->getUIManager()->getDefaultFont()->drawText("X", getX() + getWidth() - 16, getY(), _mouseOverCloseButton ? X_HOVER : X_DEFAULT);
-}
-
-bool InternalDebugWindow::notifyMouseMoved(const int x, const int y)
-{
-    if(_isDragging) {
-    	setPosition(x, y);
-    }
-    else {
-	    _mouseOver = contains(x, y);
-
-	    //Check if mouse is hovering over the close button
-	    if(_mouseOver) {
-	    	Ego::Rectangle<int> closeButton = Ego::Rectangle<int>(getX() + getWidth()-32, getY()+32, getX() + getWidth(), getY());
-		    _mouseOverCloseButton = closeButton.point_inside(x, y);
-	    }
-	    else {
-	    	_mouseOverCloseButton = false;
-	    }
-    }
-
-    return false;
-}
-
-bool InternalDebugWindow::notifyMouseClicked(const int button, const int x, const int y)
-{
-    if(_mouseOver && button == SDL_BUTTON_LEFT)
-    {
-        //Check if close button is pressed first
-        if(_mouseOverCloseButton) {
-            AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_BUTTON_CLICK));
-            destroy();
-            return true;
-        }
-
-        _isDragging = !_isDragging;
-        return true;
-    }
-    else if(button == SDL_BUTTON_RIGHT) {
-        _isDragging = false;
-        return true;
-    }
-
-    return false;
 }

@@ -257,10 +257,10 @@ bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
         }
 
         // check to see if the "ray" collides with the mesh
-        TileIndex fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(ix, iy));
+        TileIndex fan = ego_mesh_t::get_tile_int(_currentModule->getMeshPointer(), PointGrid(ix, iy));
         if (TileIndex::Invalid != fan && fan != fan_last )
         {
-            Uint32 collide_fx = ego_mesh_t::test_fx( PMesh, fan, plos->stopped_by );
+            Uint32 collide_fx = ego_mesh_t::test_fx( _currentModule->getMeshPointer(), fan, plos->stopped_by );
             // collide the ray with the mesh
 
             if ( EMPTY_BIT_FIELD != collide_fx )
@@ -328,7 +328,7 @@ bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y
     ObjectProfile * profile = chr_get_ppro( ichr );
     if ( nullptr != profile )
     {
-        if ( CAP_INFINITE_WEIGHT == profile->getWeight() || !ego_mesh_hit_wall( PMesh, loc_pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
+        if ( CAP_INFINITE_WEIGHT == profile->getWeight() || !ego_mesh_hit_wall( _currentModule->getMeshPointer(), loc_pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
         {
             // yes it is safe. add it.
             returncode = waypoint_list_push( plst, pos_x, pos_y );
@@ -414,7 +414,7 @@ bool FindPath( waypoint_list_t * plst, Object * pchr, float dst_x, float dst_y, 
         printf( "Finding a path from %d,%d to %d,%d: \n", src_ix, src_iy, dst_ix, dst_iy );
 #endif
         //Try to find a path with the AStar algorithm
-        if ( AStar_find_path( PMesh, pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
+        if ( AStar_find_path( _currentModule->getMeshPointer(), pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
         {
             returncode = AStar_get_path( dst_x, dst_y, plst );
         }
@@ -528,9 +528,9 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        TileIndex fan = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex fan = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pchr->getPosX(), pchr->getPosY()));
 
-        ptile = ego_mesh_t::get_ptile( PMesh, fan );
+        ptile = _currentModule->getMeshPointer()->get_ptile(fan);
         if ( NULL != ptile )
         {
             Uint16 img      = ptile->img & TILE_LOWER_MASK;
@@ -553,7 +553,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( img == endtile )
             {
-                useful = ego_mesh_add_fx( PMesh, fan, mesh_fx_or );
+                useful = ego_mesh_add_fx( _currentModule->getMeshPointer(), fan, mesh_fx_or );
 
                 if ( become != 0 )
                 {
@@ -563,7 +563,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( ptile->img != ( img | highbits ) )
             {
-                ego_mesh_set_texture( PMesh, fan, img | highbits );
+                ego_mesh_set_texture( _currentModule->getMeshPointer(), fan, img | highbits );
             }
         }
     }
@@ -631,9 +631,9 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( /*nothing*/; x <= passage->getRight(); x++ )
         {
-            TileIndex fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(x, y));
+            TileIndex fan = ego_mesh_t::get_tile_int(_currentModule->getMeshPointer(), PointGrid(x, y));
 
-            ptile = ego_mesh_t::get_ptile( PMesh, fan );
+            ptile = _currentModule->getMeshPointer()->get_ptile(fan);
             if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
             {
                 *px1 = ( x * GRID_ISIZE ) + 64;
@@ -649,9 +649,9 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     {
         for ( x = passage->getLeft(); x <= passage->getRight(); x++ )
         {
-            TileIndex fan = ego_mesh_t::get_tile_int(PMesh, PointGrid(x, y));
+            TileIndex fan = ego_mesh_t::get_tile_int(_currentModule->getMeshPointer(), PointGrid(x, y));
 
-            ptile = ego_mesh_t::get_ptile( PMesh, fan );
+            ptile = _currentModule->getMeshPointer()->get_ptile(fan);
             if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
             {
                 *px1 = x * GRID_ISIZE + 64;

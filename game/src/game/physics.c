@@ -1032,8 +1032,8 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, Object *chr)
     self->bits   = chr->stoppedby;
     self->radius = chr->bump_1.size;
     self->pos = snap(chr->getPosition());
-    self->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos[kX], self->pos[kY])).getI();
-    self->valid  = (0 == ego_mesh_test_wall(PMesh, self->pos, self->radius, self->bits, nullptr));
+    self->grid   = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(self->pos[kX], self->pos[kY])).getI();
+    self->valid  = (0 == ego_mesh_test_wall(_currentModule->getMeshPointer(), self->pos, self->radius, self->bits, nullptr));
 
     self->id = breadcrumb_guid++;
 
@@ -1067,8 +1067,8 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, prt_t *particle)
 
     fvec3_t pos = particle->getPosition();
     self->pos = snap(pos);
-    self->grid   = ego_mesh_t::get_grid(PMesh, PointWorld(self->pos[kX], self->pos[kY])).getI();
-    self->valid  = ( 0 == ego_mesh_test_wall( PMesh, self->pos, self->radius, self->bits, nullptr));
+    self->grid   = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(self->pos[kX], self->pos[kY])).getI();
+    self->valid  = ( 0 == ego_mesh_test_wall( _currentModule->getMeshPointer(), self->pos, self->radius, self->bits, nullptr));
 
     self->id = breadcrumb_guid++;
 
@@ -1111,7 +1111,7 @@ void breadcrumb_list_t::validate(breadcrumb_list_t *self)
         }
         else
         {
-            if (0 != ego_mesh_test_wall(PMesh, breadcrumb.pos, breadcrumb.radius, breadcrumb.bits, nullptr))
+            if (0 != ego_mesh_test_wall(_currentModule->getMeshPointer(), breadcrumb.pos, breadcrumb.radius, breadcrumb.bits, nullptr))
             {
                 breadcrumb.valid = false;
                 invalid++;

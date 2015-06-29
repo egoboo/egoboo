@@ -927,7 +927,7 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, prt_t *pprt, Uint8 tr
 
     // interpolate the lighting for the origin of the object
     lighting_cache_t global_light;
-    grid_lighting_interpolate(PMesh, &global_light, fvec2_t(pinst->pos[kX], pinst->pos[kY]));
+    grid_lighting_interpolate(_currentModule->getMeshPointer(), &global_light, fvec2_t(pinst->pos[kX], pinst->pos[kY]));
 
     // rotate the lighting data to body_centered coordinates
     fmat_4x4_t mat = prt_instance_make_matrix(pinst);
@@ -936,7 +936,7 @@ gfx_rv prt_instance_update_lighting(prt_instance_t *pinst, prt_t *pprt, Uint8 tr
 
     // determine the normal dependent amount of light
     float amb, dir;
-    lighting_evaluate_cache(&loc_light, pinst->nrm, pinst->pos[kZ], PMesh->tmem.bbox, &amb, &dir);
+    lighting_evaluate_cache(&loc_light, pinst->nrm, pinst->pos[kZ], _currentModule->getMeshPointer()->tmem.bbox, &amb, &dir);
 
     // LIGHT-blended sprites automatically glow. ALPHA-blended and SOLID
     // sprites need to convert the light channel into additional alpha

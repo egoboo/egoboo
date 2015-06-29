@@ -69,8 +69,8 @@ void Passage::open()
             for ( int x = _area._left; x <= _area._right; x++ )
             {
                 //clear impassable and wall bits
-                TileIndex fan = ego_mesh_t::get_tile_int( PMesh, PointGrid(x, y));
-                ego_mesh_clear_fx( PMesh, fan, MAPFX_WALL | MAPFX_IMPASS );
+                TileIndex fan = ego_mesh_t::get_tile_int( _currentModule->getMeshPointer(), PointGrid(x, y));
+                ego_mesh_clear_fx( _currentModule->getMeshPointer(), fan, MAPFX_WALL | MAPFX_IMPASS );
             }
         }
     }
@@ -133,8 +133,8 @@ bool Passage::close()
     {
         for ( int x = _area._left; x <= _area._right; x++ )
         {
-            TileIndex fan = ego_mesh_t::get_tile_int( PMesh, PointGrid(x, y));
-            ego_mesh_add_fx( PMesh, fan, _mask );
+            TileIndex fan = ego_mesh_t::get_tile_int( _currentModule->getMeshPointer(), PointGrid(x, y));
+            ego_mesh_add_fx( _currentModule->getMeshPointer(), fan, _mask );
         }
     }
 
@@ -224,9 +224,9 @@ void Passage::flashColor(uint8_t color)
     {
         for (int x = _area._left; x <= _area._right; x++ )
         {
-            TileIndex fan = ego_mesh_t::get_tile_int( PMesh, PointGrid(x, y));
+            TileIndex fan = ego_mesh_t::get_tile_int( _currentModule->getMeshPointer(), PointGrid(x, y));
 
-            ego_tile_info_t *ptile = ego_mesh_t::get_ptile( PMesh, fan );
+            ego_tile_info_t *ptile = _currentModule->getMeshPointer()->get_ptile(fan);
             if ( NULL == ptile ) continue;
 
             for (int cnt = 0; cnt < 4; cnt++ )

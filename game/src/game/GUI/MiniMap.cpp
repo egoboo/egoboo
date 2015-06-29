@@ -88,7 +88,7 @@ void MiniMap::draw()
 
             if (!player->isTerminated() && player->isAlive())
             {
-                addBlip(player->getPosX(), player->getPosY(), COLOR_WHITE);
+                addBlip(player->getPosX(), player->getPosY(), player);
             }
         }
     }
@@ -97,14 +97,27 @@ void MiniMap::draw()
         _markerBlinkTimer = SDL_GetTicks() + MINIMAP_BLINK_RATE;        
     }
 
+    const int BLIP_SIZE = std::min(getWidth(), getHeight()) / 16;
+
     //Draw all queued blips
     for(const Blip &blip : _blips)
     {
         //Adjust the position values so that they fit inside the minimap
-        float x = getX() + (blip.x * MAPSIZE / PMesh->gmem.edge_x);
-        float y = getY() + (blip.y * MAPSIZE / PMesh->gmem.edge_y);
+        float x = getX() + (blip.x * getWidth() / _currentModule->getMeshPointer()->gmem.edge_x);
+        float y = getY() + (blip.y * getHeight() / _currentModule->getMeshPointer()->gmem.edge_y);
 
-        draw_blip(0.75f, blip.color, x, y);
+        if(blip.icon != INVALID_TX_REF)
+        {            
+            //Center icon on blip position
+            x -= BLIP_SIZE/2;
+            y -= BLIP_SIZE/2;
+
+            draw_icon_texture(TextureManager::get().get_valid_ptr(blip.icon), x, y, 0xFF, 0, BLIP_SIZE, true);
+        }
+        else
+        {
+            draw_blip(0.75f, blip.color, x, y);
+        }
     }
     _blips.clear();
 
@@ -122,6 +135,15 @@ void MiniMap::addBlip(const float x, const float y, const HUDColors color)
     }
 
     _blips.push_back(Blip(x, y, color));
+}
+
+void MiniMap::addBlip(const float x, const float y, const std::shared_ptr<Object> &object)
+{
+    if (!_currentModule->isInside(x, y)) {
+        return;
+    }
+
+    _blips.push_back(Blip(x, y, chr_get_txtexture_icon_ref(object->getCharacterID())));
 }
 
 bool MiniMap::notifyMouseMoved(const int x, const int y)

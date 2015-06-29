@@ -45,15 +45,10 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
-#include "game/mesh.h"
 #include "game/physics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
-
-//--------------------------------------------------------------------------------------------
-
-static ego_mesh_t         _mesh[2];
 
 //--------------------------------------------------------------------------------------------
 
@@ -62,11 +57,6 @@ bool  overrideslots      = false;
 // End text
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
-
-// Status displays
-status_list_t g_statusList;
-
-ego_mesh_t         * PMesh   = _mesh + 0;
 
 pit_info_t g_pits;
 
@@ -85,9 +75,6 @@ Uint32          clock_enc_stat   = 0;
 Uint32          clock_chr_stat   = 0;
 Uint32          clock_pit        = 0;
 Uint32          update_wld       = 0;
-Uint32          true_update      = 0;
-Uint32          true_frame       = 0;
-int             update_lag       = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -132,8 +119,8 @@ static bool upload_camera_data(const wawalite_camera_t *data);
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk );
-static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr );
+static float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk );
+static float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr );
 
 static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
@@ -306,7 +293,7 @@ egolib_rv export_all_players( bool require_local )
         pchr      = _currentModule->getObjectHandler().get( character );
 
         // don't export dead characters
-        if ( !pchr->alive ) continue;
+        if ( !pchr->isAlive() ) continue;
 
         // Export the character
         export_chr_rv = export_one_character( character, character, -1, is_local );
@@ -394,77 +381,6 @@ void log_madused_vfs( const char *savename )
         }
 
         vfs_close( hFileWrite );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void statlist_add( const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function adds a status display to the do list
-
-    Object * pchr;
-
-    if ( g_statusList.count >= MAX_STATUS ) return;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
-
-    if ( pchr->show_stats ) return;
-
-    g_statusList.lst[g_statusList.count].who = character;
-    pchr->show_stats = true;
-    g_statusList.count++;
-}
-
-//--------------------------------------------------------------------------------------------
-void statlist_move_to_top( const CHR_REF character )
-{
-    int cnt, oldloc;
-    status_list_t::element_t tmp;
-
-    // Find where it is
-    oldloc = g_statusList.count;
-
-    for ( cnt = 0; cnt < g_statusList.count; cnt++ )
-    {
-        if ( character == g_statusList.lst[cnt].who )
-        {
-			tmp = g_statusList.lst[cnt];
-            oldloc = cnt;
-            break;
-        }
-    }
-
-    // Change position
-    if ( oldloc < g_statusList.count )
-    {
-        // Move all the lower ones up
-        while ( oldloc > 0 )
-        {
-            oldloc--;
-			g_statusList.lst[oldloc + 1] = g_statusList.lst[oldloc];
-        }
-
-        // Put the character in the top slot
-		g_statusList.lst[0] = tmp;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void statlist_sort()
-{
-    /// @author ZZ
-    /// @details This function puts all of the local players on top of the StatusList
-
-    PLA_REF ipla;
-
-    for ( ipla = 0; ipla < PlaStack.count; ipla++ )
-    {
-        if ( PlaStack.lst[ipla].valid && PlaStack.lst[ipla].pdevice != NULL )
-        {
-            statlist_move_to_top( PlaStack.lst[ipla].index );
-        }
     }
 }
 
@@ -657,7 +573,7 @@ int update_game()
         // only interested in local players
         if ( NULL == PlaStack.lst[ipla].pdevice ) continue;
 
-        if ( pchr->alive )
+        if ( pchr->isAlive() )
         {
             numalive++;
 
@@ -723,7 +639,7 @@ int update_game()
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
-    mpdfx_lists_t::synch( &( PMesh->fxlists ), &( PMesh->gmem ), false );
+    mpdfx_lists_t::synch( &( _currentModule->getMeshPointer()->fxlists ), &( _currentModule->getMeshPointer()->gmem ), false );
     
     // Get immediate mode state for the rest of the game
     input_read_keyboard();
@@ -733,7 +649,7 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, PMesh->info.tiles_x*256.0f, PMesh->info.tiles_y*256.0f);
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*256.0f, _currentModule->getMeshPointer()->info.tiles_y*256.0f);
 
     //---- begin the code for updating misc. game stuff
     {
@@ -764,7 +680,7 @@ int update_game()
     //---- end the code for updating in-game objects
 
     // put the camera movement inside here
-    CameraSystem::get()->updateAll(PMesh);
+    CameraSystem::get()->updateAll(_currentModule->getMeshPointer());
 
     // Timers
     clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
@@ -827,7 +743,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
     {
         bool target_friend, target_enemy;
 
-        if ( !pchr->alive || pchr->isitem || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
+        if ( !pchr->isAlive() || pchr->isitem || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // prefer targeting riders over the mount itself
         if ( pchr->isMount() && ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) || _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
@@ -993,6 +909,12 @@ CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIE
         }
     }
 
+    //All objects in level
+    else if(max_dist == NEAREST)
+    {
+        searchList = _currentModule->getObjectHandler().getAllObjects();
+    }
+
     //All objects within range
     else
     {
@@ -1048,14 +970,14 @@ void do_damage_tiles()
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         // if the object is not really in the game, do nothing
-        if ( pchr->is_hidden || !pchr->alive ) continue;
+        if ( pchr->is_hidden || !pchr->isAlive() ) continue;
 
         // if you are being held by something, you are protected
         if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
-        if ( !ego_mesh_t::grid_is_valid( PMesh, pchr->getTile() ) ) continue;
-        if ( 0 == ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_DAMAGE ) ) continue;
+        if ( !ego_mesh_t::grid_is_valid( _currentModule->getMeshPointer(), pchr->getTile() ) ) continue;
+        if ( 0 == ego_mesh_t::test_fx( _currentModule->getMeshPointer(), pchr->getTile(), MAPFX_DAMAGE ) ) continue;
 
         // are we low enough?
         if ( pchr->getPosZ() > pchr->enviro.floor_level + DAMAGERAISE ) continue;
@@ -1124,7 +1046,7 @@ void update_pits()
             for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
             {
                 // Is it a valid character?
-                if ( pchr->invictus || !pchr->alive ) continue;
+                if ( pchr->invictus || !pchr->isAlive() ) continue;
                 if ( IS_ATTACHED_CHR( pchr->getCharacterID() ) ) continue;
 
                 // Do we kill it?
@@ -1234,11 +1156,11 @@ void do_weather_spawn_particles()
                         else
                         {
                             // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                            if ( pprt->pos[kX] < EDGE || pprt->pos[kX] > PMesh->gmem.edge_x - EDGE )
+                            if ( pprt->pos[kX] < EDGE || pprt->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
                             {
                                 destroy_particle = true;
                             }
-                            else if ( pprt->pos[kY] < EDGE || pprt->pos[kY] > PMesh->gmem.edge_y - EDGE )
+                            else if ( pprt->pos[kY] < EDGE || pprt->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
                             {
                                 destroy_particle = true;
                             }
@@ -1569,23 +1491,23 @@ void check_stats()
     // XP CHEAT
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && SDL_KEYDOWN(keyb, SDLK_x))
     {
-        PLA_REF docheat = ( PLA_REF )MAX_PLAYER;
+        PLA_REF docheat = INVALID_PLA_REF;
         if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  docheat = 0;
         else if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  docheat = 1;
         else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( _currentModule->getObjectHandler().exists( PlaStack.lst[docheat].index ) )
+        if ( docheat != INVALID_PLA_REF )
         {
-            Uint32 xpgain;
-            Object * pchr = _currentModule->getObjectHandler().get( PlaStack.lst[docheat].index );
-            const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-            //Give 10% of XP needed for next level
-            xpgain = 0.1f * ( profile->getXPNeededForLevel( std::min( pchr->experiencelevel+1, MAXLEVEL) ) - profile->getXPNeededForLevel(pchr->experiencelevel));
-            pchr->giveExperience(xpgain, XP_DIRECT, true);
-            stat_check_delay = 1;
+            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
+            if(player)
+            {
+                //Give 10% of XP needed for next level
+                uint32_t xpgain = 0.1f * ( player->getProfile()->getXPNeededForLevel( std::min( player->experiencelevel+1, MAXLEVEL) ) - player->getProfile()->getXPNeededForLevel(player->experiencelevel));
+                player->giveExperience(xpgain, XP_DIRECT, true);
+                stat_check_delay = 1;
+            }
         }
     }
 
@@ -1599,15 +1521,18 @@ void check_stats()
         else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
         else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
-        const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
-
         //Apply the cheat if valid
-        if (player)
-        {
-            //Heal 1 life
-            player->heal(player, 256, true);
-            stat_check_delay = 1;
+        if(docheat != INVALID_PLA_REF) {
+            const std::shared_ptr<Object> &player = _currentModule->getObjectHandler()[PlaStack.lst[docheat].index];
+            if (player)
+            {
+                //Heal 1 life
+                player->heal(player, 256, true);
+                stat_check_delay = 1;
+            }
+
         }
+
     }
 
     // Display armor stats?
@@ -1673,61 +1598,56 @@ void show_stat( int statindex )
     int     level;
     char    gender[8] = EMPTY_CSTR;
 
-    if ( statindex < g_statusList.count )
+    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
+
+    if (pchr)
     {
-        character = g_statusList.lst[statindex].who;
+        const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
 
-        if ( _currentModule->getObjectHandler().exists( character ) )
+        // Name
+        DisplayMsg_printf( "=%s=", pchr->getName(true, false, true).c_str());
+
+        // Level and gender and class
+        gender[0] = 0;
+        if ( pchr->isAlive() )
         {
-            Object * pchr = _currentModule->getObjectHandler().get( character );
+            int itmp;
+            const char * gender_str;
 
-            const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-            // Name
-            DisplayMsg_printf( "=%s=", pchr->getName(true, false, true).c_str());
-
-            // Level and gender and class
-            gender[0] = 0;
-            if ( pchr->alive )
+            gender_str = "";
+            switch ( pchr->gender )
             {
-                int itmp;
-                const char * gender_str;
+                case GENDER_MALE: gender_str = "male "; break;
+                case GENDER_FEMALE: gender_str = "female "; break;
+            }
 
-                gender_str = "";
-                switch ( pchr->gender )
-                {
-                    case GENDER_MALE: gender_str = "male "; break;
-                    case GENDER_FEMALE: gender_str = "female "; break;
-                }
-
-                level = 1 + pchr->experiencelevel;
-                itmp = level % 10;
-                if ( 1 == itmp )
-                {
-                    DisplayMsg_printf( "~%dst level %s%s", level, gender_str, profile->getClassName().c_str() );
-                }
-                else if ( 2 == itmp )
-                {
-                    DisplayMsg_printf( "~%dnd level %s%s", level, gender_str, profile->getClassName().c_str() );
-                }
-                else if ( 3 == itmp )
-                {
-                    DisplayMsg_printf( "~%drd level %s%s", level, gender_str, profile->getClassName().c_str() );
-                }
-                else
-                {
-                    DisplayMsg_printf( "~%dth level %s%s", level, gender_str, profile->getClassName().c_str() );
-                }
+            level = 1 + pchr->experiencelevel;
+            itmp = level % 10;
+            if ( 1 == itmp )
+            {
+                DisplayMsg_printf( "~%dst level %s%s", level, gender_str, profile->getClassName().c_str() );
+            }
+            else if ( 2 == itmp )
+            {
+                DisplayMsg_printf( "~%dnd level %s%s", level, gender_str, profile->getClassName().c_str() );
+            }
+            else if ( 3 == itmp )
+            {
+                DisplayMsg_printf( "~%drd level %s%s", level, gender_str, profile->getClassName().c_str() );
             }
             else
             {
-                DisplayMsg_printf( "~Dead %s", profile->getClassName().c_str() );
+                DisplayMsg_printf( "~%dth level %s%s", level, gender_str, profile->getClassName().c_str() );
             }
-
-            // Stats
-            DisplayMsg_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", SFP8_TO_SINT( pchr->strength ), SFP8_TO_SINT( pchr->wisdom ), 255 - pchr->defense );
-            DisplayMsg_printf( "~INT:~%2d~DEX:~%2d~EXP:~%u", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
         }
+        else
+        {
+            DisplayMsg_printf( "~Dead %s", profile->getClassName().c_str() );
+        }
+
+        // Stats
+        DisplayMsg_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", SFP8_TO_SINT( pchr->strength ), SFP8_TO_SINT( pchr->wisdom ), 255 - pchr->defense );
+        DisplayMsg_printf( "~INT:~%2d~DEX:~%2d~EXP:~%u", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
     }
 }
 
@@ -1742,17 +1662,11 @@ void show_armor( int statindex )
 
     SKIN_T  skinlevel;
 
-    Object * pchr;
+    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
 
-    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
-
-    ichr = g_statusList.lst[statindex].who;
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return;
-
-    pchr = _currentModule->getObjectHandler().get( ichr );
     skinlevel = pchr->skin;
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
+    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
     const SkinInfo &skinInfo = profile->getSkinInfo(skinlevel);
 
     // Armor Name
@@ -1834,17 +1748,16 @@ void show_full_status( int statindex )
 
     CHR_REF character;
     int manaregen, liferegen;
-    Object * pchr;
 
-    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
-    character = g_statusList.lst[statindex].who;
+    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
+    if(!pchr) {
+        return;
+    }
 
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
     SKIN_T skinlevel = pchr->skin;
 
     // clean up the enchant list
-    cleanup_character_enchants( pchr );
+    cleanup_character_enchants( pchr.get() );
 
     // Enchanted?
     DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
@@ -1862,7 +1775,7 @@ void show_full_status( int statindex )
                        pchr->damage_resistance[DAMAGE_ICE ]*100,
                        pchr->damage_resistance[DAMAGE_ZAP ]*100 );
 
-    get_chr_regeneration( pchr, &liferegen, &manaregen );
+    get_chr_regeneration( pchr.get(), &liferegen, &manaregen );
 
     DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT( manaregen ), FP8_TO_FLOAT( liferegen ) );
 }
@@ -1875,17 +1788,14 @@ void show_magic_status( int statindex )
 
     CHR_REF character;
     const char * missile_str;
-    Object * pchr;
 
-    if ( statindex < 0 || ( size_t )statindex >= g_statusList.count ) return;
-
-    character = g_statusList.lst[statindex].who;
-
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return;
-    pchr = _currentModule->getObjectHandler().get( character );
+    const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
+    if(!pchr) {
+        return;
+    }
 
     // clean up the enchant list
-    cleanup_character_enchants( pchr );
+    cleanup_character_enchants( pchr.get() );
 
     // Enchanted?
     DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
@@ -1926,7 +1836,7 @@ void tilt_characters_to_terrain()
 
         if ( object->stickybutt )
         {
-            twist = ego_mesh_get_twist( PMesh, object->getTile() );
+            twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
             object->ori.map_twist_facing_x = map_twist_facing_x[twist];
         }
@@ -2266,9 +2176,6 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 player_added = add_player( new_object, ( PLA_REF )PlaStack.count, NULL );
             }
         }
-
-        // Turn on the stat display
-        statlist_add( new_object );
     }
 
     return true;
@@ -2420,9 +2327,6 @@ void activate_spawn_file_vfs()
 
     DisplayMsg_clear();
 
-    // Make sure local players are displayed first
-    statlist_sort();
-
     // Fix tilting trees problem
     tilt_characters_to_terrain();
 }
@@ -2539,7 +2443,7 @@ bool game_load_module_data( const char *smallname )
     game_load_global_profiles();            // load the global objects
     game_load_module_profiles( modname );   // load the objects from the module's directory
 
-    ego_mesh_t * pmesh_rv = ego_mesh_load( modname, PMesh );
+    ego_mesh_t * pmesh_rv = ego_mesh_load( modname, _currentModule->getMeshPointer() );
     if ( nullptr == pmesh_rv )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
@@ -2768,17 +2672,10 @@ void game_release_module_data()
     gfx_system_release_all_graphics();
     ProfileSystem::get().reset();
 
-    // delete the mesh data
-    ego_mesh_t *ptmp = PMesh;
-    ego_mesh_destroy( &ptmp );
-
     // deallocate any dynamically allocated collision memory
     mesh_BSP_system_end();
     obj_BSP_system_end();
-    CollisionSystem::get()->reset();
-    
-    // restore the original statically allocated ego_mesh_t header
-    PMesh = _mesh + 0;
+    CollisionSystem::get()->reset();    
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2929,40 +2826,6 @@ void reset_all_object_lists()
 {
     ParticleHandler::get().reinit();
     EnchantHandler::get().reinit();
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-ego_mesh_t * set_PMesh( ego_mesh_t * pmpd )
-{
-    ego_mesh_t * pmpd_old = PMesh;
-
-    PMesh = pmpd;
-
-    return pmpd_old;
-}
-
-//--------------------------------------------------------------------------------------------
-float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk )
-{
-    /// @author ZZ
-    /// @details This function returns the height of a point within a mesh fan, precise
-    ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
-    ///    level of the water.
-
-    float zdone = ego_mesh_t::get_level(pmesh, PointWorld(x, y));
-
-    if ( waterwalk && water._surface_level > zdone && water._is_water )
-    {
-        TileIndex tile = ego_mesh_t::get_grid( pmesh, PointWorld(x, y));
-
-        if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
-        {
-            zdone = water._surface_level;
-        }
-    }
-
-    return zdone;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3945,15 +3808,15 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     return can_grab;
 }
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk )
 {
-    float zdone = ego_mesh_get_max_vertex_1( pmesh, point, pbump->_mins[OCT_X], pbump->_mins[OCT_Y], pbump->_maxs[OCT_X], pbump->_maxs[OCT_Y] );
+    float zdone = ego_mesh_get_max_vertex_1( mesh, point, pbump->_mins[OCT_X], pbump->_mins[OCT_Y], pbump->_maxs[OCT_X], pbump->_maxs[OCT_Y] );
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
-        TileIndex tile = ego_mesh_t::get_tile_int( pmesh, point );
+        TileIndex tile = ego_mesh_t::get_tile_int( mesh, point );
 
-        if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
+        if ( 0 != ego_mesh_t::test_fx( mesh, tile, MAPFX_WATER ) )
         {
             zdone = water._surface_level;
         }
@@ -3962,7 +3825,7 @@ float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_
     return zdone;
 }
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
+float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
 {
     /// @author BB
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
@@ -3981,17 +3844,17 @@ float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
         pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = get_mesh_level( pmesh, pos_x[0], pos_y[0], pchr->waterwalk );
+    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->waterwalk );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = get_mesh_level( pmesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
+        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
         zmax = std::max( zmax, fval );
     }
 
     return zmax;
 }
 //--------------------------------------------------------------------------------------------
-float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
+float get_chr_level( ego_mesh_t * mesh, Object * pchr )
 {
     float zmax;
     int ix, ixmax, ixmin;
@@ -4003,13 +3866,13 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
 
     oct_bb_t bump;
 
-    if ( NULL == pmesh || !ACTIVE_PCHR( pchr ) ) return 0;
+    if ( NULL == mesh || !ACTIVE_PCHR( pchr ) ) return 0;
 
     // certain scenery items like doors and such just need to be able to
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == pchr->bump_stt.size )
     {
-        return get_mesh_level( pmesh, pchr->getPosX(), pchr->getPosY(), pchr->waterwalk );
+        return get_mesh_level( mesh, pchr->getPosX(), pchr->getPosY(), pchr->waterwalk );
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
@@ -4017,16 +3880,16 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
     oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bump);
 
     // determine the size of this object in tiles
-    ixmin = bump._mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
-    ixmax = bump._maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
+    ixmin = bump._mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, mesh->info.tiles_x - 1 );
+    ixmax = bump._maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, mesh->info.tiles_x - 1 );
 
-    iymin = bump._mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
-    iymax = bump._maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
+    iymin = bump._mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, mesh->info.tiles_y - 1 );
+    iymax = bump._maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, mesh->info.tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
     {
-        return get_mesh_max_vertex_2( pmesh, pchr );
+        return get_mesh_max_vertex_2( mesh, pchr );
     }
 
     // otherwise, make up a list of tiles that the object might overlap
@@ -4045,7 +3908,7 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump._mins[OCT_YX] || ftmp > bump._maxs[OCT_YX] ) continue;
 
-            TileIndex itile = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
+            TileIndex itile = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
             if (TileIndex::Invalid == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
@@ -4059,7 +3922,7 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
     // the current system would not work for that shape
     if ( 0 == grid_vert_count )
     {
-        return get_mesh_max_vertex_2( pmesh, pchr );
+        return get_mesh_max_vertex_2( mesh, pchr );
     }
     else
     {
@@ -4067,10 +3930,10 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( pmesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->waterwalk );
+        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->waterwalk );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( pmesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->waterwalk );
+            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->waterwalk );
             zmax = std::max( zmax, fval );
         }
     }
@@ -4564,7 +4427,7 @@ void water_instance_t::set_douse_level(float level)
         _layers[i]._z += dlevel;
     }
 
-    ego_mesh_update_water_level(PMesh);
+    ego_mesh_update_water_level(_currentModule->getMeshPointer());
 }
 
 float water_instance_t::get_level() const
@@ -4580,4 +4443,34 @@ float water_instance_t::get_level() const
     }
 
     return level;
+}
+
+//--------------------------------------------------------------------------------------------
+
+float water_instance_layer_get_level(water_instance_layer_t& self)
+{
+    return self._z + self._amp;
+}
+
+//--------------------------------------------------------------------------------------------
+float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk )
+{
+    /// @author ZZ
+    /// @details This function returns the height of a point within a mesh fan, precise
+    ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
+    ///    level of the water.
+
+    float zdone = mesh->getElevation(PointWorld(x, y));
+
+    if ( waterwalk && water._surface_level > zdone && water._is_water )
+    {
+        TileIndex tile = ego_mesh_t::get_grid( mesh, PointWorld(x, y));
+
+        if ( 0 != ego_mesh_t::test_fx( mesh, tile, MAPFX_WATER ) )
+        {
+            zdone = water._surface_level;
+        }
+    }
+
+    return zdone;
 }

@@ -1044,7 +1044,7 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
     // interpolate the lighting for the origin of the object
 
 	lighting_cache_t global_light;
-    grid_lighting_interpolate(PMesh, &global_light, fvec2_t(pchr->getPosX(), pchr->getPosY()));
+    grid_lighting_interpolate(_currentModule->getMeshPointer(), &global_light, fvec2_t(pchr->getPosX(), pchr->getPosY()));
 
     // rotate the lighting data to body_centered coordinates
 	lighting_cache_t loc_light;
@@ -1066,15 +1066,15 @@ void chr_instance_t::update_lighting_base(chr_instance_t& self, Object *pchr, bo
         if (pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f)
         {
             // this is the "ambient only" index, but it really means to sum up all the light
-            lite  = lighting_evaluate_cache(&loc_light, fvec3_t(+1.0f,+1.0f,+1.0f), hgt, PMesh->tmem.bbox, nullptr, nullptr);
-            lite += lighting_evaluate_cache(&loc_light, fvec3_t(-1.0f,-1.0f,-1.0f), hgt, PMesh->tmem.bbox, nullptr, nullptr);
+            lite  = lighting_evaluate_cache(&loc_light, fvec3_t(+1.0f,+1.0f,+1.0f), hgt, _currentModule->getMeshPointer()->tmem.bbox, nullptr, nullptr);
+            lite += lighting_evaluate_cache(&loc_light, fvec3_t(-1.0f,-1.0f,-1.0f), hgt, _currentModule->getMeshPointer()->tmem.bbox, nullptr, nullptr);
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite  = lighting_evaluate_cache( &loc_light, fvec3_t(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, PMesh->tmem.bbox, NULL, NULL );
+            lite  = lighting_evaluate_cache( &loc_light, fvec3_t(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, _currentModule->getMeshPointer()->tmem.bbox, NULL, NULL );
         }
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;

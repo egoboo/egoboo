@@ -31,13 +31,13 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool animate_tile( ego_mesh_t * pmesh, Uint32 itile );
+static bool animate_tile( ego_mesh_t * mesh, Uint32 itile );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void animate_all_tiles( ego_mesh_t * pmesh )
+void animate_all_tiles( ego_mesh_t * mesh )
 {
-    if (!pmesh) return;
+    if (!mesh) return;
 
     bool small_tile_update = (animtile[0].frame_add_old != animtile[0].frame_add);
     bool big_tile_update = (animtile[1].frame_add_old != animtile[1].frame_add);
@@ -45,22 +45,22 @@ void animate_all_tiles( ego_mesh_t * pmesh )
     // If there are no updates, do nothing.
     if (!small_tile_update && !big_tile_update) return;
 
-    size_t tile_count = pmesh->tmem.tile_count;
-    size_t anim_count = pmesh->fxlists.anm.idx;
+    size_t tile_count = mesh->tmem.tile_count;
+    size_t anim_count = mesh->fxlists.anm.idx;
 
     // Scan through all the animated tiles.
     for (size_t i = 0; i < anim_count; ++i)
     {
         // Get the offset
-        Uint32 itile = pmesh->fxlists.anm.lst[i];
+        Uint32 itile = mesh->fxlists.anm.lst[i];
         if (itile >= tile_count) continue;
 
-        animate_tile(pmesh, itile);
+        animate_tile(mesh, itile);
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool animate_tile( ego_mesh_t * pmesh, Uint32 itile )
+bool animate_tile( ego_mesh_t * mesh, Uint32 itile )
 {
     /// @author BB
     /// @details animate a given tile
@@ -71,13 +71,13 @@ bool animate_tile( ego_mesh_t * pmesh, Uint32 itile )
     ego_tile_info_t * ptile;
 
     // do nothing if the tile is not animated
-    if ( 0 == ego_mesh_t::test_fx( pmesh, itile, MAPFX_ANIM ) )
+    if ( 0 == ego_mesh_t::test_fx( mesh, itile, MAPFX_ANIM ) )
     {
         return true;
     }
 
     // grab a pointer to the tile
-    ptile = ego_mesh_t::get_ptile( pmesh, itile );
+    ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         return false;
@@ -106,11 +106,11 @@ bool animate_tile( ego_mesh_t * pmesh, Uint32 itile )
     image    = frame_add + basetile;
 
     // actually update the animated texture info
-    return ego_mesh_set_texture( pmesh, itile, image );
+    return ego_mesh_set_texture( mesh, itile, image );
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
+gfx_rv render_fan( const ego_mesh_t * mesh, const Uint32 itile )
 {
     /// @author ZZ
     /// @details This function draws a mesh itile
@@ -124,7 +124,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     const ego_tile_info_t * ptile;
 
     // grab a pointer to the tile
-    ptile = ego_mesh_t::get_ptile( pmesh, itile );
+    ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
@@ -132,12 +132,12 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     }
 
     // get some info from the mesh
-    if ( NULL == pmesh )
+    if ( NULL == mesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
         return gfx_error;
     }
-    ptmem  = &( pmesh->tmem );
+    ptmem  = &( mesh->tmem );
 
     // do not render the itile if the image image is invalid
     if (TILE_IS_FANOFF(ptile))  return gfx_success;
@@ -209,7 +209,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv  render_hmap_fan( const ego_mesh_t * pmesh, const Uint32 itile )
+gfx_rv  render_hmap_fan( const ego_mesh_t * mesh, const Uint32 itile )
 {
     /// @author ZZ
     /// @details This function draws a mesh itile
@@ -225,22 +225,22 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     const ego_tile_info_t * ptile;
     const ego_grid_info_t * pgrid;
 
-    if ( NULL == pmesh )
+    if ( NULL == mesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
         return gfx_error;
     }
 
-    ptmem  = &( pmesh->tmem );
+    ptmem  = &( mesh->tmem );
 
-    ptile = ego_mesh_t::get_ptile( pmesh, itile );
+    ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
         return gfx_error;
     }
 
-    pgrid = ego_mesh_t::get_pgrid( pmesh, itile );
+    pgrid = mesh->get_pgrid(itile);
     if ( NULL == pgrid )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
@@ -251,8 +251,8 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
 
-    ix = itile % pmesh->info.tiles_x;
-    iy = itile / pmesh->info.tiles_x;
+    ix = itile % mesh->info.tiles_x;
+    iy = itile / mesh->info.tiles_x;
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
@@ -304,7 +304,7 @@ gfx_rv  render_hmap_fan( const ego_mesh_t * pmesh, const Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uint8 layer )
+gfx_rv render_water_fan( const ego_mesh_t * mesh, const Uint32 itile, const Uint8 layer )
 {
     /// @author ZZ
     /// @details This function draws a water itile
@@ -325,15 +325,15 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
     oglx_texture_t        * ptex  = NULL;
     tile_definition_t     * pdef  = NULL;
 
-    if ( NULL == pmesh )
+    if ( NULL == mesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
         return gfx_error;
     }
 
-    pinfo = &( pmesh->info );
+    pinfo = &( mesh->info );
 
-    ptile = ego_mesh_t::get_ptile( pmesh, itile );
+    ptile = mesh->get_ptile(itile);
     if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
@@ -430,9 +430,9 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
             v0->t = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            TileIndex jtile = ego_mesh_t::get_tile_int(pmesh, PointGrid(jx, jy));
+            TileIndex jtile = ego_mesh_t::get_tile_int(mesh, PointGrid(jx, jy));
             float dlight;
-            if ( grid_light_one_corner( pmesh, jtile, v0->z, nrm, &dlight ) )
+            if ( grid_light_one_corner(mesh, jtile, v0->z, nrm, &dlight) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
                 v0->r = dlight * INV_FF + alight;
@@ -524,13 +524,13 @@ void animate_tiles()
         patile = animtile + cnt;
 
         // skip it if there were no updates
-        if ( patile->frame_update_old == true_frame ) continue;
+        if ( patile->frame_update_old == update_wld ) continue;
 
         // save the old frame_add when we update to detect changes
         patile->frame_add_old = patile->frame_add;
 
         // cycle through all frames since the last time
-        for ( Uint32 tnc = patile->frame_update_old + 1; tnc <= true_frame; tnc++ )
+        for ( Uint32 tnc = patile->frame_update_old + 1; tnc <= update_wld; tnc++ )
         {
             if ( 0 == ( tnc & patile->update_and ) )
             {
@@ -539,6 +539,6 @@ void animate_tiles()
         }
 
         // save the frame update
-        patile->frame_update_old = true_frame;
+        patile->frame_update_old = update_wld;
     }
 }
