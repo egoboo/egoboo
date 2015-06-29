@@ -121,6 +121,11 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
         }
 
         _isDragging = !_isDragging;
+
+        if(_isDragging) {
+            return notifyMouseMoved(x, y);
+        }
+
         return true;
     }
     else if(button == SDL_BUTTON_RIGHT) {
@@ -134,4 +139,22 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
 void InternalWindow::draw()
 {
     drawAll();
+}
+
+void InternalWindow::setPosition(const int x, const int y)
+{
+    //Calculate offsets in position change
+    int translateX = x - getX();
+    int translateY = y - getY();
+
+    //Shift window position
+    GUIComponent::setPosition(x, y);
+
+    //Shift all child components as well
+    _componentListMutex.lock();
+    for(const std::shared_ptr<GUIComponent> &component : _componentList)
+    {
+        component->setPosition(component->getX() + translateX, component->getY() + translateY);
+    }
+    _componentListMutex.unlock();
 }

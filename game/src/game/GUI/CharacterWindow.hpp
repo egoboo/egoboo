@@ -17,32 +17,20 @@
 //*
 //********************************************************************************************
 
-/// @file game/GUI/InternalWindow.hpp
-/// @details InternalWindow
+/// @file game/GUI/CharacterWindow.hpp
+/// @details CharacterWindow
 /// @author Johan Jansen
 #pragma once
 
-#include "game/GUI/GUIComponent.hpp"
-#include "game/GUI/ComponentContainer.hpp"
+#include "game/GUI/InternalWindow.hpp"
 
-class InternalWindow : public GUIComponent, public ComponentContainer
+class Object;
+
+class CharacterWindow : public InternalWindow
 {
     public:
-        InternalWindow(const std::string &title);
-
-        bool notifyMouseMoved(const int x, const int y) override;
-        bool notifyMouseClicked(const int button, const int x, const int y) override;
-
-        void draw() override;
-
-        virtual void setPosition(const int x, const int y) override;
-
-    protected:
-        void drawContainer() override;
+        CharacterWindow(const std::shared_ptr<Object> &object);
 
     private:
-        bool _mouseOver;
-        bool _mouseOverCloseButton;
-        bool _isDragging;
-        std::string _title;
+        std::shared_ptr<Object> _character;
 };

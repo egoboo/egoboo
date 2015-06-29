@@ -28,6 +28,7 @@
 #include "game/GUI/InternalDebugWindow.hpp"
 #include "game/GUI/MiniMap.hpp"
 #include "game/GUI/CharacterStatus.hpp"
+#include "game/GUI/CharacterWindow.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
@@ -68,6 +69,9 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
         // Only valid players
         if (!PlaStack.lst[iplayer].valid) continue;
         addStatusMonitor(_currentModule->getObjectHandler()[PlaStack.lst[iplayer].index]);
+
+        std::shared_ptr<CharacterWindow> chrWindow = std::make_shared<CharacterWindow>(_currentModule->getObjectHandler()[PlaStack.lst[iplayer].index]);
+        addComponent(chrWindow);
     }
 }
 
@@ -252,7 +256,7 @@ std::shared_ptr<Object> PlayingState::getStatusCharacter(size_t index)
     _statusList.erase(std::remove_if(_statusList.begin(), _statusList.end(), condition), _statusList.end());
 
 
-    if(index > _statusList.size()) {
+    if(index >= _statusList.size()) {
         return nullptr;
     }
 

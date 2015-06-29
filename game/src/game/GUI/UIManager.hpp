@@ -25,6 +25,7 @@
 
 #include "game/egoboo_typedef.h"
 
+//Forward declarations
 namespace Ego { class Font; }
 
 class UIManager : public Id::NonCopyable
@@ -57,6 +58,12 @@ public:
      *  The default debug Font for the GUI system
      */
     std::shared_ptr<Ego::Font> getDebugFont() const;
+
+    /**
+    * @return
+    *   Font used in the PlayingState
+    **/
+    std::shared_ptr<Ego::Font> getGameFont() const;
 
     /**
      * @return
@@ -92,5 +99,6 @@ private:
     std::shared_ptr<Ego::Font> _defaultFont;
     std::shared_ptr<Ego::Font> _floatingTextFont;
     std::shared_ptr<Ego::Font> _debugFont;
+    std::shared_ptr<Ego::Font> _gameFont;
     int _renderSemaphore;
 };
