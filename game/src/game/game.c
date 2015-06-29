@@ -45,15 +45,10 @@
 #include "game/Graphics/CameraSystem.hpp"
 #include "game/Module/Module.hpp"
 #include "game/char.h"
-#include "game/mesh.h"
 #include "game/physics.h"
 #include "game/Entities/ObjectHandler.hpp"
 #include "game/Entities/EnchantHandler.hpp"
 #include "game/Entities/ParticleHandler.hpp"
-
-//--------------------------------------------------------------------------------------------
-
-static ego_mesh_t         _mesh[2];
 
 //--------------------------------------------------------------------------------------------
 
@@ -62,8 +57,6 @@ bool  overrideslots      = false;
 // End text
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
-
-ego_mesh_t         * PMesh   = _mesh + 0;
 
 pit_info_t g_pits;
 
@@ -2680,16 +2673,12 @@ void game_release_module_data()
     ProfileSystem::get().reset();
 
     // delete the mesh data
-    ego_mesh_t *ptmp = PMesh;
-    ego_mesh_destroy( &ptmp );
+    ego_mesh_t::dtor(PMesh);
 
     // deallocate any dynamically allocated collision memory
     mesh_BSP_system_end();
     obj_BSP_system_end();
-    CollisionSystem::get()->reset();
-    
-    // restore the original statically allocated ego_mesh_t header
-    PMesh = _mesh + 0;
+    CollisionSystem::get()->reset();    
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2840,17 +2829,6 @@ void reset_all_object_lists()
 {
     ParticleHandler::get().reinit();
     EnchantHandler::get().reinit();
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-ego_mesh_t * set_PMesh( ego_mesh_t * pmpd )
-{
-    ego_mesh_t * pmpd_old = PMesh;
-
-    PMesh = pmpd;
-
-    return pmpd_old;
 }
 
 //--------------------------------------------------------------------------------------------

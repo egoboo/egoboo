@@ -701,8 +701,7 @@ bool Object::isAttacking() const
 bool Object::teleport(const fvec3_t& position, const FACING_T facing_z)
 {
     //Cannot teleport outside the level
-    if ( position[kX] < 0.0f || position[kX] > PMesh->gmem.edge_x ) return false;
-    if ( position[kY] < 0.0f || position[kY] > PMesh->gmem.edge_y ) return false;
+    if(!_currentModule->isInside(position[kX], position[kY])) return false;
 
     fvec3_t newPosition = position;
 

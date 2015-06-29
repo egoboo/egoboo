@@ -375,11 +375,7 @@ struct status_list_t
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// various global pointers
-extern ego_mesh_t *PMesh;
-
-
-// special terrain and wawalite-related data structs
+// special terrain and wawalite-related data structs (TODO: move into Module class)
 extern animtile_instance_t animtile[2];
 extern damagetile_instance_t damagetile;
 extern weather_instance_t weather;
@@ -450,8 +446,6 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing, const PIP_REF ipip, cons
 void  free_all_objects();
 
 /// Data
-ego_mesh_t *set_PMesh( ego_mesh_t * pmpd );
-
 float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
 
 int    game_do_menu( struct menu_process_t * mproc );

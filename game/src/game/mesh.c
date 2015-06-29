@@ -377,18 +377,6 @@ ego_mesh_t * ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y )
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_destroy( ego_mesh_t ** ppmesh )
-{
-    if ( NULL == ppmesh || NULL == *ppmesh ) return false;
-
-    ego_mesh_t::dtor( *ppmesh );
-
-    *ppmesh = NULL;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 bool ego_mesh_t::remove_ambient( ego_mesh_t * pmesh )
 {
     /// @author BB

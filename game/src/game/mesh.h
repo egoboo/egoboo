@@ -663,7 +663,6 @@ extern Uint8   mesh_tx_size;           ///< what size texture?
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ego_mesh_t *ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
-bool ego_mesh_destroy( ego_mesh_t ** pmesh );
 
 /// loading/saving
 ego_mesh_t *ego_mesh_load( const char *modname, ego_mesh_t * pmesh );
