@@ -248,8 +248,6 @@ bool GameEngine::initialize()
     // >>> This must be done as the crappy old systems do not "pull" their configuration.
     //      More recent systems like video or audio system pull their configuraiton data
     //      by the time they are initialized.
-    // Status display.
-    g_statusList.on = egoboo_config_t::get().hud_displayStatusBars.getValue();
 
     // Message display.
     DisplayMsg_count = Ego::Math::constrain(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(),
@@ -331,8 +329,6 @@ bool GameEngine::initialize()
 
     // Initialize the model system.
     model_system_begin();
-    ego_mesh_t::ctor(PMesh);
-
 
     renderPreloadText("Loading modules...");
     ProfileSystem::get().loadModuleProfiles();

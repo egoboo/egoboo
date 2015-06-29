@@ -82,4 +82,7 @@ void CharacterStatus::draw()
     {
         yOffset = draw_one_bar(pchr->mana_color, getX(), yOffset, mana_pips, mana_pips_max);
     }
+
+    //After rendering we know how high this GUI component actually is
+    setHeight(yOffset - getY());
 }

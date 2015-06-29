@@ -63,7 +63,7 @@ CameraSystem::CameraSystem(const size_t numberOfCameras) :
     autoSetTargets();
 
     // make sure the cameras are centered on something or there will be a graphics error
-    resetAllTargets(PMesh);
+    resetAllTargets(_currentModule->getMeshPointer());
 }
 
 CameraSystem::~CameraSystem()
@@ -78,7 +78,7 @@ bool CameraSystem::isInitialized()
 	return _initialized;
 }
 
-void CameraSystem::resetAll(const ego_mesh_t * pmesh)
+void CameraSystem::resetAll(const ego_mesh_t * mesh)
 {
 	if(!isInitialized()) {
 		return;
@@ -87,11 +87,11 @@ void CameraSystem::resetAll(const ego_mesh_t * pmesh)
     // reset each camera
     for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
-    	camera->reset(pmesh);
+    	camera->reset(mesh);
     }
 }
 
-void CameraSystem::updateAll( const ego_mesh_t * pmesh )
+void CameraSystem::updateAll( const ego_mesh_t * mesh )
 {
 	if(!isInitialized()) {
 		return;
@@ -100,11 +100,11 @@ void CameraSystem::updateAll( const ego_mesh_t * pmesh )
     // update each camera
     for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
-    	camera->update(pmesh);
+    	camera->update(mesh);
     }
 }
 
-void CameraSystem::resetAllTargets( const ego_mesh_t * pmesh )
+void CameraSystem::resetAllTargets( const ego_mesh_t * mesh )
 {
 	if(!isInitialized()) {
 		return;
@@ -113,7 +113,7 @@ void CameraSystem::resetAllTargets( const ego_mesh_t * pmesh )
     // update each camera
     for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
-    	camera->resetTarget(pmesh);
+    	camera->resetTarget(mesh);
     }
 }
 
@@ -334,36 +334,6 @@ void CameraSystem::autoSetTargets()
         // store the target
         _cameraList[cameraIndex]->addTrackTarget(ppla->index);
         cameraIndex++;
-    }
-
-    // still not enough things to track for the number of cameras.
-    // should not happen unless I am messing with the camera code...
-    if(cameraIndex < _cameraList.size()) 
-    {
-        for ( size_t cnt = 0; cnt < g_statusList.count && cameraIndex < _cameraList.size(); cnt++ )
-        {
-            // grab someone on the status list
-            CHR_REF blah = g_statusList.lst[cnt].who;
-
-            // get a pointer, if allowed
-            if ( !VALID_CHR_RANGE( blah ) ) continue;
-            Object *pchr = _currentModule->getObjectHandler().get( blah );
-
-            // ignore local players
-            if ( pchr->islocalplayer ) continue;
-
-            // store the target
-            _cameraList[cameraIndex]->addTrackTarget(blah);
-
-            // advance the camera to the next camera
-       		cameraIndex++;
-        }
-
-        // turn off all cameras with no targets
-        while(_cameraList.size() > cameraIndex)
-        {
-        	_cameraList.pop_back();
-        }
     }
 }
 

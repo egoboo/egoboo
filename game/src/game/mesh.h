@@ -535,47 +535,58 @@ struct ego_mesh_info_t
 //--------------------------------------------------------------------------------------------
 
 /// Egoboo's representation of the .mpd mesh file
-struct ego_mesh_t
+class ego_mesh_t
 {
+public:
+    ego_mesh_t();
+    ego_mesh_t(int tiles_x, int tiles_y);
+
+    ~ego_mesh_t();
+
     ego_mesh_info_t info;
     tile_mem_t tmem;
     grid_mem_t gmem;
     mpdfx_lists_t fxlists;
-    static ego_mesh_t *ctor(ego_mesh_t *self);
-    static ego_mesh_t *dtor(ego_mesh_t *self);
-    /// @todo Needs to be removed or re-coded as it invokes ctor and dtor which will become
-    ///       proper constructors and destructors.
-    static ego_mesh_t *renew(ego_mesh_t *self);
 
     static fvec3_t get_diff(const ego_mesh_t *self, const fvec3_t& pos, float radius, float center_pressure, const BIT_FIELD bits);
     static float get_pressure(const ego_mesh_t *self, const fvec3_t& pos, float radius, const BIT_FIELD bits);
-    static ego_mesh_t *ctor_1(ego_mesh_t *self, int tiles_x, int tiles_y);
     static bool remove_ambient(ego_mesh_t *self);
     static bool recalc_twist(ego_mesh_t *self);
     static bool make_texture(ego_mesh_t *self);
     static ego_mesh_t *finalize(ego_mesh_t *self);
     static bool test_one_corner(ego_mesh_t *self, GLXvector3f pos, float * pdelta);
-    static bool light_one_corner(const ego_mesh_t *self, ego_tile_info_t *ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
-    /// @brief Get the precise height of the mesh at a given point (world coordinates).
-    /// @param point the point (world coordinates)
-    /// @return the precise height of the mesh at the given point if there is a height at that point,
-    ///         @a 0 otherwise
-    static float get_level(const ego_mesh_t *self, const PointWorld& point);
+    
+    bool light_one_corner(ego_tile_info_t *ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight);
+
+    /**
+    * @brief 
+    *   Get the precise height of the mesh at a given point (world coordinates).
+    * @param point 
+    *   the point (world coordinates)
+    * @return 
+    *   the precise height of the mesh at the given point if there is a height at that point,
+    *   0 otherwise
+    **/
+    float getElevation(const PointWorld& point) const;
+
     /// @brief Get the block index of the block at a given point (world coordinates).
     /// @param point the point (world coordinates)
     /// @return the block index of the block at the given point if there is a block at that point,
     ///         #INVALID_BLOCK otherwise
     static BlockIndex get_block(const ego_mesh_t *self, const PointWorld& point);
+
     /// @brief Get the grid index of the grid at a given point (world coordinates).
     /// @param point the point (world coordinates)
     /// @return the grid index of the grid at the given point if there is a grid at that point,
     ///         #INVALID_TILE otherwise
     static TileIndex get_grid(const ego_mesh_t *self, const PointWorld& point);
+
     /// @brief Get the block index of the block at a given point (block coordinates).
     /// @param point the point (block coordinates)
     /// @return the block index of the block at the given point if there is a block at that point,
     ///         #INVALID_BLOCK otherwise
     static BlockIndex get_block_int(const ego_mesh_t *self, const PointBlock& point);
+
     /// @brief Get the tile index of the tile at a given point (grid coordinates).
     /// @param point the point (grid coordinates)
     /// @return the tile index of the tile at the given point if there is a tile at that point,
@@ -595,7 +606,8 @@ struct ego_mesh_t
      *  a pointer to the tile information of the tile at the index in this mesh
      *  if the tiles are allocated and the index is within bounds, @a nullptr otherwise.
      */
-    static ego_tile_info_t *get_ptile(const ego_mesh_t *self, const TileIndex& index);
+    ego_tile_info_t *get_ptile(const TileIndex& index) const;
+
     /**
      * @brief
      *  Get the grid information for at a tile index in a mesh.
@@ -607,7 +619,7 @@ struct ego_mesh_t
      *  a pointer to the grid information of the tile at the index in this mesh
      *  if the grids are allocated and the index is within bounds, @a nullptr otherwise.
      */
-    static ego_grid_info_t *get_pgrid(const ego_mesh_t *self, const TileIndex& index);
+    ego_grid_info_t* get_pgrid(const TileIndex& index) const;
 
 
     static Uint32 test_fx(const ego_mesh_t *self, const TileIndex& index, const BIT_FIELD flags);
@@ -662,11 +674,8 @@ extern Uint8   mesh_tx_size;           ///< what size texture?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mesh_t *ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
-bool ego_mesh_destroy( ego_mesh_t ** pmesh );
-
 /// loading/saving
-ego_mesh_t *ego_mesh_load( const char *modname, ego_mesh_t * pmesh );
+ego_mesh_t *ego_mesh_load( const char *modname, ego_mesh_t * mesh);
 
 void   ego_mesh_make_twist();
 
@@ -693,6 +702,8 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
 
 
 Uint32 ego_mesh_has_some_mpdfx(const BIT_FIELD mpdfx, const BIT_FIELD test);
+
+float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

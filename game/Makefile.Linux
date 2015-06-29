@@ -48,7 +48,7 @@ LINKER_LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lphysfs -lGL
 LINKER_LIBS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 LINKER_LIBS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=enum -fsanitize=shift
 LINKER_LIBS += -fsanitize=bounds -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=vptr
-LINKER_LIBS += -fdiagnostics-color=always -fsanitize-undefined-trap-on-error
+LINKER_LIBS += -fdiagnostics-color=always -fsanitize-undefined-trap-on-error -fno-rtti
 #-fsanitize=signed-integer-overflow -fsanitize=float-cast-overflow
 
 #------------------------------------

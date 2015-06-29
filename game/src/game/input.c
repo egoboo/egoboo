@@ -120,8 +120,8 @@ void input_read_mouse()
     b = SDL_GetRelativeMouseState( &x, &y );
 
     //Move mouse to the center of the screen since SDL does not detect motion outside the window
-    if (!egoboo_config_t::get().debug_developerMode_enable.getValue())
-        SDL_WarpMouseInWindow(sdl_scr.window, GFX_WIDTH >> 1, GFX_HEIGHT >> 1);
+    //if (!egoboo_config_t::get().debug_developerMode_enable.getValue())
+    //    SDL_WarpMouseInWindow(sdl_scr.window, GFX_WIDTH >> 1, GFX_HEIGHT >> 1);
 
     mous.x = -x; // mous.x and mous.y are the wrong type to use in above call
     mous.y = -y;

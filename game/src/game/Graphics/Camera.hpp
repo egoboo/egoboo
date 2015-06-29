@@ -176,7 +176,7 @@ public:
     void addTrackTarget(const CHR_REF object);
 
     /// @details This function moves the camera
-    void update(const ego_mesh_t *pmesh);
+    void update(const ego_mesh_t *mesh);
 
     /**
      * @brief
@@ -223,7 +223,7 @@ protected:
 
 	void updateCenter();
 
-	void updateTrack(const ego_mesh_t * pmesh);
+	void updateTrack(const ego_mesh_t * mesh);
 
 	/**
 	 * @brief

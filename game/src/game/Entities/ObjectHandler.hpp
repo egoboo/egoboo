@@ -165,6 +165,12 @@ public:
 	**/
 	void updateQuadTree(float minX, float minY, float maxX, float maxY);
 
+	/**
+	* @return
+	*	All objects contained in this ObjectHandler
+	**/
+	const std::vector<std::shared_ptr<Object>>& getAllObjects() const {return _iteratorList; }
+
 private:
 
 	/**

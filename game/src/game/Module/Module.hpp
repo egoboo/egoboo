@@ -23,6 +23,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
+#include "game/mesh.h"
 
 //@todo This is an ugly hack to work around cyclic dependency and private header guards
 #ifndef GAME_ENTITIES_PRIVATE
@@ -169,6 +170,11 @@ public:
     **/
     bool isInside(const float x, const float y) const;
 
+    /**
+    * Porting hack, TODO: remove
+    **/
+    ego_mesh_t* getMeshPointer() { return &_mesh; }
+
 private:
     const std::shared_ptr<ModuleProfile> _moduleProfile;
     std::vector<std::shared_ptr<Passage>> _passages;    ///< All passages in this module
@@ -183,7 +189,10 @@ private:
     bool _isRespawnValid;                      ///< Can players respawn with Spacebar?
     bool _isBeaten;                               ///< Have the players won?
     uint32_t  _seed;                          ///< The module seed
+
+    ego_mesh_t _mesh;                       ///< Module mesh
 };
 
 /// @todo Remove this global.
 extern std::unique_ptr<GameModule> _currentModule;
+

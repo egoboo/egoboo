@@ -218,7 +218,7 @@ static gfx_rv update_one_chr_instance(Object * pchr);
 static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing(Ego::Graphics::EntityList& el);
 
-static gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold);
+static gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold);
 static gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl);
 static gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl);
 static bool sum_global_lighting(std::array<float, LIGHTING_VEC_SIZE> &lighting);
@@ -1223,96 +1223,6 @@ float draw_character_xp_bar(const CHR_REF character, float x, float y)
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-float draw_status(const CHR_REF character, float x, float y)
-{
-    /// @author ZZ
-    /// @details This function shows a character's icon, status and inventory
-    ///    The x,y coordinates are the top left point of the image to draw
-    int life_pips, life_pips_max;
-    int mana_pips, mana_pips_max;
-
-    Object * pchr;
-
-    if (!_currentModule->getObjectHandler().exists(character)) return y;
-    pchr = _currentModule->getObjectHandler().get(character);
-
-    life_pips = SFP8_TO_SINT(pchr->life);
-    life_pips_max = SFP8_TO_SINT(pchr->life_max);
-    mana_pips = SFP8_TO_SINT(pchr->mana);
-    mana_pips_max = SFP8_TO_SINT(pchr->mana_max);
-
-    // draw the name
-    y = draw_string_raw(x + 8, y, "%s", pchr->getName(false, false, true).c_str());
-
-    // draw the character's money
-    y = draw_string_raw(x + 8, y, "$%4d", pchr->money) + 8;
-
-    // draw the character's main icon
-    draw_one_character_icon(character, x + 40, y, false, NOSPARKLE);
-
-    // draw the left hand item icon
-    draw_one_character_icon(pchr->holdingwhich[SLOT_LEFT], x + 8, y, true, NOSPARKLE);
-
-    // draw the right hand item icon
-    draw_one_character_icon(pchr->holdingwhich[SLOT_RIGHT], x + 72, y, true, NOSPARKLE);
-
-    // skip to the next row
-    y += 32;
-
-    //Draw the small XP progress bar
-    y = draw_character_xp_bar(character, x + 16, y);
-
-    // Draw the life_pips bar
-    if (pchr->alive)
-    {
-        y = draw_one_bar(pchr->life_color, x, y, life_pips, life_pips_max);
-    }
-    else
-    {
-        y = draw_one_bar(0, x, y, 0, life_pips_max);  // Draw a black bar
-    }
-
-    // Draw the mana_pips bar
-    if (mana_pips_max > 0)
-    {
-        y = draw_one_bar(pchr->mana_color, x, y, mana_pips, mana_pips_max);
-    }
-
-    return y;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-#if 0
-void draw_all_status()
-{
-    if (!g_statusList.on) return;
-
-    // connect each status object with its camera
-    for (size_t cnt = 0; cnt < StatusList.count; cnt++)
-    {
-        StatusList.lst[cnt].camera_index = CameraSystem::get()->getCameraIndexByID(StatusList.lst[cnt].who);
-    }
-
-    int i = 0;
-    for (const std::shared_ptr<Camera> &camera : CameraSystem::get()->getCameraList())
-    {
-        // draw all attached status
-        int y = camera->getScreen().ymin;
-        for (size_t tnc = 0; tnc < g_statusList.count; tnc++)
-        {
-            if (i == StatusList.lst[tnc].camera_index)
-            {
-                y = draw_status(StatusList.lst[tnc].who, camera->getScreen().xmax - BARX, y);
-            }
-        }
-        i++;
-    }
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 float draw_fps(float y)
 {
     // FPS text
@@ -1712,8 +1622,11 @@ void draw_mouse_cursor()
     {
         ego_frect_t sc_rect;
         ego_frect_t tx_rect;
-        int x = std::abs(mous.x);
-        int y = std::abs(mous.y);
+
+        //Get current mouse position
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+
         // Compute the texture coordinate rectangle (in texture coordinates).
         tx_rect.xmin = 0.0f;
         tx_rect.ymin = 0.0f;
@@ -1801,16 +1714,16 @@ struct by_list_t
 };
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const Ego::Graphics::renderlist_lst_t * rlst)
+gfx_rv render_fans_by_list(const ego_mesh_t * mesh, const Ego::Graphics::renderlist_lst_t * rlst)
 {
-    if (NULL == pmesh) pmesh = PMesh;
-    if (NULL == pmesh)
+    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
+    if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
         return gfx_error;
     }
-    size_t tcnt = pmesh->tmem.tile_count;
-    const ego_tile_info_t *tlst = tile_mem_t::get(&(pmesh->tmem), 0);
+    size_t tcnt = mesh->tmem.tile_count;
+    const ego_tile_info_t *tlst = tile_mem_t::get(&(mesh->tmem), 0);
 
     if (!rlst)
     {
@@ -1858,7 +1771,7 @@ gfx_rv render_fans_by_list(const ego_mesh_t * pmesh, const Ego::Graphics::render
     {
         Uint32 tmp_itile = lst_vals.lst[i].tile;
 
-        gfx_rv render_rv = render_fan(pmesh, tmp_itile);
+        gfx_rv render_rv = render_fan(mesh, tmp_itile);
         if (egoboo_config_t::get().debug_developerMode_enable.getValue() && gfx_error == render_rv)
         {
             log_warning("%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile);
@@ -1888,8 +1801,8 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
         }
     }
 
-    ego_mesh_t *pmesh = tl.getMesh();
-    if (!pmesh)
+    ego_mesh_t *mesh = tl.getMesh();
+    if (!mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "tile list is not attached to a mesh");
         return gfx_error;
@@ -1992,7 +1905,7 @@ gfx_rv render_scene_mesh(Camera& cam, const Ego::Graphics::TileList& tl, const E
     // render the heighmap
     for (size_t i = 0; i < rl._all.count; ++i)
     {
-        render_hmap_fan(pmesh, rl._all[i]);
+        render_hmap_fan(mesh, rl._all[i]);
     }
 
     // let the mesh texture code know that someone else is in control now
@@ -2189,7 +2102,7 @@ void gfx_error_clear()
 //--------------------------------------------------------------------------------------------
 // grid_lighting FUNCTIONS
 //--------------------------------------------------------------------------------------------
-float grid_lighting_test(ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
+float grid_lighting_test(ego_mesh_t * mesh, GLXvector3f pos, float * low_diff, float * hgh_diff)
 {
     int ix, iy, cnt;
 
@@ -2198,8 +2111,8 @@ float grid_lighting_test(ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, 
     const lighting_cache_t * cache_list[4];
     ego_grid_info_t  * pgrid;
 
-    if (NULL == pmesh) pmesh = PMesh;
-    if (NULL == pmesh)
+    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
+    if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
         return 0.0f;
@@ -2209,16 +2122,16 @@ float grid_lighting_test(ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, 
     iy = std::floor(pos[YY] / GRID_FSIZE);
 
     TileIndex fan[4];
-    fan[0] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
-    fan[1] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix + 1, iy));
-    fan[2] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy + 1));
-    fan[3] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix + 1, iy + 1));
+    fan[0] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
+    fan[1] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy));
+    fan[2] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy + 1));
+    fan[3] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy + 1));
 
     for (cnt = 0; cnt < 4; cnt++)
     {
         cache_list[cnt] = NULL;
 
-        pgrid = ego_mesh_t::get_pgrid(pmesh, fan[cnt]);
+        pgrid = mesh->get_pgrid(fan[cnt]);
         if (NULL == pgrid)
         {
             cache_list[cnt] = NULL;
@@ -2236,7 +2149,7 @@ float grid_lighting_test(ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool grid_lighting_interpolate(const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_t& pos)
+bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, const fvec2_t& pos)
 {
     int ix, iy, cnt;
     TileIndex fan[4];
@@ -2246,8 +2159,8 @@ bool grid_lighting_interpolate(const ego_mesh_t * pmesh, lighting_cache_t * dst,
     ego_grid_info_t  * pgrid;
     const lighting_cache_t * cache_list[4];
 
-    if (NULL == pmesh) pmesh = PMesh;
-    if (NULL == pmesh)
+    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
+    if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
         return false;
@@ -2267,14 +2180,14 @@ bool grid_lighting_interpolate(const ego_mesh_t * pmesh, lighting_cache_t * dst,
     iy = std::floor(tpos[YY]);
 
     // find the tile id for the surrounding tiles
-    fan[0] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
-    fan[1] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix + 1, iy));
-    fan[2] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy + 1));
-    fan[3] = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix + 1, iy + 1));
+    fan[0] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
+    fan[1] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy));
+    fan[2] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy + 1));
+    fan[3] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy + 1));
 
     for (cnt = 0; cnt < 4; cnt++)
     {
-        pgrid = ego_mesh_t::get_pgrid(pmesh, fan[cnt]);
+        pgrid = mesh->get_pgrid(fan[cnt]);
 
         if (NULL == pgrid)
         {
@@ -2480,17 +2393,17 @@ void _flip_pages()
 //--------------------------------------------------------------------------------------------
 // LIGHTING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold)
+gfx_rv light_fans_throttle_update(ego_mesh_t * mesh, ego_tile_info_t * ptile, int fan, float threshold)
 {
     grid_mem_t * pgmem = NULL;
     bool       retval = false;
 
-    if (NULL == pmesh)
+    if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "no valid mesh");
         return gfx_error;
     }
-    pgmem = &(pmesh->gmem);
+    pgmem = &(mesh->gmem);
 
     if (NULL == ptile)
     {
@@ -2501,7 +2414,7 @@ gfx_rv light_fans_throttle_update(ego_mesh_t * pmesh, ego_tile_info_t * ptile, i
 #if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
 
     // visible fans based on the update "need"
-    retval = ego_mesh_test_corners(pmesh, ptile, threshold);
+    retval = ego_mesh_test_corners(mesh, ptile, threshold);
 
     // update every 4 fans even if there is no need
     if (!retval)
@@ -2543,8 +2456,8 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
     /// which means that the threshold could be set as low as 1/64 = 0.015625.
     const float delta_threshold = 0.05f;
 
-    ego_mesh_t *pmesh = tl.getMesh();
-    if (NULL == pmesh)
+    ego_mesh_t *mesh = tl.getMesh();
+    if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
         return gfx_error;
@@ -2574,7 +2487,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         int fan = tl._all.lst[entry].index;
 
         // grab a pointer to the tile
-		ego_tile_info_t *ptile = ego_mesh_t::get_ptile(pmesh, fan);
+		ego_tile_info_t *ptile = mesh->get_ptile(fan);
         if (NULL == ptile) continue;
 
         // Test to see whether the lcache was already updated
@@ -2595,7 +2508,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         if (!ptile->request_lcache_update)
         {
             // is someone else did not request an update, do we need an one?
-            gfx_rv light_fans_rv = light_fans_throttle_update(pmesh, ptile, fan, delta_threshold);
+            gfx_rv light_fans_rv = light_fans_throttle_update(mesh, ptile, fan, delta_threshold);
             ptile->request_lcache_update = (gfx_success == light_fans_rv);
         }
 
@@ -2603,7 +2516,7 @@ gfx_rv light_fans_update_lcache(Ego::Graphics::TileList& tl)
         if (!ptile->request_lcache_update) continue;
 
         // is the tile reflective?
-        pgrid = ego_mesh_t::get_pgrid(pmesh, fan);
+        pgrid = mesh->get_pgrid(fan);
         reflective = (0 != ego_grid_info_t::test_all_fx(pgrid, MAPFX_REFLECTIVE));
 
         // light the corners of this tile
@@ -2634,19 +2547,19 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
     float light;
 
     ego_tile_info_t   * ptile = NULL;
-    ego_mesh_t         * pmesh = NULL;
+    ego_mesh_t         * mesh = NULL;
     tile_mem_t        * ptmem = NULL;
     tile_definition_t * pdef = NULL;
 
-    pmesh = tl.getMesh();
-    if (NULL == pmesh)
+    mesh = tl.getMesh();
+    if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
         return gfx_error;
     }
 
     // alias the tile memory
-    ptmem = &(pmesh->tmem);
+    ptmem = &(mesh->tmem);
 
     // assume the best
     retval = gfx_success;
@@ -2658,7 +2571,7 @@ gfx_rv light_fans_update_clst(Ego::Graphics::TileList& tl)
         if (TileIndex::Invalid == fan) continue;
 
         // valid tile?
-        ptile = ego_mesh_t::get_ptile(pmesh, fan);
+        ptile = mesh->get_ptile(fan);
         if (NULL == ptile)
         {
             retval = gfx_fail;
@@ -2943,16 +2856,16 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 
     dynalight_data_t fake_dynalight;
 
-	ego_mesh_t *pmesh = tl.getMesh();
-    if (NULL == pmesh)
+	ego_mesh_t *mesh = tl.getMesh();
+    if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh");
         return gfx_error;
     }
 
-	ego_mesh_info_t *pinfo = &(pmesh->info);
-	grid_mem_t *pgmem = &(pmesh->gmem);
-	tile_mem_t *ptmem = &(pmesh->tmem);
+	ego_mesh_info_t *pinfo = &(mesh->info);
+	grid_mem_t *pgmem = &(mesh->gmem);
+	tile_mem_t *ptmem = &(mesh->tmem);
 
     // find a bounding box for the "frustum"
     mesh_bound.xmin = pgmem->edge_x;
@@ -3111,7 +3024,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         TileIndex fan = tl._all.lst[entry].index;
 
         // a valid tile?
-        ego_grid_info_t  *pgrid = ego_mesh_t::get_pgrid(pmesh, fan);
+        ego_grid_info_t  *pgrid = mesh->get_pgrid(fan);
         if (!pgrid) continue;
 
         // do not update this more than once a frame
@@ -3451,7 +3364,7 @@ gfx_rv gfx_update_all_chr_instance()
             continue;
         }
 
-        if (!ego_mesh_t::grid_is_valid(PMesh, pchr->getTile())) continue;
+        if (!ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), pchr->getTile())) continue;
 
         tmp_rv = update_one_chr_instance(pchr.get());
 
