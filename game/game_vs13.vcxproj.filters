@@ -287,6 +287,9 @@
     <ClCompile Include="src\game\ObjectAnimation.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\GUI\InternalWindow.cpp">
+      <Filter>Game Sources\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -525,6 +528,9 @@
     </ClInclude>
     <ClInclude Include="src\game\ObjectAnimation.h">
       <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\GUI\InternalWindow.hpp">
+      <Filter>Game Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

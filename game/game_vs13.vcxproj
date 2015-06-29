@@ -385,6 +385,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\GUI\InternalWindow.cpp" />
     <ClCompile Include="src\game\ObjectAnimation.c" />
     <ClCompile Include="src\game\GUI\CharacterStatus.cpp" />
     <ClCompile Include="src\game\GUI\MiniMap.cpp" />
@@ -459,6 +460,7 @@ xcopy /y "$(SolutionDir)external\SDL2_ttf-2.0.12\VisualC\external\lib\$(Platform
     <ClCompile Include="src\game\script_implementation.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game\GUI\InternalWindow.hpp" />
     <ClInclude Include="src\game\ObjectAnimation.h" />
     <ClInclude Include="src\game\GUI\CharacterStatus.hpp" />
     <ClInclude Include="src\game\GUI\MiniMap.hpp" />
