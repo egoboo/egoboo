@@ -459,6 +459,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp" />
     <ClInclude Include="src\egolib\Core\QuadTree.hpp" />
     <ClInclude Include="src\egolib\Time\LocalTime.hpp" />
     <ClInclude Include="src\egolib\Time\SlidingWindow.hpp" />

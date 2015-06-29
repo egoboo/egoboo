@@ -1390,18 +1390,17 @@ int gfx_init_ogl()
 
     // do not display the completely transparent portion
     renderer.setAlphaTestEnabled(true);
-    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
+	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     /// backface culling
     // oglx_begin_culling( GL_BACK, GL_CW );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
     // disable OpenGL lighting
-    GL_DEBUG( glDisable )( GL_LIGHTING );
+	renderer.setLightingEnabled(false);
 
     // fill mode
-    GL_DEBUG( glPolygonMode )( GL_FRONT, GL_FILL );
-    GL_DEBUG( glPolygonMode )( GL_BACK,  GL_FILL );
+	renderer.setRasterizationMode(Ego::RasterizationMode::Solid);
 
     // set up environment mapping
     /// @todo: this isn't used anywhere

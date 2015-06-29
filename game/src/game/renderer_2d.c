@@ -318,20 +318,21 @@ void gfx_begin_text()
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG( glPushAttrib )( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
 
+	auto& renderer = Ego::Renderer::get();
     // do not display the completely transparent portion
-    Ego::Renderer::get().setAlphaTestEnabled(true);
-    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                         // GL_COLOR_BUFFER_BIT
+    renderer.setAlphaTestEnabled(true);
+	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
-    Ego::Renderer::get().setBlendingEnabled(true);
+    renderer.setBlendingEnabled(true);
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
     // don't worry about hidden surfaces
-	Ego::Renderer::get().setDepthTestEnabled(false);
+	renderer.setDepthTestEnabled(false);
 
     // draw draw front and back faces of polygons
     oglx_end_culling();                                                  // GL_ENABLE_BIT
 
-	Ego::Renderer::get().setColour(Ego::Math::Colour4f::white());// GL_CURRENT_BIT
+	renderer.setColour(Ego::Math::Colour4f::white());// GL_CURRENT_BIT
 }
 
 //--------------------------------------------------------------------------------------------
@@ -356,20 +357,21 @@ void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_fre
     {
         oglx_texture_t::bind(tex);
 
-		Ego::Renderer::get().setColour(tint);
+		auto& renderer = Ego::Renderer::get();
+		renderer.setColour(tint);
 
         if ( use_alpha )
         {
-            Ego::Renderer::get().setBlendingEnabled(true);
+			renderer.setBlendingEnabled(true);
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
 
-            Ego::Renderer::get().setAlphaTestEnabled(true);
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaTestEnabled(true);
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
         }
         else
         {
-            Ego::Renderer::get().setBlendingEnabled(false);
-            Ego::Renderer::get().setAlphaTestEnabled(false);
+			renderer.setBlendingEnabled(false);
+			renderer.setAlphaTestEnabled(false);
         }
 
         GL_DEBUG( glBegin )( GL_QUADS );

@@ -27,6 +27,7 @@
 #include "egolib/Math/Colour4f.hpp"
 #include "egolib/Math/Matrix44.hpp"
 #include "egolib/Renderer/CompareFunction.hpp"
+#include "egolib/Renderer/RasterizationMode.hpp"
 #include "egolib/Renderer/CullingMode.hpp"
 #include "egolib/Renderer/WindingMode.hpp"
 #include "egolib/Renderer/PrimitiveType.hpp"
@@ -297,6 +298,51 @@ public:
      */
     virtual void setAlphaTestEnabled(bool enabled) = 0;
 
+	/**
+	 * @brief
+	 *	Set the alpha compare function.
+	 * @param function
+	 *	the alpha compare function
+	 * @param value
+	 *	the reference alpha value that incoming alpha values are compared to.
+	 *	Must be within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
+	 * @remark
+	 *	The alpha compare function is used to compare alpha value of an incoming fragment to a reference alpha value.
+	 *	The outcome of this test is binary, either the incoming fragment passes or fails the comparison.
+	 *
+	 *	The alpha compare functions are as follows:
+	 *	<ul>
+	 *		<li>Ego::CompareFunction::AlwaysFail:
+	 *		The incoming alpha value never passes (regardless of the reference alpha value)</li>
+	 *		<li>Ego::CompareFunction::AlwaysPass:
+	 *		The incoming alpha value always passes (regardless of the reference alpha value)</li>
+	 *		<li>Ego::CompareFunction::Less:
+	 *		The incoming alpha value passes if it is
+	 *		less than the reference alpha value</li>
+	 *		<li>Ego::CompareFunction::LessOrEqual:
+	 *		The incoming alpha value passes if it is
+	 *		less than or equal to the reference alpha value</li>
+	 *		<li>Ego::CompareFunction::Equal:
+	 *		The incoming alpha value passes if it is
+	 *		equal to the reference alpha value</li>
+	 *		<li>Ego::CompareFunction::NotEqual:
+	 *		The incoming alpha value passes if it is
+	 *		not equal to the reference alpha value</li>
+	 *		<li>Ego::CompareFunction::Greater:
+	 *		The incoming alpha value passes if it is
+	 *		greater than the reference alpha value</li>
+	 *		<li>Ego::CompareFunction::GreaterOrEqual:
+	 *		The incoming alpha value passes if it is
+	 *		greater than or equal to the reference alpha value</li>
+	 *	</ul>
+	 * @remark
+	 *	The initial alpha comparison function is Ego::CompareFunction::Always,
+	 *	the initial reference alpha value is @a 0.
+	 * @throw std::invalid_argument
+	 *	if @a value is not within the bounds of @a 0.0f (inclusive) and @a 1.0f (inclusive).
+	 */
+	virtual void setAlphaFunction(CompareFunction function, float value) = 0;
+
     /**
      * @brief
      *  Enable/disable blending.
@@ -324,18 +370,51 @@ public:
 
     /**
      * @brief
-     *  Set the depth test compare function.
+     *  Set the depth compare function.
      * @param function
-     *  the depth test compare function
+     *  the depth compare function
+	 * @remark
+	 *	The depth compare function is used to compare the depth value of an incoming pixel to the depth value present in the depth buffer.
+	 *	The outcome of this test is binary, either the incoming pixel passes or fails the comparison.
+	 *
+	 *	The depth compare functions are as follows:
+	 *	<ul>
+	 *		<li>Ego::CompareFunction::AlwaysFail:
+	 *		The incoming pixel never passes</li>
+	 *		<li>Ego::CompareFunction::AlwaysPass:
+	 *		The incoming pixel always passes</li>
+	 *		<li>Ego::CompareFunction::Less:
+	 *		The incoming pixel passes if it is depth value is
+	 *		less than the depth value present in the depth buffer</li>
+	 *		<li>Ego::CompareFunction::LessOrEqual:
+	 *		The incoming pixel passes if its depth value is
+	 *		less than or equal to the depth value present in the depth buffer</li>
+	 *		<li>Ego::CompareFunction::Equal:
+	 *		The incoming pixel passes if its depth value is
+	 *		equal to the depth value present in the depth buffer</li>
+	 *		<li>Ego::CompareFunction::NotEqual:
+	 *		The incoming pixel passes if its depth value is
+	 *		not equal to the depth value present in the depth buffer</li>
+	 *		<li>Ego::CompareFunction::Greater:
+	 *		The incoming pixel passes if its depth value is
+	 *		greater than the depth value present in the depth buffer</li>
+	 *		<li>Ego::CompareFunction::GreaterOrEqual:
+	 *		The incoming pixel passes if its depth value is
+	 *		greater than or equal to the depth value present in the depth buffer</li>
+	 *	</ul>
+	 * @warning
+	 *	If depth testing is disabled, then the pixel always passes. However, the depth buffer is not modified.
+	 *	To unconditionally write to the depth buffer, depth testing should be set to enabled and the depth test
+	 *	function to always pass. 
      */
     virtual void setDepthFunction(CompareFunction function) = 0;
 
     /**
      * @brief
-     *    Enable/disable depth tests and depth buffer updates.
+     *	Enable/disable depth tests and depth buffer updates.
      * @param enabled
-     *    @a true enables depth tests and depth buffer updates,
-     *    @a false disables them
+     *	@a true enables depth tests and depth buffer updates,
+     *	@a false disables them
      */
     virtual void setDepthTestEnabled(bool enabled) = 0;
 
@@ -343,8 +422,8 @@ public:
      * @brief
      *  Enable/disable the depth buffer writes.
      * @param enable
-     *    @a true enables scissor tests,
-     *    @a false disables then
+     *	@a true enables scissor tests,
+     *	@a false disables then
      */
     virtual void setDepthWriteEnabled(bool enabled) = 0;
 
@@ -455,14 +534,67 @@ public:
      */
     virtual void setDitheringEnabled(bool enabled)  = 0;
 
+	/**
+	 * @brief
+	 *	Enable/disable antialiasing of points.
+	 * @param enable
+	 *	@a true enables antialiasing of points,
+	 *	@a false disables it
+	 * @remark
+	 *	Enabling/disabling antialiasing of points has no impact if
+	 *	multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.3.3).
+	 */
+	virtual void setPointSmoothEnabled(bool enabled) = 0;
+
+	/**
+	 * @brief
+	 *	Enable/disable antialiasing of lines.
+	 * @param enabled
+	 *	@a true enables antialiasing of lines,
+	 *	@a false disables it
+	 * @remark
+	 *	Enabling/disabling antialiasing of lines has no impact if
+	 *	multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.4.4).
+	 */
+	virtual void setLineSmoothEnabled(bool enabled) = 0;
+
+	/**
+	 * @brief
+	 *	Enable/disable antialiasing of lines.
+	 * @param enabled
+	 *	@a true enables antialiasing of lines,
+	 *	@a false disables it
+	 * @remark
+	 *	Enabling/disabling antialiasing of polygons has no impact if
+	 *	multisampling is enabled (cfg. "OpenGL 1.3 Specification", sec. 3.5.6).
+	 */
+	virtual void setPolygonSmoothEnabled(bool enabled) = 0;
+
     /**
      * @brief
      *  Enable/disable multisamples.
-     * @param enable
+     * @param enabled
      *  @a true enables multisamples,
      *  @a false disables it
      */
     virtual void setMultisamplesEnabled(bool enabled) = 0;
+
+	/**
+	 * @brief
+	 *	Enable/disable lighting.
+	 * @param enabled
+	 *	@a true enables lighting,
+	 *	@a false disables it
+	 */
+	virtual void setLightingEnabled(bool enabled) = 0;
+
+	/**
+	 * @brief
+	 *	Set the rasterization mode (for front- and back-facing polygons).
+	 * @param mode
+	 *	the rasterization mode
+	 */
+	virtual void setRasterizationMode(RasterizationMode mode) = 0;
 
     /**
      * @brief

@@ -39,8 +39,6 @@
 #include "egolib/Math/Colour4f.hpp"
 #include "egolib/Math/Matrix44.hpp"
 
-
-
 /**
  * @ingroup egoboo-opengl
  * @brief
@@ -54,6 +52,30 @@ namespace OpenGL
 {
 
 using namespace Math;
+
+struct Capabilities {
+	/**
+	 * @brief
+	 *  Get the set of extension strings of extensions supported by this OpenGL implementation.
+	 * @return
+	 *	the set of extension strings
+	 */
+	static std::unordered_set<std::string> getExtensions();
+	/**
+	 * @brief
+	 *  Get the name of the vendor of this OpenGL implementation.
+	 * @return
+	 *  the name of the vendor of this OpenGL implementation
+	 */
+	static std::string getVendor();
+	/**
+	 * @brief
+	 *  Get the name of this OpenGL implementation.
+	 * @return
+	 *  the name of this OpenGL implementation
+	 */
+	static std::string getName();
+};
 
 class Renderer : public Ego::Renderer
 {
@@ -80,7 +102,7 @@ protected:
     TextureUnit _textureUnit;
     /**
      * @brief
-     *  The list of OpenGL extensions supported by this OpenGL implementation.
+     *  The set of OpenGL extensions supported by this OpenGL implementation.
      */
     std::unordered_set<std::string> _extensions;
     /**
@@ -118,6 +140,9 @@ public:
 
     /** @copydoc Ego::Renderer::setAlphaTestEnabled */
     virtual void setAlphaTestEnabled(bool enabled) override;
+
+	/** @copydoc Ego::Renderer::setAlphaFunction */
+	virtual void setAlphaFunction(CompareFunction function, float value) override;
 
     /** @copydoc Ego::Renderer::setBlendingEnabled */
     virtual void setBlendingEnabled(bool enabled) override;
@@ -170,8 +195,23 @@ public:
     /** @copydoc Ego::Renderer::setDitheringEnabled  */
     virtual void setDitheringEnabled(bool enabled) override;
 
+	/** @copydoc Ego::Renderer::setPointSmoothEnabled */
+	virtual void setPointSmoothEnabled(bool enabled) override;
+
+	/** @copydoc Ego::Renderer::setLineSmoothEnabled */
+	virtual void setLineSmoothEnabled(bool enabled) override;
+
+	/** @copydoc Ego::Renderer::setPolygonSmoothEnabled */
+	virtual void setPolygonSmoothEnabled(bool enabled) override;
+
     /** @copydoc Ego::Renderer::setMultisamplesEnabled */
     virtual void setMultisamplesEnabled(bool enabled) override;
+
+	/** @copydoc Ego::Renderer::setLightingEnabled */
+	virtual void setLightingEnabled(bool enabled) override;
+
+	/** @copydoc Ego::Renderer::setRasterizationMode */
+	virtual void setRasterizationMode(RasterizationMode mode) override;
 
     /** @copydoc Ego::Renderer::setGouraudShadingEnabled */
     virtual void setGouraudShadingEnabled(bool enabled) override;

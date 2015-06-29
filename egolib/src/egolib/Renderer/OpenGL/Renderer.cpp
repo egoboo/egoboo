@@ -64,13 +64,7 @@ namespace Ego
 namespace OpenGL
 {
 
-/**
- * @brief
- *  Get the name of this OpenGL implementation.
- * @return
- *  the name of this OpenGL implementation
- */
-std::string getName()
+std::string Capabilities::getName()
 {
     while (GL_NO_ERROR != glGetError()) {}
     const GLubyte *bytes = glGetString(GL_RENDERER);
@@ -81,13 +75,8 @@ std::string getName()
     }
     return (const char *)bytes;
 }
-/**
- * @brief
- *  Get the name of the vendor of this OpenGL implementation.
- * @return
- *  the name of the vendor of this OpenGL implementation
- */
-std::string getVendor()
+
+std::string Capabilities::getVendor()
 {
     while (GL_NO_ERROR != glGetError()) {}
     const GLubyte *bytes = glGetString(GL_RENDERER);
@@ -98,15 +87,8 @@ std::string getVendor()
     }
     return (const char *)bytes;
 }
-/**
- * @brief
- *  Get the list of extensions supported by this OpenGL implementation.
- * @param [out] extensions
- *  a set of strings
- * @post
- *  the set of extensions supported by this OpenGL implementation was added to the set
- */
-std::vector<std::string> getExtensions()
+
+std::unordered_set<std::string> Capabilities::getExtensions()
 {
     while (GL_NO_ERROR != glGetError()) {}
     const GLubyte *bytes = glGetString(GL_EXTENSIONS);
@@ -115,13 +97,13 @@ std::vector<std::string> getExtensions()
     {
         throw std::runtime_error("unable to acquire renderer back-end information");
     }
-    return Ego::split(std::string((const char *)bytes),std::string(" "));
+    return Ego::Core::make_unordered_set(Ego::split(std::string((const char *)bytes),std::string(" ")));
 }
 
 Renderer::Renderer() :
-    _extensions(Core::make_unordered_set(getExtensions())),
-    _vendor(getVendor()),
-    _name(getName())
+    _extensions(Capabilities::getExtensions()),
+    _vendor(Capabilities::getVendor()),
+    _name(Capabilities::getName())
 {
     Ego::OpenGL::link();
 }
@@ -157,6 +139,41 @@ void Renderer::setAlphaTestEnabled(bool enabled)
         glDisable(GL_ALPHA_TEST);
     }
     Utilities::isError();
+}
+
+void Renderer::setAlphaFunction(CompareFunction function, float value)
+{
+	if (value < 0.0f || value > 0.0f) {
+		throw std::invalid_argument("reference alpha value out of bounds");
+	}
+	switch (function)
+	{
+	case CompareFunction::AlwaysFail:
+		glAlphaFunc(GL_NEVER, value);
+		break;
+	case CompareFunction::AlwaysPass:
+		glAlphaFunc(GL_ALWAYS, value);
+		break;
+	case CompareFunction::Equal:
+		glAlphaFunc(GL_EQUAL, value);
+		break;
+	case CompareFunction::NotEqual:
+		glAlphaFunc(GL_NOTEQUAL, value);
+		break;
+	case CompareFunction::Less:
+		glAlphaFunc(GL_LESS, value);
+		break;
+	case CompareFunction::LessOrEqual:
+		glAlphaFunc(GL_LEQUAL, value);
+		break;
+	case CompareFunction::Greater:
+		glAlphaFunc(GL_GREATER, value);
+		break;
+	case CompareFunction::GreaterOrEqual:
+		glAlphaFunc(GL_GEQUAL, value);
+		break;
+	};
+	Utilities::isError();
 }
 
 void Renderer::setBlendingEnabled(bool enabled)
@@ -401,32 +418,82 @@ void Renderer::setDitheringEnabled(bool enabled)
     Utilities::isError();
 }
 
-void Renderer::setMultisamplesEnabled(bool enabled)
+void Renderer::setPointSmoothEnabled(bool enabled)
 {
-    if (enabled)
-    {
-        glEnable(GL_MULTISAMPLE_ARB);
-        Ego::OpenGL::Utilities::isError();
-
-        // If GL_MULTISAMPLE_ARB is enabled and if SAMPLE_BUFFERS_ARB is one,
-        // then the following settings are ignored - we choose to assign values to them.
-        glEnable(GL_LINE_SMOOTH);
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-        glEnable(GL_POINT_SMOOTH);
-        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-
-        glDisable(GL_POLYGON_SMOOTH);
-        glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
-    }
-    else
-    {
-        glHint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
-        glDisable(GL_DITHER);
-    }
-    Utilities::isError();
+	if (enabled) {
+		glEnable(GL_POINT_SMOOTH);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	} else {
+		glDisable(GL_POINT_SMOOTH);
+	}
 }
 
+void Renderer::setLineSmoothEnabled(bool enabled)
+{
+	if (enabled) {
+		glEnable(GL_LINE_SMOOTH);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	} else {
+		glDisable(GL_LINE_SMOOTH);
+	}
+}
+
+void Renderer::setPolygonSmoothEnabled(bool enabled)
+{
+	if (enabled) {
+		glEnable(GL_POLYGON_SMOOTH);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+	}
+	else {
+		glDisable(GL_POLYGON_SMOOTH);
+	}
+}
+
+void Renderer::setMultisamplesEnabled(bool enabled)
+{
+	// Check if MSAA is supported *at all* (by this OpenGL context).
+	int multiSampleBuffers;
+	SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multiSampleBuffers);
+	int multiSamples;
+	SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &multiSamples);
+	// If MSAA is not supported => Warn.
+	if (!(multiSampleBuffers == 1 && multiSamples > 0)) {
+		log_warning("%s:%d: multisample antialiasing not supported\n", __FILE__, __LINE__);
+	// Otherwise => Enable/disable it depending on the argument of this function.
+	} else {
+		if (enabled) {
+			glEnable(GL_MULTISAMPLE);
+		} else {
+			glDisable(GL_MULTISAMPLE);
+		}
+	}
+	Ego::OpenGL::Utilities::isError();
+}
+
+void Renderer::setLightingEnabled(bool enabled) {
+	if (enabled) {
+		glEnable(GL_LIGHTING);
+	} else {
+		glDisable(GL_LIGHTING);
+	}
+	Utilities::isError();
+}
+
+void Renderer::setRasterizationMode(RasterizationMode mode)
+{
+	switch (mode) {
+	case RasterizationMode::Point:
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		break;
+	case RasterizationMode::Line:
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		break;
+	case RasterizationMode::Solid:
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		break;
+	}
+	Utilities::isError();
+}
 
 void Renderer::setGouraudShadingEnabled(bool enabled)
 {

@@ -306,7 +306,7 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 
 			// do not display the completely transparent portion
 			renderer.setAlphaTestEnabled(true);
-			GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);                      // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
 			// make the texture a filter
 			renderer.setBlendingEnabled(true);
@@ -359,8 +359,7 @@ void Reflective0::doReflectionsEnabled(Camera& camera, const TileList& tl, const
 		// use alpha test to allow the thatched roof tiles to look like thatch
 		renderer.setAlphaTestEnabled(true);
 		// speed-up drawing of surfaces with alpha == 0.0f sections
-		GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);   // GL_COLOR_BUFFER_BIT
-		Ego::OpenGL::Utilities::isError();
+		renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f); // GL_COLOR_BUFFER_BIT
 		// reduce texture hashing by loading up each texture only once
 		render_fans_by_list(tl._mesh, &(tl._reflective));
 	}
@@ -423,7 +422,7 @@ void Reflective1::doReflectionsDisabled(Camera& camera, const TileList& tl, cons
 		// Use alpha test to allow the thatched roof tiles to look like thatch.
 		renderer.setAlphaTestEnabled(true);
 		// Speed-up drawing of surfaces with alpha = 0.0f sections
-		GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);
+		renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
 		render_fans_by_list(tl._mesh, &(tl._reflective));
@@ -449,7 +448,7 @@ void NonReflective::doRun(Camera& camera, const TileList& tl, const EntityList& 
 		// Use alpha test to allow the thatched roof tiles to look like thatch.
 		renderer.setAlphaTestEnabled(true);
 		// Speed-up drawing of surfaces with alpha == 0.0f sections.
-		GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);
+		renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
 		// reduce texture hashing by loading up each texture only once
 		render_fans_by_list(tl._mesh, &(tl._nonReflective));
@@ -854,7 +853,7 @@ void SolidEntities::doRun(Camera& camera, const TileList& tl, const EntityList& 
 			renderer.setDepthFunction(Ego::CompareFunction::Less);
 
 			renderer.setAlphaTestEnabled(true);
-			GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);             // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
 
 			if (INVALID_PRT_REF == el.get(i).iprt && VALID_CHR_RANGE(el.get(i).ichr))
 			{

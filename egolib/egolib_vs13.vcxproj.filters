@@ -956,6 +956,9 @@
     <ClInclude Include="src\egolib\Core\QuadTree.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">

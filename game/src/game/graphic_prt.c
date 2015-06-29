@@ -156,7 +156,7 @@ gfx_rv render_one_prt_solid(const PRT_REF iprt)
 
         // only display the portion of the particle that is 100% solid
         renderer.setAlphaTestEnabled(true);
-        GL_DEBUG(glAlphaFunc)(GL_EQUAL, 1.0f);       // GL_COLOR_BUFFER_BIT
+		renderer.setAlphaFunction(Ego::CompareFunction::Equal, 1.0f);  // GL_COLOR_BUFFER_BIT
 
         oglx_texture_t::bind(TextureManager::get().get_valid_ptr((TX_REF)TX_PARTICLE_TRANS));
 
@@ -208,7 +208,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
             // Do the alpha blended edge ("anti-aliasing") of the solid particle.
             // Only display the alpha-edge of the particle.
             renderer.setAlphaTestEnabled(true);
-            GL_DEBUG(glAlphaFunc)(GL_LESS, 1.0f);     // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Less, 1.0f);   // GL_COLOR_BUFFER_BIT
 
             renderer.setBlendingEnabled(true);
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
@@ -241,7 +241,7 @@ gfx_rv render_one_prt_trans(const PRT_REF iprt)
         {
             // do not display the completely transparent portion
             renderer.setAlphaTestEnabled(true);
-            GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);                      // GL_COLOR_BUFFER_BIT
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
             renderer.setBlendingEnabled(true);
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT
@@ -353,7 +353,7 @@ gfx_rv render_one_prt_ref(const PRT_REF iprt)
                 auto& renderer = Ego::Renderer::get();
                 // do not display the completely transparent portion
                 renderer.setAlphaTestEnabled(true);
-                GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);      // GL_COLOR_BUFFER_BIT
+				renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
                 renderer.setBlendingEnabled(true);
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // GL_COLOR_BUFFER_BIT

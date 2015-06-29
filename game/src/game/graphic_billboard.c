@@ -288,8 +288,8 @@ void BillboardSystem::render_all(Camera& camera)
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // GL_COLOR_BUFFER_BIT
 
             // This drops 100% transparent fragments i.e. in order to pass, alpha has to be greater than 0.
-            Ego::Renderer::get().setAlphaTestEnabled(true);
-            GL_DEBUG(glAlphaFunc)(GL_GREATER, 0.0f);                          // GL_COLOR_BUFFER_BIT
+            renderer.setAlphaTestEnabled(true);
+			renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);  // GL_COLOR_BUFFER_BIT
 
             for (auto bb : _billboardList._used) {
                 render_one(*bb, 0.75f, camera.getVUP(), camera.getVRT());
