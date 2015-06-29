@@ -65,8 +65,8 @@ void Background::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 
 	
 
-	ego_mesh_info_t *pinfo = &(PMesh->info);
-	grid_mem_t     *pgmem = &(PMesh->gmem);
+	ego_mesh_info_t *pinfo = &(_currentModule->getMeshPointer()->info);
+	grid_mem_t     *pgmem = &(_currentModule->getMeshPointer()->gmem);
 
 	// which layer
 	water_instance_layer_t *ilayer = water._layer + 0;
@@ -519,7 +519,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 		return;
 	}
 	// No shadow if off the mesh.
-	ego_tile_info_t *ptile = ego_mesh_t::get_ptile(PMesh, pchr->getTile());
+	ego_tile_info_t *ptile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), pchr->getTile());
 	if (!ptile)
 	{
 		return;
@@ -538,7 +538,7 @@ void EntityShadows::doLowQualityShadow(const CHR_REF character) {
 	if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
 	// much reduced shadow if on a reflective tile
-	if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_REFLECTIVE))
+	if (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), pchr->getTile(), MAPFX_REFLECTIVE))
 	{
 		alpha *= 0.1f;
 	}
@@ -615,7 +615,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (pchr->is_hidden || 0 == pchr->shadow_size) return;
 
 	// no shadow if off the mesh
-	ego_tile_info_t *ptile = ego_mesh_t::get_ptile(PMesh, pchr->getTile());
+	ego_tile_info_t *ptile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), pchr->getTile());
 	if (NULL == ptile) return;
 
 	// no shadow if invalid tile image
@@ -629,7 +629,7 @@ void EntityShadows::doHighQualityShadow(const CHR_REF character) {
 	if (pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE) return;
 
 	// much reduced shadow if on a reflective tile
-	if (0 != ego_mesh_t::test_fx(PMesh, pchr->getTile(), MAPFX_REFLECTIVE))
+	if (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), pchr->getTile(), MAPFX_REFLECTIVE))
 	{
 		alpha *= 0.1f;
 	}
@@ -771,8 +771,8 @@ void Water::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
 }
 
 void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityList& el) {
-	ego_mesh_t *pmesh = tl.getMesh();
-	if (!pmesh) {
+	ego_mesh_t *mesh = tl.getMesh();
+	if (!mesh) {
 		log_warning("%s:%d: tile list not attached to a mesh - skipping pass\n", __FILE__, __LINE__);
 		return;
 	}
@@ -807,7 +807,7 @@ void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityLi
 				CHR_REF ichr = el.get(i).ichr;
 				TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
 
-				if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_REFLECTIVE)))
+				if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), itile) && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Ego::Colour4f::white());
 
@@ -828,7 +828,7 @@ void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityLi
 				PRT_REF iprt = el.get(i).iprt;
 				TileIndex itile = ParticleHandler::get().get_ptr(iprt)->getTile();
 
-				if (ego_mesh_t::grid_is_valid(pmesh, itile) && (0 != ego_mesh_t::test_fx(pmesh, itile, MAPFX_REFLECTIVE)))
+				if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), itile) && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Ego::Colour4f::white());
 					render_one_prt_ref(iprt);

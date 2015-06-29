@@ -63,7 +63,7 @@ CameraSystem::CameraSystem(const size_t numberOfCameras) :
     autoSetTargets();
 
     // make sure the cameras are centered on something or there will be a graphics error
-    resetAllTargets(PMesh);
+    resetAllTargets(_currentModule->getMeshPointer());
 }
 
 CameraSystem::~CameraSystem()
@@ -78,7 +78,7 @@ bool CameraSystem::isInitialized()
 	return _initialized;
 }
 
-void CameraSystem::resetAll(const ego_mesh_t * pmesh)
+void CameraSystem::resetAll(const ego_mesh_t * mesh)
 {
 	if(!isInitialized()) {
 		return;
@@ -87,11 +87,11 @@ void CameraSystem::resetAll(const ego_mesh_t * pmesh)
     // reset each camera
     for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
-    	camera->reset(pmesh);
+    	camera->reset(mesh);
     }
 }
 
-void CameraSystem::updateAll( const ego_mesh_t * pmesh )
+void CameraSystem::updateAll( const ego_mesh_t * mesh )
 {
 	if(!isInitialized()) {
 		return;
@@ -100,11 +100,11 @@ void CameraSystem::updateAll( const ego_mesh_t * pmesh )
     // update each camera
     for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
-    	camera->update(pmesh);
+    	camera->update(mesh);
     }
 }
 
-void CameraSystem::resetAllTargets( const ego_mesh_t * pmesh )
+void CameraSystem::resetAllTargets( const ego_mesh_t * mesh )
 {
 	if(!isInitialized()) {
 		return;
@@ -113,7 +113,7 @@ void CameraSystem::resetAllTargets( const ego_mesh_t * pmesh )
     // update each camera
     for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
-    	camera->resetTarget(pmesh);
+    	camera->resetTarget(mesh);
     }
 }
 

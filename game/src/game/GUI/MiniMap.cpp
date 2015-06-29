@@ -103,8 +103,8 @@ void MiniMap::draw()
     for(const Blip &blip : _blips)
     {
         //Adjust the position values so that they fit inside the minimap
-        float x = getX() + (blip.x * getWidth() / PMesh->gmem.edge_x);
-        float y = getY() + (blip.y * getHeight() / PMesh->gmem.edge_y);
+        float x = getX() + (blip.x * getWidth() / _currentModule->getMeshPointer()->gmem.edge_x);
+        float y = getY() + (blip.y * getHeight() / _currentModule->getMeshPointer()->gmem.edge_y);
 
         if(blip.icon != INVALID_TX_REF)
         {            

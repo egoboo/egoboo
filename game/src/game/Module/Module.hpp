@@ -196,5 +196,3 @@ private:
 /// @todo Remove this global.
 extern std::unique_ptr<GameModule> _currentModule;
 
-//Porting hack TODO: remove
-#define PMesh _currentModule->getMeshPointer()

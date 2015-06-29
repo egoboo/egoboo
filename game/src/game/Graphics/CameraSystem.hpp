@@ -41,9 +41,9 @@ public:
 	 */
 	bool isInitialized();
 
-	void resetAll( const ego_mesh_t * pmesh );
-	void updateAll( const ego_mesh_t * pmesh );
-	void resetAllTargets( const ego_mesh_t * pmesh );
+	void resetAll( const ego_mesh_t * mesh );
+	void updateAll( const ego_mesh_t * mesh );
+	void resetAllTargets( const ego_mesh_t * mesh );
 
 	egolib_rv renderAll(std::function<void(std::shared_ptr<Camera>, std::shared_ptr<Ego::Graphics::TileList>, std::shared_ptr<Ego::Graphics::EntityList>)> renderFunction);
 

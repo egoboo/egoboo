@@ -250,12 +250,12 @@ bool Object::isOverWater(bool anyLiquid) const
 	}
 
 	//Check if we are on a valid tile
-    if (!ego_mesh_t::grid_is_valid(PMesh, getTile()))
+    if (!ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), getTile()))
     {
     	return false;
     }
 
-    return 0 != ego_mesh_t::test_fx(PMesh, getTile(), MAPFX_WATER);
+    return 0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), getTile(), MAPFX_WATER);
 }
 
 bool Object::isInWater(bool anyLiquid) const
@@ -273,8 +273,8 @@ bool Object::setPosition(const fvec3_t& position)
     {
         pos = position;
 
-        _tile = ego_mesh_t::get_grid(PMesh, PointWorld(pos[kX], pos[kY]));
-        _block = ego_mesh_t::get_block(PMesh, PointWorld(pos[kX], pos[kY]));
+        _tile = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pos[kX], pos[kY]));
+        _block = ego_mesh_t::get_block(_currentModule->getMeshPointer(), PointWorld(pos[kX], pos[kY]));
 
         // Update whether the current object position is safe.
         chr_update_safe( this, false );
@@ -1648,7 +1648,7 @@ BIT_FIELD Object::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float * pressure, m
 	float radius = 0.0f;
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, getTile());
+		ego_tile_info_t *tile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), getTile());
 
 		if (nullptr != tile && tile->inrenderlist)
 		{
@@ -1659,7 +1659,7 @@ BIT_FIELD Object::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float * pressure, m
 	mesh_mpdfx_tests = 0;
 	mesh_bound_tests = 0;
 	mesh_pressure_tests = 0;
-	BIT_FIELD result = ego_mesh_hit_wall(PMesh, pos, radius, stoppedby, nrm, pressure, data);
+	BIT_FIELD result = ego_mesh_hit_wall(_currentModule->getMeshPointer(), pos, radius, stoppedby, nrm, pressure, data);
 	chr_stoppedby_tests += mesh_mpdfx_tests;
 	chr_pressure_tests += mesh_pressure_tests;
 
@@ -1688,7 +1688,7 @@ BIT_FIELD Object::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
 	float radius = 0.0f;
 	if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
 	{
-		ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, getTile());
+		ego_tile_info_t *tile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), getTile());
 		if (nullptr != tile && tile->inrenderlist)
 		{
 			radius = bump_1.size;
@@ -1699,7 +1699,7 @@ BIT_FIELD Object::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
 	mesh_mpdfx_tests = 0;
 	mesh_bound_tests = 0;
 	mesh_pressure_tests = 0;
-	BIT_FIELD result = ego_mesh_test_wall(PMesh, pos, radius, stoppedby, data);
+	BIT_FIELD result = ego_mesh_test_wall(_currentModule->getMeshPointer(), pos, radius, stoppedby, data);
 	chr_stoppedby_tests += mesh_mpdfx_tests;
 	chr_pressure_tests += mesh_pressure_tests;
 

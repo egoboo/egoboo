@@ -145,14 +145,14 @@ gfx_rv TileList::insert(const TileIndex& index, const Camera &cam)
 		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
 	}
-	ego_mesh_t *pmesh = _mesh;
+	ego_mesh_t *mesh = _mesh;
 
 	// check for a valid tile
-	if (index >= pmesh->gmem.grid_count)
+	if (index >= mesh->gmem.grid_count)
 	{
 		return gfx_fail;
 	}
-	ego_grid_info_t *pgrid = grid_mem_t::get(&(pmesh->gmem), index);
+	ego_grid_info_t *pgrid = grid_mem_t::get(&(mesh->gmem), index);
 	if (!pgrid)
 	{
 		return gfx_fail;
@@ -164,8 +164,8 @@ gfx_rv TileList::insert(const TileIndex& index, const Camera &cam)
 		return gfx_fail;
 	}
 
-	int ix = index.getI() % pmesh->info.tiles_x;
-	int iy = index.getI() / pmesh->info.tiles_x;
+	int ix = index.getI() % mesh->info.tiles_x;
+	int iy = index.getI() / mesh->info.tiles_x;
 	float dx = (ix + TILE_FSIZE * 0.5f) - cam.getCenter()[kX];
 	float dy = (iy + TILE_FSIZE * 0.5f) - cam.getCenter()[kY];
 	float distance = dx * dx + dy * dy;
@@ -213,7 +213,7 @@ void TileList::setMesh(ego_mesh_t *mesh)
 gfx_rv TileList::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& camera)
 {
 	size_t colst_cp, colst_sz;
-	ego_mesh_t *pmesh = NULL;
+	ego_mesh_t *mesh = NULL;
 	gfx_rv retval = gfx_error;
 
 	if (NULL == leaves)
@@ -233,8 +233,8 @@ gfx_rv TileList::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& came
 		return gfx_fail;
 	}
 
-	pmesh = getMesh();
-	if (NULL == pmesh)
+	mesh = getMesh();
+	if (NULL == mesh)
 	{
 		log_error("%s:%s:%d: tile list not attached to a mesh\n", __FILE__, __FUNCTION__, __LINE__);
 		return gfx_error;
@@ -257,11 +257,11 @@ gfx_rv TileList::add(const Ego::DynamicArray<BSP_leaf_t *> *leaves, Camera& came
 			TileIndex itile = leaf->_index;
 
 			// Get tile for tile index.
-			ego_tile_info_t *ptile = ego_mesh_t::get_ptile(pmesh, itile);
+			ego_tile_info_t *ptile = ego_mesh_t::get_ptile(mesh, itile);
 			if (!ptile) continue;
 
 			// Get grid for tile index.
-			ego_grid_info_t *pgrid = ego_mesh_t::get_pgrid(pmesh, itile);
+			ego_grid_info_t *pgrid = ego_mesh_t::get_pgrid(mesh, itile);
 			if (!pgrid) continue;
 
 			if (gfx_error == gfx_capture_mesh_tile(ptile))

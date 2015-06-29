@@ -1966,7 +1966,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_mesh_set_texture( PMesh, pchr->getTile(), pstate->argument );
+    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), pchr->getTile(), pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5323,9 +5323,9 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
-    TileIndex idx = ego_mesh_t::get_grid(PMesh, PointWorld(pstate->x, pstate->y));
+    TileIndex idx = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pstate->x, pstate->y));
 
-    ego_tile_info_t *ptr = ego_mesh_t::get_ptile(PMesh, idx);
+    ego_tile_info_t *ptr = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), idx);
     if (ptr)
     {
         returncode = true;
@@ -5344,8 +5344,8 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    TileIndex index = ego_mesh_t::get_grid(PMesh, PointWorld(pstate->x, pstate->y));
-    returncode = ego_mesh_set_texture( PMesh, index, pstate->argument );
+    TileIndex index = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pstate->x, pstate->y));
+    returncode = ego_mesh_set_texture( _currentModule->getMeshPointer(), index, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7428,7 +7428,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->gmem.edge_x - EDGE && pstate->y < PMesh->gmem.edge_y - EDGE )
+    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < _currentModule->getMeshPointer()->gmem.edge_x - EDGE && pstate->y < _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
     {
         g_pits.teleport = true;
         g_pits.teleport_pos[kX] = pstate->x;

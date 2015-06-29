@@ -443,8 +443,6 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing, const PIP_REF ipip, cons
 void  free_all_objects();
 
 /// Data
-float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
-
 int    game_do_menu( struct menu_process_t * mproc );
 
 void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
@@ -462,7 +460,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
 bool get_chr_regeneration( Object * pchr, int *pliferegen, int * pmanaregen );
 
-float get_chr_level( ego_mesh_t * pmesh, Object * pchr );
+float get_chr_level( ego_mesh_t * mesh, Object * pchr );
 
 void disenchant_character( const CHR_REF ichr );
 

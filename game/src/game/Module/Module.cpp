@@ -78,10 +78,10 @@ void GameModule::loadAllPassages()
         area._bottom = ctxt.readInt();
 
         //constrain passage area within the level
-        area._left = CLIP(area._left, 0, PMesh->info.tiles_x - 1);
-        area._top = CLIP(area._top, 0, PMesh->info.tiles_y - 1);
-        area._right = CLIP(area._right, 0, PMesh->info.tiles_x - 1);
-        area._bottom = CLIP(area._bottom, 0, PMesh->info.tiles_y - 1);
+        area._left = CLIP(area._left, 0, _currentModule->getMeshPointer()->info.tiles_x - 1);
+        area._top = CLIP(area._top, 0, _currentModule->getMeshPointer()->info.tiles_y - 1);
+        area._right = CLIP(area._right, 0, _currentModule->getMeshPointer()->info.tiles_x - 1);
+        area._bottom = CLIP(area._bottom, 0, _currentModule->getMeshPointer()->info.tiles_y - 1);
 
         //Read if open by default
         bool open = ctxt.readBool();
@@ -221,7 +221,7 @@ uint8_t GameModule::getMinPlayers() const
 
 bool GameModule::isInside(const float x, const float y) const
 {
-     return x > 0 && x < PMesh->gmem.edge_x && y > 0 && y < PMesh->gmem.edge_y;
+     return x > 0 && x < _currentModule->getMeshPointer()->gmem.edge_x && y > 0 && y < _currentModule->getMeshPointer()->gmem.edge_y;
 }
 
 /// @todo Remove this global.

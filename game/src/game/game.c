@@ -119,8 +119,8 @@ static bool upload_camera_data(const wawalite_camera_t *data);
 bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk );
-static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr );
+static float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk );
+static float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr );
 
 static bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
@@ -293,7 +293,7 @@ egolib_rv export_all_players( bool require_local )
         pchr      = _currentModule->getObjectHandler().get( character );
 
         // don't export dead characters
-        if ( !pchr->alive ) continue;
+        if ( !pchr->isAlive() ) continue;
 
         // Export the character
         export_chr_rv = export_one_character( character, character, -1, is_local );
@@ -573,7 +573,7 @@ int update_game()
         // only interested in local players
         if ( NULL == PlaStack.lst[ipla].pdevice ) continue;
 
-        if ( pchr->alive )
+        if ( pchr->isAlive() )
         {
             numalive++;
 
@@ -639,7 +639,7 @@ int update_game()
 
     // keep the mpdfx lists up-to-date. No calculation is done unless one
     // of the mpdfx values was changed during the last update
-    mpdfx_lists_t::synch( &( PMesh->fxlists ), &( PMesh->gmem ), false );
+    mpdfx_lists_t::synch( &( _currentModule->getMeshPointer()->fxlists ), &( _currentModule->getMeshPointer()->gmem ), false );
     
     // Get immediate mode state for the rest of the game
     input_read_keyboard();
@@ -649,7 +649,7 @@ int update_game()
     set_local_latches();
 
     //Rebuild the quadtree for fast object lookup
-    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, PMesh->info.tiles_x*256.0f, PMesh->info.tiles_y*256.0f);
+    _currentModule->getObjectHandler().updateQuadTree(0.0f, 0.0f, _currentModule->getMeshPointer()->info.tiles_x*256.0f, _currentModule->getMeshPointer()->info.tiles_y*256.0f);
 
     //---- begin the code for updating misc. game stuff
     {
@@ -680,7 +680,7 @@ int update_game()
     //---- end the code for updating in-game objects
 
     // put the camera movement inside here
-    CameraSystem::get()->updateAll(PMesh);
+    CameraSystem::get()->updateAll(_currentModule->getMeshPointer());
 
     // Timers
     clock_wld += TICKS_PER_SEC / GameEngine::GAME_TARGET_UPS; ///< 1000 tics per sec / 50 UPS = 20 ticks
@@ -743,7 +743,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
     {
         bool target_friend, target_enemy;
 
-        if ( !pchr->alive || pchr->isitem || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
+        if ( !pchr->isAlive() || pchr->isitem || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // prefer targeting riders over the mount itself
         if ( pchr->isMount() && ( _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_LEFT] ) || _currentModule->getObjectHandler().exists( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
@@ -970,14 +970,14 @@ void do_damage_tiles()
     for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
     {
         // if the object is not really in the game, do nothing
-        if ( pchr->is_hidden || !pchr->alive ) continue;
+        if ( pchr->is_hidden || !pchr->isAlive() ) continue;
 
         // if you are being held by something, you are protected
         if ( _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
-        if ( !ego_mesh_t::grid_is_valid( PMesh, pchr->getTile() ) ) continue;
-        if ( 0 == ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_DAMAGE ) ) continue;
+        if ( !ego_mesh_t::grid_is_valid( _currentModule->getMeshPointer(), pchr->getTile() ) ) continue;
+        if ( 0 == ego_mesh_t::test_fx( _currentModule->getMeshPointer(), pchr->getTile(), MAPFX_DAMAGE ) ) continue;
 
         // are we low enough?
         if ( pchr->getPosZ() > pchr->enviro.floor_level + DAMAGERAISE ) continue;
@@ -1046,7 +1046,7 @@ void update_pits()
             for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
             {
                 // Is it a valid character?
-                if ( pchr->invictus || !pchr->alive ) continue;
+                if ( pchr->invictus || !pchr->isAlive() ) continue;
                 if ( IS_ATTACHED_CHR( pchr->getCharacterID() ) ) continue;
 
                 // Do we kill it?
@@ -1156,11 +1156,11 @@ void do_weather_spawn_particles()
                         else
                         {
                             // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                            if ( pprt->pos[kX] < EDGE || pprt->pos[kX] > PMesh->gmem.edge_x - EDGE )
+                            if ( pprt->pos[kX] < EDGE || pprt->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
                             {
                                 destroy_particle = true;
                             }
-                            else if ( pprt->pos[kY] < EDGE || pprt->pos[kY] > PMesh->gmem.edge_y - EDGE )
+                            else if ( pprt->pos[kY] < EDGE || pprt->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
                             {
                                 destroy_particle = true;
                             }
@@ -1606,7 +1606,7 @@ void show_stat( int statindex )
 
         // Level and gender and class
         gender[0] = 0;
-        if ( pchr->alive )
+        if ( pchr->isAlive() )
         {
             int itmp;
             const char * gender_str;
@@ -1833,7 +1833,7 @@ void tilt_characters_to_terrain()
 
         if ( object->stickybutt )
         {
-            twist = ego_mesh_get_twist( PMesh, object->getTile() );
+            twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), object->getTile() );
             object->ori.map_twist_facing_y = map_twist_facing_y[twist];
             object->ori.map_twist_facing_x = map_twist_facing_x[twist];
         }
@@ -2440,7 +2440,7 @@ bool game_load_module_data( const char *smallname )
     game_load_global_profiles();            // load the global objects
     game_load_module_profiles( modname );   // load the objects from the module's directory
 
-    ego_mesh_t * pmesh_rv = ego_mesh_load( modname, PMesh );
+    ego_mesh_t * pmesh_rv = ego_mesh_load( modname, _currentModule->getMeshPointer() );
     if ( nullptr == pmesh_rv )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
@@ -2669,9 +2669,6 @@ void game_release_module_data()
     gfx_system_release_all_graphics();
     ProfileSystem::get().reset();
 
-    // delete the mesh data
-    ego_mesh_t::dtor(PMesh);
-
     // deallocate any dynamically allocated collision memory
     mesh_BSP_system_end();
     obj_BSP_system_end();
@@ -2826,29 +2823,6 @@ void reset_all_object_lists()
 {
     ParticleHandler::get().reinit();
     EnchantHandler::get().reinit();
-}
-
-//--------------------------------------------------------------------------------------------
-float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk )
-{
-    /// @author ZZ
-    /// @details This function returns the height of a point within a mesh fan, precise
-    ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
-    ///    level of the water.
-
-    float zdone = ego_mesh_t::get_level(pmesh, PointWorld(x, y));
-
-    if ( waterwalk && water._surface_level > zdone && water._is_water )
-    {
-        TileIndex tile = ego_mesh_t::get_grid( pmesh, PointWorld(x, y));
-
-        if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
-        {
-            zdone = water._surface_level;
-        }
-    }
-
-    return zdone;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3831,15 +3805,15 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     return can_grab;
 }
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t * pbump, bool waterwalk )
 {
-    float zdone = ego_mesh_get_max_vertex_1( pmesh, point, pbump->_mins[OCT_X], pbump->_mins[OCT_Y], pbump->_maxs[OCT_X], pbump->_maxs[OCT_Y] );
+    float zdone = ego_mesh_get_max_vertex_1( mesh, point, pbump->_mins[OCT_X], pbump->_mins[OCT_Y], pbump->_maxs[OCT_X], pbump->_maxs[OCT_Y] );
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
-        TileIndex tile = ego_mesh_t::get_tile_int( pmesh, point );
+        TileIndex tile = ego_mesh_t::get_tile_int( mesh, point );
 
-        if ( 0 != ego_mesh_t::test_fx( pmesh, tile, MAPFX_WATER ) )
+        if ( 0 != ego_mesh_t::test_fx( mesh, tile, MAPFX_WATER ) )
         {
             zdone = water._surface_level;
         }
@@ -3848,7 +3822,7 @@ float get_mesh_max_vertex_1( ego_mesh_t * pmesh, const PointGrid& point, oct_bb_
     return zdone;
 }
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
+float get_mesh_max_vertex_2( ego_mesh_t * mesh, Object * pchr )
 {
     /// @author BB
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
@@ -3867,17 +3841,17 @@ float get_mesh_max_vertex_2( ego_mesh_t * pmesh, Object * pchr )
         pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv._mins[OCT_Y] : pchr->chr_min_cv._maxs[OCT_Y] );
     }
 
-    zmax = get_mesh_level( pmesh, pos_x[0], pos_y[0], pchr->waterwalk );
+    zmax = get_mesh_level( mesh, pos_x[0], pos_y[0], pchr->waterwalk );
     for ( corner = 1; corner < 4; corner++ )
     {
-        float fval = get_mesh_level( pmesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
+        float fval = get_mesh_level( mesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
         zmax = std::max( zmax, fval );
     }
 
     return zmax;
 }
 //--------------------------------------------------------------------------------------------
-float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
+float get_chr_level( ego_mesh_t * mesh, Object * pchr )
 {
     float zmax;
     int ix, ixmax, ixmin;
@@ -3889,13 +3863,13 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
 
     oct_bb_t bump;
 
-    if ( NULL == pmesh || !ACTIVE_PCHR( pchr ) ) return 0;
+    if ( NULL == mesh || !ACTIVE_PCHR( pchr ) ) return 0;
 
     // certain scenery items like doors and such just need to be able to
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == pchr->bump_stt.size )
     {
-        return get_mesh_level( pmesh, pchr->getPosX(), pchr->getPosY(), pchr->waterwalk );
+        return get_mesh_level( mesh, pchr->getPosX(), pchr->getPosY(), pchr->waterwalk );
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
@@ -3903,16 +3877,16 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
     oct_bb_t::translate(pchr->chr_min_cv, pchr->getPosition(), bump);
 
     // determine the size of this object in tiles
-    ixmin = bump._mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
-    ixmax = bump._maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
+    ixmin = bump._mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, mesh->info.tiles_x - 1 );
+    ixmax = bump._maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, mesh->info.tiles_x - 1 );
 
-    iymin = bump._mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
-    iymax = bump._maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
+    iymin = bump._mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, mesh->info.tiles_y - 1 );
+    iymax = bump._maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, mesh->info.tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
     {
-        return get_mesh_max_vertex_2( pmesh, pchr );
+        return get_mesh_max_vertex_2( mesh, pchr );
     }
 
     // otherwise, make up a list of tiles that the object might overlap
@@ -3931,7 +3905,7 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump._mins[OCT_YX] || ftmp > bump._maxs[OCT_YX] ) continue;
 
-            TileIndex itile = ego_mesh_t::get_tile_int(pmesh, PointGrid(ix, iy));
+            TileIndex itile = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
             if (TileIndex::Invalid == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
@@ -3945,7 +3919,7 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
     // the current system would not work for that shape
     if ( 0 == grid_vert_count )
     {
-        return get_mesh_max_vertex_2( pmesh, pchr );
+        return get_mesh_max_vertex_2( mesh, pchr );
     }
     else
     {
@@ -3953,10 +3927,10 @@ float get_chr_level( ego_mesh_t * pmesh, Object * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1( pmesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->waterwalk );
+        zmax = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[0], grid_vert_y[0]), &bump, pchr->waterwalk );
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1( pmesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->waterwalk );
+            fval = get_mesh_max_vertex_1( mesh, PointGrid(grid_vert_x[cnt], grid_vert_y[cnt]), &bump, pchr->waterwalk );
             zmax = std::max( zmax, fval );
         }
     }
@@ -4447,7 +4421,7 @@ void water_instance_set_douse_level(water_instance_t & self, float level)
         self._layer[i]._z += dlevel;
     }
 
-    ego_mesh_update_water_level(PMesh);
+    ego_mesh_update_water_level(_currentModule->getMeshPointer());
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4471,4 +4445,27 @@ float water_instance_get_water_level(water_instance_t& self)
 float water_instance_layer_get_level(water_instance_layer_t& self)
 {
     return self._z + self._amp;
+}
+
+//--------------------------------------------------------------------------------------------
+float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk )
+{
+    /// @author ZZ
+    /// @details This function returns the height of a point within a mesh fan, precise
+    ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
+    ///    level of the water.
+
+    float zdone = ego_mesh_t::get_level(mesh, PointWorld(x, y));
+
+    if ( waterwalk && water._surface_level > zdone && water._is_water )
+    {
+        TileIndex tile = ego_mesh_t::get_grid( mesh, PointWorld(x, y));
+
+        if ( 0 != ego_mesh_t::test_fx( mesh, tile, MAPFX_WATER ) )
+        {
+            zdone = water._surface_level;
+        }
+    }
+
+    return zdone;
 }

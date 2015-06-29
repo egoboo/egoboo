@@ -503,7 +503,7 @@ float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->getTile());
+        ego_tile_info_t *tile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), chr->getTile());
 
         if (nullptr != tile && tile->inrenderlist)
         {
@@ -514,7 +514,7 @@ float chr_get_mesh_pressure(Object *chr, const fvec3_t& pos)
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    float result = ego_mesh_t::get_pressure( PMesh, pos, radius, chr->stoppedby);
+    float result = ego_mesh_t::get_pressure( _currentModule->getMeshPointer(), pos, radius, chr->stoppedby);
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
     return result;
@@ -537,7 +537,7 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
     float radius = 0.0f;
     if (egoboo_config_t::get().debug_developerMode_enable.getValue() && !SDL_KEYDOWN(keyb, SDLK_F8))
     {
-        ego_tile_info_t *tile = ego_mesh_t::get_ptile(PMesh, chr->getTile());
+        ego_tile_info_t *tile = ego_mesh_t::get_ptile(_currentModule->getMeshPointer(), chr->getTile());
 
         if (nullptr != tile && tile->inrenderlist)
         {
@@ -548,7 +548,7 @@ fvec3_t chr_get_mesh_diff(Object *chr, const fvec3_t& pos, float center_pressure
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    fvec3_t result = ego_mesh_t::get_diff(PMesh, pos, radius, center_pressure, chr->stoppedby);
+    fvec3_t result = ego_mesh_t::get_diff(_currentModule->getMeshPointer(), pos, radius, center_pressure, chr->stoppedby);
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
     return result;
@@ -2668,8 +2668,8 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     //---- character "floor" level
-    grid_level = get_mesh_level( PMesh, pchr->getPosX(), pchr->getPosY(), false );
-    water_level = get_mesh_level( PMesh, pchr->getPosX(), pchr->getPosY(), true );
+    grid_level = get_mesh_level( _currentModule->getMeshPointer(), pchr->getPosX(), pchr->getPosY(), false );
+    water_level = get_mesh_level( _currentModule->getMeshPointer(), pchr->getPosX(), pchr->getPosY(), true );
 
     // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
     chr_set_enviro_grid_level( pchr, grid_level );
@@ -2701,7 +2701,7 @@ void move_one_character_get_environment( Object * pchr )
     }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
-    if ( 0 != ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_WATER ) )
+    if ( 0 != ego_mesh_t::test_fx( _currentModule->getMeshPointer(), pchr->getTile(), MAPFX_WATER ) )
     {
         penviro->fly_level = std::max( penviro->level, water._surface_level );
     }
@@ -2718,11 +2718,11 @@ void move_one_character_get_environment( Object * pchr )
     penviro->grounded = (( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
-    penviro->grid_twist = ego_mesh_get_twist( PMesh, pchr->getTile() );
+    penviro->grid_twist = ego_mesh_get_twist( _currentModule->getMeshPointer(), pchr->getTile() );
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water._is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && ( 0 != ego_mesh_t::test_fx( PMesh, pchr->getTile(), MAPFX_SLIPPY ) );
+    penviro->is_slippy = !penviro->is_watery && ( 0 != ego_mesh_t::test_fx( _currentModule->getMeshPointer(), pchr->getTile(), MAPFX_SLIPPY ) );
 
     //---- traction
     penviro->traction = 1.0f;
@@ -2749,7 +2749,7 @@ void move_one_character_get_environment( Object * pchr )
             penviro->traction /= 4.00f * Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
-    else if ( ego_mesh_t::grid_is_valid( PMesh, pchr->getTile() ) )
+    else if ( ego_mesh_t::grid_is_valid( _currentModule->getMeshPointer(), pchr->getTile() ) )
     {
         penviro->traction = std::abs( map_twist_nrm[penviro->grid_twist][kZ] ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -2786,7 +2786,7 @@ void move_one_character_get_environment( Object * pchr )
     {
         // Make the characters slide
         float temp_friction_xy = Physics::g_environment.noslipfriction;
-        if ( ego_mesh_t::grid_is_valid( PMesh, pchr->getTile() ) && penviro->is_slippy )
+        if ( ego_mesh_t::grid_is_valid( _currentModule->getMeshPointer(), pchr->getTile() ) && penviro->is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = Physics::g_environment.slippyfriction;
@@ -3549,7 +3549,7 @@ bool chr_update_safe_raw( Object * pchr )
         pchr->safe_valid = true;
         pchr->safe_pos = pchr->getPosition();
         pchr->safe_time  = update_wld;
-        pchr->safe_grid  = ego_mesh_t::get_grid( PMesh, PointWorld(pchr->getPosX(), pchr->getPosY())).getI();
+        pchr->safe_grid  = ego_mesh_t::get_grid( _currentModule->getMeshPointer(), PointWorld(pchr->getPosX(), pchr->getPosY())).getI();
 
         retval = true;
     }
@@ -3571,7 +3571,7 @@ bool chr_update_safe( Object * pchr, bool force )
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pchr->getPosX(), pchr->getPosY()));
+        TileIndex new_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pchr->getPosX(), pchr->getPosY()));
 
         if (TileIndex::Invalid == new_grid )
         {
@@ -3685,7 +3685,7 @@ bool chr_update_breadcrumb( Object * object, bool force )
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(object->getPosX(), object->getPosY()));
+        TileIndex new_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(object->getPosX(), object->getPosY()));
 
         if (TileIndex::Invalid == new_grid )
         {

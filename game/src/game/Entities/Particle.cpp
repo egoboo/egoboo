@@ -505,8 +505,8 @@ prt_t *prt_t::config_do_init()
     tmp_pos[kX] += pprt->offset[kX];
     tmp_pos[kY] += pprt->offset[kY];
 
-    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, PMesh->gmem.edge_x - 2.0f);
-    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, PMesh->gmem.edge_y - 2.0f);
+    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->gmem.edge_x - 2.0f);
+    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->gmem.edge_y - 2.0f);
 
     pprt->setPosition(tmp_pos);
     pprt->pos_old = tmp_pos;
@@ -765,7 +765,7 @@ BIT_FIELD prt_t::hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mes
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    BIT_FIELD  result = ego_mesh_hit_wall(PMesh, pos, 0.0f, stoppedby, nrm, pressure, data);
+    BIT_FIELD  result = ego_mesh_hit_wall(_currentModule->getMeshPointer(), pos, 0.0f, stoppedby, nrm, pressure, data);
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
 
@@ -804,7 +804,7 @@ BIT_FIELD prt_t::test_wall(const fvec3_t& pos, mesh_wall_data_t *data)
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
-    BIT_FIELD result = ego_mesh_test_wall(PMesh, pos, 0.0f, stoppedby, data);
+    BIT_FIELD result = ego_mesh_test_wall(_currentModule->getMeshPointer(), pos, 0.0f, stoppedby, data);
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
 
@@ -862,7 +862,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     prt_environment_t *penviro = &(loc_pprt->enviro);
 
     //---- character "floor" level
-    penviro->floor_level = ego_mesh_t::get_level(PMesh, PointWorld(loc_pprt->pos[kX], loc_pprt->pos[kY]));
+    penviro->floor_level = ego_mesh_t::get_level(_currentModule->getMeshPointer(), PointWorld(loc_pprt->pos[kX], loc_pprt->pos[kY]));
     penviro->level = penviro->floor_level;
 
     //---- The actual level of the characer.
@@ -888,11 +888,11 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
         itile = loc_pprt->getTile();
     }
 
-    penviro->twist = ego_mesh_get_twist(PMesh, itile);
+    penviro->twist = ego_mesh_get_twist(_currentModule->getMeshPointer(), itile);
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water._is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && (0 != ego_mesh_t::test_fx(PMesh, loc_pprt->getTile(), MAPFX_SLIPPY));
+    penviro->is_slippy = !penviro->is_watery && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), loc_pprt->getTile(), MAPFX_SLIPPY));
 
     //---- traction
     penviro->traction = 1.0f;
@@ -919,7 +919,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
             penviro->traction /= Physics::g_environment.hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
-    else if (ego_mesh_t::grid_is_valid(PMesh, loc_pprt->getTile()))
+    else if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), loc_pprt->getTile()))
     {
         penviro->traction = std::abs(map_twist_nrm[penviro->twist][kZ]) * (1.0f - penviro->zlerp) + 0.25f * penviro->zlerp;
 
@@ -947,7 +947,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_get_environment()
     {
         // Make the characters slide
         float temp_friction_xy = Physics::g_environment.noslipfriction;
-        if (ego_mesh_t::grid_is_valid(PMesh, loc_pprt->getTile()) && penviro->is_slippy)
+        if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), loc_pprt->getTile()) && penviro->is_slippy)
         {
             // It's slippy all right...
             temp_friction_xy = Physics::g_environment.slippyfriction;
@@ -1411,7 +1411,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
 
         touch_a_floor = true;
 
-        uint8_t tmp_twist = cartman_get_fan_twist(PMesh, loc_pprt->getTile());
+        uint8_t tmp_twist = cartman_get_fan_twist(_currentModule->getMeshPointer(), loc_pprt->getTile());
 
         if (TWIST_FLAT != tmp_twist)
         {
@@ -1882,10 +1882,10 @@ bool prt_is_over_water(const PRT_REF ref)
     if (!ALLOCATED_PRT(ref)) return false;
 
     prt_t *prt = ParticleHandler::get().get_ptr(ref);
-    TileIndex fan = ego_mesh_t::get_grid(PMesh, PointWorld(prt->pos[kX], prt->pos[kY]));
-    if (ego_mesh_t::grid_is_valid(PMesh, fan))
+    TileIndex fan = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(prt->pos[kX], prt->pos[kY]));
+    if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), fan))
     {
-        if (0 != ego_mesh_t::test_fx(PMesh, fan, MAPFX_WATER))  return true;
+        if (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), fan, MAPFX_WATER))  return true;
     }
 
     return false;
@@ -1932,7 +1932,7 @@ bool prt_t::update_safe_raw(prt_t * pprt)
         pprt->safe_valid = true;
         pprt->safe_pos = pprt->getPosition();
         pprt->safe_time = update_wld;
-        pprt->safe_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos[kX], pprt->pos[kY])).getI();
+        pprt->safe_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pprt->pos[kX], pprt->pos[kY])).getI();
 
         retval = true;
     }
@@ -1953,7 +1953,7 @@ bool prt_t::update_safe(prt_t * pprt, bool force)
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(PMesh, PointWorld(pprt->pos[kX], pprt->pos[kY]));
+        TileIndex new_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pprt->pos[kX], pprt->pos[kY]));
 
         if (TileIndex::Invalid == new_grid)
         {
@@ -1996,8 +1996,8 @@ bool prt_t::setPosition(const fvec3_t& position)
     {
         this->pos = position;
 
-        this->_tile = ego_mesh_t::get_grid(PMesh, PointWorld(this->pos[kX], this->pos[kY])).getI();
-        this->_block = ego_mesh_t::get_block(PMesh, PointWorld(this->pos[kX], this->pos[kY])).getI();
+        this->_tile = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
+        this->_block = ego_mesh_t::get_block(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
 
         // Update whether the current particle position is safe.
         prt_t::update_safe(this, false);
@@ -2253,7 +2253,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
     if (NULL == this->_prt_ptr) return NULL;
 
     bool inwater = (this->_prt_ptr->pos[kZ] < water._surface_level)
-                && (0 != ego_mesh_t::test_fx(PMesh, this->_prt_ptr->getTile(), MAPFX_WATER));
+                && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), this->_prt_ptr->getTile(), MAPFX_WATER));
 
     if (inwater && water._is_water && this->_pip_ptr->end_water)
     {

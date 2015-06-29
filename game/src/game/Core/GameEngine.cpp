@@ -329,8 +329,6 @@ bool GameEngine::initialize()
 
     // Initialize the model system.
     model_system_begin();
-    ego_mesh_t::ctor(PMesh);
-
 
     renderPreloadText("Loading modules...");
     ProfileSystem::get().loadModuleProfiles();
