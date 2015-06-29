@@ -534,6 +534,17 @@ public:
     bool getShowStatus() const { return _showStatus; }
     void setShowStatus(const bool val) { _showStatus = val; }
 
+    /**
+    * @return
+    *   Get the experience level of this Object (1 being the first level)
+    **/
+    uint8_t getExperienceLevel() const { return experiencelevel + 1; }
+
+    /**
+    * @return
+    *   The gender of this Object (if applicable)
+    **/
+    CharacterGender getGender() const { return static_cast<CharacterGender>(gender); }
 
 private:
 

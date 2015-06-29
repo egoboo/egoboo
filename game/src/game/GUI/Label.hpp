@@ -12,6 +12,9 @@ public:
        
     void setText(const std::string &LabelText);
 
+    void setFont(const std::shared_ptr<Ego::Font> &font);
+    
 private:
     std::string _text;
+    std::shared_ptr<Ego::Font> _font;
 };

@@ -30,12 +30,14 @@ UIManager::UIManager() :
     _defaultFont(nullptr),
     _floatingTextFont(nullptr),
     _debugFont(nullptr),
+    _gameFont(nullptr),
     _renderSemaphore(0)
 {
 
     _defaultFont = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
     _floatingTextFont = Ego::FontManager::loadFont("mp_data/FrostysWinterland.ttf", 24);
     _debugFont = Ego::FontManager::loadFont("mp_data/DejaVuSansMono.ttf", 10);
+    _gameFont = Ego::FontManager::loadFont("mp_data/IMMORTAL.ttf", 14);
     const auto& vertexFormat = Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>();
     _vertexBuffer = std::make_shared<Ego::VertexBuffer>(4, vertexFormat);
 }
@@ -47,6 +49,7 @@ UIManager::~UIManager()
     _defaultFont.reset();
     _floatingTextFont.reset();
     _debugFont.reset();
+    _gameFont.reset();
 }
 
 void UIManager::beginRenderUI()
@@ -155,4 +158,9 @@ std::shared_ptr<Ego::Font> UIManager::getFloatingTextFont() const
 std::shared_ptr<Ego::Font> UIManager::getDebugFont() const
 {
     return _debugFont;
+}
+
+std::shared_ptr<Ego::Font> UIManager::getGameFont() const
+{
+    return _gameFont;
 }
