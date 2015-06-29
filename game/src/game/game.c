@@ -739,7 +739,7 @@ int update_game()
     {
         BillboardSystem::get()._billboardList.update();
         animate_tiles();
-        water_instance_move(water);
+        water.move();
         AudioSystem::get().updateLoopingSounds();
         do_damage_tiles();
         update_pits();
@@ -2736,7 +2736,7 @@ bool game_finish_module()
         export_all_players( false );
 
         // update the import list
-        import_list_from_players(g_importList);
+        import_list_t::from_players(g_importList);
     }
 
     // erase the data in the import folder
@@ -3383,19 +3383,19 @@ void weather_instance_t::upload(const wawalite_weather_t& source)
 }
 
 //--------------------------------------------------------------------------------------------
-void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source)
+void fog_instance_t::upload(const wawalite_fog_t& source)
 {
-	self._on = source.found && egoboo_config_t::get().graphic_fog_enable.getValue();
-	self._top = source.top;
-	self._bottom = source.bottom;
+	_on = source.found && egoboo_config_t::get().graphic_fog_enable.getValue();
+	_top = source.top;
+	_bottom = source.bottom;
 
-	self._red = source.red * 0xFF;
-	self._grn = source.grn * 0xFF;
-	self._blu = source.blu * 0xFF;
+	_red = source.red * 0xFF;
+	_grn = source.grn * 0xFF;
+	_blu = source.blu * 0xFF;
 
-	self._distance = (source.top - source.bottom);
+	_distance = (source.top - source.bottom);
 
-	self._on = (self._distance < 1.0f) && self._on;
+	_on = (_distance < 1.0f) && _on;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3537,8 +3537,8 @@ void upload_wawalite()
     upload_graphics_data( &( pdata->graphics ) );
     upload_light_data( pdata );                         // this statement depends on data from upload_graphics_data()
     upload_camera_data( &( pdata->camera ) );
-    upload_fog_data(fog, pdata->fog);
-    upload_water_data(water, pdata->water);
+    fog.upload(pdata->fog);
+    water.upload(pdata->water);
     weather.upload(pdata->weather);
     damagetile.upload(pdata->damagetile);
     upload_animtile_data( animtile, &( pdata->animtile ), SDL_arraysize( animtile ) );
@@ -4285,7 +4285,7 @@ bool detach_particle_from_platform( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void import_element_init(import_element_t& self)
+void import_element_t::init(import_element_t& self)
 {
 	self.srcDir[0] = '\0';
 	self.dstDir[0] = '\0';
@@ -4363,20 +4363,20 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void import_list_init(import_list_t& self)
+void import_list_t::init(import_list_t& self)
 {
     for (size_t i = 0; i < (size_t)MAX_IMPORTS; ++i)
     {
-        import_element_init(self.lst[i]);
+        import_element_t::init(self.lst[i]);
     }
     self.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv import_list_from_players(import_list_t& self)
+egolib_rv import_list_t::from_players(import_list_t& self)
 {
     // blank out the ImportList list
-    import_list_init(self);
+    import_list_t::init(self);
 
     // generate the ImportList list from the player info
 	for (PLA_REF player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++)
@@ -4444,8 +4444,27 @@ bool check_time( Uint32 check )
 }
 
 //--------------------------------------------------------------------------------------------
+
+float water_instance_layer_t::get_level() const
+{
+	return _z + _amp;
+}
+
+void water_instance_layer_t::move()
+{
+	_tx[SS] += _tx_add[SS];
+	_tx[TT] += _tx_add[TT];
+
+	if (_tx[SS] >  1.0f) _tx[SS] -= 1.0f;
+	if (_tx[TT] >  1.0f) _tx[TT] -= 1.0f;
+	if (_tx[SS] < -1.0f) _tx[SS] += 1.0f;
+	if (_tx[TT] < -1.0f) _tx[TT] += 1.0f;
+
+	_frame = (_frame + _frame_add) & WATERFRAMEAND;
+}
+
 //--------------------------------------------------------------------------------------------
-void water_instance_make(water_instance_t& self, const wawalite_water_t& source)
+void water_instance_t::make(const wawalite_water_t& source)
 {
     /// @author ZZ
     /// @details This function sets up water movements
@@ -4454,8 +4473,8 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& source)
 	///       layer should be the same type. 
 	for (int layer = 0; layer < source.layer_count; ++layer)
     {
-        self._layer[layer]._tx[SS] = 0;
-        self._layer[layer]._tx[TT] = 0;
+        _layers[layer]._tx[SS] = 0;
+        _layers[layer]._tx[TT] = 0;
 
         for (size_t frame = 0; frame < (size_t)MAXWATERFRAME; ++frame)
         {
@@ -4466,7 +4485,7 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& source)
                 float temp = (frame * twoPi<float>() / MAXWATERFRAME)
                            + (twoPi<float>() * point / WATERPOINTS) + (piOverTwo<float>() * layer / MAXWATERLAYER);
                 temp = std::sin(temp);
-				self._layer_z_add[layer][frame][point] = temp * source.layer[layer].amp;
+				_layer_z_add[layer][frame][point] = temp * source.layer[layer].amp;
             }
         }
     }
@@ -4486,103 +4505,79 @@ void water_instance_make(water_instance_t& self, const wawalite_water_t& source)
         /// @note claforte@> Probably need to replace this with a
         ///           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
         if (!gfx.gouraudShading_enable)
-            self._spek[i] = 0;
+            _spek[i] = 0;
         else
-            self._spek[i] = spek;
+            _spek[i] = spek;
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void upload_water_data(water_instance_t& self, const wawalite_water_t& source)
+void water_instance_t::upload(const wawalite_water_t& source)
 {
 	// upload the data
-	self._surface_level = source.surface_level;
-    self._douse_level = source.douse_level;
+	_surface_level = source.surface_level;
+    _douse_level = source.douse_level;
 
-    self._is_water = source.is_water;
-    self._overlay_req = source.overlay_req;
-    self._background_req = source.background_req;
+    _is_water = source.is_water;
+    _overlay_req = source.overlay_req;
+    _background_req = source.background_req;
 
-    self._light = source.light;
+    _light = source.light;
 
-    self._foregroundrepeat = source.foregroundrepeat;
-    self._backgroundrepeat = source.backgroundrepeat;
+    _foregroundrepeat = source.foregroundrepeat;
+    _backgroundrepeat = source.backgroundrepeat;
 
     // upload the layer data
-    self._layer_count = source.layer_count;
-    upload_water_layer_data(self._layer, source.layer, source.layer_count);
+    _layer_count = source.layer_count;
+    upload_water_layer_data(_layers, source.layer, source.layer_count);
 
-	water_instance_make(self, source);
+	make(source);
 
     // Allow slow machines to ignore the fancy stuff
-    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && self._layer_count > 1)
+    if (!egoboo_config_t::get().graphic_twoLayerWater_enable.getValue() && _layer_count > 1)
     {
         int iTmp = source.layer[0].light_add;
         iTmp = (source.layer[1].light_add * iTmp * INV_FF) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
-        self._layer_count        = 1;
-        self._layer[0]._light_add = iTmp * INV_FF;
+        _layer_count        = 1;
+        _layers[0]._light_add = iTmp * INV_FF;
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void water_instance_move(water_instance_t& self)
-{
-    for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i)
-    {
-		water_instance_layer_t& layer = self._layer[i];
-
-        layer._tx[SS] += layer._tx_add[SS];
-        layer._tx[TT] += layer._tx_add[TT];
-
-        if (layer._tx[SS] >  1.0f) layer._tx[SS] -= 1.0f;
-        if (layer._tx[TT] >  1.0f) layer._tx[TT] -= 1.0f;
-        if (layer._tx[SS] < -1.0f) layer._tx[SS] += 1.0f;
-        if (layer._tx[TT] < -1.0f) layer._tx[TT] += 1.0f;
-
-        layer._frame = (layer._frame + layer._frame_add) & WATERFRAMEAND;
+void water_instance_t::move() {
+    for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i) {
+		_layers[i].move();
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void water_instance_set_douse_level(water_instance_t & self, float level)
+void water_instance_t::set_douse_level(float level)
 {
     // get the level difference
-    float dlevel = level - self._douse_level;
+    float dlevel = level - _douse_level;
 
     // update all special values
-    self._surface_level += dlevel;
-    self._douse_level += dlevel;
+    _surface_level += dlevel;
+    _douse_level += dlevel;
 
     // update the gfx height of the water
-    for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i)
-    {
-        self._layer[i]._z += dlevel;
+    for (size_t i = 0; i < (size_t)MAXWATERLAYER; ++i) {
+        _layers[i]._z += dlevel;
     }
 
     ego_mesh_update_water_level(PMesh);
 }
 
-//--------------------------------------------------------------------------------------------
-float water_instance_get_water_level(water_instance_t& self)
+float water_instance_t::get_level() const
 {
-    float level = water_instance_layer_get_level(self._layer[0]);
+    float level = _layers[0].get_level();
 
     if (egoboo_config_t::get().graphic_twoLayerWater_enable.getValue())
     {
         for (size_t i = 1; i < (size_t)MAXWATERLAYER; ++i)
         {
-			level = std::max(level, water_instance_layer_get_level(self._layer[i]));
+			level = std::max(level, _layers[i].get_level());
         }
     }
 
     return level;
-}
-
-//--------------------------------------------------------------------------------------------
-
-float water_instance_layer_get_level(water_instance_layer_t& self)
-{
-    return self._z + self._amp;
 }

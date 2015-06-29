@@ -69,7 +69,7 @@ void Background::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	grid_mem_t     *pgmem = &(PMesh->gmem);
 
 	// which layer
-	water_instance_layer_t *ilayer = water._layer + 0;
+	water_instance_layer_t *ilayer = water._layers + 0;
 
 	// the "official" camera height
 	z0 = 1500;
@@ -223,7 +223,7 @@ void Foreground::doRun(Camera& cam, const TileList& tl, const EntityList& el) {
 	fvec3_t   vforw_wind, vforw_cam;
 	TURN_T default_turn;
 
-	water_instance_layer_t *ilayer = water._layer + 1;
+	water_instance_layer_t *ilayer = water._layers + 1;
 
 	vforw_wind[XX] = ilayer->_tx_add[XX];
 	vforw_wind[YY] = ilayer->_tx_add[YY];

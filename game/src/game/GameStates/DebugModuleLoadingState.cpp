@@ -204,7 +204,7 @@ void DebugModuleLoadingState::beginState()
 bool DebugModuleLoadingState::loadPlayers()
 {
     // blank out any existing data
-    import_list_init(g_importList);
+    import_list_t::init(g_importList);
 
     // loop through the selected players and store all the valid data in the list of imported players
     for(const std::string &loadPath : _playersToLoad)

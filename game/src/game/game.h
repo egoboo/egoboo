@@ -223,18 +223,24 @@ struct water_instance_layer_t
     Uint8 _alpha;        ///< layer transparency
 
     fvec2_t _tx_add;            ///< Texture movement
-};
 
-/**
- * @brief
- *	Get the level of this water layer.
- * @return
- *	the level of this water layer
- * @remark
- *	The level of a water layer is its base height plus the peak amplitude of its waves i.e.
- *	<tt>z + amp</tt>.
- */
-float water_instance_layer_get_level(water_instance_layer_t& self);
+	/**
+	 * @brief
+	 *	Animate this water instance layer.
+	 */
+	void move();
+
+	/**
+	 * @brief
+	 *	Get the level of this water layer.
+	 * @return
+	 *	the level of this water layer
+	 * @remark
+	 *	The level of a water layer is its base height plus the peak amplitude of its waves i.e.
+	 *	<tt>z + amp</tt>.
+	 */
+	float get_level() const;
+};
 
 //--------------------------------------------------------------------------------------------
 
@@ -254,29 +260,30 @@ struct water_instance_t
     Uint32 _spek[256];              ///< Specular highlights
 
     int _layer_count;
-    water_instance_layer_t _layer[MAXWATERLAYER];
+    water_instance_layer_t _layers[MAXWATERLAYER];
 
     float  _layer_z_add[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
+
+	/**
+	 * @brief
+	 *	Get the level of this water instance.
+	 * @return
+	 *	the level of this water instance.
+	 * @remark
+	 *	The level of a water instance is the maximum of the levels of its layers.
+	 */
+	float get_level() const;
+
+	/**
+	 * @brief
+	 *	Animate this water instance.
+	 */
+	void move();
+	void upload(const wawalite_water_t& source);
+	void make(const wawalite_water_t& source);
+
+	void set_douse_level(float level);
 };
-
-/**
- * @brief
- *	Get the level of this water instance.
- * @return
- *	the level of this water instance.
- * @remark
- *	The level of a water instance is the maximum of the levels of its layers.
- */
-float water_instance_get_water_level(water_instance_t& self);
-/**
- * @brief
- *	Animate this water instance.
- */
-void water_instance_move(water_instance_t& self);
-void water_instance_make(water_instance_t& self, const wawalite_water_t& source);
-void water_instance_set_douse_level(water_instance_t& self, float level);
-
-void upload_water_data(water_instance_t& self, const wawalite_water_t& source);
 
 //--------------------------------------------------------------------------------------------
 
@@ -289,9 +296,9 @@ struct fog_instance_t
 		  _bottom;
     Uint8 _red, _grn, _blu;
     float _distance;
-};
 
-void upload_fog_data(fog_instance_t& self, const wawalite_fog_t& source);
+	void upload(const wawalite_fog_t& source);
+};
 
 //--------------------------------------------------------------------------------------------
 // Imports
@@ -314,9 +321,11 @@ struct import_element_t
 		player = INVALID_PLA_REF;
 		slot = -1;
 	}
+
+	static void init(import_element_t& self);
 };
 
-void import_element_init(import_element_t& self);
+
 
 //--------------------------------------------------------------------------------------------
 
@@ -328,10 +337,10 @@ struct import_list_t
 	import_list_t()
 		: count(0), lst() {
 	}
-};
 
-void import_list_init(import_list_t& self);
-egolib_rv import_list_from_players(import_list_t& self);
+	static void init(import_list_t& self);
+	static egolib_rv from_players(import_list_t& self);
+};
 
 //--------------------------------------------------------------------------------------------
 
@@ -369,8 +378,6 @@ struct status_list_t
 		: on(false), count(0), lst() {
 	}
 };
-
-#define STATUS_LIST_INIT { false /* on */, 0 /* count */, {STATUS_LIST_ELEMENT_INIT} /* lst */ }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

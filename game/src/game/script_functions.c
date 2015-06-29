@@ -2833,7 +2833,7 @@ Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    water_instance_set_douse_level(water, pstate->argument / 10.0f);
+    water.set_douse_level(pstate->argument / 10.0f);
 
     SCRIPT_FUNCTION_END();
 }

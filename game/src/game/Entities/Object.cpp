@@ -288,7 +288,7 @@ bool Object::isOverWater(bool anyLiquid) const
 
 bool Object::isInWater(bool anyLiquid) const
 {
-    return isOverWater(anyLiquid) && getPosZ() < water_instance_get_water_level(water);
+    return isOverWater(anyLiquid) && getPosZ() < water.get_level();
 }
 
 
@@ -770,7 +770,7 @@ void Object::update()
         return;
     }
 
-    const float WATER_LEVEL = water_instance_get_water_level(water);
+    const float WATER_LEVEL = water.get_level();
 
     // do the character interaction with water
     if (!isHidden() && isInWater(true))
