@@ -524,13 +524,13 @@ void animate_tiles()
         patile = animtile + cnt;
 
         // skip it if there were no updates
-        if ( patile->frame_update_old == true_frame ) continue;
+        if ( patile->frame_update_old == update_wld ) continue;
 
         // save the old frame_add when we update to detect changes
         patile->frame_add_old = patile->frame_add;
 
         // cycle through all frames since the last time
-        for ( Uint32 tnc = patile->frame_update_old + 1; tnc <= true_frame; tnc++ )
+        for ( Uint32 tnc = patile->frame_update_old + 1; tnc <= update_wld; tnc++ )
         {
             if ( 0 == ( tnc & patile->update_and ) )
             {
@@ -539,6 +539,6 @@ void animate_tiles()
         }
 
         // save the frame update
-        patile->frame_update_old = true_frame;
+        patile->frame_update_old = update_wld;
     }
 }

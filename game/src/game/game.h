@@ -399,9 +399,6 @@ extern Uint32          clock_enc_stat;        ///< For character stat regenerati
 extern Uint32          clock_chr_stat;        ///< For enchant stat regeneration
 extern Uint32          clock_pit;             ///< For pit kills
 extern Uint32          update_wld;            ///< The number of times the game has been updated
-extern Uint32          true_update;
-extern Uint32          true_frame;
-extern int             update_lag;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
