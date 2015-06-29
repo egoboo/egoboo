@@ -1716,7 +1716,7 @@ struct by_list_t
 //--------------------------------------------------------------------------------------------
 gfx_rv render_fans_by_list(const ego_mesh_t * mesh, const Ego::Graphics::renderlist_lst_t * rlst)
 {
-    if (NULL == mesh) mesh = mesh;
+    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
     if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
@@ -2111,7 +2111,7 @@ float grid_lighting_test(ego_mesh_t * mesh, GLXvector3f pos, float * low_diff, f
     const lighting_cache_t * cache_list[4];
     ego_grid_info_t  * pgrid;
 
-    if (NULL == mesh) mesh = mesh;
+    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
     if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");
@@ -2159,7 +2159,7 @@ bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, 
     ego_grid_info_t  * pgrid;
     const lighting_cache_t * cache_list[4];
 
-    if (NULL == mesh) mesh = mesh;
+    if (NULL == mesh) mesh = _currentModule->getMeshPointer();
     if (NULL == mesh)
     {
         gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh");

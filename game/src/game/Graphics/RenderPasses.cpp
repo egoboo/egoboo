@@ -807,7 +807,7 @@ void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityLi
 				CHR_REF ichr = el.get(i).ichr;
 				TileIndex itile = _currentModule->getObjectHandler().get(ichr)->getTile();
 
-				if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), itile) && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), itile, MAPFX_REFLECTIVE)))
+				if (ego_mesh_t::grid_is_valid(mesh, itile) && (0 != ego_mesh_t::test_fx(mesh, itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Ego::Colour4f::white());
 
@@ -828,7 +828,7 @@ void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityLi
 				PRT_REF iprt = el.get(i).iprt;
 				TileIndex itile = ParticleHandler::get().get_ptr(iprt)->getTile();
 
-				if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), itile) && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), itile, MAPFX_REFLECTIVE)))
+				if (ego_mesh_t::grid_is_valid(mesh, itile) && (0 != ego_mesh_t::test_fx(mesh, itile, MAPFX_REFLECTIVE)))
 				{
 					renderer.setColour(Ego::Colour4f::white());
 					render_one_prt_ref(iprt);
