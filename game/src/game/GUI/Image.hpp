@@ -8,6 +8,7 @@ class Image : public GUIComponent
 public:
     Image();
     Image(const std::string &filePath);
+    Image(oglx_texture_t *texture);
     ~Image();
 
     virtual void draw() override;
@@ -19,4 +20,5 @@ public:
 
 private:
     oglx_texture_t *_image;
+    bool _freeOnDestroy;
 };
