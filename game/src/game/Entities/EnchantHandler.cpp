@@ -322,7 +322,7 @@ ENC_REF EnchantHandler::spawn_one_enchant(const CHR_REF owner, const CHR_REF tar
     // Check peve->required_damagetype, 90% damage resistance is enough to resist the enchant
     if (peve->required_damagetype < DAMAGE_COUNT)
     {
-        if (ptarget->damage_resistance[peve->required_damagetype] >= 0.90f ||
+        if (ptarget->getDamageReduction(peve->required_damagetype) >= 0.90f ||
             HAS_SOME_BITS(ptarget->damage_modifier[peve->required_damagetype], DAMAGEINVICTUS))
         {
             log_debug("spawn_one_enchant() - failed because the target is immune to the enchant.\n");

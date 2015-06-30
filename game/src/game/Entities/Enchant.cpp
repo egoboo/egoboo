@@ -907,12 +907,12 @@ enc_t *enc_t::config_do_init()
         _currentModule->getObjectHandler().get(penc->spawner_ref)->undoenchant = ienc;
     }
 
-    //recuce enchant duration with damage resistance
+    //modify enchant duration with damage resistance (bad resistance actually *increases* duration!)
     penc->spawn_timer    = 1;
     lifetime             = peve->lifetime;
     if ( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT && ptarget )
     {
-        lifetime -= std::max( 1.0f, std::ceil(( ptarget->damage_resistance[peve->required_damagetype] ) * peve->lifetime ) );
+        lifetime -= std::ceil(ptarget->getDamageReduction(peve->required_damagetype) * peve->lifetime);
     }
     penc->lifetime       = lifetime;
 

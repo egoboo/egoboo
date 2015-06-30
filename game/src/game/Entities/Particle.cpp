@@ -1722,9 +1722,6 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
     // Check that direction
     if (!is_invictus_direction(direction, character, ppip->damfx))
     {
-        IPair loc_rand(0, 100);
-        int damage_resistance;
-
         // Spawn new enchantments
         if (ppip->spawnenchant)
         {
@@ -1740,10 +1737,9 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
         // one bump particle
 
         //check if we resisted the attack, we could resist some of the particles or none
-        damage_resistance = (pprt->damagetype >= DAMAGE_COUNT) ? 0 : pchr->damage_resistance[pprt->damagetype] * 100;
         for (cnt = 0; cnt < amount; cnt++)
         {
-            if (generate_irand_pair(loc_rand) <= damage_resistance) amount--;
+            if (Random::nextFloat() <= pchr->getDamageReduction(pprt->damagetype)) amount--;
         }
 
         if (amount > 0 && !profile->hasResistBumpSpawn() && !pchr->invictus)
@@ -2134,7 +2130,7 @@ prt_bundle_t *prt_bundle_t::do_bump_damage()
     bool is_immolated_by = (loc_pprt->damagetype < DAMAGE_COUNT && loc_pchr->reaffirm_damagetype == loc_pprt->damagetype);
 
     // 4) the character has no protection to the particle
-    bool no_protection_from = (0 != max_damage) && (loc_pprt->damagetype < DAMAGE_COUNT) && (0 == loc_pchr->damage_resistance[loc_pprt->damagetype]);
+    bool no_protection_from = (0 != max_damage) && (loc_pprt->damagetype < DAMAGE_COUNT) && (0.0f <= loc_pchr->getDamageReduction(loc_pprt->damagetype));
 
     if (!skewered_by_arrow && !has_vulnie && !is_immolated_by && !no_protection_from)
     {
