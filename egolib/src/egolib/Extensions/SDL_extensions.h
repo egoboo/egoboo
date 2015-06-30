@@ -42,8 +42,8 @@
         unsigned use_desktop_size: 1; ///< SDL_WINDOW_FULLSCREEN_DESKTOP - Window uses desktop size in fullscreen, requires full_screen to be set
         unsigned highdpi: 1;          ///< SDL_WINDOW_ALLOW_HIGHDPI - Supports High-DPI mode (Apple 'Retina')
 
-        static void report(SDLX_sdl_video_flags_t *self);
-        static void defaults(SDLX_sdl_video_flags_t *self);
+        static void report(SDLX_sdl_video_flags_t& self);
+        static void defaults(SDLX_sdl_video_flags_t& self);
     };
 
 //--------------------------------------------------------------------------------------------
@@ -65,8 +65,8 @@
         int accelerated_visual; ///< SDL_GL_ACCELERATED_VISUAL
         int swap_control;       ///< SDL_GL_SWAP_CONTROL
 
-        static void report(SDLX_sdl_gl_attrib_t *self);
-        static void defaults(SDLX_sdl_gl_attrib_t *self);
+        static void report(SDLX_sdl_gl_attrib_t& self);
+        static void defaults(SDLX_sdl_gl_attrib_t& self);
     };
 
 //--------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@
         // bitfield for SDL video flags
         SDLX_sdl_video_flags_t flags;
 
-        static void report(SDLX_screen_info_t *self);
+        static void report(SDLX_screen_info_t& self);
     };
 
 //--------------------------------------------------------------------------------------------
@@ -110,9 +110,9 @@
 
         SDL_Window *surface;
 
-        static void report(SDLX_video_parameters_t *self);
-        static void defaults(SDLX_video_parameters_t *self);
-        static void download(SDLX_video_parameters_t *self, egoboo_config_t *cfg);
+        static void report(SDLX_video_parameters_t& self);
+        static void defaults(SDLX_video_parameters_t& self);
+        static void download(SDLX_video_parameters_t& self, egoboo_config_t& cfg);
     };
 
 //--------------------------------------------------------------------------------------------
@@ -124,7 +124,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// Grab the current SDL screen information
-    bool      SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, bool display );
+    bool      SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool display );
 
 /// Use a SDLX_video_parameters_t structure to create window
     SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report );
@@ -135,4 +135,4 @@
     SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, bool has_valid_mode, bool make_report );
 
 /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
-    void   SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t * v );
+    void   SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t& v );

@@ -142,7 +142,7 @@ public:
     virtual void setAlphaTestEnabled(bool enabled) override;
 
 	/** @copydoc Ego::Renderer::setAlphaFunction */
-	virtual void setAlphaFunction(CompareFunction function, float value) override;
+	virtual void setAlphaFunction(ComparisonFunction function, float value) override;
 
     /** @copydoc Ego::Renderer::setBlendingEnabled */
     virtual void setBlendingEnabled(bool enabled) override;
@@ -154,7 +154,7 @@ public:
     virtual void setCullingMode(CullingMode mode) override;
 
     /** @copydoc Ego::Renderer::setDepthFunction */
-    virtual void setDepthFunction(CompareFunction function) override;
+    virtual void setDepthFunction(ComparisonFunction function) override;
 
     /** @copydoc Ego::Renderer::setDepthTestEnabled */
     virtual void setDepthTestEnabled(bool enabled) override;

@@ -265,7 +265,7 @@ bool GameEngine::initialize()
     gfx_config_t::download(&gfx, &egoboo_config_t::get());
 
     // texture options
-    oglx_texture_parameters_t::download(&g_ogl_textureParameters, &egoboo_config_t::get());
+    oglx_texture_parameters_t::download(g_ogl_textureParameters, egoboo_config_t::get());
 
     // <<<
     /* ********************************************************************************** */
@@ -456,7 +456,7 @@ void GameEngine::pollEvents()
                         // and possibly the auto-formatting for the menu system and the ui system
                         
                         // grab all the new SDL screen info
-                        SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
+                        SDLX_Get_Screen_Info(sdl_scr, false);
                         break;
                     case SDL_WINDOWEVENT_EXPOSED:
                         // something has been done to the screen and it needs to be re-drawn.

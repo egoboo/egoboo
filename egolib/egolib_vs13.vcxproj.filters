@@ -740,9 +740,6 @@
     <ClInclude Include="src\egolib\Math\Math.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\Renderer\CompareFunction.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\Math\Rectangle2.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -957,6 +954,9 @@
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\RasterizationMode.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\ComparisonFunction.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>

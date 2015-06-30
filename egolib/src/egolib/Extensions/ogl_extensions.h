@@ -173,7 +173,7 @@ struct oglx_caps_t
     GLfloat   maxAnisotropy;
     GLfloat   log2Anisotropy;                    ///< Max levels of anisotropy
 
-    static void report(oglx_caps_t *self);
+    static void report(oglx_caps_t& self);
 };
 
 void oglx_Get_Screen_Info(oglx_caps_t *self);
@@ -194,8 +194,8 @@ struct oglx_video_parameters_t
     GLboolean anisotropy_enable;
     GLfloat anisotropy_levels;         ///< current value of the anisotropic filtering
 
-    static void defaults(oglx_video_parameters_t *self);
-    static void download(oglx_video_parameters_t *self, egoboo_config_t *cfg);
+    static void defaults(oglx_video_parameters_t& self);
+    static void download(oglx_video_parameters_t& self, egoboo_config_t& cfg);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -211,8 +211,8 @@ struct oglx_texture_parameters_t
     } textureFilter;
     bool anisotropy_enable;
     float anisotropy_level;
-    static void defaults(oglx_texture_parameters_t* self);
-    static void download(oglx_texture_parameters_t *self, egoboo_config_t *cfg);
+    static void defaults(oglx_texture_parameters_t& self);
+    static void download(oglx_texture_parameters_t& self, egoboo_config_t& cfg);
 };
 
 extern oglx_texture_parameters_t g_ogl_textureParameters;

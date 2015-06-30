@@ -109,7 +109,7 @@ bool config_download( egoboo_config_t *cfg)
     gfx_config_t::download(&gfx, cfg);
 
     // Texture options.
-    oglx_texture_parameters_t::download(&g_ogl_textureParameters, cfg);
+    oglx_texture_parameters_t::download(g_ogl_textureParameters, *cfg);
 
     return true;
 }

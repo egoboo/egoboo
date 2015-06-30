@@ -33,61 +33,57 @@
 //--------------------------------------------------------------------------------------------
 oglx_caps_t g_ogl_caps;
 
-void oglx_caps_t::report(oglx_caps_t *self)
+void oglx_caps_t::report(oglx_caps_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
     log_message("\nOpenGL state parameters\n");
-    log_message("\tgl_version    == %s\n", self->gl_version);
-    log_message("\tgl_vendor     == %s\n", self->gl_vendor);
-    log_message("\tgl_renderer   == %s\n", self->gl_renderer);
-    log_message("\tgl_extensions == %s\n", self->gl_extensions);
+    log_message("\tgl_version    == %s\n", self.gl_version);
+    log_message("\tgl_vendor     == %s\n", self.gl_vendor);
+    log_message("\tgl_renderer   == %s\n", self.gl_renderer);
+    log_message("\tgl_extensions == %s\n", self.gl_extensions);
     log_message("\n");
 
-    log_message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", self->max_modelview_stack_depth);
-    log_message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", self->max_projection_stack_depth);
-    log_message("\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", self->max_texture_stack_depth);
-    log_message("\tGL_MAX_NAME_STACK_DEPTH          == %d\n", self->max_name_stack_depth);
-    log_message("\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", self->max_attrib_stack_depth);
-    log_message("\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", self->max_client_attrib_stack_depth);
+    log_message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", self.max_modelview_stack_depth);
+    log_message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", self.max_projection_stack_depth);
+    log_message("\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", self.max_texture_stack_depth);
+    log_message("\tGL_MAX_NAME_STACK_DEPTH          == %d\n", self.max_name_stack_depth);
+    log_message("\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", self.max_attrib_stack_depth);
+    log_message("\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", self.max_client_attrib_stack_depth);
 
-    log_message("\tGL_SUBPIXEL_BITS          == %d\n", self->subpixel_bits);
-    log_message("\tGL_POINT_SIZE_RANGE       == %f - %f\n", self->point_size_range[0], self->point_size_range[1]);
-    log_message("\tGL_POINT_SIZE_GRANULARITY == %f\n", self->point_size_granularity);
-    log_message("\tGL_LINE_WIDTH_RANGE       == %f - %f\n", self->line_width_range[0], self->line_width_range[1]);
-    log_message("\tGL_LINE_WIDTH_GRANULARITY == %f\n\n", self->line_width_granularity);
+    log_message("\tGL_SUBPIXEL_BITS          == %d\n", self.subpixel_bits);
+    log_message("\tGL_POINT_SIZE_RANGE       == %f - %f\n", self.point_size_range[0], self.point_size_range[1]);
+    log_message("\tGL_POINT_SIZE_GRANULARITY == %f\n", self.point_size_granularity);
+    log_message("\tGL_LINE_WIDTH_RANGE       == %f - %f\n", self.line_width_range[0], self.line_width_range[1]);
+    log_message("\tGL_LINE_WIDTH_GRANULARITY == %f\n\n", self.line_width_granularity);
 
-    log_message("\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", self->max_viewport_dims[0], self->max_viewport_dims[1]);
-    log_message("\tGL_AUX_BUFFERS       == %d\n", self->aux_buffers);
-    log_message("\tGL_RGBA_MODE         == %s\n", self->rgba_mode ? "TRUE" : "FALSE");
-    log_message("\tGL_INDEX_MODE        == %s\n", self->index_mode ? "TRUE" : "FALSE");
-    log_message("\tGL_DOUBLEBUFFER      == %s\n", self->doublebuffer ? "TRUE" : "FALSE");
-    log_message("\tGL_STEREO            == %s\n", self->stereo ? "TRUE" : "FALSE");
-    log_message("\tGL_RED_BITS          == %d\n", self->red_bits);
-    log_message("\tGL_GREEN_BITS        == %d\n", self->green_bits);
-    log_message("\tGL_BLUE_BITS         == %d\n", self->blue_bits);
-    log_message("\tGL_ALPHA_BITS        == %d\n", self->alpha_bits);
-    log_message("\tGL_INDEX_BITS        == %d\n", self->index_bits);
-    log_message("\tGL_DEPTH_BITS        == %d\n", self->depth_bits);
-    log_message("\tGL_STENCIL_BITS      == %d\n", self->stencil_bits);
-    log_message("\tGL_ACCUM_RED_BITS    == %d\n", self->accum_red_bits);
-    log_message("\tGL_ACCUM_GREEN_BITS  == %d\n", self->accum_green_bits);
-    log_message("\tGL_ACCUM_BLUE_BITS   == %d\n", self->accum_blue_bits);
-    log_message("\tGL_ACCUM_ALPHA_BITS  == %d\n\n", self->accum_alpha_bits);
+    log_message("\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", self.max_viewport_dims[0], self.max_viewport_dims[1]);
+    log_message("\tGL_AUX_BUFFERS       == %d\n", self.aux_buffers);
+    log_message("\tGL_RGBA_MODE         == %s\n", self.rgba_mode ? "TRUE" : "FALSE");
+    log_message("\tGL_INDEX_MODE        == %s\n", self.index_mode ? "TRUE" : "FALSE");
+    log_message("\tGL_DOUBLEBUFFER      == %s\n", self.doublebuffer ? "TRUE" : "FALSE");
+    log_message("\tGL_STEREO            == %s\n", self.stereo ? "TRUE" : "FALSE");
+    log_message("\tGL_RED_BITS          == %d\n", self.red_bits);
+    log_message("\tGL_GREEN_BITS        == %d\n", self.green_bits);
+    log_message("\tGL_BLUE_BITS         == %d\n", self.blue_bits);
+    log_message("\tGL_ALPHA_BITS        == %d\n", self.alpha_bits);
+    log_message("\tGL_INDEX_BITS        == %d\n", self.index_bits);
+    log_message("\tGL_DEPTH_BITS        == %d\n", self.depth_bits);
+    log_message("\tGL_STENCIL_BITS      == %d\n", self.stencil_bits);
+    log_message("\tGL_ACCUM_RED_BITS    == %d\n", self.accum_red_bits);
+    log_message("\tGL_ACCUM_GREEN_BITS  == %d\n", self.accum_green_bits);
+    log_message("\tGL_ACCUM_BLUE_BITS   == %d\n", self.accum_blue_bits);
+    log_message("\tGL_ACCUM_ALPHA_BITS  == %d\n\n", self.accum_alpha_bits);
 
-    log_message("\tGL_MAX_LIGHTS        == %d\n", self->max_lights);
-    log_message("\tGL_MAX_CLIP_PLANES   == %d\n", self->max_clip_planes);
-    log_message("\tGL_MAX_TEXTURE_SIZE  == %d\n\n", self->max_texture_size);
+    log_message("\tGL_MAX_LIGHTS        == %d\n", self.max_lights);
+    log_message("\tGL_MAX_CLIP_PLANES   == %d\n", self.max_clip_planes);
+    log_message("\tGL_MAX_TEXTURE_SIZE  == %d\n\n", self.max_texture_size);
 
-    log_message("\tGL_MAX_PIXEL_MAP_TABLE == %d\n", self->max_pixel_map_table);
-    log_message("\tGL_MAX_LIST_NESTING    == %d\n", self->max_list_nesting);
-    log_message("\tGL_MAX_EVAL_ORDER      == %d\n\n", self->max_eval_order);
+    log_message("\tGL_MAX_PIXEL_MAP_TABLE == %d\n", self.max_pixel_map_table);
+    log_message("\tGL_MAX_LIST_NESTING    == %d\n", self.max_list_nesting);
+    log_message("\tGL_MAX_EVAL_ORDER      == %d\n\n", self.max_eval_order);
 
-    if (self->anisotropic_supported)
+    if (self.anisotropic_supported)
     {
-        log_message("\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", self->maxAnisotropy);
+        log_message("\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", self.maxAnisotropy);
     }
 
     log_message("==============================================================\n");
@@ -96,7 +92,7 @@ void oglx_caps_t::report(oglx_caps_t *self)
 void oglx_report_caps()
 {
     oglx_Get_Screen_Info(&g_ogl_caps);
-    oglx_caps_t::report(&g_ogl_caps);
+    oglx_caps_t::report(g_ogl_caps);
 }
 
 void oglx_Get_Screen_Info(oglx_caps_t *self)
@@ -467,38 +463,25 @@ void Utilities::bind(GLuint id, Ego::TextureType target, Ego::TextureAddressMode
 
 //--------------------------------------------------------------------------------------------
 
-void oglx_video_parameters_t::defaults(oglx_video_parameters_t *self)
+void oglx_video_parameters_t::defaults(oglx_video_parameters_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-
-    self->multisample = GL_FALSE;
-    self->multisample_arb = GL_FALSE;
-    self->perspective = GL_FASTEST;
-    self->dither = GL_FALSE;
-    self->shading = GL_SMOOTH;
-    self->anisotropy_enable = GL_FALSE;
-    self->anisotropy_levels = 1.0f;
+    self.multisample = GL_FALSE;
+    self.multisample_arb = GL_FALSE;
+    self.perspective = GL_FASTEST;
+    self.dither = GL_FALSE;
+    self.shading = GL_SMOOTH;
+    self.anisotropy_enable = GL_FALSE;
+    self.anisotropy_levels = 1.0f;
 }
 
-void oglx_video_parameters_t::download(oglx_video_parameters_t *self, egoboo_config_t *cfg)
+void oglx_video_parameters_t::download(oglx_video_parameters_t& self, egoboo_config_t& cfg)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    if (!cfg)
-    {
-        throw std::invalid_argument("nullptr == cfg");
-    }
-    self->dither = cfg->graphic_dithering_enable.getValue() ? GL_TRUE : GL_FALSE;
-    self->antialiasing = cfg->graphic_antialiasing.getValue() ? GL_TRUE : GL_FALSE;
-    self->perspective = cfg->graphic_perspectiveCorrection_enable.getValue() ? GL_NICEST : GL_FASTEST;
-    self->shading = cfg->graphic_gouraudShading_enable.getValue() ? GL_SMOOTH : GL_FLAT;
-    self->anisotropy_enable = cfg->graphic_anisotropy_enable.getValue() ? GL_TRUE : GL_FALSE;
-    self->anisotropy_levels = cfg->graphic_anisotropy_levels.getValue();
+    self.dither = cfg.graphic_dithering_enable.getValue() ? GL_TRUE : GL_FALSE;
+    self.antialiasing = cfg.graphic_antialiasing.getValue() ? GL_TRUE : GL_FALSE;
+    self.perspective = cfg.graphic_perspectiveCorrection_enable.getValue() ? GL_NICEST : GL_FASTEST;
+    self.shading = cfg.graphic_gouraudShading_enable.getValue() ? GL_SMOOTH : GL_FLAT;
+    self.anisotropy_enable = cfg.graphic_anisotropy_enable.getValue() ? GL_TRUE : GL_FALSE;
+    self.anisotropy_levels = cfg.graphic_anisotropy_levels.getValue();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -509,36 +492,23 @@ oglx_texture_parameters_t g_ogl_textureParameters =
     false, 1.0f
 };
 
-void oglx_texture_parameters_t::defaults(oglx_texture_parameters_t* self)
+void oglx_texture_parameters_t::defaults(oglx_texture_parameters_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    self->textureFilter.minFilter = Ego::TextureFilter::None;
-    self->textureFilter.magFilter = Ego::TextureFilter::None;
-    self->textureFilter.mipMapFilter = Ego::TextureFilter::None;
-    self->anisotropy_enable = false;
-    self->anisotropy_level = 1.0f;
+    self.textureFilter.minFilter = Ego::TextureFilter::None;
+    self.textureFilter.magFilter = Ego::TextureFilter::None;
+    self.textureFilter.mipMapFilter = Ego::TextureFilter::None;
+    self.anisotropy_enable = false;
+    self.anisotropy_level = 1.0f;
 }
 
-void oglx_texture_parameters_t::download(oglx_texture_parameters_t *self, egoboo_config_t *cfg)
+void oglx_texture_parameters_t::download(oglx_texture_parameters_t& self, egoboo_config_t& cfg)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    if (!cfg)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-
-    self->anisotropy_enable = cfg->graphic_anisotropy_enable.getValue()
+    self.anisotropy_enable = cfg.graphic_anisotropy_enable.getValue()
                             & (g_ogl_caps.anisotropic_supported == GL_TRUE ? true : false);
-    self->anisotropy_level = std::min(cfg->graphic_anisotropy_levels.getValue(), g_ogl_caps.maxAnisotropy);
-    self->textureFilter.minFilter = cfg->graphic_textureFilter_minFilter.getValue();
-    self->textureFilter.magFilter = cfg->graphic_textureFilter_magFilter.getValue();
-    self->textureFilter.mipMapFilter = cfg->graphic_textureFilter_mipMapFilter.getValue();
+    self.anisotropy_level = std::min(cfg.graphic_anisotropy_levels.getValue(), g_ogl_caps.maxAnisotropy);
+    self.textureFilter.minFilter = cfg.graphic_textureFilter_minFilter.getValue();
+    self.textureFilter.magFilter = cfg.graphic_textureFilter_magFilter.getValue();
+    self.textureFilter.mipMapFilter = cfg.graphic_textureFilter_mipMapFilter.getValue();
 }
 
 //--------------------------------------------------------------------------------------------

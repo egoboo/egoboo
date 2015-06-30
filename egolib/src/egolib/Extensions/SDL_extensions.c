@@ -53,19 +53,14 @@ static void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void SDLX_screen_info_t::report(SDLX_screen_info_t *self)
+void SDLX_screen_info_t::report(SDLX_screen_info_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
+    log_message("\nSDL using video driver - %s\n", self.szDriver.c_str());
 
-    log_message("\nSDL using video driver - %s\n", self->szDriver.c_str());
-
-    if (!self->video_mode_list.empty())
+    if (!self.video_mode_list.empty())
     {
         log_message("\tAvailable full-screen video modes...\n");
-        for (const auto &mode : self->video_mode_list)
+        for (const auto &mode : self.video_mode_list)
         {
             log_message("    \tVideo Mode - %d x %d, %d Hz\n", mode.w, mode.h, mode.refresh_rate);
         }
@@ -73,7 +68,7 @@ void SDLX_screen_info_t::report(SDLX_screen_info_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, bool make_report )
+bool SDLX_Get_Screen_Info( SDLX_screen_info_t& psi, bool make_report )
 {
     Uint32 init_flags = 0;
     SDL_Window *window;
@@ -92,12 +87,12 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, bool make_report )
 
     // store the screen info for everyone to use
     window = _window;
-    psi->window = window;
-    SDL_GetWindowSize(window, &(psi->x), &(psi->y));
-    SDLX_GetDrawableSize(window, &(psi->drawWidth), &(psi->drawHeight));
+	psi.window = window;
+    SDL_GetWindowSize(window, &(psi.x), &(psi.y));
+    SDLX_GetDrawableSize(window, &(psi.drawWidth), &(psi.drawHeight));
 
     // Grab all the available video modes
-    psi->video_mode_list.clear();
+    psi.video_mode_list.clear();
     
     int displayNum = SDL_GetWindowDisplayIndex(window);
     int numDisplayModes = SDL_GetNumDisplayModes(displayNum);
@@ -105,17 +100,17 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, bool make_report )
     for (int i = 0; i < numDisplayModes; i++) {
         SDL_DisplayMode mode;
         SDL_GetDisplayMode(displayNum, i, &mode);
-        psi->video_mode_list.push_back(mode);
+        psi.video_mode_list.push_back(mode);
     }
     
     // log the video driver info
-    psi->szDriver = SDL_GetCurrentVideoDriver();
+    psi.szDriver = SDL_GetCurrentVideoDriver();
 
     // grab all SDL_GL_* attributes
-    SDLX_read_sdl_gl_attrib( &( psi->gl_att ) );
+    SDLX_read_sdl_gl_attrib( &( psi.gl_att ) );
 
     // translate the surface flags into the bitfield
-    SDLX_download_sdl_video_flags( SDL_GetWindowFlags(window), &( psi->flags ) );
+    SDLX_download_sdl_video_flags( SDL_GetWindowFlags(window), &( psi.flags ) );
 
     if (make_report)
     {
@@ -126,65 +121,57 @@ bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, bool make_report )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void SDLX_sdl_gl_attrib_t::report(SDLX_sdl_gl_attrib_t *self)
+void SDLX_sdl_gl_attrib_t::report(SDLX_sdl_gl_attrib_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
     log_message("\nSDL_GL_Attribtes\n");
 
-    log_message("\tSDL_GL_RED_SIZE           == %d\n", self->color[0]);
-    log_message("\tSDL_GL_GREEN_SIZE         == %d\n", self->color[1]);
-    log_message("\tSDL_GL_BLUE_SIZE          == %d\n", self->color[2]);
-    log_message("\tSDL_GL_ALPHA_SIZE         == %d\n", self->color[3]);
-    log_message("\tSDL_GL_BUFFER_SIZE        == %d\n", self->buffer_size);
-    log_message("\tSDL_GL_DEPTH_SIZE         == %d\n", self->depth_size);
+    log_message("\tSDL_GL_RED_SIZE           == %d\n", self.color[0]);
+    log_message("\tSDL_GL_GREEN_SIZE         == %d\n", self.color[1]);
+    log_message("\tSDL_GL_BLUE_SIZE          == %d\n", self.color[2]);
+    log_message("\tSDL_GL_ALPHA_SIZE         == %d\n", self.color[3]);
+    log_message("\tSDL_GL_BUFFER_SIZE        == %d\n", self.buffer_size);
+    log_message("\tSDL_GL_DEPTH_SIZE         == %d\n", self.depth_size);
 
-    log_message("\tSDL_GL_DOUBLEBUFFER       == %d\n", self->doublebuffer);
-    log_message("\tSDL_GL_STENCIL_SIZE       == %d\n", self->stencil_size);
-    log_message("\tSDL_GL_ACCUM_RED_SIZE     == %d\n", self->accum[0]);
-    log_message("\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", self->accum[1]);
-    log_message("\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", self->accum[2]);
-    log_message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", self->accum[3]);
-    log_message("\tSDL_GL_STEREO             == %d\n", self->stereo);
+    log_message("\tSDL_GL_DOUBLEBUFFER       == %d\n", self.doublebuffer);
+    log_message("\tSDL_GL_STENCIL_SIZE       == %d\n", self.stencil_size);
+    log_message("\tSDL_GL_ACCUM_RED_SIZE     == %d\n", self.accum[0]);
+    log_message("\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", self.accum[1]);
+    log_message("\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", self.accum[2]);
+    log_message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", self.accum[3]);
+    log_message("\tSDL_GL_STEREO             == %d\n", self.stereo);
 
-    log_message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", self->multi_buffers);
-    log_message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", self->multi_samples);
+    log_message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", self.multi_buffers);
+    log_message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", self.multi_samples);
 #if !defined(ID_LINUX)
-    log_message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", self->accelerated_visual);
+    log_message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", self.accelerated_visual);
 #endif
 
-    log_message("\tSDL_GL_SWAP_CONTROL       == %d\n", self->swap_control);
+    log_message("\tSDL_GL_SWAP_CONTROL       == %d\n", self.swap_control);
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_sdl_video_flags_t::report(SDLX_sdl_video_flags_t *self)
+void SDLX_sdl_video_flags_t::report(SDLX_sdl_video_flags_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
     log_message("\nSDL flags\n");
 
-    log_message("\t%s\n", self->full_screen ? "fullscreen" : "windowed");
+    log_message("\t%s\n", self.full_screen ? "fullscreen" : "windowed");
 
-    if (self->opengl)
+    if (self.opengl)
     {
         log_message("\tOpenGL support\n");
     }
 
-    if (self->resizable)
+    if (self.resizable)
     {
         log_message("\tresizable window\n");
     }
 
-    if (self->borderless)
+    if (self.borderless)
     {
         log_message("\tborderless window\n");
     }
     
-    if (self->highdpi)
+    if (self.highdpi)
     {
         log_message("\thigh DPI (Apple 'Retina') support");
     }
@@ -220,23 +207,18 @@ void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pfla
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_video_parameters_t::report(SDLX_video_parameters_t *self)
+void SDLX_video_parameters_t::report(SDLX_video_parameters_t& self)
 {
     /// @author BB
     /// @details make a report
 
-    if (!self)
+    log_message("\thorizontalResolution == %d, verticalResolution == %d, colorBufferDepth == %d\n", self.horizontalResolution, self.verticalResolution, self.colorBufferDepth);
+
+    SDLX_sdl_video_flags_t::report(self.flags);
+
+    if (self.flags.opengl)
     {
-        throw std::invalid_argument("nullptr == self");
-    }
-
-    log_message("\thorizontalResolution == %d, verticalResolution == %d, colorBufferDepth == %d\n", self->horizontalResolution, self->verticalResolution, self->colorBufferDepth);
-
-    SDLX_sdl_video_flags_t::report(&(self->flags));
-
-    if (self->flags.opengl)
-    {
-        SDLX_sdl_gl_attrib_t::report(&(self->gl_att));
+        SDLX_sdl_gl_attrib_t::report(self.gl_att);
     }
 }
 
@@ -468,7 +450,7 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
     // update the video parameters
     if ( NULL != ret )
     {
-        SDLX_Get_Screen_Info( &sdl_scr, make_report );
+        SDLX_Get_Screen_Info( sdl_scr, make_report );
         SDLX_synch_video_parameters( ret, v );
     }
     
@@ -478,81 +460,58 @@ SDL_Window * SDLX_CreateWindow( SDLX_video_parameters_t * v, bool make_report )
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t *self)
+void SDLX_sdl_video_flags_t::defaults(SDLX_sdl_video_flags_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
+    BLANK_STRUCT_PTR(&self);
 
-    BLANK_STRUCT_PTR(self);
-
-    self->full_screen = 1;
-    self->opengl      = 1;
+    self.full_screen = 1;
+    self.opengl      = 1;
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_sdl_gl_attrib_t::defaults(SDLX_sdl_gl_attrib_t *self)
+void SDLX_sdl_gl_attrib_t::defaults(SDLX_sdl_gl_attrib_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
+    BLANK_STRUCT_PTR(&self);
 
-    BLANK_STRUCT_PTR(self);
+    self.multi_buffers = 1;
+    self.multi_samples = 2;
+    self.accelerated_visual = 1;
 
-    self->multi_buffers = 1;
-    self->multi_samples = 2;
-    self->accelerated_visual = 1;
+    self.color[0] = 8;
+    self.color[1] = 8;
+    self.color[2] = 8;
+    self.color[2] = 8;
+    self.buffer_size = 32;
 
-    self->color[0] = 8;
-    self->color[1] = 8;
-    self->color[2] = 8;
-    self->color[2] = 8;
-    self->buffer_size = 32;
-
-    self->depth_size = 8;
+    self.depth_size = 8;
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_video_parameters_t::defaults(SDLX_video_parameters_t *self)
+void SDLX_video_parameters_t::defaults(SDLX_video_parameters_t& self)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
+    self.surface = nullptr;
+    self.horizontalResolution = 640;
+    self.verticalResolution = 480;
+    self.colorBufferDepth = 32;
 
-    self->surface = nullptr;
-    self->horizontalResolution = 640;
-    self->verticalResolution = 480;
-    self->colorBufferDepth = 32;
-
-    SDLX_sdl_video_flags_t::defaults(&(self->flags));
-    SDLX_sdl_gl_attrib_t::defaults(&(self->gl_att));
+    SDLX_sdl_video_flags_t::defaults(self.flags);
+    SDLX_sdl_gl_attrib_t::defaults(self.gl_att);
 }
 
-void SDLX_video_parameters_t::download(SDLX_video_parameters_t *self, egoboo_config_t *cfg)
+void SDLX_video_parameters_t::download(SDLX_video_parameters_t& self, egoboo_config_t& cfg)
 {
-    if (!self)
-    {
-        throw std::invalid_argument("nullptr == self");
-    }
-    if (!cfg)
-    {
-        throw std::invalid_argument("nullptr == cfg");
-    }
-    self->horizontalResolution = cfg->graphic_resolution_horizontal.getValue();
-    self->verticalResolution = cfg->graphic_resolution_vertical.getValue();
-    self->colorBufferDepth = cfg->graphic_colorBuffer_bitDepth.getValue();
-    self->flags.full_screen = cfg->graphic_fullscreen.getValue();
-    self->gl_att.buffer_size = cfg->graphic_colorBuffer_bitDepth.getValue();
-    self->gl_att.depth_size = cfg->graphic_depthBuffer_bitDepth.getValue();
-    self->gl_att.multi_buffers = (cfg->graphic_antialiasing.getValue() > 1) ? 1 : 0;
-    self->gl_att.multi_samples = cfg->graphic_antialiasing.getValue();
+    self.horizontalResolution = cfg.graphic_resolution_horizontal.getValue();
+    self.verticalResolution = cfg.graphic_resolution_vertical.getValue();
+    self.colorBufferDepth = cfg.graphic_colorBuffer_bitDepth.getValue();
+    self.flags.full_screen = cfg.graphic_fullscreen.getValue();
+    self.gl_att.buffer_size = cfg.graphic_colorBuffer_bitDepth.getValue();
+    self.gl_att.depth_size = cfg.graphic_depthBuffer_bitDepth.getValue();
+    self.gl_att.multi_buffers = (cfg.graphic_antialiasing.getValue() > 1) ? 1 : 0;
+    self.gl_att.multi_samples = cfg.graphic_antialiasing.getValue();
 }
 
 //--------------------------------------------------------------------------------------------
-void SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t * v )
+void SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t& v)
 {
 
     if ( NULL == surface )
@@ -569,9 +528,9 @@ void SDLX_report_mode( SDL_Window * surface, SDLX_video_parameters_t * v )
         log_message("\nSDL window parameters\n");
 
         // report the SDL screen info
-        SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
+        SDLX_Get_Screen_Info( sdl_scr, SDL_FALSE );
         SDLX_video_parameters_t::report( v );
-        SDLX_screen_info_t::report( &sdl_scr );
+        SDLX_screen_info_t::report( sdl_scr );
 
         log_message("==============================================================\n");
     }
@@ -592,7 +551,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     {
         if ( NULL == v_old )
         {
-            SDLX_video_parameters_t::defaults( &param_old );
+            SDLX_video_parameters_t::defaults( param_old );
             v_old = &param_old;
         }
         else
@@ -610,7 +569,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     // initialize v_new and param_new
     if ( NULL == v_new )
     {
-        SDLX_video_parameters_t::defaults( &param_new );
+        SDLX_video_parameters_t::defaults( param_new );
         v_new = &param_new;
     }
     else
@@ -624,7 +583,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     if ( make_report )
     {
         // report on the success or failure to set the mode
-        SDLX_report_mode( surface, &param_new );
+        SDLX_report_mode( surface, param_new );
     };
 
     if ( NULL != surface )

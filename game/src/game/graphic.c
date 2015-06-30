@@ -419,14 +419,14 @@ int GFX::initializeOpenGL()
 
     // Enable depth test. Incoming fragment's depth value must be less.
     renderer.setDepthTestEnabled(true);
-    renderer.setDepthFunction(CompareFunction::Less);
+    renderer.setDepthFunction(ComparisonFunction::Less);
 
     // Disable blending.
     renderer.setBlendingEnabled(false);
 
     // Enable alpha testing: Hide fully transparent parts.
     renderer.setAlphaTestEnabled(true);
-	renderer.setAlphaFunction(Ego::CompareFunction::Greater, 0.0f);
+	renderer.setAlphaFunction(Ego::ComparisonFunction::Greater, 0.0f);
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     /// backface culling
@@ -473,7 +473,7 @@ void GFX::initializeSDLGraphics()
     }
 
     // The flags to pass to SDL_SetVideoMode.
-    SDLX_video_parameters_t::download(&sdl_vparam, &egoboo_config_t::get());
+    SDLX_video_parameters_t::download(sdl_vparam, egoboo_config_t::get());
 
     sdl_vparam.flags.opengl = true;
     sdl_vparam.gl_att.doublebuffer = true;
@@ -483,7 +483,7 @@ void GFX::initializeSDLGraphics()
     sdl_vparam.gl_att.accum[2] = 8;
     sdl_vparam.gl_att.accum[3] = 8;
 
-    oglx_video_parameters_t::download(&ogl_vparam, &egoboo_config_t::get());
+    oglx_video_parameters_t::download(ogl_vparam, egoboo_config_t::get());
 
     log_info("Opening SDL Video Mode...\n");
 
