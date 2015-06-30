@@ -447,6 +447,12 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         actual_damage = -actual_damage;        
     }
 
+    //Extra damage from armor piercing?
+    if (HAS_SOME_BITS(DAMFX_ARMO, effects))
+    {
+        actual_damage += actual_damage * (0.5f + (256.0f - this->defense)/256.0f);
+    }
+
     // Remember the actual_damage type
     ai.damagetypelast = damagetype;
     ai.directionlast  = direction;
@@ -492,13 +498,6 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
             if ( 0 != actual_damage )
             {
-                //Does armor apply?
-                if ( HAS_NO_BITS( DAMFX_ARMO, effects ) )
-                {
-                    //Armor can reduce up to 50% of the damage (at 255)
-                    actual_damage *= 0.5f + (256.0f - defense)/256.0f;
-                }
-
                 life -= actual_damage;
 
                 // Spawn blud particles
@@ -550,7 +549,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
             /// @test spawn a fly-away damage indicator?
             if ( do_feedback )
             {
-/*                
+#if 0     
                 const char * tmpstr;
                 int rank;
 
@@ -576,13 +575,10 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 }
 
                 if ( NULL != tmpstr )
-*/
+#endif
                 {
                     const int lifetime = 2;
                     STRING text_buffer = EMPTY_CSTR;
-
-                    // "white" text
-                    const auto text_color = Ego::Math::Colour4f::parse(0xff, 0xff, 0xff, 0xff);
 
                     // friendly damage = "purple"
                     // @todo MH: The colour here is approximately "mauve" and it is already associated with "holy" damage.
@@ -594,7 +590,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                     // write the string into the buffer
                     snprintf( text_buffer, SDL_arraysize( text_buffer ), "%.1f", static_cast<float>(actual_damage) / 256.0f );
 
-                    chr_make_text_billboard(_characterID, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All );
+                    chr_make_text_billboard(_characterID, text_buffer, Ego::Math::Colour4f::white(), friendly_fire ? tint_friend : tint_enemy, lifetime, Billboard::Flags::All );
                 }
             }
         }
@@ -612,6 +608,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         }
 
         /// @test spawn a fly-away heal indicator?
+#if 0
         if ( do_feedback )
         {
             const float lifetime = 3;
@@ -627,6 +624,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
             chr_make_text_billboard(_characterID, text_buffer, text_color, tint, lifetime, Billboard::Flags::All );
         }
+#endif
     }
 
     return actual_damage;
@@ -1853,6 +1851,9 @@ float Object::getDamageReduction(DamageType type) const
         return 1.0f - std::pow(0.94f, damage_resistance[type]);
     }
 
+    //Armor can reduce up to 50% of the damage (at 255)
+    float armorBonus = 0.5f + (256.0f - this->defense)/256.0f;
+
     //Positive armor reduces damage, but never 100%
-    return (damage_resistance[type]*0.06f) / (1.0f + damage_resistance[type]*0.06f);
+    return (damage_resistance[type]*0.06f) / (1.0f + damage_resistance[type]*0.06f) + armorBonus;
 }
