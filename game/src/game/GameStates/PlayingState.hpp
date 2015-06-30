@@ -30,6 +30,7 @@ class CameraSystem;
 class MiniMap;
 class Object;
 class CharacterStatus;
+class CharacterWindow;
 
 class PlayingState : public GameState
 {
