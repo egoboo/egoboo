@@ -409,9 +409,14 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
         //}
     }
 
-    // Lessen actual_damage for resistance, resistance is done in percentages where 0.70f means 30% damage reduction from that damage type
+    // Lessen actual damage taken by resistance
     // This can also be used to lessen effectiveness of healing
     int base_damage = Random::next(damage.base, damage.base+damage.rand);
+    
+    //@note ZF> All damage is halved because Aaron decided it was a good idea to shift all damage by 1 by default (>> 1)
+    //          With the never damage system, we do it this way instead to keep the same game balance as before
+    base_damage *= 0.5f;
+
     int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(DAMFX_ARMO, effects));
 
     // Increase electric damage when in water
@@ -1833,29 +1838,50 @@ void Object::respawn()
     chr_instance_t::update_ref(inst, enviro.grid_level, true );
 }
 
-float Object::getDamageReduction(const DamageType type, const bool includeArmor) const
+float Object::getRawDamageResistance(const DamageType type, const bool includeArmor) const
 {
-    //DAMAGE_COUNT simply means not affected by damage resistances
-    if(type == DAMAGE_COUNT) {
+    if(type >= DAMAGE_COUNT) {
         return 0.0f;
-    }
-
-    //Immunity to damage type?
-    if(HAS_SOME_BITS(damage_modifier[type], DAMAGEINVICTUS)) {
-        return 1.0f;
     }
 
     float resistance = damage_resistance[type];
 
+    //Negative armor means it's a weakness
+    if(resistance < 0.0f) {
+
+        //Defence reduces weakness, but cannot eliminate it completely (50% weakness reduction at 255 defence)
+        if(includeArmor) {
+            resistance *= static_cast<float>(255-this->defense) / 512.0f;
+        }
+        return resistance;
+    }
+
+    //Defence bonus increases all damage type resistances (every 14 points gives +1.0 resistance)
+    //This means at 255 defence and 0% resistance results in 52% damage reduction
+    if(includeArmor && HAS_NO_BITS(damage_modifier[type], DAMAGEINVERT)) {
+        resistance += static_cast<float>(255-this->defense) / 14.0f;
+    }
+
+    return resistance;
+}
+
+float Object::getDamageReduction(const DamageType type, const bool includeArmor) const
+{
+    //DAMAGE_COUNT simply means not affected by damage resistances
+    if(type >= DAMAGE_COUNT) {
+        return 0.0f;
+    }
+
+    //Immunity to damage type?
+    if(HAS_SOME_BITS(DAMAGEINVICTUS, damage_modifier[type])) {
+        return 1.0f;
+    }
+
+    const float resistance = getRawDamageResistance(type, includeArmor);
+
     //Negative resistance *increases* damage a lot
     if(resistance < 0.0f) {
         return 1.0f - std::pow(0.94f, resistance);
-    }
-
-    //Defence bonus increases all damage type resistances (every 15 points gives +1.0 resistance)
-    //This means at 255 defence and 0% resistance results in 50% damage reduction
-    if(includeArmor) {
-        resistance += static_cast<float>(255-this->defense) / 15.0f;
     }
 
     //Positive resistance reduces damage, but never 100%

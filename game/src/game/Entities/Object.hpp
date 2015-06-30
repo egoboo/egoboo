@@ -570,6 +570,13 @@ public:
     **/
     float getDamageReduction(const DamageType type, const bool includeArmor = true) const;
 
+    /**
+    * @brief
+    *   Get character damage resistance to a specific damage. This value is non-linear.
+    *   To get the actual damage scaling value, use getDamageReduction() instead.
+    **/
+    float getRawDamageResistance(const DamageType type, const bool includeArmor = true) const;
+
 private:
 
     /**
