@@ -131,7 +131,7 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
         case DAMAGE_ICE:   damageName = "Ice"; break;
         case DAMAGE_EVIL:  damageName = "Evil"; break;
         case DAMAGE_HOLY:  damageName = "Holy"; break;
-        default:           damageName = "Unknown"; break;
+        default: throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
     }
 
     //Label
