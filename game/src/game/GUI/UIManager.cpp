@@ -27,17 +27,26 @@
 #include "game/renderer_2d.h"
 
 UIManager::UIManager() :
-    _defaultFont(nullptr),
-    _floatingTextFont(nullptr),
-    _debugFont(nullptr),
-    _gameFont(nullptr),
+    _fonts(),
     _renderSemaphore(0)
 {
+    //Load fonts from true-type files
+    _fonts[FONT_DEFAULT] = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24); 
+    _fonts[FONT_FLOATING_TEXT] = Ego::FontManager::loadFont("mp_data/FrostysWinterland.ttf", 24); 
+    _fonts[FONT_DEBUG] = Ego::FontManager::loadFont("mp_data/DejaVuSansMono.ttf", 10); 
+    _fonts[FONT_GAME] = Ego::FontManager::loadFont("mp_data/IMMORTAL.ttf", 14); 
 
-    _defaultFont = Ego::FontManager::loadFont("mp_data/Bo_Chen.ttf", 24);
-    _floatingTextFont = Ego::FontManager::loadFont("mp_data/FrostysWinterland.ttf", 24);
-    _debugFont = Ego::FontManager::loadFont("mp_data/DejaVuSansMono.ttf", 10);
-    _gameFont = Ego::FontManager::loadFont("mp_data/IMMORTAL.ttf", 14);
+    //Sanity check that all fonts are loaded properly
+#ifndef NDEBUG
+    for(int i = 0; i < _fonts.size(); ++i)
+    {
+        if(!_fonts[i])
+        {
+            log_error("UIManager missing font with ID %d!", i);
+        }
+    }
+#endif
+
     const auto& vertexFormat = Ego::VertexFormatDescriptor::get<Ego::VertexFormat::P2F>();
     _vertexBuffer = std::make_shared<Ego::VertexBuffer>(4, vertexFormat);
 }
@@ -46,10 +55,10 @@ UIManager::~UIManager()
 {
     _vertexBuffer = nullptr;
     // free fonts before font manager
-    _defaultFont.reset();
-    _floatingTextFont.reset();
-    _debugFont.reset();
-    _gameFont.reset();
+    for(std::shared_ptr<Ego::Font> &font : _fonts)
+    {
+        font.reset();
+    }
 }
 
 void UIManager::beginRenderUI()
@@ -143,24 +152,4 @@ void UIManager::drawImage(oglx_texture_t &img, float x, float y, float width, fl
 
     // Draw the image
     draw_quad_2d(&img, destination, source, true, tint);
-}
-
-std::shared_ptr<Ego::Font> UIManager::getDefaultFont() const
-{
-    return _defaultFont;
-}
-
-std::shared_ptr<Ego::Font> UIManager::getFloatingTextFont() const
-{
-    return _floatingTextFont;
-}
-
-std::shared_ptr<Ego::Font> UIManager::getDebugFont() const
-{
-    return _debugFont;
-}
-
-std::shared_ptr<Ego::Font> UIManager::getGameFont() const
-{
-    return _gameFont;
 }

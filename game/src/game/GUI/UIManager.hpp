@@ -35,6 +35,15 @@ public:
 
     ~UIManager();
 
+    enum UIFontType : uint8_t
+    {
+        FONT_DEFAULT,
+        FONT_FLOATING_TEXT,
+        FONT_DEBUG,
+        FONT_GAME,
+        NR_OF_UI_FONTS
+    };
+
     /**
      * @brief
      *  A vertex buffer to render components.
@@ -42,28 +51,18 @@ public:
     std::shared_ptr<Ego::VertexBuffer> _vertexBuffer;
 
     /**
-     * @return
-     *  The default rendering Font for the GUI system
-     */
-    std::shared_ptr<Ego::Font> getDefaultFont() const;
-
-    /**
-     * @return
-     *  The default rendering Font for in-game floating texts
-     */
-    std::shared_ptr<Ego::Font> getFloatingTextFont() const;
-
-    /**
-     * @return
-     *  The default debug Font for the GUI system
-     */
-    std::shared_ptr<Ego::Font> getDebugFont() const;
+    * @todo: REMOVE these functions
+    **/
+    std::shared_ptr<Ego::Font> getDefaultFont() const {return getFont(FONT_DEFAULT);}
+    std::shared_ptr<Ego::Font> getFloatingTextFont() const {return getFont(FONT_FLOATING_TEXT);}
+    std::shared_ptr<Ego::Font> getDebugFont() const {return getFont(FONT_DEBUG);}
+    std::shared_ptr<Ego::Font> getGameFont() const {return getFont(FONT_GAME);}
 
     /**
     * @return
-    *   Font used in the PlayingState
+    *   The Font loaded and cached by the UIManager
     **/
-    std::shared_ptr<Ego::Font> getGameFont() const;
+    std::shared_ptr<Ego::Font> getFont(const UIFontType type) const { return _fonts[type]; }
 
     /**
      * @return
@@ -96,6 +95,7 @@ public:
     void drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
 private:
+    std::array<std::shared_ptr<Ego::Font>, NR_OF_UI_FONTS> _fonts;
     std::shared_ptr<Ego::Font> _defaultFont;
     std::shared_ptr<Ego::Font> _floatingTextFont;
     std::shared_ptr<Ego::Font> _debugFont;
