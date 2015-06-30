@@ -1,5 +1,6 @@
 #include "CharacterWindow.hpp"
 #include "game/GUI/Label.hpp"
+#include "game/GUI/Image.hpp"
 #include "game/Entities/_Include.hpp"
 
 static const int LINE_SPACING_OFFSET = 5; //To make space between lines less
@@ -7,7 +8,13 @@ static const int LINE_SPACING_OFFSET = 5; //To make space between lines less
 CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : InternalWindow(object->getName()),
     _character(object)
 {
-    setSize(320, 240);
+    setSize(320, 256);
+
+    // draw the character's main icon
+    std::shared_ptr<Image> characterIcon = std::make_shared<Image>(TextureManager::get().get_valid_ptr(_character->getProfile()->getIcon(_character->skin)));
+    characterIcon->setPosition(5, 32);
+    characterIcon->setSize(32, 32);
+    addComponent(characterIcon);
 
     std::stringstream buffer;
 
@@ -49,35 +56,39 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
 
     std::shared_ptr<Label> classLevelLabel = std::make_shared<Label>(buffer.str());
     classLevelLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    classLevelLabel->setPosition(5, 32);
+    classLevelLabel->setPosition(characterIcon->getX() + characterIcon->getWidth() + 5, characterIcon->getY());
     addComponent(classLevelLabel);
 
     //Attribute Labels
     int maxWidth = 0;
 
     std::shared_ptr<Label> attributeLabel = std::make_shared<Label>("ATTRIBUTES");
-    attributeLabel->setPosition(classLevelLabel->getX(), classLevelLabel->getY() + classLevelLabel->getHeight());
+    attributeLabel->setPosition(characterIcon->getX(), characterIcon->getY() + characterIcon->getHeight() + 5);
     attributeLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(attributeLabel);    
+    addComponent(attributeLabel);
 
+    //Might = increases Life, melee damage, carry capacity, block skill, reduces movement penality for heavy armor, throw distance, brute weapon damage
     std::shared_ptr<Label> strengthLabel = std::make_shared<Label>("Strength: ");
     strengthLabel->setPosition(attributeLabel->getX(), attributeLabel->getY() + attributeLabel->getHeight()-LINE_SPACING_OFFSET);
     strengthLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     addComponent(strengthLabel);
     maxWidth = std::max(maxWidth, strengthLabel->getWidth()+10);
 
+    //Quickness = increases movement speed, attack speed, jump height, ranged aim, agile weapon damage, ranged weapon damage
     std::shared_ptr<Label> dexterityLabel = std::make_shared<Label>("Dexterity: ");
     dexterityLabel->setPosition(strengthLabel->getX(), strengthLabel->getY() + strengthLabel->getHeight()-LINE_SPACING_OFFSET);
     dexterityLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     addComponent(dexterityLabel);
     maxWidth = std::max(maxWidth, dexterityLabel->getWidth()+10);
 
+    //Spell Power = mana flow, improves spell aim, increases damage with spells
     std::shared_ptr<Label> wisdomLabel = std::make_shared<Label>("Wisdom: ");
     wisdomLabel->setPosition(dexterityLabel->getX(), dexterityLabel->getY() + dexterityLabel->getHeight()-LINE_SPACING_OFFSET);
     wisdomLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     addComponent(wisdomLabel);
     maxWidth = std::max(maxWidth, wisdomLabel->getWidth()+10);
 
+    //Intellect = increases Max Mana, identify items, detect traps, increases XP gain
     std::shared_ptr<Label> intelligenceLabel = std::make_shared<Label>("Intellect: ");
     intelligenceLabel->setPosition(wisdomLabel->getX(), wisdomLabel->getY() + wisdomLabel->getHeight()-LINE_SPACING_OFFSET);
     intelligenceLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
@@ -107,7 +118,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
 
     //Defences
     std::shared_ptr<Label> defenceLabel = std::make_shared<Label>("DEFENCES");
-    defenceLabel->setPosition(classLevelLabel->getX() + getWidth()/2, classLevelLabel->getY() + classLevelLabel->getHeight());
+    defenceLabel->setPosition(getX() + getWidth()/2, attributeLabel->getY());
     defenceLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     addComponent(defenceLabel);    
 
