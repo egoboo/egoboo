@@ -56,7 +56,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     int maxWidth = 0;
 
     std::shared_ptr<Label> attributeLabel = std::make_shared<Label>("ATTRIBUTES");
-    attributeLabel->setPosition(classLevelLabel->getX(), classLevelLabel->getY() + classLevelLabel->getHeight() + 5);
+    attributeLabel->setPosition(classLevelLabel->getX(), classLevelLabel->getY() + classLevelLabel->getHeight());
     attributeLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     addComponent(attributeLabel);    
 
@@ -111,43 +111,42 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     defenceLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     addComponent(defenceLabel);    
 
-    std::shared_ptr<Label> pokeLabel = std::make_shared<Label>("Poke: ");
-    pokeLabel->setPosition(defenceLabel->getX(), defenceLabel->getY() + defenceLabel->getHeight()-LINE_SPACING_OFFSET);
-    pokeLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(pokeLabel);
+    int yPos = defenceLabel->getY() + defenceLabel->getHeight() - LINE_SPACING_OFFSET;
+    for(int type = 0; type < DAMAGE_COUNT; ++type) {
+        yPos += addResistanceLabel(defenceLabel->getX(), yPos, static_cast<DamageType>(type));
+    }
+}
 
-    std::shared_ptr<Label> slashLabel = std::make_shared<Label>("Slash: ");
-    slashLabel->setPosition(pokeLabel->getX(), pokeLabel->getY() + pokeLabel->getHeight()-LINE_SPACING_OFFSET);
-    slashLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(slashLabel);
+int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageType type)
+{
+    //Enum to string
+    std::string damageName;
+    switch(type)
+    {
+        case DAMAGE_POKE:  damageName = "Poke"; break;
+        case DAMAGE_SLASH: damageName = "Slash"; break;
+        case DAMAGE_CRUSH: damageName = "Crush"; break;
+        case DAMAGE_FIRE:  damageName = "Fire"; break;
+        case DAMAGE_ZAP:   damageName = "Zap"; break;
+        case DAMAGE_ICE:   damageName = "Ice"; break;
+        case DAMAGE_EVIL:  damageName = "Evil"; break;
+        case DAMAGE_HOLY:  damageName = "Holy"; break;
+        default:           damageName = "Unknown"; break;
+    }
 
-    std::shared_ptr<Label> crushLabel = std::make_shared<Label>("Crush: ");
-    crushLabel->setPosition(slashLabel->getX(), slashLabel->getY() + slashLabel->getHeight()-LINE_SPACING_OFFSET);
-    crushLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(crushLabel);
+    //Label
+    std::shared_ptr<Label> label = std::make_shared<Label>(damageName + ":");
+    label->setPosition(x, y);
+    label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
+    label->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    addComponent(label);
 
-    std::shared_ptr<Label> fireLabel = std::make_shared<Label>("Fire: ");
-    fireLabel->setPosition(crushLabel->getX(), crushLabel->getY() + crushLabel->getHeight()-LINE_SPACING_OFFSET);
-    fireLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(fireLabel);
+    //Value
+    std::shared_ptr<Label> value = std::make_shared<Label>(std::to_string(static_cast<int>(_character->getDamageReduction(type)*100)) + '%');
+    value->setPosition(label->getX() + 100, label->getY());
+    value->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
+    value->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    addComponent(value);
 
-    std::shared_ptr<Label> zapLabel = std::make_shared<Label>("Zap: ");
-    zapLabel->setPosition(fireLabel->getX(), fireLabel->getY() + fireLabel->getHeight()-LINE_SPACING_OFFSET);
-    zapLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(zapLabel);
-
-    std::shared_ptr<Label> iceLabel = std::make_shared<Label>("Ice: ");
-    iceLabel->setPosition(zapLabel->getX(), zapLabel->getY() + zapLabel->getHeight()-LINE_SPACING_OFFSET);
-    iceLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(iceLabel);
-
-    std::shared_ptr<Label> evilLabel = std::make_shared<Label>("Evil: ");
-    evilLabel->setPosition(iceLabel->getX(), iceLabel->getY() + iceLabel->getHeight()-LINE_SPACING_OFFSET);
-    evilLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(evilLabel);
-
-    std::shared_ptr<Label> holyLabel = std::make_shared<Label>("Holy: ");
-    holyLabel->setPosition(evilLabel->getX(), evilLabel->getY() + evilLabel->getHeight()-LINE_SPACING_OFFSET);
-    holyLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
-    addComponent(holyLabel);
+    return label->getHeight()-LINE_SPACING_OFFSET;
 }
