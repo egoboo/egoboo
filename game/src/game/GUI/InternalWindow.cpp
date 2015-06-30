@@ -24,11 +24,16 @@
 #include "game/GUI/InternalWindow.hpp"
 
 InternalWindow::InternalWindow(const std::string &title) :
+    _background(std::unique_ptr<oglx_texture_t>(new oglx_texture_t())),
     _mouseOver(false),
     _mouseOverCloseButton(false),
     _isDragging(false),
-    _title(title)
+    _title(title),
+    _transparency(0.33f)
 {
+    //Load background
+    ego_texture_load_vfs(_background.get(), "mp_data/tooltip", TRANSCOLOR);
+
     //Set window size depending on title string
     int textWidth, textHeight;
     _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
@@ -39,46 +44,10 @@ InternalWindow::InternalWindow(const std::string &title) :
 
 void InternalWindow::drawContainer()
 {
-    const Ego::Math::Colour4f BACKDROP_COLOUR = {0.66f, 0.00f, 0.00f, 0.60f};
-    const Ego::Math::Colour4f TITLE_BAR_COLOUR = {0.20f, 0.20f, 0.66f, 0.60f};
-    
-    auto &renderer = Ego::Renderer::get();
+    //Draw background first
+    _gameEngine->getUIManager()->drawImage(*_background.get(), getX(), getY(), getWidth(), getHeight(), Ego::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
-    struct Vertex
-    {
-        float x, y;
-    };
-    auto vb = _gameEngine->getUIManager()->_vertexBuffer;
-    Vertex *v;
-
-    // Draw the backdrop
-    oglx_texture_t::bind(nullptr);
-    renderer.setColour(BACKDROP_COLOUR);
-
-    v = static_cast<Vertex *>(vb->lock());
-    v->x = getX(); v->y = getY(); v++;
-    v->x = getX(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY() + getHeight(); v++;
-    v->x = getX() + getWidth(); v->y = getY();
-    vb->unlock();
-    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
-
-    //Rendering variables
-    int textWidth, textHeight;
-    _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
-
-    //Draw title bar
-    renderer.setColour(BACKDROP_COLOUR);
-
-    v = static_cast<Vertex *>(vb->lock());
-    v->x = getX(); v->y = getY(); v++;
-    v->x = getX(); v->y = getY() + textHeight; v++;
-    v->x = getX() + getWidth(); v->y = getY() + textHeight; v++;
-    v->x = getX() + getWidth(); v->y = getY();
-    vb->unlock();
-    renderer.render(*vb, Ego::PrimitiveType::Quadriliterals, 0, 4);
-
-    //Draw window title first
+    //Draw window title
     _gameEngine->getUIManager()->getDefaultFont()->drawText(_title, getX() + 5, getY());
 
     //Draw an X in top right corner
@@ -157,4 +126,9 @@ void InternalWindow::setPosition(const int x, const int y)
         component->setPosition(component->getX() + translateX, component->getY() + translateY);
     }
     _componentListMutex.unlock();
+}
+
+void InternalWindow::setTransparency(float alpha)
+{
+    _transparency = Ego::Math::constrain(alpha, 0.0f, 1.0f);
 }

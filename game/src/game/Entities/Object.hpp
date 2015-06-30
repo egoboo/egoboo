@@ -226,6 +226,15 @@ public:
     bool isInsideInventory() const;
 
     /**
+    * @brief
+    *   getters for character attributes
+    **/
+    int getStrenght() const { return SFP8_TO_SINT(strength); }
+    int getDexterity() const { return SFP8_TO_SINT(dexterity); }
+    int getWisdom() const { return SFP8_TO_SINT(wisdom); }
+    int getIntelligence() const { return SFP8_TO_SINT(intelligence); }
+
+    /**
     * @return
     *   true if this Object has been terminated and will be removed from the game.
     *   If this value is true, then this Object is effectively no longer a part of

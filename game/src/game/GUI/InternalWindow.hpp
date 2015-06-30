@@ -37,12 +37,16 @@ class InternalWindow : public GUIComponent, public ComponentContainer
 
         virtual void setPosition(const int x, const int y) override;
 
+        void setTransparency(float alpha);
+
     protected:
         void drawContainer() override;
 
     private:
+        std::unique_ptr<oglx_texture_t> _background;
         bool _mouseOver;
         bool _mouseOverCloseButton;
         bool _isDragging;
         std::string _title;
+        float _transparency;
 };
