@@ -35,11 +35,19 @@ namespace Graphics {
  */
 struct RenderPass {
 public:
+	// To shorten expressions.
+	template <typename _ClockPolicy>
+	using Clock = Ego::Time::Clock<_ClockPolicy>;
+	// To shorten expressions.
+	template <typename _ClockPolicy>
+	using ClockScope = Ego::Time::ClockScope <_ClockPolicy>;
+	// To shorten expressions.
+	using ClockPolicy = Ego::Time::ClockPolicy;
 	/**
 	 * @brief
 	 *	The clock for measuring the time spent in this render pass.
 	 */
-	ClockState_t _clock;
+	Clock<ClockPolicy::NonRecursive> _clock;
 	/**
 	 * @brief
 	 *	Construct this render pass.
@@ -82,7 +90,7 @@ public:
 	 *	the entity list to be used
 	 */
 	void run(Camera& camera, const Ego::Graphics::TileList& tileList, const EntityList& entityList) {
-		ClockScope clockScope(_clock);
+		ClockScope<ClockPolicy::NonRecursive> clockScope(_clock);
 		Ego::OpenGL::Utilities::isError();
 		doRun(camera, tileList, entityList);
 		Ego::OpenGL::Utilities::isError();

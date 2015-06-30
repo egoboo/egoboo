@@ -51,7 +51,7 @@ static bool scr_run_function_call( script_state_t * pstate, ai_state_t& aiState,
 
 /// A counter to measure the time of an invocation of a script function.
 /// Its window size is 1 as the duration spend in the invocation is added to an histogram (see below).
-static std::shared_ptr<ClockState_t> g_scriptFunctionClock = nullptr;
+static std::shared_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> g_scriptFunctionClock = nullptr;
 /// @todo Data points (avg. runtimes) sorted into categories (script functions): This is a histogram
 ///       and can be implemented as such.
 static int    _script_function_calls[SCRIPT_FUNCTIONS_COUNT];
@@ -67,7 +67,7 @@ static bool _scripting_system_initialized = false;
 void scripting_system_begin()
 {
 	if (!_scripting_system_initialized) {
-		g_scriptFunctionClock = std::make_shared<ClockState_t>("script function clock", 1);
+		g_scriptFunctionClock = std::make_shared<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("script function clock", 1);
 		for (size_t i = 0; i < SCRIPT_FUNCTIONS_COUNT; ++i) {
 			_script_function_calls[i] = 0;
 			_script_function_times[i] = 0.0F;
@@ -119,7 +119,7 @@ void scr_run_chr_script(Object *pchr) {
 		aiState.changed = false;
 	}
 
-	ClockScope scope(*aiState._clock);
+	Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(*aiState._clock);
 
 	// debug a certain script
 	// debug_scripts = ( 385 == pself->index && 76 == pchr->profile_ref );
@@ -397,7 +397,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t& aiState, script_inf
     {
 		
 		{ 
-			ClockScope scope(*g_scriptFunctionClock);
+			Ego::Time::ClockScope<Ego::Time::ClockPolicy::NonRecursive> scope(*g_scriptFunctionClock);
             // Figure out which function to run
             switch ( valuecode )
             {
@@ -1657,7 +1657,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ai_state_t::ai_state_t() {
-	_clock = std::make_shared<ClockState_t>("", 8);
+	_clock = std::make_shared<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>>("", 8);
 	poof_time = -1;
 	changed = false;
 	terminate = false;

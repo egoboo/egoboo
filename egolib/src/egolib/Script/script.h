@@ -193,7 +193,7 @@ struct ai_state_t
     Uint32          astar_timer;         ///< Throttle on astar pathfinding
 
     // performance monitoring
-	std::shared_ptr<ClockState_t> _clock;
+	std::shared_ptr<Ego::Time::Clock<Ego::Time::ClockPolicy::NonRecursive>> _clock;
 
 	ai_state_t();
 	~ai_state_t();

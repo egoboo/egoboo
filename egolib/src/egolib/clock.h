@@ -19,8 +19,7 @@
 
 /// @file    egolib/clock.h
 /// @brief   clock & timer functionality
-/// @details This implementation was adapted from Noel Lopis' article in
-///          Game Programming Gems 4.
+/// @author  Michael Heilmann
 
 #pragma once
 
@@ -28,29 +27,127 @@
 #include "egolib/Time/Stopwatch.hpp"
 #include "egolib/Time/SlidingWindow.hpp"
 
-/// The description of a single clock
-struct ClockState_t
-{
-	// Clock data
+namespace Ego {
+namespace Time {
+
+/** 
+ * @brief
+ *	The policy of a clock decides over its behavior when being faced with recursive starts and stops.
+ */
+struct ClockPolicy {
+	/** 
+	 * @brief
+	 *	The clock is stopped by any call to Clock::leave().
+	 */
+	struct NonRecursive{ };
+	/**
+	 * @brief
+	 *	The clock is stopped if the balance of calls to Clock::enter() and Clock::leave() reaches zero.
+	 * @todo
+	 *	Add implementation.
+	 */
+	struct Recursive { };
+};
+
+/**
+ * @brief
+ *	A clock. Specializations for ClockPoliciy::NonRecursive and ClockPolicy::Recursive are provided.
+ * @remark
+ *	A clock - usually in conjunction with a clock scope - is used to measure the amount of time spent
+ *	in a particular section of the source code. For instance, to measure the amount of time spent on 
+ *	on some fragment
+ *	@code
+ *	foo();
+ *	@endcode
+ *	one might declare a global variable
+ *	@code
+ *	Clock<ClockPolicy::NonRecursive> fooClock("fooClock");
+ *	@endcode
+ *	and modify the above lines as
+ *	@code
+ *	fooClock.enter();
+ *	foo();
+ *	fooClock.leave();
+ *	@endcode
+ * @remark
+ *	A problem occurs if <tt>foo</tt> might raise an exception such that <tt>fooClock.leave</tt> is never
+ *	called. To make up for C++ exceptions, ClockScope is provided, which starts the clock upon its creation
+ *	and stops the clock upon its destruction.
+ *	@code
+ *	{
+ *	ClockScope<ClockPolicy::NonRecursive> fooScope(fooBlock);
+ *	foo();
+ *	}
+ *	@endcode
+ * @remark
+ *	Consider the following fragment
+ *	@code
+ *	Clock<ClockPolicy::NonRecursive> fibClock("fibClock");
+ *	int fib(int i) {
+ *		ClockScope<ClockPolicy::NonRecursive> scope(fibClock);
+ *		if (i <= 1) {
+ *			return i;
+ *		}
+ *		return fib(i-1) + fib(i-2);
+ *	}
+ *	@endcode
+ *	with a global clock declared as
+ *	@code
+ *	Clock<ClockPolicy::NonRecursive> fibClock;
+ *	@endcode
+ *	which attempts to measure the actual time spent in the <tt>fib</tt> function.
+ *	This function is recursive and the time spent on returning from the recursion
+ *	is not measured as the first time <tt>scope</tt> goes out of scope in some
+ *	recursive call, the clock is stopped.
+ *	To make up for that, the clock policy ClockPolicy::Recursive is provided which
+ *	stops the clock only if the number of times the clock is started and stopped
+ *	decrements to zero. To properly measure the time spent in the <tt>fib</tt>
+ *	function, modify the above fragment to
+ *	@code
+ *	Clock<ClockPolicy::Recursive> fibClock("fibClock");
+ *	fib(int i) {
+ *		ClockScope<ClockPolicy::Recursive> scope(fibClock);
+ *		if (i <= 1) {
+ *			return i;
+ *		}
+ *		return fib(i-1) + fib(i-2);
+ *	}
+ *	@endcode
+ */
+template <typename _ClockPolicy>
+struct Clock;
+
+namespace Internal {
+
+/**
+ * @internal
+ */
+template <typename _ClockPolicy>
+struct AbstractClock {
+protected:
+
+	/**
+	 * @brief
+	 *	The name of the clock.
+	 */
 	std::string _name;
 
-	Ego::Time::Stopwatch _stopwatch;
-
 	/**
 	 * @brief
-	 *	Regardless of how much time elapsed between the start and the end,
-	 *	the clock assumes that at most this time elapsed between the start and the end.
-	 *	The default is 0.2 seconds.
+	 *	A sliding window holding the a finite, consecutive subset of the measured durations.
 	 */
-	double _maxElapsedTime;
-
-	// Circular buffer to hold frame histories
-	Ego::Time::SlidingWindow<double> _slidingWindow;
-
-public:
+	SlidingWindow<double> _slidingWindow;
 	/**
 	 * @brief
-	 *	Construct a clock state.
+	 *	The stopwatch backing this clock.
+	 */
+	Stopwatch _stopwatch;
+
+protected:
+
+	/**
+	 * @brief
+	 *	Construct this abstract clock.
 	 * @param name
 	 *	the name of the clock
 	 * @param slidingWindowCapacity
@@ -60,73 +157,168 @@ public:
 	 * @post
 	 *	The clock is in its initial state w.r.t. the current point in time.
 	 */
-	ClockState_t(const std::string& name, size_t slidingWindowCapacity);
+	AbstractClock(const std::string& name, size_t slidingWindowCapacity)
+		: _name(name), _stopwatch(), _slidingWindow(slidingWindowCapacity) {
+		// Intentionally empty.
+	}
+	virtual ~AbstractClock() {
+		// Intentionally empty.
+	}
+
 public:
 
 	/**
 	 * @brief
-	 *	Create a clock.
-	 * @param name
-	 *	the name of the clock
-	 * @param slidingWindowCapacity
-	 *	the capacity of the sliding window
+	 *	Get the name of this clock.
 	 * @return
-	 *	a pointer to the clock on success, a null pointer on failure
+	 *	the name of this clock
 	 */
-	static ClockState_t *create(const std::string& name, size_t slidingWindowCapacity);
+	const std::string& getName() const {
+		return _name;
+	}
 
 	/**
 	 * @brief
-	 *	Destroy this clock.
-	 * @param self
-	 *	this clock
+	 *	Get the average duration spend in the associated code section(s).
+	 * @return
+	 *	the average duration spent in the associated code section(s)
+	 * @remark
+	 *	If no duration was measured yet, @a 0 is returned.
 	 */
-	static void destroy(ClockState_t *self);
+	double avg() const {
+		if (_slidingWindow.empty()) {
+			return 0;
+		}
+		else {
+			double totalTime = 0;
+			for (size_t i = 0; i < _slidingWindow.size(); ++i) {
+				totalTime += _slidingWindow.get(i);
+			}
+			return totalTime / _slidingWindow.size();
+		}
+	}
+
+	/**
+	 * @brief
+	 *	Get the last duration spent in the associated code section(s).
+	 * @return
+	 *	the last duration spent in the associated code section(s)
+	 * @remark
+	 *	If no duration was measured yet, @a 0 is returned.
+	 */
+	double lst() const {
+		if (_slidingWindow.empty()) {
+			return 0;
+		}
+		else {
+			return _slidingWindow.get(_slidingWindow.size() - 1);
+		}
+	}
 
 	/**
 	 * @brief
 	 *	Enter the observed section.
 	 */
-	void enter();
+	virtual void enter() {
+		_stopwatch.reset();
+		_stopwatch.start();
+	}
+
 	/**
 	 * @brief
 	 *	Leave the observed section.
 	 */
-	void leave();
+	virtual void leave() {
+		// Stop the stopwatch.
+		_stopwatch.stop();
+		// Add the elapsed time to the sliding window.
+		_slidingWindow.add(_stopwatch.elapsed());
+		// Reset the stopwatch.
+		_stopwatch.reset();
+	}
+
 	/**
 	 * @brief
 	 *	Put the clock into its initial state w.r.t. the current point in time.
 	 */
-	void reinit();
-
-public:
-
-	/**
-	 * @brief
-	 *	Get the average frame duration.
-	 * @return
-	 *	the average frame duration
-	 * @remark
-	 *	If no frame duration was measured, @a 0 is returned.
-	 */
-	double avg() const;
-
-	/**
-	 * @brief
-	 *	Get the last frame duration.
-	 * @return
-	 *	the last frame duration
-	 * @remark
-	 *	If no frame duration was measured, @a 0 is returned.
-	 */
-	double lst() const;
+	virtual void reinit() {
+		_slidingWindow.clear();
+	}
 };
 
+} // namespace Internal
+
+/**
+ * @brief
+ *	The specialization for ClockPolicy::NonRecursive.
+ */
+template <>
+struct Clock<ClockPolicy::NonRecursive> : public Internal::AbstractClock<ClockPolicy::NonRecursive>
+{
+
+public:
+
+	/**
+	 * @brief
+	 *	Construct this clock.
+	 * @param name
+	 *	the name of this clock
+	 * @param slidingWindowCapacity
+	 *	the capacity of the sliding window of this clock
+	 * @throw std::invalid_argument
+	 *	if the sliding window capacity is not positive
+	 * @post
+	 *	The clock is in its initial state w.r.t. the current point in time.
+	 */
+	Clock(const std::string& name, size_t slidingWindowCapacity);
+
+};
+
+/**
+ * @brief
+ *	The specialization for ClockPolicy::Recursive.
+ */
+template <>
+struct Clock<ClockPolicy::Recursive> : public Internal::AbstractClock<ClockPolicy::Recursive> {
+
+private:
+
+	/**
+	 * @internal
+	 * @brief
+	 *	The balance of enter and leave calls.
+	 */
+	int _balance;
+
+public:
+
+	/**
+	 * @brief
+	 *	Construct this clock.
+	 * @param name
+	 *	the name of this clock
+	 * @param slidingWindowCapacity
+	 *	the capacity of the sliding window of this clock
+	 * @throw std::invalid_argument
+	 *	if the sliding window capacity is not positive
+	 * @post
+	 *	The clock is in its initial state w.r.t. the current point in time.
+	 */
+	Clock(const std::string& name, size_t slidingWindowCapacity);
+
+	/** @internal @copydoc AbstractClock::enter */
+	virtual void enter() override;
+
+	/** @internal @copydoc AbstractClock::leave */
+	virtual void leave() override;
+};
+
+template <typename _ClockPolicy>
 struct ClockScope : public Id::NonCopyable {
 private:
-	ClockState_t& _clock;
+	Clock<_ClockPolicy>& _clock;
 public:
-	ClockScope(ClockState_t& clock) :
+	ClockScope(Clock<_ClockPolicy>& clock) :
 		_clock(clock) {
 		_clock.enter();
 	}
@@ -134,3 +326,6 @@ public:
 		_clock.leave();
 	}
 };
+
+} // namespace Time
+} // namespace Ego

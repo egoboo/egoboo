@@ -92,20 +92,22 @@ static gfx_rv light_fans(Ego::Graphics::TileList& tl);
 
 /// @todo All this crap can be implemented using a single clock with a window size of 1 and a histogram.
 
+using namespace Ego::Time;
+
 /// Profiling timer for sorting the dolist(s) for unreflected rendering.
-ClockState_t sortDoListUnreflected_timer("render.sortDoListUnreflected", 512);
+Clock<ClockPolicy::NonRecursive> sortDoListUnreflected_timer("render.sortDoListUnreflected", 512);
 /// Profiling timer for sorting the dolist(s) for reflected rendering.
-ClockState_t sortDoListReflected_timer("render.sortDoListReflected", 512);
+Clock<ClockPolicy::NonRecursive> sortDoListReflected_timer("render.sortDoListReflected", 512);
 
-ClockState_t render_scene_init_timer("render.scene.init",512);
-ClockState_t render_scene_mesh_timer("render.scene.mesh",512);
+Clock<ClockPolicy::NonRecursive>  render_scene_init_timer("render.scene.init", 512);
+Clock<ClockPolicy::NonRecursive>  render_scene_mesh_timer("render.scene.mesh", 512);
 
-ClockState_t gfx_make_tileList_timer("gfx.make.tileList",512);
-ClockState_t gfx_make_entityList_timer("gfx.make.entityList", 512);
-ClockState_t do_grid_lighting_timer("do.grid.lighting", 512);
-ClockState_t light_fans_timer("light.fans", 512);
-ClockState_t gfx_update_all_chr_instance_timer("gfx.update.all.chr.instance", 512);
-ClockState_t update_all_prt_instance_timer("update.all.prt.instance", 512);
+Clock<ClockPolicy::NonRecursive>  gfx_make_tileList_timer("gfx.make.tileList", 512);
+Clock<ClockPolicy::NonRecursive>  gfx_make_entityList_timer("gfx.make.entityList", 512);
+Clock<ClockPolicy::NonRecursive>  do_grid_lighting_timer("do.grid.lighting", 512);
+Clock<ClockPolicy::NonRecursive>  light_fans_timer("light.fans", 512);
+Clock<ClockPolicy::NonRecursive>  gfx_update_all_chr_instance_timer("gfx.update.all.chr.instance", 512);
+Clock<ClockPolicy::NonRecursive>  update_all_prt_instance_timer("update.all.prt.instance", 512);
 
 
 Uint32          game_frame_all = 0;             ///< The total number of frames drawn so far
@@ -1792,7 +1794,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     gfx_rv retval = gfx_success;
 
     {
-		ClockScope scope(gfx_make_tileList_timer);
+		ClockScope<ClockPolicy::NonRecursive> scope(gfx_make_tileList_timer);
         // Which tiles can be displayed
         if (gfx_error == gfx_make_tileList(tl, cam))
         {
@@ -1808,7 +1810,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     }
 
     {
-		ClockScope scope(gfx_make_entityList_timer);
+		ClockScope<ClockPolicy::NonRecursive> scope(gfx_make_entityList_timer);
         // determine which objects are visible
         if (gfx_error == gfx_make_entityList(el, cam))
         {
@@ -1820,7 +1822,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     // because it has to be sorted differently for reflected and non-reflected objects
 
     {
-		ClockScope scope(do_grid_lighting_timer);
+		ClockScope<ClockPolicy::NonRecursive> scope(do_grid_lighting_timer);
         // figure out the terrain lighting
         if (gfx_error == do_grid_lighting(tl, dyl, cam))
         {
@@ -1829,7 +1831,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     }
 
     {
-		ClockScope scope(light_fans_timer);
+		ClockScope<ClockPolicy::NonRecursive> scope(light_fans_timer);
         // apply the lighting to the characters and particles
         if (gfx_error == light_fans(tl))
         {
@@ -1838,7 +1840,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     }
 
     {
-		ClockScope scope(gfx_update_all_chr_instance_timer);
+		ClockScope<ClockPolicy::NonRecursive> scope(gfx_update_all_chr_instance_timer);
         // make sure the characters are ready to draw
         if (gfx_error == gfx_update_all_chr_instance())
         {
@@ -1847,7 +1849,7 @@ gfx_rv render_scene_init(Ego::Graphics::TileList& tl, Ego::Graphics::EntityList&
     }
 
     {
-		ClockScope scope(update_all_prt_instance_timer);
+		ClockScope<ClockPolicy::NonRecursive> scope(update_all_prt_instance_timer);
         // make sure the particles are ready to draw
         if (gfx_error == update_all_prt_instance(cam))
         {
@@ -1925,17 +1927,17 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
     // assume the best
     gfx_rv retval = gfx_success;
     {
-		ClockScope clockScope(render_scene_init_timer);
+		ClockScope<ClockPolicy::NonRecursive> clockScope(render_scene_init_timer);
         if (gfx_error == render_scene_init(tl, el, _dynalist, cam))
         {
             retval = gfx_error;
         }
     }
     {
-		ClockScope clockScope(render_scene_mesh_timer);
+		ClockScope<ClockPolicy::NonRecursive> clockScope(render_scene_mesh_timer);
         {
 			// Sort dolist for reflected rendering.
-			ClockScope clockScope(sortDoListReflected_timer);
+			ClockScope<ClockPolicy::NonRecursive> clockScope(sortDoListReflected_timer);
 			el.sort(cam, true);
         }
         // Render the mesh tiles and reflections of entities.
@@ -1946,7 +1948,7 @@ gfx_rv render_scene(Camera& cam, Ego::Graphics::TileList& tl, Ego::Graphics::Ent
     }
 	{
 		// Sort dolist for unreflected rendering.
-		ClockScope scope(sortDoListUnreflected_timer);
+		ClockScope<ClockPolicy::NonRecursive> scope(sortDoListUnreflected_timer);
 		if (gfx_error == el.sort(cam, false))
 		{
 			retval = gfx_error;

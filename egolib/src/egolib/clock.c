@@ -22,73 +22,29 @@
 /// @details This implementation was adapted from Noel Lopis' article in Game Programming Gems 4.
 
 #include "egolib/clock.h"
-#include "egolib/log.h"
-#include "game/Core/GameEngine.hpp"
 
-// this include must be the absolute last include
-#include "egolib/mem.h"
+namespace Ego {
+namespace Time {
 
-ClockState_t *ClockState_t::create(const std::string& name, size_t slidingWindowCapacity)
-{
-    ClockState_t *self;
-	try {
-		self = new ClockState_t(name, slidingWindowCapacity);
-	} catch (...) {
-		return nullptr;
-	}
-	return self;
+Clock<ClockPolicy::NonRecursive>::Clock(const std::string& name, size_t slidingWindowCapacity)
+	: Internal::AbstractClock<ClockPolicy::NonRecursive>(name, slidingWindowCapacity) {
 }
 
-void ClockState_t::destroy(ClockState_t *self)
-{
-	if (self) {
-		delete self;
+Clock<ClockPolicy::Recursive>::Clock(const std::string& name, size_t slidingWindowCapacity)
+	: Internal::AbstractClock<ClockPolicy::Recursive>(name, slidingWindowCapacity), _balance(0) {
+}
+
+void Clock<ClockPolicy::Recursive>::enter() {
+	if (0 == _balance++) {
+		this->Internal::AbstractClock<ClockPolicy::Recursive>::enter();
 	}
 }
 
-ClockState_t::ClockState_t(const std::string& name, size_t slidingWindowCapacity)
-	: _name(name), _maxElapsedTime(0.2), _stopwatch(), _slidingWindow(slidingWindowCapacity) {
-}
-
-void ClockState_t::enter() {
-	_stopwatch.reset();
-	_stopwatch.start();
-}
-
-void ClockState_t::leave() {
-	// Stop the stopwatch.
-	_stopwatch.stop();
-	// Get the elapsed time.
-	double elapsedTime = std::min(_maxElapsedTime, _stopwatch.elapsed());
-	// Add the elapsed time to the sliding window.
-	_slidingWindow.add(elapsedTime);
-	// Reset the stopwatch.
-	_stopwatch.reset();
-}
-
-void ClockState_t::reinit() {
-	_stopwatch.stop(); _stopwatch.reset(); /// @todo The stopwatch should also have a reinit method.
-	_slidingWindow.clear();
-}
-
-double ClockState_t::avg() const
-{
-	if (_slidingWindow.empty()) {
-		return 0;
-	} else {
-        double totalTime = 0;
-        for (size_t i = 0; i < _slidingWindow.size(); ++i) {
-            totalTime += _slidingWindow.get(i);
-        }
-        return totalTime / _slidingWindow.size();
-    }
-}
-
-double ClockState_t::lst() const
-{
-	if (_slidingWindow.empty()) {
-		return 0;
-	} else {
-		return _slidingWindow.get(_slidingWindow.size()-1);
+void Clock<ClockPolicy::Recursive>::leave() {
+	if (--_balance == 0) {
+		this->Internal::AbstractClock<ClockPolicy::Recursive>::leave();
 	}
 }
+
+} // namespace Time
+} // namespace Ego
