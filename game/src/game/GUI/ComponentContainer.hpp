@@ -69,6 +69,6 @@ private:
 
 protected:
     std::vector<std::shared_ptr<GUIComponent>> _componentList;
-    std::mutex _componentListMutex;
+    std::recursive_mutex _componentListMutex;
     bool _componentDestroyed;
 };

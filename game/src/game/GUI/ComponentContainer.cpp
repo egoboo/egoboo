@@ -13,20 +13,20 @@ ComponentContainer::ComponentContainer() :
 
 void ComponentContainer::addComponent(std::shared_ptr<GUIComponent> component)
 {
-    std::lock_guard<std::mutex> lock(_componentListMutex);
+    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
     _componentList.push_back(component);
     component->_parent = this;
 }
 
 void ComponentContainer::removeComponent(std::shared_ptr<GUIComponent> component)
 {
-    std::lock_guard<std::mutex> lock(_componentListMutex);
+    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
     _componentList.erase(std::remove(_componentList.begin(), _componentList.end(), component), _componentList.end());
 }
 
 void ComponentContainer::clearComponents()
 {
-    std::lock_guard<std::mutex> lock(_componentListMutex);
+    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
     _componentList.clear();
 }
 
@@ -42,7 +42,7 @@ void ComponentContainer::drawAll()
 
     //Draw reach GUI component
     _gameEngine->getUIManager()->beginRenderUI();
-    std::lock_guard<std::mutex> lock(_componentListMutex);
+    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
     for(const std::shared_ptr<GUIComponent> component : _componentList)
     {
         if(!component->isVisible()) continue;  //Ignore hidden/destroyed components
@@ -54,7 +54,7 @@ void ComponentContainer::drawAll()
 bool ComponentContainer::notifyMouseMoved(const int x, const int y)
 {
     {
-        std::lock_guard<std::mutex> lock(_componentListMutex);
+        std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
         for (auto i = _componentList.rbegin(); i != _componentList.rend(); ++i ) { 
             const std::shared_ptr<GUIComponent> &component = *i;
             if(!component->isEnabled()) continue;
@@ -68,7 +68,7 @@ bool ComponentContainer::notifyMouseMoved(const int x, const int y)
 bool ComponentContainer::notifyKeyDown(const int keyCode)
 {
     {
-        std::lock_guard<std::mutex> lock(_componentListMutex);
+        std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
         //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
         for (auto i = _componentList.rbegin(); i != _componentList.rend(); ++i ) { 
             const std::shared_ptr<GUIComponent> &component = *i;
@@ -83,7 +83,7 @@ bool ComponentContainer::notifyKeyDown(const int keyCode)
 bool ComponentContainer::notifyMouseClicked(const int button, const int x, const int y)
 {
     {
-        std::lock_guard<std::mutex> lock(_componentListMutex);
+        std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
         for (auto i = _componentList.rbegin(); i != _componentList.rend(); ++i ) { 
             const std::shared_ptr<GUIComponent> &component = *i;
             if(!component->isEnabled()) continue;
@@ -97,7 +97,7 @@ bool ComponentContainer::notifyMouseClicked(const int button, const int x, const
 bool ComponentContainer::notifyMouseScrolled(const int amount)
 {
     {
-        std::lock_guard<std::mutex> lock(_componentListMutex);
+        std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
         for (auto i = _componentList.rbegin(); i != _componentList.rend(); ++i ) { 
             const std::shared_ptr<GUIComponent> &component = *i;
             if(!component->isEnabled()) continue;
