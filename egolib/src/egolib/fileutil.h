@@ -467,7 +467,6 @@ bool copy_line_vfs(vfs_FILE * fileread, vfs_FILE * filewrite);
 char vfs_get_first_letter(ReadContext& ctxt);
 char * copy_to_delimiter_mem(char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len);
 bool copy_to_delimiter_vfs(vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen);
-int read_skin_vfs(const char *filename);
 /**
  * @brief
  *  Load an image into a texture.

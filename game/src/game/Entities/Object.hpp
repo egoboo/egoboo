@@ -562,11 +562,13 @@ public:
     *   For negative Defence, it is damage increase = 1-0.94^(defence).
     * @param type
     *   What kind of damage resistance to retrieve
+    * @param includeArmor
+    *   true if Defence should be included in damage reduction calculation
     * @return
     *   A floating point value representing the damage reduction (0.0f = no reduction, 1.0f = no damage, -1.0f = double damage)
     *   I.e a return value of 0.05f would mean damage reduction of 5%.
     **/
-    float getDamageReduction(DamageType type) const;
+    float getDamageReduction(const DamageType type, const bool includeArmor = true) const;
 
 private:
 
