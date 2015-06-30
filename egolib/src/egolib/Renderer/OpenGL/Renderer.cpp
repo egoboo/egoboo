@@ -143,7 +143,7 @@ void Renderer::setAlphaTestEnabled(bool enabled)
 
 void Renderer::setAlphaFunction(CompareFunction function, float value)
 {
-	if (value < 0.0f || value > 0.0f) {
+	if (value < 0.0f || value > 1.0f) {
 		throw std::invalid_argument("reference alpha value out of bounds");
 	}
 	switch (function)
