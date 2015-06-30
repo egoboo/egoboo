@@ -57,6 +57,8 @@ public:
         return _componentList.end();
     }
 
+    void bringComponentToFront(std::shared_ptr<GUIComponent> component);
+
 protected:
     virtual void drawContainer() = 0;
 

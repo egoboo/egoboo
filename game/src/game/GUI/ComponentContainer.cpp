@@ -128,9 +128,15 @@ void ComponentContainer::cleanDestroyedComponents()
 {
     if(!_componentDestroyed) return;
     _componentDestroyed = false;
-    std::lock_guard<std::mutex> lock(_componentListMutex);
+    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
 
     _componentList.erase(std::remove_if(_componentList.begin(), _componentList.end(), 
         [](const std::shared_ptr<GUIComponent> &component) {return component->isDestroyed(); }), 
         _componentList.end());
+}
+
+void ComponentContainer::bringComponentToFront(std::shared_ptr<GUIComponent> component)
+{
+    removeComponent(component);
+    addComponent(component);
 }
