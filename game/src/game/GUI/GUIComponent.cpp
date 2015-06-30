@@ -118,3 +118,9 @@ bool GUIComponent::isVisible() const
 {
     return _visible && !_destroyed;
 }
+
+void GUIComponent::bringToFront()
+{
+    if(!_parent) return;
+    _parent->bringComponentToFront(shared_from_this());
+}

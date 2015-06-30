@@ -46,6 +46,14 @@ class GUIComponent : public InputListener, public std::enable_shared_from_this<G
         void destroy();
         bool isDestroyed() const;
 
+        /**
+        * @brief
+        *   Requests the ComponentContainer parent of this GUIComponent to send this component
+        *   to the back of the rendering queue, making it drawn last on the top of all other
+        *   components inside this container. It will also be notified of any input events first.
+        **/
+        void bringToFront();
+
     private:
         bool _destroyed;
         SDL_Rect _bounds;

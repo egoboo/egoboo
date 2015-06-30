@@ -89,6 +89,9 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
             return true;
         }
 
+        //Bring the window in front of all other windows
+        bringToFront();
+
         _isDragging = !_isDragging;
 
         if(_isDragging) {
