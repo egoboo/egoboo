@@ -1680,30 +1680,16 @@ float vfs_get_damage_resist(ReadContext& ctxt)
 {
     /// @todo Ugly hack to allow it to work with the old damage system assume that numbers below 4 are shifts.
     float resistance = ctxt.readReal();
-    if (resistance == 1) resistance = 0.50f;        //50% reduction, same as shift 1
-    else if (resistance == 2) resistance = 0.75f;   //75% reduction, same as shift 2
-    else if (resistance == 3) resistance = 0.90f;   //90% reduction, same as shift 3
-    else resistance = resistance / 100.0f;
+
+    //@note ZF> uncomment to get damage reduction roughly same as old system
+    //if (resistance == 1) resistance = 16.7f;         //~50% reduction, about same as shift 1
+    //else if (resistance == 2) resistance = 50.0f;    //75% reduction, same as shift 2
+    //else if (resistance == 3) resistance = 150.0f;   //90% reduction, same as shift 3
+
+    if (resistance == 0) resistance = -11.203f;      //-100% damage reduction
+    else if (resistance == 1) resistance = 0.0f;     //0% damage reduction
+    else if (resistance == 2) resistance = 16.7f;    //50% damage reduction
+    else if (resistance == 3) resistance = 50.0f;    //75% damage reduction
 
     return resistance;
-}
-
-//--------------------------------------------------------------------------------------------
-int read_skin_vfs( const char *filename )
-{
-    /// @author ZZ
-    /// @details This function reads the skin.txt file...
-    ReadContext ctxt(filename);
-    if (!ctxt.ensureOpen())
-    {
-        return NO_SKIN_OVERRIDE;
-    }
-    // Read the contents.
-    int skin = vfs_get_next_int(ctxt);
-    if (skin < 0 || skin > SKINS_PEROBJECT_MAX)
-    {
-        /** @todo Use context to produce a nice warning message. */
-    }
-    skin %= SKINS_PEROBJECT_MAX;
-    return skin;
 }
