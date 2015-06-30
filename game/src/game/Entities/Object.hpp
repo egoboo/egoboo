@@ -555,6 +555,19 @@ public:
     **/
     CharacterGender getGender() const { return static_cast<CharacterGender>(gender); }
 
+    /**
+    * @brief
+    *   Gets how resistant this Object is to a specific type of damage (ZAP, FIRE, POKE, etc.)
+    *   For positive Defence, damage reduction =((defence)*0.06)/(1+0.06*(defence))
+    *   For negative Defence, it is damage increase = 1-0.94^(defence).
+    * @param type
+    *   What kind of damage resistance to retrieve
+    * @return
+    *   A floating point value representing the damage reduction (0.0f = no reduction, 1.0f = no damage, -1.0f = double damage)
+    *   I.e a return value of 0.05f would mean damage reduction of 5%.
+    **/
+    float getDamageReduction(DamageType type) const;
+
 private:
 
     /**

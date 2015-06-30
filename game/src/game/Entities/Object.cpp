@@ -411,9 +411,8 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
 
     // Lessen actual_damage for resistance, resistance is done in percentages where 0.70f means 30% damage reduction from that damage type
     // This can also be used to lessen effectiveness of healing
-    int actual_damage = Random::next(damage.base, damage.base+damage.rand);
-    int base_damage   = actual_damage;
-    actual_damage *= std::max( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - damage_resistance[damagetype] );
+    int base_damage = Random::next(damage.base, damage.base+damage.rand);
+    int actual_damage = base_damage - base_damage*getDamageReduction(damagetype);
 
     // Increase electric damage when in water
     if ( damagetype == DAMAGE_ZAP && isInWater(false) )
@@ -1840,4 +1839,20 @@ void Object::respawn()
     }
 
     chr_instance_t::update_ref(inst, enviro.grid_level, true );
+}
+
+float Object::getDamageReduction(DamageType type) const
+{
+    //DAMAGE_COUNT simply means not affected by damage resistances
+    if(type == DAMAGE_COUNT) {
+        return 0.0f;
+    }
+
+    //Negative armor *increases* damage a lot
+    if(damage_resistance[type] < 0.0f) {
+        return 1.0f - std::pow(0.94f, damage_resistance[type]);
+    }
+
+    //Positive armor reduces damage, but never 100%
+    return (damage_resistance[type]*0.06f) / (1.0f + damage_resistance[type]*0.06f);
 }

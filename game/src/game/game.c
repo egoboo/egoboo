@@ -1764,16 +1764,16 @@ void show_full_status( int statindex )
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pchr->getProfile()->getSkinInfo(skinlevel).defence,
-                       pchr->damage_resistance[DAMAGE_SLASH]*100,
-                       pchr->damage_resistance[DAMAGE_CRUSH]*100,
-                       pchr->damage_resistance[DAMAGE_POKE ]*100 );
+                       pchr->getDamageReduction(DAMAGE_SLASH)*100.0f,
+                       pchr->getDamageReduction(DAMAGE_CRUSH)*100.0f,
+                       pchr->getDamageReduction(DAMAGE_POKE) *100.0f );
 
     DisplayMsg_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
-                       pchr->damage_resistance[DAMAGE_HOLY]*100,
-                       pchr->damage_resistance[DAMAGE_EVIL]*100,
-                       pchr->damage_resistance[DAMAGE_FIRE]*100,
-                       pchr->damage_resistance[DAMAGE_ICE ]*100,
-                       pchr->damage_resistance[DAMAGE_ZAP ]*100 );
+                       pchr->getDamageReduction(DAMAGE_HOLY)*100.0f,
+                       pchr->getDamageReduction(DAMAGE_EVIL)*100.0f,
+                       pchr->getDamageReduction(DAMAGE_FIRE)*100.0f,
+                       pchr->getDamageReduction(DAMAGE_ICE) *100.0f,
+                       pchr->getDamageReduction(DAMAGE_ZAP) *100.0f );
 
     get_chr_regeneration( pchr.get(), &liferegen, &manaregen );
 
