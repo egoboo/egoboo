@@ -172,6 +172,8 @@ void Renderer::setAlphaFunction(ComparisonFunction function, float value)
 	case ComparisonFunction::GreaterOrEqual:
 		glAlphaFunc(GL_GEQUAL, value);
 		break;
+    default:
+        throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
 	};
 	Utilities::isError();
 }
