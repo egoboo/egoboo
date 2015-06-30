@@ -1574,6 +1574,7 @@ void check_stats()
         if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
     }
 
+#if 0
     // Display character stats?
     else
     {
@@ -1586,9 +1587,11 @@ void check_stats()
         if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
         if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
     }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void show_stat( int statindex )
 {
     /// @author ZZ
@@ -1650,6 +1653,7 @@ void show_stat( int statindex )
         DisplayMsg_printf( "~INT:~%2d~DEX:~%2d~EXP:~%u", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void show_armor( int statindex )

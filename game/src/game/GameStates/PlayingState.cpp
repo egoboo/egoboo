@@ -69,9 +69,6 @@ PlayingState::PlayingState(std::shared_ptr<CameraSystem> cameraSystem) :
         // Only valid players
         if (!PlaStack.lst[iplayer].valid) continue;
         addStatusMonitor(_currentModule->getObjectHandler()[PlaStack.lst[iplayer].index]);
-
-        std::shared_ptr<CharacterWindow> chrWindow = std::make_shared<CharacterWindow>(_currentModule->getObjectHandler()[PlaStack.lst[iplayer].index]);
-        addComponent(chrWindow);
     }
 }
 
@@ -206,6 +203,36 @@ bool PlayingState::notifyKeyDown(const int keyCode)
                 float xPos = Ego::Math::constrain<float>(getMiniMap()->getX(), 0, _gameEngine->getUIManager()->getScreenWidth() - getMiniMap()->getWidth());
                 float yPos = Ego::Math::constrain<float>(getMiniMap()->getY(), 0, _gameEngine->getUIManager()->getScreenHeight() - getMiniMap()->getHeight());
                 getMiniMap()->setPosition(xPos, yPos);
+            }
+        }
+        return true;
+
+        //Show character sheet
+        case SDLK_1:
+        case SDLK_2:
+        case SDLK_3:
+        case SDLK_4:
+        case SDLK_5:
+        case SDLK_6:
+        case SDLK_7:
+        case SDLK_8:
+        {
+            //Ensure that the same character cannot open more than 1 character window
+            const size_t statusNumber = keyCode - SDLK_1;
+            std::shared_ptr<CharacterWindow> chrWindow = _characterWindows[statusNumber].lock();
+            if(chrWindow == nullptr || _characterWindows[statusNumber].expired())
+            {
+                if(getStatusCharacter(statusNumber) != nullptr)
+                {
+                    chrWindow = std::make_shared<CharacterWindow>(getStatusCharacter(statusNumber));
+                    _characterWindows[statusNumber] = chrWindow;
+                    addComponent(chrWindow);
+                }
+            }
+            else
+            {
+                //Close window if same button is pressed twice
+                chrWindow->destroy();
             }
         }
         return true;
