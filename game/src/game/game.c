@@ -4446,13 +4446,6 @@ float water_instance_t::get_level() const
 }
 
 //--------------------------------------------------------------------------------------------
-
-float water_instance_layer_get_level(water_instance_layer_t& self)
-{
-    return self._z + self._amp;
-}
-
-//--------------------------------------------------------------------------------------------
 float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk )
 {
     /// @author ZZ
