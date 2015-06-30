@@ -1663,6 +1663,9 @@ void show_armor( int statindex )
     SKIN_T  skinlevel;
 
     const std::shared_ptr<Object> &pchr = _gameEngine->getActivePlayingState()->getStatusCharacter(statindex);
+    if(!pchr) {
+        return;
+    }
 
     skinlevel = pchr->skin;
 
