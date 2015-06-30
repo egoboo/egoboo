@@ -153,11 +153,18 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
     addComponent(label);
 
     //Value
-    std::shared_ptr<Label> value = std::make_shared<Label>(std::to_string(static_cast<int>(_character->getDamageReduction(type)*100)) + '%');
-    value->setPosition(label->getX() + 100, label->getY());
+    std::shared_ptr<Label> value = std::make_shared<Label>(std::to_string(static_cast<int>(_character->getRawDamageResistance(type))));
+    value->setPosition(label->getX() + 50, label->getY());
     value->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     value->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
     addComponent(value);
+
+    //Percent
+    std::shared_ptr<Label> percent = std::make_shared<Label>("(" + std::to_string(static_cast<int>(_character->getDamageReduction(type)*100)) + "%)");
+    percent->setPosition(label->getX() + 100, label->getY());
+    percent->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
+    percent->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
+    addComponent(percent);
 
     return label->getHeight()-LINE_SPACING_OFFSET;
 }
