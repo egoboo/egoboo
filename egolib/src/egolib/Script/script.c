@@ -1686,7 +1686,7 @@ ai_state_t::ai_state_t() {
 	attacklast = INVALID_CHR_REF;
 	hitlast = INVALID_CHR_REF;
 	directionlast = 0;
-	damagetypelast = DamageType::DAMAGE_NONE;
+	damagetypelast = DamageType::DAMAGE_DIRECT;
 	lastitemused = INVALID_CHR_REF;
 	target_old = INVALID_CHR_REF;
 
@@ -1737,7 +1737,7 @@ ai_state_t *ai_state_reset(ai_state_t *self)
 	self->attacklast = INVALID_CHR_REF;
 	self->hitlast = INVALID_CHR_REF;
 	self->directionlast = 0;
-	self->damagetypelast = DamageType::DAMAGE_NONE;
+	self->damagetypelast = DamageType::DAMAGE_DIRECT;
 	self->lastitemused = INVALID_CHR_REF;
 	self->target_old = INVALID_CHR_REF;
 

@@ -499,7 +499,7 @@ void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetyp
         case DAMAGE_ZAP  : vfs_printf( filewrite, "ZAP" ); break;
 
         default:
-        case DAMAGE_NONE : vfs_printf( filewrite, "NONE" ); break;
+        case DAMAGE_DIRECT : vfs_printf( filewrite, "DIRECT" ); break;
     }
 
     vfs_printf( filewrite, "\n" );
@@ -1469,13 +1469,18 @@ DamageType vfs_get_damage_type(ReadContext& ctxt)
             { "Zap",   DAMAGE_ZAP   },
             { "ZAP",   DAMAGE_ZAP   },
             { "Z",     DAMAGE_ZAP   },
-            // None.
-            { "None",  DAMAGE_NONE  },
-            { "NONE",  DAMAGE_NONE  },
-            { "N",     DAMAGE_NONE  },
+            // Direct.
+            { "Direct",DAMAGE_DIRECT  },
+            { "DIRECT",DAMAGE_DIRECT  },
+            { "D",     DAMAGE_DIRECT  },
+
+            // Direct used to be called 'NONE' before. Kept here for backwards compatability
+            { "None",  DAMAGE_DIRECT  },
+            { "NONE",  DAMAGE_DIRECT  },
+            { "N",     DAMAGE_DIRECT  },
         }
     );
-    return ReadContext::readEnum(ctxt, enumDescriptor, DAMAGE_NONE);
+    return ReadContext::readEnum(ctxt, enumDescriptor, DAMAGE_DIRECT);
 }
 
 //--------------------------------------------------------------------------------------------

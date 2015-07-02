@@ -373,7 +373,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     int max_damage = std::abs( damage.base ) + std::abs( damage.rand );
     if ( !isAlive() || 0 == max_damage ) return 0;
 
-    // make a special exception for DAMAGE_NONE
+    // make a special exception for DAMAGE_DIRECT
     uint8_t damageModifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : damage_modifier[damagetype];
 
     // determine some optional behavior
