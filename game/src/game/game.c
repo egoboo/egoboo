@@ -1724,8 +1724,8 @@ bool get_chr_regeneration( Object * pchr, int * pliferegen, int * pmanaregen )
     if ( NULL == pmanaregen ) pmanaregen = &local_manaregen;
 
     // set the base values
-    ( *pmanaregen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MANA_REGEN)) / MANARETURNSHIFT;
-    ( *pliferegen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::LIFE_REGEN));
+    ( *pmanaregen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MANA_REGEN) / GameEngine::GAME_TARGET_UPS);
+    ( *pliferegen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::LIFE_REGEN) / GameEngine::GAME_TARGET_UPS);
 
     // Don't forget to add gains and costs from enchants
     ENC_BEGIN_LOOP_ACTIVE( enchant, penc )
