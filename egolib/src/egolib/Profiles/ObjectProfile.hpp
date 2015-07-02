@@ -29,6 +29,7 @@
 #include "egolib/Graphics/mad.h"
 #include "egolib/Profiles/_Include.hpp"
 #include "egolib/Logic/Gender.hpp"
+#include "egolib/Logic/Attribute.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -137,14 +138,6 @@ enum inventory_t : uint8_t
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //Data structures
-
-/// The character statistic data in the form used in data.txt
-struct ProfileStat
- {
-    FRange val;    
-    FRange perlevel;
-};
-
 struct SkinInfo
 {
     std::string  name;                             ///< Skin name
@@ -478,27 +471,6 @@ public:
     inline float getIntelligenceDamageFactor() const  {return _intelligenceBonus;}
     inline float getDexterityDamageFactor() const     {return _dexterityBonus;}
 
-    inline FRange getStrengthGainPerLevel() const      {return _startingStrength.perlevel;}
-    inline FRange getWisdomGainPerLevel() const        {return _startingWisdom.perlevel;}
-    inline FRange getIntelligenceGainPerLevel() const  {return _startingIntelligence.perlevel;}
-    inline FRange getDexterityGainPerLevel() const     {return _startingDexterity.perlevel;}
-    inline FRange getLifeGainPerLevel() const          {return _startingLife.perlevel;}
-    inline FRange getManaGainPerLevel() const          {return _startingMana.perlevel;}
-    //inline FRange getLifeRegenerationGainPerLevel() const  {return 0;} //ZF> TODO: not implemented yet
-    inline FRange getManaRegenerationGainPerLevel() const  {return _startingManaRegeneration.perlevel;}
-    inline FRange getManaFlowGainPerLevel() const      {return _startingManaFlow.perlevel;}
-
-
-    inline FRange getBaseStrength() const          {return _startingStrength.val;}
-    inline FRange getBaseWisdom() const            {return _startingWisdom.val;}
-    inline FRange getBaseIntelligence() const      {return _startingIntelligence.val;}
-    inline FRange getBaseDexterity() const         {return _startingDexterity.val;}
-    inline FRange getBaseLife() const              {return _startingLife.val;}
-    inline UFP8_T getBaseLifeRegeneration() const  {return _startingLifeRegeneration;} //ZF> TODO: should be range
-    inline FRange getBaseManaRegeneration() const  {return _startingManaRegeneration.val;}
-    inline FRange getBaseManaFlow() const          {return _startingManaFlow.val;}
-    inline FRange getBaseMana() const              {return _startingMana.val;}
-
     inline const std::unordered_map<IDSZ, int>& getSkillMap() const {return _skills;}
 
     inline uint8_t getManaColor() const {return _manaColor;}
@@ -551,6 +523,18 @@ public:
     * @brief makes the usage of this type of object known to all players
     **/
     void makeUsageKnown() {_usageIsKnown = true;}
+
+    /**
+    * @return
+    *   Get the attribute increase each time character increases in experience level
+    **/
+    const FRange& getAttributeGain(Ego::Attribute::AttributeType type) const;
+
+    /**
+    * @return
+    *   Get base starting attribute this Object spawns with (can be random range)
+    **/
+    const FRange& getAttributeBase(Ego::Attribute::AttributeType type) const;
 
     /**
     * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
@@ -649,22 +633,12 @@ private:
     // characer stats
     CharacterGender _gender;                    ///< Gender
 
-    // life
-    ProfileStat  _startingLife;                     ///< Life statistics. Base range/current value + by-level bonus.
-    UFP8_T       _startingLifeRegeneration;     ///< Life regeneration (8.8 fixed point). @todo Should be a ProfileStat too.
+    //for imports
     UFP8_T       _spawnLife;                    ///< Life left from last module (8.8 fixed point)
-
-    // mana
-    ProfileStat  _startingMana;                     ///< Mana statistics. Base range/current value + by-level bonus.
-    ProfileStat  _startingManaRegeneration;               ///< Mana regeneration statistics
     UFP8_T       _spawnMana;                    ///< Mana left from last module (8.8 fixed point)
 
-    ProfileStat  _startingManaFlow;             ///< How much mana the character can channel in one go (magic strength)
-
-    ProfileStat  _startingStrength;             ///< Strength.    Initial range or current value + per-level increase.
-    ProfileStat  _startingWisdom;               ///< Wisdom.      Initial range or current value + per-level increase.
-    ProfileStat  _startingIntelligence;         ///< Intlligence. Initial range or current value + per-level increase.
-    ProfileStat  _startingDexterity;            ///< Dexterity.   Initial range or current value + per-level increase.
+    std::array<FRange, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Base attributes
+    std::array<FRange, Ego::Attribute::NR_OF_ATTRIBUTES> _attributeGain; ///< Attribute increase each level
 
     // physics
     uint8_t      _weight;                        ///< Weight

@@ -226,15 +226,6 @@ public:
     bool isInsideInventory() const;
 
     /**
-    * @brief
-    *   getters for character attributes
-    **/
-    int getStrenght() const { return SFP8_TO_SINT(strength); }
-    int getDexterity() const { return SFP8_TO_SINT(dexterity); }
-    int getWisdom() const { return SFP8_TO_SINT(wisdom); }
-    int getIntelligence() const { return SFP8_TO_SINT(intelligence); }
-
-    /**
     * @return
     *   true if this Object has been terminated and will be removed from the game.
     *   If this value is true, then this Object is effectively no longer a part of
@@ -534,7 +525,7 @@ public:
     * @brief
     *   Get max allowed mana for this Object
     **/
-    inline UFP8_T getMaxMana() const { return mana_max; }
+    inline float getMaxMana() const { return getAttribute(Ego::Attribute::MAX_MANA); }
 
     /**
     * @brief
@@ -577,6 +568,18 @@ public:
     **/
     float getRawDamageResistance(const DamageType type, const bool includeArmor = true) const;
 
+    /**
+    * @brief
+    *   Get total value for the specified attribute
+    **/
+    float getAttribute(const Ego::Attribute::AttributeType type) const;
+
+    /**
+    * @brief
+    *   Permanently increases or decreases an attribute of this Object
+    **/
+    void increaseBaseAttribute(const Ego::Attribute::AttributeType type, float value);
+
 private:
 
     /**
@@ -604,31 +607,20 @@ public:
 
     // character stats
     STRING         Name;            ///< My name
-    uint8_t          gender;          ///< Gender
+    uint8_t        gender;          ///< Gender
 
-    uint8_t          life_color;      ///< Bar color
-	SFP8_T         life;            ///< (signed 8.8 fixed point)
-	UFP8_T         life_max;        ///< (unsigned 8.8 fixed point) @inv life_max >= life
-    SFP8_T         life_return;     ///< Regeneration/poison - (8.8 fixed point)
+    uint8_t        life_color;      ///< Bar color
+	SFP8_T         life;            ///< current life (signed 8.8 fixed point)
 
-    uint8_t          mana_color;      ///< Bar color
-	SFP8_T         mana;            ///< (signed 8.8 fixed point)
-	UFP8_T         mana_max;        ///< (unsigned 8.8 fixed point) @inv mana_max >= mana
-    SFP8_T         mana_return;     ///< (8.8 fixed point)
+    uint8_t        mana_color;      ///< Bar color
+	SFP8_T         mana;            ///< current mana (signed 8.8 fixed point)
 
-	SFP8_T         mana_flow;       ///< (8.8 fixed point)
+    uint32_t       experience;      ///< Experience
+    uint8_t        experiencelevel; ///< Experience Level
 
-    SFP8_T         strength;        ///< Strength     - (8.8 fixed point)
-    SFP8_T         wisdom;          ///< Wisdom       - (8.8 fixed point)
-    SFP8_T         intelligence;    ///< Intelligence - (8.8 fixed point)
-    SFP8_T         dexterity;       ///< Dexterity    - (8.8 fixed point)
-
-    uint32_t         experience;      ///< Experience
-    uint8_t          experiencelevel; ///< Experience Level
-
-    int16_t         money;            ///< Money
-    uint16_t         ammomax;          ///< Ammo stuff
-    uint16_t         ammo;
+    int16_t        money;            ///< Money
+    uint16_t       ammomax;          ///< Ammo stuff
+    uint16_t       ammo;
 
     // equipment and inventory
     std::array<CHR_REF, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
@@ -781,10 +773,11 @@ public:
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 private:
-    bool _terminateRequested;                           ///< True if this character no longer exists in the game and should be destructed
-    CHR_REF _characterID;                               ///< Our unique CHR_REF id
-    std::shared_ptr<ObjectProfile> _profile;            ///< Our Profile
-    bool _showStatus;                                   ///< Display stats?
+    bool _terminateRequested;                            ///< True if this character no longer exists in the game and should be destructed
+    CHR_REF _characterID;                                ///< Our unique CHR_REF id
+    std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
+    bool _showStatus;                                    ///< Display stats?
+    std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
 
     friend class ObjectHandler;
 };

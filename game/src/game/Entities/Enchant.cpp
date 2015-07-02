@@ -724,55 +724,33 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             break;
 
         case eve_t::ADDMANA:
-            newvalue = ptarget->mana_max;
-            valuetoadd = peve->_add[value_idx].value;
-            getadd_int( 0, newvalue, PERFECTBIG, &valuetoadd );
-            ptarget->mana_max += valuetoadd;
-            //ptarget->mana    += valuetoadd;                       /// @note ZF@> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
-            ptarget->mana = CLIP( (UFP8_T)ptarget->mana, (UFP8_T)0, ptarget->mana_max );
-            fvaluetoadd = valuetoadd;
+            ptarget->increaseBaseAttribute(Ego::Attribute::MAX_MANA, FP8_TO_FLOAT(peve->_add[value_idx].value));
+            fvaluetoadd = peve->_add[value_idx].value;
             break;
 
         case eve_t::ADDLIFE:
-            newvalue = ptarget->life_max;
-            valuetoadd = peve->_add[value_idx].value;
-            getadd_int( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
-            ptarget->life_max += valuetoadd;
-            //ptarget->life += valuetoadd;                        /// @note ZF@> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
-            ptarget->life = CLIP( (UFP8_T)ptarget->life, (UFP8_T)1, ptarget->life_max );
-            fvaluetoadd = valuetoadd;
+            ptarget->increaseBaseAttribute(Ego::Attribute::MAX_LIFE, FP8_TO_FLOAT(peve->_add[value_idx].value));
+            fvaluetoadd = peve->_add[value_idx].value;
             break;
 
         case eve_t::ADDSTRENGTH:
-            newvalue = ptarget->strength;
-            valuetoadd = peve->_add[value_idx].value;
-            getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
-            ptarget->strength += valuetoadd;
+            ptarget->increaseBaseAttribute(Ego::Attribute::MIGHT, FP8_TO_FLOAT(peve->_add[value_idx].value));
             fvaluetoadd = valuetoadd;
             break;
 
         case eve_t::ADDWISDOM:
-            newvalue = ptarget->wisdom;
-            valuetoadd = peve->_add[value_idx].value;
-            getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
-            ptarget->wisdom += valuetoadd;
-            fvaluetoadd = valuetoadd;
+            ptarget->increaseBaseAttribute(Ego::Attribute::WISDOM, FP8_TO_FLOAT(peve->_add[value_idx].value));
+            fvaluetoadd = peve->_add[value_idx].value;
             break;
 
         case eve_t::ADDINTELLIGENCE:
-            newvalue = ptarget->intelligence;
-            valuetoadd = peve->_add[value_idx].value;
-            getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
-            ptarget->intelligence += valuetoadd;
-            fvaluetoadd = valuetoadd;
+            ptarget->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(peve->_add[value_idx].value));
+            fvaluetoadd = peve->_add[value_idx].value;
             break;
 
         case eve_t::ADDDEXTERITY:
-            newvalue = ptarget->dexterity;
-            valuetoadd = peve->_add[value_idx].value;
-            getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
-            ptarget->dexterity += valuetoadd;
-            fvaluetoadd = valuetoadd;
+            ptarget->increaseBaseAttribute(Ego::Attribute::AGILITY, FP8_TO_FLOAT(peve->_add[value_idx].value));
+            fvaluetoadd = peve->_add[value_idx].value;
             break;
 
         case eve_t::ADDSLASHRESIST:
@@ -1039,7 +1017,7 @@ enc_t *enc_t::config_do_active()
             Object *powner = _currentModule->getObjectHandler().get(owner);
 
             // Do drains
-            if ( powner && powner->alive )
+            if ( powner && powner->isAlive() )
             {
 
                 // Change life
@@ -1050,9 +1028,9 @@ enc_t *enc_t::config_do_active()
                     {
                         powner->kill(_currentModule->getObjectHandler()[target], false);
                     }
-                    if ( powner->life > powner->life_max )
+                    if ( powner->life > FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_LIFE)) )
                     {
-                        powner->life = powner->life_max;
+                        powner->life = FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_LIFE));
                     }
                 }
 
@@ -1076,7 +1054,7 @@ enc_t *enc_t::config_do_active()
             // check it again
             if ( INGAME_ENC( ienc ) )
             {
-                if ( powner && powner->alive )
+                if ( powner && powner->isAlive() )
                 {
 					Object *ptarget = _currentModule->getObjectHandler().get(this->target_ref);
                     // Change life
@@ -1087,9 +1065,9 @@ enc_t *enc_t::config_do_active()
                         {
                             ptarget->kill(_currentModule->getObjectHandler()[owner], false);
                         }
-                        if ( powner->life > powner->life_max )
+                        if ( powner->life > FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_LIFE)) )
                         {
-                            powner->life = powner->life_max;
+                            powner->life = FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_LIFE));
                         }
                     }
 
@@ -1324,36 +1302,36 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
 
             case eve_t::ADDMANA:
                 valuetoadd = penc->_add[value_idx]._oldValue;
-                ptarget->mana_max -= valuetoadd;
+                ptarget->increaseBaseAttribute(Ego::Attribute::MAX_MANA, FP8_TO_FLOAT(-valuetoadd));
                 ptarget->mana -= valuetoadd;
                 if ( ptarget->mana < 0 ) ptarget->mana = 0;
                 break;
 
             case eve_t::ADDLIFE:
                 valuetoadd = penc->_add[value_idx]._oldValue;
-                ptarget->life_max -= valuetoadd;
+                ptarget->increaseBaseAttribute(Ego::Attribute::MAX_LIFE, FP8_TO_FLOAT(-valuetoadd));
                 ptarget->life -= valuetoadd;
                 if ( ptarget->life < 1 ) ptarget->life = 1;
                 break;
 
             case eve_t::ADDSTRENGTH:
                 valuetoadd = penc->_add[value_idx]._oldValue;
-                ptarget->strength -= valuetoadd;
+                ptarget->increaseBaseAttribute(Ego::Attribute::MIGHT, FP8_TO_FLOAT(-valuetoadd));
                 break;
 
             case eve_t::ADDWISDOM:
                 valuetoadd = penc->_add[value_idx]._oldValue;
-                ptarget->wisdom -= valuetoadd;
+                ptarget->increaseBaseAttribute(Ego::Attribute::WISDOM, FP8_TO_FLOAT(-valuetoadd));
                 break;
 
             case eve_t::ADDINTELLIGENCE:
                 valuetoadd = penc->_add[value_idx]._oldValue;
-                ptarget->intelligence -= valuetoadd;
+                ptarget->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(-valuetoadd));
                 break;
 
             case eve_t::ADDDEXTERITY:
                 valuetoadd = penc->_add[value_idx]._oldValue;
-                ptarget->dexterity -= valuetoadd;
+                ptarget->increaseBaseAttribute(Ego::Attribute::AGILITY, FP8_TO_FLOAT(-valuetoadd));
                 break;
 
             case eve_t::ADDSLASHRESIST:

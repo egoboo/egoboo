@@ -30,7 +30,7 @@ class CameraSystem;
 class MiniMap;
 class Object;
 class CharacterStatus;
-class CharacterWindow;
+namespace Ego { namespace GUI { class CharacterWindow; } }
 
 class PlayingState : public GameState
 {
@@ -61,5 +61,5 @@ private:
 	std::shared_ptr<CameraSystem> _cameraSystem;
     std::shared_ptr<MiniMap> _miniMap;
     std::vector<std::weak_ptr<CharacterStatus>> _statusList;
-    std::array<std::weak_ptr<CharacterWindow>, 8> _characterWindows;
+    std::array<std::weak_ptr<Ego::GUI::CharacterWindow>, 8> _characterWindows;
 };

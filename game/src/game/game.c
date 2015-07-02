@@ -1724,8 +1724,8 @@ bool get_chr_regeneration( Object * pchr, int * pliferegen, int * pmanaregen )
     if ( NULL == pmanaregen ) pmanaregen = &local_manaregen;
 
     // set the base values
-    ( *pmanaregen ) = pchr->mana_return / MANARETURNSHIFT;
-    ( *pliferegen ) = pchr->life_return;
+    ( *pmanaregen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MANA_REGEN)) / MANARETURNSHIFT;
+    ( *pliferegen ) = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::LIFE_REGEN));
 
     // Don't forget to add gains and costs from enchants
     ENC_BEGIN_LOOP_ACTIVE( enchant, penc )
@@ -3742,14 +3742,11 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
         iowner = _currentModule->getShopOwner( pitem->getPosX(), pitem->getPosY() );
         if ( _currentModule->getObjectHandler().exists( iowner ) )
         {
-            IPair  tmp_rand(1, 100);
-            int  detection;
+            int detection = Random::getPercent();
             Object * powner = _currentModule->getObjectHandler().get( iowner );
 
-            detection = generate_irand_pair( tmp_rand );
-
             can_steal = true;
-            if ( powner->canSeeObject(pthief) || detection <= 5 || ( detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 ) ) > 50 )
+            if ( powner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + powner->getAttribute(Ego::Attribute::WISDOM) ) > 50 )
             {
                 ai_state_add_order(powner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
                 powner->ai.target = ithief;

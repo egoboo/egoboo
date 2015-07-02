@@ -2114,7 +2114,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->life > pself_target->life_max - HURTDAMAGE )
+    if ( !pself_target->alive || pself_target->life > FLOAT_TO_FP8(pself_target->getAttribute(Ego::Attribute::MAX_LIFE)) - HURTDAMAGE )
         returncode = false;
 
     SCRIPT_FUNCTION_END();
@@ -4785,11 +4785,9 @@ Uint8 scr_add_TargetStrength( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
-        iTmp = pstate->argument;
-        getadd_int( 0, pself_target->strength, PERFECTSTAT, &iTmp );
-        pself_target->strength += iTmp;
+        pself_target->increaseBaseAttribute(Ego::Attribute::MIGHT, FP8_TO_FLOAT(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4808,11 +4806,9 @@ Uint8 scr_add_TargetWisdom( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
-        iTmp = pstate->argument;
-        getadd_int( 0, pself_target->wisdom, PERFECTSTAT, &iTmp );
-        pself_target->wisdom += iTmp;
+        pself_target->increaseBaseAttribute(Ego::Attribute::WISDOM, FP8_TO_FLOAT(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4831,11 +4827,9 @@ Uint8 scr_add_TargetIntelligence( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
-        iTmp = pstate->argument;
-        getadd_int( 0, pself_target->intelligence, PERFECTSTAT, &iTmp );
-        pself_target->intelligence += iTmp;
+        pself_target->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4854,11 +4848,9 @@ Uint8 scr_add_TargetDexterity( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
-        iTmp = pstate->argument;
-        getadd_int( 0, pself_target->dexterity, PERFECTSTAT, &iTmp );
-        pself_target->dexterity += iTmp;
+        pself_target->increaseBaseAttribute(Ego::Attribute::AGILITY, FP8_TO_FLOAT(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4878,17 +4870,10 @@ Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
-        iTmp = pstate->argument;
-        getadd_int( LOWSTAT, pself_target->life_max, PERFECTBIG, &iTmp );
-        pself_target->life_max += iTmp;
-        if ( iTmp < 0 )
-        {
-            getadd_int( 1, pself_target->life, PERFECTBIG, &iTmp );
-        }
-
-        pself_target->life += iTmp;
+        pself_target->increaseBaseAttribute(Ego::Attribute::MAX_LIFE, FP8_TO_FLOAT(pstate->argument));
+        pself_target->heal(_currentModule->getObjectHandler()[pchr->getCharacterID()], pstate->argument, true);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4908,17 +4893,10 @@ Uint8 scr_add_TargetMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
-        iTmp = pstate->argument;
-        getadd_int( 0, pself_target->mana_max, PERFECTBIG, &iTmp );
-        pself_target->mana_max += iTmp;
-        if ( iTmp < 0 )
-        {
-            getadd_int( 0, pself_target->mana, PERFECTBIG, &iTmp );
-        }
-
-        pself_target->mana += iTmp;
+        pself_target->increaseBaseAttribute(Ego::Attribute::MAX_MANA, FP8_TO_FLOAT(pstate->argument));
+        pself_target->costMana(-pstate->argument, INVALID_CHR_REF);
     }
 
     SCRIPT_FUNCTION_END();
@@ -5014,11 +4992,9 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() && pstate->argument > 0)
     {
-        iTmp = pstate->argument;
-        getadd_int( 0, pself_target->mana, pself_target->mana_max, &iTmp );
-        pself_target->mana += iTmp;
+        pself_target->costMana(-pstate->argument, pchr->getCharacterID());
     }
 
     SCRIPT_FUNCTION_END();
@@ -7041,7 +7017,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->mana > pself_target->mana_max - HURTDAMAGE )
+    if ( !pself_target->alive || pself_target->mana > FLOAT_TO_FP8(pself_target->getAttribute(Ego::Attribute::MAX_MANA)) - HURTDAMAGE )
     {
         returncode = false;
     }
@@ -7827,11 +7803,9 @@ Uint8 scr_add_TargetManaFlow( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
-        iTmp = pstate->argument;
-        getadd_int( 0, pself_target->mana_flow, PERFECTSTAT, &iTmp );
-        pself_target->mana_flow += iTmp;
+        pself_target->increaseBaseAttribute(Ego::Attribute::SPELL_POWER, FP8_TO_FLOAT(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -7851,11 +7825,9 @@ Uint8 scr_add_TargetManaReturn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->alive )
+    if ( pself_target->isAlive() )
     {
-        iTmp = pstate->argument;
-        getadd_int( 0, pself_target->mana_return, PERFECTSTAT, &iTmp );
-        pself_target->mana_return += iTmp;
+        pself_target->increaseBaseAttribute(Ego::Attribute::MANA_REGEN, FP8_TO_FLOAT(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();

@@ -26,6 +26,11 @@
 
 class Object;
 
+namespace Ego
+{
+namespace GUI
+{
+
 class CharacterWindow : public InternalWindow
 {
     public:
@@ -37,3 +42,6 @@ class CharacterWindow : public InternalWindow
     private:
         std::shared_ptr<Object> _character;
 };
+
+} //GUI
+} //Ego

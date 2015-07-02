@@ -46,17 +46,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     gender(GENDER_MALE),
     life_color(0),
     life(0),
-    life_max(0),
-    life_return(0),
     mana_color(0),
     mana(0),
-    mana_max(0),
-    mana_return(0),
-    mana_flow(0),
-    strength(0),
-    wisdom(0),
-    intelligence(0),
-    dexterity(0),
     experience(0),
     experiencelevel(0),
     money(0),
@@ -169,7 +160,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _terminateRequested(false),
     _characterID(id),
     _profile(ProfileSystem::get().getProfile(profile)),
-    _showStatus(false)
+    _showStatus(false),
+    _baseAttribute()
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -185,6 +177,12 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     // Set up position
     ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     ori.map_twist_facing_x = MAP_TURN_OFFSET;
+
+    //Initialize attributes
+    for(size_t i = 0; i < _baseAttribute.size(); ++i) {
+        const FRange& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
+        _baseAttribute[i] = Random::next(baseRange);
+    }
 
     //---- call the constructors of the "has a" classes
 
@@ -439,9 +437,9 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     if (HAS_SOME_BITS(damageModifier, DAMAGECHARGE))
     {
         mana += actual_damage;
-        if ( mana > mana_max )
+        if ( mana > getMaxMana() )
         {
-            mana = mana_max;
+            mana = getMaxMana();
         }
         return 0;
     }
@@ -678,7 +676,7 @@ bool Object::heal(const std::shared_ptr<Object> &healer, const UFP8_T amount, co
     if (!alive || (invictus && !ignoreInvincibility)) return false;
 
     //This actually heals the character
-    life = CLIP(static_cast<UFP8_T>(life), life + amount, life_max);
+    life = CLIP(static_cast<UFP8_T>(life), life + amount, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
 
     // Set alerts, but don't alert that we healed ourselves
     if (healer && this != healer.get() && healer->attachedto != _characterID && amount > HURTDAMAGE)
@@ -845,10 +843,10 @@ void Object::update()
             get_chr_regeneration( this, &liferegen, &manaregen );
 
             mana += manaregen;
-            mana = CLIP((UFP8_T)mana, (UFP8_T)0, mana_max);
+            mana = CLIP((UFP8_T)mana, (UFP8_T)0, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
 
             life += liferegen;
-            life = CLIP((UFP8_T)life, (UFP8_T)1, life_max);
+            life = CLIP((UFP8_T)life, (UFP8_T)1, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
         }
 
         // countdown confuse effects
@@ -1270,59 +1268,14 @@ void Object::giveLevelUp()
                 AudioSystem::get().playSoundFull(AudioSystem::get().getGlobalSound(GSND_LEVELUP));
             }
 
-            // Size
+            // Size Increase
             fat_goto += getProfile()->getSizeGainPerLevel() * 0.25f;  // Limit this?
             fat_goto_time += SIZETIME;
 
-            // Strength
-            number = generate_irand_range( getProfile()->getStrengthGainPerLevel() );
-            number += strength;
-            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
-            strength = number;
-
-            // Wisdom
-            number = generate_irand_range( getProfile()->getWisdomGainPerLevel() );
-            number += wisdom;
-            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
-            wisdom = number;
-
-            // Intelligence
-            number = generate_irand_range( getProfile()->getIntelligenceGainPerLevel() );
-            number += intelligence;
-            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
-            intelligence = number;
-
-            // Dexterity
-            number = generate_irand_range( getProfile()->getDexterityGainPerLevel() );
-            number += dexterity;
-            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
-            dexterity = number;
-
-            // Life
-            number = generate_irand_range( getProfile()->getLifeGainPerLevel() );
-            number += life_max;
-            if ( number > PERFECTBIG ) number = PERFECTBIG;
-            life += ( number - life_max );
-            life_max = number;
-
-            // Mana
-            number = generate_irand_range( getProfile()->getManaGainPerLevel() );
-            number += mana_max;
-            if ( number > PERFECTBIG ) number = PERFECTBIG;
-            mana += ( number - mana_max );
-            mana_max = number;
-
-            // Mana Return
-            number = generate_irand_range( getProfile()->getManaRegenerationGainPerLevel() );
-            number += mana_return;
-            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
-            mana_return = number;
-
-            // Mana Flow
-            number = generate_irand_range( getProfile()->getManaFlowGainPerLevel() );
-            number += mana_flow;
-            if ( number > PERFECTSTAT ) number = PERFECTSTAT;
-            mana_flow = number;
+            //Attribute increase
+            for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
+                _baseAttribute[i] += Random::next(getProfile()->getAttributeGain(static_cast<Ego::Attribute::AttributeType>(i)));
+            }
         }
     }
 }
@@ -1542,8 +1495,8 @@ void Object::giveExperience(const int amount, const XPType xptype, const bool ov
         }
 
         // Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
-        float intadd = ( FP8_TO_FLOAT(intelligence ) - 10.0f ) / 200.0f;
-        float wisadd = ( FP8_TO_FLOAT(wisdom )       - 10.0f ) / 400.0f;
+        float intadd = ( getAttribute(Ego::Attribute::INTELLECT) - 10.0f ) / 200.0f;
+        float wisadd = ( getAttribute(Ego::Attribute::WISDOM)    - 10.0f ) / 400.0f;
         newamount *= 1.00f + intadd + wisadd;
 
         // Apply XP bonus/penality depending on game difficulty
@@ -1769,8 +1722,8 @@ void Object::respawn()
     alive = true;
     bore_timer = BORETIME;
     careful_timer = CAREFULTIME;
-    life = life_max;
-    mana = getMaxMana();
+    life = FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE));
+    mana = FLOAT_TO_FP8(getMaxMana());
     setPosition(pos_stt);
     vel = fvec3_t::zero();
     team = team_base;
@@ -1886,4 +1839,16 @@ float Object::getDamageReduction(const DamageType type, const bool includeArmor)
 
     //Positive resistance reduces damage, but never 100%
     return ((resistance*0.06f) / (1.0f + resistance*0.06f));
+}
+
+float Object::getAttribute(const Ego::Attribute::AttributeType type) const 
+{ 
+    EGOBOO_ASSERT(type < _baseAttribute.size()); 
+    return _baseAttribute[type]; 
+}
+
+void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, float value)
+{
+    EGOBOO_ASSERT(type < _baseAttribute.size()); 
+    _baseAttribute[type] = Ego::Math::constrain(_baseAttribute[type] + value, 0.0f, 255.0f);
 }

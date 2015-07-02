@@ -75,22 +75,13 @@ ObjectProfile::ObjectProfile() :
     // characer stats
     _gender(GENDER_OTHER),
 
-    // life
-    _startingLife(),
-    _startingLifeRegeneration(),
+    //for imports
     _spawnLife(PERFECTBIG),
-
-    // mana
-    _startingMana(),
-    _startingManaRegeneration(),
     _spawnMana(PERFECTBIG),
 
-    _startingManaFlow(),
-
-    _startingStrength(),
-    _startingWisdom(),
-    _startingIntelligence(),
-    _startingDexterity(),
+    //Base attributes
+    _baseAttribute(),
+    _attributeGain(),
 
     // physics
     _weight(1),
@@ -511,29 +502,29 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _lifeColor = vfs_get_next_int(ctxt);
     _manaColor = vfs_get_next_int(ctxt);
 
-    vfs_get_next_range(ctxt, &(_startingLife.val));
-    vfs_get_next_range(ctxt, &(_startingLife.perlevel));
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MAX_LIFE]);
+    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MAX_LIFE]);
 
-    vfs_get_next_range(ctxt, &(_startingMana.val));
-    vfs_get_next_range(ctxt, &(_startingMana.perlevel));
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MAX_MANA]);
+    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MAX_MANA]);
 
-    vfs_get_next_range(ctxt, &(_startingManaRegeneration.val));
-    vfs_get_next_range(ctxt, &(_startingManaRegeneration.perlevel));
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MANA_REGEN]);
+    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MANA_REGEN]);
 
-    vfs_get_next_range(ctxt, &(_startingManaFlow.val));
-    vfs_get_next_range(ctxt, &(_startingManaFlow.perlevel));
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::SPELL_POWER]);
+    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::SPELL_POWER]);
 
-    vfs_get_next_range(ctxt, &(_startingStrength.val));
-    vfs_get_next_range(ctxt, &(_startingStrength.perlevel));
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MIGHT]);
+    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MIGHT]);
 
-    vfs_get_next_range(ctxt, &(_startingWisdom.val));
-    vfs_get_next_range(ctxt, &(_startingWisdom.perlevel));
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::WISDOM]);
+    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::WISDOM]);
 
-    vfs_get_next_range(ctxt, &(_startingIntelligence.val));
-    vfs_get_next_range(ctxt, &(_startingIntelligence.perlevel));
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::INTELLECT]);
+    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::INTELLECT]);
 
-    vfs_get_next_range(ctxt, &(_startingDexterity.val));
-    vfs_get_next_range(ctxt, &(_startingDexterity.perlevel));
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::AGILITY]);
+    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::AGILITY]);
 
     // More physical attributes
     _size = vfs_get_next_float(ctxt);
@@ -691,7 +682,9 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // More stuff I forgot
     vfs_get_next_float(ctxt);  //ZF> deprecated value LifeReturn (no longer used)
     _useManaCost = vfs_get_next_float(ctxt);
-    _startingLifeRegeneration = vfs_get_next_int(ctxt);
+    _baseAttribute[Ego::Attribute::LIFE_REGEN].from = vfs_get_next_int(ctxt) / 255.0f;
+    _baseAttribute[Ego::Attribute::LIFE_REGEN].to = _baseAttribute[Ego::Attribute::LIFE_REGEN].from;        //ZF> TODO: should be range
+    _attributeGain[Ego::Attribute::LIFE_REGEN].from = _attributeGain[Ego::Attribute::LIFE_REGEN].to = 0;    //ZF> TODO: regen gain per level not implemented
     _stoppedBy |= vfs_get_next_int(ctxt);
 
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
@@ -1092,45 +1085,25 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_int( fileTemp, fileWrite, character->ammo );        //Note: overridden by chr
     template_put_gender( fileTemp, fileWrite, character->gender );   //Note: overridden by chr
 
-     // SWID
-    ProfileStat strength = profile->_startingStrength;
-    ints_to_range( character->strength    , 0, &strength.val);
-    ProfileStat wisdom = profile->_startingWisdom;
-    ints_to_range( character->wisdom      , 0, &wisdom.val);
-    ProfileStat intelligence = profile->_startingIntelligence;
-    ints_to_range( character->intelligence, 0, &intelligence.val);
-    ProfileStat dexterity = profile->_startingStrength;
-    ints_to_range( character->dexterity   , 0, &dexterity.val);
-
-    // Life and Mana
-    ProfileStat maxLife = profile->_startingLife;
-    ints_to_range( character->life_max     , 0, &maxLife.val);
-    ProfileStat maxMana = profile->_startingMana;
-    ints_to_range( character->mana_max     , 0, &maxMana.val);
-    ProfileStat manaRegeneration = profile->_startingManaRegeneration;
-    ints_to_range( character->mana_return  , 0, &manaRegeneration.val);
-    ProfileStat manaFlow = profile->_startingManaFlow;
-    ints_to_range( character->mana_flow    , 0, &manaFlow.val);
-
-    // Object stats
+     //Attributes (TODO: can be easily converted into a for loop if order does not matter)
     template_put_int( fileTemp, fileWrite, character->life_color );              //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->mana_color );              //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, maxLife.val );                          //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->_startingLife.perlevel );
-    template_put_range( fileTemp, fileWrite, maxMana.val );                          //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->_startingMana.perlevel );
-    template_put_range( fileTemp, fileWrite, manaRegeneration.val );             //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->_startingManaRegeneration.perlevel );
-    template_put_range( fileTemp, fileWrite, manaFlow.val );                     //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->_startingManaFlow.perlevel );
-    template_put_range( fileTemp, fileWrite, strength.val );                     //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->_startingStrength.perlevel );
-    template_put_range( fileTemp, fileWrite, wisdom.val );                       //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->_startingWisdom.perlevel );
-    template_put_range( fileTemp, fileWrite, intelligence.val );                 //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->_startingIntelligence.perlevel );
-    template_put_range( fileTemp, fileWrite, dexterity.val );                    //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->_startingDexterity.perlevel );
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MAX_LIFE) ); //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MAX_LIFE));
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MAX_MANA) ); //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MAX_MANA));
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MANA_REGEN) ); //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MANA_REGEN));
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::SPELL_POWER) ); //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::SPELL_POWER));
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MIGHT) ); //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MIGHT));
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::WISDOM) ); //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::WISDOM));
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::INTELLECT) ); //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::INTELLECT));
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::AGILITY) ); //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::AGILITY));
 
     // More physical attributes
     template_put_float( fileTemp, fileWrite, character->fat_goto );                   //Note: overriden by chr
@@ -1295,7 +1268,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     // More stuff
     template_put_float(fileTemp, fileWrite, 0); //unused
     template_put_float(fileTemp, fileWrite, profile->_useManaCost);
-    template_put_int( fileTemp, fileWrite, profile->_startingLifeRegeneration );
+    template_put_float(fileTemp, fileWrite, character->getAttribute(Ego::Attribute::LIFE_REGEN));   //Note: overridden by chr
     template_put_int( fileTemp, fileWrite, character->stoppedby );   //Note: overridden by chr
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(0).name.c_str() );
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(1).name.c_str() );
@@ -1442,4 +1415,16 @@ size_t ObjectProfile::getRandomSkinID() const
     auto element = _skinInfo.begin();
     std::advance(element, Random::next(_skinInfo.size()));
     return element->first;
+}
+
+const FRange& ObjectProfile::getAttributeGain(Ego::Attribute::AttributeType type) const 
+{
+    EGOBOO_ASSERT(type < _attributeGain.size()); 
+    return _attributeGain[type];
+}
+
+const FRange& ObjectProfile::getAttributeBase(Ego::Attribute::AttributeType type) const
+{
+    EGOBOO_ASSERT(type < _baseAttribute.size()); 
+    return _baseAttribute[type];    
 }

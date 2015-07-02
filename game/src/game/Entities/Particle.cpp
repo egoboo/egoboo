@@ -426,7 +426,8 @@ prt_t *prt_t::config_do_init()
         }
         else
         {
-            const int PERFECT_AIM = 45 * 256;   // 45 dex is perfect aim
+            const int PERFECT_AIM = 45.0f;   // 45 dex is perfect aim
+            const float attackerAgility = _currentModule->getObjectHandler().get(loc_chr_origin)->getAttribute(Ego::Attribute::AGILITY);
 
             // Find a target
             pprt->target_ref = prt_find_target(pdata->pos, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget);
@@ -439,11 +440,11 @@ prt_t *prt_t::config_do_init()
 
             // Correct loc_facing for dexterity...
             offsetfacing = 0;
-            if (_currentModule->getObjectHandler().get(loc_chr_origin)->dexterity < PERFECT_AIM)
+            if ( attackerAgility < PERFECT_AIM)
             {
                 // Correct loc_facing for randomness
                 offsetfacing = generate_irand_pair(ppip->facing_pair) - (ppip->facing_pair.base + ppip->facing_pair.rand / 2);
-                offsetfacing = (offsetfacing * (PERFECT_AIM - _currentModule->getObjectHandler().get(loc_chr_origin)->dexterity)) / PERFECT_AIM;
+                offsetfacing = (offsetfacing * (PERFECT_AIM - attackerAgility)) / PERFECT_AIM;
             }
 
             if (0.0f != ppip->zaimspd)
@@ -1140,10 +1141,10 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
     vdiff = ptarget->getPosition() - loc_pprt->getPosition();
     vdiff[kZ] += ptarget->bump.height * 0.5f;
 
-    min_length = 2 * 5 * 256 * (_currentModule->getObjectHandler().get(loc_pprt->owner_ref)->wisdom / (float)PERFECTBIG);
+    min_length = 2 * 5 * 256 * (FLOAT_TO_FP8(_currentModule->getObjectHandler().get(loc_pprt->owner_ref)->getAttribute(Ego::Attribute::WISDOM)) / (float)PERFECTBIG);
 
     // make a little incertainty about the target
-    uncertainty = 256.0f * (1.0f - _currentModule->getObjectHandler().get(loc_pprt->owner_ref)->intelligence / (float)PERFECTBIG);
+    uncertainty = 256.0f * (1.0f - FLOAT_TO_FP8(_currentModule->getObjectHandler().get(loc_pprt->owner_ref)->getAttribute(Ego::Attribute::INTELLECT)) / (float)PERFECTBIG);
 
     ival = Random::next(std::numeric_limits<uint16_t>::max());
     vdither[kX] = (((float)ival / 0x8000) - 1.0f)  * uncertainty;

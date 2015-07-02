@@ -914,7 +914,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         if ( pchr_c->isitem && !pchr_c->isAlive() ) continue;
 
         // reasonable carrying capacity
-        if ( pchr_c->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
+        if ( pchr_c->phys.weight > pchr_a->phys.weight + FLOAT_TO_FP8(pchr_a->getAttribute(Ego::Attribute::MIGHT)) * INV_FF )
         {
             canGrab = false;
         }
@@ -1223,7 +1223,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             }
             else
             {
-                velocity += pchr->strength / ( pthrown->phys.weight * THROWFIX );
+                velocity += FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT)) / ( pthrown->phys.weight * THROWFIX );
             }
             velocity = CLIP( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
@@ -1275,7 +1275,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
                         // this gives a factor of 10 increase in bumping
                         // at a stat of 60, and a penalty for stats below about 10
-                        float bumpdampen = exp( -1.8e-4 * ( pchr->strength - 2611 ) );
+                        float bumpdampen = exp( -1.8e-4 * ( FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT)) - 2611 ) );
 
                         pprt->phys.weight     = pweapon->phys.weight;
                         pprt->phys.bumpdampen = pweapon->phys.bumpdampen * bumpdampen;
@@ -1309,11 +1309,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         }
                     }
 
-                    // Initial particles get a bonus, which may be 0.00f
-                    pprt->damage.base += ( pchr->strength     * weaponProfile->getStrengthDamageFactor());
-                    pprt->damage.base += ( pchr->wisdom       * weaponProfile->getWisdomDamageFactor());
-                    pprt->damage.base += ( pchr->intelligence * weaponProfile->getIntelligenceDamageFactor());
-                    pprt->damage.base += ( pchr->dexterity    * weaponProfile->getDexterityDamageFactor());
+                    // Initial particles get a bonus, which may be zero (+1.0 per stat point if factor i 1.0f)
+                    pprt->damage.base += 256 * ( pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
+                    pprt->damage.base += 256 * ( pchr->getAttribute(Ego::Attribute::WISDOM)    * weaponProfile->getWisdomDamageFactor());
+                    pprt->damage.base += 256 * ( pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
+                    pprt->damage.base += 256 * ( pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
 
                     // Initial particles get an enchantment bonus
                     pprt->damage.base += pweapon->damage_boost;
@@ -1472,20 +1472,9 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
         }
     }
 
-    // Life and Mana
+    // Life and Mana bars
     pchr->life_color = profile->getLifeColor();
     pchr->mana_color = profile->getManaColor();
-    pchr->life_max = generate_irand_range( profile->getBaseLife() );
-    pchr->life_return = profile->getBaseLifeRegeneration();
-    pchr->mana_max = generate_irand_range( profile->getBaseMana() );
-    pchr->mana_flow = generate_irand_range( profile->getBaseManaFlow() );
-    pchr->mana_return = generate_irand_range( profile->getBaseManaRegeneration());
-
-    // SWID
-    pchr->strength = generate_irand_range( profile->getBaseStrength() );
-    pchr->wisdom = generate_irand_range( profile->getBaseWisdom() );
-    pchr->intelligence = generate_irand_range( profile->getBaseIntelligence() );
-    pchr->dexterity = generate_irand_range( profile->getBaseDexterity() );
 
     // Skin
     pchr->skin = profile->getSkinOverride();
@@ -1527,8 +1516,8 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     pchr->phys.dampen = profile->getBounciness();
 
     // Clamp life to [1,life_max] and mana to [0,life_max]. This may be overridden later
-	pchr->life = CLIP(profile->getSpawnLife(), UINT_TO_UFP8(1), pchr->life_max);
-	pchr->mana = CLIP(profile->getSpawnMana(), UINT_TO_UFP8(0), pchr->mana_max);
+	pchr->life = CLIP(profile->getSpawnLife(), UINT_TO_UFP8(1), FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE)));
+	pchr->mana = CLIP(profile->getSpawnMana(), UINT_TO_UFP8(0), FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_MANA)));
 
     pchr->phys.bumpdampen = profile->getBumpDampen();
     if ( CAP_INFINITE_WEIGHT == profile->getWeight() )
@@ -1803,8 +1792,8 @@ Object * chr_config_do_init( Object * pchr )
     // override the default behavior for an "easy" game
     if (egoboo_config_t::get().game_difficulty.getValue() < Ego::GameDifficulty::Normal)
     {
-        pchr->life = pchr->life_max;
-        pchr->mana = pchr->mana_max;
+        pchr->life = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
+        pchr->mana = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
     }
 
     // Character size and bumping
@@ -2612,7 +2601,7 @@ bool update_chr_darkvision( const CHR_REF character )
 
     if ( life_regen < 0 )
     {
-        int tmp_level  = ( 0 == pchr->life_max ) ? 0 : ( 10 * -life_regen ) / pchr->life_max;                      // Darkvision gained by poison
+        int tmp_level  = ( 0 == pchr->getAttribute(Ego::Attribute::MAX_LIFE) ) ? 0 : ( 10 * -life_regen ) / FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));                      // Darkvision gained by poison
         int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );     // Natural darkvision
 
         //Use the better of the two darkvision abilities
@@ -3298,7 +3287,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 }
                 else
                 {
-                    float chr_dex = FP8_TO_FLOAT( pchr->dexterity );
+                    const float chr_dex = pchr->getAttribute(Ego::Attribute::AGILITY);
 
                     chr_play_action( pchr, action, false );
 

@@ -3,6 +3,11 @@
 #include "game/GUI/Image.hpp"
 #include "game/Entities/_Include.hpp"
 
+namespace Ego
+{
+namespace GUI
+{
+
 static const int LINE_SPACING_OFFSET = 5; //To make space between lines less
 
 CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : InternalWindow(object->getName()),
@@ -96,22 +101,22 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     maxWidth = std::max(maxWidth, intelligenceLabel->getWidth()+10);
 
     //Now attribute Values
-    std::shared_ptr<Label> strengthValue = std::make_shared<Label>(std::to_string(_character->getStrenght()));
+    std::shared_ptr<Label> strengthValue = std::make_shared<Label>(std::to_string(_character->getAttribute(Ego::Attribute::MIGHT)));
     strengthValue->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     strengthValue->setPosition(strengthLabel->getX() + maxWidth, strengthLabel->getY());
     addComponent(strengthValue);
 
-    std::shared_ptr<Label> dexterityValue = std::make_shared<Label>(std::to_string(_character->getDexterity()));
+    std::shared_ptr<Label> dexterityValue = std::make_shared<Label>(std::to_string(_character->getAttribute(Ego::Attribute::AGILITY)));
     dexterityValue->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     dexterityValue->setPosition(dexterityLabel->getX() + maxWidth, dexterityLabel->getY());
     addComponent(dexterityValue);
 
-    std::shared_ptr<Label> wisdomValue = std::make_shared<Label>(std::to_string(_character->getWisdom()));
+    std::shared_ptr<Label> wisdomValue = std::make_shared<Label>(std::to_string(_character->getAttribute(Ego::Attribute::WISDOM)));
     wisdomValue->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     wisdomValue->setPosition(wisdomLabel->getX() + maxWidth, wisdomLabel->getY());
     addComponent(wisdomValue);
 
-    std::shared_ptr<Label> intelligenceValue = std::make_shared<Label>(std::to_string(_character->getIntelligence()));
+    std::shared_ptr<Label> intelligenceValue = std::make_shared<Label>(std::to_string(_character->getAttribute(Ego::Attribute::INTELLECT)));
     intelligenceValue->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     intelligenceValue->setPosition(intelligenceLabel->getX() + maxWidth, intelligenceLabel->getY());
     addComponent(intelligenceValue);
@@ -168,3 +173,6 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
 
     return label->getHeight()-LINE_SPACING_OFFSET;
 }
+
+} //GUI
+} //Ego
