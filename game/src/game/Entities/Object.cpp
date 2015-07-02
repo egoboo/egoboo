@@ -168,7 +168,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     //Damage resistance
     damage_modifier.fill(0);
-    damage_resistance.fill(0);
+    damage_resistance.fill(0.0f);
 
     // pack/inventory info
     equipment.fill(INVALID_CHR_REF);
