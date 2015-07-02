@@ -838,10 +838,10 @@ void Object::update()
             get_chr_regeneration( this, &liferegen, &manaregen );
 
             mana += manaregen;
-            mana = CLIP((UFP8_T)mana, (UFP8_T)0, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
+            mana = Ego::Math::constrain<uint32_t>(mana, 0, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_MANA)));
 
             life += liferegen;
-            life = CLIP((UFP8_T)life, (UFP8_T)1, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
+            life = Ego::Math::constrain<uint32_t>(life, 1, FLOAT_TO_FP8(getAttribute(Ego::Attribute::MAX_LIFE)));
         }
 
         // countdown confuse effects
