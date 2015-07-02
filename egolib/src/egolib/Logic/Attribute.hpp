@@ -30,9 +30,16 @@ namespace Attribute
 {
     enum AttributeType : uint8_t
     {
+        //Might = increases Life, melee damage, carry capacity, block skill, reduces movement penality for heavy armor, throw distance, brute weapon damage
         MIGHT,            //Strength
+    
+        //Agility = increases movement speed, attack speed, jump height, ranged aim, agile weapon damage, ranged weapon damage
         AGILITY,          //Dexterity
+    
+        //Intellect = increases Max Mana, identify items, detect traps, increases XP gain
         INTELLECT,        //Intelligence
+
+        //Spell Power = mana flow, improves spell aim, increases damage with spells
         SPELL_POWER,      //Mana Flow
         MANA_REGEN,       //Mana Regain
         LIFE_REGEN,       //Life Regain
