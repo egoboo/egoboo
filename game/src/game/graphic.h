@@ -82,7 +82,6 @@ void                gfx_error_clear();
 #define BARX                            112// 216         ///< Size of bar
 #define BARY                            16// 8
 #define NUMTICK                         10// 50          ///< Number of ticks per row
-#define TICKX                           8// 4           ///< X size of each tick
 #define MAXTICK                         (NUMTICK*10) ///< Max number of ticks to draw
 #define XPTICK                          6.00f
 

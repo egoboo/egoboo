@@ -410,11 +410,6 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     // Lessen actual damage taken by resistance
     // This can also be used to lessen effectiveness of healing
     int base_damage = Random::next(damage.base, damage.base+damage.rand);
-    
-    //@note ZF> All damage is halved because Aaron decided it was a good idea to shift all damage by 1 by default (>> 1)
-    //          With the never damage system, we do it this way instead to keep the same game balance as before
-    base_damage *= 0.5f;
-
     int actual_damage = base_damage - base_damage*getDamageReduction(damagetype, HAS_NO_BITS(DAMFX_ARMO, effects));
 
     // Increase electric damage when in water
