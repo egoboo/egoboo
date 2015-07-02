@@ -73,8 +73,6 @@ struct chr_spawn_data_t;
 
 #define RAISE               12                  ///< Helps correct z level
 
-#define MANARETURNSHIFT     44                    ///< mana_return/MANARETURNSHIFT = mana regen per second
-
 #define TURNSPD             0.01f                 ///< Cutoff for turning or same direction
 #define SPINRATE            200                   ///< How fast spinners spin
 #define WATCHMIN            0.01f                 ///< Tolerance for TURNMODE_WATCH
