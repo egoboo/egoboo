@@ -2717,10 +2717,10 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
                     total_block_rating += chr_get_skill( pshield, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
 
                     // -4% per attacker strength
-                    total_block_rating -= 4 * SFP8_TO_SINT( pattacker->strength );
+                    total_block_rating -= 4 * pattacker->getAttribute(Ego::Attribute::MIGHT);
 
                     // +2% per defender strength
-                    total_block_rating += 2 * SFP8_TO_SINT( pdata->pchr->strength );
+                    total_block_rating += 2 * pdata->pchr->getAttribute(Ego::Attribute::MIGHT);
 
                     // Now determine the result of the block
                     if ( Random::getPercent() <= total_block_rating )
@@ -2927,12 +2927,12 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 		UFP8_T drain = std::min(life, pdata->pprt->lifedrain);
 
 		// Remove the drain from the character that was hit ...
-		pdata->pchr->life = Ego::Math::constrain(pdata->pchr->life - drain, static_cast<UFP8_T>(0), pdata->pchr->life_max);
+		pdata->pchr->life = Ego::Math::constrain(pdata->pchr->life - drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_LIFE)));
 
 		// ... and add it to the "caster".
 		if ( NULL != powner )
 		{
-			powner->life = Ego::Math::constrain(powner->life + drain, static_cast<UFP8_T>(0), powner->life_max);
+			powner->life = Ego::Math::constrain(powner->life + drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_LIFE)));
 		}
     }
 
@@ -2946,12 +2946,12 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 		UFP8_T drain = std::min(mana, pdata->pprt->manadrain);
 
         // Remove the drain from the character that was hit ...
-        pdata->pchr->mana = Ego::Math::constrain(pdata->pchr->mana - drain, static_cast<UFP8_T>(0), pdata->pchr->mana_max);
+        pdata->pchr->mana = Ego::Math::constrain(pdata->pchr->mana - drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_MANA)));
 
         // add it to the "caster"
         if ( NULL != powner )
         {
-            powner->mana = Ego::Math::constrain(powner->mana + drain, static_cast<UFP8_T>(0), powner->mana_max);
+            powner->mana = Ego::Math::constrain(powner->mana + drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_MANA)));
         }
     }
 
@@ -3000,7 +3000,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 if ( pdata->ppip->damageBoni._intelligence )
                 {
                     float percent;
-                    percent = ( FP8_TO_FLOAT( powner->intelligence ) - 14 ) * 2;
+                    percent = ( powner->getAttribute(Ego::Attribute::INTELLECT) - 14.0f ) * 2.0f;
                     percent /= 100.0f;
                     loc_damage.base *= 1.00f + percent;
                     loc_damage.rand *= 1.00f + percent;
@@ -3009,7 +3009,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 if ( pdata->ppip->damageBoni._wisdom )
                 {
                     float percent;
-                    percent = ( FP8_TO_FLOAT( powner->wisdom ) - 14 ) * 2;
+                    percent = ( powner->getAttribute(Ego::Attribute::WISDOM) - 14.0f ) * 2.0f;
                     percent /= 100.0f;
                     loc_damage.base *= 1.00f + percent;
                     loc_damage.rand *= 1.00f + percent;

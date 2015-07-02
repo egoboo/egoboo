@@ -219,12 +219,12 @@ bool PlayingState::notifyKeyDown(const int keyCode)
         {
             //Ensure that the same character cannot open more than 1 character window
             const size_t statusNumber = keyCode - SDLK_1;
-            std::shared_ptr<CharacterWindow> chrWindow = _characterWindows[statusNumber].lock();
+            std::shared_ptr<Ego::GUI::CharacterWindow> chrWindow = _characterWindows[statusNumber].lock();
             if(chrWindow == nullptr || _characterWindows[statusNumber].expired())
             {
                 if(getStatusCharacter(statusNumber) != nullptr)
                 {
-                    chrWindow = std::make_shared<CharacterWindow>(getStatusCharacter(statusNumber));
+                    chrWindow = std::make_shared<Ego::GUI::CharacterWindow>(getStatusCharacter(statusNumber));
                     _characterWindows[statusNumber] = chrWindow;
                     addComponent(chrWindow);
                 }

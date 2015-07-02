@@ -1121,22 +1121,22 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARTARGETSTR:
                 varname = "TARGETSTR";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->strength;
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MIGHT));
                 break;
 
             case VARTARGETWIS:
                 varname = "TARGETWIS";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->wisdom;
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::WISDOM));
                 break;
 
             case VARTARGETINT:
                 varname = "TARGETINT";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->intelligence;
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::INTELLECT));
                 break;
 
             case VARTARGETDEX:
                 varname = "TARGETDEX";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->dexterity;
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::AGILITY));
                 break;
 
             case VARTARGETLIFE:
@@ -1200,32 +1200,32 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARSELFSTR:
                 varname = "SELFSTR";
-                iTmp = pchr->strength;
+                iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT));
                 break;
 
             case VARSELFWIS:
                 varname = "SELFWIS";
-                iTmp = pchr->wisdom;
+                iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::WISDOM));
                 break;
 
             case VARSELFINT:
                 varname = "SELFINT";
-                iTmp = pchr->intelligence;
+                iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::INTELLECT));
                 break;
 
             case VARSELFDEX:
                 varname = "SELFDEX";
-                iTmp = pchr->dexterity;
+                iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::AGILITY));
                 break;
 
             case VARSELFMANAFLOW:
                 varname = "SELFMANAFLOW";
-                iTmp = pchr->mana_flow;
+                iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::SPELL_POWER));
                 break;
 
             case VARTARGETMANAFLOW:
                 varname = "TARGETMANAFLOW";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->mana_flow;
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::SPELL_POWER));
                 break;
 
             case VARSELFATTACHED:
@@ -1379,7 +1379,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARTARGETMAXLIFE:
                 varname = "TARGETMAXLIFE";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->life_max;
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
                 break;
 
             case VARTARGETTEAM:

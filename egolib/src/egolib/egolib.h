@@ -29,6 +29,7 @@
 #include "egolib/Core/EnvironmentError.hpp"
 #include "egolib/Core/UnhandledSwitchCaseException.hpp"
 #include "egolib/Math/_Include.hpp"
+#include "egolib/Logic/Attribute.hpp"
 #include "egolib/bsp.h"
 #include "egolib/bbox.h"
 #include "egolib/clock.h"

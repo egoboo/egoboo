@@ -24,6 +24,7 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/typedef.h"
 
 class Random
 {
@@ -35,6 +36,16 @@ public:
      *  a random floating point number in the interval <tt>[0,1]</tt>
 	 */
     static float nextFloat();
+
+    /**
+    * @brief
+    *   Generates a float from a FRange type
+    * @param range
+    *   Specifies the lower and upper range to generate the number from
+    * @return
+    *   A floating point value between range.from and range.to (inclusive)
+    **/
+    static float next(const FRange &range);
     
     /**
 	 * @brief

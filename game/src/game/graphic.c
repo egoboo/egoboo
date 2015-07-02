@@ -1543,7 +1543,7 @@ void draw_inventory()
         edgex = sttx + width + 5 - 32;
 
         //calculate max carry weight
-        max_weight = 200 + FP8_TO_FLOAT(pchr->strength) * FP8_TO_FLOAT(pchr->strength);
+        max_weight = 200 + pchr->getAttribute(Ego::Attribute::MIGHT) * pchr->getAttribute(Ego::Attribute::MIGHT);
 
         //draw the backdrop
         const Ego::Math::Colour4f INVENTORY_COLOUR(0.6f, 0.0f, 0.0f, 0.6f);
