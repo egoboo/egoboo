@@ -1225,7 +1225,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARTARGETMANAFLOW:
                 varname = "TARGETMANAFLOW";
-                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::SPELL_POWER));
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::SPELL_POWER));
                 break;
 
             case VARSELFATTACHED:
@@ -1379,7 +1379,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARTARGETMAXLIFE:
                 varname = "TARGETMAXLIFE";
-                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MAX_LIFE));
+                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MAX_LIFE));
                 break;
 
             case VARTARGETTEAM:
@@ -1395,7 +1395,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
 
             case VARDIFFICULTY:
                 varname = "DIFFICULTY";
-                iTmp = static_cast<Uint32>(egoboo_config_t::get().game_difficulty.getValue());
+                iTmp = static_cast<uint32_t>(egoboo_config_t::get().game_difficulty.getValue());
                 break;
 
             case VARTIMEHOURS:

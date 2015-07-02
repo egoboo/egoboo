@@ -2946,12 +2946,12 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 		UFP8_T drain = std::min(mana, pdata->pprt->manadrain);
 
         // Remove the drain from the character that was hit ...
-        pdata->pchr->mana = Ego::Math::constrain(pdata->pchr->mana - drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_MANA)));
+        pdata->pchr->mana = Ego::Math::constrain<uint32_t>(pdata->pchr->mana - drain, 0, FLOAT_TO_FP8(pdata->pchr->getAttribute(Ego::Attribute::MAX_MANA)));
 
         // add it to the "caster"
         if ( NULL != powner )
         {
-            powner->mana = Ego::Math::constrain(powner->mana + drain, static_cast<UFP8_T>(0), FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_MANA)));
+            powner->mana = Ego::Math::constrain<uint32_t>(powner->mana + drain, 0, FLOAT_TO_FP8(powner->getAttribute(Ego::Attribute::MAX_MANA)));
         }
     }
 
