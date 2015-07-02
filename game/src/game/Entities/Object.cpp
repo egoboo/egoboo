@@ -179,7 +179,7 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     ori.map_twist_facing_x = MAP_TURN_OFFSET;
 
     //Initialize attributes
-    for(size_t i = 0; i < _baseAttribute.size(); ++i) {
+    for(size_t i = 0; i < Ego::Attribute::NR_OF_ATTRIBUTES; ++i) {
         const FRange& baseRange = _profile->getAttributeBase(static_cast<Ego::Attribute::AttributeType>(i));
         _baseAttribute[i] = Random::next(baseRange);
     }
