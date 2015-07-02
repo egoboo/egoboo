@@ -146,7 +146,7 @@ struct SkinInfo
     bool         dressy;                           ///< True if this is light armour
     uint8_t      defence;                          ///< Damage reduction
     uint8_t      damageModifier[DAMAGE_COUNT];     ///< Invictus, inverse, mana burn etc.
-    uint8_t      damageResistance[DAMAGE_COUNT];   ///< Shift damage
+    float        damageResistance[DAMAGE_COUNT];   ///< Damage Resistance (can be negative)
 };
 
 //--------------------------------------------------------------------------------------------
