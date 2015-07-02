@@ -680,8 +680,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // More stuff I forgot
     vfs_get_next_float(ctxt);  //ZF> deprecated value LifeReturn (no longer used)
     _useManaCost = vfs_get_next_float(ctxt);
-    _baseAttribute[Ego::Attribute::LIFE_REGEN].from = vfs_get_next_int(ctxt) / 255.0f;
-    _baseAttribute[Ego::Attribute::LIFE_REGEN].to = _baseAttribute[Ego::Attribute::LIFE_REGEN].from;        //ZF> TODO: should be range
+    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::LIFE_REGEN]);
     _attributeGain[Ego::Attribute::LIFE_REGEN].from = _attributeGain[Ego::Attribute::LIFE_REGEN].to = 0;    //ZF> TODO: regen gain per level not implemented
     _stoppedBy |= vfs_get_next_int(ctxt);
 
