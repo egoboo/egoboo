@@ -26,8 +26,8 @@ eve_t::eve_t() : AbstractProfile(),
     _override(false),
     remove_overridden(false),
     retarget(false),
-    required_damagetype(DamageType::DAMAGE_NONE),
-    require_damagetarget_damagetype(DamageType::DAMAGE_NONE),
+    required_damagetype(DamageType::DAMAGE_DIRECT),
+    require_damagetarget_damagetype(DamageType::DAMAGE_DIRECT),
     spawn_overlay(false),
 
     // Enchant despawn conditions.
@@ -89,8 +89,8 @@ void eve_t::reset()
     _override = false;
     remove_overridden = false;
     retarget = false;
-    required_damagetype = DamageType::DAMAGE_NONE;
-    require_damagetarget_damagetype = DamageType::DAMAGE_NONE;
+    required_damagetype = DamageType::DAMAGE_DIRECT;
+    require_damagetarget_damagetype = DamageType::DAMAGE_DIRECT;
     spawn_overlay = false;
     // Enchant despawn conditions.
     lifetime = 0;

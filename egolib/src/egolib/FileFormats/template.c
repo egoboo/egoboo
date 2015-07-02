@@ -276,7 +276,7 @@ void template_put_damage_type( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 da
             case DAMAGE_ZAP  : vfs_printf( filewrite, "ZAP" ); break;
 
             default:
-            case DAMAGE_NONE : vfs_printf( filewrite, "NONE" ); break;
+            case DAMAGE_DIRECT : vfs_printf( filewrite, "DIRECT" ); break;
         }
     }
 }

@@ -29,20 +29,18 @@
  */
 enum DamageType : uint8_t
 {
-    /// A cutting type of attack.
-    DAMAGE_SLASH = 0,
-    /// A blunt type of attack.
-    DAMAGE_CRUSH,
-    /// A focused type of attack.
-    DAMAGE_POKE,
-    DAMAGE_HOLY,                             ///< (Most invert Holy damage )
-    DAMAGE_EVIL,
-    DAMAGE_FIRE,
-    DAMAGE_ICE,
-    DAMAGE_ZAP,
+    
+    DAMAGE_SLASH = 0,                   /// A cutting type of attack.
+    DAMAGE_CRUSH,                       /// A blunt type of attack.
+    DAMAGE_POKE,                        /// A focused type of attack.
+    DAMAGE_HOLY,                        /// Most invert Holy damage so that it heals
+    DAMAGE_EVIL,                        /// Poisonous, necrotic, profane damage
+    DAMAGE_FIRE,                        /// Damage by heat, fire, lava, etc.
+    DAMAGE_ICE,                         /// Very cold damage, frost, ice water, etc.
+    DAMAGE_ZAP,                         /// Electric shock damage
     DAMAGE_COUNT,
 
-    DAMAGE_NONE = 255
+    DAMAGE_DIRECT = 0xFF                /// Special damage type (armor & resistance does not apply)
 };
 
 /**
@@ -88,6 +86,7 @@ inline const Ego::Math::Colour3f& DamageType_getColour(DamageType damageType)
     static const auto& pokeColour = Colour3f::white();
     static const auto& crushColour = Colour3f::white();
     static const auto& slashColour = Colour3f::white();
+    
     switch (damageType)
     {
         case DAMAGE_ZAP:

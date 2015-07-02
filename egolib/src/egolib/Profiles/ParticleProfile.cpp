@@ -101,7 +101,7 @@ pip_t::pip_t() :
     bump_height(0),
 
     damage(),
-    damageType(DamageType::DAMAGE_NONE),
+    damageType(DamageType::DAMAGE_DIRECT),
     dazeTime(0),
     grogTime(0),
     damfx(DAMFX_TURN),
@@ -184,7 +184,7 @@ void pip_t::reset()
 
     // Hitting.
     damage.init();
-    damageType = DamageType::DAMAGE_NONE;
+    damageType = DamageType::DAMAGE_DIRECT;
     damageBoni._intelligence = 0;
     damageBoni._wisdom = 0;
     damfx = DAMFX_TURN;
