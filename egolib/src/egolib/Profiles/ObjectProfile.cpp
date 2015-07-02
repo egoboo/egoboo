@@ -505,6 +505,12 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MAX_LIFE]);
     vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MAX_LIFE]);
 
+    //@note ZF> All life is doubled because Aaron decided it was a good idea to shift all damage by 1 by default (>> 1)
+    //          With the newer damage system, we do it this way instead to keep the same game balance as before
+    //          This allows for more granularity and show the player that he is slowly losing health from posion for example
+    _baseAttribute[Ego::Attribute::MAX_LIFE].from *= 2;
+    _baseAttribute[Ego::Attribute::MAX_LIFE].to *= 2;
+
     vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MAX_MANA]);
     vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MAX_MANA]);
 
@@ -1085,7 +1091,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
      //Attributes (TODO: can be easily converted into a for loop if order does not matter)
     template_put_int( fileTemp, fileWrite, character->life_color );              //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->mana_color );              //Note: overriden by chr
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MAX_LIFE) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MAX_LIFE)*0.5f ); //Note: overriden by chr (ZF> Halved hp because it is doubled on parse)
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MAX_LIFE));
     template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MAX_MANA) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MAX_MANA));
