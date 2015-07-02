@@ -432,9 +432,9 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
     if (HAS_SOME_BITS(damageModifier, DAMAGECHARGE))
     {
         mana += actual_damage;
-        if ( mana > getMaxMana() )
+        if ( mana > FLOAT_TO_FP8(getMaxMana()) )
         {
-            mana = getMaxMana();
+            mana = FLOAT_TO_FP8(getMaxMana());
         }
         return 0;
     }
@@ -1681,10 +1681,10 @@ bool Object::costMana(int amount, const CHR_REF killer)
 
         mana = manaFinal;
 
-        if ( manaFinal > getMaxMana() )
+        if ( manaFinal > FLOAT_TO_FP8(getMaxMana()) )
         {
-            mana_surplus = manaFinal - getMaxMana();
-            mana = getMaxMana();
+            mana_surplus = manaFinal - FLOAT_TO_FP8(getMaxMana());
+            mana = FLOAT_TO_FP8(getMaxMana());
         }
 
         // allow surplus mana to go to health if you can channel?
