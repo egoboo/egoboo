@@ -45,7 +45,11 @@ public:
     * @return
     *   A floating point value between range.from and range.to (inclusive)
     **/
-    static float next(const FRange &range);
+    static float next(const FRange &range)
+    {
+        std::uniform_real_distribution<float> rand(range.from, range.to + std::numeric_limits<float>::epsilon());
+        return rand(generator);
+    }
     
     /**
 	 * @brief

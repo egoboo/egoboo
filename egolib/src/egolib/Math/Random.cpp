@@ -49,9 +49,3 @@ bool Random::nextBool()
     std::bernoulli_distribution rand(0.5);
     return rand(generator);
 }
-
-float Random::next(const FRange &range)
-{
-    static std::uniform_real_distribution<float> rand(range.from, std::nextafter(range.to, std::numeric_limits<float>::max()));
-    return rand(generator);
-}
