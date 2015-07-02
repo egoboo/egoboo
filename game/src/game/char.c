@@ -1543,7 +1543,7 @@ bool chr_download_profile(Object * pchr, const std::shared_ptr<ObjectProfile> &p
     pchr->money = profile->getStartingMoney();
 
     // Experience
-    iTmp = generate_irand_range( profile->getStartingExperience() );
+    iTmp = Random::next( profile->getStartingExperience() );
     pchr->experience      = std::min( iTmp, MAXXP );
     pchr->experiencelevel = profile->getStartingLevel();
 

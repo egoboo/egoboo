@@ -614,9 +614,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     }
     setupXPTable();
 
-    vfs_get_next_range(ctxt, &(_startingExperience));
-    _startingExperience.from /= 256.0f;
-    _startingExperience.to   /= 256.0f;
+    vfs_get_next_range(ctxt, &_startingExperience);
 
     _experienceWorth = vfs_get_next_int(ctxt);
     _experienceExchange = vfs_get_next_float(ctxt);
