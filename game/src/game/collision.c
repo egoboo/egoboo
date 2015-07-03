@@ -2995,8 +2995,8 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             {
                 CHR_REF item;
 
-                // Apply intelligence bonus damage for particles with the [IDAM] expansions (Low ability gives penality)
-                // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+                // Apply intellect bonus damage for particles with the [IDAM] expansions (Low ability gives penality)
+                // +2% bonus for every point of intellect. Below 14 gives -2% instead!
                 if ( pdata->ppip->_intellectDamageBonus )
                 {
                     float percent;

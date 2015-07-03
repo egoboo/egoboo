@@ -869,10 +869,6 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
                 _intelligenceBonus = ctxt.readReal();
             break;
 
-            case MAKE_IDSZ( 'W', 'I', 'S', 'D' ):
-                log_warning("Use of deprecated expansion [WISD] (%s)\n", filePath.c_str());
-            break;
-
             case MAKE_IDSZ( 'D', 'E', 'X', 'D' ):
                 _dexterityBonus = ctxt.readReal();
             break;

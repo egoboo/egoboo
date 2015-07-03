@@ -275,7 +275,6 @@ Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_add_TargetStrength( script_state_t * pstate, ai_state_t * pself );
-Uint8 scr_add_TargetWisdom( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_add_TargetIntelligence( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_add_TargetDexterity( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself );

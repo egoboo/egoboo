@@ -629,7 +629,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t& aiState, script_inf
 				case FSETTARGETTODISTANTENEMY: returncode = scr_set_TargetToDistantEnemy(pstate, &aiState); break;
 				case FTELEPORT: returncode = scr_Teleport(pstate, &aiState); break;
 				case FGIVESTRENGTHTOTARGET: returncode = scr_add_TargetStrength(pstate, &aiState); break;
-				case FGIVEWISDOMTOTARGET: returncode = scr_add_TargetWisdom(pstate, &aiState); break;
+				case FGIVEINTELLECTTOTARGET:
 				case FGIVEINTELLIGENCETOTARGET: returncode = scr_add_TargetIntelligence(pstate, &aiState); break;
 				case FGIVEDEXTERITYTOTARGET: returncode = scr_add_TargetDexterity(pstate, &aiState); break;
 				case FGIVELIFETOTARGET: returncode = scr_add_TargetLife(pstate, &aiState); break;
