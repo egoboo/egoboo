@@ -550,7 +550,7 @@ enum e_script_variables
     VARSELFHATEID,       // == 29
     VARSELFMANA,         // == 30
     VARTARGETSTR,        // == 31
-    VARTARGETWIS,        // == 32
+    VARTARGETWIS,        // == 32 (deprecated)
     VARTARGETINT,        // == 33
     VARTARGETDEX,        // == 34
     VARTARGETLIFE,       // == 35

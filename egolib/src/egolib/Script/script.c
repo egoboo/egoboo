@@ -1124,11 +1124,6 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
                 iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::MIGHT));
                 break;
 
-            case VARTARGETWIS:
-                varname = "TARGETWIS";
-                iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::INTELLECT));
-                break;
-
             case VARTARGETINT:
                 varname = "TARGETINT";
                 iTmp = ( NULL == ptarget ) ? 0 : FLOAT_TO_FP8(ptarget->getAttribute(Ego::Attribute::INTELLECT));
@@ -1201,11 +1196,6 @@ void scr_run_operand( script_state_t * pstate, ai_state_t& aiState, script_info_
             case VARSELFSTR:
                 varname = "SELFSTR";
                 iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT));
-                break;
-
-            case VARSELFWIS:
-                varname = "SELFWIS";
-                iTmp = FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::INTELLECT));
                 break;
 
             case VARSELFINT:
