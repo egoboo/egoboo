@@ -1141,7 +1141,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
     vdiff = ptarget->getPosition() - loc_pprt->getPosition();
     vdiff[kZ] += ptarget->bump.height * 0.5f;
 
-    min_length = 2 * 5 * 256 * (FLOAT_TO_FP8(_currentModule->getObjectHandler().get(loc_pprt->owner_ref)->getAttribute(Ego::Attribute::WISDOM)) / (float)PERFECTBIG);
+    min_length = 2 * 5 * 256 * (FLOAT_TO_FP8(_currentModule->getObjectHandler().get(loc_pprt->owner_ref)->getAttribute(Ego::Attribute::INTELLECT)) / (float)PERFECTBIG);
 
     // make a little incertainty about the target
     uncertainty = 256.0f * (1.0f - FLOAT_TO_FP8(_currentModule->getObjectHandler().get(loc_pprt->owner_ref)->getAttribute(Ego::Attribute::INTELLECT)) / (float)PERFECTBIG);

@@ -182,7 +182,6 @@ ObjectProfile::ObjectProfile() :
     _attackFast(false),
 
     _strengthBonus(0.0f),
-    _wisdomBonus(0.0f),
     _intelligenceBonus(0.0f),
     _dexterityBonus(0.0f),
 
@@ -523,11 +522,22 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::MIGHT]);
     vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::MIGHT]);
 
-    vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::WISDOM]);
-    vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::WISDOM]);
+    FRange wisdom, wisdomGain;
+    vfs_get_next_range(ctxt, &wisdom);
+    vfs_get_next_range(ctxt, &wisdomGain);
 
     vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::INTELLECT]);
     vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::INTELLECT]);
+
+    //Wisdom used to be an attribute in Egoboo, but now its deprecated. To figure out intellect use average of WIS and INT
+    if(!wisdom.isZero()) {
+        _baseAttribute[Ego::Attribute::INTELLECT].from = 0.5f*(_baseAttribute[Ego::Attribute::INTELLECT].from + wisdom.from);
+        _baseAttribute[Ego::Attribute::INTELLECT].to   = 0.5f*(_baseAttribute[Ego::Attribute::INTELLECT].to   + wisdom.to);        
+    }
+    if(!wisdomGain.isZero()) {
+        _attributeGain[Ego::Attribute::INTELLECT].from = 0.5f*(_attributeGain[Ego::Attribute::INTELLECT].from + wisdomGain.from);
+        _attributeGain[Ego::Attribute::INTELLECT].to   = 0.5f*(_attributeGain[Ego::Attribute::INTELLECT].to   + wisdomGain.to);        
+    }
 
     vfs_get_next_range(ctxt, &_baseAttribute[Ego::Attribute::AGILITY]);
     vfs_get_next_range(ctxt, &_attributeGain[Ego::Attribute::AGILITY]);
@@ -860,7 +870,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'W', 'I', 'S', 'D' ):
-                _wisdomBonus = ctxt.readReal();
+                log_warning("Use of deprecated expansion [WISD] (%s)\n", filePath.c_str());
             break;
 
             case MAKE_IDSZ( 'D', 'E', 'X', 'D' ):
@@ -1101,8 +1111,8 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::SPELL_POWER));
     template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::MIGHT) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::MIGHT));
-    template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::WISDOM) ); //Note: overriden by chr
-    template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::WISDOM));
+    template_put_float( fileTemp, fileWrite, 0.0f); //Note: deprecated
+    template_put_float( fileTemp, fileWrite, 0.0f); //Note: deprecated
     template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::INTELLECT) ); //Note: overriden by chr
     template_put_range( fileTemp, fileWrite, profile->getAttributeGain(Ego::Attribute::INTELLECT));
     template_put_float( fileTemp, fileWrite, character->getAttribute(Ego::Attribute::AGILITY) ); //Note: overriden by chr
@@ -1356,9 +1366,6 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
 
     if ( profile->_dexterityBonus > 0 )
         vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'D', 'E', 'X', 'D' ), profile->_dexterityBonus );
-
-    if ( profile->_wisdomBonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'W', 'I', 'S', 'D' ), profile->_wisdomBonus );
 
     if ( profile->_bumpOverrideSize || profile->_bumpOverrideSizeBig ||  profile->_bumpOverrideHeight )
     {

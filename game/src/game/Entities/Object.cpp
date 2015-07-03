@@ -1489,10 +1489,9 @@ void Object::giveExperience(const int amount, const XPType xptype, const bool ov
             newamount = amount * getProfile()->getExperienceRate(xptype);
         }
 
-        // Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
-        float intadd = ( getAttribute(Ego::Attribute::INTELLECT) - 10.0f ) / 200.0f;
-        float wisadd = ( getAttribute(Ego::Attribute::WISDOM)    - 10.0f ) / 400.0f;
-        newamount *= 1.00f + intadd + wisadd;
+        // Intellect affects xp gained (1% per intellect above 10, -1% per intellect below 10)
+        float intadd = (getAttribute(Ego::Attribute::INTELLECT) - 10.0f) / 100.0f;
+        newamount *= 1.00f + intadd;
 
         // Apply XP bonus/penality depending on game difficulty
         if (egoboo_config_t::get().game_difficulty.getValue() >= Ego::GameDifficulty::Hard)

@@ -165,12 +165,9 @@ struct pip_t : public AbstractProfile
     unsigned int dazeTime;            ///< How long is an Object "dazed" if hit by this particle.
     unsigned int grogTime;            ///< How long is an Object "grogged" if hit by this particle.
     BIT_FIELD damfx;                  ///< Damage effects
-    struct
-    {
-        bool _intelligence; ///< Add intelligence as damage bonus.
-        bool _wisdom;       ///< Add wisdom as damage bonus.
-    } damageBoni;   
+    bool _intellectDamageBonus;       ///< Add intellect as damage bonus.
     bool spawnenchant;                ///< Spawn enchant?
+    
     ///@{ @todo The semantics of those variables are not clear.
     bool onlydamagefriendly;          ///< Only friends?
     bool friendlyfire;                ///< Friendly fire

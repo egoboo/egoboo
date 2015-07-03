@@ -2956,14 +2956,14 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     }
 
     // Do grog
-    if (pdata->ppip->grogTime > 0 && ProfileSystem::get().getProfile(pdata->pchr->profile_ref)->canBeGrogged())
+    if (pdata->ppip->grogTime > 0 && pdata->pchr->getProfile()->canBeGrogged())
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->grog_timer = std::max(static_cast<unsigned>(pdata->pchr->grog_timer), pdata->ppip->grogTime );
     }
 
     // Do daze
-    if (pdata->ppip->dazeTime > 0 && ProfileSystem::get().getProfile(pdata->pchr->profile_ref)->canBeDazed())
+    if (pdata->ppip->dazeTime > 0 && pdata->pchr->getProfile()->canBeDazed())
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->daze_timer = std::max(static_cast<unsigned>(pdata->pchr->daze_timer), pdata->ppip->dazeTime );
@@ -2995,21 +2995,12 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
             {
                 CHR_REF item;
 
-                // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+                // Apply intelligence bonus damage for particles with the [IDAM] expansions (Low ability gives penality)
                 // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-                if ( pdata->ppip->damageBoni._intelligence )
+                if ( pdata->ppip->_intellectDamageBonus )
                 {
                     float percent;
                     percent = ( powner->getAttribute(Ego::Attribute::INTELLECT) - 14.0f ) * 2.0f;
-                    percent /= 100.0f;
-                    loc_damage.base *= 1.00f + percent;
-                    loc_damage.rand *= 1.00f + percent;
-                }
-
-                if ( pdata->ppip->damageBoni._wisdom )
-                {
-                    float percent;
-                    percent = ( powner->getAttribute(Ego::Attribute::WISDOM) - 14.0f ) * 2.0f;
                     percent /= 100.0f;
                     loc_damage.base *= 1.00f + percent;
                     loc_damage.rand *= 1.00f + percent;

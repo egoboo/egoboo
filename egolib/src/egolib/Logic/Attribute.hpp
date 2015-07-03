@@ -41,12 +41,18 @@ namespace Attribute
 
         //Spell Power = mana flow, improves spell aim, increases damage with spells
         SPELL_POWER,      //Mana Flow
-        MANA_REGEN,       //Mana Regain
-        LIFE_REGEN,       //Life Regain
-        MAX_MANA,         //Max Mana
-        MAX_LIFE,         //Max Life
 
-        WISDOM,           //@TODO Deprecated
+        //Mana regeneration per second
+        MANA_REGEN,       //Mana Regain
+
+        //Life regeneration per second
+        LIFE_REGEN,       //Life Regain
+
+        //Maximum mana
+        MAX_MANA,         //Max Mana
+
+        //Maximum life
+        MAX_LIFE,         //Max Life
 
         NR_OF_ATTRIBUTES            //Always last
     };
@@ -64,8 +70,6 @@ namespace Attribute
             case LIFE_REGEN:  return "Life Regeneration";
             case MAX_MANA:    return "Mana";
             case MAX_LIFE:    return "Life";
-
-            case WISDOM:      return "Wisdom"; //TODO: remove
 
             case NR_OF_ATTRIBUTES: throw Ego::Core::UnhandledSwitchCaseException(__FILE__, __LINE__);
         }

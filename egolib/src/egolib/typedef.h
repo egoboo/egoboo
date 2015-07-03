@@ -359,6 +359,11 @@ typedef Uint16 FACING_T;
             to = 0.0f;
         }
 
+        bool isZero() const
+        {
+            return (from+to) <= std::numeric_limits<float>::epsilon();
+        }
+
     };
 
     void pair_to_range( IPair pair, FRange * prange );
