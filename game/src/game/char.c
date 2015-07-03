@@ -271,7 +271,7 @@ void keep_weapons_with_holder(const std::shared_ptr<Object> &pchr)
         // Keep inventory with iattached
         if ( !_currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) )
         {
-            PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
+            PACK_BEGIN_LOOP( pchr->getInventory(), pitem, iitem )
             {
                 pitem->setPosition(pchr->getPosition());
 
@@ -699,21 +699,20 @@ void drop_keys( const CHR_REF character )
     testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
 
     //check each inventory item
-    for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+    for ( cnt = 0; cnt < Inventory::MAXNUMINPACK; cnt++ )
     {
         IDSZ idsz_parent;
         IDSZ idsz_type;
         TURN_T turn;
 
-        Object *pkey;
-        CHR_REF ikey = pchr->inventory[cnt];
-
         //only valid items
-        if ( !_currentModule->getObjectHandler().exists( ikey ) ) continue;
-        pkey = _currentModule->getObjectHandler().get( ikey );
+        std::shared_ptr<Object> pkey = pchr->getInventory().getItem(cnt);
+        if(!pkey) {
+            continue;
+        }
 
-        idsz_parent = chr_get_idsz( ikey, IDSZ_PARENT );
-        idsz_type   = chr_get_idsz( ikey, IDSZ_TYPE );
+        idsz_parent = chr_get_idsz( pkey->getCharacterID(), IDSZ_PARENT );
+        idsz_type   = chr_get_idsz( pkey->getCharacterID(), IDSZ_TYPE );
 
         //is it really a key?
         if (( idsz_parent < testa && idsz_parent > testz ) &&
@@ -745,8 +744,8 @@ void drop_keys( const CHR_REF character )
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
         pkey->setPosition(pchr->getPosition());
-        move_one_character_get_environment( pkey );
-        chr_set_floor_level( pkey, pchr->enviro.floor_level );
+        move_one_character_get_environment( pkey.get() );
+        chr_set_floor_level( pkey.get(), pchr->enviro.floor_level );
     }
 }
 
@@ -769,7 +768,7 @@ bool drop_all_items( const CHR_REF character )
 
     //simply count the number of items in inventory
     uint8_t pack_count = 0;
-    PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
+    PACK_BEGIN_LOOP( pchr->getInventory(), pitem, item )
     {
         pack_count++;
     }
@@ -786,12 +785,10 @@ bool drop_all_items( const CHR_REF character )
 
     // now drop each item in turn
     FACING_T direction = pchr->ori.facing_z + ATK_BEHIND;
-    for ( size_t cnt = 0; cnt < MAXINVENTORY; cnt++ )
+    for ( size_t cnt = 0; cnt < Inventory::Inventory::MAXNUMINPACK; cnt++ )
     {
-        CHR_REF item = pchr->inventory[cnt];
-
         //only valid items
-        const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
+        const std::shared_ptr<Object> &pitem = pchr->getInventory().getItem(cnt);
         if(!pitem) {
             continue;
         }
@@ -3427,12 +3424,12 @@ bool chr_do_latch_button( Object * pchr )
     if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = PACKDELAY;
-        Inventory::swap_item( ichr, MAXINVENTORY, SLOT_LEFT, false );
+        Inventory::swap_item( ichr, Inventory::MAXNUMINPACK, SLOT_LEFT, false );
     }
     if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = PACKDELAY;
-        Inventory::swap_item( ichr, MAXINVENTORY, SLOT_RIGHT, false );
+        Inventory::swap_item( ichr, Inventory::MAXNUMINPACK, SLOT_RIGHT, false );
     }
 
     if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )

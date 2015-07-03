@@ -1254,9 +1254,9 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     //need to search inventory as well?
     if ( !_currentModule->getObjectHandler().exists( item ) )
     {
-        for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+        for ( cnt = 0; cnt < Inventory::MAXNUMINPACK; cnt++ )
         {
-            item = ptarget->inventory[cnt];
+            item = ptarget->getInventory().getItemID(cnt);
 
             //only valid items
             if ( !_currentModule->getObjectHandler().exists( item ) ) continue;
@@ -1267,7 +1267,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         }
 
         //did we fail?
-        if ( cnt == MAXINVENTORY ) item = INVALID_CHR_REF;
+        if ( cnt == Inventory::MAXNUMINPACK ) item = INVALID_CHR_REF;
     }
 
     returncode = false;
@@ -1285,7 +1285,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         // Poof the item
         else
         {
-            if ( _currentModule->getObjectHandler().exists( pitem->inwhich_inventory ) && cnt < MAXINVENTORY )
+            if ( _currentModule->getObjectHandler().exists( pitem->inwhich_inventory ) && cnt < Inventory::MAXNUMINPACK )
             {
                 // Remove from the pack
                 Inventory::remove_item( pchr->ai.index, cnt, true );
@@ -3003,7 +3003,7 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
     iTmp += restock_ammo( ichr, pstate->argument );
 
-    PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
+    PACK_BEGIN_LOOP( pchr->getInventory(), pitem, item )
     {
         iTmp += restock_ammo( item, pstate->argument );
     }
@@ -3044,7 +3044,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
 
     if (iTmp == 0)
     {
-        PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
+        PACK_BEGIN_LOOP( pself_target->getInventory(), pitem, item )
         {
             iTmp += restock_ammo( item, pstate->argument );
             if ( 0 != iTmp ) break;
@@ -5665,7 +5665,7 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
         _currentModule->getObjectHandler().get(ichr)->iskursed = false;
     }
 
-    PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
+    PACK_BEGIN_LOOP( pself_target->getInventory(), pitem, item )
     {
         pitem->iskursed = false;
     }
@@ -7454,7 +7454,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( Inventory::add_item( pself->target, ichr, MAXINVENTORY, true ) )
+            if ( Inventory::add_item( pself->target, ichr, Inventory::MAXNUMINPACK, true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work

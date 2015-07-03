@@ -33,7 +33,6 @@
 #include "game/char.h" //ZF> TODO: remove
 
 //Declare class static constants
-const size_t Object::MAXNUMINPACK;
 const std::shared_ptr<Object> Object::INVALID_OBJECT = nullptr;
 
 
@@ -55,7 +54,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     ammo(0),
     holdingwhich(),
     equipment(),
-    inventory(),
     team(Team::TEAM_NULL),
     team_base(Team::TEAM_NULL),
     firstenchant(INVALID_ENC_REF),
@@ -161,7 +159,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _characterID(id),
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
-    _baseAttribute()
+    _baseAttribute(),
+    _inventory()
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -172,7 +171,6 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
 
     // pack/inventory info
     equipment.fill(INVALID_CHR_REF);
-    inventory.fill(INVALID_CHR_REF);
 
     // Set up position
     ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
@@ -200,24 +198,11 @@ Object::~Object()
         cleanup_one_character(this);
 
         // free the character's inventory
-        PACK_BEGIN_LOOP(inventory, pitem, iitem)
+        PACK_BEGIN_LOOP(_inventory, pitem, iitem)
         {
             pitem->requestTerminate();
         }
         PACK_END_LOOP();
-
-        //If we are inside an inventory we need to remove us
-        const std::shared_ptr<Object> &inventoryHolder = _currentModule->getObjectHandler()[inwhich_inventory];
-        if(inventoryHolder) {
-            for (size_t i = 0; i < inventoryHolder->inventory.size(); i++)
-            {
-                if(inventoryHolder->inventory[i] == getCharacterID()) 
-                {
-                    inventoryHolder->inventory[i] = INVALID_CHR_REF;
-                    break;
-                }
-            }
-        }
 
         // Handle the team
         if ( isAlive() && !getProfile()->isInvincible() )
@@ -1759,7 +1744,7 @@ void Object::respawn()
     daze_timer = 0;
 
     // Let worn items come back
-    PACK_BEGIN_LOOP( inventory, pitem, item )
+    PACK_BEGIN_LOOP( _inventory, pitem, item )
     {
         if ( _currentModule->getObjectHandler().get(item)->isequipped )
         {
@@ -1845,4 +1830,9 @@ void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, flo
 {
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
     _baseAttribute[type] = Ego::Math::constrain(_baseAttribute[type] + value, 0.0f, 255.0f);
+}
+
+Inventory& Object::getInventory()
+{
+    return _inventory;
 }

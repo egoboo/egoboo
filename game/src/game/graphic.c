@@ -1566,21 +1566,21 @@ void draw_inventory()
         weight_sum = 0;
         icon_count = 0;
         item_count = 0;
-        for (i = 0; i < MAXINVENTORY; i++)
+        for (i = 0; i < Inventory::MAXNUMINPACK; i++)
         {
-            CHR_REF item = pchr->inventory[i];
+            std::shared_ptr<Object> item = pchr->getInventory().getItem(i);
 
             //calculate the sum of the weight of all items in inventory
-            if (_currentModule->getObjectHandler().exists(item)) weight_sum += _currentModule->getObjectHandler()[item]->getProfile()->getWeight();
+            if (item) weight_sum += item->getProfile()->getWeight();
 
             //draw icon
-            draw_one_character_icon(item, x, y, true, (item_count == ppla->inventory_slot) ? COLOR_WHITE : NOSPARKLE);
+            draw_one_character_icon(item != nullptr ? item->getCharacterID() : INVALID_CHR_REF, x, y, true, (item_count == ppla->inventory_slot) ? COLOR_WHITE : NOSPARKLE);
             icon_count++;
             item_count++;
             x += 32 + 5;
 
             //new row?
-            if (x >= edgex || icon_count >= MAXINVENTORY / 2)
+            if (x >= edgex || icon_count >= Inventory::MAXNUMINPACK / 2)
             {
                 x = sttx + 5 - ppla->inventory_lerp;
                 y += 32 + 5;

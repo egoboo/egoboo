@@ -34,10 +34,7 @@
 #include "game/graphic_billboard.h"
 #include "egolib/IDSZ_map.h"
 #include "game/Module/Module.hpp"
-
-//Macros
-#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<Object::MAXNUMINPACK;IT##_internal++) { CHR_REF IT; Object * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_currentModule->getObjectHandler().exists (IT)) continue; PITEM = _currentModule->getObjectHandler().get( IT );
-#define PACK_END_LOOP() } }
+#include "game/Inventory.hpp"
 
 /// The possible methods for characters to determine what direction they are facing
 enum turn_mode_t : uint8_t
@@ -142,7 +139,6 @@ struct chr_spawn_data_t
 class Object : public PhysicsData, public Id::NonCopyable
 {
 public:
-    static const size_t MAXNUMINPACK = 6;                           ///< Max number of items to carry in pack
     static const std::shared_ptr<Object> INVALID_OBJECT;            ///< Invalid object reference
 
 public:
@@ -580,6 +576,12 @@ public:
     **/
     void increaseBaseAttribute(const Ego::Attribute::AttributeType type, float value);
 
+    /**
+    * @return
+    *   The Inventory of this Object
+    **/
+    Inventory& getInventory();
+
 private:
 
     /**
@@ -625,7 +627,6 @@ public:
     // equipment and inventory
     std::array<CHR_REF, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
     std::array<CHR_REF, INVEN_COUNT> equipment;   ///< != INVALID_CHR_REF if character has equipped something
-    std::array<CHR_REF, MAXNUMINPACK> inventory;  ///< != INVALID_CHR_REF if character has something in the inventory
 
     // team stuff
     TEAM_REF       team;            ///< Character's team
@@ -778,6 +779,7 @@ private:
     std::shared_ptr<ObjectProfile> _profile;             ///< Our Profile
     bool _showStatus;                                    ///< Display stats?
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
+    Inventory _inventory;
 
     friend class ObjectHandler;
 };
