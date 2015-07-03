@@ -648,7 +648,7 @@ static const aicode_t AICODES[] =
     { 'V', 29, "selfhateid" },
     { 'V', 30, "selfmana" },
     { 'V', 31, "targetstr" },
-    { 'V', 32, "targetwis" },
+    { 'V', 32, "targetwis" },   //deprecated
     { 'V', 33, "targetint" },
     { 'V', 34, "targetdex" },
     { 'V', 35, "targetlife" },
