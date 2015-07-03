@@ -4794,27 +4794,6 @@ Uint8 scr_add_TargetStrength( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_add_TargetWisdom( script_state_t * pstate, ai_state_t * pself )
-{
-    // GiveWisdomToTarget()
-    // Permanently boost the target's wisdom
-
-    int iTmp;
-    Object * pself_target;
-
-    SCRIPT_FUNCTION_BEGIN();
-
-    SCRIPT_REQUIRE_TARGET( pself_target );
-
-    if ( pself_target->isAlive() )
-    {
-        pself_target->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(pstate->argument));
-    }
-
-    SCRIPT_FUNCTION_END();
-}
-
-//--------------------------------------------------------------------------------------------
 Uint8 scr_add_TargetIntelligence( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveIntelligenceToTarget()

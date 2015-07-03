@@ -314,7 +314,7 @@ enum e_script_functions
     FSETTARGETTODISTANTENEMY,            // == 226
     FTELEPORT,                           // == 227
     FGIVESTRENGTHTOTARGET,               // == 228
-    FGIVEWISDOMTOTARGET,                 // == 229
+    FGIVEINTELLECTTOTARGET,              // == 229
     FGIVEINTELLIGENCETOTARGET,           // == 230
     FGIVEDEXTERITYTOTARGET,              // == 231
     FGIVELIFETOTARGET,                   // == 232

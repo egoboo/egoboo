@@ -284,7 +284,7 @@ static const aicode_t AICODES[] =
     { 'F', 226, "SetTargetToDistantEnemy" },
     { 'F', 227, "Teleport" },
     { 'F', 228, "GiveStrengthToTarget" },
-    { 'F', 229, "GiveWisdomToTarget" },
+    { 'F', 229, "GiveIntellectToTarget" },
     { 'F', 230, "GiveIntelligenceToTarget" },
     { 'F', 231, "GiveDexterityToTarget" },
     { 'F', 232, "GiveLifeToTarget" },
@@ -1031,7 +1031,7 @@ const char *script_function_names[SCRIPT_FUNCTIONS_COUNT] =
     "FSETTARGETTODISTANTENEMY",            // == 226
     "FTELEPORT",                           // == 227
     "FGIVESTRENGTHTOTARGET",               // == 228
-    "FGIVEWISDOMTOTARGET",                 // == 229
+    "FGIVEINTELLECTTOTARGET",              // == 229
     "FGIVEINTELLIGENCETOTARGET",           // == 230
     "FGIVEDEXTERITYTOTARGET",              // == 231
     "FGIVELIFETOTARGET",                   // == 232
