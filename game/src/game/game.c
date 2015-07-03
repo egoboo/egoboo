@@ -326,9 +326,9 @@ egolib_rv export_all_players( bool require_local )
 
         // Export the inventory
         number = 0;
-        PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
+        PACK_BEGIN_LOOP( pchr->getInventory(), pitem, iitem )
         {
-            if ( number >= MAXINVENTORY ) break;
+            if ( number >= Inventory::MAXNUMINPACK ) break;
 
             export_chr_rv = export_one_character( iitem, character, number + SLOT_COUNT, is_local );
             if ( rv_error == export_chr_rv )
@@ -1346,14 +1346,14 @@ void set_one_player_latch( const PLA_REF ipla )
         //handle inventory movement
         if ( joy_pos[XX] < 0 )       new_selected--;
         else if ( joy_pos[XX] > 0 )  new_selected++;
-        if ( joy_pos[YY] < 0 )       new_selected -= MAXINVENTORY / 2;
-        else if ( joy_pos[YY] > 0 )  new_selected += MAXINVENTORY / 2;
+        if ( joy_pos[YY] < 0 )       new_selected -= Inventory::MAXNUMINPACK / 2;
+        else if ( joy_pos[YY] > 0 )  new_selected += Inventory::MAXNUMINPACK / 2;
 
         //clip to a valid value
         if ( ppla->inventory_slot != new_selected )
         {
             ppla->inventory_cooldown = update_wld + 10;
-            ppla->inventory_slot = CLIP( new_selected, 0, MAXINVENTORY - 1 );
+            ppla->inventory_slot = Ego::Math::constrain<size_t>( new_selected, 0, Inventory::MAXNUMINPACK - 1 );
         }
 
         //handle item control
@@ -1982,7 +1982,7 @@ bool chr_setup_apply(std::shared_ptr<Object> pchr, spawn_file_info_t *pinfo ) //
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        Inventory::add_item( pinfo->parent, pchr->getCharacterID(), MAXINVENTORY, true );
+        Inventory::add_item( pinfo->parent, pchr->getCharacterID(), Inventory::MAXNUMINPACK, true );
 
         //If the character got merged into a stack, then it will be marked as terminated
         if(pchr->isTerminated()) {

@@ -23,9 +23,17 @@
 
 #include "game/egoboo_typedef.h"
 
-struct Inventory
+//Macros
+#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<Inventory::MAXNUMINPACK;IT##_internal++) { std::shared_ptr<Object> PITEM = INVENTORY.getItem(IT##_internal); if(!PITEM) continue; CHR_REF IT = PITEM->getCharacterID();
+#define PACK_END_LOOP() } }
+
+class Inventory
 {
 public:
+    static const size_t MAXNUMINPACK = 6;   ///< Max number of items to carry in pack
+
+    Inventory();
+
     /*
      * @brief
      *  Remove an item from an inventory slot.
@@ -38,7 +46,7 @@ public:
      *  Add an item to an inventory slot.
      * @details
      *  This fails if there already is an item there.
-     *  If the specified inventory slot is MAXINVENTORY,
+     *  If the specified inventory slot is MAXNUMINPACK,
      *  it will find the first free inventory slot.
      */
     static bool add_item(const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse);
@@ -47,7 +55,7 @@ public:
      *  Swap item between inventory slot and grip slot.
      * @remark
      *  This swaps an item between the specified inventory slot and the specified grip
-     *  If the specified inventory slot is MAXINVENTORY,
+     *  If the specified inventory slot is MAXNUMINPACK,
      *  the function will swap with the first item found in the inventory.
      */
     static bool swap_item(const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse);
@@ -68,7 +76,7 @@ public:
      *  @a true, then in addition the item must be equipped in order to match the search
      *  criterion.
      */
-    static CHR_REF findItem(const Object *pobj, IDSZ idsz, bool equippedOnly);
+    static CHR_REF findItem(Object *pobj, IDSZ idsz, bool equippedOnly);
     /**
      * @brief
      *  Find an item in the pack.
@@ -87,6 +95,30 @@ public:
      */
     static CHR_REF findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly);
 
+    /**
+    * @breif
+    *   Retrieve the CHR_REF of an item in this inventory
+    * @param slotNumber
+    *   Index number of the inventory slot to get
+    * @return
+    *   The CHR_REF of the Object in the specified slot number in this inventory
+    *   Returns INVALID_CHR_REF if slotNumber is out of bounds or if slot is empty
+    **/
+    CHR_REF getItemID(const size_t slotNumber) const;
+
+    /**
+    * @breif
+    *   Retrieve the shared_ptr of an item in this inventory
+    * @param slotNumber
+    *   Index number of the inventory slot to get
+    * @return
+    *   A shared_ptr to the Object in the specified slot number in this inventory
+    *   Returns nullptr if slotNumber is out of bounds or if slot is empty
+    **/
+    std::shared_ptr<Object> getItem(const size_t slotNumber) const;
+
+    void setItem(const size_t slotNumber, const std::shared_ptr<Object> &item);
+
 private:
 
 	/**
@@ -96,4 +128,6 @@ private:
     *    index number, otherwise it returns INVALID_CHR_REF.
 	**/
 	static CHR_REF hasStack(const CHR_REF item, const CHR_REF character);
+
+    std::array<std::weak_ptr<Object>, MAXNUMINPACK> _items;
 };

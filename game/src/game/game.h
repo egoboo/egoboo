@@ -23,6 +23,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/input.h"
+#include "game/Inventory.hpp"
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of external structs
@@ -75,9 +76,6 @@ struct water_instance_layer_t;
 #define WATERFRAMEAND (MAXWATERFRAME-1)
 #define WATERPOINTS 4                                      ///< Points in a water fan
 
-// inventory
-#define MAXINVENTORY        6                              ///< maximum number of objects in an inventory
-
 // status list
 #define MAX_STATUS          10                             ///< Maximum status displays
 
@@ -86,7 +84,7 @@ struct water_instance_layer_t;
 
 // imports
 #define MAX_IMPORTS 16
-#define MAX_IMPORT_OBJECTS     ( MAXINVENTORY + 2 )        ///< left hand + right hand + MAXINVENTORY
+#define MAX_IMPORT_OBJECTS     ( Inventory::MAXNUMINPACK + 2 )        ///< left hand + right hand + MAXINVENTORY
 #define MAX_IMPORT_PER_PLAYER  ( 1 + MAX_IMPORT_OBJECTS )  ///< player + MAX_IMPORT_OBJECTS
 
 //--------------------------------------------------------------------------------------------

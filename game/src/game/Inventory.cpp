@@ -4,7 +4,17 @@
 #include "game/game.h"
 #include "game/renderer_2d.h"
 
-CHR_REF Inventory::findItem(const Object *pobj, IDSZ idsz, bool equippedOnly)
+//Class constants
+const size_t Inventory::MAXNUMINPACK;
+
+
+Inventory::Inventory() :
+    _items()
+{
+    //ctor
+}
+
+CHR_REF Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly)
 {
     if (!pobj || pobj->isTerminated())
     {
@@ -13,7 +23,7 @@ CHR_REF Inventory::findItem(const Object *pobj, IDSZ idsz, bool equippedOnly)
 
     CHR_REF result = INVALID_CHR_REF;
 
-    PACK_BEGIN_LOOP(pobj->inventory, pitem, item)
+    PACK_BEGIN_LOOP(pobj->getInventory(), pitem, item)
     {
         bool matches_equipped = (!equippedOnly || pitem->isequipped);
 
@@ -40,21 +50,21 @@ CHR_REF Inventory::findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly)
 //--------------------------------------------------------------------------------------------
 bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse )
 {
-    Object *pchr, *pitem;
+    Object *pchr;
     int newammo;
 
     //valid character?
     if ( !_currentModule->getObjectHandler().exists( ichr ) || !_currentModule->getObjectHandler().exists( item ) ) return false;
     pchr = _currentModule->getObjectHandler().get( ichr );
-    pitem = _currentModule->getObjectHandler().get( item );
+    const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
 
     //try get the first free slot found?
-    if ( inventory_slot >= MAXINVENTORY )
+    if ( inventory_slot >= Inventory::MAXNUMINPACK )
     {
         int i;
-        for ( i = 0; i < Object::MAXNUMINPACK; i++ )
+        for ( i = 0; i < Inventory::MAXNUMINPACK; i++ )
         {
-            if ( !_currentModule->getObjectHandler().exists( pchr->inventory[i] ) )
+            if(!pchr->getInventory().getItem(i))
             {
                 //found a free slot
                 inventory_slot = i;
@@ -63,14 +73,14 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
         }
 
         //did we find one?
-        if ( i == MAXINVENTORY ) return false;
+        if ( i == Inventory::MAXNUMINPACK ) return false;
     }
 
     //don't override existing items
-    if ( _currentModule->getObjectHandler().exists( pchr->inventory[inventory_slot] ) ) return false;
+    if ( pchr->getInventory().getItem(inventory_slot) ) return false;
 
     // don't allow sub-inventories
-    if ( _currentModule->getObjectHandler().exists( pitem->inwhich_inventory ) ) return false;
+    if ( pitem->isInsideInventory() ) return false;
 
     //kursed?
     if ( pitem->iskursed && !ignorekurse )
@@ -132,7 +142,7 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     {
         //@todo: implement weight check here
         // Make sure we have room for another item
-        //if ( pchr_pack->count >= Object::MAXNUMINPACK )
+        //if ( pchr_pack->count >= Inventory::MAXNUMINPACK )
         // {
         //    SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
         //    return false;
@@ -147,7 +157,8 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
         //now put the item into the inventory
         pitem->attachedto = INVALID_CHR_REF;
         pitem->inwhich_inventory = ichr;
-        pchr->inventory[inventory_slot] = item;
+        pchr->getInventory()._items[inventory_slot] = pitem;
+
 
         // fix the flags
         if ( pitem->getProfile()->isEquipment() )
@@ -173,12 +184,12 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
     pchr = _currentModule->getObjectHandler().get( ichr );
 
     //try get the first used slot found?
-    if ( inventory_slot >= MAXINVENTORY )
+    if ( inventory_slot >= Inventory::MAXNUMINPACK )
     {
         int i;
-        for ( i = 0; i < Object::MAXNUMINPACK; i++ )
+        for ( i = 0; i < Inventory::MAXNUMINPACK; i++ )
         {
-            if ( !_currentModule->getObjectHandler().exists( pchr->inventory[i] ) )
+            if(!pchr->getInventory().getItem(i))
             {
                 //found a free slot
                 inventory_slot = i;
@@ -187,7 +198,7 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
         }
     }
 
-    inventory_item = pchr->inventory[inventory_slot];
+    inventory_item = pchr->getInventory().getItemID(inventory_slot);
     item           = pchr->holdingwhich[grip_off];
 
     // Make sure everything is hunkydori
@@ -223,21 +234,18 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
 
 bool Inventory::remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse )
 {
-    CHR_REF item;
-    Object *pitem;
     Object *pholder;
 
     //ignore invalid slots
-    if ( inventory_slot >= MAXINVENTORY )  return false;
+    if ( inventory_slot >= Inventory::MAXNUMINPACK )  return false;
 
     //valid char?
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
     pholder = _currentModule->getObjectHandler().get( ichr );
-    item = pholder->inventory[inventory_slot];
 
     //valid item?
-    if ( !_currentModule->getObjectHandler().exists( item ) ) return false;
-    pitem = _currentModule->getObjectHandler().get( item );
+    const std::shared_ptr<Object> &pitem = pholder->getInventory().getItem(inventory_slot);
+    if ( !pitem ) return false;
 
     //is it kursed?
     if ( pitem->iskursed && !ignorekurse )
@@ -250,7 +258,7 @@ bool Inventory::remove_item( const CHR_REF ichr, const size_t inventory_slot, co
 
     //no longer in an inventory
     pitem->inwhich_inventory = INVALID_CHR_REF;
-    pholder->inventory[inventory_slot] = INVALID_CHR_REF;
+    pholder->getInventory()._items[inventory_slot].reset();
 
     return true;
 }
@@ -270,7 +278,7 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
         return INVALID_CHR_REF;
     }
 
-    PACK_BEGIN_LOOP( _currentModule->getObjectHandler().get(character)->inventory, pstack, istack_new )
+    PACK_BEGIN_LOOP( _currentModule->getObjectHandler().get(character)->getInventory(), pstack, istack_new )
     {
         const std::shared_ptr<ObjectProfile> &stackProfile = _currentModule->getObjectHandler()[istack_new]->getProfile();
 
@@ -303,4 +311,33 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
     PACK_END_LOOP();
 
     return istack;
+}
+
+CHR_REF Inventory::getItemID(const size_t slotNumber) const
+{
+    std::shared_ptr<Object> item = getItem(slotNumber);
+    if(!item) {
+        return INVALID_CHR_REF;
+    }
+    return item->getCharacterID();
+}
+
+std::shared_ptr<Object> Inventory::getItem(const size_t slotNumber) const
+{
+    if(slotNumber >= _items.size()) {
+        return Object::INVALID_OBJECT;
+    }
+
+    std::shared_ptr<Object> item = _items[slotNumber].lock();
+    if(item && item->isTerminated()) {
+        //_items[slotNumber].reset();
+        return Object::INVALID_OBJECT;
+    }
+
+    return item;
+}
+
+void Inventory::setItem(const size_t slotNumber, const std::shared_ptr<Object> &item)
+{
+    _items[slotNumber] = item;
 }
