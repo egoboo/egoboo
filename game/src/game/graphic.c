@@ -1479,9 +1479,6 @@ void draw_inventory()
 
     static int lerp_time[MAX_LOCAL_PLAYERS] = { 0 };
 
-    //don't draw inventories while menu is open
-    //if ( GProc->mod_paused ) return;
-
     //figure out what we have to draw
     for (ipla = 0; ipla < MAX_PLAYER; ipla++)
     {
@@ -1566,10 +1563,10 @@ void draw_inventory()
         weight_sum = 0;
         icon_count = 0;
         item_count = 0;
-        for (i = 0; i < Inventory::MAXNUMINPACK; i++)
+        for(size_t i = 0; i < pchr->getInventory().getMaxItems(); ++i)
         {
             std::shared_ptr<Object> item = pchr->getInventory().getItem(i);
-
+            
             //calculate the sum of the weight of all items in inventory
             if (item) weight_sum += item->getProfile()->getWeight();
 
@@ -1580,7 +1577,7 @@ void draw_inventory()
             x += 32 + 5;
 
             //new row?
-            if (x >= edgex || icon_count >= Inventory::MAXNUMINPACK / 2)
+            if (x >= edgex || icon_count >= pchr->getInventory().getMaxItems() / 2)
             {
                 x = sttx + 5 - ppla->inventory_lerp;
                 y += 32 + 5;

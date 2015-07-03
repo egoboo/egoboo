@@ -23,17 +23,16 @@ CHR_REF Inventory::findItem(Object *pobj, IDSZ idsz, bool equippedOnly)
 
     CHR_REF result = INVALID_CHR_REF;
 
-    PACK_BEGIN_LOOP(pobj->getInventory(), pitem, item)
+    for(const std::shared_ptr<Object> pitem : pobj->getInventory().iterate())
     {
         bool matches_equipped = (!equippedOnly || pitem->isequipped);
 
-        if (chr_is_type_idsz(item, idsz) && matches_equipped)
+        if (chr_is_type_idsz(pitem->getCharacterID(), idsz) && matches_equipped)
         {
-            result = item;
+            result = pitem->getCharacterID();
             break;
         }
     }
-    PACK_END_LOOP();
 
     return result;
 }
@@ -59,21 +58,8 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
 
     //try get the first free slot found?
-    if ( inventory_slot >= Inventory::MAXNUMINPACK )
-    {
-        int i;
-        for ( i = 0; i < Inventory::MAXNUMINPACK; i++ )
-        {
-            if(!pchr->getInventory().getItem(i))
-            {
-                //found a free slot
-                inventory_slot = i;
-                break;
-            }
-        }
-
-        //did we find one?
-        if ( i == Inventory::MAXNUMINPACK ) return false;
+    if(inventory_slot >= pchr->getInventory().getMaxItems()) {
+        return false;
     }
 
     //don't override existing items
@@ -184,18 +170,8 @@ bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_
     pchr = _currentModule->getObjectHandler().get( ichr );
 
     //try get the first used slot found?
-    if ( inventory_slot >= Inventory::MAXNUMINPACK )
-    {
-        int i;
-        for ( i = 0; i < Inventory::MAXNUMINPACK; i++ )
-        {
-            if(!pchr->getInventory().getItem(i))
-            {
-                //found a free slot
-                inventory_slot = i;
-                break;
-            }
-        }
+    if(inventory_slot >= pchr->getInventory().getMaxItems()) {
+        return false;
     }
 
     inventory_item = pchr->getInventory().getItemID(inventory_slot);
@@ -236,12 +212,12 @@ bool Inventory::remove_item( const CHR_REF ichr, const size_t inventory_slot, co
 {
     Object *pholder;
 
-    //ignore invalid slots
-    if ( inventory_slot >= Inventory::MAXNUMINPACK )  return false;
-
     //valid char?
     if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
     pholder = _currentModule->getObjectHandler().get( ichr );
+
+    //ignore invalid slots
+    if ( inventory_slot >= pholder->getInventory().getMaxItems() )  return false;
 
     //valid item?
     const std::shared_ptr<Object> &pitem = pholder->getInventory().getItem(inventory_slot);
@@ -278,11 +254,10 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
         return INVALID_CHR_REF;
     }
 
-    PACK_BEGIN_LOOP( _currentModule->getObjectHandler().get(character)->getInventory(), pstack, istack_new )
+    for(const std::shared_ptr<Object> pstack : _currentModule->getObjectHandler().get(character)->getInventory().iterate())
     {
-        const std::shared_ptr<ObjectProfile> &stackProfile = _currentModule->getObjectHandler()[istack_new]->getProfile();
 
-        found = stackProfile->isStackable();
+        found = pstack->getProfile()->isStackable();
 
         if ( pstack->ammo >= pstack->ammomax )
         {
@@ -291,11 +266,11 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
 
         // you can still stack something even if the profiles don't match exactly,
         // but they have to have all the same IDSZ properties
-        if ( found && ( stackProfile->getSlotNumber() != pitem->profile_ref ) )
+        if ( found && ( pstack->getProfile()->getSlotNumber() != pitem->profile_ref ) )
         {
             for ( Uint16 id = 0; id < IDSZ_COUNT && found; id++ )
             {
-                if ( chr_get_idsz( istack_new, id ) != chr_get_idsz( item, id ) )
+                if ( chr_get_idsz( pstack->getCharacterID(), id ) != chr_get_idsz( item, id ) )
                 {
                     found = false;
                 }
@@ -304,11 +279,10 @@ CHR_REF Inventory::hasStack( const CHR_REF item, const CHR_REF character )
 
         if ( found )
         {
-            istack = istack_new;
+            istack = pstack->getCharacterID();
             break;
         }
     }
-    PACK_END_LOOP();
 
     return istack;
 }
@@ -340,4 +314,64 @@ std::shared_ptr<Object> Inventory::getItem(const size_t slotNumber) const
 void Inventory::setItem(const size_t slotNumber, const std::shared_ptr<Object> &item)
 {
     _items[slotNumber] = item;
+}
+
+std::vector<std::shared_ptr<Object>> Inventory::iterate() const
+{
+    std::vector<std::shared_ptr<Object>> result;
+    for(const std::weak_ptr<Object> &weak : _items)
+    {
+        std::shared_ptr<Object> item = weak.lock();
+        if(item) {
+            result.push_back(item);
+        }
+    }
+    return result;
+}
+
+size_t Inventory::getFirstFreeSlotNumber() const
+{
+    for(size_t i = 0; i < _items.size(); ++i)
+    {
+        if(!_items[i].lock())
+        {
+            return i;
+        }
+    }
+
+    return _items.size();
+}
+
+bool Inventory::removeItem(const std::shared_ptr<Object> &item, const bool ignorekurse)
+{
+    //Empty or invalid items always returns false
+    if(!item) {
+        return false;
+    }
+
+    for(size_t i = 0; i < _items.size(); ++i)
+    {
+        //Is this the item we are looking for?
+        if(_items[i].lock() == item)
+        {
+            //is it kursed?
+            if ( item->iskursed && !ignorekurse )
+            {
+                //Flag the item as not removed
+                SET_BIT( item->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
+                DisplayMsg_printf( "%s won't go out!", item->getName().c_str());
+                return false;
+            }
+
+            //Remove it from the inventory!
+            _items[i].reset();
+            return true;
+        }
+    }
+    return false;
+}
+
+size_t Inventory::getMaxItems() const
+{
+    return _items.size();
 }

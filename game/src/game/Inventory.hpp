@@ -23,10 +23,6 @@
 
 #include "game/egoboo_typedef.h"
 
-//Macros
-#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<Inventory::MAXNUMINPACK;IT##_internal++) { std::shared_ptr<Object> PITEM = INVENTORY.getItem(IT##_internal); if(!PITEM) continue; CHR_REF IT = PITEM->getCharacterID();
-#define PACK_END_LOOP() } }
-
 class Inventory
 {
 public:
@@ -41,13 +37,12 @@ public:
      *  Note that you still have to handle it falling out.
      */
     static bool remove_item(const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse);
+
     /**
      * @brief
      *  Add an item to an inventory slot.
      * @details
      *  This fails if there already is an item there.
-     *  If the specified inventory slot is MAXNUMINPACK,
-     *  it will find the first free inventory slot.
      */
     static bool add_item(const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool ignorekurse);
     /**
@@ -55,8 +50,6 @@ public:
      *  Swap item between inventory slot and grip slot.
      * @remark
      *  This swaps an item between the specified inventory slot and the specified grip
-     *  If the specified inventory slot is MAXNUMINPACK,
-     *  the function will swap with the first item found in the inventory.
      */
     static bool swap_item(const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse);
 
@@ -96,7 +89,7 @@ public:
     static CHR_REF findItem(const CHR_REF iobj, IDSZ idsz, bool equippedOnly);
 
     /**
-    * @breif
+    * @brief
     *   Retrieve the CHR_REF of an item in this inventory
     * @param slotNumber
     *   Index number of the inventory slot to get
@@ -107,7 +100,7 @@ public:
     CHR_REF getItemID(const size_t slotNumber) const;
 
     /**
-    * @breif
+    * @brief
     *   Retrieve the shared_ptr of an item in this inventory
     * @param slotNumber
     *   Index number of the inventory slot to get
@@ -118,6 +111,39 @@ public:
     std::shared_ptr<Object> getItem(const size_t slotNumber) const;
 
     void setItem(const size_t slotNumber, const std::shared_ptr<Object> &item);
+
+    /**
+    * @return
+    *   The index number of the first free unused slot number in this inventory.
+    *   Returns getMaxItems() if there is no free unused slots.
+    **/
+    size_t getFirstFreeSlotNumber() const;
+
+    /**
+    * @return
+    *   The maximum number of different items that is allowed in this inventory
+    **/
+    size_t getMaxItems() const;
+
+    /**
+    * @brief
+    *   Returns a vector of all shared_ptr<Object> contained in this Inventory
+    **/
+    std::vector<std::shared_ptr<Object>> iterate() const;
+
+    /*
+     * @brief
+     *  Remove an item from this inventory.
+     * @param item
+     *  The item to remove
+     * @param ignorekurse
+     *  Remove items that normally cannot be removed due to a kurse
+     * @return
+     *  true if an item was removed from the inventory
+     * @details
+     *  Note that you still have to handle it falling out.
+     */
+    bool removeItem(const std::shared_ptr<Object> &item, const bool ignorekurse);
 
 private:
 

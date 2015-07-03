@@ -198,11 +198,10 @@ Object::~Object()
         cleanup_one_character(this);
 
         // free the character's inventory
-        PACK_BEGIN_LOOP(_inventory, pitem, iitem)
+        for(const std::shared_ptr<Object> pitem : _inventory.iterate())
         {
             pitem->requestTerminate();
         }
-        PACK_END_LOOP();
 
         // Handle the team
         if ( isAlive() && !getProfile()->isInvincible() )
@@ -1744,15 +1743,14 @@ void Object::respawn()
     daze_timer = 0;
 
     // Let worn items come back
-    PACK_BEGIN_LOOP( _inventory, pitem, item )
+    for(const std::shared_ptr<Object> pitem : _inventory.iterate())
     {
-        if ( _currentModule->getObjectHandler().get(item)->isequipped )
+        if ( pitem->isequipped )
         {
-            _currentModule->getObjectHandler().get(item)->isequipped = false;
+            pitem->isequipped = false;
             SET_BIT( ai.alert, ALERTIF_PUTAWAY ); // same as ALERTIF_ATLASTWAYPOINT
         }
     }
-    PACK_END_LOOP();
 
     // re-initialize the instance
     chr_instance_t::spawn(inst, profile_ref, skin);

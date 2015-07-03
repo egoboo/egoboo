@@ -1239,7 +1239,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     /// For one use keys and such
 
     CHR_REF item;
-    Object *pitem, *ptarget;
+    Object *ptarget;
     size_t cnt = INVALID_CHR_REF;
     IDSZ idsz;
 
@@ -1254,26 +1254,19 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     //need to search inventory as well?
     if ( !_currentModule->getObjectHandler().exists( item ) )
     {
-        for ( cnt = 0; cnt < Inventory::MAXNUMINPACK; cnt++ )
+        for(const std::shared_ptr<Object> &pitem : ptarget->getInventory().iterate())
         {
-            item = ptarget->getInventory().getItemID(cnt);
-
-            //only valid items
-            if ( !_currentModule->getObjectHandler().exists( item ) ) continue;
-            pitem = _currentModule->getObjectHandler().get( item );
-
             //matching idsz?
-            if ( chr_is_type_idsz( item, idsz ) ) break;
+            if ( chr_is_type_idsz( pitem->getCharacterID(), idsz ) ) {
+                item = pitem->getCharacterID();
+            }
         }
-
-        //did we fail?
-        if ( cnt == Inventory::MAXNUMINPACK ) item = INVALID_CHR_REF;
     }
 
     returncode = false;
     if ( _currentModule->getObjectHandler().exists( item ) )
     {
-        pitem = _currentModule->getObjectHandler().get( item );
+        const std::shared_ptr<Object> &pitem = _currentModule->getObjectHandler()[item];
         returncode = true;
 
         // Cost one ammo
@@ -1285,10 +1278,10 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         // Poof the item
         else
         {
-            if ( _currentModule->getObjectHandler().exists( pitem->inwhich_inventory ) && cnt < Inventory::MAXNUMINPACK )
+            if ( pitem->isInsideInventory() )
             {
                 // Remove from the pack
-                Inventory::remove_item( pchr->ai.index, cnt, true );
+                pchr->getInventory().removeItem(pitem, true);
             }
             else
             {
@@ -3003,11 +2996,10 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
     iTmp += restock_ammo( ichr, pstate->argument );
 
-    PACK_BEGIN_LOOP( pchr->getInventory(), pitem, item )
+    for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
-        iTmp += restock_ammo( item, pstate->argument );
+        iTmp += restock_ammo( pitem->getCharacterID(), pstate->argument );
     }
-    PACK_END_LOOP();
 
     pstate->argument = iTmp;
     returncode = ( iTmp != 0 );
@@ -3044,12 +3036,11 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
 
     if (iTmp == 0)
     {
-        PACK_BEGIN_LOOP( pself_target->getInventory(), pitem, item )
+        for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
         {
-            iTmp += restock_ammo( item, pstate->argument );
+            iTmp += restock_ammo( pitem->getCharacterID(), pstate->argument );
             if ( 0 != iTmp ) break;
         }
-        PACK_END_LOOP()
     }
 
     pstate->argument = iTmp;
@@ -5665,11 +5656,10 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
         _currentModule->getObjectHandler().get(ichr)->iskursed = false;
     }
 
-    PACK_BEGIN_LOOP( pself_target->getInventory(), pitem, item )
+    for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
     {
         pitem->iskursed = false;
     }
-    PACK_END_LOOP();
 
     SCRIPT_FUNCTION_END();
 }
@@ -7454,7 +7444,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( Inventory::add_item( pself->target, ichr, Inventory::MAXNUMINPACK, true ) )
+            if ( Inventory::add_item( pself->target, ichr, pchr->getInventory().getFirstFreeSlotNumber(), true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work
