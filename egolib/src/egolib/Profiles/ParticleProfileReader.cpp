@@ -228,8 +228,8 @@ bool ParticleProfileReader::read(std::shared_ptr<pip_t> profile, const std::stri
             else if (idsz == MAKE_IDSZ('P', 'U', 'S', 'H'))  profile->allowpush = (0 != ctxt.readInt());
             else if (idsz == MAKE_IDSZ('D', 'L', 'E', 'V'))  profile->dynalight.level_add = ctxt.readInt() / 1000.0f;
             else if (idsz == MAKE_IDSZ('D', 'R', 'A', 'D'))  profile->dynalight.falloff_add = ctxt.readInt() / 1000.0f;
-            else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->damageBoni._intelligence = (0 != ctxt.readInt());
-            else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  profile->damageBoni._wisdom = (0 != ctxt.readInt());
+            else if (idsz == MAKE_IDSZ('I', 'D', 'A', 'M'))  profile->_intellectDamageBonus = (0 != ctxt.readInt());
+            else if (idsz == MAKE_IDSZ('W', 'D', 'A', 'M'))  log_warning("Use of deprecated expansion [WDAM] (%s)\n", pathname.c_str());
             else if (idsz == MAKE_IDSZ('G', 'R', 'A', 'V'))  profile->ignore_gravity = (0 != ctxt.readInt());
             else if (idsz == MAKE_IDSZ('O', 'R', 'N', 'T'))
             {

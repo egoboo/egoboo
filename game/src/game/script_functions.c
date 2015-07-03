@@ -4808,7 +4808,7 @@ Uint8 scr_add_TargetWisdom( script_state_t * pstate, ai_state_t * pself )
 
     if ( pself_target->isAlive() )
     {
-        pself_target->increaseBaseAttribute(Ego::Attribute::WISDOM, FP8_TO_FLOAT(pstate->argument));
+        pself_target->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -7140,7 +7140,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsASpell()
     /// @author ZF
-    /// @details roceeds if the AI Target has any particle with the [IDAM] or [WDAM] expansion
+    /// @details roceeds if the AI Target has any particle with the [IDAM] expansion
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7150,7 +7150,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
         std::shared_ptr<pip_t> ppip = ProfileSystem::get().pro_get_ppip(pchr->profile_ref, iTmp);
         if (!ppip) continue;
 
-        if ( ppip->damageBoni._intelligence || ppip->damageBoni._wisdom )
+        if ( ppip->_intellectDamageBonus )
         {
             returncode = true;
             break;

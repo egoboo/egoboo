@@ -107,7 +107,7 @@ pip_t::pip_t() :
     damfx(DAMFX_TURN),
 
     // Hitting.
-    damageBoni({false, false}), //{intelligence, wisdom}
+    _intellectDamageBonus(false),
     spawnenchant(false),
     onlydamagefriendly(false),
     friendlyfire(false),
@@ -185,8 +185,7 @@ void pip_t::reset()
     // Hitting.
     damage.init();
     damageType = DamageType::DAMAGE_DIRECT;
-    damageBoni._intelligence = 0;
-    damageBoni._wisdom = 0;
+    _intellectDamageBonus = false;
     damfx = DAMFX_TURN;
     spawnenchant = false;
     onlydamagefriendly = false;

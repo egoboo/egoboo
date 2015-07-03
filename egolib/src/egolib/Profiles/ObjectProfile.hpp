@@ -467,7 +467,6 @@ public:
     *        Same goes for unarmed attacks if this object is actually a character
     **/
     inline float getStrengthDamageFactor() const      {return _strengthBonus;}
-    inline float getWisdomDamageFactor() const        {return _wisdomBonus;}
     inline float getIntelligenceDamageFactor() const  {return _intelligenceBonus;}
     inline float getDexterityDamageFactor() const     {return _dexterityBonus;}
 
@@ -737,10 +736,9 @@ private:
     LocalParticleProfileRef _attackParticle;     ///< What kind of attack particles?
     bool         _attackFast;                    ///< Ignores the default reload time?
 
-    float        _strengthBonus;                      ///< Strength     damage factor
-    float        _wisdomBonus;                      ///< Wisdom       damage factor
-    float        _intelligenceBonus;                      ///< Intelligence damage factor
-    float        _dexterityBonus;                      ///< dexterity    damage factor
+    float        _strengthBonus;                ///< Might     damage factor
+    float        _intelligenceBonus;            ///< Intellect damage factor
+    float        _dexterityBonus;               ///< Agility   damage factor
 
     // special particle effects
     uint8_t _attachedParticleAmount;                  ///< Number of sticky particles

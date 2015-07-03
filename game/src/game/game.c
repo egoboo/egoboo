@@ -3746,7 +3746,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
             Object * powner = _currentModule->getObjectHandler().get( iowner );
 
             can_steal = true;
-            if ( powner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + powner->getAttribute(Ego::Attribute::WISDOM) ) > 50 )
+            if ( powner->canSeeObject(pthief) || detection <= 5 || ( detection - pthief->getAttribute(Ego::Attribute::AGILITY) + powner->getAttribute(Ego::Attribute::INTELLECT) ) > 50 )
             {
                 ai_state_add_order(powner->ai, Passage::SHOP_STOLEN, Passage::SHOP_THEFT);
                 powner->ai.target = ithief;

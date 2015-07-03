@@ -739,10 +739,6 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             break;
 
         case eve_t::ADDWISDOM:
-            ptarget->increaseBaseAttribute(Ego::Attribute::WISDOM, FP8_TO_FLOAT(peve->_add[value_idx].value));
-            fvaluetoadd = peve->_add[value_idx].value;
-            break;
-
         case eve_t::ADDINTELLIGENCE:
             ptarget->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(peve->_add[value_idx].value));
             fvaluetoadd = peve->_add[value_idx].value;
@@ -1320,10 +1316,6 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
                 break;
 
             case eve_t::ADDWISDOM:
-                valuetoadd = penc->_add[value_idx]._oldValue;
-                ptarget->increaseBaseAttribute(Ego::Attribute::WISDOM, FP8_TO_FLOAT(-valuetoadd));
-                break;
-
             case eve_t::ADDINTELLIGENCE:
                 valuetoadd = penc->_add[value_idx]._oldValue;
                 ptarget->increaseBaseAttribute(Ego::Attribute::INTELLECT, FP8_TO_FLOAT(-valuetoadd));
