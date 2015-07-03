@@ -201,15 +201,14 @@ CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_
                 }
 
                 // III: Check the pack
-                PACK_BEGIN_LOOP( pchr->getInventory(), pitem, item )
+                for(const std::shared_ptr<Object> pitem : pchr->getInventory().iterate())
                 {
-                    if ( chr_is_type_idsz( item, require_item ) )
+                    if ( chr_is_type_idsz( pitem->getCharacterID(), require_item ) )
                     {
                         // It has the ipacked in inventory...
                         return character;
                     }
                 }
-                PACK_END_LOOP();
             }
         }
     }
