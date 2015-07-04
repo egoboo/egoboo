@@ -28,6 +28,7 @@ InternalWindow::InternalWindow(const std::string &title) :
     _mouseOver(false),
     _mouseOverCloseButton(false),
     _isDragging(false),
+    _mouseDragOffset{0, 0},
     _title(title),
     _transparency(0.33f)
 {
@@ -40,6 +41,7 @@ InternalWindow::InternalWindow(const std::string &title) :
     textWidth = std::max(32, textWidth);
     textHeight = std::max(8, textHeight);
     setSize(std::max(getWidth(), 5 + static_cast<int>(textWidth*1.5f)), getY()+textHeight+5);
+    setPosition(20, 20);
 }
 
 void InternalWindow::drawContainer()
@@ -59,7 +61,7 @@ void InternalWindow::drawContainer()
 bool InternalWindow::notifyMouseMoved(const int x, const int y)
 {
     if(_isDragging) {
-        setPosition(x, y);
+        setPosition(x+_mouseDragOffset.x, y+_mouseDragOffset.y);
         return true;
     }
     else {
@@ -92,8 +94,17 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
         //Bring the window in front of all other windows
         bringToFront();
 
-        _isDragging = !_isDragging;
+        //Only the top title bar triggers dragging
+        if(y-getY() < _gameEngine->getUIManager()->getFont(UIManager::FONT_DEFAULT)->getFontHeight()) {
+            _isDragging = true;
+            _mouseDragOffset.x = getX() - x;
+            _mouseDragOffset.y = getY() - y;
+        }
+        else {
+            _isDragging = false;
+        }
 
+        //Move the window immediatly
         if(_isDragging) {
             return notifyMouseMoved(x, y);
         }
@@ -123,15 +134,27 @@ void InternalWindow::setPosition(const int x, const int y)
     GUIComponent::setPosition(x, y);
 
     //Shift all child components as well
-    _componentListMutex.lock();
-    for(const std::shared_ptr<GUIComponent> &component : _componentList)
+    for(const std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator())
     {
         component->setPosition(component->getX() + translateX, component->getY() + translateY);
     }
-    _componentListMutex.unlock();
 }
 
 void InternalWindow::setTransparency(float alpha)
 {
     _transparency = Ego::Math::constrain(alpha, 0.0f, 1.0f);
+}
+
+bool InternalWindow::notifyMouseReleased(const int button, const int x, const int y)
+{
+    _isDragging = false;
+    return false;
+}
+
+void InternalWindow::addComponent(std::shared_ptr<GUIComponent> component)
+{
+    //Make sure that all components added to this window are placed relative to 
+    //our position so that (0,0) is topleft corner in this InternalWindow
+    component->setPosition(component->getX()+getX(), component->getY()+getY());
+    ComponentContainer::addComponent(component);
 }

@@ -265,7 +265,7 @@ void VideoOptionsScreen::addResolutionButton(int width, int height)
             egoboo_config_t::get().graphic_resolution_vertical.setValue(height);
 
 			// Enable all resolution buttons except the one we just selected.
-			for(const std::shared_ptr<GUIComponent> &button : *_resolutionList.get())
+			for(const std::shared_ptr<GUIComponent> &button : _resolutionList->iterator())
             {
 				button->setEnabled(true);
 			}

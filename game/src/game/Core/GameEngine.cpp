@@ -155,9 +155,11 @@ void GameEngine::estimateFrameRate()
 void GameEngine::updateOneFrame()
 {
     // Fall through to next state if needed
-    if(_currentGameState->isEnded())
+    while(_currentGameState->isEnded())
     {
-        _gameStateStack.pop_front();
+        if(!_gameStateStack.empty()) {
+            _gameStateStack.pop_front();
+        }
 
         // No more states? Default back to main menu
         if(_gameStateStack.empty())
@@ -172,6 +174,9 @@ void GameEngine::updateOneFrame()
             _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
         }
     }
+
+    //Remove all stale game states
+    _gameStateStack.remove_if([](const std::shared_ptr<GameState> &gameState) {return gameState->isEnded();});
 
     // Handle all SDL events    
     pollEvents();
@@ -396,7 +401,7 @@ void GameEngine::uninitialize()
 
 void GameEngine::setGameState(std::shared_ptr<GameState> gameState)
 {
-    _gameStateStack.clear();
+    for(std::shared_ptr<GameState> &state : _gameStateStack) state->endState();
     pushGameState(gameState);
 }
 
@@ -437,19 +442,19 @@ void GameEngine::pollEvents()
                     case SDL_WINDOWEVENT_SHOWN:
                         /// @todo: this shouldn't be needed?
                         gfx_system_reload_all_textures();
-                        break;
+                    break;
                     case SDL_WINDOWEVENT_ENTER:
                         mous.on = true;
-                        break;
+                    break;
                     case SDL_WINDOWEVENT_LEAVE:
                         mous.on = false;
-                        break;
+                    break;
                     case SDL_WINDOWEVENT_FOCUS_GAINED:
                         keyb.on = true;
-                        break;
+                    break;
                     case SDL_WINDOWEVENT_FOCUS_LOST:
                         keyb.on = false;
-                        break;
+                    break;
                     case SDL_WINDOWEVENT_RESIZED:
                         // The video has been resized.
                         // If the game is active, some camera info mught need to be recalculated
@@ -457,12 +462,12 @@ void GameEngine::pollEvents()
                         
                         // grab all the new SDL screen info
                         SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
-                        break;
+                    break;
                     case SDL_WINDOWEVENT_EXPOSED:
                         // something has been done to the screen and it needs to be re-drawn.
                         // For instance, a window above the app window was moved. This has no
                         // effect on the game at the moment.
-                        break;
+                    break;
                         
                 }
                 break;
@@ -471,22 +476,26 @@ void GameEngine::pollEvents()
                 _currentGameState->notifyMouseScrolled(event.wheel.y);
                 input_cursor.z += event.wheel.y;
                 input_cursor.wheel_event = true;
-                break;
+            break;
                 
             case SDL_MOUSEBUTTONDOWN:
                 _currentGameState->notifyMouseClicked(event.button.button, event.button.x, event.button.y);
                 input_cursor.pending_click = true;
-                break;
+            break;
+
+            case SDL_MOUSEBUTTONUP:
+                _currentGameState->notifyMouseReleased(event.button.button, event.button.x, event.button.y);
+            break;
                 
             case SDL_MOUSEMOTION:
                 mous.x = event.motion.x;
                 mous.y = event.motion.y;
                 _currentGameState->notifyMouseMoved(event.motion.x, event.motion.y);
-                break;
+            break;
                 
             case SDL_KEYDOWN:
                 _currentGameState->notifyKeyDown(event.key.keysym.sym);
-                break;
+            break;
         }
     } // end of message processing
 }

@@ -14,4 +14,5 @@ class InputListener
         virtual bool notifyKeyDown(const int keyCode);
         virtual bool notifyMouseClicked(const int button, const int x, const int y);
         virtual bool notifyMouseScrolled(const int amount);
+        virtual bool notifyMouseReleased(const int button, const int x, const int y);
 };

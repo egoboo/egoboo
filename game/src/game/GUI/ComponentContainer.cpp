@@ -5,28 +5,38 @@
 
 ComponentContainer::ComponentContainer() :
     _componentList(),
-    _componentListMutex(),
-    _componentDestroyed(false)
+    _componentDestroyed(false),
+    _semaphoreLock(0),
+    _containerMutex()
 {
 	//ctor
 }
 
+ComponentContainer::~ComponentContainer()
+{
+    if(_semaphoreLock != 0) 
+    {
+        throw new std::logic_error("Destructing ComponentContainer while iterating");
+    }
+}
+
+
 void ComponentContainer::addComponent(std::shared_ptr<GUIComponent> component)
 {
-    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
+    std::lock_guard<std::mutex> lock(_containerMutex);
     _componentList.push_back(component);
     component->_parent = this;
 }
 
 void ComponentContainer::removeComponent(std::shared_ptr<GUIComponent> component)
 {
-    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
+    std::lock_guard<std::mutex> lock(_containerMutex);
     _componentList.erase(std::remove(_componentList.begin(), _componentList.end(), component), _componentList.end());
 }
 
 void ComponentContainer::clearComponents()
 {
-    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
+    std::lock_guard<std::mutex> lock(_containerMutex);
     _componentList.clear();
 }
 
@@ -42,8 +52,7 @@ void ComponentContainer::drawAll()
 
     //Draw reach GUI component
     _gameEngine->getUIManager()->beginRenderUI();
-    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
-    for(const std::shared_ptr<GUIComponent> component : _componentList)
+    for(const std::shared_ptr<GUIComponent> component : iterator())
     {
         if(!component->isVisible()) continue;  //Ignore hidden/destroyed components
         component->draw();
@@ -53,90 +62,99 @@ void ComponentContainer::drawAll()
 
 bool ComponentContainer::notifyMouseMoved(const int x, const int y)
 {
-    {
-        std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
-        for (auto i = _componentList.rbegin(); i != _componentList.rend(); ++i ) { 
-            const std::shared_ptr<GUIComponent> &component = *i;
-            if(!component->isEnabled()) continue;
-            if(component->notifyMouseMoved(x, y)) return true;
-        }
+    //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
+    ComponentIterator it = iterator();
+    for (auto i = it.rbegin(); i != it.rend(); ++i ) { 
+        std::shared_ptr<GUIComponent> component = *i;
+        if(!component->isEnabled()) continue;
+        if(component->notifyMouseMoved(x, y)) return true;
     }
-    cleanDestroyedComponents();
     return false;
 }
 
 bool ComponentContainer::notifyKeyDown(const int keyCode)
 {
-    {
-        std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
-        //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
-        for (auto i = _componentList.rbegin(); i != _componentList.rend(); ++i ) { 
-            const std::shared_ptr<GUIComponent> &component = *i;
-            if(!component->isEnabled()) continue;
-            if(component->notifyKeyDown(keyCode)) return true;
-        } 
-    }
-    cleanDestroyedComponents();
+    //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
+    ComponentIterator it = iterator();
+    for (auto i = it.rbegin(); i != it.rend(); ++i ) { 
+        std::shared_ptr<GUIComponent> component = *i;
+        if(!component->isEnabled()) continue;
+        if(component->notifyKeyDown(keyCode)) return true;
+    } 
     return false;
 }
 
 bool ComponentContainer::notifyMouseClicked(const int button, const int x, const int y)
 {
-    {
-        std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
-        for (auto i = _componentList.rbegin(); i != _componentList.rend(); ++i ) { 
-            const std::shared_ptr<GUIComponent> &component = *i;
-            if(!component->isEnabled()) continue;
-            if(component->notifyMouseClicked(button, x, y)) return true;
-        }
-    } 
-    cleanDestroyedComponents();
+    //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
+    ComponentIterator it = iterator();
+    for (auto i = it.rbegin(); i != it.rend(); ++i ) { 
+        std::shared_ptr<GUIComponent> component = *i;
+        if(!component->isEnabled()) continue;
+        if(component->notifyMouseClicked(button, x, y)) return true;
+    }
+    return false;
+}
+
+bool ComponentContainer::notifyMouseReleased(const int button, const int x, const int y)
+{
+    //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
+    ComponentIterator it = iterator();
+    for (auto i = it.rbegin(); i != it.rend(); ++i ) { 
+        std::shared_ptr<GUIComponent> component = *i;
+        if(!component->isEnabled()) continue;
+        if(component->notifyMouseReleased(button, x, y)) return true;
+    }
     return false;
 }
 
 bool ComponentContainer::notifyMouseScrolled(const int amount)
 {
-    {
-        std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
-        for (auto i = _componentList.rbegin(); i != _componentList.rend(); ++i ) { 
-            const std::shared_ptr<GUIComponent> &component = *i;
-            if(!component->isEnabled()) continue;
-            if(component->notifyMouseScrolled(amount)) return true;
-        } 
-    }
-    cleanDestroyedComponents();
+    //Iterate over GUI components in reverse order so GUI components added last (i.e on top) consume events first
+    ComponentIterator it = iterator();
+    for (auto i = it.rbegin(); i != it.rend(); ++i ) { 
+        std::shared_ptr<GUIComponent> component = *i;
+        if(!component->isEnabled()) continue;
+        if(component->notifyMouseScrolled(amount)) return true;
+    } 
     return false;
 }
 
 void ComponentContainer::notifyDestruction()
 {
-    //Try to remove destroyed components immediatly if possible
-    if(_componentListMutex.try_lock())
-    {
-        _componentList.erase(std::remove_if(_componentList.begin(), _componentList.end(), 
-            [](const std::shared_ptr<GUIComponent> &component) {return component->isDestroyed(); }), _componentList.end());
-        _componentListMutex.unlock();
-    }
-    else
-    {
-        //Deferred destruction
-        _componentDestroyed = true;
-    }
+    //Deferred destruction
+    _componentDestroyed = true;
 }
 
-void ComponentContainer::cleanDestroyedComponents()
-{
-    if(!_componentDestroyed) return;
-    _componentDestroyed = false;
-    std::lock_guard<std::recursive_mutex> lock(_componentListMutex);
-
-    _componentList.erase(std::remove_if(_componentList.begin(), _componentList.end(), 
-        [](const std::shared_ptr<GUIComponent> &component) {return component->isDestroyed(); }), 
-        _componentList.end());
-}
 
 void ComponentContainer::bringComponentToFront(std::shared_ptr<GUIComponent> component)
 {
     removeComponent(component);
     addComponent(component);
+}
+
+void ComponentContainer::lock()
+{
+    std::lock_guard<std::mutex> lock(_containerMutex);
+    _semaphoreLock++;
+}
+
+void ComponentContainer::unlock()
+{
+    std::lock_guard<std::mutex> lock(_containerMutex);
+    if(_semaphoreLock == 0) 
+    {
+        throw new std::logic_error("ComponentContainer calling unlock() without lock()");
+    }
+
+    //Release one lock
+    _semaphoreLock--;
+
+    //If all locks are released, remove all destroyed components
+    if(_semaphoreLock == 0 && _componentDestroyed) {
+        _componentList.erase(std::remove_if(_componentList.begin(), _componentList.end(), 
+            [](std::shared_ptr<GUIComponent> component) {return component->isDestroyed(); }), 
+            _componentList.end());
+        _componentDestroyed = false;
+    }
 }

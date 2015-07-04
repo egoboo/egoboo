@@ -32,12 +32,15 @@ class InternalWindow : public GUIComponent, public ComponentContainer
 
         bool notifyMouseMoved(const int x, const int y) override;
         bool notifyMouseClicked(const int button, const int x, const int y) override;
+        bool notifyMouseReleased(const int button, const int x, const int y) override;
 
         void draw() override;
 
         virtual void setPosition(const int x, const int y) override;
 
         void setTransparency(float alpha);
+
+        void addComponent(std::shared_ptr<GUIComponent> component) override;
 
     protected:
         void drawContainer() override;
@@ -47,6 +50,7 @@ class InternalWindow : public GUIComponent, public ComponentContainer
         bool _mouseOver;
         bool _mouseOverCloseButton;
         bool _isDragging;
+        SDL_Point _mouseDragOffset;
         std::string _title;
         float _transparency;
 };

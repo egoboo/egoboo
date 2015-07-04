@@ -143,6 +143,15 @@ namespace Ego
          */
         int getLineSpacing() const;
         
+        /**
+        * @brief
+        *   Get the maximum pixel height of all glyphs of the loaded font. You may use this height for rendering text as close together 
+        *   vertically as possible, though adding at least one pixel height to it will space it so they can't touch.
+        * @return
+        *   The maximum pixel height of all glyphs in the font
+        **/
+        int getFontHeight() const;
+
     private:
         struct StringCacheData;
         typedef std::shared_ptr<StringCacheData> StringCacheDataPtr;

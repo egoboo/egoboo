@@ -16,7 +16,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
 {
     int yPos = 0;
 
-    setSize(340, 300);
+    setSize(340, 320);
 
     // draw the character's main icon
     std::shared_ptr<Image> characterIcon = std::make_shared<Image>(TextureManager::get().get_valid_ptr(_character->getProfile()->getIcon(_character->skin)));
@@ -91,11 +91,12 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     }
 
     //Inventory
+    const int slotSize = (getWidth() - 15 - _character->getInventory().getMaxItems()*5) / _character->getInventory().getMaxItems();
     int xPos = 10;
     yPos += 5;
     for(size_t i = 0; i < _character->getInventory().getMaxItems(); ++i) {
         std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i);
-        slot->setSize(32, 32);
+        slot->setSize(slotSize, slotSize);
         slot->setPosition(xPos, yPos);
         xPos += slot->getWidth() + 5;
         addComponent(slot);

@@ -232,5 +232,10 @@ namespace Ego
         if (a == nullptr) return true;
         return a->lastUseInTicks < b->lastUseInTicks;
     }
+
+    int Font::getFontHeight() const
+    {
+        return TTF_FontHeight(_ttfFont);
+    }
 }
 

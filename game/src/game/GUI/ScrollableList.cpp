@@ -25,7 +25,7 @@ ScrollableList::ScrollableList() :
 void ScrollableList::setScrollPosition(int position)
 {
 	//Limit bounds
-	if(position < 0 || position >= _componentList.size()) {
+	if(position < 0 || position >= getComponentCount()) {
 		return;
 	}
 
@@ -34,19 +34,22 @@ void ScrollableList::setScrollPosition(int position)
 
 	//Dynamically enable and disable scrolling buttons as needed
 	_upButton->setEnabled(_currentIndex > 0);
-	_downButton->setEnabled(_currentIndex < _componentList.size()-1);
+	_downButton->setEnabled(_currentIndex < getComponentCount()-1);
 
 	//Shift position of all components in container
 	int yOffset = 0;
-	for(int i = 0; i < _componentList.size(); ++i) {
-		if(i < _currentIndex || yOffset + _componentList[i]->getHeight() >= getHeight()) {
-			_componentList[i]->setVisible(false);
+	int componentCount = 0;
+    for(const std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator()) {
+		if(componentCount < _currentIndex || yOffset + component->getHeight() >= getHeight()) {
+			component->setVisible(false);
+			componentCount++;
 			continue;
 		}
 
-		_componentList[i]->setVisible(true);
-		_componentList[i]->setPosition(getX(), getY() + yOffset);
-		yOffset += _componentList[i]->getHeight() + COMPONENT_LINE_SPACING;
+		component->setVisible(true);
+		component->setPosition(getX(), getY() + yOffset);
+		yOffset += component->getHeight() + COMPONENT_LINE_SPACING;
+		componentCount++;
 	}
 }
 
@@ -91,12 +94,10 @@ void ScrollableList::draw()
 	drawContainer();
 
 	//Now draw all components inside it
-    _componentListMutex.lock();
-    for(size_t i = _currentIndex; i < _componentList.size(); ++i) {
-        if(!_componentList[i]->isVisible()) continue;  //Ignore hidden/destroyed components
-        _componentList[i]->draw();
+    for(const std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator()) {
+        if(!component->isVisible()) continue;  //Ignore hidden/destroyed components
+        component->draw();
     }
-    _componentListMutex.unlock();
 
     //Draw up and down buttons
     _downButton->draw();
