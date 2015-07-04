@@ -215,9 +215,11 @@ private:
     bool _terminateRequested;		///< true if the GameEngine should deinitialize and shutdown
     uint32_t _updateTimeout;		///< Timestamp when updateOneFrame() should be run again
     uint32_t _renderTimeout;		///< Timestamp when renderOneFrame() should be run again
+    
     std::forward_list<std::shared_ptr<GameState>> _gameStateStack;
     std::shared_ptr<GameState> _currentGameState;
-    std::mutex _gameStateMutex;
+    bool _clearGameStateStackRequested;
+
     egoboo_config_t _config;
     bool _drawCursor;
     bool _screenshotReady;

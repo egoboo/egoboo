@@ -5,7 +5,7 @@
 //Forward declarations
 class GUIComponent;
 
-class ComponentContainer : public InputListener, Id::NonCopyable
+class ComponentContainer : public InputListener, public Id::NonCopyable
 {
 public:
     class ComponentIterator : public Id::NonCopyable

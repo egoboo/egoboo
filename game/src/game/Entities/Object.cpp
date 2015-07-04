@@ -166,8 +166,11 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     holdingwhich.fill(INVALID_CHR_REF);
 
     //Damage resistance
-    damage_modifier.fill(0);
-    damage_resistance.fill(0.0f);
+    for (size_t i = 0; i < DAMAGE_COUNT; i++ )
+    {
+        damage_modifier[i]   = getProfile()->getSkinInfo(skin).damageModifier[i];
+        damage_resistance[i] = getProfile()->getSkinInfo(skin).damageResistance[i];
+    }
 
     // pack/inventory info
     equipment.fill(INVALID_CHR_REF);

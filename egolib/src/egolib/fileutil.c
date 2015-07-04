@@ -1690,11 +1690,14 @@ float vfs_get_damage_resist(ReadContext& ctxt)
     //if (resistance == 1) resistance = 16.7f;         //~50% reduction, about same as shift 1
     //else if (resistance == 2) resistance = 50.0f;    //75% reduction, same as shift 2
     //else if (resistance == 3) resistance = 150.0f;   //90% reduction, same as shift 3
-
-    if (resistance == 0)      resistance = -11.203f;      //-100% damage reduction
-    else if (resistance == 1) resistance = 0.0f;     //0% damage reduction
-    else if (resistance == 2) resistance = 16.7f;    //50% damage reduction
-    else if (resistance == 3) resistance = 50.0f;    //75% damage reduction
+    
+    switch(static_cast<int>(resistance))
+    {
+        case 0: resistance = -11.203f; break;    //-100% damage reduction
+        case 1: resistance = 0.0f;     break;    //0% damage reduction
+        case 2: resistance = 16.7f;    break;    //50% damage reduction
+        case 3: resistance = 50.0f;    break;    //75% damage reduction
+    }
 
     return resistance;
 }
