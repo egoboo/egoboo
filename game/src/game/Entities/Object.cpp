@@ -1784,7 +1784,7 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
 
         //Defence reduces weakness, but cannot eliminate it completely (50% weakness reduction at 255 defence)
         if(includeArmor) {
-            resistance *= static_cast<float>(255-this->defense) / 512.0f;
+            resistance *= 1.0f - (static_cast<float>(this->defense) / 512.0f);
         }
         return resistance;
     }
@@ -1792,7 +1792,7 @@ float Object::getRawDamageResistance(const DamageType type, const bool includeAr
     //Defence bonus increases all damage type resistances (every 14 points gives +1.0 resistance)
     //This means at 255 defence and 0% resistance results in 52% damage reduction
     if(includeArmor && HAS_NO_BITS(damage_modifier[type], DAMAGEINVERT)) {
-        resistance += static_cast<float>(255-this->defense) / 14.0f;
+        resistance += static_cast<float>(this->defense) / 14.0f;
     }
 
     return resistance;

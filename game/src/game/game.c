@@ -1679,7 +1679,7 @@ void show_armor( int statindex )
     DisplayMsg_printf( "=%s=", skinInfo.name.c_str() );
 
     // Armor Stats
-    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - skinInfo.defence,
+    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", skinInfo.defence,
                        skinInfo.damageResistance[DAMAGE_SLASH]*100.0f,
                        skinInfo.damageResistance[DAMAGE_CRUSH]*100.0f,
                        skinInfo.damageResistance[DAMAGE_POKE ]*100.0f );
@@ -1769,7 +1769,7 @@ void show_full_status( int statindex )
     DisplayMsg_printf( "=%s is %s=", pchr->getName().c_str(), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
-    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pchr->getProfile()->getSkinInfo(skinlevel).defence,
+    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", pchr->getProfile()->getSkinInfo(skinlevel).defence,
                        pchr->getDamageReduction(DAMAGE_SLASH)*100.0f,
                        pchr->getDamageReduction(DAMAGE_CRUSH)*100.0f,
                        pchr->getDamageReduction(DAMAGE_POKE) *100.0f );

@@ -583,8 +583,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     ctxt.skipToColon(false);
     for (size_t cnt = 0; cnt < SKINS_PEROBJECT_MAX; cnt++)
     {
-        int iTmp = 0xFF - ctxt.readInt();
-        _skinInfo[cnt].defence = CLIP( iTmp, 0, 0xFF );
+        _skinInfo[cnt].defence = Ego::Math::constrain(ctxt.readInt(), 0, 0xFF);
     }
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
@@ -1157,10 +1156,10 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_int( fileTemp, fileWrite, profile->iframeangle );
 
     // Skin defenses (TODO: add support for more than 4)
-    template_put_int( fileTemp, fileWrite, 255 - profile->getSkinInfo(0).defence );
-    template_put_int( fileTemp, fileWrite, 255 - profile->getSkinInfo(1).defence );
-    template_put_int( fileTemp, fileWrite, 255 - profile->getSkinInfo(2).defence );
-    template_put_int( fileTemp, fileWrite, 255 - profile->getSkinInfo(3).defence );
+    template_put_int( fileTemp, fileWrite, profile->getSkinInfo(0).defence );
+    template_put_int( fileTemp, fileWrite, profile->getSkinInfo(1).defence );
+    template_put_int( fileTemp, fileWrite, profile->getSkinInfo(2).defence );
+    template_put_int( fileTemp, fileWrite, profile->getSkinInfo(3).defence );
 
     for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
