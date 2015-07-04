@@ -28,3 +28,9 @@ bool InputListener::notifyMouseScrolled(const int amount)
     //default no implementation
     return false;
 }
+
+bool InputListener::notifyMouseReleased(const int button, const int x, const int y)
+{
+    //default no implementation
+    return false;
+}

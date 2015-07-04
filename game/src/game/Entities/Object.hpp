@@ -582,6 +582,8 @@ public:
     **/
     Inventory& getInventory();
 
+    uint16_t getAmmo() const { return ammo; }
+
 private:
 
     /**
