@@ -25,7 +25,7 @@
 #include "game/physics.h"			//for orientation_t
 
 //Forward declarations
-struct ego_mesh_t;
+class ego_mesh_t;
 namespace Ego {
 namespace Graphics {
 struct TileList;

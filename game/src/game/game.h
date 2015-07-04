@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------
 
 // Forward declarations.
-struct ego_mesh_t;
+class ego_mesh_t;
 struct script_state_t;
 struct mod_file_t;
 
