@@ -170,7 +170,7 @@ int CharacterWindow::addResistanceLabel(const int x, const int y, const DamageTy
 
     //Percent
     std::shared_ptr<Label> percent = std::make_shared<Label>("(" + std::to_string(std::lround(_character->getDamageReduction(type)*100)) + "%)");
-    percent->setPosition(label->getX() + 100, label->getY());
+    percent->setPosition(label->getX() + 75, label->getY());
     percent->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     percent->setColor(Ego::Math::Colour4f(DamageType_getColour(type), 1.0f));
     addComponent(percent);

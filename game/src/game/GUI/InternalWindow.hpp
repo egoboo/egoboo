@@ -53,4 +53,5 @@ class InternalWindow : public GUIComponent, public ComponentContainer
         SDL_Point _mouseDragOffset;
         std::string _title;
         float _transparency;
+        bool _firstDraw;
 };

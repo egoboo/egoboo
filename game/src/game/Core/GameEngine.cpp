@@ -53,6 +53,7 @@ GameEngine::GameEngine() :
 	_renderTimeout(0),
 	_gameStateStack(),
 	_currentGameState(nullptr),
+    _clearGameStateStackRequested(false),
 	_config(),
     _drawCursor(true),
     _screenshotReady(true),
@@ -154,6 +155,14 @@ void GameEngine::estimateFrameRate()
 
 void GameEngine::updateOneFrame()
 {
+    //Handle clearing the game state stack first. Should be done before any GUIComponents
+    //become locked by the event or rendering loop
+    if(_clearGameStateStackRequested) {
+        _gameStateStack.clear();
+        _gameStateStack.push_front(_currentGameState);
+        _clearGameStateStackRequested = false;
+    }
+
     // Fall through to next state if needed
     while(_currentGameState->isEnded())
     {
@@ -174,9 +183,6 @@ void GameEngine::updateOneFrame()
             _renderTimeout = SDL_GetTicks() + DELAY_PER_RENDER_FRAME;
         }
     }
-
-    //Remove all stale game states
-    _gameStateStack.remove_if([](const std::shared_ptr<GameState> &gameState) {return gameState->isEnded();});
 
     // Handle all SDL events    
     pollEvents();
@@ -255,13 +261,11 @@ bool GameEngine::initialize()
     //      by the time they are initialized.
 
     // Message display.
-    DisplayMsg_count = Ego::Math::constrain(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(),
-        (uint8_t)EGO_MESSAGE_MIN, (uint8_t)EGO_MESSAGE_MAX);
+    DisplayMsg_count = Ego::Math::constrain<uint8_t>(egoboo_config_t::get().hud_simultaneousMessages_max.getValue(), EGO_MESSAGE_MIN, EGO_MESSAGE_MAX);
     DisplayMsg_on = egoboo_config_t::get().hud_simultaneousMessages_max.getValue() > 0;
 
     // Adjust the particle limit.
     ParticleHandler::get().setDisplayLimit(egoboo_config_t::get().graphic_simultaneousParticles_max.getValue());
-    
 
     // camera options
     CameraSystem::getCameraOptions().turnMode = egoboo_config_t::get().camera_control.getValue();
@@ -308,13 +312,10 @@ bool GameEngine::initialize()
     audioSystem.playMusic(AudioSystem::MENU_SONG);
     audioSystem.loadGlobalSounds();
 
-
-    renderPreloadText("Configurating game data...");
-
-
     // synchronize the config values with the various game subsystems
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
+    renderPreloadText("Configurating game data...");
     config_synch(&egoboo_config_t::get(), false, false);
 
     // load input
@@ -401,7 +402,7 @@ void GameEngine::uninitialize()
 
 void GameEngine::setGameState(std::shared_ptr<GameState> gameState)
 {
-    for(std::shared_ptr<GameState> &state : _gameStateStack) state->endState();
+    _clearGameStateStackRequested = true;
     pushGameState(gameState);
 }
 

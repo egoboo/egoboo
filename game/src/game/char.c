@@ -1288,9 +1288,9 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     }
 
                     // Initial particles get a bonus, which may be zero. Increases damage with +(factor)% per attribute point (e.g Might=10 and MightFactor=0.06 then damageBonus=0.6=60%)
-                    pprt->damage.base *= 1.0f + ( pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
-                    pprt->damage.base *= 1.0f + ( pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
-                    pprt->damage.base *= 1.0f + ( pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
+                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
+                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
+                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
 
                     // Initial particles get an enchantment bonus
                     pprt->damage.base += pweapon->damage_boost;
