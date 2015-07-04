@@ -1,6 +1,7 @@
 #include "CharacterWindow.hpp"
 #include "game/GUI/Label.hpp"
 #include "game/GUI/Image.hpp"
+#include "game/GUI/InventorySlot.hpp"
 #include "game/Entities/_Include.hpp"
 
 namespace Ego
@@ -15,7 +16,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
 {
     int yPos = 0;
 
-    setSize(340, 256);
+    setSize(340, 300);
 
     // draw the character's main icon
     std::shared_ptr<Image> characterIcon = std::make_shared<Image>(TextureManager::get().get_valid_ptr(_character->getProfile()->getIcon(_character->skin)));
@@ -80,13 +81,30 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
 
     //Defences
     std::shared_ptr<Label> defenceLabel = std::make_shared<Label>("DEFENCES");
-    defenceLabel->setPosition(getX() + getWidth()/2 + 10, attributeLabel->getY());
+    defenceLabel->setPosition(getX() + getWidth()/2 + 20, attributeLabel->getY());
     defenceLabel->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME));
     addComponent(defenceLabel);    
 
     yPos = defenceLabel->getY() + defenceLabel->getHeight() - LINE_SPACING_OFFSET;
     for(int type = 0; type < DAMAGE_COUNT; ++type) {
         yPos += addResistanceLabel(defenceLabel->getX(), yPos, static_cast<DamageType>(type));
+    }
+
+    //Inventory
+    int xPos = 10;
+    yPos += 5;
+    for(size_t i = 0; i < _character->getInventory().getMaxItems(); ++i) {
+        std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i);
+        slot->setSize(32, 32);
+        slot->setPosition(xPos, yPos);
+        xPos += slot->getWidth() + 5;
+        addComponent(slot);
+
+        //Newline?
+        if(xPos + slot->getWidth() > getWidth()) {
+            yPos += slot->getHeight() + 5;
+            xPos = 10;
+        }
     }
 }
 
