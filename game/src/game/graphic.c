@@ -2900,7 +2900,7 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
     needs_dynalight = false;
 
     // assume no "extra help" for systems with only flat lighting
-    dynalight_data__init(&fake_dynalight);
+    dynalight_data_t::init(&fake_dynalight);
 
     // initialize the light_bound
     light_bound.xmin = pgmem->edge_x;
@@ -3045,13 +3045,13 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
         lighting_cache_t *pcache_old = &(pgrid->cache);
 
         lighting_cache_t cache_new;
-        lighting_cache_init(&cache_new);
+        lighting_cache_t::init(&cache_new);
 
         // copy the global lighting
         for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
         {
-            cache_new.low.lighting[tnc] = global_lighting[tnc];
-            cache_new.hgh.lighting[tnc] = global_lighting[tnc];
+            cache_new.low._lighting[tnc] = global_lighting[tnc];
+            cache_new.hgh._lighting[tnc] = global_lighting[tnc];
         };
 
         // do we need any dynamic lighting at all?
@@ -3101,10 +3101,10 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
                         nrm[kX] = pdyna->pos[kX] - x0;
                         nrm[kY] = pdyna->pos[kY] - y0;
                         nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.getMin()[ZZ];
-                        sum_dyna_lighting(pdyna, cache_new.low.lighting, nrm);
+                        sum_dyna_lighting(pdyna, cache_new.low._lighting, nrm);
 
                         nrm[kZ] = pdyna->pos[kZ] - ptmem->bbox.getMax()[ZZ];
-                        sum_dyna_lighting(pdyna, cache_new.hgh.lighting, nrm);
+                        sum_dyna_lighting(pdyna, cache_new.hgh._lighting, nrm);
                     }
                 }
             }
@@ -3116,10 +3116,10 @@ gfx_rv do_grid_lighting(Ego::Graphics::TileList& tl, dynalist_t& dyl, Camera& ca
 
         // blend in the global lighting every single time
         // average this in with the existing lighting
-        lighting_cache_blend(pcache_old, &cache_new, local_keep);
+        lighting_cache_t::blend(pcache_old, &cache_new, local_keep);
 
         // find the max intensity
-        lighting_cache_max_light(pcache_old);
+        lighting_cache_t::max_light(pcache_old);
 
         pgrid->cache_frame = game_frame_all;
     }
