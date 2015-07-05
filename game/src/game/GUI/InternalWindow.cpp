@@ -100,21 +100,16 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
             _isDragging = true;
             _mouseDragOffset.x = getX() - x;
             _mouseDragOffset.y = getY() - y;
+
+            //Move the window immediatly
+            return notifyMouseMoved(x, y);
         }
         else {
             _isDragging = false;
         }
-
-        //Move the window immediatly
-        if(_isDragging) {
-            return notifyMouseMoved(x, y);
-        }
-
-        return true;
     }
     else if(button == SDL_BUTTON_RIGHT) {
         _isDragging = false;
-        return true;
     }
 
     return ComponentContainer::notifyMouseClicked(button, x, y);
