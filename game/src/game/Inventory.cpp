@@ -73,7 +73,7 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     {
         // Flag the item as not put away
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) DisplayMsg_printf("%s is sticky...", pitem->getName().c_str());
+        if ( pchr->isPlayer() ) DisplayMsg_printf("%s is sticky...", pitem->getName().c_str());
         return false;
     }
 
@@ -81,7 +81,7 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
     if ( pitem->getProfile()->isBigItem() )
     {
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) DisplayMsg_printf("%s is too big to be put away...", pitem->getName().c_str());
+        if ( pchr->isPlayer() ) DisplayMsg_printf("%s is too big to be put away...", pitem->getName().c_str());
         return false;
     }
 
@@ -160,52 +160,74 @@ bool Inventory::add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventor
 
 bool Inventory::swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool ignorekurse )
 {
-    CHR_REF item, inventory_item;
-    Object *pchr;
     bool success = false;
     bool inventory_rv;
 
     //valid character?
-    if ( !_currentModule->getObjectHandler().exists( ichr ) ) return false;
-    pchr = _currentModule->getObjectHandler().get( ichr );
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[ichr];
+    if(!pchr) {
+        return false;
+    }
 
-    //try get the first used slot found?
+    //Validate slot number
     if(inventory_slot >= pchr->getInventory().getMaxItems()) {
         return false;
     }
 
-    inventory_item = pchr->getInventory().getItemID(inventory_slot);
-    item           = pchr->holdingwhich[grip_off];
-
     // Make sure everything is hunkydori
-    if ( pchr->isitem || _currentModule->getObjectHandler().exists( pchr->inwhich_inventory ) ) return false;
+    if ( pchr->isItem() || pchr->isInsideInventory() ) return false;
+
+    const std::shared_ptr<Object> &inventory_item = pchr->getInventory().getItem(inventory_slot);
+    const std::shared_ptr<Object> &item           = _currentModule->getObjectHandler()[pchr->holdingwhich[grip_off]];
+
+    //Nothing to do?
+    if(!item && !inventory_item) {
+        return true;
+    }
+
+    //Check if either item is kursed first
+    if(!ignorekurse) 
+    {
+        if(item && item->iskursed) {
+            // Flag the last found_item as not put away
+            SET_BIT( item->ai.alert, ALERTIF_NOTPUTAWAY );  // Same as ALERTIF_NOTTAKENOUT
+            if ( pchr->isPlayer() ) DisplayMsg_printf("%s is sticky...", item->getName().c_str());
+            return false;
+
+        }
+
+        if(inventory_item && inventory_item->iskursed) {
+            // Flag the last found_item as not removed
+            SET_BIT( inventory_item->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
+            if ( pchr->isPlayer() ) DisplayMsg_printf( "%s won't go out!", inventory_item->getName().c_str() );
+            return false;
+
+        }
+    }
 
     //remove existing item
-    if ( _currentModule->getObjectHandler().exists( inventory_item ) )
+    if (inventory_item)
     {
-        inventory_rv = Inventory::remove_item( ichr, inventory_slot, ignorekurse );
-        if ( inventory_rv ) success = true;
+        pchr->getInventory().removeItem(inventory_item, ignorekurse);
     }
 
     //put in the new item
-    if ( _currentModule->getObjectHandler().exists( item ) )
+    if (item)
     {
-        inventory_rv = Inventory::add_item( ichr, item, inventory_slot, ignorekurse );
-        if ( inventory_rv ) success = true;
+        Inventory::add_item(pchr->getCharacterID(), item->getCharacterID(), inventory_slot, ignorekurse);
     }
 
     //now put the inventory item into the character's hand
-    if ( _currentModule->getObjectHandler().exists( inventory_item ) && success )
+    if (inventory_item)
     {
-        Object *pitem = _currentModule->getObjectHandler().get( inventory_item );
-        attach_character_to_mount( inventory_item, ichr, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
+        attach_character_to_mount( inventory_item->getCharacterID(), pchr->getCharacterID(), grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
 
         //fix flags
-        UNSET_BIT( pitem->ai.alert, ALERTIF_GRABBED );
-        SET_BIT( pitem->ai.alert, ALERTIF_TAKENOUT );
+        UNSET_BIT( inventory_item->ai.alert, ALERTIF_GRABBED );
+        SET_BIT( inventory_item->ai.alert, ALERTIF_TAKENOUT );
     }
 
-    return success;
+    return true;
 }
 
 bool Inventory::remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool ignorekurse )
@@ -228,7 +250,7 @@ bool Inventory::remove_item( const CHR_REF ichr, const size_t inventory_slot, co
     {
         // Flag the last found_item as not removed
         SET_BIT( pitem->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-        if ( pholder->islocalplayer ) DisplayMsg_printf( "%s won't go out!", pitem->getName().c_str() );
+        if ( pholder->isPlayer() ) DisplayMsg_printf( "%s won't go out!", pitem->getName().c_str() );
         return false;
     }
 
@@ -364,6 +386,7 @@ bool Inventory::removeItem(const std::shared_ptr<Object> &item, const bool ignor
             }
 
             //Remove it from the inventory!
+            item->inwhich_inventory = INVALID_CHR_REF;
             _items[i].reset();
             return true;
         }

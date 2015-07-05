@@ -3,6 +3,7 @@
 #include "game/GUI/Image.hpp"
 #include "game/GUI/InventorySlot.hpp"
 #include "game/Entities/_Include.hpp"
+#include "game/player.h"
 
 namespace Ego
 {
@@ -95,7 +96,7 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
     int xPos = 10;
     yPos += 5;
     for(size_t i = 0; i < _character->getInventory().getMaxItems(); ++i) {
-        std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i);
+        std::shared_ptr<InventorySlot> slot = std::make_shared<InventorySlot>(_character->getInventory(), i, _character->is_which_player);
         slot->setSize(slotSize, slotSize);
         slot->setPosition(xPos, yPos);
         xPos += slot->getWidth() + 5;
@@ -106,6 +107,19 @@ CharacterWindow::CharacterWindow(const std::shared_ptr<Object> &object) : Intern
             yPos += slot->getHeight() + 5;
             xPos = 10;
         }
+    }
+
+    //If the character is a local player, then we consume that players input events for inventory managment
+    if(_character->isPlayer()) {
+        PlaStack.get_ptr(_character->is_which_player)->inventoryMode = true;
+    }
+}
+
+CharacterWindow::~CharacterWindow()
+{
+    //If the character is a local player, then we no longer consume that players input events
+    if(_character->isPlayer()) {
+        PlaStack.get_ptr(_character->is_which_player)->inventoryMode = false;
     }
 }
 

@@ -1308,7 +1308,7 @@ void set_one_player_latch( const PLA_REF ipla )
     sum.y += joy_new[YY];
 
     // Read control buttons
-    if ( !ppla->draw_inventory )
+    if ( !ppla->inventoryMode )
     {
         if ( input_device_control_active( pdevice, CONTROL_JUMP ) ) 
             sum.b[LATCHBUTTON_JUMP] = true;
@@ -1345,21 +1345,29 @@ void set_one_player_latch( const PLA_REF ipla )
         //handle inventory movement
         if ( joy_pos[XX] < 0 )       new_selected--;
         else if ( joy_pos[XX] > 0 )  new_selected++;
-        if ( joy_pos[YY] < 0 )       new_selected -= pchr->getInventory().getMaxItems() / 2;
-        else if ( joy_pos[YY] > 0 )  new_selected += pchr->getInventory().getMaxItems() / 2;
 
         //clip to a valid value
         if ( ppla->inventory_slot != new_selected )
         {
-            ppla->inventory_cooldown = update_wld + 10;
-            ppla->inventory_slot = Ego::Math::constrain<size_t>( new_selected, 0, pchr->getInventory().getMaxItems() - 1 );
+            ppla->inventory_cooldown = update_wld + 5;
+
+            //Make inventory movement wrap around
+            if(new_selected < 0) {
+                new_selected = pchr->getInventory().getMaxItems() - 1;
+            }
+            else if(new_selected >= pchr->getInventory().getMaxItems()) {
+                ppla->inventory_slot = 0;
+            }
+            else {
+                ppla->inventory_slot = new_selected;
+            }
         }
 
         //handle item control
         if ( pchr->inst.action_ready && 0 == pchr->reload_timer )
         {
             //handle LEFT hand control
-            if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
+            if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) || input_device_control_active(pdevice, CONTROL_LEFT_GET) )
             {
                 //put it away and swap with any existing item
                 Inventory::swap_item( ppla->index, ppla->inventory_slot, SLOT_LEFT, false );
@@ -1370,7 +1378,7 @@ void set_one_player_latch( const PLA_REF ipla )
             }
 
             //handle RIGHT hand control
-            if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
+            if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE) || input_device_control_active( pdevice, CONTROL_RIGHT_GET) )
             {
                 // put it away and swap with any existing item
                 Inventory::swap_item( ppla->index, ppla->inventory_slot, SLOT_RIGHT, false );
@@ -1389,9 +1397,8 @@ void set_one_player_latch( const PLA_REF ipla )
     //enable inventory mode?
     if ( update_wld > ppla->inventory_cooldown && input_device_control_active( pdevice, CONTROL_INVENTORY ) )
     {
-        ppla->draw_inventory = !ppla->draw_inventory;
-        ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
-        ppla->inventory_lerp = 0xFFFF;
+        _gameEngine->getActivePlayingState()->displayCharacterWindow(ipla);
+         ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
     }
 }
 

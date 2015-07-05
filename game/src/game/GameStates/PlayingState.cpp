@@ -219,21 +219,7 @@ bool PlayingState::notifyKeyDown(const int keyCode)
         {
             //Ensure that the same character cannot open more than 1 character window
             const size_t statusNumber = keyCode - SDLK_1;
-            std::shared_ptr<Ego::GUI::CharacterWindow> chrWindow = _characterWindows[statusNumber].lock();
-            if(chrWindow == nullptr || _characterWindows[statusNumber].expired())
-            {
-                if(getStatusCharacter(statusNumber) != nullptr)
-                {
-                    chrWindow = std::make_shared<Ego::GUI::CharacterWindow>(getStatusCharacter(statusNumber));
-                    _characterWindows[statusNumber] = chrWindow;
-                    addComponent(chrWindow);
-                }
-            }
-            else
-            {
-                //Close window if same button is pressed twice
-                chrWindow->destroy();
-            }
+            displayCharacterWindow(statusNumber);
         }
         return true;
     }
@@ -293,4 +279,27 @@ std::shared_ptr<Object> PlayingState::getStatusCharacter(size_t index)
     }
 
     return status->getObject();
+}
+
+void PlayingState::displayCharacterWindow(uint8_t statusNumber)
+{
+    if(statusNumber >= _characterWindows.size()) {
+        return;
+    }
+
+    std::shared_ptr<Ego::GUI::CharacterWindow> chrWindow = _characterWindows[statusNumber].lock();
+    if(chrWindow == nullptr || _characterWindows[statusNumber].expired())
+    {
+        if(getStatusCharacter(statusNumber) != nullptr)
+        {
+            chrWindow = std::make_shared<Ego::GUI::CharacterWindow>(getStatusCharacter(statusNumber));
+            _characterWindows[statusNumber] = chrWindow;
+            addComponent(chrWindow);
+        }
+    }
+    else
+    {
+        //Close window if same button is pressed twice
+        chrWindow->destroy();
+    }
 }
