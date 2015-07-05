@@ -3163,14 +3163,8 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
     // Don't allow users with kursed weapon in the other hand to use longbows
     if ( allowedtoattack && ACTION_IS_TYPE( action, L ) )
     {
-        CHR_REF test_weapon;
-        test_weapon = pchr->holdingwhich[which_slot == SLOT_LEFT ? SLOT_RIGHT : SLOT_LEFT];
-        if ( _currentModule->getObjectHandler().exists( test_weapon ) )
-        {
-            Object * weapon;
-            weapon     = _currentModule->getObjectHandler().get( test_weapon );
-            if ( weapon->iskursed ) allowedtoattack = false;
-        }
+        const std::shared_ptr<Object> &offhandItem = which_slot == SLOT_LEFT ? pchr->getLeftHandItem() : pchr->getRightHandItem();
+        if(offhandItem && offhandItem->iskursed) allowedtoattack = false;
     }
 
     if ( !allowedtoattack )
@@ -3275,8 +3269,8 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                     }
 
                     //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.rate  = 0.35f;                                 //base attack speed
-                    pchr->inst.rate += std::min( 2.00f, chr_dex * 0.035f );         //every 10 dex increases base attack speed by 100%
+                    pchr->inst.rate  = 0.80f;                                 //base attack speed
+                    pchr->inst.rate += std::min(3.00f, chr_dex * 0.02f);         //every Agility increases base attack speed by 2%
 
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
