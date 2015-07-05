@@ -214,7 +214,7 @@ static float draw_debug(float y);
 static float draw_timer(float y);
 static float draw_game_status(float y);
 static void  draw_hud();
-static void  draw_inventory();
+//static void  draw_inventory();
 
 static gfx_rv update_one_chr_instance(Object * pchr);
 static gfx_rv gfx_update_all_chr_instance();
@@ -1434,7 +1434,7 @@ void draw_hud()
 
     gfx_begin_2d();
     {
-        draw_inventory();
+        //draw_inventory();
 
         y = draw_fps(0);
         y = draw_help(y);
@@ -1459,6 +1459,7 @@ void draw_hud()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void draw_inventory()
 {
     /// @author ZF
@@ -1594,8 +1595,8 @@ void draw_inventory()
         //prepare drawing the next inventory
         stty += height + 10;
     }
-
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 void draw_mouse_cursor()

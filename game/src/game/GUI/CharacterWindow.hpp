@@ -35,7 +35,8 @@ class CharacterWindow : public InternalWindow
 {
     public:
         CharacterWindow(const std::shared_ptr<Object> &object);
-
+        ~CharacterWindow();
+        
     private:
         int addResistanceLabel(const int x, const int y, const DamageType type);
         int addAttributeLabel(const int x, const int y, const Ego::Attribute::AttributeType type);

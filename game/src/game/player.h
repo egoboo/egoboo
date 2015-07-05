@@ -29,6 +29,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+//Forward declarations
 class Object;
 struct player_t;
 
@@ -45,10 +46,9 @@ struct player_t
     input_device_t          *pdevice;
 
     // inventory stuff
-    Uint8                   inventory_slot;
-    bool                  draw_inventory;
-    Uint32                  inventory_cooldown;
-    int                     inventory_lerp;
+    bool                    inventoryMode;          //True if input events are consumed by inventory GUI
+    uint8_t                 inventory_slot;
+    uint32_t                inventory_cooldown;
 
     /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t                 local_latch;
@@ -57,7 +57,7 @@ struct player_t
     IDSZ_node_t             quest_log[MAX_IDSZ_MAP_SIZE];          ///< lists all the character's quests
 
     // Timed latches
-    Uint32                  tlatch_count;
+    uint32_t                tlatch_count;
     time_latch_t            tlatch[MAXLAG];
 
     /// Network latch, set by net_unbuffer_player_latches(), used to set the local character's latch
@@ -87,7 +87,7 @@ inline bool VALID_PLA(const PLA_REF iplayer)
 void PlaStack_reset_all();
 CHR_REF PlaStack_get_ichr( const PLA_REF iplayer );
 Object *PlaStack_get_pchr( const PLA_REF iplayer );
-void PlaStack_add_tlatch( const PLA_REF iplayer, Uint32 time, latch_t net_latch );
+void PlaStack_add_tlatch( const PLA_REF iplayer, uint32_t time, latch_t net_latch );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -51,6 +51,8 @@ public:
 
     std::shared_ptr<Object> getStatusCharacter(size_t index);
 
+    void displayCharacterWindow(uint8_t statusNumber);
+
 protected:
     void drawContainer() override;
 
