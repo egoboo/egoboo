@@ -1032,7 +1032,7 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, Object *chr)
     self->bits   = chr->stoppedby;
     self->radius = chr->bump_1.size;
     self->pos = snap(chr->getPosition());
-    self->grid   = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(self->pos[kX], self->pos[kY])).getI();
+    self->grid   = _currentModule->getMeshPointer()->get_grid(PointWorld(self->pos[kX], self->pos[kY])).getI();
     self->valid  = (0 == ego_mesh_test_wall(_currentModule->getMeshPointer(), self->pos, self->radius, self->bits, nullptr));
 
     self->id = breadcrumb_guid++;
@@ -1067,7 +1067,7 @@ breadcrumb_t *breadcrumb_t::init(breadcrumb_t *self, prt_t *particle)
 
     fvec3_t pos = particle->getPosition();
     self->pos = snap(pos);
-    self->grid   = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(self->pos[kX], self->pos[kY])).getI();
+    self->grid   = _currentModule->getMeshPointer()->get_grid(PointWorld(self->pos[kX], self->pos[kY])).getI();
     self->valid  = ( 0 == ego_mesh_test_wall( _currentModule->getMeshPointer(), self->pos, self->radius, self->bits, nullptr));
 
     self->id = breadcrumb_guid++;

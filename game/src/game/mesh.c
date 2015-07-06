@@ -335,50 +335,38 @@ ego_mesh_t::ego_mesh_t(int tiles_x, int tiles_y) : ego_mesh_t()
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::remove_ambient( ego_mesh_t * mesh )
+void ego_mesh_t::remove_ambient()
 {
-    /// @author BB
-    /// @details remove extra ambient light in the lightmap
+   
     Uint8 min_vrt_a = 255;
 
-    if ( NULL == mesh ) return false;
-
     /// @todo Use iterator.
-    for (Uint32 cnt = 0; cnt < mesh->info.tiles_count; cnt++)
+    for (Uint32 i = 0; i < this->info.tiles_count; ++i)
     {
-        min_vrt_a = std::min(min_vrt_a, grid_mem_t::get(&(mesh->gmem),TileIndex(cnt))->a);
+        min_vrt_a = std::min(min_vrt_a, grid_mem_t::get(&(this->gmem),TileIndex(i))->a);
     }
 
     /// @todo Use iterator.
-    for (Uint32 cnt = 0; cnt < mesh->info.tiles_count; cnt++)
+    for (Uint32 i = 0; i < this->info.tiles_count; ++i)
     {
-        grid_mem_t::get(&(mesh->gmem),TileIndex(cnt))->a =
-            grid_mem_t::get(&(mesh->gmem),TileIndex(cnt))->a - min_vrt_a;
+        grid_mem_t::get(&(this->gmem),TileIndex(i))->a =
+            grid_mem_t::get(&(this->gmem),TileIndex(i))->a - min_vrt_a;
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::recalc_twist( ego_mesh_t * mesh )
+void ego_mesh_t::recalc_twist()
 {
-    ego_mesh_info_t * pinfo;
-    tile_mem_t  * ptmem;
-    grid_mem_t  * pgmem;
-
-    if ( NULL == mesh ) return false;
-    pinfo = &( mesh->info );
-    ptmem  = &( mesh->tmem );
-    pgmem  = &( mesh->gmem );
+	ego_mesh_info_t *pinfo = &(this->info);
+	tile_mem_t *ptmem = &(this->tmem);
+	grid_mem_t *pgmem = &(this->gmem);
 
     // recalculate the twist
     for (TileIndex fan = 0; fan.getI() < pinfo->tiles_count; fan++)
     {
-        Uint8 twist = cartman_get_fan_twist(mesh, fan);
+        Uint8 twist = cartman_get_fan_twist(this, fan);
         grid_mem_t::get(pgmem,fan)->twist = twist;
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -441,21 +429,15 @@ bool ego_mesh_update_texture(ego_mesh_t *self, const TileIndex& index)
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::make_texture(ego_mesh_t *self)
+void ego_mesh_t::make_texture()
 {
-    if (!self)
-    {
-        return false;
-    }
-    ego_mesh_info_t *info = &(self->info);
+    ego_mesh_info_t *info = &(this->info);
 
     // Set the texture coordinate for every vertex.
     for (TileIndex index = 0; index < info->tiles_count; index++)
     {
-        ego_mesh_update_texture(self, index);
+        ego_mesh_update_texture(this, index);
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -464,11 +446,11 @@ ego_mesh_t * ego_mesh_t::finalize( ego_mesh_t * mesh )
     if ( NULL == mesh ) return NULL;
 
     ego_mesh_make_vrtstart( mesh );
-    ego_mesh_t::remove_ambient( mesh );
-    ego_mesh_t::recalc_twist( mesh );
+	mesh->remove_ambient();
+	mesh->recalc_twist();
     ego_mesh_make_normals( mesh );
     ego_mesh_make_bbox( mesh );
-    ego_mesh_t::make_texture( mesh );
+	mesh->make_texture();
 
     // create some lists to make searching the mesh tiles easier
     mpdfx_lists_t::synch( &( mesh->fxlists ), &( mesh->gmem ), true );
@@ -967,7 +949,7 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
             int iy_off[4] = {0, 0, 1, 1};
             int i, j, k;
 
-            TileIndex fan0 = ego_mesh_t::get_tile_int( mesh, PointGrid(ix, iy));
+            TileIndex fan0 = mesh->get_tile_int(PointGrid(ix, iy));
             if ( !ego_mesh_t::grid_is_valid( mesh, fan0 ) ) continue;
 
             nrm_lst[0][kX] = ptmem->nlst[fan0.getI()][XX];
@@ -1002,7 +984,7 @@ bool ego_mesh_make_normals( ego_mesh_t * mesh )
                     jx = ix + loc_ix_off[j];
                     jy = iy + loc_iy_off[j];
 
-                    TileIndex fan1 = ego_mesh_t::get_tile_int( mesh, PointGrid(jx, jy));
+                    TileIndex fan1 = mesh->get_tile_int(PointGrid(jx, jy));
 
                     if ( ego_mesh_t::grid_is_valid( mesh, fan1 ) )
                     {
@@ -1141,7 +1123,7 @@ bool grid_light_one_corner( const ego_mesh_t * mesh, const TileIndex& fan, float
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_t::test_one_corner( ego_mesh_t * mesh, GLXvector3f pos, float * pdelta )
+void ego_mesh_t::test_one_corner(GLXvector3f pos, float *pdelta)
 {
     float loc_delta, low_delta, hgh_delta;
     float hgh_wt, low_wt;
@@ -1149,16 +1131,14 @@ bool ego_mesh_t::test_one_corner( ego_mesh_t * mesh, GLXvector3f pos, float * pd
     if ( NULL == pdelta ) pdelta = &loc_delta;
 
     // interpolate the lighting for the given corner of the mesh
-    *pdelta = grid_lighting_test( mesh, pos, &low_delta, &hgh_delta );
+	*pdelta = grid_lighting_test(this, pos, &low_delta, &hgh_delta);
 
     // determine the weighting
-    hgh_wt = ( pos[ZZ] - mesh->tmem.bbox.getMin()[kZ] ) / ( mesh->tmem.bbox.getMax()[kZ] - mesh->tmem.bbox.getMin()[kZ] );
+	hgh_wt = (pos[ZZ] - this->tmem.bbox.getMin()[kZ]) / (this->tmem.bbox.getMax()[kZ] - this->tmem.bbox.getMin()[kZ]);
     hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f );
     low_wt = 1.0f - hgh_wt;
 
     *pdelta = low_wt * low_delta + hgh_wt * hgh_delta;
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1220,7 +1200,7 @@ bool ego_mesh_test_corners( ego_mesh_t * mesh, ego_tile_info_t * ptile, float th
         plight = ( *lcache ) + corner;
         ppos   = ptmem->plst + ptile->vrtstart + corner;
 
-        ego_mesh_t::test_one_corner( mesh, *ppos, &delta );
+        mesh->test_one_corner(*ppos, &delta);
 
         if ( 0.0f == *plight )
         {
@@ -1600,7 +1580,7 @@ float ego_mesh_t::get_pressure( const ego_mesh_t * mesh, const fvec3_t& pos, flo
 
             if ( tile_valid )
             {
-                TileIndex itile = ego_mesh_t::get_tile_int( mesh, PointGrid(ix, iy));
+                TileIndex itile = mesh->get_tile_int(PointGrid(ix, iy));
                 tile_valid = ego_mesh_t::grid_is_valid( mesh, itile );
                 if ( !tile_valid )
                 {
@@ -1813,7 +1793,7 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * mesh, const fvec3_t& pos, const 
 
             if ( !invalid )
             {
-                TileIndex itile = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
+                TileIndex itile = mesh->get_tile_int(PointGrid(ix, iy));
                 if ( ego_mesh_t::grid_is_valid( mesh, itile ) )
                 {
                     BIT_FIELD mpdfx   = ego_grid_info_t::get_all_fx( pdata->glist + itile.getI() );
@@ -1886,7 +1866,7 @@ float ego_mesh_get_max_vertex_0(const ego_mesh_t *self, const PointGrid& point)
 
     if (!self) return 0.0f;
 
-    TileIndex itile = ego_mesh_t::get_tile_int(self, point);
+    TileIndex itile = self->get_tile_int(point);
     if (TileIndex::Invalid == itile)
     {
         return 0.0f;
@@ -1921,7 +1901,7 @@ float ego_mesh_get_max_vertex_1( const ego_mesh_t * mesh, const PointGrid& point
 
     if ( NULL == mesh ) return 0.0f;
 
-    TileIndex itile = ego_mesh_t::get_tile_int( mesh, point );
+    TileIndex itile = mesh->get_tile_int( point );
 
     if (TileIndex::Invalid == itile) return 0.0f;
 
@@ -2547,8 +2527,11 @@ bool mpdfx_lists_t::synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool 
 //--------------------------------------------------------------------------------------------
 bool ego_mesh_tile_has_bits( const ego_mesh_t * mesh, const PointGrid& point, const BIT_FIELD bits )
 {
+	if (!mesh) {
+		throw std::invalid_argument("nullptr == mesh");
+	}
     // Figure out which tile we are on.
-    TileIndex tileRef = ego_mesh_t::get_tile_int(mesh, point);
+    TileIndex tileRef = mesh->get_tile_int(point);
 
     // Everything outside the map bounds is wall and impassable.
     if (!ego_mesh_t::grid_is_valid(mesh, tileRef))
@@ -2588,7 +2571,7 @@ bool ego_mesh_t::grid_is_valid(const ego_mesh_t *self, const TileIndex& index)
 //--------------------------------------------------------------------------------------------
 float ego_mesh_t::getElevation(const PointWorld& point) const
 {
-    TileIndex tile = ego_mesh_t::get_grid(this, point);
+    TileIndex tile = this->get_grid(point);
     if (!ego_mesh_t::grid_is_valid(this, tile)) return 0;
 
     PointGrid gridPoint(static_cast<int>(point.getX()) & GRID_MASK,
@@ -2609,66 +2592,55 @@ float ego_mesh_t::getElevation(const PointWorld& point) const
 }
 
 //--------------------------------------------------------------------------------------------
-BlockIndex ego_mesh_t::get_block(const ego_mesh_t *self, const PointWorld& point)
+BlockIndex ego_mesh_t::get_block(const PointWorld& point) const
 {
-    if (point.getX() >= 0.0f && point.getX() <= self->gmem.edge_x && point.getY() >= 0.0f && point.getY() <= self->gmem.edge_y)
+	if (point.getX() >= 0.0f && point.getX() <= this->gmem.edge_x && point.getY() >= 0.0f && point.getY() <= this->gmem.edge_y)
     {
         PointBlock blockPoint(static_cast<int>(point.getX()) / BLOCK_ISIZE,
                               static_cast<int>(point.getY()) / BLOCK_ISIZE);
-        return ego_mesh_t::get_block_int(self, blockPoint);
+		return this->get_block_int(blockPoint);
     }
 
     return BlockIndex::Invalid;
 }
 
-//--------------------------------------------------------------------------------------------
-TileIndex ego_mesh_t::get_grid(const ego_mesh_t *self, const PointWorld& point)
+TileIndex ego_mesh_t::get_grid(const PointWorld& point) const
 {
-    if (point.getX() >= 0.0f && point.getX() < self->gmem.edge_x && point.getY() >= 0.0f && point.getY() < self->gmem.edge_y)
+    if (point.getX() >= 0.0f && point.getX() < this->gmem.edge_x && point.getY() >= 0.0f && point.getY() < this->gmem.edge_y)
     {
         // By the above, point.getX() and point.getY() are positive, hence the right shift is not a problem.
         // point.these are known to be positive, so >> is not a problem
         PointGrid gridPoint(static_cast<int>(point.getX()) >> GRID_BITS, 
                             static_cast<int>(point.getY()) >> GRID_BITS);
-        return ego_mesh_t::get_tile_int(self, gridPoint);
+        return this->get_tile_int(gridPoint);
     }
     return TileIndex::Invalid;
 }
 
-//--------------------------------------------------------------------------------------------
-BlockIndex ego_mesh_t::get_block_int(const ego_mesh_t *self, const PointBlock& point)
+BlockIndex ego_mesh_t::get_block_int(const PointBlock& point) const
 {
-    if (!self)
+    if (point.getX() < 0 || point.getX() >= this->gmem.blocks_x)
     {
         return BlockIndex::Invalid;
     }
-    if (point.getX() < 0 || point.getX() >= self->gmem.blocks_x)
+    if (point.getY() < 0 || point.getY() >= this->gmem.blocks_y)
     {
         return BlockIndex::Invalid;
     }
-    if (point.getY() < 0 || point.getY() >= self->gmem.blocks_y)
-    {
-        return BlockIndex::Invalid;
-    }
-    return point.getX() + self->gmem.blockstart[point.getY()];
+    return point.getX() + this->gmem.blockstart[point.getY()];
 }
 
-//--------------------------------------------------------------------------------------------
-TileIndex ego_mesh_t::get_tile_int(const ego_mesh_t *self, const PointGrid& point)
+TileIndex ego_mesh_t::get_tile_int(const PointGrid& point) const
 {
-    if (!self)
+    if (point.getX() < 0 || point.getX() >= this->info.tiles_x)
     {
         return TileIndex::Invalid;
     }
-    if (point.getX() < 0 || point.getX() >= self->info.tiles_x)
+	if (point.getY() < 0 || point.getY() >= this->info.tiles_y)
     {
         return TileIndex::Invalid;
     }
-    if (point.getY() < 0 || point.getY() >= self->info.tiles_y)
-    {
-        return TileIndex::Invalid;
-    }
-    return point.getX() + self->gmem.tilestart[point.getY()];
+	return point.getX() + this->gmem.tilestart[point.getY()];
 }
 
 //--------------------------------------------------------------------------------------------

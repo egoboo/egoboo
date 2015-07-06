@@ -3814,7 +3814,7 @@ float get_mesh_max_vertex_1( ego_mesh_t * mesh, const PointGrid& point, oct_bb_t
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
-        TileIndex tile = ego_mesh_t::get_tile_int( mesh, point );
+        TileIndex tile = mesh->get_tile_int( point );
 
         if ( 0 != ego_mesh_t::test_fx( mesh, tile, MAPFX_WATER ) )
         {
@@ -3908,7 +3908,7 @@ float get_chr_level( ego_mesh_t * mesh, Object * pchr )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump._mins[OCT_YX] || ftmp > bump._maxs[OCT_YX] ) continue;
 
-            TileIndex itile = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
+            TileIndex itile = mesh->get_tile_int(PointGrid(ix, iy));
             if (TileIndex::Invalid == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
@@ -4457,7 +4457,7 @@ float get_mesh_level( ego_mesh_t * mesh, float x, float y, bool waterwalk )
 
     if ( waterwalk && water._surface_level > zdone && water._is_water )
     {
-        TileIndex tile = ego_mesh_t::get_grid( mesh, PointWorld(x, y));
+        TileIndex tile = mesh->get_grid(PointWorld(x, y));
 
         if ( 0 != ego_mesh_t::test_fx( mesh, tile, MAPFX_WATER ) )
         {

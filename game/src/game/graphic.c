@@ -2123,10 +2123,10 @@ float grid_lighting_test(ego_mesh_t * mesh, GLXvector3f pos, float * low_diff, f
     iy = std::floor(pos[YY] / GRID_FSIZE);
 
     TileIndex fan[4];
-    fan[0] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
-    fan[1] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy));
-    fan[2] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy + 1));
-    fan[3] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy + 1));
+    fan[0] = mesh->get_tile_int(PointGrid(ix, iy));
+    fan[1] = mesh->get_tile_int(PointGrid(ix + 1, iy));
+    fan[2] = mesh->get_tile_int(PointGrid(ix, iy + 1));
+    fan[3] = mesh->get_tile_int(PointGrid(ix + 1, iy + 1));
 
     for (cnt = 0; cnt < 4; cnt++)
     {
@@ -2181,10 +2181,10 @@ bool grid_lighting_interpolate(const ego_mesh_t * mesh, lighting_cache_t * dst, 
     iy = std::floor(tpos[YY]);
 
     // find the tile id for the surrounding tiles
-    fan[0] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy));
-    fan[1] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy));
-    fan[2] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix, iy + 1));
-    fan[3] = ego_mesh_t::get_tile_int(mesh, PointGrid(ix + 1, iy + 1));
+    fan[0] = mesh->get_tile_int(PointGrid(ix, iy));
+    fan[1] = mesh->get_tile_int(PointGrid(ix + 1, iy));
+    fan[2] = mesh->get_tile_int(PointGrid(ix, iy + 1));
+    fan[3] = mesh->get_tile_int(PointGrid(ix + 1, iy + 1));
 
     for (cnt = 0; cnt < 4; cnt++)
     {

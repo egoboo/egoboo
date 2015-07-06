@@ -273,8 +273,8 @@ bool Object::setPosition(const fvec3_t& position)
     {
         pos = position;
 
-        _tile = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pos[kX], pos[kY]));
-        _block = ego_mesh_t::get_block(_currentModule->getMeshPointer(), PointWorld(pos[kX], pos[kY]));
+        _tile = _currentModule->getMeshPointer()->get_grid(PointWorld(pos[kX], pos[kY]));
+        _block = _currentModule->getMeshPointer()->get_block(PointWorld(pos[kX], pos[kY]));
 
         // Update whether the current object position is safe.
         chr_update_safe( this, false );

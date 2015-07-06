@@ -1882,7 +1882,7 @@ bool prt_is_over_water(const PRT_REF ref)
     if (!ALLOCATED_PRT(ref)) return false;
 
     prt_t *prt = ParticleHandler::get().get_ptr(ref);
-    TileIndex fan = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(prt->pos[kX], prt->pos[kY]));
+    TileIndex fan = _currentModule->getMeshPointer()->get_grid(PointWorld(prt->pos[kX], prt->pos[kY]));
     if (ego_mesh_t::grid_is_valid(_currentModule->getMeshPointer(), fan))
     {
         if (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), fan, MAPFX_WATER))  return true;
@@ -1932,7 +1932,7 @@ bool prt_t::update_safe_raw(prt_t * pprt)
         pprt->safe_valid = true;
         pprt->safe_pos = pprt->getPosition();
         pprt->safe_time = update_wld;
-        pprt->safe_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pprt->pos[kX], pprt->pos[kY])).getI();
+        pprt->safe_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(pprt->pos[kX], pprt->pos[kY])).getI();
 
         retval = true;
     }
@@ -1953,7 +1953,7 @@ bool prt_t::update_safe(prt_t * pprt, bool force)
     }
     else
     {
-        TileIndex new_grid = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(pprt->pos[kX], pprt->pos[kY]));
+        TileIndex new_grid = _currentModule->getMeshPointer()->get_grid(PointWorld(pprt->pos[kX], pprt->pos[kY]));
 
         if (TileIndex::Invalid == new_grid)
         {
@@ -1996,8 +1996,8 @@ bool prt_t::setPosition(const fvec3_t& position)
     {
         this->pos = position;
 
-        this->_tile = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
-        this->_block = ego_mesh_t::get_block(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
+        this->_tile = _currentModule->getMeshPointer()->get_grid(PointWorld(this->pos[kX], this->pos[kY])).getI();
+        this->_block = _currentModule->getMeshPointer()->get_block(PointWorld(this->pos[kX], this->pos[kY])).getI();
 
         // Update whether the current particle position is safe.
         prt_t::update_safe(this, false);
