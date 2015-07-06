@@ -204,7 +204,10 @@ ObjectProfile::ObjectProfile() :
 
     // random stuff
     _stickyButt(false),
-    _useManaCost(0.0f)
+    _useManaCost(0.0f),
+
+    _startingPerks(),
+    _perkPool()
 {
     _experienceRate.fill(0.0f);
     _idsz.fill(IDSZ_NONE);
@@ -908,6 +911,40 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
             }
             break;
 
+            //Perks known
+            case MAKE_IDSZ( 'P', 'E', 'R', 'K' ):
+            {
+                vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
+                const std::string perkName = buffer;
+                Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
+                if(id != Ego::Perks::NR_OF_PERKS)
+                {
+                    _startingPerks[id] = true;
+                }
+                else
+                {
+                    log_warning("Unknown [PERK] parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
+                }
+            }
+            break;
+
+            //Perk Pool
+            case MAKE_IDSZ( 'P', 'O', 'O', 'L' ):
+            {
+                vfs_get_next_string_lit(ctxt, buffer, SDL_arraysize(buffer));
+                const std::string perkName = buffer;
+                Ego::Perks::PerkID id = Ego::Perks::PerkHandler::get().fromString(perkName);
+                if(id != Ego::Perks::NR_OF_PERKS)
+                {
+                    _perkPool[id] = true;
+                }
+                else
+                {
+                    log_warning("Unknown [POOL] perk parsed: %s (%s)\n", perkName.c_str(), filePath.c_str());
+                }
+            }
+            break;
+
             default:
                 //If it is none of the predefined IDSZ extensions then add it as a new skill
                 _skills[idsz] = ctxt.readInt();
@@ -1429,4 +1466,10 @@ const FRange& ObjectProfile::getAttributeBase(Ego::Attribute::AttributeType type
 {
     EGOBOO_ASSERT(type < _baseAttribute.size()); 
     return _baseAttribute[type];    
+}
+
+bool ObjectProfile::canLearnPerk(const Ego::Perks::PerkID id) const
+{
+    if(id == Ego::Perks::NR_OF_PERKS) return false;
+    return _perkPool[id];
 }

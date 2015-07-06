@@ -584,6 +584,12 @@ public:
 
     uint16_t getAmmo() const { return ammo; }
 
+    /**
+    * @return
+    *   true if this Object has mastered the specified perk. Returns always true for NR_OF_PERKS
+    **/
+    bool hasPerk(Ego::Perks::PerkID perk) const;
+
 private:
 
     /**
@@ -599,6 +605,12 @@ private:
     *   on their fat_goto and fat_goto_time. Spellbooks do not resize
     */
     void updateResize();
+
+    /**
+    * @brief
+    *   Generates a list of all Perks that the character can currently learn
+    **/
+    std::vector<Ego::Perks::PerkID> getValidPerks() const;
 
 public:
     BSP_leaf_t     bsp_leaf;
@@ -782,6 +794,7 @@ private:
     bool _showStatus;                                    ///< Display stats?
     std::array<float, Ego::Attribute::NR_OF_ATTRIBUTES> _baseAttribute; ///< Character attributes
     Inventory _inventory;
+    std::bitset<Ego::Perks::NR_OF_PERKS> _perks;         ///< Perks known (super-efficient bool array)
 
     friend class ObjectHandler;
 };

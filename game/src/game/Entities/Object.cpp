@@ -161,7 +161,8 @@ Object::Object(const PRO_REF profile, const CHR_REF id) :
     _profile(ProfileSystem::get().getProfile(profile)),
     _showStatus(false),
     _baseAttribute(),
-    _inventory()
+    _inventory(),
+    _perks()
 {
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -1837,4 +1838,38 @@ void Object::increaseBaseAttribute(const Ego::Attribute::AttributeType type, flo
 Inventory& Object::getInventory()
 {
     return _inventory;
+}
+
+bool Object::hasPerk(Ego::Perks::PerkID perk) const
+{
+    if(perk == Ego::Perks::NR_OF_PERKS) return true;
+    return _perks[perk];
+}
+
+std::vector<Ego::Perks::PerkID> Object::getValidPerks() const
+{
+    //Build list of perks we can learn
+    std::vector<Ego::Perks::PerkID> result;
+    for(size_t i = 0; i < Ego::Perks::NR_OF_PERKS; ++i)
+    {
+        const Ego::Perks::PerkID id = static_cast<Ego::Perks::PerkID>(i);
+
+        //Can we learn this perk?
+        if(!getProfile()->canLearnPerk(id)) {
+            continue;
+        }
+
+        //Cannot learn the same perk twice
+        if(hasPerk(id)) {
+            continue;
+        }
+
+        //Do we fulfill the requirements for this perk?
+        const Ego::Perks::Perk& perk = Ego::Perks::PerkHandler::get().getPerk(id);
+        if(!hasPerk(perk.getRequirement())) {
+            result.push_back(id);
+        }
+    }
+
+    return result;
 }
