@@ -9,16 +9,15 @@ public:
     Image();
     Image(const std::string &filePath);
     Image(oglx_texture_t *texture);
-    ~Image();
 
     virtual void draw() override;
 
     void setImage(const std::string &filePath);
 
-    inline int getTextureWidth() const { return _image->getSourceWidth(); }
-    inline int getTextureHeight() const { return _image->getSourceHeight(); }
+    int getTextureWidth();
+    int getTextureHeight();
 
 private:
+    Ego::DeferredOpenGLTexture _texture;
     oglx_texture_t *_image;
-    bool _freeOnDestroy;
 };

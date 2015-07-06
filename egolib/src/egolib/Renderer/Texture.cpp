@@ -270,23 +270,23 @@ struct CErrorTexture
     /// The OpenGL ID of this error texture.
     GLuint _id;
     char *_name;
-    const char *getName()
+    const char *getName() const
     {
         return _name;
     }
-    int getSourceWidth()
+    int getSourceWidth() const
     {
         return _image->w;
     }
-    int getSourceHeight()
+    int getSourceHeight() const
     {
         return _image->h;
     }
-    int getWidth()
+    int getWidth() const
     {
         return getSourceWidth();
     }
-    int getHeight()
+    int getHeight() const
     {
         return getSourceHeight();
     }
@@ -407,6 +407,7 @@ GLuint get2DErrorTextureID()
 
 bool isErrorTextureID(GLuint id)
 {
+    if(!_errorTexture1D || !_errorTexture2D) return false;
     return id == _errorTexture1D->_id
         || id == _errorTexture2D->_id;
 }
@@ -544,7 +545,7 @@ void  oglx_texture_t::release()
     glDeleteTextures(1, &(_id));
     Ego::OpenGL::Utilities::isError();
 
-    // Delete the source if it exist.
+    // Delete the source if it exists
     if (_source)
     {
         _source = nullptr;
@@ -553,22 +554,27 @@ void  oglx_texture_t::release()
     // The texture is the 2D error texture.
     _type = Ego::TextureType::_2D;
     _id = _errorTexture2D->_id;
+
     // The texture coordinates of this texture are repeated along the s and t axes.
     _addressModeS = Ego::TextureAddressMode::Repeat;
     _addressModeT = Ego::TextureAddressMode::Repeat;
+
     // The size (width and height) of this texture is the size of the error image.
     _width = _errorTexture2D->getWidth();
     _height = _errorTexture2D->getHeight();
+
     // The size (width and height) the source of this texture is the size of the error image as well.
     _sourceWidth = _errorTexture2D->getSourceWidth();
     _sourceHeight = _errorTexture2D->getSourceHeight();
+
     // The texture has the empty string as its name and the source is not available.
     _name = _errorTexture2D->getName();
+    
     // (The error texture has no alpha component).
     _hasAlpha = false;
 }
 
-void oglx_texture_t::bind(oglx_texture_t *texture)
+void oglx_texture_t::bind(const oglx_texture_t *texture)
 {
     /// @author BB
     /// @details a oglx_texture_t wrapper for oglx_bind_to_tex_params() function

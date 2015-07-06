@@ -23,17 +23,16 @@
 
 #include "game/GUI/InternalWindow.hpp"
 
+static const int BORDER_PIXELS = 5;
+
 InternalWindow::TitleBar::TitleBar(const std::string &title) :
-    _titleBarTexture(std::unique_ptr<oglx_texture_t>(new oglx_texture_t())),
-    _titleSkull(std::unique_ptr<oglx_texture_t>(new oglx_texture_t())),
+    _titleBarTexture("mp_data/titlebar"),
+    _titleSkull("mp_data/gui-skull"),
     _font(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)),
     _title(title),
     _textWidth(0),
     _textHeight(0)
 {
-    ego_texture_load_vfs(_titleBarTexture.get(), "mp_data/titlebar", TRANSCOLOR);
-    ego_texture_load_vfs(_titleSkull.get(), "mp_data/gui-skull", TRANSCOLOR);
-
     //Make title upper case
     std::transform(_title.begin(), _title.end(), _title.begin(), ::toupper);
 
@@ -41,26 +40,26 @@ InternalWindow::TitleBar::TitleBar(const std::string &title) :
     _font->getTextSize(_title, &_textWidth, &_textHeight);
     _textWidth = std::max<int>(32, _textWidth);
     _textHeight = std::max<int>(32, _textHeight);
-    setSize(_textWidth + 20, _textHeight);
+    setSize(_textWidth + 20, _textHeight+5);
 }
 
 void InternalWindow::TitleBar::draw()
 {
     //Background
-    _gameEngine->getUIManager()->drawImage(*_titleBarTexture.get(), getX()-5, getY(), getWidth()+10, getHeight());
+    _gameEngine->getUIManager()->drawImage(_titleBarTexture.get(), getX()-BORDER_PIXELS*2, getY(), getWidth()+BORDER_PIXELS*4, getHeight());
 
     //Title String
-    _font->drawText(_title, getX() + getWidth()/2 - _textWidth/2, getY() - _textHeight/2, Ego::Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
+    _font->drawText(_title, getX() + getWidth()/2 - _textWidth/2, getY() + 12, Ego::Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
 
     //Draw the skull icon on top
-    const int skullWidth = _titleSkull->getWidth()/2;
-    const int skullHeight = _titleSkull->getHeight()/2;
-    _gameEngine->getUIManager()->drawImage(*_titleSkull.get(), getX()+getWidth()/2 - skullWidth/2, getY() - skullHeight/2, skullWidth, skullHeight);
+    const int skullWidth = _titleSkull.get().getWidth()/2;
+    const int skullHeight = _titleSkull.get().getHeight()/2;
+    _gameEngine->getUIManager()->drawImage(_titleSkull.get(), getX()+getWidth()/2 - skullWidth/2, getY() - skullHeight/2, skullWidth, skullHeight);
 }
 
 InternalWindow::InternalWindow(const std::string &title) :
     _titleBar(new TitleBar(title)),
-    _background(std::unique_ptr<oglx_texture_t>(new oglx_texture_t())),
+    _background("mp_data/guiwindow"),
     _mouseOver(false),
     _mouseOverCloseButton(false),
     _isDragging(false),
@@ -68,16 +67,13 @@ InternalWindow::InternalWindow(const std::string &title) :
     _transparency(0.33f),
     _firstDraw(true)
 {
-    //Load background
-    ego_texture_load_vfs(_background.get(), "mp_data/guiwindow", TRANSCOLOR);
-
     setPosition(20, 20);
 }
 
 void InternalWindow::drawContainer()
 {
     //Draw background first
-    _gameEngine->getUIManager()->drawImage(*_background.get(), getX(), getY(), getWidth(), getHeight(), Ego::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
+    _gameEngine->getUIManager()->drawImage(_background.get(), getX()-BORDER_PIXELS, getY()-BORDER_PIXELS, getWidth()+BORDER_PIXELS*2, getHeight()+BORDER_PIXELS*2, Ego::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
     //Draw window title
     _titleBar->draw();

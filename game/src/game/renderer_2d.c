@@ -351,7 +351,7 @@ void gfx_reshape_viewport(int w, int h)
 //--------------------------------------------------------------------------------------------
 // PRIMITIVES
 //--------------------------------------------------------------------------------------------
-void draw_quad_2d(oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
+void draw_quad_2d(const oglx_texture_t *tex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const Ego::Colour4f& tint)
 {
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
     {
