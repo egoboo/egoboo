@@ -2946,6 +2946,11 @@ void move_one_character_do_voluntary( Object * pchr )
     float dvx = pchr->latch.x;
     float dvy = pchr->latch.y;
 
+    //Increase movement by 1% per Agility above 10 (below 10 agility reduces movement speed!)
+    //const float speedBonus = 0.9f + pchr->getAttribute(Ego::Attribute::AGILITY) * 0.01f;
+    //dvx *= speedBonus;
+    //dvy *= speedBonus;
+
     // Reverse movements for daze
     if ( pchr->daze_timer > 0 )
     {
@@ -2966,7 +2971,7 @@ void move_one_character_do_voluntary( Object * pchr )
     if ( chr_get_framefx( pchr ) & MADFX_STOP )
     {
         //TODO: ZF> might want skill that allows movement while blocking and attacking
-        maxspeed = 0;
+        maxspeed = 0.0f;
     }
 
     bool sneak_mode_active = false;
@@ -2982,7 +2987,7 @@ void move_one_character_do_voluntary( Object * pchr )
     {
         float dv2 = dvx * dvx + dvy * dvy;
 
-        if ( VALID_PLA( pchr->is_which_player ) )
+        if (pchr->isPlayer())
         {
             float dv = std::pow( dv2, 0.25f );
 
@@ -3039,15 +3044,15 @@ void move_one_character_do_voluntary( Object * pchr )
     new_ay *= pchr->enviro.traction;
 
     //Limit movement to the max acceleration
-    new_ax = CLIP( new_ax, -pchr->maxaccel, pchr->maxaccel );
-    new_ay = CLIP( new_ay, -pchr->maxaccel, pchr->maxaccel );
+    new_ax = Ego::Math::constrain( new_ax, -pchr->maxaccel, pchr->maxaccel );
+    new_ay = Ego::Math::constrain( new_ay, -pchr->maxaccel, pchr->maxaccel );
 
     //Figure out how to turn around
     if ( 0 != pchr->maxaccel )
     {
         switch ( pchr->turnmode )
         {
-                // Get direction from ACTUAL change in velocity
+            // Get direction from ACTUAL change in velocity
             default:
             case TURNMODE_VELOCITY:
                 {
@@ -3067,7 +3072,7 @@ void move_one_character_do_voluntary( Object * pchr )
                 }
                 break;
 
-                // Get direction from the DESIRED change in velocity
+            // Get direction from the DESIRED change in velocity
             case TURNMODE_WATCH:
                 {
                     if (( std::abs( dvx ) > WATCHMIN || std::abs( dvy ) > WATCHMIN ) )
@@ -3077,7 +3082,7 @@ void move_one_character_do_voluntary( Object * pchr )
                 }
                 break;
 
-                // Face the target
+            // Face the target
             case TURNMODE_WATCHTARGET:
                 {
                     if ( ichr != pchr->ai.target )
@@ -3087,7 +3092,7 @@ void move_one_character_do_voluntary( Object * pchr )
                 }
                 break;
 
-                // Otherwise make it spin
+            // Otherwise make it spin
             case TURNMODE_SPIN:
                 {
                     pchr->ori.facing_z += SPINRATE;
@@ -3258,7 +3263,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                 }
                 else
                 {
-                    const float chr_dex = pchr->getAttribute(Ego::Attribute::AGILITY);
+                    const float agility = pchr->getAttribute(Ego::Attribute::AGILITY);
 
                     chr_play_action( pchr, action, false );
 
@@ -3270,14 +3275,14 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
 
                     //Determine the attack speed (how fast we play the animation)
                     pchr->inst.rate  = 0.80f;                                 //base attack speed
-                    pchr->inst.rate += std::min(3.00f, chr_dex * 0.02f);         //every Agility increases base attack speed by 2%
+                    pchr->inst.rate += std::min(3.00f, agility * 0.02f);      //every Agility increases base attack speed by 2%
 
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
                     //reduce reload time for spells or gonnes here.
                     if ( !weaponProfile->hasFastAttack() )
                     {
-                        int base_reload_time = -chr_dex;
+                        int base_reload_time = -agility;
                         if ( ACTION_IS_TYPE( action, U ) )      base_reload_time += 50;     //Unarmed  (Fists)
                         else if ( ACTION_IS_TYPE( action, T ) ) base_reload_time += 55;     //Thrust   (Spear)
                         else if ( ACTION_IS_TYPE( action, C ) ) base_reload_time += 85;     //Chop     (Axe)
@@ -3288,7 +3293,7 @@ bool chr_do_latch_attack( Object * pchr, slot_t which_slot )
                         else if ( ACTION_IS_TYPE( action, F ) ) base_reload_time += 60;     //Flinged  (Unused)
 
                         //it is possible to have so high dex to eliminate all reload time
-                        if ( base_reload_time > 0 ) pweapon->reload_timer = ( int )pweapon->reload_timer + base_reload_time;
+                        if ( base_reload_time > 0 ) pweapon->reload_timer += base_reload_time;
                     }
                 }
 

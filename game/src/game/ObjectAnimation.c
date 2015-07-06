@@ -349,8 +349,6 @@ float set_character_animation_rate( Object * pchr )
     int    action, lip;
     bool found;
 
-    chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
-
     mad_t          * pmad;
 
     // set the character speed to zero
@@ -401,6 +399,7 @@ float set_character_animation_rate( Object * pchr )
     if ( NULL == pmad ) return pinst.rate;
 
     //---- set up the anim_info structure
+    chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
     anim_info[CHR_MOVEMENT_STOP ].speed = 0;
     anim_info[CHR_MOVEMENT_SNEAK].speed = pchr->anim_speed_sneak;
     anim_info[CHR_MOVEMENT_WALK ].speed = pchr->anim_speed_walk;
@@ -549,11 +548,6 @@ float set_character_animation_rate( Object * pchr )
         found = true;
     }
 
-    if ( !found )
-    {
-        return pinst.rate;
-    }
-
     if ( ACTION_DA == action )
     {
         // Do standstill
@@ -601,7 +595,8 @@ float set_character_animation_rate( Object * pchr )
         }
     }
 
-    pinst.rate = CLIP( pinst.rate, 0.1f, 10.0f );
+    //Limit final animation speed
+    pinst.rate = Ego::Math::constrain(pinst.rate, 0.1f, 3.0f);
 
     return pinst.rate;
 }
