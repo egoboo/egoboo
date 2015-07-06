@@ -137,6 +137,15 @@ private:
      */
     virtual ~ImageManager();
 
+private:
+	/**
+	 * @brief
+	 *	Register the image loaders supported by SDL image.
+	 * @param flags
+	 *	the return value of the call to IMG_init indicating which loaders are available.
+	 */
+	void registerImageLoaders(int flags);
+
 public:
     /**
      * @brief
