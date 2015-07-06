@@ -23,25 +23,54 @@
 
 #include "game/GUI/InternalWindow.hpp"
 
+InternalWindow::TitleBar::TitleBar(const std::string &title) :
+    _titleBarTexture(std::unique_ptr<oglx_texture_t>(new oglx_texture_t())),
+    _titleSkull(std::unique_ptr<oglx_texture_t>(new oglx_texture_t())),
+    _font(_gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)),
+    _title(title),
+    _textWidth(0),
+    _textHeight(0)
+{
+    ego_texture_load_vfs(_titleBarTexture.get(), "mp_data/titlebar", TRANSCOLOR);
+    ego_texture_load_vfs(_titleSkull.get(), "mp_data/gui-skull", TRANSCOLOR);
+
+    //Make title upper case
+    std::transform(_title.begin(), _title.end(), _title.begin(), ::toupper);
+
+    //Set size depending on title string
+    _font->getTextSize(_title, &_textWidth, &_textHeight);
+    _textWidth = std::max<int>(32, _textWidth);
+    _textHeight = std::max<int>(32, _textHeight);
+    setSize(_textWidth + 20, _textHeight);
+}
+
+void InternalWindow::TitleBar::draw()
+{
+    //Background
+    _gameEngine->getUIManager()->drawImage(*_titleBarTexture.get(), getX()-5, getY(), getWidth()+10, getHeight());
+
+    //Title String
+    _font->drawText(_title, getX() + getWidth()/2 - _textWidth/2, getY() - _textHeight/2, Ego::Colour4f(0.28f, 0.16f, 0.07f, 1.0f));
+
+    //Draw the skull icon on top
+    const int skullWidth = _titleSkull->getWidth()/2;
+    const int skullHeight = _titleSkull->getHeight()/2;
+    _gameEngine->getUIManager()->drawImage(*_titleSkull.get(), getX()+getWidth()/2 - skullWidth/2, getY() - skullHeight/2, skullWidth, skullHeight);
+}
+
 InternalWindow::InternalWindow(const std::string &title) :
+    _titleBar(new TitleBar(title)),
     _background(std::unique_ptr<oglx_texture_t>(new oglx_texture_t())),
     _mouseOver(false),
     _mouseOverCloseButton(false),
     _isDragging(false),
     _mouseDragOffset{0, 0},
-    _title(title),
     _transparency(0.33f),
     _firstDraw(true)
 {
     //Load background
-    ego_texture_load_vfs(_background.get(), "mp_data/tooltip", TRANSCOLOR);
+    ego_texture_load_vfs(_background.get(), "mp_data/guiwindow", TRANSCOLOR);
 
-    //Set window size depending on title string
-    int textWidth, textHeight;
-    _gameEngine->getUIManager()->getDefaultFont()->getTextSize(_title, &textWidth, &textHeight);
-    textWidth = std::max(32, textWidth);
-    textHeight = std::max(8, textHeight);
-    setSize(std::max(getWidth(), 5 + static_cast<int>(textWidth*1.5f)), getY()+textHeight+5);
     setPosition(20, 20);
 }
 
@@ -51,12 +80,12 @@ void InternalWindow::drawContainer()
     _gameEngine->getUIManager()->drawImage(*_background.get(), getX(), getY(), getWidth(), getHeight(), Ego::Colour4f(1.0f, 1.0f, 1.0f, 0.9f));
 
     //Draw window title
-    _gameEngine->getUIManager()->getDefaultFont()->drawText(_title, getX() + 5, getY());
+    _titleBar->draw();
 
     //Draw an X in top right corner
     Ego::Math::Colour4f X_HOVER = Ego::Math::Colour4f::white();
     Ego::Math::Colour4f X_DEFAULT(.56f, .56f, .56f, 1.0f);
-    _gameEngine->getUIManager()->getDefaultFont()->drawText("X", getX() + getWidth() - 16, getY(), _mouseOverCloseButton ? X_HOVER : X_DEFAULT);
+    _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->drawText("X", getX() + getWidth() - 20, getY() + 20, _mouseOverCloseButton ? X_HOVER : X_DEFAULT);
 }
 
 bool InternalWindow::notifyMouseMoved(const int x, const int y)
@@ -66,11 +95,11 @@ bool InternalWindow::notifyMouseMoved(const int x, const int y)
         return true;
     }
     else {
-        _mouseOver = contains(x, y);
+        _mouseOver = InternalWindow::contains(x, y) || _titleBar->contains(x, y);
 
         //Check if mouse is hovering over the close button
         if(_mouseOver) {
-            Ego::Rectangle<int> closeButton = Ego::Rectangle<int>(getX() + getWidth()-32, getY()+32, getX() + getWidth(), getY());
+            Ego::Rectangle<int> closeButton = Ego::Rectangle<int>(getX() + getWidth()-32, getY(), getX() + getWidth(), getY()-32);
             _mouseOverCloseButton = closeButton.point_inside(x, y);
         }
         else {
@@ -96,7 +125,7 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
         bringToFront();
 
         //Only the top title bar triggers dragging
-        if(y-getY() < _gameEngine->getUIManager()->getFont(UIManager::FONT_DEFAULT)->getFontHeight()) {
+        if(_titleBar->contains(x, y)) {
             _isDragging = true;
             _mouseDragOffset.x = getX() - x;
             _mouseDragOffset.y = getY() - y;
@@ -139,6 +168,9 @@ void InternalWindow::setPosition(const int x, const int y)
     //Shift window position
     GUIComponent::setPosition(x, y);
 
+    //Update titlebar position
+    _titleBar->setPosition(x, y - _titleBar->getHeight()/2);
+
     //Shift all child components as well
     for(const std::shared_ptr<GUIComponent> &component : ComponentContainer::iterator())
     {
@@ -164,5 +196,17 @@ void InternalWindow::addComponent(std::shared_ptr<GUIComponent> component)
     if(!_firstDraw) {
         component->setPosition(component->getX()+getX(), component->getY()+getY());
     }
+ 
+    //Dynamically resize window to fit added components
+    //TODO
+
     ComponentContainer::addComponent(component);
+}
+
+void InternalWindow::setSize(const int width, const int height)
+{
+    //Also update the width of the title bar if our with changes
+    _titleBar->setSize(width, _titleBar->getHeight());
+
+    GUIComponent::setSize(width, height);
 }
