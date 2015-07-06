@@ -92,7 +92,7 @@ public:
      * @brief
      *  Convinience function to draw a 2D image
      */
-    void drawImage(oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
+    void drawImage(const oglx_texture_t &img, float x, float y, float width, float height, const Ego::Colour4f& tint = Ego::Colour4f::white());
 
 private:
     std::array<std::shared_ptr<Ego::Font>, NR_OF_UI_FONTS> _fonts;

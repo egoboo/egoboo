@@ -90,13 +90,7 @@ namespace Ego
     
     void Font::getTextSize(const std::string &text, int *width, int *height) const
     {
-        if (_ttfFont == nullptr) return;
-        
-        int w = 0;
-        int h = 0;
-        if (width == nullptr) width = &w;
-        if (height == nullptr) height = &h;
-        
+        if (_ttfFont == nullptr) return;        
         TTF_SizeUTF8(_ttfFont, text.c_str(), width, height);
     }
     

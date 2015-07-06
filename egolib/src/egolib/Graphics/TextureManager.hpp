@@ -155,4 +155,8 @@ public:
     TX_REF load(const char *filename, const TX_REF ref, Uint32 key = INVALID_KEY);
     oglx_texture_t *get_valid_ptr(const TX_REF ref);
 
+    inline std::unordered_map<std::string, std::shared_ptr<oglx_texture_t>>& getTextureCache() { return _textureCache; }
+
+private:
+    std::unordered_map<std::string, std::shared_ptr<oglx_texture_t>> _textureCache;
 };

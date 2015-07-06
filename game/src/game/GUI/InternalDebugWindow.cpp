@@ -26,6 +26,7 @@
 InternalDebugWindow::InternalDebugWindow(const std::string &title) : InternalWindow(title),
 	_watchedVariables()
 {
+    setSize(200, 75);
 }
 
 void InternalDebugWindow::addWatchVariable(const std::string &variableName, std::function<std::string()> lambda)
