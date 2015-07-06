@@ -123,3 +123,7 @@ install: egoboo
 	#####################################
 	# Egoboo installation is finished
 	#####################################
+
+uninstall:
+	rm $(PREFIX)/games/$(EGO_TARGET)
+	${MAKE} -C $(INSTALL_DIR) uninstall PROJ_NAME=$(EGO_TARGET)
