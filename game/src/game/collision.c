@@ -3275,29 +3275,34 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
 
     float knockbackFactor = 1.0f;
 
-    //Adjust knockback based on relative mass between particle and target
-    if(pdata.pchr->phys.bumpdampen != 0.0f && CHR_INFINITE_WEIGHT != pdata.pchr->phys.weight) {
-        float targetMass, particleMass;
-        get_chr_mass(pdata.pchr, &targetMass);
-        get_prt_mass(pdata.pprt, pdata.pchr, &particleMass);
-        //knockbackFactor *= Ego::Math::constrain(particleMass / targetMass, 0.0f, 3.0f);
-    }
-
-    //If we are attached to a weapon then the attacker's Might can increase knockback
-    const std::shared_ptr<Object>& weaponHolder = _currentModule->getObjectHandler()[pdata.pprt->attachedto_ref];
-    if (weaponHolder)
+    //If we are attached to a Object then the attacker's Might can increase knockback
+    std::shared_ptr<Object> attacker = _currentModule->getObjectHandler()[pdata.pprt->attachedto_ref];
+    if (attacker)
     {
-        const float attackerMight = weaponHolder->getAttribute(Ego::Attribute::MIGHT) - 10.0f;
+        //If we are actually a weapon, use the weapon holder's strength
+        if(attacker->isBeingHeld()) {
+            attacker = _currentModule->getObjectHandler()[attacker->attachedto];
+        }
+
+        const float attackerMight = attacker->getAttribute(Ego::Attribute::MIGHT) - 10.0f;
 
         //Add 2% knockback per point of Might above 10
         if(attackerMight >= 0.0f) {
             knockbackFactor += attackerMight * 0.02f;
         }
 
-        //Reduce knockback by 5% per point of Might below 10
+        //Reduce knockback by 10% per point of Might below 10
         else {
-            knockbackFactor += attackerMight * 0.05f;
+            knockbackFactor += attackerMight * 0.1f;
         }
+    }
+
+    //Adjust knockback based on relative mass between particle and target
+    if(pdata.pchr->phys.bumpdampen != 0.0f && CHR_INFINITE_WEIGHT != pdata.pchr->phys.weight) {
+        float targetMass, particleMass;
+        get_chr_mass(pdata.pchr, &targetMass);
+        get_prt_mass(pdata.pprt, pdata.pchr, &particleMass);
+        knockbackFactor *= Ego::Math::constrain(particleMass / targetMass, 0.0f, 3.0f);
     }
 
     //Amount of knockback is affected by damage type
@@ -3319,8 +3324,8 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
         break;
     }
 
-    //Apply knockback to the victim (limit between 0% and 400% knockback)
-    pdata.pchr->phys.avel += pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 4.0f);
+    //Apply knockback to the victim (limit between 0% and 300% knockback)
+    pdata.pchr->phys.avel += pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 3.0f);
 }
 
 //--------------------------------------------------------------------------------------------
