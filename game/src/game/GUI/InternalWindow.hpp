@@ -71,7 +71,7 @@ class InternalWindow : public GUIComponent, public ComponentContainer
         bool _mouseOver;
         bool _mouseOverCloseButton;
         bool _isDragging;
-        SDL_Point _mouseDragOffset;
+        Vector2f _mouseDragOffset;
         float _transparency;
         bool _firstDraw;
 };
