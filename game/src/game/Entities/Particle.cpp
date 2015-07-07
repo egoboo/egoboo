@@ -332,7 +332,6 @@ prt_t *prt_t::config_do_init()
 
     int     velocity;
     fvec3_t vel;
-    float   tvel;
     int     offsetfacing = 0, newrand;
     fvec3_t tmp_pos;
     TURN_T  turn;
@@ -431,36 +430,49 @@ prt_t *prt_t::config_do_init()
 
             // Find a target
             pprt->target_ref = prt_find_target(pdata->pos, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget);
-            if (_currentModule->getObjectHandler().exists(pprt->target_ref) && !ppip->homing)
+            const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pprt->target_ref];
+
+            if (target && !ppip->homing)
             {
                 /// @note ZF@> ?What does this do?!
                 /// @note BB@> glouseangle is the angle found in prt_find_target()
                 loc_facing -= glouseangle;
             }
 
-            // Correct loc_facing for dexterity...
+            //Agility determines how good we aim towards the target
             offsetfacing = 0;
             if ( attackerAgility < PERFECT_AIM)
             {
-                // Correct loc_facing for randomness
-                offsetfacing = generate_irand_pair(ppip->facing_pair) - (ppip->facing_pair.base + ppip->facing_pair.rand / 2);
-                offsetfacing = (offsetfacing * (PERFECT_AIM - attackerAgility)) / PERFECT_AIM;
+                //Add some random error (Apply 50% error at 10 Agility)
+                float aimError = 0.5f;
+
+                //Increase aim error by 5% for each Agility below 10 (up to a max of 100% error at 0 Agility)
+                if(attackerAgility < 10.0f) {
+                    aimError += 0.5f - (attackerAgility*0.05f);
+                }
+                else {
+                    //Agility reduces aim error (convering towards 0% error at 45 Agility)
+                    aimError -= (0.5f/PERFECT_AIM) * attackerAgility;
+                }
+
+                offsetfacing = Random::next(ppip->facing_pair.rand) - (ppip->facing_pair.rand / 2);
+                offsetfacing *= aimError;
             }
 
             if (0.0f != ppip->zaimspd)
             {
-                if (_currentModule->getObjectHandler().exists(pprt->target_ref))
+                if (target)
                 {
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if (velocity > 0)
                     {
-                        vel[kX] = _currentModule->getObjectHandler().get(pprt->target_ref)->getPosX() - pdata->pos[kX];
-                        vel[kY] = _currentModule->getObjectHandler().get(pprt->target_ref)->getPosY() - pdata->pos[kY];
-                        tvel = std::sqrt(vel[kX] * vel[kX] + vel[kY] * vel[kY]) / velocity;  // This is the number of steps...
-                        if (tvel > 0.0f)
+                        vel[kX] = target->getPosX() - pdata->pos[kX];
+                        vel[kY] = target->getPosY() - pdata->pos[kY];
+                        float distance = std::sqrt(vel[kX] * vel[kX] + vel[kY] * vel[kY]) / velocity;  // This is the number of steps...
+                        if (distance > 0.0f)
                         {
                             // This is the vel[kZ] alteration
-                            vel[kZ] = (_currentModule->getObjectHandler().get(pprt->target_ref)->getPosZ() + (_currentModule->getObjectHandler().get(pprt->target_ref)->bump.height * 0.5f) - tmp_pos[kZ]) / tvel;
+                            vel[kZ] = (target->getPosZ() + (target->bump.height * 0.5f) - tmp_pos[kZ]) / distance;
                         }
                     }
                 }
@@ -469,22 +481,24 @@ prt_t *prt_t::config_do_init()
                     vel[kZ] = 0.5f * ppip->zaimspd;
                 }
 
-                vel[kZ] = CLIP(vel[kZ], -0.5f * ppip->zaimspd, ppip->zaimspd);
+                vel[kZ] = Ego::Math::constrain(vel[kZ], -0.5f * ppip->zaimspd, ppip->zaimspd);
             }
         }
 
+        const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[pprt->target_ref];
+
         // Does it go away?
-        if (!_currentModule->getObjectHandler().exists(pprt->target_ref) && ppip->needtarget)
+        if (!target && ppip->needtarget)
         {
             end_one_particle_in_game(iprt);
             return NULL;
         }
 
         // Start on top of target
-        if (_currentModule->getObjectHandler().exists(pprt->target_ref) && ppip->startontarget)
+        if (target && ppip->startontarget)
         {
-            tmp_pos[kX] = _currentModule->getObjectHandler().get(pprt->target_ref)->getPosX();
-            tmp_pos[kY] = _currentModule->getObjectHandler().get(pprt->target_ref)->getPosY();
+            tmp_pos[kX] = target->getPosX();
+            tmp_pos[kY] = target->getPosY();
         }
     }
     else
@@ -1187,7 +1201,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_do_homing()
 prt_bundle_t *prt_bundle_t::updateParticleSimpleGravity()
 {
     //Only do gravity for solid particles
-    if (!this->_prt_ptr->no_gravity && this->_prt_ptr->type == SPRITE_SOLID && !this->_prt_ptr->is_homing  && !_currentModule->getObjectHandler().exists(this->_prt_ptr->attachedto_ref))
+    if (!this->_prt_ptr->no_gravity && this->_prt_ptr->type == SPRITE_SOLID && !this->_prt_ptr->is_homing && !_currentModule->getObjectHandler().exists(this->_prt_ptr->attachedto_ref))
     {
         this->_prt_ptr->vel[kZ] += Physics::g_environment.gravity 
                                   * Physics::g_environment.airfriction;
