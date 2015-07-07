@@ -63,7 +63,7 @@ InternalWindow::InternalWindow(const std::string &title) :
     _mouseOver(false),
     _mouseOverCloseButton(false),
     _isDragging(false),
-    _mouseDragOffset{0, 0},
+    _mouseDragOffset(0, 0),
     _transparency(0.33f),
     _firstDraw(true)
 {
@@ -78,7 +78,7 @@ void InternalWindow::drawContainer()
     //Draw window title
     _titleBar->draw();
 
-    //Draw an X in top right corner
+    //Draw an X in top right corner (TODO: Make into a proper button)
     Ego::Math::Colour4f X_HOVER = Ego::Math::Colour4f::white();
     Ego::Math::Colour4f X_DEFAULT(.56f, .56f, .56f, 1.0f);
     _gameEngine->getUIManager()->getFont(UIManager::FONT_GAME)->drawText("X", getX() + getWidth() - 20, getY() + 20, _mouseOverCloseButton ? X_HOVER : X_DEFAULT);
@@ -87,15 +87,16 @@ void InternalWindow::drawContainer()
 bool InternalWindow::notifyMouseMoved(const int x, const int y)
 {
     if(_isDragging) {
-        setPosition(x+_mouseDragOffset.x, y+_mouseDragOffset.y);
+        setPosition( Ego::Math::constrain<int>(x+_mouseDragOffset[0], 0, _gameEngine->getUIManager()->getScreenWidth()-getWidth()), 
+                     Ego::Math::constrain<int>(y+_mouseDragOffset[1], _titleBar->getHeight()/2, _gameEngine->getUIManager()->getScreenHeight()-getHeight()) );
         return true;
     }
     else {
         _mouseOver = InternalWindow::contains(x, y) || _titleBar->contains(x, y);
 
-        //Check if mouse is hovering over the close button
+        //Check if mouse is hovering over the close button (TODO: Make into a proper button)
         if(_mouseOver) {
-            Ego::Rectangle<int> closeButton = Ego::Rectangle<int>(getX() + getWidth()-32, getY(), getX() + getWidth(), getY()-32);
+            Ego::Rectangle<int> closeButton = Ego::Rectangle<int>(getX() + getWidth() - 20 - BORDER_PIXELS*2, getY() + 25 + BORDER_PIXELS*2, getX() + getWidth()-BORDER_PIXELS, getY()+15);
             _mouseOverCloseButton = closeButton.point_inside(x, y);
         }
         else {
@@ -123,8 +124,8 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
         //Only the top title bar triggers dragging
         if(_titleBar->contains(x, y)) {
             _isDragging = true;
-            _mouseDragOffset.x = getX() - x;
-            _mouseDragOffset.y = getY() - y;
+            _mouseDragOffset[0] = getX() - x;
+            _mouseDragOffset[1] = getY() - y;
 
             //Move the window immediatly
             return notifyMouseMoved(x, y);
@@ -138,6 +139,12 @@ bool InternalWindow::notifyMouseClicked(const int button, const int x, const int
     }
 
     return ComponentContainer::notifyMouseClicked(button, x, y);
+}
+
+bool InternalWindow::notifyMouseReleased(const int button, const int x, const int y)
+{
+    _isDragging = false;
+    return false;
 }
 
 void InternalWindow::draw()
@@ -179,12 +186,6 @@ void InternalWindow::setTransparency(float alpha)
     _transparency = Ego::Math::constrain(alpha, 0.0f, 1.0f);
 }
 
-bool InternalWindow::notifyMouseReleased(const int button, const int x, const int y)
-{
-    _isDragging = false;
-    return false;
-}
-
 void InternalWindow::addComponent(std::shared_ptr<GUIComponent> component)
 {
     //Make sure that all components added to this window are placed relative to 
@@ -192,9 +193,6 @@ void InternalWindow::addComponent(std::shared_ptr<GUIComponent> component)
     if(!_firstDraw) {
         component->setPosition(component->getX()+getX(), component->getY()+getY());
     }
- 
-    //Dynamically resize window to fit added components
-    //TODO
 
     ComponentContainer::addComponent(component);
 }
