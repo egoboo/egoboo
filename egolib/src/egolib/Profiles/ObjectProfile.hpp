@@ -282,7 +282,11 @@ public:
 
     inline PIP_REF getAttackParticleProfile() const {return getParticleProfile(_attackParticle);}
 
-    inline bool spawnsAttackParticle() const {return _spawnsAttackParticle;}
+    /**
+    * @return
+    *   true if the attack particle that this Object spawns should be attached to this Object
+    **/
+    inline bool hasAttachParticleToWeapon() const {return _attachAttackParticleToWeapon;}
 
     inline uint8_t getKurseChance() const {return _kurseChance;}
 
@@ -732,7 +736,7 @@ private:
     // item usage
     bool         _needSkillIDToUse;              ///< Check IDSZ first?
     uint8_t      _weaponAction;                  ///< Animation needed to swing
-    bool         _spawnsAttackParticle;          ///< Do we have attack particles?
+    bool         _attachAttackParticleToWeapon;          ///< Do we have attack particles?
     LocalParticleProfileRef _attackParticle;     ///< What kind of attack particles?
     bool         _attackFast;                    ///< Ignores the default reload time?
 

@@ -1246,17 +1246,10 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
                     fvec3_t tmp_pos = pprt->getPosition();
 
-                    if ( weaponProfile->spawnsAttackParticle() )
+                    if ( weaponProfile->hasAttachParticleToWeapon() )
                     {
-                        // attached particles get a strength bonus for reeling...
-                        // dampen = REELBASE + ( pchr->strength / REEL );
-
-                        // this gives a factor of 10 increase in bumping
-                        // at a stat of 60, and a penalty for stats below about 10
-                        float bumpdampen = exp( -1.8e-4 * ( FLOAT_TO_FP8(pchr->getAttribute(Ego::Attribute::MIGHT)) - 2611 ) );
-
-                        pprt->phys.weight     = pweapon->phys.weight;
-                        pprt->phys.bumpdampen = pweapon->phys.bumpdampen * bumpdampen;
+                        pprt->phys.weight     = pchr->phys.weight;
+                        pprt->phys.bumpdampen = pweapon->phys.bumpdampen;
 
                         pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
                         if ( NULL == pprt ) return;

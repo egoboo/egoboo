@@ -85,10 +85,6 @@ struct chr_spawn_data_t;
 #define DISMOUNTZVELFLY     4
 #define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.05f)          ///< time delay for full object-object interaction (approximately 0.05 second)
 
-//Knockbacks
-#define REEL                7600.0f     ///< Dampen for melee knock back
-#define REELBASE            0.35f
-
 //Water
 #define RIPPLETOLERANCE     60          ///< For deep water
 #define SPLASHTOLERANCE     10

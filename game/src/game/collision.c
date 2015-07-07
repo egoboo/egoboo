@@ -97,9 +97,9 @@ public:
 };
 
 static bool do_chr_prt_collision_deflect(chr_prt_collision_data_t * pdata);
-static bool do_chr_prt_collision_recoil(chr_prt_collision_data_t * pdata);
+//static bool do_chr_prt_collision_recoil(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_damage(chr_prt_collision_data_t * pdata);
-static bool do_chr_prt_collision_impulse(chr_prt_collision_data_t * pdata);
+//static bool do_chr_prt_collision_impulse(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_bump(chr_prt_collision_data_t * pdata);
 static bool do_chr_prt_collision_handle_bump(chr_prt_collision_data_t * pdata);
 
@@ -483,11 +483,11 @@ bool get_chr_mass( Object * pchr, float * wt )
 
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight )
     {
-        *wt = -( float )CHR_INFINITE_WEIGHT;
+        *wt = -static_cast<float>(CHR_INFINITE_WEIGHT);
     }
     else if ( 0.0f == pchr->phys.bumpdampen )
     {
-        *wt = -( float )CHR_INFINITE_WEIGHT;
+        *wt = -static_cast<float>(CHR_INFINITE_WEIGHT);
     }
     else
     {
@@ -2746,6 +2746,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
 {
     /// @author BB
@@ -2755,14 +2756,6 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
     float chr_recoil, prt_recoil;
 
     float attack_factor;
-
-    if ( NULL == pdata ) return false;
-
-    if (0.0f == pdata->vimpulse.length_abs() &&
-        0.0f == pdata->pimpulse.length_abs())
-    {
-        return true;
-    }
 
     if ( !pdata->ppip->allowpush ) return false;
 
@@ -2879,6 +2872,7 @@ bool do_chr_prt_collision_recoil( chr_prt_collision_data_t * pdata )
 
     return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
@@ -3046,6 +3040,7 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
 {
     // estimate the impulse on the particle
@@ -3105,6 +3100,7 @@ bool do_chr_prt_collision_impulse( chr_prt_collision_data_t * pdata )
 
     return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
@@ -3117,18 +3113,21 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
 
     if ( NULL == pdata ) return false;
 
+    const float maxDamage = std::abs(pdata->pprt->damage.base) + std::abs(pdata->pprt->damage.rand);
+
     // always allow valid reaffirmation
     if (( pdata->pchr->reaffirm_damagetype < DAMAGE_COUNT ) &&
         ( pdata->pprt->damagetype < DAMAGE_COUNT ) &&
-        ( pdata->pchr->reaffirm_damagetype < pdata->pprt->damagetype ) )
+        ( pdata->pchr->reaffirm_damagetype == pdata->pprt->damagetype ) &&
+        ( maxDamage > 0) )
     {
         return true;
     }
 
     // if the particle was deflected, then it can't bump the character
-    if ( pdata->pchr->invictus || pdata->pprt->attachedto_ref == GET_INDEX_PCHR( pdata->pchr ) ) return false;
+    if ( pdata->pchr->isInvincible() || pdata->pprt->attachedto_ref == pdata->pchr->getCharacterID() ) return false;
 
-	prt_belongs_to_chr = TO_C_BOOL(GET_INDEX_PCHR(pdata->pchr) == pdata->pprt->owner_ref);
+	prt_belongs_to_chr = TO_C_BOOL(pdata->pchr->getCharacterID() == pdata->pprt->owner_ref);
 
     if ( !prt_belongs_to_chr )
     {
@@ -3154,7 +3153,10 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
     valid_onlydamagehate = TO_C_BOOL( prt_hates_chr && PipStack.get_ptr(pdata->pprt->pip_ref)->hateonly );
 
     // allow neutral particles to attack anything
-	prt_attacks_chr = TO_C_BOOL(prt_hates_chr || ((Team::TEAM_NULL != pdata->pchr->team) && (Team::TEAM_NULL == pdata->pprt->team)));
+	prt_attacks_chr = false;
+    if(prt_hates_chr || ((Team::TEAM_NULL != pdata->pchr->team) && (Team::TEAM_NULL == pdata->pprt->team)) ) {
+        prt_attacks_chr = (maxDamage > 0);
+    }
 
     // this is the onlydamagefriendly condition from the particle search code
     valid_onlydamagefriendly = TO_C_BOOL(( pdata->ppip->onlydamagefriendly && pdata->pprt->team == pdata->pchr->team ) ||
@@ -3244,6 +3246,83 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
     return true;
 }
 
+void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
+{
+    /**
+    * @brief
+    *   ZF> New particle collision knockback algorithm (07.08.2015)
+    **/
+
+    //No knocback applicable?
+    if(pdata.pprt->vel.length_abs() == 0.0f) {
+        return;
+    }
+
+    //Target immune to knockback?
+    if(pdata.pchr->phys.bumpdampen == 0.0f || CHR_INFINITE_WEIGHT == pdata.pchr->phys.weight) {
+        return;
+    }
+
+    //Is particle allowed to cause knockback?
+    if(!pdata.ppip->allowpush) {
+        return;
+    }
+
+    //If the particle was magically deflected, then there is no knockback
+    if (pdata.mana_paid) {
+        return;
+    }
+
+    float knockbackFactor = 1.0f;
+
+    //Adjust knockback based on relative mass between particle and target
+    if(pdata.pchr->phys.bumpdampen != 0.0f && CHR_INFINITE_WEIGHT != pdata.pchr->phys.weight) {
+        float targetMass, particleMass;
+        get_chr_mass(pdata.pchr, &targetMass);
+        get_prt_mass(pdata.pprt, pdata.pchr, &particleMass);
+        //knockbackFactor *= Ego::Math::constrain(particleMass / targetMass, 0.0f, 3.0f);
+    }
+
+    //If we are attached to a weapon then the attacker's Might can increase knockback
+    const std::shared_ptr<Object>& weaponHolder = _currentModule->getObjectHandler()[pdata.pprt->attachedto_ref];
+    if (weaponHolder)
+    {
+        const float attackerMight = weaponHolder->getAttribute(Ego::Attribute::MIGHT) - 10.0f;
+
+        //Add 2% knockback per point of Might above 10
+        if(attackerMight >= 0.0f) {
+            knockbackFactor += attackerMight * 0.02f;
+        }
+
+        //Reduce knockback by 5% per point of Might below 10
+        else {
+            knockbackFactor += attackerMight * 0.05f;
+        }
+    }
+
+    //Amount of knockback is affected by damage type
+    switch(pdata.pprt->damagetype)
+    {
+        // very blunt type of attack, the maximum effect
+        case DAMAGE_CRUSH:
+            knockbackFactor *= 1.0f;
+        break;
+
+        // very focussed type of attack, the minimum effect
+        case DAMAGE_POKE:
+            knockbackFactor *= 0.5f;
+        break;        
+
+        // all other damage types are in the middle
+        default:
+            knockbackFactor *= Ego::Math::invSqrtTwo<float>();
+        break;
+    }
+
+    //Apply knockback to the victim (limit between 0% and 400% knockback)
+    pdata.pchr->phys.avel += pdata.pprt->vel * Ego::Math::constrain(knockbackFactor, 0.0f, 4.0f);
+}
+
 //--------------------------------------------------------------------------------------------
 bool do_chr_prt_collision( CoNode_t * d )
 {
@@ -3259,7 +3338,6 @@ bool do_chr_prt_collision( CoNode_t * d )
     bool retval = false;
 
     bool prt_deflected;
-    bool prt_can_hit_chr;
 
     chr_prt_collision_data_t cn_data;
     chr_prt_collision_data_t::init(&cn_data);
@@ -3290,7 +3368,7 @@ bool do_chr_prt_collision( CoNode_t * d )
     if ( !intialized ) return false;
 
     // ignore dead characters
-    if ( !cn_data.pchr->alive ) return false;
+    if ( !cn_data.pchr->isAlive() ) return false;
 
     // skip objects that are inside inventories
     if ( _currentModule->getObjectHandler().exists( cn_data.pchr->inwhich_inventory ) ) return false;
@@ -3356,7 +3434,7 @@ bool do_chr_prt_collision( CoNode_t * d )
     }
 
     // refine the logic for a particle to hit a character
-    prt_can_hit_chr = do_chr_prt_collision_bump( &cn_data );
+    bool prt_can_hit_chr = do_chr_prt_collision_bump( &cn_data );
 
     // Torches and such are marked as invulnerable, so the particle is always deflected.
     // make a special case for reaffirmation
@@ -3376,40 +3454,48 @@ bool do_chr_prt_collision( CoNode_t * d )
         }
     }
 
-    // do "damage" to the character
-    if (( cn_data.int_min || cn_data.int_max ) && !prt_deflected && 0 == cn_data.pchr->damage_timer && prt_can_hit_chr )
+    if(prt_can_hit_chr)
     {
-        // we can't even get to this point if the character is completely invulnerable (invictus)
-        // or can't be damaged this round
-        cn_data.prt_damages_chr = do_chr_prt_collision_damage( &cn_data );
-        if ( cn_data.prt_damages_chr )
+        // do "damage" to the character
+        if (( cn_data.int_min || cn_data.int_max ) && !prt_deflected && 0 == cn_data.pchr->damage_timer )
         {
-            retval = true;
+            // we can't even get to this point if the character is completely invulnerable (invictus)
+            // or can't be damaged this round
+            cn_data.prt_damages_chr = do_chr_prt_collision_damage( &cn_data );
+            if ( cn_data.prt_damages_chr )
+            {
+                retval = true;
+            }
         }
-    }
 
-    // calculate the impulse.
-    if (( cn_data.int_min || cn_data.int_max ) && cn_data.ppip->allowpush )
-    {
-        do_chr_prt_collision_impulse( &cn_data );
-    }
-
-    // make the character and particle recoil from the collision
-    if (cn_data.vimpulse.length_abs() > 0.0f ||
-        cn_data.pimpulse.length_abs() > 0.0f)
-    {
-        if ( do_chr_prt_collision_recoil( &cn_data ) )
+#if 0
+        // calculate the impulse.
+        if (( cn_data.int_min || cn_data.int_max ) && cn_data.ppip->allowpush )
         {
-            retval = true;
+            do_chr_prt_collision_impulse( &cn_data );
         }
-    }
 
-    // handle a couple of special cases
-    if ( cn_data.prt_bumps_chr )
-    {
-        if ( do_chr_prt_collision_handle_bump( &cn_data ) )
+        // make the character and particle recoil from the collision
+        if (cn_data.vimpulse.length_abs() > 0.0f ||
+            cn_data.pimpulse.length_abs() > 0.0f)
         {
-            retval = true;
+            if ( do_chr_prt_collision_recoil( &cn_data ) )
+            {
+                retval = true;
+            }
+        }
+#endif
+
+        //Cause knockback
+        do_chr_prt_collision_knockback(cn_data);
+
+        // handle a couple of special cases
+        if ( cn_data.prt_bumps_chr )
+        {
+            if ( do_chr_prt_collision_handle_bump( &cn_data ) )
+            {
+                retval = true;
+            }
         }
     }
 

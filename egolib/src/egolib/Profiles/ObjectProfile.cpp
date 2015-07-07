@@ -177,7 +177,7 @@ ObjectProfile::ObjectProfile() :
     // item usage
     _needSkillIDToUse(false),
     _weaponAction(0),
-    _spawnsAttackParticle(false),
+    _attachAttackParticleToWeapon(false),
     _attackParticle(-1),
     _attackFast(false),
 
@@ -671,7 +671,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _slotsValid[SLOT_RIGHT] = vfs_get_next_bool(ctxt);
 
     // Attack order ( weapon )
-    _spawnsAttackParticle = vfs_get_next_bool(ctxt);
+    _attachAttackParticleToWeapon = vfs_get_next_bool(ctxt);
     _attackParticle = vfs_get_next_local_particle_profile_ref(ctxt);
 
     // GoPoof
@@ -1257,7 +1257,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Obj
     template_put_bool( fileTemp, fileWrite, profile->_slotsValid[SLOT_RIGHT] );
 
     // Particle spawning on attack
-    template_put_bool( fileTemp, fileWrite, 0 != profile->_spawnsAttackParticle );
+    template_put_bool( fileTemp, fileWrite, 0 != profile->_attachAttackParticleToWeapon );
     template_put_local_particle_profile_ref( fileTemp, fileWrite, profile->_attackParticle );
 
     // Particle spawning for GoPoof
