@@ -52,6 +52,7 @@ void Particle::reset(PRT_REF ref)
     _particleID = ref;
     _isTerminated = true;
     is_ghost = false;
+    frame_count = 0;
 
     _particleProfileID = INVALID_PRO_REF;
     _particleProfile = nullptr;
@@ -431,7 +432,7 @@ void Particle::update()
 void Particle::updateGhost()
 {
     // are we done?
-    if (!isVisible()) {
+    if (!isVisible() || frame_count > 0) {
         requestTerminate();
         return;
     }
@@ -443,6 +444,16 @@ void Particle::updateGhost()
     }
 
     updateDynamicLighting();
+
+    // down the remaining lifetime of the particle
+    if (lifetime_remaining > 0) {
+        lifetime_remaining--;
+    }
+
+    // If the particle is done updating, remove it from the game
+    if (!is_eternal && 0 == lifetime_remaining) {
+        _isTerminated = true;
+    }    
 }
 
 void Particle::updateWater()
