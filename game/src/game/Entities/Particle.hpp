@@ -244,6 +244,14 @@ public:
     **/
     bool isHoming() const { return _isHoming; }
 
+    bool isGhost() const;
+
+    /**
+    * @brief
+    *   Particle cannot be interacted with but is still rendered normally
+    **/
+    bool isActive() const { return !isGhost() && !isTerminated(); }
+
     /**
     * @brief
     *   Makes this Particle play a sound effect from its spawner sounds
@@ -263,12 +271,16 @@ private:
 
     size_t updateContinuousSpawning();
 
+    void updateGhost();
+
     /**
     * @brief
     *   This makes the particle deal damage to whomever it is attached to
     *   (happens about once every second)
     **/
     void updateAttachedDamage();
+
+    bool isVisible() const;
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;

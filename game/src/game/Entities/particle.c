@@ -986,7 +986,7 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 // determine if some of the vertex sites are already occupied
                 for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
                 {
-                    if(particle->isTerminated()) continue;
+                    if(!particle->isActive()) continue;
 
                     if (pchr != particle->getAttachedObject().get()) continue;
 

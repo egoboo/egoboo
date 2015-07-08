@@ -319,7 +319,12 @@ void Particle::setSize(int size)
 
 void Particle::requestTerminate()
 {
-    _isTerminated = true;
+    if(isVisible()) {
+        is_ghost = true;
+    }
+    else {
+        _isTerminated = true;
+    }
 }
 
 void Particle::setElevation(const float level)
@@ -377,10 +382,21 @@ void Particle::update()
         return;
     }
 
+    //Clear invalid attachements incase Object have been removed from the game
+    if(!isAttached()) {
+        _attachedTo = INVALID_CHR_REF;
+    }
+
     // Determine if a "homing" particle still has something to "home":
     // If its homing (according to its profile), is not attached to an object (yet),
     // and a target exists, then the particle will "home" that target.
     _isHoming = getProfile()->homing && !isAttached() && hasValidTarget();
+
+    //Ghost particles are visible, but cannot be interacted with
+    if (isGhost()) {
+        updateGhost();
+        return;
+    }
 
     // Update the particle interaction with water.
     updateWater();
@@ -410,6 +426,23 @@ void Particle::update()
     {
         requestTerminate();
     }
+}
+
+void Particle::updateGhost()
+{
+    // are we done?
+    if (!isVisible()) {
+        requestTerminate();
+        return;
+    }
+
+    // Update the particle animation.
+    updateAnimation();
+    if(isTerminated()) {
+        return; //destroyed by end of animation
+    }
+
+    updateDynamicLighting();
 }
 
 void Particle::updateWater()
@@ -563,7 +596,8 @@ void Particle::updateAnimation()
     // the animation has terminated
     if (getProfile()->end_lastframe && 0 == frames_remaining)
     {
-        requestTerminate();
+        //Force terminate, no ghosting allowed
+        _isTerminated = true;
     }
 }
 
@@ -1291,6 +1325,16 @@ void Particle::setTarget(const CHR_REF target)
 PRT_REF Particle::getParticleID() const 
 {
     return _particleID;
+}
+
+bool Particle::isVisible() const
+{
+    return size > 0 && inst.alpha > 0 && !isHidden();
+}
+
+bool Particle::isGhost() const
+{
+    return is_ghost;
 }
 
 } //Ego
