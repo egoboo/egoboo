@@ -378,16 +378,6 @@ PRT_REF ParticleHandler::spawn_one_particle(const fvec3_t& pos, FACING_T facing,
                             multispawn, oldtarget);
 }
 
-PRT_REF ParticleHandler::spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, const LocalParticleProfileRef& pip_index, int multispawn)
-{
-    return spawn_one_particle(pos, facing, INVALID_PRO_REF, pip_index, INVALID_CHR_REF, GRIP_LAST,
-                              (TEAM_REF)Team::TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF);
-}
-
-
-
-//NEW PARTICLE HANDLER
-
 const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const PRT_REF index)
 {
     auto result = _particleMap.find(index);

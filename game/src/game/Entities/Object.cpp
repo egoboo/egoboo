@@ -484,7 +484,7 @@ int Object::damage(const FACING_T direction, const IPair  damage, const DamageTy
                 {
                     if ( _profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DamageType_isPhysical( damagetype ) ) )
                     {
-                        ParticleHandler::get().spawnOneParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
+                        ParticleHandler::get().spawnParticle( getPosition(), ori.facing_z + direction, _profile->getSlotNumber(), _profile->getBludParticleProfile(),
                                             INVALID_CHR_REF, GRIP_LAST, team, _characterID);
                     }
                 }
@@ -726,7 +726,7 @@ void Object::update()
         if ( !enviro.inwater )
         {
             // Splash
-            ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
+            ParticleHandler::get().spawnGlobalParticle(fvec3_t(getPosX(), getPosY(), WATER_LEVEL + RAISE), ATK_FRONT, LocalParticleProfileRef(PIP_SPLASH), 0);
 
             if ( water._is_water )
             {
@@ -766,7 +766,7 @@ void Object::update()
 
                     if ( 0 == ( (update_wld + getCharacterID()) & ripand ))
                     {
-                        ParticleHandler::get().spawn_one_particle_global(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
+                        ParticleHandler::get().spawnGlobalParticle(fvec3_t(getPosX(), getPosY(), WATER_LEVEL), ATK_FRONT, LocalParticleProfileRef(PIP_RIPPLE), 0);
                     }
                 }
             }

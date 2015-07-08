@@ -2328,7 +2328,7 @@ prt_bundle_t *prt_bundle_t::update_do_water()
         if (spawn_valid)
         {
             // Splash for particles is just a ripple
-            ParticleHandler::get().spawn_one_particle_global(vtmp, 0, global_pip_index, 0);
+            ParticleHandler::get().spawnGlobalParticle(vtmp, 0, global_pip_index, 0);
         }
 
         this->_prt_ptr->enviro.inwater = true;

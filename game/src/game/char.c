@@ -1238,41 +1238,36 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                PRT_REF iparticle = ParticleHandler::get().spawnOneParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
+                std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle(pweapon->getPosition(), pchr->ori.facing_z, weaponProfile->getSlotNumber(), attackParticle, iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
 
-                if ( DEFINED_PRT( iparticle ) )
+                if (particle)
                 {
-                    prt_t * pprt = ParticleHandler::get().get_ptr( iparticle );
-
-                    fvec3_t tmp_pos = pprt->getPosition();
+                    fvec3_t tmp_pos = particle->getPosition();
 
                     if ( weaponProfile->hasAttachParticleToWeapon() )
                     {
-                        pprt->phys.weight     = pchr->phys.weight;
-                        pprt->phys.bumpdampen = pweapon->phys.bumpdampen;
+                        particle->phys.weight     = pchr->phys.weight;
+                        particle->phys.bumpdampen = pweapon->phys.bumpdampen;
 
-                        pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
-                        if ( NULL == pprt ) return;
+                        particle->placeAtVertex(pweapon, spawn_vrt_offset);
                     }
-                    else if ( prt_get_ppip( iparticle )->startontarget && _currentModule->getObjectHandler().exists( pprt->target_ref ) )
+                    else if ( particle->getProfile()->startontarget && particle->hasValidTarget() )
                     {
-                        pprt = place_particle_at_vertex( pprt, pprt->target_ref, spawn_vrt_offset );
-                        if ( NULL == pprt ) return;
+                        particle->placeAtVertex(particle->getTarget(), spawn_vrt_offset);
 
                         // Correct Z spacing base, but nothing else...
-                        tmp_pos[kZ] += prt_get_ppip( iparticle )->spacing_vrt_pair.base;
+                        tmp_pos[kZ] += particle->getProfile()->spacing_vrt_pair.base;
                     }
                     else
                     {
                         // NOT ATTACHED
-                        pprt->attachedto_ref = INVALID_CHR_REF;
 
                         // Don't spawn in walls
-                        if ( EMPTY_BIT_FIELD != pprt->test_wall( tmp_pos, NULL))
+                        if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL))
                         {
                             tmp_pos[kX] = pweapon->getPosX();
                             tmp_pos[kY] = pweapon->getPosY();
-                            if ( EMPTY_BIT_FIELD != pprt->test_wall( tmp_pos, NULL ) )
+                            if ( EMPTY_BIT_FIELD != particle->test_wall( tmp_pos, NULL ) )
                             {
                                 tmp_pos[kX] = pchr->getPosX();
                                 tmp_pos[kY] = pchr->getPosY();
@@ -1281,14 +1276,14 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     }
 
                     // Initial particles get a bonus, which may be zero. Increases damage with +(factor)% per attribute point (e.g Might=10 and MightFactor=0.06 then damageBonus=0.6=60%)
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
-                    pprt->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
+                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::MIGHT)     * weaponProfile->getStrengthDamageFactor());
+                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::INTELLECT) * weaponProfile->getIntelligenceDamageFactor());
+                    particle->damage.base += (pchr->getAttribute(Ego::Attribute::AGILITY)   * weaponProfile->getDexterityDamageFactor());
 
                     // Initial particles get an enchantment bonus
-                    pprt->damage.base += pweapon->damage_boost;
+                    particle->damage.base += pweapon->damage_boost;
 
-                    pprt->setPosition(tmp_pos);
+                    particle->setPosition(tmp_pos);
                 }
                 else
                 {
@@ -1356,7 +1351,7 @@ void drop_money( const CHR_REF character, int money )
 
             for ( tnc = 0; tnc < count; tnc++ )
             {
-                ParticleHandler::get().spawn_one_particle_global( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
+                ParticleHandler::get().spawnGlobalParticle( loc_pos, ATK_FRONT, LocalParticleProfileRef(pips[cnt]), tnc );
             }
         }
     }
@@ -1614,7 +1609,7 @@ void spawn_defense_ping( Object *pchr, const CHR_REF attacker )
     /// @details Spawn a defend particle
     if ( 0 != pchr->damage_timer ) return;
 
-    ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
+    ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), pchr->ori.facing_z, LocalParticleProfileRef(PIP_DEFEND), 0 );
 
     pchr->damage_timer    = DEFENDTIME;
     SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
@@ -1643,7 +1638,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
     {
-        ParticleHandler::get().spawnOneParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
+        ParticleHandler::get().spawnParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
                             INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt);
 
         facing_z += profile->getParticlePoofFacingAdd();
@@ -1804,7 +1799,7 @@ Object * chr_config_do_init( Object * pchr )
     // Particle attachments
     for ( tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
-        ParticleHandler::get().spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
+        ParticleHandler::get().spawnParticle( pchr->getPosition(), pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc);
     }
 

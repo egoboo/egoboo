@@ -174,6 +174,12 @@ public:
 
     /**
     * @return
+    *   get the target of this Particle
+    **/
+    const std::shared_ptr<Object>& getTarget() const;
+
+    /**
+    * @return
     *   true if this Particle has been terminated and will be removed from the game soon
     **/
     bool isTerminated() const;
@@ -191,6 +197,17 @@ public:
     *   Should only ever be used by the ParticleHandler! *Do not use*
     **/
     void destroy();
+
+    /// @author ZZ
+    /// @details This function sets one particle's position to be attached to a character.
+    ///    It will kill the particle if the character is no longer around
+    bool placeAtVertex(const std::shared_ptr<Object> &object, int vertex_offset);
+
+    /**
+    * @return
+    *   true if this Particles position is on a water tile
+    **/
+    bool isOverWater() const;
 
 private:
     bool updateSafe(bool force);
@@ -225,11 +242,6 @@ private:
     *   true if successfull
     **/
     bool attach(const CHR_REF attach);
-
-    /// @author ZZ
-    /// @details This function sets one particle's position to be attached to a character.
-    ///    It will kill the particle if the character is no longer around
-    bool placeAtVertex(const std::shared_ptr<Object> &object, int vertex_offset);
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;

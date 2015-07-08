@@ -1009,7 +1009,7 @@ void do_damage_tiles()
 
             if (( actual_damage > 0 ) && (LocalParticleProfileRef::Invalid != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
-                ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
+                ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
             }
         }
     }
@@ -1137,29 +1137,27 @@ void do_weather_spawn_particles()
                     Object * pchr = _currentModule->getObjectHandler().get( ichr );
 
                     // Yes, so spawn over that character
-                    PRT_REF particle = ParticleHandler::get().spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
-                    if ( DEFINED_PRT( particle ) )
+                    std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnGlobalParticle( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
+                    if ( particle )
                     {
-                        prt_t * pprt = ParticleHandler::get().get_ptr( particle );
-
                         bool destroy_particle = false;
 
-                        if ( weather.over_water && !prt_is_over_water( particle ) )
+                        if ( weather.over_water && !particle->isOverWater() )
                         {
                             destroy_particle = true;
                         }
-                        else if ( EMPTY_BIT_FIELD != pprt->test_wall( nullptr ) )
+                        else if ( EMPTY_BIT_FIELD != particle->test_wall( nullptr ) )
                         {
                             destroy_particle = true;
                         }
                         else
                         {
                             // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                            if ( pprt->pos[kX] < EDGE || pprt->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
+                            if ( particle->pos[kX] < EDGE || particle->pos[kX] > _currentModule->getMeshPointer()->gmem.edge_x - EDGE )
                             {
                                 destroy_particle = true;
                             }
-                            else if ( pprt->pos[kY] < EDGE || pprt->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
+                            else if ( particle->pos[kY] < EDGE || particle->pos[kY] > _currentModule->getMeshPointer()->gmem.edge_y - EDGE )
                             {
                                 destroy_particle = true;
                             }
@@ -1167,7 +1165,7 @@ void do_weather_spawn_particles()
 
                         if ( destroy_particle )
                         {
-                            ParticleHandler::get().free_one( particle );
+                            particle->requestTerminate();
                         }
                     }
                 }
@@ -2529,15 +2527,13 @@ int reaffirm_attached_particles( const CHR_REF character )
 
     int     number_added, number_attached;
     int     amount, attempts;
-    PRT_REF particle;
-    Object * pchr;
 
-    if ( !_currentModule->getObjectHandler().exists( character ) ) return 0;
-    pchr = _currentModule->getObjectHandler().get( character );
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[character];
+    if(!pchr) {
+        return 0;
+    }
 
-    const std::shared_ptr<ObjectProfile> &profile = ProfileSystem::get().getProfile(pchr->profile_ref);
-
-    amount = profile->getAttachedParticleAmount();
+    amount = pchr->getProfile()->getAttachedParticleAmount();
     if ( 0 == amount ) return 0;
 
     number_attached = number_of_attached_particles( character );
@@ -2546,13 +2542,14 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = ParticleHandler::get().spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
-        if ( DEFINED_PRT( particle ) )
-        {
-            prt_t * pprt = ParticleHandler::get().get_ptr( particle );
+        std::shared_ptr<Ego::Particle> particle = ParticleHandler::get().spawnParticle( 
+                pchr->getPosition(), pchr->ori.facing_z, pchr->getProfile()->getSlotNumber(), 
+                pchr->getProfile()->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, 
+                chr_get_iteam(character), character, INVALID_PRT_REF, number_attached);
 
-            pprt = place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
-            if ( NULL == pprt ) continue;
+        if (particle)
+        {
+            particle->placeAtVertex(pchr, particle->attachedto_vrt_off);
 
             number_added++;
             number_attached++;

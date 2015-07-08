@@ -353,7 +353,7 @@ bool Particle::isHidden() const
 
 bool Particle::hasValidTarget() const
 {
-    return _currentModule->getObjectHandler()[_target] != nullptr;
+    return getTarget() != nullptr;
 }
 
 bool Particle::isTerminated() const
@@ -415,7 +415,7 @@ void Particle::update()
 
 void Particle::updateWater()
 {
-    bool inwater = (pos[kZ] < water._surface_level) && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), getTile(), MAPFX_WATER));
+    bool inwater = (pos[kZ] < water._surface_level) && isOverWater();
 
     if (inwater && water._is_water && getProfile()->end_water)
     {
@@ -479,7 +479,7 @@ void Particle::updateWater()
         if (spawn_valid)
         {
             // Splash for particles is just a ripple
-            ParticleHandler::get().spawn_one_particle_global(vtmp, 0, global_pip_index, 0);
+            ParticleHandler::get().spawnGlobalParticle(vtmp, 0, global_pip_index, 0);
         }
 
         enviro.inwater = true;
@@ -1268,6 +1268,16 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
     }
 
     return true;
+}
+
+const std::shared_ptr<Object>& Particle::getTarget() const
+{
+    return _currentModule->getObjectHandler()[_target];
+}
+
+bool Particle::isOverWater() const
+{
+    return (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), getTile(), MAPFX_WATER));
 }
 
 } //Ego
