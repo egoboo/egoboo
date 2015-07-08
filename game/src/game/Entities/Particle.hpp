@@ -178,10 +178,19 @@ public:
     **/
     bool isTerminated() const;
 
-    bool spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, const CHR_REF spawnProfile, const TEAM_REF spawnTeam, 
-        const FACING_T spawnFacing, const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const CHR_REF spawnAttach, 
-        const uint16_t vrt_offset, const int multispawn, const CHR_REF spawnTarget);
+    bool initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+                const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0, 
+                const CHR_REF spawnTarget = INVALID_CHR_REF);
 
+
+    /**
+    * @brief
+    *   Final stuff done before the particle is removed from game
+    * @note
+    *   Should only ever be used by the ParticleHandler! *Do not use*
+    **/
+    void destroy();
 
 private:
     bool updateSafe(bool force);
@@ -204,18 +213,27 @@ private:
 
     /**
     * @brief
-    *   Final stuff done before the particle is removed from game
-    **/
-    void destroy();
-
-    /**
-    * @brief
     *   Makes this Particle play a sound effect from its spawner sounds
     *   (or a sound from the basicdat folder if it is a global particle)
     **/
     void playSound(int8_t soundID);
 
+    /**
+    * @brief
+    *   Attaches this Particle to an Object
+    * @return
+    *   true if successfull
+    **/
+    bool attach(const CHR_REF attach);
+
+    /// @author ZZ
+    /// @details This function sets one particle's position to be attached to a character.
+    ///    It will kill the particle if the character is no longer around
+    bool placeAtVertex(const std::shared_ptr<Object> &object, int vertex_offset);
+
 public:
+    static const std::shared_ptr<Particle> INVALID_PARTICLE;
+
     bool is_ghost;                   ///< the particle has been killed, but is hanging around a while...
 
     // links

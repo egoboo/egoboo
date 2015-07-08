@@ -31,6 +31,7 @@
 
 namespace Ego
 {
+const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 
 Particle::Particle(PRT_REF ref) :
     _particleID(ref),
@@ -723,6 +724,9 @@ void Particle::updateAttachedDamage()
 void Particle::destroy()
 {
     // The object is waiting to be killed, so do all of the end of life care for the particle.
+    if(!isTerminated()) {
+        throw std::logic_error("tried to destroy() Particle that was not terminated");
+    }
 
     // Spawn new particles if time for old one is up
     if (endspawn_amount > 0 && LocalParticleProfileRef::Invalid != endspawn_lpip)
@@ -779,19 +783,15 @@ void Particle::playSound(int8_t sound)
     }
 }
 
-bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, const CHR_REF spawnProfile, const TEAM_REF spawnTeam, 
-    const FACING_T spawnFacing, const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const CHR_REF spawnAttach, 
-    const uint16_t vrt_offset, const int multispawn, const CHR_REF spawnTarget)
+bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+                        const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                        const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget)
 {
     const int INFINITE_UPDATES = std::numeric_limits<int>::max();
 
     int     velocity;
     fvec3_t vel;
     int     offsetfacing = 0, newrand;
-    TURN_T  turn;
-    float   loc_spdlimit;
-    int     prt_life_frames_updates, prt_anim_frames_updates;
-    bool  prt_life_infinite, prt_anim_infinite;
 
     if(!isTerminated()) {
         log_warning("Tried to spawn an existing particle that was not terminated\n");
@@ -958,7 +958,7 @@ bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, con
     facing = loc_facing;
 
     // this is actually pointing in the opposite direction?
-    turn = TO_TURN(loc_facing);
+    TURN_T turn = TO_TURN(loc_facing);
 
     // Location data from arguments
     newrand = generate_irand_pair(getProfile()->spacing_hrz_pair);
@@ -999,8 +999,8 @@ bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, con
     // a particle can EITHER end_lastframe or end_time.
     // if it ends after the last frame, end_time tells you the number of cycles through
     // the animation
-    prt_anim_frames_updates = 0;
-    prt_anim_infinite = false;
+    int prt_anim_frames_updates = 0;
+    bool prt_anim_infinite = false;
     if (getProfile()->end_lastframe)
     {
         if (0 == _image._add)
@@ -1028,8 +1028,8 @@ bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, con
     prt_anim_frames_updates = std::max(1, prt_anim_frames_updates);
 
     // estimate the number of frames
-    prt_life_frames_updates = 0;
-    prt_life_infinite = false;
+    int prt_life_frames_updates = 0;
+    bool prt_life_infinite = false;
     if (getProfile()->end_lastframe)
     {
         // for end last frame, the lifetime is given by the
@@ -1096,9 +1096,9 @@ bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, con
     inst.alpha = 0xFF;
     switch (inst.type)
     {
-    case SPRITE_SOLID: break;
-    case SPRITE_ALPHA: inst.alpha = 0x80; break;    //#define PRT_TRANS 0x80
-    case SPRITE_LIGHT: break;
+        case SPRITE_SOLID: break;
+        case SPRITE_ALPHA: inst.alpha = 0x80; break;    //#define PRT_TRANS 0x80
+        case SPRITE_LIGHT: break;
     }
 
     // is the spawn location safe?
@@ -1117,8 +1117,6 @@ bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, con
     no_gravity = getProfile()->ignore_gravity;
 
     // estimate some parameters for buoyancy and air resistance
-    loc_spdlimit = getProfile()->spdlimit;
-
     {
         const float buoyancy_min = 0.0f;
         const float buoyancy_max = 2.0f * std::abs(Physics::g_environment.gravity);
@@ -1127,16 +1125,16 @@ bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, con
 
         // find the buoyancy, assuming that the air_resistance of the particle
         // is equal to air_friction at standard gravity
-        buoyancy = -loc_spdlimit * (1.0f - Physics::g_environment.airfriction) - Physics::g_environment.gravity;
+        buoyancy = -getProfile()->spdlimit * (1.0f - Physics::g_environment.airfriction) - Physics::g_environment.gravity;
         buoyancy = CLIP(buoyancy, buoyancy_min, buoyancy_max);
 
         // reduce the buoyancy if the particle falls
-        if (loc_spdlimit > 0.0f) buoyancy *= 0.5f;
+        if (getProfile()->spdlimit > 0.0f) buoyancy *= 0.5f;
 
         // determine if there is any left-over air resistance
-        if (std::abs(loc_spdlimit) > 0.0001f)
+        if (std::abs(getProfile()->spdlimit) > 0.0001f)
         {
-            air_resistance = 1.0f - (buoyancy + Physics::g_environment.gravity) / -loc_spdlimit;
+            air_resistance = 1.0f - (buoyancy + Physics::g_environment.gravity) / -getProfile()->spdlimit;
             air_resistance = CLIP(air_resistance, air_resistance_min, air_resistance_max);
 
             air_resistance /= Physics::g_environment.airfriction;
@@ -1172,13 +1170,102 @@ bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, con
 
     if (INVALID_CHR_REF != _attachedTo)
     {
-        //!!TODO!!
-        //prt_bundle_t prt_bdl(pprt);
-        //attach_one_particle(&prt_bdl);
+        attach(_attachedTo);
     }
 
     //Spawn sound effect
     playSound(getProfile()->soundspawn);
+
+    return true;
+}
+
+bool Particle::attach(const CHR_REF attach)
+{
+    const std::shared_ptr<Object> &pchr = _currentModule->getObjectHandler()[attach];
+    if(!pchr) {
+        return false;
+    }
+
+    _attachedTo = attach;
+
+    if(!placeAtVertex(pchr, attachedto_vrt_off)) {
+        return false;
+    }
+
+    // Correct facing so swords knock characters in the right direction...
+    if ( HAS_SOME_BITS( getProfile()->damfx, DAMFX_TURN ) )
+    {
+        facing = pchr->ori.facing_z;
+    }
+
+    return true;
+}
+
+bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_offset)
+{
+    int     vertex;
+    fvec4_t point[1], nupoint[1];
+
+    // Check validity of attachment
+    if (object->isInsideInventory()) {
+        requestTerminate();
+        return false;
+    }
+
+    // Do we have a matrix???
+    if ( !chr_matrix_valid(object.get()) )
+    {
+        chr_update_matrix(object.get(), true);
+    }
+
+    // Do we have a matrix???
+    if ( chr_matrix_valid(object.get()) )
+    {
+        // Transform the weapon vertex_offset from model to world space
+        mad_t * pmad = chr_get_pmad( object->getCharacterID() );
+
+        if ( vertex_offset == GRIP_ORIGIN )
+        {
+            fvec3_t tmp_pos;
+            tmp_pos[kX] = object->inst.matrix( 0, 3 );
+            tmp_pos[kY] = object->inst.matrix( 1, 3 );
+            tmp_pos[kZ] = object->inst.matrix( 2, 3 );
+
+            setPosition(tmp_pos);
+
+            return true;
+        }
+
+        vertex = 0;
+        if ( NULL != pmad )
+        {
+            vertex = (( int )object->inst.vrt_count ) - vertex_offset;
+
+            // do the automatic update
+            chr_instance_t::update_vertices(object->inst, vertex, vertex, false );
+
+            // Calculate vertex_offset point locations with linear interpolation and other silly things
+            point[0][kX] = object->inst.vrt_lst[vertex].pos[XX];
+            point[0][kY] = object->inst.vrt_lst[vertex].pos[YY];
+            point[0][kZ] = object->inst.vrt_lst[vertex].pos[ZZ];
+            point[0][kW] = 1.0f;
+        }
+        else
+        {
+            point[0][kX] = point[0][kY] = point[0][kZ] = 0.0f;
+            point[0][kW] = 1.0f;
+        }
+
+        // Do the transform
+        object->inst.matrix.transform(point, nupoint, 1);
+
+        setPosition(fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
+    }
+    else
+    {
+        // No matrix, so just wing it...
+        setPosition(object->getPosition());
+    }
 
     return true;
 }

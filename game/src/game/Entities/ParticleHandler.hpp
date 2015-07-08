@@ -77,8 +77,9 @@ struct ParticleHandler : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF,
 {
     ParticleHandler() :
         _LockableList(),
-        _displayLimit(512)
+        _maxParticles(0)
     {
+        setDisplayLimit(512);
     }
 
     void update_used();
@@ -96,39 +97,28 @@ public:
 
     static ParticleHandler& get();
 
-protected:
-
-    /**
-     * @brief
-     *  An display limit smaller than @a PARTICLES_MAX is an upper-bound for the number of particles rendered.
-     */
-    size_t _displayLimit;
-
 public:
+    /**
+    * @brief
+    *   Updates all particles and free particles that have been marked as terminated
+    **/
+    void updateAllParticles();
+
     /**
      * @brief
      *  Get the display limit for particles.
      * @return
      *  the display limit for particles
      */
-    size_t getDisplayLimit() const
-    {
-        return _displayLimit;
-    }
+    size_t getDisplayLimit() const;
+
     /**
      * @brief
      *  Set the display limit for particles.
      * @param displayLimit
      *  the display limit for particles
      */
-    void setDisplayLimit(size_t displayLimit)
-    {
-        displayLimit = Ego::Math::constrain<size_t>(displayLimit, 256, PARTICLES_MAX);
-        if (_displayLimit != displayLimit)
-        {
-            _displayLimit = displayLimit;
-        }
-    }
+    void setDisplayLimit(size_t displayLimit);
 
     /**
      * @brief
@@ -165,9 +155,57 @@ public:
      */
     const std::shared_ptr<Ego::Particle>& operator[] (const PRT_REF index);
 
+    /**
+     * @brief
+     *  Spawn a particle and add it into the game
+     * @param spawnPos
+     *  the position of the particle
+     * @param spawnFacing
+     *  the facing (direction) of the particle
+     * @param spawnProfile
+     *  the Object that spawned this particle (INVALID_CHR_REF for a global particle), e.g a Weapon
+     * @param particleProfile
+     *  the profile of the Particle
+     * @param spawnAttach
+     *  if this value is != INVALID_CHR_REF, then the particle will spawn attached to that Object
+     * @param vrt_offset
+     *  determines which vertex this particle will attach to when spawnAttach is used
+     * @param spawnTeam
+     *  on which team is this particle?
+     * @param spawnOrigin
+     *  the Object who is the owner of this Particle (e.g the holder of a Weapon)
+     * @param spawnParticleOrigin
+     *  set to the PRT_REF if this Particle was spawned by another Particle
+     * @param multispawn
+     *  used for bulk spawn (spawning many particles at the same time). This is the index number of the particle in the bulk spawn
+     * @param spawnTarget
+     *  set the particle target to this on spawn
+     * @return
+     *   The Particle object that was spawned or nullptr if it failed.
+     */
+    std::shared_ptr<Ego::Particle> spawnParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+                            const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                            const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0, 
+                            const CHR_REF spawnTarget = INVALID_CHR_REF);
+
+    /**
+    * @brief
+    *   Spawns a global particle
+    * @return
+    *   The Particle object that was spawned or nullptr if it failed.
+    **/
+    std::shared_ptr<Ego::Particle> spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const LocalParticleProfileRef& pip_index, int multispawn);
+
 private:
+    std::shared_ptr<Ego::Particle> getFreeParticle(bool force);
+
+private:
+    size_t _maxParticles;   ///< Maximum allowed active particles to be alive at the same time
+
     std::vector<std::shared_ptr<Ego::Particle>> _unusedPool;         //Particles currently unused
     std::vector<std::shared_ptr<Ego::Particle>> _activeParticles;    //List of all particles that are active ingame
+
+    std::unordered_map<PRT_REF, std::shared_ptr<Ego::Particle>> _particleMap; //Mapping from PRT_REF to Particle
 };
 
 //--------------------------------------------------------------------------------------------

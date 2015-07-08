@@ -29,12 +29,12 @@
 
 bool VALID_PRT_RANGE(const PRT_REF ref)
 {
-    return ParticleHandler::get().isValidRef(ref);
+    return ref < ParticleHandler::get().getDisplayLimit();
 }
 
 bool DEFINED_PRT(const PRT_REF ref)
 {
-    return ParticleHandler::get().DEFINED(ref);
+    return ParticleHandler::get()[ref] != nullptr;
 }
 
 bool ALLOCATED_PRT(const PRT_REF ref)
@@ -382,4 +382,148 @@ PRT_REF ParticleHandler::spawn_one_particle_global(const fvec3_t& pos, FACING_T 
 {
     return spawn_one_particle(pos, facing, INVALID_PRO_REF, pip_index, INVALID_CHR_REF, GRIP_LAST,
                               (TEAM_REF)Team::TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF);
+}
+
+
+
+//NEW PARTICLE HANDLER
+
+const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const PRT_REF index)
+{
+    auto result = _particleMap.find(index);
+    
+    //Does the PRT_REF not exist?
+    if(result == _particleMap.end()) {
+        return Ego::Particle::INVALID_PARTICLE;
+    }
+
+    //Check if particle was marked as terminated
+    if((*result).second->isTerminated()) {
+        return Ego::Particle::INVALID_PARTICLE;        
+    }
+
+    //All good!
+    return (*result).second;
+}
+
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const LocalParticleProfileRef& pip_index, int multispawn)
+{
+    //Get global particle profile
+    PIP_REF globalProfile = ((pip_index.get() < 0) || (pip_index.get() > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index.get());
+
+    return spawnParticle(spawnPos, spawnFacing, INVALID_PRO_REF, globalProfile, INVALID_CHR_REF, GRIP_LAST, Team::TEAM_NULL, 
+        INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF);
+}
+
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile, 
+                        const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                        const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget)
+{
+    const std::shared_ptr<pip_t> &ppip = PipStack.get_ptr(spawnProfile);
+
+    if (!ppip)
+    {
+        log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+                  REF_TO_INT(spawnProfile), REF_TO_INT(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->Name : "INVALID",
+                  REF_TO_INT(particleProfile), ProfileSystem::get().isValidProfileID(particleProfile) ? ProfileSystem::get().getProfile(particleProfile)->getPathname().c_str() : "INVALID");
+
+        return Ego::Particle::INVALID_PARTICLE;
+    }
+
+    // count all the requests for this particle type
+    ppip->_spawnRequestCount++;
+
+    //Try to get a free particle
+    std::shared_ptr<Ego::Particle> particle = getFreeParticle(ppip->force);
+
+    //Initialize particle and add it into the game
+    if(particle->initialize(spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, spawnTeam, 
+        spawnOrigin, spawnParticleOrigin, multispawn, spawnTarget)) {
+        _activeParticles.push_back(particle);
+    }
+    else {
+        //If we failed to spawn somehow, put it back to the unused pool
+        _unusedPool.push_back(particle);
+    }
+
+    if(!particle) {
+        log_debug("spawn_one_particle() - cannot allocate a particle!    owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+                  spawnOrigin, _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->Name : "INVALID",
+                  spawnProfile, LOADED_PIP(spawnProfile) ? PipStack.get_ptr(spawnProfile)->_name.c_str() : "INVALID",
+                  particleProfile, ProfileSystem::get().isValidProfileID(particleProfile) ? ProfileSystem::get().getProfile(particleProfile)->getPathname().c_str() : "INVALID");        
+    }
+
+    return particle;
+}
+
+std::shared_ptr<Ego::Particle> ParticleHandler::getFreeParticle(bool force)
+{
+    std::shared_ptr<Ego::Particle> particle = Ego::Particle::INVALID_PARTICLE;
+
+    //TODO: Implement FORCE spawn priority
+
+    //Not allowed to spawn more?
+    if(_activeParticles.size() >= _maxParticles) {
+        return particle;
+    }
+
+    //Get a free, unused particle from the particle pool
+    if (!_unusedPool.empty())
+    {
+        particle = _unusedPool.back();
+        _unusedPool.pop_back();
+
+        //Clear any old memory
+        particle->reset();
+    }
+
+    return particle;
+}
+
+size_t ParticleHandler::getDisplayLimit() const
+{
+    return _maxParticles;
+}
+
+void ParticleHandler::setDisplayLimit(size_t displayLimit)
+{
+    displayLimit = Ego::Math::constrain<size_t>(displayLimit, 256, PARTICLES_MAX);
+
+    //Allocate more particle memory if required
+    for(PRT_REF i = _maxParticles; i < displayLimit; ++i) {
+        std::shared_ptr<Ego::Particle> particle = std::make_shared<Ego::Particle>(i);
+        _unusedPool.push_back(particle);
+        _particleMap[i] = particle;
+    }
+}
+
+void ParticleHandler::updateAllParticles()
+{
+    //Update every active particle
+    for(const std::shared_ptr<Ego::Particle> &particle : _activeParticles)
+    {
+        if(particle->isTerminated()) {
+            continue;
+        }
+
+        particle->update();
+    }
+
+    auto condition = [this](const std::shared_ptr<Ego::Particle> &particle) 
+    {
+        if(!particle->isTerminated()) {
+            return false;
+        }
+
+        //Play end sound, trigger end spawn, etc.
+        particle->destroy();
+
+        //Free to be used by another instance again
+        _unusedPool.push_back(particle);
+
+        return true;
+    };
+
+    //Remove dead particles from the active list and add them to the free pool
+    _activeParticles.erase(std::remove_if(_activeParticles.begin(), _activeParticles.end(), condition), _activeParticles.end());
 }
