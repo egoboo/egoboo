@@ -482,7 +482,7 @@ void move_all_objects()
 //--------------------------------------------------------------------------------------------
 void cleanup_all_objects()
 {
-    // Do poofing
+    // Do poofing       ZF> TODO: move to Object->update()
     for(const std::shared_ptr<Object> &object : _currentModule->getObjectHandler().iterator())
     {
         bool time_out = ( object->ai.poof_time > 0 ) && ( object->ai.poof_time <= static_cast<int32_t>(update_wld) );
@@ -491,7 +491,6 @@ void cleanup_all_objects()
         object->requestTerminate();
     }
 
-    cleanup_all_particles();
     cleanup_all_enchants();
 }
 
@@ -1032,14 +1031,13 @@ void update_pits()
             clock_pit = 20;
 
             // Kill any particles that fell in a pit, if they die in water...
-            PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
+            for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
             {
-                if ( prt_bdl._prt_ptr->pos[kZ] < PITDEPTH && prt_bdl._pip_ptr->end_water )
+                if ( particle->pos[kZ] < PITDEPTH && particle->getProfile()->end_water )
                 {
-                    end_one_particle_now( prt_bdl._prt_ref );
+                    particle->requestTerminate();
                 }
             }
-            PRT_END_LOOP();
 
             // Kill or teleport any characters that fell in a pit...
             for(const std::shared_ptr<Object> &pchr : _currentModule->getObjectHandler().iterator())
@@ -2483,14 +2481,15 @@ void disaffirm_attached_particles( const CHR_REF character )
     /// @author ZZ
     /// @details This function makes sure a character has no attached particles
 
-    PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if ( prt_bdl._prt_ptr->attachedto_ref == character )
+        if(!particle->isAttached() || !particle->isTerminated()) continue;
+
+        if ( particle->getAttachedObject()->getCharacterID() == character )
         {
-            end_one_particle_in_game( prt_bdl._prt_ref );
+            particle->requestTerminate();
         }
     }
-    PRT_END_LOOP();
 
     if ( _currentModule->getObjectHandler().exists( character ) )
     {
@@ -2507,14 +2506,15 @@ int number_of_attached_particles( const CHR_REF character )
 
     int     cnt = 0;
 
-    PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if ( prt_bdl._prt_ptr->attachedto_ref == character )
+        if(!particle->isAttached() || !particle->isTerminated()) continue;
+
+        if ( particle->getAttachedObject()->getCharacterID() == character )
         {
             cnt++;
         }
     }
-    PRT_END_LOOP();
 
     return cnt;
 }
@@ -2695,11 +2695,11 @@ void attach_all_particles()
     /// @details This function attaches particles to their characters so everything gets
     ///    drawn right
 
-    PRT_BEGIN_LOOP_DISPLAY( cnt, prt_bdl )
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        attach_one_particle( &prt_bdl );
+        if(particle->isTerminated() || !particle->isAttached()) continue;
+        particle->placeAtVertex(particle->getAttachedObject(), particle->attachedto_vrt_off);
     }
-    PRT_END_LOOP()
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2798,7 +2798,7 @@ void free_all_objects()
     /// @author BB
     /// @details free every instance of the three object types used in the game.
 
-    ParticleHandler::get().free_all();
+    ParticleHandler::get().clear();
     EnchantHandler::get().free_all();
     free_all_chraracters();
 }
@@ -2806,7 +2806,6 @@ void free_all_objects()
 //--------------------------------------------------------------------------------------------
 void reset_all_object_lists()
 {
-    ParticleHandler::get().reinit();
     EnchantHandler::get().reinit();
 }
 
@@ -4071,16 +4070,16 @@ bool detach_character_from_platform( Object * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
+bool attach_prt_to_platform( Ego::Particle * pprt, Object * pplat )
 {
     /// @author BB
     /// @details attach a particle to a platform
 
     // verify that we do not have two dud pointers
-    if ( !ACTIVE_PPRT( pprt ) ) return false;
+    if ( !pprt || pprt->isTerminated() ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    std::shared_ptr<pip_t> pprt_pip = pprt->get_ppip();
+    std::shared_ptr<pip_t> pprt_pip = pprt->getProfile();
     if ( NULL == pprt_pip ) return false;
 
     // check if they can be connected
@@ -4092,7 +4091,7 @@ bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    pprt->set_level( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] ) );
+    pprt->setElevation( std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv._maxs[OCT_Z] ) );
 
     return true;
 }

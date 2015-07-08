@@ -44,11 +44,12 @@ Particle::Particle(PRT_REF ref) :
     _spawnerProfile(INVALID_CHR_REF),
     _isHoming(false)
 {
-    reset();
+    reset(ref);
 }
 
-void Particle::reset() 
+void Particle::reset(PRT_REF ref) 
 {
+    _particleID = ref;
     _isTerminated = true;
     is_ghost = false;
 
@@ -336,15 +337,6 @@ void Particle::setElevation(const float level)
     // set the zlerp after we have done everything to the particle's level we care to
     enviro.zlerp = (pos[kZ] - enviro.adj_level) / PLATTOLERANCE;
     enviro.zlerp = Ego::Math::constrain(enviro.zlerp, 0.0f, 1.0f);
-}
-
-void Particle::load(PIP_REF profile)
-{
-    _particleProfileID = profile;
-    _particleProfile = PipStack.get_ptr(_particleProfileID);
-    if(!_particleProfile) {
-        throw std::invalid_argument("profile == invalid");
-    }
 }
 
 bool Particle::isHidden() const
@@ -645,14 +637,14 @@ void Particle::updateAttachedDamage()
     // we must be attached to something
     if (!isAttached()) return;
 
-    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
+    const std::shared_ptr<Object> &attachedObject = getAttachedObject();
 
     // find out who is holding the owner of this object
-    CHR_REF iholder = chr_get_lowest_attachment(target->getCharacterID(), true);
-    if (INVALID_CHR_REF == iholder) iholder = target->getCharacterID();
+    CHR_REF iholder = chr_get_lowest_attachment(attachedObject->getCharacterID(), true);
+    if (INVALID_CHR_REF == iholder) iholder = attachedObject->getCharacterID();
 
     // do nothing if you are attached to your owner
-    if ((INVALID_CHR_REF != owner_ref) && (iholder == owner_ref || target->getCharacterID() == owner_ref)) return;
+    if ((INVALID_CHR_REF != owner_ref) && (iholder == owner_ref || attachedObject->getCharacterID() == owner_ref)) return;
 
     //---- only do damage in certain cases:
 
@@ -660,13 +652,13 @@ void Particle::updateAttachedDamage()
     bool skewered_by_arrow = HAS_SOME_BITS(getProfile()->damfx, DAMFX_ARRO);
 
     // 2) the character is vulnerable to this damage type
-    bool has_vulnie = chr_has_vulnie(target->getCharacterID(), _spawnerProfile);
+    bool has_vulnie = chr_has_vulnie(attachedObject->getCharacterID(), _spawnerProfile);
 
     // 3) the character is "lit on fire" by the particle damage type
-    bool is_immolated_by = (damagetype < DAMAGE_COUNT && target->reaffirm_damagetype == damagetype);
+    bool is_immolated_by = (damagetype < DAMAGE_COUNT && attachedObject->reaffirm_damagetype == damagetype);
 
     // 4) the character has no protection to the particle
-    bool no_protection_from = (0 != max_damage) && (damagetype < DAMAGE_COUNT) && (0.0f <= target->getDamageReduction(damagetype));
+    bool no_protection_from = (0 != max_damage) && (damagetype < DAMAGE_COUNT) && (0.0f <= attachedObject->getDamageReduction(damagetype));
 
     if (!skewered_by_arrow && !has_vulnie && !is_immolated_by && !no_protection_from)
     {
@@ -709,12 +701,12 @@ void Particle::updateAttachedDamage()
     if (getProfile()->allowpush && 0 == getProfile()->vel_hrz_pair.base)
     {
         // Make character limp
-        target->vel[kX] *= 0.5f;
-        target->vel[kY] *= 0.5f;
+        attachedObject->vel[kX] *= 0.5f;
+        attachedObject->vel[kY] *= 0.5f;
     }
 
     //---- do the damage
-    int actual_damage = target->damage(ATK_BEHIND, local_damage, static_cast<DamageType>(damagetype), team,
+    int actual_damage = attachedObject->damage(ATK_BEHIND, local_damage, static_cast<DamageType>(damagetype), team,
         _currentModule->getObjectHandler()[owner_ref], getProfile()->damfx, false);
 
     // adjust any remaining particle damage
@@ -741,9 +733,19 @@ void Particle::destroy()
         FACING_T facing = this->facing;
         for (size_t tnc = 0; tnc < endspawn_amount; tnc++)
         {
-            ParticleHandler::get().spawnLocalParticle(pos_old, facing, _spawnerProfile, endspawn_lpip,
-                                                    INVALID_CHR_REF, GRIP_LAST, team, owner_ref,
-                                                    _particleID, tnc, _target);
+            if(_spawnerProfile == INVALID_PRO_REF)
+            {
+                //Global particle
+                ParticleHandler::get().spawnGlobalParticle(pos_old, facing, endspawn_lpip, tnc);
+            }
+            else
+            {
+                //Local particle
+                ParticleHandler::get().spawnLocalParticle(pos_old, facing, _spawnerProfile, endspawn_lpip,
+                                                        INVALID_CHR_REF, GRIP_LAST, team, owner_ref,
+                                                        _particleID, tnc, _target);
+            }
+
             facing += endspawn_facingadd;
         }
 
@@ -801,24 +803,17 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     int     offsetfacing = 0, newrand;
 
     if(!isTerminated()) {
-        log_warning("Tried to spawn an existing particle that was not terminated\n");
-        return false;
-    }
-
-    // Convert from local pdata->ipip to global pdata->ipip
-    if (!LOADED_PIP(particleProfile))
-    {
-        log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-            REF_TO_INT(_particleID), REF_TO_INT(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->Name : "INVALID",
-            REF_TO_INT(spawnProfile), ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID");
-
-        return false;
+        throw std::logic_error("Tried to spawn an existing particle that was not terminated");
     }
 
     //Load particle profile
+    _spawnerProfile = spawnProfile;
     _particleProfileID = particleProfile;
     _particleProfile = PipStack.get_ptr(_particleProfileID);
-    _spawnerProfile = spawnProfile;
+    if(!particleProfile) {
+        throw std::logic_error("Tried to spawn particle with invalid PIP_REF");
+    }
+
     team = spawnTeam;
     parent_ref = spawnParticleOrigin;
     damagetype = getProfile()->damageType;
@@ -1175,6 +1170,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
         spawnProfile, ProfileSystem::get().isValidProfileID(spawnProfile) ? ProList.lst[spawnProfile].name : "INVALID");
 #endif
 
+    //Attach ourselves to an Object if needed
     if (INVALID_CHR_REF != _attachedTo)
     {
         attach(_attachedTo);

@@ -497,13 +497,13 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
     if (touch_a_floor)
     {
         // Play the sound for hitting the floor [FSND]
-        prt_play_sound(loc_iprt, loc_ppip->end_sound_floor);
+        loc_pprt->playSound(loc_ppip->end_sound_floor);
     }
 
     // handle the collision
     if (touch_a_floor && loc_ppip->end_ground)
     {
-        end_one_particle_in_game(this->_prt_ref);
+        loc_pprt->requestTerminate();
         return nullptr;
     }
 
@@ -533,13 +533,13 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion_attached()
     if (hit_a_wall)
     {
         // Play the sound for hitting the floor [FSND]
-        prt_play_sound(loc_iprt, loc_ppip->end_sound_wall);
+        loc_pprt->playSound(loc_ppip->end_sound_wall);
     }
 
     // handle the collision
     if (hit_a_wall && (loc_ppip->end_wall || loc_ppip->end_bump))
     {
-        end_one_particle_in_game(this->_prt_ref);
+        loc_pprt->requestTerminate();
         return nullptr;
     }
 
@@ -643,13 +643,13 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     if (hit_a_floor)
     {
         // Play the sound for hitting the floor [FSND]
-        prt_play_sound(loc_iprt, loc_ppip->end_sound_floor);
+        loc_pprt->playSound(loc_ppip->end_sound_floor);
     }
 
     // handle the collision
     if (touch_a_floor && loc_ppip->end_ground)
     {
-        end_one_particle_in_game(this->_prt_ref);
+        loc_pprt->requestTerminate();
         return NULL;
     }
 
@@ -686,13 +686,13 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
     if (hit_a_wall)
     {
         // Play the sound for hitting the wall [WSND]
-        prt_play_sound(loc_iprt, loc_ppip->end_sound_wall);
+        loc_pprt->playSound(loc_ppip->end_sound_wall);
     }
 
     // handle the collision
     if (touch_a_wall && loc_ppip->end_wall)
     {
-        end_one_particle_in_game(this->_prt_ref);
+        loc_pprt->requestTerminate();
         return nullptr;
     }
 
@@ -1107,11 +1107,10 @@ CHR_REF prt_get_iowner(const PRT_REF iprt, int depth)
         // make a check for a stupid looping structure...
         // cannot be sure you could never get a loop, though
 
-        if (!ALLOCATED_PRT(pprt->parent_ref))
+        if (!ParticleHandler::get()[pprt->parent_ref])
         {
             // make sure that a non valid parent_ref is marked as non-valid
             pprt->parent_ref = INVALID_PRT_REF;
-            pprt->parent_guid = EGO_GUID_INVALID;
         }
         else
         {

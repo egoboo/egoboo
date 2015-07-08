@@ -18,12 +18,9 @@
 //********************************************************************************************
 
 /// @file  game/Entities/Particle.hpp
-/// @brief Particle entities.
+/// @brief Old C code for Particle entities that isnt ported yet.
 
 #pragma once
-#if !defined(GAME_ENTITIES_PRIVATE) || GAME_ENTITIES_PRIVATE != 1
-#error(do not include directly, include `game/Entities/_Include.hpp` instead)
-#endif
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"
@@ -161,25 +158,9 @@ private:
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// counters for debugging wall collisions
-extern int prt_stoppedby_tests;
-extern int prt_pressure_tests;
-
 //--------------------------------------------------------------------------------------------
 // function prototypes
 //--------------------------------------------------------------------------------------------
-
-void update_all_particles();
 void move_all_particles();
-void cleanup_all_particles();
-void bump_all_particles_update_counters();
 
-/// @brief Mark particle as ghost.
-void end_one_particle_now(const PRT_REF particle);
-/// @brief End a particle and mark it as a ghost.
-void end_one_particle_in_game(const PRT_REF particle);
-bool prt_is_over_water(const PRT_REF particle);
-void prt_play_sound(const PRT_REF particle, Sint8 sound);
 CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
-
-std::shared_ptr<pip_t> prt_get_ppip(const PRT_REF ref);  /**< @deprecated */

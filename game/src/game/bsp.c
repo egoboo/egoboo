@@ -304,7 +304,7 @@ bool prt_BSP_fill()
 	// insert the particles
 	prt_BSP_root->count = 0;
 
-    for(const std::shared_ptr<Ego::Particle> &particle : Ego::ParticleHandler::get().iterator())
+    for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
 	{
 		// reset a couple of things here
 		particle->onwhichplatform_ref = INVALID_CHR_REF;

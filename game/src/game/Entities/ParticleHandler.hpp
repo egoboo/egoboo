@@ -92,6 +92,7 @@ public:
     ParticleHandler() :
         _maxParticles(0),
         _semaphoreLock(0),
+        _totalParticlesSpawned(0),
         _unusedPool(),
         _activeParticles(),
         _particleMap()
@@ -122,6 +123,8 @@ public:
      *  the display limit for particles
      */
     void setDisplayLimit(size_t displayLimit);
+
+    void clear();
 
     /**
      * @brief
@@ -179,6 +182,18 @@ public:
     **/
     std::shared_ptr<Ego::Particle> spawnGlobalParticle(const fvec3_t& spawnPos, const FACING_T spawnFacing, const LocalParticleProfileRef& pip_index, int multispawn);
 
+    /**
+    * @brief
+    *   Get number of particles that have been allocated for use
+    **/
+    size_t getCount() const {return _activeParticles.size() + _pendingParticles.size();}
+
+    /**
+    * @brief
+    *   Get number of unused particles
+    **/
+    size_t getFreeCount() const { return std::min(_maxParticles, _maxParticles - getCount()); }
+
 private:
     std::shared_ptr<Ego::Particle> getFreeParticle(bool force);
 
@@ -189,9 +204,11 @@ private:
 private:
     size_t _maxParticles;   ///< Maximum allowed active particles to be alive at the same time
     std::atomic<size_t> _semaphoreLock;
+    std::atomic<PRT_REF> _totalParticlesSpawned;
 
     std::vector<std::shared_ptr<Ego::Particle>> _unusedPool;         //Particles currently unused
     std::vector<std::shared_ptr<Ego::Particle>> _activeParticles;    //List of all particles that are active ingame
+    std::vector<std::shared_ptr<Ego::Particle>> _pendingParticles;   //Particles that will be added to the active list as soon as it is unlocked
 
     std::unordered_map<PRT_REF, std::shared_ptr<Ego::Particle>> _particleMap; //Mapping from PRT_REF to Particle
 };

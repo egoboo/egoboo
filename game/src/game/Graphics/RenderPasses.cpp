@@ -825,7 +825,7 @@ void EntityReflections::doRun(Camera& camera, const TileList& tl, const EntityLi
 				GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);     // GL_COLOR_BUFFER_BIT
 				Ego::OpenGL::Utilities::isError();
 				PRT_REF iprt = el.get(i).iprt;
-				TileIndex itile = ParticleHandler::get().get_ptr(iprt)->getTile();
+				TileIndex itile = ParticleHandler::get()[iprt]->getTile();
 
 				if (ego_mesh_t::grid_is_valid(mesh, itile) && (0 != ego_mesh_t::test_fx(mesh, itile, MAPFX_REFLECTIVE)))
 				{
@@ -859,7 +859,7 @@ void SolidEntities::doRun(Camera& camera, const TileList& tl, const EntityList& 
 			{
 				render_one_mad_solid(camera, el.get(i).ichr);
 			}
-			else if (INVALID_CHR_REF == el.get(i).ichr && VALID_PRT_RANGE(el.get(i).iprt))
+			else if (INVALID_CHR_REF == el.get(i).ichr && ParticleHandler::get()[el.get(i).iprt] != nullptr)
 			{
 				// draw draw front and back faces of polygons
 				oglx_end_culling();              // GL_ENABLE_BIT

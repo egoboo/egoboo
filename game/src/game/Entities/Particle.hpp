@@ -18,10 +18,13 @@
 //********************************************************************************************
 
 /// @file  game/Entities/Particle.hpp
-/// @brief Particle entities.
+/// @brief Particle entities
 /// @author Johan Jansen aka Zefz
 
 #pragma once
+#if !defined(GAME_ENTITIES_PRIVATE) || GAME_ENTITIES_PRIVATE != 1
+#error(do not include directly, include `game/Entities/_Include.hpp` instead)
+#endif
 
 #include "game/egoboo_typedef.h"
 #include "game/graphic_prt.h"
@@ -112,8 +115,7 @@ public:
     * @brief
     *   TODO: SHOULD BE PRIVATE (use requestTerminate instead!)
     **/
-    void reset();
-    void load(PIP_REF profile);
+    void reset(PRT_REF ref);
 
     /// @details Tell the game to get rid of this object and treat it as if it was already dead.
     /// @note This will force the game to (eventually) call end_one_particle_in_game() on this particle
@@ -235,7 +237,19 @@ public:
 
     PRO_REF getSpawnerProfile() const { return _spawnerProfile; }
 
+    /**
+    * @return
+    *   true if this Particle is currently in control of its own motion and
+    *   moving in towards a valid Object target
+    **/
     bool isHoming() const { return _isHoming; }
+
+    /**
+    * @brief
+    *   Makes this Particle play a sound effect from its spawner sounds
+    *   (or a sound from the basicdat folder if it is a global particle)
+    **/
+    void playSound(int8_t soundID);
 
 private:
     bool updateSafe(bool force);
@@ -255,13 +269,6 @@ private:
     *   (happens about once every second)
     **/
     void updateAttachedDamage();
-
-    /**
-    * @brief
-    *   Makes this Particle play a sound effect from its spawner sounds
-    *   (or a sound from the basicdat folder if it is a global particle)
-    **/
-    void playSound(int8_t soundID);
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;
@@ -384,7 +391,7 @@ public:
     Ego::prt_environment_t enviro;                  ///< the particle's environment
 
 private:
-    const PRT_REF _particleID;
+    PRT_REF       _particleID;                 ///< Unique identifier
     BSP_leaf_t    _bspLeaf;
 
     PIP_REF _particleProfileID;                ///< The particle profile

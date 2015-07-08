@@ -657,7 +657,7 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
 
     // Ignore invalid particles
     const std::shared_ptr<Ego::Particle> &pprt_b = ParticleHandler::get()[iprt_b];
-    if(pprt_b == nullptr || pprt_b->isTerminated())
+    if(pprt_b == nullptr || pprt_b->isTerminated()) return false;
 
     // reject characters that are hidden
     if ( pchr_a->is_hidden || pprt_b->isHidden() ) return false;
@@ -3497,7 +3497,7 @@ bool do_chr_prt_collision( CoNode_t * d )
     // terminate the particle if needed
     if ( cn_data.terminate_particle )
     {
-        end_one_particle_in_game( cn_data.iprt );
+        cn_data.pprt->requestTerminate();
         retval = true;
     }
 

@@ -163,6 +163,11 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const fvec3_t
                                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget)
 {
+    if(!ProfileSystem::get().isValidProfileID(iprofile)) {
+        log_debug("spawnLocalParticle() - cannot spawn particle with invalid PRO_REF %d\n", iprofile);        
+        return Ego::Particle::INVALID_PARTICLE;
+    }
+
     //Local character pip
     PIP_REF ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index); 
 
@@ -179,7 +184,8 @@ const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const PRT_REF
     }
 
     //Check if particle was marked as terminated
-    if((*result).second->isTerminated()) {
+    if((*result).second->isTerminated() || (*result).second->getParticleID() != index) {
+        _particleMap.erase(index);
         return Ego::Particle::INVALID_PARTICLE;        
     }
 
@@ -200,13 +206,13 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const fvec3_t& spa
                         const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
                         const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget)
 {
-    const std::shared_ptr<pip_t> &ppip = PipStack.get_ptr(spawnProfile);
+    const std::shared_ptr<pip_t> &ppip = PipStack.get_ptr(particleProfile);
 
     if (!ppip)
     {
         log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                  REF_TO_INT(spawnProfile), REF_TO_INT(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->Name : "INVALID",
-                  REF_TO_INT(particleProfile), ProfileSystem::get().isValidProfileID(particleProfile) ? ProfileSystem::get().getProfile(particleProfile)->getPathname().c_str() : "INVALID");
+                  REF_TO_INT(particleProfile), REF_TO_INT(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->Name : "INVALID",
+                  REF_TO_INT(spawnProfile), ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID");
 
         return Ego::Particle::INVALID_PARTICLE;
     }
@@ -216,15 +222,17 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const fvec3_t& spa
 
     //Try to get a free particle
     std::shared_ptr<Ego::Particle> particle = getFreeParticle(ppip->force);
-
-    //Initialize particle and add it into the game
-    if(particle->initialize(spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, spawnTeam, 
-        spawnOrigin, spawnParticleOrigin, multispawn, spawnTarget)) {
-        _activeParticles.push_back(particle);
-    }
-    else {
-        //If we failed to spawn somehow, put it back to the unused pool
-        _unusedPool.push_back(particle);
+    if(particle) {
+        //Initialize particle and add it into the game
+        if(particle->initialize(spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, spawnTeam, 
+            spawnOrigin, spawnParticleOrigin, multispawn, spawnTarget)) {
+            _pendingParticles.push_back(particle);
+            _particleMap[particle->getParticleID()] = particle;
+        }
+        else {
+            //If we failed to spawn somehow, put it back to the unused pool
+            _unusedPool.push_back(particle);
+        }        
     }
 
     if(!particle) {
@@ -244,18 +252,24 @@ std::shared_ptr<Ego::Particle> ParticleHandler::getFreeParticle(bool force)
     //TODO: Implement FORCE spawn priority
 
     //Not allowed to spawn more?
-    if(_activeParticles.size() >= _maxParticles) {
+    if(getCount() >= _maxParticles) {
         return particle;
+    }
+
+    //If we have no free particles in the memory pool but we are allowed to allocate new memory
+    if(_unusedPool.empty() && getCount() < _maxParticles) {
+        return std::make_shared<Ego::Particle>(_totalParticlesSpawned++);
     }
 
     //Get a free, unused particle from the particle pool
     if (!_unusedPool.empty())
     {
+        //Retrieve particle from the pool
         particle = _unusedPool.back();
         _unusedPool.pop_back();
 
         //Clear any old memory
-        particle->reset();
+        particle->reset(_totalParticlesSpawned++);
     }
 
     return particle;
@@ -268,14 +282,7 @@ size_t ParticleHandler::getDisplayLimit() const
 
 void ParticleHandler::setDisplayLimit(size_t displayLimit)
 {
-    displayLimit = Ego::Math::constrain<size_t>(displayLimit, 256, PARTICLES_MAX);
-
-    //Allocate more particle memory if required
-    for(PRT_REF i = _maxParticles; i < displayLimit; ++i) {
-        std::shared_ptr<Ego::Particle> particle = std::make_shared<Ego::Particle>(i);
-        _unusedPool.push_back(particle);
-        _particleMap[i] = particle;
-    }
+    _maxParticles = Ego::Math::constrain<size_t>(displayLimit, 256, PARTICLES_MAX);
 }
 
 void ParticleHandler::lock()
@@ -307,12 +314,17 @@ void ParticleHandler::unlock()
 
             //Free to be used by another instance again
             _unusedPool.push_back(particle);
+            _particleMap.erase(particle->getParticleID());
 
             return true;
         };
 
         //Remove dead particles from the active list and add them to the free pool
         _activeParticles.erase(std::remove_if(_activeParticles.begin(), _activeParticles.end(), condition), _activeParticles.end());
+
+        //Add new particles that are pending to be added
+        _activeParticles.insert(_activeParticles.end(), _pendingParticles.begin(), _pendingParticles.end());
+        _pendingParticles.clear();
     }
 }
 
@@ -327,4 +339,17 @@ void ParticleHandler::updateAllParticles()
 
         particle->update();
     }
+}
+
+void ParticleHandler::clear()
+{
+    if(_semaphoreLock != 0) {
+        throw std::logic_error("Calling ParticleHandler::clear() while locked");
+    }
+
+    _pendingParticles.clear();
+    _activeParticles.clear();
+    _unusedPool.clear();
+    _particleMap.clear();
+    _totalParticlesSpawned = 0;
 }
