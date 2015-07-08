@@ -455,18 +455,18 @@ void activate_alliance_file_vfs()
 //--------------------------------------------------------------------------------------------
 void update_used_lists()
 {
-    ParticleHandler::get().update_used();
     EnchantHandler::get().update_used();
+    ParticleHandler::get().updateAllParticles();
 }
 
 //--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
-    chr_stoppedby_tests = prt_stoppedby_tests = 0;
-    chr_pressure_tests  = prt_pressure_tests  = 0;
+    chr_stoppedby_tests = 0;
+    chr_pressure_tests  = 0;
 
     update_all_characters();
-    update_all_particles();
+    ParticleHandler::get().updateAllParticles();
     update_all_enchants();
 }
 
@@ -2689,34 +2689,6 @@ void game_release_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-bool attach_one_particle( prt_bundle_t * pbdl_prt )
-{
-    prt_t * pprt;
-    Object * pchr;
-
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->_prt_ptr ) return false;
-    pprt = pbdl_prt->_prt_ptr;
-
-    if ( !_currentModule->getObjectHandler().exists( pbdl_prt->_prt_ptr->attachedto_ref ) ) return false;
-    pchr = _currentModule->getObjectHandler().get( pbdl_prt->_prt_ptr->attachedto_ref );
-
-    pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
-    if ( NULL == pprt ) return false;
-
-    // the previous function can inactivate a particle
-    if ( ACTIVE_PPRT( pprt ) )
-    {
-        // Correct facing so swords knock characters in the right direction...
-        if ( NULL != pbdl_prt->_pip_ptr && HAS_SOME_BITS( pbdl_prt->_pip_ptr->damfx, DAMFX_TURN ) )
-        {
-            pprt->facing = pchr->ori.facing_z;
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 void attach_all_particles()
 {
     /// @author ZZ
@@ -4126,14 +4098,14 @@ bool attach_prt_to_platform( prt_t * pprt, Object * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-bool detach_particle_from_platform( prt_t * pprt )
+bool detach_particle_from_platform( Ego::Particle * pprt )
 {
     /// @author BB
     /// @details attach a particle to a platform
 
 
     // verify that we do not have two dud pointers
-    if ( !DEFINED_PPRT( pprt ) ) return false;
+    if ( pprt == nullptr || pprt->isTerminated() ) return false;
 
     // grab all of the particle info
     prt_bundle_t bdl_prt(pprt);

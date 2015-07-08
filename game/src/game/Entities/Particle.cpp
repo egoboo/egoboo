@@ -35,6 +35,7 @@ const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 
 Particle::Particle(PRT_REF ref) :
     _particleID(ref),
+    _bspLeaf(this, BSP_LEAF_PRT, ref),
     _attachedTo(INVALID_CHR_REF),
     _particleProfileID(INVALID_PIP_REF),
     _particleProfile(nullptr),
@@ -128,6 +129,12 @@ bool Particle::isAttached() const
 {
     return _currentModule->getObjectHandler().exists(_attachedTo);
 }
+
+const std::shared_ptr<Object>& Particle::getAttachedObject() const
+{
+    return _currentModule->getObjectHandler()[_attachedTo];
+}
+
 
 bool Particle::setPosition(const fvec3_t& position)
 {
@@ -611,10 +618,10 @@ size_t Particle::updateContinuousSpawning()
     FACING_T facing = this->facing;
     for (size_t tnc = 0; tnc < getProfile()->contspawn._amount; tnc++)
     {
-        PRT_REF prt_child = ParticleHandler::get().spawn_one_particle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
+        std::shared_ptr<Ego::Particle> prt_child = ParticleHandler::get().spawnLocalParticle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
                                                                       INVALID_CHR_REF, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
 
-        if (DEFINED_PRT(prt_child))
+        if (prt_child)
         {
             //Keep count of how many were actually spawned
             spawn_count++;
@@ -734,9 +741,9 @@ void Particle::destroy()
         FACING_T facing = this->facing;
         for (size_t tnc = 0; tnc < endspawn_amount; tnc++)
         {
-            PRT_REF spawned_prt = ParticleHandler::get().spawn_one_particle(pos_old, facing, _spawnerProfile, endspawn_lpip,
-                                                                            INVALID_CHR_REF, GRIP_LAST, team, owner_ref,
-                                                                            _particleID, tnc, _target);
+            ParticleHandler::get().spawnLocalParticle(pos_old, facing, _spawnerProfile, endspawn_lpip,
+                                                    INVALID_CHR_REF, GRIP_LAST, team, owner_ref,
+                                                    _particleID, tnc, _target);
             facing += endspawn_facingadd;
         }
 
@@ -830,7 +837,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     // try to get an idea of who our owner is even if we are
     // given bogus info
     CHR_REF loc_chr_origin = spawnOrigin;
-    if (!_currentModule->getObjectHandler().exists(spawnOrigin) && DEFINED_PRT(spawnParticleOrigin))
+    if (!_currentModule->getObjectHandler().exists(spawnOrigin) && ParticleHandler::get()[spawnParticleOrigin])
     {
         loc_chr_origin = prt_get_iowner(spawnParticleOrigin, 0);
     }
@@ -1278,6 +1285,16 @@ const std::shared_ptr<Object>& Particle::getTarget() const
 bool Particle::isOverWater() const
 {
     return (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), getTile(), MAPFX_WATER));
+}
+
+void Particle::setTarget(const CHR_REF target)
+{
+    _target = target;
+}
+
+PRT_REF Particle::getParticleID() const 
+{
+    return _particleID;
 }
 
 } //Ego

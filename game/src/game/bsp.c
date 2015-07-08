@@ -160,9 +160,8 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	/// @details insert a particle's BSP_leaf_t into the BSP_tree_t
 
 	bool       retval;
-	BSP_leaf_t * pleaf;
 
-	prt_t *loc_pprt;
+	Ego::Particle *loc_pprt;
 
 	oct_bb_t tmp_oct;
 
@@ -170,15 +169,15 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	loc_pprt = pbdl_prt->_prt_ptr;
 
 	// is the particle in-game?
-	if (!INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
+	if (loc_pprt == nullptr || loc_pprt->isTerminated() || loc_pprt->isHidden() || loc_pprt->is_ghost) return false;
 
 	// heal the leaf if necessary
-	pleaf = loc_pprt->POBJ_GET_PLEAF();
-	if (loc_pprt != (prt_t *)(pleaf->_data))
+	BSP_leaf_t *pleaf = &loc_pprt->getBSPLeaf();
+	if (loc_pprt != (Ego::Particle *)(pleaf->_data))
 	{
 		// some kind of error. re-initialize the data.
 		pleaf->_data = loc_pprt;
-		pleaf->_index = GET_REF_PPRT(loc_pprt);
+		pleaf->_index = loc_pprt->getParticleID();
 		pleaf->_type = BSP_LEAF_PRT;
 	};
 
@@ -222,9 +221,9 @@ bool prt_BSP_removeAllLeaves()
 	prt_BSP_root->count = 0;
 
 	// Unlink all used particle nodes.
-	for (PRT_REF ref = 0; ref < ParticleHandler::get().getCount(); ref++)
+	for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
 	{
-		BSP_leaf_t::remove_link(ParticleHandler::get().get_ptr(ref)->POBJ_GET_PLEAF());
+		BSP_leaf_t::remove_link(&particle->getBSPLeaf());
 	}
 
 	return true;
@@ -304,17 +303,19 @@ bool prt_BSP_fill()
 {
 	// insert the particles
 	prt_BSP_root->count = 0;
-	PRT_BEGIN_LOOP_ACTIVE(iprt, prt_bdl)
+
+    for(const std::shared_ptr<Ego::Particle> &particle : Ego::ParticleHandler::get().iterator())
 	{
 		// reset a couple of things here
-		prt_bdl._prt_ptr->onwhichplatform_ref = INVALID_CHR_REF;
-		prt_bdl._prt_ptr->targetplatform_ref = INVALID_CHR_REF;
-		prt_bdl._prt_ptr->targetplatform_level = -1e32;
+		particle->onwhichplatform_ref = INVALID_CHR_REF;
+		particle->targetplatform_ref = INVALID_CHR_REF;
+		particle->targetplatform_level = -1e32;
+
+		prt_bundle_t prt_bdl = prt_bundle_t(particle.get());
 
 		// try to insert the particle
 		prt_BSP_insert(&prt_bdl);
 	}
-	PRT_END_LOOP()
 
 	return true;
 }

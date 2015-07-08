@@ -98,6 +98,8 @@ public:
      */
     PIP_REF getProfileID() const;
 
+    PRT_REF getParticleID() const;
+
     /**
      * @brief
      *  Get a pointer to the profile of this particle.
@@ -174,9 +176,15 @@ public:
 
     /**
     * @return
-    *   get the target of this Particle
+    *   get the target of this Particle (or nullptr if no valid target)
     **/
     const std::shared_ptr<Object>& getTarget() const;
+
+    /**
+    * @return
+    *   get the Object that this Particle is currently attached to (or nullptr if not attached)
+    **/
+    const std::shared_ptr<Object>& getAttachedObject() const;
 
     /**
     * @return
@@ -209,6 +217,26 @@ public:
     **/
     bool isOverWater() const;
 
+    /**
+    * @brief
+    *   Attaches this Particle to an Object
+    * @return
+    *   true if successfull
+    **/
+    bool attach(const CHR_REF attach);
+
+    /**
+    * @brief
+    *   Sets the target of this Particle
+    **/
+    void setTarget(const CHR_REF target);
+
+    BSP_leaf_t& getBSPLeaf() { return _bspLeaf; }
+
+    PRO_REF getSpawnerProfile() const { return _spawnerProfile; }
+
+    bool isHoming() const { return _isHoming; }
+
 private:
     bool updateSafe(bool force);
     bool updateSafeRaw();
@@ -234,14 +262,6 @@ private:
     *   (or a sound from the basicdat folder if it is a global particle)
     **/
     void playSound(int8_t soundID);
-
-    /**
-    * @brief
-    *   Attaches this Particle to an Object
-    * @return
-    *   true if successfull
-    **/
-    bool attach(const CHR_REF attach);
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;
@@ -365,6 +385,7 @@ public:
 
 private:
     const PRT_REF _particleID;
+    BSP_leaf_t    _bspLeaf;
 
     PIP_REF _particleProfileID;                ///< The particle profile
     std::shared_ptr<pip_t> _particleProfile;

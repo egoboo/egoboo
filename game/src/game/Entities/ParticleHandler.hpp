@@ -31,73 +31,76 @@
 #include "game/Entities/Particle.hpp"
 #include "game/Entities/OldParticle.hpp"
 
-//--------------------------------------------------------------------------------------------
-// looping macros
-//--------------------------------------------------------------------------------------------
-
-// Macros automate looping through the PrtList. This hides code which defers the creation and deletion of
-// objects until the loop terminates, so tha the length of the list will not change during the loop.
-
-#define PRT_BEGIN_LOOP_ACTIVE(IT, PRT_BDL) \
-    { \
-        int IT##_internal; \
-        int prt_loop_start_depth = ParticleHandler::get().getLockCount(); \
-        ParticleHandler::get().lock(); \
-        for(IT##_internal=0;IT##_internal<ParticleHandler::get().getUsedCount();IT##_internal++) \
-        { \
-            PRT_REF IT; \
-            IT = (PRT_REF)ParticleHandler::get().used_ref[IT##_internal]; \
-            if(!ACTIVE_PRT(IT)) continue; \
-			prt_bundle_t PRT_BDL(ParticleHandler::get().get_ptr( IT ));
-
-#define PRT_BEGIN_LOOP_DISPLAY(IT, PRT_BDL) \
-    { \
-        int IT##_internal; \
-        int prt_loop_start_depth = ParticleHandler::get().getLockCount(); \
-        ParticleHandler::get().lock(); \
-        for(IT##_internal=0;IT##_internal<ParticleHandler::get().getUsedCount();IT##_internal++) \
-        { \
-            PRT_REF IT; \
-            IT = (PRT_REF)ParticleHandler::get().used_ref[IT##_internal]; \
-            if(!DISPLAY_PRT(IT)) continue; \
-            prt_bundle_t PRT_BDL(ParticleHandler::get().get_ptr(IT));
-
-#define PRT_END_LOOP() \
-        } \
-        ParticleHandler::get().unlock(); \
-        EGOBOO_ASSERT(prt_loop_start_depth == ParticleHandler::get().getLockCount()); \
-        ParticleHandler::get().maybeRunDeferred(); \
-    }
-
-//--------------------------------------------------------------------------------------------
-// external variables
-//--------------------------------------------------------------------------------------------
-
-struct ParticleHandler : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF, PARTICLES_MAX, BSP_LEAF_PRT>
+class ParticleHandler : public Id::NonCopyable
 {
+public:
+    static ParticleHandler& get();
+
+    /**
+    * @brief A completely recursive loop safe container for accessing instances of in-game objects
+    **/
+    class ParticleIterator
+    {
+    public:
+
+        inline std::vector<std::shared_ptr<Ego::Particle>>::const_iterator cbegin() const 
+        {
+            return ParticleHandler::get()._activeParticles.cbegin();
+        }
+
+        inline std::vector<std::shared_ptr<Ego::Particle>>::const_iterator cend() const 
+        {
+            return ParticleHandler::get()._activeParticles.cend();
+        }
+
+        inline std::vector<std::shared_ptr<Ego::Particle>>::iterator begin()
+        {
+            return ParticleHandler::get()._activeParticles.begin();
+        }
+
+        inline std::vector<std::shared_ptr<Ego::Particle>>::iterator end()
+        {
+            return ParticleHandler::get()._activeParticles.end();
+        }   
+
+        ~ParticleIterator()
+        {
+            //Free the ParticleHandler lock
+            ParticleHandler::get().unlock();
+        }
+
+        // Copy constructor
+        ParticleIterator(const ParticleIterator &other)
+        {
+            ParticleHandler::get().lock();
+        }
+        
+        // Disable copy assignment operator
+        ParticleIterator& operator=(const ParticleIterator&) = delete;
+    
+    private:
+        ParticleIterator()
+        {
+            // Ensure the ParticleHandler is locked as long as we are in existance.
+            ParticleHandler::get().lock();
+        }
+
+        friend class ParticleHandler;
+    };
+
+public:
     ParticleHandler() :
-        _LockableList(),
-        _maxParticles(0)
+        _maxParticles(0),
+        _semaphoreLock(0),
+        _unusedPool(),
+        _activeParticles(),
+        _particleMap()
     {
         setDisplayLimit(512);
     }
 
-    void update_used();
+    ParticleIterator iterator() const { return ParticleIterator(); }
 
-    /**
-     * @brief
-     *  Get an unused particle.
-     *   If all particles are in use and @a force is @a true, get the first unimportant one.
-     * @return
-     *  the particle index on success, INVALID_PRT_REF on failure
-     */
-    PRT_REF allocate(const bool force);
-
-public:
-
-    static ParticleHandler& get();
-
-public:
     /**
     * @brief
     *   Updates all particles and free particles that have been marked as terminated
@@ -122,15 +125,10 @@ public:
 
     /**
      * @brief
-     *  Spawn a particle.
-     * @param position
-     *  the position of the particle
-     * @param facing
-     *  the facing of the particle
-     * @return
-     *  the index of the particle on success, INVALID_PRT_REF on failure
+     *  Same as spawnParticle() except that it uses LocalParticleProfileRef instead of a PIP_REF
+     *  Ideally we would like to remove this function as it is simply a wrapper
      */
-    PRT_REF spawn_one_particle(const fvec3_t& position, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
+    std::shared_ptr<Ego::Particle> spawnLocalParticle(const fvec3_t& position, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                                const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget);
     /**
@@ -184,39 +182,16 @@ public:
 private:
     std::shared_ptr<Ego::Particle> getFreeParticle(bool force);
 
-    //TODO: REMOVE
-    PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const PIP_REF ipip,
-                                              const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                                              const CHR_REF chr_origin, const PRT_REF prt_origin, const int multispawn, const CHR_REF oldtarget);
+    void lock();
+
+    void unlock();
 
 private:
     size_t _maxParticles;   ///< Maximum allowed active particles to be alive at the same time
+    std::atomic<size_t> _semaphoreLock;
 
     std::vector<std::shared_ptr<Ego::Particle>> _unusedPool;         //Particles currently unused
     std::vector<std::shared_ptr<Ego::Particle>> _activeParticles;    //List of all particles that are active ingame
 
     std::unordered_map<PRT_REF, std::shared_ptr<Ego::Particle>> _particleMap; //Mapping from PRT_REF to Particle
 };
-
-//--------------------------------------------------------------------------------------------
-// testing functions
-//--------------------------------------------------------------------------------------------
-
-bool VALID_PRT_RANGE(const PRT_REF ref);
-bool DEFINED_PRT(const PRT_REF ref);
-bool ALLOCATED_PRT(const PRT_REF ref);
-bool ACTIVE_PRT(const PRT_REF ref);
-bool WAITING_PRT(const PRT_REF ref);
-bool TERMINATED_PRT(const PRT_REF ref);
-PRT_REF GET_REF_PPRT(const prt_t *ptr);
-bool DEFINED_PPRT(const prt_t *ptr);
-bool ALLOCATED_PPRT(const prt_t *ptr);
-bool ACTIVE_PPRT(const prt_t *ptr);
-bool WAITING_PPRT(const prt_t *ptr);
-bool TERMINATED_PPRT(const prt_t *ptr);
-bool INGAME_PRT_BASE(const PRT_REF ref);
-bool INGAME_PPRT_BASE(const prt_t *ptr);
-bool INGAME_PRT(const PRT_REF ref);
-bool INGAME_PPRT(const prt_t *ptr);
-bool DISPLAY_PRT(const PRT_REF IPRT);
-bool DISPLAY_PPRT(const prt_t *ptr);

@@ -25,101 +25,6 @@
 #include "game/egoboo_object.h"
 #include "game/Entities/Particle.hpp"
 
-//--------------------------------------------------------------------------------------------
-
-bool VALID_PRT_RANGE(const PRT_REF ref)
-{
-    return ref < ParticleHandler::get().getDisplayLimit();
-}
-
-bool DEFINED_PRT(const PRT_REF ref)
-{
-    return ParticleHandler::get()[ref] != nullptr;
-}
-
-bool ALLOCATED_PRT(const PRT_REF ref)
-{
-    return ParticleHandler::get().ALLOCATED(ref);
-}
-
-bool ACTIVE_PRT(const PRT_REF ref)
-{
-    return ParticleHandler::get().ACTIVE(ref);
-}
-
-bool WAITING_PRT(const PRT_REF ref)
-{
-    return ParticleHandler::get().WAITING(ref);
-}
-
-bool TERMINATED_PRT(const PRT_REF ref)
-{
-    return ParticleHandler::get().TERMINATED(ref);
-}
-
-PRT_REF GET_REF_PPRT(const prt_t *ptr)
-{
-	return LAMBDA(!ptr, INVALID_PRT_REF, ptr->GET_REF_POBJ(INVALID_PRT_REF));
-}
-
-//--------------------------------------------------------------------------------------------
-
-bool DEFINED_PPRT(const prt_t *ptr)
-{
-    return ParticleHandler::get().DEFINED(ptr);
-}
-
-bool ALLOCATED_PPRT(const prt_t *ptr)
-{
-    return ParticleHandler::get().ALLOCATED(ptr);
-}
-
-bool ACTIVE_PPRT(const prt_t *ptr)
-{
-    return ParticleHandler::get().ACTIVE(ptr);
-}
-
-bool WAITING_PPRT(const prt_t *ptr)
-{
-    return ParticleHandler::get().WAITING(ptr);
-}
-
-bool TERMINATED_PPRT(const prt_t *ptr)
-{
-    return ParticleHandler::get().TERMINATED(ptr);
-}
-
-bool INGAME_PRT_BASE(const PRT_REF ref)
-{
-    return ParticleHandler::get().INGAME_BASE(ref);
-}
-
-bool INGAME_PPRT_BASE(const prt_t *ptr)
-{
-    return ParticleHandler::get().INGAME_BASE(ptr);
-}
-
-bool DISPLAY_PRT(const PRT_REF ref)
-{
-    return INGAME_PRT_BASE(ref);
-}
-
-bool DISPLAY_PPRT(const prt_t *ptr)
-{
-    return INGAME_PPRT_BASE(ptr);
-}
-
-bool INGAME_PRT(const PRT_REF ref)
-{
-    return LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PRT(ref), INGAME_PRT_BASE(ref) && (!ParticleHandler::get().get_ptr(ref)->is_ghost));
-}
-
-bool INGAME_PPRT(const prt_t *ptr)
-{
-    return LAMBDA(Ego::Entities::spawnDepth > 0, INGAME_PPRT_BASE(ptr), DISPLAY_PPRT(ptr) && (!(ptr)->is_ghost));
-}
-
-//--------------------------------------------------------------------------------------------
 
 static ParticleHandler PrtList;
 
@@ -129,48 +34,7 @@ ParticleHandler& ParticleHandler::get()
 }
 
 //--------------------------------------------------------------------------------------------
-void ParticleHandler::update_used()
-{
-    prune_used_list();
-    prune_free_list();
-
-    // Go through the object list to see if there are any dangling objects.
-    for (PRT_REF ref = 0; ref < getCount(); ++ref)
-    {
-        if (!isValidRef(ref)) continue;
-        prt_t *x = get_ptr(ref);
-		if (!x->ALLOCATED_PBASE()) continue;
-
-        if (DISPLAY_PPRT(x))
-        {
-            if (!x->in_used_list)
-            {
-                push_used(ref);
-            }
-        }
-		else if (!x->DEFINED_BASE_RAW()) // We can use DEFINED_BASE_RAW as the reference is valid.
-        {
-            if (!x->in_free_list)
-            {
-                add_free_ref(ref);
-            }
-        }
-    }
-
-    // Blank out the unused elements of the used list.
-    for (size_t i = getUsedCount(); i < getCount(); ++i)
-    {
-        used_ref[i] = INVALID_PRT_REF;
-    }
-
-    // Blank out the unused elements of the free list.
-    for (size_t i = getFreeCount(); i < getCount(); ++i)
-    {
-        free_ref[i] = INVALID_PRT_REF;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
+#if 0
 PRT_REF ParticleHandler::allocate(const bool force)
 {
     // Return INVALID_PRT_REF if we can't find one.
@@ -293,89 +157,16 @@ PRT_REF ParticleHandler::allocate(const bool force)
 
     return iprt;
 }
+#endif
 
-PRT_REF ParticleHandler::spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const PIP_REF ipip,
-                                          const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                                          const CHR_REF chr_origin, const PRT_REF prt_origin, const int multispawn, const CHR_REF oldtarget)
-{
-    if (!LOADED_PIP(ipip))
-    {
-        log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                  REF_TO_INT(ipip), REF_TO_INT(chr_origin), _currentModule->getObjectHandler().exists(chr_origin) ? _currentModule->getObjectHandler().get(chr_origin)->Name : "INVALID",
-                  REF_TO_INT(iprofile), ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getPathname().c_str() : "INVALID");
-
-        return INVALID_PRT_REF;
-    }
-    std::shared_ptr<pip_t> ppip = PipStack.get_ptr(ipip);
-
-    // count all the requests for this particle type
-    ppip->_spawnRequestCount++;
-
-    PRT_REF iprt = ParticleHandler::get().allocate(ppip->force);
-    if (!DEFINED_PRT(iprt))
-    {
-        log_debug("spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-                  chr_origin, _currentModule->getObjectHandler().exists(chr_origin) ? _currentModule->getObjectHandler().get(chr_origin)->Name : "INVALID",
-                  ipip, LOADED_PIP(ipip) ? PipStack.get_ptr(ipip)->_name.c_str() : "INVALID",
-                  iprofile, ProfileSystem::get().isValidProfileID(iprofile) ? ProfileSystem::get().getProfile(iprofile)->getPathname().c_str() : "INVALID");
-
-        return INVALID_PRT_REF;
-    }
-    prt_t *pprt = ParticleHandler::get().get_ptr(iprt);
-
-    if (pprt->isAllocated())
-    {
-        if (!pprt->spawning)
-        {
-            pprt->spawning = true;
-            Ego::Entities::spawnDepth++;
-        }
-    }
-
-    pprt->spawn_data.pos = pos;
-
-    pprt->spawn_data.facing = facing;
-    pprt->spawn_data.iprofile = iprofile;
-    pprt->spawn_data.ipip = ipip;
-
-    pprt->spawn_data.chr_attach = chr_attach;
-    pprt->spawn_data.vrt_offset = vrt_offset;
-    pprt->spawn_data.team = team;
-
-    pprt->spawn_data.chr_origin = chr_origin;
-    pprt->spawn_data.prt_origin = prt_origin;
-    pprt->spawn_data.multispawn = multispawn;
-    pprt->spawn_data.oldtarget = oldtarget;
-
-    // actually force the character to spawn
-    // count all the successful spawns of this particle
-    if (pprt->config_activate(100))
-    {
-		pprt->POBJ_END_SPAWN();
-        ppip->_spawnCount++;
-    }
-
-    return iprt;
-}
-
-PRT_REF ParticleHandler::spawn_one_particle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
+std::shared_ptr<Ego::Particle> ParticleHandler::spawnLocalParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const LocalParticleProfileRef& pip_index,
                                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget)
 {
-    PIP_REF ipip = INVALID_PIP_REF;
+    //Local character pip
+    PIP_REF ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index); 
 
-    if (!ProfileSystem::get().isValidProfileID(iprofile))
-    {
-        // check for a global pip
-        ipip = ((pip_index.get() < 0) || (pip_index.get() > MAX_PIP)) ? MAX_PIP : static_cast<PIP_REF>(pip_index.get());
-    }
-    else
-    {
-        //Local character pip
-        ipip = ProfileSystem::get().getProfile(iprofile)->getParticleProfile(pip_index);
-    }
-    return spawnOneParticle(pos, facing, iprofile, ipip, chr_attach, vrt_offset, team, chr_origin, prt_origin,
-                            multispawn, oldtarget);
+    return spawnParticle(pos, facing, iprofile, ipip, chr_attach, vrt_offset, team, chr_origin, prt_origin, multispawn, oldtarget);
 }
 
 const std::shared_ptr<Ego::Particle>& ParticleHandler::operator[] (const PRT_REF index)
@@ -487,10 +278,48 @@ void ParticleHandler::setDisplayLimit(size_t displayLimit)
     }
 }
 
+void ParticleHandler::lock()
+{
+    _semaphoreLock++;
+}
+
+void ParticleHandler::unlock()
+{
+    if(_semaphoreLock == 0) {
+        throw std::logic_error("ParticleHandler::unlock() without prior lock()");
+    }
+    _semaphoreLock--;
+
+    //All locks disengaged?
+    if(_semaphoreLock == 0) {
+        auto condition = [this](const std::shared_ptr<Ego::Particle> &particle) 
+        {
+            if(!particle->isTerminated()) {
+                return false;
+            }
+
+            if (particle->getBSPLeaf().isInList()) {
+                return false;
+            }
+
+            //Play end sound, trigger end spawn, etc.
+            particle->destroy();
+
+            //Free to be used by another instance again
+            _unusedPool.push_back(particle);
+
+            return true;
+        };
+
+        //Remove dead particles from the active list and add them to the free pool
+        _activeParticles.erase(std::remove_if(_activeParticles.begin(), _activeParticles.end(), condition), _activeParticles.end());
+    }
+}
+
 void ParticleHandler::updateAllParticles()
 {
     //Update every active particle
-    for(const std::shared_ptr<Ego::Particle> &particle : _activeParticles)
+    for(const std::shared_ptr<Ego::Particle> &particle : iterator())
     {
         if(particle->isTerminated()) {
             continue;
@@ -498,22 +327,4 @@ void ParticleHandler::updateAllParticles()
 
         particle->update();
     }
-
-    auto condition = [this](const std::shared_ptr<Ego::Particle> &particle) 
-    {
-        if(!particle->isTerminated()) {
-            return false;
-        }
-
-        //Play end sound, trigger end spawn, etc.
-        particle->destroy();
-
-        //Free to be used by another instance again
-        _unusedPool.push_back(particle);
-
-        return true;
-    };
-
-    //Remove dead particles from the active list and add them to the free pool
-    _activeParticles.erase(std::remove_if(_activeParticles.begin(), _activeParticles.end(), condition), _activeParticles.end());
 }
