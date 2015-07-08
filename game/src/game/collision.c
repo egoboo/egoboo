@@ -1461,6 +1461,8 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+
         if ( INVALID_CHR_REF != particle->onwhichplatform_ref && particle->onwhichplatform_update < update_wld )
         {
             detach_particle_from_platform( particle.get() );

@@ -306,6 +306,8 @@ bool prt_BSP_fill()
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
 	{
+        if(particle->isTerminated()) continue;
+        
 		// reset a couple of things here
 		particle->onwhichplatform_ref = INVALID_CHR_REF;
 		particle->targetplatform_ref = INVALID_CHR_REF;

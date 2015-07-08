@@ -377,11 +377,6 @@ void Particle::update()
         return;
     }
 
-    // down the remaining lifetime of the particle
-    if (lifetime_remaining > 0) {
-        lifetime_remaining--;
-    }
-
     // Determine if a "homing" particle still has something to "home":
     // If its homing (according to its profile), is not attached to an object (yet),
     // and a target exists, then the particle will "home" that target.
@@ -404,6 +399,11 @@ void Particle::update()
     updateContinuousSpawning();
 
     updateAttachedDamage();
+
+    // down the remaining lifetime of the particle
+    if (lifetime_remaining > 0) {
+        lifetime_remaining--;
+    }
 
     // If the particle is done updating, remove it from the game, but do not kill it
     if (!is_eternal && 0 == lifetime_remaining)

@@ -2766,6 +2766,8 @@ gfx_rv gfx_make_dynalist(dynalist_t& dyl, Camera& cam)
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+        
         dynalight_info_t * pprt_dyna = &(particle->dynalight);
 
         // is the light on?

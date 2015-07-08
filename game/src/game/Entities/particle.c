@@ -855,6 +855,8 @@ void move_all_particles()
     // move every particle
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+
         // prime the environment
         particle->enviro.air_friction = Physics::g_environment.airfriction;
         particle->enviro.ice_friction = Physics::g_environment.icefriction;
@@ -984,6 +986,8 @@ int spawn_bump_particles(const CHR_REF character, const PRT_REF particle)
                 // determine if some of the vertex sites are already occupied
                 for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
                 {
+                    if(particle->isTerminated()) continue;
+
                     if (pchr != particle->getAttachedObject().get()) continue;
 
                     if (particle->attachedto_vrt_off < vertices)

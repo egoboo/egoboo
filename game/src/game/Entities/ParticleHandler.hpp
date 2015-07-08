@@ -29,7 +29,7 @@
 #include "game/egoboo_object.h"
 #include "game/LockableList.hpp"
 #include "game/Entities/Particle.hpp"
-#include "game/Entities/OldParticle.hpp"
+#include "game/Entities/particle.h"
 
 class ParticleHandler : public Id::NonCopyable
 {
@@ -100,6 +100,11 @@ public:
         setDisplayLimit(512);
     }
 
+    /**
+    * @brief
+    *   Return a safe iterator that guarantees no changes will be made to the list
+    *   as long as the iterator is alive
+    **/
     ParticleIterator iterator() const { return ParticleIterator(); }
 
     /**
@@ -124,6 +129,10 @@ public:
      */
     void setDisplayLimit(size_t displayLimit);
 
+    /**
+    * @brief
+    *   Resets and clears the particle handler, freeing all allocated Particle memory from the game
+    **/
     void clear();
 
     /**

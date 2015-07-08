@@ -456,7 +456,6 @@ void activate_alliance_file_vfs()
 void update_used_lists()
 {
     EnchantHandler::get().update_used();
-    ParticleHandler::get().updateAllParticles();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2483,7 +2482,7 @@ void disaffirm_attached_particles( const CHR_REF character )
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if(!particle->isAttached() || !particle->isTerminated()) continue;
+        if(!particle->isAttached() || particle->isTerminated()) continue;
 
         if ( particle->getAttachedObject()->getCharacterID() == character )
         {
@@ -2508,7 +2507,7 @@ int number_of_attached_particles( const CHR_REF character )
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if(!particle->isAttached() || !particle->isTerminated()) continue;
+        if(!particle->isAttached() || particle->isTerminated()) continue;
 
         if ( particle->getAttachedObject()->getCharacterID() == character )
         {

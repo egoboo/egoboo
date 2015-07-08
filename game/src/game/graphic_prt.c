@@ -485,6 +485,8 @@ void render_all_prt_attachment()
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+
         prt_bundle_t prt_bdl(particle.get());
         prt_draw_attached_point(&prt_bdl);
     }
@@ -494,6 +496,8 @@ void render_all_prt_bbox()
 {
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+
         prt_bundle_t prt_bdl(particle.get());
         render_prt_bbox(&prt_bdl);
     }
@@ -578,6 +582,8 @@ gfx_rv update_all_prt_instance(Camera& camera)
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
+        if(particle->isTerminated()) continue;
+        
         prt_bundle_t prt_bdl(particle.get());
 
         prt_instance_t *pinst = &(prt_bdl._prt_ptr->inst);
