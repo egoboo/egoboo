@@ -442,7 +442,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
 /// AI targeting
 bool  chr_check_target( Object * psrc, const CHR_REF iObjectest, IDSZ idsz, const BIT_FIELD targeting_bits );
 CHR_REF chr_find_target( Object * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
-CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
+CHR_REF prt_find_target( const fvec3_t& pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
 
 /// object initialization
 void  free_all_objects();

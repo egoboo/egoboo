@@ -172,19 +172,51 @@ public:
     **/
     bool hasValidTarget() const;
 
+    /**
+    * @return
+    *   true if this Particle has been terminated and will be removed from the game soon
+    **/
+    bool isTerminated() const;
+
+    bool spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, const CHR_REF spawnProfile, const TEAM_REF spawnTeam, 
+        const FACING_T spawnFacing, const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const CHR_REF spawnAttach, 
+        const uint16_t vrt_offset, const int multispawn, const CHR_REF spawnTarget);
+
+
 private:
     bool updateSafe(bool force);
     bool updateSafeRaw();
 
+    void updateWater();
+
+    void updateAnimation();
+
+    void updateDynamicLighting();
+
+    size_t updateContinuousSpawning();
+
+    /**
+    * @brief
+    *   This makes the particle deal damage to whomever it is attached to
+    *   (happens about once every second)
+    **/
+    void updateAttachedDamage();
+
+    /**
+    * @brief
+    *   Final stuff done before the particle is removed from game
+    **/
+    void destroy();
+
+    /**
+    * @brief
+    *   Makes this Particle play a sound effect from its spawner sounds
+    *   (or a sound from the basicdat folder if it is a global particle)
+    **/
+    void playSound(int8_t soundID);
+
 public:
     bool is_ghost;                   ///< the particle has been killed, but is hanging around a while...
-
-    // profiles
-    /**
-     * @brief
-     *  The profile related to the spawned particle.
-     */
-    PRO_REF profile_ref;
 
     // links
     /**
@@ -242,6 +274,12 @@ public:
      *  Use a count-down timer.
      */
     size_t lifetime_remaining;
+
+    /**
+    * @brief
+    *   Number of frames it has been rendered
+    **/
+    size_t frame_count;
 
     /**
      * @brief
@@ -316,6 +354,12 @@ private:
      *  Example: Target-seeking arrows/bolts or similar particles.
      */
     CHR_REF _target;
+
+    /**
+     * @brief
+     *  The profile related to the spawned particle.
+     */
+    PRO_REF _spawnerProfile;
 
     // motion effects
     bool _isHoming;             ///< Is the particle in control of its motion?

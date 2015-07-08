@@ -722,7 +722,7 @@ void game_reset_timers()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
+CHR_REF prt_find_target( const fvec3_t& pos, FACING_T facing,
                          const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget )
 {
     /// @author ZF

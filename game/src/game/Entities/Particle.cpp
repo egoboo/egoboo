@@ -39,6 +39,7 @@ Particle::Particle(PRT_REF ref) :
     _particleProfile(nullptr),
     _isTerminated(true),
     _target(INVALID_CHR_REF),
+    _spawnerProfile(INVALID_CHR_REF),
     _isHoming(false)
 {
     reset();
@@ -56,6 +57,7 @@ void Particle::reset()
     owner_ref = INVALID_CHR_REF;
     _target = INVALID_CHR_REF;
     parent_ref = INVALID_PRT_REF;
+    _spawnerProfile = INVALID_CHR_REF,
 
     attachedto_vrt_off = 0;
     type = 0;
@@ -135,8 +137,8 @@ bool Particle::setPosition(const fvec3_t& position)
     {
         this->pos = position;
 
-        this->_tile = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
-        this->_block = ego_mesh_t::get_block(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
+        _tile = ego_mesh_t::get_grid(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
+        _block = ego_mesh_t::get_block(_currentModule->getMeshPointer(), PointWorld(this->pos[kX], this->pos[kY])).getI();
 
         // Update whether the current particle position is safe.
         updateSafe(false);
@@ -353,10 +355,20 @@ bool Particle::hasValidTarget() const
     return _currentModule->getObjectHandler()[_target] != nullptr;
 }
 
+bool Particle::isTerminated() const
+{
+    return _isTerminated;
+}
+
+PIP_REF Particle::getProfileID() const
+{
+    return _particleID;
+}
+
 void Particle::update()
 {
     //Should never happen
-    if(_isTerminated) {
+    if(isTerminated()) {
         return;
     }
 
@@ -365,33 +377,810 @@ void Particle::update()
         return;
     }
 
+    // down the remaining lifetime of the particle
+    if (lifetime_remaining > 0) {
+        lifetime_remaining--;
+    }
+
     // Determine if a "homing" particle still has something to "home":
     // If its homing (according to its profile), is not attached to an object (yet),
     // and a target exists, then the particle will "home" that target.
     _isHoming = getProfile()->homing && !isAttached() && hasValidTarget();
 
     // Update the particle interaction with water.
-    /// @todo This might end the particle, however, the test via the return value *sucks*.
-    //if (!update_do_water()) return nullptr;
+    updateWater();
+    if(isTerminated()) {
+        return; //destroyed by water
+    }
 
     // Update the particle animation.
-    /// @todo This might end the particle, however, the test via the return value *sucks*.
-    //if (!update_animation()) return nullptr;
+    updateAnimation();
+    if(isTerminated()) {
+        return; //destroyed by end of animation
+    }
 
-    //if (!update_dynalight()) return NULL;
+    updateDynamicLighting();
 
-    //if (!update_timers()) return NULL;
+    updateContinuousSpawning();
 
-    //do_contspawn();
-
-    //if (!this->do_bump_damage()) return NULL;
+    updateAttachedDamage();
 
     // If the particle is done updating, remove it from the game, but do not kill it
     if (!is_eternal && 0 == lifetime_remaining)
     {
         requestTerminate();
     }
+}
 
+void Particle::updateWater()
+{
+    bool inwater = (pos[kZ] < water._surface_level) && (0 != ego_mesh_t::test_fx(_currentModule->getMeshPointer(), getTile(), MAPFX_WATER));
+
+    if (inwater && water._is_water && getProfile()->end_water)
+    {
+        // Check for disaffirming character
+        if (isAttached() && owner_ref == _attachedTo)
+        {
+            // Disaffirm the whole character
+            disaffirm_attached_particles(_attachedTo);
+        }
+        else
+        {
+            // destroy the particle
+            requestTerminate();
+            return;
+        }
+    }
+    else if (inwater)
+    {
+        bool  spawn_valid = false;
+        LocalParticleProfileRef global_pip_index;
+        fvec3_t vtmp = fvec3_t(pos[kX], pos[kY], water._surface_level);
+
+        if (INVALID_CHR_REF == owner_ref && (PIP_SPLASH == getProfileID() || PIP_RIPPLE == getProfileID()))
+        {
+            /* do not spawn anything for a splash or a ripple */
+            spawn_valid = false;
+        }
+        else
+        {
+            if (!enviro.inwater)
+            {
+                if (SPRITE_SOLID == type)
+                {
+                    global_pip_index = LocalParticleProfileRef(PIP_SPLASH);
+                }
+                else
+                {
+                    global_pip_index = LocalParticleProfileRef(PIP_RIPPLE);
+                }
+                spawn_valid = true;
+            }
+            else
+            {
+                if (SPRITE_SOLID == type && !isAttached())
+                {
+                    // only spawn ripples if you are touching the water surface!
+                    if (pos[kZ] + bump_real.height > water._surface_level && pos[kZ] - bump_real.height < water._surface_level)
+                    {
+                        int ripand = ~((~RIPPLEAND) << 1);
+                        if (0 == ((update_wld + _particleID) & ripand))
+                        {
+
+                            spawn_valid = true;
+                            global_pip_index = LocalParticleProfileRef(PIP_RIPPLE);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (spawn_valid)
+        {
+            // Splash for particles is just a ripple
+            ParticleHandler::get().spawn_one_particle_global(vtmp, 0, global_pip_index, 0);
+        }
+
+        enviro.inwater = true;
+    }
+    else
+    {
+        enviro.inwater = false;
+    }
+}
+
+void Particle::updateAnimation()
+{
+    /// animate the particle
+
+    bool image_overflow = false;
+    long image_overflow_amount = 0;
+    if (_image._offset >= _image._count)
+    {
+        // how did the image get here?
+        image_overflow = true;
+
+        // cast the integers to larger type to make sure there are no overflows
+        image_overflow_amount = (long)_image._offset + (long)_image._add - (long)_image._count;
+    }
+    else
+    {
+        // the image is in the correct range
+        if ((_image._count - _image._offset) > _image._add)
+        {
+            // the image will not overflow this update
+            _image._offset = _image._offset + _image._add;
+        }
+        else
+        {
+            image_overflow = true;
+            // cast the integers to larger type to make sure there are no overflows
+            image_overflow_amount = (long)_image._offset + (long)_image._add - (long)_image._count;
+        }
+    }
+
+    // what do you do about an image overflow?
+    if (image_overflow)
+    {
+        if (getProfile()->end_lastframe /*&& getProfile()->end_time > 0*/) //ZF> I don't think the second statement is needed
+        {
+            // freeze it at the last frame
+            _image._offset = std::max(0, _image._count - 1);
+        }
+        else
+        {
+            // the animation is looped. set the value to image_overflow_amount
+            // so that we get the exact number of image updates called for
+            _image._offset = image_overflow_amount;
+        }
+    }
+
+    // rotate the particle
+    rotate += rotate_add;
+
+    // update the particle size
+    if (0 != size_add)
+    {
+        int size_new;
+
+        // resize the paricle
+        size_new = size + size_add;
+        size_new = Ego::Math::constrain(size_new, 0, 0xFFFF);
+
+        setSize(size_new);
+    }
+
+    // spin the particle
+    facing += getProfile()->facingadd;
+
+    // frames_remaining refers to the number of animation updates, not the
+    // number of frames displayed
+    if (frames_remaining > 0)
+    {
+        frames_remaining--;
+    }
+
+    // the animation has terminated
+    if (getProfile()->end_lastframe && 0 == frames_remaining)
+    {
+        requestTerminate();
+    }
+}
+
+void Particle::updateDynamicLighting()
+{
+    // Change dyna light values
+    if (dynalight.level > 0)
+    {
+        dynalight.level += getProfile()->dynalight.level_add;
+        if (dynalight.level < 0) dynalight.level = 0;
+    }
+    else if (dynalight.level < 0)
+    {
+        // try to guess what should happen for negative lighting
+        dynalight.level += getProfile()->dynalight.level_add;
+        if (dynalight.level > 0) dynalight.level = 0;
+    }
+    else
+    {
+        dynalight.level += getProfile()->dynalight.level_add;
+    }
+
+    dynalight.falloff += getProfile()->dynalight.falloff_add;
+}
+
+size_t Particle::updateContinuousSpawning()
+{
+    size_t spawn_count = 0;
+
+    if (getProfile()->contspawn._amount <= 0 || LocalParticleProfileRef::Invalid == getProfile()->contspawn._lpip)
+    {
+        return spawn_count;
+    }
+
+    //Are we ready to spawn yet?
+    if (contspawn_timer > 0) {
+        contspawn_timer--;
+        return spawn_count;
+    }
+
+    // reset the spawn timer
+    contspawn_timer = getProfile()->contspawn._delay;
+
+    FACING_T facing = this->facing;
+    for (size_t tnc = 0; tnc < getProfile()->contspawn._amount; tnc++)
+    {
+        PRT_REF prt_child = ParticleHandler::get().spawn_one_particle(getPosition(), facing, _spawnerProfile, getProfile()->contspawn._lpip,
+                                                                      INVALID_CHR_REF, GRIP_LAST, team, owner_ref, _particleID, tnc, _target);
+
+        if (DEFINED_PRT(prt_child))
+        {
+            //Keep count of how many were actually spawned
+            spawn_count++;
+        }
+
+        facing += getProfile()->contspawn._facingAdd;
+    }
+
+    return spawn_count;
+}
+
+void Particle::updateAttachedDamage()
+{
+    // this is often set to zero when the particle hits something
+    int max_damage = std::abs(damage.base) + std::abs(damage.rand);
+
+    // wait until the right time
+    Uint32 update_count = update_wld + _particleID;
+    if (0 != (update_count & 31)) return;
+
+    // we must be attached to something
+    if (!isAttached()) return;
+
+    const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
+
+    // find out who is holding the owner of this object
+    CHR_REF iholder = chr_get_lowest_attachment(target->getCharacterID(), true);
+    if (INVALID_CHR_REF == iholder) iholder = target->getCharacterID();
+
+    // do nothing if you are attached to your owner
+    if ((INVALID_CHR_REF != owner_ref) && (iholder == owner_ref || target->getCharacterID() == owner_ref)) return;
+
+    //---- only do damage in certain cases:
+
+    // 1) the particle has the DAMFX_ARRO bit
+    bool skewered_by_arrow = HAS_SOME_BITS(getProfile()->damfx, DAMFX_ARRO);
+
+    // 2) the character is vulnerable to this damage type
+    bool has_vulnie = chr_has_vulnie(target->getCharacterID(), _spawnerProfile);
+
+    // 3) the character is "lit on fire" by the particle damage type
+    bool is_immolated_by = (damagetype < DAMAGE_COUNT && target->reaffirm_damagetype == damagetype);
+
+    // 4) the character has no protection to the particle
+    bool no_protection_from = (0 != max_damage) && (damagetype < DAMAGE_COUNT) && (0.0f <= target->getDamageReduction(damagetype));
+
+    if (!skewered_by_arrow && !has_vulnie && !is_immolated_by && !no_protection_from)
+    {
+        return;
+    }
+
+    IPair local_damage;
+    if (has_vulnie || is_immolated_by)
+    {
+        // the damage is the maximum damage over and over again until the particle dies
+        range_to_pair(getProfile()->damage, &local_damage);
+    }
+    else if (no_protection_from)
+    {
+        // take a portion of whatever damage remains
+        local_damage = damage;
+    }
+    else
+    {
+        range_to_pair(getProfile()->damage, &local_damage);
+
+        local_damage.base /= 2;
+        local_damage.rand /= 2;
+
+        // distribute 1/2 of the maximum damage over the particle's lifetime
+        if (!is_eternal)
+        {
+            // how many 32 update cycles will this particle live through?
+            int cycles = lifetime_total / 32;
+
+            if (cycles > 1)
+            {
+                local_damage.base /= cycles;
+                local_damage.rand /= cycles;
+            }
+        }
+    }
+
+    //---- special effects
+    if (getProfile()->allowpush && 0 == getProfile()->vel_hrz_pair.base)
+    {
+        // Make character limp
+        target->vel[kX] *= 0.5f;
+        target->vel[kY] *= 0.5f;
+    }
+
+    //---- do the damage
+    int actual_damage = target->damage(ATK_BEHIND, local_damage, static_cast<DamageType>(damagetype), team,
+        _currentModule->getObjectHandler()[owner_ref], getProfile()->damfx, false);
+
+    // adjust any remaining particle damage
+    if (damage.base > 0)
+    {
+        damage.base -= actual_damage;
+        damage.base = std::max(0, damage.base);
+
+        // properly scale the random amount
+        damage.rand = std::abs(getProfile()->damage.to - getProfile()->damage.from) * damage.base / getProfile()->damage.from;
+    }
+}
+
+void Particle::destroy()
+{
+    // The object is waiting to be killed, so do all of the end of life care for the particle.
+
+    // Spawn new particles if time for old one is up
+    if (endspawn_amount > 0 && LocalParticleProfileRef::Invalid != endspawn_lpip)
+    {
+        FACING_T facing = this->facing;
+        for (size_t tnc = 0; tnc < endspawn_amount; tnc++)
+        {
+            PRT_REF spawned_prt = ParticleHandler::get().spawn_one_particle(pos_old, facing, _spawnerProfile, endspawn_lpip,
+                                                                            INVALID_CHR_REF, GRIP_LAST, team, owner_ref,
+                                                                            _particleID, tnc, _target);
+            facing += endspawn_facingadd;
+        }
+
+        // we have already spawned these particles, so set this amount to
+        // zero in case we are not actually calling end_one_particle_in_game()
+        // this time around.
+        endspawn_amount = 0;
+    }
+
+    if (SPAWNNOCHARACTER != endspawn_characterstate)
+    {
+        CHR_REF child = spawn_one_character(getPosition(), _spawnerProfile, team, 0, facing, NULL, INVALID_CHR_REF);
+        if (_currentModule->getObjectHandler().exists(child))
+        {
+            Object *pchild = _currentModule->getObjectHandler().get(child);
+
+            chr_set_ai_state(pchild, endspawn_characterstate);
+            pchild->ai.owner = owner_ref;
+        }
+    }
+
+    // Play end sound
+    playSound(getProfile()->end_sound);
+}
+
+void Particle::playSound(int8_t sound)
+{
+    //Invalid sound?
+    if(sound < 0) {
+        return;
+    }
+
+    //If we were spawned by an Object, then use that Object's sound pool
+    const auto profile = ProfileSystem::get().getProfile(_spawnerProfile);
+    if (profile) {
+        AudioSystem::get().playSound(pos, profile->getSoundID(sound));
+    }
+
+    //Else we are a global particle and use global particle sounds
+    else if (sound >= 0 && sound < GSND_COUNT)
+    {
+        GlobalSound globalSound = static_cast<GlobalSound>(sound);
+        AudioSystem::get().playSound(pos, AudioSystem::get().getGlobalSound(globalSound));
+    }
+}
+
+bool Particle::spawn(const PIP_REF particleProfile, const fvec3_t &spawnPos, const CHR_REF spawnProfile, const TEAM_REF spawnTeam, 
+    const FACING_T spawnFacing, const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const CHR_REF spawnAttach, 
+    const uint16_t vrt_offset, const int multispawn, const CHR_REF spawnTarget)
+{
+    const int INFINITE_UPDATES = std::numeric_limits<int>::max();
+
+    int     velocity;
+    fvec3_t vel;
+    int     offsetfacing = 0, newrand;
+    TURN_T  turn;
+    float   loc_spdlimit;
+    int     prt_life_frames_updates, prt_anim_frames_updates;
+    bool  prt_life_infinite, prt_anim_infinite;
+
+    if(!isTerminated()) {
+        log_warning("Tried to spawn an existing particle that was not terminated\n");
+        return false;
+    }
+
+    // Convert from local pdata->ipip to global pdata->ipip
+    if (!LOADED_PIP(particleProfile))
+    {
+        log_debug("spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+            REF_TO_INT(_particleID), REF_TO_INT(spawnOrigin), _currentModule->getObjectHandler().exists(spawnOrigin) ? _currentModule->getObjectHandler().get(spawnOrigin)->Name : "INVALID",
+            REF_TO_INT(spawnProfile), ProfileSystem::get().isValidProfileID(spawnProfile) ? ProfileSystem::get().getProfile(spawnProfile)->getPathname().c_str() : "INVALID");
+
+        return false;
+    }
+
+    //Load particle profile
+    _particleProfileID = particleProfile;
+    _particleProfile = PipStack.get_ptr(_particleProfileID);
+    _spawnerProfile = spawnProfile;
+    team = spawnTeam;
+    parent_ref = spawnParticleOrigin;
+    damagetype = getProfile()->damageType;
+    lifedrain = getProfile()->lifeDrain;
+    manadrain = getProfile()->manaDrain;
+
+    //Mark particle as no longer terminated
+    _isTerminated = false;
+
+    // Save a version of the position for local use.
+    // In cpp, will be passed by reference, so we do not want to alter the
+    // components of the original vector.
+    fvec3_t tmp_pos = spawnPos;
+    FACING_T loc_facing = spawnFacing;
+
+    // try to get an idea of who our owner is even if we are
+    // given bogus info
+    CHR_REF loc_chr_origin = spawnOrigin;
+    if (!_currentModule->getObjectHandler().exists(spawnOrigin) && DEFINED_PRT(spawnParticleOrigin))
+    {
+        loc_chr_origin = prt_get_iowner(spawnParticleOrigin, 0);
+    }
+    owner_ref = loc_chr_origin;
+
+    // Lighting and sound
+    dynalight = getProfile()->dynalight;
+    dynalight.on = false;
+    if (0 == multispawn)
+    {
+        dynalight.on = getProfile()->dynalight.mode;
+        if (DYNA_MODE_LOCAL == getProfile()->dynalight.mode)
+        {
+            dynalight.on = DYNA_MODE_OFF;
+        }
+    }
+
+    // Set character attachments ( pdata->chr_attach == INVALID_CHR_REF means none )
+    _attachedTo = spawnAttach;
+    attachedto_vrt_off = vrt_offset;
+
+    // Correct loc_facing
+    loc_facing = loc_facing + getProfile()->facing_pair.base;
+
+    // Targeting...
+    vel[kZ] = 0;
+
+    offset[kZ] = generate_irand_pair(getProfile()->spacing_vrt_pair) - (getProfile()->spacing_vrt_pair.rand / 2);
+    tmp_pos[kZ] += offset[kZ];
+    velocity = generate_irand_pair(getProfile()->vel_hrz_pair);
+
+    //Set target
+    _target = spawnTarget;
+    if (getProfile()->newtargetonspawn)
+    {
+        if (getProfile()->targetcaster)
+        {
+            // Set the target to the caster
+            _target = owner_ref;
+        }
+        else
+        {
+            const int PERFECT_AIM = 45.0f;   // 45 dex is perfect aim
+            const float attackerAgility = _currentModule->getObjectHandler().get(owner_ref)->getAttribute(Ego::Attribute::AGILITY);
+
+            // Find a target
+            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, spawnTarget);
+            const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
+
+            if (target && !getProfile()->homing)
+            {
+                /// @note ZF@> ?What does this do?!
+                /// @note BB@> glouseangle is the angle found in prt_find_target()
+                loc_facing -= glouseangle;
+            }
+
+            //Agility determines how good we aim towards the target
+            offsetfacing = 0;
+            if ( attackerAgility < PERFECT_AIM)
+            {
+                //Add some random error (Apply 50% error at 10 Agility)
+                float aimError = 0.5f;
+
+                //Increase aim error by 5% for each Agility below 10 (up to a max of 100% error at 0 Agility)
+                if(attackerAgility < 10.0f) {
+                    aimError += 0.5f - (attackerAgility*0.05f);
+                }
+                else {
+                    //Agility reduces aim error (convering towards 0% error at 45 Agility)
+                    aimError -= (0.5f/PERFECT_AIM) * attackerAgility;
+                }
+
+                offsetfacing = Random::next(getProfile()->facing_pair.rand) - (getProfile()->facing_pair.rand / 2);
+                offsetfacing *= aimError;
+            }
+
+            if (0.0f != getProfile()->zaimspd)
+            {
+                if (target)
+                {
+                    // These aren't velocities...  This is to do aiming on the Z axis
+                    if (velocity > 0)
+                    {
+                        vel[kX] = target->getPosX() - spawnPos[kX];
+                        vel[kY] = target->getPosY() - spawnPos[kY];
+                        float distance = std::sqrt(vel[kX] * vel[kX] + vel[kY] * vel[kY]) / velocity;  // This is the number of steps...
+                        if (distance > 0.0f)
+                        {
+                            // This is the vel[kZ] alteration
+                            vel[kZ] = (target->getPosZ() + (target->bump.height * 0.5f) - tmp_pos[kZ]) / distance;
+                        }
+                    }
+                }
+                else
+                {
+                    vel[kZ] = 0.5f * getProfile()->zaimspd;
+                }
+
+                vel[kZ] = Ego::Math::constrain(vel[kZ], -0.5f * getProfile()->zaimspd, getProfile()->zaimspd);
+            }
+        }
+
+        const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
+
+        // Does it go away?
+        if (!target && getProfile()->needtarget)
+        {
+            requestTerminate();
+            return false;
+        }
+
+        // Start on top of target
+        if (target && getProfile()->startontarget)
+        {
+            tmp_pos[kX] = target->getPosX();
+            tmp_pos[kY] = target->getPosY();
+        }
+    }
+    else
+    {
+        // Correct loc_facing for randomness
+        offsetfacing = generate_irand_pair(getProfile()->facing_pair) - (getProfile()->facing_pair.base + getProfile()->facing_pair.rand / 2);
+    }
+    loc_facing = loc_facing + offsetfacing;
+    facing = loc_facing;
+
+    // this is actually pointing in the opposite direction?
+    turn = TO_TURN(loc_facing);
+
+    // Location data from arguments
+    newrand = generate_irand_pair(getProfile()->spacing_hrz_pair);
+    offset[kX] = -turntocos[turn] * newrand;
+    offset[kY] = -turntosin[turn] * newrand;
+
+    tmp_pos[kX] += offset[kX];
+    tmp_pos[kY] += offset[kY];
+
+    tmp_pos[kX] = CLIP(tmp_pos[kX], 0.0f, _currentModule->getMeshPointer()->gmem.edge_x - 2.0f);
+    tmp_pos[kY] = CLIP(tmp_pos[kY], 0.0f, _currentModule->getMeshPointer()->gmem.edge_y - 2.0f);
+
+    setPosition(tmp_pos);
+    pos_old = tmp_pos;
+    pos_stt = tmp_pos;
+
+    // Velocity data
+    vel[kX] = -turntocos[turn] * velocity;
+    vel[kY] = -turntosin[turn] * velocity;
+    vel[kZ] += generate_irand_pair(getProfile()->vel_vrt_pair) - (getProfile()->vel_vrt_pair.rand / 2);
+    vel = vel_old = vel_stt = vel;
+
+    // Template values
+    bump_size_stt = getProfile()->bump_size;
+    type = getProfile()->type;
+
+    // Image data
+    rotate = (FACING_T)generate_irand_pair(getProfile()->rotate_pair);
+    rotate_add = getProfile()->rotate_add;
+
+    size_stt = getProfile()->size_base;
+    size_add = getProfile()->size_add;
+
+    _image._start = (getProfile()->image_stt)*EGO_ANIMATION_MULTIPLIER;
+    _image._add = generate_irand_pair(getProfile()->image_add);
+    _image._count = (getProfile()->image_max)*EGO_ANIMATION_MULTIPLIER;
+
+    // a particle can EITHER end_lastframe or end_time.
+    // if it ends after the last frame, end_time tells you the number of cycles through
+    // the animation
+    prt_anim_frames_updates = 0;
+    prt_anim_infinite = false;
+    if (getProfile()->end_lastframe)
+    {
+        if (0 == _image._add)
+        {
+            prt_anim_frames_updates = INFINITE_UPDATES;
+            prt_anim_infinite = true;
+        }
+        else
+        {
+            prt_anim_frames_updates = _image.getUpdateCount();
+
+            if (getProfile()->end_time > 0)
+            {
+                // Part time is used to give number of cycles
+                prt_anim_frames_updates *= getProfile()->end_time;
+            }
+        }
+    }
+    else
+    {
+        // no end to the frames
+        prt_anim_frames_updates = INFINITE_UPDATES;
+        prt_anim_infinite = true;
+    }
+    prt_anim_frames_updates = std::max(1, prt_anim_frames_updates);
+
+    // estimate the number of frames
+    prt_life_frames_updates = 0;
+    prt_life_infinite = false;
+    if (getProfile()->end_lastframe)
+    {
+        // for end last frame, the lifetime is given by the
+        prt_life_frames_updates = prt_anim_frames_updates;
+        prt_life_infinite = prt_anim_infinite;
+    }
+    else if (getProfile()->end_time <= 0)
+    {
+        // zero or negative lifetime == infinite lifetime
+        prt_life_frames_updates = INFINITE_UPDATES;
+        prt_life_infinite = true;
+    }
+    else
+    {
+        prt_life_frames_updates = getProfile()->end_time;
+    }
+    prt_life_frames_updates = std::max(1, prt_life_frames_updates);
+
+    // set lifetime counter
+    if (prt_life_infinite)
+    {
+        lifetime_total = (size_t)(~0);
+        is_eternal = true;
+    }
+    else
+    {
+        // the lifetime is really supposed to be in terms of frames, but
+        // to keep the number of updates stable, the frames could lag.
+        // sooo... we just rescale the prt_life_frames_updates so that it will work with the
+        // updates and cross our fingers
+        lifetime_total = std::ceil((float)prt_life_frames_updates * (float)GameEngine::GAME_TARGET_UPS / (float)GameEngine::GAME_TARGET_FPS);
+    }
+
+    // make the particle exists for AT LEAST one update
+    lifetime_total = std::max((size_t)1, lifetime_total);
+    lifetime_remaining = lifetime_total;
+
+    // set the frame counters
+    // make the particle display AT LEAST one frame, regardless of how many updates
+    // it has or when someone requests for it to terminate
+    frames_total = std::max(1, prt_anim_frames_updates);
+    lifetime_remaining = lifetime_total;
+
+    // Damage stuff
+    range_to_pair(getProfile()->damage, &(damage));
+
+    // Spawning data
+    contspawn_timer = getProfile()->contspawn._delay;
+    if (0 != contspawn_timer)
+    {
+        contspawn_timer = 1;
+        if (isAttached())
+        {
+            contspawn_timer++; // Because attachment takes an update before it happens
+        }
+    }
+
+    // the end-spawn data. determine the
+    endspawn_amount = getProfile()->endspawn._amount;
+    endspawn_facingadd = getProfile()->endspawn._facingAdd;
+    endspawn_lpip = getProfile()->endspawn._lpip;
+
+    // set up the particle transparency
+    inst.alpha = 0xFF;
+    switch (inst.type)
+    {
+    case SPRITE_SOLID: break;
+    case SPRITE_ALPHA: inst.alpha = 0x80; break;    //#define PRT_TRANS 0x80
+    case SPRITE_LIGHT: break;
+    }
+
+    // is the spawn location safe?
+    fvec2_t nrm;
+    if (0 == hit_wall(tmp_pos, nrm, nullptr, nullptr))
+    {
+        safe_pos = tmp_pos;
+        safe_valid = true;
+        safe_grid = getTile();
+    }
+
+    // get an initial value for the is_homing variable
+    _isHoming = getProfile()->homing && !isAttached();
+
+    //enable or disable gravity
+    no_gravity = getProfile()->ignore_gravity;
+
+    // estimate some parameters for buoyancy and air resistance
+    loc_spdlimit = getProfile()->spdlimit;
+
+    {
+        const float buoyancy_min = 0.0f;
+        const float buoyancy_max = 2.0f * std::abs(Physics::g_environment.gravity);
+        const float air_resistance_min = 0.0f;
+        const float air_resistance_max = 1.0f;
+
+        // find the buoyancy, assuming that the air_resistance of the particle
+        // is equal to air_friction at standard gravity
+        buoyancy = -loc_spdlimit * (1.0f - Physics::g_environment.airfriction) - Physics::g_environment.gravity;
+        buoyancy = CLIP(buoyancy, buoyancy_min, buoyancy_max);
+
+        // reduce the buoyancy if the particle falls
+        if (loc_spdlimit > 0.0f) buoyancy *= 0.5f;
+
+        // determine if there is any left-over air resistance
+        if (std::abs(loc_spdlimit) > 0.0001f)
+        {
+            air_resistance = 1.0f - (buoyancy + Physics::g_environment.gravity) / -loc_spdlimit;
+            air_resistance = CLIP(air_resistance, air_resistance_min, air_resistance_max);
+
+            air_resistance /= Physics::g_environment.airfriction;
+            air_resistance = CLIP(air_resistance, 0.0f, 1.0f);
+        }
+        else
+        {
+            air_resistance = 0.0f;
+        }
+    }
+
+    endspawn_characterstate = SPAWNNOCHARACTER;
+
+    setSize(getProfile()->size_base);
+
+#if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
+
+    // some code to track all allocated particles, where they came from, how long they are going to last,
+    // what they are being used for...
+    log_debug( "spawn_one_particle() - spawned a particle %d\n"
+        "\tupdate == %d, last update == %d, frame == %d, minimum frame == %d\n"
+        "\towner == %d(\"%s\")\n"
+        "\tpip == %d(\"%s\")\n"
+        "\t\t%s"
+        "\tprofile == %d(\"%s\")\n"
+        "\n",
+        iprt,
+        update_wld, lifetime, game_frame_all, safe_time,
+        loc_chr_origin, _currentModule->getObjectHandler().exists( loc_chr_origin ) ? _currentModule->getObjectHandler().get(loc_chr_origin)->Name : "INVALID",
+        _particleProfileID, getProfile()->name, getProfile()->comment,
+        spawnProfile, ProfileSystem::get().isValidProfileID(spawnProfile) ? ProList.lst[spawnProfile].name : "INVALID");
+#endif
+
+    if (INVALID_CHR_REF != _attachedTo)
+    {
+        //!!TODO!!
+        //prt_bundle_t prt_bdl(pprt);
+        //attach_one_particle(&prt_bdl);
+    }
+
+    //Spawn sound effect
+    playSound(getProfile()->soundspawn);
+
+    return true;
 }
 
 } //Ego
