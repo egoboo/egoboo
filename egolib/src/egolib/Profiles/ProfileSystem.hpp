@@ -143,6 +143,12 @@ public:
         return _loadPlayerList;
     }
 
+    /**
+     * @brief
+     *  This reads in global particles (e.g. money).
+     */
+    void loadGlobalParticleProfiles();
+
 private:
     std::unordered_map<size_t, TX_REF> _bookIcons; //List of all book icons loaded
     std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded; //Maps slot numbers to ObjectProfiles

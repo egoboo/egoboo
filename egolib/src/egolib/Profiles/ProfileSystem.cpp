@@ -62,7 +62,7 @@ ProfileSystem::ProfileSystem() :
 ProfileSystem::~ProfileSystem()
 {
     // Reset all profiles.
-    reset();
+    //reset();
 
     // Uninitialize the script compiler.
     parser_state_t::uninitialize();
@@ -376,4 +376,91 @@ void ProfileSystem::loadAllSavedCharacters(const std::string &saveGameDirectory)
         foundfile = vfs_search_context_get_current(ctxt);
     }
     vfs_findClose(&ctxt);
+}
+
+void ProfileSystem::loadGlobalParticleProfiles()
+{
+    const char *loadpath;
+
+    // Load in the standard global particles ( the coins for example )
+    loadpath = "mp_data/1money.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN1 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/5money.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN5 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/25money.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN25 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/100money.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_COIN100 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/200money.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM200 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/500money.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM500 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/1000money.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM1000 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/2000money.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_GEM2000 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+#if 0
+    // Load module specific information
+    loadpath = "mp_data/weather4.txt";
+    if (INVALID_PIP_REF == PipStack.load_one(loadpath, (PIP_REF)PIP_WEATHER)) 
+    {
+        /*log_error("Data file was not found! (\"%s\")\n", loadpath);*/
+    }
+
+    loadpath = "mp_data/weather5.txt";
+    if (INVALID_PIP_REF == PipStack.load_one(loadpath, (PIP_REF)PIP_WEATHER_FINISH))
+    {
+        /*log_error("Data file was not found! (\"%s\")\n", loadpath);*/
+    }
+#endif
+
+    loadpath = "mp_data/splash.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_SPLASH ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/ripple.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_RIPPLE ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    // This is also global...
+    loadpath = "mp_data/defend.txt";
+    if ( INVALID_PIP_REF == PipStack.load_one( loadpath, ( PIP_REF )PIP_DEFEND ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
 }

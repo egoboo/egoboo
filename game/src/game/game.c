@@ -2395,7 +2395,7 @@ void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
     AudioSystem::get().loadGlobalSounds();
-    ParticleHandler::get().reset_all();
+    ProfileSystem::get().loadGlobalParticleProfiles();
 
     if ( NULL == read_wawalite_vfs() )
     {

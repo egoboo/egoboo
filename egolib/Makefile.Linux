@@ -48,9 +48,9 @@ all: $(EGOLIB_TARGET)
 
 # Generic rule
 %.o: %.c
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	ccache $(CXX) $(CXXFLAGS) -c $< -o $@
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	ccache $(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(EGOLIB_TARGET): $(OBJECTS)
 	ar rcsv $(EGOLIB_TARGET) $(OBJECTS)

@@ -60,12 +60,12 @@ all: $(BIN)
 
 # Generic rule
 %.o: %.c
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
+	ccache $(CXX) -o $@ $(CXXFLAGS) -c $<
 %.o: %.cpp
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
+	ccache $(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(BIN): $(OBJECTS)
-	$(CXX) -o $@ $^ $(LINKER_LIBS) 
+	ccache $(CXX) -o $@ $^ $(LINKER_LIBS) 
 
 clean:
 	rm -f ./src/game/*.o ./src/game/*/*.o $(BIN)

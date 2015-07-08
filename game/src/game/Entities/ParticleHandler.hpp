@@ -29,6 +29,7 @@
 #include "game/egoboo_object.h"
 #include "game/LockableList.hpp"
 #include "game/Entities/Particle.hpp"
+#include "game/Entities/OldParticle.hpp"
 
 //--------------------------------------------------------------------------------------------
 // looping macros
@@ -90,12 +91,6 @@ struct ParticleHandler : public _LockableList < prt_t, PRT_REF, INVALID_PRT_REF,
      *  the particle index on success, INVALID_PRT_REF on failure
      */
     PRT_REF allocate(const bool force);
-
-    /**
-     * @brief
-     *  This resets all particle data and reads in global particles (e.g. money).
-     */
-    void reset_all();
 
 public:
 
@@ -162,6 +157,17 @@ public:
                              const int multispawn = 0, const CHR_REF oldtarget = INVALID_CHR_REF);
 
     PRT_REF spawn_one_particle_global(const fvec3_t& pos, FACING_T facing, const LocalParticleProfileRef& pip_index, int multispawn);
+
+    /**
+     * @brief Return a pointer object for the specifiec PRT_REF.
+     * @return a pointer object for the specified PRT_REF.
+     *         Return nullptr object if PRT_REF was not found.
+     */
+    const std::shared_ptr<Ego::Particle>& operator[] (const PRT_REF index);
+
+private:
+    std::vector<std::shared_ptr<Ego::Particle>> _unusedPool;         //Particles currently unused
+    std::vector<std::shared_ptr<Ego::Particle>> _activeParticles;    //List of all particles that are active ingame
 };
 
 //--------------------------------------------------------------------------------------------

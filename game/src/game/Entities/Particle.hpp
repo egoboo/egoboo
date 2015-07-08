@@ -19,35 +19,18 @@
 
 /// @file  game/Entities/Particle.hpp
 /// @brief Particle entities.
+/// @author Johan Jansen aka Zefz
 
 #pragma once
-#if !defined(GAME_ENTITIES_PRIVATE) || GAME_ENTITIES_PRIVATE != 1
-#error(do not include directly, include `game/Entities/_Include.hpp` instead)
-#endif
 
 #include "game/egoboo_typedef.h"
-#include "game/egoboo_object.h"
 #include "game/graphic_prt.h"
-#include "game/physics.h"
-#include "egolib/_math.h"
-#include "egolib/bbox.h"
 #include "game/Entities/Common.hpp"
 #include "egolib/Graphics/Animation2D.hpp"
-#include "game/char.h"
 
-// Forward declarations.
-struct mesh_wall_data_t;
-struct ParticleHandler;
+namespace Ego
+{
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// Particles
-
-#define MAXPARTICLEIMAGE                256         ///< Number of particle images ( frames )
-
-#define SPAWNNOCHARACTER                255         ///< For particles that spawn characters...
-
-//--------------------------------------------------------------------------------------------
 
 /// Everything that is necessary to compute the character's interaction with the environment
 struct prt_environment_t
@@ -98,55 +81,105 @@ struct prt_environment_t
     }
 };
 
-//--------------------------------------------------------------------------------------------
-struct prt_spawn_data_t
-{
-    fvec3_t  pos;
-    FACING_T facing;
-    PRO_REF  iprofile;
-    PIP_REF  ipip;
-
-    CHR_REF  chr_attach;
-    Uint16   vrt_offset;
-    TEAM_REF team;
-
-    CHR_REF  chr_origin;
-    PRT_REF  prt_origin;
-    int      multispawn;
-    CHR_REF  oldtarget;
-
-    void reset()
-    {
-        pos = fvec3_t::zero();
-        facing = 0;
-        iprofile = INVALID_PRO_REF;
-        ipip = INVALID_PIP_REF;
-
-        chr_attach = INVALID_CHR_REF;
-        vrt_offset = 0;
-        team = 0; /// @todo Should be INVALID_TEAM_REF.
-        
-        chr_origin = INVALID_CHR_REF;
-        prt_origin = INVALID_PRT_REF;
-        multispawn = 0;
-        oldtarget  = INVALID_CHR_REF;
-    }
-};
-
 /**
  * @brief
  *  The definition of the particle entity.
- * @extends
- *  Ego::Entity
  */
-struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler>
+class Particle : public PhysicsData, public Id::NonCopyable
 {
+public:
+    Particle(PRT_REF ref);
+    
+    /**
+     * @brief
+     *  Get the profile index of this particle.
+     * @return
+     *  the profile index of this particle or INVALID_PIP_REF
+     */
+    PIP_REF getProfileID() const;
+
+    /**
+     * @brief
+     *  Get a pointer to the profile of this particle.
+     * @return
+     *  a pointer to the profile of this particle or a null pointer
+     */
+    const std::shared_ptr<pip_t>& getProfile() const;
+
+    /**
+    * @brief
+    *   TODO: SHOULD BE PRIVATE (use requestTerminate instead!)
+    **/
+    void reset();
+    void load(PIP_REF profile);
+
+    /// @details Tell the game to get rid of this object and treat it as if it was already dead.
+    /// @note This will force the game to (eventually) call end_one_particle_in_game() on this particle
+    void requestTerminate();
+
+    /**
+    * @brief
+    *   Set the altitude of this Particle
+    **/
+    void setElevation(const float level);
+
+    BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+
+    BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
+
+    BIT_FIELD test_wall(mesh_wall_data_t *data) override;
+
+    BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
+
+    /**
+    * @brief
+    *   Change the FP8 size of this Particle. Also updates collision bounds
+    **/
+    void setSize(int size);
+
+    /// @brief Get the scale factor between the "graphical size" of the particle and the actual display size.
+    float getScale() const;
+
+    /**
+    * @brief
+    *   Set the position of this Particle
+    **/
+    bool setPosition(const fvec3_t& position);
+
+    /**
+    * @brief
+    *   Apply one logic frame update to this particle
+    * @Note
+    *   Should not be done the first time through the update loop (0 == update_wld)
+    **/
+    void update();
+
+    /**
+    * @brief
+    *   true if it is attached to a hidden Object
+    **/
+    bool isHidden() const;
+
+    /**
+    * @brief
+    *   true if this Particle is attached to a valid Object
+    **/
+    bool isAttached() const;
+    
+    /**
+    * @brief
+    *   true if this Particle has a valid Object as an target
+    **/
+    bool hasValidTarget() const;
+
+private:
+    bool updateSafe(bool force);
+    bool updateSafeRaw();
+
+public:
     bool is_ghost;                   ///< the particle has been killed, but is hanging around a while...
 
-    prt_spawn_data_t  spawn_data;
-
     // profiles
-    PIP_REF pip_ref;                           ///< The particle profile
     /**
      * @brief
      *  The profile related to the spawned particle.
@@ -156,34 +189,16 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler
     // links
     /**
      * @brief
-     *  The object the particle is attached to.
-     *  Example: A fire particle is attached to a torch.
-     */
-    CHR_REF attachedto_ref;
-    /**
-     * @brief
      *  The object owning this particle.
      *  Example: A fire particle is owned by a torch.
      */
     CHR_REF owner_ref;
     /**
      * @brief
-     *  The object targeted by this particle.
-     *  Example: Target-seeking arrows/bolts or similar particles.
-     */
-    CHR_REF target_ref;
-    /**
-     * @brief
      *  The original parent particle if any.
      *  The particle which has spawned this particle if any, INVALID_PRT_REF otherwise.
      */
     PRT_REF parent_ref;                        ///< Did a another particle spawn this one?
-    /**
-     * @brief
-     *  The new parent particle (if the original parent was despawned).
-     */
-    Ego::GUID parent_guid; 
-
 
     Uint16   attachedto_vrt_off;               ///< It's vertex offset
     Uint8    type;                             ///< Transparency mode, 0-2
@@ -193,8 +208,6 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler
     fvec3_t vel_stt;        ///< Starting/initial velocity.
 
     fvec3_t offset;                            ///< The initial offset when spawning the particle
-
-    bool  is_hidden;                           ///< Is the particle related to a hidden character?
 
     FACING_T          rotate;                  ///< Rotation direction
     Sint16            rotate_add;              ///< Rotation rate
@@ -251,8 +264,6 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler
      */
     int contspawn_timer;
 
-    /**@}*/
-
     // bumping
     Uint32            bump_size_stt;           ///< the starting size of the particle (8.8 fixed point)
     bumper_t          bump_real;               ///< Actual size of the particle
@@ -272,7 +283,6 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler
     // motion effects
     float             buoyancy;                ///< an estimate of the particle bouyancy in air
     float             air_resistance;          ///< an estimate of the particle's extra resistance to air motion
-    bool              is_homing;               ///< Is the particle in control of its motion?
     bool              no_gravity;              ///< does the particle ignore gravity?
 
     // some data that needs to be copied from the particle profile
@@ -283,196 +293,32 @@ struct prt_t : public PhysicsData, _StateMachine<prt_t, PRT_REF, ParticleHandler
 
     dynalight_info_t  dynalight;               ///< Dynamic lighting...
     prt_instance_t    inst;                    ///< Everything needed for rendering
-    prt_environment_t enviro;                  ///< the particle's environment
+    Ego::prt_environment_t enviro;                  ///< the particle's environment
 
-    prt_t(PRT_REF ref);
-    ~prt_t();
-	void reset();
+private:
+    const PRT_REF _particleID;
 
-    /// @details Tell the game to get rid of this object and treat it as if it was already dead.
-    /// @note This will force the game to (eventually) call end_one_particle_in_game() on this particle
-    void requestTerminate();
-    void set_level(const float level);
-    /** @override */
-    BIT_FIELD hit_wall(fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
-    /** @override */
-    BIT_FIELD hit_wall(const fvec3_t& pos, fvec2_t& nrm, float *pressure, mesh_wall_data_t *data) override;
-    /** @override */
-    BIT_FIELD test_wall(mesh_wall_data_t *data) override;
-    /** @override */
-    BIT_FIELD test_wall(const fvec3_t& pos, mesh_wall_data_t *data) override;
-    bool set_size(int size);
-    /// @brief Get the scale factor between the "graphical size" of the particle and the actual display size.
-    float get_scale() const;
+    PIP_REF _particleProfileID;                ///< The particle profile
+    std::shared_ptr<pip_t> _particleProfile;
 
-    bool setPosition(const fvec3_t& position);
-protected:
-    static bool update_safe(prt_t *self, bool force);
-    static bool update_safe_raw(prt_t *self);
-public:
+    bool _isTerminated;
+
     /**
      * @brief
-     *  Get the profile index of this particle.
-     * @return
-     *  the profile index of this particle or INVALID_PIP_REF
+     *  The object the particle is attached to.
+     *  Example: A fire particle is attached to a torch.
      */
-    PIP_REF get_ipip() const;
+    CHR_REF _attachedTo;
+
     /**
      * @brief
-     *  Get a pointer to the profile of this particle.
-     * @return
-     *  a pointer to the profile of this particle or a null pointer
+     *  The object targeted by this particle.
+     *  Example: Target-seeking arrows/bolts or similar particles.
      */
-    std::shared_ptr<pip_t> get_ppip() const;
+    CHR_REF _target;
 
-    static bool free(prt_t * pprt);
-
-    // particle state machine function
-    void config_do_ctor() override;
-    // particle state machine function
-    prt_t *config_do_init() override;
-    // particle state machine function
-    prt_t *config_do_active() override;
-    // particle state machine function
-    void config_do_deinit() override;
-    // particle state machine function
-    void config_do_dtor() override;
+    // motion effects
+    bool _isHoming;             ///< Is the particle in control of its motion?
 };
 
-/**
- * @brief
- *  Convenient access to a prt ref and prt as well as pip ref and pip.
- */
-struct prt_bundle_t
-{
-    PRT_REF _prt_ref;
-    prt_t *_prt_ptr;
-
-    PIP_REF _pip_ref;
-    std::shared_ptr<pip_t> _pip_ptr;
-
-	prt_bundle_t();
-	prt_bundle_t(prt_t *prt);
-
-	prt_bundle_t *do_bump_damage();
-    prt_bundle_t *update();
-    /**
-     * @brief
-     *  Spawn new particles if continually spawning
-     * @return
-     *  the number of new particles spawned
-     */
-    int do_contspawn();
-	/// @brief
-	/// The master method to compute a particle's motion.
-    bool move_one_particle();
-private:
-	/// @brief
-	///	A helper method to compute the next valid position of this particle.
-	/// Collisions with the mesh are included in this step.
-    prt_bundle_t *move_one_particle_integrate_motion();
-	/// @brief
-	///	A helper method to compute the next valid position of this particle.
-	/// Collisions with the mesh are included in this step.
-    prt_bundle_t *move_one_particle_integrate_motion_attached();
-	/// @brief
-	/// A helper method to compute gravitational acceleration and buoyancy of this particle.
-	prt_bundle_t *updateParticleSimpleGravity();
-    prt_bundle_t *move_one_particle_do_z_motion();
-    prt_bundle_t *move_one_particle_do_homing();
-	/// @brief
-	/// Helper method to compute the friction of this particle with the floor.
-    prt_bundle_t *move_one_particle_do_floor_friction();
-	/// @brief
-	///	Helper method to compute the friction of this particle with the water.
-    prt_bundle_t *move_one_particle_do_fluid_friction();
-public:
-	/// @brief
-	/// Helper method to get all of the information about the particle's environment
-	/// (like friction, etc.) that will be necessary for the other move_one_particle_*()
-	/// functions to work
-    prt_bundle_t *move_one_particle_get_environment();
-private:
-    /**
-     * @brief
-     *  Update the animation of this particle.
-     * @return
-     *  a pointer to this particle bundle if
-     *  - the bundle holds a particle and
-     *  - this particle was not ended by this function,
-     *  a null pointer otherwise
-     */
-    prt_bundle_t *update_animation();
-    /**
-     * @brief
-     *  Handle the particle ?.
-     * @return
-     *  a pointer to this particle bundle if
-     *  - the bundle holds a particle and
-     *  - this particle was not ended by this function,
-     *  a null pointer otherwise
-     * @remark
-     *  This can not end the particle at least for now.
-     * @todo
-     *  Figure out what this crap is doing.
-     */
-    prt_bundle_t *update_dynalight();
-    /**
-     * @brief
-     *  Update the lifetime timers of this particle.
-     * @return
-     *  a pointer to this particle bundle if the bundle holds a particle, a null pointer otherwise
-     */
-    prt_bundle_t *update_timers();
-    /// @details update everything about a particle that does not depend on collisions
-    ///               or interactions with characters
-    prt_bundle_t *update_ingame();
-    /**
-     * @brief
-     *  Handle the case where the particle is a ghost.
-     * @return
-     *  a pointer to this particle bundle if
-     *  - the bundle holds a particle and
-     *  - this particle was not ended by this function,
-     *  a null pointer otherwise
-     * @remark
-     *  A particle is a "ghost" if it is still displayed, but is no longer in game.
-     */
-    prt_bundle_t *update_ghost();
-    /**
-     * @brief
-     *  Handle the particle interaction with water
-     * @return
-     *  a pointer to this particle bundle if
-     *  - the bundle holds a particle and
-     *  - this particle was not ended by this function,
-     *  a null pointer otherwise
-     */
-    prt_bundle_t *update_do_water();
-};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// counters for debugging wall collisions
-extern int prt_stoppedby_tests;
-extern int prt_pressure_tests;
-
-//--------------------------------------------------------------------------------------------
-// function prototypes
-//--------------------------------------------------------------------------------------------
-
-void update_all_particles();
-void move_all_particles();
-void cleanup_all_particles();
-void bump_all_particles_update_counters();
-
-/// @brief Mark particle as ghost.
-void end_one_particle_now(const PRT_REF particle);
-/// @brief End a particle and mark it as a ghost.
-void end_one_particle_in_game(const PRT_REF particle);
-bool prt_is_over_water(const PRT_REF particle);
-void prt_play_sound(const PRT_REF particle, Sint8 sound);
-CHR_REF prt_get_iowner(const PRT_REF iprt, int depth);
-
-std::shared_ptr<pip_t> prt_get_ppip(const PRT_REF ref);  /**< @deprecated */
+} //Ego
