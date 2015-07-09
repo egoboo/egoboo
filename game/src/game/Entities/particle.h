@@ -81,14 +81,14 @@ private:
 	/// @brief
 	/// A helper method to compute gravitational acceleration and buoyancy of this particle.
 	prt_bundle_t *updateParticleSimpleGravity();
-    prt_bundle_t *move_one_particle_do_z_motion();
+    //prt_bundle_t *move_one_particle_do_z_motion();
     prt_bundle_t *move_one_particle_do_homing();
 	/// @brief
 	/// Helper method to compute the friction of this particle with the floor.
     prt_bundle_t *move_one_particle_do_floor_friction();
 	/// @brief
 	///	Helper method to compute the friction of this particle with the water.
-    prt_bundle_t *move_one_particle_do_fluid_friction();
+    //prt_bundle_t *move_one_particle_do_fluid_friction();
 public:
 	/// @brief
 	/// Helper method to get all of the information about the particle's environment

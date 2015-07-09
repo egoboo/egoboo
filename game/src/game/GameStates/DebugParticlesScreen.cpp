@@ -58,6 +58,7 @@ DebugParticlesScreen::DebugParticlesScreen()
 
     //Count who is using all the particles
     std::unordered_map<PIP_REF, size_t> usageCount;
+    std::unordered_map<PIP_REF, size_t> terminatedCount;
     size_t invalidParticles = 0;
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
@@ -67,11 +68,12 @@ DebugParticlesScreen::DebugParticlesScreen()
             continue;
         }
 
-        if(particle->getProfile()->getName() == "mp_objects/wpotion.obj/part3.txt") {
-            log_warning("life remaining: %d\n", static_cast<int>(particle->lifetime_remaining));
+        if(particle->isTerminated()) {
+            terminatedCount[particle->getProfileID()] += 1;
         }
-
-        usageCount[particle->getProfileID()] += 1;
+        else {
+            usageCount[particle->getProfileID()] += 1;
+        }
     }
 
     std::shared_ptr<ScrollableList> scrollableList = std::make_shared<ScrollableList>();
@@ -88,8 +90,24 @@ DebugParticlesScreen::DebugParticlesScreen()
         labelString << particleProfile->getName();
 
         std::shared_ptr<Label> label = std::make_shared<Label>(labelString.str());
+        label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_DEBUG));
         scrollableList->addComponent(label);
     }
+
+    for(const auto &element : terminatedCount)
+    {
+        const std::shared_ptr<pip_t> &particleProfile = PipStack.get_ptr(element.first);
+
+        std::stringstream labelString;
+        labelString << element.second << " terminated particle" << ((element.second > 0) ? "s: " : ":");
+        labelString << particleProfile->getName();
+
+        std::shared_ptr<Label> label = std::make_shared<Label>(labelString.str());
+        label->setFont(_gameEngine->getUIManager()->getFont(UIManager::FONT_DEBUG));
+        label->setColor(Ego::Math::Colour4f::red());
+        scrollableList->addComponent(label);
+    }
+
 
     invalid->setText("Invalid active particles: " + std::to_string(invalidParticles));
     scrollableList->forceUpdate();

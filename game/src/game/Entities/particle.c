@@ -771,7 +771,7 @@ prt_bundle_t *prt_bundle_t::move_one_particle_integrate_motion()
         }
         else if (loc_pprt->hasValidTarget())
         {
-            const std::shared_ptr<Object> &ptarget = loc_pprt->getAttachedObject();
+            const std::shared_ptr<Object> &ptarget = loc_pprt->getTarget();
 
             // face your target
             loc_pprt->facing = vec_to_facing(ptarget->getPosX() - tmp_pos[kX], ptarget->getPosY() - tmp_pos[kY]);
@@ -804,7 +804,7 @@ bool prt_bundle_t::move_one_particle()
         loc_pprt->vel = loc_pprt->getPosition() - loc_pprt->pos_old;
     }
 
-    // Particle's old location
+    // Store particle's old location
     loc_pprt->pos_old = loc_pprt->getPosition();
     loc_pprt->vel_old = loc_pprt->vel;
 
