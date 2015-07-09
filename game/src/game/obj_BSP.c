@@ -174,7 +174,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     const std::shared_ptr<pip_t> &ppip = pprt->getProfile();
 
     // is the particle in-game?
-    if ( !pprt->isActive() || pprt->isHidden() ) return false;
+    if ( pprt->isTerminated() || pprt->isHidden() ) return false;
 
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
     has_enchant = false;

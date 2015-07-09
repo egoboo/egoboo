@@ -252,14 +252,6 @@ public:
     **/
     bool isHoming() const { return _isHoming; }
 
-    bool isGhost() const;
-
-    /**
-    * @brief
-    *   Particle cannot be interacted with but is still rendered normally
-    **/
-    bool isActive() const { return !isGhost() && !isTerminated(); }
-
     /**
     * @brief
     *   Makes this Particle play a sound effect from its spawner sounds
@@ -416,7 +408,6 @@ private:
     std::shared_ptr<pip_t> _particleProfile;
 
     bool _isTerminated;                        ///< Marked for destruction. No longer part of the game and will be removed ASAP
-    bool _isGhost;                             ///< the particle has been killed, but is hanging around a while...
 
     /**
      * @brief

@@ -847,7 +847,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, CollisionSystem::CollNodeAr
         oct_bb_t   tmp_oct;
         bool     can_reaffirm, needs_bump;
 
-		if (!particle->isActive()) continue;
+		if (particle->isTerminated()) continue;
 
         BSP_leaf_t *pleaf = &particle->getBSPLeaf();
 
@@ -1461,7 +1461,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if(!particle->isActive()) continue;
+        if(particle->isTerminated()) continue;
 
         if ( INVALID_CHR_REF != particle->onwhichplatform_ref && particle->onwhichplatform_update < update_wld )
         {
@@ -1640,7 +1640,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         bool position_updated = false;
         fvec3_t max_apos;
 
-        if(!particle->isActive()) {
+        if(particle->isTerminated()) {
             continue;
         }
 

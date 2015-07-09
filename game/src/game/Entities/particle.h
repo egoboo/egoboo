@@ -130,18 +130,7 @@ private:
     /// @details update everything about a particle that does not depend on collisions
     ///               or interactions with characters
     prt_bundle_t *update_ingame();
-    /**
-     * @brief
-     *  Handle the case where the particle is a ghost.
-     * @return
-     *  a pointer to this particle bundle if
-     *  - the bundle holds a particle and
-     *  - this particle was not ended by this function,
-     *  a null pointer otherwise
-     * @remark
-     *  A particle is a "ghost" if it is still displayed, but is no longer in game.
-     */
-    prt_bundle_t *update_ghost();
+
     /**
      * @brief
      *  Handle the particle interaction with water

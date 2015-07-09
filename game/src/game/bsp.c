@@ -169,7 +169,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	loc_pprt = pbdl_prt->_prt_ptr;
 
 	// is the particle in-game?
-	if (loc_pprt == nullptr || !loc_pprt->isActive() || loc_pprt->isHidden()) return false;
+	if (loc_pprt == nullptr || loc_pprt->isTerminated() || loc_pprt->isHidden()) return false;
 
 	// heal the leaf if necessary
 	BSP_leaf_t *pleaf = &loc_pprt->getBSPLeaf();
@@ -306,7 +306,7 @@ bool prt_BSP_fill()
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
 	{
-        if(!particle->isActive()) continue;
+        if(particle->isTerminated()) continue;
         
 		// reset a couple of things here
 		particle->onwhichplatform_ref = INVALID_CHR_REF;

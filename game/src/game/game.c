@@ -2505,7 +2505,7 @@ int number_of_attached_particles( const CHR_REF character )
 
     for(const std::shared_ptr<Ego::Particle> &particle : ParticleHandler::get().iterator())
     {
-        if(!particle->isAttached() || !particle->isActive()) continue;
+        if(!particle->isAttached() || particle->isTerminated()) continue;
 
         if ( particle->getAttachedObject()->getCharacterID() == character )
         {

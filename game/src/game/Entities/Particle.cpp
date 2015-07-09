@@ -51,7 +51,6 @@ void Particle::reset(PRT_REF ref)
 {
     _particleID = ref;
     _isTerminated = true;
-    _isGhost = false;
     frame_count = 0;
     _bspLeaf = BSP_leaf_t(this, BSP_LEAF_PRT, ref); //because we have a new ref
 
@@ -317,12 +316,7 @@ void Particle::setSize(int size)
 
 void Particle::requestTerminate()
 {
-    if(isVisible()) {
-        _isGhost = true;
-    }
-    else {
-        _isTerminated = true;
-    }
+    _isTerminated = true;
 }
 
 void Particle::setElevation(const float level)
@@ -400,28 +394,18 @@ void Particle::update()
         return; //destroyed by end of animation
     }
 
-    //Ghost particles are visible, but cannot be interacted with
-    if(!isGhost()) {
 
-        // Update the particle interaction with water.
-        updateWater();
-        if(isTerminated()) {
-            return; //destroyed by water
-        }
-
-        //Spawn other particles
-        updateContinuousSpawning();
-
-        //Damage whomever we are attached to
-        updateAttachedDamage();
+    // Update the particle interaction with water.
+    updateWater();
+    if(isTerminated()) {
+        return; //destroyed by water
     }
-    else {
-        // finished ghosting?
-        if (!isVisible()) {
-            _isTerminated = true;
-            return;
-        }
-    }
+
+    //Spawn other particles
+    updateContinuousSpawning();
+
+    //Damage whomever we are attached to
+    updateAttachedDamage();
 
     // down the remaining lifetime of the particle
     if (!is_eternal)
@@ -430,8 +414,8 @@ void Particle::update()
             lifetime_remaining--;
         }
         else {
-            //Force terminate, no ghosting
-            _isTerminated = true;
+            //end of life
+            requestTerminate();
         }
     }
 }
@@ -587,8 +571,8 @@ void Particle::updateAnimation()
     // the animation has terminated
     if (getProfile()->end_lastframe && 0 == frames_remaining)
     {
-        //Force terminate, no ghosting allowed
-        _isTerminated = true;
+        //End of life
+        requestTerminate();
     }
 }
 
@@ -1321,11 +1305,6 @@ PRT_REF Particle::getParticleID() const
 bool Particle::isVisible() const
 {
     return size > 0 && inst.alpha > 0 && !isHidden();
-}
-
-bool Particle::isGhost() const
-{
-    return _isGhost;
 }
 
 void Particle::setHoming(bool homing)
