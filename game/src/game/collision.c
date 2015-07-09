@@ -2615,11 +2615,6 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
     pdata->mana_paid = false;
     if ( chr_is_invictus || ( prt_wants_deflection && chr_can_deflect ) )
     {
-        // Initialize for the billboard
-        const float lifetime = 3;
-        const auto text_color = Ego::Math::Colour4f::white();
-        const auto tint = Ego::Math::Colour4f(getBlockActionColour(),1);
-
         // magically deflect the particle or make a ricochet if the character is invictus
         int treatment;
 
@@ -2641,8 +2636,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
             if ( treatment == MISSILE_DEFLECT )
             {
                 // Deflect the incoming ray off the normal
-                //pdata->vimpulse -= pdata->vdiff_para * 2.0f;
-                //TODO
+                pdata->pprt->phys.avel -= pdata->vdiff_para * 2.0f;
 
                 // the ricochet is not guided
                 pdata->pprt->setHoming(false);
@@ -2650,8 +2644,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
             else if ( treatment == MISSILE_REFLECT )
             {
                 // Reflect it back in the direction it came
-                //pdata->vimpulse -= pdata->vdiff * 2.0f;
-                //TODO
+                pdata->pprt->phys.avel -= pdata->vdiff * 2.0f;
 
                 // Change the owner of the missile
                 pdata->pprt->team       = pdata->pchr->team;
@@ -2662,7 +2655,12 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
             if(0 == pdata->pchr->damage_timer) 
             {
                 spawn_defense_ping( pdata->pchr, pdata->pprt->owner_ref );
-                chr_make_text_billboard( GET_INDEX_PCHR( pdata->pchr ), "Blocked!", text_color, tint, lifetime, Billboard::Flags::All );                
+
+                // Initialize for the billboard
+                const float lifetime = 3;
+                const auto text_color = Ego::Math::Colour4f::white();
+                const auto tint = Ego::Math::Colour4f(getBlockActionColour(),1);                
+                chr_make_text_billboard( pdata->pchr->getCharacterID(), "Blocked!", text_color, tint, lifetime, Billboard::Flags::All );                
             }
 
             // If the attack was blocked by a shield, then check if the block caused a knockback
@@ -2968,8 +2966,6 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
         // DAMFX_ARRO means that it only does damage to the one it's attached to
         if ( HAS_NO_BITS(pdata->ppip->damfx, DAMFX_ARRO) && (!prt_needs_impact || pdata->is_impact) )
         {
-            log_warning("DEBUG damge dealt\n");
-
             //Damage adjusted for attributes and weaknesses
             IPair modifiedDamage = pdata->pprt->damage;
 
