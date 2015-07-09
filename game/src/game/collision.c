@@ -3013,6 +3013,9 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
                 modifiedDamage.rand = ( modifiedDamage.rand << 1 ) | 1;
 
                 SET_BIT( pdata->pchr->ai.alert, ALERTIF_HITVULNERABLE );
+
+                // Initialize for the billboard
+                chr_make_text_billboard(pdata->pchr->getCharacterID(), "Super Effective!", Ego::Math::Colour4f::white(), Ego::Math::Colour4f::yellow(), 3, Billboard::Flags::All);
             }
 
             // Damage the character
