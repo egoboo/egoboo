@@ -39,7 +39,6 @@ struct ParticleHandler;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Particles
-#define MAXPARTICLEIMAGE                256         ///< Number of particle images ( frames )
 #define SPAWNNOCHARACTER                255         ///< For particles that spawn characters...
 
 /**

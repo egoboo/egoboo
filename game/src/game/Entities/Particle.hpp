@@ -44,7 +44,7 @@ struct prt_environment_t
     float  level;                 ///< Height of a tile or a platform
     float  zlerp;
 
-    float adj_level;              ///< The level for the particle to sit on the floor or a platform
+    float adj_level;              ///< The level for the particle to sit on the floor or a platform (including bump height)
     float adj_floor;              ///< The level for the particle to sit on the floor or a platform
 
     // friction stuff

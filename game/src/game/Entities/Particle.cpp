@@ -323,7 +323,7 @@ void Particle::setElevation(const float level)
 {
     enviro.level = level;
 
-    float loc_height = getScale() * std::max(FP8_TO_FLOAT(size), offset[kZ] * 0.5f);
+    float loc_height = bump_real.height * 0.5f;
 
     enviro.adj_level = enviro.level;
     enviro.adj_floor = enviro.floor_level;
@@ -765,6 +765,7 @@ void Particle::destroy()
         }
     }
 
+    //Spawn an Object on particle end? (happens through a special script function)
     if (SPAWNNOCHARACTER != endspawn_characterstate)
     {
         CHR_REF child = spawn_one_character(getPosition(), _spawnerProfile, team, 0, facing, NULL, INVALID_CHR_REF);
