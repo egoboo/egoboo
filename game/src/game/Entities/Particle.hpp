@@ -91,7 +91,7 @@ struct prt_environment_t
 class Particle : public PhysicsData, public Id::NonCopyable
 {
 public:
-    Particle(PRT_REF ref);
+    Particle();
     
     /**
      * @brief
@@ -118,12 +118,6 @@ public:
      *  a pointer to the profile of this particle or a null pointer
      */
     const std::shared_ptr<pip_t>& getProfile() const;
-
-    /**
-    * @brief
-    *   TODO: SHOULD BE PRIVATE (use requestTerminate instead!)
-    **/
-    void reset(PRT_REF ref);
 
     /// @details Tell the game to get rid of this object and treat it as if it was already dead.
     /// @note This will force the game to (eventually) call end_one_particle_in_game() on this particle
@@ -202,20 +196,6 @@ public:
     **/
     bool isTerminated() const;
 
-    bool initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
-                const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
-                const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0, 
-                const CHR_REF spawnTarget = INVALID_CHR_REF);
-
-
-    /**
-    * @brief
-    *   Final stuff done before the particle is removed from game
-    * @note
-    *   Should only ever be used by the ParticleHandler! *Do not use*
-    **/
-    void destroy();
-
     /// @author ZZ
     /// @details This function sets one particle's position to be attached to a character.
     ///    It will kill the particle if the character is no longer around
@@ -267,16 +247,53 @@ public:
     **/
     void setHoming(bool homing);
 
+//ZF> These functions should only be accessed by the ParticleHandler
+public:
+    /**
+    * @brief
+    *   initialize a Particle so that it is ready to be used
+    * @note
+    *   Should only ever be used by the ParticleHandler! *Do not use*
+    **/
+    bool initialize(const PRT_REF particleID, const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+                const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin = INVALID_PRT_REF, const int multispawn = 0, 
+                const CHR_REF spawnTarget = INVALID_CHR_REF);
+
+    /**
+    * @brief
+    *   Final stuff done before the particle is removed from game
+    * @note
+    *   Should only ever be used by the ParticleHandler! *Do not use*
+    **/
+    void destroy();
+
 private:
     bool updateSafe(bool force);
     bool updateSafeRaw();
 
+    /**
+     * @brief
+     *  Handle the particle interaction with water
+     */
     void updateWater();
 
+    /**
+     * @brief
+     *  Update the animation of this particle.
+     */
     void updateAnimation();
 
+    /**
+    * @brief
+    *   Update particle lighting effects
+    **/
     void updateDynamicLighting();
 
+    /**
+    * @brief
+    *   Check if particle should spawn additional new particles
+    **/
     size_t updateContinuousSpawning();
 
     /**
@@ -286,7 +303,11 @@ private:
     **/
     void updateAttachedDamage();
 
-    bool isVisible() const;
+    /**
+    * @brief
+    *   Clear the data of a Particle
+    **/
+    void reset(PRT_REF ref);    
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;

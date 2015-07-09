@@ -95,52 +95,6 @@ public:
 	/// (like friction, etc.) that will be necessary for the other move_one_particle_*()
 	/// functions to work
     prt_bundle_t *move_one_particle_get_environment();
-private:
-    /**
-     * @brief
-     *  Update the animation of this particle.
-     * @return
-     *  a pointer to this particle bundle if
-     *  - the bundle holds a particle and
-     *  - this particle was not ended by this function,
-     *  a null pointer otherwise
-     */
-    prt_bundle_t *update_animation();
-    /**
-     * @brief
-     *  Handle the particle ?.
-     * @return
-     *  a pointer to this particle bundle if
-     *  - the bundle holds a particle and
-     *  - this particle was not ended by this function,
-     *  a null pointer otherwise
-     * @remark
-     *  This can not end the particle at least for now.
-     * @todo
-     *  Figure out what this crap is doing.
-     */
-    prt_bundle_t *update_dynalight();
-    /**
-     * @brief
-     *  Update the lifetime timers of this particle.
-     * @return
-     *  a pointer to this particle bundle if the bundle holds a particle, a null pointer otherwise
-     */
-    prt_bundle_t *update_timers();
-    /// @details update everything about a particle that does not depend on collisions
-    ///               or interactions with characters
-    prt_bundle_t *update_ingame();
-
-    /**
-     * @brief
-     *  Handle the particle interaction with water
-     * @return
-     *  a pointer to this particle bundle if
-     *  - the bundle holds a particle and
-     *  - this particle was not ended by this function,
-     *  a null pointer otherwise
-     */
-    prt_bundle_t *update_do_water();
 };
 
 //--------------------------------------------------------------------------------------------

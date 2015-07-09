@@ -33,9 +33,9 @@ namespace Ego
 {
 const std::shared_ptr<Particle> Particle::INVALID_PARTICLE = nullptr;
 
-Particle::Particle(PRT_REF ref) :
-    _particleID(ref),
-    _bspLeaf(this, BSP_LEAF_PRT, ref),
+Particle::Particle() :
+    _particleID(INVALID_PRT_REF),
+    _bspLeaf(this, BSP_LEAF_PRT, INVALID_PRT_REF),
     _attachedTo(INVALID_CHR_REF),
     _particleProfileID(INVALID_PIP_REF),
     _particleProfile(nullptr),
@@ -44,13 +44,12 @@ Particle::Particle(PRT_REF ref) :
     _spawnerProfile(INVALID_CHR_REF),
     _isHoming(false)
 {
-    reset(ref);
+    reset(INVALID_PRT_REF);
 }
 
 void Particle::reset(PRT_REF ref) 
 {
     _particleID = ref;
-    _isTerminated = true;
     frame_count = 0;
     _bspLeaf = BSP_leaf_t(this, BSP_LEAF_PRT, ref); //because we have a new ref
 
@@ -802,7 +801,7 @@ void Particle::playSound(int8_t sound)
     }
 }
 
-bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
+bool Particle::initialize(const PRT_REF particleID, const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
                         const PIP_REF particleProfile, const CHR_REF spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
                         const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget)
 {
@@ -814,6 +813,9 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     if(!isTerminated()) {
         throw std::logic_error("Tried to spawn an existing particle that was not terminated");
     }
+
+    //Clear any old data first
+    reset(particleID);
 
     //Load particle profile
     _spawnerProfile = spawnProfile;
@@ -1300,11 +1302,6 @@ void Particle::setTarget(const CHR_REF target)
 PRT_REF Particle::getParticleID() const 
 {
     return _particleID;
-}
-
-bool Particle::isVisible() const
-{
-    return size > 0 && inst.alpha > 0 && !isHidden();
 }
 
 void Particle::setHoming(bool homing)

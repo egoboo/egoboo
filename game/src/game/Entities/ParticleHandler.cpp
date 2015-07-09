@@ -224,8 +224,9 @@ std::shared_ptr<Ego::Particle> ParticleHandler::spawnParticle(const fvec3_t& spa
     std::shared_ptr<Ego::Particle> particle = getFreeParticle(ppip->force);
     if(particle) {
         //Initialize particle and add it into the game
-        if(particle->initialize(spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, spawnTeam, 
-            spawnOrigin, spawnParticleOrigin, multispawn, spawnTarget)) {
+        if(particle->initialize(_totalParticlesSpawned++, spawnPos, spawnFacing, spawnProfile, particleProfile, spawnAttach, vrt_offset, 
+            spawnTeam, spawnOrigin, spawnParticleOrigin, multispawn, spawnTarget)) 
+        {
             _pendingParticles.push_back(particle);
             _particleMap[particle->getParticleID()] = particle;
         }
@@ -258,7 +259,7 @@ std::shared_ptr<Ego::Particle> ParticleHandler::getFreeParticle(bool force)
 
     //If we have no free particles in the memory pool but we are allowed to allocate new memory
     if(_unusedPool.empty() && getCount() < _maxParticles) {
-        return std::make_shared<Ego::Particle>(_totalParticlesSpawned++);
+        return std::make_shared<Ego::Particle>();
     }
 
     //Get a free, unused particle from the particle pool
@@ -267,9 +268,6 @@ std::shared_ptr<Ego::Particle> ParticleHandler::getFreeParticle(bool force)
         //Retrieve particle from the pool
         particle = _unusedPool.back();
         _unusedPool.pop_back();
-
-        //Clear any old memory
-        particle->reset(_totalParticlesSpawned++);
     }
 
     return particle;
