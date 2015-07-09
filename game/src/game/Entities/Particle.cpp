@@ -901,14 +901,14 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
             const float attackerAgility = _currentModule->getObjectHandler().get(owner_ref)->getAttribute(Ego::Attribute::AGILITY);
 
             // Find a target
-            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, spawnTarget);
+            FACING_T targetAngle;
+            _target = prt_find_target(spawnPos, loc_facing, _particleProfileID, spawnTeam, owner_ref, spawnTarget, &targetAngle);
             const std::shared_ptr<Object> &target = _currentModule->getObjectHandler()[_target];
 
             if (target && !getProfile()->homing)
             {
-                /// @note ZF@> ?What does this do?!
-                /// @note BB@> glouseangle is the angle found in prt_find_target()
-                loc_facing -= glouseangle;
+                //Correct angle to new target
+                loc_facing -= targetAngle;
             }
 
             //Agility determines how good we aim towards the target

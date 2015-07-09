@@ -60,8 +60,6 @@ size_t endtext_carat = 0;
 
 pit_info_t g_pits;
 
-FACING_T glouseangle = 0;                                        // actually still used
-
 animtile_instance_t   animtile[2];
 damagetile_instance_t damagetile;
 weather_instance_t    weather;
@@ -721,7 +719,7 @@ void game_reset_timers()
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 CHR_REF prt_find_target( const fvec3_t& pos, FACING_T facing,
-                         const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget )
+                         const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget, FACING_T *targetAngle )
 {
     /// @author ZF
     /// @details This is the new improved targeting system for particles. Also includes distance in the Z direction.
@@ -772,7 +770,7 @@ CHR_REF prt_find_target( const fvec3_t& pos, FACING_T facing,
 
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {
-                    glouseangle = angle;
+                    (*targetAngle) = angle;
                     besttarget = pchr->getCharacterID();
                     longdist2 = dist2;
                 }
