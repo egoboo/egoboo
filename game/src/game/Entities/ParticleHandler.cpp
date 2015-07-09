@@ -250,11 +250,48 @@ std::shared_ptr<Ego::Particle> ParticleHandler::getFreeParticle(bool force)
 {
     std::shared_ptr<Ego::Particle> particle = Ego::Particle::INVALID_PARTICLE;
 
-    //TODO: Implement FORCE spawn priority
-
-    //Not allowed to spawn more?
-    if(getCount() >= _maxParticles) {
+    //Reserve last 25% of free particle for FORCE spawn particles
+    if(!force && getFreeCount() < _maxParticles/4) {
         return particle;
+    }
+
+    //Is this a high priority particle? If so, replace a less important particle
+    if(getCount() >= _maxParticles && force) {
+        bool spaceFreed = false;
+
+        //Find a pending particle first
+        for(size_t i = 0; i < _pendingParticles.size(); ++i) {
+
+            //Do not replace other critical particles!
+            if(_pendingParticles[i]->getProfile()->force) {
+                continue;
+            }
+
+            //Just remove an unimportant particle that hasnt been activated yet
+            _pendingParticles[i]->requestTerminate();
+            spaceFreed = true;
+            break;
+        }
+
+        //Nothing cleared? Search active particles then
+        if(!spaceFreed) {
+            for(size_t i = 0; i < _activeParticles.size(); ++i) {
+
+                //Do not replace other critical particles!
+                if(_activeParticles[i]->getProfile()->force) {
+                    continue;
+                }
+
+                //Ignore terminated particles, we want to free something else
+                if(_activeParticles[i]->isTerminated()) {
+                    continue;
+                }
+
+                //Remove the first one found (oldest in the list)
+                _activeParticles[i]->requestTerminate();
+                break;
+            }
+        }
     }
 
     //If we have no free particles in the memory pool but we are allowed to allocate new memory
