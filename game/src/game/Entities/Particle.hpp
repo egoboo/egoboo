@@ -101,6 +101,14 @@ public:
      */
     PIP_REF getProfileID() const;
 
+    /**
+     * @brief
+     *  Get the unique ParticleID number of this Particle. When this
+     *  particle is removed from the game the ID will not be re-used
+     *  and is forever invalid.
+     * @return
+     *  an unique number identifying this exact particle
+     */
     PRT_REF getParticleID() const;
 
     /**

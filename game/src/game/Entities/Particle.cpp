@@ -55,14 +55,14 @@ void Particle::reset(PRT_REF ref)
     frame_count = 0;
     _bspLeaf = BSP_leaf_t(this, BSP_LEAF_PRT, ref); //because we have a new ref
 
-    _particleProfileID = INVALID_PRO_REF;
+    _particleProfileID = INVALID_PIP_REF;
     _particleProfile = nullptr;
 
     _attachedTo = INVALID_CHR_REF;
     owner_ref = INVALID_CHR_REF;
     _target = INVALID_CHR_REF;
     parent_ref = INVALID_PRT_REF;
-    _spawnerProfile = INVALID_CHR_REF,
+    _spawnerProfile = INVALID_PRO_REF,
 
     attachedto_vrt_off = 0;
     type = SPRITE_LIGHT;
@@ -365,7 +365,7 @@ bool Particle::isTerminated() const
 
 PIP_REF Particle::getProfileID() const
 {
-    return _particleID;
+    return _particleProfileID;
 }
 
 void Particle::update()
@@ -835,6 +835,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     //Load particle profile
     _spawnerProfile = spawnProfile;
     _particleProfileID = particleProfile;
+    assert(PipStack.isLoaded(_particleProfileID));
     _particleProfile = PipStack.get_ptr(_particleProfileID);
     assert(_particleProfile != nullptr); //"Tried to spawn particle with invalid PIP_REF"
 
@@ -1087,7 +1088,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
         // sooo... we just rescale the prt_life_frames_updates so that it will work with the
         // updates and cross our fingers
         //lifetime_total = std::ceil((float)prt_life_frames_updates * (float)GameEngine::GAME_TARGET_UPS / (float)GameEngine::GAME_TARGET_FPS);
-        lifetime_total = prt_life_frames_updates * GameEngine::GAME_TARGET_UPS;
+        lifetime_total = prt_life_frames_updates;
     }
 
     // make the particle exists for AT LEAST one update
