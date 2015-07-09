@@ -51,8 +51,9 @@ void Particle::reset(PRT_REF ref)
 {
     _particleID = ref;
     _isTerminated = true;
-    is_ghost = false;
+    _isGhost = false;
     frame_count = 0;
+    _bspLeaf = BSP_leaf_t(this, BSP_LEAF_PRT, ref); //because we have a new ref
 
     _particleProfileID = INVALID_PRO_REF;
     _particleProfile = nullptr;
@@ -64,17 +65,14 @@ void Particle::reset(PRT_REF ref)
     _spawnerProfile = INVALID_CHR_REF,
 
     attachedto_vrt_off = 0;
-    type = 0;
+    type = SPRITE_LIGHT;
     facing = 0;
     team = 0;
 
-    _image.reset();
-
     vel_stt = fvec3_t::zero();
+    offset = fvec3_t::zero();
 
     PhysicsData::reset(this);
-
-    offset = fvec3_t::zero();
 
     rotate = 0;
     rotate_add = 0;
@@ -82,6 +80,8 @@ void Particle::reset(PRT_REF ref)
     size_stt = 0;
     size = 0;
     size_add = 0;
+
+    _image.reset();
 
     // "no lifetime" = "eternal"
     is_eternal = false;
@@ -115,11 +115,8 @@ void Particle::reset(PRT_REF ref)
     _isHoming = false;
     no_gravity = false;
 
-    // some data that needs to be copied from the particle profile
-    endspawn_amount = 0;         ///< The number of particles to be spawned at the end
-    endspawn_facingadd = 0;      ///< The angular spacing for the end spawn
-    endspawn_lpip = LocalParticleProfileRef::Invalid; ///< The actual local pip that will be spawned at the end
-    endspawn_characterstate = 0; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
+    ///if != SPAWNNOCHARACTER, then a character is spawned on end
+    endspawn_characterstate = SPAWNNOCHARACTER; 
 
     dynalight.reset();
     inst.reset();
@@ -321,7 +318,7 @@ void Particle::setSize(int size)
 void Particle::requestTerminate()
 {
     if(isVisible()) {
-        is_ghost = true;
+        _isGhost = true;
     }
     else {
         _isTerminated = true;
@@ -393,67 +390,48 @@ void Particle::update()
     // and a target exists, then the particle will "home" that target.
     _isHoming = getProfile()->homing && !isAttached() && hasValidTarget();
 
+    updateDynamicLighting();
+
+    // Update the particle animation.
+    updateAnimation();
+    if(isTerminated()) {
+        return; //destroyed by end of animation
+    }
+
     //Ghost particles are visible, but cannot be interacted with
-    if (isGhost()) {
-        updateGhost();
-        return;
+    if(!isGhost()) {
+
+        // Update the particle interaction with water.
+        updateWater();
+        if(isTerminated()) {
+            return; //destroyed by water
+        }
+
+        //Spawn other particles
+        updateContinuousSpawning();
+
+        //Damage whomever we are attached to
+        updateAttachedDamage();
     }
-
-    // Update the particle interaction with water.
-    updateWater();
-    if(isTerminated()) {
-        return; //destroyed by water
+    else {
+        // finished ghosting?
+        if (!isVisible()) {
+            _isTerminated = true;
+            return;
+        }
     }
-
-    // Update the particle animation.
-    updateAnimation();
-    if(isTerminated()) {
-        return; //destroyed by end of animation
-    }
-
-    updateDynamicLighting();
-
-    updateContinuousSpawning();
-
-    updateAttachedDamage();
 
     // down the remaining lifetime of the particle
-    if (lifetime_remaining > 0) {
-        lifetime_remaining--;
-    }
-
-    // If the particle is done updating, remove it from the game, but do not kill it
-    if (!is_eternal && 0 == lifetime_remaining)
+    if (!is_eternal)
     {
-        requestTerminate();
+        if (lifetime_remaining > 0) {
+            lifetime_remaining--;
+        }
+        else {
+            //Force terminate, no ghosting
+            _isTerminated = true;
+        }
     }
-}
-
-void Particle::updateGhost()
-{
-    // are we done?
-    if (!isVisible() || frame_count > 0) {
-        requestTerminate();
-        return;
-    }
-
-    // Update the particle animation.
-    updateAnimation();
-    if(isTerminated()) {
-        return; //destroyed by end of animation
-    }
-
-    updateDynamicLighting();
-
-    // down the remaining lifetime of the particle
-    if (lifetime_remaining > 0) {
-        lifetime_remaining--;
-    }
-
-    // If the particle is done updating, remove it from the game
-    if (!is_eternal && 0 == lifetime_remaining) {
-        _isTerminated = true;
-    }    
 }
 
 void Particle::updateWater()
@@ -767,37 +745,38 @@ void Particle::updateAttachedDamage()
 
 void Particle::destroy()
 {
-    // The object is waiting to be killed, so do all of the end of life care for the particle.
+    if(_particleID == INVALID_PRT_REF) {
+        throw std::logic_error("tried to destroy() Particle that was already destroyed");
+    }
+
     if(!isTerminated()) {
         throw std::logic_error("tried to destroy() Particle that was not terminated");
     }
 
+    //This is no longer a valid particle
+    _particleID = INVALID_PRT_REF;
+
     // Spawn new particles if time for old one is up
-    if (endspawn_amount > 0 && LocalParticleProfileRef::Invalid != endspawn_lpip)
+    if (getProfile()->endspawn._amount > 0 && LocalParticleProfileRef::Invalid != getProfile()->endspawn._lpip)
     {
         FACING_T facing = this->facing;
-        for (size_t tnc = 0; tnc < endspawn_amount; tnc++)
+        for (size_t tnc = 0; tnc < getProfile()->endspawn._amount; tnc++)
         {
             if(_spawnerProfile == INVALID_PRO_REF)
             {
                 //Global particle
-                ParticleHandler::get().spawnGlobalParticle(pos_old, facing, endspawn_lpip, tnc);
+                ParticleHandler::get().spawnGlobalParticle(pos_old, facing, getProfile()->endspawn._lpip, tnc);
             }
             else
             {
                 //Local particle
-                ParticleHandler::get().spawnLocalParticle(pos_old, facing, _spawnerProfile, endspawn_lpip,
+                ParticleHandler::get().spawnLocalParticle(pos_old, facing, _spawnerProfile, getProfile()->endspawn._lpip,
                                                         INVALID_CHR_REF, GRIP_LAST, team, owner_ref,
                                                         _particleID, tnc, _target);
             }
 
-            facing += endspawn_facingadd;
+            facing += getProfile()->endspawn._facingAdd;
         }
-
-        // we have already spawned these particles, so set this amount to
-        // zero in case we are not actually calling end_one_particle_in_game()
-        // this time around.
-        endspawn_amount = 0;
     }
 
     if (SPAWNNOCHARACTER != endspawn_characterstate)
@@ -838,7 +817,7 @@ void Particle::playSound(int8_t sound)
 }
 
 bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, const PRO_REF spawnProfile,
-                        const PIP_REF particleProfile, const CHR_REF spawnAttach, Uint16 vrt_offset, const TEAM_REF spawnTeam,
+                        const PIP_REF particleProfile, const CHR_REF spawnAttach, uint16_t vrt_offset, const TEAM_REF spawnTeam,
                         const CHR_REF spawnOrigin, const PRT_REF spawnParticleOrigin, const int multispawn, const CHR_REF spawnTarget)
 {
     const int INFINITE_UPDATES = std::numeric_limits<int>::max();
@@ -855,9 +834,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     _spawnerProfile = spawnProfile;
     _particleProfileID = particleProfile;
     _particleProfile = PipStack.get_ptr(_particleProfileID);
-    if(!particleProfile) {
-        throw std::logic_error("Tried to spawn particle with invalid PIP_REF");
-    }
+    assert(_particleProfile != nullptr); //"Tried to spawn particle with invalid PIP_REF"
 
     team = spawnTeam;
     parent_ref = spawnParticleOrigin;
@@ -1098,7 +1075,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     // set lifetime counter
     if (prt_life_infinite)
     {
-        lifetime_total = (size_t)(~0);
+        lifetime_total = std::numeric_limits<size_t>::max();
         is_eternal = true;
     }
     else
@@ -1111,33 +1088,28 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     }
 
     // make the particle exists for AT LEAST one update
-    lifetime_total = std::max((size_t)1, lifetime_total);
+    lifetime_total = std::max<size_t>(1, lifetime_total);
     lifetime_remaining = lifetime_total;
 
     // set the frame counters
     // make the particle display AT LEAST one frame, regardless of how many updates
     // it has or when someone requests for it to terminate
     frames_total = std::max(1, prt_anim_frames_updates);
-    lifetime_remaining = lifetime_total;
+    frames_remaining = frames_total;
 
     // Damage stuff
     range_to_pair(getProfile()->damage, &(damage));
 
     // Spawning data
-    contspawn_timer = getProfile()->contspawn._delay;
-    if (0 != contspawn_timer)
+    if (0 != getProfile()->contspawn._delay)
     {
         contspawn_timer = 1;
-        if (isAttached())
-        {
-            contspawn_timer++; // Because attachment takes an update before it happens
+
+        // Because attachment takes an update before it happens
+        if (isAttached()) {
+            contspawn_timer++;
         }
     }
-
-    // the end-spawn data. determine the
-    endspawn_amount = getProfile()->endspawn._amount;
-    endspawn_facingadd = getProfile()->endspawn._facingAdd;
-    endspawn_lpip = getProfile()->endspawn._lpip;
 
     // set up the particle transparency
     inst.alpha = 0xFF;
@@ -1195,6 +1167,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
 
     endspawn_characterstate = SPAWNNOCHARACTER;
 
+    //Set starting size
     setSize(getProfile()->size_base);
 
 #if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
@@ -1202,17 +1175,18 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     // some code to track all allocated particles, where they came from, how long they are going to last,
     // what they are being used for...
     log_debug( "spawn_one_particle() - spawned a particle %d\n"
-        "\tupdate == %d, last update == %d, frame == %d, minimum frame == %d\n"
-        "\towner == %d(\"%s\")\n"
-        "\tpip == %d(\"%s\")\n"
+        "\tupdate == %d, remaining life == %d\n"
+        "\towner == %d (\"%s\")\n"
+        "\tparticleProfile == %d(\"%s\")\n"
         "\t\t%s"
-        "\tprofile == %d(\"%s\")\n"
+        "\tobjectProfile == %d(\"%s\")\n"
         "\n",
-        iprt,
-        update_wld, lifetime, game_frame_all, safe_time,
+        _particleID,
+        update_wld, static_cast<int>(lifetime_remaining),
         loc_chr_origin, _currentModule->getObjectHandler().exists( loc_chr_origin ) ? _currentModule->getObjectHandler().get(loc_chr_origin)->Name : "INVALID",
-        _particleProfileID, getProfile()->name, getProfile()->comment,
-        spawnProfile, ProfileSystem::get().isValidProfileID(spawnProfile) ? ProList.lst[spawnProfile].name : "INVALID");
+        _particleProfileID, getProfile()->getName().c_str(), 
+        getProfile()->comment,
+        _spawnerProfile, ProfileSystem::get().isValidProfileID(_spawnerProfile) ? ProfileSystem::get().getProfile(_spawnerProfile)->getPathname().c_str() : "INVALID");
 #endif
 
     //Attach ourselves to an Object if needed
@@ -1270,7 +1244,6 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
     if ( chr_matrix_valid(object.get()) )
     {
         // Transform the weapon vertex_offset from model to world space
-        mad_t * pmad = chr_get_pmad( object->getCharacterID() );
 
         if ( vertex_offset == GRIP_ORIGIN )
         {
@@ -1285,9 +1258,13 @@ bool Particle::placeAtVertex(const std::shared_ptr<Object> &object, int vertex_o
         }
 
         vertex = 0;
-        if ( NULL != pmad )
+        if ( chr_get_pmad(object->getCharacterID()) != nullptr )
         {
-            vertex = (( int )object->inst.vrt_count ) - vertex_offset;
+            if(vertex_offset > object->inst.vrt_count) {
+                throw std::invalid_argument("Particle::placeAtVertex() =  vertex_offset > object->inst.vrt_count");
+            }
+
+            vertex = object->inst.vrt_count - vertex_offset;
 
             // do the automatic update
             chr_instance_t::update_vertices(object->inst, vertex, vertex, false );
@@ -1345,7 +1322,7 @@ bool Particle::isVisible() const
 
 bool Particle::isGhost() const
 {
-    return is_ghost;
+    return _isGhost;
 }
 
 } //Ego

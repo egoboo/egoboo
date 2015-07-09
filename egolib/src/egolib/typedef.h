@@ -579,7 +579,6 @@ DECLARE_REF(CHR_REF);
 #define INVALID_CHR_REF ((CHR_REF)OBJECTS_MAX)
 
 DECLARE_REF(TEAM_REF);
-/// @todo TEAM_REF has no corresponding INVALID_TEAM_REF value.
 
 typedef Ref<REF_T, 0, ENCHANTPROFILES_MAX, ENCHANTPROFILES_MAX, RefKind::EnchantProfile> EnchantProfileRef;
 DECLARE_REF(EVE_REF);
@@ -600,12 +599,10 @@ typedef Ref<REF_T, 0, MAX_PIP, MAX_PIP, RefKind::ParticleProfile> ParticleProfil
 DECLARE_REF(PIP_REF);
 #define INVALID_PIP_REF ((PIP_REF)MAX_PIP)
 
-typedef Ref<REF_T, 0, PARTICLES_MAX, PARTICLES_MAX, RefKind::Particle> ParticleRef;
-DECLARE_REF(PRT_REF);
-#define INVALID_PRT_REF ((PRT_REF)PARTICLES_MAX)
+typedef size_t PRT_REF;
+#define INVALID_PRT_REF std::numeric_limits<PRT_REF>::max()
 
 DECLARE_REF(PASS_REF);
-/// @todo PASS_REF has no correspnding INVALID_PASS_REF value.
 
 typedef Ref<REF_T, 0, OBJECTPROFILES_MAX, OBJECTPROFILES_MAX, RefKind::ObjectProfile> ObjectProfileRef;
 DECLARE_REF(PRO_REF);
@@ -614,6 +611,3 @@ DECLARE_REF(PRO_REF);
 typedef Ref<REF_T, 0, TEXTURES_MAX, TEXTURES_MAX, RefKind::Texture> TextureRef;
 DECLARE_REF(TX_REF);
 #define INVALID_TX_REF ((TX_REF)TEXTURES_MAX)
-
-DECLARE_REF(MNU_TX_REF);
-/// @todo MNU_TX_REF has no corresponding INVALID_MNU_TX_REF value.

@@ -271,8 +271,6 @@ private:
 
     size_t updateContinuousSpawning();
 
-    void updateGhost();
-
     /**
     * @brief
     *   This makes the particle deal damage to whomever it is attached to
@@ -284,8 +282,6 @@ private:
 
 public:
     static const std::shared_ptr<Particle> INVALID_PARTICLE;
-
-    bool is_ghost;                   ///< the particle has been killed, but is hanging around a while...
 
     // links
     /**
@@ -301,8 +297,8 @@ public:
      */
     PRT_REF parent_ref;                        ///< Did a another particle spawn this one?
 
-    Uint16   attachedto_vrt_off;               ///< It's vertex offset
-    Uint8    type;                             ///< Transparency mode, 0-2
+    uint16_t   attachedto_vrt_off;               ///< It's vertex offset
+    uint8_t    type;                             ///< Transparency mode, 0-2
     FACING_T facing;                           ///< Direction of the part
     TEAM_REF team;                             ///< Team
 
@@ -320,9 +316,6 @@ public:
     /// The state of a 2D animation used for rendering the particle.
     AnimationLoop _image;
 
-    /** @name lifetime */
-    /**@{*/
-    
     /**
      * @brief
      *  Does the particle ever time-out?
@@ -372,7 +365,7 @@ public:
     int contspawn_timer;
 
     // bumping
-    Uint32            bump_size_stt;           ///< the starting size of the particle (8.8 fixed point)
+    uint32_t          bump_size_stt;           ///< the starting size of the particle (8.8 fixed point)
     bumper_t          bump_real;               ///< Actual size of the particle
     bumper_t          bump_padded;             ///< The size of the particle with the additional bumpers added in
     oct_bb_t          prt_min_cv;              ///< Collision volume for chr-prt interactions
@@ -393,9 +386,6 @@ public:
     bool              no_gravity;              ///< does the particle ignore gravity?
 
     // some data that needs to be copied from the particle profile
-    Uint8             endspawn_amount;         ///< The number of particles to be spawned at the end
-    Uint16            endspawn_facingadd;      ///< The angular spacing for the end spawn
-    LocalParticleProfileRef  endspawn_lpip;    ///< The actual local pip that will be spawned at the end
     int               endspawn_characterstate; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
     dynalight_info_t  dynalight;               ///< Dynamic lighting...
@@ -409,7 +399,8 @@ private:
     PIP_REF _particleProfileID;                ///< The particle profile
     std::shared_ptr<pip_t> _particleProfile;
 
-    bool _isTerminated;
+    bool _isTerminated;                        ///< Marked for destruction. No longer part of the game and will be removed ASAP
+    bool _isGhost;                             ///< the particle has been killed, but is hanging around a while...
 
     /**
      * @brief
