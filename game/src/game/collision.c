@@ -3123,10 +3123,10 @@ bool do_chr_prt_collision_bump( chr_prt_collision_data_t * pdata )
         CHR_REF prt_owner = prt_get_iowner( pdata->pprt->getParticleID(), 0 );
         if ( _currentModule->getObjectHandler().exists( prt_owner ) )
         {
-            CHR_REF chr_wielder = chr_get_lowest_attachment( GET_INDEX_PCHR( pdata->pchr ), true );
+            CHR_REF chr_wielder = chr_get_lowest_attachment( pdata->pchr->getCharacterID(), true );
             CHR_REF prt_wielder = chr_get_lowest_attachment( prt_owner, true );
 
-            if ( !_currentModule->getObjectHandler().exists( chr_wielder ) ) chr_wielder = GET_INDEX_PCHR( pdata->pchr );
+            if ( !_currentModule->getObjectHandler().exists( chr_wielder ) ) chr_wielder = pdata->pchr->getCharacterID();
             if ( !_currentModule->getObjectHandler().exists( prt_wielder ) ) prt_wielder = prt_owner;
 
 			prt_belongs_to_chr = TO_C_BOOL(chr_wielder == prt_wielder);
