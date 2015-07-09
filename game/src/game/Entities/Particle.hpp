@@ -259,6 +259,14 @@ public:
     **/
     void playSound(int8_t soundID);
 
+    /**
+    * @brief
+    *   Sets wheter this Particle is control of its own motion and should
+    *   home in towards its target. If the Particle has no valid target or is attached
+    *   to an Object then it cannot be homing.
+    **/
+    void setHoming(bool homing);
+
 private:
     bool updateSafe(bool force);
     bool updateSafeRaw();

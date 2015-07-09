@@ -294,7 +294,7 @@ void Particle::setSize(int size)
         }
         else
         {
-            float mag = realSize / this->bump_real.size;
+            float mag = realSize / bump_real.size;
 
             // resize all dimensions equally
             bump_real.size *= mag;
@@ -304,7 +304,7 @@ void Particle::setSize(int size)
 
         // make sure that the virtual bumper size is at least as big as what is in the pip file
         bump_padded.size     = std::max<float>(bump_real.size, getProfile()->bump_size);
-        bump_padded.size_big = std::max<float>(bump_real.size_big, getProfile()->bump_size) * Ego::Math::sqrtTwo<float>();
+        bump_padded.size_big = std::max<float>(bump_real.size_big, getProfile()->bump_size * Ego::Math::sqrtTwo<float>());
         bump_padded.height   = std::max<float>(bump_real.height, getProfile()->bump_height);
     }
 
@@ -388,7 +388,9 @@ void Particle::update()
     // Determine if a "homing" particle still has something to "home":
     // If its homing (according to its profile), is not attached to an object (yet),
     // and a target exists, then the particle will "home" that target.
-    _isHoming = getProfile()->homing && !isAttached() && hasValidTarget();
+    if(_isHoming) {
+        _isHoming = !isAttached() && hasValidTarget();
+    }
 
     updateDynamicLighting();
 
@@ -1056,7 +1058,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
     bool prt_life_infinite = false;
     if (getProfile()->end_lastframe)
     {
-        // for end last frame, the lifetime is given by the
+        // for end last frame, the lifetime is given by the number of animation frames
         prt_life_frames_updates = prt_anim_frames_updates;
         prt_life_infinite = prt_anim_infinite;
     }
@@ -1084,7 +1086,8 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
         // to keep the number of updates stable, the frames could lag.
         // sooo... we just rescale the prt_life_frames_updates so that it will work with the
         // updates and cross our fingers
-        lifetime_total = std::ceil((float)prt_life_frames_updates * (float)GameEngine::GAME_TARGET_UPS / (float)GameEngine::GAME_TARGET_FPS);
+        //lifetime_total = std::ceil((float)prt_life_frames_updates * (float)GameEngine::GAME_TARGET_UPS / (float)GameEngine::GAME_TARGET_FPS);
+        lifetime_total = prt_life_frames_updates * GameEngine::GAME_TARGET_UPS;
     }
 
     // make the particle exists for AT LEAST one update
@@ -1129,7 +1132,7 @@ bool Particle::initialize(const fvec3_t& spawnPos, const FACING_T spawnFacing, c
         safe_grid = getTile();
     }
 
-    // get an initial value for the is_homing variable
+    // get an initial value for the _isHoming variable
     _isHoming = getProfile()->homing && !isAttached();
 
     //enable or disable gravity
@@ -1323,6 +1326,11 @@ bool Particle::isVisible() const
 bool Particle::isGhost() const
 {
     return _isGhost;
+}
+
+void Particle::setHoming(bool homing)
+{
+    _isHoming = homing;
 }
 
 } //Ego

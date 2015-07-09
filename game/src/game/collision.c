@@ -87,8 +87,8 @@ public:
     float block_factor;
 
     // collision reaction
-    fvec3_t vimpulse;                      ///< the velocity impulse
-    fvec3_t pimpulse;                      ///< the position impulse
+    //fvec3_t vimpulse;                      ///< the velocity impulse
+    //fvec3_t pimpulse;                      ///< the position impulse
     bool terminate_particle;
     bool prt_bumps_chr;
     bool prt_damages_chr;
@@ -130,8 +130,8 @@ chr_prt_collision_data_t::chr_prt_collision_data_t() :
     vdiff_perp(),
     block_factor(0.0f),
 
-    vimpulse(),                      ///< the velocity impulse
-    pimpulse(),                      ///< the position impulse
+    //vimpulse(),                      ///< the velocity impulse
+    //pimpulse(),                      ///< the position impulse
     terminate_particle(false),
     prt_bumps_chr(false),
     prt_damages_chr(false)
@@ -2641,19 +2641,21 @@ bool do_chr_prt_collision_deflect( chr_prt_collision_data_t * pdata )
             if ( treatment == MISSILE_DEFLECT )
             {
                 // Deflect the incoming ray off the normal
-                pdata->vimpulse -= pdata->vdiff_para * 2.0f;
+                //pdata->vimpulse -= pdata->vdiff_para * 2.0f;
+                //TODO
 
                 // the ricochet is not guided
-                pdata->ppip->homing     = false;
+                pdata->pprt->setHoming(false);
             }
             else if ( treatment == MISSILE_REFLECT )
             {
                 // Reflect it back in the direction it came
-                pdata->vimpulse -= pdata->vdiff * 2.0f;
+                //pdata->vimpulse -= pdata->vdiff * 2.0f;
+                //TODO
 
                 // Change the owner of the missile
                 pdata->pprt->team       = pdata->pchr->team;
-                pdata->pprt->owner_ref  = GET_INDEX_PCHR( pdata->pchr );
+                pdata->pprt->owner_ref  = pdata->pchr->getCharacterID();
             }
 
             // Blocked!
@@ -2955,7 +2957,6 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
     //---- Damage the character, if necessary
     if ( 0 != std::abs( pdata->pprt->damage.base ) + std::abs( pdata->pprt->damage.rand ) )
     {
-
         prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || pdata->pprt->isAttached() );
 
         if(powner != nullptr) {
@@ -2965,62 +2966,61 @@ bool do_chr_prt_collision_damage( chr_prt_collision_data_t * pdata )
 
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
-        if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && ( !prt_needs_impact || pdata->is_impact ) )
+        if ( HAS_NO_BITS(pdata->ppip->damfx, DAMFX_ARRO) && (!prt_needs_impact || pdata->is_impact) )
         {
-            FACING_T direction;
-            IPair loc_damage = pdata->pprt->damage;
+            log_warning("DEBUG damge dealt\n");
 
-            direction = vec_to_facing( pdata->pprt->vel[kX] , pdata->pprt->vel[kY] );
+            //Damage adjusted for attributes and weaknesses
+            IPair modifiedDamage = pdata->pprt->damage;
+
+            FACING_T direction = vec_to_facing( pdata->pprt->vel[kX] , pdata->pprt->vel[kY] );
             direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
             // These things only apply if the particle has an owner
             if ( NULL != powner )
             {
-                CHR_REF item;
-
                 // Apply intellect bonus damage for particles with the [IDAM] expansions (Low ability gives penality)
                 // +2% bonus for every point of intellect. Below 14 gives -2% instead!
                 if ( pdata->ppip->_intellectDamageBonus )
                 {
-                    float percent;
-                    percent = ( powner->getAttribute(Ego::Attribute::INTELLECT) - 14.0f ) * 2.0f;
+                    float percent = ( powner->getAttribute(Ego::Attribute::INTELLECT) - 14.0f ) * 2.0f;
                     percent /= 100.0f;
-                    loc_damage.base *= 1.00f + percent;
-                    loc_damage.rand *= 1.00f + percent;
+                    modifiedDamage.base *= 1.00f + percent;
+                    modifiedDamage.rand *= 1.00f + percent;
                 }
 
                 // Notify the attacker of a scored hit
-                SET_BIT( powner->ai.alert, ALERTIF_SCOREDAHIT );
-                powner->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
+                SET_BIT(powner->ai.alert, ALERTIF_SCOREDAHIT);
+                powner->ai.hitlast = pdata->pchr->getCharacterID();
 
                 // Tell the weapons who the attacker hit last
-                item = powner->holdingwhich[SLOT_LEFT];
-                if ( _currentModule->getObjectHandler().exists( item ) )
+                const std::shared_ptr<Object> &leftHanditem = powner->getRightHandItem();
+                if (leftHanditem)
                 {
-                    _currentModule->getObjectHandler().get(item)->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
-                    if ( powner->ai.lastitemused == item ) SET_BIT( _currentModule->getObjectHandler().get(item)->ai.alert, ALERTIF_SCOREDAHIT );
+                    leftHanditem->ai.hitlast = pdata->pchr->getCharacterID();
+                    if ( powner->ai.lastitemused == leftHanditem->getCharacterID() ) SET_BIT(leftHanditem->ai.alert, ALERTIF_SCOREDAHIT);
                 }
 
-                item = powner->holdingwhich[SLOT_RIGHT];
-                if ( _currentModule->getObjectHandler().exists( item ) )
+                const std::shared_ptr<Object> &rightHandItem = powner->getRightHandItem();
+                if (rightHandItem)
                 {
-                    _currentModule->getObjectHandler().get(item)->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
-                    if ( powner->ai.lastitemused == item ) SET_BIT( _currentModule->getObjectHandler().get(item)->ai.alert, ALERTIF_SCOREDAHIT );
+                    rightHandItem->ai.hitlast = pdata->pchr->getCharacterID();
+                    if ( powner->ai.lastitemused == rightHandItem->getCharacterID() ) SET_BIT(rightHandItem->ai.alert, ALERTIF_SCOREDAHIT);
                 }
             }
 
             // handle vulnerabilities, double the damage
-            if ( chr_has_vulnie( GET_INDEX_PCHR( pdata->pchr ), pdata->pprt->getSpawnerProfile() ) )
+            if ( chr_has_vulnie(pdata->pchr->getCharacterID(), pdata->pprt->getSpawnerProfile()) )
             {
                 // Double the damage
-                loc_damage.base = ( loc_damage.base << 1 );
-                loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
+                modifiedDamage.base = ( modifiedDamage.base << 1 );
+                modifiedDamage.rand = ( modifiedDamage.rand << 1 ) | 1;
 
                 SET_BIT( pdata->pchr->ai.alert, ALERTIF_HITVULNERABLE );
             }
 
             // Damage the character
-            pdata->actual_damage = pdata->pchr->damage(direction, loc_damage, pdata->pprt->damagetype, 
+            pdata->actual_damage = pdata->pchr->damage(direction, modifiedDamage, pdata->pprt->damagetype, 
                 pdata->pprt->team, _currentModule->getObjectHandler()[pdata->pprt->owner_ref], pdata->ppip->damfx, false);
         }
     }
@@ -3168,31 +3168,29 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collision_data_t * pdata )
     if ( !pdata->prt_bumps_chr ) return false;
 
     // Catch on fire
-    spawn_bump_particles( GET_INDEX_PCHR( pdata->pchr ), pdata->pprt->getParticleID() );
+    spawn_bump_particles( pdata->pchr->getCharacterID(), pdata->pprt->getParticleID() );
 
     // handle some special particle interactions
-    if ( pdata->ppip->end_bump )
+    if ( pdata->pprt->getProfile()->end_bump )
     {
-        if ( pdata->ppip->bump_money )
+        if (pdata->pprt->getProfile()->bump_money)
         {
             Object * pcollector = pdata->pchr;
 
             // Let mounts collect money for their riders
-            if ( pdata->pchr->isMount() && _currentModule->getObjectHandler().exists( pdata->pchr->holdingwhich[SLOT_LEFT] ) )
+            if (pdata->pchr->isMount())
             {
-                pcollector = _currentModule->getObjectHandler().get( pdata->pchr->holdingwhich[SLOT_LEFT] );
-
                 // if the mount's rider can't get money, the mount gets to keep the money!
-                if ( !pcollector->cangrabmoney )
-                {
-                    pcollector = pdata->pchr;
+                const std::shared_ptr<Object> &rider = pdata->pchr->getLeftHandItem();
+                if (rider != nullptr && rider->cangrabmoney) {
+                    pcollector = rider.get();
                 }
             }
 
-            if ( pcollector->cangrabmoney && pcollector->alive && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
+            if ( pcollector->cangrabmoney && pcollector->isAlive() && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
             {
-                pcollector->money = pcollector->money + pdata->ppip->bump_money;
-                pcollector->money = CLIP( (int)pcollector->money, 0, MAXMONEY );
+                pcollector->money = pcollector->money + pdata->pprt->getProfile()->bump_money;
+                pcollector->money = Ego::Math::constrain<int>(pcollector->money, 0, MAXMONEY);
 
                 // the coin disappears when you pick it up
                 pdata->terminate_particle = true;
@@ -3290,7 +3288,7 @@ void do_chr_prt_collision_knockback(chr_prt_collision_data_t &pdata)
         float targetMass, particleMass;
         get_chr_mass(pdata.pchr, &targetMass);
         get_prt_mass(pdata.pprt.get(), pdata.pchr, &particleMass);
-        knockbackFactor *= Ego::Math::constrain(particleMass / targetMass, 0.0f, 3.0f);
+        knockbackFactor *= Ego::Math::constrain(particleMass / targetMass, 0.0f, 1.0f);
     }
 
     //Amount of knockback is affected by damage type
@@ -3445,10 +3443,10 @@ bool do_chr_prt_collision( CoNode_t * d )
         }
     }
 
-    if(prt_can_hit_chr)
+    if(prt_can_hit_chr && (cn_data.int_min || cn_data.int_max))
     {
         // do "damage" to the character
-        if (( cn_data.int_min || cn_data.int_max ) && !prt_deflected && 0 == cn_data.pchr->damage_timer )
+        if (!prt_deflected && 0 == cn_data.pchr->damage_timer )
         {
             // we can't even get to this point if the character is completely invulnerable (invictus)
             // or can't be damaged this round
@@ -3551,8 +3549,8 @@ chr_prt_collision_data_t * chr_prt_collision_data_t::init( chr_prt_collision_dat
     ptr->block_factor = 0.0f;
 
     //---- collision reaction
-	ptr->vimpulse = fvec3_t::zero();
-	ptr->pimpulse = fvec3_t::zero();
+	//ptr->vimpulse = fvec3_t::zero();
+	//ptr->pimpulse = fvec3_t::zero();
     ptr->terminate_particle = false;
     ptr->prt_bumps_chr = false;
     ptr->prt_damages_chr = false;
